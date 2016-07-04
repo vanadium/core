@@ -1,4 +1,0 @@
-pkg roaming, const SettingsStreamDesc ideal-string
-pkg roaming, const SettingsStreamName ideal-string
-pkg roaming, func Init(*context.T) (v23.Runtime, *context.T, v23.Shutdown, error)
-pkg roaming, func NewProxy(*context.T, rpc.ListenSpec, security.Authorizer, ...string) (func(), naming.Endpoint, error)
