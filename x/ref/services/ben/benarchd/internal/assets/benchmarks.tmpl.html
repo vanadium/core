@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Benchmark Results Archive</title>
+    {{template "styling"}}
+    <link rel="stylesheet" href="sortable.css">
+</head>
+<body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <main class="mdl-layout__content">
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+        <div class="mdl-card__supporting-text">
+        <form action="#">
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" id="q" name="q" value="{{.Query}}"/>
+              <label class="mdl-textfield__label" for="q">{{.Query}}</label>
+            </div>
+            <input value="Search" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"/>
+            {{if .Query.CPU}}
+            <a href="/?q={{refineQuery .Query "CPU" "" | urlquery}}" class="mdl-button mdl-js-button"><i class="material-icons">remove</i>CPU</a>
+            {{end}}
+            {{if .Query.OS}}
+            <a href="/?q={{refineQuery .Query "OS" "" | urlquery}}" class="mdl-button mdl-js-button"><i class="material-icons">remove</i>OS</a>
+            {{end}}
+            {{if .Query.Uploader}}
+            <a href="/?q={{refineQuery .Query "Uploader" "" | urlquery}}" class="mdl-button mdl-js-button"><i class="material-icons">remove</i>Uploader</a>
+            {{end}}
+            {{if .Query.Label}}
+            <a href="/?q={{refineQuery .Query "Label" "" | urlquery}}" class="mdl-button mdl-js-button"><i class="material-icons">remove</i>Label</a>
+            {{end}}
+        </form>
+
+        </div>
+      </section>
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+      <div class="mdl-card mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__supporting-text overflow-scroll">
+          <h4>Benchmarks</h4>
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp mdl-data-table-sortable">
+            <thead>
+            <tr>
+              <th class="mdl-data-table__header-sortable">Name</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="time per iteration">time/op</th>
+              <th class="mdl-data-table__header-sortable" title="operating system on which benchmarks were run">OS</th>
+              <th class="mdl-data-table__header-sortable" title="CPU architecture on which benchmarks were run">CPU</th>
+              <th class="mdl-data-table__header-sortable" title="who uploaded results for this benchmark">Uploader</th>
+              <th class="mdl-data-table__header-sortable">Label</th>
+              <th class="mdl-data-table__header-sortable">Last Update</th>
+            </tr>
+            </thead>
+            <tbody>
+                {{range .Items}}
+                <tr>
+                <td class="mdl-data-table__cell--non-numeric"><a href="?id={{.ID | urlquery}}">{{.Name}}</a></td>
+                <td><div id="time_{{.ID}}">{{.PrettyTime}}</div><div class="mdl-tooltip" for="time_{{.ID}}"><span class="mdl-data-table__cell-data">{{.NanoSecsPerOp}}</span>ns</div></td>
+                <td class="mdl-data-table__cell--non-numeric"><div id="os_{{.ID}}"><a href="/?q={{refineQuery $.Query "OS" .Scenario.Os.Version | urlquery}}">{{.Scenario.Os.Name}}</a></div><div class="mdl-tooltip mdl-data-table__cell-data" for="os_{{.ID}}">{{.Scenario.Os.Version}}</div></td>
+                <td class="mdl-data-table__cell--non-numeric"><div id="cpu_{{.ID}}"><a href="/?q={{refineQuery $.Query "CPU" .Scenario.Cpu.Description | urlquery}}">{{.Scenario.Cpu.Architecture}}</a></div><div class="mdl-tooltip mdl-data-table__cell-data" for="cpu_{{.ID}}">{{.Scenario.Cpu.Description}}</div></td>
+                <td class="mdl-data-table__cell--non-numeric"><a href="/?q={{refineQuery $.Query "Uploader" .Uploader | urlquery}}">{{.Uploader}}</a></td>
+                <td class="mdl-data-table__cell--non-numeric"><a href="/?q={{refineQuery $.Query "Label" .Scenario.Label | urlquery}}">{{.Scenario.Label}}</a></td>
+                <td class="mdl-data-table__cell--non-numeric">{{.LastUpdate}}</td>
+                </tr>
+                {{end}}
+                {{range .Err}}
+                <tr><td colspan=5><i class="material-icons">error</i>{{.}}</td></tr>
+                {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </section>
+    </main>
+    <script src="/sortable.js"></script>
+    {{template "footer"}}
+  </div>
+</body>
+</html>

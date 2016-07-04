@@ -1,0 +1,38 @@
+pkg appcycle, func AppCycleClient(string) AppCycleClientStub
+pkg appcycle, func AppCycleServer(AppCycleServerMethods) AppCycleServerStub
+pkg appcycle, method (*AppCycleStopServerCallStub) Init(rpc.StreamServerCall)
+pkg appcycle, method (*AppCycleStopServerCallStub) SendStream() interface {  Send(item Task) error;}
+pkg appcycle, method (*Task) VDLRead(vdl.Decoder) error
+pkg appcycle, method (Task) VDLIsZero() bool
+pkg appcycle, method (Task) VDLWrite(vdl.Encoder) error
+pkg appcycle, type AppCycleClientMethods interface { ForceStop, Stop }
+pkg appcycle, type AppCycleClientMethods interface, ForceStop(*context.T, ...rpc.CallOpt) error
+pkg appcycle, type AppCycleClientMethods interface, Stop(*context.T, ...rpc.CallOpt) (AppCycleStopClientCall, error)
+pkg appcycle, type AppCycleClientStub interface, ForceStop(*context.T, ...rpc.CallOpt) error
+pkg appcycle, type AppCycleClientStub interface, Stop(*context.T, ...rpc.CallOpt) (AppCycleStopClientCall, error)
+pkg appcycle, type AppCycleClientStub interface, unexported methods
+pkg appcycle, type AppCycleServerMethods interface { ForceStop, Stop }
+pkg appcycle, type AppCycleServerMethods interface, ForceStop(*context.T, rpc.ServerCall) error
+pkg appcycle, type AppCycleServerMethods interface, Stop(*context.T, AppCycleStopServerCall) error
+pkg appcycle, type AppCycleServerStub interface { Describe__, ForceStop, Stop }
+pkg appcycle, type AppCycleServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg appcycle, type AppCycleServerStub interface, ForceStop(*context.T, rpc.ServerCall) error
+pkg appcycle, type AppCycleServerStub interface, Stop(*context.T, *AppCycleStopServerCallStub) error
+pkg appcycle, type AppCycleServerStubMethods interface { ForceStop, Stop }
+pkg appcycle, type AppCycleServerStubMethods interface, ForceStop(*context.T, rpc.ServerCall) error
+pkg appcycle, type AppCycleServerStubMethods interface, Stop(*context.T, *AppCycleStopServerCallStub) error
+pkg appcycle, type AppCycleStopClientCall interface { Finish, RecvStream }
+pkg appcycle, type AppCycleStopClientCall interface, Finish() error
+pkg appcycle, type AppCycleStopClientCall interface, RecvStream() interface {  Advance() bool;; Value() Task;; Err() error;}
+pkg appcycle, type AppCycleStopClientStream interface { RecvStream }
+pkg appcycle, type AppCycleStopClientStream interface, RecvStream() interface {  Advance() bool;; Value() Task;; Err() error;}
+pkg appcycle, type AppCycleStopServerCall interface, SendStream() interface {  Send(item Task) error;}
+pkg appcycle, type AppCycleStopServerCall interface, unexported methods
+pkg appcycle, type AppCycleStopServerCallStub struct
+pkg appcycle, type AppCycleStopServerCallStub struct, embedded rpc.StreamServerCall
+pkg appcycle, type AppCycleStopServerStream interface { SendStream }
+pkg appcycle, type AppCycleStopServerStream interface, SendStream() interface {  Send(item Task) error;}
+pkg appcycle, type Task struct
+pkg appcycle, type Task struct, Goal int32
+pkg appcycle, type Task struct, Progress int32
+pkg appcycle, var AppCycleDesc rpc.InterfaceDesc

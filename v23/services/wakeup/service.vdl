@@ -1,0 +1,14 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package wakeup defines interfaces for waking up remote services, likely running
+// on mobile devices (e.g., Android, iOS).
+package wakeup
+
+// WakeUp interface defines methods for services that wish to be woken up remotely.
+type WakeUp interface {
+    // Register returns a rooted name where the service should mount itself
+    // in order to be woken up using the provided wakeup token.
+    Register(token string) (string | error)
+}

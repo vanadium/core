@@ -1,0 +1,35 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package server
+
+import (
+	"v.io/v23/security/access"
+	wire "v.io/v23/services/syncbase"
+)
+
+// ServiceData represents the persistent state of a Service.
+type ServiceData struct {
+	Version uint64 // covers the fields below
+	Perms   access.Permissions
+}
+
+// DbInfo contains information about a single Database, stored in the
+// service-level storage engine.
+type DbInfo struct {
+	Id wire.Id
+	// Select fields from DatabaseOptions, needed in order to open storage engine
+	// on restart.
+	RootDir string // interpreted by storage engine
+	Engine  string // name of storage engine, e.g. "leveldb"
+}
+
+// DatabaseData represents the persistent state of a Database, stored in the
+// per-database storage engine.
+type DatabaseData struct {
+	Id             wire.Id
+	Version        uint64 // covers the Perms field below
+	Perms          access.Permissions
+	SchemaMetadata ?wire.SchemaMetadata
+}

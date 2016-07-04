@@ -1,0 +1,39 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package binary defines types for describing executable binaries.
+package binary
+
+const MissingChecksum = ""
+const MissingSize = int64(-1)
+
+// Description describes a binary. Binaries are named and have been
+// determined to run on some set of profiles. The mechanism for
+// determing profiles is specifically not specified and left to the
+// implementation of the interface that generates the description.
+type Description struct {
+	// Name is the Object name of the application binary that can
+	// be used to fetch the actual binary from a content server.
+	Name string
+	// Profiles is a set of names of compatible profiles.  Each
+	// name can either be an Object name that resolves to a
+	// Profile, or can be the profile's label, e.g.:
+	//
+	//   "profiles/google/cluster/diskfull"
+	//   "linux-media"
+	//
+	// Application developers can specify compatible profiles by
+	// hand, but we also want to be able to automatically derive
+	// the matching profiles from examining the binary itself
+	// (e.g. that's what Build.Describe() does).
+	Profiles map[string]bool
+}
+
+// PartInfo holds information describing a binary part.
+type PartInfo struct {
+	// Checksum holds the hex-encoded MD5 checksum of the binary part.
+	Checksum string
+	// Size holds the binary part size in bytes.
+	Size int64
+}

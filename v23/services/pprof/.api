@@ -1,0 +1,60 @@
+pkg pprof, func PProfClient(string) PProfClientStub
+pkg pprof, func PProfServer(PProfServerMethods) PProfServerStub
+pkg pprof, method (*PProfCpuProfileServerCallStub) Init(rpc.StreamServerCall)
+pkg pprof, method (*PProfCpuProfileServerCallStub) SendStream() interface {  Send(item []byte) error;}
+pkg pprof, method (*PProfProfileServerCallStub) Init(rpc.StreamServerCall)
+pkg pprof, method (*PProfProfileServerCallStub) SendStream() interface {  Send(item []byte) error;}
+pkg pprof, type PProfClientMethods interface { CmdLine, CpuProfile, Profile, Profiles, Symbol }
+pkg pprof, type PProfClientMethods interface, CmdLine(*context.T, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientMethods interface, CpuProfile(*context.T, int32, ...rpc.CallOpt) (PProfCpuProfileClientCall, error)
+pkg pprof, type PProfClientMethods interface, Profile(*context.T, string, int32, ...rpc.CallOpt) (PProfProfileClientCall, error)
+pkg pprof, type PProfClientMethods interface, Profiles(*context.T, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientMethods interface, Symbol(*context.T, []uint64, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientStub interface, CmdLine(*context.T, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientStub interface, CpuProfile(*context.T, int32, ...rpc.CallOpt) (PProfCpuProfileClientCall, error)
+pkg pprof, type PProfClientStub interface, Profile(*context.T, string, int32, ...rpc.CallOpt) (PProfProfileClientCall, error)
+pkg pprof, type PProfClientStub interface, Profiles(*context.T, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientStub interface, Symbol(*context.T, []uint64, ...rpc.CallOpt) ([]string, error)
+pkg pprof, type PProfClientStub interface, unexported methods
+pkg pprof, type PProfCpuProfileClientCall interface { Finish, RecvStream }
+pkg pprof, type PProfCpuProfileClientCall interface, Finish() error
+pkg pprof, type PProfCpuProfileClientCall interface, RecvStream() interface {  Advance() bool;; Value() []byte;; Err() error;}
+pkg pprof, type PProfCpuProfileClientStream interface { RecvStream }
+pkg pprof, type PProfCpuProfileClientStream interface, RecvStream() interface {  Advance() bool;; Value() []byte;; Err() error;}
+pkg pprof, type PProfCpuProfileServerCall interface, SendStream() interface {  Send(item []byte) error;}
+pkg pprof, type PProfCpuProfileServerCall interface, unexported methods
+pkg pprof, type PProfCpuProfileServerCallStub struct
+pkg pprof, type PProfCpuProfileServerCallStub struct, embedded rpc.StreamServerCall
+pkg pprof, type PProfCpuProfileServerStream interface { SendStream }
+pkg pprof, type PProfCpuProfileServerStream interface, SendStream() interface {  Send(item []byte) error;}
+pkg pprof, type PProfProfileClientCall interface { Finish, RecvStream }
+pkg pprof, type PProfProfileClientCall interface, Finish() error
+pkg pprof, type PProfProfileClientCall interface, RecvStream() interface {  Advance() bool;; Value() []byte;; Err() error;}
+pkg pprof, type PProfProfileClientStream interface { RecvStream }
+pkg pprof, type PProfProfileClientStream interface, RecvStream() interface {  Advance() bool;; Value() []byte;; Err() error;}
+pkg pprof, type PProfProfileServerCall interface, SendStream() interface {  Send(item []byte) error;}
+pkg pprof, type PProfProfileServerCall interface, unexported methods
+pkg pprof, type PProfProfileServerCallStub struct
+pkg pprof, type PProfProfileServerCallStub struct, embedded rpc.StreamServerCall
+pkg pprof, type PProfProfileServerStream interface { SendStream }
+pkg pprof, type PProfProfileServerStream interface, SendStream() interface {  Send(item []byte) error;}
+pkg pprof, type PProfServerMethods interface { CmdLine, CpuProfile, Profile, Profiles, Symbol }
+pkg pprof, type PProfServerMethods interface, CmdLine(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerMethods interface, CpuProfile(*context.T, PProfCpuProfileServerCall, int32) error
+pkg pprof, type PProfServerMethods interface, Profile(*context.T, PProfProfileServerCall, string, int32) error
+pkg pprof, type PProfServerMethods interface, Profiles(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerMethods interface, Symbol(*context.T, rpc.ServerCall, []uint64) ([]string, error)
+pkg pprof, type PProfServerStub interface { CmdLine, CpuProfile, Describe__, Profile, Profiles, Symbol }
+pkg pprof, type PProfServerStub interface, CmdLine(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerStub interface, CpuProfile(*context.T, *PProfCpuProfileServerCallStub, int32) error
+pkg pprof, type PProfServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg pprof, type PProfServerStub interface, Profile(*context.T, *PProfProfileServerCallStub, string, int32) error
+pkg pprof, type PProfServerStub interface, Profiles(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerStub interface, Symbol(*context.T, rpc.ServerCall, []uint64) ([]string, error)
+pkg pprof, type PProfServerStubMethods interface { CmdLine, CpuProfile, Profile, Profiles, Symbol }
+pkg pprof, type PProfServerStubMethods interface, CmdLine(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerStubMethods interface, CpuProfile(*context.T, *PProfCpuProfileServerCallStub, int32) error
+pkg pprof, type PProfServerStubMethods interface, Profile(*context.T, *PProfProfileServerCallStub, string, int32) error
+pkg pprof, type PProfServerStubMethods interface, Profiles(*context.T, rpc.ServerCall) ([]string, error)
+pkg pprof, type PProfServerStubMethods interface, Symbol(*context.T, rpc.ServerCall, []uint64) ([]string, error)
+pkg pprof, var PProfDesc rpc.InterfaceDesc

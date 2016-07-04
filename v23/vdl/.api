@@ -1,0 +1,314 @@
+pkg vdl, const Any Kind
+pkg vdl, const Array Kind
+pkg vdl, const Bool Kind
+pkg vdl, const Byte Kind
+pkg vdl, const Enum Kind
+pkg vdl, const Float32 Kind
+pkg vdl, const Float64 Kind
+pkg vdl, const Int16 Kind
+pkg vdl, const Int32 Kind
+pkg vdl, const Int64 Kind
+pkg vdl, const Int8 Kind
+pkg vdl, const List Kind
+pkg vdl, const Map Kind
+pkg vdl, const Optional Kind
+pkg vdl, const Set Kind
+pkg vdl, const String Kind
+pkg vdl, const Struct Kind
+pkg vdl, const TypeObject Kind
+pkg vdl, const Uint16 Kind
+pkg vdl, const Uint32 Kind
+pkg vdl, const Uint64 Kind
+pkg vdl, const Union Kind
+pkg vdl, const WalkAll WalkMode
+pkg vdl, const WalkInline WalkMode
+pkg vdl, const WireRetryCodeNoRetry WireRetryCode
+pkg vdl, const WireRetryCodeRetryBackoff WireRetryCode
+pkg vdl, const WireRetryCodeRetryConnection WireRetryCode
+pkg vdl, const WireRetryCodeRetryRefetch WireRetryCode
+pkg vdl, func AnyValue(*Value) *Value
+pkg vdl, func ArrayType(int, *Type) *Type
+pkg vdl, func BoolValue(*Type, bool) *Value
+pkg vdl, func BytesValue(*Type, []byte) *Value
+pkg vdl, func Compatible(*Type, *Type) bool
+pkg vdl, func Convert(interface{}, interface{}) error
+pkg vdl, func ConvertReflect(reflect.Value, reflect.Value) error
+pkg vdl, func CopyValue(*Value) *Value
+pkg vdl, func DecodeConvertedBytes(Decoder, int, *[]byte) error
+pkg vdl, func DeepEqual(interface{}, interface{}) bool
+pkg vdl, func DeepEqualReflect(reflect.Value, reflect.Value) bool
+pkg vdl, func EnumType(...string) *Type
+pkg vdl, func EnumValue(*Type, int) *Value
+pkg vdl, func EqualValue(*Value, *Value) bool
+pkg vdl, func FloatValue(*Type, float64) *Value
+pkg vdl, func IntValue(*Type, int64) *Value
+pkg vdl, func ListType(*Type) *Type
+pkg vdl, func MapType(*Type, *Type) *Type
+pkg vdl, func NamedType(string, *Type) *Type
+pkg vdl, func NonNilZeroValue(*Type) *Value
+pkg vdl, func OptionalType(*Type) *Type
+pkg vdl, func OptionalValue(*Value) *Value
+pkg vdl, func Read(Decoder, interface{}) error
+pkg vdl, func ReadReflect(Decoder, reflect.Value) error
+pkg vdl, func Register(interface{})
+pkg vdl, func RegisterNative(interface{}, interface{})
+pkg vdl, func RegisterNativeError(interface{}, interface{})
+pkg vdl, func SetType(*Type) *Type
+pkg vdl, func SortValuesAsString([]*Value) []*Value
+pkg vdl, func SplitIdent(string) (string, string)
+pkg vdl, func StringValue(*Type, string) *Value
+pkg vdl, func StructType(...Field) *Type
+pkg vdl, func Transcode(Encoder, Decoder) error
+pkg vdl, func TypeFromReflect(reflect.Type) (*Type, error)
+pkg vdl, func TypeObjectValue(*Type) *Value
+pkg vdl, func TypeOf(interface{}) *Type
+pkg vdl, func TypeToReflect(*Type) reflect.Type
+pkg vdl, func UintValue(*Type, uint64) *Value
+pkg vdl, func UnionType(...Field) *Type
+pkg vdl, func UnionValue(*Type, int, *Value) *Value
+pkg vdl, func ValueFromReflect(reflect.Value) (*Value, error)
+pkg vdl, func ValueOf(interface{}) *Value
+pkg vdl, func WireRetryCodeFromString(string) (WireRetryCode, error)
+pkg vdl, func WrapInUnionInterface(reflect.Value) reflect.Value
+pkg vdl, func Write(Encoder, interface{}) error
+pkg vdl, func WriteReflect(Encoder, reflect.Value) error
+pkg vdl, func ZeroValue(*Type) *Value
+pkg vdl, method (*Type) AssignableFrom(*Value) bool
+pkg vdl, method (*Type) CanBeKey() bool
+pkg vdl, method (*Type) CanBeNamed() bool
+pkg vdl, method (*Type) CanBeNil() bool
+pkg vdl, method (*Type) CanBeOptional() bool
+pkg vdl, method (*Type) ContainsKind(WalkMode, ...Kind) bool
+pkg vdl, method (*Type) ContainsType(WalkMode, ...*Type) bool
+pkg vdl, method (*Type) Elem() *Type
+pkg vdl, method (*Type) EnumIndex(string) int
+pkg vdl, method (*Type) EnumLabel(int) string
+pkg vdl, method (*Type) Field(int) Field
+pkg vdl, method (*Type) FieldByName(string) (Field, int)
+pkg vdl, method (*Type) FieldIndexByName(string) int
+pkg vdl, method (*Type) IsBytes() bool
+pkg vdl, method (*Type) IsPartOfCycle() bool
+pkg vdl, method (*Type) Key() *Type
+pkg vdl, method (*Type) Kind() Kind
+pkg vdl, method (*Type) Len() int
+pkg vdl, method (*Type) Name() string
+pkg vdl, method (*Type) NonOptional() *Type
+pkg vdl, method (*Type) NumEnumLabel() int
+pkg vdl, method (*Type) NumField() int
+pkg vdl, method (*Type) String() string
+pkg vdl, method (*Type) Unique() string
+pkg vdl, method (*Type) VDLIsZero() bool
+pkg vdl, method (*Type) VDLWrite(Encoder) error
+pkg vdl, method (*Type) Walk(WalkMode, func(*Type) bool) bool
+pkg vdl, method (*TypeBuilder) Array() PendingArray
+pkg vdl, method (*TypeBuilder) Build()
+pkg vdl, method (*TypeBuilder) Enum() PendingEnum
+pkg vdl, method (*TypeBuilder) List() PendingList
+pkg vdl, method (*TypeBuilder) Map() PendingMap
+pkg vdl, method (*TypeBuilder) Named(string) PendingNamed
+pkg vdl, method (*TypeBuilder) Optional() PendingOptional
+pkg vdl, method (*TypeBuilder) Set() PendingSet
+pkg vdl, method (*TypeBuilder) Struct() PendingStruct
+pkg vdl, method (*TypeBuilder) Union() PendingUnion
+pkg vdl, method (*Value) Assign(*Value) *Value
+pkg vdl, method (*Value) AssignBool(bool)
+pkg vdl, method (*Value) AssignBytes([]byte)
+pkg vdl, method (*Value) AssignEnumIndex(int)
+pkg vdl, method (*Value) AssignEnumLabel(string)
+pkg vdl, method (*Value) AssignField(int, *Value)
+pkg vdl, method (*Value) AssignFloat(float64)
+pkg vdl, method (*Value) AssignIndex(int, *Value)
+pkg vdl, method (*Value) AssignInt(int64)
+pkg vdl, method (*Value) AssignLen(int)
+pkg vdl, method (*Value) AssignMapIndex(*Value, *Value)
+pkg vdl, method (*Value) AssignSetKey(*Value)
+pkg vdl, method (*Value) AssignString(string)
+pkg vdl, method (*Value) AssignTypeObject(*Type)
+pkg vdl, method (*Value) AssignUint(uint64)
+pkg vdl, method (*Value) Bool() bool
+pkg vdl, method (*Value) Bytes() []byte
+pkg vdl, method (*Value) ContainsKey(*Value) bool
+pkg vdl, method (*Value) Decoder() Decoder
+pkg vdl, method (*Value) DeleteMapIndex(*Value)
+pkg vdl, method (*Value) DeleteSetKey(*Value)
+pkg vdl, method (*Value) Elem() *Value
+pkg vdl, method (*Value) EnumIndex() int
+pkg vdl, method (*Value) EnumLabel() string
+pkg vdl, method (*Value) Float() float64
+pkg vdl, method (*Value) Index(int) *Value
+pkg vdl, method (*Value) Int() int64
+pkg vdl, method (*Value) IsNil() bool
+pkg vdl, method (*Value) IsValid() bool
+pkg vdl, method (*Value) IsZero() bool
+pkg vdl, method (*Value) Keys() []*Value
+pkg vdl, method (*Value) Kind() Kind
+pkg vdl, method (*Value) Len() int
+pkg vdl, method (*Value) MapIndex(*Value) *Value
+pkg vdl, method (*Value) NonOptional() *Value
+pkg vdl, method (*Value) RawString() string
+pkg vdl, method (*Value) String() string
+pkg vdl, method (*Value) StructField(int) *Value
+pkg vdl, method (*Value) StructFieldByName(string) *Value
+pkg vdl, method (*Value) Type() *Type
+pkg vdl, method (*Value) TypeObject() *Type
+pkg vdl, method (*Value) Uint() uint64
+pkg vdl, method (*Value) UnionField() (int, *Value)
+pkg vdl, method (*Value) VDLEqual(interface{}) bool
+pkg vdl, method (*Value) VDLIsZero() bool
+pkg vdl, method (*Value) VDLRead(Decoder) error
+pkg vdl, method (*Value) VDLWrite(Encoder) error
+pkg vdl, method (*WireError) VDLRead(Decoder) error
+pkg vdl, method (*WireRetryCode) Set(string) error
+pkg vdl, method (*WireRetryCode) VDLRead(Decoder) error
+pkg vdl, method (Kind) BitLen() int
+pkg vdl, method (Kind) IsNumber() bool
+pkg vdl, method (Kind) String() string
+pkg vdl, method (WireError) VDLIsZero() bool
+pkg vdl, method (WireError) VDLWrite(Encoder) error
+pkg vdl, method (WireRetryCode) String() string
+pkg vdl, method (WireRetryCode) VDLIsZero() bool
+pkg vdl, method (WireRetryCode) VDLWrite(Encoder) error
+pkg vdl, type Decoder interface { DecodeBool, DecodeBytes, DecodeFloat, DecodeInt, DecodeString, DecodeTypeObject, DecodeUint, FinishValue, IgnoreNextStartValue, Index, IsAny, IsNil, IsOptional, LenHint, NextEntry, NextEntryValueBool, NextEntryValueFloat, NextEntryValueInt, NextEntryValueString, NextEntryValueTypeObject, NextEntryValueUint, NextField, ReadValueBool, ReadValueBytes, ReadValueFloat, ReadValueInt, ReadValueString, ReadValueTypeObject, ReadValueUint, SkipValue, StartValue, Type }
+pkg vdl, type Decoder interface, DecodeBool() (bool, error)
+pkg vdl, type Decoder interface, DecodeBytes(int, *[]byte) error
+pkg vdl, type Decoder interface, DecodeFloat(int) (float64, error)
+pkg vdl, type Decoder interface, DecodeInt(int) (int64, error)
+pkg vdl, type Decoder interface, DecodeString() (string, error)
+pkg vdl, type Decoder interface, DecodeTypeObject() (*Type, error)
+pkg vdl, type Decoder interface, DecodeUint(int) (uint64, error)
+pkg vdl, type Decoder interface, FinishValue() error
+pkg vdl, type Decoder interface, IgnoreNextStartValue()
+pkg vdl, type Decoder interface, Index() int
+pkg vdl, type Decoder interface, IsAny() bool
+pkg vdl, type Decoder interface, IsNil() bool
+pkg vdl, type Decoder interface, IsOptional() bool
+pkg vdl, type Decoder interface, LenHint() int
+pkg vdl, type Decoder interface, NextEntry() (bool, error)
+pkg vdl, type Decoder interface, NextEntryValueBool() (bool, bool, error)
+pkg vdl, type Decoder interface, NextEntryValueFloat(int) (bool, float64, error)
+pkg vdl, type Decoder interface, NextEntryValueInt(int) (bool, int64, error)
+pkg vdl, type Decoder interface, NextEntryValueString() (bool, string, error)
+pkg vdl, type Decoder interface, NextEntryValueTypeObject() (bool, *Type, error)
+pkg vdl, type Decoder interface, NextEntryValueUint(int) (bool, uint64, error)
+pkg vdl, type Decoder interface, NextField() (int, error)
+pkg vdl, type Decoder interface, ReadValueBool() (bool, error)
+pkg vdl, type Decoder interface, ReadValueBytes(int, *[]byte) error
+pkg vdl, type Decoder interface, ReadValueFloat(int) (float64, error)
+pkg vdl, type Decoder interface, ReadValueInt(int) (int64, error)
+pkg vdl, type Decoder interface, ReadValueString() (string, error)
+pkg vdl, type Decoder interface, ReadValueTypeObject() (*Type, error)
+pkg vdl, type Decoder interface, ReadValueUint(int) (uint64, error)
+pkg vdl, type Decoder interface, SkipValue() error
+pkg vdl, type Decoder interface, StartValue(*Type) error
+pkg vdl, type Decoder interface, Type() *Type
+pkg vdl, type Encoder interface { EncodeBool, EncodeBytes, EncodeFloat, EncodeInt, EncodeString, EncodeTypeObject, EncodeUint, FinishValue, NextEntry, NextEntryValueBool, NextEntryValueBytes, NextEntryValueFloat, NextEntryValueInt, NextEntryValueString, NextEntryValueTypeObject, NextEntryValueUint, NextField, NextFieldValueBool, NextFieldValueBytes, NextFieldValueFloat, NextFieldValueInt, NextFieldValueString, NextFieldValueTypeObject, NextFieldValueUint, NilValue, SetLenHint, SetNextStartValueIsOptional, StartValue, WriteValueBool, WriteValueBytes, WriteValueFloat, WriteValueInt, WriteValueString, WriteValueTypeObject, WriteValueUint }
+pkg vdl, type Encoder interface, EncodeBool(bool) error
+pkg vdl, type Encoder interface, EncodeBytes([]byte) error
+pkg vdl, type Encoder interface, EncodeFloat(float64) error
+pkg vdl, type Encoder interface, EncodeInt(int64) error
+pkg vdl, type Encoder interface, EncodeString(string) error
+pkg vdl, type Encoder interface, EncodeTypeObject(*Type) error
+pkg vdl, type Encoder interface, EncodeUint(uint64) error
+pkg vdl, type Encoder interface, FinishValue() error
+pkg vdl, type Encoder interface, NextEntry(bool) error
+pkg vdl, type Encoder interface, NextEntryValueBool(*Type, bool) error
+pkg vdl, type Encoder interface, NextEntryValueBytes(*Type, []byte) error
+pkg vdl, type Encoder interface, NextEntryValueFloat(*Type, float64) error
+pkg vdl, type Encoder interface, NextEntryValueInt(*Type, int64) error
+pkg vdl, type Encoder interface, NextEntryValueString(*Type, string) error
+pkg vdl, type Encoder interface, NextEntryValueTypeObject(*Type) error
+pkg vdl, type Encoder interface, NextEntryValueUint(*Type, uint64) error
+pkg vdl, type Encoder interface, NextField(int) error
+pkg vdl, type Encoder interface, NextFieldValueBool(int, *Type, bool) error
+pkg vdl, type Encoder interface, NextFieldValueBytes(int, *Type, []byte) error
+pkg vdl, type Encoder interface, NextFieldValueFloat(int, *Type, float64) error
+pkg vdl, type Encoder interface, NextFieldValueInt(int, *Type, int64) error
+pkg vdl, type Encoder interface, NextFieldValueString(int, *Type, string) error
+pkg vdl, type Encoder interface, NextFieldValueTypeObject(int, *Type) error
+pkg vdl, type Encoder interface, NextFieldValueUint(int, *Type, uint64) error
+pkg vdl, type Encoder interface, NilValue(*Type) error
+pkg vdl, type Encoder interface, SetLenHint(int) error
+pkg vdl, type Encoder interface, SetNextStartValueIsOptional()
+pkg vdl, type Encoder interface, StartValue(*Type) error
+pkg vdl, type Encoder interface, WriteValueBool(*Type, bool) error
+pkg vdl, type Encoder interface, WriteValueBytes(*Type, []byte) error
+pkg vdl, type Encoder interface, WriteValueFloat(*Type, float64) error
+pkg vdl, type Encoder interface, WriteValueInt(*Type, int64) error
+pkg vdl, type Encoder interface, WriteValueString(*Type, string) error
+pkg vdl, type Encoder interface, WriteValueTypeObject(*Type) error
+pkg vdl, type Encoder interface, WriteValueUint(*Type, uint64) error
+pkg vdl, type Equaler interface { VDLEqual }
+pkg vdl, type Equaler interface, VDLEqual(interface{}) bool
+pkg vdl, type Field struct
+pkg vdl, type Field struct, Name string
+pkg vdl, type Field struct, Type *Type
+pkg vdl, type IsZeroer interface { VDLIsZero }
+pkg vdl, type IsZeroer interface, VDLIsZero() bool
+pkg vdl, type Kind int
+pkg vdl, type PendingArray interface, AssignElem(TypeOrPending) PendingArray
+pkg vdl, type PendingArray interface, AssignLen(int) PendingArray
+pkg vdl, type PendingArray interface, Built() (*Type, error)
+pkg vdl, type PendingArray interface, unexported methods
+pkg vdl, type PendingEnum interface, AppendLabel(string) PendingEnum
+pkg vdl, type PendingEnum interface, Built() (*Type, error)
+pkg vdl, type PendingEnum interface, unexported methods
+pkg vdl, type PendingList interface, AssignElem(TypeOrPending) PendingList
+pkg vdl, type PendingList interface, Built() (*Type, error)
+pkg vdl, type PendingList interface, unexported methods
+pkg vdl, type PendingMap interface, AssignElem(TypeOrPending) PendingMap
+pkg vdl, type PendingMap interface, AssignKey(TypeOrPending) PendingMap
+pkg vdl, type PendingMap interface, Built() (*Type, error)
+pkg vdl, type PendingMap interface, unexported methods
+pkg vdl, type PendingNamed interface, AssignBase(TypeOrPending) PendingNamed
+pkg vdl, type PendingNamed interface, Built() (*Type, error)
+pkg vdl, type PendingNamed interface, unexported methods
+pkg vdl, type PendingOptional interface, AssignElem(TypeOrPending) PendingOptional
+pkg vdl, type PendingOptional interface, Built() (*Type, error)
+pkg vdl, type PendingOptional interface, unexported methods
+pkg vdl, type PendingSet interface, AssignKey(TypeOrPending) PendingSet
+pkg vdl, type PendingSet interface, Built() (*Type, error)
+pkg vdl, type PendingSet interface, unexported methods
+pkg vdl, type PendingStruct interface, AppendField(string, TypeOrPending) PendingStruct
+pkg vdl, type PendingStruct interface, Built() (*Type, error)
+pkg vdl, type PendingStruct interface, NumField() int
+pkg vdl, type PendingStruct interface, unexported methods
+pkg vdl, type PendingType interface, Built() (*Type, error)
+pkg vdl, type PendingType interface, unexported methods
+pkg vdl, type PendingUnion interface, AppendField(string, TypeOrPending) PendingUnion
+pkg vdl, type PendingUnion interface, Built() (*Type, error)
+pkg vdl, type PendingUnion interface, NumField() int
+pkg vdl, type PendingUnion interface, unexported methods
+pkg vdl, type ReadWriter interface { VDLRead, VDLWrite }
+pkg vdl, type ReadWriter interface, VDLRead(Decoder) error
+pkg vdl, type ReadWriter interface, VDLWrite(Encoder) error
+pkg vdl, type Reader interface { VDLRead }
+pkg vdl, type Reader interface, VDLRead(Decoder) error
+pkg vdl, type Type struct
+pkg vdl, type TypeBuilder struct
+pkg vdl, type TypeOrPending interface, unexported methods
+pkg vdl, type Value struct
+pkg vdl, type WalkMode int
+pkg vdl, type WireError struct
+pkg vdl, type WireError struct, Id string
+pkg vdl, type WireError struct, Msg string
+pkg vdl, type WireError struct, ParamList []*Value
+pkg vdl, type WireError struct, RetryCode WireRetryCode
+pkg vdl, type WireRetryCode int
+pkg vdl, type Writer interface { VDLWrite }
+pkg vdl, type Writer interface, VDLWrite(Encoder) error
+pkg vdl, var AnyType *Type
+pkg vdl, var BoolType *Type
+pkg vdl, var ByteType *Type
+pkg vdl, var ErrorType *Type
+pkg vdl, var Float32Type *Type
+pkg vdl, var Float64Type *Type
+pkg vdl, var Int16Type *Type
+pkg vdl, var Int32Type *Type
+pkg vdl, var Int64Type *Type
+pkg vdl, var Int8Type *Type
+pkg vdl, var StringType *Type
+pkg vdl, var TypeObjectType *Type
+pkg vdl, var Uint16Type *Type
+pkg vdl, var Uint32Type *Type
+pkg vdl, var Uint64Type *Type
+pkg vdl, var WireRetryCodeAll [...]WireRetryCode

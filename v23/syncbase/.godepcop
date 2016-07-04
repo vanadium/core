@@ -1,0 +1,7 @@
+<godepcop>
+  <!-- TODO(sadovsky): Figure out what to do about vlog deps in client libs.
+  Note, the namespace client lib defines interfaces in v23, and impl in x/ref.
+  Is that what we should do, too? -->
+  <pkg allow="github.com/cosnicolaou/llog"/>
+  <pkg allow="v.io/x/lib/vlog"/>
+</godepcop>

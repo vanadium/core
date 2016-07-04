@@ -1,0 +1,32 @@
+pkg vtrace, func StoreClient(string) StoreClientStub
+pkg vtrace, func StoreServer(StoreServerMethods) StoreServerStub
+pkg vtrace, method (*StoreAllTracesServerCallStub) Init(rpc.StreamServerCall)
+pkg vtrace, method (*StoreAllTracesServerCallStub) SendStream() interface {  Send(item vtrace.TraceRecord) error;}
+pkg vtrace, type StoreAllTracesClientCall interface { Finish, RecvStream }
+pkg vtrace, type StoreAllTracesClientCall interface, Finish() error
+pkg vtrace, type StoreAllTracesClientCall interface, RecvStream() interface {  Advance() bool;; Value() vtrace.TraceRecord;; Err() error;}
+pkg vtrace, type StoreAllTracesClientStream interface { RecvStream }
+pkg vtrace, type StoreAllTracesClientStream interface, RecvStream() interface {  Advance() bool;; Value() vtrace.TraceRecord;; Err() error;}
+pkg vtrace, type StoreAllTracesServerCall interface, SendStream() interface {  Send(item vtrace.TraceRecord) error;}
+pkg vtrace, type StoreAllTracesServerCall interface, unexported methods
+pkg vtrace, type StoreAllTracesServerCallStub struct
+pkg vtrace, type StoreAllTracesServerCallStub struct, embedded rpc.StreamServerCall
+pkg vtrace, type StoreAllTracesServerStream interface { SendStream }
+pkg vtrace, type StoreAllTracesServerStream interface, SendStream() interface {  Send(item vtrace.TraceRecord) error;}
+pkg vtrace, type StoreClientMethods interface { AllTraces, Trace }
+pkg vtrace, type StoreClientMethods interface, AllTraces(*context.T, ...rpc.CallOpt) (StoreAllTracesClientCall, error)
+pkg vtrace, type StoreClientMethods interface, Trace(*context.T, uniqueid.Id, ...rpc.CallOpt) (vtrace.TraceRecord, error)
+pkg vtrace, type StoreClientStub interface, AllTraces(*context.T, ...rpc.CallOpt) (StoreAllTracesClientCall, error)
+pkg vtrace, type StoreClientStub interface, Trace(*context.T, uniqueid.Id, ...rpc.CallOpt) (vtrace.TraceRecord, error)
+pkg vtrace, type StoreClientStub interface, unexported methods
+pkg vtrace, type StoreServerMethods interface { AllTraces, Trace }
+pkg vtrace, type StoreServerMethods interface, AllTraces(*context.T, StoreAllTracesServerCall) error
+pkg vtrace, type StoreServerMethods interface, Trace(*context.T, rpc.ServerCall, uniqueid.Id) (vtrace.TraceRecord, error)
+pkg vtrace, type StoreServerStub interface { AllTraces, Describe__, Trace }
+pkg vtrace, type StoreServerStub interface, AllTraces(*context.T, *StoreAllTracesServerCallStub) error
+pkg vtrace, type StoreServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg vtrace, type StoreServerStub interface, Trace(*context.T, rpc.ServerCall, uniqueid.Id) (vtrace.TraceRecord, error)
+pkg vtrace, type StoreServerStubMethods interface { AllTraces, Trace }
+pkg vtrace, type StoreServerStubMethods interface, AllTraces(*context.T, *StoreAllTracesServerCallStub) error
+pkg vtrace, type StoreServerStubMethods interface, Trace(*context.T, rpc.ServerCall, uniqueid.Id) (vtrace.TraceRecord, error)
+pkg vtrace, var StoreDesc rpc.InterfaceDesc

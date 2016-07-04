@@ -1,0 +1,15 @@
+pkg conventions, const ServerUser ideal-string
+pkg conventions, const UnauthenticatedUser ideal-string
+pkg conventions, func GetClientUserIds(*context.T, security.Call) []string
+pkg conventions, func ParseBlessingNames(...string) []Blessing
+pkg conventions, func ParseUserId(string) []string
+pkg conventions, method (*Blessing) AppPattern() security.BlessingPattern
+pkg conventions, method (*Blessing) AppUserPattern() security.BlessingPattern
+pkg conventions, method (*Blessing) Home() string
+pkg conventions, method (*Blessing) String() string
+pkg conventions, method (*Blessing) UserPattern() security.BlessingPattern
+pkg conventions, type Blessing struct
+pkg conventions, type Blessing struct, Application string
+pkg conventions, type Blessing struct, IdentityProvider string
+pkg conventions, type Blessing struct, Rest string
+pkg conventions, type Blessing struct, User string

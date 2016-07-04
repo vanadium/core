@@ -1,0 +1,17 @@
+pkg vomtest, func AllFail() []Entry
+pkg vomtest, func AllFailFunc(func(Entry) bool) []Entry
+pkg vomtest, func AllPass() []Entry
+pkg vomtest, func AllPassFunc(func(Entry) bool) []Entry
+pkg vomtest, method (Entry) Bytes() []byte
+pkg vomtest, method (Entry) Hex() string
+pkg vomtest, method (Entry) HexVersion() string
+pkg vomtest, method (Entry) Name() string
+pkg vomtest, method (Entry) TypeBytes() []byte
+pkg vomtest, method (Entry) ValueBytes() []byte
+pkg vomtest, type Entry struct
+pkg vomtest, type Entry struct, HexType string
+pkg vomtest, type Entry struct, HexValue string
+pkg vomtest, type Entry struct, Label string
+pkg vomtest, type Entry struct, Value reflect.Value
+pkg vomtest, type Entry struct, ValueLabel string
+pkg vomtest, type Entry struct, Version vom.Version

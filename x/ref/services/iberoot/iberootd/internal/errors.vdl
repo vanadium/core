@@ -1,0 +1,16 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package internal
+
+import "v.io/v23/security"
+
+error (
+        UnrecognizedRemoteBlessings(blessings []string, rejected []security.RejectedBlessing, name string) {
+                "en": "blessing provided by the remote end: {blessings} [rejected: {rejected}] are not recognized by this identity provider: {name}",
+        }
+        Internal(err error) {
+                "en": "internal error: {err}",
+        }
+)

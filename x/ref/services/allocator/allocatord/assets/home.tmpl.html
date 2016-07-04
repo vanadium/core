@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <title>Vanadium {{title .ServerName}} Allocator</title>
+  {{template "head" .}}
+</head>
+<!-- NOTE: we 'borrow' a lot of the styling of identityd, hence the
+security-related terminology in the style elements, like identity and
+blessing. -->
+<body class="identityprovider-layout allocatord">
+  {{template "header" .}}
+  <form method="POST" id="form" role="form">
+    <input type="text" class="hidden" name="{{.CSRFParam}}" value="{{.CSRFToken}}"/>
+  <script>
+    function changeBtn(id, newHTML) {
+    document.getElementById(id).innerHTML = "<font color='gray'>"+newHTML+"</font>";
+    }
+    var f = document.forms['form'];
+  </script>
+  <div class="main">
+    <h1 class="page-head">Create and Manage Instances of {{title .ServerName}}</h1>
+    <div class="blessings-list">
+      <div class="blessings-header">
+        <h1>Your instances</h1>
+      </div>
+      {{range $index, $element := .Instances}}
+      <div class="blessings-item">
+        <div class="blessing-details">
+          {{with .Instance}}
+          <h3>{{.Handle}} {{if eq .Replicas 0}}[Suspended]{{end}}</h3>
+          <p class="blessing-caveats">
+            <span>Creation Time</span><br/>
+            <span class="unixtime" data-unixtime={{.CreationTime.Unix}}>{{.CreationTime.String}}</span>
+          </p>
+          <p class="blessing-caveats">
+            <span>Version</span><br/>
+            {{.Version}}
+          </p>
+          <p class="blessing-caveats">
+            <span>Address</span><br/>
+            {{.MountName}}
+          </p>
+          <p class="blessing-caveats">
+            <span>Blessing Patterns</span><br/>
+            {{range .BlessingNames}}
+              {{.}}<br/>
+            {{end}}
+          </p>
+          {{end}}
+        </div>
+        <div class="btns-col">
+          <div class="btn">
+            <a href="{{.DashboardURL}}" class="button-passive" target="_blank">Dashboard</a>
+          </div>
+          <div class="btn">
+            <a href="{{.DebugURL}}" class="button-passive" target="_blank">Debug</a>
+          </div>
+          {{if eq .Instance.Replicas 0 }}
+          <div class="btn" id="resumeBtn{{$index}}">
+            <a href="#" class="button-passive" onclick="changeBtn('resumeBtn{{$index}}', 'Resuming (takes a few seconds) ...'); f.action='{{.ResumeURL}}'; f.submit(); return false">Resume</a>
+          </div>
+          {{else}}
+          <div class="btn" id="suspendBtn{{$index}}">
+            <a href="#" class="button-passive" onclick="changeBtn('suspendBtn{{$index}}', 'Suspending (takes a few seconds) ...'); f.action='{{.SuspendURL}}'; f.submit(); return false">Suspend</a>
+          </div>
+          {{end}}
+          <div class="btn btn-warning" id="resetBtn{{$index}}">
+            <a href="#" class="button-passive" onclick="changeBtn('resetBtn{{$index}}', 'Resetting (takes ~20 seconds) ...'); f.action='{{.ResetURL}}'; f.submit(); return false">Reset</a>
+          </div>
+          <div class="btn btn-warning" id="destroyBtn{{$index}}">
+            <a href="#" class="button-passive" onclick="changeBtn('destroyBtn{{$index}}', 'Destroying (takes ~10 seconds) ...'); f.action='{{.DestroyURL}}'; f.submit(); return false">Destroy</a>
+          </div>
+        </div>
+      </div>
+    {{else}}
+      None found.
+    {{end}}
+    <div id="createBtn"><a href="#" class="button-passive" onclick="changeBtn('createBtn', 'Creating (takes ~25 seconds) ...'); f.action='{{.CreateURL}}'; f.submit(); return false">Create New</a></div>
+    {{with .Message -}}
+    <div id="message">
+      {{.}}
+    </div>
+    {{end}}
+  </div>
+  </form>
+  <script src="{{.AssetsPrefix}}/identity/moment.js"></script>
+  <script src="{{.AssetsPrefix}}/identity/jquery.js"></script>
+  <script>
+  function setTimeText(elem) {
+    var timestamp = elem.data("unixtime");
+    var m = moment(timestamp*1000.0);
+    var style = elem.data("style");
+    if (style === "absolute") {
+      elem.html("<a href='#' onclick='return false;'>" + m.format("MMM DD, YYYY h:mm:ss a") + "</a>");
+      elem.data("style", "fromNow");
+    } else {
+      elem.html("<a href='#' onclick='return false;'>" + m.fromNow() + "</a>");
+      elem.data("style", "absolute");
+    }
+  }
+
+  $(document).ready(function() {
+    $(".unixtime").each(function() {
+      // clicking the timestamp should toggle the display format.
+      $(this).click(function() { setTimeText($(this)); });
+      setTimeText($(this));
+    });
+  });
+  </script>
+</body>
+</html>

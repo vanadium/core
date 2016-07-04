@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{.ServerName}} Dashboard</title>
+
+    <link href='//fonts.googleapis.com/css?family=Source+Code+Pro:400,500|Roboto:500,400italic,300,500italic,300italic,400'
+      rel='stylesheet'
+      type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-url-parser/2.3.1/purl.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <link href="static/style.css" rel="stylesheet">
+    <script src="static/dash.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages: ['corechart']});
+      google.charts.setOnLoadCallback(dash.init);
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <div id="title">{{title .ServerName}} Dashboard</div>
+        <div>{{.Instance}}</div>
+        <div id="email">{{.Email}}</div>
+      </div>
+      <div id="charts">
+        <div class="chart" id="latency"></div>
+        <div class="chart" id="qps"></div>
+        <div class="chart" id="cpu-usage-pct"></div>
+        <div class="chart" id="mem-usage-bytes"></div>
+        <div class="chart" id="disk-usage-bytes"></div>
+        <div class="chart filler"></div>
+        <div class="chart filler"></div>
+        <div class="chart filler"></div>
+        <div class="chart filler"></div>
+      </div>
+    </div>
+    <div id="durations-container">
+      <div id="loading-label">LOADING...</div>
+      <div id="durations">
+        <div class="duration-item selected">1h</div>
+        <div class="duration-item">2h</div>
+        <div class="duration-item">4h</div>
+        <div class="duration-item">6h</div>
+        <div class="duration-item">12h</div>
+        <div class="duration-item">1d</div>
+        <div class="duration-item">7d</div>
+      </div>
+    </div>
+    <div id="error-msg">
+      Failed to retrieve data. Please try again later.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+# Resolve the same conflict on two different devices.
+# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
+
+linkr|c\xfefoo1|3|4||logrec-01

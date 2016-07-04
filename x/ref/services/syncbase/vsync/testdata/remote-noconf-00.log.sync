@@ -1,0 +1,10 @@
+# Update an object remotely three times without triggering a conflict
+# after it was created locally up to v3 (i.e. assume the remote sync
+# received it from the local sync first, then updated it).
+# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
+# TODO(rdaoud): The above comment is incorrect for the 'genvec' line.
+
+addr|c\xfefoo1|4|3||y\xfel\xfed\xfe11\xfe1|0|1|false
+addr|c\xfefoo1|5|4||y\xfel\xfed\xfe11\xfe2|0|1|false
+addr|c\xfefoo1|6|5||y\xfel\xfed\xfe11\xfe3|0|1|false
+genvec|c\xfefoo1|10:0,11:3|c\xfebar|11:0

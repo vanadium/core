@@ -1,0 +1,8 @@
+pkg public, type PreparedStatement interface { Close, Exec, Handle }
+pkg public, type PreparedStatement interface, Close()
+pkg public, type PreparedStatement interface, Exec(...*vom.RawBytes) ([]string, syncql.ResultStream, error)
+pkg public, type PreparedStatement interface, Handle() int64
+pkg public, type QueryEngine interface { Exec, GetPreparedStatement, PrepareStatement }
+pkg public, type QueryEngine interface, Exec(string) ([]string, syncql.ResultStream, error)
+pkg public, type QueryEngine interface, GetPreparedStatement(int64) (PreparedStatement, error)
+pkg public, type QueryEngine interface, PrepareStatement(string) (PreparedStatement, error)

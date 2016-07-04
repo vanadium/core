@@ -1,0 +1,35 @@
+{{/*
+    Copyright 2016 The Vanadium Authors. All rights reserved.
+    Use of this source code is governed by a BSD-style
+    license that can be found in the LICENSE file.
+*/}}
+
+{{define "content"}}
+<section class="section--center mdl-grid">
+    <h5>Profiling</h5>
+    <div id="parent" class="mdl-cell mdl-cell--12-col">
+        <ul>
+            <li>CPU
+                <div class="fixed-width">go tool pprof {{.URLPrefix}}/profile?n={{urlquery .ServerName}}</div>
+            </li>
+            <li><a href="{{.URLPrefix}}/heap?n={{urlquery .ServerName}}&debug=1">Heap</a>
+                <div class="fixed-width">go tool pprof {{.URLPrefix}}/heap?n={{urlquery .ServerName}}</div>
+            </li>
+            <li><a href="{{.URLPrefix}}/block?n={{urlquery .ServerName}}&debug=1">Block</a>
+                <div class="fixed-width">go tool pprof {{.URLPrefix}}/block?n={{urlquery .ServerName}}</div>
+            </li>
+            <li><a href="{{.URLPrefix}}/threadcreate?n={{urlquery .ServerName}}&debug=1">Threadcreate</a>
+                <div class="fixed-width">go tool pprof {{.URLPrefix}}/threadcreate?n={{urlquery .ServerName}}</div>
+            </li>
+            <li>Goroutines:
+                <a href="{{.URLPrefix}}/goroutine?n={{urlquery .ServerName}}&debug=1">(compact)</a>
+                <a href="{{.URLPrefix}}/goroutine?n={{urlquery .ServerName}}&debug=2">(full)</a>
+            </li>
+        </ul>
+        <div id="parent" class="mdl-cell mdl-cell--12-col">
+            <i class="material-icons">info</i>The commands above may not work if the remote process isn't written in Go.
+            Support for profiling code in other languages is in the wishlist.
+        </div>
+    </div>
+</section>
+{{end}}

@@ -1,0 +1,38 @@
+pkg crtestutil, func MockDbClient(wire.DatabaseClientMethods, *CrStreamImpl) *MockWireDatabaseClient
+pkg crtestutil, method (*ConflictStreamImpl) Advance() bool
+pkg crtestutil, method (*ConflictStreamImpl) Err() error
+pkg crtestutil, method (*ConflictStreamImpl) Value() wire.ConflictInfo
+pkg crtestutil, method (*CrStreamImpl) Finish() error
+pkg crtestutil, method (*CrStreamImpl) RecvStream() interface {  Advance() bool; Value() wire.ConflictInfo; Err() error;}
+pkg crtestutil, method (*CrStreamImpl) SendStream() interface {  Send(item wire.ResolutionInfo) error; Close() error;}
+pkg crtestutil, method (*MockWireDatabaseClient) GetSchemaMetadata(*context.T, ...rpc.CallOpt) (wire.SchemaMetadata, error)
+pkg crtestutil, method (*MockWireDatabaseClient) SetSchemaMetadata(*context.T, wire.SchemaMetadata, ...rpc.CallOpt) error
+pkg crtestutil, method (*MockWireDatabaseClient) StartConflictResolver(*context.T, ...rpc.CallOpt) (wire.ConflictManagerStartConflictResolverClientCall, error)
+pkg crtestutil, method (*ResolutionStreamImpl) Send(wire.ResolutionInfo) error
+pkg crtestutil, method (*State) GetAdvanceCount() int
+pkg crtestutil, method (*State) GetIsBlocked() bool
+pkg crtestutil, method (*State) GetResult() []wire.ResolutionInfo
+pkg crtestutil, method (*State) IncrementAdvanceCount()
+pkg crtestutil, method (*State) SetIsBlocked(bool)
+pkg crtestutil, method (*TestError) Error() string
+pkg crtestutil, type ConflictStream interface { Advance, Err, Value }
+pkg crtestutil, type ConflictStream interface, Advance() bool
+pkg crtestutil, type ConflictStream interface, Err() error
+pkg crtestutil, type ConflictStream interface, Value() wire.ConflictInfo
+pkg crtestutil, type ConflictStreamImpl struct
+pkg crtestutil, type ConflictStreamImpl struct, AdvanceFn func(*State) bool
+pkg crtestutil, type ConflictStreamImpl struct, St *State
+pkg crtestutil, type CrStreamImpl struct
+pkg crtestutil, type CrStreamImpl struct, C ConflictStream
+pkg crtestutil, type CrStreamImpl struct, R ResolutionStream
+pkg crtestutil, type MockWireDatabaseClient struct
+pkg crtestutil, type MockWireDatabaseClient struct, embedded wire.DatabaseClientMethods
+pkg crtestutil, type ResolutionStream interface { Send }
+pkg crtestutil, type ResolutionStream interface, Send(wire.ResolutionInfo) error
+pkg crtestutil, type ResolutionStreamImpl struct
+pkg crtestutil, type ResolutionStreamImpl struct, St *State
+pkg crtestutil, type State struct
+pkg crtestutil, type State struct, Mu sync.Mutex
+pkg crtestutil, type State struct, Val wire.ConflictInfo
+pkg crtestutil, type State struct, ValIndex int
+pkg crtestutil, type TestError struct

@@ -1,0 +1,23 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package vtrace defines an interface to access v.io/v23/vtrace traces, to help
+// analyze and debug distributed systems.
+package vtrace
+
+import (
+	"v.io/v23/security/access"
+	"v.io/v23/uniqueid"
+	"v.io/v23/vtrace"
+)
+
+type Store interface {
+	// Trace returns the trace that matches the given Id.
+	// Will return a NoExists error if no matching trace was found.
+	Trace(id uniqueid.Id) (vtrace.TraceRecord | error) {access.Debug}
+
+	// AllTraces returns TraceRecords for all traces the server currently
+	// knows about.
+	AllTraces() stream<_, vtrace.TraceRecord> error {access.Debug}
+}

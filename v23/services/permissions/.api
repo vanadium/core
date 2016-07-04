@@ -1,0 +1,15 @@
+pkg permissions, func ObjectClient(string) ObjectClientStub
+pkg permissions, func ObjectServer(ObjectServerMethods) ObjectServerStub
+pkg permissions, type ObjectClientMethods interface { GetPermissions, SetPermissions }
+pkg permissions, type ObjectClientMethods interface, GetPermissions(*context.T, ...rpc.CallOpt) (access.Permissions, string, error)
+pkg permissions, type ObjectClientMethods interface, SetPermissions(*context.T, access.Permissions, string, ...rpc.CallOpt) error
+pkg permissions, type ObjectClientStub interface, GetPermissions(*context.T, ...rpc.CallOpt) (access.Permissions, string, error)
+pkg permissions, type ObjectClientStub interface, SetPermissions(*context.T, access.Permissions, string, ...rpc.CallOpt) error
+pkg permissions, type ObjectClientStub interface, unexported methods
+pkg permissions, type ObjectServerMethods interface { GetPermissions, SetPermissions }
+pkg permissions, type ObjectServerMethods interface, GetPermissions(*context.T, rpc.ServerCall) (access.Permissions, string, error)
+pkg permissions, type ObjectServerMethods interface, SetPermissions(*context.T, rpc.ServerCall, access.Permissions, string) error
+pkg permissions, type ObjectServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg permissions, type ObjectServerStub interface, unexported methods
+pkg permissions, type ObjectServerStubMethods ObjectServerMethods
+pkg permissions, var ObjectDesc rpc.InterfaceDesc

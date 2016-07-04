@@ -1,0 +1,16 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package types
+
+// TestCase represents an individual testcase for vom encoding and decoding.
+type TestCase struct {
+	Name       string // Name of the testcase
+	Value      any    // Value to test
+	TypeString string // The string representation of the Type
+	Hex        string // Hex pattern representing vom encoding
+	HexVersion string // Hex pattern representing vom encoding of Version
+	HexType    string // Hex pattern representing vom encoding of Type
+	HexValue   string // Hex pattern representing vom encoding of Value
+}

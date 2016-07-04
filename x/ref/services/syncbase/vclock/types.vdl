@@ -1,0 +1,35 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package vclock
+
+import (
+	"time"
+)
+
+// VClockData is the persistent state of the Syncbase virtual clock.
+// All times are UTC.
+type VClockData struct {
+	// System time at boot.
+	SystemTimeAtBoot time.Time
+
+	// Current estimate of NTP time minus system clock time.
+	Skew time.Duration
+
+	// Elapsed time since boot, as seen by VClockD. Used for detecting reboots.
+	ElapsedTimeSinceBoot time.Duration
+
+	// NTP server timestamp from the most recent NTP sync, or zero value if none.
+	// Note, the NTP sync may have been performed by some peer device.
+	LastNtpTs time.Time
+
+	// Number of reboots since last NTP sync, accumulated across all hops of p2p
+	// clock sync. E.g. if LastNtpTs came from some peer device, NumReboots will
+	// equal that device's NumReboots at the time of sync plus the number of
+	// reboots on this device since then.
+	NumReboots uint16
+
+	// Number of sync hops between this device and the source of LastNtpTs.
+	NumHops uint16
+}

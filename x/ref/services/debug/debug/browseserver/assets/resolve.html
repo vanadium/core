@@ -1,0 +1,72 @@
+{{/*
+    Copyright 2016 The Vanadium Authors. All rights reserved.
+    Use of this source code is governed by a BSD-style
+    license that can be found in the LICENSE file.
+*/}}
+
+{{define "content"}}
+<section class="section--center mdl-grid">
+    <h5>Name resolution</h5>
+    <div class="mdl-cell mdl-cell--12-col">
+        {{with .MountEntry}}
+        <ul>
+            {{with .Name}}
+            <li>Suffix: {{.}}</li>{{end}} {{with .ServesMountTable}}
+            <li>This server is a mounttable</li>{{end}} {{with .IsLeaf}}
+            <li>This is a leaf server</li>{{end}}
+        </ul>
+        {{range .Servers}}
+        <div class="mdl-cell mdl-cell--12-col">
+            <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+                <tbody>
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Endpoint</td>
+                        <td class="mdl-data-table__cell--non-numeric"><a href="/?n={{endpoint .Server | endpointName | urlquery}}">{{.Server}}</a></td>
+                    </tr>
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Expires</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.Deadline}}</td>
+                    </tr>
+                    {{with $ep := endpoint .Server}}
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Network</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.Addr.Network}}</td>
+                    </tr>
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Address</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.Addr}}</td>
+                    </tr>
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">RoutingID</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.RoutingID}}</td>
+                    </tr>
+                    {{with .BlessingNames}}
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Blessings ({{len .}})</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.}}</td>
+                    </tr>
+                    {{end}} 
+                    {{with .Routes}}
+                    <tr>
+                        <td class="mdl-data-table__cell--non-numeric">Routes ({{len .}})</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{.}}</td>
+                    </tr>
+                    {{end}}
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        {{else}}
+        Name resolution came up empty
+        {{end}}
+        {{end}}
+    </div>
+</section>
+
+{{with .Error}}
+<section class="section--center mdl-grid">
+    <h5><i class="material-icons">info</i>ERROR({{verrorID .}})</h5>
+    <div class="mdl-cell mdl-cell--12-col fixed-width">{{.}}</div>
+</section>
+{{end}}
+{{end}}

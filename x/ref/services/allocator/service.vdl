@@ -1,0 +1,29 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package allocator
+
+import "time"
+
+// Instance describes a service instance.
+type Instance struct {
+     Handle string
+     MountName string
+     BlessingNames []string
+     CreationTime time.Time
+     Replicas int32
+     Version string
+}
+
+type Allocator interface {
+	// Create creates a new instance of the service.
+	// It returns a handle for the new instance.
+	Create() (handle string | error)
+
+	// Destroy destroys the instance with the given handle.
+	Destroy(handle string) error
+
+	// List returns a list of all the instances owned by the caller.
+	List() (instances []Instance | error)
+}

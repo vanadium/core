@@ -1,0 +1,78 @@
+pkg vtrace, const CollectInMemory TraceFlags
+pkg vtrace, const Empty TraceFlags
+pkg vtrace, func BuildTree(*TraceRecord) *Node
+pkg vtrace, func ForceCollect(*context.T, int)
+pkg vtrace, func FormatTrace(io.Writer, *TraceRecord, *time.Location)
+pkg vtrace, func FormatTraces(io.Writer, []TraceRecord, *time.Location)
+pkg vtrace, func GetRequest(*context.T) Request
+pkg vtrace, func GetResponse(*context.T) Response
+pkg vtrace, func GetSpan(*context.T) Span
+pkg vtrace, func GetStore(*context.T) Store
+pkg vtrace, func WithContinuedTrace(*context.T, string, Request) (*context.T, Span)
+pkg vtrace, func WithManager(*context.T, Manager) *context.T
+pkg vtrace, func WithNewSpan(*context.T, string) (*context.T, Span)
+pkg vtrace, func WithNewTrace(*context.T) (*context.T, Span)
+pkg vtrace, method (*Annotation) VDLRead(vdl.Decoder) error
+pkg vtrace, method (*Request) VDLRead(vdl.Decoder) error
+pkg vtrace, method (*Response) VDLRead(vdl.Decoder) error
+pkg vtrace, method (*SpanRecord) VDLRead(vdl.Decoder) error
+pkg vtrace, method (*TraceFlags) VDLRead(vdl.Decoder) error
+pkg vtrace, method (*TraceRecord) VDLRead(vdl.Decoder) error
+pkg vtrace, method (Annotation) VDLIsZero() bool
+pkg vtrace, method (Annotation) VDLWrite(vdl.Encoder) error
+pkg vtrace, method (Request) VDLIsZero() bool
+pkg vtrace, method (Request) VDLWrite(vdl.Encoder) error
+pkg vtrace, method (Response) VDLIsZero() bool
+pkg vtrace, method (Response) VDLWrite(vdl.Encoder) error
+pkg vtrace, method (SpanRecord) VDLIsZero() bool
+pkg vtrace, method (SpanRecord) VDLWrite(vdl.Encoder) error
+pkg vtrace, method (TraceFlags) VDLIsZero() bool
+pkg vtrace, method (TraceFlags) VDLWrite(vdl.Encoder) error
+pkg vtrace, method (TraceRecord) VDLIsZero() bool
+pkg vtrace, method (TraceRecord) VDLWrite(vdl.Encoder) error
+pkg vtrace, type Annotation struct
+pkg vtrace, type Annotation struct, Message string
+pkg vtrace, type Annotation struct, When time.Time
+pkg vtrace, type Manager interface { GetRequest, GetResponse, GetSpan, GetStore, WithContinuedTrace, WithNewSpan, WithNewTrace }
+pkg vtrace, type Manager interface, GetRequest(*context.T) Request
+pkg vtrace, type Manager interface, GetResponse(*context.T) Response
+pkg vtrace, type Manager interface, GetSpan(*context.T) Span
+pkg vtrace, type Manager interface, GetStore(*context.T) Store
+pkg vtrace, type Manager interface, WithContinuedTrace(*context.T, string, Request) (*context.T, Span)
+pkg vtrace, type Manager interface, WithNewSpan(*context.T, string) (*context.T, Span)
+pkg vtrace, type Manager interface, WithNewTrace(*context.T) (*context.T, Span)
+pkg vtrace, type Node struct
+pkg vtrace, type Node struct, Children []*Node
+pkg vtrace, type Node struct, Span *SpanRecord
+pkg vtrace, type Request struct
+pkg vtrace, type Request struct, Flags TraceFlags
+pkg vtrace, type Request struct, LogLevel int32
+pkg vtrace, type Request struct, SpanId uniqueid.Id
+pkg vtrace, type Request struct, TraceId uniqueid.Id
+pkg vtrace, type Response struct
+pkg vtrace, type Response struct, Flags TraceFlags
+pkg vtrace, type Response struct, Trace TraceRecord
+pkg vtrace, type Span interface { Annotate, Annotatef, Finish, ID, Name, Parent, Trace }
+pkg vtrace, type Span interface, Annotate(string)
+pkg vtrace, type Span interface, Annotatef(string, ...interface{})
+pkg vtrace, type Span interface, Finish()
+pkg vtrace, type Span interface, ID() uniqueid.Id
+pkg vtrace, type Span interface, Name() string
+pkg vtrace, type Span interface, Parent() uniqueid.Id
+pkg vtrace, type Span interface, Trace() uniqueid.Id
+pkg vtrace, type SpanRecord struct
+pkg vtrace, type SpanRecord struct, Annotations []Annotation
+pkg vtrace, type SpanRecord struct, End time.Time
+pkg vtrace, type SpanRecord struct, Id uniqueid.Id
+pkg vtrace, type SpanRecord struct, Name string
+pkg vtrace, type SpanRecord struct, Parent uniqueid.Id
+pkg vtrace, type SpanRecord struct, Start time.Time
+pkg vtrace, type Store interface { ForceCollect, Merge, TraceRecord, TraceRecords }
+pkg vtrace, type Store interface, ForceCollect(uniqueid.Id, int)
+pkg vtrace, type Store interface, Merge(Response)
+pkg vtrace, type Store interface, TraceRecord(uniqueid.Id) *TraceRecord
+pkg vtrace, type Store interface, TraceRecords() []TraceRecord
+pkg vtrace, type TraceFlags int32
+pkg vtrace, type TraceRecord struct
+pkg vtrace, type TraceRecord struct, Id uniqueid.Id
+pkg vtrace, type TraceRecord struct, Spans []SpanRecord

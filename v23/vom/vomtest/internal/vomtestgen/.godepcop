@@ -1,0 +1,10 @@
+<godepcop>
+  <!-- The vomtestgen package relaxes the stricter v23 package rules, to allow
+       dependencies on x/lib and x/ref.  This is fine since vomtestgen is only
+       used during development to generate test cases; we also allow these
+       dependencies in our v23 xtest rules. -->
+  <pkg allow="v.io/v23/..."/>
+  <pkg allow="v.io/x/lib/..."/>
+  <pkg allow="v.io/x/ref/..."/>
+  <pkg deny="..."/>
+</godepcop>

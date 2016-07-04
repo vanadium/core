@@ -1,0 +1,191 @@
+pkg vom, const ControlKindEnd ControlKind
+pkg vom, const ControlKindIncompleteType ControlKind
+pkg vom, const ControlKindNil ControlKind
+pkg vom, const DefaultVersion Version
+pkg vom, const DumpKindAnyLensLen DumpKind
+pkg vom, const DumpKindAnyMsgLen DumpKind
+pkg vom, const DumpKindByteLen DumpKind
+pkg vom, const DumpKindControl DumpKind
+pkg vom, const DumpKindIndex DumpKind
+pkg vom, const DumpKindMsgId DumpKind
+pkg vom, const DumpKindMsgLen DumpKind
+pkg vom, const DumpKindPrimValue DumpKind
+pkg vom, const DumpKindTypeId DumpKind
+pkg vom, const DumpKindTypeIdsLen DumpKind
+pkg vom, const DumpKindTypeMsg DumpKind
+pkg vom, const DumpKindValueLen DumpKind
+pkg vom, const DumpKindValueMsg DumpKind
+pkg vom, const DumpKindVersion DumpKind
+pkg vom, const DumpKindWireTypeIndex DumpKind
+pkg vom, const Version80 Version
+pkg vom, const Version81 Version
+pkg vom, const WireCtrlEnd byte
+pkg vom, const WireCtrlNil byte
+pkg vom, const WireCtrlTypeIncomplete byte
+pkg vom, const WireIdAny TypeId
+pkg vom, const WireIdBool TypeId
+pkg vom, const WireIdByte TypeId
+pkg vom, const WireIdByteList TypeId
+pkg vom, const WireIdFirstUserType TypeId
+pkg vom, const WireIdFloat32 TypeId
+pkg vom, const WireIdFloat64 TypeId
+pkg vom, const WireIdInt16 TypeId
+pkg vom, const WireIdInt32 TypeId
+pkg vom, const WireIdInt64 TypeId
+pkg vom, const WireIdInt8 TypeId
+pkg vom, const WireIdString TypeId
+pkg vom, const WireIdStringList TypeId
+pkg vom, const WireIdTypeObject TypeId
+pkg vom, const WireIdUint16 TypeId
+pkg vom, const WireIdUint32 TypeId
+pkg vom, const WireIdUint64 TypeId
+pkg vom, func ControlKindFromString(string) (ControlKind, error)
+pkg vom, func Decode([]byte, interface{}) error
+pkg vom, func Dump([]byte) (string, error)
+pkg vom, func DumpKindFromString(string) (DumpKind, error)
+pkg vom, func Encode(interface{}) ([]byte, error)
+pkg vom, func NewDecoder(io.Reader) *Decoder
+pkg vom, func NewDecoderWithTypeDecoder(io.Reader, *TypeDecoder) *Decoder
+pkg vom, func NewDumpWriter(io.Writer) DumpWriter
+pkg vom, func NewDumper(DumpWriter) *Dumper
+pkg vom, func NewEncoder(io.Writer) *Encoder
+pkg vom, func NewEncoderWithTypeEncoder(io.Writer, *TypeEncoder) *Encoder
+pkg vom, func NewTypeDecoder(io.Reader) *TypeDecoder
+pkg vom, func NewTypeEncoder(io.Writer) *TypeEncoder
+pkg vom, func NewVersionedEncoder(Version, io.Writer) *Encoder
+pkg vom, func NewVersionedEncoderWithTypeEncoder(Version, io.Writer, *TypeEncoder) *Encoder
+pkg vom, func NewVersionedTypeEncoder(Version, io.Writer) *TypeEncoder
+pkg vom, func RawBytesFromValue(interface{}) (*RawBytes, error)
+pkg vom, func RawBytesOf(interface{}) *RawBytes
+pkg vom, func VDLReadPrimitive(vdl.Decoder, *Primitive) error
+pkg vom, func VersionedEncode(Version, interface{}) ([]byte, error)
+pkg vom, method (*ControlKind) Set(string) error
+pkg vom, method (*ControlKind) VDLRead(vdl.Decoder) error
+pkg vom, method (*Decoder) Decode(interface{}) error
+pkg vom, method (*Decoder) Decoder() vdl.Decoder
+pkg vom, method (*DumpAtom) VDLRead(vdl.Decoder) error
+pkg vom, method (*DumpKind) Set(string) error
+pkg vom, method (*DumpKind) VDLRead(vdl.Decoder) error
+pkg vom, method (*Dumper) Close() error
+pkg vom, method (*Dumper) Flush() error
+pkg vom, method (*Dumper) Status()
+pkg vom, method (*Dumper) Write([]byte) (int, error)
+pkg vom, method (*Encoder) Encode(interface{}) error
+pkg vom, method (*Encoder) Encoder() vdl.Encoder
+pkg vom, method (*RawBytes) Decoder() vdl.Decoder
+pkg vom, method (*RawBytes) IsNil() bool
+pkg vom, method (*RawBytes) String() string
+pkg vom, method (*RawBytes) ToValue(interface{}) error
+pkg vom, method (*RawBytes) VDLEqual(interface{}) bool
+pkg vom, method (*RawBytes) VDLIsZero() bool
+pkg vom, method (*RawBytes) VDLRead(vdl.Decoder) error
+pkg vom, method (*RawBytes) VDLWrite(vdl.Encoder) error
+pkg vom, method (*TypeDecoder) Start()
+pkg vom, method (*TypeDecoder) Stop()
+pkg vom, method (*TypeId) VDLRead(vdl.Decoder) error
+pkg vom, method (*Version) VDLRead(vdl.Decoder) error
+pkg vom, method (ControlKind) String() string
+pkg vom, method (ControlKind) VDLIsZero() bool
+pkg vom, method (ControlKind) VDLWrite(vdl.Encoder) error
+pkg vom, method (DumpAtom) String() string
+pkg vom, method (DumpAtom) VDLIsZero() bool
+pkg vom, method (DumpAtom) VDLWrite(vdl.Encoder) error
+pkg vom, method (DumpKind) String() string
+pkg vom, method (DumpKind) VDLIsZero() bool
+pkg vom, method (DumpKind) VDLWrite(vdl.Encoder) error
+pkg vom, method (DumpStatus) String() string
+pkg vom, method (PrimitivePBool) Index() int
+pkg vom, method (PrimitivePBool) Interface() interface{}
+pkg vom, method (PrimitivePBool) Name() string
+pkg vom, method (PrimitivePBool) VDLIsZero() bool
+pkg vom, method (PrimitivePBool) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePByte) Index() int
+pkg vom, method (PrimitivePByte) Interface() interface{}
+pkg vom, method (PrimitivePByte) Name() string
+pkg vom, method (PrimitivePByte) VDLIsZero() bool
+pkg vom, method (PrimitivePByte) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePControl) Index() int
+pkg vom, method (PrimitivePControl) Interface() interface{}
+pkg vom, method (PrimitivePControl) Name() string
+pkg vom, method (PrimitivePControl) VDLIsZero() bool
+pkg vom, method (PrimitivePControl) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePFloat) Index() int
+pkg vom, method (PrimitivePFloat) Interface() interface{}
+pkg vom, method (PrimitivePFloat) Name() string
+pkg vom, method (PrimitivePFloat) VDLIsZero() bool
+pkg vom, method (PrimitivePFloat) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePInt) Index() int
+pkg vom, method (PrimitivePInt) Interface() interface{}
+pkg vom, method (PrimitivePInt) Name() string
+pkg vom, method (PrimitivePInt) VDLIsZero() bool
+pkg vom, method (PrimitivePInt) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePString) Index() int
+pkg vom, method (PrimitivePString) Interface() interface{}
+pkg vom, method (PrimitivePString) Name() string
+pkg vom, method (PrimitivePString) VDLIsZero() bool
+pkg vom, method (PrimitivePString) VDLWrite(vdl.Encoder) error
+pkg vom, method (PrimitivePUint) Index() int
+pkg vom, method (PrimitivePUint) Interface() interface{}
+pkg vom, method (PrimitivePUint) Name() string
+pkg vom, method (PrimitivePUint) VDLIsZero() bool
+pkg vom, method (PrimitivePUint) VDLWrite(vdl.Encoder) error
+pkg vom, method (TypeId) VDLIsZero() bool
+pkg vom, method (TypeId) VDLWrite(vdl.Encoder) error
+pkg vom, method (Version) String() string
+pkg vom, method (Version) VDLIsZero() bool
+pkg vom, method (Version) VDLWrite(vdl.Encoder) error
+pkg vom, type ControlKind int
+pkg vom, type Decoder struct
+pkg vom, type DumpAtom struct
+pkg vom, type DumpAtom struct, Bytes []byte
+pkg vom, type DumpAtom struct, Data Primitive
+pkg vom, type DumpAtom struct, Debug string
+pkg vom, type DumpAtom struct, Kind DumpKind
+pkg vom, type DumpKind int
+pkg vom, type DumpStatus struct
+pkg vom, type DumpStatus struct, Buf []byte
+pkg vom, type DumpStatus struct, Debug string
+pkg vom, type DumpStatus struct, Err error
+pkg vom, type DumpStatus struct, MsgId int64
+pkg vom, type DumpStatus struct, MsgLen int
+pkg vom, type DumpStatus struct, MsgN int
+pkg vom, type DumpStatus struct, RefAnyLens []uint64
+pkg vom, type DumpStatus struct, RefTypes []*vdl.Type
+pkg vom, type DumpStatus struct, Value *vdl.Value
+pkg vom, type DumpWriter interface { WriteAtom, WriteStatus }
+pkg vom, type DumpWriter interface, WriteAtom(DumpAtom)
+pkg vom, type DumpWriter interface, WriteStatus(DumpStatus)
+pkg vom, type Dumper struct
+pkg vom, type Encoder struct
+pkg vom, type Primitive interface, Index() int
+pkg vom, type Primitive interface, Interface() interface{}
+pkg vom, type Primitive interface, Name() string
+pkg vom, type Primitive interface, VDLIsZero() bool
+pkg vom, type Primitive interface, VDLWrite(vdl.Encoder) error
+pkg vom, type Primitive interface, unexported methods
+pkg vom, type PrimitivePBool struct
+pkg vom, type PrimitivePBool struct, Value bool
+pkg vom, type PrimitivePByte struct
+pkg vom, type PrimitivePByte struct, Value byte
+pkg vom, type PrimitivePControl struct
+pkg vom, type PrimitivePControl struct, Value ControlKind
+pkg vom, type PrimitivePFloat struct
+pkg vom, type PrimitivePFloat struct, Value float64
+pkg vom, type PrimitivePInt struct
+pkg vom, type PrimitivePInt struct, Value int64
+pkg vom, type PrimitivePString struct
+pkg vom, type PrimitivePString struct, Value string
+pkg vom, type PrimitivePUint struct
+pkg vom, type PrimitivePUint struct, Value uint64
+pkg vom, type RawBytes struct
+pkg vom, type RawBytes struct, AnyLengths []int
+pkg vom, type RawBytes struct, Data []byte
+pkg vom, type RawBytes struct, RefTypes []*vdl.Type
+pkg vom, type RawBytes struct, Type *vdl.Type
+pkg vom, type RawBytes struct, Version Version
+pkg vom, type TypeDecoder struct
+pkg vom, type TypeEncoder struct
+pkg vom, type TypeId uint64
+pkg vom, type Version byte
+pkg vom, var ControlKindAll [...]ControlKind
+pkg vom, var DumpKindAll [...]DumpKind

@@ -1,0 +1,48 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package watchable
+
+import (
+	"v.io/x/ref/services/syncbase/server/interfaces"
+)
+
+// SyncgroupOp represents a change in the set of prefixes that should be tracked
+// by sync, i.e. the union of prefix sets across all syncgroups. Note that an
+// individual syncgroup's prefixes cannot be changed; this record type is used
+// to track changes due to syncgroup create/join/leave/destroy.
+type SyncgroupOp struct {
+	SgId     interfaces.GroupId
+	Prefixes []string
+	Remove   bool
+}
+
+// SyncSnapshotOp represents a snapshot operation when creating and joining a
+// syncgroup. The sync watcher needs to get a snapshot of the Database at the
+// point of creating/joining a syncgroup. A SyncSnapshotOp entry is written to
+// the log for each Database key that falls within the syncgroup prefixes. This
+// allows sync to initialize its metadata at the correct versions of the objects
+// when they become syncable. These log entries should be filtered by the
+// client-facing Watch interface because the user data did not actually change.
+type SyncSnapshotOp struct {
+	Key         []byte
+	Version     []byte
+}
+
+// StateChange represents the set of types of state change requests possible.
+type StateChange enum {
+	// PauseSync pauses sync for the db.
+	PauseSync
+	// ResumeSync resumes sync for the db.
+	ResumeSync
+}
+
+// DbStateChangeRequestOp represents a database state change request.
+// Specifically there are two events that create this op:
+// PauseSync, indicating a client request to pause sync on this db.
+// ResumeSync, indicating a client request to resume sync on this db.
+// Client watcher will ignore this op.
+type DbStateChangeRequestOp struct {
+	RequestType StateChange
+}

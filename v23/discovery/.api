@@ -1,0 +1,40 @@
+pkg discovery, func NewAdId() (AdId, error)
+pkg discovery, func ParseAdId(string) (AdId, error)
+pkg discovery, method (*AdId) VDLRead(vdl.Decoder) error
+pkg discovery, method (*Advertisement) VDLRead(vdl.Decoder) error
+pkg discovery, method (*Attachments) VDLRead(vdl.Decoder) error
+pkg discovery, method (*Attributes) VDLRead(vdl.Decoder) error
+pkg discovery, method (AdId) IsValid() bool
+pkg discovery, method (AdId) String() string
+pkg discovery, method (AdId) VDLIsZero() bool
+pkg discovery, method (AdId) VDLWrite(vdl.Encoder) error
+pkg discovery, method (Advertisement) VDLIsZero() bool
+pkg discovery, method (Advertisement) VDLWrite(vdl.Encoder) error
+pkg discovery, method (Attachments) VDLIsZero() bool
+pkg discovery, method (Attachments) VDLWrite(vdl.Encoder) error
+pkg discovery, method (Attributes) VDLIsZero() bool
+pkg discovery, method (Attributes) VDLWrite(vdl.Encoder) error
+pkg discovery, type AdId [16]byte
+pkg discovery, type Advertisement struct
+pkg discovery, type Advertisement struct, Addresses []string
+pkg discovery, type Advertisement struct, Attachments Attachments
+pkg discovery, type Advertisement struct, Attributes Attributes
+pkg discovery, type Advertisement struct, Id AdId
+pkg discovery, type Advertisement struct, InterfaceName string
+pkg discovery, type Attachments map[string][]byte
+pkg discovery, type Attributes map[string]string
+pkg discovery, type DataOrError struct
+pkg discovery, type DataOrError struct, Data []byte
+pkg discovery, type DataOrError struct, Error error
+pkg discovery, type T interface { Advertise, Scan }
+pkg discovery, type T interface, Advertise(*context.T, *Advertisement, []security.BlessingPattern) (<-chan struct{}, error)
+pkg discovery, type T interface, Scan(*context.T, string) (<-chan Update, error)
+pkg discovery, type Update interface { Addresses, Advertisement, Attachment, Attribute, Id, InterfaceName, IsLost, Timestamp }
+pkg discovery, type Update interface, Addresses() []string
+pkg discovery, type Update interface, Advertisement() Advertisement
+pkg discovery, type Update interface, Attachment(*context.T, string) <-chan DataOrError
+pkg discovery, type Update interface, Attribute(string) string
+pkg discovery, type Update interface, Id() AdId
+pkg discovery, type Update interface, InterfaceName() string
+pkg discovery, type Update interface, IsLost() bool
+pkg discovery, type Update interface, Timestamp() time.Time

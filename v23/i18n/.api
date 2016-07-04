@@ -1,0 +1,18 @@
+pkg i18n, const NoLangID LangID
+pkg i18n, func BaseLangID(LangID) LangID
+pkg i18n, func Cat() *Catalogue
+pkg i18n, func FormatParams(string, ...interface{}) string
+pkg i18n, func GetLangID(*context.T) LangID
+pkg i18n, func LangIDFromEnv() LangID
+pkg i18n, func NormalizeLangID(string) LangID
+pkg i18n, func WithLangID(*context.T, LangID) *context.T
+pkg i18n, method (*Catalogue) Format(LangID, MsgID, ...interface{}) string
+pkg i18n, method (*Catalogue) Lookup(LangID, MsgID) string
+pkg i18n, method (*Catalogue) Merge(io.Reader) error
+pkg i18n, method (*Catalogue) MergeFromFile(string) error
+pkg i18n, method (*Catalogue) Output(io.Writer) error
+pkg i18n, method (*Catalogue) Set(LangID, MsgID, string) string
+pkg i18n, method (*Catalogue) SetWithBase(LangID, MsgID, string) string
+pkg i18n, type Catalogue struct
+pkg i18n, type LangID string
+pkg i18n, type MsgID string

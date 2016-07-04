@@ -1,0 +1,32 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package cluster
+
+import (
+	"v.io/v23/security"
+	"v.io/v23/security/access"
+)
+
+type ClusterAgentAdmin interface {
+	// Creates a new "secret" that can be used to retrieve extensions
+	// of the blessings granted on this RPC, e.g. with the rpc.Granter
+	// ClientCallOpt in Go.
+	NewSecret() (secret string | error) {access.Admin}
+
+	// Forgets a secret and its associated blessings.
+	ForgetSecret(secret string) error {access.Admin}
+
+	ClusterAgent
+}
+
+type ClusterAgent interface {
+	// Retrieves all the blessings associated with a particular secret.
+	// The only authorization required to access this method is the secret
+	// itself.
+	// TODO(rthellend): Consider adding other side-channel authorization
+	// mechanisms, e.g. verify that the IP address of the client belongs to
+	// an authorized user.
+	SeekBlessings(secret string) (security.WireBlessings | error)
+}

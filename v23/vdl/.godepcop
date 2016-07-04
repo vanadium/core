@@ -1,0 +1,11 @@
+<godepcop>
+  <!-- The vdl package is very widely used; it is imported by most vdl-generated
+       files, which are used throughout the codebase.
+
+       Maintain a strict rule of no imports (other than standard packages),
+       to avoid painful circular dependencies.  -->
+  <pkg deny="..."/>
+
+  <!-- Relax the rule for external tests -->
+  <xtest allow="v.io/v23/..."/>
+</godepcop>

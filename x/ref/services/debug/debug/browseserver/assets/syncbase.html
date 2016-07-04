@@ -1,0 +1,99 @@
+{{/*
+    Copyright 2016 The Vanadium Authors. All rights reserved.
+    Use of this source code is governed by a BSD-style
+    license that can be found in the LICENSE file.
+*/}}
+
+{{define "content"}}
+
+<section class="section--center mdl-grid">
+    <h5>Syncbase</h5>
+    <div class="mdl-cell mdl-cell--12-col">
+      Service "{{.Tree.Service.FullName}}"
+    </div>
+</section>
+
+{{range .Tree.Dbs}}
+  <section class="section--center mdl-grid">
+    {{ $db := .Database.Id }}
+    <h5>Database "{{$db.Name}}"</h5>
+      <div class="mdl-cell mdl-cell--12-col">
+        App Blessing "{{$db.Blessing}}"
+      </div>
+      {{range .Errs}}
+        <div class="mdl-cell mdl-cell--12-col">
+          <dl><dt>Error</dt><dd>{{.Error}}</dd></dl>
+        </div>
+      {{end}}
+      <div class="mdl-cell mdl-cell--12-col">
+        <dl>
+        {{range .Collections}}
+          <dt>Collection: "{{.Id.Name}}"<dt>
+          <dd>Creator's User Blessing "{{.Id.Blessing}}"</dd>
+          <dd><a href="syncbase/collection?n={{$.ServerName}}&db={{$db.Blessing}}&dn={{$db.Name}}&cb={{.Id.Blessing}}&cn={{.Id.Name}}">More...</a></dd>
+        {{else}}
+          <dt>(no collections)</dt>
+        {{end}}
+      </dl>
+    </div>
+    <div class="mdl-cell mdl-cell--12-col">
+      <dl>
+        {{range .Syncgroups}}
+          <dt>Syncgroup: {{.Syncgroup.Id.Name}}<dt>
+          {{range .Errs}}
+            <dt>Error</dt><dd>{{.Error}}</dd>
+          {{end}}
+          <dd><dl><dt>Blessing</dt><dd>{{.Syncgroup.Id.Blessing}}</dd></dl></dd>
+          <dd><dl><dt>Description</dt><dd>"{{.Spec.Description}}"</dd></dl></dd>
+          <dd><dl><dt>Publish Syncbase Name</dt><dd>{{.Spec.PublishSyncbaseName}}</dd></dl></dd>
+          <dd>
+            <dl>
+              {{range $tag, $accessList := .Spec.Perms }}
+                <dt>{{$tag}} permission</dt>
+                <dd>+{{$accessList.In}}</dd>
+                {{with $accessList.NotIn}}
+                <dd>-{{.}}</dd>
+                {{end}}
+              {{end}}
+            </dl>
+          </dd>
+          {{with .Spec.Description}}
+          <dd><dl><dt>Description</dt><dd>{{.}}</dd></dl></dd>
+          {{end}}
+          {{with .Spec.PublishSyncbaseName}}
+          <dd><dl><dt>PublishSyncbaseName</dt><dd>{{.}}</dd></dl></dd>
+          {{end}}
+          <dd>
+            <dl>
+            <dt>Collections</dt>
+            {{range .Spec.Collections}}
+            <dd>Name:[{{.Name}}] Blessing:[{{.Blessing}}]</dd>
+            {{end}}
+            </dl>
+          </dd>
+          <dd><dl><dt>MountTables</dt><dd>{{.Spec.MountTables}}</dd></dl></dd>
+          <dd><dl><dt>IsPrivate</dt><dd>{{.Spec.IsPrivate}}</dd></dl></dd>
+          <dd>
+            <dl>
+              {{range $member, $info := .Members}}
+                <dt>Member</dt>
+                <dd>{{$member}} (SyncPriority={{$info.SyncPriority}} BlobDevType={{$info.BlobDevType}})</dd>
+              {{end}}
+            </dl>
+          </dd>
+        {{else}}
+          <dt>(no syncgroups)</dt>
+        {{end}}
+      </dl>
+    </div>
+  </section>
+{{else}}
+  <section class="section--center mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col">
+        (No databases)
+      </div>
+  <section>
+{{end}}
+
+
+{{end}}

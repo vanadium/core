@@ -1,0 +1,5 @@
+# Update an object remotely, detect conflict, and bless the local version.
+# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
+
+addr|c\xfefoo1|4|1||logrec-01|0|1|false
+linkr|c\xfefoo1|4|2||logrec-02

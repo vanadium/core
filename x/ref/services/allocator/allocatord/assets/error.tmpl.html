@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>Error</title>
+</head>
+<body>
+  <h1>An Error Occurred</h1>
+  <pre>
+    {{.URL}}
+  </pre>
+  {{with .Error -}}
+  <p>
+    Error: {{.}}.
+  </p>
+  {{end}}
+  <p>
+    <a href="{{.Home}}">Home</a>
+  </p>
+</body>
+</html>

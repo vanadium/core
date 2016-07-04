@@ -1,0 +1,8 @@
+# Update an object remotely three times triggering one conflict after
+# it was created locally up to v3 (i.e. assume the remote sync received
+# it from the local sync at v2, then updated separately).
+# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
+
+addr|c\xfefoo1|4|2||y\xfel\xfed\xfe11\xfe1|0|1|false
+addr|c\xfefoo1|5|4||y\xfel\xfed\xfe11\xfe2|0|1|false
+addr|c\xfefoo1|6|5||y\xfel\xfed\xfe11\xfe3|0|1|false

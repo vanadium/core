@@ -1,0 +1,12 @@
+pkg pattern, const DefaultEscapeChar ideal-char
+pkg pattern, func Escape(string) string
+pkg pattern, func EscapeWithEscapeChar(string, rune) string
+pkg pattern, func NewErrIllegalEscapeChar(*context.T) error
+pkg pattern, func NewErrInvalidEscape(*context.T, string) error
+pkg pattern, func Parse(string) (*Pattern, error)
+pkg pattern, func ParseWithEscapeChar(string, rune) (*Pattern, error)
+pkg pattern, method (*Pattern) FixedPrefix() (string, bool)
+pkg pattern, method (*Pattern) MatchString(string) bool
+pkg pattern, type Pattern struct
+pkg pattern, var ErrIllegalEscapeChar unknown-type
+pkg pattern, var ErrInvalidEscape unknown-type

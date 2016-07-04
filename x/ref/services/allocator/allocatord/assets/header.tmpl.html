@@ -1,0 +1,13 @@
+{{define "header"}}
+  <header>
+    <nav class="left">
+      <a href="#" class="logo">Vanadium</a>
+      <span class="service-name">{{title .ServerName}} Allocator</span>
+    </nav>
+    <nav class="right">
+      {{if .Email}}
+        <a href="#">{{.Email}}</a>
+      {{end}}
+    </nav>
+  </header>
+{{end}}

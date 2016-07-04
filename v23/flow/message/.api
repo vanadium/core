@@ -1,0 +1,56 @@
+pkg message, const CloseFlag ideal-int
+pkg message, const DisableEncryptionFlag ideal-int
+pkg message, const SideChannelFlag ideal-int
+pkg message, func Append(*context.T, Message, []byte) ([]byte, error)
+pkg message, func NewErrInvalidMsg(*context.T, byte, uint64, uint64, error) error
+pkg message, func NewErrInvalidSetupOption(*context.T, uint64, uint64) error
+pkg message, func NewErrMissingBlessings(*context.T, byte) error
+pkg message, func NewErrUnknownMsg(*context.T, byte) error
+pkg message, func Read(*context.T, []byte) (Message, error)
+pkg message, method (*Data) String() string
+pkg message, method (*OpenFlow) String() string
+pkg message, method (*ProxyErrorResponse) String() string
+pkg message, method (*ProxyResponse) String() string
+pkg message, method (*Setup) String() string
+pkg message, method (*TearDown) String() string
+pkg message, type AckLameDuck struct
+pkg message, type Auth struct
+pkg message, type Auth struct, BlessingsKey uint64
+pkg message, type Auth struct, ChannelBinding security.Signature
+pkg message, type Auth struct, DischargeKey uint64
+pkg message, type Data struct
+pkg message, type Data struct, Flags uint64
+pkg message, type Data struct, ID uint64
+pkg message, type Data struct, Payload [][]byte
+pkg message, type EnterLameDuck struct
+pkg message, type HealthCheckRequest struct
+pkg message, type HealthCheckResponse struct
+pkg message, type Message interface, unexported methods
+pkg message, type MultiProxyRequest struct
+pkg message, type OpenFlow struct
+pkg message, type OpenFlow struct, BlessingsKey uint64
+pkg message, type OpenFlow struct, DischargeKey uint64
+pkg message, type OpenFlow struct, Flags uint64
+pkg message, type OpenFlow struct, ID uint64
+pkg message, type OpenFlow struct, InitialCounters uint64
+pkg message, type OpenFlow struct, Payload [][]byte
+pkg message, type ProxyErrorResponse struct
+pkg message, type ProxyErrorResponse struct, Error string
+pkg message, type ProxyResponse struct
+pkg message, type ProxyResponse struct, Endpoints []naming.Endpoint
+pkg message, type ProxyServerRequest struct
+pkg message, type Release struct
+pkg message, type Release struct, Counters map[uint64]uint64
+pkg message, type Setup struct
+pkg message, type Setup struct, Mtu uint64
+pkg message, type Setup struct, PeerLocalEndpoint naming.Endpoint
+pkg message, type Setup struct, PeerNaClPublicKey *[32]byte
+pkg message, type Setup struct, PeerRemoteEndpoint naming.Endpoint
+pkg message, type Setup struct, SharedTokens uint64
+pkg message, type Setup struct, Versions version.RPCVersionRange
+pkg message, type TearDown struct
+pkg message, type TearDown struct, Message string
+pkg message, var ErrInvalidMsg unknown-type
+pkg message, var ErrInvalidSetupOption unknown-type
+pkg message, var ErrMissingBlessings unknown-type
+pkg message, var ErrUnknownMsg unknown-type

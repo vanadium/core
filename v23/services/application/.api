@@ -1,0 +1,25 @@
+pkg application, const DeviceManagerTitle ideal-string
+pkg application, method (*Envelope) UnmarshalJSON([]byte) error
+pkg application, method (*Envelope) VDLRead(vdl.Decoder) error
+pkg application, method (*Packages) VDLRead(vdl.Decoder) error
+pkg application, method (*SignedFile) VDLRead(vdl.Decoder) error
+pkg application, method (Envelope) MarshalJSON() ([]byte, error)
+pkg application, method (Envelope) VDLIsZero() bool
+pkg application, method (Envelope) VDLWrite(vdl.Encoder) error
+pkg application, method (Packages) VDLIsZero() bool
+pkg application, method (Packages) VDLWrite(vdl.Encoder) error
+pkg application, method (SignedFile) VDLIsZero() bool
+pkg application, method (SignedFile) VDLWrite(vdl.Encoder) error
+pkg application, type Envelope struct
+pkg application, type Envelope struct, Args []string
+pkg application, type Envelope struct, Binary SignedFile
+pkg application, type Envelope struct, Env []string
+pkg application, type Envelope struct, Packages Packages
+pkg application, type Envelope struct, Publisher security.Blessings
+pkg application, type Envelope struct, RestartTimeWindow time.Duration
+pkg application, type Envelope struct, Restarts int32
+pkg application, type Envelope struct, Title string
+pkg application, type Packages map[string]SignedFile
+pkg application, type SignedFile struct
+pkg application, type SignedFile struct, File string
+pkg application, type SignedFile struct, Signature security.Signature

@@ -1,0 +1,6 @@
+WORK IN PROGRESS. DO NOT DEPEND ON ANYTHING IN THIS DIRECTORY.
+
+This directory provides an implementation of groups for managing access control.
+
+Group support is under development. Code and interfaces in this directory may
+change at any time.

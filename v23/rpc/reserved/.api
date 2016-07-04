@@ -1,0 +1,8 @@
+pkg reserved, func MethodSignature(*context.T, string, string, ...rpc.CallOpt) (signature.Method, error)
+pkg reserved, func NewErrGlobMatchesOmitted(*context.T) error
+pkg reserved, func NewErrGlobMaxRecursionReached(*context.T) error
+pkg reserved, func NewErrGlobNotImplemented(*context.T) error
+pkg reserved, func Signature(*context.T, string, ...rpc.CallOpt) ([]signature.Interface, error)
+pkg reserved, var ErrGlobMatchesOmitted unknown-type
+pkg reserved, var ErrGlobMaxRecursionReached unknown-type
+pkg reserved, var ErrGlobNotImplemented unknown-type

@@ -1,0 +1,13 @@
+pkg glob, func Parse(string) (*Glob, error)
+pkg glob, method (*Element) FixedPrefix() (string, bool)
+pkg glob, method (*Element) Match(string) bool
+pkg glob, method (*Glob) Empty() bool
+pkg glob, method (*Glob) Head() *Element
+pkg glob, method (*Glob) Len() int
+pkg glob, method (*Glob) Recursive() bool
+pkg glob, method (*Glob) Restricted() bool
+pkg glob, method (*Glob) SplitFixedElements() ([]string, *Glob)
+pkg glob, method (*Glob) String() string
+pkg glob, method (*Glob) Tail() *Glob
+pkg glob, type Element struct
+pkg glob, type Glob struct

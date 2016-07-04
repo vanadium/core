@@ -1,0 +1,116 @@
+pkg syncql, func NewErrArgMustBeField(*context.T, int64) error
+pkg syncql, func NewErrBadFieldInWhere(*context.T, int64) error
+pkg syncql, func NewErrBigIntConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrBigRatConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrBoolConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrBoolInvalidExpression(*context.T, int64) error
+pkg syncql, func NewErrCheckOfUnknownStatementType(*context.T, int64) error
+pkg syncql, func NewErrComplexConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrCouldNotConvert(*context.T, int64, string, string) error
+pkg syncql, func NewErrDidYouMeanFunction(*context.T, int64, string) error
+pkg syncql, func NewErrDidYouMeanLowercaseK(*context.T, int64) error
+pkg syncql, func NewErrDidYouMeanLowercaseV(*context.T, int64) error
+pkg syncql, func NewErrDotNotationDisallowedForKey(*context.T, int64) error
+pkg syncql, func NewErrExecOfUnknownStatementType(*context.T, int64, string) error
+pkg syncql, func NewErrExpected(*context.T, int64, string) error
+pkg syncql, func NewErrExpectedFrom(*context.T, int64, string) error
+pkg syncql, func NewErrExpectedIdentifier(*context.T, int64, string) error
+pkg syncql, func NewErrExpectedOperand(*context.T, int64, string) error
+pkg syncql, func NewErrExpectedOperator(*context.T, int64, string) error
+pkg syncql, func NewErrFloatConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrFunctionArgBad(*context.T, int64, string, string) error
+pkg syncql, func NewErrFunctionArgCount(*context.T, int64, string, int64, int64) error
+pkg syncql, func NewErrFunctionAtLeastArgCount(*context.T, int64, string, int64, int64) error
+pkg syncql, func NewErrFunctionLenInvalidArg(*context.T, int64) error
+pkg syncql, func NewErrFunctionNotFound(*context.T, int64, string) error
+pkg syncql, func NewErrFunctionTypeInvalidArg(*context.T, int64) error
+pkg syncql, func NewErrIndexKindNotSupported(*context.T, int64, string, string, string) error
+pkg syncql, func NewErrIntConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrInvalidEscapeChar(*context.T, int64, string) error
+pkg syncql, func NewErrInvalidIndexField(*context.T, int64, string, string) error
+pkg syncql, func NewErrInvalidLikePattern(*context.T, int64, error) error
+pkg syncql, func NewErrInvalidSelectField(*context.T, int64) error
+pkg syncql, func NewErrIsIsNotRequireLhsValue(*context.T, int64) error
+pkg syncql, func NewErrIsIsNotRequireRhsNil(*context.T, int64) error
+pkg syncql, func NewErrKeyExpressionLiteral(*context.T, int64) error
+pkg syncql, func NewErrKeyValueStreamError(*context.T, int64, error) error
+pkg syncql, func NewErrLikeExpressionsRequireRhsString(*context.T, int64) error
+pkg syncql, func NewErrLimitMustBeGt0(*context.T, int64) error
+pkg syncql, func NewErrLocationConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrMaxStatementLenExceeded(*context.T, int64, int64, int64) error
+pkg syncql, func NewErrNoStatementFound(*context.T, int64) error
+pkg syncql, func NewErrNotEnoughParamValuesSpecified(*context.T, int64) error
+pkg syncql, func NewErrNotWritable(*context.T, string) error
+pkg syncql, func NewErrOffsetMustBeGe0(*context.T, int64) error
+pkg syncql, func NewErrOperationNotSupported(*context.T, string) error
+pkg syncql, func NewErrPreparedStatementNotFound(*context.T) error
+pkg syncql, func NewErrScanError(*context.T, int64, error) error
+pkg syncql, func NewErrStringConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrTableCantAccess(*context.T, int64, string, error) error
+pkg syncql, func NewErrTimeConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrTooManyParamValuesSpecified(*context.T, int64) error
+pkg syncql, func NewErrUintConversionError(*context.T, int64, error) error
+pkg syncql, func NewErrUnexpected(*context.T, int64, string) error
+pkg syncql, func NewErrUnexpectedEndOfStatement(*context.T, int64) error
+pkg syncql, func NewErrUnknownIdentifier(*context.T, int64, string) error
+pkg syncql, func SplitError(error) (int64, string)
+pkg syncql, type ResultStream interface { Advance, Cancel, Err, Result }
+pkg syncql, type ResultStream interface, Advance() bool
+pkg syncql, type ResultStream interface, Cancel()
+pkg syncql, type ResultStream interface, Err() error
+pkg syncql, type ResultStream interface, Result() []*vom.RawBytes
+pkg syncql, var ErrArgMustBeField unknown-type
+pkg syncql, var ErrBadFieldInWhere unknown-type
+pkg syncql, var ErrBigIntConversionError unknown-type
+pkg syncql, var ErrBigRatConversionError unknown-type
+pkg syncql, var ErrBoolConversionError unknown-type
+pkg syncql, var ErrBoolInvalidExpression unknown-type
+pkg syncql, var ErrCheckOfUnknownStatementType unknown-type
+pkg syncql, var ErrComplexConversionError unknown-type
+pkg syncql, var ErrCouldNotConvert unknown-type
+pkg syncql, var ErrDidYouMeanFunction unknown-type
+pkg syncql, var ErrDidYouMeanLowercaseK unknown-type
+pkg syncql, var ErrDidYouMeanLowercaseV unknown-type
+pkg syncql, var ErrDotNotationDisallowedForKey unknown-type
+pkg syncql, var ErrExecOfUnknownStatementType unknown-type
+pkg syncql, var ErrExpected unknown-type
+pkg syncql, var ErrExpectedFrom unknown-type
+pkg syncql, var ErrExpectedIdentifier unknown-type
+pkg syncql, var ErrExpectedOperand unknown-type
+pkg syncql, var ErrExpectedOperator unknown-type
+pkg syncql, var ErrFloatConversionError unknown-type
+pkg syncql, var ErrFunctionArgBad unknown-type
+pkg syncql, var ErrFunctionArgCount unknown-type
+pkg syncql, var ErrFunctionAtLeastArgCount unknown-type
+pkg syncql, var ErrFunctionLenInvalidArg unknown-type
+pkg syncql, var ErrFunctionNotFound unknown-type
+pkg syncql, var ErrFunctionTypeInvalidArg unknown-type
+pkg syncql, var ErrIndexKindNotSupported unknown-type
+pkg syncql, var ErrIntConversionError unknown-type
+pkg syncql, var ErrInvalidEscapeChar unknown-type
+pkg syncql, var ErrInvalidIndexField unknown-type
+pkg syncql, var ErrInvalidLikePattern unknown-type
+pkg syncql, var ErrInvalidSelectField unknown-type
+pkg syncql, var ErrIsIsNotRequireLhsValue unknown-type
+pkg syncql, var ErrIsIsNotRequireRhsNil unknown-type
+pkg syncql, var ErrKeyExpressionLiteral unknown-type
+pkg syncql, var ErrKeyValueStreamError unknown-type
+pkg syncql, var ErrLikeExpressionsRequireRhsString unknown-type
+pkg syncql, var ErrLimitMustBeGt0 unknown-type
+pkg syncql, var ErrLocationConversionError unknown-type
+pkg syncql, var ErrMaxStatementLenExceeded unknown-type
+pkg syncql, var ErrNoStatementFound unknown-type
+pkg syncql, var ErrNotEnoughParamValuesSpecified unknown-type
+pkg syncql, var ErrNotWritable unknown-type
+pkg syncql, var ErrOffsetMustBeGe0 unknown-type
+pkg syncql, var ErrOperationNotSupported unknown-type
+pkg syncql, var ErrPreparedStatementNotFound unknown-type
+pkg syncql, var ErrScanError unknown-type
+pkg syncql, var ErrStringConversionError unknown-type
+pkg syncql, var ErrTableCantAccess unknown-type
+pkg syncql, var ErrTimeConversionError unknown-type
+pkg syncql, var ErrTooManyParamValuesSpecified unknown-type
+pkg syncql, var ErrUintConversionError unknown-type
+pkg syncql, var ErrUnexpected unknown-type
+pkg syncql, var ErrUnexpectedEndOfStatement unknown-type
+pkg syncql, var ErrUnknownIdentifier unknown-type

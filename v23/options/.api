@@ -1,0 +1,27 @@
+pkg options, method (ChannelTimeout) RPCCallOpt()
+pkg options, method (ChannelTimeout) RPCServerOpt()
+pkg options, method (ConnectionTimeout) RPCCallOpt()
+pkg options, method (IsLeaf) RPCServerOpt()
+pkg options, method (LameDuckTimeout) RPCServerOpt()
+pkg options, method (NameResolutionAuthorizer) NSOpt()
+pkg options, method (NameResolutionAuthorizer) RPCCallOpt()
+pkg options, method (NoRetry) NSOpt()
+pkg options, method (NoRetry) RPCCallOpt()
+pkg options, method (Preresolved) NSOpt()
+pkg options, method (Preresolved) RPCCallOpt()
+pkg options, method (ServerAuthorizer) RPCCallOpt()
+pkg options, method (ServerPeers) RPCServerOpt()
+pkg options, method (ServesMountTable) RPCServerOpt()
+pkg options, type ChannelTimeout time.Duration
+pkg options, type ConnectionTimeout time.Duration
+pkg options, type IsLeaf bool
+pkg options, type LameDuckTimeout time.Duration
+pkg options, type NameResolutionAuthorizer struct
+pkg options, type NameResolutionAuthorizer struct, embedded security.Authorizer
+pkg options, type NoRetry struct
+pkg options, type Preresolved struct
+pkg options, type Preresolved struct, Resolution *naming.MountEntry
+pkg options, type ServerAuthorizer struct
+pkg options, type ServerAuthorizer struct, embedded security.Authorizer
+pkg options, type ServerPeers []security.BlessingPattern
+pkg options, type ServesMountTable bool

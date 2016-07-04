@@ -1,0 +1,89 @@
+pkg verror, const NoRetry ActionCode
+pkg verror, const Print SubErrOpts
+pkg verror, const RetryActionMask ActionCode
+pkg verror, const RetryBackoff ActionCode
+pkg verror, const RetryConnection ActionCode
+pkg verror, const RetryRefetch ActionCode
+pkg verror, func Action(error) ActionCode
+pkg verror, func AddSubErrs(error, *context.T, ...SubErr) error
+pkg verror, func Convert(IDAction, *context.T, error) error
+pkg verror, func DebugString(error) string
+pkg verror, func ErrorFromNative(**vdl.WireError, error) error
+pkg verror, func ErrorID(error) ID
+pkg verror, func ErrorToNative(*vdl.WireError, *error) error
+pkg verror, func ExplicitAddSubErrs(error, i18n.LangID, string, string, ...SubErr) error
+pkg verror, func ExplicitConvert(IDAction, i18n.LangID, string, string, error) error
+pkg verror, func ExplicitNew(IDAction, i18n.LangID, string, string, ...interface{}) error
+pkg verror, func FromWire(*vdl.WireError) error
+pkg verror, func New(IDAction, *context.T, ...interface{}) error
+pkg verror, func NewErrAborted(*context.T) error
+pkg verror, func NewErrBadArg(*context.T) error
+pkg verror, func NewErrBadProtocol(*context.T) error
+pkg verror, func NewErrBadState(*context.T) error
+pkg verror, func NewErrBadVersion(*context.T) error
+pkg verror, func NewErrCanceled(*context.T) error
+pkg verror, func NewErrEndOfFile(*context.T) error
+pkg verror, func NewErrExist(*context.T) error
+pkg verror, func NewErrInternal(*context.T) error
+pkg verror, func NewErrNoAccess(*context.T) error
+pkg verror, func NewErrNoExist(*context.T) error
+pkg verror, func NewErrNoExistOrNoAccess(*context.T) error
+pkg verror, func NewErrNoServers(*context.T) error
+pkg verror, func NewErrNotImplemented(*context.T) error
+pkg verror, func NewErrNotTrusted(*context.T) error
+pkg verror, func NewErrTimeout(*context.T) error
+pkg verror, func NewErrUnknown(*context.T) error
+pkg verror, func NewErrUnknownMethod(*context.T) error
+pkg verror, func NewErrUnknownSuffix(*context.T) error
+pkg verror, func Register(ID, ActionCode, string) IDAction
+pkg verror, func SetDefaultContext(*context.T)
+pkg verror, func Stack(error) PCs
+pkg verror, func StackToText(io.Writer, []uintptr) error
+pkg verror, func VDLRead(vdl.Decoder, *error) error
+pkg verror, func VDLWrite(vdl.Encoder, error) error
+pkg verror, func WireFromNative(*vdl.WireError, error) error
+pkg verror, func WireToNative(vdl.WireError, *E) error
+pkg verror, func WithComponentName(*context.T, string) *context.T
+pkg verror, method (*E) VDLRead(vdl.Decoder) error
+pkg verror, method (ActionCode) RetryAction() ActionCode
+pkg verror, method (E) Error() string
+pkg verror, method (E) VDLEqual(interface{}) bool
+pkg verror, method (E) VDLWrite(vdl.Encoder) error
+pkg verror, method (PCs) String() string
+pkg verror, method (SubErrs) String() string
+pkg verror, type ActionCode uint32
+pkg verror, type E struct
+pkg verror, type E struct, Action ActionCode
+pkg verror, type E struct, ID ID
+pkg verror, type E struct, Msg string
+pkg verror, type E struct, ParamList []interface{}
+pkg verror, type ID string
+pkg verror, type IDAction struct
+pkg verror, type IDAction struct, Action ActionCode
+pkg verror, type IDAction struct, ID ID
+pkg verror, type PCs []uintptr
+pkg verror, type SubErr struct
+pkg verror, type SubErr struct, Err error
+pkg verror, type SubErr struct, Name string
+pkg verror, type SubErr struct, Options SubErrOpts
+pkg verror, type SubErrOpts uint32
+pkg verror, type SubErrs []SubErr
+pkg verror, var ErrAborted IDAction
+pkg verror, var ErrBadArg IDAction
+pkg verror, var ErrBadProtocol IDAction
+pkg verror, var ErrBadState IDAction
+pkg verror, var ErrBadVersion IDAction
+pkg verror, var ErrCanceled IDAction
+pkg verror, var ErrEndOfFile IDAction
+pkg verror, var ErrExist IDAction
+pkg verror, var ErrInternal IDAction
+pkg verror, var ErrNoAccess IDAction
+pkg verror, var ErrNoExist IDAction
+pkg verror, var ErrNoExistOrNoAccess IDAction
+pkg verror, var ErrNoServers IDAction
+pkg verror, var ErrNotImplemented IDAction
+pkg verror, var ErrNotTrusted IDAction
+pkg verror, var ErrTimeout IDAction
+pkg verror, var ErrUnknown IDAction
+pkg verror, var ErrUnknownMethod IDAction
+pkg verror, var ErrUnknownSuffix IDAction

@@ -1,0 +1,136 @@
+pkg naming, const Leaf MountFlag
+pkg naming, const MT MountFlag
+pkg naming, const Replace MountFlag
+pkg naming, const ReservedNamePrefix ideal-string
+pkg naming, const UnknownProtocol ideal-string
+pkg naming, func Clean(string) string
+pkg naming, func Compare(RoutingID, RoutingID) bool
+pkg naming, func DecodeFromNameElement(string) (string, bool)
+pkg naming, func EncodeAsNameElement(string) string
+pkg naming, func Escape(string, string) string
+pkg naming, func FixedRoutingID(uint64) RoutingID
+pkg naming, func FormatEndpoint(string, string, ...EndpointOpt) string
+pkg naming, func IsReserved(string) bool
+pkg naming, func Join(...string) string
+pkg naming, func JoinAddressName(string, string) string
+pkg naming, func NewRoutingID() (RoutingID, error)
+pkg naming, func ParseEndpoint(string) (Endpoint, error)
+pkg naming, func ReadRoutingID(io.Reader) (RoutingID, error)
+pkg naming, func Rooted(string) bool
+pkg naming, func SplitAddressName(string) (string, string)
+pkg naming, func StripReserved(string) string
+pkg naming, func TrimSuffix(string, string) string
+pkg naming, func Unescape(string) (string, bool)
+pkg naming, func VDLReadGlobChildrenReply(vdl.Decoder, *GlobChildrenReply) error
+pkg naming, func VDLReadGlobReply(vdl.Decoder, *GlobReply) error
+pkg naming, method (*GlobError) VDLRead(vdl.Decoder) error
+pkg naming, method (*MountEntry) Names() []string
+pkg naming, method (*MountEntry) VDLRead(vdl.Decoder) error
+pkg naming, method (*MountFlag) VDLRead(vdl.Decoder) error
+pkg naming, method (*MountedServer) VDLRead(vdl.Decoder) error
+pkg naming, method (*RoutingID) FromString(string) error
+pkg naming, method (BlessingOpt) EndpointOpt()
+pkg naming, method (DisableCache) CacheCtl()
+pkg naming, method (Endpoint) Addr() net.Addr
+pkg naming, method (Endpoint) BlessingNames() []string
+pkg naming, method (Endpoint) IsZero() bool
+pkg naming, method (Endpoint) Name() string
+pkg naming, method (Endpoint) Routes() []string
+pkg naming, method (Endpoint) String() string
+pkg naming, method (Endpoint) VersionedString(int) string
+pkg naming, method (Endpoint) WithBlessingNames([]string) Endpoint
+pkg naming, method (Endpoint) WithRoutes([]string) Endpoint
+pkg naming, method (GlobChildrenReplyError) Index() int
+pkg naming, method (GlobChildrenReplyError) Interface() interface{}
+pkg naming, method (GlobChildrenReplyError) Name() string
+pkg naming, method (GlobChildrenReplyError) VDLIsZero() bool
+pkg naming, method (GlobChildrenReplyError) VDLWrite(vdl.Encoder) error
+pkg naming, method (GlobChildrenReplyName) Index() int
+pkg naming, method (GlobChildrenReplyName) Interface() interface{}
+pkg naming, method (GlobChildrenReplyName) Name() string
+pkg naming, method (GlobChildrenReplyName) VDLIsZero() bool
+pkg naming, method (GlobChildrenReplyName) VDLWrite(vdl.Encoder) error
+pkg naming, method (GlobError) VDLIsZero() bool
+pkg naming, method (GlobError) VDLWrite(vdl.Encoder) error
+pkg naming, method (GlobReplyEntry) Index() int
+pkg naming, method (GlobReplyEntry) Interface() interface{}
+pkg naming, method (GlobReplyEntry) Name() string
+pkg naming, method (GlobReplyEntry) VDLIsZero() bool
+pkg naming, method (GlobReplyEntry) VDLWrite(vdl.Encoder) error
+pkg naming, method (GlobReplyError) Index() int
+pkg naming, method (GlobReplyError) Interface() interface{}
+pkg naming, method (GlobReplyError) Name() string
+pkg naming, method (GlobReplyError) VDLIsZero() bool
+pkg naming, method (GlobReplyError) VDLWrite(vdl.Encoder) error
+pkg naming, method (IsLeaf) NSOpt()
+pkg naming, method (MountEntry) VDLIsZero() bool
+pkg naming, method (MountEntry) VDLWrite(vdl.Encoder) error
+pkg naming, method (MountFlag) VDLIsZero() bool
+pkg naming, method (MountFlag) VDLWrite(vdl.Encoder) error
+pkg naming, method (MountedServer) VDLIsZero() bool
+pkg naming, method (MountedServer) VDLWrite(vdl.Encoder) error
+pkg naming, method (ReplaceMount) NSOpt()
+pkg naming, method (RouteOpt) EndpointOpt()
+pkg naming, method (RoutingID) EndpointOpt()
+pkg naming, method (RoutingID) IsReserved() bool
+pkg naming, method (RoutingID) String() string
+pkg naming, method (RoutingID) Write(io.Writer) error
+pkg naming, method (ServesMountTable) EndpointOpt()
+pkg naming, method (ServesMountTable) NSOpt()
+pkg naming, type BlessingOpt string
+pkg naming, type CacheCtl interface { CacheCtl }
+pkg naming, type CacheCtl interface, CacheCtl()
+pkg naming, type DisableCache bool
+pkg naming, type Endpoint struct
+pkg naming, type Endpoint struct, Address string
+pkg naming, type Endpoint struct, Protocol string
+pkg naming, type Endpoint struct, RoutingID RoutingID
+pkg naming, type Endpoint struct, ServesMountTable bool
+pkg naming, type EndpointOpt interface { EndpointOpt }
+pkg naming, type EndpointOpt interface, EndpointOpt()
+pkg naming, type GlobChildrenReply interface, Index() int
+pkg naming, type GlobChildrenReply interface, Interface() interface{}
+pkg naming, type GlobChildrenReply interface, Name() string
+pkg naming, type GlobChildrenReply interface, VDLIsZero() bool
+pkg naming, type GlobChildrenReply interface, VDLWrite(vdl.Encoder) error
+pkg naming, type GlobChildrenReply interface, unexported methods
+pkg naming, type GlobChildrenReplyError struct
+pkg naming, type GlobChildrenReplyError struct, Value GlobError
+pkg naming, type GlobChildrenReplyName struct
+pkg naming, type GlobChildrenReplyName struct, Value string
+pkg naming, type GlobError struct
+pkg naming, type GlobError struct, Error error
+pkg naming, type GlobError struct, Name string
+pkg naming, type GlobReply interface, Index() int
+pkg naming, type GlobReply interface, Interface() interface{}
+pkg naming, type GlobReply interface, Name() string
+pkg naming, type GlobReply interface, VDLIsZero() bool
+pkg naming, type GlobReply interface, VDLWrite(vdl.Encoder) error
+pkg naming, type GlobReply interface, unexported methods
+pkg naming, type GlobReplyEntry struct
+pkg naming, type GlobReplyEntry struct, Value MountEntry
+pkg naming, type GlobReplyError struct
+pkg naming, type GlobReplyError struct, Value GlobError
+pkg naming, type IsLeaf bool
+pkg naming, type MountEntry struct
+pkg naming, type MountEntry struct, IsLeaf bool
+pkg naming, type MountEntry struct, Name string
+pkg naming, type MountEntry struct, Servers []MountedServer
+pkg naming, type MountEntry struct, ServesMountTable bool
+pkg naming, type MountFlag uint32
+pkg naming, type MountedServer struct
+pkg naming, type MountedServer struct, Deadline vdltime.Deadline
+pkg naming, type MountedServer struct, Server string
+pkg naming, type NamespaceOpt interface { NSOpt }
+pkg naming, type NamespaceOpt interface, NSOpt()
+pkg naming, type ReplaceMount bool
+pkg naming, type RouteOpt string
+pkg naming, type RoutingID struct
+pkg naming, type ServesMountTable bool
+pkg naming, var DefaultEndpointVersion int
+pkg naming, var ErrNameExists unknown-type
+pkg naming, var ErrNoMountTable unknown-type
+pkg naming, var ErrNoSuchName unknown-type
+pkg naming, var ErrNoSuchNameRoot unknown-type
+pkg naming, var ErrResolutionDepthExceeded unknown-type
+pkg naming, var NullRoutingID RoutingID

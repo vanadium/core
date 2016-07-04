@@ -1,0 +1,6 @@
+<godepcop>
+  <!-- The vdltest package relaxes the stricter vdl package rules, to behave
+       like other v23 packages. -->
+  <pkg allow="v.io/v23/..."/>
+  <pkg deny="..."/>
+</godepcop>

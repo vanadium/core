@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="31cm" height="16cm" viewBox="7 5 607 319" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="375" y="240">
+    <tspan x="375" y="240"></tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="202.606" y="137">
+    <tspan x="202.606" y="137"></tspan>
+  </text>
+  <g>
+    <rect style="fill: #4fc3f7" x="136.125" y="54" width="154" height="166.247"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="136.125" y="54" width="154" height="166.247"/>
+  </g>
+  <text font-size="20.3197" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="213.5" y="96.7108">
+    <tspan x="213.5" y="96.7108">Cluster agent</tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="226.5" y="139.622">
+    <tspan x="226.5" y="139.622"></tspan>
+  </text>
+  <g>
+    <rect style="fill: #f4b400" x="169.5" y="117.622" width="87" height="22"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="169.5" y="117.622" width="87" height="22"/>
+  </g>
+  <text font-size="13.5465" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="213" y="133.322">
+    <tspan x="213" y="133.322">Secret</tspan>
+  </text>
+  <g>
+    <rect style="fill: #f4b400" x="169.611" y="147.947" width="87" height="22"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="169.611" y="147.947" width="87" height="22"/>
+  </g>
+  <g>
+    <rect style="fill: #f4b400" x="168.511" y="179.647" width="87" height="22"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="168.511" y="179.647" width="87" height="22"/>
+  </g>
+  <text font-size="13.5465" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="213.111" y="163.647">
+    <tspan x="213.111" y="163.647">Secret</tspan>
+  </text>
+  <text font-size="13.5465" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="212.011" y="195.347">
+    <tspan x="212.011" y="195.347">Secret</tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #ffff00;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="374.361" y="46.6216">
+    <tspan x="374.361" y="46.6216"></tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="525.194" y="89.3716">
+    <tspan x="525.194" y="89.3716"></tspan>
+  </text>
+  <g>
+    <rect style="fill: #4fc3f7" x="458.713" y="6.37163" width="154" height="176.75"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="458.713" y="6.37163" width="154" height="176.75"/>
+  </g>
+  <text font-size="20.3197" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="538.088" y="36.0824">
+    <tspan x="538.088" y="36.0824">Replica (Pod)</tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="549.088" y="91.9933">
+    <tspan x="549.088" y="91.9933"></tspan>
+  </text>
+  <g>
+    <rect style="fill: #0f9d58" x="496.088" y="110.993" width="87" height="52.1284"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="496.088" y="110.993" width="87" height="52.1284"/>
+  </g>
+  <text font-size="13.5465" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="540.588" y="129.657">
+    <tspan x="540.588" y="129.657">Pod agent</tspan>
+  </text>
+  <g>
+    <rect style="fill: #0f9d58" x="496.348" y="48.1216" width="87" height="37"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="496.348" y="48.1216" width="87" height="37"/>
+  </g>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="539.848" y="63.0466">
+    <tspan x="539.848" y="63.0466">Vanadium</tspan>
+    <tspan x="539.848" y="79.0466">container(s)</tspan>
+  </text>
+  <g>
+    <rect style="fill: #0f9d58" x="487.248" y="233.122" width="104" height="45"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x="487.248" y="233.122" width="104" height="45"/>
+  </g>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="539.248" y="252.047">
+    <tspan x="539.248" y="252.047">Kubernetes</tspan>
+    <tspan x="539.248" y="268.047">Secret</tspan>
+  </text>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="539.535" y1="174.121" x2="539.248" y2="233.122"/>
+    <polygon style="fill: #000000" points="544.535,174.146 539.583,164.122 534.535,174.097 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="544.535,174.146 539.583,164.122 534.535,174.097 "/>
+  </g>
+  <g>
+    <line style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" x1="485.088" y1="137.061" x2="301.125" y2="137.12"/>
+    <polygon style="fill: #000000" points="485.09,142.061 495.088,137.058 485.087,132.061 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="485.09,142.061 495.088,137.058 485.087,132.061 "/>
+    <polygon style="fill: #000000" points="301.123,132.12 291.125,137.123 301.127,142.12 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="301.123,132.12 291.125,137.123 301.127,142.12 "/>
+  </g>
+  <text font-size="13.5467" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="336.348" y="158.222">
+    <tspan x="336.348" y="158.222">Blessings →</tspan>
+    <tspan x="336.348" y="175.155">foo:bar:X</tspan>
+  </text>
+  <text font-size="13.5467" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="323.348" y="124.222">
+    <tspan x="323.348" y="124.222">← Secret Key</tspan>
+  </text>
+  <text font-size="12.7998" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="539.588" y="137.057">
+    <tspan x="539.588" y="137.057"></tspan>
+  </text>
+  <text font-size="10.1598" style="fill: #000000;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="537.588" y="143.507">
+    <tspan x="537.588" y="143.507">Secret Key</tspan>
+    <tspan x="537.588" y="156.207">Principal</tspan>
+  </text>
+  <g>
+    <polyline style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="583.092,152.057 604.148,152.057 604.148,102.122 539.848,102.122 539.848,96.1216 "/>
+    <polygon style="fill: #000000" points="544.848,96.1216 539.848,86.1216 534.848,96.1216 "/>
+    <polygon style="fill: none; fill-opacity:0; stroke-width: 2; stroke: #000000" points="544.848,96.1216 539.848,86.1216 534.848,96.1216 "/>
+  </g>
+  <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="86.3482" y="281.622">
+    <tspan x="86.3482" y="281.622"></tspan>
+  </text>
+  <g>
+    <rect style="fill: #ffffff" x="8.34817" y="237.622" width="460.8" height="85.5"/>
+    <rect style="fill: none; fill-opacity:0; stroke-width: 2; stroke-dasharray: 4; stroke: #0f9d58" x="8.34817" y="237.622" width="460.8" height="85.5"/>
+  </g>
+  <text font-size="12.7998" style="fill: #0f9d58;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="16.8482" y="259.622">
+    <tspan x="16.8482" y="259.622">// Retrieves all the blessings associated with a particular secret.</tspan>
+    <tspan x="16.8482" y="275.622">// The only authorization required to access this method is the secret</tspan>
+    <tspan x="16.8482" y="291.622">// itself.</tspan>
+    <tspan x="16.8482" y="307.622">SeekBlessings(secret string) (security.WireBlessings | error) </tspan>
+  </text>
+</svg>

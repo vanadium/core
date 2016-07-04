@@ -1,0 +1,81 @@
+pkg groups, const ApproximationTypeOver ApproximationType
+pkg groups, const ApproximationTypeUnder ApproximationType
+pkg groups, const GroupEnd ideal-string
+pkg groups, const GroupStart ideal-string
+pkg groups, func ApproximationTypeFromString(string) (ApproximationType, error)
+pkg groups, func GroupClient(string) GroupClientStub
+pkg groups, func GroupReaderClient(string) GroupReaderClientStub
+pkg groups, func GroupReaderServer(GroupReaderServerMethods) GroupReaderServerStub
+pkg groups, func GroupServer(GroupServerMethods) GroupServerStub
+pkg groups, func Match(*context.T, security.BlessingPattern, ApproximationType, map[string]struct{}, map[string]struct{}) (map[string]struct{}, []Approximation)
+pkg groups, func NewErrCycleFound(*context.T) error
+pkg groups, func NewErrExcessiveContention(*context.T) error
+pkg groups, func NewErrNoBlessings(*context.T) error
+pkg groups, func PermissionsAuthorizer(access.Permissions, *vdl.Type) (security.Authorizer, error)
+pkg groups, method (*Approximation) VDLRead(vdl.Decoder) error
+pkg groups, method (*ApproximationType) Set(string) error
+pkg groups, method (*ApproximationType) VDLRead(vdl.Decoder) error
+pkg groups, method (*BlessingPatternChunk) VDLRead(vdl.Decoder) error
+pkg groups, method (*GetRequest) VDLRead(vdl.Decoder) error
+pkg groups, method (*GetResponse) VDLRead(vdl.Decoder) error
+pkg groups, method (Approximation) VDLIsZero() bool
+pkg groups, method (Approximation) VDLWrite(vdl.Encoder) error
+pkg groups, method (ApproximationType) String() string
+pkg groups, method (ApproximationType) VDLIsZero() bool
+pkg groups, method (ApproximationType) VDLWrite(vdl.Encoder) error
+pkg groups, method (BlessingPatternChunk) VDLIsZero() bool
+pkg groups, method (BlessingPatternChunk) VDLWrite(vdl.Encoder) error
+pkg groups, method (GetRequest) VDLIsZero() bool
+pkg groups, method (GetRequest) VDLWrite(vdl.Encoder) error
+pkg groups, method (GetResponse) VDLIsZero() bool
+pkg groups, method (GetResponse) VDLWrite(vdl.Encoder) error
+pkg groups, type Approximation struct
+pkg groups, type Approximation struct, Details string
+pkg groups, type Approximation struct, Reason string
+pkg groups, type ApproximationType int
+pkg groups, type BlessingPatternChunk string
+pkg groups, type GetRequest struct
+pkg groups, type GetResponse struct
+pkg groups, type GetResponse struct, Entries map[BlessingPatternChunk]struct{}
+pkg groups, type GroupClientMethods interface, Add(*context.T, BlessingPatternChunk, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientMethods interface, Create(*context.T, access.Permissions, []BlessingPatternChunk, ...rpc.CallOpt) error
+pkg groups, type GroupClientMethods interface, Delete(*context.T, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientMethods interface, Get(*context.T, GetRequest, string, ...rpc.CallOpt) (GetResponse, string, error)
+pkg groups, type GroupClientMethods interface, Relate(*context.T, map[string]struct{}, ApproximationType, string, map[string]struct{}, ...rpc.CallOpt) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupClientMethods interface, Remove(*context.T, BlessingPatternChunk, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientMethods interface, unexported methods
+pkg groups, type GroupClientStub interface, Add(*context.T, BlessingPatternChunk, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientStub interface, Create(*context.T, access.Permissions, []BlessingPatternChunk, ...rpc.CallOpt) error
+pkg groups, type GroupClientStub interface, Delete(*context.T, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientStub interface, Get(*context.T, GetRequest, string, ...rpc.CallOpt) (GetResponse, string, error)
+pkg groups, type GroupClientStub interface, Relate(*context.T, map[string]struct{}, ApproximationType, string, map[string]struct{}, ...rpc.CallOpt) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupClientStub interface, Remove(*context.T, BlessingPatternChunk, string, ...rpc.CallOpt) error
+pkg groups, type GroupClientStub interface, unexported methods
+pkg groups, type GroupReaderClientMethods interface { Get, Relate }
+pkg groups, type GroupReaderClientMethods interface, Get(*context.T, GetRequest, string, ...rpc.CallOpt) (GetResponse, string, error)
+pkg groups, type GroupReaderClientMethods interface, Relate(*context.T, map[string]struct{}, ApproximationType, string, map[string]struct{}, ...rpc.CallOpt) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupReaderClientStub interface, Get(*context.T, GetRequest, string, ...rpc.CallOpt) (GetResponse, string, error)
+pkg groups, type GroupReaderClientStub interface, Relate(*context.T, map[string]struct{}, ApproximationType, string, map[string]struct{}, ...rpc.CallOpt) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupReaderClientStub interface, unexported methods
+pkg groups, type GroupReaderServerMethods interface { Get, Relate }
+pkg groups, type GroupReaderServerMethods interface, Get(*context.T, rpc.ServerCall, GetRequest, string) (GetResponse, string, error)
+pkg groups, type GroupReaderServerMethods interface, Relate(*context.T, rpc.ServerCall, map[string]struct{}, ApproximationType, string, map[string]struct{}) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupReaderServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg groups, type GroupReaderServerStub interface, unexported methods
+pkg groups, type GroupReaderServerStubMethods GroupReaderServerMethods
+pkg groups, type GroupServerMethods interface, Add(*context.T, rpc.ServerCall, BlessingPatternChunk, string) error
+pkg groups, type GroupServerMethods interface, Create(*context.T, rpc.ServerCall, access.Permissions, []BlessingPatternChunk) error
+pkg groups, type GroupServerMethods interface, Delete(*context.T, rpc.ServerCall, string) error
+pkg groups, type GroupServerMethods interface, Get(*context.T, rpc.ServerCall, GetRequest, string) (GetResponse, string, error)
+pkg groups, type GroupServerMethods interface, Relate(*context.T, rpc.ServerCall, map[string]struct{}, ApproximationType, string, map[string]struct{}) (map[string]struct{}, []Approximation, string, error)
+pkg groups, type GroupServerMethods interface, Remove(*context.T, rpc.ServerCall, BlessingPatternChunk, string) error
+pkg groups, type GroupServerMethods interface, unexported methods
+pkg groups, type GroupServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg groups, type GroupServerStub interface, unexported methods
+pkg groups, type GroupServerStubMethods GroupServerMethods
+pkg groups, var ApproximationTypeAll [...]ApproximationType
+pkg groups, var ErrCycleFound unknown-type
+pkg groups, var ErrExcessiveContention unknown-type
+pkg groups, var ErrNoBlessings unknown-type
+pkg groups, var GroupDesc rpc.InterfaceDesc
+pkg groups, var GroupReaderDesc rpc.InterfaceDesc

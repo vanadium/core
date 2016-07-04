@@ -1,0 +1,31 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Types stored locally in the tables of a blobmap,
+// but may be passed over the wire to other syncbase instances.
+
+package localblobstore
+
+import "time"
+
+import "v.io/x/ref/services/syncbase/server/interfaces"
+
+// A BlobMetadata describes information that syncbase stores for a blob it
+// holds, independent of the actual content.  Compare with a Signpost, which
+// may be stored for a blob that the current device does not hold (and
+// indicates where it may be found).  (See
+// v.io/x/ref/services/syncbase/server/interfaces/sync_types.vdl for the
+// Signpost definition.)
+type BlobMetadata struct {
+	OwnerShares interfaces.BlobSharesBySyncgroup // >0 for any group => syncbase must keep blob.
+	Referenced  time.Time                        // When structured-store reference to blob last seen.
+	Accessed    time.Time                        // Last attempted access.
+}
+
+// A PerSyncgroup is blob-related data stored per syncgroup.
+// It includes information that helps syncgroup members decide whether
+// a peer makes a better or worse owner of a blob.
+type PerSyncgroup struct {
+	Priority interfaces.SgPriority
+}

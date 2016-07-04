@@ -1,0 +1,27 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package iberoot defines an interface for requesting private keys for
+// specific blessings in a blessings-based encryption scheme.
+package iberoot
+
+import "v.io/x/ref/lib/security/bcrypter"
+
+// Root is an interface for requesting private keys for blessings.
+//
+// The keys are extracted in a blessings-based encryption scheme, which in
+// turn is based on an identity-based encryption (IBE) scheme (e.g., the BB1
+// IBE scheme).
+type Root interface {
+     // SeekPrivateKeys creates and returns private keys for blessings
+     // presented by the calling principal. The blessings must be from
+     // an identity provider recognized by this service.
+     //
+     // The extracted private keys can be used to decrypt any ciphertext
+     // encrypted for a pattern matched by the presented blessings.
+     SeekPrivateKeys() ([]bcrypter.WirePrivateKey | error)
+
+     // Params returns the public encryption parameters of this service.
+     Params() (bcrypter.WireParams | error)
+}

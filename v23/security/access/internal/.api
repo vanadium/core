@@ -1,0 +1,25 @@
+pkg internal, const Execute MyTag
+pkg internal, const Read MyTag
+pkg internal, const Write MyTag
+pkg internal, func MyObjectClient(string) MyObjectClientStub
+pkg internal, func MyObjectServer(MyObjectServerMethods) MyObjectServerStub
+pkg internal, type MyObjectClientMethods interface { Get, NoTags, Put, Resolve }
+pkg internal, type MyObjectClientMethods interface, Get(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientMethods interface, NoTags(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientMethods interface, Put(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientMethods interface, Resolve(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientStub interface { Get, NoTags, Put, Resolve }
+pkg internal, type MyObjectClientStub interface, Get(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientStub interface, NoTags(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientStub interface, Put(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectClientStub interface, Resolve(*context.T, ...rpc.CallOpt) error
+pkg internal, type MyObjectServerMethods interface { Get, NoTags, Put, Resolve }
+pkg internal, type MyObjectServerMethods interface, Get(*context.T, rpc.ServerCall) error
+pkg internal, type MyObjectServerMethods interface, NoTags(*context.T, rpc.ServerCall) error
+pkg internal, type MyObjectServerMethods interface, Put(*context.T, rpc.ServerCall) error
+pkg internal, type MyObjectServerMethods interface, Resolve(*context.T, rpc.ServerCall) error
+pkg internal, type MyObjectServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg internal, type MyObjectServerStub interface, unexported methods
+pkg internal, type MyObjectServerStubMethods MyObjectServerMethods
+pkg internal, type MyTag string
+pkg internal, var MyObjectDesc rpc.InterfaceDesc

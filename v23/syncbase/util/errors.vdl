@@ -1,0 +1,11 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package util
+
+error (
+  FoundMultipleAppUserBlessings(au1, au2 string) {"en": "found multiple app:user blessings for different apps or users: {au1} and {au2}"}
+  FoundMultipleUserBlessings(u1, u2 string) {"en": "found multiple user blessings for different users: {u1} and {u2}"}
+  FoundNoConventionalBlessings()  {"en": "found no blessings matching app:user or user conventions"}
+)

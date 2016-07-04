@@ -1,0 +1,12 @@
+pkg wakeup, func WakeUpClient(string) WakeUpClientStub
+pkg wakeup, func WakeUpServer(WakeUpServerMethods) WakeUpServerStub
+pkg wakeup, type WakeUpClientMethods interface { Register }
+pkg wakeup, type WakeUpClientMethods interface, Register(*context.T, string, ...rpc.CallOpt) (string, error)
+pkg wakeup, type WakeUpClientStub interface, Register(*context.T, string, ...rpc.CallOpt) (string, error)
+pkg wakeup, type WakeUpClientStub interface, unexported methods
+pkg wakeup, type WakeUpServerMethods interface { Register }
+pkg wakeup, type WakeUpServerMethods interface, Register(*context.T, rpc.ServerCall, string) (string, error)
+pkg wakeup, type WakeUpServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg wakeup, type WakeUpServerStub interface, unexported methods
+pkg wakeup, type WakeUpServerStubMethods WakeUpServerMethods
+pkg wakeup, var WakeUpDesc rpc.InterfaceDesc

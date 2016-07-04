@@ -1,0 +1,124 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package repository defines interfaces for storing and retrieving device,
+// application and binary management related information.
+package repository
+
+import (
+	"v.io/v23/security/access"
+	"v.io/v23/services/application"
+	"v.io/v23/services/binary"
+	"v.io/v23/services/permissions"
+	"v.io/v23/services/tidyable"
+)
+
+// Application provides access to application envelopes. An
+// application envelope is identified by an application name and an
+// application version, which are specified through the object name,
+// and a profile name, which is specified using a method argument.
+//
+// Example:
+// /apps/search/v1.Match([]string{"base", "media"})
+//   returns an application envelope that can be used for downloading
+//   and executing the "search" application, version "v1", runnable
+//   on either the "base" or "media" profile.
+type Application interface {
+	// Object provides GetPermissions/SetPermissions methods to read/modify
+	// Permissions for the Application methods.
+	permissions.Object
+	// Tidyable provides TidyNow to force cleanup of state now.
+	tidyable.Tidyable
+	// Match checks if any of the given profiles contains an application
+	// envelope for the given application version (specified through the
+	// object name suffix) and if so, returns this envelope. If multiple
+	// profile matches are possible, the method returns the first
+	// matching profile, respecting the order of the input argument.
+	//
+	// If the version is not specified in the suffix, the envelope
+	// corresponding to the latest version that matches any of the given
+	// profiles is returned.  If several profiles match this version, the
+	// envelope for the first matching profile is returned, respecting the
+	// order of the input argument.
+	Match(profiles []string) (application.Envelope | error) {access.Read}
+}
+
+// MediaInfo contains the metadata information for a binary.
+type MediaInfo struct {
+	Type     string // The media-type (RFC 2046)
+	Encoding string // The file encoding is optional and can be either "gzip" or "bzip2".
+}
+
+// Binary can be used to store and retrieve vanadium application
+// binaries.
+//
+// To create a binary, clients first invoke the Create() method that
+// specifies the number of parts the binary consists of. Clients then
+// uploads the individual parts through the Upload() method, which
+// identifies the part being uploaded. To resume an upload after a
+// failure, clients invoke the UploadStatus() method, which returns a
+// slice that identifies which parts are missing.
+//
+// To download a binary, clients first invoke Stat(), which returns
+// information describing the binary, including the number of parts
+// the binary consists of. Clients then download the individual parts
+// through the Download() method, which identifies the part being
+// downloaded. Alternatively, clients can download the binary through
+// HTTP using a transient URL available through the DownloadUrl()
+// method.
+//
+// To delete the binary, clients invoke the Delete() method.
+type Binary interface {
+	// Object provides GetPermissions/SetPermissions methods to read/modify
+	// Permissions for the Binary methods.
+	permissions.Object
+	// Create expresses the intent to create a binary identified by the
+	// object name suffix consisting of the given number of parts. The
+	// mediaInfo argument contains metadata for the binary. If the suffix
+	// identifies a binary that has already been created, the method
+	// returns an error.
+	Create(nparts int32, mediaInfo MediaInfo) error {access.Write}
+	// Delete deletes the binary identified by the object name
+	// suffix. If the binary that has not been created, the method
+	// returns an error.
+	Delete() error {access.Write}
+	// Download opens a stream that can used for downloading the given
+	// part of the binary identified by the object name suffix. If the
+	// binary part has not been uploaded, the method returns an
+	// error. If the Delete() method is invoked when the Download()
+	// method is in progress, the outcome the Download() method is
+	// undefined.
+	Download(part int32) stream<_, []byte> error {access.Read}
+	// DownloadUrl returns a transient URL from which the binary
+	// identified by the object name suffix can be downloaded using the
+	// HTTP protocol. If not all parts of the binary have been uploaded,
+	// the method returns an error.
+	DownloadUrl() (url string, ttl int64 | error) {access.Read}
+	// Stat returns information describing the parts of the binary
+	// identified by the object name suffix, and its RFC 2046 media type.
+	// If the binary has not been created, the method returns an error.
+	Stat() (Parts []binary.PartInfo, MediaInfo MediaInfo | error) {access.Read}
+	// Upload opens a stream that can be used for uploading the given
+	// part of the binary identified by the object name suffix. If the
+	// binary has not been created, the method returns an error. If the
+	// binary part has been uploaded, the method returns an error. If
+	// the same binary part is being uploaded by another caller, the
+	// method returns an error.
+	Upload(part int32) stream<[]byte> error {access.Write}
+}
+
+// Profile abstracts a device's ability to run binaries, and hides
+// specifics such as the operating system, hardware architecture, and
+// the set of installed libraries. Profiles describe binaries and
+// devices, and are used to match them.
+type Profile interface {
+	// Label is the human-readable profile key for the profile,
+	// e.g. "linux-media". The label can be used to uniquely identify
+	// the profile (for the purpose of matching application binaries and
+	// devices).
+	Label() (string | error) {access.Read}
+	// Description is a free-text description of the profile, meant for
+	// human consumption.
+	Description() (string | error) {access.Read}
+}

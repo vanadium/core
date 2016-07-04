@@ -1,0 +1,11 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package common
+
+error (
+  PermsEmpty() {"en": "permissions cannot be empty"}
+  PermsNoAdmin() {"en": "permissions must include at least one admin"}
+  PermsDisallowedTags(disallowed, allowed []string) {"en": "permissions tags {disallowed} are not allowed; only {allowed} are allowed"}
+)

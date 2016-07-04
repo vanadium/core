@@ -1,0 +1,16 @@
+pkg stats, func NewErrNoValue(*context.T, string) error
+pkg stats, func StatsClient(string) StatsClientStub
+pkg stats, func StatsServer(StatsServerMethods) StatsServerStub
+pkg stats, type StatsClientMethods interface, Value(*context.T, ...rpc.CallOpt) (*vom.RawBytes, error)
+pkg stats, type StatsClientMethods interface, unexported methods
+pkg stats, type StatsClientStub interface, Value(*context.T, ...rpc.CallOpt) (*vom.RawBytes, error)
+pkg stats, type StatsClientStub interface, unexported methods
+pkg stats, type StatsServerMethods interface, Value(*context.T, rpc.ServerCall) (*vom.RawBytes, error)
+pkg stats, type StatsServerMethods interface, unexported methods
+pkg stats, type StatsServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg stats, type StatsServerStub interface, Value(*context.T, rpc.ServerCall) (*vom.RawBytes, error)
+pkg stats, type StatsServerStub interface, unexported methods
+pkg stats, type StatsServerStubMethods interface, Value(*context.T, rpc.ServerCall) (*vom.RawBytes, error)
+pkg stats, type StatsServerStubMethods interface, unexported methods
+pkg stats, var ErrNoValue unknown-type
+pkg stats, var StatsDesc rpc.InterfaceDesc
