@@ -9,7 +9,6 @@ package browseserver
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html"
 	"html/template"
@@ -27,20 +26,16 @@ import (
 	"v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
-	"v.io/v23/rpc/reserved"
 	"v.io/v23/security"
 	"v.io/v23/services/logreader"
 	"v.io/v23/services/stats"
 	svtrace "v.io/v23/services/vtrace"
-	"v.io/v23/syncbase"
 	"v.io/v23/uniqueid"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/x/ref/services/debug/debug/browseserver/sbtree"
 	"v.io/x/ref/services/internal/pproflib"
 	s_stats "v.io/x/ref/services/stats"
-	"v.io/x/ref/services/syncbase/fake"
 )
 
 //go:generate ./gen_assets.sh
@@ -57,9 +52,6 @@ const (
 	resolveTmpl    = "resolve.html"
 	statsTmpl      = "stats.html"
 	vtraceTmpl     = "vtrace.html"
-	syncbaseTmpl   = "syncbase.html"
-	noSyncbaseTmpl = "no_syncbase.html"
-	collectionTmpl = "collection.html"
 )
 
 // Serve serves the debug interface over http.  An HTTP server is started (serving at httpAddr), its
@@ -112,8 +104,6 @@ func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assetDir, u
 	mux.Handle(browseProfilesPath+"/", &profilesHandler{h})
 	mux.Handle("/vtraces", &allTracesHandler{h})
 	mux.Handle("/vtrace", &vtraceHandler{h})
-	mux.Handle("/syncbase", &syncbaseHandler{h})
-	mux.Handle("/syncbase/collection", &collectionHandler{h})
 	mux.Handle("/favicon.ico", http.NotFoundHandler())
 
 	return mux, nil
@@ -166,8 +156,7 @@ func newHandler(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPr
 		h.file = Asset
 		h.cacheMap = make(map[string]*template.Template)
 		all := []string{chromeTmpl, allTraceTmpl, blessingsTmpl, globTmpl,
-			logsTmpl, profilesTmpl, resolveTmpl, statsTmpl, vtraceTmpl,
-			syncbaseTmpl, noSyncbaseTmpl}
+			logsTmpl, profilesTmpl, resolveTmpl, statsTmpl, vtraceTmpl}
 		for _, tmpl := range all {
 			if _, err := h.template(ctx, tmpl); err != nil {
 				return nil, err
@@ -900,12 +889,6 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v.execute(v.ctx, w, r, "vtrace.html", data)
 }
 
-// The syncbaseHandler handles the main Syncbase viewer page is linked from the
-// nav bar of the Debug browser. It displays a list of databases and their
-// collections, and has links to the detailed collection page.  It supports
-// adding a "&fake=true" query argument to inject a fake Syncbase service.
-type syncbaseHandler struct{ *handler }
-
 func internalServerError(w http.ResponseWriter, doing string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, "Problem %s: %v", doing, err)
@@ -914,138 +897,6 @@ func internalServerError(w http.ResponseWriter, doing string, err error) {
 func badRequest(w http.ResponseWriter, problem string) {
 	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprintf(w, problem)
-}
-
-func (h *syncbaseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var (
-		server = r.FormValue("n")
-		fakeIt = len(r.FormValue("fake")) > 0 // for testing
-	)
-	ctx, tracer := newTracer(h.ctx)
-	if len(server) == 0 {
-		badRequest(w, "Must specify a server with the URL query parameter 'n'")
-		return
-	}
-
-	service, hasSyncbase, err := syncbaseService(ctx, server, fakeIt)
-	if err != nil {
-		internalServerError(w, "getting interfaces", err)
-		return
-	}
-
-	if !hasSyncbase {
-		args := struct {
-			ServerName  string
-			CommandLine string
-			Vtrace      *Tracer
-		}{
-			ServerName:  server,
-			CommandLine: "(no command line)",
-			Vtrace:      tracer,
-		}
-		h.execute(h.ctx, w, r, noSyncbaseTmpl, args)
-		return
-	}
-
-	dbIds, err := service.ListDatabases(ctx)
-	if err != nil {
-		internalServerError(w, "listing databases", err)
-		return
-	}
-	sbTree := sbtree.AssembleSyncbaseTree(ctx, server, service, dbIds)
-
-	args := struct {
-		ServerName  string
-		CommandLine string
-		Vtrace      *Tracer
-		Tree        *sbtree.SyncbaseTree
-	}{
-		ServerName:  server,
-		CommandLine: fmt.Sprintf(`debug glob "%s/*"`, server),
-		Vtrace:      tracer,
-		Tree:        sbTree,
-	}
-	h.execute(h.ctx, w, r, syncbaseTmpl, args)
-}
-
-func syncbaseService(ctx *context.T, server string, fakeIt bool) (service syncbase.Service, hasSyncbase bool, err error) {
-	if fakeIt {
-		service = fake.Service(
-			errors.New("pretend we cannot list collections"),
-			errors.New("pretend we cannot get syncgroup spec"),
-		)
-		hasSyncbase = true
-		return
-	}
-	hasSyncbase, err = hasSyncbaseService(ctx, server)
-	if err != nil {
-		return
-	}
-	if hasSyncbase {
-		service = syncbase.NewService(server)
-	}
-	return
-}
-
-// hasSyncbaseService determines whether the given server implements the
-// Syncbase interface.
-func hasSyncbaseService(ctx *context.T, server string) (bool, error) {
-	const (
-		syncbasePkgPath = "v.io/v23/services/syncbase"
-		syncbaseName    = "Service"
-	)
-	interfaces, err := reserved.Signature(ctx, server)
-	if err != nil {
-		return false, err
-	}
-	for _, ifc := range interfaces {
-		if ifc.Name == syncbaseName && ifc.PkgPath == syncbasePkgPath {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
-// collectionHandler handles the Collections details page that is linked off the
-// main Syncbase viewer page.
-type collectionHandler struct{ *handler }
-
-const keysPerPage = 7
-
-func (h *collectionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var (
-		server       = r.FormValue("n")
-		dbBlessing   = r.FormValue("db")
-		dbName       = r.FormValue("dn")
-		collBlessing = r.FormValue("cb")
-		collName     = r.FormValue("cn")
-		firstKey     = r.FormValue("firstkey")
-	)
-	ctx, tracer := newTracer(h.ctx)
-	if len(server) == 0 {
-		badRequest(w, "Must specify a server with the URL query parameter 'n'")
-		return
-	}
-
-	collTree := sbtree.AssembleCollectionTree(
-		ctx, server,
-		dbBlessing, dbName,
-		collBlessing, collName,
-		firstKey, keysPerPage)
-
-	// Assemble data and send it to the template to generate HTML
-	args := struct {
-		ServerName  string
-		CommandLine string
-		Vtrace      *Tracer
-		Tree        *sbtree.CollectionTree
-	}{
-		ServerName:  server,
-		CommandLine: "(no command line)",
-		Vtrace:      tracer,
-		Tree:        collTree,
-	}
-	h.execute(h.ctx, w, r, collectionTmpl, args)
 }
 
 func writeEvent(w http.ResponseWriter, data string) {

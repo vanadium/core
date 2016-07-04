@@ -1,8 +1,0 @@
-# Create an object remotely and update it twice (linked-list).
-# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
-# TODO(rdaoud): The above comment is incorrect for the 'genvec' line.
-
-addr|c\xfefoo1|1|||y\xfel\xfed\xfe11\xfe1|0|1|false
-addr|c\xfefoo1|2|1||y\xfel\xfed\xfe11\xfe2|0|1|false
-addr|c\xfefoo1|3|2||y\xfel\xfed\xfe11\xfe3|0|1|false
-genvec|c\xfefoo1|10:0,11:3|c\xfebar|11:0

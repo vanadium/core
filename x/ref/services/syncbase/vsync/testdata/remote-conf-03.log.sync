@@ -1,6 +1,0 @@
-# Create the same object remotely from scratch and update it twice (linked-list).
-# The format is: <cmd>|<objid>|<version>|<parent1>|<parent2>|<logrec>|<txid>|<txcount>|<deleted>
-
-addr|c\xfefoo1|4|||y\xfel\xfed\xfe11\xfe1|0|1|false
-addr|c\xfefoo1|5|4||y\xfel\xfed\xfe11\xfe2|0|1|false
-addr|c\xfefoo1|6|5||y\xfel\xfed\xfe11\xfe3|0|1|false
