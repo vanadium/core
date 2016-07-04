@@ -1,8 +1,0 @@
-// Copyright 2015 The Vanadium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-package globsuid
-
-// Test code for the device manager's globbing, suidhelper and
-// signature matching functionality.
