@@ -17,15 +17,10 @@ import (
 	"v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
-	"v.io/v23/services/appcycle"
 	"v.io/x/lib/gosh"
-	"v.io/x/ref"
-	vexec "v.io/x/ref/lib/exec"
 	"v.io/x/ref/lib/mgmt"
-	"v.io/x/ref/lib/security/securityflag"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/generic"
-	"v.io/x/ref/services/device"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/v23test"
 )
@@ -318,54 +313,6 @@ func (c *configServer) Set(_ *context.T, _ rpc.ServerCall, key, value string) er
 	c.ch <- value
 	return nil
 
-}
-
-// TestCleanRemoteShutdown verifies that remote shutdown works correctly.
-func TestCleanRemoteShutdown(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-	ctx := sh.Ctx
-
-	cmd := sh.FuncCmd(handleDefaults)
-
-	ch := make(chan string, 1)
-	_, server, err := v23.WithNewServer(ctx, "", device.ConfigServer(&configServer{ch}), securityflag.NewAuthorizerOrDie())
-	if err != nil {
-		t.Fatalf("WithNewServer failed: %v", err)
-	}
-	configServiceName := server.Status().Endpoints[0].Name()
-
-	config := vexec.NewConfig()
-	config.Set(mgmt.ParentNameConfigKey, configServiceName)
-	config.Set(mgmt.ProtocolConfigKey, "tcp")
-	config.Set(mgmt.AddressConfigKey, "127.0.0.1:0")
-	config.Set(mgmt.SecurityAgentPathConfigKey, cmd.Vars[ref.EnvAgentPath])
-	val, err := vexec.EncodeForEnvVar(config)
-	if err != nil {
-		t.Fatalf("encoding config failed %v", err)
-	}
-	cmd.Vars[vexec.V23_EXEC_CONFIG] = val
-	stdin := cmd.StdinPipe()
-	cmd.Start()
-
-	appCycleName := <-ch
-	cmd.S.Expect("ready")
-	appCycle := appcycle.AppCycleClient(appCycleName)
-	stream, err := appCycle.Stop(ctx)
-	if err != nil {
-		t.Fatalf("Stop failed: %v", err)
-	}
-	rStream := stream.RecvStream()
-	if rStream.Advance() || rStream.Err() != nil {
-		t.Errorf("Expected EOF, got (%v, %v) instead: ", rStream.Value(), rStream.Err())
-	}
-	if err := stream.Finish(); err != nil {
-		t.Fatalf("Finish failed: %v", err)
-	}
-	cmd.S.Expectf("received signal %s", v23.RemoteStop)
-	fmt.Fprintf(stdin, "close\n")
-	cmd.S.ExpectEOF()
-	cmd.Wait()
 }
 
 func TestMain(m *testing.M) {

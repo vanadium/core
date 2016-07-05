@@ -10,23 +10,15 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
-	"strings"
 	"testing"
-	"time"
 
 	"v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
-	"v.io/v23/services/appcycle"
 	"v.io/x/lib/gosh"
-	"v.io/x/ref"
-	vexec "v.io/x/ref/lib/exec"
 	"v.io/x/ref/lib/mgmt"
-	"v.io/x/ref/lib/security/securityflag"
 	_ "v.io/x/ref/runtime/factories/generic"
-	"v.io/x/ref/services/device"
 	"v.io/x/ref/test"
-	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/v23test"
 )
 
@@ -259,103 +251,4 @@ func (c *configServer) Set(_ *context.T, _ rpc.ServerCall, key, value string) er
 	c.ch <- value
 	return nil
 
-}
-
-func setupRemoteAppCycleMgr(t *testing.T) (*context.T, *v23test.Cmd, *expect.Session, appcycle.AppCycleClientMethods, func()) {
-	sh := v23test.NewShell(t, nil)
-	ctx := sh.Ctx
-	failed := true
-	defer func() {
-		if failed {
-			sh.Cleanup()
-		}
-	}()
-	cmd := sh.FuncCmd(app)
-
-	ch := make(chan string, 1)
-	service := device.ConfigServer(&configServer{ch})
-	authorizer := securityflag.NewAuthorizerOrDie()
-	_, configServer, err := v23.WithNewServer(ctx, "", service, authorizer)
-	if err != nil {
-		t.Fatalf("WithNewServer failed: %v", err)
-	}
-	configServiceName := configServer.Status().Endpoints[0].Name()
-
-	config := vexec.NewConfig()
-	config.Set(mgmt.ParentNameConfigKey, configServiceName)
-	config.Set(mgmt.ProtocolConfigKey, "tcp")
-	config.Set(mgmt.AddressConfigKey, "127.0.0.1:0")
-	config.Set(mgmt.SecurityAgentPathConfigKey, cmd.Vars[ref.EnvAgentPath])
-	encodedConfig, err := vexec.EncodeForEnvVar(config)
-	if err != nil {
-		t.Fatal(err)
-	}
-	cmd.Vars[vexec.V23_EXEC_CONFIG] = encodedConfig
-	cmd.Start()
-
-	appCycleName := ""
-	select {
-	case appCycleName = <-ch:
-	case <-time.After(time.Minute):
-		t.Fatalf("timeout")
-	}
-	cmd.S.Expect("ready")
-	appCycle := appcycle.AppCycleClient(appCycleName)
-	failed = false
-	return ctx, cmd, cmd.S, appCycle, sh.Cleanup
-}
-
-// TestRemoteForceStop verifies that the child process exits when sending it
-// a remote ForceStop rpc.
-func TestRemoteForceStop(t *testing.T) {
-	ctx, h, s, appCycle, cleanup := setupRemoteAppCycleMgr(t)
-	defer cleanup()
-	if err := appCycle.ForceStop(ctx); err == nil || !strings.Contains(err.Error(), "EOF") {
-		t.Fatalf("Expected EOF error, got %v instead", err)
-	}
-	h.ExitErrorIsOk = true
-	s.ExpectEOF()
-	want := fmt.Sprintf("exit status %d", testForceStopExitCode)
-	h.Wait()
-	if err := h.Err; err == nil || err.Error() != want {
-		t.Errorf("got %v, want %s", err, want)
-	}
-}
-
-// TestRemoteStop verifies that the child shuts down cleanly when sending it
-// a remote Stop rpc.
-func TestRemoteStop(t *testing.T) {
-	ctx, h, s, appCycle, cleanup := setupRemoteAppCycleMgr(t)
-	defer cleanup()
-	stream, err := appCycle.Stop(ctx)
-	if err != nil {
-		t.Fatalf("Got error: %v", err)
-	}
-	rStream := stream.RecvStream()
-	expectTask := func(progress, goal int32) {
-		if !rStream.Advance() {
-			t.Fatalf("unexpected streaming error: %v", rStream.Err())
-		}
-		task := rStream.Value()
-		if task.Progress != progress || task.Goal != goal {
-			t.Errorf("Got (%d, %d), want (%d, %d)", task.Progress, task.Goal, progress, goal)
-		}
-	}
-	expectTask(0, 10)
-	expectTask(2, 10)
-	expectTask(7, 10)
-	if rStream.Advance() || rStream.Err() != nil {
-		t.Errorf("Expected EOF, got (%v, %v) instead", rStream.Value(), rStream.Err())
-	}
-	if err := stream.Finish(); err != nil {
-		t.Errorf("Got error %v", err)
-	}
-	s.Expect(fmt.Sprintf("Got %s", v23.RemoteStop))
-	s.Expect("Doing some work")
-	s.Expect("Doing some more work")
-	s.ExpectEOF()
-	h.Wait()
-	if err := h.Err; err != nil {
-		t.Fatalf("unexpected error: %s", err)
-	}
 }
