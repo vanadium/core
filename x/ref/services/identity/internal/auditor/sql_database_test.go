@@ -18,13 +18,16 @@ import (
 func TestSQLDatabaseQuery(t *testing.T) {
 	ctx, cancel := test.TestContext()
 	defer cancel()
-	db, err := sqlmock.New()
+	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("failed to create new mock database stub: %v", err)
 	}
 	columns := []string{"Email", "Caveat", "Timestamp", "Blessings"}
-	sqlmock.ExpectExec("CREATE TABLE IF NOT EXISTS tableName (.+)").
+	mock.ExpectPrepare("CREATE TABLE IF NOT EXISTS tableName (.+)").
+		ExpectExec().
 		WillReturnResult(sqlmock.NewResult(0, 1))
+	insertStmt := mock.ExpectPrepare("INSERT INTO tableName (.+) VALUES (.+)")
+	queryStmt := mock.ExpectPrepare("SELECT Email, Caveats, Timestamp, Blessings FROM tableName")
 	d, err := newSQLDatabase(ctx, db, "tableName")
 	if err != nil {
 		t.Fatalf("failed to create SQLDatabase: %v", err)
@@ -36,7 +39,7 @@ func TestSQLDatabaseQuery(t *testing.T) {
 		timestamp: time.Now(),
 		blessings: []byte("blessings"),
 	}
-	sqlmock.ExpectExec("INSERT INTO tableName (.+) VALUES (.+)").
+	insertStmt.ExpectExec().
 		WithArgs(entry.email, entry.caveats, entry.timestamp, entry.blessings).
 		WillReturnResult(sqlmock.NewResult(0, 1)) // no insert id, 1 affected row
 	if err := d.Insert(ctx, entry); err != nil {
@@ -44,7 +47,7 @@ func TestSQLDatabaseQuery(t *testing.T) {
 	}
 
 	// Test the querying.
-	sqlmock.ExpectQuery("SELECT Email, Caveats, Timestamp, Blessings FROM tableName").
+	queryStmt.ExpectQuery().
 		WithArgs(entry.email).
 		WillReturnRows(sqlmock.NewRows(columns).AddRow(entry.email, entry.caveats, entry.timestamp, entry.blessings))
 	ch := d.Query(ctx, entry.email)
