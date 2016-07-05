@@ -247,18 +247,18 @@ func initTables() {
 	t20150412221606, _ := time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Apr 12 2015 22:16:06 -0700 PDT")
 	t20150413141707, _ := time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Apr 13 2015 14:17:07 -0700 PDT")
 
-	t2015, _ = time.Parse("2006 MST", "2015 PST")
+	t2015, _ = time.Parse("2006 -0700 MST", "2015 -0800 PST")
 
-	t2015_04, _ = time.Parse("Jan 2006 MST", "Apr 2015 PDT")
-	t2015_07, _ = time.Parse("Jan 2006 MST", "Jul 2015 PDT")
+	t2015_04, _ = time.Parse("Jan 2006 -0700 MST", "Apr 2015 -0700 PDT")
+	t2015_07, _ = time.Parse("Jan 2006 -0700 MST", "Jul 2015 -0700 PDT")
 
-	t2015_04_12, _ = time.Parse("Jan 2 2006 MST", "Apr 12 2015 PDT")
-	t2015_07_01, _ = time.Parse("Jan 2 2006 MST", "Jul 01 2015 PDT")
+	t2015_04_12, _ = time.Parse("Jan 2 2006 -0700 MST", "Apr 12 2015 -0700 PDT")
+	t2015_07_01, _ = time.Parse("Jan 2 2006 -0700 MST", "Jul 01 2015 -0700 PDT")
 
-	t2015_04_12_22, _ = time.Parse("Jan 2 2006 15 MST", "Apr 12 2015 22 PDT")
-	t2015_04_12_22_16, _ = time.Parse("Jan 2 2006 15:04 MST", "Apr 12 2015 22:16 PDT")
-	t2015_04_12_22_16_06, _ = time.Parse("Jan 2 2006 15:04:05 MST", "Apr 12 2015 22:16:06 PDT")
-	t2015_07_01_01_23_45, _ = time.Parse("Jan 2 2006 15:04:05 MST", "Jul 01 2015 01:23:45 PDT")
+	t2015_04_12_22, _ = time.Parse("Jan 2 2006 15 -0700 MST", "Apr 12 2015 22 -0700 PDT")
+	t2015_04_12_22_16, _ = time.Parse("Jan 2 2006 15:04 -0700 MST", "Apr 12 2015 22:16 -0700 PDT")
+	t2015_04_12_22_16_06, _ = time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Apr 12 2015 22:16:06 -0700 PDT")
+	t2015_07_01_01_23_45, _ = time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Jul 01 2015 01:23:45 -0700 PDT")
 
 	custTable.name = "Customer"
 	custTable.rows = []kv{
@@ -1131,7 +1131,7 @@ func TestSelect(t *testing.T) {
 		},
 		{
 			// Now will always be > 2012, so all customer records will be returned.
-			"select v from Customer where Now() > Time(\"2006-01-02 MST\", \"2012-03-17 PDT\")",
+			"select v from Customer where Now() > Time(\"2006-01-02 -0700 MST\", \"2012-03-17 -0700 PDT\")",
 			[]string{"v"},
 			[][]*vom.RawBytes{
 				{custTable.rows[0].value},
@@ -1184,7 +1184,7 @@ func TestSelect(t *testing.T) {
 		},
 		{
 			// Select the Mar 17 2015 11:14:04 America/Los_Angeles invoice.
-			"select k from Customer where v.InvoiceDate = Time(\"2006-01-02 15:04:05 MST\", \"2015-03-17 11:14:04 PDT\")",
+			"select k from Customer where v.InvoiceDate = Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-03-17 11:14:04 -0700 PDT\")",
 			[]string{"k"},
 			[][]*vom.RawBytes{
 				{vom.RawBytesOf(custTable.rows[5].key)},
@@ -1269,7 +1269,7 @@ func TestSelect(t *testing.T) {
 		// Select clause functions.
 		// Time function
 		{
-			"select Time(\"2006-01-02 MST\", \"2015-07-01 PDT\") from Customer",
+			"select Time(\"2006-01-02 -0700 MST\", \"2015-07-01 -0700 PDT\") from Customer",
 			[]string{"Time"},
 			[][]*vom.RawBytes{
 				{vom.RawBytesOf(t2015_07_01)},
@@ -1286,7 +1286,7 @@ func TestSelect(t *testing.T) {
 		},
 		// Time function
 		{
-			"select Time(\"2006-01-02 15:04:05 MST\", \"2015-07-01 01:23:45 PDT\") from Customer",
+			"select Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\") from Customer",
 			[]string{"Time"},
 			[][]*vom.RawBytes{
 				{vom.RawBytesOf(t2015_07_01_01_23_45)},
@@ -1389,7 +1389,7 @@ func TestSelect(t *testing.T) {
 		},
 		// Nested functions
 		{
-			"select Year(Time(\"2006-01-02 15:04:05 MST\", \"2015-07-01 01:23:45 PDT\"), \"America/Los_Angeles\")  from Customer where Type(v) like \"%.Invoice\" and k = \"001001\"",
+			"select Year(Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\"), \"America/Los_Angeles\")  from Customer where Type(v) like \"%.Invoice\" and k = \"001001\"",
 			[]string{"Year"},
 			[][]*vom.RawBytes{
 				{vom.RawBytesOf(int64(2015))},
@@ -1649,7 +1649,7 @@ func TestSelect(t *testing.T) {
 		},
 		// Test lots of types as map keys
 		{
-			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.Ms[\"Charles\"][\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 MST\", \"2015-07-01 01:23:45 PDT\")] from ManyMaps",
+			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.Ms[\"Charles\"][\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManyMaps",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.Ms[Charles][Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
 				[]*vom.RawBytes{
@@ -1671,7 +1671,7 @@ func TestSelect(t *testing.T) {
 		},
 		// Test lots of types as set keys
 		{
-			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 MST\", \"2015-07-01 01:23:45 PDT\")] from ManySets",
+			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManySets",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
 				[]*vom.RawBytes{
