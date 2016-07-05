@@ -264,7 +264,8 @@ func TestTimeout(t *testing.T) {
 	name := naming.JoinAddressName(naming.FormatEndpoint("tcp", "203.0.113.10:443"), "")
 	_, err := client.StartCall(ctx, name, "echo", []interface{}{"args don't matter"})
 	t.Log(err)
-	if verror.ErrorID(err) != verror.ErrTimeout.ID {
+	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
+		verror.ErrorID(err) != verror.ErrNoServers.ID {
 		t.Fatalf("wrong error: %s", err)
 	}
 }
@@ -341,9 +342,11 @@ func TestStartCallErrors(t *testing.T) {
 	ns.SetRoots("/203.0.113.10:8101")
 	var cancel context.CancelFunc
 	nctx, cancel = context.WithTimeout(ctx, 100*time.Millisecond)
-	// This call will timeout talking to the mount table.
+	// This call will either timeout talking to the mount table or indicate
+	// that there are no servers.
 	call, err := client.StartCall(nctx, "name", "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrTimeout.ID {
+	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
+		verror.ErrorID(err) != verror.ErrNoServers.ID {
 		t.Errorf("wrong error: %s", err)
 	}
 	if call != nil {
@@ -351,13 +354,15 @@ func TestStartCallErrors(t *testing.T) {
 	}
 	cancel()
 
-	// This, second test, will fail due a timeout contacting the server itself.
+	// This, second test, will fail either due a timeout contacting the
+	// server itself or indicate that there are no servers.
 	addr = naming.FormatEndpoint("tcp", "203.0.113.10:8101")
 
 	nctx, cancel = context.WithTimeout(ctx, 100*time.Millisecond)
 	new_name := naming.JoinAddressName(addr, "")
 	call, err = client.StartCall(nctx, new_name, "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrTimeout.ID {
+	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
+		verror.ErrorID(err) != verror.ErrNoServers.ID {
 		t.Errorf("wrong error: %s", err)
 	}
 	if call != nil {
