@@ -1,9 +1,9 @@
 # Vanadium Core
 
-[![Build Status](https://travis-ci.org/razvanm/vanadium-core.svg?branch=master)](https://travis-ci.org/razvanm/vanadium-core)
+[![Build Status](https://travis-ci.org/vanadium/core.svg?branch=master)](https://travis-ci.org/vanadium/core)
 
 This is a slimmed down version of Vanadium that is focused on its RPC system.
-Building doesn't require the `jiri` tool and everything is on single git
+Building doesn't require the `jiri` tool and everything is in a single git
 repository.
 
 ## Install steps
@@ -13,7 +13,7 @@ The following assumes the current directory is the root of a
 `GOPATH` environmental variables includes it.
 
 ```
-git clone https://github.com/razvanm/vanadium-core.git src/v.io
+git clone https://github.com/vanadium/core.git src/v.io
 go get -t v.io/...
 VDLPATH=$PWD/src go test v.io/...
 ```
