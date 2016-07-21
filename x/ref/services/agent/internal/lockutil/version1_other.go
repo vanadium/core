@@ -7,5 +7,5 @@
 package lockutil
 
 func getSystemID() (string, error) {
-	return unknownID
+	return unknownID, nil
 }
