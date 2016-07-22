@@ -29,7 +29,14 @@ static const void *kRotateAdDelay = &kRotateAdDelay;
 - (id _Nullable)initWithQueue:(dispatch_queue_t _Nonnull)queue {
   if (self = [super init]) {
     self.queue = queue;
-    self.peripheral = [[CBPeripheralManager alloc] initWithDelegate:self queue:self.queue];
+    self.peripheral =
+        [[CBPeripheralManager alloc] initWithDelegate:self
+                                                queue:self.queue
+                                              options:@{
+#if TARGET_OS_IPHONE
+                                                CBPeripheralManagerOptionShowPowerAlertKey : @NO
+#endif
+                                              }];
     self.services = [NSMutableDictionary new];
     self.serviceCharacteristics = [NSMutableDictionary new];
     self.addServiceHandlers = [NSMutableDictionary new];

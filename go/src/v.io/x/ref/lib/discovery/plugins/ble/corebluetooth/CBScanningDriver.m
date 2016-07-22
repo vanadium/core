@@ -112,7 +112,14 @@ static const NSTimeInterval kMaxTimeForDiscoverServices = 90;
 - (id _Nullable)initWithQueue:(dispatch_queue_t _Nonnull)queue {
   if (self = [super init]) {
     self.queue = queue;
-    self.central = [[CBCentralManager alloc] initWithDelegate:self queue:self.queue];
+    self.central =
+        [[CBCentralManager alloc] initWithDelegate:self
+                                             queue:self.queue
+                                           options:@{
+#if TARGET_OS_IPHONE
+                                             CBCentralManagerOptionShowPowerAlertKey : @NO
+#endif
+                                           }];
     [self _initDiscovery];
   }
   return self;
