@@ -6,6 +6,7 @@ package rpc
 
 import (
 	"fmt"
+	"golang.org/x/net/trace"
 	"io"
 	"net"
 	"reflect"
@@ -495,7 +496,7 @@ func (s *server) updateEndpointsLocked(ctx *context.T, leps []naming.Endpoint) {
 		sep := s.createEndpoint(ep)
 		endpoints[sep.String()] = sep
 	}
-	// Endpoints to add and remaove.
+	// Endpoints to add and remove.
 	rmEps := setDiff(s.endpoints, endpoints)
 	addEps := setDiff(endpoints, s.endpoints)
 	for k := range rmEps {
@@ -763,6 +764,19 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		ctx, _ = vtrace.WithNewSpan(ctx, fmt.Sprintf("\"%s\".UNKNOWN", fs.suffix))
 		return ctx, nil, err
 	}
+
+	tid := req.TraceRequest.TraceId.String()
+	sid := req.TraceRequest.SpanId.String()
+	title := fmt.Sprintf("(trace_id: %s span_id: %s)", tid, sid)
+
+	tr := trace.New("Recv."+req.Suffix, req.Method+" "+title)
+
+	if deadline, ok := ctx.Deadline(); ok {
+		tr.LazyPrintf("RPC has a deadline: %v", deadline)
+	}
+
+	defer tr.Finish()
+
 	fs.removeStat = fs.server.outstanding.start(req.Method, fs.flow.RemoteEndpoint())
 
 	// Start building up a new context for the request now that we know
@@ -786,12 +800,16 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 
 	if err := fs.readGrantedBlessings(ctx, req); err != nil {
 		fs.drainDecoderArgs(int(req.NumPosArgs))
+		tr.LazyPrintf("%s\n", err)
+		tr.SetError()
 		return ctx, nil, err
 	}
 	// Lookup the invoker.
 	invoker, auth, err := fs.lookup(ctx, fs.suffix, fs.method)
 	if err != nil {
 		fs.drainDecoderArgs(int(req.NumPosArgs))
+		tr.LazyPrintf("%s\n", err)
+		tr.SetError()
 		return ctx, nil, err
 	}
 
@@ -806,22 +824,44 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	fs.tags = tags
 	if err != nil {
 		fs.drainDecoderArgs(numArgs)
+		tr.LazyPrintf("%s\n", err)
+		tr.SetError()
 		return ctx, nil, err
 	}
 	if called, want := req.NumPosArgs, uint64(len(argptrs)); called != want {
 		fs.drainDecoderArgs(numArgs)
+		tr.LazyPrintf("%s\n", err)
+		tr.SetError()
 		return ctx, nil, newErrBadNumInputArgs(ctx, fs.suffix, fs.method, called, want)
 	}
 	for ix, argptr := range argptrs {
 		if err := fs.dec.Decode(argptr); err != nil {
+			tr.LazyPrintf("%s\n", err)
+			tr.SetError()
+
 			return ctx, nil, newErrBadInputArg(ctx, fs.suffix, fs.method, uint64(ix), err)
 		}
 	}
 
 	// Check application's authorization policy.
 	if err := authorize(ctx, fs, auth); err != nil {
+		tr.LazyPrintf("%s\n", err)
+		tr.SetError()
 		return ctx, nil, err
 	}
+
+	defer func() {
+		switch ctx.Err() {
+		case context.DeadlineExceeded:
+			deadline, _ := ctx.Deadline()
+			tr.LazyPrintf("RPC exceeded deadline. Should have ended at %v", deadline)
+		case context.Canceled:
+			tr.LazyPrintf("RPC was cancelled.")
+		}
+		if ctx.Err() != nil {
+			tr.SetError()
+		}
+	}()
 
 	// Invoke the method.
 	results, err := invoker.Invoke(ctx, fs, strippedMethod, argptrs)

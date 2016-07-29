@@ -208,6 +208,7 @@ func TestDebugServer(t *testing.T) {
 		}
 		sort.Strings(results)
 		expected = []string{
+			"http",
 			"logs",
 			"pprof",
 			"stats",

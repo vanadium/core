@@ -74,8 +74,8 @@ func TestDebugServer(t *testing.T) {
 	}{
 		{"", "*", []string{}},
 		{"", "__*", []string{"__debug"}},
-		{"", "__*/*", []string{"__debug/logs", "__debug/pprof", "__debug/stats", "__debug/vtrace"}},
-		{"__debug", "*", []string{"logs", "pprof", "stats", "vtrace"}},
+		{"", "__*/*", []string{"__debug/http", "__debug/logs", "__debug/pprof", "__debug/stats", "__debug/vtrace"}},
+		{"__debug", "*", []string{"http", "logs", "pprof", "stats", "vtrace"}},
 	}
 	for _, tc := range testcases {
 		fullname := naming.Join(name, tc.name)

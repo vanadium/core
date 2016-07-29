@@ -29,7 +29,7 @@ func TestV23DebugGlob(t *testing.T) {
 	stdout := sh.Cmd(binary, "glob", "__debug/*").Stdout()
 
 	var want string
-	for _, entry := range []string{"logs", "pprof", "stats", "vtrace"} {
+	for _, entry := range []string{"logs", "pprof", "stats", "vtrace", "http"} {
 		want += "__debug/" + entry + "\n"
 	}
 	if got := stdout; got != want {

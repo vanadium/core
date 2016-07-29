@@ -27,6 +27,8 @@ import (
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/manager"
+
+	"golang.org/x/net/trace"
 )
 
 const pkgPath = "v.io/x/ref/runtime/internal/rpc"
@@ -153,12 +155,18 @@ func (c *client) StartCall(ctx *context.T, name, method string, args []interface
 
 func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []interface{}, opts ...rpc.CallOpt) error {
 	defer apilog.LogCallf(ctx, "name=%.10s...,method=%.10s...,inArgs=,outArgs=,opts...=%v", name, method, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
+
+	tr := trace.New("Sent."+name, method)
+	defer tr.Finish()
+
 	connOpts := getConnectionOptions(ctx, opts)
 	var prevErr error
 	for retries := uint(0); ; retries++ {
 		call, err := c.startCall(ctx, name, method, inArgs, connOpts, opts)
 		if err != nil {
 			// See explanation in connectToName.
+			tr.LazyPrintf("%s\n", err)
+			tr.SetError()
 			return preferNonTimeout(err, prevErr)
 		}
 		switch err := call.Finish(outArgs...); {
@@ -167,11 +175,17 @@ func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []int
 		case !shouldRetryBackoff(verror.Action(err), connOpts):
 			ctx.VI(4).Infof("Cannot retry after error: %s", err)
 			// See explanation in connectToName.
+			tr.LazyPrintf("%s\n", err)
+			tr.SetError()
 			return preferNonTimeout(err, prevErr)
 		case !backoff(retries, connOpts.connDeadline):
+			tr.LazyPrintf("%s\n", err)
+			tr.SetError()
 			return err
 		default:
 			ctx.VI(4).Infof("Retrying due to error: %s", err)
+			tr.LazyPrintf("%s\n", err)
+			tr.SetError()
 		}
 		prevErr = err
 	}

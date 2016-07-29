@@ -13,6 +13,7 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/x/ref/internal/logger"
+	"v.io/x/ref/services/internal/httplib"
 	"v.io/x/ref/services/internal/logreaderlib"
 	"v.io/x/ref/services/internal/pproflib"
 	"v.io/x/ref/services/internal/statslib"
@@ -44,7 +45,7 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	suffix = strings.TrimLeft(suffix, "/")
 
 	if suffix == "" {
-		return rpc.ChildrenGlobberInvoker("logs", "pprof", "stats", "vtrace"), d.auth, nil
+		return rpc.ChildrenGlobberInvoker("logs", "pprof", "stats", "vtrace", "http"), d.auth, nil
 	}
 	parts := strings.SplitN(suffix, "/", 2)
 	if len(parts) == 2 {
@@ -61,6 +62,8 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 		return statslib.NewStatsService(suffix, 10*time.Second), d.auth, nil
 	case "vtrace":
 		return vtracelib.NewVtraceService(), d.auth, nil
+	case "http":
+		return httplib.NewHttpService(), d.auth, nil
 	}
 	return nil, d.auth, nil
 }
