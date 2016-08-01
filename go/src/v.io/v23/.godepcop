@@ -15,6 +15,9 @@
   <xtest allow="github.com/presotto/go-mdns-sd/..."/>
   <xtest allow="github.com/shirou/gopsutil/..."/>
   <xtest allow="golang.org/x/crypto/..."/>
+  <xtest allow="golang.org/x/net/context/..."/>
+  <xtest allow="golang.org/x/net/internal/timeseries/..."/>
+  <xtest allow="golang.org/x/net/trace/..."/>
   <xtest allow="v.io/x/lib/..."/>
   <xtest allow="v.io/x/ref/..."/>
 </godepcop>

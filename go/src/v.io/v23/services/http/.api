@@ -1,0 +1,43 @@
+pkg http, func HttpClient(string) HttpClientStub
+pkg http, func HttpServer(HttpServerMethods) HttpServerStub
+pkg http, method (*Request) VDLRead(vdl.Decoder) error
+pkg http, method (*Url) VDLRead(vdl.Decoder) error
+pkg http, method (Request) VDLIsZero() bool
+pkg http, method (Request) VDLWrite(vdl.Encoder) error
+pkg http, method (Url) VDLIsZero() bool
+pkg http, method (Url) VDLWrite(vdl.Encoder) error
+pkg http, type HttpClientMethods interface { RawDo }
+pkg http, type HttpClientMethods interface, RawDo(*context.T, Request, ...rpc.CallOpt) ([]byte, error)
+pkg http, type HttpClientStub interface, RawDo(*context.T, Request, ...rpc.CallOpt) ([]byte, error)
+pkg http, type HttpClientStub interface, unexported methods
+pkg http, type HttpServerMethods interface { RawDo }
+pkg http, type HttpServerMethods interface, RawDo(*context.T, rpc.ServerCall, Request) ([]byte, error)
+pkg http, type HttpServerStub interface, Describe__() []rpc.InterfaceDesc
+pkg http, type HttpServerStub interface, unexported methods
+pkg http, type HttpServerStubMethods HttpServerMethods
+pkg http, type Request struct
+pkg http, type Request struct, Body []byte
+pkg http, type Request struct, Close bool
+pkg http, type Request struct, ContentLength int64
+pkg http, type Request struct, Form map[string][]string
+pkg http, type Request struct, Header map[string][]string
+pkg http, type Request struct, Host string
+pkg http, type Request struct, Method string
+pkg http, type Request struct, PostForm map[string][]string
+pkg http, type Request struct, Proto string
+pkg http, type Request struct, ProtoMajor int16
+pkg http, type Request struct, ProtoMinor int16
+pkg http, type Request struct, RemoteAddr string
+pkg http, type Request struct, RequestUri string
+pkg http, type Request struct, Trailer map[string][]string
+pkg http, type Request struct, TransferEncoding []string
+pkg http, type Request struct, Url Url
+pkg http, type Url struct
+pkg http, type Url struct, Fragment string
+pkg http, type Url struct, Host string
+pkg http, type Url struct, Opaque string
+pkg http, type Url struct, Path string
+pkg http, type Url struct, RawPath string
+pkg http, type Url struct, RawQuery string
+pkg http, type Url struct, Scheme string
+pkg http, var HttpDesc rpc.InterfaceDesc
