@@ -1,0 +1,59 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package fortune
+
+import "v.io/v23/security/access"
+
+type ComplexErrorParam struct {
+	Str string
+	Num int32
+	List []uint32
+}
+
+error (
+	NoFortunes() {
+		"en": "no fortunes added",
+	}
+	Complex(first ComplexErrorParam, second string, third int32) {
+		"en": "this is a complex error with params {first} {second} {third}",
+	}
+)
+
+// Fortune allows clients to Get and Add fortune strings.
+type Fortune interface {
+	// Add stores a fortune in the set used by Get.
+	Add(Fortune string) error {access.Write}
+
+	// Get returns the last-added fortune.
+	Get() (Fortune string | error) {access.Read}
+
+	// ParameterizedGet returns the last-added fortune as a map (which is a parameterized
+	// type in Java).
+	ParameterizedGet() (map[string]string | error) {access.Read}
+
+	// StreamingGet returns a stream that can be used to obtain fortunes, and returns the
+	// total number of items sent.
+	StreamingGet() stream<bool, string> (total int32 | error) {access.Read}
+
+	// MultipleGet returns the same fortune twice.
+	MultipleGet() (Fortune string, Another string | error) {access.Read}
+
+	// MultipleStreamingGet returns a stream that can be used to obtain fortunes, and returns
+	// the total number of items sent, twice.
+	MultipleStreamingGet() stream<bool, string> (total int32, another int32 | error) {access.Read}
+
+	// GetComplexError returns (always!) ErrComplex.
+	GetComplexError() error {access.Read}
+
+	// NoTags is a method without tags.
+	NoTags() error
+
+	// TestServerCall is a method used for testing that the server receives a
+	// correct ServerCall.
+	TestServerCall() error {access.Read}
+
+	// GetServerThread returns a name of the server thread that executes this method.
+	GetServerThread() (string | error) {access.Read}
+}
