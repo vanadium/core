@@ -5,7 +5,10 @@ VDLPATH := $(shell pwd)/go/src
 export VDLPATH
 
 .PHONY: all
-all:
+all: go java
+
+.PHONY: go
+go:
 	go install v.io/...
 
 .PHONY: get-deps
@@ -33,6 +36,14 @@ test-integration:
 		v.io/x/ref/examples/tunnel/tunneld \
 		v.io/x/ref/examples/rps/rpsbot \
 		-v23.tests
+
+.PHONY: java
+java:
+	cd java/lib && ../gradlew publishToMavenLocal
+
+.PHONY: test-java
+test-java:
+	cd java/lib && ../gradlew test
 
 .PHONY: clean
 clean:

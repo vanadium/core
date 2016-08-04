@@ -2,6 +2,6 @@ language: go
 go: 1.6
 install: make get-deps
 script:
-  - make all
+  - make go
   - make test
   - make test-integration
