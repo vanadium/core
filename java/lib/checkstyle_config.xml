@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+    <module name="SuppressionFilter">
+        <property name="file" value="${checkstyle_ignore_path}"/>
+    </module>
+
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- required for SuppressWarningsFilter (and other Suppress* rules not used here) -->
+        <!-- see http://checkstyle.sourceforge.net/config_annotation.html#SuppressWarningsHolder -->
+        <module name="SuppressWarningsHolder"/>
+
+        <!-- Checks for imports                              -->
+        <!-- See http://checkstyle.sf.net/config_import.html -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Modifier Checks                                    -->
+        <!-- See http://checkstyle.sf.net/config_modifiers.html -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+    </module>
+
+    <!-- Support @SuppressWarnings (added in Checkstyle 5.7) -->
+    <!-- see http://checkstyle.sourceforge.net/config.html#SuppressWarningsFilter -->
+    <module name="SuppressWarningsFilter"/>
+</module>

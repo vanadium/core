@@ -1,0 +1,54 @@
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'io.v:gradle-plugin:1.6'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'io.v.vdl'
+
+mainClassName = 'io.v.rpcbench.RpcBenchmark'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    compile 'com.google.guava:guava:19.0'
+    compile project(':lib')
+    compile 'com.google.caliper:caliper:1.0-beta-2'
+}
+
+static isDarwin() {
+    return System.properties['os.name'].toLowerCase().contains("os x")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
+}
+
+clean {
+    delete 'src/main/resources/libv23.so'
+}
+
+vdl {
+    inputPaths += ['src/main/java']
+}
+
+def libProject = rootProject.findProject(':lib')
+
+tasks.run.dependsOn libProject.tasks.goBuildVanadiumLib
+tasks.run.jvmArgs "-Djava.library.path=${libProject.buildDir}/libs"
+tasks.run.jvmArgs "-XX:-TieredCompilation"  // needed for caliper
+if (isDarwin()) {
+    // See: https://github.com/vanadium/issues/issues/567
+    tasks.run.jvmArgs "-XX:+UnlockDiagnosticVMOptions"
+    tasks.run.jvmArgs "-XX:-LogEvents"
+}

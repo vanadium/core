@@ -1,0 +1,17 @@
+/src/vdl/
+/bin/
+/vdl_bin/
+
+# Gradle
+.gradle/
+build/
+.idea/
+generated-src/
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# IntelliJ
+lib.iml

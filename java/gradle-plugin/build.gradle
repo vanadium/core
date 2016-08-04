@@ -1,0 +1,182 @@
+// You should change this after releasing a new version of the gradle plugin. See the
+// list of published versions at https://repo1.maven.org/maven2/io/v/gradle-plugin.
+def releaseVersion = '1.9'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+    }
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'groovy'
+apply plugin: 'wrapper'
+apply plugin: 'com.jfrog.bintray'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.google.googlejavaformat:google-java-format:0.1-alpha'
+    testCompile 'com.google.truth:truth:0.27'
+}
+
+class VdlPlatform {
+    final String name
+    final String goOs
+    final String goArch
+
+    VdlPlatform(String name, String goOs, String goArch) {
+        this.name = name
+        this.goOs = goOs
+        this.goArch = goArch
+    }
+}
+
+def platforms = [new VdlPlatform("linux", "linux", "amd64"),
+                 new VdlPlatform("macosx", "darwin", "amd64")]
+
+def pomDependencies = new Node(null, 'dependencies')
+
+platforms.each({ platform ->
+    task "buildVdl${platform.name}"(type: Exec) {
+        description 'Build the VDL tool'
+        group 'Build'
+        environment GOOS: platform.goOs
+        environment GOARCH: platform.goArch
+        commandLine 'go', 'build', '-o', "build/vdltool/vdl-${platform.name}",
+                'v.io/x/ref/cmd/vdl'
+    }
+
+    task "natives-${platform.name}"(type: Jar, dependsOn: "buildVdl${platform.name}") {
+        baseName "natives-${platform.name}"
+        from 'build/vdltool/vdl-' + platform.name
+    }
+
+    tasks.'processResources'.dependsOn("buildVdl${platform.name}")
+
+    def dependencyNode = new XmlParser().parseText("""
+<dependency>
+    <groupId>io.v</groupId>
+    <artifactId>gradle-plugin-vdltool-${platform.name}</artifactId>
+    <version>${releaseVersion}</version>
+</dependency>
+""")
+    pomDependencies.append(dependencyNode)
+})
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+javadoc {
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+}
+
+// Adds XML nodes representing fields required for publication to Maven central to the given node.
+def addMavenCentralMetadata(Node node) {
+    node.appendNode('name', 'Vanadium VDL Gradle plugin')
+    node.appendNode('description',
+            'A Gradle plugin to make it easy to use VDL in Java or Android projects')
+    node.appendNode('url', 'https://github.com/vanadium/java/tree/master/gradle-plugin')
+
+    def license = node.appendNode('licenses').appendNode('license')
+    license.appendNode('name', 'New BSD License')
+    license.appendNode('url', 'https://github.com/vanadium/java/blob/master/LICENSE')
+    license.appendNode('distribution', 'repo')
+
+    node.appendNode('scm').appendNode('url',
+            'https://github.com/vanadium/java/tree/master/gradle-plugin')
+
+    def developerInfo = node.appendNode('developers').appendNode('developer')
+    developerInfo.appendNode('id', 'vanadium')
+    developerInfo.appendNode('name', 'The Vanadium Contributors')
+    developerInfo.appendNode('email', 'vanadium-discuss@v.io')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'io.v'
+            artifactId 'gradle-plugin'
+            version releaseVersion
+
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+
+            pom.withXml {
+                addMavenCentralMetadata(asNode())
+                for (Node node : pomDependencies.children()) {
+                    asNode().dependencies[0].append(node)
+                }
+            }
+        }
+
+        platforms.each({ platform ->
+            "mavenNatives${platform.name}"(MavenPublication) {
+                groupId 'io.v'
+                artifactId "gradle-plugin-vdltool-${platform.name}"
+                version releaseVersion
+
+                artifact project.tasks."natives-${platform.name}"
+
+                pom.withXml {
+                    addMavenCentralMetadata(asNode())
+                }
+            }
+        })
+    }
+}
+
+wrapper {
+    gradleVersion = '2.4'
+}
+
+bintray {
+    user = project.properties.bintrayUsername
+    key = project.properties.bintrayApiKey
+    pkg {
+        desc = 'A Gradle plugin for using VDL in your projects'
+        websiteUrl = 'https://github.com/vanadium/java/tree/master/gradle-plugin'
+        repo = 'io.v'
+        name = 'gradle-plugin'
+        licenses = ['BSD New']
+        vcsUrl = 'https://github.com/vanadium/java.git'
+        version {
+            name = releaseVersion
+            gpg {
+                sign = true
+            }
+        }
+        userOrg = 'vanadium'
+    }
+    publications = ['mavenJava']
+    platforms.each { platform ->
+        publications += "mavenNatives${platform.name}"
+    }
+}
+

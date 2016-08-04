@@ -1,0 +1,20 @@
+/.jiri
+
+# Gradle dirs
+build/
+/buildSrc/schema
+.gradle/
+local.properties
+
+# IntelliJ
+.idea/
+**/*.iml
+
+# Eclipse
+.settings/
+.metadata/
+.recommenders/
+
+# Generated source
+generated-src/
+android-lib/src/main/jniLibs/
