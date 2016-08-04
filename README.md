@@ -13,7 +13,8 @@ The following assumes the current directory is the root of a
 `GOPATH` environmental variables includes it.
 
 ```
-git clone https://github.com/vanadium/core.git src/v.io
+git clone https://github.com/vanadium/core.git vanadium-core
+export GOPATH=$GOPATH:$PWD/vanadium-core
 go get -t v.io/...
 VDLPATH=$PWD/src go test v.io/...
 ```
