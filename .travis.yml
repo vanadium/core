@@ -1,7 +1,10 @@
-language: go
-go: 1.6
+language: java
+jdk: oraclejdk8
+before_install: GIMME_OUTPUT=$(gimme 1.6) && eval "$GIMME_OUTPUT"
 install: make get-deps
 script:
   - make go
   - make test
   - make test-integration
+  - make java
+  - make test-java
