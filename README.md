@@ -14,7 +14,7 @@ The following assumes the current directory is the root of a
 
 ```
 git clone https://github.com/vanadium/core.git vanadium-core
-export GOPATH=$GOPATH:$PWD/vanadium-core
+export GOPATH=${GOPATH:+${GOPATH}:}$PWD/vanadium-core/go
 go get -t v.io/...
 VDLPATH=$PWD/src go test v.io/...
 ```
