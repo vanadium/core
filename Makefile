@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 GOPATH := $(shell pwd)/go
 export GOPATH
 
