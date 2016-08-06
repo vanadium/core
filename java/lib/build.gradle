@@ -71,6 +71,16 @@ def String getOsName() {
     if (isLinux()) {
         return "linux";
     } else if (isDarwin()) {
+        return "darwin";
+    } else {
+        throw new IllegalStateException("Unsupported operating system " + System.properties.'os.name')
+    }
+}
+
+def String getMavenOsName() {
+    if (isLinux()) {
+        return "linux";
+    } else if (isDarwin()) {
         return "macosx";
     } else {
         throw new IllegalStateException("Unsupported operating system " + System.properties.'os.name')
@@ -100,10 +110,7 @@ task checkVanadiumEnvironment {
     VanadiumEnvironment.getVanadiumEnvironment()
 
     if (System.getenv('JAVA_HOME') == null) {
-        throw new InvalidUserDataException("The JAVA_HOME environment variable is not set. "
-                + "Please set it to the root of a JDK installation directory.  If JDK isn't "
-                + "installed, you probably didn't install the java profile: try running\n\n"
-                + "jiri profile install v23:java\n\nand then try building again.")
+        throw new InvalidUserDataException("The JAVA_HOME environment variable is not set. ")
     }
     if (!isAmd64() && !isArm()) {
         throw new InvalidUserDataException("Java Vanadium builds only enabled on amd64 "
@@ -116,14 +123,9 @@ task checkVanadiumEnvironment {
 }
 
 task goBuildVanadiumLib(type: Exec, dependsOn: checkVanadiumEnvironment) {
-    // def existingPath = System.getenv('PATH')
-    // if (existingPath == null) {
-    //     existingPath = ""
-    // }
-
     def javaHome = System.getenv('JAVA_HOME')
     environment CGO_CFLAGS: '-I' + javaHome + '/include' + ' ' +
-        '-I' + javaHome + '/include/' + getOS()
+        '-I' + javaHome + '/include/' + getOsName()
     def output = ''
     if (isLinux()) {
         output = 'build/libs/libv23.so'
@@ -291,7 +293,7 @@ publishing {
 
         mavenNatives(MavenPublication) {
             groupId 'io.v'
-            artifactId 'vanadium-natives-' + getOsName()
+            artifactId 'vanadium-natives-' + getMavenOsName()
             version releaseVersion
 
             // Maven Central does require source and javadoc jars
