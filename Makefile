@@ -1,4 +1,4 @@
-SHELL := /bin/bash
+SHELL := /bin/bash -euo pipefail
 
 GOPATH := $(shell pwd)/go
 export GOPATH
