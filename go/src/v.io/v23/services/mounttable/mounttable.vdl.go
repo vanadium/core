@@ -34,7 +34,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type Tag string
 
-func (Tag) __VDLReflect(struct {
+func (Tag) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/mounttable.Tag"`
 }) {
 }

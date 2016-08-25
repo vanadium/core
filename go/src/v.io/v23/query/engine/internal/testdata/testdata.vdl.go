@@ -26,7 +26,7 @@ type AddressInfo struct {
 	Zip    string
 }
 
-func (AddressInfo) __VDLReflect(struct {
+func (AddressInfo) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.AddressInfo"`
 }) {
 }
@@ -168,7 +168,7 @@ func (x CreditAgency) String() string {
 	return ""
 }
 
-func (CreditAgency) __VDLReflect(struct {
+func (CreditAgency) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.CreditAgency"`
 	Enum struct{ Equifax, Experian, TransUnion string }
 }) {
@@ -238,7 +238,7 @@ func (x ExperianRating) String() string {
 	return ""
 }
 
-func (ExperianRating) __VDLReflect(struct {
+func (ExperianRating) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.ExperianRating"`
 	Enum struct{ Good, Bad string }
 }) {
@@ -269,7 +269,7 @@ func (x *ExperianRating) VDLRead(dec vdl.Decoder) error {
 
 type RatingsArray [4]int16
 
-func (RatingsArray) __VDLReflect(struct {
+func (RatingsArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.RatingsArray"`
 }) {
 }
@@ -321,7 +321,7 @@ type EquifaxCreditReport struct {
 	FourScoreRatings RatingsArray
 }
 
-func (EquifaxCreditReport) __VDLReflect(struct {
+func (EquifaxCreditReport) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.EquifaxCreditReport"`
 }) {
 }
@@ -439,7 +439,7 @@ func (x Tdh) String() string {
 	return ""
 }
 
-func (Tdh) __VDLReflect(struct {
+func (Tdh) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.Tdh"`
 	Enum struct{ Tom, Dick, Harry string }
 }) {
@@ -474,7 +474,7 @@ type ExperianCreditReport struct {
 	Auditor      Tdh
 }
 
-func (ExperianCreditReport) __VDLReflect(struct {
+func (ExperianCreditReport) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.ExperianCreditReport"`
 }) {
 }
@@ -621,7 +621,7 @@ type TransUnionCreditReport struct {
 	PreviousRatings map[string]int16
 }
 
-func (TransUnionCreditReport) __VDLReflect(struct {
+func (TransUnionCreditReport) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.TransUnionCreditReport"`
 }) {
 }
@@ -759,8 +759,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the AgencyReport union type.
-		__VDLReflect(__AgencyReportReflect)
+		// VDLReflect describes the AgencyReport union type.
+		VDLReflect(__AgencyReportReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -785,17 +785,17 @@ type (
 func (x AgencyReportEquifaxReport) Index() int                         { return 0 }
 func (x AgencyReportEquifaxReport) Interface() interface{}             { return x.Value }
 func (x AgencyReportEquifaxReport) Name() string                       { return "EquifaxReport" }
-func (x AgencyReportEquifaxReport) __VDLReflect(__AgencyReportReflect) {}
+func (x AgencyReportEquifaxReport) VDLReflect(__AgencyReportReflect) {}
 
 func (x AgencyReportExperianReport) Index() int                         { return 1 }
 func (x AgencyReportExperianReport) Interface() interface{}             { return x.Value }
 func (x AgencyReportExperianReport) Name() string                       { return "ExperianReport" }
-func (x AgencyReportExperianReport) __VDLReflect(__AgencyReportReflect) {}
+func (x AgencyReportExperianReport) VDLReflect(__AgencyReportReflect) {}
 
 func (x AgencyReportTransUnionReport) Index() int                         { return 2 }
 func (x AgencyReportTransUnionReport) Interface() interface{}             { return x.Value }
 func (x AgencyReportTransUnionReport) Name() string                       { return "TransUnionReport" }
-func (x AgencyReportTransUnionReport) __VDLReflect(__AgencyReportReflect) {}
+func (x AgencyReportTransUnionReport) VDLReflect(__AgencyReportReflect) {}
 
 func (x AgencyReportEquifaxReport) VDLIsZero() bool {
 	return x.Value == EquifaxCreditReport{}
@@ -910,7 +910,7 @@ type CreditReport struct {
 	Report AgencyReport
 }
 
-func (CreditReport) __VDLReflect(struct {
+func (CreditReport) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.CreditReport"`
 }) {
 }
@@ -1000,7 +1000,7 @@ type Customer struct {
 	Credit            CreditReport
 }
 
-func (Customer) __VDLReflect(struct {
+func (Customer) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.Customer"`
 }) {
 }
@@ -1195,7 +1195,7 @@ type Invoice struct {
 	ShipTo      AddressInfo
 }
 
-func (Invoice) __VDLReflect(struct {
+func (Invoice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.Invoice"`
 }) {
 }
@@ -1337,7 +1337,7 @@ type Numbers struct {
 	F64  float64
 }
 
-func (Numbers) __VDLReflect(struct {
+func (Numbers) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.Numbers"`
 }) {
 }
@@ -1501,8 +1501,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the TitleOrValueType union type.
-		__VDLReflect(__TitleOrValueTypeReflect)
+		// VDLReflect describes the TitleOrValueType union type.
+		VDLReflect(__TitleOrValueTypeReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1524,12 +1524,12 @@ type (
 func (x TitleOrValueTypeTitle) Index() int                             { return 0 }
 func (x TitleOrValueTypeTitle) Interface() interface{}                 { return x.Value }
 func (x TitleOrValueTypeTitle) Name() string                           { return "Title" }
-func (x TitleOrValueTypeTitle) __VDLReflect(__TitleOrValueTypeReflect) {}
+func (x TitleOrValueTypeTitle) VDLReflect(__TitleOrValueTypeReflect) {}
 
 func (x TitleOrValueTypeValue) Index() int                             { return 1 }
 func (x TitleOrValueTypeValue) Interface() interface{}                 { return x.Value }
 func (x TitleOrValueTypeValue) Name() string                           { return "Value" }
-func (x TitleOrValueTypeValue) __VDLReflect(__TitleOrValueTypeReflect) {}
+func (x TitleOrValueTypeValue) VDLReflect(__TitleOrValueTypeReflect) {}
 
 func (x TitleOrValueTypeTitle) VDLIsZero() bool {
 	return x.Value == ""
@@ -1618,7 +1618,7 @@ type BazType struct {
 	TitleOrValue TitleOrValueType
 }
 
-func (BazType) __VDLReflect(struct {
+func (BazType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.BazType"`
 }) {
 }
@@ -1701,7 +1701,7 @@ type BarType struct {
 	Baz BazType
 }
 
-func (BarType) __VDLReflect(struct {
+func (BarType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.BarType"`
 }) {
 }
@@ -1771,7 +1771,7 @@ type FooType struct {
 	Bar BarType
 }
 
-func (FooType) __VDLReflect(struct {
+func (FooType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.FooType"`
 }) {
 }
@@ -1844,7 +1844,7 @@ type K struct {
 	B string
 }
 
-func (K) __VDLReflect(struct {
+func (K) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.K"`
 }) {
 }
@@ -1920,7 +1920,7 @@ type V struct {
 	B float32
 }
 
-func (V) __VDLReflect(struct {
+func (V) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.V"`
 }) {
 }
@@ -1997,7 +1997,7 @@ type FunWithMaps struct {
 	Confusing map[int16][]map[string]struct{}
 }
 
-func (FunWithMaps) __VDLReflect(struct {
+func (FunWithMaps) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.FunWithMaps"`
 }) {
 }
@@ -2287,7 +2287,7 @@ type FunWithTypes struct {
 	T2 *vdl.Type
 }
 
-func (FunWithTypes) __VDLReflect(struct {
+func (FunWithTypes) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.FunWithTypes"`
 }) {
 }
@@ -2383,7 +2383,7 @@ type ManyMaps struct {
 	T   map[time.Time]string
 }
 
-func (ManyMaps) __VDLReflect(struct {
+func (ManyMaps) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.ManyMaps"`
 }) {
 }
@@ -3328,7 +3328,7 @@ type ManySets struct {
 	T   map[time.Time]struct{}
 }
 
-func (ManySets) __VDLReflect(struct {
+func (ManySets) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.ManySets"`
 }) {
 }
@@ -4036,7 +4036,7 @@ type BigData struct {
 	Key string // A dup of the key stored in the value.
 }
 
-func (BigData) __VDLReflect(struct {
+func (BigData) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/query/engine/internal/testdata.BigData"`
 }) {
 }

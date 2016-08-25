@@ -65,7 +65,7 @@ func (x ControlKind) String() string {
 	return ""
 }
 
-func (ControlKind) __VDLReflect(struct {
+func (ControlKind) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.ControlKind"`
 	Enum struct{ Nil, End, IncompleteType string }
 }) {
@@ -106,8 +106,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the Primitive union type.
-		__VDLReflect(__PrimitiveReflect)
+		// VDLReflect describes the Primitive union type.
+		VDLReflect(__PrimitiveReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -144,37 +144,37 @@ type (
 func (x PrimitivePBool) Index() int                      { return 0 }
 func (x PrimitivePBool) Interface() interface{}          { return x.Value }
 func (x PrimitivePBool) Name() string                    { return "PBool" }
-func (x PrimitivePBool) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePBool) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePByte) Index() int                      { return 1 }
 func (x PrimitivePByte) Interface() interface{}          { return x.Value }
 func (x PrimitivePByte) Name() string                    { return "PByte" }
-func (x PrimitivePByte) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePByte) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePUint) Index() int                      { return 2 }
 func (x PrimitivePUint) Interface() interface{}          { return x.Value }
 func (x PrimitivePUint) Name() string                    { return "PUint" }
-func (x PrimitivePUint) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePUint) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePInt) Index() int                      { return 3 }
 func (x PrimitivePInt) Interface() interface{}          { return x.Value }
 func (x PrimitivePInt) Name() string                    { return "PInt" }
-func (x PrimitivePInt) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePInt) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePFloat) Index() int                      { return 4 }
 func (x PrimitivePFloat) Interface() interface{}          { return x.Value }
 func (x PrimitivePFloat) Name() string                    { return "PFloat" }
-func (x PrimitivePFloat) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePFloat) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePString) Index() int                      { return 5 }
 func (x PrimitivePString) Interface() interface{}          { return x.Value }
 func (x PrimitivePString) Name() string                    { return "PString" }
-func (x PrimitivePString) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePString) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePControl) Index() int                      { return 6 }
 func (x PrimitivePControl) Interface() interface{}          { return x.Value }
 func (x PrimitivePControl) Name() string                    { return "PControl" }
-func (x PrimitivePControl) __VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePControl) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePBool) VDLIsZero() bool {
 	return !x.Value
@@ -510,7 +510,7 @@ func (x DumpKind) String() string {
 	return ""
 }
 
-func (DumpKind) __VDLReflect(struct {
+func (DumpKind) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.DumpKind"`
 	Enum struct{ Version, Control, MsgId, TypeMsg, ValueMsg, MsgLen, AnyMsgLen, AnyLensLen, TypeIdsLen, TypeId, PrimValue, ByteLen, ValueLen, Index, WireTypeIndex string }
 }) {
@@ -548,7 +548,7 @@ type DumpAtom struct {
 	Debug string    // Free-form debug string with more information.
 }
 
-func (DumpAtom) __VDLReflect(struct {
+func (DumpAtom) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.DumpAtom"`
 }) {
 }
@@ -659,7 +659,7 @@ func (x *DumpAtom) VDLRead(dec vdl.Decoder) error {
 // Version is the vom version.
 type Version byte
 
-func (Version) __VDLReflect(struct {
+func (Version) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.Version"`
 }) {
 }
@@ -688,7 +688,7 @@ func (x *Version) VDLRead(dec vdl.Decoder) error {
 // TypeId uniquely identifies a type definition within a vom stream.
 type TypeId uint64
 
-func (TypeId) __VDLReflect(struct {
+func (TypeId) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.TypeId"`
 }) {
 }
@@ -720,7 +720,7 @@ type wireNamed struct {
 	Base TypeId
 }
 
-func (wireNamed) __VDLReflect(struct {
+func (wireNamed) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireNamed"`
 }) {
 }
@@ -797,7 +797,7 @@ type wireEnum struct {
 	Labels []string
 }
 
-func (wireEnum) __VDLReflect(struct {
+func (wireEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireEnum"`
 }) {
 }
@@ -920,7 +920,7 @@ type wireArray struct {
 	Len  uint64
 }
 
-func (wireArray) __VDLReflect(struct {
+func (wireArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireArray"`
 }) {
 }
@@ -1009,7 +1009,7 @@ type wireList struct {
 	Elem TypeId
 }
 
-func (wireList) __VDLReflect(struct {
+func (wireList) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireList"`
 }) {
 }
@@ -1086,7 +1086,7 @@ type wireSet struct {
 	Key  TypeId
 }
 
-func (wireSet) __VDLReflect(struct {
+func (wireSet) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireSet"`
 }) {
 }
@@ -1164,7 +1164,7 @@ type wireMap struct {
 	Elem TypeId
 }
 
-func (wireMap) __VDLReflect(struct {
+func (wireMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireMap"`
 }) {
 }
@@ -1253,7 +1253,7 @@ type wireField struct {
 	Type TypeId
 }
 
-func (wireField) __VDLReflect(struct {
+func (wireField) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireField"`
 }) {
 }
@@ -1330,7 +1330,7 @@ type wireStruct struct {
 	Fields []wireField
 }
 
-func (wireStruct) __VDLReflect(struct {
+func (wireStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireStruct"`
 }) {
 }
@@ -1459,7 +1459,7 @@ type wireUnion struct {
 	Fields []wireField
 }
 
-func (wireUnion) __VDLReflect(struct {
+func (wireUnion) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireUnion"`
 }) {
 }
@@ -1542,7 +1542,7 @@ type wireOptional struct {
 	Elem TypeId
 }
 
-func (wireOptional) __VDLReflect(struct {
+func (wireOptional) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom.wireOptional"`
 }) {
 }
@@ -1628,8 +1628,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the wireType union type.
-		__VDLReflect(__wireTypeReflect)
+		// VDLReflect describes the wireType union type.
+		VDLReflect(__wireTypeReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1674,47 +1674,47 @@ type (
 func (x wireTypeNamedT) Index() int                     { return 0 }
 func (x wireTypeNamedT) Interface() interface{}         { return x.Value }
 func (x wireTypeNamedT) Name() string                   { return "NamedT" }
-func (x wireTypeNamedT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeNamedT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeEnumT) Index() int                     { return 1 }
 func (x wireTypeEnumT) Interface() interface{}         { return x.Value }
 func (x wireTypeEnumT) Name() string                   { return "EnumT" }
-func (x wireTypeEnumT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeEnumT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeArrayT) Index() int                     { return 2 }
 func (x wireTypeArrayT) Interface() interface{}         { return x.Value }
 func (x wireTypeArrayT) Name() string                   { return "ArrayT" }
-func (x wireTypeArrayT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeArrayT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeListT) Index() int                     { return 3 }
 func (x wireTypeListT) Interface() interface{}         { return x.Value }
 func (x wireTypeListT) Name() string                   { return "ListT" }
-func (x wireTypeListT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeListT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeSetT) Index() int                     { return 4 }
 func (x wireTypeSetT) Interface() interface{}         { return x.Value }
 func (x wireTypeSetT) Name() string                   { return "SetT" }
-func (x wireTypeSetT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeSetT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeMapT) Index() int                     { return 5 }
 func (x wireTypeMapT) Interface() interface{}         { return x.Value }
 func (x wireTypeMapT) Name() string                   { return "MapT" }
-func (x wireTypeMapT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeMapT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeStructT) Index() int                     { return 6 }
 func (x wireTypeStructT) Interface() interface{}         { return x.Value }
 func (x wireTypeStructT) Name() string                   { return "StructT" }
-func (x wireTypeStructT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeStructT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeUnionT) Index() int                     { return 7 }
 func (x wireTypeUnionT) Interface() interface{}         { return x.Value }
 func (x wireTypeUnionT) Name() string                   { return "UnionT" }
-func (x wireTypeUnionT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeUnionT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeOptionalT) Index() int                     { return 8 }
 func (x wireTypeOptionalT) Interface() interface{}         { return x.Value }
 func (x wireTypeOptionalT) Name() string                   { return "OptionalT" }
-func (x wireTypeOptionalT) __VDLReflect(__wireTypeReflect) {}
+func (x wireTypeOptionalT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeNamedT) VDLIsZero() bool {
 	return x.Value == wireNamed{}

@@ -38,7 +38,7 @@ type Duration struct {
 	Nanos int32
 }
 
-func (Duration) __VDLReflect(struct {
+func (Duration) VDLReflect(struct {
 	Name string `vdl:"time.Duration"`
 }) {
 }
@@ -129,7 +129,7 @@ type Time struct {
 	Nanos   int32
 }
 
-func (Time) __VDLReflect(struct {
+func (Time) VDLReflect(struct {
 	Name string `vdl:"time.Time"`
 }) {
 }
@@ -229,7 +229,7 @@ type WireDeadline struct {
 	FromNow time.Duration
 }
 
-func (WireDeadline) __VDLReflect(struct {
+func (WireDeadline) VDLReflect(struct {
 	Name string `vdl:"time.WireDeadline"`
 }) {
 }

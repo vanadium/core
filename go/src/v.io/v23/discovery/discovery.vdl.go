@@ -19,7 +19,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // An AdId is a globally unique identifier of an advertisement.
 type AdId [16]byte
 
-func (AdId) __VDLReflect(struct {
+func (AdId) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/discovery.AdId"`
 }) {
 }
@@ -46,7 +46,7 @@ func (x *AdId) VDLRead(dec vdl.Decoder) error {
 // Attributes represents service attributes as a key/value pair.
 type Attributes map[string]string
 
-func (Attributes) __VDLReflect(struct {
+func (Attributes) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/discovery.Attributes"`
 }) {
 }
@@ -110,7 +110,7 @@ func (x *Attributes) VDLRead(dec vdl.Decoder) error {
 // Attachments represents service attachments as a key/value pair.
 type Attachments map[string][]byte
 
-func (Attachments) __VDLReflect(struct {
+func (Attachments) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/discovery.Attachments"`
 }) {
 }
@@ -205,7 +205,7 @@ type Advertisement struct {
 	Attachments Attachments
 }
 
-func (Advertisement) __VDLReflect(struct {
+func (Advertisement) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/discovery.Advertisement"`
 }) {
 }

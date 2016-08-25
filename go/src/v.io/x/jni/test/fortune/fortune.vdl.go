@@ -29,7 +29,7 @@ type ComplexErrorParam struct {
 	List []uint32
 }
 
-func (ComplexErrorParam) __VDLReflect(struct {
+func (ComplexErrorParam) VDLReflect(struct {
 	Name string `vdl:"v.io/x/jni/test/fortune.ComplexErrorParam"`
 }) {
 }

@@ -19,7 +19,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // An Id is a likely globally unique identifier.
 type Id [16]byte
 
-func (Id) __VDLReflect(struct {
+func (Id) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/uniqueid.Id"`
 }) {
 }

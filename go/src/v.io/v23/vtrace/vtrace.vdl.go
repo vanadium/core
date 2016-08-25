@@ -29,7 +29,7 @@ type Annotation struct {
 	Message string
 }
 
-func (Annotation) __VDLReflect(struct {
+func (Annotation) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.Annotation"`
 }) {
 }
@@ -125,7 +125,7 @@ type SpanRecord struct {
 	Annotations []Annotation
 }
 
-func (SpanRecord) __VDLReflect(struct {
+func (SpanRecord) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.SpanRecord"`
 }) {
 }
@@ -325,7 +325,7 @@ type TraceRecord struct {
 	Spans []SpanRecord
 }
 
-func (TraceRecord) __VDLReflect(struct {
+func (TraceRecord) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.TraceRecord"`
 }) {
 }
@@ -448,7 +448,7 @@ func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]SpanRecord) error {
 
 type TraceFlags int32
 
-func (TraceFlags) __VDLReflect(struct {
+func (TraceFlags) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.TraceFlags"`
 }) {
 }
@@ -482,7 +482,7 @@ type Request struct {
 	LogLevel int32
 }
 
-func (Request) __VDLReflect(struct {
+func (Request) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.Request"`
 }) {
 }
@@ -582,7 +582,7 @@ type Response struct {
 	Trace TraceRecord
 }
 
-func (Response) __VDLReflect(struct {
+func (Response) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vtrace.Response"`
 }) {
 }

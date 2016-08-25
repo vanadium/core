@@ -22,7 +22,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // MountFlag is a bit mask of options to the mount call.
 type MountFlag uint32
 
-func (MountFlag) __VDLReflect(struct {
+func (MountFlag) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/naming.MountFlag"`
 }) {
 }
@@ -56,7 +56,7 @@ type MountedServer struct {
 	Deadline vdltime.Deadline
 }
 
-func (MountedServer) __VDLReflect(struct {
+func (MountedServer) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/naming.MountedServer"`
 }) {
 }
@@ -153,7 +153,7 @@ type MountEntry struct {
 	IsLeaf bool
 }
 
-func (MountEntry) __VDLReflect(struct {
+func (MountEntry) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/naming.MountEntry"`
 }) {
 }
@@ -315,7 +315,7 @@ type GlobError struct {
 	Error error
 }
 
-func (GlobError) __VDLReflect(struct {
+func (GlobError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/naming.GlobError"`
 }) {
 }
@@ -397,8 +397,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the GlobReply union type.
-		__VDLReflect(__GlobReplyReflect)
+		// VDLReflect describes the GlobReply union type.
+		VDLReflect(__GlobReplyReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -420,12 +420,12 @@ type (
 func (x GlobReplyEntry) Index() int                      { return 0 }
 func (x GlobReplyEntry) Interface() interface{}          { return x.Value }
 func (x GlobReplyEntry) Name() string                    { return "Entry" }
-func (x GlobReplyEntry) __VDLReflect(__GlobReplyReflect) {}
+func (x GlobReplyEntry) VDLReflect(__GlobReplyReflect) {}
 
 func (x GlobReplyError) Index() int                      { return 1 }
 func (x GlobReplyError) Interface() interface{}          { return x.Value }
 func (x GlobReplyError) Name() string                    { return "Error" }
-func (x GlobReplyError) __VDLReflect(__GlobReplyReflect) {}
+func (x GlobReplyError) VDLReflect(__GlobReplyReflect) {}
 
 func (x GlobReplyEntry) VDLIsZero() bool {
 	return x.Value.VDLIsZero()
@@ -520,8 +520,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the GlobChildrenReply union type.
-		__VDLReflect(__GlobChildrenReplyReflect)
+		// VDLReflect describes the GlobChildrenReply union type.
+		VDLReflect(__GlobChildrenReplyReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -543,12 +543,12 @@ type (
 func (x GlobChildrenReplyName) Index() int                              { return 0 }
 func (x GlobChildrenReplyName) Interface() interface{}                  { return x.Value }
 func (x GlobChildrenReplyName) Name() string                            { return "Name" }
-func (x GlobChildrenReplyName) __VDLReflect(__GlobChildrenReplyReflect) {}
+func (x GlobChildrenReplyName) VDLReflect(__GlobChildrenReplyReflect) {}
 
 func (x GlobChildrenReplyError) Index() int                              { return 1 }
 func (x GlobChildrenReplyError) Interface() interface{}                  { return x.Value }
 func (x GlobChildrenReplyError) Name() string                            { return "Error" }
-func (x GlobChildrenReplyError) __VDLReflect(__GlobChildrenReplyReflect) {}
+func (x GlobChildrenReplyError) VDLReflect(__GlobChildrenReplyReflect) {}
 
 func (x GlobChildrenReplyName) VDLIsZero() bool {
 	return x.Value == ""

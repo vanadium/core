@@ -33,7 +33,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // BlessingPatternChunks.
 type BlessingPatternChunk string
 
-func (BlessingPatternChunk) __VDLReflect(struct {
+func (BlessingPatternChunk) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/groups.BlessingPatternChunk"`
 }) {
 }
@@ -62,7 +62,7 @@ func (x *BlessingPatternChunk) VDLRead(dec vdl.Decoder) error {
 type GetRequest struct {
 }
 
-func (GetRequest) __VDLReflect(struct {
+func (GetRequest) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/groups.GetRequest"`
 }) {
 }
@@ -113,7 +113,7 @@ type GetResponse struct {
 	Entries map[BlessingPatternChunk]struct{}
 }
 
-func (GetResponse) __VDLReflect(struct {
+func (GetResponse) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/groups.GetResponse"`
 }) {
 }
@@ -263,7 +263,7 @@ func (x ApproximationType) String() string {
 	return ""
 }
 
-func (ApproximationType) __VDLReflect(struct {
+func (ApproximationType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/groups.ApproximationType"`
 	Enum struct{ Under, Over string }
 }) {
@@ -299,7 +299,7 @@ type Approximation struct {
 	Details string
 }
 
-func (Approximation) __VDLReflect(struct {
+func (Approximation) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/groups.Approximation"`
 }) {
 }

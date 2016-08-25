@@ -34,7 +34,7 @@ type Url struct {
 	Fragment string
 }
 
-func (Url) __VDLReflect(struct {
+func (Url) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/http.Url"`
 }) {
 }
@@ -187,7 +187,7 @@ type Request struct {
 	RequestUri       string
 }
 
-func (Request) __VDLReflect(struct {
+func (Request) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/http.Request"`
 }) {
 }

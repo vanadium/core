@@ -25,7 +25,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type Uuid []byte
 
-func (Uuid) __VDLReflect(struct {
+func (Uuid) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.Uuid"`
 }) {
 }
@@ -52,7 +52,7 @@ func (x *Uuid) VDLRead(dec vdl.Decoder) error {
 
 type EncryptionAlgorithm int32
 
-func (EncryptionAlgorithm) __VDLReflect(struct {
+func (EncryptionAlgorithm) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.EncryptionAlgorithm"`
 }) {
 }
@@ -80,7 +80,7 @@ func (x *EncryptionAlgorithm) VDLRead(dec vdl.Decoder) error {
 
 type EncryptionKey []byte
 
-func (EncryptionKey) __VDLReflect(struct {
+func (EncryptionKey) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.EncryptionKey"`
 }) {
 }
@@ -107,7 +107,7 @@ func (x *EncryptionKey) VDLRead(dec vdl.Decoder) error {
 
 type AdStatus byte
 
-func (AdStatus) __VDLReflect(struct {
+func (AdStatus) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.AdStatus"`
 }) {
 }
@@ -136,7 +136,7 @@ func (x *AdStatus) VDLRead(dec vdl.Decoder) error {
 // An AdHash is a hash of an advertisement.
 type AdHash [8]byte
 
-func (AdHash) __VDLReflect(struct {
+func (AdHash) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.AdHash"`
 }) {
 }
@@ -183,7 +183,7 @@ type AdInfo struct {
 	Lost bool
 }
 
-func (AdInfo) __VDLReflect(struct {
+func (AdInfo) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery.AdInfo"`
 }) {
 }

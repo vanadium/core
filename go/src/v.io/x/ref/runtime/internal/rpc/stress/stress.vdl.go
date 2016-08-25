@@ -27,7 +27,7 @@ type SumArg struct {
 	AListOfBytes []byte
 }
 
-func (SumArg) __VDLReflect(struct {
+func (SumArg) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/rpc/stress.SumArg"`
 }) {
 }
@@ -123,7 +123,7 @@ type SumStats struct {
 	BytesSent      uint64
 }
 
-func (SumStats) __VDLReflect(struct {
+func (SumStats) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/rpc/stress.SumStats"`
 }) {
 }

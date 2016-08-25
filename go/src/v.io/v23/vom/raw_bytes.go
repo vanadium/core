@@ -20,7 +20,7 @@ type RawBytes struct {
 	Data       []byte
 }
 
-func (RawBytes) __VDLReflect(struct {
+func (RawBytes) VDLReflect(struct {
 	Type interface{} // ensure vdl.TypeOf(RawBytes{}) returns vdl.AnyType
 }) {
 }

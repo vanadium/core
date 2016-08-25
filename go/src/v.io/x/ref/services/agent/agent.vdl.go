@@ -56,7 +56,7 @@ type ConnInfo struct {
 	MaxVersion int32
 }
 
-func (ConnInfo) __VDLReflect(struct {
+func (ConnInfo) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/agent.ConnInfo"`
 }) {
 }
@@ -133,7 +133,7 @@ type RpcRequest struct {
 	NumArgs uint32
 }
 
-func (RpcRequest) __VDLReflect(struct {
+func (RpcRequest) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/agent.RpcRequest"`
 }) {
 }
@@ -222,7 +222,7 @@ type RpcResponse struct {
 	NumArgs uint32
 }
 
-func (RpcResponse) __VDLReflect(struct {
+func (RpcResponse) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/agent.RpcResponse"`
 }) {
 }
@@ -314,8 +314,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the RpcMessage union type.
-		__VDLReflect(__RpcMessageReflect)
+		// VDLReflect describes the RpcMessage union type.
+		VDLReflect(__RpcMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -337,12 +337,12 @@ type (
 func (x RpcMessageReq) Index() int                       { return 0 }
 func (x RpcMessageReq) Interface() interface{}           { return x.Value }
 func (x RpcMessageReq) Name() string                     { return "Req" }
-func (x RpcMessageReq) __VDLReflect(__RpcMessageReflect) {}
+func (x RpcMessageReq) VDLReflect(__RpcMessageReflect) {}
 
 func (x RpcMessageResp) Index() int                       { return 1 }
 func (x RpcMessageResp) Interface() interface{}           { return x.Value }
 func (x RpcMessageResp) Name() string                     { return "Resp" }
-func (x RpcMessageResp) __VDLReflect(__RpcMessageReflect) {}
+func (x RpcMessageResp) VDLReflect(__RpcMessageReflect) {}
 
 func (x RpcMessageReq) VDLIsZero() bool {
 	return x.Value == RpcRequest{}

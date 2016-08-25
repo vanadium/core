@@ -24,7 +24,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // show gaps in Term numbers because all elections need not be successful.
 type Term uint64
 
-func (Term) __VDLReflect(struct {
+func (Term) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/raft.Term"`
 }) {
 }
@@ -56,7 +56,7 @@ func (x *Term) VDLRead(dec vdl.Decoder) error {
 // set of replicas.
 type Index uint64
 
-func (Index) __VDLReflect(struct {
+func (Index) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/raft.Index"`
 }) {
 }
@@ -92,7 +92,7 @@ type LogEntry struct {
 	Type  byte
 }
 
-func (LogEntry) __VDLReflect(struct {
+func (LogEntry) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/raft.LogEntry"`
 }) {
 }

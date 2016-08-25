@@ -31,7 +31,7 @@ type Blessings struct {
 	BKey      uint64
 }
 
-func (Blessings) __VDLReflect(struct {
+func (Blessings) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/flow/conn.Blessings"`
 }) {
 }
@@ -127,7 +127,7 @@ type EncryptedBlessings struct {
 	BKey        uint64
 }
 
-func (EncryptedBlessings) __VDLReflect(struct {
+func (EncryptedBlessings) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/flow/conn.EncryptedBlessings"`
 }) {
 }
@@ -262,7 +262,7 @@ type Discharges struct {
 	BKey       uint64
 }
 
-func (Discharges) __VDLReflect(struct {
+func (Discharges) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/flow/conn.Discharges"`
 }) {
 }
@@ -430,7 +430,7 @@ type EncryptedDischarges struct {
 	BKey        uint64
 }
 
-func (EncryptedDischarges) __VDLReflect(struct {
+func (EncryptedDischarges) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/internal/flow/conn.EncryptedDischarges"`
 }) {
 }
@@ -534,8 +534,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the BlessingsFlowMessage union type.
-		__VDLReflect(__BlessingsFlowMessageReflect)
+		// VDLReflect describes the BlessingsFlowMessage union type.
+		VDLReflect(__BlessingsFlowMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -563,22 +563,22 @@ type (
 func (x BlessingsFlowMessageBlessings) Index() int                                 { return 0 }
 func (x BlessingsFlowMessageBlessings) Interface() interface{}                     { return x.Value }
 func (x BlessingsFlowMessageBlessings) Name() string                               { return "Blessings" }
-func (x BlessingsFlowMessageBlessings) __VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
 
 func (x BlessingsFlowMessageDischarges) Index() int                                 { return 1 }
 func (x BlessingsFlowMessageDischarges) Interface() interface{}                     { return x.Value }
 func (x BlessingsFlowMessageDischarges) Name() string                               { return "Discharges" }
-func (x BlessingsFlowMessageDischarges) __VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
 
 func (x BlessingsFlowMessageEncryptedBlessings) Index() int                                 { return 2 }
 func (x BlessingsFlowMessageEncryptedBlessings) Interface() interface{}                     { return x.Value }
 func (x BlessingsFlowMessageEncryptedBlessings) Name() string                               { return "EncryptedBlessings" }
-func (x BlessingsFlowMessageEncryptedBlessings) __VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageEncryptedBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
 
 func (x BlessingsFlowMessageEncryptedDischarges) Index() int                                 { return 3 }
 func (x BlessingsFlowMessageEncryptedDischarges) Interface() interface{}                     { return x.Value }
 func (x BlessingsFlowMessageEncryptedDischarges) Name() string                               { return "EncryptedDischarges" }
-func (x BlessingsFlowMessageEncryptedDischarges) __VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageEncryptedDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
 
 func (x BlessingsFlowMessageBlessings) VDLIsZero() bool {
 	return x.Value.VDLIsZero()

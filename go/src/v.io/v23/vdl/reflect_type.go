@@ -117,7 +117,7 @@ func normalizeType(rt reflect.Type) reflect.Type {
 			return rt
 		}
 		// Use the type defined in the reflect info.  Typically this is the same as
-		// the original rt, but in some cases we use __VDLReflect to override the
+		// the original rt, but in some cases we use VDLReflect to override the
 		// vdl type.  E.g. vom.RawBytes claims that it is AnyType.
 		rt = ri.Type
 	}

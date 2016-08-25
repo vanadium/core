@@ -32,7 +32,7 @@ type vdlEntry struct {
 	HexValue   string      // Hex bytes representing the value message.
 }
 
-func (vdlEntry) __VDLReflect(struct {
+func (vdlEntry) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/vomtest.vdlEntry"`
 }) {
 }

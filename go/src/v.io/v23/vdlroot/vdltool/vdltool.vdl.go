@@ -73,7 +73,7 @@ func (x GenLanguage) String() string {
 	return ""
 }
 
-func (GenLanguage) __VDLReflect(struct {
+func (GenLanguage) VDLReflect(struct {
 	Name string `vdl:"vdltool.GenLanguage"`
 	Enum struct{ Go, Java, Javascript, Swift string }
 }) {
@@ -186,7 +186,7 @@ func (x GoKind) String() string {
 	return ""
 }
 
-func (GoKind) __VDLReflect(struct {
+func (GoKind) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoKind"`
 	Enum struct{ Struct, Bool, Number, String, Array, Slice, Map, Pointer, Iface string }
 }) {
@@ -264,7 +264,7 @@ func (x GoZeroMode) String() string {
 	return ""
 }
 
-func (GoZeroMode) __VDLReflect(struct {
+func (GoZeroMode) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoZeroMode"`
 	Enum struct{ Unknown, Canonical, Unique string }
 }) {
@@ -314,7 +314,7 @@ type GoZero struct {
 	IsZero string
 }
 
-func (GoZero) __VDLReflect(struct {
+func (GoZero) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoZero"`
 }) {
 }
@@ -397,7 +397,7 @@ type GoImport struct {
 	Name string
 }
 
-func (GoImport) __VDLReflect(struct {
+func (GoImport) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoImport"`
 }) {
 }
@@ -495,7 +495,7 @@ type GoType struct {
 	Imports []GoImport
 }
 
-func (GoType) __VDLReflect(struct {
+func (GoType) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoType"`
 }) {
 }
@@ -706,7 +706,7 @@ type GoConfig struct {
 	WireToNativeTypes map[string]GoType
 }
 
-func (GoConfig) __VDLReflect(struct {
+func (GoConfig) VDLReflect(struct {
 	Name string `vdl:"vdltool.GoConfig"`
 }) {
 }
@@ -853,7 +853,7 @@ type JavaConfig struct {
 	WireTypeRenames map[string]string
 }
 
-func (JavaConfig) __VDLReflect(struct {
+func (JavaConfig) VDLReflect(struct {
 	Name string `vdl:"vdltool.JavaConfig"`
 }) {
 }
@@ -986,7 +986,7 @@ func __VDLReadAnon_map_3(dec vdl.Decoder, x *map[string]string) error {
 type JavascriptConfig struct {
 }
 
-func (JavascriptConfig) __VDLReflect(struct {
+func (JavascriptConfig) VDLReflect(struct {
 	Name string `vdl:"vdltool.JavascriptConfig"`
 }) {
 }
@@ -1074,7 +1074,7 @@ type SwiftConfig struct {
 	WireToNativeTypes map[string]string
 }
 
-func (SwiftConfig) __VDLReflect(struct {
+func (SwiftConfig) VDLReflect(struct {
 	Name string `vdl:"vdltool.SwiftConfig"`
 }) {
 }
@@ -1151,7 +1151,7 @@ type Config struct {
 	Swift      SwiftConfig
 }
 
-func (Config) __VDLReflect(struct {
+func (Config) VDLReflect(struct {
 	Name string `vdl:"vdltool.Config"`
 }) {
 }

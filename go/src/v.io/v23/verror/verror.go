@@ -154,7 +154,7 @@ type E struct {
 }
 
 // TypeOf(verror.E{}) should give vdl.WireError.
-func (E) __VDLReflect(struct {
+func (E) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl.WireError"`
 }) {
 }

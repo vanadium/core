@@ -27,7 +27,7 @@ type PeerKey struct {
 	Acceptor string
 }
 
-func (PeerKey) __VDLReflect(struct {
+func (PeerKey) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/protocols/vine.PeerKey"`
 }) {
 }
@@ -111,7 +111,7 @@ type PeerBehavior struct {
 	Discoverable bool
 }
 
-func (PeerBehavior) __VDLReflect(struct {
+func (PeerBehavior) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/runtime/protocols/vine.PeerBehavior"`
 }) {
 }

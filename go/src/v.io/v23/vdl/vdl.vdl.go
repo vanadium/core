@@ -72,7 +72,7 @@ func (x WireRetryCode) String() string {
 	return ""
 }
 
-func (WireRetryCode) __VDLReflect(struct {
+func (WireRetryCode) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl.WireRetryCode"`
 	Enum struct{ NoRetry, RetryConnection, RetryRefetch, RetryBackoff string }
 }) {
@@ -112,7 +112,7 @@ type WireError struct {
 	ParamList []*Value      // Variadic parameters contained in the error.
 }
 
-func (WireError) __VDLReflect(struct {
+func (WireError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl.WireError"`
 }) {
 }

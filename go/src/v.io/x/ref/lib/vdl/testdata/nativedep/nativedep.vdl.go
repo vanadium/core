@@ -26,7 +26,7 @@ type All struct {
 	D map[nativetest.NativeSamePkg]time.Time
 }
 
-func (All) __VDLReflect(struct {
+func (All) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativedep.All"`
 }) {
 }

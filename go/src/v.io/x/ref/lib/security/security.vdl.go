@@ -21,7 +21,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type blessingRootsState map[string][]security.BlessingPattern
 
-func (blessingRootsState) __VDLReflect(struct {
+func (blessingRootsState) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security.blessingRootsState"`
 }) {
 }
@@ -120,7 +120,7 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]security.BlessingPattern) error 
 
 type dischargeCacheKey [32]byte
 
-func (dischargeCacheKey) __VDLReflect(struct {
+func (dischargeCacheKey) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security.dischargeCacheKey"`
 }) {
 }
@@ -150,7 +150,7 @@ type CachedDischarge struct {
 	CacheTime time.Time
 }
 
-func (CachedDischarge) __VDLReflect(struct {
+func (CachedDischarge) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security.CachedDischarge"`
 }) {
 }
@@ -263,7 +263,7 @@ type blessingStoreState struct {
 	CacheKeyFormat uint32
 }
 
-func (blessingStoreState) __VDLReflect(struct {
+func (blessingStoreState) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security.blessingStoreState"`
 }) {
 }

@@ -58,7 +58,7 @@ type Request struct {
 	Language string
 }
 
-func (Request) __VDLReflect(struct {
+func (Request) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/rpc.Request"`
 }) {
 }
@@ -263,7 +263,7 @@ type Response struct {
 	AckBlessings bool
 }
 
-func (Response) __VDLReflect(struct {
+func (Response) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/rpc.Response"`
 }) {
 }

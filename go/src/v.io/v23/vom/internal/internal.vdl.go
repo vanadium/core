@@ -20,7 +20,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type VNumber int32
 
-func (VNumber) __VDLReflect(struct {
+func (VNumber) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VNumber"`
 }) {
 }
@@ -48,7 +48,7 @@ func (x *VNumber) VDLRead(dec vdl.Decoder) error {
 
 type VString string
 
-func (VString) __VDLReflect(struct {
+func (VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VString"`
 }) {
 }
@@ -121,7 +121,7 @@ func (x VEnum) String() string {
 	return ""
 }
 
-func (VEnum) __VDLReflect(struct {
+func (VEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VEnum"`
 	Enum struct{ A, B, C string }
 }) {
@@ -152,7 +152,7 @@ func (x *VEnum) VDLRead(dec vdl.Decoder) error {
 
 type VByteList []byte
 
-func (VByteList) __VDLReflect(struct {
+func (VByteList) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VByteList"`
 }) {
 }
@@ -179,7 +179,7 @@ func (x *VByteList) VDLRead(dec vdl.Decoder) error {
 
 type VByteArray [3]byte
 
-func (VByteArray) __VDLReflect(struct {
+func (VByteArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VByteArray"`
 }) {
 }
@@ -205,7 +205,7 @@ func (x *VByteArray) VDLRead(dec vdl.Decoder) error {
 
 type VArray [3]int32
 
-func (VArray) __VDLReflect(struct {
+func (VArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VArray"`
 }) {
 }
@@ -254,7 +254,7 @@ func (x *VArray) VDLRead(dec vdl.Decoder) error {
 
 type VList []int32
 
-func (VList) __VDLReflect(struct {
+func (VList) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VList"`
 }) {
 }
@@ -304,7 +304,7 @@ func (x *VList) VDLRead(dec vdl.Decoder) error {
 
 type VListAny []*vom.RawBytes
 
-func (VListAny) __VDLReflect(struct {
+func (VListAny) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VListAny"`
 }) {
 }
@@ -368,7 +368,7 @@ func (x *VListAny) VDLRead(dec vdl.Decoder) error {
 
 type VSet map[string]struct{}
 
-func (VSet) __VDLReflect(struct {
+func (VSet) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VSet"`
 }) {
 }
@@ -421,7 +421,7 @@ func (x *VSet) VDLRead(dec vdl.Decoder) error {
 
 type VMap map[string]bool
 
-func (VMap) __VDLReflect(struct {
+func (VMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VMap"`
 }) {
 }
@@ -488,7 +488,7 @@ type VSmallStruct struct {
 	C bool
 }
 
-func (VSmallStruct) __VDLReflect(struct {
+func (VSmallStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VSmallStruct"`
 }) {
 }
@@ -624,7 +624,7 @@ type VLargeStruct struct {
 	F50 int32
 }
 
-func (VLargeStruct) __VDLReflect(struct {
+func (VLargeStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/internal.VLargeStruct"`
 }) {
 }
@@ -1280,8 +1280,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VSmallUnion union type.
-		__VDLReflect(__VSmallUnionReflect)
+		// VDLReflect describes the VSmallUnion union type.
+		VDLReflect(__VSmallUnionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1306,17 +1306,17 @@ type (
 func (x VSmallUnionA) Index() int                        { return 0 }
 func (x VSmallUnionA) Interface() interface{}            { return x.Value }
 func (x VSmallUnionA) Name() string                      { return "A" }
-func (x VSmallUnionA) __VDLReflect(__VSmallUnionReflect) {}
+func (x VSmallUnionA) VDLReflect(__VSmallUnionReflect) {}
 
 func (x VSmallUnionB) Index() int                        { return 1 }
 func (x VSmallUnionB) Interface() interface{}            { return x.Value }
 func (x VSmallUnionB) Name() string                      { return "B" }
-func (x VSmallUnionB) __VDLReflect(__VSmallUnionReflect) {}
+func (x VSmallUnionB) VDLReflect(__VSmallUnionReflect) {}
 
 func (x VSmallUnionC) Index() int                        { return 2 }
 func (x VSmallUnionC) Interface() interface{}            { return x.Value }
 func (x VSmallUnionC) Name() string                      { return "C" }
-func (x VSmallUnionC) __VDLReflect(__VSmallUnionReflect) {}
+func (x VSmallUnionC) VDLReflect(__VSmallUnionReflect) {}
 
 func (x VSmallUnionA) VDLIsZero() bool {
 	return x.Value == 0

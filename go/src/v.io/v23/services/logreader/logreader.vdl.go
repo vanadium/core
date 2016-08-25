@@ -30,7 +30,7 @@ type LogEntry struct {
 	Line string
 }
 
-func (LogEntry) __VDLReflect(struct {
+func (LogEntry) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/logreader.LogEntry"`
 }) {
 }

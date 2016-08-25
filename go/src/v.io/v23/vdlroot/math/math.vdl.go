@@ -22,7 +22,7 @@ type Complex64 struct {
 	Imag float32
 }
 
-func (Complex64) __VDLReflect(struct {
+func (Complex64) VDLReflect(struct {
 	Name string `vdl:"math.Complex64"`
 }) {
 }
@@ -99,7 +99,7 @@ type Complex128 struct {
 	Imag float64
 }
 
-func (Complex128) __VDLReflect(struct {
+func (Complex128) VDLReflect(struct {
 	Name string `vdl:"math.Complex128"`
 }) {
 }

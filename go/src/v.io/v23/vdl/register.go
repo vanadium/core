@@ -141,12 +141,12 @@ func WrapInUnionInterface(rv reflect.Value) reflect.Value {
 // reflectInfo holds the reflection information for a type.  All fields are
 // populated via reflection over the Type.
 //
-// The type may include a special __VDLReflect function to describe metadata.
+// The type may include a special VDLReflect function to describe metadata.
 // This is only required for enum and union vdl types, which don't have a
 // canonical Go representation.  All other fields are optional.
 //
 //   type Foo struct{}
-//   func (Foo) __VDLReflect(struct{
+//   func (Foo) VDLReflect(struct{
 //     // Type represents the base type.  This is used by union to describe the
 //     // union interface type, as opposed to the concrete struct field types.
 //     Type Foo
@@ -205,7 +205,7 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
 	}
 	riReg.RUnlock()
 
-	// Set reasonable defaults for types that don't have the __VDLReflect method.
+	// Set reasonable defaults for types that don't have the VDLReflect method.
 	ri := new(reflectInfo)
 	ri.Type = rt
 	if rt.PkgPath() != "" {
@@ -217,13 +217,13 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
 	if rt.Kind() == reflect.Interface {
 		offsetIn = 0
 	}
-	// If rt has a __VDLReflect method, use it to extract metadata.
-	if method, ok := rt.MethodByName("__VDLReflect"); ok {
+	// If rt has a VDLReflect method, use it to extract metadata.
+	if method, ok := rt.MethodByName("VDLReflect"); ok {
 		mtype := method.Type
 		if mtype.NumOut() != 0 || mtype.NumIn() != 1+offsetIn || mtype.In(offsetIn).Kind() != reflect.Struct {
-			return nil, false, fmt.Errorf("type %q invalid __VDLReflect (want __VDLReflect(struct{...}))", rt)
+			return nil, false, fmt.Errorf("type %q invalid VDLReflect (want VDLReflect(struct{...}))", rt)
 		}
-		// rtReflect corresponds to the argument to __VDLReflect.
+		// rtReflect corresponds to the argument to VDLReflect.
 		rtReflect := mtype.In(offsetIn)
 		if field, ok := rtReflect.FieldByName("Type"); ok {
 			ri.Type = field.Type
@@ -236,7 +236,7 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
 		if field, ok := rtReflect.FieldByName("Name"); ok {
 			ri.Name = field.Tag.Get("vdl")
 			if ri.Name == "" {
-				return nil, false, fmt.Errorf("empty vdl tag on __VDLReflect Name field")
+				return nil, false, fmt.Errorf("empty vdl tag on VDLReflect Name field")
 			}
 		}
 		if field, ok := rtReflect.FieldByName("Enum"); ok {
@@ -279,7 +279,7 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
 //     FooA Foo = iota
 //     FooB
 //   )
-//   func (Foo) __VDLReflect(struct{
+//   func (Foo) VDLReflect(struct{
 //     Type Foo
 //     Enum struct { A, B Foo }
 //   }) {}
@@ -321,7 +321,7 @@ func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error {
 //     Foo interface {
 //       Index() int
 //       Name() string
-//       __VDLReflect(__FooReflect)
+//       VDLReflect(__FooReflect)
 //     }
 //     // FooA and FooB are the concrete field types.
 //     FooA struct { Value bool }

@@ -36,7 +36,7 @@ type Task struct {
 	Goal     int32
 }
 
-func (Task) __VDLReflect(struct {
+func (Task) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/appcycle.Task"`
 }) {
 }

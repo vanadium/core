@@ -21,7 +21,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type WireString int32
 
-func (WireString) __VDLReflect(struct {
+func (WireString) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireString"`
 }) {
 }
@@ -49,7 +49,7 @@ func (x *WireString) VDLRead(dec vdl.Decoder) error {
 
 type WireTime int32
 
-func (WireTime) __VDLReflect(struct {
+func (WireTime) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireTime"`
 }) {
 }
@@ -77,7 +77,7 @@ func (x *WireTime) VDLRead(dec vdl.Decoder) error {
 
 type WireSamePkg int32
 
-func (WireSamePkg) __VDLReflect(struct {
+func (WireSamePkg) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireSamePkg"`
 }) {
 }
@@ -105,7 +105,7 @@ func (x *WireSamePkg) VDLRead(dec vdl.Decoder) error {
 
 type WireMultiImport int32
 
-func (WireMultiImport) __VDLReflect(struct {
+func (WireMultiImport) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireMultiImport"`
 }) {
 }
@@ -133,7 +133,7 @@ func (x *WireMultiImport) VDLRead(dec vdl.Decoder) error {
 
 type WireRenameMe int32
 
-func (WireRenameMe) __VDLReflect(struct {
+func (WireRenameMe) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireRenameMe"`
 }) {
 }
@@ -167,7 +167,7 @@ type WireAll struct {
 	E WireRenameMe
 }
 
-func (WireAll) __VDLReflect(struct {
+func (WireAll) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.WireAll"`
 }) {
 }
@@ -311,7 +311,7 @@ func (x *WireAll) VDLRead(dec vdl.Decoder) error {
 
 type ignoreme string
 
-func (ignoreme) __VDLReflect(struct {
+func (ignoreme) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativetest.ignoreme"`
 }) {
 }

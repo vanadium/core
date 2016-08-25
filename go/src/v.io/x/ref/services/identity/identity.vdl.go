@@ -30,7 +30,7 @@ type BlessingRootResponse struct {
 	PublicKey string
 }
 
-func (BlessingRootResponse) __VDLReflect(struct {
+func (BlessingRootResponse) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/identity.BlessingRootResponse"`
 }) {
 }

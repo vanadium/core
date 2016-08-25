@@ -35,7 +35,7 @@ type vdlEntry struct {
 	Source      interface{} // Source value for conversion test
 }
 
-func (vdlEntry) __VDLReflect(struct {
+func (vdlEntry) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.vdlEntry"`
 }) {
 }
@@ -160,7 +160,7 @@ func (x *vdlEntry) VDLRead(dec vdl.Decoder) error {
 
 type VBool bool
 
-func (VBool) __VDLReflect(struct {
+func (VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VBool"`
 }) {
 }
@@ -188,7 +188,7 @@ func (x *VBool) VDLRead(dec vdl.Decoder) error {
 
 type VString string
 
-func (VString) __VDLReflect(struct {
+func (VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VString"`
 }) {
 }
@@ -216,7 +216,7 @@ func (x *VString) VDLRead(dec vdl.Decoder) error {
 
 type VByte byte
 
-func (VByte) __VDLReflect(struct {
+func (VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VByte"`
 }) {
 }
@@ -289,7 +289,7 @@ func (x VEnumAbc) String() string {
 	return ""
 }
 
-func (VEnumAbc) __VDLReflect(struct {
+func (VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VEnumAbc"`
 	Enum struct{ A, B, C string }
 }) {
@@ -365,7 +365,7 @@ func (x VEnumBcd) String() string {
 	return ""
 }
 
-func (VEnumBcd) __VDLReflect(struct {
+func (VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VEnumBcd"`
 	Enum struct{ B, C, D string }
 }) {
@@ -397,7 +397,7 @@ func (x *VEnumBcd) VDLRead(dec vdl.Decoder) error {
 type VStructEmpty struct {
 }
 
-func (VStructEmpty) __VDLReflect(struct {
+func (VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructEmpty"`
 }) {
 }
@@ -449,7 +449,7 @@ type VNamedError struct {
 	Msg string
 }
 
-func (VNamedError) __VDLReflect(struct {
+func (VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VNamedError"`
 }) {
 }
@@ -522,7 +522,7 @@ func (x *VNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VUint16 uint16
 
-func (VUint16) __VDLReflect(struct {
+func (VUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VUint16"`
 }) {
 }
@@ -550,7 +550,7 @@ func (x *VUint16) VDLRead(dec vdl.Decoder) error {
 
 type VUint32 uint32
 
-func (VUint32) __VDLReflect(struct {
+func (VUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VUint32"`
 }) {
 }
@@ -578,7 +578,7 @@ func (x *VUint32) VDLRead(dec vdl.Decoder) error {
 
 type VUint64 uint64
 
-func (VUint64) __VDLReflect(struct {
+func (VUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VUint64"`
 }) {
 }
@@ -606,7 +606,7 @@ func (x *VUint64) VDLRead(dec vdl.Decoder) error {
 
 type VInt8 int8
 
-func (VInt8) __VDLReflect(struct {
+func (VInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VInt8"`
 }) {
 }
@@ -634,7 +634,7 @@ func (x *VInt8) VDLRead(dec vdl.Decoder) error {
 
 type VInt16 int16
 
-func (VInt16) __VDLReflect(struct {
+func (VInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VInt16"`
 }) {
 }
@@ -662,7 +662,7 @@ func (x *VInt16) VDLRead(dec vdl.Decoder) error {
 
 type VInt32 int32
 
-func (VInt32) __VDLReflect(struct {
+func (VInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VInt32"`
 }) {
 }
@@ -690,7 +690,7 @@ func (x *VInt32) VDLRead(dec vdl.Decoder) error {
 
 type VInt64 int64
 
-func (VInt64) __VDLReflect(struct {
+func (VInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VInt64"`
 }) {
 }
@@ -718,7 +718,7 @@ func (x *VInt64) VDLRead(dec vdl.Decoder) error {
 
 type VFloat32 float32
 
-func (VFloat32) __VDLReflect(struct {
+func (VFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VFloat32"`
 }) {
 }
@@ -746,7 +746,7 @@ func (x *VFloat32) VDLRead(dec vdl.Decoder) error {
 
 type VFloat64 float64
 
-func (VFloat64) __VDLReflect(struct {
+func (VFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VFloat64"`
 }) {
 }
@@ -774,7 +774,7 @@ func (x *VFloat64) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_Any [3]interface{}
 
-func (VArray3_Any) __VDLReflect(struct {
+func (VArray3_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_Any"`
 }) {
 }
@@ -830,7 +830,7 @@ func (x *VArray3_Any) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_Bool [3]bool
 
-func (VArray3_Bool) __VDLReflect(struct {
+func (VArray3_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_Bool"`
 }) {
 }
@@ -879,7 +879,7 @@ func (x *VArray3_Bool) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_VBool [3]VBool
 
-func (VArray3_VBool) __VDLReflect(struct {
+func (VArray3_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_VBool"`
 }) {
 }
@@ -928,7 +928,7 @@ func (x *VArray3_VBool) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_String [1]string
 
-func (VArray1_String) __VDLReflect(struct {
+func (VArray1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_String"`
 }) {
 }
@@ -977,7 +977,7 @@ func (x *VArray1_String) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_VString [3]VString
 
-func (VArray3_VString) __VDLReflect(struct {
+func (VArray3_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_VString"`
 }) {
 }
@@ -1026,7 +1026,7 @@ func (x *VArray3_VString) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_TypeObject [2]*vdl.Type
 
-func (VArray2_TypeObject) __VDLReflect(struct {
+func (VArray2_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_TypeObject"`
 }) {
 }
@@ -1080,7 +1080,7 @@ func (x *VArray2_TypeObject) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_Byte [1]byte
 
-func (VArray1_Byte) __VDLReflect(struct {
+func (VArray1_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_Byte"`
 }) {
 }
@@ -1106,7 +1106,7 @@ func (x *VArray1_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_VByte [2]VByte
 
-func (VArray2_VByte) __VDLReflect(struct {
+func (VArray2_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VByte"`
 }) {
 }
@@ -1132,7 +1132,7 @@ func (x *VArray2_VByte) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_VEnumAbc [2]VEnumAbc
 
-func (VArray2_VEnumAbc) __VDLReflect(struct {
+func (VArray2_VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VEnumAbc"`
 }) {
 }
@@ -1183,7 +1183,7 @@ func (x *VArray2_VEnumAbc) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_VEnumBcd [2]VEnumBcd
 
-func (VArray2_VEnumBcd) __VDLReflect(struct {
+func (VArray2_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VEnumBcd"`
 }) {
 }
@@ -1234,7 +1234,7 @@ func (x *VArray2_VEnumBcd) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_VStructEmpty [1]VStructEmpty
 
-func (VArray1_VStructEmpty) __VDLReflect(struct {
+func (VArray1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_VStructEmpty"`
 }) {
 }
@@ -1288,7 +1288,7 @@ func (x *VArray1_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_VNamedError [1]VNamedError
 
-func (VArray1_VNamedError) __VDLReflect(struct {
+func (VArray1_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_VNamedError"`
 }) {
 }
@@ -1342,7 +1342,7 @@ func (x *VArray1_VNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_Error [2]error
 
-func (VArray2_Error) __VDLReflect(struct {
+func (VArray2_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_Error"`
 }) {
 }
@@ -1396,7 +1396,7 @@ func (x *VArray2_Error) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_Uint32 [1]uint32
 
-func (VArray1_Uint32) __VDLReflect(struct {
+func (VArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_Uint32"`
 }) {
 }
@@ -1445,7 +1445,7 @@ func (x *VArray1_Uint32) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_Uint64 [3]uint64
 
-func (VArray3_Uint64) __VDLReflect(struct {
+func (VArray3_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_Uint64"`
 }) {
 }
@@ -1494,7 +1494,7 @@ func (x *VArray3_Uint64) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_Int64 [3]int64
 
-func (VArray3_Int64) __VDLReflect(struct {
+func (VArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_Int64"`
 }) {
 }
@@ -1543,7 +1543,7 @@ func (x *VArray3_Int64) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_OptVStructEmpty [1]*VStructEmpty
 
-func (VArray1_OptVStructEmpty) __VDLReflect(struct {
+func (VArray1_OptVStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_OptVStructEmpty"`
 }) {
 }
@@ -1616,7 +1616,7 @@ func (x *VArray1_OptVStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_OptVNamedError [3]*VNamedError
 
-func (VArray3_OptVNamedError) __VDLReflect(struct {
+func (VArray3_OptVNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_OptVNamedError"`
 }) {
 }
@@ -1689,7 +1689,7 @@ func (x *VArray3_OptVNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VList_Any []interface{}
 
-func (VList_Any) __VDLReflect(struct {
+func (VList_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_Any"`
 }) {
 }
@@ -1748,7 +1748,7 @@ func (x *VList_Any) VDLRead(dec vdl.Decoder) error {
 
 type VList_Bool []bool
 
-func (VList_Bool) __VDLReflect(struct {
+func (VList_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_Bool"`
 }) {
 }
@@ -1798,7 +1798,7 @@ func (x *VList_Bool) VDLRead(dec vdl.Decoder) error {
 
 type VList_VBool []VBool
 
-func (VList_VBool) __VDLReflect(struct {
+func (VList_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VBool"`
 }) {
 }
@@ -1848,7 +1848,7 @@ func (x *VList_VBool) VDLRead(dec vdl.Decoder) error {
 
 type VList_String []string
 
-func (VList_String) __VDLReflect(struct {
+func (VList_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_String"`
 }) {
 }
@@ -1898,7 +1898,7 @@ func (x *VList_String) VDLRead(dec vdl.Decoder) error {
 
 type VList_VString []VString
 
-func (VList_VString) __VDLReflect(struct {
+func (VList_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VString"`
 }) {
 }
@@ -1948,7 +1948,7 @@ func (x *VList_VString) VDLRead(dec vdl.Decoder) error {
 
 type VList_TypeObject []*vdl.Type
 
-func (VList_TypeObject) __VDLReflect(struct {
+func (VList_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_TypeObject"`
 }) {
 }
@@ -1998,7 +1998,7 @@ func (x *VList_TypeObject) VDLRead(dec vdl.Decoder) error {
 
 type VList_Byte []byte
 
-func (VList_Byte) __VDLReflect(struct {
+func (VList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_Byte"`
 }) {
 }
@@ -2025,7 +2025,7 @@ func (x *VList_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VList_VByte []VByte
 
-func (VList_VByte) __VDLReflect(struct {
+func (VList_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VByte"`
 }) {
 }
@@ -2052,7 +2052,7 @@ func (x *VList_VByte) VDLRead(dec vdl.Decoder) error {
 
 type VList_VEnumAbc []VEnumAbc
 
-func (VList_VEnumAbc) __VDLReflect(struct {
+func (VList_VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VEnumAbc"`
 }) {
 }
@@ -2106,7 +2106,7 @@ func (x *VList_VEnumAbc) VDLRead(dec vdl.Decoder) error {
 
 type VList_VEnumBcd []VEnumBcd
 
-func (VList_VEnumBcd) __VDLReflect(struct {
+func (VList_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VEnumBcd"`
 }) {
 }
@@ -2160,7 +2160,7 @@ func (x *VList_VEnumBcd) VDLRead(dec vdl.Decoder) error {
 
 type VList_VStructEmpty []VStructEmpty
 
-func (VList_VStructEmpty) __VDLReflect(struct {
+func (VList_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VStructEmpty"`
 }) {
 }
@@ -2217,7 +2217,7 @@ func (x *VList_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VList_VNamedError []VNamedError
 
-func (VList_VNamedError) __VDLReflect(struct {
+func (VList_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VNamedError"`
 }) {
 }
@@ -2274,7 +2274,7 @@ func (x *VList_VNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VList_Error []error
 
-func (VList_Error) __VDLReflect(struct {
+func (VList_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_Error"`
 }) {
 }
@@ -2331,7 +2331,7 @@ func (x *VList_Error) VDLRead(dec vdl.Decoder) error {
 
 type VList_VUint16 []VUint16
 
-func (VList_VUint16) __VDLReflect(struct {
+func (VList_VUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VUint16"`
 }) {
 }
@@ -2381,7 +2381,7 @@ func (x *VList_VUint16) VDLRead(dec vdl.Decoder) error {
 
 type VList_VFloat32 []VFloat32
 
-func (VList_VFloat32) __VDLReflect(struct {
+func (VList_VFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VFloat32"`
 }) {
 }
@@ -2431,7 +2431,7 @@ func (x *VList_VFloat32) VDLRead(dec vdl.Decoder) error {
 
 type VList_VFloat64 []VFloat64
 
-func (VList_VFloat64) __VDLReflect(struct {
+func (VList_VFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VFloat64"`
 }) {
 }
@@ -2481,7 +2481,7 @@ func (x *VList_VFloat64) VDLRead(dec vdl.Decoder) error {
 
 type VList_OptVStructEmpty []*VStructEmpty
 
-func (VList_OptVStructEmpty) __VDLReflect(struct {
+func (VList_OptVStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_OptVStructEmpty"`
 }) {
 }
@@ -2557,7 +2557,7 @@ func (x *VList_OptVStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VList_OptVNamedError []*VNamedError
 
-func (VList_OptVNamedError) __VDLReflect(struct {
+func (VList_OptVNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_OptVNamedError"`
 }) {
 }
@@ -2633,7 +2633,7 @@ func (x *VList_OptVNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VSet_Bool map[bool]struct{}
 
-func (VSet_Bool) __VDLReflect(struct {
+func (VSet_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_Bool"`
 }) {
 }
@@ -2686,7 +2686,7 @@ func (x *VSet_Bool) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VBool map[VBool]struct{}
 
-func (VSet_VBool) __VDLReflect(struct {
+func (VSet_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VBool"`
 }) {
 }
@@ -2739,7 +2739,7 @@ func (x *VSet_VBool) VDLRead(dec vdl.Decoder) error {
 
 type VSet_String map[string]struct{}
 
-func (VSet_String) __VDLReflect(struct {
+func (VSet_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_String"`
 }) {
 }
@@ -2792,7 +2792,7 @@ func (x *VSet_String) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VString map[VString]struct{}
 
-func (VSet_VString) __VDLReflect(struct {
+func (VSet_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VString"`
 }) {
 }
@@ -2845,7 +2845,7 @@ func (x *VSet_VString) VDLRead(dec vdl.Decoder) error {
 
 type VSet_Byte map[byte]struct{}
 
-func (VSet_Byte) __VDLReflect(struct {
+func (VSet_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_Byte"`
 }) {
 }
@@ -2898,7 +2898,7 @@ func (x *VSet_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VByte map[VByte]struct{}
 
-func (VSet_VByte) __VDLReflect(struct {
+func (VSet_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VByte"`
 }) {
 }
@@ -2951,7 +2951,7 @@ func (x *VSet_VByte) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VEnumAbc map[VEnumAbc]struct{}
 
-func (VSet_VEnumAbc) __VDLReflect(struct {
+func (VSet_VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VEnumAbc"`
 }) {
 }
@@ -3008,7 +3008,7 @@ func (x *VSet_VEnumAbc) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VEnumBcd map[VEnumBcd]struct{}
 
-func (VSet_VEnumBcd) __VDLReflect(struct {
+func (VSet_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VEnumBcd"`
 }) {
 }
@@ -3065,7 +3065,7 @@ func (x *VSet_VEnumBcd) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VStructEmpty map[VStructEmpty]struct{}
 
-func (VSet_VStructEmpty) __VDLReflect(struct {
+func (VSet_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VStructEmpty"`
 }) {
 }
@@ -3125,7 +3125,7 @@ func (x *VSet_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VNamedError map[VNamedError]struct{}
 
-func (VSet_VNamedError) __VDLReflect(struct {
+func (VSet_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VNamedError"`
 }) {
 }
@@ -3185,7 +3185,7 @@ func (x *VSet_VNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VSet_Uint64 map[uint64]struct{}
 
-func (VSet_Uint64) __VDLReflect(struct {
+func (VSet_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_Uint64"`
 }) {
 }
@@ -3238,7 +3238,7 @@ func (x *VSet_Uint64) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VUint64 map[VUint64]struct{}
 
-func (VSet_VUint64) __VDLReflect(struct {
+func (VSet_VUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VUint64"`
 }) {
 }
@@ -3291,7 +3291,7 @@ func (x *VSet_VUint64) VDLRead(dec vdl.Decoder) error {
 
 type VSet_Float32 map[float32]struct{}
 
-func (VSet_Float32) __VDLReflect(struct {
+func (VSet_Float32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_Float32"`
 }) {
 }
@@ -3344,7 +3344,7 @@ func (x *VSet_Float32) VDLRead(dec vdl.Decoder) error {
 
 type VMap_Bool_Bool map[bool]bool
 
-func (VMap_Bool_Bool) __VDLReflect(struct {
+func (VMap_Bool_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_Bool_Bool"`
 }) {
 }
@@ -3407,7 +3407,7 @@ func (x *VMap_Bool_Bool) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VBool_VBool map[VBool]VBool
 
-func (VMap_VBool_VBool) __VDLReflect(struct {
+func (VMap_VBool_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VBool_VBool"`
 }) {
 }
@@ -3470,7 +3470,7 @@ func (x *VMap_VBool_VBool) VDLRead(dec vdl.Decoder) error {
 
 type VMap_String_String map[string]string
 
-func (VMap_String_String) __VDLReflect(struct {
+func (VMap_String_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_String_String"`
 }) {
 }
@@ -3533,7 +3533,7 @@ func (x *VMap_String_String) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VString_VString map[VString]VString
 
-func (VMap_VString_VString) __VDLReflect(struct {
+func (VMap_VString_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VString_VString"`
 }) {
 }
@@ -3596,7 +3596,7 @@ func (x *VMap_VString_VString) VDLRead(dec vdl.Decoder) error {
 
 type VMap_Byte_Byte map[byte]byte
 
-func (VMap_Byte_Byte) __VDLReflect(struct {
+func (VMap_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_Byte_Byte"`
 }) {
 }
@@ -3659,7 +3659,7 @@ func (x *VMap_Byte_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VByte_VByte map[VByte]VByte
 
-func (VMap_VByte_VByte) __VDLReflect(struct {
+func (VMap_VByte_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VByte_VByte"`
 }) {
 }
@@ -3722,7 +3722,7 @@ func (x *VMap_VByte_VByte) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VEnumAbc_VEnumAbc map[VEnumAbc]VEnumAbc
 
-func (VMap_VEnumAbc_VEnumAbc) __VDLReflect(struct {
+func (VMap_VEnumAbc_VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VEnumAbc_VEnumAbc"`
 }) {
 }
@@ -3791,7 +3791,7 @@ func (x *VMap_VEnumAbc_VEnumAbc) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VEnumBcd_VEnumBcd map[VEnumBcd]VEnumBcd
 
-func (VMap_VEnumBcd_VEnumBcd) __VDLReflect(struct {
+func (VMap_VEnumBcd_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VEnumBcd_VEnumBcd"`
 }) {
 }
@@ -3860,7 +3860,7 @@ func (x *VMap_VEnumBcd_VEnumBcd) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VStructEmpty_VStructEmpty map[VStructEmpty]VStructEmpty
 
-func (VMap_VStructEmpty_VStructEmpty) __VDLReflect(struct {
+func (VMap_VStructEmpty_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VStructEmpty_VStructEmpty"`
 }) {
 }
@@ -3927,7 +3927,7 @@ func (x *VMap_VStructEmpty_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VNamedError_VNamedError map[VNamedError]VNamedError
 
-func (VMap_VNamedError_VNamedError) __VDLReflect(struct {
+func (VMap_VNamedError_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VNamedError_VNamedError"`
 }) {
 }
@@ -3994,7 +3994,7 @@ func (x *VMap_VNamedError_VNamedError) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VUint32_VUint32 map[VUint32]VUint32
 
-func (VMap_VUint32_VUint32) __VDLReflect(struct {
+func (VMap_VUint32_VUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VUint32_VUint32"`
 }) {
 }
@@ -4057,7 +4057,7 @@ func (x *VMap_VUint32_VUint32) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VInt32_VInt32 map[VInt32]VInt32
 
-func (VMap_VInt32_VInt32) __VDLReflect(struct {
+func (VMap_VInt32_VInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VInt32_VInt32"`
 }) {
 }
@@ -4120,7 +4120,7 @@ func (x *VMap_VInt32_VInt32) VDLRead(dec vdl.Decoder) error {
 
 type VMap_Int64_Int64 map[int64]int64
 
-func (VMap_Int64_Int64) __VDLReflect(struct {
+func (VMap_Int64_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_Int64_Int64"`
 }) {
 }
@@ -4217,7 +4217,7 @@ type VStructDepth1_All struct {
 	F32 *VNamedError
 }
 
-func (VStructDepth1_All) __VDLReflect(struct {
+func (VStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_All"`
 }) {
 }
@@ -4797,7 +4797,7 @@ type VStructDepth1_Any struct {
 	F0 interface{}
 }
 
-func (VStructDepth1_Any) __VDLReflect(struct {
+func (VStructDepth1_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Any"`
 }) {
 }
@@ -4862,7 +4862,7 @@ type VStructDepth1_Bool struct {
 	F1 bool
 }
 
-func (VStructDepth1_Bool) __VDLReflect(struct {
+func (VStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Bool"`
 }) {
 }
@@ -4925,7 +4925,7 @@ type VStructDepth1_VBool struct {
 	F2 VBool
 }
 
-func (VStructDepth1_VBool) __VDLReflect(struct {
+func (VStructDepth1_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VBool"`
 }) {
 }
@@ -4988,7 +4988,7 @@ type VStructDepth1_String struct {
 	F3 string
 }
 
-func (VStructDepth1_String) __VDLReflect(struct {
+func (VStructDepth1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_String"`
 }) {
 }
@@ -5051,7 +5051,7 @@ type VStructDepth1_VString struct {
 	F4 VString
 }
 
-func (VStructDepth1_VString) __VDLReflect(struct {
+func (VStructDepth1_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VString"`
 }) {
 }
@@ -5114,7 +5114,7 @@ type VStructDepth1_TypeObject struct {
 	F5 *vdl.Type
 }
 
-func (VStructDepth1_TypeObject) __VDLReflect(struct {
+func (VStructDepth1_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_TypeObject"`
 }) {
 }
@@ -5182,7 +5182,7 @@ type VStructDepth1_Byte struct {
 	F6 byte
 }
 
-func (VStructDepth1_Byte) __VDLReflect(struct {
+func (VStructDepth1_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Byte"`
 }) {
 }
@@ -5245,7 +5245,7 @@ type VStructDepth1_VByte struct {
 	F7 VByte
 }
 
-func (VStructDepth1_VByte) __VDLReflect(struct {
+func (VStructDepth1_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VByte"`
 }) {
 }
@@ -5308,7 +5308,7 @@ type VStructDepth1_VEnumAbc struct {
 	F8 VEnumAbc
 }
 
-func (VStructDepth1_VEnumAbc) __VDLReflect(struct {
+func (VStructDepth1_VEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VEnumAbc"`
 }) {
 }
@@ -5373,7 +5373,7 @@ type VStructDepth1_VEnumBcd struct {
 	F9 VEnumBcd
 }
 
-func (VStructDepth1_VEnumBcd) __VDLReflect(struct {
+func (VStructDepth1_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VEnumBcd"`
 }) {
 }
@@ -5438,7 +5438,7 @@ type VStructDepth1_VStructEmpty struct {
 	F10 VStructEmpty
 }
 
-func (VStructDepth1_VStructEmpty) __VDLReflect(struct {
+func (VStructDepth1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VStructEmpty"`
 }) {
 }
@@ -5501,7 +5501,7 @@ type VStructDepth1_VNamedError struct {
 	F11 VNamedError
 }
 
-func (VStructDepth1_VNamedError) __VDLReflect(struct {
+func (VStructDepth1_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VNamedError"`
 }) {
 }
@@ -5564,7 +5564,7 @@ type VStructDepth1_Error struct {
 	F12 error
 }
 
-func (VStructDepth1_Error) __VDLReflect(struct {
+func (VStructDepth1_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Error"`
 }) {
 }
@@ -5627,7 +5627,7 @@ type VStructDepth1_Uint16 struct {
 	F13 uint16
 }
 
-func (VStructDepth1_Uint16) __VDLReflect(struct {
+func (VStructDepth1_Uint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Uint16"`
 }) {
 }
@@ -5690,7 +5690,7 @@ type VStructDepth1_VUint16 struct {
 	F14 VUint16
 }
 
-func (VStructDepth1_VUint16) __VDLReflect(struct {
+func (VStructDepth1_VUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VUint16"`
 }) {
 }
@@ -5753,7 +5753,7 @@ type VStructDepth1_Uint32 struct {
 	F15 uint32
 }
 
-func (VStructDepth1_Uint32) __VDLReflect(struct {
+func (VStructDepth1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Uint32"`
 }) {
 }
@@ -5816,7 +5816,7 @@ type VStructDepth1_VUint32 struct {
 	F16 VUint32
 }
 
-func (VStructDepth1_VUint32) __VDLReflect(struct {
+func (VStructDepth1_VUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VUint32"`
 }) {
 }
@@ -5879,7 +5879,7 @@ type VStructDepth1_Uint64 struct {
 	F17 uint64
 }
 
-func (VStructDepth1_Uint64) __VDLReflect(struct {
+func (VStructDepth1_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Uint64"`
 }) {
 }
@@ -5942,7 +5942,7 @@ type VStructDepth1_VUint64 struct {
 	F18 VUint64
 }
 
-func (VStructDepth1_VUint64) __VDLReflect(struct {
+func (VStructDepth1_VUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VUint64"`
 }) {
 }
@@ -6005,7 +6005,7 @@ type VStructDepth1_Int8 struct {
 	F19 int8
 }
 
-func (VStructDepth1_Int8) __VDLReflect(struct {
+func (VStructDepth1_Int8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Int8"`
 }) {
 }
@@ -6068,7 +6068,7 @@ type VStructDepth1_VInt8 struct {
 	F20 VInt8
 }
 
-func (VStructDepth1_VInt8) __VDLReflect(struct {
+func (VStructDepth1_VInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VInt8"`
 }) {
 }
@@ -6131,7 +6131,7 @@ type VStructDepth1_Int16 struct {
 	F21 int16
 }
 
-func (VStructDepth1_Int16) __VDLReflect(struct {
+func (VStructDepth1_Int16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Int16"`
 }) {
 }
@@ -6194,7 +6194,7 @@ type VStructDepth1_VInt16 struct {
 	F22 VInt16
 }
 
-func (VStructDepth1_VInt16) __VDLReflect(struct {
+func (VStructDepth1_VInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VInt16"`
 }) {
 }
@@ -6257,7 +6257,7 @@ type VStructDepth1_Int32 struct {
 	F23 int32
 }
 
-func (VStructDepth1_Int32) __VDLReflect(struct {
+func (VStructDepth1_Int32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Int32"`
 }) {
 }
@@ -6320,7 +6320,7 @@ type VStructDepth1_VInt32 struct {
 	F24 VInt32
 }
 
-func (VStructDepth1_VInt32) __VDLReflect(struct {
+func (VStructDepth1_VInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VInt32"`
 }) {
 }
@@ -6383,7 +6383,7 @@ type VStructDepth1_Int64 struct {
 	F25 int64
 }
 
-func (VStructDepth1_Int64) __VDLReflect(struct {
+func (VStructDepth1_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Int64"`
 }) {
 }
@@ -6446,7 +6446,7 @@ type VStructDepth1_VInt64 struct {
 	F26 VInt64
 }
 
-func (VStructDepth1_VInt64) __VDLReflect(struct {
+func (VStructDepth1_VInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VInt64"`
 }) {
 }
@@ -6509,7 +6509,7 @@ type VStructDepth1_Float32 struct {
 	F27 float32
 }
 
-func (VStructDepth1_Float32) __VDLReflect(struct {
+func (VStructDepth1_Float32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Float32"`
 }) {
 }
@@ -6572,7 +6572,7 @@ type VStructDepth1_VFloat32 struct {
 	F28 VFloat32
 }
 
-func (VStructDepth1_VFloat32) __VDLReflect(struct {
+func (VStructDepth1_VFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VFloat32"`
 }) {
 }
@@ -6635,7 +6635,7 @@ type VStructDepth1_Float64 struct {
 	F29 float64
 }
 
-func (VStructDepth1_Float64) __VDLReflect(struct {
+func (VStructDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_Float64"`
 }) {
 }
@@ -6698,7 +6698,7 @@ type VStructDepth1_VFloat64 struct {
 	F30 VFloat64
 }
 
-func (VStructDepth1_VFloat64) __VDLReflect(struct {
+func (VStructDepth1_VFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_VFloat64"`
 }) {
 }
@@ -6761,7 +6761,7 @@ type VStructDepth1_OptVStructEmpty struct {
 	F31 *VStructEmpty
 }
 
-func (VStructDepth1_OptVStructEmpty) __VDLReflect(struct {
+func (VStructDepth1_OptVStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_OptVStructEmpty"`
 }) {
 }
@@ -6837,7 +6837,7 @@ type VStructDepth1_OptVNamedError struct {
 	F32 *VNamedError
 }
 
-func (VStructDepth1_OptVNamedError) __VDLReflect(struct {
+func (VStructDepth1_OptVNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth1_OptVNamedError"`
 }) {
 }
@@ -6918,8 +6918,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_All union type.
-		__VDLReflect(__VUnionDepth1_AllReflect)
+		// VDLReflect describes the VUnionDepth1_All union type.
+		VDLReflect(__VUnionDepth1_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -7034,167 +7034,167 @@ type (
 func (x VUnionDepth1_AllF0) Index() int                             { return 0 }
 func (x VUnionDepth1_AllF0) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF0) Name() string                           { return "F0" }
-func (x VUnionDepth1_AllF0) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF0) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF1) Index() int                             { return 1 }
 func (x VUnionDepth1_AllF1) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF1) Name() string                           { return "F1" }
-func (x VUnionDepth1_AllF1) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF1) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF2) Index() int                             { return 2 }
 func (x VUnionDepth1_AllF2) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF2) Name() string                           { return "F2" }
-func (x VUnionDepth1_AllF2) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF2) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF3) Index() int                             { return 3 }
 func (x VUnionDepth1_AllF3) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF3) Name() string                           { return "F3" }
-func (x VUnionDepth1_AllF3) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF3) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF4) Index() int                             { return 4 }
 func (x VUnionDepth1_AllF4) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF4) Name() string                           { return "F4" }
-func (x VUnionDepth1_AllF4) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF4) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF5) Index() int                             { return 5 }
 func (x VUnionDepth1_AllF5) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF5) Name() string                           { return "F5" }
-func (x VUnionDepth1_AllF5) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF5) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF6) Index() int                             { return 6 }
 func (x VUnionDepth1_AllF6) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF6) Name() string                           { return "F6" }
-func (x VUnionDepth1_AllF6) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF6) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF7) Index() int                             { return 7 }
 func (x VUnionDepth1_AllF7) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF7) Name() string                           { return "F7" }
-func (x VUnionDepth1_AllF7) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF7) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF8) Index() int                             { return 8 }
 func (x VUnionDepth1_AllF8) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF8) Name() string                           { return "F8" }
-func (x VUnionDepth1_AllF8) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF8) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF9) Index() int                             { return 9 }
 func (x VUnionDepth1_AllF9) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF9) Name() string                           { return "F9" }
-func (x VUnionDepth1_AllF9) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF9) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF10) Index() int                             { return 10 }
 func (x VUnionDepth1_AllF10) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF10) Name() string                           { return "F10" }
-func (x VUnionDepth1_AllF10) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF10) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF11) Index() int                             { return 11 }
 func (x VUnionDepth1_AllF11) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF11) Name() string                           { return "F11" }
-func (x VUnionDepth1_AllF11) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF11) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF12) Index() int                             { return 12 }
 func (x VUnionDepth1_AllF12) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF12) Name() string                           { return "F12" }
-func (x VUnionDepth1_AllF12) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF12) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF13) Index() int                             { return 13 }
 func (x VUnionDepth1_AllF13) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF13) Name() string                           { return "F13" }
-func (x VUnionDepth1_AllF13) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF13) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF14) Index() int                             { return 14 }
 func (x VUnionDepth1_AllF14) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF14) Name() string                           { return "F14" }
-func (x VUnionDepth1_AllF14) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF14) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF15) Index() int                             { return 15 }
 func (x VUnionDepth1_AllF15) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF15) Name() string                           { return "F15" }
-func (x VUnionDepth1_AllF15) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF15) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF16) Index() int                             { return 16 }
 func (x VUnionDepth1_AllF16) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF16) Name() string                           { return "F16" }
-func (x VUnionDepth1_AllF16) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF16) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF17) Index() int                             { return 17 }
 func (x VUnionDepth1_AllF17) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF17) Name() string                           { return "F17" }
-func (x VUnionDepth1_AllF17) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF17) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF18) Index() int                             { return 18 }
 func (x VUnionDepth1_AllF18) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF18) Name() string                           { return "F18" }
-func (x VUnionDepth1_AllF18) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF18) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF19) Index() int                             { return 19 }
 func (x VUnionDepth1_AllF19) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF19) Name() string                           { return "F19" }
-func (x VUnionDepth1_AllF19) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF19) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF20) Index() int                             { return 20 }
 func (x VUnionDepth1_AllF20) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF20) Name() string                           { return "F20" }
-func (x VUnionDepth1_AllF20) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF20) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF21) Index() int                             { return 21 }
 func (x VUnionDepth1_AllF21) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF21) Name() string                           { return "F21" }
-func (x VUnionDepth1_AllF21) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF21) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF22) Index() int                             { return 22 }
 func (x VUnionDepth1_AllF22) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF22) Name() string                           { return "F22" }
-func (x VUnionDepth1_AllF22) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF22) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF23) Index() int                             { return 23 }
 func (x VUnionDepth1_AllF23) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF23) Name() string                           { return "F23" }
-func (x VUnionDepth1_AllF23) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF23) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF24) Index() int                             { return 24 }
 func (x VUnionDepth1_AllF24) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF24) Name() string                           { return "F24" }
-func (x VUnionDepth1_AllF24) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF24) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF25) Index() int                             { return 25 }
 func (x VUnionDepth1_AllF25) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF25) Name() string                           { return "F25" }
-func (x VUnionDepth1_AllF25) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF25) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF26) Index() int                             { return 26 }
 func (x VUnionDepth1_AllF26) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF26) Name() string                           { return "F26" }
-func (x VUnionDepth1_AllF26) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF26) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF27) Index() int                             { return 27 }
 func (x VUnionDepth1_AllF27) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF27) Name() string                           { return "F27" }
-func (x VUnionDepth1_AllF27) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF27) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF28) Index() int                             { return 28 }
 func (x VUnionDepth1_AllF28) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF28) Name() string                           { return "F28" }
-func (x VUnionDepth1_AllF28) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF28) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF29) Index() int                             { return 29 }
 func (x VUnionDepth1_AllF29) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF29) Name() string                           { return "F29" }
-func (x VUnionDepth1_AllF29) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF29) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF30) Index() int                             { return 30 }
 func (x VUnionDepth1_AllF30) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF30) Name() string                           { return "F30" }
-func (x VUnionDepth1_AllF30) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF30) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF31) Index() int                             { return 31 }
 func (x VUnionDepth1_AllF31) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF31) Name() string                           { return "F31" }
-func (x VUnionDepth1_AllF31) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF31) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF32) Index() int                             { return 32 }
 func (x VUnionDepth1_AllF32) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AllF32) Name() string                           { return "F32" }
-func (x VUnionDepth1_AllF32) __VDLReflect(__VUnionDepth1_AllReflect) {}
+func (x VUnionDepth1_AllF32) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF0) VDLIsZero() bool {
 	return x.Value == nil
@@ -8137,8 +8137,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Any union type.
-		__VDLReflect(__VUnionDepth1_AnyReflect)
+		// VDLReflect describes the VUnionDepth1_Any union type.
+		VDLReflect(__VUnionDepth1_AnyReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8157,7 +8157,7 @@ type (
 func (x VUnionDepth1_AnyF0) Index() int                             { return 0 }
 func (x VUnionDepth1_AnyF0) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth1_AnyF0) Name() string                           { return "F0" }
-func (x VUnionDepth1_AnyF0) __VDLReflect(__VUnionDepth1_AnyReflect) {}
+func (x VUnionDepth1_AnyF0) VDLReflect(__VUnionDepth1_AnyReflect) {}
 
 func (x VUnionDepth1_AnyF0) VDLIsZero() bool {
 	return x.Value == nil
@@ -8226,8 +8226,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Bool union type.
-		__VDLReflect(__VUnionDepth1_BoolReflect)
+		// VDLReflect describes the VUnionDepth1_Bool union type.
+		VDLReflect(__VUnionDepth1_BoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8246,7 +8246,7 @@ type (
 func (x VUnionDepth1_BoolF1) Index() int                              { return 0 }
 func (x VUnionDepth1_BoolF1) Interface() interface{}                  { return x.Value }
 func (x VUnionDepth1_BoolF1) Name() string                            { return "F1" }
-func (x VUnionDepth1_BoolF1) __VDLReflect(__VUnionDepth1_BoolReflect) {}
+func (x VUnionDepth1_BoolF1) VDLReflect(__VUnionDepth1_BoolReflect) {}
 
 func (x VUnionDepth1_BoolF1) VDLIsZero() bool {
 	return !x.Value
@@ -8313,8 +8313,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VBool union type.
-		__VDLReflect(__VUnionDepth1_VBoolReflect)
+		// VDLReflect describes the VUnionDepth1_VBool union type.
+		VDLReflect(__VUnionDepth1_VBoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8333,7 +8333,7 @@ type (
 func (x VUnionDepth1_VBoolF2) Index() int                               { return 0 }
 func (x VUnionDepth1_VBoolF2) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_VBoolF2) Name() string                             { return "F2" }
-func (x VUnionDepth1_VBoolF2) __VDLReflect(__VUnionDepth1_VBoolReflect) {}
+func (x VUnionDepth1_VBoolF2) VDLReflect(__VUnionDepth1_VBoolReflect) {}
 
 func (x VUnionDepth1_VBoolF2) VDLIsZero() bool {
 	return bool(!x.Value)
@@ -8400,8 +8400,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_String union type.
-		__VDLReflect(__VUnionDepth1_StringReflect)
+		// VDLReflect describes the VUnionDepth1_String union type.
+		VDLReflect(__VUnionDepth1_StringReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8420,7 +8420,7 @@ type (
 func (x VUnionDepth1_StringF3) Index() int                                { return 0 }
 func (x VUnionDepth1_StringF3) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_StringF3) Name() string                              { return "F3" }
-func (x VUnionDepth1_StringF3) __VDLReflect(__VUnionDepth1_StringReflect) {}
+func (x VUnionDepth1_StringF3) VDLReflect(__VUnionDepth1_StringReflect) {}
 
 func (x VUnionDepth1_StringF3) VDLIsZero() bool {
 	return x.Value == ""
@@ -8487,8 +8487,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VString union type.
-		__VDLReflect(__VUnionDepth1_VStringReflect)
+		// VDLReflect describes the VUnionDepth1_VString union type.
+		VDLReflect(__VUnionDepth1_VStringReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8507,7 +8507,7 @@ type (
 func (x VUnionDepth1_VStringF4) Index() int                                 { return 0 }
 func (x VUnionDepth1_VStringF4) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_VStringF4) Name() string                               { return "F4" }
-func (x VUnionDepth1_VStringF4) __VDLReflect(__VUnionDepth1_VStringReflect) {}
+func (x VUnionDepth1_VStringF4) VDLReflect(__VUnionDepth1_VStringReflect) {}
 
 func (x VUnionDepth1_VStringF4) VDLIsZero() bool {
 	return x.Value == ""
@@ -8574,8 +8574,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_TypeObject union type.
-		__VDLReflect(__VUnionDepth1_TypeObjectReflect)
+		// VDLReflect describes the VUnionDepth1_TypeObject union type.
+		VDLReflect(__VUnionDepth1_TypeObjectReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8594,7 +8594,7 @@ type (
 func (x VUnionDepth1_TypeObjectF5) Index() int                                    { return 0 }
 func (x VUnionDepth1_TypeObjectF5) Interface() interface{}                        { return x.Value }
 func (x VUnionDepth1_TypeObjectF5) Name() string                                  { return "F5" }
-func (x VUnionDepth1_TypeObjectF5) __VDLReflect(__VUnionDepth1_TypeObjectReflect) {}
+func (x VUnionDepth1_TypeObjectF5) VDLReflect(__VUnionDepth1_TypeObjectReflect) {}
 
 func (x VUnionDepth1_TypeObjectF5) VDLIsZero() bool {
 	return x.Value == nil || x.Value == vdl.AnyType
@@ -8661,8 +8661,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Byte union type.
-		__VDLReflect(__VUnionDepth1_ByteReflect)
+		// VDLReflect describes the VUnionDepth1_Byte union type.
+		VDLReflect(__VUnionDepth1_ByteReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8681,7 +8681,7 @@ type (
 func (x VUnionDepth1_ByteF6) Index() int                              { return 0 }
 func (x VUnionDepth1_ByteF6) Interface() interface{}                  { return x.Value }
 func (x VUnionDepth1_ByteF6) Name() string                            { return "F6" }
-func (x VUnionDepth1_ByteF6) __VDLReflect(__VUnionDepth1_ByteReflect) {}
+func (x VUnionDepth1_ByteF6) VDLReflect(__VUnionDepth1_ByteReflect) {}
 
 func (x VUnionDepth1_ByteF6) VDLIsZero() bool {
 	return x.Value == 0
@@ -8748,8 +8748,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VByte union type.
-		__VDLReflect(__VUnionDepth1_VByteReflect)
+		// VDLReflect describes the VUnionDepth1_VByte union type.
+		VDLReflect(__VUnionDepth1_VByteReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8768,7 +8768,7 @@ type (
 func (x VUnionDepth1_VByteF7) Index() int                               { return 0 }
 func (x VUnionDepth1_VByteF7) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_VByteF7) Name() string                             { return "F7" }
-func (x VUnionDepth1_VByteF7) __VDLReflect(__VUnionDepth1_VByteReflect) {}
+func (x VUnionDepth1_VByteF7) VDLReflect(__VUnionDepth1_VByteReflect) {}
 
 func (x VUnionDepth1_VByteF7) VDLIsZero() bool {
 	return x.Value == 0
@@ -8835,8 +8835,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VEnumAbc union type.
-		__VDLReflect(__VUnionDepth1_VEnumAbcReflect)
+		// VDLReflect describes the VUnionDepth1_VEnumAbc union type.
+		VDLReflect(__VUnionDepth1_VEnumAbcReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8855,7 +8855,7 @@ type (
 func (x VUnionDepth1_VEnumAbcF8) Index() int                                  { return 0 }
 func (x VUnionDepth1_VEnumAbcF8) Interface() interface{}                      { return x.Value }
 func (x VUnionDepth1_VEnumAbcF8) Name() string                                { return "F8" }
-func (x VUnionDepth1_VEnumAbcF8) __VDLReflect(__VUnionDepth1_VEnumAbcReflect) {}
+func (x VUnionDepth1_VEnumAbcF8) VDLReflect(__VUnionDepth1_VEnumAbcReflect) {}
 
 func (x VUnionDepth1_VEnumAbcF8) VDLIsZero() bool {
 	return x.Value == VEnumAbcA
@@ -8924,8 +8924,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VEnumBcd union type.
-		__VDLReflect(__VUnionDepth1_VEnumBcdReflect)
+		// VDLReflect describes the VUnionDepth1_VEnumBcd union type.
+		VDLReflect(__VUnionDepth1_VEnumBcdReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -8944,7 +8944,7 @@ type (
 func (x VUnionDepth1_VEnumBcdF9) Index() int                                  { return 0 }
 func (x VUnionDepth1_VEnumBcdF9) Interface() interface{}                      { return x.Value }
 func (x VUnionDepth1_VEnumBcdF9) Name() string                                { return "F9" }
-func (x VUnionDepth1_VEnumBcdF9) __VDLReflect(__VUnionDepth1_VEnumBcdReflect) {}
+func (x VUnionDepth1_VEnumBcdF9) VDLReflect(__VUnionDepth1_VEnumBcdReflect) {}
 
 func (x VUnionDepth1_VEnumBcdF9) VDLIsZero() bool {
 	return x.Value == VEnumBcdB
@@ -9013,8 +9013,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VStructEmpty union type.
-		__VDLReflect(__VUnionDepth1_VStructEmptyReflect)
+		// VDLReflect describes the VUnionDepth1_VStructEmpty union type.
+		VDLReflect(__VUnionDepth1_VStructEmptyReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9033,7 +9033,7 @@ type (
 func (x VUnionDepth1_VStructEmptyF10) Index() int                                      { return 0 }
 func (x VUnionDepth1_VStructEmptyF10) Interface() interface{}                          { return x.Value }
 func (x VUnionDepth1_VStructEmptyF10) Name() string                                    { return "F10" }
-func (x VUnionDepth1_VStructEmptyF10) __VDLReflect(__VUnionDepth1_VStructEmptyReflect) {}
+func (x VUnionDepth1_VStructEmptyF10) VDLReflect(__VUnionDepth1_VStructEmptyReflect) {}
 
 func (x VUnionDepth1_VStructEmptyF10) VDLIsZero() bool {
 	return x.Value == VStructEmpty{}
@@ -9100,8 +9100,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VNamedError union type.
-		__VDLReflect(__VUnionDepth1_VNamedErrorReflect)
+		// VDLReflect describes the VUnionDepth1_VNamedError union type.
+		VDLReflect(__VUnionDepth1_VNamedErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9120,7 +9120,7 @@ type (
 func (x VUnionDepth1_VNamedErrorF11) Index() int                                     { return 0 }
 func (x VUnionDepth1_VNamedErrorF11) Interface() interface{}                         { return x.Value }
 func (x VUnionDepth1_VNamedErrorF11) Name() string                                   { return "F11" }
-func (x VUnionDepth1_VNamedErrorF11) __VDLReflect(__VUnionDepth1_VNamedErrorReflect) {}
+func (x VUnionDepth1_VNamedErrorF11) VDLReflect(__VUnionDepth1_VNamedErrorReflect) {}
 
 func (x VUnionDepth1_VNamedErrorF11) VDLIsZero() bool {
 	return x.Value == VNamedError{}
@@ -9187,8 +9187,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Error union type.
-		__VDLReflect(__VUnionDepth1_ErrorReflect)
+		// VDLReflect describes the VUnionDepth1_Error union type.
+		VDLReflect(__VUnionDepth1_ErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9207,7 +9207,7 @@ type (
 func (x VUnionDepth1_ErrorF12) Index() int                               { return 0 }
 func (x VUnionDepth1_ErrorF12) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_ErrorF12) Name() string                             { return "F12" }
-func (x VUnionDepth1_ErrorF12) __VDLReflect(__VUnionDepth1_ErrorReflect) {}
+func (x VUnionDepth1_ErrorF12) VDLReflect(__VUnionDepth1_ErrorReflect) {}
 
 func (x VUnionDepth1_ErrorF12) VDLIsZero() bool {
 	return x.Value == nil
@@ -9274,8 +9274,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Uint16 union type.
-		__VDLReflect(__VUnionDepth1_Uint16Reflect)
+		// VDLReflect describes the VUnionDepth1_Uint16 union type.
+		VDLReflect(__VUnionDepth1_Uint16Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9294,7 +9294,7 @@ type (
 func (x VUnionDepth1_Uint16F13) Index() int                                { return 0 }
 func (x VUnionDepth1_Uint16F13) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_Uint16F13) Name() string                              { return "F13" }
-func (x VUnionDepth1_Uint16F13) __VDLReflect(__VUnionDepth1_Uint16Reflect) {}
+func (x VUnionDepth1_Uint16F13) VDLReflect(__VUnionDepth1_Uint16Reflect) {}
 
 func (x VUnionDepth1_Uint16F13) VDLIsZero() bool {
 	return x.Value == 0
@@ -9361,8 +9361,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VUint16 union type.
-		__VDLReflect(__VUnionDepth1_VUint16Reflect)
+		// VDLReflect describes the VUnionDepth1_VUint16 union type.
+		VDLReflect(__VUnionDepth1_VUint16Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9381,7 +9381,7 @@ type (
 func (x VUnionDepth1_VUint16F14) Index() int                                 { return 0 }
 func (x VUnionDepth1_VUint16F14) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_VUint16F14) Name() string                               { return "F14" }
-func (x VUnionDepth1_VUint16F14) __VDLReflect(__VUnionDepth1_VUint16Reflect) {}
+func (x VUnionDepth1_VUint16F14) VDLReflect(__VUnionDepth1_VUint16Reflect) {}
 
 func (x VUnionDepth1_VUint16F14) VDLIsZero() bool {
 	return x.Value == 0
@@ -9448,8 +9448,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Uint32 union type.
-		__VDLReflect(__VUnionDepth1_Uint32Reflect)
+		// VDLReflect describes the VUnionDepth1_Uint32 union type.
+		VDLReflect(__VUnionDepth1_Uint32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9468,7 +9468,7 @@ type (
 func (x VUnionDepth1_Uint32F15) Index() int                                { return 0 }
 func (x VUnionDepth1_Uint32F15) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_Uint32F15) Name() string                              { return "F15" }
-func (x VUnionDepth1_Uint32F15) __VDLReflect(__VUnionDepth1_Uint32Reflect) {}
+func (x VUnionDepth1_Uint32F15) VDLReflect(__VUnionDepth1_Uint32Reflect) {}
 
 func (x VUnionDepth1_Uint32F15) VDLIsZero() bool {
 	return x.Value == 0
@@ -9535,8 +9535,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VUint32 union type.
-		__VDLReflect(__VUnionDepth1_VUint32Reflect)
+		// VDLReflect describes the VUnionDepth1_VUint32 union type.
+		VDLReflect(__VUnionDepth1_VUint32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9555,7 +9555,7 @@ type (
 func (x VUnionDepth1_VUint32F16) Index() int                                 { return 0 }
 func (x VUnionDepth1_VUint32F16) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_VUint32F16) Name() string                               { return "F16" }
-func (x VUnionDepth1_VUint32F16) __VDLReflect(__VUnionDepth1_VUint32Reflect) {}
+func (x VUnionDepth1_VUint32F16) VDLReflect(__VUnionDepth1_VUint32Reflect) {}
 
 func (x VUnionDepth1_VUint32F16) VDLIsZero() bool {
 	return x.Value == 0
@@ -9622,8 +9622,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Uint64 union type.
-		__VDLReflect(__VUnionDepth1_Uint64Reflect)
+		// VDLReflect describes the VUnionDepth1_Uint64 union type.
+		VDLReflect(__VUnionDepth1_Uint64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9642,7 +9642,7 @@ type (
 func (x VUnionDepth1_Uint64F17) Index() int                                { return 0 }
 func (x VUnionDepth1_Uint64F17) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_Uint64F17) Name() string                              { return "F17" }
-func (x VUnionDepth1_Uint64F17) __VDLReflect(__VUnionDepth1_Uint64Reflect) {}
+func (x VUnionDepth1_Uint64F17) VDLReflect(__VUnionDepth1_Uint64Reflect) {}
 
 func (x VUnionDepth1_Uint64F17) VDLIsZero() bool {
 	return x.Value == 0
@@ -9709,8 +9709,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VUint64 union type.
-		__VDLReflect(__VUnionDepth1_VUint64Reflect)
+		// VDLReflect describes the VUnionDepth1_VUint64 union type.
+		VDLReflect(__VUnionDepth1_VUint64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9729,7 +9729,7 @@ type (
 func (x VUnionDepth1_VUint64F18) Index() int                                 { return 0 }
 func (x VUnionDepth1_VUint64F18) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_VUint64F18) Name() string                               { return "F18" }
-func (x VUnionDepth1_VUint64F18) __VDLReflect(__VUnionDepth1_VUint64Reflect) {}
+func (x VUnionDepth1_VUint64F18) VDLReflect(__VUnionDepth1_VUint64Reflect) {}
 
 func (x VUnionDepth1_VUint64F18) VDLIsZero() bool {
 	return x.Value == 0
@@ -9796,8 +9796,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Int8 union type.
-		__VDLReflect(__VUnionDepth1_Int8Reflect)
+		// VDLReflect describes the VUnionDepth1_Int8 union type.
+		VDLReflect(__VUnionDepth1_Int8Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9816,7 +9816,7 @@ type (
 func (x VUnionDepth1_Int8F19) Index() int                              { return 0 }
 func (x VUnionDepth1_Int8F19) Interface() interface{}                  { return x.Value }
 func (x VUnionDepth1_Int8F19) Name() string                            { return "F19" }
-func (x VUnionDepth1_Int8F19) __VDLReflect(__VUnionDepth1_Int8Reflect) {}
+func (x VUnionDepth1_Int8F19) VDLReflect(__VUnionDepth1_Int8Reflect) {}
 
 func (x VUnionDepth1_Int8F19) VDLIsZero() bool {
 	return x.Value == 0
@@ -9883,8 +9883,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VInt8 union type.
-		__VDLReflect(__VUnionDepth1_VInt8Reflect)
+		// VDLReflect describes the VUnionDepth1_VInt8 union type.
+		VDLReflect(__VUnionDepth1_VInt8Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9903,7 +9903,7 @@ type (
 func (x VUnionDepth1_VInt8F20) Index() int                               { return 0 }
 func (x VUnionDepth1_VInt8F20) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_VInt8F20) Name() string                             { return "F20" }
-func (x VUnionDepth1_VInt8F20) __VDLReflect(__VUnionDepth1_VInt8Reflect) {}
+func (x VUnionDepth1_VInt8F20) VDLReflect(__VUnionDepth1_VInt8Reflect) {}
 
 func (x VUnionDepth1_VInt8F20) VDLIsZero() bool {
 	return x.Value == 0
@@ -9970,8 +9970,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Int16 union type.
-		__VDLReflect(__VUnionDepth1_Int16Reflect)
+		// VDLReflect describes the VUnionDepth1_Int16 union type.
+		VDLReflect(__VUnionDepth1_Int16Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -9990,7 +9990,7 @@ type (
 func (x VUnionDepth1_Int16F21) Index() int                               { return 0 }
 func (x VUnionDepth1_Int16F21) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_Int16F21) Name() string                             { return "F21" }
-func (x VUnionDepth1_Int16F21) __VDLReflect(__VUnionDepth1_Int16Reflect) {}
+func (x VUnionDepth1_Int16F21) VDLReflect(__VUnionDepth1_Int16Reflect) {}
 
 func (x VUnionDepth1_Int16F21) VDLIsZero() bool {
 	return x.Value == 0
@@ -10057,8 +10057,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VInt16 union type.
-		__VDLReflect(__VUnionDepth1_VInt16Reflect)
+		// VDLReflect describes the VUnionDepth1_VInt16 union type.
+		VDLReflect(__VUnionDepth1_VInt16Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10077,7 +10077,7 @@ type (
 func (x VUnionDepth1_VInt16F22) Index() int                                { return 0 }
 func (x VUnionDepth1_VInt16F22) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_VInt16F22) Name() string                              { return "F22" }
-func (x VUnionDepth1_VInt16F22) __VDLReflect(__VUnionDepth1_VInt16Reflect) {}
+func (x VUnionDepth1_VInt16F22) VDLReflect(__VUnionDepth1_VInt16Reflect) {}
 
 func (x VUnionDepth1_VInt16F22) VDLIsZero() bool {
 	return x.Value == 0
@@ -10144,8 +10144,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Int32 union type.
-		__VDLReflect(__VUnionDepth1_Int32Reflect)
+		// VDLReflect describes the VUnionDepth1_Int32 union type.
+		VDLReflect(__VUnionDepth1_Int32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10164,7 +10164,7 @@ type (
 func (x VUnionDepth1_Int32F23) Index() int                               { return 0 }
 func (x VUnionDepth1_Int32F23) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_Int32F23) Name() string                             { return "F23" }
-func (x VUnionDepth1_Int32F23) __VDLReflect(__VUnionDepth1_Int32Reflect) {}
+func (x VUnionDepth1_Int32F23) VDLReflect(__VUnionDepth1_Int32Reflect) {}
 
 func (x VUnionDepth1_Int32F23) VDLIsZero() bool {
 	return x.Value == 0
@@ -10231,8 +10231,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VInt32 union type.
-		__VDLReflect(__VUnionDepth1_VInt32Reflect)
+		// VDLReflect describes the VUnionDepth1_VInt32 union type.
+		VDLReflect(__VUnionDepth1_VInt32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10251,7 +10251,7 @@ type (
 func (x VUnionDepth1_VInt32F24) Index() int                                { return 0 }
 func (x VUnionDepth1_VInt32F24) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_VInt32F24) Name() string                              { return "F24" }
-func (x VUnionDepth1_VInt32F24) __VDLReflect(__VUnionDepth1_VInt32Reflect) {}
+func (x VUnionDepth1_VInt32F24) VDLReflect(__VUnionDepth1_VInt32Reflect) {}
 
 func (x VUnionDepth1_VInt32F24) VDLIsZero() bool {
 	return x.Value == 0
@@ -10318,8 +10318,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Int64 union type.
-		__VDLReflect(__VUnionDepth1_Int64Reflect)
+		// VDLReflect describes the VUnionDepth1_Int64 union type.
+		VDLReflect(__VUnionDepth1_Int64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10338,7 +10338,7 @@ type (
 func (x VUnionDepth1_Int64F25) Index() int                               { return 0 }
 func (x VUnionDepth1_Int64F25) Interface() interface{}                   { return x.Value }
 func (x VUnionDepth1_Int64F25) Name() string                             { return "F25" }
-func (x VUnionDepth1_Int64F25) __VDLReflect(__VUnionDepth1_Int64Reflect) {}
+func (x VUnionDepth1_Int64F25) VDLReflect(__VUnionDepth1_Int64Reflect) {}
 
 func (x VUnionDepth1_Int64F25) VDLIsZero() bool {
 	return x.Value == 0
@@ -10405,8 +10405,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VInt64 union type.
-		__VDLReflect(__VUnionDepth1_VInt64Reflect)
+		// VDLReflect describes the VUnionDepth1_VInt64 union type.
+		VDLReflect(__VUnionDepth1_VInt64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10425,7 +10425,7 @@ type (
 func (x VUnionDepth1_VInt64F26) Index() int                                { return 0 }
 func (x VUnionDepth1_VInt64F26) Interface() interface{}                    { return x.Value }
 func (x VUnionDepth1_VInt64F26) Name() string                              { return "F26" }
-func (x VUnionDepth1_VInt64F26) __VDLReflect(__VUnionDepth1_VInt64Reflect) {}
+func (x VUnionDepth1_VInt64F26) VDLReflect(__VUnionDepth1_VInt64Reflect) {}
 
 func (x VUnionDepth1_VInt64F26) VDLIsZero() bool {
 	return x.Value == 0
@@ -10492,8 +10492,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Float32 union type.
-		__VDLReflect(__VUnionDepth1_Float32Reflect)
+		// VDLReflect describes the VUnionDepth1_Float32 union type.
+		VDLReflect(__VUnionDepth1_Float32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10512,7 +10512,7 @@ type (
 func (x VUnionDepth1_Float32F27) Index() int                                 { return 0 }
 func (x VUnionDepth1_Float32F27) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_Float32F27) Name() string                               { return "F27" }
-func (x VUnionDepth1_Float32F27) __VDLReflect(__VUnionDepth1_Float32Reflect) {}
+func (x VUnionDepth1_Float32F27) VDLReflect(__VUnionDepth1_Float32Reflect) {}
 
 func (x VUnionDepth1_Float32F27) VDLIsZero() bool {
 	return x.Value == 0
@@ -10579,8 +10579,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VFloat32 union type.
-		__VDLReflect(__VUnionDepth1_VFloat32Reflect)
+		// VDLReflect describes the VUnionDepth1_VFloat32 union type.
+		VDLReflect(__VUnionDepth1_VFloat32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10599,7 +10599,7 @@ type (
 func (x VUnionDepth1_VFloat32F28) Index() int                                  { return 0 }
 func (x VUnionDepth1_VFloat32F28) Interface() interface{}                      { return x.Value }
 func (x VUnionDepth1_VFloat32F28) Name() string                                { return "F28" }
-func (x VUnionDepth1_VFloat32F28) __VDLReflect(__VUnionDepth1_VFloat32Reflect) {}
+func (x VUnionDepth1_VFloat32F28) VDLReflect(__VUnionDepth1_VFloat32Reflect) {}
 
 func (x VUnionDepth1_VFloat32F28) VDLIsZero() bool {
 	return x.Value == 0
@@ -10666,8 +10666,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_Float64 union type.
-		__VDLReflect(__VUnionDepth1_Float64Reflect)
+		// VDLReflect describes the VUnionDepth1_Float64 union type.
+		VDLReflect(__VUnionDepth1_Float64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10686,7 +10686,7 @@ type (
 func (x VUnionDepth1_Float64F29) Index() int                                 { return 0 }
 func (x VUnionDepth1_Float64F29) Interface() interface{}                     { return x.Value }
 func (x VUnionDepth1_Float64F29) Name() string                               { return "F29" }
-func (x VUnionDepth1_Float64F29) __VDLReflect(__VUnionDepth1_Float64Reflect) {}
+func (x VUnionDepth1_Float64F29) VDLReflect(__VUnionDepth1_Float64Reflect) {}
 
 func (x VUnionDepth1_Float64F29) VDLIsZero() bool {
 	return x.Value == 0
@@ -10753,8 +10753,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_VFloat64 union type.
-		__VDLReflect(__VUnionDepth1_VFloat64Reflect)
+		// VDLReflect describes the VUnionDepth1_VFloat64 union type.
+		VDLReflect(__VUnionDepth1_VFloat64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10773,7 +10773,7 @@ type (
 func (x VUnionDepth1_VFloat64F30) Index() int                                  { return 0 }
 func (x VUnionDepth1_VFloat64F30) Interface() interface{}                      { return x.Value }
 func (x VUnionDepth1_VFloat64F30) Name() string                                { return "F30" }
-func (x VUnionDepth1_VFloat64F30) __VDLReflect(__VUnionDepth1_VFloat64Reflect) {}
+func (x VUnionDepth1_VFloat64F30) VDLReflect(__VUnionDepth1_VFloat64Reflect) {}
 
 func (x VUnionDepth1_VFloat64F30) VDLIsZero() bool {
 	return x.Value == 0
@@ -10840,8 +10840,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_OptVStructEmpty union type.
-		__VDLReflect(__VUnionDepth1_OptVStructEmptyReflect)
+		// VDLReflect describes the VUnionDepth1_OptVStructEmpty union type.
+		VDLReflect(__VUnionDepth1_OptVStructEmptyReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10860,7 +10860,7 @@ type (
 func (x VUnionDepth1_OptVStructEmptyF31) Index() int                                         { return 0 }
 func (x VUnionDepth1_OptVStructEmptyF31) Interface() interface{}                             { return x.Value }
 func (x VUnionDepth1_OptVStructEmptyF31) Name() string                                       { return "F31" }
-func (x VUnionDepth1_OptVStructEmptyF31) __VDLReflect(__VUnionDepth1_OptVStructEmptyReflect) {}
+func (x VUnionDepth1_OptVStructEmptyF31) VDLReflect(__VUnionDepth1_OptVStructEmptyReflect) {}
 
 func (x VUnionDepth1_OptVStructEmptyF31) VDLIsZero() bool {
 	return x.Value == nil
@@ -10946,8 +10946,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth1_OptVNamedError union type.
-		__VDLReflect(__VUnionDepth1_OptVNamedErrorReflect)
+		// VDLReflect describes the VUnionDepth1_OptVNamedError union type.
+		VDLReflect(__VUnionDepth1_OptVNamedErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -10966,7 +10966,7 @@ type (
 func (x VUnionDepth1_OptVNamedErrorF32) Index() int                                        { return 0 }
 func (x VUnionDepth1_OptVNamedErrorF32) Interface() interface{}                            { return x.Value }
 func (x VUnionDepth1_OptVNamedErrorF32) Name() string                                      { return "F32" }
-func (x VUnionDepth1_OptVNamedErrorF32) __VDLReflect(__VUnionDepth1_OptVNamedErrorReflect) {}
+func (x VUnionDepth1_OptVNamedErrorF32) VDLReflect(__VUnionDepth1_OptVNamedErrorReflect) {}
 
 func (x VUnionDepth1_OptVNamedErrorF32) VDLIsZero() bool {
 	return x.Value == nil
@@ -11045,7 +11045,7 @@ func VDLReadVUnionDepth1_OptVNamedError(dec vdl.Decoder, x *VUnionDepth1_OptVNam
 
 type VArray1_VArray3_Int64 [1]VArray3_Int64
 
-func (VArray1_VArray3_Int64) __VDLReflect(struct {
+func (VArray1_VArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_VArray3_Int64"`
 }) {
 }
@@ -11099,7 +11099,7 @@ func (x *VArray1_VArray3_Int64) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_VList_Byte [1]VList_Byte
 
-func (VArray1_VList_Byte) __VDLReflect(struct {
+func (VArray1_VList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_VList_Byte"`
 }) {
 }
@@ -11157,7 +11157,7 @@ func (x *VArray1_VList_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VArray1_Set_VEnumBcd [1]map[VEnumBcd]struct{}
 
-func (VArray1_Set_VEnumBcd) __VDLReflect(struct {
+func (VArray1_Set_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_Set_VEnumBcd"`
 }) {
 }
@@ -11262,7 +11262,7 @@ func __VDLReadAnon_set_1(dec vdl.Decoder, x *map[VEnumBcd]struct{}) error {
 
 type VArray2_Map_Byte_Byte [2]map[byte]byte
 
-func (VArray2_Map_Byte_Byte) __VDLReflect(struct {
+func (VArray2_Map_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_Map_Byte_Byte"`
 }) {
 }
@@ -11373,7 +11373,7 @@ func __VDLReadAnon_map_2(dec vdl.Decoder, x *map[byte]byte) error {
 
 type VArray2_VStructDepth1_All [2]VStructDepth1_All
 
-func (VArray2_VStructDepth1_All) __VDLReflect(struct {
+func (VArray2_VStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VStructDepth1_All"`
 }) {
 }
@@ -11432,7 +11432,7 @@ func (x *VArray2_VStructDepth1_All) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_VUnionDepth1_All [3]VUnionDepth1_All
 
-func (VArray3_VUnionDepth1_All) __VDLReflect(struct {
+func (VArray3_VUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_VUnionDepth1_All"`
 }) {
 }
@@ -11499,7 +11499,7 @@ func (x *VArray3_VUnionDepth1_All) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_OptVStructDepth1_VFloat32 [3]*VStructDepth1_VFloat32
 
-func (VArray3_OptVStructDepth1_VFloat32) __VDLReflect(struct {
+func (VArray3_OptVStructDepth1_VFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_OptVStructDepth1_VFloat32"`
 }) {
 }
@@ -11572,7 +11572,7 @@ func (x *VArray3_OptVStructDepth1_VFloat32) VDLRead(dec vdl.Decoder) error {
 
 type VList_VArray1_VStructEmpty []VArray1_VStructEmpty
 
-func (VList_VArray1_VStructEmpty) __VDLReflect(struct {
+func (VList_VArray1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VArray1_VStructEmpty"`
 }) {
 }
@@ -11629,7 +11629,7 @@ func (x *VList_VArray1_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VList_List_VString [][]VString
 
-func (VList_List_VString) __VDLReflect(struct {
+func (VList_List_VString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_List_VString"`
 }) {
 }
@@ -11725,7 +11725,7 @@ func __VDLReadAnon_list_3(dec vdl.Decoder, x *[]VString) error {
 
 type VList_Set_VBool []map[VBool]struct{}
 
-func (VList_Set_VBool) __VDLReflect(struct {
+func (VList_Set_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_Set_VBool"`
 }) {
 }
@@ -11824,7 +11824,7 @@ func __VDLReadAnon_set_4(dec vdl.Decoder, x *map[VBool]struct{}) error {
 
 type VList_VMap_Byte_Byte []VMap_Byte_Byte
 
-func (VList_VMap_Byte_Byte) __VDLReflect(struct {
+func (VList_VMap_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VMap_Byte_Byte"`
 }) {
 }
@@ -11881,7 +11881,7 @@ func (x *VList_VMap_Byte_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VList_VStructDepth1_All []VStructDepth1_All
 
-func (VList_VStructDepth1_All) __VDLReflect(struct {
+func (VList_VStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VStructDepth1_All"`
 }) {
 }
@@ -11938,7 +11938,7 @@ func (x *VList_VStructDepth1_All) VDLRead(dec vdl.Decoder) error {
 
 type VList_VUnionDepth1_All []VUnionDepth1_All
 
-func (VList_VUnionDepth1_All) __VDLReflect(struct {
+func (VList_VUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VUnionDepth1_All"`
 }) {
 }
@@ -12003,7 +12003,7 @@ func (x *VList_VUnionDepth1_All) VDLRead(dec vdl.Decoder) error {
 
 type VList_OptVStructDepth1_VEnumBcd []*VStructDepth1_VEnumBcd
 
-func (VList_OptVStructDepth1_VEnumBcd) __VDLReflect(struct {
+func (VList_OptVStructDepth1_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_OptVStructDepth1_VEnumBcd"`
 }) {
 }
@@ -12079,7 +12079,7 @@ func (x *VList_OptVStructDepth1_VEnumBcd) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VArray1_VStructEmpty map[VArray1_VStructEmpty]struct{}
 
-func (VSet_VArray1_VStructEmpty) __VDLReflect(struct {
+func (VSet_VArray1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VArray1_VStructEmpty"`
 }) {
 }
@@ -12139,7 +12139,7 @@ func (x *VSet_VArray1_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VStructDepth1_VFloat64 map[VStructDepth1_VFloat64]struct{}
 
-func (VSet_VStructDepth1_VFloat64) __VDLReflect(struct {
+func (VSet_VStructDepth1_VFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VStructDepth1_VFloat64"`
 }) {
 }
@@ -12199,7 +12199,7 @@ func (x *VSet_VStructDepth1_VFloat64) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VUnionDepth1_VInt8 map[VUnionDepth1_VInt8]struct{}
 
-func (VSet_VUnionDepth1_VInt8) __VDLReflect(struct {
+func (VSet_VUnionDepth1_VInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VUnionDepth1_VInt8"`
 }) {
 }
@@ -12267,7 +12267,7 @@ func (x *VSet_VUnionDepth1_VInt8) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VArray3_VBool_VArray3_VBool map[VArray3_VBool]VArray3_VBool
 
-func (VMap_VArray3_VBool_VArray3_VBool) __VDLReflect(struct {
+func (VMap_VArray3_VBool_VArray3_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VArray3_VBool_VArray3_VBool"`
 }) {
 }
@@ -12334,7 +12334,7 @@ func (x *VMap_VArray3_VBool_VArray3_VBool) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VStructDepth1_VBool_VStructDepth1_VBool map[VStructDepth1_VBool]VStructDepth1_VBool
 
-func (VMap_VStructDepth1_VBool_VStructDepth1_VBool) __VDLReflect(struct {
+func (VMap_VStructDepth1_VBool_VStructDepth1_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VStructDepth1_VBool_VStructDepth1_VBool"`
 }) {
 }
@@ -12401,7 +12401,7 @@ func (x *VMap_VStructDepth1_VBool_VStructDepth1_VBool) VDLRead(dec vdl.Decoder) 
 
 type VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64 map[VUnionDepth1_VUint64]VUnionDepth1_VUint64
 
-func (VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64) __VDLReflect(struct {
+func (VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64"`
 }) {
 }
@@ -12499,7 +12499,7 @@ type VStructDepth2_All struct {
 	F13 *VStructDepth1_VUint16
 }
 
-func (VStructDepth2_All) __VDLReflect(struct {
+func (VStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_All"`
 }) {
 }
@@ -12929,7 +12929,7 @@ type VStructDepth2_VArray2_TypeObject struct {
 	F0 VArray2_TypeObject
 }
 
-func (VStructDepth2_VArray2_TypeObject) __VDLReflect(struct {
+func (VStructDepth2_VArray2_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VArray2_TypeObject"`
 }) {
 }
@@ -13000,7 +13000,7 @@ type VStructDepth2_VArray1_Uint32 struct {
 	F1 VArray1_Uint32
 }
 
-func (VStructDepth2_VArray1_Uint32) __VDLReflect(struct {
+func (VStructDepth2_VArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VArray1_Uint32"`
 }) {
 }
@@ -13063,7 +13063,7 @@ type VStructDepth2_List_Int16 struct {
 	F2 []int16
 }
 
-func (VStructDepth2_List_Int16) __VDLReflect(struct {
+func (VStructDepth2_List_Int16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_List_Int16"`
 }) {
 }
@@ -13129,7 +13129,7 @@ type VStructDepth2_VList_Any struct {
 	F3 VList_Any
 }
 
-func (VStructDepth2_VList_Any) __VDLReflect(struct {
+func (VStructDepth2_VList_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VList_Any"`
 }) {
 }
@@ -13195,7 +13195,7 @@ type VStructDepth2_Set_Float64 struct {
 	F4 map[float64]struct{}
 }
 
-func (VStructDepth2_Set_Float64) __VDLReflect(struct {
+func (VStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_Set_Float64"`
 }) {
 }
@@ -13261,7 +13261,7 @@ type VStructDepth2_VSet_VEnumBcd struct {
 	F5 VSet_VEnumBcd
 }
 
-func (VStructDepth2_VSet_VEnumBcd) __VDLReflect(struct {
+func (VStructDepth2_VSet_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VSet_VEnumBcd"`
 }) {
 }
@@ -13327,7 +13327,7 @@ type VStructDepth2_Map_Byte_Byte struct {
 	F6 map[byte]byte
 }
 
-func (VStructDepth2_Map_Byte_Byte) __VDLReflect(struct {
+func (VStructDepth2_Map_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_Map_Byte_Byte"`
 }) {
 }
@@ -13393,7 +13393,7 @@ type VStructDepth2_Map_Uint32_Uint32 struct {
 	F7 map[uint32]uint32
 }
 
-func (VStructDepth2_Map_Uint32_Uint32) __VDLReflect(struct {
+func (VStructDepth2_Map_Uint32_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_Map_Uint32_Uint32"`
 }) {
 }
@@ -13459,7 +13459,7 @@ type VStructDepth2_VStructDepth1_All struct {
 	F8 VStructDepth1_All
 }
 
-func (VStructDepth2_VStructDepth1_All) __VDLReflect(struct {
+func (VStructDepth2_VStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VStructDepth1_All"`
 }) {
 }
@@ -13529,7 +13529,7 @@ type VStructDepth2_VStructDepth1_Bool struct {
 	F9 VStructDepth1_Bool
 }
 
-func (VStructDepth2_VStructDepth1_Bool) __VDLReflect(struct {
+func (VStructDepth2_VStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VStructDepth1_Bool"`
 }) {
 }
@@ -13592,7 +13592,7 @@ type VStructDepth2_VUnionDepth1_All struct {
 	F10 VUnionDepth1_All
 }
 
-func (VStructDepth2_VUnionDepth1_All) __VDLReflect(struct {
+func (VStructDepth2_VUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VUnionDepth1_All"`
 }) {
 }
@@ -13660,7 +13660,7 @@ type VStructDepth2_VUnionDepth1_Float64 struct {
 	F11 VUnionDepth1_Float64
 }
 
-func (VStructDepth2_VUnionDepth1_Float64) __VDLReflect(struct {
+func (VStructDepth2_VUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_VUnionDepth1_Float64"`
 }) {
 }
@@ -13728,7 +13728,7 @@ type VStructDepth2_OptVStructDepth1_VEnumBcd struct {
 	F12 *VStructDepth1_VEnumBcd
 }
 
-func (VStructDepth2_OptVStructDepth1_VEnumBcd) __VDLReflect(struct {
+func (VStructDepth2_OptVStructDepth1_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_OptVStructDepth1_VEnumBcd"`
 }) {
 }
@@ -13804,7 +13804,7 @@ type VStructDepth2_OptVStructDepth1_VUint16 struct {
 	F13 *VStructDepth1_VUint16
 }
 
-func (VStructDepth2_OptVStructDepth1_VUint16) __VDLReflect(struct {
+func (VStructDepth2_OptVStructDepth1_VUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth2_OptVStructDepth1_VUint16"`
 }) {
 }
@@ -13885,8 +13885,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_All union type.
-		__VDLReflect(__VUnionDepth2_AllReflect)
+		// VDLReflect describes the VUnionDepth2_All union type.
+		VDLReflect(__VUnionDepth2_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -13944,72 +13944,72 @@ type (
 func (x VUnionDepth2_AllF0) Index() int                             { return 0 }
 func (x VUnionDepth2_AllF0) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF0) Name() string                           { return "F0" }
-func (x VUnionDepth2_AllF0) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF0) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF1) Index() int                             { return 1 }
 func (x VUnionDepth2_AllF1) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF1) Name() string                           { return "F1" }
-func (x VUnionDepth2_AllF1) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF1) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF2) Index() int                             { return 2 }
 func (x VUnionDepth2_AllF2) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF2) Name() string                           { return "F2" }
-func (x VUnionDepth2_AllF2) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF2) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF3) Index() int                             { return 3 }
 func (x VUnionDepth2_AllF3) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF3) Name() string                           { return "F3" }
-func (x VUnionDepth2_AllF3) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF3) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF4) Index() int                             { return 4 }
 func (x VUnionDepth2_AllF4) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF4) Name() string                           { return "F4" }
-func (x VUnionDepth2_AllF4) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF4) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF5) Index() int                             { return 5 }
 func (x VUnionDepth2_AllF5) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF5) Name() string                           { return "F5" }
-func (x VUnionDepth2_AllF5) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF5) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF6) Index() int                             { return 6 }
 func (x VUnionDepth2_AllF6) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF6) Name() string                           { return "F6" }
-func (x VUnionDepth2_AllF6) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF6) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF7) Index() int                             { return 7 }
 func (x VUnionDepth2_AllF7) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF7) Name() string                           { return "F7" }
-func (x VUnionDepth2_AllF7) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF7) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF8) Index() int                             { return 8 }
 func (x VUnionDepth2_AllF8) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF8) Name() string                           { return "F8" }
-func (x VUnionDepth2_AllF8) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF8) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF9) Index() int                             { return 9 }
 func (x VUnionDepth2_AllF9) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF9) Name() string                           { return "F9" }
-func (x VUnionDepth2_AllF9) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF9) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF10) Index() int                             { return 10 }
 func (x VUnionDepth2_AllF10) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF10) Name() string                           { return "F10" }
-func (x VUnionDepth2_AllF10) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF10) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF11) Index() int                             { return 11 }
 func (x VUnionDepth2_AllF11) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF11) Name() string                           { return "F11" }
-func (x VUnionDepth2_AllF11) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF11) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF12) Index() int                             { return 12 }
 func (x VUnionDepth2_AllF12) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF12) Name() string                           { return "F12" }
-func (x VUnionDepth2_AllF12) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF12) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF13) Index() int                             { return 13 }
 func (x VUnionDepth2_AllF13) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth2_AllF13) Name() string                           { return "F13" }
-func (x VUnionDepth2_AllF13) __VDLReflect(__VUnionDepth2_AllReflect) {}
+func (x VUnionDepth2_AllF13) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF0) VDLIsZero() bool {
 	return x.Value == VArray1_String{}
@@ -14517,8 +14517,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VArray1_String union type.
-		__VDLReflect(__VUnionDepth2_VArray1_StringReflect)
+		// VDLReflect describes the VUnionDepth2_VArray1_String union type.
+		VDLReflect(__VUnionDepth2_VArray1_StringReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14537,7 +14537,7 @@ type (
 func (x VUnionDepth2_VArray1_StringF0) Index() int                                        { return 0 }
 func (x VUnionDepth2_VArray1_StringF0) Interface() interface{}                            { return x.Value }
 func (x VUnionDepth2_VArray1_StringF0) Name() string                                      { return "F0" }
-func (x VUnionDepth2_VArray1_StringF0) __VDLReflect(__VUnionDepth2_VArray1_StringReflect) {}
+func (x VUnionDepth2_VArray1_StringF0) VDLReflect(__VUnionDepth2_VArray1_StringReflect) {}
 
 func (x VUnionDepth2_VArray1_StringF0) VDLIsZero() bool {
 	return x.Value == VArray1_String{}
@@ -14604,8 +14604,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VArray2_VByte union type.
-		__VDLReflect(__VUnionDepth2_VArray2_VByteReflect)
+		// VDLReflect describes the VUnionDepth2_VArray2_VByte union type.
+		VDLReflect(__VUnionDepth2_VArray2_VByteReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14624,7 +14624,7 @@ type (
 func (x VUnionDepth2_VArray2_VByteF1) Index() int                                       { return 0 }
 func (x VUnionDepth2_VArray2_VByteF1) Interface() interface{}                           { return x.Value }
 func (x VUnionDepth2_VArray2_VByteF1) Name() string                                     { return "F1" }
-func (x VUnionDepth2_VArray2_VByteF1) __VDLReflect(__VUnionDepth2_VArray2_VByteReflect) {}
+func (x VUnionDepth2_VArray2_VByteF1) VDLReflect(__VUnionDepth2_VArray2_VByteReflect) {}
 
 func (x VUnionDepth2_VArray2_VByteF1) VDLIsZero() bool {
 	return x.Value == VArray2_VByte{}
@@ -14689,8 +14689,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VList_VByte union type.
-		__VDLReflect(__VUnionDepth2_VList_VByteReflect)
+		// VDLReflect describes the VUnionDepth2_VList_VByte union type.
+		VDLReflect(__VUnionDepth2_VList_VByteReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14709,7 +14709,7 @@ type (
 func (x VUnionDepth2_VList_VByteF2) Index() int                                     { return 0 }
 func (x VUnionDepth2_VList_VByteF2) Interface() interface{}                         { return x.Value }
 func (x VUnionDepth2_VList_VByteF2) Name() string                                   { return "F2" }
-func (x VUnionDepth2_VList_VByteF2) __VDLReflect(__VUnionDepth2_VList_VByteReflect) {}
+func (x VUnionDepth2_VList_VByteF2) VDLReflect(__VUnionDepth2_VList_VByteReflect) {}
 
 func (x VUnionDepth2_VList_VByteF2) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -14775,8 +14775,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VList_OptVNamedError union type.
-		__VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect)
+		// VDLReflect describes the VUnionDepth2_VList_OptVNamedError union type.
+		VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14795,7 +14795,7 @@ type (
 func (x VUnionDepth2_VList_OptVNamedErrorF3) Index() int             { return 0 }
 func (x VUnionDepth2_VList_OptVNamedErrorF3) Interface() interface{} { return x.Value }
 func (x VUnionDepth2_VList_OptVNamedErrorF3) Name() string           { return "F3" }
-func (x VUnionDepth2_VList_OptVNamedErrorF3) __VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect) {
+func (x VUnionDepth2_VList_OptVNamedErrorF3) VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect) {
 }
 
 func (x VUnionDepth2_VList_OptVNamedErrorF3) VDLIsZero() bool {
@@ -14863,8 +14863,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VSet_VBool union type.
-		__VDLReflect(__VUnionDepth2_VSet_VBoolReflect)
+		// VDLReflect describes the VUnionDepth2_VSet_VBool union type.
+		VDLReflect(__VUnionDepth2_VSet_VBoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14883,7 +14883,7 @@ type (
 func (x VUnionDepth2_VSet_VBoolF4) Index() int                                    { return 0 }
 func (x VUnionDepth2_VSet_VBoolF4) Interface() interface{}                        { return x.Value }
 func (x VUnionDepth2_VSet_VBoolF4) Name() string                                  { return "F4" }
-func (x VUnionDepth2_VSet_VBoolF4) __VDLReflect(__VUnionDepth2_VSet_VBoolReflect) {}
+func (x VUnionDepth2_VSet_VBoolF4) VDLReflect(__VUnionDepth2_VSet_VBoolReflect) {}
 
 func (x VUnionDepth2_VSet_VBoolF4) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -14950,8 +14950,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VSet_VNamedError union type.
-		__VDLReflect(__VUnionDepth2_VSet_VNamedErrorReflect)
+		// VDLReflect describes the VUnionDepth2_VSet_VNamedError union type.
+		VDLReflect(__VUnionDepth2_VSet_VNamedErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -14970,7 +14970,7 @@ type (
 func (x VUnionDepth2_VSet_VNamedErrorF5) Index() int                                          { return 0 }
 func (x VUnionDepth2_VSet_VNamedErrorF5) Interface() interface{}                              { return x.Value }
 func (x VUnionDepth2_VSet_VNamedErrorF5) Name() string                                        { return "F5" }
-func (x VUnionDepth2_VSet_VNamedErrorF5) __VDLReflect(__VUnionDepth2_VSet_VNamedErrorReflect) {}
+func (x VUnionDepth2_VSet_VNamedErrorF5) VDLReflect(__VUnionDepth2_VSet_VNamedErrorReflect) {}
 
 func (x VUnionDepth2_VSet_VNamedErrorF5) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -15037,8 +15037,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_Map_VBool_VBool union type.
-		__VDLReflect(__VUnionDepth2_Map_VBool_VBoolReflect)
+		// VDLReflect describes the VUnionDepth2_Map_VBool_VBool union type.
+		VDLReflect(__VUnionDepth2_Map_VBool_VBoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15057,7 +15057,7 @@ type (
 func (x VUnionDepth2_Map_VBool_VBoolF6) Index() int                                         { return 0 }
 func (x VUnionDepth2_Map_VBool_VBoolF6) Interface() interface{}                             { return x.Value }
 func (x VUnionDepth2_Map_VBool_VBoolF6) Name() string                                       { return "F6" }
-func (x VUnionDepth2_Map_VBool_VBoolF6) __VDLReflect(__VUnionDepth2_Map_VBool_VBoolReflect) {}
+func (x VUnionDepth2_Map_VBool_VBoolF6) VDLReflect(__VUnionDepth2_Map_VBool_VBoolReflect) {}
 
 func (x VUnionDepth2_Map_VBool_VBoolF6) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -15124,8 +15124,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VMap_VBool_VBool union type.
-		__VDLReflect(__VUnionDepth2_VMap_VBool_VBoolReflect)
+		// VDLReflect describes the VUnionDepth2_VMap_VBool_VBool union type.
+		VDLReflect(__VUnionDepth2_VMap_VBool_VBoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15144,7 +15144,7 @@ type (
 func (x VUnionDepth2_VMap_VBool_VBoolF7) Index() int                                          { return 0 }
 func (x VUnionDepth2_VMap_VBool_VBoolF7) Interface() interface{}                              { return x.Value }
 func (x VUnionDepth2_VMap_VBool_VBoolF7) Name() string                                        { return "F7" }
-func (x VUnionDepth2_VMap_VBool_VBoolF7) __VDLReflect(__VUnionDepth2_VMap_VBool_VBoolReflect) {}
+func (x VUnionDepth2_VMap_VBool_VBoolF7) VDLReflect(__VUnionDepth2_VMap_VBool_VBoolReflect) {}
 
 func (x VUnionDepth2_VMap_VBool_VBoolF7) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -15211,8 +15211,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VStructDepth1_All union type.
-		__VDLReflect(__VUnionDepth2_VStructDepth1_AllReflect)
+		// VDLReflect describes the VUnionDepth2_VStructDepth1_All union type.
+		VDLReflect(__VUnionDepth2_VStructDepth1_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15231,7 +15231,7 @@ type (
 func (x VUnionDepth2_VStructDepth1_AllF8) Index() int                                           { return 0 }
 func (x VUnionDepth2_VStructDepth1_AllF8) Interface() interface{}                               { return x.Value }
 func (x VUnionDepth2_VStructDepth1_AllF8) Name() string                                         { return "F8" }
-func (x VUnionDepth2_VStructDepth1_AllF8) __VDLReflect(__VUnionDepth2_VStructDepth1_AllReflect) {}
+func (x VUnionDepth2_VStructDepth1_AllF8) VDLReflect(__VUnionDepth2_VStructDepth1_AllReflect) {}
 
 func (x VUnionDepth2_VStructDepth1_AllF8) VDLIsZero() bool {
 	return x.Value.VDLIsZero()
@@ -15298,8 +15298,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VStructDepth1_Int8 union type.
-		__VDLReflect(__VUnionDepth2_VStructDepth1_Int8Reflect)
+		// VDLReflect describes the VUnionDepth2_VStructDepth1_Int8 union type.
+		VDLReflect(__VUnionDepth2_VStructDepth1_Int8Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15318,7 +15318,7 @@ type (
 func (x VUnionDepth2_VStructDepth1_Int8F9) Index() int                                            { return 0 }
 func (x VUnionDepth2_VStructDepth1_Int8F9) Interface() interface{}                                { return x.Value }
 func (x VUnionDepth2_VStructDepth1_Int8F9) Name() string                                          { return "F9" }
-func (x VUnionDepth2_VStructDepth1_Int8F9) __VDLReflect(__VUnionDepth2_VStructDepth1_Int8Reflect) {}
+func (x VUnionDepth2_VStructDepth1_Int8F9) VDLReflect(__VUnionDepth2_VStructDepth1_Int8Reflect) {}
 
 func (x VUnionDepth2_VStructDepth1_Int8F9) VDLIsZero() bool {
 	return x.Value == VStructDepth1_Int8{}
@@ -15385,8 +15385,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VUnionDepth1_All union type.
-		__VDLReflect(__VUnionDepth2_VUnionDepth1_AllReflect)
+		// VDLReflect describes the VUnionDepth2_VUnionDepth1_All union type.
+		VDLReflect(__VUnionDepth2_VUnionDepth1_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15405,7 +15405,7 @@ type (
 func (x VUnionDepth2_VUnionDepth1_AllF10) Index() int                                          { return 0 }
 func (x VUnionDepth2_VUnionDepth1_AllF10) Interface() interface{}                              { return x.Value }
 func (x VUnionDepth2_VUnionDepth1_AllF10) Name() string                                        { return "F10" }
-func (x VUnionDepth2_VUnionDepth1_AllF10) __VDLReflect(__VUnionDepth2_VUnionDepth1_AllReflect) {}
+func (x VUnionDepth2_VUnionDepth1_AllF10) VDLReflect(__VUnionDepth2_VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth2_VUnionDepth1_AllF10) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -15480,8 +15480,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_VUnionDepth1_VUint32 union type.
-		__VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect)
+		// VDLReflect describes the VUnionDepth2_VUnionDepth1_VUint32 union type.
+		VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15500,7 +15500,7 @@ type (
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int             { return 0 }
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{} { return x.Value }
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string           { return "F11" }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) __VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
 }
 
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLIsZero() bool {
@@ -15576,8 +15576,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_OptVStructDepth1_VEnumBcd union type.
-		__VDLReflect(__VUnionDepth2_OptVStructDepth1_VEnumBcdReflect)
+		// VDLReflect describes the VUnionDepth2_OptVStructDepth1_VEnumBcd union type.
+		VDLReflect(__VUnionDepth2_OptVStructDepth1_VEnumBcdReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15596,7 +15596,7 @@ type (
 func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) Index() int             { return 0 }
 func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) Interface() interface{} { return x.Value }
 func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) Name() string           { return "F12" }
-func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) __VDLReflect(__VUnionDepth2_OptVStructDepth1_VEnumBcdReflect) {
+func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) VDLReflect(__VUnionDepth2_OptVStructDepth1_VEnumBcdReflect) {
 }
 
 func (x VUnionDepth2_OptVStructDepth1_VEnumBcdF12) VDLIsZero() bool {
@@ -15683,8 +15683,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth2_OptVStructDepth1_VFloat32 union type.
-		__VDLReflect(__VUnionDepth2_OptVStructDepth1_VFloat32Reflect)
+		// VDLReflect describes the VUnionDepth2_OptVStructDepth1_VFloat32 union type.
+		VDLReflect(__VUnionDepth2_OptVStructDepth1_VFloat32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -15703,7 +15703,7 @@ type (
 func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) Index() int             { return 0 }
 func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) Interface() interface{} { return x.Value }
 func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) Name() string           { return "F13" }
-func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) __VDLReflect(__VUnionDepth2_OptVStructDepth1_VFloat32Reflect) {
+func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) VDLReflect(__VUnionDepth2_OptVStructDepth1_VFloat32Reflect) {
 }
 
 func (x VUnionDepth2_OptVStructDepth1_VFloat32F13) VDLIsZero() bool {
@@ -15783,7 +15783,7 @@ func VDLReadVUnionDepth2_OptVStructDepth1_VFloat32(dec vdl.Decoder, x *VUnionDep
 
 type VArray1_VArray1_VList_Byte [1]VArray1_VList_Byte
 
-func (VArray1_VArray1_VList_Byte) __VDLReflect(struct {
+func (VArray1_VArray1_VList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray1_VArray1_VList_Byte"`
 }) {
 }
@@ -15842,7 +15842,7 @@ func (x *VArray1_VArray1_VList_Byte) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_List_VMap_VByte_VByte [2][]VMap_VByte_VByte
 
-func (VArray2_List_VMap_VByte_VByte) __VDLReflect(struct {
+func (VArray2_List_VMap_VByte_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_List_VMap_VByte_VByte"`
 }) {
 }
@@ -15947,7 +15947,7 @@ func __VDLReadAnon_list_9(dec vdl.Decoder, x *[]VMap_VByte_VByte) error {
 
 type VArray2_Set_VUnionDepth1_VNamedError [2]map[VUnionDepth1_VNamedError]struct{}
 
-func (VArray2_Set_VUnionDepth1_VNamedError) __VDLReflect(struct {
+func (VArray2_Set_VUnionDepth1_VNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_Set_VUnionDepth1_VNamedError"`
 }) {
 }
@@ -16063,7 +16063,7 @@ func __VDLReadAnon_set_10(dec vdl.Decoder, x *map[VUnionDepth1_VNamedError]struc
 
 type VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64 [3]map[VUnionDepth1_Float64]VUnionDepth1_Float64
 
-func (VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) __VDLReflect(struct {
+func (VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64"`
 }) {
 }
@@ -16194,7 +16194,7 @@ func __VDLReadAnon_map_11(dec vdl.Decoder, x *map[VUnionDepth1_Float64]VUnionDep
 
 type VArray2_VStructDepth2_All [2]VStructDepth2_All
 
-func (VArray2_VStructDepth2_All) __VDLReflect(struct {
+func (VArray2_VStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VStructDepth2_All"`
 }) {
 }
@@ -16253,7 +16253,7 @@ func (x *VArray2_VStructDepth2_All) VDLRead(dec vdl.Decoder) error {
 
 type VArray2_VUnionDepth2_All [2]VUnionDepth2_All
 
-func (VArray2_VUnionDepth2_All) __VDLReflect(struct {
+func (VArray2_VUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray2_VUnionDepth2_All"`
 }) {
 }
@@ -16320,7 +16320,7 @@ func (x *VArray2_VUnionDepth2_All) VDLRead(dec vdl.Decoder) error {
 
 type VArray3_OptVStructDepth2_Set_Float64 [3]*VStructDepth2_Set_Float64
 
-func (VArray3_OptVStructDepth2_Set_Float64) __VDLReflect(struct {
+func (VArray3_OptVStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VArray3_OptVStructDepth2_Set_Float64"`
 }) {
 }
@@ -16393,7 +16393,7 @@ func (x *VArray3_OptVStructDepth2_Set_Float64) VDLRead(dec vdl.Decoder) error {
 
 type VList_VArray3_VUnionDepth1_All []VArray3_VUnionDepth1_All
 
-func (VList_VArray3_VUnionDepth1_All) __VDLReflect(struct {
+func (VList_VArray3_VUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VArray3_VUnionDepth1_All"`
 }) {
 }
@@ -16450,7 +16450,7 @@ func (x *VList_VArray3_VUnionDepth1_All) VDLRead(dec vdl.Decoder) error {
 
 type VList_List_VMap_VByte_VByte [][]VMap_VByte_VByte
 
-func (VList_List_VMap_VByte_VByte) __VDLReflect(struct {
+func (VList_List_VMap_VByte_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_List_VMap_VByte_VByte"`
 }) {
 }
@@ -16507,7 +16507,7 @@ func (x *VList_List_VMap_VByte_VByte) VDLRead(dec vdl.Decoder) error {
 
 type VList_VSet_VArray1_VStructEmpty []VSet_VArray1_VStructEmpty
 
-func (VList_VSet_VArray1_VStructEmpty) __VDLReflect(struct {
+func (VList_VSet_VArray1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VSet_VArray1_VStructEmpty"`
 }) {
 }
@@ -16564,7 +16564,7 @@ func (x *VList_VSet_VArray1_VStructEmpty) VDLRead(dec vdl.Decoder) error {
 
 type VList_VMap_VArray3_VBool_VArray3_VBool []VMap_VArray3_VBool_VArray3_VBool
 
-func (VList_VMap_VArray3_VBool_VArray3_VBool) __VDLReflect(struct {
+func (VList_VMap_VArray3_VBool_VArray3_VBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VMap_VArray3_VBool_VArray3_VBool"`
 }) {
 }
@@ -16621,7 +16621,7 @@ func (x *VList_VMap_VArray3_VBool_VArray3_VBool) VDLRead(dec vdl.Decoder) error 
 
 type VList_VStructDepth2_All []VStructDepth2_All
 
-func (VList_VStructDepth2_All) __VDLReflect(struct {
+func (VList_VStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VStructDepth2_All"`
 }) {
 }
@@ -16678,7 +16678,7 @@ func (x *VList_VStructDepth2_All) VDLRead(dec vdl.Decoder) error {
 
 type VList_VUnionDepth2_All []VUnionDepth2_All
 
-func (VList_VUnionDepth2_All) __VDLReflect(struct {
+func (VList_VUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_VUnionDepth2_All"`
 }) {
 }
@@ -16743,7 +16743,7 @@ func (x *VList_VUnionDepth2_All) VDLRead(dec vdl.Decoder) error {
 
 type VList_OptVStructDepth2_Set_Float64 []*VStructDepth2_Set_Float64
 
-func (VList_OptVStructDepth2_Set_Float64) __VDLReflect(struct {
+func (VList_OptVStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VList_OptVStructDepth2_Set_Float64"`
 }) {
 }
@@ -16819,7 +16819,7 @@ func (x *VList_OptVStructDepth2_Set_Float64) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VArray1_VArray3_Int64 map[VArray1_VArray3_Int64]struct{}
 
-func (VSet_VArray1_VArray3_Int64) __VDLReflect(struct {
+func (VSet_VArray1_VArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VArray1_VArray3_Int64"`
 }) {
 }
@@ -16879,7 +16879,7 @@ func (x *VSet_VArray1_VArray3_Int64) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VStructDepth2_VStructDepth1_Bool map[VStructDepth2_VStructDepth1_Bool]struct{}
 
-func (VSet_VStructDepth2_VStructDepth1_Bool) __VDLReflect(struct {
+func (VSet_VStructDepth2_VStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VStructDepth2_VStructDepth1_Bool"`
 }) {
 }
@@ -16939,7 +16939,7 @@ func (x *VSet_VStructDepth2_VStructDepth1_Bool) VDLRead(dec vdl.Decoder) error {
 
 type VSet_VUnionDepth2_VArray1_String map[VUnionDepth2_VArray1_String]struct{}
 
-func (VSet_VUnionDepth2_VArray1_String) __VDLReflect(struct {
+func (VSet_VUnionDepth2_VArray1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSet_VUnionDepth2_VArray1_String"`
 }) {
 }
@@ -17007,7 +17007,7 @@ func (x *VSet_VUnionDepth2_VArray1_String) VDLRead(dec vdl.Decoder) error {
 
 type VMap_VArray1_VArray3_Int64_VArray1_VArray3_Int64 map[VArray1_VArray3_Int64]VArray1_VArray3_Int64
 
-func (VMap_VArray1_VArray3_Int64_VArray1_VArray3_Int64) __VDLReflect(struct {
+func (VMap_VArray1_VArray3_Int64_VArray1_VArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VArray1_VArray3_Int64_VArray1_VArray3_Int64"`
 }) {
 }
@@ -17074,7 +17074,7 @@ func (x *VMap_VArray1_VArray3_Int64_VArray1_VArray3_Int64) VDLRead(dec vdl.Decod
 
 type VMap_VStructDepth2_VArray1_Uint32_VStructDepth2_VArray1_Uint32 map[VStructDepth2_VArray1_Uint32]VStructDepth2_VArray1_Uint32
 
-func (VMap_VStructDepth2_VArray1_Uint32_VStructDepth2_VArray1_Uint32) __VDLReflect(struct {
+func (VMap_VStructDepth2_VArray1_Uint32_VStructDepth2_VArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VStructDepth2_VArray1_Uint32_VStructDepth2_VArray1_Uint32"`
 }) {
 }
@@ -17141,7 +17141,7 @@ func (x *VMap_VStructDepth2_VArray1_Uint32_VStructDepth2_VArray1_Uint32) VDLRead
 
 type VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte map[VUnionDepth2_VArray2_VByte]VUnionDepth2_VArray2_VByte
 
-func (VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte) __VDLReflect(struct {
+func (VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte"`
 }) {
 }
@@ -17232,7 +17232,7 @@ type VStructDepth3_All struct {
 	F6 *VStructDepth2_Set_Float64
 }
 
-func (VStructDepth3_All) __VDLReflect(struct {
+func (VStructDepth3_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_All"`
 }) {
 }
@@ -17468,7 +17468,7 @@ type VStructDepth3_VArray1_Set_VEnumBcd struct {
 	F0 VArray1_Set_VEnumBcd
 }
 
-func (VStructDepth3_VArray1_Set_VEnumBcd) __VDLReflect(struct {
+func (VStructDepth3_VArray1_Set_VEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_VArray1_Set_VEnumBcd"`
 }) {
 }
@@ -17534,7 +17534,7 @@ type VStructDepth3_List_VUnionDepth1_All struct {
 	F1 []VUnionDepth1_All
 }
 
-func (VStructDepth3_List_VUnionDepth1_All) __VDLReflect(struct {
+func (VStructDepth3_List_VUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_List_VUnionDepth1_All"`
 }) {
 }
@@ -17600,7 +17600,7 @@ type VStructDepth3_VSet_VArray1_VStructEmpty struct {
 	F2 VSet_VArray1_VStructEmpty
 }
 
-func (VStructDepth3_VSet_VArray1_VStructEmpty) __VDLReflect(struct {
+func (VStructDepth3_VSet_VArray1_VStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_VSet_VArray1_VStructEmpty"`
 }) {
 }
@@ -17666,7 +17666,7 @@ type VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64 struct {
 	F3 map[VUnionDepth1_Float64]VUnionDepth1_Float64
 }
 
-func (VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) __VDLReflect(struct {
+func (VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64"`
 }) {
 }
@@ -17732,7 +17732,7 @@ type VStructDepth3_VStructDepth2_All struct {
 	F4 VStructDepth2_All
 }
 
-func (VStructDepth3_VStructDepth2_All) __VDLReflect(struct {
+func (VStructDepth3_VStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_VStructDepth2_All"`
 }) {
 }
@@ -17810,7 +17810,7 @@ type VStructDepth3_VUnionDepth2_All struct {
 	F5 VUnionDepth2_All
 }
 
-func (VStructDepth3_VUnionDepth2_All) __VDLReflect(struct {
+func (VStructDepth3_VUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_VUnionDepth2_All"`
 }) {
 }
@@ -17878,7 +17878,7 @@ type VStructDepth3_OptVStructDepth2_Set_Float64 struct {
 	F6 *VStructDepth2_Set_Float64
 }
 
-func (VStructDepth3_OptVStructDepth2_Set_Float64) __VDLReflect(struct {
+func (VStructDepth3_OptVStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VStructDepth3_OptVStructDepth2_Set_Float64"`
 }) {
 }
@@ -17959,8 +17959,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_All union type.
-		__VDLReflect(__VUnionDepth3_AllReflect)
+		// VDLReflect describes the VUnionDepth3_All union type.
+		VDLReflect(__VUnionDepth3_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18003,37 +18003,37 @@ type (
 func (x VUnionDepth3_AllF0) Index() int                             { return 0 }
 func (x VUnionDepth3_AllF0) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF0) Name() string                           { return "F0" }
-func (x VUnionDepth3_AllF0) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF0) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF1) Index() int                             { return 1 }
 func (x VUnionDepth3_AllF1) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF1) Name() string                           { return "F1" }
-func (x VUnionDepth3_AllF1) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF1) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF2) Index() int                             { return 2 }
 func (x VUnionDepth3_AllF2) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF2) Name() string                           { return "F2" }
-func (x VUnionDepth3_AllF2) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF2) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF3) Index() int                             { return 3 }
 func (x VUnionDepth3_AllF3) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF3) Name() string                           { return "F3" }
-func (x VUnionDepth3_AllF3) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF3) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF4) Index() int                             { return 4 }
 func (x VUnionDepth3_AllF4) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF4) Name() string                           { return "F4" }
-func (x VUnionDepth3_AllF4) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF4) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF5) Index() int                             { return 5 }
 func (x VUnionDepth3_AllF5) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF5) Name() string                           { return "F5" }
-func (x VUnionDepth3_AllF5) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF5) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF6) Index() int                             { return 6 }
 func (x VUnionDepth3_AllF6) Interface() interface{}                 { return x.Value }
 func (x VUnionDepth3_AllF6) Name() string                           { return "F6" }
-func (x VUnionDepth3_AllF6) __VDLReflect(__VUnionDepth3_AllReflect) {}
+func (x VUnionDepth3_AllF6) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF0) VDLIsZero() bool {
 	return x.Value == VArray3_OptVStructDepth1_VFloat32{}
@@ -18378,8 +18378,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_VArray3_OptVStructDepth1_VFloat32 union type.
-		__VDLReflect(__VUnionDepth3_VArray3_OptVStructDepth1_VFloat32Reflect)
+		// VDLReflect describes the VUnionDepth3_VArray3_OptVStructDepth1_VFloat32 union type.
+		VDLReflect(__VUnionDepth3_VArray3_OptVStructDepth1_VFloat32Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18400,7 +18400,7 @@ type (
 func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) Index() int             { return 0 }
 func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) Interface() interface{} { return x.Value }
 func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) Name() string           { return "F0" }
-func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) __VDLReflect(__VUnionDepth3_VArray3_OptVStructDepth1_VFloat32Reflect) {
+func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) VDLReflect(__VUnionDepth3_VArray3_OptVStructDepth1_VFloat32Reflect) {
 }
 
 func (x VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0) VDLIsZero() bool {
@@ -18468,8 +18468,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_List_VList_Error union type.
-		__VDLReflect(__VUnionDepth3_List_VList_ErrorReflect)
+		// VDLReflect describes the VUnionDepth3_List_VList_Error union type.
+		VDLReflect(__VUnionDepth3_List_VList_ErrorReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18488,7 +18488,7 @@ type (
 func (x VUnionDepth3_List_VList_ErrorF1) Index() int                                          { return 0 }
 func (x VUnionDepth3_List_VList_ErrorF1) Interface() interface{}                              { return x.Value }
 func (x VUnionDepth3_List_VList_ErrorF1) Name() string                                        { return "F1" }
-func (x VUnionDepth3_List_VList_ErrorF1) __VDLReflect(__VUnionDepth3_List_VList_ErrorReflect) {}
+func (x VUnionDepth3_List_VList_ErrorF1) VDLReflect(__VUnionDepth3_List_VList_ErrorReflect) {}
 
 func (x VUnionDepth3_List_VList_ErrorF1) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -18555,8 +18555,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_Set_VStructDepth1_String union type.
-		__VDLReflect(__VUnionDepth3_Set_VStructDepth1_StringReflect)
+		// VDLReflect describes the VUnionDepth3_Set_VStructDepth1_String union type.
+		VDLReflect(__VUnionDepth3_Set_VStructDepth1_StringReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18577,7 +18577,7 @@ type (
 func (x VUnionDepth3_Set_VStructDepth1_StringF2) Index() int             { return 0 }
 func (x VUnionDepth3_Set_VStructDepth1_StringF2) Interface() interface{} { return x.Value }
 func (x VUnionDepth3_Set_VStructDepth1_StringF2) Name() string           { return "F2" }
-func (x VUnionDepth3_Set_VStructDepth1_StringF2) __VDLReflect(__VUnionDepth3_Set_VStructDepth1_StringReflect) {
+func (x VUnionDepth3_Set_VStructDepth1_StringF2) VDLReflect(__VUnionDepth3_Set_VStructDepth1_StringReflect) {
 }
 
 func (x VUnionDepth3_Set_VStructDepth1_StringF2) VDLIsZero() bool {
@@ -18645,8 +18645,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool union type.
-		__VDLReflect(__VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolReflect)
+		// VDLReflect describes the VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool union type.
+		VDLReflect(__VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18669,7 +18669,7 @@ func (x VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3) Interface()
 	return x.Value
 }
 func (x VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3) Name() string { return "F3" }
-func (x VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3) __VDLReflect(__VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolReflect) {
+func (x VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3) VDLReflect(__VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolReflect) {
 }
 
 func (x VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3) VDLIsZero() bool {
@@ -18737,8 +18737,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_VStructDepth2_All union type.
-		__VDLReflect(__VUnionDepth3_VStructDepth2_AllReflect)
+		// VDLReflect describes the VUnionDepth3_VStructDepth2_All union type.
+		VDLReflect(__VUnionDepth3_VStructDepth2_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18757,7 +18757,7 @@ type (
 func (x VUnionDepth3_VStructDepth2_AllF4) Index() int                                           { return 0 }
 func (x VUnionDepth3_VStructDepth2_AllF4) Interface() interface{}                               { return x.Value }
 func (x VUnionDepth3_VStructDepth2_AllF4) Name() string                                         { return "F4" }
-func (x VUnionDepth3_VStructDepth2_AllF4) __VDLReflect(__VUnionDepth3_VStructDepth2_AllReflect) {}
+func (x VUnionDepth3_VStructDepth2_AllF4) VDLReflect(__VUnionDepth3_VStructDepth2_AllReflect) {}
 
 func (x VUnionDepth3_VStructDepth2_AllF4) VDLIsZero() bool {
 	return x.Value.VDLIsZero()
@@ -18824,8 +18824,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_VUnionDepth2_All union type.
-		__VDLReflect(__VUnionDepth3_VUnionDepth2_AllReflect)
+		// VDLReflect describes the VUnionDepth3_VUnionDepth2_All union type.
+		VDLReflect(__VUnionDepth3_VUnionDepth2_AllReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18844,7 +18844,7 @@ type (
 func (x VUnionDepth3_VUnionDepth2_AllF5) Index() int                                          { return 0 }
 func (x VUnionDepth3_VUnionDepth2_AllF5) Interface() interface{}                              { return x.Value }
 func (x VUnionDepth3_VUnionDepth2_AllF5) Name() string                                        { return "F5" }
-func (x VUnionDepth3_VUnionDepth2_AllF5) __VDLReflect(__VUnionDepth3_VUnionDepth2_AllReflect) {}
+func (x VUnionDepth3_VUnionDepth2_AllF5) VDLReflect(__VUnionDepth3_VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth3_VUnionDepth2_AllF5) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -18919,8 +18919,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VUnionDepth3_OptVStructDepth2_Set_Float64 union type.
-		__VDLReflect(__VUnionDepth3_OptVStructDepth2_Set_Float64Reflect)
+		// VDLReflect describes the VUnionDepth3_OptVStructDepth2_Set_Float64 union type.
+		VDLReflect(__VUnionDepth3_OptVStructDepth2_Set_Float64Reflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -18939,7 +18939,7 @@ type (
 func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) Index() int             { return 0 }
 func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) Interface() interface{} { return x.Value }
 func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) Name() string           { return "F6" }
-func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) __VDLReflect(__VUnionDepth3_OptVStructDepth2_Set_Float64Reflect) {
+func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) VDLReflect(__VUnionDepth3_OptVStructDepth2_Set_Float64Reflect) {
 }
 
 func (x VUnionDepth3_OptVStructDepth2_Set_Float64F6) VDLIsZero() bool {
@@ -19023,7 +19023,7 @@ type VSelfCycle struct {
 	Next *VSelfCycle
 }
 
-func (VSelfCycle) __VDLReflect(struct {
+func (VSelfCycle) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VSelfCycle"`
 }) {
 }
@@ -19113,7 +19113,7 @@ type VMutualCycleB struct {
 	A    *VMutualCycleA
 }
 
-func (VMutualCycleB) __VDLReflect(struct {
+func (VMutualCycleB) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMutualCycleB"`
 }) {
 }
@@ -19203,7 +19203,7 @@ type VMutualCycleA struct {
 	B    *VMutualCycleB
 }
 
-func (VMutualCycleA) __VDLReflect(struct {
+func (VMutualCycleA) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VMutualCycleA"`
 }) {
 }
@@ -19289,7 +19289,7 @@ func (x *VMutualCycleA) VDLRead(dec vdl.Decoder) error {
 
 type VWireBoolNBool bool
 
-func (VWireBoolNBool) __VDLReflect(struct {
+func (VWireBoolNBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireBoolNBool"`
 }) {
 }
@@ -19317,7 +19317,7 @@ func (x *VWireBoolNBool) VDLRead(dec vdl.Decoder) error {
 
 type VWireBoolNString bool
 
-func (VWireBoolNString) __VDLReflect(struct {
+func (VWireBoolNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireBoolNString"`
 }) {
 }
@@ -19345,7 +19345,7 @@ func (x *VWireBoolNString) VDLRead(dec vdl.Decoder) error {
 
 type VWireBoolNStruct bool
 
-func (VWireBoolNStruct) __VDLReflect(struct {
+func (VWireBoolNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireBoolNStruct"`
 }) {
 }
@@ -19373,7 +19373,7 @@ func (x *VWireBoolNStruct) VDLRead(dec vdl.Decoder) error {
 
 type VWireIntNInt int32
 
-func (VWireIntNInt) __VDLReflect(struct {
+func (VWireIntNInt) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireIntNInt"`
 }) {
 }
@@ -19401,7 +19401,7 @@ func (x *VWireIntNInt) VDLRead(dec vdl.Decoder) error {
 
 type VWireIntNString int32
 
-func (VWireIntNString) __VDLReflect(struct {
+func (VWireIntNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireIntNString"`
 }) {
 }
@@ -19429,7 +19429,7 @@ func (x *VWireIntNString) VDLRead(dec vdl.Decoder) error {
 
 type VWireIntNStruct int32
 
-func (VWireIntNStruct) __VDLReflect(struct {
+func (VWireIntNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireIntNStruct"`
 }) {
 }
@@ -19457,7 +19457,7 @@ func (x *VWireIntNStruct) VDLRead(dec vdl.Decoder) error {
 
 type VWireStringNString string
 
-func (VWireStringNString) __VDLReflect(struct {
+func (VWireStringNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStringNString"`
 }) {
 }
@@ -19485,7 +19485,7 @@ func (x *VWireStringNString) VDLRead(dec vdl.Decoder) error {
 
 type VWireStringNStruct string
 
-func (VWireStringNStruct) __VDLReflect(struct {
+func (VWireStringNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStringNStruct"`
 }) {
 }
@@ -19513,7 +19513,7 @@ func (x *VWireStringNStruct) VDLRead(dec vdl.Decoder) error {
 
 type VWireArrayNString [1]string
 
-func (VWireArrayNString) __VDLReflect(struct {
+func (VWireArrayNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireArrayNString"`
 }) {
 }
@@ -19562,7 +19562,7 @@ func (x *VWireArrayNString) VDLRead(dec vdl.Decoder) error {
 
 type VWireArrayNStruct [1]string
 
-func (VWireArrayNStruct) __VDLReflect(struct {
+func (VWireArrayNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireArrayNStruct"`
 }) {
 }
@@ -19611,7 +19611,7 @@ func (x *VWireArrayNStruct) VDLRead(dec vdl.Decoder) error {
 
 type VWireListNString []string
 
-func (VWireListNString) __VDLReflect(struct {
+func (VWireListNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireListNString"`
 }) {
 }
@@ -19661,7 +19661,7 @@ func (x *VWireListNString) VDLRead(dec vdl.Decoder) error {
 
 type VWireListNStruct []string
 
-func (VWireListNStruct) __VDLReflect(struct {
+func (VWireListNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireListNStruct"`
 }) {
 }
@@ -19713,7 +19713,7 @@ type VWireStructNString struct {
 	X string
 }
 
-func (VWireStructNString) __VDLReflect(struct {
+func (VWireStructNString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNString"`
 }) {
 }
@@ -19776,7 +19776,7 @@ type VWireStructNStruct struct {
 	X string
 }
 
-func (VWireStructNStruct) __VDLReflect(struct {
+func (VWireStructNStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNStruct"`
 }) {
 }
@@ -19839,7 +19839,7 @@ type VWireStructNArray struct {
 	X string
 }
 
-func (VWireStructNArray) __VDLReflect(struct {
+func (VWireStructNArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNArray"`
 }) {
 }
@@ -19902,7 +19902,7 @@ type VWireStructNSlice struct {
 	X string
 }
 
-func (VWireStructNSlice) __VDLReflect(struct {
+func (VWireStructNSlice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNSlice"`
 }) {
 }
@@ -19965,7 +19965,7 @@ type VWireStructNPointer struct {
 	X string
 }
 
-func (VWireStructNPointer) __VDLReflect(struct {
+func (VWireStructNPointer) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNPointer"`
 }) {
 }
@@ -20028,7 +20028,7 @@ type VWireStructNIface struct {
 	X string
 }
 
-func (VWireStructNIface) __VDLReflect(struct {
+func (VWireStructNIface) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireStructNIface"`
 }) {
 }
@@ -20096,8 +20096,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNString union type.
-		__VDLReflect(__VWireUnionNStringReflect)
+		// VDLReflect describes the VWireUnionNString union type.
+		VDLReflect(__VWireUnionNStringReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20116,7 +20116,7 @@ type (
 func (x VWireUnionNStringX) Index() int                              { return 0 }
 func (x VWireUnionNStringX) Interface() interface{}                  { return x.Value }
 func (x VWireUnionNStringX) Name() string                            { return "X" }
-func (x VWireUnionNStringX) __VDLReflect(__VWireUnionNStringReflect) {}
+func (x VWireUnionNStringX) VDLReflect(__VWireUnionNStringReflect) {}
 
 func (x VWireUnionNStringX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20183,8 +20183,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNStruct union type.
-		__VDLReflect(__VWireUnionNStructReflect)
+		// VDLReflect describes the VWireUnionNStruct union type.
+		VDLReflect(__VWireUnionNStructReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20203,7 +20203,7 @@ type (
 func (x VWireUnionNStructX) Index() int                              { return 0 }
 func (x VWireUnionNStructX) Interface() interface{}                  { return x.Value }
 func (x VWireUnionNStructX) Name() string                            { return "X" }
-func (x VWireUnionNStructX) __VDLReflect(__VWireUnionNStructReflect) {}
+func (x VWireUnionNStructX) VDLReflect(__VWireUnionNStructReflect) {}
 
 func (x VWireUnionNStructX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20270,8 +20270,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNArray union type.
-		__VDLReflect(__VWireUnionNArrayReflect)
+		// VDLReflect describes the VWireUnionNArray union type.
+		VDLReflect(__VWireUnionNArrayReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20290,7 +20290,7 @@ type (
 func (x VWireUnionNArrayX) Index() int                             { return 0 }
 func (x VWireUnionNArrayX) Interface() interface{}                 { return x.Value }
 func (x VWireUnionNArrayX) Name() string                           { return "X" }
-func (x VWireUnionNArrayX) __VDLReflect(__VWireUnionNArrayReflect) {}
+func (x VWireUnionNArrayX) VDLReflect(__VWireUnionNArrayReflect) {}
 
 func (x VWireUnionNArrayX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20357,8 +20357,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNSlice union type.
-		__VDLReflect(__VWireUnionNSliceReflect)
+		// VDLReflect describes the VWireUnionNSlice union type.
+		VDLReflect(__VWireUnionNSliceReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20377,7 +20377,7 @@ type (
 func (x VWireUnionNSliceX) Index() int                             { return 0 }
 func (x VWireUnionNSliceX) Interface() interface{}                 { return x.Value }
 func (x VWireUnionNSliceX) Name() string                           { return "X" }
-func (x VWireUnionNSliceX) __VDLReflect(__VWireUnionNSliceReflect) {}
+func (x VWireUnionNSliceX) VDLReflect(__VWireUnionNSliceReflect) {}
 
 func (x VWireUnionNSliceX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20444,8 +20444,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNPointer union type.
-		__VDLReflect(__VWireUnionNPointerReflect)
+		// VDLReflect describes the VWireUnionNPointer union type.
+		VDLReflect(__VWireUnionNPointerReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20464,7 +20464,7 @@ type (
 func (x VWireUnionNPointerX) Index() int                               { return 0 }
 func (x VWireUnionNPointerX) Interface() interface{}                   { return x.Value }
 func (x VWireUnionNPointerX) Name() string                             { return "X" }
-func (x VWireUnionNPointerX) __VDLReflect(__VWireUnionNPointerReflect) {}
+func (x VWireUnionNPointerX) VDLReflect(__VWireUnionNPointerReflect) {}
 
 func (x VWireUnionNPointerX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20531,8 +20531,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the VWireUnionNIface union type.
-		__VDLReflect(__VWireUnionNIfaceReflect)
+		// VDLReflect describes the VWireUnionNIface union type.
+		VDLReflect(__VWireUnionNIfaceReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -20551,7 +20551,7 @@ type (
 func (x VWireUnionNIfaceX) Index() int                             { return 0 }
 func (x VWireUnionNIfaceX) Interface() interface{}                 { return x.Value }
 func (x VWireUnionNIfaceX) Name() string                           { return "X" }
-func (x VWireUnionNIfaceX) __VDLReflect(__VWireUnionNIfaceReflect) {}
+func (x VWireUnionNIfaceX) VDLReflect(__VWireUnionNIfaceReflect) {}
 
 func (x VWireUnionNIfaceX) VDLIsZero() bool {
 	return x.Value == ""
@@ -20638,7 +20638,7 @@ type VWireAll struct {
 	UnionNIface    VWireUnionNIface
 }
 
-func (VWireAll) __VDLReflect(struct {
+func (VWireAll) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.VWireAll"`
 }) {
 }
@@ -21186,21 +21186,21 @@ func (x *VWireAll) VDLRead(dec vdl.Decoder) error {
 
 type XBool bool
 
-func (XBool) __VDLReflect(struct {
+func (XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XBool"`
 }) {
 }
 
 type XString string
 
-func (XString) __VDLReflect(struct {
+func (XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XString"`
 }) {
 }
 
 type XByte byte
 
-func (XByte) __VDLReflect(struct {
+func (XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XByte"`
 }) {
 }
@@ -21252,7 +21252,7 @@ func (x XEnumAbc) String() string {
 	return ""
 }
 
-func (XEnumAbc) __VDLReflect(struct {
+func (XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XEnumAbc"`
 	Enum struct{ A, B, C string }
 }) {
@@ -21305,7 +21305,7 @@ func (x XEnumBcd) String() string {
 	return ""
 }
 
-func (XEnumBcd) __VDLReflect(struct {
+func (XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XEnumBcd"`
 	Enum struct{ B, C, D string }
 }) {
@@ -21314,7 +21314,7 @@ func (XEnumBcd) __VDLReflect(struct {
 type XStructEmpty struct {
 }
 
-func (XStructEmpty) __VDLReflect(struct {
+func (XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructEmpty"`
 }) {
 }
@@ -21324,504 +21324,504 @@ type XNamedError struct {
 	Msg string
 }
 
-func (XNamedError) __VDLReflect(struct {
+func (XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XNamedError"`
 }) {
 }
 
 type XUint16 uint16
 
-func (XUint16) __VDLReflect(struct {
+func (XUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XUint16"`
 }) {
 }
 
 type XUint32 uint32
 
-func (XUint32) __VDLReflect(struct {
+func (XUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XUint32"`
 }) {
 }
 
 type XUint64 uint64
 
-func (XUint64) __VDLReflect(struct {
+func (XUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XUint64"`
 }) {
 }
 
 type XInt8 int8
 
-func (XInt8) __VDLReflect(struct {
+func (XInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XInt8"`
 }) {
 }
 
 type XInt16 int16
 
-func (XInt16) __VDLReflect(struct {
+func (XInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XInt16"`
 }) {
 }
 
 type XInt32 int32
 
-func (XInt32) __VDLReflect(struct {
+func (XInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XInt32"`
 }) {
 }
 
 type XInt64 int64
 
-func (XInt64) __VDLReflect(struct {
+func (XInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XInt64"`
 }) {
 }
 
 type XFloat32 float32
 
-func (XFloat32) __VDLReflect(struct {
+func (XFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XFloat32"`
 }) {
 }
 
 type XFloat64 float64
 
-func (XFloat64) __VDLReflect(struct {
+func (XFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XFloat64"`
 }) {
 }
 
 type XArray3_Any [3]interface{}
 
-func (XArray3_Any) __VDLReflect(struct {
+func (XArray3_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_Any"`
 }) {
 }
 
 type XArray3_Bool [3]bool
 
-func (XArray3_Bool) __VDLReflect(struct {
+func (XArray3_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_Bool"`
 }) {
 }
 
 type XArray3_XBool [3]XBool
 
-func (XArray3_XBool) __VDLReflect(struct {
+func (XArray3_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_XBool"`
 }) {
 }
 
 type XArray1_String [1]string
 
-func (XArray1_String) __VDLReflect(struct {
+func (XArray1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_String"`
 }) {
 }
 
 type XArray3_XString [3]XString
 
-func (XArray3_XString) __VDLReflect(struct {
+func (XArray3_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_XString"`
 }) {
 }
 
 type XArray2_TypeObject [2]*vdl.Type
 
-func (XArray2_TypeObject) __VDLReflect(struct {
+func (XArray2_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_TypeObject"`
 }) {
 }
 
 type XArray1_Byte [1]byte
 
-func (XArray1_Byte) __VDLReflect(struct {
+func (XArray1_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_Byte"`
 }) {
 }
 
 type XArray2_XByte [2]XByte
 
-func (XArray2_XByte) __VDLReflect(struct {
+func (XArray2_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XByte"`
 }) {
 }
 
 type XArray2_XEnumAbc [2]XEnumAbc
 
-func (XArray2_XEnumAbc) __VDLReflect(struct {
+func (XArray2_XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XEnumAbc"`
 }) {
 }
 
 type XArray2_XEnumBcd [2]XEnumBcd
 
-func (XArray2_XEnumBcd) __VDLReflect(struct {
+func (XArray2_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XEnumBcd"`
 }) {
 }
 
 type XArray1_XStructEmpty [1]XStructEmpty
 
-func (XArray1_XStructEmpty) __VDLReflect(struct {
+func (XArray1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_XStructEmpty"`
 }) {
 }
 
 type XArray1_XNamedError [1]XNamedError
 
-func (XArray1_XNamedError) __VDLReflect(struct {
+func (XArray1_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_XNamedError"`
 }) {
 }
 
 type XArray2_Error [2]error
 
-func (XArray2_Error) __VDLReflect(struct {
+func (XArray2_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_Error"`
 }) {
 }
 
 type XArray1_Uint32 [1]uint32
 
-func (XArray1_Uint32) __VDLReflect(struct {
+func (XArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_Uint32"`
 }) {
 }
 
 type XArray3_Uint64 [3]uint64
 
-func (XArray3_Uint64) __VDLReflect(struct {
+func (XArray3_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_Uint64"`
 }) {
 }
 
 type XArray3_Int64 [3]int64
 
-func (XArray3_Int64) __VDLReflect(struct {
+func (XArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_Int64"`
 }) {
 }
 
 type XArray1_OptXStructEmpty [1]*XStructEmpty
 
-func (XArray1_OptXStructEmpty) __VDLReflect(struct {
+func (XArray1_OptXStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_OptXStructEmpty"`
 }) {
 }
 
 type XArray3_OptXNamedError [3]*XNamedError
 
-func (XArray3_OptXNamedError) __VDLReflect(struct {
+func (XArray3_OptXNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_OptXNamedError"`
 }) {
 }
 
 type XList_Any []interface{}
 
-func (XList_Any) __VDLReflect(struct {
+func (XList_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_Any"`
 }) {
 }
 
 type XList_Bool []bool
 
-func (XList_Bool) __VDLReflect(struct {
+func (XList_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_Bool"`
 }) {
 }
 
 type XList_XBool []XBool
 
-func (XList_XBool) __VDLReflect(struct {
+func (XList_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XBool"`
 }) {
 }
 
 type XList_String []string
 
-func (XList_String) __VDLReflect(struct {
+func (XList_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_String"`
 }) {
 }
 
 type XList_XString []XString
 
-func (XList_XString) __VDLReflect(struct {
+func (XList_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XString"`
 }) {
 }
 
 type XList_TypeObject []*vdl.Type
 
-func (XList_TypeObject) __VDLReflect(struct {
+func (XList_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_TypeObject"`
 }) {
 }
 
 type XList_Byte []byte
 
-func (XList_Byte) __VDLReflect(struct {
+func (XList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_Byte"`
 }) {
 }
 
 type XList_XByte []XByte
 
-func (XList_XByte) __VDLReflect(struct {
+func (XList_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XByte"`
 }) {
 }
 
 type XList_XEnumAbc []XEnumAbc
 
-func (XList_XEnumAbc) __VDLReflect(struct {
+func (XList_XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XEnumAbc"`
 }) {
 }
 
 type XList_XEnumBcd []XEnumBcd
 
-func (XList_XEnumBcd) __VDLReflect(struct {
+func (XList_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XEnumBcd"`
 }) {
 }
 
 type XList_XStructEmpty []XStructEmpty
 
-func (XList_XStructEmpty) __VDLReflect(struct {
+func (XList_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XStructEmpty"`
 }) {
 }
 
 type XList_XNamedError []XNamedError
 
-func (XList_XNamedError) __VDLReflect(struct {
+func (XList_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XNamedError"`
 }) {
 }
 
 type XList_Error []error
 
-func (XList_Error) __VDLReflect(struct {
+func (XList_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_Error"`
 }) {
 }
 
 type XList_XUint16 []XUint16
 
-func (XList_XUint16) __VDLReflect(struct {
+func (XList_XUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XUint16"`
 }) {
 }
 
 type XList_XFloat32 []XFloat32
 
-func (XList_XFloat32) __VDLReflect(struct {
+func (XList_XFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XFloat32"`
 }) {
 }
 
 type XList_XFloat64 []XFloat64
 
-func (XList_XFloat64) __VDLReflect(struct {
+func (XList_XFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XFloat64"`
 }) {
 }
 
 type XList_OptXStructEmpty []*XStructEmpty
 
-func (XList_OptXStructEmpty) __VDLReflect(struct {
+func (XList_OptXStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_OptXStructEmpty"`
 }) {
 }
 
 type XList_OptXNamedError []*XNamedError
 
-func (XList_OptXNamedError) __VDLReflect(struct {
+func (XList_OptXNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_OptXNamedError"`
 }) {
 }
 
 type XSet_Bool map[bool]struct{}
 
-func (XSet_Bool) __VDLReflect(struct {
+func (XSet_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_Bool"`
 }) {
 }
 
 type XSet_XBool map[XBool]struct{}
 
-func (XSet_XBool) __VDLReflect(struct {
+func (XSet_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XBool"`
 }) {
 }
 
 type XSet_String map[string]struct{}
 
-func (XSet_String) __VDLReflect(struct {
+func (XSet_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_String"`
 }) {
 }
 
 type XSet_XString map[XString]struct{}
 
-func (XSet_XString) __VDLReflect(struct {
+func (XSet_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XString"`
 }) {
 }
 
 type XSet_Byte map[byte]struct{}
 
-func (XSet_Byte) __VDLReflect(struct {
+func (XSet_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_Byte"`
 }) {
 }
 
 type XSet_XByte map[XByte]struct{}
 
-func (XSet_XByte) __VDLReflect(struct {
+func (XSet_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XByte"`
 }) {
 }
 
 type XSet_XEnumAbc map[XEnumAbc]struct{}
 
-func (XSet_XEnumAbc) __VDLReflect(struct {
+func (XSet_XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XEnumAbc"`
 }) {
 }
 
 type XSet_XEnumBcd map[XEnumBcd]struct{}
 
-func (XSet_XEnumBcd) __VDLReflect(struct {
+func (XSet_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XEnumBcd"`
 }) {
 }
 
 type XSet_XStructEmpty map[XStructEmpty]struct{}
 
-func (XSet_XStructEmpty) __VDLReflect(struct {
+func (XSet_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XStructEmpty"`
 }) {
 }
 
 type XSet_XNamedError map[XNamedError]struct{}
 
-func (XSet_XNamedError) __VDLReflect(struct {
+func (XSet_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XNamedError"`
 }) {
 }
 
 type XSet_Uint64 map[uint64]struct{}
 
-func (XSet_Uint64) __VDLReflect(struct {
+func (XSet_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_Uint64"`
 }) {
 }
 
 type XSet_XUint64 map[XUint64]struct{}
 
-func (XSet_XUint64) __VDLReflect(struct {
+func (XSet_XUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XUint64"`
 }) {
 }
 
 type XSet_Float32 map[float32]struct{}
 
-func (XSet_Float32) __VDLReflect(struct {
+func (XSet_Float32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_Float32"`
 }) {
 }
 
 type XMap_Bool_Bool map[bool]bool
 
-func (XMap_Bool_Bool) __VDLReflect(struct {
+func (XMap_Bool_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_Bool_Bool"`
 }) {
 }
 
 type XMap_XBool_XBool map[XBool]XBool
 
-func (XMap_XBool_XBool) __VDLReflect(struct {
+func (XMap_XBool_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XBool_XBool"`
 }) {
 }
 
 type XMap_String_String map[string]string
 
-func (XMap_String_String) __VDLReflect(struct {
+func (XMap_String_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_String_String"`
 }) {
 }
 
 type XMap_XString_XString map[XString]XString
 
-func (XMap_XString_XString) __VDLReflect(struct {
+func (XMap_XString_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XString_XString"`
 }) {
 }
 
 type XMap_Byte_Byte map[byte]byte
 
-func (XMap_Byte_Byte) __VDLReflect(struct {
+func (XMap_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_Byte_Byte"`
 }) {
 }
 
 type XMap_XByte_XByte map[XByte]XByte
 
-func (XMap_XByte_XByte) __VDLReflect(struct {
+func (XMap_XByte_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XByte_XByte"`
 }) {
 }
 
 type XMap_XEnumAbc_XEnumAbc map[XEnumAbc]XEnumAbc
 
-func (XMap_XEnumAbc_XEnumAbc) __VDLReflect(struct {
+func (XMap_XEnumAbc_XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XEnumAbc_XEnumAbc"`
 }) {
 }
 
 type XMap_XEnumBcd_XEnumBcd map[XEnumBcd]XEnumBcd
 
-func (XMap_XEnumBcd_XEnumBcd) __VDLReflect(struct {
+func (XMap_XEnumBcd_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XEnumBcd_XEnumBcd"`
 }) {
 }
 
 type XMap_XStructEmpty_XStructEmpty map[XStructEmpty]XStructEmpty
 
-func (XMap_XStructEmpty_XStructEmpty) __VDLReflect(struct {
+func (XMap_XStructEmpty_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XStructEmpty_XStructEmpty"`
 }) {
 }
 
 type XMap_XNamedError_XNamedError map[XNamedError]XNamedError
 
-func (XMap_XNamedError_XNamedError) __VDLReflect(struct {
+func (XMap_XNamedError_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XNamedError_XNamedError"`
 }) {
 }
 
 type XMap_XUint32_XUint32 map[XUint32]XUint32
 
-func (XMap_XUint32_XUint32) __VDLReflect(struct {
+func (XMap_XUint32_XUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XUint32_XUint32"`
 }) {
 }
 
 type XMap_XInt32_XInt32 map[XInt32]XInt32
 
-func (XMap_XInt32_XInt32) __VDLReflect(struct {
+func (XMap_XInt32_XInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XInt32_XInt32"`
 }) {
 }
 
 type XMap_Int64_Int64 map[int64]int64
 
-func (XMap_Int64_Int64) __VDLReflect(struct {
+func (XMap_Int64_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_Int64_Int64"`
 }) {
 }
@@ -21862,7 +21862,7 @@ type XStructDepth1_All struct {
 	F32 *XNamedError
 }
 
-func (XStructDepth1_All) __VDLReflect(struct {
+func (XStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_All"`
 }) {
 }
@@ -21871,7 +21871,7 @@ type XStructDepth1_Any struct {
 	F0 interface{}
 }
 
-func (XStructDepth1_Any) __VDLReflect(struct {
+func (XStructDepth1_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Any"`
 }) {
 }
@@ -21880,7 +21880,7 @@ type XStructDepth1_Bool struct {
 	F1 bool
 }
 
-func (XStructDepth1_Bool) __VDLReflect(struct {
+func (XStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Bool"`
 }) {
 }
@@ -21889,7 +21889,7 @@ type XStructDepth1_XBool struct {
 	F2 XBool
 }
 
-func (XStructDepth1_XBool) __VDLReflect(struct {
+func (XStructDepth1_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XBool"`
 }) {
 }
@@ -21898,7 +21898,7 @@ type XStructDepth1_String struct {
 	F3 string
 }
 
-func (XStructDepth1_String) __VDLReflect(struct {
+func (XStructDepth1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_String"`
 }) {
 }
@@ -21907,7 +21907,7 @@ type XStructDepth1_XString struct {
 	F4 XString
 }
 
-func (XStructDepth1_XString) __VDLReflect(struct {
+func (XStructDepth1_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XString"`
 }) {
 }
@@ -21916,7 +21916,7 @@ type XStructDepth1_TypeObject struct {
 	F5 *vdl.Type
 }
 
-func (XStructDepth1_TypeObject) __VDLReflect(struct {
+func (XStructDepth1_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_TypeObject"`
 }) {
 }
@@ -21925,7 +21925,7 @@ type XStructDepth1_Byte struct {
 	F6 byte
 }
 
-func (XStructDepth1_Byte) __VDLReflect(struct {
+func (XStructDepth1_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Byte"`
 }) {
 }
@@ -21934,7 +21934,7 @@ type XStructDepth1_XByte struct {
 	F7 XByte
 }
 
-func (XStructDepth1_XByte) __VDLReflect(struct {
+func (XStructDepth1_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XByte"`
 }) {
 }
@@ -21943,7 +21943,7 @@ type XStructDepth1_XEnumAbc struct {
 	F8 XEnumAbc
 }
 
-func (XStructDepth1_XEnumAbc) __VDLReflect(struct {
+func (XStructDepth1_XEnumAbc) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XEnumAbc"`
 }) {
 }
@@ -21952,7 +21952,7 @@ type XStructDepth1_XEnumBcd struct {
 	F9 XEnumBcd
 }
 
-func (XStructDepth1_XEnumBcd) __VDLReflect(struct {
+func (XStructDepth1_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XEnumBcd"`
 }) {
 }
@@ -21961,7 +21961,7 @@ type XStructDepth1_XStructEmpty struct {
 	F10 XStructEmpty
 }
 
-func (XStructDepth1_XStructEmpty) __VDLReflect(struct {
+func (XStructDepth1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XStructEmpty"`
 }) {
 }
@@ -21970,7 +21970,7 @@ type XStructDepth1_XNamedError struct {
 	F11 XNamedError
 }
 
-func (XStructDepth1_XNamedError) __VDLReflect(struct {
+func (XStructDepth1_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XNamedError"`
 }) {
 }
@@ -21979,7 +21979,7 @@ type XStructDepth1_Error struct {
 	F12 error
 }
 
-func (XStructDepth1_Error) __VDLReflect(struct {
+func (XStructDepth1_Error) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Error"`
 }) {
 }
@@ -21988,7 +21988,7 @@ type XStructDepth1_Uint16 struct {
 	F13 uint16
 }
 
-func (XStructDepth1_Uint16) __VDLReflect(struct {
+func (XStructDepth1_Uint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Uint16"`
 }) {
 }
@@ -21997,7 +21997,7 @@ type XStructDepth1_XUint16 struct {
 	F14 XUint16
 }
 
-func (XStructDepth1_XUint16) __VDLReflect(struct {
+func (XStructDepth1_XUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XUint16"`
 }) {
 }
@@ -22006,7 +22006,7 @@ type XStructDepth1_Uint32 struct {
 	F15 uint32
 }
 
-func (XStructDepth1_Uint32) __VDLReflect(struct {
+func (XStructDepth1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Uint32"`
 }) {
 }
@@ -22015,7 +22015,7 @@ type XStructDepth1_XUint32 struct {
 	F16 XUint32
 }
 
-func (XStructDepth1_XUint32) __VDLReflect(struct {
+func (XStructDepth1_XUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XUint32"`
 }) {
 }
@@ -22024,7 +22024,7 @@ type XStructDepth1_Uint64 struct {
 	F17 uint64
 }
 
-func (XStructDepth1_Uint64) __VDLReflect(struct {
+func (XStructDepth1_Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Uint64"`
 }) {
 }
@@ -22033,7 +22033,7 @@ type XStructDepth1_XUint64 struct {
 	F18 XUint64
 }
 
-func (XStructDepth1_XUint64) __VDLReflect(struct {
+func (XStructDepth1_XUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XUint64"`
 }) {
 }
@@ -22042,7 +22042,7 @@ type XStructDepth1_Int8 struct {
 	F19 int8
 }
 
-func (XStructDepth1_Int8) __VDLReflect(struct {
+func (XStructDepth1_Int8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Int8"`
 }) {
 }
@@ -22051,7 +22051,7 @@ type XStructDepth1_XInt8 struct {
 	F20 XInt8
 }
 
-func (XStructDepth1_XInt8) __VDLReflect(struct {
+func (XStructDepth1_XInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XInt8"`
 }) {
 }
@@ -22060,7 +22060,7 @@ type XStructDepth1_Int16 struct {
 	F21 int16
 }
 
-func (XStructDepth1_Int16) __VDLReflect(struct {
+func (XStructDepth1_Int16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Int16"`
 }) {
 }
@@ -22069,7 +22069,7 @@ type XStructDepth1_XInt16 struct {
 	F22 XInt16
 }
 
-func (XStructDepth1_XInt16) __VDLReflect(struct {
+func (XStructDepth1_XInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XInt16"`
 }) {
 }
@@ -22078,7 +22078,7 @@ type XStructDepth1_Int32 struct {
 	F23 int32
 }
 
-func (XStructDepth1_Int32) __VDLReflect(struct {
+func (XStructDepth1_Int32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Int32"`
 }) {
 }
@@ -22087,7 +22087,7 @@ type XStructDepth1_XInt32 struct {
 	F24 XInt32
 }
 
-func (XStructDepth1_XInt32) __VDLReflect(struct {
+func (XStructDepth1_XInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XInt32"`
 }) {
 }
@@ -22096,7 +22096,7 @@ type XStructDepth1_Int64 struct {
 	F25 int64
 }
 
-func (XStructDepth1_Int64) __VDLReflect(struct {
+func (XStructDepth1_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Int64"`
 }) {
 }
@@ -22105,7 +22105,7 @@ type XStructDepth1_XInt64 struct {
 	F26 XInt64
 }
 
-func (XStructDepth1_XInt64) __VDLReflect(struct {
+func (XStructDepth1_XInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XInt64"`
 }) {
 }
@@ -22114,7 +22114,7 @@ type XStructDepth1_Float32 struct {
 	F27 float32
 }
 
-func (XStructDepth1_Float32) __VDLReflect(struct {
+func (XStructDepth1_Float32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Float32"`
 }) {
 }
@@ -22123,7 +22123,7 @@ type XStructDepth1_XFloat32 struct {
 	F28 XFloat32
 }
 
-func (XStructDepth1_XFloat32) __VDLReflect(struct {
+func (XStructDepth1_XFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XFloat32"`
 }) {
 }
@@ -22132,7 +22132,7 @@ type XStructDepth1_Float64 struct {
 	F29 float64
 }
 
-func (XStructDepth1_Float64) __VDLReflect(struct {
+func (XStructDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_Float64"`
 }) {
 }
@@ -22141,7 +22141,7 @@ type XStructDepth1_XFloat64 struct {
 	F30 XFloat64
 }
 
-func (XStructDepth1_XFloat64) __VDLReflect(struct {
+func (XStructDepth1_XFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_XFloat64"`
 }) {
 }
@@ -22150,7 +22150,7 @@ type XStructDepth1_OptXStructEmpty struct {
 	F31 *XStructEmpty
 }
 
-func (XStructDepth1_OptXStructEmpty) __VDLReflect(struct {
+func (XStructDepth1_OptXStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_OptXStructEmpty"`
 }) {
 }
@@ -22159,7 +22159,7 @@ type XStructDepth1_OptXNamedError struct {
 	F32 *XNamedError
 }
 
-func (XStructDepth1_OptXNamedError) __VDLReflect(struct {
+func (XStructDepth1_OptXNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth1_OptXNamedError"`
 }) {
 }
@@ -22173,8 +22173,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_All union type.
-		__VDLReflect(__XUnionDepth1_AllReflect)
+		// VDLReflect describes the XUnionDepth1_All union type.
+		VDLReflect(__XUnionDepth1_AllReflect)
 	}
 	// XUnionDepth1_AllF0 represents field F0 of the XUnionDepth1_All union type.
 	XUnionDepth1_AllF0 struct{ Value interface{} }
@@ -22287,167 +22287,167 @@ type (
 func (x XUnionDepth1_AllF0) Index() int                             { return 0 }
 func (x XUnionDepth1_AllF0) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF0) Name() string                           { return "F0" }
-func (x XUnionDepth1_AllF0) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF0) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF1) Index() int                             { return 1 }
 func (x XUnionDepth1_AllF1) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF1) Name() string                           { return "F1" }
-func (x XUnionDepth1_AllF1) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF1) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF2) Index() int                             { return 2 }
 func (x XUnionDepth1_AllF2) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF2) Name() string                           { return "F2" }
-func (x XUnionDepth1_AllF2) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF2) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF3) Index() int                             { return 3 }
 func (x XUnionDepth1_AllF3) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF3) Name() string                           { return "F3" }
-func (x XUnionDepth1_AllF3) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF3) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF4) Index() int                             { return 4 }
 func (x XUnionDepth1_AllF4) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF4) Name() string                           { return "F4" }
-func (x XUnionDepth1_AllF4) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF4) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF5) Index() int                             { return 5 }
 func (x XUnionDepth1_AllF5) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF5) Name() string                           { return "F5" }
-func (x XUnionDepth1_AllF5) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF5) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF6) Index() int                             { return 6 }
 func (x XUnionDepth1_AllF6) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF6) Name() string                           { return "F6" }
-func (x XUnionDepth1_AllF6) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF6) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF7) Index() int                             { return 7 }
 func (x XUnionDepth1_AllF7) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF7) Name() string                           { return "F7" }
-func (x XUnionDepth1_AllF7) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF7) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF8) Index() int                             { return 8 }
 func (x XUnionDepth1_AllF8) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF8) Name() string                           { return "F8" }
-func (x XUnionDepth1_AllF8) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF8) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF9) Index() int                             { return 9 }
 func (x XUnionDepth1_AllF9) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF9) Name() string                           { return "F9" }
-func (x XUnionDepth1_AllF9) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF9) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF10) Index() int                             { return 10 }
 func (x XUnionDepth1_AllF10) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF10) Name() string                           { return "F10" }
-func (x XUnionDepth1_AllF10) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF10) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF11) Index() int                             { return 11 }
 func (x XUnionDepth1_AllF11) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF11) Name() string                           { return "F11" }
-func (x XUnionDepth1_AllF11) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF11) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF12) Index() int                             { return 12 }
 func (x XUnionDepth1_AllF12) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF12) Name() string                           { return "F12" }
-func (x XUnionDepth1_AllF12) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF12) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF13) Index() int                             { return 13 }
 func (x XUnionDepth1_AllF13) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF13) Name() string                           { return "F13" }
-func (x XUnionDepth1_AllF13) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF13) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF14) Index() int                             { return 14 }
 func (x XUnionDepth1_AllF14) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF14) Name() string                           { return "F14" }
-func (x XUnionDepth1_AllF14) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF14) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF15) Index() int                             { return 15 }
 func (x XUnionDepth1_AllF15) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF15) Name() string                           { return "F15" }
-func (x XUnionDepth1_AllF15) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF15) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF16) Index() int                             { return 16 }
 func (x XUnionDepth1_AllF16) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF16) Name() string                           { return "F16" }
-func (x XUnionDepth1_AllF16) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF16) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF17) Index() int                             { return 17 }
 func (x XUnionDepth1_AllF17) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF17) Name() string                           { return "F17" }
-func (x XUnionDepth1_AllF17) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF17) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF18) Index() int                             { return 18 }
 func (x XUnionDepth1_AllF18) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF18) Name() string                           { return "F18" }
-func (x XUnionDepth1_AllF18) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF18) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF19) Index() int                             { return 19 }
 func (x XUnionDepth1_AllF19) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF19) Name() string                           { return "F19" }
-func (x XUnionDepth1_AllF19) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF19) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF20) Index() int                             { return 20 }
 func (x XUnionDepth1_AllF20) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF20) Name() string                           { return "F20" }
-func (x XUnionDepth1_AllF20) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF20) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF21) Index() int                             { return 21 }
 func (x XUnionDepth1_AllF21) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF21) Name() string                           { return "F21" }
-func (x XUnionDepth1_AllF21) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF21) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF22) Index() int                             { return 22 }
 func (x XUnionDepth1_AllF22) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF22) Name() string                           { return "F22" }
-func (x XUnionDepth1_AllF22) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF22) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF23) Index() int                             { return 23 }
 func (x XUnionDepth1_AllF23) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF23) Name() string                           { return "F23" }
-func (x XUnionDepth1_AllF23) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF23) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF24) Index() int                             { return 24 }
 func (x XUnionDepth1_AllF24) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF24) Name() string                           { return "F24" }
-func (x XUnionDepth1_AllF24) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF24) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF25) Index() int                             { return 25 }
 func (x XUnionDepth1_AllF25) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF25) Name() string                           { return "F25" }
-func (x XUnionDepth1_AllF25) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF25) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF26) Index() int                             { return 26 }
 func (x XUnionDepth1_AllF26) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF26) Name() string                           { return "F26" }
-func (x XUnionDepth1_AllF26) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF26) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF27) Index() int                             { return 27 }
 func (x XUnionDepth1_AllF27) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF27) Name() string                           { return "F27" }
-func (x XUnionDepth1_AllF27) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF27) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF28) Index() int                             { return 28 }
 func (x XUnionDepth1_AllF28) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF28) Name() string                           { return "F28" }
-func (x XUnionDepth1_AllF28) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF28) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF29) Index() int                             { return 29 }
 func (x XUnionDepth1_AllF29) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF29) Name() string                           { return "F29" }
-func (x XUnionDepth1_AllF29) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF29) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF30) Index() int                             { return 30 }
 func (x XUnionDepth1_AllF30) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF30) Name() string                           { return "F30" }
-func (x XUnionDepth1_AllF30) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF30) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF31) Index() int                             { return 31 }
 func (x XUnionDepth1_AllF31) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF31) Name() string                           { return "F31" }
-func (x XUnionDepth1_AllF31) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF31) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 func (x XUnionDepth1_AllF32) Index() int                             { return 32 }
 func (x XUnionDepth1_AllF32) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AllF32) Name() string                           { return "F32" }
-func (x XUnionDepth1_AllF32) __VDLReflect(__XUnionDepth1_AllReflect) {}
+func (x XUnionDepth1_AllF32) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 type (
 	// XUnionDepth1_Any represents any single field of the XUnionDepth1_Any union type.
@@ -22458,8 +22458,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Any union type.
-		__VDLReflect(__XUnionDepth1_AnyReflect)
+		// VDLReflect describes the XUnionDepth1_Any union type.
+		VDLReflect(__XUnionDepth1_AnyReflect)
 	}
 	// XUnionDepth1_AnyF0 represents field F0 of the XUnionDepth1_Any union type.
 	XUnionDepth1_AnyF0 struct{ Value interface{} }
@@ -22476,7 +22476,7 @@ type (
 func (x XUnionDepth1_AnyF0) Index() int                             { return 0 }
 func (x XUnionDepth1_AnyF0) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth1_AnyF0) Name() string                           { return "F0" }
-func (x XUnionDepth1_AnyF0) __VDLReflect(__XUnionDepth1_AnyReflect) {}
+func (x XUnionDepth1_AnyF0) VDLReflect(__XUnionDepth1_AnyReflect) {}
 
 type (
 	// XUnionDepth1_Bool represents any single field of the XUnionDepth1_Bool union type.
@@ -22487,8 +22487,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Bool union type.
-		__VDLReflect(__XUnionDepth1_BoolReflect)
+		// VDLReflect describes the XUnionDepth1_Bool union type.
+		VDLReflect(__XUnionDepth1_BoolReflect)
 	}
 	// XUnionDepth1_BoolF1 represents field F1 of the XUnionDepth1_Bool union type.
 	XUnionDepth1_BoolF1 struct{ Value bool }
@@ -22505,7 +22505,7 @@ type (
 func (x XUnionDepth1_BoolF1) Index() int                              { return 0 }
 func (x XUnionDepth1_BoolF1) Interface() interface{}                  { return x.Value }
 func (x XUnionDepth1_BoolF1) Name() string                            { return "F1" }
-func (x XUnionDepth1_BoolF1) __VDLReflect(__XUnionDepth1_BoolReflect) {}
+func (x XUnionDepth1_BoolF1) VDLReflect(__XUnionDepth1_BoolReflect) {}
 
 type (
 	// XUnionDepth1_XBool represents any single field of the XUnionDepth1_XBool union type.
@@ -22516,8 +22516,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XBool union type.
-		__VDLReflect(__XUnionDepth1_XBoolReflect)
+		// VDLReflect describes the XUnionDepth1_XBool union type.
+		VDLReflect(__XUnionDepth1_XBoolReflect)
 	}
 	// XUnionDepth1_XBoolF2 represents field F2 of the XUnionDepth1_XBool union type.
 	XUnionDepth1_XBoolF2 struct{ Value XBool }
@@ -22534,7 +22534,7 @@ type (
 func (x XUnionDepth1_XBoolF2) Index() int                               { return 0 }
 func (x XUnionDepth1_XBoolF2) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_XBoolF2) Name() string                             { return "F2" }
-func (x XUnionDepth1_XBoolF2) __VDLReflect(__XUnionDepth1_XBoolReflect) {}
+func (x XUnionDepth1_XBoolF2) VDLReflect(__XUnionDepth1_XBoolReflect) {}
 
 type (
 	// XUnionDepth1_String represents any single field of the XUnionDepth1_String union type.
@@ -22545,8 +22545,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_String union type.
-		__VDLReflect(__XUnionDepth1_StringReflect)
+		// VDLReflect describes the XUnionDepth1_String union type.
+		VDLReflect(__XUnionDepth1_StringReflect)
 	}
 	// XUnionDepth1_StringF3 represents field F3 of the XUnionDepth1_String union type.
 	XUnionDepth1_StringF3 struct{ Value string }
@@ -22563,7 +22563,7 @@ type (
 func (x XUnionDepth1_StringF3) Index() int                                { return 0 }
 func (x XUnionDepth1_StringF3) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_StringF3) Name() string                              { return "F3" }
-func (x XUnionDepth1_StringF3) __VDLReflect(__XUnionDepth1_StringReflect) {}
+func (x XUnionDepth1_StringF3) VDLReflect(__XUnionDepth1_StringReflect) {}
 
 type (
 	// XUnionDepth1_XString represents any single field of the XUnionDepth1_XString union type.
@@ -22574,8 +22574,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XString union type.
-		__VDLReflect(__XUnionDepth1_XStringReflect)
+		// VDLReflect describes the XUnionDepth1_XString union type.
+		VDLReflect(__XUnionDepth1_XStringReflect)
 	}
 	// XUnionDepth1_XStringF4 represents field F4 of the XUnionDepth1_XString union type.
 	XUnionDepth1_XStringF4 struct{ Value XString }
@@ -22592,7 +22592,7 @@ type (
 func (x XUnionDepth1_XStringF4) Index() int                                 { return 0 }
 func (x XUnionDepth1_XStringF4) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_XStringF4) Name() string                               { return "F4" }
-func (x XUnionDepth1_XStringF4) __VDLReflect(__XUnionDepth1_XStringReflect) {}
+func (x XUnionDepth1_XStringF4) VDLReflect(__XUnionDepth1_XStringReflect) {}
 
 type (
 	// XUnionDepth1_TypeObject represents any single field of the XUnionDepth1_TypeObject union type.
@@ -22603,8 +22603,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_TypeObject union type.
-		__VDLReflect(__XUnionDepth1_TypeObjectReflect)
+		// VDLReflect describes the XUnionDepth1_TypeObject union type.
+		VDLReflect(__XUnionDepth1_TypeObjectReflect)
 	}
 	// XUnionDepth1_TypeObjectF5 represents field F5 of the XUnionDepth1_TypeObject union type.
 	XUnionDepth1_TypeObjectF5 struct{ Value *vdl.Type }
@@ -22621,7 +22621,7 @@ type (
 func (x XUnionDepth1_TypeObjectF5) Index() int                                    { return 0 }
 func (x XUnionDepth1_TypeObjectF5) Interface() interface{}                        { return x.Value }
 func (x XUnionDepth1_TypeObjectF5) Name() string                                  { return "F5" }
-func (x XUnionDepth1_TypeObjectF5) __VDLReflect(__XUnionDepth1_TypeObjectReflect) {}
+func (x XUnionDepth1_TypeObjectF5) VDLReflect(__XUnionDepth1_TypeObjectReflect) {}
 
 type (
 	// XUnionDepth1_Byte represents any single field of the XUnionDepth1_Byte union type.
@@ -22632,8 +22632,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Byte union type.
-		__VDLReflect(__XUnionDepth1_ByteReflect)
+		// VDLReflect describes the XUnionDepth1_Byte union type.
+		VDLReflect(__XUnionDepth1_ByteReflect)
 	}
 	// XUnionDepth1_ByteF6 represents field F6 of the XUnionDepth1_Byte union type.
 	XUnionDepth1_ByteF6 struct{ Value byte }
@@ -22650,7 +22650,7 @@ type (
 func (x XUnionDepth1_ByteF6) Index() int                              { return 0 }
 func (x XUnionDepth1_ByteF6) Interface() interface{}                  { return x.Value }
 func (x XUnionDepth1_ByteF6) Name() string                            { return "F6" }
-func (x XUnionDepth1_ByteF6) __VDLReflect(__XUnionDepth1_ByteReflect) {}
+func (x XUnionDepth1_ByteF6) VDLReflect(__XUnionDepth1_ByteReflect) {}
 
 type (
 	// XUnionDepth1_XByte represents any single field of the XUnionDepth1_XByte union type.
@@ -22661,8 +22661,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XByte union type.
-		__VDLReflect(__XUnionDepth1_XByteReflect)
+		// VDLReflect describes the XUnionDepth1_XByte union type.
+		VDLReflect(__XUnionDepth1_XByteReflect)
 	}
 	// XUnionDepth1_XByteF7 represents field F7 of the XUnionDepth1_XByte union type.
 	XUnionDepth1_XByteF7 struct{ Value XByte }
@@ -22679,7 +22679,7 @@ type (
 func (x XUnionDepth1_XByteF7) Index() int                               { return 0 }
 func (x XUnionDepth1_XByteF7) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_XByteF7) Name() string                             { return "F7" }
-func (x XUnionDepth1_XByteF7) __VDLReflect(__XUnionDepth1_XByteReflect) {}
+func (x XUnionDepth1_XByteF7) VDLReflect(__XUnionDepth1_XByteReflect) {}
 
 type (
 	// XUnionDepth1_XEnumAbc represents any single field of the XUnionDepth1_XEnumAbc union type.
@@ -22690,8 +22690,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XEnumAbc union type.
-		__VDLReflect(__XUnionDepth1_XEnumAbcReflect)
+		// VDLReflect describes the XUnionDepth1_XEnumAbc union type.
+		VDLReflect(__XUnionDepth1_XEnumAbcReflect)
 	}
 	// XUnionDepth1_XEnumAbcF8 represents field F8 of the XUnionDepth1_XEnumAbc union type.
 	XUnionDepth1_XEnumAbcF8 struct{ Value XEnumAbc }
@@ -22708,7 +22708,7 @@ type (
 func (x XUnionDepth1_XEnumAbcF8) Index() int                                  { return 0 }
 func (x XUnionDepth1_XEnumAbcF8) Interface() interface{}                      { return x.Value }
 func (x XUnionDepth1_XEnumAbcF8) Name() string                                { return "F8" }
-func (x XUnionDepth1_XEnumAbcF8) __VDLReflect(__XUnionDepth1_XEnumAbcReflect) {}
+func (x XUnionDepth1_XEnumAbcF8) VDLReflect(__XUnionDepth1_XEnumAbcReflect) {}
 
 type (
 	// XUnionDepth1_XEnumBcd represents any single field of the XUnionDepth1_XEnumBcd union type.
@@ -22719,8 +22719,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XEnumBcd union type.
-		__VDLReflect(__XUnionDepth1_XEnumBcdReflect)
+		// VDLReflect describes the XUnionDepth1_XEnumBcd union type.
+		VDLReflect(__XUnionDepth1_XEnumBcdReflect)
 	}
 	// XUnionDepth1_XEnumBcdF9 represents field F9 of the XUnionDepth1_XEnumBcd union type.
 	XUnionDepth1_XEnumBcdF9 struct{ Value XEnumBcd }
@@ -22737,7 +22737,7 @@ type (
 func (x XUnionDepth1_XEnumBcdF9) Index() int                                  { return 0 }
 func (x XUnionDepth1_XEnumBcdF9) Interface() interface{}                      { return x.Value }
 func (x XUnionDepth1_XEnumBcdF9) Name() string                                { return "F9" }
-func (x XUnionDepth1_XEnumBcdF9) __VDLReflect(__XUnionDepth1_XEnumBcdReflect) {}
+func (x XUnionDepth1_XEnumBcdF9) VDLReflect(__XUnionDepth1_XEnumBcdReflect) {}
 
 type (
 	// XUnionDepth1_XStructEmpty represents any single field of the XUnionDepth1_XStructEmpty union type.
@@ -22748,8 +22748,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XStructEmpty union type.
-		__VDLReflect(__XUnionDepth1_XStructEmptyReflect)
+		// VDLReflect describes the XUnionDepth1_XStructEmpty union type.
+		VDLReflect(__XUnionDepth1_XStructEmptyReflect)
 	}
 	// XUnionDepth1_XStructEmptyF10 represents field F10 of the XUnionDepth1_XStructEmpty union type.
 	XUnionDepth1_XStructEmptyF10 struct{ Value XStructEmpty }
@@ -22766,7 +22766,7 @@ type (
 func (x XUnionDepth1_XStructEmptyF10) Index() int                                      { return 0 }
 func (x XUnionDepth1_XStructEmptyF10) Interface() interface{}                          { return x.Value }
 func (x XUnionDepth1_XStructEmptyF10) Name() string                                    { return "F10" }
-func (x XUnionDepth1_XStructEmptyF10) __VDLReflect(__XUnionDepth1_XStructEmptyReflect) {}
+func (x XUnionDepth1_XStructEmptyF10) VDLReflect(__XUnionDepth1_XStructEmptyReflect) {}
 
 type (
 	// XUnionDepth1_XNamedError represents any single field of the XUnionDepth1_XNamedError union type.
@@ -22777,8 +22777,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XNamedError union type.
-		__VDLReflect(__XUnionDepth1_XNamedErrorReflect)
+		// VDLReflect describes the XUnionDepth1_XNamedError union type.
+		VDLReflect(__XUnionDepth1_XNamedErrorReflect)
 	}
 	// XUnionDepth1_XNamedErrorF11 represents field F11 of the XUnionDepth1_XNamedError union type.
 	XUnionDepth1_XNamedErrorF11 struct{ Value XNamedError }
@@ -22795,7 +22795,7 @@ type (
 func (x XUnionDepth1_XNamedErrorF11) Index() int                                     { return 0 }
 func (x XUnionDepth1_XNamedErrorF11) Interface() interface{}                         { return x.Value }
 func (x XUnionDepth1_XNamedErrorF11) Name() string                                   { return "F11" }
-func (x XUnionDepth1_XNamedErrorF11) __VDLReflect(__XUnionDepth1_XNamedErrorReflect) {}
+func (x XUnionDepth1_XNamedErrorF11) VDLReflect(__XUnionDepth1_XNamedErrorReflect) {}
 
 type (
 	// XUnionDepth1_Error represents any single field of the XUnionDepth1_Error union type.
@@ -22806,8 +22806,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Error union type.
-		__VDLReflect(__XUnionDepth1_ErrorReflect)
+		// VDLReflect describes the XUnionDepth1_Error union type.
+		VDLReflect(__XUnionDepth1_ErrorReflect)
 	}
 	// XUnionDepth1_ErrorF12 represents field F12 of the XUnionDepth1_Error union type.
 	XUnionDepth1_ErrorF12 struct{ Value error }
@@ -22824,7 +22824,7 @@ type (
 func (x XUnionDepth1_ErrorF12) Index() int                               { return 0 }
 func (x XUnionDepth1_ErrorF12) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_ErrorF12) Name() string                             { return "F12" }
-func (x XUnionDepth1_ErrorF12) __VDLReflect(__XUnionDepth1_ErrorReflect) {}
+func (x XUnionDepth1_ErrorF12) VDLReflect(__XUnionDepth1_ErrorReflect) {}
 
 type (
 	// XUnionDepth1_Uint16 represents any single field of the XUnionDepth1_Uint16 union type.
@@ -22835,8 +22835,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Uint16 union type.
-		__VDLReflect(__XUnionDepth1_Uint16Reflect)
+		// VDLReflect describes the XUnionDepth1_Uint16 union type.
+		VDLReflect(__XUnionDepth1_Uint16Reflect)
 	}
 	// XUnionDepth1_Uint16F13 represents field F13 of the XUnionDepth1_Uint16 union type.
 	XUnionDepth1_Uint16F13 struct{ Value uint16 }
@@ -22853,7 +22853,7 @@ type (
 func (x XUnionDepth1_Uint16F13) Index() int                                { return 0 }
 func (x XUnionDepth1_Uint16F13) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_Uint16F13) Name() string                              { return "F13" }
-func (x XUnionDepth1_Uint16F13) __VDLReflect(__XUnionDepth1_Uint16Reflect) {}
+func (x XUnionDepth1_Uint16F13) VDLReflect(__XUnionDepth1_Uint16Reflect) {}
 
 type (
 	// XUnionDepth1_XUint16 represents any single field of the XUnionDepth1_XUint16 union type.
@@ -22864,8 +22864,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XUint16 union type.
-		__VDLReflect(__XUnionDepth1_XUint16Reflect)
+		// VDLReflect describes the XUnionDepth1_XUint16 union type.
+		VDLReflect(__XUnionDepth1_XUint16Reflect)
 	}
 	// XUnionDepth1_XUint16F14 represents field F14 of the XUnionDepth1_XUint16 union type.
 	XUnionDepth1_XUint16F14 struct{ Value XUint16 }
@@ -22882,7 +22882,7 @@ type (
 func (x XUnionDepth1_XUint16F14) Index() int                                 { return 0 }
 func (x XUnionDepth1_XUint16F14) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_XUint16F14) Name() string                               { return "F14" }
-func (x XUnionDepth1_XUint16F14) __VDLReflect(__XUnionDepth1_XUint16Reflect) {}
+func (x XUnionDepth1_XUint16F14) VDLReflect(__XUnionDepth1_XUint16Reflect) {}
 
 type (
 	// XUnionDepth1_Uint32 represents any single field of the XUnionDepth1_Uint32 union type.
@@ -22893,8 +22893,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Uint32 union type.
-		__VDLReflect(__XUnionDepth1_Uint32Reflect)
+		// VDLReflect describes the XUnionDepth1_Uint32 union type.
+		VDLReflect(__XUnionDepth1_Uint32Reflect)
 	}
 	// XUnionDepth1_Uint32F15 represents field F15 of the XUnionDepth1_Uint32 union type.
 	XUnionDepth1_Uint32F15 struct{ Value uint32 }
@@ -22911,7 +22911,7 @@ type (
 func (x XUnionDepth1_Uint32F15) Index() int                                { return 0 }
 func (x XUnionDepth1_Uint32F15) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_Uint32F15) Name() string                              { return "F15" }
-func (x XUnionDepth1_Uint32F15) __VDLReflect(__XUnionDepth1_Uint32Reflect) {}
+func (x XUnionDepth1_Uint32F15) VDLReflect(__XUnionDepth1_Uint32Reflect) {}
 
 type (
 	// XUnionDepth1_XUint32 represents any single field of the XUnionDepth1_XUint32 union type.
@@ -22922,8 +22922,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XUint32 union type.
-		__VDLReflect(__XUnionDepth1_XUint32Reflect)
+		// VDLReflect describes the XUnionDepth1_XUint32 union type.
+		VDLReflect(__XUnionDepth1_XUint32Reflect)
 	}
 	// XUnionDepth1_XUint32F16 represents field F16 of the XUnionDepth1_XUint32 union type.
 	XUnionDepth1_XUint32F16 struct{ Value XUint32 }
@@ -22940,7 +22940,7 @@ type (
 func (x XUnionDepth1_XUint32F16) Index() int                                 { return 0 }
 func (x XUnionDepth1_XUint32F16) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_XUint32F16) Name() string                               { return "F16" }
-func (x XUnionDepth1_XUint32F16) __VDLReflect(__XUnionDepth1_XUint32Reflect) {}
+func (x XUnionDepth1_XUint32F16) VDLReflect(__XUnionDepth1_XUint32Reflect) {}
 
 type (
 	// XUnionDepth1_Uint64 represents any single field of the XUnionDepth1_Uint64 union type.
@@ -22951,8 +22951,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Uint64 union type.
-		__VDLReflect(__XUnionDepth1_Uint64Reflect)
+		// VDLReflect describes the XUnionDepth1_Uint64 union type.
+		VDLReflect(__XUnionDepth1_Uint64Reflect)
 	}
 	// XUnionDepth1_Uint64F17 represents field F17 of the XUnionDepth1_Uint64 union type.
 	XUnionDepth1_Uint64F17 struct{ Value uint64 }
@@ -22969,7 +22969,7 @@ type (
 func (x XUnionDepth1_Uint64F17) Index() int                                { return 0 }
 func (x XUnionDepth1_Uint64F17) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_Uint64F17) Name() string                              { return "F17" }
-func (x XUnionDepth1_Uint64F17) __VDLReflect(__XUnionDepth1_Uint64Reflect) {}
+func (x XUnionDepth1_Uint64F17) VDLReflect(__XUnionDepth1_Uint64Reflect) {}
 
 type (
 	// XUnionDepth1_XUint64 represents any single field of the XUnionDepth1_XUint64 union type.
@@ -22980,8 +22980,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XUint64 union type.
-		__VDLReflect(__XUnionDepth1_XUint64Reflect)
+		// VDLReflect describes the XUnionDepth1_XUint64 union type.
+		VDLReflect(__XUnionDepth1_XUint64Reflect)
 	}
 	// XUnionDepth1_XUint64F18 represents field F18 of the XUnionDepth1_XUint64 union type.
 	XUnionDepth1_XUint64F18 struct{ Value XUint64 }
@@ -22998,7 +22998,7 @@ type (
 func (x XUnionDepth1_XUint64F18) Index() int                                 { return 0 }
 func (x XUnionDepth1_XUint64F18) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_XUint64F18) Name() string                               { return "F18" }
-func (x XUnionDepth1_XUint64F18) __VDLReflect(__XUnionDepth1_XUint64Reflect) {}
+func (x XUnionDepth1_XUint64F18) VDLReflect(__XUnionDepth1_XUint64Reflect) {}
 
 type (
 	// XUnionDepth1_Int8 represents any single field of the XUnionDepth1_Int8 union type.
@@ -23009,8 +23009,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Int8 union type.
-		__VDLReflect(__XUnionDepth1_Int8Reflect)
+		// VDLReflect describes the XUnionDepth1_Int8 union type.
+		VDLReflect(__XUnionDepth1_Int8Reflect)
 	}
 	// XUnionDepth1_Int8F19 represents field F19 of the XUnionDepth1_Int8 union type.
 	XUnionDepth1_Int8F19 struct{ Value int8 }
@@ -23027,7 +23027,7 @@ type (
 func (x XUnionDepth1_Int8F19) Index() int                              { return 0 }
 func (x XUnionDepth1_Int8F19) Interface() interface{}                  { return x.Value }
 func (x XUnionDepth1_Int8F19) Name() string                            { return "F19" }
-func (x XUnionDepth1_Int8F19) __VDLReflect(__XUnionDepth1_Int8Reflect) {}
+func (x XUnionDepth1_Int8F19) VDLReflect(__XUnionDepth1_Int8Reflect) {}
 
 type (
 	// XUnionDepth1_XInt8 represents any single field of the XUnionDepth1_XInt8 union type.
@@ -23038,8 +23038,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XInt8 union type.
-		__VDLReflect(__XUnionDepth1_XInt8Reflect)
+		// VDLReflect describes the XUnionDepth1_XInt8 union type.
+		VDLReflect(__XUnionDepth1_XInt8Reflect)
 	}
 	// XUnionDepth1_XInt8F20 represents field F20 of the XUnionDepth1_XInt8 union type.
 	XUnionDepth1_XInt8F20 struct{ Value XInt8 }
@@ -23056,7 +23056,7 @@ type (
 func (x XUnionDepth1_XInt8F20) Index() int                               { return 0 }
 func (x XUnionDepth1_XInt8F20) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_XInt8F20) Name() string                             { return "F20" }
-func (x XUnionDepth1_XInt8F20) __VDLReflect(__XUnionDepth1_XInt8Reflect) {}
+func (x XUnionDepth1_XInt8F20) VDLReflect(__XUnionDepth1_XInt8Reflect) {}
 
 type (
 	// XUnionDepth1_Int16 represents any single field of the XUnionDepth1_Int16 union type.
@@ -23067,8 +23067,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Int16 union type.
-		__VDLReflect(__XUnionDepth1_Int16Reflect)
+		// VDLReflect describes the XUnionDepth1_Int16 union type.
+		VDLReflect(__XUnionDepth1_Int16Reflect)
 	}
 	// XUnionDepth1_Int16F21 represents field F21 of the XUnionDepth1_Int16 union type.
 	XUnionDepth1_Int16F21 struct{ Value int16 }
@@ -23085,7 +23085,7 @@ type (
 func (x XUnionDepth1_Int16F21) Index() int                               { return 0 }
 func (x XUnionDepth1_Int16F21) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_Int16F21) Name() string                             { return "F21" }
-func (x XUnionDepth1_Int16F21) __VDLReflect(__XUnionDepth1_Int16Reflect) {}
+func (x XUnionDepth1_Int16F21) VDLReflect(__XUnionDepth1_Int16Reflect) {}
 
 type (
 	// XUnionDepth1_XInt16 represents any single field of the XUnionDepth1_XInt16 union type.
@@ -23096,8 +23096,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XInt16 union type.
-		__VDLReflect(__XUnionDepth1_XInt16Reflect)
+		// VDLReflect describes the XUnionDepth1_XInt16 union type.
+		VDLReflect(__XUnionDepth1_XInt16Reflect)
 	}
 	// XUnionDepth1_XInt16F22 represents field F22 of the XUnionDepth1_XInt16 union type.
 	XUnionDepth1_XInt16F22 struct{ Value XInt16 }
@@ -23114,7 +23114,7 @@ type (
 func (x XUnionDepth1_XInt16F22) Index() int                                { return 0 }
 func (x XUnionDepth1_XInt16F22) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_XInt16F22) Name() string                              { return "F22" }
-func (x XUnionDepth1_XInt16F22) __VDLReflect(__XUnionDepth1_XInt16Reflect) {}
+func (x XUnionDepth1_XInt16F22) VDLReflect(__XUnionDepth1_XInt16Reflect) {}
 
 type (
 	// XUnionDepth1_Int32 represents any single field of the XUnionDepth1_Int32 union type.
@@ -23125,8 +23125,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Int32 union type.
-		__VDLReflect(__XUnionDepth1_Int32Reflect)
+		// VDLReflect describes the XUnionDepth1_Int32 union type.
+		VDLReflect(__XUnionDepth1_Int32Reflect)
 	}
 	// XUnionDepth1_Int32F23 represents field F23 of the XUnionDepth1_Int32 union type.
 	XUnionDepth1_Int32F23 struct{ Value int32 }
@@ -23143,7 +23143,7 @@ type (
 func (x XUnionDepth1_Int32F23) Index() int                               { return 0 }
 func (x XUnionDepth1_Int32F23) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_Int32F23) Name() string                             { return "F23" }
-func (x XUnionDepth1_Int32F23) __VDLReflect(__XUnionDepth1_Int32Reflect) {}
+func (x XUnionDepth1_Int32F23) VDLReflect(__XUnionDepth1_Int32Reflect) {}
 
 type (
 	// XUnionDepth1_XInt32 represents any single field of the XUnionDepth1_XInt32 union type.
@@ -23154,8 +23154,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XInt32 union type.
-		__VDLReflect(__XUnionDepth1_XInt32Reflect)
+		// VDLReflect describes the XUnionDepth1_XInt32 union type.
+		VDLReflect(__XUnionDepth1_XInt32Reflect)
 	}
 	// XUnionDepth1_XInt32F24 represents field F24 of the XUnionDepth1_XInt32 union type.
 	XUnionDepth1_XInt32F24 struct{ Value XInt32 }
@@ -23172,7 +23172,7 @@ type (
 func (x XUnionDepth1_XInt32F24) Index() int                                { return 0 }
 func (x XUnionDepth1_XInt32F24) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_XInt32F24) Name() string                              { return "F24" }
-func (x XUnionDepth1_XInt32F24) __VDLReflect(__XUnionDepth1_XInt32Reflect) {}
+func (x XUnionDepth1_XInt32F24) VDLReflect(__XUnionDepth1_XInt32Reflect) {}
 
 type (
 	// XUnionDepth1_Int64 represents any single field of the XUnionDepth1_Int64 union type.
@@ -23183,8 +23183,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Int64 union type.
-		__VDLReflect(__XUnionDepth1_Int64Reflect)
+		// VDLReflect describes the XUnionDepth1_Int64 union type.
+		VDLReflect(__XUnionDepth1_Int64Reflect)
 	}
 	// XUnionDepth1_Int64F25 represents field F25 of the XUnionDepth1_Int64 union type.
 	XUnionDepth1_Int64F25 struct{ Value int64 }
@@ -23201,7 +23201,7 @@ type (
 func (x XUnionDepth1_Int64F25) Index() int                               { return 0 }
 func (x XUnionDepth1_Int64F25) Interface() interface{}                   { return x.Value }
 func (x XUnionDepth1_Int64F25) Name() string                             { return "F25" }
-func (x XUnionDepth1_Int64F25) __VDLReflect(__XUnionDepth1_Int64Reflect) {}
+func (x XUnionDepth1_Int64F25) VDLReflect(__XUnionDepth1_Int64Reflect) {}
 
 type (
 	// XUnionDepth1_XInt64 represents any single field of the XUnionDepth1_XInt64 union type.
@@ -23212,8 +23212,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XInt64 union type.
-		__VDLReflect(__XUnionDepth1_XInt64Reflect)
+		// VDLReflect describes the XUnionDepth1_XInt64 union type.
+		VDLReflect(__XUnionDepth1_XInt64Reflect)
 	}
 	// XUnionDepth1_XInt64F26 represents field F26 of the XUnionDepth1_XInt64 union type.
 	XUnionDepth1_XInt64F26 struct{ Value XInt64 }
@@ -23230,7 +23230,7 @@ type (
 func (x XUnionDepth1_XInt64F26) Index() int                                { return 0 }
 func (x XUnionDepth1_XInt64F26) Interface() interface{}                    { return x.Value }
 func (x XUnionDepth1_XInt64F26) Name() string                              { return "F26" }
-func (x XUnionDepth1_XInt64F26) __VDLReflect(__XUnionDepth1_XInt64Reflect) {}
+func (x XUnionDepth1_XInt64F26) VDLReflect(__XUnionDepth1_XInt64Reflect) {}
 
 type (
 	// XUnionDepth1_Float32 represents any single field of the XUnionDepth1_Float32 union type.
@@ -23241,8 +23241,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Float32 union type.
-		__VDLReflect(__XUnionDepth1_Float32Reflect)
+		// VDLReflect describes the XUnionDepth1_Float32 union type.
+		VDLReflect(__XUnionDepth1_Float32Reflect)
 	}
 	// XUnionDepth1_Float32F27 represents field F27 of the XUnionDepth1_Float32 union type.
 	XUnionDepth1_Float32F27 struct{ Value float32 }
@@ -23259,7 +23259,7 @@ type (
 func (x XUnionDepth1_Float32F27) Index() int                                 { return 0 }
 func (x XUnionDepth1_Float32F27) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_Float32F27) Name() string                               { return "F27" }
-func (x XUnionDepth1_Float32F27) __VDLReflect(__XUnionDepth1_Float32Reflect) {}
+func (x XUnionDepth1_Float32F27) VDLReflect(__XUnionDepth1_Float32Reflect) {}
 
 type (
 	// XUnionDepth1_XFloat32 represents any single field of the XUnionDepth1_XFloat32 union type.
@@ -23270,8 +23270,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XFloat32 union type.
-		__VDLReflect(__XUnionDepth1_XFloat32Reflect)
+		// VDLReflect describes the XUnionDepth1_XFloat32 union type.
+		VDLReflect(__XUnionDepth1_XFloat32Reflect)
 	}
 	// XUnionDepth1_XFloat32F28 represents field F28 of the XUnionDepth1_XFloat32 union type.
 	XUnionDepth1_XFloat32F28 struct{ Value XFloat32 }
@@ -23288,7 +23288,7 @@ type (
 func (x XUnionDepth1_XFloat32F28) Index() int                                  { return 0 }
 func (x XUnionDepth1_XFloat32F28) Interface() interface{}                      { return x.Value }
 func (x XUnionDepth1_XFloat32F28) Name() string                                { return "F28" }
-func (x XUnionDepth1_XFloat32F28) __VDLReflect(__XUnionDepth1_XFloat32Reflect) {}
+func (x XUnionDepth1_XFloat32F28) VDLReflect(__XUnionDepth1_XFloat32Reflect) {}
 
 type (
 	// XUnionDepth1_Float64 represents any single field of the XUnionDepth1_Float64 union type.
@@ -23299,8 +23299,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_Float64 union type.
-		__VDLReflect(__XUnionDepth1_Float64Reflect)
+		// VDLReflect describes the XUnionDepth1_Float64 union type.
+		VDLReflect(__XUnionDepth1_Float64Reflect)
 	}
 	// XUnionDepth1_Float64F29 represents field F29 of the XUnionDepth1_Float64 union type.
 	XUnionDepth1_Float64F29 struct{ Value float64 }
@@ -23317,7 +23317,7 @@ type (
 func (x XUnionDepth1_Float64F29) Index() int                                 { return 0 }
 func (x XUnionDepth1_Float64F29) Interface() interface{}                     { return x.Value }
 func (x XUnionDepth1_Float64F29) Name() string                               { return "F29" }
-func (x XUnionDepth1_Float64F29) __VDLReflect(__XUnionDepth1_Float64Reflect) {}
+func (x XUnionDepth1_Float64F29) VDLReflect(__XUnionDepth1_Float64Reflect) {}
 
 type (
 	// XUnionDepth1_XFloat64 represents any single field of the XUnionDepth1_XFloat64 union type.
@@ -23328,8 +23328,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_XFloat64 union type.
-		__VDLReflect(__XUnionDepth1_XFloat64Reflect)
+		// VDLReflect describes the XUnionDepth1_XFloat64 union type.
+		VDLReflect(__XUnionDepth1_XFloat64Reflect)
 	}
 	// XUnionDepth1_XFloat64F30 represents field F30 of the XUnionDepth1_XFloat64 union type.
 	XUnionDepth1_XFloat64F30 struct{ Value XFloat64 }
@@ -23346,7 +23346,7 @@ type (
 func (x XUnionDepth1_XFloat64F30) Index() int                                  { return 0 }
 func (x XUnionDepth1_XFloat64F30) Interface() interface{}                      { return x.Value }
 func (x XUnionDepth1_XFloat64F30) Name() string                                { return "F30" }
-func (x XUnionDepth1_XFloat64F30) __VDLReflect(__XUnionDepth1_XFloat64Reflect) {}
+func (x XUnionDepth1_XFloat64F30) VDLReflect(__XUnionDepth1_XFloat64Reflect) {}
 
 type (
 	// XUnionDepth1_OptXStructEmpty represents any single field of the XUnionDepth1_OptXStructEmpty union type.
@@ -23357,8 +23357,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_OptXStructEmpty union type.
-		__VDLReflect(__XUnionDepth1_OptXStructEmptyReflect)
+		// VDLReflect describes the XUnionDepth1_OptXStructEmpty union type.
+		VDLReflect(__XUnionDepth1_OptXStructEmptyReflect)
 	}
 	// XUnionDepth1_OptXStructEmptyF31 represents field F31 of the XUnionDepth1_OptXStructEmpty union type.
 	XUnionDepth1_OptXStructEmptyF31 struct{ Value *XStructEmpty }
@@ -23375,7 +23375,7 @@ type (
 func (x XUnionDepth1_OptXStructEmptyF31) Index() int                                         { return 0 }
 func (x XUnionDepth1_OptXStructEmptyF31) Interface() interface{}                             { return x.Value }
 func (x XUnionDepth1_OptXStructEmptyF31) Name() string                                       { return "F31" }
-func (x XUnionDepth1_OptXStructEmptyF31) __VDLReflect(__XUnionDepth1_OptXStructEmptyReflect) {}
+func (x XUnionDepth1_OptXStructEmptyF31) VDLReflect(__XUnionDepth1_OptXStructEmptyReflect) {}
 
 type (
 	// XUnionDepth1_OptXNamedError represents any single field of the XUnionDepth1_OptXNamedError union type.
@@ -23386,8 +23386,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth1_OptXNamedError union type.
-		__VDLReflect(__XUnionDepth1_OptXNamedErrorReflect)
+		// VDLReflect describes the XUnionDepth1_OptXNamedError union type.
+		VDLReflect(__XUnionDepth1_OptXNamedErrorReflect)
 	}
 	// XUnionDepth1_OptXNamedErrorF32 represents field F32 of the XUnionDepth1_OptXNamedError union type.
 	XUnionDepth1_OptXNamedErrorF32 struct{ Value *XNamedError }
@@ -23404,144 +23404,144 @@ type (
 func (x XUnionDepth1_OptXNamedErrorF32) Index() int                                        { return 0 }
 func (x XUnionDepth1_OptXNamedErrorF32) Interface() interface{}                            { return x.Value }
 func (x XUnionDepth1_OptXNamedErrorF32) Name() string                                      { return "F32" }
-func (x XUnionDepth1_OptXNamedErrorF32) __VDLReflect(__XUnionDepth1_OptXNamedErrorReflect) {}
+func (x XUnionDepth1_OptXNamedErrorF32) VDLReflect(__XUnionDepth1_OptXNamedErrorReflect) {}
 
 type XArray1_XArray3_Int64 [1]XArray3_Int64
 
-func (XArray1_XArray3_Int64) __VDLReflect(struct {
+func (XArray1_XArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_XArray3_Int64"`
 }) {
 }
 
 type XArray1_XList_Byte [1]XList_Byte
 
-func (XArray1_XList_Byte) __VDLReflect(struct {
+func (XArray1_XList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_XList_Byte"`
 }) {
 }
 
 type XArray1_Set_XEnumBcd [1]map[XEnumBcd]struct{}
 
-func (XArray1_Set_XEnumBcd) __VDLReflect(struct {
+func (XArray1_Set_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_Set_XEnumBcd"`
 }) {
 }
 
 type XArray2_Map_Byte_Byte [2]map[byte]byte
 
-func (XArray2_Map_Byte_Byte) __VDLReflect(struct {
+func (XArray2_Map_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_Map_Byte_Byte"`
 }) {
 }
 
 type XArray2_XStructDepth1_All [2]XStructDepth1_All
 
-func (XArray2_XStructDepth1_All) __VDLReflect(struct {
+func (XArray2_XStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XStructDepth1_All"`
 }) {
 }
 
 type XArray3_XUnionDepth1_All [3]XUnionDepth1_All
 
-func (XArray3_XUnionDepth1_All) __VDLReflect(struct {
+func (XArray3_XUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_XUnionDepth1_All"`
 }) {
 }
 
 type XArray3_OptXStructDepth1_XFloat32 [3]*XStructDepth1_XFloat32
 
-func (XArray3_OptXStructDepth1_XFloat32) __VDLReflect(struct {
+func (XArray3_OptXStructDepth1_XFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_OptXStructDepth1_XFloat32"`
 }) {
 }
 
 type XList_XArray1_XStructEmpty []XArray1_XStructEmpty
 
-func (XList_XArray1_XStructEmpty) __VDLReflect(struct {
+func (XList_XArray1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XArray1_XStructEmpty"`
 }) {
 }
 
 type XList_List_XString [][]XString
 
-func (XList_List_XString) __VDLReflect(struct {
+func (XList_List_XString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_List_XString"`
 }) {
 }
 
 type XList_Set_XBool []map[XBool]struct{}
 
-func (XList_Set_XBool) __VDLReflect(struct {
+func (XList_Set_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_Set_XBool"`
 }) {
 }
 
 type XList_XMap_Byte_Byte []XMap_Byte_Byte
 
-func (XList_XMap_Byte_Byte) __VDLReflect(struct {
+func (XList_XMap_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XMap_Byte_Byte"`
 }) {
 }
 
 type XList_XStructDepth1_All []XStructDepth1_All
 
-func (XList_XStructDepth1_All) __VDLReflect(struct {
+func (XList_XStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XStructDepth1_All"`
 }) {
 }
 
 type XList_XUnionDepth1_All []XUnionDepth1_All
 
-func (XList_XUnionDepth1_All) __VDLReflect(struct {
+func (XList_XUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XUnionDepth1_All"`
 }) {
 }
 
 type XList_OptXStructDepth1_XEnumBcd []*XStructDepth1_XEnumBcd
 
-func (XList_OptXStructDepth1_XEnumBcd) __VDLReflect(struct {
+func (XList_OptXStructDepth1_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_OptXStructDepth1_XEnumBcd"`
 }) {
 }
 
 type XSet_XArray1_XStructEmpty map[XArray1_XStructEmpty]struct{}
 
-func (XSet_XArray1_XStructEmpty) __VDLReflect(struct {
+func (XSet_XArray1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XArray1_XStructEmpty"`
 }) {
 }
 
 type XSet_XStructDepth1_XFloat64 map[XStructDepth1_XFloat64]struct{}
 
-func (XSet_XStructDepth1_XFloat64) __VDLReflect(struct {
+func (XSet_XStructDepth1_XFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XStructDepth1_XFloat64"`
 }) {
 }
 
 type XSet_XUnionDepth1_XInt8 map[XUnionDepth1_XInt8]struct{}
 
-func (XSet_XUnionDepth1_XInt8) __VDLReflect(struct {
+func (XSet_XUnionDepth1_XInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XUnionDepth1_XInt8"`
 }) {
 }
 
 type XMap_XArray3_XBool_XArray3_XBool map[XArray3_XBool]XArray3_XBool
 
-func (XMap_XArray3_XBool_XArray3_XBool) __VDLReflect(struct {
+func (XMap_XArray3_XBool_XArray3_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XArray3_XBool_XArray3_XBool"`
 }) {
 }
 
 type XMap_XStructDepth1_XBool_XStructDepth1_XBool map[XStructDepth1_XBool]XStructDepth1_XBool
 
-func (XMap_XStructDepth1_XBool_XStructDepth1_XBool) __VDLReflect(struct {
+func (XMap_XStructDepth1_XBool_XStructDepth1_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XStructDepth1_XBool_XStructDepth1_XBool"`
 }) {
 }
 
 type XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64 map[XUnionDepth1_XUint64]XUnionDepth1_XUint64
 
-func (XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64) __VDLReflect(struct {
+func (XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64"`
 }) {
 }
@@ -23563,7 +23563,7 @@ type XStructDepth2_All struct {
 	F13 *XStructDepth1_XUint16
 }
 
-func (XStructDepth2_All) __VDLReflect(struct {
+func (XStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_All"`
 }) {
 }
@@ -23572,7 +23572,7 @@ type XStructDepth2_XArray2_TypeObject struct {
 	F0 XArray2_TypeObject
 }
 
-func (XStructDepth2_XArray2_TypeObject) __VDLReflect(struct {
+func (XStructDepth2_XArray2_TypeObject) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XArray2_TypeObject"`
 }) {
 }
@@ -23581,7 +23581,7 @@ type XStructDepth2_XArray1_Uint32 struct {
 	F1 XArray1_Uint32
 }
 
-func (XStructDepth2_XArray1_Uint32) __VDLReflect(struct {
+func (XStructDepth2_XArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XArray1_Uint32"`
 }) {
 }
@@ -23590,7 +23590,7 @@ type XStructDepth2_List_Int16 struct {
 	F2 []int16
 }
 
-func (XStructDepth2_List_Int16) __VDLReflect(struct {
+func (XStructDepth2_List_Int16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_List_Int16"`
 }) {
 }
@@ -23599,7 +23599,7 @@ type XStructDepth2_XList_Any struct {
 	F3 XList_Any
 }
 
-func (XStructDepth2_XList_Any) __VDLReflect(struct {
+func (XStructDepth2_XList_Any) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XList_Any"`
 }) {
 }
@@ -23608,7 +23608,7 @@ type XStructDepth2_Set_Float64 struct {
 	F4 map[float64]struct{}
 }
 
-func (XStructDepth2_Set_Float64) __VDLReflect(struct {
+func (XStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_Set_Float64"`
 }) {
 }
@@ -23617,7 +23617,7 @@ type XStructDepth2_XSet_XEnumBcd struct {
 	F5 XSet_XEnumBcd
 }
 
-func (XStructDepth2_XSet_XEnumBcd) __VDLReflect(struct {
+func (XStructDepth2_XSet_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XSet_XEnumBcd"`
 }) {
 }
@@ -23626,7 +23626,7 @@ type XStructDepth2_Map_Byte_Byte struct {
 	F6 map[byte]byte
 }
 
-func (XStructDepth2_Map_Byte_Byte) __VDLReflect(struct {
+func (XStructDepth2_Map_Byte_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_Map_Byte_Byte"`
 }) {
 }
@@ -23635,7 +23635,7 @@ type XStructDepth2_Map_Uint32_Uint32 struct {
 	F7 map[uint32]uint32
 }
 
-func (XStructDepth2_Map_Uint32_Uint32) __VDLReflect(struct {
+func (XStructDepth2_Map_Uint32_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_Map_Uint32_Uint32"`
 }) {
 }
@@ -23644,7 +23644,7 @@ type XStructDepth2_XStructDepth1_All struct {
 	F8 XStructDepth1_All
 }
 
-func (XStructDepth2_XStructDepth1_All) __VDLReflect(struct {
+func (XStructDepth2_XStructDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XStructDepth1_All"`
 }) {
 }
@@ -23653,7 +23653,7 @@ type XStructDepth2_XStructDepth1_Bool struct {
 	F9 XStructDepth1_Bool
 }
 
-func (XStructDepth2_XStructDepth1_Bool) __VDLReflect(struct {
+func (XStructDepth2_XStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XStructDepth1_Bool"`
 }) {
 }
@@ -23662,7 +23662,7 @@ type XStructDepth2_XUnionDepth1_All struct {
 	F10 XUnionDepth1_All
 }
 
-func (XStructDepth2_XUnionDepth1_All) __VDLReflect(struct {
+func (XStructDepth2_XUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XUnionDepth1_All"`
 }) {
 }
@@ -23671,7 +23671,7 @@ type XStructDepth2_XUnionDepth1_Float64 struct {
 	F11 XUnionDepth1_Float64
 }
 
-func (XStructDepth2_XUnionDepth1_Float64) __VDLReflect(struct {
+func (XStructDepth2_XUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_XUnionDepth1_Float64"`
 }) {
 }
@@ -23680,7 +23680,7 @@ type XStructDepth2_OptXStructDepth1_XEnumBcd struct {
 	F12 *XStructDepth1_XEnumBcd
 }
 
-func (XStructDepth2_OptXStructDepth1_XEnumBcd) __VDLReflect(struct {
+func (XStructDepth2_OptXStructDepth1_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_OptXStructDepth1_XEnumBcd"`
 }) {
 }
@@ -23689,7 +23689,7 @@ type XStructDepth2_OptXStructDepth1_XUint16 struct {
 	F13 *XStructDepth1_XUint16
 }
 
-func (XStructDepth2_OptXStructDepth1_XUint16) __VDLReflect(struct {
+func (XStructDepth2_OptXStructDepth1_XUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth2_OptXStructDepth1_XUint16"`
 }) {
 }
@@ -23703,8 +23703,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_All union type.
-		__VDLReflect(__XUnionDepth2_AllReflect)
+		// VDLReflect describes the XUnionDepth2_All union type.
+		VDLReflect(__XUnionDepth2_AllReflect)
 	}
 	// XUnionDepth2_AllF0 represents field F0 of the XUnionDepth2_All union type.
 	XUnionDepth2_AllF0 struct{ Value XArray1_String }
@@ -23760,72 +23760,72 @@ type (
 func (x XUnionDepth2_AllF0) Index() int                             { return 0 }
 func (x XUnionDepth2_AllF0) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF0) Name() string                           { return "F0" }
-func (x XUnionDepth2_AllF0) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF0) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF1) Index() int                             { return 1 }
 func (x XUnionDepth2_AllF1) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF1) Name() string                           { return "F1" }
-func (x XUnionDepth2_AllF1) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF1) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF2) Index() int                             { return 2 }
 func (x XUnionDepth2_AllF2) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF2) Name() string                           { return "F2" }
-func (x XUnionDepth2_AllF2) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF2) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF3) Index() int                             { return 3 }
 func (x XUnionDepth2_AllF3) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF3) Name() string                           { return "F3" }
-func (x XUnionDepth2_AllF3) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF3) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF4) Index() int                             { return 4 }
 func (x XUnionDepth2_AllF4) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF4) Name() string                           { return "F4" }
-func (x XUnionDepth2_AllF4) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF4) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF5) Index() int                             { return 5 }
 func (x XUnionDepth2_AllF5) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF5) Name() string                           { return "F5" }
-func (x XUnionDepth2_AllF5) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF5) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF6) Index() int                             { return 6 }
 func (x XUnionDepth2_AllF6) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF6) Name() string                           { return "F6" }
-func (x XUnionDepth2_AllF6) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF6) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF7) Index() int                             { return 7 }
 func (x XUnionDepth2_AllF7) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF7) Name() string                           { return "F7" }
-func (x XUnionDepth2_AllF7) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF7) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF8) Index() int                             { return 8 }
 func (x XUnionDepth2_AllF8) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF8) Name() string                           { return "F8" }
-func (x XUnionDepth2_AllF8) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF8) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF9) Index() int                             { return 9 }
 func (x XUnionDepth2_AllF9) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF9) Name() string                           { return "F9" }
-func (x XUnionDepth2_AllF9) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF9) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF10) Index() int                             { return 10 }
 func (x XUnionDepth2_AllF10) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF10) Name() string                           { return "F10" }
-func (x XUnionDepth2_AllF10) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF10) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF11) Index() int                             { return 11 }
 func (x XUnionDepth2_AllF11) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF11) Name() string                           { return "F11" }
-func (x XUnionDepth2_AllF11) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF11) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF12) Index() int                             { return 12 }
 func (x XUnionDepth2_AllF12) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF12) Name() string                           { return "F12" }
-func (x XUnionDepth2_AllF12) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF12) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 func (x XUnionDepth2_AllF13) Index() int                             { return 13 }
 func (x XUnionDepth2_AllF13) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth2_AllF13) Name() string                           { return "F13" }
-func (x XUnionDepth2_AllF13) __VDLReflect(__XUnionDepth2_AllReflect) {}
+func (x XUnionDepth2_AllF13) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 type (
 	// XUnionDepth2_XArray1_String represents any single field of the XUnionDepth2_XArray1_String union type.
@@ -23836,8 +23836,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XArray1_String union type.
-		__VDLReflect(__XUnionDepth2_XArray1_StringReflect)
+		// VDLReflect describes the XUnionDepth2_XArray1_String union type.
+		VDLReflect(__XUnionDepth2_XArray1_StringReflect)
 	}
 	// XUnionDepth2_XArray1_StringF0 represents field F0 of the XUnionDepth2_XArray1_String union type.
 	XUnionDepth2_XArray1_StringF0 struct{ Value XArray1_String }
@@ -23854,7 +23854,7 @@ type (
 func (x XUnionDepth2_XArray1_StringF0) Index() int                                        { return 0 }
 func (x XUnionDepth2_XArray1_StringF0) Interface() interface{}                            { return x.Value }
 func (x XUnionDepth2_XArray1_StringF0) Name() string                                      { return "F0" }
-func (x XUnionDepth2_XArray1_StringF0) __VDLReflect(__XUnionDepth2_XArray1_StringReflect) {}
+func (x XUnionDepth2_XArray1_StringF0) VDLReflect(__XUnionDepth2_XArray1_StringReflect) {}
 
 type (
 	// XUnionDepth2_XArray2_XByte represents any single field of the XUnionDepth2_XArray2_XByte union type.
@@ -23865,8 +23865,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XArray2_XByte union type.
-		__VDLReflect(__XUnionDepth2_XArray2_XByteReflect)
+		// VDLReflect describes the XUnionDepth2_XArray2_XByte union type.
+		VDLReflect(__XUnionDepth2_XArray2_XByteReflect)
 	}
 	// XUnionDepth2_XArray2_XByteF1 represents field F1 of the XUnionDepth2_XArray2_XByte union type.
 	XUnionDepth2_XArray2_XByteF1 struct{ Value XArray2_XByte }
@@ -23883,7 +23883,7 @@ type (
 func (x XUnionDepth2_XArray2_XByteF1) Index() int                                       { return 0 }
 func (x XUnionDepth2_XArray2_XByteF1) Interface() interface{}                           { return x.Value }
 func (x XUnionDepth2_XArray2_XByteF1) Name() string                                     { return "F1" }
-func (x XUnionDepth2_XArray2_XByteF1) __VDLReflect(__XUnionDepth2_XArray2_XByteReflect) {}
+func (x XUnionDepth2_XArray2_XByteF1) VDLReflect(__XUnionDepth2_XArray2_XByteReflect) {}
 
 type (
 	// XUnionDepth2_XList_XByte represents any single field of the XUnionDepth2_XList_XByte union type.
@@ -23894,8 +23894,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XList_XByte union type.
-		__VDLReflect(__XUnionDepth2_XList_XByteReflect)
+		// VDLReflect describes the XUnionDepth2_XList_XByte union type.
+		VDLReflect(__XUnionDepth2_XList_XByteReflect)
 	}
 	// XUnionDepth2_XList_XByteF2 represents field F2 of the XUnionDepth2_XList_XByte union type.
 	XUnionDepth2_XList_XByteF2 struct{ Value XList_XByte }
@@ -23912,7 +23912,7 @@ type (
 func (x XUnionDepth2_XList_XByteF2) Index() int                                     { return 0 }
 func (x XUnionDepth2_XList_XByteF2) Interface() interface{}                         { return x.Value }
 func (x XUnionDepth2_XList_XByteF2) Name() string                                   { return "F2" }
-func (x XUnionDepth2_XList_XByteF2) __VDLReflect(__XUnionDepth2_XList_XByteReflect) {}
+func (x XUnionDepth2_XList_XByteF2) VDLReflect(__XUnionDepth2_XList_XByteReflect) {}
 
 type (
 	// XUnionDepth2_XList_OptXNamedError represents any single field of the XUnionDepth2_XList_OptXNamedError union type.
@@ -23923,8 +23923,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XList_OptXNamedError union type.
-		__VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect)
+		// VDLReflect describes the XUnionDepth2_XList_OptXNamedError union type.
+		VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect)
 	}
 	// XUnionDepth2_XList_OptXNamedErrorF3 represents field F3 of the XUnionDepth2_XList_OptXNamedError union type.
 	XUnionDepth2_XList_OptXNamedErrorF3 struct{ Value XList_OptXNamedError }
@@ -23941,7 +23941,7 @@ type (
 func (x XUnionDepth2_XList_OptXNamedErrorF3) Index() int             { return 0 }
 func (x XUnionDepth2_XList_OptXNamedErrorF3) Interface() interface{} { return x.Value }
 func (x XUnionDepth2_XList_OptXNamedErrorF3) Name() string           { return "F3" }
-func (x XUnionDepth2_XList_OptXNamedErrorF3) __VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect) {
+func (x XUnionDepth2_XList_OptXNamedErrorF3) VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect) {
 }
 
 type (
@@ -23953,8 +23953,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XSet_XBool union type.
-		__VDLReflect(__XUnionDepth2_XSet_XBoolReflect)
+		// VDLReflect describes the XUnionDepth2_XSet_XBool union type.
+		VDLReflect(__XUnionDepth2_XSet_XBoolReflect)
 	}
 	// XUnionDepth2_XSet_XBoolF4 represents field F4 of the XUnionDepth2_XSet_XBool union type.
 	XUnionDepth2_XSet_XBoolF4 struct{ Value XSet_XBool }
@@ -23971,7 +23971,7 @@ type (
 func (x XUnionDepth2_XSet_XBoolF4) Index() int                                    { return 0 }
 func (x XUnionDepth2_XSet_XBoolF4) Interface() interface{}                        { return x.Value }
 func (x XUnionDepth2_XSet_XBoolF4) Name() string                                  { return "F4" }
-func (x XUnionDepth2_XSet_XBoolF4) __VDLReflect(__XUnionDepth2_XSet_XBoolReflect) {}
+func (x XUnionDepth2_XSet_XBoolF4) VDLReflect(__XUnionDepth2_XSet_XBoolReflect) {}
 
 type (
 	// XUnionDepth2_XSet_XNamedError represents any single field of the XUnionDepth2_XSet_XNamedError union type.
@@ -23982,8 +23982,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XSet_XNamedError union type.
-		__VDLReflect(__XUnionDepth2_XSet_XNamedErrorReflect)
+		// VDLReflect describes the XUnionDepth2_XSet_XNamedError union type.
+		VDLReflect(__XUnionDepth2_XSet_XNamedErrorReflect)
 	}
 	// XUnionDepth2_XSet_XNamedErrorF5 represents field F5 of the XUnionDepth2_XSet_XNamedError union type.
 	XUnionDepth2_XSet_XNamedErrorF5 struct{ Value XSet_XNamedError }
@@ -24000,7 +24000,7 @@ type (
 func (x XUnionDepth2_XSet_XNamedErrorF5) Index() int                                          { return 0 }
 func (x XUnionDepth2_XSet_XNamedErrorF5) Interface() interface{}                              { return x.Value }
 func (x XUnionDepth2_XSet_XNamedErrorF5) Name() string                                        { return "F5" }
-func (x XUnionDepth2_XSet_XNamedErrorF5) __VDLReflect(__XUnionDepth2_XSet_XNamedErrorReflect) {}
+func (x XUnionDepth2_XSet_XNamedErrorF5) VDLReflect(__XUnionDepth2_XSet_XNamedErrorReflect) {}
 
 type (
 	// XUnionDepth2_Map_XBool_XBool represents any single field of the XUnionDepth2_Map_XBool_XBool union type.
@@ -24011,8 +24011,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_Map_XBool_XBool union type.
-		__VDLReflect(__XUnionDepth2_Map_XBool_XBoolReflect)
+		// VDLReflect describes the XUnionDepth2_Map_XBool_XBool union type.
+		VDLReflect(__XUnionDepth2_Map_XBool_XBoolReflect)
 	}
 	// XUnionDepth2_Map_XBool_XBoolF6 represents field F6 of the XUnionDepth2_Map_XBool_XBool union type.
 	XUnionDepth2_Map_XBool_XBoolF6 struct{ Value map[XBool]XBool }
@@ -24029,7 +24029,7 @@ type (
 func (x XUnionDepth2_Map_XBool_XBoolF6) Index() int                                         { return 0 }
 func (x XUnionDepth2_Map_XBool_XBoolF6) Interface() interface{}                             { return x.Value }
 func (x XUnionDepth2_Map_XBool_XBoolF6) Name() string                                       { return "F6" }
-func (x XUnionDepth2_Map_XBool_XBoolF6) __VDLReflect(__XUnionDepth2_Map_XBool_XBoolReflect) {}
+func (x XUnionDepth2_Map_XBool_XBoolF6) VDLReflect(__XUnionDepth2_Map_XBool_XBoolReflect) {}
 
 type (
 	// XUnionDepth2_XMap_XBool_XBool represents any single field of the XUnionDepth2_XMap_XBool_XBool union type.
@@ -24040,8 +24040,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XMap_XBool_XBool union type.
-		__VDLReflect(__XUnionDepth2_XMap_XBool_XBoolReflect)
+		// VDLReflect describes the XUnionDepth2_XMap_XBool_XBool union type.
+		VDLReflect(__XUnionDepth2_XMap_XBool_XBoolReflect)
 	}
 	// XUnionDepth2_XMap_XBool_XBoolF7 represents field F7 of the XUnionDepth2_XMap_XBool_XBool union type.
 	XUnionDepth2_XMap_XBool_XBoolF7 struct{ Value XMap_XBool_XBool }
@@ -24058,7 +24058,7 @@ type (
 func (x XUnionDepth2_XMap_XBool_XBoolF7) Index() int                                          { return 0 }
 func (x XUnionDepth2_XMap_XBool_XBoolF7) Interface() interface{}                              { return x.Value }
 func (x XUnionDepth2_XMap_XBool_XBoolF7) Name() string                                        { return "F7" }
-func (x XUnionDepth2_XMap_XBool_XBoolF7) __VDLReflect(__XUnionDepth2_XMap_XBool_XBoolReflect) {}
+func (x XUnionDepth2_XMap_XBool_XBoolF7) VDLReflect(__XUnionDepth2_XMap_XBool_XBoolReflect) {}
 
 type (
 	// XUnionDepth2_XStructDepth1_All represents any single field of the XUnionDepth2_XStructDepth1_All union type.
@@ -24069,8 +24069,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XStructDepth1_All union type.
-		__VDLReflect(__XUnionDepth2_XStructDepth1_AllReflect)
+		// VDLReflect describes the XUnionDepth2_XStructDepth1_All union type.
+		VDLReflect(__XUnionDepth2_XStructDepth1_AllReflect)
 	}
 	// XUnionDepth2_XStructDepth1_AllF8 represents field F8 of the XUnionDepth2_XStructDepth1_All union type.
 	XUnionDepth2_XStructDepth1_AllF8 struct{ Value XStructDepth1_All }
@@ -24087,7 +24087,7 @@ type (
 func (x XUnionDepth2_XStructDepth1_AllF8) Index() int                                           { return 0 }
 func (x XUnionDepth2_XStructDepth1_AllF8) Interface() interface{}                               { return x.Value }
 func (x XUnionDepth2_XStructDepth1_AllF8) Name() string                                         { return "F8" }
-func (x XUnionDepth2_XStructDepth1_AllF8) __VDLReflect(__XUnionDepth2_XStructDepth1_AllReflect) {}
+func (x XUnionDepth2_XStructDepth1_AllF8) VDLReflect(__XUnionDepth2_XStructDepth1_AllReflect) {}
 
 type (
 	// XUnionDepth2_XStructDepth1_Int8 represents any single field of the XUnionDepth2_XStructDepth1_Int8 union type.
@@ -24098,8 +24098,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XStructDepth1_Int8 union type.
-		__VDLReflect(__XUnionDepth2_XStructDepth1_Int8Reflect)
+		// VDLReflect describes the XUnionDepth2_XStructDepth1_Int8 union type.
+		VDLReflect(__XUnionDepth2_XStructDepth1_Int8Reflect)
 	}
 	// XUnionDepth2_XStructDepth1_Int8F9 represents field F9 of the XUnionDepth2_XStructDepth1_Int8 union type.
 	XUnionDepth2_XStructDepth1_Int8F9 struct{ Value XStructDepth1_Int8 }
@@ -24116,7 +24116,7 @@ type (
 func (x XUnionDepth2_XStructDepth1_Int8F9) Index() int                                            { return 0 }
 func (x XUnionDepth2_XStructDepth1_Int8F9) Interface() interface{}                                { return x.Value }
 func (x XUnionDepth2_XStructDepth1_Int8F9) Name() string                                          { return "F9" }
-func (x XUnionDepth2_XStructDepth1_Int8F9) __VDLReflect(__XUnionDepth2_XStructDepth1_Int8Reflect) {}
+func (x XUnionDepth2_XStructDepth1_Int8F9) VDLReflect(__XUnionDepth2_XStructDepth1_Int8Reflect) {}
 
 type (
 	// XUnionDepth2_XUnionDepth1_All represents any single field of the XUnionDepth2_XUnionDepth1_All union type.
@@ -24127,8 +24127,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XUnionDepth1_All union type.
-		__VDLReflect(__XUnionDepth2_XUnionDepth1_AllReflect)
+		// VDLReflect describes the XUnionDepth2_XUnionDepth1_All union type.
+		VDLReflect(__XUnionDepth2_XUnionDepth1_AllReflect)
 	}
 	// XUnionDepth2_XUnionDepth1_AllF10 represents field F10 of the XUnionDepth2_XUnionDepth1_All union type.
 	XUnionDepth2_XUnionDepth1_AllF10 struct{ Value XUnionDepth1_All }
@@ -24145,7 +24145,7 @@ type (
 func (x XUnionDepth2_XUnionDepth1_AllF10) Index() int                                          { return 0 }
 func (x XUnionDepth2_XUnionDepth1_AllF10) Interface() interface{}                              { return x.Value }
 func (x XUnionDepth2_XUnionDepth1_AllF10) Name() string                                        { return "F10" }
-func (x XUnionDepth2_XUnionDepth1_AllF10) __VDLReflect(__XUnionDepth2_XUnionDepth1_AllReflect) {}
+func (x XUnionDepth2_XUnionDepth1_AllF10) VDLReflect(__XUnionDepth2_XUnionDepth1_AllReflect) {}
 
 type (
 	// XUnionDepth2_XUnionDepth1_XUint32 represents any single field of the XUnionDepth2_XUnionDepth1_XUint32 union type.
@@ -24156,8 +24156,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_XUnionDepth1_XUint32 union type.
-		__VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect)
+		// VDLReflect describes the XUnionDepth2_XUnionDepth1_XUint32 union type.
+		VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect)
 	}
 	// XUnionDepth2_XUnionDepth1_XUint32F11 represents field F11 of the XUnionDepth2_XUnionDepth1_XUint32 union type.
 	XUnionDepth2_XUnionDepth1_XUint32F11 struct{ Value XUnionDepth1_XUint32 }
@@ -24174,7 +24174,7 @@ type (
 func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int             { return 0 }
 func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{} { return x.Value }
 func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string           { return "F11" }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) __VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
 }
 
 type (
@@ -24186,8 +24186,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
-		__VDLReflect(__XUnionDepth2_OptXStructDepth1_XEnumBcdReflect)
+		// VDLReflect describes the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
+		VDLReflect(__XUnionDepth2_OptXStructDepth1_XEnumBcdReflect)
 	}
 	// XUnionDepth2_OptXStructDepth1_XEnumBcdF12 represents field F12 of the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
 	XUnionDepth2_OptXStructDepth1_XEnumBcdF12 struct{ Value *XStructDepth1_XEnumBcd }
@@ -24204,7 +24204,7 @@ type (
 func (x XUnionDepth2_OptXStructDepth1_XEnumBcdF12) Index() int             { return 0 }
 func (x XUnionDepth2_OptXStructDepth1_XEnumBcdF12) Interface() interface{} { return x.Value }
 func (x XUnionDepth2_OptXStructDepth1_XEnumBcdF12) Name() string           { return "F12" }
-func (x XUnionDepth2_OptXStructDepth1_XEnumBcdF12) __VDLReflect(__XUnionDepth2_OptXStructDepth1_XEnumBcdReflect) {
+func (x XUnionDepth2_OptXStructDepth1_XEnumBcdF12) VDLReflect(__XUnionDepth2_OptXStructDepth1_XEnumBcdReflect) {
 }
 
 type (
@@ -24216,8 +24216,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth2_OptXStructDepth1_XFloat32 union type.
-		__VDLReflect(__XUnionDepth2_OptXStructDepth1_XFloat32Reflect)
+		// VDLReflect describes the XUnionDepth2_OptXStructDepth1_XFloat32 union type.
+		VDLReflect(__XUnionDepth2_OptXStructDepth1_XFloat32Reflect)
 	}
 	// XUnionDepth2_OptXStructDepth1_XFloat32F13 represents field F13 of the XUnionDepth2_OptXStructDepth1_XFloat32 union type.
 	XUnionDepth2_OptXStructDepth1_XFloat32F13 struct{ Value *XStructDepth1_XFloat32 }
@@ -24234,145 +24234,145 @@ type (
 func (x XUnionDepth2_OptXStructDepth1_XFloat32F13) Index() int             { return 0 }
 func (x XUnionDepth2_OptXStructDepth1_XFloat32F13) Interface() interface{} { return x.Value }
 func (x XUnionDepth2_OptXStructDepth1_XFloat32F13) Name() string           { return "F13" }
-func (x XUnionDepth2_OptXStructDepth1_XFloat32F13) __VDLReflect(__XUnionDepth2_OptXStructDepth1_XFloat32Reflect) {
+func (x XUnionDepth2_OptXStructDepth1_XFloat32F13) VDLReflect(__XUnionDepth2_OptXStructDepth1_XFloat32Reflect) {
 }
 
 type XArray1_XArray1_XList_Byte [1]XArray1_XList_Byte
 
-func (XArray1_XArray1_XList_Byte) __VDLReflect(struct {
+func (XArray1_XArray1_XList_Byte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray1_XArray1_XList_Byte"`
 }) {
 }
 
 type XArray2_List_XMap_XByte_XByte [2][]XMap_XByte_XByte
 
-func (XArray2_List_XMap_XByte_XByte) __VDLReflect(struct {
+func (XArray2_List_XMap_XByte_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_List_XMap_XByte_XByte"`
 }) {
 }
 
 type XArray2_Set_XUnionDepth1_XNamedError [2]map[XUnionDepth1_XNamedError]struct{}
 
-func (XArray2_Set_XUnionDepth1_XNamedError) __VDLReflect(struct {
+func (XArray2_Set_XUnionDepth1_XNamedError) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_Set_XUnionDepth1_XNamedError"`
 }) {
 }
 
 type XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64 [3]map[XUnionDepth1_Float64]XUnionDepth1_Float64
 
-func (XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64) __VDLReflect(struct {
+func (XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64"`
 }) {
 }
 
 type XArray2_XStructDepth2_All [2]XStructDepth2_All
 
-func (XArray2_XStructDepth2_All) __VDLReflect(struct {
+func (XArray2_XStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XStructDepth2_All"`
 }) {
 }
 
 type XArray2_XUnionDepth2_All [2]XUnionDepth2_All
 
-func (XArray2_XUnionDepth2_All) __VDLReflect(struct {
+func (XArray2_XUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray2_XUnionDepth2_All"`
 }) {
 }
 
 type XArray3_OptXStructDepth2_Set_Float64 [3]*XStructDepth2_Set_Float64
 
-func (XArray3_OptXStructDepth2_Set_Float64) __VDLReflect(struct {
+func (XArray3_OptXStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XArray3_OptXStructDepth2_Set_Float64"`
 }) {
 }
 
 type XList_XArray3_XUnionDepth1_All []XArray3_XUnionDepth1_All
 
-func (XList_XArray3_XUnionDepth1_All) __VDLReflect(struct {
+func (XList_XArray3_XUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XArray3_XUnionDepth1_All"`
 }) {
 }
 
 type XList_List_XMap_XByte_XByte [][]XMap_XByte_XByte
 
-func (XList_List_XMap_XByte_XByte) __VDLReflect(struct {
+func (XList_List_XMap_XByte_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_List_XMap_XByte_XByte"`
 }) {
 }
 
 type XList_XSet_XArray1_XStructEmpty []XSet_XArray1_XStructEmpty
 
-func (XList_XSet_XArray1_XStructEmpty) __VDLReflect(struct {
+func (XList_XSet_XArray1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XSet_XArray1_XStructEmpty"`
 }) {
 }
 
 type XList_XMap_XArray3_XBool_XArray3_XBool []XMap_XArray3_XBool_XArray3_XBool
 
-func (XList_XMap_XArray3_XBool_XArray3_XBool) __VDLReflect(struct {
+func (XList_XMap_XArray3_XBool_XArray3_XBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XMap_XArray3_XBool_XArray3_XBool"`
 }) {
 }
 
 type XList_XStructDepth2_All []XStructDepth2_All
 
-func (XList_XStructDepth2_All) __VDLReflect(struct {
+func (XList_XStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XStructDepth2_All"`
 }) {
 }
 
 type XList_XUnionDepth2_All []XUnionDepth2_All
 
-func (XList_XUnionDepth2_All) __VDLReflect(struct {
+func (XList_XUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_XUnionDepth2_All"`
 }) {
 }
 
 type XList_OptXStructDepth2_Set_Float64 []*XStructDepth2_Set_Float64
 
-func (XList_OptXStructDepth2_Set_Float64) __VDLReflect(struct {
+func (XList_OptXStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XList_OptXStructDepth2_Set_Float64"`
 }) {
 }
 
 type XSet_XArray1_XArray3_Int64 map[XArray1_XArray3_Int64]struct{}
 
-func (XSet_XArray1_XArray3_Int64) __VDLReflect(struct {
+func (XSet_XArray1_XArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XArray1_XArray3_Int64"`
 }) {
 }
 
 type XSet_XStructDepth2_XStructDepth1_Bool map[XStructDepth2_XStructDepth1_Bool]struct{}
 
-func (XSet_XStructDepth2_XStructDepth1_Bool) __VDLReflect(struct {
+func (XSet_XStructDepth2_XStructDepth1_Bool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XStructDepth2_XStructDepth1_Bool"`
 }) {
 }
 
 type XSet_XUnionDepth2_XArray1_String map[XUnionDepth2_XArray1_String]struct{}
 
-func (XSet_XUnionDepth2_XArray1_String) __VDLReflect(struct {
+func (XSet_XUnionDepth2_XArray1_String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSet_XUnionDepth2_XArray1_String"`
 }) {
 }
 
 type XMap_XArray1_XArray3_Int64_XArray1_XArray3_Int64 map[XArray1_XArray3_Int64]XArray1_XArray3_Int64
 
-func (XMap_XArray1_XArray3_Int64_XArray1_XArray3_Int64) __VDLReflect(struct {
+func (XMap_XArray1_XArray3_Int64_XArray1_XArray3_Int64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XArray1_XArray3_Int64_XArray1_XArray3_Int64"`
 }) {
 }
 
 type XMap_XStructDepth2_XArray1_Uint32_XStructDepth2_XArray1_Uint32 map[XStructDepth2_XArray1_Uint32]XStructDepth2_XArray1_Uint32
 
-func (XMap_XStructDepth2_XArray1_Uint32_XStructDepth2_XArray1_Uint32) __VDLReflect(struct {
+func (XMap_XStructDepth2_XArray1_Uint32_XStructDepth2_XArray1_Uint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XStructDepth2_XArray1_Uint32_XStructDepth2_XArray1_Uint32"`
 }) {
 }
 
 type XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte map[XUnionDepth2_XArray2_XByte]XUnionDepth2_XArray2_XByte
 
-func (XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte) __VDLReflect(struct {
+func (XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte"`
 }) {
 }
@@ -24387,7 +24387,7 @@ type XStructDepth3_All struct {
 	F6 *XStructDepth2_Set_Float64
 }
 
-func (XStructDepth3_All) __VDLReflect(struct {
+func (XStructDepth3_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_All"`
 }) {
 }
@@ -24396,7 +24396,7 @@ type XStructDepth3_XArray1_Set_XEnumBcd struct {
 	F0 XArray1_Set_XEnumBcd
 }
 
-func (XStructDepth3_XArray1_Set_XEnumBcd) __VDLReflect(struct {
+func (XStructDepth3_XArray1_Set_XEnumBcd) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_XArray1_Set_XEnumBcd"`
 }) {
 }
@@ -24405,7 +24405,7 @@ type XStructDepth3_List_XUnionDepth1_All struct {
 	F1 []XUnionDepth1_All
 }
 
-func (XStructDepth3_List_XUnionDepth1_All) __VDLReflect(struct {
+func (XStructDepth3_List_XUnionDepth1_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_List_XUnionDepth1_All"`
 }) {
 }
@@ -24414,7 +24414,7 @@ type XStructDepth3_XSet_XArray1_XStructEmpty struct {
 	F2 XSet_XArray1_XStructEmpty
 }
 
-func (XStructDepth3_XSet_XArray1_XStructEmpty) __VDLReflect(struct {
+func (XStructDepth3_XSet_XArray1_XStructEmpty) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_XSet_XArray1_XStructEmpty"`
 }) {
 }
@@ -24423,7 +24423,7 @@ type XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64 struct {
 	F3 map[XUnionDepth1_Float64]XUnionDepth1_Float64
 }
 
-func (XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64) __VDLReflect(struct {
+func (XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64"`
 }) {
 }
@@ -24432,7 +24432,7 @@ type XStructDepth3_XStructDepth2_All struct {
 	F4 XStructDepth2_All
 }
 
-func (XStructDepth3_XStructDepth2_All) __VDLReflect(struct {
+func (XStructDepth3_XStructDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_XStructDepth2_All"`
 }) {
 }
@@ -24441,7 +24441,7 @@ type XStructDepth3_XUnionDepth2_All struct {
 	F5 XUnionDepth2_All
 }
 
-func (XStructDepth3_XUnionDepth2_All) __VDLReflect(struct {
+func (XStructDepth3_XUnionDepth2_All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_XUnionDepth2_All"`
 }) {
 }
@@ -24450,7 +24450,7 @@ type XStructDepth3_OptXStructDepth2_Set_Float64 struct {
 	F6 *XStructDepth2_Set_Float64
 }
 
-func (XStructDepth3_OptXStructDepth2_Set_Float64) __VDLReflect(struct {
+func (XStructDepth3_OptXStructDepth2_Set_Float64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XStructDepth3_OptXStructDepth2_Set_Float64"`
 }) {
 }
@@ -24464,8 +24464,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_All union type.
-		__VDLReflect(__XUnionDepth3_AllReflect)
+		// VDLReflect describes the XUnionDepth3_All union type.
+		VDLReflect(__XUnionDepth3_AllReflect)
 	}
 	// XUnionDepth3_AllF0 represents field F0 of the XUnionDepth3_All union type.
 	XUnionDepth3_AllF0 struct {
@@ -24506,37 +24506,37 @@ type (
 func (x XUnionDepth3_AllF0) Index() int                             { return 0 }
 func (x XUnionDepth3_AllF0) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF0) Name() string                           { return "F0" }
-func (x XUnionDepth3_AllF0) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF0) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF1) Index() int                             { return 1 }
 func (x XUnionDepth3_AllF1) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF1) Name() string                           { return "F1" }
-func (x XUnionDepth3_AllF1) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF1) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF2) Index() int                             { return 2 }
 func (x XUnionDepth3_AllF2) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF2) Name() string                           { return "F2" }
-func (x XUnionDepth3_AllF2) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF2) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF3) Index() int                             { return 3 }
 func (x XUnionDepth3_AllF3) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF3) Name() string                           { return "F3" }
-func (x XUnionDepth3_AllF3) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF3) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF4) Index() int                             { return 4 }
 func (x XUnionDepth3_AllF4) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF4) Name() string                           { return "F4" }
-func (x XUnionDepth3_AllF4) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF4) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF5) Index() int                             { return 5 }
 func (x XUnionDepth3_AllF5) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF5) Name() string                           { return "F5" }
-func (x XUnionDepth3_AllF5) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF5) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 func (x XUnionDepth3_AllF6) Index() int                             { return 6 }
 func (x XUnionDepth3_AllF6) Interface() interface{}                 { return x.Value }
 func (x XUnionDepth3_AllF6) Name() string                           { return "F6" }
-func (x XUnionDepth3_AllF6) __VDLReflect(__XUnionDepth3_AllReflect) {}
+func (x XUnionDepth3_AllF6) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 type (
 	// XUnionDepth3_XArray3_OptXStructDepth1_XFloat32 represents any single field of the XUnionDepth3_XArray3_OptXStructDepth1_XFloat32 union type.
@@ -24547,8 +24547,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_XArray3_OptXStructDepth1_XFloat32 union type.
-		__VDLReflect(__XUnionDepth3_XArray3_OptXStructDepth1_XFloat32Reflect)
+		// VDLReflect describes the XUnionDepth3_XArray3_OptXStructDepth1_XFloat32 union type.
+		VDLReflect(__XUnionDepth3_XArray3_OptXStructDepth1_XFloat32Reflect)
 	}
 	// XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0 represents field F0 of the XUnionDepth3_XArray3_OptXStructDepth1_XFloat32 union type.
 	XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0 struct {
@@ -24567,7 +24567,7 @@ type (
 func (x XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0) Index() int             { return 0 }
 func (x XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0) Interface() interface{} { return x.Value }
 func (x XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0) Name() string           { return "F0" }
-func (x XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0) __VDLReflect(__XUnionDepth3_XArray3_OptXStructDepth1_XFloat32Reflect) {
+func (x XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0) VDLReflect(__XUnionDepth3_XArray3_OptXStructDepth1_XFloat32Reflect) {
 }
 
 type (
@@ -24579,8 +24579,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_List_XList_Error union type.
-		__VDLReflect(__XUnionDepth3_List_XList_ErrorReflect)
+		// VDLReflect describes the XUnionDepth3_List_XList_Error union type.
+		VDLReflect(__XUnionDepth3_List_XList_ErrorReflect)
 	}
 	// XUnionDepth3_List_XList_ErrorF1 represents field F1 of the XUnionDepth3_List_XList_Error union type.
 	XUnionDepth3_List_XList_ErrorF1 struct{ Value []XList_Error }
@@ -24597,7 +24597,7 @@ type (
 func (x XUnionDepth3_List_XList_ErrorF1) Index() int                                          { return 0 }
 func (x XUnionDepth3_List_XList_ErrorF1) Interface() interface{}                              { return x.Value }
 func (x XUnionDepth3_List_XList_ErrorF1) Name() string                                        { return "F1" }
-func (x XUnionDepth3_List_XList_ErrorF1) __VDLReflect(__XUnionDepth3_List_XList_ErrorReflect) {}
+func (x XUnionDepth3_List_XList_ErrorF1) VDLReflect(__XUnionDepth3_List_XList_ErrorReflect) {}
 
 type (
 	// XUnionDepth3_Set_XStructDepth1_String represents any single field of the XUnionDepth3_Set_XStructDepth1_String union type.
@@ -24608,8 +24608,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_Set_XStructDepth1_String union type.
-		__VDLReflect(__XUnionDepth3_Set_XStructDepth1_StringReflect)
+		// VDLReflect describes the XUnionDepth3_Set_XStructDepth1_String union type.
+		VDLReflect(__XUnionDepth3_Set_XStructDepth1_StringReflect)
 	}
 	// XUnionDepth3_Set_XStructDepth1_StringF2 represents field F2 of the XUnionDepth3_Set_XStructDepth1_String union type.
 	XUnionDepth3_Set_XStructDepth1_StringF2 struct {
@@ -24628,7 +24628,7 @@ type (
 func (x XUnionDepth3_Set_XStructDepth1_StringF2) Index() int             { return 0 }
 func (x XUnionDepth3_Set_XStructDepth1_StringF2) Interface() interface{} { return x.Value }
 func (x XUnionDepth3_Set_XStructDepth1_StringF2) Name() string           { return "F2" }
-func (x XUnionDepth3_Set_XStructDepth1_StringF2) __VDLReflect(__XUnionDepth3_Set_XStructDepth1_StringReflect) {
+func (x XUnionDepth3_Set_XStructDepth1_StringF2) VDLReflect(__XUnionDepth3_Set_XStructDepth1_StringReflect) {
 }
 
 type (
@@ -24640,8 +24640,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool union type.
-		__VDLReflect(__XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolReflect)
+		// VDLReflect describes the XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool union type.
+		VDLReflect(__XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolReflect)
 	}
 	// XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3 represents field F3 of the XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool union type.
 	XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3 struct {
@@ -24662,7 +24662,7 @@ func (x XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3) Interface()
 	return x.Value
 }
 func (x XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3) Name() string { return "F3" }
-func (x XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3) __VDLReflect(__XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolReflect) {
+func (x XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3) VDLReflect(__XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolReflect) {
 }
 
 type (
@@ -24674,8 +24674,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_XStructDepth2_All union type.
-		__VDLReflect(__XUnionDepth3_XStructDepth2_AllReflect)
+		// VDLReflect describes the XUnionDepth3_XStructDepth2_All union type.
+		VDLReflect(__XUnionDepth3_XStructDepth2_AllReflect)
 	}
 	// XUnionDepth3_XStructDepth2_AllF4 represents field F4 of the XUnionDepth3_XStructDepth2_All union type.
 	XUnionDepth3_XStructDepth2_AllF4 struct{ Value XStructDepth2_All }
@@ -24692,7 +24692,7 @@ type (
 func (x XUnionDepth3_XStructDepth2_AllF4) Index() int                                           { return 0 }
 func (x XUnionDepth3_XStructDepth2_AllF4) Interface() interface{}                               { return x.Value }
 func (x XUnionDepth3_XStructDepth2_AllF4) Name() string                                         { return "F4" }
-func (x XUnionDepth3_XStructDepth2_AllF4) __VDLReflect(__XUnionDepth3_XStructDepth2_AllReflect) {}
+func (x XUnionDepth3_XStructDepth2_AllF4) VDLReflect(__XUnionDepth3_XStructDepth2_AllReflect) {}
 
 type (
 	// XUnionDepth3_XUnionDepth2_All represents any single field of the XUnionDepth3_XUnionDepth2_All union type.
@@ -24703,8 +24703,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_XUnionDepth2_All union type.
-		__VDLReflect(__XUnionDepth3_XUnionDepth2_AllReflect)
+		// VDLReflect describes the XUnionDepth3_XUnionDepth2_All union type.
+		VDLReflect(__XUnionDepth3_XUnionDepth2_AllReflect)
 	}
 	// XUnionDepth3_XUnionDepth2_AllF5 represents field F5 of the XUnionDepth3_XUnionDepth2_All union type.
 	XUnionDepth3_XUnionDepth2_AllF5 struct{ Value XUnionDepth2_All }
@@ -24721,7 +24721,7 @@ type (
 func (x XUnionDepth3_XUnionDepth2_AllF5) Index() int                                          { return 0 }
 func (x XUnionDepth3_XUnionDepth2_AllF5) Interface() interface{}                              { return x.Value }
 func (x XUnionDepth3_XUnionDepth2_AllF5) Name() string                                        { return "F5" }
-func (x XUnionDepth3_XUnionDepth2_AllF5) __VDLReflect(__XUnionDepth3_XUnionDepth2_AllReflect) {}
+func (x XUnionDepth3_XUnionDepth2_AllF5) VDLReflect(__XUnionDepth3_XUnionDepth2_AllReflect) {}
 
 type (
 	// XUnionDepth3_OptXStructDepth2_Set_Float64 represents any single field of the XUnionDepth3_OptXStructDepth2_Set_Float64 union type.
@@ -24732,8 +24732,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the XUnionDepth3_OptXStructDepth2_Set_Float64 union type.
-		__VDLReflect(__XUnionDepth3_OptXStructDepth2_Set_Float64Reflect)
+		// VDLReflect describes the XUnionDepth3_OptXStructDepth2_Set_Float64 union type.
+		VDLReflect(__XUnionDepth3_OptXStructDepth2_Set_Float64Reflect)
 	}
 	// XUnionDepth3_OptXStructDepth2_Set_Float64F6 represents field F6 of the XUnionDepth3_OptXStructDepth2_Set_Float64 union type.
 	XUnionDepth3_OptXStructDepth2_Set_Float64F6 struct{ Value *XStructDepth2_Set_Float64 }
@@ -24750,7 +24750,7 @@ type (
 func (x XUnionDepth3_OptXStructDepth2_Set_Float64F6) Index() int             { return 0 }
 func (x XUnionDepth3_OptXStructDepth2_Set_Float64F6) Interface() interface{} { return x.Value }
 func (x XUnionDepth3_OptXStructDepth2_Set_Float64F6) Name() string           { return "F6" }
-func (x XUnionDepth3_OptXStructDepth2_Set_Float64F6) __VDLReflect(__XUnionDepth3_OptXStructDepth2_Set_Float64Reflect) {
+func (x XUnionDepth3_OptXStructDepth2_Set_Float64F6) VDLReflect(__XUnionDepth3_OptXStructDepth2_Set_Float64Reflect) {
 }
 
 // XSelfCycle tests self-cyclic types.
@@ -24759,7 +24759,7 @@ type XSelfCycle struct {
 	Next *XSelfCycle
 }
 
-func (XSelfCycle) __VDLReflect(struct {
+func (XSelfCycle) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XSelfCycle"`
 }) {
 }
@@ -24770,7 +24770,7 @@ type XMutualCycleB struct {
 	A    *XMutualCycleA
 }
 
-func (XMutualCycleB) __VDLReflect(struct {
+func (XMutualCycleB) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMutualCycleB"`
 }) {
 }
@@ -24781,7 +24781,7 @@ type XMutualCycleA struct {
 	B    *XMutualCycleB
 }
 
-func (XMutualCycleA) __VDLReflect(struct {
+func (XMutualCycleA) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vdl/vdltest.XMutualCycleA"`
 }) {
 }

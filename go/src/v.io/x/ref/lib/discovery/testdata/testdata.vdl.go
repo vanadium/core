@@ -25,7 +25,7 @@ type PackAddressTest struct {
 	Packed []byte
 }
 
-func (PackAddressTest) __VDLReflect(struct {
+func (PackAddressTest) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery/testdata.PackAddressTest"`
 }) {
 }
@@ -150,7 +150,7 @@ type PackEncryptionKeysTest struct {
 	Packed []byte
 }
 
-func (PackEncryptionKeysTest) __VDLReflect(struct {
+func (PackEncryptionKeysTest) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery/testdata.PackEncryptionKeysTest"`
 }) {
 }
@@ -292,7 +292,7 @@ type UuidTestData struct {
 	Want string
 }
 
-func (UuidTestData) __VDLReflect(struct {
+func (UuidTestData) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/discovery/testdata.UuidTestData"`
 }) {
 }

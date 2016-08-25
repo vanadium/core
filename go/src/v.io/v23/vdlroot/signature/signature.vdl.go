@@ -24,7 +24,7 @@ type Embed struct {
 	Doc     string
 }
 
-func (Embed) __VDLReflect(struct {
+func (Embed) VDLReflect(struct {
 	Name string `vdl:"signature.Embed"`
 }) {
 }
@@ -114,7 +114,7 @@ type Arg struct {
 	Type *vdl.Type // Type of the argument.
 }
 
-func (Arg) __VDLReflect(struct {
+func (Arg) VDLReflect(struct {
 	Name string `vdl:"signature.Arg"`
 }) {
 }
@@ -219,7 +219,7 @@ type Method struct {
 	Tags      []*vdl.Value // Method tags
 }
 
-func (Method) __VDLReflect(struct {
+func (Method) VDLReflect(struct {
 	Name string `vdl:"signature.Method"`
 }) {
 }
@@ -505,7 +505,7 @@ type Interface struct {
 	Methods []Method // Ordered by method name.
 }
 
-func (Interface) __VDLReflect(struct {
+func (Interface) VDLReflect(struct {
 	Name string `vdl:"signature.Interface"`
 }) {
 }

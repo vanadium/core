@@ -100,7 +100,7 @@ func (x TestEnum) String() string {
 	return ""
 }
 
-func (TestEnum) __VDLReflect(struct{
+func (TestEnum) VDLReflect(struct{
 	Name string ` + "`" + `vdl:"TestEnum"` + "`" + `
 	Enum struct{ A, B, C string }
 }) {
@@ -125,8 +125,8 @@ func (m TestEnum) MakeVDLTarget() vdl.Target {
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the TestUnion union type.
-		__VDLReflect(__TestUnionReflect)
+		// VDLReflect describes the TestUnion union type.
+		VDLReflect(__TestUnionReflect)
 		FillVDLTarget(vdl.Target, *vdl.Type) error
 	}
 	// TestUnionA represents field A of the TestUnion union type.
@@ -147,7 +147,7 @@ func (m TestEnum) MakeVDLTarget() vdl.Target {
 func (x TestUnionA) Index() int { return 0 }
 func (x TestUnionA) Interface() interface{} { return x.Value }
 func (x TestUnionA) Name() string { return "A" }
-func (x TestUnionA) __VDLReflect(__TestUnionReflect) {}
+func (x TestUnionA) VDLReflect(__TestUnionReflect) {}
 
 func (m TestUnionA) FillVDLTarget(t vdl.Target, tt *vdl.Type) error {
 ` + "\t" + `
@@ -179,7 +179,7 @@ func (m TestUnionA) MakeVDLTarget() vdl.Target {
 func (x TestUnionB) Index() int { return 1 }
 func (x TestUnionB) Interface() interface{} { return x.Value }
 func (x TestUnionB) Name() string { return "B" }
-func (x TestUnionB) __VDLReflect(__TestUnionReflect) {}
+func (x TestUnionB) VDLReflect(__TestUnionReflect) {}
 
 func (m TestUnionB) FillVDLTarget(t vdl.Target, tt *vdl.Type) error {
 ` + "\t" + `

@@ -26,7 +26,7 @@ type Struct struct {
 	Y int32
 }
 
-func (Struct) __VDLReflect(struct {
+func (Struct) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/cmd/vrpc/internal.Struct"`
 }) {
 }
@@ -99,7 +99,7 @@ func (x *Struct) VDLRead(dec vdl.Decoder) error {
 
 type Array2Int [2]int32
 
-func (Array2Int) __VDLReflect(struct {
+func (Array2Int) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/cmd/vrpc/internal.Array2Int"`
 }) {
 }

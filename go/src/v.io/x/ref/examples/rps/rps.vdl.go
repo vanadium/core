@@ -45,7 +45,7 @@ type GameId struct {
 	Id string
 }
 
-func (GameId) __VDLReflect(struct {
+func (GameId) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.GameId"`
 }) {
 }
@@ -106,7 +106,7 @@ func (x *GameId) VDLRead(dec vdl.Decoder) error {
 
 type GameTypeTag byte
 
-func (GameTypeTag) __VDLReflect(struct {
+func (GameTypeTag) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.GameTypeTag"`
 }) {
 }
@@ -138,7 +138,7 @@ type GameOptions struct {
 	GameType  GameTypeTag // The type of game to play: Classic or LizardSpock.
 }
 
-func (GameOptions) __VDLReflect(struct {
+func (GameOptions) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.GameOptions"`
 }) {
 }
@@ -213,7 +213,7 @@ func (x *GameOptions) VDLRead(dec vdl.Decoder) error {
 type Unused struct {
 }
 
-func (Unused) __VDLReflect(struct {
+func (Unused) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.Unused"`
 }) {
 }
@@ -269,8 +269,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the PlayerAction union type.
-		__VDLReflect(__PlayerActionReflect)
+		// VDLReflect describes the PlayerAction union type.
+		VDLReflect(__PlayerActionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -292,12 +292,12 @@ type (
 func (x PlayerActionMove) Index() int                         { return 0 }
 func (x PlayerActionMove) Interface() interface{}             { return x.Value }
 func (x PlayerActionMove) Name() string                       { return "Move" }
-func (x PlayerActionMove) __VDLReflect(__PlayerActionReflect) {}
+func (x PlayerActionMove) VDLReflect(__PlayerActionReflect) {}
 
 func (x PlayerActionQuit) Index() int                         { return 1 }
 func (x PlayerActionQuit) Interface() interface{}             { return x.Value }
 func (x PlayerActionQuit) Name() string                       { return "Quit" }
-func (x PlayerActionQuit) __VDLReflect(__PlayerActionReflect) {}
+func (x PlayerActionQuit) VDLReflect(__PlayerActionReflect) {}
 
 func (x PlayerActionMove) VDLIsZero() bool {
 	return x.Value == ""
@@ -383,7 +383,7 @@ func VDLReadPlayerAction(dec vdl.Decoder, x *PlayerAction) error {
 
 type PlayersMoves [2]string
 
-func (PlayersMoves) __VDLReflect(struct {
+func (PlayersMoves) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.PlayersMoves"`
 }) {
 }
@@ -434,7 +434,7 @@ func (x *PlayersMoves) VDLRead(dec vdl.Decoder) error {
 // was won by player 1 or was won by player 2.
 type WinnerTag byte
 
-func (WinnerTag) __VDLReflect(struct {
+func (WinnerTag) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.WinnerTag"`
 }) {
 }
@@ -469,7 +469,7 @@ type Round struct {
 	EndTime   time.Time    // The time at which the round ended.
 }
 
-func (Round) __VDLReflect(struct {
+func (Round) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.Round"`
 }) {
 }
@@ -617,7 +617,7 @@ type ScoreCard struct {
 	Winner    WinnerTag   // Who won the game.
 }
 
-func (ScoreCard) __VDLReflect(struct {
+func (ScoreCard) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.ScoreCard"`
 }) {
 }
@@ -879,8 +879,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the JudgeAction union type.
-		__VDLReflect(__JudgeActionReflect)
+		// VDLReflect describes the JudgeAction union type.
+		VDLReflect(__JudgeActionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -911,27 +911,27 @@ type (
 func (x JudgeActionPlayerNum) Index() int                        { return 0 }
 func (x JudgeActionPlayerNum) Interface() interface{}            { return x.Value }
 func (x JudgeActionPlayerNum) Name() string                      { return "PlayerNum" }
-func (x JudgeActionPlayerNum) __VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionPlayerNum) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionOpponentName) Index() int                        { return 1 }
 func (x JudgeActionOpponentName) Interface() interface{}            { return x.Value }
 func (x JudgeActionOpponentName) Name() string                      { return "OpponentName" }
-func (x JudgeActionOpponentName) __VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionOpponentName) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionMoveOptions) Index() int                        { return 2 }
 func (x JudgeActionMoveOptions) Interface() interface{}            { return x.Value }
 func (x JudgeActionMoveOptions) Name() string                      { return "MoveOptions" }
-func (x JudgeActionMoveOptions) __VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionMoveOptions) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionRoundResult) Index() int                        { return 3 }
 func (x JudgeActionRoundResult) Interface() interface{}            { return x.Value }
 func (x JudgeActionRoundResult) Name() string                      { return "RoundResult" }
-func (x JudgeActionRoundResult) __VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionRoundResult) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionScore) Index() int                        { return 4 }
 func (x JudgeActionScore) Interface() interface{}            { return x.Value }
 func (x JudgeActionScore) Name() string                      { return "Score" }
-func (x JudgeActionScore) __VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionScore) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionPlayerNum) VDLIsZero() bool {
 	return x.Value == 0
@@ -1098,7 +1098,7 @@ type PlayResult struct {
 	YouWon bool // True if the player receiving the result won the game.
 }
 
-func (PlayResult) __VDLReflect(struct {
+func (PlayResult) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/rps.PlayResult"`
 }) {
 }

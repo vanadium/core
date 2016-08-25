@@ -35,7 +35,7 @@ type WireCiphertext struct {
 	Bytes map[string][]byte
 }
 
-func (WireCiphertext) __VDLReflect(struct {
+func (WireCiphertext) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security/bcrypter.WireCiphertext"`
 }) {
 }
@@ -173,7 +173,7 @@ type WireParams struct {
 	Params []byte
 }
 
-func (WireParams) __VDLReflect(struct {
+func (WireParams) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security/bcrypter.WireParams"`
 }) {
 }
@@ -272,7 +272,7 @@ type WirePrivateKey struct {
 	Keys [][]byte
 }
 
-func (WirePrivateKey) __VDLReflect(struct {
+func (WirePrivateKey) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security/bcrypter.WirePrivateKey"`
 }) {
 }

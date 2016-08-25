@@ -20,7 +20,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type MyTime time.Time
 
-func (MyTime) __VDLReflect(struct {
+func (MyTime) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/nativedep2.MyTime"`
 }) {
 }

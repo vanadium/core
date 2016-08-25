@@ -25,7 +25,7 @@ type groupData struct {
 	Entries map[groups.BlessingPatternChunk]struct{}
 }
 
-func (groupData) __VDLReflect(struct {
+func (groupData) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/groups/internal/server.groupData"`
 }) {
 }

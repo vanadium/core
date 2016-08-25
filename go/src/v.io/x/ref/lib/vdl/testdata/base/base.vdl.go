@@ -27,7 +27,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type NamedBool bool
 
-func (NamedBool) __VDLReflect(struct {
+func (NamedBool) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedBool"`
 }) {
 }
@@ -55,7 +55,7 @@ func (x *NamedBool) VDLRead(dec vdl.Decoder) error {
 
 type NamedByte byte
 
-func (NamedByte) __VDLReflect(struct {
+func (NamedByte) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedByte"`
 }) {
 }
@@ -83,7 +83,7 @@ func (x *NamedByte) VDLRead(dec vdl.Decoder) error {
 
 type NamedUint16 uint16
 
-func (NamedUint16) __VDLReflect(struct {
+func (NamedUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedUint16"`
 }) {
 }
@@ -111,7 +111,7 @@ func (x *NamedUint16) VDLRead(dec vdl.Decoder) error {
 
 type NamedUint32 uint32
 
-func (NamedUint32) __VDLReflect(struct {
+func (NamedUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedUint32"`
 }) {
 }
@@ -139,7 +139,7 @@ func (x *NamedUint32) VDLRead(dec vdl.Decoder) error {
 
 type NamedUint64 uint64
 
-func (NamedUint64) __VDLReflect(struct {
+func (NamedUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedUint64"`
 }) {
 }
@@ -167,7 +167,7 @@ func (x *NamedUint64) VDLRead(dec vdl.Decoder) error {
 
 type NamedInt8 int8
 
-func (NamedInt8) __VDLReflect(struct {
+func (NamedInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedInt8"`
 }) {
 }
@@ -195,7 +195,7 @@ func (x *NamedInt8) VDLRead(dec vdl.Decoder) error {
 
 type NamedInt16 int16
 
-func (NamedInt16) __VDLReflect(struct {
+func (NamedInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedInt16"`
 }) {
 }
@@ -223,7 +223,7 @@ func (x *NamedInt16) VDLRead(dec vdl.Decoder) error {
 
 type NamedInt32 int32
 
-func (NamedInt32) __VDLReflect(struct {
+func (NamedInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedInt32"`
 }) {
 }
@@ -251,7 +251,7 @@ func (x *NamedInt32) VDLRead(dec vdl.Decoder) error {
 
 type NamedInt64 int64
 
-func (NamedInt64) __VDLReflect(struct {
+func (NamedInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedInt64"`
 }) {
 }
@@ -279,7 +279,7 @@ func (x *NamedInt64) VDLRead(dec vdl.Decoder) error {
 
 type NamedFloat32 float32
 
-func (NamedFloat32) __VDLReflect(struct {
+func (NamedFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedFloat32"`
 }) {
 }
@@ -307,7 +307,7 @@ func (x *NamedFloat32) VDLRead(dec vdl.Decoder) error {
 
 type NamedFloat64 float64
 
-func (NamedFloat64) __VDLReflect(struct {
+func (NamedFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedFloat64"`
 }) {
 }
@@ -335,7 +335,7 @@ func (x *NamedFloat64) VDLRead(dec vdl.Decoder) error {
 
 type NamedString string
 
-func (NamedString) __VDLReflect(struct {
+func (NamedString) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedString"`
 }) {
 }
@@ -408,7 +408,7 @@ func (x NamedEnum) String() string {
 	return ""
 }
 
-func (NamedEnum) __VDLReflect(struct {
+func (NamedEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedEnum"`
 	Enum struct{ A, B, C string }
 }) {
@@ -439,7 +439,7 @@ func (x *NamedEnum) VDLRead(dec vdl.Decoder) error {
 
 type NamedArray [2]bool
 
-func (NamedArray) __VDLReflect(struct {
+func (NamedArray) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedArray"`
 }) {
 }
@@ -488,7 +488,7 @@ func (x *NamedArray) VDLRead(dec vdl.Decoder) error {
 
 type NamedList []uint32
 
-func (NamedList) __VDLReflect(struct {
+func (NamedList) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedList"`
 }) {
 }
@@ -538,7 +538,7 @@ func (x *NamedList) VDLRead(dec vdl.Decoder) error {
 
 type NamedSet map[string]struct{}
 
-func (NamedSet) __VDLReflect(struct {
+func (NamedSet) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedSet"`
 }) {
 }
@@ -591,7 +591,7 @@ func (x *NamedSet) VDLRead(dec vdl.Decoder) error {
 
 type NamedMap map[string]float32
 
-func (NamedMap) __VDLReflect(struct {
+func (NamedMap) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedMap"`
 }) {
 }
@@ -658,7 +658,7 @@ type NamedStruct struct {
 	C int32
 }
 
-func (NamedStruct) __VDLReflect(struct {
+func (NamedStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NamedStruct"`
 }) {
 }
@@ -750,8 +750,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the NamedUnion union type.
-		__VDLReflect(__NamedUnionReflect)
+		// VDLReflect describes the NamedUnion union type.
+		VDLReflect(__NamedUnionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -776,17 +776,17 @@ type (
 func (x NamedUnionA) Index() int                       { return 0 }
 func (x NamedUnionA) Interface() interface{}           { return x.Value }
 func (x NamedUnionA) Name() string                     { return "A" }
-func (x NamedUnionA) __VDLReflect(__NamedUnionReflect) {}
+func (x NamedUnionA) VDLReflect(__NamedUnionReflect) {}
 
 func (x NamedUnionB) Index() int                       { return 1 }
 func (x NamedUnionB) Interface() interface{}           { return x.Value }
 func (x NamedUnionB) Name() string                     { return "B" }
-func (x NamedUnionB) __VDLReflect(__NamedUnionReflect) {}
+func (x NamedUnionB) VDLReflect(__NamedUnionReflect) {}
 
 func (x NamedUnionC) Index() int                       { return 2 }
 func (x NamedUnionC) Interface() interface{}           { return x.Value }
 func (x NamedUnionC) Name() string                     { return "C" }
-func (x NamedUnionC) __VDLReflect(__NamedUnionReflect) {}
+func (x NamedUnionC) VDLReflect(__NamedUnionReflect) {}
 
 func (x NamedUnionA) VDLIsZero() bool {
 	return !x.Value
@@ -928,7 +928,7 @@ type Scalars struct {
 	B13 NamedUnion
 }
 
-func (Scalars) __VDLReflect(struct {
+func (Scalars) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.Scalars"`
 }) {
 }
@@ -1445,7 +1445,7 @@ type KeyScalars struct {
 	B13 NamedString
 }
 
-func (KeyScalars) __VDLReflect(struct {
+func (KeyScalars) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.KeyScalars"`
 }) {
 }
@@ -1782,7 +1782,7 @@ func (x *KeyScalars) VDLRead(dec vdl.Decoder) error {
 
 type ScalarsArray [2]Scalars
 
-func (ScalarsArray) __VDLReflect(struct {
+func (ScalarsArray) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.ScalarsArray"`
 }) {
 }
@@ -1847,7 +1847,7 @@ type Composites struct {
 	A4 map[string]Scalars
 }
 
-func (Composites) __VDLReflect(struct {
+func (Composites) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.Composites"`
 }) {
 }
@@ -2133,7 +2133,7 @@ func __VDLReadAnon_map_3(dec vdl.Decoder, x *map[string]Scalars) error {
 
 type CompositesArray [2]Composites
 
-func (CompositesArray) __VDLReflect(struct {
+func (CompositesArray) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.CompositesArray"`
 }) {
 }
@@ -2198,7 +2198,7 @@ type CompComp struct {
 	A4 map[KeyScalars][]map[string]Composites
 }
 
-func (CompComp) __VDLReflect(struct {
+func (CompComp) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.CompComp"`
 }) {
 }
@@ -2583,7 +2583,7 @@ type Args struct {
 	B int32
 }
 
-func (Args) __VDLReflect(struct {
+func (Args) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.Args"`
 }) {
 }
@@ -2661,7 +2661,7 @@ type NestedArgs struct {
 	Args Args
 }
 
-func (NestedArgs) __VDLReflect(struct {
+func (NestedArgs) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/vdl/testdata/base.NestedArgs"`
 }) {
 }

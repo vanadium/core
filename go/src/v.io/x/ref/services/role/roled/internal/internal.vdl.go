@@ -46,7 +46,7 @@ type Config struct {
 	Peers []security.BlessingPattern
 }
 
-func (Config) __VDLReflect(struct {
+func (Config) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/role/roled/internal.Config"`
 }) {
 }

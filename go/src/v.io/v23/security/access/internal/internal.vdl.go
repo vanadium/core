@@ -25,7 +25,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // This type can be used to index into a Permissions.
 type MyTag string
 
-func (MyTag) __VDLReflect(struct {
+func (MyTag) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security/access/internal.MyTag"`
 }) {
 }

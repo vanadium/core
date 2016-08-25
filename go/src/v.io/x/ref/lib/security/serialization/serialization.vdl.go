@@ -22,7 +22,7 @@ type SignedHeader struct {
 	ChunkSizeBytes int64
 }
 
-func (SignedHeader) __VDLReflect(struct {
+func (SignedHeader) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security/serialization.SignedHeader"`
 }) {
 }
@@ -83,7 +83,7 @@ func (x *SignedHeader) VDLRead(dec vdl.Decoder) error {
 
 type HashCode [32]byte
 
-func (HashCode) __VDLReflect(struct {
+func (HashCode) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/lib/security/serialization.HashCode"`
 }) {
 }
@@ -118,8 +118,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the SignedData union type.
-		__VDLReflect(__SignedDataReflect)
+		// VDLReflect describes the SignedData union type.
+		VDLReflect(__SignedDataReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -141,12 +141,12 @@ type (
 func (x SignedDataSignature) Index() int                       { return 0 }
 func (x SignedDataSignature) Interface() interface{}           { return x.Value }
 func (x SignedDataSignature) Name() string                     { return "Signature" }
-func (x SignedDataSignature) __VDLReflect(__SignedDataReflect) {}
+func (x SignedDataSignature) VDLReflect(__SignedDataReflect) {}
 
 func (x SignedDataHash) Index() int                       { return 1 }
 func (x SignedDataHash) Interface() interface{}           { return x.Value }
 func (x SignedDataHash) Name() string                     { return "Hash" }
-func (x SignedDataHash) __VDLReflect(__SignedDataReflect) {}
+func (x SignedDataHash) VDLReflect(__SignedDataReflect) {}
 
 func (x SignedDataSignature) VDLIsZero() bool {
 	return x.Value.VDLIsZero()

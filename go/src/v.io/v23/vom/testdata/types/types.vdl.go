@@ -28,7 +28,7 @@ type TestCase struct {
 	HexValue   string     // Hex pattern representing vom encoding of Value
 }
 
-func (TestCase) __VDLReflect(struct {
+func (TestCase) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.TestCase"`
 }) {
 }
@@ -190,7 +190,7 @@ type ConvertGroup struct {
 	Values      []*vdl.Value
 }
 
-func (ConvertGroup) __VDLReflect(struct {
+func (ConvertGroup) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.ConvertGroup"`
 }) {
 }
@@ -343,7 +343,7 @@ type VomdataStruct struct {
 	ConvertData      map[string][]ConvertGroup
 }
 
-func (VomdataStruct) __VDLReflect(struct {
+func (VomdataStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.VomdataStruct"`
 }) {
 }
@@ -670,7 +670,7 @@ func __VDLReadAnon_list_6(dec vdl.Decoder, x *[]ConvertGroup) error {
 // Named Types
 type NBool bool
 
-func (NBool) __VDLReflect(struct {
+func (NBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NBool"`
 }) {
 }
@@ -698,7 +698,7 @@ func (x *NBool) VDLRead(dec vdl.Decoder) error {
 
 type NString string
 
-func (NString) __VDLReflect(struct {
+func (NString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NString"`
 }) {
 }
@@ -726,7 +726,7 @@ func (x *NString) VDLRead(dec vdl.Decoder) error {
 
 type NByteSlice []byte
 
-func (NByteSlice) __VDLReflect(struct {
+func (NByteSlice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NByteSlice"`
 }) {
 }
@@ -753,7 +753,7 @@ func (x *NByteSlice) VDLRead(dec vdl.Decoder) error {
 
 type NByteArray [4]byte
 
-func (NByteArray) __VDLReflect(struct {
+func (NByteArray) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NByteArray"`
 }) {
 }
@@ -779,7 +779,7 @@ func (x *NByteArray) VDLRead(dec vdl.Decoder) error {
 
 type NByte byte
 
-func (NByte) __VDLReflect(struct {
+func (NByte) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NByte"`
 }) {
 }
@@ -807,7 +807,7 @@ func (x *NByte) VDLRead(dec vdl.Decoder) error {
 
 type NUint16 uint16
 
-func (NUint16) __VDLReflect(struct {
+func (NUint16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NUint16"`
 }) {
 }
@@ -835,7 +835,7 @@ func (x *NUint16) VDLRead(dec vdl.Decoder) error {
 
 type NUint32 uint32
 
-func (NUint32) __VDLReflect(struct {
+func (NUint32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NUint32"`
 }) {
 }
@@ -863,7 +863,7 @@ func (x *NUint32) VDLRead(dec vdl.Decoder) error {
 
 type NUint64 uint64
 
-func (NUint64) __VDLReflect(struct {
+func (NUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NUint64"`
 }) {
 }
@@ -891,7 +891,7 @@ func (x *NUint64) VDLRead(dec vdl.Decoder) error {
 
 type NInt8 int8
 
-func (NInt8) __VDLReflect(struct {
+func (NInt8) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NInt8"`
 }) {
 }
@@ -919,7 +919,7 @@ func (x *NInt8) VDLRead(dec vdl.Decoder) error {
 
 type NInt16 int16
 
-func (NInt16) __VDLReflect(struct {
+func (NInt16) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NInt16"`
 }) {
 }
@@ -947,7 +947,7 @@ func (x *NInt16) VDLRead(dec vdl.Decoder) error {
 
 type NInt32 int32
 
-func (NInt32) __VDLReflect(struct {
+func (NInt32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NInt32"`
 }) {
 }
@@ -975,7 +975,7 @@ func (x *NInt32) VDLRead(dec vdl.Decoder) error {
 
 type NInt64 int64
 
-func (NInt64) __VDLReflect(struct {
+func (NInt64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NInt64"`
 }) {
 }
@@ -1003,7 +1003,7 @@ func (x *NInt64) VDLRead(dec vdl.Decoder) error {
 
 type NFloat32 float32
 
-func (NFloat32) __VDLReflect(struct {
+func (NFloat32) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NFloat32"`
 }) {
 }
@@ -1031,7 +1031,7 @@ func (x *NFloat32) VDLRead(dec vdl.Decoder) error {
 
 type NFloat64 float64
 
-func (NFloat64) __VDLReflect(struct {
+func (NFloat64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NFloat64"`
 }) {
 }
@@ -1059,7 +1059,7 @@ func (x *NFloat64) VDLRead(dec vdl.Decoder) error {
 
 type NArray2Uint64 [2]uint64
 
-func (NArray2Uint64) __VDLReflect(struct {
+func (NArray2Uint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NArray2Uint64"`
 }) {
 }
@@ -1108,7 +1108,7 @@ func (x *NArray2Uint64) VDLRead(dec vdl.Decoder) error {
 
 type NListUint64 []uint64
 
-func (NListUint64) __VDLReflect(struct {
+func (NListUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NListUint64"`
 }) {
 }
@@ -1158,7 +1158,7 @@ func (x *NListUint64) VDLRead(dec vdl.Decoder) error {
 
 type NSetUint64 map[uint64]struct{}
 
-func (NSetUint64) __VDLReflect(struct {
+func (NSetUint64) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NSetUint64"`
 }) {
 }
@@ -1211,7 +1211,7 @@ func (x *NSetUint64) VDLRead(dec vdl.Decoder) error {
 
 type NMapUint64String map[uint64]string
 
-func (NMapUint64String) __VDLReflect(struct {
+func (NMapUint64String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NMapUint64String"`
 }) {
 }
@@ -1278,7 +1278,7 @@ type NStruct struct {
 	C int64
 }
 
-func (NStruct) __VDLReflect(struct {
+func (NStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NStruct"`
 }) {
 }
@@ -1408,7 +1408,7 @@ func (x NEnum) String() string {
 	return ""
 }
 
-func (NEnum) __VDLReflect(struct {
+func (NEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.NEnum"`
 	Enum struct{ A, B, C string }
 }) {
@@ -1446,8 +1446,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the NUnion union type.
-		__VDLReflect(__NUnionReflect)
+		// VDLReflect describes the NUnion union type.
+		VDLReflect(__NUnionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1472,17 +1472,17 @@ type (
 func (x NUnionA) Index() int                   { return 0 }
 func (x NUnionA) Interface() interface{}       { return x.Value }
 func (x NUnionA) Name() string                 { return "A" }
-func (x NUnionA) __VDLReflect(__NUnionReflect) {}
+func (x NUnionA) VDLReflect(__NUnionReflect) {}
 
 func (x NUnionB) Index() int                   { return 1 }
 func (x NUnionB) Interface() interface{}       { return x.Value }
 func (x NUnionB) Name() string                 { return "B" }
-func (x NUnionB) __VDLReflect(__NUnionReflect) {}
+func (x NUnionB) VDLReflect(__NUnionReflect) {}
 
 func (x NUnionC) Index() int                   { return 2 }
 func (x NUnionC) Interface() interface{}       { return x.Value }
 func (x NUnionC) Name() string                 { return "C" }
-func (x NUnionC) __VDLReflect(__NUnionReflect) {}
+func (x NUnionC) VDLReflect(__NUnionReflect) {}
 
 func (x NUnionA) VDLIsZero() bool {
 	return !x.Value
@@ -1595,7 +1595,7 @@ func VDLReadNUnion(dec vdl.Decoder, x *NUnion) error {
 // Nested Custom Types
 type MBool NBool
 
-func (MBool) __VDLReflect(struct {
+func (MBool) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MBool"`
 }) {
 }
@@ -1630,7 +1630,7 @@ type MStruct struct {
 	F *vdl.Value
 }
 
-func (MStruct) __VDLReflect(struct {
+func (MStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MStruct"`
 }) {
 }
@@ -1786,7 +1786,7 @@ func (x *MStruct) VDLRead(dec vdl.Decoder) error {
 
 type MList []NListUint64
 
-func (MList) __VDLReflect(struct {
+func (MList) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MList"`
 }) {
 }
@@ -1843,7 +1843,7 @@ func (x *MList) VDLRead(dec vdl.Decoder) error {
 
 type MMap map[NFloat32]NListUint64
 
-func (MMap) __VDLReflect(struct {
+func (MMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MMap"`
 }) {
 }
@@ -1903,7 +1903,7 @@ func (x *MMap) VDLRead(dec vdl.Decoder) error {
 
 type MByteSlice []byte
 
-func (MByteSlice) __VDLReflect(struct {
+func (MByteSlice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MByteSlice"`
 }) {
 }
@@ -1930,7 +1930,7 @@ func (x *MByteSlice) VDLRead(dec vdl.Decoder) error {
 
 type MInt8Slice []int8
 
-func (MInt8Slice) __VDLReflect(struct {
+func (MInt8Slice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MInt8Slice"`
 }) {
 }
@@ -1981,7 +1981,7 @@ func (x *MInt8Slice) VDLRead(dec vdl.Decoder) error {
 // Recursive Type Definitions
 type RecA []RecA
 
-func (RecA) __VDLReflect(struct {
+func (RecA) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.RecA"`
 }) {
 }
@@ -2038,7 +2038,7 @@ func (x *RecA) VDLRead(dec vdl.Decoder) error {
 
 type RecY []RecX
 
-func (RecY) __VDLReflect(struct {
+func (RecY) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.RecY"`
 }) {
 }
@@ -2095,7 +2095,7 @@ func (x *RecY) VDLRead(dec vdl.Decoder) error {
 
 type RecX []RecY
 
-func (RecX) __VDLReflect(struct {
+func (RecX) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.RecX"`
 }) {
 }
@@ -2152,7 +2152,7 @@ func (x *RecX) VDLRead(dec vdl.Decoder) error {
 
 type Rec4 []Rec1
 
-func (Rec4) __VDLReflect(struct {
+func (Rec4) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec4"`
 }) {
 }
@@ -2209,7 +2209,7 @@ func (x *Rec4) VDLRead(dec vdl.Decoder) error {
 
 type Rec3 []Rec4
 
-func (Rec3) __VDLReflect(struct {
+func (Rec3) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec3"`
 }) {
 }
@@ -2266,7 +2266,7 @@ func (x *Rec3) VDLRead(dec vdl.Decoder) error {
 
 type Rec2 []Rec3
 
-func (Rec2) __VDLReflect(struct {
+func (Rec2) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec2"`
 }) {
 }
@@ -2323,7 +2323,7 @@ func (x *Rec2) VDLRead(dec vdl.Decoder) error {
 
 type Rec1 []Rec2
 
-func (Rec1) __VDLReflect(struct {
+func (Rec1) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec1"`
 }) {
 }
@@ -2382,7 +2382,7 @@ type RecStruct struct {
 	A *RecStruct
 }
 
-func (RecStruct) __VDLReflect(struct {
+func (RecStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.RecStruct"`
 }) {
 }
@@ -2461,7 +2461,7 @@ type Rec1234 struct {
 	R4 Rec4
 }
 
-func (Rec1234) __VDLReflect(struct {
+func (Rec1234) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec1234"`
 }) {
 }
@@ -2573,7 +2573,7 @@ type Rec1234A struct {
 	Rec1234 []Rec1234
 }
 
-func (Rec1234A) __VDLReflect(struct {
+func (Rec1234A) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec1234A"`
 }) {
 }
@@ -2747,7 +2747,7 @@ type Rec1234B struct {
 	Rec1234 []Rec1234
 }
 
-func (Rec1234B) __VDLReflect(struct {
+func (Rec1234B) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec1234B"`
 }) {
 }
@@ -2875,7 +2875,7 @@ type Rec1234All struct {
 	B Rec1234B
 }
 
-func (Rec1234All) __VDLReflect(struct {
+func (Rec1234All) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Rec1234All"`
 }) {
 }
@@ -2955,7 +2955,7 @@ func (x *Rec1234All) VDLRead(dec vdl.Decoder) error {
 // Additional types for compatibility and conversion checks
 type ListString []string
 
-func (ListString) __VDLReflect(struct {
+func (ListString) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.ListString"`
 }) {
 }
@@ -3005,7 +3005,7 @@ func (x *ListString) VDLRead(dec vdl.Decoder) error {
 
 type Array3String [3]string
 
-func (Array3String) __VDLReflect(struct {
+func (Array3String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Array3String"`
 }) {
 }
@@ -3054,7 +3054,7 @@ func (x *Array3String) VDLRead(dec vdl.Decoder) error {
 
 type Array4String [4]string
 
-func (Array4String) __VDLReflect(struct {
+func (Array4String) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.Array4String"`
 }) {
 }
@@ -3107,7 +3107,7 @@ type AbcStruct struct {
 	C int64
 }
 
-func (AbcStruct) __VDLReflect(struct {
+func (AbcStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.AbcStruct"`
 }) {
 }
@@ -3196,7 +3196,7 @@ type AdeStruct struct {
 	E *vdl.Type
 }
 
-func (AdeStruct) __VDLReflect(struct {
+func (AdeStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.AdeStruct"`
 }) {
 }
@@ -3298,7 +3298,7 @@ type XyzStruct struct {
 	Z string
 }
 
-func (XyzStruct) __VDLReflect(struct {
+func (XyzStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.XyzStruct"`
 }) {
 }
@@ -3386,7 +3386,7 @@ type YzStruct struct {
 	Z NString
 }
 
-func (YzStruct) __VDLReflect(struct {
+func (YzStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.YzStruct"`
 }) {
 }
@@ -3461,7 +3461,7 @@ type ZStruct struct {
 	Z string
 }
 
-func (ZStruct) __VDLReflect(struct {
+func (ZStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.ZStruct"`
 }) {
 }
@@ -3525,7 +3525,7 @@ type MapOnlyStruct struct {
 	Key2 uint32
 }
 
-func (MapOnlyStruct) __VDLReflect(struct {
+func (MapOnlyStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlyStruct"`
 }) {
 }
@@ -3598,7 +3598,7 @@ func (x *MapOnlyStruct) VDLRead(dec vdl.Decoder) error {
 
 type StructOnlyMap map[string]uint64
 
-func (StructOnlyMap) __VDLReflect(struct {
+func (StructOnlyMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.StructOnlyMap"`
 }) {
 }
@@ -3665,7 +3665,7 @@ type MapSetStruct struct {
 	Eel  bool
 }
 
-func (MapSetStruct) __VDLReflect(struct {
+func (MapSetStruct) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapSetStruct"`
 }) {
 }
@@ -3750,7 +3750,7 @@ func (x *MapSetStruct) VDLRead(dec vdl.Decoder) error {
 
 type SetStructMap map[string]bool
 
-func (SetStructMap) __VDLReflect(struct {
+func (SetStructMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetStructMap"`
 }) {
 }
@@ -3813,7 +3813,7 @@ func (x *SetStructMap) VDLRead(dec vdl.Decoder) error {
 
 type MapStructSet map[string]struct{}
 
-func (MapStructSet) __VDLReflect(struct {
+func (MapStructSet) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapStructSet"`
 }) {
 }
@@ -3866,7 +3866,7 @@ func (x *MapStructSet) VDLRead(dec vdl.Decoder) error {
 
 type SetOnlyMap map[float64]bool
 
-func (SetOnlyMap) __VDLReflect(struct {
+func (SetOnlyMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetOnlyMap"`
 }) {
 }
@@ -3929,7 +3929,7 @@ func (x *SetOnlyMap) VDLRead(dec vdl.Decoder) error {
 
 type SometimesSetMap map[float64]*vdl.Value
 
-func (SometimesSetMap) __VDLReflect(struct {
+func (SometimesSetMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SometimesSetMap"`
 }) {
 }
@@ -3996,7 +3996,7 @@ func (x *SometimesSetMap) VDLRead(dec vdl.Decoder) error {
 
 type MapOnlySet map[float64]struct{}
 
-func (MapOnlySet) __VDLReflect(struct {
+func (MapOnlySet) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlySet"`
 }) {
 }
@@ -4049,7 +4049,7 @@ func (x *MapOnlySet) VDLRead(dec vdl.Decoder) error {
 
 type SetOnlyA map[bool]struct{}
 
-func (SetOnlyA) __VDLReflect(struct {
+func (SetOnlyA) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetOnlyA"`
 }) {
 }
@@ -4102,7 +4102,7 @@ func (x *SetOnlyA) VDLRead(dec vdl.Decoder) error {
 
 type SetOnlyA2 map[NBool]struct{}
 
-func (SetOnlyA2) __VDLReflect(struct {
+func (SetOnlyA2) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetOnlyA2"`
 }) {
 }
@@ -4155,7 +4155,7 @@ func (x *SetOnlyA2) VDLRead(dec vdl.Decoder) error {
 
 type SetOnlyB map[int16]struct{}
 
-func (SetOnlyB) __VDLReflect(struct {
+func (SetOnlyB) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetOnlyB"`
 }) {
 }
@@ -4208,7 +4208,7 @@ func (x *SetOnlyB) VDLRead(dec vdl.Decoder) error {
 
 type SetOnlyB2 map[NInt16]struct{}
 
-func (SetOnlyB2) __VDLReflect(struct {
+func (SetOnlyB2) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.SetOnlyB2"`
 }) {
 }
@@ -4261,7 +4261,7 @@ func (x *SetOnlyB2) VDLRead(dec vdl.Decoder) error {
 
 type MapOnlyA map[uint32]uint32
 
-func (MapOnlyA) __VDLReflect(struct {
+func (MapOnlyA) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlyA"`
 }) {
 }
@@ -4324,7 +4324,7 @@ func (x *MapOnlyA) VDLRead(dec vdl.Decoder) error {
 
 type MapOnlyA2 map[int64]float64
 
-func (MapOnlyA2) __VDLReflect(struct {
+func (MapOnlyA2) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlyA2"`
 }) {
 }
@@ -4387,7 +4387,7 @@ func (x *MapOnlyA2) VDLRead(dec vdl.Decoder) error {
 
 type MapOnlyB map[bool]string
 
-func (MapOnlyB) __VDLReflect(struct {
+func (MapOnlyB) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlyB"`
 }) {
 }
@@ -4450,7 +4450,7 @@ func (x *MapOnlyB) VDLRead(dec vdl.Decoder) error {
 
 type MapOnlyB2 map[NBool]NString
 
-func (MapOnlyB2) __VDLReflect(struct {
+func (MapOnlyB2) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.MapOnlyB2"`
 }) {
 }
@@ -4520,8 +4520,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the BdeUnion union type.
-		__VDLReflect(__BdeUnionReflect)
+		// VDLReflect describes the BdeUnion union type.
+		VDLReflect(__BdeUnionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -4546,17 +4546,17 @@ type (
 func (x BdeUnionB) Index() int                     { return 0 }
 func (x BdeUnionB) Interface() interface{}         { return x.Value }
 func (x BdeUnionB) Name() string                   { return "B" }
-func (x BdeUnionB) __VDLReflect(__BdeUnionReflect) {}
+func (x BdeUnionB) VDLReflect(__BdeUnionReflect) {}
 
 func (x BdeUnionD) Index() int                     { return 1 }
 func (x BdeUnionD) Interface() interface{}         { return x.Value }
 func (x BdeUnionD) Name() string                   { return "D" }
-func (x BdeUnionD) __VDLReflect(__BdeUnionReflect) {}
+func (x BdeUnionD) VDLReflect(__BdeUnionReflect) {}
 
 func (x BdeUnionE) Index() int                     { return 2 }
 func (x BdeUnionE) Interface() interface{}         { return x.Value }
 func (x BdeUnionE) Name() string                   { return "E" }
-func (x BdeUnionE) __VDLReflect(__BdeUnionReflect) {}
+func (x BdeUnionE) VDLReflect(__BdeUnionReflect) {}
 
 func (x BdeUnionB) VDLIsZero() bool {
 	return x.Value == ""
@@ -4720,7 +4720,7 @@ func (x BrieEnum) String() string {
 	return ""
 }
 
-func (BrieEnum) __VDLReflect(struct {
+func (BrieEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.BrieEnum"`
 	Enum struct{ Glee, Brie, Three string }
 }) {
@@ -4784,7 +4784,7 @@ func (x BeanEnum) String() string {
 	return ""
 }
 
-func (BeanEnum) __VDLReflect(struct {
+func (BeanEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.BeanEnum"`
 	Enum struct{ Bean string }
 }) {
@@ -4860,7 +4860,7 @@ func (x FoodEnum) String() string {
 	return ""
 }
 
-func (FoodEnum) __VDLReflect(struct {
+func (FoodEnum) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.FoodEnum"`
 	Enum struct{ Bean, Brie, Cherry string }
 }) {
@@ -4893,7 +4893,7 @@ type StructAny struct {
 	Any *vdl.Value
 }
 
-func (StructAny) __VDLReflect(struct {
+func (StructAny) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.StructAny"`
 }) {
 }
@@ -4962,7 +4962,7 @@ type StructMap struct {
 	Map map[int64]int64
 }
 
-func (StructMap) __VDLReflect(struct {
+func (StructMap) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.StructMap"`
 }) {
 }
@@ -5103,7 +5103,7 @@ type StructManyTypes struct {
 	TypeObject       *vdl.Type
 }
 
-func (StructManyTypes) __VDLReflect(struct {
+func (StructManyTypes) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.StructManyTypes"`
 }) {
 }
@@ -5484,7 +5484,7 @@ func (x *StructManyTypes) VDLRead(dec vdl.Decoder) error {
 
 type AnySlice []*vdl.Value
 
-func (AnySlice) __VDLReflect(struct {
+func (AnySlice) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.AnySlice"`
 }) {
 }
@@ -5551,7 +5551,7 @@ type LargeMessageType struct {
 	Next    *LargeMessageType
 }
 
-func (LargeMessageType) __VDLReflect(struct {
+func (LargeMessageType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.LargeMessageType"`
 }) {
 }
@@ -5643,7 +5643,7 @@ type LargeAnyMessageType struct {
 	Next    *LargeAnyMessageType
 }
 
-func (LargeAnyMessageType) __VDLReflect(struct {
+func (LargeAnyMessageType) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/vom/testdata/types.LargeAnyMessageType"`
 }) {
 }

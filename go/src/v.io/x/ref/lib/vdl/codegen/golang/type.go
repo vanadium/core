@@ -225,7 +225,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 		s += fmt.Sprintf("\n\t}"+
 			"\n\treturn \"\""+
 			"\n}"+
-			"\n\nfunc (%[1]s) __VDLReflect(struct{"+
+			"\n\nfunc (%[1]s) VDLReflect(struct{"+
 			"\n\tName string `vdl:%[3]q`"+
 			"\n\tEnum struct{ %[2]s string }"+
 			"\n}) {"+
@@ -240,7 +240,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 		}
 		s += "\n}" + def.DocSuffix
 		s += fmt.Sprintf("\n"+
-			"\nfunc (%[1]s) __VDLReflect(struct{"+
+			"\nfunc (%[1]s) VDLReflect(struct{"+
 			"\n\tName string `vdl:%[2]q`"+
 			"\n}) {"+
 			"\n}",
@@ -255,8 +255,8 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n\t\tInterface() interface{}"+
 			"\n\t\t// Name returns the field name."+
 			"\n\t\tName() string"+
-			"\n\t\t// __VDLReflect describes the %[1]s union type."+
-			"\n\t\t__VDLReflect(__%[1]sReflect)", def.Name, docBreak(def.Doc))
+			"\n\t\t// VDLReflect describes the %[1]s union type."+
+			"\n\t\tVDLReflect(__%[1]sReflect)", def.Name, docBreak(def.Doc))
 		if !data.SkipGenZeroReadWrite(def) {
 			s += fmt.Sprintf("\n\t\tVDLIsZero() bool"+
 				"\n\t\tVDLWrite(%[1]sEncoder) error", data.Pkg("v.io/v23/vdl"))
@@ -283,13 +283,13 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			s += fmt.Sprintf("\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+
 				"\nfunc (x %[1]s%[2]s) Interface() interface{} { return x.Value }"+
 				"\nfunc (x %[1]s%[2]s) Name() string { return \"%[2]s\" }"+
-				"\nfunc (x %[1]s%[2]s) __VDLReflect(__%[1]sReflect) {}",
+				"\nfunc (x %[1]s%[2]s) VDLReflect(__%[1]sReflect) {}",
 				def.Name, f.Name, ix)
 		}
 	default:
 		s += typeGo(data, def.BaseType) + def.DocSuffix
 		s += fmt.Sprintf("\n"+
-			"\nfunc (%[1]s) __VDLReflect(struct{"+
+			"\nfunc (%[1]s) VDLReflect(struct{"+
 			"\n\tName string `vdl:%[2]q`"+
 			"\n}) {"+
 			"\n}",

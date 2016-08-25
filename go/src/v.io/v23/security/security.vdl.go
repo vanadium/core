@@ -26,7 +26,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 type nonce [16]byte
 
-func (nonce) __VDLReflect(struct {
+func (nonce) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.nonce"`
 }) {
 }
@@ -63,7 +63,7 @@ type Caveat struct {
 	ParamVom []byte      // VOM-encoded bytes of the parameters to be provided to the validation function.
 }
 
-func (Caveat) __VDLReflect(struct {
+func (Caveat) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.Caveat"`
 }) {
 }
@@ -146,7 +146,7 @@ type ThirdPartyRequirements struct {
 	ReportArguments bool // Arguments to the method being invoked.
 }
 
-func (ThirdPartyRequirements) __VDLReflect(struct {
+func (ThirdPartyRequirements) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.ThirdPartyRequirements"`
 }) {
 }
@@ -259,7 +259,7 @@ type publicKeyThirdPartyCaveatParam struct {
 	DischargerRequirements ThirdPartyRequirements
 }
 
-func (publicKeyThirdPartyCaveatParam) __VDLReflect(struct {
+func (publicKeyThirdPartyCaveatParam) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.publicKeyThirdPartyCaveatParam"`
 }) {
 }
@@ -425,7 +425,7 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]Caveat) error {
 // Hash identifies a cryptographic hash function approved for use in signature algorithms.
 type Hash string
 
-func (Hash) __VDLReflect(struct {
+func (Hash) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.Hash"`
 }) {
 }
@@ -464,7 +464,7 @@ type Signature struct {
 	S []byte
 }
 
-func (Signature) __VDLReflect(struct {
+func (Signature) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.Signature"`
 }) {
 }
@@ -576,7 +576,7 @@ type PublicKeyDischarge struct {
 	Signature          Signature // Signature of the content hash of this discharge by the discharger.
 }
 
-func (PublicKeyDischarge) __VDLReflect(struct {
+func (PublicKeyDischarge) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.PublicKeyDischarge"`
 }) {
 }
@@ -683,7 +683,7 @@ func (x *PublicKeyDischarge) VDLRead(dec vdl.Decoder) error {
 // TODO(ataly, ashankar): Define a formal BNF grammar for blessings and blessing patterns.
 type BlessingPattern string
 
-func (BlessingPattern) __VDLReflect(struct {
+func (BlessingPattern) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.BlessingPattern"`
 }) {
 }
@@ -725,7 +725,7 @@ type DischargeImpetus struct {
 	Arguments []*vom.RawBytes   // Arguments to the method invocation.
 }
 
-func (DischargeImpetus) __VDLReflect(struct {
+func (DischargeImpetus) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.DischargeImpetus"`
 }) {
 }
@@ -923,7 +923,7 @@ type Certificate struct {
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
 
-func (Certificate) __VDLReflect(struct {
+func (Certificate) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.Certificate"`
 }) {
 }
@@ -1038,7 +1038,7 @@ type CaveatDescriptor struct {
 	ParamType *vdl.Type   // The type of the parameter expected by the validation function.
 }
 
-func (CaveatDescriptor) __VDLReflect(struct {
+func (CaveatDescriptor) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.CaveatDescriptor"`
 }) {
 }
@@ -1129,7 +1129,7 @@ type WireBlessings struct {
 	CertificateChains [][]Certificate
 }
 
-func (WireBlessings) __VDLReflect(struct {
+func (WireBlessings) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.WireBlessings"`
 }) {
 }
@@ -1295,8 +1295,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the WireDischarge union type.
-		__VDLReflect(__WireDischargeReflect)
+		// VDLReflect describes the WireDischarge union type.
+		VDLReflect(__WireDischargeReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1315,7 +1315,7 @@ type (
 func (x WireDischargePublicKey) Index() int                          { return 0 }
 func (x WireDischargePublicKey) Interface() interface{}              { return x.Value }
 func (x WireDischargePublicKey) Name() string                        { return "PublicKey" }
-func (x WireDischargePublicKey) __VDLReflect(__WireDischargeReflect) {}
+func (x WireDischargePublicKey) VDLReflect(__WireDischargeReflect) {}
 
 func (x WireDischargePublicKey) VDLIsZero() bool {
 	return x.Value.VDLIsZero()
@@ -1379,7 +1379,7 @@ type RejectedBlessing struct {
 	Err      error
 }
 
-func (RejectedBlessing) __VDLReflect(struct {
+func (RejectedBlessing) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security.RejectedBlessing"`
 }) {
 }

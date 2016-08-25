@@ -29,7 +29,7 @@ type WindowSize struct {
 	Cols uint16
 }
 
-func (WindowSize) __VDLReflect(struct {
+func (WindowSize) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/tunnel.WindowSize"`
 }) {
 }
@@ -106,7 +106,7 @@ type ShellOpts struct {
 	WinSize     WindowSize // The size of the window.
 }
 
-func (ShellOpts) __VDLReflect(struct {
+func (ShellOpts) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/tunnel.ShellOpts"`
 }) {
 }
@@ -241,7 +241,7 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
 type Unused struct {
 }
 
-func (Unused) __VDLReflect(struct {
+func (Unused) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/examples/tunnel.Unused"`
 }) {
 }
@@ -297,8 +297,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the ClientShellPacket union type.
-		__VDLReflect(__ClientShellPacketReflect)
+		// VDLReflect describes the ClientShellPacket union type.
+		VDLReflect(__ClientShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -330,17 +330,17 @@ type (
 func (x ClientShellPacketStdin) Index() int                              { return 0 }
 func (x ClientShellPacketStdin) Interface() interface{}                  { return x.Value }
 func (x ClientShellPacketStdin) Name() string                            { return "Stdin" }
-func (x ClientShellPacketStdin) __VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketStdin) VDLReflect(__ClientShellPacketReflect) {}
 
 func (x ClientShellPacketEndOfFile) Index() int                              { return 1 }
 func (x ClientShellPacketEndOfFile) Interface() interface{}                  { return x.Value }
 func (x ClientShellPacketEndOfFile) Name() string                            { return "EndOfFile" }
-func (x ClientShellPacketEndOfFile) __VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketEndOfFile) VDLReflect(__ClientShellPacketReflect) {}
 
 func (x ClientShellPacketWinSize) Index() int                              { return 2 }
 func (x ClientShellPacketWinSize) Interface() interface{}                  { return x.Value }
 func (x ClientShellPacketWinSize) Name() string                            { return "WinSize" }
-func (x ClientShellPacketWinSize) __VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketWinSize) VDLReflect(__ClientShellPacketReflect) {}
 
 func (x ClientShellPacketStdin) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -456,8 +456,8 @@ type (
 		Interface() interface{}
 		// Name returns the field name.
 		Name() string
-		// __VDLReflect describes the ServerShellPacket union type.
-		__VDLReflect(__ServerShellPacketReflect)
+		// VDLReflect describes the ServerShellPacket union type.
+		VDLReflect(__ServerShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -483,12 +483,12 @@ type (
 func (x ServerShellPacketStdout) Index() int                              { return 0 }
 func (x ServerShellPacketStdout) Interface() interface{}                  { return x.Value }
 func (x ServerShellPacketStdout) Name() string                            { return "Stdout" }
-func (x ServerShellPacketStdout) __VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStdout) VDLReflect(__ServerShellPacketReflect) {}
 
 func (x ServerShellPacketStderr) Index() int                              { return 1 }
 func (x ServerShellPacketStderr) Interface() interface{}                  { return x.Value }
 func (x ServerShellPacketStderr) Name() string                            { return "Stderr" }
-func (x ServerShellPacketStderr) __VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStderr) VDLReflect(__ServerShellPacketReflect) {}
 
 func (x ServerShellPacketStdout) VDLIsZero() bool {
 	return len(x.Value) == 0

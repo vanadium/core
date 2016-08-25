@@ -157,7 +157,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // support resuming from a specific point.
 type ResumeMarker []byte
 
-func (ResumeMarker) __VDLReflect(struct {
+func (ResumeMarker) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/watch.ResumeMarker"`
 }) {
 }
@@ -193,7 +193,7 @@ type GlobRequest struct {
 	ResumeMarker ResumeMarker
 }
 
-func (GlobRequest) __VDLReflect(struct {
+func (GlobRequest) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/watch.GlobRequest"`
 }) {
 }
@@ -290,7 +290,7 @@ type Change struct {
 	Continued bool
 }
 
-func (Change) __VDLReflect(struct {
+func (Change) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/services/watch.Change"`
 }) {
 }

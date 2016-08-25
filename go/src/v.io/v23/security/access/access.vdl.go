@@ -140,7 +140,7 @@ type AccessList struct {
 	NotIn []string
 }
 
-func (AccessList) __VDLReflect(struct {
+func (AccessList) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security/access.AccessList"`
 }) {
 }
@@ -304,7 +304,7 @@ func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]string) error {
 // (http://en.wikipedia.org/wiki/Role-based_access_control)
 type Permissions map[string]AccessList
 
-func (Permissions) __VDLReflect(struct {
+func (Permissions) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security/access.Permissions"`
 }) {
 }
@@ -369,7 +369,7 @@ func (x *Permissions) VDLRead(dec vdl.Decoder) error {
 // this package.
 type Tag string
 
-func (Tag) __VDLReflect(struct {
+func (Tag) VDLReflect(struct {
 	Name string `vdl:"v.io/v23/security/access.Tag"`
 }) {
 }

@@ -27,7 +27,7 @@ type HistogramBucket struct {
 	Count int64
 }
 
-func (HistogramBucket) __VDLReflect(struct {
+func (HistogramBucket) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/stats.HistogramBucket"`
 }) {
 }
@@ -112,7 +112,7 @@ type HistogramValue struct {
 	Buckets []HistogramBucket
 }
 
-func (HistogramValue) __VDLReflect(struct {
+func (HistogramValue) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/stats.HistogramValue"`
 }) {
 }
@@ -290,7 +290,7 @@ type TimeSeries struct {
 	StartTime time.Time
 }
 
-func (TimeSeries) __VDLReflect(struct {
+func (TimeSeries) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/stats.TimeSeries"`
 }) {
 }

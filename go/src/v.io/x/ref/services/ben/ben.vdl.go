@@ -27,7 +27,7 @@ type Cpu struct {
 	ClockSpeedMhz uint32 // Clock speed of the CPU in MHz
 }
 
-func (Cpu) __VDLReflect(struct {
+func (Cpu) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/ben.Cpu"`
 }) {
 }
@@ -116,7 +116,7 @@ type Os struct {
 	Version string // Details of the distribution/version, e.g., "Ubuntu 14.04", "Mac OS X 10.11.2 15C50" etc.
 }
 
-func (Os) __VDLReflect(struct {
+func (Os) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/ben.Os"`
 }) {
 }
@@ -194,7 +194,7 @@ type Scenario struct {
 	Label string // Arbitrary string label assigned by the uploader.
 }
 
-func (Scenario) __VDLReflect(struct {
+func (Scenario) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/ben.Scenario"`
 }) {
 }
@@ -285,7 +285,7 @@ func (x *Scenario) VDLRead(dec vdl.Decoder) error {
 // the complete source code itself.
 type SourceCode string
 
-func (SourceCode) __VDLReflect(struct {
+func (SourceCode) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/ben.SourceCode"`
 }) {
 }
@@ -322,7 +322,7 @@ type Run struct {
 	Parallelism       uint32  // For Go, the GOMAXPROCS used during benchmark execution
 }
 
-func (Run) __VDLReflect(struct {
+func (Run) VDLReflect(struct {
 	Name string `vdl:"v.io/x/ref/services/ben.Run"`
 }) {
 }
