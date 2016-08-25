@@ -91,7 +91,6 @@ type (
 	badGlobChildren6 struct{}
 )
 
-func (badcall) notExported(*context.T, ServerCall) error     { return nil }
 func (badcall) NonRPC1() error                               { return nil }
 func (badcall) NonRPC2(int) error                            { return nil }
 func (badcall) NonRPC3(int, string) error                    { return nil }
@@ -196,7 +195,6 @@ func TestTypeCheckMethods(t *testing.T) {
 			"Describe__": verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil)).Error(),
 		}},
 		{badcall{}, map[string]string{
-			"notExported": verror.New(verror.ErrBadArg, nil, verror.New(errMethodNotExported, nil)).Error(),
 			"NonRPC1":     verror.New(errNonRPCMethod, nil).Error(),
 			"NonRPC2":     verror.New(errNonRPCMethod, nil).Error(),
 			"NonRPC3":     verror.New(errNonRPCMethod, nil).Error(),
