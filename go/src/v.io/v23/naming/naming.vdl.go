@@ -417,14 +417,14 @@ type (
 	}
 )
 
-func (x GlobReplyEntry) Index() int                      { return 0 }
-func (x GlobReplyEntry) Interface() interface{}          { return x.Value }
-func (x GlobReplyEntry) Name() string                    { return "Entry" }
+func (x GlobReplyEntry) Index() int                    { return 0 }
+func (x GlobReplyEntry) Interface() interface{}        { return x.Value }
+func (x GlobReplyEntry) Name() string                  { return "Entry" }
 func (x GlobReplyEntry) VDLReflect(__GlobReplyReflect) {}
 
-func (x GlobReplyError) Index() int                      { return 1 }
-func (x GlobReplyError) Interface() interface{}          { return x.Value }
-func (x GlobReplyError) Name() string                    { return "Error" }
+func (x GlobReplyError) Index() int                    { return 1 }
+func (x GlobReplyError) Interface() interface{}        { return x.Value }
+func (x GlobReplyError) Name() string                  { return "Error" }
 func (x GlobReplyError) VDLReflect(__GlobReplyReflect) {}
 
 func (x GlobReplyEntry) VDLIsZero() bool {
@@ -540,14 +540,14 @@ type (
 	}
 )
 
-func (x GlobChildrenReplyName) Index() int                              { return 0 }
-func (x GlobChildrenReplyName) Interface() interface{}                  { return x.Value }
-func (x GlobChildrenReplyName) Name() string                            { return "Name" }
+func (x GlobChildrenReplyName) Index() int                            { return 0 }
+func (x GlobChildrenReplyName) Interface() interface{}                { return x.Value }
+func (x GlobChildrenReplyName) Name() string                          { return "Name" }
 func (x GlobChildrenReplyName) VDLReflect(__GlobChildrenReplyReflect) {}
 
-func (x GlobChildrenReplyError) Index() int                              { return 1 }
-func (x GlobChildrenReplyError) Interface() interface{}                  { return x.Value }
-func (x GlobChildrenReplyError) Name() string                            { return "Error" }
+func (x GlobChildrenReplyError) Index() int                            { return 1 }
+func (x GlobChildrenReplyError) Interface() interface{}                { return x.Value }
+func (x GlobChildrenReplyError) Name() string                          { return "Error" }
 func (x GlobChildrenReplyError) VDLReflect(__GlobChildrenReplyReflect) {}
 
 func (x GlobChildrenReplyName) VDLIsZero() bool {

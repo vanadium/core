@@ -327,19 +327,19 @@ type (
 	}
 )
 
-func (x ClientShellPacketStdin) Index() int                              { return 0 }
-func (x ClientShellPacketStdin) Interface() interface{}                  { return x.Value }
-func (x ClientShellPacketStdin) Name() string                            { return "Stdin" }
+func (x ClientShellPacketStdin) Index() int                            { return 0 }
+func (x ClientShellPacketStdin) Interface() interface{}                { return x.Value }
+func (x ClientShellPacketStdin) Name() string                          { return "Stdin" }
 func (x ClientShellPacketStdin) VDLReflect(__ClientShellPacketReflect) {}
 
-func (x ClientShellPacketEndOfFile) Index() int                              { return 1 }
-func (x ClientShellPacketEndOfFile) Interface() interface{}                  { return x.Value }
-func (x ClientShellPacketEndOfFile) Name() string                            { return "EndOfFile" }
+func (x ClientShellPacketEndOfFile) Index() int                            { return 1 }
+func (x ClientShellPacketEndOfFile) Interface() interface{}                { return x.Value }
+func (x ClientShellPacketEndOfFile) Name() string                          { return "EndOfFile" }
 func (x ClientShellPacketEndOfFile) VDLReflect(__ClientShellPacketReflect) {}
 
-func (x ClientShellPacketWinSize) Index() int                              { return 2 }
-func (x ClientShellPacketWinSize) Interface() interface{}                  { return x.Value }
-func (x ClientShellPacketWinSize) Name() string                            { return "WinSize" }
+func (x ClientShellPacketWinSize) Index() int                            { return 2 }
+func (x ClientShellPacketWinSize) Interface() interface{}                { return x.Value }
+func (x ClientShellPacketWinSize) Name() string                          { return "WinSize" }
 func (x ClientShellPacketWinSize) VDLReflect(__ClientShellPacketReflect) {}
 
 func (x ClientShellPacketStdin) VDLIsZero() bool {
@@ -480,14 +480,14 @@ type (
 	}
 )
 
-func (x ServerShellPacketStdout) Index() int                              { return 0 }
-func (x ServerShellPacketStdout) Interface() interface{}                  { return x.Value }
-func (x ServerShellPacketStdout) Name() string                            { return "Stdout" }
+func (x ServerShellPacketStdout) Index() int                            { return 0 }
+func (x ServerShellPacketStdout) Interface() interface{}                { return x.Value }
+func (x ServerShellPacketStdout) Name() string                          { return "Stdout" }
 func (x ServerShellPacketStdout) VDLReflect(__ServerShellPacketReflect) {}
 
-func (x ServerShellPacketStderr) Index() int                              { return 1 }
-func (x ServerShellPacketStderr) Interface() interface{}                  { return x.Value }
-func (x ServerShellPacketStderr) Name() string                            { return "Stderr" }
+func (x ServerShellPacketStderr) Index() int                            { return 1 }
+func (x ServerShellPacketStderr) Interface() interface{}                { return x.Value }
+func (x ServerShellPacketStderr) Name() string                          { return "Stderr" }
 func (x ServerShellPacketStderr) VDLReflect(__ServerShellPacketReflect) {}
 
 func (x ServerShellPacketStdout) VDLIsZero() bool {

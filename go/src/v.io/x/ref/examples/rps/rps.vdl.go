@@ -289,14 +289,14 @@ type (
 	}
 )
 
-func (x PlayerActionMove) Index() int                         { return 0 }
-func (x PlayerActionMove) Interface() interface{}             { return x.Value }
-func (x PlayerActionMove) Name() string                       { return "Move" }
+func (x PlayerActionMove) Index() int                       { return 0 }
+func (x PlayerActionMove) Interface() interface{}           { return x.Value }
+func (x PlayerActionMove) Name() string                     { return "Move" }
 func (x PlayerActionMove) VDLReflect(__PlayerActionReflect) {}
 
-func (x PlayerActionQuit) Index() int                         { return 1 }
-func (x PlayerActionQuit) Interface() interface{}             { return x.Value }
-func (x PlayerActionQuit) Name() string                       { return "Quit" }
+func (x PlayerActionQuit) Index() int                       { return 1 }
+func (x PlayerActionQuit) Interface() interface{}           { return x.Value }
+func (x PlayerActionQuit) Name() string                     { return "Quit" }
 func (x PlayerActionQuit) VDLReflect(__PlayerActionReflect) {}
 
 func (x PlayerActionMove) VDLIsZero() bool {
@@ -908,29 +908,29 @@ type (
 	}
 )
 
-func (x JudgeActionPlayerNum) Index() int                        { return 0 }
-func (x JudgeActionPlayerNum) Interface() interface{}            { return x.Value }
-func (x JudgeActionPlayerNum) Name() string                      { return "PlayerNum" }
+func (x JudgeActionPlayerNum) Index() int                      { return 0 }
+func (x JudgeActionPlayerNum) Interface() interface{}          { return x.Value }
+func (x JudgeActionPlayerNum) Name() string                    { return "PlayerNum" }
 func (x JudgeActionPlayerNum) VDLReflect(__JudgeActionReflect) {}
 
-func (x JudgeActionOpponentName) Index() int                        { return 1 }
-func (x JudgeActionOpponentName) Interface() interface{}            { return x.Value }
-func (x JudgeActionOpponentName) Name() string                      { return "OpponentName" }
+func (x JudgeActionOpponentName) Index() int                      { return 1 }
+func (x JudgeActionOpponentName) Interface() interface{}          { return x.Value }
+func (x JudgeActionOpponentName) Name() string                    { return "OpponentName" }
 func (x JudgeActionOpponentName) VDLReflect(__JudgeActionReflect) {}
 
-func (x JudgeActionMoveOptions) Index() int                        { return 2 }
-func (x JudgeActionMoveOptions) Interface() interface{}            { return x.Value }
-func (x JudgeActionMoveOptions) Name() string                      { return "MoveOptions" }
+func (x JudgeActionMoveOptions) Index() int                      { return 2 }
+func (x JudgeActionMoveOptions) Interface() interface{}          { return x.Value }
+func (x JudgeActionMoveOptions) Name() string                    { return "MoveOptions" }
 func (x JudgeActionMoveOptions) VDLReflect(__JudgeActionReflect) {}
 
-func (x JudgeActionRoundResult) Index() int                        { return 3 }
-func (x JudgeActionRoundResult) Interface() interface{}            { return x.Value }
-func (x JudgeActionRoundResult) Name() string                      { return "RoundResult" }
+func (x JudgeActionRoundResult) Index() int                      { return 3 }
+func (x JudgeActionRoundResult) Interface() interface{}          { return x.Value }
+func (x JudgeActionRoundResult) Name() string                    { return "RoundResult" }
 func (x JudgeActionRoundResult) VDLReflect(__JudgeActionReflect) {}
 
-func (x JudgeActionScore) Index() int                        { return 4 }
-func (x JudgeActionScore) Interface() interface{}            { return x.Value }
-func (x JudgeActionScore) Name() string                      { return "Score" }
+func (x JudgeActionScore) Index() int                      { return 4 }
+func (x JudgeActionScore) Interface() interface{}          { return x.Value }
+func (x JudgeActionScore) Name() string                    { return "Score" }
 func (x JudgeActionScore) VDLReflect(__JudgeActionReflect) {}
 
 func (x JudgeActionPlayerNum) VDLIsZero() bool {

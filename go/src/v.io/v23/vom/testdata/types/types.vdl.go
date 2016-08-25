@@ -1469,19 +1469,19 @@ type (
 	}
 )
 
-func (x NUnionA) Index() int                   { return 0 }
-func (x NUnionA) Interface() interface{}       { return x.Value }
-func (x NUnionA) Name() string                 { return "A" }
+func (x NUnionA) Index() int                 { return 0 }
+func (x NUnionA) Interface() interface{}     { return x.Value }
+func (x NUnionA) Name() string               { return "A" }
 func (x NUnionA) VDLReflect(__NUnionReflect) {}
 
-func (x NUnionB) Index() int                   { return 1 }
-func (x NUnionB) Interface() interface{}       { return x.Value }
-func (x NUnionB) Name() string                 { return "B" }
+func (x NUnionB) Index() int                 { return 1 }
+func (x NUnionB) Interface() interface{}     { return x.Value }
+func (x NUnionB) Name() string               { return "B" }
 func (x NUnionB) VDLReflect(__NUnionReflect) {}
 
-func (x NUnionC) Index() int                   { return 2 }
-func (x NUnionC) Interface() interface{}       { return x.Value }
-func (x NUnionC) Name() string                 { return "C" }
+func (x NUnionC) Index() int                 { return 2 }
+func (x NUnionC) Interface() interface{}     { return x.Value }
+func (x NUnionC) Name() string               { return "C" }
 func (x NUnionC) VDLReflect(__NUnionReflect) {}
 
 func (x NUnionA) VDLIsZero() bool {
@@ -4543,19 +4543,19 @@ type (
 	}
 )
 
-func (x BdeUnionB) Index() int                     { return 0 }
-func (x BdeUnionB) Interface() interface{}         { return x.Value }
-func (x BdeUnionB) Name() string                   { return "B" }
+func (x BdeUnionB) Index() int                   { return 0 }
+func (x BdeUnionB) Interface() interface{}       { return x.Value }
+func (x BdeUnionB) Name() string                 { return "B" }
 func (x BdeUnionB) VDLReflect(__BdeUnionReflect) {}
 
-func (x BdeUnionD) Index() int                     { return 1 }
-func (x BdeUnionD) Interface() interface{}         { return x.Value }
-func (x BdeUnionD) Name() string                   { return "D" }
+func (x BdeUnionD) Index() int                   { return 1 }
+func (x BdeUnionD) Interface() interface{}       { return x.Value }
+func (x BdeUnionD) Name() string                 { return "D" }
 func (x BdeUnionD) VDLReflect(__BdeUnionReflect) {}
 
-func (x BdeUnionE) Index() int                     { return 2 }
-func (x BdeUnionE) Interface() interface{}         { return x.Value }
-func (x BdeUnionE) Name() string                   { return "E" }
+func (x BdeUnionE) Index() int                   { return 2 }
+func (x BdeUnionE) Interface() interface{}       { return x.Value }
+func (x BdeUnionE) Name() string                 { return "E" }
 func (x BdeUnionE) VDLReflect(__BdeUnionReflect) {}
 
 func (x BdeUnionB) VDLIsZero() bool {

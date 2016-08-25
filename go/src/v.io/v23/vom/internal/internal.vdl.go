@@ -1303,19 +1303,19 @@ type (
 	}
 )
 
-func (x VSmallUnionA) Index() int                        { return 0 }
-func (x VSmallUnionA) Interface() interface{}            { return x.Value }
-func (x VSmallUnionA) Name() string                      { return "A" }
+func (x VSmallUnionA) Index() int                      { return 0 }
+func (x VSmallUnionA) Interface() interface{}          { return x.Value }
+func (x VSmallUnionA) Name() string                    { return "A" }
 func (x VSmallUnionA) VDLReflect(__VSmallUnionReflect) {}
 
-func (x VSmallUnionB) Index() int                        { return 1 }
-func (x VSmallUnionB) Interface() interface{}            { return x.Value }
-func (x VSmallUnionB) Name() string                      { return "B" }
+func (x VSmallUnionB) Index() int                      { return 1 }
+func (x VSmallUnionB) Interface() interface{}          { return x.Value }
+func (x VSmallUnionB) Name() string                    { return "B" }
 func (x VSmallUnionB) VDLReflect(__VSmallUnionReflect) {}
 
-func (x VSmallUnionC) Index() int                        { return 2 }
-func (x VSmallUnionC) Interface() interface{}            { return x.Value }
-func (x VSmallUnionC) Name() string                      { return "C" }
+func (x VSmallUnionC) Index() int                      { return 2 }
+func (x VSmallUnionC) Interface() interface{}          { return x.Value }
+func (x VSmallUnionC) Name() string                    { return "C" }
 func (x VSmallUnionC) VDLReflect(__VSmallUnionReflect) {}
 
 func (x VSmallUnionA) VDLIsZero() bool {

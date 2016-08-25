@@ -7031,169 +7031,169 @@ type (
 	}
 )
 
-func (x VUnionDepth1_AllF0) Index() int                             { return 0 }
-func (x VUnionDepth1_AllF0) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF0) Name() string                           { return "F0" }
+func (x VUnionDepth1_AllF0) Index() int                           { return 0 }
+func (x VUnionDepth1_AllF0) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF0) Name() string                         { return "F0" }
 func (x VUnionDepth1_AllF0) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF1) Index() int                             { return 1 }
-func (x VUnionDepth1_AllF1) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF1) Name() string                           { return "F1" }
+func (x VUnionDepth1_AllF1) Index() int                           { return 1 }
+func (x VUnionDepth1_AllF1) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF1) Name() string                         { return "F1" }
 func (x VUnionDepth1_AllF1) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF2) Index() int                             { return 2 }
-func (x VUnionDepth1_AllF2) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF2) Name() string                           { return "F2" }
+func (x VUnionDepth1_AllF2) Index() int                           { return 2 }
+func (x VUnionDepth1_AllF2) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF2) Name() string                         { return "F2" }
 func (x VUnionDepth1_AllF2) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF3) Index() int                             { return 3 }
-func (x VUnionDepth1_AllF3) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF3) Name() string                           { return "F3" }
+func (x VUnionDepth1_AllF3) Index() int                           { return 3 }
+func (x VUnionDepth1_AllF3) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF3) Name() string                         { return "F3" }
 func (x VUnionDepth1_AllF3) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF4) Index() int                             { return 4 }
-func (x VUnionDepth1_AllF4) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF4) Name() string                           { return "F4" }
+func (x VUnionDepth1_AllF4) Index() int                           { return 4 }
+func (x VUnionDepth1_AllF4) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF4) Name() string                         { return "F4" }
 func (x VUnionDepth1_AllF4) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF5) Index() int                             { return 5 }
-func (x VUnionDepth1_AllF5) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF5) Name() string                           { return "F5" }
+func (x VUnionDepth1_AllF5) Index() int                           { return 5 }
+func (x VUnionDepth1_AllF5) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF5) Name() string                         { return "F5" }
 func (x VUnionDepth1_AllF5) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF6) Index() int                             { return 6 }
-func (x VUnionDepth1_AllF6) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF6) Name() string                           { return "F6" }
+func (x VUnionDepth1_AllF6) Index() int                           { return 6 }
+func (x VUnionDepth1_AllF6) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF6) Name() string                         { return "F6" }
 func (x VUnionDepth1_AllF6) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF7) Index() int                             { return 7 }
-func (x VUnionDepth1_AllF7) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF7) Name() string                           { return "F7" }
+func (x VUnionDepth1_AllF7) Index() int                           { return 7 }
+func (x VUnionDepth1_AllF7) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF7) Name() string                         { return "F7" }
 func (x VUnionDepth1_AllF7) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF8) Index() int                             { return 8 }
-func (x VUnionDepth1_AllF8) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF8) Name() string                           { return "F8" }
+func (x VUnionDepth1_AllF8) Index() int                           { return 8 }
+func (x VUnionDepth1_AllF8) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF8) Name() string                         { return "F8" }
 func (x VUnionDepth1_AllF8) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF9) Index() int                             { return 9 }
-func (x VUnionDepth1_AllF9) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF9) Name() string                           { return "F9" }
+func (x VUnionDepth1_AllF9) Index() int                           { return 9 }
+func (x VUnionDepth1_AllF9) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF9) Name() string                         { return "F9" }
 func (x VUnionDepth1_AllF9) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF10) Index() int                             { return 10 }
-func (x VUnionDepth1_AllF10) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF10) Name() string                           { return "F10" }
+func (x VUnionDepth1_AllF10) Index() int                           { return 10 }
+func (x VUnionDepth1_AllF10) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF10) Name() string                         { return "F10" }
 func (x VUnionDepth1_AllF10) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF11) Index() int                             { return 11 }
-func (x VUnionDepth1_AllF11) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF11) Name() string                           { return "F11" }
+func (x VUnionDepth1_AllF11) Index() int                           { return 11 }
+func (x VUnionDepth1_AllF11) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF11) Name() string                         { return "F11" }
 func (x VUnionDepth1_AllF11) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF12) Index() int                             { return 12 }
-func (x VUnionDepth1_AllF12) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF12) Name() string                           { return "F12" }
+func (x VUnionDepth1_AllF12) Index() int                           { return 12 }
+func (x VUnionDepth1_AllF12) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF12) Name() string                         { return "F12" }
 func (x VUnionDepth1_AllF12) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF13) Index() int                             { return 13 }
-func (x VUnionDepth1_AllF13) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF13) Name() string                           { return "F13" }
+func (x VUnionDepth1_AllF13) Index() int                           { return 13 }
+func (x VUnionDepth1_AllF13) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF13) Name() string                         { return "F13" }
 func (x VUnionDepth1_AllF13) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF14) Index() int                             { return 14 }
-func (x VUnionDepth1_AllF14) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF14) Name() string                           { return "F14" }
+func (x VUnionDepth1_AllF14) Index() int                           { return 14 }
+func (x VUnionDepth1_AllF14) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF14) Name() string                         { return "F14" }
 func (x VUnionDepth1_AllF14) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF15) Index() int                             { return 15 }
-func (x VUnionDepth1_AllF15) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF15) Name() string                           { return "F15" }
+func (x VUnionDepth1_AllF15) Index() int                           { return 15 }
+func (x VUnionDepth1_AllF15) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF15) Name() string                         { return "F15" }
 func (x VUnionDepth1_AllF15) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF16) Index() int                             { return 16 }
-func (x VUnionDepth1_AllF16) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF16) Name() string                           { return "F16" }
+func (x VUnionDepth1_AllF16) Index() int                           { return 16 }
+func (x VUnionDepth1_AllF16) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF16) Name() string                         { return "F16" }
 func (x VUnionDepth1_AllF16) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF17) Index() int                             { return 17 }
-func (x VUnionDepth1_AllF17) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF17) Name() string                           { return "F17" }
+func (x VUnionDepth1_AllF17) Index() int                           { return 17 }
+func (x VUnionDepth1_AllF17) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF17) Name() string                         { return "F17" }
 func (x VUnionDepth1_AllF17) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF18) Index() int                             { return 18 }
-func (x VUnionDepth1_AllF18) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF18) Name() string                           { return "F18" }
+func (x VUnionDepth1_AllF18) Index() int                           { return 18 }
+func (x VUnionDepth1_AllF18) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF18) Name() string                         { return "F18" }
 func (x VUnionDepth1_AllF18) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF19) Index() int                             { return 19 }
-func (x VUnionDepth1_AllF19) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF19) Name() string                           { return "F19" }
+func (x VUnionDepth1_AllF19) Index() int                           { return 19 }
+func (x VUnionDepth1_AllF19) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF19) Name() string                         { return "F19" }
 func (x VUnionDepth1_AllF19) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF20) Index() int                             { return 20 }
-func (x VUnionDepth1_AllF20) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF20) Name() string                           { return "F20" }
+func (x VUnionDepth1_AllF20) Index() int                           { return 20 }
+func (x VUnionDepth1_AllF20) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF20) Name() string                         { return "F20" }
 func (x VUnionDepth1_AllF20) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF21) Index() int                             { return 21 }
-func (x VUnionDepth1_AllF21) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF21) Name() string                           { return "F21" }
+func (x VUnionDepth1_AllF21) Index() int                           { return 21 }
+func (x VUnionDepth1_AllF21) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF21) Name() string                         { return "F21" }
 func (x VUnionDepth1_AllF21) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF22) Index() int                             { return 22 }
-func (x VUnionDepth1_AllF22) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF22) Name() string                           { return "F22" }
+func (x VUnionDepth1_AllF22) Index() int                           { return 22 }
+func (x VUnionDepth1_AllF22) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF22) Name() string                         { return "F22" }
 func (x VUnionDepth1_AllF22) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF23) Index() int                             { return 23 }
-func (x VUnionDepth1_AllF23) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF23) Name() string                           { return "F23" }
+func (x VUnionDepth1_AllF23) Index() int                           { return 23 }
+func (x VUnionDepth1_AllF23) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF23) Name() string                         { return "F23" }
 func (x VUnionDepth1_AllF23) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF24) Index() int                             { return 24 }
-func (x VUnionDepth1_AllF24) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF24) Name() string                           { return "F24" }
+func (x VUnionDepth1_AllF24) Index() int                           { return 24 }
+func (x VUnionDepth1_AllF24) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF24) Name() string                         { return "F24" }
 func (x VUnionDepth1_AllF24) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF25) Index() int                             { return 25 }
-func (x VUnionDepth1_AllF25) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF25) Name() string                           { return "F25" }
+func (x VUnionDepth1_AllF25) Index() int                           { return 25 }
+func (x VUnionDepth1_AllF25) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF25) Name() string                         { return "F25" }
 func (x VUnionDepth1_AllF25) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF26) Index() int                             { return 26 }
-func (x VUnionDepth1_AllF26) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF26) Name() string                           { return "F26" }
+func (x VUnionDepth1_AllF26) Index() int                           { return 26 }
+func (x VUnionDepth1_AllF26) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF26) Name() string                         { return "F26" }
 func (x VUnionDepth1_AllF26) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF27) Index() int                             { return 27 }
-func (x VUnionDepth1_AllF27) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF27) Name() string                           { return "F27" }
+func (x VUnionDepth1_AllF27) Index() int                           { return 27 }
+func (x VUnionDepth1_AllF27) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF27) Name() string                         { return "F27" }
 func (x VUnionDepth1_AllF27) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF28) Index() int                             { return 28 }
-func (x VUnionDepth1_AllF28) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF28) Name() string                           { return "F28" }
+func (x VUnionDepth1_AllF28) Index() int                           { return 28 }
+func (x VUnionDepth1_AllF28) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF28) Name() string                         { return "F28" }
 func (x VUnionDepth1_AllF28) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF29) Index() int                             { return 29 }
-func (x VUnionDepth1_AllF29) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF29) Name() string                           { return "F29" }
+func (x VUnionDepth1_AllF29) Index() int                           { return 29 }
+func (x VUnionDepth1_AllF29) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF29) Name() string                         { return "F29" }
 func (x VUnionDepth1_AllF29) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF30) Index() int                             { return 30 }
-func (x VUnionDepth1_AllF30) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF30) Name() string                           { return "F30" }
+func (x VUnionDepth1_AllF30) Index() int                           { return 30 }
+func (x VUnionDepth1_AllF30) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF30) Name() string                         { return "F30" }
 func (x VUnionDepth1_AllF30) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF31) Index() int                             { return 31 }
-func (x VUnionDepth1_AllF31) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF31) Name() string                           { return "F31" }
+func (x VUnionDepth1_AllF31) Index() int                           { return 31 }
+func (x VUnionDepth1_AllF31) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF31) Name() string                         { return "F31" }
 func (x VUnionDepth1_AllF31) VDLReflect(__VUnionDepth1_AllReflect) {}
 
-func (x VUnionDepth1_AllF32) Index() int                             { return 32 }
-func (x VUnionDepth1_AllF32) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AllF32) Name() string                           { return "F32" }
+func (x VUnionDepth1_AllF32) Index() int                           { return 32 }
+func (x VUnionDepth1_AllF32) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AllF32) Name() string                         { return "F32" }
 func (x VUnionDepth1_AllF32) VDLReflect(__VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth1_AllF0) VDLIsZero() bool {
@@ -8154,9 +8154,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_AnyF0) Index() int                             { return 0 }
-func (x VUnionDepth1_AnyF0) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth1_AnyF0) Name() string                           { return "F0" }
+func (x VUnionDepth1_AnyF0) Index() int                           { return 0 }
+func (x VUnionDepth1_AnyF0) Interface() interface{}               { return x.Value }
+func (x VUnionDepth1_AnyF0) Name() string                         { return "F0" }
 func (x VUnionDepth1_AnyF0) VDLReflect(__VUnionDepth1_AnyReflect) {}
 
 func (x VUnionDepth1_AnyF0) VDLIsZero() bool {
@@ -8243,9 +8243,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_BoolF1) Index() int                              { return 0 }
-func (x VUnionDepth1_BoolF1) Interface() interface{}                  { return x.Value }
-func (x VUnionDepth1_BoolF1) Name() string                            { return "F1" }
+func (x VUnionDepth1_BoolF1) Index() int                            { return 0 }
+func (x VUnionDepth1_BoolF1) Interface() interface{}                { return x.Value }
+func (x VUnionDepth1_BoolF1) Name() string                          { return "F1" }
 func (x VUnionDepth1_BoolF1) VDLReflect(__VUnionDepth1_BoolReflect) {}
 
 func (x VUnionDepth1_BoolF1) VDLIsZero() bool {
@@ -8330,9 +8330,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VBoolF2) Index() int                               { return 0 }
-func (x VUnionDepth1_VBoolF2) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_VBoolF2) Name() string                             { return "F2" }
+func (x VUnionDepth1_VBoolF2) Index() int                             { return 0 }
+func (x VUnionDepth1_VBoolF2) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_VBoolF2) Name() string                           { return "F2" }
 func (x VUnionDepth1_VBoolF2) VDLReflect(__VUnionDepth1_VBoolReflect) {}
 
 func (x VUnionDepth1_VBoolF2) VDLIsZero() bool {
@@ -8417,9 +8417,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_StringF3) Index() int                                { return 0 }
-func (x VUnionDepth1_StringF3) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_StringF3) Name() string                              { return "F3" }
+func (x VUnionDepth1_StringF3) Index() int                              { return 0 }
+func (x VUnionDepth1_StringF3) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_StringF3) Name() string                            { return "F3" }
 func (x VUnionDepth1_StringF3) VDLReflect(__VUnionDepth1_StringReflect) {}
 
 func (x VUnionDepth1_StringF3) VDLIsZero() bool {
@@ -8504,9 +8504,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VStringF4) Index() int                                 { return 0 }
-func (x VUnionDepth1_VStringF4) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_VStringF4) Name() string                               { return "F4" }
+func (x VUnionDepth1_VStringF4) Index() int                               { return 0 }
+func (x VUnionDepth1_VStringF4) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_VStringF4) Name() string                             { return "F4" }
 func (x VUnionDepth1_VStringF4) VDLReflect(__VUnionDepth1_VStringReflect) {}
 
 func (x VUnionDepth1_VStringF4) VDLIsZero() bool {
@@ -8591,9 +8591,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_TypeObjectF5) Index() int                                    { return 0 }
-func (x VUnionDepth1_TypeObjectF5) Interface() interface{}                        { return x.Value }
-func (x VUnionDepth1_TypeObjectF5) Name() string                                  { return "F5" }
+func (x VUnionDepth1_TypeObjectF5) Index() int                                  { return 0 }
+func (x VUnionDepth1_TypeObjectF5) Interface() interface{}                      { return x.Value }
+func (x VUnionDepth1_TypeObjectF5) Name() string                                { return "F5" }
 func (x VUnionDepth1_TypeObjectF5) VDLReflect(__VUnionDepth1_TypeObjectReflect) {}
 
 func (x VUnionDepth1_TypeObjectF5) VDLIsZero() bool {
@@ -8678,9 +8678,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_ByteF6) Index() int                              { return 0 }
-func (x VUnionDepth1_ByteF6) Interface() interface{}                  { return x.Value }
-func (x VUnionDepth1_ByteF6) Name() string                            { return "F6" }
+func (x VUnionDepth1_ByteF6) Index() int                            { return 0 }
+func (x VUnionDepth1_ByteF6) Interface() interface{}                { return x.Value }
+func (x VUnionDepth1_ByteF6) Name() string                          { return "F6" }
 func (x VUnionDepth1_ByteF6) VDLReflect(__VUnionDepth1_ByteReflect) {}
 
 func (x VUnionDepth1_ByteF6) VDLIsZero() bool {
@@ -8765,9 +8765,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VByteF7) Index() int                               { return 0 }
-func (x VUnionDepth1_VByteF7) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_VByteF7) Name() string                             { return "F7" }
+func (x VUnionDepth1_VByteF7) Index() int                             { return 0 }
+func (x VUnionDepth1_VByteF7) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_VByteF7) Name() string                           { return "F7" }
 func (x VUnionDepth1_VByteF7) VDLReflect(__VUnionDepth1_VByteReflect) {}
 
 func (x VUnionDepth1_VByteF7) VDLIsZero() bool {
@@ -8852,9 +8852,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VEnumAbcF8) Index() int                                  { return 0 }
-func (x VUnionDepth1_VEnumAbcF8) Interface() interface{}                      { return x.Value }
-func (x VUnionDepth1_VEnumAbcF8) Name() string                                { return "F8" }
+func (x VUnionDepth1_VEnumAbcF8) Index() int                                { return 0 }
+func (x VUnionDepth1_VEnumAbcF8) Interface() interface{}                    { return x.Value }
+func (x VUnionDepth1_VEnumAbcF8) Name() string                              { return "F8" }
 func (x VUnionDepth1_VEnumAbcF8) VDLReflect(__VUnionDepth1_VEnumAbcReflect) {}
 
 func (x VUnionDepth1_VEnumAbcF8) VDLIsZero() bool {
@@ -8941,9 +8941,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VEnumBcdF9) Index() int                                  { return 0 }
-func (x VUnionDepth1_VEnumBcdF9) Interface() interface{}                      { return x.Value }
-func (x VUnionDepth1_VEnumBcdF9) Name() string                                { return "F9" }
+func (x VUnionDepth1_VEnumBcdF9) Index() int                                { return 0 }
+func (x VUnionDepth1_VEnumBcdF9) Interface() interface{}                    { return x.Value }
+func (x VUnionDepth1_VEnumBcdF9) Name() string                              { return "F9" }
 func (x VUnionDepth1_VEnumBcdF9) VDLReflect(__VUnionDepth1_VEnumBcdReflect) {}
 
 func (x VUnionDepth1_VEnumBcdF9) VDLIsZero() bool {
@@ -9030,9 +9030,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VStructEmptyF10) Index() int                                      { return 0 }
-func (x VUnionDepth1_VStructEmptyF10) Interface() interface{}                          { return x.Value }
-func (x VUnionDepth1_VStructEmptyF10) Name() string                                    { return "F10" }
+func (x VUnionDepth1_VStructEmptyF10) Index() int                                    { return 0 }
+func (x VUnionDepth1_VStructEmptyF10) Interface() interface{}                        { return x.Value }
+func (x VUnionDepth1_VStructEmptyF10) Name() string                                  { return "F10" }
 func (x VUnionDepth1_VStructEmptyF10) VDLReflect(__VUnionDepth1_VStructEmptyReflect) {}
 
 func (x VUnionDepth1_VStructEmptyF10) VDLIsZero() bool {
@@ -9117,9 +9117,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VNamedErrorF11) Index() int                                     { return 0 }
-func (x VUnionDepth1_VNamedErrorF11) Interface() interface{}                         { return x.Value }
-func (x VUnionDepth1_VNamedErrorF11) Name() string                                   { return "F11" }
+func (x VUnionDepth1_VNamedErrorF11) Index() int                                   { return 0 }
+func (x VUnionDepth1_VNamedErrorF11) Interface() interface{}                       { return x.Value }
+func (x VUnionDepth1_VNamedErrorF11) Name() string                                 { return "F11" }
 func (x VUnionDepth1_VNamedErrorF11) VDLReflect(__VUnionDepth1_VNamedErrorReflect) {}
 
 func (x VUnionDepth1_VNamedErrorF11) VDLIsZero() bool {
@@ -9204,9 +9204,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_ErrorF12) Index() int                               { return 0 }
-func (x VUnionDepth1_ErrorF12) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_ErrorF12) Name() string                             { return "F12" }
+func (x VUnionDepth1_ErrorF12) Index() int                             { return 0 }
+func (x VUnionDepth1_ErrorF12) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_ErrorF12) Name() string                           { return "F12" }
 func (x VUnionDepth1_ErrorF12) VDLReflect(__VUnionDepth1_ErrorReflect) {}
 
 func (x VUnionDepth1_ErrorF12) VDLIsZero() bool {
@@ -9291,9 +9291,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Uint16F13) Index() int                                { return 0 }
-func (x VUnionDepth1_Uint16F13) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_Uint16F13) Name() string                              { return "F13" }
+func (x VUnionDepth1_Uint16F13) Index() int                              { return 0 }
+func (x VUnionDepth1_Uint16F13) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_Uint16F13) Name() string                            { return "F13" }
 func (x VUnionDepth1_Uint16F13) VDLReflect(__VUnionDepth1_Uint16Reflect) {}
 
 func (x VUnionDepth1_Uint16F13) VDLIsZero() bool {
@@ -9378,9 +9378,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VUint16F14) Index() int                                 { return 0 }
-func (x VUnionDepth1_VUint16F14) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_VUint16F14) Name() string                               { return "F14" }
+func (x VUnionDepth1_VUint16F14) Index() int                               { return 0 }
+func (x VUnionDepth1_VUint16F14) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_VUint16F14) Name() string                             { return "F14" }
 func (x VUnionDepth1_VUint16F14) VDLReflect(__VUnionDepth1_VUint16Reflect) {}
 
 func (x VUnionDepth1_VUint16F14) VDLIsZero() bool {
@@ -9465,9 +9465,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Uint32F15) Index() int                                { return 0 }
-func (x VUnionDepth1_Uint32F15) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_Uint32F15) Name() string                              { return "F15" }
+func (x VUnionDepth1_Uint32F15) Index() int                              { return 0 }
+func (x VUnionDepth1_Uint32F15) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_Uint32F15) Name() string                            { return "F15" }
 func (x VUnionDepth1_Uint32F15) VDLReflect(__VUnionDepth1_Uint32Reflect) {}
 
 func (x VUnionDepth1_Uint32F15) VDLIsZero() bool {
@@ -9552,9 +9552,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VUint32F16) Index() int                                 { return 0 }
-func (x VUnionDepth1_VUint32F16) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_VUint32F16) Name() string                               { return "F16" }
+func (x VUnionDepth1_VUint32F16) Index() int                               { return 0 }
+func (x VUnionDepth1_VUint32F16) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_VUint32F16) Name() string                             { return "F16" }
 func (x VUnionDepth1_VUint32F16) VDLReflect(__VUnionDepth1_VUint32Reflect) {}
 
 func (x VUnionDepth1_VUint32F16) VDLIsZero() bool {
@@ -9639,9 +9639,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Uint64F17) Index() int                                { return 0 }
-func (x VUnionDepth1_Uint64F17) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_Uint64F17) Name() string                              { return "F17" }
+func (x VUnionDepth1_Uint64F17) Index() int                              { return 0 }
+func (x VUnionDepth1_Uint64F17) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_Uint64F17) Name() string                            { return "F17" }
 func (x VUnionDepth1_Uint64F17) VDLReflect(__VUnionDepth1_Uint64Reflect) {}
 
 func (x VUnionDepth1_Uint64F17) VDLIsZero() bool {
@@ -9726,9 +9726,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VUint64F18) Index() int                                 { return 0 }
-func (x VUnionDepth1_VUint64F18) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_VUint64F18) Name() string                               { return "F18" }
+func (x VUnionDepth1_VUint64F18) Index() int                               { return 0 }
+func (x VUnionDepth1_VUint64F18) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_VUint64F18) Name() string                             { return "F18" }
 func (x VUnionDepth1_VUint64F18) VDLReflect(__VUnionDepth1_VUint64Reflect) {}
 
 func (x VUnionDepth1_VUint64F18) VDLIsZero() bool {
@@ -9813,9 +9813,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Int8F19) Index() int                              { return 0 }
-func (x VUnionDepth1_Int8F19) Interface() interface{}                  { return x.Value }
-func (x VUnionDepth1_Int8F19) Name() string                            { return "F19" }
+func (x VUnionDepth1_Int8F19) Index() int                            { return 0 }
+func (x VUnionDepth1_Int8F19) Interface() interface{}                { return x.Value }
+func (x VUnionDepth1_Int8F19) Name() string                          { return "F19" }
 func (x VUnionDepth1_Int8F19) VDLReflect(__VUnionDepth1_Int8Reflect) {}
 
 func (x VUnionDepth1_Int8F19) VDLIsZero() bool {
@@ -9900,9 +9900,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VInt8F20) Index() int                               { return 0 }
-func (x VUnionDepth1_VInt8F20) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_VInt8F20) Name() string                             { return "F20" }
+func (x VUnionDepth1_VInt8F20) Index() int                             { return 0 }
+func (x VUnionDepth1_VInt8F20) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_VInt8F20) Name() string                           { return "F20" }
 func (x VUnionDepth1_VInt8F20) VDLReflect(__VUnionDepth1_VInt8Reflect) {}
 
 func (x VUnionDepth1_VInt8F20) VDLIsZero() bool {
@@ -9987,9 +9987,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Int16F21) Index() int                               { return 0 }
-func (x VUnionDepth1_Int16F21) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_Int16F21) Name() string                             { return "F21" }
+func (x VUnionDepth1_Int16F21) Index() int                             { return 0 }
+func (x VUnionDepth1_Int16F21) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_Int16F21) Name() string                           { return "F21" }
 func (x VUnionDepth1_Int16F21) VDLReflect(__VUnionDepth1_Int16Reflect) {}
 
 func (x VUnionDepth1_Int16F21) VDLIsZero() bool {
@@ -10074,9 +10074,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VInt16F22) Index() int                                { return 0 }
-func (x VUnionDepth1_VInt16F22) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_VInt16F22) Name() string                              { return "F22" }
+func (x VUnionDepth1_VInt16F22) Index() int                              { return 0 }
+func (x VUnionDepth1_VInt16F22) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_VInt16F22) Name() string                            { return "F22" }
 func (x VUnionDepth1_VInt16F22) VDLReflect(__VUnionDepth1_VInt16Reflect) {}
 
 func (x VUnionDepth1_VInt16F22) VDLIsZero() bool {
@@ -10161,9 +10161,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Int32F23) Index() int                               { return 0 }
-func (x VUnionDepth1_Int32F23) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_Int32F23) Name() string                             { return "F23" }
+func (x VUnionDepth1_Int32F23) Index() int                             { return 0 }
+func (x VUnionDepth1_Int32F23) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_Int32F23) Name() string                           { return "F23" }
 func (x VUnionDepth1_Int32F23) VDLReflect(__VUnionDepth1_Int32Reflect) {}
 
 func (x VUnionDepth1_Int32F23) VDLIsZero() bool {
@@ -10248,9 +10248,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VInt32F24) Index() int                                { return 0 }
-func (x VUnionDepth1_VInt32F24) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_VInt32F24) Name() string                              { return "F24" }
+func (x VUnionDepth1_VInt32F24) Index() int                              { return 0 }
+func (x VUnionDepth1_VInt32F24) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_VInt32F24) Name() string                            { return "F24" }
 func (x VUnionDepth1_VInt32F24) VDLReflect(__VUnionDepth1_VInt32Reflect) {}
 
 func (x VUnionDepth1_VInt32F24) VDLIsZero() bool {
@@ -10335,9 +10335,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Int64F25) Index() int                               { return 0 }
-func (x VUnionDepth1_Int64F25) Interface() interface{}                   { return x.Value }
-func (x VUnionDepth1_Int64F25) Name() string                             { return "F25" }
+func (x VUnionDepth1_Int64F25) Index() int                             { return 0 }
+func (x VUnionDepth1_Int64F25) Interface() interface{}                 { return x.Value }
+func (x VUnionDepth1_Int64F25) Name() string                           { return "F25" }
 func (x VUnionDepth1_Int64F25) VDLReflect(__VUnionDepth1_Int64Reflect) {}
 
 func (x VUnionDepth1_Int64F25) VDLIsZero() bool {
@@ -10422,9 +10422,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VInt64F26) Index() int                                { return 0 }
-func (x VUnionDepth1_VInt64F26) Interface() interface{}                    { return x.Value }
-func (x VUnionDepth1_VInt64F26) Name() string                              { return "F26" }
+func (x VUnionDepth1_VInt64F26) Index() int                              { return 0 }
+func (x VUnionDepth1_VInt64F26) Interface() interface{}                  { return x.Value }
+func (x VUnionDepth1_VInt64F26) Name() string                            { return "F26" }
 func (x VUnionDepth1_VInt64F26) VDLReflect(__VUnionDepth1_VInt64Reflect) {}
 
 func (x VUnionDepth1_VInt64F26) VDLIsZero() bool {
@@ -10509,9 +10509,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Float32F27) Index() int                                 { return 0 }
-func (x VUnionDepth1_Float32F27) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_Float32F27) Name() string                               { return "F27" }
+func (x VUnionDepth1_Float32F27) Index() int                               { return 0 }
+func (x VUnionDepth1_Float32F27) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_Float32F27) Name() string                             { return "F27" }
 func (x VUnionDepth1_Float32F27) VDLReflect(__VUnionDepth1_Float32Reflect) {}
 
 func (x VUnionDepth1_Float32F27) VDLIsZero() bool {
@@ -10596,9 +10596,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VFloat32F28) Index() int                                  { return 0 }
-func (x VUnionDepth1_VFloat32F28) Interface() interface{}                      { return x.Value }
-func (x VUnionDepth1_VFloat32F28) Name() string                                { return "F28" }
+func (x VUnionDepth1_VFloat32F28) Index() int                                { return 0 }
+func (x VUnionDepth1_VFloat32F28) Interface() interface{}                    { return x.Value }
+func (x VUnionDepth1_VFloat32F28) Name() string                              { return "F28" }
 func (x VUnionDepth1_VFloat32F28) VDLReflect(__VUnionDepth1_VFloat32Reflect) {}
 
 func (x VUnionDepth1_VFloat32F28) VDLIsZero() bool {
@@ -10683,9 +10683,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_Float64F29) Index() int                                 { return 0 }
-func (x VUnionDepth1_Float64F29) Interface() interface{}                     { return x.Value }
-func (x VUnionDepth1_Float64F29) Name() string                               { return "F29" }
+func (x VUnionDepth1_Float64F29) Index() int                               { return 0 }
+func (x VUnionDepth1_Float64F29) Interface() interface{}                   { return x.Value }
+func (x VUnionDepth1_Float64F29) Name() string                             { return "F29" }
 func (x VUnionDepth1_Float64F29) VDLReflect(__VUnionDepth1_Float64Reflect) {}
 
 func (x VUnionDepth1_Float64F29) VDLIsZero() bool {
@@ -10770,9 +10770,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_VFloat64F30) Index() int                                  { return 0 }
-func (x VUnionDepth1_VFloat64F30) Interface() interface{}                      { return x.Value }
-func (x VUnionDepth1_VFloat64F30) Name() string                                { return "F30" }
+func (x VUnionDepth1_VFloat64F30) Index() int                                { return 0 }
+func (x VUnionDepth1_VFloat64F30) Interface() interface{}                    { return x.Value }
+func (x VUnionDepth1_VFloat64F30) Name() string                              { return "F30" }
 func (x VUnionDepth1_VFloat64F30) VDLReflect(__VUnionDepth1_VFloat64Reflect) {}
 
 func (x VUnionDepth1_VFloat64F30) VDLIsZero() bool {
@@ -10857,9 +10857,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_OptVStructEmptyF31) Index() int                                         { return 0 }
-func (x VUnionDepth1_OptVStructEmptyF31) Interface() interface{}                             { return x.Value }
-func (x VUnionDepth1_OptVStructEmptyF31) Name() string                                       { return "F31" }
+func (x VUnionDepth1_OptVStructEmptyF31) Index() int                                       { return 0 }
+func (x VUnionDepth1_OptVStructEmptyF31) Interface() interface{}                           { return x.Value }
+func (x VUnionDepth1_OptVStructEmptyF31) Name() string                                     { return "F31" }
 func (x VUnionDepth1_OptVStructEmptyF31) VDLReflect(__VUnionDepth1_OptVStructEmptyReflect) {}
 
 func (x VUnionDepth1_OptVStructEmptyF31) VDLIsZero() bool {
@@ -10963,9 +10963,9 @@ type (
 	}
 )
 
-func (x VUnionDepth1_OptVNamedErrorF32) Index() int                                        { return 0 }
-func (x VUnionDepth1_OptVNamedErrorF32) Interface() interface{}                            { return x.Value }
-func (x VUnionDepth1_OptVNamedErrorF32) Name() string                                      { return "F32" }
+func (x VUnionDepth1_OptVNamedErrorF32) Index() int                                      { return 0 }
+func (x VUnionDepth1_OptVNamedErrorF32) Interface() interface{}                          { return x.Value }
+func (x VUnionDepth1_OptVNamedErrorF32) Name() string                                    { return "F32" }
 func (x VUnionDepth1_OptVNamedErrorF32) VDLReflect(__VUnionDepth1_OptVNamedErrorReflect) {}
 
 func (x VUnionDepth1_OptVNamedErrorF32) VDLIsZero() bool {
@@ -13941,74 +13941,74 @@ type (
 	}
 )
 
-func (x VUnionDepth2_AllF0) Index() int                             { return 0 }
-func (x VUnionDepth2_AllF0) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF0) Name() string                           { return "F0" }
+func (x VUnionDepth2_AllF0) Index() int                           { return 0 }
+func (x VUnionDepth2_AllF0) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF0) Name() string                         { return "F0" }
 func (x VUnionDepth2_AllF0) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF1) Index() int                             { return 1 }
-func (x VUnionDepth2_AllF1) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF1) Name() string                           { return "F1" }
+func (x VUnionDepth2_AllF1) Index() int                           { return 1 }
+func (x VUnionDepth2_AllF1) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF1) Name() string                         { return "F1" }
 func (x VUnionDepth2_AllF1) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF2) Index() int                             { return 2 }
-func (x VUnionDepth2_AllF2) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF2) Name() string                           { return "F2" }
+func (x VUnionDepth2_AllF2) Index() int                           { return 2 }
+func (x VUnionDepth2_AllF2) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF2) Name() string                         { return "F2" }
 func (x VUnionDepth2_AllF2) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF3) Index() int                             { return 3 }
-func (x VUnionDepth2_AllF3) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF3) Name() string                           { return "F3" }
+func (x VUnionDepth2_AllF3) Index() int                           { return 3 }
+func (x VUnionDepth2_AllF3) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF3) Name() string                         { return "F3" }
 func (x VUnionDepth2_AllF3) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF4) Index() int                             { return 4 }
-func (x VUnionDepth2_AllF4) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF4) Name() string                           { return "F4" }
+func (x VUnionDepth2_AllF4) Index() int                           { return 4 }
+func (x VUnionDepth2_AllF4) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF4) Name() string                         { return "F4" }
 func (x VUnionDepth2_AllF4) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF5) Index() int                             { return 5 }
-func (x VUnionDepth2_AllF5) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF5) Name() string                           { return "F5" }
+func (x VUnionDepth2_AllF5) Index() int                           { return 5 }
+func (x VUnionDepth2_AllF5) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF5) Name() string                         { return "F5" }
 func (x VUnionDepth2_AllF5) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF6) Index() int                             { return 6 }
-func (x VUnionDepth2_AllF6) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF6) Name() string                           { return "F6" }
+func (x VUnionDepth2_AllF6) Index() int                           { return 6 }
+func (x VUnionDepth2_AllF6) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF6) Name() string                         { return "F6" }
 func (x VUnionDepth2_AllF6) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF7) Index() int                             { return 7 }
-func (x VUnionDepth2_AllF7) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF7) Name() string                           { return "F7" }
+func (x VUnionDepth2_AllF7) Index() int                           { return 7 }
+func (x VUnionDepth2_AllF7) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF7) Name() string                         { return "F7" }
 func (x VUnionDepth2_AllF7) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF8) Index() int                             { return 8 }
-func (x VUnionDepth2_AllF8) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF8) Name() string                           { return "F8" }
+func (x VUnionDepth2_AllF8) Index() int                           { return 8 }
+func (x VUnionDepth2_AllF8) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF8) Name() string                         { return "F8" }
 func (x VUnionDepth2_AllF8) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF9) Index() int                             { return 9 }
-func (x VUnionDepth2_AllF9) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF9) Name() string                           { return "F9" }
+func (x VUnionDepth2_AllF9) Index() int                           { return 9 }
+func (x VUnionDepth2_AllF9) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF9) Name() string                         { return "F9" }
 func (x VUnionDepth2_AllF9) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF10) Index() int                             { return 10 }
-func (x VUnionDepth2_AllF10) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF10) Name() string                           { return "F10" }
+func (x VUnionDepth2_AllF10) Index() int                           { return 10 }
+func (x VUnionDepth2_AllF10) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF10) Name() string                         { return "F10" }
 func (x VUnionDepth2_AllF10) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF11) Index() int                             { return 11 }
-func (x VUnionDepth2_AllF11) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF11) Name() string                           { return "F11" }
+func (x VUnionDepth2_AllF11) Index() int                           { return 11 }
+func (x VUnionDepth2_AllF11) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF11) Name() string                         { return "F11" }
 func (x VUnionDepth2_AllF11) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF12) Index() int                             { return 12 }
-func (x VUnionDepth2_AllF12) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF12) Name() string                           { return "F12" }
+func (x VUnionDepth2_AllF12) Index() int                           { return 12 }
+func (x VUnionDepth2_AllF12) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF12) Name() string                         { return "F12" }
 func (x VUnionDepth2_AllF12) VDLReflect(__VUnionDepth2_AllReflect) {}
 
-func (x VUnionDepth2_AllF13) Index() int                             { return 13 }
-func (x VUnionDepth2_AllF13) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth2_AllF13) Name() string                           { return "F13" }
+func (x VUnionDepth2_AllF13) Index() int                           { return 13 }
+func (x VUnionDepth2_AllF13) Interface() interface{}               { return x.Value }
+func (x VUnionDepth2_AllF13) Name() string                         { return "F13" }
 func (x VUnionDepth2_AllF13) VDLReflect(__VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth2_AllF0) VDLIsZero() bool {
@@ -14534,9 +14534,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VArray1_StringF0) Index() int                                        { return 0 }
-func (x VUnionDepth2_VArray1_StringF0) Interface() interface{}                            { return x.Value }
-func (x VUnionDepth2_VArray1_StringF0) Name() string                                      { return "F0" }
+func (x VUnionDepth2_VArray1_StringF0) Index() int                                      { return 0 }
+func (x VUnionDepth2_VArray1_StringF0) Interface() interface{}                          { return x.Value }
+func (x VUnionDepth2_VArray1_StringF0) Name() string                                    { return "F0" }
 func (x VUnionDepth2_VArray1_StringF0) VDLReflect(__VUnionDepth2_VArray1_StringReflect) {}
 
 func (x VUnionDepth2_VArray1_StringF0) VDLIsZero() bool {
@@ -14621,9 +14621,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VArray2_VByteF1) Index() int                                       { return 0 }
-func (x VUnionDepth2_VArray2_VByteF1) Interface() interface{}                           { return x.Value }
-func (x VUnionDepth2_VArray2_VByteF1) Name() string                                     { return "F1" }
+func (x VUnionDepth2_VArray2_VByteF1) Index() int                                     { return 0 }
+func (x VUnionDepth2_VArray2_VByteF1) Interface() interface{}                         { return x.Value }
+func (x VUnionDepth2_VArray2_VByteF1) Name() string                                   { return "F1" }
 func (x VUnionDepth2_VArray2_VByteF1) VDLReflect(__VUnionDepth2_VArray2_VByteReflect) {}
 
 func (x VUnionDepth2_VArray2_VByteF1) VDLIsZero() bool {
@@ -14706,9 +14706,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VList_VByteF2) Index() int                                     { return 0 }
-func (x VUnionDepth2_VList_VByteF2) Interface() interface{}                         { return x.Value }
-func (x VUnionDepth2_VList_VByteF2) Name() string                                   { return "F2" }
+func (x VUnionDepth2_VList_VByteF2) Index() int                                   { return 0 }
+func (x VUnionDepth2_VList_VByteF2) Interface() interface{}                       { return x.Value }
+func (x VUnionDepth2_VList_VByteF2) Name() string                                 { return "F2" }
 func (x VUnionDepth2_VList_VByteF2) VDLReflect(__VUnionDepth2_VList_VByteReflect) {}
 
 func (x VUnionDepth2_VList_VByteF2) VDLIsZero() bool {
@@ -14792,11 +14792,10 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VList_OptVNamedErrorF3) Index() int             { return 0 }
-func (x VUnionDepth2_VList_OptVNamedErrorF3) Interface() interface{} { return x.Value }
-func (x VUnionDepth2_VList_OptVNamedErrorF3) Name() string           { return "F3" }
-func (x VUnionDepth2_VList_OptVNamedErrorF3) VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect) {
-}
+func (x VUnionDepth2_VList_OptVNamedErrorF3) Index() int                                            { return 0 }
+func (x VUnionDepth2_VList_OptVNamedErrorF3) Interface() interface{}                                { return x.Value }
+func (x VUnionDepth2_VList_OptVNamedErrorF3) Name() string                                          { return "F3" }
+func (x VUnionDepth2_VList_OptVNamedErrorF3) VDLReflect(__VUnionDepth2_VList_OptVNamedErrorReflect) {}
 
 func (x VUnionDepth2_VList_OptVNamedErrorF3) VDLIsZero() bool {
 	return len(x.Value) == 0
@@ -14880,9 +14879,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VSet_VBoolF4) Index() int                                    { return 0 }
-func (x VUnionDepth2_VSet_VBoolF4) Interface() interface{}                        { return x.Value }
-func (x VUnionDepth2_VSet_VBoolF4) Name() string                                  { return "F4" }
+func (x VUnionDepth2_VSet_VBoolF4) Index() int                                  { return 0 }
+func (x VUnionDepth2_VSet_VBoolF4) Interface() interface{}                      { return x.Value }
+func (x VUnionDepth2_VSet_VBoolF4) Name() string                                { return "F4" }
 func (x VUnionDepth2_VSet_VBoolF4) VDLReflect(__VUnionDepth2_VSet_VBoolReflect) {}
 
 func (x VUnionDepth2_VSet_VBoolF4) VDLIsZero() bool {
@@ -14967,9 +14966,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VSet_VNamedErrorF5) Index() int                                          { return 0 }
-func (x VUnionDepth2_VSet_VNamedErrorF5) Interface() interface{}                              { return x.Value }
-func (x VUnionDepth2_VSet_VNamedErrorF5) Name() string                                        { return "F5" }
+func (x VUnionDepth2_VSet_VNamedErrorF5) Index() int                                        { return 0 }
+func (x VUnionDepth2_VSet_VNamedErrorF5) Interface() interface{}                            { return x.Value }
+func (x VUnionDepth2_VSet_VNamedErrorF5) Name() string                                      { return "F5" }
 func (x VUnionDepth2_VSet_VNamedErrorF5) VDLReflect(__VUnionDepth2_VSet_VNamedErrorReflect) {}
 
 func (x VUnionDepth2_VSet_VNamedErrorF5) VDLIsZero() bool {
@@ -15054,9 +15053,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_Map_VBool_VBoolF6) Index() int                                         { return 0 }
-func (x VUnionDepth2_Map_VBool_VBoolF6) Interface() interface{}                             { return x.Value }
-func (x VUnionDepth2_Map_VBool_VBoolF6) Name() string                                       { return "F6" }
+func (x VUnionDepth2_Map_VBool_VBoolF6) Index() int                                       { return 0 }
+func (x VUnionDepth2_Map_VBool_VBoolF6) Interface() interface{}                           { return x.Value }
+func (x VUnionDepth2_Map_VBool_VBoolF6) Name() string                                     { return "F6" }
 func (x VUnionDepth2_Map_VBool_VBoolF6) VDLReflect(__VUnionDepth2_Map_VBool_VBoolReflect) {}
 
 func (x VUnionDepth2_Map_VBool_VBoolF6) VDLIsZero() bool {
@@ -15141,9 +15140,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VMap_VBool_VBoolF7) Index() int                                          { return 0 }
-func (x VUnionDepth2_VMap_VBool_VBoolF7) Interface() interface{}                              { return x.Value }
-func (x VUnionDepth2_VMap_VBool_VBoolF7) Name() string                                        { return "F7" }
+func (x VUnionDepth2_VMap_VBool_VBoolF7) Index() int                                        { return 0 }
+func (x VUnionDepth2_VMap_VBool_VBoolF7) Interface() interface{}                            { return x.Value }
+func (x VUnionDepth2_VMap_VBool_VBoolF7) Name() string                                      { return "F7" }
 func (x VUnionDepth2_VMap_VBool_VBoolF7) VDLReflect(__VUnionDepth2_VMap_VBool_VBoolReflect) {}
 
 func (x VUnionDepth2_VMap_VBool_VBoolF7) VDLIsZero() bool {
@@ -15228,9 +15227,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VStructDepth1_AllF8) Index() int                                           { return 0 }
-func (x VUnionDepth2_VStructDepth1_AllF8) Interface() interface{}                               { return x.Value }
-func (x VUnionDepth2_VStructDepth1_AllF8) Name() string                                         { return "F8" }
+func (x VUnionDepth2_VStructDepth1_AllF8) Index() int                                         { return 0 }
+func (x VUnionDepth2_VStructDepth1_AllF8) Interface() interface{}                             { return x.Value }
+func (x VUnionDepth2_VStructDepth1_AllF8) Name() string                                       { return "F8" }
 func (x VUnionDepth2_VStructDepth1_AllF8) VDLReflect(__VUnionDepth2_VStructDepth1_AllReflect) {}
 
 func (x VUnionDepth2_VStructDepth1_AllF8) VDLIsZero() bool {
@@ -15315,9 +15314,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VStructDepth1_Int8F9) Index() int                                            { return 0 }
-func (x VUnionDepth2_VStructDepth1_Int8F9) Interface() interface{}                                { return x.Value }
-func (x VUnionDepth2_VStructDepth1_Int8F9) Name() string                                          { return "F9" }
+func (x VUnionDepth2_VStructDepth1_Int8F9) Index() int                                          { return 0 }
+func (x VUnionDepth2_VStructDepth1_Int8F9) Interface() interface{}                              { return x.Value }
+func (x VUnionDepth2_VStructDepth1_Int8F9) Name() string                                        { return "F9" }
 func (x VUnionDepth2_VStructDepth1_Int8F9) VDLReflect(__VUnionDepth2_VStructDepth1_Int8Reflect) {}
 
 func (x VUnionDepth2_VStructDepth1_Int8F9) VDLIsZero() bool {
@@ -15402,9 +15401,9 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VUnionDepth1_AllF10) Index() int                                          { return 0 }
-func (x VUnionDepth2_VUnionDepth1_AllF10) Interface() interface{}                              { return x.Value }
-func (x VUnionDepth2_VUnionDepth1_AllF10) Name() string                                        { return "F10" }
+func (x VUnionDepth2_VUnionDepth1_AllF10) Index() int                                        { return 0 }
+func (x VUnionDepth2_VUnionDepth1_AllF10) Interface() interface{}                            { return x.Value }
+func (x VUnionDepth2_VUnionDepth1_AllF10) Name() string                                      { return "F10" }
 func (x VUnionDepth2_VUnionDepth1_AllF10) VDLReflect(__VUnionDepth2_VUnionDepth1_AllReflect) {}
 
 func (x VUnionDepth2_VUnionDepth1_AllF10) VDLIsZero() bool {
@@ -15497,11 +15496,10 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int             { return 0 }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{} { return x.Value }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string           { return "F11" }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
-}
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int                                            { return 0 }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{}                                { return x.Value }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string                                          { return "F11" }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {}
 
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -18000,39 +17998,39 @@ type (
 	}
 )
 
-func (x VUnionDepth3_AllF0) Index() int                             { return 0 }
-func (x VUnionDepth3_AllF0) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF0) Name() string                           { return "F0" }
+func (x VUnionDepth3_AllF0) Index() int                           { return 0 }
+func (x VUnionDepth3_AllF0) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF0) Name() string                         { return "F0" }
 func (x VUnionDepth3_AllF0) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF1) Index() int                             { return 1 }
-func (x VUnionDepth3_AllF1) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF1) Name() string                           { return "F1" }
+func (x VUnionDepth3_AllF1) Index() int                           { return 1 }
+func (x VUnionDepth3_AllF1) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF1) Name() string                         { return "F1" }
 func (x VUnionDepth3_AllF1) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF2) Index() int                             { return 2 }
-func (x VUnionDepth3_AllF2) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF2) Name() string                           { return "F2" }
+func (x VUnionDepth3_AllF2) Index() int                           { return 2 }
+func (x VUnionDepth3_AllF2) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF2) Name() string                         { return "F2" }
 func (x VUnionDepth3_AllF2) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF3) Index() int                             { return 3 }
-func (x VUnionDepth3_AllF3) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF3) Name() string                           { return "F3" }
+func (x VUnionDepth3_AllF3) Index() int                           { return 3 }
+func (x VUnionDepth3_AllF3) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF3) Name() string                         { return "F3" }
 func (x VUnionDepth3_AllF3) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF4) Index() int                             { return 4 }
-func (x VUnionDepth3_AllF4) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF4) Name() string                           { return "F4" }
+func (x VUnionDepth3_AllF4) Index() int                           { return 4 }
+func (x VUnionDepth3_AllF4) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF4) Name() string                         { return "F4" }
 func (x VUnionDepth3_AllF4) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF5) Index() int                             { return 5 }
-func (x VUnionDepth3_AllF5) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF5) Name() string                           { return "F5" }
+func (x VUnionDepth3_AllF5) Index() int                           { return 5 }
+func (x VUnionDepth3_AllF5) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF5) Name() string                         { return "F5" }
 func (x VUnionDepth3_AllF5) VDLReflect(__VUnionDepth3_AllReflect) {}
 
-func (x VUnionDepth3_AllF6) Index() int                             { return 6 }
-func (x VUnionDepth3_AllF6) Interface() interface{}                 { return x.Value }
-func (x VUnionDepth3_AllF6) Name() string                           { return "F6" }
+func (x VUnionDepth3_AllF6) Index() int                           { return 6 }
+func (x VUnionDepth3_AllF6) Interface() interface{}               { return x.Value }
+func (x VUnionDepth3_AllF6) Name() string                         { return "F6" }
 func (x VUnionDepth3_AllF6) VDLReflect(__VUnionDepth3_AllReflect) {}
 
 func (x VUnionDepth3_AllF0) VDLIsZero() bool {
@@ -18485,9 +18483,9 @@ type (
 	}
 )
 
-func (x VUnionDepth3_List_VList_ErrorF1) Index() int                                          { return 0 }
-func (x VUnionDepth3_List_VList_ErrorF1) Interface() interface{}                              { return x.Value }
-func (x VUnionDepth3_List_VList_ErrorF1) Name() string                                        { return "F1" }
+func (x VUnionDepth3_List_VList_ErrorF1) Index() int                                        { return 0 }
+func (x VUnionDepth3_List_VList_ErrorF1) Interface() interface{}                            { return x.Value }
+func (x VUnionDepth3_List_VList_ErrorF1) Name() string                                      { return "F1" }
 func (x VUnionDepth3_List_VList_ErrorF1) VDLReflect(__VUnionDepth3_List_VList_ErrorReflect) {}
 
 func (x VUnionDepth3_List_VList_ErrorF1) VDLIsZero() bool {
@@ -18754,9 +18752,9 @@ type (
 	}
 )
 
-func (x VUnionDepth3_VStructDepth2_AllF4) Index() int                                           { return 0 }
-func (x VUnionDepth3_VStructDepth2_AllF4) Interface() interface{}                               { return x.Value }
-func (x VUnionDepth3_VStructDepth2_AllF4) Name() string                                         { return "F4" }
+func (x VUnionDepth3_VStructDepth2_AllF4) Index() int                                         { return 0 }
+func (x VUnionDepth3_VStructDepth2_AllF4) Interface() interface{}                             { return x.Value }
+func (x VUnionDepth3_VStructDepth2_AllF4) Name() string                                       { return "F4" }
 func (x VUnionDepth3_VStructDepth2_AllF4) VDLReflect(__VUnionDepth3_VStructDepth2_AllReflect) {}
 
 func (x VUnionDepth3_VStructDepth2_AllF4) VDLIsZero() bool {
@@ -18841,9 +18839,9 @@ type (
 	}
 )
 
-func (x VUnionDepth3_VUnionDepth2_AllF5) Index() int                                          { return 0 }
-func (x VUnionDepth3_VUnionDepth2_AllF5) Interface() interface{}                              { return x.Value }
-func (x VUnionDepth3_VUnionDepth2_AllF5) Name() string                                        { return "F5" }
+func (x VUnionDepth3_VUnionDepth2_AllF5) Index() int                                        { return 0 }
+func (x VUnionDepth3_VUnionDepth2_AllF5) Interface() interface{}                            { return x.Value }
+func (x VUnionDepth3_VUnionDepth2_AllF5) Name() string                                      { return "F5" }
 func (x VUnionDepth3_VUnionDepth2_AllF5) VDLReflect(__VUnionDepth3_VUnionDepth2_AllReflect) {}
 
 func (x VUnionDepth3_VUnionDepth2_AllF5) VDLIsZero() bool {
@@ -20113,9 +20111,9 @@ type (
 	}
 )
 
-func (x VWireUnionNStringX) Index() int                              { return 0 }
-func (x VWireUnionNStringX) Interface() interface{}                  { return x.Value }
-func (x VWireUnionNStringX) Name() string                            { return "X" }
+func (x VWireUnionNStringX) Index() int                            { return 0 }
+func (x VWireUnionNStringX) Interface() interface{}                { return x.Value }
+func (x VWireUnionNStringX) Name() string                          { return "X" }
 func (x VWireUnionNStringX) VDLReflect(__VWireUnionNStringReflect) {}
 
 func (x VWireUnionNStringX) VDLIsZero() bool {
@@ -20200,9 +20198,9 @@ type (
 	}
 )
 
-func (x VWireUnionNStructX) Index() int                              { return 0 }
-func (x VWireUnionNStructX) Interface() interface{}                  { return x.Value }
-func (x VWireUnionNStructX) Name() string                            { return "X" }
+func (x VWireUnionNStructX) Index() int                            { return 0 }
+func (x VWireUnionNStructX) Interface() interface{}                { return x.Value }
+func (x VWireUnionNStructX) Name() string                          { return "X" }
 func (x VWireUnionNStructX) VDLReflect(__VWireUnionNStructReflect) {}
 
 func (x VWireUnionNStructX) VDLIsZero() bool {
@@ -20287,9 +20285,9 @@ type (
 	}
 )
 
-func (x VWireUnionNArrayX) Index() int                             { return 0 }
-func (x VWireUnionNArrayX) Interface() interface{}                 { return x.Value }
-func (x VWireUnionNArrayX) Name() string                           { return "X" }
+func (x VWireUnionNArrayX) Index() int                           { return 0 }
+func (x VWireUnionNArrayX) Interface() interface{}               { return x.Value }
+func (x VWireUnionNArrayX) Name() string                         { return "X" }
 func (x VWireUnionNArrayX) VDLReflect(__VWireUnionNArrayReflect) {}
 
 func (x VWireUnionNArrayX) VDLIsZero() bool {
@@ -20374,9 +20372,9 @@ type (
 	}
 )
 
-func (x VWireUnionNSliceX) Index() int                             { return 0 }
-func (x VWireUnionNSliceX) Interface() interface{}                 { return x.Value }
-func (x VWireUnionNSliceX) Name() string                           { return "X" }
+func (x VWireUnionNSliceX) Index() int                           { return 0 }
+func (x VWireUnionNSliceX) Interface() interface{}               { return x.Value }
+func (x VWireUnionNSliceX) Name() string                         { return "X" }
 func (x VWireUnionNSliceX) VDLReflect(__VWireUnionNSliceReflect) {}
 
 func (x VWireUnionNSliceX) VDLIsZero() bool {
@@ -20461,9 +20459,9 @@ type (
 	}
 )
 
-func (x VWireUnionNPointerX) Index() int                               { return 0 }
-func (x VWireUnionNPointerX) Interface() interface{}                   { return x.Value }
-func (x VWireUnionNPointerX) Name() string                             { return "X" }
+func (x VWireUnionNPointerX) Index() int                             { return 0 }
+func (x VWireUnionNPointerX) Interface() interface{}                 { return x.Value }
+func (x VWireUnionNPointerX) Name() string                           { return "X" }
 func (x VWireUnionNPointerX) VDLReflect(__VWireUnionNPointerReflect) {}
 
 func (x VWireUnionNPointerX) VDLIsZero() bool {
@@ -20548,9 +20546,9 @@ type (
 	}
 )
 
-func (x VWireUnionNIfaceX) Index() int                             { return 0 }
-func (x VWireUnionNIfaceX) Interface() interface{}                 { return x.Value }
-func (x VWireUnionNIfaceX) Name() string                           { return "X" }
+func (x VWireUnionNIfaceX) Index() int                           { return 0 }
+func (x VWireUnionNIfaceX) Interface() interface{}               { return x.Value }
+func (x VWireUnionNIfaceX) Name() string                         { return "X" }
 func (x VWireUnionNIfaceX) VDLReflect(__VWireUnionNIfaceReflect) {}
 
 func (x VWireUnionNIfaceX) VDLIsZero() bool {
@@ -22284,169 +22282,169 @@ type (
 	}
 )
 
-func (x XUnionDepth1_AllF0) Index() int                             { return 0 }
-func (x XUnionDepth1_AllF0) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF0) Name() string                           { return "F0" }
+func (x XUnionDepth1_AllF0) Index() int                           { return 0 }
+func (x XUnionDepth1_AllF0) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF0) Name() string                         { return "F0" }
 func (x XUnionDepth1_AllF0) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF1) Index() int                             { return 1 }
-func (x XUnionDepth1_AllF1) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF1) Name() string                           { return "F1" }
+func (x XUnionDepth1_AllF1) Index() int                           { return 1 }
+func (x XUnionDepth1_AllF1) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF1) Name() string                         { return "F1" }
 func (x XUnionDepth1_AllF1) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF2) Index() int                             { return 2 }
-func (x XUnionDepth1_AllF2) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF2) Name() string                           { return "F2" }
+func (x XUnionDepth1_AllF2) Index() int                           { return 2 }
+func (x XUnionDepth1_AllF2) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF2) Name() string                         { return "F2" }
 func (x XUnionDepth1_AllF2) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF3) Index() int                             { return 3 }
-func (x XUnionDepth1_AllF3) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF3) Name() string                           { return "F3" }
+func (x XUnionDepth1_AllF3) Index() int                           { return 3 }
+func (x XUnionDepth1_AllF3) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF3) Name() string                         { return "F3" }
 func (x XUnionDepth1_AllF3) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF4) Index() int                             { return 4 }
-func (x XUnionDepth1_AllF4) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF4) Name() string                           { return "F4" }
+func (x XUnionDepth1_AllF4) Index() int                           { return 4 }
+func (x XUnionDepth1_AllF4) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF4) Name() string                         { return "F4" }
 func (x XUnionDepth1_AllF4) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF5) Index() int                             { return 5 }
-func (x XUnionDepth1_AllF5) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF5) Name() string                           { return "F5" }
+func (x XUnionDepth1_AllF5) Index() int                           { return 5 }
+func (x XUnionDepth1_AllF5) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF5) Name() string                         { return "F5" }
 func (x XUnionDepth1_AllF5) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF6) Index() int                             { return 6 }
-func (x XUnionDepth1_AllF6) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF6) Name() string                           { return "F6" }
+func (x XUnionDepth1_AllF6) Index() int                           { return 6 }
+func (x XUnionDepth1_AllF6) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF6) Name() string                         { return "F6" }
 func (x XUnionDepth1_AllF6) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF7) Index() int                             { return 7 }
-func (x XUnionDepth1_AllF7) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF7) Name() string                           { return "F7" }
+func (x XUnionDepth1_AllF7) Index() int                           { return 7 }
+func (x XUnionDepth1_AllF7) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF7) Name() string                         { return "F7" }
 func (x XUnionDepth1_AllF7) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF8) Index() int                             { return 8 }
-func (x XUnionDepth1_AllF8) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF8) Name() string                           { return "F8" }
+func (x XUnionDepth1_AllF8) Index() int                           { return 8 }
+func (x XUnionDepth1_AllF8) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF8) Name() string                         { return "F8" }
 func (x XUnionDepth1_AllF8) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF9) Index() int                             { return 9 }
-func (x XUnionDepth1_AllF9) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF9) Name() string                           { return "F9" }
+func (x XUnionDepth1_AllF9) Index() int                           { return 9 }
+func (x XUnionDepth1_AllF9) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF9) Name() string                         { return "F9" }
 func (x XUnionDepth1_AllF9) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF10) Index() int                             { return 10 }
-func (x XUnionDepth1_AllF10) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF10) Name() string                           { return "F10" }
+func (x XUnionDepth1_AllF10) Index() int                           { return 10 }
+func (x XUnionDepth1_AllF10) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF10) Name() string                         { return "F10" }
 func (x XUnionDepth1_AllF10) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF11) Index() int                             { return 11 }
-func (x XUnionDepth1_AllF11) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF11) Name() string                           { return "F11" }
+func (x XUnionDepth1_AllF11) Index() int                           { return 11 }
+func (x XUnionDepth1_AllF11) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF11) Name() string                         { return "F11" }
 func (x XUnionDepth1_AllF11) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF12) Index() int                             { return 12 }
-func (x XUnionDepth1_AllF12) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF12) Name() string                           { return "F12" }
+func (x XUnionDepth1_AllF12) Index() int                           { return 12 }
+func (x XUnionDepth1_AllF12) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF12) Name() string                         { return "F12" }
 func (x XUnionDepth1_AllF12) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF13) Index() int                             { return 13 }
-func (x XUnionDepth1_AllF13) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF13) Name() string                           { return "F13" }
+func (x XUnionDepth1_AllF13) Index() int                           { return 13 }
+func (x XUnionDepth1_AllF13) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF13) Name() string                         { return "F13" }
 func (x XUnionDepth1_AllF13) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF14) Index() int                             { return 14 }
-func (x XUnionDepth1_AllF14) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF14) Name() string                           { return "F14" }
+func (x XUnionDepth1_AllF14) Index() int                           { return 14 }
+func (x XUnionDepth1_AllF14) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF14) Name() string                         { return "F14" }
 func (x XUnionDepth1_AllF14) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF15) Index() int                             { return 15 }
-func (x XUnionDepth1_AllF15) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF15) Name() string                           { return "F15" }
+func (x XUnionDepth1_AllF15) Index() int                           { return 15 }
+func (x XUnionDepth1_AllF15) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF15) Name() string                         { return "F15" }
 func (x XUnionDepth1_AllF15) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF16) Index() int                             { return 16 }
-func (x XUnionDepth1_AllF16) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF16) Name() string                           { return "F16" }
+func (x XUnionDepth1_AllF16) Index() int                           { return 16 }
+func (x XUnionDepth1_AllF16) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF16) Name() string                         { return "F16" }
 func (x XUnionDepth1_AllF16) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF17) Index() int                             { return 17 }
-func (x XUnionDepth1_AllF17) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF17) Name() string                           { return "F17" }
+func (x XUnionDepth1_AllF17) Index() int                           { return 17 }
+func (x XUnionDepth1_AllF17) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF17) Name() string                         { return "F17" }
 func (x XUnionDepth1_AllF17) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF18) Index() int                             { return 18 }
-func (x XUnionDepth1_AllF18) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF18) Name() string                           { return "F18" }
+func (x XUnionDepth1_AllF18) Index() int                           { return 18 }
+func (x XUnionDepth1_AllF18) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF18) Name() string                         { return "F18" }
 func (x XUnionDepth1_AllF18) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF19) Index() int                             { return 19 }
-func (x XUnionDepth1_AllF19) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF19) Name() string                           { return "F19" }
+func (x XUnionDepth1_AllF19) Index() int                           { return 19 }
+func (x XUnionDepth1_AllF19) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF19) Name() string                         { return "F19" }
 func (x XUnionDepth1_AllF19) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF20) Index() int                             { return 20 }
-func (x XUnionDepth1_AllF20) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF20) Name() string                           { return "F20" }
+func (x XUnionDepth1_AllF20) Index() int                           { return 20 }
+func (x XUnionDepth1_AllF20) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF20) Name() string                         { return "F20" }
 func (x XUnionDepth1_AllF20) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF21) Index() int                             { return 21 }
-func (x XUnionDepth1_AllF21) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF21) Name() string                           { return "F21" }
+func (x XUnionDepth1_AllF21) Index() int                           { return 21 }
+func (x XUnionDepth1_AllF21) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF21) Name() string                         { return "F21" }
 func (x XUnionDepth1_AllF21) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF22) Index() int                             { return 22 }
-func (x XUnionDepth1_AllF22) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF22) Name() string                           { return "F22" }
+func (x XUnionDepth1_AllF22) Index() int                           { return 22 }
+func (x XUnionDepth1_AllF22) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF22) Name() string                         { return "F22" }
 func (x XUnionDepth1_AllF22) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF23) Index() int                             { return 23 }
-func (x XUnionDepth1_AllF23) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF23) Name() string                           { return "F23" }
+func (x XUnionDepth1_AllF23) Index() int                           { return 23 }
+func (x XUnionDepth1_AllF23) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF23) Name() string                         { return "F23" }
 func (x XUnionDepth1_AllF23) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF24) Index() int                             { return 24 }
-func (x XUnionDepth1_AllF24) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF24) Name() string                           { return "F24" }
+func (x XUnionDepth1_AllF24) Index() int                           { return 24 }
+func (x XUnionDepth1_AllF24) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF24) Name() string                         { return "F24" }
 func (x XUnionDepth1_AllF24) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF25) Index() int                             { return 25 }
-func (x XUnionDepth1_AllF25) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF25) Name() string                           { return "F25" }
+func (x XUnionDepth1_AllF25) Index() int                           { return 25 }
+func (x XUnionDepth1_AllF25) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF25) Name() string                         { return "F25" }
 func (x XUnionDepth1_AllF25) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF26) Index() int                             { return 26 }
-func (x XUnionDepth1_AllF26) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF26) Name() string                           { return "F26" }
+func (x XUnionDepth1_AllF26) Index() int                           { return 26 }
+func (x XUnionDepth1_AllF26) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF26) Name() string                         { return "F26" }
 func (x XUnionDepth1_AllF26) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF27) Index() int                             { return 27 }
-func (x XUnionDepth1_AllF27) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF27) Name() string                           { return "F27" }
+func (x XUnionDepth1_AllF27) Index() int                           { return 27 }
+func (x XUnionDepth1_AllF27) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF27) Name() string                         { return "F27" }
 func (x XUnionDepth1_AllF27) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF28) Index() int                             { return 28 }
-func (x XUnionDepth1_AllF28) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF28) Name() string                           { return "F28" }
+func (x XUnionDepth1_AllF28) Index() int                           { return 28 }
+func (x XUnionDepth1_AllF28) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF28) Name() string                         { return "F28" }
 func (x XUnionDepth1_AllF28) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF29) Index() int                             { return 29 }
-func (x XUnionDepth1_AllF29) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF29) Name() string                           { return "F29" }
+func (x XUnionDepth1_AllF29) Index() int                           { return 29 }
+func (x XUnionDepth1_AllF29) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF29) Name() string                         { return "F29" }
 func (x XUnionDepth1_AllF29) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF30) Index() int                             { return 30 }
-func (x XUnionDepth1_AllF30) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF30) Name() string                           { return "F30" }
+func (x XUnionDepth1_AllF30) Index() int                           { return 30 }
+func (x XUnionDepth1_AllF30) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF30) Name() string                         { return "F30" }
 func (x XUnionDepth1_AllF30) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF31) Index() int                             { return 31 }
-func (x XUnionDepth1_AllF31) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF31) Name() string                           { return "F31" }
+func (x XUnionDepth1_AllF31) Index() int                           { return 31 }
+func (x XUnionDepth1_AllF31) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF31) Name() string                         { return "F31" }
 func (x XUnionDepth1_AllF31) VDLReflect(__XUnionDepth1_AllReflect) {}
 
-func (x XUnionDepth1_AllF32) Index() int                             { return 32 }
-func (x XUnionDepth1_AllF32) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AllF32) Name() string                           { return "F32" }
+func (x XUnionDepth1_AllF32) Index() int                           { return 32 }
+func (x XUnionDepth1_AllF32) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AllF32) Name() string                         { return "F32" }
 func (x XUnionDepth1_AllF32) VDLReflect(__XUnionDepth1_AllReflect) {}
 
 type (
@@ -22473,9 +22471,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_AnyF0) Index() int                             { return 0 }
-func (x XUnionDepth1_AnyF0) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth1_AnyF0) Name() string                           { return "F0" }
+func (x XUnionDepth1_AnyF0) Index() int                           { return 0 }
+func (x XUnionDepth1_AnyF0) Interface() interface{}               { return x.Value }
+func (x XUnionDepth1_AnyF0) Name() string                         { return "F0" }
 func (x XUnionDepth1_AnyF0) VDLReflect(__XUnionDepth1_AnyReflect) {}
 
 type (
@@ -22502,9 +22500,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_BoolF1) Index() int                              { return 0 }
-func (x XUnionDepth1_BoolF1) Interface() interface{}                  { return x.Value }
-func (x XUnionDepth1_BoolF1) Name() string                            { return "F1" }
+func (x XUnionDepth1_BoolF1) Index() int                            { return 0 }
+func (x XUnionDepth1_BoolF1) Interface() interface{}                { return x.Value }
+func (x XUnionDepth1_BoolF1) Name() string                          { return "F1" }
 func (x XUnionDepth1_BoolF1) VDLReflect(__XUnionDepth1_BoolReflect) {}
 
 type (
@@ -22531,9 +22529,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XBoolF2) Index() int                               { return 0 }
-func (x XUnionDepth1_XBoolF2) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_XBoolF2) Name() string                             { return "F2" }
+func (x XUnionDepth1_XBoolF2) Index() int                             { return 0 }
+func (x XUnionDepth1_XBoolF2) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_XBoolF2) Name() string                           { return "F2" }
 func (x XUnionDepth1_XBoolF2) VDLReflect(__XUnionDepth1_XBoolReflect) {}
 
 type (
@@ -22560,9 +22558,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_StringF3) Index() int                                { return 0 }
-func (x XUnionDepth1_StringF3) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_StringF3) Name() string                              { return "F3" }
+func (x XUnionDepth1_StringF3) Index() int                              { return 0 }
+func (x XUnionDepth1_StringF3) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_StringF3) Name() string                            { return "F3" }
 func (x XUnionDepth1_StringF3) VDLReflect(__XUnionDepth1_StringReflect) {}
 
 type (
@@ -22589,9 +22587,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XStringF4) Index() int                                 { return 0 }
-func (x XUnionDepth1_XStringF4) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_XStringF4) Name() string                               { return "F4" }
+func (x XUnionDepth1_XStringF4) Index() int                               { return 0 }
+func (x XUnionDepth1_XStringF4) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_XStringF4) Name() string                             { return "F4" }
 func (x XUnionDepth1_XStringF4) VDLReflect(__XUnionDepth1_XStringReflect) {}
 
 type (
@@ -22618,9 +22616,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_TypeObjectF5) Index() int                                    { return 0 }
-func (x XUnionDepth1_TypeObjectF5) Interface() interface{}                        { return x.Value }
-func (x XUnionDepth1_TypeObjectF5) Name() string                                  { return "F5" }
+func (x XUnionDepth1_TypeObjectF5) Index() int                                  { return 0 }
+func (x XUnionDepth1_TypeObjectF5) Interface() interface{}                      { return x.Value }
+func (x XUnionDepth1_TypeObjectF5) Name() string                                { return "F5" }
 func (x XUnionDepth1_TypeObjectF5) VDLReflect(__XUnionDepth1_TypeObjectReflect) {}
 
 type (
@@ -22647,9 +22645,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_ByteF6) Index() int                              { return 0 }
-func (x XUnionDepth1_ByteF6) Interface() interface{}                  { return x.Value }
-func (x XUnionDepth1_ByteF6) Name() string                            { return "F6" }
+func (x XUnionDepth1_ByteF6) Index() int                            { return 0 }
+func (x XUnionDepth1_ByteF6) Interface() interface{}                { return x.Value }
+func (x XUnionDepth1_ByteF6) Name() string                          { return "F6" }
 func (x XUnionDepth1_ByteF6) VDLReflect(__XUnionDepth1_ByteReflect) {}
 
 type (
@@ -22676,9 +22674,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XByteF7) Index() int                               { return 0 }
-func (x XUnionDepth1_XByteF7) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_XByteF7) Name() string                             { return "F7" }
+func (x XUnionDepth1_XByteF7) Index() int                             { return 0 }
+func (x XUnionDepth1_XByteF7) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_XByteF7) Name() string                           { return "F7" }
 func (x XUnionDepth1_XByteF7) VDLReflect(__XUnionDepth1_XByteReflect) {}
 
 type (
@@ -22705,9 +22703,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XEnumAbcF8) Index() int                                  { return 0 }
-func (x XUnionDepth1_XEnumAbcF8) Interface() interface{}                      { return x.Value }
-func (x XUnionDepth1_XEnumAbcF8) Name() string                                { return "F8" }
+func (x XUnionDepth1_XEnumAbcF8) Index() int                                { return 0 }
+func (x XUnionDepth1_XEnumAbcF8) Interface() interface{}                    { return x.Value }
+func (x XUnionDepth1_XEnumAbcF8) Name() string                              { return "F8" }
 func (x XUnionDepth1_XEnumAbcF8) VDLReflect(__XUnionDepth1_XEnumAbcReflect) {}
 
 type (
@@ -22734,9 +22732,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XEnumBcdF9) Index() int                                  { return 0 }
-func (x XUnionDepth1_XEnumBcdF9) Interface() interface{}                      { return x.Value }
-func (x XUnionDepth1_XEnumBcdF9) Name() string                                { return "F9" }
+func (x XUnionDepth1_XEnumBcdF9) Index() int                                { return 0 }
+func (x XUnionDepth1_XEnumBcdF9) Interface() interface{}                    { return x.Value }
+func (x XUnionDepth1_XEnumBcdF9) Name() string                              { return "F9" }
 func (x XUnionDepth1_XEnumBcdF9) VDLReflect(__XUnionDepth1_XEnumBcdReflect) {}
 
 type (
@@ -22763,9 +22761,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XStructEmptyF10) Index() int                                      { return 0 }
-func (x XUnionDepth1_XStructEmptyF10) Interface() interface{}                          { return x.Value }
-func (x XUnionDepth1_XStructEmptyF10) Name() string                                    { return "F10" }
+func (x XUnionDepth1_XStructEmptyF10) Index() int                                    { return 0 }
+func (x XUnionDepth1_XStructEmptyF10) Interface() interface{}                        { return x.Value }
+func (x XUnionDepth1_XStructEmptyF10) Name() string                                  { return "F10" }
 func (x XUnionDepth1_XStructEmptyF10) VDLReflect(__XUnionDepth1_XStructEmptyReflect) {}
 
 type (
@@ -22792,9 +22790,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XNamedErrorF11) Index() int                                     { return 0 }
-func (x XUnionDepth1_XNamedErrorF11) Interface() interface{}                         { return x.Value }
-func (x XUnionDepth1_XNamedErrorF11) Name() string                                   { return "F11" }
+func (x XUnionDepth1_XNamedErrorF11) Index() int                                   { return 0 }
+func (x XUnionDepth1_XNamedErrorF11) Interface() interface{}                       { return x.Value }
+func (x XUnionDepth1_XNamedErrorF11) Name() string                                 { return "F11" }
 func (x XUnionDepth1_XNamedErrorF11) VDLReflect(__XUnionDepth1_XNamedErrorReflect) {}
 
 type (
@@ -22821,9 +22819,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_ErrorF12) Index() int                               { return 0 }
-func (x XUnionDepth1_ErrorF12) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_ErrorF12) Name() string                             { return "F12" }
+func (x XUnionDepth1_ErrorF12) Index() int                             { return 0 }
+func (x XUnionDepth1_ErrorF12) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_ErrorF12) Name() string                           { return "F12" }
 func (x XUnionDepth1_ErrorF12) VDLReflect(__XUnionDepth1_ErrorReflect) {}
 
 type (
@@ -22850,9 +22848,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Uint16F13) Index() int                                { return 0 }
-func (x XUnionDepth1_Uint16F13) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_Uint16F13) Name() string                              { return "F13" }
+func (x XUnionDepth1_Uint16F13) Index() int                              { return 0 }
+func (x XUnionDepth1_Uint16F13) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_Uint16F13) Name() string                            { return "F13" }
 func (x XUnionDepth1_Uint16F13) VDLReflect(__XUnionDepth1_Uint16Reflect) {}
 
 type (
@@ -22879,9 +22877,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XUint16F14) Index() int                                 { return 0 }
-func (x XUnionDepth1_XUint16F14) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_XUint16F14) Name() string                               { return "F14" }
+func (x XUnionDepth1_XUint16F14) Index() int                               { return 0 }
+func (x XUnionDepth1_XUint16F14) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_XUint16F14) Name() string                             { return "F14" }
 func (x XUnionDepth1_XUint16F14) VDLReflect(__XUnionDepth1_XUint16Reflect) {}
 
 type (
@@ -22908,9 +22906,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Uint32F15) Index() int                                { return 0 }
-func (x XUnionDepth1_Uint32F15) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_Uint32F15) Name() string                              { return "F15" }
+func (x XUnionDepth1_Uint32F15) Index() int                              { return 0 }
+func (x XUnionDepth1_Uint32F15) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_Uint32F15) Name() string                            { return "F15" }
 func (x XUnionDepth1_Uint32F15) VDLReflect(__XUnionDepth1_Uint32Reflect) {}
 
 type (
@@ -22937,9 +22935,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XUint32F16) Index() int                                 { return 0 }
-func (x XUnionDepth1_XUint32F16) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_XUint32F16) Name() string                               { return "F16" }
+func (x XUnionDepth1_XUint32F16) Index() int                               { return 0 }
+func (x XUnionDepth1_XUint32F16) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_XUint32F16) Name() string                             { return "F16" }
 func (x XUnionDepth1_XUint32F16) VDLReflect(__XUnionDepth1_XUint32Reflect) {}
 
 type (
@@ -22966,9 +22964,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Uint64F17) Index() int                                { return 0 }
-func (x XUnionDepth1_Uint64F17) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_Uint64F17) Name() string                              { return "F17" }
+func (x XUnionDepth1_Uint64F17) Index() int                              { return 0 }
+func (x XUnionDepth1_Uint64F17) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_Uint64F17) Name() string                            { return "F17" }
 func (x XUnionDepth1_Uint64F17) VDLReflect(__XUnionDepth1_Uint64Reflect) {}
 
 type (
@@ -22995,9 +22993,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XUint64F18) Index() int                                 { return 0 }
-func (x XUnionDepth1_XUint64F18) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_XUint64F18) Name() string                               { return "F18" }
+func (x XUnionDepth1_XUint64F18) Index() int                               { return 0 }
+func (x XUnionDepth1_XUint64F18) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_XUint64F18) Name() string                             { return "F18" }
 func (x XUnionDepth1_XUint64F18) VDLReflect(__XUnionDepth1_XUint64Reflect) {}
 
 type (
@@ -23024,9 +23022,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Int8F19) Index() int                              { return 0 }
-func (x XUnionDepth1_Int8F19) Interface() interface{}                  { return x.Value }
-func (x XUnionDepth1_Int8F19) Name() string                            { return "F19" }
+func (x XUnionDepth1_Int8F19) Index() int                            { return 0 }
+func (x XUnionDepth1_Int8F19) Interface() interface{}                { return x.Value }
+func (x XUnionDepth1_Int8F19) Name() string                          { return "F19" }
 func (x XUnionDepth1_Int8F19) VDLReflect(__XUnionDepth1_Int8Reflect) {}
 
 type (
@@ -23053,9 +23051,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XInt8F20) Index() int                               { return 0 }
-func (x XUnionDepth1_XInt8F20) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_XInt8F20) Name() string                             { return "F20" }
+func (x XUnionDepth1_XInt8F20) Index() int                             { return 0 }
+func (x XUnionDepth1_XInt8F20) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_XInt8F20) Name() string                           { return "F20" }
 func (x XUnionDepth1_XInt8F20) VDLReflect(__XUnionDepth1_XInt8Reflect) {}
 
 type (
@@ -23082,9 +23080,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Int16F21) Index() int                               { return 0 }
-func (x XUnionDepth1_Int16F21) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_Int16F21) Name() string                             { return "F21" }
+func (x XUnionDepth1_Int16F21) Index() int                             { return 0 }
+func (x XUnionDepth1_Int16F21) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_Int16F21) Name() string                           { return "F21" }
 func (x XUnionDepth1_Int16F21) VDLReflect(__XUnionDepth1_Int16Reflect) {}
 
 type (
@@ -23111,9 +23109,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XInt16F22) Index() int                                { return 0 }
-func (x XUnionDepth1_XInt16F22) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_XInt16F22) Name() string                              { return "F22" }
+func (x XUnionDepth1_XInt16F22) Index() int                              { return 0 }
+func (x XUnionDepth1_XInt16F22) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_XInt16F22) Name() string                            { return "F22" }
 func (x XUnionDepth1_XInt16F22) VDLReflect(__XUnionDepth1_XInt16Reflect) {}
 
 type (
@@ -23140,9 +23138,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Int32F23) Index() int                               { return 0 }
-func (x XUnionDepth1_Int32F23) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_Int32F23) Name() string                             { return "F23" }
+func (x XUnionDepth1_Int32F23) Index() int                             { return 0 }
+func (x XUnionDepth1_Int32F23) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_Int32F23) Name() string                           { return "F23" }
 func (x XUnionDepth1_Int32F23) VDLReflect(__XUnionDepth1_Int32Reflect) {}
 
 type (
@@ -23169,9 +23167,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XInt32F24) Index() int                                { return 0 }
-func (x XUnionDepth1_XInt32F24) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_XInt32F24) Name() string                              { return "F24" }
+func (x XUnionDepth1_XInt32F24) Index() int                              { return 0 }
+func (x XUnionDepth1_XInt32F24) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_XInt32F24) Name() string                            { return "F24" }
 func (x XUnionDepth1_XInt32F24) VDLReflect(__XUnionDepth1_XInt32Reflect) {}
 
 type (
@@ -23198,9 +23196,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Int64F25) Index() int                               { return 0 }
-func (x XUnionDepth1_Int64F25) Interface() interface{}                   { return x.Value }
-func (x XUnionDepth1_Int64F25) Name() string                             { return "F25" }
+func (x XUnionDepth1_Int64F25) Index() int                             { return 0 }
+func (x XUnionDepth1_Int64F25) Interface() interface{}                 { return x.Value }
+func (x XUnionDepth1_Int64F25) Name() string                           { return "F25" }
 func (x XUnionDepth1_Int64F25) VDLReflect(__XUnionDepth1_Int64Reflect) {}
 
 type (
@@ -23227,9 +23225,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XInt64F26) Index() int                                { return 0 }
-func (x XUnionDepth1_XInt64F26) Interface() interface{}                    { return x.Value }
-func (x XUnionDepth1_XInt64F26) Name() string                              { return "F26" }
+func (x XUnionDepth1_XInt64F26) Index() int                              { return 0 }
+func (x XUnionDepth1_XInt64F26) Interface() interface{}                  { return x.Value }
+func (x XUnionDepth1_XInt64F26) Name() string                            { return "F26" }
 func (x XUnionDepth1_XInt64F26) VDLReflect(__XUnionDepth1_XInt64Reflect) {}
 
 type (
@@ -23256,9 +23254,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Float32F27) Index() int                                 { return 0 }
-func (x XUnionDepth1_Float32F27) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_Float32F27) Name() string                               { return "F27" }
+func (x XUnionDepth1_Float32F27) Index() int                               { return 0 }
+func (x XUnionDepth1_Float32F27) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_Float32F27) Name() string                             { return "F27" }
 func (x XUnionDepth1_Float32F27) VDLReflect(__XUnionDepth1_Float32Reflect) {}
 
 type (
@@ -23285,9 +23283,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XFloat32F28) Index() int                                  { return 0 }
-func (x XUnionDepth1_XFloat32F28) Interface() interface{}                      { return x.Value }
-func (x XUnionDepth1_XFloat32F28) Name() string                                { return "F28" }
+func (x XUnionDepth1_XFloat32F28) Index() int                                { return 0 }
+func (x XUnionDepth1_XFloat32F28) Interface() interface{}                    { return x.Value }
+func (x XUnionDepth1_XFloat32F28) Name() string                              { return "F28" }
 func (x XUnionDepth1_XFloat32F28) VDLReflect(__XUnionDepth1_XFloat32Reflect) {}
 
 type (
@@ -23314,9 +23312,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_Float64F29) Index() int                                 { return 0 }
-func (x XUnionDepth1_Float64F29) Interface() interface{}                     { return x.Value }
-func (x XUnionDepth1_Float64F29) Name() string                               { return "F29" }
+func (x XUnionDepth1_Float64F29) Index() int                               { return 0 }
+func (x XUnionDepth1_Float64F29) Interface() interface{}                   { return x.Value }
+func (x XUnionDepth1_Float64F29) Name() string                             { return "F29" }
 func (x XUnionDepth1_Float64F29) VDLReflect(__XUnionDepth1_Float64Reflect) {}
 
 type (
@@ -23343,9 +23341,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_XFloat64F30) Index() int                                  { return 0 }
-func (x XUnionDepth1_XFloat64F30) Interface() interface{}                      { return x.Value }
-func (x XUnionDepth1_XFloat64F30) Name() string                                { return "F30" }
+func (x XUnionDepth1_XFloat64F30) Index() int                                { return 0 }
+func (x XUnionDepth1_XFloat64F30) Interface() interface{}                    { return x.Value }
+func (x XUnionDepth1_XFloat64F30) Name() string                              { return "F30" }
 func (x XUnionDepth1_XFloat64F30) VDLReflect(__XUnionDepth1_XFloat64Reflect) {}
 
 type (
@@ -23372,9 +23370,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_OptXStructEmptyF31) Index() int                                         { return 0 }
-func (x XUnionDepth1_OptXStructEmptyF31) Interface() interface{}                             { return x.Value }
-func (x XUnionDepth1_OptXStructEmptyF31) Name() string                                       { return "F31" }
+func (x XUnionDepth1_OptXStructEmptyF31) Index() int                                       { return 0 }
+func (x XUnionDepth1_OptXStructEmptyF31) Interface() interface{}                           { return x.Value }
+func (x XUnionDepth1_OptXStructEmptyF31) Name() string                                     { return "F31" }
 func (x XUnionDepth1_OptXStructEmptyF31) VDLReflect(__XUnionDepth1_OptXStructEmptyReflect) {}
 
 type (
@@ -23401,9 +23399,9 @@ type (
 	}
 )
 
-func (x XUnionDepth1_OptXNamedErrorF32) Index() int                                        { return 0 }
-func (x XUnionDepth1_OptXNamedErrorF32) Interface() interface{}                            { return x.Value }
-func (x XUnionDepth1_OptXNamedErrorF32) Name() string                                      { return "F32" }
+func (x XUnionDepth1_OptXNamedErrorF32) Index() int                                      { return 0 }
+func (x XUnionDepth1_OptXNamedErrorF32) Interface() interface{}                          { return x.Value }
+func (x XUnionDepth1_OptXNamedErrorF32) Name() string                                    { return "F32" }
 func (x XUnionDepth1_OptXNamedErrorF32) VDLReflect(__XUnionDepth1_OptXNamedErrorReflect) {}
 
 type XArray1_XArray3_Int64 [1]XArray3_Int64
@@ -23757,74 +23755,74 @@ type (
 	}
 )
 
-func (x XUnionDepth2_AllF0) Index() int                             { return 0 }
-func (x XUnionDepth2_AllF0) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF0) Name() string                           { return "F0" }
+func (x XUnionDepth2_AllF0) Index() int                           { return 0 }
+func (x XUnionDepth2_AllF0) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF0) Name() string                         { return "F0" }
 func (x XUnionDepth2_AllF0) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF1) Index() int                             { return 1 }
-func (x XUnionDepth2_AllF1) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF1) Name() string                           { return "F1" }
+func (x XUnionDepth2_AllF1) Index() int                           { return 1 }
+func (x XUnionDepth2_AllF1) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF1) Name() string                         { return "F1" }
 func (x XUnionDepth2_AllF1) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF2) Index() int                             { return 2 }
-func (x XUnionDepth2_AllF2) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF2) Name() string                           { return "F2" }
+func (x XUnionDepth2_AllF2) Index() int                           { return 2 }
+func (x XUnionDepth2_AllF2) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF2) Name() string                         { return "F2" }
 func (x XUnionDepth2_AllF2) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF3) Index() int                             { return 3 }
-func (x XUnionDepth2_AllF3) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF3) Name() string                           { return "F3" }
+func (x XUnionDepth2_AllF3) Index() int                           { return 3 }
+func (x XUnionDepth2_AllF3) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF3) Name() string                         { return "F3" }
 func (x XUnionDepth2_AllF3) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF4) Index() int                             { return 4 }
-func (x XUnionDepth2_AllF4) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF4) Name() string                           { return "F4" }
+func (x XUnionDepth2_AllF4) Index() int                           { return 4 }
+func (x XUnionDepth2_AllF4) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF4) Name() string                         { return "F4" }
 func (x XUnionDepth2_AllF4) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF5) Index() int                             { return 5 }
-func (x XUnionDepth2_AllF5) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF5) Name() string                           { return "F5" }
+func (x XUnionDepth2_AllF5) Index() int                           { return 5 }
+func (x XUnionDepth2_AllF5) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF5) Name() string                         { return "F5" }
 func (x XUnionDepth2_AllF5) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF6) Index() int                             { return 6 }
-func (x XUnionDepth2_AllF6) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF6) Name() string                           { return "F6" }
+func (x XUnionDepth2_AllF6) Index() int                           { return 6 }
+func (x XUnionDepth2_AllF6) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF6) Name() string                         { return "F6" }
 func (x XUnionDepth2_AllF6) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF7) Index() int                             { return 7 }
-func (x XUnionDepth2_AllF7) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF7) Name() string                           { return "F7" }
+func (x XUnionDepth2_AllF7) Index() int                           { return 7 }
+func (x XUnionDepth2_AllF7) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF7) Name() string                         { return "F7" }
 func (x XUnionDepth2_AllF7) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF8) Index() int                             { return 8 }
-func (x XUnionDepth2_AllF8) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF8) Name() string                           { return "F8" }
+func (x XUnionDepth2_AllF8) Index() int                           { return 8 }
+func (x XUnionDepth2_AllF8) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF8) Name() string                         { return "F8" }
 func (x XUnionDepth2_AllF8) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF9) Index() int                             { return 9 }
-func (x XUnionDepth2_AllF9) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF9) Name() string                           { return "F9" }
+func (x XUnionDepth2_AllF9) Index() int                           { return 9 }
+func (x XUnionDepth2_AllF9) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF9) Name() string                         { return "F9" }
 func (x XUnionDepth2_AllF9) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF10) Index() int                             { return 10 }
-func (x XUnionDepth2_AllF10) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF10) Name() string                           { return "F10" }
+func (x XUnionDepth2_AllF10) Index() int                           { return 10 }
+func (x XUnionDepth2_AllF10) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF10) Name() string                         { return "F10" }
 func (x XUnionDepth2_AllF10) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF11) Index() int                             { return 11 }
-func (x XUnionDepth2_AllF11) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF11) Name() string                           { return "F11" }
+func (x XUnionDepth2_AllF11) Index() int                           { return 11 }
+func (x XUnionDepth2_AllF11) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF11) Name() string                         { return "F11" }
 func (x XUnionDepth2_AllF11) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF12) Index() int                             { return 12 }
-func (x XUnionDepth2_AllF12) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF12) Name() string                           { return "F12" }
+func (x XUnionDepth2_AllF12) Index() int                           { return 12 }
+func (x XUnionDepth2_AllF12) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF12) Name() string                         { return "F12" }
 func (x XUnionDepth2_AllF12) VDLReflect(__XUnionDepth2_AllReflect) {}
 
-func (x XUnionDepth2_AllF13) Index() int                             { return 13 }
-func (x XUnionDepth2_AllF13) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth2_AllF13) Name() string                           { return "F13" }
+func (x XUnionDepth2_AllF13) Index() int                           { return 13 }
+func (x XUnionDepth2_AllF13) Interface() interface{}               { return x.Value }
+func (x XUnionDepth2_AllF13) Name() string                         { return "F13" }
 func (x XUnionDepth2_AllF13) VDLReflect(__XUnionDepth2_AllReflect) {}
 
 type (
@@ -23851,9 +23849,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XArray1_StringF0) Index() int                                        { return 0 }
-func (x XUnionDepth2_XArray1_StringF0) Interface() interface{}                            { return x.Value }
-func (x XUnionDepth2_XArray1_StringF0) Name() string                                      { return "F0" }
+func (x XUnionDepth2_XArray1_StringF0) Index() int                                      { return 0 }
+func (x XUnionDepth2_XArray1_StringF0) Interface() interface{}                          { return x.Value }
+func (x XUnionDepth2_XArray1_StringF0) Name() string                                    { return "F0" }
 func (x XUnionDepth2_XArray1_StringF0) VDLReflect(__XUnionDepth2_XArray1_StringReflect) {}
 
 type (
@@ -23880,9 +23878,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XArray2_XByteF1) Index() int                                       { return 0 }
-func (x XUnionDepth2_XArray2_XByteF1) Interface() interface{}                           { return x.Value }
-func (x XUnionDepth2_XArray2_XByteF1) Name() string                                     { return "F1" }
+func (x XUnionDepth2_XArray2_XByteF1) Index() int                                     { return 0 }
+func (x XUnionDepth2_XArray2_XByteF1) Interface() interface{}                         { return x.Value }
+func (x XUnionDepth2_XArray2_XByteF1) Name() string                                   { return "F1" }
 func (x XUnionDepth2_XArray2_XByteF1) VDLReflect(__XUnionDepth2_XArray2_XByteReflect) {}
 
 type (
@@ -23909,9 +23907,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XList_XByteF2) Index() int                                     { return 0 }
-func (x XUnionDepth2_XList_XByteF2) Interface() interface{}                         { return x.Value }
-func (x XUnionDepth2_XList_XByteF2) Name() string                                   { return "F2" }
+func (x XUnionDepth2_XList_XByteF2) Index() int                                   { return 0 }
+func (x XUnionDepth2_XList_XByteF2) Interface() interface{}                       { return x.Value }
+func (x XUnionDepth2_XList_XByteF2) Name() string                                 { return "F2" }
 func (x XUnionDepth2_XList_XByteF2) VDLReflect(__XUnionDepth2_XList_XByteReflect) {}
 
 type (
@@ -23938,11 +23936,10 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XList_OptXNamedErrorF3) Index() int             { return 0 }
-func (x XUnionDepth2_XList_OptXNamedErrorF3) Interface() interface{} { return x.Value }
-func (x XUnionDepth2_XList_OptXNamedErrorF3) Name() string           { return "F3" }
-func (x XUnionDepth2_XList_OptXNamedErrorF3) VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect) {
-}
+func (x XUnionDepth2_XList_OptXNamedErrorF3) Index() int                                            { return 0 }
+func (x XUnionDepth2_XList_OptXNamedErrorF3) Interface() interface{}                                { return x.Value }
+func (x XUnionDepth2_XList_OptXNamedErrorF3) Name() string                                          { return "F3" }
+func (x XUnionDepth2_XList_OptXNamedErrorF3) VDLReflect(__XUnionDepth2_XList_OptXNamedErrorReflect) {}
 
 type (
 	// XUnionDepth2_XSet_XBool represents any single field of the XUnionDepth2_XSet_XBool union type.
@@ -23968,9 +23965,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XSet_XBoolF4) Index() int                                    { return 0 }
-func (x XUnionDepth2_XSet_XBoolF4) Interface() interface{}                        { return x.Value }
-func (x XUnionDepth2_XSet_XBoolF4) Name() string                                  { return "F4" }
+func (x XUnionDepth2_XSet_XBoolF4) Index() int                                  { return 0 }
+func (x XUnionDepth2_XSet_XBoolF4) Interface() interface{}                      { return x.Value }
+func (x XUnionDepth2_XSet_XBoolF4) Name() string                                { return "F4" }
 func (x XUnionDepth2_XSet_XBoolF4) VDLReflect(__XUnionDepth2_XSet_XBoolReflect) {}
 
 type (
@@ -23997,9 +23994,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XSet_XNamedErrorF5) Index() int                                          { return 0 }
-func (x XUnionDepth2_XSet_XNamedErrorF5) Interface() interface{}                              { return x.Value }
-func (x XUnionDepth2_XSet_XNamedErrorF5) Name() string                                        { return "F5" }
+func (x XUnionDepth2_XSet_XNamedErrorF5) Index() int                                        { return 0 }
+func (x XUnionDepth2_XSet_XNamedErrorF5) Interface() interface{}                            { return x.Value }
+func (x XUnionDepth2_XSet_XNamedErrorF5) Name() string                                      { return "F5" }
 func (x XUnionDepth2_XSet_XNamedErrorF5) VDLReflect(__XUnionDepth2_XSet_XNamedErrorReflect) {}
 
 type (
@@ -24026,9 +24023,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_Map_XBool_XBoolF6) Index() int                                         { return 0 }
-func (x XUnionDepth2_Map_XBool_XBoolF6) Interface() interface{}                             { return x.Value }
-func (x XUnionDepth2_Map_XBool_XBoolF6) Name() string                                       { return "F6" }
+func (x XUnionDepth2_Map_XBool_XBoolF6) Index() int                                       { return 0 }
+func (x XUnionDepth2_Map_XBool_XBoolF6) Interface() interface{}                           { return x.Value }
+func (x XUnionDepth2_Map_XBool_XBoolF6) Name() string                                     { return "F6" }
 func (x XUnionDepth2_Map_XBool_XBoolF6) VDLReflect(__XUnionDepth2_Map_XBool_XBoolReflect) {}
 
 type (
@@ -24055,9 +24052,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XMap_XBool_XBoolF7) Index() int                                          { return 0 }
-func (x XUnionDepth2_XMap_XBool_XBoolF7) Interface() interface{}                              { return x.Value }
-func (x XUnionDepth2_XMap_XBool_XBoolF7) Name() string                                        { return "F7" }
+func (x XUnionDepth2_XMap_XBool_XBoolF7) Index() int                                        { return 0 }
+func (x XUnionDepth2_XMap_XBool_XBoolF7) Interface() interface{}                            { return x.Value }
+func (x XUnionDepth2_XMap_XBool_XBoolF7) Name() string                                      { return "F7" }
 func (x XUnionDepth2_XMap_XBool_XBoolF7) VDLReflect(__XUnionDepth2_XMap_XBool_XBoolReflect) {}
 
 type (
@@ -24084,9 +24081,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XStructDepth1_AllF8) Index() int                                           { return 0 }
-func (x XUnionDepth2_XStructDepth1_AllF8) Interface() interface{}                               { return x.Value }
-func (x XUnionDepth2_XStructDepth1_AllF8) Name() string                                         { return "F8" }
+func (x XUnionDepth2_XStructDepth1_AllF8) Index() int                                         { return 0 }
+func (x XUnionDepth2_XStructDepth1_AllF8) Interface() interface{}                             { return x.Value }
+func (x XUnionDepth2_XStructDepth1_AllF8) Name() string                                       { return "F8" }
 func (x XUnionDepth2_XStructDepth1_AllF8) VDLReflect(__XUnionDepth2_XStructDepth1_AllReflect) {}
 
 type (
@@ -24113,9 +24110,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XStructDepth1_Int8F9) Index() int                                            { return 0 }
-func (x XUnionDepth2_XStructDepth1_Int8F9) Interface() interface{}                                { return x.Value }
-func (x XUnionDepth2_XStructDepth1_Int8F9) Name() string                                          { return "F9" }
+func (x XUnionDepth2_XStructDepth1_Int8F9) Index() int                                          { return 0 }
+func (x XUnionDepth2_XStructDepth1_Int8F9) Interface() interface{}                              { return x.Value }
+func (x XUnionDepth2_XStructDepth1_Int8F9) Name() string                                        { return "F9" }
 func (x XUnionDepth2_XStructDepth1_Int8F9) VDLReflect(__XUnionDepth2_XStructDepth1_Int8Reflect) {}
 
 type (
@@ -24142,9 +24139,9 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XUnionDepth1_AllF10) Index() int                                          { return 0 }
-func (x XUnionDepth2_XUnionDepth1_AllF10) Interface() interface{}                              { return x.Value }
-func (x XUnionDepth2_XUnionDepth1_AllF10) Name() string                                        { return "F10" }
+func (x XUnionDepth2_XUnionDepth1_AllF10) Index() int                                        { return 0 }
+func (x XUnionDepth2_XUnionDepth1_AllF10) Interface() interface{}                            { return x.Value }
+func (x XUnionDepth2_XUnionDepth1_AllF10) Name() string                                      { return "F10" }
 func (x XUnionDepth2_XUnionDepth1_AllF10) VDLReflect(__XUnionDepth2_XUnionDepth1_AllReflect) {}
 
 type (
@@ -24171,11 +24168,10 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int             { return 0 }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{} { return x.Value }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string           { return "F11" }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
-}
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int                                            { return 0 }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{}                                { return x.Value }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string                                          { return "F11" }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {}
 
 type (
 	// XUnionDepth2_OptXStructDepth1_XEnumBcd represents any single field of the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
@@ -24503,39 +24499,39 @@ type (
 	}
 )
 
-func (x XUnionDepth3_AllF0) Index() int                             { return 0 }
-func (x XUnionDepth3_AllF0) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF0) Name() string                           { return "F0" }
+func (x XUnionDepth3_AllF0) Index() int                           { return 0 }
+func (x XUnionDepth3_AllF0) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF0) Name() string                         { return "F0" }
 func (x XUnionDepth3_AllF0) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF1) Index() int                             { return 1 }
-func (x XUnionDepth3_AllF1) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF1) Name() string                           { return "F1" }
+func (x XUnionDepth3_AllF1) Index() int                           { return 1 }
+func (x XUnionDepth3_AllF1) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF1) Name() string                         { return "F1" }
 func (x XUnionDepth3_AllF1) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF2) Index() int                             { return 2 }
-func (x XUnionDepth3_AllF2) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF2) Name() string                           { return "F2" }
+func (x XUnionDepth3_AllF2) Index() int                           { return 2 }
+func (x XUnionDepth3_AllF2) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF2) Name() string                         { return "F2" }
 func (x XUnionDepth3_AllF2) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF3) Index() int                             { return 3 }
-func (x XUnionDepth3_AllF3) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF3) Name() string                           { return "F3" }
+func (x XUnionDepth3_AllF3) Index() int                           { return 3 }
+func (x XUnionDepth3_AllF3) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF3) Name() string                         { return "F3" }
 func (x XUnionDepth3_AllF3) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF4) Index() int                             { return 4 }
-func (x XUnionDepth3_AllF4) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF4) Name() string                           { return "F4" }
+func (x XUnionDepth3_AllF4) Index() int                           { return 4 }
+func (x XUnionDepth3_AllF4) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF4) Name() string                         { return "F4" }
 func (x XUnionDepth3_AllF4) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF5) Index() int                             { return 5 }
-func (x XUnionDepth3_AllF5) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF5) Name() string                           { return "F5" }
+func (x XUnionDepth3_AllF5) Index() int                           { return 5 }
+func (x XUnionDepth3_AllF5) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF5) Name() string                         { return "F5" }
 func (x XUnionDepth3_AllF5) VDLReflect(__XUnionDepth3_AllReflect) {}
 
-func (x XUnionDepth3_AllF6) Index() int                             { return 6 }
-func (x XUnionDepth3_AllF6) Interface() interface{}                 { return x.Value }
-func (x XUnionDepth3_AllF6) Name() string                           { return "F6" }
+func (x XUnionDepth3_AllF6) Index() int                           { return 6 }
+func (x XUnionDepth3_AllF6) Interface() interface{}               { return x.Value }
+func (x XUnionDepth3_AllF6) Name() string                         { return "F6" }
 func (x XUnionDepth3_AllF6) VDLReflect(__XUnionDepth3_AllReflect) {}
 
 type (
@@ -24594,9 +24590,9 @@ type (
 	}
 )
 
-func (x XUnionDepth3_List_XList_ErrorF1) Index() int                                          { return 0 }
-func (x XUnionDepth3_List_XList_ErrorF1) Interface() interface{}                              { return x.Value }
-func (x XUnionDepth3_List_XList_ErrorF1) Name() string                                        { return "F1" }
+func (x XUnionDepth3_List_XList_ErrorF1) Index() int                                        { return 0 }
+func (x XUnionDepth3_List_XList_ErrorF1) Interface() interface{}                            { return x.Value }
+func (x XUnionDepth3_List_XList_ErrorF1) Name() string                                      { return "F1" }
 func (x XUnionDepth3_List_XList_ErrorF1) VDLReflect(__XUnionDepth3_List_XList_ErrorReflect) {}
 
 type (
@@ -24689,9 +24685,9 @@ type (
 	}
 )
 
-func (x XUnionDepth3_XStructDepth2_AllF4) Index() int                                           { return 0 }
-func (x XUnionDepth3_XStructDepth2_AllF4) Interface() interface{}                               { return x.Value }
-func (x XUnionDepth3_XStructDepth2_AllF4) Name() string                                         { return "F4" }
+func (x XUnionDepth3_XStructDepth2_AllF4) Index() int                                         { return 0 }
+func (x XUnionDepth3_XStructDepth2_AllF4) Interface() interface{}                             { return x.Value }
+func (x XUnionDepth3_XStructDepth2_AllF4) Name() string                                       { return "F4" }
 func (x XUnionDepth3_XStructDepth2_AllF4) VDLReflect(__XUnionDepth3_XStructDepth2_AllReflect) {}
 
 type (
@@ -24718,9 +24714,9 @@ type (
 	}
 )
 
-func (x XUnionDepth3_XUnionDepth2_AllF5) Index() int                                          { return 0 }
-func (x XUnionDepth3_XUnionDepth2_AllF5) Interface() interface{}                              { return x.Value }
-func (x XUnionDepth3_XUnionDepth2_AllF5) Name() string                                        { return "F5" }
+func (x XUnionDepth3_XUnionDepth2_AllF5) Index() int                                        { return 0 }
+func (x XUnionDepth3_XUnionDepth2_AllF5) Interface() interface{}                            { return x.Value }
+func (x XUnionDepth3_XUnionDepth2_AllF5) Name() string                                      { return "F5" }
 func (x XUnionDepth3_XUnionDepth2_AllF5) VDLReflect(__XUnionDepth3_XUnionDepth2_AllReflect) {}
 
 type (

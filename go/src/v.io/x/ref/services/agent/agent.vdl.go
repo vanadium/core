@@ -334,14 +334,14 @@ type (
 	}
 )
 
-func (x RpcMessageReq) Index() int                       { return 0 }
-func (x RpcMessageReq) Interface() interface{}           { return x.Value }
-func (x RpcMessageReq) Name() string                     { return "Req" }
+func (x RpcMessageReq) Index() int                     { return 0 }
+func (x RpcMessageReq) Interface() interface{}         { return x.Value }
+func (x RpcMessageReq) Name() string                   { return "Req" }
 func (x RpcMessageReq) VDLReflect(__RpcMessageReflect) {}
 
-func (x RpcMessageResp) Index() int                       { return 1 }
-func (x RpcMessageResp) Interface() interface{}           { return x.Value }
-func (x RpcMessageResp) Name() string                     { return "Resp" }
+func (x RpcMessageResp) Index() int                     { return 1 }
+func (x RpcMessageResp) Interface() interface{}         { return x.Value }
+func (x RpcMessageResp) Name() string                   { return "Resp" }
 func (x RpcMessageResp) VDLReflect(__RpcMessageReflect) {}
 
 func (x RpcMessageReq) VDLIsZero() bool {

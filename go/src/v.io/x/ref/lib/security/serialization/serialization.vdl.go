@@ -138,14 +138,14 @@ type (
 	}
 )
 
-func (x SignedDataSignature) Index() int                       { return 0 }
-func (x SignedDataSignature) Interface() interface{}           { return x.Value }
-func (x SignedDataSignature) Name() string                     { return "Signature" }
+func (x SignedDataSignature) Index() int                     { return 0 }
+func (x SignedDataSignature) Interface() interface{}         { return x.Value }
+func (x SignedDataSignature) Name() string                   { return "Signature" }
 func (x SignedDataSignature) VDLReflect(__SignedDataReflect) {}
 
-func (x SignedDataHash) Index() int                       { return 1 }
-func (x SignedDataHash) Interface() interface{}           { return x.Value }
-func (x SignedDataHash) Name() string                     { return "Hash" }
+func (x SignedDataHash) Index() int                     { return 1 }
+func (x SignedDataHash) Interface() interface{}         { return x.Value }
+func (x SignedDataHash) Name() string                   { return "Hash" }
 func (x SignedDataHash) VDLReflect(__SignedDataReflect) {}
 
 func (x SignedDataSignature) VDLIsZero() bool {

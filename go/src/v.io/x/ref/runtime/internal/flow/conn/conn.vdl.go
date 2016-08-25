@@ -560,24 +560,24 @@ type (
 	}
 )
 
-func (x BlessingsFlowMessageBlessings) Index() int                                 { return 0 }
-func (x BlessingsFlowMessageBlessings) Interface() interface{}                     { return x.Value }
-func (x BlessingsFlowMessageBlessings) Name() string                               { return "Blessings" }
+func (x BlessingsFlowMessageBlessings) Index() int                               { return 0 }
+func (x BlessingsFlowMessageBlessings) Interface() interface{}                   { return x.Value }
+func (x BlessingsFlowMessageBlessings) Name() string                             { return "Blessings" }
 func (x BlessingsFlowMessageBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageDischarges) Index() int                                 { return 1 }
-func (x BlessingsFlowMessageDischarges) Interface() interface{}                     { return x.Value }
-func (x BlessingsFlowMessageDischarges) Name() string                               { return "Discharges" }
+func (x BlessingsFlowMessageDischarges) Index() int                               { return 1 }
+func (x BlessingsFlowMessageDischarges) Interface() interface{}                   { return x.Value }
+func (x BlessingsFlowMessageDischarges) Name() string                             { return "Discharges" }
 func (x BlessingsFlowMessageDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageEncryptedBlessings) Index() int                                 { return 2 }
-func (x BlessingsFlowMessageEncryptedBlessings) Interface() interface{}                     { return x.Value }
-func (x BlessingsFlowMessageEncryptedBlessings) Name() string                               { return "EncryptedBlessings" }
+func (x BlessingsFlowMessageEncryptedBlessings) Index() int                               { return 2 }
+func (x BlessingsFlowMessageEncryptedBlessings) Interface() interface{}                   { return x.Value }
+func (x BlessingsFlowMessageEncryptedBlessings) Name() string                             { return "EncryptedBlessings" }
 func (x BlessingsFlowMessageEncryptedBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageEncryptedDischarges) Index() int                                 { return 3 }
-func (x BlessingsFlowMessageEncryptedDischarges) Interface() interface{}                     { return x.Value }
-func (x BlessingsFlowMessageEncryptedDischarges) Name() string                               { return "EncryptedDischarges" }
+func (x BlessingsFlowMessageEncryptedDischarges) Index() int                               { return 3 }
+func (x BlessingsFlowMessageEncryptedDischarges) Interface() interface{}                   { return x.Value }
+func (x BlessingsFlowMessageEncryptedDischarges) Name() string                             { return "EncryptedDischarges" }
 func (x BlessingsFlowMessageEncryptedDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
 
 func (x BlessingsFlowMessageBlessings) VDLIsZero() bool {

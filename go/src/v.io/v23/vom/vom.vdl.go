@@ -141,39 +141,39 @@ type (
 	}
 )
 
-func (x PrimitivePBool) Index() int                      { return 0 }
-func (x PrimitivePBool) Interface() interface{}          { return x.Value }
-func (x PrimitivePBool) Name() string                    { return "PBool" }
+func (x PrimitivePBool) Index() int                    { return 0 }
+func (x PrimitivePBool) Interface() interface{}        { return x.Value }
+func (x PrimitivePBool) Name() string                  { return "PBool" }
 func (x PrimitivePBool) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePByte) Index() int                      { return 1 }
-func (x PrimitivePByte) Interface() interface{}          { return x.Value }
-func (x PrimitivePByte) Name() string                    { return "PByte" }
+func (x PrimitivePByte) Index() int                    { return 1 }
+func (x PrimitivePByte) Interface() interface{}        { return x.Value }
+func (x PrimitivePByte) Name() string                  { return "PByte" }
 func (x PrimitivePByte) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePUint) Index() int                      { return 2 }
-func (x PrimitivePUint) Interface() interface{}          { return x.Value }
-func (x PrimitivePUint) Name() string                    { return "PUint" }
+func (x PrimitivePUint) Index() int                    { return 2 }
+func (x PrimitivePUint) Interface() interface{}        { return x.Value }
+func (x PrimitivePUint) Name() string                  { return "PUint" }
 func (x PrimitivePUint) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePInt) Index() int                      { return 3 }
-func (x PrimitivePInt) Interface() interface{}          { return x.Value }
-func (x PrimitivePInt) Name() string                    { return "PInt" }
+func (x PrimitivePInt) Index() int                    { return 3 }
+func (x PrimitivePInt) Interface() interface{}        { return x.Value }
+func (x PrimitivePInt) Name() string                  { return "PInt" }
 func (x PrimitivePInt) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePFloat) Index() int                      { return 4 }
-func (x PrimitivePFloat) Interface() interface{}          { return x.Value }
-func (x PrimitivePFloat) Name() string                    { return "PFloat" }
+func (x PrimitivePFloat) Index() int                    { return 4 }
+func (x PrimitivePFloat) Interface() interface{}        { return x.Value }
+func (x PrimitivePFloat) Name() string                  { return "PFloat" }
 func (x PrimitivePFloat) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePString) Index() int                      { return 5 }
-func (x PrimitivePString) Interface() interface{}          { return x.Value }
-func (x PrimitivePString) Name() string                    { return "PString" }
+func (x PrimitivePString) Index() int                    { return 5 }
+func (x PrimitivePString) Interface() interface{}        { return x.Value }
+func (x PrimitivePString) Name() string                  { return "PString" }
 func (x PrimitivePString) VDLReflect(__PrimitiveReflect) {}
 
-func (x PrimitivePControl) Index() int                      { return 6 }
-func (x PrimitivePControl) Interface() interface{}          { return x.Value }
-func (x PrimitivePControl) Name() string                    { return "PControl" }
+func (x PrimitivePControl) Index() int                    { return 6 }
+func (x PrimitivePControl) Interface() interface{}        { return x.Value }
+func (x PrimitivePControl) Name() string                  { return "PControl" }
 func (x PrimitivePControl) VDLReflect(__PrimitiveReflect) {}
 
 func (x PrimitivePBool) VDLIsZero() bool {
@@ -1671,49 +1671,49 @@ type (
 	}
 )
 
-func (x wireTypeNamedT) Index() int                     { return 0 }
-func (x wireTypeNamedT) Interface() interface{}         { return x.Value }
-func (x wireTypeNamedT) Name() string                   { return "NamedT" }
+func (x wireTypeNamedT) Index() int                   { return 0 }
+func (x wireTypeNamedT) Interface() interface{}       { return x.Value }
+func (x wireTypeNamedT) Name() string                 { return "NamedT" }
 func (x wireTypeNamedT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeEnumT) Index() int                     { return 1 }
-func (x wireTypeEnumT) Interface() interface{}         { return x.Value }
-func (x wireTypeEnumT) Name() string                   { return "EnumT" }
+func (x wireTypeEnumT) Index() int                   { return 1 }
+func (x wireTypeEnumT) Interface() interface{}       { return x.Value }
+func (x wireTypeEnumT) Name() string                 { return "EnumT" }
 func (x wireTypeEnumT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeArrayT) Index() int                     { return 2 }
-func (x wireTypeArrayT) Interface() interface{}         { return x.Value }
-func (x wireTypeArrayT) Name() string                   { return "ArrayT" }
+func (x wireTypeArrayT) Index() int                   { return 2 }
+func (x wireTypeArrayT) Interface() interface{}       { return x.Value }
+func (x wireTypeArrayT) Name() string                 { return "ArrayT" }
 func (x wireTypeArrayT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeListT) Index() int                     { return 3 }
-func (x wireTypeListT) Interface() interface{}         { return x.Value }
-func (x wireTypeListT) Name() string                   { return "ListT" }
+func (x wireTypeListT) Index() int                   { return 3 }
+func (x wireTypeListT) Interface() interface{}       { return x.Value }
+func (x wireTypeListT) Name() string                 { return "ListT" }
 func (x wireTypeListT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeSetT) Index() int                     { return 4 }
-func (x wireTypeSetT) Interface() interface{}         { return x.Value }
-func (x wireTypeSetT) Name() string                   { return "SetT" }
+func (x wireTypeSetT) Index() int                   { return 4 }
+func (x wireTypeSetT) Interface() interface{}       { return x.Value }
+func (x wireTypeSetT) Name() string                 { return "SetT" }
 func (x wireTypeSetT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeMapT) Index() int                     { return 5 }
-func (x wireTypeMapT) Interface() interface{}         { return x.Value }
-func (x wireTypeMapT) Name() string                   { return "MapT" }
+func (x wireTypeMapT) Index() int                   { return 5 }
+func (x wireTypeMapT) Interface() interface{}       { return x.Value }
+func (x wireTypeMapT) Name() string                 { return "MapT" }
 func (x wireTypeMapT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeStructT) Index() int                     { return 6 }
-func (x wireTypeStructT) Interface() interface{}         { return x.Value }
-func (x wireTypeStructT) Name() string                   { return "StructT" }
+func (x wireTypeStructT) Index() int                   { return 6 }
+func (x wireTypeStructT) Interface() interface{}       { return x.Value }
+func (x wireTypeStructT) Name() string                 { return "StructT" }
 func (x wireTypeStructT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeUnionT) Index() int                     { return 7 }
-func (x wireTypeUnionT) Interface() interface{}         { return x.Value }
-func (x wireTypeUnionT) Name() string                   { return "UnionT" }
+func (x wireTypeUnionT) Index() int                   { return 7 }
+func (x wireTypeUnionT) Interface() interface{}       { return x.Value }
+func (x wireTypeUnionT) Name() string                 { return "UnionT" }
 func (x wireTypeUnionT) VDLReflect(__wireTypeReflect) {}
 
-func (x wireTypeOptionalT) Index() int                     { return 8 }
-func (x wireTypeOptionalT) Interface() interface{}         { return x.Value }
-func (x wireTypeOptionalT) Name() string                   { return "OptionalT" }
+func (x wireTypeOptionalT) Index() int                   { return 8 }
+func (x wireTypeOptionalT) Interface() interface{}       { return x.Value }
+func (x wireTypeOptionalT) Name() string                 { return "OptionalT" }
 func (x wireTypeOptionalT) VDLReflect(__wireTypeReflect) {}
 
 func (x wireTypeNamedT) VDLIsZero() bool {

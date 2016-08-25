@@ -782,19 +782,19 @@ type (
 	}
 )
 
-func (x AgencyReportEquifaxReport) Index() int                         { return 0 }
-func (x AgencyReportEquifaxReport) Interface() interface{}             { return x.Value }
-func (x AgencyReportEquifaxReport) Name() string                       { return "EquifaxReport" }
+func (x AgencyReportEquifaxReport) Index() int                       { return 0 }
+func (x AgencyReportEquifaxReport) Interface() interface{}           { return x.Value }
+func (x AgencyReportEquifaxReport) Name() string                     { return "EquifaxReport" }
 func (x AgencyReportEquifaxReport) VDLReflect(__AgencyReportReflect) {}
 
-func (x AgencyReportExperianReport) Index() int                         { return 1 }
-func (x AgencyReportExperianReport) Interface() interface{}             { return x.Value }
-func (x AgencyReportExperianReport) Name() string                       { return "ExperianReport" }
+func (x AgencyReportExperianReport) Index() int                       { return 1 }
+func (x AgencyReportExperianReport) Interface() interface{}           { return x.Value }
+func (x AgencyReportExperianReport) Name() string                     { return "ExperianReport" }
 func (x AgencyReportExperianReport) VDLReflect(__AgencyReportReflect) {}
 
-func (x AgencyReportTransUnionReport) Index() int                         { return 2 }
-func (x AgencyReportTransUnionReport) Interface() interface{}             { return x.Value }
-func (x AgencyReportTransUnionReport) Name() string                       { return "TransUnionReport" }
+func (x AgencyReportTransUnionReport) Index() int                       { return 2 }
+func (x AgencyReportTransUnionReport) Interface() interface{}           { return x.Value }
+func (x AgencyReportTransUnionReport) Name() string                     { return "TransUnionReport" }
 func (x AgencyReportTransUnionReport) VDLReflect(__AgencyReportReflect) {}
 
 func (x AgencyReportEquifaxReport) VDLIsZero() bool {
@@ -1521,14 +1521,14 @@ type (
 	}
 )
 
-func (x TitleOrValueTypeTitle) Index() int                             { return 0 }
-func (x TitleOrValueTypeTitle) Interface() interface{}                 { return x.Value }
-func (x TitleOrValueTypeTitle) Name() string                           { return "Title" }
+func (x TitleOrValueTypeTitle) Index() int                           { return 0 }
+func (x TitleOrValueTypeTitle) Interface() interface{}               { return x.Value }
+func (x TitleOrValueTypeTitle) Name() string                         { return "Title" }
 func (x TitleOrValueTypeTitle) VDLReflect(__TitleOrValueTypeReflect) {}
 
-func (x TitleOrValueTypeValue) Index() int                             { return 1 }
-func (x TitleOrValueTypeValue) Interface() interface{}                 { return x.Value }
-func (x TitleOrValueTypeValue) Name() string                           { return "Value" }
+func (x TitleOrValueTypeValue) Index() int                           { return 1 }
+func (x TitleOrValueTypeValue) Interface() interface{}               { return x.Value }
+func (x TitleOrValueTypeValue) Name() string                         { return "Value" }
 func (x TitleOrValueTypeValue) VDLReflect(__TitleOrValueTypeReflect) {}
 
 func (x TitleOrValueTypeTitle) VDLIsZero() bool {

@@ -1312,9 +1312,9 @@ type (
 	}
 )
 
-func (x WireDischargePublicKey) Index() int                          { return 0 }
-func (x WireDischargePublicKey) Interface() interface{}              { return x.Value }
-func (x WireDischargePublicKey) Name() string                        { return "PublicKey" }
+func (x WireDischargePublicKey) Index() int                        { return 0 }
+func (x WireDischargePublicKey) Interface() interface{}            { return x.Value }
+func (x WireDischargePublicKey) Name() string                      { return "PublicKey" }
 func (x WireDischargePublicKey) VDLReflect(__WireDischargeReflect) {}
 
 func (x WireDischargePublicKey) VDLIsZero() bool {
