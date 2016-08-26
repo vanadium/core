@@ -15,7 +15,6 @@ import (
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/services/xproxy/xproxy"
 	"v.io/x/ref/test"
-	"v.io/x/ref/test/goroutines"
 	"v.io/x/ref/test/testutil"
 
 	"v.io/v23"
@@ -45,7 +44,6 @@ func (t *testService) Echo(ctx *context.T, call rpc.ServerCall, arg string) (str
 }
 
 func TestProxyRPC(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -74,7 +72,6 @@ func TestProxyRPC(t *testing.T) {
 }
 
 func TestMultipleProxyRPC(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	kp := newKillProtocol()
 	flow.RegisterProtocol("kill", kp)
 	ctx, shutdown := test.V23InitWithMounttable()
@@ -118,7 +115,6 @@ func TestMultipleProxyRPC(t *testing.T) {
 }
 
 func TestProxyNotAuthorized(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -246,7 +242,6 @@ func TestProxyAuthorizesServer(t *testing.T) {
 }
 
 func TestBigProxyRPC(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -273,7 +268,6 @@ func TestBigProxyRPC(t *testing.T) {
 }
 
 func TestProxiedServerCachedConnection(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -357,7 +351,6 @@ func newBlockingServer() *blockingServer {
 func TestConcurrentProxyConnections(t *testing.T) {
 	// Test that when a client makes a connection to two different proxied servers
 	// a call to one server doesn't cause a call to the other to fail.
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -404,7 +397,6 @@ func TestConcurrentProxyConnections(t *testing.T) {
 func TestProxyBlessings(t *testing.T) {
 	// Test that the proxy presents the blessings tagged for the server, rather than
 	// its default blessings.
-	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
