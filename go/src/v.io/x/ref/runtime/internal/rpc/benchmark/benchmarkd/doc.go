@@ -27,7 +27,7 @@ The global flags are:
  -stderrthreshold=2
    logs at or above this threshold go to stderr
  -test.bench=
-   regular expression to select benchmarks to run
+   regular expression per path component to select benchmarks to run
  -test.benchmem=false
    print memory allocations for benchmarks
  -test.benchtime=1s
@@ -56,7 +56,7 @@ The global flags are:
    regular expression to select tests and examples to run
  -test.short=false
    run smaller test suite to save time
- -test.timeout=0
+ -test.timeout=0s
    if positive, sets an aggregate time limit for all tests
  -test.trace=
    write an execution trace to the named file after execution

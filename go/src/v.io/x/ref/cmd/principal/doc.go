@@ -139,7 +139,7 @@ Usage:
 The principal fork flags are:
  -caveat=[]
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
- -for=0
+ -for=0s
    Duration of blessing validity (zero implies no expiration caveat)
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
@@ -288,7 +288,7 @@ user running this command.
 The principal blessself flags are:
  -caveat=[]
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
- -for=0
+ -for=0s
    Duration of blessing validity (zero implies no expiration)
 
 Principal bless - Bless another principal
@@ -333,7 +333,7 @@ be provided
 The principal bless flags are:
  -caveat=[]
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
- -for=0
+ -for=0s
    Duration of blessing validity (zero implies no expiration caveat)
  -remote-arg-file=
    File containing bless arguments written by 'principal recvblessings

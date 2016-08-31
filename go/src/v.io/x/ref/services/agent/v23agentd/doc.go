@@ -39,7 +39,7 @@ The v23agentd flags are:
  -daemon=true
    Run the agent as a daemon (returns right away but leaves the agent running in
    the background)
- -timeout=0
+ -timeout=0s
    How long the agent stays alive without any client connections. Zero implies
    no timeout.
  -with-version=0
