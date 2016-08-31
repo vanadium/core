@@ -80,8 +80,8 @@ func generate(args []string) error {
 		pkgs = append(pkgs, strings.Split(flagInstall, ",")...)
 	}
 	for _, installPkg := range pkgs {
-		installArgs := []string{"go", "install", "-tags=" + flagTags, installPkg}
-		installCmd := exec.Command("jiri", installArgs...)
+		installArgs := []string{"install", "-tags=" + flagTags, installPkg}
+		installCmd := exec.Command("go", installArgs...)
 		installCmd.Env = append(os.Environ(), "GOBIN="+tmpDir)
 		if err := installCmd.Run(); err != nil {
 			return fmt.Errorf("%q failed: %v\n", strings.Join(installCmd.Args, " "), err)
