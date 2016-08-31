@@ -14,7 +14,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"v.io/v23/security"
-	signer "v.io/x/ref/services/internal/restsigner/v1"
+	signer "v.io/x/ref/services/internal/restsigner/signer/v1"
 )
 
 func DecodePublicKey(k *signer.PublicKey) (*ecdsa.PublicKey, error) {

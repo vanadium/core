@@ -10,7 +10,7 @@ import (
 
 	"v.io/v23/security"
 	"v.io/x/ref/services/internal/restsigner"
-	signer "v.io/x/ref/services/internal/restsigner/v1"
+	signer "v.io/x/ref/services/internal/restsigner/signer/v1"
 )
 
 func TestDecode(t *testing.T) {
