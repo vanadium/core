@@ -14,7 +14,7 @@ import (
 	"v.io/x/ref/services/discharger"
 )
 
-const dischargeExpiryTime = 24 * time.Hour
+const dischargeExpiryTime = 15 * time.Hour
 
 // dischargerd issues discharges for all caveats present in the current
 // namespace with no additional caveats iff the caveat is valid.
@@ -37,8 +37,6 @@ func (dischargerd) Discharge(ctx *context.T, call rpc.ServerCall, caveat securit
 
 // NewDischarger returns a discharger service implementation that grants
 // discharges using the MintDischarge on the principal receiving the RPC.
-//
-// Discharges are valid for 24 hours.
 func NewDischarger() discharger.DischargerServerMethods {
 	return dischargerd{}
 }
