@@ -68,7 +68,7 @@ func InitCloudVM() (func(), error) {
 	}, nil
 }
 
-// CloudVMAddresses returns the private adn public IP addresses of the Cloud VM
+// CloudVMAddresses returns the private and public IP addresses of the Cloud VM
 // instance it is run from, or nil if run from anywhere else. The returned
 // public address is the address of a 1:1 NAT tunnel to this host.
 func CloudVMAddresses() []net.Addr {
