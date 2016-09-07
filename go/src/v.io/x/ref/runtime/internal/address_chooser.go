@@ -16,9 +16,9 @@ type addressChooser struct {
 }
 
 func (c *addressChooser) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
-	if ipaddr := CloudVMPublicAddress(); ipaddr != nil {
-		c.logger.Infof("CloudVM public IP address: %v", ipaddr)
-		return []net.Addr{ipaddr}, nil
+	if ipaddrs := CloudVMAddresses(); ipaddrs != nil {
+		c.logger.Infof("CloudVM IP addresses: %v", ipaddrs)
+		return ipaddrs, nil
 	}
 	return candidates, nil
 }
