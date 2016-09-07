@@ -68,10 +68,10 @@ func InitCloudVM() (func(), error) {
 	}, nil
 }
 
-// CloudVMPublicAddress returns the public IP address of the Cloud VM instance
-// it is run from, or nil if run from anywhere else. The returned address is the
-// public address of a 1:1 NAT tunnel to this host.
-func CloudVMPublicAddress() *net.IPAddr {
+// CloudVMAddresses returns the private adn public IP addresses of the Cloud VM
+// instance it is run from, or nil if run from anywhere else. The returned
+// public address is the address of a 1:1 NAT tunnel to this host.
+func CloudVMAddresses() []net.Addr {
 	mu.Lock()
 	defer mu.Unlock()
 	if !initialized {
@@ -80,10 +80,10 @@ func CloudVMPublicAddress() *net.IPAddr {
 	if !cloudvm.RunningOnGCE() && !cloudvm.RunningOnAWS() {
 		return nil
 	}
-	// Determine the IP address from VM's metadata
+	r := []net.Addr{&net.IPAddr{IP: cloudvm.InternalIPAddress()}}
 	if ip := cloudvm.ExternalIPAddress(); ip != nil {
 		// 1:1 NAT case, our network config will not change.
-		return &net.IPAddr{IP: ip}
+		return append(r, &net.IPAddr{IP: ip})
 	}
-	return nil
+	return r
 }

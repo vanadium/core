@@ -26,14 +26,17 @@ import (
 // header, it is also not a GCE instance. The body of the document contains the
 // external IP address, if present. Otherwise, the body is empty.
 // See https://developers.google.com/compute/docs/metadata for details.
-const gceUrl = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
-const awsUrl = "http://169.254.169.254/latest/meta-data/public-ipv4"
+const gceExternalUrl = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
+const gceInternalUrl = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip"
+const awsExternalUrl = "http://169.254.169.254/latest/meta-data/public-ipv4"
+const awsInternalUrl = "http://169.254.169.254/latest/meta-data/local-ipv4"
 
 var (
 	onceGCE    sync.Once
 	onceAWS    sync.Once
 	onGCE      bool
 	onAWS      bool
+	internalIP net.IP
 	externalIP net.IP
 )
 
@@ -63,6 +66,13 @@ func RunningOnAWS() bool {
 	return onAWS
 }
 
+// InternalIPAddress returns the internal IP address of this Google Compute
+// Engine or AWS instance, or nil if there is none. Must be called after
+// InitGCE / InitAWS.
+func InternalIPAddress() net.IP {
+	return internalIP
+}
+
 // ExternalIPAddress returns the external IP address of this Google Compute
 // Engine or AWS instance, or nil if there is none. Must be called after
 // InitGCE / InitAWS.
@@ -72,7 +82,8 @@ func ExternalIPAddress() net.IP {
 
 func gceTest(timeout time.Duration, cancel <-chan struct{}) {
 	var err error
-	if externalIP, err = gceGetIP(gceUrl, timeout, cancel); err != nil {
+	internalIP, _ = gceGetIP(gceInternalUrl, timeout, cancel)
+	if externalIP, err = gceGetIP(gceExternalUrl, timeout, cancel); err != nil {
 		return
 	}
 
@@ -127,27 +138,32 @@ func gceGetMeta(url string, timeout time.Duration, cancel <-chan struct{}) (stri
 }
 
 func awsTest(timeout time.Duration, cancel <-chan struct{}) {
+	externalIP = awsGetIP(awsExternalUrl, timeout, cancel)
+	internalIP = awsGetIP(awsInternalUrl, timeout, cancel)
+	onAWS = true
+}
+
+func awsGetIP(url string, timeout time.Duration, cancel <-chan struct{}) (net.IP) {
 	client := &http.Client{Timeout: timeout}
-	req, err := http.NewRequest("GET", awsUrl, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return
+		return nil
 	}
 	req.Cancel = cancel
 	resp, err := client.Do(req)
 	if err != nil {
-		return
+		return nil
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return
+		return nil
 	}
 	if server := resp.Header["Server"]; len(server) != 1 || server[0] != "EC2ws" {
-		return
+		return nil
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return
+		return nil
 	}
-	externalIP = net.ParseIP(string(body))
-	onAWS = true
+	return net.ParseIP(string(body))
 }
