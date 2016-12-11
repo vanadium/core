@@ -1,0 +1,10 @@
+{
+"": {
+	"Read":  { "In": ["..."] },
+	"Admin": { "In": ["root"] }
+},
+"x/y/z": {
+	"Read":  { "In": ["bob", "root"] },
+        "Mount": { "In": ["root"] }
+}
+}

@@ -1,20 +1,26 @@
 SHELL := /bin/bash -euo pipefail
 
-GOPATH := $(shell pwd)/go
+GOPATH := $(shell pwd)
 export GOPATH
 
-VDLPATH := $(shell pwd)/go/src
+VDLPATH := $(shell pwd)/src
 export VDLPATH
 
 .PHONY: all
 all: go java
 
 .PHONY: go
-go:
+go: get-deps
+	go list v.io/...
 	go install v.io/...
 
 .PHONY: get-deps
-get-deps:
+get-deps: src
+
+src:
+	mkdir -p src/v.io
+	rsync -a v23 vendor x src/v.io
+	git clone https://github.com/vanadium/go.lib src/v.io/x/lib
 	go get -t v.io/...
 
 test-all: test test-integration

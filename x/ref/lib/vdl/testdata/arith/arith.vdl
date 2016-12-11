@@ -1,0 +1,71 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package arith is a vdl test package with imports.
+package arith
+
+// Test the import mechanism.
+import (
+	"v.io/x/ref/lib/vdl/testdata/base"
+)
+
+// Constants.
+const (
+	// Yes shows that bools may be untyped.
+	Yes      = true // yes trailing doc
+	// No shows explicit boolean typing.
+	No       = bool(false)
+	Hello    = "hello"
+	// Int32Const shows explicit integer typing.
+	Int32Const    = int32(123)
+	// Int64Const shows explicit integer conversion from another type, and referencing
+	// a constant from another package.
+	Int64Const    = int64(Int32Const + base.Five)
+	// FloatConst shows arithmetic expressions may be used.
+	FloatConst    = float64(3.0 / 2 + 0.5)
+	// Mask shows bitwise operations.
+	Mask     = uint64(0x1 << 8)
+)
+
+// Arith is an example of an interface definition for an arithmetic service.
+// Things to note:
+//   * There must be at least 1 out-arg, and the last out-arg must be error.
+type Arith interface {
+	// Add is a typical method with multiple input and output arguments.
+	Add(a int32, b int32) (int32 | error)
+
+	// DivMod shows that runs of args with the same type can use the short form,
+	// just like Go.
+	DivMod(a, b int32) (quot, rem int32 | error)
+
+	// Sub shows that you can use data types defined in other packages.
+	Sub(args base.Args) (int32 | error)
+
+	// Mul tries another data type defined in another package.
+	Mul(nested base.NestedArgs) (int32 | error)
+
+	// GenError shows that it's fine to have no in args, and no out args other
+	// than "error".  In addition GenError shows the usage of tags.  Tags are a
+	// sequence of constants.  There's no requirement on uniqueness of types or
+	// values, and regular const expressions may also be used.
+	GenError() error {"foo", "bar" + "z", Hello, int32(Int64Const + 1), base.SixSquared}
+
+	// Count shows using only an int32 out-stream type, with no in-stream type.
+	Count(start int32) stream<_, int32> error
+
+	// StreamingAdd shows a bidirectional stream.
+	StreamingAdd() stream<int32, int32> (total int32 | error)
+
+	// QuoteAny shows the any built-in type, representing a value of any type.
+	QuoteAny(a any) (any | error)
+}
+
+type Calculator interface {
+	// A calculator can do basic arithmetic.
+	Arith  // Arith provides the interface to basic arithmetic operations.
+	// A calculator has basic advanced function support.
+	AdvancedMath
+	On() error             // On turns the calculator on.
+	Off() error {"offtag"} // Off turns the calculator off.
+}

@@ -1,0 +1,18 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package nativedep2
+
+// The purpose of this test is to ensure that the generated file gets the
+// imports right.  In particular, the generated file has no code dependencies on
+// nativetest, but should have two imports:
+//     "time"
+//   _ "v.io/x/ref/lib/vdl/testdata/nativetest"
+//
+// The underscore dependency is added to ensure that nativetest.WireTime is
+// registered whenever this package is used, so that the WireTime<->time.Time
+// mapping is known by the vdl package.
+import "v.io/x/ref/lib/vdl/testdata/nativetest"
+
+type MyTime nativetest.WireTime

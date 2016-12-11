@@ -1,0 +1,10 @@
+<godepcop>
+  <!-- The packages under v23 are the public Vanadium API and are widely used.
+
+       Maintain a strict rule that v23/logging only uses builtins or standard go packages. -->
+  <pkg deny="..."/>
+
+  <!-- Relax the rule for external tests, but keep a curated list rather than
+       allowing a blanket "..." to avoid adding unwanted dependencies. -->
+  <xtest allow="github.com/cosnicolaou/llog"/>
+</godepcop>

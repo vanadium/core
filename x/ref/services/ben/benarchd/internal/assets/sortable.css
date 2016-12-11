@@ -1,0 +1,49 @@
+/* Copyright 2016 The Vanadium Authors. All rights reserved. */
+/* Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+.mdl-data-table__sorticon {
+    transition: 0.2s ease-in-out;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-left: 5px;
+    margin-right: 5px;
+    vertical-align: sub;
+    opacity: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fit="" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block;"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"></path></svg>') no-repeat;
+}
+
+.mdl-data-table__header--sorted-ascending,
+.mdl-data-table__header--sorted-descending {
+    color: rgba(0, 0, 0, .87) !important;
+}
+
+.mdl-data-table__header--sorted-ascending .mdl-data-table__sorticon {
+    opacity: 1 !important;
+}
+
+.mdl-data-table__header--sorted-descending .mdl-data-table__sorticon {
+    opacity: 1 !important;
+    transform: rotate(180deg);
+}
+
+.mdl-data-table__header-sortable {
+    cursor: default;
+}
+
+.mdl-data-table__header-sortable:hover {
+    color: rgba(0, 0, 0, .87) !important;
+}
+
+.mdl-data-table__header-sortable:hover .mdl-data-table__sorticon {
+    opacity: 0.26;
+}
+
+/**
+ * .overflow-scroll
+ *
+ * Overrides mdl overflow settings so long tabular data won't be hidden.
+ */
+.overflow-scroll {
+  overflow: scroll;
+}

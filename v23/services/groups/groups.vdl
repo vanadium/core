@@ -1,0 +1,123 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package groups defines interfaces for managing access control groups.  Groups
+// can be referenced by BlessingPatterns (e.g. in AccessLists).
+package groups
+
+// TODO(sadovsky): Write a detailed description of this package and add a
+// reference to the (forthcoming) design doc.
+
+import (
+	"v.io/v23/security/access"
+	"v.io/v23/services/permissions"
+)
+
+// BlessingPatternChunk is a substring of a BlessingPattern. As with
+// BlessingPatterns, BlessingPatternChunks may contain references to groups.
+// However, they may be restricted in other ways. For example, in the future
+// BlessingPatterns may support "$" terminators, but these may be disallowed for
+// BlessingPatternChunks.
+type BlessingPatternChunk string
+
+type GetRequest struct {
+}
+type GetResponse struct {
+	Entries set[BlessingPatternChunk]
+}
+
+// ApproximationType defines the type of approximation desired when a Relate
+// call encounters an error (inaccessible or undefined group in a blessing
+// pattern, cyclic group definitions, storage errors, invalid patterns
+// etc). "Under" is used for blessing patterns in "Allow" clauses in an
+// AccessList, while "Over" is used for blessing patterns in "Deny" clauses.
+type ApproximationType enum {
+	// Under-approximate the membership of the group by assuming
+	// that the group is empty.
+	Under
+
+	// Over-approximate the membership of the group by assuming
+	// that the group has all possible blessings.
+	Over
+}
+
+// Approximation contains information about membership approximations made
+// during a Relate call.
+type Approximation struct {
+	Reason  string
+	Details string
+}
+
+// GroupReader implements methods to read or query a group's membership
+// information.
+type GroupReader interface {
+	// Relate determines the relationships between the provided blessing
+	// names and the members of the group.
+	//
+	// Given an input set of blessing names and a group defined by a set of
+	// blessing patterns S, for each blessing name B in the input, Relate(B)
+	// returns a set of "remainders" consisting of every blessing name B"
+	// such that there exists some B' for which B = B' B" and B' is in S,
+	// and "" if B is a member of S.
+	//
+	// For example, if a group is defined as S = {n1, n1:n2, n1:n2:n3}, then
+	// Relate(n1:n2) = {n2, ""}.
+	//
+	// reqVersion specifies the expected version of the group's membership
+	// information. If this version is set and matches the Group's current
+	// version, the response will indicate that fact but will otherwise be
+	// empty.
+	//
+	// visitedGroups is the set of groups already visited in a particular
+	// chain of Relate calls, and is used to detect the presence of
+	// cycles. When a cycle is detected, it is treated just like any other
+	// error, and the result is approximated.
+	//
+	// Relate also returns information about all the errors encountered that
+	// resulted in approximations, if any.
+	//
+	// TODO(hpucha): scrub "Approximation" for preserving privacy. Flesh
+	// versioning out further. Other args we may need: option to Get() the
+	// membership set when allowed (to avoid an extra RPC), options related
+	// to caching this information.
+	Relate(blessings set[string], hint ApproximationType, reqVersion string, visitedGroups set[string]) (remainder set[string], approximations []Approximation, version string | error) {access.Resolve}
+
+	// Get returns all entries in the group.
+	// TODO(sadovsky): Flesh out this API.
+	Get(req GetRequest, reqVersion string) (res GetResponse, version string | error) {access.Read}
+}
+
+// A group's version covers its Permissions as well as any other data stored in
+// the group. Clients should treat versions as opaque identifiers. For both Get
+// and Relate, if version is set and matches the Group's current version, the
+// response will indicate that fact but will otherwise be empty.
+type Group interface {
+	// Create creates a new group if it doesn't already exist.
+	// If perms is nil, a default Permissions is used, providing Admin access to
+	// the caller.
+	// Create requires the caller to have Write permission at the GroupServer.
+	Create(perms access.Permissions, entries []BlessingPatternChunk) error {access.Write}
+
+	// Delete deletes the group.
+	// Permissions for all group-related methods except Create() are checked
+	// against the Group object.
+	Delete(version string) error {access.Write}
+
+	// Add adds an entry to the group.
+	Add(entry BlessingPatternChunk, version string) error {access.Write}
+
+	// Remove removes an entry from the group.
+	Remove(entry BlessingPatternChunk, version string) error {access.Write}
+
+	GroupReader
+
+	// SetPermissions and GetPermissions are included from the Object interface.
+	permissions.Object
+}
+
+error (
+	NoBlessings() {"en":"No blessings recognized; cannot create group Permissions"}
+	ExcessiveContention() {RetryBackoff, "en":"Gave up after encountering excessive contention; try again later"}
+	CycleFound() {"en":"Found cycle in group definitions{:_}"}
+)

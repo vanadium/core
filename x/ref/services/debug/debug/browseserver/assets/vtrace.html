@@ -1,0 +1,49 @@
+{{/*
+    Copyright 2016 The Vanadium Authors. All rights reserved.
+    Use of this source code is governed by a BSD-style
+    license that can be found in the LICENSE file.
+*/}}
+{{define ".span"}}
+<div style="position:relative;left:{{.Start}}%;width:{{.Width}}%;margin:0px;padding-top:2px;" id="div-{{.Id}}">
+    <!-- Root span -->
+    <div id="root" title="{{.Name}}" style="position:relative;width:100%;background:{{nextColor}};height:15px;display:block;margin:0px;padding:0px"></div>
+    {{range $i, $child := .Children}} {{template ".span" $child}} {{end}}
+</div>
+{{end}}
+
+{{define ".collapse-nav"}}
+<div id="tree-{{.Id}}" style="position:relative;left:5px">
+    <div id='root' style="position:relative;height:15px;font:10pt" onclick='javascript:toggleTrace("{{.Id}}")'>{{if len .Children | lt 0}}{{len .Children}}{{end}}</div>
+    {{range .Children}} {{template ".collapse-nav" .}} {{end}}
+</div>
+{{end}}
+
+{{define "content"}}
+<style type="text/css">
+    .hide-children >:not(#root) {
+        display: none;
+    }
+</style>
+<script language="javascript">
+    function toggleTrace(id) {
+        var treeRoot = document.getElementById("tree-" + id);
+        treeRoot.classList.toggle('hide-children');
+        var divRoot = document.getElementById('div-' + id);
+        divRoot.classList.toggle('hide-children');
+    }
+</script>
+<section class="section--center mdl-grid">
+    <h5>Vtrace for {{.Id}}</h5>
+    <pre>{{.DebugTrace}}</pre>
+    <div class="mdl-cell mdl-cell--12-col">
+        <div style="display:flex;flex-direction:row">
+            <div style="min-width:10%">
+                {{template ".collapse-nav" .Root}}
+            </div>
+            <div id="parent" style="width:80%">
+                {{template ".span" .Root}}
+            </div>
+        </div>
+    </div>
+</section>
+{{end}}

@@ -1,0 +1,163 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package testdata
+
+import "time"
+
+type AddressInfo struct {
+	Street string
+	City   string
+	State  string
+	Zip    string
+}
+
+type CreditAgency enum {
+	Equifax
+	Experian
+	TransUnion
+}
+
+type ExperianRating enum {
+	Good
+	Bad
+}
+
+type RatingsArray [4]int16
+
+type EquifaxCreditReport struct {
+	Rating           byte
+	FourScoreRatings RatingsArray
+}
+
+type Tdh enum {
+	Tom
+	Dick
+	Harry
+}
+
+type ExperianCreditReport struct {
+	Rating ExperianRating
+	TdhApprovals set[Tdh]
+	Auditor Tdh
+}
+
+type TransUnionCreditReport struct {
+	Rating	int16
+	PreviousRatings map[string]int16
+}
+
+type AgencyReport union {
+	EquifaxReport    EquifaxCreditReport
+	ExperianReport   ExperianCreditReport
+	TransUnionReport TransUnionCreditReport
+}
+
+type CreditReport struct {
+	Agency	CreditAgency
+	Report	AgencyReport
+}
+
+type Customer struct {
+	Name              string
+	Id                int64
+	Active            bool
+	Address           AddressInfo
+	PreviousAddresses []AddressInfo
+	Credit            CreditReport
+}
+
+type Invoice struct {
+	CustId      int64
+	InvoiceNum  int64
+	InvoiceDate time.Time
+	Amount      int64
+	ShipTo      AddressInfo
+}
+
+type Numbers struct {
+	B    byte
+	Ui16 uint16
+	Ui32 uint32
+	Ui64 uint64
+	I16  int16
+	I32  int32
+	I64  int64
+	F32  float32
+	F64  float64
+}
+
+type FooType struct {
+	Bar BarType
+}
+
+type BarType struct {
+	Baz BazType
+}
+
+type TitleOrValueType union {
+	Title string
+	Value int64
+}
+
+type BazType struct {
+	Name         string
+	TitleOrValue TitleOrValueType
+}
+
+type K struct {
+	A byte
+	B string
+}
+
+type V struct {
+	A string
+	B float32
+}
+
+type FunWithMaps struct {
+	Key K
+	Map map[K]V
+	Confusing map[int16][]set[string]
+}
+
+type FunWithTypes struct {
+	T1 typeobject
+	T2 typeobject
+}
+
+type ManyMaps struct {
+	B    map[bool]string
+	By   map[byte]string
+	U16  map[uint16]string
+	U32  map[uint32]string
+	U64  map[uint64]string
+	I16  map[int16]string
+	I32  map[int32]string
+	I64  map[int64]string
+	F32  map[float32]string
+	F64  map[float64]string
+	S    map[string]string
+	Ms   map[string]map[string]string
+	T    map[time.Time]string
+}
+
+type ManySets struct {
+	B    set[bool]
+	By   set[byte]
+	U16  set[uint16]
+	U32  set[uint32]
+	U64  set[uint64]
+	I16  set[int16]
+	I32  set[int32]
+	I64  set[int64]
+	F32  set[float32]
+	F64  set[float64]
+	S    set[string]
+	T    set[time.Time]
+}
+
+type BigData struct {
+	Key string // A dup of the key stored in the value.
+}

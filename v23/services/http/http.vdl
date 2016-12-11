@@ -1,0 +1,47 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package HTTP defines an interface to send a http.Request from a client to a
+// Vanadium server. This code is Go-specific since it is only used internally
+// by Vanadium.
+package http
+
+// Url represents a url.URL struct.
+// The User field is skipped since it is a struct with only unexported fields.
+type Url struct {
+    Scheme   string
+    Opaque   string
+    Host     string
+    Path     string
+    RawPath  string
+    RawQuery string
+    Fragment string
+}
+
+// Request represents the http.Request struct. The MultipartForm field is
+// skipped since the docs indicate that it is ignored by clients in favor of
+// the Body field.
+type Request struct {
+    Method              string
+    Url                 Url
+    Proto               string
+    ProtoMajor          int16
+    ProtoMinor          int16
+    Header              map[string][]string
+    Body                []byte
+    ContentLength       int64
+    TransferEncoding    []string
+    Close               bool
+    Host                string
+    Form                map[string][]string
+    PostForm            map[string][]string
+    Trailer             map[string][]string
+    RemoteAddr          string
+    RequestUri          string
+}
+
+type Http interface {
+    // RawDo returns the server's response to req.
+    RawDo(req Request) (data []byte | error)
+}

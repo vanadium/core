@@ -1,6 +1,0 @@
-{
-"/foo/bar": {
-	"Read":  { "In": ["fake:root"] },
-        "Write": { "In": ["fake:root"] }
-}
-}

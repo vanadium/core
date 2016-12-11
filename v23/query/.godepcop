@@ -1,0 +1,4 @@
+<godepcop>
+  <pkg deny="v.io/v23/syncbase"/>
+  <xtest allow="v.io/v23/syncbase"/>
+</godepcop>

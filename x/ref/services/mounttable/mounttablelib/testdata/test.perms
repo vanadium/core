@@ -1,0 +1,22 @@
+{
+"": {
+	"Read":  { "In": ["..."] },
+	"Admin": { "In": ["root"] },
+	"Create": { "In": ["root", "bob"] }
+},
+"stuff": {
+	"Read":  { "In": ["bob", "root"] },
+        "Mount": { "In": ["root"] }
+},
+"a": {
+	"Read":  { "In": ["alice", "root"] },
+        "Create": { "In": ["root"] }
+},
+"users": {
+	"Create": { "In": ["..."] }
+},
+"users/%%": {
+	"Admin":  { "In": ["%%"] },
+	"Resolve": { "In": ["..."] }
+}
+}

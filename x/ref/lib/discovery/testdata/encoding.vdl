@@ -1,0 +1,80 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This files contains testdata for v.io/x/ref/lib/discovery/encoding_test.go.  The
+// testdata is in a vdl file so that we can make sure the encoding implementations in
+// all the languages produce the same byte output.
+
+package testdata
+
+import (
+	"v.io/x/ref/lib/discovery"
+)
+
+// PackAddressTest represents a test case for PackAddress.
+type PackAddressTest struct {
+	// In is the addresses to pack.
+	In []string
+	// Packed is the expected packed output.
+	Packed []byte
+}
+
+const PackAddressTestData = []PackAddressTest{
+	PackAddressTest{
+		In:     []string{"a12345"},
+		Packed: []byte{6, 97, 49, 50, 51, 52, 53, 0},
+	},
+	PackAddressTest{
+		In:     []string{"a1234", "b5678", "c9012"},
+		Packed: []byte{5, 97, 49, 50, 51, 52, 5, 98, 53, 54, 55, 56, 5, 99, 57, 48, 49, 50, 0},
+	},
+	// An empty input should create an empty output.
+	PackAddressTest{},
+	// A real-life example of many many addresses
+	PackAddressTest{
+		In: []string{
+			"/@6@wsh@100.110.64.64:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@8.34.219.227:8100@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@[2620:0:1000:fd86:66bc:cff:fe51:6cb4]:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@[2620:0:1000:fd86:d94b:86d7:caff:b48f]:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@[fe80::2409:8aff:fe2e:f60e]:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@[fe80::66bc:cff:fe51:6cb4]:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+			"/@6@wsh@[fe80::f33f:4a65:4fe7:fc38]:47011@@2c8d255c1b25e90cba07f5c857086e3b@s@idprovider:o:there_was_a_very_long_application_identifier_at_this_point_right_here:username@someplace.com@@",
+		},
+		// Compressed 270 bytes, without compression 1300 bytes
+		Packed: []byte{212, 210, 95, 74, 196, 48, 16, 199, 113, 188, 80, 157, 164, 105, 154, 206, 83, 238, 33, 18, 242, 103, 102, 27, 216, 109, 74, 26, 119, 241, 72, 226, 5, 244, 89, 15, 38, 250, 176, 130, 130, 207, 245, 0, 129, 207, 247, 151, 121, 190, 185, 181, 218, 94, 182, 217, 10, 128, 78, 8, 232, 180, 234, 180, 66, 53, 130, 16, 214, 202, 104, 146, 28, 134, 40, 130, 28, 104, 130, 24, 60, 140, 60, 68, 51, 140, 96, 52, 245, 193, 110, 54, 167, 181, 150, 115, 78, 84, 177, 96, 155, 169, 146, 187, 248, 205, 121, 119, 166, 250, 232, 142, 101, 57, 56, 191, 174, 199, 28, 125, 203, 101, 113, 57, 209, 210, 50, 103, 170, 206, 55, 215, 230, 188, 185, 181, 228, 165, 185, 154, 15, 115, 115, 159, 239, 241, 97, 163, 186, 248, 19, 217, 173, 156, 104, 61, 250, 72, 93, 44, 39, 107, 159, 174, 88, 211, 245, 170, 147, 98, 234, 164, 28, 209, 8, 128, 189, 81, 223, 174, 212, 59, 169, 37, 32, 160, 0, 0, 228, 100, 52, 106, 29, 34, 70, 102, 100, 26, 4, 234, 24, 212, 253, 62, 247, 126, 255, 35, 34, 77, 42, 160, 209, 105, 196, 232, 153, 49, 40, 195, 59, 173, 120, 253, 174, 96, 50, 128, 40, 21, 76, 104, 252, 215, 7, 72, 66, 214, 64, 59, 165, 191, 252, 164, 255, 155, 211, 249, 53, 58, 247, 61, 163, 242, 122, 64, 197, 52, 34, 199, 222, 236, 148, 254, 17, 0, 0, 255, 255, 1},
+	},
+}
+
+// PackEncryptionKeysTest represents a test case for PackEncryptionKeys
+type PackEncryptionKeysTest struct {
+	// Algo is the algorithm that's in use.
+	// but that isn't defined in vdl yet.
+	Algo discovery.EncryptionAlgorithm
+	// Keys are the encryption keys.
+	// but that isn't defined in vdl yet.
+	Keys []discovery.EncryptionKey
+	// Packed is the expected output bytes.
+	Packed []byte
+}
+
+const PackEncryptionKeysTestData = []PackEncryptionKeysTest{
+	PackEncryptionKeysTest{
+		Algo:   1,
+		Keys:   []discovery.EncryptionKey{discovery.EncryptionKey("0123456789")},
+		Packed: []byte{1, 10, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57},
+	},
+	PackEncryptionKeysTest{
+		Algo:   2,
+		Keys:   []discovery.EncryptionKey{
+			discovery.EncryptionKey("012345"),
+			discovery.EncryptionKey("123456"),
+			discovery.EncryptionKey("234567"),
+		},
+		Packed: []byte{2, 6, 48, 49, 50, 51, 52, 53, 6, 49, 50, 51, 52, 53, 54, 6, 50, 51, 52, 53, 54, 55},
+	},
+	PackEncryptionKeysTest{
+		Packed: []byte{0},
+	},
+}

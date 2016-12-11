@@ -1,0 +1,35 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package internal
+
+import "v.io/v23/security"
+
+// Config contains the attributes of the role, and the list of members who have
+// access to it.
+type Config struct {
+	// List of role objects, relative to this role, from which to import
+	// the set of members. File path notation like "." and ".." may be used.
+	// The set of members who have access to this role is the union of this
+	// role's members and those of all the imported roles.
+	ImportMembers []string
+	// Blessings that match at least one of the patterns in this set are
+	// allowed to act on behalf of the role.
+	Members []security.BlessingPattern
+	// Indicates that the blessing name of the caller should be appended to
+	// the role blessing name.
+	Extend bool
+	// If Audit is true, each use of the role blessing will be reported to
+	// an auditing service and will be usable only if the report was
+	// successful.
+	Audit bool
+	// The amount of time for which the role blessing will be valid. It is a
+	// string representation of a time.Duration, e.g. "24h". An empty string
+	// indicates that the role blessing will not expire.
+	Expiry string
+	// The blessings issued for this role will only be valid for
+	// communicating with peers that match at least one of these patterns.
+	// If the list is empty, all peers are allowed.
+	Peers []security.BlessingPattern
+}

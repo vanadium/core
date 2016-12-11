@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Benchmark Results Archive</title>
+    {{template "styling"}}
+    <link rel="stylesheet" href="sortable.css">
+    <style>
+    .fixed-width { font-family: monospace; }
+    .inline { display: inline-block; }
+    .align-center { text-align: center; }
+    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="chart.js"></script>
+</head>
+<body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <main class="mdl-layout__content">
+      {{with .Benchmark}}
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+      <div class="mdl-card mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__supporting-text">
+          <h4><a href="?q={{.Name | urlquery}}">{{.Name}}</a></h4>
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp inline">
+            <tbody>
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">OS</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.Scenario.Os.Name}} ({{.Scenario.Os.Version}})</td>
+              </tr>
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">CPU</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.Scenario.Cpu.Architecture}} ({{.Scenario.Cpu.Description}})</td>
+              </tr>
+	      {{with .Scenario.Cpu.ClockSpeedMhz}}
+	      <tr>
+                <td class="mdl-data-table__cell--non-numeric">ClockSpeed</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.}} MHz</td>
+	      </tr>
+	      {{end}}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">Uploader</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.Uploader}}</td>
+              </tr>
+              {{with .Scenario.Label}}
+              <tr>
+                <td class="mdl-data-table__cell--non-numeric">Label</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.}}</td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+	  <div class="inline">
+            <div id="chart_div"></div>
+	    <div class="align-center">(Select area to zoom, right click to reset)</div>
+	  </div>
+        </div>
+      </div>
+      </section>
+      {{end}}
+
+      <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+      <div class="mdl-card mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__supporting-text overflow-scroll">
+          <h4>Runs</h4>
+          <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp fixed-width mdl-data-table-sortable">
+            <thead>
+            <tr>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="time per iteration">time/op</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="number of memory allocations per iteration">allocs/op</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="number of bytes of memory allocations per iteration">allocated bytes/op</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="megabytes processed per second">MB/s</th>
+              <th class="mdl-data-table__header-sortable" title="timestamp when results were uploaded" class="mdl-data-table__cell--non-numeric mdl-data-table__header--sorted-descending">Uploaded</th>
+              <th title="description of source code" class="mdl-data-table__cell--non-numeric">SourceCode</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric">Iterations</th>
+              <th class="mdl-data-table__header-sortable mdl-data-table__header-sortable-numeric" title="parallelism used to run benchmark, e.g., GOMAXPROCS for Go benchmarks">Parallelism</th>
+            </tr>
+            </thead>
+            <tbody>
+              {{range .Items}}
+              <tr>
+                <td><div id="run_{{.Index}}">{{.Run.PrettyTime}}</div><div class="mdl-tooltip" for="run_{{.Index}}"><span class="mdl-data-table__cell-data">{{.Run.NanoSecsPerOp}}</span>ns</div></td>
+                <td>{{if .Run.AllocsPerOp}}{{.Run.AllocsPerOp}}{{end}}</td>
+                <td>{{if .Run.AllocedBytesPerOp}}{{.Run.AllocedBytesPerOp}}{{end}}</td>
+                <td>{{if .Run.MegaBytesPerSec}}{{.Run.MegaBytesPerSec}}{{end}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{.UploadTime}}</td>
+                <td class="mdl-data-table__cell--non-numeric"><a href="?s={{urlquery .SourceCodeID}}">(sources)</a></td>
+                <td>{{.Run.Iterations}}</td>
+                <td>{{.Run.Parallelism}}</td>
+              </tr>
+              {{end}}
+              {{range .Err}}
+              <tr><td colspan=8><i class="material-icons">error</i>{{.}}</td></tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </section>
+    </main>
+    <script src="/sortable.js"></script>
+    <script type="text/javascript">
+      google.charts.setOnLoadCallback(function() {
+        var items = extractData().map(function(d) {
+          return [new Date(d.data[4]), Number.parseFloat(d.data[0])];
+        });
+        drawChart(items, document.getElementById('chart_div'));
+      });
+    </script>
+    {{template "footer"}}
+  </div>
+</body>
+</html>
