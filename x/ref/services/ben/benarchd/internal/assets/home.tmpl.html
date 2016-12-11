@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Benchmark Results Archive</title>
+    {{template "styling"}}
+    <style>
+    .fixed-width { font-family: monospace; }
+    </style>
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout">
+    <main class="mdl-layout__content">
+    <div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--1-col"></div>
+    <div class="mdl-cell mdl-cell--6-col">
+    <form action="#">
+        <div class="mdl-textfield mdl-js-textfield">
+          <input class="mdl-textfield__input" type="text" id="q" name="q"/>
+          <label class="mdl-textfield__label" for="q">Search query</label>
+        </div>
+        <input value="Search" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"/>
+    </form>
+    Sample queries:
+    <ul>
+        <li><a href="/?q=VomEncode">VomEncode</a> - All benchmarks with names matching VomEncode</li>
+        <li><a href="/?q=os:linux+cpu:amd64+v.io/v23/security">os:linux cpu:amd64 v.io/v23/security</a> - Benchmarks on desktop linux for the <span class="fixed-width">v.io/v23/security</span> package</li>
+    </ul>
+    Search operators:
+    <ul>
+       <li>os - Operating system, e.g., os:linux, os:&quot;Ubuntu 14.04&quot; etc.</li>
+       <li>cpu - CPU, e.g., cpu:arm, cpu:xeon etc.</li>
+       <li>uploader - Identity of uploader, e.g., uploader:janedoe</li>
+       <li>label - Label assigned by the uploader, e.g., label:mylabel</li>
+    </ul>
+    </div>
+    <div class="mdl-cell mdl-cell--1-col"></div>
+    </div>
+    </main>
+    {{template "footer"}}
+  </div>
+</body>
+</html>

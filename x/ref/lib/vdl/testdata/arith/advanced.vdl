@@ -1,0 +1,24 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package arith
+
+import (
+	"v.io/x/ref/lib/vdl/testdata/arith/exp"
+)
+
+// Trigonometry is an interface that specifies a couple trigonometric functions.
+type Trigonometry interface {
+	Sine(angle float64) (float64 | error)
+	Cosine(angle float64) (float64 | error)
+}
+
+// AdvancedMath is an interface for more advanced math than arith.  It embeds
+// interfaces defined both in the same file and in an external package; and in
+// turn it is embedded by arith.Calculator (which is in the same package but
+// different file) to verify that embedding works in all these scenarios.
+type AdvancedMath interface {
+	Trigonometry
+	exp.Exp
+}

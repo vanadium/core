@@ -1,0 +1,20 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package archive defines the RPC interface for archiving benchmark results.
+package archive
+
+import "v.io/x/ref/services/ben"
+
+// BenchmarkArchiver is the interface to store microbenchmark results.
+type BenchmarkArchiver interface {
+	// Archive saves results in 'runs' under the assumption that the
+	// benchmarks were run on a machine whose configuration is defined by
+	// 'scenario' and the were built from source code described by 'code'
+	// (a commit hash of a repository, the manifest of a jiri project etc.)
+	//
+	// Returns a URL that can be used to browse the uploaded benchmark
+	// results.
+	Archive(scenario ben.Scenario, code ben.SourceCode, runs []ben.Run) (string | error)
+}

@@ -1,0 +1,17 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package mounttablelib
+
+type Collection interface {
+	// Export sets the value for a name.  Overwrite controls the behavior when
+	// an entry exists, if Overwrite is true, then the binding is replaced,
+	// otherwise the call fails with an error.  The Val must be no larger than
+	// MaxSize bytes.
+	Export(Val string, Overwrite bool) error
+
+	// Lookup retrieves the value associated with a name.  Returns an error if
+	// there is no such binding.
+	Lookup() ([]byte | error)
+}

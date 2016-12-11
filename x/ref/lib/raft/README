@@ -1,0 +1,27 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+This is an implemetation of the Raft agreement protocol.  Each raft
+member maintains a log of commands in the same order.  All commands 
+go through a single master.  The master keeps track of the commit point,
+i.e., the point in the log where a quorum of servers have stored the log.
+Each server can apply the commands up to the commit point.  When a client
+starts a member it provides a callback for applying the commands as they are
+committed.  It is up to the application to make sure commands are idempotent.
+For example, it can remember the last command applied and not let any old
+ones be reapplied.
+
+Raft members use the file system to persist their log records across crashes.
+We're currently not syncing after writing each record to the disk to
+speed things up.  Because of the idempotent callback, this will work as long
+as a member of the quorum survives each master reelection but I may have to
+eventualy rethink this.
+
+The leader sends heartbeat messages at a fixed interval (hb).  Each follower will
+trigger a new election if it hasn't heard from the leader in an interval 2.x * hb,
+where x is a random number between 0 and 1.  The random interval reduces but does
+not eliminate the likelihood of two elections starting simultaneously.
+
+The VDL protocol is internal, i.e., it is just for raft members to talk to each
+other.

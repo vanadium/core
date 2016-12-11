@@ -1,0 +1,47 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// This files contains testdata for v.io/x/ref/lib/discovery/uuid_test.go.  The
+// testdata is in a vdl file so that we can make sure the uuid implementations in
+// all the languages produce the same output.
+
+package testdata
+
+// UuidTestData represents the inputs and outputs for a uuid test.
+type UuidTestData struct {
+	// In is the input string.
+	In string
+	// Want is the expected uuid's human-readable string form.
+	Want string
+}
+
+const ServiceUuidTest = []UuidTestData{
+	UuidTestData{
+		In:   "v.io",
+		Want: "2101363c-688d-548a-a600-34d506e1aad0",
+	},
+	UuidTestData{
+		In:   "v.io/v23/abc",
+		Want: "6726c4e5-b6eb-5547-9228-b2913f4fad52",
+	},
+	UuidTestData{
+		In:   "v.io/v23/abc/xyz",
+		Want: "be8a57d7-931d-5ee4-9243-0bebde0029a5",
+	},
+}
+
+const AttributeUuidTest = []UuidTestData{
+	UuidTestData{
+		In:   "name",
+		Want: "217a496d-3aae-5748-baf0-a77555f8f4f4",
+	},
+	UuidTestData{
+		In:   "_attr",
+		Want: "6c020e4b-9a59-5c7f-92e7-45954a16a402",
+	},
+	UuidTestData{
+		In:   "xyz",
+		Want: "c10b25a2-2d4d-5a19-bb7c-1ee1c4972b4c",
+	},
+}

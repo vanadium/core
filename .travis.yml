@@ -1,6 +1,8 @@
+sudo: required
+dist: trusty
 language: java
 jdk: oraclejdk8
-before_install: GIMME_OUTPUT=$(gimme 1.7) && eval "$GIMME_OUTPUT"
+before_install: GIMME_OUTPUT=$(gimme 1.7.4) && eval "$GIMME_OUTPUT"
 install: make get-deps
 script:
   - make go

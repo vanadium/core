@@ -1,0 +1,18 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package message
+
+// These messages are constructed so as to avoid embedding a component/method name
+// and are thus more suitable for inclusion in other verrors.
+// This practice of omitting {1}{2} should be used throughout the flow implementations
+// since all of their errors are intended to be used as arguments to higher level errors.
+// TODO(suharshs,toddw): Allow skipping of {1}{2} in vdl generated errors.
+error (
+  InvalidMsg(typ byte, size, field uint64, err error) {"en": "message of type {typ} and size {size} failed decoding at field {field}{:err}."}
+  InvalidSetupOption(option, field uint64) {
+    "en": "setup option{:option} failed decoding at field{:field}."}
+  UnknownMsg(typ byte) {"en":"unknown message type{:typ}."}
+  MissingBlessings(typ byte) {"en": "{typ} message received with no blessings."}
+)

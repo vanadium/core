@@ -1,0 +1,79 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package mounttable defines interfaces for managing associations between names
+// and servers.
+//
+// A mount table is a tree of names.  Each name may have something mounted on
+// it, either a terminal server or another mount table server.  If multiple
+// servers are mounted onto the same name, they are considered equivalent, i.e.,
+// it is semantically irrelevant which is chosen to pass an RPC to.
+//
+// Access is determined by AccessLists at each node in the tree.  When resolving
+// a name like a/b/c/d, one must check the client blessings against the
+// AccessLists of each node traversed ("", a, a/b, a/b/c, and a/b/c/d).
+package mounttable
+
+import (
+	"v.io/v23/naming"
+	"v.io/v23/services/permissions"
+)
+
+type Tag string
+
+const (
+	// Admin allow the client to SetPermissions or Delete the receiver.  It also subsumes
+	// all the other tags.
+	Admin   = Tag("Admin")
+	// Mount allows the client to Mount or Unmount at the named receiver.
+	// For example, to Mount onto a/b/c requires Mount or Admin access
+	// to a/b/c (and Read, Admin, or Resolve to a and a/b).
+	Mount   = Tag("Mount")
+	// Read allows the client to Glob any children of the node.  Thus to
+	// perform a Glob of a/* one must have Read access to a AND any other
+	// access to each child of a.  It also allows Resolution through the node.
+	Read    = Tag("Read")
+	// Create allows the client to create nodes below the receiver.
+	Create   = Tag("Create")
+	// Resolve allows one to resolve through the receiver.  Thus to Resolve
+	// a/b/c, one needs Admin, Resolve, or Read permission on a, a/b,
+	// and a/b/c.
+	Resolve = Tag("Resolve")
+)
+
+// MountTable defines the interface to talk to a mounttable.
+//
+// In all methods of MountTable, the receiver is the name bound to.
+type MountTable interface {
+	// Mount Server (a global name) onto the receiver.
+	//
+	// Subsequent mounts add to the servers mounted there.  The multiple
+	// servers are considered equivalent and are meant solely for
+	// availability, i.e., no load balancing is guaranteed.
+	//
+	// The ttl is the number of seconds the mount is to last unless refreshed by
+	// another mount of the same server.  A ttl of 0 represents an infinite
+	// duration.  A server with an expired ttl should never appear in the results
+	// nor affect the operation of any MountTable method, and should act as if it
+	// was never present as far as the interface is concerned.
+	//
+	// The flags represent a bit mask of options.
+	Mount(server string, ttl uint32, flags naming.MountFlag) error
+
+	// Unmount removes server from the receiver.  If server is empty, remove all
+	// servers mounted there.  Returns a non-nil error iff server remains mounted
+	// at the mount point.
+	Unmount(server string) error
+
+	// Delete removes the receiver.  If the receiver has children, it will not
+	// be removed unless deleteSubtree is true in which case the whole subtree is
+	// removed.
+	Delete(deleteSubtree bool) error
+
+	// ResolveStep takes the next step in resolving a name.  Returns the next
+	// servers to query and the suffix at those servers.
+	ResolveStep() (naming.MountEntry | error)
+
+	permissions.Object
+}

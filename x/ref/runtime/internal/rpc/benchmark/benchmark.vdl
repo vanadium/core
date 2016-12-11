@@ -1,0 +1,18 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// package benchmark provides simple tools to measure the performance of the
+// IPC system.
+package benchmark
+
+import (
+	"v.io/v23/security/access"
+)
+
+type Benchmark interface {
+  // Echo returns the payload that it receives.
+  Echo(Payload []byte) ([]byte | error) {access.Read}
+  // EchoStream returns the payload that it receives via the stream.
+  EchoStream() stream<[]byte,[]byte> error {access.Read}
+}

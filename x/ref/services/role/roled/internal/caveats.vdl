@@ -1,0 +1,18 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package internal
+
+import (
+	"v.io/v23/security"
+	"v.io/v23/uniqueid"
+)
+
+const (
+	// LoggingCaveat is a caveat that will always validate but it logs the parameter on every attempt to validate it.
+	LoggingCaveat = security.CaveatDescriptor{
+		Id:        uniqueid.Id{0xb0, 0x34, 0x1c, 0xed, 0xe2, 0xdf, 0x81, 0xbd, 0xed, 0x70, 0x97, 0xbb, 0x55, 0xad, 0x80, 0x0},
+		ParamType: typeobject([]string),
+	}
+)

@@ -8,13 +8,11 @@ repository.
 
 ## Install steps
 
-The following assumes the current directory is the root of a
-[Go workspace](https://golang.org/doc/code.html#Workspaces) and that the
-`GOPATH` environmental variables includes it.
+Assuming a single path in `$GOPATH`:
 
 ```
-git clone https://github.com/vanadium/core.git vanadium-core
-export GOPATH=${GOPATH:+${GOPATH}:}$PWD/vanadium-core/go
 go get -t v.io/...
-VDLPATH=$PWD/vanadium-core/go/src go test v.io/...
+VDLPATH=$GOPATH/src go test v.io/...
 ```
+
+The above will not work if v.io doesn't point to this repo.
