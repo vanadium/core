@@ -65,6 +65,10 @@ const (
 
 	// When set and non-empty, the namespace client will not use caching.
 	EnvDisableNamespaceCache = "V23_DISABLE_NS_CACHE"
+
+	// If the credentials are loaded from a directory then don't lock the
+	// directory. This allows running
+	EnvDisableCredentialsLocking = "V23_CREDENTIALS_NO_LOCK"
 )
 
 // EnvNamespaceRoots returns the set of namespace roots to be used by the
