@@ -37,13 +37,19 @@ type localPrincipal struct {
 }
 
 func (p *localPrincipal) Close() error {
-	return p.close()
+	if p.close != nil {
+		return p.close()
+	}
+	return nil
 }
 
 func loadPrincipalLocally(credentials string) (agent.Principal, error) {
 	p, err := vsecurity.LoadPersistentPrincipal(credentials, nil)
 	if err != nil {
 		return nil, err
+	}
+	if os.Getenv(ref.EnvDisableCredentialsLocking) != "" {
+		return &localPrincipal{Principal: p}, nil
 	}
 	agentDir := constants.AgentDir(credentials)
 	credsLock := lock.NewDirLock(credentials)
