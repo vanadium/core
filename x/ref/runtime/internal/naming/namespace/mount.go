@@ -46,11 +46,17 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
-		copts := append(getCallOpts(opts), options.Preresolved{me})
-		timeoutCtx, cancel := withTimeout(ctx)
-		defer cancel()
-		err = v23.GetClient(ctx).Call(timeoutCtx, name, "Mount", []interface{}{server, uint32(ttl.Seconds()), flags}, nil, copts...)
 		ns.forget(ctx, me)
+		for i, mts := range me.Servers {
+			mec := me
+			mec.Servers = []naming.MountedServer{mts}
+			ctx.VI(1).Infof("Mount(%s, %q)@%v: %v -> %v", name, server, i, mts, err)
+			copts := append(getCallOpts(opts), options.Preresolved{mec})
+			timeoutCtx, cancel := withTimeout(ctx)
+			defer cancel()
+			err = v23.GetClient(ctx).Call(timeoutCtx, name, "Mount", []interface{}{server, uint32(ttl.Seconds()), flags}, nil, copts...)
+			// Always attempt all mounts, but report the last error found.
+		}
 	}
 	ctx.VI(1).Infof("Mount(%s, %q) -> %v", name, server, err)
 	return err
