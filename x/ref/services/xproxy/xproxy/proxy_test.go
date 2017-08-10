@@ -6,11 +6,18 @@ package xproxy_test
 
 import (
 	"crypto/rand"
+	"fmt"
+	"net"
+	"os"
+	"path/filepath"
+	"reflect"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"v.io/x/lib/netstate"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/services/xproxy/xproxy"
@@ -30,6 +37,17 @@ const leakWaitTime = 250 * time.Millisecond
 
 var randData []byte
 
+type ipv4Only struct{}
+
+func (c *ipv4Only) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
+	al := netstate.ConvertToAddresses(candidates)
+	v4only := al.Filter(netstate.IsUnicastIPv4)
+	if len(v4only) > 2 {
+		v4only = v4only[:2]
+	}
+	return v4only.AsNetAddrs(), nil
+}
+
 func init() {
 	randData = make([]byte, 1<<17)
 	if _, err := rand.Read(randData); err != nil {
@@ -37,10 +55,10 @@ func init() {
 	}
 }
 
-type testService struct{}
+type testService struct{ m string }
 
 func (t *testService) Echo(ctx *context.T, call rpc.ServerCall, arg string) (string, error) {
-	return "response:" + arg, nil
+	return t.m + "response:" + arg, nil
 }
 
 func TestProxyRPC(t *testing.T) {
@@ -69,6 +87,192 @@ func TestProxyRPC(t *testing.T) {
 	if want := "response:hello"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+}
+
+func TestServerRestart(t *testing.T) {
+	// This test ensures that a server can be restarted even if it reuses
+	// the same address:port pair across such a restart. This case looks
+	// like a proxy to the client, in that the same address:port that was
+	// used before with one RID, is now connected to and presents a new,
+	// different RID; and hence could be a proxy. The internal logic in
+	// the client RPC code detects such RID mismatches and will attempt
+	// to connect as a proxy, if that fails, the client should retry
+	// and re-resolve the name to obtain the new RID and then make a normal
+	// RPC.
+	// This scenarious is racy and this test works around the races as
+	// outlined below.
+	//
+	// The problematic sequence of events is as follows:
+	//
+	// 1. server uses one, or two or more fixed address:ports - e.g. 127.0.0.1:8888
+	//    and <public IP>:8888.
+	// 2. the client makes an RPC to the server, creating an entry in its local
+	//    namespace for that service.
+	// 3. the server is restarted
+	// 4. the client makes a call to the restarted server, but it uses the
+	//    address in its local namespace, that is, the same address:port but
+	//    the RID of the original server.
+	// 5. the call made for 4 should timeout, since internally, the rpc
+	//    client will attempt to treat it as a proxy and then fail to connect.
+	// 6. after this initial failure, subsequent calls should succeed since they
+	//    will obtain the new server address (ie same address:port but with the
+	//    RID) from the mounttable/namespace.
+
+	testServerRestart(t, rpc.ListenSpec{
+		Addrs: rpc.ListenAddrs{
+			{Protocol: "tcp", Address: "127.0.01:0"},
+		},
+	})
+	testServerRestart(t, rpc.ListenSpec{
+		Addrs: rpc.ListenAddrs{
+			{Protocol: "tcp", Address: ":0"},
+		},
+		AddressChooser: &ipv4Only{},
+	})
+
+}
+func ls(ctx *context.T, m, s string) []naming.MountedServer {
+	_, file, line, _ := runtime.Caller(1)
+	loc := fmt.Sprintf("%v:%v", filepath.Base(file), line)
+	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, s)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v: %s: --- no entries\n", loc, m)
+		return nil
+	}
+	fmt.Fprintf(os.Stderr, "%v:%s: --- %v\n", loc, m, resolved.Servers)
+	return resolved.Servers
+}
+
+func serverAddrs(ms []naming.MountedServer) []string {
+	r := []string{}
+	for _, m := range ms {
+		r = append(r, m.Server)
+	}
+	return r
+}
+
+func callClient(ctx *context.T, m string) error {
+	var got string
+	if err := v23.GetClient(ctx).Call(ctx, "server", "Echo", []interface{}{"hello"}, []interface{}{&got}); err != nil {
+		return err
+	}
+	if want := m + "response:hello"; got != want {
+		return fmt.Errorf("got %v, want %v", got, want)
+	}
+	return nil
+}
+
+func testServerRestart(t *testing.T, lspec rpc.ListenSpec) {
+	ctx, shutdown := test.V23InitWithMounttable()
+	defer shutdown()
+
+	// Enable caching in the namespace to be used by the client.
+	ns := v23.GetNamespace(ctx)
+	ns.CacheCtl(naming.DisableCache(false))
+
+	// Create a new context, with a new namespace for servers to use, this
+	// replicates the practical situation with client and servers being
+	// in different address spaces. If the namespace is shared then the
+	// server will clean up the client entries when the server is stopped.
+	sctx, _, err := v23.WithNewNamespace(ctx, ns.Roots()...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sctx = v23.WithListenSpec(sctx, lspec)
+
+	// Start a server
+	sctx, serverCancel := context.WithCancel(sctx)
+	_, server, err := v23.WithNewServer(sctx, "server", &testService{"first:"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutil.WaitForServerPublished(server)
+
+	servers := ls(sctx, "server side", "server")
+	orig := ls(ctx, "client side", "server")
+	if got, want := serverAddrs(servers), serverAddrs(orig); !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	// Obtain the address used for the first server so as to reused it for
+	// the restarted one.
+	reused := rpc.ListenSpec{}
+	for _, ep := range server.Status().Endpoints {
+		reused.Addrs = append(reused.Addrs,
+			struct {
+				Protocol, Address string
+			}{
+				Protocol: ep.Protocol,
+				Address:  ep.Address,
+			})
+	}
+	expectNumAddresses := len(server.Status().Endpoints)
+
+	if err := callClient(ctx, "first:"); err != nil {
+		t.Fatal(err)
+	}
+
+	serverCancel()
+	<-server.Closed()
+
+	if got, want := len(ls(sctx, "stopped server side", "server")), 0; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	if got, want := len(ls(ctx, "stopped client side", "server")), expectNumAddresses; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	// Restart the server
+	sctx, _, err = v23.WithNewNamespace(ctx, ns.Roots()...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sctx = v23.WithListenSpec(sctx, reused)
+	sctx, serverCancel = context.WithCancel(sctx)
+	_, server, err = v23.WithNewServer(sctx, "server", &testService{"restarted:"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer serverCancel()
+
+	testutil.WaitForServerPublished(server)
+
+	if got, want := len(ls(sctx, "restarted server side", "server")), expectNumAddresses; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	// Get a new client in order to get a new flow manager with an empty
+	// connection cache, but keep the namespace.
+	ctx, _, err = v23.WithNewClient(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := serverAddrs(ls(ctx, "restarted client side", "server")), serverAddrs(orig); !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	// Ensure a fast timeout for the first call that we expect to fail.
+	fctx, _ := context.WithTimeout(ctx, 10*time.Second)
+	start := time.Now()
+	if err := callClient(fctx, "restarted:"); err == nil || !strings.Contains(err.Error(), "Timeout") {
+		t.Fatalf("missing or unexpected error: %v", err)
+	}
+
+	firstDupCall := time.Now()
+	// Expect the second call to succeed.
+	if err := callClient(ctx, "restarted:"); err != nil {
+		t.Fatal(err)
+	}
+	secondDupCall := time.Now()
+
+	// Make sure the second call is faster than the first.
+	firstInterval := firstDupCall.Sub(start)
+	secondInterval := secondDupCall.Sub(firstDupCall)
+	if firstInterval < secondInterval {
+		t.Errorf("second call should be faster than first: first: %v  second: %v", firstInterval, secondInterval)
+	}
+
 }
 
 func TestMultipleProxyRPC(t *testing.T) {

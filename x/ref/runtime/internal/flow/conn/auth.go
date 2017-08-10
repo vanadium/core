@@ -97,12 +97,6 @@ func (c *Conn) MatchesRID(ep naming.Endpoint) bool {
 		c.remote.RoutingID == ep.RoutingID
 }
 
-// MatchesAddress returns true if the given endpoint has the same address
-// as the remote server.
-func (c *Conn) MatchesAddress(ep naming.Endpoint) bool {
-	return ep.Address == c.remote.Address
-}
-
 func (c *Conn) acceptHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
