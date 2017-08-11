@@ -120,7 +120,7 @@ func TestServerRestart(t *testing.T) {
 
 	testServerRestart(t, rpc.ListenSpec{
 		Addrs: rpc.ListenAddrs{
-			{Protocol: "tcp", Address: "127.0.01:0"},
+			{Protocol: "tcp", Address: "127.0.0.1:0"},
 		},
 	})
 	testServerRestart(t, rpc.ListenSpec{
