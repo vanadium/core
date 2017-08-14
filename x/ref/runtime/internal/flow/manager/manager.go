@@ -358,7 +358,7 @@ func (m *manager) updateEndpointBlessingsLocked(names []string) {
 // ProxyListen causes the Manager to accept flows from the specified endpoint.
 // The endpoint must correspond to a vanadium proxy.
 // If error != nil, establishing a connection to the Proxy failed.
-// Otherwise, if error == nil, the returned chan will block until the
+// Otherwise, if error == nil, the returned chan will block until
 // connection to the proxy endpoint fails. The caller may then choose to retry
 // the connection.
 // name is a identifier of the proxy. It can be used to access errors
@@ -779,8 +779,8 @@ func (m *manager) internalDial(
 		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
 	}
 	c, _ := cached.(*conn.Conn)
+
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.
-	// We now need to make a flow to a proxy and upgrade it to a conn to the final server.
 	if !c.MatchesRID(remote) {
 		if c, names, rejected, err = m.dialProxyConn(ctx, remote, c, auth, channelTimeout); err != nil {
 			return nil, err
@@ -831,11 +831,12 @@ func (m *manager) dialReserved(
 			return
 		}
 	}
+
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.
-	// We now need to make a flow to a proxy and upgrade it to a conn to the final server.
 	if !c.MatchesRID(remote) {
 		pc = c
-		if c, _, _, err = m.dialProxyConn(res.Context(), remote, pc, auth, channelTimeout); err != nil {
+		if c, _, _, err = m.dialProxyConn(res.Context(), remote, c, auth, channelTimeout); err != nil {
+			pc, c = nil, pc
 			return
 		}
 	} else if proxy {
