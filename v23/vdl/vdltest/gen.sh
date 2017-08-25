@@ -27,15 +27,15 @@ var vAllPass, vAllFail, xAllPass, xAllFail []vdlEntry
 EOF
 
 # Re-generate the vdltest package, since we removed the vdl files above.
-jiri run go install "v.io/x/ref/cmd/vdl"
-jiri run "${JIRI_ROOT}/release/go/bin/vdl" generate "v.io/v23/vdl/vdltest"
+go install "v.io/x/ref/cmd/vdl"
+vdl generate "v.io/v23/vdl/vdltest"
 
 # Install and run vdltestgen
-jiri run go install "v.io/v23/vdl/vdltest/internal/vdltestgen"
-jiri run "${JIRI_ROOT}/release/go/bin/vdltestgen"
+go install "v.io/v23/vdl/vdltest/internal/vdltestgen"
+vdltestgen
 
 # Re-generate the vdltest package, now with the new vdl files.
-jiri run "${JIRI_ROOT}/release/go/bin/vdl" generate "v.io/v23/vdl/vdltest"
+vdl generate "v.io/v23/vdl/vdltest"
 
 # Clean up temporary files
 rm -f ${dummy_file}
