@@ -141,6 +141,14 @@ func (c *ttlCache) lookup(ctx *context.T, name string) (naming.MountEntry, error
 		}
 		ctx.VI(2).Infof("namespace cache %s -> %v %s", name, e.Servers, e.Name)
 		e.Name = suffix
+		if l := len(e.Servers); l > 1 {
+			// Rotate returned servers to provide some degree of load balancing.
+			// The rotated set is stored and returned on the next invocation
+			// of lookup.
+			tmp := e
+			tmp.Servers = append(e.Servers[1:], e.Servers[0])
+			c.entries[prefix] = tmp
+		}
 		return e, nil
 	}
 	return naming.MountEntry{}, verror.New(naming.ErrNoSuchName, nil, name)
