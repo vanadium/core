@@ -6,6 +6,9 @@ package namespace
 
 import (
 	"fmt"
+	"path/filepath"
+	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -66,6 +69,50 @@ func TestCache(t *testing.T) {
 			t.Errorf("%s: got %v, %s not %s, %s", p.name, e.Name, e.Servers, p.suffix, p.server)
 		}
 	}
+
+	pl := func(name string, servers ...string) {
+		srvs := []naming.MountedServer{}
+		for _, s := range servers {
+			srvs = append(srvs, naming.MountedServer{Server: s, Deadline: future(30)})
+		}
+		c.remember(ctx, "/h1//t/"+name, &naming.MountEntry{
+			Name:    name,
+			Servers: srvs,
+		})
+	}
+
+	lkup := func(name string, servers ...string) {
+		_, file, line, _ := runtime.Caller(1)
+		loc := fmt.Sprintf("%v:%v", filepath.Base(file), line)
+		srvs := []naming.MountedServer{}
+		for _, s := range servers {
+			srvs = append(srvs, naming.MountedServer{Server: s, Deadline: future(30)})
+		}
+		e, err := c.lookup(ctx, "/h1//t/"+name)
+		if err != nil {
+			t.Fatalf("%v: failed for %v: %v", loc, name, err)
+		}
+		addrs := []string{}
+		for _, e := range e.Servers {
+			addrs = append(addrs, e.Server)
+		}
+		if got, want := addrs, servers; !reflect.DeepEqual(got, want) {
+
+			t.Errorf("%v: got %v, want %v", loc, got, want)
+		}
+	}
+	pl("a1", "a0")
+	lkup("a1", "a0")
+	lkup("a1", "a0")
+	pl("a2", "a0", "a1")
+	lkup("a2", "a0", "a1")
+	lkup("a2", "a1", "a0")
+	lkup("a2", "a0", "a1")
+	pl("a3", "a0", "a1", "a2")
+	lkup("a3", "a0", "a1", "a2")
+	lkup("a3", "a1", "a2", "a0")
+	lkup("a3", "a2", "a0", "a1")
+	lkup("a3", "a0", "a1", "a2")
 }
 
 func TestCacheLimit(t *testing.T) {
