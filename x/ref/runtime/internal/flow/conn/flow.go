@@ -6,6 +6,7 @@ package conn
 
 import (
 	"io"
+	"net"
 	"time"
 
 	"v.io/v23/context"
@@ -382,6 +383,11 @@ func (f *flw) LocalEndpoint() naming.Endpoint {
 // RemoteEndpoint returns the remote vanadium endpoint.
 func (f *flw) RemoteEndpoint() naming.Endpoint {
 	return f.remote
+}
+
+// RemoteAddr returns the remote address of the peer.
+func (f *flw) RemoteAddr() net.Addr {
+	return f.conn.remoteAddr
 }
 
 // LocalBlessings returns the blessings presented by the local end of the flow

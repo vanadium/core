@@ -6,7 +6,6 @@ package rpc
 
 import (
 	"fmt"
-	"golang.org/x/net/trace"
 	"io"
 	"net"
 	"reflect"
@@ -14,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/net/trace"
 	"v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
@@ -1020,6 +1020,10 @@ func (fs *flowServer) LocalEndpoint() naming.Endpoint {
 func (fs *flowServer) RemoteEndpoint() naming.Endpoint {
 	//nologcall
 	return fs.flow.RemoteEndpoint()
+}
+func (fs *flowServer) RemoteAddr() net.Addr {
+	//nologcall
+	return fs.flow.RemoteAddr()
 }
 
 type leafDispatcher struct {

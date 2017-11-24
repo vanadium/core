@@ -243,6 +243,8 @@ type Flow interface {
 	LocalEndpoint() naming.Endpoint
 	// RemoteEndpoint returns the remote vanadium Endpoint.
 	RemoteEndpoint() naming.Endpoint
+	// RemoteAddr returns the remote address of the peer.
+	RemoteAddr() net.Addr
 	// LocalBlessings returns the blessings presented by the local end of the flow
 	// during authentication.
 	LocalBlessings() security.Blessings
@@ -276,6 +278,9 @@ type Conn interface {
 
 	// LocalAddr returns the Conn's network address.
 	LocalAddr() net.Addr
+
+	// RemoteAddr returns the Conn's network address.
+	RemoteAddr() net.Addr
 }
 
 // Listener provides methods for accepting new Conns.

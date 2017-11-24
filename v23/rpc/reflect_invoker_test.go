@@ -10,6 +10,7 @@ package rpc_test
 import (
 	"errors"
 	"fmt"
+	"net"
 	"reflect"
 	"regexp"
 	"testing"
@@ -55,6 +56,7 @@ func (*FakeStreamServerCall) LocalBlessings() security.Blessings              { 
 func (*FakeStreamServerCall) RemoteBlessings() security.Blessings             { return security.Blessings{} }
 func (*FakeStreamServerCall) LocalEndpoint() naming.Endpoint                  { return naming.Endpoint{} }
 func (*FakeStreamServerCall) RemoteEndpoint() naming.Endpoint                 { return naming.Endpoint{} }
+func (*FakeStreamServerCall) RemoteAddr() net.Addr                            { return nil }
 func (*FakeStreamServerCall) Security() security.Call                         { return nil }
 
 var (
