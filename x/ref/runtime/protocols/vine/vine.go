@@ -276,6 +276,10 @@ func (c *conn) LocalAddr() net.Addr {
 	return c.addr
 }
 
+func (c *conn) RemoteAddr() net.Addr {
+	return c.base.RemoteAddr()
+}
+
 type listener struct {
 	base     flow.Listener
 	addr     addr

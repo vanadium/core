@@ -7,6 +7,7 @@ package conn
 import (
 	"fmt"
 	"math"
+	"net"
 	"reflect"
 	"sync"
 	"time"
@@ -91,6 +92,7 @@ type Conn struct {
 	mp            *messagePipe
 	version       version.RPCVersion
 	local, remote naming.Endpoint
+	remoteAddr    net.Addr
 	closed        chan struct{}
 	lameDucked    chan struct{}
 	blessingsFlow *blessingsFlow
@@ -165,6 +167,10 @@ func NewDialed(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
+	var remoteAddr net.Addr
+	if flowConn, ok := conn.(flow.Conn); ok {
+		remoteAddr = flowConn.RemoteAddr()
+	}
 	dctx := ctx
 	ctx, cancel := context.WithRootCancel(ctx)
 	if channelTimeout == 0 {
@@ -185,6 +191,7 @@ func NewDialed(
 		handler:              handler,
 		local:                local,
 		remote:               remote,
+		remoteAddr:           remoteAddr,
 		closed:               make(chan struct{}),
 		lameDucked:           make(chan struct{}),
 		nextFid:              reservedFlows,
@@ -259,6 +266,10 @@ func NewAccepted(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (*Conn, error) {
+	var remoteAddr net.Addr
+	if flowConn, ok := conn.(flow.Conn); ok {
+		remoteAddr = flowConn.RemoteAddr()
+	}
 	ctx, cancel := context.WithCancel(ctx)
 	if channelTimeout == 0 {
 		channelTimeout = defaultChannelTimeout
@@ -270,6 +281,7 @@ func NewAccepted(
 		mp:                   newMessagePipe(conn),
 		handler:              handler,
 		local:                local,
+		remoteAddr:           remoteAddr,
 		closed:               make(chan struct{}),
 		lameDucked:           make(chan struct{}),
 		nextFid:              reservedFlows + 1,
@@ -526,7 +538,9 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 func (c *Conn) LocalEndpoint() naming.Endpoint { return c.local }
 
 // RemoteEndpoint returns the remote vanadium Endpoint
-func (c *Conn) RemoteEndpoint() naming.Endpoint { return c.remote }
+func (c *Conn) RemoteEndpoint() naming.Endpoint {
+	return c.remote
+}
 
 // LocalBlessings returns the local blessings.
 func (c *Conn) LocalBlessings() security.Blessings {

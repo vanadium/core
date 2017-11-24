@@ -86,6 +86,10 @@ func (c *wrappedConn) LocalAddr() net.Addr {
 	return c.ws.LocalAddr()
 }
 
+func (c *wrappedConn) RemoteAddr() net.Addr {
+	return c.ws.RemoteAddr()
+}
+
 // hybridConn is used by the 'hybrid' protocol that can accept
 // either 'tcp' or 'websocket' connections. In particular, it allows
 // for the reader to peek and buffer the first n bytes of a stream

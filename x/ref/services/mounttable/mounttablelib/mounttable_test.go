@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"reflect"
 	"runtime/debug"
 	"sort"
@@ -446,6 +447,7 @@ func (fakeServerCall) Security() security.Call              { return security.Ne
 func (fakeServerCall) Suffix() string                       { return "" }
 func (fakeServerCall) LocalEndpoint() naming.Endpoint       { return naming.Endpoint{} }
 func (fakeServerCall) RemoteEndpoint() naming.Endpoint      { return naming.Endpoint{} }
+func (fakeServerCall) RemoteAddr() net.Addr                 { return nil }
 func (fakeServerCall) GrantedBlessings() security.Blessings { return security.Blessings{} }
 func (fakeServerCall) Server() rpc.Server                   { return nil }
 func (c *fakeServerCall) SendStream() interface {

@@ -32,7 +32,8 @@ type conn struct {
 	*wire
 }
 
-func (c *conn) LocalAddr() net.Addr { return c.addr }
+func (c *conn) LocalAddr() net.Addr  { return c.addr }
+func (c *conn) RemoteAddr() net.Addr { return c.peer.addr }
 func (c *conn) ReadMsg() ([]byte, error) {
 	select {
 	case msg := <-c.incoming:

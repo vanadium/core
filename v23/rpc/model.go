@@ -487,6 +487,8 @@ type ServerCall interface {
 	// RemoteEndpoint returns the Endpoint at the remote end of
 	// communication.
 	RemoteEndpoint() naming.Endpoint
+	// RemoteAddr returns the net address of the peer.
+	RemoteAddr() net.Addr
 	// GrantedBlessings are blessings granted by the client to the server
 	// (bound to the server).  Typically provided by a client to delegate
 	// to the server, allowing the server to use the client's authority to

@@ -94,16 +94,25 @@ func (ln *tcpListener) Close() error {
 }
 
 func NewTCPConn(c net.Conn) flow.Conn {
-	return tcpConn{framer.New(c), c.LocalAddr()}
+	return tcpConn{
+		framer.New(c),
+		c.LocalAddr(),
+		c.RemoteAddr(),
+	}
 }
 
 type tcpConn struct {
 	flow.MsgReadWriteCloser
-	localAddr net.Addr
+	localAddr  net.Addr
+	remoteAddr net.Addr
 }
 
 func (c tcpConn) LocalAddr() net.Addr {
 	return c.localAddr
+}
+
+func (c tcpConn) RemoteAddr() net.Addr {
+	return c.remoteAddr
 }
 
 func TCPResolveAddrs(ctx *context.T, address string) ([]string, error) {
