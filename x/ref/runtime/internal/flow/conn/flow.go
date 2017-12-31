@@ -24,6 +24,7 @@ type flw struct {
 	localBlessings, remoteBlessings   security.Blessings
 	localDischarges, remoteDischarges map[string]security.Discharge
 	noEncrypt                         bool
+	noFragment                        bool
 	writeCh                           chan struct{}
 	remote                            naming.Endpoint
 	channelTimeout                    time.Duration
@@ -103,6 +104,12 @@ func (f *flw) priority() int { return flowPriority }
 // disableEncrytion should not be called concurrently with Write* methods.
 func (f *flw) disableEncryption() {
 	f.noEncrypt = true
+}
+
+// DisableFragmentation should probably not be called concurrently with
+// Write* methods.
+func (f *flw) DisableFragmentation() {
+	f.noFragment = true
 }
 
 // Implement io.Reader.

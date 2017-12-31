@@ -275,6 +275,8 @@ func (p *proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) erro
 		p.mu.Unlock()
 		return NewErrProxyAlreadyClosed(ctx)
 	}
+	f.DisableFragmentation()
+	fout.DisableFragmentation()
 	p.wg.Add(2)
 	p.mu.Unlock()
 	go p.forwardLoop(ctx, f, fout)
