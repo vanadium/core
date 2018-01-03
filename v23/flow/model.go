@@ -268,6 +268,10 @@ type Flow interface {
 	// Closed returns a channel that remains open until the flow has been closed or
 	// the ctx to the Dial or Accept call used to create the flow has been cancelled.
 	Closed() <-chan struct{}
+
+	// DisableFragmentation disables fragmentation of the []byte. This is used by
+	// xproxyd.
+	DisableFragmentation()
 }
 
 // Conn is the connection onto which flows are mulitplexed.
