@@ -112,7 +112,9 @@ func (tc *typeCache) collect() {
 				if tce.cancel != nil {
 					tce.cancel()
 				}
-				tce.dec.Stop()
+				if tce.dec != nil {
+					tce.dec.Stop()
+				}
 				delete(tc.flows, conn)
 			}
 		}
