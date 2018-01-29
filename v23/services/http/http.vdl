@@ -7,6 +7,10 @@
 // by Vanadium.
 package http
 
+import (
+	"v.io/v23/security/access"
+)
+
 // Url represents a url.URL struct.
 // The User field is skipped since it is a struct with only unexported fields.
 type Url struct {
@@ -43,5 +47,5 @@ type Request struct {
 
 type Http interface {
     // RawDo returns the server's response to req.
-    RawDo(req Request) (data []byte | error)
+    RawDo(req Request) (data []byte | error) {access.Debug}
 }
