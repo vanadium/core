@@ -272,7 +272,7 @@ func (c *ConnCache) internalFindCached(
 	network, addresses, rerr := resolve(ctx, p, remote.Protocol, remote.Address)
 	if rerr != nil {
 		// TODO(suharshs): Add a unittest for failed resolution.
-		ctx.Errorf("Failed to resolve (%v, %v): %v", remote.Protocol, remote.Address, err)
+		ctx.Errorf("Failed to resolve (%v, %v): %v", remote.Protocol, remote.Address, rerr)
 	}
 	for _, a := range addresses {
 		if k := key(network, a); k != addrKey {
