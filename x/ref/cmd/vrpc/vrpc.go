@@ -37,6 +37,7 @@ var (
 	flagInsecure       bool
 	flagShowReserved   bool
 	flagShallowResolve bool
+	flagJSON bool
 	insecureOpts       = []rpc.CallOpt{
 		options.ServerAuthorizer{security.AllowEveryone()},
 		options.NameResolutionAuthorizer{security.AllowEveryone()},
@@ -59,6 +60,8 @@ func init() {
 
 	cmdSignature.Flags.BoolVar(&flagShowReserved, "show-reserved", false, "if true, also show the signatures of reserved methods")
 	cmdVRPC.Flags.BoolVar(&flagShallowResolve, "s", false, "if true, perform a shallow resolve")
+
+	cmdVRPC.Flags.BoolVar(&flagJSON, "json", false, "if true, output a JSON representation of the response")
 }
 
 var cmdVRPC = &cmdline.Command{
@@ -266,7 +269,11 @@ StreamingResultsLoop:
 		case err != nil:
 			return fmt.Errorf("call.Recv failed: %v", err)
 		}
-		fmt.Fprintf(env.Stdout, "<< %v\n", vdlgen.TypedConst(item, "", nil))
+		if flagJSON {
+			fmt.Fprintf(env.Stdout, "<< %v\n", vdlgen.JSON(item, "", nil))
+		} else {
+			fmt.Fprintf(env.Stdout, "<< %v\n", vdlgen.TypedConst(item, "", nil))
+		}
 	}
 	// Finish the method call.
 	outargs := make([]*vdl.Value, len(methodSig.OutArgs))
@@ -282,7 +289,11 @@ StreamingResultsLoop:
 		if i > 0 {
 			fmt.Fprint(env.Stdout, " ")
 		}
-		fmt.Fprint(env.Stdout, vdlgen.TypedConst(arg, "", nil))
+		if flagJSON {
+			fmt.Fprint(env.Stdout, vdlgen.JSON(arg, "", nil))
+		} else {
+			fmt.Fprint(env.Stdout, vdlgen.TypedConst(arg, "", nil))
+		}
 	}
 	fmt.Fprintln(env.Stdout)
 	return nil
