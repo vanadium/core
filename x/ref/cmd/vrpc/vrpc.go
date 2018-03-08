@@ -27,6 +27,7 @@ import (
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
 	"v.io/x/ref/lib/vdl/build"
+	"v.io/x/ref/lib/vdl/codegen/json"
 	"v.io/x/ref/lib/vdl/codegen/vdlgen"
 	"v.io/x/ref/lib/vdl/compile"
 
@@ -37,7 +38,7 @@ var (
 	flagInsecure       bool
 	flagShowReserved   bool
 	flagShallowResolve bool
-	flagJSON bool
+	flagJSON           bool
 	insecureOpts       = []rpc.CallOpt{
 		options.ServerAuthorizer{security.AllowEveryone()},
 		options.NameResolutionAuthorizer{security.AllowEveryone()},
@@ -270,7 +271,7 @@ StreamingResultsLoop:
 			return fmt.Errorf("call.Recv failed: %v", err)
 		}
 		if flagJSON {
-			fmt.Fprintf(env.Stdout, "<< %v\n", vdlgen.JSON(item, "", nil))
+			fmt.Fprintf(env.Stdout, "<< %v\n", json.Const(item, "", nil))
 		} else {
 			fmt.Fprintf(env.Stdout, "<< %v\n", vdlgen.TypedConst(item, "", nil))
 		}
@@ -290,7 +291,7 @@ StreamingResultsLoop:
 			fmt.Fprint(env.Stdout, " ")
 		}
 		if flagJSON {
-			fmt.Fprint(env.Stdout, vdlgen.JSON(arg, "", nil))
+			fmt.Fprint(env.Stdout, json.Const(arg, "", nil))
 		} else {
 			fmt.Fprint(env.Stdout, vdlgen.TypedConst(arg, "", nil))
 		}
