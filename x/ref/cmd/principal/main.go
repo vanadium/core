@@ -32,7 +32,7 @@ import (
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/v23cmd"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/grail"
 )
 
 var (
