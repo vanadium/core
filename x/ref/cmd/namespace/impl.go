@@ -27,7 +27,7 @@ import (
 	"v.io/v23/verror"
 
 	"v.io/x/ref/lib/v23cmd"
-	_ "v.io/x/ref/runtime/factories/grail"
+	_ "v.io/x/ref/runtime/factories/generic"
 )
 
 func main() {
