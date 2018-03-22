@@ -17,7 +17,6 @@ import (
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/protocols/debug"
@@ -73,11 +72,11 @@ func TestCancellationPropagation(t *testing.T) {
 
 	c1, err := makeCanceld(ctx, "c1", "c2")
 	if err != nil {
-		t.Fatalf("Can't start server:", err, verror.DebugString(err))
+		t.Fatal(err)
 	}
 	c2, err := makeCanceld(ctx, "c2", "")
 	if err != nil {
-		t.Fatalf("Can't start server:", err)
+		t.Fatal(err)
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -330,7 +329,7 @@ func testChannelTimeout(t *testing.T, ctx *context.T) {
 	err = v23.GetClient(ctx).Call(ctx, ep.Name(), "Run", []interface{}{time.Duration(0)},
 		nil, options.ChannelTimeout(100*time.Millisecond))
 	if err == nil {
-		t.Errorf("wanted non-nil error", err)
+		t.Errorf("wanted non-nil error: %v", err)
 	}
 }
 

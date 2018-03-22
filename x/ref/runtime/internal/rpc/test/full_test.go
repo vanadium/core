@@ -301,7 +301,7 @@ func TestPreferredAddressErrors(t *testing.T) {
 	}
 	addr := v23.GetListenSpec(sctx).Addrs[0]
 	if got, want := status.ListenErrors[addr].Error(), "oops"; !strings.Contains(got, want) {
-		t.Errorf("got %d, want %d", got, want)
+		t.Errorf("got %v, want %v", got, want)
 	}
 }
 
@@ -1107,7 +1107,7 @@ func TestPrivateServer(t *testing.T) {
 	} else {
 		results := makeResultPtrs(nil)
 		if err := call.Finish(results...); err != nil {
-			t.Error("RPC by client with a matching blessing private key failed: %v", err)
+			t.Errorf("RPC by client with a matching blessing private key failed: %v", err)
 		}
 	}
 }

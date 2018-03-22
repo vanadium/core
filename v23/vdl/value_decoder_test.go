@@ -24,7 +24,7 @@ func TestValueDecoderDecodeBool(t *testing.T) {
 	case err != nil:
 		t.Errorf("error decoding value: %v", err)
 	case val != expected:
-		t.Errorf("got %d, want %d", val, expected)
+		t.Errorf("got %v, want %v", val, expected)
 	}
 	if err := vd.FinishValue(); err != nil {
 		t.Errorf("error in FinishValue: %v", err)
@@ -84,7 +84,7 @@ func TestValueDecoderDecodeFloat(t *testing.T) {
 	case err != nil:
 		t.Errorf("error decoding value: %v", err)
 	case val != 5:
-		t.Errorf("got %d, want %d", val, expected)
+		t.Errorf("got %f, want %f", val, expected)
 	}
 	if err := vd.FinishValue(); err != nil {
 		t.Errorf("error in FinishValue: %v", err)

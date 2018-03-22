@@ -412,7 +412,7 @@ func TestReusedDecoderEncoderRawBytes(t *testing.T) {
 		t.Fatalf("error on value convert: %v", err)
 	}
 	if got, want := str, "a"; got != want {
-		t.Errorf("got %d, want %d", got, want)
+		t.Errorf("got %s, want %s", got, want)
 	}
 }
 
