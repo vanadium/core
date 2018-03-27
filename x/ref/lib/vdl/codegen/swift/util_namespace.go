@@ -38,7 +38,7 @@ func (ctx *swiftContext) swiftModule(pkg *compile.Package) string {
 		if pkg.GenPath == "_builtin" {
 			return ""
 		}
-		panic(fmt.Sprintf("Unable to find source directory for genPath ", pkg.GenPath))
+		panic(fmt.Sprintf("Unable to find source directory for genPath %q", pkg.GenPath))
 	}
 	if !strings.HasPrefix(fileDir, "/") {
 		if strings.HasPrefix(pkg.GenPath, "v.io/v23/vdlroot") {

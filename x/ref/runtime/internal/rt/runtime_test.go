@@ -180,7 +180,7 @@ func TestFlowManager(t *testing.T) {
 
 	oldman, err := v23.NewFlowManager(ctx, 0)
 	if err != nil || oldman == nil {
-		t.Error("NewFlowManager failed: %v, %v", oldman, err)
+		t.Errorf("NewFlowManager failed: %v, %v", oldman, err)
 	}
 	newman, err := v23.NewFlowManager(ctx, 0)
 	if err != nil || newman == nil || newman == oldman {

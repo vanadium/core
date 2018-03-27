@@ -389,7 +389,7 @@ func testTransitivePackages(t *testing.T) {
 				paths = append(paths, pkg.Path)
 			}
 			if got, want := paths, test.OutPaths; !reflect.DeepEqual(got, want) {
-				t.Errorf("%v got paths %v, want %v", name, got, want)
+				t.Errorf("%v got paths:\n%v\nwant:\n%v", name, got, want)
 			}
 			wantGen := test.GenPaths
 			if wantGen == nil {

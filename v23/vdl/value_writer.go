@@ -61,7 +61,7 @@ func (vv *Value) writeNonNilValue(enc Encoder) error {
 	case Union:
 		return vv.writeUnion(enc)
 	}
-	panic(fmt.Sprintf("unknown kind", vv.Kind()))
+	panic(fmt.Sprintf("unknown kind: %v", vv.Kind()))
 }
 
 func (vv *Value) writeArrayOrList(enc Encoder) error {

@@ -183,7 +183,7 @@ func exportSysDisk() {
 		curPath := path
 		updateStats := func() {
 			if s, err := disk.Usage(curPath); err == nil {
-				updateStats(fmt.Sprintf("system/sysdisk/%s/%s", naming.EncodeAsNameElement(path)), *s, fieldNames)
+				updateStats(fmt.Sprintf("system/sysdisk/%s", naming.EncodeAsNameElement(path)), *s, fieldNames)
 			}
 		}
 		go func() {

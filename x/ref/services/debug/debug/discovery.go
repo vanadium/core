@@ -65,7 +65,7 @@ func runDiscoveryScan(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	for u := range updates {
 		if u.IsLost() {
-			fmt.Fprintln(env.Stdout, "LOST:", u.Id(), "\n")
+			fmt.Fprint(env.Stdout, "LOST:", u.Id(), "\n\n")
 			continue
 		}
 		// Pretty print as multi-line text

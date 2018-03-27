@@ -53,7 +53,7 @@ func TestEncodeLargeTxt(t *testing.T) {
 				xseq++
 			}
 			if nxseq != xseq {
-				t.Errorf("[%d]: got xseq %d; but wanted %d", nxseq, xseq)
+				t.Errorf("[%d]: got xseq %d; but wanted %d", i, nxseq, xseq)
 			}
 			splitted = append(splitted, txts...)
 		}

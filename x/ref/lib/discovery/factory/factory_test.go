@@ -47,7 +47,7 @@ func TestFactoryBasic(t *testing.T) {
 
 	m.newErr = errors.New("new error")
 	if _, err := f.New(nil); err != m.newErr {
-		t.Error("expected an error %v, but got %v", m.newErr, err)
+		t.Errorf("expected an error %v, but got %v", m.newErr, err)
 	}
 
 	f.Shutdown()

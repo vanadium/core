@@ -34,7 +34,7 @@ func BenchmarkTLSConnectionEstablishment(b *testing.B) {
 				return
 			}
 			if n, err := c.Read(buf); n != 1 {
-				b.Fatal("Got (%d, %v), expected (1, <nil or io.EOF>)", n, err)
+				b.Fatalf("Got (%d, %v), expected (1, <nil or io.EOF>)", n, err)
 			}
 			if _, err := c.Write(buf); err != nil {
 				return

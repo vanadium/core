@@ -190,7 +190,7 @@ func commandConnection(c net.Conn, handlers map[string]commandHandler) {
 	for scanner.Scan() {
 		command := strings.SplitN(scanner.Text(), "=", 2)
 		if len(command) == 0 {
-			fmt.Println(os.Stderr, "Empty command")
+			fmt.Fprintln(os.Stderr, "Empty command")
 			continue
 		}
 		arg := ""
@@ -204,7 +204,7 @@ func commandConnection(c net.Conn, handlers map[string]commandHandler) {
 			for cmd := range handlers {
 				fmt.Fprintln(c, cmd)
 			}
-			fmt.Fprintln(c, "Commands are case-sensitive.\n")
+			fmt.Fprint(c, "Commands are case-sensitive.\n\n")
 			continue
 		}
 		fmt.Fprintln(c, handler(arg))
