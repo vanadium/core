@@ -269,7 +269,7 @@ class VdlPlugin implements Plugin<Project> {
 class VdlConfiguration {
     List<String> inputPaths = []
     String vdlRootPath = ""
-    String outputPath = "generated-src/vdl"
+    String  = "generated-src/vdl"
     String transitiveVdlDir = "generated-src/transitive-vdl"
     String vdlToolPath = ""
     List<String> packageTranslations = ["v.io->io/v"]
