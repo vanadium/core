@@ -255,6 +255,9 @@ func (ip *ipHostPortFlagVar) Set(s string) error {
 // Implements flag.Value.String
 func (ip ipHostPortFlagVar) String() string {
 	s := ""
+	if ip.flags == nil {
+		return s
+	}
 	for _, a := range ip.flags.Addrs {
 		s += fmt.Sprintf("(%s %s)", a.Protocol, a.Address)
 	}
