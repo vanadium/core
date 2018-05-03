@@ -29,6 +29,7 @@ const (
 	// used by the Vanadium process runtime. Namely:
 	// --v23.namespace.root (which may be repeated to supply multiple values)
 	// --v23.credentials
+	// --v23.i18n-catalogue
 	// --v23.vtrace.sample-rate
 	// --v23.vtrace.dump-on-shutdown
 	// --v23.vtrace.cache-size
@@ -39,7 +40,6 @@ const (
 	// --v23.tcp.protocol
 	// --v23.tcp.address
 	// --v23.proxy
-	// --v23.i18n-catalogue
 	Listen
 	// --v23.permissions.file (which may be repeated to supply multiple values)
 	// Permissions files are named - i.e. --v23.permissions.file=<name>:<file>
