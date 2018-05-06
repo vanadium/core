@@ -38,6 +38,10 @@ type ManageLog interface {
 	// command line flags.
 	ConfigureFromFlags() error
 
+	// ConfigureFromArgs will configure the supplied logger using the supplied
+	// arguments.
+	ConfigureFromArgs(opts ...vlog.LoggingOpts) error
+
 	// ExplicitlySetFlags returns a map of the logging command line flags and their
 	// values formatted as strings.  Only the flags that were explicitly set are
 	// returned. This is intended for use when an application needs to know what
@@ -51,7 +55,9 @@ func (*dummy) LogDir() string { return "" }
 func (*dummy) Stats() (Info, Error struct{ Lines, Bytes int64 }) {
 	return struct{ Lines, Bytes int64 }{0, 0}, struct{ Lines, Bytes int64 }{0, 0}
 }
-func (*dummy) ConfigureFromFlags() error             { return nil }
+func (*dummy) ConfigureFromFlags() error                        { return nil }
+func (*dummy) ConfigureFromArgs(opts ...vlog.LoggingOpts) error { return nil }
+
 func (*dummy) ExplicitlySetFlags() map[string]string { return nil }
 
 // Manager determines if the supplied logging.Logger implements ManageLog and if so
