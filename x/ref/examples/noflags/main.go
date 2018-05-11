@@ -1,10 +1,9 @@
-// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Copyright 2017 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The following enables go generate to generate the doc.go file.
-//go:generate go run $GOPATH/src/v.io/vendor/v.io/x/lib/cmdline/testdata/gendoc.go . -help
-
+// An example using the 'library' factory which is configured via exported
+// variables rather than by command line flags.
 package main
 
 import (
@@ -12,12 +11,15 @@ import (
 	"v.io/x/ref/runtime/factories/library"
 )
 
-func init() {
-	library.AlsoLogToStderr = true
-}
-
 func main() {
+	// Ensure that logging goes to stderr and that the listen spec
+	// contains the test-proxy setting. These settings must be made
+	// before v23.Init() is called to have any effect.
+	library.AlsoLogToStderr = true
+	library.ListenProxy = "test-proxy"
 	ctx, shutdown := v23.Init()
-	ctx.Infof("hello world")
 	defer shutdown()
+	ctx.Infof("Listen spec %v", v23.GetListenSpec(ctx))
+	principal := v23.GetPrincipal(ctx)
+	ctx.Infof("Principal %s", principal.PublicKey())
 }
