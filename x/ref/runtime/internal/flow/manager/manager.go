@@ -786,7 +786,8 @@ func (m *manager) internalDial(
 			return nil, err
 		}
 	}
-	return dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, sideChannel)
+	fl, err := dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, sideChannel)
+	return fl, err
 }
 
 func (m *manager) dialReserved(
@@ -834,7 +835,11 @@ func (m *manager) dialReserved(
 			}
 			// Allow a canceled connection, whose handshake was completed
 			// to be cached.
+			if proxy {
+				pc, c = c, nil
+			}
 			err = nil
+			return
 		}
 	}
 
