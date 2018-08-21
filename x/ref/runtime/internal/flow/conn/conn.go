@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"os"
 	"reflect"
 	"sync"
 	"time"
@@ -158,7 +157,12 @@ type Conn struct {
 // Ensure that *Conn implements flow.ManagedConn.
 var _ flow.ManagedConn = &Conn{}
 
-// NewDialed dials a new Conn on the given conn.
+// NewDialed dials a new Conn on the given conn. It can return an error
+// indicating that the context was canceled (verror.ErrCanceled) along with a
+// a successfully established connection if the handshake completes within the
+// specified handshakeTimeout duration. Or put another way, NewDialed will always
+// wait for at most handshakeTimeout duration to complete the handshake
+// even if the context is canceled.
 func NewDialed(
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
@@ -221,6 +225,7 @@ func NewDialed(
 		}
 		names, rejected, rtt, err = c.dialHandshake(ctx, versions, auth)
 	}()
+	var canceled bool
 	timer := time.NewTimer(handshakeTimeout)
 	var ferr error
 	select {
@@ -229,20 +234,16 @@ func NewDialed(
 	case <-timer.C:
 		ferr = verror.NewErrTimeout(ctx)
 	case <-dctx.Done():
+		canceled = true
 		// The context has been canceled, but let's give this connection
-		// an opportunity to run to completion just in case this
-		// connection is racing to become established as per
+		// an opportunity to run to completion just in case this connection
+		// is racing to become established as per the race documented in:
 		// https://github.com/vanadium/core/issues/40.
-		timeout := time.Second
-		if dl, ok := dctx.Deadline(); ok {
-			// Respect the deadline set by the context.
-			timeout = dl.Sub(time.Now())
-		}
 		select {
 		case <-done:
-			fmt.Fprintf(os.Stderr, "CANCELED DONE: %v\n", remote)
-		case <-time.After(timeout):
-			fmt.Fprintf(os.Stderr, "CANCELED TIMEOUT: %v\n", remote)
+			// Handshake done.
+		case <-timer.C:
+			// Report the original cancelation and not the timeout.
 			c.Close(ctx, verror.NewErrCanceled(ctx))
 			return nil, nil, nil, ferr
 		}
@@ -270,7 +271,10 @@ func NewDialed(
 	c.mu.Lock()
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
-	return c, names, rejected, nil
+	if canceled {
+		ferr = verror.NewErrCanceled(ctx)
+	}
+	return c, names, rejected, ferr
 }
 
 // NewAccepted accepts a new Conn on the given conn.

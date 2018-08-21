@@ -827,8 +827,14 @@ func (m *manager) dialReserved(
 		// the case that we use the conn we dialed.  One idea is to have
 		// peerAuthorizer remember it's result since we only use it for
 		// this one invocation of internalDial.
-		if c, fh, err = m.dialConn(res.Context(), remote, auth, proxy); err != nil {
-			return
+		c, fh, err = m.dialConn(res.Context(), remote, auth, proxy)
+		if err != nil {
+			if verror.ErrorID(err) != verror.ErrCanceled.ID {
+				return
+			}
+			// Allow a canceled connection, whose handshake was completed
+			// to be cached.
+			err = nil
 		}
 	}
 
@@ -879,6 +885,11 @@ func (m *manager) dialConn(
 		0,
 		fh,
 	)
+	if verror.ErrorID(err) == verror.ErrCanceled.ID {
+		// If the connection was canceled, it may still be dialed, so
+		// allow it to be cached.
+		return c, fh, err
+	}
 	if err != nil {
 		flowConn.Close()
 		return nil, nil, iflow.MaybeWrapError(flow.ErrDialFailed, ctx, err)
