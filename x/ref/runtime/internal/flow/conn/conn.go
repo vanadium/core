@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"os"
 	"reflect"
 	"sync"
 	"time"
@@ -228,7 +229,23 @@ func NewDialed(
 	case <-timer.C:
 		ferr = verror.NewErrTimeout(ctx)
 	case <-dctx.Done():
-		ferr = verror.NewErrCanceled(ctx)
+		// The context has been canceled, but let's give this connection
+		// an opportunity to run to completion just in case this
+		// connection is racing to become established as per
+		// https://github.com/vanadium/core/issues/40.
+		timeout := time.Second
+		if dl, ok := dctx.Deadline(); ok {
+			// Respect the deadline set by the context.
+			timeout = dl.Sub(time.Now())
+		}
+		select {
+		case <-done:
+			fmt.Fprintf(os.Stderr, "CANCELED DONE: %v\n", remote)
+		case <-time.After(timeout):
+			fmt.Fprintf(os.Stderr, "CANCELED TIMEOUT: %v\n", remote)
+			c.Close(ctx, verror.NewErrCanceled(ctx))
+			return nil, nil, nil, ferr
+		}
 	}
 	timer.Stop()
 	if ferr != nil {
