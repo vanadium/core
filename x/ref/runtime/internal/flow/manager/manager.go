@@ -786,8 +786,7 @@ func (m *manager) internalDial(
 			return nil, err
 		}
 	}
-	fl, err := dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, sideChannel)
-	return fl, err
+	return dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, sideChannel)
 }
 
 func (m *manager) dialReserved(
@@ -886,6 +885,7 @@ func (m *manager) dialConn(
 		remote,
 		version.Supported,
 		auth,
+		false,
 		handshakeTimeout,
 		0,
 		fh,
@@ -927,6 +927,7 @@ func (m *manager) dialProxyConn(
 		remote,
 		version.Supported,
 		auth,
+		true,
 		handshakeTimeout,
 		0,
 		fh,
