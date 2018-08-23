@@ -62,7 +62,7 @@ func setupConnsWithTimeout(t *testing.T,
 			dep = ridep
 		}
 		dBlessings, _ := v23.GetPrincipal(dctx).BlessingStore().Default()
-		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, handshakeTimeout, channelTimeout, handler)
+		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, false, handshakeTimeout, channelTimeout, handler)
 		dch <- d
 		derrch <- err
 	}()
