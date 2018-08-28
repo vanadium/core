@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // The following enables go generate to generate the doc.go file.
-//go:generate go run $GOPATH/src/v.io/vendor/v.io/x/lib/cmdline/testdata/gendoc.go .
+//go:generate go run $GOPATH/src/v.io/x/lib/cmdline/testdata/gendoc.go .
 
 package main
 
@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"v.io/x/lib/cmdline"
@@ -63,6 +64,17 @@ specified mount name.
 `,
 }
 
+func handleErrors(errors []*naming.GlobError) error {
+	if len(errors) == 0 {
+		return nil
+	}
+	msg := ""
+	for _, err := range errors {
+		msg += fmt.Sprintf("%s: %v\n", err.Name, err.Error)
+	}
+	return fmt.Errorf("%v", strings.TrimSuffix(msg, "\n"))
+}
+
 func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 	if expected, got := 1, len(args); expected != got {
 		return env.UsageErrorf("glob: incorrect number of arguments, expected %d, got %d", expected, got)
@@ -79,6 +91,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 		ctx.Infof("ns.Glob(%q) failed: %v", pattern, err)
 		return err
 	}
+	errors := []*naming.GlobError{}
 	if flagLongGlob {
 		// Show all the information we received.
 		for res := range c {
@@ -91,14 +104,13 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 				}
 				fmt.Fprintln(env.Stdout)
 			case *naming.GlobReplyError:
-				fmt.Fprintf(env.Stderr, "Error: %s: %v\n", v.Value.Name, v.Value.Error)
+				errors = append(errors, &v.Value)
 			}
 		}
-		return nil
+		return handleErrors(errors)
 	}
 	// Show a sorted list of unique names, and any errors.
 	resultSet := make(map[string]struct{})
-	errors := []*naming.GlobError{}
 	for res := range c {
 		switch v := res.(type) {
 		case *naming.GlobReplyEntry:
@@ -114,10 +126,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 	for _, result := range results {
 		fmt.Fprintln(env.Stdout, result)
 	}
-	for _, err := range errors {
-		fmt.Fprintf(env.Stderr, "Error: %s: %v\n", err.Name, err.Error)
-	}
-	return nil
+	return handleErrors(errors)
 }
 
 var cmdMount = &cmdline.Command{
