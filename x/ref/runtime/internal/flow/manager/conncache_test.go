@@ -601,6 +601,7 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 		d, _, _, err := connpackage.NewDialed(ctx, dmrw, ep, ep,
 			version.RPCVersionRange{Min: 1, Max: 5},
 			flowtest.AllowAllPeersAuthorizer{},
+			false,
 			time.Minute, 0, nil)
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)

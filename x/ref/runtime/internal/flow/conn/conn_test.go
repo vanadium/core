@@ -13,6 +13,9 @@ import (
 	"testing"
 	"time"
 
+	"v.io/v23/verror"
+
+	"v.io/v23/context"
 	"v.io/v23/flow"
 	_ "v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/test"
@@ -160,7 +163,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	af2.Close()
 
 	// Setup new conns with a default channel timeout below the min.
-	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, time.Second)
+	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second)
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
@@ -182,4 +185,28 @@ func deadlineInAbout(c *Conn, d time.Duration) error {
 		return nil
 	}
 	return fmt.Errorf("got %v want %v (+-5s)", delta, d)
+}
+
+func TestHandshakeDespiteCancel(t *testing.T) {
+	// This test is specifically for the race documented in:
+	// https://github.com/vanadium/core/issues/40
+	// Even though the dial context is cancelled the handshake should
+	// complete, but returning an error that indicating that it
+	// was canceled.
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	dctx, dcancel := context.WithTimeout(ctx, time.Minute)
+	dflows, aflows := make(chan flow.Flow, 1), make(chan flow.Flow, 1)
+	dcancel()
+	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second)
+	if aerr != nil {
+		t.Errorf("accept unexpectedly failed: %v", aerr)
+	}
+	if got, want := verror.ErrorID(derr), verror.ErrCanceled.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	defer dc.Close(ctx, nil)
+	defer ac.Close(ctx, nil)
 }
