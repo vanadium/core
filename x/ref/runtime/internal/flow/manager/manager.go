@@ -6,7 +6,9 @@ package manager
 
 import (
 	"fmt"
+	"io"
 	"net"
+	"os"
 	"strings"
 	"sync"
 	"syscall"
@@ -569,7 +571,49 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				m.acceptChannelTimeout,
 				fh)
 			if err != nil {
-				ctx.Errorf("failed to accept flow.Conn on localEP %v failed: %v", local, err)
+				// We don't want probing from load balancers or Prometheus to cause
+				// the error log to be noisy so we skip logging an err in the following
+				// cases:
+				//
+				// (1) 'message of type 127 and size 0 failed decoding at field 0: <nil>'
+				//
+				// This can be trigger using "echo -e '\xff\xff\xff' | nc ...".
+				//
+				// (2) 'error reading from unknown: EOF'
+				//
+				// This can be trigger using nc to connect to a tcp Vanadium endpoint
+				// and then typing Ctrl-C after receiving the first message. Another way
+				// is using 'nc ... & p=$! && sleep 1 && kill -s SIGINT ${p}'
+				//
+				// (3) 'read: connection reset by peer'.
+				//
+				// This can be trigger using 'nmap -sT' to a tcp Vanadium endpoint.
+				skip := false
+				if verror.ErrorID(err) == conn.ErrRecv.ID {
+					verr := err.(verror.E)
+					if verr.ParamList[3] == io.EOF {
+						skip = true
+					}
+					switch p := verr.ParamList[3].(type) {
+					case *net.OpError:
+						sysErr, ok := p.Err.(*os.SyscallError)
+						if ok && sysErr.Err == syscall.ECONNRESET {
+							skip = true
+						}
+					case verror.E:
+						if p.ID == message.ErrInvalidMsg.ID {
+							if p.ParamList[2].(uint8) == 127 && p.ParamList[3].(uint64) == 0 && p.ParamList[4].(uint64) == 0 {
+								skip = true
+							}
+						}
+					}
+					line := fmt.Sprintf("failed to accept flow.Conn on localEP %v failed: %v", local, err)
+					if !skip {
+						ctx.Error(line)
+					} else {
+						ctx.VI(1).Info(line)
+					}
+				}
 				flowConn.Close()
 			} else if err = m.cache.InsertWithRoutingID(c, false); err != nil {
 				ctx.Errorf("failed to cache conn %v: %v", c, err)
@@ -827,7 +871,17 @@ func (m *manager) dialReserved(
 		// the case that we use the conn we dialed.  One idea is to have
 		// peerAuthorizer remember it's result since we only use it for
 		// this one invocation of internalDial.
-		if c, fh, err = m.dialConn(res.Context(), remote, auth, proxy); err != nil {
+		c, fh, err = m.dialConn(res.Context(), remote, auth, proxy)
+		if err != nil {
+			if verror.ErrorID(err) != verror.ErrCanceled.ID {
+				return
+			}
+			// Allow a canceled connection, whose handshake was completed
+			// to be cached.
+			if proxy {
+				pc, c = c, nil
+			}
+			err = nil
 			return
 		}
 	}
@@ -875,10 +929,16 @@ func (m *manager) dialConn(
 		remote,
 		version.Supported,
 		auth,
+		false,
 		handshakeTimeout,
 		0,
 		fh,
 	)
+	if verror.ErrorID(err) == verror.ErrCanceled.ID {
+		// If the connection was canceled, it may still be dialed, so
+		// allow it to be cached.
+		return c, fh, err
+	}
 	if err != nil {
 		flowConn.Close()
 		return nil, nil, iflow.MaybeWrapError(flow.ErrDialFailed, ctx, err)
@@ -911,6 +971,7 @@ func (m *manager) dialProxyConn(
 		remote,
 		version.Supported,
 		auth,
+		true,
 		handshakeTimeout,
 		0,
 		fh,

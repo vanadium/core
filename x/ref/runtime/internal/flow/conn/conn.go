@@ -157,13 +157,21 @@ type Conn struct {
 // Ensure that *Conn implements flow.ManagedConn.
 var _ flow.ManagedConn = &Conn{}
 
-// NewDialed dials a new Conn on the given conn.
+// NewDialed dials a new Conn on the given conn. In the case when it is not
+// dialing a proxy, it can return an error indicating that the context was canceled
+// (verror.ErrCanceled) along with a handshake completes within the
+// specified handshakeTimeout duration. Or put another way, NewDialed will
+// always waut for at most handshakeTimeout duration to complete the handshake
+// even if the context is canceled. The behaviour is different for a proxy
+// connection, in which case a cancelation is immediate and no attempt is made
+// to establish the connection.
 func NewDialed(
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer,
+	proxy bool,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
@@ -171,6 +179,7 @@ func NewDialed(
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()
 	}
+
 	dctx := ctx
 	ctx, cancel := context.WithRootCancel(ctx)
 	if channelTimeout == 0 {
@@ -220,6 +229,7 @@ func NewDialed(
 		}
 		names, rejected, rtt, err = c.dialHandshake(ctx, versions, auth)
 	}()
+	var canceled bool
 	timer := time.NewTimer(handshakeTimeout)
 	var ferr error
 	select {
@@ -228,8 +238,25 @@ func NewDialed(
 	case <-timer.C:
 		ferr = verror.NewErrTimeout(ctx)
 	case <-dctx.Done():
-		ferr = verror.NewErrCanceled(ctx)
+		if proxy {
+			ferr = verror.NewErrCanceled(ctx)
+		} else {
+			// The context has been canceled, but let's give this connection
+			// an opportunity to run to completion just in case this connection
+			// is racing to become established as per the race documented in:
+			// https://github.com/vanadium/core/issues/40.
+			select {
+			case <-done:
+				canceled = true
+				// Handshake done.
+			case <-timer.C:
+				// Report the timeout not the cancelation, hence
+				// leave canceled as false.
+				ferr = verror.NewErrTimeout(ctx)
+			}
+		}
 	}
+
 	timer.Stop()
 	if ferr != nil {
 		c.Close(ctx, ferr)
@@ -253,7 +280,10 @@ func NewDialed(
 	c.mu.Lock()
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
-	return c, names, rejected, nil
+	if canceled {
+		ferr = verror.NewErrCanceled(ctx)
+	}
+	return c, names, rejected, ferr
 }
 
 // NewAccepted accepts a new Conn on the given conn.
