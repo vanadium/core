@@ -323,7 +323,7 @@ func SetDefaultHostPort(s string) {
 }
 
 // SetDefaultNamespaceRoots sets the default value for --v23.namespace.root
-func SetDefaultNamespaceRoots(roots []string) {
+func SetDefaultNamespaceRoots(roots ...string) {
 	namespaceMu.Lock()
 	defaultNamespaceRoots = roots
 	namespaceMu.Unlock()
