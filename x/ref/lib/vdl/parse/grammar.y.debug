@@ -4293,14 +4293,14 @@ state 299
 
 
 58 terminals, 49 nonterminals
-149 grammar rules, 300/2000 states
+149 grammar rules, 300/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 98 working sets used
-memory: parser 590/30000
+memory: parser 590/120000
 141 extra closures
 1326 shift entries, 5 exceptions
 192 goto entries
 303 entries saved by goto default
-Optimizer space used: output 813/30000
+Optimizer space used: output 813/120000
 813 table entries, 164 zero
 maximum spread: 56, maximum offset: 290

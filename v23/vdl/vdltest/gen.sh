@@ -8,6 +8,8 @@
 # Don't set -f, since we need wildcard expansion.
 set -eu -o pipefail
 
+go install v.io/x/ref/cmd/vdl
+
 # First remove all generated files, since vdltestgen depends on the vdltest
 # package.  It's annoying during development if we generate invalid code, since
 # we won't be able to rebuild vdltestgen in order generate new code.  By

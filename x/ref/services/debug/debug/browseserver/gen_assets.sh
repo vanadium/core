@@ -5,7 +5,7 @@
 
 # Generate the assets.go source file, by running go-bindata.
 
-set -exuf -o pipefail
+set -euf -o pipefail
 
 # Install go-bindata.
 export GOPATH=$(mktemp -d)

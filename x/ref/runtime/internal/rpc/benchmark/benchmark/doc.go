@@ -1,4 +1,4 @@
-// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Copyright 2018 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -41,39 +41,49 @@ The global flags are:
  -stderrthreshold=2
    logs at or above this threshold go to stderr
  -test.bench=
-   regular expression per path component to select benchmarks to run
+   run only benchmarks matching `regexp`
  -test.benchmem=false
    print memory allocations for benchmarks
  -test.benchtime=1s
-   approximate run time for each benchmark
+   run each benchmark for duration `d`
  -test.blockprofile=
-   write a goroutine blocking profile to the named file after execution
+   write a goroutine blocking profile to `file`
  -test.blockprofilerate=1
-   if >= 0, calls runtime.SetBlockProfileRate()
+   set blocking profile `rate` (see runtime.SetBlockProfileRate)
  -test.count=1
    run tests and benchmarks `n` times
  -test.coverprofile=
-   write a coverage profile to the named file after execution
+   write a coverage profile to `file`
  -test.cpu=
-   comma-separated list of number of CPUs to use for each test
+   comma-separated `list` of cpu counts to run each test with
  -test.cpuprofile=
-   write a cpu profile to the named file during execution
+   write a cpu profile to `file`
+ -test.failfast=false
+   do not start new tests after the first test failure
+ -test.list=
+   list tests, examples, and benchmarks matching `regexp` then exit
  -test.memprofile=
-   write a memory profile to the named file after execution
+   write a memory profile to `file`
  -test.memprofilerate=0
-   if >=0, sets runtime.MemProfileRate
+   set memory profiling `rate` (see runtime.MemProfileRate)
+ -test.mutexprofile=
+   write a mutex contention profile to the named file after execution
+ -test.mutexprofilefraction=1
+   if >= 0, calls runtime.SetMutexProfileFraction()
  -test.outputdir=
-   directory in which to write profiles
+   write profiles to `dir`
  -test.parallel=<number of threads>
-   maximum test parallelism
+   run at most `n` tests in parallel
  -test.run=
-   regular expression to select tests and examples to run
+   run only tests and examples matching `regexp`
  -test.short=false
    run smaller test suite to save time
+ -test.testlogfile=
+   write test action log to `file` (for use only by cmd/go)
  -test.timeout=0s
-   if positive, sets an aggregate time limit for all tests
+   panic test binary after duration `d` (default 0, timeout disabled)
  -test.trace=
-   write an execution trace to the named file after execution
+   write an execution trace to `file`
  -test.v=false
    verbose: print additional output
  -time=false
