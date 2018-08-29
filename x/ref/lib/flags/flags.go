@@ -51,8 +51,10 @@ const (
 )
 
 var (
-	defaultNamespaceRoot = "/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101" // GUARDED_BY namespaceMu
-	namespaceMu          sync.Mutex
+	defaultNamespaceRoots = []string{
+		"/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101",
+	} // GUARDED_BY namespaceMu
+	namespaceMu sync.Mutex
 
 	defaultProtocol = "wsh" // GUARDED_BY listenMu
 	defaultHostPort = ":0"  // GUARDED_BY listenMu
@@ -274,14 +276,15 @@ func createAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
 		i18nCatalogue = os.Getenv(ref.EnvI18nCatalogueFiles)
 	)
 	if len(roots) == 0 {
-		f.namespaceRootsFlag.roots = []string{defaultNamespaceRoot}
+		f.namespaceRootsFlag.roots = defaultNamespaceRoots
 		f.namespaceRootsFlag.isDefault = true
 	} else {
 		f.namespaceRootsFlag.roots = roots
 	}
 
 	fs.Var(&f.namespaceRootsFlag, "v23.namespace.root", "local namespace root; can be repeated to provided multiple roots")
-	fs.Lookup("v23.namespace.root").DefValue = "[" + defaultNamespaceRoot + "]"
+	fs.Lookup("v23.namespace.root").DefValue =
+		"[" + strings.Join(defaultNamespaceRoots, ",") + "]"
 	fs.StringVar(&f.Credentials, "v23.credentials", creds, "directory to use for storing security credentials")
 	fs.Lookup("v23.credentials").DefValue = ""
 	fs.StringVar(&f.I18nCatalogue, "v23.i18n-catalogue", i18nCatalogue, "18n catalogue files to load, comma separated")
@@ -319,18 +322,18 @@ func SetDefaultHostPort(s string) {
 	listenMu.Unlock()
 }
 
-// SetDefaultNamespaceRoot sets the default value for --v23.namespace.root
-func SetDefaultNamespaceRoot(root string) {
+// SetDefaultNamespaceRoots sets the default value for --v23.namespace.root
+func SetDefaultNamespaceRoots(roots ...string) {
 	namespaceMu.Lock()
-	defaultNamespaceRoot = root
+	defaultNamespaceRoots = roots
 	namespaceMu.Unlock()
 }
 
-// DefaultNamespaceRoot gets the default value of --v23.namespace.root
-func DefaultNamespaceRoot() string {
+// DefaultNamespaceRoots gets the default value of --v23.namespace.root
+func DefaultNamespaceRoots() []string {
 	namespaceMu.Lock()
 	defer namespaceMu.Unlock()
-	return defaultNamespaceRoot
+	return defaultNamespaceRoots
 }
 
 // createAndRegisterListenFlags creates and registers the ListenFlags
@@ -385,7 +388,7 @@ func refreshDefaults(f *Flags) {
 		switch v := g.(type) {
 		case *RuntimeFlags:
 			if v.namespaceRootsFlag.isDefault {
-				v.namespaceRootsFlag.roots = []string{defaultNamespaceRoot}
+				v.namespaceRootsFlag.roots = defaultNamespaceRoots
 				v.NamespaceRoots = v.namespaceRootsFlag.roots
 			}
 		case *ListenFlags:

@@ -346,8 +346,8 @@ func TestConfig(t *testing.T) {
 }
 
 func TestRefreshDefaults(t *testing.T) {
-	orig := flags.DefaultNamespaceRoot()
-	defer flags.SetDefaultNamespaceRoot(orig)
+	orig := flags.DefaultNamespaceRoots()
+	defer flags.SetDefaultNamespaceRoots(orig...)
 	defer flags.SetDefaultHostPort(":0")
 	defer flags.SetDefaultProtocol("wsh")
 
@@ -356,7 +356,7 @@ func TestRefreshDefaults(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
 	// It's possible to set defaults after CreateAndRegister, but before Parse.
-	flags.SetDefaultNamespaceRoot(nsRoot)
+	flags.SetDefaultNamespaceRoots(nsRoot)
 	flags.SetDefaultHostPort(hostPort)
 	flags.SetDefaultProtocol("tcp6")
 	fl.Parse([]string{}, nil)
@@ -370,7 +370,7 @@ func TestRefreshDefaults(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	changed := "/128.1.1.1:1"
-	flags.SetDefaultNamespaceRoot(changed)
+	flags.SetDefaultNamespaceRoots(changed)
 	fl.Parse([]string{}, nil)
 	rtf = fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots, []string{changed}; !reflect.DeepEqual(got, want) {
@@ -379,8 +379,8 @@ func TestRefreshDefaults(t *testing.T) {
 }
 
 func TestRefreshAlreadySetDefaults(t *testing.T) {
-	orig := flags.DefaultNamespaceRoot()
-	defer flags.SetDefaultNamespaceRoot(orig)
+	orig := flags.DefaultNamespaceRoots()
+	defer flags.SetDefaultNamespaceRoots(orig...)
 	defer flags.SetDefaultHostPort(":0")
 	defer flags.SetDefaultProtocol("wsh")
 
@@ -393,7 +393,7 @@ func TestRefreshAlreadySetDefaults(t *testing.T) {
 	if got, want := rtf.NamespaceRoots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	flags.SetDefaultNamespaceRoot("/128.1.1.1:2")
+	flags.SetDefaultNamespaceRoots("/128.1.1.1:2")
 	flags.SetDefaultHostPort("128.0.0.1:11")
 	fl.Parse([]string{}, nil)
 	rtf = fl.RuntimeFlags()

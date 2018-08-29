@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"v.io/x/lib/cmdline"
@@ -41,14 +42,17 @@ var (
 	flagInsecureResolveToMT bool
 	flagDeleteSubtree       bool
 	flagShallowResolve      bool
+	flagErrorOnAnyError     bool
 )
 
 func init() {
 	cmdGlob.Flags.BoolVar(&flagLongGlob, "l", false, "Long listing format.")
+	cmdGlob.Flags.BoolVar(&flagErrorOnAnyError, "fail-on-any-error", false, "exit on any error, by default glob will report errors but not return a non-zero exit code")
 	cmdResolve.Flags.BoolVar(&flagInsecureResolve, "insecure", false, "Insecure mode: May return results from untrusted servers and invoke Resolve on untrusted mounttables")
 	cmdResolve.Flags.BoolVar(&flagShallowResolve, "s", false, "True to perform a shallow resolution")
 	cmdResolveToMT.Flags.BoolVar(&flagInsecureResolveToMT, "insecure", false, "Insecure mode: May return results from untrusted servers and invoke Resolve on untrusted mounttables")
 	cmdDelete.Flags.BoolVar(&flagDeleteSubtree, "r", false, "Delete all children of the name in addition to the name itself.")
+
 }
 
 var cmdGlob = &cmdline.Command{
@@ -61,6 +65,23 @@ var cmdGlob = &cmdline.Command{
 <pattern> is a glob pattern that is matched against all the names below the
 specified mount name.
 `,
+}
+
+func handleErrors(successes int, errors []*naming.GlobError) error {
+	if len(errors) == 0 {
+		return nil
+	}
+	if !flagErrorOnAnyError && successes > 0 {
+		for _, err := range errors {
+			fmt.Fprintf(os.Stderr, "%s: %v\n", err.Name, err.Error)
+		}
+		return nil
+	}
+	msg := ""
+	for _, err := range errors {
+		msg += fmt.Sprintf("%s: %v\n", err.Name, err.Error)
+	}
+	return fmt.Errorf("%v", strings.TrimSuffix(msg, "\n"))
 }
 
 func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
@@ -79,6 +100,8 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 		ctx.Infof("ns.Glob(%q) failed: %v", pattern, err)
 		return err
 	}
+	errors := []*naming.GlobError{}
+	successes := 0
 	if flagLongGlob {
 		// Show all the information we received.
 		for res := range c {
@@ -90,21 +113,22 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 					fmt.Fprintf(env.Stdout, " %s (Expires in %d sec)", s.Server, int(delta.Seconds()))
 				}
 				fmt.Fprintln(env.Stdout)
+				successes++
 			case *naming.GlobReplyError:
-				fmt.Fprintf(env.Stderr, "Error: %s: %v\n", v.Value.Name, v.Value.Error)
+				errors = append(errors, &v.Value)
 			}
 		}
-		return nil
+		return handleErrors(successes, errors)
 	}
 	// Show a sorted list of unique names, and any errors.
 	resultSet := make(map[string]struct{})
-	errors := []*naming.GlobError{}
 	for res := range c {
 		switch v := res.(type) {
 		case *naming.GlobReplyEntry:
 			if v.Value.Name != "" {
 				resultSet[v.Value.Name] = struct{}{}
 			}
+			successes++
 		case *naming.GlobReplyError:
 			errors = append(errors, &v.Value)
 		}
@@ -114,10 +138,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 	for _, result := range results {
 		fmt.Fprintln(env.Stdout, result)
 	}
-	for _, err := range errors {
-		fmt.Fprintf(env.Stderr, "Error: %s: %v\n", err.Name, err.Error)
-	}
-	return nil
+	return handleErrors(successes, errors)
 }
 
 var cmdMount = &cmdline.Command{

@@ -46,7 +46,7 @@ func defaultRoots() []string {
 	if len(envRoots) > 0 {
 		return envRoots
 	}
-	return []string{flags.DefaultNamespaceRoot()}
+	return flags.DefaultNamespaceRoots()
 }
 
 var (
