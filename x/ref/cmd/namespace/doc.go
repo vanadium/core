@@ -90,6 +90,9 @@ Usage:
 specified mount name.
 
 The namespace glob flags are:
+ -fail-on-any-error=false
+   exit on any error, by default glob will report errors but not return a
+   non-zero exit code
  -l=false
    Long listing format.
 
