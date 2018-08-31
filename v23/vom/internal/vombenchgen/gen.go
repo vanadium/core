@@ -5,7 +5,7 @@
 // Generator for VOM benchmarks.
 
 // The following generates the benchmarks
-//go:generate $JIRI_ROOT/release/go/src/v.io/v23/vom/internal/gen/gen.sh
+//go:generate ./gen.sh
 
 package main
 

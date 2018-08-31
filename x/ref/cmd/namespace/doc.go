@@ -1,4 +1,4 @@
-// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Copyright 2018 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -90,6 +90,9 @@ Usage:
 specified mount name.
 
 The namespace glob flags are:
+ -fail-on-any-error=false
+   exit on any error, by default glob will report errors but not return a
+   non-zero exit code
  -l=false
    Long listing format.
 

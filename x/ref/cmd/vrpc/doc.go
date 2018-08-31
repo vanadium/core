@@ -1,4 +1,4 @@
-// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Copyright 2018 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -19,6 +19,8 @@ The vrpc commands are:
    help        Display help for commands or topics
 
 The vrpc flags are:
+ -json=false
+   if true, output a JSON representation of the response
  -s=false
    if true, perform a shallow resolve
 
@@ -98,6 +100,8 @@ The vrpc signature flags are:
  -show-reserved=false
    if true, also show the signatures of reserved methods
 
+ -json=false
+   if true, output a JSON representation of the response
  -s=false
    if true, perform a shallow resolve
 
@@ -132,6 +136,8 @@ the server, or an object name that will be resolved to an end-point.
 [args...] are the positional input arguments, specified as VDL expressions.
 
 The vrpc call flags are:
+ -json=false
+   if true, output a JSON representation of the response
  -s=false
    if true, perform a shallow resolve
 
@@ -152,6 +158,8 @@ The vrpc identify flags are:
    If true, skip server authentication. This means that the client will reveal
    its blessings to servers that it may not recognize.
 
+ -json=false
+   if true, output a JSON representation of the response
  -s=false
    if true, perform a shallow resolve
 

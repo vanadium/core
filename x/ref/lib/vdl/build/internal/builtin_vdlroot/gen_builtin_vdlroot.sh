@@ -7,12 +7,22 @@
 
 set -euf -o pipefail
 
-# Install go-bindata
-jiri go install github.com/jteeuwen/go-bindata/...
+# Install go-bindata.
+SAVED_GOPATH="$GOPATH"
+GO_TMP=$(mktemp -d)
+export GOPATH="${GO_TMP}"
+mkdir ${GOPATH}/src
+go get  github.com/jteeuwen/go-bindata/...
+GOPATH="${SAVED_GOPATH}"
 
-PREFIX="${JIRI_ROOT}/release/go/src"
-VDLROOT="${PREFIX}/v.io/v23/vdlroot"
-X="${PREFIX}/v.io/x/ref/lib/vdl/build/internal/builtin_vdlroot/builtin_vdlroot"
+for PREFIX in ${GOPATH//:/ }; do
+	if [[ -d "${PREFIX}/src/v.io/v23/vdlroot" ]]; then
+		VDLROOT="${PREFIX}/src/v.io/v23/vdlroot"
+		X="${PREFIX}/src/v.io/x/ref/lib/vdl/build/internal/builtin_vdlroot/builtin_vdlroot"
+		break
+	fi
+done
+
 OUT="${X}.go"
 TMP="${X}.tmp.go"
 
@@ -20,7 +30,7 @@ TMP="${X}.tmp.go"
 cd "${PREFIX}"
 
 # Run go-bindata to generate the file to a tmp file.
-jiri run "${JIRI_ROOT}/third_party/go/bin/go-bindata" -o "${TMP}" -pkg builtin_vdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
+"${GO_TMP}/bin/go-bindata" -o "${TMP}" -pkg builtin_vdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
 
 # Format the file and add the copyright header.
 gofmt -l -w "${TMP}"
@@ -31,5 +41,6 @@ cat - "${TMP}" >  "${OUT}" <<EOF
 
 EOF
 
-# Remove the tmp file.
-rm "${TMP}"
+# Remove the tmp files.
+rm "${TMP}" 
+rm -rf "${GO_TMP}"

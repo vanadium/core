@@ -10,16 +10,18 @@
 
 set -euf -o pipefail
 
-# Install go-bindata
-jiri go install github.com/jteeuwen/go-bindata/...
+# Install go-bindata.
+export GOPATH=$(mktemp -d)
+mkdir ${GOPATH}/src
+go get github.com/jteeuwen/go-bindata/...
 
 DIR=$(dirname $0)
 cd "${DIR}/assets"
 OUT="assets.go"
 TMP="assets.tmp.go"
 
-jiri run "${JIRI_ROOT}/third_party/go/bin/go-bindata" -o "${TMP}" -pkg assets -ignore '\.go$' -nometadata -mode 0644 .
-jiri go fmt "${TMP}" >/dev/null
+"${GOPATH}/bin/go-bindata" -o "${TMP}" -pkg assets -ignore '\.go$' -nometadata -mode 0644 .
+go fmt "${TMP}" >/dev/null
 cat - "${TMP}" > "${OUT}" << EOF
 // Copyright 2016 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
