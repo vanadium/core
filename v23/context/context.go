@@ -74,6 +74,7 @@
 package context
 
 import (
+	gocontext "context"
 	"errors"
 	"fmt"
 	"os"
@@ -90,6 +91,14 @@ const (
 	rootKey = internalKey(iota)
 	cancelKey
 	deadlineKey
+
+	// vmarker is never stored as a key. However,
+	// gocontext.Context.Value(vmarkerKey) will return a *T object if there's a *T
+	// object in the context chain. So you can use it to discover the logger even
+	// if you don't know the concrete representation of the context object.
+	vmarkerKey
+	// gomarker is stored as a key in T wrapping a generic gocontext.Context.
+	gomarkerKey
 )
 
 // ContextLogger is a logger that uses a passed in T to configure
@@ -130,6 +139,7 @@ var DeadlineExceeded = errors.New("context deadline exceeded")
 // hence can be used directly for logging (e.g. ctx.Infof(...)).
 type T struct {
 	parent     *T
+	goparent   gocontext.Context
 	logger     logging.Logger
 	ctxLogger  ContextLogger
 	key, value interface{}
@@ -181,9 +191,18 @@ func (t *T) Initialized() bool {
 // Any type that supports equality can be used as a key, but an
 // unexported type should be used to prevent collisions.
 func (t *T) Value(key interface{}) interface{} {
+	if key == vmarkerKey {
+		return t
+	}
 	for t != nil {
 		if key == t.key {
 			return t.value
+		}
+		if t.goparent != nil {
+			if t.parent != nil {
+				panic(t)
+			}
+			return t.goparent.Value(key)
 		}
 		t = t.parent
 	}
@@ -393,6 +412,40 @@ func withDeadlineState(parent *T, deadline time.Time, timeout time.Duration) (*T
 	t, cs, cancelParent := withCancelState(parent)
 	ds := &deadlineState{deadline, time.AfterFunc(timeout, makeCancelFunc(cs, cancelParent, nil, DeadlineExceeded))}
 	return WithValue(t, deadlineKey, ds), makeCancelFunc(cs, cancelParent, ds.timer, Canceled)
+}
+
+// FromGoContext creates a Vanadium Context object from a generic Context.
+//
+// Note: a goroutine will leak if the original context is not cancelled.
+func FromGoContext(ctx gocontext.Context) *T {
+	if vctx, ok := ctx.(*T); ok {
+		return vctx
+	}
+	var (
+		logger    logging.Logger = logging.Discard
+		ctxLogger ContextLogger
+	)
+	if vparent := ctx.Value(vmarkerKey); vparent != nil {
+		logger = vparent.(*T).logger
+		ctxLogger = vparent.(*T).ctxLogger
+	}
+	t, cancel := WithCancel(&T{
+		goparent:  ctx,
+		logger:    logger,
+		ctxLogger: ctxLogger,
+		key:       gomarkerKey,
+	})
+	if done := ctx.Done(); done != nil {
+		// Propagate the cancellation.
+		go func() {
+			select {
+			case <-done:
+				cancel()
+			case <-t.Done():
+			}
+		}()
+	}
+	return t
 }
 
 // WithRootContext returns a context derived from parent, but that is
