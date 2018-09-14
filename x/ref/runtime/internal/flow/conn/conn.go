@@ -497,7 +497,7 @@ func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 			// they have been initialized. The simplest fix is to just
 			// initialize them here.
 			c.hcstate = c.newHealthChecksLocked(ctx, timeout)
-			vlog.Infof("initialzing health checks on first refresh")
+			vlog.VI(0).Infof("healthCheckNewFlowLocked: initializing health checks on first refresh: conn %p, timeout: %v", c, timeout)
 			return
 		}
 		if min := minChannelTimeout[c.local.Protocol]; timeout < min {
