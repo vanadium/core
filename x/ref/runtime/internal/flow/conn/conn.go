@@ -20,6 +20,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	"v.io/x/lib/vlog"
 	slib "v.io/x/ref/lib/security"
 )
 
@@ -435,7 +436,7 @@ func (c *Conn) RTT() time.Duration {
 	return rtt
 }
 
-func (c *Conn) initializeHealthChecks(ctx *context.T, firstRTT time.Duration) {
+func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *healthCheckState {
 	now := time.Now()
 	h := &healthCheckState{
 		requestDeadline: now.Add(c.acceptChannelTimeout / 2),
@@ -453,9 +454,16 @@ func (c *Conn) initializeHealthChecks(ctx *context.T, firstRTT time.Duration) {
 		c.mu.Unlock()
 	})
 	h.requestTimer = requestTimer
+	return h
+}
+
+func (c *Conn) initializeHealthChecks(ctx *context.T, firstRTT time.Duration) {
 	c.mu.Lock()
-	c.hcstate = h
-	c.mu.Unlock()
+	defer c.mu.Unlock()
+	if c.hcstate != nil {
+		return
+	}
+	c.hcstate = c.newHealthChecksLocked(ctx, firstRTT)
 }
 
 func (c *Conn) handleHealthCheckResponse(ctx *context.T) {
@@ -482,6 +490,16 @@ func (c *Conn) handleHealthCheckResponse(ctx *context.T) {
 
 func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 	if timeout != 0 {
+		if c.hcstate == nil {
+			// There's a scheduling race between initializing healthchecks
+			// and accepting a connection since each is handled on a different
+			// goroutine. Hence this may to update the health checks before
+			// they have been initialized. The simplest fix is to just
+			// initialize them here.
+			c.hcstate = c.newHealthChecksLocked(ctx, timeout)
+			vlog.VI(0).Infof("healthCheckNewFlowLocked: initializing health checks on first refresh: conn %p, timeout: %v", c, timeout)
+			return
+		}
 		if min := minChannelTimeout[c.local.Protocol]; timeout < min {
 			timeout = min
 		}
