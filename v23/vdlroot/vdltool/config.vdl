@@ -20,6 +20,7 @@ type Config struct {
 	Java       JavaConfig
 	Javascript JavascriptConfig
 	Swift      SwiftConfig
+	Python     PythonConfig
 }
 
 // GenLanguage enumerates the known code generation languages.
@@ -28,6 +29,7 @@ type GenLanguage enum {
 	Java
 	Javascript
 	Swift
+	Python
 }
 
 // GoConfig specifies go specific configuration.
@@ -237,4 +239,8 @@ type SwiftConfig struct {
 	// The code generator assumes that the conversion functions will be registered
 	// in Swift vdl package.
 	WireToNativeTypes map[string]string
+}
+
+// PythonConfig specifics python specific configuration for this package.
+type PythonConfig struct {
 }
