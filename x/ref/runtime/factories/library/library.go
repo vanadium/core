@@ -194,6 +194,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		publisher = pubsub.NewPublisher()
 	}
 
+	RuntimeFlags.NamespaceRoots = defaultRoots()
 	runtime, ctx, shutdown, err := rt.Init(ctx, ac, discoveryFactory, nil, nil, &listenSpec, publisher, RuntimeFlags, reservedDispatcher, 0)
 	if err != nil {
 		ishutdown()
