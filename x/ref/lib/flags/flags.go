@@ -316,21 +316,35 @@ func (ip ipHostPortFlagVar) String() string {
 	return s
 }
 
-// createAndRegisterRuntimeFlags creates and registers the RuntimeFlags
-// group with the supplied flag.FlagSet.
-func createAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
-	var (
-		f        = &RuntimeFlags{}
-		_, roots = ref.EnvNamespaceRoots()
-	)
+// CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
+// with the supplied flag.FlagSet.
+func CreateAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
+	rf := NewRuntimeFlags()
+	RegisterRuntimeFlags(fs, rf)
+	return rf
+}
+
+// NewRuntimeFlags creates a new RuntimeFlags with appropriate defaults.
+func NewRuntimeFlags() *RuntimeFlags {
+	rf := &RuntimeFlags{}
+	_, roots := ref.EnvNamespaceRoots()
 	if len(roots) == 0 {
-		f.namespaceRootsFlag.roots = DefaultNamespaceRoots()
-		f.namespaceRootsFlag.isDefault = true
+		rf.namespaceRootsFlag.roots = DefaultNamespaceRoots()
+		rf.namespaceRootsFlag.isDefault = true
 	} else {
-		f.namespaceRootsFlag.roots = roots
+		rf.namespaceRootsFlag.roots = roots
 	}
-	RegisterRuntimeFlags(fs, f)
-	return f
+	rf.NamespaceRoots = DefaultNamespaceRoots()
+	rf.Credentials = DefaultCredentialsDir()
+	rf.I18nCatalogue = DefaultI18nCatalogue()
+	rf.Vtrace = VtraceFlags{
+		SampleRate:     0.0,
+		DumpOnShutdown: true,
+		CacheSize:      1024,
+		LogLevel:       0,
+		CollectRegexp:  "",
+	}
+	return rf
 }
 
 // RegisterRuntimeFlags registers the supplied RuntimeFlags variable with
@@ -338,7 +352,7 @@ func createAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
 func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
 	fs.Var(&f.namespaceRootsFlag, "v23.namespace.root", "local namespace root; can be repeated to provided multiple roots")
 	fs.Lookup("v23.namespace.root").DefValue =
-		"[" + strings.Join(defaultNamespaceRoots, ",") + "]"
+		"[" + strings.Join(DefaultNamespaceRoots(), ",") + "]"
 	fs.StringVar(&f.Credentials, "v23.credentials", DefaultCredentialsDir(), "directory to use for storing security credentials")
 	fs.Lookup("v23.credentials").DefValue = ""
 	fs.StringVar(&f.I18nCatalogue, "v23.i18n-catalogue", DefaultI18nCatalogue(), "18n catalogue files to load, comma separated")
@@ -351,10 +365,17 @@ func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
 	fs.StringVar(&f.Vtrace.CollectRegexp, "v23.vtrace.collect-regexp", "", "Spans and annotations that match this regular expression will trigger trace collection.")
 }
 
-func createAndRegisterPermissionsFlags(fs *flag.FlagSet) *PermissionsFlags {
-	f := &PermissionsFlags{}
-	RegisterPermissionsFlags(fs, f)
-	return f
+// CreateAndRegisterPermissionsFlags creates and registers a PermissionsFlags
+// with the supplied FlagSet.
+func CreateAndRegisterPermissionsFlags(fs *flag.FlagSet) *PermissionsFlags {
+	pf := NewPermissionsFlags()
+	RegisterPermissionsFlags(fs, pf)
+	return pf
+}
+
+// NewPermissionsFlags creates a PermissionsFlags with appropriate defaults.
+func NewPermissionsFlags() *PermissionsFlags {
+	return &PermissionsFlags{}
 }
 
 // RegisterPermissionsFlags registers the supplied PermissionsFlags with
@@ -469,25 +490,28 @@ func DefaultI18nCatalogue() string {
 	return DefaultCredentialsDirNoEnv()
 }
 
-// createAndRegisterListenFlags creates and registers the ListenFlags
+// CreateAndRegisterListenFlags creates and registers the ListenFlags
 // group with the supplied flag.FlagSet.
-func createAndRegisterListenFlags(fs *flag.FlagSet) *ListenFlags {
-	defaultMu.RLock()
-	defer defaultMu.RUnlock()
+func CreateAndRegisterListenFlags(fs *flag.FlagSet) *ListenFlags {
+	lf := NewListenFlags()
+	RegisterListenFlags(fs, lf)
+	return lf
+}
+
+// NewListenFlags creates a new ListenFlags with appropriate defaults.
+func NewListenFlags() *ListenFlags {
+	lf := &ListenFlags{}
 	var ipHostPortFlag IPHostPortFlag
-	if err := ipHostPortFlag.Set(defaultHostPort); err != nil {
+	if err := ipHostPortFlag.Set(DefaultHostPort()); err != nil {
 		panic(err)
 	}
 	var protocolFlag TCPProtocolFlag
-	if err := protocolFlag.Set(defaultProtocol); err != nil {
+	if err := protocolFlag.Set(DefaultProtocol()); err != nil {
 		panic(err)
 	}
-	f := &ListenFlags{
-		protocol:  tcpProtocolFlagVar{validator: protocolFlag},
-		addresses: ipHostPortFlagVar{validator: ipHostPortFlag},
-	}
-	RegisterListenFlags(fs, f)
-	return f
+	lf.protocol = tcpProtocolFlagVar{validator: protocolFlag}
+	lf.addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
+	return lf
 }
 
 // RegisterListenFlags registers the supplied ListenFlags variable with
@@ -497,6 +521,7 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	fs.Var(&f.protocol, "v23.tcp.protocol", "protocol to listen with")
 	fs.Var(&f.addresses, "v23.tcp.address", "address to listen on")
 	fs.StringVar(&f.Proxy, "v23.proxy", "", "object name of proxy service to use to export services across network boundaries")
+
 }
 
 // CreateAndRegister creates a new set of flag groups as specified by the
@@ -510,11 +535,11 @@ func CreateAndRegister(fs *flag.FlagSet, groups ...FlagGroup) *Flags {
 	for _, g := range groups {
 		switch g {
 		case Runtime:
-			f.groups[Runtime] = createAndRegisterRuntimeFlags(fs)
+			f.groups[Runtime] = CreateAndRegisterRuntimeFlags(fs)
 		case Listen:
-			f.groups[Listen] = createAndRegisterListenFlags(fs)
+			f.groups[Listen] = CreateAndRegisterListenFlags(fs)
 		case Permissions:
-			f.groups[Permissions] = createAndRegisterPermissionsFlags(fs)
+			f.groups[Permissions] = CreateAndRegisterPermissionsFlags(fs)
 		}
 	}
 	return f

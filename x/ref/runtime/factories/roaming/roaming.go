@@ -14,13 +14,10 @@
 package roaming
 
 import (
-	"flag"
-
 	"v.io/x/ref/runtime/factories/library"
 
 	"v.io/v23/flow"
 
-	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
 	_ "v.io/x/ref/runtime/protocols/tcp" // Initialize tcp, ws and wsh.
 	_ "v.io/x/ref/runtime/protocols/ws"
@@ -28,12 +25,10 @@ import (
 )
 
 func init() {
-	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 	library.Roam = true
 	library.CloudVM = true
 	library.ConfigureLoggingFromFlags = true
 	library.ReservedNameDispatcher = true
-	flags.RegisterListenFlags(flag.CommandLine, &library.ListenFlags)
-	flags.RegisterRuntimeFlags(flag.CommandLine, &library.RuntimeFlags)
-	flags.RegisterPermissionsFlags(flag.CommandLine, &library.PermissionsFlags)
+	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
+	library.EnableCommandlineFlags()
 }

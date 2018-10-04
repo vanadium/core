@@ -341,7 +341,7 @@ func doGlobX(t *testing.T, ctx *context.T, ep, suffix, pattern string, joinServe
 			break
 		}
 		if err != nil {
-			boom(t, "Glob.StartCall %s: %s", name, pattern, err)
+			boom(t, "Glob.StartCall %s: %s: %v", name, pattern, err)
 		}
 		switch v := gr.(type) {
 		case naming.GlobReplyEntry:
@@ -353,7 +353,7 @@ func doGlobX(t *testing.T, ctx *context.T, ep, suffix, pattern string, joinServe
 		}
 	}
 	if err := call.Finish(); err != nil {
-		boom(t, "Glob.Finish %s: %s", name, pattern, err)
+		boom(t, "Glob.Finish %s: %s: %v", name, pattern, err)
 	}
 	return reply
 }

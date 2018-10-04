@@ -7,8 +7,6 @@
 package generic
 
 import (
-	"flag"
-
 	"v.io/v23/flow"
 
 	"v.io/x/ref/lib/flags"
@@ -27,7 +25,5 @@ func init() {
 	library.AllowMultipleInitializations = true
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 	flags.SetDefaultHostPort(":0")
-	flags.RegisterListenFlags(flag.CommandLine, &library.ListenFlags)
-	flags.RegisterRuntimeFlags(flag.CommandLine, &library.RuntimeFlags)
-	flags.RegisterPermissionsFlags(flag.CommandLine, &library.PermissionsFlags)
+	library.EnableCommandlineFlags()
 }

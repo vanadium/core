@@ -59,6 +59,8 @@ func TestV23Mount(t *testing.T) {
 		t.Fatalf("expected 'myself' entry to be %q, but was %q", name, matches[1][1])
 	}
 
+	fmt.Fprintf(os.Stderr, "MATCH: %v\n", matches)
+
 	// Test globbing on the neighborhood name. Its endpoint should be the
 	// endpoint of the mount table.
 	glob = start(sh.Cmd(clientBin, "glob", "/"+neighborhoodEndpoint, nhName).WithCredentials(clientCreds))

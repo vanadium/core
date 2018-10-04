@@ -36,6 +36,8 @@ func TestNeighborhood(t *testing.T) {
 		naming.JoinAddressName(mstr, "suffix2"),
 	}
 
+	fmt.Fprintf(os.Stderr, "ADDRS: %v\n", addresses)
+
 	// Create a name for the server.
 	serverName := fmt.Sprintf("nhtest%d", os.Getpid())
 	// Add neighborhood server.
@@ -43,7 +45,11 @@ func TestNeighborhood(t *testing.T) {
 	if err != nil {
 		boom(t, "Failed to create neighborhood server: %s\n", err)
 	}
-	defer nhd.(stopper).Stop()
+	defer func() {
+		fmt.Fprintf(os.Stderr, "stop\n")
+		nhd.(stopper).Stop()
+		fmt.Fprintf(os.Stderr, "stop done\n")
+	}()
 
 	// Start serving on a loopback address.
 	rootCtx, server, err := v23.WithNewDispatchingServer(rootCtx, "", nhd)

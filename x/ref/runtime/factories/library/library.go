@@ -19,8 +19,8 @@
 package library
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"sync"
 
 	"v.io/v23"
@@ -30,7 +30,6 @@ import (
 	"v.io/v23/security/access"
 
 	"v.io/x/lib/vlog"
-	"v.io/x/ref"
 	"v.io/x/ref/internal/logger"
 	dfactory "v.io/x/ref/lib/discovery/factory"
 	"v.io/x/ref/lib/flags"
@@ -68,39 +67,43 @@ var (
 	// LoggingOpts are passed to the logging initialization functions.
 	LoggingOpts = []vlog.LoggingOpts{}
 
-	// RuntimeFlags is the equivalent of the following flags as per
-	// v.io/x/ref/lib/flags:
-	// --v23.namespace.root (which may be repeated to supply multiple values)
-	// --v23.credentials
-	// --v23.i18n-catalogue
-	// --v23.vtrace.sample-rate
-	// --v23.vtrace.dump-on-shutdown
-	// --v23.vtrace.cache-size
-	// --v23.vtrace.collect-regexp
-	RuntimeFlags = flags.RuntimeFlags{
-		Credentials:   os.Getenv(ref.EnvCredentials),
-		I18nCatalogue: os.Getenv(ref.EnvI18nCatalogueFiles),
-		Vtrace: flags.VtraceFlags{
-			SampleRate:     0.0,
-			DumpOnShutdown: true,
-			CacheSize:      1024,
-			LogLevel:       0,
-			CollectRegexp:  "",
-		},
-	}
+	FlagSet *flags.Flags
 
-	// ListenFlags is the equivalent of the following flags as per
-	// v.io/x/ref/lib/flags:
-	// --v23.tcp.protocol
-	// --v23.tcp.address
-	//-v23.proxy
-	ListenFlags = flags.ListenFlags{}
+	/*
+		// RuntimeFlags is the equivalent of the following flags as per
+		// v.io/x/ref/lib/flags:
+		// --v23.namespace.root (which may be repeated to supply multiple values)
+		// --v23.credentials
+		// --v23.i18n-catalogue
+		// --v23.vtrace.sample-rate
+		// --v23.vtrace.dump-on-shutdown
+		// --v23.vtrace.cache-size
+		// --v23.vtrace.collect-regexp
+		RuntimeFlags *flags.RuntimeFlags = flags.RuntimeFlags{
+			Credentials:   os.Getenv(ref.EnvCredentials),
+			I18nCatalogue: os.Getenv(ref.EnvI18nCatalogueFiles),
+			Vtrace: flags.VtraceFlags{
+				SampleRate:     0.0,
+				DumpOnShutdown: true,
+				CacheSize:      1024,
+				LogLevel:       0,
+				CollectRegexp:  "",
+			},
+		}
 
-	// PermissionsFlags is the equivalent of the following flags as per
-	// v.io/x/ref/lib/flags:
-	// --v23.permissions.file=runtime:<file>
-	// --v23.permissions.literal=<json-permissions>
-	PermissionsFlags flags.PermissionsFlags
+		// ListenFlags is the equivalent of the following flags as per
+		// v.io/x/ref/lib/flags:
+		// --v23.tcp.protocol
+		// --v23.tcp.address
+		// --v23.proxy
+		ListenFlags *flags.ListenFlags
+
+		// PermissionsFlags is the equivalent of the following flags as per
+		// v.io/x/ref/lib/flags:
+		// --v23.permissions.file=runtime:<file>
+		// --v23.permissions.literal=<json-permissions>
+		PermissionsFlags *flags.PermissionsFlags
+	*/
 
 	// Roam controls whether roaming is enabled.
 	Roam = false
@@ -154,8 +157,21 @@ func init() {
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 }
 
+func EnableCommandlineFlags() {
+	FlagSet = flags.CreateAndRegister(flag.CommandLine,
+		flags.Runtime, flags.Listen, flags.Permissions)
+}
+
 // Init creates a new v23.Runtime.
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
+	if FlagSet == nil {
+		dummy := &flag.FlagSet{}
+		FlagSet = flags.CreateAndRegister(dummy,
+			flags.Runtime, flags.Listen, flags.Permissions)
+	}
+	RuntimeFlags := FlagSet.RuntimeFlags()
+	ListenFlags := FlagSet.ListenFlags()
+	PermissionsFlags := FlagSet.PermissionsFlags()
 
 	initialized, running := state.getState()
 	if AllowMultipleInitializations && running {
@@ -244,9 +260,6 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		publisher = pubsub.NewPublisher()
 	}
 
-	// Read the default namespace roots since they may have been changed
-	// by another package's init function.
-	RuntimeFlags.NamespaceRoots = flags.DefaultNamespaceRoots()
 	runtime, ctx, shutdown, err := rt.Init(ctx,
 		ac,
 		discoveryFactory,

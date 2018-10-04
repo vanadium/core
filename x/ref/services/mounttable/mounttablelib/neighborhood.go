@@ -5,7 +5,9 @@
 package mounttablelib
 
 import (
+	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -187,7 +189,9 @@ func (nh *neighborhood) Authorize(*context.T, security.Call) error {
 // Stop performs cleanup.
 func (nh *neighborhood) Stop() {
 	close(nh.stopWatch)
+	fmt.Fprintf(os.Stderr, "MDNS stopping....\n")
 	nh.mdns.Stop()
+	fmt.Fprintf(os.Stderr, "MDNS stopped....\n")
 }
 
 // neighbor returns the MountedServers for a particular neighbor.
