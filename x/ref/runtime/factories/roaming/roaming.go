@@ -16,34 +16,29 @@ package roaming
 import (
 	"flag"
 
-	"v.io/v23"
-	"v.io/v23/context"
-	"v.io/v23/flow"
-	"v.io/v23/rpc"
+	"v.io/x/ref/runtime/factories/library"
 
-	"v.io/x/ref/internal/logger"
-	dfactory "v.io/x/ref/lib/discovery/factory"
+	"v.io/v23/flow"
+
 	"v.io/x/ref/lib/flags"
-	"v.io/x/ref/lib/pubsub"
-	"v.io/x/ref/lib/security/securityflag"
-	"v.io/x/ref/runtime/internal"
-	"v.io/x/ref/runtime/internal/lib/appcycle"
-	"v.io/x/ref/runtime/internal/rt"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
-	_ "v.io/x/ref/runtime/protocols/tcp"
+	_ "v.io/x/ref/runtime/protocols/tcp" // Initialize tcp, ws and wsh.
 	_ "v.io/x/ref/runtime/protocols/ws"
 	_ "v.io/x/ref/runtime/protocols/wsh"
-	"v.io/x/ref/services/debug/debuglib"
 )
 
-var commonFlags *flags.Flags
-
 func init() {
-	v23.RegisterRuntimeFactory(Init)
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
-	commonFlags = flags.CreateAndRegister(flag.CommandLine, flags.Runtime, flags.Listen)
+	library.Roam = true
+	library.CloudVM = true
+	library.ConfigureLoggingFromFlags = true
+	library.ReservedNameDispatcher = true
+	flags.RegisterListenFlags(flag.CommandLine, &library.ListenFlags)
+	flags.RegisterRuntimeFlags(flag.CommandLine, &library.RuntimeFlags)
+	flags.RegisterPermissionsFlags(flag.CommandLine, &library.PermissionsFlags)
 }
 
+/*
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	if err := internal.ParseFlagsAndConfigureGlobalLogger(commonFlags); err != nil {
 		return nil, nil, nil, err
@@ -96,3 +91,4 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	}
 	return runtime, ctx, runtimeFactoryShutdown, nil
 }
+*/

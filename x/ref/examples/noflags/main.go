@@ -16,7 +16,7 @@ func main() {
 	// contains the test-proxy setting. These settings must be made
 	// before v23.Init() is called to have any effect.
 	library.AlsoLogToStderr = true
-	library.ListenProxy = "test-proxy"
+	library.ListenFlags.Proxy = "test-proxy"
 	ctx, shutdown := v23.Init()
 	defer shutdown()
 	ctx.Infof("Listen spec %v", v23.GetListenSpec(ctx))

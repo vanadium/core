@@ -5,6 +5,8 @@
 package access
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 
 	"v.io/v23/context"
@@ -108,6 +110,43 @@ func PermissionsAuthorizerFromFile(filename string, tagType *vdl.Type) (security
 		return nil, errTagType(tagType)
 	}
 	return &fileAuthorizer{filename, tagType}, nil
+}
+
+// PermissionsSpec represents a specification for permissions derived
+// from command line flags or some other means.
+type PermissionsSpec struct {
+	// Files represents a set of named files that contain permissions.
+	// The name 'runtime' is reserved for use by the runtime.
+	Files map[string]string
+	// Literal represents a literal, ie. json, permissions specification.
+	Literal string
+}
+
+// AuthorizerFromSpec creates an authorizer as specified by the
+// supplied specification.
+func AuthorizerFromSpec(ps PermissionsSpec, preferLiteral bool, name string, tagType *vdl.Type) (security.Authorizer, error) {
+	if !preferLiteral || (preferLiteral && len(ps.Literal) == 0) {
+		return PermissionsAuthorizerFromFile(ps.Files[name], tagType)
+	}
+	perms, err := ReadPermissions(bytes.NewBufferString(ps.Literal))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse permissions literal: %v: %v", ps.Literal, err)
+	}
+	return PermissionsAuthorizer(perms, tagType)
+}
+
+// RuntimeAuthorizer returns an authorizer configured in the same way
+// as that for 'runtime', preferring a literal (ie. on the command line)
+// vs a file based specification, and assuming the typical set of access tags.
+func RuntimeAuthorizer(spec PermissionsSpec) security.Authorizer {
+	return TypicalTagAuthorizerFromSpec(spec, true, "runtime")
+}
+
+// TypicalTagAuthorizerFromSpec assumes TypicalTagType() and thus avoids
+// returning an error.
+func TypicalTagAuthorizerFromSpec(ps PermissionsSpec, preferLiteral bool, name string) security.Authorizer {
+	a, _ := AuthorizerFromSpec(ps, preferLiteral, name, TypicalTagType())
+	return a
 }
 
 func errTagType(tt *vdl.Type) error {

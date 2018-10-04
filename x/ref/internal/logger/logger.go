@@ -36,7 +36,7 @@ type ManageLog interface {
 
 	// ConfigureLoggerFromFlags will configure the supplied logger using
 	// command line flags.
-	ConfigureFromFlags() error
+	ConfigureFromFlags(opts ...vlog.LoggingOpts) error
 
 	// ConfigureFromArgs will configure the supplied logger using the supplied
 	// arguments.
@@ -55,8 +55,8 @@ func (*dummy) LogDir() string { return "" }
 func (*dummy) Stats() (Info, Error struct{ Lines, Bytes int64 }) {
 	return struct{ Lines, Bytes int64 }{0, 0}, struct{ Lines, Bytes int64 }{0, 0}
 }
-func (*dummy) ConfigureFromFlags() error                        { return nil }
-func (*dummy) ConfigureFromArgs(opts ...vlog.LoggingOpts) error { return nil }
+func (*dummy) ConfigureFromFlags(opts ...vlog.LoggingOpts) error { return nil }
+func (*dummy) ConfigureFromArgs(opts ...vlog.LoggingOpts) error  { return nil }
 
 func (*dummy) ExplicitlySetFlags() map[string]string { return nil }
 

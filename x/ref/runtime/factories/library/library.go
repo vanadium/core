@@ -6,7 +6,12 @@
 
 // Package library implements a RuntimeFactory suitable for building a Vanadium
 // library that is linked into other applications. It is configured via a set
-// of exported variables rather than via command line flags.
+// of exported variables rather than via command line flags. The variables
+// are all instances of the flag groups define by v.io/x/ref/lib/flags
+// which allows other factories and packages to assign command line
+// flags to these variables. The intent being to reduce code duplication
+// across factories and packages whilst maintaining consistency of
+// flag definitions on the command line.
 //
 // The pubsub.Publisher mechanism is used for communicating networking
 // settings to the rpc.Server implementation of the runtime and publishes
@@ -14,15 +19,14 @@
 package library
 
 import (
-	"bytes"
-	"flag"
+	"fmt"
 	"os"
+	"sync"
 
 	"v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
-	"v.io/v23/security"
 	"v.io/v23/security/access"
 
 	"v.io/x/lib/vlog"
@@ -40,14 +44,6 @@ import (
 	_ "v.io/x/ref/runtime/protocols/wsh"
 	"v.io/x/ref/services/debug/debuglib"
 )
-
-func defaultRoots() []string {
-	_, envRoots := ref.EnvNamespaceRoots()
-	if len(envRoots) > 0 {
-		return envRoots
-	}
-	return flags.DefaultNamespaceRoots()
-}
 
 var (
 	// LogToStderr is the equivalent of --logtostderr
@@ -69,6 +65,9 @@ var (
 	// MaxStackBufSize is the equivalent of --max_stack_buf_size
 	MaxStackBufSize vlog.MaxStackBufSize
 
+	// LoggingOpts are passed to the logging initialization functions.
+	LoggingOpts = []vlog.LoggingOpts{}
+
 	// RuntimeFlags is the equivalent of the following flags as per
 	// v.io/x/ref/lib/flags:
 	// --v23.namespace.root (which may be repeated to supply multiple values)
@@ -79,9 +78,8 @@ var (
 	// --v23.vtrace.cache-size
 	// --v23.vtrace.collect-regexp
 	RuntimeFlags = flags.RuntimeFlags{
-		NamespaceRoots: defaultRoots(),
-		Credentials:    os.Getenv(ref.EnvCredentials),
-		I18nCatalogue:  os.Getenv(ref.EnvI18nCatalogueFiles),
+		Credentials:   os.Getenv(ref.EnvCredentials),
+		I18nCatalogue: os.Getenv(ref.EnvI18nCatalogueFiles),
 		Vtrace: flags.VtraceFlags{
 			SampleRate:     0.0,
 			DumpOnShutdown: true,
@@ -91,96 +89,148 @@ var (
 		},
 	}
 
-	// ListenAddrs is the equivalent of the following flags as per flags.ListenFlags
+	// ListenFlags is the equivalent of the following flags as per
+	// v.io/x/ref/lib/flags:
 	// --v23.tcp.protocol
 	// --v23.tcp.address
-	ListenAddrs flags.ListenAddrs
-	// is the equivalent of --v23.proxy
-	ListenProxy string
+	//-v23.proxy
+	ListenFlags = flags.ListenFlags{}
 
-	// RuntimePermissionsFile is the equivalent of
+	// PermissionsFlags is the equivalent of the following flags as per
+	// v.io/x/ref/lib/flags:
 	// --v23.permissions.file=runtime:<file>
-	RuntimePermissionsFile string
-	// RuntimePermissionsLiteral is the equivalent of -v23.permissions.literal
-	RuntimePermissionsLiteral string
+	// --v23.permissions.literal=<json-permissions>
+	PermissionsFlags flags.PermissionsFlags
 
 	// Roam controls whether roaming is enabled.
-	Roam bool
+	Roam = false
+
+	// CloudVM controls whether cloud configuration is enabled.
+	CloudVM = true
+
+	// ReservedNameDispatcher controls whether a dispatcher is created
+	// for the reserved names on an RPC dispatcher. If it is set then
+	// its authorization will be determined by the PermissionsFlags and
+	// in particular the 'runtime' file therein.
+	ReservedNameDispatcher = false
+
+	// ConfigureLoggingFromFlags controls whether the logging related variables
+	// above are used for configuring logging, or if command line flags
+	// are used instead.
+	ConfigureLoggingFromFlags = false
+
+	// AllowMultipleInitializations controls whether the runtime can
+	// be initialized multiple times. The shutdown callback must be called
+	// between multiple initializations.
+	AllowMultipleInitializations = false
+
+	state factoryState
 )
+
+type factoryState struct {
+	sync.Mutex
+	running     bool
+	initialized bool
+}
+
+func (st *factoryState) setRunning(s bool) {
+	st.Lock()
+	st.running = s
+	if s {
+		st.initialized = true
+	}
+	st.Unlock()
+}
+
+func (st *factoryState) getState() (initialized, running bool) {
+	st.Lock()
+	defer st.Unlock()
+	initialized, running = st.initialized, st.running
+	return
+}
 
 func init() {
 	v23.RegisterRuntimeFactory(Init)
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 }
 
-func newAuthorizer() (security.Authorizer, error) {
-	if RuntimePermissionsFile == "" && RuntimePermissionsLiteral == "" {
-		return nil, nil
+// Init creates a new v23.Runtime.
+func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
+
+	initialized, running := state.getState()
+	if AllowMultipleInitializations && running {
+		return nil, nil, nil, fmt.Errorf("Library.init called whilst a previous instance is still running, the shutdown callback has not bee called")
 	}
-	var a security.Authorizer
+
+	if !AllowMultipleInitializations && initialized {
+		return nil, nil, nil, fmt.Errorf("Library.init incorrectly called multiple times")
+	}
+
 	var err error
-	if RuntimePermissionsLiteral == "" {
-		a, err = access.PermissionsAuthorizerFromFile(RuntimePermissionsFile, access.TypicalTagType())
+	if ConfigureLoggingFromFlags {
+		err = logger.Manager(logger.Global()).ConfigureFromFlags(LoggingOpts...)
 	} else {
-		var perms access.Permissions
-		if perms, err = access.ReadPermissions(bytes.NewBufferString(RuntimePermissionsLiteral)); err == nil {
-			a = access.TypicalTagTypePermissionsAuthorizer(perms)
+		opts := []vlog.LoggingOpts{
+			LogToStderr,
+			AlsoLogToStderr,
+			LogDir,
+			Level,
+			StderrThreshold,
+			ModuleSpec,
+			FilepathSpec,
+			TraceLocation,
+			MaxStackBufSize,
+		}
+		err = logger.Manager(logger.Global()).ConfigureFromArgs(
+			append(opts, LoggingOpts...)...)
+	}
+	if err != nil {
+		if !AllowMultipleInitializations || !logger.IsAlreadyConfiguredError(err) {
+			return nil, nil, nil, fmt.Errorf("libary.Init: %v", err)
 		}
 	}
-	if err != nil {
-		return nil, err
+
+	permissionsSpec := access.PermissionsSpec{
+		Files:   PermissionsFlags.PermissionsNamesAndFiles(),
+		Literal: PermissionsFlags.PermissionsLiteral(),
 	}
-	return a, err
-}
-
-// AddAndParseFlags adds Vanadium-specific flags to the provided FlagSet, which
-// for this factory has no effect.
-func AddAndParseFlags(fs *flag.FlagSet) error { return nil }
-
-func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
-	if err := logger.Manager(logger.Global()).ConfigureFromArgs(
-		LogToStderr,
-		AlsoLogToStderr,
-		LogDir,
-		Level,
-		StderrThreshold,
-		ModuleSpec,
-		FilepathSpec,
-		TraceLocation,
-		MaxStackBufSize,
-	); err != nil {
-		return nil, nil, nil, err
+	ishutdown := func(sf ...func()) {
+		for _, f := range sf {
+			if f != nil {
+				f()
+			}
+		}
 	}
 
-	cancelCloud, err := internal.InitCloudVM()
-	if err != nil {
-		return nil, nil, nil, err
+	var cancelCloud func()
+	if CloudVM {
+		cancelCloud, err = internal.InitCloudVM()
+		if err != nil {
+			return nil, nil, nil, err
+		}
 	}
 
 	ac := appcycle.New()
 	discoveryFactory, err := dfactory.New(ctx)
 	if err != nil {
-		ac.Shutdown()
-		cancelCloud()
+		ishutdown(ac.Shutdown, cancelCloud)
 		return nil, nil, nil, err
 	}
 
 	listenSpec := rpc.ListenSpec{
-		Addrs:          rpc.ListenAddrs(ListenAddrs),
-		Proxy:          ListenProxy,
+		Addrs:          rpc.ListenAddrs(ListenFlags.Addrs),
+		Proxy:          ListenFlags.Proxy,
 		AddressChooser: internal.NewAddressChooser(logger.Global()),
 	}
 
-	authorizer, err := newAuthorizer()
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	reservedDispatcher := debuglib.NewDispatcher(authorizer)
-
-	ishutdown := func() {
-		ac.Shutdown()
-		cancelCloud()
-		discoveryFactory.Shutdown()
+	var reservedDispatcher rpc.Dispatcher
+	if ReservedNameDispatcher {
+		authorizer, err := access.AuthorizerFromSpec(
+			permissionsSpec, true, "runtime", access.TypicalTagType())
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		reservedDispatcher = debuglib.NewDispatcher(authorizer)
 	}
 
 	// TODO(ashankar): As of April 2016, the only purpose this non-nil
@@ -194,15 +244,30 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		publisher = pubsub.NewPublisher()
 	}
 
-	runtime, ctx, shutdown, err := rt.Init(ctx, ac, discoveryFactory, nil, nil, &listenSpec, publisher, RuntimeFlags, reservedDispatcher, 0)
+	// Read the default namespace roots since they may have been changed
+	// by another package's init function.
+	RuntimeFlags.NamespaceRoots = flags.DefaultNamespaceRoots()
+	runtime, ctx, shutdown, err := rt.Init(ctx,
+		ac,
+		discoveryFactory,
+		nil,
+		nil,
+		&listenSpec,
+		publisher,
+		RuntimeFlags,
+		reservedDispatcher,
+		permissionsSpec,
+		0)
 	if err != nil {
-		ishutdown()
+		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
 		return nil, nil, nil, err
 	}
 
 	runtimeFactoryShutdown := func() {
-		ishutdown()
+		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
 		shutdown()
+		state.setRunning(false)
 	}
+	state.setRunning(true)
 	return runtime, ctx, runtimeFactoryShutdown, nil
 }

@@ -15,6 +15,7 @@ import (
 	"v.io/v23/namespace"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
+	"v.io/v23/security/access"
 )
 
 // Create a mock RuntimeFactory.
@@ -36,9 +37,13 @@ func (*mockRuntime) GetClient(ctx *context.T) rpc.Client { return nil }
 func (*mockRuntime) WithNewNamespace(ctx *context.T, roots ...string) (*context.T, namespace.T, error) {
 	return nil, nil, nil
 }
-func (*mockRuntime) GetNamespace(ctx *context.T) namespace.T         { return nil }
-func (*mockRuntime) GetAppCycle(ctx *context.T) AppCycle             { return nil }
-func (*mockRuntime) GetListenSpec(ctx *context.T) rpc.ListenSpec     { return rpc.ListenSpec{} }
+func (*mockRuntime) GetNamespace(ctx *context.T) namespace.T     { return nil }
+func (*mockRuntime) GetAppCycle(ctx *context.T) AppCycle         { return nil }
+func (*mockRuntime) GetListenSpec(ctx *context.T) rpc.ListenSpec { return rpc.ListenSpec{} }
+
+func (*mockRuntime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
+	return access.PermissionsSpec{}
+}
 func (*mockRuntime) WithBackgroundContext(ctx *context.T) *context.T { return nil }
 func (*mockRuntime) GetBackgroundContext(ctx *context.T) *context.T  { return nil }
 

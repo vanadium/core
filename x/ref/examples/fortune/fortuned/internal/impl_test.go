@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package internal_test
 
 import (
 	"testing"
@@ -11,6 +11,8 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/ref/examples/fortune"
+	"v.io/x/ref/examples/fortune/fortuned/internal"
+	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
 )
 
@@ -52,7 +54,7 @@ func setup(t *testing.T) (*context.T, fortune.FortuneClientStub, v23.Shutdown) {
 	ctx, shutdown := test.V23Init()
 
 	authorizer := security.DefaultAuthorizer()
-	impl := newImpl()
+	impl := internal.NewImpl()
 	service := fortune.FortuneServer(impl)
 	name := ""
 

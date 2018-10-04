@@ -70,14 +70,15 @@ func TestPermissionsFlags(t *testing.T) {
 func TestPermissionsLiteralFlags(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
-	args := []string{"--v23.permissions.literal=hedgehog"}
+	args := []string{`--v23.permissions.literal={"x":"hedgehog"}`,
+		`--v23.permissions.literal={"y":"badger"}`}
 	fl.Parse(args, nil)
 	permsf := fl.PermissionsFlags()
 
 	if got, want := permsf.PermissionsFile("runtime"), ""; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
-	if got, want := permsf.PermissionsLiteral(), "hedgehog"; got != want {
+	if got, want := permsf.PermissionsLiteral(), `{"x":"hedgehog"}{"y":"badger"}`; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
 }
@@ -85,14 +86,14 @@ func TestPermissionsLiteralFlags(t *testing.T) {
 func TestPermissionsLiteralBoth(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
-	args := []string{"--v23.permissions.file=runtime:foo.json", "--v23.permissions.literal=hedgehog"}
+	args := []string{"--v23.permissions.file=runtime:foo.json", `--v23.permissions.literal={"x":"hedgehog"}`}
 	fl.Parse(args, nil)
 	permsf := fl.PermissionsFlags()
 
 	if got, want := permsf.PermissionsFile("runtime"), "foo.json"; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
-	if got, want := permsf.PermissionsLiteral(), "hedgehog"; got != want {
+	if got, want := permsf.PermissionsLiteral(), `{"x":"hedgehog"}`; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package internal
 
 import (
 	"math/rand"
@@ -21,7 +21,7 @@ type impl struct {
 }
 
 // newImpl returns a Fortune implementation that can be used to create a service.
-func newImpl() fortune.FortuneServerMethods {
+func NewImpl() fortune.FortuneServerMethods {
 	return &impl{
 		fortunes: []string{
 			"You will reach the heights of success.",

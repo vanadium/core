@@ -8,72 +8,68 @@ package securityflag
 
 import (
 	"bytes"
-	"flag"
 	"os"
 
+	"v.io/v23"
+	"v.io/x/lib/vlog"
+
+	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
-	"v.io/v23/verror"
-	"v.io/x/ref/lib/flags"
 )
 
-const pkgPath = "v.io/x/ref/lib/security/securityflag"
-
-var (
-	errCantOpenPermissionsFile = verror.Register(pkgPath+".errCantOpenPermissionsFile", verror.NoRetry, "{1:}{2:} cannot open argument to --v23.permissions.file {3}{:_}")
-)
-
-var authFlags *flags.Flags
-
-func init() {
-	authFlags = flags.CreateAndRegister(flag.CommandLine, flags.Permissions)
-}
-
-// NewAuthorizerOrDie constructs an Authorizer based on the provided
-// "--v23.permissions.literal" or "--v23.permissions.file" flags. Otherwise it
-// creates a default Authorizer.
-func NewAuthorizerOrDie() security.Authorizer {
-	flags := authFlags.PermissionsFlags()
-	fname := flags.PermissionsFile("runtime")
-	literal := flags.PermissionsLiteral()
-
-	if fname == "" && literal == "" {
-		return nil
-	}
-	var a security.Authorizer
-	var err error
-	if literal == "" {
-		a, err = access.PermissionsAuthorizerFromFile(fname, access.TypicalTagType())
-	} else {
-		var perms access.Permissions
-		if perms, err = access.ReadPermissions(bytes.NewBufferString(literal)); err == nil {
-			a = access.TypicalTagTypePermissionsAuthorizer(perms)
-		}
-	}
+// NewAuthorizerOrDie is provided for backward compatibility except that
+// it must be called with a context.T. Use access.NewAuthorizer or
+// access.RuntimeAuthorizer in future.
+func NewAuthorizerOrDie(ctx *context.T) security.Authorizer {
+	auth, err := NewAuthorizer(ctx, "")
 	if err != nil {
-		panic(err)
+		vlog.Fatalf("%v", err)
 	}
-	return a
+	return auth
 }
 
+// PermissionsFromFlag is provided for backward compatibility except that
+// it must be called with a context.T. Use PermissionsFromSpec in future.
+func PermissionsFromFlag(ctx *context.T) (access.Permissions, error) {
+	return PermissionsFromSpec(v23.GetPermissionsSpec(ctx), "")
+}
+
+// NewAuthorizer constructs an Authorizer based on the PermissionsSpec stored
+// in the context for the specified 'name' (which defaults to
+// "runtime" for an empty string value). It will preferentially use
+// literal permissions over file stored ones.
+func NewAuthorizer(ctx *context.T, name string) (security.Authorizer, error) {
+	if len(name) == 0 {
+		name = "runtime"
+	}
+	return access.AuthorizerFromSpec(
+		v23.GetPermissionsSpec(ctx),
+		true,
+		name,
+		access.TypicalTagType())
+}
+
+// PermissionsFromSpec returns the permissions specified by the supplied
+// PermissionsSpec for 'runtime' (ie. as derived) from command line flags
+// specified by flags.PermissionsFlags originally.
+// It is intended for callers that need more control of how Permissions are
+// managed.
 // TODO(rjkroege): Refactor these two functions into one by making an Authorizer
 // use a Permissions accessor interface.
-// PermissionsFromFlag reads the same flags as NewAuthorizerOrDie but produces a
-// Permissions for callers that need more control of how Permissions are
-// managed.
-func PermissionsFromFlag() (access.Permissions, error) {
-	flags := authFlags.PermissionsFlags()
-	fname := flags.PermissionsFile("runtime")
-	literal := flags.PermissionsLiteral()
-
+func PermissionsFromSpec(spec access.PermissionsSpec, name string) (access.Permissions, error) {
+	if len(name) == 0 {
+		name = "runtime"
+	}
+	fname := spec.Files[name]
+	literal := spec.Literal
 	if fname == "" && literal == "" {
 		return nil, nil
 	}
-
 	if literal == "" {
 		file, err := os.Open(fname)
 		if err != nil {
-			return nil, verror.New(errCantOpenPermissionsFile, nil, fname)
+			return nil, err
 		}
 		defer file.Close()
 		return access.ReadPermissions(file)

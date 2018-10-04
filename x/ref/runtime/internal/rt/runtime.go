@@ -25,6 +25,7 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
+	"v.io/v23/security/access"
 	"v.io/v23/verror"
 	"v.io/v23/vtrace"
 
@@ -73,6 +74,7 @@ type initData struct {
 	protocols         []string
 	settingsPublisher *pubsub.Publisher
 	connIdleExpiry    time.Duration
+	permissionsSpec   access.PermissionsSpec
 }
 
 type vtraceDependency struct{}
@@ -95,6 +97,7 @@ func Init(
 	settingsPublisher *pubsub.Publisher,
 	flags flags.RuntimeFlags,
 	reservedDispatcher rpc.Dispatcher,
+	permissionsSpec access.PermissionsSpec,
 	connIdleExpiry time.Duration) (*Runtime, *context.T, v23.Shutdown, error) {
 	r := &Runtime{deps: dependency.NewGraph()}
 
@@ -105,6 +108,7 @@ func Init(
 		protocols:         protocols,
 		settingsPublisher: settingsPublisher,
 		connIdleExpiry:    connIdleExpiry,
+		permissionsSpec:   permissionsSpec,
 	})
 
 	if listenSpec != nil {
@@ -378,6 +382,23 @@ func (*Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
 func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return context.WithValue(ctx, listenKey, ls.Copy())
+}
+
+func copyFiles(old map[string]string) map[string]string {
+	r := make(map[string]string, len(old))
+	for k, v := range old {
+		r[k] = v
+	}
+	return r
+}
+
+func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
+	// nologcall
+	id, _ := ctx.Value(initKey).(initData)
+	return access.PermissionsSpec{
+		Literal: id.permissionsSpec.Literal,
+		Files:   copyFiles(id.permissionsSpec.Files),
+	}
 }
 
 func (*Runtime) WithBackgroundContext(ctx *context.T) *context.T {

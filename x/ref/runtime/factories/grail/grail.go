@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build linux darwin
+// +build ignore
 
 // Package grail implements a RuntimeFactory suitable for a variety of network
 // configurations appropriate for grail.

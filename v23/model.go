@@ -29,6 +29,7 @@ import (
 	"v.io/v23/namespace"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
+	"v.io/v23/security/access"
 )
 
 const (
@@ -139,6 +140,9 @@ type Runtime interface {
 	// WithListenSpec attaches a ListenSpec to the returned context.
 	WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T
 
+	// GetPermissionSpec returns the PermissonsSpec stored in 'ctx'.
+	GetPermissionsSpec(ctx *context.T) access.PermissionsSpec
+
 	// WithBackgroundContext creates a new context derived from 'ctx'
 	// with the given context set as the background context.
 	WithBackgroundContext(ctx *context.T) *context.T
@@ -248,10 +252,9 @@ func WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 	return initState.currentRuntime().WithListenSpec(ctx, ls)
 }
 
-// WithBackgroundContext creates a new context derived from 'ctx'
-// with the given context set as the background context.
-func WithBackgroundContext(ctx *context.T) *context.T {
-	return initState.runtime.WithBackgroundContext(ctx)
+// GetPermissionsSpec returns the Permissions for the specified name in 'ctx'.
+func GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
+	return initState.currentRuntime().GetPermissionsSpec(ctx)
 }
 
 // GetBackgroundContext returns a background context. This context can be used
@@ -436,7 +439,7 @@ This registration is from:
 	if err != nil {
 		cancel()
 		rootcancel()
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("runtimeFactory returned: %v", err)
 	}
 
 	initState.mu.Lock()
@@ -459,7 +462,7 @@ This registration is from:
 
 	if err := rt.Init(ctx); err != nil {
 		vshutdown()
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("rt.Init returned: %v", err)
 	}
 
 	return ctx, vshutdown, nil
