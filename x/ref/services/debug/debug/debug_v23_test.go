@@ -16,8 +16,14 @@ import (
 	"testing"
 	"time"
 
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/v23test"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func TestV23DebugGlob(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)

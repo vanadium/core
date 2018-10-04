@@ -20,9 +20,15 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/services/stats"
 	"v.io/v23/vom"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/testutil"
 	"v.io/x/ref/test/v23test"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 const urlRE = "^(https://.*)$"
 

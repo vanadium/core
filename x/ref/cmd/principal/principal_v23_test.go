@@ -15,9 +15,15 @@ import (
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/v23test"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func withCreds(dir string, cmd *v23test.Cmd) *v23test.Cmd {
 	cmd.Vars[ref.EnvCredentials] = dir
