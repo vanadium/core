@@ -52,62 +52,62 @@ func Java_io_v_impl_google_services_groups_GroupServer_nativeWithNewServer(jenv 
 	name, err := jutil.CallStringMethod(env, jParams, "getName", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	rootDir, err := jutil.CallStringMethod(env, jParams, "getStorageRootDir", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	if rootDir == "" {
 		rootDir = filepath.Join(os.TempDir(), "groupserver")
 		if err := os.Mkdir(rootDir, 0755); err != nil && !os.IsExist(err) {
 			jutil.JThrowV(env, err)
-			return nil
+			return 0
 		}
 	}
 	jEngine, err := jutil.CallObjectMethod(env, jParams, "getStorageEngine", nil, storageEngineSign)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	engine, err := GoStorageEngine(env, jEngine)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	// Start the server.
 	ctx, cancel, err := jcontext.GoContext(env, jCtx)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	dispatcher, err := lib.NewGroupsDispatcher(rootDir, engine)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	newCtx, s, err := v23.WithNewDispatchingServer(ctx, name, dispatcher)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jServer, err := jrpc.JavaServer(env, s)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	// Attach a server to the new context.
 	jServerAttCtx, err := jutil.CallStaticObjectMethod(env, jVRuntimeImplClass, "withServer", []jutil.Sign{contextSign, serverSign}, contextSign, jNewCtx, jServer)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jServerAttCtx))
 }
