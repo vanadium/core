@@ -8,6 +8,7 @@ package main
 
 import (
 	"v.io/v23"
+	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/factories/library"
 )
 
@@ -16,7 +17,7 @@ func main() {
 	// contains the test-proxy setting. These settings must be made
 	// before v23.Init() is called to have any effect.
 	library.AlsoLogToStderr = true
-	library.ListenFlags.Proxy = "test-proxy"
+	flags.SetDefaultProxy("test-proxy")
 	ctx, shutdown := v23.Init()
 	defer shutdown()
 	ctx.Infof("Listen spec %v", v23.GetListenSpec(ctx))

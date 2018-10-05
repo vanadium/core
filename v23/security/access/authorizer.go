@@ -123,9 +123,14 @@ type PermissionsSpec struct {
 }
 
 // AuthorizerFromSpec creates an authorizer as specified by the
-// supplied specification.
-func AuthorizerFromSpec(ps PermissionsSpec, preferLiteral bool, name string, tagType *vdl.Type) (security.Authorizer, error) {
-	if !preferLiteral || (preferLiteral && len(ps.Literal) == 0) {
+// supplied specification. If no permissions are specified then the
+// default, (ie. nil) Authorizer is returned.
+func AuthorizerFromSpec(ps PermissionsSpec, name string, tagType *vdl.Type) (security.Authorizer, error) {
+	if len(ps.Literal) == 0 {
+		filename := ps.Files[name]
+		if len(filename) == 0 {
+			return nil, nil
+		}
 		return PermissionsAuthorizerFromFile(ps.Files[name], tagType)
 	}
 	perms, err := ReadPermissions(bytes.NewBufferString(ps.Literal))
@@ -139,13 +144,13 @@ func AuthorizerFromSpec(ps PermissionsSpec, preferLiteral bool, name string, tag
 // as that for 'runtime', preferring a literal (ie. on the command line)
 // vs a file based specification, and assuming the typical set of access tags.
 func RuntimeAuthorizer(spec PermissionsSpec) security.Authorizer {
-	return TypicalTagAuthorizerFromSpec(spec, true, "runtime")
+	return TypicalTagAuthorizerFromSpec(spec, "runtime")
 }
 
 // TypicalTagAuthorizerFromSpec assumes TypicalTagType() and thus avoids
 // returning an error.
-func TypicalTagAuthorizerFromSpec(ps PermissionsSpec, preferLiteral bool, name string) security.Authorizer {
-	a, _ := AuthorizerFromSpec(ps, preferLiteral, name, TypicalTagType())
+func TypicalTagAuthorizerFromSpec(ps PermissionsSpec, name string) security.Authorizer {
+	a, _ := AuthorizerFromSpec(ps, name, TypicalTagType())
 	return a
 }
 

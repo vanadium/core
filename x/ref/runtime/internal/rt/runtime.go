@@ -135,6 +135,10 @@ func Init(
 		ctx.Infof(metadata.ToXML())
 	}
 
+	ctx.VI(1).Infof("RuntimeFlags: %v", flags)
+	ctx.VI(1).Infof("ListenSpec: %v", listenSpec)
+	ctx.VI(1).Infof("PermissionsSpec: %v", permissionsSpec)
+
 	// Setup the initial trace.
 	ctx, err := ivtrace.Init(ctx, flags.Vtrace)
 	if err != nil {
@@ -166,7 +170,7 @@ func Init(
 	r.initSignalHandling(ctx)
 
 	// Set the initial namespace.
-	ctx, _, err = r.setNewNamespace(ctx, flags.NamespaceRoots...)
+	ctx, _, err = r.setNewNamespace(ctx, flags.NamespaceRoots.Roots...)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -394,7 +398,7 @@ func copyFiles(old map[string]string) map[string]string {
 
 func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 	// nologcall
-	id, _ := ctx.Value(initKey).(initData)
+	id, _ := ctx.Value(initKey).(*initData)
 	return access.PermissionsSpec{
 		Literal: id.permissionsSpec.Literal,
 		Files:   copyFiles(id.permissionsSpec.Files),

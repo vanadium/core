@@ -6,12 +6,14 @@
 
 // Package library implements a RuntimeFactory suitable for building a Vanadium
 // library that is linked into other applications. It is configured via a set
-// of exported variables rather than via command line flags. The variables
-// are all instances of the flag groups define by v.io/x/ref/lib/flags
-// which allows other factories and packages to assign command line
-// flags to these variables. The intent being to reduce code duplication
-// across factories and packages whilst maintaining consistency of
-// flag definitions on the command line.
+// of exported variables as well as optionally via the v.io/x/ref/lib/flags
+// package which allows for both internal configuration as well as via the
+// command line or environment.
+// Client packages (factories) that wish to be configured via the command line
+// must call EnableCommadLineFlags, all other users should use the
+// flags package's 'SetDefault...' methods.
+// This scheme allows this package to be broadly used to create 'factories'
+// and other initialization mechanisms whilst reducing code duplication.
 //
 // The pubsub.Publisher mechanism is used for communicating networking
 // settings to the rpc.Server implementation of the runtime and publishes
@@ -38,7 +40,7 @@ import (
 	"v.io/x/ref/runtime/internal/lib/appcycle"
 	"v.io/x/ref/runtime/internal/rt"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
-	_ "v.io/x/ref/runtime/protocols/tcp"
+	_ "v.io/x/ref/runtime/protocols/tcp" // Initialize tcp, ws and wsh.
 	_ "v.io/x/ref/runtime/protocols/ws"
 	_ "v.io/x/ref/runtime/protocols/wsh"
 	"v.io/x/ref/services/debug/debuglib"
@@ -67,43 +69,10 @@ var (
 	// LoggingOpts are passed to the logging initialization functions.
 	LoggingOpts = []vlog.LoggingOpts{}
 
-	FlagSet *flags.Flags
-
-	/*
-		// RuntimeFlags is the equivalent of the following flags as per
-		// v.io/x/ref/lib/flags:
-		// --v23.namespace.root (which may be repeated to supply multiple values)
-		// --v23.credentials
-		// --v23.i18n-catalogue
-		// --v23.vtrace.sample-rate
-		// --v23.vtrace.dump-on-shutdown
-		// --v23.vtrace.cache-size
-		// --v23.vtrace.collect-regexp
-		RuntimeFlags *flags.RuntimeFlags = flags.RuntimeFlags{
-			Credentials:   os.Getenv(ref.EnvCredentials),
-			I18nCatalogue: os.Getenv(ref.EnvI18nCatalogueFiles),
-			Vtrace: flags.VtraceFlags{
-				SampleRate:     0.0,
-				DumpOnShutdown: true,
-				CacheSize:      1024,
-				LogLevel:       0,
-				CollectRegexp:  "",
-			},
-		}
-
-		// ListenFlags is the equivalent of the following flags as per
-		// v.io/x/ref/lib/flags:
-		// --v23.tcp.protocol
-		// --v23.tcp.address
-		// --v23.proxy
-		ListenFlags *flags.ListenFlags
-
-		// PermissionsFlags is the equivalent of the following flags as per
-		// v.io/x/ref/lib/flags:
-		// --v23.permissions.file=runtime:<file>
-		// --v23.permissions.literal=<json-permissions>
-		PermissionsFlags *flags.PermissionsFlags
-	*/
+	// FlagSet represents the set of flags that can be interpreted as variables.
+	// Client packages that wish to configure this package via command line
+	// flags should call EnableCommandlineFlags.
+	flagSet *flags.Flags
 
 	// Roam controls whether roaming is enabled.
 	Roam = false
@@ -157,22 +126,14 @@ func init() {
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 }
 
+// EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
-	FlagSet = flags.CreateAndRegister(flag.CommandLine,
+	flagSet = flags.CreateAndRegister(flag.CommandLine,
 		flags.Runtime, flags.Listen, flags.Permissions)
 }
 
 // Init creates a new v23.Runtime.
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
-	if FlagSet == nil {
-		dummy := &flag.FlagSet{}
-		FlagSet = flags.CreateAndRegister(dummy,
-			flags.Runtime, flags.Listen, flags.Permissions)
-	}
-	RuntimeFlags := FlagSet.RuntimeFlags()
-	ListenFlags := FlagSet.ListenFlags()
-	PermissionsFlags := FlagSet.PermissionsFlags()
-
 	initialized, running := state.getState()
 	if AllowMultipleInitializations && running {
 		return nil, nil, nil, fmt.Errorf("Library.init called whilst a previous instance is still running, the shutdown callback has not bee called")
@@ -206,10 +167,20 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		}
 	}
 
-	permissionsSpec := access.PermissionsSpec{
-		Files:   PermissionsFlags.PermissionsNamesAndFiles(),
-		Literal: PermissionsFlags.PermissionsLiteral(),
+	if flagSet == nil {
+		dummy := &flag.FlagSet{}
+		flagSet = flags.CreateAndRegister(dummy,
+			flags.Runtime, flags.Listen, flags.Permissions)
 	}
+	runtimeFlags := flagSet.RuntimeFlags()
+	listenFlags := flagSet.ListenFlags()
+	permissionsFlags := flagSet.PermissionsFlags()
+
+	permissionsSpec := access.PermissionsSpec{
+		Files:   permissionsFlags.PermissionsNamesAndFiles(),
+		Literal: permissionsFlags.PermissionsLiteral(),
+	}
+
 	ishutdown := func(sf ...func()) {
 		for _, f := range sf {
 			if f != nil {
@@ -234,15 +205,15 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	}
 
 	listenSpec := rpc.ListenSpec{
-		Addrs:          rpc.ListenAddrs(ListenFlags.Addrs),
-		Proxy:          ListenFlags.Proxy,
+		Addrs:          rpc.ListenAddrs(listenFlags.Addrs),
+		Proxy:          listenFlags.Proxy,
 		AddressChooser: internal.NewAddressChooser(logger.Global()),
 	}
 
 	var reservedDispatcher rpc.Dispatcher
 	if ReservedNameDispatcher {
 		authorizer, err := access.AuthorizerFromSpec(
-			permissionsSpec, true, "runtime", access.TypicalTagType())
+			permissionsSpec, "runtime", access.TypicalTagType())
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -267,7 +238,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		nil,
 		&listenSpec,
 		publisher,
-		RuntimeFlags,
+		runtimeFlags,
 		reservedDispatcher,
 		permissionsSpec,
 		0)
@@ -279,6 +250,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	runtimeFactoryShutdown := func() {
 		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
 		shutdown()
+		flagSet = nil
 		state.setRunning(false)
 	}
 	state.setRunning(true)

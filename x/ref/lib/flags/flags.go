@@ -5,12 +5,8 @@
 package flags
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
-	"os"
 	"strings"
-	"sync"
 
 	"v.io/v23/verror"
 	"v.io/x/ref"
@@ -55,17 +51,6 @@ const (
 	Permissions
 )
 
-var (
-	defaultNamespaceRoots = []string{
-		"/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101",
-	} // GUARDED_BY defaultMu
-	defaultCredentialsDir string  // GUARDED_BY defaultMu
-	defaultI18nCatalogue  string  // GUARDED_BY defaultMu
-	defaultProtocol       = "wsh" // GUARDED_BY defaultMu
-	defaultHostPort       = ":0"  // GUARDED_BY defaultMu
-	defaultMu             sync.RWMutex
-)
-
 // Flags represents the set of flag groups created by a call to
 // CreateAndRegister.
 type Flags struct {
@@ -73,83 +58,12 @@ type Flags struct {
 	groups  map[FlagGroup]interface{}
 }
 
-type namespaceRootFlagVar struct {
-	isSet bool // is true when a flag has been explicitly set.
-	// isDefault true when a flag has the default value and is needed in
-	// addition to isSet to distinguish between using a default value
-	// as opposed to one from an environment variable.
-	isDefault bool
-	roots     []string
-}
-
-func (nsr *namespaceRootFlagVar) String() string {
-	return fmt.Sprintf("%v", nsr.roots)
-}
-
-func (nsr *namespaceRootFlagVar) Set(v string) error {
-	nsr.isDefault = false
-	if !nsr.isSet {
-		// override the default value
-		nsr.isSet = true
-		nsr.roots = []string{}
-	}
-	for _, t := range nsr.roots {
-		if v == t {
-			return nil
-		}
-	}
-	nsr.roots = append(nsr.roots, v)
-	return nil
-}
-
-type permsFlagVar struct {
-	isSet bool
-	files map[string]string
-}
-
-func (permsf *permsFlagVar) String() string {
-	return fmt.Sprintf("%v", permsf.files)
-}
-
-func (permsf *permsFlagVar) Set(v string) error {
-	if !permsf.isSet {
-		// override the default value
-		permsf.isSet = true
-		permsf.files = make(map[string]string)
-	}
-	parts := strings.SplitN(v, ":", 2)
-	if len(parts) != 2 {
-		return verror.New(errNotNameColonFile, nil, v)
-	}
-	name, file := parts[0], parts[1]
-	permsf.files[name] = file
-	return nil
-}
-
-type permsLiteralFlagVar struct {
-	isSet       bool
-	permissions string
-}
-
-func (permsl *permsLiteralFlagVar) String() string {
-	return fmt.Sprintf("%v", permsl.permissions)
-}
-
-func (permsl *permsLiteralFlagVar) Set(v string) error {
-	if !json.Valid([]byte(v)) {
-		return fmt.Errorf("invalid json: %v", v)
-	}
-	permsl.isSet = true
-	permsl.permissions += v
-	return nil
-}
-
 // RuntimeFlags contains the values of the Runtime flag group.
 type RuntimeFlags struct {
 	// NamespaceRoots may be initialized by ref.EnvNamespacePrefix* enivornment
 	// variables as well as --v23.namespace.root. The command line
 	// will override the environment.
-	NamespaceRoots []string
+	NamespaceRoots NamespaceRootFlag
 
 	// Credentials may be initialized by the ref.EnvCredentials
 	// environment variable. The command line will override the environment.
@@ -162,8 +76,6 @@ type RuntimeFlags struct {
 
 	// Vtrace flags control various aspects of Vtrace.
 	Vtrace VtraceFlags
-
-	namespaceRootsFlag namespaceRootFlagVar
 }
 
 // VtraceFlags represents the flags used to configure rpc tracing.
@@ -190,132 +102,6 @@ type VtraceFlags struct {
 	CollectRegexp string
 }
 
-// PermissionsFlags contains the values of the PermissionsFlags flag group.
-type PermissionsFlags struct {
-	// List of named Permissions files.
-	fileFlag permsFlagVar
-
-	// Literal permissions, override everything else.
-	literal permsLiteralFlagVar
-}
-
-// PermissionsFile returns the file which is presumed to contain Permissions
-// information associated with the supplied name parameter.
-func (af PermissionsFlags) PermissionsFile(name string) string {
-	return af.fileFlag.files[name]
-}
-
-// PermissionsNamesAndFiles returns the set of permission names and associated
-// files specified using --v23.permissions.file.
-func (af PermissionsFlags) PermissionsNamesAndFiles() map[string]string {
-	if af.fileFlag.files == nil {
-		return nil
-	}
-	r := make(map[string]string, len(af.fileFlag.files))
-	for k, v := range af.fileFlag.files {
-		r[k] = v
-	}
-	return r
-}
-
-// PermissionsLiteral returns the in-line literal permissions provided
-// on the command line.
-func (af PermissionsFlags) PermissionsLiteral() string {
-	return af.literal.String()
-}
-
-// AddPermissionsFile adds a permissions file, which must be in
-// the same format as accepted by --v23.permissions.file
-func (af PermissionsFlags) AddPermissionsFile(arg string) error {
-	return af.fileFlag.Set(arg)
-}
-
-// AddPermissionsLiteral adds another literal permissions statement.
-func (af PermissionsFlags) AddPermissionsLiteral(arg string) error {
-	return af.literal.Set(arg)
-}
-
-// ListenAddrs is the set of listen addresses captured from the command line.
-// ListenAddrs mirrors rpc.ListenAddrs.
-type ListenAddrs []struct {
-	Protocol, Address string
-}
-
-// ListenFlags contains the values of the Listen flag group.
-type ListenFlags struct {
-	Addrs     ListenAddrs
-	Proxy     string
-	protocol  tcpProtocolFlagVar
-	addresses ipHostPortFlagVar
-}
-
-type tcpProtocolFlagVar struct {
-	isSet     bool
-	validator TCPProtocolFlag
-}
-
-// Implements flag.Value.Get
-func (proto tcpProtocolFlagVar) Get() interface{} {
-	return proto.validator.String()
-}
-
-func (proto tcpProtocolFlagVar) String() string {
-	return proto.validator.String()
-}
-
-// Implements flag.Value.Set
-func (proto *tcpProtocolFlagVar) Set(s string) error {
-	if err := proto.validator.Set(s); err != nil {
-		return err
-	}
-	proto.isSet = true
-	return nil
-}
-
-type ipHostPortFlagVar struct {
-	isSet     bool
-	validator IPHostPortFlag
-	flags     *ListenFlags
-}
-
-// Implements flag.Value.Get
-func (ip ipHostPortFlagVar) Get() interface{} {
-	return ip.String()
-}
-
-// Implements flag.Value.Set
-func (ip *ipHostPortFlagVar) Set(s string) error {
-	if err := ip.validator.Set(s); err != nil {
-		return err
-	}
-	a := struct {
-		Protocol, Address string
-	}{
-		ip.flags.protocol.validator.String(),
-		ip.validator.String(),
-	}
-	for _, t := range ip.flags.Addrs {
-		if t.Protocol == a.Protocol && t.Address == a.Address {
-			return nil
-		}
-	}
-	ip.flags.Addrs = append(ip.flags.Addrs, a)
-	ip.isSet = true
-	return nil
-}
-
-// Implements flag.Value.String
-func (ip ipHostPortFlagVar) String() string {
-	s := ""
-	if ip.flags == nil {
-		return s
-	}
-	for _, a := range ip.flags.Addrs {
-		s += fmt.Sprintf("(%s %s)", a.Protocol, a.Address)
-	}
-	return s
-}
-
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
 // with the supplied flag.FlagSet.
 func CreateAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
@@ -329,12 +115,11 @@ func NewRuntimeFlags() *RuntimeFlags {
 	rf := &RuntimeFlags{}
 	_, roots := ref.EnvNamespaceRoots()
 	if len(roots) == 0 {
-		rf.namespaceRootsFlag.roots = DefaultNamespaceRoots()
-		rf.namespaceRootsFlag.isDefault = true
+		rf.NamespaceRoots.Roots = DefaultNamespaceRoots()
+		rf.NamespaceRoots.isDefault = true
 	} else {
-		rf.namespaceRootsFlag.roots = roots
+		rf.NamespaceRoots.Roots = roots
 	}
-	rf.NamespaceRoots = DefaultNamespaceRoots()
 	rf.Credentials = DefaultCredentialsDir()
 	rf.I18nCatalogue = DefaultI18nCatalogue()
 	rf.Vtrace = VtraceFlags{
@@ -350,7 +135,7 @@ func NewRuntimeFlags() *RuntimeFlags {
 // RegisterRuntimeFlags registers the supplied RuntimeFlags variable with
 // the supplied FlagSet.
 func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
-	fs.Var(&f.namespaceRootsFlag, "v23.namespace.root", "local namespace root; can be repeated to provided multiple roots")
+	fs.Var(&f.NamespaceRoots, "v23.namespace.root", "local namespace root; can be repeated to provided multiple roots")
 	fs.Lookup("v23.namespace.root").DefValue =
 		"[" + strings.Join(DefaultNamespaceRoots(), ",") + "]"
 	fs.StringVar(&f.Credentials, "v23.credentials", DefaultCredentialsDir(), "directory to use for storing security credentials")
@@ -375,119 +160,17 @@ func CreateAndRegisterPermissionsFlags(fs *flag.FlagSet) *PermissionsFlags {
 
 // NewPermissionsFlags creates a PermissionsFlags with appropriate defaults.
 func NewPermissionsFlags() *PermissionsFlags {
-	return &PermissionsFlags{}
+	return &PermissionsFlags{
+		files:   PermissionsFlag{files: DefaultPermissions()},
+		literal: PermissionsLiteralFlag{permissions: DefaultPermissionsLiteral()},
+	}
 }
 
 // RegisterPermissionsFlags registers the supplied PermissionsFlags with
 // the supplied FlagSet.
 func RegisterPermissionsFlags(fs *flag.FlagSet, f *PermissionsFlags) {
-	fs.Var(&f.fileFlag, "v23.permissions.file", "specify a perms file as <name>:<permsfile>")
+	fs.Var(&f.files, "v23.permissions.file", "specify a perms file as <name>:<permsfile>")
 	fs.Var(&f.literal, "v23.permissions.literal", "explicitly specify the runtime perms as a JSON-encoded access.Permissions. Overrides all --v23.permissions.file flags.")
-}
-
-// SetDefaultProtocol sets the default protocol used when --v23.tcp.protocol is
-// not provided. It must be called before flags are parsed for it to take effect.
-func SetDefaultProtocol(protocol string) {
-	defaultMu.Lock()
-	defaultProtocol = protocol
-	defaultMu.Unlock()
-}
-
-// DefaultProtocol returns the current default protocol.
-func DefaultProtocol() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultProtocol
-}
-
-// SetDefaultHostPort sets the default host and port used when --v23.tcp.address
-// is not provided. It must be called before flags are parsed for it to take effect.
-func SetDefaultHostPort(s string) {
-	defaultMu.Lock()
-	defaultHostPort = s
-	defaultMu.Unlock()
-}
-
-// DefaultHostPort returns the current default host port.
-func DefaultHostPort() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultHostPort
-}
-
-// SetDefaultNamespaceRoots sets the default value for --v23.namespace.root
-func SetDefaultNamespaceRoots(roots ...string) {
-	defaultMu.Lock()
-	defaultNamespaceRoots = roots
-	defaultMu.Unlock()
-}
-
-// DefaultNamespaceRootsNoEnv returns the current default value of
-// -v23.namespace.root ignoring V23_NAMESPACE_ROOT0...
-func DefaultNamespaceRootsNoEnv() []string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultNamespaceRoots
-}
-
-// DefaultNamespaceRoots returns the current default value of
-// -v23.namespace.root taking the environment variables
-// V23_NAMESPACE_ROOT0... into account.
-func DefaultNamespaceRoots() []string {
-	if _, l := ref.EnvNamespaceRoots(); len(l) > 0 {
-		return l
-	}
-	return DefaultNamespaceRootsNoEnv()
-}
-
-// SetDefaultCredentialsDir sets the default value for --v23.credentials.
-// It must be called before flags are parsed for it to take effect.
-func SetDefaultCredentialsDir(credentialsDir string) {
-	defaultMu.Lock()
-	defaultCredentialsDir = credentialsDir
-	defaultMu.Unlock()
-}
-
-// DefaultCredentialsDirNoEnv returns the current default for --v23.credentials
-// ignoring V23_CREDENTIALS
-func DefaultCredentialsDirNoEnv() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultCredentialsDir
-}
-
-// DefaultCredentialsDir returns the current default for --v23.credentials
-// taking V23_CREDENTIALS into account
-func DefaultCredentialsDir() string {
-	if e := os.Getenv(ref.EnvCredentials); len(e) > 0 {
-		return e
-	}
-	return DefaultCredentialsDirNoEnv()
-}
-
-// SetDefaultI18nCatalogue sets the default value for --v23.i18n-catalogue.
-// It must be called before flags are parsed for it to take effect.
-func SetDefaultI18nCatalogue(i18nCatalogue string) {
-	defaultMu.Lock()
-	defaultI18nCatalogue = i18nCatalogue
-	defaultMu.Unlock()
-}
-
-// DefaultI18nCatalogueNoEnv returns the current default for
-// --v23.i18n-catalogue ignoring V23_I18N_CATALOGUE.
-func DefaultI18nCatalogueNoEnv() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultI18nCatalogue
-}
-
-// DefaultI18nCatalogue returns the current default for --v23.i18n-catalogue.
-// taking V23_V23_I18N_CATALOGUE into account.
-func DefaultI18nCatalogue() string {
-	if e := os.Getenv(ref.EnvI18nCatalogueFiles); len(e) > 0 {
-		return e
-	}
-	return DefaultCredentialsDirNoEnv()
 }
 
 // CreateAndRegisterListenFlags creates and registers the ListenFlags
@@ -511,6 +194,7 @@ func NewListenFlags() *ListenFlags {
 	}
 	lf.protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
+	lf.Proxy = DefaultProxy()
 	return lf
 }
 
@@ -520,8 +204,8 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	f.addresses.flags = f
 	fs.Var(&f.protocol, "v23.tcp.protocol", "protocol to listen with")
 	fs.Var(&f.addresses, "v23.tcp.address", "address to listen on")
-	fs.StringVar(&f.Proxy, "v23.proxy", "", "object name of proxy service to use to export services across network boundaries")
-
+	fs.StringVar(&f.Proxy, "v23.proxy", DefaultProxy(), "object name of proxy service to use to export services across network boundaries")
+	fs.Lookup("v23.proxy").DefValue = ""
 }
 
 // CreateAndRegister creates a new set of flag groups as specified by the
@@ -549,9 +233,8 @@ func refreshDefaults(f *Flags) {
 	for _, g := range f.groups {
 		switch v := g.(type) {
 		case *RuntimeFlags:
-			if v.namespaceRootsFlag.isDefault {
-				v.namespaceRootsFlag.roots = defaultNamespaceRoots
-				v.NamespaceRoots = v.namespaceRootsFlag.roots
+			if v.NamespaceRoots.isDefault {
+				v.NamespaceRoots.Roots = DefaultNamespaceRoots()
 			}
 		case *ListenFlags:
 			if !v.protocol.isSet {
@@ -572,8 +255,8 @@ func (f *Flags) RuntimeFlags() RuntimeFlags {
 	}
 	from := f.groups[Runtime].(*RuntimeFlags)
 	to := *from
-	to.NamespaceRoots = make([]string, len(from.NamespaceRoots))
-	copy(to.NamespaceRoots, from.NamespaceRoots)
+	to.NamespaceRoots.Roots = make([]string, len(from.NamespaceRoots.Roots))
+	copy(to.NamespaceRoots.Roots, from.NamespaceRoots.Roots)
 	return to
 }
 
@@ -633,22 +316,6 @@ func (f *Flags) Parse(args []string, cfg map[string]string) error {
 	for k, v := range cfg {
 		if f.FlagSet.Lookup(k) != nil {
 			f.FlagSet.Set(k, v)
-		}
-	}
-
-	hasrt := f.groups[Runtime] != nil
-	if hasrt {
-		runtime := f.groups[Runtime].(*RuntimeFlags)
-		if runtime.namespaceRootsFlag.isSet {
-			// command line overrides the environment.
-			runtime.NamespaceRoots = runtime.namespaceRootsFlag.roots
-		} else {
-			// we have a default value for the command line, which
-			// is only used if the environment variables have not been
-			// supplied.
-			if len(runtime.NamespaceRoots) == 0 {
-				runtime.NamespaceRoots = runtime.namespaceRootsFlag.roots
-			}
 		}
 	}
 	return nil

@@ -5,6 +5,7 @@
 package flags
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 
@@ -25,12 +26,12 @@ type TCPProtocolFlag struct {
 	Protocol string
 }
 
-// Implements flag.Value.Get
+// Get implements flag.Getter.
 func (t TCPProtocolFlag) Get() interface{} {
 	return t.Protocol
 }
 
-// Implements flag.Value.Set
+// Set implements flag.Value.
 func (t *TCPProtocolFlag) Set(s string) error {
 	switch s {
 	case "tcp", "tcp4", "tcp6", "ws", "ws4", "ws6", "wsh", "wsh4", "wsh6":
@@ -42,7 +43,7 @@ func (t *TCPProtocolFlag) Set(s string) error {
 
 }
 
-// Implements flag.Value.String
+// String implements flag.Value.
 func (t TCPProtocolFlag) String() string {
 	return t.Protocol
 }
@@ -59,12 +60,12 @@ type IPHostPortFlag struct {
 	Port    string
 }
 
-// Implements flag.Value.Get
+// Get implements flag.Getter.
 func (ip IPHostPortFlag) Get() interface{} {
 	return ip.String()
 }
 
-// Implements flag.Value.Set
+// Set implements flag.Value.
 func (ip *IPHostPortFlag) Set(s string) error {
 	if len(s) == 0 {
 		ip.Address, ip.Port, ip.Host = "", "", ""
@@ -120,12 +121,12 @@ func (ip IPHostPortFlag) String() string {
 // IP addresses in the flag package.
 type IPFlag struct{ net.IP }
 
-// Implements flag.Value.Get
+// Get implements flag.Getter.
 func (ip IPFlag) Get() interface{} {
 	return ip.IP
 }
 
-// Implements flag.Value.Set
+// Set implements flag.Value.
 func (ip *IPFlag) Set(s string) error {
 	t := net.ParseIP(s)
 	if t == nil {
@@ -138,4 +139,85 @@ func (ip *IPFlag) Set(s string) error {
 // Implements flag.Value.String
 func (ip IPFlag) String() string {
 	return ip.IP.String()
+}
+
+// ListenAddrs is the set of listen addresses captured from the command line.
+// ListenAddrs mirrors rpc.ListenAddrs.
+type ListenAddrs []struct {
+	Protocol, Address string
+}
+
+// ListenFlags contains the values of the Listen flag group.
+type ListenFlags struct {
+	Addrs     ListenAddrs
+	Proxy     string
+	protocol  tcpProtocolFlagVar
+	addresses ipHostPortFlagVar
+}
+
+type tcpProtocolFlagVar struct {
+	isSet     bool
+	validator TCPProtocolFlag
+}
+
+// Implements flag.Value.Get
+func (proto tcpProtocolFlagVar) Get() interface{} {
+	return proto.validator.String()
+}
+
+func (proto tcpProtocolFlagVar) String() string {
+	return proto.validator.String()
+}
+
+// Implements flag.Value.Set
+func (proto *tcpProtocolFlagVar) Set(s string) error {
+	if err := proto.validator.Set(s); err != nil {
+		return err
+	}
+	proto.isSet = true
+	return nil
+}
+
+type ipHostPortFlagVar struct {
+	isSet     bool
+	validator IPHostPortFlag
+	flags     *ListenFlags
+}
+
+// Implements flag.Value.Get
+func (ip ipHostPortFlagVar) Get() interface{} {
+	return ip.String()
+}
+
+// Implements flag.Value.Set
+func (ip *ipHostPortFlagVar) Set(s string) error {
+	if err := ip.validator.Set(s); err != nil {
+		return err
+	}
+	a := struct {
+		Protocol, Address string
+	}{
+		ip.flags.protocol.validator.String(),
+		ip.validator.String(),
+	}
+	for _, t := range ip.flags.Addrs {
+		if t.Protocol == a.Protocol && t.Address == a.Address {
+			return nil
+		}
+	}
+	ip.flags.Addrs = append(ip.flags.Addrs, a)
+	ip.isSet = true
+	return nil
+}
+
+// Implements flag.Value.String
+func (ip ipHostPortFlagVar) String() string {
+	s := ""
+	if ip.flags == nil {
+		return s
+	}
+	for _, a := range ip.flags.Addrs {
+		s += fmt.Sprintf("(%s %s)", a.Protocol, a.Address)
+	}
+	return s
 }

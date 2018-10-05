@@ -29,7 +29,7 @@ func TestFlags(t *testing.T) {
 	args := []string{"--v23.credentials=" + creds, "--v23.namespace.root=" + roots[0]}
 	fl.Parse(args, nil)
 	rtf := fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, roots; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, roots; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := rtf.Credentials, creds; !reflect.DeepEqual(got, want) {
@@ -39,9 +39,9 @@ func TestFlags(t *testing.T) {
 		t.Errorf("got %t, want %t", got, want)
 	}
 	// Make sure we have a deep copy.
-	rtf.NamespaceRoots[0] = "oooh"
+	rtf.NamespaceRoots.Roots[0] = "oooh"
 	rtf = fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, roots; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, roots; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
@@ -131,7 +131,7 @@ func TestFlagsGroups(t *testing.T) {
 	args := []string{"--v23.tcp.address=" + addr, "--v23.namespace.root=" + roots[0]}
 	fl.Parse(args, nil)
 	lf := fl.ListenFlags()
-	if got, want := fl.RuntimeFlags().NamespaceRoots, roots; !reflect.DeepEqual(got, want) {
+	if got, want := fl.RuntimeFlags().NamespaceRoots.Roots, roots; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := lf.Addrs[0].Address, addr; got != want {
@@ -178,14 +178,14 @@ func TestEnvVars(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 	rtf = fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{"a:1", "a:2"}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{"a:1", "a:2"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 	if err := fl.Parse([]string{"--v23.namespace.root=b:1", "--v23.namespace.root=b:2", "--v23.namespace.root=b:3", "--v23.credentials=b:4"}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 	rtf = fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{"b:1", "b:2", "b:3"}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{"b:1", "b:2", "b:3"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 	if got, want := rtf.Credentials, "b:4"; got != want {
@@ -207,7 +207,7 @@ func TestDefaults(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 	rtf := fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{"/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101"}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{"/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 	permsf := fl.PermissionsFlags()
@@ -299,10 +299,10 @@ func TestDuplicateFlags(t *testing.T) {
 	}
 
 	rf := fl.RuntimeFlags()
-	if got, want := len(rf.NamespaceRoots), 2; got != want {
+	if got, want := len(rf.NamespaceRoots.Roots), 2; got != want {
 		t.Errorf("got %d, want %d", got, want)
 	}
-	if got, want := rf.NamespaceRoots, []string{"ab", "xy"}; !reflect.DeepEqual(got, want) {
+	if got, want := rf.NamespaceRoots.Roots, []string{"ab", "xy"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %#v, want %#v", got, want)
 	}
 }
@@ -329,7 +329,7 @@ func TestConfig(t *testing.T) {
 		t.Errorf("Parse(%v, %v) failed: %v", args, config, err)
 	}
 	rtf := fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{"argRoot1", "argRoot2", "configRoot"}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{"argRoot1", "argRoot2", "configRoot"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("Namespace roots: got %v, want %v", got, want)
 	}
 	if got, want := rtf.Credentials, "configCreds"; got != want {
@@ -362,7 +362,7 @@ func TestRefreshDefaults(t *testing.T) {
 	flags.SetDefaultProtocol("tcp6")
 	fl.Parse([]string{}, nil)
 	rtf := fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	lf := fl.ListenFlags()
@@ -374,7 +374,7 @@ func TestRefreshDefaults(t *testing.T) {
 	flags.SetDefaultNamespaceRoots(changed)
 	fl.Parse([]string{}, nil)
 	rtf = fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{changed}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{changed}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
@@ -391,14 +391,14 @@ func TestRefreshAlreadySetDefaults(t *testing.T) {
 	hostPort := "127.0.0.1:10"
 	fl.Parse([]string{"--v23.namespace.root", nsRoot, "--v23.tcp.address", hostPort}, nil)
 	rtf := fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	flags.SetDefaultNamespaceRoots("/128.1.1.1:2")
 	flags.SetDefaultHostPort("128.0.0.1:11")
 	fl.Parse([]string{}, nil)
 	rtf = fl.RuntimeFlags()
-	if got, want := rtf.NamespaceRoots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
+	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	lf := fl.ListenFlags()

@@ -45,7 +45,6 @@ func NewAuthorizer(ctx *context.T, name string) (security.Authorizer, error) {
 	}
 	return access.AuthorizerFromSpec(
 		v23.GetPermissionsSpec(ctx),
-		true,
 		name,
 		access.TypicalTagType())
 }
