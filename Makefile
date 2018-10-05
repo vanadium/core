@@ -1,6 +1,6 @@
 SHELL := /bin/bash -euo pipefail
 
-GOPATH := $(shell pwd)
+GOPATH ?= $(shell pwd)
 export GOPATH
 
 VDLPATH := $(shell pwd)/src
