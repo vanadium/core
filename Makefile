@@ -1,16 +1,17 @@
 SHELL := /bin/bash -euo pipefail
 
-GOPATH := $(shell pwd)
+GOPATH ?= $(shell pwd)
 export GOPATH
 
-VDLPATH := $(shell pwd)/src
+VDLPATH ?= $(shell pwd)/src
 export VDLPATH
 
 # Note that the split across the core and go.lib repos leads to
 # a multi-tree layout when developing for contributing code rather than
-# the single tree layout used here so VANADIUMCORE is used to unambigously
-# refer to the core repo.
-VANADIUM_CORE_REPO = $(shell pwd)/src
+# the single tree layout used when 'using' the code via go get for example.
+# The VANADIUM_CORE_REPO variable is used to unambigously refer to the
+# core repo.
+VANADIUM_CORE_REPO ?= $(shell pwd)/src
 export VANADIUM_CORE_REPO
 
 .PHONY: all
