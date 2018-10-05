@@ -47,11 +47,11 @@ test-integration:
 
 .PHONY: java
 java:
-	cd java/lib && ../gradlew publishToMavenLocal
+	cd java/lib && ../gradlew -i publishToMavenLocal
 
 .PHONY: test-java
 test-java:
-	cd java/lib && ../gradlew test
+	cd java/lib && ../gradlew -i test
 
 .PHONY: clean
 clean:
