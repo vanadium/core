@@ -6,6 +6,13 @@ export GOPATH
 VDLPATH := $(shell pwd)/src
 export VDLPATH
 
+# Note that the split across the core and go.lib repos leads to
+# a multi-tree layout when developing for contributing code rather than
+# the single tree layout used here so VANADIUMCORE is used to unambigously
+# refer to the core repo.
+VANADIUM_CORE_REPO = $(shell pwd)/src
+export VANADIUM_CORE_REPO
+
 .PHONY: all
 all: go java
 
@@ -47,11 +54,11 @@ test-integration:
 
 .PHONY: java
 java:
-	cd java/lib && ../gradlew publishToMavenLocal
+	cd java/lib && ../gradlew publishToMavenLocal --info
 
 .PHONY: test-java
 test-java:
-	cd java/lib && ../gradlew test
+	cd java/lib && ../gradlew test --info
 
 .PHONY: clean
 clean:
