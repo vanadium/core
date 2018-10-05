@@ -96,24 +96,24 @@ func Java_io_v_v23_security_access_PermissionsAuthorizer_nativeCreate(jenv *C.JN
 	perms, err := GoPermissions(env, jutil.Object(uintptr(unsafe.Pointer(jPermissions))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	tagType, err := jutil.GoVdlType(env, jutil.Object(uintptr(unsafe.Pointer(jTagType))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	authorizer, err := access.PermissionsAuthorizer(perms, tagType)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	ref := jutil.GoNewRef(&authorizer) // Un-refed when the Java PermissionsAuthorizer is finalized
 	jAuthorizer, err := jutil.NewObject(env, jutil.Class(uintptr(unsafe.Pointer(jPermissionsAuthorizerClass))), []jutil.Sign{jutil.LongSign}, int64(ref))
 	if err != nil {
 		jutil.GoDecRef(ref)
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jAuthorizer))
 }
