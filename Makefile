@@ -33,6 +33,7 @@ src:
 	git clone https://github.com/vanadium/go.lib src/v.io/x/lib
 	go get -t v.io/...
 	find . -type d -name vlog
+	cat ./src/v.io/x/lib/vlog/flags.go
 
 test-all: test test-integration
 
