@@ -4,20 +4,16 @@ language: go
 go:
   - "1.11.1"
 go_import_path: v.io
+
+language: java
+jdk: oraclejdk8
+
 install:
   - go get -t v.io/... 
   - go install v.io/...
   
-matrix:
-  include:
-    language: go
-    script:
-      - make test
-      - make test-integration
-
-  include:
-    language: java
-    jdk: oraclejdk8
-    script:
-      - make java
-      - make test-java
+script:
+ - make test
+ - make test-integration
+ - make java
+ - make test-java
