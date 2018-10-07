@@ -78,7 +78,7 @@ func Java_io_v_impl_google_namespace_NamespaceImpl_nativeGlob(jenv *C.JNIEnv, jN
 	ctx, cancel, pattern, opts, err := globArgs(env, jContext, jPattern, jOptions)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	var globChannel <-chan naming.GlobReply
 	var globError error
@@ -109,7 +109,7 @@ func Java_io_v_impl_google_namespace_NamespaceImpl_nativeGlob(jenv *C.JNIEnv, jN
 	})
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jChannel))
 }
@@ -348,7 +348,7 @@ func Java_io_v_impl_google_namespace_NamespaceImpl_nativeGetRoots(jenv *C.JNIEnv
 	jRoots, err := jutil.JStringList(env, roots)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jRoots))
 }

@@ -30,7 +30,7 @@ func Java_io_v_v23_i18n_Catalog_nativeFormatParams(jenv *C.JNIEnv, jCatalog C.jc
 	strParams, err := jutil.GoStringArray(env, jutil.Object(uintptr(unsafe.Pointer(jParams))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	params := make([]interface{}, len(strParams))
 	for i, strParam := range strParams {

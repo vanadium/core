@@ -52,7 +52,7 @@ import (
 // }
 import "C"
 
-var errJValue = C.jObjectValue(nil)
+var errJValue = C.jObjectValue(0)
 
 // jValue converts a Go value into a Java value with the given sign.
 func jValue(env Env, v interface{}, sign Sign) (C.jvalue, error) {
@@ -174,7 +174,7 @@ func jDurationValue(env Env, v interface{}) (C.jvalue, error) {
 
 func jVExceptionValue(env Env, v interface{}) (C.jvalue, error) {
 	if v == nil {
-		return C.jObjectValue(nil), nil
+		return C.jObjectValue(0), nil
 	}
 	native, ok := v.(error)
 	if !ok {
@@ -226,7 +226,7 @@ func jByteArrayArrayValue(env Env, v interface{}) (C.jvalue, error) {
 func jObjectValue(v interface{}) (C.jvalue, error) {
 	rv := reflect.ValueOf(v)
 	if !rv.IsValid() { // nil value
-		return C.jObjectValue(nil), nil
+		return C.jObjectValue(0), nil
 	}
 	switch val := v.(type) {
 	case Object:

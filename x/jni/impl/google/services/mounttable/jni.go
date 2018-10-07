@@ -57,17 +57,17 @@ func Java_io_v_impl_google_services_mounttable_MountTableServer_nativeWithNewSer
 	mountName, err := jutil.CallStringMethod(env, jParams, "getName", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	rootDir, err := jutil.CallStringMethod(env, jParams, "getStorageRootDir", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	permsJMap, err := jutil.CallMapMethod(env, jParams, "getPermissions", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	permsMap := make(map[string]access.Permissions)
 	for jPath, jPerms := range permsJMap {
@@ -75,7 +75,7 @@ func Java_io_v_impl_google_services_mounttable_MountTableServer_nativeWithNewSer
 		perms, err := jaccess.GoPermissions(env, jPerms)
 		if err != nil {
 			jutil.JThrowV(env, err)
-			return nil
+			return 0
 		}
 		permsMap[path] = perms
 	}
@@ -83,18 +83,18 @@ func Java_io_v_impl_google_services_mounttable_MountTableServer_nativeWithNewSer
 	jsonPerms, err := json.Marshal(permsMap)
 	if err != nil {
 		jutil.JThrowV(env, fmt.Errorf("Couldn't JSON-encode path-permissions: %v", err))
-		return nil
+		return 0
 
 	}
 	permsFile, err := ioutil.TempFile(rootDir, "jni_permissions")
 	if err != nil {
 		jutil.JThrowV(env, fmt.Errorf("Couldn't create permissions file: %v", err))
-		return nil
+		return 0
 	}
 	w := bufio.NewWriter(permsFile)
 	if _, err := w.Write(jsonPerms); err != nil {
 		jutil.JThrowV(env, fmt.Errorf("Couldn't write to permissions file: %v", err))
-		return nil
+		return 0
 	}
 	if err := w.Flush(); err != nil {
 		jutil.JThrowV(env, fmt.Errorf("Couldn't flush to permissions file: %v", err))
@@ -102,40 +102,40 @@ func Java_io_v_impl_google_services_mounttable_MountTableServer_nativeWithNewSer
 	statsPrefix, err := jutil.CallStringMethod(env, jParams, "getStatsPrefix", nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	// Start the mounttable server.
 	ctx, cancel, err := jcontext.GoContext(env, jCtx)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	d, err := mounttablelib.NewMountTableDispatcher(ctx, permsFile.Name(), rootDir, statsPrefix)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	newCtx, s, err := v23.WithNewDispatchingServer(ctx, mountName, d, options.ServesMountTable(true))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jServer, err := jrpc.JavaServer(env, s)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	// Attach a server to the new context.
 	jServerAttCtx, err := jutil.CallStaticObjectMethod(env, jVRuntimeImplClass, "withServer", []jutil.Sign{contextSign, serverSign}, contextSign, jNewCtx, jServer)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jServerAttCtx))
 }

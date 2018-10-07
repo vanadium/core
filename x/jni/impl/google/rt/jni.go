@@ -55,7 +55,7 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeInit(jenv *C.JNIEnv, jRuntime C
 	jCtx, err := jcontext.JavaContext(env, ctx, nil)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jCtx))
 }
@@ -85,18 +85,18 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeWithNewClient(jenv *C.JNIEnv, j
 	ctx, cancel, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	// No options supported yet.
 	newCtx, _, err := v23.WithNewClient(ctx)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jNewCtx))
 }
@@ -107,13 +107,13 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeGetClient(jenv *C.JNIEnv, jRunt
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	client := v23.GetClient(ctx)
 	jClient, err := jrpc.JavaClient(env, client)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jClient))
 }
@@ -124,39 +124,39 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeWithNewServer(jenv *C.JNIEnv, j
 	ctx, cancel, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	name := jutil.GoString(env, jutil.Object(uintptr(unsafe.Pointer(jName))))
 	d, err := jrpc.GoDispatcher(env, jutil.Object(uintptr(unsafe.Pointer(jDispatcher))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	opts, err := jopts.GoRpcServerOpts(env, jutil.Object(uintptr(unsafe.Pointer(jOptions))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	newCtx, server, err := v23.WithNewDispatchingServer(ctx, name, d, opts...)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jServer, err := jrpc.JavaServer(env, server)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	// Explicitly attach a server to the new context.
 	jServerAttCtx, err := jutil.CallStaticObjectMethod(env, jVRuntimeImplClass, "withServer", []jutil.Sign{contextSign, serverSign}, contextSign, jNewCtx, jServer)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jServerAttCtx))
 }
@@ -167,22 +167,22 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeWithPrincipal(jenv *C.JNIEnv, j
 	ctx, cancel, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	principal, err := jsecurity.GoPrincipal(env, jutil.Object(uintptr(unsafe.Pointer(jPrincipal))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	newCtx, err := v23.WithPrincipal(ctx, principal)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jNewCtx))
 }
@@ -193,13 +193,13 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeGetPrincipal(jenv *C.JNIEnv, jR
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	principal := v23.GetPrincipal(ctx)
 	jPrincipal, err := jsecurity.JavaPrincipal(env, principal)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jPrincipal))
 }
@@ -210,23 +210,23 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeWithNewNamespace(jenv *C.JNIEnv
 	ctx, cancel, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	roots, err := jutil.GoStringArray(env, jutil.Object(uintptr(unsafe.Pointer(jRoots))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	newCtx, _, err := v23.WithNewNamespace(ctx, roots...)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jNewCtx))
 }
@@ -237,13 +237,13 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeGetNamespace(jenv *C.JNIEnv, jR
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	namespace := v23.GetNamespace(ctx)
 	jNamespace, err := jns.JavaNamespace(env, namespace)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jNamespace))
 }
@@ -254,18 +254,18 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeWithListenSpec(jenv *C.JNIEnv, 
 	ctx, cancel, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	spec, err := jrpc.GoListenSpec(env, jutil.Object(uintptr(unsafe.Pointer(jSpec))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	newCtx := v23.WithListenSpec(ctx, spec)
 	jNewCtx, err := jcontext.JavaContext(env, newCtx, cancel)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jNewCtx))
 }
@@ -276,13 +276,13 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeGetListenSpec(jenv *C.JNIEnv, j
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	spec := v23.GetListenSpec(ctx)
 	jSpec, err := jrpc.JavaListenSpec(env, spec)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jSpec))
 }
@@ -293,18 +293,18 @@ func Java_io_v_impl_google_rt_VRuntimeImpl_nativeNewDiscovery(jenv *C.JNIEnv, jR
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	discovery, err := v23.NewDiscovery(ctx)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jDiscovery, err := jdiscovery.JavaDiscovery(env, discovery)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jDiscovery))
 }

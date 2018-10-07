@@ -2,6 +2,7 @@ import groovy.json.internal.Charsets
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
     }
@@ -23,7 +24,7 @@ targetCompatibility = 1.7
 
 // You should change this after releasing a new version of the library. See the
 // list of published versions at https://repo1.maven.org/maven2/io/v/vanadium.
-def releaseVersion = '2.2.3'
+def releaseVersion = '2.2.4'
 
 dependencies {
     compile group: 'joda-time', name: 'joda-time', version: '2.7'
@@ -87,12 +88,13 @@ def String getMavenOsName() {
     }
 }
 
-def vanadiumCoreRoot = VanadiumEnvironment.getVanadiumEnvironment().goPath.getAbsolutePath()
+def vanadiumCoreRoot = VanadiumEnvironment.getVanadiumEnvironment().v23corePath.getAbsolutePath()
 
 sourceSets.main.java.srcDirs += 'generated-src/vdl'
 
 class VanadiumEnvironment {
     File goPath;
+    File v23corePath;
 
     public static getVanadiumEnvironment() {
         VanadiumEnvironment result = new VanadiumEnvironment()
@@ -101,7 +103,12 @@ class VanadiumEnvironment {
             throw new InvalidUserDataException("GOPATH is not set.")
         }
 
+        if (!System.getenv().containsKey('VANADIUM_CORE_REPO')) {
+            throw new InvalidUserDataException("VANADIUM_CORE_REPO is not set.")
+        }
+
         result.goPath = new File(System.getenv()['GOPATH'])
+        result.v23corePath = new File(System.getenv()['VANADIUM_CORE_REPO'])
         return result
     }
 }

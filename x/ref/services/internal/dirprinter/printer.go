@@ -76,6 +76,12 @@ func printDirTree(w io.Writer, dir string) error {
 			}
 		}
 		if err != nil {
+			// Replace trailing |<space><space> with
+			// |-- in the case of an error.
+			fmt.Fprint(w, string(graphics[:len(graphics)-3]))
+			fmt.Fprint(w, string(append([]rune{vertRightLine}, horizLine, horizLine)))
+			printEntry(w, info)
+			fmt.Fprint(w, "\n")
 			fmt.Fprint(w, string(graphics))
 			fmt.Fprintf(w, "ERROR: %v\n", err)
 			return filepath.SkipDir
@@ -112,7 +118,7 @@ func printEntry(w io.Writer, info os.FileInfo) {
 // descendant files.  If the file is text, it also dumps the contents out.
 func printDirContents(w io.Writer, dir string) error {
 	printFn := func(path string, info os.FileInfo, _ error) error {
-		if info.IsDir() {
+		if info != nil && info.IsDir() {
 			return nil
 		}
 		path = filepath.Clean(path)
