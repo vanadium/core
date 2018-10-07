@@ -4,10 +4,12 @@ language: generic
 before_install:
   GIMME_OUTPUT=$(gimme 1.11.1) && eval "$GIMME_OUTPUT"
 jdk: oraclejdk8
-
+env:
+  GOPATH=${TRAVIS_BUILD_DIR}
+  VDLPATH=${TRAVIS_BUILD_DIR}/src
 install:
-  - mkdir -p v.io
-  - rsync v23 x v.io/
+  - mkdir -p src/v.io
+  - rsync v23 x src/v.io/
   - go get -t v.io/... 
   - go install v.io/...
 script:
