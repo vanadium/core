@@ -1,20 +1,15 @@
 sudo: required
 dist: trusty
-language: generic
-before_install:
-  GIMME_OUTPUT=$(gimme 1.11.1) && eval "$GIMME_OUTPUT"
+language:  go
+go:
+  - "1.11.1"
+go_import_path:	v.io
 jdk: oraclejdk8
-env:
-  global:
-    - GOPATH=$TRAVIS_BUILD_DIR
-    - VDLPATH=$TRAVIS_BUILD_DIR/src
 
 install:
   - echo $GOPATH
   - echo $VDLPATH
-  - mkdir -p src/v.io
-  - rsync v23 vendor x src/v.io/
-  - go get -t v.io/... 
+  - go get -v -t v.io/... 
   - go install v.io/...
 
 script:
