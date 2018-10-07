@@ -39,7 +39,10 @@ export VANADIUM_CORE_REPO
 
 .PHONY: test
 test:
+	echo ${GOPATH}
 	echo ${VDLPATH}
+	pwd
+	find . -type d
 	go test v.io/...
 
 .PHONY: test-integration
