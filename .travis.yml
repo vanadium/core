@@ -1,12 +1,22 @@
 sudo: required
 dist: trusty
-language: java
-jdk: oraclejdk8
-before_install: GIMME_OUTPUT=$(gimme 1.11.1) && eval "$GIMME_OUTPUT"
-install: make get-deps
-script:
-  - make go
-  - make test
-  - make test-integration
-  - make java
-  - make test-java
+
+matrix:
+  include:
+    language: go
+    go:
+      - "1.11.1"
+    go_import_path:
+      - v.io
+    install:
+      - go get -t v.io/... 
+    script:
+      - go test v.io/...
+      - make test-integration
+
+  include:
+    language: java
+    jdk: oraclejdk8
+    script:
+      - make java
+      - make test-java
