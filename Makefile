@@ -14,12 +14,14 @@ export VDLPATH
 VANADIUM_CORE_REPO ?= $(shell pwd)
 export VANADIUM_CORE_REPO
 
+.PHOHY: go
+go:
+	go install v.io/...
 
 .PHONY: test
 test:
 	echo "GOPATH" ${GOPATH}
 	echo "VDLPATH" ${VDLPATH}
-	pwd
 	go test v.io/...
 
 .PHONY: test-integration
@@ -40,12 +42,12 @@ test-integration:
 		-v23.tests
 
 .PHONY: java
-java:
+java: go
 	@echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
 	cd java/lib && ../gradlew -i publishToMavenLocal
 
 .PHONY: test-java
-test-java:
+test-java: java
 	cd java/lib && ../gradlew -i test
 
 .PHONY: clean

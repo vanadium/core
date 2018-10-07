@@ -4,10 +4,8 @@ language:  go
 go:
   - "1.11.1"
 go_import_path:	v.io
-jdk: oraclejdk8
 env:
   VDLPATH=$GOPATH/src
-  VANADIUM_CORE_REPO=$GOPATH
 
 install:
   - echo "GOPATH:" $GOPATH
@@ -18,9 +16,6 @@ install:
 script:
   - make test
   - make test-integration
-  - echo "VANADIUM_CORE_REPO:" $VANADIUM_CORE_REPO
-  - make java
-  - make test-java
-
+ 
 notifications:
     email: false
