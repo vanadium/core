@@ -42,7 +42,6 @@ test:
 	echo "GOPATH" ${GOPATH}
 	echo "VDLPATH" ${VDLPATH}
 	pwd
-	find . -type
 	go test v.io/...
 
 .PHONY: test-integration
