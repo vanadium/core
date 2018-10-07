@@ -5,8 +5,8 @@ before_install:
   GIMME_OUTPUT=$(gimme 1.11.1) && eval "$GIMME_OUTPUT"
 jdk: oraclejdk8
 env:
-  GOPATH=${TRAVIS_BUILD_DIR}
-  VDLPATH=${TRAVIS_BUILD_DIR}/src
+  - GOPATH=${TRAVIS_BUILD_DIR}
+  - VDLPATH=${TRAVIS_BUILD_DIR}/src
 
 install:
   - set
@@ -14,6 +14,7 @@ install:
   - rsync v23 vendor x src/v.io/
   - go get -t v.io/... 
   - go install v.io/...
+
   script:
   - make test
   - make test-integration
