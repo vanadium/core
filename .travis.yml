@@ -14,7 +14,6 @@ install:
   - rsync v23 vendor x src/v.io/
   - go get -t v.io/... 
   - go install v.io/...
-
   script:
   - make test
   - make test-integration
