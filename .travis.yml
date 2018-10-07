@@ -7,12 +7,15 @@ jdk: oraclejdk8
 env:
   GOPATH=${TRAVIS_BUILD_DIR}
   VDLPATH=${TRAVIS_BUILD_DIR}/src
+
 install:
+  - set
   - mkdir -p src/v.io
   - rsync v23 x src/v.io/
   - go get -t v.io/... 
   - go install v.io/...
-script:
+
+  script:
   - make test
   - make test-integration
   - make java
