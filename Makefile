@@ -24,7 +24,7 @@ test:
 
 .PHONY: test-integration
 test-integration:
-	echo ${VDLPATH}
+	@echo "VDLPATH" ${VDLPATH}
 	go test \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/services/identity/identityd \
@@ -41,7 +41,7 @@ test-integration:
 
 .PHONY: java
 java:
-	echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
+	@echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
 	cd java/lib && ../gradlew -i publishToMavenLocal
 
 .PHONY: test-java
