@@ -15,28 +15,6 @@ VANADIUM_CORE_REPO ?= $(shell pwd)
 export VANADIUM_CORE_REPO
 
 
-#.PHONY: all
-#all: go java
-
-#.PHONY: go
-#go: get-deps
-#	go version
-#	go list v.io/...
-#	go install v.io/...
-
-#.PHONY: get-deps
-#get-deps: src
-
-#src:
-#	mkdir -p src/v.io
-#	rsync -a v23 vendor x src/v.io
-#	git clone https://github.com/vanadium/go.lib src/v.io/x/lib
-#	go get -t v.io/...
-#	find . -type d -name vlog
-#	cat ./src/v.io/x/lib/vlog/flags.go
-
-#test-all: test test-integration
-
 .PHONY: test
 test:
 	echo "GOPATH" ${GOPATH}
@@ -63,6 +41,7 @@ test-integration:
 
 .PHONY: java
 java:
+	echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
 	cd java/lib && ../gradlew -i publishToMavenLocal
 
 .PHONY: test-java

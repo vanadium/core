@@ -7,6 +7,7 @@ go_import_path:	v.io
 jdk: oraclejdk8
 env:
   VDLPATH=$GOPATH/src
+  VANADIUM_CORE_REPO=$TRAVIS_BUILD_DIR
 
 install:
   - echo "GOPATH:" $GOPATH
