@@ -15,7 +15,7 @@ install:
   - go get -t v.io/... 
   - go install v.io/...
 
-  script:
+script:
   - make test
   - make test-integration
   - make java
