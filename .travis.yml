@@ -1,19 +1,25 @@
 sudo: required
 dist: trusty
-language: go
-go:
-  - "1.11.1"
-go_import_path: v.io
 
-language: java
-jdk: oraclejdk8
+matrix:
+  include:
 
-install:
-  - go get -t v.io/... 
-  - go install v.io/...
-  
-script:
- - make test
- - make test-integration
- - make java
- - make test-java
+    language: go
+    go:
+      - "1.11.1"
+    go_import_path: v.io
+    install:
+      - go get -t v.io/... 
+      - go install v.io/...
+
+    language: java
+    jdk: oraclejdk8
+
+    script:
+      - make test
+      - make test-integration
+      - make java
+      - make test-java
+
+notifications:
+    email: false
