@@ -5,10 +5,12 @@ go:
   - "1.11.1"
 go_import_path:	v.io
 jdk: oraclejdk8
+env:
+  VDLPATH=$GOPATH/src
 
 install:
-  - echo $GOPATH
-  - echo $VDLPATH
+  - echo "GOPATH:" $GOPATH
+  - echo "VDLPATH:" $VDLPATH
   - go get -v -t v.io/... 
   - go install v.io/...
 
