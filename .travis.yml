@@ -7,7 +7,6 @@ go_import_path: v.io
 install:
   - go get -t v.io/... 
   - go install v.io/...
-
   
 matrix:
   include:
@@ -16,7 +15,7 @@ matrix:
       - make test
       - make test-integration
 
-  iinclude:
+  include:
     language: java
     jdk: oraclejdk8
     script:

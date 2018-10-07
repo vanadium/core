@@ -39,10 +39,12 @@ export VANADIUM_CORE_REPO
 
 .PHONY: test
 test:
+	echo ${VDLPATH}
 	go test v.io/...
 
 .PHONY: test-integration
 test-integration:
+	echo ${VDLPATH}
 	go test \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/services/identity/identityd \
