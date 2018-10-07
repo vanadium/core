@@ -3,7 +3,6 @@ dist: trusty
 
 matrix:
   include:
-
     language: go
     go:
       - "1.11.1"
@@ -11,10 +10,8 @@ matrix:
     install:
       - go get -t v.io/... 
       - go install v.io/...
-
     language: java
     jdk: oraclejdk8
-
     script:
       - make test
       - make test-integration
