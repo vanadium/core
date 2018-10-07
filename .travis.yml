@@ -1,22 +1,20 @@
 sudo: required
 dist: trusty
+language: generic
+before_install:
+  GIMME_OUTPUT=$(gimme 1.11.1) && eval "$GIMME_OUTPUT"
+jdk: oraclejdk8
 
-matrix:
-  include:
-    language: go
-    go:
-      - "1.11.1"
-    go_import_path: v.io
-    install:
-      - go get -t v.io/... 
-      - go install v.io/...
-    language: java
-    jdk: oraclejdk8
-    script:
-      - make test
-      - make test-integration
-      - make java
-      - make test-java
+install:
+  - mkdir -p v.io
+  - rsync v23 x v.io/
+  - go get -t v.io/... 
+  - go install v.io/...
+script:
+  - make test
+  - make test-integration
+  - make java
+  - make test-java
 
 notifications:
     email: false
