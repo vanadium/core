@@ -2,6 +2,7 @@ import groovy.json.internal.Charsets
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
     }

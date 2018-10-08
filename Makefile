@@ -11,34 +11,22 @@ export VDLPATH
 # the single tree layout used when 'using' the code via go get for example.
 # The VANADIUM_CORE_REPO variable is used to unambigously refer to the
 # core repo.
-VANADIUM_CORE_REPO ?= $(shell pwd)/src
+VANADIUM_CORE_REPO ?= $(shell pwd)
 export VANADIUM_CORE_REPO
 
-.PHONY: all
-all: go java
-
-.PHONY: go
-go: get-deps
-	go list v.io/...
+.PHOHY: go
+go:
 	go install v.io/...
-
-.PHONY: get-deps
-get-deps: src
-
-src:
-	mkdir -p src/v.io
-	rsync -a v23 vendor x src/v.io
-	git clone https://github.com/vanadium/go.lib src/v.io/x/lib
-	go get -t v.io/...
-
-test-all: test test-integration
 
 .PHONY: test
 test:
+	echo "GOPATH" ${GOPATH}
+	echo "VDLPATH" ${VDLPATH}
 	go test v.io/...
 
 .PHONY: test-integration
 test-integration:
+	@echo "VDLPATH" ${VDLPATH}
 	go test \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/services/identity/identityd \
@@ -54,12 +42,13 @@ test-integration:
 		-v23.tests
 
 .PHONY: java
-java:
-	cd java/lib && ../gradlew publishToMavenLocal --info
+java: go
+	@echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
+	cd java/lib && ../gradlew -i publishToMavenLocal
 
 .PHONY: test-java
-test-java:
-	cd java/lib && ../gradlew test --info
+test-java: java
+	cd java/lib && ../gradlew -i test
 
 .PHONY: clean
 clean:

@@ -23,7 +23,7 @@ import (
 
 	"v.io/x/ref/internal/logger"
 
-	mdns "github.com/presotto/go-mdns-sd"
+	mdns "github.com/vanadium/go-mdns-sd"
 )
 
 var (
