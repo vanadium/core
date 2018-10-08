@@ -1,21 +1,27 @@
 sudo: required
 dist: trusty
-language:  go
+language: go
 go:
-  - "1.11.1"
-go_import_path:	v.io
+- 1.11.1
+go_import_path: v.io
 env:
-  VDLPATH=$GOPATH/src
-
+  matrix:
+  - VDLPATH=$GOPATH/src
+  global:
+  - secure: E5fEWzKMEJSnCB0cqVrONV67bzHcbNPkIx3MmHTf1ARmBSMiNfa6km4nNxPcmTYXf0JyVyTdivsvL116/3K7cRUwAV+zwx35lo24/braJHrtt32XdPYOy7D2PmQbnV4xiwUiMzy1s9t7wpEVmqnfKJqqfv0qzz8JfqVkH9iIxVPR8pvSW3gXKcpb7Vh2JIGFEYoMr1JOqFZ7W0XH61wyJq3TAJxJZ8n4AV9Rrj20GGL6QNdEkafaUpBZotb3fi9naFreApDdF9ET8MZAYz49mGRlFJa5pNd782yrd1rV08Q2WU3SVHWkm/Ij6hKLBWQ+pXYPC2miKhEYK2dVHQfQA8DJy+9FFuvVMB6hcM1TkRo59EaK/E+PXGnTtdW3L9QpneajYSpirNJEevBnmHPBfZTRNvSFgS5qwtcxPoo3uNnBCZ3jF1dRWzUd2AoBikqOEXMn1cgpVi6BilYZ4GZ85qyBO70jNrG4nNtwHC8SvYuJSEURwUkjRVuxAl0upBo1pTrBbdrW+BOR+W0xuyxX0PLWwxGoMDtiwEQHdWC7CAjc3gH22F0CTB84VvK/VMzqJD7t5pauw8yi/CK5KiG7xBk9ueV/MZyfILPSyDbjM10BrsEHF+7QajF/Di7gfWbwS1h/iiAWU1j8wJa0B+E5MEwhV45Si0ww10ByyPm71A0=
 install:
-  - echo "GOPATH:" $GOPATH
-  - echo "VDLPATH:" $VDLPATH
-  - go get -v -t v.io/... 
-  - go install v.io/...
-
+- echo "GOPATH:" $GOPATH
+- echo "VDLPATH:" $VDLPATH
+- go get -v -t v.io/...
+- go install v.io/...
 script:
-  - make test
-  - make test-integration
- 
+- make test
+- make test-integration
 notifications:
-    email: false
+  email:
+    receipients:
+      - vanadium-ci@v.io
+    on_success: never
+    on_failure: always
+after_success:
+- bash ./trigger-travis-build.sh $TRAVIS_API_TOKEN vanadium java
