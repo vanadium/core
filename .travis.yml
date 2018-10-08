@@ -18,6 +18,10 @@ script:
 - make test
 - make test-integration
 notifications:
-  email: false
+  email:
+    receipients:
+      - vanadium-ci@v.io
+    on_success: never
+    on_failure: always
 after_success:
 - bash ./trigger-travis-build.sh $TRAVIS_API_TOKEN vanadium java
