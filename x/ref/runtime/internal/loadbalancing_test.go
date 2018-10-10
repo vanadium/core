@@ -86,7 +86,11 @@ func TestApproximateLoadBalancing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer serverCancelB()
+	defer func() {
+		if serverCancelB != nil {
+			serverCancelB()
+		}
+	}()
 
 	testutil.WaitForServerPublished(serverA)
 	testutil.WaitForServerPublished(serverB)
@@ -99,7 +103,7 @@ func TestApproximateLoadBalancing(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
-	iterations := 200
+	iterations := 300
 	runClient := func(useCancel bool, s1, s2 string) (a, b int) {
 		name := "with_cancel"
 		if !useCancel {
@@ -108,6 +112,9 @@ func TestApproximateLoadBalancing(t *testing.T) {
 		responses, err := callClient(ctx, name, iterations, useCancel)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if got, want := len(responses), iterations; got != want {
+			t.Errorf("got %v, want %v", got, want)
 		}
 		a, b = countServers(responses, s1, s2)
 		return
@@ -142,6 +149,7 @@ func TestApproximateLoadBalancing(t *testing.T) {
 
 	// Stop one of the servers and restart a third one below.
 	serverCancelB()
+	serverCancelB = nil
 	<-serverB.Closed()
 
 	// Start a third server to replace the one that was stopped
@@ -180,7 +188,7 @@ func TestApproximateLoadBalancing(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if nca == 0 || ncb == 0 {
-		t.Errorf("with out cancel, no load balancing: %v, %v", nca, ncb)
+		t.Errorf("without cancel, no load balancing: %v, %v", nca, ncb)
 	}
 	if got, want := nca+ncb, iterations; got != want {
 		t.Errorf("got %v, want %v", got, want)
