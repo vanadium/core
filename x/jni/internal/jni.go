@@ -73,6 +73,3 @@ func loggingOpts(env jutil.Env, jOpts jutil.Object) (dir vlog.LogDir, toStderr v
 	err = vmodule.Set(m)
 	return
 }
-
-func main() {
-}

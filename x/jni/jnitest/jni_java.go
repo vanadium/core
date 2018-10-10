@@ -8,7 +8,12 @@ package jni
 
 import (
 	_ "v.io/x/jni/internal"
+	library "v.io/x/ref/runtime/factories/library"
 	_ "v.io/x/ref/runtime/factories/roaming"
 )
+
+func init() {
+	library.AllowMultipleInitializations = true
+}
 
 func main() {}

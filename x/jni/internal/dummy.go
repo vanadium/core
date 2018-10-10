@@ -2,13 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build java
+// +build !java,!android
 
-package jni
-
-import (
-	_ "v.io/x/jni/internal"
-	_ "v.io/x/ref/runtime/factories/roaming"
-)
+package main
 
 func main() {}
