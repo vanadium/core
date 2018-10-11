@@ -6,6 +6,7 @@ package hello_test
 
 import (
 	"testing"
+	"time"
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
@@ -23,11 +24,13 @@ func init() {
 
 func withCreds(dir string, c *v23test.Cmd) *v23test.Cmd {
 	c.Vars[ref.EnvCredentials] = dir
+	c.S.SetTimeout(5 * time.Minute)
 	return c
 }
 
 func withCredsSock(sock string, c *v23test.Cmd) *v23test.Cmd {
 	c.Vars[ref.EnvAgentPath] = sock
+	c.S.SetTimeout(5 * time.Minute)
 	return c
 }
 
