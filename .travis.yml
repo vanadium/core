@@ -1,3 +1,4 @@
+sudo: false
 dist: trusty
 language: go
 go:
