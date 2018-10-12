@@ -19,6 +19,7 @@ package v23
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -447,6 +448,10 @@ This registration is from:
 	initState.mu.Unlock()
 
 	vshutdown := func() {
+		if r := recover(); r != nil {
+			fmt.Fprintf(os.Stderr, "WARNING: panic called: bypassing shutdown code\n")
+			panic(r)
+		}
 		// Note we call our own cancel here to ensure that the
 		// runtime/runtimeFactory implementor has not attached anything to a
 		// non-cancellable context.
