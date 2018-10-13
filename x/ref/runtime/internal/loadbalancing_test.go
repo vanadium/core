@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -20,6 +21,7 @@ type testService struct {
 }
 
 func (t *testService) Echo(ctx *context.T, call rpc.ServerCall, arg string) (string, error) {
+	fmt.Fprintf(os.Stderr, "Echo: %p: %v: %v\n".t.msg, arg)
 	return t.msg + ": " + arg, nil
 }
 
