@@ -5,6 +5,7 @@
 package rpc
 
 import (
+	"fmt"
 	"sync"
 
 	"v.io/v23/context"
@@ -72,12 +73,22 @@ func (tc *typeCache) get(ctx *context.T, c flow.ManagedConn) (*vom.TypeEncoder, 
 	tc.mu.Unlock()
 	select {
 	case <-c.Closed():
-		return nil, nil, newErrTypeFlowFailure(ctx, nil)
+		return nil, nil, newErrTypeFlowFailure(ctx, fmt.Errorf("closed"))
 	case <-ctx.Done():
 		return nil, nil, ctx.Err()
 	case <-tce.ready:
 		if tce.enc == nil || tce.dec == nil {
-			return nil, nil, newErrTypeFlowFailure(ctx, nil)
+			var err error
+			if tce.enc == nil {
+				err = fmt.Errorf("nil encoder")
+			}
+			if tce.dec == nil {
+				err = fmt.Errorf("nil decoder")
+			}
+			if tce.enc == nil && tce.dec == nil {
+				err = fmt.Errorf("nil encoder & decoder")
+			}
+			return nil, nil, newErrTypeFlowFailure(ctx, err)
 		}
 	}
 	return tce.enc, tce.dec, nil
