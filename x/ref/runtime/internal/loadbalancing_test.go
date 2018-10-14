@@ -21,7 +21,7 @@ type testService struct {
 }
 
 func (t *testService) Echo(ctx *context.T, call rpc.ServerCall, arg string) (string, error) {
-	fmt.Fprintf(os.Stderr, "Echo: %p: %v: %v\n", t.msg, arg)
+	fmt.Fprintf(os.Stderr, "Echo: %v: %v\n", t.msg, arg)
 	return t.msg + ": " + arg, nil
 }
 
