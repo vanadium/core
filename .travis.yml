@@ -24,4 +24,4 @@ notifications:
     on_success: never
     on_failure: always
 after_success:
-- bash ./trigger-travis-build.sh $TRAVIS_API_TOKEN vanadium java
+- bash ./trigger-travis-build.sh "$TRAVIS_API_TOKEN" vanadium java

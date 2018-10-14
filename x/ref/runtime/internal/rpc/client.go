@@ -9,6 +9,7 @@ import (
 	"io"
 	"math/rand"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -483,6 +484,8 @@ func (c *client) tryConnectToServer(
 			tflow.Close()
 			write(nil, tcancel)
 		} else if _, err = tflow.Write([]byte{typeFlow}); err != nil {
+			ctx.InfoStack(false)
+			fmt.Fprintf(os.Stderr, ">>>>>>>> %v\n", err)
 			tflow.Close()
 			write(nil, tcancel)
 		} else {
