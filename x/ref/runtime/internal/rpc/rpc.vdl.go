@@ -71,6 +71,9 @@ func newErrBadAuth(ctx *context.T, suffix string, method string, err error) erro
 
 // newErrTypeFlowFailure returns an error with the errTypeFlowFailure ID.
 func newErrTypeFlowFailure(ctx *context.T, err error) error {
+	if err == nil {
+		ctx.Fatalf("how come err is nil???")
+	}
 	return verror.New(errTypeFlowFailure, ctx, err)
 }
 
