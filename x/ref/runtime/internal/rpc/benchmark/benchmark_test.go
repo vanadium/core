@@ -5,6 +5,7 @@
 package benchmark_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -337,6 +338,7 @@ func setupProxiedServerClient(ctx *context.T) {
 		ctx.Fatal(err)
 	}
 	status := testutil.WaitForProxyEndpoints(proxiedServer, pname)
+	fmt.Fprintf(os.Stderr, "WaitForProxyEndpoints: %v : %v -> %v\n", pname, proxiedServer.Status().Endpoints, status.Endpoints)
 	proxiedServerAddr = status.Endpoints[0].Name()
 	// Create Conns to exclude the Conn setup time from the benchmark.
 	internal.CallEcho(&testing.B{}, ctx, proxiedServerAddr, 1, 0, benchmark.NewStats(1))
