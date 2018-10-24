@@ -453,6 +453,7 @@ var childPing = gosh.RegisterFunc("childPing", func(name string) error {
 func TestTimeoutResponse(t *testing.T) {
 	_, ctx, name, cleanup := testInit(t, true)
 	defer cleanup()
+	ctx.Infof("TestTimeoutResponse")
 
 	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
 	err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
