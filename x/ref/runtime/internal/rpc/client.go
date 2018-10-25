@@ -481,6 +481,7 @@ func (c *client) tryConnectToServer(
 		if err != nil {
 			write(nil, tcancel)
 		} else if tflow.Conn() != flw.Conn() {
+			ctx.Infof("Existing: %p, new side channel: %p", flw.Conn(), tflow.Conn())
 			tflow.Close()
 			write(nil, tcancel)
 		} else if _, err = tflow.Write([]byte{typeFlow}); err != nil {

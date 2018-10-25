@@ -24,7 +24,6 @@ import (
 
 	"v.io/x/lib/netconfig"
 	"v.io/x/lib/netstate"
-	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/pubsub"
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/stats"
@@ -119,8 +118,6 @@ func New(
 	if cacheInterval < minCacheInterval {
 		cacheInterval = minCacheInterval
 	}
-	vlog.InfoStack(false)
-	vlog.Infof("IDLE: %v -> %v", idleExpiry, cacheInterval)
 	m.cacheTicker = time.NewTicker(cacheInterval)
 
 	statsPrefix := naming.Join("rpc", "flow", rid.String())
