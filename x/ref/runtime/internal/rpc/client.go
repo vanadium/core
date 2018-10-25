@@ -478,17 +478,11 @@ func (c *client) tryConnectToServer(
 		tctx, tcancel := context.WithRootCancel(ctx)
 		tflow, err := c.flowMgr.DialSideChannel(tctx, flw.RemoteEndpoint(), typeFlowAuthorizer{}, 0)
 		if err != nil {
-			ctx.Infof("dial side channel failed: %v", err)
-			ctx.InfoStack(false)
 			write(nil, tcancel)
 		} else if tflow.Conn() != flw.Conn() {
-			ctx.Infof("flow mismatch")
-			ctx.InfoStack(false)
 			tflow.Close()
 			write(nil, tcancel)
 		} else if _, err = tflow.Write([]byte{typeFlow}); err != nil {
-			ctx.Infof("write on type flow failed: %v", err)
-			ctx.InfoStack(false)
 			tflow.Close()
 			write(nil, tcancel)
 		} else {

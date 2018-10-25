@@ -24,6 +24,7 @@ import (
 	"flag"
 	"fmt"
 	"sync"
+	"time"
 
 	"v.io/v23"
 	"v.io/v23/context"
@@ -95,6 +96,10 @@ var (
 	// be initialized multiple times. The shutdown callback must be called
 	// between multiple initializations.
 	AllowMultipleInitializations = false
+
+	// ConnectionExpiryDuration sets the rate at which cached connections
+	// will be considered for eviction from the cache.
+	ConnectionExpiryDuration = 10 * time.Minute
 
 	state factoryState
 )
@@ -241,7 +246,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		runtimeFlags,
 		reservedDispatcher,
 		permissionsSpec,
-		0)
+		ConnectionExpiryDuration)
 	if err != nil {
 		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
 		return nil, nil, nil, err

@@ -22,11 +22,18 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/generic"
+	"v.io/x/ref/runtime/factories/library"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
 	"v.io/x/ref/services/mounttable/mounttablelib"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )
+
+func init() {
+	// Slow down expiration of existing connections in case these
+	// tests run slowly to deflake them.
+	library.ConnectionExpiryDuration = 60 * time.Minute
+}
 
 func resolveWithRetry(ctx *context.T, name string, opts ...naming.NamespaceOpt) *naming.MountEntry {
 	ns := v23.GetNamespace(ctx)

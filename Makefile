@@ -6,26 +6,9 @@ export GOPATH
 VDLPATH ?= $(shell pwd)/src
 export VDLPATH
 
-# Note that the split across the core and go.lib repos leads to
-# a multi-tree layout when developing for contributing code rather than
-# the single tree layout used when 'using' the code via go get for example.
-# The VANADIUM_CORE_REPO variable is used to unambigously refer to the
-# core repo.
-VANADIUM_CORE_REPO ?= $(shell pwd)
-export VANADIUM_CORE_REPO
-
-.PHOHY: go
-go:
-	go install v.io/...
-
-.PHONY: test
-test:
-	echo "GOPATH" ${GOPATH}
-	echo "VDLPATH" ${VDLPATH}
-	go test v.io/...
-
 .PHONY: test-integration
 test-integration:
+	@echo "GOPATH" ${GOPATH}
 	@echo "VDLPATH" ${VDLPATH}
 	go test \
 		v.io/x/ref/cmd/principal \
@@ -41,15 +24,3 @@ test-integration:
 		v.io/x/ref/examples/rps/rpsbot \
 		-v23.tests
 
-.PHONY: java
-java: go
-	@echo "VANADIUM_CORE_REPO" ${VANADIUM_CORE_REPO}
-	cd java/lib && ../gradlew -i publishToMavenLocal
-
-.PHONY: test-java
-test-java: java
-	cd java/lib && ../gradlew -i test
-
-.PHONY: clean
-clean:
-	rm -rf go/bin go/pkg
