@@ -11,6 +11,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/vom"
+	"v.io/x/lib/vlog"
 )
 
 type typeCacheEntry struct {
@@ -54,6 +55,8 @@ func (tc *typeCache) writer(c flow.ManagedConn) (write func(flow.Flow, context.C
 				tce.dec = vom.NewTypeDecoder(f)
 				tce.dec.Start() // Stopped in collect()
 			} else {
+				vlog.InfoStack(false)
+				vlog.Infof("closing ready chan for nil flow")
 				c()
 			}
 			close(tce.ready)
