@@ -124,6 +124,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 			connIdleExpiry = time.Duration(v)
 		}
 	}
+
 	if c.flowMgr == nil {
 		c.flowMgr = manager.New(ctx, naming.NullRoutingID, nil, 0, connIdleExpiry, nil)
 	}

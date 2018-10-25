@@ -302,7 +302,7 @@ func (*Runtime) GetPrincipal(ctx *context.T) security.Principal {
 
 func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context.T, rpc.Client, error) {
 	defer apilog.LogCallf(ctx, "opts...=%v", opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
-	otherOpts := append([]rpc.ClientOpt{}, opts...)
+	otherOpts := []rpc.ClientOpt{}
 
 	p, _ := ctx.Value(principalKey).(security.Principal)
 	id, _ := ctx.Value(initKey).(*initData)
@@ -312,6 +312,7 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 	if id.connIdleExpiry > 0 {
 		otherOpts = append(otherOpts, irpc.IdleConnectionExpiry(id.connIdleExpiry))
 	}
+	otherOpts = append(otherOpts, opts...)
 	deps := []interface{}{vtraceDependency{}}
 	client := irpc.NewClient(ctx, otherOpts...)
 	newctx := context.WithValue(ctx, clientKey, client)
