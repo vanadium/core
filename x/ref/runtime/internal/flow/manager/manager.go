@@ -24,6 +24,7 @@ import (
 
 	"v.io/x/lib/netconfig"
 	"v.io/x/lib/netstate"
+	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/pubsub"
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/stats"
@@ -824,6 +825,9 @@ func (m *manager) internalDial(
 		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
 	}
 	c, _ := cached.(*conn.Conn)
+	if sideChannel {
+		vlog.Infof("internalDial: cache.Find: %p", c)
+	}
 
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.
 	if !c.MatchesRID(remote) {

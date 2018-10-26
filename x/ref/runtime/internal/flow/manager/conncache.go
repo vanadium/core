@@ -16,7 +16,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/lib/nsync"
-	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/stats"
 	"v.io/x/ref/runtime/internal/flow/conn"
 )
@@ -608,7 +607,6 @@ func (c *ConnCache) removeEntryLocked(entry *connEntry) {
 		}
 	}
 	delete(c.conns, entry.conn)
-	vlog.Infof("removing from cache: %p", entry.conn)
 	if entry.cancel != nil {
 		entry.cancel()
 	}
