@@ -820,13 +820,16 @@ func (m *manager) internalDial(
 		go m.dialReserved(res, remote, auth, channelTimeout, proxy)
 	}
 
+	if sideChannel {
+		vlog.Infof("[[--------- sideChannel: cache.Find: for %v", remote)
+	}
 	cached, names, rejected, err := m.cache.Find(ctx, remote, auth)
 	if err != nil {
 		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
 	}
 	c, _ := cached.(*conn.Conn)
 	if sideChannel {
-		vlog.Infof("internalDial: cache.Find: %p", c)
+		vlog.Infof("]]-------- sideChannel: cache.Find: %p: %v", c, remote)
 	}
 
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.

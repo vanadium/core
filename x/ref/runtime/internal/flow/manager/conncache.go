@@ -194,10 +194,13 @@ func (c *ConnCache) Find(
 ) (conn CachedConn, names []string, rejected []security.RejectedBlessing, err error) {
 	var keys []interface{}
 	if keys, conn, names, rejected, err = c.internalFindCached(ctx, remote, auth); conn != nil {
+		ctx.Infof("Find: cached: %p for %v", conn, remote)
 		return conn, names, rejected, nil
 	}
 	// Finally try waiting for any outstanding dials to complete.
-	return c.internalFind(ctx, remote, keys, auth, true)
+	nc, n, r, err := c.internalFind(ctx, remote, keys, auth, true)
+	ctx.Infof("Find: reserved: %p for %v", nc, remote)
+	return nc, n, r, err
 }
 
 // FindCached returns a Conn only if it's already in the cache.
