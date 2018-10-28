@@ -13,10 +13,8 @@ import (
 	"io"
 	"net"
 	"os"
-	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 
 	"v.io/x/lib/cmdline"
 
@@ -171,7 +169,7 @@ func runVsh(ctx *context.T, env *cmdline.Env, args []string) error {
 	// This loops sends WinSize packets on the RPC stream whenever the local
 	// window size changes.
 	winch := make(chan os.Signal, 1)
-	signal.Notify(winch, syscall.SIGWINCH)
+	signalWindowSizeChange(winch)
 	go func() {
 		for range winch {
 			ws, err := internal.GetWindowSize()

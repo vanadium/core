@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build linux darwin
+// +build linux darwin windows
 
 // Package grail implements a RuntimeFactory suitable for a variety of network
 // configurations appropriate for grail.
@@ -21,7 +21,6 @@ import (
 	"v.io/v23/rpc"
 
 	"v.io/x/ref/internal/logger"
-	dfactory "v.io/x/ref/lib/discovery/factory"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/security/securityflag"
@@ -72,12 +71,6 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	}
 
 	ac := appcycle.New()
-	discoveryFactory, err := dfactory.New(ctx)
-	if err != nil {
-		ac.Shutdown()
-		cancelCloud()
-		return nil, nil, nil, err
-	}
 
 	lf := commonFlags.ListenFlags()
 	listenSpec := rpc.ListenSpec{
@@ -90,7 +83,6 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	ishutdown := func() {
 		ac.Shutdown()
 		cancelCloud()
-		discoveryFactory.Shutdown()
 	}
 
 	// TODO(ashankar): As of April 2016, the only purpose this non-nil
@@ -101,7 +93,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	// completely (and enable "roaming" for all servers by default).
 	publisher := pubsub.NewPublisher()
 
-	runtime, ctx, shutdown, err := rt.Init(ctx, ac, discoveryFactory, nil, nil, &listenSpec, publisher, commonFlags.RuntimeFlags(), reservedDispatcher, 0)
+	runtime, ctx, shutdown, err := rt.Init(ctx, ac, nil, nil, nil, &listenSpec, publisher, commonFlags.RuntimeFlags(), reservedDispatcher, 0)
 	if err != nil {
 		ishutdown()
 		return nil, nil, nil, err
