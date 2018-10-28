@@ -23,7 +23,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/apilog"
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/internal/flow/conn"
@@ -363,6 +362,7 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	ch := make(chan *serverStatus, len(resolved.Servers))
 	authorizer := newServerAuthorizer(blessingPattern, opts...)
 	peerAuth := peerAuthorizer{authorizer, method, args}
+
 	for i, server := range resolved.Names() {
 		c.mu.Lock()
 		if c.closing {
@@ -465,7 +465,6 @@ func (c *client) tryConnectToServer(
 			status.serverErr = suberr(err)
 			return
 		}
-		vlog.Infof("DIAL: CACHED ONLY: %v, %p to %v", ep, flw.Conn(), flw.RemoteEndpoint())
 	} else {
 		flw, err = c.flowMgr.Dial(ctx, ep, auth, connOpts.channelTimeout)
 		if err != nil {
@@ -473,15 +472,13 @@ func (c *client) tryConnectToServer(
 			status.serverErr = suberr(err)
 			return
 		}
-		vlog.Infof("DIAL: %v, %p, to %v", ep, flw.Conn(), flw.RemoteEndpoint())
 	}
 	if write := c.typeCache.writer(flw.Conn()); write != nil {
 		// Create the type flow with a root-cancellable context.
 		// This flow must outlive the flow we're currently creating.
 		// It lives as long as the connection to which it is bound.
 		tctx, tcancel := context.WithRootCancel(ctx)
-		vlog.Infof("SIDE DIAL: %v", flw.RemoteEndpoint())
-		tflow, err := c.flowMgr.DialSideChannel(tctx, flw.RemoteEndpoint(), typeFlowAuthorizer{}, 0)
+		tflow, err := c.flowMgr.DialSideChannelCached(tctx, flw.RemoteEndpoint(), typeFlowAuthorizer{}, flw.Conn(), 0)
 		if err != nil {
 			write(nil, tcancel)
 		} else if tflow.Conn() != flw.Conn() {

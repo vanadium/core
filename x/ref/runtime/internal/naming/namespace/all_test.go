@@ -21,7 +21,6 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/verror"
-	"v.io/x/lib/vlog"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/runtime/factories/library"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
@@ -696,13 +695,10 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 		if e, err := ns.ShallowResolve(clientCtx, name); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
 			t.Errorf("resolve(%q) returned (%v, errorid=%v %v), wanted errorid=%v", name, e, verror.ErrorID(err), err, verror.ErrNotTrusted.ID)
 		}
-		vlog.Infof("--------------------------")
 		// But not fail if the server authorization is skipped.
 		if e, err := ns.ShallowResolve(clientCtx, name, options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
-			vlog.Infof("+++++++++++++++++++++++++++++++")
 			t.Errorf("resolve(%q): Got (%v, %v), expected resolution to succeed", name, e, err)
 		}
-		vlog.Infof("..............................")
 		// The namespace root from the context should be authorized as well.
 		ctx, ns, _ := v23.WithNewNamespace(clientCtx, naming.JoinAddressName(root, ""))
 		if e, err := ns.Resolve(ctx, "mt/server"); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
