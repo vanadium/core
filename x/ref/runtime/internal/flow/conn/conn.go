@@ -287,6 +287,9 @@ func NewDialed(
 }
 
 // NewAccepted accepts a new Conn on the given conn.
+//
+// NOTE: that the FlowHandler must be called asynchronously since it may
+//       block until this function returns.
 func NewAccepted(
 	ctx *context.T,
 	lAuthorizedPeers []security.BlessingPattern,
@@ -353,7 +356,12 @@ func NewAccepted(
 	}
 	timer.Stop()
 	if ferr != nil {
-		c.Close(ctx, ferr)
+		// Call internalClose with closedWhileAccepting set to true
+		// to avoid waiting on the go routine above to complete.
+		// This avoids blocking on the loopWG waitgroup which is
+		// pointless since we've decided to not wait on it!
+		c.internalClose(ctx, false, true, ferr)
+		<-c.closed
 		return nil, ferr
 	}
 	c.initializeHealthChecks(ctx, rtt)
@@ -394,7 +402,7 @@ func (c *Conn) blessingsLoop(
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
 		if err != nil {
-			c.internalClose(ctx, false, err)
+			c.internalClose(ctx, false, false, err)
 			return
 		}
 		c.mu.Lock()
@@ -407,7 +415,7 @@ func (c *Conn) blessingsLoop(
 		})
 		c.mu.Unlock()
 		if err != nil {
-			c.internalClose(ctx, false, err)
+			c.internalClose(ctx, false, false, err)
 			return
 		}
 	}
@@ -441,7 +449,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		requestDeadline: now.Add(c.acceptChannelTimeout / 2),
 
 		closeTimer: time.AfterFunc(c.acceptChannelTimeout, func() {
-			c.internalClose(ctx, false, NewErrChannelTimeout(ctx))
+			c.internalClose(ctx, false, false, NewErrChannelTimeout(ctx))
 		}),
 		closeDeadline: now.Add(c.acceptChannelTimeout),
 		lastRTT:       firstRTT,
@@ -492,11 +500,10 @@ func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 		if c.hcstate == nil {
 			// There's a scheduling race between initializing healthchecks
 			// and accepting a connection since each is handled on a different
-			// goroutine. Hence this may to update the health checks before
-			// they have been initialized. The simplest fix is to just
-			// initialize them here.
+			// goroutine. Hence there may be an attempt to update the health
+			// checks before they have been initialized. The simplest fix is
+			// to just initialize them here.
 			c.hcstate = c.newHealthChecksLocked(ctx, timeout)
-			ctx.VI(0).Infof("healthCheckNewFlowLocked: initializing health checks on first refresh: conn %p, timeout: %v", c, timeout)
 			return
 		}
 		if min := minChannelTimeout[c.local.Protocol]; timeout < min {
@@ -664,7 +671,7 @@ func (c *Conn) Status() Status {
 
 // Close shuts down a conn.
 func (c *Conn) Close(ctx *context.T, err error) {
-	c.internalClose(ctx, false, err)
+	c.internalClose(ctx, false, false, err)
 	<-c.closed
 }
 
@@ -674,7 +681,7 @@ func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.isIdleLocked(ctx, idleExpiry) {
-		c.internalCloseLocked(ctx, false, NewErrIdleConnKilled(ctx))
+		c.internalCloseLocked(ctx, false, false, NewErrIdleConnKilled(ctx))
 		return true
 	}
 	return false
@@ -709,13 +716,13 @@ func (c *Conn) hasActiveFlowsLocked() bool {
 	return false
 }
 
-func (c *Conn) internalClose(ctx *context.T, closedRemotely bool, err error) {
+func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
 	c.mu.Lock()
-	c.internalCloseLocked(ctx, closedRemotely, err)
+	c.internalCloseLocked(ctx, closedRemotely, closedWhileAccepting, err)
 	c.mu.Unlock()
 }
 
-func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely bool, err error) {
+func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
 	debug := ctx.VI(2)
 	debug.Infof("Closing connection: %v", err)
 
@@ -770,7 +777,11 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely bool, err erro
 		if c.cancel != nil {
 			c.cancel()
 		}
-		c.loopWG.Wait()
+		if !closedWhileAccepting {
+			// given that the accept handshake timed out or was
+			// cancelled it doesn't make sense to wait for it here.
+			c.loopWG.Wait()
+		}
 		c.mu.Lock()
 		c.status = Closed
 		close(c.closed)
@@ -830,7 +841,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error {
 		if msg.Message != "" {
 			err = NewErrRemoteError(ctx, msg.Message)
 		}
-		c.internalClose(ctx, true, err)
+		c.internalClose(ctx, true, false, err)
 		return nil
 
 	case *message.EnterLameDuck:
@@ -902,6 +913,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error {
 		c.mu.Unlock()
 
 		c.handler.HandleFlow(f)
+
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
 		}
@@ -975,7 +987,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 			break
 		}
 	}
-	c.internalClose(ctx, false, err)
+	c.internalClose(ctx, false, false, err)
 }
 
 func (c *Conn) markUsed() {

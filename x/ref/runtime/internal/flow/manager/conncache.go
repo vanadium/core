@@ -184,9 +184,8 @@ func (c *ConnCache) InsertWithRoutingID(conn CachedConn, proxy bool) error {
 // Find returns a Conn based on the input remoteEndpoint.
 // nil is returned if there is no such Conn.
 //
-// Find calls for the will block if the desired connections are
-// currently being dialed.  Find will return immediately if the given
-// context is canceled.
+// Find calls will block if the desired connections are currently being dialed.
+// Find will return immediately if the given context is canceled.
 func (c *ConnCache) Find(
 	ctx *context.T,
 	remote naming.Endpoint,
@@ -197,7 +196,8 @@ func (c *ConnCache) Find(
 		return conn, names, rejected, nil
 	}
 	// Finally try waiting for any outstanding dials to complete.
-	return c.internalFind(ctx, remote, keys, auth, true)
+	nc, n, r, err := c.internalFind(ctx, remote, keys, auth, true)
+	return nc, n, r, err
 }
 
 // FindCached returns a Conn only if it's already in the cache.
@@ -207,6 +207,15 @@ func (c *ConnCache) FindCached(
 	auth flow.PeerAuthorizer) (conn CachedConn, names []string, rejected []security.RejectedBlessing, err error) {
 	_, conn, names, rejected, err = c.internalFindCached(ctx, remote, auth)
 	return
+}
+
+// FindAllCached returns all Conns for the specified endpoint that are
+// already in the cache.
+func (c *ConnCache) FindAllCached(
+	ctx *context.T,
+	remote naming.Endpoint,
+	auth flow.PeerAuthorizer) ([]CachedConn, error) {
+	return c.internalFindAllCached(ctx, remote, auth)
 }
 
 func (c *ConnCache) internalFind(
@@ -274,15 +283,69 @@ func (c *ConnCache) internalFindCached(
 		// TODO(suharshs): Add a unittest for failed resolution.
 		ctx.Errorf("Failed to resolve (%v, %v): %v", remote.Protocol, remote.Address, rerr)
 	}
+
 	for _, a := range addresses {
 		if k := key(network, a); k != addrKey {
 			keys = append(keys, k)
 		}
 	}
+
 	if len(keys) > 1 {
 		conn, names, rejected, err = c.internalFind(ctx, remote, keys, auth, false)
 	}
 	return keys, conn, names, rejected, err
+}
+
+func (c *ConnCache) internalFindAllCached(
+	ctx *context.T,
+	remote naming.Endpoint,
+	auth flow.PeerAuthorizer) ([]CachedConn, error) {
+
+	// Collect all of the possible keys that could be used for this endpoint.
+	keys := make([]interface{}, 0, 4)
+	if rid := remote.RoutingID; rid != naming.NullRoutingID {
+		keys = append(keys, []interface{}{rid, pathkey(remote.Protocol, remote.Address, rid)}...)
+	}
+
+	// protocol, address key.
+	addrKey := key(remote.Protocol, remote.Address)
+	keys = append(keys, addrKey)
+
+	// key for all resolved addresses.
+	p, _ := flow.RegisteredProtocol(remote.Protocol)
+	network, addresses, rerr := resolve(ctx, p, remote.Protocol, remote.Address)
+	if rerr != nil {
+		// TODO(suharshs): Add a unittest for failed resolution.
+		ctx.Errorf("Failed to resolve (%v, %v): %v", remote.Protocol, remote.Address, rerr)
+	}
+	for _, a := range addresses {
+		if k := key(network, a); k != addrKey {
+			keys = append(keys, k)
+		}
+	}
+
+	c.mu.Lock()
+	entries, err := c.rttEntriesLocked(ctx, keys)
+	c.mu.Unlock()
+	if err != nil {
+		return nil, err
+	}
+
+	conns := make([]CachedConn, 0, len(entries))
+	for _, e := range entries {
+		if e.proxy || auth == nil {
+			conns = append(conns, e.conn)
+		}
+		_, _, rerr := auth.AuthorizePeer(ctx,
+			e.conn.LocalEndpoint(),
+			remote,
+			e.conn.RemoteBlessings(),
+			e.conn.RemoteDischarges())
+		if rerr == nil {
+			conns = append(conns, e.conn)
+		}
+	}
+	return conns, nil
 }
 
 // Reserve reserves the right to dial a remote endpoint.
@@ -535,6 +598,7 @@ func (c *ConnCache) insertConnLocked(remote naming.Endpoint, conn CachedConn, pr
 		}
 		entry.keys = append(entry.keys, pathkey(ep.Protocol, ep.Address, ep.RoutingID))
 	}
+
 	for _, k := range entry.keys {
 		c.cache[k] = append(c.cache[k], entry)
 	}

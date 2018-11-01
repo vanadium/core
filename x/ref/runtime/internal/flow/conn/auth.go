@@ -20,6 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
+	"v.io/x/lib/vlog"
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
@@ -261,6 +262,19 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			rttend = time.Now()
 			break
 		}
+		if _, ok := msg.(*message.OpenFlow); ok {
+			// If we get an OpenFlow message here it needs to be handled
+			// asynchronously since it will call the flow handler
+			// which will block until NewAccepted (which calls
+			// this method) returns. OpenFlow is generally expected
+			// to be handled by readLoop.
+			go func() {
+				if err := c.handleMessage(ctx, msg); err != nil {
+					vlog.Infof("handleMessage: %v", err)
+				}
+			}()
+			continue
+		}
 		if err = c.handleMessage(ctx, msg); err != nil {
 			return security.Blessings{}, nil, rttend, err
 		}
@@ -418,7 +432,7 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 			return security.Blessings{}, nil, err
 		}
 		if err := b.receiveLocked(ctx, received); err != nil {
-			b.f.conn.internalClose(ctx, false, err)
+			b.f.conn.internalClose(ctx, false, false, err)
 			return security.Blessings{}, nil, err
 		}
 	}
