@@ -7,15 +7,15 @@ repo="$3"
 if [[ -z "$token" ]]; then
     echo "no token specified"
     exit 1
-if
+fi
 if [[ -z "$owner" ]]; then
     echo "no owner specified"
     exit 1
-if
+fi
 if [[ -z "$repo" ]]; then
     echo "no repo specified"
     exit 1
-if
+fi
 
 body='{
 "request": {
