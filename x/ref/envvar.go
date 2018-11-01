@@ -67,7 +67,7 @@ const (
 	EnvDisableNamespaceCache = "V23_DISABLE_NS_CACHE"
 
 	// If the credentials are loaded from a directory then don't lock the
-	// directory. This allows running
+	// directory.
 	EnvDisableCredentialsLocking = "V23_CREDENTIALS_NO_LOCK"
 )
 

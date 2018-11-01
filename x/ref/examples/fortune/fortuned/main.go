@@ -12,6 +12,7 @@ import (
 	"v.io/v23"
 	"v.io/v23/security"
 	"v.io/x/ref/examples/fortune"
+	"v.io/x/ref/examples/fortune/fortuned/internal"
 	"v.io/x/ref/lib/signals"
 
 	// The v23.Init call below will use the roaming runtime factory.
@@ -27,7 +28,7 @@ func main() {
 	defer shutdown()
 
 	authorizer := security.DefaultAuthorizer()
-	impl := newImpl()
+	impl := internal.NewImpl()
 	service := fortune.FortuneServer(impl)
 
 	ctx, server, err := v23.WithNewServer(ctx, *name, service, authorizer)

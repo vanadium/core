@@ -13,12 +13,13 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
+	"v.io/v23/security/access"
 
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/internal"
 	grt "v.io/x/ref/runtime/internal/rt"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
-	_ "v.io/x/ref/runtime/protocols/ws"
+	_ "v.io/x/ref/runtime/protocols/ws" // Initialize ws and ws_nacl.
 	_ "v.io/x/ref/runtime/protocols/wsh_nacl"
 )
 
@@ -37,7 +38,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 
 	protocols := []string{"wsh", "ws"}
 	listenSpec := rpc.ListenSpec{Addrs: rpc.ListenAddrs{{Protocol: "ws", Address: ""}}}
-	runtime, ctx, shutdown, err := grt.Init(ctx, nil, nil, nil, protocols, &listenSpec, nil, commonFlags.RuntimeFlags(), nil, 0)
+	runtime, ctx, shutdown, err := grt.Init(ctx, nil, nil, nil, protocols, &listenSpec, nil, commonFlags.RuntimeFlags(), nil, access.PermissionsSpec{}, 0)
 	if err != nil {
 		return nil, nil, nil, err
 	}

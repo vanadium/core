@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package debuglib
+package debuglib_test
 
 import (
 	"io"
@@ -27,6 +27,7 @@ import (
 	"v.io/x/lib/vlog"
 	libstats "v.io/x/ref/lib/stats"
 	_ "v.io/x/ref/runtime/factories/generic"
+	"v.io/x/ref/services/debug/debuglib"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )
@@ -40,7 +41,7 @@ func TestDebugServer(t *testing.T) {
 		vtrace.ForceCollect(ctx, 0)
 		return ctx
 	}
-	rootName = "debug"
+	debuglib.RootName = "debug"
 
 	workdir, err := ioutil.TempDir("", "logreadertest")
 	if err != nil {
@@ -56,7 +57,7 @@ func TestDebugServer(t *testing.T) {
 	testLogger.Configure(vlog.LogDir(workdir))
 	ctx = context.WithLogger(ctx, testLogger)
 
-	disp := NewDispatcher(nil)
+	disp := debuglib.NewDispatcher(nil)
 	ctx, server, err := v23.WithNewDispatchingServer(ctx, "", disp)
 	if err != nil {
 		t.Fatalf("failed to start debug server: %v", err)

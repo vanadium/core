@@ -124,6 +124,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 			connIdleExpiry = time.Duration(v)
 		}
 	}
+
 	if c.flowMgr == nil {
 		c.flowMgr = manager.New(ctx, naming.NullRoutingID, nil, 0, connIdleExpiry, nil)
 	}
@@ -361,6 +362,7 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	ch := make(chan *serverStatus, len(resolved.Servers))
 	authorizer := newServerAuthorizer(blessingPattern, opts...)
 	peerAuth := peerAuthorizer{authorizer, method, args}
+
 	for i, server := range resolved.Names() {
 		c.mu.Lock()
 		if c.closing {

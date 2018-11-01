@@ -12,6 +12,8 @@ import (
 	"reflect"
 	"testing"
 
+	"v.io/x/ref/lib/flags"
+
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/x/lib/gosh"
@@ -35,9 +37,14 @@ var (
 )
 
 var permFromFlag = gosh.RegisterFunc("permFromFlag", func() {
+	pf := flags.PermissionsFlags{}
+	flags.RegisterPermissionsFlags(flag.CommandLine, &pf)
 	flag.Parse()
 	nfargs := flag.CommandLine.Args()
-	perms, err := PermissionsFromFlag()
+	perms, err := PermissionsFromSpec(access.PermissionsSpec{
+		Files:   pf.PermissionsNamesAndFiles(),
+		Literal: pf.PermissionsLiteral(),
+	}, "")
 	if err != nil {
 		fmt.Printf("PermissionsFromFlag() failed: %v", err)
 		return

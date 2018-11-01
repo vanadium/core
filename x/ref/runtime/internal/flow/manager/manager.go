@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	reapCacheInterval = 5 * time.Minute
+	reapCacheInterval = 30 * time.Minute      // this is conservative
 	minCacheInterval  = 10 * time.Millisecond // the minimum time we are willing to poll the cache for idle or closed connections.
 	handshakeTimeout  = time.Minute
 )

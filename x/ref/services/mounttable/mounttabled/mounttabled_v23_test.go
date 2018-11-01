@@ -63,6 +63,7 @@ func TestV23Mount(t *testing.T) {
 	// endpoint of the mount table.
 	glob = start(sh.Cmd(clientBin, "glob", "/"+neighborhoodEndpoint, nhName).WithCredentials(clientCreds))
 	matches = glob.ExpectSetEventuallyRE("^" + regexp.QuoteMeta(nhName) + ` (.*) \(Deadline .*\)$`)
+
 	if matches[0][1] != name {
 		t.Fatalf("expected endpoint of mount table for name %s", nhName)
 	}

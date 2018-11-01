@@ -11,6 +11,7 @@ import (
 	"v.io/v23/namespace"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
+	"v.io/v23/security/access"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/lib/apilog"
 	tnaming "v.io/x/ref/runtime/internal/testing/mocks/naming"
@@ -81,6 +82,10 @@ func (r *Runtime) GetBackgroundContext(ctx *context.T) *context.T {
 		return ctx
 	}
 	return bctx
+}
+
+func (r *Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
+	return access.PermissionsSpec{}
 }
 
 func (r *Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
