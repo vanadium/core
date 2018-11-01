@@ -356,7 +356,12 @@ func NewAccepted(
 	}
 	timer.Stop()
 	if ferr != nil {
+		// Call internalClose with closedWhileAccepting set to true
+		// to avoid waiting on the go routine above to complete.
+		// This avoids blocking on the loopWG waitgroup which is
+		// pointless since we've decided to not wait on it!
 		c.internalClose(ctx, false, true, ferr)
+		<-c.closed
 		return nil, ferr
 	}
 	c.initializeHealthChecks(ctx, rtt)
@@ -773,8 +778,8 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			c.cancel()
 		}
 		if !closedWhileAccepting {
-			// given that the accept handshake timed out or was cancelled it
-			// doesn't make sense to wait for it here.
+			// given that the accept handshake timed out or was
+			// cancelled it doesn't make sense to wait for it here.
 			c.loopWG.Wait()
 		}
 		c.mu.Lock()

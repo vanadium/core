@@ -20,6 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
+	"v.io/x/lib/vlog"
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
@@ -267,7 +268,11 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// which will block until NewAccepted (which calls
 			// this method) returns. OpenFlow is generally expected
 			// to be handled by readLoop.
-			go c.handleMessage(ctx, msg)
+			go func() {
+				if err := c.handleMessage(ctx, msg); err != nil {
+					vlog.Infof("handleMessage: %v", err)
+				}
+			}()
 			continue
 		}
 		if err = c.handleMessage(ctx, msg); err != nil {
