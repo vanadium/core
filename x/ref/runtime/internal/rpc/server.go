@@ -246,7 +246,7 @@ func WithNewDispatchingServer(ctx *context.T,
 			select {
 			case <-done:
 			case <-time.After(s.lameDuckTimeout):
-				s.ctx.Errorf("%s: Timed out waiting for active requests to complete", serverDebug)
+				s.ctx.Errorf("%s: Timed out after %v waiting for active requests to complete", serverDebug, s.lameDuckTimeout)
 			}
 		}
 		// Now we cancel the root context which closes all the connections
