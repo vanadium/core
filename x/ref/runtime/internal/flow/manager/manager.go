@@ -620,6 +620,8 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				ctx.Errorf("failed to cache conn %v: %v", c, err)
 				c.Close(ctx, err)
 			}
+			// Note: the flow handler created above will block until
+			// this channel is closed.
 			close(fh.cached)
 		}()
 	}

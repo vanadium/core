@@ -664,6 +664,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 	// Setup the namespace root for all the "processes".
 	rootmt := runMT(t, rootMtCtx, "")
 	defer rootmt.stop()
+
 	for _, ctx := range []*context.T{mtCtx, serverCtx, clientCtx} {
 		v23.GetNamespace(ctx).SetRoots(rootmt.name)
 	}
@@ -673,9 +674,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 
 	// Intermediate mounttables should be authenticated.
 	mt := runMT(t, mtCtx, "mt")
-	defer func() {
-		mt.stop()
-	}()
+	defer mt.stop()
 
 	// Mount a server on "mt".
 	if err := serverNs.Mount(serverCtx, "mt/server", serverEndpoint, time.Minute, naming.ReplaceMount(true)); err != nil {
