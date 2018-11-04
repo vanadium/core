@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.v.v23.security.CallTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2015-07-14T21:16:25" hostname="jring.mtv.corp.google.com" time="0.025">
-  <properties/>
-  <testcase name="testContextParams" classname="io.v.v23.security.CallTest" time="0.025"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

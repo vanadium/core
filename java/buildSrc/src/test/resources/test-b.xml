@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.v.v23.security.CaveatTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2015-07-14T21:16:28" hostname="jring.mtv.corp.google.com" time="0.071">
-  <properties/>
-  <testcase name="testCustomCaveat" classname="io.v.v23.security.CaveatTest" time="0.028"/>
-  <testcase name="testMethodCaveat" classname="io.v.v23.security.CaveatTest" time="0.021"/>
-  <testcase name="testExpiryCaveat" classname="io.v.v23.security.CaveatTest" time="0.022"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
