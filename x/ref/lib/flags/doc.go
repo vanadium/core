@@ -19,4 +19,11 @@
 // In general, this package will be used by vanadium profiles and the runtime
 // implementations, but can also be used by any application that wants access to
 // the flags and environment variables it supports.
+//
+// Default values are provided for all flags that can be overridden either
+// by calling functions in this package, or globally, by providing a new
+// source code file, that provides an init function (see aaa.go)
+// that provides an additional set of default values to be merged with the
+// original ones. It should be placed in a file that is lexicographically
+// less than zzz.go, e.g. site.go.
 package flags

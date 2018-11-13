@@ -12,23 +12,15 @@ import (
 )
 
 var (
-	defaultNamespaceRoots = defaultValues["namespaceRoots"].([]string)
-	// GUARDED_BY defaultMu
-	defaultCredentialsDir = defaultValues["credentialsDir"].(string)
-	// GUARDED_BY defaultMu
-	defaultI18nCatalogue = defaultValues["i18nCatalogue"].(string)
-	// GUARDED_BY defaultMu
-	defaultProtocol = defaultValues["protocol"].(string)
-	// GUARDED_BY defaultMu
-	defaultHostPort = defaultValues["hostPort"].(string)
-	// GUARDED_BY defaultMu
-	defaultProxy = defaultValues["proxy"].(string)
-	// GUARDED_BY defaultMu
-	defaultPermissionsLiteral = defaultValues["permissionsLiteral"].(string)
-	// GUARDED_BY defaultMu
-	defaultPermissions = defaultValues["permissions"].(map[string]string)
-	// GUARDED_BY defaultMu
-	defaultMu sync.RWMutex
+	defaultNamespaceRoots     []string          // GUARDED_BY defaultMu
+	defaultCredentialsDir     string            // GUARDED_BY defaultMu
+	defaultI18nCatalogue      string            // GUARDED_BY defaultMu
+	defaultProtocol           string            // GUARDED_BY defaultMu
+	defaultHostPort           string            // GUARDED_BY defaultMu
+	defaultProxy              string            // GUARDED_BY defaultMu
+	defaultPermissionsLiteral string            // GUARDED_BY defaultMu
+	defaultPermissions        map[string]string // GUARDED_BY defaultMu
+	defaultMu                 sync.RWMutex
 )
 
 // SetDefaultProtocol sets the default protocol used when --v23.tcp.protocol is
