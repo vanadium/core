@@ -268,12 +268,15 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		}
 		opened := f.opened
 		tokens, deduct := f.tokensLocked()
-		if opened && (tokens == 0 || f.noEncrypt && tokens < totalSize) {
+		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
 			// Note that if f.noEncrypt is set we're actually acting as a conn
 			// for higher level flows.  In this case we don't want to fragment the writes
 			// of the higher level flows, we want to transmit their messages whole.
+			// Similarly if noFragment is set we prefer to wait and not to send
+			// a partial write based on the available tokens. This is only required
+			// by proxies which need to pass on messages without refragmenting.
 			if debug {
 				ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
