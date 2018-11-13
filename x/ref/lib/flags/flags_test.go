@@ -214,6 +214,11 @@ func TestDefaults(t *testing.T) {
 	if got, want := permsf.PermissionsFile(""), ""; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
+
+	merged := flags.MergedForTest()
+	if got, want := merged["test-default-flag-not-for-real-use"].(string), "test-value"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
 }
 
 func TestListenFlags(t *testing.T) {
