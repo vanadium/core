@@ -19,9 +19,11 @@ import (
 )
 
 const (
-	proxyName   = "proxy"    // Name which the proxy mounts itself at
-	serverName  = "server"   // Name which the server mounts itself at
-	responseVar = "RESPONSE" // Name of the variable used by client program to output the response
+	proxyName    = "proxy"     // Name which the proxy mounts itself at
+	serverName   = "server"    // Name which the server mounts itself at
+	responseVar  = "RESPONSE"  // Name of the variable used by client program to output the first response
+	responseVar1 = "RESPONSE1" // Name of the variable used by client program to output the second response
+	downloadSize = 64 * 1024 * 1024
 )
 
 func TestV23Proxyd(t *testing.T) {
@@ -49,6 +51,9 @@ func TestV23Proxyd(t *testing.T) {
 	if got, want := cmd.S.ExpectVar(responseVar), "server [root:server] saw client [root:client]"; got != want {
 		t.Fatalf("Got %q, want %q", got, want)
 	}
+	if got, want := cmd.S.ExpectVar(responseVar1), fmt.Sprintf("%v", downloadSize); got != want {
+		t.Fatalf("Got %q, want %q", got, want)
+	}
 }
 
 var runServer = gosh.RegisterFunc("runServer", func() error {
@@ -67,10 +72,15 @@ var runClient = gosh.RegisterFunc("runClient", func() error {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	var response string
+	var payload []byte
 	if err := v23.GetClient(ctx).Call(ctx, serverName, "Echo", nil, []interface{}{&response}); err != nil {
 		return err
 	}
+	if err := v23.GetClient(ctx).Call(ctx, serverName, "Download", []interface{}{downloadSize}, []interface{}{&response, &payload}); err != nil {
+		return err
+	}
 	fmt.Printf("%v=%v\n", responseVar, response)
+	fmt.Printf("%v=%v\n", responseVar1, len(payload))
 	return nil
 })
 
@@ -80,6 +90,12 @@ func (service) Echo(ctx *context.T, call rpc.ServerCall) (string, error) {
 	client, _ := security.RemoteBlessingNames(ctx, call.Security())
 	server := security.LocalBlessingNames(ctx, call.Security())
 	return fmt.Sprintf("server %v saw client %v", server, client), nil
+}
+
+func (service) Download(ctx *context.T, call rpc.ServerCall, size int) (string, []byte, error) {
+	client, _ := security.RemoteBlessingNames(ctx, call.Security())
+	server := security.LocalBlessingNames(ctx, call.Security())
+	return fmt.Sprintf("server %v saw client %v", server, client), make([]byte, size), nil
 }
 
 func TestMain(m *testing.M) {
