@@ -2,7 +2,10 @@ package library_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
+
+	"v.io/x/lib/gosh"
 
 	"v.io/x/ref/lib/flags"
 
@@ -87,5 +90,36 @@ func TestDefaults(t *testing.T) {
 
 	if got, want := roots, []string{"/myroot"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestFlagParsing(t *testing.T) {
+	sh := gosh.NewShell(t)
+	defer sh.Cleanup()
+	sh.ContinueOnError = true
+	cmd := sh.Cmd("go",
+		"run",
+		"v.io/x/ref/runtime/factories/library/internal/noflags",
+		"--help")
+	stdout, stderr := cmd.StdoutStderr()
+
+	if got, want := stdout, "Principal"; !strings.Contains(got, want) {
+		t.Errorf("got %v does not contain %v", got, want)
+	}
+	if got, want := stderr, ""; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	cmd = sh.Cmd("go",
+		"run",
+		"v.io/x/ref/runtime/factories/library/internal/withflags",
+		"--help")
+	stdout, stderr = cmd.StdoutStderr()
+
+	if got, want := stdout, ""; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := stderr, "Usage"; !strings.Contains(got, want) {
+		t.Errorf("got %v does not contain %v", got, want)
 	}
 }
