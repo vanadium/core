@@ -133,8 +133,12 @@ func init() {
 
 // EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
-	flagSet = flags.CreateAndRegister(flag.CommandLine,
-		flags.Runtime, flags.Listen, flags.Permissions)
+	EnableFlags(flag.CommandLine)
+}
+
+// EnableFlags enables use of flags on the specified flag set.
+func EnableFlags(fs *flag.FlagSet) {
+	flagSet = flags.CreateAndRegister(fs, flags.Runtime, flags.Listen, flags.Permissions)
 }
 
 // Init creates a new v23.Runtime.
@@ -172,11 +176,18 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		}
 	}
 
+	previousFlagSet := flagSet
 	if flagSet == nil {
 		dummy := &flag.FlagSet{}
 		flagSet = flags.CreateAndRegister(dummy,
 			flags.Runtime, flags.Listen, flags.Permissions)
+	} else {
+		// Only parse flags if EnableFlags has been called.
+		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+			return nil, nil, nil, fmt.Errorf("library.Init: %v", err)
+		}
 	}
+
 	runtimeFlags := flagSet.RuntimeFlags()
 	listenFlags := flagSet.ListenFlags()
 	permissionsFlags := flagSet.PermissionsFlags()
@@ -255,7 +266,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	runtimeFactoryShutdown := func() {
 		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
 		shutdown()
-		flagSet = nil
+		flagSet = previousFlagSet
 		state.setRunning(false)
 	}
 	state.setRunning(true)

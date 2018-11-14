@@ -28,7 +28,7 @@ var commonFlags *flags.Flags
 
 func init() {
 	commonFlags = flags.CreateAndRegister(flag.CommandLine, flags.Runtime)
-	if err := internal.ParseFlags(commonFlags); err != nil {
+	if err := internal.ParseFlagsIncV23Env(commonFlags); err != nil {
 		panic(err)
 	}
 }
