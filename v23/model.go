@@ -18,6 +18,7 @@ package v23
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"os"
 	"runtime"
@@ -440,6 +441,9 @@ This registration is from:
 	if err != nil {
 		cancel()
 		rootcancel()
+		if err == flag.ErrHelp {
+			return nil, nil, err
+		}
 		return nil, nil, fmt.Errorf("runtimeFactory returned: %v", err)
 	}
 

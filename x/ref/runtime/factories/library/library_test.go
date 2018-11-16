@@ -123,3 +123,26 @@ func TestFlagParsing(t *testing.T) {
 		t.Errorf("got %v does not contain %v", got, want)
 	}
 }
+
+func TestPreParsing(t *testing.T) {
+	sh := gosh.NewShell(t)
+	defer sh.Cleanup()
+	sh.ContinueOnError = true
+	cmd := sh.Cmd("go",
+		"run",
+		"v.io/x/ref/runtime/factories/library/internal/preparsed",
+		"--help")
+	_, stderr := cmd.StdoutStderr()
+	if got, want := stderr, "exit status 10\n"; !strings.HasSuffix(got, want) {
+		t.Errorf("got %v does end with %v", got, want)
+	}
+	sh.Err = nil
+	cmd = sh.Cmd("go",
+		"run",
+		"v.io/x/ref/runtime/factories/library/internal/notpreparsed",
+		"--help")
+	_, stderr = cmd.StdoutStderr()
+	if got, want := stderr, "exit status 1\n"; !strings.HasSuffix(got, want) {
+		t.Errorf("got %v does end with %v", got, want)
+	}
+}

@@ -106,10 +106,9 @@ var (
 
 type factoryState struct {
 	sync.Mutex
-	running        bool
-	initialized    bool
-	logFlagsParsed bool
-	rtFlagsParsed  bool
+	running       bool
+	initialized   bool
+	rtFlagsParsed bool
 }
 
 func (st *factoryState) setRunning(s bool) {
@@ -118,12 +117,6 @@ func (st *factoryState) setRunning(s bool) {
 	if s {
 		st.initialized = true
 	}
-	st.Unlock()
-}
-
-func (st *factoryState) logsParsed() {
-	st.Lock()
-	st.logFlagsParsed = true
 	st.Unlock()
 }
 
@@ -140,10 +133,10 @@ func (st *factoryState) getState() (initialized, running bool) {
 	return
 }
 
-func (st *factoryState) getParsingState() (logsParsed, runtimeParsed bool) {
+func (st *factoryState) getParsingState() (runtimeParsed bool) {
 	st.Lock()
 	defer st.Unlock()
-	logsParsed, runtimeParsed = st.logFlagsParsed, st.rtFlagsParsed
+	runtimeParsed = st.rtFlagsParsed
 	return
 }
 
@@ -154,24 +147,22 @@ func init() {
 
 // EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
-	EnableFlags(flag.CommandLine)
+	EnableFlags(flag.CommandLine, false)
 }
 
-// EnableFlags enables the use of flags on the specified flag set.
-func EnableFlags(fs *flag.FlagSet) {
+// EnableFlags enables the use of flags on the specified flag set and returns
+// the newly created v.io/x/ref/lib/flags.Flags to allow for external
+// parsing by the caller if need be. It will optionally parse the newly
+// created and registered flags.
+func EnableFlags(fs *flag.FlagSet, parse bool) error {
 	flagSet = flags.CreateAndRegister(fs, flags.Runtime, flags.Listen, flags.Permissions)
-}
-
-// LogFlagsParsedExternally prevents the initialization code from re-parsing
-// the log related flags.
-func LogFlagsParsedExternally() {
-	state.logsParsed()
-}
-
-// RuntimeFlagsParsedExternally prevents the initialization code from re-parsing
-// the runtime related flags.
-func RuntimeFlagsParsedExternally() {
-	state.rtParsed()
+	if parse {
+		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+			return err
+		}
+		state.rtParsed()
+	}
+	return nil
 }
 
 func configureLogging() error {
@@ -197,6 +188,7 @@ func configureLogging() error {
 		if !AllowMultipleInitializations || !logger.IsAlreadyConfiguredError(err) {
 			return fmt.Errorf("libary.Init: %v", err)
 		}
+		return nil
 	}
 	return err
 }
@@ -212,23 +204,24 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		return nil, nil, nil, fmt.Errorf("Library.init incorrectly called multiple times")
 	}
 
-	logsParsed, rtParsed := state.getParsingState()
-	if !logsParsed {
-		if err := configureLogging(); err != nil {
-			return nil, nil, nil, err
-		}
+	if err := configureLogging(); err != nil {
+		return nil, nil, nil, err
 	}
 
 	previousFlagSet := flagSet
-	if !rtParsed {
-		if flagSet == nil {
-			dummy := &flag.FlagSet{}
-			flagSet = flags.CreateAndRegister(dummy,
-				flags.Runtime, flags.Listen, flags.Permissions)
-		} else {
+	if flagSet == nil {
+		dummy := &flag.FlagSet{}
+		flagSet = flags.CreateAndRegister(dummy,
+			flags.Runtime, flags.Listen, flags.Permissions)
+	} else {
+		rtParsed := state.getParsingState()
+		if !rtParsed {
 			// Only parse flags if EnableFlags has been called.
 			if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
-				return nil, nil, nil, fmt.Errorf("library.Init: %v", err)
+				if err == flag.ErrHelp {
+					return nil, nil, nil, err
+				}
+				return nil, nil, nil, fmt.Errorf("library.Init: runtime flags: %v", err)
 			}
 		}
 	}
