@@ -170,6 +170,7 @@ func NewPermissionsFlags() *PermissionsFlags {
 // the supplied FlagSet.
 func RegisterPermissionsFlags(fs *flag.FlagSet, f *PermissionsFlags) {
 	fs.Var(&f.files, "v23.permissions.file", "specify a perms file as <name>:<permsfile>")
+	fs.Lookup("v23.permissions.file").DefValue = ""
 	fs.Var(&f.literal, "v23.permissions.literal", "explicitly specify the runtime perms as a JSON-encoded access.Permissions. Overrides all --v23.permissions.file flags.")
 }
 

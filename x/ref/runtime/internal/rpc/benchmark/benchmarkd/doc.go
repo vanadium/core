@@ -49,9 +49,9 @@ The global flags are:
  -test.list=
    list tests, examples, and benchmarks matching `regexp` then exit
  -test.memprofile=
-   write a memory profile to `file`
+   write an allocation profile to `file`
  -test.memprofilerate=0
-   set memory profiling `rate` (see runtime.MemProfileRate)
+   set memory allocation profiling `rate` (see runtime.MemProfileRate)
  -test.mutexprofile=
    write a mutex contention profile to the named file after execution
  -test.mutexprofilefraction=1
@@ -82,7 +82,7 @@ The global flags are:
    18n catalogue files to load, comma separated
  -v23.namespace.root=[/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101]
    local namespace root; can be repeated to provided multiple roots
- -v23.permissions.file=map[]
+ -v23.permissions.file=
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=
    explicitly specify the runtime perms as a JSON-encoded access.Permissions.
