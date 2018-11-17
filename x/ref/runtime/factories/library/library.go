@@ -106,8 +106,9 @@ var (
 
 type factoryState struct {
 	sync.Mutex
-	running     bool
-	initialized bool
+	running       bool
+	initialized   bool
+	rtFlagsParsed bool
 }
 
 func (st *factoryState) setRunning(s bool) {
@@ -119,10 +120,23 @@ func (st *factoryState) setRunning(s bool) {
 	st.Unlock()
 }
 
+func (st *factoryState) rtParsed() {
+	st.Lock()
+	st.rtFlagsParsed = true
+	st.Unlock()
+}
+
 func (st *factoryState) getState() (initialized, running bool) {
 	st.Lock()
 	defer st.Unlock()
 	initialized, running = st.initialized, st.running
+	return
+}
+
+func (st *factoryState) getParsingState() (runtimeParsed bool) {
+	st.Lock()
+	defer st.Unlock()
+	runtimeParsed = st.rtFlagsParsed
 	return
 }
 
@@ -133,25 +147,25 @@ func init() {
 
 // EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
-	EnableFlags(flag.CommandLine)
+	EnableFlags(flag.CommandLine, false)
 }
 
-// EnableFlags enables use of flags on the specified flag set.
-func EnableFlags(fs *flag.FlagSet) {
+// EnableFlags enables the use of flags on the specified flag set and returns
+// the newly created v.io/x/ref/lib/flags.Flags to allow for external
+// parsing by the caller if need be. It will optionally parse the newly
+// created and registered flags.
+func EnableFlags(fs *flag.FlagSet, parse bool) error {
 	flagSet = flags.CreateAndRegister(fs, flags.Runtime, flags.Listen, flags.Permissions)
+	if parse {
+		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+			return err
+		}
+		state.rtParsed()
+	}
+	return nil
 }
 
-// Init creates a new v23.Runtime.
-func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
-	initialized, running := state.getState()
-	if AllowMultipleInitializations && running {
-		return nil, nil, nil, fmt.Errorf("Library.init called whilst a previous instance is still running, the shutdown callback has not bee called")
-	}
-
-	if !AllowMultipleInitializations && initialized {
-		return nil, nil, nil, fmt.Errorf("Library.init incorrectly called multiple times")
-	}
-
+func configureLogging() error {
 	var err error
 	if ConfigureLoggingFromFlags {
 		err = logger.Manager(logger.Global()).ConfigureFromFlags(LoggingOpts...)
@@ -172,8 +186,26 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	}
 	if err != nil {
 		if !AllowMultipleInitializations || !logger.IsAlreadyConfiguredError(err) {
-			return nil, nil, nil, fmt.Errorf("libary.Init: %v", err)
+			return fmt.Errorf("libary.Init: %v", err)
 		}
+		return nil
+	}
+	return err
+}
+
+// Init creates a new v23.Runtime.
+func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
+	initialized, running := state.getState()
+	if AllowMultipleInitializations && running {
+		return nil, nil, nil, fmt.Errorf("Library.init called whilst a previous instance is still running, the shutdown callback has not bee called")
+	}
+
+	if !AllowMultipleInitializations && initialized {
+		return nil, nil, nil, fmt.Errorf("Library.init incorrectly called multiple times")
+	}
+
+	if err := configureLogging(); err != nil {
+		return nil, nil, nil, err
 	}
 
 	previousFlagSet := flagSet
@@ -182,9 +214,15 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		flagSet = flags.CreateAndRegister(dummy,
 			flags.Runtime, flags.Listen, flags.Permissions)
 	} else {
-		// Only parse flags if EnableFlags has been called.
-		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
-			return nil, nil, nil, fmt.Errorf("library.Init: %v", err)
+		rtParsed := state.getParsingState()
+		if !rtParsed {
+			// Only parse flags if EnableFlags has been called.
+			if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+				if err == flag.ErrHelp {
+					return nil, nil, nil, err
+				}
+				return nil, nil, nil, fmt.Errorf("library.Init: runtime flags: %v", err)
+			}
 		}
 	}
 
@@ -206,6 +244,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	}
 
 	var cancelCloud func()
+	var err error
 	if CloudVM {
 		cancelCloud, err = internal.InitCloudVM()
 		if err != nil {
@@ -236,12 +275,6 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		reservedDispatcher = debuglib.NewDispatcher(authorizer)
 	}
 
-	// TODO(ashankar): As of April 2016, the only purpose this non-nil
-	// publisher was serving was to enable roaming in RPC servers (see
-	// runtime/internal/flow/manager/manager.go).  Once
-	// https://vanadium-review.googlesource.com/#/c/21954/ has been merged,
-	// I will try to remove the use of the publisher from here downstream
-	// completely (and enable "roaming" for all servers by default).
 	var publisher *pubsub.Publisher
 	if Roam {
 		publisher = pubsub.NewPublisher()

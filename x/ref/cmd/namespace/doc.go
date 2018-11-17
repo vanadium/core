@@ -52,6 +52,11 @@ The global flags are:
    directory to use for storing security credentials
  -v23.i18n-catalogue=
    18n catalogue files to load, comma separated
+ -v23.permissions.file=
+   specify a perms file as <name>:<permsfile>
+ -v23.permissions.literal=
+   explicitly specify the runtime perms as a JSON-encoded access.Permissions.
+   Overrides all --v23.permissions.file flags.
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
