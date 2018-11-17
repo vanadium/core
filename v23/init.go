@@ -4,7 +4,12 @@
 
 package v23
 
-import "v.io/v23/context"
+import (
+	"flag"
+	"os"
+
+	"v.io/v23/context"
+)
 
 // TryInit is like Init, except that it returns an error instead of panicking.
 func TryInit() (*context.T, Shutdown, error) {
@@ -20,6 +25,9 @@ func TryInit() (*context.T, Shutdown, error) {
 func Init() (*context.T, Shutdown) {
 	ctx, shutdown, err := internalInit()
 	if err != nil {
+		if err == flag.ErrHelp {
+			os.Exit(1)
+		}
 		panic(err)
 	}
 	return ctx, shutdown
