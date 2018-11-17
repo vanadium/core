@@ -45,6 +45,11 @@ The global flags are:
    18n catalogue files to load, comma separated
  -v23.namespace.root=[/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101]
    local namespace root; can be repeated to provided multiple roots
+ -v23.permissions.file=
+   specify a perms file as <name>:<permsfile>
+ -v23.permissions.literal=
+   explicitly specify the runtime perms as a JSON-encoded access.Permissions.
+   Overrides all --v23.permissions.file flags.
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
