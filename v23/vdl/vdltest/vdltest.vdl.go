@@ -35613,8 +35613,8 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "set[float64]{-1.0462917096148703e+09, 0, 1.6149150712494802e+09}",
 		Source: map[float64]struct{}{
 			-1.0462917096148703e+09: struct{}{},
-			0: struct{}{},
-			1.6149150712494802e+09: struct{}{},
+			0:                       struct{}{},
+			1.6149150712494802e+09:  struct{}{},
 		},
 	},
 	{
@@ -36585,30 +36585,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VMap_String_String{\"\": \"\", \"eΔΘΠΣΦ王普澤\": \"cd\", \"Π\": \"deΔΘΠΣΦ\"}",
 		Target: VMap_String_String{
-			"": "",
+			"":          "",
 			"eΔΘΠΣΦ王普澤": "cd",
-			"Π": "deΔΘΠΣΦ",
+			"Π":         "deΔΘΠΣΦ",
 		},
 		SourceLabel: "VMap_String_String{\"\": \"\", \"eΔΘΠΣΦ王普澤\": \"cd\", \"Π\": \"deΔΘΠΣΦ\"}",
 		Source: VMap_String_String{
-			"": "",
+			"":          "",
 			"eΔΘΠΣΦ王普澤": "cd",
-			"Π": "deΔΘΠΣΦ",
+			"Π":         "deΔΘΠΣΦ",
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VMap_String_String{\"\": \"\", \"eΔΘΠΣΦ王普澤\": \"cd\", \"Π\": \"deΔΘΠΣΦ\"}",
 		Target: VMap_String_String{
-			"": "",
+			"":          "",
 			"eΔΘΠΣΦ王普澤": "cd",
-			"Π": "deΔΘΠΣΦ",
+			"Π":         "deΔΘΠΣΦ",
 		},
 		SourceLabel: "VMap_VString_VString{\"\": \"\", \"eΔΘΠΣΦ王普澤\": \"cd\", \"Π\": \"deΔΘΠΣΦ\"}",
 		Source: VMap_VString_VString{
-			"": "",
+			"":          "",
 			"eΔΘΠΣΦ王普澤": "cd",
-			"Π": "deΔΘΠΣΦ",
+			"Π":         "deΔΘΠΣΦ",
 		},
 	},
 	{
@@ -50271,7 +50271,7 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0:                     struct{}{},
 					8.857047681266707e+07: struct{}{},
 				},
 				F5: VSet_VEnumBcd{
@@ -50425,7 +50425,7 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0:                     struct{}{},
 					8.857047681266707e+07: struct{}{},
 				},
 				F5: VSet_VEnumBcd{
@@ -50582,7 +50582,7 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0:                     struct{}{},
 					8.857047681266707e+07: struct{}{},
 				},
 				F5: VSet_VEnumBcd{
@@ -50736,7 +50736,7 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0:                     struct{}{},
 					8.857047681266707e+07: struct{}{},
 				},
 				F5: VSet_VEnumBcd{
@@ -51143,16 +51143,16 @@ var vAllPass = []vdlEntry{
 			{
 				F4: map[float64]struct{}{
 					-7.648597175544252e+08: struct{}{},
-					0:                    struct{}{},
-					1.34338380400205e+09: struct{}{},
+					0:                      struct{}{},
+					1.34338380400205e+09:   struct{}{},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
 					-9.142569413756968e+08: struct{}{},
-					0: struct{}{},
-					1.391175727124097e+09: struct{}{},
+					0:                      struct{}{},
+					1.391175727124097e+09:  struct{}{},
 				},
 			},
 		},
@@ -51161,16 +51161,16 @@ var vAllPass = []vdlEntry{
 			{
 				F4: map[float64]struct{}{
 					-7.648597175544252e+08: struct{}{},
-					0:                    struct{}{},
-					1.34338380400205e+09: struct{}{},
+					0:                      struct{}{},
+					1.34338380400205e+09:   struct{}{},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
 					-9.142569413756968e+08: struct{}{},
-					0: struct{}{},
-					1.391175727124097e+09: struct{}{},
+					0:                      struct{}{},
+					1.391175727124097e+09:  struct{}{},
 				},
 			},
 		},
@@ -51182,16 +51182,16 @@ var vAllPass = []vdlEntry{
 			{
 				F4: map[float64]struct{}{
 					-7.648597175544252e+08: struct{}{},
-					0:                    struct{}{},
-					1.34338380400205e+09: struct{}{},
+					0:                      struct{}{},
+					1.34338380400205e+09:   struct{}{},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
 					-9.142569413756968e+08: struct{}{},
-					0: struct{}{},
-					1.391175727124097e+09: struct{}{},
+					0:                      struct{}{},
+					1.391175727124097e+09:  struct{}{},
 				},
 			},
 		},
@@ -51200,16 +51200,16 @@ var vAllPass = []vdlEntry{
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
 					-7.648597175544252e+08: struct{}{},
-					0:                    struct{}{},
-					1.34338380400205e+09: struct{}{},
+					0:                      struct{}{},
+					1.34338380400205e+09:   struct{}{},
 				},
 			},
 			&VStructDepth2_Set_Float64{},
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
 					-9.142569413756968e+08: struct{}{},
-					0: struct{}{},
-					1.391175727124097e+09: struct{}{},
+					0:                      struct{}{},
+					1.391175727124097e+09:  struct{}{},
 				},
 			},
 		},
@@ -52455,7 +52455,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-4.106420264593588e+08:  struct{}{},
 					-4.3626757424300224e+08: struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -52465,7 +52465,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-4.106420264593588e+08:  struct{}{},
 					-4.3626757424300224e+08: struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -52478,7 +52478,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-4.106420264593588e+08:  struct{}{},
 					-4.3626757424300224e+08: struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -52488,7 +52488,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-4.106420264593588e+08:  struct{}{},
 					-4.3626757424300224e+08: struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -56532,7 +56532,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-1.9684892797302527e+09: struct{}{},
 					-8.275744919550115e+08:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 				F5: VSet_VEnumBcd{
 					VEnumBcdC: struct{}{},
@@ -56617,7 +56617,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-1.9684892797302527e+09: struct{}{},
 					-8.275744919550115e+08:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 				F5: VSet_VEnumBcd{
 					VEnumBcdC: struct{}{},
@@ -56705,7 +56705,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-1.9684892797302527e+09: struct{}{},
 					-8.275744919550115e+08:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 				F5: VSet_VEnumBcd{
 					VEnumBcdC: struct{}{},
@@ -56790,7 +56790,7 @@ var vAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-1.9684892797302527e+09: struct{}{},
 					-8.275744919550115e+08:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 				F5: VSet_VEnumBcd{
 					VEnumBcdC: struct{}{},
@@ -58363,7 +58363,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
 				3.028392332433068e+09:  struct{}{},
 			},
@@ -58371,7 +58371,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
 				3.028392332433068e+09:  struct{}{},
 			},
@@ -58382,7 +58382,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
 				3.028392332433068e+09:  struct{}{},
 			},
@@ -58390,7 +58390,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
 				3.028392332433068e+09:  struct{}{},
 			},
@@ -80787,7 +80787,7 @@ var xAllPass = []vdlEntry{
 				-6161,
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                     struct{}{},
 				1.738953051495289e+09: struct{}{},
 			},
 			F5: XSet_XEnumBcd{
@@ -80851,7 +80851,7 @@ var xAllPass = []vdlEntry{
 				-6161,
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0:                     struct{}{},
 				1.738953051495289e+09: struct{}{},
 			},
 			F5: XSet_XEnumBcd{
@@ -81444,7 +81444,7 @@ var xAllPass = []vdlEntry{
 			F4: map[float64]struct{}{
 				-2.964258524832707e+09: struct{}{},
 				-5.64685356748069e+08:  struct{}{},
-				0: struct{}{},
+				0:                      struct{}{},
 			},
 		},
 		SourceLabel: "XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
@@ -81452,7 +81452,7 @@ var xAllPass = []vdlEntry{
 			F4: map[float64]struct{}{
 				-2.964258524832707e+09: struct{}{},
 				-5.64685356748069e+08:  struct{}{},
-				0: struct{}{},
+				0:                      struct{}{},
 			},
 		},
 	},
@@ -81463,7 +81463,7 @@ var xAllPass = []vdlEntry{
 			F4: map[float64]struct{}{
 				-2.964258524832707e+09: struct{}{},
 				-5.64685356748069e+08:  struct{}{},
-				0: struct{}{},
+				0:                      struct{}{},
 			},
 		},
 		SourceLabel: "?XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
@@ -81471,7 +81471,7 @@ var xAllPass = []vdlEntry{
 			F4: map[float64]struct{}{
 				-2.964258524832707e+09: struct{}{},
 				-5.64685356748069e+08:  struct{}{},
-				0: struct{}{},
+				0:                      struct{}{},
 			},
 		},
 	},
@@ -86239,7 +86239,7 @@ var xAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-2.0684219699173448e+09: struct{}{},
 					-2.245382466748307e+07:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -86255,7 +86255,7 @@ var xAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-2.0684219699173448e+09: struct{}{},
 					-2.245382466748307e+07:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -86274,7 +86274,7 @@ var xAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-2.0684219699173448e+09: struct{}{},
 					-2.245382466748307e+07:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},
@@ -86290,7 +86290,7 @@ var xAllPass = []vdlEntry{
 				F4: map[float64]struct{}{
 					-2.0684219699173448e+09: struct{}{},
 					-2.245382466748307e+07:  struct{}{},
-					0: struct{}{},
+					0:                       struct{}{},
 				},
 			},
 		},

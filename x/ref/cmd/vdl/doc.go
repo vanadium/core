@@ -43,7 +43,7 @@ The global flags are:
  -time=false
    Dump timing information to stderr before exiting the program.
 
-Vdl generate
+Vdl generate - Compile packages and dependencies, and generate code
 
 Generate compiles packages and their transitive dependencies, and generates code
 in the specified languages.
@@ -341,7 +341,7 @@ containing the standard vdl packages.
 If VDLROOT is empty, we use the standard packages built-in to the vdl binary.
 VDLROOT is typically left empty, except by vdl tool developers.
 
-Vdl vdl.config
+Vdl vdl.config - Description of vdl.config files
 
 Each vdl source package P may contain an optional file "vdl.config" within the P
 directory.  This file specifies additional configuration for the vdl tool.
