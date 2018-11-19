@@ -14,6 +14,8 @@
 package roaming
 
 import (
+	"v.io/x/lib/netconfig"
+	"v.io/x/lib/netconfig/osnetconfig"
 	"v.io/x/ref/runtime/factories/library"
 
 	"v.io/v23/flow"
@@ -31,4 +33,5 @@ func init() {
 	library.ReservedNameDispatcher = true
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 	library.EnableCommandlineFlags()
+	netconfig.SetOSNotifier(osnetconfig.NewNotifier(0))
 }
