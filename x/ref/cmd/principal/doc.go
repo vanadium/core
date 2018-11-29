@@ -286,8 +286,6 @@ name will be generated based on the hostname of the machine and the name of the
 user running this command.
 
 The principal blessself flags are:
- -caveat=[]
-   "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
    Duration of blessing validity (zero implies no expiration)
 

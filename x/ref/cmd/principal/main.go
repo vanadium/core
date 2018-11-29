@@ -37,8 +37,10 @@ import (
 
 var (
 	// Flags for the "blessself" command
-	flagBlessSelfCaveats caveatsFlag
-	flagBlessSelfFor     time.Duration
+	flagBlessSelf = struct {
+		Caveats caveatsFlag   `cmdline:caveat,,"package/path".CaveatName:VDLExpressionParam to attach to this blessing"`
+		For     time.Duration `cmdline:"for,0,Duration of blessing validity (zero implies no expiration)"`
+	}{}
 
 	// Flags for the "bless" command
 	flagBlessCaveats        caveatsFlag
@@ -207,6 +209,7 @@ caveats can be added with the --caveat flag.
 specified, a name will be generated based on the hostname of the
 machine and the name of the user running this command.
 `,
+		FlagDefs: cmdline.FlagDefinitions{StructWithFlags: &flagBlessSelf},
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			var name string
 			switch len(args) {
@@ -217,7 +220,7 @@ machine and the name of the user running this command.
 			default:
 				return fmt.Errorf("requires at most one argument, provided %d", len(args))
 			}
-			caveats, err := caveatsFromFlags(flagBlessSelfFor, &flagBlessSelfCaveats)
+			caveats, err := caveatsFromFlags(flagBlessSelf.For, &flagBlessSelf.Caveats)
 			if err != nil {
 				return err
 			}
@@ -1014,8 +1017,6 @@ func blessArgsFromFile(fname string) (remoteKey, remoteToken, tobless string, er
 
 func main() {
 	cmdline.HideGlobalFlagsExcept()
-	cmdBlessSelf.Flags.Var(&flagBlessSelfCaveats, "caveat", flagBlessSelfCaveats.usage())
-	cmdBlessSelf.Flags.DurationVar(&flagBlessSelfFor, "for", 0, "Duration of blessing validity (zero implies no expiration)")
 
 	cmdDump.Flags.BoolVar(&flagDumpShort, "s", false, "If true, show only the default blessing names")
 
