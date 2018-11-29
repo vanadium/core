@@ -4,17 +4,10 @@
 
 // +build linux darwin
 
-// Package roaming implements a RuntimeFactory suitable for a variety of network
-// configurations, including 1-1 NATs, dhcp auto-configuration, Amazon Web
-// Services and Google Compute Engine. It will adapt to networking changes
-// such as the host obtaining a new IP address. This 'roaming' behaviour
-// is disabled if cross compilation is used since it relies on cgo to
-// access OS specific functionality for detecting and reading network
-// configuration changes.
-//
-// The pubsub.Publisher mechanism is used for communicating networking
-// settings to the rpc.Server implementation of the runtime and publishes
-// the Settings it expects.
+// Package static implements a RuntimeFactory suitable for a variety of network
+// configurations, including 1-1 NATs, Amazon Web Services and Google Compute
+// Engine but hosted on a static IP address with no support for adapting to
+// dhcp changes.
 package roaming
 
 import (
@@ -29,6 +22,7 @@ import (
 )
 
 func init() {
+	library.Roam = false
 	library.CloudVM = true
 	library.ConfigureLoggingFromFlags = true
 	library.ReservedNameDispatcher = true
