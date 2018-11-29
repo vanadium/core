@@ -8,7 +8,7 @@
 // configurations, including 1-1 NATs, Amazon Web Services and Google Compute
 // Engine but hosted on a static IP address with no support for adapting to
 // dhcp changes.
-package roaming
+package static
 
 import (
 	"v.io/x/ref/runtime/factories/library"
