@@ -47,10 +47,6 @@ func (c caveatsFlag) String() string {
 	return fmt.Sprint(c.caveatInfos)
 }
 
-func (c caveatsFlag) usage() string {
-	return `"package/path".CaveatName:VDLExpressionParam to attach to this blessing`
-}
-
 func (c caveatsFlag) Compile() ([]security.Caveat, error) {
 	if len(c.caveatInfos) == 0 {
 		return nil, nil

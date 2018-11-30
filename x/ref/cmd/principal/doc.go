@@ -137,10 +137,10 @@ Usage:
 <extension> is the extension under which the forked principal is blessed.
 
 The principal fork flags are:
- -caveat=[]
+ -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
-   Duration of blessing validity (zero implies no expiration caveat)
+   Duration of blessing validity (zero implies no expiration)
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
  -require-caveats=true
@@ -182,7 +182,7 @@ The principal seekblessings flags are:
  -from=https://dev.v.io/auth/google
    URL to use to begin the seek blessings process
  -set-default=true
-   If true, the blessings obtained will be set as the default blessing in the
+   If true, the blessings received will be set as the default blessing in the
    store
 
 Principal recvblessings - Receive blessings sent by another principal and use them as the default
@@ -225,8 +225,11 @@ Usage:
    principal recvblessings [flags]
 
 The principal recvblessings flags are:
+ -add-to-roots=true
+   If true, the root certificate of the blessing will be added to the
+   principal's set of recognized root certificates
  -for-peer=...
-   If non-empty, the blessings received will be marked for peers matching this
+   If non-empty, the blessings obtained will be marked for peers matching this
    pattern in the store
  -remote-arg-file=
    If non-empty, the remote key, remote token, and principal will be written to
@@ -286,6 +289,8 @@ name will be generated based on the hostname of the machine and the name of the
 user running this command.
 
 The principal blessself flags are:
+ -caveat=
+   "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
    Duration of blessing validity (zero implies no expiration)
 
@@ -329,10 +334,10 @@ be provided
 <extension> is the string extension that will be applied to create the blessing.
 
 The principal bless flags are:
- -caveat=[]
+ -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
-   Duration of blessing validity (zero implies no expiration caveat)
+   Duration of blessing validity (zero implies no expiration)
  -remote-arg-file=
    File containing bless arguments written by 'principal recvblessings
    -remote-arg-file FILE EXTENSION' command. This can be provided to bless in
