@@ -145,9 +145,6 @@ var (
 			"for-peer": string(security.AllPrincipals),
 			"from":     defaultBlessingFrom(),
 		},
-		UsageDefaults: map[string]string{
-			"for-peer": "...",
-		},
 	}
 
 	// Flags for the "recvblessings" command
@@ -160,9 +157,6 @@ var (
 		Flags: &flagRecvBlessings,
 		ValueDefaults: map[string]interface{}{
 			"for-peer": string(security.AllPrincipals),
-		},
-		UsageDefaults: map[string]string{
-			"for-peer": "...",
 		},
 	}
 

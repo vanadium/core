@@ -176,7 +176,7 @@ The principal seekblessings flags are:
  -browser=true
    If false, the seekblessings command will not open the browser and only print
    the url to visit.
- -for-peer=...
+ -for-peer=
    If non-empty, the blessings obtained will be marked for peers matching this
    pattern in the store
  -from=https://dev.v.io/auth/google
@@ -225,7 +225,7 @@ Usage:
    principal recvblessings [flags]
 
 The principal recvblessings flags are:
- -for-peer=...
+ -for-peer=
    If non-empty, the blessings obtained will be marked for peers matching this
    pattern in the store
  -remote-arg-file=
