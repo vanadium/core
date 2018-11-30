@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"v.io/x/lib/envvar"
 )
 
 // WriteCertAndKey creates a certificate and private key for a given host and
@@ -25,6 +27,11 @@ func WriteCertAndKey(host string, duration time.Duration) (string, string, error
 	tmpDir := os.TempDir()
 	generateCertFile := filepath.Join(strings.TrimSpace(string(output)), "generate_cert.go")
 	generateCertCmd := exec.Command("go", "run", generateCertFile, "--host", host, "--duration", duration.String())
+	// go run will fail if run from outside of a go tree with go.mod if
+	// GO111MODULE is enabled.
+	env := envvar.SliceToMap(os.Environ())
+	env["GO111MODULE"] = "off"
+	generateCertCmd.Env = envvar.MapToSlice(env)
 	generateCertCmd.Dir = tmpDir
 	if output, err := generateCertCmd.CombinedOutput(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v failed:\n%s\n", generateCertCmd.Args, output)
