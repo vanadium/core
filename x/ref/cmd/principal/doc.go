@@ -225,9 +225,6 @@ Usage:
    principal recvblessings [flags]
 
 The principal recvblessings flags are:
- -add-to-roots=true
-   If true, the root certificate of the blessing will be added to the
-   principal's set of recognized root certificates
  -for-peer=...
    If non-empty, the blessings obtained will be marked for peers matching this
    pattern in the store

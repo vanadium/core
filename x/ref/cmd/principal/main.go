@@ -113,8 +113,7 @@ var (
 		CaveatFlag
 		ForFlag
 		WithFlag
-		RemoteArgFile string `cmdline:"remote-arg-file,,'File containing bless arguments written by \\'principal recvblessings -remote-arg-file FILE EXTENSION\\' command. This can be provided to bless in place of --remote-key, --remote-token, and <principal>'"`
-
+		RemoteArgFile  string `cmdline:"remote-arg-file,,'File containing bless arguments written by \\'principal recvblessings -remote-arg-file FILE EXTENSION\\' command. This can be provided to bless in place of --remote-key, --remote-token, and <principal>'"`
 		RequireCaveats bool   `cmdline:"require-caveats,true,'If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser'"`
 		RemoteKey      string `cmdline:"remote-key,,Public key of the remote principal to bless (obtained from the 'recvblessings' command run by the remote principal"`
 		RemoteToken    string `cmdline:"remote-token,,Token provided by principal running the 'recvblessings' command"`
@@ -143,8 +142,8 @@ var (
 	flagSeekBlessingsDef = cmdline.FlagDefinitions{
 		Flags: &flagSeekBlessings,
 		ValueDefaults: map[string]interface{}{
-			"from":     defaultBlessingFrom(),
 			"for-peer": string(security.AllPrincipals),
+			"from":     defaultBlessingFrom(),
 		},
 		UsageDefaults: map[string]string{
 			"for-peer": "...",
@@ -154,7 +153,6 @@ var (
 	// Flags for the "recvblessings" command
 	flagRecvBlessings = struct {
 		ForPeerFlag
-		AddToRootsFlag
 		SetDefaultFlag
 		RemoteArgFile string `cmdline:"remote-arg-file,,'If non-empty, the remote key, remote token, and principal will be written to the specified file in a JSON object. This can be provided to \\'principal bless --remote-arg-file FILE EXTENSION\\''"`
 	}{}
@@ -455,7 +453,12 @@ blessing.
 			}
 
 			tobless, extension, remoteKey, remoteToken, err := blessArgs(
-				env, flagBless.RemoteArgFile, args)
+				env,
+				flagBless.RemoteKey,
+				flagBless.RemoteToken,
+				flagBless.RemoteArgFile,
+				args,
+			)
 			if err != nil {
 				return err
 			}
@@ -1015,7 +1018,7 @@ This file can be supplied to bless:
 			service := &recvBlessingsService{
 				setDefault:           flagRecvBlessings.SetDefault,
 				recvBlessingsForPeer: flagRecvBlessings.ForPeer,
-				addToRoots:           flagRecvBlessings.AddToRoots,
+				addToRoots:           true,
 				principal:            p,
 				token:                base64.URLEncoding.EncodeToString(token[:]),
 				notify:               make(chan error),
@@ -1054,15 +1057,19 @@ func printAnnotatedBlessingsNames(b security.Blessings) string {
 	return fmt.Sprintf("%v%s", b, expiredMessage)
 }
 
-func blessArgs(env *cmdline.Env, file string, args []string) (tobless, extension, remoteKey, remoteToken string, err error) {
+func blessArgs(env *cmdline.Env, remoteArgKey, remoteArgToken, remoteArgFile string, args []string) (tobless, extension, remoteKey, remoteToken string, err error) {
 	extensionInArgs := false
-	if len(file) == 0 {
+	if len(remoteArgFile) == 0 {
+		if len(args) == 0 {
+			err = fmt.Errorf("no remote-arg-file flag and no arguments")
+			return
+		}
 		tobless = args[0]
-		remoteKey = flagBless.RemoteKey
-		remoteToken = flagBless.RemoteToken
+		remoteKey = remoteArgKey
+		remoteToken = remoteArgToken
 		extensionInArgs = len(args) > 1
-	} else if len(file) > 0 {
-		remoteKey, remoteToken, tobless, err = blessArgsFromFile(file)
+	} else if len(remoteArgFile) > 0 {
+		remoteKey, remoteToken, tobless, err = blessArgsFromFile(remoteArgFile)
 		extensionInArgs = len(args) > 0
 	}
 	if extensionInArgs {
