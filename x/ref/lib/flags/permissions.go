@@ -63,26 +63,26 @@ func (permsl *PermissionsLiteralFlag) Set(v string) error {
 // PermissionsFlags contains the values of the PermissionsFlags flag group.
 type PermissionsFlags struct {
 	// List of named Permissions files.
-	files PermissionsFlag
+	Files PermissionsFlag `cmdline:"v23.permissions.file,,specify a perms file as <name>:<permsfile>"`
 
 	// Literal permissions, override everything else.
-	literal PermissionsLiteralFlag
+	Literal PermissionsLiteralFlag `cmdline:"v23.permissions.literal,,explicitly specify the runtime perms as a JSON-encoded access.Permissions. Overrides all --v23.permissions.file flags"`
 }
 
 // PermissionsFile returns the file which is presumed to contain Permissions
 // information associated with the supplied name parameter.
 func (af PermissionsFlags) PermissionsFile(name string) string {
-	return af.files.files[name]
+	return af.Files.files[name]
 }
 
 // PermissionsNamesAndFiles returns the set of permission names and associated
 // files specified using --v23.permissions.file.
 func (af PermissionsFlags) PermissionsNamesAndFiles() map[string]string {
-	if af.files.files == nil {
+	if af.Files.files == nil {
 		return nil
 	}
-	r := make(map[string]string, len(af.files.files))
-	for k, v := range af.files.files {
+	r := make(map[string]string, len(af.Files.files))
+	for k, v := range af.Files.files {
 		r[k] = v
 	}
 	return r
@@ -91,16 +91,16 @@ func (af PermissionsFlags) PermissionsNamesAndFiles() map[string]string {
 // PermissionsLiteral returns the in-line literal permissions provided
 // on the command line.
 func (af PermissionsFlags) PermissionsLiteral() string {
-	return af.literal.String()
+	return af.Literal.String()
 }
 
 // AddPermissionsFile adds a permissions file, which must be in
 // the same format as accepted by --v23.permissions.file
 func (af PermissionsFlags) AddPermissionsFile(arg string) error {
-	return af.files.Set(arg)
+	return af.Files.Set(arg)
 }
 
 // AddPermissionsLiteral adds another literal permissions statement.
 func (af PermissionsFlags) AddPermissionsLiteral(arg string) error {
-	return af.literal.Set(arg)
+	return af.Literal.Set(arg)
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"v.io/v23/verror"
+	"v.io/x/lib/cmd/flagvar"
 	"v.io/x/ref"
 )
 
@@ -63,43 +64,44 @@ type RuntimeFlags struct {
 	// NamespaceRoots may be initialized by ref.EnvNamespacePrefix* enivornment
 	// variables as well as --v23.namespace.root. The command line
 	// will override the environment.
-	NamespaceRoots NamespaceRootFlag
+	NamespaceRoots NamespaceRootFlag `cmdline:"v23.namespace.root,,local namespace root; can be repeated to provided multiple roots"`
 
 	// Credentials may be initialized by the ref.EnvCredentials
 	// environment variable. The command line will override the environment.
-	Credentials string // TODO(cnicolaou): provide flag.Value impl
+	// TODO(cnicolaou): provide flag.Value impl
+	Credentials string `cmdline:"v23.credentials,,directory to use for storing security credentials"`
 
 	// I18nCatalogue may be initialized by the ref.EnvI18nCatalogueFiles
 	// environment variable.  The command line will override the
 	// environment.
-	I18nCatalogue string
+	I18nCatalogue string `cmdline:"v23.i18n-catalogue,,'18n catalogue files to load, comma separated'"`
 
-	// Vtrace flags control various aspects of Vtrace.
-	Vtrace VtraceFlags
+	// VtraceFlags control various aspects of Vtrace.
+	VtraceFlags
 }
 
 // VtraceFlags represents the flags used to configure rpc tracing.
 type VtraceFlags struct {
 	// VtraceSampleRate is the rate (from 0.0 - 1.0) at which
 	// vtrace traces started by this process are sampled for collection.
-	SampleRate float64
+	SampleRate float64 `cmdline:"v23.vtrace.sample-rate,,Rate (from 0.0 to 1.0) to sample vtrace traces"`
 
 	// VtraceDumpOnShutdown tells the runtime to dump all stored traces
 	// to Stderr at shutdown if true.
-	DumpOnShutdown bool
+	DumpOnShutdown bool `cmdline:"v23.vtrace.dump-on-shutdown,true,'If true, dump all stored traces on runtime shutdown'"`
 
 	// VtraceCacheSize is the number of traces to cache in memory.
 	// TODO(mattr): Traces can be of widely varying size, we should have
 	// some better measurement then just number of traces.
-	CacheSize int
+	CacheSize int `cmdline:"v23.vtrace.cache-size,1024,The number of vtrace traces to store in memory"`
 
 	// LogLevel is the level of vlogs that should be collected as part of
 	// the trace
-	LogLevel int
+	LogLevel int `cmdline:"v23.vtrace.v,,The verbosity level of the log messages to be captured in traces"`
 
 	// SpanRegexp matches a regular expression against span names and
 	// annotations and forces any trace matching trace to be collected.
-	CollectRegexp string
+	CollectRegexp string `cmdline:"v23.vtrace.collect-regexp,,Spans and annotations that match this regular expression will trigger trace collection"`
 }
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
@@ -122,7 +124,7 @@ func NewRuntimeFlags() *RuntimeFlags {
 	}
 	rf.Credentials = DefaultCredentialsDir()
 	rf.I18nCatalogue = DefaultI18nCatalogue()
-	rf.Vtrace = VtraceFlags{
+	rf.VtraceFlags = VtraceFlags{
 		SampleRate:     0.0,
 		DumpOnShutdown: true,
 		CacheSize:      1024,
@@ -135,19 +137,21 @@ func NewRuntimeFlags() *RuntimeFlags {
 // RegisterRuntimeFlags registers the supplied RuntimeFlags variable with
 // the supplied FlagSet.
 func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
-	fs.Var(&f.NamespaceRoots, "v23.namespace.root", "local namespace root; can be repeated to provided multiple roots")
-	fs.Lookup("v23.namespace.root").DefValue =
-		"[" + strings.Join(DefaultNamespaceRoots(), ",") + "]"
-	fs.StringVar(&f.Credentials, "v23.credentials", DefaultCredentialsDir(), "directory to use for storing security credentials")
-	fs.Lookup("v23.credentials").DefValue = ""
-	fs.StringVar(&f.I18nCatalogue, "v23.i18n-catalogue", DefaultI18nCatalogue(), "18n catalogue files to load, comma separated")
-	fs.Lookup("v23.i18n-catalogue").DefValue = ""
-
-	fs.Float64Var(&f.Vtrace.SampleRate, "v23.vtrace.sample-rate", 0.0, "Rate (from 0.0 to 1.0) to sample vtrace traces.")
-	fs.BoolVar(&f.Vtrace.DumpOnShutdown, "v23.vtrace.dump-on-shutdown", true, "If true, dump all stored traces on runtime shutdown.")
-	fs.IntVar(&f.Vtrace.CacheSize, "v23.vtrace.cache-size", 1024, "The number of vtrace traces to store in memory.")
-	fs.IntVar(&f.Vtrace.LogLevel, "v23.vtrace.v", 0, "The verbosity level of the log messages to be captured in traces")
-	fs.StringVar(&f.Vtrace.CollectRegexp, "v23.vtrace.collect-regexp", "", "Spans and annotations that match this regular expression will trigger trace collection.")
+	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+		map[string]interface{}{
+			"v23.credentials":    DefaultCredentialsDir(),
+			"v23.i18n-catalogue": DefaultI18nCatalogue(),
+		},
+		map[string]string{
+			"v23.namespace.root": "[" + strings.Join(DefaultNamespaceRoots(), ",") + "]",
+			"v23.credentials":    "",
+			"v23.i18n-catalogue": "",
+		},
+	)
+	if err != nil {
+		// panic since this is clearly a programming error.
+		panic(err)
+	}
 }
 
 // CreateAndRegisterPermissionsFlags creates and registers a PermissionsFlags
@@ -161,17 +165,23 @@ func CreateAndRegisterPermissionsFlags(fs *flag.FlagSet) *PermissionsFlags {
 // NewPermissionsFlags creates a PermissionsFlags with appropriate defaults.
 func NewPermissionsFlags() *PermissionsFlags {
 	return &PermissionsFlags{
-		files:   PermissionsFlag{files: DefaultPermissions()},
-		literal: PermissionsLiteralFlag{permissions: DefaultPermissionsLiteral()},
+		Files:   PermissionsFlag{files: DefaultPermissions()},
+		Literal: PermissionsLiteralFlag{permissions: DefaultPermissionsLiteral()},
 	}
 }
 
 // RegisterPermissionsFlags registers the supplied PermissionsFlags with
 // the supplied FlagSet.
 func RegisterPermissionsFlags(fs *flag.FlagSet, f *PermissionsFlags) {
-	fs.Var(&f.files, "v23.permissions.file", "specify a perms file as <name>:<permsfile>")
-	fs.Lookup("v23.permissions.file").DefValue = ""
-	fs.Var(&f.literal, "v23.permissions.literal", "explicitly specify the runtime perms as a JSON-encoded access.Permissions. Overrides all --v23.permissions.file flags.")
+	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+		nil,
+		map[string]string{
+			"v23.permissions.file": "",
+		})
+	if err != nil {
+		// panic since this is clearly a programming error.
+		panic(err)
+	}
 }
 
 // CreateAndRegisterListenFlags creates and registers the ListenFlags
@@ -193,8 +203,8 @@ func NewListenFlags() *ListenFlags {
 	if err := protocolFlag.Set(DefaultProtocol()); err != nil {
 		panic(err)
 	}
-	lf.protocol = tcpProtocolFlagVar{validator: protocolFlag}
-	lf.addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
+	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
+	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
 	return lf
 }
@@ -202,11 +212,18 @@ func NewListenFlags() *ListenFlags {
 // RegisterListenFlags registers the supplied ListenFlags variable with
 // the supplied FlagSet.
 func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
-	f.addresses.flags = f
-	fs.Var(&f.protocol, "v23.tcp.protocol", "protocol to listen with")
-	fs.Var(&f.addresses, "v23.tcp.address", "address to listen on")
-	fs.StringVar(&f.Proxy, "v23.proxy", DefaultProxy(), "object name of proxy service to use to export services across network boundaries")
-	fs.Lookup("v23.proxy").DefValue = ""
+	f.Addresses.flags = f
+	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+		map[string]interface{}{
+			"v23.proxy": DefaultProxy(),
+		}, map[string]string{
+			"v23.proxy": "",
+		},
+	)
+	if err != nil {
+		// panic since this is clearly a programming error.
+		panic(err)
+	}
 }
 
 // CreateAndRegister creates a new set of flag groups as specified by the
@@ -238,11 +255,11 @@ func refreshDefaults(f *Flags) {
 				v.NamespaceRoots.Roots = DefaultNamespaceRoots()
 			}
 		case *ListenFlags:
-			if !v.protocol.isSet {
-				v.protocol.validator.Set(defaultProtocol)
+			if !v.Protocol.isSet {
+				v.Protocol.validator.Set(defaultProtocol)
 			}
-			if !v.addresses.isSet {
-				v.addresses.validator.Set(defaultHostPort)
+			if !v.Addresses.isSet {
+				v.Addresses.validator.Set(defaultHostPort)
 			}
 		}
 	}
@@ -270,7 +287,7 @@ func (f *Flags) ListenFlags() ListenFlags {
 		lf := p.(*ListenFlags)
 		n := *lf
 		if len(lf.Addrs) == 0 {
-			n.Addrs = ListenAddrs{{n.protocol.String(), n.addresses.validator.String()}}
+			n.Addrs = ListenAddrs{{n.Protocol.String(), n.Addresses.validator.String()}}
 			return n
 		}
 		n.Addrs = make(ListenAddrs, len(lf.Addrs))
