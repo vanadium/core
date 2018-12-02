@@ -35,51 +35,177 @@ import (
 	_ "v.io/x/ref/runtime/factories/static"
 )
 
+// Flags common to many commands
+
+// CaveatFlag represents a --caveat flag.
+type CaveatFlag struct {
+	Caveat caveatsFlag `cmdline:"caveat,,\"package/path\".CaveatName:VDLExpressionParam to attach to this blessing"`
+}
+
+// CaveatsFlag represents a --caveats flag.
+type CaveatsFlag struct {
+	Caveats string `cmdline:"caveats,,'Shows the caveats on the provided certificate chain name.'"`
+}
+
+// ForFlag represents a --for flag.
+type ForFlag struct {
+	For time.Duration `cmdline:"for,0,Duration of blessing validity (zero implies no expiration)"`
+}
+
+// WithFlag represents a --with flag.
+type WithFlag struct {
+	With string `cmdline:"with,,Path to file containing blessing to extend"`
+}
+
+// AddToRootsFlag represents a --add-to-roots flag.
+type AddToRootsFlag struct {
+	AddToRoots bool `cmdline:"add-to-roots,true,'If true, the root certificate of the blessing will be added to the principal\\'s set of recognized root certificates'"`
+}
+
+// CreateOverwriteFlag represents a --overwrite flag.
+type CreateOverwriteFlag struct {
+	CreateOverwrite bool `cmdline:"overwrite,,'If true, any existing principal data in the directory will be overwritten'"`
+}
+
+// WithPassphraseFlag represent a --with-passphrase flag.
+type WithPassphraseFlag struct {
+	WithPassphrase bool `cmdline:"with-passphrase,true,'If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.'"`
+}
+
+// ForPeerFlag represents a --for-peer flag.
+type ForPeerFlag struct {
+	ForPeer string `cmdline:"for-peer,,'If non-empty, the blessings obtained will be marked for peers matching this pattern in the store'"`
+}
+
+// BlessingsRootKeyFlag represents a --rootkey flag.
+type BlessingsRootKeyFlag struct {
+	RootKey string `cmdline:"rootkey,,'Shows the value of the root key of the provided certificate chain name.'"`
+}
+
+// NamesFlag represents a --name flag.
+type NamesFlag struct {
+	Names bool `cmdline:"names,false,'If true, shows the value of the blessing name to be presented to the peer'"`
+}
+
+// SetDefaultFlag represents a --set-default flag.
+type SetDefaultFlag struct {
+	SetDefault bool `cmdline:"set-default,true,'If true, the blessings received will be set as the default blessing in the store'"`
+}
+
+func defaultBlessingFrom() string {
+	if e := os.Getenv(ref.EnvOAuthIdentityProvider); e != "" {
+		return e
+	}
+	return "https://dev.v.io/auth/google"
+}
+
 var (
+
 	// Flags for the "blessself" command
-	flagBlessSelfCaveats caveatsFlag
-	flagBlessSelfFor     time.Duration
+	flagBlessSelf = struct {
+		CaveatFlag
+		ForFlag
+	}{}
+	flagBlessSelfDef = cmdline.FlagDefinitions{Flags: &flagBlessSelf}
 
 	// Flags for the "bless" command
-	flagBlessCaveats        caveatsFlag
-	flagBlessFor            time.Duration
-	flagBlessRequireCaveats bool
-	flagBlessWith           string
-	flagBlessRemoteKey      string
-	flagBlessRemoteToken    string
-
-	// Flags for the "dump" command
-	flagDumpShort bool
+	flagBless = struct {
+		CaveatFlag
+		ForFlag
+		WithFlag
+		RemoteArgFile  string `cmdline:"remote-arg-file,,'File containing bless arguments written by \\'principal recvblessings -remote-arg-file FILE EXTENSION\\' command. This can be provided to bless in place of --remote-key, --remote-token, and <principal>'"`
+		RequireCaveats bool   `cmdline:"require-caveats,true,'If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser'"`
+		RemoteKey      string `cmdline:"remote-key,,Public key of the remote principal to bless (obtained from the 'recvblessings' command run by the remote principal"`
+		RemoteToken    string `cmdline:"remote-token,,Token provided by principal running the 'recvblessings' command"`
+	}{}
+	flagBlessDef = cmdline.FlagDefinitions{Flags: &flagBless}
 
 	// Flags for the "fork" command
-	flagForkCaveats        caveatsFlag
-	flagForkFor            time.Duration
-	flagForkRequireCaveats bool
-	flagForkWith           string
+	flagFork = struct {
+		CaveatFlag
+		ForFlag
+		WithFlag
+		CreateOverwriteFlag
+		WithPassphraseFlag
+		RequireCaveats bool `cmdline:"require-caveats,true,'If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser'"`
+	}{}
+	flagForkDef = cmdline.FlagDefinitions{Flags: &flagFork}
 
 	// Flags for the "seekblessings" command
-	flagSeekBlessingsFrom       string
-	flagSeekBlessingsSetDefault bool
-	flagSeekBlessingsForPeer    string
-	flagSeekBlessingsBrowser    bool
-
-	// Flags common to many commands
-	flagAddToRoots      bool
-	flagCreateOverwrite bool
-	flagWithPassphrase  bool
-	flagRemoteArgFile   string
+	flagSeekBlessings = struct {
+		AddToRootsFlag
+		ForPeerFlag
+		From string `cmdline:"from,,URL to use to begin the seek blessings process"`
+		SetDefaultFlag
+		Browser bool `cmdline:"browser,true,'If false, the seekblessings command will not open the browser and only print the url to visit.'"`
+	}{}
+	flagSeekBlessingsDef = cmdline.FlagDefinitions{
+		Flags: &flagSeekBlessings,
+		ValueDefaults: map[string]interface{}{
+			"for-peer": string(security.AllPrincipals),
+			"from":     defaultBlessingFrom(),
+		},
+	}
 
 	// Flags for the "recvblessings" command
-	flagRecvBlessingsSetDefault bool
-	flagRecvBlessingsForPeer    string
+	flagRecvBlessings = struct {
+		ForPeerFlag
+		SetDefaultFlag
+		RemoteArgFile string `cmdline:"remote-arg-file,,'If non-empty, the remote key, remote token, and principal will be written to the specified file in a JSON object. This can be provided to \\'principal bless --remote-arg-file FILE EXTENSION\\''"`
+	}{}
+	flagRecvBlessingsDef = cmdline.FlagDefinitions{
+		Flags: &flagRecvBlessings,
+		ValueDefaults: map[string]interface{}{
+			"for-peer": string(security.AllPrincipals),
+		},
+	}
 
-	// Flags for the commands that get blessings
-	flagBlessingsNames   bool
-	flagBlessingsRootKey string
-	flagBlessingsCaveats string
+	// Flags for the "set forpeer" command
+	flagSetForPeer = struct {
+		AddToRootsFlag
+	}{}
+	flagSetForPeerDef = cmdline.FlagDefinitions{Flags: &flagSetForPeer}
+
+	// Flags for the "get forpeer" command
+	flagGetForPeer = struct {
+		CaveatsFlag
+		BlessingsRootKeyFlag
+		NamesFlag
+	}{}
+	flagGetForPeerDef = cmdline.FlagDefinitions{Flags: &flagGetForPeer}
+
+	// Flags for the 'get defaults' command
+	flagGetDefaults = struct {
+		NamesFlag
+		BlessingsRootKeyFlag
+		CaveatsFlag
+	}{}
+	flagGetDefaultsDef = cmdline.FlagDefinitions{Flags: &flagGetDefaults}
+
+	// Flags for the 'set defaults' command
+	flagSetDefaults = struct {
+		AddToRootsFlag
+	}{}
+	flagSetDefaultsDef = cmdline.FlagDefinitions{Flags: &flagSetDefaults}
+
+	//  Flags for the 'create' command
+	flagCreate = struct {
+		CreateOverwriteFlag
+		WithPassphraseFlag
+	}{}
+	flagCreateDef = cmdline.FlagDefinitions{Flags: &flagCreate}
 
 	// Flags for the get publickey command.
-	flagGetPublicKeyPretty bool
+	flagGetPublicKey = struct {
+		Pretty bool `cmdline:"pretty,,'If true, print the key out in a more human-readable but lossy representation.'"`
+	}{}
+	flagGetPublicKeyDef = cmdline.FlagDefinitions{Flags: &flagGetPublicKey}
+
+	// Flags for the dump command.
+	flagDumpFlags = struct {
+		Short bool `cmdline:"s,false,'If true, show only the default blessing names'"`
+	}{}
+	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
 
 	errNoCaveats = fmt.Errorf("no caveats provided: it is generally dangerous to bless another principal without any caveats as that gives them almost unrestricted access to the blesser's credentials. If you really want to do this, set --require-caveats=false")
 
@@ -90,10 +216,11 @@ var (
 Prints out information about the principal specified by the environment
 that this tool is running in.
 `,
+		FlagDefs: flagDumpDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			p := v23.GetPrincipal(ctx)
 			def, _ := p.BlessingStore().Default()
-			if flagDumpShort {
+			if flagDumpFlags.Short {
 				fmt.Printf("%s\n", printAnnotatedBlessingsNames(def))
 				return nil
 			}
@@ -207,6 +334,7 @@ caveats can be added with the --caveat flag.
 specified, a name will be generated based on the hostname of the
 machine and the name of the user running this command.
 `,
+		FlagDefs: flagBlessSelfDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			var name string
 			switch len(args) {
@@ -217,7 +345,7 @@ machine and the name of the user running this command.
 			default:
 				return fmt.Errorf("requires at most one argument, provided %d", len(args))
 			}
-			caveats, err := caveatsFromFlags(flagBlessSelfFor, &flagBlessSelfCaveats)
+			caveats, err := caveatsFromFlags(flagBlessSelf.For, &flagBlessSelf.Caveat)
 			if err != nil {
 				return err
 			}
@@ -275,17 +403,18 @@ OR
 blessing.
 
 	`,
+		FlagDefs: flagBlessDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			if len(flagRemoteArgFile) > 0 {
+			if len(flagBless.RemoteArgFile) > 0 {
 				if len(args) > 1 {
 					return fmt.Errorf("when --remote-arg-file is provided, only <extension> is expected, provided %d", len(args))
 				}
-				if (len(flagBlessRemoteKey) + len(flagBlessRemoteToken)) > 0 {
+				if (len(flagBless.RemoteKey) + len(flagBless.RemoteToken)) > 0 {
 					return fmt.Errorf("--remote-key and --remote-token should not be specified when --remote-arg-file is")
 				}
 			} else if len(args) > 2 {
 				return fmt.Errorf("got %d arguments, require at most 2", len(args))
-			} else if (len(flagBlessRemoteKey) == 0) != (len(flagBlessRemoteToken) == 0) {
+			} else if (len(flagBless.RemoteKey) == 0) != (len(flagBless.RemoteToken) == 0) {
 				return fmt.Errorf("either both --remote-key and --remote-token should be set, or neither should")
 			}
 			p := v23.GetPrincipal(ctx)
@@ -294,19 +423,19 @@ blessing.
 				err  error
 				with security.Blessings
 			)
-			if len(flagBlessWith) > 0 {
-				if with, err = decodeBlessings(flagBlessWith); err != nil {
-					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagBlessWith, err)
+			if len(flagBless.With) > 0 {
+				if with, err = decodeBlessings(flagBless.With); err != nil {
+					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagBless.With, err)
 				}
 			} else {
 				with, _ = p.BlessingStore().Default()
 			}
-			caveats, err := caveatsFromFlags(flagBlessFor, &flagBlessCaveats)
+			caveats, err := caveatsFromFlags(flagBless.For, &flagBless.Caveat)
 			if err != nil {
 				return err
 			}
 			if len(caveats) == 0 {
-				if flagBlessRequireCaveats {
+				if flagBless.RequireCaveats {
 					if err := confirmNoCaveats(env); err != nil {
 						return err
 					}
@@ -317,7 +446,13 @@ blessing.
 				return errNoCaveats
 			}
 
-			tobless, extension, remoteKey, remoteToken, err := blessArgs(env, args)
+			tobless, extension, remoteKey, remoteToken, err := blessArgs(
+				env,
+				flagBless.RemoteKey,
+				flagBless.RemoteToken,
+				flagBless.RemoteArgFile,
+				args,
+			)
 			if err != nil {
 				return err
 			}
@@ -353,9 +488,10 @@ With --pretty, a 16-byte fingerprint of the key instead. This format is easier
 for humans to read and is used in output of other commands in this program, but
 is not suitable as an argument to the 'recognize' command.
 `,
+		FlagDefs: flagGetPublicKeyDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			key := v23.GetPrincipal(ctx).PublicKey()
-			if flagGetPublicKeyPretty {
+			if flagGetPublicKey.Pretty {
 				fmt.Println(key)
 				return nil
 			}
@@ -419,8 +555,13 @@ matched by at least one of these. If no arguments are specified,
 store.forpeer returns the blessings that are marked for all peers (i.e.,
 blessings set on the store with the "..." pattern).
 `,
+		FlagDefs: flagGetForPeerDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return printBlessingsInfo(v23.GetPrincipal(ctx).BlessingStore().ForPeer(args...))
+			return printBlessingsInfo(
+				flagGetForPeer.Names,
+				flagGetForPeer.RootKey,
+				flagGetForPeer.Caveats,
+				v23.GetPrincipal(ctx).BlessingStore().ForPeer(args...))
 		}),
 	}
 
@@ -436,9 +577,14 @@ with chain_name.
 Providing --caveats <chain_name> will print the caveats on the certificate chain
 with chain_name.
 `,
+		FlagDefs: flagGetDefaultsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			def, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
-			return printBlessingsInfo(def)
+			return printBlessingsInfo(
+				flagGetDefaults.Names,
+				flagGetDefaults.RootKey,
+				flagGetDefaults.Caveats,
+				def)
 		}),
 	}
 
@@ -467,6 +613,7 @@ from this tool. - is used for STDIN.
 <pattern> is the BlessingPattern used to identify peers with whom this
 blessing can be shared with.
 `,
+		FlagDefs: flagSetForPeerDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			if len(args) != 2 {
 				return fmt.Errorf("requires exactly two arguments <file>, <pattern>, provided %d", len(args))
@@ -481,7 +628,7 @@ blessing can be shared with.
 			if _, err := p.BlessingStore().Set(blessings, pattern); err != nil {
 				return fmt.Errorf("failed to set blessings %v for peers %v: %v", blessings, pattern, err)
 			}
-			if flagAddToRoots {
+			if flagSetForPeer.AddToRoots {
 				if err := security.AddToRoots(p, blessings); err != nil {
 					return fmt.Errorf("AddToRoots failed: %v", err)
 				}
@@ -601,6 +748,7 @@ not match the public key of the principal specified by the environment.
 <file> is the path to a file containing a blessing typically obtained from
 this tool. - is used for STDIN.
 `,
+		FlagDefs: flagSetDefaultsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			if len(args) != 1 {
 				return fmt.Errorf("requires exactly one argument, <file>, provided %d", len(args))
@@ -614,7 +762,7 @@ this tool. - is used for STDIN.
 			if err := p.BlessingStore().SetDefault(blessings); err != nil {
 				return fmt.Errorf("failed to set blessings %v as default: %v", blessings, err)
 			}
-			if flagAddToRoots {
+			if flagSetDefaults.AddToRoots {
 				if err := security.AddToRoots(p, blessings); err != nil {
 					return fmt.Errorf("AddToRoots failed: %v", err)
 				}
@@ -643,18 +791,19 @@ new principal.
 setup to use by default.  If a blessing argument is not provided, the new
 principal will have no blessings.
 	`,
+		FlagDefs: flagCreateDef,
 		Runner: cmdline.RunnerFunc(func(env *cmdline.Env, args []string) error {
 			if len(args) < 1 || len(args) > 2 {
 				return fmt.Errorf("requires one or two arguments: <directory> [and optional <blessing>], provided %d", len(args))
 			}
 			dir := args[0]
-			if flagCreateOverwrite {
+			if flagCreate.CreateOverwrite {
 				if err := os.RemoveAll(dir); err != nil {
 					return err
 				}
 			}
 			var pass []byte
-			if flagWithPassphrase {
+			if flagCreate.WithPassphrase {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
@@ -700,37 +849,38 @@ forked principal.
 
 <extension> is the extension under which the forked principal is blessed.
 	`,
+		FlagDefs: flagForkDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			if len(args) != 2 {
 				return fmt.Errorf("requires exactly two arguments: <directory> and <extension>, provided %d", len(args))
 			}
 			dir, extension := args[0], args[1]
-			caveats, err := caveatsFromFlags(flagForkFor, &flagForkCaveats)
+			caveats, err := caveatsFromFlags(flagFork.For, &flagFork.Caveat)
 			if err != nil {
 				return err
 			}
-			if !flagForkRequireCaveats && len(caveats) == 0 {
+			if !flagFork.RequireCaveats && len(caveats) == 0 {
 				caveats = []security.Caveat{security.UnconstrainedUse()}
 			}
 			if len(caveats) == 0 {
 				return errNoCaveats
 			}
 			var with security.Blessings
-			if len(flagForkWith) > 0 {
-				if with, err = decodeBlessings(flagForkWith); err != nil {
-					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagForkWith, err)
+			if len(flagFork.With) > 0 {
+				if with, err = decodeBlessings(flagFork.With); err != nil {
+					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagFork.With, err)
 				}
 			} else {
 				with, _ = v23.GetPrincipal(ctx).BlessingStore().Default()
 			}
 
-			if flagCreateOverwrite {
+			if flagFork.CreateOverwrite {
 				if err := os.RemoveAll(dir); err != nil {
 					return err
 				}
 			}
 			var pass []byte
-			if flagWithPassphrase {
+			if flagFork.WithPassphrase {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
@@ -769,12 +919,14 @@ The blessings obtained are set as default unless the --set-default flag is
 set to false, and are also set for sharing with all peers unless a more
 specific peer pattern is provided using the --for-peer flag.
 `,
+		FlagDefs: flagSeekBlessingsDef,
+
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			p := v23.GetPrincipal(ctx)
 
 			blessedChan := make(chan string)
 			defer close(blessedChan)
-			macaroonChan, err := getMacaroonForBlessRPC(p.PublicKey(), flagSeekBlessingsFrom, blessedChan, flagSeekBlessingsBrowser)
+			macaroonChan, err := getMacaroonForBlessRPC(p.PublicKey(), flagSeekBlessings.From, blessedChan, flagSeekBlessings.Browser)
 			if err != nil {
 				return fmt.Errorf("failed to get macaroon from Vanadium blesser: %v", err)
 			}
@@ -787,17 +939,17 @@ specific peer pattern is provided using the --for-peer flag.
 			// Wait for getTokenForBlessRPC to clean up:
 			<-macaroonChan
 
-			if flagSeekBlessingsSetDefault {
+			if flagSeekBlessings.SetDefault {
 				if err := p.BlessingStore().SetDefault(blessings); err != nil {
 					return fmt.Errorf("failed to set blessings %v as default: %v", blessings, err)
 				}
 			}
-			if pattern := security.BlessingPattern(flagSeekBlessingsForPeer); len(pattern) > 0 {
+			if pattern := security.BlessingPattern(flagSeekBlessings.ForPeer); len(pattern) > 0 {
 				if _, err := p.BlessingStore().Set(blessings, pattern); err != nil {
 					return fmt.Errorf("failed to set blessings %v for peers %v: %v", blessings, pattern, err)
 				}
 			}
-			if flagAddToRoots {
+			if flagSeekBlessings.AddToRoots {
 				if err := security.AddToRoots(p, blessings); err != nil {
 					return fmt.Errorf("AddToRoots failed: %v", err)
 				}
@@ -847,6 +999,7 @@ This file can be supplied to bless:
 		principal bless --remote-arg-file FILE EXTENSION
 
 `,
+		FlagDefs: flagRecvBlessingsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			if len(args) != 0 {
 				return fmt.Errorf("command accepts no arguments")
@@ -857,9 +1010,12 @@ This file can be supplied to bless:
 			}
 			p := v23.GetPrincipal(ctx)
 			service := &recvBlessingsService{
-				principal: p,
-				token:     base64.URLEncoding.EncodeToString(token[:]),
-				notify:    make(chan error),
+				setDefault:           flagRecvBlessings.SetDefault,
+				recvBlessingsForPeer: flagRecvBlessings.ForPeer,
+				addToRoots:           true,
+				principal:            p,
+				token:                base64.URLEncoding.EncodeToString(token[:]),
+				notify:               make(chan error),
 			}
 			ctx, server, err := v23.WithNewServer(ctx, "", service, security.AllowEveryone())
 			if err != nil {
@@ -870,12 +1026,12 @@ This file can be supplied to bless:
 			fmt.Println("You may want to adjust flags affecting the caveats on this blessing, for example using")
 			fmt.Println("the --for flag")
 			fmt.Println()
-			if len(flagRemoteArgFile) > 0 {
-				if err := writeRecvBlessingsInfo(flagRemoteArgFile, p.PublicKey().String(), service.token, name); err != nil {
-					return fmt.Errorf("failed to write recvblessings info to %v: %v", flagRemoteArgFile, err)
+			if len(flagRecvBlessings.RemoteArgFile) > 0 {
+				if err := writeRecvBlessingsInfo(flagRecvBlessings.RemoteArgFile, p.PublicKey().String(), service.token, name); err != nil {
+					return fmt.Errorf("failed to write recvblessings info to %v: %v", flagRecvBlessings.RemoteArgFile, err)
 				}
-				fmt.Printf("make %q accessible to the blesser, possibly by copying the file over and then run:\n", flagRemoteArgFile)
-				fmt.Printf("principal bless --remote-arg-file=%v", flagRemoteArgFile)
+				fmt.Printf("make %q accessible to the blesser, possibly by copying the file over and then run:\n", flagRecvBlessings.RemoteArgFile)
+				fmt.Printf("principal bless --remote-arg-file=%v", flagRecvBlessings.RemoteArgFile)
 			} else {
 				fmt.Printf("principal bless --remote-key=%v --remote-token=%v %v\n", p.PublicKey(), service.token, name)
 			}
@@ -895,15 +1051,19 @@ func printAnnotatedBlessingsNames(b security.Blessings) string {
 	return fmt.Sprintf("%v%s", b, expiredMessage)
 }
 
-func blessArgs(env *cmdline.Env, args []string) (tobless, extension, remoteKey, remoteToken string, err error) {
+func blessArgs(env *cmdline.Env, remoteArgKey, remoteArgToken, remoteArgFile string, args []string) (tobless, extension, remoteKey, remoteToken string, err error) {
 	extensionInArgs := false
-	if len(flagRemoteArgFile) == 0 {
+	if len(remoteArgFile) == 0 {
+		if len(args) == 0 {
+			err = fmt.Errorf("no remote-arg-file flag and no arguments")
+			return
+		}
 		tobless = args[0]
-		remoteKey = flagBlessRemoteKey
-		remoteToken = flagBlessRemoteToken
+		remoteKey = remoteArgKey
+		remoteToken = remoteArgToken
 		extensionInArgs = len(args) > 1
-	} else if len(flagRemoteArgFile) > 0 {
-		remoteKey, remoteToken, tobless, err = blessArgsFromFile(flagRemoteArgFile)
+	} else if len(remoteArgFile) > 0 {
+		remoteKey, remoteToken, tobless, err = blessArgsFromFile(remoteArgFile)
 		extensionInArgs = len(args) > 0
 	}
 	if extensionInArgs {
@@ -1014,56 +1174,6 @@ func blessArgsFromFile(fname string) (remoteKey, remoteToken, tobless string, er
 
 func main() {
 	cmdline.HideGlobalFlagsExcept()
-	cmdBlessSelf.Flags.Var(&flagBlessSelfCaveats, "caveat", flagBlessSelfCaveats.usage())
-	cmdBlessSelf.Flags.DurationVar(&flagBlessSelfFor, "for", 0, "Duration of blessing validity (zero implies no expiration)")
-
-	cmdDump.Flags.BoolVar(&flagDumpShort, "s", false, "If true, show only the default blessing names")
-
-	cmdFork.Flags.BoolVar(&flagCreateOverwrite, "overwrite", false, "If true, any existing principal data in the directory will be overwritten")
-	cmdFork.Flags.BoolVar(&flagWithPassphrase, "with-passphrase", true, "If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.")
-	cmdFork.Flags.Var(&flagForkCaveats, "caveat", flagForkCaveats.usage())
-	cmdFork.Flags.DurationVar(&flagForkFor, "for", 0, "Duration of blessing validity (zero implies no expiration caveat)")
-	cmdFork.Flags.BoolVar(&flagForkRequireCaveats, "require-caveats", true, "If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser")
-	cmdFork.Flags.StringVar(&flagForkWith, "with", "", "Path to file containing blessing to extend")
-
-	cmdBless.Flags.Var(&flagBlessCaveats, "caveat", flagBlessCaveats.usage())
-	cmdBless.Flags.DurationVar(&flagBlessFor, "for", 0, "Duration of blessing validity (zero implies no expiration caveat)")
-	cmdBless.Flags.BoolVar(&flagBlessRequireCaveats, "require-caveats", true, "If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser")
-	cmdBless.Flags.StringVar(&flagBlessWith, "with", "", "Path to file containing blessing to extend")
-	cmdBless.Flags.StringVar(&flagBlessRemoteKey, "remote-key", "", "Public key of the remote principal to bless (obtained from the 'recvblessings' command run by the remote principal")
-	cmdBless.Flags.StringVar(&flagBlessRemoteToken, "remote-token", "", "Token provided by principal running the 'recvblessings' command")
-	cmdBless.Flags.StringVar(&flagRemoteArgFile, "remote-arg-file", "", "File containing bless arguments written by 'principal recvblessings -remote-arg-file FILE EXTENSION' command. This can be provided to bless in place of --remote-key, --remote-token, and <principal>")
-
-	defaultFrom := "https://dev.v.io/auth/google"
-	if e := os.Getenv(ref.EnvOAuthIdentityProvider); e != "" {
-		defaultFrom = e
-	}
-	cmdSeekBlessings.Flags.StringVar(&flagSeekBlessingsFrom, "from", defaultFrom, "URL to use to begin the seek blessings process")
-	cmdSeekBlessings.Flags.BoolVar(&flagSeekBlessingsSetDefault, "set-default", true, "If true, the blessings obtained will be set as the default blessing in the store")
-	cmdSeekBlessings.Flags.StringVar(&flagSeekBlessingsForPeer, "for-peer", string(security.AllPrincipals), "If non-empty, the blessings obtained will be marked for peers matching this pattern in the store")
-	cmdSeekBlessings.Flags.BoolVar(&flagSeekBlessingsBrowser, "browser", true, "If false, the seekblessings command will not open the browser and only print the url to visit.")
-	cmdSeekBlessings.Flags.BoolVar(&flagAddToRoots, "add-to-roots", true, "If true, the root certificate of the blessing will be added to the principal's set of recognized root certificates")
-
-	cmdSetForPeer.Flags.BoolVar(&flagAddToRoots, "add-to-roots", true, "If true, the root certificate of the blessing will be added to the principal's set of recognized root certificates")
-
-	cmdSetDefault.Flags.BoolVar(&flagAddToRoots, "add-to-roots", true, "If true, the root certificate of the blessing will be added to the principal's set of recognized root certificates")
-
-	cmdCreate.Flags.BoolVar(&flagCreateOverwrite, "overwrite", false, "If true, any existing principal data in the directory will be overwritten")
-	cmdCreate.Flags.BoolVar(&flagWithPassphrase, "with-passphrase", true, "If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.")
-
-	cmdRecvBlessings.Flags.BoolVar(&flagRecvBlessingsSetDefault, "set-default", true, "If true, the blessings received will be set as the default blessing in the store")
-	cmdRecvBlessings.Flags.StringVar(&flagRecvBlessingsForPeer, "for-peer", string(security.AllPrincipals), "If non-empty, the blessings received will be marked for peers matching this pattern in the store")
-	cmdRecvBlessings.Flags.StringVar(&flagRemoteArgFile, "remote-arg-file", "", "If non-empty, the remote key, remote token, and principal will be written to the specified file in a JSON object. This can be provided to 'principal bless --remote-arg-file FILE EXTENSION'")
-
-	cmdGetForPeer.Flags.BoolVar(&flagBlessingsNames, "names", false, "If true, shows the value of the blessing name to be presented to the peer")
-	cmdGetForPeer.Flags.StringVar(&flagBlessingsRootKey, "rootkey", "", "Shows the value of the root key of the provided certificate chain name.")
-	cmdGetForPeer.Flags.StringVar(&flagBlessingsCaveats, "caveats", "", "Shows the caveats on the provided certificate chain name.")
-
-	cmdGetDefault.Flags.BoolVar(&flagBlessingsNames, "names", false, "If true, shows the value of the blessing name to be presented to the peer")
-	cmdGetDefault.Flags.StringVar(&flagBlessingsRootKey, "rootkey", "", "Shows the value of the root key of the provided certificate chain name.")
-	cmdGetDefault.Flags.StringVar(&flagBlessingsCaveats, "caveats", "", "Shows the caveats on the provided certificate chain name.")
-
-	cmdGetPublicKey.Flags.BoolVar(&flagGetPublicKeyPretty, "pretty", false, "If true, print the key out in a more human-readable but lossy representation.")
 
 	cmdSet := &cmdline.Command{
 		Name:  "set",
@@ -1119,22 +1229,22 @@ func dumpBlessings(blessings security.Blessings) error {
 	return nil
 }
 
-func printBlessingsInfo(blessings security.Blessings) error {
+func printBlessingsInfo(names bool, rootKey, caveats string, blessings security.Blessings) error {
 	if blessings.IsZero() {
 		return fmt.Errorf("no blessings found")
 	}
-	if flagBlessingsNames {
+	if names {
 		fmt.Println(strings.Replace(fmt.Sprint(blessings), ",", "\n", -1))
 		return nil
-	} else if len(flagBlessingsRootKey) > 0 {
-		chain, err := getChainByName(blessings, flagBlessingsRootKey)
+	} else if len(rootKey) > 0 {
+		chain, err := getChainByName(blessings, rootKey)
 		if err != nil {
 			return err
 		}
 		fmt.Println(rootkey(chain))
 		return nil
-	} else if len(flagBlessingsCaveats) > 0 {
-		chain, err := getChainByName(blessings, flagBlessingsCaveats)
+	} else if len(caveats) > 0 {
+		chain, err := getChainByName(blessings, caveats)
 		if err != nil {
 			return err
 		}
@@ -1286,9 +1396,12 @@ func base64urlVomDecode(s string, i interface{}) error {
 }
 
 type recvBlessingsService struct {
-	principal security.Principal
-	notify    chan error
-	token     string
+	setDefault           bool
+	recvBlessingsForPeer string
+	addToRoots           bool
+	principal            security.Principal
+	notify               chan error
+	token                string
 }
 
 func (r *recvBlessingsService) Grant(_ *context.T, call rpc.ServerCall, token string) error {
@@ -1305,17 +1418,17 @@ func (r *recvBlessingsService) Grant(_ *context.T, call rpc.ServerCall, token st
 	if subtle.ConstantTimeCompare([]byte(token), []byte(r.token)) != 1 {
 		return fmt.Errorf("blessings received from unexpected sender")
 	}
-	if flagRecvBlessingsSetDefault {
+	if r.setDefault {
 		if err := r.principal.BlessingStore().SetDefault(b); err != nil {
 			return fmt.Errorf("failed to set blessings %v as default: %v", b, err)
 		}
 	}
-	if pattern := security.BlessingPattern(flagRecvBlessingsForPeer); len(pattern) > 0 {
+	if pattern := security.BlessingPattern(r.recvBlessingsForPeer); len(pattern) > 0 {
 		if _, err := r.principal.BlessingStore().Set(b, pattern); err != nil {
 			return fmt.Errorf("failed to set blessings %v for peers %v: %v", b, pattern, err)
 		}
 	}
-	if flagAddToRoots {
+	if r.addToRoots {
 		if err := security.AddToRoots(r.principal, b); err != nil {
 			return fmt.Errorf("failed to add blessings to recognized roots: %v", err)
 		}
