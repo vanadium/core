@@ -40,11 +40,14 @@ func TestV23AgentPrincipal(t *testing.T) {
 	sh.PropagateChildOutput = true
 	// Make sure we enable launching an agent when loading credentials.
 	os.Unsetenv(ref.EnvCredentialsNoAgent)
+	// Make sure that locking is enabled.
+	os.Unsetenv(ref.EnvDisableCredentialsLocking)
 	// This is not strictly needed since we don't create child processes
 	// using the shell that need to load credentials using the agent, but
 	// it's good practice to use the same setting in the parent and any
 	// children.
 	delete(sh.Vars, ref.EnvCredentialsNoAgent)
+	delete(sh.Vars, ref.EnvDisableCredentialsLocking)
 	defer sh.Cleanup()
 
 	agentd := v23test.BuildGoPkg(sh, "v.io/x/ref/services/agent/v23agentd")
