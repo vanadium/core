@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: go
 go:
-- 1.11.1
+- 1.11.2
 go_import_path: v.io
 env:
   matrix:
@@ -13,7 +13,7 @@ env:
 install:
 - echo "GOPATH:" $GOPATH
 - echo "VDLPATH:" $VDLPATH
-- go get -t v.io/...
+- go get v.io/...
 - go install v.io/...
 script:
 - go test v.io/...
