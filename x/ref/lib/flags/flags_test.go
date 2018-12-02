@@ -346,7 +346,7 @@ func TestConfig(t *testing.T) {
 	if got, want := testFlag2, "default2"; got != want {
 		t.Errorf("Test flag 2: got %v, want %v", got, want)
 	}
-	if got, want := rtf.Vtrace.CacheSize, 4321; got != want {
+	if got, want := rtf.CacheSize, 4321; got != want {
 		t.Errorf("Test flag 2: got %v, want %v", got, want)
 	}
 }

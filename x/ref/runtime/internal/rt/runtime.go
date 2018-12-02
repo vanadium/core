@@ -140,7 +140,7 @@ func Init(
 	ctx.VI(1).Infof("PermissionsSpec: %v", permissionsSpec)
 
 	// Setup the initial trace.
-	ctx, err := ivtrace.Init(ctx, flags.Vtrace)
+	ctx, err := ivtrace.Init(ctx, flags.VtraceFlags)
 	if err != nil {
 		return nil, nil, nil, err
 	}
