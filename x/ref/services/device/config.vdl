@@ -1,0 +1,11 @@
+// Copyright 2015 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package device
+
+// Config is an RPC API to the config service.
+type Config interface {
+	// Set sets the value for key.
+	Set(key, value string) error
+}
