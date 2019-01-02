@@ -6,7 +6,6 @@ package vom
 
 import (
 	"fmt"
-	"os"
 
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -39,11 +38,7 @@ func (x encodeBool) encode(buf *encbuf)    { binaryEncodeBool(buf, x.Value) }
 func (x encodeOneByte) encode(buf *encbuf) { buf.WriteOneByte(x.Value) }
 func (x encodeUint) encode(buf *encbuf)    { binaryEncodeUint(buf, x.Value) }
 func (x encodeInt) encode(buf *encbuf)     { binaryEncodeInt(buf, x.Value) }
-func (x encodeFloat) encode(buf *encbuf) {
-	fmt.Fprintf(os.Stderr,
-		"ZZZ: %v\n", x.Value)
-	binaryEncodeFloat(buf, x.Value)
-}
+func (x encodeFloat) encode(buf *encbuf)   { binaryEncodeFloat(buf, x.Value) }
 func (x encodeString) encode(buf *encbuf) {
 	binaryEncodeUint(buf, uint64(len(x.Value)))
 	buf.WriteString(x.Value)

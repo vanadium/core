@@ -19,7 +19,7 @@ var (
 )
 
 // MergeEncodedBytes represents an already encoded vom stream that is intended
-// for use when merging the output of multiple vom, independent, encoders.
+// for use when merging the output of multiple, independent, vom encoders.
 type MergeEncodedBytes struct {
 	Data []byte
 }
