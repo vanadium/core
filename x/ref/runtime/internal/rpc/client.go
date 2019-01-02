@@ -124,6 +124,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 			connIdleExpiry = time.Duration(v)
 		}
 	}
+
 	if c.flowMgr == nil {
 		c.flowMgr = manager.New(ctx, naming.NullRoutingID, nil, 0, connIdleExpiry, nil)
 	}
@@ -361,6 +362,7 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	ch := make(chan *serverStatus, len(resolved.Servers))
 	authorizer := newServerAuthorizer(blessingPattern, opts...)
 	peerAuth := peerAuthorizer{authorizer, method, args}
+
 	for i, server := range resolved.Names() {
 		c.mu.Lock()
 		if c.closing {
@@ -476,10 +478,11 @@ func (c *client) tryConnectToServer(
 		// This flow must outlive the flow we're currently creating.
 		// It lives as long as the connection to which it is bound.
 		tctx, tcancel := context.WithRootCancel(ctx)
-		tflow, err := c.flowMgr.DialSideChannel(tctx, flw.RemoteEndpoint(), typeFlowAuthorizer{}, 0)
+		tflow, err := c.flowMgr.DialSideChannelCached(tctx, flw.RemoteEndpoint(), typeFlowAuthorizer{}, flw.Conn(), 0)
 		if err != nil {
 			write(nil, tcancel)
 		} else if tflow.Conn() != flw.Conn() {
+			ctx.Infof("Existing: %p, new side channel: %p: %v", flw.Conn(), tflow.Conn(), flw.Conn().RemoteEndpoint())
 			tflow.Close()
 			write(nil, tcancel)
 		} else if _, err = tflow.Write([]byte{typeFlow}); err != nil {

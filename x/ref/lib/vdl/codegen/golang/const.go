@@ -222,7 +222,7 @@ func untypedConstWire(data *goData, v *vdl.Value) string {
 		}
 		return typestr + t.Field(ix).Name + "{" + inner + "}"
 	default:
-		data.Env.Errors.Errorf("%s: %v untypedConstWire not implemented for %v %v", data.Package.Name, t, k)
+		data.Env.Errors.Errorf("%s: %v untypedConstWire not implemented for %v", data.Package.Name, t, k)
 		return "INVALID"
 	}
 }

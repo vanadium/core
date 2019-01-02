@@ -57,7 +57,7 @@ The global flags are:
    18n catalogue files to load, comma separated
  -v23.namespace.root=[/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101]
    local namespace root; can be repeated to provided multiple roots
- -v23.permissions.file=map[]
+ -v23.permissions.file=
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=
    explicitly specify the runtime perms as a JSON-encoded access.Permissions.
@@ -137,10 +137,10 @@ Usage:
 <extension> is the extension under which the forked principal is blessed.
 
 The principal fork flags are:
- -caveat=[]
+ -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
-   Duration of blessing validity (zero implies no expiration caveat)
+   Duration of blessing validity (zero implies no expiration)
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
  -require-caveats=true
@@ -182,7 +182,7 @@ The principal seekblessings flags are:
  -from=https://dev.v.io/auth/google
    URL to use to begin the seek blessings process
  -set-default=true
-   If true, the blessings obtained will be set as the default blessing in the
+   If true, the blessings received will be set as the default blessing in the
    store
 
 Principal recvblessings - Receive blessings sent by another principal and use them as the default
@@ -226,7 +226,7 @@ Usage:
 
 The principal recvblessings flags are:
  -for-peer=...
-   If non-empty, the blessings received will be marked for peers matching this
+   If non-empty, the blessings obtained will be marked for peers matching this
    pattern in the store
  -remote-arg-file=
    If non-empty, the remote key, remote token, and principal will be written to
@@ -286,7 +286,7 @@ name will be generated based on the hostname of the machine and the name of the
 user running this command.
 
 The principal blessself flags are:
- -caveat=[]
+ -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
    Duration of blessing validity (zero implies no expiration)
@@ -331,10 +331,10 @@ be provided
 <extension> is the string extension that will be applied to create the blessing.
 
 The principal bless flags are:
- -caveat=[]
+ -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
-   Duration of blessing validity (zero implies no expiration caveat)
+   Duration of blessing validity (zero implies no expiration)
  -remote-arg-file=
    File containing bless arguments written by 'principal recvblessings
    -remote-arg-file FILE EXTENSION' command. This can be provided to bless in

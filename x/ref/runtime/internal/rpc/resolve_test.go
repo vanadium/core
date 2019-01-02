@@ -14,6 +14,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
+	"v.io/v23/security/access"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/runtime/internal"
@@ -27,7 +28,7 @@ var commonFlags *flags.Flags
 
 func init() {
 	commonFlags = flags.CreateAndRegister(flag.CommandLine, flags.Runtime)
-	if err := internal.ParseFlags(commonFlags); err != nil {
+	if err := internal.ParseFlagsIncV23Env(commonFlags); err != nil {
 		panic(err)
 	}
 }
@@ -48,6 +49,7 @@ func setupRuntime() {
 		nil,
 		commonFlags.RuntimeFlags(),
 		nil,
+		access.PermissionsSpec{},
 		0)
 	if err != nil {
 		panic(err)

@@ -26,10 +26,10 @@ func TestFixedBlessingStore(t *testing.T) {
 	s1.SetDefault(b1)
 
 	if _, err := s2.Set(b2, security.AllPrincipals); err == nil {
-		t.Fatal("%T.Set should fail", s2)
+		t.Fatalf("%T.Set should fail", s2)
 	}
 	if err := s2.SetDefault(b2); err == nil {
-		t.Fatal("%T.SetDefault should fail", s2)
+		t.Fatalf("%T.SetDefault should fail", s2)
 	}
 	for idx, c := range []call{
 		{"ForPeer", []interface{}{"foobar"}},

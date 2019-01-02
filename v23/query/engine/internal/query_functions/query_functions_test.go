@@ -19,8 +19,7 @@ import (
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
-
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
 )
 

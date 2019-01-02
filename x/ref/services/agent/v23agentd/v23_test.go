@@ -20,9 +20,15 @@ import (
 	"v.io/x/ref"
 	vsecurity "v.io/x/ref/lib/security"
 	_ "v.io/x/ref/runtime/factories/generic"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/agent/internal/constants"
 	"v.io/x/ref/test/v23test"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func upComesAgentd(t *testing.T, sh *v23test.Shell, credsDir, password string) {
 	agentd := v23test.BuildGoPkg(sh, "v.io/x/ref/services/agent/v23agentd")

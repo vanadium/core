@@ -200,7 +200,7 @@ func GoError(env Env, jException Object) error {
 		}
 		defer freeFunc()
 		dataObj := C.CallStaticObjectMethodA(env.value(), jVomUtilClass.value(), jmid, jArgArr)
-		if e := C.ExceptionOccurred(env.value()); e != nil {
+		if e := C.ExceptionOccurred(env.value()); e != 0 {
 			C.ExceptionClear(env.value())
 			return fmt.Errorf("error converting VException: exception during VomUtil.encode()")
 		}
@@ -220,7 +220,7 @@ func GoError(env Env, jException Object) error {
 	}
 	defer freeFunc()
 	strObj := C.CallObjectMethodA(env.value(), jException.value(), jmid, jArgArr)
-	if e := C.ExceptionOccurred(env.value()); e != nil {
+	if e := C.ExceptionOccurred(env.value()); e != 0 {
 		C.ExceptionClear(env.value())
 		return fmt.Errorf("error converting exception: exception during Throwable.getMessage()")
 	}
@@ -328,7 +328,7 @@ func JStaticStringField(env Env, class Class, field string) (string, error) {
 // JObjectArray converts the provided slice of objects into a Java object
 // array of the provided element type.
 func JObjectArray(env Env, arr []Object, elemClass Class) (Object, error) {
-	arrObj := C.NewObjectArray(env.value(), C.jsize(len(arr)), elemClass.value(), nil)
+	arrObj := C.NewObjectArray(env.value(), C.jsize(len(arr)), elemClass.value(), 0)
 	for i, elem := range arr {
 		C.SetObjectArrayElement(env.value(), arrObj, C.jsize(i), elem.value())
 		if err := JExceptionMsg(env); err != nil {
@@ -631,7 +631,7 @@ func JFindClass(env Env, name string) (Class, error) {
 	defer C.free(unsafe.Pointer(cName))
 
 	class := C.FindClass(env.value(), cName)
-	if err := JExceptionMsg(env); err != nil || class == nil {
+	if err := JExceptionMsg(env); err != nil || class == 0 {
 		return NullClass, fmt.Errorf("couldn't find class %s: %v", name, err)
 	}
 	obj := NewGlobalRef(env, Object(uintptr(unsafe.Pointer(class))))
@@ -725,7 +725,7 @@ func PushLocalFrame(env Env, capacity int) int {
 // previous frame, you may pass nil for the jFramePtr parameter.
 func PopLocalFrame(env Env, result Object) Object {
 	if result.IsNull() {
-		return Object(uintptr(unsafe.Pointer(C.PopLocalFrame(env.value(), nil))))
+		return Object(uintptr(unsafe.Pointer(C.PopLocalFrame(env.value(), 0))))
 	}
 	return Object(uintptr(unsafe.Pointer(C.PopLocalFrame(env.value(), result.value()))))
 }

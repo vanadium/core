@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"v.io/x/lib/netstate"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/services/xproxy/xproxy"
 	"v.io/x/ref/test"

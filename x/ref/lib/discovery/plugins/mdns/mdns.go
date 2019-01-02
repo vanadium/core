@@ -25,7 +25,7 @@ import (
 	"time"
 
 	"github.com/pborman/uuid"
-	mdns "github.com/presotto/go-mdns-sd"
+	mdns "github.com/vanadium/go-mdns-sd"
 
 	"v.io/v23/context"
 	"v.io/v23/discovery"

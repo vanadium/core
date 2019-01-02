@@ -32,16 +32,16 @@ func NewDispatcher(authorizer security.Authorizer) rpc.Dispatcher {
 }
 
 // The first part of the names of the objects served by this dispatcher.
-var rootName = "__debug"
+var RootName = "__debug"
 
 func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, security.Authorizer, error) {
 	if suffix == "" {
-		return rpc.ChildrenGlobberInvoker(rootName), d.auth, nil
+		return rpc.ChildrenGlobberInvoker(RootName), d.auth, nil
 	}
-	if !strings.HasPrefix(suffix, rootName) {
+	if !strings.HasPrefix(suffix, RootName) {
 		return nil, nil, nil
 	}
-	suffix = strings.TrimPrefix(suffix, rootName)
+	suffix = strings.TrimPrefix(suffix, RootName)
 	suffix = strings.TrimLeft(suffix, "/")
 
 	if suffix == "" {

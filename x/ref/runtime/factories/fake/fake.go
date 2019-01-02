@@ -15,7 +15,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow"
 
-	"v.io/x/ref/runtime/internal"
+	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
 	_ "v.io/x/ref/runtime/protocols/local"
 	_ "v.io/x/ref/runtime/protocols/tcp"
@@ -38,7 +38,8 @@ func init() {
 }
 
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
-	if err := internal.ConfigureGlobalLoggerFromFlags(); err != nil {
+	err := logger.Manager(logger.Global()).ConfigureFromFlags()
+	if err != nil && !logger.IsAlreadyConfiguredError(err) {
 		return nil, nil, nil, err
 	}
 

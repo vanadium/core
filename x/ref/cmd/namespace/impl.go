@@ -26,9 +26,8 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/verror"
-
 	"v.io/x/ref/lib/v23cmd"
-	_ "v.io/x/ref/runtime/factories/generic"
+	_ "v.io/x/ref/runtime/factories/static"
 )
 
 func main() {

@@ -222,7 +222,7 @@ func Java_io_v_impl_google_rpc_ServerImpl_nativeGetStatus(jenv *C.JNIEnv, jServe
 	jStatus, err := JavaServerStatus(env, status)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jStatus))
 }
@@ -452,12 +452,12 @@ func Java_io_v_impl_google_rpc_ServerCallImpl_nativeSecurity(jenv *C.JNIEnv, jSe
 	env := jutil.Env(uintptr(unsafe.Pointer(jenv)))
 	securityCall := (*(*rpc.ServerCall)(jutil.GoRefValue(jutil.Ref(goRef)))).Security()
 	if securityCall == nil {
-		return nil
+		return 0
 	}
 	jSecurityCall, err := jsecurity.JavaCall(env, securityCall)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jSecurityCall))
 }
@@ -475,7 +475,7 @@ func Java_io_v_impl_google_rpc_ServerCallImpl_nativeLocalEndpoint(jenv *C.JNIEnv
 	jEndpoint, err := jnaming.JavaEndpoint(env, (*(*rpc.ServerCall)(jutil.GoRefValue(jutil.Ref(goRef)))).LocalEndpoint())
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jEndpoint))
 }
@@ -486,7 +486,7 @@ func Java_io_v_impl_google_rpc_ServerCallImpl_nativeRemoteEndpoint(jenv *C.JNIEn
 	jEndpoint, err := jnaming.JavaEndpoint(env, (*(*rpc.ServerCall)(jutil.GoRefValue(jutil.Ref(goRef)))).RemoteEndpoint())
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jEndpoint))
 }
@@ -498,7 +498,7 @@ func Java_io_v_impl_google_rpc_ServerCallImpl_nativeGrantedBlessings(jenv *C.JNI
 	jBlessings, err := jsecurity.JavaBlessings(env, blessings)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jBlessings))
 }
@@ -510,7 +510,7 @@ func Java_io_v_impl_google_rpc_ServerCallImpl_nativeServer(jenv *C.JNIEnv, jServ
 	jServer, err := JavaServer(env, server)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jServer))
 }
@@ -532,17 +532,17 @@ func Java_io_v_impl_google_rpc_AddressChooserImpl_nativeChoose(jenv *C.JNIEnv, j
 	candidates, err := GoNetworkAddressArray(env, jutil.Object(uintptr(unsafe.Pointer(jCandidates))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	addrs, err := (*(*rpc.AddressChooser)(jutil.GoRefValue(jutil.Ref(goRef)))).ChooseAddresses(protocol, candidates)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jAddrs, err := JavaNetworkAddressArray(env, addrs)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobjectArray(unsafe.Pointer(jAddrs))
 }

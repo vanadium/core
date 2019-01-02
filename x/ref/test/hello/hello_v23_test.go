@@ -10,11 +10,14 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
 	_ "v.io/x/ref/runtime/factories/generic"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/testutil"
 	"v.io/x/ref/test/v23test"
 )
 
 func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
 	ref.EnvClearCredentials()
 }
 

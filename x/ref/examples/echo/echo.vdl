@@ -1,0 +1,7 @@
+package echo
+
+import "v.io/v23/security/access"
+
+type EchoService interface {
+    Echo(msg string) (string | error) {access.Read}
+}

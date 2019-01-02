@@ -22,11 +22,18 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/generic"
+	"v.io/x/ref/runtime/factories/library"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
 	"v.io/x/ref/services/mounttable/mounttablelib"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )
+
+func init() {
+	// Slow down expiration of existing connections in case these
+	// tests run slowly to deflake them.
+	library.ConnectionExpiryDuration = 60 * time.Minute
+}
 
 func resolveWithRetry(ctx *context.T, name string, opts ...naming.NamespaceOpt) *naming.MountEntry {
 	ns := v23.GetNamespace(ctx)
@@ -657,6 +664,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 	// Setup the namespace root for all the "processes".
 	rootmt := runMT(t, rootMtCtx, "")
 	defer rootmt.stop()
+
 	for _, ctx := range []*context.T{mtCtx, serverCtx, clientCtx} {
 		v23.GetNamespace(ctx).SetRoots(rootmt.name)
 	}
@@ -666,9 +674,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 
 	// Intermediate mounttables should be authenticated.
 	mt := runMT(t, mtCtx, "mt")
-	defer func() {
-		mt.stop()
-	}()
+	defer mt.stop()
 
 	// Mount a server on "mt".
 	if err := serverNs.Mount(serverCtx, "mt/server", serverEndpoint, time.Minute, naming.ReplaceMount(true)); err != nil {
@@ -692,7 +698,6 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 		if e, err := ns.ShallowResolve(clientCtx, name, options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
 			t.Errorf("resolve(%q): Got (%v, %v), expected resolution to succeed", name, e, err)
 		}
-
 		// The namespace root from the context should be authorized as well.
 		ctx, ns, _ := v23.WithNewNamespace(clientCtx, naming.JoinAddressName(root, ""))
 		if e, err := ns.Resolve(ctx, "mt/server"); verror.ErrorID(err) != verror.ErrNotTrusted.ID {

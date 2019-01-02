@@ -78,7 +78,7 @@ func Java_io_v_impl_google_lib_discovery_UUIDUtil_serviceUUID(jenv *C.JNIEnv, _ 
 	jUuid, err := javaUUID(env, idiscovery.NewServiceUUID(name))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jUuid))
 }
@@ -90,7 +90,7 @@ func Java_io_v_impl_google_lib_discovery_UUIDUtil_attributeUUID(jenv *C.JNIEnv, 
 	jUuid, err := javaUUID(env, idiscovery.NewAttributeUUID(name))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jUuid))
 }
@@ -157,7 +157,7 @@ func Java_io_v_impl_google_lib_discovery_DiscoveryImpl_nativeScan(jenv *C.JNIEnv
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jCtx))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	d := *(*discovery.T)(jutil.GoRefValue(jutil.Ref(goRef)))
@@ -166,7 +166,7 @@ func Java_io_v_impl_google_lib_discovery_DiscoveryImpl_nativeScan(jenv *C.JNIEnv
 	scanCh, err := d.Scan(ctx, query)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	jChannel, err := jchannel.JavaInputChannel(env, ctx, nil, func() (jutil.Object, error) {
@@ -188,7 +188,7 @@ func Java_io_v_impl_google_lib_discovery_DiscoveryImpl_nativeScan(jenv *C.JNIEnv
 	})
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jChannel))
 }
@@ -241,29 +241,29 @@ func Java_io_v_impl_google_lib_discovery_GlobalDiscovery_nativeNewDiscovery(jenv
 	ctx, _, err := jcontext.GoContext(env, jutil.Object(uintptr(unsafe.Pointer(jContext))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	path := jutil.GoString(env, jutil.Object(uintptr(unsafe.Pointer(jPath))))
 	mountTTL, err := jutil.GoDuration(env, jutil.Object(uintptr(unsafe.Pointer(jMountTTL))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	scanInterval, err := jutil.GoDuration(env, jutil.Object(uintptr(unsafe.Pointer(jScanInterval))))
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 
 	discovery, err := gdiscovery.NewWithTTL(ctx, path, mountTTL, scanInterval)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	jDiscovery, err := JavaDiscovery(env, discovery)
 	if err != nil {
 		jutil.JThrowV(env, err)
-		return nil
+		return 0
 	}
 	return C.jobject(unsafe.Pointer(jDiscovery))
 }

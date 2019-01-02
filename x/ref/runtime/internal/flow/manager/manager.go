@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	reapCacheInterval = 5 * time.Minute
+	reapCacheInterval = 30 * time.Minute      // this is conservative
 	minCacheInterval  = 10 * time.Millisecond // the minimum time we are willing to poll the cache for idle or closed connections.
 	handshakeTimeout  = time.Minute
 )
@@ -93,6 +93,7 @@ func New(
 		acceptChannelTimeout: channelTimeout,
 		idleExpiry:           idleExpiry,
 	}
+
 	var valid <-chan struct{}
 	if rid != naming.NullRoutingID {
 		m.ls = &listenState{
@@ -369,7 +370,7 @@ func (m *manager) ProxyListen(ctx *context.T, name string, ep naming.Endpoint) (
 	if m.ls == nil {
 		return nil, NewErrListeningWithNullRid(ctx)
 	}
-	f, err := m.internalDial(ctx, ep, proxyAuthorizer{}, m.acceptChannelTimeout, true, false)
+	f, err := m.internalDial(ctx, ep, proxyAuthorizer{}, m.acceptChannelTimeout, true, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -619,6 +620,8 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				ctx.Errorf("failed to cache conn %v: %v", c, err)
 				c.Close(ctx, err)
 			}
+			// Note: the flow handler created above will block until
+			// this channel is closed.
 			close(fh.cached)
 		}()
 	}
@@ -768,13 +771,14 @@ func (m *manager) Accept(ctx *context.T) (flow.Flow, error) {
 // that connections managed by this Manager are unhealthy and should be
 // closed.
 func (m *manager) Dial(ctx *context.T, remote naming.Endpoint, auth flow.PeerAuthorizer, channelTimeout time.Duration) (flow.Flow, error) {
-	return m.internalDial(ctx, remote, auth, channelTimeout, false, false)
+	return m.internalDial(ctx, remote, auth, channelTimeout, false, nil)
 }
 
-// DialSideChannel behaves the same as Dial, except that the returned flow is
-// not factored in when deciding the underlying connection's idleness, etc.
-func (m *manager) DialSideChannel(ctx *context.T, remote naming.Endpoint, auth flow.PeerAuthorizer, channelTimeout time.Duration) (flow.Flow, error) {
-	return m.internalDial(ctx, remote, auth, channelTimeout, false, true)
+// DialSideChannelCached returns a new flow over an existing cached
+// connection that is not factored in when deciding the underlying
+// connection's idleness, etc.
+func (m *manager) DialSideChannelCached(ctx *context.T, remote naming.Endpoint, auth flow.PeerAuthorizer, underlying flow.ManagedConn, channelTimeout time.Duration) (flow.Flow, error) {
+	return m.internalDial(ctx, remote, auth, channelTimeout, false, underlying)
 }
 
 // DialCached creates a Flow to the provided remote endpoint using only cached
@@ -809,7 +813,8 @@ func (m *manager) internalDial(
 	remote naming.Endpoint,
 	auth flow.PeerAuthorizer,
 	channelTimeout time.Duration,
-	proxy, sideChannel bool) (flow.Flow, error) {
+	proxy bool,
+	sideChannelChan flow.ManagedConn) (flow.Flow, error) {
 	if m.ls != nil && len(m.ls.serverAuthorizedPeers) > 0 {
 		auth = &peerAuthorizer{auth, m.ls.serverAuthorizedPeers}
 	}
@@ -818,10 +823,36 @@ func (m *manager) internalDial(
 		go m.dialReserved(res, remote, auth, channelTimeout, proxy)
 	}
 
-	cached, names, rejected, err := m.cache.Find(ctx, remote, auth)
-	if err != nil {
-		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
+	var cached CachedConn
+	var names []string
+	var rejected []security.RejectedBlessing
+	var err error
+	var forSideChannel = false
+	if sideChannelChan != nil {
+		forSideChannel = true
+		all, err := m.cache.FindAllCached(ctx, remote, auth)
+		if err == nil {
+			for i, c := range all {
+				sc := c.(flow.ManagedConn)
+				if sideChannelChan == sc {
+					cached = c
+					if i > 0 {
+						ctx.Infof("internalDial: side channel for %v, conn %p, index: %v", remote, c, i)
+					}
+					break
+				}
+			}
+		}
+		if cached == nil {
+			return nil, fmt.Errorf("failed to find cached conn %p", sideChannelChan)
+		}
+	} else {
+		cached, names, rejected, err = m.cache.Find(ctx, remote, auth)
+		if err != nil {
+			return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
+		}
 	}
+
 	c, _ := cached.(*conn.Conn)
 
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.
@@ -830,7 +861,7 @@ func (m *manager) internalDial(
 			return nil, err
 		}
 	}
-	return dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, sideChannel)
+	return dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, forSideChannel)
 }
 
 func (m *manager) dialReserved(
