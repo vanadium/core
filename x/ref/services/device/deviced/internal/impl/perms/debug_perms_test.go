@@ -16,9 +16,15 @@ import (
 	"v.io/v23/services/permissions"
 	"v.io/v23/verror"
 
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/device/deviced/internal/impl/utiltest"
 	"v.io/x/ref/test/testutil"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func updateAccessList(t *testing.T, ctx *context.T, blessing, right string, name ...string) {
 	accessStub := permissions.ObjectClient(naming.Join(name...))

@@ -11,8 +11,14 @@ import (
 
 	"v.io/v23/services/device"
 	"v.io/x/ref"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/device/deviced/internal/impl/utiltest"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func TestReapReconciliationViaKill(t *testing.T) {
 	cleanup, ctx, sh, envelope, root, helperPath, _ := utiltest.StartupHelper(t)

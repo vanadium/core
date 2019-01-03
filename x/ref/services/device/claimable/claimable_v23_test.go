@@ -12,9 +12,14 @@ import (
 	"testing"
 
 	libsec "v.io/x/ref/lib/security"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/v23test"
 )
 
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 func TestV23ClaimableServer(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)

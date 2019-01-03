@@ -10,13 +10,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/security"
 	"v.io/v23/services/application"
 	"v.io/v23/services/device"
 	"v.io/v23/services/repository"
 	"v.io/v23/verror"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/device/deviced/internal/impl/utiltest"
 	"v.io/x/ref/services/device/deviced/internal/versioning"
 	"v.io/x/ref/services/device/internal/errors"
@@ -25,6 +26,11 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func TestDownloadSignatureMatch(t *testing.T) {
 	ctx, shutdown := test.V23Init()

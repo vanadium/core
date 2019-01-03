@@ -11,17 +11,23 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/verror"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test"
 
 	cmd_device "v.io/x/ref/services/device/device"
 	"v.io/x/ref/services/internal/servicetest"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 const pkgPath = "v.io/x/ref/services/device/main"
 

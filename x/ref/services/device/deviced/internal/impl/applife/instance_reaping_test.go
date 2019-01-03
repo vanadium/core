@@ -14,8 +14,14 @@ import (
 	"v.io/v23/services/stats"
 	"v.io/v23/vdl"
 
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/device/deviced/internal/impl/utiltest"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func TestReaperNoticesAppDeath(t *testing.T) {
 	cleanup, ctx, sh, envelope, root, helperPath, _ := utiltest.StartupHelper(t)

@@ -32,7 +32,13 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/testutil"
+	"v.io/x/ref/runtime/factories/library"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 func TestMain(m *testing.M) {
 	utiltest.TestMainImpl(m)
