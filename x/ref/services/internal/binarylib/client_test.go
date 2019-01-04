@@ -20,7 +20,13 @@ import (
 	"v.io/x/ref/services/internal/packages"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
+	"v.io/x/ref/runtime/factories/library"
 )
+
+func init() {
+	// Allow v23.Init to be called multiple times.
+	library.AllowMultipleInitializations = true
+}
 
 const (
 	v23Prefix = "vanadium_binary_repository"
