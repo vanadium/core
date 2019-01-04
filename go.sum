@@ -46,3 +46,5 @@ google.golang.org/appengine v1.3.0 h1:FBSsiFRMz3LBeXIomRnVzrQwSDj4ibvcRexLG0LZGQ
 google.golang.org/appengine v1.3.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 v.io/x/lib v0.1.0 h1:lgzRrTTK+mTCRFC20XVd/8u5Bxrl4vsLxXCY7WtBZtk=
 v.io/x/lib v0.1.0/go.mod h1:xtLlxrW4beYGmGMZF4QPjgBA4DqwLj1dijfa8SsxmMU=
+v.io/x/lib v0.1.1 h1:VGwk9xwWUuyBWngu/UbP00nhlGK+EJFkjE//zAElol0=
+v.io/x/lib v0.1.1/go.mod h1:xtLlxrW4beYGmGMZF4QPjgBA4DqwLj1dijfa8SsxmMU=
