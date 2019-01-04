@@ -44,7 +44,5 @@ google.golang.org/api v0.0.0-20181129220737-af4fc4062c26 h1:RPZDMF+4oXwRE3YH8oxQ
 google.golang.org/api v0.0.0-20181129220737-af4fc4062c26/go.mod h1:4mhQ8q/RsB7i+udVvVy5NUi08OU8ZlA0gRVgrF7VFY0=
 google.golang.org/appengine v1.3.0 h1:FBSsiFRMz3LBeXIomRnVzrQwSDj4ibvcRexLG0LZGQk=
 google.golang.org/appengine v1.3.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
-v.io/x/lib v0.1.0 h1:lgzRrTTK+mTCRFC20XVd/8u5Bxrl4vsLxXCY7WtBZtk=
-v.io/x/lib v0.1.0/go.mod h1:xtLlxrW4beYGmGMZF4QPjgBA4DqwLj1dijfa8SsxmMU=
 v.io/x/lib v0.1.1 h1:VGwk9xwWUuyBWngu/UbP00nhlGK+EJFkjE//zAElol0=
 v.io/x/lib v0.1.1/go.mod h1:xtLlxrW4beYGmGMZF4QPjgBA4DqwLj1dijfa8SsxmMU=
