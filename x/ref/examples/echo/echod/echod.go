@@ -8,21 +8,29 @@ package main
 // To allow anyone to connect use `-v23.permissions.literal='{"Read": {"In": ["..."]}}'`
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/x/ref/examples/echo"
 	"v.io/x/ref/lib/signals"
-	_ "v.io/x/ref/runtime/factories/generic"
+	_ "v.io/x/ref/runtime/factories/roaming"
 )
+
+var nameFlag string
+
+func init() {
+	flag.StringVar(&nameFlag, "name", os.ExpandEnv("users/${USER}/echod"), "Name for the server in default mount table")
+}
 
 type echod struct{}
 
-// Echo responsds to an Echo request with the original message, the time of day
+// Echo responds to an Echo request with the original message, the time of day
 // and the pid of the server.
 func (e *echod) Echo(ctx *context.T, call rpc.ServerCall, msg string) (response string, err error) {
 	response = fmt.Sprintf("%s: %v", time.Now(), msg)
@@ -33,7 +41,7 @@ func (e *echod) Echo(ctx *context.T, call rpc.ServerCall, msg string) (response 
 func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	ctx, server, err := v23.WithNewServer(ctx, "echo", echo.EchoServiceServer(&echod{}), access.RuntimeAuthorizer(v23.GetPermissionsSpec(ctx)))
+	ctx, server, err := v23.WithNewServer(ctx, nameFlag, echo.EchoServiceServer(&echod{}), access.RuntimeAuthorizer(v23.GetPermissionsSpec(ctx)))
 	if err != nil {
 		ctx.Fatalf("Failure creating server: %v", err)
 	}
