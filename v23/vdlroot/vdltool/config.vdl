@@ -240,7 +240,3 @@ type SwiftConfig struct {
 	// in Swift vdl package.
 	WireToNativeTypes map[string]string
 }
-
-// PythonConfig specifics python specific configuration for this package.
-type PythonConfig struct {
-}

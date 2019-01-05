@@ -7,9 +7,7 @@ package vom
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
-	"os"
 
 	"v.io/v23/vdl"
 )
@@ -25,13 +23,14 @@ type MergeEncodedBytes struct {
 }
 
 // VDLWrite implements vdl.Writer.
+// Note that it decodes and re-encodes the vom stream and is consequently
+// expensive.
 func (eb *MergeEncodedBytes) VDLWrite(enc vdl.Encoder) error {
-	uenc, ok := enc.(*encoder81)
+	e, ok := enc.(*encoder81)
 	if !ok {
 		return errEncodedBytesNotSupported
 	}
-	rd := bytes.NewBuffer(eb.Data)
-	dec := NewDecoder(rd)
+	dec := NewDecoder(bytes.NewBuffer(eb.Data))
 	for {
 		var any vdl.Value
 		if err := dec.Decode(&any); err != nil {
@@ -40,7 +39,7 @@ func (eb *MergeEncodedBytes) VDLWrite(enc vdl.Encoder) error {
 			}
 			return err
 		}
-		if err := vdl.Write(uenc, any); err != nil {
+		if err := vdl.Write(e, any); err != nil {
 			return err
 		}
 	}
@@ -58,8 +57,7 @@ type ExtractEncodedBytes struct {
 
 // VDLRead implements vdl.Reader.
 func (eb *ExtractEncodedBytes) VDLRead(dec vdl.Decoder) error {
-	fmt.Fprintf(os.Stderr, "EXTRACT VDL.READ\n\n")
-	udec, ok := dec.(*decoder81)
+	d, ok := dec.(*decoder81)
 	if !ok {
 		return errEncodedBytesNotSupported
 	}
@@ -71,14 +69,13 @@ func (eb *ExtractEncodedBytes) VDLRead(dec vdl.Decoder) error {
 			break
 		}
 		var any vdl.Value
-		if err := vdl.Read(udec, &any); err != nil {
+		if err := vdl.Read(d, &any); err != nil {
 			if err == io.EOF {
 				break
 			}
 			return err
 		}
 		if err := enc.Encode(any); err != nil {
-			fmt.Fprintf(os.Stderr, "ERR: %v\n", err)
 			return err
 		}
 		n++

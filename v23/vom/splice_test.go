@@ -13,10 +13,12 @@ import (
 	"v.io/v23/vom"
 )
 
+type m struct {
+	M string
+}
+
 func ExampleMergeEncodedBytes() {
-	type m struct {
-		M string
-	}
+
 	abuf := &bytes.Buffer{}
 	encA := vom.NewEncoder(abuf)
 	encA.Encode(&m{"stream-a"})
@@ -38,10 +40,6 @@ func ExampleMergeEncodedBytes() {
 }
 
 func ExampleExtractEncodedBytes() {
-
-	type m struct {
-		M string
-	}
 	abuf := &bytes.Buffer{}
 	encA := vom.NewEncoder(abuf)
 	encA.Encode("first")
