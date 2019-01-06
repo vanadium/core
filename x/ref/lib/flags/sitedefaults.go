@@ -4,6 +4,8 @@
 
 package flags
 
+import "v.io/x/ref/lib/flags/sitedefaults"
+
 var defaultValues = []map[string]interface{}{}
 
 func mergeDefaultValues() map[string]interface{} {
@@ -34,4 +36,14 @@ func init() {
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
 	})
+	registerDefaults(sitedefaults.Defaults)
+	merged := mergeDefaultValues()
+	defaultNamespaceRoots = merged["namespaceRoots"].([]string)
+	defaultCredentialsDir = merged["credentialsDir"].(string)
+	defaultI18nCatalogue = merged["i18nCatalogue"].(string)
+	defaultProtocol = merged["protocol"].(string)
+	defaultHostPort = merged["hostPort"].(string)
+	defaultProxy = merged["proxy"].(string)
+	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
+	defaultPermissions = merged["permissions"].(map[string]string)
 }
