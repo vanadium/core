@@ -22,7 +22,6 @@ func registerDefaults(values map[string]interface{}) {
 	defaultValues = append(defaultValues, values)
 }
 
-// This init function will be the first called.
 func init() {
 	registerDefaults(map[string]interface{}{
 		"namespaceRoots": []string{
