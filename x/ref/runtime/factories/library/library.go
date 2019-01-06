@@ -168,6 +168,10 @@ func EnableFlags(fs *flag.FlagSet, parse bool) error {
 func configureLogging() error {
 	var err error
 	if ConfigureLoggingFromFlags {
+		// Ensure that command line flags are parsed before they are used.
+		if !flag.Parsed() {
+			flag.Parse()
+		}
 		err = logger.Manager(logger.Global()).ConfigureFromFlags(LoggingOpts...)
 	} else {
 		opts := []vlog.LoggingOpts{
