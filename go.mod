@@ -17,5 +17,5 @@ require (
 	golang.org/x/oauth2 v0.0.0-20181128211412-28207608b838
 	golang.org/x/sys v0.0.0-20181128092732-4ed8d59d0b35 // indirect
 	google.golang.org/api v0.0.0-20181129220737-af4fc4062c26
-	v.io/x/lib v0.1.0
+	v.io/x/lib v0.1.1
 )

@@ -10,7 +10,7 @@ export VDLPATH
 test-integration:
 	@echo "GOPATH" ${GOPATH}
 	@echo "VDLPATH" ${VDLPATH}
-	go test \
+	go test -tags travis \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/services/identity/identityd \
 		v.io/x/ref/services/xproxy/xproxyd \
