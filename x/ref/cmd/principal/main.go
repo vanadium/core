@@ -387,17 +387,18 @@ arguments will be extracted from the specified file.
 		ArgsLong: `
 <principal to bless> represents the principal to be blessed (i.e., whose public
 key will be provided with a name).  This can be either:
+
 (a) The directory containing credentials for that principal,
-OR
+  OR
 (b) The filename (- for STDIN) containing the base64url-encoded public
     key or any other blessings of the principal,
-OR
+  OR
 (c) The object name produced by the 'recvblessings' command of this tool
     running on behalf of another principal (if the --remote-key and
     --remote-token flags are specified).
-OR
-(d) None (if the --remote-arg-file flag is specified, only <extension> should be provided
-    to bless).
+  OR
+(d) None (if the --remote-arg-file flag is specified, only <extension> should
+    be provided to bless).
 
 <extension> is the string extension that will be applied to create the
 blessing.
