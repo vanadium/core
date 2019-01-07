@@ -8,14 +8,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/ref/examples/echo"
 	"v.io/x/ref/lib/signals"
-	_ "v.io/x/ref/runtime/factories/generic"
+	_ "v.io/x/ref/runtime/factories/static"
 )
 
 var (
@@ -27,11 +28,10 @@ var (
 )
 
 func init() {
-	flag.StringVar(&nameFlag, "name", "pingd", "Name of the server to connect to")
-	flag.BoolVar(&cancelFlag, "cancel", true, "cancel every RPC context once it has returned successfully")
+	flag.StringVar(&nameFlag, "name", os.ExpandEnv("users/${USER}/echod"), "Name of the server to connect to")
+	flag.BoolVar(&cancelFlag, "cancel", true, "Cancel every RPC context once it has returned successfully")
 	flag.DurationVar(&intervalFlag, "interval", time.Second, "Interval between client calls")
 	flag.DurationVar(&deadlineFlag, "deadline", time.Second*60, "Deadline for the rpc")
-
 }
 
 func main() {
