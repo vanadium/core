@@ -18,4 +18,7 @@ require (
 	golang.org/x/sys v0.0.0-20181128092732-4ed8d59d0b35 // indirect
 	google.golang.org/api v0.0.0-20181129220737-af4fc4062c26
 	v.io/x/lib v0.1.1
+	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )
+
+replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
