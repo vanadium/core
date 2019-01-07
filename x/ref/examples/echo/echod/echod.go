@@ -19,7 +19,7 @@ import (
 	"v.io/v23/security/access"
 	"v.io/x/ref/examples/echo"
 	"v.io/x/ref/lib/signals"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/static"
 )
 
 var nameFlag string
