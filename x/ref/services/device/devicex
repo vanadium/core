@@ -1,0 +1,427 @@
+#!/bin/bash
+# Copyright 2015 The Vanadium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+#
+# Administers a device manager installation.
+#
+# This script is a thin wrapper on top of the deviced commands.  Its main
+# purpose is to set up the installation by fetching the binaries required for a
+# device manager installation from a few possible sources and setting up the
+# setuid helper.
+
+set -e
+
+usage() {
+  echo "usage:"
+  echo
+  echo "Install device manager:"
+  echo "V23_DEVICE_DIR=<installation dir> ./devicex install [<binary source>] [ args for installer... ] [ -- args for device manager...]"
+  echo "  Possible values for <binary source>:"
+  echo "     unspecified: get binaries from local repository"
+  echo "     /path/to/binaries: get binaries from local filesystem"
+  echo "     http://host/path: get binaries from HTTP server"
+  echo
+  echo "Uninstall device manager:"
+  echo "V23_DEVICE_DIR=<installation dir> ./devicex uninstall"
+  echo
+  echo "Start device manager:"
+  echo "V23_DEVICE_DIR=<installation dir> ./devicex start"
+  echo
+  echo "Stop device manager:"
+  echo "V23_DEVICE_DIR=<installation dir> ./devicex stop"
+  echo "V23_DEVICE_DIR should be 0711 when running in multi-user"
+  echo "mode and all of its parents directories need to be at least"
+  echo "0511."
+}
+
+###############################################################################
+# Wrapper around chown that works differently on Mac and Linux
+# Arguments:
+#   arguments to chown command
+# Returns:
+#   None
+###############################################################################
+portable_chown() {
+  case "$(uname)" in
+    "Darwin")
+      sudo /usr/sbin/chown "$@"
+      ;;
+    "Linux")
+      sudo chown "$@"
+      ;;
+  esac
+}
+
+###############################################################################
+# Sets up the target to be owned by root with the suid bit on.
+# Arguments:
+#   path to target
+# Returns:
+#   None
+###############################################################################
+make_suid() {
+  local -r target="$1"
+  local root_group="root"
+  if [[ "$(uname)" == "Darwin" ]]; then
+    # Group root not available on Darwin.
+    root_group="wheel"
+  fi
+  portable_chown "root:${root_group}" "${target}"
+  sudo chmod 4551 "${target}"
+}
+
+###############################################################################
+# Runs a command as the device manager user.  Assumes V23_DEVICE_DIR exists
+# and gets the device manager user from the owner of that directory.
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   command to run and its arguments
+# Returns:
+#   None
+###############################################################################
+run() {
+  local -r devmgr_user=$(getdevowner)
+  if [[ "${devmgr_user}" == $(whoami) ]]; then
+    "$@"
+  elif [[ "$(uname)" == "Darwin" ]]; then
+     # We use su -u on Darwin because Darwin su is different from Linux su
+      # and is not found in GCE or EC2 images.
+    sudo -u "${devmgr_user}" \
+         V23_NAMESPACE="${V23_NAMESPACE}" \
+         V23_DEVICE_DIR="${V23_DEVICE_DIR}" \
+         "$@"
+  else
+    # We use sudo/su rather than just sudo -u because the latter is often
+    # set up to require a password in common GCE and EC2 images.
+    sudo V23_NAMESPACE="${V23_NAMESPACE}"  V23_DEVICE_DIR="${V23_DEVICE_DIR}" \
+      su "${devmgr_user}" -s /bin/bash -c \
+      "$*"
+  fi
+}
+
+###############################################################################
+# Copies one binary from source to destination.
+# Arguments:
+#   name of the binary
+#   source dir of binary
+#   destination dir of binary
+# Returns:
+#   None
+###############################################################################
+copy_binary() {
+  local -r BIN_NAME="$1"
+  local -r BIN_SRC_DIR="$2"
+  local -r BIN_DEST_DIR="$3"
+  local -r SOURCE="${BIN_SRC_DIR}/${BIN_NAME}"
+  if [[ -x "${SOURCE}" ]]; then
+    local -r DESTINATION="${BIN_DEST_DIR}/${BIN_NAME}"
+    cp "${SOURCE}" "${DESTINATION}"
+    chmod 700 "${DESTINATION}"
+  else
+    echo "couldn't find ${SOURCE}"
+    exit 1
+  fi
+}
+
+###############################################################################
+# Guesses if the argument is a url.
+# Arguments:
+#   potential url
+# Returns:
+#   0 if the argument looks like a url, 1 otherwise
+###############################################################################
+urlmatch() {
+  case "$1" in
+    http://*) return 0;;
+    https://*) return 0;;
+    ftp://*) return 0;;
+    file://*) return 0;;
+    *) return 1;;
+  esac
+}
+###############################################################################
+# Fetches binaries needed by device manager installation.
+# Globals:
+#   BIN_NAMES
+#   JIRI_ROOT
+# Arguments:
+#   destination for binaries
+#   source of binaries
+# Returns:
+#   None
+###############################################################################
+get_binaries() {
+  local -r BIN_INSTALL="$1"
+  local -r BIN_SOURCE="$2"
+
+  local bin_names_str=""
+  for bin_name in ${BIN_NAMES}; do
+    bin_names_str+=" ${bin_name}"
+  done
+
+  # If source is not specified, try to look for it in the repository.
+  if [[ -z "${BIN_SOURCE}" ]]; then
+    if [[ -z "${JIRI_ROOT}" ]]; then
+      echo 'ERROR: binary source not specified and no local repository available'
+      exit 1
+    fi
+    local -r REPO_BIN_DIR="${JIRI_ROOT}/release/go/bin"
+    echo "Fetching binaries:${bin_names_str} from build repository: ${REPO_BIN_DIR} ..."
+    for bin_name in ${BIN_NAMES}; do
+      copy_binary "${bin_name}" "${REPO_BIN_DIR}" "${BIN_INSTALL}"
+    done
+    return
+  fi
+
+  # If the source is specified as an existing local filesystem path,
+  # look for the binaries there.
+  if [[ -d "${BIN_SOURCE}" ]]; then
+      echo "Fetching binaries:${bin_names_str} locally from: ${BIN_SOURCE} ..."
+      for bin_name in ${BIN_NAMES}; do
+        copy_binary "${bin_name}" "${BIN_SOURCE}" "${BIN_INSTALL}"
+      done
+      return
+  fi
+
+  # If the source looks like a URL, use HTTP to fetch.
+  if urlmatch "${BIN_SOURCE}"; then
+    echo "Fetching binaries:${bin_names_str} remotely from: ${BIN_SOURCE} ..."
+    for bin_name in ${BIN_NAMES}; do
+      local DEST="${BIN_INSTALL}/${bin_name}"
+      curl -f -o "${DEST}" "${BIN_SOURCE}/${bin_name}"
+      chmod 700 "${DEST}"
+    done
+    return
+  fi
+
+  echo 'ERROR: couldn'"'"'t fetch binaries.'
+  exit 1
+}
+
+###############################################################################
+# Installs device manager: fetches binaries, configures suidhelper, calls the
+# install command on deviced.
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   source of binaries (optional)
+#   args for install command and for device manager (optional)
+# Returns:
+#   None
+###############################################################################
+install() {
+  if [[ -e "${V23_DEVICE_DIR}" ]]; then
+    echo "${V23_DEVICE_DIR} already exists!"
+    exit 1
+  fi
+  mkdir -p -m 711 "${V23_DEVICE_DIR}"
+  local -r BIN_INSTALL="${V23_DEVICE_DIR}/bin"
+  mkdir -m 700 "${BIN_INSTALL}"
+
+  if [[ $# = 0 || "$1" == --* ]]; then
+    local -r BIN_SOURCE=""
+  else
+    local -r BIN_SOURCE="$1"
+    shift
+  fi
+
+  local SINGLE_USER=false
+  local INIT_MODE=false
+  local DEVMGR_USER=$(whoami)
+  for ARG in $*; do
+    if [[ ${ARG} = "--" ]]; then
+      break
+    elif [[ ${ARG} = "--single_user" || ${ARG} = "--single_user=true" ]]; then
+      SINGLE_USER=true
+    elif [[ ${ARG} = "--init_mode" || ${ARG} = "--init_mode=true" ]]; then
+      INIT_MODE=true
+    elif [[ ${ARG%=*} = "--devuser" ]]; then
+      DEVMGR_USER="${ARG##*=}"
+    fi
+  done
+
+  BIN_NAMES="deviced suidhelper restarter v23agentd"
+  if [[ ${INIT_MODE} == true ]]; then
+    BIN_NAMES="${BIN_NAMES} inithelper"
+  fi
+
+  # Fetch the binaries.
+  get_binaries "${BIN_INSTALL}" "${BIN_SOURCE}"
+  for bin_name in ${BIN_NAMES}; do
+    local BINARY="${BIN_INSTALL}/${bin_name}"
+    if [[ ! -s "${BINARY}" ]]; then
+      echo "${BINARY} is empty."
+      exit 1
+    fi
+  done
+  echo "Binaries are in ${BIN_INSTALL}."
+
+  # Set up the suidhelper.
+  echo "Configuring helpers ..."
+
+  if [[ ${SINGLE_USER} == false && ${DEVMGR_USER} == $(whoami) ]]; then
+    echo "Running in multi-user mode requires a --devuser=<user>"
+    echo "argument. This limits the following unfortunate chain of events:"
+    echo "install the device manager as yourself, associate an external blessee"
+    echo "with your local user name and the external blessee can invoke an app"
+    echo "which, because it has the same system name as the device manager,"
+    echo "can use suidhelper to give itself root priviledge."
+    exit 1
+  fi
+  if [[ ${SINGLE_USER}} == true && ${DEVMGR_USER} != $(whoami) ]]; then
+    echo "The --devuser flag is unnecessary in single-user mode because"
+    echo "all processes run as $(whoami)."
+    exit 1
+  fi
+  local -r SETUID_SCRIPT="${BIN_INSTALL}/suidhelper"
+  if [[ ${SINGLE_USER} == false ]]; then
+    portable_chown -R "${DEVMGR_USER}:bin" "${V23_DEVICE_DIR}"
+    make_suid "${SETUID_SCRIPT}"
+  fi
+  local -r INIT_SCRIPT="${BIN_INSTALL}/inithelper"
+  if [[ ${INIT_MODE} == true ]]; then
+    make_suid "${INIT_SCRIPT}"
+  fi
+  echo "Helpers configured."
+
+  # Install the device manager.
+  echo "Installing device manager under ${V23_DEVICE_DIR} ..."
+  echo "V23_DEVICE_DIR=${V23_DEVICE_DIR}"
+  run "${BIN_INSTALL}/deviced" install \
+    --suid_helper="${SETUID_SCRIPT}" \
+    --restarter="${BIN_INSTALL}/restarter" \
+    --agent="${BIN_INSTALL}/v23agentd" \
+    --init_helper="${INIT_SCRIPT}" "$@"
+  echo "Device manager installed."
+}
+
+###############################################################################
+# Determines the owner of the device manager
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   None
+# Returns:
+#  user owning the device manager
+###############################################################################
+getdevowner() {
+  case "$(uname)" in
+    "Darwin")
+      ls -dl  "${V23_DEVICE_DIR}" | awk '{print $3}'
+      ;;
+    "Linux")
+      echo $(stat -c "%U" "${V23_DEVICE_DIR}")
+      ;;
+  esac
+}
+
+###############################################################################
+# Uninstalls device manager: calls the uninstall command of deviced and removes
+# the installation.
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+###############################################################################
+uninstall() {
+  if [[ ! -d "${V23_DEVICE_DIR}" ]]; then
+    echo "${V23_DEVICE_DIR} does not exist or is not a directory!"
+    exit 1
+  fi
+  local -r BIN_INSTALL="${V23_DEVICE_DIR}/bin"
+  local -r SETUID_SCRIPT="${BIN_INSTALL}/suidhelper"
+  echo "Uninstalling device manager from ${V23_DEVICE_DIR} ..."
+  run "${BIN_INSTALL}/deviced" uninstall \
+    --suid_helper="${SETUID_SCRIPT}"
+
+   echo "Device manager uninstalled."
+   # Any data created underneath "${V23_DEVICE_DIR}" by the "deviced
+   # install" command would have been cleaned up already by "deviced uninstall".
+   # However, install() created "${V23_DEVICE_DIR}", so uninstall() needs
+   # to remove it (as well as data created by install(), like bin/*).
+
+   run rm -rf "${V23_DEVICE_DIR}/bin"
+   rmdir "${V23_DEVICE_DIR}"
+   echo "Removed ${V23_DEVICE_DIR}"
+}
+
+###############################################################################
+# Starts device manager: calls the start command of deviced.
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+###############################################################################
+start() {
+  if [[ ! -d "${V23_DEVICE_DIR}" ]]; then
+    echo "${V23_DEVICE_DIR} does not exist or is not a directory!"
+    exit 1
+  fi
+  local -r BIN_INSTALL="${V23_DEVICE_DIR}/bin"
+    run "${BIN_INSTALL}/deviced" start  
+}
+
+###############################################################################
+# Stops device manager: calls the stop command of deviced.
+# Globals:
+#   V23_DEVICE_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+###############################################################################
+stop() {
+  if [[ ! -d "${V23_DEVICE_DIR}" ]]; then
+    echo "${V23_DEVICE_DIR} does not exist or is not a directory!"
+    exit 1
+  fi
+  local -r BIN_INSTALL="${V23_DEVICE_DIR}/bin"
+  run "${BIN_INSTALL}/deviced" stop
+}
+
+main() {
+  if [[ -z "${V23_DEVICE_DIR}" ]]; then
+    echo 'No local device installation dir specified!'
+    usage
+    exit 1
+  fi
+  if [[ -e "${V23_DEVICE_DIR}" && ! -d "${V23_DEVICE_DIR}" ]]; then
+    echo "${V23_DEVICE_DIR} is not a directory!"
+    usage
+    exit 1
+  fi
+
+  if [[ $# = 0 ]]; then
+    echo 'No command specified!'
+    usage
+    exit 1
+  fi
+  local -r COMMAND="$1"
+  shift
+  case "${COMMAND}" in
+    install)
+      install "$@"
+      ;;
+    uninstall)
+      uninstall
+      ;;
+    start)
+      start
+      ;;
+    stop)
+      stop
+      ;;
+    *)
+      echo "Unrecognized command: ${COMMAND}!"
+      usage
+      exit 1
+  esac
+}
+
+main "$@"
