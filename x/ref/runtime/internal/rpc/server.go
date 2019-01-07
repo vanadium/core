@@ -384,7 +384,7 @@ func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 		if len(addr.Address) > 0 {
 			ch, err := s.flowMgr.Listen(ctx, addr.Protocol, addr.Address)
 			if err != nil {
-				s.ctx.VI(1).Infof("Listen(%q, %q, ...) failed: %v", addr.Protocol, addr.Address, err)
+				s.ctx.Infof("Listen(%q, %q, ...) failed: %v", addr.Protocol, addr.Address, err)
 			}
 			s.active.Add(1)
 			go s.relisten(lctx, addr.Protocol, addr.Address, ch, err)
@@ -423,7 +423,7 @@ func (s *server) relisten(ctx *context.T, protocol, address string, ch <-chan st
 			}
 		}
 		if ch, err = s.flowMgr.Listen(ctx, protocol, address); err != nil {
-			s.ctx.VI(1).Infof("Listen(%q, %q, ...) failed: %v", protocol, address, err)
+			s.ctx.Infof("Listen(%q, %q, ...) failed: %v", protocol, address, err)
 		}
 	}
 }
