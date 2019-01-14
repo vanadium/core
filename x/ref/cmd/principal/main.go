@@ -997,7 +997,7 @@ invocation.
 If the --remote-arg-file flag is provided to recvblessings, the remote key, remote token
 and object address of this principal will be written to the specified location.
 This file can be supplied to bless:
-		principal bless --remote-arg-file FILE EXTENSION
+    principal bless --remote-arg-file FILE EXTENSION
 
 `,
 		FlagDefs: flagRecvBlessingsDef,
