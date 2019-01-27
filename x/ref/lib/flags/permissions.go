@@ -104,3 +104,9 @@ func (af PermissionsFlags) AddPermissionsFile(arg string) error {
 func (af PermissionsFlags) AddPermissionsLiteral(arg string) error {
 	return af.Literal.Set(arg)
 }
+
+// Specified returns true if either of the permissions flags was
+// explicitly set on the command line.
+func (af PermissionsFlags) Specified() bool {
+	return af.Files.isSet || af.Literal.isSet
+}

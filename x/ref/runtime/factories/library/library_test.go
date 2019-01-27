@@ -9,7 +9,7 @@ import (
 
 	"v.io/x/ref/lib/flags"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -45,13 +45,14 @@ func TestStatic(t *testing.T) {
 	}
 }
 
-func TestDefaults(t *testing.T) {
+func TestCommandLineFlagDefaults(t *testing.T) {
 	old_protocol := flags.DefaultProtocol()
 	old_hostport := flags.DefaultHostPort()
 	old_proxy := flags.DefaultProxy()
 	old_roots := flags.DefaultNamespaceRootsNoEnv()
 	old_perms := flags.DefaultPermissions()
 	old_literal := flags.DefaultPermissionsLiteral()
+	old_permspec := library.ConfigurePermissionsFromFlags
 	defer func() {
 		flags.SetDefaultProtocol(old_protocol)
 		flags.SetDefaultHostPort(old_hostport)
@@ -61,6 +62,7 @@ func TestDefaults(t *testing.T) {
 		for k, v := range old_perms {
 			flags.SetDefaultPermissions(k, v)
 		}
+		library.ConfigurePermissionsFromFlags = old_permspec
 	}()
 	flags.SetDefaultProtocol("tcp6")
 	flags.SetDefaultHostPort("127.0.0.2:9999")
@@ -69,6 +71,7 @@ func TestDefaults(t *testing.T) {
 	flags.SetDefaultPermissions("a", "b")
 	flags.SetDefaultPermissions("c", "d")
 	flags.SetDefaultPermissionsLiteral("{ohmy}")
+	library.ConfigurePermissionsFromFlags = true
 
 	ctx, shutdown := v23.Init()
 	defer shutdown()

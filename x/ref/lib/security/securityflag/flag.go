@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"os"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/x/lib/vlog"
 
 	"v.io/v23/context"
@@ -18,21 +18,16 @@ import (
 	"v.io/v23/security/access"
 )
 
-// NewAuthorizerOrDie is provided for backward compatibility except that
-// it must be called with a context.T. Use access.NewAuthorizer or
-// access.RuntimeAuthorizer in future.
+// NewAuthorizerOrDie returns an authorizer configured in the same way
+// as that for 'runtime', preferring a literal (ie. on the command line)
+// vs a file based specification, and assuming the typical set of access tags.
+// It will panic if it fails to create an authorizer.
 func NewAuthorizerOrDie(ctx *context.T) security.Authorizer {
 	auth, err := NewAuthorizer(ctx, "")
 	if err != nil {
 		vlog.Fatalf("%v", err)
 	}
 	return auth
-}
-
-// PermissionsFromFlag is provided for backward compatibility except that
-// it must be called with a context.T. Use PermissionsFromSpec in future.
-func PermissionsFromFlag(ctx *context.T) (access.Permissions, error) {
-	return PermissionsFromSpec(v23.GetPermissionsSpec(ctx), "")
 }
 
 // NewAuthorizer constructs an Authorizer based on the PermissionsSpec stored

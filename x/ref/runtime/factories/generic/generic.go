@@ -22,6 +22,7 @@ func init() {
 	library.CloudVM = false
 	library.ReservedNameDispatcher = false
 	library.ConfigureLoggingFromFlags = true
+	library.ConfigurePermissionsFromFlags = true
 	library.AllowMultipleInitializations = true
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 	flags.SetDefaultHostPort(":0")
