@@ -17,6 +17,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/ref/examples/echo"
+	"v.io/x/ref/lib/security/securityflag"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/static"
 )
@@ -40,7 +41,7 @@ func (e *echod) Echo(ctx *context.T, call rpc.ServerCall, msg string) (response 
 func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	ctx, server, err := v23.WithNewServer(ctx, nameFlag, echo.EchoServiceServer(&echod{}), nil) //securityflag.NewAuthorizerOrDie(ctx))
+	ctx, server, err := v23.WithNewServer(ctx, nameFlag, echo.EchoServiceServer(&echod{}), securityflag.NewAuthorizerOrDie(ctx))
 	if err != nil {
 		ctx.Fatalf("Failure creating server: %v", err)
 	}
