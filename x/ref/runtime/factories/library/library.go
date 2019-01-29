@@ -92,7 +92,7 @@ var (
 	// are used instead.
 	ConfigureLoggingFromFlags = false
 
-	// PermissionsSpec specifues the permissions to be stored in the context
+	// PermissionsSpec specifies the permissions to be stored in the context
 	// and thus used by default.
 	PermissionsSpec access.PermissionsSpec
 
@@ -255,9 +255,9 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	if ConfigurePermissionsFromFlags {
 		permissionsFlags := flagSet.PermissionsFlags()
 		PermissionsSpec = access.PermissionsSpec{
-			Specified: permissionsFlags.Specified(),
-			Files:     permissionsFlags.PermissionsNamesAndFiles(),
-			Literal:   permissionsFlags.PermissionsLiteral(),
+			ExplicitlySpecified: permissionsFlags.ExplicitlySpecified(),
+			Files:               permissionsFlags.PermissionsNamesAndFiles(),
+			Literal:             permissionsFlags.PermissionsLiteral(),
 		}
 	}
 

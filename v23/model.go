@@ -298,7 +298,7 @@ func WithNewServer(ctx *context.T, name string, object interface{}, auth securit
 }
 
 // WithNewDispatchingServer creates a new flow.Manager instance and attaches it
-// to ctx, and creates a new 'dispatching' server on that flow.Manager.
+// to ctx, and creates a new dispatching server on that flow.Manager.
 func WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	return initState.currentRuntime().WithNewDispatchingServer(ctx, name, disp, opts...)
 }

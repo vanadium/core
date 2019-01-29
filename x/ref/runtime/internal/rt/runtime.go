@@ -478,8 +478,10 @@ func (r *Runtime) commonServerInit(ctx *context.T, opts ...rpc.ServerOpt) (*pubs
 	return id.settingsPublisher, otherOpts, nil
 }
 
+// NOTE that this check may be defeated if the access package is changed
+// to accept different flags to the current permissions one.
 func (r *Runtime) warnIfPermissionsFlagsIgnored(ctx *context.T, auth security.Authorizer) {
-	if r.GetPermissionsSpec(ctx).Specified {
+	if r.GetPermissionsSpec(ctx).ExplicitlySpecified {
 		if auth == nil || reflect.TypeOf(auth).Elem().PkgPath() != "v.io/v23/security/access" {
 			ctx.Infof("WithNewServer using an authorizer that is not using access permissions specified on the command line")
 		}

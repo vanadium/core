@@ -115,9 +115,9 @@ func PermissionsAuthorizerFromFile(filename string, tagType *vdl.Type) (security
 // PermissionsSpec represents a specification for permissions derived
 // from command line flags or some other means.
 type PermissionsSpec struct {
-	// Specified is true if any part of the specification was obtained
+	// ExplicitlySpecified is true if any part of the specification was obtained
 	// from an explicitly specified command line flag.
-	Specified bool
+	ExplicitlySpecified bool
 	// Files represents a set of named files that contain permissions.
 	// The name 'runtime' is reserved for use by the runtime.
 	Files map[string]string
@@ -131,7 +131,7 @@ func (ps *PermissionsSpec) Copy() PermissionsSpec {
 	for k, v := range ps.Files {
 		files[k] = v
 	}
-	return PermissionsSpec{ps.Specified, files, ps.Literal}
+	return PermissionsSpec{ps.ExplicitlySpecified, files, ps.Literal}
 }
 
 // AuthorizerFromSpec creates an authorizer as specified by the
