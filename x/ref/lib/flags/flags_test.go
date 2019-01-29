@@ -110,7 +110,7 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 		fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
 		fl.Parse(tc.args, nil)
 		permsf = fl.PermissionsFlags()
-		if got, want := permsf.Specified(), tc.set; got != want {
+		if got, want := permsf.ExplicitlySpecified(), tc.set; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}
