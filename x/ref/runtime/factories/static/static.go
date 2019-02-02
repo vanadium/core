@@ -25,6 +25,7 @@ func init() {
 	library.Roam = false
 	library.CloudVM = true
 	library.ConfigureLoggingFromFlags = true
+	library.ConfigurePermissionsFromFlags = true
 	library.ReservedNameDispatcher = true
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 	library.EnableCommandlineFlags()

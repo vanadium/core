@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
@@ -92,6 +92,15 @@ var (
 	// are used instead.
 	ConfigureLoggingFromFlags = false
 
+	// PermissionsSpec specifies the permissions to be stored in the context
+	// and thus used by default.
+	PermissionsSpec access.PermissionsSpec
+
+	// ConfigurePermissionsFromFlags controls whether the permissions
+	// related variable above is used for configuring permissions, or if
+	// command line flags are used instead.
+	ConfigurePermissionsFromFlags = false
+
 	// AllowMultipleInitializations controls whether the runtime can
 	// be initialized multiple times. The shutdown callback must be called
 	// between multiple initializations.
@@ -145,6 +154,17 @@ func init() {
 	flow.RegisterUnknownProtocol("wsh", websocket.WSH{})
 }
 
+func configuredFlags() []flags.FlagGroup {
+	if !ConfigurePermissionsFromFlags {
+		return []flags.FlagGroup{flags.Runtime, flags.Listen}
+	}
+	return []flags.FlagGroup{
+		flags.Runtime,
+		flags.Listen,
+		flags.Permissions,
+	}
+}
+
 // EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
 	EnableFlags(flag.CommandLine, false)
@@ -155,7 +175,7 @@ func EnableCommandlineFlags() {
 // parsing by the caller if need be. It will optionally parse the newly
 // created and registered flags.
 func EnableFlags(fs *flag.FlagSet, parse bool) error {
-	flagSet = flags.CreateAndRegister(fs, flags.Runtime, flags.Listen, flags.Permissions)
+	flagSet = flags.CreateAndRegister(fs, configuredFlags()...)
 	if parse {
 		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
 			return err
@@ -215,8 +235,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	previousFlagSet := flagSet
 	if flagSet == nil {
 		dummy := &flag.FlagSet{}
-		flagSet = flags.CreateAndRegister(dummy,
-			flags.Runtime, flags.Listen, flags.Permissions)
+		flagSet = flags.CreateAndRegister(dummy, configuredFlags()...)
 	} else {
 		rtParsed := state.getParsingState()
 		if !rtParsed {
@@ -232,11 +251,14 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 
 	runtimeFlags := flagSet.RuntimeFlags()
 	listenFlags := flagSet.ListenFlags()
-	permissionsFlags := flagSet.PermissionsFlags()
 
-	permissionsSpec := access.PermissionsSpec{
-		Files:   permissionsFlags.PermissionsNamesAndFiles(),
-		Literal: permissionsFlags.PermissionsLiteral(),
+	if ConfigurePermissionsFromFlags {
+		permissionsFlags := flagSet.PermissionsFlags()
+		PermissionsSpec = access.PermissionsSpec{
+			ExplicitlySpecified: permissionsFlags.ExplicitlySpecified(),
+			Files:               permissionsFlags.PermissionsNamesAndFiles(),
+			Literal:             permissionsFlags.PermissionsLiteral(),
+		}
 	}
 
 	ishutdown := func(sf ...func()) {
@@ -272,7 +294,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	var reservedDispatcher rpc.Dispatcher
 	if ReservedNameDispatcher {
 		authorizer, err := access.AuthorizerFromSpec(
-			permissionsSpec, "runtime", access.TypicalTagType())
+			PermissionsSpec, "runtime", access.TypicalTagType())
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -293,7 +315,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		publisher,
 		runtimeFlags,
 		reservedDispatcher,
-		permissionsSpec,
+		&PermissionsSpec,
 		ConnectionExpiryDuration)
 	if err != nil {
 		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)

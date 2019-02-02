@@ -96,6 +96,24 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 	if got, want := permsf.PermissionsLiteral(), `{"x":"hedgehog"}`; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
+
+	for _, tc := range []struct {
+		args []string
+		set  bool
+	}{
+		{[]string{""}, false},
+		{[]string{"--v23.permissions.file=runtime:foo.json", `--v23.permissions.literal={"x":"hedgehog"}`}, true},
+		{[]string{"--v23.permissions.file=runtime:foo.json"}, true},
+		{[]string{`--v23.permissions.literal={"x":"hedgehog"}`}, true},
+	} {
+		fs := flag.NewFlagSet("test", flag.ContinueOnError)
+		fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+		fl.Parse(tc.args, nil)
+		permsf = fl.PermissionsFlags()
+		if got, want := permsf.ExplicitlySpecified(), tc.set; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
 }
 
 func TestFlagError(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"syscall"
@@ -16,7 +17,7 @@ import (
 
 	"v.io/x/lib/metadata"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/flow"
@@ -52,6 +53,7 @@ const (
 	backgroundKey
 	reservedNameKey
 	listenKey
+	permissionSpecKey
 
 	// initKey is used to store values that are only set at init time.
 	initKey
@@ -74,7 +76,6 @@ type initData struct {
 	protocols         []string
 	settingsPublisher *pubsub.Publisher
 	connIdleExpiry    time.Duration
-	permissionsSpec   access.PermissionsSpec
 }
 
 type vtraceDependency struct{}
@@ -97,7 +98,7 @@ func Init(
 	settingsPublisher *pubsub.Publisher,
 	flags flags.RuntimeFlags,
 	reservedDispatcher rpc.Dispatcher,
-	permissionsSpec access.PermissionsSpec,
+	permissionsSpec *access.PermissionsSpec,
 	connIdleExpiry time.Duration) (*Runtime, *context.T, v23.Shutdown, error) {
 	r := &Runtime{deps: dependency.NewGraph()}
 
@@ -108,7 +109,6 @@ func Init(
 		protocols:         protocols,
 		settingsPublisher: settingsPublisher,
 		connIdleExpiry:    connIdleExpiry,
-		permissionsSpec:   permissionsSpec,
 	})
 
 	if listenSpec != nil {
@@ -117,6 +117,10 @@ func Init(
 
 	if reservedDispatcher != nil {
 		ctx = context.WithValue(ctx, reservedNameKey, reservedDispatcher)
+	}
+
+	if permissionsSpec != nil {
+		ctx = context.WithValue(ctx, permissionSpecKey, permissionsSpec.Copy())
 	}
 
 	// Configure the context to use the global logger.
@@ -397,21 +401,10 @@ func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 	return context.WithValue(ctx, listenKey, ls.Copy())
 }
 
-func copyFiles(old map[string]string) map[string]string {
-	r := make(map[string]string, len(old))
-	for k, v := range old {
-		r[k] = v
-	}
-	return r
-}
-
 func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 	// nologcall
-	id, _ := ctx.Value(initKey).(*initData)
-	return access.PermissionsSpec{
-		Literal: id.permissionsSpec.Literal,
-		Files:   copyFiles(id.permissionsSpec.Files),
-	}
+	ps, _ := ctx.Value(permissionSpecKey).(access.PermissionsSpec)
+	return ps
 }
 
 func (*Runtime) WithBackgroundContext(ctx *context.T) *context.T {
@@ -485,12 +478,23 @@ func (r *Runtime) commonServerInit(ctx *context.T, opts ...rpc.ServerOpt) (*pubs
 	return id.settingsPublisher, otherOpts, nil
 }
 
+// NOTE that this check may be defeated if the access package is changed
+// to accept different flags to the current permissions one.
+func (r *Runtime) warnIfPermissionsFlagsIgnored(ctx *context.T, auth security.Authorizer) {
+	if r.GetPermissionsSpec(ctx).ExplicitlySpecified {
+		if auth == nil || reflect.TypeOf(auth).Elem().PkgPath() != "v.io/v23/security/access" {
+			ctx.Infof("WithNewServer using an authorizer that is not using access permissions specified on the command line")
+		}
+	}
+}
+
 func (r *Runtime) WithNewServer(ctx *context.T, name string, object interface{}, auth security.Authorizer, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	spub, opts, err := r.commonServerInit(ctx, opts...)
 	if err != nil {
 		return ctx, nil, err
 	}
+	r.warnIfPermissionsFlagsIgnored(ctx, auth)
 	newctx, s, err := irpc.WithNewServer(ctx, name, object, auth, spub, opts...)
 	if err != nil {
 		return ctx, nil, err

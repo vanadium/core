@@ -9,11 +9,11 @@ package main
 
 import (
 	"v.io/x/lib/cmdline"
+	"v.io/x/ref/lib/security/securityflag"
 
 	"v.io/v23/context"
-	"v.io/v23/security/access"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/x/ref/lib/signals"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
@@ -37,7 +37,7 @@ func runBenchmarkD(ctx *context.T, env *cmdline.Env, args []string) error {
 		ctx,
 		"",
 		internal.NewService(),
-		access.RuntimeAuthorizer(v23.GetPermissionsSpec(ctx)),
+		securityflag.NewAuthorizerOrDie(ctx),
 	)
 	if err != nil {
 		ctx.Fatalf("NewServer failed: %v", err)
