@@ -2,7 +2,7 @@ sudo: false
 dist: trusty
 language: go
 go:
-- 1.12
+- 1.12.5
 go_import_path: v.io
 env:
   matrix:
