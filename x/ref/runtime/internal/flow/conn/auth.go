@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/nacl/box"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -52,7 +52,7 @@ func (c *Conn) dialHandshake(
 		0,
 		true)
 	bflow.releaseLocked(DefaultBytesBufferedPerFlow)
-	c.blessingsFlow = newBlessingsFlow(ctx, bflow)
+	c.blessingsFlow = newBlessingsFlow(bflow)
 
 	rBlessings, rDischarges, rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c *Conn) acceptHandshake(
 		true,
 		0,
 		true)
-	c.blessingsFlow = newBlessingsFlow(ctx, bflw)
+	c.blessingsFlow = newBlessingsFlow(bflw)
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -330,7 +330,7 @@ type outCache struct {
 	discharges map[uint64][]security.Discharge // keyed by dkey
 }
 
-func newBlessingsFlow(ctx *context.T, f *flw) *blessingsFlow {
+func newBlessingsFlow(f *flw) *blessingsFlow {
 	b := &blessingsFlow{
 		f:       f,
 		enc:     vom.NewEncoder(f),
@@ -486,6 +486,9 @@ func (b *blessingsFlow) send(
 	}
 	defer b.mu.Unlock()
 	b.mu.Lock()
+	// make sure the underlying flow is using the supplied context
+	b.f.ctx = ctx
+
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.bkeys[buid]
 	if !hasB {
