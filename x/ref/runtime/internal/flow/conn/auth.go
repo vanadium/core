@@ -352,6 +352,7 @@ func newBlessingsFlow(f *flw) *blessingsFlow {
 }
 
 func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, blessings security.Blessings) error {
+	b.f.useCurrentContext(ctx)
 	// When accepting, make sure the blessings received are bound to the conn's
 	// remote public key.
 	b.f.conn.mu.Lock()
@@ -370,6 +371,7 @@ func (b *blessingsFlow) receiveDischargesLocked(ctx *context.T, bkey, dkey uint6
 }
 
 func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) error {
+	b.f.useCurrentContext(ctx)
 	switch bd := bd.(type) {
 	case BlessingsFlowMessageBlessings:
 		bkey, blessings := bd.Value.BKey, bd.Value.Blessings
@@ -414,6 +416,7 @@ func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) e
 func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.Blessings, map[string]security.Discharge, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
+	b.f.useCurrentContext(ctx)
 	for {
 		blessings, hasB := b.incoming.blessings[bkey]
 		if hasB {
@@ -439,6 +442,7 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 }
 
 func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security.Blessings, bkey uint64, peers []security.BlessingPattern) error {
+	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// blessings can be encoded in plaintext
 		return b.enc.Encode(BlessingsFlowMessageBlessings{Blessings{
@@ -457,6 +461,7 @@ func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security
 }
 
 func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []security.Discharge, bkey, dkey uint64, peers []security.BlessingPattern) error {
+	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// discharges can be encoded in plaintext
 		return b.enc.Encode(BlessingsFlowMessageDischarges{Discharges{
@@ -486,8 +491,7 @@ func (b *blessingsFlow) send(
 	}
 	defer b.mu.Unlock()
 	b.mu.Lock()
-	// make sure the underlying flow is using the supplied context
-	b.f.ctx = ctx
+	b.f.useCurrentContext(ctx)
 
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.bkeys[buid]
@@ -516,6 +520,7 @@ func (b *blessingsFlow) send(
 }
 
 func (b *blessingsFlow) close(ctx *context.T, err error) {
+	b.f.useCurrentContext(ctx)
 	b.f.close(ctx, false, err)
 }
 

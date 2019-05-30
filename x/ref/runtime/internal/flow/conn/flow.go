@@ -7,6 +7,7 @@ package conn
 import (
 	"io"
 	"net"
+	"runtime/debug"
 	"time"
 
 	"v.io/v23/context"
@@ -14,6 +15,7 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/security"
+	"v.io/x/lib/vlog"
 )
 
 type flw struct {
@@ -89,6 +91,7 @@ func (c *Conn) newFlowLocked(
 	}
 	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
+	vlog.Infof("newFlowLocked: %v(%p), %p -> %p", f.id, f, ctx, f.ctx)
 	if !f.opened {
 		c.unopenedFlows.Add(1)
 	}
@@ -116,12 +119,9 @@ func (f *flw) DisableFragmentation() {
 // Read and ReadMsg should not be called concurrently with themselves
 // or each other.
 func (f *flw) Read(p []byte) (n int, err error) {
-	f.conn.mu.Lock()
-	ctx := f.ctx
-	f.conn.mu.Unlock()
 	f.markUsed()
-	if n, err = f.q.read(ctx, p); err != nil {
-		f.close(ctx, false, err)
+	if n, err = f.q.read(f.currentContext(), p); err != nil {
+		f.close(f.currentContext(), false, err)
 	}
 	return
 }
@@ -131,15 +131,12 @@ func (f *flw) Read(p []byte) (n int, err error) {
 // Read and ReadMsg should not be called concurrently with themselves
 // or each other.
 func (f *flw) ReadMsg() (buf []byte, err error) {
-	f.conn.mu.Lock()
-	ctx := f.ctx
-	f.conn.mu.Unlock()
 	f.markUsed()
 	// TODO(mattr): Currently we only ever release counters when some flow
 	// reads.  We may need to do it more or less often.  Currently
 	// we'll send counters whenever a new flow is opened.
-	if buf, err = f.q.get(ctx); err != nil {
-		f.close(ctx, false, err)
+	if buf, err = f.q.get(f.currentContext()); err != nil {
+		f.close(f.currentContext(), false, err)
 	}
 	return
 }
@@ -217,10 +214,36 @@ func (f *flw) releaseLocked(tokens uint64) {
 	}
 }
 
-func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
+func (f *flw) useCurrentContext(ctx *context.T) {
 	f.conn.mu.Lock()
-	ctx := f.ctx
-	f.conn.mu.Unlock()
+	defer f.conn.mu.Unlock()
+	f.ctx = ctx
+}
+
+func (f *flw) currentContext() *context.T {
+	f.conn.mu.Lock()
+	defer f.conn.mu.Unlock()
+	return f.ctx
+}
+
+func (f *flw) currentContextLocked() *context.T {
+	return f.ctx
+}
+
+func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
+	ctx := f.currentContext()
+	select {
+	// Catch cancellations early.  If we caught a cancel when waiting
+	// our turn below its possible that we were notified simultaneously.
+	// Then the notify channel will be full and we would deadlock
+	// notifying ourselves.
+	case <-ctx.Done():
+		vlog.Infof("HERE: flow %d(%p), ctx: %p", f.id, f, ctx)
+		debug.PrintStack()
+		f.close(ctx, false, ctx.Err())
+		return 0, io.EOF
+	default:
+	}
 
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
 	if err != nil {
@@ -231,16 +254,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	if debug {
 		ctx.Infof("starting write on flow %d(%p)", f.id, f)
 	}
-	select {
-	// Catch cancellations early.  If we caught a cancel when waiting
-	// our turn below its possible that we were notified simultaneously.
-	// Then the notify channel will be full and we would deadlock
-	// notifying ourselves.
-	case <-ctx.Done():
-		f.close(ctx, false, ctx.Err())
-		return 0, io.EOF
-	default:
-	}
+
 	totalSize := 0
 	for _, p := range parts {
 		totalSize += len(p)
@@ -278,7 +292,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			// a partial write based on the available tokens. This is only required
 			// by proxies which need to pass on messages without refragmenting.
 			if debug {
-				ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
+				f.currentContextLocked().Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
 			f.conn.deactivateWriterLocked(f)
 			continue
@@ -324,7 +338,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	}
 	f.writing = false
 	if debug {
-		ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
+		f.currentContextLocked().Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
 	f.conn.deactivateWriterLocked(f)
 	f.conn.notifyNextWriterLocked(f)
@@ -441,10 +455,7 @@ func (f *flw) Conn() flow.ManagedConn {
 // new data will be queued.
 // TODO(mattr): update v23/flow docs.
 func (f *flw) Closed() <-chan struct{} {
-	f.conn.mu.Lock()
-	ctx := f.ctx
-	f.conn.mu.Unlock()
-	return ctx.Done()
+	return f.currentContext().Done()
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
@@ -503,10 +514,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 // Close marks the flow as closed. After Close is called, new data cannot be
 // written on the flow. Reads of already queued data are still possible.
 func (f *flw) Close() error {
-	f.conn.mu.Lock()
-	ctx := f.ctx
-	f.conn.mu.Unlock()
-	f.close(ctx, false, nil)
+	f.close(f.currentContext(), false, nil)
 	return nil
 }
 

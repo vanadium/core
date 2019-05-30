@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -20,6 +20,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	"v.io/x/lib/vlog"
 	slib "v.io/x/ref/lib/security"
 )
 
@@ -726,10 +727,6 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	debug := ctx.VI(2)
 	debug.Infof("Closing connection: %v", err)
 
-	flows := make([]*flw, 0, len(c.flows))
-	for _, f := range c.flows {
-		flows = append(flows, f)
-	}
 	if c.status >= Closing {
 		// This conn is already being torn down.
 		return
@@ -742,6 +739,13 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		close(c.remoteValid)
 		c.remoteValid = nil
 	}
+
+	flows := make([]*flw, 0, len(c.flows))
+	for _, f := range c.flows {
+		flows = append(flows, f)
+	}
+
+	vlog.Infof("internalClose: %p", ctx)
 
 	go func(c *Conn) {
 		if c.hcstate != nil {
@@ -786,6 +790,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		c.status = Closed
 		close(c.closed)
 		c.mu.Unlock()
+
 	}(c)
 }
 

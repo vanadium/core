@@ -82,6 +82,8 @@ import (
 	"sync"
 	"time"
 
+	"v.io/x/lib/vlog"
+
 	"v.io/v23/logging"
 )
 
@@ -440,8 +442,10 @@ func FromGoContext(ctx gocontext.Context) *T {
 		go func() {
 			select {
 			case <-done:
+				vlog.Infof("canceling done: %p\n", ctx)
 				cancel()
 			case <-t.Done():
+				vlog.Infof("canceling t.Done(): %p\n", ctx)
 			}
 		}()
 	}
