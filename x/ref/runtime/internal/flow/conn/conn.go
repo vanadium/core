@@ -20,7 +20,6 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
-	"v.io/x/lib/vlog"
 	slib "v.io/x/ref/lib/security"
 )
 
@@ -745,8 +744,6 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		flows = append(flows, f)
 	}
 
-	vlog.Infof("internalClose: %p", ctx)
-
 	go func(c *Conn) {
 		if c.hcstate != nil {
 			c.hcstate.requestTimer.Stop()
@@ -790,7 +787,6 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		c.status = Closed
 		close(c.closed)
 		c.mu.Unlock()
-
 	}(c)
 }
 

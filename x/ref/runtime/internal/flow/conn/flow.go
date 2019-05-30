@@ -7,7 +7,6 @@ package conn
 import (
 	"io"
 	"net"
-	"runtime/debug"
 	"time"
 
 	"v.io/v23/context"
@@ -15,7 +14,6 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/security"
-	"v.io/x/lib/vlog"
 )
 
 type flw struct {
@@ -91,7 +89,6 @@ func (c *Conn) newFlowLocked(
 	}
 	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
-	vlog.Infof("newFlowLocked: %v(%p), %p -> %p", f.id, f, ctx, f.ctx)
 	if !f.opened {
 		c.unopenedFlows.Add(1)
 	}
@@ -238,8 +235,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	// Then the notify channel will be full and we would deadlock
 	// notifying ourselves.
 	case <-ctx.Done():
-		vlog.Infof("HERE: flow %d(%p), ctx: %p", f.id, f, ctx)
-		debug.PrintStack()
 		f.close(ctx, false, ctx.Err())
 		return 0, io.EOF
 	default:

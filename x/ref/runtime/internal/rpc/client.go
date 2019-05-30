@@ -23,7 +23,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/apilog"
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/internal/flow/conn"
@@ -194,14 +193,11 @@ func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []int
 }
 
 func (c *client) startCall(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (rpc.ClientCall, error) {
-	octx := ctx
 	ctx, _ = vtrace.WithNewSpan(ctx, fmt.Sprintf("<rpc.Client>%q.%s", name, method))
-	vlog.Infof("startCall: %p -> %p", octx, ctx)
 	r, err := c.connectToName(ctx, name, method, args, connOpts, opts)
 	if err != nil {
 		return nil, err
 	}
-	vlog.Infof("startCall: flow: (%p): %p -> %p", r.flow, octx, ctx)
 
 	removeStat := c.outstanding.start(method, r.flow.RemoteEndpoint())
 	fc, err := newFlowClient(ctx, removeStat, r.flow, r.typeEnc, r.typeDec)
@@ -292,7 +288,6 @@ type serverStatus struct {
 // to the servers the name resolves to based on the type of error encountered.
 // Once connOpts.connDeadline is reached, it will stop retrying.
 func (c *client) connectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, error) {
-	vlog.Infof("connectToName: %p", ctx)
 	span := vtrace.GetSpan(ctx)
 	var prevErr error
 	for retries := uint(0); ; retries++ {
@@ -332,7 +327,6 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 //
 // TODO(toddw): Remove action from out-args, the error should tell us the action.
 func (c *client) tryConnectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, verror.ActionCode, bool, error) {
-	vlog.Infof("tryConnectToName: %p", ctx)
 	blessingPattern, name := security.SplitPatternName(name)
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {
@@ -438,7 +432,6 @@ func (c *client) tryConnectToServer(
 	defer c.wg.Done()
 	status := &serverStatus{index: index, server: server}
 	var span vtrace.Span
-	octx := ctx
 	ctx, span = vtrace.WithNewSpan(ctx, "<client>tryConnectToServer "+server)
 	defer func() {
 		ch <- status
@@ -452,7 +445,6 @@ func (c *client) tryConnectToServer(
 		}
 	}
 
-	vlog.Infof("tryConnectToServer: ctx %p -> %p", octx, ctx)
 	address, suffix := naming.SplitAddressName(server)
 	if len(address) == 0 {
 		status.serverErr = suberr(verror.New(errNonRootedName, ctx, server))
