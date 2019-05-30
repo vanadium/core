@@ -78,7 +78,7 @@ func TestVDLGeneratorBuiltInVDLRoot(t *testing.T) {
 	env := envvar.SliceToMap(os.Environ())
 	delete(env, "JIRI_ROOT")
 	delete(env, "VDLROOT")
-	cmd := sh.Cmd(vdlBin, "-v", "generate", "--lang=go", outOpt, testDir)
+	cmd := sh.Cmd(vdlBin, "generate", "-v", "--lang=go", outOpt, testDir)
 	cmd.Vars = env
 	cmd.Run()
 	verifyOutput(t, outDir)
