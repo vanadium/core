@@ -80,9 +80,11 @@ import (
 	"os"
 	"runtime"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"v.io/v23/logging"
+	"v.io/x/lib/vlog"
 )
 
 type internalKey int
@@ -91,6 +93,7 @@ const (
 	rootKey = internalKey(iota)
 	cancelKey
 	deadlineKey
+	rootCancelStateKey
 
 	// vmarker is never stored as a key. However,
 	// gocontext.Context.Value(vmarkerKey) will return a *T object if there's a *T
@@ -153,7 +156,12 @@ type T struct {
 // is sometimes useful in tests, where it is undesirable to initialize a
 // runtime to test a function that reads from a T.
 func RootContext() (*T, CancelFunc) {
-	return WithCancel(&T{logger: logging.Discard, key: rootKey})
+	ctx := &T{logger: logging.Discard, key: rootKey}
+	t, cs, cancelParent := withCancelState(ctx)
+	if cancelParent != nil {
+		panic(ctx)
+	}
+	return WithValue(t, rootCancelStateKey, cs), makeCancelFunc(cs, cancelParent, nil, Canceled)
 }
 
 // WithLogger returns a child of the current context that embeds the supplied
@@ -448,21 +456,22 @@ func FromGoContext(ctx gocontext.Context) *T {
 	return t
 }
 
+var nRootCancelWarning int32
+
 // WithRootContext returns a context derived from parent, but that is
 // detached from the deadlines and cancellation hierarchy so that this
 // context will only ever be canceled when the returned CancelFunc is
 // called, or the RootContext from which this context is ultimately
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
-	var root *cancelState
-	for ancestor := parent; ancestor != nil; ancestor = ancestor.parent {
-		if cs, ok := ancestor.value.(*cancelState); ok {
-			root = cs
-		}
-	}
+	root := parent.Value(rootCancelStateKey).(*cancelState)
 	cs := &cancelState{done: make(chan struct{})}
 	if root != nil {
 		root.addChild(cs)
+	} else {
+		if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
+			vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
+		}
 	}
 	return WithValue(parent, cancelKey, cs), makeCancelFunc(cs, root, nil, Canceled)
 }
