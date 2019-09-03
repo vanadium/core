@@ -18,7 +18,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	golang.org/x/sys v0.0.0-20190302025703-b6889370fb10 // indirect
 	google.golang.org/api v0.1.0
-	v.io/x/lib v0.1.3
+	v.io/x/lib v0.1.4
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )
 
