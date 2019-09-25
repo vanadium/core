@@ -174,6 +174,10 @@ func (data *goData) DefineTypeOfVars() string {
 	return s
 }
 
+// InitializationExpression returns an expression for initializing the value
+// of the specified type. It is called by DefineTypeOfVars above and is required
+// by the code generator in order to generate initialization values for fields
+// in package level variables without relying on initialization order.
 func (data *goData) InitializationExpression(tt *vdl.Type) string {
 	if builtin, ok := builtInTypeVars[tt]; ok {
 		return "vdl." + builtin
