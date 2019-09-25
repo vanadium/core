@@ -1854,7 +1854,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NBool)",
-		Value:      vdl.ValueOf(__VDLType_bool_1),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NBool)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805127000021762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e426f6f6c0101e11c29",
 		HexVersion: "80",
@@ -1863,7 +1863,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NUint16)",
-		Value:      vdl.ValueOf(__VDLType_uint16_2),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NUint16)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805129000023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e55696e7431360104e11c29",
 		HexVersion: "80",
@@ -1872,7 +1872,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NUint32)",
-		Value:      vdl.ValueOf(__VDLType_uint32_3),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NUint32)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805129000023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e55696e7433320105e11c29",
 		HexVersion: "80",
@@ -1881,7 +1881,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NUint64)",
-		Value:      vdl.ValueOf(__VDLType_uint64_4),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NUint64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805129000023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e55696e7436340106e11c29",
 		HexVersion: "80",
@@ -1890,7 +1890,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NInt16)",
-		Value:      vdl.ValueOf(__VDLType_int16_5),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NInt16)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805128000022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e496e7431360107e11c29",
 		HexVersion: "80",
@@ -1899,7 +1899,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NInt32)",
-		Value:      vdl.ValueOf(__VDLType_int32_6),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NInt32)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805128000022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e496e7433320108e11c29",
 		HexVersion: "80",
@@ -1908,7 +1908,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NInt64)",
-		Value:      vdl.ValueOf(__VDLType_int64_7),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NInt64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805128000022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e496e7436340109e11c29",
 		HexVersion: "80",
@@ -1917,7 +1917,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NFloat32)",
-		Value:      vdl.ValueOf(__VDLType_float32_8),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NFloat32)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80512a000024762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e466c6f61743332010ae11c29",
 		HexVersion: "80",
@@ -1926,7 +1926,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NFloat64)",
-		Value:      vdl.ValueOf(__VDLType_float64_9),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NFloat64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80512a000024762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e466c6f61743634010be11c29",
 		HexVersion: "80",
@@ -1935,7 +1935,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NArray2Uint64)",
-		Value:      vdl.ValueOf(__VDLType_array_10),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NArray2Uint64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805131020029762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e41727261793255696e74363401060202e11c29",
 		HexVersion: "80",
@@ -1944,7 +1944,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject([]uint64)",
-		Value:      vdl.ValueOf(__VDLType_list_11),
+		Value:      vdl.ValueOf(vdl.TypeOf((*[]uint64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "805104030106e11c29",
 		HexVersion: "80",
@@ -1953,7 +1953,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NListUint64)",
-		Value:      vdl.ValueOf(__VDLType_list_12),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NListUint64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80512d030027762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e4c69737455696e7436340106e11c29",
 		HexVersion: "80",
@@ -1962,7 +1962,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(set[uint64])",
-		Value:      vdl.ValueOf(__VDLType_set_13),
+		Value:      vdl.ValueOf(vdl.TypeOf((*map[uint64]struct{})(nil))),
 		TypeString: "typeobject",
 		Hex:        "805104040106e11c29",
 		HexVersion: "80",
@@ -1971,7 +1971,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NSetUint64)",
-		Value:      vdl.ValueOf(__VDLType_set_14),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NSetUint64)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80512c040026762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e53657455696e7436340106e11c29",
 		HexVersion: "80",
@@ -1980,7 +1980,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(map[uint64]string)",
-		Value:      vdl.ValueOf(__VDLType_map_15),
+		Value:      vdl.ValueOf(vdl.TypeOf((*map[uint64]string)(nil))),
 		TypeString: "typeobject",
 		Hex:        "8051060501060203e11c29",
 		HexVersion: "80",
@@ -1989,7 +1989,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NMapUint64String)",
-		Value:      vdl.ValueOf(__VDLType_map_16),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NMapUint64String)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80513405002c762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e4d617055696e743634537472696e6701060203e11c29",
 		HexVersion: "80",
@@ -1998,7 +1998,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NStruct)",
-		Value:      vdl.ValueOf(__VDLType_struct_17),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NStruct)(nil)).Elem()),
 		TypeString: "typeobject",
 		Hex:        "80513b060023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e53747275637401030001410101e10001420103e10001430109e1e11c29",
 		HexVersion: "80",
@@ -2007,7 +2007,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NEnum)",
-		Value:      vdl.ValueOf(__VDLType_enum_18),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NEnum)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80512d010021762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e456e756d0103014101420143e11c29",
 		HexVersion: "80",
@@ -2016,7 +2016,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "typeobject(types.NUnion)",
-		Value:      vdl.ValueOf(__VDLType_union_19),
+		Value:      vdl.ValueOf(vdl.TypeOf((*types.NUnion)(nil))),
 		TypeString: "typeobject",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e11c29",
 		HexVersion: "80",
@@ -3050,27 +3050,27 @@ var Tests = []types.TestCase{
 var CompatTests = map[string][]*vdl.Type{
 	"bool": {
 		vdl.BoolType,
-		__VDLType_bool_1,
-		__VDLType_bool_20,
+		vdl.TypeOf((*types.NBool)(nil)),
+		vdl.TypeOf((*types.MBool)(nil)),
 	},
 	"map[X]bool/set[X]": {
-		__VDLType_map_21,
-		__VDLType_set_22,
-		__VDLType_map_23,
+		vdl.TypeOf((*types.SetOnlyMap)(nil)),
+		vdl.TypeOf((*types.MapOnlySet)(nil)),
+		vdl.TypeOf((*types.SometimesSetMap)(nil)),
 	},
 	"map[string]X/struct": {
-		__VDLType_struct_24,
-		__VDLType_map_25,
+		vdl.TypeOf((*types.MapOnlyStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.StructOnlyMap)(nil)),
 	},
 	"map[string]bool/set[string]/struct": {
-		__VDLType_struct_26,
-		__VDLType_map_27,
-		__VDLType_set_28,
+		vdl.TypeOf((*types.MapSetStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.SetStructMap)(nil)),
+		vdl.TypeOf((*types.MapStructSet)(nil)),
 	},
 	"number list/array": {
-		__VDLType_list_29,
-		__VDLType_array_10,
-		__VDLType_list_12,
+		vdl.TypeOf((*[]int32)(nil)),
+		vdl.TypeOf((*types.NArray2Uint64)(nil)),
+		vdl.TypeOf((*types.NListUint64)(nil)),
 	},
 	"number": {
 		vdl.Uint16Type,
@@ -3081,45 +3081,45 @@ var CompatTests = map[string][]*vdl.Type{
 		vdl.Int64Type,
 		vdl.Float32Type,
 		vdl.Float64Type,
-		__VDLType_uint16_2,
-		__VDLType_uint32_3,
-		__VDLType_uint64_4,
-		__VDLType_int16_5,
-		__VDLType_int32_6,
-		__VDLType_int64_7,
-		__VDLType_float32_8,
-		__VDLType_float64_9,
+		vdl.TypeOf((*types.NUint16)(nil)),
+		vdl.TypeOf((*types.NUint32)(nil)),
+		vdl.TypeOf((*types.NUint64)(nil)),
+		vdl.TypeOf((*types.NInt16)(nil)),
+		vdl.TypeOf((*types.NInt32)(nil)),
+		vdl.TypeOf((*types.NInt64)(nil)),
+		vdl.TypeOf((*types.NFloat32)(nil)),
+		vdl.TypeOf((*types.NFloat64)(nil)),
 	},
 	"string list/array": {
-		__VDLType_list_30,
-		__VDLType_list_31,
-		__VDLType_array_32,
-		__VDLType_array_33,
+		vdl.TypeOf((*[]string)(nil)),
+		vdl.TypeOf((*types.ListString)(nil)),
+		vdl.TypeOf((*types.Array3String)(nil)),
+		vdl.TypeOf((*types.Array4String)(nil)),
 	},
 	"string/[]byte/enum": {
 		vdl.StringType,
-		__VDLType_string_34,
-		__VDLType_list_35,
-		__VDLType_list_36,
-		__VDLType_array_37,
-		__VDLType_enum_18,
+		vdl.TypeOf((*types.NString)(nil)),
+		vdl.TypeOf((*[]byte)(nil)),
+		vdl.TypeOf((*types.NByteSlice)(nil)),
+		vdl.TypeOf((*types.NByteArray)(nil)),
+		vdl.TypeOf((*types.NEnum)(nil)),
 	},
 	"struct A": {
-		__VDLType_struct_17,
-		__VDLType_struct_38,
-		__VDLType_struct_39,
+		vdl.TypeOf((*types.NStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.AbcStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.AdeStruct)(nil)).Elem(),
 	},
 	"struct Z": {
-		__VDLType_struct_40,
-		__VDLType_struct_41,
-		__VDLType_struct_42,
+		vdl.TypeOf((*types.XyzStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.YzStruct)(nil)).Elem(),
+		vdl.TypeOf((*types.ZStruct)(nil)).Elem(),
 	},
 	"typeobject": {
 		vdl.TypeObjectType,
 	},
 	"union B": {
-		__VDLType_union_19,
-		__VDLType_union_43,
+		vdl.TypeOf((*types.NUnion)(nil)),
+		vdl.TypeOf((*types.BdeUnion)(nil)),
 	},
 }
 
@@ -3133,7 +3133,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 	"array/list": {
 		{
 			Name:        "[3]string",
-			PrimaryType: __VDLType_array_32,
+			PrimaryType: vdl.TypeOf((*types.Array3String)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.Array3String{
 					"A",
@@ -3149,7 +3149,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "[4]string",
-			PrimaryType: __VDLType_array_33,
+			PrimaryType: vdl.TypeOf((*types.Array4String)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.Array4String{
 					"D",
@@ -3161,7 +3161,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "ByteArray",
-			PrimaryType: __VDLType_array_37,
+			PrimaryType: vdl.TypeOf((*types.NByteArray)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.NByteArray{
 					5,
@@ -3233,7 +3233,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 	"string and enum": {
 		{
 			Name:        "enum (A)",
-			PrimaryType: __VDLType_enum_18,
+			PrimaryType: vdl.TypeOf((*types.NEnum)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf("A"),
 				vdl.ValueOf(types.NString("A")),
@@ -3242,7 +3242,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "enum (brie)",
-			PrimaryType: __VDLType_enum_44,
+			PrimaryType: vdl.TypeOf((*types.BrieEnum)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf("Brie"),
 				vdl.ValueOf(types.NString("Brie")),
@@ -3252,7 +3252,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "string",
-			PrimaryType: __VDLType_string_34,
+			PrimaryType: vdl.TypeOf((*types.NString)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf("Cherry"),
 				vdl.ValueOf(types.NString("Cherry")),
@@ -3263,7 +3263,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 	"struct, map, and set": {
 		{
 			Name:        "map[uint32]uint32",
-			PrimaryType: __VDLType_map_45,
+			PrimaryType: vdl.TypeOf((*types.MapOnlyA)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.MapOnlyA{
 					4: 0,
@@ -3277,7 +3277,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "map[bool]string",
-			PrimaryType: __VDLType_map_46,
+			PrimaryType: vdl.TypeOf((*types.MapOnlyB)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.MapOnlyB{
 					true: "hello",
@@ -3289,7 +3289,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "set[bool]",
-			PrimaryType: __VDLType_set_47,
+			PrimaryType: vdl.TypeOf((*types.SetOnlyA)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.SetOnlyA{
 					false: struct{}{},
@@ -3303,7 +3303,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "set[int16]",
-			PrimaryType: __VDLType_set_48,
+			PrimaryType: vdl.TypeOf((*types.SetOnlyB)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.SetOnlyB{
 					4: struct{}{},
@@ -3317,7 +3317,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "structABC",
-			PrimaryType: __VDLType_struct_38,
+			PrimaryType: vdl.TypeOf((*types.AbcStruct)(nil)).Elem(),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.AbcStruct{
 					A: true,
@@ -3334,7 +3334,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "structYz",
-			PrimaryType: __VDLType_struct_41,
+			PrimaryType: vdl.TypeOf((*types.YzStruct)(nil)).Elem(),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.XyzStruct{
 					Z: "ahoy",
@@ -3349,7 +3349,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "struct+map",
-			PrimaryType: __VDLType_struct_24,
+			PrimaryType: vdl.TypeOf((*types.MapOnlyStruct)(nil)).Elem(),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.StructOnlyMap{
 					"Key1": 4,
@@ -3363,7 +3363,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "map+set",
-			PrimaryType: __VDLType_set_22,
+			PrimaryType: vdl.TypeOf((*types.MapOnlySet)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.MapOnlySet{
 					3.14: struct{}{},
@@ -3381,7 +3381,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "map-set",
-			PrimaryType: __VDLType_map_21,
+			PrimaryType: vdl.TypeOf((*types.SetOnlyMap)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.SometimesSetMap{
 					3.14: vdl.ValueOf("cannot be a set anymore"),
@@ -3391,7 +3391,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "struct+map+set",
-			PrimaryType: __VDLType_set_28,
+			PrimaryType: vdl.TypeOf((*types.MapStructSet)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.MapStructSet{
 					"Eel":  struct{}{},
@@ -3423,7 +3423,7 @@ var ConvertTests = map[string][]types.ConvertGroup{
 	"union": {
 		{
 			Name:        "BdeUnion",
-			PrimaryType: __VDLType_union_43,
+			PrimaryType: vdl.TypeOf((*types.BdeUnion)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.BdeUnion(types.BdeUnionB{"bde"})),
 				vdl.ValueOf(types.NUnion(types.NUnionB{"bde"})),
@@ -3431,65 +3431,13 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 		{
 			Name:        "BdeUnion fail",
-			PrimaryType: __VDLType_union_19,
+			PrimaryType: vdl.TypeOf((*types.NUnion)(nil)),
 			Values: []*vdl.Value{
 				vdl.ValueOf(types.NUnion(types.NUnionA{true})),
 			},
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-var (
-	__VDLType_bool_1    *vdl.Type
-	__VDLType_uint16_2  *vdl.Type
-	__VDLType_uint32_3  *vdl.Type
-	__VDLType_uint64_4  *vdl.Type
-	__VDLType_int16_5   *vdl.Type
-	__VDLType_int32_6   *vdl.Type
-	__VDLType_int64_7   *vdl.Type
-	__VDLType_float32_8 *vdl.Type
-	__VDLType_float64_9 *vdl.Type
-	__VDLType_array_10  *vdl.Type
-	__VDLType_list_11   *vdl.Type
-	__VDLType_list_12   *vdl.Type
-	__VDLType_set_13    *vdl.Type
-	__VDLType_set_14    *vdl.Type
-	__VDLType_map_15    *vdl.Type
-	__VDLType_map_16    *vdl.Type
-	__VDLType_struct_17 *vdl.Type
-	__VDLType_enum_18   *vdl.Type
-	__VDLType_union_19  *vdl.Type
-	__VDLType_bool_20   *vdl.Type
-	__VDLType_map_21    *vdl.Type
-	__VDLType_set_22    *vdl.Type
-	__VDLType_map_23    *vdl.Type
-	__VDLType_struct_24 *vdl.Type
-	__VDLType_map_25    *vdl.Type
-	__VDLType_struct_26 *vdl.Type
-	__VDLType_map_27    *vdl.Type
-	__VDLType_set_28    *vdl.Type
-	__VDLType_list_29   *vdl.Type
-	__VDLType_list_30   *vdl.Type
-	__VDLType_list_31   *vdl.Type
-	__VDLType_array_32  *vdl.Type
-	__VDLType_array_33  *vdl.Type
-	__VDLType_string_34 *vdl.Type
-	__VDLType_list_35   *vdl.Type
-	__VDLType_list_36   *vdl.Type
-	__VDLType_array_37  *vdl.Type
-	__VDLType_struct_38 *vdl.Type
-	__VDLType_struct_39 *vdl.Type
-	__VDLType_struct_40 *vdl.Type
-	__VDLType_struct_41 *vdl.Type
-	__VDLType_struct_42 *vdl.Type
-	__VDLType_union_43  *vdl.Type
-	__VDLType_enum_44   *vdl.Type
-	__VDLType_map_45    *vdl.Type
-	__VDLType_map_46    *vdl.Type
-	__VDLType_set_47    *vdl.Type
-	__VDLType_set_48    *vdl.Type
-)
 
 var __VDLInitCalled bool
 
@@ -3511,56 +3459,6 @@ func __VDLInit() struct{} {
 		return struct{}{}
 	}
 	__VDLInitCalled = true
-
-	// Initialize type definitions.
-	__VDLType_bool_1 = vdl.TypeOf((*types.NBool)(nil))
-	__VDLType_uint16_2 = vdl.TypeOf((*types.NUint16)(nil))
-	__VDLType_uint32_3 = vdl.TypeOf((*types.NUint32)(nil))
-	__VDLType_uint64_4 = vdl.TypeOf((*types.NUint64)(nil))
-	__VDLType_int16_5 = vdl.TypeOf((*types.NInt16)(nil))
-	__VDLType_int32_6 = vdl.TypeOf((*types.NInt32)(nil))
-	__VDLType_int64_7 = vdl.TypeOf((*types.NInt64)(nil))
-	__VDLType_float32_8 = vdl.TypeOf((*types.NFloat32)(nil))
-	__VDLType_float64_9 = vdl.TypeOf((*types.NFloat64)(nil))
-	__VDLType_array_10 = vdl.TypeOf((*types.NArray2Uint64)(nil))
-	__VDLType_list_11 = vdl.TypeOf((*[]uint64)(nil))
-	__VDLType_list_12 = vdl.TypeOf((*types.NListUint64)(nil))
-	__VDLType_set_13 = vdl.TypeOf((*map[uint64]struct{})(nil))
-	__VDLType_set_14 = vdl.TypeOf((*types.NSetUint64)(nil))
-	__VDLType_map_15 = vdl.TypeOf((*map[uint64]string)(nil))
-	__VDLType_map_16 = vdl.TypeOf((*types.NMapUint64String)(nil))
-	__VDLType_struct_17 = vdl.TypeOf((*types.NStruct)(nil)).Elem()
-	__VDLType_enum_18 = vdl.TypeOf((*types.NEnum)(nil))
-	__VDLType_union_19 = vdl.TypeOf((*types.NUnion)(nil))
-	__VDLType_bool_20 = vdl.TypeOf((*types.MBool)(nil))
-	__VDLType_map_21 = vdl.TypeOf((*types.SetOnlyMap)(nil))
-	__VDLType_set_22 = vdl.TypeOf((*types.MapOnlySet)(nil))
-	__VDLType_map_23 = vdl.TypeOf((*types.SometimesSetMap)(nil))
-	__VDLType_struct_24 = vdl.TypeOf((*types.MapOnlyStruct)(nil)).Elem()
-	__VDLType_map_25 = vdl.TypeOf((*types.StructOnlyMap)(nil))
-	__VDLType_struct_26 = vdl.TypeOf((*types.MapSetStruct)(nil)).Elem()
-	__VDLType_map_27 = vdl.TypeOf((*types.SetStructMap)(nil))
-	__VDLType_set_28 = vdl.TypeOf((*types.MapStructSet)(nil))
-	__VDLType_list_29 = vdl.TypeOf((*[]int32)(nil))
-	__VDLType_list_30 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_list_31 = vdl.TypeOf((*types.ListString)(nil))
-	__VDLType_array_32 = vdl.TypeOf((*types.Array3String)(nil))
-	__VDLType_array_33 = vdl.TypeOf((*types.Array4String)(nil))
-	__VDLType_string_34 = vdl.TypeOf((*types.NString)(nil))
-	__VDLType_list_35 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_list_36 = vdl.TypeOf((*types.NByteSlice)(nil))
-	__VDLType_array_37 = vdl.TypeOf((*types.NByteArray)(nil))
-	__VDLType_struct_38 = vdl.TypeOf((*types.AbcStruct)(nil)).Elem()
-	__VDLType_struct_39 = vdl.TypeOf((*types.AdeStruct)(nil)).Elem()
-	__VDLType_struct_40 = vdl.TypeOf((*types.XyzStruct)(nil)).Elem()
-	__VDLType_struct_41 = vdl.TypeOf((*types.YzStruct)(nil)).Elem()
-	__VDLType_struct_42 = vdl.TypeOf((*types.ZStruct)(nil)).Elem()
-	__VDLType_union_43 = vdl.TypeOf((*types.BdeUnion)(nil))
-	__VDLType_enum_44 = vdl.TypeOf((*types.BrieEnum)(nil))
-	__VDLType_map_45 = vdl.TypeOf((*types.MapOnlyA)(nil))
-	__VDLType_map_46 = vdl.TypeOf((*types.MapOnlyB)(nil))
-	__VDLType_set_47 = vdl.TypeOf((*types.SetOnlyA)(nil))
-	__VDLType_set_48 = vdl.TypeOf((*types.SetOnlyB)(nil))
 
 	return struct{}{}
 }

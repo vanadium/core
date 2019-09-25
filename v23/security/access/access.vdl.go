@@ -424,7 +424,7 @@ var AccessTagCaveat = security.CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_list_7,
+	ParamType: vdl.TypeOf((*[]Tag)(nil)),
 }
 
 //////////////////////////////////////////////////
@@ -479,7 +479,6 @@ var (
 	__VDLType_string_4 *vdl.Type
 	__VDLType_map_5    *vdl.Type
 	__VDLType_string_6 *vdl.Type
-	__VDLType_list_7   *vdl.Type
 )
 
 var __VDLInitCalled bool
@@ -515,7 +514,6 @@ func __VDLInit() struct{} {
 	__VDLType_string_4 = vdl.TypeOf((*security.BlessingPattern)(nil))
 	__VDLType_map_5 = vdl.TypeOf((*Permissions)(nil))
 	__VDLType_string_6 = vdl.TypeOf((*Tag)(nil))
-	__VDLType_list_7 = vdl.TypeOf((*[]Tag)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTooBig.ID), "{1:}{2:} AccessList is too big")

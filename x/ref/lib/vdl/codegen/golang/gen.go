@@ -167,18 +167,26 @@ func (data *goData) DefineTypeOfVars() string {
 		// There's no need to convert the value to its native representation, since
 		// it'll just be converted back in vdl.TypeOf.
 		tt := idToType[id]
-		typeOf := typeGoWire(data, tt)
-		if tt.Kind() != vdl.Optional {
-			typeOf = "*" + typeOf
-		}
-		typeOf = "((" + typeOf + ")(nil))"
-		if tt.CanBeOptional() && tt.Kind() != vdl.Optional {
-			typeOf += ".Elem()"
-		}
+		typeOf := data.InitializationExpression(tt)
 		s += fmt.Sprintf(`
-	%[1]s = %[2]sTypeOf%[3]s`, typeOfVarName(tt, id), data.Pkg("v.io/v23/vdl"), typeOf)
+	%[1]s = %[2]s`, typeOfVarName(tt, id), typeOf)
 	}
 	return s
+}
+
+func (data *goData) InitializationExpression(tt *vdl.Type) string {
+	if builtin, ok := builtInTypeVars[tt]; ok {
+		return "vdl." + builtin
+	}
+	typeOf := typeGoWire(data, tt)
+	if tt.Kind() != vdl.Optional {
+		typeOf = "*" + typeOf
+	}
+	typeOf = "((" + typeOf + ")(nil))"
+	if tt.CanBeOptional() && tt.Kind() != vdl.Optional {
+		typeOf += ".Elem()"
+	}
+	return fmt.Sprintf(`%[1]sTypeOf%[2]s`, data.Pkg("v.io/v23/vdl"), typeOf)
 }
 
 var builtInTypeVars = map[*vdl.Type]string{
@@ -282,8 +290,8 @@ func Generate(pkg *compile.Package, env *compile.Env) []byte {
 //
 // Restrict the feature to these whitelisted VDL packages for now.
 var nativeTypePackageWhitelist = map[string]bool{
-	"math": true,
-	"time": true,
+	"math":                                   true,
+	"time":                                   true,
 	"v.io/x/ref/lib/vdl/testdata/nativetest": true,
 	"v.io/v23/security":                      true,
 	"v.io/v23/vdl":                           true,

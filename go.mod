@@ -2,7 +2,7 @@ module v.io
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
-go 1.12
+go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.3
@@ -10,6 +10,7 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/websocket v1.4.1
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/kr/pty v1.1.8
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/pborman/uuid v1.2.0
