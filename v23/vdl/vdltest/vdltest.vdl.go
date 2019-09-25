@@ -25007,9 +25007,9 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "typeobject([]bool)",
-		Target:      __VDLType_list_285,
+		Target:      vdl.TypeOf((*[]bool)(nil)),
 		SourceLabel: "typeobject([]bool)",
-		Source:      __VDLType_list_285,
+		Source:      vdl.TypeOf((*[]bool)(nil)),
 	},
 	{
 		IsCanonical: true,
@@ -30327,26 +30327,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VArray2_TypeObject{typeobject(VFloat64), typeobject(VArray3_VString)}",
 		Target: VArray2_TypeObject{
-			__VDLType_float64_17,
-			__VDLType_array_22,
+			vdl.TypeOf((*VFloat64)(nil)),
+			vdl.TypeOf((*VArray3_VString)(nil)),
 		},
 		SourceLabel: "VArray2_TypeObject{typeobject(VFloat64), typeobject(VArray3_VString)}",
 		Source: VArray2_TypeObject{
-			__VDLType_float64_17,
-			__VDLType_array_22,
+			vdl.TypeOf((*VFloat64)(nil)),
+			vdl.TypeOf((*VArray3_VString)(nil)),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VArray2_TypeObject{typeobject(VFloat64), typeobject(VArray3_VString)}",
 		Target: VArray2_TypeObject{
-			__VDLType_float64_17,
-			__VDLType_array_22,
+			vdl.TypeOf((*VFloat64)(nil)),
+			vdl.TypeOf((*VArray3_VString)(nil)),
 		},
 		SourceLabel: "[]any{typeobject(VFloat64), typeobject(VArray3_VString)}",
 		Source: []interface{}{
-			__VDLType_float64_17,
-			__VDLType_array_22,
+			vdl.TypeOf((*VFloat64)(nil)),
+			vdl.TypeOf((*VArray3_VString)(nil)),
 		},
 	},
 	{
@@ -31666,26 +31666,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]typeobject{typeobject(VSet_VNamedError), typeobject([]VByte)}",
 		Target: []*vdl.Type{
-			__VDLType_set_65,
-			__VDLType_list_286,
+			vdl.TypeOf((*VSet_VNamedError)(nil)),
+			vdl.TypeOf((*[]VByte)(nil)),
 		},
 		SourceLabel: "[]typeobject{typeobject(VSet_VNamedError), typeobject([]VByte)}",
 		Source: []*vdl.Type{
-			__VDLType_set_65,
-			__VDLType_list_286,
+			vdl.TypeOf((*VSet_VNamedError)(nil)),
+			vdl.TypeOf((*[]VByte)(nil)),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "[]typeobject{typeobject(VSet_VNamedError), typeobject([]VByte)}",
 		Target: []*vdl.Type{
-			__VDLType_set_65,
-			__VDLType_list_286,
+			vdl.TypeOf((*VSet_VNamedError)(nil)),
+			vdl.TypeOf((*[]VByte)(nil)),
 		},
 		SourceLabel: "VArray2_TypeObject{typeobject(VSet_VNamedError), typeobject([]VByte)}",
 		Source: VArray2_TypeObject{
-			__VDLType_set_65,
-			__VDLType_list_286,
+			vdl.TypeOf((*VSet_VNamedError)(nil)),
+			vdl.TypeOf((*[]VByte)(nil)),
 		},
 	},
 	{
@@ -32571,8 +32571,8 @@ var vAllPass = []vdlEntry{
 			VList_VStructDepth2_All{
 				{
 					F0: VArray2_TypeObject{
-						__VDLType_union_206,
-						__VDLType_struct_114,
+						vdl.TypeOf((*VUnionDepth2_VStructDepth1_Int8)(nil)),
+						vdl.TypeOf((*VStructDepth1_OptVStructEmpty)(nil)).Elem(),
 					},
 					F2: []int16{
 						-4101,
@@ -32653,8 +32653,8 @@ var vAllPass = []vdlEntry{
 			VList_VStructDepth2_All{
 				{
 					F0: VArray2_TypeObject{
-						__VDLType_union_206,
-						__VDLType_struct_114,
+						vdl.TypeOf((*VUnionDepth2_VStructDepth1_Int8)(nil)),
+						vdl.TypeOf((*VStructDepth1_OptVStructEmpty)(nil)).Elem(),
 					},
 					F2: []int16{
 						-4101,
@@ -32738,8 +32738,8 @@ var vAllPass = []vdlEntry{
 			VList_VStructDepth2_All{
 				{
 					F0: VArray2_TypeObject{
-						__VDLType_union_206,
-						__VDLType_struct_114,
+						vdl.TypeOf((*VUnionDepth2_VStructDepth1_Int8)(nil)),
+						vdl.TypeOf((*VStructDepth1_OptVStructEmpty)(nil)).Elem(),
 					},
 					F2: []int16{
 						-4101,
@@ -32820,8 +32820,8 @@ var vAllPass = []vdlEntry{
 			VList_VStructDepth2_All{
 				{
 					F0: VArray2_TypeObject{
-						__VDLType_union_206,
-						__VDLType_struct_114,
+						vdl.TypeOf((*VUnionDepth2_VStructDepth1_Int8)(nil)),
+						vdl.TypeOf((*VStructDepth1_OptVStructEmpty)(nil)).Elem(),
 					},
 					F2: []int16{
 						-4101,
@@ -33182,22 +33182,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VList_TypeObject{typeobject(VUnionDepth2_All)}",
 		Target: VList_TypeObject{
-			__VDLType_union_195,
+			vdl.TypeOf((*VUnionDepth2_All)(nil)),
 		},
 		SourceLabel: "VList_TypeObject{typeobject(VUnionDepth2_All)}",
 		Source: VList_TypeObject{
-			__VDLType_union_195,
+			vdl.TypeOf((*VUnionDepth2_All)(nil)),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VList_TypeObject{typeobject(VUnionDepth2_All)}",
 		Target: VList_TypeObject{
-			__VDLType_union_195,
+			vdl.TypeOf((*VUnionDepth2_All)(nil)),
 		},
 		SourceLabel: "[]typeobject{typeobject(VUnionDepth2_All)}",
 		Source: []*vdl.Type{
-			__VDLType_union_195,
+			vdl.TypeOf((*VUnionDepth2_All)(nil)),
 		},
 	},
 	{
@@ -37408,7 +37408,7 @@ var vAllPass = []vdlEntry{
 			F2: true,
 			F3: "deΔΘΠΣΦ王普澤世",
 			F4: "bcdeΔΘ",
-			F5: __VDLType_set_287,
+			F5: vdl.TypeOf((*map[VStructDepth2_VStructDepth1_Bool]struct{})(nil)),
 			F6: 6,
 			F7: 94,
 			F9: VEnumBcdC,
@@ -37446,7 +37446,7 @@ var vAllPass = []vdlEntry{
 			F2: true,
 			F3: "deΔΘΠΣΦ王普澤世",
 			F4: "bcdeΔΘ",
-			F5: __VDLType_set_287,
+			F5: vdl.TypeOf((*map[VStructDepth2_VStructDepth1_Bool]struct{})(nil)),
 			F6: 6,
 			F7: 94,
 			F9: VEnumBcdC,
@@ -37865,22 +37865,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth1_TypeObject{F5: typeobject(VMap_VBool_VBool)}",
 		Target: VStructDepth1_TypeObject{
-			F5: __VDLType_map_70,
+			F5: vdl.TypeOf((*VMap_VBool_VBool)(nil)),
 		},
 		SourceLabel: "VStructDepth1_TypeObject{F5: typeobject(VMap_VBool_VBool)}",
 		Source: VStructDepth1_TypeObject{
-			F5: __VDLType_map_70,
+			F5: vdl.TypeOf((*VMap_VBool_VBool)(nil)),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth1_TypeObject{F5: typeobject(VMap_VBool_VBool)}",
 		Target: VStructDepth1_TypeObject{
-			F5: __VDLType_map_70,
+			F5: vdl.TypeOf((*VMap_VBool_VBool)(nil)),
 		},
 		SourceLabel: "VStructDepth1_All{F5: typeobject(VMap_VBool_VBool)}",
 		Source: VStructDepth1_All{
-			F5: __VDLType_map_70,
+			F5: vdl.TypeOf((*VMap_VBool_VBool)(nil)),
 		},
 	},
 	{
@@ -40030,16 +40030,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{__VDLType_array_151}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 		SourceLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{__VDLType_array_151}),
+		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{__VDLType_array_151}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 		SourceLabel: "VUnionDepth1_All{F5: typeobject(VArray1_VList_Byte)}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{__VDLType_array_151}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 	},
 	{
 		IsCanonical: true,
@@ -43286,7 +43286,7 @@ var vAllPass = []vdlEntry{
 				F2: true,
 				F3: "cdeΔΘΠΣΦ王普澤世界",
 				F4: "deΔΘΠΣΦ",
-				F5: __VDLType_union_208,
+				F5: vdl.TypeOf((*VUnionDepth2_VUnionDepth1_VUint32)(nil)),
 				F6: 178,
 				F7: 161,
 				F9: VEnumBcdC,
@@ -43358,7 +43358,7 @@ var vAllPass = []vdlEntry{
 				F2:  true,
 				F3:  "ΠΣΦ王普澤世界",
 				F4:  "ΘΠΣ",
-				F5:  __VDLType_struct_187,
+				F5:  vdl.TypeOf((*VStructDepth2_Map_Byte_Byte)(nil)).Elem(),
 				F6:  126,
 				F7:  247,
 				F8:  VEnumAbcB,
@@ -43397,7 +43397,7 @@ var vAllPass = []vdlEntry{
 				F2: true,
 				F3: "cdeΔΘΠΣΦ王普澤世界",
 				F4: "deΔΘΠΣΦ",
-				F5: __VDLType_union_208,
+				F5: vdl.TypeOf((*VUnionDepth2_VUnionDepth1_VUint32)(nil)),
 				F6: 178,
 				F7: 161,
 				F9: VEnumBcdC,
@@ -43469,7 +43469,7 @@ var vAllPass = []vdlEntry{
 				F2:  true,
 				F3:  "ΠΣΦ王普澤世界",
 				F4:  "ΘΠΣ",
-				F5:  __VDLType_struct_187,
+				F5:  vdl.TypeOf((*VStructDepth2_Map_Byte_Byte)(nil)).Elem(),
 				F6:  126,
 				F7:  247,
 				F8:  VEnumAbcB,
@@ -43511,7 +43511,7 @@ var vAllPass = []vdlEntry{
 				F2: true,
 				F3: "cdeΔΘΠΣΦ王普澤世界",
 				F4: "deΔΘΠΣΦ",
-				F5: __VDLType_union_208,
+				F5: vdl.TypeOf((*VUnionDepth2_VUnionDepth1_VUint32)(nil)),
 				F6: 178,
 				F7: 161,
 				F9: VEnumBcdC,
@@ -43583,7 +43583,7 @@ var vAllPass = []vdlEntry{
 				F2:  true,
 				F3:  "ΠΣΦ王普澤世界",
 				F4:  "ΘΠΣ",
-				F5:  __VDLType_struct_187,
+				F5:  vdl.TypeOf((*VStructDepth2_Map_Byte_Byte)(nil)).Elem(),
 				F6:  126,
 				F7:  247,
 				F8:  VEnumAbcB,
@@ -43622,7 +43622,7 @@ var vAllPass = []vdlEntry{
 				F2: true,
 				F3: "cdeΔΘΠΣΦ王普澤世界",
 				F4: "deΔΘΠΣΦ",
-				F5: __VDLType_union_208,
+				F5: vdl.TypeOf((*VUnionDepth2_VUnionDepth1_VUint32)(nil)),
 				F6: 178,
 				F7: 161,
 				F9: VEnumBcdC,
@@ -43694,7 +43694,7 @@ var vAllPass = []vdlEntry{
 				F2:  true,
 				F3:  "ΠΣΦ王普澤世界",
 				F4:  "ΘΠΣ",
-				F5:  __VDLType_struct_187,
+				F5:  vdl.TypeOf((*VStructDepth2_Map_Byte_Byte)(nil)).Elem(),
 				F6:  126,
 				F7:  247,
 				F8:  VEnumAbcB,
@@ -44400,7 +44400,7 @@ var vAllPass = []vdlEntry{
 				F1:  true,
 				F3:  "ΔΘΠΣ",
 				F4:  "bcdeΔΘΠΣΦ王普澤世",
-				F5:  __VDLType_struct_185,
+				F5:  vdl.TypeOf((*VStructDepth2_Set_Float64)(nil)).Elem(),
 				F7:  84,
 				F8:  VEnumAbcC,
 				F9:  VEnumBcdC,
@@ -44431,7 +44431,7 @@ var vAllPass = []vdlEntry{
 				},
 				F3:  "abc",
 				F4:  "eΔ",
-				F5:  __VDLType_union_142,
+				F5:  vdl.TypeOf((*VUnionDepth1_Int64)(nil)),
 				F6:  205,
 				F7:  222,
 				F9:  VEnumBcdD,
@@ -44458,7 +44458,7 @@ var vAllPass = []vdlEntry{
 				F1:  true,
 				F3:  "ΔΘΠΣ",
 				F4:  "bcdeΔΘΠΣΦ王普澤世",
-				F5:  __VDLType_struct_185,
+				F5:  vdl.TypeOf((*VStructDepth2_Set_Float64)(nil)).Elem(),
 				F7:  84,
 				F8:  VEnumAbcC,
 				F9:  VEnumBcdC,
@@ -44489,7 +44489,7 @@ var vAllPass = []vdlEntry{
 				},
 				F3:  "abc",
 				F4:  "eΔ",
-				F5:  __VDLType_union_142,
+				F5:  vdl.TypeOf((*VUnionDepth1_Int64)(nil)),
 				F6:  205,
 				F7:  222,
 				F9:  VEnumBcdD,
@@ -44519,7 +44519,7 @@ var vAllPass = []vdlEntry{
 				F1:  true,
 				F3:  "ΔΘΠΣ",
 				F4:  "bcdeΔΘΠΣΦ王普澤世",
-				F5:  __VDLType_struct_185,
+				F5:  vdl.TypeOf((*VStructDepth2_Set_Float64)(nil)).Elem(),
 				F7:  84,
 				F8:  VEnumAbcC,
 				F9:  VEnumBcdC,
@@ -44550,7 +44550,7 @@ var vAllPass = []vdlEntry{
 				},
 				F3:  "abc",
 				F4:  "eΔ",
-				F5:  __VDLType_union_142,
+				F5:  vdl.TypeOf((*VUnionDepth1_Int64)(nil)),
 				F6:  205,
 				F7:  222,
 				F9:  VEnumBcdD,
@@ -44577,7 +44577,7 @@ var vAllPass = []vdlEntry{
 				F1:  true,
 				F3:  "ΔΘΠΣ",
 				F4:  "bcdeΔΘΠΣΦ王普澤世",
-				F5:  __VDLType_struct_185,
+				F5:  vdl.TypeOf((*VStructDepth2_Set_Float64)(nil)).Elem(),
 				F7:  84,
 				F8:  VEnumAbcC,
 				F9:  VEnumBcdC,
@@ -44608,7 +44608,7 @@ var vAllPass = []vdlEntry{
 				},
 				F3:  "abc",
 				F4:  "eΔ",
-				F5:  __VDLType_union_142,
+				F5:  vdl.TypeOf((*VUnionDepth1_Int64)(nil)),
 				F6:  205,
 				F7:  222,
 				F9:  VEnumBcdD,
@@ -45603,7 +45603,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F2: true,
 				F4: "abcdeΔΘ",
-				F5: __VDLType_int8_12,
+				F5: vdl.TypeOf((*VInt8)(nil)),
 				F6: 233,
 				F7: 162,
 				F8: VEnumAbcB,
@@ -45693,7 +45693,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F2: true,
 				F4: "abcdeΔΘ",
-				F5: __VDLType_int8_12,
+				F5: vdl.TypeOf((*VInt8)(nil)),
 				F6: 233,
 				F7: 162,
 				F8: VEnumAbcB,
@@ -45825,15 +45825,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VArray2_TypeObject{F0: {typeobject(VList_Any), typeobject(VSet_VByte)}}",
 		Target: VStructDepth2_VArray2_TypeObject{
 			F0: VArray2_TypeObject{
-				__VDLType_list_38,
-				__VDLType_set_61,
+				vdl.TypeOf((*VList_Any)(nil)),
+				vdl.TypeOf((*VSet_VByte)(nil)),
 			},
 		},
 		SourceLabel: "VStructDepth2_VArray2_TypeObject{F0: {typeobject(VList_Any), typeobject(VSet_VByte)}}",
 		Source: VStructDepth2_VArray2_TypeObject{
 			F0: VArray2_TypeObject{
-				__VDLType_list_38,
-				__VDLType_set_61,
+				vdl.TypeOf((*VList_Any)(nil)),
+				vdl.TypeOf((*VSet_VByte)(nil)),
 			},
 		},
 	},
@@ -45842,15 +45842,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VArray2_TypeObject{F0: {typeobject(VList_Any), typeobject(VSet_VByte)}}",
 		Target: VStructDepth2_VArray2_TypeObject{
 			F0: VArray2_TypeObject{
-				__VDLType_list_38,
-				__VDLType_set_61,
+				vdl.TypeOf((*VList_Any)(nil)),
+				vdl.TypeOf((*VSet_VByte)(nil)),
 			},
 		},
 		SourceLabel: "VStructDepth1_Any{F0: VArray2_TypeObject{typeobject(VList_Any), typeobject(VSet_VByte)}}",
 		Source: VStructDepth1_Any{
 			F0: VArray2_TypeObject{
-				__VDLType_list_38,
-				__VDLType_set_61,
+				vdl.TypeOf((*VList_Any)(nil)),
+				vdl.TypeOf((*VSet_VByte)(nil)),
 			},
 		},
 	},
@@ -46811,7 +46811,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "王普",
 				F4: "abcdeΔΘΠΣΦ王普澤世界",
-				F5: __VDLType_float64_17,
+				F5: vdl.TypeOf((*VFloat64)(nil)),
 				F6: 75,
 				F7: 182,
 				F9: VEnumBcdC,
@@ -46844,7 +46844,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "王普",
 				F4: "abcdeΔΘΠΣΦ王普澤世界",
-				F5: __VDLType_float64_17,
+				F5: vdl.TypeOf((*VFloat64)(nil)),
 				F6: 75,
 				F7: 182,
 				F9: VEnumBcdC,
@@ -46880,7 +46880,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "王普",
 				F4: "abcdeΔΘΠΣΦ王普澤世界",
-				F5: __VDLType_float64_17,
+				F5: vdl.TypeOf((*VFloat64)(nil)),
 				F6: 75,
 				F7: 182,
 				F9: VEnumBcdC,
@@ -46917,7 +46917,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "王普",
 				F4: "abcdeΔΘΠΣΦ王普澤世界",
-				F5: __VDLType_float64_17,
+				F5: vdl.TypeOf((*VFloat64)(nil)),
 				F6: 75,
 				F7: 182,
 				F9: VEnumBcdC,
@@ -48200,7 +48200,7 @@ var vAllPass = []vdlEntry{
 			F1: true,
 			F3: "eΔΘΠΣΦ王普澤世",
 			F4: "cdeΔΘ",
-			F5: __VDLType_set_231,
+			F5: vdl.TypeOf((*VSet_VUnionDepth2_VArray1_String)(nil)),
 			F7: 6,
 			F8: VEnumAbcC,
 			F12: verror.FromWire(&vdl.WireError{
@@ -48238,7 +48238,7 @@ var vAllPass = []vdlEntry{
 			F1: true,
 			F3: "eΔΘΠΣΦ王普澤世",
 			F4: "cdeΔΘ",
-			F5: __VDLType_set_231,
+			F5: vdl.TypeOf((*VSet_VUnionDepth2_VArray1_String)(nil)),
 			F7: 6,
 			F8: VEnumAbcC,
 			F12: verror.FromWire(&vdl.WireError{
@@ -48279,7 +48279,7 @@ var vAllPass = []vdlEntry{
 			F1: true,
 			F3: "eΔΘΠΣΦ王普澤世",
 			F4: "cdeΔΘ",
-			F5: __VDLType_set_231,
+			F5: vdl.TypeOf((*VSet_VUnionDepth2_VArray1_String)(nil)),
 			F7: 6,
 			F8: VEnumAbcC,
 			F12: verror.FromWire(&vdl.WireError{
@@ -48317,7 +48317,7 @@ var vAllPass = []vdlEntry{
 			F1: true,
 			F3: "eΔΘΠΣΦ王普澤世",
 			F4: "cdeΔΘ",
-			F5: __VDLType_set_231,
+			F5: vdl.TypeOf((*VSet_VUnionDepth2_VArray1_String)(nil)),
 			F7: 6,
 			F8: VEnumAbcC,
 			F12: verror.FromWire(&vdl.WireError{
@@ -50144,8 +50144,8 @@ var vAllPass = []vdlEntry{
 		Target: VArray2_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_224,
-					__VDLType_array_18,
+					vdl.TypeOf((*VList_VSet_VArray1_VStructEmpty)(nil)),
+					vdl.TypeOf((*VArray3_Any)(nil)),
 				},
 				F2: []int16{
 					-8235,
@@ -50180,8 +50180,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_set_62,
-					__VDLType_map_174,
+					vdl.TypeOf((*VSet_VEnumAbc)(nil)),
+					vdl.TypeOf((*VMap_VStructDepth1_VBool_VStructDepth1_VBool)(nil)),
 				},
 				F3: VList_Any{
 					VList_VEnumAbc{
@@ -50218,7 +50218,7 @@ var vAllPass = []vdlEntry{
 						F8: VStructDepth1_All{
 							F0: VUint16(14541),
 							F4: "eΔ",
-							F5: __VDLType_union_117,
+							F5: vdl.TypeOf((*VUnionDepth1_Any)(nil)),
 							F6: 218,
 							F7: 194,
 							F8: VEnumAbcB,
@@ -50298,8 +50298,8 @@ var vAllPass = []vdlEntry{
 		Source: VArray2_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_224,
-					__VDLType_array_18,
+					vdl.TypeOf((*VList_VSet_VArray1_VStructEmpty)(nil)),
+					vdl.TypeOf((*VArray3_Any)(nil)),
 				},
 				F2: []int16{
 					-8235,
@@ -50334,8 +50334,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_set_62,
-					__VDLType_map_174,
+					vdl.TypeOf((*VSet_VEnumAbc)(nil)),
+					vdl.TypeOf((*VMap_VStructDepth1_VBool_VStructDepth1_VBool)(nil)),
 				},
 				F3: VList_Any{
 					VList_VEnumAbc{
@@ -50372,7 +50372,7 @@ var vAllPass = []vdlEntry{
 						F8: VStructDepth1_All{
 							F0: VUint16(14541),
 							F4: "eΔ",
-							F5: __VDLType_union_117,
+							F5: vdl.TypeOf((*VUnionDepth1_Any)(nil)),
 							F6: 218,
 							F7: 194,
 							F8: VEnumAbcB,
@@ -50455,8 +50455,8 @@ var vAllPass = []vdlEntry{
 		Target: VArray2_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_224,
-					__VDLType_array_18,
+					vdl.TypeOf((*VList_VSet_VArray1_VStructEmpty)(nil)),
+					vdl.TypeOf((*VArray3_Any)(nil)),
 				},
 				F2: []int16{
 					-8235,
@@ -50491,8 +50491,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_set_62,
-					__VDLType_map_174,
+					vdl.TypeOf((*VSet_VEnumAbc)(nil)),
+					vdl.TypeOf((*VMap_VStructDepth1_VBool_VStructDepth1_VBool)(nil)),
 				},
 				F3: VList_Any{
 					VList_VEnumAbc{
@@ -50529,7 +50529,7 @@ var vAllPass = []vdlEntry{
 						F8: VStructDepth1_All{
 							F0: VUint16(14541),
 							F4: "eΔ",
-							F5: __VDLType_union_117,
+							F5: vdl.TypeOf((*VUnionDepth1_Any)(nil)),
 							F6: 218,
 							F7: 194,
 							F8: VEnumAbcB,
@@ -50609,8 +50609,8 @@ var vAllPass = []vdlEntry{
 		Source: []interface{}{
 			VStructDepth2_All{
 				F0: VArray2_TypeObject{
-					__VDLType_list_224,
-					__VDLType_array_18,
+					vdl.TypeOf((*VList_VSet_VArray1_VStructEmpty)(nil)),
+					vdl.TypeOf((*VArray3_Any)(nil)),
 				},
 				F2: []int16{
 					-8235,
@@ -50645,8 +50645,8 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth2_All{
 				F0: VArray2_TypeObject{
-					__VDLType_set_62,
-					__VDLType_map_174,
+					vdl.TypeOf((*VSet_VEnumAbc)(nil)),
+					vdl.TypeOf((*VMap_VStructDepth1_VBool_VStructDepth1_VBool)(nil)),
 				},
 				F3: VList_Any{
 					VList_VEnumAbc{
@@ -50683,7 +50683,7 @@ var vAllPass = []vdlEntry{
 						F8: VStructDepth1_All{
 							F0: VUint16(14541),
 							F4: "eΔ",
-							F5: __VDLType_union_117,
+							F5: vdl.TypeOf((*VUnionDepth1_Any)(nil)),
 							F6: 218,
 							F7: 194,
 							F8: VEnumAbcB,
@@ -50855,7 +50855,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcde",
 				F4: "deΔΘΠΣ",
-				F5: __VDLType_set_62,
+				F5: vdl.TypeOf((*VSet_VEnumAbc)(nil)),
 				F6: 141,
 				F11: VNamedError{
 					Msg: "澤",
@@ -50900,7 +50900,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcde",
 				F4: "deΔΘΠΣ",
-				F5: __VDLType_set_62,
+				F5: vdl.TypeOf((*VSet_VEnumAbc)(nil)),
 				F6: 141,
 				F11: VNamedError{
 					Msg: "澤",
@@ -50948,7 +50948,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcde",
 				F4: "deΔΘΠΣ",
-				F5: __VDLType_set_62,
+				F5: vdl.TypeOf((*VSet_VEnumAbc)(nil)),
 				F6: 141,
 				F11: VNamedError{
 					Msg: "澤",
@@ -50993,7 +50993,7 @@ var vAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcde",
 				F4: "deΔΘΠΣ",
-				F5: __VDLType_set_62,
+				F5: vdl.TypeOf((*VSet_VEnumAbc)(nil)),
 				F6: 141,
 				F11: VNamedError{
 					Msg: "澤",
@@ -52002,7 +52002,7 @@ var vAllPass = []vdlEntry{
 			{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_struct_104,
+					vdl.TypeOf((*VStructDepth1_Int16)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					1264920270,
@@ -52035,7 +52035,7 @@ var vAllPass = []vdlEntry{
 					F0: &VStructEmpty{},
 					F3: "普",
 					F4: "ΘΠΣΦ",
-					F5: __VDLType_map_73,
+					F5: vdl.TypeOf((*VMap_Byte_Byte)(nil)),
 					F6: 176,
 					F8: VEnumAbcC,
 					F11: VNamedError{
@@ -52070,7 +52070,7 @@ var vAllPass = []vdlEntry{
 			{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_struct_104,
+					vdl.TypeOf((*VStructDepth1_Int16)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					1264920270,
@@ -52103,7 +52103,7 @@ var vAllPass = []vdlEntry{
 					F0: &VStructEmpty{},
 					F3: "普",
 					F4: "ΘΠΣΦ",
-					F5: __VDLType_map_73,
+					F5: vdl.TypeOf((*VMap_Byte_Byte)(nil)),
 					F6: 176,
 					F8: VEnumAbcC,
 					F11: VNamedError{
@@ -52141,7 +52141,7 @@ var vAllPass = []vdlEntry{
 			{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_struct_104,
+					vdl.TypeOf((*VStructDepth1_Int16)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					1264920270,
@@ -52174,7 +52174,7 @@ var vAllPass = []vdlEntry{
 					F0: &VStructEmpty{},
 					F3: "普",
 					F4: "ΘΠΣΦ",
-					F5: __VDLType_map_73,
+					F5: vdl.TypeOf((*VMap_Byte_Byte)(nil)),
 					F6: 176,
 					F8: VEnumAbcC,
 					F11: VNamedError{
@@ -52209,7 +52209,7 @@ var vAllPass = []vdlEntry{
 			VStructDepth2_All{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_struct_104,
+					vdl.TypeOf((*VStructDepth1_Int16)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					1264920270,
@@ -52242,7 +52242,7 @@ var vAllPass = []vdlEntry{
 					F0: &VStructEmpty{},
 					F3: "普",
 					F4: "ΘΠΣΦ",
-					F5: __VDLType_map_73,
+					F5: vdl.TypeOf((*VMap_Byte_Byte)(nil)),
 					F6: 176,
 					F8: VEnumAbcC,
 					F11: VNamedError{
@@ -53299,8 +53299,8 @@ var vAllPass = []vdlEntry{
 		Target: VList_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_struct_83,
-					__VDLType_struct_186,
+					vdl.TypeOf((*VStructDepth1_Any)(nil)).Elem(),
+					vdl.TypeOf((*VStructDepth2_VSet_VEnumBcd)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					2852344228,
@@ -53366,7 +53366,7 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_288,
+					vdl.TypeOf((*[]uint32)(nil)),
 					vdl.AnyType,
 				},
 				F2: []int16{
@@ -53410,7 +53410,7 @@ var vAllPass = []vdlEntry{
 					},
 					F1:  true,
 					F2:  true,
-					F5:  __VDLType_list_289,
+					F5:  vdl.TypeOf((*[]*VStructDepth1_VEnumBcd)(nil)),
 					F6:  51,
 					F9:  VEnumBcdC,
 					F15: 4071038098,
@@ -53444,8 +53444,8 @@ var vAllPass = []vdlEntry{
 		Source: VList_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_struct_83,
-					__VDLType_struct_186,
+					vdl.TypeOf((*VStructDepth1_Any)(nil)).Elem(),
+					vdl.TypeOf((*VStructDepth2_VSet_VEnumBcd)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					2852344228,
@@ -53511,7 +53511,7 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_288,
+					vdl.TypeOf((*[]uint32)(nil)),
 					vdl.AnyType,
 				},
 				F2: []int16{
@@ -53555,7 +53555,7 @@ var vAllPass = []vdlEntry{
 					},
 					F1:  true,
 					F2:  true,
-					F5:  __VDLType_list_289,
+					F5:  vdl.TypeOf((*[]*VStructDepth1_VEnumBcd)(nil)),
 					F6:  51,
 					F9:  VEnumBcdC,
 					F15: 4071038098,
@@ -53592,8 +53592,8 @@ var vAllPass = []vdlEntry{
 		Target: VList_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_struct_83,
-					__VDLType_struct_186,
+					vdl.TypeOf((*VStructDepth1_Any)(nil)).Elem(),
+					vdl.TypeOf((*VStructDepth2_VSet_VEnumBcd)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					2852344228,
@@ -53659,7 +53659,7 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_288,
+					vdl.TypeOf((*[]uint32)(nil)),
 					vdl.AnyType,
 				},
 				F2: []int16{
@@ -53703,7 +53703,7 @@ var vAllPass = []vdlEntry{
 					},
 					F1:  true,
 					F2:  true,
-					F5:  __VDLType_list_289,
+					F5:  vdl.TypeOf((*[]*VStructDepth1_VEnumBcd)(nil)),
 					F6:  51,
 					F9:  VEnumBcdC,
 					F15: 4071038098,
@@ -53737,8 +53737,8 @@ var vAllPass = []vdlEntry{
 		Source: VArray2_VStructDepth2_All{
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_struct_83,
-					__VDLType_struct_186,
+					vdl.TypeOf((*VStructDepth1_Any)(nil)).Elem(),
+					vdl.TypeOf((*VStructDepth2_VSet_VEnumBcd)(nil)).Elem(),
 				},
 				F1: VArray1_Uint32{
 					2852344228,
@@ -53804,7 +53804,7 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VArray2_TypeObject{
-					__VDLType_list_288,
+					vdl.TypeOf((*[]uint32)(nil)),
 					vdl.AnyType,
 				},
 				F2: []int16{
@@ -53848,7 +53848,7 @@ var vAllPass = []vdlEntry{
 					},
 					F1:  true,
 					F2:  true,
-					F5:  __VDLType_list_289,
+					F5:  vdl.TypeOf((*[]*VStructDepth1_VEnumBcd)(nil)),
 					F6:  51,
 					F9:  VEnumBcdC,
 					F15: 4071038098,
@@ -55561,7 +55561,7 @@ var vAllPass = []vdlEntry{
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_map_234,
+					vdl.TypeOf((*VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte)(nil)),
 				},
 				F1: VArray1_Uint32{
 					2133959987,
@@ -55625,7 +55625,7 @@ var vAllPass = []vdlEntry{
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_map_234,
+					vdl.TypeOf((*VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte)(nil)),
 				},
 				F1: VArray1_Uint32{
 					2133959987,
@@ -57981,7 +57981,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
 		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
 			F0: VArray2_TypeObject{
-				__VDLType_union_199,
+				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
 			},
 			F1: VArray1_Uint32{
@@ -58007,7 +58007,7 @@ var vAllPass = []vdlEntry{
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
-				F5: __VDLType_union_210,
+				F5: vdl.TypeOf((*VUnionDepth2_OptVStructDepth1_VFloat32)(nil)),
 				F6: 41,
 				F11: VNamedError{
 					Id:  "cdeΔΘΠΣΦ王普澤",
@@ -58048,7 +58048,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
 		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
 			F0: VArray2_TypeObject{
-				__VDLType_union_199,
+				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
 			},
 			F1: VArray1_Uint32{
@@ -58074,7 +58074,7 @@ var vAllPass = []vdlEntry{
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
-				F5: __VDLType_union_210,
+				F5: vdl.TypeOf((*VUnionDepth2_OptVStructDepth1_VFloat32)(nil)),
 				F6: 41,
 				F11: VNamedError{
 					Id:  "cdeΔΘΠΣΦ王普澤",
@@ -58118,7 +58118,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
 		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
 			F0: VArray2_TypeObject{
-				__VDLType_union_199,
+				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
 			},
 			F1: VArray1_Uint32{
@@ -58144,7 +58144,7 @@ var vAllPass = []vdlEntry{
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
-				F5: __VDLType_union_210,
+				F5: vdl.TypeOf((*VUnionDepth2_OptVStructDepth1_VFloat32)(nil)),
 				F6: 41,
 				F11: VNamedError{
 					Id:  "cdeΔΘΠΣΦ王普澤",
@@ -58185,7 +58185,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VUnionDepth3_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF4{VStructDepth2_All{
 			F0: VArray2_TypeObject{
-				__VDLType_union_199,
+				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
 			},
 			F1: VArray1_Uint32{
@@ -58211,7 +58211,7 @@ var vAllPass = []vdlEntry{
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
-				F5: __VDLType_union_210,
+				F5: vdl.TypeOf((*VUnionDepth2_OptVStructDepth1_VFloat32)(nil)),
 				F6: 41,
 				F11: VNamedError{
 					Id:  "cdeΔΘΠΣΦ王普澤",
@@ -66889,26 +66889,26 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XArray2_TypeObject{typeobject(XStructDepth1_Uint32), typeobject(XFloat32)}",
 		Target: XArray2_TypeObject{
-			__VDLType_struct_290,
-			__VDLType_float32_291,
+			vdl.TypeOf((*XStructDepth1_Uint32)(nil)).Elem(),
+			vdl.TypeOf((*XFloat32)(nil)),
 		},
 		SourceLabel: "XArray2_TypeObject{typeobject(XStructDepth1_Uint32), typeobject(XFloat32)}",
 		Source: XArray2_TypeObject{
-			__VDLType_struct_290,
-			__VDLType_float32_291,
+			vdl.TypeOf((*XStructDepth1_Uint32)(nil)).Elem(),
+			vdl.TypeOf((*XFloat32)(nil)),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XArray2_TypeObject{typeobject(XStructDepth1_Uint32), typeobject(XFloat32)}",
 		Target: XArray2_TypeObject{
-			__VDLType_struct_290,
-			__VDLType_float32_291,
+			vdl.TypeOf((*XStructDepth1_Uint32)(nil)).Elem(),
+			vdl.TypeOf((*XFloat32)(nil)),
 		},
 		SourceLabel: "[]any{typeobject(XStructDepth1_Uint32), typeobject(XFloat32)}",
 		Source: []interface{}{
-			__VDLType_struct_290,
-			__VDLType_float32_291,
+			vdl.TypeOf((*XStructDepth1_Uint32)(nil)).Elem(),
+			vdl.TypeOf((*XFloat32)(nil)),
 		},
 	},
 	{
@@ -68538,7 +68538,7 @@ var xAllPass = []vdlEntry{
 			XList_XStructDepth2_All{
 				{
 					F0: XArray2_TypeObject{
-						__VDLType_list_292,
+						vdl.TypeOf((*XList_XBool)(nil)),
 						vdl.AnyType,
 					},
 					F2: []int16{
@@ -68567,7 +68567,7 @@ var xAllPass = []vdlEntry{
 					F8: XStructDepth1_All{
 						F3:  "ΔΘΠΣ",
 						F4:  "cdeΔΘΠΣ",
-						F5:  __VDLType_list_293,
+						F5:  vdl.TypeOf((*XList_XStructDepth2_All)(nil)),
 						F7:  54,
 						F8:  XEnumAbcB,
 						F9:  XEnumBcdD,
@@ -68602,7 +68602,7 @@ var xAllPass = []vdlEntry{
 				{
 					F0: XArray2_TypeObject{
 						vdl.AnyType,
-						__VDLType_array_294,
+						vdl.TypeOf((*XArray3_OptXStructDepth2_Set_Float64)(nil)),
 					},
 					F1: XArray1_Uint32{
 						1127016751,
@@ -68666,7 +68666,7 @@ var xAllPass = []vdlEntry{
 			XList_XStructDepth2_All{
 				{
 					F0: XArray2_TypeObject{
-						__VDLType_list_292,
+						vdl.TypeOf((*XList_XBool)(nil)),
 						vdl.AnyType,
 					},
 					F2: []int16{
@@ -68695,7 +68695,7 @@ var xAllPass = []vdlEntry{
 					F8: XStructDepth1_All{
 						F3:  "ΔΘΠΣ",
 						F4:  "cdeΔΘΠΣ",
-						F5:  __VDLType_list_293,
+						F5:  vdl.TypeOf((*XList_XStructDepth2_All)(nil)),
 						F7:  54,
 						F8:  XEnumAbcB,
 						F9:  XEnumBcdD,
@@ -68730,7 +68730,7 @@ var xAllPass = []vdlEntry{
 				{
 					F0: XArray2_TypeObject{
 						vdl.AnyType,
-						__VDLType_array_294,
+						vdl.TypeOf((*XArray3_OptXStructDepth2_Set_Float64)(nil)),
 					},
 					F1: XArray1_Uint32{
 						1127016751,
@@ -68797,7 +68797,7 @@ var xAllPass = []vdlEntry{
 			XList_XStructDepth2_All{
 				{
 					F0: XArray2_TypeObject{
-						__VDLType_list_292,
+						vdl.TypeOf((*XList_XBool)(nil)),
 						vdl.AnyType,
 					},
 					F2: []int16{
@@ -68826,7 +68826,7 @@ var xAllPass = []vdlEntry{
 					F8: XStructDepth1_All{
 						F3:  "ΔΘΠΣ",
 						F4:  "cdeΔΘΠΣ",
-						F5:  __VDLType_list_293,
+						F5:  vdl.TypeOf((*XList_XStructDepth2_All)(nil)),
 						F7:  54,
 						F8:  XEnumAbcB,
 						F9:  XEnumBcdD,
@@ -68861,7 +68861,7 @@ var xAllPass = []vdlEntry{
 				{
 					F0: XArray2_TypeObject{
 						vdl.AnyType,
-						__VDLType_array_294,
+						vdl.TypeOf((*XArray3_OptXStructDepth2_Set_Float64)(nil)),
 					},
 					F1: XArray1_Uint32{
 						1127016751,
@@ -68925,7 +68925,7 @@ var xAllPass = []vdlEntry{
 			XList_XStructDepth2_All{
 				{
 					F0: XArray2_TypeObject{
-						__VDLType_list_292,
+						vdl.TypeOf((*XList_XBool)(nil)),
 						vdl.AnyType,
 					},
 					F2: []int16{
@@ -68954,7 +68954,7 @@ var xAllPass = []vdlEntry{
 					F8: XStructDepth1_All{
 						F3:  "ΔΘΠΣ",
 						F4:  "cdeΔΘΠΣ",
-						F5:  __VDLType_list_293,
+						F5:  vdl.TypeOf((*XList_XStructDepth2_All)(nil)),
 						F7:  54,
 						F8:  XEnumAbcB,
 						F9:  XEnumBcdD,
@@ -68989,7 +68989,7 @@ var xAllPass = []vdlEntry{
 				{
 					F0: XArray2_TypeObject{
 						vdl.AnyType,
-						__VDLType_array_294,
+						vdl.TypeOf((*XArray3_OptXStructDepth2_Set_Float64)(nil)),
 					},
 					F1: XArray1_Uint32{
 						1127016751,
@@ -69329,13 +69329,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XList_TypeObject{typeobject(XUnionDepth1_Int16), typeobject(any), typeobject(any)}",
 		Target: XList_TypeObject{
-			__VDLType_union_295,
+			vdl.TypeOf((*XUnionDepth1_Int16)(nil)),
 			vdl.AnyType,
 			vdl.AnyType,
 		},
 		SourceLabel: "XList_TypeObject{typeobject(XUnionDepth1_Int16), typeobject(any), typeobject(any)}",
 		Source: XList_TypeObject{
-			__VDLType_union_295,
+			vdl.TypeOf((*XUnionDepth1_Int16)(nil)),
 			vdl.AnyType,
 			vdl.AnyType,
 		},
@@ -69344,13 +69344,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XList_TypeObject{typeobject(XUnionDepth1_Int16), typeobject(any), typeobject(any)}",
 		Target: XList_TypeObject{
-			__VDLType_union_295,
+			vdl.TypeOf((*XUnionDepth1_Int16)(nil)),
 			vdl.AnyType,
 			vdl.AnyType,
 		},
 		SourceLabel: "XArray3_Any{typeobject(XUnionDepth1_Int16), typeobject(any), typeobject(any)}",
 		Source: XArray3_Any{
-			__VDLType_union_295,
+			vdl.TypeOf((*XUnionDepth1_Int16)(nil)),
 			vdl.AnyType,
 			vdl.AnyType,
 		},
@@ -73490,22 +73490,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth1_TypeObject{F5: typeobject(XStructDepth1_XInt16)}",
 		Target: XStructDepth1_TypeObject{
-			F5: __VDLType_struct_296,
+			F5: vdl.TypeOf((*XStructDepth1_XInt16)(nil)).Elem(),
 		},
 		SourceLabel: "XStructDepth1_TypeObject{F5: typeobject(XStructDepth1_XInt16)}",
 		Source: XStructDepth1_TypeObject{
-			F5: __VDLType_struct_296,
+			F5: vdl.TypeOf((*XStructDepth1_XInt16)(nil)).Elem(),
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth1_TypeObject{F5: typeobject(XStructDepth1_XInt16)}",
 		Target: XStructDepth1_TypeObject{
-			F5: __VDLType_struct_296,
+			F5: vdl.TypeOf((*XStructDepth1_XInt16)(nil)).Elem(),
 		},
 		SourceLabel: "XStructDepth1_All{F5: typeobject(XStructDepth1_XInt16)}",
 		Source: XStructDepth1_All{
-			F5: __VDLType_struct_296,
+			F5: vdl.TypeOf((*XStructDepth1_XInt16)(nil)).Elem(),
 		},
 	},
 	{
@@ -75676,16 +75676,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{__VDLType_union_297}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 		SourceLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{__VDLType_union_297}),
+		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{__VDLType_union_297}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 		SourceLabel: "XUnionDepth1_All{F5: typeobject(XUnionDepth1_Bool)}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{__VDLType_union_297}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 	},
 	{
 		IsCanonical: true,
@@ -77868,7 +77868,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
-				F5: __VDLType_uint16_298,
+				F5: vdl.TypeOf((*XUint16)(nil)),
 				F6: 143,
 				F7: 188,
 				F8: XEnumAbcC,
@@ -77904,7 +77904,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcdeΔΘΠΣΦ王普澤世界",
 				F4: "ΠΣΦ王",
-				F5: __VDLType_list_299,
+				F5: vdl.TypeOf((*XList_XMap_Byte_Byte)(nil)),
 				F6: 86,
 				F8: XEnumAbcB,
 				F9: XEnumBcdD,
@@ -77939,7 +77939,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
-				F5: __VDLType_uint16_298,
+				F5: vdl.TypeOf((*XUint16)(nil)),
 				F6: 143,
 				F7: 188,
 				F8: XEnumAbcC,
@@ -77975,7 +77975,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcdeΔΘΠΣΦ王普澤世界",
 				F4: "ΠΣΦ王",
-				F5: __VDLType_list_299,
+				F5: vdl.TypeOf((*XList_XMap_Byte_Byte)(nil)),
 				F6: 86,
 				F8: XEnumAbcB,
 				F9: XEnumBcdD,
@@ -78013,7 +78013,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
-				F5: __VDLType_uint16_298,
+				F5: vdl.TypeOf((*XUint16)(nil)),
 				F6: 143,
 				F7: 188,
 				F8: XEnumAbcC,
@@ -78049,7 +78049,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcdeΔΘΠΣΦ王普澤世界",
 				F4: "ΠΣΦ王",
-				F5: __VDLType_list_299,
+				F5: vdl.TypeOf((*XList_XMap_Byte_Byte)(nil)),
 				F6: 86,
 				F8: XEnumAbcB,
 				F9: XEnumBcdD,
@@ -78084,7 +78084,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
-				F5: __VDLType_uint16_298,
+				F5: vdl.TypeOf((*XUint16)(nil)),
 				F6: 143,
 				F7: 188,
 				F8: XEnumAbcC,
@@ -78120,7 +78120,7 @@ var xAllPass = []vdlEntry{
 				F1: true,
 				F3: "bcdeΔΘΠΣΦ王普澤世界",
 				F4: "ΠΣΦ王",
-				F5: __VDLType_list_299,
+				F5: vdl.TypeOf((*XList_XMap_Byte_Byte)(nil)),
 				F6: 86,
 				F8: XEnumAbcB,
 				F9: XEnumBcdD,
@@ -79741,7 +79741,7 @@ var xAllPass = []vdlEntry{
 				F2: true,
 				F3: "deΔΘΠΣΦ王普",
 				F4: "bcdeΔΘΠΣΦ王",
-				F5: __VDLType_set_300,
+				F5: vdl.TypeOf((*XSet_XStructEmpty)(nil)),
 				F6: 147,
 				F7: 178,
 				F9: XEnumBcdD,
@@ -79775,7 +79775,7 @@ var xAllPass = []vdlEntry{
 				F2: true,
 				F3: "deΔΘΠΣΦ王普",
 				F4: "bcdeΔΘΠΣΦ王",
-				F5: __VDLType_set_300,
+				F5: vdl.TypeOf((*XSet_XStructEmpty)(nil)),
 				F6: 147,
 				F7: 178,
 				F9: XEnumBcdD,
@@ -79812,7 +79812,7 @@ var xAllPass = []vdlEntry{
 				F2: true,
 				F3: "deΔΘΠΣΦ王普",
 				F4: "bcdeΔΘΠΣΦ王",
-				F5: __VDLType_set_300,
+				F5: vdl.TypeOf((*XSet_XStructEmpty)(nil)),
 				F6: 147,
 				F7: 178,
 				F9: XEnumBcdD,
@@ -79846,7 +79846,7 @@ var xAllPass = []vdlEntry{
 				F2: true,
 				F3: "deΔΘΠΣΦ王普",
 				F4: "bcdeΔΘΠΣΦ王",
-				F5: __VDLType_set_300,
+				F5: vdl.TypeOf((*XSet_XStructEmpty)(nil)),
 				F6: 147,
 				F7: 178,
 				F9: XEnumBcdD,
@@ -80777,7 +80777,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_set_301,
+				vdl.TypeOf((*map[string]struct{})(nil)),
 			},
 			F1: XArray1_Uint32{
 				624195240,
@@ -80841,7 +80841,7 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_set_301,
+				vdl.TypeOf((*map[string]struct{})(nil)),
 			},
 			F1: XArray1_Uint32{
 				624195240,
@@ -80996,15 +80996,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_XArray2_TypeObject{F0: {typeobject(XList_XUint16), typeobject(XList_Byte)}}",
 		Target: XStructDepth2_XArray2_TypeObject{
 			F0: XArray2_TypeObject{
-				__VDLType_list_302,
-				__VDLType_list_303,
+				vdl.TypeOf((*XList_XUint16)(nil)),
+				vdl.TypeOf((*XList_Byte)(nil)),
 			},
 		},
 		SourceLabel: "XStructDepth2_XArray2_TypeObject{F0: {typeobject(XList_XUint16), typeobject(XList_Byte)}}",
 		Source: XStructDepth2_XArray2_TypeObject{
 			F0: XArray2_TypeObject{
-				__VDLType_list_302,
-				__VDLType_list_303,
+				vdl.TypeOf((*XList_XUint16)(nil)),
+				vdl.TypeOf((*XList_Byte)(nil)),
 			},
 		},
 	},
@@ -81013,15 +81013,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_XArray2_TypeObject{F0: {typeobject(XList_XUint16), typeobject(XList_Byte)}}",
 		Target: XStructDepth2_XArray2_TypeObject{
 			F0: XArray2_TypeObject{
-				__VDLType_list_302,
-				__VDLType_list_303,
+				vdl.TypeOf((*XList_XUint16)(nil)),
+				vdl.TypeOf((*XList_Byte)(nil)),
 			},
 		},
 		SourceLabel: "XStructDepth2_All{F0: {typeobject(XList_XUint16), typeobject(XList_Byte)}}",
 		Source: XStructDepth2_All{
 			F0: XArray2_TypeObject{
-				__VDLType_list_302,
-				__VDLType_list_303,
+				vdl.TypeOf((*XList_XUint16)(nil)),
+				vdl.TypeOf((*XList_Byte)(nil)),
 			},
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
@@ -85258,7 +85258,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_array_304,
+					vdl.TypeOf((*XArray2_XEnumBcd)(nil)),
 				},
 				F2: []int16{
 					9473,
@@ -85445,7 +85445,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_array_304,
+					vdl.TypeOf((*XArray2_XEnumBcd)(nil)),
 				},
 				F2: []int16{
 					9473,
@@ -85635,7 +85635,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_array_304,
+					vdl.TypeOf((*XArray2_XEnumBcd)(nil)),
 				},
 				F2: []int16{
 					9473,
@@ -85822,7 +85822,7 @@ var xAllPass = []vdlEntry{
 			XStructDepth2_All{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_array_304,
+					vdl.TypeOf((*XArray2_XEnumBcd)(nil)),
 				},
 				F2: []int16{
 					9473,
@@ -87022,8 +87022,8 @@ var xAllPass = []vdlEntry{
 		Target: []XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_union_305,
-					__VDLType_struct_306,
+					vdl.TypeOf((*XUnionDepth2_XStructDepth1_Int8)(nil)),
+					vdl.TypeOf((*XStructEmpty)(nil)).Elem(),
 				},
 				F1: XArray1_Uint32{
 					1903587924,
@@ -87091,7 +87091,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_union_307,
+					vdl.TypeOf((*XUnionDepth1_Uint32)(nil)),
 				},
 				F1: XArray1_Uint32{
 					750756465,
@@ -87168,8 +87168,8 @@ var xAllPass = []vdlEntry{
 		Source: []XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_union_305,
-					__VDLType_struct_306,
+					vdl.TypeOf((*XUnionDepth2_XStructDepth1_Int8)(nil)),
+					vdl.TypeOf((*XStructEmpty)(nil)).Elem(),
 				},
 				F1: XArray1_Uint32{
 					1903587924,
@@ -87237,7 +87237,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_union_307,
+					vdl.TypeOf((*XUnionDepth1_Uint32)(nil)),
 				},
 				F1: XArray1_Uint32{
 					750756465,
@@ -87317,8 +87317,8 @@ var xAllPass = []vdlEntry{
 		Target: []XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_union_305,
-					__VDLType_struct_306,
+					vdl.TypeOf((*XUnionDepth2_XStructDepth1_Int8)(nil)),
+					vdl.TypeOf((*XStructEmpty)(nil)).Elem(),
 				},
 				F1: XArray1_Uint32{
 					1903587924,
@@ -87386,7 +87386,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_union_307,
+					vdl.TypeOf((*XUnionDepth1_Uint32)(nil)),
 				},
 				F1: XArray1_Uint32{
 					750756465,
@@ -87463,8 +87463,8 @@ var xAllPass = []vdlEntry{
 		Source: XList_XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_union_305,
-					__VDLType_struct_306,
+					vdl.TypeOf((*XUnionDepth2_XStructDepth1_Int8)(nil)),
+					vdl.TypeOf((*XStructEmpty)(nil)).Elem(),
 				},
 				F1: XArray1_Uint32{
 					1903587924,
@@ -87532,7 +87532,7 @@ var xAllPass = []vdlEntry{
 			{
 				F0: XArray2_TypeObject{
 					vdl.AnyType,
-					__VDLType_union_307,
+					vdl.TypeOf((*XUnionDepth1_Uint32)(nil)),
 				},
 				F1: XArray1_Uint32{
 					750756465,
@@ -88613,7 +88613,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_list_308,
+					vdl.TypeOf((*XList_Any)(nil)),
 					vdl.AnyType,
 				},
 				F3: XList_Any{
@@ -88651,7 +88651,7 @@ var xAllPass = []vdlEntry{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
 					F3: "bcdeΔΘΠ",
 					F4: "bcdeΔΘΠ",
-					F5: __VDLType_struct_309,
+					F5: vdl.TypeOf((*XStructDepth1_XInt32)(nil)).Elem(),
 					F6: 245,
 					F7: 79,
 					F9: XEnumBcdC,
@@ -88695,7 +88695,7 @@ var xAllPass = []vdlEntry{
 		Source: XList_XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_list_308,
+					vdl.TypeOf((*XList_Any)(nil)),
 					vdl.AnyType,
 				},
 				F3: XList_Any{
@@ -88733,7 +88733,7 @@ var xAllPass = []vdlEntry{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
 					F3: "bcdeΔΘΠ",
 					F4: "bcdeΔΘΠ",
-					F5: __VDLType_struct_309,
+					F5: vdl.TypeOf((*XStructDepth1_XInt32)(nil)).Elem(),
 					F6: 245,
 					F7: 79,
 					F9: XEnumBcdC,
@@ -88780,7 +88780,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_XStructDepth2_All{
 			{
 				F0: XArray2_TypeObject{
-					__VDLType_list_308,
+					vdl.TypeOf((*XList_Any)(nil)),
 					vdl.AnyType,
 				},
 				F3: XList_Any{
@@ -88818,7 +88818,7 @@ var xAllPass = []vdlEntry{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
 					F3: "bcdeΔΘΠ",
 					F4: "bcdeΔΘΠ",
-					F5: __VDLType_struct_309,
+					F5: vdl.TypeOf((*XStructDepth1_XInt32)(nil)).Elem(),
 					F6: 245,
 					F7: 79,
 					F9: XEnumBcdC,
@@ -88862,7 +88862,7 @@ var xAllPass = []vdlEntry{
 		Source: XList_Any{
 			XStructDepth2_All{
 				F0: XArray2_TypeObject{
-					__VDLType_list_308,
+					vdl.TypeOf((*XList_Any)(nil)),
 					vdl.AnyType,
 				},
 				F3: XList_Any{
@@ -88900,7 +88900,7 @@ var xAllPass = []vdlEntry{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
 					F3: "bcdeΔΘΠ",
 					F4: "bcdeΔΘΠ",
-					F5: __VDLType_struct_309,
+					F5: vdl.TypeOf((*XStructDepth1_XInt32)(nil)).Elem(),
 					F6: 245,
 					F7: 79,
 					F9: XEnumBcdC,
@@ -90625,8 +90625,8 @@ var xAllPass = []vdlEntry{
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
-					__VDLType_map_310,
-					__VDLType_map_311,
+					vdl.TypeOf((*XMap_XStructEmpty_XStructEmpty)(nil)),
+					vdl.TypeOf((*XMap_String_String)(nil)),
 				},
 				F1: XArray1_Uint32{
 					1619759417,
@@ -90693,8 +90693,8 @@ var xAllPass = []vdlEntry{
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
-					__VDLType_map_310,
-					__VDLType_map_311,
+					vdl.TypeOf((*XMap_XStructEmpty_XStructEmpty)(nil)),
+					vdl.TypeOf((*XMap_String_String)(nil)),
 				},
 				F1: XArray1_Uint32{
 					1619759417,
@@ -91575,7 +91575,7 @@ var xAllPass = []vdlEntry{
 					F2: true,
 					F3: "ΠΣΦ王普",
 					F4: "cdeΔΘΠΣΦ王",
-					F5: __VDLType_list_312,
+					F5: vdl.TypeOf((*[]XEnumAbc)(nil)),
 					F6: 249,
 					F7: 22,
 					F8: XEnumAbcC,
@@ -91641,7 +91641,7 @@ var xAllPass = []vdlEntry{
 					F2: true,
 					F3: "ΠΣΦ王普",
 					F4: "cdeΔΘΠΣΦ王",
-					F5: __VDLType_list_312,
+					F5: vdl.TypeOf((*[]XEnumAbc)(nil)),
 					F6: 249,
 					F7: 22,
 					F8: XEnumAbcC,
@@ -91710,7 +91710,7 @@ var xAllPass = []vdlEntry{
 					F2: true,
 					F3: "ΠΣΦ王普",
 					F4: "cdeΔΘΠΣΦ王",
-					F5: __VDLType_list_312,
+					F5: vdl.TypeOf((*[]XEnumAbc)(nil)),
 					F6: 249,
 					F7: 22,
 					F8: XEnumAbcC,
@@ -91776,7 +91776,7 @@ var xAllPass = []vdlEntry{
 					F2: true,
 					F3: "ΠΣΦ王普",
 					F4: "cdeΔΘΠΣΦ王",
-					F5: __VDLType_list_312,
+					F5: vdl.TypeOf((*[]XEnumAbc)(nil)),
 					F6: 249,
 					F7: 22,
 					F8: XEnumAbcC,
@@ -92892,7 +92892,7 @@ var xAllPass = []vdlEntry{
 		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_array_313,
+				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
 			},
 			F1: XArray1_Uint32{
 				650662747,
@@ -92921,7 +92921,7 @@ var xAllPass = []vdlEntry{
 					243: struct{}{},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
-				F5:  __VDLType_union_314,
+				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
 				F13: 31207,
 				F14: 59370,
 				F16: 303297294,
@@ -92949,7 +92949,7 @@ var xAllPass = []vdlEntry{
 		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_array_313,
+				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
 			},
 			F1: XArray1_Uint32{
 				650662747,
@@ -92978,7 +92978,7 @@ var xAllPass = []vdlEntry{
 					243: struct{}{},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
-				F5:  __VDLType_union_314,
+				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
 				F13: 31207,
 				F14: 59370,
 				F16: 303297294,
@@ -93009,7 +93009,7 @@ var xAllPass = []vdlEntry{
 		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_array_313,
+				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
 			},
 			F1: XArray1_Uint32{
 				650662747,
@@ -93038,7 +93038,7 @@ var xAllPass = []vdlEntry{
 					243: struct{}{},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
-				F5:  __VDLType_union_314,
+				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
 				F13: 31207,
 				F14: 59370,
 				F16: 303297294,
@@ -93066,7 +93066,7 @@ var xAllPass = []vdlEntry{
 		Source: XUnionDepth3_All(XUnionDepth3_AllF4{XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
-				__VDLType_array_313,
+				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
 			},
 			F1: XArray1_Uint32{
 				650662747,
@@ -93095,7 +93095,7 @@ var xAllPass = []vdlEntry{
 					243: struct{}{},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
-				F5:  __VDLType_union_314,
+				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
 				F13: 31207,
 				F14: 59370,
 				F16: 303297294,
@@ -93814,36 +93814,6 @@ var (
 	__VDLType_union_282    *vdl.Type
 	__VDLType_union_283    *vdl.Type
 	__VDLType_struct_284   *vdl.Type
-	__VDLType_list_285     *vdl.Type
-	__VDLType_list_286     *vdl.Type
-	__VDLType_set_287      *vdl.Type
-	__VDLType_list_288     *vdl.Type
-	__VDLType_list_289     *vdl.Type
-	__VDLType_struct_290   *vdl.Type
-	__VDLType_float32_291  *vdl.Type
-	__VDLType_list_292     *vdl.Type
-	__VDLType_list_293     *vdl.Type
-	__VDLType_array_294    *vdl.Type
-	__VDLType_union_295    *vdl.Type
-	__VDLType_struct_296   *vdl.Type
-	__VDLType_union_297    *vdl.Type
-	__VDLType_uint16_298   *vdl.Type
-	__VDLType_list_299     *vdl.Type
-	__VDLType_set_300      *vdl.Type
-	__VDLType_set_301      *vdl.Type
-	__VDLType_list_302     *vdl.Type
-	__VDLType_list_303     *vdl.Type
-	__VDLType_array_304    *vdl.Type
-	__VDLType_union_305    *vdl.Type
-	__VDLType_struct_306   *vdl.Type
-	__VDLType_union_307    *vdl.Type
-	__VDLType_list_308     *vdl.Type
-	__VDLType_struct_309   *vdl.Type
-	__VDLType_map_310      *vdl.Type
-	__VDLType_map_311      *vdl.Type
-	__VDLType_list_312     *vdl.Type
-	__VDLType_array_313    *vdl.Type
-	__VDLType_union_314    *vdl.Type
 )
 
 var __VDLInitCalled bool
@@ -94672,36 +94642,6 @@ func __VDLInit() struct{} {
 	__VDLType_union_282 = vdl.TypeOf((*VWireUnionNPointer)(nil))
 	__VDLType_union_283 = vdl.TypeOf((*VWireUnionNIface)(nil))
 	__VDLType_struct_284 = vdl.TypeOf((*VWireAll)(nil)).Elem()
-	__VDLType_list_285 = vdl.TypeOf((*[]bool)(nil))
-	__VDLType_list_286 = vdl.TypeOf((*[]VByte)(nil))
-	__VDLType_set_287 = vdl.TypeOf((*map[VStructDepth2_VStructDepth1_Bool]struct{})(nil))
-	__VDLType_list_288 = vdl.TypeOf((*[]uint32)(nil))
-	__VDLType_list_289 = vdl.TypeOf((*[]*VStructDepth1_VEnumBcd)(nil))
-	__VDLType_struct_290 = vdl.TypeOf((*XStructDepth1_Uint32)(nil)).Elem()
-	__VDLType_float32_291 = vdl.TypeOf((*XFloat32)(nil))
-	__VDLType_list_292 = vdl.TypeOf((*XList_XBool)(nil))
-	__VDLType_list_293 = vdl.TypeOf((*XList_XStructDepth2_All)(nil))
-	__VDLType_array_294 = vdl.TypeOf((*XArray3_OptXStructDepth2_Set_Float64)(nil))
-	__VDLType_union_295 = vdl.TypeOf((*XUnionDepth1_Int16)(nil))
-	__VDLType_struct_296 = vdl.TypeOf((*XStructDepth1_XInt16)(nil)).Elem()
-	__VDLType_union_297 = vdl.TypeOf((*XUnionDepth1_Bool)(nil))
-	__VDLType_uint16_298 = vdl.TypeOf((*XUint16)(nil))
-	__VDLType_list_299 = vdl.TypeOf((*XList_XMap_Byte_Byte)(nil))
-	__VDLType_set_300 = vdl.TypeOf((*XSet_XStructEmpty)(nil))
-	__VDLType_set_301 = vdl.TypeOf((*map[string]struct{})(nil))
-	__VDLType_list_302 = vdl.TypeOf((*XList_XUint16)(nil))
-	__VDLType_list_303 = vdl.TypeOf((*XList_Byte)(nil))
-	__VDLType_array_304 = vdl.TypeOf((*XArray2_XEnumBcd)(nil))
-	__VDLType_union_305 = vdl.TypeOf((*XUnionDepth2_XStructDepth1_Int8)(nil))
-	__VDLType_struct_306 = vdl.TypeOf((*XStructEmpty)(nil)).Elem()
-	__VDLType_union_307 = vdl.TypeOf((*XUnionDepth1_Uint32)(nil))
-	__VDLType_list_308 = vdl.TypeOf((*XList_Any)(nil))
-	__VDLType_struct_309 = vdl.TypeOf((*XStructDepth1_XInt32)(nil)).Elem()
-	__VDLType_map_310 = vdl.TypeOf((*XMap_XStructEmpty_XStructEmpty)(nil))
-	__VDLType_map_311 = vdl.TypeOf((*XMap_String_String)(nil))
-	__VDLType_list_312 = vdl.TypeOf((*[]XEnumAbc)(nil))
-	__VDLType_array_313 = vdl.TypeOf((*XArray1_XStructEmpty)(nil))
-	__VDLType_union_314 = vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil))
 
 	return struct{}{}
 }
