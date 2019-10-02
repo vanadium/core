@@ -2,7 +2,7 @@ module v.io
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
-go 1.13
+go 1.13.1
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.3
