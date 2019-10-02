@@ -147,7 +147,7 @@ func untypedConstWire(data *goData, v *vdl.Value) string {
 		}
 		return "nil"
 	case vdl.TypeObject:
-		return data.TypeOf(v.TypeObject())
+		return data.InitializationExpression(v.TypeObject())
 	case vdl.Bool:
 		return strconv.FormatBool(v.Bool())
 	case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64:

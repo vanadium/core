@@ -5,6 +5,8 @@ export GOPATH
 
 VDLPATH ?= $(shell pwd)/src
 export VDLPATH
+vdlgen:
+	go run v.io/x/ref/cmd/vdl generate --lang=go v.io/...	
 
 .PHONY: test-integration
 test-integration:

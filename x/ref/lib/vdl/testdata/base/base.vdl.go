@@ -2805,19 +2805,19 @@ const FiveSquared = int32(25)
 
 var CTypeObject_bool = vdl.BoolType
 var CTypeObject_string = vdl.StringType
-var CTypeObject_bytes = __VDLType_list_35
+var CTypeObject_bytes = vdl.TypeOf((*[]byte)(nil))
 var CTypeObject_byte = vdl.ByteType
 var CTypeObject_uint16 = vdl.Uint16Type
 var CTypeObject_int8 = vdl.Int8Type
 var CTypeObject_int16 = vdl.Int16Type
 var CTypeObject_float32 = vdl.Float32Type
-var CTypeObject_enum = __VDLType_enum_13
-var CTypeObject_Array = __VDLType_array_14
-var CTypeObject_List = __VDLType_list_36
-var CTypeObject_Set = __VDLType_set_37
-var CTypeObject_Map = __VDLType_map_38
-var CTypeObject_Struct = __VDLType_struct_20
-var CTypeObject_Union = __VDLType_union_19
+var CTypeObject_enum = vdl.TypeOf((*NamedEnum)(nil))
+var CTypeObject_Array = vdl.TypeOf((*NamedArray)(nil))
+var CTypeObject_List = vdl.TypeOf((*[]string)(nil))
+var CTypeObject_Set = vdl.TypeOf((*map[string]struct{})(nil))
+var CTypeObject_Map = vdl.TypeOf((*map[string]int64)(nil))
+var CTypeObject_Struct = vdl.TypeOf((*Scalars)(nil)).Elem()
+var CTypeObject_Union = vdl.TypeOf((*NamedUnion)(nil))
 var CTypeObject_TypeObject = vdl.TypeObjectType
 var CTypeObject_Any = vdl.AnyType
 
@@ -3471,10 +3471,6 @@ var (
 	__VDLType_list_32    *vdl.Type
 	__VDLType_struct_33  *vdl.Type
 	__VDLType_struct_34  *vdl.Type
-	__VDLType_list_35    *vdl.Type
-	__VDLType_list_36    *vdl.Type
-	__VDLType_set_37     *vdl.Type
-	__VDLType_map_38     *vdl.Type
 )
 
 var __VDLInitCalled bool
@@ -3562,10 +3558,6 @@ func __VDLInit() struct{} {
 	__VDLType_list_32 = vdl.TypeOf((*[]map[string]Composites)(nil))
 	__VDLType_struct_33 = vdl.TypeOf((*Args)(nil)).Elem()
 	__VDLType_struct_34 = vdl.TypeOf((*NestedArgs)(nil)).Elem()
-	__VDLType_list_35 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_list_36 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_set_37 = vdl.TypeOf((*map[string]struct{})(nil))
-	__VDLType_map_38 = vdl.TypeOf((*map[string]int64)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoParams1.ID), "{1:}{2:} en msg")

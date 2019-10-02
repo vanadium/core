@@ -1487,7 +1487,7 @@ var ExpiryCaveat = CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_struct_22,
+	ParamType: vdl.TypeOf((*vdltime.Time)(nil)).Elem(),
 }
 
 // MethodCaveat represents a caveat that validates iff the method being
@@ -1511,7 +1511,7 @@ var MethodCaveat = CaveatDescriptor{
 		0,
 		3,
 	},
-	ParamType: __VDLType_list_23,
+	ParamType: vdl.TypeOf((*[]string)(nil)),
 }
 var PublicKeyThirdPartyCaveat = CaveatDescriptor{
 	Id: uniqueid.Id{
@@ -1532,7 +1532,7 @@ var PublicKeyThirdPartyCaveat = CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_struct_6,
+	ParamType: vdl.TypeOf((*publicKeyThirdPartyCaveatParam)(nil)).Elem(),
 }
 
 // PeerBlessingsCaveat represents a caveat that validates iff the peer being communicated
@@ -1557,7 +1557,7 @@ var PeerBlessingsCaveat = CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_list_13,
+	ParamType: vdl.TypeOf((*[]BlessingPattern)(nil)),
 }
 
 // NoExtension is an optional terminator for a blessing pattern indicating that the pattern
@@ -1692,8 +1692,6 @@ var (
 	__VDLType_list_19   *vdl.Type
 	__VDLType_union_20  *vdl.Type
 	__VDLType_struct_21 *vdl.Type
-	__VDLType_struct_22 *vdl.Type
-	__VDLType_list_23   *vdl.Type
 )
 
 var __VDLInitCalled bool
@@ -1759,8 +1757,6 @@ func __VDLInit() struct{} {
 	__VDLType_list_19 = vdl.TypeOf((*[]Certificate)(nil))
 	__VDLType_union_20 = vdl.TypeOf((*WireDischarge)(nil))
 	__VDLType_struct_21 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
-	__VDLType_struct_22 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
-	__VDLType_list_23 = vdl.TypeOf((*[]string)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatNotRegistered.ID), "{1:}{2:} no validation function registered for caveat id {3}")
