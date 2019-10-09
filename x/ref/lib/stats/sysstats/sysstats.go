@@ -129,7 +129,6 @@ func exportSysCpu() {
 		Steal     float64
 		Guest     float64
 		GuestNice float64
-		Stolen    float64
 	}
 	var s cpuStat
 	fieldNames := getFieldNames(s)
@@ -157,7 +156,6 @@ func exportSysCpu() {
 			Steal:     t.Steal,
 			Guest:     t.Guest,
 			GuestNice: t.GuestNice,
-			Stolen:    t.Stolen,
 		}
 		updateStats("system/syscpu", s, fieldNames)
 	}
