@@ -129,7 +129,7 @@ type StatsServerStub interface {
 // an object that may be used by rpc.Server.
 func StatsServer(impl StatsServerMethods) StatsServerStub {
 	stub := implStatsServerStub{
-		impl: impl,
+		impl:                  impl,
 		GlobWatcherServerStub: watch.GlobWatcherServer(impl),
 	}
 	// Initialize GlobState; always check the stub itself first, to handle the

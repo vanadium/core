@@ -794,7 +794,7 @@ type GroupServerStub interface {
 // an object that may be used by rpc.Server.
 func GroupServer(impl GroupServerMethods) GroupServerStub {
 	stub := implGroupServerStub{
-		impl: impl,
+		impl:                  impl,
 		GroupReaderServerStub: GroupReaderServer(impl),
 		ObjectServerStub:      permissions.ObjectServer(impl),
 	}

@@ -6,6 +6,7 @@ package context_test
 
 import (
 	"bytes"
+	gocontext "context"
 	"fmt"
 	"sync"
 	"testing"
@@ -224,6 +225,26 @@ func TestRootCancel(t *testing.T) {
 	rootcancel()
 	<-root.Done()
 	<-e.Done()
+}
+
+func TestRootCancel_GoContext(t *testing.T) {
+	root, rootcancel := context.RootContext()
+	a, acancel := gocontext.WithCancel(root)
+	b := context.FromGoContext(a)
+	c, _ := context.WithRootCancel(b)
+
+	// Cancelling a should cancel b, but not c.
+	acancel()
+	<-b.Done()
+	select {
+	case <-c.Done():
+		t.Error("C should not yet be cancelled")
+	case <-time.After(100 * time.Millisecond):
+	}
+	// Cancelling the root should cancel c.
+	rootcancel()
+	<-c.Done()
+	<-root.Done()
 }
 
 type stringLogger struct {
