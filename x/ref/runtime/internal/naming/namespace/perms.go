@@ -5,17 +5,15 @@
 package namespace
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/security/access"
-	"v.io/x/ref/lib/apilog"
 )
 
 // SetPermissions implements Namespace.SetPermissions.
 func (ns *namespace) SetPermissions(ctx *context.T, name string, perms access.Permissions, version string, opts ...naming.NamespaceOpt) error {
-	defer apilog.LogCallf(ctx, "name=%.10s...,perms=,version=%.10s...,opts...=%v", name, version, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
@@ -31,7 +29,6 @@ func (ns *namespace) SetPermissions(ctx *context.T, name string, perms access.Pe
 
 // GetPermissions implements Namespace.GetPermissions.
 func (ns *namespace) GetPermissions(ctx *context.T, name string, opts ...naming.NamespaceOpt) (perms access.Permissions, version string, err error) {
-	defer apilog.LogCallf(ctx, "name=%.10s...,opts...=%v", name, opts)(ctx, "perms=,version=%.10s...,err=%v", &version, &err) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {

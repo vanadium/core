@@ -19,7 +19,6 @@ import (
 	"v.io/v23/verror"
 
 	"v.io/x/ref"
-	"v.io/x/ref/lib/apilog"
 )
 
 const defaultMaxResolveDepth = 32
@@ -79,7 +78,6 @@ func New(roots ...string) (*namespace, error) {
 
 // SetRoots implements namespace.T.SetRoots
 func (ns *namespace) SetRoots(roots ...string) error {
-	defer apilog.LogCallf(nil, "roots...=%v", roots)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	// Allow roots to be cleared with a call of SetRoots()
 	if len(roots) > 0 && !rooted(roots) {
 		return badRoots(roots)
@@ -195,7 +193,6 @@ func withTimeout(ctx *context.T) (*context.T, func()) {
 
 // CacheCtl implements namespace.T.CacheCtl
 func (ns *namespace) CacheCtl(ctls ...naming.CacheCtl) []naming.CacheCtl {
-	defer apilog.LogCallf(nil, "ctls...=%v", ctls)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	for _, c := range ctls {
 		switch v := c.(type) {
 		case naming.DisableCache:

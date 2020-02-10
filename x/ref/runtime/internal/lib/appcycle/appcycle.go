@@ -9,11 +9,10 @@ import (
 	"os"
 	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/apilog"
 
 	public "v.io/v23/services/appcycle"
 )
@@ -75,24 +74,20 @@ func (m *AppCycle) stop(ctx *context.T, msg string) {
 }
 
 func (m *AppCycle) Stop(ctx *context.T) {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	m.stop(ctx, v23.LocalStop)
 }
 
 func (*AppCycle) ForceStop(ctx *context.T) {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	os.Exit(ForceStopExitCode)
 }
 
 func (m *AppCycle) WaitForStop(_ *context.T, ch chan<- string) {
-	defer apilog.LogCallf(nil, "ch=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	m.Lock()
 	defer m.Unlock()
 	m.waiters = append(m.waiters, ch)
 }
 
 func (m *AppCycle) TrackTask(ch chan<- v23.Task) {
-	defer apilog.LogCallf(nil, "ch=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	m.Lock()
 	defer m.Unlock()
 	if m.shutDown {
@@ -120,7 +115,6 @@ func (m *AppCycle) advanceTask(progress, goal int32) {
 }
 
 func (m *AppCycle) AdvanceGoal(delta int32) {
-	defer apilog.LogCallf(nil, "delta=%v", delta)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if delta <= 0 {
 		return
 	}
@@ -128,7 +122,6 @@ func (m *AppCycle) AdvanceGoal(delta int32) {
 }
 
 func (m *AppCycle) AdvanceProgress(delta int32) {
-	defer apilog.LogCallf(nil, "delta=%v", delta)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if delta <= 0 {
 		return
 	}
@@ -136,12 +129,10 @@ func (m *AppCycle) AdvanceProgress(delta int32) {
 }
 
 func (m *AppCycle) Remote() interface{} {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return public.AppCycleServer(m.disp)
 }
 
 func (d *invoker) Stop(ctx *context.T, call public.AppCycleStopServerCall) error {
-	defer apilog.LogCallf(ctx, "call=")(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	blessings, _ := security.RemoteBlessingNames(ctx, call.Security())
 	ctx.Infof("AppCycle Stop request from %v", blessings)
 	// The size of the channel should be reasonably sized to expect not to
@@ -165,7 +156,6 @@ func (d *invoker) Stop(ctx *context.T, call public.AppCycleStopServerCall) error
 }
 
 func (d *invoker) ForceStop(ctx *context.T, _ rpc.ServerCall) error {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	d.ac.ForceStop(ctx)
 	return fmt.Errorf("ForceStop should not reply as the process should be dead")
 }
