@@ -262,13 +262,16 @@ func (gls *genLangs) Set(value string) error {
 	return nil
 }
 
-// genOutDir has three modes:
+// genOutDir has four modes.
 //   1) If dir is non-empty, we use it as the out dir.
 //   2) If rules is non-empty, we translate using the xlate rules.
-//   3) If everything is empty, we generate in-place.
+//   3) if supportGoModules is set then go module directory structure
+//      is accounted for mode 4.
+//   4) If everything is empty, we generate in-place.
 type genOutDir struct {
-	dir   string
-	rules xlateRules
+	supportGoModules bool
+	dir              string
+	rules            xlateRules
 }
 
 // xlateSrcDst specifies a translation rule, where src must match the suffix of
@@ -335,7 +338,9 @@ var (
 	// Options for each command.
 	optCompileStatus bool
 	optGenStatus     bool
-	optGenGoOutDir   = genOutDir{}
+	optGenGoOutDir   = genOutDir{
+		supportGoModules: true,
+	}
 	optGenJavaOutDir = genOutDir{
 		rules: xlateRules{
 			{"release/go/src", "release/java/lib/generated-src/vdl"},
@@ -619,10 +624,12 @@ func writeFile(audit bool, data []byte, dirName, baseName string, env *compile.E
 	if oldData, err := ioutil.ReadFile(dstName); err == nil && bytes.Equal(oldData, data) {
 		return false
 	}
+
 	// At this point we know the old file is stale.
 	if audit {
 		return true
 	}
+
 	// Create containing directory, if it doesn't already exist.
 	if err := os.MkdirAll(dirName, os.FileMode(0777)); err != nil {
 		env.Errors.Errorf("Couldn't create directory %s: %v", dirName, err)
@@ -632,6 +639,7 @@ func writeFile(audit bool, data []byte, dirName, baseName string, env *compile.E
 		env.Errors.Errorf("Couldn't write file %s: %v", dstName, err)
 		return true
 	}
+
 	// Remove rmFiles now that we've succeeded.  This is only used for a temporary
 	// transition to new go file names.  Always try to remove all of them, even if
 	// the removal of some of them fails.
@@ -668,19 +676,43 @@ func handleErrorOrSkip(prefix string, err error, env *compile.Env) bool {
 
 var errSkip = fmt.Errorf("SKIP")
 
+// handle the case where go modules are used the directory structure
+// on the local filesystem omits the portion of the package path
+// represented by the module definition in the go.mod file.
+// TODO(cnicolaou): move to vdl/build.
+func goModulePath(dir, path, outPkgPath string) (string, error) {
+	prefix, module, suffix := build.PackagePathSplit(dir, path)
+	if len(suffix) == 0 {
+		return "", fmt.Errorf("package dir %q doesn't share a common suffix with package path %q", dir, path)
+	}
+	if gomod := build.HasGoModule(prefix); len(gomod) > 0 {
+		if gomod != module {
+			return "", fmt.Errorf("package dir %q and package %q do not match go module path %q != %q", dir, path, gomod, module)
+		}
+		return filepath.Join(prefix, strings.TrimPrefix(outPkgPath, gomod)), nil
+	}
+	return filepath.Join(dir, outPkgPath), nil
+}
+
 func xlateOutDir(dir, path string, outdir genOutDir, outPkgPath string) (string, error) {
 	path = filepath.FromSlash(path)
 	outPkgPath = filepath.FromSlash(outPkgPath)
-	// Strip package path from the directory.
-	if !strings.HasSuffix(dir, path) {
-		return "", fmt.Errorf("package dir %q doesn't end with package path %q", dir, path)
+
+	if !outdir.supportGoModules {
+		// Strip package path from the directory for all non go modules uses.
+		if !strings.HasSuffix(dir, path) {
+			return "", fmt.Errorf("package dir %q doesn't end with package path %q", dir, path)
+		}
+		dir = filepath.Clean(dir[:len(dir)-len(path)])
 	}
-	dir = filepath.Clean(dir[:len(dir)-len(path)])
 
 	switch {
 	case outdir.dir != "":
 		return filepath.Join(outdir.dir, outPkgPath), nil
 	case len(outdir.rules) == 0:
+		if outdir.supportGoModules {
+			return goModulePath(dir, path, outPkgPath)
+		}
 		return filepath.Join(dir, outPkgPath), nil
 	}
 	// Try translation rules in order.
@@ -695,7 +727,7 @@ func xlateOutDir(dir, path string, outdir genOutDir, outPkgPath string) (string,
 		d = filepath.Clean(d[:len(d)-len(xlate.src)])
 		return filepath.Join(d, xlate.dst, outPkgPath), nil
 	}
-	return "", fmt.Errorf("package prefix %q doesn't match translation rules %q", dir, outdir)
+	return "", fmt.Errorf("package prefix %q doesn't match translation rules %v", dir, outdir)
 }
 
 func xlatePkgPath(pkgPath string, rules xlateRules) (string, error) {

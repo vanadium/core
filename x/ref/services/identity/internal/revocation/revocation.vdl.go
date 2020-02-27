@@ -43,13 +43,8 @@ var NotRevokedCaveat = security.CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_list_1,
+	ParamType: vdl.TypeOf((*[]byte)(nil)),
 }
-
-// Hold type definitions in package-level variables, for better performance.
-var (
-	__VDLType_list_1 *vdl.Type
-)
 
 var __VDLInitCalled bool
 
@@ -71,9 +66,6 @@ func __VDLInit() struct{} {
 		return struct{}{}
 	}
 	__VDLInitCalled = true
-
-	// Initialize type definitions.
-	__VDLType_list_1 = vdl.TypeOf((*[]byte)(nil))
 
 	return struct{}{}
 }

@@ -1,16 +1,12 @@
 SHELL := /bin/bash -euo pipefail
 
-GOPATH ?= $(shell pwd)
-export GOPATH
-
-VDLPATH ?= $(shell pwd)/src
+VDLPATH ?= $(shell pwd)
 export VDLPATH
 vdlgen:
 	go run v.io/x/ref/cmd/vdl generate --lang=go v.io/...	
 
 .PHONY: test-integration
 test-integration:
-	@echo "GOPATH" ${GOPATH}
 	@echo "VDLPATH" ${VDLPATH}
 	go test -tags travis \
 		v.io/x/ref/cmd/principal \

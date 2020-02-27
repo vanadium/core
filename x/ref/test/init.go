@@ -6,17 +6,24 @@ package test
 
 import (
 	"flag"
-
 	"os"
 	"os/signal"
+	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/x/ref/services/debug/debug/browseserver"
 )
+
+func init() {
+	// Required to ensure that test related flags are defined.
+	// TODO(cnicolaou): rationalize the use of testing package flags from
+	//                  regression and integration tests.
+	testing.Init()
+}
 
 var debugOnShutdown = flag.String("v23.debug-address", "",
 	"If this is set then when a test runs, we start a debug browser (serving at the given address)"+
