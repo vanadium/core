@@ -687,7 +687,8 @@ func here() string {
 func TestGoMod(t *testing.T) {
 	file := here()
 	root := filepath.Clean(strings.TrimSuffix(file, "x/ref/lib/vdl/build/build_test.go"))
-	if got, want := build.HasGoModule(root), "v.io"; got != want {
+	gomod := build.HasGoModule(root)
+	if got, want := gomod, "v.io"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	pkg := "x/ref/lib/vdl/build"
@@ -695,8 +696,15 @@ func TestGoMod(t *testing.T) {
 	if got, want := prefix, root; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
-	if got, want := module, "v.io"; got != want {
-		t.Errorf("got %q, want %q", got, want)
+	switch len(module) {
+	case 0:
+		if !strings.HasSuffix(root, "/v.io") {
+			t.Errorf("module name is inot in directory tree when it should be")
+		}
+	default:
+		if got, want := module, "v.io"; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
 	}
 	if got, want := suffix, pkg; got != want {
 		t.Errorf("got %q, want %q", got, want)
