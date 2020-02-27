@@ -645,6 +645,7 @@ func TestBuildExprs(t *testing.T) {
 }
 
 func TestPackageSplit(t *testing.T) {
+	defer build.SetFilePathSeparator(string(filepath.Separator))
 	for i, test := range []struct {
 		dir, path            string
 		prefix, body, suffix string
