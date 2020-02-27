@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -674,7 +675,33 @@ func TestPackageSplit(t *testing.T) {
 			t.Errorf("(%v): got %q, want %q", i, got, want)
 		}
 		if got, want := suffix, test.suffix; got != want {
-			t.Errorf("(%v) got %q, want %q", i, got, want)
+			t.Errorf("(%v): got %q, want %q", i, got, want)
 		}
+	}
+}
+
+func here() string {
+	_, file, _, _ := runtime.Caller(1)
+	return file
+}
+
+func TestGoMod(t *testing.T) {
+	file := here()
+	root := filepath.Clean(strings.TrimSuffix(file, "x/ref/lib/vdl/build/build_test.go"))
+	if got, want := build.HasGoModule(root), "v.io"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	fmt.Printf("%v\n", filepath.Dir(file))
+	pkg := "x/ref/lib/vdl/build"
+	prefix, module, suffix := build.PackagePathSplit(filepath.Dir(file), "v.io/"+pkg)
+	if got, want := prefix, root; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got, want := module, "v.io"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got, want := suffix, pkg; got != want {
+		t.Errorf("got %q, want %q", got, want)
 	}
 }

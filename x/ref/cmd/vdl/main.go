@@ -676,10 +676,9 @@ func handleErrorOrSkip(prefix string, err error, env *compile.Env) bool {
 
 var errSkip = fmt.Errorf("SKIP")
 
-// handle the case where go modules are used the directory structure
+// Handle the case where go modules are used the directory structure
 // on the local filesystem omits the portion of the package path
 // represented by the module definition in the go.mod file.
-// TODO(cnicolaou): move to vdl/build.
 func goModulePath(dir, path, outPkgPath string) (string, error) {
 	prefix, module, suffix := build.PackagePathSplit(dir, path)
 	if len(suffix) == 0 {

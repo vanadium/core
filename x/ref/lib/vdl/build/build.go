@@ -891,7 +891,7 @@ func (ds *depSorter) deducePackagePath(dir string) (string, string, error) {
 				return "", "", err
 			}
 			pkgPath := path.Clean(filepath.ToSlash(relPath))
-			// allow for go module directory structure.
+			// Allow for go module directory structure.
 			if gomod, ok := ds.goModules[srcDir]; ok {
 				pkgPath = path.Join(gomod, pkgPath)
 			}
