@@ -413,8 +413,8 @@ func TestTransitivePackagesUnknownPathError(t *testing.T) {
 	setEnvironment(t, defaultVDLRoot, defaultVDLPath)
 	testTransitivePackagesUnknownPathError(t)
 	// Test with VDLROOT unset.
-	//setEnvironment(t, "", defaultVDLPath)
-	//testTransitivePackagesUnknownPathError(t)
+	setEnvironment(t, "", defaultVDLPath)
+	testTransitivePackagesUnknownPathError(t)
 }
 
 func testTransitivePackagesUnknownPathError(t *testing.T) {
@@ -450,19 +450,19 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 		},
 		{
 			[]string{"../../../../../.foo"},
-			`package path ".foo" is invalid`,
+			`package path "v.io/.foo" is invalid`,
 		},
 		{
 			[]string{"../../../../../foo/.bar"},
-			`package path "foo/.bar" is invalid`,
+			`package path "v.io/foo/.bar" is invalid`,
 		},
 		{
 			[]string{"../../../../../_foo"},
-			`package path "_foo" is invalid`,
+			`package path "v.io/_foo" is invalid`,
 		},
 		{
 			[]string{"../../../../../foo/_bar"},
-			`package path "foo/_bar" is invalid`,
+			`package path "v.io/foo/_bar" is invalid`,
 		},
 		// Special-case error for packages under vdlroot, which can't be imported
 		// using the vdlroot prefix.
@@ -475,7 +475,7 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 			`can't resolve "v.io/v23/vdlroot/..." to any packages`,
 		},
 	}
-	for i, test := range tests {
+	for _, test := range tests {
 		for _, mode := range allModes {
 			name := fmt.Sprintf("%v %v", mode, test.InPaths)
 			errs := vdlutil.NewErrors(-1)
@@ -485,8 +485,6 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 				// Ignore mode returns success, while error mode returns error.
 				errRE = ""
 			}
-			fmt.Fprintf(os.Stderr, "FOR:(%v) %s: %s\n", i, test.InPaths, errRE)
-			fmt.Fprintf(os.Stderr, "GOT: %s\n", errs)
 			vdltestutil.ExpectResult(t, errs, name, errRE)
 			if pkgs != nil {
 				t.Errorf("%v got unexpected packages %v", name, pkgs)
@@ -692,8 +690,6 @@ func TestGoMod(t *testing.T) {
 	if got, want := build.HasGoModule(root), "v.io"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-
-	fmt.Printf("%v\n", filepath.Dir(file))
 	pkg := "x/ref/lib/vdl/build"
 	prefix, module, suffix := build.PackagePathSplit(filepath.Dir(file), "v.io/"+pkg)
 	if got, want := prefix, root; got != want {

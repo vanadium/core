@@ -762,11 +762,7 @@ func (ds *depSorter) resolveDirPath(dir string, mode UnknownPathMode) *Package {
 		return nil
 	}
 	if !validPackagePath(pkgPath) {
-		_, _, suffix := PackagePathSplit(absDir, pkgPath)
-		// Report the package suffix in the error to ensure that error messages
-		// are stable across both GOPATH and go module directory structures, that is,
-		// report the package path that was supplied rather than deduced.
-		mode.logOrErrorf(ds.errs, "--%s--: package path %q is invalid", absDir, suffix)
+		mode.logOrErrorf(ds.errs, "%s: package path %q is invalid", absDir, pkgPath)
 		return nil
 	}
 
