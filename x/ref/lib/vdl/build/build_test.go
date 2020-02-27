@@ -693,20 +693,24 @@ func TestGoMod(t *testing.T) {
 	}
 	pkg := "x/ref/lib/vdl/build"
 	prefix, module, suffix := build.PackagePathSplit(filepath.Dir(file), "v.io/"+pkg)
-	if got, want := prefix, root; got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
-	switch len(module) {
-	case 0:
-		if !strings.HasSuffix(root, "/v.io") {
-			t.Errorf("module name is inot in directory tree when it should be")
+
+	expect := func(p, m, s string) {
+		if got, want := prefix, p; got != want {
+			t.Errorf("got %q, want %q", got, want)
 		}
-	default:
-		if got, want := module, "v.io"; got != want {
+		if got, want := module, m; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
+		if got, want := suffix, s; got != want {
 			t.Errorf("got %q, want %q", got, want)
 		}
 	}
-	if got, want := suffix, pkg; got != want {
-		t.Errorf("got %q, want %q", got, want)
+	switch len(module) {
+	case 0:
+		// v.io is in the directory structure.
+		expect(root, "", path.Join(gomod, pkg))
+	default:
+		// v.io is not in the directory structure.
+		expect(prefix, gomod, pkg)
 	}
 }
