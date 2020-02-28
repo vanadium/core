@@ -708,7 +708,7 @@ func TestGoMod(t *testing.T) {
 	switch len(module) {
 	case 0:
 		// v.io is in the directory structure.
-		expect(root, "", path.Join(gomod, pkg))
+		expect(strings.TrimSuffix(root, "/"+gomod), "", path.Join(gomod, pkg))
 	default:
 		// v.io is not in the directory structure.
 		expect(prefix, gomod, pkg)
