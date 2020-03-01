@@ -689,7 +689,7 @@ func goModulePath(dir, path, outPkgPath string) (string, error) {
 	if len(suffix) == 0 {
 		return "", fmt.Errorf("package dir %q doesn't share a common suffix with package path %q", dir, path)
 	}
-	gomod, err := build.HasGoModule(prefix)
+	gomod, err := build.GoModuleName(prefix)
 	if err != nil {
 		return "", err
 	}

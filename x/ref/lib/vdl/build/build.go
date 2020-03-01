@@ -312,9 +312,9 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 	return append(srcDirs, vdlPathSrcDirs(errs)...)
 }
 
-// HasGoModule returns the value of the module statement in the go.mod file in
+// GoModuleName returns the value of the module statement in the go.mod file in
 // the directory specified by path, or an empty string otherwise.
-func HasGoModule(path string) (string, error) {
+func GoModuleName(path string) (string, error) {
 	gomod := filepath.Join(path, "go.mod")
 	buf, err := ioutil.ReadFile(gomod)
 	path = filepath.Dir(path)
@@ -373,7 +373,7 @@ func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix s
 func goModules(errs *vdlutil.Errors) map[string]string {
 	modPrefix := map[string]string{}
 	for _, srcDir := range SrcDirs(errs) {
-		goMod, err := HasGoModule(srcDir)
+		goMod, err := GoModuleName(srcDir)
 		if err != nil {
 			errs.Errorf("failed to read go.mod: %v", err)
 			continue
