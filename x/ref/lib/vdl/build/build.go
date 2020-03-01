@@ -312,9 +312,8 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 	return append(srcDirs, vdlPathSrcDirs(errs)...)
 }
 
-// HasGoModule returns the value of the module statement in
-// the go.mod file in the directory specified by path, or an empty
-// string otherwise.
+// HasGoModule returns the value of the module statement in the go.mod file in
+// the directory specified by path, or an empty string otherwise.
 func HasGoModule(path string) string {
 	buf, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
 	path = filepath.Dir(path)
@@ -339,12 +338,15 @@ func HasGoModule(path string) string {
 // of the original path that is not part of the common prefix. This is useful
 // for working with the directory structure commonly used by go modules.
 // For example:
+//
 // PackagePathSplit("a/b/c", "/b/c") yields "a", "", "b/c"
 // PackagePathSplit("a/b/c", "m/b/c") yields "a", "m", "b/c"
+//
 // It is intended to work on Windows, as in:
+//
 // PackagePathSplit(`a\b\c`, "m/b/c") yields "a", "m", "b/c"
 func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix string) {
-	// Normalize dir path to use / instead of possibly using
+	// Normalize dir path to use / instead of possibly using.
 	ndir := strings.Replace(dir, filePathSeparator, packagePathSeparator, -1)
 	suffix = pkgPath
 	for {
@@ -670,7 +672,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 				}
 
 				// Special case to handle go modules, where the current
-				// directory is wuthin a go module and hence the matching
+				// directory is within a go module and hence the matching
 				// for the vdlroot directory must take this into account.
 				for goModRoot, goModPrefix := range ds.goModules {
 					// Test for dirPath being within s go module.

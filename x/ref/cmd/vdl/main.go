@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // The following enables go generate to generate the doc.go file.
-//go:generate gendoc .
+//go:generate go run v.io/x/lib/cmdline/gendoc .
 
 package main
 
@@ -101,9 +101,12 @@ Import path elements and file names are not allowed to begin with "." or "_";
 such paths are ignored in wildcard matches, and return errors if specified
 explicitly.
 
-Note that whereas GOPATH requires *.go source files and packages to appear
-under a "src" directory, VDLPATH requires *.vdl source files and packages to
-appear directly under the VDLPATH directories.
+
+
+VDLPATH requires *.vdl source files and packages to appear directly under the
+VDLPATH directories. Note that when go modules are used VDLPATH should point
+to the location of the go.mod file. Also note that whereas GOPATH requires
+*.go source files and packages to appear under a "src" directory,
 
  Run "vdl help vdlpath" to see docs on VDLPATH.
  Run "go help packages" to see the standard go package docs.
@@ -676,9 +679,11 @@ func handleErrorOrSkip(prefix string, err error, env *compile.Env) bool {
 
 var errSkip = fmt.Errorf("SKIP")
 
-// Handle the case where go modules are used the directory structure
-// on the local filesystem omits the portion of the package path
-// represented by the module definition in the go.mod file.
+// Handle the case where go modules are used and the directory structure
+// on the local filesystem omits the portion of the package path represented
+// by the module definition in the go.mod file. For vanadium, the code is
+// hosted as github.com/vanadium/core/... but the go.mod defines the packages
+// as v.io/... with the v.io portion not appearing in the local filesystem.
 func goModulePath(dir, path, outPkgPath string) (string, error) {
 	prefix, module, suffix := build.PackagePathSplit(dir, path)
 	if len(suffix) == 0 {
