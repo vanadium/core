@@ -684,7 +684,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 				// directory is within a go module and hence the matching
 				// for the vdlroot directory must take this into account.
 				for goModRoot, goModPrefix := range ds.goModules {
-					// Test for dirPath being within s go module.
+					// Test for dirPath being within a go module.
 					if subdir := strings.TrimPrefix(dirPath, goModRoot); subdir != dirPath {
 						// Test to see if the subdir would match the vdlroot import.
 						if path.Join(goModPrefix, subdir) == vdlrootImportPrefix {
