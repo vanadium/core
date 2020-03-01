@@ -314,11 +314,15 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 
 // HasGoModule returns the value of the module statement in the go.mod file in
 // the directory specified by path, or an empty string otherwise.
-func HasGoModule(path string) string {
-	buf, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
+func HasGoModule(path string) (string, error) {
+	gomod := filepath.Join(path, "go.mod")
+	buf, err := ioutil.ReadFile(gomod)
 	path = filepath.Dir(path)
-	if err != nil && os.IsNotExist(err) {
-		return ""
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+		}
+		return "", err
 	}
 	sc := bufio.NewScanner(bytes.NewBuffer(buf))
 	for sc.Scan() {
@@ -327,10 +331,10 @@ func HasGoModule(path string) string {
 			continue
 		}
 		if parts[0] == "module" {
-			return parts[1]
+			return parts[1], nil
 		}
 	}
-	return ""
+	return "", fmt.Errorf("failed to find module statement in %v", gomod)
 }
 
 // PackagePathSplit returns the longest common suffix in dir and path,
@@ -369,7 +373,12 @@ func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix s
 func goModules(errs *vdlutil.Errors) map[string]string {
 	modPrefix := map[string]string{}
 	for _, srcDir := range SrcDirs(errs) {
-		if goMod := HasGoModule(srcDir); len(goMod) > 0 {
+		goMod, err := HasGoModule(srcDir)
+		if err != nil {
+			errs.Errorf("failed to read go.mod: %v", err)
+			continue
+		}
+		if len(goMod) > 0 {
 			modPrefix[srcDir] = goMod
 		}
 	}

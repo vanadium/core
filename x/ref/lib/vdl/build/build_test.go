@@ -687,7 +687,10 @@ func here() string {
 func TestGoMod(t *testing.T) {
 	file := here()
 	root := filepath.Clean(strings.TrimSuffix(file, "x/ref/lib/vdl/build/build_test.go"))
-	gomod := build.HasGoModule(root)
+	gomod, err := build.HasGoModule(root)
+	if err != nil {
+		t.Fatalf("failed to read go.mod: %v", err)
+	}
 	if got, want := gomod, "v.io"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
