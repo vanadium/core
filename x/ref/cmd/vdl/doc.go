@@ -325,7 +325,9 @@ explicitly.
 VDLPATH requires *.vdl source files and packages to appear directly under the
 VDLPATH directories. Note that when go modules are used VDLPATH should point to
 the location of the go.mod file. Also note that whereas GOPATH requires *.go
-source files and packages to appear under a "src" directory,
+source files and packages to appear under a "src" directory, VDLPATH requires
+*.vdl source files and packages to appear directly under the VDLPATH
+directories.
 
  Run "vdl help vdlpath" to see docs on VDLPATH.
  Run "go help packages" to see the standard go package docs.
