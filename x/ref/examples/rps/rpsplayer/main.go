@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // The following enables go generate to generate the doc.go file.
-//go:generate gendoc . -help
+//go:generate go run v.io/x/lib/cmdline/gendoc . -help
 
 package main
 

@@ -7,21 +7,11 @@
 
 set -euf -o pipefail
 
-# Install go-bindata.
-SAVED_GOPATH="$GOPATH"
-GO_TMP=$(mktemp -d)
-export GOPATH="${GO_TMP}"
-mkdir ${GOPATH}/src
-go get  github.com/jteeuwen/go-bindata/...
-GOPATH="${SAVED_GOPATH}"
+go get github.com/cosnicolaou/go-bindata/v3/...@v3.0.8
 
-for PREFIX in ${GOPATH//:/ }; do
-	if [[ -d "${PREFIX}/src/v.io/v23/vdlroot" ]]; then
-		VDLROOT="${PREFIX}/src/v.io/v23/vdlroot"
-		X="${PREFIX}/src/v.io/x/ref/lib/vdl/build/internal/builtin_vdlroot/builtin_vdlroot"
-		break
-	fi
-done
+PREFIX=$(dirname "$(go env GOMOD)")
+VDLROOT="${PREFIX}/v23/vdlroot"
+X="${PREFIX}/x/ref/lib/vdl/build/internal/builtin_vdlroot/builtin_vdlroot"
 
 OUT="${X}.go"
 TMP="${X}.tmp.go"
@@ -30,12 +20,12 @@ TMP="${X}.tmp.go"
 cd "${PREFIX}"
 
 # Run go-bindata to generate the file to a tmp file.
-"${GO_TMP}/bin/go-bindata" -o "${TMP}" -pkg builtin_vdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
+go run github.com/cosnicolaou/go-bindata/v3/go-bindata -o "${TMP}" -pkg builtin_vdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
 
 # Format the file and add the copyright header.
 gofmt -l -w "${TMP}"
 cat - "${TMP}" >  "${OUT}" <<EOF
-// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Copyright 2020 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -43,4 +33,3 @@ EOF
 
 # Remove the tmp files.
 rm "${TMP}" 
-rm -rf "${GO_TMP}"

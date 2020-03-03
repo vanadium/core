@@ -26,52 +26,6 @@ The global flags are:
    Displays metadata for the program and exits.
  -stderrthreshold=2
    logs at or above this threshold go to stderr
- -test.bench=
-   run only benchmarks matching `regexp`
- -test.benchmem=false
-   print memory allocations for benchmarks
- -test.benchtime=1s
-   run each benchmark for duration `d`
- -test.blockprofile=
-   write a goroutine blocking profile to `file`
- -test.blockprofilerate=1
-   set blocking profile `rate` (see runtime.SetBlockProfileRate)
- -test.count=1
-   run tests and benchmarks `n` times
- -test.coverprofile=
-   write a coverage profile to `file`
- -test.cpu=
-   comma-separated `list` of cpu counts to run each test with
- -test.cpuprofile=
-   write a cpu profile to `file`
- -test.failfast=false
-   do not start new tests after the first test failure
- -test.list=
-   list tests, examples, and benchmarks matching `regexp` then exit
- -test.memprofile=
-   write an allocation profile to `file`
- -test.memprofilerate=0
-   set memory allocation profiling `rate` (see runtime.MemProfileRate)
- -test.mutexprofile=
-   write a mutex contention profile to the named file after execution
- -test.mutexprofilefraction=1
-   if >= 0, calls runtime.SetMutexProfileFraction()
- -test.outputdir=
-   write profiles to `dir`
- -test.parallel=<number of threads>
-   run at most `n` tests in parallel
- -test.run=
-   run only tests and examples matching `regexp`
- -test.short=false
-   run smaller test suite to save time
- -test.testlogfile=
-   write test action log to `file` (for use only by cmd/go)
- -test.timeout=0s
-   panic test binary after duration `d` (default 0, timeout disabled)
- -test.trace=
-   write an execution trace to `file`
- -test.v=false
-   verbose: print additional output
  -time=false
    Dump timing information to stderr before exiting the program.
  -v=0
@@ -86,23 +40,23 @@ The global flags are:
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=
    explicitly specify the runtime perms as a JSON-encoded access.Permissions.
-   Overrides all --v23.permissions.file flags.
+   Overrides all --v23.permissions.file flags
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
  -v23.tcp.address=
    address to listen on
- -v23.tcp.protocol=wsh
+ -v23.tcp.protocol=
    protocol to listen with
  -v23.vtrace.cache-size=1024
-   The number of vtrace traces to store in memory.
+   The number of vtrace traces to store in memory
  -v23.vtrace.collect-regexp=
    Spans and annotations that match this regular expression will trigger trace
-   collection.
+   collection
  -v23.vtrace.dump-on-shutdown=true
-   If true, dump all stored traces on runtime shutdown.
+   If true, dump all stored traces on runtime shutdown
  -v23.vtrace.sample-rate=0
-   Rate (from 0.0 to 1.0) to sample vtrace traces.
+   Rate (from 0.0 to 1.0) to sample vtrace traces
  -v23.vtrace.v=0
    The verbosity level of the log messages to be captured in traces
  -vmodule=
