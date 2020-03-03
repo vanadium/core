@@ -232,7 +232,7 @@ type AdvancedMathServerStub interface {
 // an object that may be used by rpc.Server.
 func AdvancedMathServer(impl AdvancedMathServerMethods) AdvancedMathServerStub {
 	stub := implAdvancedMathServerStub{
-		impl: impl,
+		impl:                   impl,
 		TrigonometryServerStub: TrigonometryServer(impl),
 		ExpServerStub:          exp.ExpServer(impl),
 	}

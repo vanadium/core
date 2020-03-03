@@ -41,6 +41,7 @@
 package build
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -311,6 +312,79 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 	return append(srcDirs, vdlPathSrcDirs(errs)...)
 }
 
+// GoModuleName returns the value of the module statement in the go.mod file in
+// the directory specified by path, or an empty string otherwise.
+func GoModuleName(path string) (string, error) {
+	gomod := filepath.Join(path, "go.mod")
+	buf, err := ioutil.ReadFile(gomod)
+	path = filepath.Dir(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+		}
+		return "", err
+	}
+	sc := bufio.NewScanner(bytes.NewBuffer(buf))
+	for sc.Scan() {
+		parts := strings.Fields(sc.Text())
+		if len(parts) != 2 {
+			continue
+		}
+		if parts[0] == "module" {
+			return parts[1], nil
+		}
+	}
+	return "", fmt.Errorf("failed to find module statement in %v", gomod)
+}
+
+// PackagePathSplit returns the longest common suffix in dir and path,
+// the prefix in dir after the common suffix is removed and the portion of the
+// of the original path that is not part of the common prefix. This is useful
+// for working with the directory structure commonly used by go modules.
+// For example:
+//
+// PackagePathSplit("a/b/c", "/b/c") yields "a", "", "b/c"
+// PackagePathSplit("a/b/c", "m/b/c") yields "a", "m", "b/c"
+//
+// It is intended to work on Windows, as in:
+//
+// PackagePathSplit(`a\b\c`, "m/b/c") yields "a", "m", "b/c"
+func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix string) {
+	// Normalize dir path to use / instead of possibly using.
+	ndir := strings.Replace(dir, filePathSeparator, packagePathSeparator, -1)
+	suffix = pkgPath
+	for {
+		idx := strings.Index(suffix, packagePathSeparator)
+		if idx < 0 {
+			break
+		}
+		if strings.HasSuffix(ndir, suffix) {
+			break
+		}
+		suffix = suffix[idx+1:]
+	}
+	prefix = strings.TrimSuffix(ndir, suffix)
+	body = strings.TrimSuffix(strings.TrimSuffix(pkgPath, suffix), packagePathSeparator)
+	prefix = strings.Replace(prefix, packagePathSeparator, filePathSeparator, -1)
+	prefix = strings.TrimSuffix(prefix, filePathSeparator)
+	return
+}
+
+func goModules(errs *vdlutil.Errors) map[string]string {
+	modPrefix := map[string]string{}
+	for _, srcDir := range SrcDirs(errs) {
+		goMod, err := GoModuleName(srcDir)
+		if err != nil {
+			errs.Errorf("failed to read go.mod: %v", err)
+			continue
+		}
+		if len(goMod) > 0 {
+			modPrefix[srcDir] = goMod
+		}
+	}
+	return modPrefix
+}
+
 // RootDir returns the VDL root directory, based on the VDLROOT environment
 // variable.
 //
@@ -394,6 +468,7 @@ type depSorter struct {
 	opts        Opts
 	rootDir     string
 	srcDirs     []string
+	goModules   map[string]string
 	builtInRoot map[string]*Package
 	pathMap     map[string]*Package
 	dirMap      map[string]*Package
@@ -404,11 +479,12 @@ type depSorter struct {
 
 func newDepSorter(opts Opts, errs *vdlutil.Errors) *depSorter {
 	ds := &depSorter{
-		opts:    opts,
-		rootDir: RootDir(errs),
-		srcDirs: SrcDirs(errs),
-		errs:    errs,
-		vdlenv:  compile.NewEnvWithErrors(errs),
+		opts:      opts,
+		rootDir:   RootDir(errs),
+		srcDirs:   SrcDirs(errs),
+		goModules: goModules(errs),
+		errs:      errs,
+		vdlenv:    compile.NewEnvWithErrors(errs),
 	}
 	ds.reset()
 	// If VDLROOT isn't set, we must initialize the builtInRoot, to allow
@@ -542,6 +618,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 	type dirAndSrc struct {
 		dir, src string
 	}
+
 	var walkDirs []dirAndSrc // directories to walk through
 	var pattern string       // pattern to match against, starting after root dir
 	if isDirPath {
@@ -555,6 +632,10 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 		pattern = filepath.Clean(pre + filepath.FromSlash(suffix))
 		dir := filepath.FromSlash(slashDir)
 		for _, srcDir := range ds.srcDirs {
+			if gomod, ok := ds.goModules[srcDir]; ok {
+				walkDirs = append(walkDirs, dirAndSrc{filepath.Join(srcDir, strings.TrimPrefix(dir, gomod)), srcDir})
+				continue
+			}
 			walkDirs = append(walkDirs, dirAndSrc{filepath.Join(srcDir, dir), srcDir})
 		}
 		// Look in our built-in vdlroot for matches against standard packages.
@@ -575,8 +656,10 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 		ds.errorf("%v", err)
 		return false
 	}
+
 	// Walk through root dirs and subdirs, looking for matches.
 	for _, walk := range walkDirs {
+		goModule, isGoModule := ds.goModules[walk.dir]
 		filepath.Walk(walk.dir, func(dirPath string, info os.FileInfo, err error) error {
 			// Ignore errors and non-directory elements.
 			if err != nil || !info.IsDir() {
@@ -596,7 +679,22 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 				if strings.HasPrefix(pkgPath, vdlrootImportPrefix) {
 					return filepath.SkipDir
 				}
+
+				// Special case to handle go modules, where the current
+				// directory is within a go module and hence the matching
+				// for the vdlroot directory must take this into account.
+				for goModRoot, goModPrefix := range ds.goModules {
+					// Test for dirPath being within a go module.
+					if subdir := strings.TrimPrefix(dirPath, goModRoot); subdir != dirPath {
+						// Test to see if the subdir would match the vdlroot import.
+						if path.Join(goModPrefix, subdir) == vdlrootImportPrefix {
+							return filepath.SkipDir
+						}
+					}
+				}
+
 			}
+
 			// Ignore the dir if it doesn't match our pattern.  We still process the
 			// subdirs since they still might match.
 			//
@@ -604,12 +702,23 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			// possibly match the matcher.  E.g. given pattern "a..." we can skip
 			// the subdirs if the dir doesn't start with "a".
 			matchPath := dirPath[len(walk.dir):]
-			if strings.HasPrefix(matchPath, pathSeparator) {
-				matchPath = matchPath[len(pathSeparator):]
+			if strings.HasPrefix(matchPath, filePathSeparator) {
+				matchPath = matchPath[len(filePathSeparator):]
 			}
+
+			// Match agains the raw path, and also against one with the
+			// go module prefix prepended if go modules are in use.
 			if !matcher.MatchString(matchPath) {
-				return nil
+				if !isGoModule {
+					return nil
+				}
+				// Try prepending the missing gomodule prefix to the path
+				// and then match.
+				if !matcher.MatchString(filepath.Join(goModule, matchPath)) {
+					return nil
+				}
 			}
+
 			// Finally resolve the dir.
 			if ds.resolveDirPath(dirPath, UnknownPathIsIgnored) != nil {
 				resolvedAny = true
@@ -620,14 +729,16 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 	return resolvedAny
 }
 
-const pathSeparator = string(filepath.Separator)
+var filePathSeparator = string(filepath.Separator)
+
+const packagePathSeparator = "/"
 
 // createMatcher creates a regexp matcher out of the file pattern.
 func createMatcher(pattern string) (*regexp.Regexp, error) {
 	rePat := regexp.QuoteMeta(pattern)
 	rePat = strings.Replace(rePat, `\.\.\.`, `.*`, -1)
 	// Add special-case so that x/... also matches x.
-	slashDotStar := regexp.QuoteMeta(pathSeparator) + ".*"
+	slashDotStar := regexp.QuoteMeta(filePathSeparator) + ".*"
 	if strings.HasSuffix(rePat, slashDotStar) {
 		rePat = rePat[:len(rePat)-len(slashDotStar)] + "(" + slashDotStar + ")?"
 	}
@@ -665,16 +776,19 @@ func (ds *depSorter) resolveDirPath(dir string, mode UnknownPathMode) *Package {
 		mode.logOrErrorf(ds.errs, "%s: package path %q is invalid", absDir, pkgPath)
 		return nil
 	}
+
 	if pkg := ds.pathMap[pkgPath]; pkg != nil {
 		mode.logOrErrorf(ds.errs, "%s: package path %q already resolved from %s", absDir, pkgPath, pkg.Dir)
 		return nil
 	}
+
 	// Make sure the directory really exists, and add the package and deps.
 	fileInfo, err := os.Stat(absDir)
 	if err != nil {
 		mode.logOrErrorf(ds.errs, "%v", err)
 		return nil
 	}
+
 	if !fileInfo.IsDir() {
 		mode.logOrErrorf(ds.errs, "%s: package isn't a directory", absDir)
 		return nil
@@ -710,13 +824,24 @@ func (ds *depSorter) resolveImportPath(pkgPath string, mode UnknownPathMode, pre
 	}
 	// Look through srcDirs in-order until we find a valid package dir.
 	var dirs []string
-	for _, srcDir := range ds.srcDirs {
+	for _, srcDir := range append(ds.srcDirs) {
 		dir := filepath.Join(srcDir, filepath.FromSlash(pkgPath))
 		if pkg := ds.resolveDirPath(dir, UnknownPathIsIgnored); pkg != nil {
 			vdlutil.Vlog.Printf("%s: resolved import path %q", pkg.Dir, pkgPath)
 			return pkg
 		}
 		dirs = append(dirs, dir)
+
+		// Try again but as a go module.
+		if gomod, ok := ds.goModules[srcDir]; ok {
+			dir := filepath.Join(srcDir, filepath.FromSlash(strings.TrimPrefix(pkgPath, gomod)))
+			if pkg := ds.resolveDirPath(dir, UnknownPathIsIgnored); pkg != nil {
+				vdlutil.Vlog.Printf("%s: resolved import path %q using go.mod to %v", pkg.Dir, pkgPath, dir)
+				return pkg
+			}
+			dirs = append(dirs, dir)
+			return nil
+		}
 	}
 	// We can't find a valid dir corresponding to this import path.
 	detail := "   " + strings.Join(dirs, "\n   ")
@@ -773,6 +898,10 @@ func (ds *depSorter) deducePackagePath(dir string) (string, string, error) {
 				return "", "", err
 			}
 			pkgPath := path.Clean(filepath.ToSlash(relPath))
+			// Allow for go module directory structure.
+			if gomod, ok := ds.goModules[srcDir]; ok {
+				pkgPath = path.Join(gomod, pkgPath)
+			}
 			genPath := pkgPath
 			if pre := vdlrootImportPrefix + "/"; strings.HasPrefix(pkgPath, pre) {
 				// The pkgPath should never include the vdlroot prefix.

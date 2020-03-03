@@ -17,6 +17,7 @@ require (
 	github.com/shirou/gopsutil v2.19.9+incompatible
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
+	golang.org/dl v0.0.0-20200225205303-b5f8f1376514 // indirect
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45

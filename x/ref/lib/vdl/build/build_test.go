@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -38,7 +39,7 @@ func init() {
 // TODO(toddw): Put a full VDLPATH tree under ../testdata and only use that.
 const (
 	defaultVDLRoot = "../../../../../v23/vdlroot"
-	defaultVDLPath = "../../../../../.."
+	defaultVDLPath = "../../../../.."
 )
 
 func setEnvironment(t *testing.T, vdlroot, vdlpath string) {
@@ -448,20 +449,20 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 			`import path "foo/_bar" is invalid`,
 		},
 		{
-			[]string{"../../../../../../.foo"},
-			`package path ".foo" is invalid`,
+			[]string{"../../../../../.foo"},
+			`package path "v.io/.foo" is invalid`,
 		},
 		{
-			[]string{"../../../../../../foo/.bar"},
-			`package path "foo/.bar" is invalid`,
+			[]string{"../../../../../foo/.bar"},
+			`package path "v.io/foo/.bar" is invalid`,
 		},
 		{
-			[]string{"../../../../../../_foo"},
-			`package path "_foo" is invalid`,
+			[]string{"../../../../../_foo"},
+			`package path "v.io/_foo" is invalid`,
 		},
 		{
-			[]string{"../../../../../../foo/_bar"},
-			`package path "foo/_bar" is invalid`,
+			[]string{"../../../../../foo/_bar"},
+			`package path "v.io/foo/_bar" is invalid`,
 		},
 		// Special-case error for packages under vdlroot, which can't be imported
 		// using the vdlroot prefix.
@@ -487,6 +488,7 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 			vdltestutil.ExpectResult(t, errs, name, errRE)
 			if pkgs != nil {
 				t.Errorf("%v got unexpected packages %v", name, pkgs)
+				return
 			}
 		}
 	}
@@ -637,5 +639,81 @@ func TestBuildExprs(t *testing.T) {
 				t.Errorf("%s got value #%d %v, want %v", test.Data, ix, got, want)
 			}
 		}
+	}
+}
+
+func TestPackageSplit(t *testing.T) {
+	defer build.SetFilePathSeparator(string(filepath.Separator))
+	for i, test := range []struct {
+		dir, path            string
+		prefix, body, suffix string
+		windows              bool
+	}{
+		{"", "", "", "", "", false},
+		{"a", "a", "", "", "a", false},
+		{"ab", "b", "a", "", "b", false},
+		{"a/b", "a/b", "", "", "a/b", false},
+		{`a\b`, "a/b", "", "", "a/b", true},
+		{`c:a\b`, "a/b", "c:", "", "a/b", true},
+		{"a/b/", "a/b/", "", "", "a/b/", false},
+		{`a\b/`, "a/b/", "", "", "a/b/", true},
+		{"a/b/c/d/e", "c/d/e", "a/b", "", "c/d/e", false},
+		{`a\b\c\d\e`, "c/d/e", `a\b`, "", "c/d/e", true},
+		{"a/b/c/d/e", "z/c/d/e", "a/b", "z", "c/d/e", false},
+		{`a\b\c\d\e`, "z/c/d/e", `a\b`, "z", "c/d/e", true},
+	} {
+		build.SetFilePathSeparator("/")
+		if test.windows {
+			build.SetFilePathSeparator(`\`)
+		}
+		prefix, body, suffix := build.PackagePathSplit(test.dir, test.path)
+		if got, want := prefix, test.prefix; got != want {
+			t.Errorf("(%v): got %q, want %q", i, got, want)
+		}
+		if got, want := body, test.body; got != want {
+			t.Errorf("(%v): got %q, want %q", i, got, want)
+		}
+		if got, want := suffix, test.suffix; got != want {
+			t.Errorf("(%v): got %q, want %q", i, got, want)
+		}
+	}
+}
+
+func here() string {
+	_, file, _, _ := runtime.Caller(1)
+	return file
+}
+
+func TestGoMod(t *testing.T) {
+	file := here()
+	root := filepath.Clean(strings.TrimSuffix(file, "x/ref/lib/vdl/build/build_test.go"))
+	gomod, err := build.GoModuleName(root)
+	if err != nil {
+		t.Fatalf("failed to read go.mod: %v", err)
+	}
+	if got, want := gomod, "v.io"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	pkg := "x/ref/lib/vdl/build"
+	prefix, module, suffix := build.PackagePathSplit(filepath.Dir(file), "v.io/"+pkg)
+
+	expect := func(p, m, s string) {
+		if got, want := prefix, p; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
+		if got, want := module, m; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
+		if got, want := suffix, s; got != want {
+			t.Errorf("got %q, want %q", got, want)
+		}
+	}
+	switch len(module) {
+	case 0:
+		// v.io is in the directory structure.
+		expect(strings.TrimSuffix(root, "/"+gomod), "", path.Join(gomod, pkg))
+	default:
+		// v.io is not in the directory structure.
+		expect(prefix, gomod, pkg)
 	}
 }

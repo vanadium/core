@@ -284,7 +284,7 @@ var LoggingCaveat = security.CaveatDescriptor{
 		128,
 		0,
 	},
-	ParamType: __VDLType_list_2,
+	ParamType: vdl.TypeOf((*[]string)(nil)),
 }
 
 // Hold type definitions in package-level variables, for better performance.

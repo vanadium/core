@@ -10,18 +10,10 @@ import (
 	"os"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/x/ref/lib/signals"
 	"v.io/x/ref/test/v23test"
 )
-
-var cstderr io.Writer
-
-func init() {
-	if testing.Verbose() {
-		cstderr = os.Stderr
-	}
-}
 
 func writeln(w io.Writer, s string) {
 	w.Write([]byte(s + "\n"))
