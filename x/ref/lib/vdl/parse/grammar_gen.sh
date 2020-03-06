@@ -10,8 +10,8 @@
 
 set -e
 
-go install golang.org/x/tools/cmd/goyacc
-goyacc -o grammar.y.tmp.go -v grammar.y.debug.tmp grammar.y
+go get "golang.org/x/tools/cmd/goyacc"
+go run "golang.org/x/tools/cmd/goyacc" -o grammar.y.tmp.go -v grammar.y.debug.tmp grammar.y
 gofmt -l -w grammar.y.tmp.go
 cat - grammar.y.tmp.go > grammar.y.go <<EOF
 // Copyright 2015 The Vanadium Authors. All rights reserved.

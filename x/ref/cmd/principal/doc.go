@@ -61,23 +61,23 @@ The global flags are:
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=
    explicitly specify the runtime perms as a JSON-encoded access.Permissions.
-   Overrides all --v23.permissions.file flags.
+   Overrides all --v23.permissions.file flags
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
  -v23.tcp.address=
    address to listen on
- -v23.tcp.protocol=wsh
+ -v23.tcp.protocol=
    protocol to listen with
  -v23.vtrace.cache-size=1024
-   The number of vtrace traces to store in memory.
+   The number of vtrace traces to store in memory
  -v23.vtrace.collect-regexp=
    Spans and annotations that match this regular expression will trigger trace
-   collection.
+   collection
  -v23.vtrace.dump-on-shutdown=true
-   If true, dump all stored traces on runtime shutdown.
+   If true, dump all stored traces on runtime shutdown
  -v23.vtrace.sample-rate=0
-   Rate (from 0.0 to 1.0) to sample vtrace traces.
+   Rate (from 0.0 to 1.0) to sample vtrace traces
  -v23.vtrace.v=0
    The verbosity level of the log messages to be captured in traces
  -vmodule=
@@ -219,7 +219,7 @@ just happened to guess the network address of the 'recvblessings' invocation.
 If the --remote-arg-file flag is provided to recvblessings, the remote key,
 remote token and object address of this principal will be written to the
 specified location. This file can be supplied to bless:
-		principal bless --remote-arg-file FILE EXTENSION
+    principal bless --remote-arg-file FILE EXTENSION
 
 Usage:
    principal recvblessings [flags]
@@ -317,16 +317,19 @@ Usage:
    principal bless [flags] [<principal to bless>] [<extension>]
 
 <principal to bless> represents the principal to be blessed (i.e., whose public
-key will be provided with a name).  This can be either: (a) The directory
-containing credentials for that principal, OR (b) The filename (- for STDIN)
-containing the base64url-encoded public
+key will be provided with a name).  This can be either:
+
+(a) The directory containing credentials for that principal,
+  OR
+(b) The filename (- for STDIN) containing the base64url-encoded public
     key or any other blessings of the principal,
-OR (c) The object name produced by the 'recvblessings' command of this tool
+  OR
+(c) The object name produced by the 'recvblessings' command of this tool
     running on behalf of another principal (if the --remote-key and
     --remote-token flags are specified).
-OR (d) None (if the --remote-arg-file flag is specified, only <extension> should
-be provided
-    to bless).
+  OR
+(d) None (if the --remote-arg-file flag is specified, only <extension> should
+    be provided to bless).
 
 <extension> is the string extension that will be applied to create the blessing.
 

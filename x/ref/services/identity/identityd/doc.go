@@ -99,23 +99,23 @@ The global flags are:
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=
    explicitly specify the runtime perms as a JSON-encoded access.Permissions.
-   Overrides all --v23.permissions.file flags.
+   Overrides all --v23.permissions.file flags
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
  -v23.tcp.address=
    address to listen on
- -v23.tcp.protocol=wsh
+ -v23.tcp.protocol=
    protocol to listen with
  -v23.vtrace.cache-size=1024
-   The number of vtrace traces to store in memory.
+   The number of vtrace traces to store in memory
  -v23.vtrace.collect-regexp=
    Spans and annotations that match this regular expression will trigger trace
-   collection.
+   collection
  -v23.vtrace.dump-on-shutdown=true
-   If true, dump all stored traces on runtime shutdown.
+   If true, dump all stored traces on runtime shutdown
  -v23.vtrace.sample-rate=0
-   Rate (from 0.0 to 1.0) to sample vtrace traces.
+   Rate (from 0.0 to 1.0) to sample vtrace traces
  -v23.vtrace.v=0
    The verbosity level of the log messages to be captured in traces
  -vmodule=

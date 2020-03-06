@@ -8,8 +8,6 @@
 # Don't set -f, since we need wildcard expansion.
 set -eu -o pipefail
 
-go install v.io/x/ref/cmd/vdl
-
 # First remove all generated files, since vdltestgen depends on the vdltest
 # package.  It's annoying during development if we generate invalid code, since
 # we won't be able to rebuild vdltestgen in order generate new code.  By
@@ -29,15 +27,13 @@ var vAllPass, vAllFail, xAllPass, xAllFail []vdlEntry
 EOF
 
 # Re-generate the vdltest package, since we removed the vdl files above.
-go install "v.io/x/ref/cmd/vdl"
-vdl generate "v.io/v23/vdl/vdltest"
+go run v.io/x/ref/cmd/vdl generate "v.io/v23/vdl/vdltest"
 
 # Install and run vdltestgen
-go install "v.io/v23/vdl/vdltest/internal/vdltestgen"
-vdltestgen
+go run "v.io/v23/vdl/vdltest/internal/vdltestgen"
 
 # Re-generate the vdltest package, now with the new vdl files.
-vdl generate "v.io/v23/vdl/vdltest"
+go run "v.io/x/ref/cmd/vdl" generate "v.io/v23/vdl/vdltest"
 
 # Clean up temporary files
 rm -f ${dummy_file}
