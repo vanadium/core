@@ -25,9 +25,9 @@ annotations:
       # contextType is the context type used by this API.
       contextType: v.io/v23/context.T
       # Import is the import path for the logging call to be added.
-      import: v.io/x/ref/lib/apilog
+      importPath: v.io/x/ref/lib/apilog
       # logcall is the import path itself.
-      logcall: apilog.LogCallf
+      functionName: apilog.LogCallf
     # RmLogCall removes annotations previously added to log entry/exit
     # from a specified set of functions. The example here is appropriate for
     # vanadium.
@@ -37,7 +37,7 @@ annotations:
       - "v.io/v23/..."
     packages:
       - "./..."
-    logcall: apilog.LogCall
+    functionNameRE: apilog.LogCall
     comment: "gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT"
     deferred: true
   - type: cloudeng.io/go/cmd/goannotate/annotators.EnsureCopyrightAndLicense

@@ -3,7 +3,7 @@ module v.io
 go 1.13
 
 require (
-	cloudeng.io/go v0.0.0-20200419175453-c741d1e36815 // indirect
+	cloudeng.io/go v0.0.0-20200422055022-091c505dbdcf // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/cosnicolaou/go-bindata v3.0.7+incompatible // indirect
