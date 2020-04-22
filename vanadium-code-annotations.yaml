@@ -1,5 +1,6 @@
 annotations:
-    # AddLogcall annotates functions with a logging call that records
+
+    # AddLogCall annotates functions with a logging call that records
     # entry/exit from them.
   - type: cloudeng.io/go/cmd/goannotate/annotators.AddLogCall
     name: add-logcall
@@ -28,6 +29,7 @@ annotations:
       importPath: v.io/x/ref/lib/apilog
       # logcall is the import path itself.
       functionName: apilog.LogCallf
+
     # RmLogCall removes annotations previously added to log entry/exit
     # from a specified set of functions. The example here is appropriate for
     # vanadium.
@@ -40,14 +42,18 @@ annotations:
     functionNameRE: apilog.LogCall
     comment: "gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT"
     deferred: true
+
+    # EnsureCopyrightAndLicense ensures that there's a copyright and license
+    # comment in every go file.
   - type: cloudeng.io/go/cmd/goannotate/annotators.EnsureCopyrightAndLicense
     name: copyright
+    packages:
+      - "./..."
     copyright: "// Copyright 2020 The Vanadium Authors. All rights reserved."
-    license: "// Use of this source code is governed by a BSD-style\n
-// license that can be found in the LICENSE file."
+    license: |
+      // Use of this source code is governed by a BSD-style
+      // license that can be found in the LICENSE file.
+
 options:
   # Default concurrency.
   concurrency: 0
-debug:
-  # Provide a file name here to enable cpu profiling.
-  cpu_profile:
