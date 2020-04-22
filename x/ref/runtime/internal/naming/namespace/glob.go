@@ -9,14 +9,13 @@ import (
 	"strings"
 	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/verror"
-	"v.io/x/ref/lib/apilog"
 )
 
 type tracks struct {
@@ -235,7 +234,6 @@ func (ns *namespace) globLoop(ctx *context.T, e *naming.MountEntry, prefix strin
 
 // Glob implements naming.MountTable.Glob.
 func (ns *namespace) Glob(ctx *context.T, pattern string, opts ...naming.NamespaceOpt) (<-chan naming.GlobReply, error) {
-	defer apilog.LogCallf(ctx, "pattern=%.10s...,opts...=%v", pattern, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	// Root the pattern.  If we have no servers to query, give up.
 	e, patternWasRooted := ns.rootMountEntry(pattern)
 	if len(e.Servers) == 0 {

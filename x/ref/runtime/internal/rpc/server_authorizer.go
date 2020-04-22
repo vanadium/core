@@ -10,8 +10,6 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/verror"
-
-	"v.io/x/ref/lib/apilog"
 )
 
 var (
@@ -61,7 +59,6 @@ func authorizerFromOpts(opts ...rpc.CallOpt) security.Authorizer {
 }
 
 func (a *serverAuthorizer) Authorize(ctx *context.T, call security.Call) error {
-	defer apilog.LogCallf(ctx, "call=")(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if err := a.auth.Authorize(ctx, call); err != nil {
 		return err
 	}

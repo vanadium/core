@@ -3,6 +3,7 @@ module v.io
 go 1.13
 
 require (
+	cloudeng.io/go v0.0.0-20200419175453-c741d1e36815 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/cosnicolaou/go-bindata v3.0.7+incompatible // indirect
@@ -24,7 +25,6 @@ require (
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sys v0.0.0-20191008105621-543471e840be // indirect
-	golang.org/x/tools v0.0.0-20200303214625-2b0b585e22fe // indirect
 	google.golang.org/api v0.9.0
 	v.io/x/lib v0.1.4
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1

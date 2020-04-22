@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"golang.org/x/net/trace"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/i18n"
@@ -27,7 +27,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/x/ref/lib/apilog"
 	"v.io/x/ref/lib/publisher"
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/stats"
@@ -581,7 +580,6 @@ func (s *server) acceptLoop(ctx *context.T) error {
 }
 
 func (s *server) AddName(name string) error {
-	defer apilog.LogCallf(nil, "name=%.10s...", name)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if len(name) == 0 {
 		return verror.New(verror.ErrBadArg, s.ctx, "name is empty")
 	}
@@ -593,7 +591,6 @@ func (s *server) AddName(name string) error {
 }
 
 func (s *server) RemoveName(name string) {
-	defer apilog.LogCallf(nil, "name=%.10s...", name)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	s.Lock()
 	defer s.Unlock()
 	vtrace.GetSpan(s.ctx).Annotate("Removed name: " + name)
@@ -938,7 +935,6 @@ func (fs *flowServer) readGrantedBlessings(ctx *context.T, req *rpc.Request) err
 
 // Send implements the rpc.Stream method.
 func (fs *flowServer) Send(item interface{}) error {
-	defer apilog.LogCallf(nil, "item=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	// The empty response header indicates what follows is a streaming result.
 	if err := fs.enc.Encode(rpc.Response{}); err != nil {
 		return err
@@ -951,7 +947,6 @@ func (fs *flowServer) Send(item interface{}) error {
 
 // Recv implements the rpc.Stream method.
 func (fs *flowServer) Recv(itemptr interface{}) error {
-	defer apilog.LogCallf(nil, "itemptr=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	var req rpc.Request
 	if err := fs.dec.Decode(&req); err != nil {
 		return err
@@ -1032,7 +1027,6 @@ type leafDispatcher struct {
 }
 
 func (d leafDispatcher) Lookup(ctx *context.T, suffix string) (interface{}, security.Authorizer, error) {
-	defer apilog.LogCallf(nil, "suffix=%.10s...", suffix)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if suffix != "" {
 		return nil, nil, verror.New(verror.ErrUnknownSuffix, nil, suffix)
 	}

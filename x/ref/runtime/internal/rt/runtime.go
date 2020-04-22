@@ -31,7 +31,6 @@ import (
 	"v.io/v23/vtrace"
 
 	"v.io/x/ref/internal/logger"
-	"v.io/x/ref/lib/apilog"
 	idiscovery "v.io/x/ref/lib/discovery"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/lib/pubsub"
@@ -215,7 +214,6 @@ func (r *Runtime) addChild(ctx *context.T, me interface{}, stop func(), dependsO
 }
 
 func (r *Runtime) Init(ctx *context.T) error {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return r.initMgmt(ctx)
 }
 
@@ -276,7 +274,6 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 }
 
 func (r *Runtime) WithPrincipal(ctx *context.T, principal security.Principal) (*context.T, error) {
-	defer apilog.LogCallf(ctx, "principal=%v", principal)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	var err error
 	newctx := ctx
 
@@ -305,7 +302,6 @@ func (*Runtime) GetPrincipal(ctx *context.T) security.Principal {
 }
 
 func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context.T, rpc.Client, error) {
-	defer apilog.LogCallf(ctx, "opts...=%v", opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	otherOpts := []rpc.ClientOpt{}
 	hasProtocol, hasExpiration := false, false
 	for _, o := range opts {
@@ -363,7 +359,6 @@ func (r *Runtime) setNewNamespace(ctx *context.T, roots ...string) (*context.T, 
 }
 
 func (r *Runtime) WithNewNamespace(ctx *context.T, roots ...string) (*context.T, namespace.T, error) {
-	defer apilog.LogCallf(ctx, "roots...=%v", roots)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	newctx, ns, err := r.setNewNamespace(ctx, roots...)
 	if err != nil {
 		return ctx, nil, err
@@ -397,7 +392,6 @@ func (*Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
 }
 
 func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return context.WithValue(ctx, listenKey, ls.Copy())
 }
 
@@ -408,7 +402,6 @@ func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 }
 
 func (*Runtime) WithBackgroundContext(ctx *context.T) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	// Note we add an extra context with a nil value here.
 	// This prevents users from travelling back through the
 	// chain of background contexts.
@@ -439,7 +432,6 @@ func (*Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
 }
 
 func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return context.WithValue(ctx, reservedNameKey, d)
 }
 
@@ -452,7 +444,6 @@ func (*Runtime) GetReservedNameDispatcher(ctx *context.T) rpc.Dispatcher {
 }
 
 func (r *Runtime) NewFlowManager(ctx *context.T, channelTimeout time.Duration) (flow.Manager, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	rid, err := naming.NewRoutingID()
 	if err != nil {
 		return nil, err
@@ -489,7 +480,6 @@ func (r *Runtime) warnIfPermissionsFlagsIgnored(ctx *context.T, auth security.Au
 }
 
 func (r *Runtime) WithNewServer(ctx *context.T, name string, object interface{}, auth security.Authorizer, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	spub, opts, err := r.commonServerInit(ctx, opts...)
 	if err != nil {
 		return ctx, nil, err
@@ -506,7 +496,6 @@ func (r *Runtime) WithNewServer(ctx *context.T, name string, object interface{},
 }
 
 func (r *Runtime) WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	spub, opts, err := r.commonServerInit(ctx, opts...)
 	if err != nil {
 		return ctx, nil, err

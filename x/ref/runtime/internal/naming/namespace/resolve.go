@@ -8,13 +8,12 @@ import (
 	"runtime"
 	"strings"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/verror"
-	"v.io/x/ref/lib/apilog"
 )
 
 var (
@@ -106,7 +105,6 @@ func hasEndpointPrefix(name string) bool {
 
 // Resolve implements v.io/v23/naming.Namespace.
 func (ns *namespace) Resolve(ctx *context.T, name string, opts ...naming.NamespaceOpt) (*naming.MountEntry, error) {
-	defer apilog.LogCallf(ctx, "name=%.10s...,opts...=%v", name, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	e, err := ns.resolveInternal(ctx, name, opts...)
 	// If the resolution failed and it appears that the name starts with an
@@ -177,7 +175,6 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 
 // ShallowResolve implements v.io/v23/naming.Namespace.
 func (ns *namespace) ShallowResolve(ctx *context.T, name string, opts ...naming.NamespaceOpt) (*naming.MountEntry, error) {
-	defer apilog.LogCallf(ctx, "name=%.10s...,opts...=%v", name, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	// Find the containing mount table.
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
@@ -197,7 +194,6 @@ func (ns *namespace) ShallowResolve(ctx *context.T, name string, opts ...naming.
 
 // ResolveToMountTable implements v.io/v23/naming.Namespace.
 func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...naming.NamespaceOpt) (*naming.MountEntry, error) {
-	defer apilog.LogCallf(ctx, "name=%.10s...,opts...=%v", name, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	e, _ := ns.rootMountEntry(name, opts...)
 	if ctx.V(2) {
 		_, file, line, _ := runtime.Caller(1)
@@ -248,7 +244,6 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 // FlushCache flushes the most specific entry found for name.  It returns true if anything was
 // actually flushed.
 func (ns *namespace) FlushCacheEntry(ctx *context.T, name string) bool {
-	defer apilog.LogCallf(nil, "name=%.10s...", name)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	flushed := false
 	for _, n := range ns.rootName(name) {
 		// Walk the cache as we would in a resolution.  Unlike a resolution, we have to follow
