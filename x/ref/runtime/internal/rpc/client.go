@@ -23,7 +23,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/x/ref/lib/apilog"
 	slib "v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/manager"
@@ -146,7 +145,6 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 }
 
 func (c *client) StartCall(ctx *context.T, name, method string, args []interface{}, opts ...rpc.CallOpt) (rpc.ClientCall, error) {
-	defer apilog.LogCallf(ctx, "name=%.10s...,method=%.10s...,args=,opts...=%v", name, method, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if !ctx.Initialized() {
 		return nil, verror.ExplicitNew(verror.ErrBadArg, i18n.LangID("en-us"), "<rpc.Client>", "StartCall", "context not initialized")
 	}
@@ -155,7 +153,6 @@ func (c *client) StartCall(ctx *context.T, name, method string, args []interface
 }
 
 func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []interface{}, opts ...rpc.CallOpt) error {
-	defer apilog.LogCallf(ctx, "name=%.10s...,method=%.10s...,inArgs=,outArgs=,opts...=%v", name, method, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	tr := trace.New("Sent."+name, method)
 	defer tr.Finish()
@@ -746,7 +743,6 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 }
 
 func (fc *flowClient) Send(item interface{}) error {
-	defer apilog.LogCallf(nil, "item=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	if fc.sendClosed {
 		return verror.New(verror.ErrAborted, fc.ctx)
 	}
@@ -761,7 +757,6 @@ func (fc *flowClient) Send(item interface{}) error {
 }
 
 func (fc *flowClient) Recv(itemptr interface{}) error {
-	defer apilog.LogCallf(nil, "itemptr=")(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	switch {
 	case fc.response.Error != nil:
 		return verror.New(verror.ErrBadProtocol, fc.ctx, fc.response.Error)
@@ -796,7 +791,6 @@ func (fc *flowClient) Recv(itemptr interface{}) error {
 }
 
 func (fc *flowClient) CloseSend() error {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return fc.closeSend()
 }
 
@@ -831,7 +825,6 @@ func (fc *flowClient) closeSend() error {
 // TODO(toddw): Should we require Finish to be called, even if send or recv
 // return an error?
 func (fc *flowClient) Finish(resultptrs ...interface{}) error {
-	defer apilog.LogCallf(nil, "resultptrs...=%v", resultptrs)(nil, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	defer vtrace.GetSpan(fc.ctx).Finish()
 	if fc.finished {
 		err := verror.New(errClientFinishAlreadyCalled, fc.ctx)
@@ -906,12 +899,10 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 }
 
 func (fc *flowClient) RemoteBlessings() ([]string, security.Blessings) {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return fc.remoteBNames, fc.flow.RemoteBlessings()
 }
 
 func (fc *flowClient) Security() security.Call {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return fc.secCall
 }
 

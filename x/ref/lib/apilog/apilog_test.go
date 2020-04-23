@@ -12,10 +12,8 @@ import (
 	"regexp"
 	"testing"
 
-	"v.io/x/lib/vlog"
-
 	"v.io/v23/context"
-
+	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/apilog"
 )
 
@@ -45,7 +43,7 @@ func readLogFiles(dir string) ([]string, error) {
 }
 
 func myLoggedFunc(ctx *context.T) {
-	f := apilog.LogCall(ctx, "entry")
+	f := apilog.LogCallf(ctx, apilog.CallerName(), "entry")
 	f(ctx, "exit")
 }
 

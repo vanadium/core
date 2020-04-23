@@ -11,7 +11,6 @@ import (
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/apilog"
 )
 
 // SetClientFactory can be used to inject a mock Client implementation
@@ -23,7 +22,6 @@ func SetClientFactory(ctx *context.T, factory func(ctx *context.T, opts ...rpc.C
 	return context.WithValue(ctx, clientKey, client)
 }
 func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context.T, rpc.Client, error) {
-	defer apilog.LogCallf(ctx, "opts...=%v", opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	factory, ok := ctx.Value(clientFactoryKey).(func(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client)
 	if !ok {
 		panic("Calling WithNewClient on the fake runtime, but no factory has been set.")
@@ -32,19 +30,16 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 	return context.WithValue(ctx, clientKey, client), client, nil
 }
 func (r *Runtime) GetClient(ctx *context.T) rpc.Client {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	c, _ := ctx.Value(clientKey).(rpc.Client)
 	return c
 }
 
 func (r *Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	ls, _ := ctx.Value(listenSpecKey).(rpc.ListenSpec)
 	return ls
 }
 
 func (r *Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return context.WithValue(ctx, listenSpecKey, ls)
 	return ctx
 }
@@ -57,7 +52,6 @@ func SetFlowManagerFactory(ctx *context.T, factory func(ctx *context.T, channelT
 }
 
 func (r *Runtime) NewFlowManager(ctx *context.T, channelTimeout time.Duration) (flow.Manager, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	factory, ok := ctx.Value(flowFactoryKey).(func(ctx *context.T, channelTimeout time.Duration) flow.Manager)
 	if !ok {
@@ -73,7 +67,6 @@ func SetServerFactory(ctx *context.T, factory func(*context.T, string, interface
 }
 
 func (r *Runtime) WithNewServer(ctx *context.T, name string, object interface{}, auth security.Authorizer, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 
 	factory, ok := ctx.Value(serverFactoryKey).(func(*context.T, string, interface{}, security.Authorizer, ...rpc.ServerOpt) (*context.T, rpc.Server))
 	if !ok {
@@ -84,6 +77,5 @@ func (r *Runtime) WithNewServer(ctx *context.T, name string, object interface{},
 }
 
 func (r *Runtime) WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	panic("unimplemented")
 }

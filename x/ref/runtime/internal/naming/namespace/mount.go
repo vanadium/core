@@ -7,11 +7,10 @@ package namespace
 import (
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
-	"v.io/x/ref/lib/apilog"
 )
 
 func (ns *namespace) forget(ctx *context.T, me *naming.MountEntry) {
@@ -24,7 +23,6 @@ func (ns *namespace) forget(ctx *context.T, me *naming.MountEntry) {
 
 // Mount implements Namespace.Mount.
 func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duration, opts ...naming.NamespaceOpt) error {
-	defer apilog.LogCallf(ctx, "name=%.10s...,server=%.10s...,ttl=%v,opts...=%v", name, server, ttl, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	var flags naming.MountFlag
 	for _, o := range opts {
 		// NB: used a switch since we'll be adding more options.
@@ -64,7 +62,6 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 
 // Unmount implements Namespace.Unmount.
 func (ns *namespace) Unmount(ctx *context.T, name, server string, opts ...naming.NamespaceOpt) error {
-	defer apilog.LogCallf(ctx, "name=%.10s...,server=%.10s...,opts...=%v", name, server, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
 		copts := append(getCallOpts(opts), options.Preresolved{me})
@@ -79,7 +76,6 @@ func (ns *namespace) Unmount(ctx *context.T, name, server string, opts ...naming
 
 // Delete implements Namespace.Delete.
 func (ns *namespace) Delete(ctx *context.T, name string, deleteSubtree bool, opts ...naming.NamespaceOpt) error {
-	defer apilog.LogCallf(ctx, "name=%.10s...,deleteSubtree=%v,opts...=%v", name, deleteSubtree, opts)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
 		copts := append(getCallOpts(opts), options.Preresolved{me})

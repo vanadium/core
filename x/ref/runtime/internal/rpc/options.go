@@ -11,8 +11,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
-
-	"v.io/x/ref/lib/apilog"
 )
 
 // PreferredProtocols instructs the Runtime implementation to select
@@ -21,7 +19,6 @@ import (
 type PreferredProtocols []string
 
 func (PreferredProtocols) RPCClientOpt() {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 }
 
 // This option is used to sort and filter the endpoints when resolving the
@@ -29,7 +26,6 @@ func (PreferredProtocols) RPCClientOpt() {
 type PreferredServerResolveProtocols []string
 
 func (PreferredServerResolveProtocols) RPCServerOpt() {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 }
 
 // ReservedNameDispatcher specifies the dispatcher that controls access
@@ -39,7 +35,6 @@ type ReservedNameDispatcher struct {
 }
 
 func (ReservedNameDispatcher) RPCServerOpt() {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 }
 
 // IdleConnectionExpiry is the amount of the time after which the connection cache
@@ -47,10 +42,8 @@ func (ReservedNameDispatcher) RPCServerOpt() {
 type IdleConnectionExpiry time.Duration
 
 func (IdleConnectionExpiry) RPCClientOpt() {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 }
 func (IdleConnectionExpiry) RPCServerOpt() {
-	defer apilog.LogCall(nil)(nil) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 }
 
 type connectionOpts struct {

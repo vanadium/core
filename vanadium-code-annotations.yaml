@@ -1,0 +1,59 @@
+annotations:
+
+    # AddLogCall annotates functions with a logging call that records
+    # entry/exit from them.
+  - type: cloudeng.io/go/cmd/goannotate/annotators.AddLogCall
+    name: add-logcall
+    # Packages specifies the packages to be annotated. It may be overriden
+    # from the command line.
+    packages:
+      - "v.io/x/ref/runtime/internal/rpc/..."
+      - "v.io/x/ref/runtime/internal/naming/..."
+    # Interfaces lists the interfaces that define the API.
+    interfaces:
+      - "v.io/v23/rpc/..."
+      - "v.io/v23/naming/..."
+      # Functions lists the functions that define the API.
+    functions:
+    # Functions must have at least this number of top-level statements to
+    # be worth annotating.
+    atLeastStatements: 3
+    # Do not annotate functions which have this text in any comments associated
+    # with or within the function.
+    noAnnotationComment: "nologcall"
+    callGenerator:
+      type: cloudeng.io/go/cmd/goannotate/annotators/functions.LogCallWithContext
+      # contextType is the context type used by this API.
+      contextType: v.io/v23/context.T
+      # Import is the import path for the logging call to be added.
+      importPath: v.io/x/ref/lib/apilog
+      # logcall is the import path itself.
+      functionName: apilog.LogCallf
+
+    # RmLogCall removes annotations previously added to log entry/exit
+    # from a specified set of functions. The example here is appropriate for
+    # vanadium.
+  - type: cloudeng.io/go/cmd/goannotate/annotators.RmLogCall
+    name: rm-logcall
+    interfaces:
+      - "v.io/v23/..."
+    packages:
+      - "./..."
+    functionNameRE: apilog.LogCall
+    comment: "gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT"
+    deferred: true
+
+    # EnsureCopyrightAndLicense ensures that there's a copyright and license
+    # comment in every go file.
+  - type: cloudeng.io/go/cmd/goannotate/annotators.EnsureCopyrightAndLicense
+    name: copyright
+    packages:
+      - "./..."
+    copyright: "// Copyright 2020 The Vanadium Authors. All rights reserved."
+    license: |
+      // Use of this source code is governed by a BSD-style
+      // license that can be found in the LICENSE file.
+
+options:
+  # Default concurrency.
+  concurrency: 0

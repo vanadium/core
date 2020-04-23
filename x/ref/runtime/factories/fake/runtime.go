@@ -5,7 +5,7 @@
 package fake
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/namespace"
@@ -13,7 +13,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/x/ref/internal/logger"
-	"v.io/x/ref/lib/apilog"
 	tnaming "v.io/x/ref/runtime/internal/testing/mocks/naming"
 	"v.io/x/ref/test/testutil"
 )
@@ -47,7 +46,6 @@ func (r *Runtime) Init(ctx *context.T) error {
 }
 
 func (r *Runtime) WithPrincipal(ctx *context.T, principal security.Principal) (*context.T, error) {
-	defer apilog.LogCallf(ctx, "principal=%v", principal)(ctx, "") // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	return context.WithValue(ctx, principalKey, principal), nil
 }
 
@@ -63,7 +61,6 @@ func (r *Runtime) GetAppCycle(ctx *context.T) v23.AppCycle {
 }
 
 func (r *Runtime) WithBackgroundContext(ctx *context.T) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	// Note we add an extra context with a nil value here.
 	// This prevents users from travelling back through the
 	// chain of background contexts.
@@ -94,7 +91,6 @@ func (r *Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
 }
 
 func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *context.T {
-	defer apilog.LogCall(ctx)(ctx) // gologcop: DO NOT EDIT, MUST BE FIRST STATEMENT
 	panic("unimplemented")
 }
 
