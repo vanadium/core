@@ -6,14 +6,13 @@ package server_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"runtime/debug"
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -23,7 +22,6 @@ import (
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/services/groups/internal/server"
 	"v.io/x/ref/services/groups/internal/store"
-	"v.io/x/ref/services/groups/internal/store/leveldb"
 	"v.io/x/ref/services/groups/internal/store/mem"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
@@ -32,8 +30,7 @@ import (
 type backend int
 
 const (
-	leveldbstore backend = iota
-	memstore
+	memstore backend = iota
 )
 
 func Fatal(t *testing.T, args ...interface{}) {
@@ -118,15 +115,6 @@ func newServer(ctx *context.T, be backend) (string, func()) {
 	switch be {
 	case memstore:
 		st = mem.New()
-	case leveldbstore:
-		path, err = ioutil.TempDir("", "")
-		if err != nil {
-			ctx.Fatal("ioutil.TempDir() failed: ", err)
-		}
-		st, err = leveldb.Open(path)
-		if err != nil {
-			ctx.Fatal("leveldb.Open() failed: ", err)
-		}
 	default:
 		ctx.Fatal("unknown backend: ", be)
 	}

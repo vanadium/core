@@ -16,12 +16,11 @@ import (
 	"io/ioutil"
 	"os"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vom"
 	"v.io/x/lib/cmdline"
-	"v.io/x/lib/dbutil"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
@@ -31,6 +30,7 @@ import (
 	"v.io/x/ref/services/identity/internal/oauth"
 	"v.io/x/ref/services/identity/internal/revocation"
 	"v.io/x/ref/services/identity/internal/server"
+	"v.io/x/ref/services/internal/dbutil"
 	"v.io/x/ref/services/internal/restsigner"
 )
 

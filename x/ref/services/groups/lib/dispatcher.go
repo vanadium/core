@@ -14,7 +14,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/services/groups/internal/server"
-	"v.io/x/ref/services/groups/internal/store/leveldb"
 	"v.io/x/ref/services/groups/internal/store/mem"
 )
 
@@ -49,16 +48,10 @@ func (createAuthorizer) Authorize(ctx *context.T, call security.Call) error {
 //
 // rootDir is the directory for persisting groups.
 //
-// engine is the storage engine for groups.  Currently, only "leveldb" and
-// "memstore" are supported.
+// engine is the storage engine for groups.  Currently, only "memstore"
+// is supported.
 func NewGroupsDispatcher(rootDir, engine string) (rpc.Dispatcher, error) {
 	switch engine {
-	case "leveldb":
-		store, err := leveldb.Open(rootDir)
-		if err != nil {
-			return nil, fmt.Errorf("Open(%v) failed: %v", rootDir, err)
-		}
-		return server.NewManager(store, createAuthorizer{}), nil
 	case "memstore":
 		return server.NewManager(mem.New(), createAuthorizer{}), nil
 	default:
