@@ -16,7 +16,7 @@ jobs:
       - go/test:
           covermode: atomic
           failfast: true
-          race: true
+          race: false
 
   lint:
     executor:
