@@ -1,0 +1,57 @@
+jobs:
+  test:
+    executor:
+      name: go/default
+      tag: "1.14"
+    environment:
+      VDLPATH:
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - run:
+          name: goimports
+          command: |
+            go get golang.org/x/tools/cmd/goimports
+            go install -x golang.org/x/tools/cmd/goimports
+      - go/save-cache
+      - run:
+          name: vdlpath
+          command: |
+            echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
+            source $BASH_ENV
+      - go/test:
+          covermode: set
+          failfast: true
+          race: false
+
+  lint:
+    executor:
+      name: go/default
+      tag: "1.14"
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - run:
+          name: downloads
+          command: |
+            go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.27.0
+            go get github.com/matthewloring/validjson/cmd/validjson
+            go install -x github.com/golangci/golangci-lint/cmd/golangci-lint
+            go install -x github.com/matthewloring/validjson/cmd/validjson
+      - go/save-cache
+      - run:
+          name: lint
+          command: |
+            golangci-lint run ./...
+            validjson ./...
+
+version: 2.1
+orbs:
+  go: circleci/go@1.1.2
+workflows:
+  main:
+    jobs:
+      - test
+      - lint
