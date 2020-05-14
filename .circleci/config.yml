@@ -3,6 +3,8 @@ jobs:
     executor:
       name: go/default
       tag: "1.14"
+    environment:
+      VDLPATH:
     steps:
       - checkout
       - go/load-cache
@@ -13,8 +15,13 @@ jobs:
             go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
       - go/save-cache
+      - run:
+          name: vdlpath
+          command: |
+            echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
+            source $BASH_ENV
       - go/test:
-          covermode: atomic
+          covermode: set
           failfast: true
           race: false
 
