@@ -16,14 +16,14 @@ import (
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
-	"v.io/x/lib/dbutil"
 	"v.io/x/ref/lib/signals"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/ben/benarchd/internal"
+	"v.io/x/ref/services/internal/dbutil"
 )
 
 var (
