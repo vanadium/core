@@ -32,11 +32,6 @@ type preparedStatementImpl struct {
 	id int64 // key to AST stored in queryEngineImpl.
 }
 
-type paramInfo struct {
-	paramValues []*vdl.Value
-	cursor      int64
-}
-
 func Create(db ds.Database) public.QueryEngine {
 	return &queryEngineImpl{db: db, nextID: 0, preparedStatements: map[int64]*query_parser.Statement{}}
 }

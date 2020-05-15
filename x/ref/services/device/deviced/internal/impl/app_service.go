@@ -132,7 +132,7 @@ import (
 	"text/template"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -363,6 +363,7 @@ func mkdirPerm(ctx *context.T, dir string, permissions int) error {
 	return nil
 }
 
+// nolint: deadcode, unused
 func sockPath(instanceDir string) (string, error) {
 	sockLink := filepath.Join(instanceDir, "agent-sock-dir")
 	sock, err := filepath.EvalSymlinks(sockLink)

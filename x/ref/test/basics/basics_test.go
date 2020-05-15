@@ -124,7 +124,7 @@ func BenchmarkNow(b *testing.B) {
 
 func BenchmarkSprintf(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		fmt.Sprintf("%d %d %d", i, i, i)
+		fmt.Sprintf("%d %d %d", i, i, i) // nolint: govet
 	}
 }
 

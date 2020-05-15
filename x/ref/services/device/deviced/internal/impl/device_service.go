@@ -51,7 +51,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -194,6 +194,7 @@ func (*deviceService) Reset(_ *context.T, _ rpc.ServerCall, deadline time.Durati
 
 // getCurrentFileInfo returns the os.FileInfo for both the symbolic link
 // CurrentLink, and the device script in the workspace that this link points to.
+// nolint: deadcode, unused
 func (s *deviceService) getCurrentFileInfo() (os.FileInfo, string, error) {
 	path := s.config.CurrentLink
 	link, err := os.Lstat(path)

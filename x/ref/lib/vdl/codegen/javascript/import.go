@@ -8,8 +8,6 @@ import (
 	"sort"
 	"strconv"
 
-	"v.io/v23/vdl"
-	"v.io/x/lib/set"
 	"v.io/x/ref/lib/vdl/compile"
 )
 
@@ -85,21 +83,5 @@ func jsImportsForFiles(files ...*compile.File) jsImports {
 	for _, dep := range pkgs {
 		ret = append(ret, uniqueImport(dep.Name, dep.GenPath, seenName))
 	}
-	return ret
-}
-
-// pkgDeps maintains a set of package path dependencies.
-type pkgDeps map[string]bool
-
-func (deps pkgDeps) insertIdent(ident string) {
-	if pkgPath, _ := vdl.SplitIdent(ident); pkgPath != "" {
-		deps[pkgPath] = true
-	}
-}
-
-// SortedPkgPaths deps as a sorted slice.
-func (deps pkgDeps) SortedPkgPaths() []string {
-	ret := set.StringBool.ToSlice(deps)
-	sort.Strings(ret)
 	return ret
 }

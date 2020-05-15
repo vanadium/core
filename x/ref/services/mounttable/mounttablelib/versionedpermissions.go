@@ -22,9 +22,12 @@ import (
 
 // Blessings can't include a comma so we use them in made up user ids.  The following distinctions are
 // made so that we can account for them differently.
-const localUser = ",LOCAL,"     // a client that has our public key but no blessing from which we can extract a user name
-const blessedUser = ",BLESSED," // a client with blessings we trust but from which we can't extract a user name
-const unknownUser = ",UNKNOWN," // a client which presents no blessing we trust
+// nolint: deadcode, unused, varcheck
+const (
+	localUser   = ",LOCAL,"   // a client that has our public key but no blessing from which we can extract a user name
+	blessedUser = ",BLESSED," // a client with blessings we trust but from which we can't extract a user name
+	unknownUser = ",UNKNOWN," // a client which presents no blessing we trust
+)
 
 // VersionedPermissions associates a Version with a Permissions
 type VersionedPermissions struct {

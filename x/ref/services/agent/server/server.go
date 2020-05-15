@@ -23,13 +23,11 @@ import (
 )
 
 const (
-	pkgPath         = "v.io/x/ref/services/agent/server"
-	agentSocketName = "agent.sock"
+	pkgPath = "v.io/x/ref/services/agent/server"
 )
 
 var (
 	errCantReadPassphrase = verror.Register(pkgPath+".errCantReadPassphrase", verror.NoRetry, "{1:}{2:} failed to read passphrase{:_}")
-	errNeedPassphrase     = verror.Register(pkgPath+".errNeedPassphrase", verror.NoRetry, "{1:}{2:} Passphrase required for decrypting principal{:_}")
 )
 
 // LoadPrincipal returns the principal persisted in the given credentials

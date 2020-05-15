@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -26,8 +26,9 @@ import (
 type noMethodsType struct{ Field string }
 
 type fieldType struct {
-	unexported string
+	unexported string // nolint: structcheck, unused
 }
+
 type noExportedFieldsType struct{}
 
 func (noExportedFieldsType) F(_ *context.T, _ rpc.ServerCall, f fieldType) error { return nil }
@@ -220,8 +221,7 @@ func endpointToStrings(eps []naming.Endpoint) []string {
 }
 
 type ldServer struct {
-	started chan struct{}
-	wait    chan struct{}
+	wait chan struct{}
 }
 
 func (s *ldServer) Do(ctx *context.T, call rpc.ServerCall) (bool, error) {

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/options"
@@ -212,6 +212,7 @@ type disconnect interface {
 	stop(read, write bool)
 }
 
+// nolint: deadcode, unused
 type disConn struct {
 	net.Conn
 	mu                  sync.Mutex

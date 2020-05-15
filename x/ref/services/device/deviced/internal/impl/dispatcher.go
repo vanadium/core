@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"v.io/v23/context"
 	"v.io/v23/naming"
@@ -50,9 +49,6 @@ type dispatcher struct {
 	internal *internalState
 	// config holds the device manager's (immutable) configuration state.
 	config *config.State
-	// dispatcherMutex is a lock for coordinating concurrent access to some
-	// dispatcher methods.
-	mu sync.RWMutex
 	// TODO(rjkroege): Consider moving this inside internal.
 	uat        BlessingSystemAssociationStore
 	permsStore *pathperms.PathStore
@@ -79,7 +75,6 @@ var (
 	errInvalidConfig          = verror.Register(pkgPath+".errInvalidConfig", verror.NoRetry, "{1:}{2:} invalid config {3}{:_}")
 	errCantCreateAccountStore = verror.Register(pkgPath+".errCantCreateAccountStore", verror.NoRetry, "{1:}{2:} cannot create persistent store for identity to system account associations{:_}")
 	errCantCreateAppWatcher   = verror.Register(pkgPath+".errCantCreateAppWatcher", verror.NoRetry, "{1:}{2:} cannot create app status watcher{:_}")
-	errNewAgentFailed         = verror.Register(pkgPath+".errNewAgentFailed", verror.NoRetry, "{1:}{2:} NewAgent() failed{:_}")
 	errStoppedWithErrors      = verror.Register(pkgPath+".errStoppedWithErrors", verror.NoRetry, "{1:}{2:} instance killed uncleanly{:_}")
 	errStopFailed             = verror.Register(pkgPath+".errStopFailed", verror.NoRetry, "{1:}{2:} instance couldn't be killed{:_}")
 )

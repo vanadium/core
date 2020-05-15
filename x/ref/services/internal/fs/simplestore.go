@@ -45,10 +45,10 @@ var (
 	errCantCreate          = verror.Register(pkgPath+".errCantCreate", verror.NoRetry, "{1:}{2:} File ({3}) could not be created ({4}){:_}")
 	errCantOpen            = verror.Register(pkgPath+".errCantOpen", verror.NoRetry, "{1:}{2:} File ({3}) could not be opened ({4}){:_}")
 	errDecodeFailedBadData = verror.Register(pkgPath+".errDecodeFailedBadData", verror.NoRetry, "{1:}{2:} Decode() failed: data format mismatch or backing file truncated{:_}")
-	errCreateFailed        = verror.Register(pkgPath+".errCreateFailed", verror.NoRetry, "{1:}{2:} Create({3}) failed{:_}")
-	errEncodeFailed        = verror.Register(pkgPath+".errEncodeFailed", verror.NoRetry, "{1:}{2:} Encode() failed{:_}")
-	errFileSystemError     = verror.Register(pkgPath+".errFileSystemError", verror.NoRetry, "{1:}{2:} File system operation failed{:_}")
-	errFormatUpgradeError  = verror.Register(pkgPath+".errFormatUpgradeError", verror.NoRetry, "{1:}{2:} File format upgrading failed{:_}")
+
+	errEncodeFailed       = verror.Register(pkgPath+".errEncodeFailed", verror.NoRetry, "{1:}{2:} Encode() failed{:_}")
+	errFileSystemError    = verror.Register(pkgPath+".errFileSystemError", verror.NoRetry, "{1:}{2:} File system operation failed{:_}")
+	errFormatUpgradeError = verror.Register(pkgPath+".errFormatUpgradeError", verror.NoRetry, "{1:}{2:} File format upgrading failed{:_}")
 )
 
 // Memstore contains the state of the memstore. It supports a single

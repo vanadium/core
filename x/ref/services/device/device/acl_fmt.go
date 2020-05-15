@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	"v.io/v23/security"
 	"v.io/x/lib/set"
 )
 
@@ -78,9 +77,3 @@ func (entries permsEntries) Tags(pattern string) accessTags {
 	}
 	return tags
 }
-
-type byPattern []security.BlessingPattern
-
-func (a byPattern) Len() int           { return len(a) }
-func (a byPattern) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byPattern) Less(i, j int) bool { return a[i] < a[j] }

@@ -26,6 +26,7 @@ import (
 
 var (
 	rtIface = reflect.TypeOf((*interface{})(nil)).Elem()
+	// nolint: deadcode, unused, varcheck
 	rtValue = reflect.TypeOf(vdl.Value{})
 )
 

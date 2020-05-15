@@ -38,7 +38,6 @@ var (
 	versionToUse = version.Supported.Max
 	idleGrace    time.Duration
 	daemon       bool
-	stop         bool
 	credentials  string
 	createCreds  bool
 )

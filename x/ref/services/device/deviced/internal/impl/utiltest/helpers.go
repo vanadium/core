@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -308,7 +308,6 @@ func InstallAppExpectError(t *testing.T, ctx *context.T, expectedError verror.ID
 
 type granter struct {
 	rpc.CallOpt
-	p         security.Principal
 	extension string
 }
 

@@ -15,7 +15,6 @@ import (
 
 const (
 	testQuantum = 1 << 14 // 16K
-	iobufSize   = 1 << 16 // 64K
 )
 
 // concat concatenates the buffers into a string.

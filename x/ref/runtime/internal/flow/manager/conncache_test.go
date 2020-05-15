@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -57,6 +57,7 @@ func makeEPs(ctx *context.T, addr string) (ep, nullep, wprotoep, waddrep, waddrp
 	return
 }
 
+// nolint: deadcode, unused
 func modep(ep naming.Endpoint, field string, value interface{}) naming.Endpoint {
 	reflect.ValueOf(ep).FieldByName(field).Set(reflect.ValueOf(value))
 	return ep

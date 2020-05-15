@@ -57,7 +57,6 @@ var (
 	errCantExtendBlessing = verror.Register(pkgPath+".errCantExtendBlessing", verror.NoRetry, "{1:}{2:}Principal with public key {3} cannot extend blessing with public key {4}{:_}")
 	errCantMintDischarges = verror.Register(pkgPath+".errCantMintDischarges", verror.NoRetry, "{1:}{2:}cannot mint discharges for {3}{:_}")
 	errCantSignDischarge  = verror.Register(pkgPath+".errCantSignDischarge", verror.NoRetry, "{1:}{2:}failed to sign discharge: {3}{:_}")
-	errCantUnmarshalKey   = verror.Register(pkgPath+".errCantUnmarshalKey", verror.NoRetry, "{1:}{2:}failed to unmarshal public key in root certificate with Extension: {3}: {4}{:_}")
 )
 
 type errStore struct {

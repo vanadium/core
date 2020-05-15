@@ -10,7 +10,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"syscall"
 )
@@ -102,8 +101,6 @@ func createV1(w io.Writer) error {
 	// available instead of failing.
 	return nil
 }
-
-var pidRegexV1 = regexp.MustCompile("\n\\s*(\\d+)")
 
 func stillHeldV1(info []byte) (bool, error) {
 	sysID, infoLeft, err := parseValue(info, systemIDLabel)

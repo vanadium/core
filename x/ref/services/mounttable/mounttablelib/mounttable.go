@@ -36,9 +36,7 @@ var (
 	errLeafDoesntMatch    = verror.Register(pkgPath+".errLeafDoesntMatch", verror.NoRetry, "{1:}{2:} Leaf doesn't match{:_}")
 	errCantDeleteRoot     = verror.Register(pkgPath+".errCantDeleteRoot", verror.NoRetry, "{1:}{2:} cannot delete root node{:_}")
 	errNotEmpty           = verror.Register(pkgPath+".errNotEmpty", verror.NoRetry, "{1:}{2:} cannot delete {3}: has children{:_}")
-	errNamingLoop         = verror.Register(pkgPath+".errNamingLoop", verror.NoRetry, "{1:}{2:} Loop in namespace{:_}")
 	errTooManyNodes       = verror.Register(pkgPath+".errTooManyNodes", verror.NoRetry, "{1:}{2:} User has exceeded his node limit {:_}")
-	errNoSharedRoot       = verror.Register(pkgPath+".errNoSharedRoot", verror.NoRetry, "{1:}{2:} Server and User share no blessing root {:_}")
 	errNameElementTooLong = verror.Register(pkgPath+".errNameElementTooLong", verror.NoRetry, "{1:}{2:} path element {3}: too long {:_}")
 	errInvalidPermsFile   = verror.Register(pkgPath+".errInvalidPermsFile", verror.NoRetry, "{1:}{2:} perms file {3} invalid {:_}")
 )
@@ -558,19 +556,6 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 	return nil
 }
 
-// fullName is for debugging only and should not normally be called.
-func (n *node) fullName() string {
-	if n.parent == nil || n.parent.parent == nil {
-		return ""
-	}
-	for k, c := range n.parent.children {
-		if c == n {
-			return n.parent.fullName() + "/" + k
-		}
-	}
-	return n.parent.fullName() + "/" + "?"
-}
-
 // removeUseless removes a node and all of its ascendants that are not useful.
 //
 // We assume both n and n.parent are locked.
@@ -665,12 +650,6 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 		mt.persist.persistDelete(ms.name)
 	}
 	return nil
-}
-
-// A struct holding a partial result of Glob.
-type globEntry struct {
-	n    *node
-	name string
 }
 
 // globStep is called with n and n.parent locked.  Returns with both unlocked.

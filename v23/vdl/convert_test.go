@@ -21,6 +21,7 @@ import (
 	"v.io/v23/verror"
 )
 
+// nolint: deadcode, unused
 func errorValue(e verror.E) *vdl.Value {
 	verr := vdl.NonNilZeroValue(vdl.ErrorType)
 	vv := verr.Elem()
@@ -34,6 +35,7 @@ func errorValue(e verror.E) *vdl.Value {
 	return verr
 }
 
+// nolint: deadcode, unused
 func retryFromAction(action verror.ActionCode) string {
 	switch action.RetryAction() {
 	case verror.NoRetry:
@@ -51,18 +53,23 @@ func retryFromAction(action verror.ActionCode) string {
 
 // Each group of values in vvNAME and rvNAME are all mutually convertible.
 var (
+
+	// See: TODO(bprosnitz) below.
+	// nolint: deadcode, unused, varcheck
 	rvError1 = verror.E{
 		ID:        verror.ID("id1"),
 		Action:    verror.NoRetry,
 		Msg:       "msg1",
 		ParamList: nil,
 	}
+	// nolint: deadcode, unused, varcheck
 	rvError2 = verror.E{
 		ID:        verror.ID("id2"),
 		Action:    verror.RetryConnection,
 		Msg:       "msg2",
 		ParamList: []interface{}{"abc", int32(123)},
 	}
+	// nolint: deadcode, unused, varcheck
 	rvError3 = verror.E{
 		ID:        verror.ID("id3"),
 		Action:    verror.RetryBackoff,
@@ -144,6 +151,7 @@ var (
 		vdl.MapStringBoolValue(vdl.MapStringBoolType, vdl.SB{"X", false}, vdl.SB{"Y", true}, vdl.SB{"Z", false}),
 		vdl.MapStringBoolValue(vdl.MapStringBoolTypeN, vdl.SB{"X", false}, vdl.SB{"Y", true}, vdl.SB{"Z", false}),
 	}
+	// nolint: deadcode, unused, varcheck
 	vvMapStructXYZEmpty = []*vdl.Value{
 		vdl.MapStringEmptyValue(vdl.MapStringEmptyType, "X", "Y", "Z"),
 		vdl.MapStringEmptyValue(vdl.MapStringEmptyTypeN, "X", "Y", "Z"),
@@ -247,9 +255,11 @@ var (
 		map[string]bool{"X": false, "Y": true, "Z": false},
 		vdl.NMapStringBool{"X": false, "Y": true, "Z": false},
 	}
+	// nolint: deadcode, unused, varcheck
 	rvStructXYZEmpty = []interface{}{
 		vdl.NStructXYZEmpty{}, vdl.NStructXYZNEmpty{},
 	}
+	// nolint: deadcode, unused, varcheck
 	rvMapXYZEmpty = []interface{}{
 		map[string]vdl.NEmpty{"X": vdl.NEmpty{}, "Y": vdl.NEmpty{}, "Z": vdl.NEmpty{}},
 		vdl.NMapStringNEmpty{"X": vdl.NEmpty{}, "Y": vdl.NEmpty{}, "Z": vdl.NEmpty{}},
@@ -308,6 +318,7 @@ var (
 		vdl.NStructUVFloat64{U: 0, V: 1},
 		vdl.NStructUVMixed{U: 0, V: 1},
 	}
+	// nolint: deadcode, unused, varcheck
 	rvEmptyStruct = []interface{}{struct{}{}, vdl.NEmpty{}}
 
 	ttBools         = ttTypes(vvBoolTrue)
@@ -378,7 +389,9 @@ var (
 	rtNumbers  = rtJoin(rtIntegers, rtFloats)
 	rtAllTypes = rtJoin(rtBools, rtStrs, rtTypeObjects, rtNumbers, rtSeq123, rtSet123, rtMap123, rtSetXYZ, rtMapXYZBool, rtStructXYZBool, rtMapVWXNum, rtStructVWXNum)
 
+	// nolint: deadcode, unused, varcheck
 	rtInterface = reflect.TypeOf((*interface{})(nil)).Elem()
+	// nolint: deadcode, unused, varcheck
 	rtPtrToType = reflect.TypeOf((*vdl.Type)(nil))
 )
 

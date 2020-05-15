@@ -21,7 +21,6 @@ var (
 	errGetwdFailed        = verror.Register(pkgPath+".errGetwdFailed", verror.NoRetry, "{1:}{2:} os.Getwd failed{:_}")
 	errStartProcessFailed = verror.Register(pkgPath+".errStartProcessFailed", verror.NoRetry, "{1:}{2:} syscall.StartProcess({3}) failed{:_}")
 	errRemoveAllFailed    = verror.Register(pkgPath+".errRemoveAllFailed", verror.NoRetry, "{1:}{2:} os.RemoveAll({3}) failed{:_}")
-	errFindProcessFailed  = verror.Register(pkgPath+".errFindProcessFailed", verror.NoRetry, "{1:}{2:} os.FindProcess({3}) failed{:_}")
 	errKillFailed         = verror.Register(pkgPath+".errKillFailed", verror.NoRetry, "{1:}{2:} os.Process.Kill({3}) failed{:_}")
 )
 

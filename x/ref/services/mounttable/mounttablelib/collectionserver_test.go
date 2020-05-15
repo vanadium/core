@@ -28,8 +28,6 @@ type rpcContext struct {
 	*collectionServer
 }
 
-var instance collectionServer
-
 func newCollectionServer() *collectionDispatcher {
 	return &collectionDispatcher{collectionServer: &collectionServer{contents: make(map[string][]byte)}}
 }

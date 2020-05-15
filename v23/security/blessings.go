@@ -173,6 +173,7 @@ func claimedName(chain []Certificate) string {
 	return ret
 }
 
+// nolint: deadcode, unused
 func nameForPrincipal(pubkey []byte, roots BlessingRoots, chain []Certificate) string {
 	// Verify the chain belongs to this principal
 	if !bytes.Equal(chain[len(chain)-1].PublicKey, pubkey) {
@@ -371,11 +372,13 @@ func DefaultBlessingPatterns(p Principal) (patterns []BlessingPattern) {
 }
 
 var (
-	caveatValidationMu         sync.RWMutex
-	caveatValidation           = defaultCaveatValidation
+	caveatValidationMu sync.RWMutex
+	caveatValidation   = defaultCaveatValidation
+	// nolint: deadcode, unused, varcheck
 	caveatValidationOverridden = false
 )
 
+// nolint: deadcode, unused
 func overrideCaveatValidation(fn func(ctx *context.T, call Call, sets [][]Caveat) []error) {
 	caveatValidationMu.Lock()
 	if caveatValidationOverridden {

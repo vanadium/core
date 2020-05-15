@@ -485,13 +485,6 @@ func shouldGenerate(config vdltool.Config, lang vdltool.GenLanguage) bool {
 	return len(config.GenLanguages) == 0 || ok
 }
 
-// builtPackage is a temp struct used in gen for storing the built packages
-// and their associated targets
-type builtPackage struct {
-	target *build.Package
-	pkg    *compile.Package
-}
-
 // gen generates the given targets with env.  If audit is true, only checks
 // whether any packages are stale; otherwise files will actually be written out.
 // Returns true if any packages are stale.

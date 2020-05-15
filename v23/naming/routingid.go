@@ -16,7 +16,6 @@ import (
 
 var (
 	errInvalidString = verror.Register(pkgPath+".errInvalidString", verror.NoRetry, "{1:}{2:} string is of the wrong format and/or size{:_}")
-	errNotARoutingID = verror.Register(pkgPath+".errNotARoutingID", verror.NoRetry, "{1:}{2:} Not a RoutingID{:_}")
 )
 
 // RoutingIDs have one essential property, namely that they are, to a very

@@ -75,9 +75,8 @@ func (c *conn) Close() error                         { return c.base.Close() }
 func (c *conn) UnsafeDisableEncryption() bool        { return true }
 
 type listener struct {
-	base  flow.Listener
-	addr  addr
-	debug *debug
+	base flow.Listener
+	addr addr
 }
 
 func (l *listener) Accept(ctx *context.T) (flow.Conn, error) {

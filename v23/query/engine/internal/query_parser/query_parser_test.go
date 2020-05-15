@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/query_parser"
@@ -24,23 +24,23 @@ import (
 type parseSelectTest struct {
 	query     string
 	statement query_parser.SelectStatement
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type parseDeleteTest struct {
 	query     string
 	statement query_parser.DeleteStatement
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type parseErrorTest struct {
 	query string
-	err   error
+	err   error // nolint: structcheck, unused
 }
 
 type toStringTest struct {
 	query string
-	s     string
+	s     string // nolint: structcheck, unused
 }
 
 type copyAndSubstituteSelectTest struct {
@@ -58,7 +58,7 @@ type copyAndSubstituteDeleteTest struct {
 type copyAndSubstituteErrorTest struct {
 	query     string
 	subValues []*vdl.Value
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type mockDB struct {

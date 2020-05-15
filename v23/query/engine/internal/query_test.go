@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal"
@@ -442,7 +442,7 @@ func initTables() {
 type keyRangesTest struct {
 	query       string
 	indexRanges *ds.IndexRanges
-	err         error
+	err         error // nolint: structcheck, unused
 }
 
 type evalWhereUsingOnlyKeyTest struct {

@@ -19,16 +19,12 @@ import (
 	"v.io/v23/services/repository"
 	"v.io/v23/verror"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/internal/binarylib"
 	"v.io/x/ref/services/internal/servicetest"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
-)
-
-const (
-	v23Prefix = "vanadium_binary_repository"
 )
 
 // startServer starts the binary repository server.
