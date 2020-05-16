@@ -15,6 +15,7 @@ error (
 	badInputArg(suffix, method string, index uint64, err error) {
 		"en": "method {suffix}.{method} has bad arg #{index}: {err}",
 	}
+	/* These are not currently used, so remove them to avoid lint errors.
 	badBlessings(err error) {
 		"en": "failed to decode blessings: {err}",
 	}
@@ -23,16 +24,17 @@ error (
 	}
 	badDischarge(index uint64, err error) {
 		"en": "failed to decode discharge #{index}: {err}",
-	}
+	}*/
 	badAuth(suffix, method string, err error) {
 		"en": "not authorized to call {suffix}.{method}: {err}",
 	}
 	typeFlowFailure(err error) {
 		"en": "type flow could not be constructed{:err}",
 	}
+	/* This not currently used, so remove it to avoid lint errors.
 	serverBlessingsWrongPublicKey() {
 		"en": "server blessings do not match the principals public key",
-	}
+	}*/
 	serverPeersEmpty() {
 		"en": "no peers are authorized to communicate with the server",
 	}

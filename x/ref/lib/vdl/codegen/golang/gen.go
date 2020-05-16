@@ -136,6 +136,7 @@ func (data *goData) DeclareTypeOfVars() string {
 	}
 	s := `
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (`
 	for id := 1; id <= len(idToType); id++ {
 		tt := idToType[id]

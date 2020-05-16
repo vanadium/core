@@ -254,6 +254,7 @@ const (
 var VEnumAbcAll = [...]VEnumAbc{VEnumAbcA, VEnumAbcB, VEnumAbcC}
 
 // VEnumAbcFromString creates a VEnumAbc from a string label.
+// nolint: deadcode, unused
 func VEnumAbcFromString(label string) (x VEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -330,6 +331,7 @@ const (
 var VEnumBcdAll = [...]VEnumBcd{VEnumBcdB, VEnumBcdC, VEnumBcdD}
 
 // VEnumBcdFromString creates a VEnumBcd from a string label.
+// nolint: deadcode, unused
 func VEnumBcdFromString(label string) (x VEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -15496,10 +15498,11 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int                                            { return 0 }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{}                                { return x.Value }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string                                          { return "F11" }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {}
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int             { return 0 }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{} { return x.Value }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string           { return "F11" }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
+}
 
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -21215,6 +21218,7 @@ const (
 var XEnumAbcAll = [...]XEnumAbc{XEnumAbcA, XEnumAbcB, XEnumAbcC}
 
 // XEnumAbcFromString creates a XEnumAbc from a string label.
+// nolint: deadcode, unused
 func XEnumAbcFromString(label string) (x XEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -21268,6 +21272,7 @@ const (
 var XEnumBcdAll = [...]XEnumBcd{XEnumBcdB, XEnumBcdC, XEnumBcdD}
 
 // XEnumBcdFromString creates a XEnumBcd from a string label.
+// nolint: deadcode, unused
 func XEnumBcdFromString(label string) (x XEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -24168,10 +24173,11 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int                                            { return 0 }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{}                                { return x.Value }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string                                          { return "F11" }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {}
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int             { return 0 }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{} { return x.Value }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string           { return "F11" }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
+}
 
 type (
 	// XUnionDepth2_OptXStructDepth1_XEnumBcd represents any single field of the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
@@ -93529,6 +93535,7 @@ var xAllPass = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1     *vdl.Type
 	__VDLType_bool_2       *vdl.Type

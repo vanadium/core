@@ -15842,6 +15842,7 @@ var pass81 = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_byte_2   *vdl.Type
