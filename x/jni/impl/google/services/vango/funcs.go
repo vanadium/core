@@ -153,7 +153,7 @@ func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
 
 	for _, u := range updates[1:] {
 		go func(up updateState) {
-			for _ = range up.ch {
+			for range up.ch {
 			}
 		}(u)
 	}

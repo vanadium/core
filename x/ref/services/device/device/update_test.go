@@ -64,21 +64,21 @@ func TestUpdateAndRevertCommands(t *testing.T) {
 			{ // Everything succeeds.
 				[]string{"app/2", "app/1", "app/5", "app/3", "app/4"},
 				map[string][]interface{}{
-					"app/1": []interface{}{instanceRunning, nil, nil, nil},
-					"app/2": []interface{}{instanceNotRunning, nil},
-					"app/3": []interface{}{installationActive, nil},
+					"app/1": {instanceRunning, nil, nil, nil},
+					"app/2": {instanceNotRunning, nil},
+					"app/3": {installationActive, nil},
 					// The uninstalled installation and the
 					// deleted instance should be excluded
 					// from the Update and Revert as per the
 					// default GlobSettings for the update
 					// and revert commands.
-					"app/4": []interface{}{installationUninstalled, nil},
-					"app/5": []interface{}{instanceDeleted, nil},
+					"app/4": {installationUninstalled, nil},
+					"app/5": {instanceDeleted, nil},
 				},
 				map[string][]interface{}{
-					"app/1": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
-					"app/2": []interface{}{"Status", capitalize(cmd)},
-					"app/3": []interface{}{"Status", capitalize(cmd)},
+					"app/1": {"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
+					"app/2": {"Status", capitalize(cmd)},
+					"app/3": {"Status", capitalize(cmd)},
 				},
 				joinLines(
 					fmt.Sprintf("Successful %s of version for installation \"%s/3\".", cmd, appName),
@@ -92,22 +92,22 @@ func TestUpdateAndRevertCommands(t *testing.T) {
 				map[string][]interface{}{
 					// Starts as running, fails Kill, but then
 					// recovers. This ultimately counts as a success.
-					"app/1": []interface{}{instanceRunning, fmt.Errorf("Simulate Kill failing"), instanceNotRunning, nil, nil},
+					"app/1": {instanceRunning, fmt.Errorf("Simulate Kill failing"), instanceNotRunning, nil, nil},
 					// Starts as running, fails Kill, and stays running.
-					"app/2": []interface{}{instanceRunning, fmt.Errorf("Simulate Kill failing"), instanceRunning},
+					"app/2": {instanceRunning, fmt.Errorf("Simulate Kill failing"), instanceRunning},
 					// Starts as running, Kill and Update succeed, but Run fails.
-					"app/3": []interface{}{instanceRunning, nil, nil, fmt.Errorf("Simulate Run failing")},
+					"app/3": {instanceRunning, nil, nil, fmt.Errorf("Simulate Run failing")},
 					// Starts as running, Kill succeeds, Update fails, but Run succeeds.
-					"app/4": []interface{}{instanceRunning, nil, fmt.Errorf("Simulate %s failing", capitalize(cmd)), nil},
+					"app/4": {instanceRunning, nil, fmt.Errorf("Simulate %s failing", capitalize(cmd)), nil},
 					// Starts as running, Kill succeeds, Update fails, and Run fails.
-					"app/5": []interface{}{instanceRunning, nil, fmt.Errorf("Simulate %s failing", capitalize(cmd)), fmt.Errorf("Simulate Run failing")},
+					"app/5": {instanceRunning, nil, fmt.Errorf("Simulate %s failing", capitalize(cmd)), fmt.Errorf("Simulate Run failing")},
 				},
 				map[string][]interface{}{
-					"app/1": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, "Status", capitalize(cmd), "Run"},
-					"app/2": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, "Status"},
-					"app/3": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
-					"app/4": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
-					"app/5": []interface{}{"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
+					"app/1": {"Status", KillStimulus{"Kill", 10 * time.Second}, "Status", capitalize(cmd), "Run"},
+					"app/2": {"Status", KillStimulus{"Kill", 10 * time.Second}, "Status"},
+					"app/3": {"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
+					"app/4": {"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
+					"app/5": {"Status", KillStimulus{"Kill", 10 * time.Second}, capitalize(cmd), "Run"},
 				},
 				joinLines(
 					fmt.Sprintf("Successful %s of version for instance \"%s/1\".", cmd, appName),

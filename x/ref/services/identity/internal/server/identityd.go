@@ -249,7 +249,7 @@ func newDispatcher() *dispatcher {
 	}
 	// Set up the glob invoker.
 	var children []string
-	for k, _ := range d.m {
+	for k := range d.m {
 		children = append(children, k)
 	}
 	d.m[""] = rpc.ChildrenGlobberInvoker(children...)

@@ -107,7 +107,7 @@ func TestSignaturePurpose(t *testing.T) {
 		samePurposePlusMessage = []T{
 			{nil, append(purpose, message...)},
 			{append(purpose, message...), nil},
-			T{[]byte{'a', 'b'}, []byte{'c', 'd'}},
+			{[]byte{'a', 'b'}, []byte{'c', 'd'}},
 		}
 		sameMessagePlusPurpose = []T{
 			{nil, append(message, purpose...)},

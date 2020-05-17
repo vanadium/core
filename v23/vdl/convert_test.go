@@ -208,10 +208,10 @@ var (
 		[3]float64{1, 2, 3}, []float64{1, 2, 3}, vdl.NArray3Float64{1, 2, 3}, vdl.NSliceFloat64{1, 2, 3},
 	}
 	rvSet123 = []interface{}{
-		map[byte]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-		map[uint64]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-		map[int64]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-		map[float64]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
+		map[byte]struct{}{1: {}, 2: {}, 3: {}},
+		map[uint64]struct{}{1: {}, 2: {}, 3: {}},
+		map[int64]struct{}{1: {}, 2: {}, 3: {}},
+		map[float64]struct{}{1: {}, 2: {}, 3: {}},
 		vdl.NMapByteEmpty{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
 		vdl.NMapUint64Empty{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
 		vdl.NMapInt64Empty{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
@@ -238,7 +238,7 @@ var (
 		vdl.NMapFloat64Bool{1: false, 2: true, 3: false},
 	}
 	rvSetXYZ = []interface{}{
-		map[string]struct{}{"X": struct{}{}, "Y": struct{}{}, "Z": struct{}{}},
+		map[string]struct{}{"X": {}, "Y": {}, "Z": {}},
 		vdl.NMapStringEmpty{"X": struct{}{}, "Y": struct{}{}, "Z": struct{}{}},
 	}
 	rvMapXYZTrue = []interface{}{
@@ -261,7 +261,7 @@ var (
 	}
 	// nolint: deadcode, unused, varcheck
 	rvMapXYZEmpty = []interface{}{
-		map[string]vdl.NEmpty{"X": vdl.NEmpty{}, "Y": vdl.NEmpty{}, "Z": vdl.NEmpty{}},
+		map[string]vdl.NEmpty{"X": {}, "Y": {}, "Z": {}},
 		vdl.NMapStringNEmpty{"X": vdl.NEmpty{}, "Y": vdl.NEmpty{}, "Z": vdl.NEmpty{}},
 	}
 	rvStructWXFalseTrue = []interface{}{
@@ -397,7 +397,7 @@ var (
 
 // Helpers to manipulate slices of *Type
 func ttSetToSlice(set map[*vdl.Type]bool) (result []*vdl.Type) {
-	for tt, _ := range set {
+	for tt := range set {
 		result = append(result, tt)
 	}
 	return
@@ -437,7 +437,7 @@ func ttOtherThan(types []*vdl.Type, other ...[]*vdl.Type) (result []*vdl.Type) {
 
 // Helpers to manipulate slices of reflect.Type
 func rtSetToSlice(set map[reflect.Type]bool) (result []reflect.Type) {
-	for rt, _ := range set {
+	for rt := range set {
 		result = append(result, rt)
 	}
 	return

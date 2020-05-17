@@ -505,7 +505,7 @@ func TestPackageConfig(t *testing.T) {
 		{
 			"v.io/x/ref/lib/vdl/testdata/testconfig",
 			vdltool.Config{
-				GenLanguages: map[vdltool.GenLanguage]struct{}{vdltool.GenLanguageGo: struct{}{}},
+				GenLanguages: map[vdltool.GenLanguage]struct{}{vdltool.GenLanguageGo: {}},
 			},
 		},
 	}

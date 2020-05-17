@@ -210,7 +210,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 	}
 	call = callWithMethodTags(ctx, call, tags)
 
-	queue := []gState{gState{glob: g}}
+	queue := []gState{{glob: g}}
 
 	someMatchesOmitted := false
 	for len(queue) != 0 {

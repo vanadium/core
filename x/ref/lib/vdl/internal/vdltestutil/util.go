@@ -59,7 +59,7 @@ func ExpectResult(t *testing.T, errs *vdlutil.Errors, testName string, re ...str
 // mapping from file names to file contents.
 func FakeBuildPackage(name, path string, files map[string]string) *build.Package {
 	var fnames []string
-	for fname, _ := range files {
+	for fname := range files {
 		fnames = append(fnames, fname)
 	}
 	return &build.Package{

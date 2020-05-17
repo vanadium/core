@@ -20,13 +20,13 @@ func TestError(t *testing.T) {
 		ID:        "v.io/x/ref/lib/vdl/codegen/javascript.Test",
 		RetryCode: vdl.WireRetryCodeNoRetry,
 		Params: []*compile.Field{
-			&compile.Field{
+			{
 				NamePos: compile.NamePos{
 					Name: "x",
 				},
 				Type: vdl.BoolType,
 			},
-			&compile.Field{
+			{
 				NamePos: compile.NamePos{
 					Name: "y",
 				},
@@ -34,11 +34,11 @@ func TestError(t *testing.T) {
 			},
 		},
 		Formats: []compile.LangFmt{
-			compile.LangFmt{
+			{
 				Lang: i18n.LangID("en-US"),
 				Fmt:  "english string",
 			},
-			compile.LangFmt{
+			{
 				Lang: i18n.LangID("fr"),
 				Fmt:  "french string",
 			},

@@ -227,17 +227,17 @@ func (s *state) mayInterfereWith(other *state) bool {
 		(s.kind == tRWMutexRUnlock && other.kind == tRWMutexLock) {
 		return false
 	}
-	for k, _ := range s.readSet {
+	for k := range s.readSet {
 		if _, found := other.writeSet[k]; found {
 			return true
 		}
 	}
-	for k, _ := range s.writeSet {
+	for k := range s.writeSet {
 		if _, found := other.readSet[k]; found {
 			return true
 		}
 	}
-	for k, _ := range s.writeSet {
+	for k := range s.writeSet {
 		if _, found := other.writeSet[k]; found {
 			return true
 		}

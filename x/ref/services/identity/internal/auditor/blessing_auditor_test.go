@@ -83,7 +83,7 @@ func TestBlessingAuditor(t *testing.T) {
 			t.Errorf("got %v, want %v", got.Blessings, test.Blessings)
 		}
 		var extra bool
-		for _ = range ch {
+		for range ch {
 			// Drain the channel to prevent the producer goroutines from being leaked.
 			extra = true
 		}

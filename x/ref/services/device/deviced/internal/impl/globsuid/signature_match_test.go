@@ -98,7 +98,7 @@ func TestDownloadSignatureMatch(t *testing.T) {
 		},
 		Publisher: publisher,
 		Packages: map[string]application.SignedFile{
-			"pkg": application.SignedFile{
+			"pkg": {
 				File:      pkgVON,
 				Signature: *pkgSig,
 			},

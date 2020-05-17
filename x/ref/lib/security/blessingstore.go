@@ -239,7 +239,7 @@ func (bs *blessingStore) DebugString() string {
 		buff.WriteString(fmt.Sprintf(format, pattern, bs.state.PeerBlessings[security.BlessingPattern(pattern)]))
 	}
 	sorted := make([]string, 0, len(bs.state.PeerBlessings))
-	for k, _ := range bs.state.PeerBlessings {
+	for k := range bs.state.PeerBlessings {
 		if k == security.AllPrincipals {
 			writePattern(k)
 		} else {

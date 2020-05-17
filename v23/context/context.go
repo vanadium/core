@@ -375,7 +375,7 @@ func (c *cancelState) cancel(err error) {
 	}
 	c.mu.Unlock()
 
-	for child, _ := range children {
+	for child := range children {
 		child.cancel(err)
 	}
 }

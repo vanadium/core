@@ -136,7 +136,7 @@ func (m *Map) Keys() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	keys := []string{}
-	for k, _ := range m.value {
+	for k := range m.value {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
@@ -157,7 +157,7 @@ func (m *Map) Value() interface{} {
 func (m *Map) insertMissingNodes() {
 	missing := []string{}
 	lock.RLock()
-	for key, _ := range m.value {
+	for key := range m.value {
 		oName := path.Join(m.name, key)
 		if n := findNodeLocked(oName, false); n == nil {
 			missing = append(missing, key)

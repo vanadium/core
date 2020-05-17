@@ -112,9 +112,9 @@ func (t *rootsTester) testDump(br security.BlessingRoots) error {
 		return ret
 	}
 	want := map[security.BlessingPattern][]security.PublicKey{
-		"google:foo": []security.PublicKey{object(t[1]), object(t[2])},
-		"google:$":   []security.PublicKey{object(t[0])},
-		"vanadium":   []security.PublicKey{object(t[0])},
+		"google:foo": {object(t[1]), object(t[2])},
+		"google:$":   {object(t[0])},
+		"vanadium":   {object(t[0])},
 	}
 	got := br.Dump()
 	sort.Sort(pubKeySorter(want["google:foo"]))

@@ -214,7 +214,7 @@ func processServerWrapperMethod(iface *compile.Interface, method *compile.Method
 		SendType:              javaType(method.OutStream, true, env),
 		StreamRecvReflectType: javaReflectType(method.InStream, env),
 		StreamSendReflectType: javaReflectType(method.OutStream, env),
-		Tags: tags,
+		Tags:                  tags,
 	}
 }
 

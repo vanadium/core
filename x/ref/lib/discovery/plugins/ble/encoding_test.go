@@ -37,7 +37,7 @@ func TestEncode(t *testing.T) {
 			copy(adinfo.Ad.Id[:], randBytes(32))
 			adinfo.Ad.InterfaceName = randString(128)
 			adinfo.Ad.Addresses = make([]string, rand.Intn(3)+1)
-			for i, _ := range adinfo.Ad.Addresses {
+			for i := range adinfo.Ad.Addresses {
 				adinfo.Ad.Addresses[i] = randString(128)
 			}
 
@@ -57,7 +57,7 @@ func TestEncode(t *testing.T) {
 			adinfo.EncryptionAlgorithm = idiscovery.EncryptionAlgorithm(rand.Intn(3))
 			if adinfo.EncryptionAlgorithm != idiscovery.NoEncryption {
 				adinfo.EncryptionKeys = make([]idiscovery.EncryptionKey, rand.Intn(3)+1)
-				for i, _ := range adinfo.EncryptionKeys {
+				for i := range adinfo.EncryptionKeys {
 					adinfo.EncryptionKeys[i] = randBytes(128)
 				}
 			}
@@ -66,7 +66,7 @@ func TestEncode(t *testing.T) {
 			adinfo.TimestampNs = rand.Int63()
 
 			adinfo.DirAddrs = make([]string, rand.Intn(3)+1)
-			for i, _ := range adinfo.DirAddrs {
+			for i := range adinfo.DirAddrs {
 				adinfo.DirAddrs[i] = randString(128)
 			}
 
@@ -110,7 +110,7 @@ func TestEncode(t *testing.T) {
 
 func TestDecodeInvalid(t *testing.T) {
 	tests := []map[string]string{
-		{"1234": "00"},                                 // Invalid uuid.
+		{"1234": "00"}, // Invalid uuid.
 		{"31ca10d5-0195-54fa-9344-25fcd7072f00": "00"}, // Invalid characteristic uuid.
 		{"31ca10d5-0195-54fa-9344-25fcd7072e10": "00"}, // Invalid characteristic uuid sequence.
 		{ //  Invalid characteristic split.

@@ -35,7 +35,7 @@ var (
 		Binary: application.SignedFile{File: "/path/to/binary"},
 		Env:    []string{"env1", "env2", "env3"},
 		Packages: map[string]application.SignedFile{
-			"pkg1": application.SignedFile{
+			"pkg1": {
 				File: "/path/to/package1",
 			},
 		},

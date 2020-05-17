@@ -53,7 +53,7 @@ const (
 
 func init() {
 	impl.Describe = func() (descr device.Description, err error) {
-		return device.Description{Profiles: map[string]struct{}{"test-profile": struct{}{}}}, nil
+		return device.Description{Profiles: map[string]struct{}{"test-profile": {}}}, nil
 	}
 
 	impl.CleanupDir = func(ctx *context.T, dir, helper string) {

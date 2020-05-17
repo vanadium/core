@@ -286,7 +286,7 @@ func TestValueDecoderDecodeArray(t *testing.T) {
 }
 
 func TestValueDecoderDecodeSet(t *testing.T) {
-	expected := map[string]struct{}{"a": struct{}{}, "b": struct{}{}}
+	expected := map[string]struct{}{"a": {}, "b": {}}
 	expectedType := TypeOf(expected)
 	vd := ValueOf(expected).Decoder()
 	if err := vd.StartValue(expectedType); err != nil {

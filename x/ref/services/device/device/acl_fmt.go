@@ -59,7 +59,7 @@ func parseAccessTags(input string) (accessTags, error) {
 
 func (entries permsEntries) String() string {
 	var list []string
-	for pattern, _ := range entries {
+	for pattern := range entries {
 		list = append(list, pattern)
 	}
 	sort.Strings(list)

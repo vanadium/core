@@ -262,43 +262,43 @@ func initTables() {
 
 	custTable.name = "Customer"
 	custTable.rows = []kv{
-		kv{
+		{
 			"001",
-			vom.RawBytesOf(td.Customer{"John Smith", 1, true, td.AddressInfo{"1 Main St.", "Palo Alto", "CA", "94303"}, []td.AddressInfo{td.AddressInfo{"10 Brown St.", "Mountain View", "CA", "94043"}}, td.CreditReport{Agency: td.CreditAgencyEquifax, Report: td.AgencyReportEquifaxReport{td.EquifaxCreditReport{'A', [4]int16{87, 81, 42, 2}}}}}),
+			vom.RawBytesOf(td.Customer{"John Smith", 1, true, td.AddressInfo{"1 Main St.", "Palo Alto", "CA", "94303"}, []td.AddressInfo{{"10 Brown St.", "Mountain View", "CA", "94043"}}, td.CreditReport{Agency: td.CreditAgencyEquifax, Report: td.AgencyReportEquifaxReport{td.EquifaxCreditReport{'A', [4]int16{87, 81, 42, 2}}}}}),
 		},
-		kv{
+		{
 			"001001",
 			vom.RawBytesOf(td.Invoice{1, 1000, t20150122131101, 42, td.AddressInfo{"1 Main St.", "Palo Alto", "CA", "94303"}}),
 		},
-		kv{
+		{
 			"001002",
 			vom.RawBytesOf(td.Invoice{1, 1003, t20150210161202, 7, td.AddressInfo{"2 Main St.", "Palo Alto", "CA", "94303"}}),
 		},
-		kv{
+		{
 			"001003",
 			vom.RawBytesOf(td.Invoice{1, 1005, t20150311101303, 88, td.AddressInfo{"3 Main St.", "Palo Alto", "CA", "94303"}}),
 		},
-		kv{
+		{
 			"002",
-			vom.RawBytesOf(td.Customer{"Bat Masterson", 2, true, td.AddressInfo{"777 Any St.", "Collins", "IA", "50055"}, []td.AddressInfo{td.AddressInfo{"19 Green St.", "Boulder", "CO", "80301"}, td.AddressInfo{"558 W. Orange St.", "Lancaster", "PA", "17603"}}, td.CreditReport{Agency: td.CreditAgencyTransUnion, Report: td.AgencyReportTransUnionReport{td.TransUnionCreditReport{80, map[string]int16{"2015Q2": 40, "2015Q1": 60}}}}}),
+			vom.RawBytesOf(td.Customer{"Bat Masterson", 2, true, td.AddressInfo{"777 Any St.", "Collins", "IA", "50055"}, []td.AddressInfo{{"19 Green St.", "Boulder", "CO", "80301"}, {"558 W. Orange St.", "Lancaster", "PA", "17603"}}, td.CreditReport{Agency: td.CreditAgencyTransUnion, Report: td.AgencyReportTransUnionReport{td.TransUnionCreditReport{80, map[string]int16{"2015Q2": 40, "2015Q1": 60}}}}}),
 		},
-		kv{
+		{
 			"002001",
 			vom.RawBytesOf(td.Invoice{2, 1001, t20150317111404, 166, td.AddressInfo{"777 Any St.", "collins", "IA", "50055"}}),
 		},
-		kv{
+		{
 			"002002",
 			vom.RawBytesOf(td.Invoice{2, 1002, t20150317131505, 243, td.AddressInfo{"888 Any St.", "collins", "IA", "50055"}}),
 		},
-		kv{
+		{
 			"002003",
 			vom.RawBytesOf(td.Invoice{2, 1004, t20150412221606, 787, td.AddressInfo{"999 Any St.", "collins", "IA", "50055"}}),
 		},
-		kv{
+		{
 			"002004",
 			vom.RawBytesOf(td.Invoice{2, 1006, t20150413141707, 88, td.AddressInfo{"101010 Any St.", "collins", "IA", "50055"}}),
 		},
-		kv{
+		{
 			"003",
 			vom.RawBytesOf(td.Customer{"John Steed", 3, true, td.AddressInfo{"100 Queen St.", "New%London", "CT", "06320"}, []td.AddressInfo{}, td.CreditReport{Agency: td.CreditAgencyExperian, Report: td.AgencyReportExperianReport{td.ExperianCreditReport{td.ExperianRatingGood, map[td.Tdh]struct{}{td.TdhTom: {}, td.TdhHarry: {}}, td.TdhTom}}}}),
 		},
@@ -307,15 +307,15 @@ func initTables() {
 
 	numTable.name = "Numbers"
 	numTable.rows = []kv{
-		kv{
+		{
 			"001",
 			vom.RawBytesOf(td.Numbers{byte(12), uint16(1234), uint32(5678), uint64(999888777666), int16(9876), int32(876543), int64(128), float32(3.14159), float64(2.71828182846)}),
 		},
-		kv{
+		{
 			"002",
 			vom.RawBytesOf(td.Numbers{byte(9), uint16(99), uint32(999), uint64(9999999), int16(9), int32(99), int64(88), float32(1.41421356237), float64(1.73205080757)}),
 		},
-		kv{
+		{
 			"003",
 			vom.RawBytesOf(td.Numbers{byte(210), uint16(210), uint32(210), uint64(210), int16(210), int32(210), int64(210), float32(210.0), float64(210.0)}),
 		},
@@ -324,11 +324,11 @@ func initTables() {
 
 	fooTable.name = "Foo"
 	fooTable.rows = []kv{
-		kv{
+		{
 			"001",
 			vom.RawBytesOf(td.FooType{td.BarType{td.BazType{"FooBarBaz", td.TitleOrValueTypeTitle{"Vice President"}}}}),
 		},
-		kv{
+		{
 			"002",
 			vom.RawBytesOf(td.FooType{td.BarType{td.BazType{"BazBarFoo", td.TitleOrValueTypeValue{42}}}}),
 		},
@@ -337,23 +337,23 @@ func initTables() {
 
 	funWithMapsTable.name = "FunWithMaps"
 	funWithMapsTable.rows = []kv{
-		kv{
+		{
 			"AAA",
-			vom.RawBytesOf(td.FunWithMaps{td.K{'a', "bbb"}, map[td.K]td.V{td.K{'a', "aaa"}: td.V{"bbb", 23.0}, td.K{'a', "bbb"}: td.V{"ccc", 14.7}},
+			vom.RawBytesOf(td.FunWithMaps{td.K{'a', "bbb"}, map[td.K]td.V{{'a', "aaa"}: {"bbb", 23.0}, {'a', "bbb"}: {"ccc", 14.7}},
 				map[int16][]map[string]struct{}{
-					23: []map[string]struct{}{
-						map[string]struct{}{"foo": {}, "bar": {}},
+					23: {
+						{"foo": {}, "bar": {}},
 					},
 				},
 			}),
 		},
-		kv{
+		{
 			"BBB",
-			vom.RawBytesOf(td.FunWithMaps{td.K{'x', "zzz"}, map[td.K]td.V{td.K{'x', "zzz"}: td.V{"yyy", 17.1}, td.K{'r', "sss"}: td.V{"qqq", 7.8}},
+			vom.RawBytesOf(td.FunWithMaps{td.K{'x', "zzz"}, map[td.K]td.V{{'x', "zzz"}: {"yyy", 17.1}, {'r', "sss"}: {"qqq", 7.8}},
 				map[int16][]map[string]struct{}{
-					42: []map[string]struct{}{
-						map[string]struct{}{"great": {}, "dane": {}},
-						map[string]struct{}{"german": {}, "shepard": {}},
+					42: {
+						{"great": {}, "dane": {}},
+						{"german": {}, "shepard": {}},
 					},
 				},
 			}),
@@ -363,11 +363,11 @@ func initTables() {
 
 	ratingsArrayTable.name = "RatingsArray"
 	ratingsArrayTable.rows = []kv{
-		kv{
+		{
 			"000",
 			vom.RawBytesOf(td.RatingsArray{40, 20, 10, 0}),
 		},
-		kv{
+		{
 			"111",
 			vom.RawBytesOf(td.RatingsArray{17, 18, 19, 20}),
 		},
@@ -376,11 +376,11 @@ func initTables() {
 
 	tdhApprovalsTable.name = "TdhApprovals"
 	tdhApprovalsTable.rows = []kv{
-		kv{
+		{
 			"yyy",
 			vom.RawBytesOf(map[td.Tdh]struct{}{td.TdhTom: {}}),
 		},
-		kv{
+		{
 			"zzz",
 			vom.RawBytesOf(map[td.Tdh]struct{}{td.TdhDick: {}, td.TdhHarry: {}}),
 		},
@@ -389,11 +389,11 @@ func initTables() {
 
 	previousRatingsTable.name = "PreviousRatings"
 	previousRatingsTable.rows = []kv{
-		kv{
+		{
 			"x1",
 			vom.RawBytesOf(map[string]int16{"1Q2015": 1, "2Q2015": 2}),
 		},
-		kv{
+		{
 			"x2",
 			vom.RawBytesOf(map[string]int16{"2Q2015": 3}),
 		},
@@ -402,18 +402,18 @@ func initTables() {
 
 	previousAddressesTable.name = "PreviousAddresses"
 	previousAddressesTable.rows = []kv{
-		kv{
+		{
 			"a1",
 			vom.RawBytesOf([]td.AddressInfo{
-				td.AddressInfo{"100 Main St.", "Anytown", "CA", "94303"},
-				td.AddressInfo{"200 Main St.", "Othertown", "IA", "51050"},
+				{"100 Main St.", "Anytown", "CA", "94303"},
+				{"200 Main St.", "Othertown", "IA", "51050"},
 			}),
 		},
-		kv{
+		{
 			"a2",
 			vom.RawBytesOf([]td.AddressInfo{
-				td.AddressInfo{"500 Orange St", "Uptown", "ID", "83209"},
-				td.AddressInfo{"200 Fulton St", "Downtown", "MT", "59001"},
+				{"500 Orange St", "Uptown", "ID", "83209"},
+				{"200 Fulton St", "Downtown", "MT", "59001"},
 			}),
 		},
 	}
@@ -421,7 +421,7 @@ func initTables() {
 
 	manyMapsTable.name = "ManyMaps"
 	manyMapsTable.rows = []kv{
-		kv{
+		{
 			"0",
 			vom.RawBytesOf(td.ManyMaps{
 				map[bool]string{true: "It was the best of times,"},
@@ -435,7 +435,7 @@ func initTables() {
 				map[float32]string{32.1: "it was the spring of hope,"},
 				map[float64]string{64.2: "it was the winter of despair,"}, map[string]string{"Dickens": "we are all going direct to Heaven,"},
 				map[string]map[string]string{
-					"Charles": map[string]string{"Dickens": "we are all going direct to Heaven,"},
+					"Charles": {"Dickens": "we are all going direct to Heaven,"},
 				},
 				map[time.Time]string{t2015_07_01_01_23_45: "we are all going direct the other way"},
 			}),
@@ -445,7 +445,7 @@ func initTables() {
 
 	manySetsTable.name = "ManySets"
 	manySetsTable.rows = []kv{
-		kv{
+		{
 			"0",
 			vom.RawBytesOf(td.ManySets{
 				map[bool]struct{}{true: {}},
@@ -479,11 +479,11 @@ func initTables() {
 
 	funWithTypesTable.name = "FunWithTypes"
 	funWithTypesTable.rows = []kv{
-		kv{
+		{
 			"1",
 			vom.RawBytesOf(td.FunWithTypes{T1: custType, T2: invType}),
 		},
-		kv{
+		{
 			"2",
 			vom.RawBytesOf(td.FunWithTypes{T1: custType, T2: custType}),
 		},
@@ -1029,7 +1029,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.Name = \"FooBarBaz\"",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[0].value},
+				{fooTable.rows[0].value},
 			},
 		},
 		{
@@ -1037,7 +1037,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.TitleOrValue.Value = 42",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[1].value},
+				{fooTable.rows[1].value},
 			},
 		},
 		{
@@ -1045,7 +1045,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.TitleOrValue.Title = \"Vice President\"",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[0].value},
+				{fooTable.rows[0].value},
 			},
 		},
 		{
@@ -1652,7 +1652,7 @@ func TestSelect(t *testing.T) {
 			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.Ms[\"Charles\"][\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManyMaps",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.Ms[Charles][Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{
+				{
 					vom.RawBytesOf("It was the best of times,"),
 					vom.RawBytesOf("it was the worst of times,"),
 					vom.RawBytesOf("it was the age of wisdom,"),
@@ -1674,7 +1674,7 @@ func TestSelect(t *testing.T) {
 			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManySets",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{
+				{
 					vom.RawBytesOf(true),
 					vom.RawBytesOf(true),
 					vom.RawBytesOf(true),

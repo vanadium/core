@@ -60,8 +60,8 @@ func TestOutgoingReachable(t *testing.T) {
 	// but cannot reach unreachable.
 	vineClient := vine.VineClient("vineserver")
 	if err := vineClient.SetBehaviors(ctx, map[vine.PeerKey]vine.PeerBehavior{
-		vine.PeerKey{"client", "reachable"}:   {Reachable: true},
-		vine.PeerKey{"client", "unreachable"}: {Reachable: false},
+		{"client", "reachable"}:   {Reachable: true},
+		{"client", "unreachable"}: {Reachable: false},
 	}); err != nil {
 		t.Error(err)
 	}
@@ -131,8 +131,8 @@ func TestIncomingReachable(t *testing.T) {
 	// denies all connections from "denyClient".
 	vineClient := vine.VineClient("vineserver")
 	if err := vineClient.SetBehaviors(ctx, map[vine.PeerKey]vine.PeerBehavior{
-		vine.PeerKey{"client", "server"}:     {Reachable: true},
-		vine.PeerKey{"denyClient", "server"}: {Reachable: false},
+		{"client", "server"}:     {Reachable: true},
+		{"denyClient", "server"}: {Reachable: false},
 	}); err != nil {
 		t.Error(err)
 	}
@@ -207,7 +207,7 @@ func TestDiscovery(t *testing.T) {
 	// Set a policy that says scanner can find advertiser.
 	vineClient := vine.VineClient("advertiser")
 	if err := vineClient.SetBehaviors(ctx, map[vine.PeerKey]vine.PeerBehavior{
-		vine.PeerKey{"advertiser", "scanner"}: {Discoverable: true},
+		{"advertiser", "scanner"}: {Discoverable: true},
 	}); err != nil {
 		t.Error(err)
 	}
@@ -218,7 +218,7 @@ func TestDiscovery(t *testing.T) {
 
 	// Set a policy that says scanner can't find advertiser anymore.
 	if err := vineClient.SetBehaviors(ctx, map[vine.PeerKey]vine.PeerBehavior{
-		vine.PeerKey{"advertiser", "scanner"}: {Discoverable: false},
+		{"advertiser", "scanner"}: {Discoverable: false},
 	}); err != nil {
 		t.Error(err)
 	}

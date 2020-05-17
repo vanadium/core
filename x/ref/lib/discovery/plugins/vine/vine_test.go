@@ -72,7 +72,7 @@ func TestBasic(t *testing.T) {
 	}
 
 	var stops []func()
-	for i, _ := range adinfos {
+	for i := range adinfos {
 		stop, err := testutil.Advertise(ctx, plugins[i], &adinfos[i])
 		if err != nil {
 			t.Fatal(err)
@@ -186,7 +186,7 @@ func TestExpired(t *testing.T) {
 		defer plugins[i].Close()
 	}
 
-	for i, _ := range adinfos {
+	for i := range adinfos {
 		stop, err := testutil.Advertise(ctx, plugins[i], &adinfos[i])
 		if err != nil {
 			t.Fatal(err)

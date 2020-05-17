@@ -753,12 +753,12 @@ func TestKeyRanges(t *testing.T) {
 		}
 		switch sel := (*s).(type) {
 		case query_parser.SelectStatement:
-			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{query_parser.Segment{Value: "k"}}}, vdl.String, sel.Where)
+			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
 			if !reflect.DeepEqual(test.indexRanges, indexRanges) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, indexRanges.String(), test.indexRanges.String())
 			}
 		case query_parser.DeleteStatement:
-			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{query_parser.Segment{Value: "k"}}}, vdl.String, sel.Where)
+			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
 			if !reflect.DeepEqual(test.indexRanges, indexRanges) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, indexRanges.String(), test.indexRanges.String())
 			}
@@ -775,7 +775,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: true,
@@ -789,7 +789,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo = 12",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: true,
@@ -803,7 +803,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.InterfaceName = \"FooBar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -817,7 +817,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.InterfaceName = \"Foo\" or v.InterfaceName = \"Bar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -832,7 +832,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.InterfaceName = \"Foo\" and v.InterfaceName = \"Bar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.InterfaceName",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -844,7 +844,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.InterfaceName like \"Foo%\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -858,7 +858,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.InterfaceName like \"Foo%\" and v.Address like \"Bar%\"",
 			[]string{"v.InterfaceName", "v.Address"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -866,7 +866,7 @@ func TestIndexRanges(t *testing.T) {
 						ds.StringFieldRange{Start: "Foo", Limit: "Fop"},
 					},
 				},
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Address",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -880,7 +880,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where \"abc\" = v.Foo or \"def\" = v.Foo",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -895,7 +895,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo >= \"foo\" and v.Foo < \"goo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -909,7 +909,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where \"foo\" <= v.Foo and \"goo\" >= v.Foo",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -923,7 +923,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo <> \"foo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -938,7 +938,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo <> \"foo\" and v.Foo > \"bar\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -953,7 +953,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo <> \"foo\" or v.Foo > \"bar\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -967,7 +967,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo <> \"bar\" or v.Foo > \"foo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -982,7 +982,7 @@ func TestIndexRanges(t *testing.T) {
 			"select v from Customer where Type(v) = \"Foo.Bar\" and v.Foo >= \"100\" and v.Foo < \"200\" and v.foo > 50 and v.bar <= 1000 and v.baz <> -20.7",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -996,7 +996,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo = \"abc\" and v.Foo = \"def\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1008,7 +1008,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where Type(v) = \"Foo.Bar\" and v.Foo like \"abc%\" limit 100 offset 200",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1022,7 +1022,7 @@ func TestIndexRanges(t *testing.T) {
 			"select  k,  v from \n  Customer where v.Foo like \"002%\" or v.Foo like \"001%\" or v.Foo like \"%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1036,7 +1036,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo = \"Foo.Bar\" and v.Foo like \"abc%\" limit 100 offset 200",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1048,7 +1048,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo like \"foo%\" and v.Foo like \"bar%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1060,7 +1060,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo like \"foo%\" or v.Foo like \"bar%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1076,7 +1076,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo = \"Foo.Bar\" or v.Foo like \"Foo\" or v.Foo like \"abc%\" limit 100 offset 200",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1092,7 +1092,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo like \"Foo@%Bar\" or v.Foo like \"abc%\" limit 100 offset 200 escape '@'",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1107,7 +1107,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo like \"Foo%Bar\" or v.Foo like \"abc%\" limit 100 offset 200",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1122,7 +1122,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo like \"Foo#%Bar\" or v.Foo like \"abc%\" escape '#' limit 100 offset 200",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1137,7 +1137,7 @@ func TestIndexRanges(t *testing.T) {
 			"select k, v from Customer where v.Foo not like \"002%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1153,7 +1153,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: true,
@@ -1167,7 +1167,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo = 12",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: true,
@@ -1181,7 +1181,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.InterfaceName = \"FooBar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1195,7 +1195,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.InterfaceName = \"Foo\" or v.InterfaceName = \"Bar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1210,7 +1210,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.InterfaceName = \"Foo\" and v.InterfaceName = \"Bar\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.InterfaceName",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1222,7 +1222,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.InterfaceName like \"Foo%\"",
 			[]string{"v.InterfaceName"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1236,7 +1236,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.InterfaceName like \"Foo%\" and v.Address like \"Bar%\"",
 			[]string{"v.InterfaceName", "v.Address"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.InterfaceName",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1244,7 +1244,7 @@ func TestIndexRanges(t *testing.T) {
 						ds.StringFieldRange{Start: "Foo", Limit: "Fop"},
 					},
 				},
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Address",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1258,7 +1258,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where \"abc\" = v.Foo or \"def\" = v.Foo",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1273,7 +1273,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo >= \"foo\" and v.Foo < \"goo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1287,7 +1287,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where \"foo\" <= v.Foo and \"goo\" >= v.Foo",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1301,7 +1301,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo <> \"foo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1316,7 +1316,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo <> \"foo\" and v.Foo > \"bar\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1331,7 +1331,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo <> \"foo\" or v.Foo > \"bar\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1345,7 +1345,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo <> \"bar\" or v.Foo > \"foo\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1360,7 +1360,7 @@ func TestIndexRanges(t *testing.T) {
 			"select v from Customer where Type(v) = \"Foo.Bar\" and v.Foo >= \"100\" and v.Foo < \"200\" and v.foo > 50 and v.bar <= 1000 and v.baz <> -20.7",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1374,7 +1374,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo = \"abc\" and v.Foo = \"def\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1386,7 +1386,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where Type(v) = \"Foo.Bar\" and v.Foo like \"abc%\" limit 100",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1400,7 +1400,7 @@ func TestIndexRanges(t *testing.T) {
 			"select  k,  v from \n  Customer where v.Foo like \"002%\" or v.Foo like \"001%\" or v.Foo like \"%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1414,7 +1414,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo = \"Foo.Bar\" and v.Foo like \"abc%\" limit 100",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1426,7 +1426,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo like \"foo%\" and v.Foo like \"bar%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:    "v.Foo",
 					Kind:         vdl.String,
 					NilAllowed:   false,
@@ -1438,7 +1438,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo like \"foo%\" or v.Foo like \"bar%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1454,7 +1454,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo = \"Foo.Bar\" or v.Foo like \"Foo\" or v.Foo like \"abc%\" limit 100",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1470,7 +1470,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo like \"Foo@%Bar\" or v.Foo like \"abc%\" limit 100 escape '@'",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1485,7 +1485,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo like \"Foo%Bar\" or v.Foo like \"abc%\" limit 100",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1500,7 +1500,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo like \"Foo#%Bar\" or v.Foo like \"abc%\" escape '#' limit 100",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,
@@ -1515,7 +1515,7 @@ func TestIndexRanges(t *testing.T) {
 			"delete from Customer where v.Foo not like \"002%\"",
 			[]string{"v.Foo"},
 			[]*ds.IndexRanges{
-				&ds.IndexRanges{
+				{
 					FieldName:  "v.Foo",
 					Kind:       vdl.String,
 					NilAllowed: false,

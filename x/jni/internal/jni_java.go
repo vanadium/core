@@ -9,8 +9,8 @@ package jni
 import (
 	"unsafe"
 
-	"v.io/x/lib/vlog"
 	jutil "v.io/x/jni/util"
+	"v.io/x/lib/vlog"
 )
 
 // #include "jni.h"

@@ -683,7 +683,7 @@ func validType(t *Type) error {
 // existsInvalidKey returns a nil error iff the given Types all have valid set
 // and map keys.
 func existsInvalidKey(allTypes map[*Type]bool) error {
-	for t, _ := range allTypes {
+	for t := range allTypes {
 		if (t.kind == Map || t.kind == Set) && !t.key.CanBeKey() {
 			return fmt.Errorf("invalid key %q in %q", t.key, t)
 		}
@@ -721,7 +721,7 @@ func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
 // cycles (e.g. type A struct{Elem: A})
 func existsStrictCycle(allTypes map[*Type]bool) error {
 	inCycle := make(map[*Type]bool)
-	for t, _ := range allTypes {
+	for t := range allTypes {
 		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
 		}
@@ -761,7 +761,7 @@ func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
 // invalid VOM encodings.
 func existsUnnamedCycle(allTypes map[*Type]bool) error {
 	inCycle := make(map[*Type]bool)
-	for t, _ := range allTypes {
+	for t := range allTypes {
 		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
 		}

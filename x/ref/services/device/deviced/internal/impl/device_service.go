@@ -176,7 +176,7 @@ func (*deviceService) IsRunnable(_ *context.T, _ rpc.ServerCall, description bin
 		return false, err
 	}
 	binaryProfiles := make([]*profile.Specification, 0)
-	for name, _ := range description.Profiles {
+	for name := range description.Profiles {
 		profile, err := getProfile(name)
 		if err != nil {
 			return false, err

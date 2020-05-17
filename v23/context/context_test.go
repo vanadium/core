@@ -251,8 +251,10 @@ type stringLogger struct {
 	bytes.Buffer
 }
 
-func (*stringLogger) Info(args ...interface{})                    {}
-func (sl *stringLogger) InfoDepth(depth int, args ...interface{}) { sl.WriteString(fmt.Sprint(args...)) }
+func (*stringLogger) Info(args ...interface{}) {}
+func (sl *stringLogger) InfoDepth(depth int, args ...interface{}) {
+	sl.WriteString(fmt.Sprint(args...))
+}
 func (sl *stringLogger) Infof(format string, args ...interface{}) {}
 func (*stringLogger) InfoStack(all bool)                          {}
 

@@ -465,7 +465,7 @@ func RootBlessings(b Blessings) []Blessings {
 			digest, _ = cert.chainedDigests(cert.Signature.Hash, nil)
 			ptr       = &ret[i]
 		)
-		ptr.chains = [][]Certificate{[]Certificate{cert}}
+		ptr.chains = [][]Certificate{{cert}}
 		ptr.digests = [][]byte{digest}
 		// The public key must parse because there is no way to create
 		// b without a valid certificate chain.

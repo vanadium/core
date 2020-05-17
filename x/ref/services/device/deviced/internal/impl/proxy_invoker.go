@@ -57,7 +57,7 @@ func (p *proxyInvoker) Prepare(_ *context.T, method string, numArgs int) (argptr
 	// TODO(toddw): Change argptrs to be filled in with *vdl.Value, to avoid
 	// unnecessary type lookups.
 	argptrs = make([]interface{}, numArgs)
-	for i, _ := range argptrs {
+	for i := range argptrs {
 		var x interface{}
 		argptrs[i] = &x
 	}

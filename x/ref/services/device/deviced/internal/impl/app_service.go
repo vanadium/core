@@ -610,7 +610,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 	if err != nil {
 		return err
 	}
-	for pkg, _ := range overridePackages {
+	for pkg := range overridePackages {
 		delete(envelope.Packages, pkg)
 	}
 	packagesDir := filepath.Join(versionDir, "packages")
@@ -618,7 +618,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 		return err
 	}
 	installFrom := func(pkgs application.Packages, sourceDir string) error {
-		for pkg, _ := range pkgs {
+		for pkg := range pkgs {
 			pkgFile := filepath.Join(sourceDir, "pkg", pkg)
 			dst := filepath.Join(packagesDir, pkg)
 			if err := packages.Install(pkgFile, dst); err != nil {
@@ -1434,7 +1434,7 @@ func (i *appService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerC
 	if n == nil {
 		return verror.New(errors.ErrInvalidSuffix, nil)
 	}
-	for child, _ := range n.children {
+	for child := range n.children {
 		if m.Match(child) {
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: child})
 		}

@@ -21,6 +21,7 @@ import (
 	"v.io/v23/services/device"
 	"v.io/x/lib/envvar"
 	"v.io/x/ref"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/device/deviced/internal/impl"
 	"v.io/x/ref/services/device/deviced/internal/impl/utiltest"
 	"v.io/x/ref/services/device/deviced/internal/installer"
@@ -32,7 +33,6 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/testutil"
-	"v.io/x/ref/runtime/factories/library"
 )
 
 func init() {
@@ -436,13 +436,13 @@ func TestDeviceManagerPackages(t *testing.T) {
 	// Create the envelope for the first version of the app.
 	*envelope = utiltest.EnvelopeFromShell(sh, nil, nil, utiltest.App, "google naps", 0, 0, "appV1")
 	envelope.Packages = map[string]application.SignedFile{
-		"test": application.SignedFile{
+		"test": {
 			File: "realbin/testpkg",
 		},
-		"test2": application.SignedFile{
+		"test2": {
 			File: "realbin/testfile",
 		},
-		"shark": application.SignedFile{
+		"shark": {
 			File: "realbin/leftshark",
 		},
 	}

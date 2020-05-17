@@ -158,30 +158,30 @@ func (nBadEnumString1) VDLReflect(struct{ Enum struct{ A string } }) { panic("X"
 
 // String method isn't String() string
 func (nBadEnumString2) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumString2) String()                                        { panic("X") }
+func (nBadEnumString2) String()                                      { panic("X") }
 
 // String method isn't String() string
 func (nBadEnumString3) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumString3) String() bool                                   { panic("X") }
+func (nBadEnumString3) String() bool                                 { panic("X") }
 
 // No Set method
 func (nBadEnumSet1) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumSet1) String() string                                 { panic("X") }
+func (nBadEnumSet1) String() string                               { panic("X") }
 
 // Set method isn't Set(string) error
 func (nBadEnumSet2) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumSet2) String() string                                 { panic("X") }
-func (nBadEnumSet2) Set()                                           { panic("X") }
+func (nBadEnumSet2) String() string                               { panic("X") }
+func (nBadEnumSet2) Set()                                         { panic("X") }
 
 // Set method isn't Set(string) error
 func (nBadEnumSet3) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumSet3) String() string                                 { panic("X") }
-func (nBadEnumSet3) Set(bool) error                                 { panic("X") }
+func (nBadEnumSet3) String() string                               { panic("X") }
+func (nBadEnumSet3) Set(bool) error                               { panic("X") }
 
 // Set method receiver isn't a pointer
 func (nBadEnumSet4) VDLReflect(struct{ Enum struct{ A string } }) { panic("X") }
-func (nBadEnumSet4) String() string                                 { panic("X") }
-func (nBadEnumSet4) Set(string) error                               { panic("X") }
+func (nBadEnumSet4) String() string                               { panic("X") }
+func (nBadEnumSet4) Set(string) error                             { panic("X") }
 
 // No union fields
 func (nBadUnionNoFields) VDLReflect(struct {
@@ -326,9 +326,9 @@ type (
 	OtherNameConflictType  struct{}
 )
 
-func (x NameConflictUnionField) Index() int                         { return 0 }
-func (x NameConflictUnionField) Interface() interface{}             { return x.Value }
-func (x NameConflictUnionField) Name() string                       { return "A" }
+func (x NameConflictUnionField) Index() int                       { return 0 }
+func (x NameConflictUnionField) Interface() interface{}           { return x.Value }
+func (x NameConflictUnionField) Name() string                     { return "A" }
 func (x NameConflictUnionField) VDLReflect(__NameConflictReflect) {}
 
 func TestReflectNameConflicts(t *testing.T) {
