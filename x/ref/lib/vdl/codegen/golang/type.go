@@ -278,7 +278,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 		for ix := 0; ix < t.NumField(); ix++ {
 			s += fmt.Sprintf("\n\t\t\t%[2]s %[1]s%[2]s", def.Name, t.Field(ix).Name)
 		}
-		s += fmt.Sprintf("\n\t\t}\n\t}\n)")
+		s += "\n\t\t}\n\t}\n)"
 		for ix := 0; ix < t.NumField(); ix++ {
 			f := t.Field(ix)
 			s += fmt.Sprintf("\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+

@@ -140,10 +140,7 @@ func pruneUninstalledInstallations(ctx *context.T, root string, now time.Time) e
 			allerrors = append(allerrors, pthError{idir, err})
 			continue
 		}
-
-		if _, ok := pruneCandidates[installPath]; ok {
-			delete(pruneCandidates, installPath)
-		}
+		delete(pruneCandidates, installPath)
 	}
 
 	// All remaining entries in pruneCandidates are not referenced by

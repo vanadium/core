@@ -1135,10 +1135,7 @@ func (WireBlessings) VDLReflect(struct {
 }
 
 func (x WireBlessings) VDLIsZero() bool {
-	if len(x.CertificateChains) != 0 {
-		return false
-	}
-	return true
+	return len(x.CertificateChains) == 0
 }
 
 func (x WireBlessings) VDLWrite(enc vdl.Encoder) error {

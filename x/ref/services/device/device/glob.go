@@ -431,7 +431,7 @@ var parallelismStrings = map[parallelismFlag]string{
 
 func init() {
 	if len(parallelismStrings) != int(sentinelParallelismFlag) {
-		panic(fmt.Sprintf("broken invariant: mismatching number of parallelism types"))
+		panic("broken invariant: mismatching number of parallelism types")
 	}
 }
 

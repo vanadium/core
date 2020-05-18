@@ -1710,10 +1710,7 @@ func (BarType) VDLReflect(struct {
 }
 
 func (x BarType) VDLIsZero() bool {
-	if !x.Baz.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.Baz.VDLIsZero()
 }
 
 func (x BarType) VDLWrite(enc vdl.Encoder) error {
@@ -1780,10 +1777,7 @@ func (FooType) VDLReflect(struct {
 }
 
 func (x FooType) VDLIsZero() bool {
-	if !x.Bar.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.Bar.VDLIsZero()
 }
 
 func (x FooType) VDLWrite(enc vdl.Encoder) error {

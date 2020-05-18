@@ -180,7 +180,7 @@ func TestMinChannelTimeout(t *testing.T) {
 
 func deadlineInAbout(c *Conn, d time.Duration) error {
 	const slop = 5 * time.Second
-	delta := c.healthCheckCloseDeadline().Sub(time.Now())
+	delta := time.Until(c.healthCheckCloseDeadline())
 	if delta > d-slop && delta < d+slop {
 		return nil
 	}

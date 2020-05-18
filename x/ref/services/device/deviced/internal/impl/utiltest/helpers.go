@@ -170,7 +170,7 @@ func Resolve(f Fatalist, ctx *context.T, name string, expectReplicas int, retry 
 		// replica.  Filter out non-tcp endpoints.
 		filteredResults := []string{}
 		for _, r := range me.Names() {
-			if strings.Index(r, "@tcp") != -1 {
+			if strings.Contains(r, "@tcp") {
 				filteredResults = append(filteredResults, r)
 			}
 		}

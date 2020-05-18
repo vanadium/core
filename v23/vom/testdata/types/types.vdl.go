@@ -4903,10 +4903,7 @@ func (StructAny) VDLReflect(struct {
 }
 
 func (x StructAny) VDLIsZero() bool {
-	if x.Any != nil && !x.Any.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.Any == nil || x.Any.VDLIsZero()
 }
 
 func (x StructAny) VDLWrite(enc vdl.Encoder) error {
@@ -4972,10 +4969,7 @@ func (StructMap) VDLReflect(struct {
 }
 
 func (x StructMap) VDLIsZero() bool {
-	if len(x.Map) != 0 {
-		return false
-	}
-	return true
+	return len(x.Map) == 0
 }
 
 func (x StructMap) VDLWrite(enc vdl.Encoder) error {

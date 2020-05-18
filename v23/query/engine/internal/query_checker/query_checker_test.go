@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/query_checker"
@@ -75,7 +75,7 @@ func (db *mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) 
 		var t invoiceTable
 		return t, nil
 	}
-	return nil, errors.New(fmt.Sprintf("No such table: %s", table))
+	return nil, fmt.Errorf("No such table: %s", table)
 }
 
 var db mockDB

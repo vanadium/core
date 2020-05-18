@@ -246,7 +246,6 @@ func (r *raft) Start() {
 			go r.perFollower(m)
 		}
 	}
-	return
 }
 
 // Stop ceases all function as a raft server.

@@ -418,18 +418,18 @@ func TestFunc(t *testing.T) {
 
 	then := time.Now()
 	checkVariable(t, "testing/timeout", nil) // Times out
-	if took := time.Now().Sub(then); took < 100*time.Millisecond {
+	if took := time.Since(then); took < 100*time.Millisecond {
 		t.Fatalf("expected a timeout: took %s", took)
 	}
 	checkVariable(t, "testing/timeout", nil) // Times out
-	if took := time.Now().Sub(then); took < 100*time.Millisecond {
+	if took := time.Since(then); took < 100*time.Millisecond {
 		t.Fatalf("expected a timeout: took %s", took)
 	}
 
 	ch <- int64(0)
 	then = time.Now()
 	checkVariable(t, "testing/slowint", int64(0)) // New value
-	if took := time.Now().Sub(then); took > 100*time.Millisecond {
+	if took := time.Since(then); took > 100*time.Millisecond {
 		t.Fatalf("unexpected timeout: took %s", took)
 	}
 	for i := 1; i <= 5; i++ {

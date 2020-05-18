@@ -340,7 +340,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 					queue = append(queue, gState{next, tail, depth})
 				case naming.GlobChildrenReplyError:
 					v.Value.Name = naming.Join(state.name, v.Value.Name)
-					return subcall.Send(naming.GlobReplyError{Value: v.Value})
+					return subcall.Send(naming.GlobReplyError(v))
 				}
 				return nil
 			}

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -134,7 +134,7 @@ func TestPrepareDischarges(t *testing.T) {
 	if err := inRange(dis.Expiry(), beforeFetch.Add(expiryDur), afterFetch.Add(expiryDur)); err != nil {
 		t.Error(err)
 	}
-	time.Sleep(dis.Expiry().Sub(time.Now()))
+	time.Sleep(time.Until(dis.Expiry()))
 
 	// Preparing Discharges again to get fresh discharges.
 	beforeFetch = time.Now()

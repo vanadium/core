@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/conventions"
 	"v.io/v23/discovery"
@@ -69,7 +69,7 @@ func runTimedCall(ctx *context.T, name, message string, opts ...rpc.CallOpt) (st
 	if err := call.Finish(&recvd); err != nil {
 		return summary, err
 	}
-	elapsed := time.Now().Sub(start)
+	elapsed := time.Since(start)
 	if recvd != message {
 		return summary, fmt.Errorf("got [%s], want [%s]", recvd, message)
 	}
@@ -229,7 +229,7 @@ func (p *peer) call(ctx *context.T, message string) (string, error) {
 	if err := call.Finish(&recvd); err != nil {
 		return "", err
 	}
-	elapsed := time.Now().Sub(start)
+	elapsed := time.Since(start)
 	if recvd != message {
 		return "", fmt.Errorf("got [%s], want [%s]", recvd, message)
 	}

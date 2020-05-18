@@ -22,7 +22,7 @@ func testCancel(t *testing.T, ctx *context.T, cancel context.CancelFunc) {
 		t.Errorf("Done closed when deadline not yet passed")
 	default:
 	}
-	ch := make(chan bool, 0)
+	ch := make(chan bool)
 	go func() {
 		cancel()
 		close(ch)
@@ -92,7 +92,7 @@ func TestMultiLevelCancelContext(t *testing.T) {
 
 func testDeadline(t *testing.T, ctx *context.T, start time.Time, desiredTimeout time.Duration) {
 	<-ctx.Done()
-	if delta := time.Now().Sub(start); delta < desiredTimeout {
+	if delta := time.Since(start); delta < desiredTimeout {
 		t.Errorf("Deadline too short want %s got %s", desiredTimeout, delta)
 	}
 	if err := ctx.Err(); err != context.DeadlineExceeded {

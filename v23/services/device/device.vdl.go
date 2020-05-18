@@ -873,10 +873,7 @@ func (Description) VDLReflect(struct {
 }
 
 func (x Description) VDLIsZero() bool {
-	if len(x.Profiles) != 0 {
-		return false
-	}
-	return true
+	return len(x.Profiles) == 0
 }
 
 func (x Description) VDLWrite(enc vdl.Encoder) error {

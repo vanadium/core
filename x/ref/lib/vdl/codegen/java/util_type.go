@@ -165,7 +165,7 @@ func javaType(t *vdl.Type, forceClass bool, env *compile.Env) string {
 		// NOTE(spetrovic): We represent byte lists as Java byte arrays, as it's doubtful anybody
 		// would want to use them as Java lists.
 		if javaType(t.Elem(), false, env) == "byte" {
-			return fmt.Sprintf("byte[]")
+			return "byte[]"
 		}
 		return fmt.Sprintf("%s<%s>", "java.util.List", javaType(t.Elem(), true, env))
 	case vdl.Set:

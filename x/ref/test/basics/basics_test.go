@@ -144,7 +144,7 @@ func BenchmarkCopy_1M(b *testing.B)  { benchmarkCopy(b, 1<<20) }
 
 func benchmarkAlloc(b *testing.B, size int) {
 	for i := 0; i < b.N; i++ {
-		_ = make([]byte, size, size)
+		_ = make([]byte, size)
 	}
 }
 

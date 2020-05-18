@@ -31,9 +31,7 @@ func Valid(id Id) bool {
 func FromHexString(s string) (Id, error) {
 	var id Id
 	var slice []byte
-	if strings.HasPrefix(s, "0x") {
-		s = s[2:]
-	}
+	s = strings.TrimPrefix(s, "0x")
 	if _, err := fmt.Sscanf(s, "%x", &slice); err != nil {
 		return id, err
 	}

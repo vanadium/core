@@ -135,7 +135,6 @@ func (ns *namespace) globAtServer(ctx *context.T, t *task, replies chan *task, t
 		replies <- x
 	}
 	t.error = call.Finish()
-	return
 }
 
 // depth returns the directory depth of a given name.  It is used to pick off the unsatisfied part of the pattern.

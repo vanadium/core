@@ -7,7 +7,6 @@ package fs
 
 import (
 	"encoding/gob"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -137,7 +136,7 @@ func init() {
 	// because if so, then applicationEnvelope defined in this package
 	// needs to change
 	if n := reflect.TypeOf(application.Envelope{}).NumField(); n != 8 {
-		panic(fmt.Sprintf("It appears that fields have been added to or removed from application.Envelope before the hack in this file around gob-encodeability was removed. Please also update applicationEnvelope, translateToGobEncodeable and translateToGobDecodeable in this file"))
+		panic("It appears that fields have been added to or removed from application.Envelope before the hack in this file around gob-encodeability was removed. Please also update applicationEnvelope, translateToGobEncodeable and translateToGobDecodeable in this file")
 	}
 }
 

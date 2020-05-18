@@ -78,7 +78,7 @@ func javaVal(v *vdl.Value, env *compile.Env) string {
 		return strconv.FormatInt(v.Int(), 10) + longSuffix
 	case vdl.Float32, vdl.Float64:
 		c := strconv.FormatFloat(v.Float(), 'g', -1, bitlen(v.Kind()))
-		if strings.Index(c, ".") == -1 {
+		if !strings.Contains(c, ".") {
 			c += ".0"
 		}
 		if v.Kind() == vdl.Float32 {

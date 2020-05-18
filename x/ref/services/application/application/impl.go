@@ -294,7 +294,7 @@ func editAndPutEnvelopeJSON(ctx *context.T, env *cmdline.Env, app repository.App
 			}
 			return errors.New("aborted")
 		}
-		if bytes.Compare(envData, newData) == 0 {
+		if bytes.Equal(envData, newData) {
 			fmt.Fprintln(env.Stdout, "Nothing changed")
 			return nil
 		}

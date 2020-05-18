@@ -144,14 +144,12 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 			delete(bs.state.Discharges, key)
 		}
 	}
-	return
 }
 
 func (bs *blessingStore) ClearDischarges(discharges ...security.Discharge) {
 	bs.mu.Lock()
 	clearDischargesFromCache(bs.state.Discharges, discharges...)
 	bs.mu.Unlock()
-	return
 }
 
 func (bs *blessingStore) Discharge(caveat security.Caveat, impetus security.DischargeImpetus) (security.Discharge, time.Time) {

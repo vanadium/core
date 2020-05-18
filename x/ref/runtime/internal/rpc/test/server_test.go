@@ -121,7 +121,7 @@ func TestServerStatus(t *testing.T) {
 		for {
 			status = server.Status()
 			if got := status.State; got != want {
-				if time.Now().Sub(then) > time.Minute {
+				if time.Since(then) > time.Minute {
 					t.Fatalf("got %s, want %s", got, want)
 				}
 			} else {

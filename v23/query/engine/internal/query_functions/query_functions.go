@@ -116,21 +116,24 @@ func CheckFunction(db ds.Database, f *query_parser.Function) error {
 		// Check if the function can be executed now.
 		// If any arg is not a literal and not a function that has been already executed,
 		// then okToExecuteNow will be set to false.
-		okToExecuteNow := true
-		for _, arg := range f.Args {
-			switch arg.Type {
-			case query_parser.TypBigInt, query_parser.TypBigRat, query_parser.TypBool, query_parser.TypFloat, query_parser.TypInt, query_parser.TypStr, query_parser.TypTime, query_parser.TypUint:
-				// do nothing
-			case query_parser.TypFunction:
-				if !arg.Function.Computed {
-					okToExecuteNow = false
-					break
+
+		executeNow := func() bool {
+			for _, arg := range f.Args {
+				switch arg.Type {
+				case query_parser.TypBigInt, query_parser.TypBigRat, query_parser.TypBool, query_parser.TypFloat, query_parser.TypInt, query_parser.TypStr, query_parser.TypTime, query_parser.TypUint:
+					// do nothing
+				case query_parser.TypFunction:
+					if !arg.Function.Computed {
+						return false
+					}
+				default:
+					return false
 				}
-			default:
-				okToExecuteNow = false
-				break
 			}
+			return true
 		}
+
+		okToExecuteNow := executeNow()
 		// If all of the functions args are literals or already computed functions,
 		// execute this function now and save the result.
 		if okToExecuteNow {

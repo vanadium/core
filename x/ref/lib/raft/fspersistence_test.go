@@ -213,7 +213,7 @@ func waitForLeadership(r *raft, timeout time.Duration) bool {
 		if role == RoleLeader {
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			return false
 		}
 		time.Sleep(10 * time.Millisecond)

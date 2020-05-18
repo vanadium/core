@@ -92,9 +92,7 @@ func (c *ttlCache) remember(ctx *context.T, prefix string, entry *naming.MountEn
 	prefix = naming.TrimSuffix(prefix, entry.Name)
 	// Copy the entry.
 	var ce naming.MountEntry
-	for _, s := range entry.Servers {
-		ce.Servers = append(ce.Servers, s)
-	}
+	ce.Servers = append(ce.Servers, entry.Servers...)
 	ce.ServesMountTable = entry.ServesMountTable
 	c.Lock()
 	// Enforce an upper limit on the cache size.

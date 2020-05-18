@@ -25,7 +25,7 @@ func Dump(data []byte) (string, error) {
 	d := NewDumper(NewDumpWriter(&buf))
 	_, err := d.Write(data)
 	d.Close()
-	return string(buf.Bytes()), err
+	return buf.String(), err
 }
 
 // DumpWriter is the interface that describes how to write out dumps produced by
@@ -209,6 +209,7 @@ func (d *dumpWorker) Read(data []byte) (int, error) {
 	// call that all data has been processed.
 	d.lastWriteDone(nil)
 	// Wait for commands on the the cmd channel.
+	// nolint: gosimple //lint:ignore S1000
 	for {
 		select {
 		case cmd, ok := <-d.cmdChan:

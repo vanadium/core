@@ -30,7 +30,7 @@ func waitForLogAgreement(rs []*raft, timeout time.Duration) bool {
 			vlog.Infof("tada, all logs agree at %v@%v", indexMap, termMap)
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			vlog.Errorf("oops, logs disagree %v@%v", indexMap, termMap)
 			return false
 		}
@@ -62,7 +62,7 @@ func waitForAppliedAgreement(rs []*raft, cs []*client, timeout time.Duration) bo
 			vlog.Infof("tada, all applys agree at %v@%v", indexMap, termMap)
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			vlog.Errorf("oops, applys disagree %v@%v", indexMap, termMap)
 			return false
 		}
@@ -85,7 +85,7 @@ func waitForAllRunning(rs []*raft, timeout time.Duration) bool {
 		if i == n {
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			return false
 		}
 		time.Sleep(500 * time.Millisecond)
@@ -122,7 +122,7 @@ func TestAppend(t *testing.T) {
 	if !waitForAppliedAgreement(rs, cs, 2*thb) {
 		t.Fatalf("no log agreement")
 	}
-	vlog.Infof("appends took %s", time.Now().Sub(start))
+	vlog.Infof("appends took %s", time.Since(start))
 
 	// Kill off one instance and see if we keep committing.
 	r1.Stop()

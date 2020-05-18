@@ -112,7 +112,7 @@ func NewRoutingID() (RoutingID, error) {
 }
 
 func Compare(a, b RoutingID) bool {
-	return bytes.Compare(a.value[:], b.value[:]) == 0
+	return bytes.Equal(a.value[:], b.value[:])
 }
 
 // Implement EndpointOpt so that RoutingID can be passed as an optional

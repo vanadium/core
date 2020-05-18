@@ -70,8 +70,8 @@ func (errStore) ForPeer(peerBlessings ...string) Blessings                     {
 func (errStore) SetDefault(blessings Blessings) error                          { return verror.New(errNilStore, nil) }
 func (errStore) Default() (Blessings, <-chan struct{})                         { return Blessings{}, nil }
 func (errStore) PeerBlessings() map[BlessingPattern]Blessings                  { return nil }
-func (errStore) CacheDischarge(Discharge, Caveat, DischargeImpetus)            { return }
-func (errStore) ClearDischarges(...Discharge)                                  { return }
+func (errStore) CacheDischarge(Discharge, Caveat, DischargeImpetus)            {}
+func (errStore) ClearDischarges(...Discharge)                                  {}
 func (errStore) Discharge(Caveat, DischargeImpetus) (d Discharge, t time.Time) { return d, t }
 func (errStore) DebugString() string                                           { return verror.New(errNilStore, nil).Error() }
 func (s errStore) PublicKey() PublicKey                                        { return s.key }

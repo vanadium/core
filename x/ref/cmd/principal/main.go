@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
@@ -1282,7 +1282,7 @@ func prettyPrintCaveats(chain []security.Certificate) ([]string, error) {
 			// In the case a ConstCaveat is specified, we only want to print it
 			// if it never validates.
 			if !param.(bool) {
-				s = append(s, fmt.Sprintf("Never validates"))
+				s = append(s, "Never validates")
 			}
 		case security.ExpiryCaveat.Id:
 			s = append(s, fmt.Sprintf("Expires at %v", param))

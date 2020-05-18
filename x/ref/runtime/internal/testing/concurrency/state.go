@@ -5,7 +5,6 @@
 package concurrency
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 )
@@ -96,7 +95,7 @@ func (s *state) addBranch(branch []*choice, seeds *stack) error {
 	}
 	next, found := s.children[choice.next]
 	if !found {
-		return errors.New(fmt.Sprintf("invalid choice (no transition fo thread %d).", choice.next))
+		return fmt.Errorf("invalid choice (no transition fo thread %d).", choice.next)
 	}
 	next.visited = true
 	branch = branch[1:]
@@ -143,24 +142,24 @@ func (s *state) approach(other *state, seeds *stack) {
 // transition identified by the given thread identifier.
 func (s *state) checkDivergence(transitions map[TID]*transition) error {
 	if len(s.children) != len(transitions) {
-		return errors.New(fmt.Sprintf("divergence encountered (expected %v, got %v)", len(s.children), len(transitions)))
+		return fmt.Errorf("divergence encountered (expected %v, got %v)", len(s.children), len(transitions))
 	}
 	for tid, t := range transitions {
 		child, found := s.children[tid]
 		if !found {
-			return errors.New(fmt.Sprintf("divergence encountered (no transition for thread %d)", tid))
+			return fmt.Errorf("divergence encountered (no transition for thread %d)", tid)
 		}
 		if child.enabled != t.enabled {
-			return errors.New(fmt.Sprintf("divergence encountered (expected %v, got %v)", child.enabled, t.enabled))
+			return fmt.Errorf("divergence encountered (expected %v, got %v)", child.enabled, t.enabled)
 		}
 		if !child.clock.equals(t.clock) {
-			return errors.New(fmt.Sprintf("divergence encountered (expected %v, got %v)", child.clock, t.clock))
+			return fmt.Errorf("divergence encountered (expected %v, got %v)", child.clock, t.clock)
 		}
 		if !reflect.DeepEqual(child.readSet, t.readSet) {
-			return errors.New(fmt.Sprintf("divergence encountered (expected %v, got %v)", child.readSet, t.readSet))
+			return fmt.Errorf("divergence encountered (expected %v, got %v)", child.readSet, t.readSet)
 		}
 		if !reflect.DeepEqual(child.writeSet, t.writeSet) {
-			return errors.New(fmt.Sprintf("divergence encountered (expected %v, got %v)", child.writeSet, t.writeSet))
+			return fmt.Errorf("divergence encountered (expected %v, got %v)", child.writeSet, t.writeSet)
 		}
 	}
 	return nil

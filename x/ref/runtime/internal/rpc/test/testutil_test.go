@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/uniqueid"
@@ -90,10 +90,8 @@ func (*singleBlessingStore) PeerBlessings() map[security.BlessingPattern]securit
 	return nil
 }
 func (*singleBlessingStore) CacheDischarge(security.Discharge, security.Caveat, security.DischargeImpetus) {
-	return
 }
 func (*singleBlessingStore) ClearDischarges(...security.Discharge) {
-	return
 }
 func (*singleBlessingStore) Discharge(security.Caveat, security.DischargeImpetus) (security.Discharge, time.Time) {
 	return security.Discharge{}, time.Time{}
@@ -145,7 +143,7 @@ func mkThirdPartyCaveat(discharger security.PublicKey, location string, c securi
 }
 
 func matchesErrorPattern(err error, id verror.IDAction, pattern string) bool {
-	if len(pattern) > 0 && err != nil && strings.Index(err.Error(), pattern) < 0 {
+	if len(pattern) > 0 && err != nil && !strings.Contains(err.Error(), pattern) {
 		return false
 	}
 	if err == nil && id.ID == "" {

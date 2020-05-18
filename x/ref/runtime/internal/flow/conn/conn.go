@@ -387,7 +387,7 @@ func (c *Conn) blessingsLoop(
 				return
 			}
 		} else {
-			timer := time.NewTimer(refreshTime.Sub(time.Now()))
+			timer := time.NewTimer(time.Until(refreshTime))
 			select {
 			case <-timer.C:
 			case <-c.localValid:

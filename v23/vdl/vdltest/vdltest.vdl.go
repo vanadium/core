@@ -5122,10 +5122,7 @@ func (VStructDepth1_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth1_TypeObject) VDLIsZero() bool {
-	if x.F5 != nil && x.F5 != vdl.AnyType {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5 == vdl.AnyType
 }
 
 func (x VStructDepth1_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -12937,10 +12934,7 @@ func (VStructDepth2_VArray2_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -13071,10 +13065,7 @@ func (VStructDepth2_List_Int16) VDLReflect(struct {
 }
 
 func (x VStructDepth2_List_Int16) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth2_List_Int16) VDLWrite(enc vdl.Encoder) error {
@@ -13137,10 +13128,7 @@ func (VStructDepth2_VList_Any) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VList_Any) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth2_VList_Any) VDLWrite(enc vdl.Encoder) error {
@@ -13203,10 +13191,7 @@ func (VStructDepth2_Set_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Set_Float64) VDLIsZero() bool {
-	if len(x.F4) != 0 {
-		return false
-	}
-	return true
+	return len(x.F4) == 0
 }
 
 func (x VStructDepth2_Set_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -13269,10 +13254,7 @@ func (VStructDepth2_VSet_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLIsZero() bool {
-	if len(x.F5) != 0 {
-		return false
-	}
-	return true
+	return len(x.F5) == 0
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -13335,10 +13317,7 @@ func (VStructDepth2_Map_Byte_Byte) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLIsZero() bool {
-	if len(x.F6) != 0 {
-		return false
-	}
-	return true
+	return len(x.F6) == 0
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLWrite(enc vdl.Encoder) error {
@@ -13401,10 +13380,7 @@ func (VStructDepth2_Map_Uint32_Uint32) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLIsZero() bool {
-	if len(x.F7) != 0 {
-		return false
-	}
-	return true
+	return len(x.F7) == 0
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLWrite(enc vdl.Encoder) error {
@@ -13467,10 +13443,7 @@ func (VStructDepth2_VStructDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLIsZero() bool {
-	if !x.F8.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F8.VDLIsZero()
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13600,10 +13573,7 @@ func (VStructDepth2_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLIsZero() bool {
-	if x.F10 != nil && !x.F10.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F10 == nil || x.F10.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13668,10 +13638,7 @@ func (VStructDepth2_VUnionDepth1_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLIsZero() bool {
-	if x.F11 != nil && !x.F11.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F11 == nil || x.F11.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -17475,10 +17442,7 @@ func (VStructDepth3_VArray1_Set_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -17541,10 +17505,7 @@ func (VStructDepth3_List_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLIsZero() bool {
-	if len(x.F1) != 0 {
-		return false
-	}
-	return true
+	return len(x.F1) == 0
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -17607,10 +17568,7 @@ func (VStructDepth3_VSet_VArray1_VStructEmpty) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLWrite(enc vdl.Encoder) error {
@@ -17673,10 +17631,7 @@ func (VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLReflect(st
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -17739,10 +17694,7 @@ func (VStructDepth3_VStructDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLIsZero() bool {
-	if !x.F4.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F4.VDLIsZero()
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -17817,10 +17769,7 @@ func (VStructDepth3_VUnionDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLIsZero() bool {
-	if x.F5 != nil && !x.F5.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5.VDLIsZero()
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -20645,7 +20594,7 @@ func (VWireAll) VDLReflect(struct {
 }
 
 func (x VWireAll) VDLIsZero() bool {
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		return false
 	}
 	if x.BoolNString != "" {
@@ -20724,7 +20673,7 @@ func (x VWireAll) VDLWrite(enc vdl.Encoder) error {
 	if err := enc.StartValue(__VDLType_struct_284); err != nil {
 		return err
 	}
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		var wire VWireBoolNBool
 		if err := VWireBoolNBoolFromNative(&wire, x.BoolNBool); err != nil {
 			return err

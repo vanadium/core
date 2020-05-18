@@ -467,11 +467,11 @@ func (*deviceService) Run(ctx *context.T, _ rpc.ServerCall) error {
 
 func (s *deviceService) Revert(ctx *context.T, _ rpc.ServerCall) error {
 	if s.config.Previous == "" {
-		return verror.New(errors.ErrUpdateNoOp, ctx, fmt.Sprintf("Revert failed: no previous version"))
+		return verror.New(errors.ErrUpdateNoOp, ctx, "Revert failed: no previous version")
 	}
 	updatingState := s.updating
 	if updatingState.testAndSetUpdating() {
-		return verror.New(errors.ErrOperationInProgress, ctx, fmt.Sprintf("Revert failed: already in progress"))
+		return verror.New(errors.ErrOperationInProgress, ctx, "Revert failed: already in progress")
 	}
 	err := s.revertDeviceManager(ctx)
 	if err != nil {

@@ -106,7 +106,7 @@ func TestHierarchy(t *testing.T) {
 		if streamErr != nil || err != nil {
 			t.FailNow()
 		}
-		if bytes.Compare(output, data) != 0 {
+		if !bytes.Equal(output, data) {
 			t.Fatalf("Unexpected output: expected %v, got %v", data, output)
 		}
 		results, _, err := testutil.GlobName(ctx, naming.JoinAddressName(ep, ""), "...")
@@ -157,7 +157,7 @@ func TestMultiPart(t *testing.T) {
 			if streamErr != nil || err != nil {
 				t.FailNow()
 			}
-			if bytes.Compare(output, data[i]) != 0 {
+			if !bytes.Equal(output, data[i]) {
 				t.Fatalf("Unexpected output: expected %v, got %v", data[i], output)
 			}
 			hpart.Write(data[i])

@@ -483,7 +483,7 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 // Contexts should be cancelled when they are no longer needed
 // so that resources associated with their timers may be released.
 func WithDeadline(parent *T, deadline time.Time) (*T, CancelFunc) {
-	return withDeadlineState(parent, deadline, deadline.Sub(time.Now()))
+	return withDeadlineState(parent, deadline, time.Until(deadline))
 }
 
 // WithTimeout is similar to WithDeadline except a Duration is given

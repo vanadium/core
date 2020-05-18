@@ -815,7 +815,7 @@ func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) 
 	cfg.Set(mgmt.AddressConfigKey, "127.0.0.1:0")
 	cfg.Set(mgmt.PublisherBlessingPrefixesKey, publisherBlessingsPrefix.String())
 	if len(info.AppCycleBlessings) == 0 {
-		return 0, verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("info.AppCycleBessings is missing"))
+		return 0, verror.New(errors.ErrOperationFailed, ctx, "info.AppCycleBessings is missing")
 	}
 	cfg.Set(mgmt.AppCycleBlessingsKey, info.AppCycleBlessings)
 
@@ -1365,7 +1365,6 @@ func (i *appService) scanEnvelopes(ctx *context.T, tree *treeNode, appDir string
 		installID := strings.TrimPrefix(elems[1], installationPrefix)
 		tree.find([]string{env.Title, installID}, true)
 	}
-	return
 }
 
 func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
@@ -1390,7 +1389,6 @@ func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
 		instanceDir := filepath.Dir(path)
 		i.scanInstance(ctx, tree, title, instanceDir)
 	}
-	return
 }
 
 func (i *appService) scanInstance(ctx *context.T, tree *treeNode, title, instanceDir string) {

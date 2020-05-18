@@ -70,7 +70,7 @@ func matchesErrorPattern(err error, pattern string) bool {
 	if (len(pattern) == 0) != (err == nil) {
 		return false
 	}
-	return err == nil || strings.Index(err.Error(), pattern) >= 0
+	return err == nil || strings.Contains(err.Error(), pattern)
 }
 
 func TestRoundTrip(t *testing.T) {

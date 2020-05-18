@@ -32,12 +32,12 @@ const (
 
 func init() {
 	// File-wide
-	reCeilNewlines = regexp.MustCompile("(?m)(\\n([ ]|\t)*){2,}")
+	reCeilNewlines = regexp.MustCompile(`(?m)(\n([ ]|\t)*){2,}`)
 	// Per line
-	reIsClosingBracket = regexp.MustCompile("^\\s*}$")
-	reIsComment = regexp.MustCompile("\\s*(//|/\\*)")
-	reIsSwiftdoc = regexp.MustCompile("\\s*(///|//:)")
-	reOnlyWhitespaceRegexp = regexp.MustCompile("^\\s*$")
+	reIsClosingBracket = regexp.MustCompile(`^\s*}$`)
+	reIsComment = regexp.MustCompile(`\s*(//|/\*)`)
+	reIsSwiftdoc = regexp.MustCompile(`\s*(///|//:)`)
+	reOnlyWhitespaceRegexp = regexp.MustCompile(`^\s*$`)
 }
 
 // categorizeLine examines a line of Swift and categorizes it into a few rough buckets

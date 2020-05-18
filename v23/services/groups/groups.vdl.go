@@ -119,10 +119,7 @@ func (GetResponse) VDLReflect(struct {
 }
 
 func (x GetResponse) VDLIsZero() bool {
-	if len(x.Entries) != 0 {
-		return false
-	}
-	return true
+	return len(x.Entries) == 0
 }
 
 func (x GetResponse) VDLWrite(enc vdl.Encoder) error {

@@ -54,8 +54,8 @@ func makeCanceld(ctx *context.T, name, child string) (*canceld, error) {
 	c := &canceld{
 		name:     name,
 		child:    child,
-		started:  make(chan struct{}, 0),
-		canceled: make(chan struct{}, 0),
+		started:  make(chan struct{}),
+		canceled: make(chan struct{}),
 	}
 	_, _, err := v23.WithNewServer(ctx, name, c, security.AllowEveryone())
 	if err != nil {

@@ -265,7 +265,7 @@ func idleWatch(env *cmdline.Env, ipc server.IPCState, noConnections chan struct{
 		if idleStart.Before(idleStartOverride) {
 			idleStart = idleStartOverride
 		}
-		return time.Now().Sub(idleStart)
+		return time.Since(idleStart)
 	}
 	for {
 		var sleepCh <-chan time.Time

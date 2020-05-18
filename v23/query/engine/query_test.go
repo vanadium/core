@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/query/engine"
 	ds "v.io/v23/query/engine/datasource"
@@ -107,14 +107,12 @@ func compareKeyToLimit(key, limit string) int {
 func copyTable(src *table) *table {
 	var tgt table
 	tgt.name = src.name
-	for _, row := range src.rows {
-		tgt.rows = append(tgt.rows, row)
-	}
+	tgt.rows = append(tgt.rows, src.rows...)
 	return &tgt
 }
 
 func (kvs *keyValueStreamImpl) Advance() bool {
-	for true {
+	for {
 		kvs.cursor++ // initialized to -1
 		if kvs.cursor >= len(kvs.table.rows) {
 			return false
@@ -183,7 +181,7 @@ func (db mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) {
 			return t, nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("No such table: %s.", table))
+	return nil, fmt.Errorf("No such table: %s.", table)
 
 }
 

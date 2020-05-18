@@ -19,7 +19,7 @@ import (
 	"v.io/x/lib/cmdline"
 	"v.io/x/lib/set"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -108,7 +108,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 			case *naming.GlobReplyEntry:
 				fmt.Fprint(env.Stdout, v.Value.Name)
 				for _, s := range v.Value.Servers {
-					delta := s.Deadline.Time.Sub(time.Now())
+					delta := time.Until(s.Deadline.Time)
 					fmt.Fprintf(env.Stdout, " %s (Expires in %d sec)", s.Server, int(delta.Seconds()))
 				}
 				fmt.Fprintln(env.Stdout)
