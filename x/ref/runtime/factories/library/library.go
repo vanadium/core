@@ -210,7 +210,7 @@ func configureLogging() error {
 	}
 	if err != nil {
 		if !AllowMultipleInitializations || !logger.IsAlreadyConfiguredError(err) {
-			return fmt.Errorf("libary.Init: %v", err)
+			return fmt.Errorf("Library.Init: %v", err)
 		}
 		return nil
 	}
@@ -244,7 +244,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 				if err == flag.ErrHelp {
 					return nil, nil, nil, err
 				}
-				return nil, nil, nil, fmt.Errorf("library.Init: runtime flags: %v", err)
+				return nil, nil, nil, fmt.Errorf("Library.Init: runtime flags: %v", err)
 			}
 		}
 	}
