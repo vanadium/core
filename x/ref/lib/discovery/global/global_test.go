@@ -46,7 +46,7 @@ func TestBasic(t *testing.T) {
 	}
 
 	var stops []func()
-	for i, _ := range ads {
+	for i := range ads {
 		stop, err := testutil.Advertise(ctx, d1, nil, &ads[i])
 		if err != nil {
 			t.Fatal(err)

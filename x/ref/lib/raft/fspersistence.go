@@ -32,7 +32,6 @@ import (
 )
 
 const (
-	headerLen                = 1024
 	defaultSnapshotThreshold = 10 * 1024 * 1024
 )
 
@@ -76,11 +75,6 @@ type ControlEntry struct {
 	InUse       bool
 	CurrentTerm Term
 	VotedFor    string
-}
-
-// logEntrySize is an approximation of the size of a log entry.
-func logEntrySize(le *LogEntry) int64 {
-	return int64(32 + len(le.Cmd))
 }
 
 // SetCurrentTerm implements persistent.SetCurrentTerm.

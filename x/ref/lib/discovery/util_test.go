@@ -70,7 +70,7 @@ func TestHashAd(t *testing.T) {
 	a2 = a1
 	a2.Ad.Attributes = make(discovery.Attributes)
 	var keys []string
-	for k, _ := range a1.Ad.Attributes {
+	for k := range a1.Ad.Attributes {
 		keys = append(keys, k)
 	}
 	for i := len(keys) - 1; i >= 0; i-- {

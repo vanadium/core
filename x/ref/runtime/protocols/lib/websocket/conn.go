@@ -8,7 +8,6 @@ package websocket
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"sync"
 	"time"
@@ -28,8 +27,7 @@ func WebsocketConn(ws *websocket.Conn) flow.Conn {
 // websocket control messages (such as pings) are processed by the websocket
 // library.
 type wrappedConn struct {
-	ws         *websocket.Conn
-	currReader io.Reader
+	ws *websocket.Conn
 
 	// The gorilla docs aren't explicit about reading and writing from
 	// different goroutines.  It is explicit that only one goroutine can

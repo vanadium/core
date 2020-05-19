@@ -61,7 +61,6 @@ var (
 	appUserFlag    string
 	deviceUserFlag string
 	hostname       string
-	errTimeout     = errors.New("timeout")
 )
 
 func init() {

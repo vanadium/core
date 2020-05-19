@@ -246,7 +246,7 @@ func generateDMScript(workspace, restarter, agent, currLink string, singleUser, 
 	// v.io/x/ref/services/debug/debug/impl.go) instead.
 	output += fmt.Sprintf("exec %q ", restarter)
 	if !sessionMode {
-		output += fmt.Sprintf("--restart-exit-code=!0 ")
+		output += "--restart-exit-code=!0 "
 	}
 	output += fmt.Sprintf("%q", currLink)
 	path := filepath.Join(workspace, "deviced.sh")

@@ -56,15 +56,20 @@ var (
 )
 
 // bitlen{R,V} enforce static type safety on kind.
+// nolint: deadcode, unused
 func bitlenR(kind reflect.Kind) uintptr { return bitlenReflect[kind] }
-func bitlenV(kind Kind) uintptr         { return bitlenVDL[kind] }
+
+// nolint: deadcode, unused
+func bitlenV(kind Kind) uintptr { return bitlenVDL[kind] }
 
 // isRTBytes returns true iff rt is an array or slice of bytes.
+// nolint: deadcode, unused
 func isRTBytes(rt reflect.Type) bool {
 	return (rt.Kind() == reflect.Array || rt.Kind() == reflect.Slice) && rt.Elem().Kind() == reflect.Uint8
 }
 
 // rtBytes extracts []byte from rv.  Assumes isRTBytes(rv.Type()) == true.
+// nolint: deadcode, unused
 func rtBytes(rv reflect.Value) []byte {
 	// Fastpath if the underlying type is []byte
 	if rv.Kind() == reflect.Slice && rv.Type().Elem() == rtByte {
@@ -170,9 +175,11 @@ func (z zeroDecoder) NextEntryValueFloat(bitlen int) (bool, float64, error) { re
 func (z zeroDecoder) NextEntryValueTypeObject() (bool, *Type, error)        { return true, nil, nil }
 
 var (
+	// nolint: deadcode, unused, varcheck
 	rvAnyType               = reflect.ValueOf(AnyType)
 	kkZeroValueNotCanonical = []Kind{Any, TypeObject, Union}
-	kkZeroValueNotUnique    = []Kind{Any, TypeObject, Union, List, Set, Map}
+	// nolint: deadcode, unused, varcheck
+	kkZeroValueNotUnique = []Kind{Any, TypeObject, Union, List, Set, Map}
 )
 
 // rvZeroValue returns the zero value of rt, using the vdl zero rules.

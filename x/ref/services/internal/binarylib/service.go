@@ -414,7 +414,7 @@ func (i *binaryService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServ
 	if n == nil {
 		return verror.New(ErrOperationFailed, ctx)
 	}
-	for k, _ := range n.children {
+	for k := range n.children {
 		if m.Match(k) {
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: k})
 		}

@@ -82,7 +82,6 @@ type contextKey int
 const (
 	storeKey = contextKey(iota)
 	spanKey
-	vtraceLevelKey
 )
 
 // Manager allows you to create new traces and spans and access the

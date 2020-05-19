@@ -718,14 +718,14 @@ func BenchmarkVom___Encode_____RPCResponseFull(b *testing.B) {
 			Trace: vtrace.TraceRecord{
 				Id: uniqueid.Id{1, 2, 3, 4},
 				Spans: []vtrace.SpanRecord{
-					vtrace.SpanRecord{
+					{
 						Id:     uniqueid.Id{1, 2, 3, 4},
 						Parent: uniqueid.Id{4, 3, 2, 1},
 						Name:   "span name",
 						Start:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 						End:    time.Date(2009, time.November, 11, 23, 0, 0, 0, time.UTC),
 						Annotations: []vtrace.Annotation{
-							vtrace.Annotation{
+							{
 								When:    time.Date(2009, time.November, 10, 23, 0, 0, 4, time.UTC),
 								Message: "Annotation Message",
 							},
@@ -746,14 +746,14 @@ func BenchmarkVom___EncodeMany_RPCResponseFull(b *testing.B) {
 			Trace: vtrace.TraceRecord{
 				Id: uniqueid.Id{1, 2, 3, 4},
 				Spans: []vtrace.SpanRecord{
-					vtrace.SpanRecord{
+					{
 						Id:     uniqueid.Id{1, 2, 3, 4},
 						Parent: uniqueid.Id{4, 3, 2, 1},
 						Name:   "span name",
 						Start:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 						End:    time.Date(2009, time.November, 11, 23, 0, 0, 0, time.UTC),
 						Annotations: []vtrace.Annotation{
-							vtrace.Annotation{
+							{
 								When:    time.Date(2009, time.November, 10, 23, 0, 0, 4, time.UTC),
 								Message: "Annotation Message",
 							},
@@ -774,14 +774,14 @@ func BenchmarkVom___Decode_____RPCResponseFull(b *testing.B) {
 			Trace: vtrace.TraceRecord{
 				Id: uniqueid.Id{1, 2, 3, 4},
 				Spans: []vtrace.SpanRecord{
-					vtrace.SpanRecord{
+					{
 						Id:     uniqueid.Id{1, 2, 3, 4},
 						Parent: uniqueid.Id{4, 3, 2, 1},
 						Name:   "span name",
 						Start:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 						End:    time.Date(2009, time.November, 11, 23, 0, 0, 0, time.UTC),
 						Annotations: []vtrace.Annotation{
-							vtrace.Annotation{
+							{
 								When:    time.Date(2009, time.November, 10, 23, 0, 0, 4, time.UTC),
 								Message: "Annotation Message",
 							},
@@ -802,14 +802,14 @@ func BenchmarkVom___DecodeMany_RPCResponseFull(b *testing.B) {
 			Trace: vtrace.TraceRecord{
 				Id: uniqueid.Id{1, 2, 3, 4},
 				Spans: []vtrace.SpanRecord{
-					vtrace.SpanRecord{
+					{
 						Id:     uniqueid.Id{1, 2, 3, 4},
 						Parent: uniqueid.Id{4, 3, 2, 1},
 						Name:   "span name",
 						Start:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 						End:    time.Date(2009, time.November, 11, 23, 0, 0, 0, time.UTC),
 						Annotations: []vtrace.Annotation{
-							vtrace.Annotation{
+							{
 								When:    time.Date(2009, time.November, 10, 23, 0, 0, 4, time.UTC),
 								Message: "Annotation Message",
 							},

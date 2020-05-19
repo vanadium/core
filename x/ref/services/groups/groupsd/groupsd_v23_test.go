@@ -124,7 +124,7 @@ func TestV23GroupServerIntegration(t *testing.T) {
 		want := relateResult{
 			Remainder: set.String.FromSlice([]string{"c:d", "d"}),
 			Approximations: []groups.Approximation{
-				groups.Approximation{
+				{
 					Reason:  "v.io/v23/verror.NoExist",
 					Details: `groupsd:"groupC".Relate: Does not exist: groupC`,
 				},

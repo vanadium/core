@@ -61,18 +61,18 @@ func (*FakeStreamServerCall) Security() security.Call                         { 
 
 var (
 	// save the CancelFuncs too, to silence the CancelFunc leak detector
-	ctx1, cancel1 = testContext()
-	ctx2, cancel2 = testContext()
-	ctx3, cancel3 = testContext()
-	ctx4, cancel4 = testContext()
-	ctx5, cancel5 = testContext()
-	ctx6, cancel6 = testContext()
-	call1         = &FakeStreamServerCall{}
-	call2         = &FakeStreamServerCall{}
-	call3         = &FakeStreamServerCall{}
-	call4         = &FakeStreamServerCall{}
-	call5         = &FakeStreamServerCall{}
-	call6         = &FakeStreamServerCall{}
+	ctx1, _ = testContext()
+	ctx2, _ = testContext()
+	ctx3, _ = testContext()
+	ctx4, _ = testContext()
+	ctx5, _ = testContext()
+	ctx6, _ = testContext()
+	call1   = &FakeStreamServerCall{}
+	call2   = &FakeStreamServerCall{}
+	call3   = &FakeStreamServerCall{}
+	call4   = &FakeStreamServerCall{}
+	call5   = &FakeStreamServerCall{}
+	call6   = &FakeStreamServerCall{}
 )
 
 // test tags.
@@ -516,15 +516,14 @@ type (
 	badGlob4         struct{}
 	badGlob5         struct{}
 	badGlob6         struct{}
-	badGlob7         struct{}
 	badGlobChildren1 struct{}
 	badGlobChildren2 struct{}
 	badGlobChildren3 struct{}
 	badGlobChildren4 struct{}
 	badGlobChildren5 struct{}
-	badGlobChildren6 struct{}
 )
 
+// nolint: deadcode, unused
 func (badcall) notExported(*context.T, rpc.ServerCall) error { return nil }
 func (badcall) NonRPC1() error                               { return nil }
 func (badcall) NonRPC2(int) error                            { return nil }

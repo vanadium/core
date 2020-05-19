@@ -140,15 +140,12 @@ func pruneUninstalledInstallations(ctx *context.T, root string, now time.Time) e
 			allerrors = append(allerrors, pthError{idir, err})
 			continue
 		}
-
-		if _, ok := pruneCandidates[installPath]; ok {
-			delete(pruneCandidates, installPath)
-		}
+		delete(pruneCandidates, installPath)
 	}
 
 	// All remaining entries in pruneCandidates are not referenced by
 	// any instance.
-	for pth, _ := range pruneCandidates {
+	for pth := range pruneCandidates {
 		shouldDelete, err := shouldDeleteInstallation(pth, now)
 		if err != nil {
 			allerrors = append(allerrors, pthError{pth, err})
@@ -179,7 +176,7 @@ func pruneOldLogs(ctx *context.T, root string, now time.Time) error {
 	}
 
 	allerrors := make([]pthError, 0)
-	for p, _ := range pruneCandidates {
+	for p := range pruneCandidates {
 		fi, err := os.Stat(p)
 		if err != nil {
 			allerrors = append(allerrors, pthError{p, err})
@@ -203,7 +200,7 @@ func pruneOldLogs(ctx *context.T, root string, now time.Time) error {
 		}
 	}
 
-	for pth, _ := range pruneCandidates {
+	for pth := range pruneCandidates {
 		if err := suidHelper.deleteFileTree(ctx, pth, nil, nil); err != nil {
 			allerrors = append(allerrors, pthError{pth, err})
 		}

@@ -75,6 +75,15 @@ func (g *genIsZero) genStructDef(def *compile.TypeDef) string {
 	tt, arg := def.Type, namedArg{"x", false}
 	s := fmt.Sprintf(`
 func (x %[1]s) VDLIsZero() bool {`, def.Name)
+	if tt.NumField() == 1 {
+		field := tt.Field(0)
+		expr := g.Expr(returnEqZero, field.Type, arg.Field(field), field.Name)
+		s += fmt.Sprintf(`
+	return %[1]s
+}
+`, expr)
+		return s
+	}
 	for ix := 0; ix < tt.NumField(); ix++ {
 		field := tt.Field(ix)
 		expr := g.Expr(ifNeZero, field.Type, arg.Field(field), field.Name)
@@ -157,6 +166,8 @@ func (g *genIsZero) Expr(ze zeroExpr, tt *vdl.Type, arg namedArg, tmp string) st
 			opNot, eq = "!", "!="
 		}
 		switch {
+		case native.Kind == vdltool.GoKindBool:
+			return ref
 		case native.Zero.Mode == vdltool.GoZeroModeUnique:
 			// We use an untyped const as the zero value, because Go only allows
 			// comparison of slices with nil.  E.g.

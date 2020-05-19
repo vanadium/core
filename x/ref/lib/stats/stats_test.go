@@ -96,30 +96,30 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected := []libstats.KeyValue{
-		libstats.KeyValue{Key: "", Value: int64(42)},
-		libstats.KeyValue{Key: "foo", Value: int64(55)},
-		libstats.KeyValue{Key: "foo/bar", Value: int64(44)},
-		libstats.KeyValue{Key: "rpc/test/aaa", Value: int64(1)},
-		libstats.KeyValue{Key: "rpc/test/bbb", Value: float64(2)},
-		libstats.KeyValue{Key: "rpc/test/ccc", Value: string("Hello")},
-		libstats.KeyValue{Key: "rpc/test/ddd", Value: int64(4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta10m", Value: int64(4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1h", Value: int64(4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1m", Value: int64(4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate10m", Value: float64(0)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1h", Value: float64(0)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1m", Value: float64(0)},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries10m", Value: s_stats.TimeSeries{
+		{Key: "", Value: int64(42)},
+		{Key: "foo", Value: int64(55)},
+		{Key: "foo/bar", Value: int64(44)},
+		{Key: "rpc/test/aaa", Value: int64(1)},
+		{Key: "rpc/test/bbb", Value: float64(2)},
+		{Key: "rpc/test/ccc", Value: string("Hello")},
+		{Key: "rpc/test/ddd", Value: int64(4)},
+		{Key: "rpc/test/ddd/delta10m", Value: int64(4)},
+		{Key: "rpc/test/ddd/delta1h", Value: int64(4)},
+		{Key: "rpc/test/ddd/delta1m", Value: int64(4)},
+		{Key: "rpc/test/ddd/rate10m", Value: float64(0)},
+		{Key: "rpc/test/ddd/rate1h", Value: float64(0)},
+		{Key: "rpc/test/ddd/rate1m", Value: float64(0)},
+		{Key: "rpc/test/ddd/timeseries10m", Value: s_stats.TimeSeries{
 			Values:     []int64{4},
 			Resolution: 10 * time.Second,
 			StartTime:  start.Truncate(10 * time.Second),
 		}},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1h", Value: s_stats.TimeSeries{
+		{Key: "rpc/test/ddd/timeseries1h", Value: s_stats.TimeSeries{
 			Values:     []int64{4},
 			Resolution: time.Minute,
 			StartTime:  start.Truncate(time.Minute),
 		}},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1m", Value: s_stats.TimeSeries{
+		{Key: "rpc/test/ddd/timeseries1m", Value: s_stats.TimeSeries{
 			Values:     []int64{4},
 			Resolution: time.Second,
 			StartTime:  start,
@@ -134,10 +134,10 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "rpc/test/aaa", Value: int64(1)},
-		libstats.KeyValue{Key: "rpc/test/bbb", Value: float64(2)},
-		libstats.KeyValue{Key: "rpc/test/ccc", Value: string("Hello")},
-		libstats.KeyValue{Key: "rpc/test/ddd", Value: int64(4)},
+		{Key: "rpc/test/aaa", Value: int64(1)},
+		{Key: "rpc/test/bbb", Value: float64(2)},
+		{Key: "rpc/test/ccc", Value: string("Hello")},
+		{Key: "rpc/test/ddd", Value: int64(4)},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("unexpected result. Got %#v, want %#v", result, expected)
@@ -149,21 +149,21 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "rpc"},
-		libstats.KeyValue{Key: "rpc/test"},
-		libstats.KeyValue{Key: "rpc/test/aaa"},
-		libstats.KeyValue{Key: "rpc/test/bbb"},
-		libstats.KeyValue{Key: "rpc/test/ccc"},
-		libstats.KeyValue{Key: "rpc/test/ddd"},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta10m"},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1h"},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1m"},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate10m"},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1h"},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1m"},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries10m"},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1h"},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1m"},
+		{Key: "rpc"},
+		{Key: "rpc/test"},
+		{Key: "rpc/test/aaa"},
+		{Key: "rpc/test/bbb"},
+		{Key: "rpc/test/ccc"},
+		{Key: "rpc/test/ddd"},
+		{Key: "rpc/test/ddd/delta10m"},
+		{Key: "rpc/test/ddd/delta1h"},
+		{Key: "rpc/test/ddd/delta1m"},
+		{Key: "rpc/test/ddd/rate10m"},
+		{Key: "rpc/test/ddd/rate1h"},
+		{Key: "rpc/test/ddd/rate1m"},
+		{Key: "rpc/test/ddd/timeseries10m"},
+		{Key: "rpc/test/ddd/timeseries1h"},
+		{Key: "rpc/test/ddd/timeseries1m"},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("unexpected result. Got %#v, want %#v", result, expected)
@@ -177,23 +177,23 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "rpc/test/ddd/delta10m", Value: int64(104)},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1h", Value: int64(104)},
-		libstats.KeyValue{Key: "rpc/test/ddd/delta1m", Value: int64(104)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate10m", Value: float64(10.4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1h", Value: float64(0)},
-		libstats.KeyValue{Key: "rpc/test/ddd/rate1m", Value: float64(10.4)},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries10m", Value: s_stats.TimeSeries{
+		{Key: "rpc/test/ddd/delta10m", Value: int64(104)},
+		{Key: "rpc/test/ddd/delta1h", Value: int64(104)},
+		{Key: "rpc/test/ddd/delta1m", Value: int64(104)},
+		{Key: "rpc/test/ddd/rate10m", Value: float64(10.4)},
+		{Key: "rpc/test/ddd/rate1h", Value: float64(0)},
+		{Key: "rpc/test/ddd/rate1m", Value: float64(10.4)},
+		{Key: "rpc/test/ddd/timeseries10m", Value: s_stats.TimeSeries{
 			Values:     []int64{4, 104},
 			Resolution: 10 * time.Second,
 			StartTime:  start.Truncate(10 * time.Second),
 		}},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1h", Value: s_stats.TimeSeries{
+		{Key: "rpc/test/ddd/timeseries1h", Value: s_stats.TimeSeries{
 			Values:     []int64{104},
 			Resolution: time.Minute,
 			StartTime:  start.Truncate(time.Minute),
 		}},
-		libstats.KeyValue{Key: "rpc/test/ddd/timeseries1m", Value: s_stats.TimeSeries{
+		{Key: "rpc/test/ddd/timeseries1m", Value: s_stats.TimeSeries{
 			Values:     []int64{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 104},
 			Resolution: time.Second,
 			StartTime:  start,
@@ -209,10 +209,10 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "aaa", Value: int64(1)},
-		libstats.KeyValue{Key: "bbb", Value: float64(2)},
-		libstats.KeyValue{Key: "ccc", Value: string("Hello")},
-		libstats.KeyValue{Key: "ddd", Value: int64(104)},
+		{Key: "aaa", Value: int64(1)},
+		{Key: "bbb", Value: float64(2)},
+		{Key: "ccc", Value: string("Hello")},
+		{Key: "ddd", Value: int64(104)},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("unexpected result. Got %#v, want %#v", result, expected)
@@ -223,7 +223,7 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "", Value: int64(1)},
+		{Key: "", Value: int64(1)},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("unexpected result. Got %#v, want %#v", result, expected)
@@ -235,7 +235,7 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{Key: "ddd", Value: int64(104)},
+		{Key: "ddd", Value: int64(104)},
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("unexpected result. Got %#v, want %#v", result, expected)
@@ -260,7 +260,7 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{
+		{
 			Key: "rpc/test/hhh",
 			Value: s_stats.HistogramValue{
 				Count: 2,
@@ -268,11 +268,11 @@ func TestStats(t *testing.T) {
 				Min:   1,
 				Max:   2,
 				Buckets: []s_stats.HistogramBucket{
-					s_stats.HistogramBucket{LowBound: 0, Count: 0},
-					s_stats.HistogramBucket{LowBound: 1, Count: 1},
-					s_stats.HistogramBucket{LowBound: 2, Count: 1},
-					s_stats.HistogramBucket{LowBound: 3, Count: 0},
-					s_stats.HistogramBucket{LowBound: 4, Count: 0},
+					{LowBound: 0, Count: 0},
+					{LowBound: 1, Count: 1},
+					{LowBound: 2, Count: 1},
+					{LowBound: 3, Count: 0},
+					{LowBound: 4, Count: 0},
 				},
 			},
 		},
@@ -291,7 +291,7 @@ func TestStats(t *testing.T) {
 		t.Errorf("unexpected error: %v", err)
 	}
 	expected = []libstats.KeyValue{
-		libstats.KeyValue{
+		{
 			Key: "rpc/test/hhh/delta1m",
 			Value: s_stats.HistogramValue{
 				Count: 2,
@@ -299,11 +299,11 @@ func TestStats(t *testing.T) {
 				Min:   2,
 				Max:   3,
 				Buckets: []s_stats.HistogramBucket{
-					s_stats.HistogramBucket{LowBound: 0, Count: 0},
-					s_stats.HistogramBucket{LowBound: 1, Count: 0},
-					s_stats.HistogramBucket{LowBound: 2, Count: 1},
-					s_stats.HistogramBucket{LowBound: 3, Count: 1},
-					s_stats.HistogramBucket{LowBound: 4, Count: 0},
+					{LowBound: 0, Count: 0},
+					{LowBound: 1, Count: 0},
+					{LowBound: 2, Count: 1},
+					{LowBound: 3, Count: 1},
+					{LowBound: 4, Count: 0},
 				},
 			},
 		},
@@ -334,10 +334,10 @@ func TestMap(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 		expected := []libstats.KeyValue{
-			libstats.KeyValue{Key: "foo", Value: nil},
-			libstats.KeyValue{Key: "foo/a", Value: uint64(1)},
-			libstats.KeyValue{Key: "foo/b", Value: int64(2)},
-			libstats.KeyValue{Key: "foo/c", Value: float64(10.0)},
+			{Key: "foo", Value: nil},
+			{Key: "foo/a", Value: uint64(1)},
+			{Key: "foo/b", Value: int64(2)},
+			{Key: "foo/c", Value: float64(10.0)},
 		}
 		if !reflect.DeepEqual(got, expected) {
 			t.Errorf("unexpected result. Got %#v, want %#v", got, expected)
@@ -377,10 +377,10 @@ func TestMap(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 		expected := []libstats.KeyValue{
-			libstats.KeyValue{Key: "foo", Value: nil},
-			libstats.KeyValue{Key: "foo/b", Value: int64(7)},
-			libstats.KeyValue{Key: "foo/c", Value: float64(8)},
-			libstats.KeyValue{Key: "foo/d", Value: int64(-2)},
+			{Key: "foo", Value: nil},
+			{Key: "foo/b", Value: int64(7)},
+			{Key: "foo/c", Value: float64(8)},
+			{Key: "foo/d", Value: int64(-2)},
 		}
 		if !reflect.DeepEqual(got, expected) {
 			t.Errorf("unexpected result. Got %#v, want %#v", got, expected)
@@ -418,18 +418,18 @@ func TestFunc(t *testing.T) {
 
 	then := time.Now()
 	checkVariable(t, "testing/timeout", nil) // Times out
-	if took := time.Now().Sub(then); took < 100*time.Millisecond {
+	if took := time.Since(then); took < 100*time.Millisecond {
 		t.Fatalf("expected a timeout: took %s", took)
 	}
 	checkVariable(t, "testing/timeout", nil) // Times out
-	if took := time.Now().Sub(then); took < 100*time.Millisecond {
+	if took := time.Since(then); took < 100*time.Millisecond {
 		t.Fatalf("expected a timeout: took %s", took)
 	}
 
 	ch <- int64(0)
 	then = time.Now()
 	checkVariable(t, "testing/slowint", int64(0)) // New value
-	if took := time.Now().Sub(then); took > 100*time.Millisecond {
+	if took := time.Since(then); took > 100*time.Millisecond {
 		t.Fatalf("unexpected timeout: took %s", took)
 	}
 	for i := 1; i <= 5; i++ {

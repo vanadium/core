@@ -10,9 +10,8 @@ package test
 import (
 	"flag"
 	"os"
-	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -27,7 +26,6 @@ const (
 	TestBlessing = "test-blessing"
 )
 
-var once sync.Once
 var IntegrationTestsEnabled bool
 var IntegrationTestsDebugShellOnError bool
 

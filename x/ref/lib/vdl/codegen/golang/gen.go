@@ -136,6 +136,7 @@ func (data *goData) DeclareTypeOfVars() string {
 	}
 	s := `
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (`
 	for id := 1; id <= len(idToType); id++ {
 		tt := idToType[id]
@@ -508,7 +509,7 @@ func maybeStripArgName(arg string, strip bool) string {
 // argParens takes a list of 0 or more arguments, and adds parens only when
 // necessary; if args contains any commas or spaces, we must add parens.
 func argParens(argList string) string {
-	if strings.IndexAny(argList, ", ") > -1 {
+	if strings.ContainsAny(argList, ", ") {
 		return "(" + argList + ")"
 	}
 	return argList

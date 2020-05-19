@@ -386,16 +386,16 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"alltrace.html":   &bintree{alltraceHtml, map[string]*bintree{}},
-	"blessings.html":  &bintree{blessingsHtml, map[string]*bintree{}},
-	"chrome.html":     &bintree{chromeHtml, map[string]*bintree{}},
-	"collection.html": &bintree{collectionHtml, map[string]*bintree{}},
-	"glob.html":       &bintree{globHtml, map[string]*bintree{}},
-	"logs.html":       &bintree{logsHtml, map[string]*bintree{}},
-	"profiles.html":   &bintree{profilesHtml, map[string]*bintree{}},
-	"resolve.html":    &bintree{resolveHtml, map[string]*bintree{}},
-	"stats.html":      &bintree{statsHtml, map[string]*bintree{}},
-	"vtrace.html":     &bintree{vtraceHtml, map[string]*bintree{}},
+	"alltrace.html":   {alltraceHtml, map[string]*bintree{}},
+	"blessings.html":  {blessingsHtml, map[string]*bintree{}},
+	"chrome.html":     {chromeHtml, map[string]*bintree{}},
+	"collection.html": {collectionHtml, map[string]*bintree{}},
+	"glob.html":       {globHtml, map[string]*bintree{}},
+	"logs.html":       {logsHtml, map[string]*bintree{}},
+	"profiles.html":   {profilesHtml, map[string]*bintree{}},
+	"resolve.html":    {resolveHtml, map[string]*bintree{}},
+	"stats.html":      {statsHtml, map[string]*bintree{}},
+	"vtrace.html":     {vtraceHtml, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory

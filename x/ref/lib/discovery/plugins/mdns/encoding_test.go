@@ -37,11 +37,11 @@ func TestEncodeAdId(t *testing.T) {
 
 func TestEncodeLargeTxt(t *testing.T) {
 	tests := [][]string{
-		[]string{randTxt(maxTxtRecordLen / 2)},
-		[]string{randTxt(maxTxtRecordLen / 2), randTxt(maxTxtRecordLen / 3)},
-		[]string{randTxt(maxTxtRecordLen * 2)},
-		[]string{randTxt(maxTxtRecordLen * 2), randTxt(maxTxtRecordLen * 3)},
-		[]string{randTxt(maxTxtRecordLen / 2), randTxt(maxTxtRecordLen * 3), randTxt(maxTxtRecordLen * 2), randTxt(maxTxtRecordLen / 3)},
+		{randTxt(maxTxtRecordLen / 2)},
+		{randTxt(maxTxtRecordLen / 2), randTxt(maxTxtRecordLen / 3)},
+		{randTxt(maxTxtRecordLen * 2)},
+		{randTxt(maxTxtRecordLen * 2), randTxt(maxTxtRecordLen * 3)},
+		{randTxt(maxTxtRecordLen / 2), randTxt(maxTxtRecordLen * 3), randTxt(maxTxtRecordLen * 2), randTxt(maxTxtRecordLen / 3)},
 	}
 
 	for i, test := range tests {

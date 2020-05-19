@@ -25,12 +25,12 @@ func TestImportMembers(t *testing.T) {
 	os.Mkdir(filepath.Join(workdir, "sub"), 0700)
 
 	configs := map[string]Config{
-		"role1":     Config{Members: []security.BlessingPattern{"A", "B", "C"}},
-		"role2":     Config{Members: []security.BlessingPattern{"C", "D", "E"}},
-		"sub/role3": Config{ImportMembers: []string{"../role2"}},
-		"sub/role4": Config{ImportMembers: []string{"../role1", "../role2"}},
-		"sub/role5": Config{ImportMembers: []string{"../role1", "../role6"}},
-		"role6":     Config{ImportMembers: []string{"sub/role5"}, Members: []security.BlessingPattern{"F"}},
+		"role1":     {Members: []security.BlessingPattern{"A", "B", "C"}},
+		"role2":     {Members: []security.BlessingPattern{"C", "D", "E"}},
+		"sub/role3": {ImportMembers: []string{"../role2"}},
+		"sub/role4": {ImportMembers: []string{"../role1", "../role2"}},
+		"sub/role5": {ImportMembers: []string{"../role1", "../role6"}},
+		"role6":     {ImportMembers: []string{"sub/role5"}, Members: []security.BlessingPattern{"F"}},
 	}
 	for role, config := range configs {
 		WriteConfig(t, config, filepath.Join(workdir, role+".conf"))

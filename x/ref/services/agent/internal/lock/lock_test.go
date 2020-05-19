@@ -544,52 +544,52 @@ func TestLockLevelConfigurations(t *testing.T) {
 	}{
 		// No existing locks -> success.
 		{[][]lockState{
-			[]lockState{},
-			[]lockState{ac},
+			{},
+			{ac},
 		}, true},
 		// Level 0 held -> can't lock.
 		{[][]lockState{
-			[]lockState{ac},
-			[]lockState{ac},
+			{ac},
+			{ac},
 		}, false},
 		// Level 0 stale -> success.
 		{[][]lockState{
-			[]lockState{st},
-			[]lockState{ac},
+			{st},
+			{ac},
 		}, true},
 		// Level 0-4 stale -> success.
 		{[][]lockState{
-			[]lockState{st, st, st, st, st},
-			[]lockState{ac},
+			{st, st, st, st, st},
+			{ac},
 		}, true},
 		// Scenarios where TryLock sleeps, during which time we alter
 		// the lock states.
 		{[][]lockState{
-			[]lockState{st, st, ac, st, st},
-			[]lockState{st, st, st, st, st},
-			[]lockState{ac},
+			{st, st, ac, st, st},
+			{st, st, st, st, st},
+			{ac},
 		}, true},
 		{[][]lockState{
-			[]lockState{st, st, ac, st, st},
-			[]lockState{st, st, st, st, st},
-			[]lockState{ac},
+			{st, st, ac, st, st},
+			{st, st, st, st, st},
+			{ac},
 		}, true},
 		{[][]lockState{
-			[]lockState{st, st, ac, st, st},
-			[]lockState{st, st, st, st, ac},
-			[]lockState{st, st, st, ac, st},
-			[]lockState{ac, st, st, ac, st},
-			[]lockState{ac, st, st, ac, st},
+			{st, st, ac, st, st},
+			{st, st, st, st, ac},
+			{st, st, st, ac, st},
+			{ac, st, st, ac, st},
+			{ac, st, st, ac, st},
 		}, false},
 		{[][]lockState{
-			[]lockState{st, st, ac, st, st, fr, st, ac},
-			[]lockState{st, st, st, st, st, fr, fr, ac},
-			[]lockState{ac, fr, fr, fr, fr, fr, fr, ac},
+			{st, st, ac, st, st, fr, st, ac},
+			{st, st, st, st, st, fr, fr, ac},
+			{ac, fr, fr, fr, fr, fr, fr, ac},
 		}, true},
 		{[][]lockState{
-			[]lockState{st, st, ac},
-			[]lockState{st, st, st, st, st},
-			[]lockState{ac},
+			{st, st, ac},
+			{st, st, st, st, st},
+			{ac},
 		}, true},
 	} {
 		setStates := func(states []lockState) {

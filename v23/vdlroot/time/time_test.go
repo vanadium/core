@@ -159,8 +159,8 @@ func TestTimeDurationNativeConversion(t *testing.T) {
 		gotime.Duration(0),
 		gotime.Duration(+1),
 		gotime.Duration(-1),
-		gotime.Now().Sub(gotime.Time{}),
-		gotime.Now().Sub(gotime.Unix(0, 0)),
+		gotime.Since(gotime.Time{}),
+		gotime.Since(gotime.Unix(0, 0)),
 	}
 	for _, test := range tests {
 		// Try converting to a value of the actual native type.

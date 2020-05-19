@@ -247,7 +247,7 @@ func computeDeps(pkg *Package, env *Env) {
 		delete(pdeps, BuiltInPackage)
 		// Finally populate PackageDeps and sort by package path.
 		file.PackageDeps = make([]*Package, 0, len(pdeps))
-		for pdep, _ := range pdeps {
+		for pdep := range pdeps {
 			file.PackageDeps = append(file.PackageDeps, pdep)
 		}
 		sort.Sort(pkgSorter(file.PackageDeps))

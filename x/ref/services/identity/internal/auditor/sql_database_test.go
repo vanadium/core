@@ -56,7 +56,7 @@ func TestSQLDatabaseQuery(t *testing.T) {
 	}
 
 	var extra bool
-	for _ = range ch {
+	for range ch {
 		// Drain the channel to prevent the producer goroutines from being leaked.
 		extra = true
 	}

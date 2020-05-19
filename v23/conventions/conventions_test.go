@@ -17,21 +17,21 @@ func TestParseBlessingNames(t *testing.T) {
 		"dev.v.io:o:836175491023-bhj172jalr081pnjdfpsldjkfh18.apps.googleusercontent.com:mickey@mouse.com:debugger:friend",
 	}
 	want := []Blessing{
-		Blessing{
+		{
 			IdentityProvider: "dev.v.io",
 			User:             "bugs@bunny.com",
 		},
-		Blessing{
+		{
 			IdentityProvider: "dev.v.io",
 			User:             "bugs@bunny.com",
 			Rest:             "frenemy:daffy",
 		},
-		Blessing{
+		{
 			IdentityProvider: "dev.v.io",
 			User:             "mickey@mouse.com",
 			Application:      "836175491023-bhj172jalr081pnjdfpsldjkfh18.apps.googleusercontent.com",
 		},
-		Blessing{
+		{
 			IdentityProvider: "dev.v.io",
 			User:             "mickey@mouse.com",
 			Application:      "836175491023-bhj172jalr081pnjdfpsldjkfh18.apps.googleusercontent.com",

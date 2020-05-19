@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -204,7 +204,7 @@ func (s *IdentityServer) setupBlessingServices(ctx, oauthCtx *context.T) (rpc.Se
 	b, _ := p.BlessingStore().Default()
 	blessingNames := security.BlessingNames(p, b)
 	if len(blessingNames) == 0 {
-		return nil, nil, verror.New(verror.ErrInternal, ctx, fmt.Sprintf("identity server has no blessings?"))
+		return nil, nil, verror.New(verror.ErrInternal, ctx, "identity server has no blessings?")
 	}
 	if len(blessingNames) > 1 {
 		return nil, nil, verror.New(verror.ErrInternal, ctx, fmt.Sprintf("cannot configure identity server with >1 (%d = %v) blessings - not quite sure what names to select for the discharger service etc.", len(blessingNames), blessingNames))
@@ -249,7 +249,7 @@ func newDispatcher() *dispatcher {
 	}
 	// Set up the glob invoker.
 	var children []string
-	for k, _ := range d.m {
+	for k := range d.m {
 		children = append(children, k)
 	}
 	d.m[""] = rpc.ChildrenGlobberInvoker(children...)

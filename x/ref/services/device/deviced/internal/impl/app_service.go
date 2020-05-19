@@ -132,7 +132,7 @@ import (
 	"text/template"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -363,6 +363,7 @@ func mkdirPerm(ctx *context.T, dir string, permissions int) error {
 	return nil
 }
 
+// nolint: deadcode, unused
 func sockPath(instanceDir string) (string, error) {
 	sockLink := filepath.Join(instanceDir, "agent-sock-dir")
 	sock, err := filepath.EvalSymlinks(sockLink)
@@ -609,7 +610,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 	if err != nil {
 		return err
 	}
-	for pkg, _ := range overridePackages {
+	for pkg := range overridePackages {
 		delete(envelope.Packages, pkg)
 	}
 	packagesDir := filepath.Join(versionDir, "packages")
@@ -617,7 +618,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 		return err
 	}
 	installFrom := func(pkgs application.Packages, sourceDir string) error {
-		for pkg, _ := range pkgs {
+		for pkg := range pkgs {
 			pkgFile := filepath.Join(sourceDir, "pkg", pkg)
 			dst := filepath.Join(packagesDir, pkg)
 			if err := packages.Install(pkgFile, dst); err != nil {
@@ -814,7 +815,7 @@ func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) 
 	cfg.Set(mgmt.AddressConfigKey, "127.0.0.1:0")
 	cfg.Set(mgmt.PublisherBlessingPrefixesKey, publisherBlessingsPrefix.String())
 	if len(info.AppCycleBlessings) == 0 {
-		return 0, verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("info.AppCycleBessings is missing"))
+		return 0, verror.New(errors.ErrOperationFailed, ctx, "info.AppCycleBessings is missing")
 	}
 	cfg.Set(mgmt.AppCycleBlessingsKey, info.AppCycleBlessings)
 
@@ -1364,7 +1365,6 @@ func (i *appService) scanEnvelopes(ctx *context.T, tree *treeNode, appDir string
 		installID := strings.TrimPrefix(elems[1], installationPrefix)
 		tree.find([]string{env.Title, installID}, true)
 	}
-	return
 }
 
 func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
@@ -1389,7 +1389,6 @@ func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
 		instanceDir := filepath.Dir(path)
 		i.scanInstance(ctx, tree, title, instanceDir)
 	}
-	return
 }
 
 func (i *appService) scanInstance(ctx *context.T, tree *treeNode, title, instanceDir string) {
@@ -1433,7 +1432,7 @@ func (i *appService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerC
 	if n == nil {
 		return verror.New(errors.ErrInvalidSuffix, nil)
 	}
-	for child, _ := range n.children {
+	for child := range n.children {
 		if m.Match(child) {
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: child})
 		}

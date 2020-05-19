@@ -31,10 +31,10 @@ func (s *mockCaveatSelector) Render(_, state, redirectURL string, w http.Respons
 
 func (s *mockCaveatSelector) ParseSelections(r *http.Request) (caveats []CaveatInfo, state string, additionalExtension string, err error) {
 	caveats = []CaveatInfo{
-		CaveatInfo{"Revocation", []interface{}{}},
-		CaveatInfo{"Expiry", []interface{}{time.Now().Add(time.Hour)}},
-		CaveatInfo{"Method", []interface{}{"methodA", "methodB"}},
-		CaveatInfo{"PeerBlessings", []interface{}{security.BlessingPattern("peerA"), security.BlessingPattern("peerB")}},
+		{"Revocation", []interface{}{}},
+		{"Expiry", []interface{}{time.Now().Add(time.Hour)}},
+		{"Method", []interface{}{"methodA", "methodB"}},
+		{"PeerBlessings", []interface{}{security.BlessingPattern("peerA"), security.BlessingPattern("peerB")}},
 	}
 	state = s.state
 	additionalExtension = "test-extension"

@@ -702,9 +702,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			// possibly match the matcher.  E.g. given pattern "a..." we can skip
 			// the subdirs if the dir doesn't start with "a".
 			matchPath := dirPath[len(walk.dir):]
-			if strings.HasPrefix(matchPath, filePathSeparator) {
-				matchPath = matchPath[len(filePathSeparator):]
-			}
+			matchPath = strings.TrimPrefix(matchPath, filePathSeparator)
 
 			// Match agains the raw path, and also against one with the
 			// go module prefix prepended if go modules are in use.

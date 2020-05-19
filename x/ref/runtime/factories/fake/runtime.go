@@ -22,7 +22,6 @@ type contextKey int
 const (
 	clientKey = contextKey(iota)
 	principalKey
-	loggerKey
 	backgroundKey
 	listenSpecKey
 

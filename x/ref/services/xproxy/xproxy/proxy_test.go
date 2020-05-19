@@ -24,7 +24,7 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -32,8 +32,6 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 )
-
-const leakWaitTime = 250 * time.Millisecond
 
 var randData []byte
 

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/options"
@@ -54,8 +54,8 @@ func makeCanceld(ctx *context.T, name, child string) (*canceld, error) {
 	c := &canceld{
 		name:     name,
 		child:    child,
-		started:  make(chan struct{}, 0),
-		canceled: make(chan struct{}, 0),
+		started:  make(chan struct{}),
+		canceled: make(chan struct{}),
 	}
 	_, _, err := v23.WithNewServer(ctx, name, c, security.AllowEveryone())
 	if err != nil {
@@ -212,6 +212,7 @@ type disconnect interface {
 	stop(read, write bool)
 }
 
+// nolint: deadcode, unused
 type disConn struct {
 	net.Conn
 	mu                  sync.Mutex

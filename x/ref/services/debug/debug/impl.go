@@ -614,19 +614,19 @@ var cmdRoot = &cmdline.Command{
 	Children: []*cmdline.Command{
 		cmdGlob,
 		cmdVtrace,
-		&cmdline.Command{
+		{
 			Name:     "logs",
 			Short:    "Accesses log files",
 			Long:     "Accesses log files",
 			Children: []*cmdline.Command{cmdLogsRead, cmdLogsSize},
 		},
-		&cmdline.Command{
+		{
 			Name:     "stats",
 			Short:    "Accesses stats",
 			Long:     "Accesses stats",
 			Children: []*cmdline.Command{cmdStatsRead, cmdStatsWatch},
 		},
-		&cmdline.Command{
+		{
 			Name:     "pprof",
 			Short:    "Accesses profiling data",
 			Long:     "Accesses profiling data",

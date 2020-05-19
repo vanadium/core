@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -714,9 +714,7 @@ func (m *manager) Status() flow.ListenStatus {
 	status.Endpoints = make([]naming.Endpoint, len(m.ls.proxyEndpoints))
 	copy(status.Endpoints, m.ls.proxyEndpoints)
 	for _, epState := range m.ls.listeners {
-		for _, ep := range epState.leps {
-			status.Endpoints = append(status.Endpoints, ep)
-		}
+		status.Endpoints = append(status.Endpoints, epState.leps...)
 	}
 	status.ProxyErrors = make(map[string]error, len(m.ls.proxyErrors))
 	for k, v := range m.ls.proxyErrors {
@@ -1043,7 +1041,7 @@ func dial(ctx *context.T, p flow.Protocol, protocol, address string) (flow.Conn,
 	if p != nil {
 		var timeout time.Duration
 		if dl, ok := ctx.Deadline(); ok {
-			timeout = dl.Sub(time.Now())
+			timeout = time.Until(dl)
 		}
 		type connAndErr struct {
 			c flow.Conn

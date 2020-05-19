@@ -207,7 +207,6 @@ func (s *Session) Expect(expected string) {
 	if line != expected {
 		s.error(fmt.Errorf("got %q, want %q", line, expected))
 	}
-	return
 }
 
 // Expectf asserts that the next line in the input matches the result of
@@ -228,7 +227,6 @@ func (s *Session) Expectf(format string, args ...interface{}) {
 	if line != expected {
 		s.error(fmt.Errorf("got %q, want %q", line, expected))
 	}
-	return
 }
 
 func (s *Session) expectRE(pattern string, n int) (string, [][]string, error) {

@@ -63,7 +63,7 @@ func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
 	if err := c1.Seal(msg3); err != nil {
 		t.Errorf("unexpected error: %s", err)
 	}
-	if bytes.Compare(msg1, msg3) == 0 {
+	if bytes.Equal(msg1, msg3) {
 		t.Errorf("message should differ: %q, %q", msg1, msg3)
 	}
 
@@ -72,7 +72,7 @@ func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
 	if err := c2.Seal(msg4); err != nil {
 		t.Errorf("unexpected error: %s", err)
 	}
-	if bytes.Compare(msg4, msg1) == 0 {
+	if bytes.Equal(msg4, msg1) {
 		t.Errorf("messages should differ %q vs. %q", msg4, msg1)
 	}
 
@@ -87,7 +87,7 @@ func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
 	if ok := c2.Open(msg1); !ok {
 		t.Errorf("Open failed")
 	}
-	if bytes.Compare(msg1[:5], []byte("hello")) != 0 {
+	if !bytes.Equal(msg1[:5], []byte("hello")) {
 		t.Errorf("got %q, expected %q", msg1[:5], "hello")
 	}
 
@@ -100,13 +100,13 @@ func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
 	if ok := c2.Open(msg2); !ok {
 		t.Errorf("Open failed")
 	}
-	if bytes.Compare(msg2[:5], []byte("world")) != 0 {
+	if !bytes.Equal(msg2[:5], []byte("world")) {
 		t.Errorf("got %q, expected %q", msg2[:5], "world")
 	}
 	if ok := c2.Open(msg3); !ok {
 		t.Errorf("Open failed")
 	}
-	if bytes.Compare(msg3[:5], []byte("hello")) != 0 {
+	if !bytes.Equal(msg3[:5], []byte("hello")) {
 		t.Errorf("got %q, expected %q", msg3[:5], "hello")
 	}
 }
@@ -124,7 +124,7 @@ func testCipherXORKeyStream(t *testing.T, ver testCipherVersion) {
 	c1.Encrypt(msg1)
 	c1.Encrypt(msg2)
 	c1.Encrypt(msg3)
-	if bytes.Compare(msg1, msg3) == 0 {
+	if bytes.Equal(msg1, msg3) {
 		t.Errorf("messages should differ: %q, %q", msg1, msg3)
 	}
 

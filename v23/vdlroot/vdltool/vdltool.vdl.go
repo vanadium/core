@@ -33,6 +33,7 @@ const (
 var GenLanguageAll = [...]GenLanguage{GenLanguageGo, GenLanguageJava, GenLanguageJavascript, GenLanguageSwift}
 
 // GenLanguageFromString creates a GenLanguage from a string label.
+// nolint: deadcode, unused
 func GenLanguageFromString(label string) (x GenLanguage, err error) {
 	err = x.Set(label)
 	return
@@ -121,6 +122,7 @@ const (
 var GoKindAll = [...]GoKind{GoKindStruct, GoKindBool, GoKindNumber, GoKindString, GoKindArray, GoKindSlice, GoKindMap, GoKindPointer, GoKindIface}
 
 // GoKindFromString creates a GoKind from a string label.
+// nolint: deadcode, unused
 func GoKindFromString(label string) (x GoKind, err error) {
 	err = x.Set(label)
 	return
@@ -229,6 +231,7 @@ const (
 var GoZeroModeAll = [...]GoZeroMode{GoZeroModeUnknown, GoZeroModeCanonical, GoZeroModeUnique}
 
 // GoZeroModeFromString creates a GoZeroMode from a string label.
+// nolint: deadcode, unused
 func GoZeroModeFromString(label string) (x GoZeroMode, err error) {
 	err = x.Set(label)
 	return
@@ -712,10 +715,7 @@ func (GoConfig) VDLReflect(struct {
 }
 
 func (x GoConfig) VDLIsZero() bool {
-	if len(x.WireToNativeTypes) != 0 {
-		return false
-	}
-	return true
+	return len(x.WireToNativeTypes) == 0
 }
 
 func (x GoConfig) VDLWrite(enc vdl.Encoder) error {
@@ -1080,10 +1080,7 @@ func (SwiftConfig) VDLReflect(struct {
 }
 
 func (x SwiftConfig) VDLIsZero() bool {
-	if len(x.WireToNativeTypes) != 0 {
-		return false
-	}
-	return true
+	return len(x.WireToNativeTypes) == 0
 }
 
 func (x SwiftConfig) VDLWrite(enc vdl.Encoder) error {
@@ -1320,6 +1317,7 @@ func __VDLReadAnon_set_4(dec vdl.Decoder, x *map[GenLanguage]struct{}) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_enum_1    *vdl.Type
 	__VDLType_enum_2    *vdl.Type

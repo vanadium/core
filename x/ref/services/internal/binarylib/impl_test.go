@@ -19,16 +19,12 @@ import (
 	"v.io/v23/services/repository"
 	"v.io/v23/verror"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/internal/binarylib"
 	"v.io/x/ref/services/internal/servicetest"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
-)
-
-const (
-	v23Prefix = "vanadium_binary_repository"
 )
 
 // startServer starts the binary repository server.
@@ -110,7 +106,7 @@ func TestHierarchy(t *testing.T) {
 		if streamErr != nil || err != nil {
 			t.FailNow()
 		}
-		if bytes.Compare(output, data) != 0 {
+		if !bytes.Equal(output, data) {
 			t.Fatalf("Unexpected output: expected %v, got %v", data, output)
 		}
 		results, _, err := testutil.GlobName(ctx, naming.JoinAddressName(ep, ""), "...")
@@ -161,7 +157,7 @@ func TestMultiPart(t *testing.T) {
 			if streamErr != nil || err != nil {
 				t.FailNow()
 			}
-			if bytes.Compare(output, data[i]) != 0 {
+			if !bytes.Equal(output, data[i]) {
 				t.Fatalf("Unexpected output: expected %v, got %v", data[i], output)
 			}
 			hpart.Write(data[i])

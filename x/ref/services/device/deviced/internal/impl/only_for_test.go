@@ -13,12 +13,14 @@ import (
 // This file contains code in the impl package that we only want built for tests
 // (it exposes public API methods that we don't want to normally expose).
 
+// nolint: deadcode, unused
 func (c *callbackState) leaking() bool {
 	c.Lock()
 	defer c.Unlock()
 	return len(c.channels) > 0
 }
 
+// nolint: deadcode, unused
 func DispatcherLeaking(d rpc.Dispatcher) bool {
 	switch obj := d.(type) {
 	case *dispatcher:

@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -53,7 +53,7 @@ const (
 
 func init() {
 	impl.Describe = func() (descr device.Description, err error) {
-		return device.Description{Profiles: map[string]struct{}{"test-profile": struct{}{}}}, nil
+		return device.Description{Profiles: map[string]struct{}{"test-profile": {}}}, nil
 	}
 
 	impl.CleanupDir = func(ctx *context.T, dir, helper string) {
@@ -170,7 +170,7 @@ func Resolve(f Fatalist, ctx *context.T, name string, expectReplicas int, retry 
 		// replica.  Filter out non-tcp endpoints.
 		filteredResults := []string{}
 		for _, r := range me.Names() {
-			if strings.Index(r, "@tcp") != -1 {
+			if strings.Contains(r, "@tcp") {
 				filteredResults = append(filteredResults, r)
 			}
 		}
@@ -308,7 +308,6 @@ func InstallAppExpectError(t *testing.T, ctx *context.T, expectedError verror.ID
 
 type granter struct {
 	rpc.CallOpt
-	p         security.Principal
 	extension string
 }
 

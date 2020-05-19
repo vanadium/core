@@ -10,8 +10,7 @@ import (
 )
 
 func TestAfter(t *testing.T) {
-	var tk TimeKeeper
-	tk = RealTime()
+	tk := RealTime()
 	before := time.Now()
 	timeToSleep := 500000000 * time.Nanosecond // Half a second.
 	<-tk.After(timeToSleep)
@@ -25,8 +24,7 @@ func TestAfter(t *testing.T) {
 }
 
 func TestSleep(t *testing.T) {
-	var tk TimeKeeper
-	tk = RealTime()
+	tk := RealTime()
 	before := time.Now()
 	timeToSleep := 500000000 * time.Nanosecond // Half a second.
 	tk.Sleep(timeToSleep)

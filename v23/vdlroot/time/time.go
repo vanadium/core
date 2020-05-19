@@ -127,7 +127,7 @@ func WireDeadlineFromNative(wire *WireDeadline, native Deadline) error {
 	if native.IsZero() {
 		wire.FromNow = 0
 	} else {
-		wire.FromNow = native.Sub(time.Now())
+		wire.FromNow = time.Until(native.Time)
 		// Ensure that we never set FromNow=0, since that is special-cased to mean
 		// "no deadline".
 		//

@@ -5,9 +5,7 @@
 package impl
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -18,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/services/application"
@@ -213,37 +211,4 @@ func filterEnvironment(env []string, allow, deny *regexp.Regexp) []string {
 		}
 	}
 	return ret
-}
-
-// generateRandomString returns a cryptographically-strong random string.
-func generateRandomString() (string, error) {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(b), nil
-}
-
-// generateAgentSockDir returns the name of a newly created directory where to
-// create an agent socket.
-func generateAgentSockDir(rootDir string) (string, error) {
-	randomPattern, err := generateRandomString()
-	if err != nil {
-		return "", err
-	}
-	// We keep the socket files close to the root dir of the device
-	// manager installation to ensure that the socket file path is
-	// shorter than 108 characters (a requirement on Linux).
-	sockDir := filepath.Join(rootDir, "socks", randomPattern)
-	// TODO(caprita): For multi-user mode, we should chown the
-	// socket dir to the app user, and set up a unix group to permit
-	// access to the socket dir to the agent and device manager.
-	// For now, 'security' hinges on the fact that the name of the
-	// socket dir is unknown to everyone except the device manager,
-	// the agent, and the app.
-	if err := os.MkdirAll(sockDir, 0711); err != nil {
-		return "", fmt.Errorf("MkdirAll(%q) failed: %v", sockDir, err)
-	}
-	return sockDir, nil
 }

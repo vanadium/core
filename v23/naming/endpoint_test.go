@@ -196,8 +196,8 @@ func TestEscapeEndpoint(t *testing.T) {
 		DefaultEndpointVersion = defver
 	}()
 	testcases := []Endpoint{
-		Endpoint{Protocol: "unix", Address: "@", RoutingID: FixedRoutingID(0xdabbad00)},
-		Endpoint{Protocol: "unix", Address: "@/%", RoutingID: FixedRoutingID(0xdabbad00)},
+		{Protocol: "unix", Address: "@", RoutingID: FixedRoutingID(0xdabbad00)},
+		{Protocol: "unix", Address: "@/%", RoutingID: FixedRoutingID(0xdabbad00)},
 	}
 	for i, ep := range testcases {
 		epstr := ep.String()

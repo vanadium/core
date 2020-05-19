@@ -16,7 +16,6 @@ import (
 
 var (
 	errInvalidString = verror.Register(pkgPath+".errInvalidString", verror.NoRetry, "{1:}{2:} string is of the wrong format and/or size{:_}")
-	errNotARoutingID = verror.Register(pkgPath+".errNotARoutingID", verror.NoRetry, "{1:}{2:} Not a RoutingID{:_}")
 )
 
 // RoutingIDs have one essential property, namely that they are, to a very
@@ -113,7 +112,7 @@ func NewRoutingID() (RoutingID, error) {
 }
 
 func Compare(a, b RoutingID) bool {
-	return bytes.Compare(a.value[:], b.value[:]) == 0
+	return bytes.Equal(a.value[:], b.value[:])
 }
 
 // Implement EndpointOpt so that RoutingID can be passed as an optional

@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -43,15 +43,15 @@ import (
 const browseProfilesPath = "/profiles"
 
 const (
-	allTraceTmpl   = "alltrace.html"
-	blessingsTmpl  = "blessings.html"
-	chromeTmpl     = "chrome.html"
-	globTmpl       = "glob.html"
-	logsTmpl       = "logs.html"
-	profilesTmpl   = "profiles.html"
-	resolveTmpl    = "resolve.html"
-	statsTmpl      = "stats.html"
-	vtraceTmpl     = "vtrace.html"
+	allTraceTmpl  = "alltrace.html"
+	blessingsTmpl = "blessings.html"
+	chromeTmpl    = "chrome.html"
+	globTmpl      = "glob.html"
+	logsTmpl      = "logs.html"
+	profilesTmpl  = "profiles.html"
+	resolveTmpl   = "resolve.html"
+	statsTmpl     = "stats.html"
+	vtraceTmpl    = "vtrace.html"
 )
 
 // Serve serves the debug interface over http.  An HTTP server is started (serving at httpAddr), its
@@ -889,11 +889,13 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v.execute(v.ctx, w, r, "vtrace.html", data)
 }
 
+// nolint: deadcode, unused
 func internalServerError(w http.ResponseWriter, doing string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, "Problem %s: %v", doing, err)
 }
 
+// nolint: deadcode, unused
 func badRequest(w http.ResponseWriter, problem string) {
 	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprintf(w, problem)

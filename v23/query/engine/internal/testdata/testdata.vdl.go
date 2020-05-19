@@ -133,6 +133,7 @@ const (
 var CreditAgencyAll = [...]CreditAgency{CreditAgencyEquifax, CreditAgencyExperian, CreditAgencyTransUnion}
 
 // CreditAgencyFromString creates a CreditAgency from a string label.
+// nolint: deadcode, unused
 func CreditAgencyFromString(label string) (x CreditAgency, err error) {
 	err = x.Set(label)
 	return
@@ -208,6 +209,7 @@ const (
 var ExperianRatingAll = [...]ExperianRating{ExperianRatingGood, ExperianRatingBad}
 
 // ExperianRatingFromString creates a ExperianRating from a string label.
+// nolint: deadcode, unused
 func ExperianRatingFromString(label string) (x ExperianRating, err error) {
 	err = x.Set(label)
 	return
@@ -404,6 +406,7 @@ const (
 var TdhAll = [...]Tdh{TdhTom, TdhDick, TdhHarry}
 
 // TdhFromString creates a Tdh from a string label.
+// nolint: deadcode, unused
 func TdhFromString(label string) (x Tdh, err error) {
 	err = x.Set(label)
 	return
@@ -1707,10 +1710,7 @@ func (BarType) VDLReflect(struct {
 }
 
 func (x BarType) VDLIsZero() bool {
-	if !x.Baz.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.Baz.VDLIsZero()
 }
 
 func (x BarType) VDLWrite(enc vdl.Encoder) error {
@@ -1777,10 +1777,7 @@ func (FooType) VDLReflect(struct {
 }
 
 func (x FooType) VDLIsZero() bool {
-	if !x.Bar.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.Bar.VDLIsZero()
 }
 
 func (x FooType) VDLWrite(enc vdl.Encoder) error {
@@ -4096,6 +4093,7 @@ func (x *BigData) VDLRead(dec vdl.Decoder) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1  *vdl.Type
 	__VDLType_enum_2    *vdl.Type

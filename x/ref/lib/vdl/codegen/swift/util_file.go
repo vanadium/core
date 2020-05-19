@@ -16,7 +16,7 @@ func (ctx *swiftContext) vdlRootForFilePath(absolutePath string) (string, error)
 	}
 	dir := filepath.Dir(absolutePath)
 	for {
-		if ctx.srcDirs[dir] == true {
+		if ctx.srcDirs[dir] {
 			return dir, nil
 		} else if dir == "/" || dir == "" {
 			return "", errors.New("Hit the root before any vdl paths were found")

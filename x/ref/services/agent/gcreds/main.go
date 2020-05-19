@@ -22,7 +22,7 @@ import (
 	"golang.org/x/oauth2/google"
 	goauth2 "google.golang.org/api/oauth2/v2"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vom"
@@ -128,7 +128,7 @@ func refreshCreds(ctx *context.T) {
 			// Nothing to do.
 			return
 		}
-		delay := exp.Add(-time.Minute).Sub(time.Now())
+		delay := time.Until(exp.Add(-time.Minute))
 		if delay < time.Second {
 			delay = time.Second
 		}

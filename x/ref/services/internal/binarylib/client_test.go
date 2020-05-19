@@ -13,14 +13,14 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/repository"
+	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/services/internal/packages"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
-	"v.io/x/ref/runtime/factories/library"
 )
 
 func init() {
@@ -110,7 +110,7 @@ func TestBufferAPI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Download(%v) failed: %v", von, err)
 	}
-	if bytes.Compare(data, output) != 0 {
+	if !bytes.Equal(data, output) {
 		t.Errorf("Data mismatch:\nexpected %v %v\ngot %v %v", len(data), data[:100], len(output), output[:100])
 	}
 	if err := Delete(ctx, von); err != nil {
@@ -165,7 +165,7 @@ func TestFileAPI(t *testing.T) {
 	if err != nil {
 		t.Errorf("ReadFile(%v) failed: %v", dst.Name(), err)
 	}
-	if bytes.Compare(data, output) != 0 {
+	if !bytes.Equal(data, output) {
 		t.Errorf("Data mismatch:\nexpected %v %v\ngot %v %v", len(data), data[:100], len(output), output[:100])
 	}
 	jMediaInfo, err := ioutil.ReadFile(packages.MediaInfoFile(dst.Name()))

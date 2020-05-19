@@ -316,7 +316,7 @@ type vChildrenObject struct {
 
 func (o *vChildrenObject) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	sender := call.SendStream()
-	for child, _ := range o.n.children {
+	for child := range o.n.children {
 		if m.Match(child) {
 			sender.Send(naming.GlobChildrenReplyName{Value: child})
 		}

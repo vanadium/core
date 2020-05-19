@@ -67,7 +67,7 @@ func TestHTTP(t *testing.T) {
 			}
 			output := downloaded[from:to]
 			from = to
-			if bytes.Compare(output, data[i]) != 0 {
+			if !bytes.Equal(output, data[i]) {
 				t.Fatalf("Unexpected output: expected %v, got %v", data[i], output)
 			}
 			hpart.Write(data[i])

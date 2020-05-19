@@ -373,6 +373,7 @@ const (
 var NamedEnumAll = [...]NamedEnum{NamedEnumA, NamedEnumB, NamedEnumC}
 
 // NamedEnumFromString creates a NamedEnum from a string label.
+// nolint: deadcode, unused
 func NamedEnumFromString(label string) (x NamedEnum, err error) {
 	err = x.Set(label)
 	return
@@ -3436,6 +3437,7 @@ var descServiceB = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_bool_1     *vdl.Type
 	__VDLType_byte_2     *vdl.Type

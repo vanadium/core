@@ -254,6 +254,7 @@ const (
 var VEnumAbcAll = [...]VEnumAbc{VEnumAbcA, VEnumAbcB, VEnumAbcC}
 
 // VEnumAbcFromString creates a VEnumAbc from a string label.
+// nolint: deadcode, unused
 func VEnumAbcFromString(label string) (x VEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -330,6 +331,7 @@ const (
 var VEnumBcdAll = [...]VEnumBcd{VEnumBcdB, VEnumBcdC, VEnumBcdD}
 
 // VEnumBcdFromString creates a VEnumBcd from a string label.
+// nolint: deadcode, unused
 func VEnumBcdFromString(label string) (x VEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -5120,10 +5122,7 @@ func (VStructDepth1_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth1_TypeObject) VDLIsZero() bool {
-	if x.F5 != nil && x.F5 != vdl.AnyType {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5 == vdl.AnyType
 }
 
 func (x VStructDepth1_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -12935,10 +12934,7 @@ func (VStructDepth2_VArray2_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -13069,10 +13065,7 @@ func (VStructDepth2_List_Int16) VDLReflect(struct {
 }
 
 func (x VStructDepth2_List_Int16) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth2_List_Int16) VDLWrite(enc vdl.Encoder) error {
@@ -13135,10 +13128,7 @@ func (VStructDepth2_VList_Any) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VList_Any) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth2_VList_Any) VDLWrite(enc vdl.Encoder) error {
@@ -13201,10 +13191,7 @@ func (VStructDepth2_Set_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Set_Float64) VDLIsZero() bool {
-	if len(x.F4) != 0 {
-		return false
-	}
-	return true
+	return len(x.F4) == 0
 }
 
 func (x VStructDepth2_Set_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -13267,10 +13254,7 @@ func (VStructDepth2_VSet_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLIsZero() bool {
-	if len(x.F5) != 0 {
-		return false
-	}
-	return true
+	return len(x.F5) == 0
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -13333,10 +13317,7 @@ func (VStructDepth2_Map_Byte_Byte) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLIsZero() bool {
-	if len(x.F6) != 0 {
-		return false
-	}
-	return true
+	return len(x.F6) == 0
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLWrite(enc vdl.Encoder) error {
@@ -13399,10 +13380,7 @@ func (VStructDepth2_Map_Uint32_Uint32) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLIsZero() bool {
-	if len(x.F7) != 0 {
-		return false
-	}
-	return true
+	return len(x.F7) == 0
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLWrite(enc vdl.Encoder) error {
@@ -13465,10 +13443,7 @@ func (VStructDepth2_VStructDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLIsZero() bool {
-	if !x.F8.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F8.VDLIsZero()
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13598,10 +13573,7 @@ func (VStructDepth2_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLIsZero() bool {
-	if x.F10 != nil && !x.F10.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F10 == nil || x.F10.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13666,10 +13638,7 @@ func (VStructDepth2_VUnionDepth1_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLIsZero() bool {
-	if x.F11 != nil && !x.F11.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F11 == nil || x.F11.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -15496,10 +15465,11 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int                                            { return 0 }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{}                                { return x.Value }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string                                          { return "F11" }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {}
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int             { return 0 }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{} { return x.Value }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string           { return "F11" }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
+}
 
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -17472,10 +17442,7 @@ func (VStructDepth3_VArray1_Set_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -17538,10 +17505,7 @@ func (VStructDepth3_List_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLIsZero() bool {
-	if len(x.F1) != 0 {
-		return false
-	}
-	return true
+	return len(x.F1) == 0
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -17604,10 +17568,7 @@ func (VStructDepth3_VSet_VArray1_VStructEmpty) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLWrite(enc vdl.Encoder) error {
@@ -17670,10 +17631,7 @@ func (VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLReflect(st
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -17736,10 +17694,7 @@ func (VStructDepth3_VStructDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLIsZero() bool {
-	if !x.F4.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F4.VDLIsZero()
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -17814,10 +17769,7 @@ func (VStructDepth3_VUnionDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLIsZero() bool {
-	if x.F5 != nil && !x.F5.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5.VDLIsZero()
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -20642,7 +20594,7 @@ func (VWireAll) VDLReflect(struct {
 }
 
 func (x VWireAll) VDLIsZero() bool {
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		return false
 	}
 	if x.BoolNString != "" {
@@ -20721,7 +20673,7 @@ func (x VWireAll) VDLWrite(enc vdl.Encoder) error {
 	if err := enc.StartValue(__VDLType_struct_284); err != nil {
 		return err
 	}
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		var wire VWireBoolNBool
 		if err := VWireBoolNBoolFromNative(&wire, x.BoolNBool); err != nil {
 			return err
@@ -21215,6 +21167,7 @@ const (
 var XEnumAbcAll = [...]XEnumAbc{XEnumAbcA, XEnumAbcB, XEnumAbcC}
 
 // XEnumAbcFromString creates a XEnumAbc from a string label.
+// nolint: deadcode, unused
 func XEnumAbcFromString(label string) (x XEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -21268,6 +21221,7 @@ const (
 var XEnumBcdAll = [...]XEnumBcd{XEnumBcdB, XEnumBcdC, XEnumBcdD}
 
 // XEnumBcdFromString creates a XEnumBcd from a string label.
+// nolint: deadcode, unused
 func XEnumBcdFromString(label string) (x XEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -24168,10 +24122,11 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int                                            { return 0 }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{}                                { return x.Value }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string                                          { return "F11" }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {}
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int             { return 0 }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{} { return x.Value }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string           { return "F11" }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
+}
 
 type (
 	// XUnionDepth2_OptXStructDepth1_XEnumBcd represents any single field of the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
@@ -93529,6 +93484,7 @@ var xAllPass = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1     *vdl.Type
 	__VDLType_bool_2       *vdl.Type

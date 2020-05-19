@@ -144,14 +144,12 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 			delete(bs.state.Discharges, key)
 		}
 	}
-	return
 }
 
 func (bs *blessingStore) ClearDischarges(discharges ...security.Discharge) {
 	bs.mu.Lock()
 	clearDischargesFromCache(bs.state.Discharges, discharges...)
 	bs.mu.Unlock()
-	return
 }
 
 func (bs *blessingStore) Discharge(caveat security.Caveat, impetus security.DischargeImpetus) (security.Discharge, time.Time) {
@@ -239,7 +237,7 @@ func (bs *blessingStore) DebugString() string {
 		buff.WriteString(fmt.Sprintf(format, pattern, bs.state.PeerBlessings[security.BlessingPattern(pattern)]))
 	}
 	sorted := make([]string, 0, len(bs.state.PeerBlessings))
-	for k, _ := range bs.state.PeerBlessings {
+	for k := range bs.state.PeerBlessings {
 		if k == security.AllPrincipals {
 			writePattern(k)
 		} else {

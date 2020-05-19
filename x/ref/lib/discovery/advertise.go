@@ -16,11 +16,6 @@ import (
 	"v.io/x/ref/lib/stats"
 )
 
-const (
-	msPerSec = int64(time.Second / time.Millisecond)
-	nsPerMs  = int64(time.Millisecond / time.Nanosecond)
-)
-
 func (d *idiscovery) advertise(ctx *context.T, session sessionId, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
 	if !ad.Id.IsValid() {
 		var err error

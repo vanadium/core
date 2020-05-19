@@ -119,10 +119,7 @@ func (GetResponse) VDLReflect(struct {
 }
 
 func (x GetResponse) VDLIsZero() bool {
-	if len(x.Entries) != 0 {
-		return false
-	}
-	return true
+	return len(x.Entries) == 0
 }
 
 func (x GetResponse) VDLWrite(enc vdl.Encoder) error {
@@ -233,6 +230,7 @@ const (
 var ApproximationTypeAll = [...]ApproximationType{ApproximationTypeUnder, ApproximationTypeOver}
 
 // ApproximationTypeFromString creates a ApproximationType from a string label.
+// nolint: deadcode, unused
 func ApproximationTypeFromString(label string) (x ApproximationType, err error) {
 	err = x.Set(label)
 	return
@@ -891,6 +889,7 @@ var descGroup = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_string_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

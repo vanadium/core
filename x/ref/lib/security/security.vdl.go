@@ -575,6 +575,7 @@ func __VDLReadAnon_map_4(dec vdl.Decoder, x *map[dischargeCacheKey]CachedDischar
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_map_1     *vdl.Type
 	__VDLType_list_2    *vdl.Type

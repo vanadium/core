@@ -19,7 +19,6 @@ var (
 	// message visible to the user.
 	errAuthServerNotAllowed = reg(".errAuthServerNotAllowed",
 		"server blessings {3} do not match any allowed server patterns {4}{:5}")
-	errMultipleAuthorizationPolicies = reg(".errMultipleAuthorizationPolicies", "at most one ServerAuthorizer option can be provided")
 )
 
 type serverAuthorizer struct {

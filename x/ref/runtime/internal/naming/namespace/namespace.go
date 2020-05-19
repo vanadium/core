@@ -221,7 +221,7 @@ func getCallOpts(opts []naming.NamespaceOpt) []rpc.CallOpt {
 				// the options for the "Resolve" RPC. The end server of
 				// this particular RPC is to be authorized by the policy
 				// in NameResolutionAuthorizer.
-				co = options.ServerAuthorizer{auth.Authorizer}
+				co = options.ServerAuthorizer(auth)
 			}
 			out = append(out, co)
 		}

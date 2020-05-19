@@ -35,7 +35,7 @@ func hashAd(adinfo *AdInfo) {
 	field.Reset()
 	if n := len(adinfo.Ad.Attributes); n > 0 {
 		keys := make([]string, 0, n)
-		for k, _ := range adinfo.Ad.Attributes {
+		for k := range adinfo.Ad.Attributes {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
@@ -49,7 +49,7 @@ func hashAd(adinfo *AdInfo) {
 	field.Reset()
 	if n := len(adinfo.Ad.Attachments); n > 0 {
 		keys := make([]string, 0, n)
-		for k, _ := range adinfo.Ad.Attachments {
+		for k := range adinfo.Ad.Attachments {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)

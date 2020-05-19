@@ -34,7 +34,7 @@ file is generated:
    pass81_gen.vdl - Golden file containing passing test cases for version 81.
 
 Do not run this tool manually.  Instead invoke it via:
-   $ jiri run go generate v.io/v23/vom/vomtest
+   $ go generate v.io/v23/vom/vomtest
 `,
 }
 

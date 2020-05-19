@@ -51,7 +51,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -176,7 +176,7 @@ func (*deviceService) IsRunnable(_ *context.T, _ rpc.ServerCall, description bin
 		return false, err
 	}
 	binaryProfiles := make([]*profile.Specification, 0)
-	for name, _ := range description.Profiles {
+	for name := range description.Profiles {
 		profile, err := getProfile(name)
 		if err != nil {
 			return false, err
@@ -194,6 +194,7 @@ func (*deviceService) Reset(_ *context.T, _ rpc.ServerCall, deadline time.Durati
 
 // getCurrentFileInfo returns the os.FileInfo for both the symbolic link
 // CurrentLink, and the device script in the workspace that this link points to.
+// nolint: deadcode, unused
 func (s *deviceService) getCurrentFileInfo() (os.FileInfo, string, error) {
 	path := s.config.CurrentLink
 	link, err := os.Lstat(path)
@@ -466,11 +467,11 @@ func (*deviceService) Run(ctx *context.T, _ rpc.ServerCall) error {
 
 func (s *deviceService) Revert(ctx *context.T, _ rpc.ServerCall) error {
 	if s.config.Previous == "" {
-		return verror.New(errors.ErrUpdateNoOp, ctx, fmt.Sprintf("Revert failed: no previous version"))
+		return verror.New(errors.ErrUpdateNoOp, ctx, "Revert failed: no previous version")
 	}
 	updatingState := s.updating
 	if updatingState.testAndSetUpdating() {
-		return verror.New(errors.ErrOperationInProgress, ctx, fmt.Sprintf("Revert failed: already in progress"))
+		return verror.New(errors.ErrOperationInProgress, ctx, "Revert failed: already in progress")
 	}
 	err := s.revertDeviceManager(ctx)
 	if err != nil {

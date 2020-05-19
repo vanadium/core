@@ -18,12 +18,11 @@ func (v Version) String() string {
 }
 
 var (
-	errEmptyEncoderStack       = errors.New("vom: empty encoder stack")
-	errEntriesMustSetLenHint   = errors.New("vom: entries must set LenHint")
-	errLabelNotInType          = verror.Register(pkgPath+".errLabelNotInType", verror.NoRetry, "{1:}{2:} enum label {3} doesn't exist in type {4}{:_}")
-	errUnsupportedInVOMVersion = verror.Register(pkgPath+".errUnsupportedInVOMVersion", verror.NoRetry, "{1:}{2:} {3} unsupported in vom version {4}{:_}")
-	errUnusedTypeIds           = verror.Register(pkgPath+".errUnusedTypeIds", verror.NoRetry, "{1:}{2:} vom: some type ids unused during encode {:_}")
-	errUnusedAnys              = verror.Register(pkgPath+".errUnusedAnys", verror.NoRetry, "{1:}{2:} vom: some anys unused during encode {:_}")
+	errEmptyEncoderStack     = errors.New("vom: empty encoder stack")
+	errEntriesMustSetLenHint = errors.New("vom: entries must set LenHint")
+	errLabelNotInType        = verror.Register(pkgPath+".errLabelNotInType", verror.NoRetry, "{1:}{2:} enum label {3} doesn't exist in type {4}{:_}")
+	errUnusedTypeIds         = verror.Register(pkgPath+".errUnusedTypeIds", verror.NoRetry, "{1:}{2:} vom: some type ids unused during encode {:_}")
+	errUnusedAnys            = verror.Register(pkgPath+".errUnusedAnys", verror.NoRetry, "{1:}{2:} vom: some anys unused during encode {:_}")
 )
 
 const (
@@ -123,9 +122,9 @@ func (e *Encoder) Encode(v interface{}) error {
 type encoderMode int
 
 const (
-	encoderRegular     encoderMode = iota
-	encoderForTypes                // encoder81 is embedded in TypeEncoder
-	encoderForRawBytes             // encoder81 is used to encode RawBytes
+	encoderRegular     encoderMode = iota // nolint: deadcode, unused, varcheck
+	encoderForTypes                       // encoder81 is embedded in TypeEncoder
+	encoderForRawBytes                    // encoder81 is used to encode RawBytes
 )
 
 type encoder81 struct {
@@ -457,9 +456,9 @@ func (e *encoder81) SetLenHint(lenHint int) error {
 		return errEmptyEncoderStack
 	}
 	switch top.Type.Kind() {
-	case vdl.List, vdl.Set, vdl.Map:
+	case vdl.List, vdl.Set, vdl.Map, vdl.Array:
 	default:
-		fmt.Errorf("SetLenHint illegal for type %v", top.Type)
+		return fmt.Errorf("SetLenHint illegal for type %v, kind: %v", top.Type, top.Type.Kind())
 	}
 	top.LenHint = lenHint
 	return nil

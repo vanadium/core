@@ -71,9 +71,11 @@ func (p *auditingPrincipal) MintDischarge(forCaveat, caveatOnDischarge security.
 	return d, nil
 }
 
-func (p *auditingPrincipal) PublicKey() security.PublicKey         { return p.principal.PublicKey() }
-func (p *auditingPrincipal) Roots() security.BlessingRoots         { return p.principal.Roots() }
-func (p *auditingPrincipal) BlessingStore() security.BlessingStore { return p.principal.BlessingStore() }
+func (p *auditingPrincipal) PublicKey() security.PublicKey { return p.principal.PublicKey() }
+func (p *auditingPrincipal) Roots() security.BlessingRoots { return p.principal.Roots() }
+func (p *auditingPrincipal) BlessingStore() security.BlessingStore {
+	return p.principal.BlessingStore()
+}
 
 func (p *auditingPrincipal) audit(err error, method string, args args, result interface{}) error {
 	if err != nil {

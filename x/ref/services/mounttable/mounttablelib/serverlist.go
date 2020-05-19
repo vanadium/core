@@ -38,11 +38,6 @@ func newServerListManager(clock timekeeper.TimeKeeper) *serverListManager {
 	return &serverListManager{clock: clock}
 }
 
-// SetServerListClock does what it says.
-func (slm *serverListManager) setClock(clock timekeeper.TimeKeeper) {
-	slm.clock = clock
-}
-
 // newServerList creates a synchronized list of servers.
 func (slm *serverListManager) newServerList() *serverList {
 	return &serverList{l: list.New(), m: slm}

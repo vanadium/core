@@ -32,7 +32,7 @@ func TestInit(t *testing.T) {
 	mgr := logger.Manager(ctx)
 	fmt.Println(mgr)
 	args := fmt.Sprintf("%s", mgr)
-	expected := regexp.MustCompile("name=vanadium logdirs=\\[/tmp\\] logtostderr=true|false alsologtostderr=false|true max_stack_buf_size=4292608 v=[0-9] stderrthreshold=2 vmodule= vfilepath= log_backtrace_at=:0")
+	expected := regexp.MustCompile(`name=vanadium logdirs=\[/tmp\] logtostderr=true|false alsologtostderr=false|true max_stack_buf_size=4292608 v=[0-9] stderrthreshold=2 vmodule= vfilepath= log_backtrace_at=:0`)
 
 	if !expected.MatchString(args) {
 		t.Errorf("unexpected default args: %s, want %s", args, expected)

@@ -163,7 +163,6 @@ func (h *handler) runs(w http.ResponseWriter, bm Benchmark, itr RunIterator) {
 		Err:       errs,
 	}
 	h.executeTemplate(w, tmplRuns, args)
-	return
 }
 
 func (h *handler) describeSource(w http.ResponseWriter, src string) {

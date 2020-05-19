@@ -124,11 +124,6 @@ const (
 	SideChannelFlag
 )
 
-// random consts.
-const (
-	maxVarUint64Size = 9
-)
-
 // Setup is the first message over the wire.  It negotiates protocol version
 // and encryption options for connection.
 // New fields to Setup must be added in order of creation. i.e. the order of the fields

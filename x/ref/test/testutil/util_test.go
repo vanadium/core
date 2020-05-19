@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	_ "v.io/x/ref/runtime/factories/generic"
-	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/testutil"
 	"v.io/x/ref/test/v23test"
 )
@@ -42,11 +41,6 @@ func TestPanic(t *testing.T) {
 	if got, want := str, "It looks like the singleton random number generator has not been initialized, please call InitRandGenerator."; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
-}
-
-func start(c *v23test.Cmd) *expect.Session {
-	c.Start()
-	return c.S
 }
 
 func TestRandSeed(t *testing.T) {

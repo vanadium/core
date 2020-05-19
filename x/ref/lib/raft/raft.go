@@ -17,7 +17,7 @@ import (
 
 	"v.io/x/lib/vlog"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -27,10 +27,8 @@ import (
 const pkgPath = "v.io/x/ref/lib.raft"
 
 var (
-	errBadAppend     = verror.Register(pkgPath+".errBadAppend", verror.NoRetry, "{1:}{2:} inconsistent append{:_}")
 	errAddAfterStart = verror.Register(pkgPath+".errAddAfterStart", verror.NoRetry, "{1:}{2:} adding member after start{:_}")
 	errNotLeader     = verror.Register(pkgPath+".errNotLeader", verror.NoRetry, "{1:}{2:} not the leader{:_}")
-	errWTF           = verror.Register(pkgPath+".errWTF", verror.NoRetry, "{1:}{2:} internal error{:_}")
 	errTimedOut      = verror.Register(pkgPath+".errTimedOut", verror.NoRetry, "{1:}{2:} request timed out{:_}")
 	errBadTerm       = verror.Register(pkgPath+".errBadTerm", verror.NoRetry, "{1:}{2:} new term {3} < {4} {:_}")
 )
@@ -248,7 +246,6 @@ func (r *raft) Start() {
 			go r.perFollower(m)
 		}
 	}
-	return
 }
 
 // Stop ceases all function as a raft server.
@@ -480,10 +477,6 @@ func (r *raft) lastApplied() Index {
 func (r *raft) resetTimerFuzzy(d time.Duration) {
 	fuzz := time.Duration(rand.Int63n(int64(r.heartbeat)))
 	r.timer.Reset(d + fuzz)
-}
-
-func (r *raft) resetTimer(d time.Duration) {
-	r.timer.Reset(d)
 }
 
 func highestFromChan(i Index, c chan Index) Index {
@@ -760,19 +753,6 @@ func (r *raft) setMatchIndex(m *member, i Index) {
 	case r.newMatch <- struct{}{}:
 	default:
 	}
-}
-
-func minIndex(indices ...Index) Index {
-	if len(indices) == 0 {
-		return 0
-	}
-	min := indices[0]
-	for _, x := range indices[1:] {
-		if x < min {
-			min = x
-		}
-	}
-	return min
 }
 
 func roleToString(r int) string {

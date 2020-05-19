@@ -38,8 +38,6 @@ var (
 	googleConfigWeb                                                  string
 	externalHttpAddr, httpAddr, tlsConfig, assetsPrefix, mountPrefix string
 	dischargerLocation                                               string
-	remoteSignerBlessingsDir                                         string
-	oauthRemoteSignerBlessingsDir                                    string
 	sqlConf                                                          string
 	registeredAppConfig                                              string
 	userBlessings, appBlessings                                      string

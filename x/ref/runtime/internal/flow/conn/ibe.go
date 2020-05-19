@@ -40,7 +40,7 @@ func (c *encCache) evictIfNeededLocked() {
 		return
 	}
 	n := 0
-	for key, _ := range c.m {
+	for key := range c.m {
 		delete(c.m, key)
 		n++
 		if n >= toEvict {

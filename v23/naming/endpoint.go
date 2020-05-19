@@ -22,7 +22,7 @@ const (
 
 var (
 	errInvalidEndpointString = errors.New("invalid endpoint string")
-	hostportEP               = regexp.MustCompile("^(?:\\((.*)\\)@)?([^@]+)$")
+	hostportEP               = regexp.MustCompile(`^(?:\((.*)\)@)?([^@]+)$`)
 	// DefaultEndpointVersion is the default of endpoints that we will create
 	// when the version is otherwise unspecified.
 	DefaultEndpointVersion = 6

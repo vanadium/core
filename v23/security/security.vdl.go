@@ -1135,10 +1135,7 @@ func (WireBlessings) VDLReflect(struct {
 }
 
 func (x WireBlessings) VDLIsZero() bool {
-	if len(x.CertificateChains) != 0 {
-		return false
-	}
-	return true
+	return len(x.CertificateChains) == 0
 }
 
 func (x WireBlessings) VDLWrite(enc vdl.Encoder) error {
@@ -1670,6 +1667,7 @@ func NewErrEndpointAuthorizationFailed(ctx *context.T, endpoint string, remote [
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_array_1   *vdl.Type
 	__VDLType_struct_2  *vdl.Type

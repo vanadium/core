@@ -415,7 +415,7 @@ func (t *Type) ContainsKind(mode WalkMode, kinds ...Kind) bool {
 			break
 		}
 	}
-	if mode == WalkAll || containsKind == false {
+	if mode == WalkAll || !containsKind {
 		return containsKind
 	}
 	return !t.Walk(mode, func(visit *Type) bool {

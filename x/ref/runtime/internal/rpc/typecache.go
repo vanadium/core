@@ -101,7 +101,7 @@ func (tc *typeCache) collect() {
 	tc.mu.Lock()
 	conns := make([]flow.ManagedConn, len(tc.flows))
 	i := 0
-	for c, _ := range tc.flows {
+	for c := range tc.flows {
 		conns[i] = c
 		i++
 	}

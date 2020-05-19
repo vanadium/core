@@ -16,7 +16,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/device"
@@ -93,6 +93,7 @@ const (
 	ApplicationInstallationObject objectKind = iota
 	ApplicationInstanceObject
 	DeviceServiceObject
+	// nolint: deadcode, unused
 	SentinelObjectKind // For invariant checking in testing.
 )
 
@@ -430,7 +431,7 @@ var parallelismStrings = map[parallelismFlag]string{
 
 func init() {
 	if len(parallelismStrings) != int(sentinelParallelismFlag) {
-		panic(fmt.Sprintf("broken invariant: mismatching number of parallelism types"))
+		panic("broken invariant: mismatching number of parallelism types")
 	}
 }
 
@@ -478,6 +479,7 @@ var allGlobSettings []*GlobSettings
 
 // ResetGlobSettings is meant for tests to restore the values of flag-configured
 // variables when running multiple commands in the same process.
+// nolint: deadcode, unused
 func ResetGlobSettings() {
 	for _, s := range allGlobSettings {
 		s.reset()

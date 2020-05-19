@@ -210,7 +210,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 	}
 	call = callWithMethodTags(ctx, call, tags)
 
-	queue := []gState{gState{glob: g}}
+	queue := []gState{{glob: g}}
 
 	someMatchesOmitted := false
 	for len(queue) != 0 {
@@ -340,7 +340,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 					queue = append(queue, gState{next, tail, depth})
 				case naming.GlobChildrenReplyError:
 					v.Value.Name = naming.Join(state.name, v.Value.Name)
-					return subcall.Send(naming.GlobReplyError{Value: v.Value})
+					return subcall.Send(naming.GlobReplyError(v))
 				}
 				return nil
 			}

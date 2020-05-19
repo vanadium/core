@@ -34,7 +34,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vom"
@@ -295,7 +295,6 @@ func (h *handler) revoke(ctx *context.T, w http.ResponseWriter, r *http.Request)
 	}
 
 	w.Write([]byte(success))
-	return
 }
 
 func (h *handler) validateRevocationToken(ctx *context.T, Token string, r *http.Request) (string, error) {
