@@ -210,7 +210,7 @@ func configureLogging() error {
 	}
 	if err != nil {
 		if !AllowMultipleInitializations || !logger.IsAlreadyConfiguredError(err) {
-			return fmt.Errorf("Library.Init: %v", err)
+			return fmt.Errorf("library.Init: %v", err)
 		}
 		return nil
 	}
@@ -221,11 +221,11 @@ func configureLogging() error {
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 	initialized, running := state.getState()
 	if AllowMultipleInitializations && running {
-		return nil, nil, nil, fmt.Errorf("Library.init called whilst a previous instance is still running, the shutdown callback has not bee called")
+		return nil, nil, nil, fmt.Errorf("library.Init called whilst a previous instance is still running, the shutdown callback has not bee called")
 	}
 
 	if !AllowMultipleInitializations && initialized {
-		return nil, nil, nil, fmt.Errorf("Library.init incorrectly called multiple times")
+		return nil, nil, nil, fmt.Errorf("library.Init incorrectly called multiple times")
 	}
 
 	if err := configureLogging(); err != nil {
@@ -244,7 +244,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 				if err == flag.ErrHelp {
 					return nil, nil, nil, err
 				}
-				return nil, nil, nil, fmt.Errorf("Library.Init: runtime flags: %v", err)
+				return nil, nil, nil, fmt.Errorf("library.Init: runtime flags: %w", err)
 			}
 		}
 	}
