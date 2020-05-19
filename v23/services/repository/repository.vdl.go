@@ -348,10 +348,10 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Match",
 			Doc:  "// Match checks if any of the given profiles contains an application\n// envelope for the given application version (specified through the\n// object name suffix) and if so, returns this envelope. If multiple\n// profile matches are possible, the method returns the first\n// matching profile, respecting the order of the input argument.\n//\n// If the version is not specified in the suffix, the envelope\n// corresponding to the latest version that matches any of the given\n// profiles is returned.  If several profiles match this version, the\n// envelope for the first matching profile is returned, respecting the\n// order of the input argument.",
 			InArgs: []rpc.ArgDesc{
-				{"profiles", ``}, // []string
+				{Name: "profiles", Doc: ``}, // []string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // application.Envelope
+				{Name: "", Doc: ``}, // application.Envelope
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -914,8 +914,8 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Create",
 			Doc:  "// Create expresses the intent to create a binary identified by the\n// object name suffix consisting of the given number of parts. The\n// mediaInfo argument contains metadata for the binary. If the suffix\n// identifies a binary that has already been created, the method\n// returns an error.",
 			InArgs: []rpc.ArgDesc{
-				{"nparts", ``},    // int32
-				{"mediaInfo", ``}, // MediaInfo
+				{Name: "nparts", Doc: ``},    // int32
+				{Name: "mediaInfo", Doc: ``}, // MediaInfo
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -928,7 +928,7 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Download",
 			Doc:  "// Download opens a stream that can used for downloading the given\n// part of the binary identified by the object name suffix. If the\n// binary part has not been uploaded, the method returns an\n// error. If the Delete() method is invoked when the Download()\n// method is in progress, the outcome the Download() method is\n// undefined.",
 			InArgs: []rpc.ArgDesc{
-				{"part", ``}, // int32
+				{Name: "part", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -936,8 +936,8 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "DownloadUrl",
 			Doc:  "// DownloadUrl returns a transient URL from which the binary\n// identified by the object name suffix can be downloaded using the\n// HTTP protocol. If not all parts of the binary have been uploaded,\n// the method returns an error.",
 			OutArgs: []rpc.ArgDesc{
-				{"url", ``}, // string
-				{"ttl", ``}, // int64
+				{Name: "url", Doc: ``}, // string
+				{Name: "ttl", Doc: ``}, // int64
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -945,8 +945,8 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Stat",
 			Doc:  "// Stat returns information describing the parts of the binary\n// identified by the object name suffix, and its RFC 2046 media type.\n// If the binary has not been created, the method returns an error.",
 			OutArgs: []rpc.ArgDesc{
-				{"Parts", ``},     // []binary.PartInfo
-				{"MediaInfo", ``}, // MediaInfo
+				{Name: "Parts", Doc: ``},     // []binary.PartInfo
+				{Name: "MediaInfo", Doc: ``}, // MediaInfo
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -954,7 +954,7 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Upload",
 			Doc:  "// Upload opens a stream that can be used for uploading the given\n// part of the binary identified by the object name suffix. If the\n// binary has not been created, the method returns an error. If the\n// binary part has been uploaded, the method returns an error. If\n// the same binary part is being uploaded by another caller, the\n// method returns an error.",
 			InArgs: []rpc.ArgDesc{
-				{"part", ``}, // int32
+				{Name: "part", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1191,7 +1191,7 @@ var descProfile = rpc.InterfaceDesc{
 			Name: "Label",
 			Doc:  "// Label is the human-readable profile key for the profile,\n// e.g. \"linux-media\". The label can be used to uniquely identify\n// the profile (for the purpose of matching application binaries and\n// devices).",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -1199,7 +1199,7 @@ var descProfile = rpc.InterfaceDesc{
 			Name: "Description",
 			Doc:  "// Description is a free-text description of the profile, meant for\n// human consumption.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},

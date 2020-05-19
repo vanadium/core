@@ -821,143 +821,143 @@ var descAgent = rpc.InterfaceDesc{
 		{
 			Name: "Bless",
 			InArgs: []rpc.ArgDesc{
-				{"key", ``},               // []byte
-				{"wit", ``},               // security.Blessings
-				{"extension", ``},         // string
-				{"caveat", ``},            // security.Caveat
-				{"additionalCaveats", ``}, // []security.Caveat
+				{Name: "key", Doc: ``},               // []byte
+				{Name: "wit", Doc: ``},               // security.Blessings
+				{Name: "extension", Doc: ``},         // string
+				{Name: "caveat", Doc: ``},            // security.Caveat
+				{Name: "additionalCaveats", Doc: ``}, // []security.Caveat
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "BlessSelf",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``},    // string
-				{"caveats", ``}, // []security.Caveat
+				{Name: "name", Doc: ``},    // string
+				{Name: "caveats", Doc: ``}, // []security.Caveat
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "Sign",
 			InArgs: []rpc.ArgDesc{
-				{"message", ``}, // []byte
+				{Name: "message", Doc: ``}, // []byte
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Signature
+				{Name: "", Doc: ``}, // security.Signature
 			},
 		},
 		{
 			Name: "MintDischarge",
 			InArgs: []rpc.ArgDesc{
-				{"forCaveat", ``},                    // security.Caveat
-				{"caveatOnDischarge", ``},            // security.Caveat
-				{"additionalCaveatsOnDischarge", ``}, // []security.Caveat
+				{Name: "forCaveat", Doc: ``},                    // security.Caveat
+				{Name: "caveatOnDischarge", Doc: ``},            // security.Caveat
+				{Name: "additionalCaveatsOnDischarge", Doc: ``}, // []security.Caveat
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Discharge
+				{Name: "", Doc: ``}, // security.Discharge
 			},
 		},
 		{
 			Name: "PublicKey",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 		},
 		{
 			Name: "BlessingStoreSet",
 			InArgs: []rpc.ArgDesc{
-				{"blessings", ``}, // security.Blessings
-				{"forPeers", ``},  // security.BlessingPattern
+				{Name: "blessings", Doc: ``}, // security.Blessings
+				{Name: "forPeers", Doc: ``},  // security.BlessingPattern
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "BlessingStoreForPeer",
 			InArgs: []rpc.ArgDesc{
-				{"peerBlessings", ``}, // []string
+				{Name: "peerBlessings", Doc: ``}, // []string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "BlessingStoreSetDefault",
 			InArgs: []rpc.ArgDesc{
-				{"blessings", ``}, // security.Blessings
+				{Name: "blessings", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "BlessingStoreDefault",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 		{
 			Name: "BlessingStorePeerBlessings",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // map[security.BlessingPattern]security.Blessings
+				{Name: "", Doc: ``}, // map[security.BlessingPattern]security.Blessings
 			},
 		},
 		{
 			Name: "BlessingStoreDebugString",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "BlessingStoreCacheDischarge",
 			InArgs: []rpc.ArgDesc{
-				{"discharge", ``}, // security.Discharge
-				{"caveat", ``},    // security.Caveat
-				{"impetus", ``},   // security.DischargeImpetus
+				{Name: "discharge", Doc: ``}, // security.Discharge
+				{Name: "caveat", Doc: ``},    // security.Caveat
+				{Name: "impetus", Doc: ``},   // security.DischargeImpetus
 			},
 		},
 		{
 			Name: "BlessingStoreClearDischarges",
 			InArgs: []rpc.ArgDesc{
-				{"discharges", ``}, // []security.Discharge
+				{Name: "discharges", Doc: ``}, // []security.Discharge
 			},
 		},
 		{
 			Name: "BlessingStoreDischarge",
 			InArgs: []rpc.ArgDesc{
-				{"caveat", ``},  // security.Caveat
-				{"impetus", ``}, // security.DischargeImpetus
+				{Name: "caveat", Doc: ``},  // security.Caveat
+				{Name: "impetus", Doc: ``}, // security.DischargeImpetus
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"wd", ``}, // security.Discharge
+				{Name: "wd", Doc: ``}, // security.Discharge
 			},
 		},
 		{
 			Name: "BlessingRootsAdd",
 			InArgs: []rpc.ArgDesc{
-				{"root", ``},    // []byte
-				{"pattern", ``}, // security.BlessingPattern
+				{Name: "root", Doc: ``},    // []byte
+				{Name: "pattern", Doc: ``}, // security.BlessingPattern
 			},
 		},
 		{
 			Name: "BlessingRootsRecognized",
 			InArgs: []rpc.ArgDesc{
-				{"root", ``},     // []byte
-				{"blessing", ``}, // string
+				{Name: "root", Doc: ``},     // []byte
+				{Name: "blessing", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "BlessingRootsDump",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // map[security.BlessingPattern][][]byte
+				{Name: "", Doc: ``}, // map[security.BlessingPattern][][]byte
 			},
 		},
 		{
 			Name: "BlessingRootsDebugString",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 		},
 		{

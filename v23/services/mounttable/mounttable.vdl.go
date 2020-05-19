@@ -360,30 +360,30 @@ var descMountTable = rpc.InterfaceDesc{
 			Name: "Mount",
 			Doc:  "// Mount Server (a global name) onto the receiver.\n//\n// Subsequent mounts add to the servers mounted there.  The multiple\n// servers are considered equivalent and are meant solely for\n// availability, i.e., no load balancing is guaranteed.\n//\n// The ttl is the number of seconds the mount is to last unless refreshed by\n// another mount of the same server.  A ttl of 0 represents an infinite\n// duration.  A server with an expired ttl should never appear in the results\n// nor affect the operation of any MountTable method, and should act as if it\n// was never present as far as the interface is concerned.\n//\n// The flags represent a bit mask of options.",
 			InArgs: []rpc.ArgDesc{
-				{"server", ``}, // string
-				{"ttl", ``},    // uint32
-				{"flags", ``},  // naming.MountFlag
+				{Name: "server", Doc: ``}, // string
+				{Name: "ttl", Doc: ``},    // uint32
+				{Name: "flags", Doc: ``},  // naming.MountFlag
 			},
 		},
 		{
 			Name: "Unmount",
 			Doc:  "// Unmount removes server from the receiver.  If server is empty, remove all\n// servers mounted there.  Returns a non-nil error iff server remains mounted\n// at the mount point.",
 			InArgs: []rpc.ArgDesc{
-				{"server", ``}, // string
+				{Name: "server", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "Delete",
 			Doc:  "// Delete removes the receiver.  If the receiver has children, it will not\n// be removed unless deleteSubtree is true in which case the whole subtree is\n// removed.",
 			InArgs: []rpc.ArgDesc{
-				{"deleteSubtree", ``}, // bool
+				{Name: "deleteSubtree", Doc: ``}, // bool
 			},
 		},
 		{
 			Name: "ResolveStep",
 			Doc:  "// ResolveStep takes the next step in resolving a name.  Returns the next\n// servers to query and the suffix at those servers.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // naming.MountEntry
+				{Name: "", Doc: ``}, // naming.MountEntry
 			},
 		},
 	},

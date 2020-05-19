@@ -176,7 +176,7 @@ var descStats = rpc.InterfaceDesc{
 			Name: "Value",
 			Doc:  "// Value returns the current value of an object, or an error. The type\n// of the value is implementation specific.\n// Some objects may not have a value, in which case, Value() returns\n// a NoValue error.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // *vom.RawBytes
+				{Name: "", Doc: ``}, // *vom.RawBytes
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},

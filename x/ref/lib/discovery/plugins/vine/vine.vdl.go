@@ -135,8 +135,8 @@ var descStore = rpc.InterfaceDesc{
 			Name: "Add",
 			Doc:  "// Add adds an advertisement with a given ttl.",
 			InArgs: []rpc.ArgDesc{
-				{"adinfo", ``}, // discovery_2.AdInfo
-				{"ttl", ``},    // time.Duration
+				{Name: "adinfo", Doc: ``}, // discovery_2.AdInfo
+				{Name: "ttl", Doc: ``},    // time.Duration
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -144,7 +144,7 @@ var descStore = rpc.InterfaceDesc{
 			Name: "Delete",
 			Doc:  "// Delete deletes the advertisement from the store.",
 			InArgs: []rpc.ArgDesc{
-				{"id", ``}, // discovery.AdId
+				{Name: "id", Doc: ``}, // discovery.AdId
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},

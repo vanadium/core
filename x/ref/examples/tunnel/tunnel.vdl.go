@@ -937,8 +937,8 @@ var descTunnel = rpc.InterfaceDesc{
 			Name: "Forward",
 			Doc:  "// The Forward method is used for network forwarding. All the data sent over\n// the byte stream is forwarded to the requested network address and all the\n// data received from that network connection is sent back on the reply\n// stream.",
 			InArgs: []rpc.ArgDesc{
-				{"network", ``}, // string
-				{"address", ``}, // string
+				{Name: "network", Doc: ``}, // string
+				{Name: "address", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -946,8 +946,8 @@ var descTunnel = rpc.InterfaceDesc{
 			Name: "ReverseForward",
 			Doc:  "// The ReverseForward method is used for network forwarding from the server\n// back to the client. The server process listens on the requested network\n// address, forwarding all connections by calling Forwarder.Forward on the\n// caller.",
 			InArgs: []rpc.ArgDesc{
-				{"network", ``}, // string
-				{"address", ``}, // string
+				{Name: "network", Doc: ``}, // string
+				{Name: "address", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -955,12 +955,12 @@ var descTunnel = rpc.InterfaceDesc{
 			Name: "Shell",
 			Doc:  "// The Shell method is used to either run shell commands remotely, or to open\n// an interactive shell. The data received over the byte stream is sent to the\n// shell's stdin, and the data received from the shell's stdout and stderr is\n// sent back in the reply stream. It returns the exit status of the shell\n// command as an integer exit code and a human readable string.",
 			InArgs: []rpc.ArgDesc{
-				{"command", ``},   // string
-				{"shellOpts", ``}, // ShellOpts
+				{Name: "command", Doc: ``},   // string
+				{Name: "shellOpts", Doc: ``}, // ShellOpts
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"exitCode", ``}, // int32
-				{"exitMsg", ``},  // string
+				{Name: "exitCode", Doc: ``}, // int32
+				{Name: "exitMsg", Doc: ``},  // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},

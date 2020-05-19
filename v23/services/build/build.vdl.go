@@ -575,21 +575,21 @@ var descBuilder = rpc.InterfaceDesc{
 			Name: "Build",
 			Doc:  "// Build streams sources to the build server, which then attempts to\n// build the sources and streams back the compiled binaries.",
 			InArgs: []rpc.ArgDesc{
-				{"arch", ``}, // Architecture
-				{"os", ``},   // OperatingSystem
+				{Name: "arch", Doc: ``}, // Architecture
+				{Name: "os", Doc: ``},   // OperatingSystem
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 		},
 		{
 			Name: "Describe",
 			Doc:  "// Describe generates a description for a binary identified by\n// the given Object name.",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``}, // string
+				{Name: "name", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // binary.Description
+				{Name: "", Doc: ``}, // binary.Description
 			},
 		},
 	},

@@ -336,7 +336,7 @@ var descLogFile = rpc.InterfaceDesc{
 			Name: "Size",
 			Doc:  "// Size returns the number of bytes in the receiving object.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // int64
+				{Name: "", Doc: ``}, // int64
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -344,12 +344,12 @@ var descLogFile = rpc.InterfaceDesc{
 			Name: "ReadLog",
 			Doc:  "// ReadLog receives up to numEntries log entries starting at the\n// startPos offset (in bytes) in the receiving object. Each stream chunk\n// contains one log entry.\n//\n// If follow is true, ReadLog will block and wait for more entries to\n// arrive when it reaches the end of the file.\n//\n// ReadLog returns the position where it stopped reading, i.e. the\n// position where the next entry starts. This value can be used as\n// startPos for successive calls to ReadLog.\n//\n// The returned error will be EndOfFile if and only if ReadLog reached the\n// end of the file and no log entries were returned.",
 			InArgs: []rpc.ArgDesc{
-				{"startPos", ``},   // int64
-				{"numEntries", ``}, // int32
-				{"follow", ``},     // bool
+				{Name: "startPos", Doc: ``},   // int64
+				{Name: "numEntries", Doc: ``}, // int32
+				{Name: "follow", Doc: ``},     // bool
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // int64
+				{Name: "", Doc: ``}, // int64
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},

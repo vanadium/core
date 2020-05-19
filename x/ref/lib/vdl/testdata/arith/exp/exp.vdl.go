@@ -110,10 +110,10 @@ var descExp = rpc.InterfaceDesc{
 		{
 			Name: "Exp",
 			InArgs: []rpc.ArgDesc{
-				{"x", ``}, // float64
+				{Name: "x", Doc: ``}, // float64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // float64
+				{Name: "", Doc: ``}, // float64
 			},
 		},
 	},

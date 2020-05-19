@@ -566,15 +566,15 @@ var descGroupReader = rpc.InterfaceDesc{
 			Name: "Relate",
 			Doc:  "// Relate determines the relationships between the provided blessing\n// names and the members of the group.\n//\n// Given an input set of blessing names and a group defined by a set of\n// blessing patterns S, for each blessing name B in the input, Relate(B)\n// returns a set of \"remainders\" consisting of every blessing name B\"\n// such that there exists some B' for which B = B' B\" and B' is in S,\n// and \"\" if B is a member of S.\n//\n// For example, if a group is defined as S = {n1, n1:n2, n1:n2:n3}, then\n// Relate(n1:n2) = {n2, \"\"}.\n//\n// reqVersion specifies the expected version of the group's membership\n// information. If this version is set and matches the Group's current\n// version, the response will indicate that fact but will otherwise be\n// empty.\n//\n// visitedGroups is the set of groups already visited in a particular\n// chain of Relate calls, and is used to detect the presence of\n// cycles. When a cycle is detected, it is treated just like any other\n// error, and the result is approximated.\n//\n// Relate also returns information about all the errors encountered that\n// resulted in approximations, if any.\n//\n// TODO(hpucha): scrub \"Approximation\" for preserving privacy. Flesh\n// versioning out further. Other args we may need: option to Get() the\n// membership set when allowed (to avoid an extra RPC), options related\n// to caching this information.",
 			InArgs: []rpc.ArgDesc{
-				{"blessings", ``},     // map[string]struct{}
-				{"hint", ``},          // ApproximationType
-				{"reqVersion", ``},    // string
-				{"visitedGroups", ``}, // map[string]struct{}
+				{Name: "blessings", Doc: ``},     // map[string]struct{}
+				{Name: "hint", Doc: ``},          // ApproximationType
+				{Name: "reqVersion", Doc: ``},    // string
+				{Name: "visitedGroups", Doc: ``}, // map[string]struct{}
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"remainder", ``},      // map[string]struct{}
-				{"approximations", ``}, // []Approximation
-				{"version", ``},        // string
+				{Name: "remainder", Doc: ``},      // map[string]struct{}
+				{Name: "approximations", Doc: ``}, // []Approximation
+				{Name: "version", Doc: ``},        // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Resolve"))},
 		},
@@ -582,12 +582,12 @@ var descGroupReader = rpc.InterfaceDesc{
 			Name: "Get",
 			Doc:  "// Get returns all entries in the group.\n// TODO(sadovsky): Flesh out this API.",
 			InArgs: []rpc.ArgDesc{
-				{"req", ``},        // GetRequest
-				{"reqVersion", ``}, // string
+				{Name: "req", Doc: ``},        // GetRequest
+				{Name: "reqVersion", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"res", ``},     // GetResponse
-				{"version", ``}, // string
+				{Name: "res", Doc: ``},     // GetResponse
+				{Name: "version", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -854,8 +854,8 @@ var descGroup = rpc.InterfaceDesc{
 			Name: "Create",
 			Doc:  "// Create creates a new group if it doesn't already exist.\n// If perms is nil, a default Permissions is used, providing Admin access to\n// the caller.\n// Create requires the caller to have Write permission at the GroupServer.",
 			InArgs: []rpc.ArgDesc{
-				{"perms", ``},   // access.Permissions
-				{"entries", ``}, // []BlessingPatternChunk
+				{Name: "perms", Doc: ``},   // access.Permissions
+				{Name: "entries", Doc: ``}, // []BlessingPatternChunk
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -863,7 +863,7 @@ var descGroup = rpc.InterfaceDesc{
 			Name: "Delete",
 			Doc:  "// Delete deletes the group.\n// Permissions for all group-related methods except Create() are checked\n// against the Group object.",
 			InArgs: []rpc.ArgDesc{
-				{"version", ``}, // string
+				{Name: "version", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -871,8 +871,8 @@ var descGroup = rpc.InterfaceDesc{
 			Name: "Add",
 			Doc:  "// Add adds an entry to the group.",
 			InArgs: []rpc.ArgDesc{
-				{"entry", ``},   // BlessingPatternChunk
-				{"version", ``}, // string
+				{Name: "entry", Doc: ``},   // BlessingPatternChunk
+				{Name: "version", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -880,8 +880,8 @@ var descGroup = rpc.InterfaceDesc{
 			Name: "Remove",
 			Doc:  "// Remove removes an entry from the group.",
 			InArgs: []rpc.ArgDesc{
-				{"entry", ``},   // BlessingPatternChunk
-				{"version", ``}, // string
+				{Name: "entry", Doc: ``},   // BlessingPatternChunk
+				{Name: "version", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},

@@ -525,140 +525,140 @@ var descTypeTester = rpc.InterfaceDesc{
 			Name: "EchoBool",
 			Doc:  "// Methods to test support for primitive types.",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // bool
+				{Name: "I1", Doc: ``}, // bool
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // bool
+				{Name: "O1", Doc: ``}, // bool
 			},
 		},
 		{
 			Name: "EchoFloat32",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // float32
+				{Name: "I1", Doc: ``}, // float32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // float32
+				{Name: "O1", Doc: ``}, // float32
 			},
 		},
 		{
 			Name: "EchoFloat64",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // float64
+				{Name: "I1", Doc: ``}, // float64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // float64
+				{Name: "O1", Doc: ``}, // float64
 			},
 		},
 		{
 			Name: "EchoInt32",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // int32
+				{Name: "I1", Doc: ``}, // int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // int32
+				{Name: "O1", Doc: ``}, // int32
 			},
 		},
 		{
 			Name: "EchoInt64",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // int64
+				{Name: "I1", Doc: ``}, // int64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // int64
+				{Name: "O1", Doc: ``}, // int64
 			},
 		},
 		{
 			Name: "EchoString",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // string
+				{Name: "I1", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // string
+				{Name: "O1", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "EchoByte",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // byte
+				{Name: "I1", Doc: ``}, // byte
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // byte
+				{Name: "O1", Doc: ``}, // byte
 			},
 		},
 		{
 			Name: "EchoUint32",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // uint32
+				{Name: "I1", Doc: ``}, // uint32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // uint32
+				{Name: "O1", Doc: ``}, // uint32
 			},
 		},
 		{
 			Name: "EchoUint64",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // uint64
+				{Name: "I1", Doc: ``}, // uint64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // uint64
+				{Name: "O1", Doc: ``}, // uint64
 			},
 		},
 		{
 			Name: "XEchoArray",
 			Doc:  "// Methods to test support for composite types.",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // Array2Int
+				{Name: "I1", Doc: ``}, // Array2Int
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // Array2Int
+				{Name: "O1", Doc: ``}, // Array2Int
 			},
 		},
 		{
 			Name: "XEchoMap",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // map[int32]string
+				{Name: "I1", Doc: ``}, // map[int32]string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // map[int32]string
+				{Name: "O1", Doc: ``}, // map[int32]string
 			},
 		},
 		{
 			Name: "XEchoSet",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // map[int32]struct{}
+				{Name: "I1", Doc: ``}, // map[int32]struct{}
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // map[int32]struct{}
+				{Name: "O1", Doc: ``}, // map[int32]struct{}
 			},
 		},
 		{
 			Name: "XEchoSlice",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // []int32
+				{Name: "I1", Doc: ``}, // []int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // []int32
+				{Name: "O1", Doc: ``}, // []int32
 			},
 		},
 		{
 			Name: "XEchoStruct",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // Struct
+				{Name: "I1", Doc: ``}, // Struct
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // Struct
+				{Name: "O1", Doc: ``}, // Struct
 			},
 		},
 		{
 			Name: "YMultiArg",
 			Doc:  "// Methods to test support for different number of arguments.",
 			InArgs: []rpc.ArgDesc{
-				{"I1", ``}, // int32
-				{"I2", ``}, // int32
+				{Name: "I1", Doc: ``}, // int32
+				{Name: "I2", Doc: ``}, // int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"O1", ``}, // int32
-				{"O2", ``}, // int32
+				{Name: "O1", Doc: ``}, // int32
+				{Name: "O2", Doc: ``}, // int32
 			},
 		},
 		{
@@ -668,8 +668,8 @@ var descTypeTester = rpc.InterfaceDesc{
 			Name: "ZStream",
 			Doc:  "// Methods to test support for streaming.",
 			InArgs: []rpc.ArgDesc{
-				{"NumStreamItems", ``}, // int32
-				{"StreamItem", ``},     // bool
+				{Name: "NumStreamItems", Doc: ``}, // int32
+				{Name: "StreamItem", Doc: ``},     // bool
 			},
 		},
 	},

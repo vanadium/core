@@ -116,8 +116,8 @@ var descConfig = rpc.InterfaceDesc{
 			Name: "Set",
 			Doc:  "// Set sets the value for key.",
 			InArgs: []rpc.ArgDesc{
-				{"key", ``},   // string
-				{"value", ``}, // string
+				{Name: "key", Doc: ``},   // string
+				{Name: "value", Doc: ``}, // string
 			},
 		},
 	},

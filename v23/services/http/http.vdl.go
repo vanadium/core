@@ -656,10 +656,10 @@ var descHttp = rpc.InterfaceDesc{
 			Name: "RawDo",
 			Doc:  "// RawDo returns the server's response to req.",
 			InArgs: []rpc.ArgDesc{
-				{"req", ``}, // Request
+				{Name: "req", Doc: ``}, // Request
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"data", ``}, // []byte
+				{Name: "data", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},

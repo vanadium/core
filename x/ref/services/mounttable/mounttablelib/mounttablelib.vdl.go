@@ -132,15 +132,15 @@ var descCollection = rpc.InterfaceDesc{
 			Name: "Export",
 			Doc:  "// Export sets the value for a name.  Overwrite controls the behavior when\n// an entry exists, if Overwrite is true, then the binding is replaced,\n// otherwise the call fails with an error.  The Val must be no larger than\n// MaxSize bytes.",
 			InArgs: []rpc.ArgDesc{
-				{"Val", ``},       // string
-				{"Overwrite", ``}, // bool
+				{Name: "Val", Doc: ``},       // string
+				{Name: "Overwrite", Doc: ``}, // bool
 			},
 		},
 		{
 			Name: "Lookup",
 			Doc:  "// Lookup retrieves the value associated with a name.  Returns an error if\n// there is no such binding.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 		},
 	},

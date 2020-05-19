@@ -345,7 +345,7 @@ var descPProf = rpc.InterfaceDesc{
 			Name: "CmdLine",
 			Doc:  "// CmdLine returns the command-line arguments of the server, including\n// the name of the executable.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []string
+				{Name: "", Doc: ``}, // []string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -353,7 +353,7 @@ var descPProf = rpc.InterfaceDesc{
 			Name: "Profiles",
 			Doc:  "// Profiles returns the list of available profiles.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []string
+				{Name: "", Doc: ``}, // []string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -361,8 +361,8 @@ var descPProf = rpc.InterfaceDesc{
 			Name: "Profile",
 			Doc:  "// Profile streams the requested profile. The debug parameter enables\n// additional output. Passing debug=0 includes only the hexadecimal\n// addresses that pprof needs. Passing debug=1 adds comments translating\n// addresses to function names and line numbers, so that a programmer\n// can read the profile without tools.",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``},  // string
-				{"debug", ``}, // int32
+				{Name: "name", Doc: ``},  // string
+				{Name: "debug", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -370,7 +370,7 @@ var descPProf = rpc.InterfaceDesc{
 			Name: "CpuProfile",
 			Doc:  "// CpuProfile enables CPU profiling for the requested duration and\n// streams the profile data.",
 			InArgs: []rpc.ArgDesc{
-				{"seconds", ``}, // int32
+				{Name: "seconds", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -378,10 +378,10 @@ var descPProf = rpc.InterfaceDesc{
 			Name: "Symbol",
 			Doc:  "// Symbol looks up the program counters and returns their respective\n// function names.",
 			InArgs: []rpc.ArgDesc{
-				{"programCounters", ``}, // []uint64
+				{Name: "programCounters", Doc: ``}, // []uint64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []string
+				{Name: "", Doc: ``}, // []string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},

@@ -139,11 +139,11 @@ var descDischarger = rpc.InterfaceDesc{
 			Name: "Discharge",
 			Doc:  "// Discharge is called by a principal that holds a blessing with a third\n// party caveat and seeks to get a discharge that proves the fulfillment of\n// this caveat.",
 			InArgs: []rpc.ArgDesc{
-				{"Caveat", ``},  // security.Caveat
-				{"Impetus", ``}, // security.DischargeImpetus
+				{Name: "Caveat", Doc: ``},  // security.Caveat
+				{Name: "Impetus", Doc: ``}, // security.DischargeImpetus
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"Discharge", ``}, // security.Discharge
+				{Name: "Discharge", Doc: ``}, // security.Discharge
 			},
 		},
 	},

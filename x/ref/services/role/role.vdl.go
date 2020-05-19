@@ -139,7 +139,7 @@ var descRole = rpc.InterfaceDesc{
 		{
 			Name: "SeekBlessings",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // security.Blessings
+				{Name: "", Doc: ``}, // security.Blessings
 			},
 		},
 	},

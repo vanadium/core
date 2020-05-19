@@ -106,10 +106,10 @@ var descEchoService = rpc.InterfaceDesc{
 		{
 			Name: "Echo",
 			InArgs: []rpc.ArgDesc{
-				{"msg", ``}, // string
+				{Name: "msg", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},

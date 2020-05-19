@@ -904,10 +904,10 @@ var desc{{$iface.Name}} = {{$rpc_}}InterfaceDesc{ {{if $iface.Name}}
 			Name: "{{$method.Name}}",{{end}}{{if $method.Doc}}
 			Doc: {{quoteStripDoc $method.Doc}},{{end}}{{if $method.InArgs}}
 			InArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.InArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.OutArgs}}
 			OutArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.OutArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.Tags}}
 			Tags: []*{{$data.Pkg "v.io/v23/vdl"}}Value{ {{range $tag := $method.Tags}}{{genValueOf $data $tag}} ,{{end}} },{{end}}
 		},{{end}}

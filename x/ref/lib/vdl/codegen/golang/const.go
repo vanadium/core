@@ -218,7 +218,7 @@ func untypedConstWire(data *goData, v *vdl.Value) string {
 			// Only set the field if the field isn't zero or the field type doesn't
 			// represent zero using the go zero value.  Otherwise simply skip the
 			// field, letting the default go zero value occur.
-			inner = fieldConst(data, vf)
+			inner = "Value: " + fieldConst(data, vf)
 		}
 		return typestr + t.Field(ix).Name + "{" + inner + "}"
 	default:

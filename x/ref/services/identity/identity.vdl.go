@@ -249,10 +249,10 @@ var descMacaroonBlesser = rpc.InterfaceDesc{
 			Name: "Bless",
 			Doc:  "// Bless uses the provided macaroon (which contains email and caveats)\n// to return a blessing for the client.",
 			InArgs: []rpc.ArgDesc{
-				{"macaroon", ``}, // string
+				{Name: "macaroon", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"blessing", ``}, // security.Blessings
+				{Name: "blessing", Doc: ``}, // security.Blessings
 			},
 		},
 	},
