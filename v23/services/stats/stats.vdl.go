@@ -169,7 +169,7 @@ var descStats = rpc.InterfaceDesc{
 	PkgPath: "v.io/v23/services/stats",
 	Doc:     "// The Stats interface is used to access stats for troubleshooting and\n// monitoring purposes. The stats objects are discoverable via the Globbable\n// interface and watchable via the GlobWatcher interface.\n//\n// The types of the object values are implementation specific, but should be\n// primarily numeric in nature, e.g. counters, memory usage, latency metrics,\n// etc.",
 	Embeds: []rpc.EmbedDesc{
-		{"GlobWatcher", "v.io/v23/services/watch", "// GlobWatcher allows a client to receive updates for changes to objects\n// that match a pattern.  See the package comments for details."},
+		{Name: "GlobWatcher", PkgPath: "v.io/v23/services/watch", Doc: "// GlobWatcher allows a client to receive updates for changes to objects\n// that match a pattern.  See the package comments for details."},
 	},
 	Methods: []rpc.MethodDesc{
 		{

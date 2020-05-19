@@ -3420,7 +3420,7 @@ var descServiceB = rpc.InterfaceDesc{
 	Name:    "ServiceB",
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/base",
 	Embeds: []rpc.EmbedDesc{
-		{"ServiceA", "v.io/x/ref/lib/vdl/testdata/base", ``},
+		{Name: "ServiceA", PkgPath: "v.io/x/ref/lib/vdl/testdata/base", Doc: ``},
 	},
 	Methods: []rpc.MethodDesc{
 		{

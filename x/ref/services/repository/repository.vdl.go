@@ -209,7 +209,7 @@ var descApplication = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/services/repository",
 	Doc:     "// Application describes an application repository internally. Besides the\n// public Application interface, it allows adding and removing application\n// envelopes, as well as querying for a list of supported profiles.",
 	Embeds: []rpc.EmbedDesc{
-		{"Application", "v.io/v23/services/repository", "// Application provides access to application envelopes. An\n// application envelope is identified by an application name and an\n// application version, which are specified through the object name,\n// and a profile name, which is specified using a method argument.\n//\n// Example:\n// /apps/search/v1.Match([]string{\"base\", \"media\"})\n//   returns an application envelope that can be used for downloading\n//   and executing the \"search\" application, version \"v1\", runnable\n//   on either the \"base\" or \"media\" profile."},
+		{Name: "Application", PkgPath: "v.io/v23/services/repository", Doc: "// Application provides access to application envelopes. An\n// application envelope is identified by an application name and an\n// application version, which are specified through the object name,\n// and a profile name, which is specified using a method argument.\n//\n// Example:\n// /apps/search/v1.Match([]string{\"base\", \"media\"})\n//   returns an application envelope that can be used for downloading\n//   and executing the \"search\" application, version \"v1\", runnable\n//   on either the \"base\" or \"media\" profile."},
 	},
 	Methods: []rpc.MethodDesc{
 		{
@@ -383,7 +383,7 @@ var descProfile = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/services/repository",
 	Doc:     "// Profile describes a profile internally. Besides the public Profile\n// interface, it allows to add and remove profile specifications.",
 	Embeds: []rpc.EmbedDesc{
-		{"Profile", "v.io/v23/services/repository", "// Profile abstracts a device's ability to run binaries, and hides\n// specifics such as the operating system, hardware architecture, and\n// the set of installed libraries. Profiles describe binaries and\n// devices, and are used to match them."},
+		{Name: "Profile", PkgPath: "v.io/v23/services/repository", Doc: "// Profile abstracts a device's ability to run binaries, and hides\n// specifics such as the operating system, hardware architecture, and\n// the set of installed libraries. Profiles describe binaries and\n// devices, and are used to match them."},
 	},
 	Methods: []rpc.MethodDesc{
 		{

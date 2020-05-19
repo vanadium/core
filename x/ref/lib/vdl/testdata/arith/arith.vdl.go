@@ -270,8 +270,8 @@ var descAdvancedMath = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/arith",
 	Doc:     "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios.",
 	Embeds: []rpc.EmbedDesc{
-		{"Trigonometry", "v.io/x/ref/lib/vdl/testdata/arith", "// Trigonometry is an interface that specifies a couple trigonometric functions."},
-		{"Exp", "v.io/x/ref/lib/vdl/testdata/arith/exp", ``},
+		{Name: "Trigonometry", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// Trigonometry is an interface that specifies a couple trigonometric functions."},
+		{Name: "Exp", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith/exp", Doc: ``},
 	},
 }
 
@@ -1008,8 +1008,8 @@ var descCalculator = rpc.InterfaceDesc{
 	Name:    "Calculator",
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/arith",
 	Embeds: []rpc.EmbedDesc{
-		{"Arith", "v.io/x/ref/lib/vdl/testdata/arith", "// Arith is an example of an interface definition for an arithmetic service.\n// Things to note:\n//   * There must be at least 1 out-arg, and the last out-arg must be error."},
-		{"AdvancedMath", "v.io/x/ref/lib/vdl/testdata/arith", "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios."},
+		{Name: "Arith", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// Arith is an example of an interface definition for an arithmetic service.\n// Things to note:\n//   * There must be at least 1 out-arg, and the last out-arg must be error."},
+		{Name: "AdvancedMath", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios."},
 	},
 	Methods: []rpc.MethodDesc{
 		{

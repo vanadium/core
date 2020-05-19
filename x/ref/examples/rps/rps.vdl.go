@@ -1807,9 +1807,9 @@ var descRockPaperScissors = rpc.InterfaceDesc{
 	Name:    "RockPaperScissors",
 	PkgPath: "v.io/x/ref/examples/rps",
 	Embeds: []rpc.EmbedDesc{
-		{"Judge", "v.io/x/ref/examples/rps", ``},
-		{"Player", "v.io/x/ref/examples/rps", "// Player can receive challenges from other players."},
-		{"ScoreKeeper", "v.io/x/ref/examples/rps", "// ScoreKeeper receives the outcome of games from Judges."},
+		{Name: "Judge", PkgPath: "v.io/x/ref/examples/rps", Doc: ``},
+		{Name: "Player", PkgPath: "v.io/x/ref/examples/rps", Doc: "// Player can receive challenges from other players."},
+		{Name: "ScoreKeeper", PkgPath: "v.io/x/ref/examples/rps", Doc: "// ScoreKeeper receives the outcome of games from Judges."},
 	},
 }
 

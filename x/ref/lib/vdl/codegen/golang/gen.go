@@ -897,7 +897,7 @@ var desc{{$iface.Name}} = {{$rpc_}}InterfaceDesc{ {{if $iface.Name}}
 	PkgPath: "{{$iface.File.Package.Path}}",{{end}}{{if $iface.Doc}}
 	Doc: {{quoteStripDoc $iface.Doc}},{{end}}{{if $iface.Embeds}}
 	Embeds: []{{$rpc_}}EmbedDesc{ {{range $embed := $iface.Embeds}}
-		{ "{{$embed.Name}}", "{{$embed.File.Package.Path}}", {{quoteStripDoc $embed.Doc}} },{{end}}
+		{ Name: "{{$embed.Name}}", PkgPath: "{{$embed.File.Package.Path}}", Doc: {{quoteStripDoc $embed.Doc}} },{{end}}
 	},{{end}}{{if $iface.Methods}}
 	Methods: []{{$rpc_}}MethodDesc{ {{range $method := $iface.Methods}}
 		{ {{if $method.Name}}
