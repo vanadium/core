@@ -32,7 +32,7 @@ const (
 
 func init() {
 	// File-wide
-	reCeilNewlines = regexp.MustCompile(`(?m)(\n([ ]|\t)*){2,}`)
+	reCeilNewlines = regexp.MustCompile("(?m)(\\n([ ]|\t)*){2,}")
 	// Per line
 	reIsClosingBracket = regexp.MustCompile(`^\s*}$`)
 	reIsComment = regexp.MustCompile(`\s*(//|/\*)`)
