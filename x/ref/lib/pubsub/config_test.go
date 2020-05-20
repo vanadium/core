@@ -61,7 +61,7 @@ func ExamplePublisher() {
 	// ip: address: (string: 1.2.3.5)
 }
 
-func ExampleShutdown() {
+func ExamplePublisher_Shutdown() {
 	in := make(chan pubsub.Setting)
 	pub := pubsub.NewPublisher()
 	stop, _ := pub.CreateStream("net", "network settings", in)

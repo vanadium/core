@@ -113,10 +113,10 @@ var descPingPong = rpc.InterfaceDesc{
 		{
 			Name: "Ping",
 			InArgs: []rpc.ArgDesc{
-				{"message", ``}, // string
+				{Name: "message", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 		},
 	},

@@ -18,7 +18,7 @@ import (
 
 	"golang.org/x/crypto/nacl/box"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -572,13 +572,48 @@ func TestRPCServerAuthorization(t *testing.T) {
 			{bServerTPExpired, "mountpoint/server", nil, verror.ErrNotTrusted, missingDischargeErr},
 
 			// Test the ServerAuthorizer option.
-			{bOther, "mountpoint/server", O{options.ServerAuthorizer{security.PublicKeyAuthorizer(bOther.PublicKey())}}, noErrID, ""},
-			{bOther, "mountpoint/server", O{options.ServerAuthorizer{security.PublicKeyAuthorizer(testutil.NewPrincipal("irrelevant").PublicKey())}}, verror.ErrNotTrusted, publicKeyErr},
+			{
+				bOther,
+				"mountpoint/server",
+				O{options.ServerAuthorizer{
+					Authorizer: security.PublicKeyAuthorizer(bOther.PublicKey()),
+				}},
+				noErrID,
+				"",
+			},
+			{
+				bOther,
+				"mountpoint/server",
+				O{options.ServerAuthorizer{
+					Authorizer: security.PublicKeyAuthorizer(testutil.NewPrincipal("irrelevant").PublicKey())}},
+				verror.ErrNotTrusted,
+				publicKeyErr,
+			},
 
 			// Test the "paranoid" names, where the pattern is provided in the name.
-			{bServer, "__(test-blessing:server)/mountpoint/server", nil, noErrID, ""},
-			{bServer, "__(test-blessing:other)/mountpoint/server", nil, verror.ErrNotTrusted, allowedErr},
-			{bTwoBlessings, "__(test-blessing:server)/mountpoint/server", O{options.ServerAuthorizer{ACL("test-blessing:other")}}, noErrID, ""},
+			{
+				bServer,
+				"__(test-blessing:server)/mountpoint/server",
+				nil,
+				noErrID,
+				"",
+			},
+			{
+				bServer,
+				"__(test-blessing:other)/mountpoint/server",
+				nil,
+				verror.ErrNotTrusted,
+				allowedErr,
+			},
+			{
+				bTwoBlessings,
+				"__(test-blessing:server)/mountpoint/server",
+				O{options.ServerAuthorizer{
+					Authorizer: ACL("test-blessing:other"),
+				}},
+				noErrID,
+				"",
+			},
 		}
 	)
 	// Start the discharge server.
@@ -651,7 +686,7 @@ func TestServerManInTheMiddleAttack(t *testing.T) {
 	}
 	// But the RPC should succeed if the client explicitly
 	// decided to skip server authorization.
-	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server", "Closure", nil, nil, options.ServerAuthorizer{security.AllowEveryone()}); err != nil {
+	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server", "Closure", nil, nil, options.ServerAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		t.Errorf("Unexpected error(%v) when skipping server authorization", err)
 	}
 }
@@ -1101,7 +1136,7 @@ func TestPrivateServer(t *testing.T) {
 	if err := bcrypter.GetCrypter(cctx).AddKey(cctx, extractKey(t, ctx, root, "root:client")); err != nil {
 		t.Fatal(err)
 	}
-	call, err = client.StartCall(cctx, serverEPName, "Closure", nil, options.ServerAuthorizer{access.AccessList{In: []security.BlessingPattern{"root:server:$"}}})
+	call, err = client.StartCall(cctx, serverEPName, "Closure", nil, options.ServerAuthorizer{Authorizer: access.AccessList{In: []security.BlessingPattern{"root:server:$"}}})
 	if err != nil {
 		t.Error(verror.DebugString(err))
 	} else {
@@ -1144,7 +1179,7 @@ func TestNamelessClientBlessings(t *testing.T) {
 	}
 	name := server.Status().Endpoints[0].Name()
 
-	if err := clt.Call(clientCtx, name, "Closure", nil, nil, options.ServerAuthorizer{security.AllowEveryone()}); err != nil {
+	if err := clt.Call(clientCtx, name, "Closure", nil, nil, options.ServerAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1170,7 +1205,7 @@ func TestNamelessServerBlessings(t *testing.T) {
 	}
 	name := server.Status().Endpoints[0].Name()
 
-	if err := client.Call(ctx, name, "Closure", nil, nil, options.ServerAuthorizer{&publicKeyAuth{p.PublicKey()}}); err != nil {
+	if err := client.Call(ctx, name, "Closure", nil, nil, options.ServerAuthorizer{Authorizer: &publicKeyAuth{p.PublicKey()}}); err != nil {
 		t.Fatal(err)
 	}
 }

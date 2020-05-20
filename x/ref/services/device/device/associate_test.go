@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/services/device"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
@@ -41,12 +41,12 @@ func TestListCommand(t *testing.T) {
 	rootTape.SetResponses(ListAssociationResponse{
 		na: []device.Association{
 			{
-				"root/self",
-				"alice_self_account",
+				IdentityName: "root/self",
+				AccountName:  "alice_self_account",
 			},
 			{
-				"root/other",
-				"alice_other_account",
+				IdentityName: "root/other",
+				AccountName:  "alice_other_account",
 			},
 		},
 		err: nil,

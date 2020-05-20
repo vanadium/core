@@ -147,7 +147,9 @@ func makeStringIntMap(m map[string]int64) *vdl.Value {
 
 func makeStructType(name string) *vdl.Type {
 	return vdl.NamedType(name, vdl.StructType([]vdl.Field{
-		{"X", vdl.Int64Type}, {"Y", vdl.StringType}, {"Z", vdl.BoolType},
+		{Name: "X", Type: vdl.Int64Type},
+		{Name: "Y", Type: vdl.StringType},
+		{Name: "Z", Type: vdl.BoolType},
 	}...))
 }
 
@@ -161,7 +163,9 @@ func makeStruct(name string, x int64, y string, z bool) *vdl.Value {
 
 func makeUnionType(name string) *vdl.Type {
 	return vdl.NamedType(name, vdl.UnionType([]vdl.Field{
-		{"X", vdl.Int64Type}, {"Y", vdl.StringType}, {"Z", vdl.BoolType},
+		{Name: "X", Type: vdl.Int64Type},
+		{Name: "Y", Type: vdl.StringType},
+		{Name: "Z", Type: vdl.BoolType},
 	}...))
 }
 
@@ -195,7 +199,8 @@ func makeStructTypeObject(name string, t *vdl.Type) *vdl.Value {
 
 func makeABStruct() *vdl.Value {
 	tA := vdl.NamedType("p.kg/a.A", vdl.StructType([]vdl.Field{
-		{"X", vdl.Int64Type}, {"Y", vdl.StringType},
+		{Name: "X", Type: vdl.Int64Type},
+		{Name: "Y", Type: vdl.StringType},
 	}...))
 	tB := vdl.NamedType("p.kg/a.B", vdl.StructType(vdl.Field{
 		Name: "Z",

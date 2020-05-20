@@ -7,7 +7,7 @@ package discovery
 import (
 	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/naming"
@@ -169,7 +169,7 @@ func (c *dirClient) resolveDirAddrs(ctx *context.T) (options.Preresolved, error)
 		}
 		resolved.Servers = append(resolved.Servers, entry.Servers...)
 	}
-	return options.Preresolved{&resolved}, nil
+	return options.Preresolved{Resolution: &resolved}, nil
 }
 
 func newDirClient(dirAddrs []string) *dirClient {

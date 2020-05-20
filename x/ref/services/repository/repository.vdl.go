@@ -209,16 +209,16 @@ var descApplication = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/services/repository",
 	Doc:     "// Application describes an application repository internally. Besides the\n// public Application interface, it allows adding and removing application\n// envelopes, as well as querying for a list of supported profiles.",
 	Embeds: []rpc.EmbedDesc{
-		{"Application", "v.io/v23/services/repository", "// Application provides access to application envelopes. An\n// application envelope is identified by an application name and an\n// application version, which are specified through the object name,\n// and a profile name, which is specified using a method argument.\n//\n// Example:\n// /apps/search/v1.Match([]string{\"base\", \"media\"})\n//   returns an application envelope that can be used for downloading\n//   and executing the \"search\" application, version \"v1\", runnable\n//   on either the \"base\" or \"media\" profile."},
+		{Name: "Application", PkgPath: "v.io/v23/services/repository", Doc: "// Application provides access to application envelopes. An\n// application envelope is identified by an application name and an\n// application version, which are specified through the object name,\n// and a profile name, which is specified using a method argument.\n//\n// Example:\n// /apps/search/v1.Match([]string{\"base\", \"media\"})\n//   returns an application envelope that can be used for downloading\n//   and executing the \"search\" application, version \"v1\", runnable\n//   on either the \"base\" or \"media\" profile."},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Put",
 			Doc:  "// Put adds the given application envelope for the given profile and\n// application version (required, and specified through the object name\n// suffix).\n//\n// An error is returned if an envelope already exists, unless the\n// overwrite option is set.",
 			InArgs: []rpc.ArgDesc{
-				{"Profile", ``},   // string
-				{"Envelope", ``},  // application.Envelope
-				{"Overwrite", ``}, // bool
+				{Name: "Profile", Doc: ``},   // string
+				{Name: "Envelope", Doc: ``},  // application.Envelope
+				{Name: "Overwrite", Doc: ``}, // bool
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -226,7 +226,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Remove",
 			Doc:  "// Remove removes the application envelope for the given profile\n// name and application version (specified through the object name\n// suffix).\n//\n// If no version is specified as part of the suffix, the method removes\n// all versions for the given profile.\n//\n// If the profile is the string \"*\", all profiles are removed for the\n// given version (or for all versions if the version is not specified).",
 			InArgs: []rpc.ArgDesc{
-				{"Profile", ``}, // string
+				{Name: "Profile", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -234,7 +234,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Profiles",
 			Doc:  "// Profiles returns the supported profiles for the application version\n// specified through the object name suffix.  If the version is not\n// specified, Profiles returns the union of profiles across all\n// versions.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []string
+				{Name: "", Doc: ``}, // []string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -383,14 +383,14 @@ var descProfile = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/services/repository",
 	Doc:     "// Profile describes a profile internally. Besides the public Profile\n// interface, it allows to add and remove profile specifications.",
 	Embeds: []rpc.EmbedDesc{
-		{"Profile", "v.io/v23/services/repository", "// Profile abstracts a device's ability to run binaries, and hides\n// specifics such as the operating system, hardware architecture, and\n// the set of installed libraries. Profiles describe binaries and\n// devices, and are used to match them."},
+		{Name: "Profile", PkgPath: "v.io/v23/services/repository", Doc: "// Profile abstracts a device's ability to run binaries, and hides\n// specifics such as the operating system, hardware architecture, and\n// the set of installed libraries. Profiles describe binaries and\n// devices, and are used to match them."},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Specification",
 			Doc:  "// Specification returns the profile specification for the profile\n// identified through the object name suffix.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // profile.Specification
+				{Name: "", Doc: ``}, // profile.Specification
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -398,7 +398,7 @@ var descProfile = rpc.InterfaceDesc{
 			Name: "Put",
 			Doc:  "// Put sets the profile specification for the profile identified\n// through the object name suffix.",
 			InArgs: []rpc.ArgDesc{
-				{"Specification", ``}, // profile.Specification
+				{Name: "Specification", Doc: ``}, // profile.Specification
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},

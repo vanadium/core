@@ -215,10 +215,10 @@ var descStore = rpc.InterfaceDesc{
 			Name: "Trace",
 			Doc:  "// Trace returns the trace that matches the given Id.\n// Will return a NoExists error if no matching trace was found.",
 			InArgs: []rpc.ArgDesc{
-				{"id", ``}, // uniqueid.Id
+				{Name: "id", Doc: ``}, // uniqueid.Id
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // vtrace.TraceRecord
+				{Name: "", Doc: ``}, // vtrace.TraceRecord
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},

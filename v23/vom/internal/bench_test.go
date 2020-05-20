@@ -627,7 +627,7 @@ func BenchmarkVom___Encode_____RPCRequestFull(b *testing.B) {
 		NumPosArgs:    23,
 		EndStreamArgs: true,
 		Deadline: wiretime.Deadline{
-			time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 		},
 		GrantedBlessings: createTypicalBlessings(),
 		TraceRequest: vtrace.Request{
@@ -646,7 +646,7 @@ func BenchmarkVom___EncodeMany_RPCRequestFull(b *testing.B) {
 		NumPosArgs:    23,
 		EndStreamArgs: true,
 		Deadline: wiretime.Deadline{
-			time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 		},
 		GrantedBlessings: createTypicalBlessings(),
 		TraceRequest: vtrace.Request{
@@ -665,7 +665,7 @@ func BenchmarkVom___Decode_____RPCRequestFull(b *testing.B) {
 		NumPosArgs:    23,
 		EndStreamArgs: true,
 		Deadline: wiretime.Deadline{
-			time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 		},
 		GrantedBlessings: createTypicalBlessings(),
 		TraceRequest: vtrace.Request{
@@ -684,7 +684,7 @@ func BenchmarkVom___DecodeMany_RPCRequestFull(b *testing.B) {
 		NumPosArgs:    23,
 		EndStreamArgs: true,
 		Deadline: wiretime.Deadline{
-			time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+			Time: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
 		},
 		GrantedBlessings: createTypicalBlessings(),
 		TraceRequest: vtrace.Request{

@@ -205,7 +205,7 @@ func newPeer(ctx *context.T, u discovery.Update) (*peer, error) {
 		username:    strings.Join(ulist, ", "),
 		description: fmt.Sprintf("%v at %v (AdId: %v)", ulist, prettyAddrList(addrs), u.Id()),
 		adId:        u.Id(),
-		preresolved: options.Preresolved{&me},
+		preresolved: options.Preresolved{Resolution: &me},
 	}, nil
 
 }

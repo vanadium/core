@@ -520,68 +520,68 @@ var descraftProto = rpc.InterfaceDesc{
 			Name: "Members",
 			Doc:  "// Members returns the current set of ids of raft members.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []string
+				{Name: "", Doc: ``}, // []string
 			},
 		},
 		{
 			Name: "Leader",
 			Doc:  "// Leader returns the id of the current leader.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "RequestVote",
 			Doc:  "// RequestVote starts a new round of voting.  It returns the server's current Term and true if\n// the server voted for the client.",
 			InArgs: []rpc.ArgDesc{
-				{"term", ``},         // Term
-				{"candidateId", ``},  // string
-				{"lastLogTerm", ``},  // Term
-				{"lastLogIndex", ``}, // Index
+				{Name: "term", Doc: ``},         // Term
+				{Name: "candidateId", Doc: ``},  // string
+				{Name: "lastLogTerm", Doc: ``},  // Term
+				{Name: "lastLogIndex", Doc: ``}, // Index
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"Term", ``},    // Term
-				{"Granted", ``}, // bool
+				{Name: "Term", Doc: ``},    // Term
+				{Name: "Granted", Doc: ``}, // bool
 			},
 		},
 		{
 			Name: "AppendToLog",
 			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leaderId -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
 			InArgs: []rpc.ArgDesc{
-				{"term", ``},         // Term
-				{"leaderId", ``},     // string
-				{"prevIndex", ``},    // Index
-				{"prevTerm", ``},     // Term
-				{"leaderCommit", ``}, // Index
-				{"cmds", ``},         // []LogEntry
+				{Name: "term", Doc: ``},         // Term
+				{Name: "leaderId", Doc: ``},     // string
+				{Name: "prevIndex", Doc: ``},    // Index
+				{Name: "prevTerm", Doc: ``},     // Term
+				{Name: "leaderCommit", Doc: ``}, // Index
+				{Name: "cmds", Doc: ``},         // []LogEntry
 			},
 		},
 		{
 			Name: "Append",
 			Doc:  "// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.\n// If a follower receives an Append() call it performs an Append() to the leader to run the actual\n// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.\n//\n// Returns the term and index of the append entry or an error.",
 			InArgs: []rpc.ArgDesc{
-				{"cmd", ``}, // []byte
+				{Name: "cmd", Doc: ``}, // []byte
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"term", ``},  // Term
-				{"index", ``}, // Index
+				{Name: "term", Doc: ``},  // Term
+				{Name: "index", Doc: ``}, // Index
 			},
 		},
 		{
 			Name: "Committed",
 			Doc:  "// Committed returns the commit index of the leader.",
 			OutArgs: []rpc.ArgDesc{
-				{"index", ``}, // Index
+				{Name: "index", Doc: ``}, // Index
 			},
 		},
 		{
 			Name: "InstallSnapshot",
 			Doc:  "// InstallSnapshot is sent from the leader to follower to install the given snapshot.  It is\n// sent when it becomes apparent that the leader does not have log entries needed by the follower\n// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the\n// snapshot.",
 			InArgs: []rpc.ArgDesc{
-				{"term", ``},         // Term
-				{"leaderId", ``},     // string
-				{"appliedTerm", ``},  // Term
-				{"appliedIndex", ``}, // Index
+				{Name: "term", Doc: ``},         // Term
+				{Name: "leaderId", Doc: ``},     // string
+				{Name: "appliedTerm", Doc: ``},  // Term
+				{Name: "appliedIndex", Doc: ``}, // Index
 			},
 		},
 	},

@@ -620,7 +620,7 @@ var descGlobWatcher = rpc.InterfaceDesc{
 			Name: "WatchGlob",
 			Doc:  "// WatchGlob returns a stream of changes that match a pattern.",
 			InArgs: []rpc.ArgDesc{
-				{"req", ``}, // GlobRequest
+				{Name: "req", Doc: ``}, // GlobRequest
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Resolve"))},
 		},

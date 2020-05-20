@@ -59,7 +59,7 @@ func (ns *namespace) resolveAgainstMountTable(ctx *context.T, client rpc.Client,
 		return nil, verror.New(errNoServers, ctx)
 	}
 	// We have preresolved the servers.  Pass the mount entry to the call.
-	opts = append(opts, options.Preresolved{e})
+	opts = append(opts, options.Preresolved{Resolution: e})
 	callCtx := ctx
 	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
 		// Only set a per-call timeout if a deadline has not already
@@ -115,7 +115,7 @@ func (ns *namespace) Resolve(ctx *context.T, name string, opts ...naming.Namespa
 	// ResolveToMountTable.
 	if err != nil && hasEndpointPrefix(name) {
 		verrorE := verror.Convert(verror.IDAction{}, ctx, err)
-		err = verror.AddSubErrs(verrorE, nil, verror.SubErr{"Did you mean", verror.E{Msg: "/" + name}, verror.Print})
+		err = verror.AddSubErrs(verrorE, nil, verror.SubErr{Name: "Did you mean", Err: verror.E{Msg: "/" + name}, Options: verror.Print})
 	}
 	return e, err
 }
@@ -188,7 +188,7 @@ func (ns *namespace) ShallowResolve(ctx *context.T, name string, opts ...naming.
 	// Resolve the entry directly.
 	client := v23.GetClient(ctx)
 	entry := new(naming.MountEntry)
-	err = client.Call(ctx, name, "ResolveStep", nil, []interface{}{entry}, append(getCallOpts(opts), options.Preresolved{me})...)
+	err = client.Call(ctx, name, "ResolveStep", nil, []interface{}{entry}, append(getCallOpts(opts), options.Preresolved{Resolution: me})...)
 	return entry, err
 }
 

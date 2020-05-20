@@ -49,7 +49,7 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 			mec := me
 			mec.Servers = []naming.MountedServer{mts}
 			ctx.VI(1).Infof("Mount(%s, %q)@%v: %v -> %v", name, server, i, mts, err)
-			copts := append(getCallOpts(opts), options.Preresolved{mec})
+			copts := append(getCallOpts(opts), options.Preresolved{Resolution: mec})
 			timeoutCtx, cancel := withTimeout(ctx)
 			defer cancel()
 			err = v23.GetClient(ctx).Call(timeoutCtx, name, "Mount", []interface{}{server, uint32(ttl.Seconds()), flags}, nil, copts...)
@@ -64,7 +64,7 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 func (ns *namespace) Unmount(ctx *context.T, name, server string, opts ...naming.NamespaceOpt) error {
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
-		copts := append(getCallOpts(opts), options.Preresolved{me})
+		copts := append(getCallOpts(opts), options.Preresolved{Resolution: me})
 		timeoutCtx, cancel := withTimeout(ctx)
 		defer cancel()
 		err = v23.GetClient(ctx).Call(timeoutCtx, name, "Unmount", []interface{}{server}, nil, copts...)
@@ -78,7 +78,7 @@ func (ns *namespace) Unmount(ctx *context.T, name, server string, opts ...naming
 func (ns *namespace) Delete(ctx *context.T, name string, deleteSubtree bool, opts ...naming.NamespaceOpt) error {
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
-		copts := append(getCallOpts(opts), options.Preresolved{me})
+		copts := append(getCallOpts(opts), options.Preresolved{Resolution: me})
 		timeoutCtx, cancel := withTimeout(ctx)
 		defer cancel()
 		err = v23.GetClient(ctx).Call(timeoutCtx, name, "Delete", []interface{}{deleteSubtree}, nil, copts...)

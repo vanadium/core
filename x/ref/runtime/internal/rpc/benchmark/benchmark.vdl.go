@@ -240,10 +240,10 @@ var descBenchmark = rpc.InterfaceDesc{
 			Name: "Echo",
 			Doc:  "// Echo returns the payload that it receives.",
 			InArgs: []rpc.ArgDesc{
-				{"Payload", ``}, // []byte
+				{Name: "Payload", Doc: ``}, // []byte
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},

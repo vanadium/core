@@ -128,7 +128,7 @@ func (s *IdentityServer) Serve(ctx, oauthCtx *context.T, externalHttpAddr, httpA
 func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHttpAddr, httpAddr, tlsConfig string) (rpc.Server, []string, string) {
 	// json-encoded public key and blessing names of this server
 	principal := v23.GetPrincipal(ctx)
-	http.Handle("/auth/blessing-root", handlers.BlessingRoot{principal})
+	http.Handle("/auth/blessing-root", handlers.BlessingRoot{P: principal})
 
 	rpcServer, published, err := s.setupBlessingServices(ctx, oauthCtx)
 	if err != nil {

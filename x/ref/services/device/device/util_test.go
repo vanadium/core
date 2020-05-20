@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/services/device"
 	"v.io/v23/verror"
@@ -22,38 +22,46 @@ import (
 )
 
 var (
-	installationUninstalled = device.StatusInstallation{device.InstallationStatus{
-		State:   device.InstallationStateUninstalled,
-		Version: "director's cut",
-	}}
-	installationActive = device.StatusInstallation{device.InstallationStatus{
-		State:   device.InstallationStateActive,
-		Version: "extended cut",
-	}}
-	instanceUpdating = device.StatusInstance{device.InstanceStatus{
-		State:   device.InstanceStateUpdating,
-		Version: "theatrical version",
-	}}
-	instanceRunning = device.StatusInstance{device.InstanceStatus{
-		State:   device.InstanceStateRunning,
-		Version: "tv version",
-	}}
-	instanceNotRunning = device.StatusInstance{device.InstanceStatus{
-		State:   device.InstanceStateNotRunning,
-		Version: "special edition",
-	}}
-	instanceDeleted = device.StatusInstance{device.InstanceStatus{
-		State:   device.InstanceStateDeleted,
-		Version: "mini series",
-	}}
-	deviceService = device.StatusDevice{device.DeviceStatus{
-		State:   device.InstanceStateRunning,
-		Version: "han shot first",
-	}}
-	deviceUpdating = device.StatusDevice{device.DeviceStatus{
-		State:   device.InstanceStateUpdating,
-		Version: "international release",
-	}}
+	installationUninstalled = device.StatusInstallation{
+		Value: device.InstallationStatus{
+			State:   device.InstallationStateUninstalled,
+			Version: "director's cut",
+		}}
+	installationActive = device.StatusInstallation{
+		Value: device.InstallationStatus{
+			State:   device.InstallationStateActive,
+			Version: "extended cut",
+		}}
+	instanceUpdating = device.StatusInstance{
+		Value: device.InstanceStatus{
+			State:   device.InstanceStateUpdating,
+			Version: "theatrical version",
+		}}
+	instanceRunning = device.StatusInstance{
+		Value: device.InstanceStatus{
+			State:   device.InstanceStateRunning,
+			Version: "tv version",
+		}}
+	instanceNotRunning = device.StatusInstance{
+		Value: device.InstanceStatus{
+			State:   device.InstanceStateNotRunning,
+			Version: "special edition",
+		}}
+	instanceDeleted = device.StatusInstance{
+		Value: device.InstanceStatus{
+			State:   device.InstanceStateDeleted,
+			Version: "mini series",
+		}}
+	deviceService = device.StatusDevice{
+		Value: device.DeviceStatus{
+			State:   device.InstanceStateRunning,
+			Version: "han shot first",
+		}}
+	deviceUpdating = device.StatusDevice{
+		Value: device.DeviceStatus{
+			State:   device.InstanceStateUpdating,
+			Version: "international release",
+		}}
 )
 
 func testHelper(t *testing.T, lower, upper string) {

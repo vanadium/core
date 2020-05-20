@@ -897,17 +897,17 @@ var desc{{$iface.Name}} = {{$rpc_}}InterfaceDesc{ {{if $iface.Name}}
 	PkgPath: "{{$iface.File.Package.Path}}",{{end}}{{if $iface.Doc}}
 	Doc: {{quoteStripDoc $iface.Doc}},{{end}}{{if $iface.Embeds}}
 	Embeds: []{{$rpc_}}EmbedDesc{ {{range $embed := $iface.Embeds}}
-		{ "{{$embed.Name}}", "{{$embed.File.Package.Path}}", {{quoteStripDoc $embed.Doc}} },{{end}}
+		{ Name: "{{$embed.Name}}", PkgPath: "{{$embed.File.Package.Path}}", Doc: {{quoteStripDoc $embed.Doc}} },{{end}}
 	},{{end}}{{if $iface.Methods}}
 	Methods: []{{$rpc_}}MethodDesc{ {{range $method := $iface.Methods}}
 		{ {{if $method.Name}}
 			Name: "{{$method.Name}}",{{end}}{{if $method.Doc}}
 			Doc: {{quoteStripDoc $method.Doc}},{{end}}{{if $method.InArgs}}
 			InArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.InArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.OutArgs}}
 			OutArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.OutArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.Tags}}
 			Tags: []*{{$data.Pkg "v.io/v23/vdl"}}Value{ {{range $tag := $method.Tags}}{{genValueOf $data $tag}} ,{{end}} },{{end}}
 		},{{end}}

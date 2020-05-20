@@ -1389,10 +1389,10 @@ var descJudge = rpc.InterfaceDesc{
 			Name: "CreateGame",
 			Doc:  "// CreateGame creates a new game with the given game options and returns a game\n// identifier that can be used by the players to join the game.",
 			InArgs: []rpc.ArgDesc{
-				{"Opts", ``}, // GameOptions
+				{Name: "Opts", Doc: ``}, // GameOptions
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // GameId
+				{Name: "", Doc: ``}, // GameId
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1400,10 +1400,10 @@ var descJudge = rpc.InterfaceDesc{
 			Name: "Play",
 			Doc:  "// Play lets a player join an existing game and play.",
 			InArgs: []rpc.ArgDesc{
-				{"Id", ``}, // GameId
+				{Name: "Id", Doc: ``}, // GameId
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // PlayResult
+				{Name: "", Doc: ``}, // PlayResult
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1594,9 +1594,9 @@ var descPlayer = rpc.InterfaceDesc{
 			Name: "Challenge",
 			Doc:  "// Challenge is used by other players to challenge this player to a game. If\n// the challenge is accepted, the method returns nil.",
 			InArgs: []rpc.ArgDesc{
-				{"Address", ``}, // string
-				{"Id", ``},      // GameId
-				{"Opts", ``},    // GameOptions
+				{Name: "Address", Doc: ``}, // string
+				{Name: "Id", Doc: ``},      // GameId
+				{Name: "Opts", Doc: ``},    // GameOptions
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1698,7 +1698,7 @@ var descScoreKeeper = rpc.InterfaceDesc{
 		{
 			Name: "Record",
 			InArgs: []rpc.ArgDesc{
-				{"Score", ``}, // ScoreCard
+				{Name: "Score", Doc: ``}, // ScoreCard
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1807,9 +1807,9 @@ var descRockPaperScissors = rpc.InterfaceDesc{
 	Name:    "RockPaperScissors",
 	PkgPath: "v.io/x/ref/examples/rps",
 	Embeds: []rpc.EmbedDesc{
-		{"Judge", "v.io/x/ref/examples/rps", ``},
-		{"Player", "v.io/x/ref/examples/rps", "// Player can receive challenges from other players."},
-		{"ScoreKeeper", "v.io/x/ref/examples/rps", "// ScoreKeeper receives the outcome of games from Judges."},
+		{Name: "Judge", PkgPath: "v.io/x/ref/examples/rps", Doc: ``},
+		{Name: "Player", PkgPath: "v.io/x/ref/examples/rps", Doc: "// Player can receive challenges from other players."},
+		{Name: "ScoreKeeper", PkgPath: "v.io/x/ref/examples/rps", Doc: "// ScoreKeeper receives the outcome of games from Judges."},
 	},
 }
 

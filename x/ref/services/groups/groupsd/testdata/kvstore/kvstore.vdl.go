@@ -123,18 +123,18 @@ var descStore = rpc.InterfaceDesc{
 		{
 			Name: "Get",
 			InArgs: []rpc.ArgDesc{
-				{"key", ``}, // string
+				{Name: "key", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
 		{
 			Name: "Set",
 			InArgs: []rpc.ArgDesc{
-				{"key", ``},   // string
-				{"value", ``}, // string
+				{Name: "key", Doc: ``},   // string
+				{Name: "value", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},

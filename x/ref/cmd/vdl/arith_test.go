@@ -15,7 +15,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
@@ -237,19 +237,19 @@ func TestCalculator(t *testing.T) {
 				{
 					Name: "Sine",
 					InArgs: []rpc.ArgDesc{
-						{"angle", ``}, // float64
+						{Name: "angle", Doc: ``}, // float64
 					},
 					OutArgs: []rpc.ArgDesc{
-						{"", ``}, // float64
+						{Name: "", Doc: ``}, // float64
 					},
 				},
 				{
 					Name: "Cosine",
 					InArgs: []rpc.ArgDesc{
-						{"angle", ``}, // float64
+						{Name: "angle", Doc: ``}, // float64
 					},
 					OutArgs: []rpc.ArgDesc{
-						{"", ``}, // float64
+						{Name: "", Doc: ``}, // float64
 					},
 				},
 			},
@@ -261,10 +261,10 @@ func TestCalculator(t *testing.T) {
 				{
 					Name: "Exp",
 					InArgs: []rpc.ArgDesc{
-						{"x", ``}, // float64
+						{Name: "x", Doc: ``}, // float64
 					},
 					OutArgs: []rpc.ArgDesc{
-						{"", ``}, // float64
+						{Name: "", Doc: ``}, // float64
 					},
 				},
 			},

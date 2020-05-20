@@ -442,7 +442,7 @@ func TestConcurrentTryPut(t *testing.T) {
 	pending := &sync.WaitGroup{}
 	for i := 0; i != writerCount; i++ {
 		pending.Add(1)
-		go func() {
+		go func(i int) {
 			for j := 0; j != elementCount; j++ {
 				// TryPut(j) until we succeed.
 				for {
@@ -458,7 +458,7 @@ func TestConcurrentTryPut(t *testing.T) {
 				}
 			}
 			pending.Done()
-		}()
+		}(i)
 	}
 
 	// Sum up the results and compare.

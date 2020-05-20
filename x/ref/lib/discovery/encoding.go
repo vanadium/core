@@ -219,7 +219,10 @@ func DecodeWireCiphertext(data []byte) (*bcrypter.WireCiphertext, error) {
 	if err != nil {
 		return nil, err
 	}
-	wctext := bcrypter.WireCiphertext{id, make(map[string][]byte)}
+	wctext := bcrypter.WireCiphertext{
+		PatternId: id,
+		Bytes:     make(map[string][]byte),
+	}
 	for buf.Len() > 0 {
 		k, err := buf.ReadString()
 		if err != nil {
