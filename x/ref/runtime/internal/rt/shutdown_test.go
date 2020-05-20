@@ -33,9 +33,7 @@ func TestSimpleServerSignal(t *testing.T) {
 	c.S.Expect("Interruptible cleanup")
 	c.S.Expect("Deferred cleanup")
 	writeln(stdin, "close")
-	if err := c.S.ExpectEOF(); err != nil {
-		t.Fatal(err)
-	}
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 // TestSimpleServerLocalStop verifies that sending a local stop command to the
@@ -52,9 +50,7 @@ func TestSimpleServerLocalStop(t *testing.T) {
 	c.S.Expect("Interruptible cleanup")
 	c.S.Expect("Deferred cleanup")
 	writeln(stdin, "close")
-	if err := c.S.ExpectEOF(); err != nil {
-		t.Fatal(err)
-	}
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 // TestSimpleServerDoubleSignal verifies that sending a succession of two
@@ -139,9 +135,7 @@ func TestComplexServerSignal(t *testing.T) {
 		"Parallel interruptible cleanup1",
 		"Parallel interruptible cleanup2")
 	writeln(stdin, "close")
-	if err := c.S.ExpectEOF(); err != nil {
-		t.Fatal(err)
-	}
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 // TestComplexServerLocalStop verifies that sending a local stop command to the
@@ -166,9 +160,7 @@ func TestComplexServerLocalStop(t *testing.T) {
 		"Parallel interruptible cleanup2",
 	)
 	writeln(stdin, "close")
-	if err := c.S.ExpectEOF(); err != nil {
-		t.Fatal(err)
-	}
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 // TestComplexServerDoubleSignal verifies that sending a succession of two

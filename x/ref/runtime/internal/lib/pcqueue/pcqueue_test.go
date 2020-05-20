@@ -67,10 +67,7 @@ func TestSimpleGet(t *testing.T) {
 		t.Errorf("Unexpected completion")
 	default:
 	}
-
-	if err := queue.Put(1, nil); err != nil {
-		t.Fatal(err)
-	}
+	queue.Put(1, nil) // nolint: errcheck
 	<-done
 }
 
@@ -102,9 +99,7 @@ func TestSequential(t *testing.T) {
 	// Generate the sequential ints.
 	logger.Global().VI(1).Infof("Put values")
 	for i := 0; i != elementCount; i++ {
-		if err := queue.Put(i, nil); err != nil {
-			t.Fatal(err)
-		}
+		queue.Put(i, nil) // nolint: errcheck
 	}
 
 	// Wait for the consumer.

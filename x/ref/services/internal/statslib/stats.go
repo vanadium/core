@@ -43,10 +43,8 @@ func (i *statsService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.G
 	sender := call.SendStream()
 	it := libstats.Glob(i.suffix, g.String(), time.Time{}, false)
 	for it.Advance() {
-		err := sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: it.Value().Key}})
-		if err != nil {
-			ctx.VI(1).Infof("libstats.Glob(%q, %q) failed to send results: %v", i.suffix, g.String(), err)
-		}
+		// nolint: errcheck
+		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: it.Value().Key}})
 	}
 	if err := it.Err(); err != nil {
 		ctx.VI(1).Infof("libstats.Glob(%q, %q) failed: %v", i.suffix, g.String(), err)

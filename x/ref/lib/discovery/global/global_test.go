@@ -191,7 +191,9 @@ func TestRefresh(t *testing.T) {
 		t.Fatal(err)
 	}
 	ns := v23.GetNamespace(ctx)
-	_ = ns.SetRoots(mtserver.Status().Endpoints[0].Name())
+	if err := ns.SetRoots(mtserver.Status().Endpoints[0].Name()); err != nil {
+		t.Fatal(err)
+	}
 
 	ad := discovery.Advertisement{
 		InterfaceName: "foo/bar/baz",

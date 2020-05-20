@@ -62,8 +62,7 @@ func hashAd(adinfo *AdInfo) {
 
 	field.Reset()
 	var buf bytes.Buffer
-	// nolint: errcheck
-	binary.Write(&buf, binary.LittleEndian, adinfo.EncryptionAlgorithm)
+	binary.Write(&buf, binary.LittleEndian, adinfo.EncryptionAlgorithm) // nolint: errcheck
 	w(field, buf.Bytes())
 	for _, key := range adinfo.EncryptionKeys {
 		w(field, []byte(key))

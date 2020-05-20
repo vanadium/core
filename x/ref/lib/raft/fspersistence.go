@@ -143,8 +143,7 @@ func (p *fsPersist) VotedFor() string {
 
 // Close implements persistent.Close.
 func (p *fsPersist) Close() {
-	// nolint: errcheck
-	p.lf.Sync()
+	p.lf.Sync() // nolint: errcheck
 	p.lf.Close()
 }
 

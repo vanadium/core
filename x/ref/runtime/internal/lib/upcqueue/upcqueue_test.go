@@ -62,9 +62,7 @@ func TestSimpleGet(t *testing.T) {
 	default:
 	}
 
-	if err := queue.Put(1); err != nil {
-		t.Fatal(err)
-	}
+	queue.Put(1) // nolint: errcheck
 	<-done
 }
 
@@ -96,9 +94,7 @@ func TestSequential(t *testing.T) {
 	// Generate the sequential ints.
 	logger.Global().VI(1).Infof("Put values")
 	for i := 0; i != elementCount; i++ {
-		if err := queue.Put(i); err != nil {
-			t.Fatal(err)
-		}
+		queue.Put(i) // nolint: errcheck
 	}
 
 	// Wait for the consumer.
