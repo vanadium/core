@@ -233,7 +233,9 @@ func runResolve(ctx *context.T, env *cmdline.Env, args []string) error {
 
 	var opts []naming.NamespaceOpt
 	if flagInsecureResolve {
-		opts = append(opts, options.NameResolutionAuthorizer{security.AllowEveryone()})
+		opts = append(opts, options.NameResolutionAuthorizer{
+			Authorizer: security.AllowEveryone(),
+		})
 	}
 	var err error
 	var me *naming.MountEntry
@@ -273,7 +275,9 @@ func runResolveToMT(ctx *context.T, env *cmdline.Env, args []string) error {
 	ns := v23.GetNamespace(ctx)
 	var opts []naming.NamespaceOpt
 	if flagInsecureResolveToMT {
-		opts = append(opts, options.NameResolutionAuthorizer{security.AllowEveryone()})
+		opts = append(opts, options.NameResolutionAuthorizer{
+			Authorizer: security.AllowEveryone(),
+		})
 	}
 	e, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err != nil {

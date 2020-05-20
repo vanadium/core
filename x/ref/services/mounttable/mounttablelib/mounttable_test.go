@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/conventions"
 	"v.io/v23/glob"
@@ -140,7 +140,13 @@ func export(t *testing.T, ctx *context.T, name, contents string) {
 	}
 	// Export the value.
 	client := v23.GetClient(ctx)
-	if err := client.Call(ctx, mountentry2names(resolved)[0], "Export", []interface{}{contents, true}, nil, options.Preresolved{resolved}); err != nil {
+	if err := client.Call(ctx,
+		mountentry2names(resolved)[0],
+		"Export",
+		[]interface{}{contents, true},
+		nil,
+		options.Preresolved{Resolution: resolved},
+	); err != nil {
 		boom(t, "Failed to Export.Call %s to %s: %s", name, contents, err)
 	}
 }
@@ -156,7 +162,12 @@ func checkContents(t *testing.T, ctx *context.T, name, expected string, shouldSu
 	}
 	// Look up the value.
 	client := v23.GetClient(ctx)
-	call, err := client.StartCall(ctx, mountentry2names(resolved)[0], "Lookup", nil, options.Preresolved{resolved})
+	call, err := client.StartCall(ctx,
+		mountentry2names(resolved)[0],
+		"Lookup",
+		nil,
+		options.Preresolved{Resolution: resolved},
+	)
 	if err != nil {
 		if shouldSucceed {
 			boom(t, "Failed Lookup.StartCall %s: %s", name, err)

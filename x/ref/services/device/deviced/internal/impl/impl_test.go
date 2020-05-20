@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/application"
@@ -567,12 +567,12 @@ func TestAccountAssociation(t *testing.T) {
 	ctx.VI(2).Info("Added association should appear.")
 	listAndVerifyAssociations(t, selfCtx, deviceStub, []device.Association{
 		{
-			"root/self",
-			"alice_system_account",
+			IdentityName: "root/self",
+			AccountName:  "alice_system_account",
 		},
 		{
-			"root/other",
-			"alice_system_account",
+			IdentityName: "root/other",
+			AccountName:  "alice_system_account",
 		},
 	})
 
@@ -582,12 +582,12 @@ func TestAccountAssociation(t *testing.T) {
 	ctx.VI(2).Info("Change the associations and the change should appear.")
 	listAndVerifyAssociations(t, selfCtx, deviceStub, []device.Association{
 		{
-			"root/self",
-			"alice_other_account",
+			IdentityName: "root/self",
+			AccountName:  "alice_other_account",
 		},
 		{
-			"root/other",
-			"alice_other_account",
+			IdentityName: "root/other",
+			AccountName:  "alice_other_account",
 		},
 	})
 
@@ -597,8 +597,8 @@ func TestAccountAssociation(t *testing.T) {
 	ctx.VI(2).Info("Verify that we can remove an association.")
 	listAndVerifyAssociations(t, selfCtx, deviceStub, []device.Association{
 		{
-			"root/self",
-			"alice_other_account",
+			IdentityName: "root/self",
+			AccountName:  "alice_other_account",
 		},
 	})
 }

@@ -338,7 +338,6 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	case <-time.After(childWaitTimeout):
 		return verror.New(errors.ErrOperationFailed, ctx, "new device manager failed to run in allotted time")
 	}
-	return nil
 }
 
 // TODO(caprita): Move this to util.go since device_installer is also using it now.

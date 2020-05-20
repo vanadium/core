@@ -366,7 +366,7 @@ func TestProxyNotAuthorized(t *testing.T) {
 	// the proxy's blessings.
 	var got string
 	if err := v23.GetClient(cctx).Call(cctx, "server", "Echo", []interface{}{"hello"},
-		[]interface{}{&got}, options.ServerAuthorizer{rejectProxyAuthorizer{}}); err != nil {
+		[]interface{}{&got}, options.ServerAuthorizer{Authorizer: rejectProxyAuthorizer{}}); err != nil {
 		t.Fatal(err)
 	}
 	if want := "response:hello"; got != want {

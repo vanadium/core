@@ -17,7 +17,7 @@ func (ns *namespace) SetPermissions(ctx *context.T, name string, perms access.Pe
 
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
-		copts := append(getCallOpts(opts), options.Preresolved{me})
+		copts := append(getCallOpts(opts), options.Preresolved{Resolution: me})
 		timeoutCtx, cancel := withTimeout(ctx)
 		defer cancel()
 		err = v23.GetClient(ctx).Call(timeoutCtx, name, "SetPermissions", []interface{}{perms, version}, nil, copts...)
@@ -32,7 +32,7 @@ func (ns *namespace) GetPermissions(ctx *context.T, name string, opts ...naming.
 
 	me, err := ns.ResolveToMountTable(ctx, name, opts...)
 	if err == nil {
-		copts := append(getCallOpts(opts), options.Preresolved{me})
+		copts := append(getCallOpts(opts), options.Preresolved{Resolution: me})
 		timeoutCtx, cancel := withTimeout(ctx)
 		defer cancel()
 		err = v23.GetClient(ctx).Call(timeoutCtx, name, "GetPermissions", []interface{}{}, []interface{}{&perms, &version}, copts...)

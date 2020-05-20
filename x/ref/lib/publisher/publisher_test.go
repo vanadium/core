@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/namespace"
 	"v.io/v23/rpc"
@@ -168,7 +168,7 @@ func TestRemoveFailedAdd(t *testing.T) {
 		if got, want := len(status), 0; got != want {
 			<-dirty
 		} else {
-			return
+			break
 		}
 	}
 

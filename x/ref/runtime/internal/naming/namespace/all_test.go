@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/namespace"
@@ -695,7 +695,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 			t.Errorf("resolve(%q) returned (%v, errorid=%v %v), wanted errorid=%v", name, e, verror.ErrorID(err), err, verror.ErrNotTrusted.ID)
 		}
 		// But not fail if the server authorization is skipped.
-		if e, err := ns.ShallowResolve(clientCtx, name, options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
+		if e, err := ns.ShallowResolve(clientCtx, name, options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 			t.Errorf("resolve(%q): Got (%v, %v), expected resolution to succeed", name, e, err)
 		}
 		// The namespace root from the context should be authorized as well.
@@ -703,7 +703,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 		if e, err := ns.Resolve(ctx, "mt/server"); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
 			t.Errorf("resolve with root=%q returned (%v, errorid=%v %v), wanted errorid=%v: %s", root, e, verror.ErrorID(err), err, verror.ErrNotTrusted.ID, verror.DebugString(err))
 		}
-		if _, err := ns.Resolve(ctx, "mt/server", options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
+		if _, err := ns.Resolve(ctx, "mt/server", options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 			t.Errorf("resolve with root=%q should have succeeded when authorization checks are skipped. Got %v: %s", root, err, verror.DebugString(err))
 		}
 	}
@@ -718,7 +718,7 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 		t.Error(err)
 	}
 
-	if e, err := clientNs.Resolve(serverCtx, "mt/server", options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
+	if e, err := clientNs.Resolve(serverCtx, "mt/server", options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		t.Errorf("Resolve should succeed when skipping server authorization. Got (%v, %v) %s", e, err, verror.DebugString(err))
 	} else if e, err := clientNs.Resolve(serverCtx, "mt/server"); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
 		t.Errorf("Resolve should have failed with %q because an attacker has taken over the intermediate mounttable. Got\n%+v\nerrorid=%q\nerror=%s", verror.ErrNotTrusted.ID, e, verror.ErrorID(err), verror.DebugString(err))

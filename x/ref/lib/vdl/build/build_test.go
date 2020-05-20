@@ -546,7 +546,7 @@ func TestBuildConfig(t *testing.T) {
 		},
 		{
 			`config = x;import "v.io/x/ref/lib/vdl/testdata/base";const x = base.Args{1, 2}`,
-			base.Args{1, 2},
+			base.Args{A: 1, B: 2},
 		},
 	}
 	for _, test := range tests {

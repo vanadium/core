@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -43,16 +43,19 @@ func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) e
 	sender := call.SendStream()
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
-			Name:             "name1",
-			Servers:          []naming.MountedServer{{"server1", deadline(1)}},
+			Name: "name1",
+			Servers: []naming.MountedServer{
+				{Server: "server1", Deadline: deadline(1)}},
 			ServesMountTable: false,
 			IsLeaf:           false,
 		},
 	})
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
-			Name:             "name2",
-			Servers:          []naming.MountedServer{{"server2", deadline(2)}, {"server3", deadline(3)}},
+			Name: "name2",
+			Servers: []naming.MountedServer{
+				{Server: "server2", Deadline: deadline(2)},
+				{Server: "server3", Deadline: deadline(3)}},
 			ServesMountTable: false,
 			IsLeaf:           false,
 		},
@@ -72,7 +75,7 @@ func (s *server) Unmount(ctx *context.T, _ rpc.ServerCall, server string) error 
 
 func (s *server) ResolveStep(ctx *context.T, _ rpc.ServerCall) (entry naming.MountEntry, err error) {
 	ctx.VI(2).Infof("ResolveStep() was called. suffix=%v", s.suffix)
-	entry.Servers = []naming.MountedServer{{"server1", deadline(1)}}
+	entry.Servers = []naming.MountedServer{{Server: "server1", Deadline: deadline(1)}}
 	entry.Name = s.suffix
 	return
 }

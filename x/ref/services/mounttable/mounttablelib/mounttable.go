@@ -308,7 +308,7 @@ func (mt *mountTable) traverse(cc *callContext, elems []string) (*node, []string
 	cur.parent.Lock()
 	cur.Lock()
 	for i, e := range elems {
-		cc.ctx.VI(2).Infof("satisfying %v %v", elems[0:i], *cur)
+		cc.ctx.VI(2).Infof("satisfying %v %v", elems[0:i], cur)
 		if err := cur.satisfies(mt, cc, traverseTags); err != nil {
 			cur.parent.Unlock()
 			cur.Unlock()

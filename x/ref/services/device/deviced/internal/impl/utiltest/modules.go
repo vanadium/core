@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/rpc"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref"
@@ -142,7 +142,7 @@ func deviceManagerFunc(publishName string, args ...string) error {
 // This is the same as DeviceManager above, except that it has a different major
 // version number.
 var DeviceManagerV10 = gosh.RegisterFunc("DeviceManagerV10", func(publishName string, args ...string) error {
-	versioning.CurrentVersion = versioning.Version{10, 0} // Set the version number to 10.0
+	versioning.CurrentVersion = versioning.Version{Major: 10, Minor: 0} // Set the version number to 10.0
 	return deviceManagerFunc(publishName, args...)
 })
 

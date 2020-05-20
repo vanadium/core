@@ -62,15 +62,15 @@ func exchangeMacaroonForBlessing(ctx *context.T, macaroonChan <-chan formResult)
 	blessings, err := identity.MacaroonBlesserClient("").Bless(
 		ctx,
 		macaroon,
-		options.ServerAuthorizer{security.PublicKeyAuthorizer(serviceKey)},
-		options.Preresolved{me})
+		options.ServerAuthorizer{Authorizer: security.PublicKeyAuthorizer(serviceKey)},
+		options.Preresolved{Resolution: me})
 	if err != nil && len(objectNames) == 1 {
 		// For backward compatibility, try to resolve the service name.
 		blessings, err = identity.MacaroonBlesserClient(objectNames[0]).Bless(
 			ctx,
 			macaroon,
-			options.ServerAuthorizer{security.PublicKeyAuthorizer(serviceKey)},
-			options.NameResolutionAuthorizer{security.AllowEveryone()})
+			options.ServerAuthorizer{Authorizer: security.PublicKeyAuthorizer(serviceKey)},
+			options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()})
 	}
 	if err != nil {
 		return blessings, fmt.Errorf("failed to get blessing from %q: %v", objectNames, err)

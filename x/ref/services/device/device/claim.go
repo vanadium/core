@@ -60,7 +60,11 @@ func runClaim(ctx *context.T, env *cmdline.Env, args []string) error {
 		// have roots that will not be recognized by the claimer.
 		serverAuth = security.AllowEveryone()
 	}
-	if err := device.ClaimableClient(deviceName).Claim(ctx, pairingToken, &granter{extension: grant}, options.ServerAuthorizer{serverAuth}, options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
+	if err := device.ClaimableClient(deviceName).Claim(ctx,
+		pairingToken,
+		&granter{extension: grant},
+		options.ServerAuthorizer{Authorizer: serverAuth},
+		options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		return err
 	}
 	fmt.Fprintln(env.Stdout, "Successfully claimed.")

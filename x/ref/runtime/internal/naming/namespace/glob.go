@@ -80,7 +80,7 @@ func (ns *namespace) globAtServer(ctx *context.T, t *task, replies chan *task, t
 	t.me.Name = ""
 	timeoutCtx, cancel := withTimeout(ctx)
 	defer cancel()
-	call, err := client.StartCall(timeoutCtx, "", rpc.GlobMethod, []interface{}{pstr}, append(opts, options.Preresolved{t.me})...)
+	call, err := client.StartCall(timeoutCtx, "", rpc.GlobMethod, []interface{}{pstr}, append(opts, options.Preresolved{Resolution: t.me})...)
 	t.me.Name = on
 	if err != nil {
 		t.error = err

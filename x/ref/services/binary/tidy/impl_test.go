@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/services/application"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
@@ -86,7 +86,7 @@ func TestBinaryTidying(t *testing.T) {
 
 	binarytape.SetResponses(
 		// Glob for all binary names
-		binaryd.GlobResponse{[]string{
+		binaryd.GlobResponse{Results: []string{
 			"binaries",
 			"binaries/applicationd",
 			"binaries/applicationd/darwin-amd64",
@@ -104,7 +104,7 @@ func TestBinaryTidying(t *testing.T) {
 			"binaries/libraries/linux-amd64",
 			"binaries/libraries/linux-amd64/extra-goo-1",
 		},
-			nil,
+			Err: nil,
 		},
 
 		// Stat calls
@@ -129,111 +129,118 @@ func TestBinaryTidying(t *testing.T) {
 		nil,
 	)
 
+	matchResult := func(env application.Envelope, err error) appd.MatchResult {
+		return appd.MatchResult{
+			Env: env,
+			Err: err,
+		}
+	}
+
 	apptape.SetResponses(
 		// Glob for all versions of all apps
-		binaryd.GlobResponse{[]string{
+		binaryd.GlobResponse{Results: []string{
 			"applications",
 			"applications/applicationd",
 			"applications/applicationd/0",
 			"applications/binaryd",
 			"applications/binaryd/1",
 		},
-			nil,
+			Err: nil,
 		},
 
 		// applications.Match(linux-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications.Match(linux-amd64)"),
-		},
+		),
 		// applications.Match(linux-386)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications.Match(linux-386)"),
-		},
+		),
 		// applications.Match(linux-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications.Match(linux-arm)"),
-		},
+		),
 		// applications.Match(darwin-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications.Match(darwin-amd64)"),
-		},
+		),
 		// applications.Match(android-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications.Match(android-arm)"),
-		},
+		),
 		// applications/applicationd.Match(linux-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/applicationd/linux-amd64/app-linux-amd-2",
 				},
 			},
 			nil,
-		},
+		),
 		// applications/applicationd.Match(linux-386)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd.Match(linux-386)"),
-		},
+		),
 		// applications/applicationd.Match(linux-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd.Match(linux-arm)"),
-		},
+		),
 		// applications/applicationd.Match(darwin-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/applicationd/darwin-amd64/app-darwin-amd-2",
 				},
 			},
 			nil,
-		},
+		),
 		// applications/applicationd.Match(android-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd.Match(android-arm)"),
-		},
+		),
 		// applications/applicationd/0.Match(linux-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/applicationd/linux-amd64/app-linux-amd-2",
 				},
 			},
 			nil,
-		},
+		),
 		// applications/applicationd/0.Match(linux-386)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd/0.Match(linux-386)"),
-		},
+		),
 		// applications/applicationd/0.Match(linux-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd/0.Match(linux-arm)"),
-		},
+		),
 		// applications/applicationd/0.Match(darwin-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/applicationd/darwin-amd64/app-darwin-amd-2",
 				},
 			},
 			nil,
-		},
+		),
 		// applications/applicationd/0.Match(android-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/applicationd/0.Match(android-arm)"),
-		},
+		),
 		// applications/binaryd.Match(linux-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/binaryd/linux-amd64/bind-linux-amd-3",
@@ -245,19 +252,19 @@ func TestBinaryTidying(t *testing.T) {
 				},
 			},
 			nil,
-		},
+		),
 		// applications/binaryd.Match(linux-386)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd.Match(linux-386)"),
-		},
+		),
 		// applications/binaryd.Match(linux-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd.Match(linux-arm)"),
-		},
+		),
 		// applications/binaryd.Match(darwin-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					// Deliberately doesn't exist to show that this case is correctly handled.
@@ -265,14 +272,14 @@ func TestBinaryTidying(t *testing.T) {
 				},
 			},
 			nil,
-		},
+		),
 		// applications/binaryd.Match(android-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd.Match(android-arm)"),
-		},
+		),
 		// applications/binaryd/1.Match(linux-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					File: "binaries/binaryd/linux-amd64/bind-linux-amd-3",
@@ -284,19 +291,19 @@ func TestBinaryTidying(t *testing.T) {
 				},
 			},
 			nil,
-		},
+		),
 		// applications/binaryd/1.Match(linux-386)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd/1.Match(linux-386)"),
-		},
+		),
 		// applications/binaryd/1.Match(linux-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd/1.Match(linux-arm)"),
-		},
+		),
 		// applications/binaryd/1.Match(darwin-amd64)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{
 				Binary: application.SignedFile{
 					// Deliberately doesn't exist to show that this case is correctly handled.
@@ -304,12 +311,12 @@ func TestBinaryTidying(t *testing.T) {
 				},
 			},
 			nil,
-		},
+		),
 		// applications/binaryd/1.Match(android-arm)
-		appd.MatchResult{
+		matchResult(
 			application.Envelope{},
 			fmt.Errorf("no applications/binaryd/1.Match(android-arm)"),
-		},
+		),
 	)
 
 	if err := v23cmd.ParseAndRunForTest(cmdBinaryTidy, ctx, env, []string{applicationName, binaryName}); err != nil {
@@ -351,7 +358,7 @@ func TestBinaryTidying(t *testing.T) {
 
 	// Verify application tape.
 	if got, expected := apptape.Play(), []interface{}{
-		binaryd.GlobStimulus{"..."},
+		binaryd.GlobStimulus{Pattern: "..."},
 		appd.MatchStimulus{Name: "Match", Suffix: "applications", Profiles: []string{"linux-amd64"}},
 		appd.MatchStimulus{Name: "Match", Suffix: "applications", Profiles: []string{"linux-386"}},
 		appd.MatchStimulus{Name: "Match", Suffix: "applications", Profiles: []string{"linux-arm"}},

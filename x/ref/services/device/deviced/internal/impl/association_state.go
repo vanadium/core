@@ -61,7 +61,7 @@ func (u *association) AllBlessingSystemAssociations() ([]device.Association, err
 	assocs := make([]device.Association, 0)
 
 	for k, v := range u.data {
-		assocs = append(assocs, device.Association{k, v})
+		assocs = append(assocs, device.Association{IdentityName: k, AccountName: v})
 	}
 	return assocs, nil
 }

@@ -10,7 +10,7 @@ import (
 	"v.io/v23/naming"
 )
 
-func ExampleMakeName() {
+func ExampleEndpoint() {
 	// Create an endpoint string for any tcp port on localhost.
 	endPoint := naming.FormatEndpoint("tcp", "localhost:0")
 

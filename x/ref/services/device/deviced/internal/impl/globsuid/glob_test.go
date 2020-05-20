@@ -70,37 +70,57 @@ func TestDeviceManagerGlobAndDebug(t *testing.T) {
 	const appName = "app"
 
 	testcases := []utiltest.GlobTestVector{
-		{"dm", "...", []string{
-			"",
-			"apps",
-			"apps/google naps",
-			"apps/google naps/" + install1ID,
-			"apps/google naps/" + install1ID + "/" + instance1ID,
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/logs",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/STDERR-<timestamp>",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/STDOUT-<timestamp>",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/" + appName + ".INFO",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/" + appName + ".<*>.INFO.<timestamp>",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/pprof",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/stats",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/rpc",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system/start-time-rfc1123",
-			"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system/start-time-unix",
-			"apps/google naps/" + install2ID,
-			"device",
-		}},
-		{"dm/apps", "*", []string{"google naps"}},
-		{"dm/apps/google naps", "*", []string{install1ID, install2ID}},
-		{"dm/apps/google naps/" + install1ID, "*", []string{instance1ID}},
-		{"dm/apps/google naps/" + install1ID + "/" + instance1ID, "*", []string{"logs", "pprof", "stats"}},
-		{"dm/apps/google naps/" + install1ID + "/" + instance1ID + "/logs", "*", []string{
-			"STDERR-<timestamp>",
-			"STDOUT-<timestamp>",
-			appName + ".INFO",
-			appName + ".<*>.INFO.<timestamp>",
-		}},
-		{"dm/apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system", "start-time*", []string{"start-time-rfc1123", "start-time-unix"}},
+		{
+			Name:    "dm",
+			Pattern: "...",
+			Expected: []string{
+				"",
+				"apps",
+				"apps/google naps",
+				"apps/google naps/" + install1ID,
+				"apps/google naps/" + install1ID + "/" + instance1ID,
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/logs",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/STDERR-<timestamp>",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/STDOUT-<timestamp>",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/" + appName + ".INFO",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/logs/" + appName + ".<*>.INFO.<timestamp>",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/pprof",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/stats",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/rpc",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system/start-time-rfc1123",
+				"apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system/start-time-unix",
+				"apps/google naps/" + install2ID,
+				"device",
+			}},
+		{
+			Name: "dm/apps", Pattern: "*",
+			Expected: []string{"google naps"}},
+		{
+			Name:     "dm/apps/google naps",
+			Pattern:  "*",
+			Expected: []string{install1ID, install2ID}},
+		{
+			Name:     "dm/apps/google naps/" + install1ID,
+			Pattern:  "*",
+			Expected: []string{instance1ID}},
+		{
+			Name:     "dm/apps/google naps/" + install1ID + "/" + instance1ID,
+			Pattern:  "*",
+			Expected: []string{"logs", "pprof", "stats"}},
+		{
+			Name:    "dm/apps/google naps/" + install1ID + "/" + instance1ID + "/logs",
+			Pattern: "*",
+			Expected: []string{
+				"STDERR-<timestamp>",
+				"STDOUT-<timestamp>",
+				appName + ".INFO",
+				appName + ".<*>.INFO.<timestamp>",
+			}},
+		{
+			Name:     "dm/apps/google naps/" + install1ID + "/" + instance1ID + "/stats/system",
+			Pattern:  "start-time*",
+			Expected: []string{"start-time-rfc1123", "start-time-unix"}},
 	}
 
 	res := utiltest.NewGlobTestRegexHelper(appName)

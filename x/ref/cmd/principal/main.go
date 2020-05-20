@@ -1479,8 +1479,8 @@ func blessOverNetwork(ctx *context.T, object string, granter *granter, remoteTok
 		[]interface{}{remoteToken},
 		nil,
 		granter,
-		options.ServerAuthorizer{security.AllowEveryone()},
-		options.NameResolutionAuthorizer{security.AllowEveryone()}); err != nil {
+		options.ServerAuthorizer{Authorizer: security.AllowEveryone()},
+		options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		return fmt.Errorf("failed to make RPC to %q: %v", object, err)
 	}
 	return nil
