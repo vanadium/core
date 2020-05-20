@@ -17,13 +17,16 @@ func TestSemaphore(t *testing.T) {
 	var pending sync.WaitGroup
 	pending.Add(1)
 	go func() {
+		// nolint: errcheck
 		s1.Dec(nil)
 		s2.Inc()
 		pending.Done()
 	}()
 
 	s1.Inc()
-	s2.Dec(nil)
+	if err := s2.Dec(nil); err != nil {
+		t.Fatal(err)
+	}
 	pending.Wait()
 }
 
@@ -37,7 +40,9 @@ func TestCriticalSection(t *testing.T) {
 	for i := 0; i != 100; i++ {
 		go func() {
 			for j := 0; j != 100; j++ {
-				s.Dec(nil)
+				if err := s.Dec(nil); err != nil {
+					t.Errorf("dec: %v", err)
+				}
 				// Critical section.
 				v := atomic.AddInt32(&count, 1)
 				if v > 1 {
@@ -60,7 +65,9 @@ func TestIncN(t *testing.T) {
 	done := make(chan struct{})
 	for i := 0; i != 100; i++ {
 		go func() {
-			s.Dec(nil)
+			if err := s.Dec(nil); err != nil {
+				t.Errorf("dec: %v", err)
+			}
 			done <- struct{}{}
 		}()
 	}
@@ -170,7 +177,9 @@ func BenchmarkDec(b *testing.B) {
 	cancel := make(chan struct{})
 	s.IncN(uint(b.N))
 	for i := 0; i < b.N; i++ {
-		s.Dec(cancel)
+		if err := s.Dec(cancel); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -179,14 +188,18 @@ func BenchmarkDecCanceled(b *testing.B) {
 	cancel := make(chan struct{})
 	close(cancel)
 	for i := 0; i < b.N; i++ {
-		s.Dec(cancel)
+		if err := s.Dec(cancel); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
 func BenchmarkTryDec_TryAgain(b *testing.B) {
 	s := NewSemaphore()
 	for i := 0; i < b.N; i++ {
-		s.TryDecN(1)
+		if err := s.TryDecN(1); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -206,7 +219,7 @@ func BenchmarkIncDecInterleaved(b *testing.B) {
 	s := NewSemaphore()
 	go func() {
 		for i := 0; i < b.N; i++ {
-			s.Dec(nil)
+			s.Dec(nil) // nolint: errcheck
 		}
 		c <- true
 	}()

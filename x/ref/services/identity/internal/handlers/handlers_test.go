@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/v23/vom"
 
@@ -163,8 +163,14 @@ func TestBless(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	blesserPrin.BlessingStore().Set(trustedBlessing, "trusted")
-	blesserPrin.BlessingStore().Set(security.Blessings{}, "...")
+	_, err = blesserPrin.BlessingStore().Set(trustedBlessing, "trusted")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = blesserPrin.BlessingStore().Set(security.Blessings{}, "...")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/ref/test"
@@ -43,7 +43,9 @@ func (s *simple) Source(_ *context.T, call rpc.StreamServerCall, start int) erro
 		case <-s.done:
 			return nil
 		case <-time.After(backoff):
-			call.Send(i)
+			if err := call.Send(i); err != nil {
+				return err
+			}
 			i++
 		}
 		backoff *= 2
@@ -71,7 +73,9 @@ func (s *simple) Inc(_ *context.T, call rpc.StreamServerCall, inc int) (int, err
 			}
 			return 0, err
 		}
-		call.Send(i + inc)
+		if err := call.Send(i + inc); err != nil {
+			return 0, err
+		}
 	}
 }
 
@@ -129,7 +133,9 @@ func TestSimpleStreaming(t *testing.T) {
 			t.Fatalf("got %d, want %d", got, want)
 		}
 	}
-	call.CloseSend()
+	if err := call.CloseSend(); err != nil {
+		t.Fatal(err)
+	}
 	final := -1
 	err = call.Finish(&final)
 	if err != nil {

@@ -302,7 +302,9 @@ func TestUpdateServerBlessings(t *testing.T) {
 	idp := testutil.IDProviderFromPrincipal(v23.GetPrincipal(ctx))
 
 	serverp := testutil.NewPrincipal()
-	idp.Bless(serverp, "b1")
+	if err := idp.Bless(serverp, "b1"); err != nil {
+		t.Error(err)
+	}
 	sctx, err := v23.WithPrincipal(ctx, serverp)
 	if err != nil {
 		t.Error(err)
@@ -336,7 +338,9 @@ func TestUpdateServerBlessings(t *testing.T) {
 
 	// Now we bless the server with a new blessing (which will change its default
 	// blessing).  Then we wait for the new value to propogate to the remote end.
-	idp.Bless(serverp, "b2")
+	if err := idp.Bless(serverp, "b2"); err != nil {
+		t.Error(err)
+	}
 	want = "test-blessing:b2"
 	for {
 		bs, err := mountedBlessings(ctx, "server")

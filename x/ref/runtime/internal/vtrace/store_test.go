@@ -118,8 +118,14 @@ func TestRegexp(t *testing.T) {
 			t.Fatalf("Could not create store: %v", err)
 		}
 
-		newSpan(traces[0], "foo", traces[0], st)
-		newSpan(traces[1], "foobar", traces[1], st)
+		_, err = newSpan(traces[0], "foo", traces[0], st)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = newSpan(traces[1], "foobar", traces[1], st)
+		if err != nil {
+			t.Fatal(err)
+		}
 		sp, err := newSpan(traces[2], "baz", traces[2], st)
 		if err != nil {
 			t.Fatal(err)

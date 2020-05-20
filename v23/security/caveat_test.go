@@ -50,7 +50,9 @@ func TestStandardCaveatFactories(t *testing.T) {
 		}
 	)
 
-	AddToRoots(self, balice)
+	if err := AddToRoots(self, balice); err != nil {
+		t.Fatal(err)
+	}
 
 	ctx, cancel := context.RootContext()
 	defer cancel()
@@ -341,6 +343,8 @@ func BenchmarkValidateCaveat(b *testing.B) {
 	defer cancel()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		cav.Validate(ctx, call)
+		if err := cav.Validate(ctx, call); err != nil {
+			b.Fatal(b)
+		}
 	}
 }

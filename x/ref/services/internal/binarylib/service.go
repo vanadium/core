@@ -374,7 +374,7 @@ func (i *binaryService) Upload(ctx *context.T, call repository.BinaryUploadServe
 			}
 			return verror.New(ErrOperationFailed, ctx)
 		}
-		h.Write(bytes)
+		h.Write(bytes) // nolint: errcheck
 	}
 
 	if err := rStream.Err(); err != nil {
@@ -416,7 +416,7 @@ func (i *binaryService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServ
 	}
 	for k := range n.children {
 		if m.Match(k) {
-			call.SendStream().Send(naming.GlobChildrenReplyName{Value: k})
+			call.SendStream().Send(naming.GlobChildrenReplyName{Value: k}) // nolint: errcheck
 		}
 	}
 	return nil

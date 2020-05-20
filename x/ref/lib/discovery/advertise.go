@@ -125,7 +125,7 @@ func (d *idiscovery) startAdvertising(ctx *context.T, adinfo *AdInfo) (func(), e
 	}
 
 	stop := func() {
-		stats.Delete(statName)
+		_ = stats.Delete(statName)
 		cancel()
 		wg.Wait()
 	}

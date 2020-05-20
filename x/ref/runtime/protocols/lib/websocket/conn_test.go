@@ -23,7 +23,7 @@ import (
 func writer(c flow.Conn, data []byte, times int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for i := 0; i < times; i++ {
-		c.WriteMsg(data)
+		c.WriteMsg(data) // nolint: errcheck
 	}
 }
 
@@ -90,5 +90,5 @@ func TestMultipleGoRoutines(t *testing.T) {
 		conn.Close()
 		l.Close()
 	}()
-	s.Serve(l)
+	s.Serve(l) // nolint: errcheck
 }

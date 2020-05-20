@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -192,7 +192,10 @@ func write(ctx *context.T, permsFile, sigFile, dir string, perms access.Permissi
 	}
 
 	// Create dir directory if it does not exist
-	os.MkdirAll(dir, dirmode)
+	if err := os.MkdirAll(dir, dirmode); err != nil {
+		ctx.Errorf("Failed to create directory tree %v data:%v", dir, err)
+		return verror.New(ErrOperationFailed, nil)
+	}
 	// Save the object to temporary data and signature files, and then move
 	// those files to the actual data and signature file.
 	data, err := ioutil.TempFile(dir, permsName)

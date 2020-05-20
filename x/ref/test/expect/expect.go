@@ -138,7 +138,7 @@ func (s *Session) logWithDepth(err error, depth int, format string, args ...inte
 // error reports the error. It must be called directly from every public
 // function that can produce an error; otherwise, the file:line info will be
 // incorrect.
-func (s *Session) error(err error) error {
+func (s *Session) error(err error) {
 	_, file, line, _ := runtime.Caller(2)
 	s.oerr = err
 	s.err = fmt.Errorf("%s:%d: %s", filepath.Base(file), line, err)
@@ -148,7 +148,6 @@ func (s *Session) error(err error) error {
 			s.t.FailNow()
 		}
 	}
-	return s.err
 }
 
 type reader func(r *bufio.Reader) (string, error)

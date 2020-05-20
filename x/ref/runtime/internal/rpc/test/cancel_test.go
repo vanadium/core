@@ -38,7 +38,7 @@ func (c *canceld) Run(ctx *context.T, _ rpc.ServerCall) error {
 	if c.child != "" {
 		done = make(chan struct{})
 		go func() {
-			client.Call(ctx, c.child, "Run", nil, nil)
+			client.Call(ctx, c.child, "Run", nil, nil) // nolint: errcheck
 			close(done)
 		}()
 	}
@@ -82,7 +82,7 @@ func TestCancellationPropagation(t *testing.T) {
 	ctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
 	go func() {
-		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil)
+		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil) // nolint: errcheck
 		close(done)
 	}()
 
@@ -150,6 +150,7 @@ func TestCancel(t *testing.T) {
 	}
 	cctx, cancel := context.WithCancel(cctx)
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, "cancel", "CancelStreamReader", nil, nil)
 		close(done)
@@ -180,8 +181,11 @@ func TestCancelWithFullBuffers(t *testing.T) {
 
 	// Fill up all the write buffers to ensure that cancelling works even when the stream
 	// is blocked.
-	call.Send(make([]byte, conn.DefaultBytesBufferedPerFlow-2048))
+	if err := call.Send(make([]byte, conn.DefaultBytesBufferedPerFlow-2048)); err != nil {
+		t.Fatal(err)
+	}
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		call.Finish()
 		close(done)
@@ -392,6 +396,7 @@ func testChannelTimeOut_Server(t *testing.T, ctx *context.T) {
 	// cancellation.  Then we cancel the client call just to clean up.
 	cctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, ep.Name(), "WaitForCancel", nil, nil)
 		close(done)

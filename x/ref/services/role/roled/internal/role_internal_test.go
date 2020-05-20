@@ -22,7 +22,7 @@ func TestImportMembers(t *testing.T) {
 		t.Fatalf("ioutil.TempDir failed: %v", err)
 	}
 	defer os.RemoveAll(workdir)
-	os.Mkdir(filepath.Join(workdir, "sub"), 0700)
+	os.Mkdir(filepath.Join(workdir, "sub"), 0700) // nolint: errcheck
 
 	configs := map[string]Config{
 		"role1":     {Members: []security.BlessingPattern{"A", "B", "C"}},

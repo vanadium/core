@@ -64,7 +64,7 @@ func editNamespace(ctx *context.T, v23testProcess, createMounttable bool) {
 	}
 
 	if !createMounttable {
-		ns.SetRoots()
+		ns.SetRoots() // nolint: errcheck
 		return
 	}
 
@@ -77,7 +77,7 @@ func editNamespace(ctx *context.T, v23testProcess, createMounttable bool) {
 	if err != nil {
 		panic(err)
 	}
-	ns.SetRoots(s.Status().Endpoints[0].Name())
+	ns.SetRoots(s.Status().Endpoints[0].Name()) // nolint: errcheck
 }
 
 func editEnvironment(v23testProcess bool) func() {

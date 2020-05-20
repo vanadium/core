@@ -29,6 +29,7 @@ func globChildren(ctx *context.T, call rpc.GlobChildrenServerCall, serverConfig 
 	}
 	for c := range n.children {
 		if m.Match(c) {
+			// nolint: errcheck
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: c})
 		}
 	}
@@ -39,6 +40,7 @@ func globChildren(ctx *context.T, call rpc.GlobChildrenServerCall, serverConfig 
 func findRoles(ctx *context.T, call security.Call, root string) *node {
 	blessingNames, _ := security.RemoteBlessingNames(ctx, call)
 	tree := newNode()
+	// nolint: errcheck
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() || !strings.HasSuffix(path, ".conf") {
 			return nil

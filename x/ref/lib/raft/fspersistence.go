@@ -143,6 +143,7 @@ func (p *fsPersist) VotedFor() string {
 
 // Close implements persistent.Close.
 func (p *fsPersist) Close() {
+	// nolint: errcheck
 	p.lf.Sync()
 	p.lf.Close()
 }
@@ -197,6 +198,7 @@ func (p *fsPersist) ConsiderSnapshot(ctx *context.T, lastAppliedTerm Term, lastA
 	p.Unlock()
 
 	safeToProceed := make(chan struct{})
+	// nolint: errcheck
 	go p.takeSnapshot(ctx, lastAppliedTerm, lastAppliedIndex, safeToProceed)
 	<-safeToProceed
 }
@@ -258,7 +260,7 @@ func (p *fsPersist) trimLog(ctx *context.T, prevTerm Term, prevIndex Index) erro
 
 	// Start using new file.
 	p.encoder = encoder
-	p.syncLog()
+	p.syncLog() // nolint: errcheck
 
 	// Remove some logTail entries.  Try to keep at least half of the entries around in case
 	// we'll need them to update a lagging member.
@@ -420,7 +422,7 @@ func (p *fsPersist) syncLog() error {
 	if err := p.encoder.Encode(ce); err != nil {
 		return fmt.Errorf("syncLog: %s", err)
 	}
-	p.lf.Sync()
+	p.lf.Sync() // nolint: errcheck
 	return nil
 }
 
@@ -676,7 +678,7 @@ func (p *fsPersist) rotateLog() error {
 		return err
 	}
 	p.encoder = encoder
-	p.syncLog()
+	p.syncLog() // nolint: errcheck
 	return nil
 }
 

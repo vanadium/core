@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/x/lib/gosh"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -47,7 +47,7 @@ var getPrincipalAndHang = gosh.RegisterFunc("getPrincipalAndHang", func() {
 	defer shutdown()
 	b, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 	fmt.Printf("DEFAULT_BLESSING=%s\n", b)
-	ioutil.ReadAll(os.Stdin)
+	ioutil.ReadAll(os.Stdin) // nolint: errcheck
 })
 
 func newAgent(path string, cached bool) (security.Principal, error) {

@@ -292,5 +292,7 @@ func BenchmarkRoundtripUnix(b *testing.B) {
 }
 
 func BenchmarkRoundtripTCP_C(b *testing.B) {
-	cRoundTrip(b)
+	if err := cRoundTrip(b); err != nil {
+		b.Fatal(err)
+	}
 }

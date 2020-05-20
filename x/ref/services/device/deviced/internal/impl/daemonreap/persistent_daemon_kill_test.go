@@ -52,7 +52,7 @@ func TestReapRestartsDaemonMode(t *testing.T) {
 	utiltest.ResolveExpectNotFound(t, ctx, "dm", false) // Ensure a clean slate.
 
 	// Kill instance[0] and wait until it exits before proceeding.
-	syscall.Kill(pid, 9)
+	syscall.Kill(pid, 9) // nolint: errcheck
 	utiltest.PollingWait(t, int(pid))
 
 	// Run another device manager to replace the dead one.

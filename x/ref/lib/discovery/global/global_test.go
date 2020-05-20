@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/discovery"
 	"v.io/v23/options"
 	"v.io/v23/security"
@@ -191,7 +191,7 @@ func TestRefresh(t *testing.T) {
 		t.Fatal(err)
 	}
 	ns := v23.GetNamespace(ctx)
-	ns.SetRoots(mtserver.Status().Endpoints[0].Name())
+	_ = ns.SetRoots(mtserver.Status().Endpoints[0].Name())
 
 	ad := discovery.Advertisement{
 		InterfaceName: "foo/bar/baz",

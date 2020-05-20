@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	go_http "net/http"
+
 	v23_http "v.io/v23/services/http"
 )
 
@@ -25,7 +26,7 @@ func VDLRequestFromHTTPRequest(req *go_http.Request) v23_http.Request {
 	}
 
 	body_buf := new(bytes.Buffer)
-	body_buf.ReadFrom(req.Body)
+	body_buf.ReadFrom(req.Body) // nolint: errcheck
 
 	ifc_req := v23_http.Request{
 		Method:           req.Method,

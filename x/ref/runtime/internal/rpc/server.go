@@ -396,7 +396,7 @@ func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	s.updateEndpointsLocked(ctx, mgrStat.Endpoints)
 	s.active.Add(2)
 	go s.updateEndpointsLoop(ctx, mgrStat.Dirty)
-	go s.acceptLoop(ctx)
+	go s.acceptLoop(ctx) // nolint: errcheck
 }
 
 // relisten continuously tries to listen on the protocol, address.
@@ -796,7 +796,8 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	ctx = fs.flow.SetDeadlineContext(ctx, req.Deadline.Time)
 
 	if err := fs.readGrantedBlessings(ctx, req); err != nil {
-		fs.drainDecoderArgs(int(req.NumPosArgs))
+		fs.drainDecoderArgs(int(req.NumPosArgs)) // nolint: errcheck
+
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
 		return ctx, nil, err
@@ -804,7 +805,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// Lookup the invoker.
 	invoker, auth, err := fs.lookup(ctx, fs.suffix, fs.method)
 	if err != nil {
-		fs.drainDecoderArgs(int(req.NumPosArgs))
+		fs.drainDecoderArgs(int(req.NumPosArgs)) // nolint: errcheck
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
 		return ctx, nil, err
@@ -820,13 +821,13 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	argptrs, tags, err := invoker.Prepare(ctx, strippedMethod, numArgs)
 	fs.tags = tags
 	if err != nil {
-		fs.drainDecoderArgs(numArgs)
+		fs.drainDecoderArgs(numArgs) // nolint: errcheck
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
 		return ctx, nil, err
 	}
 	if called, want := req.NumPosArgs, uint64(len(argptrs)); called != want {
-		fs.drainDecoderArgs(numArgs)
+		fs.drainDecoderArgs(numArgs) // nolint: errcheck
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
 		return ctx, nil, newErrBadNumInputArgs(ctx, fs.suffix, fs.method, called, want)

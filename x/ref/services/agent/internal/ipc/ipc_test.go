@@ -310,7 +310,9 @@ func TestBidi(t *testing.T) {
 	defer ipc2.Close()
 
 	var e echo
-	ipc2.Serve(e)
+	if err := ipc2.Serve(e); err != nil {
+		t.Fatal(err)
+	}
 	client, err := ipc2.Connect(path, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -327,7 +329,7 @@ func TestBidi(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	flag.Parse()
-	vlog.ConfigureLibraryLoggerFromFlags()
+	flag.Parse()                           // nolint: errcheck
+	vlog.ConfigureLibraryLoggerFromFlags() // nolint: errcheck
 	os.Exit(m.Run())
 }

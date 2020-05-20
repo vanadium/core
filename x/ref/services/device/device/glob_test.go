@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/device"
@@ -50,7 +50,7 @@ func newEnforceFullParallelismHandler(t *testing.T, n int) cmd_device.GlobHandle
 	wg.Add(n)
 	return func(entry cmd_device.GlobResult, ctx *context.T, stdout, stderr io.Writer) error {
 		wg.Done()
-		simplePrintHandler(entry, ctx, stdout, stderr)
+		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
 		waitDoneCh := make(chan struct{})
 		go func() {
 			wg.Wait()
@@ -137,7 +137,7 @@ func newEnforceNoParallelismHandler(t *testing.T, n int, expected []string) cmd_
 		if suffix != expect {
 			t.Errorf("Expected %s, got %s", expect, suffix)
 		}
-		simplePrintHandler(entry, ctx, stdout, stderr)
+		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
 		return nil
 	}
 }

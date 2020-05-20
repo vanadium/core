@@ -89,11 +89,11 @@ func runRestarter(env *cmdline.Env, args []string) error {
 				if sig == vsignals.STOP {
 					sig = syscall.SIGTERM
 				}
-				cmd.Process.Signal(sig)
+				cmd.Process.Signal(sig) // nolint: errcheck
 			case <-shutdown:
 			}
 		}()
-		cmd.Wait()
+		cmd.Wait() // nolint: errcheck
 		close(shutdown)
 		exitCode = cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus()
 		if !restartOpts.restart(exitCode) {

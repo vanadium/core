@@ -25,7 +25,9 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	ref.EnvClearCredentials()
+	if err := ref.EnvClearCredentials(); err != nil {
+		t.Fatal(err)
+	}
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -82,7 +84,7 @@ func TestInitArgs(t *testing.T) {
 		"log_backtrace_at=:0",
 		os.TempDir()))
 	c.Terminate(os.Interrupt)
-	c.S.ExpectEOF()
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 func validatePrincipal(p security.Principal) error {

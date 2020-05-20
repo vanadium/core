@@ -61,7 +61,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 	utiltest.ResolveExpectNotFound(t, ctx, "dm", false) // Ensure a clean slate.
 
 	// Kill instance[0] and wait until it exits before proceeding.
-	syscall.Kill(pid, 9)
+	syscall.Kill(pid, 9) // nolint: errcheck
 	utiltest.PollingWait(t, pid)
 
 	// Run another device manager to replace the dead one.
@@ -85,7 +85,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 
 	// Kill instance[1]
 	pid = utiltest.GetPid(t, ctx, appID, instances[1])
-	syscall.Kill(pid, 9)
+	syscall.Kill(pid, 9) // nolint: errcheck
 
 	// Make a fourth instance. This forces a polling of processes so that
 	// the state is updated.

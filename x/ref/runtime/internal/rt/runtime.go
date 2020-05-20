@@ -148,10 +148,12 @@ func Init(
 		return nil, nil, nil, err
 	}
 	ctx, _ = vtrace.WithNewTrace(ctx)
-	r.addChild(ctx, vtraceDependency{}, func() {
+	err = r.addChild(ctx, vtraceDependency{}, func() {
 		vtrace.FormatTraces(os.Stderr, vtrace.GetStore(ctx).TraceRecords(), nil)
 	})
-
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s: failed to add child to vtrace: %v\n", os.Args[0], err)
+	}
 	ctx = context.WithContextLogger(ctx, &ivtrace.VTraceLogger{})
 
 	// Setup i18n.
@@ -241,6 +243,7 @@ func (r *Runtime) initSignalHandling(ctx *context.T) {
 			ctx.Infof("Received signal %v", sig)
 		}
 	}()
+	// nolint: errcheck
 	r.addChild(ctx, signals, func() {
 		signal.Stop(signals)
 		close(signals)
@@ -265,8 +268,8 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 			if shutdown != nil {
 				shutdown()
 			}
-			stats.Delete(store)
-			stats.Delete(roots)
+			stats.Delete(store) // nolint: errcheck
+			stats.Delete(roots) // nolint: errcheck
 		}
 	}
 	ctx = context.WithValue(ctx, principalKey, principal)

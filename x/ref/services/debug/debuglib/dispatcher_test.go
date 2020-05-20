@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/logreader"
@@ -54,7 +54,7 @@ func TestDebugServer(t *testing.T) {
 
 	// Use logger configured with the directory that we want to use for this test.
 	testLogger := vlog.NewLogger("TestDebugServer")
-	testLogger.Configure(vlog.LogDir(workdir))
+	testLogger.Configure(vlog.LogDir(workdir)) // nolint: errcheck
 	ctx = context.WithLogger(ctx, testLogger)
 
 	disp := debuglib.NewDispatcher(nil)
@@ -157,7 +157,9 @@ func TestDebugServer(t *testing.T) {
 		defer cancel()
 
 		ns := v23.GetNamespace(ctx)
-		ns.SetRoots(naming.JoinAddressName(endpoint, "debug"))
+		if err := ns.SetRoots(naming.JoinAddressName(endpoint, "debug")); err != nil {
+			t.Fatal(err)
+		}
 
 		c, err := ns.Glob(ctx, "logs/...")
 		if err != nil {

@@ -97,8 +97,12 @@ func TestClientServerBlessings(t *testing.T) {
 		betaServer  = mkBlessings(rootBeta.NewBlessings(pserver, "server"))
 	)
 	// Setup the client's blessing store
-	pclient.BlessingStore().Set(alphaClient, "alpha:server")
-	pclient.BlessingStore().Set(betaClient, "beta")
+	if _, err := pclient.BlessingStore().Set(alphaClient, "alpha:server"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pclient.BlessingStore().Set(betaClient, "beta"); err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		server security.Blessings // Blessings presented by the server.
@@ -332,6 +336,6 @@ func TestServerDischarges(t *testing.T) {
 	if err == nil {
 		remote, _ := call.RemoteBlessings()
 		t.Errorf("client.StartCall passed unexpectedly with remote end authenticated as: %v", remote)
-		call.Finish()
+		call.Finish() // nolint: errcheck
 	}
 }

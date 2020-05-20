@@ -106,7 +106,7 @@ func runGcreds(ctx *context.T, env *cmdline.Env, args []string) error {
 		return err
 	}
 
-	ref.EnvClearCredentials()
+	ref.EnvClearCredentials() // nolint: errcheck
 	if err := os.Setenv(ref.EnvAgentPath, socketPath); err != nil {
 		return err
 	}

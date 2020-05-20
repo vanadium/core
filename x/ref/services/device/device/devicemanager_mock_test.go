@@ -296,6 +296,7 @@ func (mdi *mockDeviceInvoker) Glob__(_ *context.T, call rpc.GlobServerCall, g *g
 	gs := GlobStimulus{g.String()}
 	gr := mdi.tape.Record(gs).(GlobResponse)
 	for _, r := range gr.results {
+		// nolint: errcheck
 		call.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: r}})
 	}
 	return gr.err

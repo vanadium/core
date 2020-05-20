@@ -50,7 +50,7 @@ func (x Time) Normalize() Time {
 // Now returns the current time.
 func Now() Time {
 	var t Time
-	TimeFromNative(&t, time.Now())
+	TimeFromNative(&t, time.Now()) // nolint: errcheck
 	return t
 }
 

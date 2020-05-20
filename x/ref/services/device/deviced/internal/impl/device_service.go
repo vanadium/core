@@ -278,11 +278,11 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	if err := principalMgr.Create(workspace); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Create(%v) failed: %v", workspace, err))
 	}
-	defer principalMgr.Delete(workspace)
+	defer principalMgr.Delete(workspace) // nolint: errcheck
 	if err := principalMgr.Serve(workspace, cfg); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Serve(%v) failed: %v", workspace, err))
 	}
-	defer principalMgr.StopServing(workspace)
+	defer principalMgr.StopServing(workspace) // nolint: errcheck
 	p, err := principalMgr.Load(workspace)
 	if err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Load(%v) failed: %v", workspace, err))

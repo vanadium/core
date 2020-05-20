@@ -6,6 +6,7 @@ package drrqueue
 
 import (
 	"log"
+	"path/filepath"
 	"runtime"
 	"testing"
 
@@ -75,14 +76,23 @@ func expectGet(t *testing.T, q bqueue.T, strings []string) {
 	}
 }
 
+func fail(t *testing.T, err error) {
+	if err != nil {
+		_, file, line, _ := runtime.Caller(1)
+		t.Fatalf("%v:%v: err: %v", filepath.Base(file), line, err)
+	}
+}
+
 // TestSimple tests a Put/Release/Get sequence.
 func TestSimple(t *testing.T) {
 	q := New(testQuantum)
 	w, _ := q.NewWriter(0, 0, 5)
 	log.Printf("PutV")
-	w.Put(mkbufs("Hello"), nil)
+	err := w.Put(mkbufs("Hello"), nil)
+	fail(t, err)
 	log.Printf("Release")
-	w.Release(5)
+	err = w.Release(5)
+	fail(t, err)
 	log.Printf("Get")
 	w2, buf, err := q.Get(nil)
 	if err != nil {
@@ -102,13 +112,19 @@ func TestShutdownWithoutRemove(t *testing.T) {
 	w1, _ := q.NewWriter(0, 0, 100)
 	w2, _ := q.NewWriter(1, 1, 100)
 
-	w1.Put(mkbufs("1_1"), nil)
-	w1.Put(mkbufs("1_2"), nil)
-	w2.Put(mkbufs("2_1"), nil)
-	w2.Put(mkbufs("2_2"), nil)
+	err := w1.Put(mkbufs("1_1"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("1_2"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("2_1"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("2_2"), nil)
+	fail(t, err)
 
-	w1.Release(3)
-	w2.Release(3)
+	err = w1.Release(3)
+	fail(t, err)
+	err = w2.Release(3)
+	fail(t, err)
 
 	w, buf, err := q.Get(nil)
 	if s := concat(buf); err != nil || w.ID() != w1.ID() || s != "1_1" {
@@ -137,49 +153,59 @@ func TestRelease(t *testing.T) {
 	c := startReader(q)
 	w1, _ := q.NewWriter(0, 0, 10)
 	w2, _ := q.NewWriter(1, 0, 10)
-	w1.Put(mkbufs("A1"), nil)
-	w1.Put(mkbufs("A2"), nil)
-	w2.Put(mkbufs("B1"), nil)
-	w2.Put(mkbufs("B2"), nil)
+	err := w1.Put(mkbufs("A1"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("A2"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("B1"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("B2"), nil)
+	fail(t, err)
 	select {
 	case s := <-c:
 		t.Errorf("Unexpected Get: %q", s)
 	default:
 	}
 
-	w2.Release(1)
+	err = w2.Release(1)
+	fail(t, err)
 	select {
 	case s := <-c:
 		t.Errorf("Expected no release, but received %q", s)
 	default:
 	}
 
-	w2.Release(1)
+	err = w2.Release(1)
+	fail(t, err)
 	s := <-c
 	if s != "B1" {
 		t.Errorf("Expected 'B1', but received %q", s)
 	}
 
-	w1.Release(4)
+	err = w1.Release(4)
+	fail(t, err)
 	s = <-c
 	if s != "A1A2" {
 		t.Errorf("Expected 'A1', but received %q", s)
 	}
 
-	w1.Release(2)
+	err = w1.Release(2)
+	fail(t, err)
 	select {
 	case s := <-c:
 		t.Errorf("Unexpected Get: %q", s)
 	default:
 	}
 
-	w1.Put(mkbufs("A3"), nil)
+	err = w1.Put(mkbufs("A3"), nil)
+	fail(t, err)
 	s = <-c
 	if s != "A3" {
 		t.Errorf("Expected 'A3', but received %q", s)
 	}
 
-	w2.Release(2)
+	err = w2.Release(2)
+	fail(t, err)
 	s = <-c
 	if s != "B2" {
 		t.Errorf("Expected 'B2', but received %q", s)
@@ -203,19 +229,32 @@ func TestPriority(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 1, 100)
 	w2, _ := q.NewWriter(1, 0, 100)
-	w1.Release(100)
-	w2.Release(100)
+	err := w1.Release(100)
+	fail(t, err)
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	err = w2.Release(100)
+	fail(t, err)
+
+	err = w1.Put(mkbufs("a"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("b"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("c"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("d"), nil)
+	fail(t, err)
+
 	expectGet(t, q, []string{"cd", "ab"})
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	err = w1.Put(mkbufs("a"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("b"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("c"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("d"), nil)
+	fail(t, err)
+
 	expectGet(t, q, []string{"cd", "ab"})
 }
 
@@ -224,20 +263,30 @@ func TestRoundRobin(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 0, 100)
 	w2, _ := q.NewWriter(1, 0, 100)
-	w1.Release(100)
-	w2.Release(100)
+	err := w1.Release(100)
+	fail(t, err)
+	err = w2.Release(100)
+	fail(t, err)
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	err = w1.Put(mkbufs("a"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("b"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("c"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("d"), nil)
 	expectGet(t, q, []string{"ab", "cd"})
 
-	w2.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w1.Put(mkbufs("d"), nil)
-	w1.Put(mkbufs("e"), nil)
+	err = w2.Put(mkbufs("a"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("b"), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs("c"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("d"), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs("e"), nil)
+	fail(t, err)
 	expectGet(t, q, []string{"ac", "bde"})
 }
 
@@ -246,8 +295,10 @@ func TestDeficit(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 0, testQuantum*10)
 	w2, _ := q.NewWriter(1, 0, testQuantum*10)
-	w1.Release(-1)
-	w2.Release(-1)
+	err := w1.Release(-1)
+	fail(t, err)
+	err = w2.Release(-1)
+	fail(t, err)
 
 	b1a := makeBuffer(2*testQuantum, '1')
 	b1b := makeBuffer(2*testQuantum, '2')
@@ -256,12 +307,19 @@ func TestDeficit(t *testing.T) {
 	b2c := makeBuffer(testQuantum, '5')
 	b2d := makeBuffer(testQuantum, '6')
 	b2e := makeBuffer(testQuantum, '7')
-	w1.Put(mkbufs(b1a), nil)
-	w1.Put(mkbufs(b1b), nil)
-	w2.Put(mkbufs(b2a), nil)
-	w2.Put(mkbufs(b2b), nil)
-	w2.Put(mkbufs(b2c), nil)
-	w2.Put(mkbufs(b2d), nil)
-	w2.Put(mkbufs(b2e), nil)
+	err = w1.Put(mkbufs(b1a), nil)
+	fail(t, err)
+	err = w1.Put(mkbufs(b1b), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs(b2a), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs(b2b), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs(b2c), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs(b2d), nil)
+	fail(t, err)
+	err = w2.Put(mkbufs(b2e), nil)
+	fail(t, err)
 	expectGet(t, q, []string{b2a, b1a, b2b, b2c, b1b, b2d, b2e})
 }

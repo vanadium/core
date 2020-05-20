@@ -631,7 +631,9 @@ func TestProxyBlessings(t *testing.T) {
 	if err := pblesser.Bless(serverP, "server"); err != nil {
 		t.Fatal(err)
 	}
-	serverP.BlessingStore().Set(def, "...")
+	if _, err := serverP.BlessingStore().Set(def, "..."); err != nil {
+		t.Fatal(err)
+	}
 
 	// Start the proxy.
 	pname, stop := startProxy(t, pctx, "proxy", nil, "", address{"tcp", "127.0.0.1:0"})

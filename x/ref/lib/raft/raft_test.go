@@ -163,7 +163,7 @@ func syncer(t *testing.T, ctx *context.T, ch chan struct{}, r *raft, c *client, 
 		if c.TotalApplied() >= n {
 			break
 		}
-		r.Sync(ctx)
+		r.Sync(ctx) // nolint: errcheck
 	}
 	ch <- struct{}{}
 }

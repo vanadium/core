@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -55,7 +55,7 @@ func TestStatsImpl(t *testing.T) {
 		MinValue:           0,
 	})
 	for i := 0; i < 10; i++ {
-		histogram.Add(int64(i))
+		histogram.Add(int64(i)) // nolint: errcheck
 	}
 
 	name := naming.JoinAddressName(endpoint, "")

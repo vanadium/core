@@ -71,7 +71,7 @@ func (o *outstandingStats) String() string {
 }
 
 func (o *outstandingStats) close() {
-	stats.Delete(o.prefix)
+	stats.Delete(o.prefix) // nolint: errcheck
 }
 
 func (o *outstandingStats) start(method string, remote naming.Endpoint) func() {
@@ -111,7 +111,7 @@ type perMethodStats struct {
 }
 
 func (s *rpcStats) stop() {
-	stats.Delete(s.prefix)
+	stats.Delete(s.prefix) // nolint: errcheck
 }
 
 func (s *rpcStats) record(method string, latency time.Duration) {
@@ -124,7 +124,7 @@ func (s *rpcStats) record(method string, latency time.Duration) {
 	if !ok {
 		m = s.newPerMethodStats(method)
 	}
-	m.latency.Add(int64(latency / time.Millisecond))
+	m.latency.Add(int64(latency / time.Millisecond)) // nolint: errcheck
 }
 
 // nolint: deadcode, unused
