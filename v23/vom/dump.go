@@ -354,6 +354,9 @@ func (d *dumpWorker) writeStatus(err error, doneDecoding bool) {
 		d.status.Buf = nil
 	}
 	err = NewDecoder(bytes.NewReader(d.recReader.bytes)).Decode(&d.status.Value)
+	if err != nil {
+		d.status.Err = err
+	}
 	d.w.WriteStatus(d.status)
 	if doneDecoding {
 		d.status = DumpStatus{}
@@ -499,6 +502,9 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error {
 				return err
 			}
 			d.status.RefTypes[i], err = d.typeDec.lookupType(TypeId(tid))
+			if err != nil {
+				return err
+			}
 			d.writeAtom(DumpKindTypeId, PrimitivePUint{tid}, "")
 		}
 		if containsAny(tt) {

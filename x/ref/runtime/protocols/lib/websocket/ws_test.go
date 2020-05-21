@@ -7,6 +7,8 @@ package websocket_test
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -58,11 +60,10 @@ func runTest(t *testing.T, dialObj, listenObj flow.Protocol, dialP, listenP stri
 	if err != nil {
 		t.Fatal(err)
 	}
+	errCh := make(chan error, 1)
 	go func() {
 		a, err := ln.Accept(ctx)
-		if err != nil {
-			t.Fatal(err)
-		}
+		errCh <- err
 		acceptCh <- a
 	}()
 
@@ -70,36 +71,66 @@ func runTest(t *testing.T, dialObj, listenObj flow.Protocol, dialP, listenP stri
 	if err != nil {
 		t.Fatal(err)
 	}
-	go writeData(t, dialed, randData)
-	go readData(t, dialed, randData)
-	accepted := <-acceptCh
-	go writeData(t, accepted, randData)
-	go readData(t, accepted, randData)
-}
+	var wg sync.WaitGroup
+	wg.Add(4)
+	errsCh := make(chan error, 4)
+	go func() {
+		errsCh <- writeData(t, dialed, randData)
+		wg.Done()
+	}()
 
-func writeData(t *testing.T, c flow.Conn, data []byte) {
-	for i := 0; i < numChunks; i++ {
-		if _, err := c.WriteMsg(data[:chunkSize]); err != nil {
+	go func() {
+		errsCh <- readData(t, dialed, randData)
+		wg.Done()
+	}()
+	accepted := <-acceptCh
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
+	}
+
+	go func() {
+		errsCh <- writeData(t, accepted, randData)
+		wg.Done()
+	}()
+	go func() {
+		errsCh <- readData(t, accepted, randData)
+		wg.Done()
+	}()
+
+	wg.Wait()
+	close(errsCh)
+	for err := range errsCh {
+		if err != nil {
 			t.Fatal(err)
 		}
-		data = data[chunkSize:]
 	}
 }
 
-func readData(t *testing.T, c flow.Conn, expected []byte) {
+func writeData(t *testing.T, c flow.Conn, data []byte) error {
+	for i := 0; i < numChunks; i++ {
+		if _, err := c.WriteMsg(data[:chunkSize]); err != nil {
+			return err
+		}
+		data = data[chunkSize:]
+	}
+	return nil
+}
+
+func readData(t *testing.T, c flow.Conn, expected []byte) error {
 	read := make([]byte, len(expected))
 	read = read[:0]
 	for i := 0; i < numChunks; i++ {
 		b, err := c.ReadMsg()
 		if err != nil {
-			t.Fatal(err)
+			return err
 		}
 		if len(b) != chunkSize {
-			t.Errorf("got message of size %v, want %v", len(b), chunkSize)
+			return fmt.Errorf("got message of size %v, want %v", len(b), chunkSize)
 		}
 		read = append(read, b...)
 	}
 	if !bytes.Equal(read, expected) {
-		t.Errorf("read %v, want %v", read, expected)
+		return fmt.Errorf("read %v, want %v", read, expected)
 	}
+	return nil
 }

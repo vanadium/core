@@ -4,6 +4,7 @@ import (
 	gocontext "context"
 	"testing"
 	"time"
+
 	vcontext "v.io/v23/context"
 )
 
@@ -41,14 +42,15 @@ func TestDeadline(t *testing.T) {
 
 func TestValue(t *testing.T) {
 	c0, cancel0 := vcontext.RootContext()
-	c1 := vcontext.WithValue(c0, "foo1", "bar1")
-	c2 := gocontext.WithValue(c1, "foo2", "bar2")
+	type ts string // define a new type to avoid collisions with string
+	c1 := vcontext.WithValue(c0, ts("foo1"), ts("bar1"))
+	c2 := gocontext.WithValue(c1, ts("foo2"), ts("bar2"))
 	c3 := vcontext.FromGoContext(c2)
 
-	if v := c3.Value("foo1"); v.(string) != "bar1" {
+	if v := c3.Value(ts("foo1")); v.(ts) != "bar1" {
 		t.Error(v)
 	}
-	if v := c3.Value("foo2"); v.(string) != "bar2" {
+	if v := c3.Value(ts("foo2")); v.(ts) != "bar2" {
 		t.Error(v)
 	}
 	select {

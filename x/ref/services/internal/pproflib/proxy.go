@@ -162,7 +162,7 @@ func (p *proxy) cmdLine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	fmt.Fprintf(w, strings.Join(cmdline, "\x00"))
+	fmt.Fprint(w, strings.Join(cmdline, "\x00"))
 }
 
 // symbol replies with a map of program counters to object name.

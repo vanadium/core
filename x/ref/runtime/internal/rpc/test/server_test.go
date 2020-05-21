@@ -46,7 +46,6 @@ func TestBadObject(t *testing.T) {
 	defer shutdown()
 
 	sctx := withPrincipal(t, ctx, "server")
-	cctx := withPrincipal(t, ctx, "client")
 
 	if _, _, err := v23.WithNewServer(sctx, "", nil, nil); err == nil {
 		t.Fatal("should have failed")
@@ -63,7 +62,7 @@ func TestBadObject(t *testing.T) {
 	// TODO(mattr): It doesn't necessarily make sense to me that a bad object from
 	// the dispatcher results in a retry.
 	var cancel context.CancelFunc
-	cctx, cancel = context.WithTimeout(ctx, time.Second)
+	cctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	var result string
 	if err := v23.GetClient(cctx).Call(cctx, "servername", "SomeMethod", nil, []interface{}{&result}); err == nil {
@@ -283,7 +282,8 @@ func mountedBlessings(ctx *context.T, name string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, ms := range me.Servers {
+	if len(me.Servers) > 0 {
+		ms := me.Servers[0]
 		ep, err := naming.ParseEndpoint(ms.Server)
 		if err != nil {
 			return nil, err

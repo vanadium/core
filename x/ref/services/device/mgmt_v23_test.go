@@ -544,7 +544,6 @@ func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withS
 	// Kill the device manager (which causes it to be restarted), wait for
 	// the endpoint to change.
 	withArgs(deviceBin, "kill", mtName+"/devmgr/device").Run()
-	mtEP = resolveChange(mtName, mtEP)
 
 	// Shut down the device manager.
 	stopDevMgrOnce.Do(stopDevMgr)
@@ -575,7 +574,7 @@ func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withS
 	// owned by the device manager user and unreadable by the user
 	// running this test.
 	if !withSuid {
-		fi, err = ioutil.ReadDir(dmInstallDir)
+		_, err = ioutil.ReadDir(dmInstallDir)
 		if err != nil {
 			t.Fatalf("failed to readdir for %q: %v", dmInstallDir, err)
 		}

@@ -533,7 +533,7 @@ func parseFileName(s string) (Term, Index, error) {
 		return 0, 0, err
 	}
 	i, err := strconv.ParseInt(p[1], 10, 64)
-	return Term(t), Index(i), nil
+	return Term(t), Index(i), err
 }
 
 // readState is called on start up.  State is recreated from the last valid snapshot and

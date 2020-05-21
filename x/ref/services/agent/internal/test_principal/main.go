@@ -15,7 +15,7 @@ import (
 	"reflect"
 	"runtime"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/lib/cmdline"
@@ -126,7 +126,7 @@ func runTestPrincipal(ctx *context.T, env *cmdline.Env, args []string) error {
 		errorf("BlessingStore().SetDefault: %v", err)
 	}
 	<-defCh
-	if def, defCh = p.BlessingStore().Default(); !reflect.DeepEqual(def, b) {
+	if def, _ = p.BlessingStore().Default(); !reflect.DeepEqual(def, b) {
 		errorf("BlessingStore().Default returned [%v], want [%v]", def, b)
 	}
 	// BlessingStore: Set & ForPeer

@@ -278,7 +278,7 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 
 func (r *Runtime) WithPrincipal(ctx *context.T, principal security.Principal) (*context.T, error) {
 	var err error
-	newctx := ctx
+	var newctx *context.T
 
 	// TODO(mattr, suharshs): If there user gives us some principal that has dependencies
 	// we don't know about, we will not honour those dependencies during shutdown.

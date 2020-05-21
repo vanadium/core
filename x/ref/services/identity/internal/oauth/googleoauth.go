@@ -5,6 +5,7 @@
 package oauth
 
 import (
+	gocontext "context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -58,7 +59,7 @@ func (g *googleOAuth) AuthURL(redirectUrl, state string, approval AuthURLApprova
 // tokeninfo API to extract the email address from that token.
 func (g *googleOAuth) ExchangeAuthCodeForEmail(authcode string, url string) (string, error) {
 	config := g.oauthConfig(url)
-	t, err := config.Exchange(oauth2.NoContext, authcode)
+	t, err := config.Exchange(gocontext.TODO(), authcode)
 	if err != nil {
 		return "", fmt.Errorf("failed to exchange authorization code for token: %v", err)
 	}

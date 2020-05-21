@@ -8,6 +8,7 @@ package browseserver
 
 import (
 	"bytes"
+	gocontext "context"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -476,14 +477,10 @@ func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var (
-		entries   = make(chan logreader.LogEntry)
-		abortRPC  = make(chan bool)
-		abortHTTP <-chan bool
-		errch     = make(chan error, 1) // At most one write on this channel, avoid blocking any goroutines
+		entries  = make(chan logreader.LogEntry)
+		abortRPC = make(chan bool)
+		errch    = make(chan error, 1) // At most one write on this channel, avoid blocking any goroutines
 	)
-	if notifier, ok := w.(http.CloseNotifier); ok {
-		abortHTTP = notifier.CloseNotify()
-	}
 	go func() {
 		// writes to: entries, errch
 		// reads from: abortRPC
@@ -501,7 +498,9 @@ func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			errch <- err
 		}
 	}()
-	// reads from: entries, errch, abortHTTP
+	goctx, cancel := gocontext.WithCancel(r.Context())
+	defer cancel()
+	// reads from: entries, errch, cancel
 	// writes to: abortRPC
 	defer close(abortRPC)
 	for {
@@ -514,7 +513,7 @@ func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case err := <-errch:
 			fmt.Fprintf(w, "ERROR(%v): %v\n", verror.ErrorID(err), err)
 			return
-		case <-abortHTTP:
+		case <-goctx.Done():
 			return
 		}
 	}
@@ -559,8 +558,8 @@ func (h *globHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}{
 		ServerName:  server,
 		CommandLine: fmt.Sprintf("debug glob %q", pattern),
-		Vtrace:      tracer,
 		Pattern:     pattern,
+		Vtrace:      tracer,
 		Entries:     entries,
 	}
 	h.execute(h.ctx, w, r, "glob.html", args)
@@ -900,7 +899,7 @@ func internalServerError(w http.ResponseWriter, doing string, err error) {
 // nolint: deadcode, unused
 func badRequest(w http.ResponseWriter, problem string) {
 	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintf(w, problem)
+	fmt.Fprint(w, problem)
 }
 
 func writeEvent(w http.ResponseWriter, data string) {

@@ -14,7 +14,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -84,7 +84,7 @@ func capitalize(s string) string {
 
 func startServer(ctx *context.T, t *testing.T) (rpc.Server, naming.Endpoint) {
 	unpublished := ""
-	ctx, s, err := v23.WithNewServer(ctx, unpublished, groups.GroupServer(&mock{}), nil)
+	_, s, err := v23.WithNewServer(ctx, unpublished, groups.GroupServer(&mock{}), nil)
 	if err != nil {
 		t.Fatalf("NewServer(%v) failed: %v", unpublished, err)
 	}

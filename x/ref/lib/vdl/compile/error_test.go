@@ -82,7 +82,7 @@ type errorTest struct {
 
 const (
 	en i18n.LangID = "en"
-	zh             = "zh"
+	zh i18n.LangID = "zh"
 )
 
 func arg(name string, t *vdl.Type) *compile.Field {

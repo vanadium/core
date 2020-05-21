@@ -340,7 +340,7 @@ func testPermsHelper(t *testing.T, be backend) {
 	}
 
 	// SetPermissions with correct version should succeed.
-	permsBefore, versionBefore = permsAfter, versionAfter
+	_, versionBefore = permsAfter, versionAfter
 	if err := ac.SetPermissions(ctx, myperms, versionBefore); err != nil {
 		t.Fatalf("SetPermissions failed: %v", err)
 	}
@@ -354,7 +354,7 @@ func testPermsHelper(t *testing.T, be backend) {
 	}
 
 	// SetPermissions with empty version should succeed.
-	permsBefore, versionBefore = permsAfter, versionAfter
+	_, versionBefore = permsAfter, versionAfter
 	myperms.Add(security.BlessingPattern("idp:client"), string(access.Read))
 	if err := ac.SetPermissions(ctx, myperms, ""); err != nil {
 		t.Fatalf("SetPermissions failed: %v", err)

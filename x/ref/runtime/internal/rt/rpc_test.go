@@ -247,7 +247,7 @@ func TestServerDischarges(t *testing.T) {
 		t.Fatal(err)
 	}
 	ds := &dischargeService{}
-	dischargerCtx, server, err := v23.WithNewServer(dischargerCtx, "", ds, security.AllowEveryone())
+	_, server, err := v23.WithNewServer(dischargerCtx, "", ds, security.AllowEveryone())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -326,7 +326,7 @@ func TestServerDischarges(t *testing.T) {
 	if err := pserver.BlessingStore().SetDefault(rootServerInvalidTPCaveat); err != nil {
 		t.Fatal(err)
 	}
-	serverCtx, server, err = v23.WithNewServer(serverCtx, "", testService{}, security.AllowEveryone())
+	_, server, err = v23.WithNewServer(serverCtx, "", testService{}, security.AllowEveryone())
 	if err != nil {
 		t.Fatal(err)
 	}

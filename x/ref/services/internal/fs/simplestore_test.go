@@ -157,7 +157,10 @@ func TestSerializeDeserialize(t *testing.T) {
 
 	// TRANSACTION BEGIN Write a value to /test/b as well.
 	memstoreOriginal.Lock()
-	tname, err = memstoreOriginal.BindTransactionRoot("also ignored").CreateTransaction(nil)
+	_, err = memstoreOriginal.BindTransactionRoot("also ignored").CreateTransaction(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	bindingTnameTestB := memstoreOriginal.BindObject(fs.TP("/test/b"))
 	if _, err := bindingTnameTestB.Put(nil, envelope); err != nil {
 		t.Fatalf("Put() failed: %v", err)
@@ -201,7 +204,9 @@ func TestSerializeDeserialize(t *testing.T) {
 	// TRANSACTION BEGIN (to be abandonned)
 	memstoreOriginal.Lock()
 	tname, err = memstoreOriginal.BindTransactionRoot("").CreateTransaction(nil)
-
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Exists is true before doing anything.
 	if err := allPathsExist(memstoreOriginal, []string{fs.TP("/test")}); err != nil {
 		t.Fatalf("%v", err)
@@ -309,8 +314,10 @@ func TestSerializeDeserialize(t *testing.T) {
 
 	// TRANSACTION BEGIN
 	memstoreCopy.Lock()
-	tname, err = memstoreCopy.BindTransactionRoot("also ignored").CreateTransaction(nil)
-
+	_, err = memstoreCopy.BindTransactionRoot("also ignored").CreateTransaction(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// Add a pending object c to test that pending objects are deleted.
 	if _, err := memstoreCopy.BindObject(fs.TP("/test/c")).Put(nil, secondEnvelope); err != nil {
 		t.Fatalf("Put() failed: %v", err)
@@ -426,7 +433,7 @@ func TestOperationsNeedValidBinding(t *testing.T) {
 
 	// Attempt inserting a value at /test/b
 	memstoreOriginal.Lock()
-	tname, err = memstoreOriginal.BindTransactionRoot("").CreateTransaction(nil)
+	_, err = memstoreOriginal.BindTransactionRoot("").CreateTransaction(nil)
 	if err != nil {
 		t.Fatalf("CreateTransaction() failed: %v", err)
 	}
@@ -588,6 +595,9 @@ func gobPersist(t *testing.T, ms *fs.Memstore) error {
 
 	enc := gob.NewEncoder(file)
 	err = enc.Encode(data)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := enc.Encode(data); err != nil {
 		t.Fatalf("enc.Encode() failed: %v", err)
 	}

@@ -329,12 +329,12 @@ func Parse(db ds.Database, src string) (*Statement, error) {
 	case "select":
 		var st Statement
 		var err error
-		st, token, err = selectStatement(db, &s, token)
+		st, _, err = selectStatement(db, &s, token)
 		return &st, err
 	case "delete":
 		var st Statement
 		var err error
-		st, token, err = deleteStatement(db, &s, token)
+		st, _, err = deleteStatement(db, &s, token)
 		return &st, err
 	default:
 		return nil, syncql.NewErrUnknownIdentifier(db.GetContext(), token.Off, token.Value)
@@ -576,9 +576,9 @@ func parseWhereClause(db ds.Database, s *scanner.Scanner, token *Token) (*WhereC
 }
 
 // Parse a parenthesized expression.  Return expression and next token (or error)
-func parseParenthesizedExpression(db ds.Database, s *scanner.Scanner, token *Token) (*Expression, *Token, error) {
+func parseParenthesizedExpression(db ds.Database, s *scanner.Scanner, _ *Token) (*Expression, *Token, error) {
 	// Only called when token == TokLEFTPAREN
-	token = scanToken(s) // eat '('
+	token := scanToken(s) // eat '('
 	var expr *Expression
 	var err error
 	expr, token, err = parseExpression(db, s, token)
@@ -690,11 +690,11 @@ func parseLikeEqualExpression(db ds.Database, s *scanner.Scanner, token *Token) 
 	return &expression, token, nil
 }
 
-func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffset int64, token *Token) (*Function, *Token, error) {
+func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffset int64, _ *Token) (*Function, *Token, error) {
 	var function Function
 	function.Name = funcName
 	function.Off = funcOffset
-	token = scanToken(s) // eat left paren
+	token := scanToken(s) // eat left paren
 	for token.Tok != TokRIGHTPAREN {
 		if token.Tok == TokEOF {
 			return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, ")")

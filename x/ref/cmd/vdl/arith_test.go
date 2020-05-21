@@ -349,6 +349,10 @@ func TestArith(t *testing.T) {
 
 		addStream, err := ar.StreamingAdd(ctx)
 
+		if err != nil {
+			t.Errorf("StreamingAdd failed with %v", err)
+		}
+
 		go func() {
 			sender := addStream.SendStream()
 			for i := int32(0); i < 100; i++ {

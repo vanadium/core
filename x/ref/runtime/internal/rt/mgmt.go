@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -38,6 +38,9 @@ func (rt *Runtime) initMgmt(ctx *context.T) error {
 	}
 
 	parentName, err := config.Get(mgmt.ParentNameConfigKey)
+	if err != nil {
+		return err
+	}
 	if ctx, err = setListenSpec(ctx, rt, config); err != nil {
 		return err
 	}

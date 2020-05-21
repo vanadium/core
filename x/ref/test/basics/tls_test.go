@@ -10,8 +10,10 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"math/big"
 	"net"
+	"sync"
 	"testing"
 	"time"
 )
@@ -25,18 +27,35 @@ func BenchmarkTLSConnectionEstablishment(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	defer ln.Close()
+
+	errCh := make(chan error, 1)
+	var wg sync.WaitGroup
+	defer func() {
+		ln.Close()
+		wg.Wait()
+		close(errCh)
+		for err := range errCh {
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}()
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		buf := make([]byte, 1)
 		for {
 			c, err := ln.Accept()
 			if err != nil {
+				errCh <- nil
 				return
 			}
 			if n, err := c.Read(buf); n != 1 {
-				b.Fatalf("Got (%d, %v), expected (1, <nil or io.EOF>)", n, err)
+				errCh <- fmt.Errorf("Got (%d, %v), expected (1, <nil or io.EOF>)", n, err)
+				return
 			}
 			if _, err := c.Write(buf); err != nil {
+				errCh <- nil
 				return
 			}
 			c.Close()
@@ -67,6 +86,7 @@ func BenchmarkTLSConnectionEstablishment(b *testing.B) {
 		}
 	}
 	b.StopTimer()
+
 }
 
 // Ideally this benchmark wouldn't be required having just

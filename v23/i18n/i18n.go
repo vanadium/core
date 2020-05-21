@@ -35,14 +35,17 @@
 // parameter may depend on LangID.
 package i18n
 
-import "bufio"
-import "fmt"
-import "io"
-import "os"
-import "strconv"
-import "strings"
-import "sync"
-import "v.io/v23/context"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+
+	"v.io/v23/context"
+)
 
 // MsgID identifies a message, without specifying its language.
 type MsgID string
@@ -286,7 +289,7 @@ func (cat *Catalogue) Merge(r io.Reader) error {
 		var formatStr string
 		var fields int
 		fields, err = fmt.Sscanf(lineStr, "%s %s %q", &langID, &msgID, &formatStr)
-		if fields == 3 && !strings.HasPrefix(string(langID), "#") {
+		if err == nil && fields == 3 && !strings.HasPrefix(string(langID), "#") {
 			cat.SetWithBase(langID, msgID, formatStr)
 		}
 		lineStr, err = bufReader.ReadString('\n')

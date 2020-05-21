@@ -111,7 +111,9 @@ func ParseQuery(query string) (*Query, error) {
 		set = set || trySetField(&ret.OS, &err, "os:", f)
 		set = set || trySetField(&ret.Uploader, &err, "uploader:", f)
 		set = set || trySetField(&ret.Label, &err, "label:", f)
-		set = set || trySetField(&ret.Name, &err, "", f)
+		if !set {
+			trySetField(&ret.Name, &err, "", f)
+		}
 		if err != nil {
 			return nil, err
 		}

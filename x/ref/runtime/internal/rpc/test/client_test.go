@@ -178,7 +178,7 @@ var echoClient = gosh.RegisterFunc("echoClient", func(name string, args ...strin
 		if err := client.Call(ctx, name, "Echo", []interface{}{a}, []interface{}{&r}); err != nil {
 			return err
 		}
-		fmt.Printf(r)
+		fmt.Print(r)
 	}
 	return nil
 })
@@ -313,6 +313,9 @@ func TestStartCallErrors(t *testing.T) {
 	// The following tests will fail with NoServers, but because there are
 	// no protocols that the client and servers (mounttable, and "name") share.
 	nctx, nclient, err := v23.WithNewClient(ctx, irpc.PreferredProtocols([]string{"boo"}))
+	if err != nil {
+		t.Fatal(err)
+	}
 	addr := naming.FormatEndpoint("nope", "127.0.0.1:1081")
 	if err := ns.Mount(ctx, "name", addr, time.Minute); err != nil {
 		t.Fatal(err)
@@ -896,6 +899,7 @@ type changeProtocol struct {
 func (c *changeProtocol) Dial(ctx *context.T, protocol, address string, timeout time.Duration) (flow.Conn, error) {
 	return c.tcp.Dial(ctx, "tcp", c.address, timeout)
 }
+
 func (c *changeProtocol) Resolve(ctx *context.T, proctocol, address string) (string, []string, error) {
 	defer c.mu.Unlock()
 	c.mu.Lock()
@@ -903,9 +907,10 @@ func (c *changeProtocol) Resolve(ctx *context.T, proctocol, address string) (str
 	c.count++
 	return "tcp", []string{fmt.Sprintf("resolved%d", c.count)}, nil
 }
-func (c *changeProtocol) Listen(ctx *context.T, protocol, address string) (flow.Listener, error) {
-	protocol = "tcp"
-	address = "127.0.0.1:0"
+
+func (c *changeProtocol) Listen(ctx *context.T, _, _ string) (flow.Listener, error) {
+	protocol := "tcp"
+	address := "127.0.0.1:0"
 	l, err := c.tcp.Listen(ctx, protocol, address)
 	if err != nil {
 		return nil, err
@@ -1044,6 +1049,9 @@ func TestIdleConnectionExpiry(t *testing.T) {
 
 	// Creating a client with no idle expiry should keep connection cached.
 	ctx, client, err := v23.WithNewClient(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := client.Call(ctx, name, "Closure", nil, nil); err != nil {
 		t.Error(err)
 	}
@@ -1054,6 +1062,9 @@ func TestIdleConnectionExpiry(t *testing.T) {
 
 	// Creating a client with a very low idle expiry should quickly close idle connections.
 	ctx, client, err = v23.WithNewClient(ctx, irpc.IdleConnectionExpiry(1))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := client.Call(ctx, name, "Closure", nil, nil); err != nil {
 		t.Error(err)
 	}
@@ -1065,6 +1076,9 @@ func TestIdleConnectionExpiry(t *testing.T) {
 
 	// Creating a client with a very high idle expiry should keep connection cached.
 	ctx, client, err = v23.WithNewClient(ctx, irpc.IdleConnectionExpiry(time.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := client.Call(ctx, name, "Closure", nil, nil); err != nil {
 		t.Error(err)
 	}

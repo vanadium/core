@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -90,7 +90,7 @@ func setAccessLists(ctx *context.T, env *cmdline.Env, von string) error {
 }
 
 func publishOne(ctx *context.T, env *cmdline.Env, binPath, binary string) error {
-	binaryName, envelopeName, title := binary, binary, binary
+	var binaryName, envelopeName, title string
 	binaryRE := regexp.MustCompile(`^([^:@]+)(:[^@]+)?(@.+)?$`)
 	if parts := binaryRE.FindStringSubmatch(binary); len(parts) == 4 {
 		binaryName = parts[1]

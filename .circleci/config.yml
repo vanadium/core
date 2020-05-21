@@ -3,8 +3,6 @@ jobs:
     executor:
       name: go/default
       tag: "1.14"
-    environment:
-      VDLPATH:
     steps:
       - checkout
       - go/load-cache
@@ -47,6 +45,30 @@ jobs:
             golangci-lint run ./...
             validjson ./...
 
+  integration-tests:
+    executor:
+      name: go/default
+      tag: "1.14"
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - run:
+          name: goimports
+          command: |
+            go get golang.org/x/tools/cmd/goimports
+            go install -x golang.org/x/tools/cmd/goimports
+      - go/save-cache
+      - run:
+          name: vdlpath
+          command: |
+            echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: integration-tests
+          command: |
+            make test-integration
+
 version: 2.1
 orbs:
   go: circleci/go@1.1.2
@@ -55,3 +77,4 @@ workflows:
     jobs:
       - test
       - lint
+      - integration-tests

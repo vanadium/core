@@ -321,7 +321,7 @@ func (m *Auth) read(ctx *context.T, orig []byte) error {
 	if m.ChannelBinding.R, data, valid = readLenBytes(ctx, data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 	}
-	if m.ChannelBinding.S, data, valid = readLenBytes(ctx, data); !valid {
+	if m.ChannelBinding.S, _, valid = readLenBytes(ctx, data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
 	}
 	return nil

@@ -81,7 +81,7 @@ func (s *simple) Inc(_ *context.T, call rpc.StreamServerCall, inc int) (int, err
 
 func startSimpleServer(t *testing.T, ctx *context.T) (string, func()) {
 	done := make(chan struct{})
-	ctx, server, err := v23.WithNewServer(ctx, "", &simple{done}, nil)
+	_, server, err := v23.WithNewServer(ctx, "", &simple{done}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}

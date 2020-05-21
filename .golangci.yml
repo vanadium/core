@@ -1,0 +1,29 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  build-tags:
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+linters:
+  enable:
+    - deadcode
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - scopelint
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - varcheck
+  disable-all: true

@@ -261,7 +261,6 @@ func (c *client) reconnectPinnedConn(ctx *context.T, p *pinnedConn, name string,
 				delay = reconnectDelay
 				p.mu.Lock()
 				p.conn = r.flow.Conn()
-				closed = p.conn.Closed()
 				p.mu.Unlock()
 			}
 		case <-p.done:
@@ -644,6 +643,7 @@ func (fc *flowClient) close(err error) error {
 	}
 	subErr := verror.SubErr{Err: err, Options: verror.Print}
 	subErr.Name = "remote=" + fc.flow.RemoteEndpoint().String()
+	// nolint: staticcheck //lint:ignore SA9003
 	if cerr := fc.flow.Close(); cerr != nil && err == nil {
 		// TODO(mattr): The context is often already canceled here, in
 		// which case we'll get an error.  Not clear what to do.
@@ -800,6 +800,7 @@ func (fc *flowClient) closeSend() error {
 	if fc.sendClosed {
 		return nil
 	}
+	// nolint: staticcheck //lint:ignore SA9003
 	if err := fc.enc.Encode(rpc.Request{EndStreamArgs: true}); err != nil {
 		// TODO(caprita): Indiscriminately closing the flow below causes
 		// a race as described in:

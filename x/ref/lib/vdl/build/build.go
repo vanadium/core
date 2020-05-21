@@ -317,7 +317,6 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 func GoModuleName(path string) (string, error) {
 	gomod := filepath.Join(path, "go.mod")
 	buf, err := ioutil.ReadFile(gomod)
-	path = filepath.Dir(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			err = nil
@@ -823,7 +822,7 @@ func (ds *depSorter) resolveImportPath(pkgPath string, mode UnknownPathMode, pre
 	}
 	// Look through srcDirs in-order until we find a valid package dir.
 	var dirs []string
-	for _, srcDir := range append(ds.srcDirs) {
+	for _, srcDir := range ds.srcDirs {
 		dir := filepath.Join(srcDir, filepath.FromSlash(pkgPath))
 		if pkg := ds.resolveDirPath(dir, UnknownPathIsIgnored); pkg != nil {
 			vdlutil.Vlog.Printf("%s: resolved import path %q", pkg.Dir, pkgPath)
@@ -838,7 +837,6 @@ func (ds *depSorter) resolveImportPath(pkgPath string, mode UnknownPathMode, pre
 				vdlutil.Vlog.Printf("%s: resolved import path %q using go.mod to %v", pkg.Dir, pkgPath, dir)
 				return pkg
 			}
-			dirs = append(dirs, dir)
 			return nil
 		}
 	}

@@ -114,6 +114,9 @@ func EnvelopeFromShell(sh *v23test.Shell, vars, flags []string, f *gosh.Func, ti
 func SignedEnvelopeFromShell(ctx *context.T, sh *v23test.Shell, vars, flags []string, f *gosh.Func, title string, retries int, window time.Duration, args ...interface{}) (application.Envelope, error) {
 	envelope := EnvelopeFromShell(sh, vars, flags, f, title, retries, window, args...)
 	reader, cleanup, err := mockBinaryBytesReader()
+	if err != nil {
+		return application.Envelope{}, err
+	}
 	defer cleanup()
 	sig, err := binarylib.Sign(ctx, reader)
 	if err != nil {

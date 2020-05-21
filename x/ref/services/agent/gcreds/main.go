@@ -8,6 +8,7 @@
 package main
 
 import (
+	gocontext "context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -106,7 +107,9 @@ func runGcreds(ctx *context.T, env *cmdline.Env, args []string) error {
 		return err
 	}
 
-	ref.EnvClearCredentials() // nolint: errcheck
+	if err := ref.EnvClearCredentials(); err != nil {
+		return err
+	}
 	if err := os.Setenv(ref.EnvAgentPath, socketPath); err != nil {
 		return err
 	}
@@ -157,10 +160,10 @@ func getGoogleCloudBlessings(ctx *context.T) error {
 		if err != nil {
 			return err
 		}
-		tokSource = conf.TokenSource(oauth2.NoContext)
+		tokSource = conf.TokenSource(gocontext.TODO())
 	} else {
 		var err error
-		if tokSource, err = google.DefaultTokenSource(oauth2.NoContext, scope); err != nil {
+		if tokSource, err = google.DefaultTokenSource(gocontext.TODO(), scope); err != nil {
 			return err
 		}
 	}

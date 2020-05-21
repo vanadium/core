@@ -45,6 +45,8 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 	if err != nil {
 		return nil, err
 	}
+
+	// nolint: staticcheck //lint:ignore SA1019
 	ws, _, err := websocket.NewClient(conn, u, http.Header{}, bufferSize, bufferSize)
 	if err != nil {
 		return nil, err

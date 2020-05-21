@@ -139,7 +139,7 @@ func TestAssociationPersistenceDetectsBadStartingConditions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("TempDir failed: %v", err)
 	}
-	nbsa1, err = impl.NewBlessingSystemAssociationStore(dir)
+	_, err = impl.NewBlessingSystemAssociationStore(dir)
 	defer os.RemoveAll(dir)
 	if err != nil {
 		t.Fatalf("NewBlessingSystemAssociationStore failed: %v", err)

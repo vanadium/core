@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -95,8 +95,8 @@ func setupFlows(t *testing.T, network, address string, dctx, actx *context.T, di
 	}
 	if !dialFromDialer {
 		d, a = a, d
-		dctx, actx = actx, dctx
-		aflows, dflows = dflows, aflows
+		dctx = actx
+		aflows = dflows
 	}
 	for i := 0; i < n; i++ {
 		var err error

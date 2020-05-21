@@ -5,6 +5,7 @@
 package manager
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"testing"
@@ -602,6 +603,7 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 	dmrw, amrw := flowtest.Pipe(t, ctx, "local", "")
 	dch := make(chan *connpackage.Conn)
 	ach := make(chan *connpackage.Conn)
+	errCh := make(chan error, 2)
 	go func() {
 		d, _, _, err := connpackage.NewDialed(ctx, dmrw, ep, ep,
 			version.RPCVersionRange{Min: 1, Max: 5},
@@ -609,8 +611,9 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 			false,
 			time.Minute, 0, nil)
 		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
+			err = fmt.Errorf("Unexpected error: %v", err)
 		}
+		errCh <- err
 		dch <- d
 	}()
 	fh := fh{t, make(chan struct{})}
@@ -618,12 +621,19 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 		a, err := connpackage.NewAccepted(ctx, nil, amrw, ep,
 			version.RPCVersionRange{Min: 1, Max: 5}, time.Minute, 0, fh)
 		if err != nil {
-			t.Fatalf("Unexpected error: %v", err)
+			err = fmt.Errorf("Unexpected error: %v", err)
 		}
+		errCh <- err
 		ach <- a
 	}()
 	conn := <-dch
 	aconn := <-ach
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 	f, err := conn.Dial(ctx, conn.LocalBlessings(), nil, conn.RemoteEndpoint(), 0, false)
 	if err != nil {
 		t.Fatal(err)

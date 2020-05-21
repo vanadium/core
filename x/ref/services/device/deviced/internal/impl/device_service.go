@@ -290,7 +290,12 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	defer p.Close()
 	dmPrincipal := v23.GetPrincipal(ctx)
 	dmBlessings, _ := dmPrincipal.BlessingStore().Default()
-	testDmBlessings, err := dmPrincipal.Bless(p.PublicKey(), dmBlessings, "testdm", security.UnconstrainedUse())
+	testDmBlessings, err := dmPrincipal.Bless(p.PublicKey(), dmBlessings, "testdm",
+		security.UnconstrainedUse())
+	if err != nil {
+		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Bless failed: %v", err))
+	}
+
 	if err := p.BlessingStore().SetDefault(testDmBlessings); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("BlessingStore.SetDefault() failed: %v", err))
 	}
@@ -345,8 +350,7 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 func GenerateScript(workspace string, configSettings []string, envelope *application.Envelope, logs string) error {
 	// TODO(caprita): Remove this snippet of code, it doesn't seem to serve
 	// any purpose.
-	path, err := filepath.EvalSymlinks(os.Args[0])
-	if err != nil {
+	if _, err := filepath.EvalSymlinks(os.Args[0]); err != nil {
 		return verror.New(errors.ErrOperationFailed, nil, fmt.Sprintf("EvalSymlinks(%v) failed: %v", os.Args[0], err))
 	}
 
@@ -374,7 +378,7 @@ func GenerateScript(workspace string, configSettings []string, envelope *applica
 	output += "--logtostderr=${LOG_TO_STDERR} "
 	output += strings.Join(envelope.Args, " ")
 
-	path = filepath.Join(workspace, "deviced.sh")
+	path := filepath.Join(workspace, "deviced.sh")
 	if err := ioutil.WriteFile(path, []byte(output), 0700); err != nil {
 		return verror.New(errors.ErrOperationFailed, nil, fmt.Sprintf("WriteFile(%v) failed: %v", path, err))
 	}

@@ -57,7 +57,7 @@ func run(f func(*context.T) (time.Duration, error), p params) error {
 		latency   = make(chan time.Duration, 1000)
 		started   = time.Now()
 		stop      = time.After(p.Duration)
-		interrupt = make(chan os.Signal)
+		interrupt = make(chan os.Signal, 1)
 		ret       report
 	)
 	defer ticker.Stop()
@@ -132,7 +132,6 @@ func warmup(ctx *context.T, f func(*context.T) (time.Duration, error)) {
 }
 
 func call(ctx *context.T, f func(*context.T) (time.Duration, error), reauth bool, d chan<- time.Duration) {
-	client := v23.GetClient(ctx)
 	if reauth {
 		// HACK ALERT: At the time the line below was written, it was
 		// known that the implementation would cause 'ctx' to be setup
@@ -145,7 +144,7 @@ func call(ctx *context.T, f func(*context.T) (time.Duration, error), reauth bool
 			ctx.Infof("%v", err)
 			return
 		}
-		client = v23.GetClient(ctx)
+		client := v23.GetClient(ctx)
 		defer client.Close()
 	}
 	sample, err := f(ctx)
