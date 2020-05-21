@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/services/agent"
 	"v.io/x/ref/services/agent/internal/cache"
@@ -28,11 +27,6 @@ const (
 )
 
 // Errors
-var (
-	errInvalidProtocol = verror.Register(pkgPath+".errInvalidProtocol",
-		verror.NoRetry, "{1:}{2:} invalid agent protocol {3}")
-)
-
 type client struct {
 	caller caller
 	key    security.PublicKey
@@ -79,7 +73,9 @@ func results(inputs ...interface{}) []interface{} {
 func newUncachedPrincipalX(path string, timeout time.Duration) (*client, error) {
 	caller := new(ipcCaller)
 	i := ipc.NewIPC()
-	i.Serve(caller)
+	if err := i.Serve(caller); err != nil {
+		return nil, err
+	}
 	conn, err := i.Connect(path, timeout)
 	if err != nil {
 		return nil, err

@@ -57,7 +57,7 @@ func loadPrincipalLocally(credentials string) (agent.Principal, error) {
 	if err := credsLock.Lock(); err != nil {
 		return nil, err
 	}
-	defer credsLock.Unlock()
+	defer credsLock.Unlock() // nolint: errcheck
 	if err := os.MkdirAll(agentDir, 0700); err != nil {
 		return nil, err
 	}

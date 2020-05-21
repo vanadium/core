@@ -143,24 +143,24 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "Get",
 			Doc:  "// Returns a random fortune.",
 			OutArgs: []rpc.ArgDesc{
-				{"fortune", ``}, // string
+				{Name: "fortune", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "Add",
 			Doc:  "// Adds a fortune to the set used by Get().",
 			InArgs: []rpc.ArgDesc{
-				{"fortune", ``}, // string
+				{Name: "fortune", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "Has",
 			Doc:  "// Returns whether or not a fortune exists.",
 			InArgs: []rpc.ArgDesc{
-				{"fortune", ``}, // string
+				{Name: "fortune", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // bool
+				{Name: "", Doc: ``}, // bool
 			},
 		},
 	},

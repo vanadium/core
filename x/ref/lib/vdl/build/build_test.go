@@ -78,7 +78,7 @@ func TestSrcDirsVDLRoot(t *testing.T) {
 		vdlRoot := test.VDLRoot
 		if vdlRoot != "" && vdlRoot != "/noexist" {
 			vdlRoot = filepath.Join(tmpDir, vdlRoot)
-			os.MkdirAll(vdlRoot, os.ModePerm)
+			os.MkdirAll(vdlRoot, os.ModePerm) // nolint: errcheck
 		}
 		setEnvironment(t, vdlRoot, defaultVDLPath)
 		name := fmt.Sprintf("%+v", test)
@@ -505,7 +505,7 @@ func TestPackageConfig(t *testing.T) {
 		{
 			"v.io/x/ref/lib/vdl/testdata/testconfig",
 			vdltool.Config{
-				GenLanguages: map[vdltool.GenLanguage]struct{}{vdltool.GenLanguageGo: struct{}{}},
+				GenLanguages: map[vdltool.GenLanguage]struct{}{vdltool.GenLanguageGo: {}},
 			},
 		},
 	}
@@ -546,7 +546,7 @@ func TestBuildConfig(t *testing.T) {
 		},
 		{
 			`config = x;import "v.io/x/ref/lib/vdl/testdata/base";const x = base.Args{1, 2}`,
-			base.Args{1, 2},
+			base.Args{A: 1, B: 2},
 		},
 	}
 	for _, test := range tests {

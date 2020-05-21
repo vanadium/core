@@ -17,6 +17,7 @@ import (
 // CallAndRecover calls the function f and returns the result of recover().
 // This minimizes the scope of the deferred recover, to ensure f is actually the
 // function that paniced.
+// nolint: unused
 func CallAndRecover(f func()) (result interface{}) {
 	defer func() {
 		result = recover()
@@ -39,6 +40,7 @@ func expectErr(t *testing.T, err error, wantstr string, format string, args ...i
 	return true
 }
 
+// nolint: deadcode, unused
 func expectPanic(t *testing.T, f func(), wantstr string, format string, args ...interface{}) {
 	got := CallAndRecover(f)
 	gotstr := fmt.Sprint(got)
@@ -51,11 +53,13 @@ func expectPanic(t *testing.T, f func(), wantstr string, format string, args ...
 	}
 }
 
+// nolint: deadcode, unused
 func expectMismatchedKind(t *testing.T, f func()) {
 	expectPanic(t, f, "mismatched kind", "")
 }
 
 // Define a bunch of regular Go types used in tests.
+// nolint: deadcode, unused
 type (
 	// Scalars
 	nInterface interface{}
@@ -200,6 +204,7 @@ type (
 	nStructXYZnEmpty struct{ X, Y, Z nEmpty }
 )
 
+// nolint: deadcode, unused
 func recurseSelfType() *vdl.Type {
 	var builder vdl.TypeBuilder
 	n := builder.Named("v.io/v23/vdl.nRecurseSelf")
@@ -212,6 +217,7 @@ func recurseSelfType() *vdl.Type {
 	return t
 }
 
+// nolint: deadcode, unused
 func recurseABTypes() [2]*vdl.Type {
 	var builder vdl.TypeBuilder
 	a := builder.Named("v.io/v23/vdl.nRecurseA")
@@ -230,10 +236,14 @@ func recurseABTypes() [2]*vdl.Type {
 	return [2]*vdl.Type{aT, bT}
 }
 
+// nolint: deadcode, unused
 func recurseAType() *vdl.Type { return recurseABTypes()[0] }
+
+// nolint: deadcode, unused
 func recurseBType() *vdl.Type { return recurseABTypes()[1] }
 
 // Define a bunch of *Type types used in tests.
+// nolint: deadcode, unused, varcheck
 var (
 	// Named scalar types
 	boolTypeN    = vdl.NamedType("nBool", vdl.BoolType)
@@ -322,6 +332,7 @@ var (
 	structXYZEmptyTypeN = vdl.NamedType("nStructXYZEmpty", vdl.StructType(vdl.Field{Name: "X", Type: emptyTypeN}, vdl.Field{Name: "Y", Type: emptyTypeN}, vdl.Field{Name: "Z", Type: emptyTypeN}))
 )
 
+// nolint: deadcode, unused
 func setStringValue(t *vdl.Type, x ...string) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, vx := range x {
@@ -331,11 +342,13 @@ func setStringValue(t *vdl.Type, x ...string) *vdl.Value {
 	return res
 }
 
+// nolint: unused
 type sb struct {
 	s string
 	b bool
 }
 
+// nolint: deadcode, unused
 func mapStringBoolValue(t *vdl.Type, x ...sb) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, sb := range x {
@@ -346,6 +359,7 @@ func mapStringBoolValue(t *vdl.Type, x ...sb) *vdl.Value {
 	return res
 }
 
+// nolint: deadcode, unused
 func mapStringEmptyValue(t *vdl.Type, x ...string) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, vx := range x {
@@ -356,6 +370,7 @@ func mapStringEmptyValue(t *vdl.Type, x ...string) *vdl.Value {
 	return res
 }
 
+// nolint: deadcode, unused
 func structBoolValue(t *vdl.Type, x ...sb) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, sb := range x {
@@ -379,6 +394,7 @@ func assignNum(v *vdl.Value, num float64) *vdl.Value {
 	return v
 }
 
+// nolint: deadcode, unused
 func seqNumValue(t *vdl.Type, x ...float64) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	if t.Kind() == vdl.List {
@@ -390,6 +406,7 @@ func seqNumValue(t *vdl.Type, x ...float64) *vdl.Value {
 	return res
 }
 
+// nolint: deadcode, unused
 func setNumValue(t *vdl.Type, x ...float64) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, n := range x {
@@ -398,11 +415,13 @@ func setNumValue(t *vdl.Type, x ...float64) *vdl.Value {
 	return res
 }
 
+// nolint: unused
 type nb struct {
 	n float64
 	b bool
 }
 
+// nolint: deadcode, unused
 func mapNumBoolValue(t *vdl.Type, x ...nb) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, nb := range x {
@@ -418,6 +437,7 @@ type sn struct {
 	n float64
 }
 
+// nolint: deadcode, unused
 func mapStringNumValue(t *vdl.Type, x ...sn) *vdl.Value {
 	res := vdl.ZeroValue(t)
 	for _, sn := range x {

@@ -5,7 +5,6 @@
 package internal
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -155,7 +154,7 @@ func coerceValues(lhsValue, rhsValue *query_parser.Operand) (*query_parser.Opera
 	}
 	// Must be the same at this point.
 	if lhsValue.Type != rhsValue.Type {
-		return nil, nil, errors.New(fmt.Sprintf("Logic error: expected like types, got: %v, %v", lhsValue, rhsValue))
+		return nil, nil, fmt.Errorf("Logic error: expected like types, got: %v, %v", lhsValue, rhsValue)
 	}
 
 	return lhsValue, rhsValue, nil

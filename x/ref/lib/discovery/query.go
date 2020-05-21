@@ -83,10 +83,10 @@ func (ds *dummyDS) GetIndexFields() []datasource.Index {
 	// Mimic having indices on InterfaceName and Attachments so that we can
 	// get the target ranges on these columns from the query.
 	return []datasource.Index{
-		datasource.Index{FieldName: "v.InterfaceName", Kind: vdl.String},
+		{FieldName: "v.InterfaceName", Kind: vdl.String},
 		// Pretend to be a string type index since no other type is supported.
 		// It's OK to see if attachments are being queried.
-		datasource.Index{FieldName: "v.Attachments", Kind: vdl.String},
+		{FieldName: "v.Attachments", Kind: vdl.String},
 	}
 }
 

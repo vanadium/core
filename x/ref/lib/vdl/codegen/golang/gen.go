@@ -136,6 +136,7 @@ func (data *goData) DeclareTypeOfVars() string {
 	}
 	s := `
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (`
 	for id := 1; id <= len(idToType); id++ {
 		tt := idToType[id]
@@ -508,7 +509,7 @@ func maybeStripArgName(arg string, strip bool) string {
 // argParens takes a list of 0 or more arguments, and adds parens only when
 // necessary; if args contains any commas or spaces, we must add parens.
 func argParens(argList string) string {
-	if strings.IndexAny(argList, ", ") > -1 {
+	if strings.ContainsAny(argList, ", ") {
 		return "(" + argList + ")"
 	}
 	return argList
@@ -896,17 +897,17 @@ var desc{{$iface.Name}} = {{$rpc_}}InterfaceDesc{ {{if $iface.Name}}
 	PkgPath: "{{$iface.File.Package.Path}}",{{end}}{{if $iface.Doc}}
 	Doc: {{quoteStripDoc $iface.Doc}},{{end}}{{if $iface.Embeds}}
 	Embeds: []{{$rpc_}}EmbedDesc{ {{range $embed := $iface.Embeds}}
-		{ "{{$embed.Name}}", "{{$embed.File.Package.Path}}", {{quoteStripDoc $embed.Doc}} },{{end}}
+		{ Name: "{{$embed.Name}}", PkgPath: "{{$embed.File.Package.Path}}", Doc: {{quoteStripDoc $embed.Doc}} },{{end}}
 	},{{end}}{{if $iface.Methods}}
 	Methods: []{{$rpc_}}MethodDesc{ {{range $method := $iface.Methods}}
 		{ {{if $method.Name}}
 			Name: "{{$method.Name}}",{{end}}{{if $method.Doc}}
 			Doc: {{quoteStripDoc $method.Doc}},{{end}}{{if $method.InArgs}}
 			InArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.InArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.OutArgs}}
 			OutArgs: []{{$rpc_}}ArgDesc{ {{range $arg := $method.OutArgs}}
-				{ "{{$arg.Name}}", {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
+				{ Name: "{{$arg.Name}}", Doc: {{quoteStripDoc $arg.Doc}} }, // {{typeGo $data $arg.Type}}{{end}}
 			},{{end}}{{if $method.Tags}}
 			Tags: []*{{$data.Pkg "v.io/v23/vdl"}}Value{ {{range $tag := $method.Tags}}{{genValueOf $data $tag}} ,{{end}} },{{end}}
 		},{{end}}

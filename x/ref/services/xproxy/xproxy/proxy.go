@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -342,6 +342,7 @@ func (p *proxy) dialNextHop(ctx *context.T, f flow.Flow, m *message.Setup) (flow
 func (p *proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	if err := p.authorizeFlow(ctx, f); err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
+			// nolint: errcheck
 			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err
@@ -350,6 +351,7 @@ func (p *proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	eps, err := p.returnEndpointsLocked(ctx, rid, "")
 	if err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
+			// nolint: errcheck
 			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err
@@ -378,6 +380,7 @@ func (p *proxy) replyToProxyLocked(ctx *context.T, f flow.Flow) error {
 	eps, err := p.returnEndpointsLocked(ctx, naming.NullRoutingID, rid.String())
 	if err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
+			// nolint: errcheck
 			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err

@@ -16,11 +16,6 @@ import (
 	"v.io/x/ref/lib/stats"
 )
 
-const (
-	msPerSec = int64(time.Second / time.Millisecond)
-	nsPerMs  = int64(time.Millisecond / time.Nanosecond)
-)
-
 func (d *idiscovery) advertise(ctx *context.T, session sessionId, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
 	if !ad.Id.IsValid() {
 		var err error
@@ -130,7 +125,7 @@ func (d *idiscovery) startAdvertising(ctx *context.T, adinfo *AdInfo) (func(), e
 	}
 
 	stop := func() {
-		stats.Delete(statName)
+		stats.Delete(statName) // nolint: errcheck
 		cancel()
 		wg.Wait()
 	}

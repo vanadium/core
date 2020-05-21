@@ -105,7 +105,7 @@ func RegisteredProtocols() []string {
 	registryLock.RLock()
 	defer registryLock.RUnlock()
 	p := make([]string, 0, len(registry))
-	for k, _ := range registry {
+	for k := range registry {
 		p = append(p, k)
 	}
 	return p

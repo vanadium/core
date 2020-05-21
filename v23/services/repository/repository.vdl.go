@@ -340,18 +340,18 @@ var descApplication = rpc.InterfaceDesc{
 	PkgPath: "v.io/v23/services/repository",
 	Doc:     "// Application provides access to application envelopes. An\n// application envelope is identified by an application name and an\n// application version, which are specified through the object name,\n// and a profile name, which is specified using a method argument.\n//\n// Example:\n// /apps/search/v1.Match([]string{\"base\", \"media\"})\n//   returns an application envelope that can be used for downloading\n//   and executing the \"search\" application, version \"v1\", runnable\n//   on either the \"base\" or \"media\" profile.",
 	Embeds: []rpc.EmbedDesc{
-		{"Object", "v.io/v23/services/permissions", "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
-		{"Tidyable", "v.io/v23/services/tidyable", "// Tidyable specifies that a service can be tidied."},
+		{Name: "Object", PkgPath: "v.io/v23/services/permissions", Doc: "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
+		{Name: "Tidyable", PkgPath: "v.io/v23/services/tidyable", Doc: "// Tidyable specifies that a service can be tidied."},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Match",
 			Doc:  "// Match checks if any of the given profiles contains an application\n// envelope for the given application version (specified through the\n// object name suffix) and if so, returns this envelope. If multiple\n// profile matches are possible, the method returns the first\n// matching profile, respecting the order of the input argument.\n//\n// If the version is not specified in the suffix, the envelope\n// corresponding to the latest version that matches any of the given\n// profiles is returned.  If several profiles match this version, the\n// envelope for the first matching profile is returned, respecting the\n// order of the input argument.",
 			InArgs: []rpc.ArgDesc{
-				{"profiles", ``}, // []string
+				{Name: "profiles", Doc: ``}, // []string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // application.Envelope
+				{Name: "", Doc: ``}, // application.Envelope
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -907,15 +907,15 @@ var descBinary = rpc.InterfaceDesc{
 	PkgPath: "v.io/v23/services/repository",
 	Doc:     "// Binary can be used to store and retrieve vanadium application\n// binaries.\n//\n// To create a binary, clients first invoke the Create() method that\n// specifies the number of parts the binary consists of. Clients then\n// uploads the individual parts through the Upload() method, which\n// identifies the part being uploaded. To resume an upload after a\n// failure, clients invoke the UploadStatus() method, which returns a\n// slice that identifies which parts are missing.\n//\n// To download a binary, clients first invoke Stat(), which returns\n// information describing the binary, including the number of parts\n// the binary consists of. Clients then download the individual parts\n// through the Download() method, which identifies the part being\n// downloaded. Alternatively, clients can download the binary through\n// HTTP using a transient URL available through the DownloadUrl()\n// method.\n//\n// To delete the binary, clients invoke the Delete() method.",
 	Embeds: []rpc.EmbedDesc{
-		{"Object", "v.io/v23/services/permissions", "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
+		{Name: "Object", PkgPath: "v.io/v23/services/permissions", Doc: "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Create",
 			Doc:  "// Create expresses the intent to create a binary identified by the\n// object name suffix consisting of the given number of parts. The\n// mediaInfo argument contains metadata for the binary. If the suffix\n// identifies a binary that has already been created, the method\n// returns an error.",
 			InArgs: []rpc.ArgDesc{
-				{"nparts", ``},    // int32
-				{"mediaInfo", ``}, // MediaInfo
+				{Name: "nparts", Doc: ``},    // int32
+				{Name: "mediaInfo", Doc: ``}, // MediaInfo
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -928,7 +928,7 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Download",
 			Doc:  "// Download opens a stream that can used for downloading the given\n// part of the binary identified by the object name suffix. If the\n// binary part has not been uploaded, the method returns an\n// error. If the Delete() method is invoked when the Download()\n// method is in progress, the outcome the Download() method is\n// undefined.",
 			InArgs: []rpc.ArgDesc{
-				{"part", ``}, // int32
+				{Name: "part", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -936,8 +936,8 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "DownloadUrl",
 			Doc:  "// DownloadUrl returns a transient URL from which the binary\n// identified by the object name suffix can be downloaded using the\n// HTTP protocol. If not all parts of the binary have been uploaded,\n// the method returns an error.",
 			OutArgs: []rpc.ArgDesc{
-				{"url", ``}, // string
-				{"ttl", ``}, // int64
+				{Name: "url", Doc: ``}, // string
+				{Name: "ttl", Doc: ``}, // int64
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -945,8 +945,8 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Stat",
 			Doc:  "// Stat returns information describing the parts of the binary\n// identified by the object name suffix, and its RFC 2046 media type.\n// If the binary has not been created, the method returns an error.",
 			OutArgs: []rpc.ArgDesc{
-				{"Parts", ``},     // []binary.PartInfo
-				{"MediaInfo", ``}, // MediaInfo
+				{Name: "Parts", Doc: ``},     // []binary.PartInfo
+				{Name: "MediaInfo", Doc: ``}, // MediaInfo
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -954,7 +954,7 @@ var descBinary = rpc.InterfaceDesc{
 			Name: "Upload",
 			Doc:  "// Upload opens a stream that can be used for uploading the given\n// part of the binary identified by the object name suffix. If the\n// binary has not been created, the method returns an error. If the\n// binary part has been uploaded, the method returns an error. If\n// the same binary part is being uploaded by another caller, the\n// method returns an error.",
 			InArgs: []rpc.ArgDesc{
-				{"part", ``}, // int32
+				{Name: "part", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1191,7 +1191,7 @@ var descProfile = rpc.InterfaceDesc{
 			Name: "Label",
 			Doc:  "// Label is the human-readable profile key for the profile,\n// e.g. \"linux-media\". The label can be used to uniquely identify\n// the profile (for the purpose of matching application binaries and\n// devices).",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -1199,7 +1199,7 @@ var descProfile = rpc.InterfaceDesc{
 			Name: "Description",
 			Doc:  "// Description is a free-text description of the profile, meant for\n// human consumption.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -1207,6 +1207,7 @@ var descProfile = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 )

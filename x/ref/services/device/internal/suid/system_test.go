@@ -52,7 +52,7 @@ func TestChown(t *testing.T) {
 	pb := bytes.TrimSpace(bytes.Replace(b.Bytes(), []byte(dir), []byte("$PATH"), -1))
 
 	cmds := bytes.Split(pb, []byte{'\n'})
-	for i, _ := range cmds {
+	for i := range cmds {
 		cmds[i] = bytes.TrimSpace(cmds[i])
 	}
 
@@ -66,7 +66,7 @@ func TestChown(t *testing.T) {
 	if got, expected := len(cmds), len(expected); got != expected {
 		t.Fatalf("bad length. got: %d, expected %d", got, expected)
 	}
-	for i, _ := range expected {
+	for i := range expected {
 		if expected, got := expected[i], string(cmds[i]); expected != got {
 			t.Fatalf("wp.Chown output %d: got %v, expected %v", i, got, expected)
 		}

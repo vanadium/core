@@ -614,10 +614,10 @@ var descDirectory = rpc.InterfaceDesc{
 			Name: "Lookup",
 			Doc:  "// Lookup returns the advertisement of the given service instance.\n//\n// The returned advertisement may not include all attachments.",
 			InArgs: []rpc.ArgDesc{
-				{"id", ``}, // discovery.AdId
+				{Name: "id", Doc: ``}, // discovery.AdId
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // AdInfo
+				{Name: "", Doc: ``}, // AdInfo
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -625,11 +625,11 @@ var descDirectory = rpc.InterfaceDesc{
 			Name: "GetAttachment",
 			Doc:  "// GetAttachment returns the named attachment. Accessing non-existent attachment\n// is not an error - nil data is returned if not found.\n//\n// TODO(jhahn): Consider to return an error if not found.",
 			InArgs: []rpc.ArgDesc{
-				{"id", ``},   // discovery.AdId
-				{"name", ``}, // string
+				{Name: "id", Doc: ``},   // discovery.AdId
+				{Name: "name", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -637,6 +637,7 @@ var descDirectory = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_list_1   *vdl.Type
 	__VDLType_int32_2  *vdl.Type

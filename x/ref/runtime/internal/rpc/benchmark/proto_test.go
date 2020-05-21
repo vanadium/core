@@ -13,8 +13,9 @@
 package benchmark
 
 import (
-	"github.com/golang/protobuf/proto"
 	"testing"
+
+	"github.com/golang/protobuf/proto"
 )
 
 var echoStr = "Echo"
@@ -56,7 +57,9 @@ var protoResp = &RpcResponse{
 
 func BenchmarkProtoEncodeRequest(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		proto.Marshal(protoReq)
+		if _, err := proto.Marshal(protoReq); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -69,13 +72,17 @@ func BenchmarkProtoDecodeRequest(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		response := RpcResponse{}
-		proto.Unmarshal(bytes, &response)
+		if err := proto.Unmarshal(bytes, &response); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
 func BenchmarkProtoEncodeResponse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		proto.Marshal(protoResp)
+		if _, err := proto.Marshal(protoResp); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -88,6 +95,8 @@ func BenchmarkProtoDecodeResponse(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		response := RpcResponse{}
-		proto.Unmarshal(bytes, &response)
+		if err := proto.Unmarshal(bytes, &response); err != nil {
+			b.Fatal(err)
+		}
 	}
 }

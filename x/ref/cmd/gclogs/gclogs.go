@@ -57,7 +57,7 @@ func main() {
 
 func garbageCollectLogs(env *cmdline.Env, args []string) error {
 	if len(args) == 0 {
-		env.UsageErrorf("gclogs requires at least one argument")
+		return env.UsageErrorf("gclogs requires at least one argument")
 	}
 	timeCutoff := time.Now().Add(-flagCutoff)
 	currentUser, err := user.Current()

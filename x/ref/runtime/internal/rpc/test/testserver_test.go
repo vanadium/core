@@ -186,7 +186,6 @@ func (g granter) Grant(ctx *context.T, call security.Call) (security.Blessings, 
 // dischargeTestServer implements the discharge service. Always fails to
 // issue a discharge, but records the impetus and traceid of the RPC call.
 type dischargeTestServer struct {
-	p       security.Principal
 	impetus []security.DischargeImpetus
 	traceid []uniqueid.Id
 }
@@ -203,6 +202,7 @@ func (s *dischargeTestServer) Release() ([]security.DischargeImpetus, []uniqueid
 	return impetus, traceid
 }
 
+// nolint: deadcode, unused
 type streamRecvInGoroutineServer struct{ c chan error }
 
 func (s *streamRecvInGoroutineServer) RecvInGoroutine(_ *context.T, call rpc.StreamServerCall) error {

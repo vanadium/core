@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
@@ -97,8 +97,12 @@ func TestClientServerBlessings(t *testing.T) {
 		betaServer  = mkBlessings(rootBeta.NewBlessings(pserver, "server"))
 	)
 	// Setup the client's blessing store
-	pclient.BlessingStore().Set(alphaClient, "alpha:server")
-	pclient.BlessingStore().Set(betaClient, "beta")
+	if _, err := pclient.BlessingStore().Set(alphaClient, "alpha:server"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pclient.BlessingStore().Set(betaClient, "beta"); err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		server security.Blessings // Blessings presented by the server.
@@ -276,7 +280,7 @@ func TestServerDischarges(t *testing.T) {
 	wantServer := []string{"root:server"}
 	var gotClient []string
 	// This opt ensures that if the Blessings do not match the pattern, StartCall will fail.
-	allowedServers := options.ServerAuthorizer{access.AccessList{In: []security.BlessingPattern{"root:server"}}}
+	allowedServers := options.ServerAuthorizer{Authorizer: access.AccessList{In: []security.BlessingPattern{"root:server"}}}
 
 	// Create a new client.
 	clientCtx, client, err := v23.WithNewClient(clientCtx)
@@ -332,6 +336,6 @@ func TestServerDischarges(t *testing.T) {
 	if err == nil {
 		remote, _ := call.RemoteBlessings()
 		t.Errorf("client.StartCall passed unexpectedly with remote end authenticated as: %v", remote)
-		call.Finish()
+		call.Finish() // nolint: errcheck
 	}
 }

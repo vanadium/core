@@ -41,7 +41,7 @@ type namespaceMock struct {
 func (ns *namespaceMock) Mount(ctx *context.T, name, server string, _ time.Duration, opts ...naming.NamespaceOpt) error {
 	ns.Lock()
 	defer ns.Unlock()
-	for n, _ := range ns.mounts {
+	for n := range ns.mounts {
 		if n != name && (strings.HasPrefix(name, n) || strings.HasPrefix(n, name)) {
 			return fmt.Errorf("simple mount table does not allow names that are a prefix of each other")
 		}

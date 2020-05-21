@@ -35,16 +35,16 @@ func TestLsCommand(t *testing.T) {
 	appName := naming.JoinAddressName(endpoint.String(), "app")
 	rootTape := tapes.ForSuffix("")
 	cannedGlobResponses := [][]string{
-		[]string{"app/3", "app/4", "app/6", "app/5"},
-		[]string{"app/2", "app/1"},
+		{"app/3", "app/4", "app/6", "app/5"},
+		{"app/2", "app/1"},
 	}
 	cannedStatusResponses := map[string][]interface{}{
-		"app/1": []interface{}{instanceRunning},
-		"app/2": []interface{}{installationUninstalled},
-		"app/3": []interface{}{instanceUpdating},
-		"app/4": []interface{}{installationActive},
-		"app/5": []interface{}{instanceNotRunning},
-		"app/6": []interface{}{installationActive},
+		"app/1": {instanceRunning},
+		"app/2": {installationUninstalled},
+		"app/3": {instanceUpdating},
+		"app/4": {installationActive},
+		"app/5": {instanceNotRunning},
+		"app/6": {installationActive},
 	}
 	for _, c := range []struct {
 		globResponses   [][]string
@@ -104,14 +104,14 @@ func TestLsCommand(t *testing.T) {
 		},
 		{
 			[][]string{
-				[]string{"app/1", "app/2"},
-				[]string{"app/2", "app/3"},
-				[]string{"app/2", "app/3"},
+				{"app/1", "app/2"},
+				{"app/2", "app/3"},
+				{"app/2", "app/3"},
 			},
 			map[string][]interface{}{
-				"app/1": []interface{}{instanceRunning},
-				"app/2": []interface{}{installationUninstalled, installationUninstalled},
-				"app/3": []interface{}{instanceUpdating},
+				"app/1": {instanceRunning},
+				"app/2": {installationUninstalled, installationUninstalled},
+				"app/3": {instanceUpdating},
 			},
 			[]string{},
 			[]string{"glob1", "glob2"},
@@ -119,14 +119,14 @@ func TestLsCommand(t *testing.T) {
 		},
 		{
 			[][]string{
-				[]string{"app/1", "app/2"},
-				[]string{"app/2", "app/3"},
-				[]string{"app/2", "app/3"},
+				{"app/1", "app/2"},
+				{"app/2", "app/3"},
+				{"app/2", "app/3"},
 			},
 			map[string][]interface{}{
-				"app/1": []interface{}{instanceRunning},
-				"app/2": []interface{}{installationUninstalled, installationUninstalled, installationUninstalled},
-				"app/3": []interface{}{instanceUpdating, instanceUpdating},
+				"app/1": {instanceRunning},
+				"app/2": {installationUninstalled, installationUninstalled, installationUninstalled},
+				"app/3": {instanceUpdating, instanceUpdating},
 			},
 			[]string{"--only-installations"},
 			[]string{"glob1", "glob2", "glob3"},

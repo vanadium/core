@@ -24,8 +24,8 @@ func TestEnvelopeJSON(t *testing.T) {
 		Publisher: newBlessing(t, "publisher"),
 		Env:       []string{"NAME=value"},
 		Packages: map[string]SignedFile{
-			"pkg1": SignedFile{File: "pkg1.data"},
-			"pkg2": SignedFile{File: "pkg2.config"},
+			"pkg1": {File: "pkg1.data"},
+			"pkg2": {File: "pkg2.config"},
 		},
 		Restarts:          2,
 		RestartTimeWindow: time.Second,

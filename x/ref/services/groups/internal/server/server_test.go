@@ -33,11 +33,6 @@ const (
 	memstore backend = iota
 )
 
-func Fatal(t *testing.T, args ...interface{}) {
-	debug.PrintStack()
-	t.Fatal(args...)
-}
-
 func Fatalf(t *testing.T, format string, args ...interface{}) {
 	debug.PrintStack()
 	t.Fatalf(format, args...)

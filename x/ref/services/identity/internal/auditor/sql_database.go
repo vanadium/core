@@ -52,7 +52,6 @@ func newSQLDatabase(ctx *context.T, db *sql.DB, table string) (database, error) 
 // (4) Timestamp = time that the blessing happened.
 type sqlDatabase struct {
 	insertStmt, queryStmt *sql.Stmt
-	ctx                   *context.T
 }
 
 func (s sqlDatabase) Insert(ctx *context.T, entry databaseEntry) error {

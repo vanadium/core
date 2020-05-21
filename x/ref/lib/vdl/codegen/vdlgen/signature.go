@@ -43,7 +43,7 @@ func (x *NamedTypes) Add(t *vdl.Type) {
 // Print pretty-prints x to w.
 func (x NamedTypes) Print(w io.Writer) {
 	var sorted typesByPkgAndName
-	for t, _ := range x.types {
+	for t := range x.types {
 		sorted = append(sorted, t)
 	}
 	sort.Sort(sorted)

@@ -118,17 +118,17 @@ func TestPersistence(t *testing.T) {
 		t.Fatalf("SetVotedFor: %s", err)
 	}
 	cmds1 := []LogEntry{
-		LogEntry{Term: 2, Index: 1, Cmd: []byte("cmd1")},
-		LogEntry{Term: 2, Index: 2, Cmd: []byte("cmd2")},
-		LogEntry{Term: 2, Index: 3, Cmd: []byte("cmd3")},
+		{Term: 2, Index: 1, Cmd: []byte("cmd1")},
+		{Term: 2, Index: 2, Cmd: []byte("cmd2")},
+		{Term: 2, Index: 3, Cmd: []byte("cmd3")},
 	}
 	if err := r.p.AppendToLog(ctx, 0, 0, cmds1); err != nil {
 		t.Fatalf("AppendToLog: %s", err)
 	}
 	cmds2 := []LogEntry{
-		LogEntry{Term: 3, Index: 4, Cmd: []byte("cmd4")},
-		LogEntry{Term: 3, Index: 5, Cmd: []byte("cmd5")},
-		LogEntry{Term: 3, Index: 6, Cmd: []byte("cmd6")},
+		{Term: 3, Index: 4, Cmd: []byte("cmd4")},
+		{Term: 3, Index: 5, Cmd: []byte("cmd5")},
+		{Term: 3, Index: 6, Cmd: []byte("cmd6")},
 	}
 	if err := r.p.AppendToLog(ctx, 2, 3, cmds2); err != nil {
 		t.Fatalf("AppendToLog: %s", err)
@@ -154,24 +154,24 @@ func TestPersistence(t *testing.T) {
 		t.Fatalf("CurrentTerm: expected %s got %s", "whocares", r.p.VotedFor())
 	}
 	test := []LogEntry{
-		LogEntry{Term: 2, Index: 1, Cmd: []byte("cmd1")},
-		LogEntry{Term: 2, Index: 2, Cmd: []byte("cmd2")},
-		LogEntry{Term: 2, Index: 3, Cmd: []byte("cmd3")},
-		LogEntry{Term: 3, Index: 4, Cmd: []byte("cmd4")},
-		LogEntry{Term: 3, Index: 5, Cmd: []byte("cmd5")},
-		LogEntry{Term: 3, Index: 6, Cmd: []byte("cmd6")},
+		{Term: 2, Index: 1, Cmd: []byte("cmd1")},
+		{Term: 2, Index: 2, Cmd: []byte("cmd2")},
+		{Term: 2, Index: 3, Cmd: []byte("cmd3")},
+		{Term: 3, Index: 4, Cmd: []byte("cmd4")},
+		{Term: 3, Index: 5, Cmd: []byte("cmd5")},
+		{Term: 3, Index: 6, Cmd: []byte("cmd6")},
 	}
 	compareLogs(t, r.p, test, "after reopen")
 
 	// Truncate the log by rewriting an index.
-	if err := r.p.AppendToLog(ctx, 2, 3, []LogEntry{LogEntry{Term: 4, Index: 4, Cmd: []byte("cmd7")}}); err != nil {
+	if err := r.p.AppendToLog(ctx, 2, 3, []LogEntry{{Term: 4, Index: 4, Cmd: []byte("cmd7")}}); err != nil {
 		t.Fatalf("AppendToLog: %s", err)
 	}
 	test2 := []LogEntry{
-		LogEntry{Term: 2, Index: 1, Cmd: []byte("cmd1")},
-		LogEntry{Term: 2, Index: 2, Cmd: []byte("cmd2")},
-		LogEntry{Term: 2, Index: 3, Cmd: []byte("cmd3")},
-		LogEntry{Term: 4, Index: 4, Cmd: []byte("cmd7")},
+		{Term: 2, Index: 1, Cmd: []byte("cmd1")},
+		{Term: 2, Index: 2, Cmd: []byte("cmd2")},
+		{Term: 2, Index: 3, Cmd: []byte("cmd3")},
+		{Term: 4, Index: 4, Cmd: []byte("cmd7")},
 	}
 	compareLogs(t, r.p, test2, "after truncate")
 	vlog.Infof("stopping %s", r.Id())
@@ -213,7 +213,7 @@ func waitForLeadership(r *raft, timeout time.Duration) bool {
 		if role == RoleLeader {
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			return false
 		}
 		time.Sleep(10 * time.Millisecond)

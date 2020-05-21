@@ -483,10 +483,10 @@ var descStress = rpc.InterfaceDesc{
 			Name: "Echo",
 			Doc:  "// Echo returns the payload that it receives.",
 			InArgs: []rpc.ArgDesc{
-				{"Payload", ``}, // []byte
+				{Name: "Payload", Doc: ``}, // []byte
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -494,10 +494,10 @@ var descStress = rpc.InterfaceDesc{
 			Name: "Sum",
 			Doc:  "// Do returns the checksum of the payload that it receives.",
 			InArgs: []rpc.ArgDesc{
-				{"arg", ``}, // SumArg
+				{Name: "arg", Doc: ``}, // SumArg
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -510,7 +510,7 @@ var descStress = rpc.InterfaceDesc{
 			Name: "GetSumStats",
 			Doc:  "// GetSumStats returns the stats on the Sum calls that the server received.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // SumStats
+				{Name: "", Doc: ``}, // SumStats
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -608,6 +608,7 @@ func (s implStressSumStreamServerCallSend) Send(item []byte) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_list_2   *vdl.Type

@@ -48,6 +48,7 @@ func TestType(t *testing.T) {
 }
 
 // TODO(bprosnitz) Disabled because frustrating while making changes. Either re-enable and fix output or re-write this test.
+// nolint: deadcode, unused
 func disabledTestTypeDef(t *testing.T) {
 	testingMode = true
 	tests := []struct {

@@ -10,7 +10,7 @@ import (
 	"io"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/naming"
@@ -36,6 +36,7 @@ var (
 	// intended to be run by java/android applications using Vango.run(key).
 	// Users must add function entries to this map and rebuild lib/android-lib in
 	// the vanadium java repository.
+	// nolint: deadcode, unused, varcheck
 	vangoFuncs = map[string]func(*context.T, io.Writer) error{
 		"tcp-client":  tcpClientFunc,
 		"tcp-server":  tcpServerFunc,
@@ -152,7 +153,7 @@ func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
 
 	for _, u := range updates[1:] {
 		go func(up updateState) {
-			for _ = range up.ch {
+			for range up.ch {
 			}
 		}(u)
 	}
@@ -267,7 +268,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 		statRequest <- r
 		return <-r
 	})
-	defer stats.Delete(vangoStat)
+	defer stats.Delete(vangoStat) // nolint: errcheck
 	fmt.Fprintln(output, "My AdID:", ad.Id)
 	fmt.Fprintln(output, "My addrs:", myaddrs)
 	ctx.Infof("SERVER STATUS: %+v", status)

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -40,8 +40,8 @@ var (
 	flagShallowResolve bool
 	flagJSON           bool
 	insecureOpts       = []rpc.CallOpt{
-		options.ServerAuthorizer{security.AllowEveryone()},
-		options.NameResolutionAuthorizer{security.AllowEveryone()},
+		options.ServerAuthorizer{Authorizer: security.AllowEveryone()},
+		options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()},
 	}
 )
 
@@ -167,7 +167,7 @@ func rpcOpts(ctx *context.T, server string) ([]rpc.CallOpt, error) {
 		if err != nil {
 			return nil, err
 		}
-		opts = append(opts, options.Preresolved{me})
+		opts = append(opts, options.Preresolved{Resolution: me})
 	}
 	return opts, nil
 }

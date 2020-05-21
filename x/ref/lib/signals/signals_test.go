@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/lib/gosh"
@@ -302,6 +302,7 @@ func TestParseSignalsList(t *testing.T) {
 	}
 }
 
+// nolint: deadcode, unused
 type configServer struct {
 	ch chan<- string
 }

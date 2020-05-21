@@ -74,15 +74,15 @@ func init() {
 func TestFunctions(t *testing.T) {
 	tests := []functionsTest{
 		// Time
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Time",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2006-01-02 MST",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2015-06-21 PDT",
 					},
@@ -95,11 +95,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2006-01-02 MST",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2015-06-21 PDT",
 				},
@@ -110,15 +110,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Time
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Time",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2006-01-02 15:04:05 MST",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2015-06-21 01:23:45 PDT",
 					},
@@ -131,11 +131,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2006-01-02 15:04:05 MST",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2015-06-21 01:23:45 PDT",
 				},
@@ -146,15 +146,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Year
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Year",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -168,11 +168,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -183,15 +183,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Month
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Month",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -205,11 +205,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -220,15 +220,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Day
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Day",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -242,11 +242,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -257,15 +257,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Hour
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Hour",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -279,11 +279,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -294,15 +294,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Minute
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Minute",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -316,11 +316,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -331,15 +331,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Second
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Second",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -353,11 +353,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -368,15 +368,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Nanosecond
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Nanosecond",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -390,11 +390,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -405,15 +405,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Weekday
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Weekday",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -427,11 +427,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -442,15 +442,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// YearDay
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "YearDay",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypTime,
 						Time: t_2015_06_09_01_23_45_8327,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "America/Los_Angeles",
 					},
@@ -464,11 +464,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypTime,
 					Time: t_2015_06_09_01_23_45_8327,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "America/Los_Angeles",
 				},
@@ -479,11 +479,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Atoi
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Atoi",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "12345",
 					},
@@ -496,7 +496,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "12345",
 				},
@@ -507,11 +507,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Atof
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Atof",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "1234.5",
 					},
@@ -524,7 +524,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "1234.5",
 				},
@@ -535,11 +535,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Lowercase
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Lowercase",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
@@ -552,7 +552,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
@@ -563,11 +563,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// HtmlEscape
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "HtmlEscape",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "<a>FooBar</a>",
 					},
@@ -580,7 +580,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "<a>FooBar</a>",
 				},
@@ -591,11 +591,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// HtmlUnescape
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "HtmlUnescape",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "&lt;a&gt;FooBar&lt;/a&gt;",
 					},
@@ -608,7 +608,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "&lt;a&gt;FooBar&lt;/a&gt;",
 				},
@@ -619,11 +619,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Uppercase
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Uppercase",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
@@ -636,7 +636,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
@@ -647,15 +647,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Split
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Split",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "alpha.bravo.charlie.delta.echo",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  ".",
 					},
@@ -669,11 +669,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "alpha.bravo.charlie.delta.echo",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  ".",
 				},
@@ -684,11 +684,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Len (of list)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Len",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:   query_parser.TypObject,
 						Object: vdl.ValueOf([]string{"alpha", "bravo"}),
 					},
@@ -701,7 +701,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:   query_parser.TypObject,
 					Object: vdl.ValueOf([]string{"alpha", "bravo"}),
 				},
@@ -712,11 +712,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Len (of nil)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Len",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypNil,
 					},
 				},
@@ -728,7 +728,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypNil,
 				},
 			},
@@ -738,11 +738,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Len (of string)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Len",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "foo",
 					},
@@ -755,7 +755,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "foo",
 				},
@@ -766,11 +766,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Len (of map)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Len",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:   query_parser.TypObject,
 						Object: vdl.ValueOf(map[string]string{"alpha": "ALPHA", "bravo": "BRAVO"}),
 					},
@@ -783,7 +783,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:   query_parser.TypObject,
 					Object: vdl.ValueOf(map[string]string{"alpha": "ALPHA", "bravo": "BRAVO"}),
 				},
@@ -794,19 +794,19 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Sprintf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Sprintf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "abc%sghi%s",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "def",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "jkl",
 					},
@@ -821,15 +821,15 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "abc%sghi%s",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "def",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "jkl",
 				},
@@ -840,15 +840,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Sprintf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Sprintf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "The meaning of life is %d.",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  42,
 					},
@@ -862,11 +862,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "The meaning of life is %d.",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  42,
 				},
@@ -877,11 +877,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Sprintf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Sprintf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "foo",
 					},
@@ -894,7 +894,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "foo",
 				},
@@ -905,15 +905,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrCat (2 args)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrCat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Bar",
 					},
@@ -927,11 +927,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Bar",
 				},
@@ -942,19 +942,19 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrCat (3 args)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrCat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  ",",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Bar",
 					},
@@ -969,15 +969,15 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  ",",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Bar",
 				},
@@ -988,31 +988,31 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrCat (5 args)
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrCat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "[",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "]",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "[",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Bar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "]",
 					},
@@ -1026,27 +1026,27 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "[",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "]",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "[",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Bar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "]",
 				},
@@ -1057,15 +1057,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrIndex
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrIndex",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Bar",
 					},
@@ -1079,11 +1079,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Bar",
 				},
@@ -1094,15 +1094,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrIndex
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrIndex",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Baz",
 					},
@@ -1116,11 +1116,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Baz",
 				},
@@ -1131,15 +1131,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrLastIndex
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrLastIndex",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBarBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Bar",
 					},
@@ -1153,11 +1153,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBarBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Bar",
 				},
@@ -1168,15 +1168,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrLastIndex
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrLastIndex",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Baz",
 					},
@@ -1190,11 +1190,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Baz",
 				},
@@ -1205,15 +1205,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrRepeat
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrRepeat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  2,
 					},
@@ -1227,11 +1227,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  2,
 				},
@@ -1242,15 +1242,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrRepeat
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrRepeat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  0,
 					},
@@ -1264,11 +1264,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  0,
 				},
@@ -1279,15 +1279,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrRepeat
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrRepeat",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  -1,
 					},
@@ -1301,11 +1301,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  -1,
 				},
@@ -1316,19 +1316,19 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrReplace
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrReplace",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "B",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "ZZZ",
 					},
@@ -1343,15 +1343,15 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "B",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "ZZZ",
 				},
@@ -1362,19 +1362,19 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// StrReplace
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "StrReplace",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "FooBar",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "X",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "ZZZ",
 					},
@@ -1389,15 +1389,15 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "FooBar",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "X",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "ZZZ",
 				},
@@ -1408,11 +1408,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Trim
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Trim",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "     Foo  ",
 					},
@@ -1425,7 +1425,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "     Foo  ",
 				},
@@ -1436,11 +1436,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Trim
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Trim",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
@@ -1453,7 +1453,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
@@ -1464,11 +1464,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// TrimLeft
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "TrimLeft",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "     Foo  ",
 					},
@@ -1481,7 +1481,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "     Foo  ",
 				},
@@ -1492,11 +1492,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// TrimLeft
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "TrimLeft",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
@@ -1509,7 +1509,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
@@ -1520,11 +1520,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// TrimRight
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "TrimRight",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "     Foo  ",
 					},
@@ -1537,7 +1537,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "     Foo  ",
 				},
@@ -1548,11 +1548,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// TrimLeft
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "TrimLeft",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Foo",
 					},
@@ -1565,7 +1565,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Foo",
 				},
@@ -1576,11 +1576,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Ceiling
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Ceiling",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 123.567,
 					},
@@ -1593,7 +1593,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 123.567,
 				},
@@ -1604,11 +1604,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Ceiling
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Ceiling",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: -123.567,
 					},
@@ -1621,7 +1621,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: -123.567,
 				},
@@ -1632,11 +1632,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Floor
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Floor",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 123.567,
 					},
@@ -1649,7 +1649,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 123.567,
 				},
@@ -1660,11 +1660,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Floor
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Floor",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: -123.567,
 					},
@@ -1677,7 +1677,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: -123.567,
 				},
@@ -1688,11 +1688,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Truncate
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Truncate",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 123.567,
 					},
@@ -1705,7 +1705,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 123.567,
 				},
@@ -1716,11 +1716,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Truncate
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Truncate",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: -123.567,
 					},
@@ -1733,7 +1733,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: -123.567,
 				},
@@ -1744,11 +1744,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// IsNaN
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "IsNaN",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: math.NaN(),
 					},
@@ -1761,7 +1761,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: math.NaN(),
 				},
@@ -1772,11 +1772,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// IsNaN
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "IsNaN",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 123.456,
 					},
@@ -1789,7 +1789,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 123.456,
 				},
@@ -1800,15 +1800,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// IsInf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "IsInf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: math.Inf(1),
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  1,
 					},
@@ -1822,11 +1822,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: math.Inf(1),
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  1,
 				},
@@ -1837,15 +1837,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// IsInf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "IsInf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: math.Inf(-1),
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  -1,
 					},
@@ -1859,11 +1859,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: math.Inf(-1),
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  -1,
 				},
@@ -1874,15 +1874,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// IsInf
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "IsInf",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 123.456,
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  0,
 					},
@@ -1896,11 +1896,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 123.456,
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  0,
 				},
@@ -1911,11 +1911,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Log
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Log",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 10.5,
 					},
@@ -1928,7 +1928,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 10.5,
 				},
@@ -1939,11 +1939,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Log10
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Log10",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 10.5,
 					},
@@ -1956,7 +1956,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 10.5,
 				},
@@ -1967,15 +1967,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Pow
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Pow",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 10.0,
 					},
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 2.0,
 					},
@@ -1989,11 +1989,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 10.0,
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 2.0,
 				},
@@ -2004,11 +2004,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Pow10
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Pow10",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypInt,
 						Int:  3,
 					},
@@ -2021,7 +2021,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypInt,
 					Int:  3,
 				},
@@ -2032,15 +2032,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Mod
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Mod",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 10.5,
 					},
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 3.2,
 					},
@@ -2054,11 +2054,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 10.5,
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 3.2,
 				},
@@ -2069,15 +2069,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Mod
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Mod",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: -10.5,
 					},
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 3.2,
 					},
@@ -2091,11 +2091,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: -10.5,
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 3.2,
 				},
@@ -2106,15 +2106,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Remainder
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Remainder",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 10.5,
 					},
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 3.2,
 					},
@@ -2128,11 +2128,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 10.5,
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 3.2,
 				},
@@ -2143,15 +2143,15 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Remainder
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Remainder",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: -10.5,
 					},
-					&query_parser.Operand{
+					{
 						Type:  query_parser.TypFloat,
 						Float: 3.2,
 					},
@@ -2165,11 +2165,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: -10.5,
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypFloat,
 					Float: 3.2,
 				},
@@ -2180,11 +2180,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// RuneCount
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "RuneCount",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Hello, 世界",
 					},
@@ -2197,7 +2197,7 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Hello, 世界",
 				},
@@ -2208,11 +2208,11 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		// Len
-		functionsTest{
+		{
 			&query_parser.Function{
 				Name: "Len",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "Hello, 世界",
 					},
@@ -2225,11 +2225,11 @@ func TestFunctions(t *testing.T) {
 				RetValue: nil,
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "Hello, 世界",
 				},
-				&query_parser.Operand{
+				{
 					Type:  query_parser.TypInt,
 					Float: 13,
 				},
@@ -2255,15 +2255,15 @@ func TestFunctions(t *testing.T) {
 func TestErrorFunctions(t *testing.T) {
 	tests := []functionsErrorTest{
 		// time
-		functionsErrorTest{
+		{
 			&query_parser.Function{
 				Name: "time",
 				Args: []*query_parser.Operand{
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2006-01-02 MST",
 					},
-					&query_parser.Operand{
+					{
 						Type: query_parser.TypStr,
 						Str:  "2015-06-21 PDT",
 					},
@@ -2277,11 +2277,11 @@ func TestErrorFunctions(t *testing.T) {
 				Node:     query_parser.Node{Off: 42},
 			},
 			[]*query_parser.Operand{
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2006-01-02 MST",
 				},
-				&query_parser.Operand{
+				{
 					Type: query_parser.TypStr,
 					Str:  "2015-06-21 PDT",
 				},

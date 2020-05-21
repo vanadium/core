@@ -124,7 +124,7 @@ func BenchmarkNow(b *testing.B) {
 
 func BenchmarkSprintf(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		fmt.Sprintf("%d %d %d", i, i, i)
+		fmt.Sprintf("%d %d %d", i, i, i) // nolint: govet
 	}
 }
 
@@ -144,7 +144,7 @@ func BenchmarkCopy_1M(b *testing.B)  { benchmarkCopy(b, 1<<20) }
 
 func benchmarkAlloc(b *testing.B, size int) {
 	for i := 0; i < b.N; i++ {
-		_ = make([]byte, size, size)
+		_ = make([]byte, size)
 	}
 }
 
@@ -292,5 +292,7 @@ func BenchmarkRoundtripUnix(b *testing.B) {
 }
 
 func BenchmarkRoundtripTCP_C(b *testing.B) {
-	cRoundTrip(b)
+	if err := cRoundTrip(b); err != nil {
+		b.Fatal(err)
+	}
 }

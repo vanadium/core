@@ -28,14 +28,14 @@ const (
 )
 
 var typemap = map[string]repository.MediaInfo{
-	".zip":     repository.MediaInfo{Type: "application/zip"},
-	".tar":     repository.MediaInfo{Type: "application/x-tar"},
-	".tgz":     repository.MediaInfo{Type: "application/x-tar", Encoding: "gzip"},
-	".tar.gz":  repository.MediaInfo{Type: "application/x-tar", Encoding: "gzip"},
-	".tbz2":    repository.MediaInfo{Type: "application/x-tar", Encoding: "bzip2"},
-	".tb2":     repository.MediaInfo{Type: "application/x-tar", Encoding: "bzip2"},
-	".tbz":     repository.MediaInfo{Type: "application/x-tar", Encoding: "bzip2"},
-	".tar.bz2": repository.MediaInfo{Type: "application/x-tar", Encoding: "bzip2"},
+	".zip":     {Type: "application/zip"},
+	".tar":     {Type: "application/x-tar"},
+	".tgz":     {Type: "application/x-tar", Encoding: "gzip"},
+	".tar.gz":  {Type: "application/x-tar", Encoding: "gzip"},
+	".tbz2":    {Type: "application/x-tar", Encoding: "bzip2"},
+	".tb2":     {Type: "application/x-tar", Encoding: "bzip2"},
+	".tbz":     {Type: "application/x-tar", Encoding: "bzip2"},
+	".tar.bz2": {Type: "application/x-tar", Encoding: "bzip2"},
 }
 
 const pkgPath = "v.io/x/ref/services/internal/packages"

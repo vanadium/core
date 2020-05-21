@@ -62,15 +62,15 @@ func exchangeMacaroonForBlessing(ctx *context.T, macaroonChan <-chan formResult)
 	blessings, err := identity.MacaroonBlesserClient("").Bless(
 		ctx,
 		macaroon,
-		options.ServerAuthorizer{security.PublicKeyAuthorizer(serviceKey)},
-		options.Preresolved{me})
+		options.ServerAuthorizer{Authorizer: security.PublicKeyAuthorizer(serviceKey)},
+		options.Preresolved{Resolution: me})
 	if err != nil && len(objectNames) == 1 {
 		// For backward compatibility, try to resolve the service name.
 		blessings, err = identity.MacaroonBlesserClient(objectNames[0]).Bless(
 			ctx,
 			macaroon,
-			options.ServerAuthorizer{security.PublicKeyAuthorizer(serviceKey)},
-			options.NameResolutionAuthorizer{security.AllowEveryone()})
+			options.ServerAuthorizer{Authorizer: security.PublicKeyAuthorizer(serviceKey)},
+			options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()})
 	}
 	if err != nil {
 		return blessings, fmt.Errorf("failed to get blessing from %q: %v", objectNames, err)
@@ -166,7 +166,7 @@ func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, bless
 		tmplArgs.Blessings = blessed
 		ln.Close()
 	})
-	go http.Serve(ln, nil)
+	go http.Serve(ln, nil) // nolint: errcheck
 
 	// Print the link to start the flow.
 	url, err := seekBlessingsURL(key, blessServerURL, redirectURL, state)
@@ -181,7 +181,7 @@ func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, bless
 	// need to wait for the command to return (and indeed on some window managers,
 	// the command will not exit until the browser is closed).
 	if len(openCommand) != 0 && browser {
-		exec.Command(openCommand, url).Start()
+		exec.Command(openCommand, url).Start() // nolint: errcheck
 	}
 	return result, nil
 }

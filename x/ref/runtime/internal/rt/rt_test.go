@@ -25,14 +25,16 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	ref.EnvClearCredentials()
+	if err := ref.EnvClearCredentials(); err != nil {
+		t.Fatal(err)
+	}
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
 	mgr := logger.Manager(ctx)
 	fmt.Println(mgr)
 	args := fmt.Sprintf("%s", mgr)
-	expected := regexp.MustCompile("name=vanadium logdirs=\\[/tmp\\] logtostderr=true|false alsologtostderr=false|true max_stack_buf_size=4292608 v=[0-9] stderrthreshold=2 vmodule= vfilepath= log_backtrace_at=:0")
+	expected := regexp.MustCompile(`name=vanadium logdirs=\[/tmp\] logtostderr=true|false alsologtostderr=false|true max_stack_buf_size=4292608 v=[0-9] stderrthreshold=2 vmodule= vfilepath= log_backtrace_at=:0`)
 
 	if !expected.MatchString(args) {
 		t.Errorf("unexpected default args: %s, want %s", args, expected)
@@ -82,7 +84,7 @@ func TestInitArgs(t *testing.T) {
 		"log_backtrace_at=:0",
 		os.TempDir()))
 	c.Terminate(os.Interrupt)
-	c.S.ExpectEOF()
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 func validatePrincipal(p security.Principal) error {

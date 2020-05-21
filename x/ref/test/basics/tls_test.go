@@ -89,7 +89,7 @@ func BenchmarkTLSHandshake(b *testing.B) {
 	ch := make(chan *tls.Conn)
 	go func() {
 		for c := range ch {
-			c.Handshake()
+			c.Handshake() // nolint: errcheck
 		}
 	}()
 	defer close(ch)
@@ -145,8 +145,8 @@ func newTLSCert(pool *x509.CertPool) (tls.Certificate, error) {
 		NotBefore:             time.Now().Add(-24 * time.Hour),
 		NotAfter:              time.Now().Add(24 * time.Hour),
 		BasicConstraintsValid: true,
-		IsCA:        true,
-		IPAddresses: []net.IP{net.ParseIP("127.0.0.1")},
+		IsCA:                  true,
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1")},
 	}
 	certBytes, err := x509.CreateCertificate(rand.Reader, template, template, &priv.PublicKey, priv)
 	if err != nil {

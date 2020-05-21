@@ -13,8 +13,6 @@ import (
 	"v.io/v23/security"
 )
 
-const pkgPath = "v.io/v23/conventions"
-
 // Special case user ids.  They all have the identity provider "self" meaning that the server is poviding
 // the identity and type "?" meaning that we don't know what type of Id this is.
 const (

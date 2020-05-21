@@ -197,6 +197,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n\n// %[1]sAll holds all labels for %[1]s."+
 			"\nvar %[1]sAll = [...]%[1]s{%[2]s}"+
 			"\n\n// %[1]sFromString creates a %[1]s from a string label."+
+			"\n// nolint: deadcode, unused"+
 			"\nfunc %[1]sFromString(label string) (x %[1]s, err error) {"+
 			"\n\terr = x.Set(label)"+
 			"\n\treturn"+
@@ -277,7 +278,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 		for ix := 0; ix < t.NumField(); ix++ {
 			s += fmt.Sprintf("\n\t\t\t%[2]s %[1]s%[2]s", def.Name, t.Field(ix).Name)
 		}
-		s += fmt.Sprintf("\n\t\t}\n\t}\n)")
+		s += "\n\t\t}\n\t}\n)"
 		for ix := 0; ix < t.NumField(); ix++ {
 			f := t.Field(ix)
 			s += fmt.Sprintf("\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+

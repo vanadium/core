@@ -8,7 +8,7 @@ vdlgen:
 .PHONY: test-integration
 test-integration:
 	@echo "VDLPATH" ${VDLPATH}
-	go test -tags travis \
+	go test -p 1 \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/services/identity/identityd \
 		v.io/x/ref/services/xproxy/xproxyd \

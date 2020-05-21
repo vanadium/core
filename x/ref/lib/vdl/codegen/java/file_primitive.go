@@ -97,13 +97,13 @@ func genJavaPrimitiveFile(tdef *compile.TypeDef, env *compile.Env) JavaFileInfo 
 		VdlTypeName              string
 		VdlTypeString            string
 	}{
-		AccessModifier:  access,
-		Doc:             javaDoc(tdef.Doc, tdef.DocSuffix),
-		ConstructorType: javaConstructorType(tdef.Type),
-		FileDoc:         tdef.File.Package.FileDoc,
-		Name:            name,
-		PackagePath:     javaPath(javaGenPkgPath(tdef.File.Package.GenPath)),
-		Source:          tdef.File.BaseName,
+		AccessModifier:           access,
+		Doc:                      javaDoc(tdef.Doc, tdef.DocSuffix),
+		ConstructorType:          javaConstructorType(tdef.Type),
+		FileDoc:                  tdef.File.Package.FileDoc,
+		Name:                     name,
+		PackagePath:              javaPath(javaGenPkgPath(tdef.File.Package.GenPath)),
+		Source:                   tdef.File.BaseName,
 		TypeAdapterDelegateClass: javaTypeAdapterDelegateClass(tdef.Type),
 		VdlType:                  javaVdlPrimitiveType(tdef.Type.Kind()),
 		VdlTypeName:              tdef.Type.Name(),

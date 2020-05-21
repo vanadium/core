@@ -22,10 +22,9 @@ var (
 	// level errors and hence {1}{2} is omitted from their format
 	// strings to avoid repeating these n-times in the final error
 	// message visible to the user.
-	errMalformedEndpoint            = reg(".errMalformedEndpoint", "malformed endpoint{:3}")
-	errUndesiredProtocol            = reg(".errUndesiredProtocol", "undesired protocol{:3}")
-	errIncompatibleEndpointVersions = reg(".errIncompatibleEndpointVersions", "incompatible endpoint versions{:3}")
-	errNoCompatibleServers          = reg(".errNoComaptibleServers", "failed to find any compatible servers{:3}")
+	errMalformedEndpoint   = reg(".errMalformedEndpoint", "malformed endpoint{:3}")
+	errUndesiredProtocol   = reg(".errUndesiredProtocol", "undesired protocol{:3}")
+	errNoCompatibleServers = reg(".errNoComaptibleServers", "failed to find any compatible servers{:3}")
 )
 
 var defaultPreferredProtocolOrder = mkProtocolRankMap([]string{"unixfd", "wsh", "tcp4", "tcp", "*"})

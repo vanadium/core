@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -53,7 +53,7 @@ const (
 
 func init() {
 	impl.Describe = func() (descr device.Description, err error) {
-		return device.Description{Profiles: map[string]struct{}{"test-profile": struct{}{}}}, nil
+		return device.Description{Profiles: map[string]struct{}{"test-profile": {}}}, nil
 	}
 
 	impl.CleanupDir = func(ctx *context.T, dir, helper string) {
@@ -170,7 +170,7 @@ func Resolve(f Fatalist, ctx *context.T, name string, expectReplicas int, retry 
 		// replica.  Filter out non-tcp endpoints.
 		filteredResults := []string{}
 		for _, r := range me.Names() {
-			if strings.Index(r, "@tcp") != -1 {
+			if strings.Contains(r, "@tcp") {
 				filteredResults = append(filteredResults, r)
 			}
 		}
@@ -192,7 +192,7 @@ func DeviceStub(name string) device.DeviceClientMethods {
 func ClaimDevice(t *testing.T, ctx *context.T, claimableName, deviceName, extension, pairingToken string) {
 	// Setup blessings to be granted to the claimed device
 	g := &granter{extension: extension}
-	s := options.ServerAuthorizer{security.AllowEveryone()}
+	s := options.ServerAuthorizer{Authorizer: security.AllowEveryone()}
 	// Call the Claim RPC: Skip server authorization because the unclaimed
 	// device presents nothing that can be used to recognize it.
 	if err := device.ClaimableClient(claimableName).Claim(ctx, pairingToken, g, s); err != nil {
@@ -217,7 +217,7 @@ func ClaimDevice(t *testing.T, ctx *context.T, claimableName, deviceName, extens
 func ClaimDeviceExpectError(t *testing.T, ctx *context.T, name, extension, pairingToken string, errID verror.ID) {
 	// Setup blessings to be granted to the claimed device
 	g := &granter{extension: extension}
-	s := options.ServerAuthorizer{security.AllowEveryone()}
+	s := options.ServerAuthorizer{Authorizer: security.AllowEveryone()}
 	// Call the Claim RPC
 	if err := device.ClaimableClient(name).Claim(ctx, pairingToken, g, s); verror.ErrorID(err) != errID {
 		t.Fatal(testutil.FormatLogLine(2, "%q.Claim(%q) expected to fail with %v, got %v [%v]", name, pairingToken, errID, verror.ErrorID(err), err))
@@ -308,7 +308,6 @@ func InstallAppExpectError(t *testing.T, ctx *context.T, expectedError verror.ID
 
 type granter struct {
 	rpc.CallOpt
-	p         security.Principal
 	extension string
 }
 
@@ -332,7 +331,7 @@ func NewInstanceImpl(t *testing.T, ctx *context.T, appID, grant string) (string,
 		return "", err
 	}
 	// We should finish the rpc call, even if we exit early due to an error.
-	defer call.Finish()
+	defer call.Finish() // nolint: errcheck
 
 	for call.RecvStream().Advance() {
 		switch msg := call.RecvStream().Value().(type) {
@@ -347,7 +346,7 @@ func NewInstanceImpl(t *testing.T, ctx *context.T, appID, grant string) (string,
 			if err != nil {
 				return "", errors.New("bless failed")
 			}
-			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings})
+			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings}) // nolint: errcheck
 		default:
 			return "", fmt.Errorf("newInstanceImpl: received unexpected message: %#v", msg)
 		}
@@ -860,7 +859,7 @@ func PollingWait(t *testing.T, pid int) {
 	for syscall.Kill(pid, 0) == nil {
 		select {
 		case <-timeOut:
-			syscall.Kill(pid, 9)
+			syscall.Kill(pid, 9) // nolint: errcheck
 			t.Fatal(testutil.FormatLogLine(2, "Timed out waiting for PID %v to terminate", pid))
 		case <-time.After(time.Millisecond):
 			// Try again.

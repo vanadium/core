@@ -8,7 +8,6 @@ package websocket
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"sync"
 	"time"
@@ -28,8 +27,7 @@ func WebsocketConn(ws *websocket.Conn) flow.Conn {
 // websocket control messages (such as pings) are processed by the websocket
 // library.
 type wrappedConn struct {
-	ws         *websocket.Conn
-	currReader io.Reader
+	ws *websocket.Conn
 
 	// The gorilla docs aren't explicit about reading and writing from
 	// different goroutines.  It is explicit that only one goroutine can
@@ -78,6 +76,7 @@ func (c *wrappedConn) Close() error {
 	// Send an EOF control message to the remote end so that it can
 	// handle the close gracefully.
 	msg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "EOF")
+	// nolint: errcheck
 	c.ws.WriteControl(websocket.CloseMessage, msg, time.Now().Add(time.Second))
 	return c.ws.Close()
 }

@@ -108,6 +108,7 @@ const (
 var InstallationStateAll = [...]InstallationState{InstallationStateActive, InstallationStateUninstalled}
 
 // InstallationStateFromString creates a InstallationState from a string label.
+// nolint: deadcode, unused
 func InstallationStateFromString(label string) (x InstallationState, err error) {
 	err = x.Set(label)
 	return
@@ -184,6 +185,7 @@ const (
 var InstanceStateAll = [...]InstanceState{InstanceStateLaunching, InstanceStateRunning, InstanceStateDying, InstanceStateNotRunning, InstanceStateUpdating, InstanceStateDeleted}
 
 // InstanceStateFromString creates a InstanceState from a string label.
+// nolint: deadcode, unused
 func InstanceStateFromString(label string) (x InstanceState, err error) {
 	err = x.Set(label)
 	return
@@ -871,10 +873,7 @@ func (Description) VDLReflect(struct {
 }
 
 func (x Description) VDLIsZero() bool {
-	if len(x.Profiles) != 0 {
-		return false
-	}
-	return true
+	return len(x.Profiles) == 0
 }
 
 func (x Description) VDLWrite(enc vdl.Encoder) error {
@@ -1945,19 +1944,19 @@ var descApplication = rpc.InterfaceDesc{
 	PkgPath: "v.io/v23/services/device",
 	Doc:     "// Application can be used to manage applications on a device. This interface\n// will be invoked using an object name that identifies the application and its\n// installations and instances where applicable.\n//\n// An application is defined by a title.  An application can have multiple\n// installations on a device.  The installations are grouped under the same\n// application, but are otherwise independent of each other.  Each installation\n// can have zero or more instances (which can be running or not).  The instances\n// are independent of each other, and do not share state (like local storage).\n// Interaction among instances should occur via Vanadium RPC, facilitated by the\n// local mounttable.\n//\n// The device manager supports versioning of applications.  Each installation\n// maintains a tree of versions, where a version is defined by a specific\n// envelope.  The tree structure comes from 'previous version' references: each\n// version (except the initial installation version) maintains a reference to\n// the version that preceded it.  The installation maintains a current version\n// reference that is used for new instances.  Each update operation on the\n// installation creates a new version, sets the previous reference of the new\n// version to the current version, and then updates the current version to refer\n// to the new version.  Each revert operation on the installation sets the\n// current version to the previous version of the current version.  Each\n// instance maintains a current version reference that is used to run the\n// instance.  The initial version of the instance is set to the current version\n// of the installation at the time of instantiation.  Each update operation on\n// the instance updates the instance's current version to the current version of\n// the installation.  Each revert operation on the instance updates the\n// instance's current version to the previous version of the instance's version.\n//\n// The Application interface methods can be divided based on their intended\n// receiver:\n//\n// 1) Method receiver is an application:\n//     - Install()\n//\n// 2) Method receiver is an application installation:\n//     - Instantiate()\n//     - Uninstall()\n//\n// 3) Method receiver is an application instance:\n//     - Run()\n//     - Kill()\n//     - Delete()\n//\n// 4) Method receiver is an application installation or instance:\n//     - Update()\n//     - Revert()\n//\n// The following methods complement one another:\n//     - Install() and Uninstall()\n//     - Instantiate() and Delete()\n//     - Run() and Kill()\n//     - Update() and Revert()\n//\n//\n//\n// Examples:\n//\n// Install Google Maps on the device.\n//     device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/0\"\n//\n// Create and start an instance of the previously installed maps application\n// installation.\n//    device/apps/google maps/0.Instantiate() --> { \"0\" }\n//    device/apps/google maps/0/0.Run()\n//\n// Create and start a second instance of the previously installed maps\n// application installation.\n//    device/apps/google maps/0.Instantiate() --> { \"1\" }\n//    device/apps/google maps/0/1.Run()\n//\n// Kill and delete the first instance previously started.\n//    device/apps/google maps/0/0.Kill()\n//    device/apps/google maps/0/0.Delete()\n//\n// Install a second Google Maps installation.\n//    device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/1\"\n//\n// Update the second maps installation to the latest version available.\n//    device/apps/google maps/1.Update()\n//\n// Update the first maps installation to a specific version.\n//    device/apps/google maps/0.UpdateTo(\"/google.com/appstore/beta/maps\")\n//\n// Finally, an application installation instance can be in one of three abstract\n// states: 1) \"does not exist/deleted\", 2) \"running\", or 3) \"not-running\". The\n// interface methods transition between these abstract states using the\n// following state machine:\n//\n//    apply(Instantiate(), \"does not exist\") = \"not-running\"\n//    apply(Run(), \"not-running\") = \"running\"\n//    apply(Kill(), \"running\") = \"not-running\"\n//    apply(Delete(), \"not-running\") = \"deleted\"",
 	Embeds: []rpc.EmbedDesc{
-		{"Object", "v.io/v23/services/permissions", "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
+		{Name: "Object", PkgPath: "v.io/v23/services/permissions", Doc: "// Object provides access control for Vanadium objects.\n//\n// Vanadium services implementing dynamic access control would typically embed\n// this interface and tag additional methods defined by the service with one of\n// Admin, Read, Write, Resolve etc. For example, the VDL definition of the\n// object would be:\n//\n//   package mypackage\n//\n//   import \"v.io/v23/security/access\"\n//   import \"v.io/v23/services/permissions\"\n//\n//   type MyObject interface {\n//     permissions.Object\n//     MyRead() (string, error) {access.Read}\n//     MyWrite(string) error    {access.Write}\n//   }\n//\n// If the set of pre-defined tags is insufficient, services may define their\n// own tag type and annotate all methods with this new type.\n//\n// Instead of embedding this Object interface, define SetPermissions and\n// GetPermissions in their own interface. Authorization policies will typically\n// respect annotations of a single type. For example, the VDL definition of an\n// object would be:\n//\n//  package mypackage\n//\n//  import \"v.io/v23/security/access\"\n//\n//  type MyTag string\n//\n//  const (\n//    Blue = MyTag(\"Blue\")\n//    Red  = MyTag(\"Red\")\n//  )\n//\n//  type MyObject interface {\n//    MyMethod() (string, error) {Blue}\n//\n//    // Allow clients to change access via the access.Object interface:\n//    SetPermissions(perms access.Permissions, version string) error         {Red}\n//    GetPermissions() (perms access.Permissions, version string, err error) {Blue}\n//  }"},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Install",
 			Doc:  "// Install installs the application identified by the first argument and\n// returns an object name suffix that identifies the new installation.\n//\n// The name argument should be an object name for an application\n// envelope.  The service it identifies must implement\n// repository.Application, and is expected to return either the\n// requested version (if the object name encodes a specific version), or\n// otherwise the latest available version, as appropriate.  This object\n// name will be used by default by the Update method, as a source for\n// updated application envelopes (can be overriden by setting\n// AppOriginConfigKey in the config).\n//\n// The config argument specifies config settings that will take\n// precedence over those present in the application envelope.\n//\n// The packages argument specifies packages to be installed in addition\n// to those specified in the envelope.  If a package in the envelope has\n// the same key, the package in the packages argument takes precedence.\n//\n// The returned suffix, when appended to the name used to reach the\n// receiver for Install, can be used to control the installation object.\n// The suffix will contain the title of the application as a prefix,\n// which can then be used to control all the installations of the given\n// application.\n// TODO(rjkroege): Use customized labels.",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``},     // string
-				{"config", ``},   // Config
-				{"packages", ``}, // application.Packages
+				{Name: "name", Doc: ``},     // string
+				{Name: "config", Doc: ``},   // Config
+				{Name: "packages", Doc: ``}, // application.Packages
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -1970,7 +1969,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Instantiate",
 			Doc:  "// Instantiate creates an instance of an application installation.\n// The installation must be in state Active.\n//\n// The server sends the application instance's Public Key on the stream.\n// When the client receives the Public Key it must send Blessings back\n// to the server. When the instance is created, the server returns the\n// instance name to the client.\n//\n// Client                       Server\n//  \"object\".Instantiate() -->\n//                         <--  InstancePublicKey\n//  AppBlessings           -->\n//                         <--  return InstanceName",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -1988,7 +1987,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Kill",
 			Doc:  "// Kill attempts a clean shutdown an of application instance.\n// The instance must be in state Running.\n//\n// If the deadline is non-zero and the instance in question is still\n// running after the given deadline, shutdown of the instance is\n// enforced.\n//\n// If called against a Device, causes the Device to stop itself (which\n// may or may not result in a restart depending on the device manager\n// setup).",
 			InArgs: []rpc.ArgDesc{
-				{"deadline", ``}, // time.Duration
+				{Name: "deadline", Doc: ``}, // time.Duration
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -2001,7 +2000,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "UpdateTo",
 			Doc:  "// UpdateTo updates the application installation(s) to the application\n// specified by the object name argument.  If the new application\n// envelope contains a different application title, the update does not\n// occur, and an error is returned.\n// The installation must be in state Active.",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``}, // string
+				{Name: "name", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2014,7 +2013,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Debug",
 			Doc:  "// Debug returns debug information about the application installation or\n// instance.  This is generally highly implementation-specific, and\n// presented in an unstructured form.  No guarantees are given about the\n// stability of the format, and parsing it programmatically is\n// specifically discouraged.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -2022,7 +2021,7 @@ var descApplication = rpc.InterfaceDesc{
 			Name: "Status",
 			Doc:  "// Status returns structured information about the application\n// installation or instance.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // Status
+				{Name: "", Doc: ``}, // Status
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -2232,7 +2231,7 @@ var descClaimable = rpc.InterfaceDesc{
 		{
 			Name: "Claim",
 			InArgs: []rpc.ArgDesc{
-				{"pairingToken", ``}, // string
+				{Name: "pairingToken", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2711,15 +2710,15 @@ var descDevice = rpc.InterfaceDesc{
 	PkgPath: "v.io/v23/services/device",
 	Doc:     "// Device can be used to manage a device remotely using an object name that\n// identifies it.",
 	Embeds: []rpc.EmbedDesc{
-		{"Application", "v.io/v23/services/device", "// Application can be used to manage applications on a device. This interface\n// will be invoked using an object name that identifies the application and its\n// installations and instances where applicable.\n//\n// An application is defined by a title.  An application can have multiple\n// installations on a device.  The installations are grouped under the same\n// application, but are otherwise independent of each other.  Each installation\n// can have zero or more instances (which can be running or not).  The instances\n// are independent of each other, and do not share state (like local storage).\n// Interaction among instances should occur via Vanadium RPC, facilitated by the\n// local mounttable.\n//\n// The device manager supports versioning of applications.  Each installation\n// maintains a tree of versions, where a version is defined by a specific\n// envelope.  The tree structure comes from 'previous version' references: each\n// version (except the initial installation version) maintains a reference to\n// the version that preceded it.  The installation maintains a current version\n// reference that is used for new instances.  Each update operation on the\n// installation creates a new version, sets the previous reference of the new\n// version to the current version, and then updates the current version to refer\n// to the new version.  Each revert operation on the installation sets the\n// current version to the previous version of the current version.  Each\n// instance maintains a current version reference that is used to run the\n// instance.  The initial version of the instance is set to the current version\n// of the installation at the time of instantiation.  Each update operation on\n// the instance updates the instance's current version to the current version of\n// the installation.  Each revert operation on the instance updates the\n// instance's current version to the previous version of the instance's version.\n//\n// The Application interface methods can be divided based on their intended\n// receiver:\n//\n// 1) Method receiver is an application:\n//     - Install()\n//\n// 2) Method receiver is an application installation:\n//     - Instantiate()\n//     - Uninstall()\n//\n// 3) Method receiver is an application instance:\n//     - Run()\n//     - Kill()\n//     - Delete()\n//\n// 4) Method receiver is an application installation or instance:\n//     - Update()\n//     - Revert()\n//\n// The following methods complement one another:\n//     - Install() and Uninstall()\n//     - Instantiate() and Delete()\n//     - Run() and Kill()\n//     - Update() and Revert()\n//\n//\n//\n// Examples:\n//\n// Install Google Maps on the device.\n//     device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/0\"\n//\n// Create and start an instance of the previously installed maps application\n// installation.\n//    device/apps/google maps/0.Instantiate() --> { \"0\" }\n//    device/apps/google maps/0/0.Run()\n//\n// Create and start a second instance of the previously installed maps\n// application installation.\n//    device/apps/google maps/0.Instantiate() --> { \"1\" }\n//    device/apps/google maps/0/1.Run()\n//\n// Kill and delete the first instance previously started.\n//    device/apps/google maps/0/0.Kill()\n//    device/apps/google maps/0/0.Delete()\n//\n// Install a second Google Maps installation.\n//    device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/1\"\n//\n// Update the second maps installation to the latest version available.\n//    device/apps/google maps/1.Update()\n//\n// Update the first maps installation to a specific version.\n//    device/apps/google maps/0.UpdateTo(\"/google.com/appstore/beta/maps\")\n//\n// Finally, an application installation instance can be in one of three abstract\n// states: 1) \"does not exist/deleted\", 2) \"running\", or 3) \"not-running\". The\n// interface methods transition between these abstract states using the\n// following state machine:\n//\n//    apply(Instantiate(), \"does not exist\") = \"not-running\"\n//    apply(Run(), \"not-running\") = \"running\"\n//    apply(Kill(), \"running\") = \"not-running\"\n//    apply(Delete(), \"not-running\") = \"deleted\""},
-		{"Tidyable", "v.io/v23/services/tidyable", "// Tidyable specifies that a service can be tidied."},
+		{Name: "Application", PkgPath: "v.io/v23/services/device", Doc: "// Application can be used to manage applications on a device. This interface\n// will be invoked using an object name that identifies the application and its\n// installations and instances where applicable.\n//\n// An application is defined by a title.  An application can have multiple\n// installations on a device.  The installations are grouped under the same\n// application, but are otherwise independent of each other.  Each installation\n// can have zero or more instances (which can be running or not).  The instances\n// are independent of each other, and do not share state (like local storage).\n// Interaction among instances should occur via Vanadium RPC, facilitated by the\n// local mounttable.\n//\n// The device manager supports versioning of applications.  Each installation\n// maintains a tree of versions, where a version is defined by a specific\n// envelope.  The tree structure comes from 'previous version' references: each\n// version (except the initial installation version) maintains a reference to\n// the version that preceded it.  The installation maintains a current version\n// reference that is used for new instances.  Each update operation on the\n// installation creates a new version, sets the previous reference of the new\n// version to the current version, and then updates the current version to refer\n// to the new version.  Each revert operation on the installation sets the\n// current version to the previous version of the current version.  Each\n// instance maintains a current version reference that is used to run the\n// instance.  The initial version of the instance is set to the current version\n// of the installation at the time of instantiation.  Each update operation on\n// the instance updates the instance's current version to the current version of\n// the installation.  Each revert operation on the instance updates the\n// instance's current version to the previous version of the instance's version.\n//\n// The Application interface methods can be divided based on their intended\n// receiver:\n//\n// 1) Method receiver is an application:\n//     - Install()\n//\n// 2) Method receiver is an application installation:\n//     - Instantiate()\n//     - Uninstall()\n//\n// 3) Method receiver is an application instance:\n//     - Run()\n//     - Kill()\n//     - Delete()\n//\n// 4) Method receiver is an application installation or instance:\n//     - Update()\n//     - Revert()\n//\n// The following methods complement one another:\n//     - Install() and Uninstall()\n//     - Instantiate() and Delete()\n//     - Run() and Kill()\n//     - Update() and Revert()\n//\n//\n//\n// Examples:\n//\n// Install Google Maps on the device.\n//     device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/0\"\n//\n// Create and start an instance of the previously installed maps application\n// installation.\n//    device/apps/google maps/0.Instantiate() --> { \"0\" }\n//    device/apps/google maps/0/0.Run()\n//\n// Create and start a second instance of the previously installed maps\n// application installation.\n//    device/apps/google maps/0.Instantiate() --> { \"1\" }\n//    device/apps/google maps/0/1.Run()\n//\n// Kill and delete the first instance previously started.\n//    device/apps/google maps/0/0.Kill()\n//    device/apps/google maps/0/0.Delete()\n//\n// Install a second Google Maps installation.\n//    device/apps.Install(\"/google.com/appstore/maps\", nil, nil) --> \"google maps/1\"\n//\n// Update the second maps installation to the latest version available.\n//    device/apps/google maps/1.Update()\n//\n// Update the first maps installation to a specific version.\n//    device/apps/google maps/0.UpdateTo(\"/google.com/appstore/beta/maps\")\n//\n// Finally, an application installation instance can be in one of three abstract\n// states: 1) \"does not exist/deleted\", 2) \"running\", or 3) \"not-running\". The\n// interface methods transition between these abstract states using the\n// following state machine:\n//\n//    apply(Instantiate(), \"does not exist\") = \"not-running\"\n//    apply(Run(), \"not-running\") = \"running\"\n//    apply(Kill(), \"running\") = \"not-running\"\n//    apply(Delete(), \"not-running\") = \"deleted\""},
+		{Name: "Tidyable", PkgPath: "v.io/v23/services/tidyable", Doc: "// Tidyable specifies that a service can be tidied."},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Describe",
 			Doc:  "// Describe generates a description of the device.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // Description
+				{Name: "", Doc: ``}, // Description
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2727,10 +2726,10 @@ var descDevice = rpc.InterfaceDesc{
 			Name: "IsRunnable",
 			Doc:  "// IsRunnable checks if the device can execute the given binary.",
 			InArgs: []rpc.ArgDesc{
-				{"description", ``}, // binary.Description
+				{Name: "description", Doc: ``}, // binary.Description
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // bool
+				{Name: "", Doc: ``}, // bool
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2738,7 +2737,7 @@ var descDevice = rpc.InterfaceDesc{
 			Name: "Reset",
 			Doc:  "// Reset resets the device. If the deadline is non-zero and the device\n// in question is still running after the given deadline expired,\n// reset of the device is enforced.",
 			InArgs: []rpc.ArgDesc{
-				{"deadline", ``}, // time.Duration
+				{Name: "deadline", Doc: ``}, // time.Duration
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2746,8 +2745,8 @@ var descDevice = rpc.InterfaceDesc{
 			Name: "AssociateAccount",
 			Doc:  "// AssociateAccount associates a local  system account name with the provided\n// Vanadium identities. It replaces the existing association if one already exists for that\n// identity. Setting an AccountName to \"\" removes the association for each\n// listed identity.",
 			InArgs: []rpc.ArgDesc{
-				{"identityNames", ``}, // []string
-				{"accountName", ``},   // string
+				{Name: "identityNames", Doc: ``}, // []string
+				{Name: "accountName", Doc: ``},   // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2755,7 +2754,7 @@ var descDevice = rpc.InterfaceDesc{
 			Name: "ListAssociations",
 			Doc:  "// ListAssociations returns all of the associations between Vanadium identities\n// and system names.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []Association
+				{Name: "", Doc: ``}, // []Association
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Admin"))},
 		},
@@ -2763,6 +2762,7 @@ var descDevice = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_map_1     *vdl.Type
 	__VDLType_enum_2    *vdl.Type

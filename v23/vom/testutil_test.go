@@ -90,7 +90,7 @@ func (abc *abcRead) Read(p []byte) (int, error) {
 
 func ABCBytes(lim int) []byte {
 	b := make([]byte, lim)
-	io.ReadFull(ABCReader(lim), b)
+	io.ReadFull(ABCReader(lim), b) // nolint: errcheck
 	return b
 }
 
@@ -154,6 +154,7 @@ func matchPrefixSeq(target string, seqs []string) bool {
 
 // binFromHexPat returns a binary string based on the given hex pattern.
 // Allowed hex patterns are the same as for matchHexPat.
+// nolint: deadcode, unused
 func binFromHexPat(pat string) (string, error) {
 	if len(pat) == 0 {
 		return "", nil
@@ -252,6 +253,7 @@ func TestMatchHexPat(t *testing.T) {
 	}
 }
 
+// nolint: deadcode, unused
 func toGoValue(value *vdl.Value) (interface{}, error) {
 	if value == nil {
 		return nil, nil

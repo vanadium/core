@@ -390,16 +390,16 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"badquery.tmpl.html":     &bintree{badqueryTmplHtml, map[string]*bintree{}},
-	"benchmarks.tmpl.html":   &bintree{benchmarksTmplHtml, map[string]*bintree{}},
-	"chart.js":               &bintree{chartJs, map[string]*bintree{}},
-	"footer.tmpl.html":       &bintree{footerTmplHtml, map[string]*bintree{}},
-	"home.tmpl.html":         &bintree{homeTmplHtml, map[string]*bintree{}},
-	"nobenchmarks.tmpl.html": &bintree{nobenchmarksTmplHtml, map[string]*bintree{}},
-	"runs.tmpl.html":         &bintree{runsTmplHtml, map[string]*bintree{}},
-	"sortable.css":           &bintree{sortableCss, map[string]*bintree{}},
-	"sortable.js":            &bintree{sortableJs, map[string]*bintree{}},
-	"styling.tmpl.html":      &bintree{stylingTmplHtml, map[string]*bintree{}},
+	"badquery.tmpl.html":     {badqueryTmplHtml, map[string]*bintree{}},
+	"benchmarks.tmpl.html":   {benchmarksTmplHtml, map[string]*bintree{}},
+	"chart.js":               {chartJs, map[string]*bintree{}},
+	"footer.tmpl.html":       {footerTmplHtml, map[string]*bintree{}},
+	"home.tmpl.html":         {homeTmplHtml, map[string]*bintree{}},
+	"nobenchmarks.tmpl.html": {nobenchmarksTmplHtml, map[string]*bintree{}},
+	"runs.tmpl.html":         {runsTmplHtml, map[string]*bintree{}},
+	"sortable.css":           {sortableCss, map[string]*bintree{}},
+	"sortable.js":            {sortableJs, map[string]*bintree{}},
+	"styling.tmpl.html":      {stylingTmplHtml, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory

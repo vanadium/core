@@ -249,16 +249,17 @@ var descMacaroonBlesser = rpc.InterfaceDesc{
 			Name: "Bless",
 			Doc:  "// Bless uses the provided macaroon (which contains email and caveats)\n// to return a blessing for the client.",
 			InArgs: []rpc.ArgDesc{
-				{"macaroon", ``}, // string
+				{Name: "macaroon", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"blessing", ``}, // security.Blessings
+				{Name: "blessing", Doc: ``}, // security.Blessings
 			},
 		},
 	},
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_list_2   *vdl.Type

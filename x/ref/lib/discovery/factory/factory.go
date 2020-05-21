@@ -68,7 +68,7 @@ func New(_ *context.T, protocols ...string) (idiscovery.Factory, error) {
 
 	if len(protocols) == 0 {
 		// Use all registered protocols.
-		for p, _ := range pluginFactories {
+		for p := range pluginFactories {
 			protocols = append(protocols, p)
 		}
 	}

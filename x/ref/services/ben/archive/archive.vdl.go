@@ -130,12 +130,12 @@ var descBenchmarkArchiver = rpc.InterfaceDesc{
 			Name: "Archive",
 			Doc:  "// Archive saves results in 'runs' under the assumption that the\n// benchmarks were run on a machine whose configuration is defined by\n// 'scenario' and the were built from source code described by 'code'\n// (a commit hash of a repository, the manifest of a jiri project etc.)\n//\n// Returns a URL that can be used to browse the uploaded benchmark\n// results.",
 			InArgs: []rpc.ArgDesc{
-				{"scenario", ``}, // ben.Scenario
-				{"code", ``},     // ben.SourceCode
-				{"runs", ``},     // []ben.Run
+				{Name: "scenario", Doc: ``}, // ben.Scenario
+				{Name: "code", Doc: ``},     // ben.SourceCode
+				{Name: "runs", Doc: ``},     // []ben.Run
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 		},
 	},

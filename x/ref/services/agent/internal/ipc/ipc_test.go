@@ -83,6 +83,7 @@ func newServer(t *testing.T, servers ...interface{}) (ipc *IPC, path string, f f
 	return ipc, path, func() { ipc.Close(); os.RemoveAll(dir) }
 }
 
+// nolint: deadcode, unused
 func isEpipe(err error) bool {
 	for operr, ok := err.(*net.OpError); ok; operr, ok = err.(*net.OpError) {
 		err = operr.Err
@@ -309,7 +310,9 @@ func TestBidi(t *testing.T) {
 	defer ipc2.Close()
 
 	var e echo
-	ipc2.Serve(e)
+	if err := ipc2.Serve(e); err != nil {
+		t.Fatal(err)
+	}
 	client, err := ipc2.Connect(path, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -326,7 +329,7 @@ func TestBidi(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	flag.Parse()
-	vlog.ConfigureLibraryLoggerFromFlags()
+	flag.Parse()                           // nolint: errcheck
+	vlog.ConfigureLibraryLoggerFromFlags() // nolint: errcheck
 	os.Exit(m.Run())
 }

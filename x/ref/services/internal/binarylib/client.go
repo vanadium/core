@@ -18,7 +18,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/services/binary"
@@ -72,7 +72,7 @@ func downloadPartAttempt(ctx *context.T, w io.WriteSeeker, client repository.Bin
 			ctx.Errorf("Write() failed: %v", err)
 			return false
 		}
-		h.Write(bytes)
+		h.Write(bytes) // nolint: errcheck
 		nreceived += len(bytes)
 	}
 
@@ -277,7 +277,7 @@ func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repo
 			return false, nil
 		}
 	}
-	h.Write(buffer)
+	h.Write(buffer) // nolint: errcheck
 	return true, nil
 }
 

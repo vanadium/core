@@ -122,8 +122,8 @@ var typeTests = []typeTest{
 	{"List", tp{{"a", `type Res []int32`, vdl.ListType(vdl.Int32Type), ""}}},
 	{"Set", tp{{"a", `type Res set[int32]`, vdl.SetType(vdl.Int32Type), ""}}},
 	{"Map", tp{{"a", `type Res map[int32]string`, vdl.MapType(vdl.Int32Type, vdl.StringType), ""}}},
-	{"Struct", tp{{"a", `type Res struct{A int32;B string}`, vdl.StructType([]vdl.Field{{"A", vdl.Int32Type}, {"B", vdl.StringType}}...), ""}}},
-	{"Union", tp{{"a", `type Res union{A bool;B int32;C string}`, vdl.UnionType([]vdl.Field{{"A", vdl.BoolType}, {"B", vdl.Int32Type}, {"C", vdl.StringType}}...), ""}}},
+	{"Struct", tp{{"a", `type Res struct{A int32;B string}`, vdl.StructType([]vdl.Field{{Name: "A", Type: vdl.Int32Type}, {Name: "B", Type: vdl.StringType}}...), ""}}},
+	{"Union", tp{{"a", `type Res union{A bool;B int32;C string}`, vdl.UnionType([]vdl.Field{{Name: "A", Type: vdl.BoolType}, {Name: "B", Type: vdl.Int32Type}, {Name: "C", Type: vdl.StringType}}...), ""}}},
 	{"Optional", tp{{"a", `type Res []?X;type X struct{A bool}`, vdl.ListType(vdl.OptionalType(namedX(vdl.StructType(vdl.Field{
 		Name: "A",
 		Type: vdl.BoolType,
@@ -148,8 +148,8 @@ var typeTests = []typeTest{
 	{"NList", tp{{"a", `type Res X;type X []int32`, namedX(vdl.ListType(vdl.Int32Type)), ""}}},
 	{"NSet", tp{{"a", `type Res X;type X set[int32]`, namedX(vdl.SetType(vdl.Int32Type)), ""}}},
 	{"NMap", tp{{"a", `type Res X;type X map[int32]string`, namedX(vdl.MapType(vdl.Int32Type, vdl.StringType)), ""}}},
-	{"NStruct", tp{{"a", `type Res X;type X struct{A int32;B string}`, namedX(vdl.StructType([]vdl.Field{{"A", vdl.Int32Type}, {"B", vdl.StringType}}...)), ""}}},
-	{"NUnion", tp{{"a", `type Res X;type X union{A bool;B int32;C string}`, namedX(vdl.UnionType([]vdl.Field{{"A", vdl.BoolType}, {"B", vdl.Int32Type}, {"C", vdl.StringType}}...)), ""}}},
+	{"NStruct", tp{{"a", `type Res X;type X struct{A int32;B string}`, namedX(vdl.StructType([]vdl.Field{{Name: "A", Type: vdl.Int32Type}, {Name: "B", Type: vdl.StringType}}...)), ""}}},
+	{"NUnion", tp{{"a", `type Res X;type X union{A bool;B int32;C string}`, namedX(vdl.UnionType([]vdl.Field{{Name: "A", Type: vdl.BoolType}, {Name: "B", Type: vdl.Int32Type}, {Name: "C", Type: vdl.StringType}}...)), ""}}},
 
 	// Test multi-package types
 	{"MultiPkgSameTypeName", tp{

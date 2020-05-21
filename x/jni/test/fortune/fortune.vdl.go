@@ -641,7 +641,7 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "Add",
 			Doc:  "// Add stores a fortune in the set used by Get.",
 			InArgs: []rpc.ArgDesc{
-				{"Fortune", ``}, // string
+				{Name: "Fortune", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Write"))},
 		},
@@ -649,7 +649,7 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "Get",
 			Doc:  "// Get returns the last-added fortune.",
 			OutArgs: []rpc.ArgDesc{
-				{"Fortune", ``}, // string
+				{Name: "Fortune", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -657,7 +657,7 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "ParameterizedGet",
 			Doc:  "// ParameterizedGet returns the last-added fortune as a map (which is a parameterized\n// type in Java).",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // map[string]string
+				{Name: "", Doc: ``}, // map[string]string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -665,7 +665,7 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "StreamingGet",
 			Doc:  "// StreamingGet returns a stream that can be used to obtain fortunes, and returns the\n// total number of items sent.",
 			OutArgs: []rpc.ArgDesc{
-				{"total", ``}, // int32
+				{Name: "total", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -673,8 +673,8 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "MultipleGet",
 			Doc:  "// MultipleGet returns the same fortune twice.",
 			OutArgs: []rpc.ArgDesc{
-				{"Fortune", ``}, // string
-				{"Another", ``}, // string
+				{Name: "Fortune", Doc: ``}, // string
+				{Name: "Another", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -682,8 +682,8 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "MultipleStreamingGet",
 			Doc:  "// MultipleStreamingGet returns a stream that can be used to obtain fortunes, and returns\n// the total number of items sent, twice.",
 			OutArgs: []rpc.ArgDesc{
-				{"total", ``},   // int32
-				{"another", ``}, // int32
+				{Name: "total", Doc: ``},   // int32
+				{Name: "another", Doc: ``}, // int32
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -705,7 +705,7 @@ var descFortune = rpc.InterfaceDesc{
 			Name: "GetServerThread",
 			Doc:  "// GetServerThread returns a name of the server thread that executes this method.",
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // string
+				{Name: "", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
 		},
@@ -881,6 +881,7 @@ func (s implFortuneMultipleStreamingGetServerCallSend) Send(item string) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_list_2   *vdl.Type

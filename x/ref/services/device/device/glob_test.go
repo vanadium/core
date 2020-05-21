@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/device"
@@ -50,7 +50,7 @@ func newEnforceFullParallelismHandler(t *testing.T, n int) cmd_device.GlobHandle
 	wg.Add(n)
 	return func(entry cmd_device.GlobResult, ctx *context.T, stdout, stderr io.Writer) error {
 		wg.Done()
-		simplePrintHandler(entry, ctx, stdout, stderr)
+		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
 		waitDoneCh := make(chan struct{})
 		go func() {
 			wg.Wait()
@@ -137,7 +137,7 @@ func newEnforceNoParallelismHandler(t *testing.T, n int, expected []string) cmd_
 		if suffix != expect {
 			t.Errorf("Expected %s, got %s", expect, suffix)
 		}
-		simplePrintHandler(entry, ctx, stdout, stderr)
+		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
 		return nil
 	}
 }
@@ -169,15 +169,15 @@ func TestGlob(t *testing.T) {
 		{results: []string{"app/2", "app/1", "app/8"}},
 	}
 	allStatusResponses := map[string][]interface{}{
-		"app/1": []interface{}{instanceRunning},
-		"app/2": []interface{}{installationUninstalled},
-		"app/3": []interface{}{instanceUpdating},
-		"app/4": []interface{}{installationActive},
-		"app/5": []interface{}{instanceNotRunning},
-		"app/6": []interface{}{deviceService},
-		"app/7": []interface{}{installationActive},
-		"app/8": []interface{}{deviceUpdating},
-		"app/9": []interface{}{instanceUpdating},
+		"app/1": {instanceRunning},
+		"app/2": {installationUninstalled},
+		"app/3": {instanceUpdating},
+		"app/4": {installationActive},
+		"app/5": {instanceNotRunning},
+		"app/6": {deviceService},
+		"app/7": {installationActive},
+		"app/8": {deviceUpdating},
+		"app/9": {instanceUpdating},
 	}
 	outLine := func(suffix string, s device.Status) string {
 		r, err := cmd_device.NewGlobResult(appName+"/"+suffix, s)
@@ -464,10 +464,10 @@ func TestGlob(t *testing.T) {
 			simplePrintHandler,
 			[]GlobResponse{{results: []string{"app/4", "app/3"}}, {results: []string{"app/1", "app/2"}}},
 			map[string][]interface{}{
-				"app/1": []interface{}{instanceRunning},
-				"app/2": []interface{}{fmt.Errorf("status miserable failure")},
-				"app/3": []interface{}{instanceUpdating},
-				"app/4": []interface{}{installationActive},
+				"app/1": {instanceRunning},
+				"app/2": {fmt.Errorf("status miserable failure")},
+				"app/3": {instanceUpdating},
+				"app/4": {installationActive},
 			},
 			cmd_device.GlobSettings{},
 			allGlobArgs,
@@ -480,10 +480,10 @@ func TestGlob(t *testing.T) {
 			errOnInstallationsHandler,
 			[]GlobResponse{{results: []string{"app/4", "app/3"}}, {results: []string{"app/1", "app/2"}}},
 			map[string][]interface{}{
-				"app/1": []interface{}{instanceRunning},
-				"app/2": []interface{}{installationUninstalled},
-				"app/3": []interface{}{instanceUpdating},
-				"app/4": []interface{}{installationActive},
+				"app/1": {instanceRunning},
+				"app/2": {installationUninstalled},
+				"app/3": {instanceUpdating},
+				"app/4": {installationActive},
 			},
 			cmd_device.GlobSettings{},
 			allGlobArgs,

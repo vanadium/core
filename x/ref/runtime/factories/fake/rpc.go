@@ -41,7 +41,6 @@ func (r *Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
 
 func (r *Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 	return context.WithValue(ctx, listenSpecKey, ls)
-	return ctx
 }
 
 // SetFlowManagerFactory can be used to inject a mock FlowManager

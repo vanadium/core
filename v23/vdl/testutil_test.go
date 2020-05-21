@@ -143,8 +143,8 @@ type (
 	NSliceFloat64    []float64
 	NSliceString     []string
 	// Sets
-	NSetInterface  map[NInterface]struct{}
-	NSetTypeObject map[*Type]struct{}
+	NSetInterface  map[NInterface]struct{} // nolint: deadcode, unused, varcheck
+	NSetTypeObject map[*Type]struct{}      // nolint: deadcode, unused, varcheck
 	NSetBool       map[bool]struct{}
 	NSetByte       map[byte]struct{}
 	NSetUint16     map[uint16]struct{}
@@ -161,8 +161,8 @@ type (
 	NSetFloat64    map[float64]struct{}
 	NSetString     map[string]struct{}
 	// Maps
-	NMapInterface  map[NInterface]NInterface
-	NMapTypeObject map[*Type]*Type
+	NMapInterface  map[NInterface]NInterface // nolint: deadcode, unused, varcheck
+	NMapTypeObject map[*Type]*Type           // nolint: deadcode, unused, varcheck
 	NMapBool       map[bool]bool
 	NMapByte       map[byte]byte
 	NMapUint16     map[uint16]uint16
@@ -196,7 +196,7 @@ type (
 	NMapStringEmpty          map[NString]struct{}
 	NMapStringBool           map[NString]NBool
 	NStructXYZBool           struct{ X, Y, Z NBool }
-	NStructXYZBoolUnexported struct{ a, X, b, Y, c, Z, d NBool }
+	NStructXYZBoolUnexported struct{ a, X, b, Y, c, Z, d NBool } // nolint: structcheck, unused
 	NStructWXBool            struct{ W, X NBool }
 	// Composite types representing maps of strings to numbers.
 	NMapStringByte    map[NString]NByte
@@ -209,13 +209,13 @@ type (
 	NStructVWXFloat64 struct{ V, W, X NFloat64 }
 	NStructVWXMixed   struct {
 		// Interleave unexported fields, which are ignored.
-		a bool
+		a bool // nolint: structcheck, unused
 		V int64
-		b string
+		b string // nolint: structcheck, unused
 		W float64
 		X float32
-		c []byte
-		d interface{}
+		c []byte      // nolint: structcheck, unused
+		d interface{} // nolint: structcheck, unused
 	}
 	NStructUVByte    struct{ U, V NByte }
 	NStructUVUint64  struct{ U, V NUint64 }
@@ -223,11 +223,11 @@ type (
 	NStructUVFloat64 struct{ U, V NFloat64 }
 	NStructUVMixed   struct {
 		// Interleave unexported fields, which are ignored.
-		a bool
+		a bool // nolint: structcheck, unused
 		U int64
-		b string
+		b string // nolint: structcheck, unused
 		V float64
-		c []byte
+		c []byte // nolint: structcheck, unused
 	}
 	// Types that cannot be converted to sets.  We represent sets as
 	// map[key]struct{} on the Go side, but don't allow map[key]NEmpty.
@@ -338,14 +338,14 @@ type (
 	}
 )
 
-func (NUnionABCA) Name() string                    { return "A" }
-func (NUnionABCA) Index() int                      { return 0 }
+func (NUnionABCA) Name() string                  { return "A" }
+func (NUnionABCA) Index() int                    { return 0 }
 func (NUnionABCA) VDLReflect(__NUnionABCReflect) {}
-func (NUnionABCB) Name() string                    { return "B" }
-func (NUnionABCB) Index() int                      { return 1 }
+func (NUnionABCB) Name() string                  { return "B" }
+func (NUnionABCB) Index() int                    { return 1 }
 func (NUnionABCB) VDLReflect(__NUnionABCReflect) {}
-func (NUnionABCC) Name() string                    { return "C" }
-func (NUnionABCC) Index() int                      { return 2 }
+func (NUnionABCC) Name() string                  { return "C" }
+func (NUnionABCC) Index() int                    { return 2 }
 func (NUnionABCC) VDLReflect(__NUnionABCReflect) {}
 
 // union{B string;C NStructInt64;D int64}
@@ -369,14 +369,14 @@ type (
 	}
 )
 
-func (NUnionBCDB) Name() string                 { return "B" }
-func (NUnionBCDB) Index() int                   { return 0 }
+func (NUnionBCDB) Name() string               { return "B" }
+func (NUnionBCDB) Index() int                 { return 0 }
 func (NUnionBCDB) VDLReflect(__NUnionBCDDesc) {}
-func (NUnionBCDC) Name() string                 { return "C" }
-func (NUnionBCDC) Index() int                   { return 1 }
+func (NUnionBCDC) Name() string               { return "C" }
+func (NUnionBCDC) Index() int                 { return 1 }
 func (NUnionBCDC) VDLReflect(__NUnionBCDDesc) {}
-func (NUnionBCDD) Name() string                 { return "D" }
-func (NUnionBCDD) Index() int                   { return 2 }
+func (NUnionBCDD) Name() string               { return "D" }
+func (NUnionBCDD) Index() int                 { return 2 }
 func (NUnionBCDD) VDLReflect(__NUnionBCDDesc) {}
 
 // Special-case error types
@@ -432,13 +432,13 @@ type (
 	NUnionNative string
 )
 
-func (x NUnionWireA) Name() string                     { return "A" }
-func (x NUnionWireA) Interface() interface{}           { return x.Value }
-func (x NUnionWireA) Index() int                       { return 0 }
+func (x NUnionWireA) Name() string                   { return "A" }
+func (x NUnionWireA) Interface() interface{}         { return x.Value }
+func (x NUnionWireA) Index() int                     { return 0 }
 func (x NUnionWireA) VDLReflect(__NUnionWireReflect) {}
-func (x NUnionWireB) Name() string                     { return "B" }
-func (x NUnionWireB) Interface() interface{}           { return x.Value }
-func (x NUnionWireB) Index() int                       { return 1 }
+func (x NUnionWireB) Name() string                   { return "B" }
+func (x NUnionWireB) Interface() interface{}         { return x.Value }
+func (x NUnionWireB) Index() int                     { return 1 }
 func (x NUnionWireB) VDLReflect(__NUnionWireReflect) {}
 
 func nUnionWireToNative(w NUnionWire, n *NUnionNative) error {
@@ -567,6 +567,7 @@ var (
 	StructUVFloat64Type   = StructType(Field{"U", Float64Type}, Field{"V", Float64Type})
 	StructUVFloat64TypeN  = NamedType("NStructUVFloat64", StructType(Field{"U", Float64TypeN}, Field{"V", Float64TypeN}))
 
+	// nolint: deadcode, unused, varcheck
 	StructAIntType = StructType(Field{"A", Int64Type})
 
 	WireTypeN = NameN("Wire", StructType(Field{"Str", StringType}))

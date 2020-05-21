@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -57,7 +57,7 @@ func (p *proxyInvoker) Prepare(_ *context.T, method string, numArgs int) (argptr
 	// TODO(toddw): Change argptrs to be filled in with *vdl.Value, to avoid
 	// unnecessary type lookups.
 	argptrs = make([]interface{}, numArgs)
-	for i, _ := range argptrs {
+	for i := range argptrs {
 		var x interface{}
 		argptrs[i] = &x
 	}
@@ -69,9 +69,7 @@ func (p *proxyInvoker) Invoke(ctx *context.T, inCall rpc.StreamServerCall, metho
 	// We accept any values as argument and pass them through to the remote
 	// server.
 	args := make([]interface{}, len(argptrs))
-	for i, ap := range argptrs {
-		args[i] = ap
-	}
+	copy(args, argptrs)
 	client := v23.GetClient(ctx)
 
 	outCall, err := client.StartCall(ctx, p.remote, method, args)
@@ -231,7 +229,7 @@ func (c *call) Send(v interface{}) error {
 
 func (p *proxyInvoker) Glob__(ctx *context.T, serverCall rpc.GlobServerCall, g *glob.Glob) error {
 	pattern := g.String()
-	p.Invoke(ctx, &call{serverCall}, rpc.GlobMethod, []interface{}{&pattern})
+	p.Invoke(ctx, &call{serverCall}, rpc.GlobMethod, []interface{}{&pattern}) // nolint: errcheck
 	return nil
 }
 

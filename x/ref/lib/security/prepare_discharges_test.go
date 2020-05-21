@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -72,10 +72,22 @@ func TestPrepareDischarges(t *testing.T) {
 		d, _ := p.BlessingStore().Default()
 		return d
 	}
-	security.AddToRoots(pclient, defaultBlessings(pdischarger))
-	security.AddToRoots(pclient, defaultBlessings(v23.GetPrincipal(ctx)))
-	security.AddToRoots(pdischarger, defaultBlessings(pclient))
-	security.AddToRoots(pdischarger, defaultBlessings(v23.GetPrincipal(ctx)))
+	err = security.AddToRoots(pclient, defaultBlessings(pdischarger))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = security.AddToRoots(pclient, defaultBlessings(v23.GetPrincipal(ctx)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = security.AddToRoots(pdischarger, defaultBlessings(pclient))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = security.AddToRoots(pdischarger, defaultBlessings(v23.GetPrincipal(ctx)))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expcav, err := security.NewExpiryCaveat(time.Now().Add(time.Hour))
 	if err != nil {
@@ -134,7 +146,7 @@ func TestPrepareDischarges(t *testing.T) {
 	if err := inRange(dis.Expiry(), beforeFetch.Add(expiryDur), afterFetch.Add(expiryDur)); err != nil {
 		t.Error(err)
 	}
-	time.Sleep(dis.Expiry().Sub(time.Now()))
+	time.Sleep(time.Until(dis.Expiry()))
 
 	// Preparing Discharges again to get fresh discharges.
 	beforeFetch = time.Now()

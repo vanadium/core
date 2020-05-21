@@ -32,11 +32,6 @@ type preparedStatementImpl struct {
 	id int64 // key to AST stored in queryEngineImpl.
 }
 
-type paramInfo struct {
-	paramValues []*vdl.Value
-	cursor      int64
-}
-
 func Create(db ds.Database) public.QueryEngine {
 	return &queryEngineImpl{db: db, nextID: 0, preparedStatements: map[int64]*query_parser.Statement{}}
 }
@@ -238,7 +233,7 @@ func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexField
 	indexes := []ds.IndexRanges{}
 
 	// Get IndexRanges for k
-	kField := &query_parser.Field{Segments: []query_parser.Segment{query_parser.Segment{Value: "k"}}}
+	kField := &query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}
 	idxRanges := *query_checker.CompileIndexRanges(kField, vdl.String, w)
 	indexes = append(indexes, idxRanges)
 

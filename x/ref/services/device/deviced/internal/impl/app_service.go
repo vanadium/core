@@ -132,7 +132,7 @@ import (
 	"text/template"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -337,7 +337,7 @@ const (
 // given title.
 func applicationDirName(title string) string {
 	h := md5.New()
-	h.Write([]byte(title))
+	h.Write([]byte(title)) // nolint: errcheck
 	hash := strings.TrimRight(base64.URLEncoding.EncodeToString(h.Sum(nil)), "=")
 	return appDirPrefix + hash
 }
@@ -363,6 +363,7 @@ func mkdirPerm(ctx *context.T, dir string, permissions int) error {
 	return nil
 }
 
+// nolint: deadcode, unused
 func sockPath(instanceDir string) (string, error) {
 	sockLink := filepath.Join(instanceDir, "agent-sock-dir")
 	sock, err := filepath.EvalSymlinks(sockLink)
@@ -520,7 +521,7 @@ func setupPrincipal(ctx *context.T, instanceDir string, call device.ApplicationI
 	if err := principalMgr.Serve(instanceDir, nil); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Serve(%v) failed: %v", instanceDir, err))
 	}
-	defer principalMgr.StopServing(instanceDir)
+	defer principalMgr.StopServing(instanceDir) // nolint: errcheck
 	p, err := principalMgr.Load(instanceDir)
 	if err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Load(%v) failed: %v", instanceDir, err))
@@ -609,7 +610,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 	if err != nil {
 		return err
 	}
-	for pkg, _ := range overridePackages {
+	for pkg := range overridePackages {
 		delete(envelope.Packages, pkg)
 	}
 	packagesDir := filepath.Join(versionDir, "packages")
@@ -617,7 +618,7 @@ func installPackages(ctx *context.T, installationDir, versionDir string) error {
 		return err
 	}
 	installFrom := func(pkgs application.Packages, sourceDir string) error {
-		for pkg, _ := range pkgs {
+		for pkg := range pkgs {
 			pkgFile := filepath.Join(sourceDir, "pkg", pkg)
 			dst := filepath.Join(packagesDir, pkg)
 			if err := packages.Install(pkgFile, dst); err != nil {
@@ -748,7 +749,7 @@ func genCmd(ctx *context.T, instanceDir, nsRoot string) (*exec.Cmd, error) {
 	saArgs.workspace = rootDir
 
 	logDir := filepath.Join(instanceDir, "logs")
-	suidHelper.chownTree(ctx, suidHelper.getCurrentUser(), instanceDir, os.Stdout, os.Stdin)
+	suidHelper.chownTree(ctx, suidHelper.getCurrentUser(), instanceDir, os.Stdout, os.Stdin) // nolint: errcheck
 	if err := mkdirPerm(ctx, logDir, 0755); err != nil {
 		return nil, err
 	}
@@ -814,7 +815,7 @@ func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) 
 	cfg.Set(mgmt.AddressConfigKey, "127.0.0.1:0")
 	cfg.Set(mgmt.PublisherBlessingPrefixesKey, publisherBlessingsPrefix.String())
 	if len(info.AppCycleBlessings) == 0 {
-		return 0, verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("info.AppCycleBessings is missing"))
+		return 0, verror.New(errors.ErrOperationFailed, ctx, "info.AppCycleBessings is missing")
 	}
 	cfg.Set(mgmt.AppCycleBlessingsKey, info.AppCycleBlessings)
 
@@ -895,7 +896,7 @@ func (i *appRunner) run(ctx *context.T, instanceDir string) error {
 	// We should allow the app to be considered for restart if startCmd
 	// fails after having successfully started the app process.
 	if err != nil {
-		transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateNotRunning)
+		transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateNotRunning) // nolint: errcheck
 		return err
 	}
 	if err := transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateRunning); err != nil {
@@ -1364,7 +1365,6 @@ func (i *appService) scanEnvelopes(ctx *context.T, tree *treeNode, appDir string
 		installID := strings.TrimPrefix(elems[1], installationPrefix)
 		tree.find([]string{env.Title, installID}, true)
 	}
-	return
 }
 
 func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
@@ -1389,7 +1389,6 @@ func (i *appService) scanInstances(ctx *context.T, tree *treeNode) {
 		instanceDir := filepath.Dir(path)
 		i.scanInstance(ctx, tree, title, instanceDir)
 	}
-	return
 }
 
 func (i *appService) scanInstance(ctx *context.T, tree *treeNode, title, instanceDir string) {
@@ -1433,8 +1432,9 @@ func (i *appService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerC
 	if n == nil {
 		return verror.New(errors.ErrInvalidSuffix, nil)
 	}
-	for child, _ := range n.children {
+	for child := range n.children {
 		if m.Match(child) {
+			// nolint: errcheck
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: child})
 		}
 	}

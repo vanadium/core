@@ -80,7 +80,7 @@ func (p *plugin) Scan(ctx *context.T, interfaceName string, callback func(*idisc
 			}
 			return buf.String()
 		})
-		defer stats.Delete(stat)
+		defer stats.Delete(stat) // nolint: errcheck
 		for {
 			select {
 			case adinfo := <-listener:
@@ -134,6 +134,9 @@ func newWithTTL(ctx *context.T, host string, ttl time.Duration) (idiscovery.Plug
 		adStopper:  idiscovery.NewTrigger(),
 		statPrefix: statPrefix,
 	}
-	runtime.SetFinalizer(p, func(p *plugin) { stats.Delete(statPrefix) })
+	runtime.SetFinalizer(p, func(p *plugin) {
+		// nolint: errcheck
+		stats.Delete(statPrefix)
+	})
 	return p, nil
 }

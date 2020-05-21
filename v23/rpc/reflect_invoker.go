@@ -416,7 +416,6 @@ var (
 	errNonRPCMethod      = verror.Register(pkgPath+".errNonRPCMethod", verror.NoRetry, "{1:}{2:}Non-rpc method, at least 2 in-args are required, with first arg *context.T."+useCall+"{:_}")
 
 	// These errors are expected to be embedded in verror.Aborted, via abortedf():
-	errInStreamServerCall = verror.Register(pkgPath+".errInStreamServerCall", verror.NoRetry, "{1:}{2:}Call arg rpc.StreamServerCall is invalid; cannot determine streaming types."+forgotWrap+"{:_}")
 	errNoFinalErrorOutArg = verror.Register(pkgPath+".errNoFinalErrorOutArg", verror.NoRetry, "{1:}{2:}Invalid out-args (final out-arg must be error){:_}")
 	errBadDescribe        = verror.Register(pkgPath+".errBadDescribe", verror.NoRetry, "{1:}{2:}Describe__ must have signature Describe__() []rpc.InterfaceDesc{:_}")
 	errBadGlobber         = verror.Register(pkgPath+".errBadGlobber", verror.NoRetry, "{1:}{2:}Globber must have signature Globber() *rpc.GlobState{:_}")

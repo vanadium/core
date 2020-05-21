@@ -424,7 +424,7 @@ func Stack(err error) PCs {
 
 func (st PCs) String() string {
 	buf := bytes.NewBufferString("")
-	StackToText(buf, st)
+	StackToText(buf, st) // nolint: errcheck
 	return buf.String()
 }
 
@@ -811,7 +811,7 @@ func debugStringInternal(err error, prefix string, name string) string {
 	// Append err's stack, indented a little.
 	prefix += "  "
 	buf := bytes.NewBufferString("")
-	stackToTextIndent(buf, Stack(err), prefix)
+	stackToTextIndent(buf, Stack(err), prefix) // nolint: errcheck
 	str += "\n" + buf.String()
 	// Print all the subordinate errors, even the ones that were not
 	// printed by Error(), indented a bit further.

@@ -13,10 +13,7 @@ import (
 
 	"v.io/v23/context"
 	"v.io/v23/services/device"
-	"v.io/v23/verror"
 )
-
-var errPIDIsNotInteger = verror.Register(pkgPath+".errPIDIsNotInteger", verror.NoRetry, "{1:}{2:} __debug/stats/system/pid isn't an integer{:_}")
 
 type pidInstanceDirPair struct {
 	instanceDir string

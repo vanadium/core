@@ -143,7 +143,7 @@ func awsTest(timeout time.Duration, cancel <-chan struct{}) {
 	onAWS = true
 }
 
-func awsGetIP(url string, timeout time.Duration, cancel <-chan struct{}) (net.IP) {
+func awsGetIP(url string, timeout time.Duration, cancel <-chan struct{}) net.IP {
 	client := &http.Client{Timeout: timeout}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

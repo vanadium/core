@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/conventions"
 	"v.io/v23/glob"
@@ -140,7 +140,13 @@ func export(t *testing.T, ctx *context.T, name, contents string) {
 	}
 	// Export the value.
 	client := v23.GetClient(ctx)
-	if err := client.Call(ctx, mountentry2names(resolved)[0], "Export", []interface{}{contents, true}, nil, options.Preresolved{resolved}); err != nil {
+	if err := client.Call(ctx,
+		mountentry2names(resolved)[0],
+		"Export",
+		[]interface{}{contents, true},
+		nil,
+		options.Preresolved{Resolution: resolved},
+	); err != nil {
 		boom(t, "Failed to Export.Call %s to %s: %s", name, contents, err)
 	}
 }
@@ -156,7 +162,12 @@ func checkContents(t *testing.T, ctx *context.T, name, expected string, shouldSu
 	}
 	// Look up the value.
 	client := v23.GetClient(ctx)
-	call, err := client.StartCall(ctx, mountentry2names(resolved)[0], "Lookup", nil, options.Preresolved{resolved})
+	call, err := client.StartCall(ctx,
+		mountentry2names(resolved)[0],
+		"Lookup",
+		nil,
+		options.Preresolved{Resolution: resolved},
+	)
 	if err != nil {
 		if shouldSucceed {
 			boom(t, "Failed Lookup.StartCall %s: %s", name, err)
@@ -487,6 +498,7 @@ func TestGlobAborts(t *testing.T) {
 		root, _, _ := mt.Lookup(ctx, "")
 		g, _ := glob.Parse("...")
 		fCall := &fakeServerCall{}
+		// nolint: errcheck
 		root.(rpc.Globber).Globber().AllGlobber.Glob__(ctx, fCall, g)
 		return fCall.sendCount, nil
 	}
@@ -880,7 +892,9 @@ func initTest() (rootCtx *context.T, aliceCtx *context.T, bobCtx *context.T, shu
 	}
 	for _, r := range []*context.T{rootCtx, aliceCtx, bobCtx} {
 		// A hack to set the namespace roots to a value that won't work.
-		v23.GetNamespace(r).SetRoots()
+		if err := v23.GetNamespace(r).SetRoots(); err != nil {
+			panic(err)
+		}
 		// And have all principals recognize each others blessings.
 		p1 := v23.GetPrincipal(r)
 		for _, other := range []*context.T{rootCtx, aliceCtx, bobCtx} {

@@ -373,6 +373,7 @@ const (
 var NamedEnumAll = [...]NamedEnum{NamedEnumA, NamedEnumB, NamedEnumC}
 
 // NamedEnumFromString creates a NamedEnum from a string label.
+// nolint: deadcode, unused
 func NamedEnumFromString(label string) (x NamedEnum, err error) {
 	err = x.Set(label)
 	return
@@ -2741,7 +2742,7 @@ var CNamedStruct = NamedStruct{
 const Cstring = "foo"
 const Cenum = NamedEnumA
 
-var Cunion = NamedUnion(NamedUnionA{true})
+var Cunion = NamedUnion(NamedUnionA{Value: true})
 var Carray = NamedArray{
 	true,
 	false,
@@ -2793,7 +2794,7 @@ var CScalars = Scalars{
 	B10: 10,
 	B11: "abc",
 	B12: NamedEnumB,
-	B13: NamedUnionC{123},
+	B13: NamedUnionC{Value: 123},
 }
 
 const True = true
@@ -3170,27 +3171,27 @@ var descServiceA = rpc.InterfaceDesc{
 		{
 			Name: "MethodA2",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // int32
-				{"b", ``}, // string
+				{Name: "a", Doc: ``}, // int32
+				{Name: "b", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"s", ``}, // string
+				{Name: "s", Doc: ``}, // string
 			},
 		},
 		{
 			Name: "MethodA3",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // int32
+				{Name: "a", Doc: ``}, // int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"s", ``}, // string
+				{Name: "s", Doc: ``}, // string
 			},
 			Tags: []*vdl.Value{vdl.ValueOf("tag"), vdl.ValueOf(uint64(6))},
 		},
 		{
 			Name: "MethodA4",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // int32
+				{Name: "a", Doc: ``}, // int32
 			},
 		},
 	},
@@ -3419,23 +3420,24 @@ var descServiceB = rpc.InterfaceDesc{
 	Name:    "ServiceB",
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/base",
 	Embeds: []rpc.EmbedDesc{
-		{"ServiceA", "v.io/x/ref/lib/vdl/testdata/base", ``},
+		{Name: "ServiceA", PkgPath: "v.io/x/ref/lib/vdl/testdata/base", Doc: ``},
 	},
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "MethodB1",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // Scalars
-				{"b", ``}, // Composites
+				{Name: "a", Doc: ``}, // Scalars
+				{Name: "b", Doc: ``}, // Composites
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"c", ``}, // CompComp
+				{Name: "c", Doc: ``}, // CompComp
 			},
 		},
 	},
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_bool_1     *vdl.Type
 	__VDLType_byte_2     *vdl.Type

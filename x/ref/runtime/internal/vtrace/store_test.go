@@ -53,7 +53,7 @@ func traceids(traces ...uniqueid.Id) map[uniqueid.Id]bool {
 
 func pretty(in map[uniqueid.Id]bool) []int {
 	out := make([]int, 0, len(in))
-	for k, _ := range in {
+	for k := range in {
 		out = append(out, int(k[15]))
 	}
 	sort.Ints(out)
@@ -118,8 +118,14 @@ func TestRegexp(t *testing.T) {
 			t.Fatalf("Could not create store: %v", err)
 		}
 
-		newSpan(traces[0], "foo", traces[0], st)
-		newSpan(traces[1], "foobar", traces[1], st)
+		_, err = newSpan(traces[0], "foo", traces[0], st)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = newSpan(traces[1], "foobar", traces[1], st)
+		if err != nil {
+			t.Fatal(err)
+		}
 		sp, err := newSpan(traces[2], "baz", traces[2], st)
 		if err != nil {
 			t.Fatal(err)

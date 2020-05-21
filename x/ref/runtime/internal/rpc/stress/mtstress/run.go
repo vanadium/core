@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 
 	"v.io/x/ref/lib/stats/histogram"
@@ -74,7 +74,7 @@ func run(f func(*context.T) (time.Duration, error), p params) error {
 			go call(p.Context, f, p.Reauthenticate, latency)
 		case d := <-latency:
 			if ret.HistMS != nil {
-				ret.HistMS.Add(int64(d / time.Millisecond))
+				ret.HistMS.Add(int64(d / time.Millisecond)) // nolint: errcheck
 			}
 			ret.Count++
 			sumMS += int64(d / time.Millisecond)
@@ -123,7 +123,7 @@ func warmup(ctx *context.T, f func(*context.T) (time.Duration, error)) {
 	for i := 0; i < nWarmup; i++ {
 		wg.Add(1)
 		go func() {
-			f(ctx)
+			f(ctx) // nolint: errcheck
 			wg.Done()
 		}()
 	}

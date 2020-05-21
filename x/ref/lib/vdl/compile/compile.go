@@ -162,7 +162,7 @@ func compileFileDoc(pkg *Package, pfiles []*parse.File, env *Env) {
 			// package.  For the common-case where we use file-doc for copyright
 			// headers, it also prevents the user from accidentally adding copyright
 			// headers to one file but not another, in the same package.
-			env.Errorf(file, parse.Pos{1, 1}, "all files in a package must have the same file doc (the comment on the first line of each *.vdl file that isn't package doc)")
+			env.Errorf(file, parse.Pos{Line: 1, Col: 1}, "all files in a package must have the same file doc (the comment on the first line of each *.vdl file that isn't package doc)")
 		}
 	}
 }
@@ -247,7 +247,7 @@ func computeDeps(pkg *Package, env *Env) {
 		delete(pdeps, BuiltInPackage)
 		// Finally populate PackageDeps and sort by package path.
 		file.PackageDeps = make([]*Package, 0, len(pdeps))
-		for pdep, _ := range pdeps {
+		for pdep := range pdeps {
 			file.PackageDeps = append(file.PackageDeps, pdep)
 		}
 		sort.Sort(pkgSorter(file.PackageDeps))

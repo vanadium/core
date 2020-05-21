@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -55,7 +55,7 @@ func TestStatsImpl(t *testing.T) {
 		MinValue:           0,
 	})
 	for i := 0; i < 10; i++ {
-		histogram.Add(int64(i))
+		histogram.Add(int64(i)) // nolint: errcheck
 	}
 
 	name := naming.JoinAddressName(endpoint, "")
@@ -160,11 +160,11 @@ func TestStatsImpl(t *testing.T) {
 			Min:   0,
 			Max:   9,
 			Buckets: []s_stats.HistogramBucket{
-				s_stats.HistogramBucket{LowBound: 0, Count: 1},
-				s_stats.HistogramBucket{LowBound: 1, Count: 2},
-				s_stats.HistogramBucket{LowBound: 3, Count: 4},
-				s_stats.HistogramBucket{LowBound: 7, Count: 3},
-				s_stats.HistogramBucket{LowBound: 15, Count: 0},
+				{LowBound: 0, Count: 1},
+				{LowBound: 1, Count: 2},
+				{LowBound: 3, Count: 4},
+				{LowBound: 7, Count: 3},
+				{LowBound: 15, Count: 0},
 			},
 		})
 		if !vdl.EqualValue(vv, want) {

@@ -21,17 +21,27 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 var (
 
 	// Internal errors.
-	errBadRequest                    = verror.Register("v.io/x/ref/runtime/internal/rpc.badRequest", verror.NoRetry, "{1:}{2:} failed to decode request: {3}")
-	errBadNumInputArgs               = verror.Register("v.io/x/ref/runtime/internal/rpc.badNumInputArgs", verror.NoRetry, "{1:}{2:} wrong number of input arguments for {3}.{4} (called with {5} args, want {6})")
-	errBadInputArg                   = verror.Register("v.io/x/ref/runtime/internal/rpc.badInputArg", verror.NoRetry, "{1:}{2:} method {3}.{4} has bad arg #{5}: {6}")
-	errBadBlessings                  = verror.Register("v.io/x/ref/runtime/internal/rpc.badBlessings", verror.NoRetry, "{1:}{2:} failed to decode blessings: {3}")
-	errBadBlessingsCache             = verror.Register("v.io/x/ref/runtime/internal/rpc.badBlessingsCache", verror.NoRetry, "{1:}{2:} failed to find blessings in cache: {3}")
-	errBadDischarge                  = verror.Register("v.io/x/ref/runtime/internal/rpc.badDischarge", verror.NoRetry, "{1:}{2:} failed to decode discharge #{3}: {4}")
-	errBadAuth                       = verror.Register("v.io/x/ref/runtime/internal/rpc.badAuth", verror.NoRetry, "{1:}{2:} not authorized to call {3}.{4}: {5}")
-	errTypeFlowFailure               = verror.Register("v.io/x/ref/runtime/internal/rpc.typeFlowFailure", verror.NoRetry, "{1:}{2:} type flow could not be constructed{:3}")
-	errServerBlessingsWrongPublicKey = verror.Register("v.io/x/ref/runtime/internal/rpc.serverBlessingsWrongPublicKey", verror.NoRetry, "{1:}{2:} server blessings do not match the principals public key")
-	errServerPeersEmpty              = verror.Register("v.io/x/ref/runtime/internal/rpc.serverPeersEmpty", verror.NoRetry, "{1:}{2:} no peers are authorized to communicate with the server")
-	errServerPeersWithPublishing     = verror.Register("v.io/x/ref/runtime/internal/rpc.serverPeersWithPublishing", verror.NoRetry, "{1:}{2:} ServerPeers option is not supported for servers that publish their endpoint at a mounttable")
+	errBadRequest      = verror.Register("v.io/x/ref/runtime/internal/rpc.badRequest", verror.NoRetry, "{1:}{2:} failed to decode request: {3}")
+	errBadNumInputArgs = verror.Register("v.io/x/ref/runtime/internal/rpc.badNumInputArgs", verror.NoRetry, "{1:}{2:} wrong number of input arguments for {3}.{4} (called with {5} args, want {6})")
+	errBadInputArg     = verror.Register("v.io/x/ref/runtime/internal/rpc.badInputArg", verror.NoRetry, "{1:}{2:} method {3}.{4} has bad arg #{5}: {6}")
+	/* These are not currently used, so remove them to avoid lint errors.
+	badBlessings(err error) {
+		"en": "failed to decode blessings: {err}",
+	}
+	badBlessingsCache(err error) {
+		"en": "failed to find blessings in cache: {err}",
+	}
+	badDischarge(index uint64, err error) {
+		"en": "failed to decode discharge #{index}: {err}",
+	}*/
+	errBadAuth         = verror.Register("v.io/x/ref/runtime/internal/rpc.badAuth", verror.NoRetry, "{1:}{2:} not authorized to call {3}.{4}: {5}")
+	errTypeFlowFailure = verror.Register("v.io/x/ref/runtime/internal/rpc.typeFlowFailure", verror.NoRetry, "{1:}{2:} type flow could not be constructed{:3}")
+	/* This not currently used, so remove it to avoid lint errors.
+	serverBlessingsWrongPublicKey() {
+		"en": "server blessings do not match the principals public key",
+	}*/
+	errServerPeersEmpty          = verror.Register("v.io/x/ref/runtime/internal/rpc.serverPeersEmpty", verror.NoRetry, "{1:}{2:} no peers are authorized to communicate with the server")
+	errServerPeersWithPublishing = verror.Register("v.io/x/ref/runtime/internal/rpc.serverPeersWithPublishing", verror.NoRetry, "{1:}{2:} ServerPeers option is not supported for servers that publish their endpoint at a mounttable")
 )
 
 // newErrBadRequest returns an error with the errBadRequest ID.
@@ -49,21 +59,6 @@ func newErrBadInputArg(ctx *context.T, suffix string, method string, index uint6
 	return verror.New(errBadInputArg, ctx, suffix, method, index, err)
 }
 
-// newErrBadBlessings returns an error with the errBadBlessings ID.
-func newErrBadBlessings(ctx *context.T, err error) error {
-	return verror.New(errBadBlessings, ctx, err)
-}
-
-// newErrBadBlessingsCache returns an error with the errBadBlessingsCache ID.
-func newErrBadBlessingsCache(ctx *context.T, err error) error {
-	return verror.New(errBadBlessingsCache, ctx, err)
-}
-
-// newErrBadDischarge returns an error with the errBadDischarge ID.
-func newErrBadDischarge(ctx *context.T, index uint64, err error) error {
-	return verror.New(errBadDischarge, ctx, index, err)
-}
-
 // newErrBadAuth returns an error with the errBadAuth ID.
 func newErrBadAuth(ctx *context.T, suffix string, method string, err error) error {
 	return verror.New(errBadAuth, ctx, suffix, method, err)
@@ -72,11 +67,6 @@ func newErrBadAuth(ctx *context.T, suffix string, method string, err error) erro
 // newErrTypeFlowFailure returns an error with the errTypeFlowFailure ID.
 func newErrTypeFlowFailure(ctx *context.T, err error) error {
 	return verror.New(errTypeFlowFailure, ctx, err)
-}
-
-// newErrServerBlessingsWrongPublicKey returns an error with the errServerBlessingsWrongPublicKey ID.
-func newErrServerBlessingsWrongPublicKey(ctx *context.T) error {
-	return verror.New(errServerBlessingsWrongPublicKey, ctx)
 }
 
 // newErrServerPeersEmpty returns an error with the errServerPeersEmpty ID.
@@ -114,12 +104,8 @@ func __VDLInit() struct{} {
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadRequest.ID), "{1:}{2:} failed to decode request: {3}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadNumInputArgs.ID), "{1:}{2:} wrong number of input arguments for {3}.{4} (called with {5} args, want {6})")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadInputArg.ID), "{1:}{2:} method {3}.{4} has bad arg #{5}: {6}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadBlessings.ID), "{1:}{2:} failed to decode blessings: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadBlessingsCache.ID), "{1:}{2:} failed to find blessings in cache: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadDischarge.ID), "{1:}{2:} failed to decode discharge #{3}: {4}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errBadAuth.ID), "{1:}{2:} not authorized to call {3}.{4}: {5}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errTypeFlowFailure.ID), "{1:}{2:} type flow could not be constructed{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errServerBlessingsWrongPublicKey.ID), "{1:}{2:} server blessings do not match the principals public key")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errServerPeersEmpty.ID), "{1:}{2:} no peers are authorized to communicate with the server")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errServerPeersWithPublishing.ID), "{1:}{2:} ServerPeers option is not supported for servers that publish their endpoint at a mounttable")
 

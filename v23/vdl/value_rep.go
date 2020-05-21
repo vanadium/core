@@ -109,10 +109,7 @@ func useFastIndex(key *Type) bool {
 	case Bool, Byte, Uint16, Uint32, Uint64, Int8, Int16, Int32, Int64, Float32, Float64, String, Enum:
 		return true
 	}
-	if key.IsBytes() {
-		return true
-	}
-	return false
+	return key.IsBytes()
 }
 
 // fastKeyRep returns a representation of key that may be used in a regular Go

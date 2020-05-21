@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/query_parser"
@@ -24,23 +24,23 @@ import (
 type parseSelectTest struct {
 	query     string
 	statement query_parser.SelectStatement
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type parseDeleteTest struct {
 	query     string
 	statement query_parser.DeleteStatement
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type parseErrorTest struct {
 	query string
-	err   error
+	err   error // nolint: structcheck, unused
 }
 
 type toStringTest struct {
 	query string
-	s     string
+	s     string // nolint: structcheck, unused
 }
 
 type copyAndSubstituteSelectTest struct {
@@ -58,7 +58,7 @@ type copyAndSubstituteDeleteTest struct {
 type copyAndSubstituteErrorTest struct {
 	query     string
 	subValues []*vdl.Value
-	err       error
+	err       error // nolint: structcheck, unused
 }
 
 type mockDB struct {
@@ -88,11 +88,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -119,11 +119,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "k",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -139,11 +139,11 @@ func TestSelectParser(t *testing.T) {
 							},
 							Node: query_parser.Node{Off: 7},
 						},
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 17},
 									},
@@ -177,11 +177,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 10},
 									},
@@ -209,11 +209,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -255,11 +255,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -301,11 +301,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -347,15 +347,15 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
-									query_parser.Segment{
+									{
 										Value: "x",
 										Node:  query_parser.Node{Off: 11},
 									},
@@ -364,15 +364,15 @@ func TestSelectParser(t *testing.T) {
 							},
 							Node: query_parser.Node{Off: 7},
 						},
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "bar",
 										Node:  query_parser.Node{Off: 14},
 									},
-									query_parser.Segment{
+									{
 										Value: "y",
 										Node:  query_parser.Node{Off: 18},
 									},
@@ -400,11 +400,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "select",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -429,7 +429,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "where",
 										Node:  query_parser.Node{Off: 30},
 									},
@@ -460,11 +460,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -489,11 +489,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -524,11 +524,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -553,11 +553,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -587,11 +587,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -633,7 +633,7 @@ func TestSelectParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypParameter,
 												Node: query_parser.Node{Off: 42},
 											},
@@ -659,24 +659,24 @@ func TestSelectParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 53},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypParameter,
 												Node: query_parser.Node{Off: 56},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 58},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 60},
 														},
@@ -715,11 +715,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -744,11 +744,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "ZipCode",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -778,11 +778,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -807,11 +807,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "ZipCode",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -841,11 +841,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -870,11 +870,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -905,11 +905,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -934,11 +934,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -969,11 +969,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -998,11 +998,11 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -1033,11 +1033,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "x",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1062,7 +1062,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 22},
 									},
@@ -1093,11 +1093,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "x",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1122,7 +1122,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 22},
 									},
@@ -1167,11 +1167,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "x",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1196,7 +1196,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 22},
 									},
@@ -1234,11 +1234,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "x",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1263,7 +1263,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 22},
 									},
@@ -1301,11 +1301,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1330,7 +1330,7 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "k",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -1368,15 +1368,15 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
-									query_parser.Segment{
+									{
 										Value: "bar",
 										Node:  query_parser.Node{Off: 11},
 									},
@@ -1385,19 +1385,19 @@ func TestSelectParser(t *testing.T) {
 							},
 							Node: query_parser.Node{Off: 7},
 						},
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "tom",
 										Node:  query_parser.Node{Off: 16},
 									},
-									query_parser.Segment{
+									{
 										Value: "dick",
 										Node:  query_parser.Node{Off: 20},
 									},
-									query_parser.Segment{
+									{
 										Value: "harry",
 										Node:  query_parser.Node{Off: 25},
 									},
@@ -1425,15 +1425,15 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "a",
 												Node:  query_parser.Node{Off: 51},
 											},
-											query_parser.Segment{
+											{
 												Value: "b",
 												Node:  query_parser.Node{Off: 53},
 											},
-											query_parser.Segment{
+											{
 												Value: "c",
 												Node:  query_parser.Node{Off: 55},
 											},
@@ -1466,15 +1466,15 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "d",
 												Node:  query_parser.Node{Off: 69},
 											},
-											query_parser.Segment{
+											{
 												Value: "e",
 												Node:  query_parser.Node{Off: 71},
 											},
-											query_parser.Segment{
+											{
 												Value: "f",
 												Node:  query_parser.Node{Off: 73},
 											},
@@ -1509,11 +1509,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1522,11 +1522,11 @@ func TestSelectParser(t *testing.T) {
 							},
 							Node: query_parser.Node{Off: 7},
 						},
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "bar",
 										Node:  query_parser.Node{Off: 12},
 									},
@@ -1554,11 +1554,11 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "CustRecord",
 												Node:  query_parser.Node{Off: 36},
 											},
-											query_parser.Segment{
+											{
 												Value: "CustID",
 												Node:  query_parser.Node{Off: 47},
 											},
@@ -1591,11 +1591,11 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "CustRecord",
 												Node:  query_parser.Node{Off: 61},
 											},
-											query_parser.Segment{
+											{
 												Value: "Name",
 												Node:  query_parser.Node{Off: 72},
 											},
@@ -1630,11 +1630,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1665,7 +1665,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 31},
 													},
@@ -1698,7 +1698,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 40},
 													},
@@ -1735,7 +1735,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 50},
 											},
@@ -1770,11 +1770,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1805,7 +1805,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 32},
 													},
@@ -1838,7 +1838,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 41},
 													},
@@ -1875,7 +1875,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 52},
 											},
@@ -1910,11 +1910,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -1945,7 +1945,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 32},
 													},
@@ -1978,7 +1978,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 42},
 													},
@@ -2015,7 +2015,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 53},
 											},
@@ -2050,11 +2050,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -2082,7 +2082,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "A",
 												Node:  query_parser.Node{Off: 31},
 											},
@@ -2118,7 +2118,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 41},
 													},
@@ -2151,7 +2151,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "C",
 														Node:  query_parser.Node{Off: 51},
 													},
@@ -2190,11 +2190,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -2222,7 +2222,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "A",
 												Node:  query_parser.Node{Off: 32},
 											},
@@ -2258,7 +2258,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 44},
 													},
@@ -2291,7 +2291,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "C",
 														Node:  query_parser.Node{Off: 56},
 													},
@@ -2330,11 +2330,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "foo",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -2365,7 +2365,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 31},
 													},
@@ -2398,7 +2398,7 @@ func TestSelectParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 41},
 													},
@@ -2435,7 +2435,7 @@ func TestSelectParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 61},
 											},
@@ -2470,11 +2470,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -2516,7 +2516,7 @@ func TestSelectParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "2015/07/22",
 												Node: query_parser.Node{Off: 42},
@@ -2543,25 +2543,25 @@ func TestSelectParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 64},
 											},
-											&query_parser.Operand{
+											{
 												Type:  query_parser.TypFloat,
 												Float: 20.1,
 												Node:  query_parser.Node{Off: 67},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 72},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 74},
 														},
@@ -2600,7 +2600,7 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelFunc,
 							Function: &query_parser.Function{
 								Name: "Now",
@@ -2627,7 +2627,7 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelFunc,
 							Function: &query_parser.Function{
 								Name: "Now",
@@ -2636,12 +2636,12 @@ func TestSelectParser(t *testing.T) {
 							},
 							Node: query_parser.Node{Off: 7},
 						},
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelFunc,
 							Function: &query_parser.Function{
 								Name: "Date",
 								Args: []*query_parser.Operand{
-									&query_parser.Operand{
+									{
 										Type: query_parser.TypStr,
 										Str:  "2015-06-01 PST",
 										Node: query_parser.Node{Off: 19},
@@ -2669,14 +2669,14 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Keys: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "foo",
 												Node: query_parser.Node{Off: 9},
@@ -2707,19 +2707,19 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Keys: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "foo",
 												Node: query_parser.Node{Off: 9},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "bar",
 												Node: query_parser.Node{Off: 16},
@@ -2750,11 +2750,11 @@ func TestSelectParser(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -2778,22 +2778,22 @@ func TestSelectParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Foo",
 										Keys: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 35},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 37},
 														},
@@ -2931,7 +2931,7 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "where",
 										Node:  query_parser.Node{Off: 23},
 									},
@@ -2973,11 +2973,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3019,11 +3019,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3081,7 +3081,7 @@ func TestDeleteParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypParameter,
 												Node: query_parser.Node{Off: 40},
 											},
@@ -3107,24 +3107,24 @@ func TestDeleteParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 51},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypParameter,
 												Node: query_parser.Node{Off: 54},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 56},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 58},
 														},
@@ -3174,11 +3174,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "ZipCode",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3219,11 +3219,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "ZipCode",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3264,11 +3264,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3310,11 +3310,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3356,11 +3356,11 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -3402,7 +3402,7 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 20},
 									},
@@ -3444,7 +3444,7 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "b",
 										Node:  query_parser.Node{Off: 20},
 									},
@@ -3493,7 +3493,7 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "k",
 										Node:  query_parser.Node{Off: 27},
 									},
@@ -3545,15 +3545,15 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "a",
 												Node:  query_parser.Node{Off: 27},
 											},
-											query_parser.Segment{
+											{
 												Value: "b",
 												Node:  query_parser.Node{Off: 29},
 											},
-											query_parser.Segment{
+											{
 												Value: "c",
 												Node:  query_parser.Node{Off: 31},
 											},
@@ -3586,15 +3586,15 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "d",
 												Node:  query_parser.Node{Off: 45},
 											},
-											query_parser.Segment{
+											{
 												Value: "e",
 												Node:  query_parser.Node{Off: 47},
 											},
-											query_parser.Segment{
+											{
 												Value: "f",
 												Node:  query_parser.Node{Off: 49},
 											},
@@ -3643,11 +3643,11 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "CustRecord",
 												Node:  query_parser.Node{Off: 27},
 											},
-											query_parser.Segment{
+											{
 												Value: "CustID",
 												Node:  query_parser.Node{Off: 38},
 											},
@@ -3680,11 +3680,11 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "CustRecord",
 												Node:  query_parser.Node{Off: 52},
 											},
-											query_parser.Segment{
+											{
 												Value: "Name",
 												Node:  query_parser.Node{Off: 63},
 											},
@@ -3736,7 +3736,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 27},
 													},
@@ -3769,7 +3769,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 36},
 													},
@@ -3806,7 +3806,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 46},
 											},
@@ -3858,7 +3858,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 28},
 													},
@@ -3891,7 +3891,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 37},
 													},
@@ -3928,7 +3928,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 48},
 											},
@@ -3980,7 +3980,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 28},
 													},
@@ -4013,7 +4013,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 38},
 													},
@@ -4050,7 +4050,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 49},
 											},
@@ -4099,7 +4099,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "A",
 												Node:  query_parser.Node{Off: 27},
 											},
@@ -4135,7 +4135,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 37},
 													},
@@ -4168,7 +4168,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "C",
 														Node:  query_parser.Node{Off: 47},
 													},
@@ -4221,7 +4221,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "A",
 												Node:  query_parser.Node{Off: 28},
 											},
@@ -4257,7 +4257,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 40},
 													},
@@ -4290,7 +4290,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "C",
 														Node:  query_parser.Node{Off: 52},
 													},
@@ -4346,7 +4346,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "A",
 														Node:  query_parser.Node{Off: 27},
 													},
@@ -4379,7 +4379,7 @@ func TestDeleteParser(t *testing.T) {
 											Type: query_parser.TypField,
 											Column: &query_parser.Field{
 												Segments: []query_parser.Segment{
-													query_parser.Segment{
+													{
 														Value: "B",
 														Node:  query_parser.Node{Off: 37},
 													},
@@ -4416,7 +4416,7 @@ func TestDeleteParser(t *testing.T) {
 									Type: query_parser.TypField,
 									Column: &query_parser.Field{
 										Segments: []query_parser.Segment{
-											query_parser.Segment{
+											{
 												Value: "C",
 												Node:  query_parser.Node{Off: 57},
 											},
@@ -4479,7 +4479,7 @@ func TestDeleteParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "2015/07/22",
 												Node: query_parser.Node{Off: 40},
@@ -4506,25 +4506,25 @@ func TestDeleteParser(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 62},
 											},
-											&query_parser.Operand{
+											{
 												Type:  query_parser.TypFloat,
 												Float: 20.1,
 												Node:  query_parser.Node{Off: 65},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 70},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 72},
 														},
@@ -4574,22 +4574,22 @@ func TestDeleteParser(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Foo",
 										Keys: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 33},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 35},
 														},
@@ -4854,11 +4854,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -4883,11 +4883,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -4918,11 +4918,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -4947,11 +4947,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 29},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 31},
 									},
@@ -4982,11 +4982,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -5028,7 +5028,7 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "abc",
 												Node: query_parser.Node{Off: 42},
@@ -5055,25 +5055,25 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 53},
 											},
-											&query_parser.Operand{
+											{
 												Type:  query_parser.TypFloat,
 												Float: 42.0,
 												Node:  query_parser.Node{Off: 56},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 58},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 60},
 														},
@@ -5112,11 +5112,11 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 			query_parser.SelectStatement{
 				Select: &query_parser.SelectClause{
 					Selectors: []query_parser.Selector{
-						query_parser.Selector{
+						{
 							Type: query_parser.TypSelField,
 							Field: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 7},
 									},
@@ -5141,7 +5141,7 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "k",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -5225,11 +5225,11 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -5271,11 +5271,11 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "v",
 										Node:  query_parser.Node{Off: 27},
 									},
-									query_parser.Segment{
+									{
 										Value: "Value",
 										Node:  query_parser.Node{Off: 29},
 									},
@@ -5334,7 +5334,7 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Time",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypStr,
 												Str:  "abc",
 												Node: query_parser.Node{Off: 40},
@@ -5361,25 +5361,25 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 									Function: &query_parser.Function{
 										Name: "Foo",
 										Args: []*query_parser.Operand{
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypInt,
 												Int:  10,
 												Node: query_parser.Node{Off: 51},
 											},
-											&query_parser.Operand{
+											{
 												Type:  query_parser.TypFloat,
 												Float: 42.0,
 												Node:  query_parser.Node{Off: 54},
 											},
-											&query_parser.Operand{
+											{
 												Type: query_parser.TypField,
 												Column: &query_parser.Field{
 													Segments: []query_parser.Segment{
-														query_parser.Segment{
+														{
 															Value: "v",
 															Node:  query_parser.Node{Off: 56},
 														},
-														query_parser.Segment{
+														{
 															Value: "Bar",
 															Node:  query_parser.Node{Off: 58},
 														},
@@ -5429,7 +5429,7 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 							Type: query_parser.TypField,
 							Column: &query_parser.Field{
 								Segments: []query_parser.Segment{
-									query_parser.Segment{
+									{
 										Value: "k",
 										Node:  query_parser.Node{Off: 29},
 									},

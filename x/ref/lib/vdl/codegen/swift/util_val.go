@@ -63,7 +63,7 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 		return "Int64(" + strconv.FormatInt(v.Int(), 10) + ")"
 	case vdl.Float32, vdl.Float64:
 		c := strconv.FormatFloat(v.Float(), 'g', -1, bitlen(v.Kind()))
-		if strings.Index(c, ".") == -1 {
+		if !strings.Contains(c, ".") {
 			c += ".0"
 		}
 		if v.Kind() == vdl.Float32 {
@@ -121,7 +121,7 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 		return ret
 	case vdl.TypeObject:
 		// TODO(zinman) Support TypeObjects once we have vdlType support
-		return fmt.Sprintf("VdlTypeObject(type: nil)")
+		return "VdlTypeObject(type: nil)"
 	case vdl.Optional:
 		if v.Elem() != nil {
 			return swiftConstVal(v.Elem(), ctx)

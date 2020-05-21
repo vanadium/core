@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/options"
@@ -38,7 +38,7 @@ func (c *canceld) Run(ctx *context.T, _ rpc.ServerCall) error {
 	if c.child != "" {
 		done = make(chan struct{})
 		go func() {
-			client.Call(ctx, c.child, "Run", nil, nil)
+			client.Call(ctx, c.child, "Run", nil, nil) // nolint: errcheck
 			close(done)
 		}()
 	}
@@ -54,8 +54,8 @@ func makeCanceld(ctx *context.T, name, child string) (*canceld, error) {
 	c := &canceld{
 		name:     name,
 		child:    child,
-		started:  make(chan struct{}, 0),
-		canceled: make(chan struct{}, 0),
+		started:  make(chan struct{}),
+		canceled: make(chan struct{}),
 	}
 	_, _, err := v23.WithNewServer(ctx, name, c, security.AllowEveryone())
 	if err != nil {
@@ -82,7 +82,7 @@ func TestCancellationPropagation(t *testing.T) {
 	ctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
 	go func() {
-		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil)
+		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil) // nolint: errcheck
 		close(done)
 	}()
 
@@ -150,6 +150,7 @@ func TestCancel(t *testing.T) {
 	}
 	cctx, cancel := context.WithCancel(cctx)
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, "cancel", "CancelStreamReader", nil, nil)
 		close(done)
@@ -180,8 +181,11 @@ func TestCancelWithFullBuffers(t *testing.T) {
 
 	// Fill up all the write buffers to ensure that cancelling works even when the stream
 	// is blocked.
-	call.Send(make([]byte, conn.DefaultBytesBufferedPerFlow-2048))
+	if err := call.Send(make([]byte, conn.DefaultBytesBufferedPerFlow-2048)); err != nil {
+		t.Fatal(err)
+	}
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		call.Finish()
 		close(done)
@@ -212,6 +216,7 @@ type disconnect interface {
 	stop(read, write bool)
 }
 
+// nolint: deadcode, unused
 type disConn struct {
 	net.Conn
 	mu                  sync.Mutex
@@ -391,6 +396,7 @@ func testChannelTimeOut_Server(t *testing.T, ctx *context.T) {
 	// cancellation.  Then we cancel the client call just to clean up.
 	cctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
+	// nolint: errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, ep.Name(), "WaitForCancel", nil, nil)
 		close(done)

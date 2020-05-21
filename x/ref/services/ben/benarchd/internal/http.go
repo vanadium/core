@@ -38,7 +38,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if strings.HasSuffix(file, ".js") {
 			w.Header().Set("Content-Type", "application/javascript")
 		}
-		w.Write(data)
+		w.Write(data) // nolint: errcheck
 		return
 	}
 	if id := strings.TrimSpace(r.FormValue("id")); len(id) > 0 {
@@ -163,7 +163,6 @@ func (h *handler) runs(w http.ResponseWriter, bm Benchmark, itr RunIterator) {
 		Err:       errs,
 	}
 	h.executeTemplate(w, tmplRuns, args)
-	return
 }
 
 func (h *handler) describeSource(w http.ResponseWriter, src string) {

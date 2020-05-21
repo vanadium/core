@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -132,7 +132,9 @@ func TestSeekBlessings(t *testing.T) {
 		if len(rejected) != 0 {
 			t.Errorf("unexpected rejected blessings for (%q, %q): %q", user, tc.role, rejected)
 		}
-		v23.GetPrincipal(tc.ctx).BlessingStore().Set(previousBlessings, security.AllPrincipals)
+		if _, err := v23.GetPrincipal(tc.ctx).BlessingStore().Set(previousBlessings, security.AllPrincipals); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -184,7 +186,9 @@ func TestPeerBlessingCaveats(t *testing.T) {
 	if err != nil {
 		t.Error("unexpected error:", err)
 	}
-	v23.GetPrincipal(user).BlessingStore().Set(blessings, security.AllPrincipals)
+	if _, err := v23.GetPrincipal(user).BlessingStore().Set(blessings, security.AllPrincipals); err != nil {
+		t.Fatal(err)
+	}
 
 	testcases := []struct {
 		peer          string
@@ -219,9 +223,9 @@ func TestGlob(t *testing.T) {
 		t.Fatalf("ioutil.TempDir failed: %v", err)
 	}
 	defer os.RemoveAll(workdir)
-	os.Mkdir(filepath.Join(workdir, "sub1"), 0700)
-	os.Mkdir(filepath.Join(workdir, "sub1", "sub2"), 0700)
-	os.Mkdir(filepath.Join(workdir, "sub3"), 0700)
+	os.Mkdir(filepath.Join(workdir, "sub1"), 0700)         // nolint: errcheck
+	os.Mkdir(filepath.Join(workdir, "sub1", "sub2"), 0700) // nolint: errcheck
+	os.Mkdir(filepath.Join(workdir, "sub3"), 0700)         // nolint: errcheck
 
 	// Role that user1 has access to.
 	roleAConf := irole.Config{Members: []security.BlessingPattern{"test-blessing:user1"}}
@@ -277,7 +281,9 @@ func newPrincipalContext(t *testing.T, ctx *context.T, root *testutil.IDProvider
 	if err != nil {
 		t.Fatalf("security.UnionOfBlessings failed: %v", err)
 	}
-	vsecurity.SetDefaultBlessings(principal, bUnion)
+	if err := vsecurity.SetDefaultBlessings(principal, bUnion); err != nil {
+		t.Fatal(err)
+	}
 	ctx, err = v23.WithPrincipal(ctx, principal)
 	if err != nil {
 		t.Fatalf("v23.WithPrincipal failed: %v", err)

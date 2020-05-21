@@ -9,10 +9,6 @@ import (
 	"testing"
 )
 
-const (
-	maxReadSize = 10
-)
-
 type testReader struct {
 	off      int
 	isClosed bool

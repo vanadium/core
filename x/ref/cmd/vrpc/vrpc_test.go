@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/lib/cmdline"
@@ -109,7 +109,7 @@ func (*server) ZStream(_ *context.T, call internal.TypeTesterZStreamServerCall, 
 	vlog.VI(2).Info("ZStream(%v,%v) was called.", nStream, item)
 	sender := call.SendStream()
 	for i := int32(0); i < nStream; i++ {
-		sender.Send(item)
+		sender.Send(item) // nolint: errcheck
 	}
 	return nil
 }

@@ -12,7 +12,7 @@ package main
 import (
 	"fmt"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/signals"
@@ -25,7 +25,6 @@ var (
 	flagName    string
 	flagEngine  string
 	flagRootDir string
-	flagPersist string
 )
 
 func main() {

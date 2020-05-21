@@ -15,7 +15,6 @@ import (
 
 const (
 	testQuantum = 1 << 14 // 16K
-	iobufSize   = 1 << 16 // 64K
 )
 
 // concat concatenates the buffers into a string.
@@ -81,9 +80,9 @@ func TestSimple(t *testing.T) {
 	q := New(testQuantum)
 	w, _ := q.NewWriter(0, 0, 5)
 	log.Printf("PutV")
-	w.Put(mkbufs("Hello"), nil)
+	w.Put(mkbufs("Hello"), nil) // nolint: errcheck
 	log.Printf("Release")
-	w.Release(5)
+	w.Release(5) // nolint: errcheck
 	log.Printf("Get")
 	w2, buf, err := q.Get(nil)
 	if err != nil {
@@ -103,13 +102,13 @@ func TestShutdownWithoutRemove(t *testing.T) {
 	w1, _ := q.NewWriter(0, 0, 100)
 	w2, _ := q.NewWriter(1, 1, 100)
 
-	w1.Put(mkbufs("1_1"), nil)
-	w1.Put(mkbufs("1_2"), nil)
-	w2.Put(mkbufs("2_1"), nil)
-	w2.Put(mkbufs("2_2"), nil)
+	w1.Put(mkbufs("1_1"), nil) // nolint: errcheck
+	w1.Put(mkbufs("1_2"), nil) // nolint: errcheck
+	w2.Put(mkbufs("2_1"), nil) // nolint: errcheck
+	w2.Put(mkbufs("2_2"), nil) // nolint: errcheck
 
-	w1.Release(3)
-	w2.Release(3)
+	w1.Release(3) // nolint: errcheck
+	w2.Release(3) // nolint: errcheck
 
 	w, buf, err := q.Get(nil)
 	if s := concat(buf); err != nil || w.ID() != w1.ID() || s != "1_1" {
@@ -138,49 +137,49 @@ func TestRelease(t *testing.T) {
 	c := startReader(q)
 	w1, _ := q.NewWriter(0, 0, 10)
 	w2, _ := q.NewWriter(1, 0, 10)
-	w1.Put(mkbufs("A1"), nil)
-	w1.Put(mkbufs("A2"), nil)
-	w2.Put(mkbufs("B1"), nil)
-	w2.Put(mkbufs("B2"), nil)
+	w1.Put(mkbufs("A1"), nil) // nolint: errcheck
+	w1.Put(mkbufs("A2"), nil) // nolint: errcheck
+	w2.Put(mkbufs("B1"), nil) // nolint: errcheck
+	w2.Put(mkbufs("B2"), nil) // nolint: errcheck
 	select {
 	case s := <-c:
 		t.Errorf("Unexpected Get: %q", s)
 	default:
 	}
 
-	w2.Release(1)
+	w2.Release(1) // nolint: errcheck
 	select {
 	case s := <-c:
 		t.Errorf("Expected no release, but received %q", s)
 	default:
 	}
 
-	w2.Release(1)
+	w2.Release(1) // nolint: errcheck
 	s := <-c
 	if s != "B1" {
 		t.Errorf("Expected 'B1', but received %q", s)
 	}
 
-	w1.Release(4)
+	w1.Release(4) // nolint: errcheck
 	s = <-c
 	if s != "A1A2" {
 		t.Errorf("Expected 'A1', but received %q", s)
 	}
 
-	w1.Release(2)
+	w1.Release(2) // nolint: errcheck
 	select {
 	case s := <-c:
 		t.Errorf("Unexpected Get: %q", s)
 	default:
 	}
 
-	w1.Put(mkbufs("A3"), nil)
+	w1.Put(mkbufs("A3"), nil) // nolint: errcheck
 	s = <-c
 	if s != "A3" {
 		t.Errorf("Expected 'A3', but received %q", s)
 	}
 
-	w2.Release(2)
+	w2.Release(2) // nolint: errcheck
 	s = <-c
 	if s != "B2" {
 		t.Errorf("Expected 'B2', but received %q", s)
@@ -204,19 +203,22 @@ func TestPriority(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 1, 100)
 	w2, _ := q.NewWriter(1, 0, 100)
-	w1.Release(100)
-	w2.Release(100)
+	w1.Release(100) // nolint: errcheck
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	w2.Release(100) // nolint: errcheck
+
+	w1.Put(mkbufs("a"), nil) // nolint: errcheck
+	w1.Put(mkbufs("b"), nil) // nolint: errcheck
+	w2.Put(mkbufs("c"), nil) // nolint: errcheck
+	w2.Put(mkbufs("d"), nil) // nolint: errcheck
+
 	expectGet(t, q, []string{"cd", "ab"})
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	w1.Put(mkbufs("a"), nil) // nolint: errcheck
+	w1.Put(mkbufs("b"), nil) // nolint: errcheck
+	w2.Put(mkbufs("c"), nil) // nolint: errcheck
+	w2.Put(mkbufs("d"), nil) // nolint: errcheck
+
 	expectGet(t, q, []string{"cd", "ab"})
 }
 
@@ -225,20 +227,20 @@ func TestRoundRobin(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 0, 100)
 	w2, _ := q.NewWriter(1, 0, 100)
-	w1.Release(100)
-	w2.Release(100)
+	w1.Release(100) // nolint: errcheck
+	w2.Release(100) // nolint: errcheck
 
-	w1.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w2.Put(mkbufs("d"), nil)
+	w1.Put(mkbufs("a"), nil) // nolint: errcheck
+	w1.Put(mkbufs("b"), nil) // nolint: errcheck
+	w2.Put(mkbufs("c"), nil) // nolint: errcheck
+	w2.Put(mkbufs("d"), nil) // nolint: errcheck
 	expectGet(t, q, []string{"ab", "cd"})
 
-	w2.Put(mkbufs("a"), nil)
-	w1.Put(mkbufs("b"), nil)
-	w2.Put(mkbufs("c"), nil)
-	w1.Put(mkbufs("d"), nil)
-	w1.Put(mkbufs("e"), nil)
+	w2.Put(mkbufs("a"), nil) // nolint: errcheck
+	w1.Put(mkbufs("b"), nil) // nolint: errcheck
+	w2.Put(mkbufs("c"), nil) // nolint: errcheck
+	w1.Put(mkbufs("d"), nil) // nolint: errcheck
+	w1.Put(mkbufs("e"), nil) // nolint: errcheck
 	expectGet(t, q, []string{"ac", "bde"})
 }
 
@@ -247,8 +249,8 @@ func TestDeficit(t *testing.T) {
 	q := New(testQuantum)
 	w1, _ := q.NewWriter(0, 0, testQuantum*10)
 	w2, _ := q.NewWriter(1, 0, testQuantum*10)
-	w1.Release(-1)
-	w2.Release(-1)
+	w1.Release(-1) // nolint: errcheck
+	w2.Release(-1) // nolint: errcheck
 
 	b1a := makeBuffer(2*testQuantum, '1')
 	b1b := makeBuffer(2*testQuantum, '2')
@@ -257,12 +259,12 @@ func TestDeficit(t *testing.T) {
 	b2c := makeBuffer(testQuantum, '5')
 	b2d := makeBuffer(testQuantum, '6')
 	b2e := makeBuffer(testQuantum, '7')
-	w1.Put(mkbufs(b1a), nil)
-	w1.Put(mkbufs(b1b), nil)
-	w2.Put(mkbufs(b2a), nil)
-	w2.Put(mkbufs(b2b), nil)
-	w2.Put(mkbufs(b2c), nil)
-	w2.Put(mkbufs(b2d), nil)
-	w2.Put(mkbufs(b2e), nil)
+	w1.Put(mkbufs(b1a), nil) // nolint: errcheck
+	w1.Put(mkbufs(b1b), nil) // nolint: errcheck
+	w2.Put(mkbufs(b2a), nil) // nolint: errcheck
+	w2.Put(mkbufs(b2b), nil) // nolint: errcheck
+	w2.Put(mkbufs(b2c), nil) // nolint: errcheck
+	w2.Put(mkbufs(b2d), nil) // nolint: errcheck
+	w2.Put(mkbufs(b2e), nil) // nolint: errcheck
 	expectGet(t, q, []string{b2a, b1a, b2b, b2c, b1b, b2d, b2e})
 }

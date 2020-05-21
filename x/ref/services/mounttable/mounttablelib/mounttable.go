@@ -36,9 +36,7 @@ var (
 	errLeafDoesntMatch    = verror.Register(pkgPath+".errLeafDoesntMatch", verror.NoRetry, "{1:}{2:} Leaf doesn't match{:_}")
 	errCantDeleteRoot     = verror.Register(pkgPath+".errCantDeleteRoot", verror.NoRetry, "{1:}{2:} cannot delete root node{:_}")
 	errNotEmpty           = verror.Register(pkgPath+".errNotEmpty", verror.NoRetry, "{1:}{2:} cannot delete {3}: has children{:_}")
-	errNamingLoop         = verror.Register(pkgPath+".errNamingLoop", verror.NoRetry, "{1:}{2:} Loop in namespace{:_}")
 	errTooManyNodes       = verror.Register(pkgPath+".errTooManyNodes", verror.NoRetry, "{1:}{2:} User has exceeded his node limit {:_}")
-	errNoSharedRoot       = verror.Register(pkgPath+".errNoSharedRoot", verror.NoRetry, "{1:}{2:} Server and User share no blessing root {:_}")
 	errNameElementTooLong = verror.Register(pkgPath+".errNameElementTooLong", verror.NoRetry, "{1:}{2:} path element {3}: too long {:_}")
 	errInvalidPermsFile   = verror.Register(pkgPath+".errInvalidPermsFile", verror.NoRetry, "{1:}{2:} perms file {3} invalid {:_}")
 )
@@ -310,7 +308,7 @@ func (mt *mountTable) traverse(cc *callContext, elems []string) (*node, []string
 	cur.parent.Lock()
 	cur.Lock()
 	for i, e := range elems {
-		cc.ctx.VI(2).Infof("satisfying %v %v", elems[0:i], *cur)
+		cc.ctx.VI(2).Infof("satisfying %v %v", elems[0:i], cur)
 		if err := cur.satisfies(mt, cc, traverseTags); err != nil {
 			cur.parent.Unlock()
 			cur.Unlock()
@@ -558,19 +556,6 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 	return nil
 }
 
-// fullName is for debugging only and should not normally be called.
-func (n *node) fullName() string {
-	if n.parent == nil || n.parent.parent == nil {
-		return ""
-	}
-	for k, c := range n.parent.children {
-		if c == n {
-			return n.parent.fullName() + "/" + k
-		}
-	}
-	return n.parent.fullName() + "/" + "?"
-}
-
 // removeUseless removes a node and all of its ascendants that are not useful.
 //
 // We assume both n and n.parent are locked.
@@ -662,15 +647,9 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 	}
 	mt.deleteNode(n.parent, ms.elems[len(ms.elems)-1])
 	if mt.persisting {
-		mt.persist.persistDelete(ms.name)
+		mt.persist.persistDelete(ms.name) // nolint: errcheck
 	}
 	return nil
-}
-
-// A struct holding a partial result of Glob.
-type globEntry struct {
-	n    *node
-	name string
 }
 
 // globStep is called with n and n.parent locked.  Returns with both unlocked.
@@ -708,7 +687,7 @@ func (mt *mountTable) globStep(cc *callContext, n *node, name string, pattern *g
 		}
 		// Hold no locks while we are sending on the channel to avoid livelock.
 		n.Unlock()
-		gCall.SendStream().Send(naming.GlobReplyEntry{Value: me})
+		gCall.SendStream().Send(naming.GlobReplyEntry{Value: me}) // nolint: errcheck
 		return
 	}
 
@@ -778,7 +757,7 @@ out:
 	// Hold no locks while we are sending on the channel to avoid livelock.
 	n.Unlock()
 	// Intermediate nodes are marked as serving a mounttable since they answer the mounttable methods.
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name, ServesMountTable: true}})
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name, ServesMountTable: true}}) // nolint: errcheck
 }
 
 // Glob finds matches in the namespace.  If we reach a mount point before matching the
@@ -822,7 +801,7 @@ func (ms *mountContext) linkToLeaf(cc *callContext, gCall rpc.GlobServerCall) {
 		servers[i].Server = naming.Join(s.Server, strings.Join(elems, "/"))
 	}
 	n.Unlock()
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: servers}})
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: servers}}) // nolint: errcheck
 }
 
 func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perms access.Permissions, version string) error {
@@ -866,7 +845,7 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 	n.vPerms, err = n.vPerms.Set(ctx, version, perms)
 	if err == nil {
 		if mt.persisting {
-			mt.persist.persistPerms(ms.name, n.creator, n.vPerms)
+			mt.persist.persistPerms(ms.name, n.creator, n.vPerms) // nolint: errcheck
 		}
 		n.explicitPermissions = true
 	}

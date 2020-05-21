@@ -17,7 +17,7 @@ import (
 
 	"v.io/x/lib/vlog"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -27,10 +27,8 @@ import (
 const pkgPath = "v.io/x/ref/lib.raft"
 
 var (
-	errBadAppend     = verror.Register(pkgPath+".errBadAppend", verror.NoRetry, "{1:}{2:} inconsistent append{:_}")
 	errAddAfterStart = verror.Register(pkgPath+".errAddAfterStart", verror.NoRetry, "{1:}{2:} adding member after start{:_}")
 	errNotLeader     = verror.Register(pkgPath+".errNotLeader", verror.NoRetry, "{1:}{2:} not the leader{:_}")
-	errWTF           = verror.Register(pkgPath+".errWTF", verror.NoRetry, "{1:}{2:} internal error{:_}")
 	errTimedOut      = verror.Register(pkgPath+".errTimedOut", verror.NoRetry, "{1:}{2:} request timed out{:_}")
 	errBadTerm       = verror.Register(pkgPath+".errBadTerm", verror.NoRetry, "{1:}{2:} new term {3} < {4} {:_}")
 )
@@ -157,7 +155,7 @@ func newRaft(ctx *context.T, config *RaftConfig, client RaftClient) (*raft, erro
 	r.leader = ""
 	r.memberMap = make(map[string]*member)
 	r.memberSet = make([]*member, 0)
-	r.AddMember(ctx, config.HostPort)
+	r.AddMember(ctx, config.HostPort) // nolint: errcheck
 	r.me = r.memberMap[config.HostPort]
 
 	// Raft persistent state.
@@ -248,7 +246,6 @@ func (r *raft) Start() {
 			go r.perFollower(m)
 		}
 	}
-	return
 }
 
 // Stop ceases all function as a raft server.
@@ -390,7 +387,7 @@ func (r *raft) startElection() {
 		members = append(members, k)
 	}
 	r.setRoleAndWatchdogTimer(RoleCandidate)
-	r.p.SetVotedFor(r.me.id)
+	r.p.SetVotedFor(r.me.id) // nolint: errcheck
 	r.leader = ""
 	r.Unlock()
 
@@ -431,7 +428,7 @@ func (r *raft) startElection() {
 		if highest > r.p.CurrentTerm() {
 			// If someone answered with a higher term, stop being a candidate.
 			r.setRoleAndWatchdogTimer(RoleFollower)
-			r.p.SetCurrentTerm(highest)
+			r.p.SetCurrentTerm(highest) // nolint: errcheck
 		}
 		vlog.VI(2).Infof("@%s lost election with %d votes", r.me.id, oks)
 		return
@@ -480,10 +477,6 @@ func (r *raft) lastApplied() Index {
 func (r *raft) resetTimerFuzzy(d time.Duration) {
 	fuzz := time.Duration(rand.Int63n(int64(r.heartbeat)))
 	r.timer.Reset(d + fuzz)
-}
-
-func (r *raft) resetTimer(d time.Duration) {
-	r.timer.Reset(d)
 }
 
 func highestFromChan(i Index, c chan Index) Index {
@@ -762,19 +755,6 @@ func (r *raft) setMatchIndex(m *member, i Index) {
 	}
 }
 
-func minIndex(indices ...Index) Index {
-	if len(indices) == 0 {
-		return 0
-	}
-	min := indices[0]
-	for _, x := range indices[1:] {
-		if x < min {
-			min = x
-		}
-	}
-	return min
-}
-
 func roleToString(r int) string {
 	switch r {
 	case RoleCandidate:
@@ -898,14 +878,14 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 
 		switch role {
 		case RoleLeader:
-			r.waitForApply(ctx, 0, commitIndex)
+			r.waitForApply(ctx, 0, commitIndex) // nolint: errcheck
 			return nil
 		case RoleFollower:
 			client := v23.GetClient(ctx)
 			var index Index
 			err := client.Call(ctx, leader, "Committed", []interface{}{}, []interface{}{&index}, options.Preresolved{})
 			if err == nil {
-				r.waitForApply(ctx, 0, index)
+				r.waitForApply(ctx, 0, index) // nolint: errcheck
 				return nil
 			}
 			// If the leader can't do it, give up.

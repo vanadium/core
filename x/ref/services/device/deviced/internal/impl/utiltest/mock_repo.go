@@ -14,7 +14,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -172,7 +172,7 @@ func (*brInvoker) Stat(ctx *context.T, call rpc.ServerCall) ([]binary.PartInfo, 
 	if err != nil {
 		return []binary.PartInfo{}, repository.MediaInfo{}, verror.New(ErrOperationFailed, ctx)
 	}
-	h.Write(bytes)
+	h.Write(bytes) // nolint: errcheck
 	part := binary.PartInfo{Checksum: hex.EncodeToString(h.Sum(nil)), Size: int64(len(bytes))}
 	return []binary.PartInfo{part}, repository.MediaInfo{Type: "application/octet-stream"}, nil
 }

@@ -7,7 +7,7 @@ package rpc
 import (
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/security"
@@ -87,7 +87,8 @@ func TestServerAuthorizer(t *testing.T) {
 			// Only ali and otherAli are authorized (since the
 			// policy does not allow "bob")
 			[]string{"ali", "bob", "che"},
-			newServerAuthorizer("", options.ServerAuthorizer{ACL("ali", "dan")}),
+			newServerAuthorizer("", options.ServerAuthorizer{
+				Authorizer: ACL("ali", "dan")}),
 			[]security.Blessings{ali, otherAli, U(ali, che), U(ali, bob)},
 			[]security.Blessings{bob, che},
 		},
@@ -95,14 +96,16 @@ func TestServerAuthorizer(t *testing.T) {
 			// Only otherAli is authorized (since only pother's public key is
 			// authorized)
 			[]string{"ali"},
-			newServerAuthorizer("", options.ServerAuthorizer{security.PublicKeyAuthorizer(pother.PublicKey())}),
+			newServerAuthorizer("", options.ServerAuthorizer{
+				Authorizer: security.PublicKeyAuthorizer(pother.PublicKey())}),
 			[]security.Blessings{otherAli},
 			[]security.Blessings{ali, bob, che},
 		},
 		{
 			// Blessings in endpoint can be ignored by security.AllowEveryone.
 			[]string{"ali"},
-			newServerAuthorizer("", options.ServerAuthorizer{security.AllowEveryone()}),
+			newServerAuthorizer("", options.ServerAuthorizer{
+				Authorizer: security.AllowEveryone()}),
 			[]security.Blessings{ali, bob, che, otherAli},
 			nil,
 		},
@@ -117,7 +120,8 @@ func TestServerAuthorizer(t *testing.T) {
 			// And if the intersection of the policy and the
 			// pattern is empty, then so be it.
 			[]string{"ali", "bob", "che"},
-			newServerAuthorizer("bob", options.ServerAuthorizer{ACL("ali", "che")}),
+			newServerAuthorizer("bob", options.ServerAuthorizer{
+				Authorizer: ACL("ali", "che")}),
 			[]security.Blessings{U(ali, bob), U(ali, bob, che)},
 			[]security.Blessings{ali, otherAli, bob, che, U(ali, che)},
 		},

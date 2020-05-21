@@ -43,12 +43,12 @@ func TestAssociationPersistence(t *testing.T) {
 
 	utiltest.CompareAssociations(t, got1, []device.Association{
 		{
-			"alice",
-			"alice_account",
+			IdentityName: "alice",
+			AccountName:  "alice_account",
 		},
 		{
-			"bob",
-			"alice_account",
+			IdentityName: "bob",
+			AccountName:  "alice_account",
 		},
 	})
 
@@ -92,8 +92,8 @@ func TestAssociationPersistence(t *testing.T) {
 	}
 	utiltest.CompareAssociations(t, got1, []device.Association{
 		{
-			"alice",
-			"alice_account",
+			IdentityName: "alice",
+			AccountName:  "alice_account",
 		},
 	})
 
@@ -108,12 +108,12 @@ func TestAssociationPersistence(t *testing.T) {
 	}
 	utiltest.CompareAssociations(t, got1, []device.Association{
 		{
-			"alice",
-			"alice_other_account",
+			IdentityName: "alice",
+			AccountName:  "alice_other_account",
 		},
 		{
-			"bob",
-			"alice_other_account",
+			IdentityName: "bob",
+			AccountName:  "alice_other_account",
 		},
 	})
 

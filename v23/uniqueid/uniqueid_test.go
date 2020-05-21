@@ -53,7 +53,9 @@ func BenchmarkNewIDParallel(b *testing.B) {
 	g := RandomGenerator{}
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			g.NewID()
+			if _, err := g.NewID(); err != nil {
+				b.Fatal(err)
+			}
 		}
 	})
 }

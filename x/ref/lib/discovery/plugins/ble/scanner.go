@@ -122,7 +122,7 @@ func (s *scanner) scanLoop() {
 
 		uuids := make([]string, 0, len(s.listeners)*2)
 		if _, ok := s.listeners[""]; !ok {
-			for interfaceName, _ := range s.listeners {
+			for interfaceName := range s.listeners {
 				uuid := newServiceUuid(interfaceName)
 				uuids = append(uuids, uuid.String())
 				toggleServiceUuid(uuid)

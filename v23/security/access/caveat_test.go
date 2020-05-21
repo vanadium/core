@@ -31,7 +31,9 @@ func TestAccessTagCaveat(t *testing.T) {
 			{[]*vdl.Value{vdl.ValueOf("Debug"), vdl.ValueOf("Resolve")}, false},
 		}
 	)
-	security.AddToRoots(server, bserver)
+	if err := security.AddToRoots(server, bserver); err != nil {
+		t.Fatal(err)
+	}
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	for idx, test := range tests {

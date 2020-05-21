@@ -999,7 +999,7 @@ func backoff(n uint, deadline time.Time) bool {
 	if b > maxBackoff {
 		b = maxBackoff
 	}
-	r := deadline.Sub(time.Now())
+	r := time.Until(deadline)
 	// We need to budget some time for the call to have a chance to complete
 	// lest we'll timeout before we actually do anything.  If we just don't
 	// have enough time left, give up.

@@ -6,17 +6,12 @@ package rt_test
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
 
-	"v.io/v23"
-	"v.io/v23/context"
-	"v.io/v23/rpc"
+	v23 "v.io/v23"
 	"v.io/x/lib/gosh"
-	"v.io/x/ref/lib/mgmt"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/v23test"
@@ -87,10 +82,6 @@ func TestMultipleStops(t *testing.T) {
 		t.Errorf("channel expected to be empty, got %q instead", s)
 	default:
 	}
-}
-
-func waitForEOF(r io.Reader) {
-	io.Copy(ioutil.Discard, r)
 }
 
 var noWaiters = gosh.RegisterFunc("noWaiters", func() {
@@ -224,6 +215,7 @@ func TestProgressMultipleTrackers(t *testing.T) {
 	}
 }
 
+// nolint: deadcode, unused, varcheck
 var app = gosh.RegisterFunc("app", func() {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -239,16 +231,3 @@ var app = gosh.RegisterFunc("app", func() {
 	fmt.Println("Doing some more work")
 	m.AdvanceProgress(5)
 })
-
-type configServer struct {
-	ch chan<- string
-}
-
-func (c *configServer) Set(_ *context.T, _ rpc.ServerCall, key, value string) error {
-	if key != mgmt.AppCycleManagerConfigKey {
-		return fmt.Errorf("Unexpected key: %v", key)
-	}
-	c.ch <- value
-	return nil
-
-}

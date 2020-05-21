@@ -919,7 +919,9 @@ func BenchmarkRemoteBlessingNames(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	AddToRoots(p, remote)
+	if err := AddToRoots(p, remote); err != nil {
+		b.Fatal(err)
+	}
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	call := NewCall(&CallParams{

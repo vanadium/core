@@ -1442,7 +1442,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "types.NUnion{A: true}",
-		Value:      vdl.ValueOf(types.NUnion(types.NUnionA{true})),
+		Value:      vdl.ValueOf(types.NUnion(types.NUnionA{Value: true})),
 		TypeString: "v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64}",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e152020001",
 		HexVersion: "80",
@@ -1469,7 +1469,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "types.NUnion{B: \"abc\"}",
-		Value:      vdl.ValueOf(types.NUnion(types.NUnionB{"abc"})),
+		Value:      vdl.ValueOf(types.NUnion(types.NUnionB{Value: "abc"})),
 		TypeString: "v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64}",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e152050103616263",
 		HexVersion: "80",
@@ -1487,7 +1487,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "types.NUnion{C: 123}",
-		Value:      vdl.ValueOf(types.NUnion(types.NUnionC{123})),
+		Value:      vdl.ValueOf(types.NUnion(types.NUnionC{Value: 123})),
 		TypeString: "v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64}",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e1520302fff6",
 		HexVersion: "80",
@@ -1496,7 +1496,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "types.NUnion{C: -123}",
-		Value:      vdl.ValueOf(types.NUnion(types.NUnionC{-123})),
+		Value:      vdl.ValueOf(types.NUnion(types.NUnionC{Value: -123})),
 		TypeString: "v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64}",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e1520302fff5",
 		HexVersion: "80",
@@ -2551,7 +2551,7 @@ var Tests = []types.TestCase{
 	{
 		Name: "types.StructAny{Any: types.NUnion{A: true}}",
 		Value: vdl.ValueOf(types.StructAny{
-			Any: vdl.ValueOf(types.NUnion(types.NUnionA{true})),
+			Any: vdl.ValueOf(types.NUnion(types.NUnionA{Value: true})),
 		}),
 		TypeString: "v.io/v23/vom/testdata/types.StructAny struct{Any any}",
 		Hex:        "805133060025762e696f2f7632332f766f6d2f74657374646174612f74797065732e537472756374416e7901010003416e79010fe1e1533a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e15205002a0001e1",
@@ -2931,7 +2931,7 @@ var Tests = []types.TestCase{
 	},
 	{
 		Name:       "types.NUnion{A: true}",
-		Value:      vdl.ValueOf(types.NUnion(types.NUnionA{true})),
+		Value:      vdl.ValueOf(types.NUnion(types.NUnionA{Value: true})),
 		TypeString: "v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64}",
 		Hex:        "80513a070022762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e556e696f6e01030001410101e10001420103e10001430109e1e152020001",
 		HexVersion: "80",
@@ -2996,7 +2996,7 @@ var Tests = []types.TestCase{
 			NStruct: types.NStruct{
 				A: true,
 			},
-			NUnion:     types.NUnionA{true},
+			NUnion:     types.NUnionA{Value: true},
 			TypeObject: vdl.BoolType,
 		}),
 		TypeString: "v.io/v23/vom/testdata/types.StructManyTypes struct{Bool bool;AByte byte;Int16 int16;Int32 int32;Int64 int64;Uint16 uint16;Uint32 uint32;Uint64 uint64;String string;Bytes []byte;Float32 float32;Float64 float64;FoodEnum v.io/v23/vom/testdata/types.FoodEnum enum{Bean;Brie;Cherry};NEnum v.io/v23/vom/testdata/types.NEnum enum{A;B;C};NListUint64 v.io/v23/vom/testdata/types.NListUint64 []uint64;NByteArray v.io/v23/vom/testdata/types.NByteArray [4]byte;NArray2Uint64 v.io/v23/vom/testdata/types.NArray2Uint64 [2]uint64;NSetUint64 v.io/v23/vom/testdata/types.NSetUint64 set[uint64];NMapUint64String v.io/v23/vom/testdata/types.NMapUint64String map[uint64]string;NStruct v.io/v23/vom/testdata/types.NStruct struct{A bool;B string;C int64};NUnion v.io/v23/vom/testdata/types.NUnion union{A bool;B string;C int64};TypeObject typeobject}",
@@ -3425,15 +3425,15 @@ var ConvertTests = map[string][]types.ConvertGroup{
 			Name:        "BdeUnion",
 			PrimaryType: vdl.TypeOf((*types.BdeUnion)(nil)),
 			Values: []*vdl.Value{
-				vdl.ValueOf(types.BdeUnion(types.BdeUnionB{"bde"})),
-				vdl.ValueOf(types.NUnion(types.NUnionB{"bde"})),
+				vdl.ValueOf(types.BdeUnion(types.BdeUnionB{Value: "bde"})),
+				vdl.ValueOf(types.NUnion(types.NUnionB{Value: "bde"})),
 			},
 		},
 		{
 			Name:        "BdeUnion fail",
 			PrimaryType: vdl.TypeOf((*types.NUnion)(nil)),
 			Values: []*vdl.Value{
-				vdl.ValueOf(types.NUnion(types.NUnionA{true})),
+				vdl.ValueOf(types.NUnion(types.NUnionA{Value: true})),
 			},
 		},
 	},

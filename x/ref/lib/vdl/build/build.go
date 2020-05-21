@@ -660,6 +660,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 	// Walk through root dirs and subdirs, looking for matches.
 	for _, walk := range walkDirs {
 		goModule, isGoModule := ds.goModules[walk.dir]
+		// nolint: errcheck
 		filepath.Walk(walk.dir, func(dirPath string, info os.FileInfo, err error) error {
 			// Ignore errors and non-directory elements.
 			if err != nil || !info.IsDir() {
@@ -702,9 +703,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			// possibly match the matcher.  E.g. given pattern "a..." we can skip
 			// the subdirs if the dir doesn't start with "a".
 			matchPath := dirPath[len(walk.dir):]
-			if strings.HasPrefix(matchPath, filePathSeparator) {
-				matchPath = matchPath[len(filePathSeparator):]
-			}
+			matchPath = strings.TrimPrefix(matchPath, filePathSeparator)
 
 			// Match agains the raw path, and also against one with the
 			// go module prefix prepended if go modules are in use.
@@ -1007,7 +1006,9 @@ func ParsePackage(pkg *Package, opts parse.Opts, errs *vdlutil.Errors) (pfiles [
 		}
 	}
 	sort.Sort(byBaseName(pfiles))
-	pkg.CloseFiles()
+	if err := pkg.CloseFiles(); err != nil {
+		vdlutil.Vlog.Printf("Parsing package %s %q, dir %s: failed to close files: %v", pkg.Name, pkg.Path, pkg.Dir, err)
+	}
 	return
 }
 

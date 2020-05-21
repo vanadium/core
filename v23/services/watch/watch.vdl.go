@@ -620,7 +620,7 @@ var descGlobWatcher = rpc.InterfaceDesc{
 			Name: "WatchGlob",
 			Doc:  "// WatchGlob returns a stream of changes that match a pattern.",
 			InArgs: []rpc.ArgDesc{
-				{"req", ``}, // GlobRequest
+				{Name: "req", Doc: ``}, // GlobRequest
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Resolve"))},
 		},
@@ -671,6 +671,7 @@ func (s implGlobWatcherWatchGlobServerCallSend) Send(item Change) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_list_1   *vdl.Type
 	__VDLType_struct_2 *vdl.Type

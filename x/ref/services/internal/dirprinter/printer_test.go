@@ -56,7 +56,7 @@ func TestDumpDir(t *testing.T) {
 		t.Fatalf("DumpDir failed: %v", err)
 	}
 	sh.Popd()
-	re := regexp.MustCompile("[\\d][\\d]:[\\d][\\d]:[\\d][\\d].[\\d][\\d][\\d][\\d][\\d][\\d]")
+	re := regexp.MustCompile(`[\d][\d]:[\d][\d]:[\d][\d].[\d][\d][\d][\d][\d][\d]`)
 	cleaned := re.ReplaceAll(out.Bytes(), []byte("hh:mm:ss.xxxxxx"))
 	expected, err := ioutil.ReadFile(filepath.Join("testdata", "expected"))
 	if err != nil {

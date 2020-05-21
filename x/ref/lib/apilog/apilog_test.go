@@ -54,7 +54,7 @@ func TestLogCall(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 	l := vlog.NewLogger("testHeader")
-	l.Configure(vlog.LogDir(dir), vlog.Level(2))
+	l.Configure(vlog.LogDir(dir), vlog.Level(2)) // nolint: errcheck
 	ctx, _ := context.RootContext()
 	ctx = context.WithLogger(ctx, l)
 	myLoggedFunc(ctx)
@@ -69,7 +69,7 @@ func TestLogCallNoContext(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 	l := vlog.NewLogger("testHeader")
-	l.Configure(vlog.LogDir(dir), vlog.Level(2))
+	l.Configure(vlog.LogDir(dir), vlog.Level(2)) // nolint: errcheck
 	saved := vlog.Log
 	vlog.Log = l
 	defer func() { vlog.Log = saved }()

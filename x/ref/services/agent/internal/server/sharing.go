@@ -35,14 +35,6 @@ func (p *watchers) unlock(id int) {
 	p.mu.Unlock()
 }
 
-func (p *watchers) rlock() {
-	p.mu.RLock()
-}
-
-func (p *watchers) runlock() {
-	p.mu.RUnlock()
-}
-
 func (p *watchers) newID() int {
 	p.mu.Lock()
 	id := p.nextId

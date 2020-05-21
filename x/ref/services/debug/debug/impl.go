@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -614,19 +614,19 @@ var cmdRoot = &cmdline.Command{
 	Children: []*cmdline.Command{
 		cmdGlob,
 		cmdVtrace,
-		&cmdline.Command{
+		{
 			Name:     "logs",
 			Short:    "Accesses log files",
 			Long:     "Accesses log files",
 			Children: []*cmdline.Command{cmdLogsRead, cmdLogsSize},
 		},
-		&cmdline.Command{
+		{
 			Name:     "stats",
 			Short:    "Accesses stats",
 			Long:     "Accesses stats",
 			Children: []*cmdline.Command{cmdStatsRead, cmdStatsWatch},
 		},
-		&cmdline.Command{
+		{
 			Name:     "pprof",
 			Short:    "Accesses profiling data",
 			Long:     "Accesses profiling data",
@@ -644,7 +644,7 @@ func startPprofProxyHTTPServer(ctx *context.T, name string) (string, error) {
 		return "", err
 	}
 	http.Handle("/", pproflib.PprofProxy(ctx, "", name))
-	go http.Serve(ln, nil)
+	go http.Serve(ln, nil) // nolint: errcheck
 	go func() {
 		<-ctx.Done()
 		ln.Close()

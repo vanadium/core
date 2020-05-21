@@ -246,7 +246,7 @@ func generateDMScript(workspace, restarter, agent, currLink string, singleUser, 
 	// v.io/x/ref/services/debug/debug/impl.go) instead.
 	output += fmt.Sprintf("exec %q ", restarter)
 	if !sessionMode {
-		output += fmt.Sprintf("--restart-exit-code=!0 ")
+		output += "--restart-exit-code=!0 "
 	}
 	output += fmt.Sprintf("%q", currLink)
 	path := filepath.Join(workspace, "deviced.sh")
@@ -352,14 +352,14 @@ func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	if restarterPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(restarterPid); err == nil {
-				p.Wait()
+				p.Wait() // nolint: errcheck
 			}
 		}()
 	}
 	if devmgrPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(devmgrPid); err == nil {
-				p.Wait()
+				p.Wait() // nolint: errcheck
 			}
 		}()
 	}

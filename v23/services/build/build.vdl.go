@@ -36,6 +36,7 @@ const (
 var ArchitectureAll = [...]Architecture{ArchitectureAmd64, ArchitectureArm, ArchitectureX86}
 
 // ArchitectureFromString creates a Architecture from a string label.
+// nolint: deadcode, unused
 func ArchitectureFromString(label string) (x Architecture, err error) {
 	err = x.Set(label)
 	return
@@ -113,6 +114,7 @@ const (
 var FormatAll = [...]Format{FormatElf, FormatMach, FormatPe}
 
 // FormatFromString creates a Format from a string label.
+// nolint: deadcode, unused
 func FormatFromString(label string) (x Format, err error) {
 	err = x.Set(label)
 	return
@@ -191,6 +193,7 @@ const (
 var OperatingSystemAll = [...]OperatingSystem{OperatingSystemDarwin, OperatingSystemLinux, OperatingSystemWindows, OperatingSystemAndroid}
 
 // OperatingSystemFromString creates a OperatingSystem from a string label.
+// nolint: deadcode, unused
 func OperatingSystemFromString(label string) (x OperatingSystem, err error) {
 	err = x.Set(label)
 	return
@@ -572,21 +575,21 @@ var descBuilder = rpc.InterfaceDesc{
 			Name: "Build",
 			Doc:  "// Build streams sources to the build server, which then attempts to\n// build the sources and streams back the compiled binaries.",
 			InArgs: []rpc.ArgDesc{
-				{"arch", ``}, // Architecture
-				{"os", ``},   // OperatingSystem
+				{Name: "arch", Doc: ``}, // Architecture
+				{Name: "os", Doc: ``},   // OperatingSystem
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // []byte
+				{Name: "", Doc: ``}, // []byte
 			},
 		},
 		{
 			Name: "Describe",
 			Doc:  "// Describe generates a description for a binary identified by\n// the given Object name.",
 			InArgs: []rpc.ArgDesc{
-				{"name", ``}, // string
+				{Name: "name", Doc: ``}, // string
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // binary.Description
+				{Name: "", Doc: ``}, // binary.Description
 			},
 		},
 	},
@@ -678,6 +681,7 @@ func (s implBuilderBuildServerCallSend) Send(item File) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_enum_1   *vdl.Type
 	__VDLType_enum_2   *vdl.Type

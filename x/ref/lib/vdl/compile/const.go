@@ -241,8 +241,6 @@ func compileConstExplicit(what string, explicit *vdl.Type, pexpr parse.ConstExpr
 	return v
 }
 
-var bigRatZero = new(big.Rat)
-
 // evalConstExpr returns the result of evaluating pexpr into a opconst.Const.
 // If implicit is non-nil, we apply it to pexpr if it doesn't have an explicit
 // type specified.  E.g. composite literals and enum labels with no explicit

@@ -47,7 +47,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 
 	// Start three app instances.
 	instances := make([]string, 3)
-	for i, _ := range instances {
+	for i := range instances {
 		instances[i] = utiltest.LaunchApp(t, ctx, appID)
 		pingCh.VerifyPingArgs(t, utiltest.UserName(t), "default", "")
 	}
@@ -61,7 +61,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 	utiltest.ResolveExpectNotFound(t, ctx, "dm", false) // Ensure a clean slate.
 
 	// Kill instance[0] and wait until it exits before proceeding.
-	syscall.Kill(pid, 9)
+	syscall.Kill(pid, 9) // nolint: errcheck
 	utiltest.PollingWait(t, pid)
 
 	// Run another device manager to replace the dead one.
@@ -74,7 +74,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 	// By now, we've reconciled the state of the tree with which processes
 	// are actually alive. instance-0 is not alive.
 	expected := []device.InstanceState{device.InstanceStateNotRunning, device.InstanceStateRunning, device.InstanceStateRunning}
-	for i, _ := range instances {
+	for i := range instances {
 		utiltest.VerifyState(t, ctx, expected[i], appID, instances[i])
 	}
 
@@ -85,7 +85,7 @@ func TestReapReconciliationViaKill(t *testing.T) {
 
 	// Kill instance[1]
 	pid = utiltest.GetPid(t, ctx, appID, instances[1])
-	syscall.Kill(pid, 9)
+	syscall.Kill(pid, 9) // nolint: errcheck
 
 	// Make a fourth instance. This forces a polling of processes so that
 	// the state is updated.
@@ -99,14 +99,14 @@ func TestReapReconciliationViaKill(t *testing.T) {
 	// Verify that reaper picked up the previous instances and was watching
 	// instance[1]
 	expected = []device.InstanceState{device.InstanceStateRunning, device.InstanceStateNotRunning, device.InstanceStateRunning, device.InstanceStateDeleted}
-	for i, _ := range instances {
+	for i := range instances {
 		utiltest.VerifyState(t, ctx, expected[i], appID, instances[i])
 	}
 
 	utiltest.TerminateApp(t, ctx, appID, instances[2])
 
 	expected = []device.InstanceState{device.InstanceStateRunning, device.InstanceStateNotRunning, device.InstanceStateDeleted, device.InstanceStateDeleted}
-	for i, _ := range instances {
+	for i := range instances {
 		utiltest.VerifyState(t, ctx, expected[i], appID, instances[i])
 	}
 	utiltest.TerminateApp(t, ctx, appID, instances[0])

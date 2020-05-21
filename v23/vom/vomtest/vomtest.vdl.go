@@ -3781,7 +3781,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.VUnionDepth1_All(vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+		Value: vdltest.VUnionDepth1_All(vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -3800,7 +3800,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Any{F0: int64(-123)}",
-		Value:      vdltest.VUnionDepth1_Any(vdltest.VUnionDepth1_AnyF0{int64(-123)}),
+		Value:      vdltest.VUnionDepth1_Any(vdltest.VUnionDepth1_AnyF0{Value: int64(-123)}),
 		Version:    129,
 		HexType:    "5132070025762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f416e79010100024630010fe1e1",
 		HexValue:   "520109010205000000fff5",
@@ -3816,7 +3816,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Bool{F1: true}",
-		Value:      vdltest.VUnionDepth1_Bool(vdltest.VUnionDepth1_BoolF1{true}),
+		Value:      vdltest.VUnionDepth1_Bool(vdltest.VUnionDepth1_BoolF1{Value: true}),
 		Version:    129,
 		HexType:    "5133070026762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f426f6f6c0101000246310101e1e1",
 		HexValue:   "52020001",
@@ -3832,7 +3832,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VBool{F2: true}",
-		Value:      vdltest.VUnionDepth1_VBool(vdltest.VUnionDepth1_VBoolF2{true}),
+		Value:      vdltest.VUnionDepth1_VBool(vdltest.VUnionDepth1_VBoolF2{Value: true}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e56426f6f6c0101e15134070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56426f6f6c010100024632012ae1e1",
 		HexValue:   "52020001",
@@ -3848,7 +3848,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.VUnionDepth1_String(vdltest.VUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.VUnionDepth1_String(vdltest.VUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "5135070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f537472696e670101000246330103e1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -3864,7 +3864,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.VUnionDepth1_VString(vdltest.VUnionDepth1_VStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.VUnionDepth1_VString(vdltest.VUnionDepth1_VStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e56537472696e670103e15136070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56537472696e67010100024634012ae1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -3872,7 +3872,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Value:      vdltest.VUnionDepth1_TypeObject(vdltest.VUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Value:      vdltest.VUnionDepth1_TypeObject(vdltest.VUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		Version:    129,
 		HexType:    "513907002c762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f547970654f626a656374010100024635010ee1e1",
 		HexValue:   "52010f020000",
@@ -3880,7 +3880,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Value:      vdltest.VUnionDepth1_TypeObject(vdltest.VUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Value:      vdltest.VUnionDepth1_TypeObject(vdltest.VUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		Version:    129,
 		HexType:    "513907002c762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f547970654f626a656374010100024635010ee1e1",
 		HexValue:   "520109020000",
@@ -3896,7 +3896,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Byte{F6: 123}",
-		Value:      vdltest.VUnionDepth1_Byte(vdltest.VUnionDepth1_ByteF6{123}),
+		Value:      vdltest.VUnionDepth1_Byte(vdltest.VUnionDepth1_ByteF6{Value: 123}),
 		Version:    129,
 		HexType:    "5133070026762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f427974650101000246360102e1e1",
 		HexValue:   "5202007b",
@@ -3912,7 +3912,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VByte{F7: 123}",
-		Value:      vdltest.VUnionDepth1_VByte(vdltest.VUnionDepth1_VByteF7{123}),
+		Value:      vdltest.VUnionDepth1_VByte(vdltest.VUnionDepth1_VByteF7{Value: 123}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e56427974650102e15134070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5642797465010100024637012ae1e1",
 		HexValue:   "5202007b",
@@ -3928,7 +3928,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VEnumAbc{F8: C}",
-		Value:      vdltest.VUnionDepth1_VEnumAbc(vdltest.VUnionDepth1_VEnumAbcF8{vdltest.VEnumAbcC}),
+		Value:      vdltest.VUnionDepth1_VEnumAbc(vdltest.VUnionDepth1_VEnumAbcF8{Value: vdltest.VEnumAbcC}),
 		Version:    129,
 		HexType:    "532901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4162630103014101420143e1513707002a762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56456e756d416263010100024638012ae1e1",
 		HexValue:   "52020002",
@@ -3944,7 +3944,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VEnumBcd{F9: D}",
-		Value:      vdltest.VUnionDepth1_VEnumBcd(vdltest.VUnionDepth1_VEnumBcdF9{vdltest.VEnumBcdD}),
+		Value:      vdltest.VUnionDepth1_VEnumBcd(vdltest.VUnionDepth1_VEnumBcdF9{Value: vdltest.VEnumBcdD}),
 		Version:    129,
 		HexType:    "532901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4263640103014201430144e1513707002a762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56456e756d426364010100024639012ae1e1",
 		HexValue:   "52020002",
@@ -3968,7 +3968,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.VUnionDepth1_VNamedError(vdltest.VUnionDepth1_VNamedErrorF11{vdltest.VNamedError{
+		Value: vdltest.VUnionDepth1_VNamedError(vdltest.VUnionDepth1_VNamedErrorF11{Value: vdltest.VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -3987,7 +3987,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.VUnionDepth1_Error(vdltest.VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Value: vdltest.VUnionDepth1_Error(vdltest.VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -4007,7 +4007,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Uint16{F13: 123}",
-		Value:      vdltest.VUnionDepth1_Uint16(vdltest.VUnionDepth1_Uint16F13{123}),
+		Value:      vdltest.VUnionDepth1_Uint16(vdltest.VUnionDepth1_Uint16F13{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f55696e743136010100034631330104e1e1",
 		HexValue:   "5202007b",
@@ -4023,7 +4023,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VUint16{F14: 123}",
-		Value:      vdltest.VUnionDepth1_VUint16(vdltest.VUnionDepth1_VUint16F14{123}),
+		Value:      vdltest.VUnionDepth1_VUint16(vdltest.VUnionDepth1_VUint16F14{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7431360104e15137070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74313601010003463134012ae1e1",
 		HexValue:   "5202007b",
@@ -4039,7 +4039,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Uint32{F15: 123}",
-		Value:      vdltest.VUnionDepth1_Uint32(vdltest.VUnionDepth1_Uint32F15{123}),
+		Value:      vdltest.VUnionDepth1_Uint32(vdltest.VUnionDepth1_Uint32F15{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f55696e743332010100034631350105e1e1",
 		HexValue:   "5202007b",
@@ -4055,7 +4055,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VUint32{F16: 123}",
-		Value:      vdltest.VUnionDepth1_VUint32(vdltest.VUnionDepth1_VUint32F16{123}),
+		Value:      vdltest.VUnionDepth1_VUint32(vdltest.VUnionDepth1_VUint32F16{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7433320105e15137070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74333201010003463136012ae1e1",
 		HexValue:   "5202007b",
@@ -4071,7 +4071,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Uint64{F17: 123}",
-		Value:      vdltest.VUnionDepth1_Uint64(vdltest.VUnionDepth1_Uint64F17{123}),
+		Value:      vdltest.VUnionDepth1_Uint64(vdltest.VUnionDepth1_Uint64F17{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f55696e743634010100034631370106e1e1",
 		HexValue:   "5202007b",
@@ -4087,7 +4087,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VUint64{F18: 123}",
-		Value:      vdltest.VUnionDepth1_VUint64(vdltest.VUnionDepth1_VUint64F18{123}),
+		Value:      vdltest.VUnionDepth1_VUint64(vdltest.VUnionDepth1_VUint64F18{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7436340106e15137070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74363401010003463138012ae1e1",
 		HexValue:   "5202007b",
@@ -4103,7 +4103,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Int8{F19: -123}",
-		Value:      vdltest.VUnionDepth1_Int8(vdltest.VUnionDepth1_Int8F19{-123}),
+		Value:      vdltest.VUnionDepth1_Int8(vdltest.VUnionDepth1_Int8F19{Value: -123}),
 		Version:    129,
 		HexType:    "5134070026762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f496e7438010100034631390110e1e1",
 		HexValue:   "520300fff5",
@@ -4119,7 +4119,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VInt8{F20: -123}",
-		Value:      vdltest.VUnionDepth1_VInt8(vdltest.VUnionDepth1_VInt8F20{-123}),
+		Value:      vdltest.VUnionDepth1_VInt8(vdltest.VUnionDepth1_VInt8F20{Value: -123}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e56496e74380110e15135070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56496e743801010003463230012ae1e1",
 		HexValue:   "520300fff5",
@@ -4135,7 +4135,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Int16{F21: -123}",
-		Value:      vdltest.VUnionDepth1_Int16(vdltest.VUnionDepth1_Int16F21{-123}),
+		Value:      vdltest.VUnionDepth1_Int16(vdltest.VUnionDepth1_Int16F21{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f496e743136010100034632310107e1e1",
 		HexValue:   "520300fff5",
@@ -4151,7 +4151,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VInt16{F22: -123}",
-		Value:      vdltest.VUnionDepth1_VInt16(vdltest.VUnionDepth1_VInt16F22{-123}),
+		Value:      vdltest.VUnionDepth1_VInt16(vdltest.VUnionDepth1_VInt16F22{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e56496e7431360107e15136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56496e74313601010003463232012ae1e1",
 		HexValue:   "520300fff5",
@@ -4167,7 +4167,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Int32{F23: -123}",
-		Value:      vdltest.VUnionDepth1_Int32(vdltest.VUnionDepth1_Int32F23{-123}),
+		Value:      vdltest.VUnionDepth1_Int32(vdltest.VUnionDepth1_Int32F23{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f496e743332010100034632330108e1e1",
 		HexValue:   "520300fff5",
@@ -4183,7 +4183,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VInt32{F24: -123}",
-		Value:      vdltest.VUnionDepth1_VInt32(vdltest.VUnionDepth1_VInt32F24{-123}),
+		Value:      vdltest.VUnionDepth1_VInt32(vdltest.VUnionDepth1_VInt32F24{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e56496e7433320108e15136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56496e74333201010003463234012ae1e1",
 		HexValue:   "520300fff5",
@@ -4199,7 +4199,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Int64{F25: -123}",
-		Value:      vdltest.VUnionDepth1_Int64(vdltest.VUnionDepth1_Int64F25{-123}),
+		Value:      vdltest.VUnionDepth1_Int64(vdltest.VUnionDepth1_Int64F25{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f496e743634010100034632350109e1e1",
 		HexValue:   "520300fff5",
@@ -4215,7 +4215,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VInt64{F26: -123}",
-		Value:      vdltest.VUnionDepth1_VInt64(vdltest.VUnionDepth1_VInt64F26{-123}),
+		Value:      vdltest.VUnionDepth1_VInt64(vdltest.VUnionDepth1_VInt64F26{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e56496e7436340109e15136070028762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56496e74363401010003463236012ae1e1",
 		HexValue:   "520300fff5",
@@ -4231,7 +4231,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Float32{F27: 1.5}",
-		Value:      vdltest.VUnionDepth1_Float32(vdltest.VUnionDepth1_Float32F27{1.5}),
+		Value:      vdltest.VUnionDepth1_Float32(vdltest.VUnionDepth1_Float32F27{Value: 1.5}),
 		Version:    129,
 		HexType:    "5137070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f466c6f6174333201010003463237010ae1e1",
 		HexValue:   "520400fef83f",
@@ -4247,7 +4247,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VFloat32{F28: 1.5}",
-		Value:      vdltest.VUnionDepth1_VFloat32(vdltest.VUnionDepth1_VFloat32F28{1.5}),
+		Value:      vdltest.VUnionDepth1_VFloat32(vdltest.VUnionDepth1_VFloat32F28{Value: 1.5}),
 		Version:    129,
 		HexType:    "532300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743332010ae1513807002a762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56466c6f6174333201010003463238012ae1e1",
 		HexValue:   "520400fef83f",
@@ -4263,7 +4263,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_Float64{F29: 1.5}",
-		Value:      vdltest.VUnionDepth1_Float64(vdltest.VUnionDepth1_Float64F29{1.5}),
+		Value:      vdltest.VUnionDepth1_Float64(vdltest.VUnionDepth1_Float64F29{Value: 1.5}),
 		Version:    129,
 		HexType:    "5137070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f466c6f6174363401010003463239010be1e1",
 		HexValue:   "520400fef83f",
@@ -4279,7 +4279,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_VFloat64{F30: 1.5}",
-		Value:      vdltest.VUnionDepth1_VFloat64(vdltest.VUnionDepth1_VFloat64F30{1.5}),
+		Value:      vdltest.VUnionDepth1_VFloat64(vdltest.VUnionDepth1_VFloat64F30{Value: 1.5}),
 		Version:    129,
 		HexType:    "532300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743634010be1513807002a762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56466c6f6174363401010003463330012ae1e1",
 		HexValue:   "520400fef83f",
@@ -4295,7 +4295,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_OptVStructEmpty{F31: {}}",
-		Value:      vdltest.VUnionDepth1_OptVStructEmpty(vdltest.VUnionDepth1_OptVStructEmptyF31{&vdltest.VStructEmpty{}}),
+		Value:      vdltest.VUnionDepth1_OptVStructEmpty(vdltest.VUnionDepth1_OptVStructEmptyF31{Value: &vdltest.VStructEmpty{}}),
 		Version:    129,
 		HexType:    "5525060021762e696f2f7632332f76646c2f76646c746573742e56537472756374456d707479e1530408012be1513f070031762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f4f707456537472756374456d70747901010003463331012ae1e1",
 		HexValue:   "520200e1",
@@ -4311,7 +4311,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth1_OptVNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.VUnionDepth1_OptVNamedError(vdltest.VUnionDepth1_OptVNamedErrorF32{&vdltest.VNamedError{
+		Value: vdltest.VUnionDepth1_OptVNamedError(vdltest.VUnionDepth1_OptVNamedErrorF32{Value: &vdltest.VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -4584,15 +4584,15 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VArray3_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.VArray3_VUnionDepth1_All{
-			vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -4784,7 +4784,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "[]vdltest.VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: []vdltest.VUnionDepth1_All{
-			vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -4964,7 +4964,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VList_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.VList_VUnionDepth1_All{
-			vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -5046,7 +5046,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "set[vdltest.VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: map[vdltest.VUnionDepth1_VNamedError]struct{}{
-			vdltest.VUnionDepth1_VNamedErrorF11{vdltest.VNamedError{
+			vdltest.VUnionDepth1_VNamedErrorF11{Value: vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
@@ -5105,7 +5105,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VSet_VUnionDepth1_VInt8{{F20: -123}}",
 		Value: vdltest.VSet_VUnionDepth1_VInt8{
-			vdltest.VUnionDepth1_VInt8F20{-123}: struct{}{},
+			vdltest.VUnionDepth1_VInt8F20{Value: -123}: struct{}{},
 		},
 		Version:  129,
 		HexType:  "552000001a762e696f2f7632332f76646c2f76646c746573742e56496e74380110e15335070027762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f56496e743801010003463230012be1e1513204002c762e696f2f7632332f76646c2f76646c746573742e565365745f56556e696f6e4465707468315f56496e7438012ae1",
@@ -5171,7 +5171,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "map[vdltest.VUnionDepth1_Float64]vdltest.VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Value: map[vdltest.VUnionDepth1_Float64]vdltest.VUnionDepth1_Float64{
-			vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+			vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 		},
 		Version:  129,
 		HexType:  "5337070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f466c6f6174363401010003463239010be1e1510605012a022ae1",
@@ -5237,7 +5237,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{{F18: 123}: {F18: 123}}",
 		Value: vdltest.VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{
-			vdltest.VUnionDepth1_VUint64F18{123}: vdltest.VUnionDepth1_VUint64F18{123},
+			vdltest.VUnionDepth1_VUint64F18{Value: 123}: vdltest.VUnionDepth1_VUint64F18{Value: 123},
 		},
 		Version:  129,
 		HexType:  "552200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7436340106e15337070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74363401010003463138012be1e1514b050043762e696f2f7632332f76646c2f76646c746573742e564d61705f56556e696f6e4465707468315f5655696e7436345f56556e696f6e4465707468315f5655696e743634012a022ae1",
@@ -5337,11 +5337,11 @@ var pass81 = []vdlEntry{
 			F9: vdltest.VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: vdltest.VUnionDepth1_Float64F29{1.5},
+			F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &vdltest.VStructDepth1_VEnumBcd{
 				F9: vdltest.VEnumBcdD,
 			},
@@ -5618,7 +5618,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VStructDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.VStructDepth2_VUnionDepth1_All{
-			F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -5641,7 +5641,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VStructDepth2_VUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Value: vdltest.VStructDepth2_VUnionDepth1_Float64{
-			F11: vdltest.VUnionDepth1_Float64F29{1.5},
+			F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 		},
 		Version:  129,
 		HexType:  "5337070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f466c6f6174363401010003463239010be1e15145060037762e696f2f7632332f76646c2f76646c746573742e565374727563744465707468325f56556e696f6e4465707468315f466c6f6174363401010003463131012ae1e1",
@@ -5698,7 +5698,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_All{F13: {F28: 1.5}}",
-		Value: vdltest.VUnionDepth2_All(vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+		Value: vdltest.VUnionDepth2_All(vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		Version:  129,
@@ -5716,7 +5716,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.VUnionDepth2_VArray1_String(vdltest.VUnionDepth2_VArray1_StringF0{vdltest.VArray1_String{
+		Value: vdltest.VUnionDepth2_VArray1_String(vdltest.VUnionDepth2_VArray1_StringF0{Value: vdltest.VArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		Version:  129,
@@ -5734,7 +5734,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VArray2_VByte{F1: \"{{\"}",
-		Value: vdltest.VUnionDepth2_VArray2_VByte(vdltest.VUnionDepth2_VArray2_VByteF1{vdltest.VArray2_VByte{
+		Value: vdltest.VUnionDepth2_VArray2_VByte(vdltest.VUnionDepth2_VArray2_VByteF1{Value: vdltest.VArray2_VByte{
 			123,
 			123,
 		}}),
@@ -5753,7 +5753,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VList_VByte{F2: \"{\"}",
-		Value:      vdltest.VUnionDepth2_VList_VByte(vdltest.VUnionDepth2_VList_VByteF2{vdltest.VList_VByte("{")}),
+		Value:      vdltest.VUnionDepth2_VList_VByte(vdltest.VUnionDepth2_VList_VByteF2{Value: vdltest.VList_VByte("{")}),
 		Version:    129,
 		HexType:    "552000001a762e696f2f7632332f76646c2f76646c746573742e56427974650102e15326030020762e696f2f7632332f76646c2f76646c746573742e564c6973745f5642797465012be1513a07002d762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468325f564c6973745f5642797465010100024632012ae1e1",
 		HexValue:   "520300017b",
@@ -5769,7 +5769,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VList_OptVNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.VUnionDepth2_VList_OptVNamedError(vdltest.VUnionDepth2_VList_OptVNamedErrorF3{vdltest.VList_OptVNamedError{
+		Value: vdltest.VUnionDepth2_VList_OptVNamedError(vdltest.VUnionDepth2_VList_OptVNamedErrorF3{Value: vdltest.VList_OptVNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -5790,7 +5790,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VSet_VBool{F4: {true}}",
-		Value: vdltest.VUnionDepth2_VSet_VBool(vdltest.VUnionDepth2_VSet_VBoolF4{vdltest.VSet_VBool{
+		Value: vdltest.VUnionDepth2_VSet_VBool(vdltest.VUnionDepth2_VSet_VBoolF4{Value: vdltest.VSet_VBool{
 			true: struct{}{},
 		}}),
 		Version:  129,
@@ -5808,7 +5808,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VSet_VNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.VUnionDepth2_VSet_VNamedError(vdltest.VUnionDepth2_VSet_VNamedErrorF5{vdltest.VSet_VNamedError{
+		Value: vdltest.VUnionDepth2_VSet_VNamedError(vdltest.VUnionDepth2_VSet_VNamedErrorF5{Value: vdltest.VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -5829,7 +5829,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_Map_VBool_VBool{F6: {true: true}}",
-		Value: vdltest.VUnionDepth2_Map_VBool_VBool(vdltest.VUnionDepth2_Map_VBool_VBoolF6{map[vdltest.VBool]vdltest.VBool{
+		Value: vdltest.VUnionDepth2_Map_VBool_VBool(vdltest.VUnionDepth2_Map_VBool_VBoolF6{Value: map[vdltest.VBool]vdltest.VBool{
 			true: true,
 		}}),
 		Version:  129,
@@ -5847,7 +5847,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VMap_VBool_VBool{F7: {true: true}}",
-		Value: vdltest.VUnionDepth2_VMap_VBool_VBool(vdltest.VUnionDepth2_VMap_VBool_VBoolF7{vdltest.VMap_VBool_VBool{
+		Value: vdltest.VUnionDepth2_VMap_VBool_VBool(vdltest.VUnionDepth2_VMap_VBool_VBoolF7{Value: vdltest.VMap_VBool_VBool{
 			true: true,
 		}}),
 		Version:  129,
@@ -5857,7 +5857,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth2_VStructDepth1_All{F8: {}}",
-		Value: vdltest.VUnionDepth2_VStructDepth1_All(vdltest.VUnionDepth2_VStructDepth1_AllF8{vdltest.VStructDepth1_All{
+		Value: vdltest.VUnionDepth2_VStructDepth1_All(vdltest.VUnionDepth2_VStructDepth1_AllF8{Value: vdltest.VStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		Version:  129,
@@ -5867,7 +5867,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.VUnionDepth2_VStructDepth1_All(vdltest.VUnionDepth2_VStructDepth1_AllF8{vdltest.VStructDepth1_All{
+		Value: vdltest.VUnionDepth2_VStructDepth1_All(vdltest.VUnionDepth2_VStructDepth1_AllF8{Value: vdltest.VStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -5926,7 +5926,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VStructDepth1_Int8{F9: {F19: -123}}",
-		Value: vdltest.VUnionDepth2_VStructDepth1_Int8(vdltest.VUnionDepth2_VStructDepth1_Int8F9{vdltest.VStructDepth1_Int8{
+		Value: vdltest.VUnionDepth2_VStructDepth1_Int8(vdltest.VUnionDepth2_VStructDepth1_Int8F9{Value: vdltest.VStructDepth1_Int8{
 			F19: -123,
 		}}),
 		Version:  129,
@@ -5936,7 +5936,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth2_VUnionDepth1_All{F10: {F0: nil}}",
-		Value:      vdltest.VUnionDepth2_VUnionDepth1_All(vdltest.VUnionDepth2_VUnionDepth1_AllF10{vdltest.VUnionDepth1_AllF0{}}),
+		Value:      vdltest.VUnionDepth2_VUnionDepth1_All(vdltest.VUnionDepth2_VUnionDepth1_AllF10{Value: vdltest.VUnionDepth1_AllF0{}}),
 		Version:    129,
 		HexType:    "552000001a762e696f2f7632332f76646c2f76646c746573742e56426f6f6c0101e1572200001c762e696f2f7632332f76646c2f76646c746573742e56537472696e670103e1592000001a762e696f2f7632332f76646c2f76646c746573742e56427974650102e15b2901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4162630103014101420143e15d2901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4263640103014201430144e15f25060021762e696f2f7632332f76646c2f76646c746573742e56537472756374456d707479e16135060020762e696f2f7632332f76646c2f76646c746573742e564e616d65644572726f720102000249640103e100034d73670103e1e1675201001a762e696f2f7632332f76646c2e576972655265747279436f64650104074e6f52657472790f5265747279436f6e6e656374696f6e0c5265747279526566657463680c52657472794261636b6f6666e1690403010fe16547060016762e696f2f7632332f76646c2e576972654572726f720104000249640103e100095265747279436f64650134e100034d73670103e10009506172616d4c6973740135e1e16304080133e16b2200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7431360104e16d2200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7433320105e16f2200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7436340106e1712000001a762e696f2f7632332f76646c2f76646c746573742e56496e74380110e1732100001b762e696f2f7632332f76646c2f76646c746573742e56496e7431360107e1752100001b762e696f2f7632332f76646c2f76646c746573742e56496e7433320108e1772100001b762e696f2f7632332f76646c2f76646c746573742e56496e7436340109e1792300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743332010ae17b2300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743634010be17d04080130e17f04080131e153fe0129070025762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f416c6c012100024630010fe1000246310101e100024632012be1000246330103e100024634012ce100024635010ee1000246360102e100024637012de100024638012ee100024639012fe100034631300130e100034631310131e100034631320132e100034631330104e100034631340136e100034631350105e100034631360137e100034631370106e100034631380138e100034631390110e100034632300139e100034632310107e10003463232013ae100034632330108e10003463234013be100034632350109e10003463236013ce10003463237010ae10003463238013de10003463239010be10003463330013ee10003463331013fe100034633320140e1e15140070032762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468325f56556e696f6e4465707468315f416c6c01010003463130012ae1e1",
 		HexValue:   "520000030000e0",
@@ -5944,7 +5944,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.VUnionDepth2_VUnionDepth1_All(vdltest.VUnionDepth2_VUnionDepth1_AllF10{vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+		Value: vdltest.VUnionDepth2_VUnionDepth1_All(vdltest.VUnionDepth2_VUnionDepth1_AllF10{Value: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -5955,7 +5955,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 0}}",
-		Value:      vdltest.VUnionDepth2_VUnionDepth1_VUint32(vdltest.VUnionDepth2_VUnionDepth1_VUint32F11{vdltest.VUnionDepth1_VUint32F16{}}),
+		Value:      vdltest.VUnionDepth2_VUnionDepth1_VUint32(vdltest.VUnionDepth2_VUnionDepth1_VUint32F11{Value: vdltest.VUnionDepth1_VUint32F16{}}),
 		Version:    129,
 		HexType:    "552200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7433320105e15337070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74333201010003463136012be1e15144070036762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468325f56556e696f6e4465707468315f5655696e74333201010003463131012ae1e1",
 		HexValue:   "5203000000",
@@ -5963,7 +5963,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 123}}",
-		Value:      vdltest.VUnionDepth2_VUnionDepth1_VUint32(vdltest.VUnionDepth2_VUnionDepth1_VUint32F11{vdltest.VUnionDepth1_VUint32F16{123}}),
+		Value:      vdltest.VUnionDepth2_VUnionDepth1_VUint32(vdltest.VUnionDepth2_VUnionDepth1_VUint32F11{Value: vdltest.VUnionDepth1_VUint32F16{Value: 123}}),
 		Version:    129,
 		HexType:    "552200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7433320105e15337070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e74333201010003463136012be1e15144070036762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468325f56556e696f6e4465707468315f5655696e74333201010003463131012ae1e1",
 		HexValue:   "520300007b",
@@ -5979,7 +5979,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_OptVStructDepth1_VEnumBcd{F12: {F9: D}}",
-		Value: vdltest.VUnionDepth2_OptVStructDepth1_VEnumBcd(vdltest.VUnionDepth2_OptVStructDepth1_VEnumBcdF12{&vdltest.VStructDepth1_VEnumBcd{
+		Value: vdltest.VUnionDepth2_OptVStructDepth1_VEnumBcd(vdltest.VUnionDepth2_OptVStructDepth1_VEnumBcdF12{Value: &vdltest.VStructDepth1_VEnumBcd{
 			F9: vdltest.VEnumBcdD,
 		}}),
 		Version:  129,
@@ -5997,7 +5997,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth2_OptVStructDepth1_VFloat32{F13: {F28: 1.5}}",
-		Value: vdltest.VUnionDepth2_OptVStructDepth1_VFloat32(vdltest.VUnionDepth2_OptVStructDepth1_VFloat32F13{&vdltest.VStructDepth1_VFloat32{
+		Value: vdltest.VUnionDepth2_OptVStructDepth1_VFloat32(vdltest.VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &vdltest.VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		Version:  129,
@@ -6084,13 +6084,13 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VArray2_Set_VUnionDepth1_VNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				vdltest.VUnionDepth1_VNamedErrorF11{vdltest.VNamedError{
+				vdltest.VUnionDepth1_VNamedErrorF11{Value: vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				vdltest.VUnionDepth1_VNamedErrorF11{vdltest.VNamedError{
+				vdltest.VUnionDepth1_VNamedErrorF11{Value: vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -6113,13 +6113,13 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Value: vdltest.VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+				vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+				vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+				vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -6234,11 +6234,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -6319,11 +6319,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -6351,10 +6351,10 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VArray2_VUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Value: vdltest.VArray2_VUnionDepth2_All{
-			vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
-			vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -6575,11 +6575,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -6604,7 +6604,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "[]vdltest.VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Value: []vdltest.VUnionDepth2_All{
-			vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -6647,15 +6647,15 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VList_VArray3_VUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.VList_VArray3_VUnionDepth1_All{
 			{
-				vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -6820,11 +6820,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -6849,7 +6849,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VList_VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Value: vdltest.VList_VUnionDepth2_All{
-			vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -6937,7 +6937,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "set[vdltest.VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: map[vdltest.VUnionDepth2_VArray1_String]struct{}{
-			vdltest.VUnionDepth2_VArray1_StringF0{vdltest.VArray1_String{
+			vdltest.VUnionDepth2_VArray1_StringF0{Value: vdltest.VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -7003,7 +7003,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.VSet_VUnionDepth2_VArray1_String{
-			vdltest.VUnionDepth2_VArray1_StringF0{vdltest.VArray1_String{
+			vdltest.VUnionDepth2_VArray1_StringF0{Value: vdltest.VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -7054,9 +7054,9 @@ var pass81 = []vdlEntry{
 		ValueLabel: "map[vdltest.VStructDepth2_VUnionDepth1_Float64]vdltest.VStructDepth2_VUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Value: map[vdltest.VStructDepth2_VUnionDepth1_Float64]vdltest.VStructDepth2_VUnionDepth1_Float64{
 			{
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -7075,9 +7075,9 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "map[vdltest.VUnionDepth2_VStructDepth1_Int8]vdltest.VUnionDepth2_VStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Value: map[vdltest.VUnionDepth2_VStructDepth1_Int8]vdltest.VUnionDepth2_VStructDepth1_Int8{
-			vdltest.VUnionDepth2_VStructDepth1_Int8F9{vdltest.VStructDepth1_Int8{
+			vdltest.VUnionDepth2_VStructDepth1_Int8F9{Value: vdltest.VStructDepth1_Int8{
 				F19: -123,
-			}}: vdltest.VUnionDepth2_VStructDepth1_Int8F9{vdltest.VStructDepth1_Int8{
+			}}: vdltest.VUnionDepth2_VStructDepth1_Int8F9{Value: vdltest.VStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
@@ -7153,10 +7153,10 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Value: vdltest.VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{
-			vdltest.VUnionDepth2_VArray2_VByteF1{vdltest.VArray2_VByte{
+			vdltest.VUnionDepth2_VArray2_VByteF1{Value: vdltest.VArray2_VByte{
 				123,
 				123,
-			}}: vdltest.VUnionDepth2_VArray2_VByteF1{vdltest.VArray2_VByte{
+			}}: vdltest.VUnionDepth2_VArray2_VByteF1{Value: vdltest.VArray2_VByte{
 				123,
 				123,
 			}},
@@ -7196,7 +7196,7 @@ var pass81 = []vdlEntry{
 				},
 			},
 			F1: []vdltest.VUnionDepth1_All{
-				vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -7205,7 +7205,7 @@ var pass81 = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[vdltest.VUnionDepth1_Float64]vdltest.VUnionDepth1_Float64{
-				vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+				vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: vdltest.VStructDepth2_All{
 				F0: vdltest.VArray2_TypeObject{
@@ -7280,11 +7280,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -7292,7 +7292,7 @@ var pass81 = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			F5: vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 			F6: &vdltest.VStructDepth2_Set_Float64{
@@ -7340,7 +7340,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VStructDepth3_List_VUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.VStructDepth3_List_VUnionDepth1_All{
 			F1: []vdltest.VUnionDepth1_All{
-				vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -7383,7 +7383,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Value: vdltest.VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[vdltest.VUnionDepth1_Float64]vdltest.VUnionDepth1_Float64{
-				vdltest.VUnionDepth1_Float64F29{1.5}: vdltest.VUnionDepth1_Float64F29{1.5},
+				vdltest.VUnionDepth1_Float64F29{Value: 1.5}: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -7487,11 +7487,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+				F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.VUnionDepth1_Float64F29{1.5},
+				F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.VStructDepth1_VEnumBcd{
 					F9: vdltest.VEnumBcdD,
 				},
@@ -7518,7 +7518,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.VStructDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Value: vdltest.VStructDepth3_VUnionDepth2_All{
-			F5: vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+			F5: vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -7559,7 +7559,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_All{F6: {F4: {1.5}}}",
-		Value: vdltest.VUnionDepth3_All(vdltest.VUnionDepth3_AllF6{&vdltest.VStructDepth2_Set_Float64{
+		Value: vdltest.VUnionDepth3_All(vdltest.VUnionDepth3_AllF6{Value: &vdltest.VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -7579,7 +7579,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Value: vdltest.VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(vdltest.VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{vdltest.VArray3_OptVStructDepth1_VFloat32{
+		Value: vdltest.VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(vdltest.VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: vdltest.VArray3_OptVStructDepth1_VFloat32{
 			{
 				F28: 1.5,
 			},
@@ -7605,7 +7605,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_List_VList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Value: vdltest.VUnionDepth3_List_VList_Error(vdltest.VUnionDepth3_List_VList_ErrorF1{[]vdltest.VList_Error{
+		Value: vdltest.VUnionDepth3_List_VList_Error(vdltest.VUnionDepth3_List_VList_ErrorF1{Value: []vdltest.VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -7629,7 +7629,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.VUnionDepth3_Set_VStructDepth1_String(vdltest.VUnionDepth3_Set_VStructDepth1_StringF2{map[vdltest.VStructDepth1_String]struct{}{
+		Value: vdltest.VUnionDepth3_Set_VStructDepth1_String(vdltest.VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[vdltest.VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -7649,7 +7649,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool{F3: {{F2: true}: {F2: true}}}",
-		Value: vdltest.VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(vdltest.VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{vdltest.VMap_VStructDepth1_VBool_VStructDepth1_VBool{
+		Value: vdltest.VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(vdltest.VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{Value: vdltest.VMap_VStructDepth1_VBool_VStructDepth1_VBool{
 			{
 				F2: true,
 			}: {
@@ -7663,7 +7663,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth3_VStructDepth2_All{F4: {}}",
-		Value: vdltest.VUnionDepth3_VStructDepth2_All(vdltest.VUnionDepth3_VStructDepth2_AllF4{vdltest.VStructDepth2_All{
+		Value: vdltest.VUnionDepth3_VStructDepth2_All(vdltest.VUnionDepth3_VStructDepth2_AllF4{Value: vdltest.VStructDepth2_All{
 			F0: vdltest.VArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -7681,7 +7681,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Value: vdltest.VUnionDepth3_VStructDepth2_All(vdltest.VUnionDepth3_VStructDepth2_AllF4{vdltest.VStructDepth2_All{
+		Value: vdltest.VUnionDepth3_VStructDepth2_All(vdltest.VUnionDepth3_VStructDepth2_AllF4{Value: vdltest.VStructDepth2_All{
 			F0: vdltest.VArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -7754,11 +7754,11 @@ var pass81 = []vdlEntry{
 			F9: vdltest.VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: vdltest.VUnionDepth1_AllF32{&vdltest.VNamedError{
+			F10: vdltest.VUnionDepth1_AllF32{Value: &vdltest.VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: vdltest.VUnionDepth1_Float64F29{1.5},
+			F11: vdltest.VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &vdltest.VStructDepth1_VEnumBcd{
 				F9: vdltest.VEnumBcdD,
 			},
@@ -7773,7 +7773,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.VUnionDepth3_VUnionDepth2_All{F5: {F0: {}}}",
-		Value:      vdltest.VUnionDepth3_VUnionDepth2_All(vdltest.VUnionDepth3_VUnionDepth2_AllF5{vdltest.VUnionDepth2_AllF0{}}),
+		Value:      vdltest.VUnionDepth3_VUnionDepth2_All(vdltest.VUnionDepth3_VUnionDepth2_AllF5{Value: vdltest.VUnionDepth2_AllF0{}}),
 		Version:    129,
 		HexType:    "552b020023762e696f2f7632332f76646c2f76646c746573742e564172726179315f537472696e6701030201e1592000001a762e696f2f7632332f76646c2f76646c746573742e56427974650102e1572a020022762e696f2f7632332f76646c2f76646c746573742e564172726179325f5642797465012d0202e15b26030020762e696f2f7632332f76646c2f76646c746573742e564c6973745f5642797465012de16135060020762e696f2f7632332f76646c2f76646c746573742e564e616d65644572726f720102000249640103e100034d73670103e1e15f04080131e15d2f030029762e696f2f7632332f76646c2f76646c746573742e564c6973745f4f7074564e616d65644572726f720130e1652000001a762e696f2f7632332f76646c2f76646c746573742e56426f6f6c0101e1632504001f762e696f2f7632332f76646c2f76646c746573742e565365745f56426f6f6c0133e1672b040025762e696f2f7632332f76646c2f76646c746573742e565365745f564e616d65644572726f720131e169060501330233e16b2d050025762e696f2f7632332f76646c2f76646c746573742e564d61705f56426f6f6c5f56426f6f6c01330233e16f2200001c762e696f2f7632332f76646c2f76646c746573742e56537472696e670103e1712901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4162630103014101420143e1732901001d762e696f2f7632332f76646c2f76646c746573742e56456e756d4263640103014201430144e17525060021762e696f2f7632332f76646c2f76646c746573742e56537472756374456d707479e17b5201001a762e696f2f7632332f76646c2e576972655265747279436f64650104074e6f52657472790f5265747279436f6e6e656374696f6e0c5265747279526566657463680c52657472794261636b6f6666e17d0403010fe17947060016762e696f2f7632332f76646c2e576972654572726f720104000249640103e100095265747279436f6465013ee100034d73670103e10009506172616d4c697374013fe1e1770408013de17f2200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7431360104e1ff812200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7433320105e1ff832200001c762e696f2f7632332f76646c2f76646c746573742e5655696e7436340106e1ff852000001a762e696f2f7632332f76646c2f76646c746573742e56496e74380110e1ff872100001b762e696f2f7632332f76646c2f76646c746573742e56496e7431360107e1ff892100001b762e696f2f7632332f76646c2f76646c746573742e56496e7433320108e1ff8b2100001b762e696f2f7632332f76646c2f76646c746573742e56496e7436340109e1ff8d2300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743332010ae1ff8f2300001d762e696f2f7632332f76646c2f76646c746573742e56466c6f61743634010be1ff910408013be16dfe012a060026762e696f2f7632332f76646c2f76646c746573742e565374727563744465707468315f416c6c012100024630010fe1000246310101e1000246320133e1000246330103e1000246340138e100024635010ee1000246360102e100024637012de1000246380139e100024639013ae10003463130013be100034631310131e10003463132013ce100034631330104e100034631340140e100034631350105e100034631360141e100034631370106e100034631380142e100034631390110e100034632300143e100034632310107e100034632320144e100034632330108e100034632340145e100034632350109e100034632360146e10003463237010ae100034632380147e10003463239010be100034633300148e100034633310149e100034633320130e1e1ff9335060027762e696f2f7632332f76646c2f76646c746573742e565374727563744465707468315f496e7438010100034631390110e1e1ff95fe0129070025762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f416c6c012100024630010fe1000246310101e1000246320133e1000246330103e1000246340138e100024635010ee1000246360102e100024637012de1000246380139e100024639013ae10003463130013be100034631310131e10003463132013ce100034631330104e100034631340140e100034631350105e100034631360141e100034631370106e100034631380142e100034631390110e100034632300143e100034632310107e100034632320144e100034632330108e100034632340145e100034632350109e100034632360146e10003463237010ae100034632380147e10003463239010be100034633300148e100034633310149e100034633320130e1e1ff9737070029762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468315f5655696e743332010100034631360141e1e1ff9b3806002b762e696f2f7632332f76646c2f76646c746573742e565374727563744465707468315f56456e756d426364010100024639013ae1e1ff990408014ee1ff9f3906002b762e696f2f7632332f76646c2f76646c746573742e565374727563744465707468315f56466c6f61743332010100034632380147e1e1ff9d04080150e153ff91070025762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468325f416c6c010e00024630012be100024631012ce100024632012ee100024633012fe1000246340132e1000246350134e1000246360135e1000246370136e1000246380137e100024639014ae10003463130014be10003463131014ce10003463132014de10003463133014fe1e1513f070032762e696f2f7632332f76646c2f76646c746573742e56556e696f6e4465707468335f56556e696f6e4465707468325f416c6c010100024635012ae1e1",
 		HexValue:   "5200000400000000",
@@ -7781,7 +7781,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Value: vdltest.VUnionDepth3_VUnionDepth2_All(vdltest.VUnionDepth3_VUnionDepth2_AllF5{vdltest.VUnionDepth2_AllF13{&vdltest.VStructDepth1_VFloat32{
+		Value: vdltest.VUnionDepth3_VUnionDepth2_All(vdltest.VUnionDepth3_VUnionDepth2_AllF5{Value: vdltest.VUnionDepth2_AllF13{Value: &vdltest.VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}}),
 		Version:  129,
@@ -7799,7 +7799,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Value: vdltest.VUnionDepth3_OptVStructDepth2_Set_Float64(vdltest.VUnionDepth3_OptVStructDepth2_Set_Float64F6{&vdltest.VStructDepth2_Set_Float64{
+		Value: vdltest.VUnionDepth3_OptVStructDepth2_Set_Float64(vdltest.VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &vdltest.VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -8524,7 +8524,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Value: func() vdltest.VNativeWireUnionNString {
 			var native vdltest.VNativeWireUnionNString
-			wire := vdltest.VWireUnionNString(vdltest.VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := vdltest.VWireUnionNString(vdltest.VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := vdltest.VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -8547,7 +8547,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Value: func() vdltest.VNativeWireUnionNStruct {
 			var native vdltest.VNativeWireUnionNStruct
-			wire := vdltest.VWireUnionNStruct(vdltest.VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := vdltest.VWireUnionNStruct(vdltest.VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := vdltest.VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -8570,7 +8570,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VWireUnionNArray{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Value: func() vdltest.VNativeWireUnionNArray {
 			var native vdltest.VNativeWireUnionNArray
-			wire := vdltest.VWireUnionNArray(vdltest.VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := vdltest.VWireUnionNArray(vdltest.VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := vdltest.VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -8593,7 +8593,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Value: func() vdltest.VNativeWireUnionNSlice {
 			var native vdltest.VNativeWireUnionNSlice
-			wire := vdltest.VWireUnionNSlice(vdltest.VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := vdltest.VWireUnionNSlice(vdltest.VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := vdltest.VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -8614,7 +8614,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VWireUnionNPointer{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.VWireUnionNPointer(vdltest.VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.VWireUnionNPointer(vdltest.VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "5133070027762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e506f696e74657201010001580103e1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -8630,7 +8630,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.VWireUnionNIface{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.VWireUnionNIface(vdltest.VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.VWireUnionNIface(vdltest.VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "5131070025762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e496661636501010001580103e1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -8802,7 +8802,7 @@ var pass81 = []vdlEntry{
 			},
 			UnionNString: func() vdltest.VNativeWireUnionNString {
 				var native vdltest.VNativeWireUnionNString
-				wire := vdltest.VWireUnionNString(vdltest.VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := vdltest.VWireUnionNString(vdltest.VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := vdltest.VWireUnionNStringToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -8810,7 +8810,7 @@ var pass81 = []vdlEntry{
 			}(),
 			UnionNStruct: func() vdltest.VNativeWireUnionNStruct {
 				var native vdltest.VNativeWireUnionNStruct
-				wire := vdltest.VWireUnionNStruct(vdltest.VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := vdltest.VWireUnionNStruct(vdltest.VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := vdltest.VWireUnionNStructToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -8818,7 +8818,7 @@ var pass81 = []vdlEntry{
 			}(),
 			UnionNArray: func() vdltest.VNativeWireUnionNArray {
 				var native vdltest.VNativeWireUnionNArray
-				wire := vdltest.VWireUnionNArray(vdltest.VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := vdltest.VWireUnionNArray(vdltest.VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := vdltest.VWireUnionNArrayToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -8826,14 +8826,14 @@ var pass81 = []vdlEntry{
 			}(),
 			UnionNSlice: func() vdltest.VNativeWireUnionNSlice {
 				var native vdltest.VNativeWireUnionNSlice
-				wire := vdltest.VWireUnionNSlice(vdltest.VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := vdltest.VWireUnionNSlice(vdltest.VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := vdltest.VWireUnionNSliceToNative(wire, &native); err != nil {
 					panic(err)
 				}
 				return native
 			}(),
-			UnionNPointer: vdltest.VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"},
-			UnionNIface:   vdltest.VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNPointer: vdltest.VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNIface:   vdltest.VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
 		},
 		Version:  129,
 		HexType:  "5329000023762e696f2f7632332f76646c2f76646c746573742e5657697265426f6f6c4e426f6f6c0101e1552b000025762e696f2f7632332f76646c2f76646c746573742e5657697265426f6f6c4e537472696e670101e1572b000025762e696f2f7632332f76646c2f76646c746573742e5657697265426f6f6c4e5374727563740101e15927000021762e696f2f7632332f76646c2f76646c746573742e5657697265496e744e496e740108e15b2a000024762e696f2f7632332f76646c2f76646c746573742e5657697265496e744e537472696e670108e15d2a000024762e696f2f7632332f76646c2f76646c746573742e5657697265496e744e5374727563740108e15f2d000027762e696f2f7632332f76646c2f76646c746573742e5657697265537472696e674e537472696e670103e1612d000027762e696f2f7632332f76646c2f76646c746573742e5657697265537472696e674e5374727563740103e1632e020026762e696f2f7632332f76646c2f76646c746573742e565769726541727261794e537472696e6701030201e1652e020026762e696f2f7632332f76646c2f76646c746573742e565769726541727261794e53747275637401030201e1672b030025762e696f2f7632332f76646c2f76646c746573742e56576972654c6973744e537472696e670103e1692b030025762e696f2f7632332f76646c2f76646c746573742e56576972654c6973744e5374727563740103e16b33060027762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e537472696e6701010001580103e1e16d33060027762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e53747275637401010001580103e1e16f32060026762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e417272617901010001580103e1e17132060026762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e536c69636501010001580103e1e17334060028762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e506f696e74657201010001580103e1e17532060026762e696f2f7632332f76646c2f76646c746573742e56576972655374727563744e496661636501010001580103e1e17732070026762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e537472696e6701010001580103e1e17932070026762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e53747275637401010001580103e1e17b31070025762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e417272617901010001580103e1e17d31070025762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e536c69636501010001580103e1e17f33070027762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e506f696e74657201010001580103e1e1ff8131070025762e696f2f7632332f76646c2f76646c746573742e5657697265556e696f6e4e496661636501010001580103e1e151fe01af06001d762e696f2f7632332f76646c2f76646c746573742e5657697265416c6c01180009426f6f6c4e426f6f6c012ae1000b426f6f6c4e537472696e67012be1000b426f6f6c4e537472756374012ce10007496e744e496e74012de1000a496e744e537472696e67012ee1000a496e744e537472756374012fe1000d537472696e674e537472696e670130e1000d537472696e674e5374727563740131e1000c41727261794e537472696e670132e1000c41727261794e5374727563740133e1000b4c6973744e537472696e670134e1000b4c6973744e5374727563740135e1000d5374727563744e537472696e670136e1000d5374727563744e5374727563740137e1000c5374727563744e41727261790138e1000c5374727563744e536c6963650139e1000e5374727563744e506f696e746572013ae1000c5374727563744e4966616365013be1000c556e696f6e4e537472696e67013ce1000c556e696f6e4e537472756374013de1000b556e696f6e4e4172726179013ee1000b556e696f6e4e536c696365013fe1000d556e696f6e4e506f696e7465720140e1000b556e696f6e4e49666163650141e1e1",
@@ -11709,7 +11709,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.XUnionDepth1_All(vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+		Value: vdltest.XUnionDepth1_All(vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -11728,7 +11728,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Any{F0: int64(-123)}",
-		Value:      vdltest.XUnionDepth1_Any(vdltest.XUnionDepth1_AnyF0{int64(-123)}),
+		Value:      vdltest.XUnionDepth1_Any(vdltest.XUnionDepth1_AnyF0{Value: int64(-123)}),
 		Version:    129,
 		HexType:    "5132070025762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f416e79010100024630010fe1e1",
 		HexValue:   "520109010205000000fff5",
@@ -11744,7 +11744,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Bool{F1: true}",
-		Value:      vdltest.XUnionDepth1_Bool(vdltest.XUnionDepth1_BoolF1{true}),
+		Value:      vdltest.XUnionDepth1_Bool(vdltest.XUnionDepth1_BoolF1{Value: true}),
 		Version:    129,
 		HexType:    "5133070026762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f426f6f6c0101000246310101e1e1",
 		HexValue:   "52020001",
@@ -11760,7 +11760,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XBool{F2: true}",
-		Value:      vdltest.XUnionDepth1_XBool(vdltest.XUnionDepth1_XBoolF2{true}),
+		Value:      vdltest.XUnionDepth1_XBool(vdltest.XUnionDepth1_XBoolF2{Value: true}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e58426f6f6c0101e15134070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58426f6f6c010100024632012ae1e1",
 		HexValue:   "52020001",
@@ -11776,7 +11776,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.XUnionDepth1_String(vdltest.XUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.XUnionDepth1_String(vdltest.XUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "5135070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f537472696e670101000246330103e1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -11792,7 +11792,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Value:      vdltest.XUnionDepth1_XString(vdltest.XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Value:      vdltest.XUnionDepth1_XString(vdltest.XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e58537472696e670103e15136070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58537472696e67010100024634012ae1e1",
 		HexValue:   "5220001e6162636465ce94ce98cea0cea3cea6e78e8be699aee6bea4e4b896e7958c",
@@ -11800,7 +11800,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Value:      vdltest.XUnionDepth1_TypeObject(vdltest.XUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Value:      vdltest.XUnionDepth1_TypeObject(vdltest.XUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		Version:    129,
 		HexType:    "513907002c762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f547970654f626a656374010100024635010ee1e1",
 		HexValue:   "52010f020000",
@@ -11808,7 +11808,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Value:      vdltest.XUnionDepth1_TypeObject(vdltest.XUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Value:      vdltest.XUnionDepth1_TypeObject(vdltest.XUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		Version:    129,
 		HexType:    "513907002c762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f547970654f626a656374010100024635010ee1e1",
 		HexValue:   "520109020000",
@@ -11824,7 +11824,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Byte{F6: 123}",
-		Value:      vdltest.XUnionDepth1_Byte(vdltest.XUnionDepth1_ByteF6{123}),
+		Value:      vdltest.XUnionDepth1_Byte(vdltest.XUnionDepth1_ByteF6{Value: 123}),
 		Version:    129,
 		HexType:    "5133070026762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f427974650101000246360102e1e1",
 		HexValue:   "5202007b",
@@ -11840,7 +11840,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XByte{F7: 123}",
-		Value:      vdltest.XUnionDepth1_XByte(vdltest.XUnionDepth1_XByteF7{123}),
+		Value:      vdltest.XUnionDepth1_XByte(vdltest.XUnionDepth1_XByteF7{Value: 123}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e58427974650102e15134070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5842797465010100024637012ae1e1",
 		HexValue:   "5202007b",
@@ -11856,7 +11856,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XEnumAbc{F8: C}",
-		Value:      vdltest.XUnionDepth1_XEnumAbc(vdltest.XUnionDepth1_XEnumAbcF8{vdltest.XEnumAbcC}),
+		Value:      vdltest.XUnionDepth1_XEnumAbc(vdltest.XUnionDepth1_XEnumAbcF8{Value: vdltest.XEnumAbcC}),
 		Version:    129,
 		HexType:    "532901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4162630103014101420143e1513707002a762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58456e756d416263010100024638012ae1e1",
 		HexValue:   "52020002",
@@ -11872,7 +11872,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XEnumBcd{F9: D}",
-		Value:      vdltest.XUnionDepth1_XEnumBcd(vdltest.XUnionDepth1_XEnumBcdF9{vdltest.XEnumBcdD}),
+		Value:      vdltest.XUnionDepth1_XEnumBcd(vdltest.XUnionDepth1_XEnumBcdF9{Value: vdltest.XEnumBcdD}),
 		Version:    129,
 		HexType:    "532901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4263640103014201430144e1513707002a762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58456e756d426364010100024639012ae1e1",
 		HexValue:   "52020002",
@@ -11896,7 +11896,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.XUnionDepth1_XNamedError(vdltest.XUnionDepth1_XNamedErrorF11{vdltest.XNamedError{
+		Value: vdltest.XUnionDepth1_XNamedError(vdltest.XUnionDepth1_XNamedErrorF11{Value: vdltest.XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -11915,7 +11915,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.XUnionDepth1_Error(vdltest.XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Value: vdltest.XUnionDepth1_Error(vdltest.XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -11935,7 +11935,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Uint16{F13: 123}",
-		Value:      vdltest.XUnionDepth1_Uint16(vdltest.XUnionDepth1_Uint16F13{123}),
+		Value:      vdltest.XUnionDepth1_Uint16(vdltest.XUnionDepth1_Uint16F13{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f55696e743136010100034631330104e1e1",
 		HexValue:   "5202007b",
@@ -11951,7 +11951,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XUint16{F14: 123}",
-		Value:      vdltest.XUnionDepth1_XUint16(vdltest.XUnionDepth1_XUint16F14{123}),
+		Value:      vdltest.XUnionDepth1_XUint16(vdltest.XUnionDepth1_XUint16F14{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7431360104e15137070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74313601010003463134012ae1e1",
 		HexValue:   "5202007b",
@@ -11967,7 +11967,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Uint32{F15: 123}",
-		Value:      vdltest.XUnionDepth1_Uint32(vdltest.XUnionDepth1_Uint32F15{123}),
+		Value:      vdltest.XUnionDepth1_Uint32(vdltest.XUnionDepth1_Uint32F15{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f55696e743332010100034631350105e1e1",
 		HexValue:   "5202007b",
@@ -11983,7 +11983,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XUint32{F16: 123}",
-		Value:      vdltest.XUnionDepth1_XUint32(vdltest.XUnionDepth1_XUint32F16{123}),
+		Value:      vdltest.XUnionDepth1_XUint32(vdltest.XUnionDepth1_XUint32F16{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7433320105e15137070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74333201010003463136012ae1e1",
 		HexValue:   "5202007b",
@@ -11999,7 +11999,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Uint64{F17: 123}",
-		Value:      vdltest.XUnionDepth1_Uint64(vdltest.XUnionDepth1_Uint64F17{123}),
+		Value:      vdltest.XUnionDepth1_Uint64(vdltest.XUnionDepth1_Uint64F17{Value: 123}),
 		Version:    129,
 		HexType:    "5136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f55696e743634010100034631370106e1e1",
 		HexValue:   "5202007b",
@@ -12015,7 +12015,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XUint64{F18: 123}",
-		Value:      vdltest.XUnionDepth1_XUint64(vdltest.XUnionDepth1_XUint64F18{123}),
+		Value:      vdltest.XUnionDepth1_XUint64(vdltest.XUnionDepth1_XUint64F18{Value: 123}),
 		Version:    129,
 		HexType:    "532200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7436340106e15137070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74363401010003463138012ae1e1",
 		HexValue:   "5202007b",
@@ -12031,7 +12031,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Int8{F19: -123}",
-		Value:      vdltest.XUnionDepth1_Int8(vdltest.XUnionDepth1_Int8F19{-123}),
+		Value:      vdltest.XUnionDepth1_Int8(vdltest.XUnionDepth1_Int8F19{Value: -123}),
 		Version:    129,
 		HexType:    "5134070026762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f496e7438010100034631390110e1e1",
 		HexValue:   "520300fff5",
@@ -12047,7 +12047,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XInt8{F20: -123}",
-		Value:      vdltest.XUnionDepth1_XInt8(vdltest.XUnionDepth1_XInt8F20{-123}),
+		Value:      vdltest.XUnionDepth1_XInt8(vdltest.XUnionDepth1_XInt8F20{Value: -123}),
 		Version:    129,
 		HexType:    "532000001a762e696f2f7632332f76646c2f76646c746573742e58496e74380110e15135070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58496e743801010003463230012ae1e1",
 		HexValue:   "520300fff5",
@@ -12063,7 +12063,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Int16{F21: -123}",
-		Value:      vdltest.XUnionDepth1_Int16(vdltest.XUnionDepth1_Int16F21{-123}),
+		Value:      vdltest.XUnionDepth1_Int16(vdltest.XUnionDepth1_Int16F21{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f496e743136010100034632310107e1e1",
 		HexValue:   "520300fff5",
@@ -12079,7 +12079,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XInt16{F22: -123}",
-		Value:      vdltest.XUnionDepth1_XInt16(vdltest.XUnionDepth1_XInt16F22{-123}),
+		Value:      vdltest.XUnionDepth1_XInt16(vdltest.XUnionDepth1_XInt16F22{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e58496e7431360107e15136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58496e74313601010003463232012ae1e1",
 		HexValue:   "520300fff5",
@@ -12095,7 +12095,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Int32{F23: -123}",
-		Value:      vdltest.XUnionDepth1_Int32(vdltest.XUnionDepth1_Int32F23{-123}),
+		Value:      vdltest.XUnionDepth1_Int32(vdltest.XUnionDepth1_Int32F23{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f496e743332010100034632330108e1e1",
 		HexValue:   "520300fff5",
@@ -12111,7 +12111,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XInt32{F24: -123}",
-		Value:      vdltest.XUnionDepth1_XInt32(vdltest.XUnionDepth1_XInt32F24{-123}),
+		Value:      vdltest.XUnionDepth1_XInt32(vdltest.XUnionDepth1_XInt32F24{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e58496e7433320108e15136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58496e74333201010003463234012ae1e1",
 		HexValue:   "520300fff5",
@@ -12127,7 +12127,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Int64{F25: -123}",
-		Value:      vdltest.XUnionDepth1_Int64(vdltest.XUnionDepth1_Int64F25{-123}),
+		Value:      vdltest.XUnionDepth1_Int64(vdltest.XUnionDepth1_Int64F25{Value: -123}),
 		Version:    129,
 		HexType:    "5135070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f496e743634010100034632350109e1e1",
 		HexValue:   "520300fff5",
@@ -12143,7 +12143,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XInt64{F26: -123}",
-		Value:      vdltest.XUnionDepth1_XInt64(vdltest.XUnionDepth1_XInt64F26{-123}),
+		Value:      vdltest.XUnionDepth1_XInt64(vdltest.XUnionDepth1_XInt64F26{Value: -123}),
 		Version:    129,
 		HexType:    "532100001b762e696f2f7632332f76646c2f76646c746573742e58496e7436340109e15136070028762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58496e74363401010003463236012ae1e1",
 		HexValue:   "520300fff5",
@@ -12159,7 +12159,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Float32{F27: 1.5}",
-		Value:      vdltest.XUnionDepth1_Float32(vdltest.XUnionDepth1_Float32F27{1.5}),
+		Value:      vdltest.XUnionDepth1_Float32(vdltest.XUnionDepth1_Float32F27{Value: 1.5}),
 		Version:    129,
 		HexType:    "5137070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f466c6f6174333201010003463237010ae1e1",
 		HexValue:   "520400fef83f",
@@ -12175,7 +12175,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XFloat32{F28: 1.5}",
-		Value:      vdltest.XUnionDepth1_XFloat32(vdltest.XUnionDepth1_XFloat32F28{1.5}),
+		Value:      vdltest.XUnionDepth1_XFloat32(vdltest.XUnionDepth1_XFloat32F28{Value: 1.5}),
 		Version:    129,
 		HexType:    "532300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743332010ae1513807002a762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58466c6f6174333201010003463238012ae1e1",
 		HexValue:   "520400fef83f",
@@ -12191,7 +12191,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_Float64{F29: 1.5}",
-		Value:      vdltest.XUnionDepth1_Float64(vdltest.XUnionDepth1_Float64F29{1.5}),
+		Value:      vdltest.XUnionDepth1_Float64(vdltest.XUnionDepth1_Float64F29{Value: 1.5}),
 		Version:    129,
 		HexType:    "5137070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f466c6f6174363401010003463239010be1e1",
 		HexValue:   "520400fef83f",
@@ -12207,7 +12207,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_XFloat64{F30: 1.5}",
-		Value:      vdltest.XUnionDepth1_XFloat64(vdltest.XUnionDepth1_XFloat64F30{1.5}),
+		Value:      vdltest.XUnionDepth1_XFloat64(vdltest.XUnionDepth1_XFloat64F30{Value: 1.5}),
 		Version:    129,
 		HexType:    "532300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743634010be1513807002a762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58466c6f6174363401010003463330012ae1e1",
 		HexValue:   "520400fef83f",
@@ -12223,7 +12223,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_OptXStructEmpty{F31: {}}",
-		Value:      vdltest.XUnionDepth1_OptXStructEmpty(vdltest.XUnionDepth1_OptXStructEmptyF31{&vdltest.XStructEmpty{}}),
+		Value:      vdltest.XUnionDepth1_OptXStructEmpty(vdltest.XUnionDepth1_OptXStructEmptyF31{Value: &vdltest.XStructEmpty{}}),
 		Version:    129,
 		HexType:    "5525060021762e696f2f7632332f76646c2f76646c746573742e58537472756374456d707479e1530408012be1513f070031762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f4f707458537472756374456d70747901010003463331012ae1e1",
 		HexValue:   "520200e1",
@@ -12239,7 +12239,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth1_OptXNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.XUnionDepth1_OptXNamedError(vdltest.XUnionDepth1_OptXNamedErrorF32{&vdltest.XNamedError{
+		Value: vdltest.XUnionDepth1_OptXNamedError(vdltest.XUnionDepth1_OptXNamedErrorF32{Value: &vdltest.XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -12512,15 +12512,15 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XArray3_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.XArray3_XUnionDepth1_All{
-			vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -12712,7 +12712,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "[]vdltest.XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: []vdltest.XUnionDepth1_All{
-			vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -12892,7 +12892,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XList_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.XList_XUnionDepth1_All{
-			vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -12974,7 +12974,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "set[vdltest.XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: map[vdltest.XUnionDepth1_XNamedError]struct{}{
-			vdltest.XUnionDepth1_XNamedErrorF11{vdltest.XNamedError{
+			vdltest.XUnionDepth1_XNamedErrorF11{Value: vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
@@ -13033,7 +13033,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XSet_XUnionDepth1_XInt8{{F20: -123}}",
 		Value: vdltest.XSet_XUnionDepth1_XInt8{
-			vdltest.XUnionDepth1_XInt8F20{-123}: struct{}{},
+			vdltest.XUnionDepth1_XInt8F20{Value: -123}: struct{}{},
 		},
 		Version:  129,
 		HexType:  "552000001a762e696f2f7632332f76646c2f76646c746573742e58496e74380110e15335070027762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f58496e743801010003463230012be1e1513204002c762e696f2f7632332f76646c2f76646c746573742e585365745f58556e696f6e4465707468315f58496e7438012ae1",
@@ -13099,7 +13099,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "map[vdltest.XUnionDepth1_Float64]vdltest.XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Value: map[vdltest.XUnionDepth1_Float64]vdltest.XUnionDepth1_Float64{
-			vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+			vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 		},
 		Version:  129,
 		HexType:  "5337070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f466c6f6174363401010003463239010be1e1510605012a022ae1",
@@ -13165,7 +13165,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{{F18: 123}: {F18: 123}}",
 		Value: vdltest.XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{
-			vdltest.XUnionDepth1_XUint64F18{123}: vdltest.XUnionDepth1_XUint64F18{123},
+			vdltest.XUnionDepth1_XUint64F18{Value: 123}: vdltest.XUnionDepth1_XUint64F18{Value: 123},
 		},
 		Version:  129,
 		HexType:  "552200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7436340106e15337070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74363401010003463138012be1e1514b050043762e696f2f7632332f76646c2f76646c746573742e584d61705f58556e696f6e4465707468315f5855696e7436345f58556e696f6e4465707468315f5855696e743634012a022ae1",
@@ -13265,11 +13265,11 @@ var pass81 = []vdlEntry{
 			F9: vdltest.XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: vdltest.XUnionDepth1_Float64F29{1.5},
+			F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &vdltest.XStructDepth1_XEnumBcd{
 				F9: vdltest.XEnumBcdD,
 			},
@@ -13546,7 +13546,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XStructDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.XStructDepth2_XUnionDepth1_All{
-			F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -13569,7 +13569,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Value: vdltest.XStructDepth2_XUnionDepth1_Float64{
-			F11: vdltest.XUnionDepth1_Float64F29{1.5},
+			F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 		},
 		Version:  129,
 		HexType:  "5337070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f466c6f6174363401010003463239010be1e15145060037762e696f2f7632332f76646c2f76646c746573742e585374727563744465707468325f58556e696f6e4465707468315f466c6f6174363401010003463131012ae1e1",
@@ -13626,7 +13626,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_All{F13: {F28: 1.5}}",
-		Value: vdltest.XUnionDepth2_All(vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+		Value: vdltest.XUnionDepth2_All(vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		Version:  129,
@@ -13644,7 +13644,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Value: vdltest.XUnionDepth2_XArray1_String(vdltest.XUnionDepth2_XArray1_StringF0{vdltest.XArray1_String{
+		Value: vdltest.XUnionDepth2_XArray1_String(vdltest.XUnionDepth2_XArray1_StringF0{Value: vdltest.XArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		Version:  129,
@@ -13662,7 +13662,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XArray2_XByte{F1: \"{{\"}",
-		Value: vdltest.XUnionDepth2_XArray2_XByte(vdltest.XUnionDepth2_XArray2_XByteF1{vdltest.XArray2_XByte{
+		Value: vdltest.XUnionDepth2_XArray2_XByte(vdltest.XUnionDepth2_XArray2_XByteF1{Value: vdltest.XArray2_XByte{
 			123,
 			123,
 		}}),
@@ -13681,7 +13681,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XList_XByte{F2: \"{\"}",
-		Value:      vdltest.XUnionDepth2_XList_XByte(vdltest.XUnionDepth2_XList_XByteF2{vdltest.XList_XByte("{")}),
+		Value:      vdltest.XUnionDepth2_XList_XByte(vdltest.XUnionDepth2_XList_XByteF2{Value: vdltest.XList_XByte("{")}),
 		Version:    129,
 		HexType:    "552000001a762e696f2f7632332f76646c2f76646c746573742e58427974650102e15326030020762e696f2f7632332f76646c2f76646c746573742e584c6973745f5842797465012be1513a07002d762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468325f584c6973745f5842797465010100024632012ae1e1",
 		HexValue:   "520300017b",
@@ -13697,7 +13697,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.XUnionDepth2_XList_OptXNamedError(vdltest.XUnionDepth2_XList_OptXNamedErrorF3{vdltest.XList_OptXNamedError{
+		Value: vdltest.XUnionDepth2_XList_OptXNamedError(vdltest.XUnionDepth2_XList_OptXNamedErrorF3{Value: vdltest.XList_OptXNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -13718,7 +13718,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XSet_XBool{F4: {true}}",
-		Value: vdltest.XUnionDepth2_XSet_XBool(vdltest.XUnionDepth2_XSet_XBoolF4{vdltest.XSet_XBool{
+		Value: vdltest.XUnionDepth2_XSet_XBool(vdltest.XUnionDepth2_XSet_XBoolF4{Value: vdltest.XSet_XBool{
 			true: struct{}{},
 		}}),
 		Version:  129,
@@ -13736,7 +13736,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XSet_XNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.XUnionDepth2_XSet_XNamedError(vdltest.XUnionDepth2_XSet_XNamedErrorF5{vdltest.XSet_XNamedError{
+		Value: vdltest.XUnionDepth2_XSet_XNamedError(vdltest.XUnionDepth2_XSet_XNamedErrorF5{Value: vdltest.XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -13757,7 +13757,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_Map_XBool_XBool{F6: {true: true}}",
-		Value: vdltest.XUnionDepth2_Map_XBool_XBool(vdltest.XUnionDepth2_Map_XBool_XBoolF6{map[vdltest.XBool]vdltest.XBool{
+		Value: vdltest.XUnionDepth2_Map_XBool_XBool(vdltest.XUnionDepth2_Map_XBool_XBoolF6{Value: map[vdltest.XBool]vdltest.XBool{
 			true: true,
 		}}),
 		Version:  129,
@@ -13775,7 +13775,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XMap_XBool_XBool{F7: {true: true}}",
-		Value: vdltest.XUnionDepth2_XMap_XBool_XBool(vdltest.XUnionDepth2_XMap_XBool_XBoolF7{vdltest.XMap_XBool_XBool{
+		Value: vdltest.XUnionDepth2_XMap_XBool_XBool(vdltest.XUnionDepth2_XMap_XBool_XBoolF7{Value: vdltest.XMap_XBool_XBool{
 			true: true,
 		}}),
 		Version:  129,
@@ -13785,7 +13785,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth2_XStructDepth1_All{F8: {}}",
-		Value: vdltest.XUnionDepth2_XStructDepth1_All(vdltest.XUnionDepth2_XStructDepth1_AllF8{vdltest.XStructDepth1_All{
+		Value: vdltest.XUnionDepth2_XStructDepth1_All(vdltest.XUnionDepth2_XStructDepth1_AllF8{Value: vdltest.XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		Version:  129,
@@ -13795,7 +13795,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.XUnionDepth2_XStructDepth1_All(vdltest.XUnionDepth2_XStructDepth1_AllF8{vdltest.XStructDepth1_All{
+		Value: vdltest.XUnionDepth2_XStructDepth1_All(vdltest.XUnionDepth2_XStructDepth1_AllF8{Value: vdltest.XStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -13854,7 +13854,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XStructDepth1_Int8{F9: {F19: -123}}",
-		Value: vdltest.XUnionDepth2_XStructDepth1_Int8(vdltest.XUnionDepth2_XStructDepth1_Int8F9{vdltest.XStructDepth1_Int8{
+		Value: vdltest.XUnionDepth2_XStructDepth1_Int8(vdltest.XUnionDepth2_XStructDepth1_Int8F9{Value: vdltest.XStructDepth1_Int8{
 			F19: -123,
 		}}),
 		Version:  129,
@@ -13864,7 +13864,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth2_XUnionDepth1_All{F10: {F0: nil}}",
-		Value:      vdltest.XUnionDepth2_XUnionDepth1_All(vdltest.XUnionDepth2_XUnionDepth1_AllF10{vdltest.XUnionDepth1_AllF0{}}),
+		Value:      vdltest.XUnionDepth2_XUnionDepth1_All(vdltest.XUnionDepth2_XUnionDepth1_AllF10{Value: vdltest.XUnionDepth1_AllF0{}}),
 		Version:    129,
 		HexType:    "552000001a762e696f2f7632332f76646c2f76646c746573742e58426f6f6c0101e1572200001c762e696f2f7632332f76646c2f76646c746573742e58537472696e670103e1592000001a762e696f2f7632332f76646c2f76646c746573742e58427974650102e15b2901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4162630103014101420143e15d2901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4263640103014201430144e15f25060021762e696f2f7632332f76646c2f76646c746573742e58537472756374456d707479e16135060020762e696f2f7632332f76646c2f76646c746573742e584e616d65644572726f720102000249640103e100034d73670103e1e1675201001a762e696f2f7632332f76646c2e576972655265747279436f64650104074e6f52657472790f5265747279436f6e6e656374696f6e0c5265747279526566657463680c52657472794261636b6f6666e1690403010fe16547060016762e696f2f7632332f76646c2e576972654572726f720104000249640103e100095265747279436f64650134e100034d73670103e10009506172616d4c6973740135e1e16304080133e16b2200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7431360104e16d2200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7433320105e16f2200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7436340106e1712000001a762e696f2f7632332f76646c2f76646c746573742e58496e74380110e1732100001b762e696f2f7632332f76646c2f76646c746573742e58496e7431360107e1752100001b762e696f2f7632332f76646c2f76646c746573742e58496e7433320108e1772100001b762e696f2f7632332f76646c2f76646c746573742e58496e7436340109e1792300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743332010ae17b2300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743634010be17d04080130e17f04080131e153fe0129070025762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f416c6c012100024630010fe1000246310101e100024632012be1000246330103e100024634012ce100024635010ee1000246360102e100024637012de100024638012ee100024639012fe100034631300130e100034631310131e100034631320132e100034631330104e100034631340136e100034631350105e100034631360137e100034631370106e100034631380138e100034631390110e100034632300139e100034632310107e10003463232013ae100034632330108e10003463234013be100034632350109e10003463236013ce10003463237010ae10003463238013de10003463239010be10003463330013ee10003463331013fe100034633320140e1e15140070032762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468325f58556e696f6e4465707468315f416c6c01010003463130012ae1e1",
 		HexValue:   "520000030000e0",
@@ -13872,7 +13872,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.XUnionDepth2_XUnionDepth1_All(vdltest.XUnionDepth2_XUnionDepth1_AllF10{vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+		Value: vdltest.XUnionDepth2_XUnionDepth1_All(vdltest.XUnionDepth2_XUnionDepth1_AllF10{Value: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -13883,7 +13883,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 0}}",
-		Value:      vdltest.XUnionDepth2_XUnionDepth1_XUint32(vdltest.XUnionDepth2_XUnionDepth1_XUint32F11{vdltest.XUnionDepth1_XUint32F16{}}),
+		Value:      vdltest.XUnionDepth2_XUnionDepth1_XUint32(vdltest.XUnionDepth2_XUnionDepth1_XUint32F11{Value: vdltest.XUnionDepth1_XUint32F16{}}),
 		Version:    129,
 		HexType:    "552200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7433320105e15337070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74333201010003463136012be1e15144070036762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468325f58556e696f6e4465707468315f5855696e74333201010003463131012ae1e1",
 		HexValue:   "5203000000",
@@ -13891,7 +13891,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 123}}",
-		Value:      vdltest.XUnionDepth2_XUnionDepth1_XUint32(vdltest.XUnionDepth2_XUnionDepth1_XUint32F11{vdltest.XUnionDepth1_XUint32F16{123}}),
+		Value:      vdltest.XUnionDepth2_XUnionDepth1_XUint32(vdltest.XUnionDepth2_XUnionDepth1_XUint32F11{Value: vdltest.XUnionDepth1_XUint32F16{Value: 123}}),
 		Version:    129,
 		HexType:    "552200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7433320105e15337070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e74333201010003463136012be1e15144070036762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468325f58556e696f6e4465707468315f5855696e74333201010003463131012ae1e1",
 		HexValue:   "520300007b",
@@ -13907,7 +13907,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_OptXStructDepth1_XEnumBcd{F12: {F9: D}}",
-		Value: vdltest.XUnionDepth2_OptXStructDepth1_XEnumBcd(vdltest.XUnionDepth2_OptXStructDepth1_XEnumBcdF12{&vdltest.XStructDepth1_XEnumBcd{
+		Value: vdltest.XUnionDepth2_OptXStructDepth1_XEnumBcd(vdltest.XUnionDepth2_OptXStructDepth1_XEnumBcdF12{Value: &vdltest.XStructDepth1_XEnumBcd{
 			F9: vdltest.XEnumBcdD,
 		}}),
 		Version:  129,
@@ -13925,7 +13925,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 1.5}}",
-		Value: vdltest.XUnionDepth2_OptXStructDepth1_XFloat32(vdltest.XUnionDepth2_OptXStructDepth1_XFloat32F13{&vdltest.XStructDepth1_XFloat32{
+		Value: vdltest.XUnionDepth2_OptXStructDepth1_XFloat32(vdltest.XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &vdltest.XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		Version:  129,
@@ -14012,13 +14012,13 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.XArray2_Set_XUnionDepth1_XNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.XArray2_Set_XUnionDepth1_XNamedError{
 			{
-				vdltest.XUnionDepth1_XNamedErrorF11{vdltest.XNamedError{
+				vdltest.XUnionDepth1_XNamedErrorF11{Value: vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				vdltest.XUnionDepth1_XNamedErrorF11{vdltest.XNamedError{
+				vdltest.XUnionDepth1_XNamedErrorF11{Value: vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -14041,13 +14041,13 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Value: vdltest.XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+				vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+				vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+				vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -14162,11 +14162,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -14247,11 +14247,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -14279,10 +14279,10 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XArray2_XUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Value: vdltest.XArray2_XUnionDepth2_All{
-			vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
-			vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -14503,11 +14503,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -14532,7 +14532,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "[]vdltest.XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Value: []vdltest.XUnionDepth2_All{
-			vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -14575,15 +14575,15 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.XList_XArray3_XUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.XList_XArray3_XUnionDepth1_All{
 			{
-				vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -14748,11 +14748,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -14777,7 +14777,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XList_XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Value: vdltest.XList_XUnionDepth2_All{
-			vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -14865,7 +14865,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "set[vdltest.XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: map[vdltest.XUnionDepth2_XArray1_String]struct{}{
-			vdltest.XUnionDepth2_XArray1_StringF0{vdltest.XArray1_String{
+			vdltest.XUnionDepth2_XArray1_StringF0{Value: vdltest.XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -14931,7 +14931,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Value: vdltest.XSet_XUnionDepth2_XArray1_String{
-			vdltest.XUnionDepth2_XArray1_StringF0{vdltest.XArray1_String{
+			vdltest.XUnionDepth2_XArray1_StringF0{Value: vdltest.XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -14982,9 +14982,9 @@ var pass81 = []vdlEntry{
 		ValueLabel: "map[vdltest.XStructDepth2_XUnionDepth1_Float64]vdltest.XStructDepth2_XUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Value: map[vdltest.XStructDepth2_XUnionDepth1_Float64]vdltest.XStructDepth2_XUnionDepth1_Float64{
 			{
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -15003,9 +15003,9 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "map[vdltest.XUnionDepth2_XStructDepth1_Int8]vdltest.XUnionDepth2_XStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Value: map[vdltest.XUnionDepth2_XStructDepth1_Int8]vdltest.XUnionDepth2_XStructDepth1_Int8{
-			vdltest.XUnionDepth2_XStructDepth1_Int8F9{vdltest.XStructDepth1_Int8{
+			vdltest.XUnionDepth2_XStructDepth1_Int8F9{Value: vdltest.XStructDepth1_Int8{
 				F19: -123,
-			}}: vdltest.XUnionDepth2_XStructDepth1_Int8F9{vdltest.XStructDepth1_Int8{
+			}}: vdltest.XUnionDepth2_XStructDepth1_Int8F9{Value: vdltest.XStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
@@ -15081,10 +15081,10 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Value: vdltest.XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-			vdltest.XUnionDepth2_XArray2_XByteF1{vdltest.XArray2_XByte{
+			vdltest.XUnionDepth2_XArray2_XByteF1{Value: vdltest.XArray2_XByte{
 				123,
 				123,
-			}}: vdltest.XUnionDepth2_XArray2_XByteF1{vdltest.XArray2_XByte{
+			}}: vdltest.XUnionDepth2_XArray2_XByteF1{Value: vdltest.XArray2_XByte{
 				123,
 				123,
 			}},
@@ -15124,7 +15124,7 @@ var pass81 = []vdlEntry{
 				},
 			},
 			F1: []vdltest.XUnionDepth1_All{
-				vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -15133,7 +15133,7 @@ var pass81 = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[vdltest.XUnionDepth1_Float64]vdltest.XUnionDepth1_Float64{
-				vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+				vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: vdltest.XStructDepth2_All{
 				F0: vdltest.XArray2_TypeObject{
@@ -15208,11 +15208,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -15220,7 +15220,7 @@ var pass81 = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			F5: vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 			F6: &vdltest.XStructDepth2_Set_Float64{
@@ -15268,7 +15268,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.XStructDepth3_List_XUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Value: vdltest.XStructDepth3_List_XUnionDepth1_All{
 			F1: []vdltest.XUnionDepth1_All{
-				vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -15311,7 +15311,7 @@ var pass81 = []vdlEntry{
 		ValueLabel: "vdltest.XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Value: vdltest.XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[vdltest.XUnionDepth1_Float64]vdltest.XUnionDepth1_Float64{
-				vdltest.XUnionDepth1_Float64F29{1.5}: vdltest.XUnionDepth1_Float64F29{1.5},
+				vdltest.XUnionDepth1_Float64F29{Value: 1.5}: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		Version:  129,
@@ -15415,11 +15415,11 @@ var pass81 = []vdlEntry{
 				F9: vdltest.XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+				F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: vdltest.XUnionDepth1_Float64F29{1.5},
+				F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &vdltest.XStructDepth1_XEnumBcd{
 					F9: vdltest.XEnumBcdD,
 				},
@@ -15446,7 +15446,7 @@ var pass81 = []vdlEntry{
 		Label:      "Full",
 		ValueLabel: "vdltest.XStructDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Value: vdltest.XStructDepth3_XUnionDepth2_All{
-			F5: vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+			F5: vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -15487,7 +15487,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_All{F6: {F4: {1.5}}}",
-		Value: vdltest.XUnionDepth3_All(vdltest.XUnionDepth3_AllF6{&vdltest.XStructDepth2_Set_Float64{
+		Value: vdltest.XUnionDepth3_All(vdltest.XUnionDepth3_AllF6{Value: &vdltest.XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -15507,7 +15507,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Value: vdltest.XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(vdltest.XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{vdltest.XArray3_OptXStructDepth1_XFloat32{
+		Value: vdltest.XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(vdltest.XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: vdltest.XArray3_OptXStructDepth1_XFloat32{
 			{
 				F28: 1.5,
 			},
@@ -15533,7 +15533,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_List_XList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Value: vdltest.XUnionDepth3_List_XList_Error(vdltest.XUnionDepth3_List_XList_ErrorF1{[]vdltest.XList_Error{
+		Value: vdltest.XUnionDepth3_List_XList_Error(vdltest.XUnionDepth3_List_XList_ErrorF1{Value: []vdltest.XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -15557,7 +15557,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_Set_XStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Value: vdltest.XUnionDepth3_Set_XStructDepth1_String(vdltest.XUnionDepth3_Set_XStructDepth1_StringF2{map[vdltest.XStructDepth1_String]struct{}{
+		Value: vdltest.XUnionDepth3_Set_XStructDepth1_String(vdltest.XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[vdltest.XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -15577,7 +15577,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool{F3: {{F2: true}: {F2: true}}}",
-		Value: vdltest.XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(vdltest.XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{vdltest.XMap_XStructDepth1_XBool_XStructDepth1_XBool{
+		Value: vdltest.XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(vdltest.XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{Value: vdltest.XMap_XStructDepth1_XBool_XStructDepth1_XBool{
 			{
 				F2: true,
 			}: {
@@ -15591,7 +15591,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth3_XStructDepth2_All{F4: {}}",
-		Value: vdltest.XUnionDepth3_XStructDepth2_All(vdltest.XUnionDepth3_XStructDepth2_AllF4{vdltest.XStructDepth2_All{
+		Value: vdltest.XUnionDepth3_XStructDepth2_All(vdltest.XUnionDepth3_XStructDepth2_AllF4{Value: vdltest.XStructDepth2_All{
 			F0: vdltest.XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -15609,7 +15609,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Value: vdltest.XUnionDepth3_XStructDepth2_All(vdltest.XUnionDepth3_XStructDepth2_AllF4{vdltest.XStructDepth2_All{
+		Value: vdltest.XUnionDepth3_XStructDepth2_All(vdltest.XUnionDepth3_XStructDepth2_AllF4{Value: vdltest.XStructDepth2_All{
 			F0: vdltest.XArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -15682,11 +15682,11 @@ var pass81 = []vdlEntry{
 			F9: vdltest.XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: vdltest.XUnionDepth1_AllF32{&vdltest.XNamedError{
+			F10: vdltest.XUnionDepth1_AllF32{Value: &vdltest.XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: vdltest.XUnionDepth1_Float64F29{1.5},
+			F11: vdltest.XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &vdltest.XStructDepth1_XEnumBcd{
 				F9: vdltest.XEnumBcdD,
 			},
@@ -15701,7 +15701,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Zero",
 		ValueLabel: "vdltest.XUnionDepth3_XUnionDepth2_All{F5: {F0: {}}}",
-		Value:      vdltest.XUnionDepth3_XUnionDepth2_All(vdltest.XUnionDepth3_XUnionDepth2_AllF5{vdltest.XUnionDepth2_AllF0{}}),
+		Value:      vdltest.XUnionDepth3_XUnionDepth2_All(vdltest.XUnionDepth3_XUnionDepth2_AllF5{Value: vdltest.XUnionDepth2_AllF0{}}),
 		Version:    129,
 		HexType:    "552b020023762e696f2f7632332f76646c2f76646c746573742e584172726179315f537472696e6701030201e1592000001a762e696f2f7632332f76646c2f76646c746573742e58427974650102e1572a020022762e696f2f7632332f76646c2f76646c746573742e584172726179325f5842797465012d0202e15b26030020762e696f2f7632332f76646c2f76646c746573742e584c6973745f5842797465012de16135060020762e696f2f7632332f76646c2f76646c746573742e584e616d65644572726f720102000249640103e100034d73670103e1e15f04080131e15d2f030029762e696f2f7632332f76646c2f76646c746573742e584c6973745f4f7074584e616d65644572726f720130e1652000001a762e696f2f7632332f76646c2f76646c746573742e58426f6f6c0101e1632504001f762e696f2f7632332f76646c2f76646c746573742e585365745f58426f6f6c0133e1672b040025762e696f2f7632332f76646c2f76646c746573742e585365745f584e616d65644572726f720131e169060501330233e16b2d050025762e696f2f7632332f76646c2f76646c746573742e584d61705f58426f6f6c5f58426f6f6c01330233e16f2200001c762e696f2f7632332f76646c2f76646c746573742e58537472696e670103e1712901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4162630103014101420143e1732901001d762e696f2f7632332f76646c2f76646c746573742e58456e756d4263640103014201430144e17525060021762e696f2f7632332f76646c2f76646c746573742e58537472756374456d707479e17b5201001a762e696f2f7632332f76646c2e576972655265747279436f64650104074e6f52657472790f5265747279436f6e6e656374696f6e0c5265747279526566657463680c52657472794261636b6f6666e17d0403010fe17947060016762e696f2f7632332f76646c2e576972654572726f720104000249640103e100095265747279436f6465013ee100034d73670103e10009506172616d4c697374013fe1e1770408013de17f2200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7431360104e1ff812200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7433320105e1ff832200001c762e696f2f7632332f76646c2f76646c746573742e5855696e7436340106e1ff852000001a762e696f2f7632332f76646c2f76646c746573742e58496e74380110e1ff872100001b762e696f2f7632332f76646c2f76646c746573742e58496e7431360107e1ff892100001b762e696f2f7632332f76646c2f76646c746573742e58496e7433320108e1ff8b2100001b762e696f2f7632332f76646c2f76646c746573742e58496e7436340109e1ff8d2300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743332010ae1ff8f2300001d762e696f2f7632332f76646c2f76646c746573742e58466c6f61743634010be1ff910408013be16dfe012a060026762e696f2f7632332f76646c2f76646c746573742e585374727563744465707468315f416c6c012100024630010fe1000246310101e1000246320133e1000246330103e1000246340138e100024635010ee1000246360102e100024637012de1000246380139e100024639013ae10003463130013be100034631310131e10003463132013ce100034631330104e100034631340140e100034631350105e100034631360141e100034631370106e100034631380142e100034631390110e100034632300143e100034632310107e100034632320144e100034632330108e100034632340145e100034632350109e100034632360146e10003463237010ae100034632380147e10003463239010be100034633300148e100034633310149e100034633320130e1e1ff9335060027762e696f2f7632332f76646c2f76646c746573742e585374727563744465707468315f496e7438010100034631390110e1e1ff95fe0129070025762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f416c6c012100024630010fe1000246310101e1000246320133e1000246330103e1000246340138e100024635010ee1000246360102e100024637012de1000246380139e100024639013ae10003463130013be100034631310131e10003463132013ce100034631330104e100034631340140e100034631350105e100034631360141e100034631370106e100034631380142e100034631390110e100034632300143e100034632310107e100034632320144e100034632330108e100034632340145e100034632350109e100034632360146e10003463237010ae100034632380147e10003463239010be100034633300148e100034633310149e100034633320130e1e1ff9737070029762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468315f5855696e743332010100034631360141e1e1ff9b3806002b762e696f2f7632332f76646c2f76646c746573742e585374727563744465707468315f58456e756d426364010100024639013ae1e1ff990408014ee1ff9f3906002b762e696f2f7632332f76646c2f76646c746573742e585374727563744465707468315f58466c6f61743332010100034632380147e1e1ff9d04080150e153ff91070025762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468325f416c6c010e00024630012be100024631012ce100024632012ee100024633012fe1000246340132e1000246350134e1000246360135e1000246370136e1000246380137e100024639014ae10003463130014be10003463131014ce10003463132014de10003463133014fe1e1513f070032762e696f2f7632332f76646c2f76646c746573742e58556e696f6e4465707468335f58556e696f6e4465707468325f416c6c010100024635012ae1e1",
 		HexValue:   "5200000400000000",
@@ -15709,7 +15709,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Value: vdltest.XUnionDepth3_XUnionDepth2_All(vdltest.XUnionDepth3_XUnionDepth2_AllF5{vdltest.XUnionDepth2_AllF13{&vdltest.XStructDepth1_XFloat32{
+		Value: vdltest.XUnionDepth3_XUnionDepth2_All(vdltest.XUnionDepth3_XUnionDepth2_AllF5{Value: vdltest.XUnionDepth2_AllF13{Value: &vdltest.XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}}),
 		Version:  129,
@@ -15727,7 +15727,7 @@ var pass81 = []vdlEntry{
 	{
 		Label:      "Full",
 		ValueLabel: "vdltest.XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Value: vdltest.XUnionDepth3_OptXStructDepth2_Set_Float64(vdltest.XUnionDepth3_OptXStructDepth2_Set_Float64F6{&vdltest.XStructDepth2_Set_Float64{
+		Value: vdltest.XUnionDepth3_OptXStructDepth2_Set_Float64(vdltest.XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &vdltest.XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -15842,6 +15842,7 @@ var pass81 = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_byte_2   *vdl.Type

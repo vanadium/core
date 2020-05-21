@@ -244,14 +244,14 @@ retry:
 				// remove all higher level locks).
 				currMasterLockInfo, err := l.readLockInfo(0)
 				if err != nil && !os.IsNotExist(err) {
-					l.unlock(index)
+					l.unlock(index) // nolint: errcheck
 					return false, err
 				}
 				if err != nil || !bytes.Equal(currMasterLockInfo, masterLockInfo) {
 					// The master lock has changed.  We are
 					// not the rightful owner.  Retry from
 					// level 0 after some delay.
-					l.unlock(index)
+					l.unlock(index) // nolint: errcheck
 					l.sleep()
 					continue retry
 				}
@@ -263,7 +263,7 @@ retry:
 			// We grabbed the lock and are the rightful owner.
 			// Steal the master lock and remove higher level locks.
 			if err := l.poachLock(0); err != nil {
-				l.unlock(index)
+				l.unlock(index) // nolint: errcheck
 				return false, err
 			}
 			// It's now safe to clear higher level locks since any
@@ -271,7 +271,7 @@ retry:
 			// will have to resume from level 0 once they notice
 			// that the master lock info has changed.
 			for i := index; i > 0; i-- {
-				l.unlock(i)
+				l.unlock(i) // nolint: errcheck
 			}
 			return true, nil
 		}

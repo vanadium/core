@@ -10,7 +10,7 @@ import (
 
 	"v.io/x/lib/vlog"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	_ "v.io/x/ref/runtime/factories/generic"
 )
 
@@ -36,7 +36,7 @@ func waitForElection(t *testing.T, rs []*raft, heartbeat time.Duration) *raft {
 		if leader != nil {
 			return leader
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			return nil
 		}
 		time.Sleep(10 * time.Millisecond)
@@ -71,7 +71,7 @@ func waitForLeaderAgreement(rs []*raft, heartbeat time.Duration) bool {
 		if len(leaderMap) == 1 {
 			return true
 		}
-		if time.Now().Sub(start) > timeout {
+		if time.Since(start) > timeout {
 			vlog.Errorf("oops %v", leaderMap)
 			return false
 		}
@@ -172,7 +172,7 @@ func TestPerformanceElection(t *testing.T) {
 			t.Fatalf("no leader agreement")
 		}
 	}
-	duration := time.Now().Sub(start)
+	duration := time.Since(start)
 	vlog.Infof("200 elections took %s", duration)
 	vlog.Infof("TestPerformanceElection passed")
 }

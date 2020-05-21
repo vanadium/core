@@ -118,7 +118,7 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 	logger.Global().VI(2).Infof("listening for service vanadium on port %d", port)
 	m.SubscribeToService("vanadium")
 	if len(host) > 0 {
-		m.AddService("vanadium", "", port, txt...)
+		m.AddService("vanadium", "", port, txt...) // nolint: errcheck
 	}
 
 	// A small sleep to allow the world to learn about us and vice versa.  Not
@@ -222,12 +222,12 @@ func (nh *neighborhood) neighbor(instance string) []naming.MountedServer {
 // neighbors returns all neighbors and their MountedServer structs.
 func (nh *neighborhood) neighbors() map[string][]naming.MountedServer {
 	// If we haven't refreshed in a while, do it now.
-	if time.Now().Sub(nh.lastSubscription) > time.Duration(30)*time.Second {
+	if time.Since(nh.lastSubscription) > time.Duration(30)*time.Second {
 		nh.mdns.SubscribeToService("vanadium")
 		time.Sleep(50 * time.Millisecond)
 		nh.lastSubscription = time.Now()
 	}
-	neighbors := make(map[string][]naming.MountedServer, 0)
+	neighbors := make(map[string][]naming.MountedServer)
 	members := nh.mdns.ServiceDiscovery("vanadium")
 	for _, m := range members {
 		if neighbor := nh.neighbor(m.Name); neighbor != nil {
@@ -287,7 +287,9 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 		matcher := g.Head()
 		for k, n := range nh.neighbors() {
 			if matcher.Match(k) {
+				// nolint: errcheck
 				sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: k, Servers: n, ServesMountTable: true}})
+
 			}
 		}
 		return nil
@@ -296,6 +298,7 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 		if neighbor == nil {
 			return verror.New(naming.ErrNoSuchName, ctx, ns.elems[0])
 		}
+		// nolint: errcheck
 		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: neighbor, ServesMountTable: true}})
 		return nil
 	default:

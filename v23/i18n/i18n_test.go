@@ -6,10 +6,11 @@
 
 package i18n
 
-import "strings"
-import "testing"
 import (
 	"fmt"
+	"strings"
+	"testing"
+
 	"v.io/v23/context"
 )
 
@@ -204,7 +205,7 @@ func TestMergeAndOutput(t *testing.T) {
 	cat := new(Catalogue)
 
 	// Check that Merge() works.
-	cat.Merge(strings.NewReader(mergeData))
+	cat.Merge(strings.NewReader(mergeData)) // nolint: errcheck
 	expectLookup(t, cat, "{1} foo to {2}", "fwd", "foo", "1")
 	expectLookup(t, cat, "", "back", "foo", "2")
 	expectLookup(t, cat, "{1} bar to {2}", "fwd", "bar", "3")

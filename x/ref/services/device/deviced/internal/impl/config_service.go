@@ -76,7 +76,7 @@ func (l *listener) waitForValue(timeout time.Duration) (string, error) {
 	case <-time.After(timeout):
 		return "", verror.New(errors.ErrOperationFailed, nil, fmt.Sprintf("Waiting for callback timed out after %v", timeout))
 	case <-l.stopper:
-		return "", verror.New(errors.ErrOperationFailed, nil, fmt.Sprintf("Stopped while waiting for callback"))
+		return "", verror.New(errors.ErrOperationFailed, nil, "Stopped while waiting for callback")
 	}
 }
 

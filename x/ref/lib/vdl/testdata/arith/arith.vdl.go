@@ -152,19 +152,19 @@ var descTrigonometry = rpc.InterfaceDesc{
 		{
 			Name: "Sine",
 			InArgs: []rpc.ArgDesc{
-				{"angle", ``}, // float64
+				{Name: "angle", Doc: ``}, // float64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // float64
+				{Name: "", Doc: ``}, // float64
 			},
 		},
 		{
 			Name: "Cosine",
 			InArgs: []rpc.ArgDesc{
-				{"angle", ``}, // float64
+				{Name: "angle", Doc: ``}, // float64
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // float64
+				{Name: "", Doc: ``}, // float64
 			},
 		},
 	},
@@ -270,8 +270,8 @@ var descAdvancedMath = rpc.InterfaceDesc{
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/arith",
 	Doc:     "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios.",
 	Embeds: []rpc.EmbedDesc{
-		{"Trigonometry", "v.io/x/ref/lib/vdl/testdata/arith", "// Trigonometry is an interface that specifies a couple trigonometric functions."},
-		{"Exp", "v.io/x/ref/lib/vdl/testdata/arith/exp", ``},
+		{Name: "Trigonometry", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// Trigonometry is an interface that specifies a couple trigonometric functions."},
+		{Name: "Exp", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith/exp", Doc: ``},
 	},
 }
 
@@ -675,43 +675,43 @@ var descArith = rpc.InterfaceDesc{
 			Name: "Add",
 			Doc:  "// Add is a typical method with multiple input and output arguments.",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // int32
-				{"b", ``}, // int32
+				{Name: "a", Doc: ``}, // int32
+				{Name: "b", Doc: ``}, // int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // int32
+				{Name: "", Doc: ``}, // int32
 			},
 		},
 		{
 			Name: "DivMod",
 			Doc:  "// DivMod shows that runs of args with the same type can use the short form,\n// just like Go.",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // int32
-				{"b", ``}, // int32
+				{Name: "a", Doc: ``}, // int32
+				{Name: "b", Doc: ``}, // int32
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"quot", ``}, // int32
-				{"rem", ``},  // int32
+				{Name: "quot", Doc: ``}, // int32
+				{Name: "rem", Doc: ``},  // int32
 			},
 		},
 		{
 			Name: "Sub",
 			Doc:  "// Sub shows that you can use data types defined in other packages.",
 			InArgs: []rpc.ArgDesc{
-				{"args", ``}, // base.Args
+				{Name: "args", Doc: ``}, // base.Args
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // int32
+				{Name: "", Doc: ``}, // int32
 			},
 		},
 		{
 			Name: "Mul",
 			Doc:  "// Mul tries another data type defined in another package.",
 			InArgs: []rpc.ArgDesc{
-				{"nested", ``}, // base.NestedArgs
+				{Name: "nested", Doc: ``}, // base.NestedArgs
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // int32
+				{Name: "", Doc: ``}, // int32
 			},
 		},
 		{
@@ -723,24 +723,24 @@ var descArith = rpc.InterfaceDesc{
 			Name: "Count",
 			Doc:  "// Count shows using only an int32 out-stream type, with no in-stream type.",
 			InArgs: []rpc.ArgDesc{
-				{"start", ``}, // int32
+				{Name: "start", Doc: ``}, // int32
 			},
 		},
 		{
 			Name: "StreamingAdd",
 			Doc:  "// StreamingAdd shows a bidirectional stream.",
 			OutArgs: []rpc.ArgDesc{
-				{"total", ``}, // int32
+				{Name: "total", Doc: ``}, // int32
 			},
 		},
 		{
 			Name: "QuoteAny",
 			Doc:  "// QuoteAny shows the any built-in type, representing a value of any type.",
 			InArgs: []rpc.ArgDesc{
-				{"a", ``}, // *vom.RawBytes
+				{Name: "a", Doc: ``}, // *vom.RawBytes
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"", ``}, // *vom.RawBytes
+				{Name: "", Doc: ``}, // *vom.RawBytes
 			},
 		},
 	},
@@ -1008,8 +1008,8 @@ var descCalculator = rpc.InterfaceDesc{
 	Name:    "Calculator",
 	PkgPath: "v.io/x/ref/lib/vdl/testdata/arith",
 	Embeds: []rpc.EmbedDesc{
-		{"Arith", "v.io/x/ref/lib/vdl/testdata/arith", "// Arith is an example of an interface definition for an arithmetic service.\n// Things to note:\n//   * There must be at least 1 out-arg, and the last out-arg must be error."},
-		{"AdvancedMath", "v.io/x/ref/lib/vdl/testdata/arith", "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios."},
+		{Name: "Arith", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// Arith is an example of an interface definition for an arithmetic service.\n// Things to note:\n//   * There must be at least 1 out-arg, and the last out-arg must be error."},
+		{Name: "AdvancedMath", PkgPath: "v.io/x/ref/lib/vdl/testdata/arith", Doc: "// AdvancedMath is an interface for more advanced math than arith.  It embeds\n// interfaces defined both in the same file and in an external package; and in\n// turn it is embedded by arith.Calculator (which is in the same package but\n// different file) to verify that embedding works in all these scenarios."},
 	},
 	Methods: []rpc.MethodDesc{
 		{

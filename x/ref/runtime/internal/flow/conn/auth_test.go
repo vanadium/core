@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -108,7 +108,9 @@ func BlessWithTPCaveat(t *testing.T, ctx *context.T, p security.Principal, s str
 func NewPrincipalWithTPCaveat(t *testing.T, rootCtx *context.T, root *bcrypter.Root, s string) (*context.T, map[string]security.Discharge) {
 	p := testutil.NewPrincipal()
 	blessings, discharges := BlessWithTPCaveat(t, rootCtx, p, s)
-	vsecurity.SetDefaultBlessings(p, blessings)
+	if err := vsecurity.SetDefaultBlessings(p, blessings); err != nil {
+		t.Fatal(err)
+	}
 	ctx, err := v23.WithPrincipal(rootCtx, p)
 	if err != nil {
 		t.Fatal(err)

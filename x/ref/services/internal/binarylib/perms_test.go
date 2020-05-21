@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -79,7 +79,9 @@ func TestBinaryCreateAccessList(t *testing.T) {
 	defer deferFn()
 	// make selfCtx and childCtx have the same Namespace Roots as set by
 	// CreateShellAndMountTable
-	v23.GetNamespace(selfCtx).SetRoots(v23.GetNamespace(childCtx).Roots()...)
+	if err := v23.GetNamespace(selfCtx).SetRoots(v23.GetNamespace(childCtx).Roots()...); err != nil {
+		t.Fatal(err)
+	}
 
 	// setup mock up directory to put state in
 	storedir, cleanup := servicetest.SetupRootDir(t, "bindir")

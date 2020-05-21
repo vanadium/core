@@ -10,9 +10,8 @@ package test
 import (
 	"flag"
 	"os"
-	"sync"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -27,7 +26,6 @@ const (
 	TestBlessing = "test-blessing"
 )
 
-var once sync.Once
 var IntegrationTestsEnabled bool
 var IntegrationTestsDebugShellOnError bool
 
@@ -66,7 +64,7 @@ func editNamespace(ctx *context.T, v23testProcess, createMounttable bool) {
 	}
 
 	if !createMounttable {
-		ns.SetRoots()
+		ns.SetRoots() // nolint: errcheck
 		return
 	}
 
@@ -79,7 +77,7 @@ func editNamespace(ctx *context.T, v23testProcess, createMounttable bool) {
 	if err != nil {
 		panic(err)
 	}
-	ns.SetRoots(s.Status().Endpoints[0].Name())
+	ns.SetRoots(s.Status().Endpoints[0].Name()) // nolint: errcheck
 }
 
 func editEnvironment(v23testProcess bool) func() {

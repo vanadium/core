@@ -39,7 +39,7 @@ following files are generated:
    xentry_fail_gen.vdl - Entries that fail conversion from source to target.
 
 Do not run this tool manually.  Instead invoke it via:
-   $ jiri run go generate v.io/v23/vdl/vdltest
+   $ go generate v.io/v23/vdl/vdltest
 `,
 }
 

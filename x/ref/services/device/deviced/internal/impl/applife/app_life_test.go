@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -37,7 +37,7 @@ import (
 func instanceDirForApp(root, appID, instanceID string) string {
 	applicationDirName := func(title string) string {
 		h := md5.New()
-		h.Write([]byte(title))
+		h.Write([]byte(title)) // nolint: errcheck
 		hash := strings.TrimRight(base64.URLEncoding.EncodeToString(h.Sum(nil)), "=")
 		return "app-" + hash
 	}

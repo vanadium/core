@@ -49,10 +49,10 @@ func TestWithRuntime(t *testing.T) {
 	// The Vanadium runtime spawns a goroutine that listens for SIGHUP and
 	// prevents process exit.
 	c.Signal(syscall.SIGHUP)
-	stdin.Write([]byte("foo\n"))
+	stdin.Write([]byte("foo\n")) // nolint: errcheck
 	c.S.Expect("foo")
 	c.Terminate(os.Interrupt)
-	c.S.ExpectEOF()
+	c.S.ExpectEOF() // nolint: errcheck
 }
 
 func TestWithoutRuntime(t *testing.T) {
@@ -66,5 +66,5 @@ func TestWithoutRuntime(t *testing.T) {
 	c.S.Expect("ready")
 	// Processes without a Vanadium runtime should exit on SIGHUP.
 	c.Terminate(syscall.SIGHUP)
-	c.S.ExpectEOF()
+	c.S.ExpectEOF() // nolint: errcheck
 }

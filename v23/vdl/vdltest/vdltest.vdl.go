@@ -254,6 +254,7 @@ const (
 var VEnumAbcAll = [...]VEnumAbc{VEnumAbcA, VEnumAbcB, VEnumAbcC}
 
 // VEnumAbcFromString creates a VEnumAbc from a string label.
+// nolint: deadcode, unused
 func VEnumAbcFromString(label string) (x VEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -330,6 +331,7 @@ const (
 var VEnumBcdAll = [...]VEnumBcd{VEnumBcdB, VEnumBcdC, VEnumBcdD}
 
 // VEnumBcdFromString creates a VEnumBcd from a string label.
+// nolint: deadcode, unused
 func VEnumBcdFromString(label string) (x VEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -5120,10 +5122,7 @@ func (VStructDepth1_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth1_TypeObject) VDLIsZero() bool {
-	if x.F5 != nil && x.F5 != vdl.AnyType {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5 == vdl.AnyType
 }
 
 func (x VStructDepth1_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -12935,10 +12934,7 @@ func (VStructDepth2_VArray2_TypeObject) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth2_VArray2_TypeObject) VDLWrite(enc vdl.Encoder) error {
@@ -13069,10 +13065,7 @@ func (VStructDepth2_List_Int16) VDLReflect(struct {
 }
 
 func (x VStructDepth2_List_Int16) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth2_List_Int16) VDLWrite(enc vdl.Encoder) error {
@@ -13135,10 +13128,7 @@ func (VStructDepth2_VList_Any) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VList_Any) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth2_VList_Any) VDLWrite(enc vdl.Encoder) error {
@@ -13201,10 +13191,7 @@ func (VStructDepth2_Set_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Set_Float64) VDLIsZero() bool {
-	if len(x.F4) != 0 {
-		return false
-	}
-	return true
+	return len(x.F4) == 0
 }
 
 func (x VStructDepth2_Set_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -13267,10 +13254,7 @@ func (VStructDepth2_VSet_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLIsZero() bool {
-	if len(x.F5) != 0 {
-		return false
-	}
-	return true
+	return len(x.F5) == 0
 }
 
 func (x VStructDepth2_VSet_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -13333,10 +13317,7 @@ func (VStructDepth2_Map_Byte_Byte) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLIsZero() bool {
-	if len(x.F6) != 0 {
-		return false
-	}
-	return true
+	return len(x.F6) == 0
 }
 
 func (x VStructDepth2_Map_Byte_Byte) VDLWrite(enc vdl.Encoder) error {
@@ -13399,10 +13380,7 @@ func (VStructDepth2_Map_Uint32_Uint32) VDLReflect(struct {
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLIsZero() bool {
-	if len(x.F7) != 0 {
-		return false
-	}
-	return true
+	return len(x.F7) == 0
 }
 
 func (x VStructDepth2_Map_Uint32_Uint32) VDLWrite(enc vdl.Encoder) error {
@@ -13465,10 +13443,7 @@ func (VStructDepth2_VStructDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLIsZero() bool {
-	if !x.F8.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F8.VDLIsZero()
 }
 
 func (x VStructDepth2_VStructDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13598,10 +13573,7 @@ func (VStructDepth2_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLIsZero() bool {
-	if x.F10 != nil && !x.F10.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F10 == nil || x.F10.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -13666,10 +13638,7 @@ func (VStructDepth2_VUnionDepth1_Float64) VDLReflect(struct {
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLIsZero() bool {
-	if x.F11 != nil && !x.F11.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F11 == nil || x.F11.VDLIsZero()
 }
 
 func (x VStructDepth2_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -15496,10 +15465,11 @@ type (
 	}
 )
 
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int                                            { return 0 }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{}                                { return x.Value }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string                                          { return "F11" }
-func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {}
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Index() int             { return 0 }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Interface() interface{} { return x.Value }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) Name() string           { return "F11" }
+func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLReflect(__VUnionDepth2_VUnionDepth1_VUint32Reflect) {
+}
 
 func (x VUnionDepth2_VUnionDepth1_VUint32F11) VDLIsZero() bool {
 	return x.Value == nil || x.Value.VDLIsZero()
@@ -17472,10 +17442,7 @@ func (VStructDepth3_VArray1_Set_VEnumBcd) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLIsZero() bool {
-	if !x.F0.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F0.VDLIsZero()
 }
 
 func (x VStructDepth3_VArray1_Set_VEnumBcd) VDLWrite(enc vdl.Encoder) error {
@@ -17538,10 +17505,7 @@ func (VStructDepth3_List_VUnionDepth1_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLIsZero() bool {
-	if len(x.F1) != 0 {
-		return false
-	}
-	return true
+	return len(x.F1) == 0
 }
 
 func (x VStructDepth3_List_VUnionDepth1_All) VDLWrite(enc vdl.Encoder) error {
@@ -17604,10 +17568,7 @@ func (VStructDepth3_VSet_VArray1_VStructEmpty) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLIsZero() bool {
-	if len(x.F2) != 0 {
-		return false
-	}
-	return true
+	return len(x.F2) == 0
 }
 
 func (x VStructDepth3_VSet_VArray1_VStructEmpty) VDLWrite(enc vdl.Encoder) error {
@@ -17670,10 +17631,7 @@ func (VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLReflect(st
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLIsZero() bool {
-	if len(x.F3) != 0 {
-		return false
-	}
-	return true
+	return len(x.F3) == 0
 }
 
 func (x VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64) VDLWrite(enc vdl.Encoder) error {
@@ -17736,10 +17694,7 @@ func (VStructDepth3_VStructDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLIsZero() bool {
-	if !x.F4.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F4.VDLIsZero()
 }
 
 func (x VStructDepth3_VStructDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -17814,10 +17769,7 @@ func (VStructDepth3_VUnionDepth2_All) VDLReflect(struct {
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLIsZero() bool {
-	if x.F5 != nil && !x.F5.VDLIsZero() {
-		return false
-	}
-	return true
+	return x.F5 == nil || x.F5.VDLIsZero()
 }
 
 func (x VStructDepth3_VUnionDepth2_All) VDLWrite(enc vdl.Encoder) error {
@@ -20642,7 +20594,7 @@ func (VWireAll) VDLReflect(struct {
 }
 
 func (x VWireAll) VDLIsZero() bool {
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		return false
 	}
 	if x.BoolNString != "" {
@@ -20721,7 +20673,7 @@ func (x VWireAll) VDLWrite(enc vdl.Encoder) error {
 	if err := enc.StartValue(__VDLType_struct_284); err != nil {
 		return err
 	}
-	if x.BoolNBool != false {
+	if x.BoolNBool {
 		var wire VWireBoolNBool
 		if err := VWireBoolNBoolFromNative(&wire, x.BoolNBool); err != nil {
 			return err
@@ -21215,6 +21167,7 @@ const (
 var XEnumAbcAll = [...]XEnumAbc{XEnumAbcA, XEnumAbcB, XEnumAbcC}
 
 // XEnumAbcFromString creates a XEnumAbc from a string label.
+// nolint: deadcode, unused
 func XEnumAbcFromString(label string) (x XEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -21268,6 +21221,7 @@ const (
 var XEnumBcdAll = [...]XEnumBcd{XEnumBcdB, XEnumBcdC, XEnumBcdD}
 
 // XEnumBcdFromString creates a XEnumBcd from a string label.
+// nolint: deadcode, unused
 func XEnumBcdFromString(label string) (x XEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -24168,10 +24122,11 @@ type (
 	}
 )
 
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int                                            { return 0 }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{}                                { return x.Value }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string                                          { return "F11" }
-func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {}
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Index() int             { return 0 }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Interface() interface{} { return x.Value }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) Name() string           { return "F11" }
+func (x XUnionDepth2_XUnionDepth1_XUint32F11) VDLReflect(__XUnionDepth2_XUnionDepth1_XUint32Reflect) {
+}
 
 type (
 	// XUnionDepth2_OptXStructDepth1_XEnumBcd represents any single field of the XUnionDepth2_OptXStructDepth1_XEnumBcd union type.
@@ -29909,9 +29864,9 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth3_List_VUnionDepth1_All{
 				F1: []VUnionDepth1_All{
-					VUnionDepth1_AllF20{37},
-					VUnionDepth1_AllF16{2248810097},
-					VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+					VUnionDepth1_AllF20{Value: 37},
+					VUnionDepth1_AllF16{Value: 2248810097},
+					VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 						RetryCode: vdl.WireRetryCodeRetryBackoff,
 						Msg:       "eΔΘΠΣΦ王普",
 					})},
@@ -29926,9 +29881,9 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth3_List_VUnionDepth1_All{
 				F1: []VUnionDepth1_All{
-					VUnionDepth1_AllF20{37},
-					VUnionDepth1_AllF16{2248810097},
-					VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+					VUnionDepth1_AllF20{Value: 37},
+					VUnionDepth1_AllF16{Value: 2248810097},
+					VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 						RetryCode: vdl.WireRetryCodeRetryBackoff,
 						Msg:       "eΔΘΠΣΦ王普",
 					})},
@@ -29946,9 +29901,9 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth3_List_VUnionDepth1_All{
 				F1: []VUnionDepth1_All{
-					VUnionDepth1_AllF20{37},
-					VUnionDepth1_AllF16{2248810097},
-					VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+					VUnionDepth1_AllF20{Value: 37},
+					VUnionDepth1_AllF16{Value: 2248810097},
+					VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 						RetryCode: vdl.WireRetryCodeRetryBackoff,
 						Msg:       "eΔΘΠΣΦ王普",
 					})},
@@ -29963,9 +29918,9 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth3_List_VUnionDepth1_All{
 				F1: []VUnionDepth1_All{
-					VUnionDepth1_AllF20{37},
-					VUnionDepth1_AllF16{2248810097},
-					VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+					VUnionDepth1_AllF20{Value: 37},
+					VUnionDepth1_AllF16{Value: 2248810097},
+					VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 						RetryCode: vdl.WireRetryCodeRetryBackoff,
 						Msg:       "eΔΘΠΣΦ王普",
 					})},
@@ -32597,7 +32552,7 @@ var vAllPass = []vdlEntry{
 						3850295936: 1398145105,
 					},
 					F8: VStructDepth1_All{
-						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 						F5: vdl.AnyType,
 						F6: 218,
 						F7: 202,
@@ -32679,7 +32634,7 @@ var vAllPass = []vdlEntry{
 						3850295936: 1398145105,
 					},
 					F8: VStructDepth1_All{
-						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 						F5: vdl.AnyType,
 						F6: 218,
 						F7: 202,
@@ -32764,7 +32719,7 @@ var vAllPass = []vdlEntry{
 						3850295936: 1398145105,
 					},
 					F8: VStructDepth1_All{
-						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 						F5: vdl.AnyType,
 						F6: 218,
 						F7: 202,
@@ -32846,7 +32801,7 @@ var vAllPass = []vdlEntry{
 						3850295936: 1398145105,
 					},
 					F8: VStructDepth1_All{
-						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+						F0: VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 						F5: vdl.AnyType,
 						F6: 218,
 						F7: 202,
@@ -39763,12 +39718,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+		Target: VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -39776,12 +39731,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+		Target: VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -39790,16 +39745,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_All{F9: C}",
-		Target:      VUnionDepth1_All(VUnionDepth1_AllF9{VEnumBcdC}),
+		Target:      VUnionDepth1_All(VUnionDepth1_AllF9{Value: VEnumBcdC}),
 		SourceLabel: "VUnionDepth1_All{F9: C}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF9{VEnumBcdC}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF9{Value: VEnumBcdC}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_All{F9: C}",
-		Target:      VUnionDepth1_All(VUnionDepth1_AllF9{VEnumBcdC}),
+		Target:      VUnionDepth1_All(VUnionDepth1_AllF9{Value: VEnumBcdC}),
 		SourceLabel: "VUnionDepth1_VEnumBcd{F9: C}",
-		Source:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{VEnumBcdC}),
+		Source:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{Value: VEnumBcdC}),
 	},
 	{
 		IsCanonical: true,
@@ -39820,31 +39775,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Any{F0: int64(-123)}",
-		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{int64(-123)}),
+		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: int64(-123)}),
 		SourceLabel: "VUnionDepth1_Any{F0: int64(-123)}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{int64(-123)}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: int64(-123)}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Any{F0: int64(-123)}",
-		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{int64(-123)}),
+		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: int64(-123)}),
 		SourceLabel: "VUnionDepth1_All{F0: int64(-123)}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{int64(-123)}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{Value: int64(-123)}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Any{F0: VList_Byte(\"\\xf2\")}",
-		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VList_Byte("\xf2")}),
+		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VList_Byte("\xf2")}),
 		SourceLabel: "VUnionDepth1_Any{F0: VList_Byte(\"\\xf2\")}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VList_Byte("\xf2")}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VList_Byte("\xf2")}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Any{F0: VList_Byte(\"\\xf2\")}",
-		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VList_Byte("\xf2")}),
+		Target:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VList_Byte("\xf2")}),
 		SourceLabel: "VUnionDepth1_All{F0: VList_Byte(\"\\xf2\")}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{VList_Byte("\xf2")}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{Value: VList_Byte("\xf2")}),
 	},
 	{
 		IsCanonical: true,
@@ -39865,16 +39820,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Bool{F1: true}",
-		Target:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{true}),
+		Target:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{Value: true}),
 		SourceLabel: "VUnionDepth1_Bool{F1: true}",
-		Source:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{true}),
+		Source:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{Value: true}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Bool{F1: true}",
-		Target:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{true}),
+		Target:      VUnionDepth1_Bool(VUnionDepth1_BoolF1{Value: true}),
 		SourceLabel: "VUnionDepth1_All{F1: true}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF1{true}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF1{Value: true}),
 	},
 	{
 		IsCanonical: true,
@@ -39895,16 +39850,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VBool{F2: true}",
-		Target:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{true}),
+		Target:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{Value: true}),
 		SourceLabel: "VUnionDepth1_VBool{F2: true}",
-		Source:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{true}),
+		Source:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{Value: true}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VBool{F2: true}",
-		Target:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{true}),
+		Target:      VUnionDepth1_VBool(VUnionDepth1_VBoolF2{Value: true}),
 		SourceLabel: "VUnionDepth1_All{F2: true}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF2{true}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF2{Value: true}),
 	},
 	{
 		IsCanonical: true,
@@ -39925,31 +39880,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VUnionDepth1_String(VUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VUnionDepth1_All{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_String{F3: \"deΔΘΠ\"}",
-		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{"deΔΘΠ"}),
+		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "deΔΘΠ"}),
 		SourceLabel: "VUnionDepth1_String{F3: \"deΔΘΠ\"}",
-		Source:      VUnionDepth1_String(VUnionDepth1_StringF3{"deΔΘΠ"}),
+		Source:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "deΔΘΠ"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_String{F3: \"deΔΘΠ\"}",
-		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{"deΔΘΠ"}),
+		Target:      VUnionDepth1_String(VUnionDepth1_StringF3{Value: "deΔΘΠ"}),
 		SourceLabel: "VUnionDepth1_All{F3: \"deΔΘΠ\"}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF3{"deΔΘΠ"}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF3{Value: "deΔΘΠ"}),
 	},
 	{
 		IsCanonical: true,
@@ -39970,76 +39925,76 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VUnionDepth1_VString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VUnionDepth1_All{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VString{F4: \"d\"}",
-		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"d"}),
+		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "d"}),
 		SourceLabel: "VUnionDepth1_VString{F4: \"d\"}",
-		Source:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"d"}),
+		Source:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "d"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VString{F4: \"d\"}",
-		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{"d"}),
+		Target:      VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "d"}),
 		SourceLabel: "VUnionDepth1_All{F4: \"d\"}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF4{"d"}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF4{Value: "d"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		SourceLabel: "VUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		SourceLabel: "VUnionDepth1_All{F5: typeobject(any)}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{vdl.AnyType}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{Value: vdl.AnyType}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		SourceLabel: "VUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		SourceLabel: "VUnionDepth1_All{F5: typeobject(int64)}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{vdl.Int64Type}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{Value: vdl.Int64Type}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 		SourceLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
+		Source:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_TypeObject{F5: typeobject(VArray1_VList_Byte)}",
-		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
+		Target:      VUnionDepth1_TypeObject(VUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 		SourceLabel: "VUnionDepth1_All{F5: typeobject(VArray1_VList_Byte)}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF5{Value: vdl.TypeOf((*VArray1_VList_Byte)(nil))}),
 	},
 	{
 		IsCanonical: true,
@@ -40060,31 +40015,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Byte{F6: 123}",
-		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{123}),
+		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 123}),
 		SourceLabel: "VUnionDepth1_Byte{F6: 123}",
-		Source:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{123}),
+		Source:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Byte{F6: 123}",
-		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{123}),
+		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F6: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF6{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF6{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Byte{F6: 148}",
-		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{148}),
+		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 148}),
 		SourceLabel: "VUnionDepth1_Byte{F6: 148}",
-		Source:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{148}),
+		Source:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 148}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Byte{F6: 148}",
-		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{148}),
+		Target:      VUnionDepth1_Byte(VUnionDepth1_ByteF6{Value: 148}),
 		SourceLabel: "VUnionDepth1_All{F6: 148}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF6{148}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF6{Value: 148}),
 	},
 	{
 		IsCanonical: true,
@@ -40105,31 +40060,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VByte{F7: 123}",
-		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{123}),
+		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 123}),
 		SourceLabel: "VUnionDepth1_VByte{F7: 123}",
-		Source:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{123}),
+		Source:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VByte{F7: 123}",
-		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{123}),
+		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F7: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF7{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF7{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VByte{F7: 162}",
-		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{162}),
+		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 162}),
 		SourceLabel: "VUnionDepth1_VByte{F7: 162}",
-		Source:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{162}),
+		Source:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 162}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VByte{F7: 162}",
-		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{162}),
+		Target:      VUnionDepth1_VByte(VUnionDepth1_VByteF7{Value: 162}),
 		SourceLabel: "VUnionDepth1_All{F7: 162}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF7{162}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF7{Value: 162}),
 	},
 	{
 		IsCanonical: true,
@@ -40150,16 +40105,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VEnumAbc{F8: C}",
-		Target:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{VEnumAbcC}),
+		Target:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{Value: VEnumAbcC}),
 		SourceLabel: "VUnionDepth1_VEnumAbc{F8: C}",
-		Source:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{VEnumAbcC}),
+		Source:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{Value: VEnumAbcC}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VEnumAbc{F8: C}",
-		Target:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{VEnumAbcC}),
+		Target:      VUnionDepth1_VEnumAbc(VUnionDepth1_VEnumAbcF8{Value: VEnumAbcC}),
 		SourceLabel: "VUnionDepth1_All{F8: C}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF8{VEnumAbcC}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF8{Value: VEnumAbcC}),
 	},
 	{
 		IsCanonical: true,
@@ -40180,16 +40135,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VEnumBcd{F9: D}",
-		Target:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{VEnumBcdD}),
+		Target:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{Value: VEnumBcdD}),
 		SourceLabel: "VUnionDepth1_VEnumBcd{F9: D}",
-		Source:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{VEnumBcdD}),
+		Source:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{Value: VEnumBcdD}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VEnumBcd{F9: D}",
-		Target:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{VEnumBcdD}),
+		Target:      VUnionDepth1_VEnumBcd(VUnionDepth1_VEnumBcdF9{Value: VEnumBcdD}),
 		SourceLabel: "VUnionDepth1_All{F9: D}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF9{VEnumBcdD}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF9{Value: VEnumBcdD}),
 	},
 	{
 		IsCanonical: true,
@@ -40225,12 +40180,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_VNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Source: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -40238,12 +40193,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_All{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF11{VNamedError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF11{Value: VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -40252,12 +40207,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VNamedError{F11: {Id: \"Π\", Msg: \"ΔΘ\"}}",
-		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "Π",
 			Msg: "ΔΘ",
 		}}),
 		SourceLabel: "VUnionDepth1_VNamedError{F11: {Id: \"Π\", Msg: \"ΔΘ\"}}",
-		Source: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Source: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "Π",
 			Msg: "ΔΘ",
 		}}),
@@ -40265,12 +40220,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VNamedError{F11: {Id: \"Π\", Msg: \"ΔΘ\"}}",
-		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+		Target: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 			Id:  "Π",
 			Msg: "ΔΘ",
 		}}),
 		SourceLabel: "VUnionDepth1_All{F11: {Id: \"Π\", Msg: \"ΔΘ\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF11{VNamedError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF11{Value: VNamedError{
 			Id:  "Π",
 			Msg: "ΔΘ",
 		}}),
@@ -40294,13 +40249,13 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
 		})}),
 		SourceLabel: "VUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Source: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -40309,13 +40264,13 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
 		})}),
 		SourceLabel: "VUnionDepth1_All{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -40325,12 +40280,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Error{F12: {Id: \"ΘΠ\", Msg: \"澤世\"}}",
-		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "ΘΠ",
 			Msg: "澤世",
 		})}),
 		SourceLabel: "VUnionDepth1_Error{F12: {Id: \"ΘΠ\", Msg: \"澤世\"}}",
-		Source: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Source: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "ΘΠ",
 			Msg: "澤世",
 		})}),
@@ -40338,12 +40293,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Error{F12: {Id: \"ΘΠ\", Msg: \"澤世\"}}",
-		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "ΘΠ",
 			Msg: "澤世",
 		})}),
 		SourceLabel: "VUnionDepth1_All{F12: {Id: \"ΘΠ\", Msg: \"澤世\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "ΘΠ",
 			Msg: "澤世",
 		})}),
@@ -40367,31 +40322,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint16{F13: 123}",
-		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{123}),
+		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 123}),
 		SourceLabel: "VUnionDepth1_Uint16{F13: 123}",
-		Source:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{123}),
+		Source:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint16{F13: 123}",
-		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{123}),
+		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F13: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF13{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF13{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint16{F13: 38806}",
-		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{38806}),
+		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 38806}),
 		SourceLabel: "VUnionDepth1_Uint16{F13: 38806}",
-		Source:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{38806}),
+		Source:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 38806}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint16{F13: 38806}",
-		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{38806}),
+		Target:      VUnionDepth1_Uint16(VUnionDepth1_Uint16F13{Value: 38806}),
 		SourceLabel: "VUnionDepth1_All{F13: 38806}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF13{38806}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF13{Value: 38806}),
 	},
 	{
 		IsCanonical: true,
@@ -40412,31 +40367,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint16{F14: 123}",
-		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{123}),
+		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 123}),
 		SourceLabel: "VUnionDepth1_VUint16{F14: 123}",
-		Source:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{123}),
+		Source:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint16{F14: 123}",
-		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{123}),
+		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F14: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF14{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF14{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint16{F14: 25922}",
-		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{25922}),
+		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 25922}),
 		SourceLabel: "VUnionDepth1_VUint16{F14: 25922}",
-		Source:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{25922}),
+		Source:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 25922}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint16{F14: 25922}",
-		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{25922}),
+		Target:      VUnionDepth1_VUint16(VUnionDepth1_VUint16F14{Value: 25922}),
 		SourceLabel: "VUnionDepth1_All{F14: 25922}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF14{25922}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF14{Value: 25922}),
 	},
 	{
 		IsCanonical: true,
@@ -40457,31 +40412,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint32{F15: 123}",
-		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{123}),
+		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 123}),
 		SourceLabel: "VUnionDepth1_Uint32{F15: 123}",
-		Source:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{123}),
+		Source:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint32{F15: 123}",
-		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{123}),
+		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F15: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF15{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF15{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint32{F15: 2190777622}",
-		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{2190777622}),
+		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 2190777622}),
 		SourceLabel: "VUnionDepth1_Uint32{F15: 2190777622}",
-		Source:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{2190777622}),
+		Source:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 2190777622}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint32{F15: 2190777622}",
-		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{2190777622}),
+		Target:      VUnionDepth1_Uint32(VUnionDepth1_Uint32F15{Value: 2190777622}),
 		SourceLabel: "VUnionDepth1_All{F15: 2190777622}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF15{2190777622}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF15{Value: 2190777622}),
 	},
 	{
 		IsCanonical: true,
@@ -40502,31 +40457,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint32{F16: 123}",
-		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{123}),
+		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 123}),
 		SourceLabel: "VUnionDepth1_VUint32{F16: 123}",
-		Source:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{123}),
+		Source:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint32{F16: 123}",
-		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{123}),
+		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F16: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF16{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF16{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint32{F16: 2146335826}",
-		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{2146335826}),
+		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 2146335826}),
 		SourceLabel: "VUnionDepth1_VUint32{F16: 2146335826}",
-		Source:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{2146335826}),
+		Source:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 2146335826}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint32{F16: 2146335826}",
-		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{2146335826}),
+		Target:      VUnionDepth1_VUint32(VUnionDepth1_VUint32F16{Value: 2146335826}),
 		SourceLabel: "VUnionDepth1_All{F16: 2146335826}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF16{2146335826}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF16{Value: 2146335826}),
 	},
 	{
 		IsCanonical: true,
@@ -40547,31 +40502,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint64{F17: 123}",
-		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{123}),
+		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 123}),
 		SourceLabel: "VUnionDepth1_Uint64{F17: 123}",
-		Source:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{123}),
+		Source:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Uint64{F17: 123}",
-		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{123}),
+		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F17: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF17{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF17{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint64{F17: 8564503396676571567}",
-		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{8564503396676571567}),
+		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 8564503396676571567}),
 		SourceLabel: "VUnionDepth1_Uint64{F17: 8564503396676571567}",
-		Source:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{8564503396676571567}),
+		Source:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 8564503396676571567}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Uint64{F17: 8564503396676571567}",
-		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{8564503396676571567}),
+		Target:      VUnionDepth1_Uint64(VUnionDepth1_Uint64F17{Value: 8564503396676571567}),
 		SourceLabel: "VUnionDepth1_All{F17: 8564503396676571567}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF17{8564503396676571567}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF17{Value: 8564503396676571567}),
 	},
 	{
 		IsCanonical: true,
@@ -40592,31 +40547,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint64{F18: 123}",
-		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{123}),
+		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 123}),
 		SourceLabel: "VUnionDepth1_VUint64{F18: 123}",
-		Source:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{123}),
+		Source:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VUint64{F18: 123}",
-		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{123}),
+		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 123}),
 		SourceLabel: "VUnionDepth1_All{F18: 123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF18{123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF18{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint64{F18: 13950474839629965026}",
-		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{13950474839629965026}),
+		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 13950474839629965026}),
 		SourceLabel: "VUnionDepth1_VUint64{F18: 13950474839629965026}",
-		Source:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{13950474839629965026}),
+		Source:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 13950474839629965026}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VUint64{F18: 13950474839629965026}",
-		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{13950474839629965026}),
+		Target:      VUnionDepth1_VUint64(VUnionDepth1_VUint64F18{Value: 13950474839629965026}),
 		SourceLabel: "VUnionDepth1_All{F18: 13950474839629965026}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF18{13950474839629965026}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF18{Value: 13950474839629965026}),
 	},
 	{
 		IsCanonical: true,
@@ -40637,31 +40592,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int8{F19: -123}",
-		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-123}),
+		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -123}),
 		SourceLabel: "VUnionDepth1_Int8{F19: -123}",
-		Source:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-123}),
+		Source:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int8{F19: -123}",
-		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-123}),
+		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F19: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF19{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF19{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int8{F19: -28}",
-		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-28}),
+		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -28}),
 		SourceLabel: "VUnionDepth1_Int8{F19: -28}",
-		Source:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-28}),
+		Source:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -28}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int8{F19: -28}",
-		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{-28}),
+		Target:      VUnionDepth1_Int8(VUnionDepth1_Int8F19{Value: -28}),
 		SourceLabel: "VUnionDepth1_All{F19: -28}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF19{-28}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF19{Value: -28}),
 	},
 	{
 		IsCanonical: true,
@@ -40682,31 +40637,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt8{F20: -123}",
-		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{-123}),
+		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: -123}),
 		SourceLabel: "VUnionDepth1_VInt8{F20: -123}",
-		Source:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{-123}),
+		Source:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt8{F20: -123}",
-		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{-123}),
+		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F20: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF20{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF20{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt8{F20: 41}",
-		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{41}),
+		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: 41}),
 		SourceLabel: "VUnionDepth1_VInt8{F20: 41}",
-		Source:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{41}),
+		Source:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: 41}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt8{F20: 41}",
-		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{41}),
+		Target:      VUnionDepth1_VInt8(VUnionDepth1_VInt8F20{Value: 41}),
 		SourceLabel: "VUnionDepth1_All{F20: 41}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF20{41}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF20{Value: 41}),
 	},
 	{
 		IsCanonical: true,
@@ -40727,31 +40682,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int16{F21: -123}",
-		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-123}),
+		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -123}),
 		SourceLabel: "VUnionDepth1_Int16{F21: -123}",
-		Source:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-123}),
+		Source:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int16{F21: -123}",
-		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-123}),
+		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F21: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF21{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF21{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int16{F21: -1424}",
-		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-1424}),
+		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -1424}),
 		SourceLabel: "VUnionDepth1_Int16{F21: -1424}",
-		Source:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-1424}),
+		Source:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -1424}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int16{F21: -1424}",
-		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{-1424}),
+		Target:      VUnionDepth1_Int16(VUnionDepth1_Int16F21{Value: -1424}),
 		SourceLabel: "VUnionDepth1_All{F21: -1424}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF21{-1424}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF21{Value: -1424}),
 	},
 	{
 		IsCanonical: true,
@@ -40772,31 +40727,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt16{F22: -123}",
-		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{-123}),
+		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: -123}),
 		SourceLabel: "VUnionDepth1_VInt16{F22: -123}",
-		Source:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{-123}),
+		Source:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt16{F22: -123}",
-		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{-123}),
+		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F22: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF22{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF22{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt16{F22: 1101}",
-		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{1101}),
+		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: 1101}),
 		SourceLabel: "VUnionDepth1_VInt16{F22: 1101}",
-		Source:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{1101}),
+		Source:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: 1101}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt16{F22: 1101}",
-		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{1101}),
+		Target:      VUnionDepth1_VInt16(VUnionDepth1_VInt16F22{Value: 1101}),
 		SourceLabel: "VUnionDepth1_All{F22: 1101}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF22{1101}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF22{Value: 1101}),
 	},
 	{
 		IsCanonical: true,
@@ -40817,31 +40772,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int32{F23: -123}",
-		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{-123}),
+		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: -123}),
 		SourceLabel: "VUnionDepth1_Int32{F23: -123}",
-		Source:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{-123}),
+		Source:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int32{F23: -123}",
-		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{-123}),
+		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F23: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF23{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF23{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int32{F23: 597552188}",
-		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{597552188}),
+		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: 597552188}),
 		SourceLabel: "VUnionDepth1_Int32{F23: 597552188}",
-		Source:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{597552188}),
+		Source:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: 597552188}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int32{F23: 597552188}",
-		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{597552188}),
+		Target:      VUnionDepth1_Int32(VUnionDepth1_Int32F23{Value: 597552188}),
 		SourceLabel: "VUnionDepth1_All{F23: 597552188}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF23{597552188}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF23{Value: 597552188}),
 	},
 	{
 		IsCanonical: true,
@@ -40862,31 +40817,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt32{F24: -123}",
-		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{-123}),
+		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: -123}),
 		SourceLabel: "VUnionDepth1_VInt32{F24: -123}",
-		Source:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{-123}),
+		Source:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt32{F24: -123}",
-		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{-123}),
+		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F24: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF24{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF24{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt32{F24: 455537318}",
-		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{455537318}),
+		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: 455537318}),
 		SourceLabel: "VUnionDepth1_VInt32{F24: 455537318}",
-		Source:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{455537318}),
+		Source:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: 455537318}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt32{F24: 455537318}",
-		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{455537318}),
+		Target:      VUnionDepth1_VInt32(VUnionDepth1_VInt32F24{Value: 455537318}),
 		SourceLabel: "VUnionDepth1_All{F24: 455537318}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF24{455537318}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF24{Value: 455537318}),
 	},
 	{
 		IsCanonical: true,
@@ -40907,31 +40862,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int64{F25: -123}",
-		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{-123}),
+		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: -123}),
 		SourceLabel: "VUnionDepth1_Int64{F25: -123}",
-		Source:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{-123}),
+		Source:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Int64{F25: -123}",
-		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{-123}),
+		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F25: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF25{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF25{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int64{F25: 1372690032185737469}",
-		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{1372690032185737469}),
+		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: 1372690032185737469}),
 		SourceLabel: "VUnionDepth1_Int64{F25: 1372690032185737469}",
-		Source:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{1372690032185737469}),
+		Source:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: 1372690032185737469}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Int64{F25: 1372690032185737469}",
-		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{1372690032185737469}),
+		Target:      VUnionDepth1_Int64(VUnionDepth1_Int64F25{Value: 1372690032185737469}),
 		SourceLabel: "VUnionDepth1_All{F25: 1372690032185737469}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF25{1372690032185737469}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF25{Value: 1372690032185737469}),
 	},
 	{
 		IsCanonical: true,
@@ -40952,31 +40907,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt64{F26: -123}",
-		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{-123}),
+		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: -123}),
 		SourceLabel: "VUnionDepth1_VInt64{F26: -123}",
-		Source:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{-123}),
+		Source:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VInt64{F26: -123}",
-		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{-123}),
+		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: -123}),
 		SourceLabel: "VUnionDepth1_All{F26: -123}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF26{-123}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF26{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt64{F26: 631175252722087298}",
-		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{631175252722087298}),
+		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: 631175252722087298}),
 		SourceLabel: "VUnionDepth1_VInt64{F26: 631175252722087298}",
-		Source:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{631175252722087298}),
+		Source:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: 631175252722087298}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VInt64{F26: 631175252722087298}",
-		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{631175252722087298}),
+		Target:      VUnionDepth1_VInt64(VUnionDepth1_VInt64F26{Value: 631175252722087298}),
 		SourceLabel: "VUnionDepth1_All{F26: 631175252722087298}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF26{631175252722087298}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF26{Value: 631175252722087298}),
 	},
 	{
 		IsCanonical: true,
@@ -40997,31 +40952,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Float32{F27: 1.5}",
-		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{1.5}),
+		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_Float32{F27: 1.5}",
-		Source:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{1.5}),
+		Source:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Float32{F27: 1.5}",
-		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{1.5}),
+		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_All{F27: 1.5}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF27{1.5}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF27{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Float32{F27: 3.2036168e+09}",
-		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{3.2036168e+09}),
+		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 3.2036168e+09}),
 		SourceLabel: "VUnionDepth1_Float32{F27: 3.2036168e+09}",
-		Source:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{3.2036168e+09}),
+		Source:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 3.2036168e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Float32{F27: 3.2036168e+09}",
-		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{3.2036168e+09}),
+		Target:      VUnionDepth1_Float32(VUnionDepth1_Float32F27{Value: 3.2036168e+09}),
 		SourceLabel: "VUnionDepth1_All{F27: 3.2036168e+09}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF27{3.2036168e+09}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF27{Value: 3.2036168e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -41042,31 +40997,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VFloat32{F28: 1.5}",
-		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.5}),
+		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_VFloat32{F28: 1.5}",
-		Source:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.5}),
+		Source:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VFloat32{F28: 1.5}",
-		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.5}),
+		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_All{F28: 1.5}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF28{1.5}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF28{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VFloat32{F28: 1.6305185e+09}",
-		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.6305185e+09}),
+		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.6305185e+09}),
 		SourceLabel: "VUnionDepth1_VFloat32{F28: 1.6305185e+09}",
-		Source:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.6305185e+09}),
+		Source:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.6305185e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VFloat32{F28: 1.6305185e+09}",
-		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{1.6305185e+09}),
+		Target:      VUnionDepth1_VFloat32(VUnionDepth1_VFloat32F28{Value: 1.6305185e+09}),
 		SourceLabel: "VUnionDepth1_All{F28: 1.6305185e+09}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF28{1.6305185e+09}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF28{Value: 1.6305185e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -41087,31 +41042,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Float64{F29: 1.5}",
-		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.5}),
+		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_Float64{F29: 1.5}",
-		Source:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.5}),
+		Source:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_Float64{F29: 1.5}",
-		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.5}),
+		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_All{F29: 1.5}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF29{1.5}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF29{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Float64{F29: 1.41257087459224e+09}",
-		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.41257087459224e+09}),
+		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.41257087459224e+09}),
 		SourceLabel: "VUnionDepth1_Float64{F29: 1.41257087459224e+09}",
-		Source:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.41257087459224e+09}),
+		Source:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.41257087459224e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_Float64{F29: 1.41257087459224e+09}",
-		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{1.41257087459224e+09}),
+		Target:      VUnionDepth1_Float64(VUnionDepth1_Float64F29{Value: 1.41257087459224e+09}),
 		SourceLabel: "VUnionDepth1_All{F29: 1.41257087459224e+09}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF29{1.41257087459224e+09}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF29{Value: 1.41257087459224e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -41132,31 +41087,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VFloat64{F30: 1.5}",
-		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{1.5}),
+		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_VFloat64{F30: 1.5}",
-		Source:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{1.5}),
+		Source:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_VFloat64{F30: 1.5}",
-		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{1.5}),
+		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 1.5}),
 		SourceLabel: "VUnionDepth1_All{F30: 1.5}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF30{1.5}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF30{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VFloat64{F30: 2.485054342054782e+09}",
-		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{2.485054342054782e+09}),
+		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 2.485054342054782e+09}),
 		SourceLabel: "VUnionDepth1_VFloat64{F30: 2.485054342054782e+09}",
-		Source:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{2.485054342054782e+09}),
+		Source:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 2.485054342054782e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_VFloat64{F30: 2.485054342054782e+09}",
-		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{2.485054342054782e+09}),
+		Target:      VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 2.485054342054782e+09}),
 		SourceLabel: "VUnionDepth1_All{F30: 2.485054342054782e+09}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF30{2.485054342054782e+09}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF30{Value: 2.485054342054782e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -41177,16 +41132,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_OptVStructEmpty{F31: {}}",
-		Target:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+		Target:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 		SourceLabel: "VUnionDepth1_OptVStructEmpty{F31: {}}",
-		Source:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+		Source:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_OptVStructEmpty{F31: {}}",
-		Target:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{&VStructEmpty{}}),
+		Target:      VUnionDepth1_OptVStructEmpty(VUnionDepth1_OptVStructEmptyF31{Value: &VStructEmpty{}}),
 		SourceLabel: "VUnionDepth1_All{F31: {}}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF31{&VStructEmpty{}}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF31{Value: &VStructEmpty{}}),
 	},
 	{
 		IsCanonical: true,
@@ -41207,12 +41162,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -41220,12 +41175,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -41234,22 +41189,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"e\"}}",
-		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id: "e",
 		}}),
 		SourceLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"e\"}}",
-		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Source: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id: "e",
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth1_OptVNamedError{F32: {Id: \"e\"}}",
-		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{&VNamedError{
+		Target: VUnionDepth1_OptVNamedError(VUnionDepth1_OptVNamedErrorF32{Value: &VNamedError{
 			Id: "e",
 		}}),
 		SourceLabel: "VUnionDepth1_All{F32: {Id: \"e\"}}",
-		Source: VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+		Source: VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 			Id: "e",
 		}}),
 	},
@@ -42452,30 +42407,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VArray3_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "VArray3_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -42485,30 +42440,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VArray3_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -42519,9 +42474,9 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VArray3_VUnionDepth1_All{{F31: {}}, {F0: nil}, {F12: {Id: \"abcdeΔΘΠΣΦ王普澤\", RetryCode: RetryBackoff, Msg: \"bcd\"}}}",
 		Target: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF31{&VStructEmpty{}},
+			VUnionDepth1_AllF31{Value: &VStructEmpty{}},
 			VUnionDepth1_AllF0{},
-			VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+			VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 				Id:        "abcdeΔΘΠΣΦ王普澤",
 				RetryCode: vdl.WireRetryCodeRetryBackoff,
 				Msg:       "bcd",
@@ -42529,9 +42484,9 @@ var vAllPass = []vdlEntry{
 		},
 		SourceLabel: "VArray3_VUnionDepth1_All{{F31: {}}, {F0: nil}, {F12: {Id: \"abcdeΔΘΠΣΦ王普澤\", RetryCode: RetryBackoff, Msg: \"bcd\"}}}",
 		Source: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF31{&VStructEmpty{}},
+			VUnionDepth1_AllF31{Value: &VStructEmpty{}},
 			VUnionDepth1_AllF0{},
-			VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+			VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 				Id:        "abcdeΔΘΠΣΦ王普澤",
 				RetryCode: vdl.WireRetryCodeRetryBackoff,
 				Msg:       "bcd",
@@ -42542,9 +42497,9 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VArray3_VUnionDepth1_All{{F31: {}}, {F0: nil}, {F12: {Id: \"abcdeΔΘΠΣΦ王普澤\", RetryCode: RetryBackoff, Msg: \"bcd\"}}}",
 		Target: VArray3_VUnionDepth1_All{
-			VUnionDepth1_AllF31{&VStructEmpty{}},
+			VUnionDepth1_AllF31{Value: &VStructEmpty{}},
 			VUnionDepth1_AllF0{},
-			VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+			VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 				Id:        "abcdeΔΘΠΣΦ王普澤",
 				RetryCode: vdl.WireRetryCodeRetryBackoff,
 				Msg:       "bcd",
@@ -42552,9 +42507,9 @@ var vAllPass = []vdlEntry{
 		},
 		SourceLabel: "[]VUnionDepth1_All{{F31: {}}, {F0: nil}, {F12: {Id: \"abcdeΔΘΠΣΦ王普澤\", RetryCode: RetryBackoff, Msg: \"bcd\"}}}",
 		Source: []VUnionDepth1_All{
-			VUnionDepth1_AllF31{&VStructEmpty{}},
+			VUnionDepth1_AllF31{Value: &VStructEmpty{}},
 			VUnionDepth1_AllF0{},
-			VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+			VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 				Id:        "abcdeΔΘΠΣΦ王普澤",
 				RetryCode: vdl.WireRetryCodeRetryBackoff,
 				Msg:       "bcd",
@@ -43351,7 +43306,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			{
-				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcd",
 					Msg: "abcdeΔΘΠΣ",
 				})}),
@@ -43462,7 +43417,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			{
-				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcd",
 					Msg: "abcdeΔΘΠΣ",
 				})}),
@@ -43576,7 +43531,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			{
-				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcd",
 					Msg: "abcdeΔΘΠΣ",
 				})}),
@@ -43687,7 +43642,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			{
-				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+				F0: VUnionDepth1_Error(VUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcd",
 					Msg: "abcdeΔΘΠΣ",
 				})}),
@@ -43749,14 +43704,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: []VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -43766,14 +43721,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: []VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "VList_Any{VUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VList_Any{
-			VUnionDepth1_All(VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_All(VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}),
@@ -43784,14 +43739,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]VUnionDepth1_All{{F24: -606482678}, {F24: 268033718}, {F7: 0}}",
 		Target: []VUnionDepth1_All{
-			VUnionDepth1_AllF24{-606482678},
-			VUnionDepth1_AllF24{268033718},
+			VUnionDepth1_AllF24{Value: -606482678},
+			VUnionDepth1_AllF24{Value: 268033718},
 			VUnionDepth1_AllF7{},
 		},
 		SourceLabel: "[]VUnionDepth1_All{{F24: -606482678}, {F24: 268033718}, {F7: 0}}",
 		Source: []VUnionDepth1_All{
-			VUnionDepth1_AllF24{-606482678},
-			VUnionDepth1_AllF24{268033718},
+			VUnionDepth1_AllF24{Value: -606482678},
+			VUnionDepth1_AllF24{Value: 268033718},
 			VUnionDepth1_AllF7{},
 		},
 	},
@@ -43799,14 +43754,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]VUnionDepth1_All{{F24: -606482678}, {F24: 268033718}, {F7: 0}}",
 		Target: []VUnionDepth1_All{
-			VUnionDepth1_AllF24{-606482678},
-			VUnionDepth1_AllF24{268033718},
+			VUnionDepth1_AllF24{Value: -606482678},
+			VUnionDepth1_AllF24{Value: 268033718},
 			VUnionDepth1_AllF7{},
 		},
 		SourceLabel: "VList_VUnionDepth1_All{{F24: -606482678}, {F24: 268033718}, {F7: 0}}",
 		Source: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF24{-606482678},
-			VUnionDepth1_AllF24{268033718},
+			VUnionDepth1_AllF24{Value: -606482678},
+			VUnionDepth1_AllF24{Value: 268033718},
 			VUnionDepth1_AllF7{},
 		},
 	},
@@ -44656,14 +44611,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VList_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "VList_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -44673,14 +44628,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VList_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []VUnionDepth1_All{
-			VUnionDepth1_AllF32{&VNamedError{
+			VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -44691,30 +44646,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VList_VUnionDepth1_All{{F24: -41875852}, {F3: \"abcdeΔΘΠ\"}, {F19: -4}}",
 		Target: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF24{-41875852},
-			VUnionDepth1_AllF3{"abcdeΔΘΠ"},
-			VUnionDepth1_AllF19{-4},
+			VUnionDepth1_AllF24{Value: -41875852},
+			VUnionDepth1_AllF3{Value: "abcdeΔΘΠ"},
+			VUnionDepth1_AllF19{Value: -4},
 		},
 		SourceLabel: "VList_VUnionDepth1_All{{F24: -41875852}, {F3: \"abcdeΔΘΠ\"}, {F19: -4}}",
 		Source: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF24{-41875852},
-			VUnionDepth1_AllF3{"abcdeΔΘΠ"},
-			VUnionDepth1_AllF19{-4},
+			VUnionDepth1_AllF24{Value: -41875852},
+			VUnionDepth1_AllF3{Value: "abcdeΔΘΠ"},
+			VUnionDepth1_AllF19{Value: -4},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VList_VUnionDepth1_All{{F24: -41875852}, {F3: \"abcdeΔΘΠ\"}, {F19: -4}}",
 		Target: VList_VUnionDepth1_All{
-			VUnionDepth1_AllF24{-41875852},
-			VUnionDepth1_AllF3{"abcdeΔΘΠ"},
-			VUnionDepth1_AllF19{-4},
+			VUnionDepth1_AllF24{Value: -41875852},
+			VUnionDepth1_AllF3{Value: "abcdeΔΘΠ"},
+			VUnionDepth1_AllF19{Value: -4},
 		},
 		SourceLabel: "VArray3_Any{VUnionDepth1_All{F24: -41875852}, VUnionDepth1_All{F3: \"abcdeΔΘΠ\"}, VUnionDepth1_All{F19: -4}}",
 		Source: VArray3_Any{
-			VUnionDepth1_All(VUnionDepth1_AllF24{-41875852}),
-			VUnionDepth1_All(VUnionDepth1_AllF3{"abcdeΔΘΠ"}),
-			VUnionDepth1_All(VUnionDepth1_AllF19{-4}),
+			VUnionDepth1_All(VUnionDepth1_AllF24{Value: -41875852}),
+			VUnionDepth1_All(VUnionDepth1_AllF3{Value: "abcdeΔΘΠ"}),
+			VUnionDepth1_All(VUnionDepth1_AllF19{Value: -4}),
 		},
 	},
 	{
@@ -44871,14 +44826,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[VUnionDepth1_VNamedError]struct{}{
-			VUnionDepth1_VNamedErrorF11{VNamedError{
+			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth1_VNamedError]struct{}{
-			VUnionDepth1_VNamedErrorF11{VNamedError{
+			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
@@ -44889,13 +44844,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"Θ\"}}}",
 		Target: map[VUnionDepth1_VNamedError]struct{}{
-			VUnionDepth1_VNamedErrorF11{VNamedError{
+			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id: "Θ",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"Θ\"}}}",
 		Source: map[VUnionDepth1_VNamedError]struct{}{
-			VUnionDepth1_VNamedErrorF11{VNamedError{
+			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id: "Θ",
 			}}: struct{}{},
 		},
@@ -44987,11 +44942,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VUnionDepth1_VInt8{{F20: -123}}",
 		Target: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{-123}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -123}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth1_VInt8{{F20: -123}}",
 		Source: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{-123}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -123}: struct{}{},
 		},
 	},
 	{
@@ -44999,11 +44954,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUnionDepth1_VInt8{{F20: -27}}",
 		Target: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{-27}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -27}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth1_VInt8{{F20: -27}}",
 		Source: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{-27}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -27}: struct{}{},
 		},
 	},
 	{
@@ -45179,11 +45134,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Target: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-			VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+			VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Source: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-			VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+			VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
@@ -45191,11 +45146,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 2.2726029698107373e+07}: {F29: 0}}",
 		Target: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-			VUnionDepth1_Float64F29{2.2726029698107373e+07}: VUnionDepth1_Float64F29{},
+			VUnionDepth1_Float64F29{Value: 2.2726029698107373e+07}: VUnionDepth1_Float64F29{},
 		},
 		SourceLabel: "map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 2.2726029698107373e+07}: {F29: 0}}",
 		Source: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-			VUnionDepth1_Float64F29{2.2726029698107373e+07}: VUnionDepth1_Float64F29{},
+			VUnionDepth1_Float64F29{Value: 2.2726029698107373e+07}: VUnionDepth1_Float64F29{},
 		},
 	},
 	{
@@ -45289,11 +45244,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{{F18: 123}: {F18: 123}}",
 		Target: VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{
-			VUnionDepth1_VUint64F18{123}: VUnionDepth1_VUint64F18{123},
+			VUnionDepth1_VUint64F18{Value: 123}: VUnionDepth1_VUint64F18{Value: 123},
 		},
 		SourceLabel: "VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{{F18: 123}: {F18: 123}}",
 		Source: VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{
-			VUnionDepth1_VUint64F18{123}: VUnionDepth1_VUint64F18{123},
+			VUnionDepth1_VUint64F18{Value: 123}: VUnionDepth1_VUint64F18{Value: 123},
 		},
 	},
 	{
@@ -45301,11 +45256,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{{F18: 5853028216567780601}: {F18: 0}}",
 		Target: VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{
-			VUnionDepth1_VUint64F18{5853028216567780601}: VUnionDepth1_VUint64F18{},
+			VUnionDepth1_VUint64F18{Value: 5853028216567780601}: VUnionDepth1_VUint64F18{},
 		},
 		SourceLabel: "VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{{F18: 5853028216567780601}: {F18: 0}}",
 		Source: VMap_VUnionDepth1_VUint64_VUnionDepth1_VUint64{
-			VUnionDepth1_VUint64F18{5853028216567780601}: VUnionDepth1_VUint64F18{},
+			VUnionDepth1_VUint64F18{Value: 5853028216567780601}: VUnionDepth1_VUint64F18{},
 		},
 	},
 	{
@@ -45447,11 +45402,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -45533,11 +45488,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -45561,7 +45516,7 @@ var vAllPass = []vdlEntry{
 				5386,
 			},
 			F3: VList_Any{
-				VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{-3.646945524972634e+09}),
+				VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: -3.646945524972634e+09}),
 				VMap_VArray3_VBool_VArray3_VBool{
 					{
 						true,
@@ -45635,8 +45590,8 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{}},
-			F11: VUnionDepth1_Float64F29{-4.920704184273371e+07},
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{}},
+			F11: VUnionDepth1_Float64F29{Value: -4.920704184273371e+07},
 			F12: &VStructDepth1_VEnumBcd{},
 		},
 		SourceLabel: "VStructDepth2_All{F2: {6627, -15355, 5386}, F3: {VUnionDepth1_VFloat64{F30: -3.646945524972634e+09}, VMap_VArray3_VBool_VArray3_VBool{{true, false, false}: {}}, map[VStructDepth1_String]VStructDepth1_String{{}: {F3: \"ΔΘΠΣΦ王普澤世界\"}, {F3: \"bcdeΔΘΠΣΦ王普澤世界\"}: {}, {F3: \"ΘΠΣΦ王普澤\"}: {F3: \"cdeΔΘ\"}}}, F4: {0}, F5: {B, C}, F6: {156: 243}, F7: {0: 4858678, 1853971719: 1808420086, 4237517540: 0}, F8: {F0: VUint32(1459593600), F1: true, F2: true, F4: \"abcdeΔΘ\", F5: typeobject(VInt8), F6: 233, F7: 162, F8: B, F11: {Id: \"deΔΘ\"}, F12: {RetryCode: RetryBackoff}, F13: 54270, F14: 16439, F16: 4227159943, F17: 14077747331074309923, F18: 11530054109741843599, F19: -10, F20: -14, F21: 14926, F22: 4651, F23: 919036762, F24: -362551624, F25: 3038162464226959132, F26: 3632867008264550680, F27: -2.2463437e+09, F28: 2.1413284e+09, F29: 3.923005143643025e+09, F30: 2.34705436525567e+09, F31: {}}, F9: {F1: true}, F10: {F32: {}}, F11: {F29: -4.920704184273371e+07}, F12: {}}",
@@ -45651,7 +45606,7 @@ var vAllPass = []vdlEntry{
 				5386,
 			},
 			F3: VList_Any{
-				VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{-3.646945524972634e+09}),
+				VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: -3.646945524972634e+09}),
 				VMap_VArray3_VBool_VArray3_VBool{
 					{
 						true,
@@ -45725,8 +45680,8 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{}},
-			F11: VUnionDepth1_Float64F29{-4.920704184273371e+07},
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{}},
+			F11: VUnionDepth1_Float64F29{Value: -4.920704184273371e+07},
 			F12: &VStructDepth1_VEnumBcd{},
 		},
 	},
@@ -46805,7 +46760,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VStructDepth1_All{F8: {F0: VUnionDepth1_VNamedError{F11: {Msg: \"deΔΘΠ\"}}, F1: true, F3: \"王普\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(VFloat64), F6: 75, F7: 182, F9: C, F11: {Id: \"普澤世界\", Msg: \"bcdeΔΘΠΣΦ王普澤世界\"}, F12: {}, F15: 249425737, F17: 10629523721000836621, F18: 7486156333227476036, F20: 49, F21: -9489, F23: 525779420, F25: -2402888122737591262, F26: 1399478731392238278, F27: 1.263582e+09, F28: -3.056747e+08, F29: -3.3608037829863775e+08, F30: -3.583770142849399e+09, F31: {}}}",
 		Target: VStructDepth2_VStructDepth1_All{
 			F8: VStructDepth1_All{
-				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "deΔΘΠ",
 				}}),
 				F1: true,
@@ -46838,7 +46793,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VStructDepth2_VStructDepth1_All{F8: {F0: VUnionDepth1_VNamedError{F11: {Msg: \"deΔΘΠ\"}}, F1: true, F3: \"王普\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(VFloat64), F6: 75, F7: 182, F9: C, F11: {Id: \"普澤世界\", Msg: \"bcdeΔΘΠΣΦ王普澤世界\"}, F12: {}, F15: 249425737, F17: 10629523721000836621, F18: 7486156333227476036, F20: 49, F21: -9489, F23: 525779420, F25: -2402888122737591262, F26: 1399478731392238278, F27: 1.263582e+09, F28: -3.056747e+08, F29: -3.3608037829863775e+08, F30: -3.583770142849399e+09, F31: {}}}",
 		Source: VStructDepth2_VStructDepth1_All{
 			F8: VStructDepth1_All{
-				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "deΔΘΠ",
 				}}),
 				F1: true,
@@ -46874,7 +46829,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VStructDepth1_All{F8: {F0: VUnionDepth1_VNamedError{F11: {Msg: \"deΔΘΠ\"}}, F1: true, F3: \"王普\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(VFloat64), F6: 75, F7: 182, F9: C, F11: {Id: \"普澤世界\", Msg: \"bcdeΔΘΠΣΦ王普澤世界\"}, F12: {}, F15: 249425737, F17: 10629523721000836621, F18: 7486156333227476036, F20: 49, F21: -9489, F23: 525779420, F25: -2402888122737591262, F26: 1399478731392238278, F27: 1.263582e+09, F28: -3.056747e+08, F29: -3.3608037829863775e+08, F30: -3.583770142849399e+09, F31: {}}}",
 		Target: VStructDepth2_VStructDepth1_All{
 			F8: VStructDepth1_All{
-				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "deΔΘΠ",
 				}}),
 				F1: true,
@@ -46911,7 +46866,7 @@ var vAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F8: VStructDepth1_All{
-				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{VNamedError{
+				F0: VUnionDepth1_VNamedError(VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "deΔΘΠ",
 				}}),
 				F1: true,
@@ -47051,14 +47006,14 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VStructDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "VStructDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -47068,7 +47023,7 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VStructDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -47082,7 +47037,7 @@ var vAllPass = []vdlEntry{
 			F8: VStructDepth1_All{
 				F5: vdl.AnyType,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -47094,18 +47049,18 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth2_VUnionDepth1_All{F10: {F23: -1046473097}}",
 		Target: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF23{-1046473097},
+			F10: VUnionDepth1_AllF23{Value: -1046473097},
 		},
 		SourceLabel: "VStructDepth2_VUnionDepth1_All{F10: {F23: -1046473097}}",
 		Source: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF23{-1046473097},
+			F10: VUnionDepth1_AllF23{Value: -1046473097},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth2_VUnionDepth1_All{F10: {F23: -1046473097}}",
 		Target: VStructDepth2_VUnionDepth1_All{
-			F10: VUnionDepth1_AllF23{-1046473097},
+			F10: VUnionDepth1_AllF23{Value: -1046473097},
 		},
 		SourceLabel: "VStructDepth2_All{F10: {F23: -1046473097}}",
 		Source: VStructDepth2_All{
@@ -47116,7 +47071,7 @@ var vAllPass = []vdlEntry{
 			F8: VStructDepth1_All{
 				F5: vdl.AnyType,
 			},
-			F10: VUnionDepth1_AllF23{-1046473097},
+			F10: VUnionDepth1_AllF23{Value: -1046473097},
 			F11: VUnionDepth1_Float64F29{},
 		},
 	},
@@ -47165,18 +47120,18 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Target: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Source: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Target: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "VStructDepth2_All{F11: {F29: 1.5}}",
 		Source: VStructDepth2_All{
@@ -47188,7 +47143,7 @@ var vAllPass = []vdlEntry{
 				F5: vdl.AnyType,
 			},
 			F10: VUnionDepth1_AllF0{},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
@@ -47196,18 +47151,18 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: -1.5306373726502123e+08}}",
 		Target: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{-1.5306373726502123e+08},
+			F11: VUnionDepth1_Float64F29{Value: -1.5306373726502123e+08},
 		},
 		SourceLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: -1.5306373726502123e+08}}",
 		Source: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{-1.5306373726502123e+08},
+			F11: VUnionDepth1_Float64F29{Value: -1.5306373726502123e+08},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth2_VUnionDepth1_Float64{F11: {F29: -1.5306373726502123e+08}}",
 		Target: VStructDepth2_VUnionDepth1_Float64{
-			F11: VUnionDepth1_Float64F29{-1.5306373726502123e+08},
+			F11: VUnionDepth1_Float64F29{Value: -1.5306373726502123e+08},
 		},
 		SourceLabel: "VStructDepth2_All{F11: {F29: -1.5306373726502123e+08}}",
 		Source: VStructDepth2_All{
@@ -47219,7 +47174,7 @@ var vAllPass = []vdlEntry{
 				F5: vdl.AnyType,
 			},
 			F10: VUnionDepth1_AllF0{},
-			F11: VUnionDepth1_Float64F29{-1.5306373726502123e+08},
+			F11: VUnionDepth1_Float64F29{Value: -1.5306373726502123e+08},
 		},
 	},
 	{
@@ -47416,28 +47371,28 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth2_All{F0: {}}",
 		Target:      VUnionDepth2_All(VUnionDepth2_AllF0{}),
 		SourceLabel: "VUnionDepth1_Any{F0: VArray1_String{}}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VArray1_String{}}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VArray1_String{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_All{F13: {F28: 1.5}}",
-		Target: VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F13: {F28: 1.5}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_All{F13: {F28: 1.5}}",
-		Target: VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {F28: 1.5}}",
-		Source: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 	},
@@ -47445,16 +47400,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_All{F2: \"N\\x00\"}",
-		Target:      VUnionDepth2_All(VUnionDepth2_AllF2{VList_VByte("N\x00")}),
+		Target:      VUnionDepth2_All(VUnionDepth2_AllF2{Value: VList_VByte("N\x00")}),
 		SourceLabel: "VUnionDepth2_All{F2: \"N\\x00\"}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{VList_VByte("N\x00")}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{Value: VList_VByte("N\x00")}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_All{F2: \"N\\x00\"}",
-		Target:      VUnionDepth2_All(VUnionDepth2_AllF2{VList_VByte("N\x00")}),
+		Target:      VUnionDepth2_All(VUnionDepth2_AllF2{Value: VList_VByte("N\x00")}),
 		SourceLabel: "VUnionDepth2_VList_VByte{F2: \"N\\x00\"}",
-		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("N\x00")}),
+		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("N\x00")}),
 	},
 	{
 		IsCanonical: true,
@@ -47469,35 +47424,35 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {}}",
 		Target:      VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{}),
 		SourceLabel: "VUnionDepth1_Any{F0: VArray1_String{}}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VArray1_String{}}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VArray1_String{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {}}",
 		Target:      VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{}),
 		SourceLabel: "VUnionDepth1_All{F0: VArray1_String{}}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{VArray1_String{}}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{Value: VArray1_String{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth2_VArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Source: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "VUnionDepth1_Any{F0: VArray1_String{\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: VUnionDepth1_Any(VUnionDepth1_AnyF0{VArray1_String{
+		Source: VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 	},
@@ -47505,22 +47460,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {\"cdeΔΘΠΣΦ王普澤世\"}}",
-		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"cdeΔΘΠΣΦ王普澤世",
 		}}),
 		SourceLabel: "VUnionDepth2_VArray1_String{F0: {\"cdeΔΘΠΣΦ王普澤世\"}}",
-		Source: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Source: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"cdeΔΘΠΣΦ王普澤世",
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VArray1_String{F0: {\"cdeΔΘΠΣΦ王普澤世\"}}",
-		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{VArray1_String{
+		Target: VUnionDepth2_VArray1_String(VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 			"cdeΔΘΠΣΦ王普澤世",
 		}}),
 		SourceLabel: "VUnionDepth2_All{F0: {\"cdeΔΘΠΣΦ王普澤世\"}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF0{VArray1_String{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF0{Value: VArray1_String{
 			"cdeΔΘΠΣΦ王普澤世",
 		}}),
 	},
@@ -47543,12 +47498,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VArray2_VByte{F1: \"{{\"}",
-		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			123,
 			123,
 		}}),
 		SourceLabel: "VUnionDepth2_VArray2_VByte{F1: \"{{\"}",
-		Source: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Source: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			123,
 			123,
 		}}),
@@ -47556,12 +47511,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VArray2_VByte{F1: \"{{\"}",
-		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			123,
 			123,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F1: \"{{\"}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF1{VArray2_VByte{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF1{Value: VArray2_VByte{
 			123,
 			123,
 		}}),
@@ -47570,12 +47525,12 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VArray2_VByte{F1: \"f\\x00\"}",
-		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			102,
 			0,
 		}}),
 		SourceLabel: "VUnionDepth2_VArray2_VByte{F1: \"f\\x00\"}",
-		Source: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Source: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			102,
 			0,
 		}}),
@@ -47583,12 +47538,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VArray2_VByte{F1: \"f\\x00\"}",
-		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+		Target: VUnionDepth2_VArray2_VByte(VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 			102,
 			0,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F1: \"f\\x00\"}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF1{VArray2_VByte{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF1{Value: VArray2_VByte{
 			102,
 			0,
 		}}),
@@ -47612,31 +47567,31 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VList_VByte{F2: \"{\"}",
-		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("{")}),
+		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("{")}),
 		SourceLabel: "VUnionDepth2_VList_VByte{F2: \"{\"}",
-		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("{")}),
+		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("{")}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VList_VByte{F2: \"{\"}",
-		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("{")}),
+		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("{")}),
 		SourceLabel: "VUnionDepth2_All{F2: \"{\"}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{VList_VByte("{")}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{Value: VList_VByte("{")}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VList_VByte{F2: \"x\\x00\"}",
-		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("x\x00")}),
+		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("x\x00")}),
 		SourceLabel: "VUnionDepth2_VList_VByte{F2: \"x\\x00\"}",
-		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("x\x00")}),
+		Source:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("x\x00")}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VList_VByte{F2: \"x\\x00\"}",
-		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{VList_VByte("x\x00")}),
+		Target:      VUnionDepth2_VList_VByte(VUnionDepth2_VList_VByteF2{Value: VList_VByte("x\x00")}),
 		SourceLabel: "VUnionDepth2_All{F2: \"x\\x00\"}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{VList_VByte("x\x00")}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF2{Value: VList_VByte("x\x00")}),
 	},
 	{
 		IsCanonical: true,
@@ -47657,14 +47612,14 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Source: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -47674,14 +47629,14 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF3{VList_OptVNamedError{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF3{Value: VList_OptVNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -47692,7 +47647,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Msg: \"a\"}, {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"cdeΔΘΠΣΦ王普澤\"}, {Id: \"Φ王普\", Msg: \"deΔΘ\"}}}",
-		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Msg: "a",
 			},
@@ -47706,7 +47661,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Msg: \"a\"}, {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"cdeΔΘΠΣΦ王普澤\"}, {Id: \"Φ王普\", Msg: \"deΔΘ\"}}}",
-		Source: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Source: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Msg: "a",
 			},
@@ -47723,7 +47678,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VList_OptVNamedError{F3: {{Msg: \"a\"}, {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"cdeΔΘΠΣΦ王普澤\"}, {Id: \"Φ王普\", Msg: \"deΔΘ\"}}}",
-		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{VList_OptVNamedError{
+		Target: VUnionDepth2_VList_OptVNamedError(VUnionDepth2_VList_OptVNamedErrorF3{Value: VList_OptVNamedError{
 			{
 				Msg: "a",
 			},
@@ -47737,7 +47692,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F3: {{Msg: \"a\"}, {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"cdeΔΘΠΣΦ王普澤\"}, {Id: \"Φ王普\", Msg: \"deΔΘ\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF3{VList_OptVNamedError{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF3{Value: VList_OptVNamedError{
 			{
 				Msg: "a",
 			},
@@ -47770,22 +47725,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
-		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{VSet_VBool{
+		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
 			true: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
-		Source: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{VSet_VBool{
+		Source: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
 			true: struct{}{},
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
-		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{VSet_VBool{
+		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
 			true: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F4: {true}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF4{VSet_VBool{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF4{Value: VSet_VBool{
 			true: struct{}{},
 		}}),
 	},
@@ -47808,14 +47763,14 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -47825,14 +47780,14 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF5{VSet_VNamedError{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -47843,7 +47798,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
-		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
@@ -47857,7 +47812,7 @@ var vAllPass = []vdlEntry{
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
-		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
@@ -47874,7 +47829,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
-		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+		Target: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
@@ -47888,7 +47843,7 @@ var vAllPass = []vdlEntry{
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF5{VSet_VNamedError{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
@@ -47921,22 +47876,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_Map_VBool_VBool{F6: {true: true}}",
-		Target: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{map[VBool]VBool{
+		Target: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{Value: map[VBool]VBool{
 			true: true,
 		}}),
 		SourceLabel: "VUnionDepth2_Map_VBool_VBool{F6: {true: true}}",
-		Source: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{map[VBool]VBool{
+		Source: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{Value: map[VBool]VBool{
 			true: true,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_Map_VBool_VBool{F6: {true: true}}",
-		Target: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{map[VBool]VBool{
+		Target: VUnionDepth2_Map_VBool_VBool(VUnionDepth2_Map_VBool_VBoolF6{Value: map[VBool]VBool{
 			true: true,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F6: {true: true}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF6{map[VBool]VBool{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF6{Value: map[VBool]VBool{
 			true: true,
 		}}),
 	},
@@ -47959,22 +47914,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VMap_VBool_VBool{F7: {true: true}}",
-		Target: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{VMap_VBool_VBool{
+		Target: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{Value: VMap_VBool_VBool{
 			true: true,
 		}}),
 		SourceLabel: "VUnionDepth2_VMap_VBool_VBool{F7: {true: true}}",
-		Source: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{VMap_VBool_VBool{
+		Source: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{Value: VMap_VBool_VBool{
 			true: true,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VMap_VBool_VBool{F7: {true: true}}",
-		Target: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{VMap_VBool_VBool{
+		Target: VUnionDepth2_VMap_VBool_VBool(VUnionDepth2_VMap_VBool_VBoolF7{Value: VMap_VBool_VBool{
 			true: true,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F7: {true: true}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF7{VMap_VBool_VBool{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF7{Value: VMap_VBool_VBool{
 			true: true,
 		}}),
 	},
@@ -47982,22 +47937,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "VUnionDepth2_VStructDepth1_All{F8: {}}",
-		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F8: {}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF8{Value: VStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
@@ -48005,7 +47960,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -48050,7 +48005,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -48098,7 +48053,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -48143,7 +48098,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF8{Value: VStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -48192,7 +48147,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: VArray2_VEnumBcd{C, B}, F1: true, F3: \"eΔΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F5: typeobject(VSet_VUnionDepth2_VArray1_String), F7: 6, F8: C, F12: {Id: \"cdeΔ\", RetryCode: RetryConnection, Msg: \"deΔΘΠΣΦ\"}, F13: 23891, F15: 3966497812, F16: 1776609092, F17: 13618574075811312760, F18: 3727278410519680325, F19: 12, F20: -52, F21: 14009, F24: 494275561, F25: -1816504498055159389, F26: -3933236622138960557, F27: -1.6678742e+09, F28: -2.6545418e+09, F29: 1.6554808637707613e+09, F30: -3.9337784215193796e+08, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"b\"}}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: VArray2_VEnumBcd{
 				VEnumBcdC,
 				VEnumBcdB,
@@ -48230,7 +48185,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: VArray2_VEnumBcd{C, B}, F1: true, F3: \"eΔΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F5: typeobject(VSet_VUnionDepth2_VArray1_String), F7: 6, F8: C, F12: {Id: \"cdeΔ\", RetryCode: RetryConnection, Msg: \"deΔΘΠΣΦ\"}, F13: 23891, F15: 3966497812, F16: 1776609092, F17: 13618574075811312760, F18: 3727278410519680325, F19: 12, F20: -52, F21: 14009, F24: 494275561, F25: -1816504498055159389, F26: -3933236622138960557, F27: -1.6678742e+09, F28: -2.6545418e+09, F29: 1.6554808637707613e+09, F30: -3.9337784215193796e+08, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"b\"}}}",
-		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: VArray2_VEnumBcd{
 				VEnumBcdC,
 				VEnumBcdB,
@@ -48271,7 +48226,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VStructDepth1_All{F8: {F0: VArray2_VEnumBcd{C, B}, F1: true, F3: \"eΔΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F5: typeobject(VSet_VUnionDepth2_VArray1_String), F7: 6, F8: C, F12: {Id: \"cdeΔ\", RetryCode: RetryConnection, Msg: \"deΔΘΠΣΦ\"}, F13: 23891, F15: 3966497812, F16: 1776609092, F17: 13618574075811312760, F18: 3727278410519680325, F19: 12, F20: -52, F21: 14009, F24: 494275561, F25: -1816504498055159389, F26: -3933236622138960557, F27: -1.6678742e+09, F28: -2.6545418e+09, F29: 1.6554808637707613e+09, F30: -3.9337784215193796e+08, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"b\"}}}",
-		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{VStructDepth1_All{
+		Target: VUnionDepth2_VStructDepth1_All(VUnionDepth2_VStructDepth1_AllF8{Value: VStructDepth1_All{
 			F0: VArray2_VEnumBcd{
 				VEnumBcdC,
 				VEnumBcdB,
@@ -48309,7 +48264,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F8: {F0: VArray2_VEnumBcd{C, B}, F1: true, F3: \"eΔΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F5: typeobject(VSet_VUnionDepth2_VArray1_String), F7: 6, F8: C, F12: {Id: \"cdeΔ\", RetryCode: RetryConnection, Msg: \"deΔΘΠΣΦ\"}, F13: 23891, F15: 3966497812, F16: 1776609092, F17: 13618574075811312760, F18: 3727278410519680325, F19: 12, F20: -52, F21: 14009, F24: 494275561, F25: -1816504498055159389, F26: -3933236622138960557, F27: -1.6678742e+09, F28: -2.6545418e+09, F29: 1.6554808637707613e+09, F30: -3.9337784215193796e+08, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"b\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF8{VStructDepth1_All{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF8{Value: VStructDepth1_All{
 			F0: VArray2_VEnumBcd{
 				VEnumBcdC,
 				VEnumBcdB,
@@ -48366,22 +48321,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: -123}}",
-		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: -123,
 		}}),
 		SourceLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: -123}}",
-		Source: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Source: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: -123,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: -123}}",
-		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: -123,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F9: {F19: -123}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: -123,
 		}}),
 	},
@@ -48389,22 +48344,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: 45}}",
-		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: 45,
 		}}),
 		SourceLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: 45}}",
-		Source: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Source: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: 45,
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VStructDepth1_Int8{F9: {F19: 45}}",
-		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+		Target: VUnionDepth2_VStructDepth1_Int8(VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 			F19: 45,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F9: {F19: 45}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: 45,
 		}}),
 	},
@@ -48412,27 +48367,27 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F0: nil}}",
-		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF0{}}),
+		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF0{}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F0: nil}}",
-		Source:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF0{}}),
+		Source:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF0{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F0: nil}}",
-		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF0{}}),
+		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF0{}}),
 		SourceLabel: "VUnionDepth2_All{F10: {F0: nil}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF10{VUnionDepth1_AllF0{}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF10{Value: VUnionDepth1_AllF0{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF32{&VNamedError{
+		Target: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF32{&VNamedError{
+		Source: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -48440,12 +48395,12 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF32{&VNamedError{
+		Target: VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
 		SourceLabel: "VUnionDepth2_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF10{VUnionDepth1_AllF32{&VNamedError{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF10{Value: VUnionDepth1_AllF32{Value: &VNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -48454,61 +48409,61 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F5: typeobject(error)}}",
-		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF5{vdl.ErrorType}}),
+		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF5{Value: vdl.ErrorType}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F5: typeobject(error)}}",
-		Source:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF5{vdl.ErrorType}}),
+		Source:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF5{Value: vdl.ErrorType}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_All{F10: {F5: typeobject(error)}}",
-		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{VUnionDepth1_AllF5{vdl.ErrorType}}),
+		Target:      VUnionDepth2_VUnionDepth1_All(VUnionDepth2_VUnionDepth1_AllF10{Value: VUnionDepth1_AllF5{Value: vdl.ErrorType}}),
 		SourceLabel: "VUnionDepth2_All{F10: {F5: typeobject(error)}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF10{VUnionDepth1_AllF5{vdl.ErrorType}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF10{Value: VUnionDepth1_AllF5{Value: vdl.ErrorType}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 0}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 0}}",
-		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{}}),
+		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 0}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{}}),
 		SourceLabel: "VUnionDepth2_All{F11: {F16: 0}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{VUnionDepth1_VUint32F16{}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{Value: VUnionDepth1_VUint32F16{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 123}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{123}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 123}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 123}}",
-		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{123}}),
+		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 123}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 123}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{123}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 123}}),
 		SourceLabel: "VUnionDepth2_All{F11: {F16: 123}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{VUnionDepth1_VUint32F16{123}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{Value: VUnionDepth1_VUint32F16{Value: 123}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 3089874748}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{3089874748}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 3089874748}}),
 		SourceLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 3089874748}}",
-		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{3089874748}}),
+		Source:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 3089874748}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_VUnionDepth1_VUint32{F11: {F16: 3089874748}}",
-		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{VUnionDepth1_VUint32F16{3089874748}}),
+		Target:      VUnionDepth2_VUnionDepth1_VUint32(VUnionDepth2_VUnionDepth1_VUint32F11{Value: VUnionDepth1_VUint32F16{Value: 3089874748}}),
 		SourceLabel: "VUnionDepth2_All{F11: {F16: 3089874748}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{VUnionDepth1_VUint32F16{3089874748}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF11{Value: VUnionDepth1_VUint32F16{Value: 3089874748}}),
 	},
 	{
 		IsCanonical: true,
@@ -48529,22 +48484,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VEnumBcd{F12: {F9: D}}",
-		Target: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{&VStructDepth1_VEnumBcd{
+		Target: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{Value: &VStructDepth1_VEnumBcd{
 			F9: VEnumBcdD,
 		}}),
 		SourceLabel: "VUnionDepth2_OptVStructDepth1_VEnumBcd{F12: {F9: D}}",
-		Source: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{&VStructDepth1_VEnumBcd{
+		Source: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{Value: &VStructDepth1_VEnumBcd{
 			F9: VEnumBcdD,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VEnumBcd{F12: {F9: D}}",
-		Target: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{&VStructDepth1_VEnumBcd{
+		Target: VUnionDepth2_OptVStructDepth1_VEnumBcd(VUnionDepth2_OptVStructDepth1_VEnumBcdF12{Value: &VStructDepth1_VEnumBcd{
 			F9: VEnumBcdD,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F12: {F9: D}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF12{&VStructDepth1_VEnumBcd{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF12{Value: &VStructDepth1_VEnumBcd{
 			F9: VEnumBcdD,
 		}}),
 	},
@@ -48567,22 +48522,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {F28: 1.5}}",
-		Target: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {F28: 1.5}}",
-		Source: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {F28: 1.5}}",
-		Target: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "VUnionDepth2_All{F13: {F28: 1.5}}",
-		Source: VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}),
 	},
@@ -48590,16 +48545,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {}}",
-		Target:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{}}),
+		Target:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{}}),
 		SourceLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {}}",
-		Source:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{}}),
+		Source:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth2_OptVStructDepth1_VFloat32{F13: {}}",
-		Target:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{&VStructDepth1_VFloat32{}}),
+		Target:      VUnionDepth2_OptVStructDepth1_VFloat32(VUnionDepth2_OptVStructDepth1_VFloat32F13{Value: &VStructDepth1_VFloat32{}}),
 		SourceLabel: "VUnionDepth2_All{F13: {}}",
-		Source:      VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{}}),
+		Source:      VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{}}),
 	},
 	{
 		IsCanonical: true,
@@ -49010,13 +48965,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -49025,13 +48980,13 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -49043,13 +48998,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -49058,13 +49013,13 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VList_Any{set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: VList_Any{
 			map[VUnionDepth1_VNamedError]struct{}{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			map[VUnionDepth1_VNamedError]struct{}{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -49078,16 +49033,16 @@ var vAllPass = []vdlEntry{
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
 				VUnionDepth1_VNamedErrorF11{}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
 				}}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
 				}}: struct{}{},
@@ -49097,16 +49052,16 @@ var vAllPass = []vdlEntry{
 		Source: VArray2_Set_VUnionDepth1_VNamedError{
 			{
 				VUnionDepth1_VNamedErrorF11{}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
 				}}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
 				}}: struct{}{},
@@ -49119,16 +49074,16 @@ var vAllPass = []vdlEntry{
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
 				VUnionDepth1_VNamedErrorF11{}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
 				}}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
 				}}: struct{}{},
 			},
 			{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
 				}}: struct{}{},
@@ -49138,16 +49093,16 @@ var vAllPass = []vdlEntry{
 		Source: VList_Any{
 			map[VUnionDepth1_VNamedError]struct{}{
 				VUnionDepth1_VNamedErrorF11{}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
 				}}: struct{}{},
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
 				}}: struct{}{},
 			},
 			map[VUnionDepth1_VNamedError]struct{}{
-				VUnionDepth1_VNamedErrorF11{VNamedError{
+				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
 				}}: struct{}{},
@@ -49190,25 +49145,25 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Target: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Source: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -49217,25 +49172,25 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Target: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "[]any{map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}, map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}, map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}}",
 		Source: []interface{}{
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -49245,27 +49200,27 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: -1.6468979428598511e+09}: {F29: -2.5780915586736135e+09}, {F29: -2.873526404870196e+08}: {F29: -1.8274420093700492e+09}, {F29: -3.4188200611970117e+06}: {F29: 1.2474770726776407e+09}}, {}, {{F29: -5.75457527128432e+08}: {F29: -8.410893761115919e+08}, {F29: 0}: {F29: 0}}}",
 		Target: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{-1.6468979428598511e+09}: VUnionDepth1_Float64F29{-2.5780915586736135e+09},
-				VUnionDepth1_Float64F29{-2.873526404870196e+08}:  VUnionDepth1_Float64F29{-1.8274420093700492e+09},
-				VUnionDepth1_Float64F29{-3.4188200611970117e+06}: VUnionDepth1_Float64F29{1.2474770726776407e+09},
+				VUnionDepth1_Float64F29{Value: -1.6468979428598511e+09}: VUnionDepth1_Float64F29{Value: -2.5780915586736135e+09},
+				VUnionDepth1_Float64F29{Value: -2.873526404870196e+08}:  VUnionDepth1_Float64F29{Value: -1.8274420093700492e+09},
+				VUnionDepth1_Float64F29{Value: -3.4188200611970117e+06}: VUnionDepth1_Float64F29{Value: 1.2474770726776407e+09},
 			},
 			nil,
 			{
-				VUnionDepth1_Float64F29{-5.75457527128432e+08}: VUnionDepth1_Float64F29{-8.410893761115919e+08},
-				VUnionDepth1_Float64F29{}:                      VUnionDepth1_Float64F29{},
+				VUnionDepth1_Float64F29{Value: -5.75457527128432e+08}: VUnionDepth1_Float64F29{Value: -8.410893761115919e+08},
+				VUnionDepth1_Float64F29{}:                             VUnionDepth1_Float64F29{},
 			},
 		},
 		SourceLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: -1.6468979428598511e+09}: {F29: -2.5780915586736135e+09}, {F29: -2.873526404870196e+08}: {F29: -1.8274420093700492e+09}, {F29: -3.4188200611970117e+06}: {F29: 1.2474770726776407e+09}}, {}, {{F29: -5.75457527128432e+08}: {F29: -8.410893761115919e+08}, {F29: 0}: {F29: 0}}}",
 		Source: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{-1.6468979428598511e+09}: VUnionDepth1_Float64F29{-2.5780915586736135e+09},
-				VUnionDepth1_Float64F29{-2.873526404870196e+08}:  VUnionDepth1_Float64F29{-1.8274420093700492e+09},
-				VUnionDepth1_Float64F29{-3.4188200611970117e+06}: VUnionDepth1_Float64F29{1.2474770726776407e+09},
+				VUnionDepth1_Float64F29{Value: -1.6468979428598511e+09}: VUnionDepth1_Float64F29{Value: -2.5780915586736135e+09},
+				VUnionDepth1_Float64F29{Value: -2.873526404870196e+08}:  VUnionDepth1_Float64F29{Value: -1.8274420093700492e+09},
+				VUnionDepth1_Float64F29{Value: -3.4188200611970117e+06}: VUnionDepth1_Float64F29{Value: 1.2474770726776407e+09},
 			},
 			nil,
 			{
-				VUnionDepth1_Float64F29{-5.75457527128432e+08}: VUnionDepth1_Float64F29{-8.410893761115919e+08},
-				VUnionDepth1_Float64F29{}:                      VUnionDepth1_Float64F29{},
+				VUnionDepth1_Float64F29{Value: -5.75457527128432e+08}: VUnionDepth1_Float64F29{Value: -8.410893761115919e+08},
+				VUnionDepth1_Float64F29{}:                             VUnionDepth1_Float64F29{},
 			},
 		},
 	},
@@ -49274,27 +49229,27 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{{{F29: -1.6468979428598511e+09}: {F29: -2.5780915586736135e+09}, {F29: -2.873526404870196e+08}: {F29: -1.8274420093700492e+09}, {F29: -3.4188200611970117e+06}: {F29: 1.2474770726776407e+09}}, {}, {{F29: -5.75457527128432e+08}: {F29: -8.410893761115919e+08}, {F29: 0}: {F29: 0}}}",
 		Target: VArray3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			{
-				VUnionDepth1_Float64F29{-1.6468979428598511e+09}: VUnionDepth1_Float64F29{-2.5780915586736135e+09},
-				VUnionDepth1_Float64F29{-2.873526404870196e+08}:  VUnionDepth1_Float64F29{-1.8274420093700492e+09},
-				VUnionDepth1_Float64F29{-3.4188200611970117e+06}: VUnionDepth1_Float64F29{1.2474770726776407e+09},
+				VUnionDepth1_Float64F29{Value: -1.6468979428598511e+09}: VUnionDepth1_Float64F29{Value: -2.5780915586736135e+09},
+				VUnionDepth1_Float64F29{Value: -2.873526404870196e+08}:  VUnionDepth1_Float64F29{Value: -1.8274420093700492e+09},
+				VUnionDepth1_Float64F29{Value: -3.4188200611970117e+06}: VUnionDepth1_Float64F29{Value: 1.2474770726776407e+09},
 			},
 			nil,
 			{
-				VUnionDepth1_Float64F29{-5.75457527128432e+08}: VUnionDepth1_Float64F29{-8.410893761115919e+08},
-				VUnionDepth1_Float64F29{}:                      VUnionDepth1_Float64F29{},
+				VUnionDepth1_Float64F29{Value: -5.75457527128432e+08}: VUnionDepth1_Float64F29{Value: -8.410893761115919e+08},
+				VUnionDepth1_Float64F29{}:                             VUnionDepth1_Float64F29{},
 			},
 		},
 		SourceLabel: "VList_Any{map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: -1.6468979428598511e+09}: {F29: -2.5780915586736135e+09}, {F29: -2.873526404870196e+08}: {F29: -1.8274420093700492e+09}, {F29: -3.4188200611970117e+06}: {F29: 1.2474770726776407e+09}}, map[VUnionDepth1_Float64]VUnionDepth1_Float64{}, map[VUnionDepth1_Float64]VUnionDepth1_Float64{{F29: -5.75457527128432e+08}: {F29: -8.410893761115919e+08}, {F29: 0}: {F29: 0}}}",
 		Source: VList_Any{
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-1.6468979428598511e+09}: VUnionDepth1_Float64F29{-2.5780915586736135e+09},
-				VUnionDepth1_Float64F29{-2.873526404870196e+08}:  VUnionDepth1_Float64F29{-1.8274420093700492e+09},
-				VUnionDepth1_Float64F29{-3.4188200611970117e+06}: VUnionDepth1_Float64F29{1.2474770726776407e+09},
+				VUnionDepth1_Float64F29{Value: -1.6468979428598511e+09}: VUnionDepth1_Float64F29{Value: -2.5780915586736135e+09},
+				VUnionDepth1_Float64F29{Value: -2.873526404870196e+08}:  VUnionDepth1_Float64F29{Value: -1.8274420093700492e+09},
+				VUnionDepth1_Float64F29{Value: -3.4188200611970117e+06}: VUnionDepth1_Float64F29{Value: 1.2474770726776407e+09},
 			},
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64(nil),
 			map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-5.75457527128432e+08}: VUnionDepth1_Float64F29{-8.410893761115919e+08},
-				VUnionDepth1_Float64F29{}:                      VUnionDepth1_Float64F29{},
+				VUnionDepth1_Float64F29{Value: -5.75457527128432e+08}: VUnionDepth1_Float64F29{Value: -8.410893761115919e+08},
+				VUnionDepth1_Float64F29{}:                             VUnionDepth1_Float64F29{},
 			},
 		},
 	},
@@ -49516,11 +49471,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -49601,11 +49556,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -49689,11 +49644,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -49774,11 +49729,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -49865,11 +49820,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -49950,11 +49905,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50038,11 +49993,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50123,11 +50078,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50169,7 +50124,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF8{VEnumAbcB},
+				F10: VUnionDepth1_AllF8{Value: VEnumAbcB},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdC,
@@ -50187,7 +50142,7 @@ var vAllPass = []vdlEntry{
 					VList_VEnumAbc{
 						VEnumAbcB,
 					},
-					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 						F0: VArray2_TypeObject{
 							vdl.AnyType,
 							vdl.AnyType,
@@ -50201,7 +50156,7 @@ var vAllPass = []vdlEntry{
 						},
 						F3: VList_Any{
 							nil,
-							VUnionDepth1_VString(VUnionDepth1_VStringF4{"ΔΘΠ"}),
+							VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "ΔΘΠ"}),
 							nil,
 						},
 						F4: map[float64]struct{}{
@@ -50285,7 +50240,7 @@ var vAllPass = []vdlEntry{
 					F5: vdl.AnyType,
 				},
 				F10: VUnionDepth1_AllF0{},
-				F11: VUnionDepth1_Float64F29{5.253663493219364e+08},
+				F11: VUnionDepth1_Float64F29{Value: 5.253663493219364e+08},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50323,7 +50278,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF8{VEnumAbcB},
+				F10: VUnionDepth1_AllF8{Value: VEnumAbcB},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdC,
@@ -50341,7 +50296,7 @@ var vAllPass = []vdlEntry{
 					VList_VEnumAbc{
 						VEnumAbcB,
 					},
-					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 						F0: VArray2_TypeObject{
 							vdl.AnyType,
 							vdl.AnyType,
@@ -50355,7 +50310,7 @@ var vAllPass = []vdlEntry{
 						},
 						F3: VList_Any{
 							nil,
-							VUnionDepth1_VString(VUnionDepth1_VStringF4{"ΔΘΠ"}),
+							VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "ΔΘΠ"}),
 							nil,
 						},
 						F4: map[float64]struct{}{
@@ -50439,7 +50394,7 @@ var vAllPass = []vdlEntry{
 					F5: vdl.AnyType,
 				},
 				F10: VUnionDepth1_AllF0{},
-				F11: VUnionDepth1_Float64F29{5.253663493219364e+08},
+				F11: VUnionDepth1_Float64F29{Value: 5.253663493219364e+08},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50480,7 +50435,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF8{VEnumAbcB},
+				F10: VUnionDepth1_AllF8{Value: VEnumAbcB},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdC,
@@ -50498,7 +50453,7 @@ var vAllPass = []vdlEntry{
 					VList_VEnumAbc{
 						VEnumAbcB,
 					},
-					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 						F0: VArray2_TypeObject{
 							vdl.AnyType,
 							vdl.AnyType,
@@ -50512,7 +50467,7 @@ var vAllPass = []vdlEntry{
 						},
 						F3: VList_Any{
 							nil,
-							VUnionDepth1_VString(VUnionDepth1_VStringF4{"ΔΘΠ"}),
+							VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "ΔΘΠ"}),
 							nil,
 						},
 						F4: map[float64]struct{}{
@@ -50596,7 +50551,7 @@ var vAllPass = []vdlEntry{
 					F5: vdl.AnyType,
 				},
 				F10: VUnionDepth1_AllF0{},
-				F11: VUnionDepth1_Float64F29{5.253663493219364e+08},
+				F11: VUnionDepth1_Float64F29{Value: 5.253663493219364e+08},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50634,7 +50589,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF8{VEnumAbcB},
+				F10: VUnionDepth1_AllF8{Value: VEnumAbcB},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdC,
@@ -50652,7 +50607,7 @@ var vAllPass = []vdlEntry{
 					VList_VEnumAbc{
 						VEnumAbcB,
 					},
-					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+					VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 						F0: VArray2_TypeObject{
 							vdl.AnyType,
 							vdl.AnyType,
@@ -50666,7 +50621,7 @@ var vAllPass = []vdlEntry{
 						},
 						F3: VList_Any{
 							nil,
-							VUnionDepth1_VString(VUnionDepth1_VStringF4{"ΔΘΠ"}),
+							VUnionDepth1_VString(VUnionDepth1_VStringF4{Value: "ΔΘΠ"}),
 							nil,
 						},
 						F4: map[float64]struct{}{
@@ -50750,7 +50705,7 @@ var vAllPass = []vdlEntry{
 					F5: vdl.AnyType,
 				},
 				F10: VUnionDepth1_AllF0{},
-				F11: VUnionDepth1_Float64F29{5.253663493219364e+08},
+				F11: VUnionDepth1_Float64F29{Value: 5.253663493219364e+08},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -50805,19 +50760,19 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VArray2_VUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Target: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "VArray2_VUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Source: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -50826,19 +50781,19 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VArray2_VUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Target: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "VList_VUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Source: VList_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -50848,7 +50803,7 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VArray2_VUnionDepth2_All{{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, {F4: {false}}}",
 		Target: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF8{VStructDepth1_All{
+			VUnionDepth2_AllF8{Value: VStructDepth1_All{
 				F0: VStructDepth1_VFloat32{
 					F28: -1.760837e+09,
 				},
@@ -50887,13 +50842,13 @@ var vAllPass = []vdlEntry{
 					Msg: "Φ",
 				},
 			}},
-			VUnionDepth2_AllF4{VSet_VBool{
+			VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
 		SourceLabel: "VArray2_VUnionDepth2_All{{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, {F4: {false}}}",
 		Source: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF8{VStructDepth1_All{
+			VUnionDepth2_AllF8{Value: VStructDepth1_All{
 				F0: VStructDepth1_VFloat32{
 					F28: -1.760837e+09,
 				},
@@ -50932,7 +50887,7 @@ var vAllPass = []vdlEntry{
 					Msg: "Φ",
 				},
 			}},
-			VUnionDepth2_AllF4{VSet_VBool{
+			VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
@@ -50941,7 +50896,7 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VArray2_VUnionDepth2_All{{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, {F4: {false}}}",
 		Target: VArray2_VUnionDepth2_All{
-			VUnionDepth2_AllF8{VStructDepth1_All{
+			VUnionDepth2_AllF8{Value: VStructDepth1_All{
 				F0: VStructDepth1_VFloat32{
 					F28: -1.760837e+09,
 				},
@@ -50980,13 +50935,13 @@ var vAllPass = []vdlEntry{
 					Msg: "Φ",
 				},
 			}},
-			VUnionDepth2_AllF4{VSet_VBool{
+			VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
 		SourceLabel: "[]any{VUnionDepth2_All{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, VUnionDepth2_All{F4: {false}}}",
 		Source: []interface{}{
-			VUnionDepth2_All(VUnionDepth2_AllF8{VStructDepth1_All{
+			VUnionDepth2_All(VUnionDepth2_AllF8{Value: VStructDepth1_All{
 				F0: VStructDepth1_VFloat32{
 					F28: -1.760837e+09,
 				},
@@ -51025,7 +50980,7 @@ var vAllPass = []vdlEntry{
 					Msg: "Φ",
 				},
 			}}),
-			VUnionDepth2_All(VUnionDepth2_AllF4{VSet_VBool{
+			VUnionDepth2_All(VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}}),
 		},
@@ -51713,11 +51668,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -51801,11 +51756,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -51892,11 +51847,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -51980,11 +51935,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -52055,7 +52010,7 @@ var vAllPass = []vdlEntry{
 					F30: -2.8348429384836525e+08,
 					F31: &VStructEmpty{},
 				},
-				F10: VUnionDepth1_AllF21{-9623},
+				F10: VUnionDepth1_AllF21{Value: -9623},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -52123,7 +52078,7 @@ var vAllPass = []vdlEntry{
 					F30: -2.8348429384836525e+08,
 					F31: &VStructEmpty{},
 				},
-				F10: VUnionDepth1_AllF21{-9623},
+				F10: VUnionDepth1_AllF21{Value: -9623},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -52194,7 +52149,7 @@ var vAllPass = []vdlEntry{
 					F30: -2.8348429384836525e+08,
 					F31: &VStructEmpty{},
 				},
-				F10: VUnionDepth1_AllF21{-9623},
+				F10: VUnionDepth1_AllF21{Value: -9623},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -52262,7 +52217,7 @@ var vAllPass = []vdlEntry{
 					F30: -2.8348429384836525e+08,
 					F31: &VStructEmpty{},
 				},
-				F10: VUnionDepth1_AllF21{-9623},
+				F10: VUnionDepth1_AllF21{Value: -9623},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -52300,13 +52255,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: []VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Source: []VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -52315,13 +52270,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: []VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]any{VUnionDepth2_All{F13: {F28: 1.5}}}",
 		Source: []interface{}{
-			VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}}),
 		},
@@ -52331,11 +52286,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]VUnionDepth2_All{{F7: {false: true}}, {F0: {}}, {F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
 		Target: []VUnionDepth2_All{
-			VUnionDepth2_AllF7{VMap_VBool_VBool{
+			VUnionDepth2_AllF7{Value: VMap_VBool_VBool{
 				false: true,
 			}},
 			VUnionDepth2_AllF0{},
-			VUnionDepth2_AllF5{VSet_VNamedError{
+			VUnionDepth2_AllF5{Value: VSet_VNamedError{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
@@ -52344,11 +52299,11 @@ var vAllPass = []vdlEntry{
 		},
 		SourceLabel: "[]VUnionDepth2_All{{F7: {false: true}}, {F0: {}}, {F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
 		Source: []VUnionDepth2_All{
-			VUnionDepth2_AllF7{VMap_VBool_VBool{
+			VUnionDepth2_AllF7{Value: VMap_VBool_VBool{
 				false: true,
 			}},
 			VUnionDepth2_AllF0{},
-			VUnionDepth2_AllF5{VSet_VNamedError{
+			VUnionDepth2_AllF5{Value: VSet_VNamedError{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
@@ -52360,11 +52315,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]VUnionDepth2_All{{F7: {false: true}}, {F0: {}}, {F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
 		Target: []VUnionDepth2_All{
-			VUnionDepth2_AllF7{VMap_VBool_VBool{
+			VUnionDepth2_AllF7{Value: VMap_VBool_VBool{
 				false: true,
 			}},
 			VUnionDepth2_AllF0{},
-			VUnionDepth2_AllF5{VSet_VNamedError{
+			VUnionDepth2_AllF5{Value: VSet_VNamedError{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
@@ -52373,11 +52328,11 @@ var vAllPass = []vdlEntry{
 		},
 		SourceLabel: "VArray3_Any{VUnionDepth2_All{F7: {false: true}}, VUnionDepth2_All{F0: {}}, VUnionDepth2_All{F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
 		Source: VArray3_Any{
-			VUnionDepth2_All(VUnionDepth2_AllF7{VMap_VBool_VBool{
+			VUnionDepth2_All(VUnionDepth2_AllF7{Value: VMap_VBool_VBool{
 				false: true,
 			}}),
 			VUnionDepth2_All(VUnionDepth2_AllF0{}),
-			VUnionDepth2_All(VUnionDepth2_AllF5{VSet_VNamedError{
+			VUnionDepth2_All(VUnionDepth2_AllF5{Value: VSet_VNamedError{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
@@ -52521,15 +52476,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VArray3_VUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -52538,15 +52493,15 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VList_VArray3_VUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -52558,15 +52513,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VArray3_VUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -52575,15 +52530,15 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "[]any{VArray3_VUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: []interface{}{
 			VArray3_VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -52596,7 +52551,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VArray3_VUnionDepth1_All{{{F8: B}, {F0: nil}, {F13: 0}}}",
 		Target: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF8{VEnumAbcB},
+				VUnionDepth1_AllF8{Value: VEnumAbcB},
 				VUnionDepth1_AllF0{},
 				VUnionDepth1_AllF13{},
 			},
@@ -52604,7 +52559,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VList_VArray3_VUnionDepth1_All{{{F8: B}, {F0: nil}, {F13: 0}}}",
 		Source: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF8{VEnumAbcB},
+				VUnionDepth1_AllF8{Value: VEnumAbcB},
 				VUnionDepth1_AllF0{},
 				VUnionDepth1_AllF13{},
 			},
@@ -52615,7 +52570,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VArray3_VUnionDepth1_All{{{F8: B}, {F0: nil}, {F13: 0}}}",
 		Target: VList_VArray3_VUnionDepth1_All{
 			{
-				VUnionDepth1_AllF8{VEnumAbcB},
+				VUnionDepth1_AllF8{Value: VEnumAbcB},
 				VUnionDepth1_AllF0{},
 				VUnionDepth1_AllF13{},
 			},
@@ -52623,7 +52578,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VList_Any{VArray3_VUnionDepth1_All{{F8: B}, {F0: nil}, {F13: 0}}}",
 		Source: VList_Any{
 			VArray3_VUnionDepth1_All{
-				VUnionDepth1_AllF8{VEnumAbcB},
+				VUnionDepth1_AllF8{Value: VEnumAbcB},
 				VUnionDepth1_AllF0{},
 				VUnionDepth1_AllF13{},
 			},
@@ -53011,11 +52966,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -53099,11 +53054,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -53190,11 +53145,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -53278,11 +53233,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -53356,7 +53311,7 @@ var vAllPass = []vdlEntry{
 						Msg: "ΔΘΠ",
 					},
 				},
-				F10: VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+				F10: VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcdeΔΘΠΣ",
 					Msg: "Φ",
 				})},
@@ -53373,7 +53328,7 @@ var vAllPass = []vdlEntry{
 					0,
 				},
 				F3: VList_Any{
-					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{6.286506511512573e+07}),
+					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 6.286506511512573e+07}),
 					map[VEnumAbc]VEnumAbc{
 						VEnumAbcB: VEnumAbcB,
 					},
@@ -53429,11 +53384,11 @@ var vAllPass = []vdlEntry{
 					F29: -1.5147075263360175e+08,
 					F32: &VNamedError{},
 				},
-				F10: VUnionDepth1_AllF0{VSet_VUnionDepth2_VArray1_String{
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
 					}}: struct{}{},
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
 					}}: struct{}{},
 				}},
@@ -53501,7 +53456,7 @@ var vAllPass = []vdlEntry{
 						Msg: "ΔΘΠ",
 					},
 				},
-				F10: VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+				F10: VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcdeΔΘΠΣ",
 					Msg: "Φ",
 				})},
@@ -53518,7 +53473,7 @@ var vAllPass = []vdlEntry{
 					0,
 				},
 				F3: VList_Any{
-					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{6.286506511512573e+07}),
+					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 6.286506511512573e+07}),
 					map[VEnumAbc]VEnumAbc{
 						VEnumAbcB: VEnumAbcB,
 					},
@@ -53574,11 +53529,11 @@ var vAllPass = []vdlEntry{
 					F29: -1.5147075263360175e+08,
 					F32: &VNamedError{},
 				},
-				F10: VUnionDepth1_AllF0{VSet_VUnionDepth2_VArray1_String{
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
 					}}: struct{}{},
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
 					}}: struct{}{},
 				}},
@@ -53649,7 +53604,7 @@ var vAllPass = []vdlEntry{
 						Msg: "ΔΘΠ",
 					},
 				},
-				F10: VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+				F10: VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcdeΔΘΠΣ",
 					Msg: "Φ",
 				})},
@@ -53666,7 +53621,7 @@ var vAllPass = []vdlEntry{
 					0,
 				},
 				F3: VList_Any{
-					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{6.286506511512573e+07}),
+					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 6.286506511512573e+07}),
 					map[VEnumAbc]VEnumAbc{
 						VEnumAbcB: VEnumAbcB,
 					},
@@ -53722,11 +53677,11 @@ var vAllPass = []vdlEntry{
 					F29: -1.5147075263360175e+08,
 					F32: &VNamedError{},
 				},
-				F10: VUnionDepth1_AllF0{VSet_VUnionDepth2_VArray1_String{
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
 					}}: struct{}{},
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
 					}}: struct{}{},
 				}},
@@ -53794,7 +53749,7 @@ var vAllPass = []vdlEntry{
 						Msg: "ΔΘΠ",
 					},
 				},
-				F10: VUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+				F10: VUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 					Id:  "bcdeΔΘΠΣ",
 					Msg: "Φ",
 				})},
@@ -53811,7 +53766,7 @@ var vAllPass = []vdlEntry{
 					0,
 				},
 				F3: VList_Any{
-					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{6.286506511512573e+07}),
+					VUnionDepth1_VFloat64(VUnionDepth1_VFloat64F30{Value: 6.286506511512573e+07}),
 					map[VEnumAbc]VEnumAbc{
 						VEnumAbcB: VEnumAbcB,
 					},
@@ -53867,11 +53822,11 @@ var vAllPass = []vdlEntry{
 					F29: -1.5147075263360175e+08,
 					F32: &VNamedError{},
 				},
-				F10: VUnionDepth1_AllF0{VSet_VUnionDepth2_VArray1_String{
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
 					}}: struct{}{},
-					VUnionDepth2_VArray1_StringF0{VArray1_String{
+					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
 					}}: struct{}{},
 				}},
@@ -53906,13 +53861,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VList_VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: VList_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "VList_VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Source: VList_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -53921,13 +53876,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VList_VUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: VList_VUnionDepth2_All{
-			VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]any{VUnionDepth2_All{F13: {F28: 1.5}}}",
 		Source: []interface{}{
-			VUnionDepth2_All(VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			VUnionDepth2_All(VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}}),
 		},
@@ -54270,13 +54225,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -54285,13 +54240,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -54301,25 +54256,25 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
 			}}: struct{}{},
 		},
@@ -54328,25 +54283,25 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
 			}}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
 			}}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
 			}}: struct{}{},
 		},
@@ -54597,13 +54552,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -54612,13 +54567,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -54629,14 +54584,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
 			}}: struct{}{},
 		},
@@ -54646,14 +54601,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {}}, {F0: {\"世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{}: struct{}{},
-			VUnionDepth2_VArray1_StringF0{VArray1_String{
+			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
 			}}: struct{}{},
 		},
@@ -54795,17 +54750,17 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Target: map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{
 			{
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Source: map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{
 			{
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -54815,37 +54770,37 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{{F11: {F29: -6.371127049036963e+08}}: {F11: {F29: -9.722650581730351e+08}}, {}: {F11: {F29: 3.035295342149691e+09}}, {F11: {F29: 7.747000902018925e+08}}: {F11: {F29: -3.441646204986067e+08}}}",
 		Target: map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{
 			{
-				F11: VUnionDepth1_Float64F29{-6.371127049036963e+08},
+				F11: VUnionDepth1_Float64F29{Value: -6.371127049036963e+08},
 			}: {
-				F11: VUnionDepth1_Float64F29{-9.722650581730351e+08},
+				F11: VUnionDepth1_Float64F29{Value: -9.722650581730351e+08},
 			},
 			{
 				F11: VUnionDepth1_Float64F29{},
 			}: {
-				F11: VUnionDepth1_Float64F29{3.035295342149691e+09},
+				F11: VUnionDepth1_Float64F29{Value: 3.035295342149691e+09},
 			},
 			{
-				F11: VUnionDepth1_Float64F29{7.747000902018925e+08},
+				F11: VUnionDepth1_Float64F29{Value: 7.747000902018925e+08},
 			}: {
-				F11: VUnionDepth1_Float64F29{-3.441646204986067e+08},
+				F11: VUnionDepth1_Float64F29{Value: -3.441646204986067e+08},
 			},
 		},
 		SourceLabel: "map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{{F11: {F29: -6.371127049036963e+08}}: {F11: {F29: -9.722650581730351e+08}}, {}: {F11: {F29: 3.035295342149691e+09}}, {F11: {F29: 7.747000902018925e+08}}: {F11: {F29: -3.441646204986067e+08}}}",
 		Source: map[VStructDepth2_VUnionDepth1_Float64]VStructDepth2_VUnionDepth1_Float64{
 			{
-				F11: VUnionDepth1_Float64F29{-6.371127049036963e+08},
+				F11: VUnionDepth1_Float64F29{Value: -6.371127049036963e+08},
 			}: {
-				F11: VUnionDepth1_Float64F29{-9.722650581730351e+08},
+				F11: VUnionDepth1_Float64F29{Value: -9.722650581730351e+08},
 			},
 			{
 				F11: VUnionDepth1_Float64F29{},
 			}: {
-				F11: VUnionDepth1_Float64F29{3.035295342149691e+09},
+				F11: VUnionDepth1_Float64F29{Value: 3.035295342149691e+09},
 			},
 			{
-				F11: VUnionDepth1_Float64F29{7.747000902018925e+08},
+				F11: VUnionDepth1_Float64F29{Value: 7.747000902018925e+08},
 			}: {
-				F11: VUnionDepth1_Float64F29{-3.441646204986067e+08},
+				F11: VUnionDepth1_Float64F29{Value: -3.441646204986067e+08},
 			},
 		},
 	},
@@ -54862,17 +54817,17 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Target: map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{
-			VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -123,
-			}}: VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			}}: VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
 		SourceLabel: "map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Source: map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{
-			VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -123,
-			}}: VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			}}: VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
@@ -54882,19 +54837,19 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{{F9: {F19: -38}}: {F9: {}}, {F9: {}}: {F9: {F19: -35}}}",
 		Target: map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{
-			VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -38,
 			}}: VUnionDepth2_VStructDepth1_Int8F9{},
-			VUnionDepth2_VStructDepth1_Int8F9{}: VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{}: VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -35,
 			}},
 		},
 		SourceLabel: "map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{{F9: {F19: -38}}: {F9: {}}, {F9: {}}: {F9: {F19: -35}}}",
 		Source: map[VUnionDepth2_VStructDepth1_Int8]VUnionDepth2_VStructDepth1_Int8{
-			VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -38,
 			}}: VUnionDepth2_VStructDepth1_Int8F9{},
-			VUnionDepth2_VStructDepth1_Int8F9{}: VUnionDepth2_VStructDepth1_Int8F9{VStructDepth1_Int8{
+			VUnionDepth2_VStructDepth1_Int8F9{}: VUnionDepth2_VStructDepth1_Int8F9{Value: VStructDepth1_Int8{
 				F19: -35,
 			}},
 		},
@@ -55161,20 +55116,20 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Target: VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				123,
 				123,
-			}}: VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			}}: VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				123,
 				123,
 			}},
 		},
 		SourceLabel: "VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Source: VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				123,
 				123,
-			}}: VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			}}: VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				123,
 				123,
 			}},
@@ -55185,36 +55140,36 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{{F1: \"\\x00\\x1e\"}: {F1: \"\\x9b\\xfa\"}, {F1: \"\\x0fh\"}: {F1: \"\\x00\\x00\"}, {F1: \"\\xb7\\xb1\"}: {F1: \"\\x00\\x00\"}}",
 		Target: VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				0,
 				30,
-			}}: VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			}}: VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				155,
 				250,
 			}},
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				15,
 				104,
 			}}: VUnionDepth2_VArray2_VByteF1{},
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				183,
 				177,
 			}}: VUnionDepth2_VArray2_VByteF1{},
 		},
 		SourceLabel: "VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{{F1: \"\\x00\\x1e\"}: {F1: \"\\x9b\\xfa\"}, {F1: \"\\x0fh\"}: {F1: \"\\x00\\x00\"}, {F1: \"\\xb7\\xb1\"}: {F1: \"\\x00\\x00\"}}",
 		Source: VMap_VUnionDepth2_VArray2_VByte_VUnionDepth2_VArray2_VByte{
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				0,
 				30,
-			}}: VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			}}: VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				155,
 				250,
 			}},
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				15,
 				104,
 			}}: VUnionDepth2_VArray2_VByteF1{},
-			VUnionDepth2_VArray2_VByteF1{VArray2_VByte{
+			VUnionDepth2_VArray2_VByteF1{Value: VArray2_VByte{
 				183,
 				177,
 			}}: VUnionDepth2_VArray2_VByteF1{},
@@ -55317,7 +55272,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55326,7 +55281,7 @@ var vAllPass = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55401,11 +55356,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -55413,7 +55368,7 @@ var vAllPass = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 			F6: &VStructDepth2_Set_Float64{
@@ -55430,7 +55385,7 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55439,7 +55394,7 @@ var vAllPass = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55514,11 +55469,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -55526,7 +55481,7 @@ var vAllPass = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 			F6: &VStructDepth2_Set_Float64{
@@ -55548,15 +55503,15 @@ var vAllPass = []vdlEntry{
 			},
 			F1: []VUnionDepth1_All{
 				VUnionDepth1_AllF7{},
-				VUnionDepth1_AllF29{-7.86429253128458e+08},
-				VUnionDepth1_AllF23{-709460934},
+				VUnionDepth1_AllF29{Value: -7.86429253128458e+08},
+				VUnionDepth1_AllF23{Value: -709460934},
 			},
 			F2: VSet_VArray1_VStructEmpty{
 				{}: struct{}{},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-1.2255739239434664e+09}: VUnionDepth1_Float64F29{-1.1735608211823716e+09},
-				VUnionDepth1_Float64F29{}:                        VUnionDepth1_Float64F29{1.111642678399444e+09},
+				VUnionDepth1_Float64F29{Value: -1.2255739239434664e+09}: VUnionDepth1_Float64F29{Value: -1.1735608211823716e+09},
+				VUnionDepth1_Float64F29{}:                               VUnionDepth1_Float64F29{Value: 1.111642678399444e+09},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55588,7 +55543,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF26{-3973383073406796346},
+				F10: VUnionDepth1_AllF26{Value: -3973383073406796346},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -55612,15 +55567,15 @@ var vAllPass = []vdlEntry{
 			},
 			F1: []VUnionDepth1_All{
 				VUnionDepth1_AllF7{},
-				VUnionDepth1_AllF29{-7.86429253128458e+08},
-				VUnionDepth1_AllF23{-709460934},
+				VUnionDepth1_AllF29{Value: -7.86429253128458e+08},
+				VUnionDepth1_AllF23{Value: -709460934},
 			},
 			F2: VSet_VArray1_VStructEmpty{
 				{}: struct{}{},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-1.2255739239434664e+09}: VUnionDepth1_Float64F29{-1.1735608211823716e+09},
-				VUnionDepth1_Float64F29{}:                        VUnionDepth1_Float64F29{1.111642678399444e+09},
+				VUnionDepth1_Float64F29{Value: -1.2255739239434664e+09}: VUnionDepth1_Float64F29{Value: -1.1735608211823716e+09},
+				VUnionDepth1_Float64F29{}:                               VUnionDepth1_Float64F29{Value: 1.111642678399444e+09},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55652,7 +55607,7 @@ var vAllPass = []vdlEntry{
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
 				},
-				F10: VUnionDepth1_AllF26{-3973383073406796346},
+				F10: VUnionDepth1_AllF26{Value: -3973383073406796346},
 				F11: VUnionDepth1_Float64F29{},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
@@ -55759,7 +55714,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55768,7 +55723,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55780,7 +55735,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55789,7 +55744,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VStructDepth3_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: VStructDepth3_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF32{&VNamedError{
+				VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -55814,17 +55769,17 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F7: 31}, {F18: 0}, {F22: -14722}}}",
 		Target: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF7{31},
+				VUnionDepth1_AllF7{Value: 31},
 				VUnionDepth1_AllF18{},
-				VUnionDepth1_AllF22{-14722},
+				VUnionDepth1_AllF22{Value: -14722},
 			},
 		},
 		SourceLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F7: 31}, {F18: 0}, {F22: -14722}}}",
 		Source: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF7{31},
+				VUnionDepth1_AllF7{Value: 31},
 				VUnionDepth1_AllF18{},
-				VUnionDepth1_AllF22{-14722},
+				VUnionDepth1_AllF22{Value: -14722},
 			},
 		},
 	},
@@ -55833,17 +55788,17 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_List_VUnionDepth1_All{F1: {{F7: 31}, {F18: 0}, {F22: -14722}}}",
 		Target: VStructDepth3_List_VUnionDepth1_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF7{31},
+				VUnionDepth1_AllF7{Value: 31},
 				VUnionDepth1_AllF18{},
-				VUnionDepth1_AllF22{-14722},
+				VUnionDepth1_AllF22{Value: -14722},
 			},
 		},
 		SourceLabel: "VStructDepth3_All{F1: {{F7: 31}, {F18: 0}, {F22: -14722}}}",
 		Source: VStructDepth3_All{
 			F1: []VUnionDepth1_All{
-				VUnionDepth1_AllF7{31},
+				VUnionDepth1_AllF7{Value: 31},
 				VUnionDepth1_AllF18{},
-				VUnionDepth1_AllF22{-14722},
+				VUnionDepth1_AllF22{Value: -14722},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55978,13 +55933,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Target: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Source: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -55993,13 +55948,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Target: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "VStructDepth3_All{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Source: VStructDepth3_All{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{1.5}: VUnionDepth1_Float64F29{1.5},
+				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -56021,15 +55976,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: -3.378878853574675e+09}: {F29: -1.8691965570508745e+09}, {F29: -7.12426163010141e+07}: {F29: 2.279171161118203e+09}}}",
 		Target: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-3.378878853574675e+09}: VUnionDepth1_Float64F29{-1.8691965570508745e+09},
-				VUnionDepth1_Float64F29{-7.12426163010141e+07}:  VUnionDepth1_Float64F29{2.279171161118203e+09},
+				VUnionDepth1_Float64F29{Value: -3.378878853574675e+09}: VUnionDepth1_Float64F29{Value: -1.8691965570508745e+09},
+				VUnionDepth1_Float64F29{Value: -7.12426163010141e+07}:  VUnionDepth1_Float64F29{Value: 2.279171161118203e+09},
 			},
 		},
 		SourceLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: -3.378878853574675e+09}: {F29: -1.8691965570508745e+09}, {F29: -7.12426163010141e+07}: {F29: 2.279171161118203e+09}}}",
 		Source: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-3.378878853574675e+09}: VUnionDepth1_Float64F29{-1.8691965570508745e+09},
-				VUnionDepth1_Float64F29{-7.12426163010141e+07}:  VUnionDepth1_Float64F29{2.279171161118203e+09},
+				VUnionDepth1_Float64F29{Value: -3.378878853574675e+09}: VUnionDepth1_Float64F29{Value: -1.8691965570508745e+09},
+				VUnionDepth1_Float64F29{Value: -7.12426163010141e+07}:  VUnionDepth1_Float64F29{Value: 2.279171161118203e+09},
 			},
 		},
 	},
@@ -56038,15 +55993,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{F3: {{F29: -3.378878853574675e+09}: {F29: -1.8691965570508745e+09}, {F29: -7.12426163010141e+07}: {F29: 2.279171161118203e+09}}}",
 		Target: VStructDepth3_Map_VUnionDepth1_Float64_VUnionDepth1_Float64{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-3.378878853574675e+09}: VUnionDepth1_Float64F29{-1.8691965570508745e+09},
-				VUnionDepth1_Float64F29{-7.12426163010141e+07}:  VUnionDepth1_Float64F29{2.279171161118203e+09},
+				VUnionDepth1_Float64F29{Value: -3.378878853574675e+09}: VUnionDepth1_Float64F29{Value: -1.8691965570508745e+09},
+				VUnionDepth1_Float64F29{Value: -7.12426163010141e+07}:  VUnionDepth1_Float64F29{Value: 2.279171161118203e+09},
 			},
 		},
 		SourceLabel: "VStructDepth3_All{F3: {{F29: -3.378878853574675e+09}: {F29: -1.8691965570508745e+09}, {F29: -7.12426163010141e+07}: {F29: 2.279171161118203e+09}}}",
 		Source: VStructDepth3_All{
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
-				VUnionDepth1_Float64F29{-3.378878853574675e+09}: VUnionDepth1_Float64F29{-1.8691965570508745e+09},
-				VUnionDepth1_Float64F29{-7.12426163010141e+07}:  VUnionDepth1_Float64F29{2.279171161118203e+09},
+				VUnionDepth1_Float64F29{Value: -3.378878853574675e+09}: VUnionDepth1_Float64F29{Value: -1.8691965570508745e+09},
+				VUnionDepth1_Float64F29{Value: -7.12426163010141e+07}:  VUnionDepth1_Float64F29{Value: 2.279171161118203e+09},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -56223,11 +56178,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56311,11 +56266,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56402,11 +56357,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56490,11 +56445,11 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-				F10: VUnionDepth1_AllF32{&VNamedError{
+				F10: VUnionDepth1_AllF32{Value: &VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: VUnionDepth1_Float64F29{1.5},
+				F11: VUnionDepth1_Float64F29{Value: 1.5},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56584,7 +56539,7 @@ var vAllPass = []vdlEntry{
 					F1: true,
 				},
 				F10: VUnionDepth1_AllF2{},
-				F11: VUnionDepth1_Float64F29{-5.916343133302755e+07},
+				F11: VUnionDepth1_Float64F29{Value: -5.916343133302755e+07},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56669,7 +56624,7 @@ var vAllPass = []vdlEntry{
 					F1: true,
 				},
 				F10: VUnionDepth1_AllF2{},
-				F11: VUnionDepth1_Float64F29{-5.916343133302755e+07},
+				F11: VUnionDepth1_Float64F29{Value: -5.916343133302755e+07},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56757,7 +56712,7 @@ var vAllPass = []vdlEntry{
 					F1: true,
 				},
 				F10: VUnionDepth1_AllF2{},
-				F11: VUnionDepth1_Float64F29{-5.916343133302755e+07},
+				F11: VUnionDepth1_Float64F29{Value: -5.916343133302755e+07},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56842,7 +56797,7 @@ var vAllPass = []vdlEntry{
 					F1: true,
 				},
 				F10: VUnionDepth1_AllF2{},
-				F11: VUnionDepth1_Float64F29{-5.916343133302755e+07},
+				F11: VUnionDepth1_Float64F29{Value: -5.916343133302755e+07},
 				F12: &VStructDepth1_VEnumBcd{
 					F9: VEnumBcdD,
 				},
@@ -56901,13 +56856,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "VStructDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Source: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -56916,7 +56871,7 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -56933,7 +56888,7 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{},
 				F11: VUnionDepth1_Float64F29{},
 			},
-			F5: VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+			F5: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -56943,13 +56898,13 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF4{VSet_VBool{
+			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
 		SourceLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Source: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF4{VSet_VBool{
+			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
@@ -56958,7 +56913,7 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
-			F5: VUnionDepth2_AllF4{VSet_VBool{
+			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
@@ -56975,7 +56930,7 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{},
 				F11: VUnionDepth1_Float64F29{},
 			},
-			F5: VUnionDepth2_AllF4{VSet_VBool{
+			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
 				false: struct{}{},
 			}},
 		},
@@ -57121,19 +57076,19 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_All{F0: {}}",
 		Target:      VUnionDepth3_All(VUnionDepth3_AllF0{}),
 		SourceLabel: "VUnionDepth1_Any{F0: VArray3_OptVStructDepth1_VFloat32{}}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VArray3_OptVStructDepth1_VFloat32{}}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VArray3_OptVStructDepth1_VFloat32{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
-		Target: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -57142,13 +57097,13 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
-		Target: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -57158,13 +57113,13 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_All{F2: {{F3: \"Φ\"}}}",
-		Target: VUnionDepth3_All(VUnionDepth3_AllF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{F3: \"Φ\"}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
 			}: struct{}{},
@@ -57173,13 +57128,13 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_All{F2: {{F3: \"Φ\"}}}",
-		Target: VUnionDepth3_All(VUnionDepth3_AllF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"Φ\"}}}",
-		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
 			}: struct{}{},
@@ -57198,20 +57153,20 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {}}",
 		Target:      VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{}),
 		SourceLabel: "VUnionDepth1_Any{F0: VArray3_OptVStructDepth1_VFloat32{}}",
-		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{VArray3_OptVStructDepth1_VFloat32{}}),
+		Source:      VUnionDepth1_Any(VUnionDepth1_AnyF0{Value: VArray3_OptVStructDepth1_VFloat32{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {}}",
 		Target:      VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{}),
 		SourceLabel: "VUnionDepth1_All{F0: VArray3_OptVStructDepth1_VFloat32{}}",
-		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{VArray3_OptVStructDepth1_VFloat32{}}),
+		Source:      VUnionDepth1_All(VUnionDepth1_AllF0{Value: VArray3_OptVStructDepth1_VFloat32{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{
 				F28: 1.5,
 			},
@@ -57223,7 +57178,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Source: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Source: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{
 				F28: 1.5,
 			},
@@ -57238,7 +57193,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{
 				F28: 1.5,
 			},
@@ -57250,7 +57205,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF0{VArray3_OptVStructDepth1_VFloat32{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{
 				F28: 1.5,
 			},
@@ -57266,7 +57221,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{}, nil, {F28: 3.367077e+08}}}",
-		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{},
 			nil,
 			{
@@ -57274,7 +57229,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{}, nil, {F28: 3.367077e+08}}}",
-		Source: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Source: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{},
 			nil,
 			{
@@ -57285,7 +57240,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VArray3_OptVStructDepth1_VFloat32{F0: {{}, nil, {F28: 3.367077e+08}}}",
-		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{VArray3_OptVStructDepth1_VFloat32{
+		Target: VUnionDepth3_VArray3_OptVStructDepth1_VFloat32(VUnionDepth3_VArray3_OptVStructDepth1_VFloat32F0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{},
 			nil,
 			{
@@ -57293,7 +57248,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F0: {{}, nil, {F28: 3.367077e+08}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF0{VArray3_OptVStructDepth1_VFloat32{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF0{Value: VArray3_OptVStructDepth1_VFloat32{
 			{},
 			nil,
 			{
@@ -57320,7 +57275,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -57330,7 +57285,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Source: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Source: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -57343,7 +57298,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -57353,7 +57308,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF1{[]VList_Error{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -57367,7 +57322,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"ΘΠ\", RetryCode: RetryRefetch, Msg: \"cdeΔΘΠΣΦ王普\"}, {}, {Id: \"cdeΔΘΠΣΦ\", RetryCode: RetryRefetch, Msg: \"abc\"}}}}",
-		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "ΘΠ",
@@ -57383,7 +57338,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"ΘΠ\", RetryCode: RetryRefetch, Msg: \"cdeΔΘΠΣΦ王普\"}, {}, {Id: \"cdeΔΘΠΣΦ\", RetryCode: RetryRefetch, Msg: \"abc\"}}}}",
-		Source: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Source: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "ΘΠ",
@@ -57402,7 +57357,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_List_VList_Error{F1: {{{Id: \"ΘΠ\", RetryCode: RetryRefetch, Msg: \"cdeΔΘΠΣΦ王普\"}, {}, {Id: \"cdeΔΘΠΣΦ\", RetryCode: RetryRefetch, Msg: \"abc\"}}}}",
-		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{[]VList_Error{
+		Target: VUnionDepth3_List_VList_Error(VUnionDepth3_List_VList_ErrorF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "ΘΠ",
@@ -57418,7 +57373,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F1: {{{Id: \"ΘΠ\", RetryCode: RetryRefetch, Msg: \"cdeΔΘΠΣΦ王普\"}, {}, {Id: \"cdeΔΘΠΣΦ\", RetryCode: RetryRefetch, Msg: \"abc\"}}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF1{[]VList_Error{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF1{Value: []VList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "ΘΠ",
@@ -57453,13 +57408,13 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -57468,13 +57423,13 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -57484,14 +57439,14 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
-		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "澤",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
-		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "澤",
@@ -57501,14 +57456,14 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
-		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{map[VStructDepth1_String]struct{}{
+		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "澤",
 			}: struct{}{},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{}, {F3: \"澤\"}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF2{map[VStructDepth1_String]struct{}{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "澤",
@@ -57534,7 +57489,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool{F3: {{F2: true}: {F2: true}}}",
-		Target: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{VMap_VStructDepth1_VBool_VStructDepth1_VBool{
+		Target: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{Value: VMap_VStructDepth1_VBool_VStructDepth1_VBool{
 			{
 				F2: true,
 			}: {
@@ -57542,7 +57497,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool{F3: {{F2: true}: {F2: true}}}",
-		Source: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{VMap_VStructDepth1_VBool_VStructDepth1_VBool{
+		Source: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{Value: VMap_VStructDepth1_VBool_VStructDepth1_VBool{
 			{
 				F2: true,
 			}: {
@@ -57553,7 +57508,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool{F3: {{F2: true}: {F2: true}}}",
-		Target: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{VMap_VStructDepth1_VBool_VStructDepth1_VBool{
+		Target: VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBool(VUnionDepth3_VMap_VStructDepth1_VBool_VStructDepth1_VBoolF3{Value: VMap_VStructDepth1_VBool_VStructDepth1_VBool{
 			{
 				F2: true,
 			}: {
@@ -57561,7 +57516,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F3: {{F2: true}: {F2: true}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF3{VMap_VStructDepth1_VBool_VStructDepth1_VBool{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF3{Value: VMap_VStructDepth1_VBool_VStructDepth1_VBool{
 			{
 				F2: true,
 			}: {
@@ -57573,7 +57528,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -57585,7 +57540,7 @@ var vAllPass = []vdlEntry{
 			F11: VUnionDepth1_Float64F29{},
 		}}),
 		SourceLabel: "VUnionDepth3_VStructDepth2_All{F4: {}}",
-		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -57600,7 +57555,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -57612,7 +57567,7 @@ var vAllPass = []vdlEntry{
 			F11: VUnionDepth1_Float64F29{},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F4: {}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -57628,7 +57583,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -57701,11 +57656,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -57714,7 +57669,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -57787,11 +57742,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -57803,7 +57758,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -57876,11 +57831,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -57889,7 +57844,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -57962,11 +57917,11 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF32{&VNamedError{
+			F10: VUnionDepth1_AllF32{Value: &VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: VUnionDepth1_Float64F29{1.5},
+			F11: VUnionDepth1_Float64F29{Value: 1.5},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -57979,7 +57934,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
@@ -58000,7 +57955,7 @@ var vAllPass = []vdlEntry{
 				0: 94,
 			},
 			F8: VStructDepth1_All{
-				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
 					}: struct{}{},
@@ -58038,15 +57993,15 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF13{23269},
-			F11: VUnionDepth1_Float64F29{6.897168490214154e+08},
+			F10: VUnionDepth1_AllF13{Value: 23269},
+			F11: VUnionDepth1_Float64F29{Value: 6.897168490214154e+08},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
 			F13: &VStructDepth1_VUint16{},
 		}}),
 		SourceLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
-		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
@@ -58067,7 +58022,7 @@ var vAllPass = []vdlEntry{
 				0: 94,
 			},
 			F8: VStructDepth1_All{
-				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
 					}: struct{}{},
@@ -58105,8 +58060,8 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF13{23269},
-			F11: VUnionDepth1_Float64F29{6.897168490214154e+08},
+			F10: VUnionDepth1_AllF13{Value: 23269},
+			F11: VUnionDepth1_Float64F29{Value: 6.897168490214154e+08},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -58116,7 +58071,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VStructDepth2_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
-		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{VStructDepth2_All{
+		Target: VUnionDepth3_VStructDepth2_All(VUnionDepth3_VStructDepth2_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
@@ -58137,7 +58092,7 @@ var vAllPass = []vdlEntry{
 				0: 94,
 			},
 			F8: VStructDepth1_All{
-				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
 					}: struct{}{},
@@ -58175,15 +58130,15 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF13{23269},
-			F11: VUnionDepth1_Float64F29{6.897168490214154e+08},
+			F10: VUnionDepth1_AllF13{Value: 23269},
+			F11: VUnionDepth1_Float64F29{Value: 6.897168490214154e+08},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
 			F13: &VStructDepth1_VUint16{},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F4: {F0: {typeobject(VUnionDepth2_VList_VByte), typeobject(any)}, F1: {269472430}, F3: {float64(5.1889701539695996e+08)}, F4: {0}, F5: {B}, F6: {0: 94}, F8: {F0: VUnionDepth2_VSet_VNamedError{F5: {{Msg: \"ΘΠΣΦ王普澤世\"}}}, F3: \"eΔ\", F4: \"ΔΘΠΣ\", F5: typeobject(VUnionDepth2_OptVStructDepth1_VFloat32), F6: 41, F11: {Id: \"cdeΔΘΠΣΦ王普澤\", Msg: \"bcdeΔΘΠΣΦ王普\"}, F12: {Id: \"ΠΣΦ王普澤\", RetryCode: RetryRefetch, Msg: \"bcdeΔ\"}, F14: 5734, F15: 2546143158, F19: 54, F20: 36, F21: -12218, F22: -12639, F23: -596308104, F24: 831381495, F25: 2471666942645895286, F26: -480559897555658797, F27: -1.5791332e+09, F28: 8.072309e+08, F29: 3.2680107058968368e+09, F30: 2.0559144619019778e+09, F31: {}, F32: {}}, F9: {F1: true}, F10: {F13: 23269}, F11: {F29: 6.897168490214154e+08}, F12: {F9: D}, F13: {}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF4{VStructDepth2_All{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF4{Value: VStructDepth2_All{
 			F0: VArray2_TypeObject{
 				vdl.TypeOf((*VUnionDepth2_VList_VByte)(nil)),
 				vdl.AnyType,
@@ -58204,7 +58159,7 @@ var vAllPass = []vdlEntry{
 				0: 94,
 			},
 			F8: VStructDepth1_All{
-				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{VSet_VNamedError{
+				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
 					}: struct{}{},
@@ -58242,8 +58197,8 @@ var vAllPass = []vdlEntry{
 			F9: VStructDepth1_Bool{
 				F1: true,
 			},
-			F10: VUnionDepth1_AllF13{23269},
-			F11: VUnionDepth1_Float64F29{6.897168490214154e+08},
+			F10: VUnionDepth1_AllF13{Value: 23269},
+			F11: VUnionDepth1_Float64F29{Value: 6.897168490214154e+08},
 			F12: &VStructDepth1_VEnumBcd{
 				F9: VEnumBcdD,
 			},
@@ -58254,37 +58209,37 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F0: {}}}",
-		Target:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF0{}}),
+		Target:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF0{}}),
 		SourceLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F0: {}}}",
-		Source:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF0{}}),
+		Source:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF0{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F0: {}}}",
-		Target:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF0{}}),
+		Target:      VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF0{}}),
 		SourceLabel: "VUnionDepth3_All{F5: {F0: {}}}",
-		Source:      VUnionDepth3_All(VUnionDepth3_AllF5{VUnionDepth2_AllF0{}}),
+		Source:      VUnionDepth3_All(VUnionDepth3_AllF5{Value: VUnionDepth2_AllF0{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}}),
 		SourceLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Source: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}}),
 		SourceLabel: "VUnionDepth3_All{F5: {F13: {F28: 1.5}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF5{VUnionDepth2_AllF13{&VStructDepth1_VFloat32{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF5{Value: VUnionDepth2_AllF13{Value: &VStructDepth1_VFloat32{
 			F28: 1.5,
 		}}}),
 	},
@@ -58292,22 +58247,22 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F9: {F19: 9}}}",
-		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: 9,
 		}}}),
 		SourceLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F9: {F19: 9}}}",
-		Source: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Source: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: 9,
 		}}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_VUnionDepth2_All{F5: {F9: {F19: 9}}}",
-		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Target: VUnionDepth3_VUnionDepth2_All(VUnionDepth3_VUnionDepth2_AllF5{Value: VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: 9,
 		}}}),
 		SourceLabel: "VUnionDepth3_All{F5: {F9: {F19: 9}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF5{VUnionDepth2_AllF9{VStructDepth1_Int8{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF5{Value: VUnionDepth2_AllF9{Value: VStructDepth1_Int8{
 			F19: 9,
 		}}}),
 	},
@@ -58330,13 +58285,13 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -58345,13 +58300,13 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -58361,7 +58316,7 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
-		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
@@ -58369,7 +58324,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
-		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
@@ -58380,7 +58335,7 @@ var vAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
-		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{&VStructDepth2_Set_Float64{
+		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
@@ -58388,7 +58343,7 @@ var vAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
-		Source: VUnionDepth3_All(VUnionDepth3_AllF6{&VStructDepth2_Set_Float64{
+		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				0:                      struct{}{},
 				1.2150244533707948e+08: struct{}{},
@@ -62589,7 +62544,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62598,7 +62553,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62610,7 +62565,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62619,7 +62574,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62632,7 +62587,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNString{X: \"abcdeΔ\"}",
 		Target: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔ"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔ"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62641,7 +62596,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNString{X: \"abcdeΔ\"}",
 		Source: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔ"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔ"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62653,14 +62608,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNString{X: \"abcdeΔ\"}",
 		Target: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔ"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔ"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
 			return native
 		}(),
 		SourceLabel: "VWireUnionNIface{X: \"abcdeΔ\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"abcdeΔ"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "abcdeΔ"}),
 	},
 	{
 		IsCanonical: true,
@@ -62690,7 +62645,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62699,7 +62654,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62711,7 +62666,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62720,7 +62675,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62733,7 +62688,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNStruct{X: \"ΘΠΣ\"}",
 		Target: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"ΘΠΣ"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "ΘΠΣ"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62742,7 +62697,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNStruct{X: \"ΘΠΣ\"}",
 		Source: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"ΘΠΣ"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "ΘΠΣ"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62754,14 +62709,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNStruct{X: \"ΘΠΣ\"}",
 		Target: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"ΘΠΣ"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "ΘΠΣ"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
 			return native
 		}(),
 		SourceLabel: "VWireUnionNIface{X: \"ΘΠΣ\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"ΘΠΣ"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "ΘΠΣ"}),
 	},
 	{
 		IsCanonical: true,
@@ -62791,7 +62746,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNArray{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62800,7 +62755,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNArray{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62812,7 +62767,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNArray{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62821,7 +62776,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62834,7 +62789,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNArray{X: \"cdeΔ\"}",
 		Target: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"cdeΔ"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "cdeΔ"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62843,7 +62798,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNArray{X: \"cdeΔ\"}",
 		Source: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"cdeΔ"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "cdeΔ"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62855,14 +62810,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNArray{X: \"cdeΔ\"}",
 		Target: func() VNativeWireUnionNArray {
 			var native VNativeWireUnionNArray
-			wire := VWireUnionNArray(VWireUnionNArrayX{"cdeΔ"})
+			wire := VWireUnionNArray(VWireUnionNArrayX{Value: "cdeΔ"})
 			if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 				panic(err)
 			}
 			return native
 		}(),
 		SourceLabel: "VWireUnionNPointer{X: \"cdeΔ\"}",
-		Source:      VWireUnionNPointer(VWireUnionNPointerX{"cdeΔ"}),
+		Source:      VWireUnionNPointer(VWireUnionNPointerX{Value: "cdeΔ"}),
 	},
 	{
 		IsCanonical: true,
@@ -62892,7 +62847,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62901,7 +62856,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62913,7 +62868,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62922,7 +62877,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNString{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNString {
 			var native VNativeWireUnionNString
-			wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStringToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62935,7 +62890,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNSlice{X: \"c\"}",
 		Target: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"c"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "c"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62944,7 +62899,7 @@ var vAllPass = []vdlEntry{
 		SourceLabel: "VWireUnionNSlice{X: \"c\"}",
 		Source: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"c"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "c"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -62956,14 +62911,14 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VWireUnionNSlice{X: \"c\"}",
 		Target: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"c"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "c"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
 			return native
 		}(),
 		SourceLabel: "VWireUnionNIface{X: \"c\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"c"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "c"}),
 	},
 	{
 		IsCanonical: true,
@@ -62991,18 +62946,18 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VWireUnionNPointer{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VWireUnionNPointer(VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VWireUnionNPointer(VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VWireUnionNPointer{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VWireUnionNPointer(VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VWireUnionNPointer(VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VWireUnionNPointer{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VWireUnionNPointer(VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VWireUnionNPointer(VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VWireUnionNSlice{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNSlice {
 			var native VNativeWireUnionNSlice
-			wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -63013,16 +62968,16 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VWireUnionNPointer{X: \"ΣΦ王\"}",
-		Target:      VWireUnionNPointer(VWireUnionNPointerX{"ΣΦ王"}),
+		Target:      VWireUnionNPointer(VWireUnionNPointerX{Value: "ΣΦ王"}),
 		SourceLabel: "VWireUnionNPointer{X: \"ΣΦ王\"}",
-		Source:      VWireUnionNPointer(VWireUnionNPointerX{"ΣΦ王"}),
+		Source:      VWireUnionNPointer(VWireUnionNPointerX{Value: "ΣΦ王"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VWireUnionNPointer{X: \"ΣΦ王\"}",
-		Target:      VWireUnionNPointer(VWireUnionNPointerX{"ΣΦ王"}),
+		Target:      VWireUnionNPointer(VWireUnionNPointerX{Value: "ΣΦ王"}),
 		SourceLabel: "VWireUnionNIface{X: \"ΣΦ王\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"ΣΦ王"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "ΣΦ王"}),
 	},
 	{
 		IsCanonical: true,
@@ -63050,18 +63005,18 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "VWireUnionNIface{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VWireUnionNIface(VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VWireUnionNIface(VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VWireUnionNIface{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VWireUnionNIface{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      VWireUnionNIface(VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      VWireUnionNIface(VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "VWireUnionNStruct{X: \"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -63072,18 +63027,18 @@ var vAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "VWireUnionNIface{X: \"deΔΘΠΣ\"}",
-		Target:      VWireUnionNIface(VWireUnionNIfaceX{"deΔΘΠΣ"}),
+		Target:      VWireUnionNIface(VWireUnionNIfaceX{Value: "deΔΘΠΣ"}),
 		SourceLabel: "VWireUnionNIface{X: \"deΔΘΠΣ\"}",
-		Source:      VWireUnionNIface(VWireUnionNIfaceX{"deΔΘΠΣ"}),
+		Source:      VWireUnionNIface(VWireUnionNIfaceX{Value: "deΔΘΠΣ"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VWireUnionNIface{X: \"deΔΘΠΣ\"}",
-		Target:      VWireUnionNIface(VWireUnionNIfaceX{"deΔΘΠΣ"}),
+		Target:      VWireUnionNIface(VWireUnionNIfaceX{Value: "deΔΘΠΣ"}),
 		SourceLabel: "VWireUnionNStruct{X: \"deΔΘΠΣ\"}",
 		Source: func() VNativeWireUnionNStruct {
 			var native VNativeWireUnionNStruct
-			wire := VWireUnionNStruct(VWireUnionNStructX{"deΔΘΠΣ"})
+			wire := VWireUnionNStruct(VWireUnionNStructX{Value: "deΔΘΠΣ"})
 			if err := VWireUnionNStructToNative(wire, &native); err != nil {
 				panic(err)
 			}
@@ -63281,7 +63236,7 @@ var vAllPass = []vdlEntry{
 			},
 			UnionNString: func() VNativeWireUnionNString {
 				var native VNativeWireUnionNString
-				wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNStringToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63289,7 +63244,7 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNStruct: func() VNativeWireUnionNStruct {
 				var native VNativeWireUnionNStruct
-				wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNStructToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63297,7 +63252,7 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNArray: func() VNativeWireUnionNArray {
 				var native VNativeWireUnionNArray
-				wire := VWireUnionNArray(VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNArray(VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63305,14 +63260,14 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNSlice: func() VNativeWireUnionNSlice {
 				var native VNativeWireUnionNSlice
-				wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 					panic(err)
 				}
 				return native
 			}(),
-			UnionNPointer: VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"},
-			UnionNIface:   VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNPointer: VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNIface:   VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
 		},
 		SourceLabel: "VWireAll{BoolNBool: true, BoolNString: true, BoolNStruct: true, IntNInt: -123, IntNString: -123, IntNStruct: -123, StringNString: \"abcdeΔΘΠΣΦ王普澤世界\", StringNStruct: \"abcdeΔΘΠΣΦ王普澤世界\", ArrayNString: {\"abcdeΔΘΠΣΦ王普澤世界\"}, ArrayNStruct: {\"abcdeΔΘΠΣΦ王普澤世界\"}, ListNString: {\"abcdeΔΘΠΣΦ王普澤世界\"}, ListNStruct: {\"abcdeΔΘΠΣΦ王普澤世界\"}, StructNString: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, StructNStruct: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, StructNArray: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, StructNSlice: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, StructNPointer: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, StructNIface: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNString: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNStruct: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNArray: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNSlice: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNPointer: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}, UnionNIface: {X: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: VWireAll{
@@ -63468,7 +63423,7 @@ var vAllPass = []vdlEntry{
 			},
 			UnionNString: func() VNativeWireUnionNString {
 				var native VNativeWireUnionNString
-				wire := VWireUnionNString(VWireUnionNStringX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNString(VWireUnionNStringX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNStringToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63476,7 +63431,7 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNStruct: func() VNativeWireUnionNStruct {
 				var native VNativeWireUnionNStruct
-				wire := VWireUnionNStruct(VWireUnionNStructX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNStruct(VWireUnionNStructX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNStructToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63484,7 +63439,7 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNArray: func() VNativeWireUnionNArray {
 				var native VNativeWireUnionNArray
-				wire := VWireUnionNArray(VWireUnionNArrayX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNArray(VWireUnionNArrayX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNArrayToNative(wire, &native); err != nil {
 					panic(err)
 				}
@@ -63492,14 +63447,14 @@ var vAllPass = []vdlEntry{
 			}(),
 			UnionNSlice: func() VNativeWireUnionNSlice {
 				var native VNativeWireUnionNSlice
-				wire := VWireUnionNSlice(VWireUnionNSliceX{"abcdeΔΘΠΣΦ王普澤世界"})
+				wire := VWireUnionNSlice(VWireUnionNSliceX{Value: "abcdeΔΘΠΣΦ王普澤世界"})
 				if err := VWireUnionNSliceToNative(wire, &native); err != nil {
 					panic(err)
 				}
 				return native
 			}(),
-			UnionNPointer: VWireUnionNPointerX{"abcdeΔΘΠΣΦ王普澤世界"},
-			UnionNIface:   VWireUnionNIfaceX{"abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNPointer: VWireUnionNPointerX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
+			UnionNIface:   VWireUnionNIfaceX{Value: "abcdeΔΘΠΣΦ王普澤世界"},
 		},
 	},
 	{
@@ -63621,13 +63576,13 @@ var vAllPass = []vdlEntry{
 			},
 			UnionNString: func() VNativeWireUnionNString {
 				var native VNativeWireUnionNString
-				wire := VWireUnionNString(VWireUnionNStringX{"cdeΔΘΠΣΦ"})
+				wire := VWireUnionNString(VWireUnionNStringX{Value: "cdeΔΘΠΣΦ"})
 				if err := VWireUnionNStringToNative(wire, &native); err != nil {
 					panic(err)
 				}
 				return native
 			}(),
-			UnionNPointer: VWireUnionNPointerX{"bc"},
+			UnionNPointer: VWireUnionNPointerX{Value: "bc"},
 			UnionNIface:   VWireUnionNIfaceX{},
 		},
 		SourceLabel: "VWireAll{BoolNString: true, IntNInt: -255070853, IntNString: 535047732, IntNStruct: 492803907, StringNString: \"abcdeΔ\", StringNStruct: \"ΔΘΠΣΦ王\", ArrayNString: {\"abcdeΔΘΠ\"}, ArrayNStruct: {\"普澤世\"}, ListNStruct: {\"deΔΘ\", \"\"}, StructNString: {X: \"ΔΘΠΣΦ王普澤\"}, StructNStruct: {X: \"cdeΔΘ\"}, StructNArray: {X: \"bcde\"}, StructNIface: {X: \"澤世界\"}, UnionNString: {X: \"cdeΔΘΠΣΦ\"}, UnionNPointer: {X: \"bc\"}}",
@@ -63746,13 +63701,13 @@ var vAllPass = []vdlEntry{
 			},
 			UnionNString: func() VNativeWireUnionNString {
 				var native VNativeWireUnionNString
-				wire := VWireUnionNString(VWireUnionNStringX{"cdeΔΘΠΣΦ"})
+				wire := VWireUnionNString(VWireUnionNStringX{Value: "cdeΔΘΠΣΦ"})
 				if err := VWireUnionNStringToNative(wire, &native); err != nil {
 					panic(err)
 				}
 				return native
 			}(),
-			UnionNPointer: VWireUnionNPointerX{"bc"},
+			UnionNPointer: VWireUnionNPointerX{Value: "bc"},
 			UnionNIface:   VWireUnionNIfaceX{},
 		},
 	},
@@ -66484,7 +66439,7 @@ var xAllPass = []vdlEntry{
 				"bcdeΔΘΠΣΦ王普澤": struct{}{},
 				"普澤":           struct{}{},
 			},
-			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{}}}),
+			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
 		SourceLabel: "XArray3_Any{[]XArray1_String{{\"eΔΘΠΣΦ王普\"}, {}, {}}, set[XString]{\"bcdeΔΘΠΣΦ王普澤\", \"普澤\"}, XUnionDepth3_XUnionDepth2_All{F5: {F11: {F16: 0}}}}",
 		Source: XArray3_Any{
@@ -66499,7 +66454,7 @@ var xAllPass = []vdlEntry{
 				"bcdeΔΘΠΣΦ王普澤": struct{}{},
 				"普澤":           struct{}{},
 			},
-			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{}}}),
+			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
 	},
 	{
@@ -66517,7 +66472,7 @@ var xAllPass = []vdlEntry{
 				"bcdeΔΘΠΣΦ王普澤": struct{}{},
 				"普澤":           struct{}{},
 			},
-			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{}}}),
+			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
 		SourceLabel: "[]any{[]XArray1_String{{\"eΔΘΠΣΦ王普\"}, {}, {}}, set[XString]{\"bcdeΔΘΠΣΦ王普澤\", \"普澤\"}, XUnionDepth3_XUnionDepth2_All{F5: {F11: {F16: 0}}}}",
 		Source: []interface{}{
@@ -66532,7 +66487,7 @@ var xAllPass = []vdlEntry{
 				"bcdeΔΘΠΣΦ王普澤": struct{}{},
 				"普澤":           struct{}{},
 			},
-			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{}}}),
+			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
 	},
 	{
@@ -68590,8 +68545,8 @@ var xAllPass = []vdlEntry{
 						F30: -2.340291718935576e+09,
 						F31: &XStructEmpty{},
 					},
-					F10: XUnionDepth1_AllF16{686436023},
-					F11: XUnionDepth1_Float64F29{1.3667738643069172e+09},
+					F10: XUnionDepth1_AllF16{Value: 686436023},
+					F11: XUnionDepth1_Float64F29{Value: 1.3667738643069172e+09},
 					F12: &XStructDepth1_XEnumBcd{
 						F9: XEnumBcdC,
 					},
@@ -68628,7 +68583,7 @@ var xAllPass = []vdlEntry{
 						53: 102,
 					},
 					F8: XStructDepth1_All{
-						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.4220107318974495e+09}),
+						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.4220107318974495e+09}),
 						F2: true,
 						F3: "deΔ",
 						F5: vdl.Uint64Type,
@@ -68655,8 +68610,8 @@ var xAllPass = []vdlEntry{
 						F31: &XStructEmpty{},
 						F32: &XNamedError{},
 					},
-					F10: XUnionDepth1_AllF30{2.366591380614784e+06},
-					F11: XUnionDepth1_Float64F29{8.137462937121485e+07},
+					F10: XUnionDepth1_AllF30{Value: 2.366591380614784e+06},
+					F11: XUnionDepth1_Float64F29{Value: 8.137462937121485e+07},
 					F13: &XStructDepth1_XUint16{},
 				},
 			},
@@ -68718,8 +68673,8 @@ var xAllPass = []vdlEntry{
 						F30: -2.340291718935576e+09,
 						F31: &XStructEmpty{},
 					},
-					F10: XUnionDepth1_AllF16{686436023},
-					F11: XUnionDepth1_Float64F29{1.3667738643069172e+09},
+					F10: XUnionDepth1_AllF16{Value: 686436023},
+					F11: XUnionDepth1_Float64F29{Value: 1.3667738643069172e+09},
 					F12: &XStructDepth1_XEnumBcd{
 						F9: XEnumBcdC,
 					},
@@ -68756,7 +68711,7 @@ var xAllPass = []vdlEntry{
 						53: 102,
 					},
 					F8: XStructDepth1_All{
-						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.4220107318974495e+09}),
+						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.4220107318974495e+09}),
 						F2: true,
 						F3: "deΔ",
 						F5: vdl.Uint64Type,
@@ -68783,8 +68738,8 @@ var xAllPass = []vdlEntry{
 						F31: &XStructEmpty{},
 						F32: &XNamedError{},
 					},
-					F10: XUnionDepth1_AllF30{2.366591380614784e+06},
-					F11: XUnionDepth1_Float64F29{8.137462937121485e+07},
+					F10: XUnionDepth1_AllF30{Value: 2.366591380614784e+06},
+					F11: XUnionDepth1_Float64F29{Value: 8.137462937121485e+07},
 					F13: &XStructDepth1_XUint16{},
 				},
 			},
@@ -68849,8 +68804,8 @@ var xAllPass = []vdlEntry{
 						F30: -2.340291718935576e+09,
 						F31: &XStructEmpty{},
 					},
-					F10: XUnionDepth1_AllF16{686436023},
-					F11: XUnionDepth1_Float64F29{1.3667738643069172e+09},
+					F10: XUnionDepth1_AllF16{Value: 686436023},
+					F11: XUnionDepth1_Float64F29{Value: 1.3667738643069172e+09},
 					F12: &XStructDepth1_XEnumBcd{
 						F9: XEnumBcdC,
 					},
@@ -68887,7 +68842,7 @@ var xAllPass = []vdlEntry{
 						53: 102,
 					},
 					F8: XStructDepth1_All{
-						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.4220107318974495e+09}),
+						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.4220107318974495e+09}),
 						F2: true,
 						F3: "deΔ",
 						F5: vdl.Uint64Type,
@@ -68914,8 +68869,8 @@ var xAllPass = []vdlEntry{
 						F31: &XStructEmpty{},
 						F32: &XNamedError{},
 					},
-					F10: XUnionDepth1_AllF30{2.366591380614784e+06},
-					F11: XUnionDepth1_Float64F29{8.137462937121485e+07},
+					F10: XUnionDepth1_AllF30{Value: 2.366591380614784e+06},
+					F11: XUnionDepth1_Float64F29{Value: 8.137462937121485e+07},
 					F13: &XStructDepth1_XUint16{},
 				},
 			},
@@ -68977,8 +68932,8 @@ var xAllPass = []vdlEntry{
 						F30: -2.340291718935576e+09,
 						F31: &XStructEmpty{},
 					},
-					F10: XUnionDepth1_AllF16{686436023},
-					F11: XUnionDepth1_Float64F29{1.3667738643069172e+09},
+					F10: XUnionDepth1_AllF16{Value: 686436023},
+					F11: XUnionDepth1_Float64F29{Value: 1.3667738643069172e+09},
 					F12: &XStructDepth1_XEnumBcd{
 						F9: XEnumBcdC,
 					},
@@ -69015,7 +68970,7 @@ var xAllPass = []vdlEntry{
 						53: 102,
 					},
 					F8: XStructDepth1_All{
-						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.4220107318974495e+09}),
+						F0: XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.4220107318974495e+09}),
 						F2: true,
 						F3: "deΔ",
 						F5: vdl.Uint64Type,
@@ -69042,8 +68997,8 @@ var xAllPass = []vdlEntry{
 						F31: &XStructEmpty{},
 						F32: &XNamedError{},
 					},
-					F10: XUnionDepth1_AllF30{2.366591380614784e+06},
-					F11: XUnionDepth1_Float64F29{8.137462937121485e+07},
+					F10: XUnionDepth1_AllF30{Value: 2.366591380614784e+06},
+					F11: XUnionDepth1_Float64F29{Value: 8.137462937121485e+07},
 					F13: &XStructDepth1_XUint16{},
 				},
 			},
@@ -75401,12 +75356,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+		Target: XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -75414,12 +75369,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+		Target: XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -75428,16 +75383,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_All{F14: 510}",
-		Target:      XUnionDepth1_All(XUnionDepth1_AllF14{510}),
+		Target:      XUnionDepth1_All(XUnionDepth1_AllF14{Value: 510}),
 		SourceLabel: "XUnionDepth1_All{F14: 510}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{510}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{Value: 510}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_All{F14: 510}",
-		Target:      XUnionDepth1_All(XUnionDepth1_AllF14{510}),
+		Target:      XUnionDepth1_All(XUnionDepth1_AllF14{Value: 510}),
 		SourceLabel: "XUnionDepth1_XUint16{F14: 510}",
-		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{510}),
+		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 510}),
 	},
 	{
 		IsCanonical: true,
@@ -75458,37 +75413,37 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Any{F0: int64(-123)}",
-		Target:      XUnionDepth1_Any(XUnionDepth1_AnyF0{int64(-123)}),
+		Target:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: int64(-123)}),
 		SourceLabel: "XUnionDepth1_Any{F0: int64(-123)}",
-		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{int64(-123)}),
+		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: int64(-123)}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Any{F0: int64(-123)}",
-		Target:      XUnionDepth1_Any(XUnionDepth1_AnyF0{int64(-123)}),
+		Target:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: int64(-123)}),
 		SourceLabel: "XUnionDepth1_All{F0: int64(-123)}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF0{int64(-123)}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF0{Value: int64(-123)}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Any{F0: XStructDepth1_Uint32{F15: 4288875436}}",
-		Target: XUnionDepth1_Any(XUnionDepth1_AnyF0{XStructDepth1_Uint32{
+		Target: XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XStructDepth1_Uint32{
 			F15: 4288875436,
 		}}),
 		SourceLabel: "XUnionDepth1_Any{F0: XStructDepth1_Uint32{F15: 4288875436}}",
-		Source: XUnionDepth1_Any(XUnionDepth1_AnyF0{XStructDepth1_Uint32{
+		Source: XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XStructDepth1_Uint32{
 			F15: 4288875436,
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Any{F0: XStructDepth1_Uint32{F15: 4288875436}}",
-		Target: XUnionDepth1_Any(XUnionDepth1_AnyF0{XStructDepth1_Uint32{
+		Target: XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XStructDepth1_Uint32{
 			F15: 4288875436,
 		}}),
 		SourceLabel: "XUnionDepth1_All{F0: XStructDepth1_Uint32{F15: 4288875436}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF0{XStructDepth1_Uint32{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF0{Value: XStructDepth1_Uint32{
 			F15: 4288875436,
 		}}),
 	},
@@ -75511,16 +75466,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Bool{F1: true}",
-		Target:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{true}),
+		Target:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{Value: true}),
 		SourceLabel: "XUnionDepth1_Bool{F1: true}",
-		Source:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{true}),
+		Source:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{Value: true}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Bool{F1: true}",
-		Target:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{true}),
+		Target:      XUnionDepth1_Bool(XUnionDepth1_BoolF1{Value: true}),
 		SourceLabel: "XUnionDepth1_All{F1: true}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF1{true}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF1{Value: true}),
 	},
 	{
 		IsCanonical: true,
@@ -75541,16 +75496,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XBool{F2: true}",
-		Target:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{true}),
+		Target:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{Value: true}),
 		SourceLabel: "XUnionDepth1_XBool{F2: true}",
-		Source:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{true}),
+		Source:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{Value: true}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XBool{F2: true}",
-		Target:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{true}),
+		Target:      XUnionDepth1_XBool(XUnionDepth1_XBoolF2{Value: true}),
 		SourceLabel: "XUnionDepth1_All{F2: true}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF2{true}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF2{Value: true}),
 	},
 	{
 		IsCanonical: true,
@@ -75571,31 +75526,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "XUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      XUnionDepth1_String(XUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_String{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "XUnionDepth1_All{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF3{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF3{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_String{F3: \"eΔ\"}",
-		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{"eΔ"}),
+		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "eΔ"}),
 		SourceLabel: "XUnionDepth1_String{F3: \"eΔ\"}",
-		Source:      XUnionDepth1_String(XUnionDepth1_StringF3{"eΔ"}),
+		Source:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "eΔ"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_String{F3: \"eΔ\"}",
-		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{"eΔ"}),
+		Target:      XUnionDepth1_String(XUnionDepth1_StringF3{Value: "eΔ"}),
 		SourceLabel: "XUnionDepth1_All{F3: \"eΔ\"}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF3{"eΔ"}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF3{Value: "eΔ"}),
 	},
 	{
 		IsCanonical: true,
@@ -75616,76 +75571,76 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 		SourceLabel: "XUnionDepth1_All{F4: \"abcdeΔΘΠΣΦ王普澤世界\"}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF4{"abcdeΔΘΠΣΦ王普澤世界"}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF4{Value: "abcdeΔΘΠΣΦ王普澤世界"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普\"}",
-		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普"}),
+		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普"}),
 		SourceLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普\"}",
-		Source:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普"}),
+		Source:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普"}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XString{F4: \"abcdeΔΘΠΣΦ王普\"}",
-		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{"abcdeΔΘΠΣΦ王普"}),
+		Target:      XUnionDepth1_XString(XUnionDepth1_XStringF4{Value: "abcdeΔΘΠΣΦ王普"}),
 		SourceLabel: "XUnionDepth1_All{F4: \"abcdeΔΘΠΣΦ王普\"}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF4{"abcdeΔΘΠΣΦ王普"}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF4{Value: "abcdeΔΘΠΣΦ王普"}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		SourceLabel: "XUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(any)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.AnyType}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.AnyType}),
 		SourceLabel: "XUnionDepth1_All{F5: typeobject(any)}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{vdl.AnyType}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{Value: vdl.AnyType}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		SourceLabel: "XUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(int64)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.Int64Type}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.Int64Type}),
 		SourceLabel: "XUnionDepth1_All{F5: typeobject(int64)}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{vdl.Int64Type}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{Value: vdl.Int64Type}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 		SourceLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
+		Source:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_TypeObject{F5: typeobject(XUnionDepth1_Bool)}",
-		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
+		Target:      XUnionDepth1_TypeObject(XUnionDepth1_TypeObjectF5{Value: vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 		SourceLabel: "XUnionDepth1_All{F5: typeobject(XUnionDepth1_Bool)}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF5{Value: vdl.TypeOf((*XUnionDepth1_Bool)(nil))}),
 	},
 	{
 		IsCanonical: true,
@@ -75706,31 +75661,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Byte{F6: 123}",
-		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{123}),
+		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 123}),
 		SourceLabel: "XUnionDepth1_Byte{F6: 123}",
-		Source:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{123}),
+		Source:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Byte{F6: 123}",
-		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{123}),
+		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F6: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF6{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF6{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Byte{F6: 220}",
-		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{220}),
+		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 220}),
 		SourceLabel: "XUnionDepth1_Byte{F6: 220}",
-		Source:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{220}),
+		Source:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 220}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Byte{F6: 220}",
-		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{220}),
+		Target:      XUnionDepth1_Byte(XUnionDepth1_ByteF6{Value: 220}),
 		SourceLabel: "XUnionDepth1_All{F6: 220}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF6{220}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF6{Value: 220}),
 	},
 	{
 		IsCanonical: true,
@@ -75751,31 +75706,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XByte{F7: 123}",
-		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{123}),
+		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 123}),
 		SourceLabel: "XUnionDepth1_XByte{F7: 123}",
-		Source:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{123}),
+		Source:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XByte{F7: 123}",
-		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{123}),
+		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F7: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF7{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF7{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XByte{F7: 187}",
-		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{187}),
+		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 187}),
 		SourceLabel: "XUnionDepth1_XByte{F7: 187}",
-		Source:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{187}),
+		Source:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 187}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XByte{F7: 187}",
-		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{187}),
+		Target:      XUnionDepth1_XByte(XUnionDepth1_XByteF7{Value: 187}),
 		SourceLabel: "XUnionDepth1_All{F7: 187}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF7{187}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF7{Value: 187}),
 	},
 	{
 		IsCanonical: true,
@@ -75796,16 +75751,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XEnumAbc{F8: C}",
-		Target:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{XEnumAbcC}),
+		Target:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{Value: XEnumAbcC}),
 		SourceLabel: "XUnionDepth1_XEnumAbc{F8: C}",
-		Source:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{XEnumAbcC}),
+		Source:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{Value: XEnumAbcC}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XEnumAbc{F8: C}",
-		Target:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{XEnumAbcC}),
+		Target:      XUnionDepth1_XEnumAbc(XUnionDepth1_XEnumAbcF8{Value: XEnumAbcC}),
 		SourceLabel: "XUnionDepth1_All{F8: C}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF8{XEnumAbcC}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF8{Value: XEnumAbcC}),
 	},
 	{
 		IsCanonical: true,
@@ -75826,16 +75781,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XEnumBcd{F9: D}",
-		Target:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{XEnumBcdD}),
+		Target:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{Value: XEnumBcdD}),
 		SourceLabel: "XUnionDepth1_XEnumBcd{F9: D}",
-		Source:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{XEnumBcdD}),
+		Source:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{Value: XEnumBcdD}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XEnumBcd{F9: D}",
-		Target:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{XEnumBcdD}),
+		Target:      XUnionDepth1_XEnumBcd(XUnionDepth1_XEnumBcdF9{Value: XEnumBcdD}),
 		SourceLabel: "XUnionDepth1_All{F9: D}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF9{XEnumBcdD}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF9{Value: XEnumBcdD}),
 	},
 	{
 		IsCanonical: true,
@@ -75871,12 +75826,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_XNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Source: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -75884,12 +75839,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XNamedError{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF11{XNamedError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF11{Value: XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -75898,22 +75853,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XNamedError{F11: {Msg: \"ΘΠΣΦ\"}}",
-		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Msg: "ΘΠΣΦ",
 		}}),
 		SourceLabel: "XUnionDepth1_XNamedError{F11: {Msg: \"ΘΠΣΦ\"}}",
-		Source: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Source: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Msg: "ΘΠΣΦ",
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XNamedError{F11: {Msg: \"ΘΠΣΦ\"}}",
-		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{XNamedError{
+		Target: XUnionDepth1_XNamedError(XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 			Msg: "ΘΠΣΦ",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F11: {Msg: \"ΘΠΣΦ\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF11{XNamedError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF11{Value: XNamedError{
 			Msg: "ΘΠΣΦ",
 		}}),
 	},
@@ -75936,13 +75891,13 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
 		})}),
 		SourceLabel: "XUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Source: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -75951,13 +75906,13 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Error{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
 		})}),
 		SourceLabel: "XUnionDepth1_All{F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 			Id:        "abcdeΔΘΠΣΦ王普澤世界",
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
 			Msg:       "abcdeΔΘΠΣΦ王普澤世界",
@@ -75967,12 +75922,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Error{F12: {Id: \"deΔΘΠΣΦ王\", Msg: \"eΔΘ\"}}",
-		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "deΔΘΠΣΦ王",
 			Msg: "eΔΘ",
 		})}),
 		SourceLabel: "XUnionDepth1_Error{F12: {Id: \"deΔΘΠΣΦ王\", Msg: \"eΔΘ\"}}",
-		Source: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Source: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "deΔΘΠΣΦ王",
 			Msg: "eΔΘ",
 		})}),
@@ -75980,12 +75935,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Error{F12: {Id: \"deΔΘΠΣΦ王\", Msg: \"eΔΘ\"}}",
-		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{verror.FromWire(&vdl.WireError{
+		Target: XUnionDepth1_Error(XUnionDepth1_ErrorF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "deΔΘΠΣΦ王",
 			Msg: "eΔΘ",
 		})}),
 		SourceLabel: "XUnionDepth1_All{F12: {Id: \"deΔΘΠΣΦ王\", Msg: \"eΔΘ\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF12{verror.FromWire(&vdl.WireError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF12{Value: verror.FromWire(&vdl.WireError{
 			Id:  "deΔΘΠΣΦ王",
 			Msg: "eΔΘ",
 		})}),
@@ -76009,31 +75964,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint16{F13: 123}",
-		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{123}),
+		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 123}),
 		SourceLabel: "XUnionDepth1_Uint16{F13: 123}",
-		Source:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{123}),
+		Source:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint16{F13: 123}",
-		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{123}),
+		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F13: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF13{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF13{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint16{F13: 8576}",
-		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{8576}),
+		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 8576}),
 		SourceLabel: "XUnionDepth1_Uint16{F13: 8576}",
-		Source:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{8576}),
+		Source:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 8576}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint16{F13: 8576}",
-		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{8576}),
+		Target:      XUnionDepth1_Uint16(XUnionDepth1_Uint16F13{Value: 8576}),
 		SourceLabel: "XUnionDepth1_All{F13: 8576}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF13{8576}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF13{Value: 8576}),
 	},
 	{
 		IsCanonical: true,
@@ -76054,31 +76009,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint16{F14: 123}",
-		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{123}),
+		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 123}),
 		SourceLabel: "XUnionDepth1_XUint16{F14: 123}",
-		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{123}),
+		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint16{F14: 123}",
-		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{123}),
+		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F14: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint16{F14: 3322}",
-		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{3322}),
+		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 3322}),
 		SourceLabel: "XUnionDepth1_XUint16{F14: 3322}",
-		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{3322}),
+		Source:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 3322}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint16{F14: 3322}",
-		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{3322}),
+		Target:      XUnionDepth1_XUint16(XUnionDepth1_XUint16F14{Value: 3322}),
 		SourceLabel: "XUnionDepth1_All{F14: 3322}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{3322}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF14{Value: 3322}),
 	},
 	{
 		IsCanonical: true,
@@ -76099,31 +76054,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint32{F15: 123}",
-		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{123}),
+		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 123}),
 		SourceLabel: "XUnionDepth1_Uint32{F15: 123}",
-		Source:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{123}),
+		Source:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint32{F15: 123}",
-		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{123}),
+		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F15: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF15{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF15{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint32{F15: 4044022484}",
-		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{4044022484}),
+		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 4044022484}),
 		SourceLabel: "XUnionDepth1_Uint32{F15: 4044022484}",
-		Source:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{4044022484}),
+		Source:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 4044022484}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint32{F15: 4044022484}",
-		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{4044022484}),
+		Target:      XUnionDepth1_Uint32(XUnionDepth1_Uint32F15{Value: 4044022484}),
 		SourceLabel: "XUnionDepth1_All{F15: 4044022484}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF15{4044022484}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF15{Value: 4044022484}),
 	},
 	{
 		IsCanonical: true,
@@ -76144,31 +76099,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint32{F16: 123}",
-		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{123}),
+		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 123}),
 		SourceLabel: "XUnionDepth1_XUint32{F16: 123}",
-		Source:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{123}),
+		Source:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint32{F16: 123}",
-		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{123}),
+		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F16: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF16{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF16{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint32{F16: 2032043449}",
-		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{2032043449}),
+		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 2032043449}),
 		SourceLabel: "XUnionDepth1_XUint32{F16: 2032043449}",
-		Source:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{2032043449}),
+		Source:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 2032043449}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint32{F16: 2032043449}",
-		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{2032043449}),
+		Target:      XUnionDepth1_XUint32(XUnionDepth1_XUint32F16{Value: 2032043449}),
 		SourceLabel: "XUnionDepth1_All{F16: 2032043449}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF16{2032043449}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF16{Value: 2032043449}),
 	},
 	{
 		IsCanonical: true,
@@ -76189,31 +76144,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint64{F17: 123}",
-		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{123}),
+		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 123}),
 		SourceLabel: "XUnionDepth1_Uint64{F17: 123}",
-		Source:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{123}),
+		Source:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Uint64{F17: 123}",
-		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{123}),
+		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F17: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF17{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF17{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint64{F17: 15489787000916437827}",
-		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{15489787000916437827}),
+		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 15489787000916437827}),
 		SourceLabel: "XUnionDepth1_Uint64{F17: 15489787000916437827}",
-		Source:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{15489787000916437827}),
+		Source:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 15489787000916437827}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Uint64{F17: 15489787000916437827}",
-		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{15489787000916437827}),
+		Target:      XUnionDepth1_Uint64(XUnionDepth1_Uint64F17{Value: 15489787000916437827}),
 		SourceLabel: "XUnionDepth1_All{F17: 15489787000916437827}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF17{15489787000916437827}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF17{Value: 15489787000916437827}),
 	},
 	{
 		IsCanonical: true,
@@ -76234,31 +76189,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint64{F18: 123}",
-		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{123}),
+		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 123}),
 		SourceLabel: "XUnionDepth1_XUint64{F18: 123}",
-		Source:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{123}),
+		Source:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XUint64{F18: 123}",
-		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{123}),
+		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 123}),
 		SourceLabel: "XUnionDepth1_All{F18: 123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF18{123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF18{Value: 123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint64{F18: 365446184533752905}",
-		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{365446184533752905}),
+		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 365446184533752905}),
 		SourceLabel: "XUnionDepth1_XUint64{F18: 365446184533752905}",
-		Source:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{365446184533752905}),
+		Source:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 365446184533752905}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XUint64{F18: 365446184533752905}",
-		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{365446184533752905}),
+		Target:      XUnionDepth1_XUint64(XUnionDepth1_XUint64F18{Value: 365446184533752905}),
 		SourceLabel: "XUnionDepth1_All{F18: 365446184533752905}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF18{365446184533752905}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF18{Value: 365446184533752905}),
 	},
 	{
 		IsCanonical: true,
@@ -76279,31 +76234,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int8{F19: -123}",
-		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-123}),
+		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -123}),
 		SourceLabel: "XUnionDepth1_Int8{F19: -123}",
-		Source:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-123}),
+		Source:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int8{F19: -123}",
-		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-123}),
+		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F19: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF19{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF19{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int8{F19: -48}",
-		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-48}),
+		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -48}),
 		SourceLabel: "XUnionDepth1_Int8{F19: -48}",
-		Source:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-48}),
+		Source:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -48}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int8{F19: -48}",
-		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{-48}),
+		Target:      XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -48}),
 		SourceLabel: "XUnionDepth1_All{F19: -48}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF19{-48}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF19{Value: -48}),
 	},
 	{
 		IsCanonical: true,
@@ -76324,31 +76279,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt8{F20: -123}",
-		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{-123}),
+		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: -123}),
 		SourceLabel: "XUnionDepth1_XInt8{F20: -123}",
-		Source:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{-123}),
+		Source:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt8{F20: -123}",
-		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{-123}),
+		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F20: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF20{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF20{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt8{F20: 34}",
-		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{34}),
+		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: 34}),
 		SourceLabel: "XUnionDepth1_XInt8{F20: 34}",
-		Source:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{34}),
+		Source:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: 34}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt8{F20: 34}",
-		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{34}),
+		Target:      XUnionDepth1_XInt8(XUnionDepth1_XInt8F20{Value: 34}),
 		SourceLabel: "XUnionDepth1_All{F20: 34}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF20{34}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF20{Value: 34}),
 	},
 	{
 		IsCanonical: true,
@@ -76369,31 +76324,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int16{F21: -123}",
-		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{-123}),
+		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: -123}),
 		SourceLabel: "XUnionDepth1_Int16{F21: -123}",
-		Source:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{-123}),
+		Source:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int16{F21: -123}",
-		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{-123}),
+		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F21: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF21{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF21{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int16{F21: 1423}",
-		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{1423}),
+		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: 1423}),
 		SourceLabel: "XUnionDepth1_Int16{F21: 1423}",
-		Source:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{1423}),
+		Source:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: 1423}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int16{F21: 1423}",
-		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{1423}),
+		Target:      XUnionDepth1_Int16(XUnionDepth1_Int16F21{Value: 1423}),
 		SourceLabel: "XUnionDepth1_All{F21: 1423}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF21{1423}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF21{Value: 1423}),
 	},
 	{
 		IsCanonical: true,
@@ -76414,31 +76369,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt16{F22: -123}",
-		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{-123}),
+		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: -123}),
 		SourceLabel: "XUnionDepth1_XInt16{F22: -123}",
-		Source:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{-123}),
+		Source:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt16{F22: -123}",
-		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{-123}),
+		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F22: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF22{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF22{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt16{F22: 5537}",
-		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{5537}),
+		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: 5537}),
 		SourceLabel: "XUnionDepth1_XInt16{F22: 5537}",
-		Source:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{5537}),
+		Source:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: 5537}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt16{F22: 5537}",
-		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{5537}),
+		Target:      XUnionDepth1_XInt16(XUnionDepth1_XInt16F22{Value: 5537}),
 		SourceLabel: "XUnionDepth1_All{F22: 5537}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF22{5537}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF22{Value: 5537}),
 	},
 	{
 		IsCanonical: true,
@@ -76459,31 +76414,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int32{F23: -123}",
-		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{-123}),
+		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: -123}),
 		SourceLabel: "XUnionDepth1_Int32{F23: -123}",
-		Source:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{-123}),
+		Source:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int32{F23: -123}",
-		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{-123}),
+		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F23: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF23{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF23{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int32{F23: 619713044}",
-		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{619713044}),
+		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: 619713044}),
 		SourceLabel: "XUnionDepth1_Int32{F23: 619713044}",
-		Source:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{619713044}),
+		Source:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: 619713044}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int32{F23: 619713044}",
-		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{619713044}),
+		Target:      XUnionDepth1_Int32(XUnionDepth1_Int32F23{Value: 619713044}),
 		SourceLabel: "XUnionDepth1_All{F23: 619713044}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF23{619713044}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF23{Value: 619713044}),
 	},
 	{
 		IsCanonical: true,
@@ -76504,31 +76459,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt32{F24: -123}",
-		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{-123}),
+		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: -123}),
 		SourceLabel: "XUnionDepth1_XInt32{F24: -123}",
-		Source:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{-123}),
+		Source:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt32{F24: -123}",
-		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{-123}),
+		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F24: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF24{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF24{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt32{F24: 935002762}",
-		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{935002762}),
+		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: 935002762}),
 		SourceLabel: "XUnionDepth1_XInt32{F24: 935002762}",
-		Source:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{935002762}),
+		Source:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: 935002762}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt32{F24: 935002762}",
-		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{935002762}),
+		Target:      XUnionDepth1_XInt32(XUnionDepth1_XInt32F24{Value: 935002762}),
 		SourceLabel: "XUnionDepth1_All{F24: 935002762}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF24{935002762}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF24{Value: 935002762}),
 	},
 	{
 		IsCanonical: true,
@@ -76549,31 +76504,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int64{F25: -123}",
-		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-123}),
+		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -123}),
 		SourceLabel: "XUnionDepth1_Int64{F25: -123}",
-		Source:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-123}),
+		Source:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Int64{F25: -123}",
-		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-123}),
+		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F25: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF25{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF25{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int64{F25: -4236093799481940262}",
-		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-4236093799481940262}),
+		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -4236093799481940262}),
 		SourceLabel: "XUnionDepth1_Int64{F25: -4236093799481940262}",
-		Source:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-4236093799481940262}),
+		Source:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -4236093799481940262}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Int64{F25: -4236093799481940262}",
-		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{-4236093799481940262}),
+		Target:      XUnionDepth1_Int64(XUnionDepth1_Int64F25{Value: -4236093799481940262}),
 		SourceLabel: "XUnionDepth1_All{F25: -4236093799481940262}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF25{-4236093799481940262}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF25{Value: -4236093799481940262}),
 	},
 	{
 		IsCanonical: true,
@@ -76594,31 +76549,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt64{F26: -123}",
-		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-123}),
+		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -123}),
 		SourceLabel: "XUnionDepth1_XInt64{F26: -123}",
-		Source:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-123}),
+		Source:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -123}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XInt64{F26: -123}",
-		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-123}),
+		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -123}),
 		SourceLabel: "XUnionDepth1_All{F26: -123}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF26{-123}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF26{Value: -123}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt64{F26: -3261228450527297986}",
-		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-3261228450527297986}),
+		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -3261228450527297986}),
 		SourceLabel: "XUnionDepth1_XInt64{F26: -3261228450527297986}",
-		Source:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-3261228450527297986}),
+		Source:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -3261228450527297986}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XInt64{F26: -3261228450527297986}",
-		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{-3261228450527297986}),
+		Target:      XUnionDepth1_XInt64(XUnionDepth1_XInt64F26{Value: -3261228450527297986}),
 		SourceLabel: "XUnionDepth1_All{F26: -3261228450527297986}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF26{-3261228450527297986}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF26{Value: -3261228450527297986}),
 	},
 	{
 		IsCanonical: true,
@@ -76639,31 +76594,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Float32{F27: 1.5}",
-		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{1.5}),
+		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_Float32{F27: 1.5}",
-		Source:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{1.5}),
+		Source:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Float32{F27: 1.5}",
-		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{1.5}),
+		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_All{F27: 1.5}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF27{1.5}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF27{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Float32{F27: -3.361987e+09}",
-		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{-3.361987e+09}),
+		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: -3.361987e+09}),
 		SourceLabel: "XUnionDepth1_Float32{F27: -3.361987e+09}",
-		Source:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{-3.361987e+09}),
+		Source:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: -3.361987e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Float32{F27: -3.361987e+09}",
-		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{-3.361987e+09}),
+		Target:      XUnionDepth1_Float32(XUnionDepth1_Float32F27{Value: -3.361987e+09}),
 		SourceLabel: "XUnionDepth1_All{F27: -3.361987e+09}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF27{-3.361987e+09}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF27{Value: -3.361987e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -76684,31 +76639,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XFloat32{F28: 1.5}",
-		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{1.5}),
+		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_XFloat32{F28: 1.5}",
-		Source:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{1.5}),
+		Source:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XFloat32{F28: 1.5}",
-		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{1.5}),
+		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_All{F28: 1.5}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF28{1.5}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF28{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XFloat32{F28: -6.4752954e+08}",
-		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{-6.4752954e+08}),
+		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: -6.4752954e+08}),
 		SourceLabel: "XUnionDepth1_XFloat32{F28: -6.4752954e+08}",
-		Source:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{-6.4752954e+08}),
+		Source:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: -6.4752954e+08}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XFloat32{F28: -6.4752954e+08}",
-		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{-6.4752954e+08}),
+		Target:      XUnionDepth1_XFloat32(XUnionDepth1_XFloat32F28{Value: -6.4752954e+08}),
 		SourceLabel: "XUnionDepth1_All{F28: -6.4752954e+08}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF28{-6.4752954e+08}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF28{Value: -6.4752954e+08}),
 	},
 	{
 		IsCanonical: true,
@@ -76729,31 +76684,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Float64{F29: 1.5}",
-		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.5}),
+		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_Float64{F29: 1.5}",
-		Source:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.5}),
+		Source:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_Float64{F29: 1.5}",
-		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.5}),
+		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_All{F29: 1.5}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF29{1.5}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF29{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Float64{F29: 1.1618464643248394e+09}",
-		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.1618464643248394e+09}),
+		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.1618464643248394e+09}),
 		SourceLabel: "XUnionDepth1_Float64{F29: 1.1618464643248394e+09}",
-		Source:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.1618464643248394e+09}),
+		Source:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.1618464643248394e+09}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_Float64{F29: 1.1618464643248394e+09}",
-		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{1.1618464643248394e+09}),
+		Target:      XUnionDepth1_Float64(XUnionDepth1_Float64F29{Value: 1.1618464643248394e+09}),
 		SourceLabel: "XUnionDepth1_All{F29: 1.1618464643248394e+09}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF29{1.1618464643248394e+09}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF29{Value: 1.1618464643248394e+09}),
 	},
 	{
 		IsCanonical: true,
@@ -76774,31 +76729,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XFloat64{F30: 1.5}",
-		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.5}),
+		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_XFloat64{F30: 1.5}",
-		Source:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.5}),
+		Source:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.5}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_XFloat64{F30: 1.5}",
-		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{1.5}),
+		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: 1.5}),
 		SourceLabel: "XUnionDepth1_All{F30: 1.5}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF30{1.5}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF30{Value: 1.5}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XFloat64{F30: -1.4789866739446236e+07}",
-		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{-1.4789866739446236e+07}),
+		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: -1.4789866739446236e+07}),
 		SourceLabel: "XUnionDepth1_XFloat64{F30: -1.4789866739446236e+07}",
-		Source:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{-1.4789866739446236e+07}),
+		Source:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: -1.4789866739446236e+07}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_XFloat64{F30: -1.4789866739446236e+07}",
-		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{-1.4789866739446236e+07}),
+		Target:      XUnionDepth1_XFloat64(XUnionDepth1_XFloat64F30{Value: -1.4789866739446236e+07}),
 		SourceLabel: "XUnionDepth1_All{F30: -1.4789866739446236e+07}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF30{-1.4789866739446236e+07}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF30{Value: -1.4789866739446236e+07}),
 	},
 	{
 		IsCanonical: true,
@@ -76819,16 +76774,16 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_OptXStructEmpty{F31: {}}",
-		Target:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{&XStructEmpty{}}),
+		Target:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{Value: &XStructEmpty{}}),
 		SourceLabel: "XUnionDepth1_OptXStructEmpty{F31: {}}",
-		Source:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{&XStructEmpty{}}),
+		Source:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{Value: &XStructEmpty{}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_OptXStructEmpty{F31: {}}",
-		Target:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{&XStructEmpty{}}),
+		Target:      XUnionDepth1_OptXStructEmpty(XUnionDepth1_OptXStructEmptyF31{Value: &XStructEmpty{}}),
 		SourceLabel: "XUnionDepth1_All{F31: {}}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF31{&XStructEmpty{}}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF31{Value: &XStructEmpty{}}),
 	},
 	{
 		IsCanonical: true,
@@ -76849,12 +76804,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -76862,12 +76817,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}),
@@ -76876,12 +76831,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"b\", Msg: \"b\"}}",
-		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "b",
 			Msg: "b",
 		}}),
 		SourceLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"b\", Msg: \"b\"}}",
-		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Source: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "b",
 			Msg: "b",
 		}}),
@@ -76889,12 +76844,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth1_OptXNamedError{F32: {Id: \"b\", Msg: \"b\"}}",
-		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{&XNamedError{
+		Target: XUnionDepth1_OptXNamedError(XUnionDepth1_OptXNamedErrorF32{Value: &XNamedError{
 			Id:  "b",
 			Msg: "b",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F32: {Id: \"b\", Msg: \"b\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "b",
 			Msg: "b",
 		}}),
@@ -77864,7 +77819,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray2_XStructDepth1_All{{F0: XUnionDepth1_Int8{F19: -62}, F1: true, F3: \"世\", F4: \"deΔ\", F5: typeobject(XUint16), F6: 143, F7: 188, F8: C, F11: {Id: \"王\", Msg: \"de\"}, F13: 23073, F15: 3211786920, F16: 4055101316, F18: 2330407595319300152, F19: 59, F20: 32, F22: 8034, F23: -351103322, F25: -4503741137733196850, F26: 924768865288423865, F27: -7.7118104e+07, F29: -1.1185637133852577e+09, F31: {}, F32: {Id: \"ΠΣ\", Msg: \"abc\"}}, {F0: XStructDepth1_XNamedError{F11: {Id: \"bcdeΔΘΠΣΦ王普澤\", Msg: \"c\"}}, F1: true, F3: \"bcdeΔΘΠΣΦ王普澤世界\", F4: \"ΠΣΦ王\", F5: typeobject(XList_XMap_Byte_Byte), F6: 86, F8: B, F9: D, F12: {Id: \"d\", RetryCode: RetryConnection, Msg: \"Φ王\"}, F13: 65505, F14: 21372, F15: 1512699580, F16: 2069621953, F17: 18415744568491267796, F18: 3693349276499043179, F19: -53, F22: -14420, F25: 1205935434964997754, F27: 1.1920091e+09, F28: -1.9556054e+09, F30: 1.254703076891001e+09, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Target: XArray2_XStructDepth1_All{
 			{
-				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{-62}),
+				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -62}),
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
@@ -77935,7 +77890,7 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XArray2_XStructDepth1_All{{F0: XUnionDepth1_Int8{F19: -62}, F1: true, F3: \"世\", F4: \"deΔ\", F5: typeobject(XUint16), F6: 143, F7: 188, F8: C, F11: {Id: \"王\", Msg: \"de\"}, F13: 23073, F15: 3211786920, F16: 4055101316, F18: 2330407595319300152, F19: 59, F20: 32, F22: 8034, F23: -351103322, F25: -4503741137733196850, F26: 924768865288423865, F27: -7.7118104e+07, F29: -1.1185637133852577e+09, F31: {}, F32: {Id: \"ΠΣ\", Msg: \"abc\"}}, {F0: XStructDepth1_XNamedError{F11: {Id: \"bcdeΔΘΠΣΦ王普澤\", Msg: \"c\"}}, F1: true, F3: \"bcdeΔΘΠΣΦ王普澤世界\", F4: \"ΠΣΦ王\", F5: typeobject(XList_XMap_Byte_Byte), F6: 86, F8: B, F9: D, F12: {Id: \"d\", RetryCode: RetryConnection, Msg: \"Φ王\"}, F13: 65505, F14: 21372, F15: 1512699580, F16: 2069621953, F17: 18415744568491267796, F18: 3693349276499043179, F19: -53, F22: -14420, F25: 1205935434964997754, F27: 1.1920091e+09, F28: -1.9556054e+09, F30: 1.254703076891001e+09, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Source: XArray2_XStructDepth1_All{
 			{
-				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{-62}),
+				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -62}),
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
@@ -78009,7 +77964,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray2_XStructDepth1_All{{F0: XUnionDepth1_Int8{F19: -62}, F1: true, F3: \"世\", F4: \"deΔ\", F5: typeobject(XUint16), F6: 143, F7: 188, F8: C, F11: {Id: \"王\", Msg: \"de\"}, F13: 23073, F15: 3211786920, F16: 4055101316, F18: 2330407595319300152, F19: 59, F20: 32, F22: 8034, F23: -351103322, F25: -4503741137733196850, F26: 924768865288423865, F27: -7.7118104e+07, F29: -1.1185637133852577e+09, F31: {}, F32: {Id: \"ΠΣ\", Msg: \"abc\"}}, {F0: XStructDepth1_XNamedError{F11: {Id: \"bcdeΔΘΠΣΦ王普澤\", Msg: \"c\"}}, F1: true, F3: \"bcdeΔΘΠΣΦ王普澤世界\", F4: \"ΠΣΦ王\", F5: typeobject(XList_XMap_Byte_Byte), F6: 86, F8: B, F9: D, F12: {Id: \"d\", RetryCode: RetryConnection, Msg: \"Φ王\"}, F13: 65505, F14: 21372, F15: 1512699580, F16: 2069621953, F17: 18415744568491267796, F18: 3693349276499043179, F19: -53, F22: -14420, F25: 1205935434964997754, F27: 1.1920091e+09, F28: -1.9556054e+09, F30: 1.254703076891001e+09, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Target: XArray2_XStructDepth1_All{
 			{
-				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{-62}),
+				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -62}),
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
@@ -78080,7 +78035,7 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "[]any{XStructDepth1_All{F0: XUnionDepth1_Int8{F19: -62}, F1: true, F3: \"世\", F4: \"deΔ\", F5: typeobject(XUint16), F6: 143, F7: 188, F8: C, F11: {Id: \"王\", Msg: \"de\"}, F13: 23073, F15: 3211786920, F16: 4055101316, F18: 2330407595319300152, F19: 59, F20: 32, F22: 8034, F23: -351103322, F25: -4503741137733196850, F26: 924768865288423865, F27: -7.7118104e+07, F29: -1.1185637133852577e+09, F31: {}, F32: {Id: \"ΠΣ\", Msg: \"abc\"}}, XStructDepth1_All{F0: XStructDepth1_XNamedError{F11: {Id: \"bcdeΔΘΠΣΦ王普澤\", Msg: \"c\"}}, F1: true, F3: \"bcdeΔΘΠΣΦ王普澤世界\", F4: \"ΠΣΦ王\", F5: typeobject(XList_XMap_Byte_Byte), F6: 86, F8: B, F9: D, F12: {Id: \"d\", RetryCode: RetryConnection, Msg: \"Φ王\"}, F13: 65505, F14: 21372, F15: 1512699580, F16: 2069621953, F17: 18415744568491267796, F18: 3693349276499043179, F19: -53, F22: -14420, F25: 1205935434964997754, F27: 1.1920091e+09, F28: -1.9556054e+09, F30: 1.254703076891001e+09, F31: {}, F32: {Id: \"eΔΘΠΣΦ王\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Source: []interface{}{
 			XStructDepth1_All{
-				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{-62}),
+				F0: XUnionDepth1_Int8(XUnionDepth1_Int8F19{Value: -62}),
 				F1: true,
 				F3: "世",
 				F4: "deΔ",
@@ -78200,30 +78155,30 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XArray3_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "XArray3_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -78233,30 +78188,30 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XArray3_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "XList_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XList_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -78267,30 +78222,30 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XArray3_XUnionDepth1_All{{F5: typeobject(any)}, {F22: 4626}, {F30: -1.0107631359304602e+09}}",
 		Target: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF5{vdl.AnyType},
-			XUnionDepth1_AllF22{4626},
-			XUnionDepth1_AllF30{-1.0107631359304602e+09},
+			XUnionDepth1_AllF5{Value: vdl.AnyType},
+			XUnionDepth1_AllF22{Value: 4626},
+			XUnionDepth1_AllF30{Value: -1.0107631359304602e+09},
 		},
 		SourceLabel: "XArray3_XUnionDepth1_All{{F5: typeobject(any)}, {F22: 4626}, {F30: -1.0107631359304602e+09}}",
 		Source: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF5{vdl.AnyType},
-			XUnionDepth1_AllF22{4626},
-			XUnionDepth1_AllF30{-1.0107631359304602e+09},
+			XUnionDepth1_AllF5{Value: vdl.AnyType},
+			XUnionDepth1_AllF22{Value: 4626},
+			XUnionDepth1_AllF30{Value: -1.0107631359304602e+09},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XArray3_XUnionDepth1_All{{F5: typeobject(any)}, {F22: 4626}, {F30: -1.0107631359304602e+09}}",
 		Target: XArray3_XUnionDepth1_All{
-			XUnionDepth1_AllF5{vdl.AnyType},
-			XUnionDepth1_AllF22{4626},
-			XUnionDepth1_AllF30{-1.0107631359304602e+09},
+			XUnionDepth1_AllF5{Value: vdl.AnyType},
+			XUnionDepth1_AllF22{Value: 4626},
+			XUnionDepth1_AllF30{Value: -1.0107631359304602e+09},
 		},
 		SourceLabel: "[]XUnionDepth1_All{{F5: typeobject(any)}, {F22: 4626}, {F30: -1.0107631359304602e+09}}",
 		Source: []XUnionDepth1_All{
-			XUnionDepth1_AllF5{vdl.AnyType},
-			XUnionDepth1_AllF22{4626},
-			XUnionDepth1_AllF30{-1.0107631359304602e+09},
+			XUnionDepth1_AllF5{Value: vdl.AnyType},
+			XUnionDepth1_AllF22{Value: 4626},
+			XUnionDepth1_AllF30{Value: -1.0107631359304602e+09},
 		},
 	},
 	{
@@ -79094,14 +79049,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: []XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -79111,14 +79066,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: []XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]any{XUnionDepth1_All{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []interface{}{
-			XUnionDepth1_All(XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_All(XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}),
@@ -79902,14 +79857,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XList_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XList_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "XList_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XList_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -79919,14 +79874,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XList_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XList_XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "[]XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: []XUnionDepth1_All{
-			XUnionDepth1_AllF32{&XNamedError{
+			XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -79938,13 +79893,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XUnionDepth1_All{{F0: nil}, {F29: 2.950166179061692e+08}, {F3: \"\"}}",
 		Target: XList_XUnionDepth1_All{
 			XUnionDepth1_AllF0{},
-			XUnionDepth1_AllF29{2.950166179061692e+08},
+			XUnionDepth1_AllF29{Value: 2.950166179061692e+08},
 			XUnionDepth1_AllF3{},
 		},
 		SourceLabel: "XList_XUnionDepth1_All{{F0: nil}, {F29: 2.950166179061692e+08}, {F3: \"\"}}",
 		Source: XList_XUnionDepth1_All{
 			XUnionDepth1_AllF0{},
-			XUnionDepth1_AllF29{2.950166179061692e+08},
+			XUnionDepth1_AllF29{Value: 2.950166179061692e+08},
 			XUnionDepth1_AllF3{},
 		},
 	},
@@ -79953,13 +79908,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XUnionDepth1_All{{F0: nil}, {F29: 2.950166179061692e+08}, {F3: \"\"}}",
 		Target: XList_XUnionDepth1_All{
 			XUnionDepth1_AllF0{},
-			XUnionDepth1_AllF29{2.950166179061692e+08},
+			XUnionDepth1_AllF29{Value: 2.950166179061692e+08},
 			XUnionDepth1_AllF3{},
 		},
 		SourceLabel: "[]XUnionDepth1_All{{F0: nil}, {F29: 2.950166179061692e+08}, {F3: \"\"}}",
 		Source: []XUnionDepth1_All{
 			XUnionDepth1_AllF0{},
-			XUnionDepth1_AllF29{2.950166179061692e+08},
+			XUnionDepth1_AllF29{Value: 2.950166179061692e+08},
 			XUnionDepth1_AllF3{},
 		},
 	},
@@ -80111,14 +80066,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[XUnionDepth1_XNamedError]struct{}{
-			XUnionDepth1_XNamedErrorF11{XNamedError{
+			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth1_XNamedError]struct{}{
-			XUnionDepth1_XNamedErrorF11{XNamedError{
+			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
@@ -80129,14 +80084,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤\", Msg: \"abcdeΔΘΠΣΦ王普\"}}}",
 		Target: map[XUnionDepth1_XNamedError]struct{}{
-			XUnionDepth1_XNamedErrorF11{XNamedError{
+			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤",
 				Msg: "abcdeΔΘΠΣΦ王普",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤\", Msg: \"abcdeΔΘΠΣΦ王普\"}}}",
 		Source: map[XUnionDepth1_XNamedError]struct{}{
-			XUnionDepth1_XNamedErrorF11{XNamedError{
+			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤",
 				Msg: "abcdeΔΘΠΣΦ王普",
 			}}: struct{}{},
@@ -80229,11 +80184,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XUnionDepth1_XInt8{{F20: -123}}",
 		Target: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{-123}: struct{}{},
+			XUnionDepth1_XInt8F20{Value: -123}: struct{}{},
 		},
 		SourceLabel: "XSet_XUnionDepth1_XInt8{{F20: -123}}",
 		Source: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{-123}: struct{}{},
+			XUnionDepth1_XInt8F20{Value: -123}: struct{}{},
 		},
 	},
 	{
@@ -80403,11 +80358,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Target: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-			XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+			XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}",
 		Source: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-			XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+			XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
@@ -80415,11 +80370,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 0}: {F29: -3.2099909632065117e+07}}",
 		Target: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-			XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-3.2099909632065117e+07},
+			XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -3.2099909632065117e+07},
 		},
 		SourceLabel: "map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 0}: {F29: -3.2099909632065117e+07}}",
 		Source: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-			XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-3.2099909632065117e+07},
+			XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -3.2099909632065117e+07},
 		},
 	},
 	{
@@ -80513,11 +80468,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{{F18: 123}: {F18: 123}}",
 		Target: XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{
-			XUnionDepth1_XUint64F18{123}: XUnionDepth1_XUint64F18{123},
+			XUnionDepth1_XUint64F18{Value: 123}: XUnionDepth1_XUint64F18{Value: 123},
 		},
 		SourceLabel: "XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{{F18: 123}: {F18: 123}}",
 		Source: XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{
-			XUnionDepth1_XUint64F18{123}: XUnionDepth1_XUint64F18{123},
+			XUnionDepth1_XUint64F18{Value: 123}: XUnionDepth1_XUint64F18{Value: 123},
 		},
 	},
 	{
@@ -80525,11 +80480,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{{F18: 0}: {F18: 17420072968693614323}}",
 		Target: XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{
-			XUnionDepth1_XUint64F18{}: XUnionDepth1_XUint64F18{17420072968693614323},
+			XUnionDepth1_XUint64F18{}: XUnionDepth1_XUint64F18{Value: 17420072968693614323},
 		},
 		SourceLabel: "XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{{F18: 0}: {F18: 17420072968693614323}}",
 		Source: XMap_XUnionDepth1_XUint64_XUnionDepth1_XUint64{
-			XUnionDepth1_XUint64F18{}: XUnionDepth1_XUint64F18{17420072968693614323},
+			XUnionDepth1_XUint64F18{}: XUnionDepth1_XUint64F18{Value: 17420072968693614323},
 		},
 	},
 	{
@@ -80671,11 +80626,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -80757,11 +80712,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -80830,7 +80785,7 @@ var xAllPass = []vdlEntry{
 				F30: -3.394175396032138e+07,
 				F32: &XNamedError{},
 			},
-			F10: XUnionDepth1_AllF7{187},
+			F10: XUnionDepth1_AllF7{Value: 187},
 			F11: XUnionDepth1_Float64F29{},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdC,
@@ -80894,7 +80849,7 @@ var xAllPass = []vdlEntry{
 				F30: -3.394175396032138e+07,
 				F32: &XNamedError{},
 			},
-			F10: XUnionDepth1_AllF7{187},
+			F10: XUnionDepth1_AllF7{Value: 187},
 			F11: XUnionDepth1_Float64F29{},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdC,
@@ -82274,14 +82229,14 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XStructDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
 		},
 		SourceLabel: "XStructDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -82291,7 +82246,7 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XStructDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -82305,7 +82260,7 @@ var xAllPass = []vdlEntry{
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
@@ -82317,18 +82272,18 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth2_XUnionDepth1_All{F10: {F26: -368579100129697723}}",
 		Target: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF26{-368579100129697723},
+			F10: XUnionDepth1_AllF26{Value: -368579100129697723},
 		},
 		SourceLabel: "XStructDepth2_XUnionDepth1_All{F10: {F26: -368579100129697723}}",
 		Source: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF26{-368579100129697723},
+			F10: XUnionDepth1_AllF26{Value: -368579100129697723},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth2_XUnionDepth1_All{F10: {F26: -368579100129697723}}",
 		Target: XStructDepth2_XUnionDepth1_All{
-			F10: XUnionDepth1_AllF26{-368579100129697723},
+			F10: XUnionDepth1_AllF26{Value: -368579100129697723},
 		},
 		SourceLabel: "XStructDepth2_All{F10: {F26: -368579100129697723}}",
 		Source: XStructDepth2_All{
@@ -82339,7 +82294,7 @@ var xAllPass = []vdlEntry{
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
 			},
-			F10: XUnionDepth1_AllF26{-368579100129697723},
+			F10: XUnionDepth1_AllF26{Value: -368579100129697723},
 			F11: XUnionDepth1_Float64F29{},
 		},
 	},
@@ -82388,18 +82343,18 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Target: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Source: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.5}}",
 		Target: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 		SourceLabel: "XStructDepth2_All{F11: {F29: 1.5}}",
 		Source: XStructDepth2_All{
@@ -82411,7 +82366,7 @@ var xAllPass = []vdlEntry{
 				F5: vdl.AnyType,
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 		},
 	},
 	{
@@ -82419,18 +82374,18 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.2971103664867308e+07}}",
 		Target: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.2971103664867308e+07},
+			F11: XUnionDepth1_Float64F29{Value: 1.2971103664867308e+07},
 		},
 		SourceLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.2971103664867308e+07}}",
 		Source: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.2971103664867308e+07},
+			F11: XUnionDepth1_Float64F29{Value: 1.2971103664867308e+07},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth2_XUnionDepth1_Float64{F11: {F29: 1.2971103664867308e+07}}",
 		Target: XStructDepth2_XUnionDepth1_Float64{
-			F11: XUnionDepth1_Float64F29{1.2971103664867308e+07},
+			F11: XUnionDepth1_Float64F29{Value: 1.2971103664867308e+07},
 		},
 		SourceLabel: "XStructDepth2_All{F11: {F29: 1.2971103664867308e+07}}",
 		Source: XStructDepth2_All{
@@ -82442,7 +82397,7 @@ var xAllPass = []vdlEntry{
 				F5: vdl.AnyType,
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{1.2971103664867308e+07},
+			F11: XUnionDepth1_Float64F29{Value: 1.2971103664867308e+07},
 		},
 	},
 	{
@@ -82642,7 +82597,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth2_All{F0: {}}",
 		Target:      XUnionDepth2_All(XUnionDepth2_AllF0{}),
 		SourceLabel: "XUnionDepth1_Any{F0: XArray1_String{}}",
-		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{XArray1_String{}}),
+		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XArray1_String{}}),
 	},
 	{
 		Label:       "Zero",
@@ -82655,22 +82610,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_All{F13: {F28: 1.5}}",
-		Target: XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F13: {F28: 1.5}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_All{F13: {F28: 1.5}}",
-		Target: XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 1.5}}",
-		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 	},
@@ -82678,22 +82633,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_All{F8: {}}",
-		Target: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F8: {}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_All{F8: {}}",
-		Target: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_All{F8: {}}",
-		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
@@ -82710,7 +82665,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth2_XArray1_String{F0: {}}",
 		Target:      XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{}),
 		SourceLabel: "XUnionDepth1_All{F0: XArray1_String{}}",
-		Source:      XUnionDepth1_All(XUnionDepth1_AllF0{XArray1_String{}}),
+		Source:      XUnionDepth1_All(XUnionDepth1_AllF0{Value: XArray1_String{}}),
 	},
 	{
 		Label:       "Zero",
@@ -82723,22 +82678,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth2_XArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Source: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XArray1_String{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 		SourceLabel: "XUnionDepth1_Any{F0: XArray1_String{\"abcdeΔΘΠΣΦ王普澤世界\"}}",
-		Source: XUnionDepth1_Any(XUnionDepth1_AnyF0{XArray1_String{
+		Source: XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XArray1_String{
 			"abcdeΔΘΠΣΦ王普澤世界",
 		}}),
 	},
@@ -82746,22 +82701,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XArray1_String{F0: {\"ΔΘΠΣΦ王普澤\"}}",
-		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"ΔΘΠΣΦ王普澤",
 		}}),
 		SourceLabel: "XUnionDepth2_XArray1_String{F0: {\"ΔΘΠΣΦ王普澤\"}}",
-		Source: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Source: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"ΔΘΠΣΦ王普澤",
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XArray1_String{F0: {\"ΔΘΠΣΦ王普澤\"}}",
-		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{XArray1_String{
+		Target: XUnionDepth2_XArray1_String(XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 			"ΔΘΠΣΦ王普澤",
 		}}),
 		SourceLabel: "XUnionDepth1_All{F0: XArray1_String{\"ΔΘΠΣΦ王普澤\"}}",
-		Source: XUnionDepth1_All(XUnionDepth1_AllF0{XArray1_String{
+		Source: XUnionDepth1_All(XUnionDepth1_AllF0{Value: XArray1_String{
 			"ΔΘΠΣΦ王普澤",
 		}}),
 	},
@@ -82784,12 +82739,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XArray2_XByte{F1: \"{{\"}",
-		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			123,
 			123,
 		}}),
 		SourceLabel: "XUnionDepth2_XArray2_XByte{F1: \"{{\"}",
-		Source: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Source: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			123,
 			123,
 		}}),
@@ -82797,12 +82752,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XArray2_XByte{F1: \"{{\"}",
-		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			123,
 			123,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F1: \"{{\"}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF1{XArray2_XByte{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF1{Value: XArray2_XByte{
 			123,
 			123,
 		}}),
@@ -82811,12 +82766,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XArray2_XByte{F1: \"\\xc4'\"}",
-		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			196,
 			39,
 		}}),
 		SourceLabel: "XUnionDepth2_XArray2_XByte{F1: \"\\xc4'\"}",
-		Source: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Source: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			196,
 			39,
 		}}),
@@ -82824,12 +82779,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XArray2_XByte{F1: \"\\xc4'\"}",
-		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+		Target: XUnionDepth2_XArray2_XByte(XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 			196,
 			39,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F1: \"\\xc4'\"}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF1{XArray2_XByte{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF1{Value: XArray2_XByte{
 			196,
 			39,
 		}}),
@@ -82853,31 +82808,31 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XList_XByte{F2: \"{\"}",
-		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("{")}),
+		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("{")}),
 		SourceLabel: "XUnionDepth2_XList_XByte{F2: \"{\"}",
-		Source:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("{")}),
+		Source:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("{")}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XList_XByte{F2: \"{\"}",
-		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("{")}),
+		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("{")}),
 		SourceLabel: "XUnionDepth2_All{F2: \"{\"}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF2{XList_XByte("{")}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF2{Value: XList_XByte("{")}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XList_XByte{F2: \"UY\\x00\"}",
-		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("UY\x00")}),
+		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("UY\x00")}),
 		SourceLabel: "XUnionDepth2_XList_XByte{F2: \"UY\\x00\"}",
-		Source:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("UY\x00")}),
+		Source:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("UY\x00")}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XList_XByte{F2: \"UY\\x00\"}",
-		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{XList_XByte("UY\x00")}),
+		Target:      XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{Value: XList_XByte("UY\x00")}),
 		SourceLabel: "XUnionDepth2_All{F2: \"UY\\x00\"}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF2{XList_XByte("UY\x00")}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF2{Value: XList_XByte("UY\x00")}),
 	},
 	{
 		IsCanonical: true,
@@ -82898,14 +82853,14 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			},
 		}}),
 		SourceLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Source: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -82915,14 +82870,14 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F3: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF3{XList_OptXNamedError{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF3{Value: XList_OptXNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -82933,7 +82888,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"bcdeΔΘΠΣΦ王普澤世\", Msg: \"eΔΘΠΣΦ王普澤世\"}, {}}}",
-		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "bcdeΔΘΠΣΦ王普澤世",
 				Msg: "eΔΘΠΣΦ王普澤世",
@@ -82941,7 +82896,7 @@ var xAllPass = []vdlEntry{
 			{},
 		}}),
 		SourceLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"bcdeΔΘΠΣΦ王普澤世\", Msg: \"eΔΘΠΣΦ王普澤世\"}, {}}}",
-		Source: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Source: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "bcdeΔΘΠΣΦ王普澤世",
 				Msg: "eΔΘΠΣΦ王普澤世",
@@ -82952,7 +82907,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XList_OptXNamedError{F3: {{Id: \"bcdeΔΘΠΣΦ王普澤世\", Msg: \"eΔΘΠΣΦ王普澤世\"}, {}}}",
-		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{XList_OptXNamedError{
+		Target: XUnionDepth2_XList_OptXNamedError(XUnionDepth2_XList_OptXNamedErrorF3{Value: XList_OptXNamedError{
 			{
 				Id:  "bcdeΔΘΠΣΦ王普澤世",
 				Msg: "eΔΘΠΣΦ王普澤世",
@@ -82960,7 +82915,7 @@ var xAllPass = []vdlEntry{
 			{},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F3: {{Id: \"bcdeΔΘΠΣΦ王普澤世\", Msg: \"eΔΘΠΣΦ王普澤世\"}, {}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF3{XList_OptXNamedError{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF3{Value: XList_OptXNamedError{
 			{
 				Id:  "bcdeΔΘΠΣΦ王普澤世",
 				Msg: "eΔΘΠΣΦ王普澤世",
@@ -82987,22 +82942,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
-		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{XSet_XBool{
+		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
 			true: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
-		Source: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{XSet_XBool{
+		Source: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
 			true: struct{}{},
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
-		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{XSet_XBool{
+		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
 			true: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F4: {true}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF4{XSet_XBool{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF4{Value: XSet_XBool{
 			true: struct{}{},
 		}}),
 	},
@@ -83025,14 +82980,14 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -83042,14 +82997,14 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF5{XSet_XNamedError{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
@@ -83060,7 +83015,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
-		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
@@ -83075,7 +83030,7 @@ var xAllPass = []vdlEntry{
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
-		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
@@ -83093,7 +83048,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
-		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{XSet_XNamedError{
+		Target: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
@@ -83108,7 +83063,7 @@ var xAllPass = []vdlEntry{
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF5{XSet_XNamedError{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
@@ -83142,22 +83097,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_Map_XBool_XBool{F6: {true: true}}",
-		Target: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{map[XBool]XBool{
+		Target: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{Value: map[XBool]XBool{
 			true: true,
 		}}),
 		SourceLabel: "XUnionDepth2_Map_XBool_XBool{F6: {true: true}}",
-		Source: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{map[XBool]XBool{
+		Source: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{Value: map[XBool]XBool{
 			true: true,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_Map_XBool_XBool{F6: {true: true}}",
-		Target: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{map[XBool]XBool{
+		Target: XUnionDepth2_Map_XBool_XBool(XUnionDepth2_Map_XBool_XBoolF6{Value: map[XBool]XBool{
 			true: true,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F6: {true: true}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF6{map[XBool]XBool{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF6{Value: map[XBool]XBool{
 			true: true,
 		}}),
 	},
@@ -83180,22 +83135,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XMap_XBool_XBool{F7: {true: true}}",
-		Target: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{XMap_XBool_XBool{
+		Target: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{Value: XMap_XBool_XBool{
 			true: true,
 		}}),
 		SourceLabel: "XUnionDepth2_XMap_XBool_XBool{F7: {true: true}}",
-		Source: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{XMap_XBool_XBool{
+		Source: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{Value: XMap_XBool_XBool{
 			true: true,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XMap_XBool_XBool{F7: {true: true}}",
-		Target: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{XMap_XBool_XBool{
+		Target: XUnionDepth2_XMap_XBool_XBool(XUnionDepth2_XMap_XBool_XBoolF7{Value: XMap_XBool_XBool{
 			true: true,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F7: {true: true}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF7{XMap_XBool_XBool{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF7{Value: XMap_XBool_XBool{
 			true: true,
 		}}),
 	},
@@ -83203,22 +83158,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_All{F8: {}}",
-		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F8: {}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F5: vdl.AnyType,
 		}}),
 	},
@@ -83226,7 +83181,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -83271,7 +83226,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -83319,7 +83274,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -83364,7 +83319,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F0: int64(-123),
 			F1: true,
 			F2: true,
@@ -83413,7 +83368,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {F1: true, F2: true, F3: \"ΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F8: B, F9: D, F11: {Id: \"deΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤\", RetryCode: RetryConnection, Msg: \"ΠΣΦ王普澤世界\"}, F14: 44906, F15: 2456026341, F17: 6892049149569369529, F18: 504392095298316610, F19: 17, F21: -12607, F23: -1050221321, F24: -451002291, F25: 1330567261637553657, F28: -2.23363e+08, F29: 1.9155494091834462e+09, F30: -5.575798863666346e+08}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F1: true,
 			F2: true,
 			F3: "ΘΠΣΦ王普澤世",
@@ -83443,7 +83398,7 @@ var xAllPass = []vdlEntry{
 			F30: -5.575798863666346e+08,
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_All{F8: {F1: true, F2: true, F3: \"ΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F8: B, F9: D, F11: {Id: \"deΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤\", RetryCode: RetryConnection, Msg: \"ΠΣΦ王普澤世界\"}, F14: 44906, F15: 2456026341, F17: 6892049149569369529, F18: 504392095298316610, F19: 17, F21: -12607, F23: -1050221321, F24: -451002291, F25: 1330567261637553657, F28: -2.23363e+08, F29: 1.9155494091834462e+09, F30: -5.575798863666346e+08}}",
-		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F1: true,
 			F2: true,
 			F3: "ΘΠΣΦ王普澤世",
@@ -83476,7 +83431,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XStructDepth1_All{F8: {F1: true, F2: true, F3: \"ΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F8: B, F9: D, F11: {Id: \"deΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤\", RetryCode: RetryConnection, Msg: \"ΠΣΦ王普澤世界\"}, F14: 44906, F15: 2456026341, F17: 6892049149569369529, F18: 504392095298316610, F19: 17, F21: -12607, F23: -1050221321, F24: -451002291, F25: 1330567261637553657, F28: -2.23363e+08, F29: 1.9155494091834462e+09, F30: -5.575798863666346e+08}}",
-		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{XStructDepth1_All{
+		Target: XUnionDepth2_XStructDepth1_All(XUnionDepth2_XStructDepth1_AllF8{Value: XStructDepth1_All{
 			F1: true,
 			F2: true,
 			F3: "ΘΠΣΦ王普澤世",
@@ -83506,7 +83461,7 @@ var xAllPass = []vdlEntry{
 			F30: -5.575798863666346e+08,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F8: {F1: true, F2: true, F3: \"ΘΠΣΦ王普澤世\", F4: \"cdeΔΘ\", F8: B, F9: D, F11: {Id: \"deΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤\", RetryCode: RetryConnection, Msg: \"ΠΣΦ王普澤世界\"}, F14: 44906, F15: 2456026341, F17: 6892049149569369529, F18: 504392095298316610, F19: 17, F21: -12607, F23: -1050221321, F24: -451002291, F25: 1330567261637553657, F28: -2.23363e+08, F29: 1.9155494091834462e+09, F30: -5.575798863666346e+08}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF8{XStructDepth1_All{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF8{Value: XStructDepth1_All{
 			F1: true,
 			F2: true,
 			F3: "ΘΠΣΦ王普澤世",
@@ -83555,22 +83510,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -123}}",
-		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -123,
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -123}}",
-		Source: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Source: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -123,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -123}}",
-		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -123,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F9: {F19: -123}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF9{XStructDepth1_Int8{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF9{Value: XStructDepth1_Int8{
 			F19: -123,
 		}}),
 	},
@@ -83578,22 +83533,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -17}}",
-		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -17,
 		}}),
 		SourceLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -17}}",
-		Source: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Source: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -17,
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XStructDepth1_Int8{F9: {F19: -17}}",
-		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+		Target: XUnionDepth2_XStructDepth1_Int8(XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 			F19: -17,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F9: {F19: -17}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF9{XStructDepth1_Int8{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF9{Value: XStructDepth1_Int8{
 			F19: -17,
 		}}),
 	},
@@ -83601,27 +83556,27 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F0: nil}}",
-		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF0{}}),
+		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF0{}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F0: nil}}",
-		Source:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF0{}}),
+		Source:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF0{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F0: nil}}",
-		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF0{}}),
+		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF0{}}),
 		SourceLabel: "XUnionDepth2_All{F10: {F0: nil}}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF10{XUnionDepth1_AllF0{}}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF10{Value: XUnionDepth1_AllF0{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF32{&XNamedError{
+		Target: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF32{&XNamedError{
+		Source: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -83629,12 +83584,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF32{&XNamedError{
+		Target: XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
 		SourceLabel: "XUnionDepth2_All{F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF10{XUnionDepth1_AllF32{&XNamedError{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF10{Value: XUnionDepth1_AllF32{Value: &XNamedError{
 			Id:  "abcdeΔΘΠΣΦ王普澤世界",
 			Msg: "abcdeΔΘΠΣΦ王普澤世界",
 		}}}),
@@ -83643,61 +83598,61 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F1: false}}",
-		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF1{}}),
+		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF1{}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F1: false}}",
-		Source:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF1{}}),
+		Source:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF1{}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_All{F10: {F1: false}}",
-		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{XUnionDepth1_AllF1{}}),
+		Target:      XUnionDepth2_XUnionDepth1_All(XUnionDepth2_XUnionDepth1_AllF10{Value: XUnionDepth1_AllF1{}}),
 		SourceLabel: "XUnionDepth2_All{F10: {F1: false}}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF10{XUnionDepth1_AllF1{}}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF10{Value: XUnionDepth1_AllF1{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 0}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 0}}",
-		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{}}),
+		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 0}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{}}),
 		SourceLabel: "XUnionDepth2_All{F11: {F16: 0}}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{}}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 123}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{123}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 123}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 123}}",
-		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{123}}),
+		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 123}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 123}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{123}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 123}}),
 		SourceLabel: "XUnionDepth2_All{F11: {F16: 123}}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{123}}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{Value: 123}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 1447068131}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{1447068131}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 1447068131}}),
 		SourceLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 1447068131}}",
-		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{1447068131}}),
+		Source:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 1447068131}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_XUnionDepth1_XUint32{F11: {F16: 1447068131}}",
-		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{XUnionDepth1_XUint32F16{1447068131}}),
+		Target:      XUnionDepth2_XUnionDepth1_XUint32(XUnionDepth2_XUnionDepth1_XUint32F11{Value: XUnionDepth1_XUint32F16{Value: 1447068131}}),
 		SourceLabel: "XUnionDepth2_All{F11: {F16: 1447068131}}",
-		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{XUnionDepth1_XUint32F16{1447068131}}),
+		Source:      XUnionDepth2_All(XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{Value: 1447068131}}),
 	},
 	{
 		IsCanonical: true,
@@ -83718,22 +83673,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XEnumBcd{F12: {F9: D}}",
-		Target: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{&XStructDepth1_XEnumBcd{
+		Target: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{Value: &XStructDepth1_XEnumBcd{
 			F9: XEnumBcdD,
 		}}),
 		SourceLabel: "XUnionDepth2_OptXStructDepth1_XEnumBcd{F12: {F9: D}}",
-		Source: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{&XStructDepth1_XEnumBcd{
+		Source: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{Value: &XStructDepth1_XEnumBcd{
 			F9: XEnumBcdD,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XEnumBcd{F12: {F9: D}}",
-		Target: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{&XStructDepth1_XEnumBcd{
+		Target: XUnionDepth2_OptXStructDepth1_XEnumBcd(XUnionDepth2_OptXStructDepth1_XEnumBcdF12{Value: &XStructDepth1_XEnumBcd{
 			F9: XEnumBcdD,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F12: {F9: D}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF12{&XStructDepth1_XEnumBcd{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF12{Value: &XStructDepth1_XEnumBcd{
 			F9: XEnumBcdD,
 		}}),
 	},
@@ -83756,22 +83711,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 1.5}}",
-		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 1.5}}",
-		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 1.5}}",
-		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F13: {F28: 1.5}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}),
 	},
@@ -83779,22 +83734,22 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 8.942269e+08}}",
-		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 8.942269e+08,
 		}}),
 		SourceLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 8.942269e+08}}",
-		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 8.942269e+08,
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth2_OptXStructDepth1_XFloat32{F13: {F28: 8.942269e+08}}",
-		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth2_OptXStructDepth1_XFloat32(XUnionDepth2_OptXStructDepth1_XFloat32F13{Value: &XStructDepth1_XFloat32{
 			F28: 8.942269e+08,
 		}}),
 		SourceLabel: "XUnionDepth2_All{F13: {F28: 8.942269e+08}}",
-		Source: XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 8.942269e+08,
 		}}),
 	},
@@ -84179,13 +84134,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray2_Set_XUnionDepth1_XNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XArray2_Set_XUnionDepth1_XNamedError{
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -84194,13 +84149,13 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XArray2_Set_XUnionDepth1_XNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: XArray2_Set_XUnionDepth1_XNamedError{
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -84212,13 +84167,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray2_Set_XUnionDepth1_XNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XArray2_Set_XUnionDepth1_XNamedError{
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -84227,13 +84182,13 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "[]any{set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: []interface{}{
 			map[XUnionDepth1_XNamedError]struct{}{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
 			},
 			map[XUnionDepth1_XNamedError]struct{}{
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}}: struct{}{},
@@ -84248,7 +84203,7 @@ var xAllPass = []vdlEntry{
 			nil,
 			{
 				XUnionDepth1_XNamedErrorF11{}: struct{}{},
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
 				}}: struct{}{},
 			},
@@ -84258,7 +84213,7 @@ var xAllPass = []vdlEntry{
 			nil,
 			{
 				XUnionDepth1_XNamedErrorF11{}: struct{}{},
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
 				}}: struct{}{},
 			},
@@ -84271,7 +84226,7 @@ var xAllPass = []vdlEntry{
 			nil,
 			{
 				XUnionDepth1_XNamedErrorF11{}: struct{}{},
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
 				}}: struct{}{},
 			},
@@ -84281,7 +84236,7 @@ var xAllPass = []vdlEntry{
 			map[XUnionDepth1_XNamedError]struct{}(nil),
 			map[XUnionDepth1_XNamedError]struct{}{
 				XUnionDepth1_XNamedErrorF11{}: struct{}{},
-				XUnionDepth1_XNamedErrorF11{XNamedError{
+				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
 				}}: struct{}{},
 			},
@@ -84323,25 +84278,25 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Target: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Source: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -84350,25 +84305,25 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}, {{F29: 1.5}: {F29: 1.5}}}",
 		Target: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "[]any{map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}, map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}, map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 1.5}: {F29: 1.5}}}",
 		Source: []interface{}{
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -84378,27 +84333,27 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 3.1599994040332496e+08}: {F29: -1.5686596621949365e+07}}, {{F29: 2.7756623525464993e+09}: {F29: 1.1969843301016219e+09}}, {{F29: 0}: {F29: 0}, {F29: 4.028709831106535e+07}: {F29: 0}}}",
 		Target: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{3.1599994040332496e+08}: XUnionDepth1_Float64F29{-1.5686596621949365e+07},
+				XUnionDepth1_Float64F29{Value: 3.1599994040332496e+08}: XUnionDepth1_Float64F29{Value: -1.5686596621949365e+07},
 			},
 			{
-				XUnionDepth1_Float64F29{2.7756623525464993e+09}: XUnionDepth1_Float64F29{1.1969843301016219e+09},
+				XUnionDepth1_Float64F29{Value: 2.7756623525464993e+09}: XUnionDepth1_Float64F29{Value: 1.1969843301016219e+09},
 			},
 			{
-				XUnionDepth1_Float64F29{}:                      XUnionDepth1_Float64F29{},
-				XUnionDepth1_Float64F29{4.028709831106535e+07}: XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{}:                             XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{Value: 4.028709831106535e+07}: XUnionDepth1_Float64F29{},
 			},
 		},
 		SourceLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 3.1599994040332496e+08}: {F29: -1.5686596621949365e+07}}, {{F29: 2.7756623525464993e+09}: {F29: 1.1969843301016219e+09}}, {{F29: 0}: {F29: 0}, {F29: 4.028709831106535e+07}: {F29: 0}}}",
 		Source: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{3.1599994040332496e+08}: XUnionDepth1_Float64F29{-1.5686596621949365e+07},
+				XUnionDepth1_Float64F29{Value: 3.1599994040332496e+08}: XUnionDepth1_Float64F29{Value: -1.5686596621949365e+07},
 			},
 			{
-				XUnionDepth1_Float64F29{2.7756623525464993e+09}: XUnionDepth1_Float64F29{1.1969843301016219e+09},
+				XUnionDepth1_Float64F29{Value: 2.7756623525464993e+09}: XUnionDepth1_Float64F29{Value: 1.1969843301016219e+09},
 			},
 			{
-				XUnionDepth1_Float64F29{}:                      XUnionDepth1_Float64F29{},
-				XUnionDepth1_Float64F29{4.028709831106535e+07}: XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{}:                             XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{Value: 4.028709831106535e+07}: XUnionDepth1_Float64F29{},
 			},
 		},
 	},
@@ -84407,27 +84362,27 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{{{F29: 3.1599994040332496e+08}: {F29: -1.5686596621949365e+07}}, {{F29: 2.7756623525464993e+09}: {F29: 1.1969843301016219e+09}}, {{F29: 0}: {F29: 0}, {F29: 4.028709831106535e+07}: {F29: 0}}}",
 		Target: XArray3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			{
-				XUnionDepth1_Float64F29{3.1599994040332496e+08}: XUnionDepth1_Float64F29{-1.5686596621949365e+07},
+				XUnionDepth1_Float64F29{Value: 3.1599994040332496e+08}: XUnionDepth1_Float64F29{Value: -1.5686596621949365e+07},
 			},
 			{
-				XUnionDepth1_Float64F29{2.7756623525464993e+09}: XUnionDepth1_Float64F29{1.1969843301016219e+09},
+				XUnionDepth1_Float64F29{Value: 2.7756623525464993e+09}: XUnionDepth1_Float64F29{Value: 1.1969843301016219e+09},
 			},
 			{
-				XUnionDepth1_Float64F29{}:                      XUnionDepth1_Float64F29{},
-				XUnionDepth1_Float64F29{4.028709831106535e+07}: XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{}:                             XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{Value: 4.028709831106535e+07}: XUnionDepth1_Float64F29{},
 			},
 		},
 		SourceLabel: "XArray3_Any{map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 3.1599994040332496e+08}: {F29: -1.5686596621949365e+07}}, map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 2.7756623525464993e+09}: {F29: 1.1969843301016219e+09}}, map[XUnionDepth1_Float64]XUnionDepth1_Float64{{F29: 0}: {F29: 0}, {F29: 4.028709831106535e+07}: {F29: 0}}}",
 		Source: XArray3_Any{
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{3.1599994040332496e+08}: XUnionDepth1_Float64F29{-1.5686596621949365e+07},
+				XUnionDepth1_Float64F29{Value: 3.1599994040332496e+08}: XUnionDepth1_Float64F29{Value: -1.5686596621949365e+07},
 			},
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{2.7756623525464993e+09}: XUnionDepth1_Float64F29{1.1969843301016219e+09},
+				XUnionDepth1_Float64F29{Value: 2.7756623525464993e+09}: XUnionDepth1_Float64F29{Value: 1.1969843301016219e+09},
 			},
 			map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{}:                      XUnionDepth1_Float64F29{},
-				XUnionDepth1_Float64F29{4.028709831106535e+07}: XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{}:                             XUnionDepth1_Float64F29{},
+				XUnionDepth1_Float64F29{Value: 4.028709831106535e+07}: XUnionDepth1_Float64F29{},
 			},
 		},
 	},
@@ -84629,11 +84584,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -84714,11 +84669,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -84802,11 +84757,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -84887,11 +84842,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -84978,11 +84933,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -85063,11 +85018,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -85151,11 +85106,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -85236,11 +85191,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -85273,13 +85228,13 @@ var xAllPass = []vdlEntry{
 							},
 						},
 						F1: []XUnionDepth1_All{
-							XUnionDepth1_AllF31{&XStructEmpty{}},
+							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
 							{}: struct{}{},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-							XUnionDepth1_Float64F29{-1.1165922379858755e+08}: XUnionDepth1_Float64F29{-1.569161734832757e+09},
+							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
 						},
 						F4: XStructDepth2_All{
 							F0: XArray2_TypeObject{
@@ -85349,10 +85304,10 @@ var xAllPass = []vdlEntry{
 									Id: "Π",
 								},
 							},
-							F10: XUnionDepth1_AllF11{XNamedError{
+							F10: XUnionDepth1_AllF11{Value: XNamedError{
 								Msg: "ΔΘΠ",
 							}},
-							F11: XUnionDepth1_Float64F29{2.9914791016795073e+09},
+							F11: XUnionDepth1_Float64F29{Value: 2.9914791016795073e+09},
 							F12: &XStructDepth1_XEnumBcd{
 								F9: XEnumBcdD,
 							},
@@ -85360,7 +85315,7 @@ var xAllPass = []vdlEntry{
 								F14: 44301,
 							},
 						},
-						F5: XUnionDepth2_AllF1{XArray2_XByte{
+						F5: XUnionDepth2_AllF1{Value: XArray2_XByte{
 							3,
 							197,
 						}},
@@ -85372,7 +85327,7 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-						XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+						XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 							158,
 							0,
 						}}: XUnionDepth2_XArray2_XByteF1{},
@@ -85422,7 +85377,7 @@ var xAllPass = []vdlEntry{
 					F30: 1.9862143149296916e+08,
 				},
 				F10: XUnionDepth1_AllF8{},
-				F11: XUnionDepth1_Float64F29{3.5808997372158074e+08},
+				F11: XUnionDepth1_Float64F29{Value: 3.5808997372158074e+08},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 50491,
@@ -85460,13 +85415,13 @@ var xAllPass = []vdlEntry{
 							},
 						},
 						F1: []XUnionDepth1_All{
-							XUnionDepth1_AllF31{&XStructEmpty{}},
+							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
 							{}: struct{}{},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-							XUnionDepth1_Float64F29{-1.1165922379858755e+08}: XUnionDepth1_Float64F29{-1.569161734832757e+09},
+							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
 						},
 						F4: XStructDepth2_All{
 							F0: XArray2_TypeObject{
@@ -85536,10 +85491,10 @@ var xAllPass = []vdlEntry{
 									Id: "Π",
 								},
 							},
-							F10: XUnionDepth1_AllF11{XNamedError{
+							F10: XUnionDepth1_AllF11{Value: XNamedError{
 								Msg: "ΔΘΠ",
 							}},
-							F11: XUnionDepth1_Float64F29{2.9914791016795073e+09},
+							F11: XUnionDepth1_Float64F29{Value: 2.9914791016795073e+09},
 							F12: &XStructDepth1_XEnumBcd{
 								F9: XEnumBcdD,
 							},
@@ -85547,7 +85502,7 @@ var xAllPass = []vdlEntry{
 								F14: 44301,
 							},
 						},
-						F5: XUnionDepth2_AllF1{XArray2_XByte{
+						F5: XUnionDepth2_AllF1{Value: XArray2_XByte{
 							3,
 							197,
 						}},
@@ -85559,7 +85514,7 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-						XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+						XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 							158,
 							0,
 						}}: XUnionDepth2_XArray2_XByteF1{},
@@ -85609,7 +85564,7 @@ var xAllPass = []vdlEntry{
 					F30: 1.9862143149296916e+08,
 				},
 				F10: XUnionDepth1_AllF8{},
-				F11: XUnionDepth1_Float64F29{3.5808997372158074e+08},
+				F11: XUnionDepth1_Float64F29{Value: 3.5808997372158074e+08},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 50491,
@@ -85650,13 +85605,13 @@ var xAllPass = []vdlEntry{
 							},
 						},
 						F1: []XUnionDepth1_All{
-							XUnionDepth1_AllF31{&XStructEmpty{}},
+							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
 							{}: struct{}{},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-							XUnionDepth1_Float64F29{-1.1165922379858755e+08}: XUnionDepth1_Float64F29{-1.569161734832757e+09},
+							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
 						},
 						F4: XStructDepth2_All{
 							F0: XArray2_TypeObject{
@@ -85726,10 +85681,10 @@ var xAllPass = []vdlEntry{
 									Id: "Π",
 								},
 							},
-							F10: XUnionDepth1_AllF11{XNamedError{
+							F10: XUnionDepth1_AllF11{Value: XNamedError{
 								Msg: "ΔΘΠ",
 							}},
-							F11: XUnionDepth1_Float64F29{2.9914791016795073e+09},
+							F11: XUnionDepth1_Float64F29{Value: 2.9914791016795073e+09},
 							F12: &XStructDepth1_XEnumBcd{
 								F9: XEnumBcdD,
 							},
@@ -85737,7 +85692,7 @@ var xAllPass = []vdlEntry{
 								F14: 44301,
 							},
 						},
-						F5: XUnionDepth2_AllF1{XArray2_XByte{
+						F5: XUnionDepth2_AllF1{Value: XArray2_XByte{
 							3,
 							197,
 						}},
@@ -85749,7 +85704,7 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-						XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+						XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 							158,
 							0,
 						}}: XUnionDepth2_XArray2_XByteF1{},
@@ -85799,7 +85754,7 @@ var xAllPass = []vdlEntry{
 					F30: 1.9862143149296916e+08,
 				},
 				F10: XUnionDepth1_AllF8{},
-				F11: XUnionDepth1_Float64F29{3.5808997372158074e+08},
+				F11: XUnionDepth1_Float64F29{Value: 3.5808997372158074e+08},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 50491,
@@ -85837,13 +85792,13 @@ var xAllPass = []vdlEntry{
 							},
 						},
 						F1: []XUnionDepth1_All{
-							XUnionDepth1_AllF31{&XStructEmpty{}},
+							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
 							{}: struct{}{},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-							XUnionDepth1_Float64F29{-1.1165922379858755e+08}: XUnionDepth1_Float64F29{-1.569161734832757e+09},
+							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
 						},
 						F4: XStructDepth2_All{
 							F0: XArray2_TypeObject{
@@ -85913,10 +85868,10 @@ var xAllPass = []vdlEntry{
 									Id: "Π",
 								},
 							},
-							F10: XUnionDepth1_AllF11{XNamedError{
+							F10: XUnionDepth1_AllF11{Value: XNamedError{
 								Msg: "ΔΘΠ",
 							}},
-							F11: XUnionDepth1_Float64F29{2.9914791016795073e+09},
+							F11: XUnionDepth1_Float64F29{Value: 2.9914791016795073e+09},
 							F12: &XStructDepth1_XEnumBcd{
 								F9: XEnumBcdD,
 							},
@@ -85924,7 +85879,7 @@ var xAllPass = []vdlEntry{
 								F14: 44301,
 							},
 						},
-						F5: XUnionDepth2_AllF1{XArray2_XByte{
+						F5: XUnionDepth2_AllF1{Value: XArray2_XByte{
 							3,
 							197,
 						}},
@@ -85936,7 +85891,7 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-						XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+						XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 							158,
 							0,
 						}}: XUnionDepth2_XArray2_XByteF1{},
@@ -85986,7 +85941,7 @@ var xAllPass = []vdlEntry{
 					F30: 1.9862143149296916e+08,
 				},
 				F10: XUnionDepth1_AllF8{},
-				F11: XUnionDepth1_Float64F29{3.5808997372158074e+08},
+				F11: XUnionDepth1_Float64F29{Value: 3.5808997372158074e+08},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 50491,
@@ -86050,19 +86005,19 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XArray2_XUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Target: XArray2_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "XArray2_XUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Source: XArray2_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -86071,19 +86026,19 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XArray2_XUnionDepth2_All{{F13: {F28: 1.5}}, {F13: {F28: 1.5}}}",
 		Target: XArray2_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]any{XUnionDepth2_All{F13: {F28: 1.5}}, XUnionDepth2_All{F13: {F28: 1.5}}}",
 		Source: []interface{}{
-			XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}}),
-			XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}}),
 		},
@@ -86734,11 +86689,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -86822,11 +86777,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -86913,11 +86868,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -87001,11 +86956,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -87082,7 +87037,7 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F10: XUnionDepth1_AllF11{},
-				F11: XUnionDepth1_Float64F29{1.2791933776285827e+09},
+				F11: XUnionDepth1_Float64F29{Value: 1.2791933776285827e+09},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 7158,
@@ -87228,7 +87183,7 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F10: XUnionDepth1_AllF11{},
-				F11: XUnionDepth1_Float64F29{1.2791933776285827e+09},
+				F11: XUnionDepth1_Float64F29{Value: 1.2791933776285827e+09},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 7158,
@@ -87377,7 +87332,7 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F10: XUnionDepth1_AllF11{},
-				F11: XUnionDepth1_Float64F29{1.2791933776285827e+09},
+				F11: XUnionDepth1_Float64F29{Value: 1.2791933776285827e+09},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 7158,
@@ -87523,7 +87478,7 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F10: XUnionDepth1_AllF11{},
-				F11: XUnionDepth1_Float64F29{1.2791933776285827e+09},
+				F11: XUnionDepth1_Float64F29{Value: 1.2791933776285827e+09},
 				F12: &XStructDepth1_XEnumBcd{},
 				F13: &XStructDepth1_XUint16{
 					F14: 7158,
@@ -87633,13 +87588,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: []XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Source: []XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -87648,13 +87603,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "[]XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: []XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]any{XUnionDepth2_All{F13: {F28: 1.5}}}",
 		Source: []interface{}{
-			XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}}),
 		},
@@ -87664,46 +87619,46 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "[]XUnionDepth2_All{{F0: {\"e\"}}, {F0: {\"deΔΘΠ\"}}, {F10: {F14: 59623}}}",
 		Target: []XUnionDepth2_All{
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"e",
 			}},
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"deΔΘΠ",
 			}},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF14{59623}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF14{Value: 59623}},
 		},
 		SourceLabel: "[]XUnionDepth2_All{{F0: {\"e\"}}, {F0: {\"deΔΘΠ\"}}, {F10: {F14: 59623}}}",
 		Source: []XUnionDepth2_All{
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"e",
 			}},
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"deΔΘΠ",
 			}},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF14{59623}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF14{Value: 59623}},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "[]XUnionDepth2_All{{F0: {\"e\"}}, {F0: {\"deΔΘΠ\"}}, {F10: {F14: 59623}}}",
 		Target: []XUnionDepth2_All{
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"e",
 			}},
-			XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_AllF0{Value: XArray1_String{
 				"deΔΘΠ",
 			}},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF14{59623}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF14{Value: 59623}},
 		},
 		SourceLabel: "[]any{XUnionDepth2_All{F0: {\"e\"}}, XUnionDepth2_All{F0: {\"deΔΘΠ\"}}, XUnionDepth2_All{F10: {F14: 59623}}}",
 		Source: []interface{}{
-			XUnionDepth2_All(XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_All(XUnionDepth2_AllF0{Value: XArray1_String{
 				"e",
 			}}),
-			XUnionDepth2_All(XUnionDepth2_AllF0{XArray1_String{
+			XUnionDepth2_All(XUnionDepth2_AllF0{Value: XArray1_String{
 				"deΔΘΠ",
 			}}),
-			XUnionDepth2_All(XUnionDepth2_AllF10{XUnionDepth1_AllF14{59623}}),
+			XUnionDepth2_All(XUnionDepth2_AllF10{Value: XUnionDepth1_AllF14{Value: 59623}}),
 		},
 	},
 	{
@@ -87827,15 +87782,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XArray3_XUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -87844,15 +87799,15 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XList_XArray3_XUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -87864,15 +87819,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XArray3_XUnionDepth1_All{{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -87881,15 +87836,15 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XList_Any{XArray3_XUnionDepth1_All{{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: XList_Any{
 			XArray3_XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -87902,16 +87857,16 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XArray3_XUnionDepth1_All{{{F22: 924}, {F16: 2247327400}, {F30: 0}}}",
 		Target: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF22{924},
-				XUnionDepth1_AllF16{2247327400},
+				XUnionDepth1_AllF22{Value: 924},
+				XUnionDepth1_AllF16{Value: 2247327400},
 				XUnionDepth1_AllF30{},
 			},
 		},
 		SourceLabel: "XList_XArray3_XUnionDepth1_All{{{F22: 924}, {F16: 2247327400}, {F30: 0}}}",
 		Source: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF22{924},
-				XUnionDepth1_AllF16{2247327400},
+				XUnionDepth1_AllF22{Value: 924},
+				XUnionDepth1_AllF16{Value: 2247327400},
 				XUnionDepth1_AllF30{},
 			},
 		},
@@ -87921,16 +87876,16 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XArray3_XUnionDepth1_All{{{F22: 924}, {F16: 2247327400}, {F30: 0}}}",
 		Target: XList_XArray3_XUnionDepth1_All{
 			{
-				XUnionDepth1_AllF22{924},
-				XUnionDepth1_AllF16{2247327400},
+				XUnionDepth1_AllF22{Value: 924},
+				XUnionDepth1_AllF16{Value: 2247327400},
 				XUnionDepth1_AllF30{},
 			},
 		},
 		SourceLabel: "[]any{XArray3_XUnionDepth1_All{{F22: 924}, {F16: 2247327400}, {F30: 0}}}",
 		Source: []interface{}{
 			XArray3_XUnionDepth1_All{
-				XUnionDepth1_AllF22{924},
-				XUnionDepth1_AllF16{2247327400},
+				XUnionDepth1_AllF22{Value: 924},
+				XUnionDepth1_AllF16{Value: 2247327400},
 				XUnionDepth1_AllF30{},
 			},
 		},
@@ -88325,11 +88280,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -88413,11 +88368,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -88504,11 +88459,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -88592,11 +88547,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -88968,13 +88923,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XList_XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: XList_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "XList_XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Source: XList_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -88983,13 +88938,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XList_XUnionDepth2_All{{F13: {F28: 1.5}}}",
 		Target: XList_XUnionDepth2_All{
-			XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "[]any{XUnionDepth2_All{F13: {F28: 1.5}}}",
 		Source: []interface{}{
-			XUnionDepth2_All(XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			XUnionDepth2_All(XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}}),
 		},
@@ -89000,13 +88955,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XUnionDepth2_All{{F7: {}}, {F10: {F0: nil}}, {F9: {}}}",
 		Target: XList_XUnionDepth2_All{
 			XUnionDepth2_AllF7{},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF0{}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF0{}},
 			XUnionDepth2_AllF9{},
 		},
 		SourceLabel: "XList_XUnionDepth2_All{{F7: {}}, {F10: {F0: nil}}, {F9: {}}}",
 		Source: XList_XUnionDepth2_All{
 			XUnionDepth2_AllF7{},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF0{}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF0{}},
 			XUnionDepth2_AllF9{},
 		},
 	},
@@ -89015,13 +88970,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XUnionDepth2_All{{F7: {}}, {F10: {F0: nil}}, {F9: {}}}",
 		Target: XList_XUnionDepth2_All{
 			XUnionDepth2_AllF7{},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF0{}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF0{}},
 			XUnionDepth2_AllF9{},
 		},
 		SourceLabel: "[]XUnionDepth2_All{{F7: {}}, {F10: {F0: nil}}, {F9: {}}}",
 		Source: []XUnionDepth2_All{
 			XUnionDepth2_AllF7{},
-			XUnionDepth2_AllF10{XUnionDepth1_AllF0{}},
+			XUnionDepth2_AllF10{Value: XUnionDepth1_AllF0{}},
 			XUnionDepth2_AllF9{},
 		},
 	},
@@ -89352,13 +89307,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -89367,13 +89322,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -89619,13 +89574,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -89634,13 +89589,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Target: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
 			}}: struct{}{},
 		},
@@ -89650,13 +89605,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"eΔΘ\"}}}",
 		Target: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
 			}}: struct{}{},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"eΔΘ\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
 			}}: struct{}{},
 		},
@@ -89665,13 +89620,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"eΔΘ\"}}}",
 		Target: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
 			}}: struct{}{},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"eΔΘ\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{XArray1_String{
+			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
 			}}: struct{}{},
 		},
@@ -89917,17 +89872,17 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "map[XStructDepth2_XUnionDepth1_Float64]XStructDepth2_XUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Target: map[XStructDepth2_XUnionDepth1_Float64]XStructDepth2_XUnionDepth1_Float64{
 			{
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "map[XStructDepth2_XUnionDepth1_Float64]XStructDepth2_XUnionDepth1_Float64{{F11: {F29: 1.5}}: {F11: {F29: 1.5}}}",
 		Source: map[XStructDepth2_XUnionDepth1_Float64]XStructDepth2_XUnionDepth1_Float64{
 			{
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 			}: {
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -89979,17 +89934,17 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Target: map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{
-			XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -123,
-			}}: XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			}}: XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
 		SourceLabel: "map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{{F9: {F19: -123}}: {F9: {F19: -123}}}",
 		Source: map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{
-			XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -123,
-			}}: XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			}}: XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -123,
 			}},
 		},
@@ -89999,13 +89954,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{{F9: {}}: {F9: {F19: -13}}}",
 		Target: map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{
-			XUnionDepth2_XStructDepth1_Int8F9{}: XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			XUnionDepth2_XStructDepth1_Int8F9{}: XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -13,
 			}},
 		},
 		SourceLabel: "map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{{F9: {}}: {F9: {F19: -13}}}",
 		Source: map[XUnionDepth2_XStructDepth1_Int8]XUnionDepth2_XStructDepth1_Int8{
-			XUnionDepth2_XStructDepth1_Int8F9{}: XUnionDepth2_XStructDepth1_Int8F9{XStructDepth1_Int8{
+			XUnionDepth2_XStructDepth1_Int8F9{}: XUnionDepth2_XStructDepth1_Int8F9{Value: XStructDepth1_Int8{
 				F19: -13,
 			}},
 		},
@@ -90256,20 +90211,20 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Target: XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-			XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				123,
 				123,
-			}}: XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			}}: XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				123,
 				123,
 			}},
 		},
 		SourceLabel: "XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{{F1: \"{{\"}: {F1: \"{{\"}}",
 		Source: XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
-			XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				123,
 				123,
-			}}: XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			}}: XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				123,
 				123,
 			}},
@@ -90281,7 +90236,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{{F1: \"\\x00\\x00\"}: {F1: \"\\x00\\x00\"}, {F1: \"\\x95\\xce\"}: {F1: \"\\x00\\x00\"}}",
 		Target: XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
 			XUnionDepth2_XArray2_XByteF1{}: XUnionDepth2_XArray2_XByteF1{},
-			XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				149,
 				206,
 			}}: XUnionDepth2_XArray2_XByteF1{},
@@ -90289,7 +90244,7 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{{F1: \"\\x00\\x00\"}: {F1: \"\\x00\\x00\"}, {F1: \"\\x95\\xce\"}: {F1: \"\\x00\\x00\"}}",
 		Source: XMap_XUnionDepth2_XArray2_XByte_XUnionDepth2_XArray2_XByte{
 			XUnionDepth2_XArray2_XByteF1{}: XUnionDepth2_XArray2_XByteF1{},
-			XUnionDepth2_XArray2_XByteF1{XArray2_XByte{
+			XUnionDepth2_XArray2_XByteF1{Value: XArray2_XByte{
 				149,
 				206,
 			}}: XUnionDepth2_XArray2_XByteF1{},
@@ -90380,7 +90335,7 @@ var xAllPass = []vdlEntry{
 				},
 			},
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90389,7 +90344,7 @@ var xAllPass = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -90464,11 +90419,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -90476,7 +90431,7 @@ var xAllPass = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 			F6: &XStructDepth2_Set_Float64{
@@ -90493,7 +90448,7 @@ var xAllPass = []vdlEntry{
 				},
 			},
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90502,7 +90457,7 @@ var xAllPass = []vdlEntry{
 				{}: struct{}{},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -90577,11 +90532,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -90589,7 +90544,7 @@ var xAllPass = []vdlEntry{
 					F14: 123,
 				},
 			},
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 			F6: &XStructDepth2_Set_Float64{
@@ -90613,15 +90568,15 @@ var xAllPass = []vdlEntry{
 			},
 			F1: []XUnionDepth1_All{
 				XUnionDepth1_AllF0{},
-				XUnionDepth1_AllF6{93},
+				XUnionDepth1_AllF6{Value: 93},
 				XUnionDepth1_AllF1{},
 			},
 			F2: XSet_XArray1_XStructEmpty{
 				{}: struct{}{},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{-2.0275041959631462e+09}: XUnionDepth1_Float64F29{-1.608352870384518e+08},
-				XUnionDepth1_Float64F29{}:                        XUnionDepth1_Float64F29{-6.431137222760762e+08},
+				XUnionDepth1_Float64F29{Value: -2.0275041959631462e+09}: XUnionDepth1_Float64F29{Value: -1.608352870384518e+08},
+				XUnionDepth1_Float64F29{}:                               XUnionDepth1_Float64F29{Value: -6.431137222760762e+08},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -90660,7 +90615,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF29{1.7751768790390162e+09},
+				F10: XUnionDepth1_AllF29{Value: 1.7751768790390162e+09},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
@@ -90681,15 +90636,15 @@ var xAllPass = []vdlEntry{
 			},
 			F1: []XUnionDepth1_All{
 				XUnionDepth1_AllF0{},
-				XUnionDepth1_AllF6{93},
+				XUnionDepth1_AllF6{Value: 93},
 				XUnionDepth1_AllF1{},
 			},
 			F2: XSet_XArray1_XStructEmpty{
 				{}: struct{}{},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{-2.0275041959631462e+09}: XUnionDepth1_Float64F29{-1.608352870384518e+08},
-				XUnionDepth1_Float64F29{}:                        XUnionDepth1_Float64F29{-6.431137222760762e+08},
+				XUnionDepth1_Float64F29{Value: -2.0275041959631462e+09}: XUnionDepth1_Float64F29{Value: -1.608352870384518e+08},
+				XUnionDepth1_Float64F29{}:                               XUnionDepth1_Float64F29{Value: -6.431137222760762e+08},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -90728,7 +90683,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF29{1.7751768790390162e+09},
+				F10: XUnionDepth1_AllF29{Value: 1.7751768790390162e+09},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
@@ -90828,7 +90783,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90837,7 +90792,7 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90849,7 +90804,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Target: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90858,7 +90813,7 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XStructDepth3_All{F1: {{F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
 		Source: XStructDepth3_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF32{&XNamedError{
+				XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
@@ -90883,16 +90838,16 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F21: -11717}, {F2: true}, {F6: 0}}}",
 		Target: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF21{-11717},
-				XUnionDepth1_AllF2{true},
+				XUnionDepth1_AllF21{Value: -11717},
+				XUnionDepth1_AllF2{Value: true},
 				XUnionDepth1_AllF6{},
 			},
 		},
 		SourceLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F21: -11717}, {F2: true}, {F6: 0}}}",
 		Source: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF21{-11717},
-				XUnionDepth1_AllF2{true},
+				XUnionDepth1_AllF21{Value: -11717},
+				XUnionDepth1_AllF2{Value: true},
 				XUnionDepth1_AllF6{},
 			},
 		},
@@ -90902,16 +90857,16 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_List_XUnionDepth1_All{F1: {{F21: -11717}, {F2: true}, {F6: 0}}}",
 		Target: XStructDepth3_List_XUnionDepth1_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF21{-11717},
-				XUnionDepth1_AllF2{true},
+				XUnionDepth1_AllF21{Value: -11717},
+				XUnionDepth1_AllF2{Value: true},
 				XUnionDepth1_AllF6{},
 			},
 		},
 		SourceLabel: "XStructDepth3_All{F1: {{F21: -11717}, {F2: true}, {F6: 0}}}",
 		Source: XStructDepth3_All{
 			F1: []XUnionDepth1_All{
-				XUnionDepth1_AllF21{-11717},
-				XUnionDepth1_AllF2{true},
+				XUnionDepth1_AllF21{Value: -11717},
+				XUnionDepth1_AllF2{Value: true},
 				XUnionDepth1_AllF6{},
 			},
 			F4: XStructDepth2_All{
@@ -91034,13 +90989,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Target: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Source: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 	},
@@ -91049,13 +91004,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Target: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 		},
 		SourceLabel: "XStructDepth3_All{F3: {{F29: 1.5}: {F29: 1.5}}}",
 		Source: XStructDepth3_All{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{1.5}: XUnionDepth1_Float64F29{1.5},
+				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -91077,13 +91032,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 0}: {F29: -1.2057166467106588e+09}}}",
 		Target: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-1.2057166467106588e+09},
+				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -1.2057166467106588e+09},
 			},
 		},
 		SourceLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 0}: {F29: -1.2057166467106588e+09}}}",
 		Source: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-1.2057166467106588e+09},
+				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -1.2057166467106588e+09},
 			},
 		},
 	},
@@ -91092,13 +91047,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{F3: {{F29: 0}: {F29: -1.2057166467106588e+09}}}",
 		Target: XStructDepth3_Map_XUnionDepth1_Float64_XUnionDepth1_Float64{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-1.2057166467106588e+09},
+				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -1.2057166467106588e+09},
 			},
 		},
 		SourceLabel: "XStructDepth3_All{F3: {{F29: 0}: {F29: -1.2057166467106588e+09}}}",
 		Source: XStructDepth3_All{
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
-				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{-1.2057166467106588e+09},
+				XUnionDepth1_Float64F29{}: XUnionDepth1_Float64F29{Value: -1.2057166467106588e+09},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -91262,11 +91217,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -91350,11 +91305,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -91441,11 +91396,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -91529,11 +91484,11 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-				F10: XUnionDepth1_AllF32{&XNamedError{
+				F10: XUnionDepth1_AllF32{Value: &XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
 				}},
-				F11: XUnionDepth1_Float64F29{1.5},
+				F11: XUnionDepth1_Float64F29{Value: 1.5},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdD,
 				},
@@ -91606,7 +91561,7 @@ var xAllPass = []vdlEntry{
 						Msg: "eΔΘΠΣΦ王普",
 					},
 				},
-				F10: XUnionDepth1_AllF19{29},
+				F10: XUnionDepth1_AllF19{Value: 29},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdC,
@@ -91672,7 +91627,7 @@ var xAllPass = []vdlEntry{
 						Msg: "eΔΘΠΣΦ王普",
 					},
 				},
-				F10: XUnionDepth1_AllF19{29},
+				F10: XUnionDepth1_AllF19{Value: 29},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdC,
@@ -91741,7 +91696,7 @@ var xAllPass = []vdlEntry{
 						Msg: "eΔΘΠΣΦ王普",
 					},
 				},
-				F10: XUnionDepth1_AllF19{29},
+				F10: XUnionDepth1_AllF19{Value: 29},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdC,
@@ -91807,7 +91762,7 @@ var xAllPass = []vdlEntry{
 						Msg: "eΔΘΠΣΦ王普",
 					},
 				},
-				F10: XUnionDepth1_AllF19{29},
+				F10: XUnionDepth1_AllF19{Value: 29},
 				F11: XUnionDepth1_Float64F29{},
 				F12: &XStructDepth1_XEnumBcd{
 					F9: XEnumBcdC,
@@ -91864,13 +91819,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
 		SourceLabel: "XStructDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Source: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -91879,7 +91834,7 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -91896,7 +91851,7 @@ var xAllPass = []vdlEntry{
 				F10: XUnionDepth1_AllF0{},
 				F11: XUnionDepth1_Float64F29{},
 			},
-			F5: XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+			F5: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 				F28: 1.5,
 			}},
 		},
@@ -91906,13 +91861,13 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF4{XSet_XBool{
+			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
 				false: struct{}{},
 			}},
 		},
 		SourceLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Source: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF4{XSet_XBool{
+			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
 				false: struct{}{},
 			}},
 		},
@@ -91921,7 +91876,7 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
-			F5: XUnionDepth2_AllF4{XSet_XBool{
+			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
 				false: struct{}{},
 			}},
 		},
@@ -91938,7 +91893,7 @@ var xAllPass = []vdlEntry{
 				F10: XUnionDepth1_AllF0{},
 				F11: XUnionDepth1_Float64F29{},
 			},
-			F5: XUnionDepth2_AllF4{XSet_XBool{
+			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
 				false: struct{}{},
 			}},
 		},
@@ -92064,7 +92019,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_All{F0: {}}",
 		Target:      XUnionDepth3_All(XUnionDepth3_AllF0{}),
 		SourceLabel: "XUnionDepth1_Any{F0: XArray3_OptXStructDepth1_XFloat32{}}",
-		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{XArray3_OptXStructDepth1_XFloat32{}}),
+		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XArray3_OptXStructDepth1_XFloat32{}}),
 	},
 	{
 		Label:       "Zero",
@@ -92077,13 +92032,13 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
-		Target: XUnionDepth3_All(XUnionDepth3_AllF6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -92092,13 +92047,13 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
-		Target: XUnionDepth3_All(XUnionDepth3_AllF6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -92132,7 +92087,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {}}",
 		Target:      XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{}),
 		SourceLabel: "XUnionDepth1_Any{F0: XArray3_OptXStructDepth1_XFloat32{}}",
-		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{XArray3_OptXStructDepth1_XFloat32{}}),
+		Source:      XUnionDepth1_Any(XUnionDepth1_AnyF0{Value: XArray3_OptXStructDepth1_XFloat32{}}),
 	},
 	{
 		Label:       "Zero",
@@ -92145,7 +92100,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{
 				F28: 1.5,
 			},
@@ -92157,7 +92112,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Source: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Source: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{
 				F28: 1.5,
 			},
@@ -92172,7 +92127,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{
 				F28: 1.5,
 			},
@@ -92184,7 +92139,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F0: {{F28: 1.5}, {F28: 1.5}, {F28: 1.5}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF0{XArray3_OptXStructDepth1_XFloat32{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{
 				F28: 1.5,
 			},
@@ -92200,7 +92155,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{}, {F28: -9.264463e+08}, {F28: -1.1404818e+08}}}",
-		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{},
 			{
 				F28: -9.264463e+08,
@@ -92210,7 +92165,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{}, {F28: -9.264463e+08}, {F28: -1.1404818e+08}}}",
-		Source: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Source: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{},
 			{
 				F28: -9.264463e+08,
@@ -92223,7 +92178,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XArray3_OptXStructDepth1_XFloat32{F0: {{}, {F28: -9.264463e+08}, {F28: -1.1404818e+08}}}",
-		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{XArray3_OptXStructDepth1_XFloat32{
+		Target: XUnionDepth3_XArray3_OptXStructDepth1_XFloat32(XUnionDepth3_XArray3_OptXStructDepth1_XFloat32F0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{},
 			{
 				F28: -9.264463e+08,
@@ -92233,7 +92188,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F0: {{}, {F28: -9.264463e+08}, {F28: -1.1404818e+08}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF0{XArray3_OptXStructDepth1_XFloat32{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF0{Value: XArray3_OptXStructDepth1_XFloat32{
 			{},
 			{
 				F28: -9.264463e+08,
@@ -92262,7 +92217,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_List_XList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -92272,7 +92227,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_List_XList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Source: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Source: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -92285,7 +92240,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_List_XList_Error{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -92295,7 +92250,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F1: {{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF1{[]XList_Error{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Id:        "abcdeΔΘΠΣΦ王普澤世界",
@@ -92309,7 +92264,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_List_XList_Error{F1: {{{Msg: \"Φ\"}}}}",
-		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Msg: "Φ",
@@ -92317,7 +92272,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_List_XList_Error{F1: {{{Msg: \"Φ\"}}}}",
-		Source: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Source: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Msg: "Φ",
@@ -92328,7 +92283,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_List_XList_Error{F1: {{{Msg: \"Φ\"}}}}",
-		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{[]XList_Error{
+		Target: XUnionDepth3_List_XList_Error(XUnionDepth3_List_XList_ErrorF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Msg: "Φ",
@@ -92336,7 +92291,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F1: {{{Msg: \"Φ\"}}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF1{[]XList_Error{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF1{Value: []XList_Error{
 			{
 				verror.FromWire(&vdl.WireError{
 					Msg: "Φ",
@@ -92363,13 +92318,13 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -92378,13 +92333,13 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF2{map[XStructDepth1_String]struct{}{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
 			}: struct{}{},
@@ -92394,14 +92349,14 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
-		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "ΘΠΣΦ",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
-		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "ΘΠΣΦ",
@@ -92411,14 +92366,14 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
-		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{map[XStructDepth1_String]struct{}{
+		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "ΘΠΣΦ",
 			}: struct{}{},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF2{map[XStructDepth1_String]struct{}{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF2{Value: map[XStructDepth1_String]struct{}{
 			{}: struct{}{},
 			{
 				F3: "ΘΠΣΦ",
@@ -92444,7 +92399,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool{F3: {{F2: true}: {F2: true}}}",
-		Target: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{XMap_XStructDepth1_XBool_XStructDepth1_XBool{
+		Target: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{Value: XMap_XStructDepth1_XBool_XStructDepth1_XBool{
 			{
 				F2: true,
 			}: {
@@ -92452,7 +92407,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool{F3: {{F2: true}: {F2: true}}}",
-		Source: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{XMap_XStructDepth1_XBool_XStructDepth1_XBool{
+		Source: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{Value: XMap_XStructDepth1_XBool_XStructDepth1_XBool{
 			{
 				F2: true,
 			}: {
@@ -92463,7 +92418,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool{F3: {{F2: true}: {F2: true}}}",
-		Target: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{XMap_XStructDepth1_XBool_XStructDepth1_XBool{
+		Target: XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBool(XUnionDepth3_XMap_XStructDepth1_XBool_XStructDepth1_XBoolF3{Value: XMap_XStructDepth1_XBool_XStructDepth1_XBool{
 			{
 				F2: true,
 			}: {
@@ -92471,7 +92426,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F3: {{F2: true}: {F2: true}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF3{XMap_XStructDepth1_XBool_XStructDepth1_XBool{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF3{Value: XMap_XStructDepth1_XBool_XStructDepth1_XBool{
 			{
 				F2: true,
 			}: {
@@ -92483,7 +92438,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -92495,7 +92450,7 @@ var xAllPass = []vdlEntry{
 			F11: XUnionDepth1_Float64F29{},
 		}}),
 		SourceLabel: "XUnionDepth3_XStructDepth2_All{F4: {}}",
-		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -92510,7 +92465,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -92522,7 +92477,7 @@ var xAllPass = []vdlEntry{
 			F11: XUnionDepth1_Float64F29{},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F4: {}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.AnyType,
@@ -92538,7 +92493,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -92611,11 +92566,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -92624,7 +92579,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -92697,11 +92652,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -92713,7 +92668,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -92786,11 +92741,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -92799,7 +92754,7 @@ var xAllPass = []vdlEntry{
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F4: {F0: {typeobject(int64), typeobject(int64)}, F1: {123}, F2: {-123}, F3: {int64(-123)}, F4: {1.5}, F5: {D}, F6: {123: 123}, F7: {123: 123}, F8: {F0: int64(-123), F1: true, F2: true, F3: \"abcdeΔΘΠΣΦ王普澤世界\", F4: \"abcdeΔΘΠΣΦ王普澤世界\", F5: typeobject(int64), F6: 123, F7: 123, F8: C, F9: D, F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F12: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", RetryCode: RetryBackoff, Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}, F13: 123, F14: 123, F15: 123, F16: 123, F17: 123, F18: 123, F19: -123, F20: -123, F21: -123, F22: -123, F23: -123, F24: -123, F25: -123, F26: -123, F27: 1.5, F28: 1.5, F29: 1.5, F30: 1.5, F31: {}, F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F9: {F1: true}, F10: {F32: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}, F11: {F29: 1.5}, F12: {F9: D}, F13: {F14: 123}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.Int64Type,
 				vdl.Int64Type,
@@ -92872,11 +92827,11 @@ var xAllPass = []vdlEntry{
 			F9: XStructDepth1_Bool{
 				F1: true,
 			},
-			F10: XUnionDepth1_AllF32{&XNamedError{
+			F10: XUnionDepth1_AllF32{Value: &XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
 			}},
-			F11: XUnionDepth1_Float64F29{1.5},
+			F11: XUnionDepth1_Float64F29{Value: 1.5},
 			F12: &XStructDepth1_XEnumBcd{
 				F9: XEnumBcdD,
 			},
@@ -92889,7 +92844,7 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(any), typeobject(XArray1_XStructEmpty)}, F1: {650662747}, F4: {-1.2857409473689704e+08, 1.157960391740711e+09, 1.873471483852068e+09}, F5: {D}, F6: {0: 48, 153: 133}, F7: {2044137986: 1905558326, 2062773644: 1066427096, 95064470: 3719709054}, F8: {F0: set[XByte]{135, 173, 243}, F3: \"bcdeΔΘΠΣΦ\", F5: typeobject(XUnionDepth2_OptXStructDepth1_XFloat32), F13: 31207, F14: 59370, F16: 303297294, F17: 15467091921360512822, F18: 11034741233086879389, F19: -55, F20: 54, F22: 10155, F23: 723419856, F24: -176626036, F25: 1780085702466453043, F27: 7.382859e+08, F28: -1.5114458e+08, F29: -1.3737398805084093e+09, F31: {}}, F11: {F29: -4.287222510229483e+08}, F12: {}, F13: {F14: 37166}}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
@@ -92939,14 +92894,14 @@ var xAllPass = []vdlEntry{
 				F31: &XStructEmpty{},
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{-4.287222510229483e+08},
+			F11: XUnionDepth1_Float64F29{Value: -4.287222510229483e+08},
 			F12: &XStructDepth1_XEnumBcd{},
 			F13: &XStructDepth1_XUint16{
 				F14: 37166,
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(any), typeobject(XArray1_XStructEmpty)}, F1: {650662747}, F4: {-1.2857409473689704e+08, 1.157960391740711e+09, 1.873471483852068e+09}, F5: {D}, F6: {0: 48, 153: 133}, F7: {2044137986: 1905558326, 2062773644: 1066427096, 95064470: 3719709054}, F8: {F0: set[XByte]{135, 173, 243}, F3: \"bcdeΔΘΠΣΦ\", F5: typeobject(XUnionDepth2_OptXStructDepth1_XFloat32), F13: 31207, F14: 59370, F16: 303297294, F17: 15467091921360512822, F18: 11034741233086879389, F19: -55, F20: 54, F22: 10155, F23: 723419856, F24: -176626036, F25: 1780085702466453043, F27: 7.382859e+08, F28: -1.5114458e+08, F29: -1.3737398805084093e+09, F31: {}}, F11: {F29: -4.287222510229483e+08}, F12: {}, F13: {F14: 37166}}}",
-		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
@@ -92996,7 +92951,7 @@ var xAllPass = []vdlEntry{
 				F31: &XStructEmpty{},
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{-4.287222510229483e+08},
+			F11: XUnionDepth1_Float64F29{Value: -4.287222510229483e+08},
 			F12: &XStructDepth1_XEnumBcd{},
 			F13: &XStructDepth1_XUint16{
 				F14: 37166,
@@ -93006,7 +92961,7 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XStructDepth2_All{F4: {F0: {typeobject(any), typeobject(XArray1_XStructEmpty)}, F1: {650662747}, F4: {-1.2857409473689704e+08, 1.157960391740711e+09, 1.873471483852068e+09}, F5: {D}, F6: {0: 48, 153: 133}, F7: {2044137986: 1905558326, 2062773644: 1066427096, 95064470: 3719709054}, F8: {F0: set[XByte]{135, 173, 243}, F3: \"bcdeΔΘΠΣΦ\", F5: typeobject(XUnionDepth2_OptXStructDepth1_XFloat32), F13: 31207, F14: 59370, F16: 303297294, F17: 15467091921360512822, F18: 11034741233086879389, F19: -55, F20: 54, F22: 10155, F23: 723419856, F24: -176626036, F25: 1780085702466453043, F27: 7.382859e+08, F28: -1.5114458e+08, F29: -1.3737398805084093e+09, F31: {}}, F11: {F29: -4.287222510229483e+08}, F12: {}, F13: {F14: 37166}}}",
-		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{XStructDepth2_All{
+		Target: XUnionDepth3_XStructDepth2_All(XUnionDepth3_XStructDepth2_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
@@ -93056,14 +93011,14 @@ var xAllPass = []vdlEntry{
 				F31: &XStructEmpty{},
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{-4.287222510229483e+08},
+			F11: XUnionDepth1_Float64F29{Value: -4.287222510229483e+08},
 			F12: &XStructDepth1_XEnumBcd{},
 			F13: &XStructDepth1_XUint16{
 				F14: 37166,
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F4: {F0: {typeobject(any), typeobject(XArray1_XStructEmpty)}, F1: {650662747}, F4: {-1.2857409473689704e+08, 1.157960391740711e+09, 1.873471483852068e+09}, F5: {D}, F6: {0: 48, 153: 133}, F7: {2044137986: 1905558326, 2062773644: 1066427096, 95064470: 3719709054}, F8: {F0: set[XByte]{135, 173, 243}, F3: \"bcdeΔΘΠΣΦ\", F5: typeobject(XUnionDepth2_OptXStructDepth1_XFloat32), F13: 31207, F14: 59370, F16: 303297294, F17: 15467091921360512822, F18: 11034741233086879389, F19: -55, F20: 54, F22: 10155, F23: 723419856, F24: -176626036, F25: 1780085702466453043, F27: 7.382859e+08, F28: -1.5114458e+08, F29: -1.3737398805084093e+09, F31: {}}, F11: {F29: -4.287222510229483e+08}, F12: {}, F13: {F14: 37166}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF4{XStructDepth2_All{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF4{Value: XStructDepth2_All{
 			F0: XArray2_TypeObject{
 				vdl.AnyType,
 				vdl.TypeOf((*XArray1_XStructEmpty)(nil)),
@@ -93113,7 +93068,7 @@ var xAllPass = []vdlEntry{
 				F31: &XStructEmpty{},
 			},
 			F10: XUnionDepth1_AllF0{},
-			F11: XUnionDepth1_Float64F29{-4.287222510229483e+08},
+			F11: XUnionDepth1_Float64F29{Value: -4.287222510229483e+08},
 			F12: &XStructDepth1_XEnumBcd{},
 			F13: &XStructDepth1_XUint16{
 				F14: 37166,
@@ -93124,37 +93079,37 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F0: {}}}",
-		Target:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF0{}}),
+		Target:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF0{}}),
 		SourceLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F0: {}}}",
-		Source:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF0{}}),
+		Source:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF0{}}),
 	},
 	{
 		Label:       "Zero",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F0: {}}}",
-		Target:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF0{}}),
+		Target:      XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF0{}}),
 		SourceLabel: "XUnionDepth3_All{F5: {F0: {}}}",
-		Source:      XUnionDepth3_All(XUnionDepth3_AllF5{XUnionDepth2_AllF0{}}),
+		Source:      XUnionDepth3_All(XUnionDepth3_AllF5{Value: XUnionDepth2_AllF0{}}),
 	},
 	{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}}),
 		SourceLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Source: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F13: {F28: 1.5}}}",
-		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}}),
 		SourceLabel: "XUnionDepth3_All{F5: {F13: {F28: 1.5}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF5{XUnionDepth2_AllF13{&XStructDepth1_XFloat32{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF5{Value: XUnionDepth2_AllF13{Value: &XStructDepth1_XFloat32{
 			F28: 1.5,
 		}}}),
 	},
@@ -93162,12 +93117,12 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F7: {false: false, true: true}}}",
-		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF7{XMap_XBool_XBool{
+		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF7{Value: XMap_XBool_XBool{
 			false: false,
 			true:  true,
 		}}}),
 		SourceLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F7: {false: false, true: true}}}",
-		Source: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF7{XMap_XBool_XBool{
+		Source: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF7{Value: XMap_XBool_XBool{
 			false: false,
 			true:  true,
 		}}}),
@@ -93175,12 +93130,12 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_XUnionDepth2_All{F5: {F7: {false: false, true: true}}}",
-		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{XUnionDepth2_AllF7{XMap_XBool_XBool{
+		Target: XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF7{Value: XMap_XBool_XBool{
 			false: false,
 			true:  true,
 		}}}),
 		SourceLabel: "XUnionDepth3_All{F5: {F7: {false: false, true: true}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF5{XUnionDepth2_AllF7{XMap_XBool_XBool{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF5{Value: XUnionDepth2_AllF7{Value: XMap_XBool_XBool{
 			false: false,
 			true:  true,
 		}}}),
@@ -93204,13 +93159,13 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -93219,13 +93174,13 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
-		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				1.5: struct{}{},
 			},
@@ -93235,14 +93190,14 @@ var xAllPass = []vdlEntry{
 		IsCanonical: true,
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
-		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				-2.0805507443036644e+09: struct{}{},
 				6.403380188710701e+08:   struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
-		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				-2.0805507443036644e+09: struct{}{},
 				6.403380188710701e+08:   struct{}{},
@@ -93252,14 +93207,14 @@ var xAllPass = []vdlEntry{
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
-		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{&XStructDepth2_Set_Float64{
+		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				-2.0805507443036644e+09: struct{}{},
 				6.403380188710701e+08:   struct{}{},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
-		Source: XUnionDepth3_All(XUnionDepth3_AllF6{&XStructDepth2_Set_Float64{
+		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
 				-2.0805507443036644e+09: struct{}{},
 				6.403380188710701e+08:   struct{}{},
@@ -93529,6 +93484,7 @@ var xAllPass = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1     *vdl.Type
 	__VDLType_bool_2       *vdl.Type

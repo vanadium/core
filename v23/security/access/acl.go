@@ -77,7 +77,7 @@ func (acl AccessList) Enforceable(ctx *context.T, p security.Principal) error {
 		rootPatterns []security.BlessingPattern
 		rejected     []security.BlessingPattern
 	)
-	for pattern, _ := range p.Roots().Dump() {
+	for pattern := range p.Roots().Dump() {
 		rootPatterns = append(rootPatterns, pattern)
 	}
 
@@ -150,7 +150,7 @@ func (m Permissions) Blacklist(blessing string, tags ...string) Permissions {
 func (m Permissions) Clear(blessingOrPattern string, tags ...string) Permissions {
 	if len(tags) == 0 {
 		tags = make([]string, 0, len(m))
-		for t, _ := range m {
+		for t := range m {
 			tags = append(tags, t)
 		}
 	}

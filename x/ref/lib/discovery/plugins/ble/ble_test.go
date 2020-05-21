@@ -51,7 +51,7 @@ func TestBasic(t *testing.T) {
 	defer p1.Close()
 
 	var stops []func()
-	for i, _ := range adinfos {
+	for i := range adinfos {
 		stop, err := testutil.Advertise(ctx, p1, &adinfos[i])
 		if err != nil {
 			t.Fatal(err)
@@ -163,7 +163,7 @@ func TestMultipleScans(t *testing.T) {
 	}
 	defer p1.Close()
 
-	for i, _ := range adinfos {
+	for i := range adinfos {
 		stop, err := testutil.Advertise(ctx, p1, &adinfos[i])
 		if err != nil {
 			t.Fatal(err)
@@ -248,7 +248,7 @@ func TestAttachments(t *testing.T) {
 	}
 	defer p1.Close()
 
-	for i, _ := range adinfos {
+	for i := range adinfos {
 		stop, err := testutil.Advertise(ctx, p1, &adinfos[i])
 		if err != nil {
 			t.Fatal(err)

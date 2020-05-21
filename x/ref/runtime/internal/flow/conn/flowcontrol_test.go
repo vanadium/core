@@ -43,7 +43,7 @@ func block(c *Conn, p int) chan struct{} {
 func waitFor(f func() bool) {
 	t := time.NewTicker(10 * time.Millisecond)
 	defer t.Stop()
-	for _ = range t.C {
+	for range t.C {
 		if f() {
 			return
 		}

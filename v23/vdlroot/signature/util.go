@@ -116,7 +116,7 @@ func MethodNames(sig []Interface) []string {
 		}
 	}
 	var ret []string
-	for name, _ := range uniq {
+	for name := range uniq {
 		ret = append(ret, name)
 	}
 	sort.Strings(ret)

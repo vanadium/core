@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
@@ -241,9 +241,7 @@ func (v *vine) removeConn(c *conn) {
 	key := c.key
 	v.mu.Lock()
 	if m, ok := v.conns[key]; ok {
-		if _, ok := m[c]; ok {
-			delete(m, c)
-		}
+		delete(m, c)
 	}
 	v.mu.Unlock()
 }

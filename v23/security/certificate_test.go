@@ -32,10 +32,10 @@ func TestCertificateDigest(t *testing.T) {
 		v = func(item interface{}) reflect.Value { return reflect.ValueOf(item) }
 		// type of field in Certificate/Signature to a set of values to test against.
 		type2values = map[reflect.Type][]reflect.Value{
-			reflect.TypeOf(""):         []reflect.Value{v("a"), v("b")},
-			reflect.TypeOf(Hash("")):   []reflect.Value{v(SHA256Hash), v(SHA384Hash)},
-			reflect.TypeOf([]byte{}):   []reflect.Value{v([]byte{1}), v([]byte{2})},
-			reflect.TypeOf([]Caveat{}): []reflect.Value{v([]Caveat{newCaveat(NewMethodCaveat("Method"))}), v([]Caveat{newCaveat(NewExpiryCaveat(time.Now()))})},
+			reflect.TypeOf(""):         {v("a"), v("b")},
+			reflect.TypeOf(Hash("")):   {v(SHA256Hash), v(SHA384Hash)},
+			reflect.TypeOf([]byte{}):   {v([]byte{1}), v([]byte{2})},
+			reflect.TypeOf([]Caveat{}): {v([]Caveat{newCaveat(NewMethodCaveat("Method"))}), v([]Caveat{newCaveat(NewExpiryCaveat(time.Now()))})},
 		}
 		hashfn = SHA256Hash // hash function used to compute the message digest in tests.
 	)

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/query/engine"
 	ds "v.io/v23/query/engine/datasource"
@@ -107,14 +107,12 @@ func compareKeyToLimit(key, limit string) int {
 func copyTable(src *table) *table {
 	var tgt table
 	tgt.name = src.name
-	for _, row := range src.rows {
-		tgt.rows = append(tgt.rows, row)
-	}
+	tgt.rows = append(tgt.rows, src.rows...)
 	return &tgt
 }
 
 func (kvs *keyValueStreamImpl) Advance() bool {
-	for true {
+	for {
 		kvs.cursor++ // initialized to -1
 		if kvs.cursor >= len(kvs.table.rows) {
 			return false
@@ -136,7 +134,6 @@ func (kvs *keyValueStreamImpl) Advance() bool {
 			}
 		}
 	}
-	return false
 }
 
 func (kvs *keyValueStreamImpl) KeyValue() (string, *vom.RawBytes) {
@@ -183,7 +180,7 @@ func (db mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) {
 			return t, nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("No such table: %s.", table))
+	return nil, fmt.Errorf("No such table: %s.", table)
 
 }
 
@@ -260,100 +257,223 @@ func initTables() {
 	t2015_04_12_22_16_06, _ = time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Apr 12 2015 22:16:06 -0700 PDT")
 	t2015_07_01_01_23_45, _ = time.Parse("Jan 2 2006 15:04:05 -0700 MST", "Jul 01 2015 01:23:45 -0700 PDT")
 
+	address := func(street, city, state, zip string) td.AddressInfo {
+		return td.AddressInfo{
+			Street: street, City: city, State: state, Zip: zip}
+	}
+
+	customer := func(name string, id int64, active bool, address td.AddressInfo, prev []td.AddressInfo, credit td.CreditReport) td.Customer {
+		return td.Customer{
+			Name:              name,
+			Id:                id,
+			Active:            active,
+			Address:           address,
+			PreviousAddresses: prev,
+			Credit:            credit,
+		}
+	}
+
+	equifax := func(rating byte, s1, s2, s3, s4 int16) td.AgencyReportEquifaxReport {
+		return td.AgencyReportEquifaxReport{
+			Value: td.EquifaxCreditReport{
+				Rating:           rating,
+				FourScoreRatings: [4]int16{s1, s2, s3, s4},
+			},
+		}
+	}
+
+	transunion := func(rating int16, prev map[string]int16) td.AgencyReportTransUnionReport {
+		return td.AgencyReportTransUnionReport{
+			Value: td.TransUnionCreditReport{
+				Rating:          rating,
+				PreviousRatings: prev,
+			},
+		}
+	}
+
+	experian := func(rating td.ExperianRating, approvals map[td.Tdh]struct{}, auditor td.Tdh) td.AgencyReportExperianReport {
+		return td.AgencyReportExperianReport{
+			Value: td.ExperianCreditReport{
+				Rating:       rating,
+				TdhApprovals: approvals,
+				Auditor:      auditor,
+			},
+		}
+	}
+
+	invoice := func(id, num int64, date time.Time, amount int64, ship td.AddressInfo) td.Invoice {
+		return td.Invoice{
+			CustId:      id,
+			InvoiceNum:  num,
+			InvoiceDate: date,
+			Amount:      amount,
+			ShipTo:      ship,
+		}
+	}
+
+	numbers := func(b byte, ui16 uint16, ui32 uint32, ui64 uint64, i16 int16, i32 int32, i64 int64, f32 float32, f64 float64) td.Numbers {
+		return td.Numbers{
+			B:    b,
+			Ui16: ui16,
+			Ui32: ui32,
+			Ui64: ui64,
+			I16:  i16,
+			I32:  i32,
+			I64:  i64,
+			F32:  f32,
+			F64:  f64,
+		}
+	}
+
 	custTable.name = "Customer"
 	custTable.rows = []kv{
-		kv{
+		{
 			"001",
-			vom.RawBytesOf(td.Customer{"John Smith", 1, true, td.AddressInfo{"1 Main St.", "Palo Alto", "CA", "94303"}, []td.AddressInfo{td.AddressInfo{"10 Brown St.", "Mountain View", "CA", "94043"}}, td.CreditReport{Agency: td.CreditAgencyEquifax, Report: td.AgencyReportEquifaxReport{td.EquifaxCreditReport{'A', [4]int16{87, 81, 42, 2}}}}}),
+			vom.RawBytesOf(customer(
+				"John Smith", 1, true,
+				address("1 Main St.", "Palo Alto", "CA", "94303"),
+				[]td.AddressInfo{
+					address("10 Brown St.", "Mountain View", "CA", "94043"),
+				},
+				td.CreditReport{
+					Agency: td.CreditAgencyEquifax,
+					Report: equifax('A', 87, 81, 42, 2),
+				})),
 		},
-		kv{
+		{
 			"001001",
-			vom.RawBytesOf(td.Invoice{1, 1000, t20150122131101, 42, td.AddressInfo{"1 Main St.", "Palo Alto", "CA", "94303"}}),
+			vom.RawBytesOf(invoice(1, 1000, t20150122131101, 42,
+				address("1 Main St.", "Palo Alto", "CA", "94303"))),
 		},
-		kv{
+		{
 			"001002",
-			vom.RawBytesOf(td.Invoice{1, 1003, t20150210161202, 7, td.AddressInfo{"2 Main St.", "Palo Alto", "CA", "94303"}}),
+			vom.RawBytesOf(invoice(1, 1003, t20150210161202, 7,
+				address("2 Main St.", "Palo Alto", "CA", "94303"))),
 		},
-		kv{
+		{
 			"001003",
-			vom.RawBytesOf(td.Invoice{1, 1005, t20150311101303, 88, td.AddressInfo{"3 Main St.", "Palo Alto", "CA", "94303"}}),
+			vom.RawBytesOf(invoice(1, 1005, t20150311101303, 88,
+				address("3 Main St.", "Palo Alto", "CA", "94303"))),
 		},
-		kv{
+		{
 			"002",
-			vom.RawBytesOf(td.Customer{"Bat Masterson", 2, true, td.AddressInfo{"777 Any St.", "Collins", "IA", "50055"}, []td.AddressInfo{td.AddressInfo{"19 Green St.", "Boulder", "CO", "80301"}, td.AddressInfo{"558 W. Orange St.", "Lancaster", "PA", "17603"}}, td.CreditReport{Agency: td.CreditAgencyTransUnion, Report: td.AgencyReportTransUnionReport{td.TransUnionCreditReport{80, map[string]int16{"2015Q2": 40, "2015Q1": 60}}}}}),
+			vom.RawBytesOf(customer(
+				"Bat Masterson", 2, true,
+				address("777 Any St.", "Collins", "IA", "50055"),
+				[]td.AddressInfo{
+					address("19 Green St.", "Boulder", "CO", "80301"),
+					address("558 W. Orange St.", "Lancaster", "PA", "17603"),
+				},
+				td.CreditReport{
+					Agency: td.CreditAgencyTransUnion,
+					Report: transunion(80, map[string]int16{
+						"2015Q2": 40, "2015Q1": 60}),
+				})),
 		},
-		kv{
+		{
 			"002001",
-			vom.RawBytesOf(td.Invoice{2, 1001, t20150317111404, 166, td.AddressInfo{"777 Any St.", "collins", "IA", "50055"}}),
+			vom.RawBytesOf(invoice(2, 1001, t20150317111404, 166,
+				address("777 Any St.", "collins", "IA", "50055"))),
 		},
-		kv{
+		{
 			"002002",
-			vom.RawBytesOf(td.Invoice{2, 1002, t20150317131505, 243, td.AddressInfo{"888 Any St.", "collins", "IA", "50055"}}),
+			vom.RawBytesOf(invoice(2, 1002, t20150317131505, 243,
+				address("888 Any St.", "collins", "IA", "50055"))),
 		},
-		kv{
+		{
 			"002003",
-			vom.RawBytesOf(td.Invoice{2, 1004, t20150412221606, 787, td.AddressInfo{"999 Any St.", "collins", "IA", "50055"}}),
+			vom.RawBytesOf(invoice(2, 1004, t20150412221606, 787,
+				address("999 Any St.", "collins", "IA", "50055"))),
 		},
-		kv{
+		{
 			"002004",
-			vom.RawBytesOf(td.Invoice{2, 1006, t20150413141707, 88, td.AddressInfo{"101010 Any St.", "collins", "IA", "50055"}}),
+			vom.RawBytesOf(invoice(2, 1006, t20150413141707, 88,
+				address("101010 Any St.", "collins", "IA", "50055"))),
 		},
-		kv{
+		{
 			"003",
-			vom.RawBytesOf(td.Customer{"John Steed", 3, true, td.AddressInfo{"100 Queen St.", "New%London", "CT", "06320"}, []td.AddressInfo{}, td.CreditReport{Agency: td.CreditAgencyExperian, Report: td.AgencyReportExperianReport{td.ExperianCreditReport{td.ExperianRatingGood, map[td.Tdh]struct{}{td.TdhTom: {}, td.TdhHarry: {}}, td.TdhTom}}}}),
+			vom.RawBytesOf(customer(
+				"John Steed", 3, true,
+				address("100 Queen St.", "New%London", "CT", "06320"),
+				[]td.AddressInfo{},
+				td.CreditReport{
+					Agency: td.CreditAgencyExperian,
+					Report: experian(td.ExperianRatingGood,
+						map[td.Tdh]struct{}{td.TdhTom: {}, td.TdhHarry: {}},
+						td.TdhTom),
+				})),
 		},
 	}
 	db.tables = append(db.tables, &custTable)
 
 	numTable.name = "Numbers"
 	numTable.rows = []kv{
-		kv{
+		{
 			"001",
-			vom.RawBytesOf(td.Numbers{byte(12), uint16(1234), uint32(5678), uint64(999888777666), int16(9876), int32(876543), int64(128), float32(3.14159), float64(2.71828182846)}),
+			vom.RawBytesOf(numbers(byte(12), uint16(1234), uint32(5678), uint64(999888777666), int16(9876), int32(876543), int64(128), float32(3.14159), float64(2.71828182846))),
 		},
-		kv{
+		{
 			"002",
-			vom.RawBytesOf(td.Numbers{byte(9), uint16(99), uint32(999), uint64(9999999), int16(9), int32(99), int64(88), float32(1.41421356237), float64(1.73205080757)}),
+			vom.RawBytesOf(numbers(byte(9), uint16(99), uint32(999), uint64(9999999), int16(9), int32(99), int64(88), float32(1.41421356237), float64(1.73205080757))),
 		},
-		kv{
+		{
 			"003",
-			vom.RawBytesOf(td.Numbers{byte(210), uint16(210), uint32(210), uint64(210), int16(210), int32(210), int64(210), float32(210.0), float64(210.0)}),
+			vom.RawBytesOf(numbers(byte(210), uint16(210), uint32(210), uint64(210), int16(210), int32(210), int64(210), float32(210.0), float64(210.0))),
 		},
 	}
 	db.tables = append(db.tables, &numTable)
 
 	fooTable.name = "Foo"
 	fooTable.rows = []kv{
-		kv{
+		{
 			"001",
-			vom.RawBytesOf(td.FooType{td.BarType{td.BazType{"FooBarBaz", td.TitleOrValueTypeTitle{"Vice President"}}}}),
+			vom.RawBytesOf(td.FooType{
+				Bar: td.BarType{
+					Baz: td.BazType{
+						Name:         "FooBarBaz",
+						TitleOrValue: td.TitleOrValueTypeTitle{Value: "Vice President"}}}}),
 		},
-		kv{
+		{
 			"002",
-			vom.RawBytesOf(td.FooType{td.BarType{td.BazType{"BazBarFoo", td.TitleOrValueTypeValue{42}}}}),
+			vom.RawBytesOf(td.FooType{
+				Bar: td.BarType{
+					Baz: td.BazType{
+						Name:         "BazBarFoo",
+						TitleOrValue: td.TitleOrValueTypeValue{Value: 42}}}}),
 		},
 	}
 	db.tables = append(db.tables, &fooTable)
 
+	key := func(a byte, b string) td.K {
+		return td.K{A: a, B: b}
+	}
+	val := func(a string, b float32) td.V {
+		return td.V{A: a, B: b}
+	}
+
 	funWithMapsTable.name = "FunWithMaps"
 	funWithMapsTable.rows = []kv{
-		kv{
+		{
 			"AAA",
-			vom.RawBytesOf(td.FunWithMaps{td.K{'a', "bbb"}, map[td.K]td.V{td.K{'a', "aaa"}: td.V{"bbb", 23.0}, td.K{'a', "bbb"}: td.V{"ccc", 14.7}},
-				map[int16][]map[string]struct{}{
-					23: []map[string]struct{}{
-						map[string]struct{}{"foo": {}, "bar": {}},
+			vom.RawBytesOf(td.FunWithMaps{
+				Key: key('a', "bbb"),
+				Map: map[td.K]td.V{key('a', "aaa"): val("bbb", 23.0), key('a', "bbb"): val("ccc", 14.7)},
+				Confusing: map[int16][]map[string]struct{}{
+					23: {
+						{"foo": {}, "bar": {}},
 					},
 				},
 			}),
 		},
-		kv{
+		{
 			"BBB",
-			vom.RawBytesOf(td.FunWithMaps{td.K{'x', "zzz"}, map[td.K]td.V{td.K{'x', "zzz"}: td.V{"yyy", 17.1}, td.K{'r', "sss"}: td.V{"qqq", 7.8}},
-				map[int16][]map[string]struct{}{
-					42: []map[string]struct{}{
-						map[string]struct{}{"great": {}, "dane": {}},
-						map[string]struct{}{"german": {}, "shepard": {}},
+			vom.RawBytesOf(td.FunWithMaps{
+				Key: key('x', "zzz"),
+				Map: map[td.K]td.V{key('x', "zzz"): val("yyy", 17.1), key('r', "sss"): val("qqq", 7.8)},
+				Confusing: map[int16][]map[string]struct{}{
+					42: {
+						{"great": {}, "dane": {}},
+						{"german": {}, "shepard": {}},
 					},
 				},
 			}),
@@ -363,11 +483,11 @@ func initTables() {
 
 	ratingsArrayTable.name = "RatingsArray"
 	ratingsArrayTable.rows = []kv{
-		kv{
+		{
 			"000",
 			vom.RawBytesOf(td.RatingsArray{40, 20, 10, 0}),
 		},
-		kv{
+		{
 			"111",
 			vom.RawBytesOf(td.RatingsArray{17, 18, 19, 20}),
 		},
@@ -376,11 +496,11 @@ func initTables() {
 
 	tdhApprovalsTable.name = "TdhApprovals"
 	tdhApprovalsTable.rows = []kv{
-		kv{
+		{
 			"yyy",
 			vom.RawBytesOf(map[td.Tdh]struct{}{td.TdhTom: {}}),
 		},
-		kv{
+		{
 			"zzz",
 			vom.RawBytesOf(map[td.Tdh]struct{}{td.TdhDick: {}, td.TdhHarry: {}}),
 		},
@@ -389,11 +509,11 @@ func initTables() {
 
 	previousRatingsTable.name = "PreviousRatings"
 	previousRatingsTable.rows = []kv{
-		kv{
+		{
 			"x1",
 			vom.RawBytesOf(map[string]int16{"1Q2015": 1, "2Q2015": 2}),
 		},
-		kv{
+		{
 			"x2",
 			vom.RawBytesOf(map[string]int16{"2Q2015": 3}),
 		},
@@ -402,18 +522,18 @@ func initTables() {
 
 	previousAddressesTable.name = "PreviousAddresses"
 	previousAddressesTable.rows = []kv{
-		kv{
+		{
 			"a1",
 			vom.RawBytesOf([]td.AddressInfo{
-				td.AddressInfo{"100 Main St.", "Anytown", "CA", "94303"},
-				td.AddressInfo{"200 Main St.", "Othertown", "IA", "51050"},
+				address("100 Main St.", "Anytown", "CA", "94303"),
+				address("200 Main St.", "Othertown", "IA", "51050"),
 			}),
 		},
-		kv{
+		{
 			"a2",
 			vom.RawBytesOf([]td.AddressInfo{
-				td.AddressInfo{"500 Orange St", "Uptown", "ID", "83209"},
-				td.AddressInfo{"200 Fulton St", "Downtown", "MT", "59001"},
+				address("500 Orange St", "Uptown", "ID", "83209"),
+				address("200 Fulton St", "Downtown", "MT", "59001"),
 			}),
 		},
 	}
@@ -421,23 +541,23 @@ func initTables() {
 
 	manyMapsTable.name = "ManyMaps"
 	manyMapsTable.rows = []kv{
-		kv{
+		{
 			"0",
 			vom.RawBytesOf(td.ManyMaps{
-				map[bool]string{true: "It was the best of times,"},
-				map[byte]string{10: "it was the worst of times,"},
-				map[uint16]string{16: "it was the age of wisdom,"},
-				map[uint32]string{32: "it was the age of foolishness,"},
-				map[uint64]string{64: "it was the epoch of belief,"},
-				map[int16]string{17: "it was the epoch of incredulity,"},
-				map[int32]string{33: "it was the season of Light,"},
-				map[int64]string{65: "it was the season of Darkness,"},
-				map[float32]string{32.1: "it was the spring of hope,"},
-				map[float64]string{64.2: "it was the winter of despair,"}, map[string]string{"Dickens": "we are all going direct to Heaven,"},
-				map[string]map[string]string{
-					"Charles": map[string]string{"Dickens": "we are all going direct to Heaven,"},
+				B:   map[bool]string{true: "It was the best of times,"},
+				By:  map[byte]string{10: "it was the worst of times,"},
+				U16: map[uint16]string{16: "it was the age of wisdom,"},
+				U32: map[uint32]string{32: "it was the age of foolishness,"},
+				U64: map[uint64]string{64: "it was the epoch of belief,"},
+				I16: map[int16]string{17: "it was the epoch of incredulity,"},
+				I32: map[int32]string{33: "it was the season of Light,"},
+				I64: map[int64]string{65: "it was the season of Darkness,"},
+				F32: map[float32]string{32.1: "it was the spring of hope,"},
+				F64: map[float64]string{64.2: "it was the winter of despair,"}, S: map[string]string{"Dickens": "we are all going direct to Heaven,"},
+				Ms: map[string]map[string]string{
+					"Charles": {"Dickens": "we are all going direct to Heaven,"},
 				},
-				map[time.Time]string{t2015_07_01_01_23_45: "we are all going direct the other way"},
+				T: map[time.Time]string{t2015_07_01_01_23_45: "we are all going direct the other way"},
 			}),
 		},
 	}
@@ -445,21 +565,21 @@ func initTables() {
 
 	manySetsTable.name = "ManySets"
 	manySetsTable.rows = []kv{
-		kv{
+		{
 			"0",
 			vom.RawBytesOf(td.ManySets{
-				map[bool]struct{}{true: {}},
-				map[byte]struct{}{10: {}},
-				map[uint16]struct{}{16: {}},
-				map[uint32]struct{}{32: {}},
-				map[uint64]struct{}{64: {}},
-				map[int16]struct{}{17: {}},
-				map[int32]struct{}{33: {}},
-				map[int64]struct{}{65: {}},
-				map[float32]struct{}{32.1: {}},
-				map[float64]struct{}{64.2: {}},
-				map[string]struct{}{"Dickens": {}},
-				map[time.Time]struct{}{t2015_07_01_01_23_45: {}},
+				B:   map[bool]struct{}{true: {}},
+				By:  map[byte]struct{}{10: {}},
+				U16: map[uint16]struct{}{16: {}},
+				U32: map[uint32]struct{}{32: {}},
+				U64: map[uint64]struct{}{64: {}},
+				I16: map[int16]struct{}{17: {}},
+				I32: map[int32]struct{}{33: {}},
+				I64: map[int64]struct{}{65: {}},
+				F32: map[float32]struct{}{32.1: {}},
+				F64: map[float64]struct{}{64.2: {}},
+				S:   map[string]struct{}{"Dickens": {}},
+				T:   map[time.Time]struct{}{t2015_07_01_01_23_45: {}},
 			}),
 		},
 	}
@@ -469,21 +589,31 @@ func initTables() {
 
 	for i := 100; i < 301; i++ {
 		k := fmt.Sprintf("%d", i)
-		b := vom.RawBytesOf(td.BigData{k})
+		b := vom.RawBytesOf(td.BigData{Key: k})
 		bigTable.rows = append(bigTable.rows, kv{k, b})
 	}
 	db.tables = append(db.tables, &bigTable)
 
-	custType := vdl.TypeOf(td.Customer{"John Steed", 3, true, td.AddressInfo{"100 Queen St.", "New London", "CT", "06320"}, []td.AddressInfo{}, td.CreditReport{Agency: td.CreditAgencyExperian, Report: td.AgencyReportExperianReport{td.ExperianCreditReport{td.ExperianRatingGood, map[td.Tdh]struct{}{td.TdhTom: {}, td.TdhHarry: {}}, td.TdhTom}}}})
-	invType := vdl.TypeOf(td.Invoice{2, 1006, t20150413141707, 88, td.AddressInfo{"101010 Any St.", "collins", "IA", "50055"}})
-
+	custType := vdl.TypeOf(customer(
+		"John Steed", 3, true,
+		address("100 Queen St.", "New London", "CT", "06320"),
+		[]td.AddressInfo{},
+		td.CreditReport{
+			Agency: td.CreditAgencyExperian,
+			Report: experian(td.ExperianRatingGood,
+				map[td.Tdh]struct{}{td.TdhTom: {}, td.TdhHarry: {}},
+				td.TdhTom),
+		}))
+	invType := vdl.TypeOf(
+		invoice(2, 1006, t20150413141707, 88,
+			address("101010 Any St.", "collins", "IA", "50055")))
 	funWithTypesTable.name = "FunWithTypes"
 	funWithTypesTable.rows = []kv{
-		kv{
+		{
 			"1",
 			vom.RawBytesOf(td.FunWithTypes{T1: custType, T2: invType}),
 		},
-		kv{
+		{
 			"2",
 			vom.RawBytesOf(td.FunWithTypes{T1: custType, T2: custType}),
 		},
@@ -1029,7 +1159,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.Name = \"FooBarBaz\"",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[0].value},
+				{fooTable.rows[0].value},
 			},
 		},
 		{
@@ -1037,7 +1167,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.TitleOrValue.Value = 42",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[1].value},
+				{fooTable.rows[1].value},
 			},
 		},
 		{
@@ -1045,7 +1175,7 @@ func TestSelect(t *testing.T) {
 			"select v from Foo where v.Bar.Baz.TitleOrValue.Title = \"Vice President\"",
 			[]string{"v"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{fooTable.rows[0].value},
+				{fooTable.rows[0].value},
 			},
 		},
 		{
@@ -1422,8 +1552,8 @@ func TestSelect(t *testing.T) {
 			"select v.Map[v.Key] from FunWithMaps",
 			[]string{"v.Map[v.Key]"},
 			[][]*vom.RawBytes{
-				{vom.RawBytesOf(td.V{"ccc", 14.7})},
-				{vom.RawBytesOf(td.V{"yyy", 17.1})},
+				{vom.RawBytesOf(td.V{A: "ccc", B: 14.7})},
+				{vom.RawBytesOf(td.V{A: "yyy", B: 17.1})},
 			},
 		},
 		// map of int16 to array of sets of strings
@@ -1652,7 +1782,7 @@ func TestSelect(t *testing.T) {
 			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.Ms[\"Charles\"][\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManyMaps",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.Ms[Charles][Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{
+				{
 					vom.RawBytesOf("It was the best of times,"),
 					vom.RawBytesOf("it was the worst of times,"),
 					vom.RawBytesOf("it was the age of wisdom,"),
@@ -1674,7 +1804,7 @@ func TestSelect(t *testing.T) {
 			"select v.B[true], v.By[10], v.U16[16], v.U32[32], v.U64[64], v.I16[17], v.I32[33], v.I64[65], v.F32[32.1], v.F64[64.2], v.S[\"Dickens\"], v.T[Time(\"2006-01-02 15:04:05 -0700 MST\", \"2015-07-01 01:23:45 -0700 PDT\")] from ManySets",
 			[]string{"v.B[true]", "v.By[10]", "v.U16[16]", "v.U32[32]", "v.U64[64]", "v.I16[17]", "v.I32[33]", "v.I64[65]", "v.F32[32.1]", "v.F64[64.2]", "v.S[Dickens]", "v.T[Time]"},
 			[][]*vom.RawBytes{
-				[]*vom.RawBytes{
+				{
 					vom.RawBytesOf(true),
 					vom.RawBytesOf(true),
 					vom.RawBytesOf(true),

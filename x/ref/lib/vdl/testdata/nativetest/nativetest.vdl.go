@@ -350,6 +350,7 @@ var (
 )
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_int32_1  *vdl.Type
 	__VDLType_int32_2  *vdl.Type

@@ -24,7 +24,7 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -32,8 +32,6 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 )
-
-const leakWaitTime = 250 * time.Millisecond
 
 var randData []byte
 
@@ -368,7 +366,7 @@ func TestProxyNotAuthorized(t *testing.T) {
 	// the proxy's blessings.
 	var got string
 	if err := v23.GetClient(cctx).Call(cctx, "server", "Echo", []interface{}{"hello"},
-		[]interface{}{&got}, options.ServerAuthorizer{rejectProxyAuthorizer{}}); err != nil {
+		[]interface{}{&got}, options.ServerAuthorizer{Authorizer: rejectProxyAuthorizer{}}); err != nil {
 		t.Fatal(err)
 	}
 	if want := "response:hello"; got != want {
@@ -633,7 +631,9 @@ func TestProxyBlessings(t *testing.T) {
 	if err := pblesser.Bless(serverP, "server"); err != nil {
 		t.Fatal(err)
 	}
-	serverP.BlessingStore().Set(def, "...")
+	if _, err := serverP.BlessingStore().Set(def, "..."); err != nil {
+		t.Fatal(err)
+	}
 
 	// Start the proxy.
 	pname, stop := startProxy(t, pctx, "proxy", nil, "", address{"tcp", "127.0.0.1:0"})

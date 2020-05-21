@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -41,6 +41,7 @@ func TestPProfProxy(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer ln.Close()
+	// nolint: errcheck
 	go http.Serve(ln, pproflib.PprofProxy(ctx, "/myprefix", endpoints[0].Name()))
 	testcases := []string{
 		"/myprefix/pprof/",

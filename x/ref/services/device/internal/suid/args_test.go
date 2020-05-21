@@ -196,7 +196,7 @@ func TestParseArguments(t *testing.T) {
 		var wp WorkParameters
 		fs := flag.NewFlagSet(c.cmdline[0], flag.ExitOnError)
 		setupFlags(fs)
-		fs.Parse(c.cmdline[1:])
+		fs.Parse(c.cmdline[1:]) // nolint: errcheck
 		if err := wp.ProcessArguments(fs, c.env); (err != nil || c.errID != "") && verror.ErrorID(err) != c.errID {
 			t.Fatalf("got %s (%v), expected %q error", verror.ErrorID(err), err, c.errID)
 		}

@@ -325,13 +325,14 @@ var descVine = rpc.InterfaceDesc{
 			Name: "SetBehaviors",
 			Doc:  "// SetBehaviors sets the policy that the accepting vine service's process\n// will use on connections.\n// behaviors is a map from server tag to the desired connection behavior.\n// For example,\n//   client.SetBehaviors(map[PeerKey]PeerBehavior{PeerKey{\"foo\", \"bar\"}, PeerBehavior{Reachable: false}})\n// will cause all vine protocol dial calls from \"foo\" to \"bar\" to fail.",
 			InArgs: []rpc.ArgDesc{
-				{"behaviors", ``}, // map[PeerKey]PeerBehavior
+				{Name: "behaviors", Doc: ``}, // map[PeerKey]PeerBehavior
 			},
 		},
 	},
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

@@ -656,10 +656,10 @@ var descHttp = rpc.InterfaceDesc{
 			Name: "RawDo",
 			Doc:  "// RawDo returns the server's response to req.",
 			InArgs: []rpc.ArgDesc{
-				{"req", ``}, // Request
+				{Name: "req", Doc: ``}, // Request
 			},
 			OutArgs: []rpc.ArgDesc{
-				{"data", ``}, // []byte
+				{Name: "data", Doc: ``}, // []byte
 			},
 			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Debug"))},
 		},
@@ -667,6 +667,7 @@ var descHttp = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

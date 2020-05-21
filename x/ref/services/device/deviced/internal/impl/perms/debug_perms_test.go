@@ -85,16 +85,20 @@ func TestDebugPermissionsPropagation(t *testing.T) {
 
 	// Create some globbing test vectors.
 	globtests := []utiltest.GlobTestVector{
-		{naming.Join("dm", "apps", appID, bobApp), "*",
-			[]string{"logs", "pprof", "stats"},
+		{
+			Name:     naming.Join("dm", "apps", appID, bobApp),
+			Pattern:  "*",
+			Expected: []string{"logs", "pprof", "stats"},
 		},
-		{naming.Join("dm", "apps", appID, bobApp, "stats", "system"),
-			"start-time*",
-			[]string{"start-time-rfc1123", "start-time-unix"},
+		{
+			Name:     naming.Join("dm", "apps", appID, bobApp, "stats", "system"),
+			Pattern:  "start-time*",
+			Expected: []string{"start-time-rfc1123", "start-time-unix"},
 		},
-		{naming.Join("dm", "apps", appID, bobApp, "logs"),
-			"*",
-			[]string{
+		{
+			Name:    naming.Join("dm", "apps", appID, bobApp, "logs"),
+			Pattern: "*",
+			Expected: []string{
 				"STDERR-<timestamp>",
 				"STDOUT-<timestamp>",
 				"app.INFO",
@@ -103,16 +107,20 @@ func TestDebugPermissionsPropagation(t *testing.T) {
 		},
 	}
 	appGlobtests := []utiltest.GlobTestVector{
-		{naming.Join("appV1", "__debug"), "*",
-			[]string{"http", "logs", "pprof", "stats", "vtrace"},
+		{
+			Name:     naming.Join("appV1", "__debug"),
+			Pattern:  "*",
+			Expected: []string{"http", "logs", "pprof", "stats", "vtrace"},
 		},
-		{naming.Join("appV1", "__debug", "stats", "system"),
-			"start-time*",
-			[]string{"start-time-rfc1123", "start-time-unix"},
+		{
+			Name:     naming.Join("appV1", "__debug", "stats", "system"),
+			Pattern:  "start-time*",
+			Expected: []string{"start-time-rfc1123", "start-time-unix"},
 		},
-		{naming.Join("appV1", "__debug", "logs"),
-			"*",
-			[]string{
+		{
+			Name:    naming.Join("appV1", "__debug", "logs"),
+			Pattern: "*",
+			Expected: []string{
 				"STDERR-<timestamp>",
 				"STDOUT-<timestamp>",
 				"app.INFO",
@@ -221,16 +229,20 @@ func TestClaimSetsDebugPermissions(t *testing.T) {
 
 	// Create some globbing test vectors.
 	dmGlobtests := []utiltest.GlobTestVector{
-		{naming.Join("dm", "__debug"), "*",
-			[]string{"http", "logs", "pprof", "stats", "vtrace"},
+		{
+			Name:     naming.Join("dm", "__debug"),
+			Pattern:  "*",
+			Expected: []string{"http", "logs", "pprof", "stats", "vtrace"},
 		},
-		{naming.Join("dm", "__debug", "stats", "system"),
-			"start-time*",
-			[]string{"start-time-rfc1123", "start-time-unix"},
+		{
+			Name:     naming.Join("dm", "__debug", "stats", "system"),
+			Pattern:  "start-time*",
+			Expected: []string{"start-time-rfc1123", "start-time-unix"},
 		},
-		{naming.Join("dm", "__debug", "logs"),
-			"*",
-			[]string{
+		{
+			Name:    naming.Join("dm", "__debug", "logs"),
+			Pattern: "*",
+			Expected: []string{
 				// STDERR and STDOUT are not handled through the log package so
 				// are not included here.
 				"perms.test.INFO",

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
@@ -57,6 +57,7 @@ func makeEPs(ctx *context.T, addr string) (ep, nullep, wprotoep, waddrep, waddrp
 	return
 }
 
+// nolint: deadcode, unused
 func modep(ep naming.Endpoint, field string, value interface{}) naming.Endpoint {
 	reflect.ValueOf(ep).FieldByName(field).Set(reflect.ValueOf(value))
 	return ep
@@ -123,7 +124,9 @@ func TestCacheReserve(t *testing.T) {
 	defer proxycaf.stop(ctx)
 	onecaf := makeConnAndFlow(t, ctx, oneep)
 	defer onecaf.stop(ctx)
-	r1.Unreserve(onecaf.c, proxycaf.c, nil)
+	if err := r1.Unreserve(onecaf.c, proxycaf.c, nil); err != nil {
+		t.Fatal(err)
+	}
 
 	// Now, asking for the ProxyConn on the proxy reservation should find
 	// the proxy, since we just inserted it.
@@ -151,7 +154,9 @@ func TestCacheReserve(t *testing.T) {
 	twocaf := makeConnAndFlow(t, ctx, twoep)
 	defer twocaf.stop(ctx)
 
-	r2.Unreserve(twocaf.c, pc, nil)
+	if err := r2.Unreserve(twocaf.c, pc, nil); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestCacheFind(t *testing.T) {

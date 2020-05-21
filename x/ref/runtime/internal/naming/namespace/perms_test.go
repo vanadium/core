@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -35,7 +35,9 @@ func initTest() (rootCtx *context.T, aliceCtx *context.T, bobCtx *context.T, shu
 	}
 	for _, r := range []*context.T{rootCtx, aliceCtx, bobCtx} {
 		// A hack to set the namespace roots to a value that won't work.
-		v23.GetNamespace(r).SetRoots()
+		if err := v23.GetNamespace(r).SetRoots(); err != nil {
+			panic(err)
+		}
 		// And have all principals recognize each others blessings.
 		p1 := v23.GetPrincipal(r)
 		for _, other := range []*context.T{rootCtx, aliceCtx, bobCtx} {
@@ -131,7 +133,9 @@ func TestPermissions(t *testing.T) {
 	fmt.Printf("rmt at %s\n", rmtAddr)
 	defer stop()
 	ns := v23.GetNamespace(rootCtx)
-	ns.SetRoots("/" + rmtAddr)
+	if err := ns.SetRoots("/" + rmtAddr); err != nil {
+		t.Fatal(err)
+	}
 
 	// Create lower mount table.
 	stop1, mt1Addr := newMT(t, rootCtx)

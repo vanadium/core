@@ -243,7 +243,7 @@ func (s *sigCache) cache(digests [][]byte) {
 		m := 0
 		// Randomly evict and entry. Fortunately, map iteration is in random key order
 		// (see "Iteration Order" in http://blog.golang.org/go-maps-in-action)
-		for key, _ := range s.m {
+		for key := range s.m {
 			delete(s.m, key)
 			m++
 			if m >= n {

@@ -86,6 +86,7 @@ const (
 var VEnumAll = [...]VEnum{VEnumA, VEnumB, VEnumC}
 
 // VEnumFromString creates a VEnum from a string label.
+// nolint: deadcode, unused
 func VEnumFromString(label string) (x VEnum, err error) {
 	err = x.Set(label)
 	return
@@ -1427,6 +1428,7 @@ func VDLReadVSmallUnion(dec vdl.Decoder, x *VSmallUnion) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
+// nolint: unused
 var (
 	__VDLType_int32_1   *vdl.Type
 	__VDLType_string_2  *vdl.Type

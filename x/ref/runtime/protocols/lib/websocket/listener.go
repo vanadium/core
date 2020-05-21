@@ -49,7 +49,7 @@ func listener(protocol, address string, hybrid bool) (flow.Listener, error) {
 	}
 	go ln.netAcceptLoop()
 	httpsrv := http.Server{Handler: ln}
-	go httpsrv.Serve(&chanListener{Listener: netLn, c: ln.httpQ})
+	go httpsrv.Serve(&chanListener{Listener: netLn, c: ln.httpQ}) // nolint: errcheck
 	return ln, nil
 }
 
@@ -140,8 +140,8 @@ func (ln *wsTCPListener) classify(conn net.Conn, done *sync.WaitGroup) {
 	defer done.Done()
 	isHTTP := true
 	if ln.hybrid {
-		conn.SetReadDeadline(time.Now().Add(classificationTime))
-		defer conn.SetReadDeadline(time.Time{})
+		conn.SetReadDeadline(time.Now().Add(classificationTime)) // nolint: errcheck
+		defer conn.SetReadDeadline(time.Time{})                  // nolint: errcheck
 		var magic [1]byte
 		n, err := io.ReadFull(conn, magic[:])
 		if err != nil {

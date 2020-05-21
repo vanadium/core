@@ -10,7 +10,7 @@ import (
 	"sort"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -38,7 +38,7 @@ func TestDebugServer(t *testing.T) {
 	name := "testserver"
 	debugDisp := debuglib.NewDispatcher(nil)
 	_, _, err := v23.WithNewServer(ctx, name, &testObject{}, nil,
-		irpc.ReservedNameDispatcher{debugDisp})
+		irpc.ReservedNameDispatcher{Dispatcher: debugDisp})
 	if err != nil {
 		t.Fatal(err)
 	}

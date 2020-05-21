@@ -7,7 +7,6 @@ package fs
 
 import (
 	"encoding/gob"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -45,10 +44,10 @@ var (
 	errCantCreate          = verror.Register(pkgPath+".errCantCreate", verror.NoRetry, "{1:}{2:} File ({3}) could not be created ({4}){:_}")
 	errCantOpen            = verror.Register(pkgPath+".errCantOpen", verror.NoRetry, "{1:}{2:} File ({3}) could not be opened ({4}){:_}")
 	errDecodeFailedBadData = verror.Register(pkgPath+".errDecodeFailedBadData", verror.NoRetry, "{1:}{2:} Decode() failed: data format mismatch or backing file truncated{:_}")
-	errCreateFailed        = verror.Register(pkgPath+".errCreateFailed", verror.NoRetry, "{1:}{2:} Create({3}) failed{:_}")
-	errEncodeFailed        = verror.Register(pkgPath+".errEncodeFailed", verror.NoRetry, "{1:}{2:} Encode() failed{:_}")
-	errFileSystemError     = verror.Register(pkgPath+".errFileSystemError", verror.NoRetry, "{1:}{2:} File system operation failed{:_}")
-	errFormatUpgradeError  = verror.Register(pkgPath+".errFormatUpgradeError", verror.NoRetry, "{1:}{2:} File format upgrading failed{:_}")
+
+	errEncodeFailed       = verror.Register(pkgPath+".errEncodeFailed", verror.NoRetry, "{1:}{2:} Encode() failed{:_}")
+	errFileSystemError    = verror.Register(pkgPath+".errFileSystemError", verror.NoRetry, "{1:}{2:} File system operation failed{:_}")
+	errFormatUpgradeError = verror.Register(pkgPath+".errFormatUpgradeError", verror.NoRetry, "{1:}{2:} File format upgrading failed{:_}")
 )
 
 // Memstore contains the state of the memstore. It supports a single
@@ -137,7 +136,7 @@ func init() {
 	// because if so, then applicationEnvelope defined in this package
 	// needs to change
 	if n := reflect.TypeOf(application.Envelope{}).NumField(); n != 8 {
-		panic(fmt.Sprintf("It appears that fields have been added to or removed from application.Envelope before the hack in this file around gob-encodeability was removed. Please also update applicationEnvelope, translateToGobEncodeable and translateToGobDecodeable in this file"))
+		panic("It appears that fields have been added to or removed from application.Envelope before the hack in this file around gob-encodeability was removed. Please also update applicationEnvelope, translateToGobEncodeable and translateToGobDecodeable in this file")
 	}
 }
 
@@ -294,13 +293,13 @@ func (ms *Memstore) BindObject(path string) *boundObject {
 
 func (ms *Memstore) removeChildren(path string) bool {
 	deleted := false
-	for k, _ := range ms.data {
+	for k := range ms.data {
 		if strings.HasPrefix(k, path) {
 			deleted = true
 			ms.removes[k] = keyExists
 		}
 	}
-	for k, _ := range ms.puts {
+	for k := range ms.puts {
 		if strings.HasPrefix(k, path) {
 			deleted = true
 			delete(ms.puts, k)
@@ -367,7 +366,7 @@ func (ms *Memstore) Commit(_ interface{}) error {
 	for k, v := range ms.puts {
 		ms.data[k] = v
 	}
-	for k, _ := range ms.removes {
+	for k := range ms.removes {
 		delete(ms.data, k)
 	}
 	return ms.persist()
@@ -422,7 +421,7 @@ func (o *boundObject) transactionExists() bool {
 	// to determine if any of their names have the bound name as a prefix.
 	// Puts take precedence over removes so we scan it first.
 
-	for k, _ := range o.ms.puts {
+	for k := range o.ms.puts {
 		if strings.HasPrefix(k, o.path) {
 			return true
 		}
@@ -431,7 +430,7 @@ func (o *boundObject) transactionExists() bool {
 	// Then we scan data for matches and verify that at least one of the
 	// object names with the bound prefix have not been removed.
 
-	for k, _ := range o.ms.data {
+	for k := range o.ms.data {
 		if _, inRemoves := o.ms.removes[k]; strings.HasPrefix(k, o.path) && !inRemoves {
 			return true
 		}
@@ -447,7 +446,7 @@ func (o *boundObject) Exists(_ interface{}) (bool, error) {
 		if inBase {
 			return true, nil
 		}
-		for k, _ := range o.ms.data {
+		for k := range o.ms.data {
 			if strings.HasPrefix(k, o.path) {
 				return true, nil
 			}
@@ -519,7 +518,7 @@ func (o *boundObject) Children() ([]string, error) {
 	}
 	found := false
 	childrenSet := make(map[string]struct{})
-	for k, _ := range o.ms.data {
+	for k := range o.ms.data {
 		if strings.HasPrefix(k, o.path) || o.path == "" {
 			name := strings.TrimPrefix(k, o.path)
 			// Found the object itself.

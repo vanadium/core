@@ -47,7 +47,7 @@ func getTestTypes() (names typeNames, tyStruct, tyList, tyBool *vdl.Type, outErr
 
 	pkg := &compile.Package{
 		Files: []*compile.File{
-			&compile.File{
+			{
 				TypeDefs: []*compile.TypeDef{
 					{
 						Type: builtList,

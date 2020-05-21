@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -16,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/services/device"
@@ -93,6 +94,7 @@ const (
 	ApplicationInstallationObject objectKind = iota
 	ApplicationInstanceObject
 	DeviceServiceObject
+	// nolint: deadcode, unused
 	SentinelObjectKind // For invariant checking in testing.
 )
 
@@ -200,8 +202,14 @@ func Run(ctx *context.T, env *cmdline.Env, args []string, handler GlobHandler, s
 		}
 	}
 	for i := range results {
-		io.Copy(env.Stdout, &stdouts[i])
-		io.Copy(env.Stderr, &stderrs[i])
+		if _, err := io.Copy(env.Stdout, &stdouts[i]); err != nil {
+			fmt.Fprintf(os.Stderr, "io.Copy: %v\n", err)
+			atomic.AddUint32(&errorCounter, 1)
+		}
+		if _, err := io.Copy(env.Stderr, &stderrs[i]); err != nil {
+			fmt.Fprintf(os.Stderr, "io.Copy: %v\n", err)
+			atomic.AddUint32(&errorCounter, 1)
+		}
 	}
 	if errorCounter > 0 {
 		return fmt.Errorf("encountered a total of %d error(s)", errorCounter)
@@ -430,7 +438,7 @@ var parallelismStrings = map[parallelismFlag]string{
 
 func init() {
 	if len(parallelismStrings) != int(sentinelParallelismFlag) {
-		panic(fmt.Sprintf("broken invariant: mismatching number of parallelism types"))
+		panic("broken invariant: mismatching number of parallelism types")
 	}
 }
 
@@ -478,6 +486,7 @@ var allGlobSettings []*GlobSettings
 
 // ResetGlobSettings is meant for tests to restore the values of flag-configured
 // variables when running multiple commands in the same process.
+// nolint: deadcode, unused
 func ResetGlobSettings() {
 	for _, s := range allGlobSettings {
 		s.reset()

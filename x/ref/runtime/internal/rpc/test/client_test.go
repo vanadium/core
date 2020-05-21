@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -288,7 +288,9 @@ func TestStartCallErrors(t *testing.T) {
 	// This will fail with NoServers, but because there is no mount table
 	// to communicate with. The error message should include a
 	// 'connection refused' string.
-	ns.SetRoots("/127.0.0.1:8101")
+	if err := ns.SetRoots("/127.0.0.1:8101"); err != nil {
+		t.Fatal(err)
+	}
 	_, err = client.StartCall(ctx, "noname", "nomethod", nil, options.NoRetry{})
 	if verror.ErrorID(err) != verror.ErrNoServers.ID {
 		t.Errorf("wrong error: %s", err)
@@ -339,7 +341,9 @@ func TestStartCallErrors(t *testing.T) {
 	}
 
 	// The following two tests will fail due to a timeout.
-	ns.SetRoots("/203.0.113.10:8101")
+	if err := ns.SetRoots("/203.0.113.10:8101"); err != nil {
+		t.Fatal(err)
+	}
 	var cancel context.CancelFunc
 	nctx, cancel = context.WithTimeout(ctx, 100*time.Millisecond)
 	// This call will either timeout talking to the mount table or indicate
@@ -495,7 +499,9 @@ func TestAccessDenied(t *testing.T) {
 	ctx1, err := v23.WithPrincipal(ctx, testutil.NewPrincipal("test-blessing"))
 	// Client must recognize the server, otherwise it won't even send the request.
 	bserver, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
-	security.AddToRoots(v23.GetPrincipal(ctx1), bserver)
+	if err := security.AddToRoots(v23.GetPrincipal(ctx1), bserver); err != nil {
+		t.Fatal(err)
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -640,7 +646,9 @@ func TestStreamAbort(t *testing.T) {
 			t.Fatalf("unexpected error: %s", err)
 		}
 	}
-	call.CloseSend()
+	if err := call.CloseSend(); err != nil {
+		t.Fatal(err)
+	}
 	err = call.Send(100)
 	if got, want := verror.ErrorID(err), verror.ErrAborted.ID; got != want {
 		t.Fatalf("got %v, want %v", got, want)
@@ -679,7 +687,9 @@ func TestNoMountTable(t *testing.T) {
 	_, ctx, _, cleanup := testInit(t, false)
 	defer cleanup()
 
-	v23.GetNamespace(ctx).SetRoots()
+	if err := v23.GetNamespace(ctx).SetRoots(); err != nil {
+		t.Fatal(err)
+	}
 	name := "a_mount_table_entry"
 
 	// If there is no mount table, then we'll get a NoServers error message.
@@ -959,7 +969,9 @@ func TestPinConnection(t *testing.T) {
 	if got, want := call.Security().LocalEndpoint().String(), pinnedConn.Conn().LocalEndpoint().String(); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	call.Finish()
+	if err := call.Finish(); err != nil {
+		t.Fatal(err)
+	}
 
 	// Closing the original conn should automatically reconnect to the server.
 	origConn := pinnedConn.Conn()

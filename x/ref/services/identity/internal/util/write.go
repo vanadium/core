@@ -65,7 +65,7 @@ Ask the server administrator to check the server logs
 
 func requestString(r *http.Request) string {
 	var buf bytes.Buffer
-	r.Write(&buf)
+	r.Write(&buf) // nolint: errcheck
 	return buf.String()
 }
 
