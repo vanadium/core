@@ -261,7 +261,7 @@ func TestDeviceManagerUpdateAndRevert(t *testing.T) {
 	utiltest.RevertDevice(t, ctx, "v2DM")
 	dm.S.Expect("restart handler")
 	dm.S.Expect("v2DM terminated")
-	dm.S.ExpectEOF()
+	dm.S.ExpectEOF() // nolint: errcheck
 	if evalLink() != scriptPathFactory {
 		t.Fatalf("current link was not reverted correctly")
 	}
@@ -276,7 +276,7 @@ func TestDeviceManagerUpdateAndRevert(t *testing.T) {
 	utiltest.Resolve(t, ctx, "factoryDM", 1, true) // Current link should have been launching factory version.
 	utiltest.ShutdownDevice(t, ctx, "factoryDM")
 	dm.S.Expect("factoryDM terminated")
-	dm.S.ExpectEOF()
+	dm.S.ExpectEOF() // nolint: errcheck
 
 	// Re-launch the device manager, to exercise the behavior of Stop.
 	utiltest.ResolveExpectNotFound(t, ctx, "factoryDM", false) // Ensure a clean slate.
@@ -289,7 +289,7 @@ func TestDeviceManagerUpdateAndRevert(t *testing.T) {
 	utiltest.KillDevice(t, ctx, "factoryDM")
 	dm.S.Expect("restart handler")
 	dm.S.Expect("factoryDM terminated")
-	dm.S.ExpectEOF()
+	dm.S.ExpectEOF() // nolint: errcheck
 }
 
 type simpleRW chan []byte

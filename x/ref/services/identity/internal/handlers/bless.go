@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vom"
@@ -237,7 +237,7 @@ func (a *accessTokenBlesser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(encodedBlessings)
+		w.Write(encodedBlessings) // nolint: errcheck
 	case base64VomFormat:
 		encodedBlessings, err := a.encodeBlessingsVom(blessings)
 		if err != nil {
@@ -246,7 +246,7 @@ func (a *accessTokenBlesser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/text")
-		w.Write([]byte(encodedBlessings))
+		w.Write([]byte(encodedBlessings)) // nolint: errcheck
 	default:
 		a.ctx.Infof("Unrecognized output format [%v] in request %#v", outputFormat, r)
 		util.HTTPServerError(w, fmt.Errorf("unrecognized output format [%v] in request. Allowed formats are [%v, %v]", outputFormat, base64VomFormat, jsonFormat))

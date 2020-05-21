@@ -300,6 +300,7 @@ func (i *appRepoService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 
 	for _, r := range results {
 		if m.Match(r) {
+			// nolint: errcheck
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: r})
 		}
 	}

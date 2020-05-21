@@ -389,7 +389,7 @@ func TestFuzzTypeDecodeDeadlock(t *testing.T) {
 	var v interface{}
 	d := vom.NewDecoder(strings.NewReader("\x81\x30"))
 	// Before the fix, this line caused a deadlock and panic.
-	d.Decode(&v)
+	d.Decode(&v) // nolint: errcheck
 }
 
 // Tests that an input go-fuzz found will no longer cause a
@@ -398,7 +398,7 @@ func TestFuzzVdlPanic(t *testing.T) {
 	var v interface{}
 	d := vom.NewDecoder(strings.NewReader("\x81S*\x00\x00$000000000000000000000000000000000000\x01*\xe1U(\x05\x00 00000000000000000000000000000000\x01*\x02+\xe1"))
 	// Before this fix this line caused a panic.
-	d.Decode(&v)
+	d.Decode(&v) // nolint: errcheck
 }
 
 // In concurrent modes, one goroutine may try to read vom types before they are

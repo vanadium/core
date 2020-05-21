@@ -7,7 +7,7 @@ package main
 import (
 	"fmt"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -69,7 +69,7 @@ func runInstantiate(ctx *context.T, env *cmdline.Env, args []string) error {
 			if err != nil {
 				return fmt.Errorf("Instantiate failed: %v", err)
 			}
-			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings})
+			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings}) // nolint: errcheck
 		default:
 			fmt.Fprintf(env.Stderr, "Received unexpected message: %#v\n", msg)
 		}

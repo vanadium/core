@@ -98,7 +98,7 @@ func (stats *Stats) maybeUpdate() {
 		MinValue:           stats.min})
 
 	for _, d := range stats.durations {
-		stats.histogram.Add(int64(d / stats.unit))
+		stats.histogram.Add(int64(d / stats.unit)) // nolint: errcheck
 	}
 
 	stats.dirty = false

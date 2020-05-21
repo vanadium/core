@@ -445,7 +445,10 @@ func (ipc *IPC) handleResp(c *IPCConn, resp agent.RpcResponse) error {
 		info.done <- resp.Err
 	} else {
 		for i := uint32(0); i < resp.NumArgs; i++ {
-			c.dec.Decoder().SkipValue()
+			if err := c.dec.Decoder().SkipValue(); err != nil {
+				info.done <- fmt.Errorf("failed to skip value: %w", err)
+				return err
+			}
 		}
 		err := resp.Err
 		if err == nil {

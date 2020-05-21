@@ -70,7 +70,9 @@ func TestHTTP(t *testing.T) {
 			if !bytes.Equal(output, data[i]) {
 				t.Fatalf("Unexpected output: expected %v, got %v", data[i], output)
 			}
-			hpart.Write(data[i])
+			if _, err := hpart.Write(data[i]); err != nil {
+				t.Fatal(err)
+			}
 			checksum := hex.EncodeToString(hpart.Sum(nil))
 			if expected, got := checksum, parts[i].Checksum; expected != got {
 				t.Fatalf("Unexpected checksum: expected %v, got %v", expected, got)

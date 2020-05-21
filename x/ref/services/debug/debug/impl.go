@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -644,7 +644,7 @@ func startPprofProxyHTTPServer(ctx *context.T, name string) (string, error) {
 		return "", err
 	}
 	http.Handle("/", pproflib.PprofProxy(ctx, "", name))
-	go http.Serve(ln, nil)
+	go http.Serve(ln, nil) // nolint: errcheck
 	go func() {
 		<-ctx.Done()
 		ln.Close()

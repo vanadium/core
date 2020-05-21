@@ -17,11 +17,12 @@ type m struct {
 	M string
 }
 
+// nolint: errcheck
 func ExampleMergeEncodedBytes() {
 
 	abuf := &bytes.Buffer{}
 	encA := vom.NewEncoder(abuf)
-	encA.Encode(&m{"stream-a"})
+	encA.Encode(&m{"stream-a"}) // nolint: errcheck
 
 	bbuf := &bytes.Buffer{}
 	encB := vom.NewEncoder(bbuf)
@@ -39,6 +40,7 @@ func ExampleMergeEncodedBytes() {
 	// stream-b
 }
 
+// nolint: errcheck
 func ExampleExtractEncodedBytes() {
 	abuf := &bytes.Buffer{}
 	encA := vom.NewEncoder(abuf)

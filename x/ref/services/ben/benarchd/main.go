@@ -84,7 +84,7 @@ func run(ctx *context.T, env *cmdline.Env, args []string) error {
 		return err
 	}
 	ctx.Infof("HTTP server at http://%v", ln.Addr())
-	go http.Serve(ln, internal.NewHTTPHandler(assets, store))
+	go http.Serve(ln, internal.NewHTTPHandler(assets, store)) // nolint: errcheck
 
 	// Start the v23 RPC service
 	pubAddr := fmt.Sprintf("http://%v", ln.Addr())

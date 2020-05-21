@@ -18,7 +18,7 @@ import (
 func init() {
 	// Allow v23.Init to be called multiple times.
 	library.AllowMultipleInitializations = true
-	ref.EnvClearCredentials()
+	ref.EnvClearCredentials() // nolint: errcheck
 }
 
 func withCreds(dir string, c *v23test.Cmd) *v23test.Cmd {

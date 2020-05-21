@@ -70,7 +70,7 @@ func (s *sqlStore) Save(ctx *context.T, scenario ben.Scenario, code ben.SourceCo
 		return err
 	}
 	// If tx.Commit is called, then this tx.Rollback is a no-op
-	defer tx.Rollback()
+	defer tx.Rollback() // nolint: errcheck
 	cpu, err := s.insertAndGetID(tx, s.insertCPU, s.selectCPU, scenario.Cpu.Architecture, scenario.Cpu.Description, scenario.Cpu.ClockSpeedMhz)
 	if err != nil {
 		return tagerr("cpu", err)

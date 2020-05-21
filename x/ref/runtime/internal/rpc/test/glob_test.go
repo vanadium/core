@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/i18n"
@@ -297,7 +297,7 @@ func (o *globObject) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glo
 
 func (o *globObject) globLoop(call rpc.GlobServerCall, name string, g *glob.Glob, n *node) {
 	if g.Len() == 0 {
-		call.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name}})
+		call.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name}}) // nolint: errcheck
 	}
 	if g.Empty() {
 		return
@@ -318,7 +318,9 @@ func (o *vChildrenObject) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSe
 	sender := call.SendStream()
 	for child := range o.n.children {
 		if m.Match(child) {
-			sender.Send(naming.GlobChildrenReplyName{Value: child})
+			if err := sender.Send(naming.GlobChildrenReplyName{Value: child}); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

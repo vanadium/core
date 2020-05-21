@@ -142,10 +142,10 @@ func (s *Semaphore) TryDecN(n uint) error {
 }
 
 // IncN increments the semaphore.  Wakes any potential waiters.
-func (s *Semaphore) IncN(n uint) error {
+func (s *Semaphore) IncN(n uint) {
 	if n == 0 {
 		// Avoid notifications when there is no change to the value.
-		return nil
+		return
 	}
 
 	s.mu.Lock()
@@ -156,7 +156,6 @@ func (s *Semaphore) IncN(n uint) error {
 	case s.notify <- true:
 	default:
 	}
-	return nil
 }
 
 // Dec decrements the semaphore by 1.
@@ -170,6 +169,6 @@ func (s *Semaphore) TryDec() error {
 }
 
 // Inc increments the semaphore by 1.
-func (s *Semaphore) Inc() error {
-	return s.IncN(1)
+func (s *Semaphore) Inc() {
+	s.IncN(1)
 }

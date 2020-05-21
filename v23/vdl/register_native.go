@@ -191,6 +191,7 @@ var errNoRegisterNativeError = errors.New(`vdl: RegisterNative must be called to
 // nolint: deadcode, unused
 func fromWireError(wire *WireError) error {
 	var err error
+	// nolint: errcheck
 	nativeInfoFromWire(reflect.TypeOf(wire)).ToNative(reflect.ValueOf(wire), reflect.ValueOf(&err))
 	return err
 }

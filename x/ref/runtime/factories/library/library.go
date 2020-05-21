@@ -167,7 +167,7 @@ func configuredFlags() []flags.FlagGroup {
 
 // EnableCommandlineFlags enables use of command line flags.
 func EnableCommandlineFlags() {
-	EnableFlags(flag.CommandLine, false)
+	EnableFlags(flag.CommandLine, false) // nolint: errcheck
 }
 
 // EnableFlags enables the use of flags on the specified flag set and returns

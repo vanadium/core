@@ -133,7 +133,7 @@ func toVomHex(version vom.Version, value *vdl.Value) (_, _, _ string) {
 	panicOnError(enc.Encode(value))
 	versionByte, _ := buf.ReadByte() // Read the version byte.
 	if bufType.Len() > 0 {
-		bufType.ReadByte() // Remove the version byte.
+		bufType.ReadByte() // nolint: errcheck // Remove the version byte.
 	}
 	vomBytes := append([]byte{versionByte}, bufType.Bytes()...)
 	vomBytes = append(vomBytes, buf.Bytes()...)

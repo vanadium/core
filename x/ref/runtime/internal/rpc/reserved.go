@@ -227,6 +227,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		suffix := subcall.Suffix()
 		if state.depth > maxRecursiveGlobDepth {
 			ctx.Errorf("rpc Glob: exceeded recursion limit (%d): %q", maxRecursiveGlobDepth, suffix)
+			// nolint: errcheck
 			subcall.Send(naming.GlobReplyError{
 				Value: naming.GlobError{Name: state.name, Error: reserved.NewErrGlobMaxRecursionReached(ctx)},
 			})
@@ -235,6 +236,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		obj, auth, err := disp.Lookup(ctx, suffix)
 		if err != nil {
 			ctx.VI(3).Infof("rpc Glob: Lookup failed for %q: %v", suffix, err)
+			// nolint: errcheck
 			subcall.Send(naming.GlobReplyError{
 				Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrNoExist, ctx, err)},
 			})
@@ -242,6 +244,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		}
 		if obj == nil {
 			ctx.VI(3).Infof("rpc Glob: object not found for %q", suffix)
+			// nolint: errcheck
 			subcall.Send(naming.GlobReplyError{
 				Value: naming.GlobError{Name: state.name, Error: verror.New(verror.ErrNoExist, ctx, "nil object")},
 			})
@@ -260,6 +263,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		invoker, err := objectToInvoker(obj)
 		if err != nil {
 			ctx.VI(3).Infof("rpc Glob: object for %q cannot be converted to invoker: %v", suffix, err)
+			// nolint: errcheck
 			subcall.Send(naming.GlobReplyError{
 				Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
 			})
@@ -268,10 +272,12 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		gs := invoker.Globber()
 		if gs == nil || (gs.AllGlobber == nil && gs.ChildrenGlobber == nil) {
 			if state.glob.Len() == 0 {
+				// nolint: errcheck
 				subcall.Send(naming.GlobReplyEntry{
 					Value: naming.MountEntry{Name: state.name, IsLeaf: true},
 				})
 			} else {
+				// nolint: errcheck
 				subcall.Send(naming.GlobReplyError{
 					Value: naming.GlobError{Name: state.name, Error: reserved.NewErrGlobNotImplemented(ctx)},
 				})
@@ -298,6 +304,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			}
 			if err := gs.AllGlobber.Glob__(ctx, &globServerCall{subcall, send}, state.glob); err != nil {
 				ctx.VI(3).Infof("rpc Glob: %q.Glob(%q) failed: %v", suffix, state.glob, err)
+				// nolint: errcheck
 				subcall.Send(naming.GlobReplyError{
 					Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
 				})
@@ -309,6 +316,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			depth := state.depth
 			if state.glob.Len() == 0 {
 				// The glob pattern matches the current object.
+				// nolint: errcheck
 				subcall.Send(naming.GlobReplyEntry{
 					Value: naming.MountEntry{Name: state.name},
 				})
@@ -340,11 +348,13 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 					queue = append(queue, gState{next, tail, depth})
 				case naming.GlobChildrenReplyError:
 					v.Value.Name = naming.Join(state.name, v.Value.Name)
+					// nolint: errcheck
 					return subcall.Send(naming.GlobReplyError(v))
 				}
 				return nil
 			}
 			if err := gs.ChildrenGlobber.GlobChildren__(ctx, &globChildrenServerCall{subcall, send}, matcher); err != nil {
+				// nolint: errcheck
 				subcall.Send(naming.GlobReplyError{
 					Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
 				})
@@ -353,6 +363,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		}
 	}
 	if someMatchesOmitted {
+		// nolint: errcheck
 		call.Send(naming.GlobReplyError{
 			Value: naming.GlobError{Error: reserved.NewErrGlobMatchesOmitted(ctx)},
 		})

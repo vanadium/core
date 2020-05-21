@@ -268,7 +268,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 		statRequest <- r
 		return <-r
 	})
-	defer stats.Delete(vangoStat)
+	defer stats.Delete(vangoStat) // nolint: errcheck
 	fmt.Fprintln(output, "My AdID:", ad.Id)
 	fmt.Fprintln(output, "My addrs:", myaddrs)
 	ctx.Infof("SERVER STATUS: %+v", status)

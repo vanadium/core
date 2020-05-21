@@ -331,7 +331,7 @@ func NewInstanceImpl(t *testing.T, ctx *context.T, appID, grant string) (string,
 		return "", err
 	}
 	// We should finish the rpc call, even if we exit early due to an error.
-	defer call.Finish()
+	defer call.Finish() // nolint: errcheck
 
 	for call.RecvStream().Advance() {
 		switch msg := call.RecvStream().Value().(type) {
@@ -346,7 +346,7 @@ func NewInstanceImpl(t *testing.T, ctx *context.T, appID, grant string) (string,
 			if err != nil {
 				return "", errors.New("bless failed")
 			}
-			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings})
+			call.SendStream().Send(device.BlessClientMessageAppBlessings{Value: blessings}) // nolint: errcheck
 		default:
 			return "", fmt.Errorf("newInstanceImpl: received unexpected message: %#v", msg)
 		}
@@ -859,7 +859,7 @@ func PollingWait(t *testing.T, pid int) {
 	for syscall.Kill(pid, 0) == nil {
 		select {
 		case <-timeOut:
-			syscall.Kill(pid, 9)
+			syscall.Kill(pid, 9) // nolint: errcheck
 			t.Fatal(testutil.FormatLogLine(2, "Timed out waiting for PID %v to terminate", pid))
 		case <-time.After(time.Millisecond):
 			// Try again.

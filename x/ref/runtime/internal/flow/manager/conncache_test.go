@@ -124,7 +124,9 @@ func TestCacheReserve(t *testing.T) {
 	defer proxycaf.stop(ctx)
 	onecaf := makeConnAndFlow(t, ctx, oneep)
 	defer onecaf.stop(ctx)
-	r1.Unreserve(onecaf.c, proxycaf.c, nil)
+	if err := r1.Unreserve(onecaf.c, proxycaf.c, nil); err != nil {
+		t.Fatal(err)
+	}
 
 	// Now, asking for the ProxyConn on the proxy reservation should find
 	// the proxy, since we just inserted it.
@@ -152,7 +154,9 @@ func TestCacheReserve(t *testing.T) {
 	twocaf := makeConnAndFlow(t, ctx, twoep)
 	defer twocaf.stop(ctx)
 
-	r2.Unreserve(twocaf.c, pc, nil)
+	if err := r2.Unreserve(twocaf.c, pc, nil); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestCacheFind(t *testing.T) {

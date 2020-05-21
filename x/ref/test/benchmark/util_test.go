@@ -50,7 +50,7 @@ func TestStatsInjection(t *testing.T) {
 	outC := make(chan string)
 	go func() {
 		b := new(bytes.Buffer)
-		io.Copy(b, r)
+		io.Copy(b, r) // nolint: errcheck
 		r.Close()
 		outC <- b.String()
 	}()

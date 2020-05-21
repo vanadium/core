@@ -25,7 +25,7 @@ func TestSimplePut(t *testing.T) {
 	queue := New(0)
 	done := make(chan struct{}, 1)
 	go func() {
-		queue.Put(1, nil)
+		queue.Put(1, nil) // nolint: errcheck
 		done <- struct{}{}
 	}()
 
@@ -67,8 +67,7 @@ func TestSimpleGet(t *testing.T) {
 		t.Errorf("Unexpected completion")
 	default:
 	}
-
-	queue.Put(1, nil)
+	queue.Put(1, nil) // nolint: errcheck
 	<-done
 }
 
@@ -100,7 +99,7 @@ func TestSequential(t *testing.T) {
 	// Generate the sequential ints.
 	logger.Global().VI(1).Infof("Put values")
 	for i := 0; i != elementCount; i++ {
-		queue.Put(i, nil)
+		queue.Put(i, nil) // nolint: errcheck
 	}
 
 	// Wait for the consumer.
@@ -278,7 +277,7 @@ func TestConcurrentPutNoTimeouts(t *testing.T) {
 		pending.Add(1)
 		go func() {
 			for j := 0; j != elementCount; j++ {
-				queue.Put(j, nil)
+				queue.Put(j, nil) // nolint: errcheck
 			}
 			pending.Done()
 		}()

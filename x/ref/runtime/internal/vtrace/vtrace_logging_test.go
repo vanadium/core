@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vtrace"
@@ -62,7 +62,7 @@ func startLoggingServer(ctx *context.T, idp *testutil.IDProvider) error {
 	}
 	// Make sure the server is mounted to avoid any retries in when StartCall
 	// is invoked in runCallChain which complicate the span comparisons.
-	verifyMount(ctx, "logger")
+	verifyMount(ctx, "logger") // nolint: errcheck
 	return nil
 }
 

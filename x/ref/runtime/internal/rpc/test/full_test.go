@@ -53,8 +53,8 @@ func TestAddRemoveName(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitForNames(t, ctx, true, "one")
-	s.AddName("two")
-	s.AddName("three")
+	s.AddName("two")   // nolint: errcheck
+	s.AddName("three") // nolint: errcheck
 	waitForNames(t, ctx, true, "one", "two", "three")
 	s.RemoveName("one")
 	waitForNames(t, ctx, false, "one")
@@ -483,22 +483,32 @@ func TestRPCClientAuthorization(t *testing.T) {
 
 	// The server should recognize the client principal as an authority
 	// on "random" blessings.
-	security.AddToRoots(v23.GetPrincipal(sctx), bRandom)
+	err = security.AddToRoots(v23.GetPrincipal(sctx), bRandom)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Set a blessing on the client's blessing store to be presented to
 	// the discharge server.
-	v23.GetPrincipal(cctx).BlessingStore().Set(defaultBlessings(cctx), "test-blessing:$")
+	if _, err := v23.GetPrincipal(cctx).BlessingStore().Set(defaultBlessings(cctx), "test-blessing:$"); err != nil {
+		t.Fatal(err)
+	}
 
 	// testutil.NewPrincipal sets up a principal that shares blessings
 	// with all servers, undo that.
-	v23.GetPrincipal(cctx).BlessingStore().Set(
-		security.Blessings{}, security.AllPrincipals)
+	if _, err := v23.GetPrincipal(cctx).BlessingStore().Set(
+		security.Blessings{}, security.AllPrincipals); err != nil {
+		t.Fatal(err)
+	}
 
 	for i, test := range tests {
 		name := fmt.Sprintf("#%d: %q.%s(%v) by %v", i, test.name, test.method, test.args, test.blessings)
 		client := v23.GetClient(cctx)
 
-		v23.GetPrincipal(cctx).BlessingStore().Set(test.blessings, "test-blessing:server")
+		_, err = v23.GetPrincipal(cctx).BlessingStore().Set(test.blessings, "test-blessing:server")
+		if err != nil {
+			t.Fatal(err)
+		}
 		err = client.Call(cctx, test.name, test.method, test.args, makeResultPtrs(test.results))
 		if err != nil && test.authorized {
 			t.Errorf(`%s client.Call got error: "%v", wanted the RPC to succeed`, name, err)
@@ -711,7 +721,9 @@ func TestDischargeImpetusAndContextPropagation(t *testing.T) {
 		if err != nil {
 			t.Fatalf("BlessSelf failed: %v", err)
 		}
-		v23.GetPrincipal(cctx).BlessingStore().Set(b, "test-blessing:server")
+		if _, err := v23.GetPrincipal(cctx).BlessingStore().Set(b, "test-blessing:server"); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	// Setup the discharge server.
@@ -823,7 +835,9 @@ func TestRPCClientBlessingsPublicKey(t *testing.T) {
 	}
 	for i, test := range tests {
 		name := fmt.Sprintf("%d: Client RPCing with blessings %v", i, test.blessings)
-		v23.GetPrincipal(cctx).BlessingStore().Set(test.blessings, "test-blessings")
+		if _, err := v23.GetPrincipal(cctx).BlessingStore().Set(test.blessings, "test-blessings"); err != nil {
+			t.Fatal(err)
+		}
 		if err := v23.GetClient(cctx).Call(cctx, object, "Closure", nil, nil); test.err && err == nil {
 			t.Errorf("%v: client.Call returned error %v", name, err)
 			continue
@@ -1238,6 +1252,7 @@ func TestServerRefreshDischarges(t *testing.T) {
 	var got string
 	cctx, cancel = context.WithCancel(cctx)
 	defer cancel()
+	// nolint: errcheck
 	v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{})
 	for {
 		ed.mu.Lock()
@@ -1279,7 +1294,9 @@ func TestClientRefreshDischarges(t *testing.T) {
 	var got string
 	cctx, cancel = context.WithCancel(cctx)
 	defer cancel()
-	v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{})
+	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{}); err != nil {
+		t.Fatal(err)
+	}
 	d.mu.Lock()
 	if d.count != 1 {
 		t.Errorf("discharger should have been called exactly once, got %v", d.count)
@@ -1319,7 +1336,9 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	// Make a call to create a connection. We don't care if the call succeeds,
 	// we just want to make sure that we fetch discharges more than once.	var got string
 	var got string
-	v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{})
+	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{}); err != nil {
+		t.Fatal(err)
+	}
 	for {
 		ed.mu.Lock()
 		count := ed.count

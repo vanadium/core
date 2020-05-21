@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/rpc"
@@ -159,7 +159,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 			return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
 		}
 		if ret, err = security.UnionOfBlessings(ret, b); err != nil {
-			verror.Convert(verror.ErrInternal, ctx, err)
+			verror.Convert(verror.ErrInternal, ctx, err) // nolint: errcheck
 		}
 	}
 	return ret, nil

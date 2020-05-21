@@ -94,7 +94,7 @@ func TestHierarchy(t *testing.T) {
 			t.Fatalf("Stat() failed: %v", err)
 		}
 		h := md5.New()
-		h.Write(data)
+		h.Write(data) // nolint: errcheck
 		checksum := hex.EncodeToString(h.Sum(nil))
 		if expected, got := checksum, parts[0].Checksum; expected != got {
 			t.Fatalf("Unexpected checksum: expected %v, got %v", expected, got)
@@ -160,7 +160,7 @@ func TestMultiPart(t *testing.T) {
 			if !bytes.Equal(output, data[i]) {
 				t.Fatalf("Unexpected output: expected %v, got %v", data[i], output)
 			}
-			hpart.Write(data[i])
+			hpart.Write(data[i]) // nolint: errcheck
 			checksum := hex.EncodeToString(hpart.Sum(nil))
 			if expected, got := checksum, parts[i].Checksum; expected != got {
 				t.Fatalf("Unexpected checksum: expected %v, got %v", expected, got)

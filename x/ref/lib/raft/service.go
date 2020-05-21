@@ -9,7 +9,7 @@ import (
 
 	"v.io/x/lib/vlog"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -97,7 +97,7 @@ func (s *service) RequestVote(ctx *context.T, call rpc.ServerCall, term Term, ca
 	// If the term is higher than the current election term, then we are into a new election.
 	if term > r.p.CurrentTerm() {
 		r.setRoleAndWatchdogTimer(RoleFollower)
-		r.p.SetCurrentTermAndVotedFor(term, "")
+		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
 	}
 	vf := r.p.VotedFor()
 
@@ -116,7 +116,7 @@ func (s *service) RequestVote(ctx *context.T, call rpc.ServerCall, term Term, ca
 
 	// Vote for candidate and make sure we're a follower.
 	r.setRole(RoleFollower)
-	r.p.SetCurrentTermAndVotedFor(term, candidate)
+	r.p.SetCurrentTermAndVotedFor(term, candidate) // nolint: errcheck
 	return r.p.CurrentTerm(), true, nil
 }
 
@@ -142,7 +142,7 @@ func (s *service) AppendToLog(ctx *context.T, call rpc.ServerCall, term Term, le
 
 	// Update our term if we are behind.
 	if term > r.p.CurrentTerm() {
-		r.p.SetCurrentTermAndVotedFor(term, "")
+		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
 	}
 
 	// Restart our timer since we just heard from the leader.
@@ -212,7 +212,7 @@ func (s *service) InstallSnapshot(ctx *context.T, call raftProtoInstallSnapshotS
 
 	// Update our term if we are behind.
 	if term > r.p.CurrentTerm() {
-		r.p.SetCurrentTermAndVotedFor(term, "")
+		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
 	}
 
 	// Restart our timer since we just heard from the leader.

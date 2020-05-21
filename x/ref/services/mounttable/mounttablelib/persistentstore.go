@@ -57,7 +57,11 @@ func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence 
 		if !os.IsNotExist(err) {
 			logger.Global().Fatalf("cannot open %s: %s", file, err)
 		}
-		os.Rename(tmp, file)
+		if _, err := os.Stat(tmp); err == nil {
+			if err := os.Rename(tmp, file); err != nil {
+				logger.Global().Fatalf("cannot rename %s to %s: %s", tmp, file, err)
+			}
+		}
 		if f, err = os.Open(file); err != nil && !os.IsNotExist(err) {
 			logger.Global().Fatalf("cannot open %s: %s", file, err)
 		}
@@ -84,12 +88,16 @@ func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence 
 		if f, err = os.OpenFile(file, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600); err != nil {
 			logger.Global().Fatalf("can't append to log %s: %s", file, err)
 		}
-		f.Seek(0, 2)
+		if _, err := f.Seek(0, 2); err != nil {
+			logger.Global().Fatalf("can't seek to end of %s: %s", file, err)
+		}
 		s.enc = json.NewEncoder(f)
 		return s
 	}
 	s.enc = json.NewEncoder(f)
-	s.depthFirstPersist(mt.root, "")
+	if err := s.depthFirstPersist(mt.root, ""); err != nil {
+		ctx.Infof("depthFirstPersist of %v: %v", mt.root, err)
+	}
 	f.Close()
 
 	// Switch names and remove the old file.
@@ -110,7 +118,9 @@ func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence 
 	if err != nil {
 		ctx.Fatalf("can't open %s: %s", file, err)
 	}
-	f.Seek(0, 2)
+	if _, err := f.Seek(0, 2); err != nil {
+		ctx.Fatalf("can't seek to end of %s: %s", file, err)
+	}
 	s.enc = json.NewEncoder(f)
 	return s
 }
@@ -162,13 +172,16 @@ func (s *store) parseLogFile(ctx *context.T, f *os.File) error {
 // depthFirstPersist performs a recursive depth first traversal logging any explicit permissions.
 // Doing this immediately after reading in a log file effectively compresses the log file since
 // any duplicate or deleted entries disappear.
-func (s *store) depthFirstPersist(n *node, name string) {
+func (s *store) depthFirstPersist(n *node, name string) error {
 	if n.explicitPermissions {
-		s.persistPerms(name, n.creator, n.vPerms)
+		if err := s.persistPerms(name, n.creator, n.vPerms); err != nil {
+			return err
+		}
 	}
 	for nodeName, c := range n.children {
-		s.depthFirstPersist(c, path.Join(name, nodeName))
+		return s.depthFirstPersist(c, path.Join(name, nodeName))
 	}
+	return nil
 }
 
 // persistPerms appends a changed permission to the log.

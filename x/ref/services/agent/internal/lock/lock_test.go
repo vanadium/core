@@ -367,7 +367,7 @@ func TestLockLevelStateChanges(t *testing.T) {
 	// TryLock finds lock 1 held, so it sleeps and retries.
 	sleepDuration := <-tk.Requests()
 	// Unlock level 1, letting TryLock grab it.
-	l.unlock(1)
+	l.unlock(1) // nolint: errcheck
 	tk.AdvanceTime(sleepDuration)
 	// TryLock managed to grab level 1 and it then reclaims level 0.
 	verifyTryLock(true)
@@ -411,7 +411,7 @@ func TestLockLevelStateChanges(t *testing.T) {
 	sleepDuration = <-tk.Requests()
 	// Remove lock 2.  TryLock should then grab it, and then reclaim level
 	// 0.
-	l.unlock(2)
+	l.unlock(2) // nolint: errcheck
 	tk.AdvanceTime(sleepDuration)
 	verifyTryLock(true)
 	assertNumLockFiles(t, d, 1)
@@ -431,7 +431,7 @@ func TestLockLevelStateChanges(t *testing.T) {
 	verifyTryLock = goTryLock()
 	// TryLock finds lock 2 held, so it sleeps and retries.
 	sleepDuration = <-tk.Requests()
-	l.unlock(2)
+	l.unlock(2) // nolint: errcheck
 	// We use the hook to control the execution of TryLock and allow
 	// ourselves to manipulate the lock files 'asynchronously'.
 	tryLockCalled := make(chan struct{})
@@ -474,13 +474,13 @@ func TestLockLevelStateChanges(t *testing.T) {
 	// TryLock finds level 2 lock held, so it sleeps and retries.
 	sleepDuration = <-tk.Requests()
 	// Unlock level 2.
-	l.unlock(2)
+	l.unlock(2) // nolint: errcheck
 	tryLockCalled = make(chan struct{})
 	l.tryLockHook = func() { tryLockCalled <- struct{}{} }
 	tk.AdvanceTime(sleepDuration)
 	<-tryLockCalled // Back to level 0, TryLock finds it stale.
 	// Unlock level 0.
-	l.unlock(0)
+	l.unlock(0)     // nolint: errcheck
 	<-tryLockCalled // For lock 1.
 	<-tryLockCalled // For lock 2.
 	// TryLock grabs level 2, but finds level 0 has changed (unlocked).  It
@@ -656,10 +656,10 @@ func TestLockLevelConfigurations(t *testing.T) {
 				verifyFreeLock(t, l, level)
 			case ac:
 				verifyHeldLock(t, l, level)
-				l.unlock(level)
+				l.unlock(level) // nolint: errcheck
 			case st:
 				verifyStaleLock(t, l, level)
-				l.unlock(level)
+				l.unlock(level) // nolint: errcheck
 			}
 		}
 		assertNumLockFiles(t, d, 0)

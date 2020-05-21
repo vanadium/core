@@ -43,6 +43,7 @@ func (i *statsService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.G
 	sender := call.SendStream()
 	it := libstats.Glob(i.suffix, g.String(), time.Time{}, false)
 	for it.Advance() {
+		// nolint: errcheck
 		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: it.Value().Key}})
 	}
 	if err := it.Err(); err != nil {

@@ -13,7 +13,7 @@ import (
 func compress(id []byte, level int) (len int) {
 	var z bytes.Buffer
 	f, _ := flate.NewWriter(&z, level)
-	f.Write(id)
+	f.Write(id) // nolint: errcheck
 	f.Close()
 	return z.Len()
 }

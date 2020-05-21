@@ -95,7 +95,7 @@ func createV1(w io.Writer) error {
 	cmd := makePsCommandV1(os.Getpid())
 	cmd.Stdout = w
 	cmd.Stderr = nil
-	cmd.Run()
+	cmd.Run() // nolint: errcheck
 	// If the 'ps' command fails for any reason (e.g. wrong invocation for
 	// the particular ps version on the system), treat that as no 'ps'
 	// available instead of failing.

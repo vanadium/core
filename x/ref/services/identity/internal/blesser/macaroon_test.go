@@ -15,7 +15,7 @@ import (
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/v23/vom"
 )
@@ -64,7 +64,9 @@ func TestMacaroonBlesser(t *testing.T) {
 	}
 	// But once it recognizes the provider, it should see exactly the name
 	// "provider:bugsbunny" for the caveat cOnlyMethodFoo.
-	security.AddToRoots(user, b)
+	if err := security.AddToRoots(user, b); err != nil {
+		t.Fatal(err)
+	}
 	if got, want := security.BlessingNames(user, b), []string{"provider:bugsbunny"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("Got %v, want %v", got, want)
 	}

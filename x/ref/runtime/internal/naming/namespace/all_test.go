@@ -142,11 +142,11 @@ func (t *testServer) GlobChildren__(_ *context.T, call rpc.GlobChildrenServerCal
 	switch t.suffix {
 	case "":
 		if n := "level1"; m.Match(n) {
-			call.SendStream().Send(naming.GlobChildrenReplyName{Value: n})
+			return call.SendStream().Send(naming.GlobChildrenReplyName{Value: n})
 		}
 	case "level1":
 		if n := "level2"; m.Match(n) {
-			call.SendStream().Send(naming.GlobChildrenReplyName{Value: n})
+			return call.SendStream().Send(naming.GlobChildrenReplyName{Value: n})
 		}
 	default:
 		return nil
@@ -255,7 +255,9 @@ const (
 // in it: mt{1,2,3,4,5}
 func runMountTables(t *testing.T, ctx *context.T) (*serverEntry, map[string]*serverEntry) {
 	root := runMT(t, ctx, "")
-	v23.GetNamespace(ctx).SetRoots(root.name)
+	if err := v23.GetNamespace(ctx).SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 	t.Logf("mountTable %q -> %s", root.mountPoint, root.endpoint)
 
 	mps := make(map[string]*serverEntry)
@@ -354,7 +356,9 @@ func TestNamespaceDetails(t *testing.T) {
 	defer stopper()
 
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	// /mt2 is not an endpoint. Thus, the example below will fail.
 	mt3Server := mts[mt3MP].name
@@ -409,7 +413,9 @@ func TestNestedMounts(t *testing.T) {
 	defer stopper()
 
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	// Set up some nested mounts and verify resolution.
 	for _, m := range []string{"mt4/foo", "mt4/foo/bar"} {
@@ -432,7 +438,9 @@ func TestServers(t *testing.T) {
 	root, mts, jokes, stopper := createNamespace(t, sc)
 	defer stopper()
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	// Let's run some non-mount table services
 	for _, j := range []string{j1MP, j2MP, j3MP} {
@@ -458,7 +466,9 @@ func TestGlob(t *testing.T) {
 	runNestedMountTables(t, sc, mts)
 	defer stopper()
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	tln := []string{"baz", "mt1", "mt2", "mt3", "mt4", "mt5", "joke1", "joke2", "joke3"}
 	barbaz := []string{"mt4/foo/bar", "mt4/foo/baz"}
@@ -535,7 +545,9 @@ func TestGlobEarlyStop(t *testing.T) {
 	defer runningGlobServer.stop()
 
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		pattern       string
@@ -568,7 +580,9 @@ func TestCycles(t *testing.T) {
 	root, _, _, stopper := createNamespace(t, sc)
 	defer stopper()
 	ns := v23.GetNamespace(c)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	c1 := runMT(t, c, "c1")
 	c2 := runMT(t, c, "c2")
@@ -656,17 +670,27 @@ func TestAuthorizationDuringResolve(t *testing.T) {
 	)
 
 	// Setup default blessings for the processes.
-	idp.Bless(v23.GetPrincipal(rootMtCtx), "rootmt")
-	idp.Bless(v23.GetPrincipal(serverCtx), "server")
-	idp.Bless(v23.GetPrincipal(mtCtx), "childmt")
-	idp.Bless(v23.GetPrincipal(clientCtx), "client")
+	if err := idp.Bless(v23.GetPrincipal(rootMtCtx), "rootmt"); err != nil {
+		t.Fatal(err)
+	}
+	if err := idp.Bless(v23.GetPrincipal(serverCtx), "server"); err != nil {
+		t.Fatal(err)
+	}
+	if err := idp.Bless(v23.GetPrincipal(mtCtx), "childmt"); err != nil {
+		t.Fatal(err)
+	}
+	if err := idp.Bless(v23.GetPrincipal(clientCtx), "client"); err != nil {
+		t.Fatal(err)
+	}
 
 	// Setup the namespace root for all the "processes".
 	rootmt := runMT(t, rootMtCtx, "")
 	defer rootmt.stop()
 
 	for _, ctx := range []*context.T{mtCtx, serverCtx, clientCtx} {
-		v23.GetNamespace(ctx).SetRoots(rootmt.name)
+		if err := v23.GetNamespace(ctx).SetRoots(rootmt.name); err != nil {
+			t.Fatal(err)
+		}
 	}
 	// Disable caching in the client so that any Mount calls by the server
 	// are noticed immediately.
@@ -734,7 +758,9 @@ func TestDelete(t *testing.T) {
 	// Create a root mount table with mount tables mounted at mt1, mt1, ...
 	root, _, _, stopper := createNamespace(t, c)
 	defer stopper()
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	// We should be able to remove servers below the root.
 	if err := ns.Delete(c, "mt1", false); err != nil {
@@ -770,7 +796,9 @@ func TestLeaf(t *testing.T) {
 	defer func() { root.stop() }()
 
 	ns := v23.GetNamespace(ctx)
-	ns.SetRoots(root.name)
+	if err := ns.SetRoots(root.name); err != nil {
+		t.Fatal(err)
+	}
 
 	ctx, cancel := context.WithCancel(ctx)
 	_, server, err := v23.WithNewServer(ctx, "leaf", &leafObject{}, nil)

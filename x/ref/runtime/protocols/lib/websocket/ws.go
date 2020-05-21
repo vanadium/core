@@ -37,7 +37,7 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 	if err != nil {
 		return nil, err
 	}
-	conn.SetReadDeadline(deadline)
+	conn.SetReadDeadline(deadline) // nolint: errcheck
 	if err := tcputil.EnableTCPKeepAlive(conn); err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 		return nil, err
 	}
 	var zero time.Time
-	conn.SetDeadline(zero)
+	conn.SetDeadline(zero) // nolint: errcheck
 	return WebsocketConn(ws), nil
 }
 

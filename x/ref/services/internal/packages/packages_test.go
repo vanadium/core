@@ -40,8 +40,14 @@ func TestInstall(t *testing.T) {
 	doGzip(t, tarfile, tgzfile)
 
 	binfile := filepath.Join(workdir, "binfile")
-	ioutil.WriteFile(binfile, []byte("This is a binary file"), os.FileMode(0644))
-	ioutil.WriteFile(packages.MediaInfoFile(binfile), []byte(`{"type":"application/octet-stream"}`), os.FileMode(0644))
+	err = ioutil.WriteFile(binfile, []byte("This is a binary file"), os.FileMode(0644))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = ioutil.WriteFile(packages.MediaInfoFile(binfile), []byte(`{"type":"application/octet-stream"}`), os.FileMode(0644))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expected := []string{
 		"a perm:700",
@@ -54,7 +60,7 @@ func TestInstall(t *testing.T) {
 		if err := packages.Install(file, dstdir); err != nil {
 			t.Errorf("packages.Install failed for %q: %v", file, err)
 		}
-		files := scanDir(dstdir)
+		files := scanDir(t, dstdir)
 		if !reflect.DeepEqual(files, expected) {
 			t.Errorf("unexpected result for %q: got %q, want %q", file, files, expected)
 		}
@@ -131,7 +137,7 @@ func makeTar(t *testing.T, tarfile, dir string) {
 	defer tf.Close()
 
 	tw := tar.NewWriter(tf)
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			t.Fatalf("Walk(%q) error: %v", dir, err)
 		}
@@ -157,6 +163,9 @@ func makeTar(t *testing.T, tarfile, dir string) {
 		}
 		return nil
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := tw.Close(); err != nil {
 		t.Fatalf("tw.Close failed: %v", err)
 	}
@@ -192,9 +201,9 @@ func doGzip(t *testing.T, infile, outfile string) {
 	}
 }
 
-func scanDir(root string) []string {
+func scanDir(t *testing.T, root string) []string {
 	files := []string{}
-	filepath.Walk(root, func(path string, info os.FileInfo, _ error) error {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, _ error) error {
 		if root == path {
 			return nil
 		}
@@ -203,6 +212,9 @@ func scanDir(root string) []string {
 		files = append(files, fmt.Sprintf("%s perm:%o", rel, perm))
 		return nil
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	sort.Strings(files)
 	return files
 }

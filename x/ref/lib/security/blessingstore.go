@@ -199,9 +199,9 @@ func dcacheKey(tp security.ThirdPartyCaveat, impetus security.DischargeImpetus) 
 		servers = strings.Join(bps, ",")
 	}
 	h := sha256.New()
-	h.Write(hashString(id))
-	h.Write(hashString(method))
-	h.Write(hashString(servers))
+	h.Write(hashString(id))      // nolint: errcheck
+	h.Write(hashString(method))  // nolint: errcheck
+	h.Write(hashString(servers)) // nolint: errcheck
 	copy(key[:], h.Sum(nil))
 	return key, true
 }

@@ -76,9 +76,9 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log boo
 		// Open the browser if we can
 		switch runtime.GOOS {
 		case "linux":
-			exec.Command("xdg-open", url).Start()
+			exec.Command("xdg-open", url).Start() // nolint: errcheck
 		case "darwin":
-			exec.Command("open", url).Start()
+			exec.Command("open", url).Start() // nolint: errcheck
 		}
 
 		<-ctx.Done()
@@ -269,7 +269,9 @@ func (h *blessingsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		args.CertificateChains = security.MarshalBlessings(args.Blessings).CertificateChains
 		// Don't actually care about the RPC, so don't bother waiting on the Finish.
 		cancel()
-		defer func() { go call.Finish() }()
+		defer func() {
+			go call.Finish() // nolint: errcheck
+		}()
 	} else {
 		cancel()
 	}
@@ -485,7 +487,7 @@ func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		// writes to: entries, errch
 		// reads from: abortRPC
-		defer stream.Finish()
+		defer stream.Finish() // nolint: errcheck
 		defer close(entries)
 		iterator := stream.RecvStream()
 		for iterator.Advance() {

@@ -337,7 +337,7 @@ const (
 // given title.
 func applicationDirName(title string) string {
 	h := md5.New()
-	h.Write([]byte(title))
+	h.Write([]byte(title)) // nolint: errcheck
 	hash := strings.TrimRight(base64.URLEncoding.EncodeToString(h.Sum(nil)), "=")
 	return appDirPrefix + hash
 }
@@ -521,7 +521,7 @@ func setupPrincipal(ctx *context.T, instanceDir string, call device.ApplicationI
 	if err := principalMgr.Serve(instanceDir, nil); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Serve(%v) failed: %v", instanceDir, err))
 	}
-	defer principalMgr.StopServing(instanceDir)
+	defer principalMgr.StopServing(instanceDir) // nolint: errcheck
 	p, err := principalMgr.Load(instanceDir)
 	if err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Load(%v) failed: %v", instanceDir, err))
@@ -749,7 +749,7 @@ func genCmd(ctx *context.T, instanceDir, nsRoot string) (*exec.Cmd, error) {
 	saArgs.workspace = rootDir
 
 	logDir := filepath.Join(instanceDir, "logs")
-	suidHelper.chownTree(ctx, suidHelper.getCurrentUser(), instanceDir, os.Stdout, os.Stdin)
+	suidHelper.chownTree(ctx, suidHelper.getCurrentUser(), instanceDir, os.Stdout, os.Stdin) // nolint: errcheck
 	if err := mkdirPerm(ctx, logDir, 0755); err != nil {
 		return nil, err
 	}
@@ -896,7 +896,7 @@ func (i *appRunner) run(ctx *context.T, instanceDir string) error {
 	// We should allow the app to be considered for restart if startCmd
 	// fails after having successfully started the app process.
 	if err != nil {
-		transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateNotRunning)
+		transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateNotRunning) // nolint: errcheck
 		return err
 	}
 	if err := transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateRunning); err != nil {
@@ -1434,6 +1434,7 @@ func (i *appService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerC
 	}
 	for child := range n.children {
 		if m.Match(child) {
+			// nolint: errcheck
 			call.SendStream().Send(naming.GlobChildrenReplyName{Value: child})
 		}
 	}

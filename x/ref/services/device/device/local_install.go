@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -151,7 +151,7 @@ func (i binaryInvoker) Stat(*context.T, rpc.ServerCall) ([]binary.PartInfo, repo
 	if err != nil {
 		return []binary.PartInfo{}, repository.MediaInfo{}, err
 	}
-	h.Write(bytes)
+	h.Write(bytes) // nolint: errcheck
 	part := binary.PartInfo{Checksum: hex.EncodeToString(h.Sum(nil)), Size: int64(len(bytes))}
 	return []binary.PartInfo{part}, packages.MediaInfoForFileName(fileName), nil
 }

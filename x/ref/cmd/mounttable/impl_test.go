@@ -41,6 +41,7 @@ type server struct {
 func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	ctx.VI(2).Infof("Glob() was called. suffix=%v pattern=%q", s.suffix, g.String())
 	sender := call.SendStream()
+	// nolint: errcheck
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
 			Name: "name1",
@@ -50,6 +51,7 @@ func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) e
 			IsLeaf:           false,
 		},
 	})
+	// nolint: errcheck
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
 			Name: "name2",
@@ -113,7 +115,10 @@ func TestMountTableClient(t *testing.T) {
 
 	// Make sure to use our newly created mounttable rather than the
 	// default.
-	v23.GetNamespace(ctx).SetRoots(endpoint.Name())
+	err = v23.GetNamespace(ctx).SetRoots(endpoint.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Setup the command-line.
 	var stdout, stderr bytes.Buffer

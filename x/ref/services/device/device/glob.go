@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -201,8 +202,14 @@ func Run(ctx *context.T, env *cmdline.Env, args []string, handler GlobHandler, s
 		}
 	}
 	for i := range results {
-		io.Copy(env.Stdout, &stdouts[i])
-		io.Copy(env.Stderr, &stderrs[i])
+		if _, err := io.Copy(env.Stdout, &stdouts[i]); err != nil {
+			fmt.Fprintf(os.Stderr, "io.Copy: %v\n", err)
+			atomic.AddUint32(&errorCounter, 1)
+		}
+		if _, err := io.Copy(env.Stderr, &stderrs[i]); err != nil {
+			fmt.Fprintf(os.Stderr, "io.Copy: %v\n", err)
+			atomic.AddUint32(&errorCounter, 1)
+		}
 	}
 	if errorCounter > 0 {
 		return fmt.Errorf("encountered a total of %d error(s)", errorCounter)

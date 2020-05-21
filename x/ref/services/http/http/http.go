@@ -13,7 +13,7 @@ import (
 	"net"
 	"net/http"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	_ "v.io/x/ref/runtime/factories/roaming"
 )
@@ -33,9 +33,9 @@ func traceDataHandler(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte(fmt.Sprintf("%T", err)))
+		w.Write([]byte(fmt.Sprintf("%T", err))) // nolint: errcheck
 	} else {
-		w.Write(data)
+		w.Write(data) // nolint: errcheck
 	}
 }
 
@@ -48,7 +48,7 @@ func findPortAndListen(mux *http.ServeMux) {
 		if err == nil {
 			log.Println("Monitoring on " + fmt_port(curr_port) + "/debug/requests...")
 			defer ln.Close()
-			http.Serve(ln, mux)
+			http.Serve(ln, mux) // nolint: errcheck
 			break
 		}
 		curr_port += 1

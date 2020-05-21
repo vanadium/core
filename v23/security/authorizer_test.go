@@ -208,7 +208,9 @@ func TestEndpointAuthorizer(t *testing.T) {
 		ctx, cancel = context.RootContext()
 	)
 	defer cancel()
-	AddToRoots(pali, ali)
+	if err := AddToRoots(pali, ali); err != nil {
+		t.Fatal(err)
+	}
 	for _, test := range tests {
 		err := EndpointAuthorizer().Authorize(ctx, NewCall(&CallParams{
 			RemoteEndpoint:  test.ep,

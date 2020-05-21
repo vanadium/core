@@ -456,6 +456,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 	}
 	requestTimer := time.AfterFunc(c.acceptChannelTimeout/2, func() {
 		c.mu.Lock()
+		// nolint: errcheck
 		c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckRequest{})
 		h.requestSent = time.Now()
 		c.mu.Unlock()
@@ -871,6 +872,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error {
 
 	case *message.HealthCheckRequest:
 		c.mu.Lock()
+		// nolint: errcheck
 		c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckResponse{})
 		c.mu.Unlock()
 
@@ -913,7 +915,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error {
 		c.borrowing[msg.ID] = true
 		c.mu.Unlock()
 
-		c.handler.HandleFlow(f)
+		c.handler.HandleFlow(f) // nolint: errcheck
 
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
