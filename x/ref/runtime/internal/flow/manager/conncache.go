@@ -192,7 +192,7 @@ func (c *ConnCache) Find(
 	auth flow.PeerAuthorizer,
 ) (conn CachedConn, names []string, rejected []security.RejectedBlessing, err error) {
 	var keys []interface{}
-	if keys, conn, names, rejected, err = c.internalFindCached(ctx, remote, auth); conn != nil {
+	if keys, conn, names, rejected, _ = c.internalFindCached(ctx, remote, auth); conn != nil {
 		return conn, names, rejected, nil
 	}
 	// Finally try waiting for any outstanding dials to complete.

@@ -175,11 +175,12 @@ func TestV23StatsWatch(t *testing.T) {
 	cmd.Start()
 
 	lineChan := make(chan string)
+	errCh := make(chan error)
 	// Go off and read the invocation's stdout.
 	go func() {
 		line, err := bufio.NewReader(stdoutPipe).ReadString('\n')
 		if err != nil {
-			t.Fatalf("Could not read line from invocation")
+			errCh <- fmt.Errorf("Could not read line from invocation")
 		}
 		lineChan <- line
 	}()
@@ -189,6 +190,8 @@ func TestV23StatsWatch(t *testing.T) {
 	select {
 	case <-time.After(10 * time.Second):
 		t.Errorf("Timed out waiting for output")
+	case err := <-errCh:
+		t.Error(err)
 	case got := <-lineChan:
 		// Expect one ReadLog call to have occurred.
 		want := "}}{Count: 1"
@@ -196,6 +199,7 @@ func TestV23StatsWatch(t *testing.T) {
 			t.Errorf("wanted but could not find %q in output\n%s", want, got)
 		}
 	}
+
 }
 
 func performTracedRead(sh *v23test.Shell, debugBinary, path string) string {

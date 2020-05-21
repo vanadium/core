@@ -181,6 +181,9 @@ func TestAgentDischargeCache(t *testing.T) {
 		"discharger",
 		security.ThirdPartyRequirements{},
 		expcav)
+	if err != nil {
+		t.Fatal(err)
+	}
 	d, err := agent.MintDischarge(tpcav, expcav)
 	if err != nil {
 		t.Fatal(err)

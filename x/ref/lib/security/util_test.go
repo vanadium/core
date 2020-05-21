@@ -27,6 +27,9 @@ func TestLoadSavePEMKey(t *testing.T) {
 	}
 
 	loadedKey, err := LoadPEMKey(&buf, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !reflect.DeepEqual(loadedKey, key) {
 		t.Fatalf("Got key %v, but want %v", loadedKey, key)
 	}
@@ -55,6 +58,9 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
 	loadedKey, err = LoadPEMKey(&buf, pass)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !reflect.DeepEqual(loadedKey, key) {
 		t.Fatalf("Got key %v, but want %v", loadedKey, key)
 	}

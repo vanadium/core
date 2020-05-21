@@ -191,12 +191,13 @@ func TestV23AgentPrincipal(t *testing.T) {
 		t.Errorf("Agent didn't seem to have exited")
 	}
 
-	p1 = loadPrincipal()
+	loadPrincipal()
 
 	// The agent restarted, so re-establish the commands socket connection.
-	cmds, err = net.Dial("unix", filepath.Join(constants.AgentDir(credsDir), "commands"))
+	socket := filepath.Join(constants.AgentDir(credsDir), "commands")
+	cmds, err = net.Dial("unix", socket)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("faile to dial socket: %v: %v", socket, err)
 	}
 	defer cmds.Close()
 	cmdsRead = bufio.NewScanner(cmds)

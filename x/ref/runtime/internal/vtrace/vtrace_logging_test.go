@@ -25,9 +25,9 @@ func TestLogging(t *testing.T) {
 	ctx, shutdown, _ := initForTest(t)
 	defer shutdown()
 
-	ctx, span := vtrace.WithNewTrace(ctx)
+	ctx, _ = vtrace.WithNewTrace(ctx)
 	vtrace.ForceCollect(ctx, 0)
-	ctx, span = vtrace.WithNewSpan(ctx, "foo")
+	ctx, span := vtrace.WithNewSpan(ctx, "foo")
 	ctx.Info("logging ", "from ", "info")
 	ctx.Infof("logging from %s", "infof")
 	ctx.InfoDepth(0, "logging from info depth")

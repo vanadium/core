@@ -5,6 +5,7 @@
 package sync
 
 import (
+	"fmt"
 	"testing"
 
 	"v.io/x/ref/test/testutil"
@@ -41,6 +42,7 @@ func TestConcurrentWait(t *testing.T) {
 		var w WaitGroup
 
 		done := make(chan struct{}, 1)
+		errCh := make(chan error, 1)
 
 		if !w.TryAdd() {
 			t.Fatal("TryAdd failed")
@@ -56,8 +58,10 @@ func TestConcurrentWait(t *testing.T) {
 			select {
 			case <-done:
 			default:
-				t.Fatal("Wait returned before Done.")
+				errCh <- fmt.Errorf("Wait returned before Done.")
+				return
 			}
+			errCh <- nil
 		}()
 
 		for w.TryAdd() {
@@ -65,6 +69,9 @@ func TestConcurrentWait(t *testing.T) {
 		}
 		close(done)
 		w.Done()
+		if err := <-errCh; err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
@@ -94,14 +101,16 @@ func TestIdempotentWait(t *testing.T) {
 		t.Fatal("TryAdd failed")
 	}
 
+	errCh := make(chan error, 2)
 	// w.Wait() should be idempotent.
 	for i := 0; i < 2; i++ {
 		go func() {
 			w.Wait()
 			select {
 			case <-done:
+				errCh <- nil
 			default:
-				t.Fatal("Wait returned before Done.")
+				errCh <- fmt.Errorf("Wait returned before Done.")
 			}
 		}()
 	}
@@ -111,6 +120,12 @@ func TestIdempotentWait(t *testing.T) {
 	}
 	close(done)
 	w.Done()
+
+	for i := 0; i < 2; i++ {
+		if err := <-errCh; err != nil {
+			t.Fatal(err)
+		}
+	}
 }
 
 func TestDoneFailsBeforeAdd(t *testing.T) {

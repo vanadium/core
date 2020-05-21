@@ -92,6 +92,7 @@ func isRevoked(ctx *context.T, call security.Call, key []byte) error {
 	revocationLock.RUnlock()
 	revoked, err := revocationDB.IsRevoked(key)
 	if err != nil {
+		return fmt.Errorf("failed to call IsRevoked: %v", err)
 	}
 	if revoked {
 		return fmt.Errorf("revoked")

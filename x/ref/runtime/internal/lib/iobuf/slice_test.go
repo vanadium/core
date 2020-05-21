@@ -30,7 +30,7 @@ func TestExpandFront(t *testing.T) {
 	if slice.Size() != 7 {
 		t.Errorf("Expected length 9, got %d", slice.Size())
 	}
-	ok = slice.ExpandFront(3)
+	slice.ExpandFront(3)
 	if slice.Size() != 10 {
 		t.Errorf("Expected length 10, got %d", slice.Size())
 	}

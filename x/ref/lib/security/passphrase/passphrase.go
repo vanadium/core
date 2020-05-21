@@ -24,7 +24,7 @@ func Get(prompt string) ([]byte, error) {
 		// obtained by reading a line from it.
 		return readPassphrase()
 	}
-	fmt.Printf(prompt)
+	fmt.Print(prompt)
 	stop := make(chan bool)
 	defer close(stop)
 	state, err := terminal.GetState(int(os.Stdin.Fd()))
@@ -72,7 +72,7 @@ func secureAppend(s []byte, t byte) []byte {
 		copy(s, make([]byte, len(s)))
 	}
 	// Clear out the byte.
-	t = 0
+	t = 0 // nolint: ineffassign
 	return res
 }
 

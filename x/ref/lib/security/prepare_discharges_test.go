@@ -116,7 +116,7 @@ func TestPrepareDischarges(t *testing.T) {
 	}
 	tpid := tpcav.ThirdPartyDetails().ID()
 
-	dctx, _, err = v23.WithNewServer(dctx,
+	_, _, err = v23.WithNewServer(dctx,
 		"discharger",
 		&expiryDischarger{map[string]time.Duration{
 			tpcav.ThirdPartyDetails().ID(): 100 * time.Millisecond,

@@ -92,7 +92,6 @@ func buildRafts(t *testing.T, ctx *context.T, n int, config *RaftConfig) ([]*raf
 	// Start each server with its own log directory.
 	var rs []*raft
 	var cs []*client
-	var td []string
 	for i := 0; i < n; i++ {
 		if n > 1 || len(config.LogDir) == 0 {
 			config.LogDir = tempDir(t)
@@ -102,7 +101,6 @@ func buildRafts(t *testing.T, ctx *context.T, n int, config *RaftConfig) ([]*raf
 		if err != nil {
 			t.Fatalf("NewRaft: %s", err)
 		}
-		td = append(td, config.LogDir)
 		c.id = r.Id()
 		rs = append(rs, r)
 		cs = append(cs, c)

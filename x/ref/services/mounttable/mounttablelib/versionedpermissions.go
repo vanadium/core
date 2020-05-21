@@ -177,6 +177,9 @@ func (mt *mountTable) parsePermFile(ctx *context.T, path string) error {
 // pickCreator returns a string matching the blessing of the user performing the creation.
 func (mt *mountTable) pickCreator(ctx *context.T, call security.Call) string {
 	ids := conventions.GetClientUserIds(ctx, call)
-	// Replace the slashes with something else or we'll confuse the stats package.
-	return strings.Replace(ids[0], "/", "\\", 0)
+	if len(ids) > 0 {
+		// Replace the slashes with something else or we'll confuse the stats package.
+		return strings.Replace(ids[0], "/", "\\", -1)
+	}
+	return ""
 }

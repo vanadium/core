@@ -93,8 +93,12 @@ type debug struct{}
 
 func (d *debug) Dial(ctx *context.T, network, address string, timeout time.Duration) (flow.Conn, error) {
 	var base flow.Protocol
-	if network, address, base = baseProtocol(address); base == nil {
+	var baseNetwork string
+	if baseNetwork, address, base = baseProtocol(address); base == nil {
 		return nil, fmt.Errorf("could not find underlying protocol %q", network)
+	}
+	if len(baseNetwork) > 0 {
+		network = baseNetwork
 	}
 	c, err := base.Dial(ctx, network, address, timeout)
 	if err != nil {
@@ -104,8 +108,12 @@ func (d *debug) Dial(ctx *context.T, network, address string, timeout time.Durat
 }
 func (d *debug) Listen(ctx *context.T, network, address string) (flow.Listener, error) {
 	var base flow.Protocol
-	if network, address, base = baseProtocol(address); base == nil {
+	var baseNetwork string
+	if baseNetwork, address, base = baseProtocol(address); base == nil {
 		return nil, fmt.Errorf("could not find underlying protocol %q", network)
+	}
+	if len(baseNetwork) > 0 {
+		network = baseNetwork
 	}
 	l, err := base.Listen(ctx, network, address)
 	if err != nil {

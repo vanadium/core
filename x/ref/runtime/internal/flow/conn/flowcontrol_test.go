@@ -6,6 +6,7 @@ package conn
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"sync"
 	"testing"
@@ -113,24 +114,38 @@ func TestOrdering(t *testing.T) {
 	unblock := block(dc, 0)
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
-	defer wg.Wait()
+	errCh := make(chan error, len(flows)*2)
+	defer func() {
+		wg.Wait()
+		close(errCh)
+		for err := range errCh {
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}()
 	for _, f := range flows {
 		go func(fl flow.Flow) {
+			defer wg.Done()
 			if _, err := fl.WriteMsg(randData[:defaultMtu*nmessages]); err != nil {
-				panic(err)
+				errCh <- err
+				return
 			}
-			wg.Done()
+			errCh <- nil
 		}(f)
 		go func() {
+			defer wg.Done()
 			fl := <-accept
 			buf := make([]byte, defaultMtu*nmessages)
 			if _, err := io.ReadFull(fl, buf); err != nil {
-				panic(err)
+				errCh <- err
+				return
 			}
 			if !bytes.Equal(buf, randData[:defaultMtu*nmessages]) {
-				t.Fatal("unequal data")
+				errCh <- fmt.Errorf("unequal data")
+				return
 			}
-			wg.Done()
+			errCh <- nil
 		}()
 	}
 	waitForWriters(ctx, dc, nflows+1)

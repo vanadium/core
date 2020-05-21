@@ -144,7 +144,7 @@ func TestTimeSeriesValues(t *testing.T) {
 	// Add 3 more values.
 	// slots: [6, 7, 8, 3, 4, 5]
 	// values: [3, 4, 5, 6, 7, 8]
-	now = addValue(1, 3, ts, now)
+	addValue(1, 3, ts, now)
 	if expected, got := []int64{3, 4, 5, 6, 7, 8}, ts.values(); !reflect.DeepEqual(got, expected) {
 		t.Errorf("unexpected values. Got %v, want %v", got, expected)
 	}

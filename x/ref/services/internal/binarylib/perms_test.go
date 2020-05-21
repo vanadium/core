@@ -457,7 +457,7 @@ func TestBinaryRationalStartingValueForGetPermissions(t *testing.T) {
 		t.Fatalf("SetPermissions() failed: %v", err)
 	}
 
-	perms, tag, err = b("bini").GetPermissions(selfCtx)
+	perms, _, err = b("bini").GetPermissions(selfCtx)
 	if err != nil {
 		t.Fatalf("GetPermissions failed: %#v", err)
 	}

@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/services/application"
@@ -127,7 +127,7 @@ func TestApplicationUpdatePermissions(t *testing.T) {
 		t.Fatalf("SetPermissions failed: %v", err)
 	}
 
-	perms, version, err = repostub.GetPermissions(ctx)
+	perms, _, err = repostub.GetPermissions(ctx)
 	if err != nil {
 		t.Fatalf("GetPermissions should not have failed: %v", err)
 	}

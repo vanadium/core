@@ -45,6 +45,10 @@ func Init(ctx *context.T, name string, auth security.Authorizer, localTag string
 	v := protocol.(*vine)
 	ctx, cancel := context.WithCancel(ctx)
 	_, server, err := v23.WithNewServer(ctx, name, VineServer(v), auth)
+	if err != nil {
+		cancel()
+		return nil, func() {}, err
+	}
 	serverShutdown := func() {
 		cancel()
 		<-server.Closed()

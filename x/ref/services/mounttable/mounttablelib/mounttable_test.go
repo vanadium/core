@@ -202,7 +202,7 @@ func newMT(t *testing.T, permsFile, persistDir, statsDir string, rootCtx *contex
 
 	// Start serving on a loopback address.
 	ctx, cancel := context.WithCancel(ctx)
-	ctx, server, err := v23.WithNewDispatchingServer(ctx, "", mt, options.ServesMountTable(true))
+	_, server, err := v23.WithNewDispatchingServer(ctx, "", mt, options.ServesMountTable(true))
 	if err != nil {
 		boom(t, "r.NewServer: %s", err)
 	}

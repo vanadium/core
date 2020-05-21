@@ -8,6 +8,7 @@ package websocket
 
 import (
 	"bytes"
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -67,6 +68,7 @@ func TestMultipleGoRoutines(t *testing.T) {
 			reader(t, WebsocketConn(ws), input, totalWrites)
 		}),
 	}
+	errCh := make(chan error, 1)
 	// Dial out in another go routine
 	go func() {
 		ctx, cancel := context.RootContext()
@@ -77,10 +79,10 @@ func TestMultipleGoRoutines(t *testing.T) {
 			numTries++
 			time.Sleep(time.Second)
 		}
-
 		if err != nil {
-			t.Fatalf("failed to connect to server: %v", err)
+			err = fmt.Errorf("failed to connect to server: %v", err)
 		}
+		errCh <- err
 		var writers sync.WaitGroup
 		writers.Add(numWriters)
 		for i := 0; i < numWriters; i++ {
@@ -91,4 +93,7 @@ func TestMultipleGoRoutines(t *testing.T) {
 		l.Close()
 	}()
 	s.Serve(l) // nolint: errcheck
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
+	}
 }

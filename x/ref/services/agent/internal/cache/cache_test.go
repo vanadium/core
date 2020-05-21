@@ -19,7 +19,7 @@ import (
 func createRoots() ([]byte, security.BlessingRoots, *cachedRoots) {
 	var mu sync.RWMutex
 	ctx, _ := context.RootContext()
-	ctx = context.WithLogger(ctx, logger.Global())
+	context.WithLogger(ctx, logger.Global())
 	p := testutil.NewPrincipal()
 	impl := p.Roots()
 	roots, err := newCachedRoots(impl, &mu)
@@ -208,7 +208,7 @@ func TestDefaultBlessing(t *testing.T) {
 	if cur, _ := store.Default(); !reflect.DeepEqual(carol, cur) {
 		t.Errorf("Default(): got: %v, want: %v", cur, carol)
 	}
-	if cached, notify = cache.Default(); !reflect.DeepEqual(carol, cached) {
+	if cached, _ = cache.Default(); !reflect.DeepEqual(carol, cached) {
 		t.Errorf("Default(): got: %v, want: %v", cached, carol)
 	}
 
@@ -254,7 +254,7 @@ func TestSet(t *testing.T) {
 		t.Errorf("ForPeer(bob:server) got: %v, want: %v", got, want)
 	}
 
-	blessings, err = cache.Set(john, "john")
+	_, err = cache.Set(john, "john")
 	if err == nil {
 		t.Errorf("No error from set")
 	}
@@ -262,11 +262,11 @@ func TestSet(t *testing.T) {
 		t.Errorf("ForPeer(john:server) got: %v, want: %v", got, nil)
 	}
 
-	blessings, err = cache.Set(bob, "...")
+	_, err = cache.Set(bob, "...")
 	if err != nil {
 		t.Errorf("Set() failed: %v", err)
 	}
-	blessings, err = cache.Set(alice, "bob")
+	_, err = cache.Set(alice, "bob")
 	if err != nil {
 		t.Errorf("Set() failed: %v", err)
 	}

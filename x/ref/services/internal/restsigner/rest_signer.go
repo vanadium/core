@@ -5,6 +5,7 @@
 package restsigner
 
 import (
+	gocontext "context"
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/base64"
@@ -45,7 +46,7 @@ func DecodeSignature(sig *signer.VSignature) (r, s *big.Int, err error) {
 }
 
 func NewRestSigner() (security.Signer, error) {
-	client, err := signer.New(oauth2.NewClient(oauth2.NoContext, google.ComputeTokenSource("")))
+	client, err := signer.New(oauth2.NewClient(gocontext.TODO(), google.ComputeTokenSource("")))
 	if err != nil {
 		return nil, err
 	}

@@ -1130,7 +1130,7 @@ func TestPrivateServer(t *testing.T) {
 	client := v23.GetClient(cctx)
 
 	// Test that an RPC to the server fails as the client has no blessing private keys.
-	call, err := client.StartCall(cctx, serverEPName, "Closure", nil)
+	_, err = client.StartCall(cctx, serverEPName, "Closure", nil)
 	if err == nil {
 		t.Error("RPC by client with no blessing private key unexpectedly succeeded")
 	}
@@ -1140,7 +1140,7 @@ func TestPrivateServer(t *testing.T) {
 	if err := bcrypter.GetCrypter(cctx).AddKey(cctx, extractKey(t, ctx, root, "root:otherclient")); err != nil {
 		t.Fatal(err)
 	}
-	call, err = client.StartCall(cctx, serverEPName, "Closure", nil)
+	_, err = client.StartCall(cctx, serverEPName, "Closure", nil)
 	if err == nil {
 		t.Error("RPC by client with no matching blessing private key unexpectedly succeeded")
 	}
@@ -1150,7 +1150,7 @@ func TestPrivateServer(t *testing.T) {
 	if err := bcrypter.GetCrypter(cctx).AddKey(cctx, extractKey(t, ctx, root, "root:client")); err != nil {
 		t.Fatal(err)
 	}
-	call, err = client.StartCall(cctx, serverEPName, "Closure", nil, options.ServerAuthorizer{Authorizer: access.AccessList{In: []security.BlessingPattern{"root:server:$"}}})
+	call, err := client.StartCall(cctx, serverEPName, "Closure", nil, options.ServerAuthorizer{Authorizer: access.AccessList{In: []security.BlessingPattern{"root:server:$"}}})
 	if err != nil {
 		t.Error(verror.DebugString(err))
 	} else {

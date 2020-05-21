@@ -554,6 +554,9 @@ func setupPrincipal(ctx *context.T, instanceDir string, call device.ApplicationI
 	// If there were any publisher blessings in the envelope, add those to the set of blessings
 	// sent to servers by default
 	appBlessings, err := addPublisherBlessings(ctx, instanceDir, p, appBlessingsFromInstantiator.Value)
+	if err != nil {
+		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("addPublisherBlessings: failed: %v", err))
+	}
 	if _, err := p.BlessingStore().Set(appBlessings, security.AllPrincipals); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("BlessingStore.Set() failed: %v", err))
 	}

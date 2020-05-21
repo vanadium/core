@@ -195,6 +195,7 @@ func (c *Caveat) Validate(ctx *context.T, call Call) error {
 func (c *Caveat) ThirdPartyDetails() ThirdPartyCaveat {
 	if c.Id == PublicKeyThirdPartyCaveat.Id {
 		var param publicKeyThirdPartyCaveatParam
+		// nolint: staticcheck //lint:ignore SA9003
 		if err := vom.Decode(c.ParamVom, &param); err != nil {
 			// TODO(jsimsa): Decide what (if any) logging mechanism to use.
 			// vlog.Errorf("Error decoding PublicKeyThirdPartyCaveat: %v", err)

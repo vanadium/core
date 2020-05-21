@@ -28,7 +28,6 @@ func genJavaPackageFile(pkg *compile.Package, env *compile.Env) *JavaFileInfo {
 				log.Printf("WARNING: Multiple vdl files with package documentation. One will be overwritten.")
 				return nil
 			}
-			generated = true
 
 			data := struct {
 				Doc         string
@@ -51,6 +50,7 @@ func genJavaPackageFile(pkg *compile.Package, env *compile.Env) *JavaFileInfo {
 				Data: buf.Bytes(),
 			}
 		}
+		generated = true
 	}
 	return nil
 }

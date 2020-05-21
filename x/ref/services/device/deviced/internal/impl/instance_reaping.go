@@ -220,6 +220,10 @@ func perInstance(ctx *context.T, instancePath string, c chan<- pidErrorTuple, wg
 	defer wg.Done()
 	ctx.Infof("Instance: %v", instancePath)
 	state, err := getInstanceState(instancePath)
+	if err != nil {
+		ctx.Errorf("getInstanceState failed: %v", err)
+		return
+	}
 	switch state {
 	// Ignore apps already in deleted and not running states.
 	case device.InstanceStateNotRunning:

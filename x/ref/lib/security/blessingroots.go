@@ -54,9 +54,8 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 }
 
 func (br *blessingRoots) Recognized(root []byte, blessing string) error {
-	key := string(root)
 	br.mu.RLock()
-	for _, p := range br.state[key] {
+	for _, p := range br.state[string(root)] {
 		if p.MatchedBy(blessing) {
 			br.mu.RUnlock()
 			return nil

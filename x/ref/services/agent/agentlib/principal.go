@@ -168,9 +168,8 @@ const agentBinName = "v23agentd"
 
 // findAgent tries to locate an agent binary that we can run.
 func findAgent() (string, version.T, error) {
-	// TODO(caprita): Besides checking PATH, we can also look under
-	// JIRI_ROOT.  Also, consider caching a copy of the agent binary under
-	// <creds dir>/agent?
+	// TODO(caprita): Besides checking PATH, we can also consider caching
+	// a copy of the agent binary under <creds dir>/agent?
 	var defaultVersion version.T
 	agentBin, err := exec.LookPath(agentBinName)
 	if err != nil {

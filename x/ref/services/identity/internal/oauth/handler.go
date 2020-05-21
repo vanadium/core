@@ -320,7 +320,7 @@ func validLoopbackURL(u string) (*url.URL, error) {
 		return nil, fmt.Errorf("invalid url: %v", err)
 	}
 	// Remove the port from the netURL.Host.
-	host, _, err := net.SplitHostPort(netURL.Host)
+	host, _, _ := net.SplitHostPort(netURL.Host)
 	// Check if its localhost or loopback ip
 	if host == "localhost" {
 		return netURL, nil

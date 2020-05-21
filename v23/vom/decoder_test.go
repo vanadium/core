@@ -348,14 +348,24 @@ func TestTypeStreamEndsFirst(t *testing.T) {
 	wr := newWaitingReader(strings.NewReader(binversion + binvalue))
 	decoder := vom.NewDecoderWithTypeDecoder(wr, typedec)
 	var v interface{}
+	errCh := make(chan error, 1)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		if tr.WaitForError() == nil {
-			t.Fatalf("expected EOF after reaching end of type stream, but didn't occur")
+			errCh <- fmt.Errorf("expected EOF after reaching end of type stream, but didn't occur")
+			return
 		}
 		wr.Activate()
+		errCh <- nil
 	}()
 	if err := decoder.Decode(&v); err != nil {
 		t.Errorf("expected no error in decode, but got: %v", err)
+	}
+	wg.Wait()
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
 	}
 }
 

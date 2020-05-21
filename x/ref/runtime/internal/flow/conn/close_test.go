@@ -233,17 +233,24 @@ func TestFlowCancelOnRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	done := make(chan struct{})
+	errCh := make(chan error, 1)
 	go func() {
+		defer close(done)
 		if _, err := df.WriteMsg([]byte("hello")); err != nil {
-			t.Fatalf("could not write flow: %v", err)
+			errCh <- fmt.Errorf("could not write flow: %v", err)
+			return
 		}
 		if _, err := df.ReadMsg(); err != io.EOF {
-			t.Fatalf("unexpected error waiting for cancel: %v", err)
+			errCh <- fmt.Errorf("unexpected error waiting for cancel: %v", err)
+			return
 		}
-		close(done)
+		errCh <- nil
 	}()
 	af := <-accept
 	cancel()
 	<-done
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
+	}
 	<-af.Closed()
 }

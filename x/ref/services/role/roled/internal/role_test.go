@@ -80,7 +80,7 @@ func TestSeekBlessings(t *testing.T) {
 
 	testServerCtx := newPrincipalContext(t, ctx, root, "testserver")
 	tDisp := &testDispatcher{}
-	testServerCtx, _, err = v23.WithNewDispatchingServer(testServerCtx, "test", tDisp)
+	_, _, err = v23.WithNewDispatchingServer(testServerCtx, "test", tDisp)
 	if err != nil {
 		t.Fatalf("NewDispatchingServer failed: %v", err)
 	}
@@ -168,15 +168,15 @@ func TestPeerBlessingCaveats(t *testing.T) {
 	roleAddr := newRoleServer(t, newPrincipalContext(t, ctx, root, "roles"), workdir)
 
 	tDisp := &testDispatcher{}
-	peer1, _, err = v23.WithNewDispatchingServer(peer1, "peer1", tDisp)
+	_, _, err = v23.WithNewDispatchingServer(peer1, "peer1", tDisp)
 	if err != nil {
 		t.Fatalf("NewDispatchingServer failed: %v", err)
 	}
-	peer2, _, err = v23.WithNewDispatchingServer(peer2, "peer2", tDisp)
+	_, _, err = v23.WithNewDispatchingServer(peer2, "peer2", tDisp)
 	if err != nil {
 		t.Fatalf("NewDispatchingServer failed: %v", err)
 	}
-	peer3, _, err = v23.WithNewDispatchingServer(peer3, "peer3", tDisp)
+	_, _, err = v23.WithNewDispatchingServer(peer3, "peer3", tDisp)
 	if err != nil {
 		t.Fatalf("NewDispatchingServer failed: %v", err)
 	}
@@ -292,7 +292,7 @@ func newPrincipalContext(t *testing.T, ctx *context.T, root *testutil.IDProvider
 }
 
 func newRoleServer(t *testing.T, ctx *context.T, dir string) string {
-	ctx, _, err := v23.WithNewDispatchingServer(ctx, "role", irole.NewDispatcher(dir, "role"))
+	_, _, err := v23.WithNewDispatchingServer(ctx, "role", irole.NewDispatcher(dir, "role"))
 	if err != nil {
 		t.Fatalf("ServeDispatcher failed: %v", err)
 	}

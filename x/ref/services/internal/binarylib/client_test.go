@@ -53,7 +53,7 @@ func setupRepository(t *testing.T, ctx *context.T) (string, func()) {
 		t.Fatalf("NewDispatcher() failed: %v\n", err)
 	}
 	ctx, cancel := context.WithCancel(ctx)
-	ctx, server, err := v23.WithNewDispatchingServer(ctx, "", dispatcher)
+	_, server, err := v23.WithNewDispatchingServer(ctx, "", dispatcher)
 	if err != nil {
 		t.Fatalf("NewServer() failed: %v", err)
 	}

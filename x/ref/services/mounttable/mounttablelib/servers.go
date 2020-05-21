@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -90,6 +90,10 @@ func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, 
 			nh, err = NewLoopbackNeighborhoodDispatcher(nhName, names...)
 		} else {
 			nh, err = NewNeighborhoodDispatcher(nhName, names...)
+		}
+		if err != nil {
+			ctx.Errorf("NewLoopback or Neigborhood dispatcher (host %s) failed: %v", host, err)
+			return "", nil, err
 		}
 
 		ctx, nhServer, err := v23.WithNewDispatchingServer(ctx, naming.Join(mtName, "nh"), nh, options.ServesMountTable(true))

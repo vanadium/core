@@ -104,11 +104,7 @@ func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
 		"v.io/x/jni/impl/google/services/vango/Echo3",
 		"v.io/x/jni/impl/google/services/vango/Echo4",
 	}
-	type adstate struct {
-		ad   *discovery.Advertisement
-		stop func()
-	}
-	ads := []adstate{}
+
 	for _, name := range interfaces {
 		ad := &discovery.Advertisement{
 			InterfaceName: name,
@@ -119,18 +115,12 @@ func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
 				"four":  "This is insane",
 			},
 		}
-		nctx, ncancel := context.WithCancel(ctx)
-		ch, err := libdiscovery.AdvertiseServer(nctx, dis, server, "", ad, nil)
+		nctx, _ := context.WithCancel(ctx)
+		_, err := libdiscovery.AdvertiseServer(nctx, dis, server, "", ad, nil)
 		if err != nil {
 			bothf(nctx, w, "Can't advertise server %v", err)
 			return err
 		}
-
-		stop := func() {
-			ncancel()
-			<-ch
-		}
-		ads = append(ads, adstate{ad, stop})
 	}
 
 	type updateState struct {

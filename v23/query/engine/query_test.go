@@ -2400,6 +2400,9 @@ func TestSelect(t *testing.T) {
 		}
 		h := p.Handle()
 		p2, err := qe.GetPreparedStatement(h)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		headers, rs, err := p2.Exec()
 		if err != nil {

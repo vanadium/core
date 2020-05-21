@@ -84,10 +84,6 @@ func TestCache(t *testing.T) {
 	lkup := func(name string, servers ...string) {
 		_, file, line, _ := runtime.Caller(1)
 		loc := fmt.Sprintf("%v:%v", filepath.Base(file), line)
-		srvs := []naming.MountedServer{}
-		for _, s := range servers {
-			srvs = append(srvs, naming.MountedServer{Server: s, Deadline: future(30)})
-		}
 		e, err := c.lookup(ctx, "/h1//t/"+name)
 		if err != nil {
 			t.Fatalf("%v: failed for %v: %v", loc, name, err)

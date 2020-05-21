@@ -515,7 +515,7 @@ appear on this list. If the principal is operating as a server, clients must
 present blessings derived from this list.
 `,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			fmt.Printf(v23.GetPrincipal(ctx).Roots().DebugString())
+			fmt.Print(v23.GetPrincipal(ctx).Roots().DebugString())
 			return nil
 		}),
 	}
@@ -530,7 +530,7 @@ If the principal operates as a client, it presents the map value associated with
 the peer it contacts.
 `,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			fmt.Printf(v23.GetPrincipal(ctx).BlessingStore().DebugString())
+			fmt.Print(v23.GetPrincipal(ctx).BlessingStore().DebugString())
 			return nil
 		}),
 	}
@@ -1018,7 +1018,7 @@ This file can be supplied to bless:
 				token:                base64.URLEncoding.EncodeToString(token[:]),
 				notify:               make(chan error),
 			}
-			ctx, server, err := v23.WithNewServer(ctx, "", service, security.AllowEveryone())
+			_, server, err := v23.WithNewServer(ctx, "", service, security.AllowEveryone())
 			if err != nil {
 				return fmt.Errorf("failed to create server to listen for blessings: %v", err)
 			}

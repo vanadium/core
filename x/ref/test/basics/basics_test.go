@@ -157,7 +157,7 @@ func BenchmarkMutexUncontended(b *testing.B) {
 	var mu sync.Mutex
 	for i := 0; i < b.N; i++ {
 		mu.Lock()
-		mu.Unlock()
+		mu.Unlock() // nolint: staticcheck  //lint:ignore SA2001
 	}
 }
 
@@ -242,22 +242,39 @@ func benchmarkRoundtrip(b *testing.B, network, addr string) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	defer l.Close()
+	errCh := make(chan error, 1)
+	var wg sync.WaitGroup
+	defer func() {
+		l.Close()
+		wg.Wait()
+		close(errCh)
+		for err := range errCh {
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}()
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		c, err := l.Accept()
 		if err != nil {
-			b.Fatal(err)
+			errCh <- err
+			return
 		}
 		defer c.Close()
 		buf := make([]byte, 1)
 		for i := 0; i < b.N; i++ {
 			if _, err := c.Read(buf); err != nil {
-				b.Fatal(err)
+				errCh <- err
+				return
 			}
 			if _, err := c.Write(buf); err != nil {
-				b.Fatal(err)
+				errCh <- err
+				return
 			}
 		}
+		errCh <- nil
 	}()
 
 	c, err := net.Dial(l.Addr().Network(), l.Addr().String())
