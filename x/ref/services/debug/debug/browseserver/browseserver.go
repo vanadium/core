@@ -77,9 +77,9 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log boo
 		// Open the browser if we can
 		switch runtime.GOOS {
 		case "linux":
-			exec.Command("xdg-open",url).Start() //nolint:errcheck
+			exec.Command("xdg-open", url).Start() //nolint:errcheck
 		case "darwin":
-			exec.Command("open",url).Start() //nolint:errcheck
+			exec.Command("open", url).Start() //nolint:errcheck
 		}
 
 		<-ctx.Done()
@@ -724,8 +724,8 @@ type divTree struct {
 }
 
 type annotation struct {
-	// Position is a value from 0-100 which is the percentage of time into the span's duration that this
-	// annotation occured.
+	// Position is a value from 0-100 which is the percentage of time into the
+	// span's duration that this annotation occurred.
 	Position int
 	Msg      string
 }

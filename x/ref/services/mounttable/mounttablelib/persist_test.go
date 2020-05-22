@@ -64,7 +64,7 @@ func TestPersistence(t *testing.T) {
 	checkExists(t, rootCtx, mtAddr, "a/b", true)
 	checkExists(t, rootCtx, mtAddr, "a/b/c", false)
 
-	// Check Persistance.
+	// Check Persistence.
 	if perm, _ := doGetPermissions(t, rootCtx, mtAddr, "a", true); !reflect.DeepEqual(perm, perms1) {
 		t.Fatalf("a: got %v, want %v", perm, perms1)
 	}

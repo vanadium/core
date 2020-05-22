@@ -398,7 +398,7 @@ func (s *sqlStore) initDB() error {
 		}
 	}
 	// One might have considered using a single table for all Scenario
-	// related infromation with a UNIQUE constraint on all the fields
+	// related information with a UNIQUE constraint on all the fields
 	// (e.g., UNIQUE(CPUArchitecture, CPUDescription, CPUMHz, OSName, OSVersion, ...))
 	//
 	// However, in MySQL (and Google Cloud SQL) there are limits on the

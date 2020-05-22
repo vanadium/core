@@ -718,7 +718,7 @@ func (x *BlessingPattern) VDLRead(dec vdl.Decoder) error {
 //
 // Implementations of services that issue discharges are encouraged to add
 // caveats to the discharge that bind the discharge to the impetus, thereby
-// rendering the discharge unsuable for any other purpose.
+// rendering the discharge unusable for any other purpose.
 type DischargeImpetus struct {
 	Server    []BlessingPattern // The client intends to use the discharge to communicate with a server that has a blessing matching one of the patterns in this set.
 	Method    string            // Name of the method being invoked by the client.

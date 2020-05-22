@@ -453,7 +453,7 @@ type AgentClientMethods interface {
 	// Clients using caching should call NotifyWhenChanged upon connecting to
 	// the server. The server will stream back values whenever the client should
 	// flush the cache. The streamed value is arbitrary, simply flush whenever
-	// recieving a new item.
+	// receiving a new item.
 	NotifyWhenChanged(*context.T, ...rpc.CallOpt) (AgentNotifyWhenChangedClientCall, error)
 }
 
@@ -663,7 +663,7 @@ type AgentServerMethods interface {
 	// Clients using caching should call NotifyWhenChanged upon connecting to
 	// the server. The server will stream back values whenever the client should
 	// flush the cache. The streamed value is arbitrary, simply flush whenever
-	// recieving a new item.
+	// receiving a new item.
 	NotifyWhenChanged(*context.T, AgentNotifyWhenChangedServerCall) error
 }
 
@@ -693,7 +693,7 @@ type AgentServerStubMethods interface {
 	// Clients using caching should call NotifyWhenChanged upon connecting to
 	// the server. The server will stream back values whenever the client should
 	// flush the cache. The streamed value is arbitrary, simply flush whenever
-	// recieving a new item.
+	// receiving a new item.
 	NotifyWhenChanged(*context.T, *AgentNotifyWhenChangedServerCallStub) error
 }
 
@@ -962,7 +962,7 @@ var descAgent = rpc.InterfaceDesc{
 		},
 		{
 			Name: "NotifyWhenChanged",
-			Doc:  "// Clients using caching should call NotifyWhenChanged upon connecting to\n// the server. The server will stream back values whenever the client should\n// flush the cache. The streamed value is arbitrary, simply flush whenever\n// recieving a new item.",
+			Doc:  "// Clients using caching should call NotifyWhenChanged upon connecting to\n// the server. The server will stream back values whenever the client should\n// flush the cache. The streamed value is arbitrary, simply flush whenever\n// receiving a new item.",
 		},
 	},
 }

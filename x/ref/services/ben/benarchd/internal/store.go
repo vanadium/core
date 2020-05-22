@@ -97,7 +97,7 @@ func (q *Query) String() string {
 //
 // The query language supports setting each field in the Query object at most
 // once and the query will be an AND of all terms. A more expressive query
-// language is left as an excercise to a future enthusiast.
+// language is left as an exercise to a future enthusiast.
 func ParseQuery(query string) (*Query, error) {
 	tokens, err := split(query)
 	if err != nil {

@@ -85,7 +85,7 @@ func (b *VersionedPermissions) Copy() *VersionedPermissions {
 	return nt
 }
 
-// Add adds the blessing pattern to the tag in the reciever.
+// Add adds the blessing pattern to the tag in the receiver.
 func (b *VersionedPermissions) Add(pattern security.BlessingPattern, tag string) {
 	b.P.Add(pattern, tag)
 }

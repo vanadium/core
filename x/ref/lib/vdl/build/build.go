@@ -704,7 +704,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			matchPath := dirPath[len(walk.dir):]
 			matchPath = strings.TrimPrefix(matchPath, filePathSeparator)
 
-			// Match agains the raw path, and also against one with the
+			// Match against the raw path, and also against one with the
 			// go module prefix prepended if go modules are in use.
 			if !matcher.MatchString(matchPath) {
 				if !isGoModule {

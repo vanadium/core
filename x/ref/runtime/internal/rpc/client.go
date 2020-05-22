@@ -86,7 +86,7 @@ type client struct {
 	preferredProtocols []string
 	ctx                *context.T
 	outstanding        *outstandingStats
-	// stop is kept for backward compatibilty to implement Close().
+	// stop is kept for backward compatibility to implement Close().
 	// TODO(mattr): deprecate Close.
 	stop func()
 
@@ -349,7 +349,7 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	// buffering for all of the connections to finish instantaneously. This
 	// is important because we want to process the responses in priority
 	// order; that order is indicated by the order of entries in servers.
-	// So, if two respones come in at the same 'instant', we prefer the
+	// So, if two responses come in at the same 'instant', we prefer the
 	// first in the resolved.Servers)
 	//
 	// TODO(toddw): Refactor the parallel dials so that the policy can be changed,
@@ -631,7 +631,7 @@ func (fc *flowClient) Conn() flow.ManagedConn {
 }
 
 // close determines the appropriate error to return, in particular,
-// if a timeout or cancelation has occured then any error
+// if a timeout or cancelation has occurred then any error
 // is turned into a timeout or cancelation as appropriate.
 // Cancelation takes precedence over timeout. This is needed because
 // a timeout can lead to any other number of errors due to the underlying

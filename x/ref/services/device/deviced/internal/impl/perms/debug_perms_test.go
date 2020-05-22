@@ -264,7 +264,7 @@ func TestClaimSetsDebugPermissions(t *testing.T) {
 	// can access the __debug space.
 	updateAccessList(t, bobCtx, "root:alice:$", string(access.Admin), "dm", "device")
 
-	// Alice is an adminstrator and so can can access device manager __debug
+	// Alice is an administrator and so can can access device manager __debug
 	// values.
 	utiltest.VerifyGlob(t, aliceCtx, "perms.test", dmGlobtests, res)
 	utiltest.VerifyStatsValues(t, aliceCtx, "dm", "__debug", "stats/system/start-time*")

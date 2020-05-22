@@ -60,7 +60,7 @@ func init() {
 // protocols are returned and the endpoints are ordered first by protocol
 // and then by locality within each protocol. If tcp4 and unixfd are requested
 // for example then only protocols that match tcp4 and unixfd will returned
-// with the tcp4 ones preceeding the unixfd ones.
+// with the tcp4 ones preceding the unixfd ones.
 // - if the protocol parameter is empty, then a default protocol ordering
 // will be used, but unlike the previous case, any servers that don't support
 // these protocols will be returned also, but following the default

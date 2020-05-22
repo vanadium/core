@@ -752,7 +752,7 @@ func genCmd(ctx *context.T, instanceDir, nsRoot string) (*exec.Cmd, error) {
 	saArgs.workspace = rootDir
 
 	logDir := filepath.Join(instanceDir, "logs")
-	suidHelper.chownTree(ctx,suidHelper.getCurrentUser(),instanceDir,os.Stdout,os.Stdin) //nolint:errcheck
+	suidHelper.chownTree(ctx, suidHelper.getCurrentUser(), instanceDir, os.Stdout, os.Stdin) //nolint:errcheck
 	if err := mkdirPerm(ctx, logDir, 0755); err != nil {
 		return nil, err
 	}
@@ -899,7 +899,7 @@ func (i *appRunner) run(ctx *context.T, instanceDir string) error {
 	// We should allow the app to be considered for restart if startCmd
 	// fails after having successfully started the app process.
 	if err != nil {
-		transitionInstance(instanceDir,device.InstanceStateLaunching,device.InstanceStateNotRunning) //nolint:errcheck
+		transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateNotRunning) //nolint:errcheck
 		return err
 	}
 	if err := transitionInstance(instanceDir, device.InstanceStateLaunching, device.InstanceStateRunning); err != nil {
@@ -934,7 +934,7 @@ func synchronizedShouldRestart(ctx *context.T, instanceDir string) bool {
 // restartAppIfNecessary restarts an application if its daemon
 // configuration indicates that it should be running but the reaping
 // functionality has previously determined that it is not.
-// TODO(rjkroege): This routine has a low-likelyhood race condition in
+// TODO(rjkroege): This routine has a low-likelihood race condition in
 // which it fails to restart an application when the app crashes and the
 // device manager then crashes between the reaper marking the app not
 // running and the go routine invoking this function having a chance to

@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 )
 
@@ -101,7 +101,7 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 		for {
 			secondSig := <-ch
 			// If signal de-duping is enabled, ignore the signal if
-			// it's the same signal and has occured within the
+			// it's the same signal and has occurred within the
 			// specified time window.
 			if SameSignalTimeWindow <= 0 || secondSig.String() != sig.String() || sigTime.Add(SameSignalTimeWindow).Before(time.Now()) {
 				os.Exit(DoubleStopExitCode)

@@ -19,7 +19,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 
 // Description describes a binary. Binaries are named and have been
 // determined to run on some set of profiles. The mechanism for
-// determing profiles is specifically not specified and left to the
+// determining profiles is specifically not specified and left to the
 // implementation of the interface that generates the description.
 type Description struct {
 	// Name is the Object name of the application binary that can

@@ -94,7 +94,7 @@ func EnvNamespaceRoots() (map[string]string, []string) {
 }
 
 // EnvClearCredentials unsets all environment variables that are used by the
-// Runtime to intialize the principal.
+// Runtime to initialize the principal.
 func EnvClearCredentials() error {
 	for _, v := range []string{
 		EnvCredentials,

@@ -476,7 +476,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		if !f.opened {
 			// Closing a flow that was never opened.
 			f.conn.unopenedFlows.Done()
-			// We mark the flow as opened to prevent mulitple calls to
+			// We mark the flow as opened to prevent multiple calls to
 			// f.conn.unopenedFlows.Done().
 			f.opened = true
 		} else if !closedRemotely && !connClosing {

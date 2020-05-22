@@ -87,7 +87,7 @@ func (ctx *swiftContext) swiftTypeName(tdef *compile.TypeDef) string {
 		// A typeName is created by walking concatenating a package path with the type name
 		// into a camel cased symbol. For example Value in v.io/v23/syncbase/nosql would be
 		// SyncbaseNosqlValue (because v23 defines a swift module we stop just before that).
-		// Convienently the Swift package name already does the package path part, so we
+		// Convieniently the Swift package name already does the package path part, so we
 		// can just append to that. In cases where we're at the root of our Swift module,
 		// the package name will be a zero value and so we correctly end up with just our
 		// tdef.Name.

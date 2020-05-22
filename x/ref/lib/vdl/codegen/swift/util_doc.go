@@ -33,7 +33,7 @@ func swiftDoc(doc, suffix string) string {
 		}
 		line = strings.TrimSpace(line)
 		if strings.HasPrefix(line, "//") {
-			// Three consequtive slashes is the format for Swiftdoc. Add the additional beyond what the line starts with.
+			// Three consecutive slashes is the format for Swiftdoc. Add the additional beyond what the line starts with.
 			ret += "/"
 			ret += line
 			ret += "\n"

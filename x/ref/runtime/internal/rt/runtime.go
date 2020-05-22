@@ -81,7 +81,7 @@ type vtraceDependency struct{}
 
 // Runtime implements the v23.Runtime interface.
 // Please see the interface definition for documentation of the
-// individiual methods.
+// individual methods.
 type Runtime struct {
 	ctx  *context.T
 	deps *dependency.Graph

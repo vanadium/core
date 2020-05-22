@@ -33,7 +33,7 @@ const pkgPath = "v.io/x/ref/services/internal/fs"
 // Errors
 var (
 	ErrNoRecursiveCreateTransaction = verror.Register(pkgPath+".ErrNoRecursiveCreateTransaction", verror.NoRetry, "{1:}{2:} recursive CreateTransaction() not permitted{:_}")
-	ErrDoubleCommit                 = verror.Register(pkgPath+".ErrDoubleCommit", verror.NoRetry, "{1:}{2:} illegal attempt to commit previously committed or abandonned transaction{:_}")
+	ErrDoubleCommit                 = verror.Register(pkgPath+".ErrDoubleCommit", verror.NoRetry, "{1:}{2:} illegal attempt to commit previously committed or abandoned transaction{:_}")
 	ErrAbortWithoutTransaction      = verror.Register(pkgPath+".ErrAbortWithoutTransaction", verror.NoRetry, "{1:}{2:} illegal attempt to abort non-existent transaction{:_}")
 	ErrWithoutTransaction           = verror.Register(pkgPath+".ErrRemoveWithoutTransaction", verror.NoRetry, "{1:}{2:} call without a transaction{:_}")
 	ErrNotInMemStore                = verror.Register(pkgPath+".ErrNotInMemStore", verror.NoRetry, "{1:}{2:} not in Memstore{:_}")

@@ -577,7 +577,7 @@ func hasUpperAcronym(s string) bool {
 }
 
 // validConstIdent returns (exported, err) where err is non-nil iff the
-// identifer is valid as the name of a const.  Exported is true if the
+// identifier is valid as the name of a const.  Exported is true if the
 // identifier is exported.  Valid: "^[A-Za-z][A-Za-z0-9_]*$"
 func validConstIdent(ident string, mode reservedMode) (bool, error) {
 	if re := regexpIdent; !re.MatchString(ident) {

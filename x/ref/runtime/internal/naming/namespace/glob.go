@@ -38,7 +38,7 @@ func (tr *tracks) beenThereDoneThat(servers []naming.MountedServer, pstr string)
 }
 
 // task is a sub-glob that has to be performed against a mount table.  Tasks are
-// done in parrallel to speed up the glob.
+// done in parallel to speed up the glob.
 type task struct {
 	pattern *glob.Glob         // pattern to match
 	er      *naming.GlobError  // error for that particular point in the name space
@@ -87,7 +87,7 @@ func (ns *namespace) globAtServer(ctx *context.T, t *task, replies chan *task, t
 		return
 	}
 
-	// At this point we're commited to the server that answered the call
+	// At this point we're committed to the server that answered the call
 	// first. Cycle through all replies from that server.
 	for {
 		// If the mount table returns an error, we're done.  Send the task to the channel

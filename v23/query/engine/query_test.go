@@ -2392,7 +2392,7 @@ func TestSelect(t *testing.T) {
 
 	// Do the same thing with a prepared statement.  (Even though there are no parameters, it's
 	// good to know that all will still work.  Supplying parameters is a separate test.)
-	// For good measure, exersize the Handle() and GetPreparedStatement functions.
+	// For good measure, exercise the Handle() and GetPreparedStatement functions.
 	for _, test := range basic {
 		p, err := qe.PrepareStatement(test.query)
 		if err != nil {
@@ -2858,7 +2858,7 @@ func TestQueryPrepare(t *testing.T) {
 			[][]*vom.RawBytes{},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where 1 = ? and (2 = ? and (3 = ? and 4 = ?) and 5 = ?) and k like ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2871,7 +2871,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (1 = ? and 2 = ?) and (3 = ? and 4 = ? and 5 = ?) and k like ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2884,7 +2884,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where ((1 = ? and 2 = ? and 3 = ? and 4 = ?) and 5 = ?) and k like ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2897,7 +2897,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where ? = 1 and (2 = ? and (? = 3 and 4 = ?) and ? = 5) and k like ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2910,7 +2910,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (1 = ? and ? = 2) and (3 = ? and ? = 4 and 5 = ?) and ? = k",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2923,7 +2923,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where ((? = 1 and ? = 2 and ? = 3 and ? = 4) and ? = 5) and ? = k",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2936,7 +2936,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (? = 1 and ? = 2) and ? = 3 and (? = 4 and ? = 5) and ? = k",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2949,7 +2949,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (1 = ? and 2 = ?) and 3 = ? and (4 = ? and 5 = ?) and k = ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2962,7 +2962,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (? = 1 and 2 = ?) and ? = 3 and (4 = ? and ? = 5) and k = ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},
@@ -2975,7 +2975,7 @@ func TestQueryPrepare(t *testing.T) {
 			},
 		},
 		{
-			// Nested expresions, do we get the values in the right order?
+			// Nested expressions, do we get the values in the right order?
 			"select k from Customer where (1 = ? and ? = 2) and 3 = ? and (? = 4 and 5 = ?) and k = ?",
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("001")},
 			[]*vom.RawBytes{vom.RawBytesOf(1), vom.RawBytesOf(2), vom.RawBytesOf(3), vom.RawBytesOf(4), vom.RawBytesOf(5), vom.RawBytesOf("002")},

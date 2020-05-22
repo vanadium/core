@@ -152,7 +152,7 @@ func RegisterCaveatValidator(c CaveatDescriptor, validator interface{}) {
 }
 
 // NewCaveat returns a Caveat that requires validation by the validation
-// function correponding to c and uses the provided parameters.
+// function corresponding to c and uses the provided parameters.
 func NewCaveat(c CaveatDescriptor, param interface{}) (Caveat, error) {
 	got := vdl.TypeOf(param)
 	// If the user inputs a vdl.Value, use the type of the vdl.Value instead.

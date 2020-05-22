@@ -10,7 +10,7 @@ package main
 import (
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/lib/cmdline"
@@ -25,7 +25,7 @@ var name string
 
 func main() {
 	cmdRoot.Flags.DurationVar(&duration, "duration", 0, "Duration of the stress test to run; if zero, there is no limit.")
-	cmdRoot.Flags.StringVar(&name, "name", "", "Name to mount the server under.  If emtpy, don't mount.")
+	cmdRoot.Flags.StringVar(&name, "name", "", "Name to mount the server under.  If empty, don't mount.")
 	cmdline.HideGlobalFlagsExcept()
 	cmdline.Main(cmdRoot)
 }

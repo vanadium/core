@@ -337,7 +337,7 @@ func TestUpdateServerBlessings(t *testing.T) {
 	}
 
 	// Now we bless the server with a new blessing (which will change its default
-	// blessing).  Then we wait for the new value to propogate to the remote end.
+	// blessing).  Then we wait for the new value to propagate to the remote end.
 	if err := idp.Bless(serverp, "b2"); err != nil {
 		t.Error(err)
 	}

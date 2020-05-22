@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package test implements initalization for unit and integration tests.
+// Package test implements initialization for unit and integration tests.
 //
 // V23Init can be used within test functions as a safe alternative to v23.Init.
 // It sets up the context so that only localhost ports are used for

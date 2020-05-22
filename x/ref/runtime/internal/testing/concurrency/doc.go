@@ -17,7 +17,7 @@
 // The interposed events suspended and a centralized user-level
 // scheduler is used to serialize the concurrent execution by
 // advancing allowing only one concurrent transition to execute at any
-// given time. In addition to controling the scheduling, this
+// given time. In addition to controlling the scheduling, this
 // centralized scheduler keeps track of the alternative scheduling
 // choices. This information is then used to explore a different
 // sequence of transitions next time the test body is executed.

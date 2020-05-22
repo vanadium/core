@@ -410,6 +410,6 @@ func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	// TODO: Reconsider this when we add stronger protection to make sure that the pids being
 	// signalled are in fact the restarter and/or device manager
 
-	// Process was killed succesfully
+	// Process was killed successfully
 	return nil
 }

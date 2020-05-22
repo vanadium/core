@@ -339,7 +339,7 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	}
 	select {
 	case err := <-waitchan:
-		return err // err is nil if cmd.Wait succceeded
+		return err // err is nil if cmd.Wait succeeded
 	case <-time.After(childWaitTimeout):
 		return verror.New(errors.ErrOperationFailed, ctx, "new device manager failed to run in allotted time")
 	}

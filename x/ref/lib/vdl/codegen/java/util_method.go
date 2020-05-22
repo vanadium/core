@@ -24,7 +24,8 @@ type methodAndOrigin struct {
 	Origin *compile.Interface
 }
 
-// allMethodsAndOrigins constructs a list of all methods in an interface (including embeded interfaces) along with their corresponding origin interface.
+// allMethodsAndOrigins constructs a list of all methods in an interface
+// (including embedded interfaces) along with their corresponding origin interface.
 func allMethodsAndOrigin(iface *compile.Interface) []methodAndOrigin {
 	result := make([]methodAndOrigin, len(iface.Methods))
 	for i, method := range iface.Methods {

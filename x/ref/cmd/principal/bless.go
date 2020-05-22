@@ -94,7 +94,7 @@ func prepareBlessArgs(ctx *context.T, macaroonChan <-chan formResult) (service [
 }
 
 func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, blessedChan <-chan string, browser bool) (<-chan formResult, error) {
-	// Setup a HTTP server to recieve a blessing macaroon from the identity server.
+	// Setup a HTTP server to receive a blessing macaroon from the identity server.
 	// Steps:
 	// 1. Generate a state token to be included in the HTTP request
 	//    (though, arguably, the random port assigment for the HTTP server is enough
@@ -166,7 +166,7 @@ func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, bless
 		tmplArgs.Blessings = blessed
 		ln.Close()
 	})
-	go http.Serve(ln,nil) //nolint:errcheck
+	go http.Serve(ln, nil) //nolint:errcheck
 
 	// Print the link to start the flow.
 	url, err := seekBlessingsURL(key, blessServerURL, redirectURL, state)
@@ -181,7 +181,7 @@ func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, bless
 	// need to wait for the command to return (and indeed on some window managers,
 	// the command will not exit until the browser is closed).
 	if len(openCommand) != 0 && browser {
-		exec.Command(openCommand,url).Start() //nolint:errcheck
+		exec.Command(openCommand, url).Start() //nolint:errcheck
 	}
 	return result, nil
 }

@@ -484,7 +484,7 @@ func (d *decoder81) IsOptional() bool {
 
 func (d *decoder81) IsNil() bool {
 	if top := d.top(); top != nil {
-		// Becuase of the "dereferencing" we do, the only time the type is any or
+		// Because of the "dereferencing" we do, the only time the type is any or
 		// optional is when it's nil.
 		return top.Type == vdl.AnyType || top.Type.Kind() == vdl.Optional
 	}

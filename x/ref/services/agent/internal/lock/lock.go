@@ -153,7 +153,7 @@ func (l *dirLock) tryLock(index int) lockOutcome {
 		return grabbedLock(true)
 	}
 	if linkErr, ok := err.(*os.LinkError); !ok || !os.IsExist(linkErr.Err) {
-		// Some unexpected error occured.
+		// Some unexpected error occurred.
 		return failedLock{err}
 	}
 	// Lock is either actively held, or stale.  Figure out which.

@@ -40,7 +40,7 @@ final class {{ .ServiceName }}ClientImpl implements {{ .FullServiceName }}Client
     public {{ .ServiceName }}ClientImpl(io.v.v23.rpc.Client client, java.lang.String vName) {
         this.client = client;
         this.vName = vName;
-        {{/* Initialize the embeded impls */}}
+        {{/* Initialize the embedded impls */}}
         {{ range $embed := .Embeds }}
         {
             io.v.v23.Options opts = new io.v.v23.Options();
@@ -184,7 +184,7 @@ final class {{ .ServiceName }}ClientImpl implements {{ .FullServiceName }}Client
      }
 {{ end }}{{/* end range over methods */}}
 
-{{/* Iterate over methods from embeded services and generate code to delegate the work */}}
+{{/* Iterate over methods from embedded services and generate code to delegate the work */}}
 {{ range $eMethod := .EmbedMethods }}
     @Override
     public {{ $eMethod.RetType }} {{ $eMethod.Name }}(io.v.v23.context.VContext _context{{ $eMethod.DeclarationArgs }}) {
