@@ -22,14 +22,14 @@ const (
 	// relevant and that version information should be obtained elsewhere.
 	DeprecatedRPCVersion
 
-	rPCVersion2 // nolint: deadcode, unused, varcheck
-	rPCVersion3 // nolint: deadcode, unused, varcheck
-	rPCVersion4 // nolint: deadcode, unused, varcheck
-	rPCVersion5 // nolint: deadcode, unused, varcheck
-	rPCVersion6 // nolint: deadcode, unused, varcheck
-	rPCVersion7 // nolint: deadcode, unused, varcheck
-	rPCVersion8 // nolint: deadcode, unused, varcheck
-	rPCVersion9 // nolint: deadcode, unused, varcheck
+	rPCVersion2 //nolint:deadcode,unused,varcheck
+	rPCVersion3 //nolint:deadcode,unused,varcheck
+	rPCVersion4 //nolint:deadcode,unused,varcheck
+	rPCVersion5 //nolint:deadcode,unused,varcheck
+	rPCVersion6 //nolint:deadcode,unused,varcheck
+	rPCVersion7 //nolint:deadcode,unused,varcheck
+	rPCVersion8 //nolint:deadcode,unused,varcheck
+	rPCVersion9 //nolint:deadcode,unused,varcheck
 
 	// RPCVersion10 opens a special flow over which discharges for third-party
 	// caveats on the server's blessings are sent.

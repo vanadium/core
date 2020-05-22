@@ -66,7 +66,7 @@ func TestReaperNoticesAppDeath(t *testing.T) {
 	}
 
 	utiltest.VerifyState(t, ctx, device.InstanceStateRunning, appID, instance1ID)
-	syscall.Kill(int(pid), 9) // nolint: errcheck
+	syscall.Kill(int(pid),9) //nolint:errcheck
 
 	// Start a second instance of the app which will force polling to happen.
 	instance2ID := utiltest.LaunchApp(t, ctx, appID)

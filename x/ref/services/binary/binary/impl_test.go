@@ -49,8 +49,8 @@ func (s *server) Delete(ctx *context.T, _ rpc.ServerCall) error {
 func (s *server) Download(ctx *context.T, call repository.BinaryDownloadServerCall, _ int32) error {
 	ctx.Infof("Download() was called. suffix=%v", s.suffix)
 	sender := call.SendStream()
-	sender.Send([]byte("Hello")) // nolint: errcheck
-	sender.Send([]byte("World")) // nolint: errcheck
+	sender.Send([]byte("Hello")) //nolint:errcheck
+	sender.Send([]byte("World")) //nolint:errcheck
 	return nil
 }
 
@@ -66,7 +66,7 @@ func (s *server) Stat(ctx *context.T, _ rpc.ServerCall) ([]binary.PartInfo, repo
 	ctx.Infof("Stat() was called. suffix=%v", s.suffix)
 	h := md5.New()
 	text := "HelloWorld"
-	h.Write([]byte(text)) // nolint: errcheck
+	h.Write([]byte(text)) //nolint:errcheck
 	part := binary.PartInfo{Checksum: hex.EncodeToString(h.Sum(nil)), Size: int64(len(text))}
 	return []binary.PartInfo{part}, repository.MediaInfo{Type: "text/plain"}, nil
 }

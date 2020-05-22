@@ -26,7 +26,7 @@ import (
 type noMethodsType struct{ Field string }
 
 type fieldType struct {
-	unexported string // nolint: structcheck, unused
+	unexported string //nolint:structcheck,unused
 }
 
 type noExportedFieldsType struct{}

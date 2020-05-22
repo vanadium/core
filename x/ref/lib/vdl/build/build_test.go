@@ -78,7 +78,7 @@ func TestSrcDirsVDLRoot(t *testing.T) {
 		vdlRoot := test.VDLRoot
 		if vdlRoot != "" && vdlRoot != "/noexist" {
 			vdlRoot = filepath.Join(tmpDir, vdlRoot)
-			os.MkdirAll(vdlRoot, os.ModePerm) // nolint: errcheck
+			os.MkdirAll(vdlRoot,os.ModePerm) //nolint:errcheck
 		}
 		setEnvironment(t, vdlRoot, defaultVDLPath)
 		name := fmt.Sprintf("%+v", test)

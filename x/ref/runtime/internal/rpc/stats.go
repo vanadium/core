@@ -71,7 +71,7 @@ func (o *outstandingStats) String() string {
 }
 
 func (o *outstandingStats) close() {
-	stats.Delete(o.prefix) // nolint: errcheck
+	stats.Delete(o.prefix) //nolint:errcheck
 }
 
 func (o *outstandingStats) start(method string, remote naming.Endpoint) func() {
@@ -111,7 +111,7 @@ type perMethodStats struct {
 }
 
 func (s *rpcStats) stop() {
-	stats.Delete(s.prefix) // nolint: errcheck
+	stats.Delete(s.prefix) //nolint:errcheck
 }
 
 func (s *rpcStats) record(method string, latency time.Duration) {
@@ -124,10 +124,10 @@ func (s *rpcStats) record(method string, latency time.Duration) {
 	if !ok {
 		m = s.newPerMethodStats(method)
 	}
-	m.latency.Add(int64(latency / time.Millisecond)) // nolint: errcheck
+	m.latency.Add(int64(latency / time.Millisecond)) //nolint:errcheck
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func (s *rpcStats) recordBlessingCache(hit bool) {
 	s.blessingsCacheStats.incr(hit)
 }
@@ -168,7 +168,7 @@ func newBlessingsCacheStats(prefix string) *blessingsCacheStats {
 }
 
 // Incr increments the cache attempt counter and the cache hit counter if hit is true.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func (s *blessingsCacheStats) incr(hit bool) {
 	s.callsReceived.Incr(1)
 	if hit {

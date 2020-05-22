@@ -61,7 +61,7 @@ func (sd *ServiceDescription) LoadFrom(fName string) error {
 	return nil
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func (sd *ServiceDescription) writeTemplate(templateContents, file string) error {
 	conf, err := template.New(sd.Service + ".template").Parse(templateContents)
 	if err != nil {

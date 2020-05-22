@@ -84,7 +84,7 @@ func TestInitArgs(t *testing.T) {
 		"log_backtrace_at=:0",
 		os.TempDir()))
 	c.Terminate(os.Interrupt)
-	c.S.ExpectEOF() // nolint: errcheck
+	c.S.ExpectEOF() //nolint:errcheck
 }
 
 func validatePrincipal(p security.Principal) error {

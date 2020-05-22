@@ -26,7 +26,7 @@ func (i *impl) EchoStream(_ *context.T, call benchmark.BenchmarkEchoStreamServer
 	rStream := call.RecvStream()
 	sStream := call.SendStream()
 	for rStream.Advance() {
-		sStream.Send(rStream.Value()) // nolint: errcheck
+		sStream.Send(rStream.Value()) //nolint:errcheck
 	}
 	if err := rStream.Err(); err != nil {
 		return err

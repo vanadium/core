@@ -47,7 +47,7 @@ func (s *impl) SumStream(_ *context.T, call stress.StressSumStreamServerCall) er
 		if err != nil {
 			return err
 		}
-		sStream.Send(sum) // nolint: errcheck
+		sStream.Send(sum) //nolint:errcheck
 		bytesRecv += uint64(lenSumArg(&arg))
 		bytesSent += uint64(len(sum))
 	}

@@ -89,7 +89,7 @@ func pattern(elems ...string) security.BlessingPattern {
 type format int
 
 const (
-	// nolint: deadcode, unused, varcheck
+	//nolint:deadcode,unused,varcheck
 	formatInfer   format = iota // unknown convention, try to infer it
 	formatUser                  // e.g., dev.v.io:u:bugs@bunny.com
 	formatAppUser               // e.g., dev.v.io:o:appid:bugs@bunny.com

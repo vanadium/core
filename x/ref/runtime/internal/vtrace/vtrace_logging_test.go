@@ -62,7 +62,7 @@ func startLoggingServer(ctx *context.T, idp *testutil.IDProvider) error {
 	}
 	// Make sure the server is mounted to avoid any retries in when StartCall
 	// is invoked in runCallChain which complicate the span comparisons.
-	verifyMount(ctx, "logger") // nolint: errcheck
+	verifyMount(ctx,"logger") //nolint:errcheck
 	return nil
 }
 

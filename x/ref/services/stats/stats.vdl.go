@@ -438,7 +438,7 @@ func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]int64) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

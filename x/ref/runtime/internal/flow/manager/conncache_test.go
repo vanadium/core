@@ -58,7 +58,7 @@ func makeEPs(ctx *context.T, addr string) (ep, nullep, wprotoep, waddrep, waddrp
 	return
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func modep(ep naming.Endpoint, field string, value interface{}) naming.Endpoint {
 	reflect.ValueOf(ep).FieldByName(field).Set(reflect.ValueOf(value))
 	return ep

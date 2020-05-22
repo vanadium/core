@@ -37,7 +37,7 @@ import (
 func instanceDirForApp(root, appID, instanceID string) string {
 	applicationDirName := func(title string) string {
 		h := md5.New()
-		h.Write([]byte(title)) // nolint: errcheck
+		h.Write([]byte(title)) //nolint:errcheck
 		hash := strings.TrimRight(base64.URLEncoding.EncodeToString(h.Sum(nil)), "=")
 		return "app-" + hash
 	}

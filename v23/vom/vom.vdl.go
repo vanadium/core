@@ -30,7 +30,7 @@ const (
 var ControlKindAll = [...]ControlKind{ControlKindNil, ControlKindEnd, ControlKindIncompleteType}
 
 // ControlKindFromString creates a ControlKind from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func ControlKindFromString(label string) (x ControlKind, err error) {
 	err = x.Set(label)
 	return
@@ -416,7 +416,7 @@ const (
 var DumpKindAll = [...]DumpKind{DumpKindVersion, DumpKindControl, DumpKindMsgId, DumpKindTypeMsg, DumpKindValueMsg, DumpKindMsgLen, DumpKindAnyMsgLen, DumpKindAnyLensLen, DumpKindTypeIdsLen, DumpKindTypeId, DumpKindPrimValue, DumpKindByteLen, DumpKindValueLen, DumpKindIndex, DumpKindWireTypeIndex}
 
 // DumpKindFromString creates a DumpKind from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func DumpKindFromString(label string) (x DumpKind, err error) {
 	err = x.Set(label)
 	return
@@ -2018,7 +2018,7 @@ const WireCtrlEnd = byte(225)            // End of struct or union
 const WireCtrlTypeIncomplete = byte(226) // Marks that the type message is incomplete until future messages are received
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_enum_1    *vdl.Type
 	__VDLType_union_2   *vdl.Type

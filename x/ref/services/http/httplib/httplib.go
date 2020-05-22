@@ -26,7 +26,7 @@ func VDLRequestFromHTTPRequest(req *go_http.Request) v23_http.Request {
 	}
 
 	body_buf := new(bytes.Buffer)
-	body_buf.ReadFrom(req.Body) // nolint: errcheck
+	body_buf.ReadFrom(req.Body) //nolint:errcheck
 
 	ifc_req := v23_http.Request{
 		Method:           req.Method,

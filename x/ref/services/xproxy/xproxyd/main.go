@@ -99,7 +99,7 @@ func (nilDispatcher) Lookup(*context.T, string) (interface{}, security.Authorize
 type healthzHandler struct{}
 
 func (healthzHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
-	w.Write([]byte("ok")) // nolint: errcheck
+	w.Write([]byte("ok")) //nolint:errcheck
 }
 
 // startHealthzServer starts a HTTP server that simply returns "ok" to every

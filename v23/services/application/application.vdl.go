@@ -451,7 +451,7 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
 const DeviceManagerTitle = "device manager"
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

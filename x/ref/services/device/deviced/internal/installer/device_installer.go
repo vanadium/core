@@ -352,14 +352,14 @@ func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	if restarterPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(restarterPid); err == nil {
-				p.Wait() // nolint: errcheck
+				p.Wait() //nolint:errcheck
 			}
 		}()
 	}
 	if devmgrPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(devmgrPid); err == nil {
-				p.Wait() // nolint: errcheck
+				p.Wait() //nolint:errcheck
 			}
 		}()
 	}

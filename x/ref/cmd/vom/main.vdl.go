@@ -28,7 +28,7 @@ const (
 var dataRepAll = [...]dataRep{dataRepHex, dataRepBinary}
 
 // dataRepFromString creates a dataRep from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func dataRepFromString(label string) (x dataRep, err error) {
 	err = x.Set(label)
 	return
@@ -89,7 +89,7 @@ func (x *dataRep) VDLRead(dec vdl.Decoder) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_enum_1 *vdl.Type
 )

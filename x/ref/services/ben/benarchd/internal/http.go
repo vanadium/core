@@ -38,7 +38,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if strings.HasSuffix(file, ".js") {
 			w.Header().Set("Content-Type", "application/javascript")
 		}
-		w.Write(data) // nolint: errcheck
+		w.Write(data) //nolint:errcheck
 		return
 	}
 	if id := strings.TrimSpace(r.FormValue("id")); len(id) > 0 {

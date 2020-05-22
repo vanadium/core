@@ -94,7 +94,7 @@ const (
 	ApplicationInstallationObject objectKind = iota
 	ApplicationInstanceObject
 	DeviceServiceObject
-	// nolint: deadcode, unused
+	//nolint:deadcode,unused
 	SentinelObjectKind // For invariant checking in testing.
 )
 
@@ -486,7 +486,7 @@ var allGlobSettings []*GlobSettings
 
 // ResetGlobSettings is meant for tests to restore the values of flag-configured
 // variables when running multiple commands in the same process.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func ResetGlobSettings() {
 	for _, s := range allGlobSettings {
 		s.reset()

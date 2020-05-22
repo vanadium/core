@@ -108,7 +108,7 @@ const (
 var InstallationStateAll = [...]InstallationState{InstallationStateActive, InstallationStateUninstalled}
 
 // InstallationStateFromString creates a InstallationState from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func InstallationStateFromString(label string) (x InstallationState, err error) {
 	err = x.Set(label)
 	return
@@ -185,7 +185,7 @@ const (
 var InstanceStateAll = [...]InstanceState{InstanceStateLaunching, InstanceStateRunning, InstanceStateDying, InstanceStateNotRunning, InstanceStateUpdating, InstanceStateDeleted}
 
 // InstanceStateFromString creates a InstanceState from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func InstanceStateFromString(label string) (x InstanceState, err error) {
 	err = x.Set(label)
 	return
@@ -2762,7 +2762,7 @@ var descDevice = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_map_1     *vdl.Type
 	__VDLType_enum_2    *vdl.Type

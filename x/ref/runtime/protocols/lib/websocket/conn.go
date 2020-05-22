@@ -76,7 +76,7 @@ func (c *wrappedConn) Close() error {
 	// Send an EOF control message to the remote end so that it can
 	// handle the close gracefully.
 	msg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "EOF")
-	// nolint: errcheck
+	//nolint:errcheck
 	c.ws.WriteControl(websocket.CloseMessage, msg, time.Now().Add(time.Second))
 	return c.ws.Close()
 }

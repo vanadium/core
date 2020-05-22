@@ -151,7 +151,7 @@ func (i binaryInvoker) Stat(*context.T, rpc.ServerCall) ([]binary.PartInfo, repo
 	if err != nil {
 		return []binary.PartInfo{}, repository.MediaInfo{}, err
 	}
-	h.Write(bytes) // nolint: errcheck
+	h.Write(bytes) //nolint:errcheck
 	part := binary.PartInfo{Checksum: hex.EncodeToString(h.Sum(nil)), Size: int64(len(bytes))}
 	return []binary.PartInfo{part}, packages.MediaInfoForFileName(fileName), nil
 }

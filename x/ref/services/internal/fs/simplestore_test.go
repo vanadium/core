@@ -277,7 +277,7 @@ func TestSerializeDeserialize(t *testing.T) {
 	}
 
 	// Abort the transaction without committing it.
-	memstoreOriginal.Abort(nil) // nolint: errcheck
+	memstoreOriginal.Abort(nil) //nolint:errcheck
 	memstoreOriginal.Unlock()
 	// TRANSACTION END (ABORTED)
 

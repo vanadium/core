@@ -446,7 +446,7 @@ var AttributeUuidTest = []UuidTestData{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_list_2   *vdl.Type

@@ -43,7 +43,7 @@ func TestExpectf(t *testing.T) {
 	buffer.WriteString("bar 22\n")
 	s := expect.NewSession(nil, bufio.NewReader(buffer), time.Minute)
 	s.Expectf("bar %d", 22)
-	s.ExpectEOF() // nolint: errcheck
+	s.ExpectEOF() //nolint:errcheck
 	if err := s.Error(); err != nil {
 		t.Error(err)
 	}
@@ -56,7 +56,7 @@ func TestEOF(t *testing.T) {
 	buffer.WriteString("baz 22\n")
 	s := expect.NewSession(nil, bufio.NewReader(buffer), time.Minute)
 	s.Expectf("bar %d", 22)
-	s.ExpectEOF() // nolint: errcheck
+	s.ExpectEOF() //nolint:errcheck
 	if err := s.Error(); err == nil {
 		t.Error("unexpected success")
 	} else {

@@ -37,7 +37,7 @@ var (
 // This is only used for debugging; add this as the first line of NewDecoder to
 // dump formatted vom bytes to stdout:
 //   r = teeDump(r)
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func teeDump(r io.Reader) io.Reader {
 	return io.TeeReader(r, NewDumper(NewDumpWriter(os.Stdout)))
 }

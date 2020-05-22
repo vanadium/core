@@ -126,7 +126,7 @@ func testHTTP(url string, expect ...string) error {
 		return nil
 	}
 	buf := bytes.NewBuffer(nil)
-	io.Copy(buf, resp.Body) // nolint: errcheck
+	io.Copy(buf,resp.Body) //nolint:errcheck
 	body := buf.String()
 	for _, e := range expect {
 		if !strings.Contains(body, e) {

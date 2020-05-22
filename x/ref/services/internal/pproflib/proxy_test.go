@@ -41,7 +41,7 @@ func TestPProfProxy(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer ln.Close()
-	// nolint: errcheck
+	//nolint:errcheck
 	go http.Serve(ln, pproflib.PprofProxy(ctx, "/myprefix", endpoints[0].Name()))
 	testcases := []string{
 		"/myprefix/pprof/",

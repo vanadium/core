@@ -53,8 +53,8 @@ func TestAddRemoveName(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitForNames(t, ctx, true, "one")
-	s.AddName("two")   // nolint: errcheck
-	s.AddName("three") // nolint: errcheck
+	s.AddName("two")   //nolint:errcheck
+	s.AddName("three") //nolint:errcheck
 	waitForNames(t, ctx, true, "one", "two", "three")
 	s.RemoveName("one")
 	waitForNames(t, ctx, false, "one")
@@ -1252,7 +1252,7 @@ func TestServerRefreshDischarges(t *testing.T) {
 	var got string
 	cctx, cancel = context.WithCancel(cctx)
 	defer cancel()
-	// nolint: errcheck
+	//nolint:errcheck
 	v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{})
 	for {
 		ed.mu.Lock()

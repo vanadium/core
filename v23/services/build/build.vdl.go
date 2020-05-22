@@ -36,7 +36,7 @@ const (
 var ArchitectureAll = [...]Architecture{ArchitectureAmd64, ArchitectureArm, ArchitectureX86}
 
 // ArchitectureFromString creates a Architecture from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func ArchitectureFromString(label string) (x Architecture, err error) {
 	err = x.Set(label)
 	return
@@ -114,7 +114,7 @@ const (
 var FormatAll = [...]Format{FormatElf, FormatMach, FormatPe}
 
 // FormatFromString creates a Format from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func FormatFromString(label string) (x Format, err error) {
 	err = x.Set(label)
 	return
@@ -193,7 +193,7 @@ const (
 var OperatingSystemAll = [...]OperatingSystem{OperatingSystemDarwin, OperatingSystemLinux, OperatingSystemWindows, OperatingSystemAndroid}
 
 // OperatingSystemFromString creates a OperatingSystem from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func OperatingSystemFromString(label string) (x OperatingSystem, err error) {
 	err = x.Set(label)
 	return
@@ -681,7 +681,7 @@ func (s implBuilderBuildServerCallSend) Send(item File) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_enum_1   *vdl.Type
 	__VDLType_enum_2   *vdl.Type

@@ -131,7 +131,7 @@ func makeChainedTestServers(ctx *context.T, idp *testutil.IDProvider, force ...b
 		out = append(out, c)
 		// Make sure the server is mounted to avoid any retries in when StartCall
 		// is invoked in runCallChain which complicate the span comparisons.
-		verifyMount(ctx, name) // nolint: errcheck
+		verifyMount(ctx,name) //nolint:errcheck
 	}
 	return out, nil
 }

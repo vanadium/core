@@ -124,7 +124,7 @@ func BenchmarkNow(b *testing.B) {
 
 func BenchmarkSprintf(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		fmt.Sprintf("%d %d %d", i, i, i) // nolint: govet
+		fmt.Sprintf("%d %d %d",i,i,i) //nolint:govet
 	}
 }
 
@@ -157,7 +157,7 @@ func BenchmarkMutexUncontended(b *testing.B) {
 	var mu sync.Mutex
 	for i := 0; i < b.N; i++ {
 		mu.Lock()
-		mu.Unlock() // nolint: staticcheck  //lint:ignore SA2001
+		mu.Unlock() //nolint:staticcheck  //lint:ignore SA2001
 	}
 }
 

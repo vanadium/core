@@ -53,7 +53,7 @@ func main() {
 
 	flag.Usage = usage
 
-	// nolint: staticcheck //lint:ignore SA4006 - this is a real false positive.
+	//nolint:staticcheck //lint:ignore SA4006 - this is a real false positive.
 	sdFlag := flag.String("service_description", "", "File containing a JSON-encoded sysinit.ServiceDescription object.")
 	systemFlag := flag.String("system", sysinit.InitSystem(), "System label, to select the appropriate sysinit mechanism.")
 	flag.Parse()

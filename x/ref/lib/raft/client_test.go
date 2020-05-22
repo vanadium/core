@@ -109,7 +109,7 @@ func buildRafts(t *testing.T, ctx *context.T, n int, config *RaftConfig) ([]*raf
 	// Tell each server about the complete set.
 	for i := range rs {
 		for j := range rs {
-			rs[i].AddMember(ctx, rs[j].Id()) // nolint: errcheck
+			rs[i].AddMember(ctx,rs[j].Id()) //nolint:errcheck
 		}
 	}
 	// Start the servers up.
@@ -136,7 +136,7 @@ func restart(t *testing.T, ctx *context.T, rs []*raft, cs []*client, r *raft) {
 		}
 	}
 	for j := range rs {
-		rn.AddMember(ctx, rs[j].Id()) // nolint: errcheck
+		rn.AddMember(ctx,rs[j].Id()) //nolint:errcheck
 	}
 	rn.Start()
 }
@@ -157,7 +157,7 @@ func TestClientSnapshot(t *testing.T) {
 	// Make sure the test client works as expected.
 	c := new(client)
 	for i, cmd := range []string{"the", "rain", "in", "spain", "falls", "mainly", "on", "the", "plain"} {
-		c.Apply([]byte(cmd), Index(i)) // nolint: errcheck
+		c.Apply([]byte(cmd),Index(i)) //nolint:errcheck
 	}
 	fp, err := ioutil.TempFile(".", "TestClientSnapshot")
 	if err != nil {
@@ -168,8 +168,8 @@ func TestClientSnapshot(t *testing.T) {
 		t.Fatalf("can't write snapshot: %s", err)
 	}
 	<-done
-	fp.Sync()     // nolint: errcheck
-	fp.Seek(0, 0) // nolint: errcheck
+	fp.Sync()     //nolint:errcheck
+	fp.Seek(0,0) //nolint:errcheck
 	nc := new(client)
 	if err != nil {
 		t.Fatalf("can't open snapshot: %s", err)

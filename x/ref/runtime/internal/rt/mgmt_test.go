@@ -215,7 +215,7 @@ func TestProgressMultipleTrackers(t *testing.T) {
 	}
 }
 
-// nolint: deadcode, unused, varcheck
+//nolint:deadcode,unused,varcheck
 var app = gosh.RegisterFunc("app", func() {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

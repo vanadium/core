@@ -148,7 +148,7 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 		for _, file := range fi {
 			name := file.Name()
 			if m.Match(name) {
-				// nolint: errcheck
+				//nolint:errcheck
 				call.SendStream().Send(naming.GlobChildrenReplyName{Value: name})
 			}
 		}

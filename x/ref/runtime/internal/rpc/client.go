@@ -643,7 +643,7 @@ func (fc *flowClient) close(err error) error {
 	}
 	subErr := verror.SubErr{Err: err, Options: verror.Print}
 	subErr.Name = "remote=" + fc.flow.RemoteEndpoint().String()
-	// nolint: staticcheck //lint:ignore SA9003
+	//nolint:staticcheck //lint:ignore SA9003
 	if cerr := fc.flow.Close(); cerr != nil && err == nil {
 		// TODO(mattr): The context is often already canceled here, in
 		// which case we'll get an error.  Not clear what to do.
@@ -800,7 +800,7 @@ func (fc *flowClient) closeSend() error {
 	if fc.sendClosed {
 		return nil
 	}
-	// nolint: staticcheck //lint:ignore SA9003
+	//nolint:staticcheck //lint:ignore SA9003
 	if err := fc.enc.Encode(rpc.Request{EndStreamArgs: true}); err != nil {
 		// TODO(caprita): Indiscriminately closing the flow below causes
 		// a race as described in:

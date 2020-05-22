@@ -252,8 +252,8 @@ func TestStats(t *testing.T) {
 
 	// Test histogram
 	h := libstats.NewHistogram("rpc/test/hhh", histogram.Options{NumBuckets: 5, GrowthFactor: 0})
-	h.Add(1) // nolint: errcheck
-	h.Add(2) // nolint: errcheck
+	h.Add(1) //nolint:errcheck
+	h.Add(2) //nolint:errcheck
 
 	result, err = doGlob("", "rpc/test/hhh", now, true)
 	if err != nil {
@@ -282,9 +282,9 @@ func TestStats(t *testing.T) {
 	}
 
 	now = now.Add(30 * time.Second)
-	h.Add(2) // nolint: errcheck
+	h.Add(2) //nolint:errcheck
 	now = now.Add(30 * time.Second)
-	h.Add(3) // nolint: errcheck
+	h.Add(3) //nolint:errcheck
 
 	result, err = doGlob("", "rpc/test/hhh/delta1m", now, true)
 	if err != nil {

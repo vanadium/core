@@ -36,7 +36,7 @@ var (
 	// intended to be run by java/android applications using Vango.run(key).
 	// Users must add function entries to this map and rebuild lib/android-lib in
 	// the vanadium java repository.
-	// nolint: deadcode, unused, varcheck
+	//nolint:deadcode,unused,varcheck
 	vangoFuncs = map[string]func(*context.T, io.Writer) error{
 		"tcp-client":  tcpClientFunc,
 		"tcp-server":  tcpServerFunc,
@@ -258,7 +258,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 		statRequest <- r
 		return <-r
 	})
-	defer stats.Delete(vangoStat) // nolint: errcheck
+	defer stats.Delete(vangoStat) //nolint:errcheck
 	fmt.Fprintln(output, "My AdID:", ad.Id)
 	fmt.Fprintln(output, "My addrs:", myaddrs)
 	ctx.Infof("SERVER STATUS: %+v", status)

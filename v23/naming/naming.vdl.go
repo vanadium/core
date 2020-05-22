@@ -640,7 +640,7 @@ const MT = MountFlag(2)      // MT means that the target server is a mount table
 const Leaf = MountFlag(4)    // Leaf means that the target server is a leaf.
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_uint32_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

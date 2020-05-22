@@ -77,9 +77,9 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log boo
 		// Open the browser if we can
 		switch runtime.GOOS {
 		case "linux":
-			exec.Command("xdg-open", url).Start() // nolint: errcheck
+			exec.Command("xdg-open",url).Start() //nolint:errcheck
 		case "darwin":
-			exec.Command("open", url).Start() // nolint: errcheck
+			exec.Command("open",url).Start() //nolint:errcheck
 		}
 
 		<-ctx.Done()
@@ -271,7 +271,7 @@ func (h *blessingsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Don't actually care about the RPC, so don't bother waiting on the Finish.
 		cancel()
 		defer func() {
-			go call.Finish() // nolint: errcheck
+			go call.Finish() //nolint:errcheck
 		}()
 	} else {
 		cancel()
@@ -484,7 +484,7 @@ func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		// writes to: entries, errch
 		// reads from: abortRPC
-		defer stream.Finish() // nolint: errcheck
+		defer stream.Finish() //nolint:errcheck
 		defer close(entries)
 		iterator := stream.RecvStream()
 		for iterator.Advance() {
@@ -890,13 +890,13 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v.execute(v.ctx, w, r, "vtrace.html", data)
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func internalServerError(w http.ResponseWriter, doing string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, "Problem %s: %v", doing, err)
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func badRequest(w http.ResponseWriter, problem string) {
 	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprint(w, problem)

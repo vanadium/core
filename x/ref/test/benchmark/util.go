@@ -131,12 +131,12 @@ func splitLines(data []byte, eof bool) (advance int, token []byte, err error) {
 	}
 
 	if i := bytes.IndexByte(data, '\n'); i >= 0 {
-		orgStdout.Write(data[nextOutPos : i+1]) // nolint: errcheck
+		orgStdout.Write(data[nextOutPos : i+1]) //nolint:errcheck
 		nextOutPos = 0
 		return i + 1, data[0:i], nil
 	}
 
-	orgStdout.Write(data[nextOutPos:]) // nolint: errcheck
+	orgStdout.Write(data[nextOutPos:]) //nolint:errcheck
 	nextOutPos = len(data)
 
 	if eof {

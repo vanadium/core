@@ -143,8 +143,8 @@ type (
 	NSliceFloat64    []float64
 	NSliceString     []string
 	// Sets
-	NSetInterface  map[NInterface]struct{} // nolint: deadcode, unused, varcheck
-	NSetTypeObject map[*Type]struct{}      // nolint: deadcode, unused, varcheck
+	NSetInterface  map[NInterface]struct{} //nolint:deadcode,unused,varcheck
+	NSetTypeObject map[*Type]struct{}      //nolint:deadcode,unused,varcheck
 	NSetBool       map[bool]struct{}
 	NSetByte       map[byte]struct{}
 	NSetUint16     map[uint16]struct{}
@@ -161,8 +161,8 @@ type (
 	NSetFloat64    map[float64]struct{}
 	NSetString     map[string]struct{}
 	// Maps
-	NMapInterface  map[NInterface]NInterface // nolint: deadcode, unused, varcheck
-	NMapTypeObject map[*Type]*Type           // nolint: deadcode, unused, varcheck
+	NMapInterface  map[NInterface]NInterface //nolint:deadcode,unused,varcheck
+	NMapTypeObject map[*Type]*Type           //nolint:deadcode,unused,varcheck
 	NMapBool       map[bool]bool
 	NMapByte       map[byte]byte
 	NMapUint16     map[uint16]uint16
@@ -196,7 +196,7 @@ type (
 	NMapStringEmpty          map[NString]struct{}
 	NMapStringBool           map[NString]NBool
 	NStructXYZBool           struct{ X, Y, Z NBool }
-	NStructXYZBoolUnexported struct{ a, X, b, Y, c, Z, d NBool } // nolint: structcheck, unused
+	NStructXYZBoolUnexported struct{ a,X,b,Y,c,Z,d NBool } //nolint:structcheck,unused
 	NStructWXBool            struct{ W, X NBool }
 	// Composite types representing maps of strings to numbers.
 	NMapStringByte    map[NString]NByte
@@ -209,13 +209,13 @@ type (
 	NStructVWXFloat64 struct{ V, W, X NFloat64 }
 	NStructVWXMixed   struct {
 		// Interleave unexported fields, which are ignored.
-		a bool // nolint: structcheck, unused
+		a bool //nolint:structcheck,unused
 		V int64
-		b string // nolint: structcheck, unused
+		b string //nolint:structcheck,unused
 		W float64
 		X float32
-		c []byte      // nolint: structcheck, unused
-		d interface{} // nolint: structcheck, unused
+		c []byte      //nolint:structcheck,unused
+		d interface{} //nolint:structcheck,unused
 	}
 	NStructUVByte    struct{ U, V NByte }
 	NStructUVUint64  struct{ U, V NUint64 }
@@ -223,11 +223,11 @@ type (
 	NStructUVFloat64 struct{ U, V NFloat64 }
 	NStructUVMixed   struct {
 		// Interleave unexported fields, which are ignored.
-		a bool // nolint: structcheck, unused
+		a bool //nolint:structcheck,unused
 		U int64
-		b string // nolint: structcheck, unused
+		b string //nolint:structcheck,unused
 		V float64
-		c []byte // nolint: structcheck, unused
+		c []byte //nolint:structcheck,unused
 	}
 	// Types that cannot be converted to sets.  We represent sets as
 	// map[key]struct{} on the Go side, but don't allow map[key]NEmpty.
@@ -567,7 +567,7 @@ var (
 	StructUVFloat64Type   = StructType(Field{"U", Float64Type}, Field{"V", Float64Type})
 	StructUVFloat64TypeN  = NamedType("NStructUVFloat64", StructType(Field{"U", Float64TypeN}, Field{"V", Float64TypeN}))
 
-	// nolint: deadcode, unused, varcheck
+	//nolint:deadcode,unused,varcheck
 	StructAIntType = StructType(Field{"A", Int64Type})
 
 	WireTypeN = NameN("Wire", StructType(Field{"Str", StringType}))

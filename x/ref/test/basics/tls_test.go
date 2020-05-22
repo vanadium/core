@@ -109,7 +109,7 @@ func BenchmarkTLSHandshake(b *testing.B) {
 	ch := make(chan *tls.Conn)
 	go func() {
 		for c := range ch {
-			c.Handshake() // nolint: errcheck
+			c.Handshake() //nolint:errcheck
 		}
 	}()
 	defer close(ch)

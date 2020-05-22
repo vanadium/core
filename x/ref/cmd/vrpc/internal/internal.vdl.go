@@ -719,7 +719,7 @@ func (s implTypeTesterZStreamServerCallSend) Send(item bool) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_array_2  *vdl.Type
