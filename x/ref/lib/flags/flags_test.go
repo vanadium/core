@@ -27,7 +27,7 @@ func TestFlags(t *testing.T) {
 	creds := "creddir"
 	roots := []string{"ab:cd:ef"}
 	args := []string{"--v23.credentials=" + creds, "--v23.namespace.root=" + roots[0]}
-	fl.Parse(args, nil) // nolint: errcheck
+	fl.Parse(args,nil) //nolint:errcheck
 	rtf := fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, roots; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -50,7 +50,7 @@ func TestPermissionsFlags(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
 	args := []string{"--v23.permissions.file=runtime:foo.json", "--v23.permissions.file=bar:bar.json", "--v23.permissions.file=baz:bar:baz.json"}
-	fl.Parse(args, nil) // nolint: errcheck
+	fl.Parse(args,nil) //nolint:errcheck
 	permsf := fl.PermissionsFlags()
 
 	if got, want := permsf.PermissionsFile("runtime"), "foo.json"; got != want {
@@ -72,7 +72,7 @@ func TestPermissionsLiteralFlags(t *testing.T) {
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
 	args := []string{`--v23.permissions.literal={"x":"hedgehog"}`,
 		`--v23.permissions.literal={"y":"badger"}`}
-	fl.Parse(args, nil) // nolint: errcheck
+	fl.Parse(args,nil) //nolint:errcheck
 	permsf := fl.PermissionsFlags()
 
 	if got, want := permsf.PermissionsFile("runtime"), ""; got != want {
@@ -87,7 +87,7 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
 	args := []string{"--v23.permissions.file=runtime:foo.json", `--v23.permissions.literal={"x":"hedgehog"}`}
-	fl.Parse(args, nil) // nolint: errcheck
+	fl.Parse(args,nil) //nolint:errcheck
 	permsf := fl.PermissionsFlags()
 
 	if got, want := permsf.PermissionsFile("runtime"), "foo.json"; got != want {
@@ -108,7 +108,7 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 	} {
 		fs := flag.NewFlagSet("test", flag.ContinueOnError)
 		fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
-		fl.Parse(tc.args, nil) // nolint: errcheck
+		fl.Parse(tc.args,nil) //nolint:errcheck
 		permsf = fl.PermissionsFlags()
 		if got, want := permsf.ExplicitlySpecified(), tc.set; got != want {
 			t.Errorf("got %v, want %v", got, want)
@@ -122,7 +122,7 @@ func TestFlagError(t *testing.T) {
 	fl := flags.CreateAndRegister(fs, flags.Runtime)
 	addr := "192.168.10.1:0"
 	args := []string{"--xxxv23.tcp.address=" + addr, "not an arg"}
-	err := fl.Parse(args, nil) // nolint: errcheck
+	err := fl.Parse(args,nil) //nolint:errcheck
 	if err == nil {
 		t.Fatalf("expected this to fail!")
 	}
@@ -147,7 +147,7 @@ func TestFlagsGroups(t *testing.T) {
 	addr := "192.168.10.1:0"
 	roots := []string{"ab:cd:ef"}
 	args := []string{"--v23.tcp.address=" + addr, "--v23.namespace.root=" + roots[0]}
-	fl.Parse(args, nil) // nolint: errcheck
+	fl.Parse(args,nil) //nolint:errcheck
 	lf := fl.ListenFlags()
 	if got, want := fl.RuntimeFlags().NamespaceRoots.Roots, roots; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -383,7 +383,7 @@ func TestRefreshDefaults(t *testing.T) {
 	flags.SetDefaultNamespaceRoots(nsRoot)
 	flags.SetDefaultHostPort(hostPort)
 	flags.SetDefaultProtocol("tcp6")
-	fl.Parse([]string{}, nil) // nolint: errcheck
+	fl.Parse([]string{},nil) //nolint:errcheck
 	rtf := fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -395,7 +395,7 @@ func TestRefreshDefaults(t *testing.T) {
 	}
 	changed := "/128.1.1.1:1"
 	flags.SetDefaultNamespaceRoots(changed)
-	fl.Parse([]string{}, nil) // nolint: errcheck
+	fl.Parse([]string{},nil) //nolint:errcheck
 	rtf = fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{changed}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -412,14 +412,14 @@ func TestRefreshAlreadySetDefaults(t *testing.T) {
 	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
 	nsRoot := "/127.0.1.1:10"
 	hostPort := "127.0.0.1:10"
-	fl.Parse([]string{"--v23.namespace.root", nsRoot, "--v23.tcp.address", hostPort}, nil) // nolint: errcheck
+	fl.Parse([]string{"--v23.namespace.root",nsRoot,"--v23.tcp.address",hostPort},nil) //nolint:errcheck
 	rtf := fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	flags.SetDefaultNamespaceRoots("/128.1.1.1:2")
 	flags.SetDefaultHostPort("128.0.0.1:11")
-	fl.Parse([]string{}, nil) // nolint: errcheck
+	fl.Parse([]string{},nil) //nolint:errcheck
 	rtf = fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)

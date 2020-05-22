@@ -61,7 +61,7 @@ type Agent interface {
 	// Clients using caching should call NotifyWhenChanged upon connecting to
 	// the server. The server will stream back values whenever the client should
 	// flush the cache. The streamed value is arbitrary, simply flush whenever
-	// recieving a new item.
+	// receiving a new item.
 	NotifyWhenChanged() stream<_, bool> error
 }
 

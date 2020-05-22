@@ -85,7 +85,7 @@ func LaunchAgent(credsDir, agentBin string, printCredsEnv bool, flags ...string)
 	// Make sure we don't leave a disfunctional or zombie agent behind upon
 	// error.
 	cleanUpAgent := func() {
-		defer cmd.Wait() // nolint: errcheck
+		defer cmd.Wait() //nolint:errcheck
 		if err := syscall.Kill(pid, syscall.SIGINT); err == syscall.ESRCH {
 			return
 		}
@@ -95,7 +95,7 @@ func LaunchAgent(credsDir, agentBin string, printCredsEnv bool, flags ...string)
 				return
 			}
 		}
-		syscall.Kill(pid, syscall.SIGKILL) // nolint: errcheck
+		syscall.Kill(pid,syscall.SIGKILL) //nolint:errcheck
 	}
 	scanner := bufio.NewScanner(agentRead)
 	if !scanner.Scan() || scanner.Text() != constants.ServingMsg {

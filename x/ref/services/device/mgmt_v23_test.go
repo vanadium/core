@@ -185,7 +185,7 @@ func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withS
 	// We also need some tools running with different sets of credentials...
 
 	// Administration tasks will be performed with a blessing that represents a corporate
-	// adminstrator (which is usually a role account)
+	// administrator (which is usually a role account)
 	adminCreds := sh.ForkCredentials("r:admin")
 	adminDeviceBin := deviceBin.WithCredentials(adminCreds)
 	debugBin := sh.Cmd(v23test.BuildGoPkg(sh, "v.io/x/ref/services/debug/debug")).WithCredentials(adminCreds)
@@ -377,7 +377,7 @@ func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withS
 	appPubName := "testbinaryd"
 	appEnvelopeFilename := filepath.Join(workDir, "app.envelope")
 	appEnvelope := fmt.Sprintf("{\"Title\":\"BINARYD\", \"Args\":[\"--name=%s\", \"--root-dir=./binstore\", \"--v23.tcp.address=127.0.0.1:0\", \"--http=127.0.0.1:0\"], \"Binary\":{\"File\":%q}, \"Env\":[ \"%s=1\", \"PATH=%s\"]}", appPubName, sampleAppBinName, ref.EnvCredentialsNoAgent, os.Getenv("PATH"))
-	ioutil.WriteFile(appEnvelopeFilename, []byte(appEnvelope), 0666) // nolint: errcheck
+	ioutil.WriteFile(appEnvelopeFilename, []byte(appEnvelope), 0666) //nolint:errcheck
 	defer os.Remove(appEnvelopeFilename)
 
 	output := withArgs(applicationBin, "put", sampleAppName+"/0", deviceProfile, appEnvelopeFilename).Stdout()
@@ -480,7 +480,7 @@ func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withS
 	// Upload a device manager envelope.
 	devicedEnvelopeFilename := filepath.Join(workDir, "deviced.envelope")
 	devicedEnvelope := fmt.Sprintf("{\"Title\":\"device manager\", \"Binary\":{\"File\":%q}, \"Env\":[ \"%s=1\", \"PATH=%s\"]}", devicedAppBinName, ref.EnvCredentialsNoAgent, os.Getenv("PATH"))
-	ioutil.WriteFile(devicedEnvelopeFilename, []byte(devicedEnvelope), 0666) // nolint: errcheck
+	ioutil.WriteFile(devicedEnvelopeFilename, []byte(devicedEnvelope), 0666) //nolint:errcheck
 	defer os.Remove(devicedEnvelopeFilename)
 	withArgs(applicationBin, "put", devicedAppName, deviceProfile, devicedEnvelopeFilename).Run()
 	// Allow root:r:admin and its devices to read the envelope

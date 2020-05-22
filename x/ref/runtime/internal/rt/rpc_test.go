@@ -336,6 +336,6 @@ func TestServerDischarges(t *testing.T) {
 	if err == nil {
 		remote, _ := call.RemoteBlessings()
 		t.Errorf("client.StartCall passed unexpectedly with remote end authenticated as: %v", remote)
-		call.Finish() // nolint: errcheck
+		call.Finish() //nolint:errcheck
 	}
 }

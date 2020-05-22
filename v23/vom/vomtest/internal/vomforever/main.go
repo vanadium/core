@@ -149,10 +149,10 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	stdout, err := cmd.StdoutPipe()
 	panicOnError(err)
 	go func() {
-		io.Copy(os.Stderr, stderr) // nolint: errcheck
+		io.Copy(os.Stderr,stderr) //nolint:errcheck
 	}()
 	go func() {
-		io.Copy(os.Stdout, stdout) // nolint: errcheck
+		io.Copy(os.Stdout,stdout) //nolint:errcheck
 	}()
 	panicOnError(cmd.Run())
 
@@ -168,10 +168,10 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	stdout, err = cmd.StdoutPipe()
 	panicOnError(err)
 	go func() {
-		io.Copy(os.Stderr, stderr) // nolint: errcheck
+		io.Copy(os.Stderr,stderr) //nolint:errcheck
 	}()
 	go func() {
-		io.Copy(os.Stdout, stdout) // nolint: errcheck
+		io.Copy(os.Stdout,stdout) //nolint:errcheck
 	}()
 	panicOnError(cmd.Run())
 }

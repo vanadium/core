@@ -54,7 +54,7 @@ func TestDebugServer(t *testing.T) {
 
 	// Use logger configured with the directory that we want to use for this test.
 	testLogger := vlog.NewLogger("TestDebugServer")
-	testLogger.Configure(vlog.LogDir(workdir)) // nolint: errcheck
+	testLogger.Configure(vlog.LogDir(workdir)) //nolint:errcheck
 	ctx = context.WithLogger(ctx, testLogger)
 
 	disp := debuglib.NewDispatcher(nil)

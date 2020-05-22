@@ -38,7 +38,7 @@ func (c *canceld) Run(ctx *context.T, _ rpc.ServerCall) error {
 	if c.child != "" {
 		done = make(chan struct{})
 		go func() {
-			client.Call(ctx, c.child, "Run", nil, nil) // nolint: errcheck
+			client.Call(ctx, c.child, "Run", nil, nil) //nolint:errcheck
 			close(done)
 		}()
 	}
@@ -64,7 +64,7 @@ func makeCanceld(ctx *context.T, name, child string) (*canceld, error) {
 	return c, nil
 }
 
-// TestCancellationPropagation tests that cancellation propogates along an
+// TestCancellationPropagation tests that cancellation propagates along an
 // RPC call chain without user intervention.
 func TestCancellationPropagation(t *testing.T) {
 	ctx, shutdown := test.V23InitWithMounttable()
@@ -82,7 +82,7 @@ func TestCancellationPropagation(t *testing.T) {
 	ctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
 	go func() {
-		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil) // nolint: errcheck
+		v23.GetClient(ctx).Call(ctx, "c1", "Run", nil, nil) //nolint:errcheck
 		close(done)
 	}()
 
@@ -150,7 +150,7 @@ func TestCancel(t *testing.T) {
 	}
 	cctx, cancel := context.WithCancel(cctx)
 	done := make(chan struct{})
-	// nolint: errcheck
+	//nolint:errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, "cancel", "CancelStreamReader", nil, nil)
 		close(done)
@@ -185,7 +185,7 @@ func TestCancelWithFullBuffers(t *testing.T) {
 		t.Fatal(err)
 	}
 	done := make(chan struct{})
-	// nolint: errcheck
+	//nolint:errcheck
 	go func() {
 		call.Finish()
 		close(done)
@@ -216,7 +216,7 @@ type disconnect interface {
 	stop(read, write bool)
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 type disConn struct {
 	net.Conn
 	mu                  sync.Mutex
@@ -396,7 +396,7 @@ func testChannelTimeOut_Server(t *testing.T, ctx *context.T) {
 	// cancellation.  Then we cancel the client call just to clean up.
 	cctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
-	// nolint: errcheck
+	//nolint:errcheck
 	go func() {
 		v23.GetClient(cctx).Call(cctx, ep.Name(), "WaitForCancel", nil, nil)
 		close(done)

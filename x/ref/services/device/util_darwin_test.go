@@ -17,10 +17,10 @@ import (
 const runTestOnThisPlatform = true
 const psFlags = "-ej"
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 type uidMap map[int]struct{}
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func (uids uidMap) findAvailable() (int, error) {
 	// Accounts starting at 501 are available. Don't use the largest
 	// UID because on a corporate imaged Mac, this will overlap with
@@ -34,7 +34,7 @@ func (uids uidMap) findAvailable() (int, error) {
 	return 0, fmt.Errorf("Couldn't find an available UID")
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func newUidMap(sh *v23test.Shell) uidMap {
 	// `dscl . -list /Users UniqueID` into a datastructure.
 	userstring := sh.Cmd("dscl", ".", "-list", "/Users", "UniqueID").Stdout()
@@ -52,7 +52,7 @@ func newUidMap(sh *v23test.Shell) uidMap {
 	return uids
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func makeAccount(sh *v23test.Shell, uid int, uname, fullname string) {
 	sudo := "/usr/bin/sudo"
 	args := []string{"dscl", ".", "-create", "/Users/" + uname}
@@ -68,7 +68,7 @@ func makeAccount(sh *v23test.Shell, uid int, uname, fullname string) {
 	run("PrimaryGroupID", "20")
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func makeTestAccounts(t *testing.T, sh *v23test.Shell) {
 	_, needVanaErr := user.Lookup("vana")
 	_, needDevErr := user.Lookup("devicemanager")

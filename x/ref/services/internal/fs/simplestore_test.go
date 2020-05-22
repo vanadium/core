@@ -201,7 +201,7 @@ func TestSerializeDeserialize(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
-	// TRANSACTION BEGIN (to be abandonned)
+	// TRANSACTION BEGIN (to be abandoned)
 	memstoreOriginal.Lock()
 	tname, err = memstoreOriginal.BindTransactionRoot("").CreateTransaction(nil)
 	if err != nil {
@@ -277,11 +277,11 @@ func TestSerializeDeserialize(t *testing.T) {
 	}
 
 	// Abort the transaction without committing it.
-	memstoreOriginal.Abort(nil) // nolint: errcheck
+	memstoreOriginal.Abort(nil) //nolint:errcheck
 	memstoreOriginal.Unlock()
 	// TRANSACTION END (ABORTED)
 
-	// Validate that persisted state after abandonned transaction has not changed.
+	// Validate that persisted state after abandoned transaction has not changed.
 	if err := allPathsExist(memstoreOriginal, []string{"/test/a", "/test", "/test/b"}); err != nil {
 		t.Fatalf("%v", err)
 	}

@@ -242,7 +242,7 @@ func TestPermissionsAuthorizer(t *testing.T) {
 
 		{"Put", B("ali:family:mom")},
 		{"Put", B("bob:friends")},
-		{"Put", B("bob:acquantainces:carol", "che")}, // Access granted because of "che"
+		{"Put", B("bob:acquaintances:carol", "che")}, // Access granted because of "che"
 
 		{"Resolve", B("superman")},
 		{"Resolve", B("ali:family:boss")},

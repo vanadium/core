@@ -81,7 +81,7 @@ type vtraceDependency struct{}
 
 // Runtime implements the v23.Runtime interface.
 // Please see the interface definition for documentation of the
-// individiual methods.
+// individual methods.
 type Runtime struct {
 	ctx  *context.T
 	deps *dependency.Graph
@@ -243,7 +243,7 @@ func (r *Runtime) initSignalHandling(ctx *context.T) {
 			ctx.Infof("Received signal %v", sig)
 		}
 	}()
-	// nolint: errcheck
+	//nolint:errcheck
 	r.addChild(ctx, signals, func() {
 		signal.Stop(signals)
 		close(signals)
@@ -268,8 +268,8 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 			if shutdown != nil {
 				shutdown()
 			}
-			stats.Delete(store) // nolint: errcheck
-			stats.Delete(roots) // nolint: errcheck
+			stats.Delete(store) //nolint:errcheck
+			stats.Delete(roots) //nolint:errcheck
 		}
 	}
 	ctx = context.WithValue(ctx, principalKey, principal)

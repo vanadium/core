@@ -194,7 +194,7 @@ func (*deviceService) Reset(_ *context.T, _ rpc.ServerCall, deadline time.Durati
 
 // getCurrentFileInfo returns the os.FileInfo for both the symbolic link
 // CurrentLink, and the device script in the workspace that this link points to.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func (s *deviceService) getCurrentFileInfo() (os.FileInfo, string, error) {
 	path := s.config.CurrentLink
 	link, err := os.Lstat(path)
@@ -278,11 +278,11 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	if err := principalMgr.Create(workspace); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Create(%v) failed: %v", workspace, err))
 	}
-	defer principalMgr.Delete(workspace) // nolint: errcheck
+	defer principalMgr.Delete(workspace) //nolint:errcheck
 	if err := principalMgr.Serve(workspace, cfg); err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Serve(%v) failed: %v", workspace, err))
 	}
-	defer principalMgr.StopServing(workspace) // nolint: errcheck
+	defer principalMgr.StopServing(workspace) //nolint:errcheck
 	p, err := principalMgr.Load(workspace)
 	if err != nil {
 		return verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("Load(%v) failed: %v", workspace, err))
@@ -339,7 +339,7 @@ func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, enve
 	}
 	select {
 	case err := <-waitchan:
-		return err // err is nil if cmd.Wait succceeded
+		return err // err is nil if cmd.Wait succeeded
 	case <-time.After(childWaitTimeout):
 		return verror.New(errors.ErrOperationFailed, ctx, "new device manager failed to run in allotted time")
 	}

@@ -39,7 +39,7 @@ public final class {{ .ServiceName }}ServerWrapper {
      */
     public {{ .ServiceName }}ServerWrapper({{ .FullServiceName }}Server server) {
         this.server = server;
-        {{/* Initialize the embeded server wrappers */}}
+        {{/* Initialize the embedded server wrappers */}}
         {{ range $embed := .Embeds }}
         this.wrapper{{ $embed.Name }} = new {{ $embed.FullName }}ServerWrapper(server);
         {{ end }}
@@ -136,7 +136,7 @@ public final class {{ .ServiceName }}ServerWrapper {
     }
 {{end}}
 
-{{/* Iterate over methods from embeded servers and generate code to delegate the work */}}
+{{/* Iterate over methods from embedded servers and generate code to delegate the work */}}
 {{ range $eMethod := .EmbedMethods }}
     {{ $eMethod.JavaDoc }}
     public com.google.common.util.concurrent.ListenableFuture<{{ $eMethod.RetType }}> {{ $eMethod.Name }}(io.v.v23.context.VContext ctx, io.v.v23.rpc.StreamServerCall call{{ $eMethod.DeclarationArgs }}) throws io.v.v23.verror.VException {

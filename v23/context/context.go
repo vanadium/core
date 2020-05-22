@@ -124,7 +124,7 @@ type ContextLogger interface {
 }
 
 // CancelFunc is used to cancel a context.  The first call will
-// cause the paired context and all decendants to close their Done()
+// cause the paired context and all descendants to close their Done()
 // channels.  Further calls do nothing.
 type CancelFunc func()
 

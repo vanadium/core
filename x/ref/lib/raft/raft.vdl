@@ -55,7 +55,7 @@ type raftProto interface {
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
 	//               an error is returned.
-	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed
+	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
 	AppendToLog(term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error

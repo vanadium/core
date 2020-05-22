@@ -55,7 +55,7 @@ func TestStatsImpl(t *testing.T) {
 		MinValue:           0,
 	})
 	for i := 0; i < 10; i++ {
-		histogram.Add(int64(i)) // nolint: errcheck
+		histogram.Add(int64(i)) //nolint:errcheck
 	}
 
 	name := naming.JoinAddressName(endpoint, "")

@@ -163,7 +163,7 @@ func testFlows(t testing.TB, ctx *context.T, dm, am flow.Manager, auth flow.Peer
 		t.Fatal(err)
 	}
 	want := "do you read me?"
-	writeLine(df, want) // nolint: errcheck
+	writeLine(df,want) //nolint:errcheck
 	af, err = am.Accept(ctx)
 	if err != nil {
 		t.Fatal(err)

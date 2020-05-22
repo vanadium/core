@@ -118,7 +118,7 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 	logger.Global().VI(2).Infof("listening for service vanadium on port %d", port)
 	m.SubscribeToService("vanadium")
 	if len(host) > 0 {
-		m.AddService("vanadium", "", port, txt...) // nolint: errcheck
+		m.AddService("vanadium","",port,txt...) //nolint:errcheck
 	}
 
 	// A small sleep to allow the world to learn about us and vice versa.  Not
@@ -287,7 +287,7 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 		matcher := g.Head()
 		for k, n := range nh.neighbors() {
 			if matcher.Match(k) {
-				// nolint: errcheck
+				//nolint:errcheck
 				sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: k, Servers: n, ServesMountTable: true}})
 
 			}
@@ -298,7 +298,7 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 		if neighbor == nil {
 			return verror.New(naming.ErrNoSuchName, ctx, ns.elems[0])
 		}
-		// nolint: errcheck
+		//nolint:errcheck
 		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: neighbor, ServesMountTable: true}})
 		return nil
 	default:

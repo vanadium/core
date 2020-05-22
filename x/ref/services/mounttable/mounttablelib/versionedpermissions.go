@@ -22,7 +22,7 @@ import (
 
 // Blessings can't include a comma so we use them in made up user ids.  The following distinctions are
 // made so that we can account for them differently.
-// nolint: deadcode, unused, varcheck
+//nolint:deadcode,unused,varcheck
 const (
 	localUser   = ",LOCAL,"   // a client that has our public key but no blessing from which we can extract a user name
 	blessedUser = ",BLESSED," // a client with blessings we trust but from which we can't extract a user name
@@ -85,7 +85,7 @@ func (b *VersionedPermissions) Copy() *VersionedPermissions {
 	return nt
 }
 
-// Add adds the blessing pattern to the tag in the reciever.
+// Add adds the blessing pattern to the tag in the receiver.
 func (b *VersionedPermissions) Add(pattern security.BlessingPattern, tag string) {
 	b.P.Add(pattern, tag)
 }

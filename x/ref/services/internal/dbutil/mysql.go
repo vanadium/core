@@ -154,7 +154,7 @@ func NewSqlDBConnFromFile(sqlConfigFile, txIsolation string) (*sql.DB, error) {
 
 func configureSqlDBConn(sqlConfig *ActiveSqlConfig, txIsolation string) string {
 	params := url.Values{}
-	// Setting charset is unneccessary when collation is set, according to
+	// Setting charset is unnecessary when collation is set, according to
 	// https://github.com/go-sql-driver/mysql/#charset
 	params.Set("collation", "utf8mb4_general_ci")
 	// Maps SQL date/time values into time.Time instead of strings.

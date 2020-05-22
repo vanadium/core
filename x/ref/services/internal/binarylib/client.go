@@ -72,7 +72,7 @@ func downloadPartAttempt(ctx *context.T, w io.WriteSeeker, client repository.Bin
 			ctx.Errorf("Write() failed: %v", err)
 			return false
 		}
-		h.Write(bytes) // nolint: errcheck
+		h.Write(bytes) //nolint:errcheck
 		nreceived += len(bytes)
 	}
 
@@ -277,7 +277,7 @@ func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repo
 			return false, nil
 		}
 	}
-	h.Write(buffer) // nolint: errcheck
+	h.Write(buffer) //nolint:errcheck
 	return true, nil
 }
 

@@ -37,7 +37,7 @@ var (
 // This is only used for debugging; add this as the first line of NewDecoder to
 // dump formatted vom bytes to stdout:
 //   r = teeDump(r)
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func teeDump(r io.Reader) io.Reader {
 	return io.TeeReader(r, NewDumper(NewDumpWriter(os.Stdout)))
 }
@@ -484,7 +484,7 @@ func (d *decoder81) IsOptional() bool {
 
 func (d *decoder81) IsNil() bool {
 	if top := d.top(); top != nil {
-		// Becuase of the "dereferencing" we do, the only time the type is any or
+		// Because of the "dereferencing" we do, the only time the type is any or
 		// optional is when it's nil.
 		return top.Type == vdl.AnyType || top.Type.Kind() == vdl.Optional
 	}

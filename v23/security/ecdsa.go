@@ -75,7 +75,7 @@ type ecdsaSigner struct {
 	sign   func(data []byte) (r, s *big.Int, err error)
 	pubkey PublicKey
 	// Object to hold on to for garbage collection
-	impl interface{} // nolint: structcheck, unused
+	impl interface{} //nolint:structcheck,unused
 }
 
 func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {

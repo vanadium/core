@@ -112,5 +112,5 @@ func (b BlessingRoot) jsonResponse(w http.ResponseWriter, r *http.Request) {
 
 func respondString(w http.ResponseWriter, contentType string, res []byte) {
 	w.Header().Set("Content-Type", contentType)
-	w.Write(res) // nolint: errcheck
+	w.Write(res) //nolint:errcheck
 }

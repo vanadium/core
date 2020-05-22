@@ -32,7 +32,7 @@ const (
 var WireRetryCodeAll = [...]WireRetryCode{WireRetryCodeNoRetry, WireRetryCodeRetryConnection, WireRetryCodeRetryRefetch, WireRetryCodeRetryBackoff}
 
 // WireRetryCodeFromString creates a WireRetryCode from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func WireRetryCodeFromString(label string) (x WireRetryCode, err error) {
 	err = x.Set(label)
 	return
@@ -279,7 +279,7 @@ func __VDLReadAnon_list_1(dec Decoder, x *[]*Value) error {
 var ()
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_enum_1   *Type
 	__VDLType_struct_2 *Type

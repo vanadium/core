@@ -68,6 +68,6 @@ func BenchmarkHistogram(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		h.Add(int64(i)) // nolint: errcheck
+		h.Add(int64(i)) //nolint:errcheck
 	}
 }

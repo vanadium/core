@@ -135,13 +135,13 @@ func New(
 			case <-ctx.Done():
 				m.stopListening()
 				m.cache.Close(ctx)
-				stats.Delete(statsPrefix) // nolint: errcheck
+				stats.Delete(statsPrefix) //nolint:errcheck
 				close(m.closed)
 				return
 			case <-m.cacheTicker.C:
 				// Periodically kill closed connections and remove expired connections,
 				// based on the idleExpiry passed to the NewConnCache constructor.
-				m.cache.KillConnections(ctx, 0) // nolint: errcheck
+				m.cache.KillConnections(ctx, 0) //nolint:errcheck
 			}
 		}
 	}()
@@ -188,7 +188,7 @@ func (m *manager) StopListening(ctx *context.T) {
 }
 
 // Listen causes the Manager to accept flows from the provided protocol and address.
-// Listen may be called muliple times.
+// Listen may be called multiple times.
 func (m *manager) Listen(ctx *context.T, protocol, address string) (<-chan struct{}, error) {
 	if m.ls == nil {
 		return nil, NewErrListeningWithNullRid(ctx)
@@ -882,7 +882,7 @@ func (m *manager) dialReserved(
 		if pc != nil {
 			cpc = pc
 		}
-		res.Unreserve(cc, cpc, err) // nolint: errcheck
+		res.Unreserve(cc, cpc, err) //nolint:errcheck
 		// Note: 'proxy' is true when we are server "listening on" the
 		// proxy. 'pc != nil' is true when we are connecting through a
 		// proxy as a client. Thus, we only want to enable the

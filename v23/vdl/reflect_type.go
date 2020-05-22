@@ -426,7 +426,7 @@ var (
 	rtInterface = reflect.TypeOf((*interface{})(nil)).Elem()
 	rtBool      = reflect.TypeOf(false)
 	rtByte      = reflect.TypeOf(byte(0))
-	// nolint: deadcode, varcheck, unused
+	//nolint:deadcode,varcheck,unused
 	rtByteList           = reflect.TypeOf([]byte(nil))
 	rtUint16             = reflect.TypeOf(uint16(0))
 	rtUint32             = reflect.TypeOf(uint32(0))

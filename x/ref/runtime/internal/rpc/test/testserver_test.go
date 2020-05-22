@@ -202,7 +202,7 @@ func (s *dischargeTestServer) Release() ([]security.DischargeImpetus, []uniqueid
 	return impetus, traceid
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 type streamRecvInGoroutineServer struct{ c chan error }
 
 func (s *streamRecvInGoroutineServer) RecvInGoroutine(_ *context.T, call rpc.StreamServerCall) error {

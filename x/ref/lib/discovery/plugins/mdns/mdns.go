@@ -114,8 +114,8 @@ func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func(
 		return err
 	}
 	stop := func() {
-		p.mdns.RemoveService(serviceName, hostName, 0, txt...)    // nolint: errcheck
-		p.mdns.RemoveService(v23ServiceName, hostName, 0, txt...) // nolint: errcheck
+		p.mdns.RemoveService(serviceName,hostName,0,txt...)    //nolint:errcheck
+		p.mdns.RemoveService(v23ServiceName,hostName,0,txt...) //nolint:errcheck
 		done()
 	}
 	p.adStopper.Add(stop, ctx.Done())

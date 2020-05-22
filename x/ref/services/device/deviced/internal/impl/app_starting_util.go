@@ -135,7 +135,7 @@ func (a *appHandshaker) doHandshake(ctx *context.T, cmd *exec.Cmd, listener call
 	// The appWatcher will stop the listener if the pid dies while waiting below
 	childName, err := listener.waitForValue(childReadyTimeout)
 	if err != nil {
-		suidHelper.terminatePid(ctx, pidFromHelper, nil, nil) // nolint: errcheck
+		suidHelper.terminatePid(ctx,pidFromHelper,nil,nil) //nolint:errcheck
 		return 0, "", verror.New(errors.ErrOperationFailed, ctx,
 			fmt.Sprintf("Waiting for child name: %v", err))
 	}

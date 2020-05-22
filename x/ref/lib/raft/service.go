@@ -97,7 +97,7 @@ func (s *service) RequestVote(ctx *context.T, call rpc.ServerCall, term Term, ca
 	// If the term is higher than the current election term, then we are into a new election.
 	if term > r.p.CurrentTerm() {
 		r.setRoleAndWatchdogTimer(RoleFollower)
-		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
+		r.p.SetCurrentTermAndVotedFor(term, "") //nolint:errcheck
 	}
 	vf := r.p.VotedFor()
 
@@ -116,7 +116,7 @@ func (s *service) RequestVote(ctx *context.T, call rpc.ServerCall, term Term, ca
 
 	// Vote for candidate and make sure we're a follower.
 	r.setRole(RoleFollower)
-	r.p.SetCurrentTermAndVotedFor(term, candidate) // nolint: errcheck
+	r.p.SetCurrentTermAndVotedFor(term, candidate) //nolint:errcheck
 	return r.p.CurrentTerm(), true, nil
 }
 
@@ -142,7 +142,7 @@ func (s *service) AppendToLog(ctx *context.T, call rpc.ServerCall, term Term, le
 
 	// Update our term if we are behind.
 	if term > r.p.CurrentTerm() {
-		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
+		r.p.SetCurrentTermAndVotedFor(term, "") //nolint:errcheck
 	}
 
 	// Restart our timer since we just heard from the leader.
@@ -186,7 +186,7 @@ func (s *service) Append(ctx *context.T, call rpc.ServerCall, cmd []byte) (Term,
 	r.kickFollowers()
 	r.Unlock()
 
-	// The entry is not yet commited or applied.  The caller must verify that itself.
+	// The entry is not yet committed or applied.  The caller must verify that itself.
 	return le.Term, le.Index, nil
 }
 
@@ -212,7 +212,7 @@ func (s *service) InstallSnapshot(ctx *context.T, call raftProtoInstallSnapshotS
 
 	// Update our term if we are behind.
 	if term > r.p.CurrentTerm() {
-		r.p.SetCurrentTermAndVotedFor(term, "") // nolint: errcheck
+		r.p.SetCurrentTermAndVotedFor(term, "") //nolint:errcheck
 	}
 
 	// Restart our timer since we just heard from the leader.

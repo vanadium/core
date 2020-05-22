@@ -33,9 +33,9 @@ func traceDataHandler(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte(fmt.Sprintf("%T", err))) // nolint: errcheck
+		w.Write([]byte(fmt.Sprintf("%T",err))) //nolint:errcheck
 	} else {
-		w.Write(data) // nolint: errcheck
+		w.Write(data) //nolint:errcheck
 	}
 }
 
@@ -48,7 +48,7 @@ func findPortAndListen(mux *http.ServeMux) {
 		if err == nil {
 			log.Println("Monitoring on " + fmt_port(curr_port) + "/debug/requests...")
 			defer ln.Close()
-			http.Serve(ln, mux) // nolint: errcheck
+			http.Serve(ln,mux) //nolint:errcheck
 			break
 		}
 		curr_port += 1

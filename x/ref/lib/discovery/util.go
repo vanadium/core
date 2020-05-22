@@ -18,7 +18,7 @@ import (
 func hashAd(adinfo *AdInfo) {
 	w := func(w io.Writer, data []byte) {
 		sum := sha256.Sum256(data)
-		w.Write(sum[:]) // nolint: errcheck
+		w.Write(sum[:]) //nolint:errcheck
 	}
 
 	hasher := sha256.New()
@@ -30,7 +30,7 @@ func hashAd(adinfo *AdInfo) {
 	for _, addr := range adinfo.Ad.Addresses {
 		w(field, []byte(addr))
 	}
-	hasher.Write(field.Sum(nil)) // nolint: errcheck
+	hasher.Write(field.Sum(nil)) //nolint:errcheck
 
 	field.Reset()
 	if n := len(adinfo.Ad.Attributes); n > 0 {
@@ -44,7 +44,7 @@ func hashAd(adinfo *AdInfo) {
 			w(field, []byte(adinfo.Ad.Attributes[k]))
 		}
 	}
-	hasher.Write(field.Sum(nil)) // nolint: errcheck
+	hasher.Write(field.Sum(nil)) //nolint:errcheck
 
 	field.Reset()
 	if n := len(adinfo.Ad.Attachments); n > 0 {
@@ -58,16 +58,16 @@ func hashAd(adinfo *AdInfo) {
 			w(field, []byte(adinfo.Ad.Attachments[k]))
 		}
 	}
-	hasher.Write(field.Sum(nil)) // nolint: errcheck
+	hasher.Write(field.Sum(nil)) //nolint:errcheck
 
 	field.Reset()
 	var buf bytes.Buffer
-	binary.Write(&buf, binary.LittleEndian, adinfo.EncryptionAlgorithm) // nolint: errcheck
+	binary.Write(&buf,binary.LittleEndian,adinfo.EncryptionAlgorithm) //nolint:errcheck
 	w(field, buf.Bytes())
 	for _, key := range adinfo.EncryptionKeys {
 		w(field, []byte(key))
 	}
-	hasher.Write(field.Sum(nil)) // nolint: errcheck
+	hasher.Write(field.Sum(nil)) //nolint:errcheck
 
 	// We use the first 8 bytes to reduce the advertise packet size.
 	copy(adinfo.Hash[:], hasher.Sum(nil))

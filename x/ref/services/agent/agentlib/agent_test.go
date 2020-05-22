@@ -47,7 +47,7 @@ var getPrincipalAndHang = gosh.RegisterFunc("getPrincipalAndHang", func() {
 	defer shutdown()
 	b, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 	fmt.Printf("DEFAULT_BLESSING=%s\n", b)
-	ioutil.ReadAll(os.Stdin) // nolint: errcheck
+	ioutil.ReadAll(os.Stdin) //nolint:errcheck
 })
 
 func newAgent(path string, cached bool) (security.Principal, error) {

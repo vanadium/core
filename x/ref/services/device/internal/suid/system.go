@@ -24,7 +24,7 @@ var (
 	errKillFailed         = verror.Register(pkgPath+".errKillFailed", verror.NoRetry, "{1:}{2:} os.Process.Kill({3}) failed{:_}")
 )
 
-// Chown is only availabe on UNIX platforms so this file has a build
+// Chown is only available on UNIX platforms so this file has a build
 // restriction.
 func (hw *WorkParameters) Chown() error {
 	chown := func(path string, _ os.FileInfo, inerr error) error {

@@ -256,10 +256,10 @@ func refreshDefaults(f *Flags) {
 			}
 		case *ListenFlags:
 			if !v.Protocol.isSet {
-				v.Protocol.validator.Set(defaultProtocol) // nolint: errcheck
+				v.Protocol.validator.Set(defaultProtocol) //nolint:errcheck
 			}
 			if !v.Addresses.isSet {
-				v.Addresses.validator.Set(defaultHostPort) // nolint: errcheck
+				v.Addresses.validator.Set(defaultHostPort) //nolint:errcheck
 			}
 		}
 	}
@@ -333,7 +333,7 @@ func (f *Flags) Parse(args []string, cfg map[string]string) error {
 	}
 	for k, v := range cfg {
 		if f.FlagSet.Lookup(k) != nil {
-			f.FlagSet.Set(k, v) // nolint: errcheck
+			f.FlagSet.Set(k,v) //nolint:errcheck
 		}
 	}
 	return nil

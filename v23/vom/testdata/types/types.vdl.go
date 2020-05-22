@@ -1373,7 +1373,7 @@ const (
 var NEnumAll = [...]NEnum{NEnumA, NEnumB, NEnumC}
 
 // NEnumFromString creates a NEnum from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func NEnumFromString(label string) (x NEnum, err error) {
 	err = x.Set(label)
 	return
@@ -4686,7 +4686,7 @@ const (
 var BrieEnumAll = [...]BrieEnum{BrieEnumGlee, BrieEnumBrie, BrieEnumThree}
 
 // BrieEnumFromString creates a BrieEnum from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func BrieEnumFromString(label string) (x BrieEnum, err error) {
 	err = x.Set(label)
 	return
@@ -4761,7 +4761,7 @@ const (
 var BeanEnumAll = [...]BeanEnum{BeanEnumBean}
 
 // BeanEnumFromString creates a BeanEnum from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func BeanEnumFromString(label string) (x BeanEnum, err error) {
 	err = x.Set(label)
 	return
@@ -4828,7 +4828,7 @@ const (
 var FoodEnumAll = [...]FoodEnum{FoodEnumBean, FoodEnumBrie, FoodEnumCherry}
 
 // FoodEnumFromString creates a FoodEnum from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func FoodEnumFromString(label string) (x FoodEnum, err error) {
 	err = x.Set(label)
 	return
@@ -5735,7 +5735,7 @@ func (x *LargeAnyMessageType) VDLRead(dec vdl.Decoder) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1    *vdl.Type
 	__VDLType_struct_2    *vdl.Type

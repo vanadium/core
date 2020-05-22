@@ -745,7 +745,7 @@ func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
 		}
 	}
 
-	// Mulitple chains, certifying different keys should fail
+	// Mulitiple chains, certifying different keys should fail
 	wire.CertificateChains = [][]Certificate{
 		C{C1},
 		C{C1, C2},

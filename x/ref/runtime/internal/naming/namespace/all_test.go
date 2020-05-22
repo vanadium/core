@@ -620,7 +620,7 @@ func TestCycles(t *testing.T) {
 		boom(t, "Failed to detect cycle")
 	}
 
-	// Perform the glob with a response length limit and dup suppression.  The dup supression
+	// Perform the glob with a response length limit and dup suppression.  The dup suppression
 	// should win.
 	r := doGlob(t, c, ns, "c1/...", 1000)
 	if len(r) != 6 {

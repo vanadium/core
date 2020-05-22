@@ -736,7 +736,7 @@ var (
 	ErrChannelTimeout           = verror.Register("v.io/x/ref/runtime/internal/flow/conn.ChannelTimeout", verror.NoRetry, "{1:}{2:} the channel has become unresponsive.")
 	ErrCannotDecryptBlessings   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotDecryptBlessings", verror.NoRetry, "{1:}{2:} cannot decrypt the encrypted blessings sent by peer{:3}")
 	ErrCannotDecryptDischarges  = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotDecryptDischarges", verror.NoRetry, "{1:}{2:} cannot decrypt the encrypted discharges sent by peer{:3}")
-	ErrCannotEncryptBlessings   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotEncryptBlessings", verror.NoRetry, "{1:}{2:} cannot encyrpt blessings for peer {3}{:4}")
+	ErrCannotEncryptBlessings   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotEncryptBlessings", verror.NoRetry, "{1:}{2:} cannot encrypt blessings for peer {3}{:4}")
 	ErrCannotEncryptDischarges  = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotEncryptDischarges", verror.NoRetry, "{1:}{2:} cannot encrypt discharges for peers {3}{:4}")
 	ErrNoCrypter                = verror.Register("v.io/x/ref/runtime/internal/flow/conn.NoCrypter", verror.NoRetry, "{1:}{2:} no blessings-based crypter available")
 	ErrNoPrivateKey             = verror.Register("v.io/x/ref/runtime/internal/flow/conn.NoPrivateKey", verror.NoRetry, "{1:}{2:} no blessings private key available for decryption")
@@ -859,7 +859,7 @@ func NewErrIdleConnKilled(ctx *context.T) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type
@@ -932,7 +932,7 @@ func __VDLInit() struct{} {
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrChannelTimeout.ID), "{1:}{2:} the channel has become unresponsive.")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotDecryptBlessings.ID), "{1:}{2:} cannot decrypt the encrypted blessings sent by peer{:3}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotDecryptDischarges.ID), "{1:}{2:} cannot decrypt the encrypted discharges sent by peer{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotEncryptBlessings.ID), "{1:}{2:} cannot encyrpt blessings for peer {3}{:4}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotEncryptBlessings.ID), "{1:}{2:} cannot encrypt blessings for peer {3}{:4}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotEncryptDischarges.ID), "{1:}{2:} cannot encrypt discharges for peers {3}{:4}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoCrypter.ID), "{1:}{2:} no blessings-based crypter available")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoPrivateKey.ID), "{1:}{2:} no blessings private key available for decryption")

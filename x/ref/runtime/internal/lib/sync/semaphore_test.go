@@ -17,7 +17,7 @@ func TestSemaphore(t *testing.T) {
 	var pending sync.WaitGroup
 	pending.Add(1)
 	go func() {
-		// nolint: errcheck
+		//nolint:errcheck
 		s1.Dec(nil)
 		s2.Inc()
 		pending.Done()
@@ -219,7 +219,7 @@ func BenchmarkIncDecInterleaved(b *testing.B) {
 	s := NewSemaphore()
 	go func() {
 		for i := 0; i < b.N; i++ {
-			s.Dec(nil) // nolint: errcheck
+			s.Dec(nil) //nolint:errcheck
 		}
 		c <- true
 	}()

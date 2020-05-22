@@ -390,7 +390,7 @@ var descMountTable = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_string_1 *vdl.Type
 )

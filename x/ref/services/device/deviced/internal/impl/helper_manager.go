@@ -167,7 +167,7 @@ var IsSetuid = func(ctx *context.T, fileStat os.FileInfo) bool {
 // setuid to run an application as system user targetUser. If false, the
 // setuidhelper must be invoked with the --dryrun flag to skip making
 // system calls that will fail or provide apps with a trivial
-// priviledge escalation.
+// privilege escalation.
 func (s suidHelperState) suidhelperEnabled(ctx *context.T, targetUser string) (bool, error) {
 	helperStat, err := os.Stat(s.helperPath)
 	if err != nil {

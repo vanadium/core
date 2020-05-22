@@ -37,7 +37,7 @@ import (
 func instanceDirForApp(root, appID, instanceID string) string {
 	applicationDirName := func(title string) string {
 		h := md5.New()
-		h.Write([]byte(title)) // nolint: errcheck
+		h.Write([]byte(title)) //nolint:errcheck
 		hash := strings.TrimRight(base64.URLEncoding.EncodeToString(h.Sum(nil)), "=")
 		return "app-" + hash
 	}
@@ -400,7 +400,7 @@ func TestLifeOfAnApp(t *testing.T) {
 	}
 
 	// In the first pass, TidyNow (below), finds that everything should be too
-	// young to be tidied becasue TidyNow's first call to MockableNow()
+	// young to be tidied because TidyNow's first call to MockableNow()
 	// provides the current time.
 	shouldKeepInstances := keepAll(t, root, filepath.Join(root, "app*", "installation*", "instances", "instance*"))
 	shouldKeepInstallations := keepAll(t, root, filepath.Join(root, "app*", "installation*"))

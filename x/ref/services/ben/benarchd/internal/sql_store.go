@@ -70,7 +70,7 @@ func (s *sqlStore) Save(ctx *context.T, scenario ben.Scenario, code ben.SourceCo
 		return err
 	}
 	// If tx.Commit is called, then this tx.Rollback is a no-op
-	defer tx.Rollback() // nolint: errcheck
+	defer tx.Rollback() //nolint:errcheck
 	cpu, err := s.insertAndGetID(tx, s.insertCPU, s.selectCPU, scenario.Cpu.Architecture, scenario.Cpu.Description, scenario.Cpu.ClockSpeedMhz)
 	if err != nil {
 		return tagerr("cpu", err)
@@ -398,7 +398,7 @@ func (s *sqlStore) initDB() error {
 		}
 	}
 	// One might have considered using a single table for all Scenario
-	// related infromation with a UNIQUE constraint on all the fields
+	// related information with a UNIQUE constraint on all the fields
 	// (e.g., UNIQUE(CPUArchitecture, CPUDescription, CPUMHz, OSName, OSVersion, ...))
 	//
 	// However, in MySQL (and Google Cloud SQL) there are limits on the

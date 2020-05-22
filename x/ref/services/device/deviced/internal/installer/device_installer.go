@@ -352,14 +352,14 @@ func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	if restarterPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(restarterPid); err == nil {
-				p.Wait() // nolint: errcheck
+				p.Wait() //nolint:errcheck
 			}
 		}()
 	}
 	if devmgrPid != 0 {
 		go func() {
 			if p, err := os.FindProcess(devmgrPid); err == nil {
-				p.Wait() // nolint: errcheck
+				p.Wait() //nolint:errcheck
 			}
 		}()
 	}
@@ -410,6 +410,6 @@ func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	// TODO: Reconsider this when we add stronger protection to make sure that the pids being
 	// signalled are in fact the restarter and/or device manager
 
-	// Process was killed succesfully
+	// Process was killed successfully
 	return nil
 }

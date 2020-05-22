@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// watchers provides syncronization and notifications for a shared resource.
+// watchers provides synchronization and notifications for a shared resource.
 type watchers struct {
 	mu      sync.RWMutex
 	nextId  int

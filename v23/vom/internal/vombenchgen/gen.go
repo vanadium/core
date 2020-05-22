@@ -24,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	// nolint: errcheck
+	//nolint:errcheck
 	file.WriteString(`// Copyright 2016 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
@@ -49,7 +49,7 @@ import (
 
 	`)
 	for _, entry := range benchmarks {
-		file.WriteString(genBenchmark(entry)) // nolint: errcheck
+		file.WriteString(genBenchmark(entry)) //nolint:errcheck
 	}
 	file.Close()
 	exec.Command("go", "go")

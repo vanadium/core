@@ -47,7 +47,7 @@ func TestAcceptsAreNotSerialized(t *testing.T) {
 		close(portscan)
 		// Keep the connection alive by blocking on a read.  (The read
 		// should return once the test exits).
-		conn.Read(make([]byte, 1024)) // nolint: errcheck
+		conn.Read(make([]byte,1024)) //nolint:errcheck
 	}()
 	// Another client that dials a legitimate connection should not be
 	// blocked on the portscanner.
@@ -87,8 +87,8 @@ func TestNonWebsocketRequest(t *testing.T) {
 		t.Error(err)
 	}
 	for i := 0; i < 2; i++ {
-		conn.Write([]byte("GET / HTTP/1.1\r\n\r\n")) // nolint: errcheck
-		conn.Read(make([]byte, 1024))                // nolint: errcheck
+		conn.Write([]byte("GET / HTTP/1.1\r\n\r\n")) //nolint:errcheck
+		conn.Read(make([]byte,1024))                //nolint:errcheck
 	}
 
 	logs := out.String()

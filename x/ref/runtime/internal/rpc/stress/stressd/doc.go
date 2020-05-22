@@ -15,7 +15,7 @@ The stressd flags are:
  -duration=0s
    Duration of the stress test to run; if zero, there is no limit.
  -name=
-   Name to mount the server under.  If emtpy, don't mount.
+   Name to mount the server under.  If empty, don't mount.
 
 The global flags are:
  -alsologtostderr=true

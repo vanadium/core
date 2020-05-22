@@ -226,7 +226,7 @@ type raftProtoClientMethods interface {
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
 	//               an error is returned.
-	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed
+	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
 	AppendToLog(_ *context.T, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry, _ ...rpc.CallOpt) error
@@ -383,7 +383,7 @@ type raftProtoServerMethods interface {
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
 	//               an error is returned.
-	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed
+	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
 	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
@@ -423,7 +423,7 @@ type raftProtoServerStubMethods interface {
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
 	//               an error is returned.
-	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed
+	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
 	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
@@ -546,7 +546,7 @@ var descraftProto = rpc.InterfaceDesc{
 		},
 		{
 			Name: "AppendToLog",
-			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leaderId -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has gauranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
+			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leaderId -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
 			InArgs: []rpc.ArgDesc{
 				{Name: "term", Doc: ``},         // Term
 				{Name: "leaderId", Doc: ``},     // string
@@ -650,7 +650,7 @@ func (s implraftProtoInstallSnapshotServerCallRecv) Err() error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_uint64_1 *vdl.Type
 	__VDLType_uint64_2 *vdl.Type

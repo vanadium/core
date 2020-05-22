@@ -28,7 +28,7 @@ import (
 // Manager is the interface for managing the creation of Flows.
 type Manager interface {
 	// Listen causes the Manager to accept flows from the provided protocol and address.
-	// Listen may be called muliple times.
+	// Listen may be called multiple times.
 	// If err != nil, creating a net.Listener to the address failed.
 	// Otherwise, if error == nil, the returned chan will block until the
 	// net.Listener fails while accepting connections. The caller may then
@@ -276,7 +276,7 @@ type Flow interface {
 }
 
 // Conn is the connection onto which flows are mulitplexed.
-// It contains information of the Conn's local network address. Other infomation
+// It contains information of the Conn's local network address. Other information
 // is not available until the authentication handshake is complete.
 type Conn interface {
 	MsgReadWriteCloser

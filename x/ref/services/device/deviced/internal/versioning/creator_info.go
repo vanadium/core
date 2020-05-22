@@ -71,7 +71,8 @@ func loadCreatorInfo(ctx *context.T, dir string) (*CreatorInfo, error) {
 	return info, nil
 }
 
-// Checks the compatibilty of the running binary against the device manager directory on disk
+// Checks the compatibility of the running binary against the device manager
+// directory on disk.
 func CheckCompatibility(ctx *context.T, dir string) error {
 	if infoOnDisk, err := loadCreatorInfo(ctx, dir); err != nil {
 		ctx.Errorf("Failed to load creator info from %s", dir)

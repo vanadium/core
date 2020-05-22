@@ -97,7 +97,7 @@ func TestServerRestart(t *testing.T) {
 	// to connect as a proxy, if that fails, the client should retry
 	// and re-resolve the name to obtain the new RID and then make a normal
 	// RPC.
-	// This scenarious is racy and this test works around the races as
+	// This scenarios is racy and this test works around the races as
 	// outlined below.
 	//
 	// The problematic sequence of events is as follows:

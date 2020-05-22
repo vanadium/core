@@ -109,7 +109,7 @@ func (*server) ZStream(_ *context.T, call internal.TypeTesterZStreamServerCall, 
 	vlog.VI(2).Info("ZStream(%v,%v) was called.", nStream, item)
 	sender := call.SendStream()
 	for i := int32(0); i < nStream; i++ {
-		sender.Send(item) // nolint: errcheck
+		sender.Send(item) //nolint:errcheck
 	}
 	return nil
 }

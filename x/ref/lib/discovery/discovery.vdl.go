@@ -637,7 +637,7 @@ var descDirectory = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_list_1   *vdl.Type
 	__VDLType_int32_2  *vdl.Type

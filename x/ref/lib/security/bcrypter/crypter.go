@@ -96,7 +96,7 @@ type PrivateKey struct {
 //
 // Encryption makes use of the public parameters of the identity provider
 // that is authoritative on the set of blessings that match the provided
-// blessing pattern. These paramaters must have been previously added to
+// blessing pattern. These parameters must have been previously added to
 // this crypter via AddParams.
 func (c *Crypter) Encrypt(ctx *context.T, forPattern security.BlessingPattern, plaintext []byte) (*Ciphertext, error) {
 	if !forPattern.IsValid() {

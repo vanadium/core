@@ -63,7 +63,7 @@ func (sh *Shell) StartRootMountTableWithOpts(opts mounttablelib.Opts) func(sig o
 }
 
 // Copied over from gosh.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func copyFile(to, from string) error {
 	fi, err := os.Stat(from)
 	if err != nil {

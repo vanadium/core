@@ -41,7 +41,7 @@ type server struct {
 func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	ctx.VI(2).Infof("Glob() was called. suffix=%v pattern=%q", s.suffix, g.String())
 	sender := call.SendStream()
-	// nolint: errcheck
+	//nolint:errcheck
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
 			Name: "name1",
@@ -51,7 +51,7 @@ func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) e
 			IsLeaf:           false,
 		},
 	})
-	// nolint: errcheck
+	//nolint:errcheck
 	sender.Send(naming.GlobReplyEntry{
 		Value: naming.MountEntry{
 			Name: "name2",

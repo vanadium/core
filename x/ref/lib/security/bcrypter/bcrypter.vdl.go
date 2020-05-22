@@ -438,7 +438,7 @@ func NewErrInvalidPrivateKey(ctx *context.T, err error) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1 *vdl.Type
 	__VDLType_map_2    *vdl.Type

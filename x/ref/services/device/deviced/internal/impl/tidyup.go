@@ -162,7 +162,7 @@ func pruneUninstalledInstallations(ctx *context.T, root string, now time.Time) e
 }
 
 // pruneOldLogs removes logs more than a day old. Symlinks (the
-// cannonical log file name) the (newest) log files that they point to
+// canonical log file name) the (newest) log files that they point to
 // are preserved.
 func pruneOldLogs(ctx *context.T, root string, now time.Time) error {
 	logPaths, err := filepath.Glob(filepath.Join(root, "app*", "installation*", "instances", "instance*", "logs", "*"))

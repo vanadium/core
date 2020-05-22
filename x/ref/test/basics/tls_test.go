@@ -94,7 +94,7 @@ func BenchmarkTLSConnectionEstablishment(b *testing.B) {
 // similar run times.
 //
 // Hoever, on some machines I was having trouble getting consistent numbers
-// with BenchmarkTLSConnectionEstablishment - possibly becuase of some
+// with BenchmarkTLSConnectionEstablishment - possibly because of some
 // network monitoring software installed on those. Till that is figured out,
 // have this additional benchmark that measures just the CPU work done for
 // mutual TLS authentication.
@@ -109,7 +109,7 @@ func BenchmarkTLSHandshake(b *testing.B) {
 	ch := make(chan *tls.Conn)
 	go func() {
 		for c := range ch {
-			c.Handshake() // nolint: errcheck
+			c.Handshake() //nolint:errcheck
 		}
 	}()
 	defer close(ch)

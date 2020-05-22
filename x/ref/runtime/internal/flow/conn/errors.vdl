@@ -31,7 +31,7 @@ error (
   ChannelTimeout() {"en": "the channel has become unresponsive."}
   CannotDecryptBlessings(err error) {"en": "cannot decrypt the encrypted blessings sent by peer{:err}"}
   CannotDecryptDischarges(err error) {"en": "cannot decrypt the encrypted discharges sent by peer{:err}"}
-  CannotEncryptBlessings(peers []security.BlessingPattern, err error) {"en": "cannot encyrpt blessings for peer {peers}{:err}"}
+  CannotEncryptBlessings(peers []security.BlessingPattern, err error) {"en": "cannot encrypt blessings for peer {peers}{:err}"}
   CannotEncryptDischarges(peers []security.BlessingPattern, err error) {"en": "cannot encrypt discharges for peers {peers}{:err}"}
   NoCrypter() {"en": "no blessings-based crypter available"}
   NoPrivateKey() {"en": "no blessings private key available for decryption"}

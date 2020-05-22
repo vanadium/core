@@ -72,7 +72,7 @@ func secureAppend(s []byte, t byte) []byte {
 		copy(s, make([]byte, len(s)))
 	}
 	// Clear out the byte.
-	t = 0 // nolint: ineffassign
+	t = 0 //nolint:ineffassign
 	return res
 }
 

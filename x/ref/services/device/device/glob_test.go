@@ -50,7 +50,7 @@ func newEnforceFullParallelismHandler(t *testing.T, n int) cmd_device.GlobHandle
 	wg.Add(n)
 	return func(entry cmd_device.GlobResult, ctx *context.T, stdout, stderr io.Writer) error {
 		wg.Done()
-		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
+		simplePrintHandler(entry,ctx,stdout,stderr) //nolint:errcheck
 		waitDoneCh := make(chan struct{})
 		go func() {
 			wg.Wait()
@@ -137,7 +137,7 @@ func newEnforceNoParallelismHandler(t *testing.T, n int, expected []string) cmd_
 		if suffix != expect {
 			t.Errorf("Expected %s, got %s", expect, suffix)
 		}
-		simplePrintHandler(entry, ctx, stdout, stderr) // nolint: errcheck
+		simplePrintHandler(entry,ctx,stdout,stderr) //nolint:errcheck
 		return nil
 	}
 }

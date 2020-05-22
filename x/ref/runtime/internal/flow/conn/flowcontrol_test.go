@@ -169,7 +169,7 @@ func TestOrdering(t *testing.T) {
 			}
 		}
 		if len(found) != nflows {
-			t.Fatalf("Did not recieve a message from each flow in round %d: %v", i, found)
+			t.Fatalf("Did not receive a message from each flow in round %d: %v", i, found)
 		}
 	}
 }

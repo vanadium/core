@@ -50,7 +50,7 @@ func TestEnvClearCredentials(t *testing.T) {
 	if got, want := os.Getenv(EnvCredentials), "FOO"; got != want {
 		t.Errorf("Got %q, want %q", got, want)
 	}
-	EnvClearCredentials() // nolint: errcheck
+	EnvClearCredentials() //nolint:errcheck
 	if got := os.Getenv(EnvCredentials); got != "" {
 		t.Errorf("Got %q, wanted empty string", got)
 	}

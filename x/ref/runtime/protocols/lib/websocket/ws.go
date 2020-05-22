@@ -37,7 +37,7 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 	if err != nil {
 		return nil, err
 	}
-	conn.SetReadDeadline(deadline) // nolint: errcheck
+	conn.SetReadDeadline(deadline) //nolint:errcheck
 	if err := tcputil.EnableTCPKeepAlive(conn); err != nil {
 		return nil, err
 	}
@@ -46,13 +46,13 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 		return nil, err
 	}
 
-	// nolint: staticcheck //lint:ignore SA1019
+	//nolint:staticcheck //lint:ignore SA1019
 	ws, _, err := websocket.NewClient(conn, u, http.Header{}, bufferSize, bufferSize)
 	if err != nil {
 		return nil, err
 	}
 	var zero time.Time
-	conn.SetDeadline(zero) // nolint: errcheck
+	conn.SetDeadline(zero) //nolint:errcheck
 	return WebsocketConn(ws), nil
 }
 

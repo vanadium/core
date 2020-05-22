@@ -44,7 +44,7 @@ func (x *Id) VDLRead(dec vdl.Decoder) error {
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_array_1 *vdl.Type
 )

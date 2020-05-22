@@ -297,7 +297,7 @@ func (o *globObject) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glo
 
 func (o *globObject) globLoop(call rpc.GlobServerCall, name string, g *glob.Glob, n *node) {
 	if g.Len() == 0 {
-		call.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name}}) // nolint: errcheck
+		call.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name}}) //nolint:errcheck
 	}
 	if g.Empty() {
 		return

@@ -209,7 +209,7 @@ func (d *dumpWorker) Read(data []byte) (int, error) {
 	// call that all data has been processed.
 	d.lastWriteDone(nil)
 	// Wait for commands on the the cmd channel.
-	// nolint: gosimple //lint:ignore S1000
+	//nolint:gosimple //lint:ignore S1000
 	for {
 		select {
 		case cmd, ok := <-d.cmdChan:

@@ -27,8 +27,8 @@ func TestReadqRead(t *testing.T) {
 	defer shutdown()
 
 	r := newReadQ(nil, 1)
-	r.put(ctx, mkBufs("one", "two"))       // nolint: errcheck
-	r.put(ctx, mkBufs("thre", "reallong")) // nolint: errcheck
+	r.put(ctx,mkBufs("one","two"))       //nolint:errcheck
+	r.put(ctx,mkBufs("thre","reallong")) //nolint:errcheck
 	r.close(ctx)
 
 	read := make([]byte, 4)
@@ -54,8 +54,8 @@ func TestReadqGet(t *testing.T) {
 	defer shutdown()
 
 	r := newReadQ(nil, 1)
-	r.put(ctx, mkBufs("one", "two"))       // nolint: errcheck
-	r.put(ctx, mkBufs("thre", "reallong")) // nolint: errcheck
+	r.put(ctx,mkBufs("one","two"))       //nolint:errcheck
+	r.put(ctx,mkBufs("thre","reallong")) //nolint:errcheck
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "reallong"}
@@ -80,8 +80,8 @@ func TestReadqMixed(t *testing.T) {
 	defer shutdown()
 
 	r := newReadQ(nil, 1)
-	r.put(ctx, mkBufs("one", "two"))       // nolint: errcheck
-	r.put(ctx, mkBufs("thre", "reallong")) // nolint: errcheck
+	r.put(ctx,mkBufs("one","two"))       //nolint:errcheck
+	r.put(ctx,mkBufs("thre","reallong")) //nolint:errcheck
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "real", "long"}

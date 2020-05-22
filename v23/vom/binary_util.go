@@ -33,7 +33,7 @@ const (
 	maxBinaryMsgLen     = 1 << 30        // 1GiB limit to each message
 )
 
-// lenUint retuns the number of bytes used to represent the provided
+// lenUint returns the number of bytes used to represent the provided
 // uint value
 func lenUint(v uint64) int {
 	switch {

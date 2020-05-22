@@ -659,7 +659,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 	// Walk through root dirs and subdirs, looking for matches.
 	for _, walk := range walkDirs {
 		goModule, isGoModule := ds.goModules[walk.dir]
-		// nolint: errcheck
+		//nolint:errcheck
 		filepath.Walk(walk.dir, func(dirPath string, info os.FileInfo, err error) error {
 			// Ignore errors and non-directory elements.
 			if err != nil || !info.IsDir() {
@@ -704,7 +704,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			matchPath := dirPath[len(walk.dir):]
 			matchPath = strings.TrimPrefix(matchPath, filePathSeparator)
 
-			// Match agains the raw path, and also against one with the
+			// Match against the raw path, and also against one with the
 			// go module prefix prepended if go modules are in use.
 			if !matcher.MatchString(matchPath) {
 				if !isGoModule {

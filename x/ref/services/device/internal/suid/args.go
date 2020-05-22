@@ -212,7 +212,7 @@ func (wp *WorkParameters) ProcessArguments(fs *flag.FlagSet, env []string) error
 		env = cleanEnv(env)
 		b := new(bytes.Buffer)
 		enc := json.NewEncoder(b)
-		// nolint: errcheck
+		//nolint:errcheck
 		enc.Encode(ArgsSavedForTest{
 			Uname:    *flagUsername,
 			Workpace: *flagWorkspace,

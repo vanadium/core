@@ -474,7 +474,7 @@ func (x *TraceFlags) VDLRead(dec vdl.Decoder) error {
 	return nil
 }
 
-// Request is the object that carries trace informtion between processes.
+// Request is the object that carries trace information between processes.
 type Request struct {
 	SpanId   uniqueid.Id // The Id of the span that originated the RPC call.
 	TraceId  uniqueid.Id // The Id of the trace this call is a part of.
@@ -666,7 +666,7 @@ const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1  *vdl.Type
 	__VDLType_struct_2  *vdl.Type

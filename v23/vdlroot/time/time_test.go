@@ -268,7 +268,7 @@ func TestZeroDeadlineFixup(t *testing.T) {
 	// A non-zero native deadline should never result in a zero wire deadline; the
 	// code changes the 0 to a 1.  Since the conversion uses time.Now(), we can't
 	// ensure the test hits this case.  So we just run it a few times and log when
-	// we think the 0-to-1 fixup has occured.  We add an offset on each iteration
+	// we think the 0-to-1 fixup has occurred.  We add an offset on each iteration
 	// to increase the odds that we see the fixup in action.
 	var wire WireDeadline
 	for offset := gotime.Duration(0); offset < 100; offset += 10 {

@@ -76,7 +76,7 @@ type raft struct {
 	role        int
 	leader      string
 	quorum      int                // Number of members that form a quorum.
-	commitIndex Index              // Highest index commited.
+	commitIndex Index              // Highest index committed.
 	memberMap   map[string]*member // Map of raft members (including current).
 	memberSet   memberSlice        // Slice of raft members (including current).
 	me          *member
@@ -155,7 +155,7 @@ func newRaft(ctx *context.T, config *RaftConfig, client RaftClient) (*raft, erro
 	r.leader = ""
 	r.memberMap = make(map[string]*member)
 	r.memberSet = make([]*member, 0)
-	r.AddMember(ctx, config.HostPort) // nolint: errcheck
+	r.AddMember(ctx, config.HostPort) //nolint:errcheck
 	r.me = r.memberMap[config.HostPort]
 
 	// Raft persistent state.
@@ -387,7 +387,7 @@ func (r *raft) startElection() {
 		members = append(members, k)
 	}
 	r.setRoleAndWatchdogTimer(RoleCandidate)
-	r.p.SetVotedFor(r.me.id) // nolint: errcheck
+	r.p.SetVotedFor(r.me.id) //nolint:errcheck
 	r.leader = ""
 	r.Unlock()
 
@@ -428,7 +428,7 @@ func (r *raft) startElection() {
 		if highest > r.p.CurrentTerm() {
 			// If someone answered with a higher term, stop being a candidate.
 			r.setRoleAndWatchdogTimer(RoleFollower)
-			r.p.SetCurrentTerm(highest) // nolint: errcheck
+			r.p.SetCurrentTerm(highest) //nolint:errcheck
 		}
 		vlog.VI(2).Infof("@%s lost election with %d votes", r.me.id, oks)
 		return
@@ -639,7 +639,7 @@ func (r *raft) updateFollower(m *member) {
 				vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
 				return
 			}
-			// At this point we know that the follower is missing entries pervious to what
+			// At this point we know that the follower is missing entries previous to what
 			// we just sent.  If we can backup, do it.  Otherwise try sending a snapshot.
 			if m.nextIndex <= 1 {
 				return
@@ -878,14 +878,14 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 
 		switch role {
 		case RoleLeader:
-			r.waitForApply(ctx, 0, commitIndex) // nolint: errcheck
+			r.waitForApply(ctx, 0, commitIndex) //nolint:errcheck
 			return nil
 		case RoleFollower:
 			client := v23.GetClient(ctx)
 			var index Index
 			err := client.Call(ctx, leader, "Committed", []interface{}{}, []interface{}{&index}, options.Preresolved{})
 			if err == nil {
-				r.waitForApply(ctx, 0, index) // nolint: errcheck
+				r.waitForApply(ctx, 0, index) //nolint:errcheck
 				return nil
 			}
 			// If the leader can't do it, give up.

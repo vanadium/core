@@ -152,7 +152,7 @@ type Application interface {
 	// requested version (if the object name encodes a specific version), or
 	// otherwise the latest available version, as appropriate.  This object
 	// name will be used by default by the Update method, as a source for
-	// updated application envelopes (can be overriden by setting
+	// updated application envelopes (can be overridden by setting
 	// AppOriginConfigKey in the config).
 	//
 	// The config argument specifies config settings that will take

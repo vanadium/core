@@ -131,7 +131,7 @@ func makeChainedTestServers(ctx *context.T, idp *testutil.IDProvider, force ...b
 		out = append(out, c)
 		// Make sure the server is mounted to avoid any retries in when StartCall
 		// is invoked in runCallChain which complicate the span comparisons.
-		verifyMount(ctx, name) // nolint: errcheck
+		verifyMount(ctx, name) //nolint:errcheck
 	}
 	return out, nil
 }
@@ -240,7 +240,7 @@ func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []stri
 	}
 }
 
-// TestCancellationPropagation tests that cancellation propogates along an
+// TestCancellationPropagation tests that cancellation propagates along an
 // RPC call chain without user intervention.
 func TestTraceAcrossRPCs(t *testing.T) {
 	ctx, shutdown, idp := initForTest(t)
@@ -258,7 +258,7 @@ func TestTraceAcrossRPCs(t *testing.T) {
 	})
 }
 
-// TestCancellationPropagationLateForce tests that cancellation propogates along an
+// TestCancellationPropagationLateForce tests that cancellation propagates along an
 // RPC call chain when tracing is initiated by someone deep in the call chain.
 func TestTraceAcrossRPCsLateForce(t *testing.T) {
 	ctx, shutdown, idp := initForTest(t)

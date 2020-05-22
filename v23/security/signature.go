@@ -8,6 +8,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
+
 	"v.io/v23/verror"
 )
 
@@ -46,7 +47,7 @@ func messageDigest(hash Hash, purpose, message []byte, key PublicKey) []byte {
 		fields = append(fields, h...)
 		return true
 	}
-	// In order to defend agains "Duplicate Signature Key Selection (DSKS)" attacks
+	// In order to defend against "Duplicate Signature Key Selection (DSKS)" attacks
 	// as defined in the paper "Another look at Security Definition" by Neal Koblitz
 	// and Alfred Menzes, we also include the public key of the signer in the message
 	// being signed.

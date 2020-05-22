@@ -263,14 +263,14 @@ func (h *handler) revoke(ctx *context.T, w http.ResponseWriter, r *http.Request)
 	)
 	if h.args.RevocationManager == nil {
 		ctx.Infof("no provided revocation manager")
-		w.Write([]byte(failure)) // nolint: errcheck
+		w.Write([]byte(failure)) //nolint:errcheck
 		return
 	}
 
 	content, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		ctx.Infof("Failed to parse request: %s", err)
-		w.Write([]byte(failure)) // nolint: errcheck
+		w.Write([]byte(failure)) //nolint:errcheck
 		return
 	}
 	var requestParams struct {
@@ -278,23 +278,23 @@ func (h *handler) revoke(ctx *context.T, w http.ResponseWriter, r *http.Request)
 	}
 	if err := json.Unmarshal(content, &requestParams); err != nil {
 		ctx.Infof("json.Unmarshal failed : %s", err)
-		w.Write([]byte(failure)) // nolint: errcheck
+		w.Write([]byte(failure)) //nolint:errcheck
 		return
 	}
 
 	var caveatID string
 	if caveatID, err = h.validateRevocationToken(ctx, requestParams.Token, r); err != nil {
 		ctx.Infof("failed to validate token for caveat: %s", err)
-		w.Write([]byte(failure)) // nolint: errcheck
+		w.Write([]byte(failure)) //nolint:errcheck
 		return
 	}
 	if err := h.args.RevocationManager.Revoke(caveatID); err != nil {
 		ctx.Infof("Revocation failed: %s", err)
-		w.Write([]byte(failure)) // nolint: errcheck
+		w.Write([]byte(failure)) //nolint:errcheck
 		return
 	}
 
-	w.Write([]byte(success)) // nolint: errcheck
+	w.Write([]byte(success)) //nolint:errcheck
 }
 
 func (h *handler) validateRevocationToken(ctx *context.T, Token string, r *http.Request) (string, error) {

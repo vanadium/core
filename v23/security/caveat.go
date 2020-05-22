@@ -152,7 +152,7 @@ func RegisterCaveatValidator(c CaveatDescriptor, validator interface{}) {
 }
 
 // NewCaveat returns a Caveat that requires validation by the validation
-// function correponding to c and uses the provided parameters.
+// function corresponding to c and uses the provided parameters.
 func NewCaveat(c CaveatDescriptor, param interface{}) (Caveat, error) {
 	got := vdl.TypeOf(param)
 	// If the user inputs a vdl.Value, use the type of the vdl.Value instead.
@@ -195,7 +195,7 @@ func (c *Caveat) Validate(ctx *context.T, call Call) error {
 func (c *Caveat) ThirdPartyDetails() ThirdPartyCaveat {
 	if c.Id == PublicKeyThirdPartyCaveat.Id {
 		var param publicKeyThirdPartyCaveatParam
-		// nolint: staticcheck //lint:ignore SA9003
+		//nolint:staticcheck //lint:ignore SA9003
 		if err := vom.Decode(c.ParamVom, &param); err != nil {
 			// TODO(jsimsa): Decide what (if any) logging mechanism to use.
 			// vlog.Errorf("Error decoding PublicKeyThirdPartyCaveat: %v", err)

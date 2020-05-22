@@ -302,7 +302,7 @@ func TestParseSignalsList(t *testing.T) {
 	}
 }
 
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 type configServer struct {
 	ch chan<- string
 }

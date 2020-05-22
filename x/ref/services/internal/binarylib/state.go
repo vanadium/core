@@ -76,7 +76,7 @@ func NewState(rootDir, rootURL string, depth int) (*state, error) {
 // dir generates the local filesystem path for the binary identified by suffix.
 func (s *state) dir(suffix string) string {
 	h := md5.New()
-	h.Write([]byte(suffix)) // nolint: errcheck
+	h.Write([]byte(suffix)) //nolint:errcheck
 	hash := hex.EncodeToString(h.Sum(nil))
 	dir := ""
 	for j := 0; j < s.depth; j++ {

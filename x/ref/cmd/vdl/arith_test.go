@@ -63,7 +63,7 @@ func (*serverArith) StreamingAdd(_ *context.T, call arith.ArithStreamingAddServe
 	for call.RecvStream().Advance() {
 		value := call.RecvStream().Value()
 		total += value
-		call.SendStream().Send(total) // nolint: errcheck
+		call.SendStream().Send(total) //nolint:errcheck
 	}
 	return total, call.RecvStream().Err()
 }

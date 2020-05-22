@@ -23,7 +23,7 @@ func TestDoc(t *testing.T) {
 		{"Empty comment line is respected", "// a\n//\n// b\n", "", "/// a\n///\n/// b\n"},
 		{"Multiline respected", "// a\n// b\n", "", "/// a\n/// b\n"},
 		{"Whitespace preserved", "//  a\n//b\n", "", "///  a\n///b\n"},
-		{"Non-commments ignored", "a\n", "", ""},
+		{"Non-comments ignored", "a\n", "", ""},
 		{"Suffix is exchangable", "", "// a\n", "/// a\n"},
 		{"Suffix is used", "// a\n", "// a suffix\n", "/// a\n/// a suffix\n"},
 		{"Just VDL's // is supported", "/* a */\n", "", ""},

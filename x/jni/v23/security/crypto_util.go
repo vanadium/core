@@ -100,7 +100,7 @@ func parsePKIXPublicKey(data []byte) (*ecdsa.PublicKey, error) {
 }
 
 // ecdsaSignature is a helper struct that is used to (de)serialize security.Signature.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 type ecdsaSignature struct {
 	// R, S specify the pair of integers that make up an ECDSA signature.
 	R, S *big.Int

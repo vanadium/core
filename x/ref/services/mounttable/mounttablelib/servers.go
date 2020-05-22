@@ -92,7 +92,7 @@ func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, 
 			nh, err = NewNeighborhoodDispatcher(nhName, names...)
 		}
 		if err != nil {
-			ctx.Errorf("NewLoopback or Neigborhood dispatcher (host %s) failed: %v", host, err)
+			ctx.Errorf("NewLoopback or Neighborhood dispatcher (host %s) failed: %v", host, err)
 			return "", nil, err
 		}
 

@@ -230,7 +230,7 @@ const (
 var ApproximationTypeAll = [...]ApproximationType{ApproximationTypeUnder, ApproximationTypeOver}
 
 // ApproximationTypeFromString creates a ApproximationType from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func ApproximationTypeFromString(label string) (x ApproximationType, err error) {
 	err = x.Set(label)
 	return
@@ -889,7 +889,7 @@ var descGroup = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_string_1 *vdl.Type
 	__VDLType_struct_2 *vdl.Type

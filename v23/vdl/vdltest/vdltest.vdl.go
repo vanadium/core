@@ -254,7 +254,7 @@ const (
 var VEnumAbcAll = [...]VEnumAbc{VEnumAbcA, VEnumAbcB, VEnumAbcC}
 
 // VEnumAbcFromString creates a VEnumAbc from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func VEnumAbcFromString(label string) (x VEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -331,7 +331,7 @@ const (
 var VEnumBcdAll = [...]VEnumBcd{VEnumBcdB, VEnumBcdC, VEnumBcdD}
 
 // VEnumBcdFromString creates a VEnumBcd from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func VEnumBcdFromString(label string) (x VEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -21167,7 +21167,7 @@ const (
 var XEnumAbcAll = [...]XEnumAbc{XEnumAbcA, XEnumAbcB, XEnumAbcC}
 
 // XEnumAbcFromString creates a XEnumAbc from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func XEnumAbcFromString(label string) (x XEnumAbc, err error) {
 	err = x.Set(label)
 	return
@@ -21221,7 +21221,7 @@ const (
 var XEnumBcdAll = [...]XEnumBcd{XEnumBcdB, XEnumBcdC, XEnumBcdD}
 
 // XEnumBcdFromString creates a XEnumBcd from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func XEnumBcdFromString(label string) (x XEnumBcd, err error) {
 	err = x.Set(label)
 	return
@@ -93484,7 +93484,7 @@ var xAllPass = []vdlEntry{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_struct_1     *vdl.Type
 	__VDLType_bool_2       *vdl.Type

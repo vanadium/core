@@ -108,7 +108,7 @@ const (
 var InstallationStateAll = [...]InstallationState{InstallationStateActive, InstallationStateUninstalled}
 
 // InstallationStateFromString creates a InstallationState from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func InstallationStateFromString(label string) (x InstallationState, err error) {
 	err = x.Set(label)
 	return
@@ -185,7 +185,7 @@ const (
 var InstanceStateAll = [...]InstanceState{InstanceStateLaunching, InstanceStateRunning, InstanceStateDying, InstanceStateNotRunning, InstanceStateUpdating, InstanceStateDeleted}
 
 // InstanceStateFromString creates a InstanceState from a string label.
-// nolint: deadcode, unused
+//nolint:deadcode,unused
 func InstanceStateFromString(label string) (x InstanceState, err error) {
 	err = x.Set(label)
 	return
@@ -1200,7 +1200,7 @@ type ApplicationClientMethods interface {
 	// requested version (if the object name encodes a specific version), or
 	// otherwise the latest available version, as appropriate.  This object
 	// name will be used by default by the Update method, as a source for
-	// updated application envelopes (can be overriden by setting
+	// updated application envelopes (can be overridden by setting
 	// AppOriginConfigKey in the config).
 	//
 	// The config argument specifies config settings that will take
@@ -1617,7 +1617,7 @@ type ApplicationServerMethods interface {
 	// requested version (if the object name encodes a specific version), or
 	// otherwise the latest available version, as appropriate.  This object
 	// name will be used by default by the Update method, as a source for
-	// updated application envelopes (can be overriden by setting
+	// updated application envelopes (can be overridden by setting
 	// AppOriginConfigKey in the config).
 	//
 	// The config argument specifies config settings that will take
@@ -1764,7 +1764,7 @@ type ApplicationServerStubMethods interface {
 	// requested version (if the object name encodes a specific version), or
 	// otherwise the latest available version, as appropriate.  This object
 	// name will be used by default by the Update method, as a source for
-	// updated application envelopes (can be overriden by setting
+	// updated application envelopes (can be overridden by setting
 	// AppOriginConfigKey in the config).
 	//
 	// The config argument specifies config settings that will take
@@ -1949,7 +1949,7 @@ var descApplication = rpc.InterfaceDesc{
 	Methods: []rpc.MethodDesc{
 		{
 			Name: "Install",
-			Doc:  "// Install installs the application identified by the first argument and\n// returns an object name suffix that identifies the new installation.\n//\n// The name argument should be an object name for an application\n// envelope.  The service it identifies must implement\n// repository.Application, and is expected to return either the\n// requested version (if the object name encodes a specific version), or\n// otherwise the latest available version, as appropriate.  This object\n// name will be used by default by the Update method, as a source for\n// updated application envelopes (can be overriden by setting\n// AppOriginConfigKey in the config).\n//\n// The config argument specifies config settings that will take\n// precedence over those present in the application envelope.\n//\n// The packages argument specifies packages to be installed in addition\n// to those specified in the envelope.  If a package in the envelope has\n// the same key, the package in the packages argument takes precedence.\n//\n// The returned suffix, when appended to the name used to reach the\n// receiver for Install, can be used to control the installation object.\n// The suffix will contain the title of the application as a prefix,\n// which can then be used to control all the installations of the given\n// application.\n// TODO(rjkroege): Use customized labels.",
+			Doc:  "// Install installs the application identified by the first argument and\n// returns an object name suffix that identifies the new installation.\n//\n// The name argument should be an object name for an application\n// envelope.  The service it identifies must implement\n// repository.Application, and is expected to return either the\n// requested version (if the object name encodes a specific version), or\n// otherwise the latest available version, as appropriate.  This object\n// name will be used by default by the Update method, as a source for\n// updated application envelopes (can be overridden by setting\n// AppOriginConfigKey in the config).\n//\n// The config argument specifies config settings that will take\n// precedence over those present in the application envelope.\n//\n// The packages argument specifies packages to be installed in addition\n// to those specified in the envelope.  If a package in the envelope has\n// the same key, the package in the packages argument takes precedence.\n//\n// The returned suffix, when appended to the name used to reach the\n// receiver for Install, can be used to control the installation object.\n// The suffix will contain the title of the application as a prefix,\n// which can then be used to control all the installations of the given\n// application.\n// TODO(rjkroege): Use customized labels.",
 			InArgs: []rpc.ArgDesc{
 				{Name: "name", Doc: ``},     // string
 				{Name: "config", Doc: ``},   // Config
@@ -2762,7 +2762,7 @@ var descDevice = rpc.InterfaceDesc{
 }
 
 // Hold type definitions in package-level variables, for better performance.
-// nolint: unused
+//nolint:unused
 var (
 	__VDLType_map_1     *vdl.Type
 	__VDLType_enum_2    *vdl.Type

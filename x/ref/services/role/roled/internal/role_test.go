@@ -223,9 +223,9 @@ func TestGlob(t *testing.T) {
 		t.Fatalf("ioutil.TempDir failed: %v", err)
 	}
 	defer os.RemoveAll(workdir)
-	os.Mkdir(filepath.Join(workdir, "sub1"), 0700)         // nolint: errcheck
-	os.Mkdir(filepath.Join(workdir, "sub1", "sub2"), 0700) // nolint: errcheck
-	os.Mkdir(filepath.Join(workdir, "sub3"), 0700)         // nolint: errcheck
+	os.Mkdir(filepath.Join(workdir,"sub1"),0700)         //nolint:errcheck
+	os.Mkdir(filepath.Join(workdir,"sub1","sub2"),0700) //nolint:errcheck
+	os.Mkdir(filepath.Join(workdir,"sub3"),0700)         //nolint:errcheck
 
 	// Role that user1 has access to.
 	roleAConf := irole.Config{Members: []security.BlessingPattern{"test-blessing:user1"}}

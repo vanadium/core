@@ -149,7 +149,7 @@ func (d *invoker) Stop(ctx *context.T, call public.AppCycleStopServerCall) error
 		}
 		actask := public.Task{Progress: task.Progress, Goal: task.Goal}
 		ctx.Infof("AppCycle Stop progress %d/%d", task.Progress, task.Goal)
-		call.SendStream().Send(actask) // nolint: errcheck
+		call.SendStream().Send(actask) //nolint:errcheck
 	}
 	ctx.Infof("AppCycle Stop done")
 	return nil

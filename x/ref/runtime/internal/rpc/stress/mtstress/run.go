@@ -74,7 +74,7 @@ func run(f func(*context.T) (time.Duration, error), p params) error {
 			go call(p.Context, f, p.Reauthenticate, latency)
 		case d := <-latency:
 			if ret.HistMS != nil {
-				ret.HistMS.Add(int64(d / time.Millisecond)) // nolint: errcheck
+				ret.HistMS.Add(int64(d / time.Millisecond)) //nolint:errcheck
 			}
 			ret.Count++
 			sumMS += int64(d / time.Millisecond)
@@ -123,7 +123,7 @@ func warmup(ctx *context.T, f func(*context.T) (time.Duration, error)) {
 	for i := 0; i < nWarmup; i++ {
 		wg.Add(1)
 		go func() {
-			f(ctx) // nolint: errcheck
+			f(ctx) //nolint:errcheck
 			wg.Done()
 		}()
 	}
