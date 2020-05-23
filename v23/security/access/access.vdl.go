@@ -100,6 +100,7 @@
 //       return err
 //     }
 //   }
+//nolint:golint
 package access
 
 import (

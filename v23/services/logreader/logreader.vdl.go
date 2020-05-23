@@ -6,10 +6,12 @@
 // Package: logreader
 
 // Package logreader defines interfaces for reading log files remotely.
+//nolint:golint
 package logreader
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -115,7 +117,7 @@ const AllEntries = int32(-1)
 // containing LogFile methods.
 //
 // LogFile can be used to access log files remotely.
-type LogFileClientMethods interface { //nolint:golint
+type LogFileClientMethods interface {
 	// Size returns the number of bytes in the receiving object.
 	Size(*context.T, ...rpc.CallOpt) (int64, error)
 	// ReadLog receives up to numEntries log entries starting at the
@@ -135,13 +137,13 @@ type LogFileClientMethods interface { //nolint:golint
 }
 
 // LogFileClientStub adds universal methods to LogFileClientMethods.
-type LogFileClientStub interface { //nolint:golint
+type LogFileClientStub interface {
 	LogFileClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // LogFileClient returns a client stub for LogFile.
-func LogFileClient(name string) LogFileClientStub { //nolint:golint
+func LogFileClient(name string) LogFileClientStub {
 	return implLogFileClientStub{name}
 }
 
@@ -164,7 +166,7 @@ func (c implLogFileClientStub) ReadLog(ctx *context.T, i0 int64, i1 int32, i2 bo
 }
 
 // LogFileReadLogClientStream is the client stream for LogFile.ReadLog.
-type LogFileReadLogClientStream interface { //nolint:golint
+type LogFileReadLogClientStream interface {
 	// RecvStream returns the receiver side of the LogFile.ReadLog client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -180,7 +182,7 @@ type LogFileReadLogClientStream interface { //nolint:golint
 }
 
 // LogFileReadLogClientCall represents the call returned from LogFile.ReadLog.
-type LogFileReadLogClientCall interface { //nolint:golint
+type LogFileReadLogClientCall interface {
 	LogFileReadLogClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -195,7 +197,7 @@ type LogFileReadLogClientCall interface { //nolint:golint
 	Finish() (int64, error)
 }
 
-type implLogFileReadLogClientCall struct { //nolint:golint
+type implLogFileReadLogClientCall struct {
 	rpc.ClientCall
 	valRecv LogEntry
 	errRecv error
@@ -236,7 +238,7 @@ func (c *implLogFileReadLogClientCall) Finish() (o0 int64, err error) {
 // implements for LogFile.
 //
 // LogFile can be used to access log files remotely.
-type LogFileServerMethods interface { //nolint:golint
+type LogFileServerMethods interface {
 	// Size returns the number of bytes in the receiving object.
 	Size(*context.T, rpc.ServerCall) (int64, error)
 	// ReadLog receives up to numEntries log entries starting at the
@@ -259,7 +261,6 @@ type LogFileServerMethods interface { //nolint:golint
 // LogFile methods, as expected by rpc.Server.
 // The only difference between this interface and LogFileServerMethods
 // is the streaming methods.
-// nolint:golint
 type LogFileServerStubMethods interface {
 	// Size returns the number of bytes in the receiving object.
 	Size(*context.T, rpc.ServerCall) (int64, error)
@@ -280,16 +281,16 @@ type LogFileServerStubMethods interface {
 }
 
 // LogFileServerStub adds universal methods to LogFileServerStubMethods.
-type LogFileServerStub interface { //nolint:golint
+type LogFileServerStub interface {
 	LogFileServerStubMethods
 	// DescribeInterfaces the LogFile interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // LogFileServer returns a server stub for LogFile.
 // It converts an implementation of LogFileServerMethods into
 // an object that may be used by rpc.Server.
-func LogFileServer(impl LogFileServerMethods) LogFileServerStub { //nolint:golint
+func LogFileServer(impl LogFileServerMethods) LogFileServerStub {
 	stub := implLogFileServerStub{
 		impl: impl,
 	}
@@ -320,7 +321,7 @@ func (s implLogFileServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implLogFileServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implLogFileServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{LogFileDesc}
 }
 
@@ -358,7 +359,7 @@ var descLogFile = rpc.InterfaceDesc{
 }
 
 // LogFileReadLogServerStream is the server stream for LogFile.ReadLog.
-type LogFileReadLogServerStream interface { //nolint:golint
+type LogFileReadLogServerStream interface {
 	// SendStream returns the send side of the LogFile.ReadLog server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -369,14 +370,14 @@ type LogFileReadLogServerStream interface { //nolint:golint
 }
 
 // LogFileReadLogServerCall represents the context passed to LogFile.ReadLog.
-type LogFileReadLogServerCall interface { //nolint:golint
+type LogFileReadLogServerCall interface {
 	rpc.ServerCall
 	LogFileReadLogServerStream
 }
 
 // LogFileReadLogServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements LogFileReadLogServerCall.
-type LogFileReadLogServerCallStub struct { //nolint:golint
+type LogFileReadLogServerCallStub struct {
 	rpc.StreamServerCall
 }
 

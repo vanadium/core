@@ -7,10 +7,12 @@
 
 // Package vtrace defines an interface to access v.io/v23/vtrace traces, to help
 // analyze and debug distributed systems.
+//nolint:golint
 package vtrace
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -27,7 +29,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 
 // StoreClientMethods is the client interface
 // containing Store methods.
-type StoreClientMethods interface { //nolint:golint
+type StoreClientMethods interface {
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
 	Trace(_ *context.T, id uniqueid.Id, _ ...rpc.CallOpt) (vtrace.TraceRecord, error)
@@ -37,13 +39,13 @@ type StoreClientMethods interface { //nolint:golint
 }
 
 // StoreClientStub adds universal methods to StoreClientMethods.
-type StoreClientStub interface { //nolint:golint
+type StoreClientStub interface {
 	StoreClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StoreClient returns a client stub for Store.
-func StoreClient(name string) StoreClientStub { //nolint:golint
+func StoreClient(name string) StoreClientStub {
 	return implStoreClientStub{name}
 }
 
@@ -66,7 +68,7 @@ func (c implStoreClientStub) AllTraces(ctx *context.T, opts ...rpc.CallOpt) (oca
 }
 
 // StoreAllTracesClientStream is the client stream for Store.AllTraces.
-type StoreAllTracesClientStream interface { //nolint:golint
+type StoreAllTracesClientStream interface {
 	// RecvStream returns the receiver side of the Store.AllTraces client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -82,7 +84,7 @@ type StoreAllTracesClientStream interface { //nolint:golint
 }
 
 // StoreAllTracesClientCall represents the call returned from Store.AllTraces.
-type StoreAllTracesClientCall interface { //nolint:golint
+type StoreAllTracesClientCall interface {
 	StoreAllTracesClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -97,7 +99,7 @@ type StoreAllTracesClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implStoreAllTracesClientCall struct { //nolint:golint
+type implStoreAllTracesClientCall struct {
 	rpc.ClientCall
 	valRecv vtrace.TraceRecord
 	errRecv error
@@ -136,7 +138,7 @@ func (c *implStoreAllTracesClientCall) Finish() (err error) {
 
 // StoreServerMethods is the interface a server writer
 // implements for Store.
-type StoreServerMethods interface { //nolint:golint
+type StoreServerMethods interface {
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
 	Trace(_ *context.T, _ rpc.ServerCall, id uniqueid.Id) (vtrace.TraceRecord, error)
@@ -149,7 +151,6 @@ type StoreServerMethods interface { //nolint:golint
 // Store methods, as expected by rpc.Server.
 // The only difference between this interface and StoreServerMethods
 // is the streaming methods.
-// nolint:golint
 type StoreServerStubMethods interface {
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
@@ -160,16 +161,16 @@ type StoreServerStubMethods interface {
 }
 
 // StoreServerStub adds universal methods to StoreServerStubMethods.
-type StoreServerStub interface { //nolint:golint
+type StoreServerStub interface {
 	StoreServerStubMethods
 	// DescribeInterfaces the Store interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // StoreServer returns a server stub for Store.
 // It converts an implementation of StoreServerMethods into
 // an object that may be used by rpc.Server.
-func StoreServer(impl StoreServerMethods) StoreServerStub { //nolint:golint
+func StoreServer(impl StoreServerMethods) StoreServerStub {
 	stub := implStoreServerStub{
 		impl: impl,
 	}
@@ -200,7 +201,7 @@ func (s implStoreServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{StoreDesc}
 }
 
@@ -232,7 +233,7 @@ var descStore = rpc.InterfaceDesc{
 }
 
 // StoreAllTracesServerStream is the server stream for Store.AllTraces.
-type StoreAllTracesServerStream interface { //nolint:golint
+type StoreAllTracesServerStream interface {
 	// SendStream returns the send side of the Store.AllTraces server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -243,14 +244,14 @@ type StoreAllTracesServerStream interface { //nolint:golint
 }
 
 // StoreAllTracesServerCall represents the context passed to Store.AllTraces.
-type StoreAllTracesServerCall interface { //nolint:golint
+type StoreAllTracesServerCall interface {
 	rpc.ServerCall
 	StoreAllTracesServerStream
 }
 
 // StoreAllTracesServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements StoreAllTracesServerCall.
-type StoreAllTracesServerCallStub struct { //nolint:golint
+type StoreAllTracesServerCallStub struct {
 	rpc.StreamServerCall
 }
 

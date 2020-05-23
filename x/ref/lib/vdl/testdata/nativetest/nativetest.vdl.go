@@ -6,10 +6,12 @@
 // Package: nativetest
 
 // Package nativetest tests a package with native type conversions.
+//nolint:golint
 package nativetest
 
 import (
 	"time"
+
 	"v.io/v23/vdl"
 	"v.io/v23/vdl/testdata/nativetest"
 )

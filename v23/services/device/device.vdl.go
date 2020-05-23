@@ -7,12 +7,14 @@
 
 // Package device defines interfaces for managing devices and their
 // applications.
+//nolint:golint
 package device
 
 import (
 	"fmt"
 	"io"
 	"time"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -1131,7 +1133,7 @@ func (x *Association) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 //    apply(Run(), "not-running") = "running"
 //    apply(Kill(), "running") = "not-running"
 //    apply(Delete(), "not-running") = "deleted"
-type ApplicationClientMethods interface { //nolint:golint
+type ApplicationClientMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -1275,13 +1277,13 @@ type ApplicationClientMethods interface { //nolint:golint
 }
 
 // ApplicationClientStub adds universal methods to ApplicationClientMethods.
-type ApplicationClientStub interface { //nolint:golint
+type ApplicationClientStub interface {
 	ApplicationClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ApplicationClient returns a client stub for Application.
-func ApplicationClient(name string) ApplicationClientStub { //nolint:golint
+func ApplicationClient(name string) ApplicationClientStub {
 	return implApplicationClientStub{name, permissions.ObjectClient(name)}
 }
 
@@ -1351,7 +1353,7 @@ func (c implApplicationClientStub) Status(ctx *context.T, opts ...rpc.CallOpt) (
 }
 
 // ApplicationInstantiateClientStream is the client stream for Application.Instantiate.
-type ApplicationInstantiateClientStream interface { //nolint:golint
+type ApplicationInstantiateClientStream interface {
 	// RecvStream returns the receiver side of the Application.Instantiate client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1384,7 +1386,7 @@ type ApplicationInstantiateClientStream interface { //nolint:golint
 }
 
 // ApplicationInstantiateClientCall represents the call returned from Application.Instantiate.
-type ApplicationInstantiateClientCall interface { //nolint:golint
+type ApplicationInstantiateClientCall interface {
 	ApplicationInstantiateClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -1399,7 +1401,7 @@ type ApplicationInstantiateClientCall interface { //nolint:golint
 	Finish() (string, error)
 }
 
-type implApplicationInstantiateClientCall struct { //nolint:golint
+type implApplicationInstantiateClientCall struct {
 	rpc.ClientCall
 	valRecv BlessServerMessage
 	errRecv error
@@ -1548,7 +1550,7 @@ func (c *implApplicationInstantiateClientCall) Finish() (o0 string, err error) {
 //    apply(Run(), "not-running") = "running"
 //    apply(Kill(), "running") = "not-running"
 //    apply(Delete(), "not-running") = "deleted"
-type ApplicationServerMethods interface { //nolint:golint
+type ApplicationServerMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -1695,7 +1697,6 @@ type ApplicationServerMethods interface { //nolint:golint
 // Application methods, as expected by rpc.Server.
 // The only difference between this interface and ApplicationServerMethods
 // is the streaming methods.
-// nolint:golint
 type ApplicationServerStubMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
@@ -1840,16 +1841,16 @@ type ApplicationServerStubMethods interface {
 }
 
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
-type ApplicationServerStub interface { //nolint:golint
+type ApplicationServerStub interface {
 	ApplicationServerStubMethods
 	// DescribeInterfaces the Application interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ApplicationServer returns a server stub for Application.
 // It converts an implementation of ApplicationServerMethods into
 // an object that may be used by rpc.Server.
-func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub { //nolint:golint
+func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub {
 	stub := implApplicationServerStub{
 		impl:             impl,
 		ObjectServerStub: permissions.ObjectServer(impl),
@@ -1918,7 +1919,7 @@ func (s implApplicationServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ApplicationDesc, permissions.ObjectDesc}
 }
 
@@ -2016,7 +2017,7 @@ var descApplication = rpc.InterfaceDesc{
 }
 
 // ApplicationInstantiateServerStream is the server stream for Application.Instantiate.
-type ApplicationInstantiateServerStream interface { //nolint:golint
+type ApplicationInstantiateServerStream interface {
 	// RecvStream returns the receiver side of the Application.Instantiate server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -2039,14 +2040,14 @@ type ApplicationInstantiateServerStream interface { //nolint:golint
 }
 
 // ApplicationInstantiateServerCall represents the context passed to Application.Instantiate.
-type ApplicationInstantiateServerCall interface { //nolint:golint
+type ApplicationInstantiateServerCall interface {
 	rpc.ServerCall
 	ApplicationInstantiateServerStream
 }
 
 // ApplicationInstantiateServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ApplicationInstantiateServerCall.
-type ApplicationInstantiateServerCallStub struct { //nolint:golint
+type ApplicationInstantiateServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv BlessClientMessage
 	errRecv error
@@ -2115,18 +2116,18 @@ func (s implApplicationInstantiateServerCallSend) Send(item BlessServerMessage) 
 //
 // The blessings that the device is to be claimed with is provided
 // via the ipc.Granter option in Go.
-type ClaimableClientMethods interface { //nolint:golint
+type ClaimableClientMethods interface {
 	Claim(_ *context.T, pairingToken string, _ ...rpc.CallOpt) error
 }
 
 // ClaimableClientStub adds universal methods to ClaimableClientMethods.
-type ClaimableClientStub interface { //nolint:golint
+type ClaimableClientStub interface {
 	ClaimableClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ClaimableClient returns a client stub for Claimable.
-func ClaimableClient(name string) ClaimableClientStub { //nolint:golint
+func ClaimableClient(name string) ClaimableClientStub {
 	return implClaimableClientStub{name}
 }
 
@@ -2155,7 +2156,7 @@ func (c implClaimableClientStub) Claim(ctx *context.T, i0 string, opts ...rpc.Ca
 //
 // The blessings that the device is to be claimed with is provided
 // via the ipc.Granter option in Go.
-type ClaimableServerMethods interface { //nolint:golint
+type ClaimableServerMethods interface {
 	Claim(_ *context.T, _ rpc.ServerCall, pairingToken string) error
 }
 
@@ -2163,20 +2164,19 @@ type ClaimableServerMethods interface { //nolint:golint
 // Claimable methods, as expected by rpc.Server.
 // There is no difference between this interface and ClaimableServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ClaimableServerStubMethods ClaimableServerMethods
 
 // ClaimableServerStub adds universal methods to ClaimableServerStubMethods.
-type ClaimableServerStub interface { //nolint:golint
+type ClaimableServerStub interface {
 	ClaimableServerStubMethods
 	// DescribeInterfaces the Claimable interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ClaimableServer returns a server stub for Claimable.
 // It converts an implementation of ClaimableServerMethods into
 // an object that may be used by rpc.Server.
-func ClaimableServer(impl ClaimableServerMethods) ClaimableServerStub { //nolint:golint
+func ClaimableServer(impl ClaimableServerMethods) ClaimableServerStub {
 	stub := implClaimableServerStub{
 		impl: impl,
 	}
@@ -2203,7 +2203,7 @@ func (s implClaimableServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implClaimableServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implClaimableServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ClaimableDesc}
 }
 
@@ -2231,7 +2231,7 @@ var descClaimable = rpc.InterfaceDesc{
 //
 // Device can be used to manage a device remotely using an object name that
 // identifies it.
-type DeviceClientMethods interface { //nolint:golint
+type DeviceClientMethods interface {
 	// Application can be used to manage applications on a device. This interface
 	// will be invoked using an object name that identifies the application and its
 	// installations and instances where applicable.
@@ -2347,13 +2347,13 @@ type DeviceClientMethods interface { //nolint:golint
 }
 
 // DeviceClientStub adds universal methods to DeviceClientMethods.
-type DeviceClientStub interface { //nolint:golint
+type DeviceClientStub interface {
 	DeviceClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // DeviceClient returns a client stub for Device.
-func DeviceClient(name string) DeviceClientStub { //nolint:golint
+func DeviceClient(name string) DeviceClientStub {
 	return implDeviceClientStub{name, ApplicationClient(name), tidyable.TidyableClient(name)}
 }
 
@@ -2394,7 +2394,7 @@ func (c implDeviceClientStub) ListAssociations(ctx *context.T, opts ...rpc.CallO
 //
 // Device can be used to manage a device remotely using an object name that
 // identifies it.
-type DeviceServerMethods interface { //nolint:golint
+type DeviceServerMethods interface {
 	// Application can be used to manage applications on a device. This interface
 	// will be invoked using an object name that identifies the application and its
 	// installations and instances where applicable.
@@ -2513,7 +2513,6 @@ type DeviceServerMethods interface { //nolint:golint
 // Device methods, as expected by rpc.Server.
 // The only difference between this interface and DeviceServerMethods
 // is the streaming methods.
-// nolint:golint
 type DeviceServerStubMethods interface {
 	// Application can be used to manage applications on a device. This interface
 	// will be invoked using an object name that identifies the application and its
@@ -2630,16 +2629,16 @@ type DeviceServerStubMethods interface {
 }
 
 // DeviceServerStub adds universal methods to DeviceServerStubMethods.
-type DeviceServerStub interface { //nolint:golint
+type DeviceServerStub interface {
 	DeviceServerStubMethods
 	// DescribeInterfaces the Device interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // DeviceServer returns a server stub for Device.
 // It converts an implementation of DeviceServerMethods into
 // an object that may be used by rpc.Server.
-func DeviceServer(impl DeviceServerMethods) DeviceServerStub { //nolint:golint
+func DeviceServer(impl DeviceServerMethods) DeviceServerStub {
 	stub := implDeviceServerStub{
 		impl:                  impl,
 		ApplicationServerStub: ApplicationServer(impl),
@@ -2686,7 +2685,7 @@ func (s implDeviceServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implDeviceServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implDeviceServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{DeviceDesc, ApplicationDesc, permissions.ObjectDesc, tidyable.TidyableDesc}
 }
 

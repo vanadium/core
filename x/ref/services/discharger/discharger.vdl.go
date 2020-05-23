@@ -7,6 +7,7 @@
 
 // Package discharger defines an interface for obtaining discharges for
 // third-party caveats.
+//nolint:golint
 package discharger
 
 import (
@@ -41,7 +42,7 @@ func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 // containing Discharger methods.
 //
 // Discharger is the interface for obtaining discharges for ThirdPartyCaveats.
-type DischargerClientMethods interface { //nolint:golint
+type DischargerClientMethods interface {
 	// Discharge is called by a principal that holds a blessing with a third
 	// party caveat and seeks to get a discharge that proves the fulfillment of
 	// this caveat.
@@ -49,13 +50,13 @@ type DischargerClientMethods interface { //nolint:golint
 }
 
 // DischargerClientStub adds universal methods to DischargerClientMethods.
-type DischargerClientStub interface { //nolint:golint
+type DischargerClientStub interface {
 	DischargerClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // DischargerClient returns a client stub for Discharger.
-func DischargerClient(name string) DischargerClientStub { //nolint:golint
+func DischargerClient(name string) DischargerClientStub {
 	return implDischargerClientStub{name}
 }
 
@@ -72,7 +73,7 @@ func (c implDischargerClientStub) Discharge(ctx *context.T, i0 security.Caveat, 
 // implements for Discharger.
 //
 // Discharger is the interface for obtaining discharges for ThirdPartyCaveats.
-type DischargerServerMethods interface { //nolint:golint
+type DischargerServerMethods interface {
 	// Discharge is called by a principal that holds a blessing with a third
 	// party caveat and seeks to get a discharge that proves the fulfillment of
 	// this caveat.
@@ -83,20 +84,19 @@ type DischargerServerMethods interface { //nolint:golint
 // Discharger methods, as expected by rpc.Server.
 // There is no difference between this interface and DischargerServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type DischargerServerStubMethods DischargerServerMethods
 
 // DischargerServerStub adds universal methods to DischargerServerStubMethods.
-type DischargerServerStub interface { //nolint:golint
+type DischargerServerStub interface {
 	DischargerServerStubMethods
 	// DescribeInterfaces the Discharger interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // DischargerServer returns a server stub for Discharger.
 // It converts an implementation of DischargerServerMethods into
 // an object that may be used by rpc.Server.
-func DischargerServer(impl DischargerServerMethods) DischargerServerStub { //nolint:golint
+func DischargerServer(impl DischargerServerMethods) DischargerServerStub {
 	stub := implDischargerServerStub{
 		impl: impl,
 	}
@@ -123,7 +123,7 @@ func (s implDischargerServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implDischargerServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implDischargerServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{DischargerDesc}
 }
 

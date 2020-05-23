@@ -6,10 +6,12 @@
 // Package: application
 
 // Package application defines types for describing applications.
+//nolint:golint
 package application
 
 import (
 	"time"
+
 	"v.io/v23/security"
 	"v.io/v23/vdl"
 	vdltime "v.io/v23/vdlroot/time"

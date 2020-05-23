@@ -11,10 +11,12 @@
 // compatibility between different programming environments.  Generated code for
 // different environments typically provide automatic conversions into native
 // representations, for simpler idiomatic usage.
+//nolint:golint
 package time
 
 import (
 	"time"
+
 	"v.io/v23/vdl"
 )
 

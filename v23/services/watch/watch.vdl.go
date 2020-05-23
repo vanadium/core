@@ -105,10 +105,12 @@
 //   (2) The client does not need to manage timestamps/versions
 //       manually; the last update delivered corresponds to the
 //       eventual state of the entity.
+//nolint:golint
 package watch
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
@@ -449,19 +451,19 @@ func NewErrUnknownResumeMarker(ctx *context.T) error {
 //
 // GlobWatcher allows a client to receive updates for changes to objects
 // that match a pattern.  See the package comments for details.
-type GlobWatcherClientMethods interface { //nolint:golint
+type GlobWatcherClientMethods interface {
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, req GlobRequest, _ ...rpc.CallOpt) (GlobWatcherWatchGlobClientCall, error)
 }
 
 // GlobWatcherClientStub adds universal methods to GlobWatcherClientMethods.
-type GlobWatcherClientStub interface { //nolint:golint
+type GlobWatcherClientStub interface {
 	GlobWatcherClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // GlobWatcherClient returns a client stub for GlobWatcher.
-func GlobWatcherClient(name string) GlobWatcherClientStub { //nolint:golint
+func GlobWatcherClient(name string) GlobWatcherClientStub {
 	return implGlobWatcherClientStub{name}
 }
 
@@ -479,7 +481,7 @@ func (c implGlobWatcherClientStub) WatchGlob(ctx *context.T, i0 GlobRequest, opt
 }
 
 // GlobWatcherWatchGlobClientStream is the client stream for GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobClientStream interface { //nolint:golint
+type GlobWatcherWatchGlobClientStream interface {
 	// RecvStream returns the receiver side of the GlobWatcher.WatchGlob client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -495,7 +497,7 @@ type GlobWatcherWatchGlobClientStream interface { //nolint:golint
 }
 
 // GlobWatcherWatchGlobClientCall represents the call returned from GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobClientCall interface { //nolint:golint
+type GlobWatcherWatchGlobClientCall interface {
 	GlobWatcherWatchGlobClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -510,7 +512,7 @@ type GlobWatcherWatchGlobClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implGlobWatcherWatchGlobClientCall struct { //nolint:golint
+type implGlobWatcherWatchGlobClientCall struct {
 	rpc.ClientCall
 	valRecv Change
 	errRecv error
@@ -552,7 +554,7 @@ func (c *implGlobWatcherWatchGlobClientCall) Finish() (err error) {
 //
 // GlobWatcher allows a client to receive updates for changes to objects
 // that match a pattern.  See the package comments for details.
-type GlobWatcherServerMethods interface { //nolint:golint
+type GlobWatcherServerMethods interface {
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, _ GlobWatcherWatchGlobServerCall, req GlobRequest) error
 }
@@ -561,23 +563,22 @@ type GlobWatcherServerMethods interface { //nolint:golint
 // GlobWatcher methods, as expected by rpc.Server.
 // The only difference between this interface and GlobWatcherServerMethods
 // is the streaming methods.
-// nolint:golint
 type GlobWatcherServerStubMethods interface {
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, _ *GlobWatcherWatchGlobServerCallStub, req GlobRequest) error
 }
 
 // GlobWatcherServerStub adds universal methods to GlobWatcherServerStubMethods.
-type GlobWatcherServerStub interface { //nolint:golint
+type GlobWatcherServerStub interface {
 	GlobWatcherServerStubMethods
 	// DescribeInterfaces the GlobWatcher interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // GlobWatcherServer returns a server stub for GlobWatcher.
 // It converts an implementation of GlobWatcherServerMethods into
 // an object that may be used by rpc.Server.
-func GlobWatcherServer(impl GlobWatcherServerMethods) GlobWatcherServerStub { //nolint:golint
+func GlobWatcherServer(impl GlobWatcherServerMethods) GlobWatcherServerStub {
 	stub := implGlobWatcherServerStub{
 		impl: impl,
 	}
@@ -604,7 +605,7 @@ func (s implGlobWatcherServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implGlobWatcherServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implGlobWatcherServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{GlobWatcherDesc}
 }
 
@@ -629,7 +630,7 @@ var descGlobWatcher = rpc.InterfaceDesc{
 }
 
 // GlobWatcherWatchGlobServerStream is the server stream for GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobServerStream interface { //nolint:golint
+type GlobWatcherWatchGlobServerStream interface {
 	// SendStream returns the send side of the GlobWatcher.WatchGlob server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -640,14 +641,14 @@ type GlobWatcherWatchGlobServerStream interface { //nolint:golint
 }
 
 // GlobWatcherWatchGlobServerCall represents the context passed to GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobServerCall interface { //nolint:golint
+type GlobWatcherWatchGlobServerCall interface {
 	rpc.ServerCall
 	GlobWatcherWatchGlobServerStream
 }
 
 // GlobWatcherWatchGlobServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements GlobWatcherWatchGlobServerCall.
-type GlobWatcherWatchGlobServerCallStub struct { //nolint:golint
+type GlobWatcherWatchGlobServerCallStub struct {
 	rpc.StreamServerCall
 }
 

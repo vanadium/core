@@ -7,6 +7,7 @@
 
 // Package tidyable defines an interface for services that can be
 // requested to clean up transient resource use (such as logs or caches.)
+//nolint:golint
 package tidyable
 
 import (
@@ -26,20 +27,20 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // containing Tidyable methods.
 //
 // Tidyable specifies that a service can be tidied.
-type TidyableClientMethods interface { //nolint:golint
+type TidyableClientMethods interface {
 	// Request the implementing service to perform regularly scheduled cleanup
 	//  actions such as shrinking caches or rolling logs immediately.
 	TidyNow(*context.T, ...rpc.CallOpt) error
 }
 
 // TidyableClientStub adds universal methods to TidyableClientMethods.
-type TidyableClientStub interface { //nolint:golint
+type TidyableClientStub interface {
 	TidyableClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TidyableClient returns a client stub for Tidyable.
-func TidyableClient(name string) TidyableClientStub { //nolint:golint
+func TidyableClient(name string) TidyableClientStub {
 	return implTidyableClientStub{name}
 }
 
@@ -56,7 +57,7 @@ func (c implTidyableClientStub) TidyNow(ctx *context.T, opts ...rpc.CallOpt) (er
 // implements for Tidyable.
 //
 // Tidyable specifies that a service can be tidied.
-type TidyableServerMethods interface { //nolint:golint
+type TidyableServerMethods interface {
 	// Request the implementing service to perform regularly scheduled cleanup
 	//  actions such as shrinking caches or rolling logs immediately.
 	TidyNow(*context.T, rpc.ServerCall) error
@@ -66,20 +67,19 @@ type TidyableServerMethods interface { //nolint:golint
 // Tidyable methods, as expected by rpc.Server.
 // There is no difference between this interface and TidyableServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type TidyableServerStubMethods TidyableServerMethods
 
 // TidyableServerStub adds universal methods to TidyableServerStubMethods.
-type TidyableServerStub interface { //nolint:golint
+type TidyableServerStub interface {
 	TidyableServerStubMethods
 	// DescribeInterfaces the Tidyable interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // TidyableServer returns a server stub for Tidyable.
 // It converts an implementation of TidyableServerMethods into
 // an object that may be used by rpc.Server.
-func TidyableServer(impl TidyableServerMethods) TidyableServerStub { //nolint:golint
+func TidyableServer(impl TidyableServerMethods) TidyableServerStub {
 	stub := implTidyableServerStub{
 		impl: impl,
 	}
@@ -106,7 +106,7 @@ func (s implTidyableServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTidyableServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implTidyableServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{TidyableDesc}
 }
 

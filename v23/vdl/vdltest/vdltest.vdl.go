@@ -6,11 +6,13 @@
 // Package: vdltest
 
 //nolint:golint
+//nolint:golint
 package vdltest
 
 import (
 	"fmt"
 	"reflect"
+
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 )
@@ -30891,15 +30893,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]any{VSet_VString{\"\", \"abcdeΔΘΠΣ\"}}",
 		Target: []interface{}{
 			VSet_VString{
-				"":          struct{}{},
-				"abcdeΔΘΠΣ": struct{}{},
+				"":          {},
+				"abcdeΔΘΠΣ": {},
 			},
 		},
 		SourceLabel: "[]any{VSet_VString{\"\", \"abcdeΔΘΠΣ\"}}",
 		Source: []interface{}{
 			VSet_VString{
-				"":          struct{}{},
-				"abcdeΔΘΠΣ": struct{}{},
+				"":          {},
+				"abcdeΔΘΠΣ": {},
 			},
 		},
 	},
@@ -30908,15 +30910,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]any{VSet_VString{\"\", \"abcdeΔΘΠΣ\"}}",
 		Target: []interface{}{
 			VSet_VString{
-				"":          struct{}{},
-				"abcdeΔΘΠΣ": struct{}{},
+				"":          {},
+				"abcdeΔΘΠΣ": {},
 			},
 		},
 		SourceLabel: "VList_Any{VSet_VString{\"\", \"abcdeΔΘΠΣ\"}}",
 		Source: VList_Any{
 			VSet_VString{
-				"":          struct{}{},
-				"abcdeΔΘΠΣ": struct{}{},
+				"":          {},
+				"abcdeΔΘΠΣ": {},
 			},
 		},
 	},
@@ -32118,14 +32120,14 @@ var vAllPass = []vdlEntry{
 						14354,
 					},
 					F4: map[float64]struct{}{
-						-3.2855644714213675e+08: struct{}{},
-						-8.692264265265553e+08:  struct{}{},
-						3.800593502145281e+08:   struct{}{},
+						-3.2855644714213675e+08: {},
+						-8.692264265265553e+08:  {},
+						3.800593502145281e+08:   {},
 					},
 					F5: VSet_VEnumBcd{
-						VEnumBcdB: struct{}{},
-						VEnumBcdC: struct{}{},
-						VEnumBcdD: struct{}{},
+						VEnumBcdB: {},
+						VEnumBcdC: {},
+						VEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						14: 168,
@@ -32200,14 +32202,14 @@ var vAllPass = []vdlEntry{
 						14354,
 					},
 					F4: map[float64]struct{}{
-						-3.2855644714213675e+08: struct{}{},
-						-8.692264265265553e+08:  struct{}{},
-						3.800593502145281e+08:   struct{}{},
+						-3.2855644714213675e+08: {},
+						-8.692264265265553e+08:  {},
+						3.800593502145281e+08:   {},
 					},
 					F5: VSet_VEnumBcd{
-						VEnumBcdB: struct{}{},
-						VEnumBcdC: struct{}{},
-						VEnumBcdD: struct{}{},
+						VEnumBcdB: {},
+						VEnumBcdC: {},
+						VEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						14: 168,
@@ -32285,14 +32287,14 @@ var vAllPass = []vdlEntry{
 						14354,
 					},
 					F4: map[float64]struct{}{
-						-3.2855644714213675e+08: struct{}{},
-						-8.692264265265553e+08:  struct{}{},
-						3.800593502145281e+08:   struct{}{},
+						-3.2855644714213675e+08: {},
+						-8.692264265265553e+08:  {},
+						3.800593502145281e+08:   {},
 					},
 					F5: VSet_VEnumBcd{
-						VEnumBcdB: struct{}{},
-						VEnumBcdC: struct{}{},
-						VEnumBcdD: struct{}{},
+						VEnumBcdB: {},
+						VEnumBcdC: {},
+						VEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						14: 168,
@@ -32367,14 +32369,14 @@ var vAllPass = []vdlEntry{
 						14354,
 					},
 					F4: map[float64]struct{}{
-						-3.2855644714213675e+08: struct{}{},
-						-8.692264265265553e+08:  struct{}{},
-						3.800593502145281e+08:   struct{}{},
+						-3.2855644714213675e+08: {},
+						-8.692264265265553e+08:  {},
+						3.800593502145281e+08:   {},
 					},
 					F5: VSet_VEnumBcd{
-						VEnumBcdB: struct{}{},
-						VEnumBcdC: struct{}{},
-						VEnumBcdD: struct{}{},
+						VEnumBcdB: {},
+						VEnumBcdC: {},
+						VEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						14: 168,
@@ -33547,22 +33549,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[bool]{true}",
 		Target: map[bool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[bool]{true}",
 		Source: map[bool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[bool]{true}",
 		Target: map[bool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "VSet_Bool{true}",
 		Source: VSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -33592,22 +33594,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VBool]{true}",
 		Target: map[VBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[VBool]{true}",
 		Source: map[VBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VBool]{true}",
 		Target: map[VBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "VSet_VBool{true}",
 		Source: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -33637,22 +33639,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[string]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[string]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "set[string]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: map[string]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[string]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[string]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "VSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: VSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -33660,22 +33662,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[string]{\"b\"}",
 		Target: map[string]struct{}{
-			"b": struct{}{},
+			"b": {},
 		},
 		SourceLabel: "set[string]{\"b\"}",
 		Source: map[string]struct{}{
-			"b": struct{}{},
+			"b": {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[string]{\"b\"}",
 		Target: map[string]struct{}{
-			"b": struct{}{},
+			"b": {},
 		},
 		SourceLabel: "set[VString]{\"b\"}",
 		Source: map[VString]struct{}{
-			"b": struct{}{},
+			"b": {},
 		},
 	},
 	{
@@ -33705,22 +33707,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[VString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "set[VString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: map[VString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[VString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "VSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: VSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -33728,26 +33730,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VString]{\"eΔΘΠΣΦ\", \"ΔΘΠΣΦ王普\"}",
 		Target: map[VString]struct{}{
-			"eΔΘΠΣΦ":  struct{}{},
-			"ΔΘΠΣΦ王普": struct{}{},
+			"eΔΘΠΣΦ":  {},
+			"ΔΘΠΣΦ王普": {},
 		},
 		SourceLabel: "set[VString]{\"eΔΘΠΣΦ\", \"ΔΘΠΣΦ王普\"}",
 		Source: map[VString]struct{}{
-			"eΔΘΠΣΦ":  struct{}{},
-			"ΔΘΠΣΦ王普": struct{}{},
+			"eΔΘΠΣΦ":  {},
+			"ΔΘΠΣΦ王普": {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[VString]{\"eΔΘΠΣΦ\", \"ΔΘΠΣΦ王普\"}",
 		Target: map[VString]struct{}{
-			"eΔΘΠΣΦ":  struct{}{},
-			"ΔΘΠΣΦ王普": struct{}{},
+			"eΔΘΠΣΦ":  {},
+			"ΔΘΠΣΦ王普": {},
 		},
 		SourceLabel: "set[string]{\"eΔΘΠΣΦ\", \"ΔΘΠΣΦ王普\"}",
 		Source: map[string]struct{}{
-			"eΔΘΠΣΦ":  struct{}{},
-			"ΔΘΠΣΦ王普": struct{}{},
+			"eΔΘΠΣΦ":  {},
+			"ΔΘΠΣΦ王普": {},
 		},
 	},
 	{
@@ -33777,22 +33779,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[byte]{123}",
 		Target: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[byte]{123}",
 		Source: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[byte]{123}",
 		Target: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_VUint64{123}",
 		Source: VSet_VUint64{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -33800,22 +33802,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[byte]{0}",
 		Target: map[byte]struct{}{
-			0: struct{}{},
+			0: {},
 		},
 		SourceLabel: "set[byte]{0}",
 		Source: map[byte]struct{}{
-			0: struct{}{},
+			0: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[byte]{0}",
 		Target: map[byte]struct{}{
-			0: struct{}{},
+			0: {},
 		},
 		SourceLabel: "set[int32]{0}",
 		Source: map[int32]struct{}{
-			0: struct{}{},
+			0: {},
 		},
 	},
 	{
@@ -33845,22 +33847,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VByte]{123}",
 		Target: map[VByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[VByte]{123}",
 		Source: map[VByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VByte]{123}",
 		Target: map[VByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[uint64]{123}",
 		Source: map[uint64]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -33868,26 +33870,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VByte]{120, 214}",
 		Target: map[VByte]struct{}{
-			120: struct{}{},
-			214: struct{}{},
+			120: {},
+			214: {},
 		},
 		SourceLabel: "set[VByte]{120, 214}",
 		Source: map[VByte]struct{}{
-			120: struct{}{},
-			214: struct{}{},
+			120: {},
+			214: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[VByte]{120, 214}",
 		Target: map[VByte]struct{}{
-			120: struct{}{},
-			214: struct{}{},
+			120: {},
+			214: {},
 		},
 		SourceLabel: "set[uint64]{120, 214}",
 		Source: map[uint64]struct{}{
-			120: struct{}{},
-			214: struct{}{},
+			120: {},
+			214: {},
 		},
 	},
 	{
@@ -33917,22 +33919,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VEnumAbc]{C}",
 		Target: map[VEnumAbc]struct{}{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 		SourceLabel: "set[VEnumAbc]{C}",
 		Source: map[VEnumAbc]struct{}{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VEnumAbc]{C}",
 		Target: map[VEnumAbc]struct{}{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 		SourceLabel: "VSet_VEnumAbc{C}",
 		Source: VSet_VEnumAbc{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 	},
 	{
@@ -33962,22 +33964,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VEnumBcd]{D}",
 		Target: map[VEnumBcd]struct{}{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 		SourceLabel: "set[VEnumBcd]{D}",
 		Source: map[VEnumBcd]struct{}{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VEnumBcd]{D}",
 		Target: map[VEnumBcd]struct{}{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 		SourceLabel: "VSet_VString{\"D\"}",
 		Source: VSet_VString{
-			"D": struct{}{},
+			"D": {},
 		},
 	},
 	{
@@ -34007,22 +34009,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[VStructEmpty]{{}}",
 		Target: map[VStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[VStructEmpty]{{}}",
 		Source: map[VStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[VStructEmpty]{{}}",
 		Target: map[VStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[VNamedError]{{}}",
 		Source: map[VNamedError]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -34055,14 +34057,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VNamedError]{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[VNamedError]struct{}{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34072,14 +34074,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VNamedError{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34087,38 +34089,38 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VNamedError]{{}, {Id: \"eΔΘΠΣΦ\", Msg: \"cd\"}}",
 		Target: map[VNamedError]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "cd",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VNamedError]{{}, {Id: \"eΔΘΠΣΦ\", Msg: \"cd\"}}",
 		Source: map[VNamedError]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "cd",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[VNamedError]{{}, {Id: \"eΔΘΠΣΦ\", Msg: \"cd\"}}",
 		Target: map[VNamedError]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "cd",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VNamedError{{}, {Id: \"eΔΘΠΣΦ\", Msg: \"cd\"}}",
 		Source: VSet_VNamedError{
-			{}: struct{}{},
+			{}: {},
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "cd",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34148,22 +34150,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[uint64]{123}",
 		Target: map[uint64]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[uint64]{123}",
 		Source: map[uint64]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[uint64]{123}",
 		Target: map[uint64]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[byte]{123}",
 		Source: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -34171,26 +34173,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[uint64]{14701213371515028262, 15378508280196966871}",
 		Target: map[uint64]struct{}{
-			14701213371515028262: struct{}{},
-			15378508280196966871: struct{}{},
+			14701213371515028262: {},
+			15378508280196966871: {},
 		},
 		SourceLabel: "set[uint64]{14701213371515028262, 15378508280196966871}",
 		Source: map[uint64]struct{}{
-			14701213371515028262: struct{}{},
-			15378508280196966871: struct{}{},
+			14701213371515028262: {},
+			15378508280196966871: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[uint64]{14701213371515028262, 15378508280196966871}",
 		Target: map[uint64]struct{}{
-			14701213371515028262: struct{}{},
-			15378508280196966871: struct{}{},
+			14701213371515028262: {},
+			15378508280196966871: {},
 		},
 		SourceLabel: "VSet_VUint64{14701213371515028262, 15378508280196966871}",
 		Source: VSet_VUint64{
-			14701213371515028262: struct{}{},
-			15378508280196966871: struct{}{},
+			14701213371515028262: {},
+			15378508280196966871: {},
 		},
 	},
 	{
@@ -34220,22 +34222,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[int32]{-123}",
 		Target: map[int32]struct{}{
-			-123: struct{}{},
+			-123: {},
 		},
 		SourceLabel: "set[int32]{-123}",
 		Source: map[int32]struct{}{
-			-123: struct{}{},
+			-123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[int32]{-123}",
 		Target: map[int32]struct{}{
-			-123: struct{}{},
+			-123: {},
 		},
 		SourceLabel: "VSet_Float32{-123}",
 		Source: VSet_Float32{
-			-123: struct{}{},
+			-123: {},
 		},
 	},
 	{
@@ -34243,26 +34245,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[int32]{0, 192111764}",
 		Target: map[int32]struct{}{
-			0:         struct{}{},
-			192111764: struct{}{},
+			0:         {},
+			192111764: {},
 		},
 		SourceLabel: "set[int32]{0, 192111764}",
 		Source: map[int32]struct{}{
-			0:         struct{}{},
-			192111764: struct{}{},
+			0:         {},
+			192111764: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[int32]{0, 192111764}",
 		Target: map[int32]struct{}{
-			0:         struct{}{},
-			192111764: struct{}{},
+			0:         {},
+			192111764: {},
 		},
 		SourceLabel: "set[uint64]{0, 192111764}",
 		Source: map[uint64]struct{}{
-			0:         struct{}{},
-			192111764: struct{}{},
+			0:         {},
+			192111764: {},
 		},
 	},
 	{
@@ -34292,22 +34294,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[float64]{1.5}",
 		Target: map[float64]struct{}{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "set[float64]{1.5}",
 		Source: map[float64]struct{}{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[float64]{1.5}",
 		Target: map[float64]struct{}{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "VSet_Float32{1.5}",
 		Source: VSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
@@ -34315,15 +34317,15 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[float64]{-1.2778241096583495e+08, 2.9710120759385133e+09, 9.868059949677039e+08}",
 		Target: map[float64]struct{}{
-			-1.2778241096583495e+08: struct{}{},
-			2.9710120759385133e+09:  struct{}{},
-			9.868059949677039e+08:   struct{}{},
+			-1.2778241096583495e+08: {},
+			2.9710120759385133e+09:  {},
+			9.868059949677039e+08:   {},
 		},
 		SourceLabel: "set[float64]{-1.2778241096583495e+08, 2.9710120759385133e+09, 9.868059949677039e+08}",
 		Source: map[float64]struct{}{
-			-1.2778241096583495e+08: struct{}{},
-			2.9710120759385133e+09:  struct{}{},
-			9.868059949677039e+08:   struct{}{},
+			-1.2778241096583495e+08: {},
+			2.9710120759385133e+09:  {},
+			9.868059949677039e+08:   {},
 		},
 	},
 	{
@@ -34353,22 +34355,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_Bool{true}",
 		Target: VSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "VSet_Bool{true}",
 		Source: VSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_Bool{true}",
 		Target: VSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "VSet_VBool{true}",
 		Source: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -34398,22 +34400,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VBool{true}",
 		Target: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "VSet_VBool{true}",
 		Source: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VBool{true}",
 		Target: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[bool]{true}",
 		Source: map[bool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -34443,22 +34445,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: VSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "VSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: VSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: VSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "VSet_VString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: VSet_VString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -34466,26 +34468,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_String{\"abc\", \"Φ王\"}",
 		Target: VSet_String{
-			"abc": struct{}{},
-			"Φ王":  struct{}{},
+			"abc": {},
+			"Φ王":  {},
 		},
 		SourceLabel: "VSet_String{\"abc\", \"Φ王\"}",
 		Source: VSet_String{
-			"abc": struct{}{},
-			"Φ王":  struct{}{},
+			"abc": {},
+			"Φ王":  {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_String{\"abc\", \"Φ王\"}",
 		Target: VSet_String{
-			"abc": struct{}{},
-			"Φ王":  struct{}{},
+			"abc": {},
+			"Φ王":  {},
 		},
 		SourceLabel: "set[VString]{\"abc\", \"Φ王\"}",
 		Source: map[VString]struct{}{
-			"abc": struct{}{},
-			"Φ王":  struct{}{},
+			"abc": {},
+			"Φ王":  {},
 		},
 	},
 	{
@@ -34515,22 +34517,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: VSet_VString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "VSet_VString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: VSet_VString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: VSet_VString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "set[string]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: map[string]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -34538,30 +34540,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VString{\"\", \"d\", \"ΠΣΦ\"}",
 		Target: VSet_VString{
-			"":    struct{}{},
-			"d":   struct{}{},
-			"ΠΣΦ": struct{}{},
+			"":    {},
+			"d":   {},
+			"ΠΣΦ": {},
 		},
 		SourceLabel: "VSet_VString{\"\", \"d\", \"ΠΣΦ\"}",
 		Source: VSet_VString{
-			"":    struct{}{},
-			"d":   struct{}{},
-			"ΠΣΦ": struct{}{},
+			"":    {},
+			"d":   {},
+			"ΠΣΦ": {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_VString{\"\", \"d\", \"ΠΣΦ\"}",
 		Target: VSet_VString{
-			"":    struct{}{},
-			"d":   struct{}{},
-			"ΠΣΦ": struct{}{},
+			"":    {},
+			"d":   {},
+			"ΠΣΦ": {},
 		},
 		SourceLabel: "VSet_String{\"\", \"d\", \"ΠΣΦ\"}",
 		Source: VSet_String{
-			"":    struct{}{},
-			"d":   struct{}{},
-			"ΠΣΦ": struct{}{},
+			"":    {},
+			"d":   {},
+			"ΠΣΦ": {},
 		},
 	},
 	{
@@ -34591,22 +34593,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_Byte{123}",
 		Target: VSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_Byte{123}",
 		Source: VSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_Byte{123}",
 		Target: VSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[byte]{123}",
 		Source: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -34614,30 +34616,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_Byte{0, 133, 170}",
 		Target: VSet_Byte{
-			0:   struct{}{},
-			133: struct{}{},
-			170: struct{}{},
+			0:   {},
+			133: {},
+			170: {},
 		},
 		SourceLabel: "VSet_Byte{0, 133, 170}",
 		Source: VSet_Byte{
-			0:   struct{}{},
-			133: struct{}{},
-			170: struct{}{},
+			0:   {},
+			133: {},
+			170: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_Byte{0, 133, 170}",
 		Target: VSet_Byte{
-			0:   struct{}{},
-			133: struct{}{},
-			170: struct{}{},
+			0:   {},
+			133: {},
+			170: {},
 		},
 		SourceLabel: "set[byte]{0, 133, 170}",
 		Source: map[byte]struct{}{
-			0:   struct{}{},
-			133: struct{}{},
-			170: struct{}{},
+			0:   {},
+			133: {},
+			170: {},
 		},
 	},
 	{
@@ -34667,22 +34669,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VByte{123}",
 		Target: VSet_VByte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_VByte{123}",
 		Source: VSet_VByte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VByte{123}",
 		Target: VSet_VByte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_Byte{123}",
 		Source: VSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -34690,26 +34692,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VByte{10, 122}",
 		Target: VSet_VByte{
-			10:  struct{}{},
-			122: struct{}{},
+			10:  {},
+			122: {},
 		},
 		SourceLabel: "VSet_VByte{10, 122}",
 		Source: VSet_VByte{
-			10:  struct{}{},
-			122: struct{}{},
+			10:  {},
+			122: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_VByte{10, 122}",
 		Target: VSet_VByte{
-			10:  struct{}{},
-			122: struct{}{},
+			10:  {},
+			122: {},
 		},
 		SourceLabel: "set[float64]{10, 122}",
 		Source: map[float64]struct{}{
-			10:  struct{}{},
-			122: struct{}{},
+			10:  {},
+			122: {},
 		},
 	},
 	{
@@ -34739,22 +34741,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VEnumAbc{C}",
 		Target: VSet_VEnumAbc{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 		SourceLabel: "VSet_VEnumAbc{C}",
 		Source: VSet_VEnumAbc{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VEnumAbc{C}",
 		Target: VSet_VEnumAbc{
-			VEnumAbcC: struct{}{},
+			VEnumAbcC: {},
 		},
 		SourceLabel: "VSet_String{\"C\"}",
 		Source: VSet_String{
-			"C": struct{}{},
+			"C": {},
 		},
 	},
 	{
@@ -34784,22 +34786,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VEnumBcd{D}",
 		Target: VSet_VEnumBcd{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 		SourceLabel: "VSet_VEnumBcd{D}",
 		Source: VSet_VEnumBcd{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VEnumBcd{D}",
 		Target: VSet_VEnumBcd{
-			VEnumBcdD: struct{}{},
+			VEnumBcdD: {},
 		},
 		SourceLabel: "VSet_VString{\"D\"}",
 		Source: VSet_VString{
-			"D": struct{}{},
+			"D": {},
 		},
 	},
 	{
@@ -34829,22 +34831,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VStructEmpty{{}}",
 		Target: VSet_VStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "VSet_VStructEmpty{{}}",
 		Source: VSet_VStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VStructEmpty{{}}",
 		Target: VSet_VStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[VStructEmpty]{{}}",
 		Source: map[VStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -34877,14 +34879,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VNamedError{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34894,14 +34896,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VNamedError]{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[VNamedError]struct{}{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34912,14 +34914,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "ΔΘΠ",
 				Msg: "王普澤",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VNamedError{{Id: \"ΔΘΠ\", Msg: \"王普澤\"}}",
 		Source: VSet_VNamedError{
 			{
 				Id:  "ΔΘΠ",
 				Msg: "王普澤",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34929,14 +34931,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "ΔΘΠ",
 				Msg: "王普澤",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VNamedError]{{Id: \"ΔΘΠ\", Msg: \"王普澤\"}}",
 		Source: map[VNamedError]struct{}{
 			{
 				Id:  "ΔΘΠ",
 				Msg: "王普澤",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -34966,22 +34968,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_Uint64{123}",
 		Target: VSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_Uint64{123}",
 		Source: VSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_Uint64{123}",
 		Target: VSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_VByte{123}",
 		Source: VSet_VByte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -34989,26 +34991,26 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_Uint64{17369014864449492905, 2226585770067135388}",
 		Target: VSet_Uint64{
-			17369014864449492905: struct{}{},
-			2226585770067135388:  struct{}{},
+			17369014864449492905: {},
+			2226585770067135388:  {},
 		},
 		SourceLabel: "VSet_Uint64{17369014864449492905, 2226585770067135388}",
 		Source: VSet_Uint64{
-			17369014864449492905: struct{}{},
-			2226585770067135388:  struct{}{},
+			17369014864449492905: {},
+			2226585770067135388:  {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_Uint64{17369014864449492905, 2226585770067135388}",
 		Target: VSet_Uint64{
-			17369014864449492905: struct{}{},
-			2226585770067135388:  struct{}{},
+			17369014864449492905: {},
+			2226585770067135388:  {},
 		},
 		SourceLabel: "set[uint64]{17369014864449492905, 2226585770067135388}",
 		Source: map[uint64]struct{}{
-			17369014864449492905: struct{}{},
-			2226585770067135388:  struct{}{},
+			17369014864449492905: {},
+			2226585770067135388:  {},
 		},
 	},
 	{
@@ -35038,22 +35040,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VUint64{123}",
 		Target: VSet_VUint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "VSet_VUint64{123}",
 		Source: VSet_VUint64{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_VUint64{123}",
 		Target: VSet_VUint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[byte]{123}",
 		Source: map[byte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -35061,22 +35063,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUint64{6599493238234350266}",
 		Target: VSet_VUint64{
-			6599493238234350266: struct{}{},
+			6599493238234350266: {},
 		},
 		SourceLabel: "VSet_VUint64{6599493238234350266}",
 		Source: VSet_VUint64{
-			6599493238234350266: struct{}{},
+			6599493238234350266: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUint64{6599493238234350266}",
 		Target: VSet_VUint64{
-			6599493238234350266: struct{}{},
+			6599493238234350266: {},
 		},
 		SourceLabel: "VSet_Uint64{6599493238234350266}",
 		Source: VSet_Uint64{
-			6599493238234350266: struct{}{},
+			6599493238234350266: {},
 		},
 	},
 	{
@@ -35106,22 +35108,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_Float32{1.5}",
 		Target: VSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "VSet_Float32{1.5}",
 		Source: VSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VSet_Float32{1.5}",
 		Target: VSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "set[float64]{1.5}",
 		Source: map[float64]struct{}{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
@@ -35129,30 +35131,30 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_Float32{-1.0462917e+09, 0, 1.6149151e+09}",
 		Target: VSet_Float32{
-			-1.0462917e+09: struct{}{},
-			0:              struct{}{},
-			1.6149151e+09:  struct{}{},
+			-1.0462917e+09: {},
+			0:              {},
+			1.6149151e+09:  {},
 		},
 		SourceLabel: "VSet_Float32{-1.0462917e+09, 0, 1.6149151e+09}",
 		Source: VSet_Float32{
-			-1.0462917e+09: struct{}{},
-			0:              struct{}{},
-			1.6149151e+09:  struct{}{},
+			-1.0462917e+09: {},
+			0:              {},
+			1.6149151e+09:  {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_Float32{-1.0462917e+09, 0, 1.6149151e+09}",
 		Target: VSet_Float32{
-			-1.0462917e+09: struct{}{},
-			0:              struct{}{},
-			1.6149151e+09:  struct{}{},
+			-1.0462917e+09: {},
+			0:              {},
+			1.6149151e+09:  {},
 		},
 		SourceLabel: "set[float64]{-1.0462917096148703e+09, 0, 1.6149150712494802e+09}",
 		Source: map[float64]struct{}{
-			-1.0462917096148703e+09: struct{}{},
-			0:                       struct{}{},
-			1.6149150712494802e+09:  struct{}{},
+			-1.0462917096148703e+09: {},
+			0:                       {},
+			1.6149150712494802e+09:  {},
 		},
 	},
 	{
@@ -41178,13 +41180,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray1_Set_VEnumBcd{{D}}",
 		Target: VArray1_Set_VEnumBcd{
 			{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 		SourceLabel: "VArray1_Set_VEnumBcd{{D}}",
 		Source: VArray1_Set_VEnumBcd{
 			{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 	},
@@ -41193,13 +41195,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray1_Set_VEnumBcd{{D}}",
 		Target: VArray1_Set_VEnumBcd{
 			{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 		SourceLabel: "VList_Any{set[VEnumBcd]{D}}",
 		Source: VList_Any{
 			map[VEnumBcd]struct{}{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 	},
@@ -41762,8 +41764,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F2: true,
 				F3: "bcdeΔΘΠΣ",
@@ -41807,8 +41809,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F2: true,
 				F3: "bcdeΔΘΠΣ",
@@ -41855,8 +41857,8 @@ var vAllPass = []vdlEntry{
 			},
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F2: true,
 				F3: "bcdeΔΘΠΣ",
@@ -41900,8 +41902,8 @@ var vAllPass = []vdlEntry{
 			},
 			VStructDepth1_All{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F2: true,
 				F3: "bcdeΔΘΠΣ",
@@ -42455,13 +42457,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]set[VEnumAbc]{{C}}",
 		Target: []map[VEnumAbc]struct{}{
 			{
-				VEnumAbcC: struct{}{},
+				VEnumAbcC: {},
 			},
 		},
 		SourceLabel: "[]set[VEnumAbc]{{C}}",
 		Source: []map[VEnumAbc]struct{}{
 			{
-				VEnumAbcC: struct{}{},
+				VEnumAbcC: {},
 			},
 		},
 	},
@@ -42470,13 +42472,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]set[VEnumAbc]{{C}}",
 		Target: []map[VEnumAbc]struct{}{
 			{
-				VEnumAbcC: struct{}{},
+				VEnumAbcC: {},
 			},
 		},
 		SourceLabel: "VArray1_Set_VEnumBcd{{C}}",
 		Source: VArray1_Set_VEnumBcd{
 			{
-				VEnumBcdC: struct{}{},
+				VEnumBcdC: {},
 			},
 		},
 	},
@@ -42816,9 +42818,9 @@ var vAllPass = []vdlEntry{
 		Target: []VStructDepth1_All{
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
+					VEnumBcdD: {},
 				},
 				F1: true,
 				F2: true,
@@ -42927,9 +42929,9 @@ var vAllPass = []vdlEntry{
 		Source: []VStructDepth1_All{
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
+					VEnumBcdD: {},
 				},
 				F1: true,
 				F2: true,
@@ -43041,9 +43043,9 @@ var vAllPass = []vdlEntry{
 		Target: []VStructDepth1_All{
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
+					VEnumBcdD: {},
 				},
 				F1: true,
 				F2: true,
@@ -43152,9 +43154,9 @@ var vAllPass = []vdlEntry{
 		Source: VList_VStructDepth1_All{
 			{
 				F0: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
+					VEnumBcdD: {},
 				},
 				F1: true,
 				F2: true,
@@ -43566,13 +43568,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_Set_VBool{{true}}",
 		Target: VList_Set_VBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 		SourceLabel: "VList_Set_VBool{{true}}",
 		Source: VList_Set_VBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 	},
@@ -43581,13 +43583,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_Set_VBool{{true}}",
 		Target: VList_Set_VBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 		SourceLabel: "[]any{set[VBool]{true}}",
 		Source: []interface{}{
 			map[VBool]struct{}{
-				true: struct{}{},
+				true: {},
 			},
 		},
 	},
@@ -44325,14 +44327,14 @@ var vAllPass = []vdlEntry{
 			{
 				VEnumAbcC,
 				VEnumAbcC,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VArray2_VEnumAbc]{{C, C}}",
 		Source: map[VArray2_VEnumAbc]struct{}{
 			{
 				VEnumAbcC,
 				VEnumAbcC,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -44364,13 +44366,13 @@ var vAllPass = []vdlEntry{
 		Target: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VStructDepth1_String]{{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -44378,22 +44380,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[VStructDepth1_String]{{}}",
 		Target: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[VStructDepth1_String]{{}}",
 		Source: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[VStructDepth1_String]{{}}",
 		Target: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[VStructEmpty]{{}}",
 		Source: map[VStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -44412,14 +44414,14 @@ var vAllPass = []vdlEntry{
 			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth1_VNamedError]struct{}{
 			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -44429,13 +44431,13 @@ var vAllPass = []vdlEntry{
 		Target: map[VUnionDepth1_VNamedError]struct{}{
 			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id: "Θ",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth1_VNamedError]{{F11: {Id: \"Θ\"}}}",
 		Source: map[VUnionDepth1_VNamedError]struct{}{
 			VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 				Id: "Θ",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -44451,11 +44453,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VArray1_VStructEmpty{{}}",
 		Target: VSet_VArray1_VStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "VSet_VArray1_VStructEmpty{{}}",
 		Source: VSet_VArray1_VStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -44487,13 +44489,13 @@ var vAllPass = []vdlEntry{
 		Target: VSet_VStructDepth1_VFloat64{
 			{
 				F30: 1.5,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VStructDepth1_VFloat64{{F30: 1.5}}",
 		Source: VSet_VStructDepth1_VFloat64{
 			{
 				F30: 1.5,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -44503,13 +44505,13 @@ var vAllPass = []vdlEntry{
 		Target: VSet_VStructDepth1_VFloat64{
 			{
 				F30: 2.0949088961925095e+08,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VStructDepth1_VFloat64{{F30: 2.0949088961925095e+08}}",
 		Source: VSet_VStructDepth1_VFloat64{
 			{
 				F30: 2.0949088961925095e+08,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -44525,11 +44527,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VSet_VUnionDepth1_VInt8{{F20: -123}}",
 		Target: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{Value: -123}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -123}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth1_VInt8{{F20: -123}}",
 		Source: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{Value: -123}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -123}: {},
 		},
 	},
 	{
@@ -44537,11 +44539,11 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUnionDepth1_VInt8{{F20: -27}}",
 		Target: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{Value: -27}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -27}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth1_VInt8{{F20: -27}}",
 		Source: VSet_VUnionDepth1_VInt8{
-			VUnionDepth1_VInt8F20{Value: -27}: struct{}{},
+			VUnionDepth1_VInt8F20{Value: -27}: {},
 		},
 	},
 	{
@@ -44927,10 +44929,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -45013,10 +45015,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -45122,11 +45124,11 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
-				VEnumBcdC: struct{}{},
+				VEnumBcdB: {},
+				VEnumBcdC: {},
 			},
 			F6: map[byte]byte{
 				156: 243,
@@ -45212,11 +45214,11 @@ var vAllPass = []vdlEntry{
 				},
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
-				VEnumBcdC: struct{}{},
+				VEnumBcdB: {},
+				VEnumBcdC: {},
 			},
 			F6: map[byte]byte{
 				156: 243,
@@ -45756,13 +45758,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_Set_Float64{F4: {1.5}}",
 		Source: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 	},
@@ -45771,13 +45773,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "?VStructDepth2_Set_Float64{F4: {1.5}}",
 		Source: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 	},
@@ -45787,13 +45789,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_Set_Float64{F4: {7.980477583081048e+08}}",
 		Target: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				7.980477583081048e+08: struct{}{},
+				7.980477583081048e+08: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_Set_Float64{F4: {7.980477583081048e+08}}",
 		Source: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				7.980477583081048e+08: struct{}{},
+				7.980477583081048e+08: {},
 			},
 		},
 	},
@@ -45802,13 +45804,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_Set_Float64{F4: {7.980477583081048e+08}}",
 		Target: VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				7.980477583081048e+08: struct{}{},
+				7.980477583081048e+08: {},
 			},
 		},
 		SourceLabel: "?VStructDepth2_Set_Float64{F4: {7.980477583081048e+08}}",
 		Source: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				7.980477583081048e+08: struct{}{},
+				7.980477583081048e+08: {},
 			},
 		},
 	},
@@ -45850,13 +45852,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VSet_VEnumBcd{F5: {D}}",
 		Target: VStructDepth2_VSet_VEnumBcd{
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_VSet_VEnumBcd{F5: {D}}",
 		Source: VStructDepth2_VSet_VEnumBcd{
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 	},
@@ -45865,7 +45867,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth2_VSet_VEnumBcd{F5: {D}}",
 		Target: VStructDepth2_VSet_VEnumBcd{
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_All{F5: {D}}",
@@ -45875,7 +45877,7 @@ var vAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F8: VStructDepth1_All{
 				F5: vdl.AnyType,
@@ -47309,22 +47311,22 @@ var vAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
 		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
 		Source: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "VUnionDepth2_VSet_VBool{F4: {true}}",
 		Target: VUnionDepth2_VSet_VBool(VUnionDepth2_VSet_VBoolF4{Value: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F4: {true}}",
 		Source: VUnionDepth2_All(VUnionDepth2_AllF4{Value: VSet_VBool{
-			true: struct{}{},
+			true: {},
 		}}),
 	},
 	{
@@ -47350,14 +47352,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -47367,14 +47369,14 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VUnionDepth2_All(VUnionDepth2_AllF5{Value: VSet_VNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -47385,28 +47387,28 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "Φ王",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王",
 				Msg: "cdeΔΘ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth2_VSet_VNamedError{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
 		Source: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "Φ王",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王",
 				Msg: "cdeΔΘ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -47416,28 +47418,28 @@ var vAllPass = []vdlEntry{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "Φ王",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王",
 				Msg: "cdeΔΘ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth2_All{F5: {{Id: \"ΘΠΣ\", Msg: \"ΠΣΦ王普澤\"}, {Id: \"Φ王\"}, {Id: \"王\", Msg: \"cdeΔΘ\"}}}",
 		Source: VUnionDepth2_All(VUnionDepth2_AllF5{Value: VSet_VNamedError{
 			{
 				Id:  "ΘΠΣ",
 				Msg: "ΠΣΦ王普澤",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "Φ王",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王",
 				Msg: "cdeΔΘ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -48166,13 +48168,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "?VStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "?VStructDepth2_Set_Float64{F4: {1.5}}",
 		Source: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 	},
@@ -48181,7 +48183,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "?VStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_All{F4: {1.5}}",
@@ -48191,7 +48193,7 @@ var vAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F8: VStructDepth1_All{
 				F5: vdl.AnyType,
@@ -48206,15 +48208,15 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "?VStructDepth2_Set_Float64{F4: {-3.1238010423222246e+09, -4.0248753351471043e+09}}",
 		Target: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-3.1238010423222246e+09: struct{}{},
-				-4.0248753351471043e+09: struct{}{},
+				-3.1238010423222246e+09: {},
+				-4.0248753351471043e+09: {},
 			},
 		},
 		SourceLabel: "?VStructDepth2_Set_Float64{F4: {-3.1238010423222246e+09, -4.0248753351471043e+09}}",
 		Source: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-3.1238010423222246e+09: struct{}{},
-				-4.0248753351471043e+09: struct{}{},
+				-3.1238010423222246e+09: {},
+				-4.0248753351471043e+09: {},
 			},
 		},
 	},
@@ -48223,8 +48225,8 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "?VStructDepth2_Set_Float64{F4: {-3.1238010423222246e+09, -4.0248753351471043e+09}}",
 		Target: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-3.1238010423222246e+09: struct{}{},
-				-4.0248753351471043e+09: struct{}{},
+				-3.1238010423222246e+09: {},
+				-4.0248753351471043e+09: {},
 			},
 		},
 		SourceLabel: "VStructDepth2_All{F4: {-3.1238010423222246e+09, -4.0248753351471043e+09}}",
@@ -48234,8 +48236,8 @@ var vAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F4: map[float64]struct{}{
-				-3.1238010423222246e+09: struct{}{},
-				-4.0248753351471043e+09: struct{}{},
+				-3.1238010423222246e+09: {},
+				-4.0248753351471043e+09: {},
 			},
 			F8: VStructDepth1_All{
 				F5: vdl.AnyType,
@@ -48551,13 +48553,13 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
@@ -48566,13 +48568,13 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -48584,13 +48586,13 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "VList_Any{set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, set[VUnionDepth1_VNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
@@ -48599,13 +48601,13 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			map[VUnionDepth1_VNamedError]struct{}{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -48615,39 +48617,39 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {}}, {F11: {Msg: \"bcd\"}}, {F11: {Id: \"Π\", Msg: \"deΔΘΠΣ\"}}}, {{F11: {Id: \"普澤\", Msg: \"ΠΣ\"}}}}",
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{}: struct{}{},
+				VUnionDepth1_VNamedErrorF11{}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
-				}}: struct{}{},
+				}}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {}}, {F11: {Msg: \"bcd\"}}, {F11: {Id: \"Π\", Msg: \"deΔΘΠΣ\"}}}, {{F11: {Id: \"普澤\", Msg: \"ΠΣ\"}}}}",
 		Source: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{}: struct{}{},
+				VUnionDepth1_VNamedErrorF11{}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
-				}}: struct{}{},
+				}}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -48656,39 +48658,39 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VArray2_Set_VUnionDepth1_VNamedError{{{F11: {}}, {F11: {Msg: \"bcd\"}}, {F11: {Id: \"Π\", Msg: \"deΔΘΠΣ\"}}}, {{F11: {Id: \"普澤\", Msg: \"ΠΣ\"}}}}",
 		Target: VArray2_Set_VUnionDepth1_VNamedError{
 			{
-				VUnionDepth1_VNamedErrorF11{}: struct{}{},
+				VUnionDepth1_VNamedErrorF11{}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
-				}}: struct{}{},
+				}}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "VList_Any{set[VUnionDepth1_VNamedError]{{F11: {}}, {F11: {Msg: \"bcd\"}}, {F11: {Id: \"Π\", Msg: \"deΔΘΠΣ\"}}}, set[VUnionDepth1_VNamedError]{{F11: {Id: \"普澤\", Msg: \"ΠΣ\"}}}}",
 		Source: VList_Any{
 			map[VUnionDepth1_VNamedError]struct{}{
-				VUnionDepth1_VNamedErrorF11{}: struct{}{},
+				VUnionDepth1_VNamedErrorF11{}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Msg: "bcd",
-				}}: struct{}{},
+				}}: {},
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "Π",
 					Msg: "deΔΘΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 			map[VUnionDepth1_VNamedError]struct{}{
 				VUnionDepth1_VNamedErrorF11{Value: VNamedError{
 					Id:  "普澤",
 					Msg: "ΠΣ",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -48996,10 +48998,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49081,10 +49083,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49169,10 +49171,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49254,10 +49256,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49345,10 +49347,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49430,10 +49432,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49518,10 +49520,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49603,10 +49605,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -49694,12 +49696,12 @@ var vAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					-3.940977071572917e+08:  struct{}{},
-					-5.0264640947262836e+08: struct{}{},
-					1.0200576920401574e+09:  struct{}{},
+					-3.940977071572917e+08:  {},
+					-5.0264640947262836e+08: {},
+					1.0200576920401574e+09:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F7: map[uint32]uint32{
 					399892036: 1455005223,
@@ -49743,11 +49745,11 @@ var vAllPass = []vdlEntry{
 							nil,
 						},
 						F4: map[float64]struct{}{
-							-2.1807296293246665e+09: struct{}{},
+							-2.1807296293246665e+09: {},
 						},
 						F5: VSet_VEnumBcd{
-							VEnumBcdB: struct{}{},
-							VEnumBcdD: struct{}{},
+							VEnumBcdB: {},
+							VEnumBcdD: {},
 						},
 						F7: map[uint32]uint32{
 							0:          4253130263,
@@ -49803,17 +49805,17 @@ var vAllPass = []vdlEntry{
 						},
 					}}),
 					VSet_VEnumAbc{
-						VEnumAbcA: struct{}{},
-						VEnumAbcB: struct{}{},
-						VEnumAbcC: struct{}{},
+						VEnumAbcA: {},
+						VEnumAbcB: {},
+						VEnumAbcC: {},
 					},
 				},
 				F4: map[float64]struct{}{
-					0:                     struct{}{},
-					8.857047681266707e+07: struct{}{},
+					0:                     {},
+					8.857047681266707e+07: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					0:          1481979836,
@@ -49848,12 +49850,12 @@ var vAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					-3.940977071572917e+08:  struct{}{},
-					-5.0264640947262836e+08: struct{}{},
-					1.0200576920401574e+09:  struct{}{},
+					-3.940977071572917e+08:  {},
+					-5.0264640947262836e+08: {},
+					1.0200576920401574e+09:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F7: map[uint32]uint32{
 					399892036: 1455005223,
@@ -49897,11 +49899,11 @@ var vAllPass = []vdlEntry{
 							nil,
 						},
 						F4: map[float64]struct{}{
-							-2.1807296293246665e+09: struct{}{},
+							-2.1807296293246665e+09: {},
 						},
 						F5: VSet_VEnumBcd{
-							VEnumBcdB: struct{}{},
-							VEnumBcdD: struct{}{},
+							VEnumBcdB: {},
+							VEnumBcdD: {},
 						},
 						F7: map[uint32]uint32{
 							0:          4253130263,
@@ -49957,17 +49959,17 @@ var vAllPass = []vdlEntry{
 						},
 					}}),
 					VSet_VEnumAbc{
-						VEnumAbcA: struct{}{},
-						VEnumAbcB: struct{}{},
-						VEnumAbcC: struct{}{},
+						VEnumAbcA: {},
+						VEnumAbcB: {},
+						VEnumAbcC: {},
 					},
 				},
 				F4: map[float64]struct{}{
-					0:                     struct{}{},
-					8.857047681266707e+07: struct{}{},
+					0:                     {},
+					8.857047681266707e+07: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					0:          1481979836,
@@ -50005,12 +50007,12 @@ var vAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					-3.940977071572917e+08:  struct{}{},
-					-5.0264640947262836e+08: struct{}{},
-					1.0200576920401574e+09:  struct{}{},
+					-3.940977071572917e+08:  {},
+					-5.0264640947262836e+08: {},
+					1.0200576920401574e+09:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F7: map[uint32]uint32{
 					399892036: 1455005223,
@@ -50054,11 +50056,11 @@ var vAllPass = []vdlEntry{
 							nil,
 						},
 						F4: map[float64]struct{}{
-							-2.1807296293246665e+09: struct{}{},
+							-2.1807296293246665e+09: {},
 						},
 						F5: VSet_VEnumBcd{
-							VEnumBcdB: struct{}{},
-							VEnumBcdD: struct{}{},
+							VEnumBcdB: {},
+							VEnumBcdD: {},
 						},
 						F7: map[uint32]uint32{
 							0:          4253130263,
@@ -50114,17 +50116,17 @@ var vAllPass = []vdlEntry{
 						},
 					}}),
 					VSet_VEnumAbc{
-						VEnumAbcA: struct{}{},
-						VEnumAbcB: struct{}{},
-						VEnumAbcC: struct{}{},
+						VEnumAbcA: {},
+						VEnumAbcB: {},
+						VEnumAbcC: {},
 					},
 				},
 				F4: map[float64]struct{}{
-					0:                     struct{}{},
-					8.857047681266707e+07: struct{}{},
+					0:                     {},
+					8.857047681266707e+07: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					0:          1481979836,
@@ -50159,12 +50161,12 @@ var vAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					-3.940977071572917e+08:  struct{}{},
-					-5.0264640947262836e+08: struct{}{},
-					1.0200576920401574e+09:  struct{}{},
+					-3.940977071572917e+08:  {},
+					-5.0264640947262836e+08: {},
+					1.0200576920401574e+09:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F7: map[uint32]uint32{
 					399892036: 1455005223,
@@ -50208,11 +50210,11 @@ var vAllPass = []vdlEntry{
 							nil,
 						},
 						F4: map[float64]struct{}{
-							-2.1807296293246665e+09: struct{}{},
+							-2.1807296293246665e+09: {},
 						},
 						F5: VSet_VEnumBcd{
-							VEnumBcdB: struct{}{},
-							VEnumBcdD: struct{}{},
+							VEnumBcdB: {},
+							VEnumBcdD: {},
 						},
 						F7: map[uint32]uint32{
 							0:          4253130263,
@@ -50268,17 +50270,17 @@ var vAllPass = []vdlEntry{
 						},
 					}}),
 					VSet_VEnumAbc{
-						VEnumAbcA: struct{}{},
-						VEnumAbcB: struct{}{},
-						VEnumAbcC: struct{}{},
+						VEnumAbcA: {},
+						VEnumAbcB: {},
+						VEnumAbcC: {},
 					},
 				},
 				F4: map[float64]struct{}{
-					0:                     struct{}{},
-					8.857047681266707e+07: struct{}{},
+					0:                     {},
+					8.857047681266707e+07: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					0:          1481979836,
@@ -50426,7 +50428,7 @@ var vAllPass = []vdlEntry{
 				},
 			}},
 			VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "VArray2_VUnionDepth2_All{{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, {F4: {false}}}",
@@ -50471,7 +50473,7 @@ var vAllPass = []vdlEntry{
 				},
 			}},
 			VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 	},
@@ -50519,7 +50521,7 @@ var vAllPass = []vdlEntry{
 				},
 			}},
 			VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "[]any{VUnionDepth2_All{F8: {F0: VStructDepth1_VFloat32{F28: -1.760837e+09}, F1: true, F3: \"bcde\", F4: \"deΔΘΠΣ\", F5: typeobject(VSet_VEnumAbc), F6: 141, F11: {Msg: \"澤\"}, F12: {Id: \"abcdeΔΘΠ\", RetryCode: RetryBackoff, Msg: \"bcdeΔΘΠΣΦ王普澤世\"}, F13: 25586, F14: 13168, F16: 3392140144, F17: 4800936644249953134, F18: 1433653936825833359, F19: 1, F20: -19, F21: -5023, F22: 5639, F23: -1001860443, F24: -638375194, F25: -2663406277260744766, F26: -4456694877565021047, F27: -5.526668e+08, F28: -3.4535696e+08, F29: 4.358405230142962e+07, F31: {}, F32: {Id: \"eΔ\", Msg: \"Φ\"}}}, VUnionDepth2_All{F4: {false}}}",
@@ -50564,7 +50566,7 @@ var vAllPass = []vdlEntry{
 				},
 			}}),
 			VUnionDepth2_All(VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}}),
 		},
 	},
@@ -50601,17 +50603,17 @@ var vAllPass = []vdlEntry{
 		Target: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -50619,17 +50621,17 @@ var vAllPass = []vdlEntry{
 		Source: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -50640,17 +50642,17 @@ var vAllPass = []vdlEntry{
 		Target: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -50658,17 +50660,17 @@ var vAllPass = []vdlEntry{
 		Source: []interface{}{
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -50680,17 +50682,17 @@ var vAllPass = []vdlEntry{
 		Target: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-7.648597175544252e+08: struct{}{},
-					0:                      struct{}{},
-					1.34338380400205e+09:   struct{}{},
+					-7.648597175544252e+08: {},
+					0:                      {},
+					1.34338380400205e+09:   {},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
-					-9.142569413756968e+08: struct{}{},
-					0:                      struct{}{},
-					1.391175727124097e+09:  struct{}{},
+					-9.142569413756968e+08: {},
+					0:                      {},
+					1.391175727124097e+09:  {},
 				},
 			},
 		},
@@ -50698,17 +50700,17 @@ var vAllPass = []vdlEntry{
 		Source: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-7.648597175544252e+08: struct{}{},
-					0:                      struct{}{},
-					1.34338380400205e+09:   struct{}{},
+					-7.648597175544252e+08: {},
+					0:                      {},
+					1.34338380400205e+09:   {},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
-					-9.142569413756968e+08: struct{}{},
-					0:                      struct{}{},
-					1.391175727124097e+09:  struct{}{},
+					-9.142569413756968e+08: {},
+					0:                      {},
+					1.391175727124097e+09:  {},
 				},
 			},
 		},
@@ -50719,17 +50721,17 @@ var vAllPass = []vdlEntry{
 		Target: VArray3_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-7.648597175544252e+08: struct{}{},
-					0:                      struct{}{},
-					1.34338380400205e+09:   struct{}{},
+					-7.648597175544252e+08: {},
+					0:                      {},
+					1.34338380400205e+09:   {},
 				},
 			},
 			{},
 			{
 				F4: map[float64]struct{}{
-					-9.142569413756968e+08: struct{}{},
-					0:                      struct{}{},
-					1.391175727124097e+09:  struct{}{},
+					-9.142569413756968e+08: {},
+					0:                      {},
+					1.391175727124097e+09:  {},
 				},
 			},
 		},
@@ -50737,17 +50739,17 @@ var vAllPass = []vdlEntry{
 		Source: VList_Any{
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-7.648597175544252e+08: struct{}{},
-					0:                      struct{}{},
-					1.34338380400205e+09:   struct{}{},
+					-7.648597175544252e+08: {},
+					0:                      {},
+					1.34338380400205e+09:   {},
 				},
 			},
 			&VStructDepth2_Set_Float64{},
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-9.142569413756968e+08: struct{}{},
-					0:                      struct{}{},
-					1.391175727124097e+09:  struct{}{},
+					-9.142569413756968e+08: {},
+					0:                      {},
+					1.391175727124097e+09:  {},
 				},
 			},
 		},
@@ -50781,7 +50783,7 @@ var vAllPass = []vdlEntry{
 		Target: []VArray1_Set_VEnumBcd{
 			{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -50789,7 +50791,7 @@ var vAllPass = []vdlEntry{
 		Source: []VArray1_Set_VEnumBcd{
 			{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -50800,7 +50802,7 @@ var vAllPass = []vdlEntry{
 		Target: []VArray1_Set_VEnumBcd{
 			{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -50808,7 +50810,7 @@ var vAllPass = []vdlEntry{
 		Source: []interface{}{
 			VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -51041,13 +51043,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]VSet_VArray1_VStructEmpty{{{}}}",
 		Target: []VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "[]VSet_VArray1_VStructEmpty{{{}}}",
 		Source: []VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -51056,13 +51058,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "[]VSet_VArray1_VStructEmpty{{{}}}",
 		Target: []VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "VList_VSet_VArray1_VStructEmpty{{{}}}",
 		Source: VList_VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -51193,10 +51195,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -51281,10 +51283,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -51372,10 +51374,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -51460,10 +51462,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -51561,10 +51563,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3156503774: 0,
@@ -51629,10 +51631,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3156503774: 0,
@@ -51700,10 +51702,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3156503774: 0,
@@ -51768,10 +51770,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					0: struct{}{},
+					0: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3156503774: 0,
@@ -51877,7 +51879,7 @@ var vAllPass = []vdlEntry{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
-				}: struct{}{},
+				}: {},
 			}},
 		},
 		SourceLabel: "[]VUnionDepth2_All{{F7: {false: true}}, {F0: {}}, {F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
@@ -51890,7 +51892,7 @@ var vAllPass = []vdlEntry{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
-				}: struct{}{},
+				}: {},
 			}},
 		},
 	},
@@ -51906,7 +51908,7 @@ var vAllPass = []vdlEntry{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
-				}: struct{}{},
+				}: {},
 			}},
 		},
 		SourceLabel: "VArray3_Any{VUnionDepth2_All{F7: {false: true}}, VUnionDepth2_All{F0: {}}, VUnionDepth2_All{F5: {{Id: \"eΔΘΠΣΦ王普澤\", Msg: \"ΔΘΠΣΦ王普\"}}}}",
@@ -51919,7 +51921,7 @@ var vAllPass = []vdlEntry{
 				{
 					Id:  "eΔΘΠΣΦ王普澤",
 					Msg: "ΔΘΠΣΦ王普",
-				}: struct{}{},
+				}: {},
 			}}),
 		},
 	},
@@ -51952,7 +51954,7 @@ var vAllPass = []vdlEntry{
 		Target: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -51960,7 +51962,7 @@ var vAllPass = []vdlEntry{
 		Source: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -51971,7 +51973,7 @@ var vAllPass = []vdlEntry{
 		Target: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -51979,7 +51981,7 @@ var vAllPass = []vdlEntry{
 		Source: VList_Any{
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -51991,9 +51993,9 @@ var vAllPass = []vdlEntry{
 		Target: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-4.106420264593588e+08:  struct{}{},
-					-4.3626757424300224e+08: struct{}{},
-					0:                       struct{}{},
+					-4.106420264593588e+08:  {},
+					-4.3626757424300224e+08: {},
+					0:                       {},
 				},
 			},
 		},
@@ -52001,9 +52003,9 @@ var vAllPass = []vdlEntry{
 		Source: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-4.106420264593588e+08:  struct{}{},
-					-4.3626757424300224e+08: struct{}{},
-					0:                       struct{}{},
+					-4.106420264593588e+08:  {},
+					-4.3626757424300224e+08: {},
+					0:                       {},
 				},
 			},
 		},
@@ -52014,9 +52016,9 @@ var vAllPass = []vdlEntry{
 		Target: []*VStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					-4.106420264593588e+08:  struct{}{},
-					-4.3626757424300224e+08: struct{}{},
-					0:                       struct{}{},
+					-4.106420264593588e+08:  {},
+					-4.3626757424300224e+08: {},
+					0:                       {},
 				},
 			},
 		},
@@ -52024,9 +52026,9 @@ var vAllPass = []vdlEntry{
 		Source: VList_Any{
 			&VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-4.106420264593588e+08:  struct{}{},
-					-4.3626757424300224e+08: struct{}{},
-					0:                       struct{}{},
+					-4.106420264593588e+08:  {},
+					-4.3626757424300224e+08: {},
+					0:                       {},
 				},
 			},
 		},
@@ -52339,13 +52341,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VSet_VArray1_VStructEmpty{{{}}}",
 		Target: VList_VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "VList_VSet_VArray1_VStructEmpty{{{}}}",
 		Source: VList_VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -52354,13 +52356,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VList_VSet_VArray1_VStructEmpty{{{}}}",
 		Target: VList_VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "[]VSet_VArray1_VStructEmpty{{{}}}",
 		Source: []VSet_VArray1_VStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -52491,10 +52493,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -52579,10 +52581,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -52670,10 +52672,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -52758,10 +52760,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -52849,19 +52851,19 @@ var vAllPass = []vdlEntry{
 					-14739,
 				},
 				F4: map[float64]struct{}{
-					1.0146575372763048e+09: struct{}{},
-					9.589193381210451e+08:  struct{}{},
+					1.0146575372763048e+09: {},
+					9.589193381210451e+08:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					0: 177,
 				},
 				F8: VStructDepth1_All{
 					F0: map[VUnionDepth1_VNamedError]struct{}{
-						VUnionDepth1_VNamedErrorF11{}: struct{}{},
+						VUnionDepth1_VNamedErrorF11{}: {},
 					},
 					F1: true,
 					F2: true,
@@ -52928,10 +52930,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.757002314296858e+08: struct{}{},
+					-1.757002314296858e+08: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F6: map[byte]byte{
 					140: 52,
@@ -52944,7 +52946,7 @@ var vAllPass = []vdlEntry{
 				},
 				F8: VStructDepth1_All{
 					F0: VSet_VBool{
-						false: struct{}{},
+						false: {},
 					},
 					F1:  true,
 					F2:  true,
@@ -52970,10 +52972,10 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
-					}}: struct{}{},
+					}}: {},
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
-					}}: struct{}{},
+					}}: {},
 				}},
 				F11: VUnionDepth1_Float64F29{},
 			},
@@ -52994,19 +52996,19 @@ var vAllPass = []vdlEntry{
 					-14739,
 				},
 				F4: map[float64]struct{}{
-					1.0146575372763048e+09: struct{}{},
-					9.589193381210451e+08:  struct{}{},
+					1.0146575372763048e+09: {},
+					9.589193381210451e+08:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					0: 177,
 				},
 				F8: VStructDepth1_All{
 					F0: map[VUnionDepth1_VNamedError]struct{}{
-						VUnionDepth1_VNamedErrorF11{}: struct{}{},
+						VUnionDepth1_VNamedErrorF11{}: {},
 					},
 					F1: true,
 					F2: true,
@@ -53073,10 +53075,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.757002314296858e+08: struct{}{},
+					-1.757002314296858e+08: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F6: map[byte]byte{
 					140: 52,
@@ -53089,7 +53091,7 @@ var vAllPass = []vdlEntry{
 				},
 				F8: VStructDepth1_All{
 					F0: VSet_VBool{
-						false: struct{}{},
+						false: {},
 					},
 					F1:  true,
 					F2:  true,
@@ -53115,10 +53117,10 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
-					}}: struct{}{},
+					}}: {},
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
-					}}: struct{}{},
+					}}: {},
 				}},
 				F11: VUnionDepth1_Float64F29{},
 			},
@@ -53142,19 +53144,19 @@ var vAllPass = []vdlEntry{
 					-14739,
 				},
 				F4: map[float64]struct{}{
-					1.0146575372763048e+09: struct{}{},
-					9.589193381210451e+08:  struct{}{},
+					1.0146575372763048e+09: {},
+					9.589193381210451e+08:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					0: 177,
 				},
 				F8: VStructDepth1_All{
 					F0: map[VUnionDepth1_VNamedError]struct{}{
-						VUnionDepth1_VNamedErrorF11{}: struct{}{},
+						VUnionDepth1_VNamedErrorF11{}: {},
 					},
 					F1: true,
 					F2: true,
@@ -53221,10 +53223,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.757002314296858e+08: struct{}{},
+					-1.757002314296858e+08: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F6: map[byte]byte{
 					140: 52,
@@ -53237,7 +53239,7 @@ var vAllPass = []vdlEntry{
 				},
 				F8: VStructDepth1_All{
 					F0: VSet_VBool{
-						false: struct{}{},
+						false: {},
 					},
 					F1:  true,
 					F2:  true,
@@ -53263,10 +53265,10 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
-					}}: struct{}{},
+					}}: {},
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
-					}}: struct{}{},
+					}}: {},
 				}},
 				F11: VUnionDepth1_Float64F29{},
 			},
@@ -53287,19 +53289,19 @@ var vAllPass = []vdlEntry{
 					-14739,
 				},
 				F4: map[float64]struct{}{
-					1.0146575372763048e+09: struct{}{},
-					9.589193381210451e+08:  struct{}{},
+					1.0146575372763048e+09: {},
+					9.589193381210451e+08:  {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdD: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					0: 177,
 				},
 				F8: VStructDepth1_All{
 					F0: map[VUnionDepth1_VNamedError]struct{}{
-						VUnionDepth1_VNamedErrorF11{}: struct{}{},
+						VUnionDepth1_VNamedErrorF11{}: {},
 					},
 					F1: true,
 					F2: true,
@@ -53366,10 +53368,10 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.757002314296858e+08: struct{}{},
+					-1.757002314296858e+08: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
+					VEnumBcdB: {},
 				},
 				F6: map[byte]byte{
 					140: 52,
@@ -53382,7 +53384,7 @@ var vAllPass = []vdlEntry{
 				},
 				F8: VStructDepth1_All{
 					F0: VSet_VBool{
-						false: struct{}{},
+						false: {},
 					},
 					F1:  true,
 					F2:  true,
@@ -53408,10 +53410,10 @@ var vAllPass = []vdlEntry{
 				F10: VUnionDepth1_AllF0{Value: VSet_VUnionDepth2_VArray1_String{
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"abc",
-					}}: struct{}{},
+					}}: {},
 					VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 						"ΔΘΠΣΦ王普",
-					}}: struct{}{},
+					}}: {},
 				}},
 				F11: VUnionDepth1_Float64F29{},
 			},
@@ -53522,7 +53524,7 @@ var vAllPass = []vdlEntry{
 		Target: VList_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -53530,7 +53532,7 @@ var vAllPass = []vdlEntry{
 		Source: VList_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -53541,7 +53543,7 @@ var vAllPass = []vdlEntry{
 		Target: VList_OptVStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -53553,7 +53555,7 @@ var vAllPass = []vdlEntry{
 					vdl.AnyType,
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F8: VStructDepth1_All{
 					F5: vdl.AnyType,
@@ -53616,7 +53618,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VArray1_VArray3_Int64]{{{-123, -123, -123}}}",
 		Source: map[VArray1_VArray3_Int64]struct{}{
@@ -53626,7 +53628,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53639,7 +53641,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VArray1_VArray3_Int64{{{-123, -123, -123}}}",
 		Source: VSet_VArray1_VArray3_Int64{
@@ -53649,7 +53651,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53663,14 +53665,14 @@ var vAllPass = []vdlEntry{
 					0,
 					-2119333667702404185,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					-1703399565817978280,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VArray1_VArray3_Int64]{{{-4470894919113206637, 0, -2119333667702404185}}, {{0, -1703399565817978280, 0}}}",
 		Source: map[VArray1_VArray3_Int64]struct{}{
@@ -53680,14 +53682,14 @@ var vAllPass = []vdlEntry{
 					0,
 					-2119333667702404185,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					-1703399565817978280,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53700,14 +53702,14 @@ var vAllPass = []vdlEntry{
 					0,
 					-2119333667702404185,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					-1703399565817978280,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VArray1_VArray3_Int64{{{-4470894919113206637, 0, -2119333667702404185}}, {{0, -1703399565817978280, 0}}}",
 		Source: VSet_VArray1_VArray3_Int64{
@@ -53717,14 +53719,14 @@ var vAllPass = []vdlEntry{
 					0,
 					-2119333667702404185,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					-1703399565817978280,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53758,7 +53760,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VStructDepth2_VStructDepth1_Bool]{{F9: {F1: true}}}",
 		Source: map[VStructDepth2_VStructDepth1_Bool]struct{}{
@@ -53766,7 +53768,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53777,7 +53779,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VStructDepth2_VStructDepth1_Bool{{F9: {F1: true}}}",
 		Source: VSet_VStructDepth2_VStructDepth1_Bool{
@@ -53785,7 +53787,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53810,13 +53812,13 @@ var vAllPass = []vdlEntry{
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -53825,13 +53827,13 @@ var vAllPass = []vdlEntry{
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -53841,25 +53843,25 @@ var vAllPass = []vdlEntry{
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -53868,25 +53870,25 @@ var vAllPass = []vdlEntry{
 		Target: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"ΔΘΠΣΦ王\"}}, {F0: {\"ΠΣΦ\"}}, {F0: {\"ΣΦ王普澤世\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΔΘΠΣΦ王",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΠΣΦ",
-			}}: struct{}{},
+			}}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"ΣΦ王普澤世",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -53915,7 +53917,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VArray1_VArray3_Int64{{{-123, -123, -123}}}",
 		Source: VSet_VArray1_VArray3_Int64{
@@ -53925,7 +53927,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53938,7 +53940,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VArray1_VArray3_Int64]{{{-123, -123, -123}}}",
 		Source: map[VArray1_VArray3_Int64]struct{}{
@@ -53948,7 +53950,7 @@ var vAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -53962,21 +53964,21 @@ var vAllPass = []vdlEntry{
 					-2288391145708108360,
 					-4207036291952262741,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					4371541142672217430,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					4092751625765097463,
 					2744298937546551751,
 					-760234479958146472,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VArray1_VArray3_Int64{{{-2035807833907368457, -2288391145708108360, -4207036291952262741}}, {{0, 4371541142672217430, 0}}, {{4092751625765097463, 2744298937546551751, -760234479958146472}}}",
 		Source: VSet_VArray1_VArray3_Int64{
@@ -53986,21 +53988,21 @@ var vAllPass = []vdlEntry{
 					-2288391145708108360,
 					-4207036291952262741,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					4371541142672217430,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					4092751625765097463,
 					2744298937546551751,
 					-760234479958146472,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -54013,21 +54015,21 @@ var vAllPass = []vdlEntry{
 					-2288391145708108360,
 					-4207036291952262741,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					4371541142672217430,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					4092751625765097463,
 					2744298937546551751,
 					-760234479958146472,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VArray1_VArray3_Int64]{{{-2035807833907368457, -2288391145708108360, -4207036291952262741}}, {{0, 4371541142672217430, 0}}, {{4092751625765097463, 2744298937546551751, -760234479958146472}}}",
 		Source: map[VArray1_VArray3_Int64]struct{}{
@@ -54037,21 +54039,21 @@ var vAllPass = []vdlEntry{
 					-2288391145708108360,
 					-4207036291952262741,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					0,
 					4371541142672217430,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					4092751625765097463,
 					2744298937546551751,
 					-760234479958146472,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -54085,7 +54087,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "VSet_VStructDepth2_VStructDepth1_Bool{{F9: {F1: true}}}",
 		Source: VSet_VStructDepth2_VStructDepth1_Bool{
@@ -54093,7 +54095,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -54104,7 +54106,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[VStructDepth2_VStructDepth1_Bool]{{F9: {F1: true}}}",
 		Source: map[VStructDepth2_VStructDepth1_Bool]struct{}{
@@ -54112,7 +54114,7 @@ var vAllPass = []vdlEntry{
 				F9: VStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -54137,13 +54139,13 @@ var vAllPass = []vdlEntry{
 		Target: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -54152,13 +54154,13 @@ var vAllPass = []vdlEntry{
 		Target: VSet_VUnionDepth2_VArray1_String{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -54166,34 +54168,34 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{}: struct{}{},
+			VUnionDepth2_VArray1_StringF0{}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Source: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{}: struct{}{},
+			VUnionDepth2_VArray1_StringF0{}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VSet_VUnionDepth2_VArray1_String{{F0: {}}, {F0: {\"世界\"}}}",
 		Target: VSet_VUnionDepth2_VArray1_String{
-			VUnionDepth2_VArray1_StringF0{}: struct{}{},
+			VUnionDepth2_VArray1_StringF0{}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[VUnionDepth2_VArray1_String]{{F0: {}}, {F0: {\"世界\"}}}",
 		Source: map[VUnionDepth2_VArray1_String]struct{}{
-			VUnionDepth2_VArray1_StringF0{}: struct{}{},
+			VUnionDepth2_VArray1_StringF0{}: {},
 			VUnionDepth2_VArray1_StringF0{Value: VArray1_String{
 				"世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -54851,7 +54853,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_All{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 			F1: []VUnionDepth1_All{
@@ -54861,7 +54863,7 @@ var vAllPass = []vdlEntry{
 				}},
 			},
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
 				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
@@ -54881,10 +54883,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -54956,7 +54958,7 @@ var vAllPass = []vdlEntry{
 			}},
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -54964,7 +54966,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth3_All{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 			F1: []VUnionDepth1_All{
@@ -54974,7 +54976,7 @@ var vAllPass = []vdlEntry{
 				}},
 			},
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
 				VUnionDepth1_Float64F29{Value: 1.5}: VUnionDepth1_Float64F29{Value: 1.5},
@@ -54994,10 +54996,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -55069,7 +55071,7 @@ var vAllPass = []vdlEntry{
 			}},
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -55081,7 +55083,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_All{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 			F1: []VUnionDepth1_All{
@@ -55090,7 +55092,7 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_AllF23{Value: -709460934},
 			},
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
 				VUnionDepth1_Float64F29{Value: -1.2255739239434664e+09}: VUnionDepth1_Float64F29{Value: -1.1735608211823716e+09},
@@ -55112,11 +55114,11 @@ var vAllPass = []vdlEntry{
 					VEnumBcdD,
 				},
 				F4: map[float64]struct{}{
-					-2.3763406559414215e+09: struct{}{},
+					-2.3763406559414215e+09: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0:   155,
@@ -55135,9 +55137,9 @@ var vAllPass = []vdlEntry{
 			F5: VUnionDepth2_AllF0{},
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-1.1621262415614358e+08: struct{}{},
-					-3.236526650893023e+09:  struct{}{},
-					6.374484454491236e+08:   struct{}{},
+					-1.1621262415614358e+08: {},
+					-3.236526650893023e+09:  {},
+					6.374484454491236e+08:   {},
 				},
 			},
 		},
@@ -55145,7 +55147,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth3_All{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 			F1: []VUnionDepth1_All{
@@ -55154,7 +55156,7 @@ var vAllPass = []vdlEntry{
 				VUnionDepth1_AllF23{Value: -709460934},
 			},
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[VUnionDepth1_Float64]VUnionDepth1_Float64{
 				VUnionDepth1_Float64F29{Value: -1.2255739239434664e+09}: VUnionDepth1_Float64F29{Value: -1.1735608211823716e+09},
@@ -55176,11 +55178,11 @@ var vAllPass = []vdlEntry{
 					VEnumBcdD,
 				},
 				F4: map[float64]struct{}{
-					-2.3763406559414215e+09: struct{}{},
+					-2.3763406559414215e+09: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdB: struct{}{},
-					VEnumBcdC: struct{}{},
+					VEnumBcdB: {},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0:   155,
@@ -55199,9 +55201,9 @@ var vAllPass = []vdlEntry{
 			F5: VUnionDepth2_AllF0{},
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-1.1621262415614358e+08: struct{}{},
-					-3.236526650893023e+09:  struct{}{},
-					6.374484454491236e+08:   struct{}{},
+					-1.1621262415614358e+08: {},
+					-3.236526650893023e+09:  {},
+					6.374484454491236e+08:   {},
 				},
 			},
 		},
@@ -55237,7 +55239,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -55245,7 +55247,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -55256,7 +55258,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -55264,7 +55266,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth1_Any{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -55438,13 +55440,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_VSet_VArray1_VStructEmpty{F2: {{}}}",
 		Target: VStructDepth3_VSet_VArray1_VStructEmpty{
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "VStructDepth3_VSet_VArray1_VStructEmpty{F2: {{}}}",
 		Source: VStructDepth3_VSet_VArray1_VStructEmpty{
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -55453,13 +55455,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_VSet_VArray1_VStructEmpty{F2: {{}}}",
 		Target: VStructDepth3_VSet_VArray1_VStructEmpty{
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "VStructDepth3_All{F2: {{}}}",
 		Source: VStructDepth3_All{
 			F2: VSet_VArray1_VStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F4: VStructDepth2_All{
 				F0: VArray2_TypeObject{
@@ -55703,10 +55705,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -55791,10 +55793,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -55882,10 +55884,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -55970,10 +55972,10 @@ var vAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -56068,12 +56070,12 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.9684892797302527e+09: struct{}{},
-					-8.275744919550115e+08:  struct{}{},
-					0:                       struct{}{},
+					-1.9684892797302527e+09: {},
+					-8.275744919550115e+08:  {},
+					0:                       {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdC: struct{}{},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					170: 244,
@@ -56153,12 +56155,12 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.9684892797302527e+09: struct{}{},
-					-8.275744919550115e+08:  struct{}{},
-					0:                       struct{}{},
+					-1.9684892797302527e+09: {},
+					-8.275744919550115e+08:  {},
+					0:                       {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdC: struct{}{},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					170: 244,
@@ -56241,12 +56243,12 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.9684892797302527e+09: struct{}{},
-					-8.275744919550115e+08:  struct{}{},
-					0:                       struct{}{},
+					-1.9684892797302527e+09: {},
+					-8.275744919550115e+08:  {},
+					0:                       {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdC: struct{}{},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					170: 244,
@@ -56326,12 +56328,12 @@ var vAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.9684892797302527e+09: struct{}{},
-					-8.275744919550115e+08:  struct{}{},
-					0:                       struct{}{},
+					-1.9684892797302527e+09: {},
+					-8.275744919550115e+08:  {},
+					0:                       {},
 				},
 				F5: VSet_VEnumBcd{
-					VEnumBcdC: struct{}{},
+					VEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					170: 244,
@@ -56482,13 +56484,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
 			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Source: VStructDepth3_VUnionDepth2_All{
 			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 	},
@@ -56497,7 +56499,7 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VStructDepth3_VUnionDepth2_All{F5: {F4: {false}}}",
 		Target: VStructDepth3_VUnionDepth2_All{
 			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "VStructDepth3_All{F5: {F4: {false}}}",
@@ -56514,7 +56516,7 @@ var vAllPass = []vdlEntry{
 				F11: VUnionDepth1_Float64F29{},
 			},
 			F5: VUnionDepth2_AllF4{Value: VSet_VBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 	},
@@ -56560,7 +56562,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_OptVStructDepth2_Set_Float64{
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -56568,7 +56570,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth3_OptVStructDepth2_Set_Float64{
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -56579,7 +56581,7 @@ var vAllPass = []vdlEntry{
 		Target: VStructDepth3_OptVStructDepth2_Set_Float64{
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -56599,7 +56601,7 @@ var vAllPass = []vdlEntry{
 			F5: VUnionDepth2_AllF0{},
 			F6: &VStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -56667,13 +56669,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
 		Target: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -56682,13 +56684,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
 		Target: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -56699,13 +56701,13 @@ var vAllPass = []vdlEntry{
 		Target: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{F3: \"Φ\"}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -56714,13 +56716,13 @@ var vAllPass = []vdlEntry{
 		Target: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"Φ\"}}}",
 		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "Φ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -56994,13 +56996,13 @@ var vAllPass = []vdlEntry{
 		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -57009,13 +57011,13 @@ var vAllPass = []vdlEntry{
 		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -57023,34 +57025,34 @@ var vAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
 		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "澤",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
 		Source: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "澤",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "VUnionDepth3_Set_VStructDepth1_String{F2: {{}, {F3: \"澤\"}}}",
 		Target: VUnionDepth3_Set_VStructDepth1_String(VUnionDepth3_Set_VStructDepth1_StringF2{Value: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "澤",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F2: {{}, {F3: \"澤\"}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF2{Value: map[VStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "澤",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -57181,10 +57183,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -57267,10 +57269,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -57356,10 +57358,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -57442,10 +57444,10 @@ var vAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdD: struct{}{},
+				VEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -57529,10 +57531,10 @@ var vAllPass = []vdlEntry{
 				float64(5.1889701539695996e+08),
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
+				VEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0: 94,
@@ -57541,7 +57543,7 @@ var vAllPass = []vdlEntry{
 				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
-					}: struct{}{},
+					}: {},
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
@@ -57596,10 +57598,10 @@ var vAllPass = []vdlEntry{
 				float64(5.1889701539695996e+08),
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
+				VEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0: 94,
@@ -57608,7 +57610,7 @@ var vAllPass = []vdlEntry{
 				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
-					}: struct{}{},
+					}: {},
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
@@ -57666,10 +57668,10 @@ var vAllPass = []vdlEntry{
 				float64(5.1889701539695996e+08),
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
+				VEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0: 94,
@@ -57678,7 +57680,7 @@ var vAllPass = []vdlEntry{
 				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
-					}: struct{}{},
+					}: {},
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
@@ -57733,10 +57735,10 @@ var vAllPass = []vdlEntry{
 				float64(5.1889701539695996e+08),
 			},
 			F4: map[float64]struct{}{
-				0: struct{}{},
+				0: {},
 			},
 			F5: VSet_VEnumBcd{
-				VEnumBcdB: struct{}{},
+				VEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0: 94,
@@ -57745,7 +57747,7 @@ var vAllPass = []vdlEntry{
 				F0: VUnionDepth2_VSet_VNamedError(VUnionDepth2_VSet_VNamedErrorF5{Value: VSet_VNamedError{
 					{
 						Msg: "ΘΠΣΦ王普澤世",
-					}: struct{}{},
+					}: {},
 				}}),
 				F3: "eΔ",
 				F4: "ΔΘΠΣ",
@@ -57870,13 +57872,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -57885,13 +57887,13 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {1.5}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -57901,17 +57903,17 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0:                      struct{}{},
-				1.2150244533707948e+08: struct{}{},
-				3.028392332433068e+09:  struct{}{},
+				0:                      {},
+				1.2150244533707948e+08: {},
+				3.028392332433068e+09:  {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Source: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0:                      struct{}{},
-				1.2150244533707948e+08: struct{}{},
-				3.028392332433068e+09:  struct{}{},
+				0:                      {},
+				1.2150244533707948e+08: {},
+				3.028392332433068e+09:  {},
 			},
 		}}),
 	},
@@ -57920,17 +57922,17 @@ var vAllPass = []vdlEntry{
 		TargetLabel: "VUnionDepth3_OptVStructDepth2_Set_Float64{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Target: VUnionDepth3_OptVStructDepth2_Set_Float64(VUnionDepth3_OptVStructDepth2_Set_Float64F6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0:                      struct{}{},
-				1.2150244533707948e+08: struct{}{},
-				3.028392332433068e+09:  struct{}{},
+				0:                      {},
+				1.2150244533707948e+08: {},
+				3.028392332433068e+09:  {},
 			},
 		}}),
 		SourceLabel: "VUnionDepth3_All{F6: {F4: {0, 1.2150244533707948e+08, 3.028392332433068e+09}}}",
 		Source: VUnionDepth3_All(VUnionDepth3_AllF6{Value: &VStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				0:                      struct{}{},
-				1.2150244533707948e+08: struct{}{},
-				3.028392332433068e+09:  struct{}{},
+				0:                      {},
+				1.2150244533707948e+08: {},
+				3.028392332433068e+09:  {},
 			},
 		}}),
 	},
@@ -57962,7 +57964,7 @@ var vAllPass = []vdlEntry{
 		Target: &VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -57970,7 +57972,7 @@ var vAllPass = []vdlEntry{
 		Source: &VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -57981,7 +57983,7 @@ var vAllPass = []vdlEntry{
 		Target: &VStructDepth3_VArray1_Set_VEnumBcd{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -57989,7 +57991,7 @@ var vAllPass = []vdlEntry{
 		Source: VStructDepth1_Any{
 			F0: VArray1_Set_VEnumBcd{
 				{
-					VEnumBcdD: struct{}{},
+					VEnumBcdD: {},
 				},
 			},
 		},
@@ -66019,8 +66021,8 @@ var xAllPass = []vdlEntry{
 				{},
 			},
 			map[XString]struct{}{
-				"bcdeΔΘΠΣΦ王普澤": struct{}{},
-				"普澤":           struct{}{},
+				"bcdeΔΘΠΣΦ王普澤": {},
+				"普澤":           {},
 			},
 			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
@@ -66034,8 +66036,8 @@ var xAllPass = []vdlEntry{
 				{},
 			},
 			map[XString]struct{}{
-				"bcdeΔΘΠΣΦ王普澤": struct{}{},
-				"普澤":           struct{}{},
+				"bcdeΔΘΠΣΦ王普澤": {},
+				"普澤":           {},
 			},
 			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
@@ -66052,8 +66054,8 @@ var xAllPass = []vdlEntry{
 				{},
 			},
 			map[XString]struct{}{
-				"bcdeΔΘΠΣΦ王普澤": struct{}{},
-				"普澤":           struct{}{},
+				"bcdeΔΘΠΣΦ王普澤": {},
+				"普澤":           {},
 			},
 			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
@@ -66067,8 +66069,8 @@ var xAllPass = []vdlEntry{
 				{},
 			},
 			map[XString]struct{}{
-				"bcdeΔΘΠΣΦ王普澤": struct{}{},
-				"普澤":           struct{}{},
+				"bcdeΔΘΠΣΦ王普澤": {},
+				"普澤":           {},
 			},
 			XUnionDepth3_XUnionDepth2_All(XUnionDepth3_XUnionDepth2_AllF5{Value: XUnionDepth2_AllF11{Value: XUnionDepth1_XUint32F16{}}}),
 		},
@@ -68096,7 +68098,7 @@ var xAllPass = []vdlEntry{
 						XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{}),
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdD: struct{}{},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						125: 103,
@@ -68154,12 +68156,12 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					F4: map[float64]struct{}{
-						-6.778491184605664e+08: struct{}{},
-						1.7797307435833848e+09: struct{}{},
+						-6.778491184605664e+08: {},
+						1.7797307435833848e+09: {},
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdC: struct{}{},
-						XEnumBcdD: struct{}{},
+						XEnumBcdC: {},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						0:  0,
@@ -68224,7 +68226,7 @@ var xAllPass = []vdlEntry{
 						XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{}),
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdD: struct{}{},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						125: 103,
@@ -68282,12 +68284,12 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					F4: map[float64]struct{}{
-						-6.778491184605664e+08: struct{}{},
-						1.7797307435833848e+09: struct{}{},
+						-6.778491184605664e+08: {},
+						1.7797307435833848e+09: {},
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdC: struct{}{},
-						XEnumBcdD: struct{}{},
+						XEnumBcdC: {},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						0:  0,
@@ -68355,7 +68357,7 @@ var xAllPass = []vdlEntry{
 						XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{}),
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdD: struct{}{},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						125: 103,
@@ -68413,12 +68415,12 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					F4: map[float64]struct{}{
-						-6.778491184605664e+08: struct{}{},
-						1.7797307435833848e+09: struct{}{},
+						-6.778491184605664e+08: {},
+						1.7797307435833848e+09: {},
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdC: struct{}{},
-						XEnumBcdD: struct{}{},
+						XEnumBcdC: {},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						0:  0,
@@ -68483,7 +68485,7 @@ var xAllPass = []vdlEntry{
 						XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{}),
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdD: struct{}{},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						125: 103,
@@ -68541,12 +68543,12 @@ var xAllPass = []vdlEntry{
 						},
 					},
 					F4: map[float64]struct{}{
-						-6.778491184605664e+08: struct{}{},
-						1.7797307435833848e+09: struct{}{},
+						-6.778491184605664e+08: {},
+						1.7797307435833848e+09: {},
 					},
 					F5: XSet_XEnumBcd{
-						XEnumBcdC: struct{}{},
-						XEnumBcdD: struct{}{},
+						XEnumBcdC: {},
+						XEnumBcdD: {},
 					},
 					F6: map[byte]byte{
 						0:  0,
@@ -69765,22 +69767,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XBool]{true}",
 		Target: map[XBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[XBool]{true}",
 		Source: map[XBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XBool]{true}",
 		Target: map[XBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[bool]{true}",
 		Source: map[bool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -69810,22 +69812,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[XString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "set[XString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: map[XString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: map[XString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "XSet_XString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: XSet_XString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -69833,26 +69835,26 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[XString]{\"ΠΣΦ王普澤世\", \"ΣΦ王普澤\"}",
 		Target: map[XString]struct{}{
-			"ΠΣΦ王普澤世": struct{}{},
-			"ΣΦ王普澤":   struct{}{},
+			"ΠΣΦ王普澤世": {},
+			"ΣΦ王普澤":   {},
 		},
 		SourceLabel: "set[XString]{\"ΠΣΦ王普澤世\", \"ΣΦ王普澤\"}",
 		Source: map[XString]struct{}{
-			"ΠΣΦ王普澤世": struct{}{},
-			"ΣΦ王普澤":   struct{}{},
+			"ΠΣΦ王普澤世": {},
+			"ΣΦ王普澤":   {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[XString]{\"ΠΣΦ王普澤世\", \"ΣΦ王普澤\"}",
 		Target: map[XString]struct{}{
-			"ΠΣΦ王普澤世": struct{}{},
-			"ΣΦ王普澤":   struct{}{},
+			"ΠΣΦ王普澤世": {},
+			"ΣΦ王普澤":   {},
 		},
 		SourceLabel: "XSet_XString{\"ΠΣΦ王普澤世\", \"ΣΦ王普澤\"}",
 		Source: XSet_XString{
-			"ΠΣΦ王普澤世": struct{}{},
-			"ΣΦ王普澤":   struct{}{},
+			"ΠΣΦ王普澤世": {},
+			"ΣΦ王普澤":   {},
 		},
 	},
 	{
@@ -69882,22 +69884,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XByte]{123}",
 		Target: map[XByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[XByte]{123}",
 		Source: map[XByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XByte]{123}",
 		Target: map[XByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[int32]{123}",
 		Source: map[int32]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -69905,30 +69907,30 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[XByte]{0, 123, 26}",
 		Target: map[XByte]struct{}{
-			0:   struct{}{},
-			123: struct{}{},
-			26:  struct{}{},
+			0:   {},
+			123: {},
+			26:  {},
 		},
 		SourceLabel: "set[XByte]{0, 123, 26}",
 		Source: map[XByte]struct{}{
-			0:   struct{}{},
-			123: struct{}{},
-			26:  struct{}{},
+			0:   {},
+			123: {},
+			26:  {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[XByte]{0, 123, 26}",
 		Target: map[XByte]struct{}{
-			0:   struct{}{},
-			123: struct{}{},
-			26:  struct{}{},
+			0:   {},
+			123: {},
+			26:  {},
 		},
 		SourceLabel: "XSet_Float32{0, 123, 26}",
 		Source: XSet_Float32{
-			0:   struct{}{},
-			123: struct{}{},
-			26:  struct{}{},
+			0:   {},
+			123: {},
+			26:  {},
 		},
 	},
 	{
@@ -69958,22 +69960,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XEnumAbc]{C}",
 		Target: map[XEnumAbc]struct{}{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 		SourceLabel: "set[XEnumAbc]{C}",
 		Source: map[XEnumAbc]struct{}{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XEnumAbc]{C}",
 		Target: map[XEnumAbc]struct{}{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 		SourceLabel: "set[XEnumBcd]{C}",
 		Source: map[XEnumBcd]struct{}{
-			XEnumBcdC: struct{}{},
+			XEnumBcdC: {},
 		},
 	},
 	{
@@ -70003,22 +70005,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XEnumBcd]{D}",
 		Target: map[XEnumBcd]struct{}{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 		SourceLabel: "set[XEnumBcd]{D}",
 		Source: map[XEnumBcd]struct{}{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XEnumBcd]{D}",
 		Target: map[XEnumBcd]struct{}{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 		SourceLabel: "XSet_XEnumBcd{D}",
 		Source: XSet_XEnumBcd{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 	},
 	{
@@ -70048,22 +70050,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "set[XStructEmpty]{{}}",
 		Target: map[XStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[XStructEmpty]{{}}",
 		Source: map[XStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "set[XStructEmpty]{{}}",
 		Target: map[XStructEmpty]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[XStructDepth1_String]{{}}",
 		Source: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -70096,14 +70098,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XNamedError]{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[XNamedError]struct{}{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70113,14 +70115,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XNamedError{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70131,28 +70133,28 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "bcdeΔΘΠΣ",
 				Msg: "eΔΘΠ",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "cd",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΘΠΣΦ王",
 				Msg: "c",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XNamedError]{{Id: \"bcdeΔΘΠΣ\", Msg: \"eΔΘΠ\"}, {Id: \"cd\"}, {Id: \"ΘΠΣΦ王\", Msg: \"c\"}}",
 		Source: map[XNamedError]struct{}{
 			{
 				Id:  "bcdeΔΘΠΣ",
 				Msg: "eΔΘΠ",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "cd",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΘΠΣΦ王",
 				Msg: "c",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70162,28 +70164,28 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "bcdeΔΘΠΣ",
 				Msg: "eΔΘΠ",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "cd",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΘΠΣΦ王",
 				Msg: "c",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XNamedError{{Id: \"bcdeΔΘΠΣ\", Msg: \"eΔΘΠ\"}, {Id: \"cd\"}, {Id: \"ΘΠΣΦ王\", Msg: \"c\"}}",
 		Source: XSet_XNamedError{
 			{
 				Id:  "bcdeΔΘΠΣ",
 				Msg: "eΔΘΠ",
-			}: struct{}{},
+			}: {},
 			{
 				Id: "cd",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΘΠΣΦ王",
 				Msg: "c",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70213,22 +70215,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_Bool{true}",
 		Target: XSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "XSet_Bool{true}",
 		Source: XSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_Bool{true}",
 		Target: XSet_Bool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "XSet_XBool{true}",
 		Source: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -70258,22 +70260,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XBool{true}",
 		Target: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "XSet_XBool{true}",
 		Source: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XBool{true}",
 		Target: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		},
 		SourceLabel: "set[XBool]{true}",
 		Source: map[XBool]struct{}{
-			true: struct{}{},
+			true: {},
 		},
 	},
 	{
@@ -70303,22 +70305,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: XSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "XSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: XSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: XSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "set[XString]{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: map[XString]struct{}{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -70326,22 +70328,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_String{\"王普澤世界\"}",
 		Target: XSet_String{
-			"王普澤世界": struct{}{},
+			"王普澤世界": {},
 		},
 		SourceLabel: "XSet_String{\"王普澤世界\"}",
 		Source: XSet_String{
-			"王普澤世界": struct{}{},
+			"王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_String{\"王普澤世界\"}",
 		Target: XSet_String{
-			"王普澤世界": struct{}{},
+			"王普澤世界": {},
 		},
 		SourceLabel: "set[string]{\"王普澤世界\"}",
 		Source: map[string]struct{}{
-			"王普澤世界": struct{}{},
+			"王普澤世界": {},
 		},
 	},
 	{
@@ -70371,22 +70373,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: XSet_XString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "XSet_XString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: XSet_XString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XString{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Target: XSet_XString{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 		SourceLabel: "XSet_String{\"abcdeΔΘΠΣΦ王普澤世界\"}",
 		Source: XSet_String{
-			"abcdeΔΘΠΣΦ王普澤世界": struct{}{},
+			"abcdeΔΘΠΣΦ王普澤世界": {},
 		},
 	},
 	{
@@ -70394,30 +70396,30 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XString{\"\", \"deΔΘΠΣ\", \"deΔΘΠΣΦ王\"}",
 		Target: XSet_XString{
-			"":         struct{}{},
-			"deΔΘΠΣ":   struct{}{},
-			"deΔΘΠΣΦ王": struct{}{},
+			"":         {},
+			"deΔΘΠΣ":   {},
+			"deΔΘΠΣΦ王": {},
 		},
 		SourceLabel: "XSet_XString{\"\", \"deΔΘΠΣ\", \"deΔΘΠΣΦ王\"}",
 		Source: XSet_XString{
-			"":         struct{}{},
-			"deΔΘΠΣ":   struct{}{},
-			"deΔΘΠΣΦ王": struct{}{},
+			"":         {},
+			"deΔΘΠΣ":   {},
+			"deΔΘΠΣΦ王": {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_XString{\"\", \"deΔΘΠΣ\", \"deΔΘΠΣΦ王\"}",
 		Target: XSet_XString{
-			"":         struct{}{},
-			"deΔΘΠΣ":   struct{}{},
-			"deΔΘΠΣΦ王": struct{}{},
+			"":         {},
+			"deΔΘΠΣ":   {},
+			"deΔΘΠΣΦ王": {},
 		},
 		SourceLabel: "set[string]{\"\", \"deΔΘΠΣ\", \"deΔΘΠΣΦ王\"}",
 		Source: map[string]struct{}{
-			"":         struct{}{},
-			"deΔΘΠΣ":   struct{}{},
-			"deΔΘΠΣΦ王": struct{}{},
+			"":         {},
+			"deΔΘΠΣ":   {},
+			"deΔΘΠΣΦ王": {},
 		},
 	},
 	{
@@ -70447,22 +70449,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_Byte{123}",
 		Target: XSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_Byte{123}",
 		Source: XSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_Byte{123}",
 		Target: XSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_Float32{123}",
 		Source: XSet_Float32{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -70470,26 +70472,26 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_Byte{184, 89}",
 		Target: XSet_Byte{
-			184: struct{}{},
-			89:  struct{}{},
+			184: {},
+			89:  {},
 		},
 		SourceLabel: "XSet_Byte{184, 89}",
 		Source: XSet_Byte{
-			184: struct{}{},
-			89:  struct{}{},
+			184: {},
+			89:  {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_Byte{184, 89}",
 		Target: XSet_Byte{
-			184: struct{}{},
-			89:  struct{}{},
+			184: {},
+			89:  {},
 		},
 		SourceLabel: "set[int32]{184, 89}",
 		Source: map[int32]struct{}{
-			184: struct{}{},
-			89:  struct{}{},
+			184: {},
+			89:  {},
 		},
 	},
 	{
@@ -70519,22 +70521,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XByte{123}",
 		Target: XSet_XByte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_XByte{123}",
 		Source: XSet_XByte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XByte{123}",
 		Target: XSet_XByte{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "set[XByte]{123}",
 		Source: map[XByte]struct{}{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -70542,26 +70544,26 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XByte{0, 229}",
 		Target: XSet_XByte{
-			0:   struct{}{},
-			229: struct{}{},
+			0:   {},
+			229: {},
 		},
 		SourceLabel: "XSet_XByte{0, 229}",
 		Source: XSet_XByte{
-			0:   struct{}{},
-			229: struct{}{},
+			0:   {},
+			229: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_XByte{0, 229}",
 		Target: XSet_XByte{
-			0:   struct{}{},
-			229: struct{}{},
+			0:   {},
+			229: {},
 		},
 		SourceLabel: "set[XByte]{0, 229}",
 		Source: map[XByte]struct{}{
-			0:   struct{}{},
-			229: struct{}{},
+			0:   {},
+			229: {},
 		},
 	},
 	{
@@ -70591,22 +70593,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XEnumAbc{C}",
 		Target: XSet_XEnumAbc{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 		SourceLabel: "XSet_XEnumAbc{C}",
 		Source: XSet_XEnumAbc{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XEnumAbc{C}",
 		Target: XSet_XEnumAbc{
-			XEnumAbcC: struct{}{},
+			XEnumAbcC: {},
 		},
 		SourceLabel: "XSet_XEnumBcd{C}",
 		Source: XSet_XEnumBcd{
-			XEnumBcdC: struct{}{},
+			XEnumBcdC: {},
 		},
 	},
 	{
@@ -70636,22 +70638,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XEnumBcd{D}",
 		Target: XSet_XEnumBcd{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 		SourceLabel: "XSet_XEnumBcd{D}",
 		Source: XSet_XEnumBcd{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XEnumBcd{D}",
 		Target: XSet_XEnumBcd{
-			XEnumBcdD: struct{}{},
+			XEnumBcdD: {},
 		},
 		SourceLabel: "set[string]{\"D\"}",
 		Source: map[string]struct{}{
-			"D": struct{}{},
+			"D": {},
 		},
 	},
 	{
@@ -70681,22 +70683,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XStructEmpty{{}}",
 		Target: XSet_XStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "XSet_XStructEmpty{{}}",
 		Source: XSet_XStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XStructEmpty{{}}",
 		Target: XSet_XStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "set[XStructDepth2_XStructDepth1_Bool]{{}}",
 		Source: map[XStructDepth2_XStructDepth1_Bool]struct{}{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -70729,14 +70731,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XNamedError{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70746,14 +70748,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XNamedError]{{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[XNamedError]struct{}{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70764,22 +70766,22 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "ΠΣΦ",
 				Msg: "cdeΔΘΠΣ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王普澤",
 				Msg: "d",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XNamedError{{Id: \"ΠΣΦ\", Msg: \"cdeΔΘΠΣ\"}, {Id: \"王普澤\", Msg: \"d\"}}",
 		Source: XSet_XNamedError{
 			{
 				Id:  "ΠΣΦ",
 				Msg: "cdeΔΘΠΣ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王普澤",
 				Msg: "d",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70789,22 +70791,22 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "ΠΣΦ",
 				Msg: "cdeΔΘΠΣ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王普澤",
 				Msg: "d",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XNamedError]{{Id: \"ΠΣΦ\", Msg: \"cdeΔΘΠΣ\"}, {Id: \"王普澤\", Msg: \"d\"}}",
 		Source: map[XNamedError]struct{}{
 			{
 				Id:  "ΠΣΦ",
 				Msg: "cdeΔΘΠΣ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "王普澤",
 				Msg: "d",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -70834,22 +70836,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_Uint64{123}",
 		Target: XSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_Uint64{123}",
 		Source: XSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_Uint64{123}",
 		Target: XSet_Uint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_XByte{123}",
 		Source: XSet_XByte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -70857,26 +70859,26 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_Uint64{0, 15419510315382674418}",
 		Target: XSet_Uint64{
-			0:                    struct{}{},
-			15419510315382674418: struct{}{},
+			0:                    {},
+			15419510315382674418: {},
 		},
 		SourceLabel: "XSet_Uint64{0, 15419510315382674418}",
 		Source: XSet_Uint64{
-			0:                    struct{}{},
-			15419510315382674418: struct{}{},
+			0:                    {},
+			15419510315382674418: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_Uint64{0, 15419510315382674418}",
 		Target: XSet_Uint64{
-			0:                    struct{}{},
-			15419510315382674418: struct{}{},
+			0:                    {},
+			15419510315382674418: {},
 		},
 		SourceLabel: "XSet_XUint64{0, 15419510315382674418}",
 		Source: XSet_XUint64{
-			0:                    struct{}{},
-			15419510315382674418: struct{}{},
+			0:                    {},
+			15419510315382674418: {},
 		},
 	},
 	{
@@ -70906,22 +70908,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XUint64{123}",
 		Target: XSet_XUint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_XUint64{123}",
 		Source: XSet_XUint64{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_XUint64{123}",
 		Target: XSet_XUint64{
-			123: struct{}{},
+			123: {},
 		},
 		SourceLabel: "XSet_Byte{123}",
 		Source: XSet_Byte{
-			123: struct{}{},
+			123: {},
 		},
 	},
 	{
@@ -70929,22 +70931,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XUint64{9532860371158075028}",
 		Target: XSet_XUint64{
-			9532860371158075028: struct{}{},
+			9532860371158075028: {},
 		},
 		SourceLabel: "XSet_XUint64{9532860371158075028}",
 		Source: XSet_XUint64{
-			9532860371158075028: struct{}{},
+			9532860371158075028: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_XUint64{9532860371158075028}",
 		Target: XSet_XUint64{
-			9532860371158075028: struct{}{},
+			9532860371158075028: {},
 		},
 		SourceLabel: "XSet_Uint64{9532860371158075028}",
 		Source: XSet_Uint64{
-			9532860371158075028: struct{}{},
+			9532860371158075028: {},
 		},
 	},
 	{
@@ -70974,22 +70976,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_Float32{1.5}",
 		Target: XSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "XSet_Float32{1.5}",
 		Source: XSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XSet_Float32{1.5}",
 		Target: XSet_Float32{
-			1.5: struct{}{},
+			1.5: {},
 		},
 		SourceLabel: "set[float64]{1.5}",
 		Source: map[float64]struct{}{
-			1.5: struct{}{},
+			1.5: {},
 		},
 	},
 	{
@@ -70997,22 +70999,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_Float32{-2.1514644e+09}",
 		Target: XSet_Float32{
-			-2.1514644e+09: struct{}{},
+			-2.1514644e+09: {},
 		},
 		SourceLabel: "XSet_Float32{-2.1514644e+09}",
 		Source: XSet_Float32{
-			-2.1514644e+09: struct{}{},
+			-2.1514644e+09: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XSet_Float32{-2.1514644e+09}",
 		Target: XSet_Float32{
-			-2.1514644e+09: struct{}{},
+			-2.1514644e+09: {},
 		},
 		SourceLabel: "set[float64]{-2.1514645445578156e+09}",
 		Source: map[float64]struct{}{
-			-2.1514645445578156e+09: struct{}{},
+			-2.1514645445578156e+09: {},
 		},
 	},
 	{
@@ -72584,8 +72586,8 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth1_All{F0: XSet_XString{\"\", \"bcd\"}, F2: true, F3: \"a\", F4: \"eΔΘΠ\", F7: 10, F8: C, F9: C, F11: {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"ΔΘΠΣ\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤世界\", Msg: \"bcdeΔΘ\"}, F13: 48056, F15: 2308381474, F16: 1018037404, F17: 617702218553513613, F18: 17507951721915500623, F20: -35, F21: 14950, F22: -7590, F23: 774132807, F25: 134213658246658943, F28: -1.3198257e+09, F30: 1.1303229769991276e+09, F31: {}}",
 		Target: XStructDepth1_All{
 			F0: XSet_XString{
-				"":    struct{}{},
-				"bcd": struct{}{},
+				"":    {},
+				"bcd": {},
 			},
 			F2: true,
 			F3: "a",
@@ -72619,8 +72621,8 @@ var xAllPass = []vdlEntry{
 		SourceLabel: "XStructDepth1_All{F0: XSet_XString{\"\", \"bcd\"}, F2: true, F3: \"a\", F4: \"eΔΘΠ\", F7: 10, F8: C, F9: C, F11: {Id: \"ΔΘΠΣΦ王普澤世\", Msg: \"ΔΘΠΣ\"}, F12: {Id: \"bcdeΔΘΠΣΦ王普澤世界\", Msg: \"bcdeΔΘ\"}, F13: 48056, F15: 2308381474, F16: 1018037404, F17: 617702218553513613, F18: 17507951721915500623, F20: -35, F21: 14950, F22: -7590, F23: 774132807, F25: 134213658246658943, F28: -1.3198257e+09, F30: 1.1303229769991276e+09, F31: {}}",
 		Source: XStructDepth1_All{
 			F0: XSet_XString{
-				"":    struct{}{},
-				"bcd": struct{}{},
+				"":    {},
+				"bcd": {},
 			},
 			F2: true,
 			F3: "a",
@@ -76826,13 +76828,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray1_Set_XEnumBcd{{D}}",
 		Target: XArray1_Set_XEnumBcd{
 			{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 		SourceLabel: "XArray1_Set_XEnumBcd{{D}}",
 		Source: XArray1_Set_XEnumBcd{
 			{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 	},
@@ -76841,13 +76843,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XArray1_Set_XEnumBcd{{D}}",
 		Target: XArray1_Set_XEnumBcd{
 			{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 		SourceLabel: "XList_Any{set[XEnumBcd]{D}}",
 		Source: XList_Any{
 			map[XEnumBcd]struct{}{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 	},
@@ -78258,13 +78260,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "[]set[XEnumAbc]{{C}}",
 		Target: []map[XEnumAbc]struct{}{
 			{
-				XEnumAbcC: struct{}{},
+				XEnumAbcC: {},
 			},
 		},
 		SourceLabel: "[]set[XEnumAbc]{{C}}",
 		Source: []map[XEnumAbc]struct{}{
 			{
-				XEnumAbcC: struct{}{},
+				XEnumAbcC: {},
 			},
 		},
 	},
@@ -78273,13 +78275,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "[]set[XEnumAbc]{{C}}",
 		Target: []map[XEnumAbc]struct{}{
 			{
-				XEnumAbcC: struct{}{},
+				XEnumAbcC: {},
 			},
 		},
 		SourceLabel: "XList_Any{set[XEnumAbc]{C}}",
 		Source: XList_Any{
 			map[XEnumAbc]struct{}{
-				XEnumAbcC: struct{}{},
+				XEnumAbcC: {},
 			},
 		},
 	},
@@ -78916,13 +78918,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_Set_XBool{{true}}",
 		Target: XList_Set_XBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 		SourceLabel: "XList_Set_XBool{{true}}",
 		Source: XList_Set_XBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 	},
@@ -78931,13 +78933,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_Set_XBool{{true}}",
 		Target: XList_Set_XBool{
 			{
-				true: struct{}{},
+				true: {},
 			},
 		},
 		SourceLabel: "[]any{set[XBool]{true}}",
 		Source: []interface{}{
 			map[XBool]struct{}{
-				true: struct{}{},
+				true: {},
 			},
 		},
 	},
@@ -79570,14 +79572,14 @@ var xAllPass = []vdlEntry{
 			{
 				XEnumAbcC,
 				XEnumAbcC,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XArray2_XEnumAbc]{{C, C}}",
 		Source: map[XArray2_XEnumAbc]struct{}{
 			{
 				XEnumAbcC,
 				XEnumAbcC,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -79609,13 +79611,13 @@ var xAllPass = []vdlEntry{
 		Target: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XStructDepth1_String]{{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -79623,17 +79625,17 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[XStructDepth1_String]{{}, {F3: \"cdeΔΘΠΣΦ王普澤世界\"}}",
 		Target: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "cdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XStructDepth1_String]{{}, {F3: \"cdeΔΘΠΣΦ王普澤世界\"}}",
 		Source: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "cdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -79652,14 +79654,14 @@ var xAllPass = []vdlEntry{
 			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth1_XNamedError]struct{}{
 			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -79670,14 +79672,14 @@ var xAllPass = []vdlEntry{
 			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤",
 				Msg: "abcdeΔΘΠΣΦ王普",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤\", Msg: \"abcdeΔΘΠΣΦ王普\"}}}",
 		Source: map[XUnionDepth1_XNamedError]struct{}{
 			XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 				Id:  "abcdeΔΘΠΣΦ王普澤",
 				Msg: "abcdeΔΘΠΣΦ王普",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -79693,11 +79695,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XArray1_XStructEmpty{{}}",
 		Target: XSet_XArray1_XStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 		SourceLabel: "XSet_XArray1_XStructEmpty{{}}",
 		Source: XSet_XArray1_XStructEmpty{
-			{}: struct{}{},
+			{}: {},
 		},
 	},
 	{
@@ -79729,13 +79731,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XStructDepth1_XFloat64{
 			{
 				F30: 1.5,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XStructDepth1_XFloat64{{F30: 1.5}}",
 		Source: XSet_XStructDepth1_XFloat64{
 			{
 				F30: 1.5,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -79745,13 +79747,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XStructDepth1_XFloat64{
 			{
 				F30: -4.338791546407051e+08,
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XStructDepth1_XFloat64{{F30: -4.338791546407051e+08}}",
 		Source: XSet_XStructDepth1_XFloat64{
 			{
 				F30: -4.338791546407051e+08,
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -79767,11 +79769,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XSet_XUnionDepth1_XInt8{{F20: -123}}",
 		Target: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{Value: -123}: struct{}{},
+			XUnionDepth1_XInt8F20{Value: -123}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth1_XInt8{{F20: -123}}",
 		Source: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{Value: -123}: struct{}{},
+			XUnionDepth1_XInt8F20{Value: -123}: {},
 		},
 	},
 	{
@@ -79779,11 +79781,11 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XSet_XUnionDepth1_XInt8{{F20: 0}}",
 		Target: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{}: struct{}{},
+			XUnionDepth1_XInt8F20{}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth1_XInt8{{F20: 0}}",
 		Source: XSet_XUnionDepth1_XInt8{
-			XUnionDepth1_XInt8F20{}: struct{}{},
+			XUnionDepth1_XInt8F20{}: {},
 		},
 	},
 	{
@@ -80151,10 +80153,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -80237,10 +80239,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -80325,11 +80327,11 @@ var xAllPass = []vdlEntry{
 				-6161,
 			},
 			F4: map[float64]struct{}{
-				0:                     struct{}{},
-				1.738953051495289e+09: struct{}{},
+				0:                     {},
+				1.738953051495289e+09: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdB: struct{}{},
+				XEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0:  0,
@@ -80389,11 +80391,11 @@ var xAllPass = []vdlEntry{
 				-6161,
 			},
 			F4: map[float64]struct{}{
-				0:                     struct{}{},
-				1.738953051495289e+09: struct{}{},
+				0:                     {},
+				1.738953051495289e+09: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdB: struct{}{},
+				XEnumBcdB: {},
 			},
 			F6: map[byte]byte{
 				0:  0,
@@ -80940,13 +80942,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "XStructDepth2_Set_Float64{F4: {1.5}}",
 		Source: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 	},
@@ -80955,7 +80957,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "XStructDepth2_All{F4: {1.5}}",
@@ -80965,7 +80967,7 @@ var xAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
@@ -80980,17 +80982,17 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
 		Target: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.964258524832707e+09: struct{}{},
-				-5.64685356748069e+08:  struct{}{},
-				0:                      struct{}{},
+				-2.964258524832707e+09: {},
+				-5.64685356748069e+08:  {},
+				0:                      {},
 			},
 		},
 		SourceLabel: "XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
 		Source: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.964258524832707e+09: struct{}{},
-				-5.64685356748069e+08:  struct{}{},
-				0:                      struct{}{},
+				-2.964258524832707e+09: {},
+				-5.64685356748069e+08:  {},
+				0:                      {},
 			},
 		},
 	},
@@ -80999,17 +81001,17 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
 		Target: XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.964258524832707e+09: struct{}{},
-				-5.64685356748069e+08:  struct{}{},
-				0:                      struct{}{},
+				-2.964258524832707e+09: {},
+				-5.64685356748069e+08:  {},
+				0:                      {},
 			},
 		},
 		SourceLabel: "?XStructDepth2_Set_Float64{F4: {-2.964258524832707e+09, -5.64685356748069e+08, 0}}",
 		Source: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.964258524832707e+09: struct{}{},
-				-5.64685356748069e+08:  struct{}{},
-				0:                      struct{}{},
+				-2.964258524832707e+09: {},
+				-5.64685356748069e+08:  {},
+				0:                      {},
 			},
 		},
 	},
@@ -81051,13 +81053,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_XSet_XEnumBcd{F5: {D}}",
 		Target: XStructDepth2_XSet_XEnumBcd{
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 		SourceLabel: "XStructDepth2_XSet_XEnumBcd{F5: {D}}",
 		Source: XStructDepth2_XSet_XEnumBcd{
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 	},
@@ -81066,7 +81068,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth2_XSet_XEnumBcd{F5: {D}}",
 		Target: XStructDepth2_XSet_XEnumBcd{
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 		},
 		SourceLabel: "XStructDepth2_All{F5: {D}}",
@@ -81076,7 +81078,7 @@ var xAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
@@ -82526,22 +82528,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
 		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
 		Source: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		}}),
 	},
 	{
 		Label:       "Full",
 		TargetLabel: "XUnionDepth2_XSet_XBool{F4: {true}}",
 		Target: XUnionDepth2_XSet_XBool(XUnionDepth2_XSet_XBoolF4{Value: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F4: {true}}",
 		Source: XUnionDepth2_All(XUnionDepth2_AllF4{Value: XSet_XBool{
-			true: struct{}{},
+			true: {},
 		}}),
 	},
 	{
@@ -82567,14 +82569,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -82584,14 +82586,14 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F5: {{Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XUnionDepth2_All(XUnionDepth2_AllF5{Value: XSet_XNamedError{
 			{
 				Id:  "abcdeΔΘΠΣΦ王普澤世界",
 				Msg: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -82602,30 +82604,30 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "Π",
 				Msg: "cdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΠΣΦ王普澤",
 				Msg: "deΔΘΠΣΦ王普澤世",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth2_XSet_XNamedError{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Source: XUnionDepth2_XSet_XNamedError(XUnionDepth2_XSet_XNamedErrorF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "Π",
 				Msg: "cdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΠΣΦ王普澤",
 				Msg: "deΔΘΠΣΦ王普澤世",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -82635,30 +82637,30 @@ var xAllPass = []vdlEntry{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "Π",
 				Msg: "cdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΠΣΦ王普澤",
 				Msg: "deΔΘΠΣΦ王普澤世",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth2_All{F5: {{Id: \"eΔΘΠΣΦ\", Msg: \"abcdeΔΘΠΣΦ\"}, {Id: \"Π\", Msg: \"cdeΔΘΠΣΦ\"}, {Id: \"ΠΣΦ王普澤\", Msg: \"deΔΘΠΣΦ王普澤世\"}}}",
 		Source: XUnionDepth2_All(XUnionDepth2_AllF5{Value: XSet_XNamedError{
 			{
 				Id:  "eΔΘΠΣΦ",
 				Msg: "abcdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "Π",
 				Msg: "cdeΔΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 			{
 				Id:  "ΠΣΦ王普澤",
 				Msg: "deΔΘΠΣΦ王普澤世",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -83363,13 +83365,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "?XStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "?XStructDepth2_Set_Float64{F4: {1.5}}",
 		Source: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 	},
@@ -83378,7 +83380,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "?XStructDepth2_Set_Float64{F4: {1.5}}",
 		Target: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		},
 		SourceLabel: "XStructDepth2_All{F4: {1.5}}",
@@ -83388,7 +83390,7 @@ var xAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
@@ -83403,17 +83405,17 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "?XStructDepth2_Set_Float64{F4: {-1.5482595333652863e+07, -1.8546110877738907e+09, 8.285960578355051e+08}}",
 		Target: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-1.5482595333652863e+07: struct{}{},
-				-1.8546110877738907e+09: struct{}{},
-				8.285960578355051e+08:   struct{}{},
+				-1.5482595333652863e+07: {},
+				-1.8546110877738907e+09: {},
+				8.285960578355051e+08:   {},
 			},
 		},
 		SourceLabel: "?XStructDepth2_Set_Float64{F4: {-1.5482595333652863e+07, -1.8546110877738907e+09, 8.285960578355051e+08}}",
 		Source: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-1.5482595333652863e+07: struct{}{},
-				-1.8546110877738907e+09: struct{}{},
-				8.285960578355051e+08:   struct{}{},
+				-1.5482595333652863e+07: {},
+				-1.8546110877738907e+09: {},
+				8.285960578355051e+08:   {},
 			},
 		},
 	},
@@ -83422,9 +83424,9 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "?XStructDepth2_Set_Float64{F4: {-1.5482595333652863e+07, -1.8546110877738907e+09, 8.285960578355051e+08}}",
 		Target: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-1.5482595333652863e+07: struct{}{},
-				-1.8546110877738907e+09: struct{}{},
-				8.285960578355051e+08:   struct{}{},
+				-1.5482595333652863e+07: {},
+				-1.8546110877738907e+09: {},
+				8.285960578355051e+08:   {},
 			},
 		},
 		SourceLabel: "XStructDepth2_All{F4: {-1.5482595333652863e+07, -1.8546110877738907e+09, 8.285960578355051e+08}}",
@@ -83434,9 +83436,9 @@ var xAllPass = []vdlEntry{
 				vdl.AnyType,
 			},
 			F4: map[float64]struct{}{
-				-1.5482595333652863e+07: struct{}{},
-				-1.8546110877738907e+09: struct{}{},
-				8.285960578355051e+08:   struct{}{},
+				-1.5482595333652863e+07: {},
+				-1.8546110877738907e+09: {},
+				8.285960578355051e+08:   {},
 			},
 			F8: XStructDepth1_All{
 				F5: vdl.AnyType,
@@ -83720,13 +83722,13 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "XArray2_Set_XUnionDepth1_XNamedError{{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, {{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
@@ -83735,13 +83737,13 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -83753,13 +83755,13 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "[]any{set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}, set[XUnionDepth1_XNamedError]{{F11: {Id: \"abcdeΔΘΠΣΦ王普澤世界\", Msg: \"abcdeΔΘΠΣΦ王普澤世界\"}}}}",
@@ -83768,13 +83770,13 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 			map[XUnionDepth1_XNamedError]struct{}{
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id:  "abcdeΔΘΠΣΦ王普澤世界",
 					Msg: "abcdeΔΘΠΣΦ王普澤世界",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -83785,20 +83787,20 @@ var xAllPass = []vdlEntry{
 		Target: XArray2_Set_XUnionDepth1_XNamedError{
 			nil,
 			{
-				XUnionDepth1_XNamedErrorF11{}: struct{}{},
+				XUnionDepth1_XNamedErrorF11{}: {},
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "XArray2_Set_XUnionDepth1_XNamedError{{}, {{F11: {}}, {F11: {Id: \"e\"}}}}",
 		Source: XArray2_Set_XUnionDepth1_XNamedError{
 			nil,
 			{
-				XUnionDepth1_XNamedErrorF11{}: struct{}{},
+				XUnionDepth1_XNamedErrorF11{}: {},
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -83808,20 +83810,20 @@ var xAllPass = []vdlEntry{
 		Target: XArray2_Set_XUnionDepth1_XNamedError{
 			nil,
 			{
-				XUnionDepth1_XNamedErrorF11{}: struct{}{},
+				XUnionDepth1_XNamedErrorF11{}: {},
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 		SourceLabel: "XList_Any{set[XUnionDepth1_XNamedError]{}, set[XUnionDepth1_XNamedError]{{F11: {}}, {F11: {Id: \"e\"}}}}",
 		Source: XList_Any{
 			map[XUnionDepth1_XNamedError]struct{}(nil),
 			map[XUnionDepth1_XNamedError]struct{}{
-				XUnionDepth1_XNamedErrorF11{}: struct{}{},
+				XUnionDepth1_XNamedErrorF11{}: {},
 				XUnionDepth1_XNamedErrorF11{Value: XNamedError{
 					Id: "e",
-				}}: struct{}{},
+				}}: {},
 			},
 		},
 	},
@@ -84109,10 +84111,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84194,10 +84196,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84282,10 +84284,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84367,10 +84369,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84458,10 +84460,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84543,10 +84545,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84631,10 +84633,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84716,10 +84718,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -84807,14 +84809,14 @@ var xAllPass = []vdlEntry{
 					XStructDepth3_All{
 						F0: XArray1_Set_XEnumBcd{
 							{
-								XEnumBcdD: struct{}{},
+								XEnumBcdD: {},
 							},
 						},
 						F1: []XUnionDepth1_All{
 							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
-							{}: struct{}{},
+							{}: {},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
@@ -84836,12 +84838,12 @@ var xAllPass = []vdlEntry{
 								XStructDepth1_XStructEmpty{},
 							},
 							F4: map[float64]struct{}{
-								-1.5775969057942443e+09: struct{}{},
-								-1.8198813631522796e+08: struct{}{},
+								-1.5775969057942443e+09: {},
+								-1.8198813631522796e+08: {},
 							},
 							F5: XSet_XEnumBcd{
-								XEnumBcdB: struct{}{},
-								XEnumBcdD: struct{}{},
+								XEnumBcdB: {},
+								XEnumBcdD: {},
 							},
 							F7: map[uint32]uint32{
 								1301764874: 2534117066,
@@ -84852,7 +84854,7 @@ var xAllPass = []vdlEntry{
 								F0: XStructDepth3_XArray1_Set_XEnumBcd{
 									F0: XArray1_Set_XEnumBcd{
 										{
-											XEnumBcdC: struct{}{},
+											XEnumBcdC: {},
 										},
 									},
 								},
@@ -84904,8 +84906,8 @@ var xAllPass = []vdlEntry{
 						}},
 						F6: &XStructDepth2_Set_Float64{
 							F4: map[float64]struct{}{
-								-1.2220177986166332e+09: struct{}{},
-								-3.2764475423036857e+09: struct{}{},
+								-1.2220177986166332e+09: {},
+								-3.2764475423036857e+09: {},
 							},
 						},
 					},
@@ -84917,10 +84919,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.0060306983418753e+07: struct{}{},
+					-1.0060306983418753e+07: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0: 80,
@@ -84994,14 +84996,14 @@ var xAllPass = []vdlEntry{
 					XStructDepth3_All{
 						F0: XArray1_Set_XEnumBcd{
 							{
-								XEnumBcdD: struct{}{},
+								XEnumBcdD: {},
 							},
 						},
 						F1: []XUnionDepth1_All{
 							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
-							{}: struct{}{},
+							{}: {},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
@@ -85023,12 +85025,12 @@ var xAllPass = []vdlEntry{
 								XStructDepth1_XStructEmpty{},
 							},
 							F4: map[float64]struct{}{
-								-1.5775969057942443e+09: struct{}{},
-								-1.8198813631522796e+08: struct{}{},
+								-1.5775969057942443e+09: {},
+								-1.8198813631522796e+08: {},
 							},
 							F5: XSet_XEnumBcd{
-								XEnumBcdB: struct{}{},
-								XEnumBcdD: struct{}{},
+								XEnumBcdB: {},
+								XEnumBcdD: {},
 							},
 							F7: map[uint32]uint32{
 								1301764874: 2534117066,
@@ -85039,7 +85041,7 @@ var xAllPass = []vdlEntry{
 								F0: XStructDepth3_XArray1_Set_XEnumBcd{
 									F0: XArray1_Set_XEnumBcd{
 										{
-											XEnumBcdC: struct{}{},
+											XEnumBcdC: {},
 										},
 									},
 								},
@@ -85091,8 +85093,8 @@ var xAllPass = []vdlEntry{
 						}},
 						F6: &XStructDepth2_Set_Float64{
 							F4: map[float64]struct{}{
-								-1.2220177986166332e+09: struct{}{},
-								-3.2764475423036857e+09: struct{}{},
+								-1.2220177986166332e+09: {},
+								-3.2764475423036857e+09: {},
 							},
 						},
 					},
@@ -85104,10 +85106,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.0060306983418753e+07: struct{}{},
+					-1.0060306983418753e+07: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0: 80,
@@ -85184,14 +85186,14 @@ var xAllPass = []vdlEntry{
 					XStructDepth3_All{
 						F0: XArray1_Set_XEnumBcd{
 							{
-								XEnumBcdD: struct{}{},
+								XEnumBcdD: {},
 							},
 						},
 						F1: []XUnionDepth1_All{
 							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
-							{}: struct{}{},
+							{}: {},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
@@ -85213,12 +85215,12 @@ var xAllPass = []vdlEntry{
 								XStructDepth1_XStructEmpty{},
 							},
 							F4: map[float64]struct{}{
-								-1.5775969057942443e+09: struct{}{},
-								-1.8198813631522796e+08: struct{}{},
+								-1.5775969057942443e+09: {},
+								-1.8198813631522796e+08: {},
 							},
 							F5: XSet_XEnumBcd{
-								XEnumBcdB: struct{}{},
-								XEnumBcdD: struct{}{},
+								XEnumBcdB: {},
+								XEnumBcdD: {},
 							},
 							F7: map[uint32]uint32{
 								1301764874: 2534117066,
@@ -85229,7 +85231,7 @@ var xAllPass = []vdlEntry{
 								F0: XStructDepth3_XArray1_Set_XEnumBcd{
 									F0: XArray1_Set_XEnumBcd{
 										{
-											XEnumBcdC: struct{}{},
+											XEnumBcdC: {},
 										},
 									},
 								},
@@ -85281,8 +85283,8 @@ var xAllPass = []vdlEntry{
 						}},
 						F6: &XStructDepth2_Set_Float64{
 							F4: map[float64]struct{}{
-								-1.2220177986166332e+09: struct{}{},
-								-3.2764475423036857e+09: struct{}{},
+								-1.2220177986166332e+09: {},
+								-3.2764475423036857e+09: {},
 							},
 						},
 					},
@@ -85294,10 +85296,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.0060306983418753e+07: struct{}{},
+					-1.0060306983418753e+07: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0: 80,
@@ -85371,14 +85373,14 @@ var xAllPass = []vdlEntry{
 					XStructDepth3_All{
 						F0: XArray1_Set_XEnumBcd{
 							{
-								XEnumBcdD: struct{}{},
+								XEnumBcdD: {},
 							},
 						},
 						F1: []XUnionDepth1_All{
 							XUnionDepth1_AllF31{Value: &XStructEmpty{}},
 						},
 						F2: XSet_XArray1_XStructEmpty{
-							{}: struct{}{},
+							{}: {},
 						},
 						F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 							XUnionDepth1_Float64F29{Value: -1.1165922379858755e+08}: XUnionDepth1_Float64F29{Value: -1.569161734832757e+09},
@@ -85400,12 +85402,12 @@ var xAllPass = []vdlEntry{
 								XStructDepth1_XStructEmpty{},
 							},
 							F4: map[float64]struct{}{
-								-1.5775969057942443e+09: struct{}{},
-								-1.8198813631522796e+08: struct{}{},
+								-1.5775969057942443e+09: {},
+								-1.8198813631522796e+08: {},
 							},
 							F5: XSet_XEnumBcd{
-								XEnumBcdB: struct{}{},
-								XEnumBcdD: struct{}{},
+								XEnumBcdB: {},
+								XEnumBcdD: {},
 							},
 							F7: map[uint32]uint32{
 								1301764874: 2534117066,
@@ -85416,7 +85418,7 @@ var xAllPass = []vdlEntry{
 								F0: XStructDepth3_XArray1_Set_XEnumBcd{
 									F0: XArray1_Set_XEnumBcd{
 										{
-											XEnumBcdC: struct{}{},
+											XEnumBcdC: {},
 										},
 									},
 								},
@@ -85468,8 +85470,8 @@ var xAllPass = []vdlEntry{
 						}},
 						F6: &XStructDepth2_Set_Float64{
 							F4: map[float64]struct{}{
-								-1.2220177986166332e+09: struct{}{},
-								-3.2764475423036857e+09: struct{}{},
+								-1.2220177986166332e+09: {},
+								-3.2764475423036857e+09: {},
 							},
 						},
 					},
@@ -85481,10 +85483,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					-1.0060306983418753e+07: struct{}{},
+					-1.0060306983418753e+07: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					0: 80,
@@ -85690,17 +85692,17 @@ var xAllPass = []vdlEntry{
 		Target: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -85708,17 +85710,17 @@ var xAllPass = []vdlEntry{
 		Source: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -85729,17 +85731,17 @@ var xAllPass = []vdlEntry{
 		Target: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -85747,17 +85749,17 @@ var xAllPass = []vdlEntry{
 		Source: XList_Any{
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -85769,15 +85771,15 @@ var xAllPass = []vdlEntry{
 		Target: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					2.7492247330252223e+09: struct{}{},
+					2.7492247330252223e+09: {},
 				},
 			},
 			nil,
 			{
 				F4: map[float64]struct{}{
-					-2.0684219699173448e+09: struct{}{},
-					-2.245382466748307e+07:  struct{}{},
-					0:                       struct{}{},
+					-2.0684219699173448e+09: {},
+					-2.245382466748307e+07:  {},
+					0:                       {},
 				},
 			},
 		},
@@ -85785,15 +85787,15 @@ var xAllPass = []vdlEntry{
 		Source: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					2.7492247330252223e+09: struct{}{},
+					2.7492247330252223e+09: {},
 				},
 			},
 			nil,
 			{
 				F4: map[float64]struct{}{
-					-2.0684219699173448e+09: struct{}{},
-					-2.245382466748307e+07:  struct{}{},
-					0:                       struct{}{},
+					-2.0684219699173448e+09: {},
+					-2.245382466748307e+07:  {},
+					0:                       {},
 				},
 			},
 		},
@@ -85804,15 +85806,15 @@ var xAllPass = []vdlEntry{
 		Target: XArray3_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					2.7492247330252223e+09: struct{}{},
+					2.7492247330252223e+09: {},
 				},
 			},
 			nil,
 			{
 				F4: map[float64]struct{}{
-					-2.0684219699173448e+09: struct{}{},
-					-2.245382466748307e+07:  struct{}{},
-					0:                       struct{}{},
+					-2.0684219699173448e+09: {},
+					-2.245382466748307e+07:  {},
+					0:                       {},
 				},
 			},
 		},
@@ -85820,15 +85822,15 @@ var xAllPass = []vdlEntry{
 		Source: []interface{}{
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					2.7492247330252223e+09: struct{}{},
+					2.7492247330252223e+09: {},
 				},
 			},
 			nil,
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					-2.0684219699173448e+09: struct{}{},
-					-2.245382466748307e+07:  struct{}{},
-					0:                       struct{}{},
+					-2.0684219699173448e+09: {},
+					-2.245382466748307e+07:  {},
+					0:                       {},
 				},
 			},
 		},
@@ -85862,7 +85864,7 @@ var xAllPass = []vdlEntry{
 		Target: []XArray1_Set_XEnumBcd{
 			{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -85870,7 +85872,7 @@ var xAllPass = []vdlEntry{
 		Source: []XArray1_Set_XEnumBcd{
 			{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -85881,7 +85883,7 @@ var xAllPass = []vdlEntry{
 		Target: []XArray1_Set_XEnumBcd{
 			{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -85889,7 +85891,7 @@ var xAllPass = []vdlEntry{
 		Source: XList_Any{
 			XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -86062,13 +86064,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "[]XSet_XArray1_XStructEmpty{{{}}}",
 		Target: []XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "[]XSet_XArray1_XStructEmpty{{{}}}",
 		Source: []XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -86077,13 +86079,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "[]XSet_XArray1_XStructEmpty{{{}}}",
 		Target: []XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "[]any{XSet_XArray1_XStructEmpty{{}}}",
 		Source: []interface{}{
 			XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -86214,10 +86216,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -86302,10 +86304,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -86393,10 +86395,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -86481,10 +86483,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -86567,12 +86569,12 @@ var xAllPass = []vdlEntry{
 					1903587924,
 				},
 				F4: map[float64]struct{}{
-					-1.5720458870141203e+09: struct{}{},
-					-1.9983283293632567e+07: struct{}{},
-					-3.238533857464902e+07:  struct{}{},
+					-1.5720458870141203e+09: {},
+					-1.9983283293632567e+07: {},
+					-3.238533857464902e+07:  {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					185: 224,
@@ -86647,10 +86649,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					2.3672634377113853e+09: struct{}{},
+					2.3672634377113853e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					122: 240,
@@ -86713,12 +86715,12 @@ var xAllPass = []vdlEntry{
 					1903587924,
 				},
 				F4: map[float64]struct{}{
-					-1.5720458870141203e+09: struct{}{},
-					-1.9983283293632567e+07: struct{}{},
-					-3.238533857464902e+07:  struct{}{},
+					-1.5720458870141203e+09: {},
+					-1.9983283293632567e+07: {},
+					-3.238533857464902e+07:  {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					185: 224,
@@ -86793,10 +86795,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					2.3672634377113853e+09: struct{}{},
+					2.3672634377113853e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					122: 240,
@@ -86862,12 +86864,12 @@ var xAllPass = []vdlEntry{
 					1903587924,
 				},
 				F4: map[float64]struct{}{
-					-1.5720458870141203e+09: struct{}{},
-					-1.9983283293632567e+07: struct{}{},
-					-3.238533857464902e+07:  struct{}{},
+					-1.5720458870141203e+09: {},
+					-1.9983283293632567e+07: {},
+					-3.238533857464902e+07:  {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					185: 224,
@@ -86942,10 +86944,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					2.3672634377113853e+09: struct{}{},
+					2.3672634377113853e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					122: 240,
@@ -87008,12 +87010,12 @@ var xAllPass = []vdlEntry{
 					1903587924,
 				},
 				F4: map[float64]struct{}{
-					-1.5720458870141203e+09: struct{}{},
-					-1.9983283293632567e+07: struct{}{},
-					-3.238533857464902e+07:  struct{}{},
+					-1.5720458870141203e+09: {},
+					-1.9983283293632567e+07: {},
+					-3.238533857464902e+07:  {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					185: 224,
@@ -87088,10 +87090,10 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					2.3672634377113853e+09: struct{}{},
+					2.3672634377113853e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdC: struct{}{},
+					XEnumBcdC: {},
 				},
 				F6: map[byte]byte{
 					122: 240,
@@ -87273,7 +87275,7 @@ var xAllPass = []vdlEntry{
 		Target: []*XStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -87281,7 +87283,7 @@ var xAllPass = []vdlEntry{
 		Source: []*XStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -87292,7 +87294,7 @@ var xAllPass = []vdlEntry{
 		Target: []*XStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -87304,7 +87306,7 @@ var xAllPass = []vdlEntry{
 					vdl.AnyType,
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F8: XStructDepth1_All{
 					F5: vdl.AnyType,
@@ -87653,13 +87655,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XSet_XArray1_XStructEmpty{{{}}}",
 		Target: XList_XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "XList_XSet_XArray1_XStructEmpty{{{}}}",
 		Source: XList_XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -87668,13 +87670,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XList_XSet_XArray1_XStructEmpty{{{}}}",
 		Target: XList_XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "[]XSet_XArray1_XStructEmpty{{{}}}",
 		Source: []XSet_XArray1_XStructEmpty{
 			{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -87805,10 +87807,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -87893,10 +87895,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -87984,10 +87986,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -88072,10 +88074,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -88177,13 +88179,13 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					1.9667025630643923e+07: struct{}{},
-					3.4260743001183236e+08: struct{}{},
+					1.9667025630643923e+07: {},
+					3.4260743001183236e+08: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 				F8: XStructDepth1_All{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
@@ -88259,13 +88261,13 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					1.9667025630643923e+07: struct{}{},
-					3.4260743001183236e+08: struct{}{},
+					1.9667025630643923e+07: {},
+					3.4260743001183236e+08: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 				F8: XStructDepth1_All{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
@@ -88344,13 +88346,13 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					1.9667025630643923e+07: struct{}{},
-					3.4260743001183236e+08: struct{}{},
+					1.9667025630643923e+07: {},
+					3.4260743001183236e+08: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 				F8: XStructDepth1_All{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
@@ -88426,13 +88428,13 @@ var xAllPass = []vdlEntry{
 					},
 				},
 				F4: map[float64]struct{}{
-					1.9667025630643923e+07: struct{}{},
-					3.4260743001183236e+08: struct{}{},
+					1.9667025630643923e+07: {},
+					3.4260743001183236e+08: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 				F8: XStructDepth1_All{
 					F0: XUnionDepth2_XList_XByte(XUnionDepth2_XList_XByteF2{}),
@@ -88592,7 +88594,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -88600,7 +88602,7 @@ var xAllPass = []vdlEntry{
 		Source: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -88611,7 +88613,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -88623,7 +88625,7 @@ var xAllPass = []vdlEntry{
 					vdl.AnyType,
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F8: XStructDepth1_All{
 					F5: vdl.AnyType,
@@ -88640,7 +88642,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.0780494803258038e+09: struct{}{},
+					1.0780494803258038e+09: {},
 				},
 			},
 		},
@@ -88648,7 +88650,7 @@ var xAllPass = []vdlEntry{
 		Source: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.0780494803258038e+09: struct{}{},
+					1.0780494803258038e+09: {},
 				},
 			},
 		},
@@ -88659,7 +88661,7 @@ var xAllPass = []vdlEntry{
 		Target: XList_OptXStructDepth2_Set_Float64{
 			{
 				F4: map[float64]struct{}{
-					1.0780494803258038e+09: struct{}{},
+					1.0780494803258038e+09: {},
 				},
 			},
 		},
@@ -88667,7 +88669,7 @@ var xAllPass = []vdlEntry{
 		Source: []interface{}{
 			&XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.0780494803258038e+09: struct{}{},
+					1.0780494803258038e+09: {},
 				},
 			},
 		},
@@ -88698,7 +88700,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XArray1_XArray3_Int64]{{{-123, -123, -123}}}",
 		Source: map[XArray1_XArray3_Int64]struct{}{
@@ -88708,7 +88710,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88721,7 +88723,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XArray1_XArray3_Int64{{{-123, -123, -123}}}",
 		Source: XSet_XArray1_XArray3_Int64{
@@ -88731,7 +88733,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88745,14 +88747,14 @@ var xAllPass = []vdlEntry{
 					948696848856180951,
 					-410485718848228531,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					818672935806784812,
 					-4040637540944211339,
 					-1850373240560994483,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XArray1_XArray3_Int64]{{{0, 948696848856180951, -410485718848228531}}, {{818672935806784812, -4040637540944211339, -1850373240560994483}}}",
 		Source: map[XArray1_XArray3_Int64]struct{}{
@@ -88762,14 +88764,14 @@ var xAllPass = []vdlEntry{
 					948696848856180951,
 					-410485718848228531,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					818672935806784812,
 					-4040637540944211339,
 					-1850373240560994483,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88782,14 +88784,14 @@ var xAllPass = []vdlEntry{
 					948696848856180951,
 					-410485718848228531,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					818672935806784812,
 					-4040637540944211339,
 					-1850373240560994483,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XArray1_XArray3_Int64{{{0, 948696848856180951, -410485718848228531}}, {{818672935806784812, -4040637540944211339, -1850373240560994483}}}",
 		Source: XSet_XArray1_XArray3_Int64{
@@ -88799,14 +88801,14 @@ var xAllPass = []vdlEntry{
 					948696848856180951,
 					-410485718848228531,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					818672935806784812,
 					-4040637540944211339,
 					-1850373240560994483,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88840,7 +88842,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XStructDepth2_XStructDepth1_Bool]{{F9: {F1: true}}}",
 		Source: map[XStructDepth2_XStructDepth1_Bool]struct{}{
@@ -88848,7 +88850,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88859,7 +88861,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XStructDepth2_XStructDepth1_Bool{{F9: {F1: true}}}",
 		Source: XSet_XStructDepth2_XStructDepth1_Bool{
@@ -88867,7 +88869,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88892,13 +88894,13 @@ var xAllPass = []vdlEntry{
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -88907,13 +88909,13 @@ var xAllPass = []vdlEntry{
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -88921,22 +88923,22 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "set[XUnionDepth2_XArray1_String]{{F0: {}}}",
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{}: struct{}{},
+			XUnionDepth2_XArray1_StringF0{}: {},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{}: struct{}{},
+			XUnionDepth2_XArray1_StringF0{}: {},
 		},
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "set[XUnionDepth2_XArray1_String]{{F0: {}}}",
 		Target: map[XUnionDepth2_XArray1_String]struct{}{
-			XUnionDepth2_XArray1_StringF0{}: struct{}{},
+			XUnionDepth2_XArray1_StringF0{}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
-			XUnionDepth2_XArray1_StringF0{}: struct{}{},
+			XUnionDepth2_XArray1_StringF0{}: {},
 		},
 	},
 	{
@@ -88965,7 +88967,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XArray1_XArray3_Int64{{{-123, -123, -123}}}",
 		Source: XSet_XArray1_XArray3_Int64{
@@ -88975,7 +88977,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -88988,7 +88990,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XArray1_XArray3_Int64]{{{-123, -123, -123}}}",
 		Source: map[XArray1_XArray3_Int64]struct{}{
@@ -88998,7 +89000,7 @@ var xAllPass = []vdlEntry{
 					-123,
 					-123,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -89012,14 +89014,14 @@ var xAllPass = []vdlEntry{
 					698506354811037918,
 					-411202985819738107,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					-4477380931730073524,
 					-3870291943442070151,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XArray1_XArray3_Int64{{{-447057443590709381, 698506354811037918, -411202985819738107}}, {{-4477380931730073524, -3870291943442070151, 0}}}",
 		Source: XSet_XArray1_XArray3_Int64{
@@ -89029,14 +89031,14 @@ var xAllPass = []vdlEntry{
 					698506354811037918,
 					-411202985819738107,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					-4477380931730073524,
 					-3870291943442070151,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -89049,14 +89051,14 @@ var xAllPass = []vdlEntry{
 					698506354811037918,
 					-411202985819738107,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					-4477380931730073524,
 					-3870291943442070151,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XArray1_XArray3_Int64]{{{-447057443590709381, 698506354811037918, -411202985819738107}}, {{-4477380931730073524, -3870291943442070151, 0}}}",
 		Source: map[XArray1_XArray3_Int64]struct{}{
@@ -89066,14 +89068,14 @@ var xAllPass = []vdlEntry{
 					698506354811037918,
 					-411202985819738107,
 				},
-			}: struct{}{},
+			}: {},
 			{
 				{
 					-4477380931730073524,
 					-3870291943442070151,
 					0,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -89107,7 +89109,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "XSet_XStructDepth2_XStructDepth1_Bool{{F9: {F1: true}}}",
 		Source: XSet_XStructDepth2_XStructDepth1_Bool{
@@ -89115,7 +89117,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -89126,7 +89128,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 		SourceLabel: "set[XStructDepth2_XStructDepth1_Bool]{{F9: {F1: true}}}",
 		Source: map[XStructDepth2_XStructDepth1_Bool]struct{}{
@@ -89134,7 +89136,7 @@ var xAllPass = []vdlEntry{
 				F9: XStructDepth1_Bool{
 					F1: true,
 				},
-			}: struct{}{},
+			}: {},
 		},
 	},
 	{
@@ -89159,13 +89161,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -89174,13 +89176,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"abcdeΔΘΠΣΦ王普澤世界",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -89190,13 +89192,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "XSet_XUnionDepth2_XArray1_String{{F0: {\"eΔΘ\"}}}",
 		Source: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -89205,13 +89207,13 @@ var xAllPass = []vdlEntry{
 		Target: XSet_XUnionDepth2_XArray1_String{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
-			}}: struct{}{},
+			}}: {},
 		},
 		SourceLabel: "set[XUnionDepth2_XArray1_String]{{F0: {\"eΔΘ\"}}}",
 		Source: map[XUnionDepth2_XArray1_String]struct{}{
 			XUnionDepth2_XArray1_StringF0{Value: XArray1_String{
 				"eΔΘ",
-			}}: struct{}{},
+			}}: {},
 		},
 	},
 	{
@@ -89914,7 +89916,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_All{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 			F1: []XUnionDepth1_All{
@@ -89924,7 +89926,7 @@ var xAllPass = []vdlEntry{
 				}},
 			},
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
@@ -89944,10 +89946,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -90019,7 +90021,7 @@ var xAllPass = []vdlEntry{
 			}},
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -90027,7 +90029,7 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth3_All{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 			F1: []XUnionDepth1_All{
@@ -90037,7 +90039,7 @@ var xAllPass = []vdlEntry{
 				}},
 			},
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 				XUnionDepth1_Float64F29{Value: 1.5}: XUnionDepth1_Float64F29{Value: 1.5},
@@ -90057,10 +90059,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -90132,7 +90134,7 @@ var xAllPass = []vdlEntry{
 			}},
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -90144,9 +90146,9 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_All{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 			},
 			F1: []XUnionDepth1_All{
@@ -90155,7 +90157,7 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_AllF1{},
 			},
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 				XUnionDepth1_Float64F29{Value: -2.0275041959631462e+09}: XUnionDepth1_Float64F29{Value: -1.608352870384518e+08},
@@ -90178,10 +90180,10 @@ var xAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					1.93157022182663e+09: struct{}{},
+					1.93157022182663e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					157: 83,
@@ -90212,9 +90214,9 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth3_All{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdB: struct{}{},
-					XEnumBcdC: struct{}{},
-					XEnumBcdD: struct{}{},
+					XEnumBcdB: {},
+					XEnumBcdC: {},
+					XEnumBcdD: {},
 				},
 			},
 			F1: []XUnionDepth1_All{
@@ -90223,7 +90225,7 @@ var xAllPass = []vdlEntry{
 				XUnionDepth1_AllF1{},
 			},
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F3: map[XUnionDepth1_Float64]XUnionDepth1_Float64{
 				XUnionDepth1_Float64F29{Value: -2.0275041959631462e+09}: XUnionDepth1_Float64F29{Value: -1.608352870384518e+08},
@@ -90246,10 +90248,10 @@ var xAllPass = []vdlEntry{
 					nil,
 				},
 				F4: map[float64]struct{}{
-					1.93157022182663e+09: struct{}{},
+					1.93157022182663e+09: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					157: 83,
@@ -90306,7 +90308,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -90314,7 +90316,7 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -90325,7 +90327,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -90333,7 +90335,7 @@ var xAllPass = []vdlEntry{
 		Source: &XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -90507,13 +90509,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_XSet_XArray1_XStructEmpty{F2: {{}}}",
 		Target: XStructDepth3_XSet_XArray1_XStructEmpty{
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "XStructDepth3_XSet_XArray1_XStructEmpty{F2: {{}}}",
 		Source: XStructDepth3_XSet_XArray1_XStructEmpty{
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 	},
@@ -90522,13 +90524,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_XSet_XArray1_XStructEmpty{F2: {{}}}",
 		Target: XStructDepth3_XSet_XArray1_XStructEmpty{
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 		},
 		SourceLabel: "XStructDepth3_All{F2: {{}}}",
 		Source: XStructDepth3_All{
 			F2: XSet_XArray1_XStructEmpty{
-				{}: struct{}{},
+				{}: {},
 			},
 			F4: XStructDepth2_All{
 				F0: XArray2_TypeObject{
@@ -90742,10 +90744,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -90830,10 +90832,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -90921,10 +90923,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -91009,10 +91011,10 @@ var xAllPass = []vdlEntry{
 					int64(-123),
 				},
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 				F6: map[byte]byte{
 					123: 123,
@@ -91100,7 +91102,7 @@ var xAllPass = []vdlEntry{
 					0,
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
+					XEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3573352:    1036060279,
@@ -91166,7 +91168,7 @@ var xAllPass = []vdlEntry{
 					0,
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
+					XEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3573352:    1036060279,
@@ -91235,7 +91237,7 @@ var xAllPass = []vdlEntry{
 					0,
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
+					XEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3573352:    1036060279,
@@ -91301,7 +91303,7 @@ var xAllPass = []vdlEntry{
 					0,
 				},
 				F5: XSet_XEnumBcd{
-					XEnumBcdB: struct{}{},
+					XEnumBcdB: {},
 				},
 				F7: map[uint32]uint32{
 					3573352:    1036060279,
@@ -91445,13 +91447,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
 			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Source: XStructDepth3_XUnionDepth2_All{
 			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 	},
@@ -91460,7 +91462,7 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XStructDepth3_XUnionDepth2_All{F5: {F4: {false}}}",
 		Target: XStructDepth3_XUnionDepth2_All{
 			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 		SourceLabel: "XStructDepth3_All{F5: {F4: {false}}}",
@@ -91477,7 +91479,7 @@ var xAllPass = []vdlEntry{
 				F11: XUnionDepth1_Float64F29{},
 			},
 			F5: XUnionDepth2_AllF4{Value: XSet_XBool{
-				false: struct{}{},
+				false: {},
 			}},
 		},
 	},
@@ -91510,7 +91512,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_OptXStructDepth2_Set_Float64{
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -91518,7 +91520,7 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth3_OptXStructDepth2_Set_Float64{
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -91529,7 +91531,7 @@ var xAllPass = []vdlEntry{
 		Target: XStructDepth3_OptXStructDepth2_Set_Float64{
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -91549,7 +91551,7 @@ var xAllPass = []vdlEntry{
 			F5: XUnionDepth2_AllF0{},
 			F6: &XStructDepth2_Set_Float64{
 				F4: map[float64]struct{}{
-					1.5: struct{}{},
+					1.5: {},
 				},
 			},
 		},
@@ -91617,13 +91619,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
 		Target: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
 		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -91632,13 +91634,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
 		Target: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -91904,13 +91906,13 @@ var xAllPass = []vdlEntry{
 		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -91919,13 +91921,13 @@ var xAllPass = []vdlEntry{
 		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F2: {{F3: \"abcdeΔΘΠΣΦ王普澤世界\"}}}",
 		Source: XUnionDepth3_All(XUnionDepth3_AllF2{Value: map[XStructDepth1_String]struct{}{
 			{
 				F3: "abcdeΔΘΠΣΦ王普澤世界",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -91933,34 +91935,34 @@ var xAllPass = []vdlEntry{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
 		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "ΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
 		Source: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "ΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
 		Label:       "Random0",
 		TargetLabel: "XUnionDepth3_Set_XStructDepth1_String{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
 		Target: XUnionDepth3_Set_XStructDepth1_String(XUnionDepth3_Set_XStructDepth1_StringF2{Value: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "ΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F2: {{}, {F3: \"ΘΠΣΦ\"}}}",
 		Source: XUnionDepth3_All(XUnionDepth3_AllF2{Value: map[XStructDepth1_String]struct{}{
-			{}: struct{}{},
+			{}: {},
 			{
 				F3: "ΘΠΣΦ",
-			}: struct{}{},
+			}: {},
 		}}),
 	},
 	{
@@ -92091,10 +92093,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -92177,10 +92179,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -92266,10 +92268,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -92352,10 +92354,10 @@ var xAllPass = []vdlEntry{
 				int64(-123),
 			},
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				123: 123,
@@ -92436,12 +92438,12 @@ var xAllPass = []vdlEntry{
 				650662747,
 			},
 			F4: map[float64]struct{}{
-				-1.2857409473689704e+08: struct{}{},
-				1.157960391740711e+09:   struct{}{},
-				1.873471483852068e+09:   struct{}{},
+				-1.2857409473689704e+08: {},
+				1.157960391740711e+09:   {},
+				1.873471483852068e+09:   {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				0:   48,
@@ -92454,9 +92456,9 @@ var xAllPass = []vdlEntry{
 			},
 			F8: XStructDepth1_All{
 				F0: map[XByte]struct{}{
-					135: struct{}{},
-					173: struct{}{},
-					243: struct{}{},
+					135: {},
+					173: {},
+					243: {},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
 				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
@@ -92493,12 +92495,12 @@ var xAllPass = []vdlEntry{
 				650662747,
 			},
 			F4: map[float64]struct{}{
-				-1.2857409473689704e+08: struct{}{},
-				1.157960391740711e+09:   struct{}{},
-				1.873471483852068e+09:   struct{}{},
+				-1.2857409473689704e+08: {},
+				1.157960391740711e+09:   {},
+				1.873471483852068e+09:   {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				0:   48,
@@ -92511,9 +92513,9 @@ var xAllPass = []vdlEntry{
 			},
 			F8: XStructDepth1_All{
 				F0: map[XByte]struct{}{
-					135: struct{}{},
-					173: struct{}{},
-					243: struct{}{},
+					135: {},
+					173: {},
+					243: {},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
 				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
@@ -92553,12 +92555,12 @@ var xAllPass = []vdlEntry{
 				650662747,
 			},
 			F4: map[float64]struct{}{
-				-1.2857409473689704e+08: struct{}{},
-				1.157960391740711e+09:   struct{}{},
-				1.873471483852068e+09:   struct{}{},
+				-1.2857409473689704e+08: {},
+				1.157960391740711e+09:   {},
+				1.873471483852068e+09:   {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				0:   48,
@@ -92571,9 +92573,9 @@ var xAllPass = []vdlEntry{
 			},
 			F8: XStructDepth1_All{
 				F0: map[XByte]struct{}{
-					135: struct{}{},
-					173: struct{}{},
-					243: struct{}{},
+					135: {},
+					173: {},
+					243: {},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
 				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
@@ -92610,12 +92612,12 @@ var xAllPass = []vdlEntry{
 				650662747,
 			},
 			F4: map[float64]struct{}{
-				-1.2857409473689704e+08: struct{}{},
-				1.157960391740711e+09:   struct{}{},
-				1.873471483852068e+09:   struct{}{},
+				-1.2857409473689704e+08: {},
+				1.157960391740711e+09:   {},
+				1.873471483852068e+09:   {},
 			},
 			F5: XSet_XEnumBcd{
-				XEnumBcdD: struct{}{},
+				XEnumBcdD: {},
 			},
 			F6: map[byte]byte{
 				0:   48,
@@ -92628,9 +92630,9 @@ var xAllPass = []vdlEntry{
 			},
 			F8: XStructDepth1_All{
 				F0: map[XByte]struct{}{
-					135: struct{}{},
-					173: struct{}{},
-					243: struct{}{},
+					135: {},
+					173: {},
+					243: {},
 				},
 				F3:  "bcdeΔΘΠΣΦ",
 				F5:  vdl.TypeOf((*XUnionDepth2_OptXStructDepth1_XFloat32)(nil)),
@@ -92744,13 +92746,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -92759,13 +92761,13 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {1.5}}}",
 		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {1.5}}}",
 		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				1.5: struct{}{},
+				1.5: {},
 			},
 		}}),
 	},
@@ -92775,15 +92777,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
 		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.0805507443036644e+09: struct{}{},
-				6.403380188710701e+08:   struct{}{},
+				-2.0805507443036644e+09: {},
+				6.403380188710701e+08:   {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
 		Source: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.0805507443036644e+09: struct{}{},
-				6.403380188710701e+08:   struct{}{},
+				-2.0805507443036644e+09: {},
+				6.403380188710701e+08:   {},
 			},
 		}}),
 	},
@@ -92792,15 +92794,15 @@ var xAllPass = []vdlEntry{
 		TargetLabel: "XUnionDepth3_OptXStructDepth2_Set_Float64{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
 		Target: XUnionDepth3_OptXStructDepth2_Set_Float64(XUnionDepth3_OptXStructDepth2_Set_Float64F6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.0805507443036644e+09: struct{}{},
-				6.403380188710701e+08:   struct{}{},
+				-2.0805507443036644e+09: {},
+				6.403380188710701e+08:   {},
 			},
 		}}),
 		SourceLabel: "XUnionDepth3_All{F6: {F4: {-2.0805507443036644e+09, 6.403380188710701e+08}}}",
 		Source: XUnionDepth3_All(XUnionDepth3_AllF6{Value: &XStructDepth2_Set_Float64{
 			F4: map[float64]struct{}{
-				-2.0805507443036644e+09: struct{}{},
-				6.403380188710701e+08:   struct{}{},
+				-2.0805507443036644e+09: {},
+				6.403380188710701e+08:   {},
 			},
 		}}),
 	},
@@ -92832,7 +92834,7 @@ var xAllPass = []vdlEntry{
 		Target: &XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -92840,7 +92842,7 @@ var xAllPass = []vdlEntry{
 		Source: &XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -92851,7 +92853,7 @@ var xAllPass = []vdlEntry{
 		Target: &XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},
@@ -92859,7 +92861,7 @@ var xAllPass = []vdlEntry{
 		Source: XStructDepth3_XArray1_Set_XEnumBcd{
 			F0: XArray1_Set_XEnumBcd{
 				{
-					XEnumBcdD: struct{}{},
+					XEnumBcdD: {},
 				},
 			},
 		},

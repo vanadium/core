@@ -8,10 +8,12 @@
 // Package pprof defines an interface for accessing runtime profiling data in
 // the format expected by the pprof visualization tool.  For more information
 // about pprof, see http://code.google.com/p/google-perftools/.
+//nolint:golint
 package pprof
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -26,7 +28,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 
 // PProfClientMethods is the client interface
 // containing PProf methods.
-type PProfClientMethods interface { //nolint:golint
+type PProfClientMethods interface {
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
 	CmdLine(*context.T, ...rpc.CallOpt) ([]string, error)
@@ -47,13 +49,13 @@ type PProfClientMethods interface { //nolint:golint
 }
 
 // PProfClientStub adds universal methods to PProfClientMethods.
-type PProfClientStub interface { //nolint:golint
+type PProfClientStub interface {
 	PProfClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // PProfClient returns a client stub for PProf.
-func PProfClient(name string) PProfClientStub { //nolint:golint
+func PProfClient(name string) PProfClientStub {
 	return implPProfClientStub{name}
 }
 
@@ -95,7 +97,7 @@ func (c implPProfClientStub) Symbol(ctx *context.T, i0 []uint64, opts ...rpc.Cal
 }
 
 // PProfProfileClientStream is the client stream for PProf.Profile.
-type PProfProfileClientStream interface { //nolint:golint
+type PProfProfileClientStream interface {
 	// RecvStream returns the receiver side of the PProf.Profile client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -111,7 +113,7 @@ type PProfProfileClientStream interface { //nolint:golint
 }
 
 // PProfProfileClientCall represents the call returned from PProf.Profile.
-type PProfProfileClientCall interface { //nolint:golint
+type PProfProfileClientCall interface {
 	PProfProfileClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -126,7 +128,7 @@ type PProfProfileClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implPProfProfileClientCall struct { //nolint:golint
+type implPProfProfileClientCall struct {
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -163,7 +165,7 @@ func (c *implPProfProfileClientCall) Finish() (err error) {
 }
 
 // PProfCpuProfileClientStream is the client stream for PProf.CpuProfile.
-type PProfCpuProfileClientStream interface { //nolint:golint
+type PProfCpuProfileClientStream interface {
 	// RecvStream returns the receiver side of the PProf.CpuProfile client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -179,7 +181,7 @@ type PProfCpuProfileClientStream interface { //nolint:golint
 }
 
 // PProfCpuProfileClientCall represents the call returned from PProf.CpuProfile.
-type PProfCpuProfileClientCall interface { //nolint:golint
+type PProfCpuProfileClientCall interface {
 	PProfCpuProfileClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -194,7 +196,7 @@ type PProfCpuProfileClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implPProfCpuProfileClientCall struct { //nolint:golint
+type implPProfCpuProfileClientCall struct {
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -232,7 +234,7 @@ func (c *implPProfCpuProfileClientCall) Finish() (err error) {
 
 // PProfServerMethods is the interface a server writer
 // implements for PProf.
-type PProfServerMethods interface { //nolint:golint
+type PProfServerMethods interface {
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
 	CmdLine(*context.T, rpc.ServerCall) ([]string, error)
@@ -256,7 +258,6 @@ type PProfServerMethods interface { //nolint:golint
 // PProf methods, as expected by rpc.Server.
 // The only difference between this interface and PProfServerMethods
 // is the streaming methods.
-// nolint:golint
 type PProfServerStubMethods interface {
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
@@ -278,16 +279,16 @@ type PProfServerStubMethods interface {
 }
 
 // PProfServerStub adds universal methods to PProfServerStubMethods.
-type PProfServerStub interface { //nolint:golint
+type PProfServerStub interface {
 	PProfServerStubMethods
 	// DescribeInterfaces the PProf interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // PProfServer returns a server stub for PProf.
 // It converts an implementation of PProfServerMethods into
 // an object that may be used by rpc.Server.
-func PProfServer(impl PProfServerMethods) PProfServerStub { //nolint:golint
+func PProfServer(impl PProfServerMethods) PProfServerStub {
 	stub := implPProfServerStub{
 		impl: impl,
 	}
@@ -330,7 +331,7 @@ func (s implPProfServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implPProfServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implPProfServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{PProfDesc}
 }
 
@@ -390,7 +391,7 @@ var descPProf = rpc.InterfaceDesc{
 }
 
 // PProfProfileServerStream is the server stream for PProf.Profile.
-type PProfProfileServerStream interface { //nolint:golint
+type PProfProfileServerStream interface {
 	// SendStream returns the send side of the PProf.Profile server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -401,14 +402,14 @@ type PProfProfileServerStream interface { //nolint:golint
 }
 
 // PProfProfileServerCall represents the context passed to PProf.Profile.
-type PProfProfileServerCall interface { //nolint:golint
+type PProfProfileServerCall interface {
 	rpc.ServerCall
 	PProfProfileServerStream
 }
 
 // PProfProfileServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements PProfProfileServerCall.
-type PProfProfileServerCallStub struct { //nolint:golint
+type PProfProfileServerCallStub struct {
 	rpc.StreamServerCall
 }
 
@@ -433,7 +434,7 @@ func (s implPProfProfileServerCallSend) Send(item []byte) error {
 }
 
 // PProfCpuProfileServerStream is the server stream for PProf.CpuProfile.
-type PProfCpuProfileServerStream interface { //nolint:golint
+type PProfCpuProfileServerStream interface {
 	// SendStream returns the send side of the PProf.CpuProfile server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -444,14 +445,14 @@ type PProfCpuProfileServerStream interface { //nolint:golint
 }
 
 // PProfCpuProfileServerCall represents the context passed to PProf.CpuProfile.
-type PProfCpuProfileServerCall interface { //nolint:golint
+type PProfCpuProfileServerCall interface {
 	rpc.ServerCall
 	PProfCpuProfileServerStream
 }
 
 // PProfCpuProfileServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements PProfCpuProfileServerCall.
-type PProfCpuProfileServerCallStub struct { //nolint:golint
+type PProfCpuProfileServerCallStub struct {
 	rpc.StreamServerCall
 }
 

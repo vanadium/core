@@ -6,6 +6,7 @@
 // Package: binary
 
 // Package binary defines types for describing executable binaries.
+//nolint:golint
 package binary
 
 import (

@@ -7,6 +7,7 @@
 
 // Package kvstore implements a simple key-value store used for
 // testing the groups-based authorization.
+//nolint:golint
 package kvstore
 
 import (
@@ -24,19 +25,19 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 
 // StoreClientMethods is the client interface
 // containing Store methods.
-type StoreClientMethods interface { //nolint:golint
+type StoreClientMethods interface {
 	Get(_ *context.T, key string, _ ...rpc.CallOpt) (string, error)
 	Set(_ *context.T, key string, value string, _ ...rpc.CallOpt) error
 }
 
 // StoreClientStub adds universal methods to StoreClientMethods.
-type StoreClientStub interface { //nolint:golint
+type StoreClientStub interface {
 	StoreClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StoreClient returns a client stub for Store.
-func StoreClient(name string) StoreClientStub { //nolint:golint
+func StoreClient(name string) StoreClientStub {
 	return implStoreClientStub{name}
 }
 
@@ -56,7 +57,7 @@ func (c implStoreClientStub) Set(ctx *context.T, i0 string, i1 string, opts ...r
 
 // StoreServerMethods is the interface a server writer
 // implements for Store.
-type StoreServerMethods interface { //nolint:golint
+type StoreServerMethods interface {
 	Get(_ *context.T, _ rpc.ServerCall, key string) (string, error)
 	Set(_ *context.T, _ rpc.ServerCall, key string, value string) error
 }
@@ -65,20 +66,19 @@ type StoreServerMethods interface { //nolint:golint
 // Store methods, as expected by rpc.Server.
 // There is no difference between this interface and StoreServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type StoreServerStubMethods StoreServerMethods
 
 // StoreServerStub adds universal methods to StoreServerStubMethods.
-type StoreServerStub interface { //nolint:golint
+type StoreServerStub interface {
 	StoreServerStubMethods
 	// DescribeInterfaces the Store interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // StoreServer returns a server stub for Store.
 // It converts an implementation of StoreServerMethods into
 // an object that may be used by rpc.Server.
-func StoreServer(impl StoreServerMethods) StoreServerStub { //nolint:golint
+func StoreServer(impl StoreServerMethods) StoreServerStub {
 	stub := implStoreServerStub{
 		impl: impl,
 	}
@@ -109,7 +109,7 @@ func (s implStoreServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{StoreDesc}
 }
 

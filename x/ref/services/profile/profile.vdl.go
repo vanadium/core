@@ -6,6 +6,7 @@
 // Package: profile
 
 // Package profile defines types for the implementation of Vanadium profiles.
+//nolint:golint
 package profile
 
 import (

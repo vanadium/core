@@ -16,6 +16,7 @@
 // Access is determined by AccessLists at each node in the tree.  When resolving
 // a name like a/b/c/d, one must check the client blessings against the
 // AccessLists of each node traversed ("", a, a/b, a/b/c, and a/b/c/d).
+//nolint:golint
 package mounttable
 
 import (
@@ -94,7 +95,7 @@ const Resolve = Tag("Resolve")
 // MountTable defines the interface to talk to a mounttable.
 //
 // In all methods of MountTable, the receiver is the name bound to.
-type MountTableClientMethods interface { //nolint:golint
+type MountTableClientMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -168,13 +169,13 @@ type MountTableClientMethods interface { //nolint:golint
 }
 
 // MountTableClientStub adds universal methods to MountTableClientMethods.
-type MountTableClientStub interface { //nolint:golint
+type MountTableClientStub interface {
 	MountTableClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MountTableClient returns a client stub for MountTable.
-func MountTableClient(name string) MountTableClientStub { //nolint:golint
+func MountTableClient(name string) MountTableClientStub {
 	return implMountTableClientStub{name, permissions.ObjectClient(name)}
 }
 
@@ -210,7 +211,7 @@ func (c implMountTableClientStub) ResolveStep(ctx *context.T, opts ...rpc.CallOp
 // MountTable defines the interface to talk to a mounttable.
 //
 // In all methods of MountTable, the receiver is the name bound to.
-type MountTableServerMethods interface { //nolint:golint
+type MountTableServerMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -287,20 +288,19 @@ type MountTableServerMethods interface { //nolint:golint
 // MountTable methods, as expected by rpc.Server.
 // There is no difference between this interface and MountTableServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type MountTableServerStubMethods MountTableServerMethods
 
 // MountTableServerStub adds universal methods to MountTableServerStubMethods.
-type MountTableServerStub interface { //nolint:golint
+type MountTableServerStub interface {
 	MountTableServerStubMethods
 	// DescribeInterfaces the MountTable interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // MountTableServer returns a server stub for MountTable.
 // It converts an implementation of MountTableServerMethods into
 // an object that may be used by rpc.Server.
-func MountTableServer(impl MountTableServerMethods) MountTableServerStub { //nolint:golint
+func MountTableServer(impl MountTableServerMethods) MountTableServerStub {
 	stub := implMountTableServerStub{
 		impl:             impl,
 		ObjectServerStub: permissions.ObjectServer(impl),
@@ -341,7 +341,7 @@ func (s implMountTableServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMountTableServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implMountTableServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{MountTableDesc, permissions.ObjectDesc}
 }
 

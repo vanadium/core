@@ -6,6 +6,7 @@
 // Package: fortune
 
 // Package fortune defines the Fortune example interface.
+//nolint:golint
 package fortune
 
 import (
@@ -23,7 +24,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // containing Fortune methods.
 //
 // Fortune is the interface to a fortune-telling service.
-type FortuneClientMethods interface { //nolint:golint
+type FortuneClientMethods interface {
 	// Returns a random fortune.
 	Get(*context.T, ...rpc.CallOpt) (fortune string, _ error)
 	// Adds a fortune to the set used by Get().
@@ -33,13 +34,13 @@ type FortuneClientMethods interface { //nolint:golint
 }
 
 // FortuneClientStub adds universal methods to FortuneClientMethods.
-type FortuneClientStub interface { //nolint:golint
+type FortuneClientStub interface {
 	FortuneClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // FortuneClient returns a client stub for Fortune.
-func FortuneClient(name string) FortuneClientStub { //nolint:golint
+func FortuneClient(name string) FortuneClientStub {
 	return implFortuneClientStub{name}
 }
 
@@ -66,7 +67,7 @@ func (c implFortuneClientStub) Has(ctx *context.T, i0 string, opts ...rpc.CallOp
 // implements for Fortune.
 //
 // Fortune is the interface to a fortune-telling service.
-type FortuneServerMethods interface { //nolint:golint
+type FortuneServerMethods interface {
 	// Returns a random fortune.
 	Get(*context.T, rpc.ServerCall) (fortune string, _ error)
 	// Adds a fortune to the set used by Get().
@@ -79,20 +80,19 @@ type FortuneServerMethods interface { //nolint:golint
 // Fortune methods, as expected by rpc.Server.
 // There is no difference between this interface and FortuneServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type FortuneServerStubMethods FortuneServerMethods
 
 // FortuneServerStub adds universal methods to FortuneServerStubMethods.
-type FortuneServerStub interface { //nolint:golint
+type FortuneServerStub interface {
 	FortuneServerStubMethods
 	// DescribeInterfaces the Fortune interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // FortuneServer returns a server stub for Fortune.
 // It converts an implementation of FortuneServerMethods into
 // an object that may be used by rpc.Server.
-func FortuneServer(impl FortuneServerMethods) FortuneServerStub { //nolint:golint
+func FortuneServer(impl FortuneServerMethods) FortuneServerStub {
 	stub := implFortuneServerStub{
 		impl: impl,
 	}
@@ -127,7 +127,7 @@ func (s implFortuneServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{FortuneDesc}
 }
 

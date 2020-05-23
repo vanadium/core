@@ -21,12 +21,14 @@
 //
 // 3. ScoreKeeper: A score keeper receives the final score for a game after it
 // ended.
+//nolint:golint
 package rps
 
 import (
 	"fmt"
 	"io"
 	"time"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -1171,7 +1173,7 @@ const Player2 = WinnerTag(2)
 
 // JudgeClientMethods is the client interface
 // containing Judge methods.
-type JudgeClientMethods interface { //nolint:golint
+type JudgeClientMethods interface {
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
 	CreateGame(_ *context.T, Opts GameOptions, _ ...rpc.CallOpt) (GameId, error)
@@ -1180,13 +1182,13 @@ type JudgeClientMethods interface { //nolint:golint
 }
 
 // JudgeClientStub adds universal methods to JudgeClientMethods.
-type JudgeClientStub interface { //nolint:golint
+type JudgeClientStub interface {
 	JudgeClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // JudgeClient returns a client stub for Judge.
-func JudgeClient(name string) JudgeClientStub { //nolint:golint
+func JudgeClient(name string) JudgeClientStub {
 	return implJudgeClientStub{name}
 }
 
@@ -1209,7 +1211,7 @@ func (c implJudgeClientStub) Play(ctx *context.T, i0 GameId, opts ...rpc.CallOpt
 }
 
 // JudgePlayClientStream is the client stream for Judge.Play.
-type JudgePlayClientStream interface { //nolint:golint
+type JudgePlayClientStream interface {
 	// RecvStream returns the receiver side of the Judge.Play client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1242,7 +1244,7 @@ type JudgePlayClientStream interface { //nolint:golint
 }
 
 // JudgePlayClientCall represents the call returned from Judge.Play.
-type JudgePlayClientCall interface { //nolint:golint
+type JudgePlayClientCall interface {
 	JudgePlayClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -1257,7 +1259,7 @@ type JudgePlayClientCall interface { //nolint:golint
 	Finish() (PlayResult, error)
 }
 
-type implJudgePlayClientCall struct { //nolint:golint
+type implJudgePlayClientCall struct {
 	rpc.ClientCall
 	valRecv JudgeAction
 	errRecv error
@@ -1312,7 +1314,7 @@ func (c *implJudgePlayClientCall) Finish() (o0 PlayResult, err error) {
 
 // JudgeServerMethods is the interface a server writer
 // implements for Judge.
-type JudgeServerMethods interface { //nolint:golint
+type JudgeServerMethods interface {
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
 	CreateGame(_ *context.T, _ rpc.ServerCall, Opts GameOptions) (GameId, error)
@@ -1324,7 +1326,6 @@ type JudgeServerMethods interface { //nolint:golint
 // Judge methods, as expected by rpc.Server.
 // The only difference between this interface and JudgeServerMethods
 // is the streaming methods.
-// nolint:golint
 type JudgeServerStubMethods interface {
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
@@ -1334,16 +1335,16 @@ type JudgeServerStubMethods interface {
 }
 
 // JudgeServerStub adds universal methods to JudgeServerStubMethods.
-type JudgeServerStub interface { //nolint:golint
+type JudgeServerStub interface {
 	JudgeServerStubMethods
 	// DescribeInterfaces the Judge interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // JudgeServer returns a server stub for Judge.
 // It converts an implementation of JudgeServerMethods into
 // an object that may be used by rpc.Server.
-func JudgeServer(impl JudgeServerMethods) JudgeServerStub { //nolint:golint
+func JudgeServer(impl JudgeServerMethods) JudgeServerStub {
 	stub := implJudgeServerStub{
 		impl: impl,
 	}
@@ -1374,7 +1375,7 @@ func (s implJudgeServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implJudgeServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implJudgeServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{JudgeDesc}
 }
 
@@ -1412,7 +1413,7 @@ var descJudge = rpc.InterfaceDesc{
 }
 
 // JudgePlayServerStream is the server stream for Judge.Play.
-type JudgePlayServerStream interface { //nolint:golint
+type JudgePlayServerStream interface {
 	// RecvStream returns the receiver side of the Judge.Play server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1435,14 +1436,14 @@ type JudgePlayServerStream interface { //nolint:golint
 }
 
 // JudgePlayServerCall represents the context passed to Judge.Play.
-type JudgePlayServerCall interface { //nolint:golint
+type JudgePlayServerCall interface {
 	rpc.ServerCall
 	JudgePlayServerStream
 }
 
 // JudgePlayServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements JudgePlayServerCall.
-type JudgePlayServerCallStub struct { //nolint:golint
+type JudgePlayServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv PlayerAction
 	errRecv error
@@ -1499,20 +1500,20 @@ func (s implJudgePlayServerCallSend) Send(item JudgeAction) error {
 // containing Player methods.
 //
 // Player can receive challenges from other players.
-type PlayerClientMethods interface { //nolint:golint
+type PlayerClientMethods interface {
 	// Challenge is used by other players to challenge this player to a game. If
 	// the challenge is accepted, the method returns nil.
 	Challenge(_ *context.T, Address string, Id GameId, Opts GameOptions, _ ...rpc.CallOpt) error
 }
 
 // PlayerClientStub adds universal methods to PlayerClientMethods.
-type PlayerClientStub interface { //nolint:golint
+type PlayerClientStub interface {
 	PlayerClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // PlayerClient returns a client stub for Player.
-func PlayerClient(name string) PlayerClientStub { //nolint:golint
+func PlayerClient(name string) PlayerClientStub {
 	return implPlayerClientStub{name}
 }
 
@@ -1529,7 +1530,7 @@ func (c implPlayerClientStub) Challenge(ctx *context.T, i0 string, i1 GameId, i2
 // implements for Player.
 //
 // Player can receive challenges from other players.
-type PlayerServerMethods interface { //nolint:golint
+type PlayerServerMethods interface {
 	// Challenge is used by other players to challenge this player to a game. If
 	// the challenge is accepted, the method returns nil.
 	Challenge(_ *context.T, _ rpc.ServerCall, Address string, Id GameId, Opts GameOptions) error
@@ -1539,20 +1540,19 @@ type PlayerServerMethods interface { //nolint:golint
 // Player methods, as expected by rpc.Server.
 // There is no difference between this interface and PlayerServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type PlayerServerStubMethods PlayerServerMethods
 
 // PlayerServerStub adds universal methods to PlayerServerStubMethods.
-type PlayerServerStub interface { //nolint:golint
+type PlayerServerStub interface {
 	PlayerServerStubMethods
 	// DescribeInterfaces the Player interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // PlayerServer returns a server stub for Player.
 // It converts an implementation of PlayerServerMethods into
 // an object that may be used by rpc.Server.
-func PlayerServer(impl PlayerServerMethods) PlayerServerStub { //nolint:golint
+func PlayerServer(impl PlayerServerMethods) PlayerServerStub {
 	stub := implPlayerServerStub{
 		impl: impl,
 	}
@@ -1579,7 +1579,7 @@ func (s implPlayerServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implPlayerServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implPlayerServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{PlayerDesc}
 }
 
@@ -1609,18 +1609,18 @@ var descPlayer = rpc.InterfaceDesc{
 // containing ScoreKeeper methods.
 //
 // ScoreKeeper receives the outcome of games from Judges.
-type ScoreKeeperClientMethods interface { //nolint:golint
+type ScoreKeeperClientMethods interface {
 	Record(_ *context.T, Score ScoreCard, _ ...rpc.CallOpt) error
 }
 
 // ScoreKeeperClientStub adds universal methods to ScoreKeeperClientMethods.
-type ScoreKeeperClientStub interface { //nolint:golint
+type ScoreKeeperClientStub interface {
 	ScoreKeeperClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ScoreKeeperClient returns a client stub for ScoreKeeper.
-func ScoreKeeperClient(name string) ScoreKeeperClientStub { //nolint:golint
+func ScoreKeeperClient(name string) ScoreKeeperClientStub {
 	return implScoreKeeperClientStub{name}
 }
 
@@ -1637,7 +1637,7 @@ func (c implScoreKeeperClientStub) Record(ctx *context.T, i0 ScoreCard, opts ...
 // implements for ScoreKeeper.
 //
 // ScoreKeeper receives the outcome of games from Judges.
-type ScoreKeeperServerMethods interface { //nolint:golint
+type ScoreKeeperServerMethods interface {
 	Record(_ *context.T, _ rpc.ServerCall, Score ScoreCard) error
 }
 
@@ -1645,20 +1645,19 @@ type ScoreKeeperServerMethods interface { //nolint:golint
 // ScoreKeeper methods, as expected by rpc.Server.
 // There is no difference between this interface and ScoreKeeperServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ScoreKeeperServerStubMethods ScoreKeeperServerMethods
 
 // ScoreKeeperServerStub adds universal methods to ScoreKeeperServerStubMethods.
-type ScoreKeeperServerStub interface { //nolint:golint
+type ScoreKeeperServerStub interface {
 	ScoreKeeperServerStubMethods
 	// DescribeInterfaces the ScoreKeeper interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ScoreKeeperServer returns a server stub for ScoreKeeper.
 // It converts an implementation of ScoreKeeperServerMethods into
 // an object that may be used by rpc.Server.
-func ScoreKeeperServer(impl ScoreKeeperServerMethods) ScoreKeeperServerStub { //nolint:golint
+func ScoreKeeperServer(impl ScoreKeeperServerMethods) ScoreKeeperServerStub {
 	stub := implScoreKeeperServerStub{
 		impl: impl,
 	}
@@ -1685,7 +1684,7 @@ func (s implScoreKeeperServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implScoreKeeperServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implScoreKeeperServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ScoreKeeperDesc}
 }
 
@@ -1710,7 +1709,7 @@ var descScoreKeeper = rpc.InterfaceDesc{
 
 // RockPaperScissorsClientMethods is the client interface
 // containing RockPaperScissors methods.
-type RockPaperScissorsClientMethods interface { //nolint:golint
+type RockPaperScissorsClientMethods interface {
 	JudgeClientMethods
 	// Player can receive challenges from other players.
 	PlayerClientMethods
@@ -1719,13 +1718,13 @@ type RockPaperScissorsClientMethods interface { //nolint:golint
 }
 
 // RockPaperScissorsClientStub adds universal methods to RockPaperScissorsClientMethods.
-type RockPaperScissorsClientStub interface { //nolint:golint
+type RockPaperScissorsClientStub interface {
 	RockPaperScissorsClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // RockPaperScissorsClient returns a client stub for RockPaperScissors.
-func RockPaperScissorsClient(name string) RockPaperScissorsClientStub { //nolint:golint
+func RockPaperScissorsClient(name string) RockPaperScissorsClientStub {
 	return implRockPaperScissorsClientStub{name, JudgeClient(name), PlayerClient(name), ScoreKeeperClient(name)}
 }
 
@@ -1739,7 +1738,7 @@ type implRockPaperScissorsClientStub struct {
 
 // RockPaperScissorsServerMethods is the interface a server writer
 // implements for RockPaperScissors.
-type RockPaperScissorsServerMethods interface { //nolint:golint
+type RockPaperScissorsServerMethods interface {
 	JudgeServerMethods
 	// Player can receive challenges from other players.
 	PlayerServerMethods
@@ -1751,7 +1750,6 @@ type RockPaperScissorsServerMethods interface { //nolint:golint
 // RockPaperScissors methods, as expected by rpc.Server.
 // The only difference between this interface and RockPaperScissorsServerMethods
 // is the streaming methods.
-// nolint:golint
 type RockPaperScissorsServerStubMethods interface {
 	JudgeServerStubMethods
 	// Player can receive challenges from other players.
@@ -1761,16 +1759,16 @@ type RockPaperScissorsServerStubMethods interface {
 }
 
 // RockPaperScissorsServerStub adds universal methods to RockPaperScissorsServerStubMethods.
-type RockPaperScissorsServerStub interface { //nolint:golint
+type RockPaperScissorsServerStub interface {
 	RockPaperScissorsServerStubMethods
 	// DescribeInterfaces the RockPaperScissors interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // RockPaperScissorsServer returns a server stub for RockPaperScissors.
 // It converts an implementation of RockPaperScissorsServerMethods into
 // an object that may be used by rpc.Server.
-func RockPaperScissorsServer(impl RockPaperScissorsServerMethods) RockPaperScissorsServerStub { //nolint:golint
+func RockPaperScissorsServer(impl RockPaperScissorsServerMethods) RockPaperScissorsServerStub {
 	stub := implRockPaperScissorsServerStub{
 		impl:                  impl,
 		JudgeServerStub:       JudgeServer(impl),
@@ -1799,7 +1797,7 @@ func (s implRockPaperScissorsServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implRockPaperScissorsServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implRockPaperScissorsServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{RockPaperScissorsDesc, JudgeDesc, PlayerDesc, ScoreKeeperDesc}
 }
 

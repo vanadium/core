@@ -7,11 +7,13 @@
 
 // Package tunnel defines an interface for creating a network tunnel from client
 // to server.
+//nolint:golint
 package tunnel
 
 import (
 	"fmt"
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -571,7 +573,7 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error { //n
 
 // TunnelClientMethods is the client interface
 // containing Tunnel methods.
-type TunnelClientMethods interface { //nolint:golint
+type TunnelClientMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
 	// data received from that network connection is sent back on the reply
@@ -591,13 +593,13 @@ type TunnelClientMethods interface { //nolint:golint
 }
 
 // TunnelClientStub adds universal methods to TunnelClientMethods.
-type TunnelClientStub interface { //nolint:golint
+type TunnelClientStub interface {
 	TunnelClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TunnelClient returns a client stub for Tunnel.
-func TunnelClient(name string) TunnelClientStub { //nolint:golint
+func TunnelClient(name string) TunnelClientStub {
 	return implTunnelClientStub{name}
 }
 
@@ -629,7 +631,7 @@ func (c implTunnelClientStub) Shell(ctx *context.T, i0 string, i1 ShellOpts, opt
 }
 
 // TunnelForwardClientStream is the client stream for Tunnel.Forward.
-type TunnelForwardClientStream interface { //nolint:golint
+type TunnelForwardClientStream interface {
 	// RecvStream returns the receiver side of the Tunnel.Forward client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -662,7 +664,7 @@ type TunnelForwardClientStream interface { //nolint:golint
 }
 
 // TunnelForwardClientCall represents the call returned from Tunnel.Forward.
-type TunnelForwardClientCall interface { //nolint:golint
+type TunnelForwardClientCall interface {
 	TunnelForwardClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -677,7 +679,7 @@ type TunnelForwardClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implTunnelForwardClientCall struct { //nolint:golint
+type implTunnelForwardClientCall struct {
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -731,7 +733,7 @@ func (c *implTunnelForwardClientCall) Finish() (err error) {
 }
 
 // TunnelShellClientStream is the client stream for Tunnel.Shell.
-type TunnelShellClientStream interface { //nolint:golint
+type TunnelShellClientStream interface {
 	// RecvStream returns the receiver side of the Tunnel.Shell client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -764,7 +766,7 @@ type TunnelShellClientStream interface { //nolint:golint
 }
 
 // TunnelShellClientCall represents the call returned from Tunnel.Shell.
-type TunnelShellClientCall interface { //nolint:golint
+type TunnelShellClientCall interface {
 	TunnelShellClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -779,7 +781,7 @@ type TunnelShellClientCall interface { //nolint:golint
 	Finish() (exitCode int32, exitMsg string, _ error)
 }
 
-type implTunnelShellClientCall struct { //nolint:golint
+type implTunnelShellClientCall struct {
 	rpc.ClientCall
 	valRecv ServerShellPacket
 	errRecv error
@@ -834,7 +836,7 @@ func (c *implTunnelShellClientCall) Finish() (o0 int32, o1 string, err error) {
 
 // TunnelServerMethods is the interface a server writer
 // implements for Tunnel.
-type TunnelServerMethods interface { //nolint:golint
+type TunnelServerMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
 	// data received from that network connection is sent back on the reply
@@ -857,7 +859,6 @@ type TunnelServerMethods interface { //nolint:golint
 // Tunnel methods, as expected by rpc.Server.
 // The only difference between this interface and TunnelServerMethods
 // is the streaming methods.
-// nolint:golint
 type TunnelServerStubMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
@@ -878,16 +879,16 @@ type TunnelServerStubMethods interface {
 }
 
 // TunnelServerStub adds universal methods to TunnelServerStubMethods.
-type TunnelServerStub interface { //nolint:golint
+type TunnelServerStub interface {
 	TunnelServerStubMethods
 	// DescribeInterfaces the Tunnel interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // TunnelServer returns a server stub for Tunnel.
 // It converts an implementation of TunnelServerMethods into
 // an object that may be used by rpc.Server.
-func TunnelServer(impl TunnelServerMethods) TunnelServerStub { //nolint:golint
+func TunnelServer(impl TunnelServerMethods) TunnelServerStub {
 	stub := implTunnelServerStub{
 		impl: impl,
 	}
@@ -922,7 +923,7 @@ func (s implTunnelServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTunnelServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implTunnelServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{TunnelDesc}
 }
 
@@ -969,7 +970,7 @@ var descTunnel = rpc.InterfaceDesc{
 }
 
 // TunnelForwardServerStream is the server stream for Tunnel.Forward.
-type TunnelForwardServerStream interface { //nolint:golint
+type TunnelForwardServerStream interface {
 	// RecvStream returns the receiver side of the Tunnel.Forward server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -992,14 +993,14 @@ type TunnelForwardServerStream interface { //nolint:golint
 }
 
 // TunnelForwardServerCall represents the context passed to Tunnel.Forward.
-type TunnelForwardServerCall interface { //nolint:golint
+type TunnelForwardServerCall interface {
 	rpc.ServerCall
 	TunnelForwardServerStream
 }
 
 // TunnelForwardServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements TunnelForwardServerCall.
-type TunnelForwardServerCallStub struct { //nolint:golint
+type TunnelForwardServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -1053,7 +1054,7 @@ func (s implTunnelForwardServerCallSend) Send(item []byte) error {
 }
 
 // TunnelShellServerStream is the server stream for Tunnel.Shell.
-type TunnelShellServerStream interface { //nolint:golint
+type TunnelShellServerStream interface {
 	// RecvStream returns the receiver side of the Tunnel.Shell server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1076,14 +1077,14 @@ type TunnelShellServerStream interface { //nolint:golint
 }
 
 // TunnelShellServerCall represents the context passed to Tunnel.Shell.
-type TunnelShellServerCall interface { //nolint:golint
+type TunnelShellServerCall interface {
 	rpc.ServerCall
 	TunnelShellServerStream
 }
 
 // TunnelShellServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements TunnelShellServerCall.
-type TunnelShellServerCallStub struct { //nolint:golint
+type TunnelShellServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv ClientShellPacket
 	errRecv error
@@ -1138,7 +1139,7 @@ func (s implTunnelShellServerCallSend) Send(item ServerShellPacket) error {
 
 // ForwarderClientMethods is the client interface
 // containing Forwarder methods.
-type ForwarderClientMethods interface { //nolint:golint
+type ForwarderClientMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
 	// data received from that network connection is sent back on the reply
@@ -1147,13 +1148,13 @@ type ForwarderClientMethods interface { //nolint:golint
 }
 
 // ForwarderClientStub adds universal methods to ForwarderClientMethods.
-type ForwarderClientStub interface { //nolint:golint
+type ForwarderClientStub interface {
 	ForwarderClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ForwarderClient returns a client stub for Forwarder.
-func ForwarderClient(name string) ForwarderClientStub { //nolint:golint
+func ForwarderClient(name string) ForwarderClientStub {
 	return implForwarderClientStub{name}
 }
 
@@ -1171,7 +1172,7 @@ func (c implForwarderClientStub) Forward(ctx *context.T, opts ...rpc.CallOpt) (o
 }
 
 // ForwarderForwardClientStream is the client stream for Forwarder.Forward.
-type ForwarderForwardClientStream interface { //nolint:golint
+type ForwarderForwardClientStream interface {
 	// RecvStream returns the receiver side of the Forwarder.Forward client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1204,7 +1205,7 @@ type ForwarderForwardClientStream interface { //nolint:golint
 }
 
 // ForwarderForwardClientCall represents the call returned from Forwarder.Forward.
-type ForwarderForwardClientCall interface { //nolint:golint
+type ForwarderForwardClientCall interface {
 	ForwarderForwardClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -1219,7 +1220,7 @@ type ForwarderForwardClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implForwarderForwardClientCall struct { //nolint:golint
+type implForwarderForwardClientCall struct {
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -1274,7 +1275,7 @@ func (c *implForwarderForwardClientCall) Finish() (err error) {
 
 // ForwarderServerMethods is the interface a server writer
 // implements for Forwarder.
-type ForwarderServerMethods interface { //nolint:golint
+type ForwarderServerMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
 	// data received from that network connection is sent back on the reply
@@ -1286,7 +1287,6 @@ type ForwarderServerMethods interface { //nolint:golint
 // Forwarder methods, as expected by rpc.Server.
 // The only difference between this interface and ForwarderServerMethods
 // is the streaming methods.
-// nolint:golint
 type ForwarderServerStubMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
@@ -1296,16 +1296,16 @@ type ForwarderServerStubMethods interface {
 }
 
 // ForwarderServerStub adds universal methods to ForwarderServerStubMethods.
-type ForwarderServerStub interface { //nolint:golint
+type ForwarderServerStub interface {
 	ForwarderServerStubMethods
 	// DescribeInterfaces the Forwarder interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ForwarderServer returns a server stub for Forwarder.
 // It converts an implementation of ForwarderServerMethods into
 // an object that may be used by rpc.Server.
-func ForwarderServer(impl ForwarderServerMethods) ForwarderServerStub { //nolint:golint
+func ForwarderServer(impl ForwarderServerMethods) ForwarderServerStub {
 	stub := implForwarderServerStub{
 		impl: impl,
 	}
@@ -1332,7 +1332,7 @@ func (s implForwarderServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implForwarderServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implForwarderServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ForwarderDesc}
 }
 
@@ -1353,7 +1353,7 @@ var descForwarder = rpc.InterfaceDesc{
 }
 
 // ForwarderForwardServerStream is the server stream for Forwarder.Forward.
-type ForwarderForwardServerStream interface { //nolint:golint
+type ForwarderForwardServerStream interface {
 	// RecvStream returns the receiver side of the Forwarder.Forward server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1376,14 +1376,14 @@ type ForwarderForwardServerStream interface { //nolint:golint
 }
 
 // ForwarderForwardServerCall represents the context passed to Forwarder.Forward.
-type ForwarderForwardServerCall interface { //nolint:golint
+type ForwarderForwardServerCall interface {
 	rpc.ServerCall
 	ForwarderForwardServerStream
 }
 
 // ForwarderForwardServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ForwarderForwardServerCall.
-type ForwarderForwardServerCallStub struct { //nolint:golint
+type ForwarderForwardServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error

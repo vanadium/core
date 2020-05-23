@@ -7,6 +7,7 @@
 
 // Package stats defines an interface to access statistical information for
 // troubleshooting and monitoring purposes.
+//nolint:golint
 package stats
 
 import (
@@ -48,7 +49,7 @@ func NewErrNoValue(ctx *context.T, suffix string) error {
 // The types of the object values are implementation specific, but should be
 // primarily numeric in nature, e.g. counters, memory usage, latency metrics,
 // etc.
-type StatsClientMethods interface { //nolint:golint
+type StatsClientMethods interface {
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
 	watch.GlobWatcherClientMethods
@@ -60,13 +61,13 @@ type StatsClientMethods interface { //nolint:golint
 }
 
 // StatsClientStub adds universal methods to StatsClientMethods.
-type StatsClientStub interface { //nolint:golint
+type StatsClientStub interface {
 	StatsClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StatsClient returns a client stub for Stats.
-func StatsClient(name string) StatsClientStub { //nolint:golint
+func StatsClient(name string) StatsClientStub {
 	return implStatsClientStub{name, watch.GlobWatcherClient(name)}
 }
 
@@ -91,7 +92,7 @@ func (c implStatsClientStub) Value(ctx *context.T, opts ...rpc.CallOpt) (o0 *vom
 // The types of the object values are implementation specific, but should be
 // primarily numeric in nature, e.g. counters, memory usage, latency metrics,
 // etc.
-type StatsServerMethods interface { //nolint:golint
+type StatsServerMethods interface {
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
 	watch.GlobWatcherServerMethods
@@ -106,7 +107,6 @@ type StatsServerMethods interface { //nolint:golint
 // Stats methods, as expected by rpc.Server.
 // The only difference between this interface and StatsServerMethods
 // is the streaming methods.
-// nolint:golint
 type StatsServerStubMethods interface {
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
@@ -119,16 +119,16 @@ type StatsServerStubMethods interface {
 }
 
 // StatsServerStub adds universal methods to StatsServerStubMethods.
-type StatsServerStub interface { //nolint:golint
+type StatsServerStub interface {
 	StatsServerStubMethods
 	// DescribeInterfaces the Stats interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // StatsServer returns a server stub for Stats.
 // It converts an implementation of StatsServerMethods into
 // an object that may be used by rpc.Server.
-func StatsServer(impl StatsServerMethods) StatsServerStub { //nolint:golint
+func StatsServer(impl StatsServerMethods) StatsServerStub {
 	stub := implStatsServerStub{
 		impl:                  impl,
 		GlobWatcherServerStub: watch.GlobWatcherServer(impl),
@@ -157,7 +157,7 @@ func (s implStatsServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStatsServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implStatsServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{StatsDesc, watch.GlobWatcherDesc}
 }
 

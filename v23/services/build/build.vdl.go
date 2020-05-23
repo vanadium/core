@@ -6,11 +6,13 @@
 // Package: build
 
 // Package build defines interfaces for building executable binaries.
+//nolint:golint
 package build
 
 import (
 	"fmt"
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -350,7 +352,7 @@ func (x *File) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // containing Builder methods.
 //
 // Builder describes an interface for building binaries from source.
-type BuilderClientMethods interface { //nolint:golint
+type BuilderClientMethods interface {
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
 	Build(_ *context.T, arch Architecture, os OperatingSystem, _ ...rpc.CallOpt) (BuilderBuildClientCall, error)
@@ -360,13 +362,13 @@ type BuilderClientMethods interface { //nolint:golint
 }
 
 // BuilderClientStub adds universal methods to BuilderClientMethods.
-type BuilderClientStub interface { //nolint:golint
+type BuilderClientStub interface {
 	BuilderClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BuilderClient returns a client stub for Builder.
-func BuilderClient(name string) BuilderClientStub { //nolint:golint
+func BuilderClient(name string) BuilderClientStub {
 	return implBuilderClientStub{name}
 }
 
@@ -389,7 +391,7 @@ func (c implBuilderClientStub) Describe(ctx *context.T, i0 string, opts ...rpc.C
 }
 
 // BuilderBuildClientStream is the client stream for Builder.Build.
-type BuilderBuildClientStream interface { //nolint:golint
+type BuilderBuildClientStream interface {
 	// RecvStream returns the receiver side of the Builder.Build client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -422,7 +424,7 @@ type BuilderBuildClientStream interface { //nolint:golint
 }
 
 // BuilderBuildClientCall represents the call returned from Builder.Build.
-type BuilderBuildClientCall interface { //nolint:golint
+type BuilderBuildClientCall interface {
 	BuilderBuildClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -437,7 +439,7 @@ type BuilderBuildClientCall interface { //nolint:golint
 	Finish() ([]byte, error)
 }
 
-type implBuilderBuildClientCall struct { //nolint:golint
+type implBuilderBuildClientCall struct {
 	rpc.ClientCall
 	valRecv File
 	errRecv error
@@ -495,7 +497,7 @@ func (c *implBuilderBuildClientCall) Finish() (o0 []byte, err error) {
 // implements for Builder.
 //
 // Builder describes an interface for building binaries from source.
-type BuilderServerMethods interface { //nolint:golint
+type BuilderServerMethods interface {
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
 	Build(_ *context.T, _ BuilderBuildServerCall, arch Architecture, os OperatingSystem) ([]byte, error)
@@ -508,7 +510,6 @@ type BuilderServerMethods interface { //nolint:golint
 // Builder methods, as expected by rpc.Server.
 // The only difference between this interface and BuilderServerMethods
 // is the streaming methods.
-// nolint:golint
 type BuilderServerStubMethods interface {
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
@@ -519,16 +520,16 @@ type BuilderServerStubMethods interface {
 }
 
 // BuilderServerStub adds universal methods to BuilderServerStubMethods.
-type BuilderServerStub interface { //nolint:golint
+type BuilderServerStub interface {
 	BuilderServerStubMethods
 	// DescribeInterfaces the Builder interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // BuilderServer returns a server stub for Builder.
 // It converts an implementation of BuilderServerMethods into
 // an object that may be used by rpc.Server.
-func BuilderServer(impl BuilderServerMethods) BuilderServerStub { //nolint:golint
+func BuilderServer(impl BuilderServerMethods) BuilderServerStub {
 	stub := implBuilderServerStub{
 		impl: impl,
 	}
@@ -559,7 +560,7 @@ func (s implBuilderServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBuilderServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implBuilderServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{BuilderDesc}
 }
 
@@ -597,7 +598,7 @@ var descBuilder = rpc.InterfaceDesc{
 }
 
 // BuilderBuildServerStream is the server stream for Builder.Build.
-type BuilderBuildServerStream interface { //nolint:golint
+type BuilderBuildServerStream interface {
 	// RecvStream returns the receiver side of the Builder.Build server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -620,14 +621,14 @@ type BuilderBuildServerStream interface { //nolint:golint
 }
 
 // BuilderBuildServerCall represents the context passed to Builder.Build.
-type BuilderBuildServerCall interface { //nolint:golint
+type BuilderBuildServerCall interface {
 	rpc.ServerCall
 	BuilderBuildServerStream
 }
 
 // BuilderBuildServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BuilderBuildServerCall.
-type BuilderBuildServerCallStub struct { //nolint:golint
+type BuilderBuildServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv File
 	errRecv error

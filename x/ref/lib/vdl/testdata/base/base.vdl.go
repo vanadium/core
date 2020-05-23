@@ -6,11 +6,13 @@
 // Package: base
 
 // Package base is a simple single-file test of vdl functionality.
+//nolint:golint
 package base
 
 import (
 	"fmt"
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
@@ -2753,9 +2755,9 @@ var Clist = []int32{
 	3,
 }
 var Cset = map[int32]struct{}{
-	1: struct{}{},
-	2: struct{}{},
-	3: struct{}{},
+	1: {},
+	2: {},
+	3: {},
 }
 var cmap = map[int32]string{
 	1: "A",
@@ -2863,7 +2865,7 @@ func newErrNotExported(ctx *context.T, x string, y int32) error {
 
 // ServiceAClientMethods is the client interface
 // containing ServiceA methods.
-type ServiceAClientMethods interface { //nolint:golint
+type ServiceAClientMethods interface {
 	MethodA1(*context.T, ...rpc.CallOpt) error
 	MethodA2(_ *context.T, a int32, b string, _ ...rpc.CallOpt) (s string, _ error)
 	MethodA3(_ *context.T, a int32, _ ...rpc.CallOpt) (ServiceAMethodA3ClientCall, error)
@@ -2871,13 +2873,13 @@ type ServiceAClientMethods interface { //nolint:golint
 }
 
 // ServiceAClientStub adds universal methods to ServiceAClientMethods.
-type ServiceAClientStub interface { //nolint:golint
+type ServiceAClientStub interface {
 	ServiceAClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ServiceAClient returns a client stub for ServiceA.
-func ServiceAClient(name string) ServiceAClientStub { //nolint:golint
+func ServiceAClient(name string) ServiceAClientStub {
 	return implServiceAClientStub{name}
 }
 
@@ -2914,7 +2916,7 @@ func (c implServiceAClientStub) MethodA4(ctx *context.T, i0 int32, opts ...rpc.C
 }
 
 // ServiceAMethodA3ClientStream is the client stream for ServiceA.MethodA3.
-type ServiceAMethodA3ClientStream interface { //nolint:golint
+type ServiceAMethodA3ClientStream interface {
 	// RecvStream returns the receiver side of the ServiceA.MethodA3 client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -2930,7 +2932,7 @@ type ServiceAMethodA3ClientStream interface { //nolint:golint
 }
 
 // ServiceAMethodA3ClientCall represents the call returned from ServiceA.MethodA3.
-type ServiceAMethodA3ClientCall interface { //nolint:golint
+type ServiceAMethodA3ClientCall interface {
 	ServiceAMethodA3ClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -2945,7 +2947,7 @@ type ServiceAMethodA3ClientCall interface { //nolint:golint
 	Finish() (s string, _ error)
 }
 
-type implServiceAMethodA3ClientCall struct { //nolint:golint
+type implServiceAMethodA3ClientCall struct {
 	rpc.ClientCall
 	valRecv Scalars
 	errRecv error
@@ -2983,7 +2985,7 @@ func (c *implServiceAMethodA3ClientCall) Finish() (o0 string, err error) {
 }
 
 // ServiceAMethodA4ClientStream is the client stream for ServiceA.MethodA4.
-type ServiceAMethodA4ClientStream interface { //nolint:golint
+type ServiceAMethodA4ClientStream interface {
 	// RecvStream returns the receiver side of the ServiceA.MethodA4 client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -3016,7 +3018,7 @@ type ServiceAMethodA4ClientStream interface { //nolint:golint
 }
 
 // ServiceAMethodA4ClientCall represents the call returned from ServiceA.MethodA4.
-type ServiceAMethodA4ClientCall interface { //nolint:golint
+type ServiceAMethodA4ClientCall interface {
 	ServiceAMethodA4ClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -3031,7 +3033,7 @@ type ServiceAMethodA4ClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implServiceAMethodA4ClientCall struct { //nolint:golint
+type implServiceAMethodA4ClientCall struct {
 	rpc.ClientCall
 	valRecv string
 	errRecv error
@@ -3086,7 +3088,7 @@ func (c *implServiceAMethodA4ClientCall) Finish() (err error) {
 
 // ServiceAServerMethods is the interface a server writer
 // implements for ServiceA.
-type ServiceAServerMethods interface { //nolint:golint
+type ServiceAServerMethods interface {
 	MethodA1(*context.T, rpc.ServerCall) error
 	MethodA2(_ *context.T, _ rpc.ServerCall, a int32, b string) (s string, _ error)
 	MethodA3(_ *context.T, _ ServiceAMethodA3ServerCall, a int32) (s string, _ error)
@@ -3097,7 +3099,6 @@ type ServiceAServerMethods interface { //nolint:golint
 // ServiceA methods, as expected by rpc.Server.
 // The only difference between this interface and ServiceAServerMethods
 // is the streaming methods.
-// nolint:golint
 type ServiceAServerStubMethods interface {
 	MethodA1(*context.T, rpc.ServerCall) error
 	MethodA2(_ *context.T, _ rpc.ServerCall, a int32, b string) (s string, _ error)
@@ -3106,16 +3107,16 @@ type ServiceAServerStubMethods interface {
 }
 
 // ServiceAServerStub adds universal methods to ServiceAServerStubMethods.
-type ServiceAServerStub interface { //nolint:golint
+type ServiceAServerStub interface {
 	ServiceAServerStubMethods
 	// DescribeInterfaces the ServiceA interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ServiceAServer returns a server stub for ServiceA.
 // It converts an implementation of ServiceAServerMethods into
 // an object that may be used by rpc.Server.
-func ServiceAServer(impl ServiceAServerMethods) ServiceAServerStub { //nolint:golint
+func ServiceAServer(impl ServiceAServerMethods) ServiceAServerStub {
 	stub := implServiceAServerStub{
 		impl: impl,
 	}
@@ -3154,7 +3155,7 @@ func (s implServiceAServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implServiceAServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implServiceAServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ServiceADesc}
 }
 
@@ -3199,7 +3200,7 @@ var descServiceA = rpc.InterfaceDesc{
 }
 
 // ServiceAMethodA3ServerStream is the server stream for ServiceA.MethodA3.
-type ServiceAMethodA3ServerStream interface { //nolint:golint
+type ServiceAMethodA3ServerStream interface {
 	// SendStream returns the send side of the ServiceA.MethodA3 server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -3210,14 +3211,14 @@ type ServiceAMethodA3ServerStream interface { //nolint:golint
 }
 
 // ServiceAMethodA3ServerCall represents the context passed to ServiceA.MethodA3.
-type ServiceAMethodA3ServerCall interface { //nolint:golint
+type ServiceAMethodA3ServerCall interface {
 	rpc.ServerCall
 	ServiceAMethodA3ServerStream
 }
 
 // ServiceAMethodA3ServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ServiceAMethodA3ServerCall.
-type ServiceAMethodA3ServerCallStub struct { //nolint:golint
+type ServiceAMethodA3ServerCallStub struct {
 	rpc.StreamServerCall
 }
 
@@ -3242,7 +3243,7 @@ func (s implServiceAMethodA3ServerCallSend) Send(item Scalars) error {
 }
 
 // ServiceAMethodA4ServerStream is the server stream for ServiceA.MethodA4.
-type ServiceAMethodA4ServerStream interface { //nolint:golint
+type ServiceAMethodA4ServerStream interface {
 	// RecvStream returns the receiver side of the ServiceA.MethodA4 server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -3265,14 +3266,14 @@ type ServiceAMethodA4ServerStream interface { //nolint:golint
 }
 
 // ServiceAMethodA4ServerCall represents the context passed to ServiceA.MethodA4.
-type ServiceAMethodA4ServerCall interface { //nolint:golint
+type ServiceAMethodA4ServerCall interface {
 	rpc.ServerCall
 	ServiceAMethodA4ServerStream
 }
 
 // ServiceAMethodA4ServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ServiceAMethodA4ServerCall.
-type ServiceAMethodA4ServerCallStub struct { //nolint:golint
+type ServiceAMethodA4ServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv int32
 	errRecv error
@@ -3327,19 +3328,19 @@ func (s implServiceAMethodA4ServerCallSend) Send(item string) error {
 
 // ServiceBClientMethods is the client interface
 // containing ServiceB methods.
-type ServiceBClientMethods interface { //nolint:golint
+type ServiceBClientMethods interface {
 	ServiceAClientMethods
 	MethodB1(_ *context.T, a Scalars, b Composites, _ ...rpc.CallOpt) (c CompComp, _ error)
 }
 
 // ServiceBClientStub adds universal methods to ServiceBClientMethods.
-type ServiceBClientStub interface { //nolint:golint
+type ServiceBClientStub interface {
 	ServiceBClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ServiceBClient returns a client stub for ServiceB.
-func ServiceBClient(name string) ServiceBClientStub { //nolint:golint
+func ServiceBClient(name string) ServiceBClientStub {
 	return implServiceBClientStub{name, ServiceAClient(name)}
 }
 
@@ -3356,7 +3357,7 @@ func (c implServiceBClientStub) MethodB1(ctx *context.T, i0 Scalars, i1 Composit
 
 // ServiceBServerMethods is the interface a server writer
 // implements for ServiceB.
-type ServiceBServerMethods interface { //nolint:golint
+type ServiceBServerMethods interface {
 	ServiceAServerMethods
 	MethodB1(_ *context.T, _ rpc.ServerCall, a Scalars, b Composites) (c CompComp, _ error)
 }
@@ -3365,23 +3366,22 @@ type ServiceBServerMethods interface { //nolint:golint
 // ServiceB methods, as expected by rpc.Server.
 // The only difference between this interface and ServiceBServerMethods
 // is the streaming methods.
-// nolint:golint
 type ServiceBServerStubMethods interface {
 	ServiceAServerStubMethods
 	MethodB1(_ *context.T, _ rpc.ServerCall, a Scalars, b Composites) (c CompComp, _ error)
 }
 
 // ServiceBServerStub adds universal methods to ServiceBServerStubMethods.
-type ServiceBServerStub interface { //nolint:golint
+type ServiceBServerStub interface {
 	ServiceBServerStubMethods
 	// DescribeInterfaces the ServiceB interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ServiceBServer returns a server stub for ServiceB.
 // It converts an implementation of ServiceBServerMethods into
 // an object that may be used by rpc.Server.
-func ServiceBServer(impl ServiceBServerMethods) ServiceBServerStub { //nolint:golint
+func ServiceBServer(impl ServiceBServerMethods) ServiceBServerStub {
 	stub := implServiceBServerStub{
 		impl:               impl,
 		ServiceAServerStub: ServiceAServer(impl),
@@ -3410,7 +3410,7 @@ func (s implServiceBServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implServiceBServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implServiceBServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ServiceBDesc, ServiceADesc}
 }
 

@@ -7,10 +7,12 @@
 
 // Package groups defines interfaces for managing access control groups.  Groups
 // can be referenced by BlessingPatterns (e.g. in AccessLists).
+//nolint:golint
 package groups
 
 import (
 	"fmt"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
@@ -400,7 +402,7 @@ func NewErrCycleFound(ctx *context.T) error {
 //
 // GroupReader implements methods to read or query a group's membership
 // information.
-type GroupReaderClientMethods interface { //nolint:golint
+type GroupReaderClientMethods interface {
 	// Relate determines the relationships between the provided blessing
 	// names and the members of the group.
 	//
@@ -437,13 +439,13 @@ type GroupReaderClientMethods interface { //nolint:golint
 }
 
 // GroupReaderClientStub adds universal methods to GroupReaderClientMethods.
-type GroupReaderClientStub interface { //nolint:golint
+type GroupReaderClientStub interface {
 	GroupReaderClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // GroupReaderClient returns a client stub for GroupReader.
-func GroupReaderClient(name string) GroupReaderClientStub { //nolint:golint
+func GroupReaderClient(name string) GroupReaderClientStub {
 	return implGroupReaderClientStub{name}
 }
 
@@ -466,7 +468,7 @@ func (c implGroupReaderClientStub) Get(ctx *context.T, i0 GetRequest, i1 string,
 //
 // GroupReader implements methods to read or query a group's membership
 // information.
-type GroupReaderServerMethods interface { //nolint:golint
+type GroupReaderServerMethods interface {
 	// Relate determines the relationships between the provided blessing
 	// names and the members of the group.
 	//
@@ -506,20 +508,19 @@ type GroupReaderServerMethods interface { //nolint:golint
 // GroupReader methods, as expected by rpc.Server.
 // There is no difference between this interface and GroupReaderServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type GroupReaderServerStubMethods GroupReaderServerMethods
 
 // GroupReaderServerStub adds universal methods to GroupReaderServerStubMethods.
-type GroupReaderServerStub interface { //nolint:golint
+type GroupReaderServerStub interface {
 	GroupReaderServerStubMethods
 	// DescribeInterfaces the GroupReader interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // GroupReaderServer returns a server stub for GroupReader.
 // It converts an implementation of GroupReaderServerMethods into
 // an object that may be used by rpc.Server.
-func GroupReaderServer(impl GroupReaderServerMethods) GroupReaderServerStub { //nolint:golint
+func GroupReaderServer(impl GroupReaderServerMethods) GroupReaderServerStub {
 	stub := implGroupReaderServerStub{
 		impl: impl,
 	}
@@ -550,7 +551,7 @@ func (s implGroupReaderServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implGroupReaderServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implGroupReaderServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{GroupReaderDesc}
 }
 
@@ -602,7 +603,7 @@ var descGroupReader = rpc.InterfaceDesc{
 // the group. Clients should treat versions as opaque identifiers. For both Get
 // and Relate, if version is set and matches the Group's current version, the
 // response will indicate that fact but will otherwise be empty.
-type GroupClientMethods interface { //nolint:golint
+type GroupClientMethods interface {
 	// GroupReader implements methods to read or query a group's membership
 	// information.
 	GroupReaderClientMethods
@@ -667,13 +668,13 @@ type GroupClientMethods interface { //nolint:golint
 }
 
 // GroupClientStub adds universal methods to GroupClientMethods.
-type GroupClientStub interface { //nolint:golint
+type GroupClientStub interface {
 	GroupClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // GroupClient returns a client stub for Group.
-func GroupClient(name string) GroupClientStub { //nolint:golint
+func GroupClient(name string) GroupClientStub {
 	return implGroupClientStub{name, GroupReaderClient(name), permissions.ObjectClient(name)}
 }
 
@@ -711,7 +712,7 @@ func (c implGroupClientStub) Remove(ctx *context.T, i0 BlessingPatternChunk, i1 
 // the group. Clients should treat versions as opaque identifiers. For both Get
 // and Relate, if version is set and matches the Group's current version, the
 // response will indicate that fact but will otherwise be empty.
-type GroupServerMethods interface { //nolint:golint
+type GroupServerMethods interface {
 	// GroupReader implements methods to read or query a group's membership
 	// information.
 	GroupReaderServerMethods
@@ -779,20 +780,19 @@ type GroupServerMethods interface { //nolint:golint
 // Group methods, as expected by rpc.Server.
 // There is no difference between this interface and GroupServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type GroupServerStubMethods GroupServerMethods
 
 // GroupServerStub adds universal methods to GroupServerStubMethods.
-type GroupServerStub interface { //nolint:golint
+type GroupServerStub interface {
 	GroupServerStubMethods
 	// DescribeInterfaces the Group interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // GroupServer returns a server stub for Group.
 // It converts an implementation of GroupServerMethods into
 // an object that may be used by rpc.Server.
-func GroupServer(impl GroupServerMethods) GroupServerStub { //nolint:golint
+func GroupServer(impl GroupServerMethods) GroupServerStub {
 	stub := implGroupServerStub{
 		impl:                  impl,
 		GroupReaderServerStub: GroupReaderServer(impl),
@@ -835,7 +835,7 @@ func (s implGroupServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implGroupServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implGroupServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{GroupDesc, GroupReaderDesc, permissions.ObjectDesc}
 }
 

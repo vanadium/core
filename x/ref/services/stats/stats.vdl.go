@@ -6,10 +6,12 @@
 // Package: stats
 
 // Packages stats defines the non-native types exported by the stats service.
+//nolint:golint
 package stats
 
 import (
 	"time"
+
 	"v.io/v23/vdl"
 	vdltime "v.io/v23/vdlroot/time"
 )

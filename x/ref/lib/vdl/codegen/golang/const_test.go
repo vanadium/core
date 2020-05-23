@@ -56,7 +56,7 @@ func TestConst(t *testing.T) {
 nil,
 }`},
 		{"Set", vSet, `map[string]struct{}{
-"A": struct{}{},
+"A": {},
 }`},
 		{"Map", vMap, `map[string]int64{
 "A": 1,

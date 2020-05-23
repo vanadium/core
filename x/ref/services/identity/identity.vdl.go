@@ -6,6 +6,7 @@
 // Package: identity
 
 // Package identity defines interfaces for Vanadium identity providers.
+//nolint:golint
 package identity
 
 import (
@@ -153,20 +154,20 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
 // containing MacaroonBlesser methods.
 //
 // MacaroonBlesser returns a blessing given the provided macaroon string.
-type MacaroonBlesserClientMethods interface { //nolint:golint
+type MacaroonBlesserClientMethods interface {
 	// Bless uses the provided macaroon (which contains email and caveats)
 	// to return a blessing for the client.
 	Bless(_ *context.T, macaroon string, _ ...rpc.CallOpt) (blessing security.Blessings, _ error)
 }
 
 // MacaroonBlesserClientStub adds universal methods to MacaroonBlesserClientMethods.
-type MacaroonBlesserClientStub interface { //nolint:golint
+type MacaroonBlesserClientStub interface {
 	MacaroonBlesserClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MacaroonBlesserClient returns a client stub for MacaroonBlesser.
-func MacaroonBlesserClient(name string) MacaroonBlesserClientStub { //nolint:golint
+func MacaroonBlesserClient(name string) MacaroonBlesserClientStub {
 	return implMacaroonBlesserClientStub{name}
 }
 
@@ -183,7 +184,7 @@ func (c implMacaroonBlesserClientStub) Bless(ctx *context.T, i0 string, opts ...
 // implements for MacaroonBlesser.
 //
 // MacaroonBlesser returns a blessing given the provided macaroon string.
-type MacaroonBlesserServerMethods interface { //nolint:golint
+type MacaroonBlesserServerMethods interface {
 	// Bless uses the provided macaroon (which contains email and caveats)
 	// to return a blessing for the client.
 	Bless(_ *context.T, _ rpc.ServerCall, macaroon string) (blessing security.Blessings, _ error)
@@ -193,20 +194,19 @@ type MacaroonBlesserServerMethods interface { //nolint:golint
 // MacaroonBlesser methods, as expected by rpc.Server.
 // There is no difference between this interface and MacaroonBlesserServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type MacaroonBlesserServerStubMethods MacaroonBlesserServerMethods
 
 // MacaroonBlesserServerStub adds universal methods to MacaroonBlesserServerStubMethods.
-type MacaroonBlesserServerStub interface { //nolint:golint
+type MacaroonBlesserServerStub interface {
 	MacaroonBlesserServerStubMethods
 	// DescribeInterfaces the MacaroonBlesser interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // MacaroonBlesserServer returns a server stub for MacaroonBlesser.
 // It converts an implementation of MacaroonBlesserServerMethods into
 // an object that may be used by rpc.Server.
-func MacaroonBlesserServer(impl MacaroonBlesserServerMethods) MacaroonBlesserServerStub { //nolint:golint
+func MacaroonBlesserServer(impl MacaroonBlesserServerMethods) MacaroonBlesserServerStub {
 	stub := implMacaroonBlesserServerStub{
 		impl: impl,
 	}
@@ -233,7 +233,7 @@ func (s implMacaroonBlesserServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMacaroonBlesserServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implMacaroonBlesserServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{MacaroonBlesserDesc}
 }
 

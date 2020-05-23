@@ -7,6 +7,7 @@
 
 // Package internal provides a VDL specification for a service used in the
 // unittest of the access package.
+//nolint:golint
 package internal
 
 import (
@@ -67,7 +68,7 @@ const Execute = MyTag("X")
 // containing MyObject methods.
 //
 // MyObject demonstrates how tags are attached to methods.
-type MyObjectClientMethods interface { //nolint:golint
+type MyObjectClientMethods interface {
 	Get(*context.T, ...rpc.CallOpt) error
 	Put(*context.T, ...rpc.CallOpt) error
 	Resolve(*context.T, ...rpc.CallOpt) error
@@ -75,13 +76,13 @@ type MyObjectClientMethods interface { //nolint:golint
 }
 
 // MyObjectClientStub adds universal methods to MyObjectClientMethods.
-type MyObjectClientStub interface { //nolint:golint
+type MyObjectClientStub interface {
 	MyObjectClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MyObjectClient returns a client stub for MyObject.
-func MyObjectClient(name string) MyObjectClientStub { //nolint:golint
+func MyObjectClient(name string) MyObjectClientStub {
 	return implMyObjectClientStub{name}
 }
 
@@ -113,7 +114,7 @@ func (c implMyObjectClientStub) NoTags(ctx *context.T, opts ...rpc.CallOpt) (err
 // implements for MyObject.
 //
 // MyObject demonstrates how tags are attached to methods.
-type MyObjectServerMethods interface { //nolint:golint
+type MyObjectServerMethods interface {
 	Get(*context.T, rpc.ServerCall) error
 	Put(*context.T, rpc.ServerCall) error
 	Resolve(*context.T, rpc.ServerCall) error
@@ -124,20 +125,19 @@ type MyObjectServerMethods interface { //nolint:golint
 // MyObject methods, as expected by rpc.Server.
 // There is no difference between this interface and MyObjectServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type MyObjectServerStubMethods MyObjectServerMethods
 
 // MyObjectServerStub adds universal methods to MyObjectServerStubMethods.
-type MyObjectServerStub interface { //nolint:golint
+type MyObjectServerStub interface {
 	MyObjectServerStubMethods
 	// DescribeInterfaces the MyObject interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // MyObjectServer returns a server stub for MyObject.
 // It converts an implementation of MyObjectServerMethods into
 // an object that may be used by rpc.Server.
-func MyObjectServer(impl MyObjectServerMethods) MyObjectServerStub { //nolint:golint
+func MyObjectServer(impl MyObjectServerMethods) MyObjectServerStub {
 	stub := implMyObjectServerStub{
 		impl: impl,
 	}
@@ -176,7 +176,7 @@ func (s implMyObjectServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMyObjectServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implMyObjectServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{MyObjectDesc}
 }
 

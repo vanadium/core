@@ -7,6 +7,7 @@
 
 // Package permissions defines an interface for managing access control
 // permissions.
+//nolint:golint
 package permissions
 
 import (
@@ -69,7 +70,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 //    SetPermissions(perms access.Permissions, version string) error         {Red}
 //    GetPermissions() (perms access.Permissions, version string, err error) {Blue}
 //  }
-type ObjectClientMethods interface { //nolint:golint
+type ObjectClientMethods interface {
 	// SetPermissions replaces the current Permissions for an object.  version
 	// allows for optional, optimistic concurrency control.  If non-empty,
 	// version's value must come from GetPermissions.  If any client has
@@ -99,13 +100,13 @@ type ObjectClientMethods interface { //nolint:golint
 }
 
 // ObjectClientStub adds universal methods to ObjectClientMethods.
-type ObjectClientStub interface { //nolint:golint
+type ObjectClientStub interface {
 	ObjectClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ObjectClient returns a client stub for Object.
-func ObjectClient(name string) ObjectClientStub { //nolint:golint
+func ObjectClient(name string) ObjectClientStub {
 	return implObjectClientStub{name}
 }
 
@@ -170,7 +171,7 @@ func (c implObjectClientStub) GetPermissions(ctx *context.T, opts ...rpc.CallOpt
 //    SetPermissions(perms access.Permissions, version string) error         {Red}
 //    GetPermissions() (perms access.Permissions, version string, err error) {Blue}
 //  }
-type ObjectServerMethods interface { //nolint:golint
+type ObjectServerMethods interface {
 	// SetPermissions replaces the current Permissions for an object.  version
 	// allows for optional, optimistic concurrency control.  If non-empty,
 	// version's value must come from GetPermissions.  If any client has
@@ -203,20 +204,19 @@ type ObjectServerMethods interface { //nolint:golint
 // Object methods, as expected by rpc.Server.
 // There is no difference between this interface and ObjectServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ObjectServerStubMethods ObjectServerMethods
 
 // ObjectServerStub adds universal methods to ObjectServerStubMethods.
-type ObjectServerStub interface { //nolint:golint
+type ObjectServerStub interface {
 	ObjectServerStubMethods
 	// DescribeInterfaces the Object interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ObjectServer returns a server stub for Object.
 // It converts an implementation of ObjectServerMethods into
 // an object that may be used by rpc.Server.
-func ObjectServer(impl ObjectServerMethods) ObjectServerStub { //nolint:golint
+func ObjectServer(impl ObjectServerMethods) ObjectServerStub {
 	stub := implObjectServerStub{
 		impl: impl,
 	}
@@ -247,7 +247,7 @@ func (s implObjectServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implObjectServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implObjectServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ObjectDesc}
 }
 

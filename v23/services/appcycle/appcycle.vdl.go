@@ -6,10 +6,12 @@
 // Package: appcycle
 
 // Package appcycle defines interfaces for managing application processes.
+//nolint:golint
 package appcycle
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -114,7 +116,7 @@ func (x *Task) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // containing AppCycle methods.
 //
 // AppCycle interfaces with the process running a vanadium runtime.
-type AppCycleClientMethods interface { //nolint:golint
+type AppCycleClientMethods interface {
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
 	// progressing.
@@ -126,13 +128,13 @@ type AppCycleClientMethods interface { //nolint:golint
 }
 
 // AppCycleClientStub adds universal methods to AppCycleClientMethods.
-type AppCycleClientStub interface { //nolint:golint
+type AppCycleClientStub interface {
 	AppCycleClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // AppCycleClient returns a client stub for AppCycle.
-func AppCycleClient(name string) AppCycleClientStub { //nolint:golint
+func AppCycleClient(name string) AppCycleClientStub {
 	return implAppCycleClientStub{name}
 }
 
@@ -155,7 +157,7 @@ func (c implAppCycleClientStub) ForceStop(ctx *context.T, opts ...rpc.CallOpt) (
 }
 
 // AppCycleStopClientStream is the client stream for AppCycle.Stop.
-type AppCycleStopClientStream interface { //nolint:golint
+type AppCycleStopClientStream interface {
 	// RecvStream returns the receiver side of the AppCycle.Stop client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -171,7 +173,7 @@ type AppCycleStopClientStream interface { //nolint:golint
 }
 
 // AppCycleStopClientCall represents the call returned from AppCycle.Stop.
-type AppCycleStopClientCall interface { //nolint:golint
+type AppCycleStopClientCall interface {
 	AppCycleStopClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -186,7 +188,7 @@ type AppCycleStopClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implAppCycleStopClientCall struct { //nolint:golint
+type implAppCycleStopClientCall struct {
 	rpc.ClientCall
 	valRecv Task
 	errRecv error
@@ -227,7 +229,7 @@ func (c *implAppCycleStopClientCall) Finish() (err error) {
 // implements for AppCycle.
 //
 // AppCycle interfaces with the process running a vanadium runtime.
-type AppCycleServerMethods interface { //nolint:golint
+type AppCycleServerMethods interface {
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
 	// progressing.
@@ -242,7 +244,6 @@ type AppCycleServerMethods interface { //nolint:golint
 // AppCycle methods, as expected by rpc.Server.
 // The only difference between this interface and AppCycleServerMethods
 // is the streaming methods.
-// nolint:golint
 type AppCycleServerStubMethods interface {
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
@@ -255,16 +256,16 @@ type AppCycleServerStubMethods interface {
 }
 
 // AppCycleServerStub adds universal methods to AppCycleServerStubMethods.
-type AppCycleServerStub interface { //nolint:golint
+type AppCycleServerStub interface {
 	AppCycleServerStubMethods
 	// DescribeInterfaces the AppCycle interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // AppCycleServer returns a server stub for AppCycle.
 // It converts an implementation of AppCycleServerMethods into
 // an object that may be used by rpc.Server.
-func AppCycleServer(impl AppCycleServerMethods) AppCycleServerStub { //nolint:golint
+func AppCycleServer(impl AppCycleServerMethods) AppCycleServerStub {
 	stub := implAppCycleServerStub{
 		impl: impl,
 	}
@@ -295,7 +296,7 @@ func (s implAppCycleServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implAppCycleServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implAppCycleServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{AppCycleDesc}
 }
 
@@ -320,7 +321,7 @@ var descAppCycle = rpc.InterfaceDesc{
 }
 
 // AppCycleStopServerStream is the server stream for AppCycle.Stop.
-type AppCycleStopServerStream interface { //nolint:golint
+type AppCycleStopServerStream interface {
 	// SendStream returns the send side of the AppCycle.Stop server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -331,14 +332,14 @@ type AppCycleStopServerStream interface { //nolint:golint
 }
 
 // AppCycleStopServerCall represents the context passed to AppCycle.Stop.
-type AppCycleStopServerCall interface { //nolint:golint
+type AppCycleStopServerCall interface {
 	rpc.ServerCall
 	AppCycleStopServerStream
 }
 
 // AppCycleStopServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements AppCycleStopServerCall.
-type AppCycleStopServerCallStub struct { //nolint:golint
+type AppCycleStopServerCallStub struct {
 	rpc.StreamServerCall
 }
 

@@ -33,11 +33,13 @@
 // The protocol also has limited support for caching: A client can
 // request notification when any other client modifies the principal so it
 // can flush the cache. See NotifyWhenChanged for details.
+//nolint:golint
 package agent
 
 import (
 	"fmt"
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -431,7 +433,7 @@ func VDLReadRpcMessage(dec vdl.Decoder, x *RpcMessage) error { //nolint:gocyclo
 
 // AgentClientMethods is the client interface
 // containing Agent methods.
-type AgentClientMethods interface { //nolint:golint
+type AgentClientMethods interface {
 	Bless(_ *context.T, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat, _ ...rpc.CallOpt) (security.Blessings, error)
 	BlessSelf(_ *context.T, name string, caveats []security.Caveat, _ ...rpc.CallOpt) (security.Blessings, error)
 	Sign(_ *context.T, message []byte, _ ...rpc.CallOpt) (security.Signature, error)
@@ -458,13 +460,13 @@ type AgentClientMethods interface { //nolint:golint
 }
 
 // AgentClientStub adds universal methods to AgentClientMethods.
-type AgentClientStub interface { //nolint:golint
+type AgentClientStub interface {
 	AgentClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // AgentClient returns a client stub for Agent.
-func AgentClient(name string) AgentClientStub { //nolint:golint
+func AgentClient(name string) AgentClientStub {
 	return implAgentClientStub{name}
 }
 
@@ -572,7 +574,7 @@ func (c implAgentClientStub) NotifyWhenChanged(ctx *context.T, opts ...rpc.CallO
 }
 
 // AgentNotifyWhenChangedClientStream is the client stream for Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedClientStream interface { //nolint:golint
+type AgentNotifyWhenChangedClientStream interface {
 	// RecvStream returns the receiver side of the Agent.NotifyWhenChanged client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -588,7 +590,7 @@ type AgentNotifyWhenChangedClientStream interface { //nolint:golint
 }
 
 // AgentNotifyWhenChangedClientCall represents the call returned from Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedClientCall interface { //nolint:golint
+type AgentNotifyWhenChangedClientCall interface {
 	AgentNotifyWhenChangedClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -603,7 +605,7 @@ type AgentNotifyWhenChangedClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implAgentNotifyWhenChangedClientCall struct { //nolint:golint
+type implAgentNotifyWhenChangedClientCall struct {
 	rpc.ClientCall
 	valRecv bool
 	errRecv error
@@ -641,7 +643,7 @@ func (c *implAgentNotifyWhenChangedClientCall) Finish() (err error) {
 
 // AgentServerMethods is the interface a server writer
 // implements for Agent.
-type AgentServerMethods interface { //nolint:golint
+type AgentServerMethods interface {
 	Bless(_ *context.T, _ rpc.ServerCall, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat) (security.Blessings, error)
 	BlessSelf(_ *context.T, _ rpc.ServerCall, name string, caveats []security.Caveat) (security.Blessings, error)
 	Sign(_ *context.T, _ rpc.ServerCall, message []byte) (security.Signature, error)
@@ -671,7 +673,6 @@ type AgentServerMethods interface { //nolint:golint
 // Agent methods, as expected by rpc.Server.
 // The only difference between this interface and AgentServerMethods
 // is the streaming methods.
-// nolint:golint
 type AgentServerStubMethods interface {
 	Bless(_ *context.T, _ rpc.ServerCall, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat) (security.Blessings, error)
 	BlessSelf(_ *context.T, _ rpc.ServerCall, name string, caveats []security.Caveat) (security.Blessings, error)
@@ -699,16 +700,16 @@ type AgentServerStubMethods interface {
 }
 
 // AgentServerStub adds universal methods to AgentServerStubMethods.
-type AgentServerStub interface { //nolint:golint
+type AgentServerStub interface {
 	AgentServerStubMethods
 	// DescribeInterfaces the Agent interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // AgentServer returns a server stub for Agent.
 // It converts an implementation of AgentServerMethods into
 // an object that may be used by rpc.Server.
-func AgentServer(impl AgentServerMethods) AgentServerStub { //nolint:golint
+func AgentServer(impl AgentServerMethods) AgentServerStub {
 	stub := implAgentServerStub{
 		impl: impl,
 	}
@@ -807,7 +808,7 @@ func (s implAgentServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implAgentServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implAgentServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{AgentDesc}
 }
 
@@ -969,7 +970,7 @@ var descAgent = rpc.InterfaceDesc{
 }
 
 // AgentNotifyWhenChangedServerStream is the server stream for Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedServerStream interface { //nolint:golint
+type AgentNotifyWhenChangedServerStream interface {
 	// SendStream returns the send side of the Agent.NotifyWhenChanged server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -980,14 +981,14 @@ type AgentNotifyWhenChangedServerStream interface { //nolint:golint
 }
 
 // AgentNotifyWhenChangedServerCall represents the context passed to Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedServerCall interface { //nolint:golint
+type AgentNotifyWhenChangedServerCall interface {
 	rpc.ServerCall
 	AgentNotifyWhenChangedServerStream
 }
 
 // AgentNotifyWhenChangedServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements AgentNotifyWhenChangedServerCall.
-type AgentNotifyWhenChangedServerCallStub struct { //nolint:golint
+type AgentNotifyWhenChangedServerCallStub struct {
 	rpc.StreamServerCall
 }
 

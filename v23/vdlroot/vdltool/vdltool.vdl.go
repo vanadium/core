@@ -7,10 +7,12 @@
 
 // Package vdltool defines types used by the vdl tool itself, including the
 // format of vdl.config files.
+//nolint:golint
 package vdltool
 
 import (
 	"fmt"
+
 	"v.io/v23/vdl"
 )
 

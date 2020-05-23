@@ -6,6 +6,7 @@
 // Package: archive
 
 // Package archive defines the RPC interface for archiving benchmark results.
+//nolint:golint
 package archive
 
 import (
@@ -24,7 +25,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // containing BenchmarkArchiver methods.
 //
 // BenchmarkArchiver is the interface to store microbenchmark results.
-type BenchmarkArchiverClientMethods interface { //nolint:golint
+type BenchmarkArchiverClientMethods interface {
 	// Archive saves results in 'runs' under the assumption that the
 	// benchmarks were run on a machine whose configuration is defined by
 	// 'scenario' and the were built from source code described by 'code'
@@ -36,13 +37,13 @@ type BenchmarkArchiverClientMethods interface { //nolint:golint
 }
 
 // BenchmarkArchiverClientStub adds universal methods to BenchmarkArchiverClientMethods.
-type BenchmarkArchiverClientStub interface { //nolint:golint
+type BenchmarkArchiverClientStub interface {
 	BenchmarkArchiverClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BenchmarkArchiverClient returns a client stub for BenchmarkArchiver.
-func BenchmarkArchiverClient(name string) BenchmarkArchiverClientStub { //nolint:golint
+func BenchmarkArchiverClient(name string) BenchmarkArchiverClientStub {
 	return implBenchmarkArchiverClientStub{name}
 }
 
@@ -59,7 +60,7 @@ func (c implBenchmarkArchiverClientStub) Archive(ctx *context.T, i0 ben.Scenario
 // implements for BenchmarkArchiver.
 //
 // BenchmarkArchiver is the interface to store microbenchmark results.
-type BenchmarkArchiverServerMethods interface { //nolint:golint
+type BenchmarkArchiverServerMethods interface {
 	// Archive saves results in 'runs' under the assumption that the
 	// benchmarks were run on a machine whose configuration is defined by
 	// 'scenario' and the were built from source code described by 'code'
@@ -74,20 +75,19 @@ type BenchmarkArchiverServerMethods interface { //nolint:golint
 // BenchmarkArchiver methods, as expected by rpc.Server.
 // There is no difference between this interface and BenchmarkArchiverServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type BenchmarkArchiverServerStubMethods BenchmarkArchiverServerMethods
 
 // BenchmarkArchiverServerStub adds universal methods to BenchmarkArchiverServerStubMethods.
-type BenchmarkArchiverServerStub interface { //nolint:golint
+type BenchmarkArchiverServerStub interface {
 	BenchmarkArchiverServerStubMethods
 	// DescribeInterfaces the BenchmarkArchiver interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // BenchmarkArchiverServer returns a server stub for BenchmarkArchiver.
 // It converts an implementation of BenchmarkArchiverServerMethods into
 // an object that may be used by rpc.Server.
-func BenchmarkArchiverServer(impl BenchmarkArchiverServerMethods) BenchmarkArchiverServerStub { //nolint:golint
+func BenchmarkArchiverServer(impl BenchmarkArchiverServerMethods) BenchmarkArchiverServerStub {
 	stub := implBenchmarkArchiverServerStub{
 		impl: impl,
 	}
@@ -114,7 +114,7 @@ func (s implBenchmarkArchiverServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBenchmarkArchiverServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implBenchmarkArchiverServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{BenchmarkArchiverDesc}
 }
 

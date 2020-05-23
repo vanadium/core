@@ -8,6 +8,7 @@
 // Package HTTP defines an interface to send a http.Request from a client to a
 // Vanadium server. This code is Go-specific since it is only used internally
 // by Vanadium.
+//nolint:golint
 package http
 
 import (
@@ -565,19 +566,19 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 
 // HttpClientMethods is the client interface
 // containing Http methods.
-type HttpClientMethods interface { //nolint:golint
+type HttpClientMethods interface {
 	// RawDo returns the server's response to req.
 	RawDo(_ *context.T, req Request, _ ...rpc.CallOpt) (data []byte, _ error)
 }
 
 // HttpClientStub adds universal methods to HttpClientMethods.
-type HttpClientStub interface { //nolint:golint
+type HttpClientStub interface {
 	HttpClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // HttpClient returns a client stub for Http.
-func HttpClient(name string) HttpClientStub { //nolint:golint
+func HttpClient(name string) HttpClientStub {
 	return implHttpClientStub{name}
 }
 
@@ -592,7 +593,7 @@ func (c implHttpClientStub) RawDo(ctx *context.T, i0 Request, opts ...rpc.CallOp
 
 // HttpServerMethods is the interface a server writer
 // implements for Http.
-type HttpServerMethods interface { //nolint:golint
+type HttpServerMethods interface {
 	// RawDo returns the server's response to req.
 	RawDo(_ *context.T, _ rpc.ServerCall, req Request) (data []byte, _ error)
 }
@@ -601,20 +602,19 @@ type HttpServerMethods interface { //nolint:golint
 // Http methods, as expected by rpc.Server.
 // There is no difference between this interface and HttpServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type HttpServerStubMethods HttpServerMethods
 
 // HttpServerStub adds universal methods to HttpServerStubMethods.
-type HttpServerStub interface { //nolint:golint
+type HttpServerStub interface {
 	HttpServerStubMethods
 	// DescribeInterfaces the Http interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // HttpServer returns a server stub for Http.
 // It converts an implementation of HttpServerMethods into
 // an object that may be used by rpc.Server.
-func HttpServer(impl HttpServerMethods) HttpServerStub { //nolint:golint
+func HttpServer(impl HttpServerMethods) HttpServerStub {
 	stub := implHttpServerStub{
 		impl: impl,
 	}
@@ -641,7 +641,7 @@ func (s implHttpServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implHttpServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implHttpServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{HttpDesc}
 }
 

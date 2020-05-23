@@ -7,6 +7,7 @@
 
 // Package exp is used to test that embedding interfaces works across packages.
 // The arith.Calculator vdl interface embeds the Exp interface.
+//nolint:golint
 package exp
 
 import (
@@ -22,18 +23,18 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 
 // ExpClientMethods is the client interface
 // containing Exp methods.
-type ExpClientMethods interface { //nolint:golint
+type ExpClientMethods interface {
 	Exp(_ *context.T, x float64, _ ...rpc.CallOpt) (float64, error)
 }
 
 // ExpClientStub adds universal methods to ExpClientMethods.
-type ExpClientStub interface { //nolint:golint
+type ExpClientStub interface {
 	ExpClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ExpClient returns a client stub for Exp.
-func ExpClient(name string) ExpClientStub { //nolint:golint
+func ExpClient(name string) ExpClientStub {
 	return implExpClientStub{name}
 }
 
@@ -48,7 +49,7 @@ func (c implExpClientStub) Exp(ctx *context.T, i0 float64, opts ...rpc.CallOpt) 
 
 // ExpServerMethods is the interface a server writer
 // implements for Exp.
-type ExpServerMethods interface { //nolint:golint
+type ExpServerMethods interface {
 	Exp(_ *context.T, _ rpc.ServerCall, x float64) (float64, error)
 }
 
@@ -56,20 +57,19 @@ type ExpServerMethods interface { //nolint:golint
 // Exp methods, as expected by rpc.Server.
 // There is no difference between this interface and ExpServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ExpServerStubMethods ExpServerMethods
 
 // ExpServerStub adds universal methods to ExpServerStubMethods.
-type ExpServerStub interface { //nolint:golint
+type ExpServerStub interface {
 	ExpServerStubMethods
 	// DescribeInterfaces the Exp interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ExpServer returns a server stub for Exp.
 // It converts an implementation of ExpServerMethods into
 // an object that may be used by rpc.Server.
-func ExpServer(impl ExpServerMethods) ExpServerStub { //nolint:golint
+func ExpServer(impl ExpServerMethods) ExpServerStub {
 	stub := implExpServerStub{
 		impl: impl,
 	}
@@ -96,7 +96,7 @@ func (s implExpServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implExpServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implExpServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ExpDesc}
 }
 

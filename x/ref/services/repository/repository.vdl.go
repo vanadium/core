@@ -7,6 +7,7 @@
 
 // Package repository augments the v.io/v23/services/repository interfaces with
 // implementation-specific configuration methods.
+//nolint:golint
 package repository
 
 import (
@@ -33,7 +34,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Application describes an application repository internally. Besides the
 // public Application interface, it allows adding and removing application
 // envelopes, as well as querying for a list of supported profiles.
-type ApplicationClientMethods interface { //nolint:golint
+type ApplicationClientMethods interface {
 	// Application provides access to application envelopes. An
 	// application envelope is identified by an application name and an
 	// application version, which are specified through the object name,
@@ -70,13 +71,13 @@ type ApplicationClientMethods interface { //nolint:golint
 }
 
 // ApplicationClientStub adds universal methods to ApplicationClientMethods.
-type ApplicationClientStub interface { //nolint:golint
+type ApplicationClientStub interface {
 	ApplicationClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ApplicationClient returns a client stub for Application.
-func ApplicationClient(name string) ApplicationClientStub { //nolint:golint
+func ApplicationClient(name string) ApplicationClientStub {
 	return implApplicationClientStub{name, repository.ApplicationClient(name)}
 }
 
@@ -107,7 +108,7 @@ func (c implApplicationClientStub) Profiles(ctx *context.T, opts ...rpc.CallOpt)
 // Application describes an application repository internally. Besides the
 // public Application interface, it allows adding and removing application
 // envelopes, as well as querying for a list of supported profiles.
-type ApplicationServerMethods interface { //nolint:golint
+type ApplicationServerMethods interface {
 	// Application provides access to application envelopes. An
 	// application envelope is identified by an application name and an
 	// application version, which are specified through the object name,
@@ -147,20 +148,19 @@ type ApplicationServerMethods interface { //nolint:golint
 // Application methods, as expected by rpc.Server.
 // There is no difference between this interface and ApplicationServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ApplicationServerStubMethods ApplicationServerMethods
 
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
-type ApplicationServerStub interface { //nolint:golint
+type ApplicationServerStub interface {
 	ApplicationServerStubMethods
 	// DescribeInterfaces the Application interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ApplicationServer returns a server stub for Application.
 // It converts an implementation of ApplicationServerMethods into
 // an object that may be used by rpc.Server.
-func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub { //nolint:golint
+func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub {
 	stub := implApplicationServerStub{
 		impl:                  impl,
 		ApplicationServerStub: repository.ApplicationServer(impl),
@@ -197,7 +197,7 @@ func (s implApplicationServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ApplicationDesc, repository.ApplicationDesc, permissions.ObjectDesc, tidyable.TidyableDesc}
 }
 
@@ -247,7 +247,7 @@ var descApplication = rpc.InterfaceDesc{
 //
 // Profile describes a profile internally. Besides the public Profile
 // interface, it allows to add and remove profile specifications.
-type ProfileClientMethods interface { //nolint:golint
+type ProfileClientMethods interface {
 	// Profile abstracts a device's ability to run binaries, and hides
 	// specifics such as the operating system, hardware architecture, and
 	// the set of installed libraries. Profiles describe binaries and
@@ -265,13 +265,13 @@ type ProfileClientMethods interface { //nolint:golint
 }
 
 // ProfileClientStub adds universal methods to ProfileClientMethods.
-type ProfileClientStub interface { //nolint:golint
+type ProfileClientStub interface {
 	ProfileClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ProfileClient returns a client stub for Profile.
-func ProfileClient(name string) ProfileClientStub { //nolint:golint
+func ProfileClient(name string) ProfileClientStub {
 	return implProfileClientStub{name, repository.ProfileClient(name)}
 }
 
@@ -301,7 +301,7 @@ func (c implProfileClientStub) Remove(ctx *context.T, opts ...rpc.CallOpt) (err 
 //
 // Profile describes a profile internally. Besides the public Profile
 // interface, it allows to add and remove profile specifications.
-type ProfileServerMethods interface { //nolint:golint
+type ProfileServerMethods interface {
 	// Profile abstracts a device's ability to run binaries, and hides
 	// specifics such as the operating system, hardware architecture, and
 	// the set of installed libraries. Profiles describe binaries and
@@ -322,20 +322,19 @@ type ProfileServerMethods interface { //nolint:golint
 // Profile methods, as expected by rpc.Server.
 // There is no difference between this interface and ProfileServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type ProfileServerStubMethods ProfileServerMethods
 
 // ProfileServerStub adds universal methods to ProfileServerStubMethods.
-type ProfileServerStub interface { //nolint:golint
+type ProfileServerStub interface {
 	ProfileServerStubMethods
 	// DescribeInterfaces the Profile interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // ProfileServer returns a server stub for Profile.
 // It converts an implementation of ProfileServerMethods into
 // an object that may be used by rpc.Server.
-func ProfileServer(impl ProfileServerMethods) ProfileServerStub { //nolint:golint
+func ProfileServer(impl ProfileServerMethods) ProfileServerStub {
 	stub := implProfileServerStub{
 		impl:              impl,
 		ProfileServerStub: repository.ProfileServer(impl),
@@ -372,7 +371,7 @@ func (s implProfileServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{ProfileDesc, repository.ProfileDesc}
 }
 

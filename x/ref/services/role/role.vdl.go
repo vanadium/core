@@ -7,6 +7,7 @@
 
 // Package role defines an interface for requesting blessings from a role
 // account server.
+//nolint:golint
 package role
 
 import (
@@ -40,18 +41,18 @@ const RoleSuffix = "_role"
 // In order to avoid granting role blessings to all delegates of a principal,
 // the role server requires that each authorized blessing presented by the
 // client have the string "_role" as suffix.
-type RoleClientMethods interface { //nolint:golint
+type RoleClientMethods interface {
 	SeekBlessings(*context.T, ...rpc.CallOpt) (security.Blessings, error)
 }
 
 // RoleClientStub adds universal methods to RoleClientMethods.
-type RoleClientStub interface { //nolint:golint
+type RoleClientStub interface {
 	RoleClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // RoleClient returns a client stub for Role.
-func RoleClient(name string) RoleClientStub { //nolint:golint
+func RoleClient(name string) RoleClientStub {
 	return implRoleClientStub{name}
 }
 
@@ -76,7 +77,7 @@ func (c implRoleClientStub) SeekBlessings(ctx *context.T, opts ...rpc.CallOpt) (
 // In order to avoid granting role blessings to all delegates of a principal,
 // the role server requires that each authorized blessing presented by the
 // client have the string "_role" as suffix.
-type RoleServerMethods interface { //nolint:golint
+type RoleServerMethods interface {
 	SeekBlessings(*context.T, rpc.ServerCall) (security.Blessings, error)
 }
 
@@ -84,20 +85,19 @@ type RoleServerMethods interface { //nolint:golint
 // Role methods, as expected by rpc.Server.
 // There is no difference between this interface and RoleServerMethods
 // since there are no streaming methods.
-// nolint:golint
 type RoleServerStubMethods RoleServerMethods
 
 // RoleServerStub adds universal methods to RoleServerStubMethods.
-type RoleServerStub interface { //nolint:golint
+type RoleServerStub interface {
 	RoleServerStubMethods
 	// DescribeInterfaces the Role interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // RoleServer returns a server stub for Role.
 // It converts an implementation of RoleServerMethods into
 // an object that may be used by rpc.Server.
-func RoleServer(impl RoleServerMethods) RoleServerStub { //nolint:golint
+func RoleServer(impl RoleServerMethods) RoleServerStub {
 	stub := implRoleServerStub{
 		impl: impl,
 	}
@@ -124,7 +124,7 @@ func (s implRoleServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implRoleServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implRoleServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{RoleDesc}
 }
 

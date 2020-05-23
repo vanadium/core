@@ -7,10 +7,12 @@
 
 // package benchmark provides simple tools to measure the performance of the
 // IPC system.
+//nolint:golint
 package benchmark
 
 import (
 	"io"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
@@ -25,7 +27,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 
 // BenchmarkClientMethods is the client interface
 // containing Benchmark methods.
-type BenchmarkClientMethods interface { //nolint:golint
+type BenchmarkClientMethods interface {
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, Payload []byte, _ ...rpc.CallOpt) ([]byte, error)
 	// EchoStream returns the payload that it receives via the stream.
@@ -33,13 +35,13 @@ type BenchmarkClientMethods interface { //nolint:golint
 }
 
 // BenchmarkClientStub adds universal methods to BenchmarkClientMethods.
-type BenchmarkClientStub interface { //nolint:golint
+type BenchmarkClientStub interface {
 	BenchmarkClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BenchmarkClient returns a client stub for Benchmark.
-func BenchmarkClient(name string) BenchmarkClientStub { //nolint:golint
+func BenchmarkClient(name string) BenchmarkClientStub {
 	return implBenchmarkClientStub{name}
 }
 
@@ -62,7 +64,7 @@ func (c implBenchmarkClientStub) EchoStream(ctx *context.T, opts ...rpc.CallOpt)
 }
 
 // BenchmarkEchoStreamClientStream is the client stream for Benchmark.EchoStream.
-type BenchmarkEchoStreamClientStream interface { //nolint:golint
+type BenchmarkEchoStreamClientStream interface {
 	// RecvStream returns the receiver side of the Benchmark.EchoStream client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -95,7 +97,7 @@ type BenchmarkEchoStreamClientStream interface { //nolint:golint
 }
 
 // BenchmarkEchoStreamClientCall represents the call returned from Benchmark.EchoStream.
-type BenchmarkEchoStreamClientCall interface { //nolint:golint
+type BenchmarkEchoStreamClientCall interface {
 	BenchmarkEchoStreamClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -110,7 +112,7 @@ type BenchmarkEchoStreamClientCall interface { //nolint:golint
 	Finish() error
 }
 
-type implBenchmarkEchoStreamClientCall struct { //nolint:golint
+type implBenchmarkEchoStreamClientCall struct {
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -165,7 +167,7 @@ func (c *implBenchmarkEchoStreamClientCall) Finish() (err error) {
 
 // BenchmarkServerMethods is the interface a server writer
 // implements for Benchmark.
-type BenchmarkServerMethods interface { //nolint:golint
+type BenchmarkServerMethods interface {
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
 	// EchoStream returns the payload that it receives via the stream.
@@ -176,7 +178,6 @@ type BenchmarkServerMethods interface { //nolint:golint
 // Benchmark methods, as expected by rpc.Server.
 // The only difference between this interface and BenchmarkServerMethods
 // is the streaming methods.
-// nolint:golint
 type BenchmarkServerStubMethods interface {
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
@@ -185,16 +186,16 @@ type BenchmarkServerStubMethods interface {
 }
 
 // BenchmarkServerStub adds universal methods to BenchmarkServerStubMethods.
-type BenchmarkServerStub interface { //nolint:golint
+type BenchmarkServerStub interface {
 	BenchmarkServerStubMethods
 	// DescribeInterfaces the Benchmark interfaces.
-	Describe__() []rpc.InterfaceDesc //nolint:golint
+	Describe__() []rpc.InterfaceDesc
 }
 
 // BenchmarkServer returns a server stub for Benchmark.
 // It converts an implementation of BenchmarkServerMethods into
 // an object that may be used by rpc.Server.
-func BenchmarkServer(impl BenchmarkServerMethods) BenchmarkServerStub { //nolint:golint
+func BenchmarkServer(impl BenchmarkServerMethods) BenchmarkServerStub {
 	stub := implBenchmarkServerStub{
 		impl: impl,
 	}
@@ -225,7 +226,7 @@ func (s implBenchmarkServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBenchmarkServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
+func (s implBenchmarkServerStub) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{BenchmarkDesc}
 }
 
@@ -257,7 +258,7 @@ var descBenchmark = rpc.InterfaceDesc{
 }
 
 // BenchmarkEchoStreamServerStream is the server stream for Benchmark.EchoStream.
-type BenchmarkEchoStreamServerStream interface { //nolint:golint
+type BenchmarkEchoStreamServerStream interface {
 	// RecvStream returns the receiver side of the Benchmark.EchoStream server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -280,14 +281,14 @@ type BenchmarkEchoStreamServerStream interface { //nolint:golint
 }
 
 // BenchmarkEchoStreamServerCall represents the context passed to Benchmark.EchoStream.
-type BenchmarkEchoStreamServerCall interface { //nolint:golint
+type BenchmarkEchoStreamServerCall interface {
 	rpc.ServerCall
 	BenchmarkEchoStreamServerStream
 }
 
 // BenchmarkEchoStreamServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BenchmarkEchoStreamServerCall.
-type BenchmarkEchoStreamServerCallStub struct { //nolint:golint
+type BenchmarkEchoStreamServerCallStub struct {
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
