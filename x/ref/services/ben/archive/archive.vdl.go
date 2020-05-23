@@ -9,13 +9,13 @@
 package archive
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/ref/services/ben"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -24,7 +24,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // containing BenchmarkArchiver methods.
 //
 // BenchmarkArchiver is the interface to store microbenchmark results.
-type BenchmarkArchiverClientMethods interface {
+type BenchmarkArchiverClientMethods interface { //nolint:golint
 	// Archive saves results in 'runs' under the assumption that the
 	// benchmarks were run on a machine whose configuration is defined by
 	// 'scenario' and the were built from source code described by 'code'
@@ -36,13 +36,13 @@ type BenchmarkArchiverClientMethods interface {
 }
 
 // BenchmarkArchiverClientStub adds universal methods to BenchmarkArchiverClientMethods.
-type BenchmarkArchiverClientStub interface {
+type BenchmarkArchiverClientStub interface { //nolint:golint
 	BenchmarkArchiverClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BenchmarkArchiverClient returns a client stub for BenchmarkArchiver.
-func BenchmarkArchiverClient(name string) BenchmarkArchiverClientStub {
+func BenchmarkArchiverClient(name string) BenchmarkArchiverClientStub { //nolint:golint
 	return implBenchmarkArchiverClientStub{name}
 }
 
@@ -59,7 +59,7 @@ func (c implBenchmarkArchiverClientStub) Archive(ctx *context.T, i0 ben.Scenario
 // implements for BenchmarkArchiver.
 //
 // BenchmarkArchiver is the interface to store microbenchmark results.
-type BenchmarkArchiverServerMethods interface {
+type BenchmarkArchiverServerMethods interface { //nolint:golint
 	// Archive saves results in 'runs' under the assumption that the
 	// benchmarks were run on a machine whose configuration is defined by
 	// 'scenario' and the were built from source code described by 'code'
@@ -74,19 +74,20 @@ type BenchmarkArchiverServerMethods interface {
 // BenchmarkArchiver methods, as expected by rpc.Server.
 // There is no difference between this interface and BenchmarkArchiverServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type BenchmarkArchiverServerStubMethods BenchmarkArchiverServerMethods
 
 // BenchmarkArchiverServerStub adds universal methods to BenchmarkArchiverServerStubMethods.
-type BenchmarkArchiverServerStub interface {
+type BenchmarkArchiverServerStub interface { //nolint:golint
 	BenchmarkArchiverServerStubMethods
-	// Describe the BenchmarkArchiver interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the BenchmarkArchiver interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // BenchmarkArchiverServer returns a server stub for BenchmarkArchiver.
 // It converts an implementation of BenchmarkArchiverServerMethods into
 // an object that may be used by rpc.Server.
-func BenchmarkArchiverServer(impl BenchmarkArchiverServerMethods) BenchmarkArchiverServerStub {
+func BenchmarkArchiverServer(impl BenchmarkArchiverServerMethods) BenchmarkArchiverServerStub { //nolint:golint
 	stub := implBenchmarkArchiverServerStub{
 		impl: impl,
 	}
@@ -113,7 +114,7 @@ func (s implBenchmarkArchiverServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBenchmarkArchiverServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implBenchmarkArchiverServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{BenchmarkArchiverDesc}
 }
 
@@ -141,13 +142,13 @@ var descBenchmarkArchiver = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -156,11 +157,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

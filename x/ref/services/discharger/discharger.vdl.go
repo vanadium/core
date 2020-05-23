@@ -10,7 +10,7 @@
 package discharger
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -18,7 +18,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Error definitions
@@ -41,7 +41,7 @@ func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 // containing Discharger methods.
 //
 // Discharger is the interface for obtaining discharges for ThirdPartyCaveats.
-type DischargerClientMethods interface {
+type DischargerClientMethods interface { //nolint:golint
 	// Discharge is called by a principal that holds a blessing with a third
 	// party caveat and seeks to get a discharge that proves the fulfillment of
 	// this caveat.
@@ -49,13 +49,13 @@ type DischargerClientMethods interface {
 }
 
 // DischargerClientStub adds universal methods to DischargerClientMethods.
-type DischargerClientStub interface {
+type DischargerClientStub interface { //nolint:golint
 	DischargerClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // DischargerClient returns a client stub for Discharger.
-func DischargerClient(name string) DischargerClientStub {
+func DischargerClient(name string) DischargerClientStub { //nolint:golint
 	return implDischargerClientStub{name}
 }
 
@@ -72,7 +72,7 @@ func (c implDischargerClientStub) Discharge(ctx *context.T, i0 security.Caveat, 
 // implements for Discharger.
 //
 // Discharger is the interface for obtaining discharges for ThirdPartyCaveats.
-type DischargerServerMethods interface {
+type DischargerServerMethods interface { //nolint:golint
 	// Discharge is called by a principal that holds a blessing with a third
 	// party caveat and seeks to get a discharge that proves the fulfillment of
 	// this caveat.
@@ -83,19 +83,20 @@ type DischargerServerMethods interface {
 // Discharger methods, as expected by rpc.Server.
 // There is no difference between this interface and DischargerServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type DischargerServerStubMethods DischargerServerMethods
 
 // DischargerServerStub adds universal methods to DischargerServerStubMethods.
-type DischargerServerStub interface {
+type DischargerServerStub interface { //nolint:golint
 	DischargerServerStubMethods
-	// Describe the Discharger interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Discharger interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // DischargerServer returns a server stub for Discharger.
 // It converts an implementation of DischargerServerMethods into
 // an object that may be used by rpc.Server.
-func DischargerServer(impl DischargerServerMethods) DischargerServerStub {
+func DischargerServer(impl DischargerServerMethods) DischargerServerStub { //nolint:golint
 	stub := implDischargerServerStub{
 		impl: impl,
 	}
@@ -122,7 +123,7 @@ func (s implDischargerServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implDischargerServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implDischargerServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{DischargerDesc}
 }
 
@@ -149,13 +150,13 @@ var descDischarger = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -164,11 +165,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotAThirdPartyCaveat.ID), "{1:}{2:} discharges are not required for non-third-party caveats (id: {c.id})")

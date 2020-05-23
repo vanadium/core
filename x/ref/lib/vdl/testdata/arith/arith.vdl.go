@@ -10,7 +10,7 @@ package arith
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
@@ -19,7 +19,7 @@ import (
 	"v.io/x/ref/lib/vdl/testdata/base"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Const definitions
@@ -50,19 +50,19 @@ const Mask = uint64(256)
 // containing Trigonometry methods.
 //
 // Trigonometry is an interface that specifies a couple trigonometric functions.
-type TrigonometryClientMethods interface {
+type TrigonometryClientMethods interface { //nolint:golint
 	Sine(_ *context.T, angle float64, _ ...rpc.CallOpt) (float64, error)
 	Cosine(_ *context.T, angle float64, _ ...rpc.CallOpt) (float64, error)
 }
 
 // TrigonometryClientStub adds universal methods to TrigonometryClientMethods.
-type TrigonometryClientStub interface {
+type TrigonometryClientStub interface { //nolint:golint
 	TrigonometryClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TrigonometryClient returns a client stub for Trigonometry.
-func TrigonometryClient(name string) TrigonometryClientStub {
+func TrigonometryClient(name string) TrigonometryClientStub { //nolint:golint
 	return implTrigonometryClientStub{name}
 }
 
@@ -84,7 +84,7 @@ func (c implTrigonometryClientStub) Cosine(ctx *context.T, i0 float64, opts ...r
 // implements for Trigonometry.
 //
 // Trigonometry is an interface that specifies a couple trigonometric functions.
-type TrigonometryServerMethods interface {
+type TrigonometryServerMethods interface { //nolint:golint
 	Sine(_ *context.T, _ rpc.ServerCall, angle float64) (float64, error)
 	Cosine(_ *context.T, _ rpc.ServerCall, angle float64) (float64, error)
 }
@@ -93,19 +93,20 @@ type TrigonometryServerMethods interface {
 // Trigonometry methods, as expected by rpc.Server.
 // There is no difference between this interface and TrigonometryServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type TrigonometryServerStubMethods TrigonometryServerMethods
 
 // TrigonometryServerStub adds universal methods to TrigonometryServerStubMethods.
-type TrigonometryServerStub interface {
+type TrigonometryServerStub interface { //nolint:golint
 	TrigonometryServerStubMethods
-	// Describe the Trigonometry interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Trigonometry interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // TrigonometryServer returns a server stub for Trigonometry.
 // It converts an implementation of TrigonometryServerMethods into
 // an object that may be used by rpc.Server.
-func TrigonometryServer(impl TrigonometryServerMethods) TrigonometryServerStub {
+func TrigonometryServer(impl TrigonometryServerMethods) TrigonometryServerStub { //nolint:golint
 	stub := implTrigonometryServerStub{
 		impl: impl,
 	}
@@ -136,7 +137,7 @@ func (s implTrigonometryServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTrigonometryServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implTrigonometryServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{TrigonometryDesc}
 }
 
@@ -177,20 +178,20 @@ var descTrigonometry = rpc.InterfaceDesc{
 // interfaces defined both in the same file and in an external package; and in
 // turn it is embedded by arith.Calculator (which is in the same package but
 // different file) to verify that embedding works in all these scenarios.
-type AdvancedMathClientMethods interface {
+type AdvancedMathClientMethods interface { //nolint:golint
 	// Trigonometry is an interface that specifies a couple trigonometric functions.
 	TrigonometryClientMethods
 	exp.ExpClientMethods
 }
 
 // AdvancedMathClientStub adds universal methods to AdvancedMathClientMethods.
-type AdvancedMathClientStub interface {
+type AdvancedMathClientStub interface { //nolint:golint
 	AdvancedMathClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // AdvancedMathClient returns a client stub for AdvancedMath.
-func AdvancedMathClient(name string) AdvancedMathClientStub {
+func AdvancedMathClient(name string) AdvancedMathClientStub { //nolint:golint
 	return implAdvancedMathClientStub{name, TrigonometryClient(name), exp.ExpClient(name)}
 }
 
@@ -208,7 +209,7 @@ type implAdvancedMathClientStub struct {
 // interfaces defined both in the same file and in an external package; and in
 // turn it is embedded by arith.Calculator (which is in the same package but
 // different file) to verify that embedding works in all these scenarios.
-type AdvancedMathServerMethods interface {
+type AdvancedMathServerMethods interface { //nolint:golint
 	// Trigonometry is an interface that specifies a couple trigonometric functions.
 	TrigonometryServerMethods
 	exp.ExpServerMethods
@@ -218,19 +219,20 @@ type AdvancedMathServerMethods interface {
 // AdvancedMath methods, as expected by rpc.Server.
 // There is no difference between this interface and AdvancedMathServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type AdvancedMathServerStubMethods AdvancedMathServerMethods
 
 // AdvancedMathServerStub adds universal methods to AdvancedMathServerStubMethods.
-type AdvancedMathServerStub interface {
+type AdvancedMathServerStub interface { //nolint:golint
 	AdvancedMathServerStubMethods
-	// Describe the AdvancedMath interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the AdvancedMath interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // AdvancedMathServer returns a server stub for AdvancedMath.
 // It converts an implementation of AdvancedMathServerMethods into
 // an object that may be used by rpc.Server.
-func AdvancedMathServer(impl AdvancedMathServerMethods) AdvancedMathServerStub {
+func AdvancedMathServer(impl AdvancedMathServerMethods) AdvancedMathServerStub { //nolint:golint
 	stub := implAdvancedMathServerStub{
 		impl:                   impl,
 		TrigonometryServerStub: TrigonometryServer(impl),
@@ -257,7 +259,7 @@ func (s implAdvancedMathServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implAdvancedMathServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implAdvancedMathServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{AdvancedMathDesc, TrigonometryDesc, exp.ExpDesc}
 }
 
@@ -281,7 +283,7 @@ var descAdvancedMath = rpc.InterfaceDesc{
 // Arith is an example of an interface definition for an arithmetic service.
 // Things to note:
 //   * There must be at least 1 out-arg, and the last out-arg must be error.
-type ArithClientMethods interface {
+type ArithClientMethods interface { //nolint:golint
 	// Add is a typical method with multiple input and output arguments.
 	Add(_ *context.T, a int32, b int32, _ ...rpc.CallOpt) (int32, error)
 	// DivMod shows that runs of args with the same type can use the short form,
@@ -305,13 +307,13 @@ type ArithClientMethods interface {
 }
 
 // ArithClientStub adds universal methods to ArithClientMethods.
-type ArithClientStub interface {
+type ArithClientStub interface { //nolint:golint
 	ArithClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ArithClient returns a client stub for Arith.
-func ArithClient(name string) ArithClientStub {
+func ArithClient(name string) ArithClientStub { //nolint:golint
 	return implArithClientStub{name}
 }
 
@@ -368,7 +370,7 @@ func (c implArithClientStub) QuoteAny(ctx *context.T, i0 *vom.RawBytes, opts ...
 }
 
 // ArithCountClientStream is the client stream for Arith.Count.
-type ArithCountClientStream interface {
+type ArithCountClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Arith.Count client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -384,7 +386,7 @@ type ArithCountClientStream interface {
 }
 
 // ArithCountClientCall represents the call returned from Arith.Count.
-type ArithCountClientCall interface {
+type ArithCountClientCall interface { //nolint:golint
 	ArithCountClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -399,7 +401,7 @@ type ArithCountClientCall interface {
 	Finish() error
 }
 
-type implArithCountClientCall struct {
+type implArithCountClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv int32
 	errRecv error
@@ -436,7 +438,7 @@ func (c *implArithCountClientCall) Finish() (err error) {
 }
 
 // ArithStreamingAddClientStream is the client stream for Arith.StreamingAdd.
-type ArithStreamingAddClientStream interface {
+type ArithStreamingAddClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Arith.StreamingAdd client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -469,7 +471,7 @@ type ArithStreamingAddClientStream interface {
 }
 
 // ArithStreamingAddClientCall represents the call returned from Arith.StreamingAdd.
-type ArithStreamingAddClientCall interface {
+type ArithStreamingAddClientCall interface { //nolint:golint
 	ArithStreamingAddClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -484,7 +486,7 @@ type ArithStreamingAddClientCall interface {
 	Finish() (total int32, _ error)
 }
 
-type implArithStreamingAddClientCall struct {
+type implArithStreamingAddClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv int32
 	errRecv error
@@ -543,7 +545,7 @@ func (c *implArithStreamingAddClientCall) Finish() (o0 int32, err error) {
 // Arith is an example of an interface definition for an arithmetic service.
 // Things to note:
 //   * There must be at least 1 out-arg, and the last out-arg must be error.
-type ArithServerMethods interface {
+type ArithServerMethods interface { //nolint:golint
 	// Add is a typical method with multiple input and output arguments.
 	Add(_ *context.T, _ rpc.ServerCall, a int32, b int32) (int32, error)
 	// DivMod shows that runs of args with the same type can use the short form,
@@ -570,6 +572,7 @@ type ArithServerMethods interface {
 // Arith methods, as expected by rpc.Server.
 // The only difference between this interface and ArithServerMethods
 // is the streaming methods.
+// nolint:golint
 type ArithServerStubMethods interface {
 	// Add is a typical method with multiple input and output arguments.
 	Add(_ *context.T, _ rpc.ServerCall, a int32, b int32) (int32, error)
@@ -594,16 +597,16 @@ type ArithServerStubMethods interface {
 }
 
 // ArithServerStub adds universal methods to ArithServerStubMethods.
-type ArithServerStub interface {
+type ArithServerStub interface { //nolint:golint
 	ArithServerStubMethods
-	// Describe the Arith interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Arith interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ArithServer returns a server stub for Arith.
 // It converts an implementation of ArithServerMethods into
 // an object that may be used by rpc.Server.
-func ArithServer(impl ArithServerMethods) ArithServerStub {
+func ArithServer(impl ArithServerMethods) ArithServerStub { //nolint:golint
 	stub := implArithServerStub{
 		impl: impl,
 	}
@@ -658,7 +661,7 @@ func (s implArithServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implArithServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implArithServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ArithDesc}
 }
 
@@ -747,7 +750,7 @@ var descArith = rpc.InterfaceDesc{
 }
 
 // ArithCountServerStream is the server stream for Arith.Count.
-type ArithCountServerStream interface {
+type ArithCountServerStream interface { //nolint:golint
 	// SendStream returns the send side of the Arith.Count server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -758,14 +761,14 @@ type ArithCountServerStream interface {
 }
 
 // ArithCountServerCall represents the context passed to Arith.Count.
-type ArithCountServerCall interface {
+type ArithCountServerCall interface { //nolint:golint
 	rpc.ServerCall
 	ArithCountServerStream
 }
 
 // ArithCountServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ArithCountServerCall.
-type ArithCountServerCallStub struct {
+type ArithCountServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -790,7 +793,7 @@ func (s implArithCountServerCallSend) Send(item int32) error {
 }
 
 // ArithStreamingAddServerStream is the server stream for Arith.StreamingAdd.
-type ArithStreamingAddServerStream interface {
+type ArithStreamingAddServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Arith.StreamingAdd server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -813,14 +816,14 @@ type ArithStreamingAddServerStream interface {
 }
 
 // ArithStreamingAddServerCall represents the context passed to Arith.StreamingAdd.
-type ArithStreamingAddServerCall interface {
+type ArithStreamingAddServerCall interface { //nolint:golint
 	rpc.ServerCall
 	ArithStreamingAddServerStream
 }
 
 // ArithStreamingAddServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ArithStreamingAddServerCall.
-type ArithStreamingAddServerCallStub struct {
+type ArithStreamingAddServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv int32
 	errRecv error
@@ -875,7 +878,7 @@ func (s implArithStreamingAddServerCallSend) Send(item int32) error {
 
 // CalculatorClientMethods is the client interface
 // containing Calculator methods.
-type CalculatorClientMethods interface {
+type CalculatorClientMethods interface { //nolint:golint
 	// Arith is an example of an interface definition for an arithmetic service.
 	// Things to note:
 	//   * There must be at least 1 out-arg, and the last out-arg must be error.
@@ -890,13 +893,13 @@ type CalculatorClientMethods interface {
 }
 
 // CalculatorClientStub adds universal methods to CalculatorClientMethods.
-type CalculatorClientStub interface {
+type CalculatorClientStub interface { //nolint:golint
 	CalculatorClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // CalculatorClient returns a client stub for Calculator.
-func CalculatorClient(name string) CalculatorClientStub {
+func CalculatorClient(name string) CalculatorClientStub { //nolint:golint
 	return implCalculatorClientStub{name, ArithClient(name), AdvancedMathClient(name)}
 }
 
@@ -919,7 +922,7 @@ func (c implCalculatorClientStub) Off(ctx *context.T, opts ...rpc.CallOpt) (err 
 
 // CalculatorServerMethods is the interface a server writer
 // implements for Calculator.
-type CalculatorServerMethods interface {
+type CalculatorServerMethods interface { //nolint:golint
 	// Arith is an example of an interface definition for an arithmetic service.
 	// Things to note:
 	//   * There must be at least 1 out-arg, and the last out-arg must be error.
@@ -937,6 +940,7 @@ type CalculatorServerMethods interface {
 // Calculator methods, as expected by rpc.Server.
 // The only difference between this interface and CalculatorServerMethods
 // is the streaming methods.
+// nolint:golint
 type CalculatorServerStubMethods interface {
 	// Arith is an example of an interface definition for an arithmetic service.
 	// Things to note:
@@ -952,16 +956,16 @@ type CalculatorServerStubMethods interface {
 }
 
 // CalculatorServerStub adds universal methods to CalculatorServerStubMethods.
-type CalculatorServerStub interface {
+type CalculatorServerStub interface { //nolint:golint
 	CalculatorServerStubMethods
-	// Describe the Calculator interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Calculator interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // CalculatorServer returns a server stub for Calculator.
 // It converts an implementation of CalculatorServerMethods into
 // an object that may be used by rpc.Server.
-func CalculatorServer(impl CalculatorServerMethods) CalculatorServerStub {
+func CalculatorServer(impl CalculatorServerMethods) CalculatorServerStub { //nolint:golint
 	stub := implCalculatorServerStub{
 		impl:                   impl,
 		ArithServerStub:        ArithServer(impl),
@@ -996,7 +1000,7 @@ func (s implCalculatorServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implCalculatorServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implCalculatorServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{CalculatorDesc, ArithDesc, AdvancedMathDesc, TrigonometryDesc, exp.ExpDesc}
 }
 
@@ -1022,13 +1026,13 @@ var descCalculator = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1037,11 +1041,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

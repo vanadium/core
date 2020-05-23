@@ -8,19 +8,19 @@
 package mounttablelib
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // CollectionClientMethods is the client interface
 // containing Collection methods.
-type CollectionClientMethods interface {
+type CollectionClientMethods interface { //nolint:golint
 	// Export sets the value for a name.  Overwrite controls the behavior when
 	// an entry exists, if Overwrite is true, then the binding is replaced,
 	// otherwise the call fails with an error.  The Val must be no larger than
@@ -32,13 +32,13 @@ type CollectionClientMethods interface {
 }
 
 // CollectionClientStub adds universal methods to CollectionClientMethods.
-type CollectionClientStub interface {
+type CollectionClientStub interface { //nolint:golint
 	CollectionClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // CollectionClient returns a client stub for Collection.
-func CollectionClient(name string) CollectionClientStub {
+func CollectionClient(name string) CollectionClientStub { //nolint:golint
 	return implCollectionClientStub{name}
 }
 
@@ -58,7 +58,7 @@ func (c implCollectionClientStub) Lookup(ctx *context.T, opts ...rpc.CallOpt) (o
 
 // CollectionServerMethods is the interface a server writer
 // implements for Collection.
-type CollectionServerMethods interface {
+type CollectionServerMethods interface { //nolint:golint
 	// Export sets the value for a name.  Overwrite controls the behavior when
 	// an entry exists, if Overwrite is true, then the binding is replaced,
 	// otherwise the call fails with an error.  The Val must be no larger than
@@ -73,19 +73,20 @@ type CollectionServerMethods interface {
 // Collection methods, as expected by rpc.Server.
 // There is no difference between this interface and CollectionServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type CollectionServerStubMethods CollectionServerMethods
 
 // CollectionServerStub adds universal methods to CollectionServerStubMethods.
-type CollectionServerStub interface {
+type CollectionServerStub interface { //nolint:golint
 	CollectionServerStubMethods
-	// Describe the Collection interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Collection interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // CollectionServer returns a server stub for Collection.
 // It converts an implementation of CollectionServerMethods into
 // an object that may be used by rpc.Server.
-func CollectionServer(impl CollectionServerMethods) CollectionServerStub {
+func CollectionServer(impl CollectionServerMethods) CollectionServerStub { //nolint:golint
 	stub := implCollectionServerStub{
 		impl: impl,
 	}
@@ -116,7 +117,7 @@ func (s implCollectionServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implCollectionServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implCollectionServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{CollectionDesc}
 }
 
@@ -146,13 +147,13 @@ var descCollection = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -161,11 +162,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

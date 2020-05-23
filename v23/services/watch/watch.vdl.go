@@ -109,7 +109,7 @@ package watch
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -119,7 +119,7 @@ import (
 	"v.io/v23/vom"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -162,18 +162,18 @@ func (ResumeMarker) VDLReflect(struct {
 }) {
 }
 
-func (x ResumeMarker) VDLIsZero() bool {
+func (x ResumeMarker) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x ResumeMarker) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueBytes(__VDLType_list_1, []byte(x)); err != nil {
+func (x ResumeMarker) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueBytes(vdlTypeList1, []byte(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *ResumeMarker) VDLRead(dec vdl.Decoder) error {
+func (x *ResumeMarker) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	var bytes []byte
 	if err := dec.ReadValueBytes(-1, &bytes); err != nil {
 		return err
@@ -198,7 +198,7 @@ func (GlobRequest) VDLReflect(struct {
 }) {
 }
 
-func (x GlobRequest) VDLIsZero() bool {
+func (x GlobRequest) VDLIsZero() bool { //nolint:gocyclo
 	if x.Pattern != "" {
 		return false
 	}
@@ -208,8 +208,8 @@ func (x GlobRequest) VDLIsZero() bool {
 	return true
 }
 
-func (x GlobRequest) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x GlobRequest) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Pattern != "" {
@@ -218,7 +218,7 @@ func (x GlobRequest) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if len(x.ResumeMarker) != 0 {
-		if err := enc.NextFieldValueBytes(1, __VDLType_list_1, []byte(x.ResumeMarker)); err != nil {
+		if err := enc.NextFieldValueBytes(1, vdlTypeList1, []byte(x.ResumeMarker)); err != nil {
 			return err
 		}
 	}
@@ -228,9 +228,9 @@ func (x GlobRequest) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *GlobRequest) VDLRead(dec vdl.Decoder) error {
+func (x *GlobRequest) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = GlobRequest{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -242,8 +242,8 @@ func (x *GlobRequest) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -295,7 +295,7 @@ func (Change) VDLReflect(struct {
 }) {
 }
 
-func (x Change) VDLIsZero() bool {
+func (x Change) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -314,8 +314,8 @@ func (x Change) VDLIsZero() bool {
 	return true
 }
 
-func (x Change) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x Change) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -337,7 +337,7 @@ func (x Change) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if len(x.ResumeMarker) != 0 {
-		if err := enc.NextFieldValueBytes(3, __VDLType_list_1, []byte(x.ResumeMarker)); err != nil {
+		if err := enc.NextFieldValueBytes(3, vdlTypeList1, []byte(x.ResumeMarker)); err != nil {
 			return err
 		}
 	}
@@ -352,11 +352,11 @@ func (x Change) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Change) VDLRead(dec vdl.Decoder) error {
+func (x *Change) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Change{
 		Value: vom.RawBytesOf(vdl.ZeroValue(vdl.AnyType)),
 	}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -368,8 +368,8 @@ func (x *Change) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -449,19 +449,19 @@ func NewErrUnknownResumeMarker(ctx *context.T) error {
 //
 // GlobWatcher allows a client to receive updates for changes to objects
 // that match a pattern.  See the package comments for details.
-type GlobWatcherClientMethods interface {
+type GlobWatcherClientMethods interface { //nolint:golint
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, req GlobRequest, _ ...rpc.CallOpt) (GlobWatcherWatchGlobClientCall, error)
 }
 
 // GlobWatcherClientStub adds universal methods to GlobWatcherClientMethods.
-type GlobWatcherClientStub interface {
+type GlobWatcherClientStub interface { //nolint:golint
 	GlobWatcherClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // GlobWatcherClient returns a client stub for GlobWatcher.
-func GlobWatcherClient(name string) GlobWatcherClientStub {
+func GlobWatcherClient(name string) GlobWatcherClientStub { //nolint:golint
 	return implGlobWatcherClientStub{name}
 }
 
@@ -479,7 +479,7 @@ func (c implGlobWatcherClientStub) WatchGlob(ctx *context.T, i0 GlobRequest, opt
 }
 
 // GlobWatcherWatchGlobClientStream is the client stream for GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobClientStream interface {
+type GlobWatcherWatchGlobClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the GlobWatcher.WatchGlob client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -495,7 +495,7 @@ type GlobWatcherWatchGlobClientStream interface {
 }
 
 // GlobWatcherWatchGlobClientCall represents the call returned from GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobClientCall interface {
+type GlobWatcherWatchGlobClientCall interface { //nolint:golint
 	GlobWatcherWatchGlobClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -510,7 +510,7 @@ type GlobWatcherWatchGlobClientCall interface {
 	Finish() error
 }
 
-type implGlobWatcherWatchGlobClientCall struct {
+type implGlobWatcherWatchGlobClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv Change
 	errRecv error
@@ -552,7 +552,7 @@ func (c *implGlobWatcherWatchGlobClientCall) Finish() (err error) {
 //
 // GlobWatcher allows a client to receive updates for changes to objects
 // that match a pattern.  See the package comments for details.
-type GlobWatcherServerMethods interface {
+type GlobWatcherServerMethods interface { //nolint:golint
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, _ GlobWatcherWatchGlobServerCall, req GlobRequest) error
 }
@@ -561,22 +561,23 @@ type GlobWatcherServerMethods interface {
 // GlobWatcher methods, as expected by rpc.Server.
 // The only difference between this interface and GlobWatcherServerMethods
 // is the streaming methods.
+// nolint:golint
 type GlobWatcherServerStubMethods interface {
 	// WatchGlob returns a stream of changes that match a pattern.
 	WatchGlob(_ *context.T, _ *GlobWatcherWatchGlobServerCallStub, req GlobRequest) error
 }
 
 // GlobWatcherServerStub adds universal methods to GlobWatcherServerStubMethods.
-type GlobWatcherServerStub interface {
+type GlobWatcherServerStub interface { //nolint:golint
 	GlobWatcherServerStubMethods
-	// Describe the GlobWatcher interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the GlobWatcher interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // GlobWatcherServer returns a server stub for GlobWatcher.
 // It converts an implementation of GlobWatcherServerMethods into
 // an object that may be used by rpc.Server.
-func GlobWatcherServer(impl GlobWatcherServerMethods) GlobWatcherServerStub {
+func GlobWatcherServer(impl GlobWatcherServerMethods) GlobWatcherServerStub { //nolint:golint
 	stub := implGlobWatcherServerStub{
 		impl: impl,
 	}
@@ -603,7 +604,7 @@ func (s implGlobWatcherServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implGlobWatcherServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implGlobWatcherServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{GlobWatcherDesc}
 }
 
@@ -628,7 +629,7 @@ var descGlobWatcher = rpc.InterfaceDesc{
 }
 
 // GlobWatcherWatchGlobServerStream is the server stream for GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobServerStream interface {
+type GlobWatcherWatchGlobServerStream interface { //nolint:golint
 	// SendStream returns the send side of the GlobWatcher.WatchGlob server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -639,14 +640,14 @@ type GlobWatcherWatchGlobServerStream interface {
 }
 
 // GlobWatcherWatchGlobServerCall represents the context passed to GlobWatcher.WatchGlob.
-type GlobWatcherWatchGlobServerCall interface {
+type GlobWatcherWatchGlobServerCall interface { //nolint:golint
 	rpc.ServerCall
 	GlobWatcherWatchGlobServerStream
 }
 
 // GlobWatcherWatchGlobServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements GlobWatcherWatchGlobServerCall.
-type GlobWatcherWatchGlobServerCallStub struct {
+type GlobWatcherWatchGlobServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -673,18 +674,18 @@ func (s implGlobWatcherWatchGlobServerCallSend) Send(item Change) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_list_1   *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
+	vdlTypeList1   *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -693,11 +694,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*ResumeMarker)(nil))
@@ -705,9 +706,9 @@ func __VDLInit() struct{} {
 	vdl.Register((*Change)(nil))
 
 	// Initialize type definitions.
-	__VDLType_list_1 = vdl.TypeOf((*ResumeMarker)(nil))
-	__VDLType_struct_2 = vdl.TypeOf((*GlobRequest)(nil)).Elem()
-	__VDLType_struct_3 = vdl.TypeOf((*Change)(nil)).Elem()
+	vdlTypeList1 = vdl.TypeOf((*ResumeMarker)(nil))
+	vdlTypeStruct2 = vdl.TypeOf((*GlobRequest)(nil)).Elem()
+	vdlTypeStruct3 = vdl.TypeOf((*Change)(nil)).Elem()
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownResumeMarker.ID), "{1:}{2:} unknown resume marker {_}")

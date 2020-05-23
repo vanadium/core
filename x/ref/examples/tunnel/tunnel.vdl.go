@@ -12,14 +12,14 @@ package tunnel
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -34,12 +34,12 @@ func (WindowSize) VDLReflect(struct {
 }) {
 }
 
-func (x WindowSize) VDLIsZero() bool {
+func (x WindowSize) VDLIsZero() bool { //nolint:gocyclo
 	return x == WindowSize{}
 }
 
-func (x WindowSize) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x WindowSize) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Rows != 0 {
@@ -58,9 +58,9 @@ func (x WindowSize) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *WindowSize) VDLRead(dec vdl.Decoder) error {
+func (x *WindowSize) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = WindowSize{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -72,8 +72,8 @@ func (x *WindowSize) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -111,7 +111,7 @@ func (ShellOpts) VDLReflect(struct {
 }) {
 }
 
-func (x ShellOpts) VDLIsZero() bool {
+func (x ShellOpts) VDLIsZero() bool { //nolint:gocyclo
 	if x.UsePty {
 		return false
 	}
@@ -124,8 +124,8 @@ func (x ShellOpts) VDLIsZero() bool {
 	return true
 }
 
-func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x ShellOpts) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.UsePty {
@@ -137,7 +137,7 @@ func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Environment); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Environment); err != nil {
 			return err
 		}
 	}
@@ -155,8 +155,8 @@ func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_3); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -173,9 +173,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
+func (x *ShellOpts) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = ShellOpts{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -187,8 +187,8 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -205,7 +205,7 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 				x.UsePty = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_1(dec, &x.Environment); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Environment); err != nil {
 				return err
 			}
 		case 2:
@@ -216,8 +216,8 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_3); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -246,12 +246,12 @@ func (Unused) VDLReflect(struct {
 }) {
 }
 
-func (x Unused) VDLIsZero() bool {
+func (x Unused) VDLIsZero() bool { //nolint:gocyclo
 	return x == Unused{}
 }
 
-func (x Unused) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x Unused) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -260,9 +260,9 @@ func (x Unused) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Unused) VDLRead(dec vdl.Decoder) error {
+func (x *Unused) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Unused{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -274,8 +274,8 @@ func (x *Unused) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -298,7 +298,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the ClientShellPacket union type.
-		VDLReflect(__ClientShellPacketReflect)
+		VDLReflect(vdlClientShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -315,8 +315,8 @@ type (
 	//
 	// A dynamic update of the window size.
 	ClientShellPacketWinSize struct{ Value WindowSize }
-	// __ClientShellPacketReflect describes the ClientShellPacket union type.
-	__ClientShellPacketReflect struct {
+	// vdlClientShellPacketReflect describes the ClientShellPacket union type.
+	vdlClientShellPacketReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/tunnel.ClientShellPacket"`
 		Type  ClientShellPacket
 		Union struct {
@@ -327,22 +327,22 @@ type (
 	}
 )
 
-func (x ClientShellPacketStdin) Index() int                            { return 0 }
-func (x ClientShellPacketStdin) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketStdin) Name() string                          { return "Stdin" }
-func (x ClientShellPacketStdin) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketStdin) Index() int                             { return 0 }
+func (x ClientShellPacketStdin) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketStdin) Name() string                           { return "Stdin" }
+func (x ClientShellPacketStdin) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketEndOfFile) Index() int                            { return 1 }
-func (x ClientShellPacketEndOfFile) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketEndOfFile) Name() string                          { return "EndOfFile" }
-func (x ClientShellPacketEndOfFile) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketEndOfFile) Index() int                             { return 1 }
+func (x ClientShellPacketEndOfFile) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketEndOfFile) Name() string                           { return "EndOfFile" }
+func (x ClientShellPacketEndOfFile) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketWinSize) Index() int                            { return 2 }
-func (x ClientShellPacketWinSize) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketWinSize) Name() string                          { return "WinSize" }
-func (x ClientShellPacketWinSize) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketWinSize) Index() int                             { return 2 }
+func (x ClientShellPacketWinSize) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketWinSize) Name() string                           { return "WinSize" }
+func (x ClientShellPacketWinSize) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketStdin) VDLIsZero() bool {
+func (x ClientShellPacketStdin) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Value) == 0
 }
 
@@ -354,11 +354,11 @@ func (x ClientShellPacketWinSize) VDLIsZero() bool {
 	return false
 }
 
-func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(0, __VDLType_list_5, x.Value); err != nil {
+	if err := enc.NextFieldValueBytes(0, vdlTypeList5, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -367,8 +367,8 @@ func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -383,8 +383,8 @@ func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
@@ -399,8 +399,8 @@ func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error {
-	if err := dec.StartValue(__VDLType_union_6); err != nil {
+func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -411,9 +411,9 @@ func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_6 {
+	if decType != vdlTypeUnion6 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_6.FieldIndexByName(name)
+		index = vdlTypeUnion6.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -457,7 +457,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the ServerShellPacket union type.
-		VDLReflect(__ServerShellPacketReflect)
+		VDLReflect(vdlServerShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -469,8 +469,8 @@ type (
 	//
 	// Bytes coming from the shell's stderr.
 	ServerShellPacketStderr struct{ Value []byte }
-	// __ServerShellPacketReflect describes the ServerShellPacket union type.
-	__ServerShellPacketReflect struct {
+	// vdlServerShellPacketReflect describes the ServerShellPacket union type.
+	vdlServerShellPacketReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/tunnel.ServerShellPacket"`
 		Type  ServerShellPacket
 		Union struct {
@@ -480,17 +480,17 @@ type (
 	}
 )
 
-func (x ServerShellPacketStdout) Index() int                            { return 0 }
-func (x ServerShellPacketStdout) Interface() interface{}                { return x.Value }
-func (x ServerShellPacketStdout) Name() string                          { return "Stdout" }
-func (x ServerShellPacketStdout) VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStdout) Index() int                             { return 0 }
+func (x ServerShellPacketStdout) Interface() interface{}                 { return x.Value }
+func (x ServerShellPacketStdout) Name() string                           { return "Stdout" }
+func (x ServerShellPacketStdout) VDLReflect(vdlServerShellPacketReflect) {}
 
-func (x ServerShellPacketStderr) Index() int                            { return 1 }
-func (x ServerShellPacketStderr) Interface() interface{}                { return x.Value }
-func (x ServerShellPacketStderr) Name() string                          { return "Stderr" }
-func (x ServerShellPacketStderr) VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStderr) Index() int                             { return 1 }
+func (x ServerShellPacketStderr) Interface() interface{}                 { return x.Value }
+func (x ServerShellPacketStderr) Name() string                           { return "Stderr" }
+func (x ServerShellPacketStderr) VDLReflect(vdlServerShellPacketReflect) {}
 
-func (x ServerShellPacketStdout) VDLIsZero() bool {
+func (x ServerShellPacketStdout) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Value) == 0
 }
 
@@ -498,24 +498,11 @@ func (x ServerShellPacketStderr) VDLIsZero() bool {
 	return false
 }
 
-func (x ServerShellPacketStdout) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
+func (x ServerShellPacketStdout) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(0, __VDLType_list_5, x.Value); err != nil {
-		return err
-	}
-	if err := enc.NextField(-1); err != nil {
-		return err
-	}
-	return enc.FinishValue()
-}
-
-func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
-		return err
-	}
-	if err := enc.NextFieldValueBytes(1, __VDLType_list_5, x.Value); err != nil {
+	if err := enc.NextFieldValueBytes(0, vdlTypeList5, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -524,8 +511,21 @@ func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error {
-	if err := dec.StartValue(__VDLType_union_7); err != nil {
+func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
+		return err
+	}
+	if err := enc.NextFieldValueBytes(1, vdlTypeList5, x.Value); err != nil {
+		return err
+	}
+	if err := enc.NextField(-1); err != nil {
+		return err
+	}
+	return enc.FinishValue()
+}
+
+func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -536,9 +536,9 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_7 {
+	if decType != vdlTypeUnion7 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_7.FieldIndexByName(name)
+		index = vdlTypeUnion7.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -571,7 +571,7 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error {
 
 // TunnelClientMethods is the client interface
 // containing Tunnel methods.
-type TunnelClientMethods interface {
+type TunnelClientMethods interface { //nolint:golint
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
 	// data received from that network connection is sent back on the reply
@@ -591,13 +591,13 @@ type TunnelClientMethods interface {
 }
 
 // TunnelClientStub adds universal methods to TunnelClientMethods.
-type TunnelClientStub interface {
+type TunnelClientStub interface { //nolint:golint
 	TunnelClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TunnelClient returns a client stub for Tunnel.
-func TunnelClient(name string) TunnelClientStub {
+func TunnelClient(name string) TunnelClientStub { //nolint:golint
 	return implTunnelClientStub{name}
 }
 
@@ -629,7 +629,7 @@ func (c implTunnelClientStub) Shell(ctx *context.T, i0 string, i1 ShellOpts, opt
 }
 
 // TunnelForwardClientStream is the client stream for Tunnel.Forward.
-type TunnelForwardClientStream interface {
+type TunnelForwardClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Tunnel.Forward client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -662,7 +662,7 @@ type TunnelForwardClientStream interface {
 }
 
 // TunnelForwardClientCall represents the call returned from Tunnel.Forward.
-type TunnelForwardClientCall interface {
+type TunnelForwardClientCall interface { //nolint:golint
 	TunnelForwardClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -677,7 +677,7 @@ type TunnelForwardClientCall interface {
 	Finish() error
 }
 
-type implTunnelForwardClientCall struct {
+type implTunnelForwardClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -731,7 +731,7 @@ func (c *implTunnelForwardClientCall) Finish() (err error) {
 }
 
 // TunnelShellClientStream is the client stream for Tunnel.Shell.
-type TunnelShellClientStream interface {
+type TunnelShellClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Tunnel.Shell client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -764,7 +764,7 @@ type TunnelShellClientStream interface {
 }
 
 // TunnelShellClientCall represents the call returned from Tunnel.Shell.
-type TunnelShellClientCall interface {
+type TunnelShellClientCall interface { //nolint:golint
 	TunnelShellClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -779,7 +779,7 @@ type TunnelShellClientCall interface {
 	Finish() (exitCode int32, exitMsg string, _ error)
 }
 
-type implTunnelShellClientCall struct {
+type implTunnelShellClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv ServerShellPacket
 	errRecv error
@@ -834,7 +834,7 @@ func (c *implTunnelShellClientCall) Finish() (o0 int32, o1 string, err error) {
 
 // TunnelServerMethods is the interface a server writer
 // implements for Tunnel.
-type TunnelServerMethods interface {
+type TunnelServerMethods interface { //nolint:golint
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
 	// data received from that network connection is sent back on the reply
@@ -857,6 +857,7 @@ type TunnelServerMethods interface {
 // Tunnel methods, as expected by rpc.Server.
 // The only difference between this interface and TunnelServerMethods
 // is the streaming methods.
+// nolint:golint
 type TunnelServerStubMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to the requested network address and all the
@@ -877,16 +878,16 @@ type TunnelServerStubMethods interface {
 }
 
 // TunnelServerStub adds universal methods to TunnelServerStubMethods.
-type TunnelServerStub interface {
+type TunnelServerStub interface { //nolint:golint
 	TunnelServerStubMethods
-	// Describe the Tunnel interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Tunnel interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // TunnelServer returns a server stub for Tunnel.
 // It converts an implementation of TunnelServerMethods into
 // an object that may be used by rpc.Server.
-func TunnelServer(impl TunnelServerMethods) TunnelServerStub {
+func TunnelServer(impl TunnelServerMethods) TunnelServerStub { //nolint:golint
 	stub := implTunnelServerStub{
 		impl: impl,
 	}
@@ -921,7 +922,7 @@ func (s implTunnelServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTunnelServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implTunnelServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{TunnelDesc}
 }
 
@@ -968,7 +969,7 @@ var descTunnel = rpc.InterfaceDesc{
 }
 
 // TunnelForwardServerStream is the server stream for Tunnel.Forward.
-type TunnelForwardServerStream interface {
+type TunnelForwardServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Tunnel.Forward server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -991,14 +992,14 @@ type TunnelForwardServerStream interface {
 }
 
 // TunnelForwardServerCall represents the context passed to Tunnel.Forward.
-type TunnelForwardServerCall interface {
+type TunnelForwardServerCall interface { //nolint:golint
 	rpc.ServerCall
 	TunnelForwardServerStream
 }
 
 // TunnelForwardServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements TunnelForwardServerCall.
-type TunnelForwardServerCallStub struct {
+type TunnelForwardServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -1052,7 +1053,7 @@ func (s implTunnelForwardServerCallSend) Send(item []byte) error {
 }
 
 // TunnelShellServerStream is the server stream for Tunnel.Shell.
-type TunnelShellServerStream interface {
+type TunnelShellServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Tunnel.Shell server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1075,14 +1076,14 @@ type TunnelShellServerStream interface {
 }
 
 // TunnelShellServerCall represents the context passed to Tunnel.Shell.
-type TunnelShellServerCall interface {
+type TunnelShellServerCall interface { //nolint:golint
 	rpc.ServerCall
 	TunnelShellServerStream
 }
 
 // TunnelShellServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements TunnelShellServerCall.
-type TunnelShellServerCallStub struct {
+type TunnelShellServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv ClientShellPacket
 	errRecv error
@@ -1137,7 +1138,7 @@ func (s implTunnelShellServerCallSend) Send(item ServerShellPacket) error {
 
 // ForwarderClientMethods is the client interface
 // containing Forwarder methods.
-type ForwarderClientMethods interface {
+type ForwarderClientMethods interface { //nolint:golint
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
 	// data received from that network connection is sent back on the reply
@@ -1146,13 +1147,13 @@ type ForwarderClientMethods interface {
 }
 
 // ForwarderClientStub adds universal methods to ForwarderClientMethods.
-type ForwarderClientStub interface {
+type ForwarderClientStub interface { //nolint:golint
 	ForwarderClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ForwarderClient returns a client stub for Forwarder.
-func ForwarderClient(name string) ForwarderClientStub {
+func ForwarderClient(name string) ForwarderClientStub { //nolint:golint
 	return implForwarderClientStub{name}
 }
 
@@ -1170,7 +1171,7 @@ func (c implForwarderClientStub) Forward(ctx *context.T, opts ...rpc.CallOpt) (o
 }
 
 // ForwarderForwardClientStream is the client stream for Forwarder.Forward.
-type ForwarderForwardClientStream interface {
+type ForwarderForwardClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Forwarder.Forward client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1203,7 +1204,7 @@ type ForwarderForwardClientStream interface {
 }
 
 // ForwarderForwardClientCall represents the call returned from Forwarder.Forward.
-type ForwarderForwardClientCall interface {
+type ForwarderForwardClientCall interface { //nolint:golint
 	ForwarderForwardClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -1218,7 +1219,7 @@ type ForwarderForwardClientCall interface {
 	Finish() error
 }
 
-type implForwarderForwardClientCall struct {
+type implForwarderForwardClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -1273,7 +1274,7 @@ func (c *implForwarderForwardClientCall) Finish() (err error) {
 
 // ForwarderServerMethods is the interface a server writer
 // implements for Forwarder.
-type ForwarderServerMethods interface {
+type ForwarderServerMethods interface { //nolint:golint
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
 	// data received from that network connection is sent back on the reply
@@ -1285,6 +1286,7 @@ type ForwarderServerMethods interface {
 // Forwarder methods, as expected by rpc.Server.
 // The only difference between this interface and ForwarderServerMethods
 // is the streaming methods.
+// nolint:golint
 type ForwarderServerStubMethods interface {
 	// The Forward method is used for network forwarding. All the data sent over
 	// the byte stream is forwarded to a predetermined network address and all the
@@ -1294,16 +1296,16 @@ type ForwarderServerStubMethods interface {
 }
 
 // ForwarderServerStub adds universal methods to ForwarderServerStubMethods.
-type ForwarderServerStub interface {
+type ForwarderServerStub interface { //nolint:golint
 	ForwarderServerStubMethods
-	// Describe the Forwarder interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Forwarder interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ForwarderServer returns a server stub for Forwarder.
 // It converts an implementation of ForwarderServerMethods into
 // an object that may be used by rpc.Server.
-func ForwarderServer(impl ForwarderServerMethods) ForwarderServerStub {
+func ForwarderServer(impl ForwarderServerMethods) ForwarderServerStub { //nolint:golint
 	stub := implForwarderServerStub{
 		impl: impl,
 	}
@@ -1330,7 +1332,7 @@ func (s implForwarderServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implForwarderServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implForwarderServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ForwarderDesc}
 }
 
@@ -1351,7 +1353,7 @@ var descForwarder = rpc.InterfaceDesc{
 }
 
 // ForwarderForwardServerStream is the server stream for Forwarder.Forward.
-type ForwarderForwardServerStream interface {
+type ForwarderForwardServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Forwarder.Forward server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1374,14 +1376,14 @@ type ForwarderForwardServerStream interface {
 }
 
 // ForwarderForwardServerCall represents the context passed to Forwarder.Forward.
-type ForwarderForwardServerCall interface {
+type ForwarderForwardServerCall interface { //nolint:golint
 	rpc.ServerCall
 	ForwarderForwardServerStream
 }
 
 // ForwarderForwardServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements ForwarderForwardServerCall.
-type ForwarderForwardServerCallStub struct {
+type ForwarderForwardServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -1437,22 +1439,22 @@ func (s implForwarderForwardServerCallSend) Send(item []byte) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_list_3   *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
-	__VDLType_union_6  *vdl.Type
-	__VDLType_union_7  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeList3   *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
+	vdlTypeUnion6  *vdl.Type
+	vdlTypeUnion7  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1461,11 +1463,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*WindowSize)(nil))
@@ -1475,13 +1477,13 @@ func __VDLInit() struct{} {
 	vdl.Register((*ServerShellPacket)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*WindowSize)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*ShellOpts)(nil)).Elem()
-	__VDLType_list_3 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*Unused)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_union_6 = vdl.TypeOf((*ClientShellPacket)(nil))
-	__VDLType_union_7 = vdl.TypeOf((*ServerShellPacket)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*WindowSize)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*ShellOpts)(nil)).Elem()
+	vdlTypeList3 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*Unused)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeUnion6 = vdl.TypeOf((*ClientShellPacket)(nil))
+	vdlTypeUnion7 = vdl.TypeOf((*ServerShellPacket)(nil))
 
 	return struct{}{}
 }

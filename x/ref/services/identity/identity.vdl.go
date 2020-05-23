@@ -9,14 +9,14 @@
 package identity
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -35,7 +35,7 @@ func (BlessingRootResponse) VDLReflect(struct {
 }) {
 }
 
-func (x BlessingRootResponse) VDLIsZero() bool {
+func (x BlessingRootResponse) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Names) != 0 {
 		return false
 	}
@@ -45,15 +45,15 @@ func (x BlessingRootResponse) VDLIsZero() bool {
 	return true
 }
 
-func (x BlessingRootResponse) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x BlessingRootResponse) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if len(x.Names) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Names); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Names); err != nil {
 			return err
 		}
 	}
@@ -68,8 +68,8 @@ func (x BlessingRootResponse) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_2); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -86,9 +86,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *BlessingRootResponse) VDLRead(dec vdl.Decoder) error {
+func (x *BlessingRootResponse) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = BlessingRootResponse{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -100,8 +100,8 @@ func (x *BlessingRootResponse) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -111,7 +111,7 @@ func (x *BlessingRootResponse) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_1(dec, &x.Names); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Names); err != nil {
 				return err
 			}
 		case 1:
@@ -125,8 +125,8 @@ func (x *BlessingRootResponse) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_2); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -153,20 +153,20 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
 // containing MacaroonBlesser methods.
 //
 // MacaroonBlesser returns a blessing given the provided macaroon string.
-type MacaroonBlesserClientMethods interface {
+type MacaroonBlesserClientMethods interface { //nolint:golint
 	// Bless uses the provided macaroon (which contains email and caveats)
 	// to return a blessing for the client.
 	Bless(_ *context.T, macaroon string, _ ...rpc.CallOpt) (blessing security.Blessings, _ error)
 }
 
 // MacaroonBlesserClientStub adds universal methods to MacaroonBlesserClientMethods.
-type MacaroonBlesserClientStub interface {
+type MacaroonBlesserClientStub interface { //nolint:golint
 	MacaroonBlesserClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MacaroonBlesserClient returns a client stub for MacaroonBlesser.
-func MacaroonBlesserClient(name string) MacaroonBlesserClientStub {
+func MacaroonBlesserClient(name string) MacaroonBlesserClientStub { //nolint:golint
 	return implMacaroonBlesserClientStub{name}
 }
 
@@ -183,7 +183,7 @@ func (c implMacaroonBlesserClientStub) Bless(ctx *context.T, i0 string, opts ...
 // implements for MacaroonBlesser.
 //
 // MacaroonBlesser returns a blessing given the provided macaroon string.
-type MacaroonBlesserServerMethods interface {
+type MacaroonBlesserServerMethods interface { //nolint:golint
 	// Bless uses the provided macaroon (which contains email and caveats)
 	// to return a blessing for the client.
 	Bless(_ *context.T, _ rpc.ServerCall, macaroon string) (blessing security.Blessings, _ error)
@@ -193,19 +193,20 @@ type MacaroonBlesserServerMethods interface {
 // MacaroonBlesser methods, as expected by rpc.Server.
 // There is no difference between this interface and MacaroonBlesserServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type MacaroonBlesserServerStubMethods MacaroonBlesserServerMethods
 
 // MacaroonBlesserServerStub adds universal methods to MacaroonBlesserServerStubMethods.
-type MacaroonBlesserServerStub interface {
+type MacaroonBlesserServerStub interface { //nolint:golint
 	MacaroonBlesserServerStubMethods
-	// Describe the MacaroonBlesser interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the MacaroonBlesser interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // MacaroonBlesserServer returns a server stub for MacaroonBlesser.
 // It converts an implementation of MacaroonBlesserServerMethods into
 // an object that may be used by rpc.Server.
-func MacaroonBlesserServer(impl MacaroonBlesserServerMethods) MacaroonBlesserServerStub {
+func MacaroonBlesserServer(impl MacaroonBlesserServerMethods) MacaroonBlesserServerStub { //nolint:golint
 	stub := implMacaroonBlesserServerStub{
 		impl: impl,
 	}
@@ -232,7 +233,7 @@ func (s implMacaroonBlesserServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMacaroonBlesserServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implMacaroonBlesserServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{MacaroonBlesserDesc}
 }
 
@@ -261,17 +262,17 @@ var descMacaroonBlesser = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_list_2   *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeList2   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -280,18 +281,18 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*BlessingRootResponse)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*BlessingRootResponse)(nil)).Elem()
-	__VDLType_list_2 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*BlessingRootResponse)(nil)).Elem()
+	vdlTypeList2 = vdl.TypeOf((*[]string)(nil))
 
 	return struct{}{}
 }

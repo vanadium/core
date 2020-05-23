@@ -10,13 +10,13 @@ package internal
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -31,12 +31,12 @@ func (Struct) VDLReflect(struct {
 }) {
 }
 
-func (x Struct) VDLIsZero() bool {
+func (x Struct) VDLIsZero() bool { //nolint:gocyclo
 	return x == Struct{}
 }
 
-func (x Struct) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x Struct) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.X != 0 {
@@ -55,9 +55,9 @@ func (x Struct) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Struct) VDLRead(dec vdl.Decoder) error {
+func (x *Struct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Struct{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -69,8 +69,8 @@ func (x *Struct) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -104,12 +104,12 @@ func (Array2Int) VDLReflect(struct {
 }) {
 }
 
-func (x Array2Int) VDLIsZero() bool {
+func (x Array2Int) VDLIsZero() bool { //nolint:gocyclo
 	return x == Array2Int{}
 }
 
-func (x Array2Int) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_array_2); err != nil {
+func (x Array2Int) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeArray2); err != nil {
 		return err
 	}
 	for _, elem := range x {
@@ -123,8 +123,8 @@ func (x Array2Int) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Array2Int) VDLRead(dec vdl.Decoder) error {
-	if err := dec.StartValue(__VDLType_array_2); err != nil {
+func (x *Array2Int) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeArray2); err != nil {
 		return err
 	}
 	for index := 0; index < 2; index++ {
@@ -154,7 +154,7 @@ func (x *Array2Int) VDLRead(dec vdl.Decoder) error {
 //
 // TypeTester methods are listed in alphabetical order, to make it easier to
 // test Signature output, which sorts methods alphabetically.
-type TypeTesterClientMethods interface {
+type TypeTesterClientMethods interface { //nolint:golint
 	// Methods to test support for primitive types.
 	EchoBool(_ *context.T, I1 bool, _ ...rpc.CallOpt) (O1 bool, _ error)
 	EchoFloat32(_ *context.T, I1 float32, _ ...rpc.CallOpt) (O1 float32, _ error)
@@ -179,13 +179,13 @@ type TypeTesterClientMethods interface {
 }
 
 // TypeTesterClientStub adds universal methods to TypeTesterClientMethods.
-type TypeTesterClientStub interface {
+type TypeTesterClientStub interface { //nolint:golint
 	TypeTesterClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TypeTesterClient returns a client stub for TypeTester.
-func TypeTesterClient(name string) TypeTesterClientStub {
+func TypeTesterClient(name string) TypeTesterClientStub { //nolint:golint
 	return implTypeTesterClientStub{name}
 }
 
@@ -283,7 +283,7 @@ func (c implTypeTesterClientStub) ZStream(ctx *context.T, i0 int32, i1 bool, opt
 }
 
 // TypeTesterZStreamClientStream is the client stream for TypeTester.ZStream.
-type TypeTesterZStreamClientStream interface {
+type TypeTesterZStreamClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the TypeTester.ZStream client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -299,7 +299,7 @@ type TypeTesterZStreamClientStream interface {
 }
 
 // TypeTesterZStreamClientCall represents the call returned from TypeTester.ZStream.
-type TypeTesterZStreamClientCall interface {
+type TypeTesterZStreamClientCall interface { //nolint:golint
 	TypeTesterZStreamClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -314,7 +314,7 @@ type TypeTesterZStreamClientCall interface {
 	Finish() error
 }
 
-type implTypeTesterZStreamClientCall struct {
+type implTypeTesterZStreamClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv bool
 	errRecv error
@@ -355,7 +355,7 @@ func (c *implTypeTesterZStreamClientCall) Finish() (err error) {
 //
 // TypeTester methods are listed in alphabetical order, to make it easier to
 // test Signature output, which sorts methods alphabetically.
-type TypeTesterServerMethods interface {
+type TypeTesterServerMethods interface { //nolint:golint
 	// Methods to test support for primitive types.
 	EchoBool(_ *context.T, _ rpc.ServerCall, I1 bool) (O1 bool, _ error)
 	EchoFloat32(_ *context.T, _ rpc.ServerCall, I1 float32) (O1 float32, _ error)
@@ -383,6 +383,7 @@ type TypeTesterServerMethods interface {
 // TypeTester methods, as expected by rpc.Server.
 // The only difference between this interface and TypeTesterServerMethods
 // is the streaming methods.
+// nolint:golint
 type TypeTesterServerStubMethods interface {
 	// Methods to test support for primitive types.
 	EchoBool(_ *context.T, _ rpc.ServerCall, I1 bool) (O1 bool, _ error)
@@ -408,16 +409,16 @@ type TypeTesterServerStubMethods interface {
 }
 
 // TypeTesterServerStub adds universal methods to TypeTesterServerStubMethods.
-type TypeTesterServerStub interface {
+type TypeTesterServerStub interface { //nolint:golint
 	TypeTesterServerStubMethods
-	// Describe the TypeTester interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the TypeTester interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // TypeTesterServer returns a server stub for TypeTester.
 // It converts an implementation of TypeTesterServerMethods into
 // an object that may be used by rpc.Server.
-func TypeTesterServer(impl TypeTesterServerMethods) TypeTesterServerStub {
+func TypeTesterServer(impl TypeTesterServerMethods) TypeTesterServerStub { //nolint:golint
 	stub := implTypeTesterServerStub{
 		impl: impl,
 	}
@@ -508,7 +509,7 @@ func (s implTypeTesterServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTypeTesterServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implTypeTesterServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{TypeTesterDesc}
 }
 
@@ -676,7 +677,7 @@ var descTypeTester = rpc.InterfaceDesc{
 }
 
 // TypeTesterZStreamServerStream is the server stream for TypeTester.ZStream.
-type TypeTesterZStreamServerStream interface {
+type TypeTesterZStreamServerStream interface { //nolint:golint
 	// SendStream returns the send side of the TypeTester.ZStream server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -687,14 +688,14 @@ type TypeTesterZStreamServerStream interface {
 }
 
 // TypeTesterZStreamServerCall represents the context passed to TypeTester.ZStream.
-type TypeTesterZStreamServerCall interface {
+type TypeTesterZStreamServerCall interface { //nolint:golint
 	rpc.ServerCall
 	TypeTesterZStreamServerStream
 }
 
 // TypeTesterZStreamServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements TypeTesterZStreamServerCall.
-type TypeTesterZStreamServerCallStub struct {
+type TypeTesterZStreamServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -721,17 +722,17 @@ func (s implTypeTesterZStreamServerCallSend) Send(item bool) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_array_2  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeArray2  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -740,19 +741,19 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Struct)(nil))
 	vdl.Register((*Array2Int)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*Struct)(nil)).Elem()
-	__VDLType_array_2 = vdl.TypeOf((*Array2Int)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*Struct)(nil)).Elem()
+	vdlTypeArray2 = vdl.TypeOf((*Array2Int)(nil))
 
 	return struct{}{}
 }

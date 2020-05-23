@@ -41,7 +41,7 @@ func (g *genWrite) Gen(def *compile.TypeDef) string {
 func (g *genWrite) genDef(def *compile.TypeDef) string {
 	body := g.body(def.Type, namedArg{"x", false}, false, true)
 	return fmt.Sprintf(`
-func (x %[1]s) VDLWrite(enc %[2]sEncoder) error {%[3]s
+func (x %[1]s) VDLWrite(enc %[2]sEncoder) error {  //nolint:gocyclo %[3]s
 }
 `, def.Name, g.Pkg("v.io/v23/vdl"), body)
 }
@@ -54,7 +54,7 @@ func (g *genWrite) genUnionDef(def *compile.TypeDef) string {
 		field := def.Type.Field(index)
 		body := g.bodyUnion(index, field, namedArg{"x", false})
 		s += fmt.Sprintf(`
-func (x %[1]s%[2]s) VDLWrite(enc %[3]sEncoder) error {
+func (x %[1]s%[2]s) VDLWrite(enc %[3]sEncoder) error { //nolint:gocyclo
 	if err := enc.StartValue(%[4]s); err != nil {
 		return err
 	}%[5]s
@@ -204,7 +204,7 @@ func (g *genWrite) bodyCallVDLWrite(tt *vdl.Type, arg namedArg, skipNilCheck boo
 }
 
 func (g *genWrite) anonWriterName(tt *vdl.Type) string {
-	return fmt.Sprintf("__VDLWriteAnon_%s_%d", tt.Kind(), g.goData.anonWriters[tt])
+	return fmt.Sprintf("vdlWriteAnon%s%d", tt.Kind().CamelCase(), g.goData.anonWriters[tt])
 }
 
 func (g *genWrite) bodyAnon(tt *vdl.Type, arg namedArg) string {

@@ -154,7 +154,7 @@ func (d *decoder81) decodeWireType(wt *wireType) (TypeId, error) {
 		LenHint: 1, // wireType is a union
 	})
 	d.flag = d.flag.Set(decFlagIgnoreNextStartValue)
-	if err := __VDLRead_wireType(d, wt); err != nil {
+	if err := vdlReadwireType(d, wt); err != nil {
 		return 0, err
 	}
 	return tid, nil

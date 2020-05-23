@@ -15,7 +15,7 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -34,7 +34,7 @@ func (SignedFile) VDLReflect(struct {
 }) {
 }
 
-func (x SignedFile) VDLIsZero() bool {
+func (x SignedFile) VDLIsZero() bool { //nolint:gocyclo
 	if x.File != "" {
 		return false
 	}
@@ -44,8 +44,8 @@ func (x SignedFile) VDLIsZero() bool {
 	return true
 }
 
-func (x SignedFile) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x SignedFile) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.File != "" {
@@ -67,9 +67,9 @@ func (x SignedFile) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *SignedFile) VDLRead(dec vdl.Decoder) error {
+func (x *SignedFile) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = SignedFile{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -81,8 +81,8 @@ func (x *SignedFile) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -130,12 +130,12 @@ func (Packages) VDLReflect(struct {
 }) {
 }
 
-func (x Packages) VDLIsZero() bool {
+func (x Packages) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x Packages) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_map_3); err != nil {
+func (x Packages) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeMap3); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -155,8 +155,8 @@ func (x Packages) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Packages) VDLRead(dec vdl.Decoder) error {
-	if err := dec.StartValue(__VDLType_map_3); err != nil {
+func (x *Packages) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeMap3); err != nil {
 		return err
 	}
 	var tmpMap Packages
@@ -227,7 +227,7 @@ func (Envelope) VDLReflect(struct {
 }) {
 }
 
-func (x Envelope) VDLIsZero() bool {
+func (x Envelope) VDLIsZero() bool { //nolint:gocyclo
 	if x.Title != "" {
 		return false
 	}
@@ -255,8 +255,8 @@ func (x Envelope) VDLIsZero() bool {
 	return true
 }
 
-func (x Envelope) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x Envelope) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if x.Title != "" {
@@ -268,7 +268,7 @@ func (x Envelope) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Args); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Args); err != nil {
 			return err
 		}
 	}
@@ -296,7 +296,7 @@ func (x Envelope) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(4); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Env); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Env); err != nil {
 			return err
 		}
 	}
@@ -331,8 +331,8 @@ func (x Envelope) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_5); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList5); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -349,9 +349,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *Envelope) VDLRead(dec vdl.Decoder) error {
+func (x *Envelope) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Envelope{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -363,8 +363,8 @@ func (x *Envelope) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -381,7 +381,7 @@ func (x *Envelope) VDLRead(dec vdl.Decoder) error {
 				x.Title = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_1(dec, &x.Args); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Args); err != nil {
 				return err
 			}
 		case 2:
@@ -397,7 +397,7 @@ func (x *Envelope) VDLRead(dec vdl.Decoder) error {
 				return err
 			}
 		case 4:
-			if err := __VDLReadAnon_list_1(dec, &x.Env); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Env); err != nil {
 				return err
 			}
 		case 5:
@@ -423,8 +423,8 @@ func (x *Envelope) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_5); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList5); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -453,22 +453,22 @@ const DeviceManagerTitle = "device manager"
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_map_3    *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
-	__VDLType_struct_6 *vdl.Type
-	__VDLType_struct_7 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeMap3    *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
+	vdlTypeStruct6 *vdl.Type
+	vdlTypeStruct7 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -477,11 +477,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*SignedFile)(nil))
@@ -489,13 +489,13 @@ func __VDLInit() struct{} {
 	vdl.Register((*Envelope)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*SignedFile)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*security.Signature)(nil)).Elem()
-	__VDLType_map_3 = vdl.TypeOf((*Packages)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*Envelope)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_struct_6 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
-	__VDLType_struct_7 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*SignedFile)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*security.Signature)(nil)).Elem()
+	vdlTypeMap3 = vdl.TypeOf((*Packages)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*Envelope)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeStruct6 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
+	vdlTypeStruct7 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
 
 	return struct{}{}
 }

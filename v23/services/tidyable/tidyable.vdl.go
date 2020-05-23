@@ -10,14 +10,14 @@
 package tidyable
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -26,20 +26,20 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // containing Tidyable methods.
 //
 // Tidyable specifies that a service can be tidied.
-type TidyableClientMethods interface {
+type TidyableClientMethods interface { //nolint:golint
 	// Request the implementing service to perform regularly scheduled cleanup
 	//  actions such as shrinking caches or rolling logs immediately.
 	TidyNow(*context.T, ...rpc.CallOpt) error
 }
 
 // TidyableClientStub adds universal methods to TidyableClientMethods.
-type TidyableClientStub interface {
+type TidyableClientStub interface { //nolint:golint
 	TidyableClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // TidyableClient returns a client stub for Tidyable.
-func TidyableClient(name string) TidyableClientStub {
+func TidyableClient(name string) TidyableClientStub { //nolint:golint
 	return implTidyableClientStub{name}
 }
 
@@ -56,7 +56,7 @@ func (c implTidyableClientStub) TidyNow(ctx *context.T, opts ...rpc.CallOpt) (er
 // implements for Tidyable.
 //
 // Tidyable specifies that a service can be tidied.
-type TidyableServerMethods interface {
+type TidyableServerMethods interface { //nolint:golint
 	// Request the implementing service to perform regularly scheduled cleanup
 	//  actions such as shrinking caches or rolling logs immediately.
 	TidyNow(*context.T, rpc.ServerCall) error
@@ -66,19 +66,20 @@ type TidyableServerMethods interface {
 // Tidyable methods, as expected by rpc.Server.
 // There is no difference between this interface and TidyableServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type TidyableServerStubMethods TidyableServerMethods
 
 // TidyableServerStub adds universal methods to TidyableServerStubMethods.
-type TidyableServerStub interface {
+type TidyableServerStub interface { //nolint:golint
 	TidyableServerStubMethods
-	// Describe the Tidyable interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Tidyable interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // TidyableServer returns a server stub for Tidyable.
 // It converts an implementation of TidyableServerMethods into
 // an object that may be used by rpc.Server.
-func TidyableServer(impl TidyableServerMethods) TidyableServerStub {
+func TidyableServer(impl TidyableServerMethods) TidyableServerStub { //nolint:golint
 	stub := implTidyableServerStub{
 		impl: impl,
 	}
@@ -105,7 +106,7 @@ func (s implTidyableServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implTidyableServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implTidyableServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{TidyableDesc}
 }
 
@@ -126,13 +127,13 @@ var descTidyable = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -141,11 +142,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

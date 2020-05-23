@@ -39,7 +39,7 @@ func (g *genRead) Gen(def *compile.TypeDef) string {
 
 func (g *genRead) genDef(def *compile.TypeDef) string {
 	s := fmt.Sprintf(`
-func (x *%[1]s) VDLRead(dec %[2]sDecoder) error {`, def.Name, g.Pkg("v.io/v23/vdl"))
+func (x *%[1]s) VDLRead(dec %[2]sDecoder) error { //nolint:gocyclo`, def.Name, g.Pkg("v.io/v23/vdl"))
 	// Structs need to be zeroed, since some of the fields may be missing.
 	if def.Type.Kind() == vdl.Struct {
 		s += fmt.Sprintf(`
@@ -55,7 +55,7 @@ func (x *%[1]s) VDLRead(dec %[2]sDecoder) error {`, def.Name, g.Pkg("v.io/v23/vd
 // receiver interface.  Instead we create a package-level function.
 func (g *genRead) genUnionDef(def *compile.TypeDef) string {
 	s := fmt.Sprintf(`
-func %[1]s(dec %[2]sDecoder, x *%[3]s) error {
+func %[1]s(dec %[2]sDecoder, x *%[3]s) error {  //nolint:gocyclo
 	if err := dec.StartValue(%[4]s); err != nil {
 		return err
 	}`, unionReadFuncName(def), g.Pkg("v.io/v23/vdl"), def.Name, g.TypeOf(def.Type))
@@ -70,12 +70,12 @@ func unionReadFuncName(def *compile.TypeDef) string {
 	if def.Exported {
 		return "VDLRead" + def.Name
 	}
-	return "__VDLRead_" + def.Name
+	return "vdlRead" + def.Name
 }
 
 func (g *genRead) genAnonDef() string {
 	var s string
-	// Generate the __VDLRead functions for anonymous types.  Creating the
+	// Generate the vdlRead functions for anonymous types.  Creating the
 	// function for one type may cause us to need more, e.g. [][]Certificate.  So
 	// we just keep looping until there are no new functions to generate.  There's
 	// no danger of infinite looping, since cyclic anonymous types are disallowed
@@ -199,7 +199,7 @@ func (g *genRead) bodyCallVDLRead(tt *vdl.Type, arg namedArg) string {
 }
 
 func (g *genRead) anonReaderName(tt *vdl.Type) string {
-	return fmt.Sprintf("__VDLReadAnon_%s_%d", tt.Kind(), g.goData.anonReaders[tt])
+	return fmt.Sprintf("vdlReadAnon%s%d", tt.Kind().CamelCase(), g.goData.anonReaders[tt])
 }
 
 func (g *genRead) bodyAnon(tt *vdl.Type, arg namedArg) string {
@@ -468,8 +468,20 @@ func (g *genRead) bodyStruct(tt *vdl.Type, arg namedArg) string {
 				}
 				continue
 			}
+		}`, g.TypeOf(tt))
+	if tt.NumField() == 1 {
+		field := tt.Field(0)
+		fieldBody := g.body(field.Type, arg.Field(field), false)
+		s += fmt.Sprintf(`
+		if index == 0 {
+			%[1]s
 		}
-		switch index {`, g.TypeOf(tt))
+	}`, fieldBody)
+		return s
+	}
+
+	s += `
+		switch index {`
 	for index := 0; index < tt.NumField(); index++ {
 		field := tt.Field(index)
 		fieldBody := g.body(field.Type, arg.Field(field), false)
@@ -497,8 +509,21 @@ func (g *genRead) bodyUnion(tt *vdl.Type, arg namedArg) string {
 		if index == -1 {
 			return %[1]sErrorf("field %%q not in union %%T, from %%v", name, %[2]s, decType)
 		}
+	}`, g.Pkg("fmt"), arg.Ptr(), g.TypeOf(tt))
+
+	if tt.NumField() == 1 {
+		field := tt.Field(0)
+		fieldArg := typedArg("field.Value", field.Type)
+		fieldBody := g.body(field.Type, fieldArg, false)
+		s += fmt.Sprintf(`
+	if index == 0 {
+		var field %[1]s%[2]s%[3]s
+		%[4]s = field
+	}`, typeGoWire(g.goData, tt), field.Name, fieldBody, arg.Ref())
+		return s
 	}
-  switch index {`, g.Pkg("fmt"), arg.Ptr(), g.TypeOf(tt))
+	s += `
+	switch index {`
 	for index := 0; index < tt.NumField(); index++ {
 		// TODO(toddw): Change to using pointers to the union field structs, to
 		// resolve https://v.io/i/455

@@ -10,13 +10,13 @@ package appcycle
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -41,12 +41,12 @@ func (Task) VDLReflect(struct {
 }) {
 }
 
-func (x Task) VDLIsZero() bool {
+func (x Task) VDLIsZero() bool { //nolint:gocyclo
 	return x == Task{}
 }
 
-func (x Task) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x Task) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Progress != 0 {
@@ -65,9 +65,9 @@ func (x Task) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Task) VDLRead(dec vdl.Decoder) error {
+func (x *Task) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Task{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -79,8 +79,8 @@ func (x *Task) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -114,7 +114,7 @@ func (x *Task) VDLRead(dec vdl.Decoder) error {
 // containing AppCycle methods.
 //
 // AppCycle interfaces with the process running a vanadium runtime.
-type AppCycleClientMethods interface {
+type AppCycleClientMethods interface { //nolint:golint
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
 	// progressing.
@@ -126,13 +126,13 @@ type AppCycleClientMethods interface {
 }
 
 // AppCycleClientStub adds universal methods to AppCycleClientMethods.
-type AppCycleClientStub interface {
+type AppCycleClientStub interface { //nolint:golint
 	AppCycleClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // AppCycleClient returns a client stub for AppCycle.
-func AppCycleClient(name string) AppCycleClientStub {
+func AppCycleClient(name string) AppCycleClientStub { //nolint:golint
 	return implAppCycleClientStub{name}
 }
 
@@ -155,7 +155,7 @@ func (c implAppCycleClientStub) ForceStop(ctx *context.T, opts ...rpc.CallOpt) (
 }
 
 // AppCycleStopClientStream is the client stream for AppCycle.Stop.
-type AppCycleStopClientStream interface {
+type AppCycleStopClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the AppCycle.Stop client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -171,7 +171,7 @@ type AppCycleStopClientStream interface {
 }
 
 // AppCycleStopClientCall represents the call returned from AppCycle.Stop.
-type AppCycleStopClientCall interface {
+type AppCycleStopClientCall interface { //nolint:golint
 	AppCycleStopClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -186,7 +186,7 @@ type AppCycleStopClientCall interface {
 	Finish() error
 }
 
-type implAppCycleStopClientCall struct {
+type implAppCycleStopClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv Task
 	errRecv error
@@ -227,7 +227,7 @@ func (c *implAppCycleStopClientCall) Finish() (err error) {
 // implements for AppCycle.
 //
 // AppCycle interfaces with the process running a vanadium runtime.
-type AppCycleServerMethods interface {
+type AppCycleServerMethods interface { //nolint:golint
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
 	// progressing.
@@ -242,6 +242,7 @@ type AppCycleServerMethods interface {
 // AppCycle methods, as expected by rpc.Server.
 // The only difference between this interface and AppCycleServerMethods
 // is the streaming methods.
+// nolint:golint
 type AppCycleServerStubMethods interface {
 	// Stop initiates shutdown of the server.  It streams back periodic
 	// updates to give the client an idea of how the shutdown is
@@ -254,16 +255,16 @@ type AppCycleServerStubMethods interface {
 }
 
 // AppCycleServerStub adds universal methods to AppCycleServerStubMethods.
-type AppCycleServerStub interface {
+type AppCycleServerStub interface { //nolint:golint
 	AppCycleServerStubMethods
-	// Describe the AppCycle interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the AppCycle interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // AppCycleServer returns a server stub for AppCycle.
 // It converts an implementation of AppCycleServerMethods into
 // an object that may be used by rpc.Server.
-func AppCycleServer(impl AppCycleServerMethods) AppCycleServerStub {
+func AppCycleServer(impl AppCycleServerMethods) AppCycleServerStub { //nolint:golint
 	stub := implAppCycleServerStub{
 		impl: impl,
 	}
@@ -294,7 +295,7 @@ func (s implAppCycleServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implAppCycleServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implAppCycleServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{AppCycleDesc}
 }
 
@@ -319,7 +320,7 @@ var descAppCycle = rpc.InterfaceDesc{
 }
 
 // AppCycleStopServerStream is the server stream for AppCycle.Stop.
-type AppCycleStopServerStream interface {
+type AppCycleStopServerStream interface { //nolint:golint
 	// SendStream returns the send side of the AppCycle.Stop server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -330,14 +331,14 @@ type AppCycleStopServerStream interface {
 }
 
 // AppCycleStopServerCall represents the context passed to AppCycle.Stop.
-type AppCycleStopServerCall interface {
+type AppCycleStopServerCall interface { //nolint:golint
 	rpc.ServerCall
 	AppCycleStopServerStream
 }
 
 // AppCycleStopServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements AppCycleStopServerCall.
-type AppCycleStopServerCallStub struct {
+type AppCycleStopServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -364,16 +365,16 @@ func (s implAppCycleStopServerCallSend) Send(item Task) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -382,17 +383,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Task)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*Task)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*Task)(nil)).Elem()
 
 	return struct{}{}
 }

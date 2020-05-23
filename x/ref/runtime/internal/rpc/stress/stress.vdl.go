@@ -9,14 +9,14 @@ package stress
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -32,7 +32,7 @@ func (SumArg) VDLReflect(struct {
 }) {
 }
 
-func (x SumArg) VDLIsZero() bool {
+func (x SumArg) VDLIsZero() bool { //nolint:gocyclo
 	if x.ABool {
 		return false
 	}
@@ -45,8 +45,8 @@ func (x SumArg) VDLIsZero() bool {
 	return true
 }
 
-func (x SumArg) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x SumArg) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.ABool {
@@ -60,7 +60,7 @@ func (x SumArg) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if len(x.AListOfBytes) != 0 {
-		if err := enc.NextFieldValueBytes(2, __VDLType_list_2, x.AListOfBytes); err != nil {
+		if err := enc.NextFieldValueBytes(2, vdlTypeList2, x.AListOfBytes); err != nil {
 			return err
 		}
 	}
@@ -70,9 +70,9 @@ func (x SumArg) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *SumArg) VDLRead(dec vdl.Decoder) error {
+func (x *SumArg) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = SumArg{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -84,8 +84,8 @@ func (x *SumArg) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -128,12 +128,12 @@ func (SumStats) VDLReflect(struct {
 }) {
 }
 
-func (x SumStats) VDLIsZero() bool {
+func (x SumStats) VDLIsZero() bool { //nolint:gocyclo
 	return x == SumStats{}
 }
 
-func (x SumStats) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x SumStats) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.SumCount != 0 {
@@ -162,9 +162,9 @@ func (x SumStats) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *SumStats) VDLRead(dec vdl.Decoder) error {
+func (x *SumStats) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = SumStats{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -176,8 +176,8 @@ func (x *SumStats) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -223,7 +223,7 @@ func (x *SumStats) VDLRead(dec vdl.Decoder) error {
 
 // StressClientMethods is the client interface
 // containing Stress methods.
-type StressClientMethods interface {
+type StressClientMethods interface { //nolint:golint
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, Payload []byte, _ ...rpc.CallOpt) ([]byte, error)
 	// Do returns the checksum of the payload that it receives.
@@ -237,13 +237,13 @@ type StressClientMethods interface {
 }
 
 // StressClientStub adds universal methods to StressClientMethods.
-type StressClientStub interface {
+type StressClientStub interface { //nolint:golint
 	StressClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StressClient returns a client stub for Stress.
-func StressClient(name string) StressClientStub {
+func StressClient(name string) StressClientStub { //nolint:golint
 	return implStressClientStub{name}
 }
 
@@ -281,7 +281,7 @@ func (c implStressClientStub) Stop(ctx *context.T, opts ...rpc.CallOpt) (err err
 }
 
 // StressSumStreamClientStream is the client stream for Stress.SumStream.
-type StressSumStreamClientStream interface {
+type StressSumStreamClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Stress.SumStream client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -314,7 +314,7 @@ type StressSumStreamClientStream interface {
 }
 
 // StressSumStreamClientCall represents the call returned from Stress.SumStream.
-type StressSumStreamClientCall interface {
+type StressSumStreamClientCall interface { //nolint:golint
 	StressSumStreamClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -329,7 +329,7 @@ type StressSumStreamClientCall interface {
 	Finish() error
 }
 
-type implStressSumStreamClientCall struct {
+type implStressSumStreamClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -384,7 +384,7 @@ func (c *implStressSumStreamClientCall) Finish() (err error) {
 
 // StressServerMethods is the interface a server writer
 // implements for Stress.
-type StressServerMethods interface {
+type StressServerMethods interface { //nolint:golint
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
 	// Do returns the checksum of the payload that it receives.
@@ -401,6 +401,7 @@ type StressServerMethods interface {
 // Stress methods, as expected by rpc.Server.
 // The only difference between this interface and StressServerMethods
 // is the streaming methods.
+// nolint:golint
 type StressServerStubMethods interface {
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
@@ -415,16 +416,16 @@ type StressServerStubMethods interface {
 }
 
 // StressServerStub adds universal methods to StressServerStubMethods.
-type StressServerStub interface {
+type StressServerStub interface { //nolint:golint
 	StressServerStubMethods
-	// Describe the Stress interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Stress interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // StressServer returns a server stub for Stress.
 // It converts an implementation of StressServerMethods into
 // an object that may be used by rpc.Server.
-func StressServer(impl StressServerMethods) StressServerStub {
+func StressServer(impl StressServerMethods) StressServerStub { //nolint:golint
 	stub := implStressServerStub{
 		impl: impl,
 	}
@@ -467,7 +468,7 @@ func (s implStressServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStressServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implStressServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{StressDesc}
 }
 
@@ -523,7 +524,7 @@ var descStress = rpc.InterfaceDesc{
 }
 
 // StressSumStreamServerStream is the server stream for Stress.SumStream.
-type StressSumStreamServerStream interface {
+type StressSumStreamServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Stress.SumStream server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -546,14 +547,14 @@ type StressSumStreamServerStream interface {
 }
 
 // StressSumStreamServerCall represents the context passed to Stress.SumStream.
-type StressSumStreamServerCall interface {
+type StressSumStreamServerCall interface { //nolint:golint
 	rpc.ServerCall
 	StressSumStreamServerStream
 }
 
 // StressSumStreamServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements StressSumStreamServerCall.
-type StressSumStreamServerCallStub struct {
+type StressSumStreamServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv SumArg
 	errRecv error
@@ -610,18 +611,18 @@ func (s implStressSumStreamServerCallSend) Send(item []byte) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_list_2   *vdl.Type
-	__VDLType_struct_3 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeList2   *vdl.Type
+	vdlTypeStruct3 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -630,20 +631,20 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*SumArg)(nil))
 	vdl.Register((*SumStats)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*SumArg)(nil)).Elem()
-	__VDLType_list_2 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_struct_3 = vdl.TypeOf((*SumStats)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*SumArg)(nil)).Elem()
+	vdlTypeList2 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeStruct3 = vdl.TypeOf((*SumStats)(nil)).Elem()
 
 	return struct{}{}
 }

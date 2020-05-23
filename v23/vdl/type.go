@@ -93,6 +93,56 @@ func (k Kind) String() string {
 	panic(fmt.Errorf("vdl: unhandled kind: %d", k))
 }
 
+func (k Kind) CamelCase() string {
+	switch k {
+	case Any:
+		return "Any"
+	case Optional:
+		return "Optional"
+	case Bool:
+		return "Bool"
+	case Byte:
+		return "Byte"
+	case Uint16:
+		return "Uint16"
+	case Uint32:
+		return "Uint32"
+	case Uint64:
+		return "Uint64"
+	case Int8:
+		return "Int8"
+	case Int16:
+		return "Int16"
+	case Int32:
+		return "Int32"
+	case Int64:
+		return "Int64"
+	case Float32:
+		return "Float32"
+	case Float64:
+		return "Float64"
+	case String:
+		return "String"
+	case Enum:
+		return "Enum"
+	case TypeObject:
+		return "TypeObject"
+	case Array:
+		return "Array"
+	case List:
+		return "List"
+	case Set:
+		return "Set"
+	case Map:
+		return "Map"
+	case Struct:
+		return "Struct"
+	case Union:
+		return "Union"
+	}
+	panic(fmt.Errorf("vdl: unhandled kind: %d", k))
+}
+
 // IsNumber returns true iff the kind is a number.
 func (k Kind) IsNumber() bool {
 	switch k {

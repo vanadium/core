@@ -14,7 +14,7 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -32,12 +32,12 @@ func (HistogramBucket) VDLReflect(struct {
 }) {
 }
 
-func (x HistogramBucket) VDLIsZero() bool {
+func (x HistogramBucket) VDLIsZero() bool { //nolint:gocyclo
 	return x == HistogramBucket{}
 }
 
-func (x HistogramBucket) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x HistogramBucket) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.LowBound != 0 {
@@ -56,9 +56,9 @@ func (x HistogramBucket) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *HistogramBucket) VDLRead(dec vdl.Decoder) error {
+func (x *HistogramBucket) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = HistogramBucket{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -70,8 +70,8 @@ func (x *HistogramBucket) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -117,7 +117,7 @@ func (HistogramValue) VDLReflect(struct {
 }) {
 }
 
-func (x HistogramValue) VDLIsZero() bool {
+func (x HistogramValue) VDLIsZero() bool { //nolint:gocyclo
 	if x.Count != 0 {
 		return false
 	}
@@ -136,8 +136,8 @@ func (x HistogramValue) VDLIsZero() bool {
 	return true
 }
 
-func (x HistogramValue) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x HistogramValue) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Count != 0 {
@@ -164,7 +164,7 @@ func (x HistogramValue) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(4); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Buckets); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Buckets); err != nil {
 			return err
 		}
 	}
@@ -174,8 +174,8 @@ func (x HistogramValue) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []HistogramBucket) error {
-	if err := enc.StartValue(__VDLType_list_3); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []HistogramBucket) error {
+	if err := enc.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -195,9 +195,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []HistogramBucket) error {
 	return enc.FinishValue()
 }
 
-func (x *HistogramValue) VDLRead(dec vdl.Decoder) error {
+func (x *HistogramValue) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = HistogramValue{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -209,8 +209,8 @@ func (x *HistogramValue) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -248,15 +248,15 @@ func (x *HistogramValue) VDLRead(dec vdl.Decoder) error {
 				x.Max = value
 			}
 		case 4:
-			if err := __VDLReadAnon_list_1(dec, &x.Buckets); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Buckets); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]HistogramBucket) error {
-	if err := dec.StartValue(__VDLType_list_3); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]HistogramBucket) error {
+	if err := dec.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -295,7 +295,7 @@ func (TimeSeries) VDLReflect(struct {
 }) {
 }
 
-func (x TimeSeries) VDLIsZero() bool {
+func (x TimeSeries) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Values) != 0 {
 		return false
 	}
@@ -308,15 +308,15 @@ func (x TimeSeries) VDLIsZero() bool {
 	return true
 }
 
-func (x TimeSeries) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x TimeSeries) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if len(x.Values) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.Values); err != nil {
+		if err := vdlWriteAnonList2(enc, x.Values); err != nil {
 			return err
 		}
 	}
@@ -350,8 +350,8 @@ func (x TimeSeries) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []int64) error {
-	if err := enc.StartValue(__VDLType_list_5); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []int64) error {
+	if err := enc.StartValue(vdlTypeList5); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -368,9 +368,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []int64) error {
 	return enc.FinishValue()
 }
 
-func (x *TimeSeries) VDLRead(dec vdl.Decoder) error {
+func (x *TimeSeries) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = TimeSeries{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -382,8 +382,8 @@ func (x *TimeSeries) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -393,7 +393,7 @@ func (x *TimeSeries) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_2(dec, &x.Values); err != nil {
+			if err := vdlReadAnonList2(dec, &x.Values); err != nil {
 				return err
 			}
 		case 1:
@@ -416,8 +416,8 @@ func (x *TimeSeries) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]int64) error {
-	if err := dec.StartValue(__VDLType_list_5); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]int64) error {
+	if err := dec.StartValue(vdlTypeList5); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -440,22 +440,22 @@ func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]int64) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_list_3   *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
-	__VDLType_struct_6 *vdl.Type
-	__VDLType_struct_7 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeList3   *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
+	vdlTypeStruct6 *vdl.Type
+	vdlTypeStruct7 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -464,11 +464,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*HistogramBucket)(nil))
@@ -476,13 +476,13 @@ func __VDLInit() struct{} {
 	vdl.Register((*TimeSeries)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*HistogramBucket)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*HistogramValue)(nil)).Elem()
-	__VDLType_list_3 = vdl.TypeOf((*[]HistogramBucket)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*TimeSeries)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]int64)(nil))
-	__VDLType_struct_6 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
-	__VDLType_struct_7 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*HistogramBucket)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*HistogramValue)(nil)).Elem()
+	vdlTypeList3 = vdl.TypeOf((*[]HistogramBucket)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*TimeSeries)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]int64)(nil))
+	vdlTypeStruct6 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
+	vdlTypeStruct7 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
 
 	return struct{}{}
 }

@@ -10,13 +10,13 @@
 package internal
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -30,18 +30,18 @@ func (MyTag) VDLReflect(struct {
 }) {
 }
 
-func (x MyTag) VDLIsZero() bool {
+func (x MyTag) VDLIsZero() bool { //nolint:gocyclo
 	return x == ""
 }
 
-func (x MyTag) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_string_1, string(x)); err != nil {
+func (x MyTag) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeString1, string(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *MyTag) VDLRead(dec vdl.Decoder) error {
+func (x *MyTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -67,7 +67,7 @@ const Execute = MyTag("X")
 // containing MyObject methods.
 //
 // MyObject demonstrates how tags are attached to methods.
-type MyObjectClientMethods interface {
+type MyObjectClientMethods interface { //nolint:golint
 	Get(*context.T, ...rpc.CallOpt) error
 	Put(*context.T, ...rpc.CallOpt) error
 	Resolve(*context.T, ...rpc.CallOpt) error
@@ -75,13 +75,13 @@ type MyObjectClientMethods interface {
 }
 
 // MyObjectClientStub adds universal methods to MyObjectClientMethods.
-type MyObjectClientStub interface {
+type MyObjectClientStub interface { //nolint:golint
 	MyObjectClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MyObjectClient returns a client stub for MyObject.
-func MyObjectClient(name string) MyObjectClientStub {
+func MyObjectClient(name string) MyObjectClientStub { //nolint:golint
 	return implMyObjectClientStub{name}
 }
 
@@ -113,7 +113,7 @@ func (c implMyObjectClientStub) NoTags(ctx *context.T, opts ...rpc.CallOpt) (err
 // implements for MyObject.
 //
 // MyObject demonstrates how tags are attached to methods.
-type MyObjectServerMethods interface {
+type MyObjectServerMethods interface { //nolint:golint
 	Get(*context.T, rpc.ServerCall) error
 	Put(*context.T, rpc.ServerCall) error
 	Resolve(*context.T, rpc.ServerCall) error
@@ -124,19 +124,20 @@ type MyObjectServerMethods interface {
 // MyObject methods, as expected by rpc.Server.
 // There is no difference between this interface and MyObjectServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type MyObjectServerStubMethods MyObjectServerMethods
 
 // MyObjectServerStub adds universal methods to MyObjectServerStubMethods.
-type MyObjectServerStub interface {
+type MyObjectServerStub interface { //nolint:golint
 	MyObjectServerStubMethods
-	// Describe the MyObject interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the MyObject interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // MyObjectServer returns a server stub for MyObject.
 // It converts an implementation of MyObjectServerMethods into
 // an object that may be used by rpc.Server.
-func MyObjectServer(impl MyObjectServerMethods) MyObjectServerStub {
+func MyObjectServer(impl MyObjectServerMethods) MyObjectServerStub { //nolint:golint
 	stub := implMyObjectServerStub{
 		impl: impl,
 	}
@@ -175,7 +176,7 @@ func (s implMyObjectServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMyObjectServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implMyObjectServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{MyObjectDesc}
 }
 
@@ -209,16 +210,16 @@ var descMyObject = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_string_1 *vdl.Type
+	vdlTypeString1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -227,17 +228,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*MyTag)(nil))
 
 	// Initialize type definitions.
-	__VDLType_string_1 = vdl.TypeOf((*MyTag)(nil))
+	vdlTypeString1 = vdl.TypeOf((*MyTag)(nil))
 
 	return struct{}{}
 }

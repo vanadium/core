@@ -11,14 +11,14 @@ package build
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/services/binary"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -78,18 +78,18 @@ func (Architecture) VDLReflect(struct {
 }) {
 }
 
-func (x Architecture) VDLIsZero() bool {
+func (x Architecture) VDLIsZero() bool { //nolint:gocyclo
 	return x == ArchitectureAmd64
 }
 
-func (x Architecture) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_1, x.String()); err != nil {
+func (x Architecture) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum1, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Architecture) VDLRead(dec vdl.Decoder) error {
+func (x *Architecture) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -156,18 +156,18 @@ func (Format) VDLReflect(struct {
 }) {
 }
 
-func (x Format) VDLIsZero() bool {
+func (x Format) VDLIsZero() bool { //nolint:gocyclo
 	return x == FormatElf
 }
 
-func (x Format) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_2, x.String()); err != nil {
+func (x Format) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum2, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Format) VDLRead(dec vdl.Decoder) error {
+func (x *Format) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -240,18 +240,18 @@ func (OperatingSystem) VDLReflect(struct {
 }) {
 }
 
-func (x OperatingSystem) VDLIsZero() bool {
+func (x OperatingSystem) VDLIsZero() bool { //nolint:gocyclo
 	return x == OperatingSystemDarwin
 }
 
-func (x OperatingSystem) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_3, x.String()); err != nil {
+func (x OperatingSystem) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum3, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *OperatingSystem) VDLRead(dec vdl.Decoder) error {
+func (x *OperatingSystem) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -274,7 +274,7 @@ func (File) VDLReflect(struct {
 }) {
 }
 
-func (x File) VDLIsZero() bool {
+func (x File) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -284,8 +284,8 @@ func (x File) VDLIsZero() bool {
 	return true
 }
 
-func (x File) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x File) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -294,7 +294,7 @@ func (x File) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if len(x.Contents) != 0 {
-		if err := enc.NextFieldValueBytes(1, __VDLType_list_5, x.Contents); err != nil {
+		if err := enc.NextFieldValueBytes(1, vdlTypeList5, x.Contents); err != nil {
 			return err
 		}
 	}
@@ -304,9 +304,9 @@ func (x File) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *File) VDLRead(dec vdl.Decoder) error {
+func (x *File) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = File{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -318,8 +318,8 @@ func (x *File) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -350,7 +350,7 @@ func (x *File) VDLRead(dec vdl.Decoder) error {
 // containing Builder methods.
 //
 // Builder describes an interface for building binaries from source.
-type BuilderClientMethods interface {
+type BuilderClientMethods interface { //nolint:golint
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
 	Build(_ *context.T, arch Architecture, os OperatingSystem, _ ...rpc.CallOpt) (BuilderBuildClientCall, error)
@@ -360,13 +360,13 @@ type BuilderClientMethods interface {
 }
 
 // BuilderClientStub adds universal methods to BuilderClientMethods.
-type BuilderClientStub interface {
+type BuilderClientStub interface { //nolint:golint
 	BuilderClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BuilderClient returns a client stub for Builder.
-func BuilderClient(name string) BuilderClientStub {
+func BuilderClient(name string) BuilderClientStub { //nolint:golint
 	return implBuilderClientStub{name}
 }
 
@@ -389,7 +389,7 @@ func (c implBuilderClientStub) Describe(ctx *context.T, i0 string, opts ...rpc.C
 }
 
 // BuilderBuildClientStream is the client stream for Builder.Build.
-type BuilderBuildClientStream interface {
+type BuilderBuildClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Builder.Build client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -422,7 +422,7 @@ type BuilderBuildClientStream interface {
 }
 
 // BuilderBuildClientCall represents the call returned from Builder.Build.
-type BuilderBuildClientCall interface {
+type BuilderBuildClientCall interface { //nolint:golint
 	BuilderBuildClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -437,7 +437,7 @@ type BuilderBuildClientCall interface {
 	Finish() ([]byte, error)
 }
 
-type implBuilderBuildClientCall struct {
+type implBuilderBuildClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv File
 	errRecv error
@@ -495,7 +495,7 @@ func (c *implBuilderBuildClientCall) Finish() (o0 []byte, err error) {
 // implements for Builder.
 //
 // Builder describes an interface for building binaries from source.
-type BuilderServerMethods interface {
+type BuilderServerMethods interface { //nolint:golint
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
 	Build(_ *context.T, _ BuilderBuildServerCall, arch Architecture, os OperatingSystem) ([]byte, error)
@@ -508,6 +508,7 @@ type BuilderServerMethods interface {
 // Builder methods, as expected by rpc.Server.
 // The only difference between this interface and BuilderServerMethods
 // is the streaming methods.
+// nolint:golint
 type BuilderServerStubMethods interface {
 	// Build streams sources to the build server, which then attempts to
 	// build the sources and streams back the compiled binaries.
@@ -518,16 +519,16 @@ type BuilderServerStubMethods interface {
 }
 
 // BuilderServerStub adds universal methods to BuilderServerStubMethods.
-type BuilderServerStub interface {
+type BuilderServerStub interface { //nolint:golint
 	BuilderServerStubMethods
-	// Describe the Builder interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Builder interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // BuilderServer returns a server stub for Builder.
 // It converts an implementation of BuilderServerMethods into
 // an object that may be used by rpc.Server.
-func BuilderServer(impl BuilderServerMethods) BuilderServerStub {
+func BuilderServer(impl BuilderServerMethods) BuilderServerStub { //nolint:golint
 	stub := implBuilderServerStub{
 		impl: impl,
 	}
@@ -558,7 +559,7 @@ func (s implBuilderServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBuilderServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implBuilderServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{BuilderDesc}
 }
 
@@ -596,7 +597,7 @@ var descBuilder = rpc.InterfaceDesc{
 }
 
 // BuilderBuildServerStream is the server stream for Builder.Build.
-type BuilderBuildServerStream interface {
+type BuilderBuildServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Builder.Build server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -619,14 +620,14 @@ type BuilderBuildServerStream interface {
 }
 
 // BuilderBuildServerCall represents the context passed to Builder.Build.
-type BuilderBuildServerCall interface {
+type BuilderBuildServerCall interface { //nolint:golint
 	rpc.ServerCall
 	BuilderBuildServerStream
 }
 
 // BuilderBuildServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BuilderBuildServerCall.
-type BuilderBuildServerCallStub struct {
+type BuilderBuildServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv File
 	errRecv error
@@ -683,20 +684,20 @@ func (s implBuilderBuildServerCallSend) Send(item File) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_enum_1   *vdl.Type
-	__VDLType_enum_2   *vdl.Type
-	__VDLType_enum_3   *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
+	vdlTypeEnum1   *vdl.Type
+	vdlTypeEnum2   *vdl.Type
+	vdlTypeEnum3   *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -705,11 +706,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Architecture)(nil))
@@ -718,11 +719,11 @@ func __VDLInit() struct{} {
 	vdl.Register((*File)(nil))
 
 	// Initialize type definitions.
-	__VDLType_enum_1 = vdl.TypeOf((*Architecture)(nil))
-	__VDLType_enum_2 = vdl.TypeOf((*Format)(nil))
-	__VDLType_enum_3 = vdl.TypeOf((*OperatingSystem)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*File)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeEnum1 = vdl.TypeOf((*Architecture)(nil))
+	vdlTypeEnum2 = vdl.TypeOf((*Format)(nil))
+	vdlTypeEnum3 = vdl.TypeOf((*OperatingSystem)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*File)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
 
 	return struct{}{}
 }

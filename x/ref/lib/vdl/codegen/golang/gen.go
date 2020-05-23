@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"go/format"
+	"os/exec"
 	"path"
 	"strings"
 	"text/template"
@@ -117,7 +117,7 @@ func (data *goData) TypeOf(tt *vdl.Type) string {
 }
 
 func typeOfVarName(tt *vdl.Type, id int) string {
-	return fmt.Sprintf("__VDLType_%s_%d", tt.Kind(), id)
+	return fmt.Sprintf("vdlType%s%d", tt.Kind().CamelCase(), id)
 }
 
 func (data *goData) idToTypeOfs() map[int]*vdl.Type {
@@ -149,7 +149,7 @@ var (`
 
 // DefineTypeOfVars defines the vars holding type definitions.  They are
 // declared as unexported package-level vars, and defined separately in the
-// __VDLInit func, to ensure they are initialized as early as possible.
+// initializeVDL func, to ensure they are initialized as early as possible.
 func (data *goData) DefineTypeOfVars() string {
 	idToType := data.idToTypeOfs()
 	if len(idToType) == 0 {
@@ -257,14 +257,31 @@ func Generate(pkg *compile.Package, env *compile.Env) []byte {
 		// We shouldn't see an error; it means our template is buggy.
 		panic(fmt.Errorf("vdl: couldn't execute template: %v", err))
 	}
-	// Use gofmt to format the generated source.
-	pretty, err := format.Source(buf.Bytes())
+	// Use gofmt -s to format the generated source.
+	pretty, err := runner(buf.Bytes(), "gofmnt", "-s") //format.Source(buf.Bytes())
+	if err != nil {
+		// We shouldn't see an error; it means we generated invalid code.
+		fmt.Printf("%s", buf.Bytes())
+		panic(fmt.Errorf("vdl: generated invalid Go code: %v", err))
+	}
+	// Use goimports to format the generated source.
+	pretty, err := runner(pretty, "goimports") //format.Source(buf.Bytes())
 	if err != nil {
 		// We shouldn't see an error; it means we generated invalid code.
 		fmt.Printf("%s", buf.Bytes())
 		panic(fmt.Errorf("vdl: generated invalid Go code: %v", err))
 	}
 	return pretty
+}
+
+func runner(buf []byte, binary string, args ...string) ([]byte, error) {
+	cmd := exec.Command(binary, args...)
+	cmd.Stdin = bytes.NewBuffer(buf)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run %v: %v\n", strings.Join(cmd.Args, " "), err)
+	}
+	return output, nil
 }
 
 // The native types feature is hard to use correctly.  E.g. the package
@@ -354,6 +371,7 @@ func init() {
 		"firstRuneToLower":      vdlutil.FirstRuneToLower,
 		"vdlZeroValue":          vdl.ZeroValue,
 		"errorName":             errorName,
+		"errorComment":          errorComment,
 		"nativeType":            nativeType,
 		"noCustomNative":        noCustomNative,
 		"typeHasNoCustomNative": typeHasNoCustomNative,
@@ -393,6 +411,16 @@ func errorName(def *compile.ErrorDef) string {
 	default:
 		return "err" + vdlutil.FirstRuneToUpper(def.Name)
 	}
+}
+
+func errorComment(def *compile.ErrorDef) string {
+	parts := strings.Fields(def.Doc)
+	errName := errorName(def)
+	// Make sure the comment starts with Err<name>....
+	if len(parts) > 0 && "Err"+parts[1] == errName {
+		return strings.Replace(def.Doc, parts[1], "Err"+parts[1], 1)
+	}
+	return def.Doc
 }
 
 func isStreamingMethod(method *compile.Method) bool {
@@ -624,7 +652,7 @@ import (
 	{{if $imp.Name}}{{$imp.Name}} {{end}}"{{$imp.Path}}"{{end}}
 ){{end}}
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 {{if $pkg.TypeDefs}}
 //////////////////////////////////////////////////
@@ -661,7 +689,7 @@ var (
 
 var (
 {{range $edef := $pkg.ErrorDefs}}
-	{{$edef.Doc}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
+	{{errorComment $edef}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
 )
 
 {{range $edef := $pkg.ErrorDefs}}
@@ -682,19 +710,19 @@ func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context")
 {{$rpc_ := $data.Pkg "v.io/v23/rpc"}}
 // {{$iface.Name}}ClientMethods is the client interface
 // containing {{$iface.Name}} methods.
-{{docBreak $iface.Doc}}type {{$iface.Name}}ClientMethods interface { {{range $embed := $iface.Embeds}}
+{{docBreak $iface.Doc}}type {{$iface.Name}}ClientMethods interface { //nolint:golint {{range $embed := $iface.Embeds}}
 	{{$embed.Doc}}{{embedGo $data $embed}}ClientMethods{{$embed.DocSuffix}}{{end}}{{range $method := $iface.Methods}}
 	{{$method.Doc}}{{$method.Name}}({{argNameTypes "" ($data.CtxVar "_") "" ($data.OptsVar "_") $data $method.InArgs}}) {{outArgsClient "" "_" $data $iface $method}}{{$method.DocSuffix}}{{end}}
 }
 
 // {{$iface.Name}}ClientStub adds universal methods to {{$iface.Name}}ClientMethods.
-type {{$iface.Name}}ClientStub interface {
+type {{$iface.Name}}ClientStub interface {  //nolint:golint
 	{{$iface.Name}}ClientMethods
 	{{$rpc_}}UniversalServiceMethods
 }
 
 // {{$iface.Name}}Client returns a client stub for {{$iface.Name}}.
-func {{$iface.Name}}Client(name string) {{$iface.Name}}ClientStub {
+func {{$iface.Name}}Client(name string) {{$iface.Name}}ClientStub { //nolint:golint
 	return impl{{$iface.Name}}ClientStub{name{{range $embed := $iface.Embeds}}, {{embedGo $data $embed}}Client(name){{end}} }
 }
 
@@ -718,7 +746,7 @@ func (c impl{{$iface.Name}}ClientStub) {{$method.Name}}({{argNameTypes "i" ($dat
 {{$clientSendImpl := uniqueNameImpl $iface $method "ClientCallSend"}}
 
 // {{$clientStream}} is the client stream for {{$iface.Name}}.{{$method.Name}}.
-type {{$clientStream}} interface { {{if $method.OutStream}}
+type {{$clientStream}} interface { //nolint:golint {{if $method.OutStream}}
 	// RecvStream returns the receiver side of the {{$iface.Name}}.{{$method.Name}} client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -751,7 +779,7 @@ type {{$clientStream}} interface { {{if $method.OutStream}}
 }
 
 // {{$clientCall}} represents the call returned from {{$iface.Name}}.{{$method.Name}}.
-type {{$clientCall}} interface {
+type {{$clientCall}} interface { //nolint:golint
 	{{$clientStream}} {{if $method.InStream}}
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.{{else}}
@@ -768,7 +796,7 @@ type {{$clientCall}} interface {
 	Finish() {{argParens (argNameTypes "" "" "" "_ error" $data $method.OutArgs)}}
 }
 
-type {{$clientCallImpl}} struct {
+type {{$clientCallImpl}} struct { //nolint:golint
 	{{$rpc_}}ClientCall{{if $method.OutStream}}
 	valRecv {{typeGo $data $method.OutStream}}
 	errRecv error{{end}}
@@ -825,7 +853,7 @@ func (c {{$clientSendImpl}}) Close() error {
 
 // {{$iface.Name}}ServerMethods is the interface a server writer
 // implements for {{$iface.Name}}.
-{{docBreak $iface.Doc}}type {{$iface.Name}}ServerMethods interface { {{range $embed := $iface.Embeds}}
+{{docBreak $iface.Doc}}type {{$iface.Name}}ServerMethods interface { //nolint:golint {{range $embed := $iface.Embeds}}
 	{{$embed.Doc}}{{embedGo $data $embed}}ServerMethods{{$embed.DocSuffix}}{{end}}{{range $method := $iface.Methods}}
 	{{$method.Doc}}{{$method.Name}}({{argNameTypes "" ($data.CtxVar "_") (serverCallVar "_" $data $iface $method) "" $data $method.InArgs}}) {{argParens (argNameTypes "" "" "" "_ error" $data $method.OutArgs)}}{{$method.DocSuffix}}{{end}}
 }
@@ -836,6 +864,7 @@ func (c {{$clientSendImpl}}) Close() error {
 // is the streaming methods.{{else}}
 // There is no difference between this interface and {{$iface.Name}}ServerMethods
 // since there are no streaming methods.{{end}}
+// nolint:golint
 type {{$iface.Name}}ServerStubMethods {{if $ifaceStreaming}}interface { {{range $embed := $iface.Embeds}}
 	{{$embed.Doc}}{{embedGo $data $embed}}ServerStubMethods{{$embed.DocSuffix}}{{end}}{{range $method := $iface.Methods}}
 	{{$method.Doc}}{{$method.Name}}({{argNameTypes "" ($data.CtxVar "_") (serverCallStubVar "_" $data $iface $method) "" $data $method.InArgs}}) {{argParens (argNameTypes "" "" "" "_ error" $data $method.OutArgs)}}{{$method.DocSuffix}}{{end}}
@@ -844,16 +873,16 @@ type {{$iface.Name}}ServerStubMethods {{if $ifaceStreaming}}interface { {{range 
 {{end}}
 
 // {{$iface.Name}}ServerStub adds universal methods to {{$iface.Name}}ServerStubMethods.
-type {{$iface.Name}}ServerStub interface {
+type {{$iface.Name}}ServerStub interface { //nolint:golint
 	{{$iface.Name}}ServerStubMethods
-	// Describe the {{$iface.Name}} interfaces.
-	Describe__() []{{$rpc_}}InterfaceDesc
+	// DescribeInterfaces the {{$iface.Name}} interfaces.
+	Describe__() []{{$rpc_}}InterfaceDesc //nolint:golint
 }
 
 // {{$iface.Name}}Server returns a server stub for {{$iface.Name}}.
 // It converts an implementation of {{$iface.Name}}ServerMethods into
 // an object that may be used by rpc.Server.
-func {{$iface.Name}}Server(impl {{$iface.Name}}ServerMethods) {{$iface.Name}}ServerStub {
+func {{$iface.Name}}Server(impl {{$iface.Name}}ServerMethods) {{$iface.Name}}ServerStub { //nolint:golint
 	stub := impl{{$iface.Name}}ServerStub{
 		impl: impl,{{range $embed := $iface.Embeds}}
 		{{$embed.Name}}ServerStub: {{embedGo $data $embed}}Server(impl),{{end}}
@@ -884,7 +913,7 @@ func (s impl{{$iface.Name}}ServerStub) Globber() *{{$rpc_}}GlobState {
 	return s.gs
 }
 
-func (s impl{{$iface.Name}}ServerStub) Describe__() []{{$rpc_}}InterfaceDesc {
+func (s impl{{$iface.Name}}ServerStub) Describe__() []{{$rpc_}}InterfaceDesc { //nolint:golint
 	return []{{$rpc_}}InterfaceDesc{ {{$iface.Name}}Desc{{range $embed := $iface.TransitiveEmbeds}}, {{embedGo $data $embed}}Desc{{end}} }
 }
 
@@ -923,7 +952,7 @@ var desc{{$iface.Name}} = {{$rpc_}}InterfaceDesc{ {{if $iface.Name}}
 {{$serverSendImpl := uniqueNameImpl $iface $method "ServerCallSend"}}
 
 // {{$serverStream}} is the server stream for {{$iface.Name}}.{{$method.Name}}.
-type {{$serverStream}} interface { {{if $method.InStream}}
+type {{$serverStream}} interface { //nolint:golint {{if $method.InStream}}
 	// RecvStream returns the receiver side of the {{$iface.Name}}.{{$method.Name}} server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -946,14 +975,14 @@ type {{$serverStream}} interface { {{if $method.InStream}}
 }
 
 // {{$serverCall}} represents the context passed to {{$iface.Name}}.{{$method.Name}}.
-type {{$serverCall}} interface {
+type {{$serverCall}} interface {  //nolint:golint
 	{{$rpc_}}ServerCall
 	{{$serverStream}}
 }
 
 // {{$serverCallStub}} is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements {{$serverCall}}.
-type {{$serverCallStub}} struct {
+type {{$serverCallStub}} struct { //nolint:golint
 	{{$rpc_}}StreamServerCall{{if $method.InStream}}
 	valRecv {{typeGo $data $method.InStream}}
 	errRecv error{{end}}
@@ -1008,13 +1037,13 @@ func (s {{$serverSendImpl}}) Send(item {{typeGo $data $method.OutStream}}) error
 
 {{$data.DeclareTypeOfVars}}
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1023,11 +1052,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 {{if $pkg.Config.Go.WireToNativeTypes}}
 	// Register native type conversions first, so that vdl.TypeOf works.{{range $wire, $native := $pkg.Config.Go.WireToNativeTypes}}{{if noCustomNative $native}}
 	{{$data.Pkg "v.io/v23/vdl"}}RegisterNative({{$wire}}ToNative, {{$wire}}FromNative){{end}}{{end}}

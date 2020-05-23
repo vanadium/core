@@ -38,7 +38,7 @@ package agent
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -46,7 +46,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -61,12 +61,12 @@ func (ConnInfo) VDLReflect(struct {
 }) {
 }
 
-func (x ConnInfo) VDLIsZero() bool {
+func (x ConnInfo) VDLIsZero() bool { //nolint:gocyclo
 	return x == ConnInfo{}
 }
 
-func (x ConnInfo) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x ConnInfo) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.MinVersion != 0 {
@@ -85,9 +85,9 @@ func (x ConnInfo) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *ConnInfo) VDLRead(dec vdl.Decoder) error {
+func (x *ConnInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = ConnInfo{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -99,8 +99,8 @@ func (x *ConnInfo) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -138,12 +138,12 @@ func (RpcRequest) VDLReflect(struct {
 }) {
 }
 
-func (x RpcRequest) VDLIsZero() bool {
+func (x RpcRequest) VDLIsZero() bool { //nolint:gocyclo
 	return x == RpcRequest{}
 }
 
-func (x RpcRequest) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x RpcRequest) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Id != 0 {
@@ -167,9 +167,9 @@ func (x RpcRequest) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *RpcRequest) VDLRead(dec vdl.Decoder) error {
+func (x *RpcRequest) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = RpcRequest{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -181,8 +181,8 @@ func (x *RpcRequest) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -227,12 +227,12 @@ func (RpcResponse) VDLReflect(struct {
 }) {
 }
 
-func (x RpcResponse) VDLIsZero() bool {
+func (x RpcResponse) VDLIsZero() bool { //nolint:gocyclo
 	return x == RpcResponse{}
 }
 
-func (x RpcResponse) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x RpcResponse) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.Id != 0 {
@@ -259,9 +259,9 @@ func (x RpcResponse) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *RpcResponse) VDLRead(dec vdl.Decoder) error {
+func (x *RpcResponse) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = RpcResponse{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -273,8 +273,8 @@ func (x *RpcResponse) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -315,7 +315,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the RpcMessage union type.
-		VDLReflect(__RpcMessageReflect)
+		VDLReflect(vdlRpcMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -323,8 +323,8 @@ type (
 	RpcMessageReq struct{ Value RpcRequest }
 	// RpcMessageResp represents field Resp of the RpcMessage union type.
 	RpcMessageResp struct{ Value RpcResponse }
-	// __RpcMessageReflect describes the RpcMessage union type.
-	__RpcMessageReflect struct {
+	// vdlRpcMessageReflect describes the RpcMessage union type.
+	vdlRpcMessageReflect struct {
 		Name  string `vdl:"v.io/x/ref/services/agent.RpcMessage"`
 		Type  RpcMessage
 		Union struct {
@@ -334,17 +334,17 @@ type (
 	}
 )
 
-func (x RpcMessageReq) Index() int                     { return 0 }
-func (x RpcMessageReq) Interface() interface{}         { return x.Value }
-func (x RpcMessageReq) Name() string                   { return "Req" }
-func (x RpcMessageReq) VDLReflect(__RpcMessageReflect) {}
+func (x RpcMessageReq) Index() int                      { return 0 }
+func (x RpcMessageReq) Interface() interface{}          { return x.Value }
+func (x RpcMessageReq) Name() string                    { return "Req" }
+func (x RpcMessageReq) VDLReflect(vdlRpcMessageReflect) {}
 
-func (x RpcMessageResp) Index() int                     { return 1 }
-func (x RpcMessageResp) Interface() interface{}         { return x.Value }
-func (x RpcMessageResp) Name() string                   { return "Resp" }
-func (x RpcMessageResp) VDLReflect(__RpcMessageReflect) {}
+func (x RpcMessageResp) Index() int                      { return 1 }
+func (x RpcMessageResp) Interface() interface{}          { return x.Value }
+func (x RpcMessageResp) Name() string                    { return "Resp" }
+func (x RpcMessageResp) VDLReflect(vdlRpcMessageReflect) {}
 
-func (x RpcMessageReq) VDLIsZero() bool {
+func (x RpcMessageReq) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value == RpcRequest{}
 }
 
@@ -352,8 +352,8 @@ func (x RpcMessageResp) VDLIsZero() bool {
 	return false
 }
 
-func (x RpcMessageReq) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_4); err != nil {
+func (x RpcMessageReq) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -368,8 +368,8 @@ func (x RpcMessageReq) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x RpcMessageResp) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_4); err != nil {
+func (x RpcMessageResp) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -384,8 +384,8 @@ func (x RpcMessageResp) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadRpcMessage(dec vdl.Decoder, x *RpcMessage) error {
-	if err := dec.StartValue(__VDLType_union_4); err != nil {
+func VDLReadRpcMessage(dec vdl.Decoder, x *RpcMessage) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -396,9 +396,9 @@ func VDLReadRpcMessage(dec vdl.Decoder, x *RpcMessage) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_4 {
+	if decType != vdlTypeUnion4 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_4.FieldIndexByName(name)
+		index = vdlTypeUnion4.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -431,7 +431,7 @@ func VDLReadRpcMessage(dec vdl.Decoder, x *RpcMessage) error {
 
 // AgentClientMethods is the client interface
 // containing Agent methods.
-type AgentClientMethods interface {
+type AgentClientMethods interface { //nolint:golint
 	Bless(_ *context.T, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat, _ ...rpc.CallOpt) (security.Blessings, error)
 	BlessSelf(_ *context.T, name string, caveats []security.Caveat, _ ...rpc.CallOpt) (security.Blessings, error)
 	Sign(_ *context.T, message []byte, _ ...rpc.CallOpt) (security.Signature, error)
@@ -458,13 +458,13 @@ type AgentClientMethods interface {
 }
 
 // AgentClientStub adds universal methods to AgentClientMethods.
-type AgentClientStub interface {
+type AgentClientStub interface { //nolint:golint
 	AgentClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // AgentClient returns a client stub for Agent.
-func AgentClient(name string) AgentClientStub {
+func AgentClient(name string) AgentClientStub { //nolint:golint
 	return implAgentClientStub{name}
 }
 
@@ -572,7 +572,7 @@ func (c implAgentClientStub) NotifyWhenChanged(ctx *context.T, opts ...rpc.CallO
 }
 
 // AgentNotifyWhenChangedClientStream is the client stream for Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedClientStream interface {
+type AgentNotifyWhenChangedClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Agent.NotifyWhenChanged client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -588,7 +588,7 @@ type AgentNotifyWhenChangedClientStream interface {
 }
 
 // AgentNotifyWhenChangedClientCall represents the call returned from Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedClientCall interface {
+type AgentNotifyWhenChangedClientCall interface { //nolint:golint
 	AgentNotifyWhenChangedClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -603,7 +603,7 @@ type AgentNotifyWhenChangedClientCall interface {
 	Finish() error
 }
 
-type implAgentNotifyWhenChangedClientCall struct {
+type implAgentNotifyWhenChangedClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv bool
 	errRecv error
@@ -641,7 +641,7 @@ func (c *implAgentNotifyWhenChangedClientCall) Finish() (err error) {
 
 // AgentServerMethods is the interface a server writer
 // implements for Agent.
-type AgentServerMethods interface {
+type AgentServerMethods interface { //nolint:golint
 	Bless(_ *context.T, _ rpc.ServerCall, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat) (security.Blessings, error)
 	BlessSelf(_ *context.T, _ rpc.ServerCall, name string, caveats []security.Caveat) (security.Blessings, error)
 	Sign(_ *context.T, _ rpc.ServerCall, message []byte) (security.Signature, error)
@@ -671,6 +671,7 @@ type AgentServerMethods interface {
 // Agent methods, as expected by rpc.Server.
 // The only difference between this interface and AgentServerMethods
 // is the streaming methods.
+// nolint:golint
 type AgentServerStubMethods interface {
 	Bless(_ *context.T, _ rpc.ServerCall, key []byte, wit security.Blessings, extension string, caveat security.Caveat, additionalCaveats []security.Caveat) (security.Blessings, error)
 	BlessSelf(_ *context.T, _ rpc.ServerCall, name string, caveats []security.Caveat) (security.Blessings, error)
@@ -698,16 +699,16 @@ type AgentServerStubMethods interface {
 }
 
 // AgentServerStub adds universal methods to AgentServerStubMethods.
-type AgentServerStub interface {
+type AgentServerStub interface { //nolint:golint
 	AgentServerStubMethods
-	// Describe the Agent interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Agent interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // AgentServer returns a server stub for Agent.
 // It converts an implementation of AgentServerMethods into
 // an object that may be used by rpc.Server.
-func AgentServer(impl AgentServerMethods) AgentServerStub {
+func AgentServer(impl AgentServerMethods) AgentServerStub { //nolint:golint
 	stub := implAgentServerStub{
 		impl: impl,
 	}
@@ -806,7 +807,7 @@ func (s implAgentServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implAgentServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implAgentServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{AgentDesc}
 }
 
@@ -968,7 +969,7 @@ var descAgent = rpc.InterfaceDesc{
 }
 
 // AgentNotifyWhenChangedServerStream is the server stream for Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedServerStream interface {
+type AgentNotifyWhenChangedServerStream interface { //nolint:golint
 	// SendStream returns the send side of the Agent.NotifyWhenChanged server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -979,14 +980,14 @@ type AgentNotifyWhenChangedServerStream interface {
 }
 
 // AgentNotifyWhenChangedServerCall represents the context passed to Agent.NotifyWhenChanged.
-type AgentNotifyWhenChangedServerCall interface {
+type AgentNotifyWhenChangedServerCall interface { //nolint:golint
 	rpc.ServerCall
 	AgentNotifyWhenChangedServerStream
 }
 
 // AgentNotifyWhenChangedServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements AgentNotifyWhenChangedServerCall.
-type AgentNotifyWhenChangedServerCallStub struct {
+type AgentNotifyWhenChangedServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -1013,19 +1014,19 @@ func (s implAgentNotifyWhenChangedServerCallSend) Send(item bool) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_union_4  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeUnion4  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1034,11 +1035,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*ConnInfo)(nil))
@@ -1047,10 +1048,10 @@ func __VDLInit() struct{} {
 	vdl.Register((*RpcMessage)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*ConnInfo)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*RpcRequest)(nil)).Elem()
-	__VDLType_struct_3 = vdl.TypeOf((*RpcResponse)(nil)).Elem()
-	__VDLType_union_4 = vdl.TypeOf((*RpcMessage)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*ConnInfo)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*RpcRequest)(nil)).Elem()
+	vdlTypeStruct3 = vdl.TypeOf((*RpcResponse)(nil)).Elem()
+	vdlTypeUnion4 = vdl.TypeOf((*RpcMessage)(nil))
 
 	return struct{}{}
 }

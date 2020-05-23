@@ -13,7 +13,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -27,12 +27,12 @@ func (SignedHeader) VDLReflect(struct {
 }) {
 }
 
-func (x SignedHeader) VDLIsZero() bool {
+func (x SignedHeader) VDLIsZero() bool { //nolint:gocyclo
 	return x == SignedHeader{}
 }
 
-func (x SignedHeader) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x SignedHeader) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.ChunkSizeBytes != 0 {
@@ -46,9 +46,9 @@ func (x SignedHeader) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *SignedHeader) VDLRead(dec vdl.Decoder) error {
+func (x *SignedHeader) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = SignedHeader{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -60,8 +60,8 @@ func (x *SignedHeader) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -69,8 +69,8 @@ func (x *SignedHeader) VDLRead(dec vdl.Decoder) error {
 				continue
 			}
 		}
-		switch index {
-		case 0:
+		if index == 0 {
+
 			switch value, err := dec.ReadValueInt(64); {
 			case err != nil:
 				return err
@@ -88,18 +88,18 @@ func (HashCode) VDLReflect(struct {
 }) {
 }
 
-func (x HashCode) VDLIsZero() bool {
+func (x HashCode) VDLIsZero() bool { //nolint:gocyclo
 	return x == HashCode{}
 }
 
-func (x HashCode) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueBytes(__VDLType_array_2, x[:]); err != nil {
+func (x HashCode) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueBytes(vdlTypeArray2, x[:]); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *HashCode) VDLRead(dec vdl.Decoder) error {
+func (x *HashCode) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	bytes := x[:]
 	if err := dec.ReadValueBytes(32, &bytes); err != nil {
 		return err
@@ -119,7 +119,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the SignedData union type.
-		VDLReflect(__SignedDataReflect)
+		VDLReflect(vdlSignedDataReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -127,8 +127,8 @@ type (
 	SignedDataSignature struct{ Value security.Signature }
 	// SignedDataHash represents field Hash of the SignedData union type.
 	SignedDataHash struct{ Value HashCode }
-	// __SignedDataReflect describes the SignedData union type.
-	__SignedDataReflect struct {
+	// vdlSignedDataReflect describes the SignedData union type.
+	vdlSignedDataReflect struct {
 		Name  string `vdl:"v.io/x/ref/lib/security/serialization.SignedData"`
 		Type  SignedData
 		Union struct {
@@ -138,17 +138,17 @@ type (
 	}
 )
 
-func (x SignedDataSignature) Index() int                     { return 0 }
-func (x SignedDataSignature) Interface() interface{}         { return x.Value }
-func (x SignedDataSignature) Name() string                   { return "Signature" }
-func (x SignedDataSignature) VDLReflect(__SignedDataReflect) {}
+func (x SignedDataSignature) Index() int                      { return 0 }
+func (x SignedDataSignature) Interface() interface{}          { return x.Value }
+func (x SignedDataSignature) Name() string                    { return "Signature" }
+func (x SignedDataSignature) VDLReflect(vdlSignedDataReflect) {}
 
-func (x SignedDataHash) Index() int                     { return 1 }
-func (x SignedDataHash) Interface() interface{}         { return x.Value }
-func (x SignedDataHash) Name() string                   { return "Hash" }
-func (x SignedDataHash) VDLReflect(__SignedDataReflect) {}
+func (x SignedDataHash) Index() int                      { return 1 }
+func (x SignedDataHash) Interface() interface{}          { return x.Value }
+func (x SignedDataHash) Name() string                    { return "Hash" }
+func (x SignedDataHash) VDLReflect(vdlSignedDataReflect) {}
 
-func (x SignedDataSignature) VDLIsZero() bool {
+func (x SignedDataSignature) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value.VDLIsZero()
 }
 
@@ -156,8 +156,8 @@ func (x SignedDataHash) VDLIsZero() bool {
 	return false
 }
 
-func (x SignedDataSignature) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_4); err != nil {
+func (x SignedDataSignature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -172,11 +172,11 @@ func (x SignedDataSignature) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x SignedDataHash) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_4); err != nil {
+func (x SignedDataHash) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(1, __VDLType_array_2, x.Value[:]); err != nil {
+	if err := enc.NextFieldValueBytes(1, vdlTypeArray2, x.Value[:]); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -185,8 +185,8 @@ func (x SignedDataHash) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadSignedData(dec vdl.Decoder, x *SignedData) error {
-	if err := dec.StartValue(__VDLType_union_4); err != nil {
+func VDLReadSignedData(dec vdl.Decoder, x *SignedData) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -197,9 +197,9 @@ func VDLReadSignedData(dec vdl.Decoder, x *SignedData) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_4 {
+	if decType != vdlTypeUnion4 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_4.FieldIndexByName(name)
+		index = vdlTypeUnion4.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -231,19 +231,19 @@ func VDLReadSignedData(dec vdl.Decoder, x *SignedData) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_array_2  *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_union_4  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeArray2  *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeUnion4  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -252,11 +252,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*SignedHeader)(nil))
@@ -264,10 +264,10 @@ func __VDLInit() struct{} {
 	vdl.Register((*SignedData)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*SignedHeader)(nil)).Elem()
-	__VDLType_array_2 = vdl.TypeOf((*HashCode)(nil))
-	__VDLType_struct_3 = vdl.TypeOf((*security.Signature)(nil)).Elem()
-	__VDLType_union_4 = vdl.TypeOf((*SignedData)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*SignedHeader)(nil)).Elem()
+	vdlTypeArray2 = vdl.TypeOf((*HashCode)(nil))
+	vdlTypeStruct3 = vdl.TypeOf((*security.Signature)(nil)).Elem()
+	vdlTypeUnion4 = vdl.TypeOf((*SignedData)(nil))
 
 	return struct{}{}
 }

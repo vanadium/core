@@ -111,7 +111,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -145,7 +145,7 @@ func (AccessList) VDLReflect(struct {
 }) {
 }
 
-func (x AccessList) VDLIsZero() bool {
+func (x AccessList) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.In) != 0 {
 		return false
 	}
@@ -155,15 +155,15 @@ func (x AccessList) VDLIsZero() bool {
 	return true
 }
 
-func (x AccessList) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x AccessList) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if len(x.In) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.In); err != nil {
+		if err := vdlWriteAnonList1(enc, x.In); err != nil {
 			return err
 		}
 	}
@@ -171,7 +171,7 @@ func (x AccessList) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.NotIn); err != nil {
+		if err := vdlWriteAnonList2(enc, x.NotIn); err != nil {
 			return err
 		}
 	}
@@ -181,15 +181,15 @@ func (x AccessList) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []security.BlessingPattern) error {
-	if err := enc.StartValue(__VDLType_list_2); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []security.BlessingPattern) error {
+	if err := enc.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
 		return err
 	}
 	for _, elem := range x {
-		if err := enc.NextEntryValueString(__VDLType_string_4, string(elem)); err != nil {
+		if err := enc.NextEntryValueString(vdlTypeString4, string(elem)); err != nil {
 			return err
 		}
 	}
@@ -199,8 +199,8 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []security.BlessingPattern) error 
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_3); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -217,9 +217,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *AccessList) VDLRead(dec vdl.Decoder) error {
+func (x *AccessList) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = AccessList{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -231,8 +231,8 @@ func (x *AccessList) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -242,19 +242,19 @@ func (x *AccessList) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_1(dec, &x.In); err != nil {
+			if err := vdlReadAnonList1(dec, &x.In); err != nil {
 				return err
 			}
 		case 1:
-			if err := __VDLReadAnon_list_2(dec, &x.NotIn); err != nil {
+			if err := vdlReadAnonList2(dec, &x.NotIn); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]security.BlessingPattern) error {
-	if err := dec.StartValue(__VDLType_list_2); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]security.BlessingPattern) error {
+	if err := dec.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -274,8 +274,8 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]security.BlessingPattern) error 
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_3); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -309,12 +309,12 @@ func (Permissions) VDLReflect(struct {
 }) {
 }
 
-func (x Permissions) VDLIsZero() bool {
+func (x Permissions) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x Permissions) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_map_5); err != nil {
+func (x Permissions) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeMap5); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -334,8 +334,8 @@ func (x Permissions) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Permissions) VDLRead(dec vdl.Decoder) error {
-	if err := dec.StartValue(__VDLType_map_5); err != nil {
+func (x *Permissions) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeMap5); err != nil {
 		return err
 	}
 	var tmpMap Permissions
@@ -374,18 +374,18 @@ func (Tag) VDLReflect(struct {
 }) {
 }
 
-func (x Tag) VDLIsZero() bool {
+func (x Tag) VDLIsZero() bool { //nolint:gocyclo
 	return x == ""
 }
 
-func (x Tag) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_string_6, string(x)); err != nil {
+func (x Tag) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeString6, string(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Tag) VDLRead(dec vdl.Decoder) error {
+func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -474,21 +474,21 @@ func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveat
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_list_2   *vdl.Type
-	__VDLType_list_3   *vdl.Type
-	__VDLType_string_4 *vdl.Type
-	__VDLType_map_5    *vdl.Type
-	__VDLType_string_6 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeList2   *vdl.Type
+	vdlTypeList3   *vdl.Type
+	vdlTypeString4 *vdl.Type
+	vdlTypeMap5    *vdl.Type
+	vdlTypeString6 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -497,11 +497,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*AccessList)(nil))
@@ -509,12 +509,12 @@ func __VDLInit() struct{} {
 	vdl.Register((*Tag)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*AccessList)(nil)).Elem()
-	__VDLType_list_2 = vdl.TypeOf((*[]security.BlessingPattern)(nil))
-	__VDLType_list_3 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_string_4 = vdl.TypeOf((*security.BlessingPattern)(nil))
-	__VDLType_map_5 = vdl.TypeOf((*Permissions)(nil))
-	__VDLType_string_6 = vdl.TypeOf((*Tag)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*AccessList)(nil)).Elem()
+	vdlTypeList2 = vdl.TypeOf((*[]security.BlessingPattern)(nil))
+	vdlTypeList3 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeString4 = vdl.TypeOf((*security.BlessingPattern)(nil))
+	vdlTypeMap5 = vdl.TypeOf((*Permissions)(nil))
+	vdlTypeString6 = vdl.TypeOf((*Tag)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTooBig.ID), "{1:}{2:} AccessList is too big")

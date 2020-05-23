@@ -9,7 +9,7 @@ package fortune
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -18,7 +18,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -34,7 +34,7 @@ func (ComplexErrorParam) VDLReflect(struct {
 }) {
 }
 
-func (x ComplexErrorParam) VDLIsZero() bool {
+func (x ComplexErrorParam) VDLIsZero() bool { //nolint:gocyclo
 	if x.Str != "" {
 		return false
 	}
@@ -47,8 +47,8 @@ func (x ComplexErrorParam) VDLIsZero() bool {
 	return true
 }
 
-func (x ComplexErrorParam) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x ComplexErrorParam) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Str != "" {
@@ -65,7 +65,7 @@ func (x ComplexErrorParam) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(2); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.List); err != nil {
+		if err := vdlWriteAnonList1(enc, x.List); err != nil {
 			return err
 		}
 	}
@@ -75,8 +75,8 @@ func (x ComplexErrorParam) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []uint32) error {
-	if err := enc.StartValue(__VDLType_list_2); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []uint32) error {
+	if err := enc.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -93,9 +93,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []uint32) error {
 	return enc.FinishValue()
 }
 
-func (x *ComplexErrorParam) VDLRead(dec vdl.Decoder) error {
+func (x *ComplexErrorParam) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = ComplexErrorParam{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -107,8 +107,8 @@ func (x *ComplexErrorParam) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -132,15 +132,15 @@ func (x *ComplexErrorParam) VDLRead(dec vdl.Decoder) error {
 				x.Num = int32(value)
 			}
 		case 2:
-			if err := __VDLReadAnon_list_1(dec, &x.List); err != nil {
+			if err := vdlReadAnonList1(dec, &x.List); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]uint32) error {
-	if err := dec.StartValue(__VDLType_list_2); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]uint32) error {
+	if err := dec.StartValue(vdlTypeList2); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -185,7 +185,7 @@ func NewErrComplex(ctx *context.T, first ComplexErrorParam, second string, third
 // containing Fortune methods.
 //
 // Fortune allows clients to Get and Add fortune strings.
-type FortuneClientMethods interface {
+type FortuneClientMethods interface { //nolint:golint
 	// Add stores a fortune in the set used by Get.
 	Add(_ *context.T, Fortune string, _ ...rpc.CallOpt) error
 	// Get returns the last-added fortune.
@@ -213,13 +213,13 @@ type FortuneClientMethods interface {
 }
 
 // FortuneClientStub adds universal methods to FortuneClientMethods.
-type FortuneClientStub interface {
+type FortuneClientStub interface { //nolint:golint
 	FortuneClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // FortuneClient returns a client stub for Fortune.
-func FortuneClient(name string) FortuneClientStub {
+func FortuneClient(name string) FortuneClientStub { //nolint:golint
 	return implFortuneClientStub{name}
 }
 
@@ -286,7 +286,7 @@ func (c implFortuneClientStub) GetServerThread(ctx *context.T, opts ...rpc.CallO
 }
 
 // FortuneStreamingGetClientStream is the client stream for Fortune.StreamingGet.
-type FortuneStreamingGetClientStream interface {
+type FortuneStreamingGetClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Fortune.StreamingGet client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -319,7 +319,7 @@ type FortuneStreamingGetClientStream interface {
 }
 
 // FortuneStreamingGetClientCall represents the call returned from Fortune.StreamingGet.
-type FortuneStreamingGetClientCall interface {
+type FortuneStreamingGetClientCall interface { //nolint:golint
 	FortuneStreamingGetClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -334,7 +334,7 @@ type FortuneStreamingGetClientCall interface {
 	Finish() (total int32, _ error)
 }
 
-type implFortuneStreamingGetClientCall struct {
+type implFortuneStreamingGetClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv string
 	errRecv error
@@ -388,7 +388,7 @@ func (c *implFortuneStreamingGetClientCall) Finish() (o0 int32, err error) {
 }
 
 // FortuneMultipleStreamingGetClientStream is the client stream for Fortune.MultipleStreamingGet.
-type FortuneMultipleStreamingGetClientStream interface {
+type FortuneMultipleStreamingGetClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Fortune.MultipleStreamingGet client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -421,7 +421,7 @@ type FortuneMultipleStreamingGetClientStream interface {
 }
 
 // FortuneMultipleStreamingGetClientCall represents the call returned from Fortune.MultipleStreamingGet.
-type FortuneMultipleStreamingGetClientCall interface {
+type FortuneMultipleStreamingGetClientCall interface { //nolint:golint
 	FortuneMultipleStreamingGetClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -436,7 +436,7 @@ type FortuneMultipleStreamingGetClientCall interface {
 	Finish() (total int32, another int32, _ error)
 }
 
-type implFortuneMultipleStreamingGetClientCall struct {
+type implFortuneMultipleStreamingGetClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv string
 	errRecv error
@@ -493,7 +493,7 @@ func (c *implFortuneMultipleStreamingGetClientCall) Finish() (o0 int32, o1 int32
 // implements for Fortune.
 //
 // Fortune allows clients to Get and Add fortune strings.
-type FortuneServerMethods interface {
+type FortuneServerMethods interface { //nolint:golint
 	// Add stores a fortune in the set used by Get.
 	Add(_ *context.T, _ rpc.ServerCall, Fortune string) error
 	// Get returns the last-added fortune.
@@ -524,6 +524,7 @@ type FortuneServerMethods interface {
 // Fortune methods, as expected by rpc.Server.
 // The only difference between this interface and FortuneServerMethods
 // is the streaming methods.
+// nolint:golint
 type FortuneServerStubMethods interface {
 	// Add stores a fortune in the set used by Get.
 	Add(_ *context.T, _ rpc.ServerCall, Fortune string) error
@@ -552,16 +553,16 @@ type FortuneServerStubMethods interface {
 }
 
 // FortuneServerStub adds universal methods to FortuneServerStubMethods.
-type FortuneServerStub interface {
+type FortuneServerStub interface { //nolint:golint
 	FortuneServerStubMethods
-	// Describe the Fortune interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Fortune interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // FortuneServer returns a server stub for Fortune.
 // It converts an implementation of FortuneServerMethods into
 // an object that may be used by rpc.Server.
-func FortuneServer(impl FortuneServerMethods) FortuneServerStub {
+func FortuneServer(impl FortuneServerMethods) FortuneServerStub { //nolint:golint
 	stub := implFortuneServerStub{
 		impl: impl,
 	}
@@ -624,7 +625,7 @@ func (s implFortuneServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{FortuneDesc}
 }
 
@@ -713,7 +714,7 @@ var descFortune = rpc.InterfaceDesc{
 }
 
 // FortuneStreamingGetServerStream is the server stream for Fortune.StreamingGet.
-type FortuneStreamingGetServerStream interface {
+type FortuneStreamingGetServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Fortune.StreamingGet server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -736,14 +737,14 @@ type FortuneStreamingGetServerStream interface {
 }
 
 // FortuneStreamingGetServerCall represents the context passed to Fortune.StreamingGet.
-type FortuneStreamingGetServerCall interface {
+type FortuneStreamingGetServerCall interface { //nolint:golint
 	rpc.ServerCall
 	FortuneStreamingGetServerStream
 }
 
 // FortuneStreamingGetServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements FortuneStreamingGetServerCall.
-type FortuneStreamingGetServerCallStub struct {
+type FortuneStreamingGetServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv bool
 	errRecv error
@@ -797,7 +798,7 @@ func (s implFortuneStreamingGetServerCallSend) Send(item string) error {
 }
 
 // FortuneMultipleStreamingGetServerStream is the server stream for Fortune.MultipleStreamingGet.
-type FortuneMultipleStreamingGetServerStream interface {
+type FortuneMultipleStreamingGetServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Fortune.MultipleStreamingGet server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -820,14 +821,14 @@ type FortuneMultipleStreamingGetServerStream interface {
 }
 
 // FortuneMultipleStreamingGetServerCall represents the context passed to Fortune.MultipleStreamingGet.
-type FortuneMultipleStreamingGetServerCall interface {
+type FortuneMultipleStreamingGetServerCall interface { //nolint:golint
 	rpc.ServerCall
 	FortuneMultipleStreamingGetServerStream
 }
 
 // FortuneMultipleStreamingGetServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements FortuneMultipleStreamingGetServerCall.
-type FortuneMultipleStreamingGetServerCallStub struct {
+type FortuneMultipleStreamingGetServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv bool
 	errRecv error
@@ -883,17 +884,17 @@ func (s implFortuneMultipleStreamingGetServerCallSend) Send(item string) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_list_2   *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeList2   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -902,18 +903,18 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*ComplexErrorParam)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*ComplexErrorParam)(nil)).Elem()
-	__VDLType_list_2 = vdl.TypeOf((*[]uint32)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*ComplexErrorParam)(nil)).Elem()
+	vdlTypeList2 = vdl.TypeOf((*[]uint32)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoFortunes.ID), "{1:}{2:} no fortunes added")

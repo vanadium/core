@@ -10,7 +10,7 @@
 package stats
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -21,7 +21,7 @@ import (
 	"v.io/v23/vom"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Error definitions
@@ -48,7 +48,7 @@ func NewErrNoValue(ctx *context.T, suffix string) error {
 // The types of the object values are implementation specific, but should be
 // primarily numeric in nature, e.g. counters, memory usage, latency metrics,
 // etc.
-type StatsClientMethods interface {
+type StatsClientMethods interface { //nolint:golint
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
 	watch.GlobWatcherClientMethods
@@ -60,13 +60,13 @@ type StatsClientMethods interface {
 }
 
 // StatsClientStub adds universal methods to StatsClientMethods.
-type StatsClientStub interface {
+type StatsClientStub interface { //nolint:golint
 	StatsClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StatsClient returns a client stub for Stats.
-func StatsClient(name string) StatsClientStub {
+func StatsClient(name string) StatsClientStub { //nolint:golint
 	return implStatsClientStub{name, watch.GlobWatcherClient(name)}
 }
 
@@ -91,7 +91,7 @@ func (c implStatsClientStub) Value(ctx *context.T, opts ...rpc.CallOpt) (o0 *vom
 // The types of the object values are implementation specific, but should be
 // primarily numeric in nature, e.g. counters, memory usage, latency metrics,
 // etc.
-type StatsServerMethods interface {
+type StatsServerMethods interface { //nolint:golint
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
 	watch.GlobWatcherServerMethods
@@ -106,6 +106,7 @@ type StatsServerMethods interface {
 // Stats methods, as expected by rpc.Server.
 // The only difference between this interface and StatsServerMethods
 // is the streaming methods.
+// nolint:golint
 type StatsServerStubMethods interface {
 	// GlobWatcher allows a client to receive updates for changes to objects
 	// that match a pattern.  See the package comments for details.
@@ -118,16 +119,16 @@ type StatsServerStubMethods interface {
 }
 
 // StatsServerStub adds universal methods to StatsServerStubMethods.
-type StatsServerStub interface {
+type StatsServerStub interface { //nolint:golint
 	StatsServerStubMethods
-	// Describe the Stats interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Stats interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // StatsServer returns a server stub for Stats.
 // It converts an implementation of StatsServerMethods into
 // an object that may be used by rpc.Server.
-func StatsServer(impl StatsServerMethods) StatsServerStub {
+func StatsServer(impl StatsServerMethods) StatsServerStub { //nolint:golint
 	stub := implStatsServerStub{
 		impl:                  impl,
 		GlobWatcherServerStub: watch.GlobWatcherServer(impl),
@@ -156,7 +157,7 @@ func (s implStatsServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStatsServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implStatsServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{StatsDesc, watch.GlobWatcherDesc}
 }
 
@@ -183,13 +184,13 @@ var descStats = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -198,11 +199,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoValue.ID), "{1:}{2:} object has no value, suffix: {3}")

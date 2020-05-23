@@ -8,12 +8,12 @@
 package main
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -22,18 +22,18 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // containing PingPong methods.
 //
 // Simple service used in the agent tests.
-type PingPongClientMethods interface {
+type PingPongClientMethods interface { //nolint:golint
 	Ping(_ *context.T, message string, _ ...rpc.CallOpt) (string, error)
 }
 
 // PingPongClientStub adds universal methods to PingPongClientMethods.
-type PingPongClientStub interface {
+type PingPongClientStub interface { //nolint:golint
 	PingPongClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // PingPongClient returns a client stub for PingPong.
-func PingPongClient(name string) PingPongClientStub {
+func PingPongClient(name string) PingPongClientStub { //nolint:golint
 	return implPingPongClientStub{name}
 }
 
@@ -50,7 +50,7 @@ func (c implPingPongClientStub) Ping(ctx *context.T, i0 string, opts ...rpc.Call
 // implements for PingPong.
 //
 // Simple service used in the agent tests.
-type PingPongServerMethods interface {
+type PingPongServerMethods interface { //nolint:golint
 	Ping(_ *context.T, _ rpc.ServerCall, message string) (string, error)
 }
 
@@ -58,19 +58,20 @@ type PingPongServerMethods interface {
 // PingPong methods, as expected by rpc.Server.
 // There is no difference between this interface and PingPongServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type PingPongServerStubMethods PingPongServerMethods
 
 // PingPongServerStub adds universal methods to PingPongServerStubMethods.
-type PingPongServerStub interface {
+type PingPongServerStub interface { //nolint:golint
 	PingPongServerStubMethods
-	// Describe the PingPong interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the PingPong interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // PingPongServer returns a server stub for PingPong.
 // It converts an implementation of PingPongServerMethods into
 // an object that may be used by rpc.Server.
-func PingPongServer(impl PingPongServerMethods) PingPongServerStub {
+func PingPongServer(impl PingPongServerMethods) PingPongServerStub { //nolint:golint
 	stub := implPingPongServerStub{
 		impl: impl,
 	}
@@ -97,7 +98,7 @@ func (s implPingPongServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implPingPongServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implPingPongServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{PingPongDesc}
 }
 
@@ -122,13 +123,13 @@ var descPingPong = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -137,11 +138,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

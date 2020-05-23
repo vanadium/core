@@ -9,12 +9,12 @@
 package fortune
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -23,7 +23,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // containing Fortune methods.
 //
 // Fortune is the interface to a fortune-telling service.
-type FortuneClientMethods interface {
+type FortuneClientMethods interface { //nolint:golint
 	// Returns a random fortune.
 	Get(*context.T, ...rpc.CallOpt) (fortune string, _ error)
 	// Adds a fortune to the set used by Get().
@@ -33,13 +33,13 @@ type FortuneClientMethods interface {
 }
 
 // FortuneClientStub adds universal methods to FortuneClientMethods.
-type FortuneClientStub interface {
+type FortuneClientStub interface { //nolint:golint
 	FortuneClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // FortuneClient returns a client stub for Fortune.
-func FortuneClient(name string) FortuneClientStub {
+func FortuneClient(name string) FortuneClientStub { //nolint:golint
 	return implFortuneClientStub{name}
 }
 
@@ -66,7 +66,7 @@ func (c implFortuneClientStub) Has(ctx *context.T, i0 string, opts ...rpc.CallOp
 // implements for Fortune.
 //
 // Fortune is the interface to a fortune-telling service.
-type FortuneServerMethods interface {
+type FortuneServerMethods interface { //nolint:golint
 	// Returns a random fortune.
 	Get(*context.T, rpc.ServerCall) (fortune string, _ error)
 	// Adds a fortune to the set used by Get().
@@ -79,19 +79,20 @@ type FortuneServerMethods interface {
 // Fortune methods, as expected by rpc.Server.
 // There is no difference between this interface and FortuneServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type FortuneServerStubMethods FortuneServerMethods
 
 // FortuneServerStub adds universal methods to FortuneServerStubMethods.
-type FortuneServerStub interface {
+type FortuneServerStub interface { //nolint:golint
 	FortuneServerStubMethods
-	// Describe the Fortune interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Fortune interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // FortuneServer returns a server stub for Fortune.
 // It converts an implementation of FortuneServerMethods into
 // an object that may be used by rpc.Server.
-func FortuneServer(impl FortuneServerMethods) FortuneServerStub {
+func FortuneServer(impl FortuneServerMethods) FortuneServerStub { //nolint:golint
 	stub := implFortuneServerStub{
 		impl: impl,
 	}
@@ -126,7 +127,7 @@ func (s implFortuneServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implFortuneServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{FortuneDesc}
 }
 
@@ -166,13 +167,13 @@ var descFortune = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -181,11 +182,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

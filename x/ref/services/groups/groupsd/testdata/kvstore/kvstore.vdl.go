@@ -10,33 +10,33 @@
 package kvstore
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // StoreClientMethods is the client interface
 // containing Store methods.
-type StoreClientMethods interface {
+type StoreClientMethods interface { //nolint:golint
 	Get(_ *context.T, key string, _ ...rpc.CallOpt) (string, error)
 	Set(_ *context.T, key string, value string, _ ...rpc.CallOpt) error
 }
 
 // StoreClientStub adds universal methods to StoreClientMethods.
-type StoreClientStub interface {
+type StoreClientStub interface { //nolint:golint
 	StoreClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StoreClient returns a client stub for Store.
-func StoreClient(name string) StoreClientStub {
+func StoreClient(name string) StoreClientStub { //nolint:golint
 	return implStoreClientStub{name}
 }
 
@@ -56,7 +56,7 @@ func (c implStoreClientStub) Set(ctx *context.T, i0 string, i1 string, opts ...r
 
 // StoreServerMethods is the interface a server writer
 // implements for Store.
-type StoreServerMethods interface {
+type StoreServerMethods interface { //nolint:golint
 	Get(_ *context.T, _ rpc.ServerCall, key string) (string, error)
 	Set(_ *context.T, _ rpc.ServerCall, key string, value string) error
 }
@@ -65,19 +65,20 @@ type StoreServerMethods interface {
 // Store methods, as expected by rpc.Server.
 // There is no difference between this interface and StoreServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type StoreServerStubMethods StoreServerMethods
 
 // StoreServerStub adds universal methods to StoreServerStubMethods.
-type StoreServerStub interface {
+type StoreServerStub interface { //nolint:golint
 	StoreServerStubMethods
-	// Describe the Store interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Store interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // StoreServer returns a server stub for Store.
 // It converts an implementation of StoreServerMethods into
 // an object that may be used by rpc.Server.
-func StoreServer(impl StoreServerMethods) StoreServerStub {
+func StoreServer(impl StoreServerMethods) StoreServerStub { //nolint:golint
 	stub := implStoreServerStub{
 		impl: impl,
 	}
@@ -108,7 +109,7 @@ func (s implStoreServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{StoreDesc}
 }
 
@@ -141,13 +142,13 @@ var descStore = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -156,11 +157,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

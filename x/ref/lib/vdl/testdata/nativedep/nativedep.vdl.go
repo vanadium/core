@@ -14,7 +14,7 @@ import (
 	nativetest_2 "v.io/x/ref/lib/vdl/testdata/nativetest"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -31,7 +31,7 @@ func (All) VDLReflect(struct {
 }) {
 }
 
-func (x All) VDLIsZero() bool {
+func (x All) VDLIsZero() bool { //nolint:gocyclo
 	if x.A != "" {
 		return false
 	}
@@ -47,8 +47,8 @@ func (x All) VDLIsZero() bool {
 	return true
 }
 
-func (x All) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x All) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.A != "" {
@@ -56,7 +56,7 @@ func (x All) VDLWrite(enc vdl.Encoder) error {
 		if err := nativetest_2.WireStringFromNative(&wire, x.A); err != nil {
 			return err
 		}
-		if err := enc.NextFieldValueInt(0, __VDLType_int32_2, int64(wire)); err != nil {
+		if err := enc.NextFieldValueInt(0, vdlTypeInt322, int64(wire)); err != nil {
 			return err
 		}
 	}
@@ -65,7 +65,7 @@ func (x All) VDLWrite(enc vdl.Encoder) error {
 		if err := nativetest_2.WireTimeFromNative(&wire, x.B); err != nil {
 			return err
 		}
-		if err := enc.NextFieldValueInt(1, __VDLType_int32_3, int64(wire)); err != nil {
+		if err := enc.NextFieldValueInt(1, vdlTypeInt323, int64(wire)); err != nil {
 			return err
 		}
 	}
@@ -74,7 +74,7 @@ func (x All) VDLWrite(enc vdl.Encoder) error {
 		if err := nativetest_2.WireSamePkgFromNative(&wire, x.C); err != nil {
 			return err
 		}
-		if err := enc.NextFieldValueInt(2, __VDLType_int32_4, int64(wire)); err != nil {
+		if err := enc.NextFieldValueInt(2, vdlTypeInt324, int64(wire)); err != nil {
 			return err
 		}
 	}
@@ -83,7 +83,7 @@ func (x All) VDLWrite(enc vdl.Encoder) error {
 		if err := nativetest_2.WireMultiImportFromNative(&wire, x.D); err != nil {
 			return err
 		}
-		if err := enc.NextFieldValueInt(3, __VDLType_int32_5, int64(wire)); err != nil {
+		if err := enc.NextFieldValueInt(3, vdlTypeInt325, int64(wire)); err != nil {
 			return err
 		}
 	}
@@ -93,9 +93,9 @@ func (x All) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *All) VDLRead(dec vdl.Decoder) error {
+func (x *All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = All{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -107,8 +107,8 @@ func (x *All) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -156,20 +156,20 @@ func (x *All) VDLRead(dec vdl.Decoder) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_int32_2  *vdl.Type
-	__VDLType_int32_3  *vdl.Type
-	__VDLType_int32_4  *vdl.Type
-	__VDLType_int32_5  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeInt322  *vdl.Type
+	vdlTypeInt323  *vdl.Type
+	vdlTypeInt324  *vdl.Type
+	vdlTypeInt325  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -178,21 +178,21 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*All)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*All)(nil)).Elem()
-	__VDLType_int32_2 = vdl.TypeOf((*nativetest_2.WireString)(nil))
-	__VDLType_int32_3 = vdl.TypeOf((*nativetest_2.WireTime)(nil))
-	__VDLType_int32_4 = vdl.TypeOf((*nativetest_2.WireSamePkg)(nil))
-	__VDLType_int32_5 = vdl.TypeOf((*nativetest_2.WireMultiImport)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*All)(nil)).Elem()
+	vdlTypeInt322 = vdl.TypeOf((*nativetest_2.WireString)(nil))
+	vdlTypeInt323 = vdl.TypeOf((*nativetest_2.WireTime)(nil))
+	vdlTypeInt324 = vdl.TypeOf((*nativetest_2.WireSamePkg)(nil))
+	vdlTypeInt325 = vdl.TypeOf((*nativetest_2.WireMultiImport)(nil))
 
 	return struct{}{}
 }

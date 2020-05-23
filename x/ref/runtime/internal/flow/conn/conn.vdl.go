@@ -17,7 +17,7 @@ import (
 	"v.io/x/ref/lib/security/bcrypter"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -36,7 +36,7 @@ func (Blessings) VDLReflect(struct {
 }) {
 }
 
-func (x Blessings) VDLIsZero() bool {
+func (x Blessings) VDLIsZero() bool { //nolint:gocyclo
 	if !x.Blessings.IsZero() {
 		return false
 	}
@@ -46,8 +46,8 @@ func (x Blessings) VDLIsZero() bool {
 	return true
 }
 
-func (x Blessings) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x Blessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if !x.Blessings.IsZero() {
@@ -73,9 +73,9 @@ func (x Blessings) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Blessings) VDLRead(dec vdl.Decoder) error {
+func (x *Blessings) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Blessings{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -87,8 +87,8 @@ func (x *Blessings) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -132,7 +132,7 @@ func (EncryptedBlessings) VDLReflect(struct {
 }) {
 }
 
-func (x EncryptedBlessings) VDLIsZero() bool {
+func (x EncryptedBlessings) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Ciphertexts) != 0 {
 		return false
 	}
@@ -142,15 +142,15 @@ func (x EncryptedBlessings) VDLIsZero() bool {
 	return true
 }
 
-func (x EncryptedBlessings) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x EncryptedBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if len(x.Ciphertexts) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Ciphertexts); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Ciphertexts); err != nil {
 			return err
 		}
 	}
@@ -165,8 +165,8 @@ func (x EncryptedBlessings) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []bcrypter.WireCiphertext) error {
-	if err := enc.StartValue(__VDLType_list_4); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []bcrypter.WireCiphertext) error {
+	if err := enc.StartValue(vdlTypeList4); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -186,9 +186,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []bcrypter.WireCiphertext) error {
 	return enc.FinishValue()
 }
 
-func (x *EncryptedBlessings) VDLRead(dec vdl.Decoder) error {
+func (x *EncryptedBlessings) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = EncryptedBlessings{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -200,8 +200,8 @@ func (x *EncryptedBlessings) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -211,7 +211,7 @@ func (x *EncryptedBlessings) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_1(dec, &x.Ciphertexts); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Ciphertexts); err != nil {
 				return err
 			}
 		case 1:
@@ -225,8 +225,8 @@ func (x *EncryptedBlessings) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]bcrypter.WireCiphertext) error {
-	if err := dec.StartValue(__VDLType_list_4); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]bcrypter.WireCiphertext) error {
+	if err := dec.StartValue(vdlTypeList4); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -267,7 +267,7 @@ func (Discharges) VDLReflect(struct {
 }) {
 }
 
-func (x Discharges) VDLIsZero() bool {
+func (x Discharges) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Discharges) != 0 {
 		return false
 	}
@@ -280,15 +280,15 @@ func (x Discharges) VDLIsZero() bool {
 	return true
 }
 
-func (x Discharges) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_6); err != nil {
+func (x Discharges) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	if len(x.Discharges) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.Discharges); err != nil {
+		if err := vdlWriteAnonList2(enc, x.Discharges); err != nil {
 			return err
 		}
 	}
@@ -308,8 +308,8 @@ func (x Discharges) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []security.Discharge) error {
-	if err := enc.StartValue(__VDLType_list_7); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []security.Discharge) error {
+	if err := enc.StartValue(vdlTypeList7); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -326,7 +326,7 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []security.Discharge) error {
 		switch {
 		case wire == nil:
 			// Write the zero value of the union type.
-			if err := vdl.ZeroValue(__VDLType_union_8).VDLWrite(enc); err != nil {
+			if err := vdl.ZeroValue(vdlTypeUnion8).VDLWrite(enc); err != nil {
 				return err
 			}
 		default:
@@ -341,9 +341,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []security.Discharge) error {
 	return enc.FinishValue()
 }
 
-func (x *Discharges) VDLRead(dec vdl.Decoder) error {
+func (x *Discharges) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Discharges{}
-	if err := dec.StartValue(__VDLType_struct_6); err != nil {
+	if err := dec.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -355,8 +355,8 @@ func (x *Discharges) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_6 {
-			index = __VDLType_struct_6.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct6 {
+			index = vdlTypeStruct6.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -366,7 +366,7 @@ func (x *Discharges) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_2(dec, &x.Discharges); err != nil {
+			if err := vdlReadAnonList2(dec, &x.Discharges); err != nil {
 				return err
 			}
 		case 1:
@@ -387,8 +387,8 @@ func (x *Discharges) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]security.Discharge) error {
-	if err := dec.StartValue(__VDLType_list_7); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]security.Discharge) error {
+	if err := dec.StartValue(vdlTypeList7); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -435,7 +435,7 @@ func (EncryptedDischarges) VDLReflect(struct {
 }) {
 }
 
-func (x EncryptedDischarges) VDLIsZero() bool {
+func (x EncryptedDischarges) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Ciphertexts) != 0 {
 		return false
 	}
@@ -448,15 +448,15 @@ func (x EncryptedDischarges) VDLIsZero() bool {
 	return true
 }
 
-func (x EncryptedDischarges) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_9); err != nil {
+func (x EncryptedDischarges) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct9); err != nil {
 		return err
 	}
 	if len(x.Ciphertexts) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Ciphertexts); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Ciphertexts); err != nil {
 			return err
 		}
 	}
@@ -476,9 +476,9 @@ func (x EncryptedDischarges) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *EncryptedDischarges) VDLRead(dec vdl.Decoder) error {
+func (x *EncryptedDischarges) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = EncryptedDischarges{}
-	if err := dec.StartValue(__VDLType_struct_9); err != nil {
+	if err := dec.StartValue(vdlTypeStruct9); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -490,8 +490,8 @@ func (x *EncryptedDischarges) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_9 {
-			index = __VDLType_struct_9.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct9 {
+			index = vdlTypeStruct9.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -501,7 +501,7 @@ func (x *EncryptedDischarges) VDLRead(dec vdl.Decoder) error {
 		}
 		switch index {
 		case 0:
-			if err := __VDLReadAnon_list_1(dec, &x.Ciphertexts); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Ciphertexts); err != nil {
 				return err
 			}
 		case 1:
@@ -535,7 +535,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the BlessingsFlowMessage union type.
-		VDLReflect(__BlessingsFlowMessageReflect)
+		VDLReflect(vdlBlessingsFlowMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -547,8 +547,8 @@ type (
 	BlessingsFlowMessageEncryptedBlessings struct{ Value EncryptedBlessings }
 	// BlessingsFlowMessageEncryptedDischarges represents field EncryptedDischarges of the BlessingsFlowMessage union type.
 	BlessingsFlowMessageEncryptedDischarges struct{ Value EncryptedDischarges }
-	// __BlessingsFlowMessageReflect describes the BlessingsFlowMessage union type.
-	__BlessingsFlowMessageReflect struct {
+	// vdlBlessingsFlowMessageReflect describes the BlessingsFlowMessage union type.
+	vdlBlessingsFlowMessageReflect struct {
 		Name  string `vdl:"v.io/x/ref/runtime/internal/flow/conn.BlessingsFlowMessage"`
 		Type  BlessingsFlowMessage
 		Union struct {
@@ -560,27 +560,27 @@ type (
 	}
 )
 
-func (x BlessingsFlowMessageBlessings) Index() int                               { return 0 }
-func (x BlessingsFlowMessageBlessings) Interface() interface{}                   { return x.Value }
-func (x BlessingsFlowMessageBlessings) Name() string                             { return "Blessings" }
-func (x BlessingsFlowMessageBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageBlessings) Index() int                                { return 0 }
+func (x BlessingsFlowMessageBlessings) Interface() interface{}                    { return x.Value }
+func (x BlessingsFlowMessageBlessings) Name() string                              { return "Blessings" }
+func (x BlessingsFlowMessageBlessings) VDLReflect(vdlBlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageDischarges) Index() int                               { return 1 }
-func (x BlessingsFlowMessageDischarges) Interface() interface{}                   { return x.Value }
-func (x BlessingsFlowMessageDischarges) Name() string                             { return "Discharges" }
-func (x BlessingsFlowMessageDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageDischarges) Index() int                                { return 1 }
+func (x BlessingsFlowMessageDischarges) Interface() interface{}                    { return x.Value }
+func (x BlessingsFlowMessageDischarges) Name() string                              { return "Discharges" }
+func (x BlessingsFlowMessageDischarges) VDLReflect(vdlBlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageEncryptedBlessings) Index() int                               { return 2 }
-func (x BlessingsFlowMessageEncryptedBlessings) Interface() interface{}                   { return x.Value }
-func (x BlessingsFlowMessageEncryptedBlessings) Name() string                             { return "EncryptedBlessings" }
-func (x BlessingsFlowMessageEncryptedBlessings) VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageEncryptedBlessings) Index() int                                { return 2 }
+func (x BlessingsFlowMessageEncryptedBlessings) Interface() interface{}                    { return x.Value }
+func (x BlessingsFlowMessageEncryptedBlessings) Name() string                              { return "EncryptedBlessings" }
+func (x BlessingsFlowMessageEncryptedBlessings) VDLReflect(vdlBlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageEncryptedDischarges) Index() int                               { return 3 }
-func (x BlessingsFlowMessageEncryptedDischarges) Interface() interface{}                   { return x.Value }
-func (x BlessingsFlowMessageEncryptedDischarges) Name() string                             { return "EncryptedDischarges" }
-func (x BlessingsFlowMessageEncryptedDischarges) VDLReflect(__BlessingsFlowMessageReflect) {}
+func (x BlessingsFlowMessageEncryptedDischarges) Index() int                                { return 3 }
+func (x BlessingsFlowMessageEncryptedDischarges) Interface() interface{}                    { return x.Value }
+func (x BlessingsFlowMessageEncryptedDischarges) Name() string                              { return "EncryptedDischarges" }
+func (x BlessingsFlowMessageEncryptedDischarges) VDLReflect(vdlBlessingsFlowMessageReflect) {}
 
-func (x BlessingsFlowMessageBlessings) VDLIsZero() bool {
+func (x BlessingsFlowMessageBlessings) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value.VDLIsZero()
 }
 
@@ -596,8 +596,8 @@ func (x BlessingsFlowMessageEncryptedDischarges) VDLIsZero() bool {
 	return false
 }
 
-func (x BlessingsFlowMessageBlessings) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_10); err != nil {
+func (x BlessingsFlowMessageBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion10); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -612,8 +612,8 @@ func (x BlessingsFlowMessageBlessings) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x BlessingsFlowMessageDischarges) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_10); err != nil {
+func (x BlessingsFlowMessageDischarges) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion10); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -628,8 +628,8 @@ func (x BlessingsFlowMessageDischarges) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x BlessingsFlowMessageEncryptedBlessings) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_10); err != nil {
+func (x BlessingsFlowMessageEncryptedBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion10); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
@@ -644,8 +644,8 @@ func (x BlessingsFlowMessageEncryptedBlessings) VDLWrite(enc vdl.Encoder) error 
 	return enc.FinishValue()
 }
 
-func (x BlessingsFlowMessageEncryptedDischarges) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_10); err != nil {
+func (x BlessingsFlowMessageEncryptedDischarges) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion10); err != nil {
 		return err
 	}
 	if err := enc.NextField(3); err != nil {
@@ -660,8 +660,8 @@ func (x BlessingsFlowMessageEncryptedDischarges) VDLWrite(enc vdl.Encoder) error
 	return enc.FinishValue()
 }
 
-func VDLReadBlessingsFlowMessage(dec vdl.Decoder, x *BlessingsFlowMessage) error {
-	if err := dec.StartValue(__VDLType_union_10); err != nil {
+func VDLReadBlessingsFlowMessage(dec vdl.Decoder, x *BlessingsFlowMessage) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion10); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -672,9 +672,9 @@ func VDLReadBlessingsFlowMessage(dec vdl.Decoder, x *BlessingsFlowMessage) error
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_10 {
+	if decType != vdlTypeUnion10 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_10.FieldIndexByName(name)
+		index = vdlTypeUnion10.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -861,25 +861,25 @@ func NewErrIdleConnKilled(ctx *context.T) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_list_4   *vdl.Type
-	__VDLType_struct_5 *vdl.Type
-	__VDLType_struct_6 *vdl.Type
-	__VDLType_list_7   *vdl.Type
-	__VDLType_union_8  *vdl.Type
-	__VDLType_struct_9 *vdl.Type
-	__VDLType_union_10 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeList4   *vdl.Type
+	vdlTypeStruct5 *vdl.Type
+	vdlTypeStruct6 *vdl.Type
+	vdlTypeList7   *vdl.Type
+	vdlTypeUnion8  *vdl.Type
+	vdlTypeStruct9 *vdl.Type
+	vdlTypeUnion10 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -888,11 +888,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Blessings)(nil))
@@ -902,16 +902,16 @@ func __VDLInit() struct{} {
 	vdl.Register((*BlessingsFlowMessage)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*Blessings)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
-	__VDLType_struct_3 = vdl.TypeOf((*EncryptedBlessings)(nil)).Elem()
-	__VDLType_list_4 = vdl.TypeOf((*[]bcrypter.WireCiphertext)(nil))
-	__VDLType_struct_5 = vdl.TypeOf((*bcrypter.WireCiphertext)(nil)).Elem()
-	__VDLType_struct_6 = vdl.TypeOf((*Discharges)(nil)).Elem()
-	__VDLType_list_7 = vdl.TypeOf((*[]security.Discharge)(nil))
-	__VDLType_union_8 = vdl.TypeOf((*security.WireDischarge)(nil))
-	__VDLType_struct_9 = vdl.TypeOf((*EncryptedDischarges)(nil)).Elem()
-	__VDLType_union_10 = vdl.TypeOf((*BlessingsFlowMessage)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*Blessings)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
+	vdlTypeStruct3 = vdl.TypeOf((*EncryptedBlessings)(nil)).Elem()
+	vdlTypeList4 = vdl.TypeOf((*[]bcrypter.WireCiphertext)(nil))
+	vdlTypeStruct5 = vdl.TypeOf((*bcrypter.WireCiphertext)(nil)).Elem()
+	vdlTypeStruct6 = vdl.TypeOf((*Discharges)(nil)).Elem()
+	vdlTypeList7 = vdl.TypeOf((*[]security.Discharge)(nil))
+	vdlTypeUnion8 = vdl.TypeOf((*security.WireDischarge)(nil))
+	vdlTypeStruct9 = vdl.TypeOf((*EncryptedDischarges)(nil)).Elem()
+	vdlTypeUnion10 = vdl.TypeOf((*BlessingsFlowMessage)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMissingSetupOption.ID), "{1:}{2:} missing required setup option{:3}.")

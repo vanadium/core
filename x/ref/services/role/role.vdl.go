@@ -10,13 +10,13 @@
 package role
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Const definitions
@@ -40,18 +40,18 @@ const RoleSuffix = "_role"
 // In order to avoid granting role blessings to all delegates of a principal,
 // the role server requires that each authorized blessing presented by the
 // client have the string "_role" as suffix.
-type RoleClientMethods interface {
+type RoleClientMethods interface { //nolint:golint
 	SeekBlessings(*context.T, ...rpc.CallOpt) (security.Blessings, error)
 }
 
 // RoleClientStub adds universal methods to RoleClientMethods.
-type RoleClientStub interface {
+type RoleClientStub interface { //nolint:golint
 	RoleClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // RoleClient returns a client stub for Role.
-func RoleClient(name string) RoleClientStub {
+func RoleClient(name string) RoleClientStub { //nolint:golint
 	return implRoleClientStub{name}
 }
 
@@ -76,7 +76,7 @@ func (c implRoleClientStub) SeekBlessings(ctx *context.T, opts ...rpc.CallOpt) (
 // In order to avoid granting role blessings to all delegates of a principal,
 // the role server requires that each authorized blessing presented by the
 // client have the string "_role" as suffix.
-type RoleServerMethods interface {
+type RoleServerMethods interface { //nolint:golint
 	SeekBlessings(*context.T, rpc.ServerCall) (security.Blessings, error)
 }
 
@@ -84,19 +84,20 @@ type RoleServerMethods interface {
 // Role methods, as expected by rpc.Server.
 // There is no difference between this interface and RoleServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type RoleServerStubMethods RoleServerMethods
 
 // RoleServerStub adds universal methods to RoleServerStubMethods.
-type RoleServerStub interface {
+type RoleServerStub interface { //nolint:golint
 	RoleServerStubMethods
-	// Describe the Role interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Role interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // RoleServer returns a server stub for Role.
 // It converts an implementation of RoleServerMethods into
 // an object that may be used by rpc.Server.
-func RoleServer(impl RoleServerMethods) RoleServerStub {
+func RoleServer(impl RoleServerMethods) RoleServerStub { //nolint:golint
 	stub := implRoleServerStub{
 		impl: impl,
 	}
@@ -123,7 +124,7 @@ func (s implRoleServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implRoleServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implRoleServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{RoleDesc}
 }
 
@@ -145,13 +146,13 @@ var descRole = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -160,11 +161,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

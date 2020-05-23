@@ -19,7 +19,7 @@
 package mounttable
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -27,7 +27,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -39,18 +39,18 @@ func (Tag) VDLReflect(struct {
 }) {
 }
 
-func (x Tag) VDLIsZero() bool {
+func (x Tag) VDLIsZero() bool { //nolint:gocyclo
 	return x == ""
 }
 
-func (x Tag) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_string_1, string(x)); err != nil {
+func (x Tag) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeString1, string(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Tag) VDLRead(dec vdl.Decoder) error {
+func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -94,7 +94,7 @@ const Resolve = Tag("Resolve")
 // MountTable defines the interface to talk to a mounttable.
 //
 // In all methods of MountTable, the receiver is the name bound to.
-type MountTableClientMethods interface {
+type MountTableClientMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -168,13 +168,13 @@ type MountTableClientMethods interface {
 }
 
 // MountTableClientStub adds universal methods to MountTableClientMethods.
-type MountTableClientStub interface {
+type MountTableClientStub interface { //nolint:golint
 	MountTableClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // MountTableClient returns a client stub for MountTable.
-func MountTableClient(name string) MountTableClientStub {
+func MountTableClient(name string) MountTableClientStub { //nolint:golint
 	return implMountTableClientStub{name, permissions.ObjectClient(name)}
 }
 
@@ -210,7 +210,7 @@ func (c implMountTableClientStub) ResolveStep(ctx *context.T, opts ...rpc.CallOp
 // MountTable defines the interface to talk to a mounttable.
 //
 // In all methods of MountTable, the receiver is the name bound to.
-type MountTableServerMethods interface {
+type MountTableServerMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -287,19 +287,20 @@ type MountTableServerMethods interface {
 // MountTable methods, as expected by rpc.Server.
 // There is no difference between this interface and MountTableServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type MountTableServerStubMethods MountTableServerMethods
 
 // MountTableServerStub adds universal methods to MountTableServerStubMethods.
-type MountTableServerStub interface {
+type MountTableServerStub interface { //nolint:golint
 	MountTableServerStubMethods
-	// Describe the MountTable interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the MountTable interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // MountTableServer returns a server stub for MountTable.
 // It converts an implementation of MountTableServerMethods into
 // an object that may be used by rpc.Server.
-func MountTableServer(impl MountTableServerMethods) MountTableServerStub {
+func MountTableServer(impl MountTableServerMethods) MountTableServerStub { //nolint:golint
 	stub := implMountTableServerStub{
 		impl:             impl,
 		ObjectServerStub: permissions.ObjectServer(impl),
@@ -340,7 +341,7 @@ func (s implMountTableServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implMountTableServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implMountTableServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{MountTableDesc, permissions.ObjectDesc}
 }
 
@@ -392,16 +393,16 @@ var descMountTable = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_string_1 *vdl.Type
+	vdlTypeString1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -410,17 +411,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Tag)(nil))
 
 	// Initialize type definitions.
-	__VDLType_string_1 = vdl.TypeOf((*Tag)(nil))
+	vdlTypeString1 = vdl.TypeOf((*Tag)(nil))
 
 	return struct{}{}
 }

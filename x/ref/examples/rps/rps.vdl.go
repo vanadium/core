@@ -27,7 +27,7 @@ import (
 	"fmt"
 	"io"
 	"time"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -35,7 +35,7 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -50,12 +50,12 @@ func (GameId) VDLReflect(struct {
 }) {
 }
 
-func (x GameId) VDLIsZero() bool {
+func (x GameId) VDLIsZero() bool { //nolint:gocyclo
 	return x == GameId{}
 }
 
-func (x GameId) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x GameId) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Id != "" {
@@ -69,9 +69,9 @@ func (x GameId) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *GameId) VDLRead(dec vdl.Decoder) error {
+func (x *GameId) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = GameId{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -83,8 +83,8 @@ func (x *GameId) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -92,8 +92,8 @@ func (x *GameId) VDLRead(dec vdl.Decoder) error {
 				continue
 			}
 		}
-		switch index {
-		case 0:
+		if index == 0 {
+
 			switch value, err := dec.ReadValueString(); {
 			case err != nil:
 				return err
@@ -111,18 +111,18 @@ func (GameTypeTag) VDLReflect(struct {
 }) {
 }
 
-func (x GameTypeTag) VDLIsZero() bool {
+func (x GameTypeTag) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x GameTypeTag) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_byte_2, uint64(x)); err != nil {
+func (x GameTypeTag) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeByte2, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *GameTypeTag) VDLRead(dec vdl.Decoder) error {
+func (x *GameTypeTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(8); {
 	case err != nil:
 		return err
@@ -143,12 +143,12 @@ func (GameOptions) VDLReflect(struct {
 }) {
 }
 
-func (x GameOptions) VDLIsZero() bool {
+func (x GameOptions) VDLIsZero() bool { //nolint:gocyclo
 	return x == GameOptions{}
 }
 
-func (x GameOptions) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x GameOptions) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.NumRounds != 0 {
@@ -157,7 +157,7 @@ func (x GameOptions) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.GameType != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_byte_2, uint64(x.GameType)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeByte2, uint64(x.GameType)); err != nil {
 			return err
 		}
 	}
@@ -167,9 +167,9 @@ func (x GameOptions) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *GameOptions) VDLRead(dec vdl.Decoder) error {
+func (x *GameOptions) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = GameOptions{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -181,8 +181,8 @@ func (x *GameOptions) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -218,12 +218,12 @@ func (Unused) VDLReflect(struct {
 }) {
 }
 
-func (x Unused) VDLIsZero() bool {
+func (x Unused) VDLIsZero() bool { //nolint:gocyclo
 	return x == Unused{}
 }
 
-func (x Unused) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x Unused) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -232,9 +232,9 @@ func (x Unused) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Unused) VDLRead(dec vdl.Decoder) error {
+func (x *Unused) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Unused{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -246,8 +246,8 @@ func (x *Unused) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -270,7 +270,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the PlayerAction union type.
-		VDLReflect(__PlayerActionReflect)
+		VDLReflect(vdlPlayerActionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -278,8 +278,8 @@ type (
 	PlayerActionMove struct{ Value string } // The move that the player wants to make.
 	// PlayerActionQuit represents field Quit of the PlayerAction union type.
 	PlayerActionQuit struct{ Value Unused } // Indicates that the player is quitting the game.
-	// __PlayerActionReflect describes the PlayerAction union type.
-	__PlayerActionReflect struct {
+	// vdlPlayerActionReflect describes the PlayerAction union type.
+	vdlPlayerActionReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/rps.PlayerAction"`
 		Type  PlayerAction
 		Union struct {
@@ -289,17 +289,17 @@ type (
 	}
 )
 
-func (x PlayerActionMove) Index() int                       { return 0 }
-func (x PlayerActionMove) Interface() interface{}           { return x.Value }
-func (x PlayerActionMove) Name() string                     { return "Move" }
-func (x PlayerActionMove) VDLReflect(__PlayerActionReflect) {}
+func (x PlayerActionMove) Index() int                        { return 0 }
+func (x PlayerActionMove) Interface() interface{}            { return x.Value }
+func (x PlayerActionMove) Name() string                      { return "Move" }
+func (x PlayerActionMove) VDLReflect(vdlPlayerActionReflect) {}
 
-func (x PlayerActionQuit) Index() int                       { return 1 }
-func (x PlayerActionQuit) Interface() interface{}           { return x.Value }
-func (x PlayerActionQuit) Name() string                     { return "Quit" }
-func (x PlayerActionQuit) VDLReflect(__PlayerActionReflect) {}
+func (x PlayerActionQuit) Index() int                        { return 1 }
+func (x PlayerActionQuit) Interface() interface{}            { return x.Value }
+func (x PlayerActionQuit) Name() string                      { return "Quit" }
+func (x PlayerActionQuit) VDLReflect(vdlPlayerActionReflect) {}
 
-func (x PlayerActionMove) VDLIsZero() bool {
+func (x PlayerActionMove) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value == ""
 }
 
@@ -307,8 +307,8 @@ func (x PlayerActionQuit) VDLIsZero() bool {
 	return false
 }
 
-func (x PlayerActionMove) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_5); err != nil {
+func (x PlayerActionMove) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion5); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueString(0, vdl.StringType, x.Value); err != nil {
@@ -320,8 +320,8 @@ func (x PlayerActionMove) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PlayerActionQuit) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_5); err != nil {
+func (x PlayerActionQuit) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion5); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -336,8 +336,8 @@ func (x PlayerActionQuit) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadPlayerAction(dec vdl.Decoder, x *PlayerAction) error {
-	if err := dec.StartValue(__VDLType_union_5); err != nil {
+func VDLReadPlayerAction(dec vdl.Decoder, x *PlayerAction) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion5); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -348,9 +348,9 @@ func VDLReadPlayerAction(dec vdl.Decoder, x *PlayerAction) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_5 {
+	if decType != vdlTypeUnion5 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_5.FieldIndexByName(name)
+		index = vdlTypeUnion5.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -388,12 +388,12 @@ func (PlayersMoves) VDLReflect(struct {
 }) {
 }
 
-func (x PlayersMoves) VDLIsZero() bool {
+func (x PlayersMoves) VDLIsZero() bool { //nolint:gocyclo
 	return x == PlayersMoves{}
 }
 
-func (x PlayersMoves) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_array_6); err != nil {
+func (x PlayersMoves) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeArray6); err != nil {
 		return err
 	}
 	for _, elem := range x {
@@ -407,8 +407,8 @@ func (x PlayersMoves) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *PlayersMoves) VDLRead(dec vdl.Decoder) error {
-	if err := dec.StartValue(__VDLType_array_6); err != nil {
+func (x *PlayersMoves) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeArray6); err != nil {
 		return err
 	}
 	for index := 0; index < 2; index++ {
@@ -439,18 +439,18 @@ func (WinnerTag) VDLReflect(struct {
 }) {
 }
 
-func (x WinnerTag) VDLIsZero() bool {
+func (x WinnerTag) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x WinnerTag) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_byte_7, uint64(x)); err != nil {
+func (x WinnerTag) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeByte7, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *WinnerTag) VDLRead(dec vdl.Decoder) error {
+func (x *WinnerTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(8); {
 	case err != nil:
 		return err
@@ -474,7 +474,7 @@ func (Round) VDLReflect(struct {
 }) {
 }
 
-func (x Round) VDLIsZero() bool {
+func (x Round) VDLIsZero() bool { //nolint:gocyclo
 	if x.Moves != (PlayersMoves{}) {
 		return false
 	}
@@ -493,8 +493,8 @@ func (x Round) VDLIsZero() bool {
 	return true
 }
 
-func (x Round) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_8); err != nil {
+func (x Round) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct8); err != nil {
 		return err
 	}
 	if x.Moves != (PlayersMoves{}) {
@@ -511,7 +511,7 @@ func (x Round) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Winner != 0 {
-		if err := enc.NextFieldValueUint(2, __VDLType_byte_7, uint64(x.Winner)); err != nil {
+		if err := enc.NextFieldValueUint(2, vdlTypeByte7, uint64(x.Winner)); err != nil {
 			return err
 		}
 	}
@@ -545,9 +545,9 @@ func (x Round) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Round) VDLRead(dec vdl.Decoder) error {
+func (x *Round) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Round{}
-	if err := dec.StartValue(__VDLType_struct_8); err != nil {
+	if err := dec.StartValue(vdlTypeStruct8); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -559,8 +559,8 @@ func (x *Round) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_8 {
-			index = __VDLType_struct_8.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct8 {
+			index = vdlTypeStruct8.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -622,7 +622,7 @@ func (ScoreCard) VDLReflect(struct {
 }) {
 }
 
-func (x ScoreCard) VDLIsZero() bool {
+func (x ScoreCard) VDLIsZero() bool { //nolint:gocyclo
 	if x.Opts != (GameOptions{}) {
 		return false
 	}
@@ -647,8 +647,8 @@ func (x ScoreCard) VDLIsZero() bool {
 	return true
 }
 
-func (x ScoreCard) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_10); err != nil {
+func (x ScoreCard) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct10); err != nil {
 		return err
 	}
 	if x.Opts != (GameOptions{}) {
@@ -668,7 +668,7 @@ func (x ScoreCard) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(2); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Players); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Players); err != nil {
 			return err
 		}
 	}
@@ -676,7 +676,7 @@ func (x ScoreCard) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(3); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.Rounds); err != nil {
+		if err := vdlWriteAnonList2(enc, x.Rounds); err != nil {
 			return err
 		}
 	}
@@ -705,7 +705,7 @@ func (x ScoreCard) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Winner != 0 {
-		if err := enc.NextFieldValueUint(6, __VDLType_byte_7, uint64(x.Winner)); err != nil {
+		if err := enc.NextFieldValueUint(6, vdlTypeByte7, uint64(x.Winner)); err != nil {
 			return err
 		}
 	}
@@ -715,8 +715,8 @@ func (x ScoreCard) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_11); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList11); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -733,8 +733,8 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []Round) error {
-	if err := enc.StartValue(__VDLType_list_12); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []Round) error {
+	if err := enc.StartValue(vdlTypeList12); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -754,9 +754,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []Round) error {
 	return enc.FinishValue()
 }
 
-func (x *ScoreCard) VDLRead(dec vdl.Decoder) error {
+func (x *ScoreCard) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = ScoreCard{}
-	if err := dec.StartValue(__VDLType_struct_10); err != nil {
+	if err := dec.StartValue(vdlTypeStruct10); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -768,8 +768,8 @@ func (x *ScoreCard) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_10 {
-			index = __VDLType_struct_10.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct10 {
+			index = vdlTypeStruct10.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -790,11 +790,11 @@ func (x *ScoreCard) VDLRead(dec vdl.Decoder) error {
 				x.Judge = value
 			}
 		case 2:
-			if err := __VDLReadAnon_list_1(dec, &x.Players); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Players); err != nil {
 				return err
 			}
 		case 3:
-			if err := __VDLReadAnon_list_2(dec, &x.Rounds); err != nil {
+			if err := vdlReadAnonList2(dec, &x.Rounds); err != nil {
 				return err
 			}
 		case 4:
@@ -824,8 +824,8 @@ func (x *ScoreCard) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_11); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList11); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -845,8 +845,8 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]Round) error {
-	if err := dec.StartValue(__VDLType_list_12); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]Round) error {
+	if err := dec.StartValue(vdlTypeList12); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -880,7 +880,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the JudgeAction union type.
-		VDLReflect(__JudgeActionReflect)
+		VDLReflect(vdlJudgeActionReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -894,8 +894,8 @@ type (
 	JudgeActionRoundResult struct{ Value Round } // The result of the previous round.
 	// JudgeActionScore represents field Score of the JudgeAction union type.
 	JudgeActionScore struct{ Value ScoreCard } // The result of the game.
-	// __JudgeActionReflect describes the JudgeAction union type.
-	__JudgeActionReflect struct {
+	// vdlJudgeActionReflect describes the JudgeAction union type.
+	vdlJudgeActionReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/rps.JudgeAction"`
 		Type  JudgeAction
 		Union struct {
@@ -908,32 +908,32 @@ type (
 	}
 )
 
-func (x JudgeActionPlayerNum) Index() int                      { return 0 }
-func (x JudgeActionPlayerNum) Interface() interface{}          { return x.Value }
-func (x JudgeActionPlayerNum) Name() string                    { return "PlayerNum" }
-func (x JudgeActionPlayerNum) VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionPlayerNum) Index() int                       { return 0 }
+func (x JudgeActionPlayerNum) Interface() interface{}           { return x.Value }
+func (x JudgeActionPlayerNum) Name() string                     { return "PlayerNum" }
+func (x JudgeActionPlayerNum) VDLReflect(vdlJudgeActionReflect) {}
 
-func (x JudgeActionOpponentName) Index() int                      { return 1 }
-func (x JudgeActionOpponentName) Interface() interface{}          { return x.Value }
-func (x JudgeActionOpponentName) Name() string                    { return "OpponentName" }
-func (x JudgeActionOpponentName) VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionOpponentName) Index() int                       { return 1 }
+func (x JudgeActionOpponentName) Interface() interface{}           { return x.Value }
+func (x JudgeActionOpponentName) Name() string                     { return "OpponentName" }
+func (x JudgeActionOpponentName) VDLReflect(vdlJudgeActionReflect) {}
 
-func (x JudgeActionMoveOptions) Index() int                      { return 2 }
-func (x JudgeActionMoveOptions) Interface() interface{}          { return x.Value }
-func (x JudgeActionMoveOptions) Name() string                    { return "MoveOptions" }
-func (x JudgeActionMoveOptions) VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionMoveOptions) Index() int                       { return 2 }
+func (x JudgeActionMoveOptions) Interface() interface{}           { return x.Value }
+func (x JudgeActionMoveOptions) Name() string                     { return "MoveOptions" }
+func (x JudgeActionMoveOptions) VDLReflect(vdlJudgeActionReflect) {}
 
-func (x JudgeActionRoundResult) Index() int                      { return 3 }
-func (x JudgeActionRoundResult) Interface() interface{}          { return x.Value }
-func (x JudgeActionRoundResult) Name() string                    { return "RoundResult" }
-func (x JudgeActionRoundResult) VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionRoundResult) Index() int                       { return 3 }
+func (x JudgeActionRoundResult) Interface() interface{}           { return x.Value }
+func (x JudgeActionRoundResult) Name() string                     { return "RoundResult" }
+func (x JudgeActionRoundResult) VDLReflect(vdlJudgeActionReflect) {}
 
-func (x JudgeActionScore) Index() int                      { return 4 }
-func (x JudgeActionScore) Interface() interface{}          { return x.Value }
-func (x JudgeActionScore) Name() string                    { return "Score" }
-func (x JudgeActionScore) VDLReflect(__JudgeActionReflect) {}
+func (x JudgeActionScore) Index() int                       { return 4 }
+func (x JudgeActionScore) Interface() interface{}           { return x.Value }
+func (x JudgeActionScore) Name() string                     { return "Score" }
+func (x JudgeActionScore) VDLReflect(vdlJudgeActionReflect) {}
 
-func (x JudgeActionPlayerNum) VDLIsZero() bool {
+func (x JudgeActionPlayerNum) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value == 0
 }
 
@@ -953,8 +953,8 @@ func (x JudgeActionScore) VDLIsZero() bool {
 	return false
 }
 
-func (x JudgeActionPlayerNum) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_13); err != nil {
+func (x JudgeActionPlayerNum) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueInt(0, vdl.Int32Type, int64(x.Value)); err != nil {
@@ -966,8 +966,8 @@ func (x JudgeActionPlayerNum) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x JudgeActionOpponentName) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_13); err != nil {
+func (x JudgeActionOpponentName) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueString(1, vdl.StringType, x.Value); err != nil {
@@ -979,14 +979,14 @@ func (x JudgeActionOpponentName) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x JudgeActionMoveOptions) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_13); err != nil {
+func (x JudgeActionMoveOptions) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
 		return err
 	}
-	if err := __VDLWriteAnon_list_1(enc, x.Value); err != nil {
+	if err := vdlWriteAnonList1(enc, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -995,8 +995,8 @@ func (x JudgeActionMoveOptions) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x JudgeActionRoundResult) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_13); err != nil {
+func (x JudgeActionRoundResult) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	if err := enc.NextField(3); err != nil {
@@ -1011,8 +1011,8 @@ func (x JudgeActionRoundResult) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x JudgeActionScore) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_13); err != nil {
+func (x JudgeActionScore) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	if err := enc.NextField(4); err != nil {
@@ -1027,8 +1027,8 @@ func (x JudgeActionScore) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadJudgeAction(dec vdl.Decoder, x *JudgeAction) error {
-	if err := dec.StartValue(__VDLType_union_13); err != nil {
+func VDLReadJudgeAction(dec vdl.Decoder, x *JudgeAction) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion13); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1039,9 +1039,9 @@ func VDLReadJudgeAction(dec vdl.Decoder, x *JudgeAction) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_13 {
+	if decType != vdlTypeUnion13 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_13.FieldIndexByName(name)
+		index = vdlTypeUnion13.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -1067,7 +1067,7 @@ func VDLReadJudgeAction(dec vdl.Decoder, x *JudgeAction) error {
 		*x = field
 	case 2:
 		var field JudgeActionMoveOptions
-		if err := __VDLReadAnon_list_1(dec, &field.Value); err != nil {
+		if err := vdlReadAnonList1(dec, &field.Value); err != nil {
 			return err
 		}
 		*x = field
@@ -1103,12 +1103,12 @@ func (PlayResult) VDLReflect(struct {
 }) {
 }
 
-func (x PlayResult) VDLIsZero() bool {
+func (x PlayResult) VDLIsZero() bool { //nolint:gocyclo
 	return x == PlayResult{}
 }
 
-func (x PlayResult) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_14); err != nil {
+func (x PlayResult) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	if x.YouWon {
@@ -1122,9 +1122,9 @@ func (x PlayResult) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *PlayResult) VDLRead(dec vdl.Decoder) error {
+func (x *PlayResult) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = PlayResult{}
-	if err := dec.StartValue(__VDLType_struct_14); err != nil {
+	if err := dec.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1136,8 +1136,8 @@ func (x *PlayResult) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_14 {
-			index = __VDLType_struct_14.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct14 {
+			index = vdlTypeStruct14.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1145,8 +1145,8 @@ func (x *PlayResult) VDLRead(dec vdl.Decoder) error {
 				continue
 			}
 		}
-		switch index {
-		case 0:
+		if index == 0 {
+
 			switch value, err := dec.ReadValueBool(); {
 			case err != nil:
 				return err
@@ -1171,7 +1171,7 @@ const Player2 = WinnerTag(2)
 
 // JudgeClientMethods is the client interface
 // containing Judge methods.
-type JudgeClientMethods interface {
+type JudgeClientMethods interface { //nolint:golint
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
 	CreateGame(_ *context.T, Opts GameOptions, _ ...rpc.CallOpt) (GameId, error)
@@ -1180,13 +1180,13 @@ type JudgeClientMethods interface {
 }
 
 // JudgeClientStub adds universal methods to JudgeClientMethods.
-type JudgeClientStub interface {
+type JudgeClientStub interface { //nolint:golint
 	JudgeClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // JudgeClient returns a client stub for Judge.
-func JudgeClient(name string) JudgeClientStub {
+func JudgeClient(name string) JudgeClientStub { //nolint:golint
 	return implJudgeClientStub{name}
 }
 
@@ -1209,7 +1209,7 @@ func (c implJudgeClientStub) Play(ctx *context.T, i0 GameId, opts ...rpc.CallOpt
 }
 
 // JudgePlayClientStream is the client stream for Judge.Play.
-type JudgePlayClientStream interface {
+type JudgePlayClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Judge.Play client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1242,7 +1242,7 @@ type JudgePlayClientStream interface {
 }
 
 // JudgePlayClientCall represents the call returned from Judge.Play.
-type JudgePlayClientCall interface {
+type JudgePlayClientCall interface { //nolint:golint
 	JudgePlayClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -1257,7 +1257,7 @@ type JudgePlayClientCall interface {
 	Finish() (PlayResult, error)
 }
 
-type implJudgePlayClientCall struct {
+type implJudgePlayClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv JudgeAction
 	errRecv error
@@ -1312,7 +1312,7 @@ func (c *implJudgePlayClientCall) Finish() (o0 PlayResult, err error) {
 
 // JudgeServerMethods is the interface a server writer
 // implements for Judge.
-type JudgeServerMethods interface {
+type JudgeServerMethods interface { //nolint:golint
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
 	CreateGame(_ *context.T, _ rpc.ServerCall, Opts GameOptions) (GameId, error)
@@ -1324,6 +1324,7 @@ type JudgeServerMethods interface {
 // Judge methods, as expected by rpc.Server.
 // The only difference between this interface and JudgeServerMethods
 // is the streaming methods.
+// nolint:golint
 type JudgeServerStubMethods interface {
 	// CreateGame creates a new game with the given game options and returns a game
 	// identifier that can be used by the players to join the game.
@@ -1333,16 +1334,16 @@ type JudgeServerStubMethods interface {
 }
 
 // JudgeServerStub adds universal methods to JudgeServerStubMethods.
-type JudgeServerStub interface {
+type JudgeServerStub interface { //nolint:golint
 	JudgeServerStubMethods
-	// Describe the Judge interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Judge interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // JudgeServer returns a server stub for Judge.
 // It converts an implementation of JudgeServerMethods into
 // an object that may be used by rpc.Server.
-func JudgeServer(impl JudgeServerMethods) JudgeServerStub {
+func JudgeServer(impl JudgeServerMethods) JudgeServerStub { //nolint:golint
 	stub := implJudgeServerStub{
 		impl: impl,
 	}
@@ -1373,7 +1374,7 @@ func (s implJudgeServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implJudgeServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implJudgeServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{JudgeDesc}
 }
 
@@ -1411,7 +1412,7 @@ var descJudge = rpc.InterfaceDesc{
 }
 
 // JudgePlayServerStream is the server stream for Judge.Play.
-type JudgePlayServerStream interface {
+type JudgePlayServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Judge.Play server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1434,14 +1435,14 @@ type JudgePlayServerStream interface {
 }
 
 // JudgePlayServerCall represents the context passed to Judge.Play.
-type JudgePlayServerCall interface {
+type JudgePlayServerCall interface { //nolint:golint
 	rpc.ServerCall
 	JudgePlayServerStream
 }
 
 // JudgePlayServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements JudgePlayServerCall.
-type JudgePlayServerCallStub struct {
+type JudgePlayServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv PlayerAction
 	errRecv error
@@ -1498,20 +1499,20 @@ func (s implJudgePlayServerCallSend) Send(item JudgeAction) error {
 // containing Player methods.
 //
 // Player can receive challenges from other players.
-type PlayerClientMethods interface {
+type PlayerClientMethods interface { //nolint:golint
 	// Challenge is used by other players to challenge this player to a game. If
 	// the challenge is accepted, the method returns nil.
 	Challenge(_ *context.T, Address string, Id GameId, Opts GameOptions, _ ...rpc.CallOpt) error
 }
 
 // PlayerClientStub adds universal methods to PlayerClientMethods.
-type PlayerClientStub interface {
+type PlayerClientStub interface { //nolint:golint
 	PlayerClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // PlayerClient returns a client stub for Player.
-func PlayerClient(name string) PlayerClientStub {
+func PlayerClient(name string) PlayerClientStub { //nolint:golint
 	return implPlayerClientStub{name}
 }
 
@@ -1528,7 +1529,7 @@ func (c implPlayerClientStub) Challenge(ctx *context.T, i0 string, i1 GameId, i2
 // implements for Player.
 //
 // Player can receive challenges from other players.
-type PlayerServerMethods interface {
+type PlayerServerMethods interface { //nolint:golint
 	// Challenge is used by other players to challenge this player to a game. If
 	// the challenge is accepted, the method returns nil.
 	Challenge(_ *context.T, _ rpc.ServerCall, Address string, Id GameId, Opts GameOptions) error
@@ -1538,19 +1539,20 @@ type PlayerServerMethods interface {
 // Player methods, as expected by rpc.Server.
 // There is no difference between this interface and PlayerServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type PlayerServerStubMethods PlayerServerMethods
 
 // PlayerServerStub adds universal methods to PlayerServerStubMethods.
-type PlayerServerStub interface {
+type PlayerServerStub interface { //nolint:golint
 	PlayerServerStubMethods
-	// Describe the Player interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Player interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // PlayerServer returns a server stub for Player.
 // It converts an implementation of PlayerServerMethods into
 // an object that may be used by rpc.Server.
-func PlayerServer(impl PlayerServerMethods) PlayerServerStub {
+func PlayerServer(impl PlayerServerMethods) PlayerServerStub { //nolint:golint
 	stub := implPlayerServerStub{
 		impl: impl,
 	}
@@ -1577,7 +1579,7 @@ func (s implPlayerServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implPlayerServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implPlayerServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{PlayerDesc}
 }
 
@@ -1607,18 +1609,18 @@ var descPlayer = rpc.InterfaceDesc{
 // containing ScoreKeeper methods.
 //
 // ScoreKeeper receives the outcome of games from Judges.
-type ScoreKeeperClientMethods interface {
+type ScoreKeeperClientMethods interface { //nolint:golint
 	Record(_ *context.T, Score ScoreCard, _ ...rpc.CallOpt) error
 }
 
 // ScoreKeeperClientStub adds universal methods to ScoreKeeperClientMethods.
-type ScoreKeeperClientStub interface {
+type ScoreKeeperClientStub interface { //nolint:golint
 	ScoreKeeperClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ScoreKeeperClient returns a client stub for ScoreKeeper.
-func ScoreKeeperClient(name string) ScoreKeeperClientStub {
+func ScoreKeeperClient(name string) ScoreKeeperClientStub { //nolint:golint
 	return implScoreKeeperClientStub{name}
 }
 
@@ -1635,7 +1637,7 @@ func (c implScoreKeeperClientStub) Record(ctx *context.T, i0 ScoreCard, opts ...
 // implements for ScoreKeeper.
 //
 // ScoreKeeper receives the outcome of games from Judges.
-type ScoreKeeperServerMethods interface {
+type ScoreKeeperServerMethods interface { //nolint:golint
 	Record(_ *context.T, _ rpc.ServerCall, Score ScoreCard) error
 }
 
@@ -1643,19 +1645,20 @@ type ScoreKeeperServerMethods interface {
 // ScoreKeeper methods, as expected by rpc.Server.
 // There is no difference between this interface and ScoreKeeperServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ScoreKeeperServerStubMethods ScoreKeeperServerMethods
 
 // ScoreKeeperServerStub adds universal methods to ScoreKeeperServerStubMethods.
-type ScoreKeeperServerStub interface {
+type ScoreKeeperServerStub interface { //nolint:golint
 	ScoreKeeperServerStubMethods
-	// Describe the ScoreKeeper interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the ScoreKeeper interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ScoreKeeperServer returns a server stub for ScoreKeeper.
 // It converts an implementation of ScoreKeeperServerMethods into
 // an object that may be used by rpc.Server.
-func ScoreKeeperServer(impl ScoreKeeperServerMethods) ScoreKeeperServerStub {
+func ScoreKeeperServer(impl ScoreKeeperServerMethods) ScoreKeeperServerStub { //nolint:golint
 	stub := implScoreKeeperServerStub{
 		impl: impl,
 	}
@@ -1682,7 +1685,7 @@ func (s implScoreKeeperServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implScoreKeeperServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implScoreKeeperServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ScoreKeeperDesc}
 }
 
@@ -1707,7 +1710,7 @@ var descScoreKeeper = rpc.InterfaceDesc{
 
 // RockPaperScissorsClientMethods is the client interface
 // containing RockPaperScissors methods.
-type RockPaperScissorsClientMethods interface {
+type RockPaperScissorsClientMethods interface { //nolint:golint
 	JudgeClientMethods
 	// Player can receive challenges from other players.
 	PlayerClientMethods
@@ -1716,13 +1719,13 @@ type RockPaperScissorsClientMethods interface {
 }
 
 // RockPaperScissorsClientStub adds universal methods to RockPaperScissorsClientMethods.
-type RockPaperScissorsClientStub interface {
+type RockPaperScissorsClientStub interface { //nolint:golint
 	RockPaperScissorsClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // RockPaperScissorsClient returns a client stub for RockPaperScissors.
-func RockPaperScissorsClient(name string) RockPaperScissorsClientStub {
+func RockPaperScissorsClient(name string) RockPaperScissorsClientStub { //nolint:golint
 	return implRockPaperScissorsClientStub{name, JudgeClient(name), PlayerClient(name), ScoreKeeperClient(name)}
 }
 
@@ -1736,7 +1739,7 @@ type implRockPaperScissorsClientStub struct {
 
 // RockPaperScissorsServerMethods is the interface a server writer
 // implements for RockPaperScissors.
-type RockPaperScissorsServerMethods interface {
+type RockPaperScissorsServerMethods interface { //nolint:golint
 	JudgeServerMethods
 	// Player can receive challenges from other players.
 	PlayerServerMethods
@@ -1748,6 +1751,7 @@ type RockPaperScissorsServerMethods interface {
 // RockPaperScissors methods, as expected by rpc.Server.
 // The only difference between this interface and RockPaperScissorsServerMethods
 // is the streaming methods.
+// nolint:golint
 type RockPaperScissorsServerStubMethods interface {
 	JudgeServerStubMethods
 	// Player can receive challenges from other players.
@@ -1757,16 +1761,16 @@ type RockPaperScissorsServerStubMethods interface {
 }
 
 // RockPaperScissorsServerStub adds universal methods to RockPaperScissorsServerStubMethods.
-type RockPaperScissorsServerStub interface {
+type RockPaperScissorsServerStub interface { //nolint:golint
 	RockPaperScissorsServerStubMethods
-	// Describe the RockPaperScissors interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the RockPaperScissors interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // RockPaperScissorsServer returns a server stub for RockPaperScissors.
 // It converts an implementation of RockPaperScissorsServerMethods into
 // an object that may be used by rpc.Server.
-func RockPaperScissorsServer(impl RockPaperScissorsServerMethods) RockPaperScissorsServerStub {
+func RockPaperScissorsServer(impl RockPaperScissorsServerMethods) RockPaperScissorsServerStub { //nolint:golint
 	stub := implRockPaperScissorsServerStub{
 		impl:                  impl,
 		JudgeServerStub:       JudgeServer(impl),
@@ -1795,7 +1799,7 @@ func (s implRockPaperScissorsServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implRockPaperScissorsServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implRockPaperScissorsServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{RockPaperScissorsDesc, JudgeDesc, PlayerDesc, ScoreKeeperDesc}
 }
 
@@ -1816,29 +1820,29 @@ var descRockPaperScissors = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1  *vdl.Type
-	__VDLType_byte_2    *vdl.Type
-	__VDLType_struct_3  *vdl.Type
-	__VDLType_struct_4  *vdl.Type
-	__VDLType_union_5   *vdl.Type
-	__VDLType_array_6   *vdl.Type
-	__VDLType_byte_7    *vdl.Type
-	__VDLType_struct_8  *vdl.Type
-	__VDLType_struct_9  *vdl.Type
-	__VDLType_struct_10 *vdl.Type
-	__VDLType_list_11   *vdl.Type
-	__VDLType_list_12   *vdl.Type
-	__VDLType_union_13  *vdl.Type
-	__VDLType_struct_14 *vdl.Type
+	vdlTypeStruct1  *vdl.Type
+	vdlTypeByte2    *vdl.Type
+	vdlTypeStruct3  *vdl.Type
+	vdlTypeStruct4  *vdl.Type
+	vdlTypeUnion5   *vdl.Type
+	vdlTypeArray6   *vdl.Type
+	vdlTypeByte7    *vdl.Type
+	vdlTypeStruct8  *vdl.Type
+	vdlTypeStruct9  *vdl.Type
+	vdlTypeStruct10 *vdl.Type
+	vdlTypeList11   *vdl.Type
+	vdlTypeList12   *vdl.Type
+	vdlTypeUnion13  *vdl.Type
+	vdlTypeStruct14 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1847,11 +1851,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*GameId)(nil))
@@ -1867,20 +1871,20 @@ func __VDLInit() struct{} {
 	vdl.Register((*PlayResult)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*GameId)(nil)).Elem()
-	__VDLType_byte_2 = vdl.TypeOf((*GameTypeTag)(nil))
-	__VDLType_struct_3 = vdl.TypeOf((*GameOptions)(nil)).Elem()
-	__VDLType_struct_4 = vdl.TypeOf((*Unused)(nil)).Elem()
-	__VDLType_union_5 = vdl.TypeOf((*PlayerAction)(nil))
-	__VDLType_array_6 = vdl.TypeOf((*PlayersMoves)(nil))
-	__VDLType_byte_7 = vdl.TypeOf((*WinnerTag)(nil))
-	__VDLType_struct_8 = vdl.TypeOf((*Round)(nil)).Elem()
-	__VDLType_struct_9 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
-	__VDLType_struct_10 = vdl.TypeOf((*ScoreCard)(nil)).Elem()
-	__VDLType_list_11 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_list_12 = vdl.TypeOf((*[]Round)(nil))
-	__VDLType_union_13 = vdl.TypeOf((*JudgeAction)(nil))
-	__VDLType_struct_14 = vdl.TypeOf((*PlayResult)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*GameId)(nil)).Elem()
+	vdlTypeByte2 = vdl.TypeOf((*GameTypeTag)(nil))
+	vdlTypeStruct3 = vdl.TypeOf((*GameOptions)(nil)).Elem()
+	vdlTypeStruct4 = vdl.TypeOf((*Unused)(nil)).Elem()
+	vdlTypeUnion5 = vdl.TypeOf((*PlayerAction)(nil))
+	vdlTypeArray6 = vdl.TypeOf((*PlayersMoves)(nil))
+	vdlTypeByte7 = vdl.TypeOf((*WinnerTag)(nil))
+	vdlTypeStruct8 = vdl.TypeOf((*Round)(nil)).Elem()
+	vdlTypeStruct9 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
+	vdlTypeStruct10 = vdl.TypeOf((*ScoreCard)(nil)).Elem()
+	vdlTypeList11 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeList12 = vdl.TypeOf((*[]Round)(nil))
+	vdlTypeUnion13 = vdl.TypeOf((*JudgeAction)(nil))
+	vdlTypeStruct14 = vdl.TypeOf((*PlayResult)(nil)).Elem()
 
 	return struct{}{}
 }

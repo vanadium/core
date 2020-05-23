@@ -12,7 +12,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -72,18 +72,18 @@ func (ControlKind) VDLReflect(struct {
 }) {
 }
 
-func (x ControlKind) VDLIsZero() bool {
+func (x ControlKind) VDLIsZero() bool { //nolint:gocyclo
 	return x == ControlKindNil
 }
 
-func (x ControlKind) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_1, x.String()); err != nil {
+func (x ControlKind) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum1, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *ControlKind) VDLRead(dec vdl.Decoder) error {
+func (x *ControlKind) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -108,7 +108,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the Primitive union type.
-		VDLReflect(__PrimitiveReflect)
+		VDLReflect(vdlPrimitiveReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -126,8 +126,8 @@ type (
 	PrimitivePString struct{ Value string }
 	// PrimitivePControl represents field PControl of the Primitive union type.
 	PrimitivePControl struct{ Value ControlKind }
-	// __PrimitiveReflect describes the Primitive union type.
-	__PrimitiveReflect struct {
+	// vdlPrimitiveReflect describes the Primitive union type.
+	vdlPrimitiveReflect struct {
 		Name  string `vdl:"v.io/v23/vom.Primitive"`
 		Type  Primitive
 		Union struct {
@@ -142,42 +142,42 @@ type (
 	}
 )
 
-func (x PrimitivePBool) Index() int                    { return 0 }
-func (x PrimitivePBool) Interface() interface{}        { return x.Value }
-func (x PrimitivePBool) Name() string                  { return "PBool" }
-func (x PrimitivePBool) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePBool) Index() int                     { return 0 }
+func (x PrimitivePBool) Interface() interface{}         { return x.Value }
+func (x PrimitivePBool) Name() string                   { return "PBool" }
+func (x PrimitivePBool) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePByte) Index() int                    { return 1 }
-func (x PrimitivePByte) Interface() interface{}        { return x.Value }
-func (x PrimitivePByte) Name() string                  { return "PByte" }
-func (x PrimitivePByte) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePByte) Index() int                     { return 1 }
+func (x PrimitivePByte) Interface() interface{}         { return x.Value }
+func (x PrimitivePByte) Name() string                   { return "PByte" }
+func (x PrimitivePByte) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePUint) Index() int                    { return 2 }
-func (x PrimitivePUint) Interface() interface{}        { return x.Value }
-func (x PrimitivePUint) Name() string                  { return "PUint" }
-func (x PrimitivePUint) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePUint) Index() int                     { return 2 }
+func (x PrimitivePUint) Interface() interface{}         { return x.Value }
+func (x PrimitivePUint) Name() string                   { return "PUint" }
+func (x PrimitivePUint) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePInt) Index() int                    { return 3 }
-func (x PrimitivePInt) Interface() interface{}        { return x.Value }
-func (x PrimitivePInt) Name() string                  { return "PInt" }
-func (x PrimitivePInt) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePInt) Index() int                     { return 3 }
+func (x PrimitivePInt) Interface() interface{}         { return x.Value }
+func (x PrimitivePInt) Name() string                   { return "PInt" }
+func (x PrimitivePInt) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePFloat) Index() int                    { return 4 }
-func (x PrimitivePFloat) Interface() interface{}        { return x.Value }
-func (x PrimitivePFloat) Name() string                  { return "PFloat" }
-func (x PrimitivePFloat) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePFloat) Index() int                     { return 4 }
+func (x PrimitivePFloat) Interface() interface{}         { return x.Value }
+func (x PrimitivePFloat) Name() string                   { return "PFloat" }
+func (x PrimitivePFloat) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePString) Index() int                    { return 5 }
-func (x PrimitivePString) Interface() interface{}        { return x.Value }
-func (x PrimitivePString) Name() string                  { return "PString" }
-func (x PrimitivePString) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePString) Index() int                     { return 5 }
+func (x PrimitivePString) Interface() interface{}         { return x.Value }
+func (x PrimitivePString) Name() string                   { return "PString" }
+func (x PrimitivePString) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePControl) Index() int                    { return 6 }
-func (x PrimitivePControl) Interface() interface{}        { return x.Value }
-func (x PrimitivePControl) Name() string                  { return "PControl" }
-func (x PrimitivePControl) VDLReflect(__PrimitiveReflect) {}
+func (x PrimitivePControl) Index() int                     { return 6 }
+func (x PrimitivePControl) Interface() interface{}         { return x.Value }
+func (x PrimitivePControl) Name() string                   { return "PControl" }
+func (x PrimitivePControl) VDLReflect(vdlPrimitiveReflect) {}
 
-func (x PrimitivePBool) VDLIsZero() bool {
+func (x PrimitivePBool) VDLIsZero() bool { //nolint:gocyclo
 	return !x.Value
 }
 
@@ -205,8 +205,8 @@ func (x PrimitivePControl) VDLIsZero() bool {
 	return false
 }
 
-func (x PrimitivePBool) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePBool) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueBool(0, vdl.BoolType, x.Value); err != nil {
@@ -218,8 +218,8 @@ func (x PrimitivePBool) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePByte) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePByte) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueUint(1, vdl.ByteType, uint64(x.Value)); err != nil {
@@ -231,8 +231,8 @@ func (x PrimitivePByte) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePUint) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePUint) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueUint(2, vdl.Uint64Type, x.Value); err != nil {
@@ -244,8 +244,8 @@ func (x PrimitivePUint) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePInt) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePInt) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueInt(3, vdl.Int64Type, x.Value); err != nil {
@@ -257,8 +257,8 @@ func (x PrimitivePInt) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePFloat) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePFloat) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueFloat(4, vdl.Float64Type, x.Value); err != nil {
@@ -270,8 +270,8 @@ func (x PrimitivePFloat) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePString) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePString) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	if err := enc.NextFieldValueString(5, vdl.StringType, x.Value); err != nil {
@@ -283,11 +283,11 @@ func (x PrimitivePString) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x PrimitivePControl) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_2); err != nil {
+func (x PrimitivePControl) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueString(6, __VDLType_enum_1, x.Value.String()); err != nil {
+	if err := enc.NextFieldValueString(6, vdlTypeEnum1, x.Value.String()); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -296,8 +296,8 @@ func (x PrimitivePControl) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadPrimitive(dec vdl.Decoder, x *Primitive) error {
-	if err := dec.StartValue(__VDLType_union_2); err != nil {
+func VDLReadPrimitive(dec vdl.Decoder, x *Primitive) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -308,9 +308,9 @@ func VDLReadPrimitive(dec vdl.Decoder, x *Primitive) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_2 {
+	if decType != vdlTypeUnion2 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_2.FieldIndexByName(name)
+		index = vdlTypeUnion2.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -518,18 +518,18 @@ func (DumpKind) VDLReflect(struct {
 }) {
 }
 
-func (x DumpKind) VDLIsZero() bool {
+func (x DumpKind) VDLIsZero() bool { //nolint:gocyclo
 	return x == DumpKindVersion
 }
 
-func (x DumpKind) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_3, x.String()); err != nil {
+func (x DumpKind) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum3, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *DumpKind) VDLRead(dec vdl.Decoder) error {
+func (x *DumpKind) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -555,7 +555,7 @@ func (DumpAtom) VDLReflect(struct {
 }) {
 }
 
-func (x DumpAtom) VDLIsZero() bool {
+func (x DumpAtom) VDLIsZero() bool { //nolint:gocyclo
 	if x.Kind != DumpKindVersion {
 		return false
 	}
@@ -571,17 +571,17 @@ func (x DumpAtom) VDLIsZero() bool {
 	return true
 }
 
-func (x DumpAtom) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x DumpAtom) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if x.Kind != DumpKindVersion {
-		if err := enc.NextFieldValueString(0, __VDLType_enum_3, x.Kind.String()); err != nil {
+		if err := enc.NextFieldValueString(0, vdlTypeEnum3, x.Kind.String()); err != nil {
 			return err
 		}
 	}
 	if len(x.Bytes) != 0 {
-		if err := enc.NextFieldValueBytes(1, __VDLType_list_5, x.Bytes); err != nil {
+		if err := enc.NextFieldValueBytes(1, vdlTypeList5, x.Bytes); err != nil {
 			return err
 		}
 	}
@@ -604,11 +604,11 @@ func (x DumpAtom) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *DumpAtom) VDLRead(dec vdl.Decoder) error {
+func (x *DumpAtom) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = DumpAtom{
 		Data: PrimitivePBool{},
 	}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -620,8 +620,8 @@ func (x *DumpAtom) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -666,18 +666,18 @@ func (Version) VDLReflect(struct {
 }) {
 }
 
-func (x Version) VDLIsZero() bool {
+func (x Version) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x Version) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_byte_6, uint64(x)); err != nil {
+func (x Version) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeByte6, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Version) VDLRead(dec vdl.Decoder) error {
+func (x *Version) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(8); {
 	case err != nil:
 		return err
@@ -695,18 +695,18 @@ func (TypeId) VDLReflect(struct {
 }) {
 }
 
-func (x TypeId) VDLIsZero() bool {
+func (x TypeId) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x TypeId) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_uint64_7, uint64(x)); err != nil {
+func (x TypeId) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeUint647, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *TypeId) VDLRead(dec vdl.Decoder) error {
+func (x *TypeId) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(64); {
 	case err != nil:
 		return err
@@ -727,12 +727,12 @@ func (wireNamed) VDLReflect(struct {
 }) {
 }
 
-func (x wireNamed) VDLIsZero() bool {
+func (x wireNamed) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireNamed{}
 }
 
-func (x wireNamed) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_8); err != nil {
+func (x wireNamed) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct8); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -741,7 +741,7 @@ func (x wireNamed) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Base != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Base)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Base)); err != nil {
 			return err
 		}
 	}
@@ -751,9 +751,9 @@ func (x wireNamed) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireNamed) VDLRead(dec vdl.Decoder) error {
+func (x *wireNamed) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireNamed{}
-	if err := dec.StartValue(__VDLType_struct_8); err != nil {
+	if err := dec.StartValue(vdlTypeStruct8); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -765,8 +765,8 @@ func (x *wireNamed) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_8 {
-			index = __VDLType_struct_8.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct8 {
+			index = vdlTypeStruct8.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -804,7 +804,7 @@ func (wireEnum) VDLReflect(struct {
 }) {
 }
 
-func (x wireEnum) VDLIsZero() bool {
+func (x wireEnum) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -814,8 +814,8 @@ func (x wireEnum) VDLIsZero() bool {
 	return true
 }
 
-func (x wireEnum) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_9); err != nil {
+func (x wireEnum) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct9); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -827,7 +827,7 @@ func (x wireEnum) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Labels); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Labels); err != nil {
 			return err
 		}
 	}
@@ -837,8 +837,8 @@ func (x wireEnum) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_10); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList10); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -855,9 +855,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *wireEnum) VDLRead(dec vdl.Decoder) error {
+func (x *wireEnum) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireEnum{}
-	if err := dec.StartValue(__VDLType_struct_9); err != nil {
+	if err := dec.StartValue(vdlTypeStruct9); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -869,8 +869,8 @@ func (x *wireEnum) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_9 {
-			index = __VDLType_struct_9.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct9 {
+			index = vdlTypeStruct9.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -887,15 +887,15 @@ func (x *wireEnum) VDLRead(dec vdl.Decoder) error {
 				x.Name = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_1(dec, &x.Labels); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Labels); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_10); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList10); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -927,12 +927,12 @@ func (wireArray) VDLReflect(struct {
 }) {
 }
 
-func (x wireArray) VDLIsZero() bool {
+func (x wireArray) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireArray{}
 }
 
-func (x wireArray) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_11); err != nil {
+func (x wireArray) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct11); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -941,7 +941,7 @@ func (x wireArray) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Elem != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Elem)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Elem)); err != nil {
 			return err
 		}
 	}
@@ -956,9 +956,9 @@ func (x wireArray) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireArray) VDLRead(dec vdl.Decoder) error {
+func (x *wireArray) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireArray{}
-	if err := dec.StartValue(__VDLType_struct_11); err != nil {
+	if err := dec.StartValue(vdlTypeStruct11); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -970,8 +970,8 @@ func (x *wireArray) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_11 {
-			index = __VDLType_struct_11.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct11 {
+			index = vdlTypeStruct11.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1016,12 +1016,12 @@ func (wireList) VDLReflect(struct {
 }) {
 }
 
-func (x wireList) VDLIsZero() bool {
+func (x wireList) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireList{}
 }
 
-func (x wireList) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_12); err != nil {
+func (x wireList) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct12); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1030,7 +1030,7 @@ func (x wireList) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Elem != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Elem)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Elem)); err != nil {
 			return err
 		}
 	}
@@ -1040,9 +1040,9 @@ func (x wireList) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireList) VDLRead(dec vdl.Decoder) error {
+func (x *wireList) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireList{}
-	if err := dec.StartValue(__VDLType_struct_12); err != nil {
+	if err := dec.StartValue(vdlTypeStruct12); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1054,8 +1054,8 @@ func (x *wireList) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_12 {
-			index = __VDLType_struct_12.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct12 {
+			index = vdlTypeStruct12.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1093,12 +1093,12 @@ func (wireSet) VDLReflect(struct {
 }) {
 }
 
-func (x wireSet) VDLIsZero() bool {
+func (x wireSet) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireSet{}
 }
 
-func (x wireSet) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_13); err != nil {
+func (x wireSet) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct13); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1107,7 +1107,7 @@ func (x wireSet) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Key != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Key)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Key)); err != nil {
 			return err
 		}
 	}
@@ -1117,9 +1117,9 @@ func (x wireSet) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireSet) VDLRead(dec vdl.Decoder) error {
+func (x *wireSet) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireSet{}
-	if err := dec.StartValue(__VDLType_struct_13); err != nil {
+	if err := dec.StartValue(vdlTypeStruct13); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1131,8 +1131,8 @@ func (x *wireSet) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_13 {
-			index = __VDLType_struct_13.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct13 {
+			index = vdlTypeStruct13.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1171,12 +1171,12 @@ func (wireMap) VDLReflect(struct {
 }) {
 }
 
-func (x wireMap) VDLIsZero() bool {
+func (x wireMap) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireMap{}
 }
 
-func (x wireMap) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_14); err != nil {
+func (x wireMap) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1185,12 +1185,12 @@ func (x wireMap) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Key != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Key)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Key)); err != nil {
 			return err
 		}
 	}
 	if x.Elem != 0 {
-		if err := enc.NextFieldValueUint(2, __VDLType_uint64_7, uint64(x.Elem)); err != nil {
+		if err := enc.NextFieldValueUint(2, vdlTypeUint647, uint64(x.Elem)); err != nil {
 			return err
 		}
 	}
@@ -1200,9 +1200,9 @@ func (x wireMap) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireMap) VDLRead(dec vdl.Decoder) error {
+func (x *wireMap) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireMap{}
-	if err := dec.StartValue(__VDLType_struct_14); err != nil {
+	if err := dec.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1214,8 +1214,8 @@ func (x *wireMap) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_14 {
-			index = __VDLType_struct_14.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct14 {
+			index = vdlTypeStruct14.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1260,12 +1260,12 @@ func (wireField) VDLReflect(struct {
 }) {
 }
 
-func (x wireField) VDLIsZero() bool {
+func (x wireField) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireField{}
 }
 
-func (x wireField) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_15); err != nil {
+func (x wireField) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct15); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1274,7 +1274,7 @@ func (x wireField) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Type != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Type)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Type)); err != nil {
 			return err
 		}
 	}
@@ -1284,9 +1284,9 @@ func (x wireField) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireField) VDLRead(dec vdl.Decoder) error {
+func (x *wireField) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireField{}
-	if err := dec.StartValue(__VDLType_struct_15); err != nil {
+	if err := dec.StartValue(vdlTypeStruct15); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1298,8 +1298,8 @@ func (x *wireField) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_15 {
-			index = __VDLType_struct_15.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct15 {
+			index = vdlTypeStruct15.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1337,7 +1337,7 @@ func (wireStruct) VDLReflect(struct {
 }) {
 }
 
-func (x wireStruct) VDLIsZero() bool {
+func (x wireStruct) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -1347,8 +1347,8 @@ func (x wireStruct) VDLIsZero() bool {
 	return true
 }
 
-func (x wireStruct) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_16); err != nil {
+func (x wireStruct) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct16); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1360,7 +1360,7 @@ func (x wireStruct) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.Fields); err != nil {
+		if err := vdlWriteAnonList2(enc, x.Fields); err != nil {
 			return err
 		}
 	}
@@ -1370,8 +1370,8 @@ func (x wireStruct) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []wireField) error {
-	if err := enc.StartValue(__VDLType_list_17); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []wireField) error {
+	if err := enc.StartValue(vdlTypeList17); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -1391,9 +1391,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []wireField) error {
 	return enc.FinishValue()
 }
 
-func (x *wireStruct) VDLRead(dec vdl.Decoder) error {
+func (x *wireStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireStruct{}
-	if err := dec.StartValue(__VDLType_struct_16); err != nil {
+	if err := dec.StartValue(vdlTypeStruct16); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1405,8 +1405,8 @@ func (x *wireStruct) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_16 {
-			index = __VDLType_struct_16.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct16 {
+			index = vdlTypeStruct16.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1423,15 +1423,15 @@ func (x *wireStruct) VDLRead(dec vdl.Decoder) error {
 				x.Name = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_2(dec, &x.Fields); err != nil {
+			if err := vdlReadAnonList2(dec, &x.Fields); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]wireField) error {
-	if err := dec.StartValue(__VDLType_list_17); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]wireField) error {
+	if err := dec.StartValue(vdlTypeList17); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -1466,7 +1466,7 @@ func (wireUnion) VDLReflect(struct {
 }) {
 }
 
-func (x wireUnion) VDLIsZero() bool {
+func (x wireUnion) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -1476,8 +1476,8 @@ func (x wireUnion) VDLIsZero() bool {
 	return true
 }
 
-func (x wireUnion) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_18); err != nil {
+func (x wireUnion) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct18); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1489,7 +1489,7 @@ func (x wireUnion) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.Fields); err != nil {
+		if err := vdlWriteAnonList2(enc, x.Fields); err != nil {
 			return err
 		}
 	}
@@ -1499,9 +1499,9 @@ func (x wireUnion) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireUnion) VDLRead(dec vdl.Decoder) error {
+func (x *wireUnion) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireUnion{}
-	if err := dec.StartValue(__VDLType_struct_18); err != nil {
+	if err := dec.StartValue(vdlTypeStruct18); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1513,8 +1513,8 @@ func (x *wireUnion) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_18 {
-			index = __VDLType_struct_18.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct18 {
+			index = vdlTypeStruct18.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1531,7 +1531,7 @@ func (x *wireUnion) VDLRead(dec vdl.Decoder) error {
 				x.Name = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_2(dec, &x.Fields); err != nil {
+			if err := vdlReadAnonList2(dec, &x.Fields); err != nil {
 				return err
 			}
 		}
@@ -1549,12 +1549,12 @@ func (wireOptional) VDLReflect(struct {
 }) {
 }
 
-func (x wireOptional) VDLIsZero() bool {
+func (x wireOptional) VDLIsZero() bool { //nolint:gocyclo
 	return x == wireOptional{}
 }
 
-func (x wireOptional) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_19); err != nil {
+func (x wireOptional) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct19); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -1563,7 +1563,7 @@ func (x wireOptional) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Elem != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_7, uint64(x.Elem)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint647, uint64(x.Elem)); err != nil {
 			return err
 		}
 	}
@@ -1573,9 +1573,9 @@ func (x wireOptional) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *wireOptional) VDLRead(dec vdl.Decoder) error {
+func (x *wireOptional) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = wireOptional{}
-	if err := dec.StartValue(__VDLType_struct_19); err != nil {
+	if err := dec.StartValue(vdlTypeStruct19); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1587,8 +1587,8 @@ func (x *wireOptional) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_19 {
-			index = __VDLType_struct_19.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct19 {
+			index = vdlTypeStruct19.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1631,7 +1631,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the wireType union type.
-		VDLReflect(__wireTypeReflect)
+		VDLReflect(vdlwireTypeReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -1655,8 +1655,8 @@ type (
 	wireTypeUnionT struct{ Value wireUnion } // INDEX = 7
 	// wireTypeOptionalT represents field OptionalT of the wireType union type.
 	wireTypeOptionalT struct{ Value wireOptional } // INDEX = 8
-	// __wireTypeReflect describes the wireType union type.
-	__wireTypeReflect struct {
+	// vdlwireTypeReflect describes the wireType union type.
+	vdlwireTypeReflect struct {
 		Name  string `vdl:"v.io/v23/vom.wireType"`
 		Type  wireType
 		Union struct {
@@ -1673,52 +1673,52 @@ type (
 	}
 )
 
-func (x wireTypeNamedT) Index() int                   { return 0 }
-func (x wireTypeNamedT) Interface() interface{}       { return x.Value }
-func (x wireTypeNamedT) Name() string                 { return "NamedT" }
-func (x wireTypeNamedT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeNamedT) Index() int                    { return 0 }
+func (x wireTypeNamedT) Interface() interface{}        { return x.Value }
+func (x wireTypeNamedT) Name() string                  { return "NamedT" }
+func (x wireTypeNamedT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeEnumT) Index() int                   { return 1 }
-func (x wireTypeEnumT) Interface() interface{}       { return x.Value }
-func (x wireTypeEnumT) Name() string                 { return "EnumT" }
-func (x wireTypeEnumT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeEnumT) Index() int                    { return 1 }
+func (x wireTypeEnumT) Interface() interface{}        { return x.Value }
+func (x wireTypeEnumT) Name() string                  { return "EnumT" }
+func (x wireTypeEnumT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeArrayT) Index() int                   { return 2 }
-func (x wireTypeArrayT) Interface() interface{}       { return x.Value }
-func (x wireTypeArrayT) Name() string                 { return "ArrayT" }
-func (x wireTypeArrayT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeArrayT) Index() int                    { return 2 }
+func (x wireTypeArrayT) Interface() interface{}        { return x.Value }
+func (x wireTypeArrayT) Name() string                  { return "ArrayT" }
+func (x wireTypeArrayT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeListT) Index() int                   { return 3 }
-func (x wireTypeListT) Interface() interface{}       { return x.Value }
-func (x wireTypeListT) Name() string                 { return "ListT" }
-func (x wireTypeListT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeListT) Index() int                    { return 3 }
+func (x wireTypeListT) Interface() interface{}        { return x.Value }
+func (x wireTypeListT) Name() string                  { return "ListT" }
+func (x wireTypeListT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeSetT) Index() int                   { return 4 }
-func (x wireTypeSetT) Interface() interface{}       { return x.Value }
-func (x wireTypeSetT) Name() string                 { return "SetT" }
-func (x wireTypeSetT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeSetT) Index() int                    { return 4 }
+func (x wireTypeSetT) Interface() interface{}        { return x.Value }
+func (x wireTypeSetT) Name() string                  { return "SetT" }
+func (x wireTypeSetT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeMapT) Index() int                   { return 5 }
-func (x wireTypeMapT) Interface() interface{}       { return x.Value }
-func (x wireTypeMapT) Name() string                 { return "MapT" }
-func (x wireTypeMapT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeMapT) Index() int                    { return 5 }
+func (x wireTypeMapT) Interface() interface{}        { return x.Value }
+func (x wireTypeMapT) Name() string                  { return "MapT" }
+func (x wireTypeMapT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeStructT) Index() int                   { return 6 }
-func (x wireTypeStructT) Interface() interface{}       { return x.Value }
-func (x wireTypeStructT) Name() string                 { return "StructT" }
-func (x wireTypeStructT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeStructT) Index() int                    { return 6 }
+func (x wireTypeStructT) Interface() interface{}        { return x.Value }
+func (x wireTypeStructT) Name() string                  { return "StructT" }
+func (x wireTypeStructT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeUnionT) Index() int                   { return 7 }
-func (x wireTypeUnionT) Interface() interface{}       { return x.Value }
-func (x wireTypeUnionT) Name() string                 { return "UnionT" }
-func (x wireTypeUnionT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeUnionT) Index() int                    { return 7 }
+func (x wireTypeUnionT) Interface() interface{}        { return x.Value }
+func (x wireTypeUnionT) Name() string                  { return "UnionT" }
+func (x wireTypeUnionT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeOptionalT) Index() int                   { return 8 }
-func (x wireTypeOptionalT) Interface() interface{}       { return x.Value }
-func (x wireTypeOptionalT) Name() string                 { return "OptionalT" }
-func (x wireTypeOptionalT) VDLReflect(__wireTypeReflect) {}
+func (x wireTypeOptionalT) Index() int                    { return 8 }
+func (x wireTypeOptionalT) Interface() interface{}        { return x.Value }
+func (x wireTypeOptionalT) Name() string                  { return "OptionalT" }
+func (x wireTypeOptionalT) VDLReflect(vdlwireTypeReflect) {}
 
-func (x wireTypeNamedT) VDLIsZero() bool {
+func (x wireTypeNamedT) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value == wireNamed{}
 }
 
@@ -1754,8 +1754,8 @@ func (x wireTypeOptionalT) VDLIsZero() bool {
 	return false
 }
 
-func (x wireTypeNamedT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeNamedT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -1770,8 +1770,8 @@ func (x wireTypeNamedT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeEnumT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeEnumT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -1786,8 +1786,8 @@ func (x wireTypeEnumT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeArrayT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeArrayT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
@@ -1802,8 +1802,8 @@ func (x wireTypeArrayT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeListT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeListT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(3); err != nil {
@@ -1818,8 +1818,8 @@ func (x wireTypeListT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeSetT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeSetT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(4); err != nil {
@@ -1834,8 +1834,8 @@ func (x wireTypeSetT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeMapT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeMapT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(5); err != nil {
@@ -1850,8 +1850,8 @@ func (x wireTypeMapT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeStructT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeStructT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(6); err != nil {
@@ -1866,8 +1866,8 @@ func (x wireTypeStructT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeUnionT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeUnionT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(7); err != nil {
@@ -1882,8 +1882,8 @@ func (x wireTypeUnionT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x wireTypeOptionalT) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_20); err != nil {
+func (x wireTypeOptionalT) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	if err := enc.NextField(8); err != nil {
@@ -1898,8 +1898,8 @@ func (x wireTypeOptionalT) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLRead_wireType(dec vdl.Decoder, x *wireType) error {
-	if err := dec.StartValue(__VDLType_union_20); err != nil {
+func vdlReadwireType(dec vdl.Decoder, x *wireType) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion20); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1910,9 +1910,9 @@ func __VDLRead_wireType(dec vdl.Decoder, x *wireType) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_20 {
+	if decType != vdlTypeUnion20 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_20.FieldIndexByName(name)
+		index = vdlTypeUnion20.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -2020,35 +2020,35 @@ const WireCtrlTypeIncomplete = byte(226) // Marks that the type message is incom
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_enum_1    *vdl.Type
-	__VDLType_union_2   *vdl.Type
-	__VDLType_enum_3    *vdl.Type
-	__VDLType_struct_4  *vdl.Type
-	__VDLType_list_5    *vdl.Type
-	__VDLType_byte_6    *vdl.Type
-	__VDLType_uint64_7  *vdl.Type
-	__VDLType_struct_8  *vdl.Type
-	__VDLType_struct_9  *vdl.Type
-	__VDLType_list_10   *vdl.Type
-	__VDLType_struct_11 *vdl.Type
-	__VDLType_struct_12 *vdl.Type
-	__VDLType_struct_13 *vdl.Type
-	__VDLType_struct_14 *vdl.Type
-	__VDLType_struct_15 *vdl.Type
-	__VDLType_struct_16 *vdl.Type
-	__VDLType_list_17   *vdl.Type
-	__VDLType_struct_18 *vdl.Type
-	__VDLType_struct_19 *vdl.Type
-	__VDLType_union_20  *vdl.Type
+	vdlTypeEnum1    *vdl.Type
+	vdlTypeUnion2   *vdl.Type
+	vdlTypeEnum3    *vdl.Type
+	vdlTypeStruct4  *vdl.Type
+	vdlTypeList5    *vdl.Type
+	vdlTypeByte6    *vdl.Type
+	vdlTypeUint647  *vdl.Type
+	vdlTypeStruct8  *vdl.Type
+	vdlTypeStruct9  *vdl.Type
+	vdlTypeList10   *vdl.Type
+	vdlTypeStruct11 *vdl.Type
+	vdlTypeStruct12 *vdl.Type
+	vdlTypeStruct13 *vdl.Type
+	vdlTypeStruct14 *vdl.Type
+	vdlTypeStruct15 *vdl.Type
+	vdlTypeStruct16 *vdl.Type
+	vdlTypeList17   *vdl.Type
+	vdlTypeStruct18 *vdl.Type
+	vdlTypeStruct19 *vdl.Type
+	vdlTypeUnion20  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -2057,11 +2057,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*ControlKind)(nil))
@@ -2083,26 +2083,26 @@ func __VDLInit() struct{} {
 	vdl.Register((*wireType)(nil))
 
 	// Initialize type definitions.
-	__VDLType_enum_1 = vdl.TypeOf((*ControlKind)(nil))
-	__VDLType_union_2 = vdl.TypeOf((*Primitive)(nil))
-	__VDLType_enum_3 = vdl.TypeOf((*DumpKind)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*DumpAtom)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_byte_6 = vdl.TypeOf((*Version)(nil))
-	__VDLType_uint64_7 = vdl.TypeOf((*TypeId)(nil))
-	__VDLType_struct_8 = vdl.TypeOf((*wireNamed)(nil)).Elem()
-	__VDLType_struct_9 = vdl.TypeOf((*wireEnum)(nil)).Elem()
-	__VDLType_list_10 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_struct_11 = vdl.TypeOf((*wireArray)(nil)).Elem()
-	__VDLType_struct_12 = vdl.TypeOf((*wireList)(nil)).Elem()
-	__VDLType_struct_13 = vdl.TypeOf((*wireSet)(nil)).Elem()
-	__VDLType_struct_14 = vdl.TypeOf((*wireMap)(nil)).Elem()
-	__VDLType_struct_15 = vdl.TypeOf((*wireField)(nil)).Elem()
-	__VDLType_struct_16 = vdl.TypeOf((*wireStruct)(nil)).Elem()
-	__VDLType_list_17 = vdl.TypeOf((*[]wireField)(nil))
-	__VDLType_struct_18 = vdl.TypeOf((*wireUnion)(nil)).Elem()
-	__VDLType_struct_19 = vdl.TypeOf((*wireOptional)(nil)).Elem()
-	__VDLType_union_20 = vdl.TypeOf((*wireType)(nil))
+	vdlTypeEnum1 = vdl.TypeOf((*ControlKind)(nil))
+	vdlTypeUnion2 = vdl.TypeOf((*Primitive)(nil))
+	vdlTypeEnum3 = vdl.TypeOf((*DumpKind)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*DumpAtom)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeByte6 = vdl.TypeOf((*Version)(nil))
+	vdlTypeUint647 = vdl.TypeOf((*TypeId)(nil))
+	vdlTypeStruct8 = vdl.TypeOf((*wireNamed)(nil)).Elem()
+	vdlTypeStruct9 = vdl.TypeOf((*wireEnum)(nil)).Elem()
+	vdlTypeList10 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeStruct11 = vdl.TypeOf((*wireArray)(nil)).Elem()
+	vdlTypeStruct12 = vdl.TypeOf((*wireList)(nil)).Elem()
+	vdlTypeStruct13 = vdl.TypeOf((*wireSet)(nil)).Elem()
+	vdlTypeStruct14 = vdl.TypeOf((*wireMap)(nil)).Elem()
+	vdlTypeStruct15 = vdl.TypeOf((*wireField)(nil)).Elem()
+	vdlTypeStruct16 = vdl.TypeOf((*wireStruct)(nil)).Elem()
+	vdlTypeList17 = vdl.TypeOf((*[]wireField)(nil))
+	vdlTypeStruct18 = vdl.TypeOf((*wireUnion)(nil)).Elem()
+	vdlTypeStruct19 = vdl.TypeOf((*wireOptional)(nil)).Elem()
+	vdlTypeUnion20 = vdl.TypeOf((*wireType)(nil))
 
 	return struct{}{}
 }

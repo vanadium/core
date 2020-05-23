@@ -10,30 +10,30 @@
 package exp
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // ExpClientMethods is the client interface
 // containing Exp methods.
-type ExpClientMethods interface {
+type ExpClientMethods interface { //nolint:golint
 	Exp(_ *context.T, x float64, _ ...rpc.CallOpt) (float64, error)
 }
 
 // ExpClientStub adds universal methods to ExpClientMethods.
-type ExpClientStub interface {
+type ExpClientStub interface { //nolint:golint
 	ExpClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ExpClient returns a client stub for Exp.
-func ExpClient(name string) ExpClientStub {
+func ExpClient(name string) ExpClientStub { //nolint:golint
 	return implExpClientStub{name}
 }
 
@@ -48,7 +48,7 @@ func (c implExpClientStub) Exp(ctx *context.T, i0 float64, opts ...rpc.CallOpt) 
 
 // ExpServerMethods is the interface a server writer
 // implements for Exp.
-type ExpServerMethods interface {
+type ExpServerMethods interface { //nolint:golint
 	Exp(_ *context.T, _ rpc.ServerCall, x float64) (float64, error)
 }
 
@@ -56,19 +56,20 @@ type ExpServerMethods interface {
 // Exp methods, as expected by rpc.Server.
 // There is no difference between this interface and ExpServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ExpServerStubMethods ExpServerMethods
 
 // ExpServerStub adds universal methods to ExpServerStubMethods.
-type ExpServerStub interface {
+type ExpServerStub interface { //nolint:golint
 	ExpServerStubMethods
-	// Describe the Exp interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Exp interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ExpServer returns a server stub for Exp.
 // It converts an implementation of ExpServerMethods into
 // an object that may be used by rpc.Server.
-func ExpServer(impl ExpServerMethods) ExpServerStub {
+func ExpServer(impl ExpServerMethods) ExpServerStub { //nolint:golint
 	stub := implExpServerStub{
 		impl: impl,
 	}
@@ -95,7 +96,7 @@ func (s implExpServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implExpServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implExpServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ExpDesc}
 }
 
@@ -119,13 +120,13 @@ var descExp = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -134,11 +135,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

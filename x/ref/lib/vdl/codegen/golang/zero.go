@@ -49,7 +49,7 @@ func (g *genIsZero) genDef(def *compile.TypeDef) string {
 	tt, arg := def.Type, namedArg{"x", false}
 	expr := g.ExprWire(returnEqZero, tt, arg, "")
 	return fmt.Sprintf(`
-func (x %[1]s) VDLIsZero() bool {
+func (x %[1]s) VDLIsZero() bool { //nolint:gocyclo
 	return %[2]s
 }
 `, def.Name, expr)
@@ -60,7 +60,7 @@ func (g *genIsZero) genArrayDef(def *compile.TypeDef) string {
 	elemArg := typedArg("elem", tt.Elem())
 	expr := g.Expr(ifNeZero, tt.Elem(), elemArg, "")
 	return fmt.Sprintf(`
-func (x %[1]s) VDLIsZero() bool {
+func (x %[1]s) VDLIsZero() bool { //nolint:gocyclo
 	for _, elem := range x {
 		if %[2]s {
 			return false
@@ -74,7 +74,7 @@ func (x %[1]s) VDLIsZero() bool {
 func (g *genIsZero) genStructDef(def *compile.TypeDef) string {
 	tt, arg := def.Type, namedArg{"x", false}
 	s := fmt.Sprintf(`
-func (x %[1]s) VDLIsZero() bool {`, def.Name)
+func (x %[1]s) VDLIsZero() bool { //nolint:gocyclo`, def.Name)
 	if tt.NumField() == 1 {
 		field := tt.Field(0)
 		expr := g.Expr(returnEqZero, field.Type, arg.Field(field), field.Name)
@@ -106,7 +106,7 @@ func (g *genIsZero) genUnionDef(def *compile.TypeDef) string {
 	fieldArg := typedArg("x.Value", field0.Type)
 	expr := g.Expr(returnEqZero, field0.Type, fieldArg, "")
 	s := fmt.Sprintf(`
-func (x %[1]s%[2]s) VDLIsZero() bool {
+func (x %[1]s%[2]s) VDLIsZero() bool { //nolint:gocyclo
 	return %[3]s
 }
 `, def.Name, field0.Name, expr)

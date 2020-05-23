@@ -12,21 +12,21 @@ package pprof
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // PProfClientMethods is the client interface
 // containing PProf methods.
-type PProfClientMethods interface {
+type PProfClientMethods interface { //nolint:golint
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
 	CmdLine(*context.T, ...rpc.CallOpt) ([]string, error)
@@ -47,13 +47,13 @@ type PProfClientMethods interface {
 }
 
 // PProfClientStub adds universal methods to PProfClientMethods.
-type PProfClientStub interface {
+type PProfClientStub interface { //nolint:golint
 	PProfClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // PProfClient returns a client stub for PProf.
-func PProfClient(name string) PProfClientStub {
+func PProfClient(name string) PProfClientStub { //nolint:golint
 	return implPProfClientStub{name}
 }
 
@@ -95,7 +95,7 @@ func (c implPProfClientStub) Symbol(ctx *context.T, i0 []uint64, opts ...rpc.Cal
 }
 
 // PProfProfileClientStream is the client stream for PProf.Profile.
-type PProfProfileClientStream interface {
+type PProfProfileClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the PProf.Profile client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -111,7 +111,7 @@ type PProfProfileClientStream interface {
 }
 
 // PProfProfileClientCall represents the call returned from PProf.Profile.
-type PProfProfileClientCall interface {
+type PProfProfileClientCall interface { //nolint:golint
 	PProfProfileClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -126,7 +126,7 @@ type PProfProfileClientCall interface {
 	Finish() error
 }
 
-type implPProfProfileClientCall struct {
+type implPProfProfileClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -163,7 +163,7 @@ func (c *implPProfProfileClientCall) Finish() (err error) {
 }
 
 // PProfCpuProfileClientStream is the client stream for PProf.CpuProfile.
-type PProfCpuProfileClientStream interface {
+type PProfCpuProfileClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the PProf.CpuProfile client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -179,7 +179,7 @@ type PProfCpuProfileClientStream interface {
 }
 
 // PProfCpuProfileClientCall represents the call returned from PProf.CpuProfile.
-type PProfCpuProfileClientCall interface {
+type PProfCpuProfileClientCall interface { //nolint:golint
 	PProfCpuProfileClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -194,7 +194,7 @@ type PProfCpuProfileClientCall interface {
 	Finish() error
 }
 
-type implPProfCpuProfileClientCall struct {
+type implPProfCpuProfileClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -232,7 +232,7 @@ func (c *implPProfCpuProfileClientCall) Finish() (err error) {
 
 // PProfServerMethods is the interface a server writer
 // implements for PProf.
-type PProfServerMethods interface {
+type PProfServerMethods interface { //nolint:golint
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
 	CmdLine(*context.T, rpc.ServerCall) ([]string, error)
@@ -256,6 +256,7 @@ type PProfServerMethods interface {
 // PProf methods, as expected by rpc.Server.
 // The only difference between this interface and PProfServerMethods
 // is the streaming methods.
+// nolint:golint
 type PProfServerStubMethods interface {
 	// CmdLine returns the command-line arguments of the server, including
 	// the name of the executable.
@@ -277,16 +278,16 @@ type PProfServerStubMethods interface {
 }
 
 // PProfServerStub adds universal methods to PProfServerStubMethods.
-type PProfServerStub interface {
+type PProfServerStub interface { //nolint:golint
 	PProfServerStubMethods
-	// Describe the PProf interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the PProf interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // PProfServer returns a server stub for PProf.
 // It converts an implementation of PProfServerMethods into
 // an object that may be used by rpc.Server.
-func PProfServer(impl PProfServerMethods) PProfServerStub {
+func PProfServer(impl PProfServerMethods) PProfServerStub { //nolint:golint
 	stub := implPProfServerStub{
 		impl: impl,
 	}
@@ -329,7 +330,7 @@ func (s implPProfServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implPProfServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implPProfServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{PProfDesc}
 }
 
@@ -389,7 +390,7 @@ var descPProf = rpc.InterfaceDesc{
 }
 
 // PProfProfileServerStream is the server stream for PProf.Profile.
-type PProfProfileServerStream interface {
+type PProfProfileServerStream interface { //nolint:golint
 	// SendStream returns the send side of the PProf.Profile server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -400,14 +401,14 @@ type PProfProfileServerStream interface {
 }
 
 // PProfProfileServerCall represents the context passed to PProf.Profile.
-type PProfProfileServerCall interface {
+type PProfProfileServerCall interface { //nolint:golint
 	rpc.ServerCall
 	PProfProfileServerStream
 }
 
 // PProfProfileServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements PProfProfileServerCall.
-type PProfProfileServerCallStub struct {
+type PProfProfileServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -432,7 +433,7 @@ func (s implPProfProfileServerCallSend) Send(item []byte) error {
 }
 
 // PProfCpuProfileServerStream is the server stream for PProf.CpuProfile.
-type PProfCpuProfileServerStream interface {
+type PProfCpuProfileServerStream interface { //nolint:golint
 	// SendStream returns the send side of the PProf.CpuProfile server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -443,14 +444,14 @@ type PProfCpuProfileServerStream interface {
 }
 
 // PProfCpuProfileServerCall represents the context passed to PProf.CpuProfile.
-type PProfCpuProfileServerCall interface {
+type PProfCpuProfileServerCall interface { //nolint:golint
 	rpc.ServerCall
 	PProfCpuProfileServerStream
 }
 
 // PProfCpuProfileServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements PProfCpuProfileServerCall.
-type PProfCpuProfileServerCallStub struct {
+type PProfCpuProfileServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -474,13 +475,13 @@ func (s implPProfCpuProfileServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -489,11 +490,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

@@ -10,14 +10,14 @@
 package permissions
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -69,7 +69,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 //    SetPermissions(perms access.Permissions, version string) error         {Red}
 //    GetPermissions() (perms access.Permissions, version string, err error) {Blue}
 //  }
-type ObjectClientMethods interface {
+type ObjectClientMethods interface { //nolint:golint
 	// SetPermissions replaces the current Permissions for an object.  version
 	// allows for optional, optimistic concurrency control.  If non-empty,
 	// version's value must come from GetPermissions.  If any client has
@@ -99,13 +99,13 @@ type ObjectClientMethods interface {
 }
 
 // ObjectClientStub adds universal methods to ObjectClientMethods.
-type ObjectClientStub interface {
+type ObjectClientStub interface { //nolint:golint
 	ObjectClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ObjectClient returns a client stub for Object.
-func ObjectClient(name string) ObjectClientStub {
+func ObjectClient(name string) ObjectClientStub { //nolint:golint
 	return implObjectClientStub{name}
 }
 
@@ -170,7 +170,7 @@ func (c implObjectClientStub) GetPermissions(ctx *context.T, opts ...rpc.CallOpt
 //    SetPermissions(perms access.Permissions, version string) error         {Red}
 //    GetPermissions() (perms access.Permissions, version string, err error) {Blue}
 //  }
-type ObjectServerMethods interface {
+type ObjectServerMethods interface { //nolint:golint
 	// SetPermissions replaces the current Permissions for an object.  version
 	// allows for optional, optimistic concurrency control.  If non-empty,
 	// version's value must come from GetPermissions.  If any client has
@@ -203,19 +203,20 @@ type ObjectServerMethods interface {
 // Object methods, as expected by rpc.Server.
 // There is no difference between this interface and ObjectServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ObjectServerStubMethods ObjectServerMethods
 
 // ObjectServerStub adds universal methods to ObjectServerStubMethods.
-type ObjectServerStub interface {
+type ObjectServerStub interface { //nolint:golint
 	ObjectServerStubMethods
-	// Describe the Object interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Object interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ObjectServer returns a server stub for Object.
 // It converts an implementation of ObjectServerMethods into
 // an object that may be used by rpc.Server.
-func ObjectServer(impl ObjectServerMethods) ObjectServerStub {
+func ObjectServer(impl ObjectServerMethods) ObjectServerStub { //nolint:golint
 	stub := implObjectServerStub{
 		impl: impl,
 	}
@@ -246,7 +247,7 @@ func (s implObjectServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implObjectServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implObjectServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ObjectDesc}
 }
 
@@ -280,13 +281,13 @@ var descObject = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -295,11 +296,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

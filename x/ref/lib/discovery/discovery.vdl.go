@@ -8,7 +8,7 @@
 package discovery
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/i18n"
@@ -18,7 +18,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -30,18 +30,18 @@ func (Uuid) VDLReflect(struct {
 }) {
 }
 
-func (x Uuid) VDLIsZero() bool {
+func (x Uuid) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x Uuid) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueBytes(__VDLType_list_1, []byte(x)); err != nil {
+func (x Uuid) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueBytes(vdlTypeList1, []byte(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Uuid) VDLRead(dec vdl.Decoder) error {
+func (x *Uuid) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	var bytes []byte
 	if err := dec.ReadValueBytes(-1, &bytes); err != nil {
 		return err
@@ -57,18 +57,18 @@ func (EncryptionAlgorithm) VDLReflect(struct {
 }) {
 }
 
-func (x EncryptionAlgorithm) VDLIsZero() bool {
+func (x EncryptionAlgorithm) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x EncryptionAlgorithm) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueInt(__VDLType_int32_2, int64(x)); err != nil {
+func (x EncryptionAlgorithm) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueInt(vdlTypeInt322, int64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *EncryptionAlgorithm) VDLRead(dec vdl.Decoder) error {
+func (x *EncryptionAlgorithm) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueInt(32); {
 	case err != nil:
 		return err
@@ -85,18 +85,18 @@ func (EncryptionKey) VDLReflect(struct {
 }) {
 }
 
-func (x EncryptionKey) VDLIsZero() bool {
+func (x EncryptionKey) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x EncryptionKey) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueBytes(__VDLType_list_3, []byte(x)); err != nil {
+func (x EncryptionKey) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueBytes(vdlTypeList3, []byte(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *EncryptionKey) VDLRead(dec vdl.Decoder) error {
+func (x *EncryptionKey) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	var bytes []byte
 	if err := dec.ReadValueBytes(-1, &bytes); err != nil {
 		return err
@@ -112,18 +112,18 @@ func (AdStatus) VDLReflect(struct {
 }) {
 }
 
-func (x AdStatus) VDLIsZero() bool {
+func (x AdStatus) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x AdStatus) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_byte_4, uint64(x)); err != nil {
+func (x AdStatus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeByte4, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *AdStatus) VDLRead(dec vdl.Decoder) error {
+func (x *AdStatus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(8); {
 	case err != nil:
 		return err
@@ -141,18 +141,18 @@ func (AdHash) VDLReflect(struct {
 }) {
 }
 
-func (x AdHash) VDLIsZero() bool {
+func (x AdHash) VDLIsZero() bool { //nolint:gocyclo
 	return x == AdHash{}
 }
 
-func (x AdHash) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueBytes(__VDLType_array_5, x[:]); err != nil {
+func (x AdHash) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueBytes(vdlTypeArray5, x[:]); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *AdHash) VDLRead(dec vdl.Decoder) error {
+func (x *AdHash) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	bytes := x[:]
 	if err := dec.ReadValueBytes(8, &bytes); err != nil {
 		return err
@@ -188,7 +188,7 @@ func (AdInfo) VDLReflect(struct {
 }) {
 }
 
-func (x AdInfo) VDLIsZero() bool {
+func (x AdInfo) VDLIsZero() bool { //nolint:gocyclo
 	if !x.Ad.VDLIsZero() {
 		return false
 	}
@@ -216,8 +216,8 @@ func (x AdInfo) VDLIsZero() bool {
 	return true
 }
 
-func (x AdInfo) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_6); err != nil {
+func (x AdInfo) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	if !x.Ad.VDLIsZero() {
@@ -229,7 +229,7 @@ func (x AdInfo) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.EncryptionAlgorithm != 0 {
-		if err := enc.NextFieldValueInt(1, __VDLType_int32_2, int64(x.EncryptionAlgorithm)); err != nil {
+		if err := enc.NextFieldValueInt(1, vdlTypeInt322, int64(x.EncryptionAlgorithm)); err != nil {
 			return err
 		}
 	}
@@ -237,12 +237,12 @@ func (x AdInfo) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(2); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.EncryptionKeys); err != nil {
+		if err := vdlWriteAnonList1(enc, x.EncryptionKeys); err != nil {
 			return err
 		}
 	}
 	if x.Hash != (AdHash{}) {
-		if err := enc.NextFieldValueBytes(3, __VDLType_array_5, x.Hash[:]); err != nil {
+		if err := enc.NextFieldValueBytes(3, vdlTypeArray5, x.Hash[:]); err != nil {
 			return err
 		}
 	}
@@ -255,12 +255,12 @@ func (x AdInfo) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(5); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_2(enc, x.DirAddrs); err != nil {
+		if err := vdlWriteAnonList2(enc, x.DirAddrs); err != nil {
 			return err
 		}
 	}
 	if x.Status != 0 {
-		if err := enc.NextFieldValueUint(6, __VDLType_byte_4, uint64(x.Status)); err != nil {
+		if err := enc.NextFieldValueUint(6, vdlTypeByte4, uint64(x.Status)); err != nil {
 			return err
 		}
 	}
@@ -275,15 +275,15 @@ func (x AdInfo) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []EncryptionKey) error {
-	if err := enc.StartValue(__VDLType_list_8); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []EncryptionKey) error {
+	if err := enc.StartValue(vdlTypeList8); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
 		return err
 	}
 	for _, elem := range x {
-		if err := enc.NextEntryValueBytes(__VDLType_list_3, []byte(elem)); err != nil {
+		if err := enc.NextEntryValueBytes(vdlTypeList3, []byte(elem)); err != nil {
 			return err
 		}
 	}
@@ -293,8 +293,8 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []EncryptionKey) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_2(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_9); err != nil {
+func vdlWriteAnonList2(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList9); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -311,9 +311,9 @@ func __VDLWriteAnon_list_2(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *AdInfo) VDLRead(dec vdl.Decoder) error {
+func (x *AdInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = AdInfo{}
-	if err := dec.StartValue(__VDLType_struct_6); err != nil {
+	if err := dec.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -325,8 +325,8 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_6 {
-			index = __VDLType_struct_6.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct6 {
+			index = vdlTypeStruct6.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -347,7 +347,7 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error {
 				x.EncryptionAlgorithm = EncryptionAlgorithm(value)
 			}
 		case 2:
-			if err := __VDLReadAnon_list_1(dec, &x.EncryptionKeys); err != nil {
+			if err := vdlReadAnonList1(dec, &x.EncryptionKeys); err != nil {
 				return err
 			}
 		case 3:
@@ -363,7 +363,7 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error {
 				x.TimestampNs = value
 			}
 		case 5:
-			if err := __VDLReadAnon_list_2(dec, &x.DirAddrs); err != nil {
+			if err := vdlReadAnonList2(dec, &x.DirAddrs); err != nil {
 				return err
 			}
 		case 6:
@@ -384,8 +384,8 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]EncryptionKey) error {
-	if err := dec.StartValue(__VDLType_list_8); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]EncryptionKey) error {
+	if err := dec.StartValue(vdlTypeList8); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -411,8 +411,8 @@ func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]EncryptionKey) error {
 	}
 }
 
-func __VDLReadAnon_list_2(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_9); err != nil {
+func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList9); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -497,7 +497,7 @@ func NewErrTooManyPlugins(ctx *context.T, actual int32, limit int32) error {
 // containing Directory methods.
 //
 // Directory is the interface for advertisement directory service.
-type DirectoryClientMethods interface {
+type DirectoryClientMethods interface { //nolint:golint
 	// Lookup returns the advertisement of the given service instance.
 	//
 	// The returned advertisement may not include all attachments.
@@ -510,13 +510,13 @@ type DirectoryClientMethods interface {
 }
 
 // DirectoryClientStub adds universal methods to DirectoryClientMethods.
-type DirectoryClientStub interface {
+type DirectoryClientStub interface { //nolint:golint
 	DirectoryClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // DirectoryClient returns a client stub for Directory.
-func DirectoryClient(name string) DirectoryClientStub {
+func DirectoryClient(name string) DirectoryClientStub { //nolint:golint
 	return implDirectoryClientStub{name}
 }
 
@@ -538,7 +538,7 @@ func (c implDirectoryClientStub) GetAttachment(ctx *context.T, i0 discovery.AdId
 // implements for Directory.
 //
 // Directory is the interface for advertisement directory service.
-type DirectoryServerMethods interface {
+type DirectoryServerMethods interface { //nolint:golint
 	// Lookup returns the advertisement of the given service instance.
 	//
 	// The returned advertisement may not include all attachments.
@@ -554,19 +554,20 @@ type DirectoryServerMethods interface {
 // Directory methods, as expected by rpc.Server.
 // There is no difference between this interface and DirectoryServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type DirectoryServerStubMethods DirectoryServerMethods
 
 // DirectoryServerStub adds universal methods to DirectoryServerStubMethods.
-type DirectoryServerStub interface {
+type DirectoryServerStub interface { //nolint:golint
 	DirectoryServerStubMethods
-	// Describe the Directory interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Directory interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // DirectoryServer returns a server stub for Directory.
 // It converts an implementation of DirectoryServerMethods into
 // an object that may be used by rpc.Server.
-func DirectoryServer(impl DirectoryServerMethods) DirectoryServerStub {
+func DirectoryServer(impl DirectoryServerMethods) DirectoryServerStub { //nolint:golint
 	stub := implDirectoryServerStub{
 		impl: impl,
 	}
@@ -597,7 +598,7 @@ func (s implDirectoryServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implDirectoryServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implDirectoryServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{DirectoryDesc}
 }
 
@@ -639,24 +640,24 @@ var descDirectory = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_list_1   *vdl.Type
-	__VDLType_int32_2  *vdl.Type
-	__VDLType_list_3   *vdl.Type
-	__VDLType_byte_4   *vdl.Type
-	__VDLType_array_5  *vdl.Type
-	__VDLType_struct_6 *vdl.Type
-	__VDLType_struct_7 *vdl.Type
-	__VDLType_list_8   *vdl.Type
-	__VDLType_list_9   *vdl.Type
+	vdlTypeList1   *vdl.Type
+	vdlTypeInt322  *vdl.Type
+	vdlTypeList3   *vdl.Type
+	vdlTypeByte4   *vdl.Type
+	vdlTypeArray5  *vdl.Type
+	vdlTypeStruct6 *vdl.Type
+	vdlTypeStruct7 *vdl.Type
+	vdlTypeList8   *vdl.Type
+	vdlTypeList9   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -665,11 +666,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Uuid)(nil))
@@ -680,15 +681,15 @@ func __VDLInit() struct{} {
 	vdl.Register((*AdInfo)(nil))
 
 	// Initialize type definitions.
-	__VDLType_list_1 = vdl.TypeOf((*Uuid)(nil))
-	__VDLType_int32_2 = vdl.TypeOf((*EncryptionAlgorithm)(nil))
-	__VDLType_list_3 = vdl.TypeOf((*EncryptionKey)(nil))
-	__VDLType_byte_4 = vdl.TypeOf((*AdStatus)(nil))
-	__VDLType_array_5 = vdl.TypeOf((*AdHash)(nil))
-	__VDLType_struct_6 = vdl.TypeOf((*AdInfo)(nil)).Elem()
-	__VDLType_struct_7 = vdl.TypeOf((*discovery.Advertisement)(nil)).Elem()
-	__VDLType_list_8 = vdl.TypeOf((*[]EncryptionKey)(nil))
-	__VDLType_list_9 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeList1 = vdl.TypeOf((*Uuid)(nil))
+	vdlTypeInt322 = vdl.TypeOf((*EncryptionAlgorithm)(nil))
+	vdlTypeList3 = vdl.TypeOf((*EncryptionKey)(nil))
+	vdlTypeByte4 = vdl.TypeOf((*AdStatus)(nil))
+	vdlTypeArray5 = vdl.TypeOf((*AdHash)(nil))
+	vdlTypeStruct6 = vdl.TypeOf((*AdInfo)(nil)).Elem()
+	vdlTypeStruct7 = vdl.TypeOf((*discovery.Advertisement)(nil)).Elem()
+	vdlTypeList8 = vdl.TypeOf((*[]EncryptionKey)(nil))
+	vdlTypeList9 = vdl.TypeOf((*[]string)(nil))
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAdvertisementNotFound.ID), "{1:}{2:} advertisement not found: {3}")

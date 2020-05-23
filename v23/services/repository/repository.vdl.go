@@ -11,7 +11,7 @@ package repository
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -22,7 +22,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -38,12 +38,12 @@ func (MediaInfo) VDLReflect(struct {
 }) {
 }
 
-func (x MediaInfo) VDLIsZero() bool {
+func (x MediaInfo) VDLIsZero() bool { //nolint:gocyclo
 	return x == MediaInfo{}
 }
 
-func (x MediaInfo) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x MediaInfo) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Type != "" {
@@ -62,9 +62,9 @@ func (x MediaInfo) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *MediaInfo) VDLRead(dec vdl.Decoder) error {
+func (x *MediaInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = MediaInfo{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -76,8 +76,8 @@ func (x *MediaInfo) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -120,7 +120,7 @@ func (x *MediaInfo) VDLRead(dec vdl.Decoder) error {
 //   returns an application envelope that can be used for downloading
 //   and executing the "search" application, version "v1", runnable
 //   on either the "base" or "media" profile.
-type ApplicationClientMethods interface {
+type ApplicationClientMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -183,13 +183,13 @@ type ApplicationClientMethods interface {
 }
 
 // ApplicationClientStub adds universal methods to ApplicationClientMethods.
-type ApplicationClientStub interface {
+type ApplicationClientStub interface { //nolint:golint
 	ApplicationClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ApplicationClient returns a client stub for Application.
-func ApplicationClient(name string) ApplicationClientStub {
+func ApplicationClient(name string) ApplicationClientStub { //nolint:golint
 	return implApplicationClientStub{name, permissions.ObjectClient(name), tidyable.TidyableClient(name)}
 }
 
@@ -218,7 +218,7 @@ func (c implApplicationClientStub) Match(ctx *context.T, i0 []string, opts ...rp
 //   returns an application envelope that can be used for downloading
 //   and executing the "search" application, version "v1", runnable
 //   on either the "base" or "media" profile.
-type ApplicationServerMethods interface {
+type ApplicationServerMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -284,19 +284,20 @@ type ApplicationServerMethods interface {
 // Application methods, as expected by rpc.Server.
 // There is no difference between this interface and ApplicationServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ApplicationServerStubMethods ApplicationServerMethods
 
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
-type ApplicationServerStub interface {
+type ApplicationServerStub interface { //nolint:golint
 	ApplicationServerStubMethods
-	// Describe the Application interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Application interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ApplicationServer returns a server stub for Application.
 // It converts an implementation of ApplicationServerMethods into
 // an object that may be used by rpc.Server.
-func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub {
+func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub { //nolint:golint
 	stub := implApplicationServerStub{
 		impl:               impl,
 		ObjectServerStub:   permissions.ObjectServer(impl),
@@ -327,7 +328,7 @@ func (s implApplicationServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ApplicationDesc, permissions.ObjectDesc, tidyable.TidyableDesc}
 }
 
@@ -380,7 +381,7 @@ var descApplication = rpc.InterfaceDesc{
 // method.
 //
 // To delete the binary, clients invoke the Delete() method.
-type BinaryClientMethods interface {
+type BinaryClientMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -462,13 +463,13 @@ type BinaryClientMethods interface {
 }
 
 // BinaryClientStub adds universal methods to BinaryClientMethods.
-type BinaryClientStub interface {
+type BinaryClientStub interface { //nolint:golint
 	BinaryClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BinaryClient returns a client stub for Binary.
-func BinaryClient(name string) BinaryClientStub {
+func BinaryClient(name string) BinaryClientStub { //nolint:golint
 	return implBinaryClientStub{name, permissions.ObjectClient(name)}
 }
 
@@ -517,7 +518,7 @@ func (c implBinaryClientStub) Upload(ctx *context.T, i0 int32, opts ...rpc.CallO
 }
 
 // BinaryDownloadClientStream is the client stream for Binary.Download.
-type BinaryDownloadClientStream interface {
+type BinaryDownloadClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Binary.Download client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -533,7 +534,7 @@ type BinaryDownloadClientStream interface {
 }
 
 // BinaryDownloadClientCall represents the call returned from Binary.Download.
-type BinaryDownloadClientCall interface {
+type BinaryDownloadClientCall interface { //nolint:golint
 	BinaryDownloadClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -548,7 +549,7 @@ type BinaryDownloadClientCall interface {
 	Finish() error
 }
 
-type implBinaryDownloadClientCall struct {
+type implBinaryDownloadClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -585,7 +586,7 @@ func (c *implBinaryDownloadClientCall) Finish() (err error) {
 }
 
 // BinaryUploadClientStream is the client stream for Binary.Upload.
-type BinaryUploadClientStream interface {
+type BinaryUploadClientStream interface { //nolint:golint
 	// SendStream returns the send side of the Binary.Upload client stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors
@@ -606,7 +607,7 @@ type BinaryUploadClientStream interface {
 }
 
 // BinaryUploadClientCall represents the call returned from Binary.Upload.
-type BinaryUploadClientCall interface {
+type BinaryUploadClientCall interface { //nolint:golint
 	BinaryUploadClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -621,7 +622,7 @@ type BinaryUploadClientCall interface {
 	Finish() error
 }
 
-type implBinaryUploadClientCall struct {
+type implBinaryUploadClientCall struct { //nolint:golint
 	rpc.ClientCall
 }
 
@@ -669,7 +670,7 @@ func (c *implBinaryUploadClientCall) Finish() (err error) {
 // method.
 //
 // To delete the binary, clients invoke the Delete() method.
-type BinaryServerMethods interface {
+type BinaryServerMethods interface { //nolint:golint
 	// Object provides access control for Vanadium objects.
 	//
 	// Vanadium services implementing dynamic access control would typically embed
@@ -754,6 +755,7 @@ type BinaryServerMethods interface {
 // Binary methods, as expected by rpc.Server.
 // The only difference between this interface and BinaryServerMethods
 // is the streaming methods.
+// nolint:golint
 type BinaryServerStubMethods interface {
 	// Object provides access control for Vanadium objects.
 	//
@@ -836,16 +838,16 @@ type BinaryServerStubMethods interface {
 }
 
 // BinaryServerStub adds universal methods to BinaryServerStubMethods.
-type BinaryServerStub interface {
+type BinaryServerStub interface { //nolint:golint
 	BinaryServerStubMethods
-	// Describe the Binary interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Binary interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // BinaryServer returns a server stub for Binary.
 // It converts an implementation of BinaryServerMethods into
 // an object that may be used by rpc.Server.
-func BinaryServer(impl BinaryServerMethods) BinaryServerStub {
+func BinaryServer(impl BinaryServerMethods) BinaryServerStub { //nolint:golint
 	stub := implBinaryServerStub{
 		impl:             impl,
 		ObjectServerStub: permissions.ObjectServer(impl),
@@ -894,7 +896,7 @@ func (s implBinaryServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBinaryServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implBinaryServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{BinaryDesc, permissions.ObjectDesc}
 }
 
@@ -962,7 +964,7 @@ var descBinary = rpc.InterfaceDesc{
 }
 
 // BinaryDownloadServerStream is the server stream for Binary.Download.
-type BinaryDownloadServerStream interface {
+type BinaryDownloadServerStream interface { //nolint:golint
 	// SendStream returns the send side of the Binary.Download server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -973,14 +975,14 @@ type BinaryDownloadServerStream interface {
 }
 
 // BinaryDownloadServerCall represents the context passed to Binary.Download.
-type BinaryDownloadServerCall interface {
+type BinaryDownloadServerCall interface { //nolint:golint
 	rpc.ServerCall
 	BinaryDownloadServerStream
 }
 
 // BinaryDownloadServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BinaryDownloadServerCall.
-type BinaryDownloadServerCallStub struct {
+type BinaryDownloadServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -1005,7 +1007,7 @@ func (s implBinaryDownloadServerCallSend) Send(item []byte) error {
 }
 
 // BinaryUploadServerStream is the server stream for Binary.Upload.
-type BinaryUploadServerStream interface {
+type BinaryUploadServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Binary.Upload server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -1021,14 +1023,14 @@ type BinaryUploadServerStream interface {
 }
 
 // BinaryUploadServerCall represents the context passed to Binary.Upload.
-type BinaryUploadServerCall interface {
+type BinaryUploadServerCall interface { //nolint:golint
 	rpc.ServerCall
 	BinaryUploadServerStream
 }
 
 // BinaryUploadServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BinaryUploadServerCall.
-type BinaryUploadServerCallStub struct {
+type BinaryUploadServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -1073,7 +1075,7 @@ func (s implBinaryUploadServerCallRecv) Err() error {
 // specifics such as the operating system, hardware architecture, and
 // the set of installed libraries. Profiles describe binaries and
 // devices, and are used to match them.
-type ProfileClientMethods interface {
+type ProfileClientMethods interface { //nolint:golint
 	// Label is the human-readable profile key for the profile,
 	// e.g. "linux-media". The label can be used to uniquely identify
 	// the profile (for the purpose of matching application binaries and
@@ -1085,13 +1087,13 @@ type ProfileClientMethods interface {
 }
 
 // ProfileClientStub adds universal methods to ProfileClientMethods.
-type ProfileClientStub interface {
+type ProfileClientStub interface { //nolint:golint
 	ProfileClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ProfileClient returns a client stub for Profile.
-func ProfileClient(name string) ProfileClientStub {
+func ProfileClient(name string) ProfileClientStub { //nolint:golint
 	return implProfileClientStub{name}
 }
 
@@ -1116,7 +1118,7 @@ func (c implProfileClientStub) Description(ctx *context.T, opts ...rpc.CallOpt) 
 // specifics such as the operating system, hardware architecture, and
 // the set of installed libraries. Profiles describe binaries and
 // devices, and are used to match them.
-type ProfileServerMethods interface {
+type ProfileServerMethods interface { //nolint:golint
 	// Label is the human-readable profile key for the profile,
 	// e.g. "linux-media". The label can be used to uniquely identify
 	// the profile (for the purpose of matching application binaries and
@@ -1131,19 +1133,20 @@ type ProfileServerMethods interface {
 // Profile methods, as expected by rpc.Server.
 // There is no difference between this interface and ProfileServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ProfileServerStubMethods ProfileServerMethods
 
 // ProfileServerStub adds universal methods to ProfileServerStubMethods.
-type ProfileServerStub interface {
+type ProfileServerStub interface { //nolint:golint
 	ProfileServerStubMethods
-	// Describe the Profile interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Profile interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ProfileServer returns a server stub for Profile.
 // It converts an implementation of ProfileServerMethods into
 // an object that may be used by rpc.Server.
-func ProfileServer(impl ProfileServerMethods) ProfileServerStub {
+func ProfileServer(impl ProfileServerMethods) ProfileServerStub { //nolint:golint
 	stub := implProfileServerStub{
 		impl: impl,
 	}
@@ -1174,7 +1177,7 @@ func (s implProfileServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ProfileDesc}
 }
 
@@ -1209,16 +1212,16 @@ var descProfile = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1227,17 +1230,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*MediaInfo)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*MediaInfo)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*MediaInfo)(nil)).Elem()
 
 	return struct{}{}
 }

@@ -11,21 +11,21 @@ package benchmark
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // BenchmarkClientMethods is the client interface
 // containing Benchmark methods.
-type BenchmarkClientMethods interface {
+type BenchmarkClientMethods interface { //nolint:golint
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, Payload []byte, _ ...rpc.CallOpt) ([]byte, error)
 	// EchoStream returns the payload that it receives via the stream.
@@ -33,13 +33,13 @@ type BenchmarkClientMethods interface {
 }
 
 // BenchmarkClientStub adds universal methods to BenchmarkClientMethods.
-type BenchmarkClientStub interface {
+type BenchmarkClientStub interface { //nolint:golint
 	BenchmarkClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // BenchmarkClient returns a client stub for Benchmark.
-func BenchmarkClient(name string) BenchmarkClientStub {
+func BenchmarkClient(name string) BenchmarkClientStub { //nolint:golint
 	return implBenchmarkClientStub{name}
 }
 
@@ -62,7 +62,7 @@ func (c implBenchmarkClientStub) EchoStream(ctx *context.T, opts ...rpc.CallOpt)
 }
 
 // BenchmarkEchoStreamClientStream is the client stream for Benchmark.EchoStream.
-type BenchmarkEchoStreamClientStream interface {
+type BenchmarkEchoStreamClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Benchmark.EchoStream client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -95,7 +95,7 @@ type BenchmarkEchoStreamClientStream interface {
 }
 
 // BenchmarkEchoStreamClientCall represents the call returned from Benchmark.EchoStream.
-type BenchmarkEchoStreamClientCall interface {
+type BenchmarkEchoStreamClientCall interface { //nolint:golint
 	BenchmarkEchoStreamClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -110,7 +110,7 @@ type BenchmarkEchoStreamClientCall interface {
 	Finish() error
 }
 
-type implBenchmarkEchoStreamClientCall struct {
+type implBenchmarkEchoStreamClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv []byte
 	errRecv error
@@ -165,7 +165,7 @@ func (c *implBenchmarkEchoStreamClientCall) Finish() (err error) {
 
 // BenchmarkServerMethods is the interface a server writer
 // implements for Benchmark.
-type BenchmarkServerMethods interface {
+type BenchmarkServerMethods interface { //nolint:golint
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
 	// EchoStream returns the payload that it receives via the stream.
@@ -176,6 +176,7 @@ type BenchmarkServerMethods interface {
 // Benchmark methods, as expected by rpc.Server.
 // The only difference between this interface and BenchmarkServerMethods
 // is the streaming methods.
+// nolint:golint
 type BenchmarkServerStubMethods interface {
 	// Echo returns the payload that it receives.
 	Echo(_ *context.T, _ rpc.ServerCall, Payload []byte) ([]byte, error)
@@ -184,16 +185,16 @@ type BenchmarkServerStubMethods interface {
 }
 
 // BenchmarkServerStub adds universal methods to BenchmarkServerStubMethods.
-type BenchmarkServerStub interface {
+type BenchmarkServerStub interface { //nolint:golint
 	BenchmarkServerStubMethods
-	// Describe the Benchmark interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Benchmark interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // BenchmarkServer returns a server stub for Benchmark.
 // It converts an implementation of BenchmarkServerMethods into
 // an object that may be used by rpc.Server.
-func BenchmarkServer(impl BenchmarkServerMethods) BenchmarkServerStub {
+func BenchmarkServer(impl BenchmarkServerMethods) BenchmarkServerStub { //nolint:golint
 	stub := implBenchmarkServerStub{
 		impl: impl,
 	}
@@ -224,7 +225,7 @@ func (s implBenchmarkServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implBenchmarkServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implBenchmarkServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{BenchmarkDesc}
 }
 
@@ -256,7 +257,7 @@ var descBenchmark = rpc.InterfaceDesc{
 }
 
 // BenchmarkEchoStreamServerStream is the server stream for Benchmark.EchoStream.
-type BenchmarkEchoStreamServerStream interface {
+type BenchmarkEchoStreamServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Benchmark.EchoStream server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -279,14 +280,14 @@ type BenchmarkEchoStreamServerStream interface {
 }
 
 // BenchmarkEchoStreamServerCall represents the context passed to Benchmark.EchoStream.
-type BenchmarkEchoStreamServerCall interface {
+type BenchmarkEchoStreamServerCall interface { //nolint:golint
 	rpc.ServerCall
 	BenchmarkEchoStreamServerStream
 }
 
 // BenchmarkEchoStreamServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements BenchmarkEchoStreamServerCall.
-type BenchmarkEchoStreamServerCallStub struct {
+type BenchmarkEchoStreamServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -339,13 +340,13 @@ func (s implBenchmarkEchoStreamServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -354,11 +355,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

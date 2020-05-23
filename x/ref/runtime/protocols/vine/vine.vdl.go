@@ -8,7 +8,7 @@
 package vine
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -16,7 +16,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -32,12 +32,12 @@ func (PeerKey) VDLReflect(struct {
 }) {
 }
 
-func (x PeerKey) VDLIsZero() bool {
+func (x PeerKey) VDLIsZero() bool { //nolint:gocyclo
 	return x == PeerKey{}
 }
 
-func (x PeerKey) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x PeerKey) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Dialer != "" {
@@ -56,9 +56,9 @@ func (x PeerKey) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *PeerKey) VDLRead(dec vdl.Decoder) error {
+func (x *PeerKey) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = PeerKey{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -70,8 +70,8 @@ func (x *PeerKey) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -116,12 +116,12 @@ func (PeerBehavior) VDLReflect(struct {
 }) {
 }
 
-func (x PeerBehavior) VDLIsZero() bool {
+func (x PeerBehavior) VDLIsZero() bool { //nolint:gocyclo
 	return x == PeerBehavior{}
 }
 
-func (x PeerBehavior) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x PeerBehavior) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Reachable {
@@ -140,9 +140,9 @@ func (x PeerBehavior) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error {
+func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = PeerBehavior{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -154,8 +154,8 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -220,7 +220,7 @@ func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
 //
 // Vine is the interface to a vine service that can dynamically change the network
 // behavior of connection's on the vine service's process.
-type VineClientMethods interface {
+type VineClientMethods interface { //nolint:golint
 	// SetBehaviors sets the policy that the accepting vine service's process
 	// will use on connections.
 	// behaviors is a map from server tag to the desired connection behavior.
@@ -231,13 +231,13 @@ type VineClientMethods interface {
 }
 
 // VineClientStub adds universal methods to VineClientMethods.
-type VineClientStub interface {
+type VineClientStub interface { //nolint:golint
 	VineClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // VineClient returns a client stub for Vine.
-func VineClient(name string) VineClientStub {
+func VineClient(name string) VineClientStub { //nolint:golint
 	return implVineClientStub{name}
 }
 
@@ -255,7 +255,7 @@ func (c implVineClientStub) SetBehaviors(ctx *context.T, i0 map[PeerKey]PeerBeha
 //
 // Vine is the interface to a vine service that can dynamically change the network
 // behavior of connection's on the vine service's process.
-type VineServerMethods interface {
+type VineServerMethods interface { //nolint:golint
 	// SetBehaviors sets the policy that the accepting vine service's process
 	// will use on connections.
 	// behaviors is a map from server tag to the desired connection behavior.
@@ -269,19 +269,20 @@ type VineServerMethods interface {
 // Vine methods, as expected by rpc.Server.
 // There is no difference between this interface and VineServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type VineServerStubMethods VineServerMethods
 
 // VineServerStub adds universal methods to VineServerStubMethods.
-type VineServerStub interface {
+type VineServerStub interface { //nolint:golint
 	VineServerStubMethods
-	// Describe the Vine interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Vine interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // VineServer returns a server stub for Vine.
 // It converts an implementation of VineServerMethods into
 // an object that may be used by rpc.Server.
-func VineServer(impl VineServerMethods) VineServerStub {
+func VineServer(impl VineServerMethods) VineServerStub { //nolint:golint
 	stub := implVineServerStub{
 		impl: impl,
 	}
@@ -308,7 +309,7 @@ func (s implVineServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implVineServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implVineServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{VineDesc}
 }
 
@@ -334,17 +335,17 @@ var descVine = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -353,19 +354,19 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*PeerKey)(nil))
 	vdl.Register((*PeerBehavior)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*PeerKey)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*PeerBehavior)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*PeerKey)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*PeerBehavior)(nil)).Elem()
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidAddress.ID), "{1:}{2:} invalid vine address {3}, address must be of the form 'network/address/tag'")

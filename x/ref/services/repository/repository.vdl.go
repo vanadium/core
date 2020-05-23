@@ -10,7 +10,7 @@
 package repository
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/services/profile"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -33,7 +33,7 @@ var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
 // Application describes an application repository internally. Besides the
 // public Application interface, it allows adding and removing application
 // envelopes, as well as querying for a list of supported profiles.
-type ApplicationClientMethods interface {
+type ApplicationClientMethods interface { //nolint:golint
 	// Application provides access to application envelopes. An
 	// application envelope is identified by an application name and an
 	// application version, which are specified through the object name,
@@ -70,13 +70,13 @@ type ApplicationClientMethods interface {
 }
 
 // ApplicationClientStub adds universal methods to ApplicationClientMethods.
-type ApplicationClientStub interface {
+type ApplicationClientStub interface { //nolint:golint
 	ApplicationClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ApplicationClient returns a client stub for Application.
-func ApplicationClient(name string) ApplicationClientStub {
+func ApplicationClient(name string) ApplicationClientStub { //nolint:golint
 	return implApplicationClientStub{name, repository.ApplicationClient(name)}
 }
 
@@ -107,7 +107,7 @@ func (c implApplicationClientStub) Profiles(ctx *context.T, opts ...rpc.CallOpt)
 // Application describes an application repository internally. Besides the
 // public Application interface, it allows adding and removing application
 // envelopes, as well as querying for a list of supported profiles.
-type ApplicationServerMethods interface {
+type ApplicationServerMethods interface { //nolint:golint
 	// Application provides access to application envelopes. An
 	// application envelope is identified by an application name and an
 	// application version, which are specified through the object name,
@@ -147,19 +147,20 @@ type ApplicationServerMethods interface {
 // Application methods, as expected by rpc.Server.
 // There is no difference between this interface and ApplicationServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ApplicationServerStubMethods ApplicationServerMethods
 
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
-type ApplicationServerStub interface {
+type ApplicationServerStub interface { //nolint:golint
 	ApplicationServerStubMethods
-	// Describe the Application interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Application interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ApplicationServer returns a server stub for Application.
 // It converts an implementation of ApplicationServerMethods into
 // an object that may be used by rpc.Server.
-func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub {
+func ApplicationServer(impl ApplicationServerMethods) ApplicationServerStub { //nolint:golint
 	stub := implApplicationServerStub{
 		impl:                  impl,
 		ApplicationServerStub: repository.ApplicationServer(impl),
@@ -196,7 +197,7 @@ func (s implApplicationServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implApplicationServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ApplicationDesc, repository.ApplicationDesc, permissions.ObjectDesc, tidyable.TidyableDesc}
 }
 
@@ -246,7 +247,7 @@ var descApplication = rpc.InterfaceDesc{
 //
 // Profile describes a profile internally. Besides the public Profile
 // interface, it allows to add and remove profile specifications.
-type ProfileClientMethods interface {
+type ProfileClientMethods interface { //nolint:golint
 	// Profile abstracts a device's ability to run binaries, and hides
 	// specifics such as the operating system, hardware architecture, and
 	// the set of installed libraries. Profiles describe binaries and
@@ -264,13 +265,13 @@ type ProfileClientMethods interface {
 }
 
 // ProfileClientStub adds universal methods to ProfileClientMethods.
-type ProfileClientStub interface {
+type ProfileClientStub interface { //nolint:golint
 	ProfileClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // ProfileClient returns a client stub for Profile.
-func ProfileClient(name string) ProfileClientStub {
+func ProfileClient(name string) ProfileClientStub { //nolint:golint
 	return implProfileClientStub{name, repository.ProfileClient(name)}
 }
 
@@ -300,7 +301,7 @@ func (c implProfileClientStub) Remove(ctx *context.T, opts ...rpc.CallOpt) (err 
 //
 // Profile describes a profile internally. Besides the public Profile
 // interface, it allows to add and remove profile specifications.
-type ProfileServerMethods interface {
+type ProfileServerMethods interface { //nolint:golint
 	// Profile abstracts a device's ability to run binaries, and hides
 	// specifics such as the operating system, hardware architecture, and
 	// the set of installed libraries. Profiles describe binaries and
@@ -321,19 +322,20 @@ type ProfileServerMethods interface {
 // Profile methods, as expected by rpc.Server.
 // There is no difference between this interface and ProfileServerMethods
 // since there are no streaming methods.
+// nolint:golint
 type ProfileServerStubMethods ProfileServerMethods
 
 // ProfileServerStub adds universal methods to ProfileServerStubMethods.
-type ProfileServerStub interface {
+type ProfileServerStub interface { //nolint:golint
 	ProfileServerStubMethods
-	// Describe the Profile interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Profile interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // ProfileServer returns a server stub for Profile.
 // It converts an implementation of ProfileServerMethods into
 // an object that may be used by rpc.Server.
-func ProfileServer(impl ProfileServerMethods) ProfileServerStub {
+func ProfileServer(impl ProfileServerMethods) ProfileServerStub { //nolint:golint
 	stub := implProfileServerStub{
 		impl:              impl,
 		ProfileServerStub: repository.ProfileServer(impl),
@@ -370,7 +372,7 @@ func (s implProfileServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implProfileServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{ProfileDesc, repository.ProfileDesc}
 }
 
@@ -410,13 +412,13 @@ var descProfile = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -425,11 +427,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

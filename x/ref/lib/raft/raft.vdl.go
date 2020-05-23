@@ -9,13 +9,13 @@ package raft
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -29,18 +29,18 @@ func (Term) VDLReflect(struct {
 }) {
 }
 
-func (x Term) VDLIsZero() bool {
+func (x Term) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x Term) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_uint64_1, uint64(x)); err != nil {
+func (x Term) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeUint641, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Term) VDLRead(dec vdl.Decoder) error {
+func (x *Term) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(64); {
 	case err != nil:
 		return err
@@ -61,18 +61,18 @@ func (Index) VDLReflect(struct {
 }) {
 }
 
-func (x Index) VDLIsZero() bool {
+func (x Index) VDLIsZero() bool { //nolint:gocyclo
 	return x == 0
 }
 
-func (x Index) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueUint(__VDLType_uint64_2, uint64(x)); err != nil {
+func (x Index) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueUint(vdlTypeUint642, uint64(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Index) VDLRead(dec vdl.Decoder) error {
+func (x *Index) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueUint(64); {
 	case err != nil:
 		return err
@@ -97,7 +97,7 @@ func (LogEntry) VDLReflect(struct {
 }) {
 }
 
-func (x LogEntry) VDLIsZero() bool {
+func (x LogEntry) VDLIsZero() bool { //nolint:gocyclo
 	if x.Term != 0 {
 		return false
 	}
@@ -113,22 +113,22 @@ func (x LogEntry) VDLIsZero() bool {
 	return true
 }
 
-func (x LogEntry) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x LogEntry) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.Term != 0 {
-		if err := enc.NextFieldValueUint(0, __VDLType_uint64_1, uint64(x.Term)); err != nil {
+		if err := enc.NextFieldValueUint(0, vdlTypeUint641, uint64(x.Term)); err != nil {
 			return err
 		}
 	}
 	if x.Index != 0 {
-		if err := enc.NextFieldValueUint(1, __VDLType_uint64_2, uint64(x.Index)); err != nil {
+		if err := enc.NextFieldValueUint(1, vdlTypeUint642, uint64(x.Index)); err != nil {
 			return err
 		}
 	}
 	if len(x.Cmd) != 0 {
-		if err := enc.NextFieldValueBytes(2, __VDLType_list_4, x.Cmd); err != nil {
+		if err := enc.NextFieldValueBytes(2, vdlTypeList4, x.Cmd); err != nil {
 			return err
 		}
 	}
@@ -143,9 +143,9 @@ func (x LogEntry) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *LogEntry) VDLRead(dec vdl.Decoder) error {
+func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = LogEntry{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -157,8 +157,8 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -209,7 +209,7 @@ const RaftEntry = byte(1)
 // containing raftProto methods.
 //
 // raftProto is used by the members of a raft set to communicate with each other.
-type raftProtoClientMethods interface {
+type raftProtoClientMethods interface { //nolint:golint
 	// Members returns the current set of ids of raft members.
 	Members(*context.T, ...rpc.CallOpt) ([]string, error)
 	// Leader returns the id of the current leader.
@@ -221,7 +221,7 @@ type raftProtoClientMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leaderId -- the id of the sender
+	//   leader -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -229,7 +229,7 @@ type raftProtoClientMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry, _ ...rpc.CallOpt) error
+	AppendToLog(_ *context.T, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry, _ ...rpc.CallOpt) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -242,17 +242,17 @@ type raftProtoClientMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, term Term, leaderId string, appliedTerm Term, appliedIndex Index, _ ...rpc.CallOpt) (raftProtoInstallSnapshotClientCall, error)
+	InstallSnapshot(_ *context.T, term Term, leader string, appliedTerm Term, appliedIndex Index, _ ...rpc.CallOpt) (raftProtoInstallSnapshotClientCall, error)
 }
 
 // raftProtoClientStub adds universal methods to raftProtoClientMethods.
-type raftProtoClientStub interface {
+type raftProtoClientStub interface { //nolint:golint
 	raftProtoClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // raftProtoClient returns a client stub for raftProto.
-func raftProtoClient(name string) raftProtoClientStub {
+func raftProtoClient(name string) raftProtoClientStub { //nolint:golint
 	return implraftProtoClientStub{name}
 }
 
@@ -300,7 +300,7 @@ func (c implraftProtoClientStub) InstallSnapshot(ctx *context.T, i0 Term, i1 str
 }
 
 // raftProtoInstallSnapshotClientStream is the client stream for raftProto.InstallSnapshot.
-type raftProtoInstallSnapshotClientStream interface {
+type raftProtoInstallSnapshotClientStream interface { //nolint:golint
 	// SendStream returns the send side of the raftProto.InstallSnapshot client stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors
@@ -321,7 +321,7 @@ type raftProtoInstallSnapshotClientStream interface {
 }
 
 // raftProtoInstallSnapshotClientCall represents the call returned from raftProto.InstallSnapshot.
-type raftProtoInstallSnapshotClientCall interface {
+type raftProtoInstallSnapshotClientCall interface { //nolint:golint
 	raftProtoInstallSnapshotClientStream
 	// Finish performs the equivalent of SendStream().Close, then blocks until
 	// the server is done, and returns the positional return values for the call.
@@ -336,7 +336,7 @@ type raftProtoInstallSnapshotClientCall interface {
 	Finish() error
 }
 
-type implraftProtoInstallSnapshotClientCall struct {
+type implraftProtoInstallSnapshotClientCall struct { //nolint:golint
 	rpc.ClientCall
 }
 
@@ -366,7 +366,7 @@ func (c *implraftProtoInstallSnapshotClientCall) Finish() (err error) {
 // implements for raftProto.
 //
 // raftProto is used by the members of a raft set to communicate with each other.
-type raftProtoServerMethods interface {
+type raftProtoServerMethods interface { //nolint:golint
 	// Members returns the current set of ids of raft members.
 	Members(*context.T, rpc.ServerCall) ([]string, error)
 	// Leader returns the id of the current leader.
@@ -378,7 +378,7 @@ type raftProtoServerMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leaderId -- the id of the sender
+	//   leader -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -386,7 +386,7 @@ type raftProtoServerMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
+	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -399,13 +399,14 @@ type raftProtoServerMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, _ raftProtoInstallSnapshotServerCall, term Term, leaderId string, appliedTerm Term, appliedIndex Index) error
+	InstallSnapshot(_ *context.T, _ raftProtoInstallSnapshotServerCall, term Term, leader string, appliedTerm Term, appliedIndex Index) error
 }
 
 // raftProtoServerStubMethods is the server interface containing
 // raftProto methods, as expected by rpc.Server.
 // The only difference between this interface and raftProtoServerMethods
 // is the streaming methods.
+// nolint:golint
 type raftProtoServerStubMethods interface {
 	// Members returns the current set of ids of raft members.
 	Members(*context.T, rpc.ServerCall) ([]string, error)
@@ -418,7 +419,7 @@ type raftProtoServerStubMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leaderId -- the id of the sender
+	//   leader -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -426,7 +427,7 @@ type raftProtoServerStubMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
+	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -439,20 +440,20 @@ type raftProtoServerStubMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, _ *raftProtoInstallSnapshotServerCallStub, term Term, leaderId string, appliedTerm Term, appliedIndex Index) error
+	InstallSnapshot(_ *context.T, _ *raftProtoInstallSnapshotServerCallStub, term Term, leader string, appliedTerm Term, appliedIndex Index) error
 }
 
 // raftProtoServerStub adds universal methods to raftProtoServerStubMethods.
-type raftProtoServerStub interface {
+type raftProtoServerStub interface { //nolint:golint
 	raftProtoServerStubMethods
-	// Describe the raftProto interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the raftProto interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // raftProtoServer returns a server stub for raftProto.
 // It converts an implementation of raftProtoServerMethods into
 // an object that may be used by rpc.Server.
-func raftProtoServer(impl raftProtoServerMethods) raftProtoServerStub {
+func raftProtoServer(impl raftProtoServerMethods) raftProtoServerStub { //nolint:golint
 	stub := implraftProtoServerStub{
 		impl: impl,
 	}
@@ -503,7 +504,7 @@ func (s implraftProtoServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implraftProtoServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implraftProtoServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{raftProtoDesc}
 }
 
@@ -546,10 +547,10 @@ var descraftProto = rpc.InterfaceDesc{
 		},
 		{
 			Name: "AppendToLog",
-			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leaderId -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
+			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leader -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
 			InArgs: []rpc.ArgDesc{
 				{Name: "term", Doc: ``},         // Term
-				{Name: "leaderId", Doc: ``},     // string
+				{Name: "leader", Doc: ``},       // string
 				{Name: "prevIndex", Doc: ``},    // Index
 				{Name: "prevTerm", Doc: ``},     // Term
 				{Name: "leaderCommit", Doc: ``}, // Index
@@ -579,7 +580,7 @@ var descraftProto = rpc.InterfaceDesc{
 			Doc:  "// InstallSnapshot is sent from the leader to follower to install the given snapshot.  It is\n// sent when it becomes apparent that the leader does not have log entries needed by the follower\n// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the\n// snapshot.",
 			InArgs: []rpc.ArgDesc{
 				{Name: "term", Doc: ``},         // Term
-				{Name: "leaderId", Doc: ``},     // string
+				{Name: "leader", Doc: ``},       // string
 				{Name: "appliedTerm", Doc: ``},  // Term
 				{Name: "appliedIndex", Doc: ``}, // Index
 			},
@@ -588,7 +589,7 @@ var descraftProto = rpc.InterfaceDesc{
 }
 
 // raftProtoInstallSnapshotServerStream is the server stream for raftProto.InstallSnapshot.
-type raftProtoInstallSnapshotServerStream interface {
+type raftProtoInstallSnapshotServerStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the raftProto.InstallSnapshot server stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -604,14 +605,14 @@ type raftProtoInstallSnapshotServerStream interface {
 }
 
 // raftProtoInstallSnapshotServerCall represents the context passed to raftProto.InstallSnapshot.
-type raftProtoInstallSnapshotServerCall interface {
+type raftProtoInstallSnapshotServerCall interface { //nolint:golint
 	rpc.ServerCall
 	raftProtoInstallSnapshotServerStream
 }
 
 // raftProtoInstallSnapshotServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements raftProtoInstallSnapshotServerCall.
-type raftProtoInstallSnapshotServerCallStub struct {
+type raftProtoInstallSnapshotServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 	valRecv []byte
 	errRecv error
@@ -652,19 +653,19 @@ func (s implraftProtoInstallSnapshotServerCallRecv) Err() error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_uint64_1 *vdl.Type
-	__VDLType_uint64_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_list_4   *vdl.Type
+	vdlTypeUint641 *vdl.Type
+	vdlTypeUint642 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeList4   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -673,11 +674,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Term)(nil))
@@ -685,10 +686,10 @@ func __VDLInit() struct{} {
 	vdl.Register((*LogEntry)(nil))
 
 	// Initialize type definitions.
-	__VDLType_uint64_1 = vdl.TypeOf((*Term)(nil))
-	__VDLType_uint64_2 = vdl.TypeOf((*Index)(nil))
-	__VDLType_struct_3 = vdl.TypeOf((*LogEntry)(nil)).Elem()
-	__VDLType_list_4 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeUint641 = vdl.TypeOf((*Term)(nil))
+	vdlTypeUint642 = vdl.TypeOf((*Index)(nil))
+	vdlTypeStruct3 = vdl.TypeOf((*LogEntry)(nil)).Elem()
+	vdlTypeList4 = vdl.TypeOf((*[]byte)(nil))
 
 	return struct{}{}
 }

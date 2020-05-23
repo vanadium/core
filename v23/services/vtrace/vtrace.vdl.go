@@ -11,7 +11,7 @@ package vtrace
 
 import (
 	"io"
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -20,14 +20,14 @@ import (
 	"v.io/v23/vtrace"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
 
 // StoreClientMethods is the client interface
 // containing Store methods.
-type StoreClientMethods interface {
+type StoreClientMethods interface { //nolint:golint
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
 	Trace(_ *context.T, id uniqueid.Id, _ ...rpc.CallOpt) (vtrace.TraceRecord, error)
@@ -37,13 +37,13 @@ type StoreClientMethods interface {
 }
 
 // StoreClientStub adds universal methods to StoreClientMethods.
-type StoreClientStub interface {
+type StoreClientStub interface { //nolint:golint
 	StoreClientMethods
 	rpc.UniversalServiceMethods
 }
 
 // StoreClient returns a client stub for Store.
-func StoreClient(name string) StoreClientStub {
+func StoreClient(name string) StoreClientStub { //nolint:golint
 	return implStoreClientStub{name}
 }
 
@@ -66,7 +66,7 @@ func (c implStoreClientStub) AllTraces(ctx *context.T, opts ...rpc.CallOpt) (oca
 }
 
 // StoreAllTracesClientStream is the client stream for Store.AllTraces.
-type StoreAllTracesClientStream interface {
+type StoreAllTracesClientStream interface { //nolint:golint
 	// RecvStream returns the receiver side of the Store.AllTraces client stream.
 	RecvStream() interface {
 		// Advance stages an item so that it may be retrieved via Value.  Returns
@@ -82,7 +82,7 @@ type StoreAllTracesClientStream interface {
 }
 
 // StoreAllTracesClientCall represents the call returned from Store.AllTraces.
-type StoreAllTracesClientCall interface {
+type StoreAllTracesClientCall interface { //nolint:golint
 	StoreAllTracesClientStream
 	// Finish blocks until the server is done, and returns the positional return
 	// values for call.
@@ -97,7 +97,7 @@ type StoreAllTracesClientCall interface {
 	Finish() error
 }
 
-type implStoreAllTracesClientCall struct {
+type implStoreAllTracesClientCall struct { //nolint:golint
 	rpc.ClientCall
 	valRecv vtrace.TraceRecord
 	errRecv error
@@ -136,7 +136,7 @@ func (c *implStoreAllTracesClientCall) Finish() (err error) {
 
 // StoreServerMethods is the interface a server writer
 // implements for Store.
-type StoreServerMethods interface {
+type StoreServerMethods interface { //nolint:golint
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
 	Trace(_ *context.T, _ rpc.ServerCall, id uniqueid.Id) (vtrace.TraceRecord, error)
@@ -149,6 +149,7 @@ type StoreServerMethods interface {
 // Store methods, as expected by rpc.Server.
 // The only difference between this interface and StoreServerMethods
 // is the streaming methods.
+// nolint:golint
 type StoreServerStubMethods interface {
 	// Trace returns the trace that matches the given Id.
 	// Will return a NoExists error if no matching trace was found.
@@ -159,16 +160,16 @@ type StoreServerStubMethods interface {
 }
 
 // StoreServerStub adds universal methods to StoreServerStubMethods.
-type StoreServerStub interface {
+type StoreServerStub interface { //nolint:golint
 	StoreServerStubMethods
-	// Describe the Store interfaces.
-	Describe__() []rpc.InterfaceDesc
+	// DescribeInterfaces the Store interfaces.
+	Describe__() []rpc.InterfaceDesc //nolint:golint
 }
 
 // StoreServer returns a server stub for Store.
 // It converts an implementation of StoreServerMethods into
 // an object that may be used by rpc.Server.
-func StoreServer(impl StoreServerMethods) StoreServerStub {
+func StoreServer(impl StoreServerMethods) StoreServerStub { //nolint:golint
 	stub := implStoreServerStub{
 		impl: impl,
 	}
@@ -199,7 +200,7 @@ func (s implStoreServerStub) Globber() *rpc.GlobState {
 	return s.gs
 }
 
-func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc {
+func (s implStoreServerStub) Describe__() []rpc.InterfaceDesc { //nolint:golint
 	return []rpc.InterfaceDesc{StoreDesc}
 }
 
@@ -231,7 +232,7 @@ var descStore = rpc.InterfaceDesc{
 }
 
 // StoreAllTracesServerStream is the server stream for Store.AllTraces.
-type StoreAllTracesServerStream interface {
+type StoreAllTracesServerStream interface { //nolint:golint
 	// SendStream returns the send side of the Store.AllTraces server stream.
 	SendStream() interface {
 		// Send places the item onto the output stream.  Returns errors encountered
@@ -242,14 +243,14 @@ type StoreAllTracesServerStream interface {
 }
 
 // StoreAllTracesServerCall represents the context passed to Store.AllTraces.
-type StoreAllTracesServerCall interface {
+type StoreAllTracesServerCall interface { //nolint:golint
 	rpc.ServerCall
 	StoreAllTracesServerStream
 }
 
 // StoreAllTracesServerCallStub is a wrapper that converts rpc.StreamServerCall into
 // a typesafe stub that implements StoreAllTracesServerCall.
-type StoreAllTracesServerCallStub struct {
+type StoreAllTracesServerCallStub struct { //nolint:golint
 	rpc.StreamServerCall
 }
 
@@ -273,13 +274,13 @@ func (s implStoreAllTracesServerCallSend) Send(item vtrace.TraceRecord) error {
 	return s.s.Send(item)
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -288,11 +289,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }
