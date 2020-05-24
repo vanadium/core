@@ -193,6 +193,10 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			}
 			s += def.LabelDocSuffix[ix]
 		}
+		disableGoCycloLint := ""
+		if t.NumEnumLabel() > 10 {
+			disableGoCycloLint = "//nolint:gocyclo"
+		}
 		s += fmt.Sprintf("\n)"+
 			"\n\n// %[1]sAll holds all labels for %[1]s."+
 			"\nvar %[1]sAll = [...]%[1]s{%[2]s}"+
@@ -204,6 +208,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n}"+
 			"\n\n// Set assigns label to x."+
 			"\nfunc (x *%[1]s) Set(label string) error {"+
+			disableGoCycloLint+
 			"\n\tswitch label {",
 			def.Name,
 			commaEnumLabels(def.Name, t))
@@ -218,6 +223,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n}"+
 			"\n\n// String returns the string label of x."+
 			"\nfunc (x %[1]s) String() string {"+
+			disableGoCycloLint+
 			"\n\tswitch x {", def.Name, packageIdent(def.File, def.Name))
 		for ix := 0; ix < t.NumEnumLabel(); ix++ {
 			s += fmt.Sprintf("\n\tcase %[1]s%[2]s:"+
@@ -257,7 +263,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n\t\t// Name returns the field name."+
 			"\n\t\tName() string"+
 			"\n\t\t// VDLReflect describes the %[1]s union type."+
-			"\n\t\tVDLReflect(__%[1]sReflect)", def.Name, docBreak(def.Doc))
+			"\n\t\tVDLReflect(vdl%[1]sReflect)", def.Name, docBreak(def.Doc))
 		if !data.SkipGenZeroReadWrite(def) {
 			s += fmt.Sprintf("\n\t\tVDLIsZero() bool"+
 				"\n\t\tVDLWrite(%[1]sEncoder) error", data.Pkg("v.io/v23/vdl"))
@@ -270,8 +276,8 @@ func defineType(data *goData, def *compile.TypeDef) string {
 				def.Name, f.Name, typeGo(data, f.Type),
 				docBreak(def.FieldDoc[ix]), def.FieldDocSuffix[ix])
 		}
-		s += fmt.Sprintf("\n\t// __%[1]sReflect describes the %[1]s union type."+
-			"\n\t__%[1]sReflect struct {"+
+		s += fmt.Sprintf("\n\t// vdl%[1]sReflect describes the %[1]s union type."+
+			"\n\tvdl%[1]sReflect struct {"+
 			"\n\t\tName string `vdl:%[2]q`"+
 			"\n\t\tType %[1]s", def.Name, qualifiedIdent(def.File, def.Name))
 		s += "\n\t\tUnion struct {"
@@ -284,7 +290,7 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			s += fmt.Sprintf("\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+
 				"\nfunc (x %[1]s%[2]s) Interface() interface{} { return x.Value }"+
 				"\nfunc (x %[1]s%[2]s) Name() string { return \"%[2]s\" }"+
-				"\nfunc (x %[1]s%[2]s) VDLReflect(__%[1]sReflect) {}",
+				"\nfunc (x %[1]s%[2]s) VDLReflect(vdl%[1]sReflect) {}",
 				def.Name, f.Name, ix)
 		}
 	default:

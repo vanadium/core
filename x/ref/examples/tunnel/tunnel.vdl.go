@@ -7,19 +7,21 @@
 
 // Package tunnel defines an interface for creating a network tunnel from client
 // to server.
+//nolint:golint
 package tunnel
 
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -34,12 +36,12 @@ func (WindowSize) VDLReflect(struct {
 }) {
 }
 
-func (x WindowSize) VDLIsZero() bool {
+func (x WindowSize) VDLIsZero() bool { //nolint:gocyclo
 	return x == WindowSize{}
 }
 
-func (x WindowSize) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x WindowSize) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Rows != 0 {
@@ -58,9 +60,9 @@ func (x WindowSize) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *WindowSize) VDLRead(dec vdl.Decoder) error {
+func (x *WindowSize) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = WindowSize{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -72,8 +74,8 @@ func (x *WindowSize) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -111,7 +113,7 @@ func (ShellOpts) VDLReflect(struct {
 }) {
 }
 
-func (x ShellOpts) VDLIsZero() bool {
+func (x ShellOpts) VDLIsZero() bool { //nolint:gocyclo
 	if x.UsePty {
 		return false
 	}
@@ -124,8 +126,8 @@ func (x ShellOpts) VDLIsZero() bool {
 	return true
 }
 
-func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x ShellOpts) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.UsePty {
@@ -137,7 +139,7 @@ func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(1); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_list_1(enc, x.Environment); err != nil {
+		if err := vdlWriteAnonList1(enc, x.Environment); err != nil {
 			return err
 		}
 	}
@@ -155,8 +157,8 @@ func (x ShellOpts) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
-	if err := enc.StartValue(__VDLType_list_3); err != nil {
+func vdlWriteAnonList1(enc vdl.Encoder, x []string) error {
+	if err := enc.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -173,9 +175,9 @@ func __VDLWriteAnon_list_1(enc vdl.Encoder, x []string) error {
 	return enc.FinishValue()
 }
 
-func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
+func (x *ShellOpts) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = ShellOpts{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -187,8 +189,8 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -205,7 +207,7 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 				x.UsePty = value
 			}
 		case 1:
-			if err := __VDLReadAnon_list_1(dec, &x.Environment); err != nil {
+			if err := vdlReadAnonList1(dec, &x.Environment); err != nil {
 				return err
 			}
 		case 2:
@@ -216,8 +218,8 @@ func (x *ShellOpts) VDLRead(dec vdl.Decoder) error {
 	}
 }
 
-func __VDLReadAnon_list_1(dec vdl.Decoder, x *[]string) error {
-	if err := dec.StartValue(__VDLType_list_3); err != nil {
+func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
+	if err := dec.StartValue(vdlTypeList3); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -246,12 +248,12 @@ func (Unused) VDLReflect(struct {
 }) {
 }
 
-func (x Unused) VDLIsZero() bool {
+func (x Unused) VDLIsZero() bool { //nolint:gocyclo
 	return x == Unused{}
 }
 
-func (x Unused) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x Unused) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -260,9 +262,9 @@ func (x Unused) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Unused) VDLRead(dec vdl.Decoder) error {
+func (x *Unused) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Unused{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -274,8 +276,8 @@ func (x *Unused) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -298,7 +300,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the ClientShellPacket union type.
-		VDLReflect(__ClientShellPacketReflect)
+		VDLReflect(vdlClientShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -315,8 +317,8 @@ type (
 	//
 	// A dynamic update of the window size.
 	ClientShellPacketWinSize struct{ Value WindowSize }
-	// __ClientShellPacketReflect describes the ClientShellPacket union type.
-	__ClientShellPacketReflect struct {
+	// vdlClientShellPacketReflect describes the ClientShellPacket union type.
+	vdlClientShellPacketReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/tunnel.ClientShellPacket"`
 		Type  ClientShellPacket
 		Union struct {
@@ -327,22 +329,22 @@ type (
 	}
 )
 
-func (x ClientShellPacketStdin) Index() int                            { return 0 }
-func (x ClientShellPacketStdin) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketStdin) Name() string                          { return "Stdin" }
-func (x ClientShellPacketStdin) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketStdin) Index() int                             { return 0 }
+func (x ClientShellPacketStdin) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketStdin) Name() string                           { return "Stdin" }
+func (x ClientShellPacketStdin) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketEndOfFile) Index() int                            { return 1 }
-func (x ClientShellPacketEndOfFile) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketEndOfFile) Name() string                          { return "EndOfFile" }
-func (x ClientShellPacketEndOfFile) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketEndOfFile) Index() int                             { return 1 }
+func (x ClientShellPacketEndOfFile) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketEndOfFile) Name() string                           { return "EndOfFile" }
+func (x ClientShellPacketEndOfFile) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketWinSize) Index() int                            { return 2 }
-func (x ClientShellPacketWinSize) Interface() interface{}                { return x.Value }
-func (x ClientShellPacketWinSize) Name() string                          { return "WinSize" }
-func (x ClientShellPacketWinSize) VDLReflect(__ClientShellPacketReflect) {}
+func (x ClientShellPacketWinSize) Index() int                             { return 2 }
+func (x ClientShellPacketWinSize) Interface() interface{}                 { return x.Value }
+func (x ClientShellPacketWinSize) Name() string                           { return "WinSize" }
+func (x ClientShellPacketWinSize) VDLReflect(vdlClientShellPacketReflect) {}
 
-func (x ClientShellPacketStdin) VDLIsZero() bool {
+func (x ClientShellPacketStdin) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Value) == 0
 }
 
@@ -354,11 +356,11 @@ func (x ClientShellPacketWinSize) VDLIsZero() bool {
 	return false
 }
 
-func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(0, __VDLType_list_5, x.Value); err != nil {
+	if err := enc.NextFieldValueBytes(0, vdlTypeList5, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -367,8 +369,8 @@ func (x ClientShellPacketStdin) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -383,8 +385,8 @@ func (x ClientShellPacketEndOfFile) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_6); err != nil {
+func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
@@ -399,8 +401,8 @@ func (x ClientShellPacketWinSize) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error {
-	if err := dec.StartValue(__VDLType_union_6); err != nil {
+func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -411,9 +413,9 @@ func VDLReadClientShellPacket(dec vdl.Decoder, x *ClientShellPacket) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_6 {
+	if decType != vdlTypeUnion6 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_6.FieldIndexByName(name)
+		index = vdlTypeUnion6.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -457,7 +459,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the ServerShellPacket union type.
-		VDLReflect(__ServerShellPacketReflect)
+		VDLReflect(vdlServerShellPacketReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -469,8 +471,8 @@ type (
 	//
 	// Bytes coming from the shell's stderr.
 	ServerShellPacketStderr struct{ Value []byte }
-	// __ServerShellPacketReflect describes the ServerShellPacket union type.
-	__ServerShellPacketReflect struct {
+	// vdlServerShellPacketReflect describes the ServerShellPacket union type.
+	vdlServerShellPacketReflect struct {
 		Name  string `vdl:"v.io/x/ref/examples/tunnel.ServerShellPacket"`
 		Type  ServerShellPacket
 		Union struct {
@@ -480,17 +482,17 @@ type (
 	}
 )
 
-func (x ServerShellPacketStdout) Index() int                            { return 0 }
-func (x ServerShellPacketStdout) Interface() interface{}                { return x.Value }
-func (x ServerShellPacketStdout) Name() string                          { return "Stdout" }
-func (x ServerShellPacketStdout) VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStdout) Index() int                             { return 0 }
+func (x ServerShellPacketStdout) Interface() interface{}                 { return x.Value }
+func (x ServerShellPacketStdout) Name() string                           { return "Stdout" }
+func (x ServerShellPacketStdout) VDLReflect(vdlServerShellPacketReflect) {}
 
-func (x ServerShellPacketStderr) Index() int                            { return 1 }
-func (x ServerShellPacketStderr) Interface() interface{}                { return x.Value }
-func (x ServerShellPacketStderr) Name() string                          { return "Stderr" }
-func (x ServerShellPacketStderr) VDLReflect(__ServerShellPacketReflect) {}
+func (x ServerShellPacketStderr) Index() int                             { return 1 }
+func (x ServerShellPacketStderr) Interface() interface{}                 { return x.Value }
+func (x ServerShellPacketStderr) Name() string                           { return "Stderr" }
+func (x ServerShellPacketStderr) VDLReflect(vdlServerShellPacketReflect) {}
 
-func (x ServerShellPacketStdout) VDLIsZero() bool {
+func (x ServerShellPacketStdout) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Value) == 0
 }
 
@@ -498,24 +500,11 @@ func (x ServerShellPacketStderr) VDLIsZero() bool {
 	return false
 }
 
-func (x ServerShellPacketStdout) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
+func (x ServerShellPacketStdout) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(0, __VDLType_list_5, x.Value); err != nil {
-		return err
-	}
-	if err := enc.NextField(-1); err != nil {
-		return err
-	}
-	return enc.FinishValue()
-}
-
-func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
-		return err
-	}
-	if err := enc.NextFieldValueBytes(1, __VDLType_list_5, x.Value); err != nil {
+	if err := enc.NextFieldValueBytes(0, vdlTypeList5, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -524,8 +513,21 @@ func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error {
-	if err := dec.StartValue(__VDLType_union_7); err != nil {
+func (x ServerShellPacketStderr) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
+		return err
+	}
+	if err := enc.NextFieldValueBytes(1, vdlTypeList5, x.Value); err != nil {
+		return err
+	}
+	if err := enc.NextField(-1); err != nil {
+		return err
+	}
+	return enc.FinishValue()
+}
+
+func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -536,9 +538,9 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_7 {
+	if decType != vdlTypeUnion7 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_7.FieldIndexByName(name)
+		index = vdlTypeUnion7.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -879,7 +881,7 @@ type TunnelServerStubMethods interface {
 // TunnelServerStub adds universal methods to TunnelServerStubMethods.
 type TunnelServerStub interface {
 	TunnelServerStubMethods
-	// Describe the Tunnel interfaces.
+	// DescribeInterfaces the Tunnel interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -1296,7 +1298,7 @@ type ForwarderServerStubMethods interface {
 // ForwarderServerStub adds universal methods to ForwarderServerStubMethods.
 type ForwarderServerStub interface {
 	ForwarderServerStubMethods
-	// Describe the Forwarder interfaces.
+	// DescribeInterfaces the Forwarder interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -1437,22 +1439,22 @@ func (s implForwarderForwardServerCallSend) Send(item []byte) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_list_3   *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
-	__VDLType_union_6  *vdl.Type
-	__VDLType_union_7  *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeList3   *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
+	vdlTypeUnion6  *vdl.Type
+	vdlTypeUnion7  *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1461,11 +1463,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*WindowSize)(nil))
@@ -1475,13 +1477,13 @@ func __VDLInit() struct{} {
 	vdl.Register((*ServerShellPacket)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*WindowSize)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*ShellOpts)(nil)).Elem()
-	__VDLType_list_3 = vdl.TypeOf((*[]string)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*Unused)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_union_6 = vdl.TypeOf((*ClientShellPacket)(nil))
-	__VDLType_union_7 = vdl.TypeOf((*ServerShellPacket)(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*WindowSize)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*ShellOpts)(nil)).Elem()
+	vdlTypeList3 = vdl.TypeOf((*[]string)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*Unused)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeUnion6 = vdl.TypeOf((*ClientShellPacket)(nil))
+	vdlTypeUnion7 = vdl.TypeOf((*ServerShellPacket)(nil))
 
 	return struct{}{}
 }

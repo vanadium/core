@@ -7,13 +7,15 @@
 
 // Package device defines interfaces for managing devices and their
 // applications.
+//nolint:golint
 package device
 
 import (
 	"fmt"
 	"io"
 	"time"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -26,7 +28,7 @@ import (
 	_ "v.io/v23/vdlroot/time"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -39,12 +41,12 @@ func (Config) VDLReflect(struct {
 }) {
 }
 
-func (x Config) VDLIsZero() bool {
+func (x Config) VDLIsZero() bool { //nolint:gocyclo
 	return len(x) == 0
 }
 
-func (x Config) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_map_1); err != nil {
+func (x Config) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeMap1); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -64,8 +66,8 @@ func (x Config) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Config) VDLRead(dec vdl.Decoder) error {
-	if err := dec.StartValue(__VDLType_map_1); err != nil {
+func (x *Config) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeMap1); err != nil {
 		return err
 	}
 	var tmpMap Config
@@ -145,18 +147,18 @@ func (InstallationState) VDLReflect(struct {
 }) {
 }
 
-func (x InstallationState) VDLIsZero() bool {
+func (x InstallationState) VDLIsZero() bool { //nolint:gocyclo
 	return x == InstallationStateActive
 }
 
-func (x InstallationState) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_2, x.String()); err != nil {
+func (x InstallationState) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum2, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *InstallationState) VDLRead(dec vdl.Decoder) error {
+func (x *InstallationState) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -242,18 +244,18 @@ func (InstanceState) VDLReflect(struct {
 }) {
 }
 
-func (x InstanceState) VDLIsZero() bool {
+func (x InstanceState) VDLIsZero() bool { //nolint:gocyclo
 	return x == InstanceStateLaunching
 }
 
-func (x InstanceState) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_3, x.String()); err != nil {
+func (x InstanceState) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum3, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *InstanceState) VDLRead(dec vdl.Decoder) error {
+func (x *InstanceState) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -277,16 +279,16 @@ func (InstanceStatus) VDLReflect(struct {
 }) {
 }
 
-func (x InstanceStatus) VDLIsZero() bool {
+func (x InstanceStatus) VDLIsZero() bool { //nolint:gocyclo
 	return x == InstanceStatus{}
 }
 
-func (x InstanceStatus) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x InstanceStatus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if x.State != InstanceStateLaunching {
-		if err := enc.NextFieldValueString(0, __VDLType_enum_3, x.State.String()); err != nil {
+		if err := enc.NextFieldValueString(0, vdlTypeEnum3, x.State.String()); err != nil {
 			return err
 		}
 	}
@@ -301,9 +303,9 @@ func (x InstanceStatus) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *InstanceStatus) VDLRead(dec vdl.Decoder) error {
+func (x *InstanceStatus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = InstanceStatus{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -315,8 +317,8 @@ func (x *InstanceStatus) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -357,16 +359,16 @@ func (InstallationStatus) VDLReflect(struct {
 }) {
 }
 
-func (x InstallationStatus) VDLIsZero() bool {
+func (x InstallationStatus) VDLIsZero() bool { //nolint:gocyclo
 	return x == InstallationStatus{}
 }
 
-func (x InstallationStatus) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_5); err != nil {
+func (x InstallationStatus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct5); err != nil {
 		return err
 	}
 	if x.State != InstallationStateActive {
-		if err := enc.NextFieldValueString(0, __VDLType_enum_2, x.State.String()); err != nil {
+		if err := enc.NextFieldValueString(0, vdlTypeEnum2, x.State.String()); err != nil {
 			return err
 		}
 	}
@@ -381,9 +383,9 @@ func (x InstallationStatus) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *InstallationStatus) VDLRead(dec vdl.Decoder) error {
+func (x *InstallationStatus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = InstallationStatus{}
-	if err := dec.StartValue(__VDLType_struct_5); err != nil {
+	if err := dec.StartValue(vdlTypeStruct5); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -395,8 +397,8 @@ func (x *InstallationStatus) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_5 {
-			index = __VDLType_struct_5.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct5 {
+			index = vdlTypeStruct5.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -437,16 +439,16 @@ func (DeviceStatus) VDLReflect(struct {
 }) {
 }
 
-func (x DeviceStatus) VDLIsZero() bool {
+func (x DeviceStatus) VDLIsZero() bool { //nolint:gocyclo
 	return x == DeviceStatus{}
 }
 
-func (x DeviceStatus) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_6); err != nil {
+func (x DeviceStatus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	if x.State != InstanceStateLaunching {
-		if err := enc.NextFieldValueString(0, __VDLType_enum_3, x.State.String()); err != nil {
+		if err := enc.NextFieldValueString(0, vdlTypeEnum3, x.State.String()); err != nil {
 			return err
 		}
 	}
@@ -461,9 +463,9 @@ func (x DeviceStatus) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *DeviceStatus) VDLRead(dec vdl.Decoder) error {
+func (x *DeviceStatus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = DeviceStatus{}
-	if err := dec.StartValue(__VDLType_struct_6); err != nil {
+	if err := dec.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -475,8 +477,8 @@ func (x *DeviceStatus) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_6 {
-			index = __VDLType_struct_6.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct6 {
+			index = vdlTypeStruct6.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -517,7 +519,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the Status union type.
-		VDLReflect(__StatusReflect)
+		VDLReflect(vdlStatusReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -527,8 +529,8 @@ type (
 	StatusInstallation struct{ Value InstallationStatus }
 	// StatusDevice represents field Device of the Status union type.
 	StatusDevice struct{ Value DeviceStatus }
-	// __StatusReflect describes the Status union type.
-	__StatusReflect struct {
+	// vdlStatusReflect describes the Status union type.
+	vdlStatusReflect struct {
 		Name  string `vdl:"v.io/v23/services/device.Status"`
 		Type  Status
 		Union struct {
@@ -539,22 +541,22 @@ type (
 	}
 )
 
-func (x StatusInstance) Index() int                 { return 0 }
-func (x StatusInstance) Interface() interface{}     { return x.Value }
-func (x StatusInstance) Name() string               { return "Instance" }
-func (x StatusInstance) VDLReflect(__StatusReflect) {}
+func (x StatusInstance) Index() int                  { return 0 }
+func (x StatusInstance) Interface() interface{}      { return x.Value }
+func (x StatusInstance) Name() string                { return "Instance" }
+func (x StatusInstance) VDLReflect(vdlStatusReflect) {}
 
-func (x StatusInstallation) Index() int                 { return 1 }
-func (x StatusInstallation) Interface() interface{}     { return x.Value }
-func (x StatusInstallation) Name() string               { return "Installation" }
-func (x StatusInstallation) VDLReflect(__StatusReflect) {}
+func (x StatusInstallation) Index() int                  { return 1 }
+func (x StatusInstallation) Interface() interface{}      { return x.Value }
+func (x StatusInstallation) Name() string                { return "Installation" }
+func (x StatusInstallation) VDLReflect(vdlStatusReflect) {}
 
-func (x StatusDevice) Index() int                 { return 2 }
-func (x StatusDevice) Interface() interface{}     { return x.Value }
-func (x StatusDevice) Name() string               { return "Device" }
-func (x StatusDevice) VDLReflect(__StatusReflect) {}
+func (x StatusDevice) Index() int                  { return 2 }
+func (x StatusDevice) Interface() interface{}      { return x.Value }
+func (x StatusDevice) Name() string                { return "Device" }
+func (x StatusDevice) VDLReflect(vdlStatusReflect) {}
 
-func (x StatusInstance) VDLIsZero() bool {
+func (x StatusInstance) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value == InstanceStatus{}
 }
 
@@ -566,8 +568,8 @@ func (x StatusDevice) VDLIsZero() bool {
 	return false
 }
 
-func (x StatusInstance) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
+func (x StatusInstance) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -582,8 +584,8 @@ func (x StatusInstance) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x StatusInstallation) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
+func (x StatusInstallation) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	if err := enc.NextField(1); err != nil {
@@ -598,8 +600,8 @@ func (x StatusInstallation) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x StatusDevice) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_7); err != nil {
+func (x StatusDevice) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	if err := enc.NextField(2); err != nil {
@@ -614,8 +616,8 @@ func (x StatusDevice) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadStatus(dec vdl.Decoder, x *Status) error {
-	if err := dec.StartValue(__VDLType_union_7); err != nil {
+func VDLReadStatus(dec vdl.Decoder, x *Status) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion7); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -626,9 +628,9 @@ func VDLReadStatus(dec vdl.Decoder, x *Status) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_7 {
+	if decType != vdlTypeUnion7 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_7.FieldIndexByName(name)
+		index = vdlTypeUnion7.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -676,7 +678,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the BlessServerMessage union type.
-		VDLReflect(__BlessServerMessageReflect)
+		VDLReflect(vdlBlessServerMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -685,8 +687,8 @@ type (
 	// The public key of the instance being blessed. The client must return
 	// blessings for this key.
 	BlessServerMessageInstancePublicKey struct{ Value []byte }
-	// __BlessServerMessageReflect describes the BlessServerMessage union type.
-	__BlessServerMessageReflect struct {
+	// vdlBlessServerMessageReflect describes the BlessServerMessage union type.
+	vdlBlessServerMessageReflect struct {
 		Name  string `vdl:"v.io/v23/services/device.BlessServerMessage"`
 		Type  BlessServerMessage
 		Union struct {
@@ -695,20 +697,20 @@ type (
 	}
 )
 
-func (x BlessServerMessageInstancePublicKey) Index() int                             { return 0 }
-func (x BlessServerMessageInstancePublicKey) Interface() interface{}                 { return x.Value }
-func (x BlessServerMessageInstancePublicKey) Name() string                           { return "InstancePublicKey" }
-func (x BlessServerMessageInstancePublicKey) VDLReflect(__BlessServerMessageReflect) {}
+func (x BlessServerMessageInstancePublicKey) Index() int                              { return 0 }
+func (x BlessServerMessageInstancePublicKey) Interface() interface{}                  { return x.Value }
+func (x BlessServerMessageInstancePublicKey) Name() string                            { return "InstancePublicKey" }
+func (x BlessServerMessageInstancePublicKey) VDLReflect(vdlBlessServerMessageReflect) {}
 
-func (x BlessServerMessageInstancePublicKey) VDLIsZero() bool {
+func (x BlessServerMessageInstancePublicKey) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Value) == 0
 }
 
-func (x BlessServerMessageInstancePublicKey) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_9); err != nil {
+func (x BlessServerMessageInstancePublicKey) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion9); err != nil {
 		return err
 	}
-	if err := enc.NextFieldValueBytes(0, __VDLType_list_8, x.Value); err != nil {
+	if err := enc.NextFieldValueBytes(0, vdlTypeList8, x.Value); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -717,8 +719,8 @@ func (x BlessServerMessageInstancePublicKey) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadBlessServerMessage(dec vdl.Decoder, x *BlessServerMessage) error {
-	if err := dec.StartValue(__VDLType_union_9); err != nil {
+func VDLReadBlessServerMessage(dec vdl.Decoder, x *BlessServerMessage) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion9); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -729,26 +731,19 @@ func VDLReadBlessServerMessage(dec vdl.Decoder, x *BlessServerMessage) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_9 {
+	if decType != vdlTypeUnion9 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_9.FieldIndexByName(name)
+		index = vdlTypeUnion9.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
 	}
-	switch index {
-	case 0:
+	if index == 0 {
 		var field BlessServerMessageInstancePublicKey
 		if err := dec.ReadValueBytes(-1, &field.Value); err != nil {
 			return err
 		}
 		*x = field
-	}
-	switch index, err := dec.NextField(); {
-	case err != nil:
-		return err
-	case index != -1:
-		return fmt.Errorf("extra field %d in union %T, from %v", index, x, dec.Type())
 	}
 	return dec.FinishValue()
 }
@@ -767,7 +762,7 @@ type (
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the BlessClientMessage union type.
-		VDLReflect(__BlessClientMessageReflect)
+		VDLReflect(vdlBlessClientMessageReflect)
 		VDLIsZero() bool
 		VDLWrite(vdl.Encoder) error
 	}
@@ -775,8 +770,8 @@ type (
 	//
 	// Blessings for the application instance.
 	BlessClientMessageAppBlessings struct{ Value security.Blessings }
-	// __BlessClientMessageReflect describes the BlessClientMessage union type.
-	__BlessClientMessageReflect struct {
+	// vdlBlessClientMessageReflect describes the BlessClientMessage union type.
+	vdlBlessClientMessageReflect struct {
 		Name  string `vdl:"v.io/v23/services/device.BlessClientMessage"`
 		Type  BlessClientMessage
 		Union struct {
@@ -785,17 +780,17 @@ type (
 	}
 )
 
-func (x BlessClientMessageAppBlessings) Index() int                             { return 0 }
-func (x BlessClientMessageAppBlessings) Interface() interface{}                 { return x.Value }
-func (x BlessClientMessageAppBlessings) Name() string                           { return "AppBlessings" }
-func (x BlessClientMessageAppBlessings) VDLReflect(__BlessClientMessageReflect) {}
+func (x BlessClientMessageAppBlessings) Index() int                              { return 0 }
+func (x BlessClientMessageAppBlessings) Interface() interface{}                  { return x.Value }
+func (x BlessClientMessageAppBlessings) Name() string                            { return "AppBlessings" }
+func (x BlessClientMessageAppBlessings) VDLReflect(vdlBlessClientMessageReflect) {}
 
-func (x BlessClientMessageAppBlessings) VDLIsZero() bool {
+func (x BlessClientMessageAppBlessings) VDLIsZero() bool { //nolint:gocyclo
 	return x.Value.IsZero()
 }
 
-func (x BlessClientMessageAppBlessings) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_union_11); err != nil {
+func (x BlessClientMessageAppBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeUnion11); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -814,8 +809,8 @@ func (x BlessClientMessageAppBlessings) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func VDLReadBlessClientMessage(dec vdl.Decoder, x *BlessClientMessage) error {
-	if err := dec.StartValue(__VDLType_union_11); err != nil {
+func VDLReadBlessClientMessage(dec vdl.Decoder, x *BlessClientMessage) error { //nolint:gocyclo
+	if err := dec.StartValue(vdlTypeUnion11); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -826,15 +821,14 @@ func VDLReadBlessClientMessage(dec vdl.Decoder, x *BlessClientMessage) error {
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != __VDLType_union_11 {
+	if decType != vdlTypeUnion11 {
 		name := decType.Field(index).Name
-		index = __VDLType_union_11.FieldIndexByName(name)
+		index = vdlTypeUnion11.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
 	}
-	switch index {
-	case 0:
+	if index == 0 {
 		var field BlessClientMessageAppBlessings
 		var wire security.WireBlessings
 		if err := wire.VDLRead(dec); err != nil {
@@ -844,12 +838,6 @@ func VDLReadBlessClientMessage(dec vdl.Decoder, x *BlessClientMessage) error {
 			return err
 		}
 		*x = field
-	}
-	switch index, err := dec.NextField(); {
-	case err != nil:
-		return err
-	case index != -1:
-		return fmt.Errorf("extra field %d in union %T, from %v", index, x, dec.Type())
 	}
 	return dec.FinishValue()
 }
@@ -872,19 +860,19 @@ func (Description) VDLReflect(struct {
 }) {
 }
 
-func (x Description) VDLIsZero() bool {
+func (x Description) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Profiles) == 0
 }
 
-func (x Description) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_12); err != nil {
+func (x Description) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct12); err != nil {
 		return err
 	}
 	if len(x.Profiles) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_set_1(enc, x.Profiles); err != nil {
+		if err := vdlWriteAnonSet1(enc, x.Profiles); err != nil {
 			return err
 		}
 	}
@@ -894,8 +882,8 @@ func (x Description) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[string]struct{}) error {
-	if err := enc.StartValue(__VDLType_set_13); err != nil {
+func vdlWriteAnonSet1(enc vdl.Encoder, x map[string]struct{}) error {
+	if err := enc.StartValue(vdlTypeSet13); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -912,9 +900,9 @@ func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[string]struct{}) error {
 	return enc.FinishValue()
 }
 
-func (x *Description) VDLRead(dec vdl.Decoder) error {
+func (x *Description) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Description{}
-	if err := dec.StartValue(__VDLType_struct_12); err != nil {
+	if err := dec.StartValue(vdlTypeStruct12); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -926,8 +914,8 @@ func (x *Description) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_12 {
-			index = __VDLType_struct_12.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct12 {
+			index = vdlTypeStruct12.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -935,17 +923,17 @@ func (x *Description) VDLRead(dec vdl.Decoder) error {
 				continue
 			}
 		}
-		switch index {
-		case 0:
-			if err := __VDLReadAnon_set_1(dec, &x.Profiles); err != nil {
+		if index == 0 {
+
+			if err := vdlReadAnonSet1(dec, &x.Profiles); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_set_1(dec vdl.Decoder, x *map[string]struct{}) error {
-	if err := dec.StartValue(__VDLType_set_13); err != nil {
+func vdlReadAnonSet1(dec vdl.Decoder, x *map[string]struct{}) error {
+	if err := dec.StartValue(vdlTypeSet13); err != nil {
 		return err
 	}
 	var tmpMap map[string]struct{}
@@ -980,12 +968,12 @@ func (Association) VDLReflect(struct {
 }) {
 }
 
-func (x Association) VDLIsZero() bool {
+func (x Association) VDLIsZero() bool { //nolint:gocyclo
 	return x == Association{}
 }
 
-func (x Association) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_14); err != nil {
+func (x Association) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	if x.IdentityName != "" {
@@ -1004,9 +992,9 @@ func (x Association) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Association) VDLRead(dec vdl.Decoder) error {
+func (x *Association) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Association{}
-	if err := dec.StartValue(__VDLType_struct_14); err != nil {
+	if err := dec.StartValue(vdlTypeStruct14); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1018,8 +1006,8 @@ func (x *Association) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_14 {
-			index = __VDLType_struct_14.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct14 {
+			index = vdlTypeStruct14.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1855,7 +1843,7 @@ type ApplicationServerStubMethods interface {
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
 type ApplicationServerStub interface {
 	ApplicationServerStubMethods
-	// Describe the Application interfaces.
+	// DescribeInterfaces the Application interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -2181,7 +2169,7 @@ type ClaimableServerStubMethods ClaimableServerMethods
 // ClaimableServerStub adds universal methods to ClaimableServerStubMethods.
 type ClaimableServerStub interface {
 	ClaimableServerStubMethods
-	// Describe the Claimable interfaces.
+	// DescribeInterfaces the Claimable interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -2643,7 +2631,7 @@ type DeviceServerStubMethods interface {
 // DeviceServerStub adds universal methods to DeviceServerStubMethods.
 type DeviceServerStub interface {
 	DeviceServerStubMethods
-	// Describe the Device interfaces.
+	// DescribeInterfaces the Device interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -2764,29 +2752,29 @@ var descDevice = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_map_1     *vdl.Type
-	__VDLType_enum_2    *vdl.Type
-	__VDLType_enum_3    *vdl.Type
-	__VDLType_struct_4  *vdl.Type
-	__VDLType_struct_5  *vdl.Type
-	__VDLType_struct_6  *vdl.Type
-	__VDLType_union_7   *vdl.Type
-	__VDLType_list_8    *vdl.Type
-	__VDLType_union_9   *vdl.Type
-	__VDLType_struct_10 *vdl.Type
-	__VDLType_union_11  *vdl.Type
-	__VDLType_struct_12 *vdl.Type
-	__VDLType_set_13    *vdl.Type
-	__VDLType_struct_14 *vdl.Type
+	vdlTypeMap1     *vdl.Type
+	vdlTypeEnum2    *vdl.Type
+	vdlTypeEnum3    *vdl.Type
+	vdlTypeStruct4  *vdl.Type
+	vdlTypeStruct5  *vdl.Type
+	vdlTypeStruct6  *vdl.Type
+	vdlTypeUnion7   *vdl.Type
+	vdlTypeList8    *vdl.Type
+	vdlTypeUnion9   *vdl.Type
+	vdlTypeStruct10 *vdl.Type
+	vdlTypeUnion11  *vdl.Type
+	vdlTypeStruct12 *vdl.Type
+	vdlTypeSet13    *vdl.Type
+	vdlTypeStruct14 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -2795,11 +2783,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Config)(nil))
@@ -2815,20 +2803,20 @@ func __VDLInit() struct{} {
 	vdl.Register((*Association)(nil))
 
 	// Initialize type definitions.
-	__VDLType_map_1 = vdl.TypeOf((*Config)(nil))
-	__VDLType_enum_2 = vdl.TypeOf((*InstallationState)(nil))
-	__VDLType_enum_3 = vdl.TypeOf((*InstanceState)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*InstanceStatus)(nil)).Elem()
-	__VDLType_struct_5 = vdl.TypeOf((*InstallationStatus)(nil)).Elem()
-	__VDLType_struct_6 = vdl.TypeOf((*DeviceStatus)(nil)).Elem()
-	__VDLType_union_7 = vdl.TypeOf((*Status)(nil))
-	__VDLType_list_8 = vdl.TypeOf((*[]byte)(nil))
-	__VDLType_union_9 = vdl.TypeOf((*BlessServerMessage)(nil))
-	__VDLType_struct_10 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
-	__VDLType_union_11 = vdl.TypeOf((*BlessClientMessage)(nil))
-	__VDLType_struct_12 = vdl.TypeOf((*Description)(nil)).Elem()
-	__VDLType_set_13 = vdl.TypeOf((*map[string]struct{})(nil))
-	__VDLType_struct_14 = vdl.TypeOf((*Association)(nil)).Elem()
+	vdlTypeMap1 = vdl.TypeOf((*Config)(nil))
+	vdlTypeEnum2 = vdl.TypeOf((*InstallationState)(nil))
+	vdlTypeEnum3 = vdl.TypeOf((*InstanceState)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*InstanceStatus)(nil)).Elem()
+	vdlTypeStruct5 = vdl.TypeOf((*InstallationStatus)(nil)).Elem()
+	vdlTypeStruct6 = vdl.TypeOf((*DeviceStatus)(nil)).Elem()
+	vdlTypeUnion7 = vdl.TypeOf((*Status)(nil))
+	vdlTypeList8 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeUnion9 = vdl.TypeOf((*BlessServerMessage)(nil))
+	vdlTypeStruct10 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
+	vdlTypeUnion11 = vdl.TypeOf((*BlessClientMessage)(nil))
+	vdlTypeStruct12 = vdl.TypeOf((*Description)(nil)).Elem()
+	vdlTypeSet13 = vdl.TypeOf((*map[string]struct{})(nil))
+	vdlTypeStruct14 = vdl.TypeOf((*Association)(nil)).Elem()
 
 	return struct{}{}
 }

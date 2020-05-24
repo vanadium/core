@@ -86,12 +86,17 @@ func uniqueImport(pkgName, pkgPath string, seen map[string]bool) goImport {
 	}
 	name, iter := "", 1
 	// Add special-cases to always use named imports for time and math, since they
-	// are easily mistaken for the go standard time and math packages.
+	// are easily mistaken for the go standard time and math packages. Also,
+	// the introduction of go modules confuses v23 as a package version vs
+	// a package name, so it needs to be imported as named import to avoid
+	// confusing lint tools etc.
 	switch pkgPath {
 	case "v.io/v23/vdlroot/time":
 		name, pkgName = "vdltime", "vdltime"
 	case "v.io/v23/vdlroot/math":
 		name, pkgName = "vdlmath", "vdlmath"
+	case "v.io/v23":
+		name, pkgName = "v23", "v23"
 	}
 	for {
 		local := pkgName

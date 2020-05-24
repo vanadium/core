@@ -6,18 +6,20 @@
 // Package: logreader
 
 // Package logreader defines interfaces for reading log files remotely.
+//nolint:golint
 package logreader
 
 import (
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -35,12 +37,12 @@ func (LogEntry) VDLReflect(struct {
 }) {
 }
 
-func (x LogEntry) VDLIsZero() bool {
+func (x LogEntry) VDLIsZero() bool { //nolint:gocyclo
 	return x == LogEntry{}
 }
 
-func (x LogEntry) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x LogEntry) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Position != 0 {
@@ -59,9 +61,9 @@ func (x LogEntry) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *LogEntry) VDLRead(dec vdl.Decoder) error {
+func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = LogEntry{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -73,8 +75,8 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -281,7 +283,7 @@ type LogFileServerStubMethods interface {
 // LogFileServerStub adds universal methods to LogFileServerStubMethods.
 type LogFileServerStub interface {
 	LogFileServerStubMethods
-	// Describe the LogFile interfaces.
+	// DescribeInterfaces the LogFile interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -402,16 +404,16 @@ func (s implLogFileReadLogServerCallSend) Send(item LogEntry) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -420,17 +422,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*LogEntry)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*LogEntry)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*LogEntry)(nil)).Elem()
 
 	return struct{}{}
 }

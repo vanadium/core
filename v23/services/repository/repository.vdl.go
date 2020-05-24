@@ -7,11 +7,13 @@
 
 // Package repository defines interfaces for storing and retrieving device,
 // application and binary management related information.
+//nolint:golint
 package repository
 
 import (
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
@@ -22,7 +24,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -38,12 +40,12 @@ func (MediaInfo) VDLReflect(struct {
 }) {
 }
 
-func (x MediaInfo) VDLIsZero() bool {
+func (x MediaInfo) VDLIsZero() bool { //nolint:gocyclo
 	return x == MediaInfo{}
 }
 
-func (x MediaInfo) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x MediaInfo) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Type != "" {
@@ -62,9 +64,9 @@ func (x MediaInfo) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *MediaInfo) VDLRead(dec vdl.Decoder) error {
+func (x *MediaInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = MediaInfo{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -76,8 +78,8 @@ func (x *MediaInfo) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -289,7 +291,7 @@ type ApplicationServerStubMethods ApplicationServerMethods
 // ApplicationServerStub adds universal methods to ApplicationServerStubMethods.
 type ApplicationServerStub interface {
 	ApplicationServerStubMethods
-	// Describe the Application interfaces.
+	// DescribeInterfaces the Application interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -838,7 +840,7 @@ type BinaryServerStubMethods interface {
 // BinaryServerStub adds universal methods to BinaryServerStubMethods.
 type BinaryServerStub interface {
 	BinaryServerStubMethods
-	// Describe the Binary interfaces.
+	// DescribeInterfaces the Binary interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -1136,7 +1138,7 @@ type ProfileServerStubMethods ProfileServerMethods
 // ProfileServerStub adds universal methods to ProfileServerStubMethods.
 type ProfileServerStub interface {
 	ProfileServerStubMethods
-	// Describe the Profile interfaces.
+	// DescribeInterfaces the Profile interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -1209,16 +1211,16 @@ var descProfile = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1227,17 +1229,17 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*MediaInfo)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*MediaInfo)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*MediaInfo)(nil)).Elem()
 
 	return struct{}{}
 }

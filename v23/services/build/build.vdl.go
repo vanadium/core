@@ -6,19 +6,21 @@
 // Package: build
 
 // Package build defines interfaces for building executable binaries.
+//nolint:golint
 package build
 
 import (
 	"fmt"
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/services/binary"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -78,18 +80,18 @@ func (Architecture) VDLReflect(struct {
 }) {
 }
 
-func (x Architecture) VDLIsZero() bool {
+func (x Architecture) VDLIsZero() bool { //nolint:gocyclo
 	return x == ArchitectureAmd64
 }
 
-func (x Architecture) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_1, x.String()); err != nil {
+func (x Architecture) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum1, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Architecture) VDLRead(dec vdl.Decoder) error {
+func (x *Architecture) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -156,18 +158,18 @@ func (Format) VDLReflect(struct {
 }) {
 }
 
-func (x Format) VDLIsZero() bool {
+func (x Format) VDLIsZero() bool { //nolint:gocyclo
 	return x == FormatElf
 }
 
-func (x Format) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_2, x.String()); err != nil {
+func (x Format) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum2, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *Format) VDLRead(dec vdl.Decoder) error {
+func (x *Format) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -240,18 +242,18 @@ func (OperatingSystem) VDLReflect(struct {
 }) {
 }
 
-func (x OperatingSystem) VDLIsZero() bool {
+func (x OperatingSystem) VDLIsZero() bool { //nolint:gocyclo
 	return x == OperatingSystemDarwin
 }
 
-func (x OperatingSystem) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_3, x.String()); err != nil {
+func (x OperatingSystem) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum3, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *OperatingSystem) VDLRead(dec vdl.Decoder) error {
+func (x *OperatingSystem) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -274,7 +276,7 @@ func (File) VDLReflect(struct {
 }) {
 }
 
-func (x File) VDLIsZero() bool {
+func (x File) VDLIsZero() bool { //nolint:gocyclo
 	if x.Name != "" {
 		return false
 	}
@@ -284,8 +286,8 @@ func (x File) VDLIsZero() bool {
 	return true
 }
 
-func (x File) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_4); err != nil {
+func (x File) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -294,7 +296,7 @@ func (x File) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if len(x.Contents) != 0 {
-		if err := enc.NextFieldValueBytes(1, __VDLType_list_5, x.Contents); err != nil {
+		if err := enc.NextFieldValueBytes(1, vdlTypeList5, x.Contents); err != nil {
 			return err
 		}
 	}
@@ -304,9 +306,9 @@ func (x File) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *File) VDLRead(dec vdl.Decoder) error {
+func (x *File) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = File{}
-	if err := dec.StartValue(__VDLType_struct_4); err != nil {
+	if err := dec.StartValue(vdlTypeStruct4); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -318,8 +320,8 @@ func (x *File) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_4 {
-			index = __VDLType_struct_4.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct4 {
+			index = vdlTypeStruct4.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -520,7 +522,7 @@ type BuilderServerStubMethods interface {
 // BuilderServerStub adds universal methods to BuilderServerStubMethods.
 type BuilderServerStub interface {
 	BuilderServerStubMethods
-	// Describe the Builder interfaces.
+	// DescribeInterfaces the Builder interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -683,20 +685,20 @@ func (s implBuilderBuildServerCallSend) Send(item File) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_enum_1   *vdl.Type
-	__VDLType_enum_2   *vdl.Type
-	__VDLType_enum_3   *vdl.Type
-	__VDLType_struct_4 *vdl.Type
-	__VDLType_list_5   *vdl.Type
+	vdlTypeEnum1   *vdl.Type
+	vdlTypeEnum2   *vdl.Type
+	vdlTypeEnum3   *vdl.Type
+	vdlTypeStruct4 *vdl.Type
+	vdlTypeList5   *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -705,11 +707,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Architecture)(nil))
@@ -718,11 +720,11 @@ func __VDLInit() struct{} {
 	vdl.Register((*File)(nil))
 
 	// Initialize type definitions.
-	__VDLType_enum_1 = vdl.TypeOf((*Architecture)(nil))
-	__VDLType_enum_2 = vdl.TypeOf((*Format)(nil))
-	__VDLType_enum_3 = vdl.TypeOf((*OperatingSystem)(nil))
-	__VDLType_struct_4 = vdl.TypeOf((*File)(nil)).Elem()
-	__VDLType_list_5 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeEnum1 = vdl.TypeOf((*Architecture)(nil))
+	vdlTypeEnum2 = vdl.TypeOf((*Format)(nil))
+	vdlTypeEnum3 = vdl.TypeOf((*OperatingSystem)(nil))
+	vdlTypeStruct4 = vdl.TypeOf((*File)(nil)).Elem()
+	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
 
 	return struct{}{}
 }

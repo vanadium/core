@@ -9,13 +9,14 @@
 //
 // These are the data structures common to tools described in
 // https://docs.google.com/document/d/1v-iKwej3eYT_RNhPwQ81A9fa8H15Q6RzNyv2rrAeAUc/edit?usp=sharing
+//nolint:golint
 package ben
 
 import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -32,12 +33,12 @@ func (Cpu) VDLReflect(struct {
 }) {
 }
 
-func (x Cpu) VDLIsZero() bool {
+func (x Cpu) VDLIsZero() bool { //nolint:gocyclo
 	return x == Cpu{}
 }
 
-func (x Cpu) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x Cpu) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Architecture != "" {
@@ -61,9 +62,9 @@ func (x Cpu) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Cpu) VDLRead(dec vdl.Decoder) error {
+func (x *Cpu) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Cpu{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -75,8 +76,8 @@ func (x *Cpu) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -121,12 +122,12 @@ func (Os) VDLReflect(struct {
 }) {
 }
 
-func (x Os) VDLIsZero() bool {
+func (x Os) VDLIsZero() bool { //nolint:gocyclo
 	return x == Os{}
 }
 
-func (x Os) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x Os) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -145,9 +146,9 @@ func (x Os) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Os) VDLRead(dec vdl.Decoder) error {
+func (x *Os) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Os{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -159,8 +160,8 @@ func (x *Os) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -199,12 +200,12 @@ func (Scenario) VDLReflect(struct {
 }) {
 }
 
-func (x Scenario) VDLIsZero() bool {
+func (x Scenario) VDLIsZero() bool { //nolint:gocyclo
 	return x == Scenario{}
 }
 
-func (x Scenario) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x Scenario) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if x.Cpu != (Cpu{}) {
@@ -234,9 +235,9 @@ func (x Scenario) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Scenario) VDLRead(dec vdl.Decoder) error {
+func (x *Scenario) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Scenario{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -248,8 +249,8 @@ func (x *Scenario) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -290,18 +291,18 @@ func (SourceCode) VDLReflect(struct {
 }) {
 }
 
-func (x SourceCode) VDLIsZero() bool {
+func (x SourceCode) VDLIsZero() bool { //nolint:gocyclo
 	return x == ""
 }
 
-func (x SourceCode) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_string_4, string(x)); err != nil {
+func (x SourceCode) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeString4, string(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *SourceCode) VDLRead(dec vdl.Decoder) error {
+func (x *SourceCode) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -327,12 +328,12 @@ func (Run) VDLReflect(struct {
 }) {
 }
 
-func (x Run) VDLIsZero() bool {
+func (x Run) VDLIsZero() bool { //nolint:gocyclo
 	return x == Run{}
 }
 
-func (x Run) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_5); err != nil {
+func (x Run) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct5); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -376,9 +377,9 @@ func (x Run) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Run) VDLRead(dec vdl.Decoder) error {
+func (x *Run) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Run{}
-	if err := dec.StartValue(__VDLType_struct_5); err != nil {
+	if err := dec.StartValue(vdlTypeStruct5); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -390,8 +391,8 @@ func (x *Run) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_5 {
-			index = __VDLType_struct_5.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct5 {
+			index = vdlTypeStruct5.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -456,20 +457,20 @@ func (x *Run) VDLRead(dec vdl.Decoder) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_string_4 *vdl.Type
-	__VDLType_struct_5 *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeString4 *vdl.Type
+	vdlTypeStruct5 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -478,11 +479,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Cpu)(nil))
@@ -492,11 +493,11 @@ func __VDLInit() struct{} {
 	vdl.Register((*Run)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*Cpu)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*Os)(nil)).Elem()
-	__VDLType_struct_3 = vdl.TypeOf((*Scenario)(nil)).Elem()
-	__VDLType_string_4 = vdl.TypeOf((*SourceCode)(nil))
-	__VDLType_struct_5 = vdl.TypeOf((*Run)(nil)).Elem()
+	vdlTypeStruct1 = vdl.TypeOf((*Cpu)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*Os)(nil)).Elem()
+	vdlTypeStruct3 = vdl.TypeOf((*Scenario)(nil)).Elem()
+	vdlTypeString4 = vdl.TypeOf((*SourceCode)(nil))
+	vdlTypeStruct5 = vdl.TypeOf((*Run)(nil)).Elem()
 
 	return struct{}{}
 }

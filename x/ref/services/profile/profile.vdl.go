@@ -6,6 +6,7 @@
 // Package: profile
 
 // Package profile defines types for the implementation of Vanadium profiles.
+//nolint:golint
 package profile
 
 import (
@@ -13,7 +14,7 @@ import (
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -33,12 +34,12 @@ func (Library) VDLReflect(struct {
 }) {
 }
 
-func (x Library) VDLIsZero() bool {
+func (x Library) VDLIsZero() bool { //nolint:gocyclo
 	return x == Library{}
 }
 
-func (x Library) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_1); err != nil {
+func (x Library) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	if x.Name != "" {
@@ -62,9 +63,9 @@ func (x Library) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Library) VDLRead(dec vdl.Decoder) error {
+func (x *Library) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Library{}
-	if err := dec.StartValue(__VDLType_struct_1); err != nil {
+	if err := dec.StartValue(vdlTypeStruct1); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -76,8 +77,8 @@ func (x *Library) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_1 {
-			index = __VDLType_struct_1.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct1 {
+			index = vdlTypeStruct1.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -134,7 +135,7 @@ func (Specification) VDLReflect(struct {
 }) {
 }
 
-func (x Specification) VDLIsZero() bool {
+func (x Specification) VDLIsZero() bool { //nolint:gocyclo
 	if x.Label != "" {
 		return false
 	}
@@ -156,8 +157,8 @@ func (x Specification) VDLIsZero() bool {
 	return true
 }
 
-func (x Specification) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x Specification) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if x.Label != "" {
@@ -171,17 +172,17 @@ func (x Specification) VDLWrite(enc vdl.Encoder) error {
 		}
 	}
 	if x.Arch != build.ArchitectureAmd64 {
-		if err := enc.NextFieldValueString(2, __VDLType_enum_3, x.Arch.String()); err != nil {
+		if err := enc.NextFieldValueString(2, vdlTypeEnum3, x.Arch.String()); err != nil {
 			return err
 		}
 	}
 	if x.Os != build.OperatingSystemDarwin {
-		if err := enc.NextFieldValueString(3, __VDLType_enum_4, x.Os.String()); err != nil {
+		if err := enc.NextFieldValueString(3, vdlTypeEnum4, x.Os.String()); err != nil {
 			return err
 		}
 	}
 	if x.Format != build.FormatElf {
-		if err := enc.NextFieldValueString(4, __VDLType_enum_5, x.Format.String()); err != nil {
+		if err := enc.NextFieldValueString(4, vdlTypeEnum5, x.Format.String()); err != nil {
 			return err
 		}
 	}
@@ -189,7 +190,7 @@ func (x Specification) VDLWrite(enc vdl.Encoder) error {
 		if err := enc.NextField(5); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_set_1(enc, x.Libraries); err != nil {
+		if err := vdlWriteAnonSet1(enc, x.Libraries); err != nil {
 			return err
 		}
 	}
@@ -199,8 +200,8 @@ func (x Specification) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[Library]struct{}) error {
-	if err := enc.StartValue(__VDLType_set_6); err != nil {
+func vdlWriteAnonSet1(enc vdl.Encoder, x map[Library]struct{}) error {
+	if err := enc.StartValue(vdlTypeSet6); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -220,9 +221,9 @@ func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[Library]struct{}) error {
 	return enc.FinishValue()
 }
 
-func (x *Specification) VDLRead(dec vdl.Decoder) error {
+func (x *Specification) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Specification{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -234,8 +235,8 @@ func (x *Specification) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -286,15 +287,15 @@ func (x *Specification) VDLRead(dec vdl.Decoder) error {
 				}
 			}
 		case 5:
-			if err := __VDLReadAnon_set_1(dec, &x.Libraries); err != nil {
+			if err := vdlReadAnonSet1(dec, &x.Libraries); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_set_1(dec vdl.Decoder, x *map[Library]struct{}) error {
-	if err := dec.StartValue(__VDLType_set_6); err != nil {
+func vdlReadAnonSet1(dec vdl.Decoder, x *map[Library]struct{}) error {
+	if err := dec.StartValue(vdlTypeSet6); err != nil {
 		return err
 	}
 	var tmpMap map[Library]struct{}
@@ -324,21 +325,21 @@ func __VDLReadAnon_set_1(dec vdl.Decoder, x *map[Library]struct{}) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_struct_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_enum_3   *vdl.Type
-	__VDLType_enum_4   *vdl.Type
-	__VDLType_enum_5   *vdl.Type
-	__VDLType_set_6    *vdl.Type
+	vdlTypeStruct1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeEnum3   *vdl.Type
+	vdlTypeEnum4   *vdl.Type
+	vdlTypeEnum5   *vdl.Type
+	vdlTypeSet6    *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -347,23 +348,23 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*Library)(nil))
 	vdl.Register((*Specification)(nil))
 
 	// Initialize type definitions.
-	__VDLType_struct_1 = vdl.TypeOf((*Library)(nil)).Elem()
-	__VDLType_struct_2 = vdl.TypeOf((*Specification)(nil)).Elem()
-	__VDLType_enum_3 = vdl.TypeOf((*build.Architecture)(nil))
-	__VDLType_enum_4 = vdl.TypeOf((*build.OperatingSystem)(nil))
-	__VDLType_enum_5 = vdl.TypeOf((*build.Format)(nil))
-	__VDLType_set_6 = vdl.TypeOf((*map[Library]struct{})(nil))
+	vdlTypeStruct1 = vdl.TypeOf((*Library)(nil)).Elem()
+	vdlTypeStruct2 = vdl.TypeOf((*Specification)(nil)).Elem()
+	vdlTypeEnum3 = vdl.TypeOf((*build.Architecture)(nil))
+	vdlTypeEnum4 = vdl.TypeOf((*build.OperatingSystem)(nil))
+	vdlTypeEnum5 = vdl.TypeOf((*build.Format)(nil))
+	vdlTypeSet6 = vdl.TypeOf((*map[Library]struct{})(nil))
 
 	return struct{}{}
 }

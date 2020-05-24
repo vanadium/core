@@ -6,11 +6,13 @@
 // Package: arith
 
 // Package arith is a vdl test package with imports.
+//nolint:golint
 package arith
 
 import (
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
@@ -19,7 +21,7 @@ import (
 	"v.io/x/ref/lib/vdl/testdata/base"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Const definitions
@@ -98,7 +100,7 @@ type TrigonometryServerStubMethods TrigonometryServerMethods
 // TrigonometryServerStub adds universal methods to TrigonometryServerStubMethods.
 type TrigonometryServerStub interface {
 	TrigonometryServerStubMethods
-	// Describe the Trigonometry interfaces.
+	// DescribeInterfaces the Trigonometry interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -223,7 +225,7 @@ type AdvancedMathServerStubMethods AdvancedMathServerMethods
 // AdvancedMathServerStub adds universal methods to AdvancedMathServerStubMethods.
 type AdvancedMathServerStub interface {
 	AdvancedMathServerStubMethods
-	// Describe the AdvancedMath interfaces.
+	// DescribeInterfaces the AdvancedMath interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -596,7 +598,7 @@ type ArithServerStubMethods interface {
 // ArithServerStub adds universal methods to ArithServerStubMethods.
 type ArithServerStub interface {
 	ArithServerStubMethods
-	// Describe the Arith interfaces.
+	// DescribeInterfaces the Arith interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -954,7 +956,7 @@ type CalculatorServerStubMethods interface {
 // CalculatorServerStub adds universal methods to CalculatorServerStubMethods.
 type CalculatorServerStub interface {
 	CalculatorServerStubMethods
-	// Describe the Calculator interfaces.
+	// DescribeInterfaces the Calculator interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -1022,13 +1024,13 @@ var descCalculator = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -1037,11 +1039,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

@@ -188,7 +188,7 @@ func untypedConstWire(data *goData, v *vdl.Value) string {
 		for _, key := range vdl.SortValuesAsString(v.Keys()) {
 			s += "\n" + untypedConst(data, key)
 			if k == vdl.Set {
-				s += ": struct{}{},"
+				s += ": {},"
 			} else {
 				s += ": " + untypedConst(data, v.MapIndex(key)) + ","
 			}

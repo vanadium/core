@@ -7,18 +7,20 @@
 
 // package benchmark provides simple tools to measure the performance of the
 // IPC system.
+//nolint:golint
 package benchmark
 
 import (
 	"io"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -186,7 +188,7 @@ type BenchmarkServerStubMethods interface {
 // BenchmarkServerStub adds universal methods to BenchmarkServerStubMethods.
 type BenchmarkServerStub interface {
 	BenchmarkServerStubMethods
-	// Describe the Benchmark interfaces.
+	// DescribeInterfaces the Benchmark interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -339,13 +341,13 @@ func (s implBenchmarkEchoStreamServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -354,11 +356,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	return struct{}{}
 }

@@ -7,11 +7,13 @@
 
 // Package groups defines interfaces for managing access control groups.  Groups
 // can be referenced by BlessingPatterns (e.g. in AccessLists).
+//nolint:golint
 package groups
 
 import (
 	"fmt"
-	"v.io/v23"
+
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -21,7 +23,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Type definitions
@@ -38,18 +40,18 @@ func (BlessingPatternChunk) VDLReflect(struct {
 }) {
 }
 
-func (x BlessingPatternChunk) VDLIsZero() bool {
+func (x BlessingPatternChunk) VDLIsZero() bool { //nolint:gocyclo
 	return x == ""
 }
 
-func (x BlessingPatternChunk) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_string_1, string(x)); err != nil {
+func (x BlessingPatternChunk) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeString1, string(x)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *BlessingPatternChunk) VDLRead(dec vdl.Decoder) error {
+func (x *BlessingPatternChunk) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -67,12 +69,12 @@ func (GetRequest) VDLReflect(struct {
 }) {
 }
 
-func (x GetRequest) VDLIsZero() bool {
+func (x GetRequest) VDLIsZero() bool { //nolint:gocyclo
 	return x == GetRequest{}
 }
 
-func (x GetRequest) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_2); err != nil {
+func (x GetRequest) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	if err := enc.NextField(-1); err != nil {
@@ -81,9 +83,9 @@ func (x GetRequest) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *GetRequest) VDLRead(dec vdl.Decoder) error {
+func (x *GetRequest) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = GetRequest{}
-	if err := dec.StartValue(__VDLType_struct_2); err != nil {
+	if err := dec.StartValue(vdlTypeStruct2); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -95,8 +97,8 @@ func (x *GetRequest) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_2 {
-			index = __VDLType_struct_2.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct2 {
+			index = vdlTypeStruct2.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -118,19 +120,19 @@ func (GetResponse) VDLReflect(struct {
 }) {
 }
 
-func (x GetResponse) VDLIsZero() bool {
+func (x GetResponse) VDLIsZero() bool { //nolint:gocyclo
 	return len(x.Entries) == 0
 }
 
-func (x GetResponse) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_3); err != nil {
+func (x GetResponse) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	if len(x.Entries) != 0 {
 		if err := enc.NextField(0); err != nil {
 			return err
 		}
-		if err := __VDLWriteAnon_set_1(enc, x.Entries); err != nil {
+		if err := vdlWriteAnonSet1(enc, x.Entries); err != nil {
 			return err
 		}
 	}
@@ -140,15 +142,15 @@ func (x GetResponse) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[BlessingPatternChunk]struct{}) error {
-	if err := enc.StartValue(__VDLType_set_4); err != nil {
+func vdlWriteAnonSet1(enc vdl.Encoder, x map[BlessingPatternChunk]struct{}) error {
+	if err := enc.StartValue(vdlTypeSet4); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
 		return err
 	}
 	for key := range x {
-		if err := enc.NextEntryValueString(__VDLType_string_1, string(key)); err != nil {
+		if err := enc.NextEntryValueString(vdlTypeString1, string(key)); err != nil {
 			return err
 		}
 	}
@@ -158,9 +160,9 @@ func __VDLWriteAnon_set_1(enc vdl.Encoder, x map[BlessingPatternChunk]struct{}) 
 	return enc.FinishValue()
 }
 
-func (x *GetResponse) VDLRead(dec vdl.Decoder) error {
+func (x *GetResponse) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = GetResponse{}
-	if err := dec.StartValue(__VDLType_struct_3); err != nil {
+	if err := dec.StartValue(vdlTypeStruct3); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -172,8 +174,8 @@ func (x *GetResponse) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_3 {
-			index = __VDLType_struct_3.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct3 {
+			index = vdlTypeStruct3.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -181,17 +183,17 @@ func (x *GetResponse) VDLRead(dec vdl.Decoder) error {
 				continue
 			}
 		}
-		switch index {
-		case 0:
-			if err := __VDLReadAnon_set_1(dec, &x.Entries); err != nil {
+		if index == 0 {
+
+			if err := vdlReadAnonSet1(dec, &x.Entries); err != nil {
 				return err
 			}
 		}
 	}
 }
 
-func __VDLReadAnon_set_1(dec vdl.Decoder, x *map[BlessingPatternChunk]struct{}) error {
-	if err := dec.StartValue(__VDLType_set_4); err != nil {
+func vdlReadAnonSet1(dec vdl.Decoder, x *map[BlessingPatternChunk]struct{}) error {
+	if err := dec.StartValue(vdlTypeSet4); err != nil {
 		return err
 	}
 	var tmpMap map[BlessingPatternChunk]struct{}
@@ -267,18 +269,18 @@ func (ApproximationType) VDLReflect(struct {
 }) {
 }
 
-func (x ApproximationType) VDLIsZero() bool {
+func (x ApproximationType) VDLIsZero() bool { //nolint:gocyclo
 	return x == ApproximationTypeUnder
 }
 
-func (x ApproximationType) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.WriteValueString(__VDLType_enum_5, x.String()); err != nil {
+func (x ApproximationType) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.WriteValueString(vdlTypeEnum5, x.String()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (x *ApproximationType) VDLRead(dec vdl.Decoder) error {
+func (x *ApproximationType) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	switch value, err := dec.ReadValueString(); {
 	case err != nil:
 		return err
@@ -302,12 +304,12 @@ func (Approximation) VDLReflect(struct {
 }) {
 }
 
-func (x Approximation) VDLIsZero() bool {
+func (x Approximation) VDLIsZero() bool { //nolint:gocyclo
 	return x == Approximation{}
 }
 
-func (x Approximation) VDLWrite(enc vdl.Encoder) error {
-	if err := enc.StartValue(__VDLType_struct_6); err != nil {
+func (x Approximation) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	if x.Reason != "" {
@@ -326,9 +328,9 @@ func (x Approximation) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *Approximation) VDLRead(dec vdl.Decoder) error {
+func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Approximation{}
-	if err := dec.StartValue(__VDLType_struct_6); err != nil {
+	if err := dec.StartValue(vdlTypeStruct6); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -340,8 +342,8 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error {
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != __VDLType_struct_6 {
-			index = __VDLType_struct_6.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct6 {
+			index = vdlTypeStruct6.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -511,7 +513,7 @@ type GroupReaderServerStubMethods GroupReaderServerMethods
 // GroupReaderServerStub adds universal methods to GroupReaderServerStubMethods.
 type GroupReaderServerStub interface {
 	GroupReaderServerStubMethods
-	// Describe the GroupReader interfaces.
+	// DescribeInterfaces the GroupReader interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -783,7 +785,7 @@ type GroupServerStubMethods GroupServerMethods
 // GroupServerStub adds universal methods to GroupServerStubMethods.
 type GroupServerStub interface {
 	GroupServerStubMethods
-	// Describe the Group interfaces.
+	// DescribeInterfaces the Group interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -891,21 +893,21 @@ var descGroup = rpc.InterfaceDesc{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	__VDLType_string_1 *vdl.Type
-	__VDLType_struct_2 *vdl.Type
-	__VDLType_struct_3 *vdl.Type
-	__VDLType_set_4    *vdl.Type
-	__VDLType_enum_5   *vdl.Type
-	__VDLType_struct_6 *vdl.Type
+	vdlTypeString1 *vdl.Type
+	vdlTypeStruct2 *vdl.Type
+	vdlTypeStruct3 *vdl.Type
+	vdlTypeSet4    *vdl.Type
+	vdlTypeEnum5   *vdl.Type
+	vdlTypeStruct6 *vdl.Type
 )
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -914,11 +916,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Register types.
 	vdl.Register((*BlessingPatternChunk)(nil))
@@ -928,12 +930,12 @@ func __VDLInit() struct{} {
 	vdl.Register((*Approximation)(nil))
 
 	// Initialize type definitions.
-	__VDLType_string_1 = vdl.TypeOf((*BlessingPatternChunk)(nil))
-	__VDLType_struct_2 = vdl.TypeOf((*GetRequest)(nil)).Elem()
-	__VDLType_struct_3 = vdl.TypeOf((*GetResponse)(nil)).Elem()
-	__VDLType_set_4 = vdl.TypeOf((*map[BlessingPatternChunk]struct{})(nil))
-	__VDLType_enum_5 = vdl.TypeOf((*ApproximationType)(nil))
-	__VDLType_struct_6 = vdl.TypeOf((*Approximation)(nil)).Elem()
+	vdlTypeString1 = vdl.TypeOf((*BlessingPatternChunk)(nil))
+	vdlTypeStruct2 = vdl.TypeOf((*GetRequest)(nil)).Elem()
+	vdlTypeStruct3 = vdl.TypeOf((*GetResponse)(nil)).Elem()
+	vdlTypeSet4 = vdl.TypeOf((*map[BlessingPatternChunk]struct{})(nil))
+	vdlTypeEnum5 = vdl.TypeOf((*ApproximationType)(nil))
+	vdlTypeStruct6 = vdl.TypeOf((*Approximation)(nil)).Elem()
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoBlessings.ID), "{1:}{2:} No blessings recognized; cannot create group Permissions")

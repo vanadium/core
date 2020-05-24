@@ -7,10 +7,11 @@
 
 // Package discharger defines an interface for obtaining discharges for
 // third-party caveats.
+//nolint:golint
 package discharger
 
 import (
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/rpc"
@@ -18,7 +19,7 @@ import (
 	"v.io/v23/verror"
 )
 
-var _ = __VDLInit() // Must be first; see __VDLInit comments for details.
+var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 //////////////////////////////////////////////////
 // Error definitions
@@ -88,7 +89,7 @@ type DischargerServerStubMethods DischargerServerMethods
 // DischargerServerStub adds universal methods to DischargerServerStubMethods.
 type DischargerServerStub interface {
 	DischargerServerStubMethods
-	// Describe the Discharger interfaces.
+	// DescribeInterfaces the Discharger interfaces.
 	Describe__() []rpc.InterfaceDesc
 }
 
@@ -149,13 +150,13 @@ var descDischarger = rpc.InterfaceDesc{
 	},
 }
 
-var __VDLInitCalled bool
+var initializeVDLCalled bool
 
-// __VDLInit performs vdl initialization.  It is safe to call multiple times.
+// initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = __VDLInit()
+//    var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
@@ -164,11 +165,11 @@ var __VDLInitCalled bool
 //
 // This function returns a dummy value, so that it can be used to initialize the
 // first var in the file, to take advantage of Go's defined init order.
-func __VDLInit() struct{} {
-	if __VDLInitCalled {
+func initializeVDL() struct{} {
+	if initializeVDLCalled {
 		return struct{}{}
 	}
-	__VDLInitCalled = true
+	initializeVDLCalled = true
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotAThirdPartyCaveat.ID), "{1:}{2:} discharges are not required for non-third-party caveats (id: {c.id})")
