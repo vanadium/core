@@ -223,7 +223,7 @@ type raftProtoClientMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leader -- the id of the sender
+	//   leaderId -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -231,7 +231,7 @@ type raftProtoClientMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry, _ ...rpc.CallOpt) error
+	AppendToLog(_ *context.T, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry, _ ...rpc.CallOpt) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -244,7 +244,7 @@ type raftProtoClientMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, term Term, leader string, appliedTerm Term, appliedIndex Index, _ ...rpc.CallOpt) (raftProtoInstallSnapshotClientCall, error)
+	InstallSnapshot(_ *context.T, term Term, leaderId string, appliedTerm Term, appliedIndex Index, _ ...rpc.CallOpt) (raftProtoInstallSnapshotClientCall, error)
 }
 
 // raftProtoClientStub adds universal methods to raftProtoClientMethods.
@@ -380,7 +380,7 @@ type raftProtoServerMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leader -- the id of the sender
+	//   leaderId -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -388,7 +388,7 @@ type raftProtoServerMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
+	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -401,7 +401,7 @@ type raftProtoServerMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, _ raftProtoInstallSnapshotServerCall, term Term, leader string, appliedTerm Term, appliedIndex Index) error
+	InstallSnapshot(_ *context.T, _ raftProtoInstallSnapshotServerCall, term Term, leaderId string, appliedTerm Term, appliedIndex Index) error
 }
 
 // raftProtoServerStubMethods is the server interface containing
@@ -420,7 +420,7 @@ type raftProtoServerStubMethods interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leader -- the id of the sender
+	//   leaderId -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -428,7 +428,7 @@ type raftProtoServerStubMethods interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
+	AppendToLog(_ *context.T, _ rpc.ServerCall, term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
 	// Raft algorithm.  The leader will respond after it has RaftClient.Apply()ed the command.
@@ -441,7 +441,7 @@ type raftProtoServerStubMethods interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(_ *context.T, _ *raftProtoInstallSnapshotServerCallStub, term Term, leader string, appliedTerm Term, appliedIndex Index) error
+	InstallSnapshot(_ *context.T, _ *raftProtoInstallSnapshotServerCallStub, term Term, leaderId string, appliedTerm Term, appliedIndex Index) error
 }
 
 // raftProtoServerStub adds universal methods to raftProtoServerStubMethods.
@@ -548,10 +548,10 @@ var descraftProto = rpc.InterfaceDesc{
 		},
 		{
 			Name: "AppendToLog",
-			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leader -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
+			Doc:  "// AppendToLog is sent by the leader to tell followers to append an entry.  If cmds\n// is empty, this is a keep alive message (at a random interval after a keep alive, followers\n// will initiate a new round of voting).\n//   term -- the current term of the sender\n//   leaderId -- the id of the sender\n//   prevIndex -- the index of the log entry immediately preceding cmds\n//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have\n//               received the previous index'd entry and it must have had the same term.  Otherwise\n//               an error is returned.\n//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed\n//                   to have logged.\n//   cmds -- sequential log entries starting at prevIndex+1",
 			InArgs: []rpc.ArgDesc{
 				{Name: "term", Doc: ``},         // Term
-				{Name: "leader", Doc: ``},       // string
+				{Name: "leaderId", Doc: ``},     // string
 				{Name: "prevIndex", Doc: ``},    // Index
 				{Name: "prevTerm", Doc: ``},     // Term
 				{Name: "leaderCommit", Doc: ``}, // Index
@@ -581,7 +581,7 @@ var descraftProto = rpc.InterfaceDesc{
 			Doc:  "// InstallSnapshot is sent from the leader to follower to install the given snapshot.  It is\n// sent when it becomes apparent that the leader does not have log entries needed by the follower\n// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the\n// snapshot.",
 			InArgs: []rpc.ArgDesc{
 				{Name: "term", Doc: ``},         // Term
-				{Name: "leader", Doc: ``},       // string
+				{Name: "leaderId", Doc: ``},     // string
 				{Name: "appliedTerm", Doc: ``},  // Term
 				{Name: "appliedIndex", Doc: ``}, // Index
 			},

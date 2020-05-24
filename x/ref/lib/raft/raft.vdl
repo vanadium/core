@@ -50,7 +50,7 @@ type raftProto interface {
 	// is empty, this is a keep alive message (at a random interval after a keep alive, followers
 	// will initiate a new round of voting).
 	//   term -- the current term of the sender
-	//   leader -- the id of the sender
+	//   leaderId -- the id of the sender
 	//   prevIndex -- the index of the log entry immediately preceding cmds
 	//   prevTerm -- the term of the log entry immediately preceding cmds.  The receiver must have
 	//               received the previous index'd entry and it must have had the same term.  Otherwise
@@ -58,7 +58,7 @@ type raftProto interface {
 	//   leaderCommit -- the index of the last committed entry, i.e., the one a quorum has guaranteed
 	//                   to have logged.
 	//   cmds -- sequential log entries starting at prevIndex+1
-	AppendToLog(term Term, leader string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
+	AppendToLog(term Term, leaderId string, prevIndex Index, prevTerm Term, leaderCommit Index, cmds []LogEntry) error
 
 	// Append is sent to the leader by followers.  Only the leader is allowed to send AppendToLog.
 	// If a follower receives an Append() call it performs an Append() to the leader to run the actual
@@ -74,5 +74,5 @@ type raftProto interface {
 	// sent when it becomes apparent that the leader does not have log entries needed by the follower
 	// to progress.  'term' and 'index' represent the last LogEntry RaftClient.Apply()ed to the
 	// snapshot.
-	InstallSnapshot(term Term, leader string, appliedTerm Term, appliedIndex Index) stream<[]byte> error
+	InstallSnapshot(term Term, leaderId string, appliedTerm Term, appliedIndex Index) stream<[]byte> error
 }
