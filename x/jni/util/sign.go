@@ -59,7 +59,7 @@ var (
 	DurationSign = ClassSign("org.joda.time.Duration")
 	// VExceptionSign denotes a signature of a Java VException type.
 	VExceptionSign = ClassSign("io.v.v23.verror.VException")
-	// VDLValueSign denotes a signature of a Java VdlValue type.
+	// VdlValueSign denotes a signature of a Java VdlValue type.
 	VdlValueSign = ClassSign("io.v.v23.vdl.VdlValue")
 )
 

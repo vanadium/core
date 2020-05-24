@@ -76,7 +76,7 @@ func bleClientFunc(ctx *context.T, _ io.Writer) error {
 	return runClient(ctx, bleServerName)
 }
 
-func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
+func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error { //nolint:gocyclo
 	bothf := func(ctx *context.T, w io.Writer, format string, args ...interface{}) {
 		fmt.Fprintf(w, format, args...)
 		ctx.Infof(format, args...)
@@ -195,7 +195,7 @@ func btAndDiscoveryFunc(ctx *context.T, w io.Writer) error {
 
 // AllFunc runs a server, advertises it, scans for other servers and makes an
 // Echo RPC to every advertised remote server.
-func AllFunc(ctx *context.T, output io.Writer) error {
+func AllFunc(ctx *context.T, output io.Writer) error { //nolint:gocyclo
 	ls := rpc.ListenSpec{Proxy: "proxy"}
 	addRegisteredProto(&ls, "tcp", ":0")
 	addRegisteredProto(&ls, "bt", "/0")
@@ -229,7 +229,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 	var (
 		status      = server.Status()
 		counter     = 0
-		peerByAdId  = make(map[discovery.AdId]*peer)
+		peerByAdID  = make(map[discovery.AdId]*peer)
 		lastCall    = make(map[discovery.AdId]time.Time)
 		callResults = make(chan string)
 		activeCalls = 0
@@ -239,7 +239,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 		call        = func(p *peer) {
 			counter++
 			activeCalls++
-			lastCall[p.adId] = time.Now()
+			lastCall[p.adID] = time.Now()
 			go func(msg string) {
 				summary, err := p.call(ctx, msg)
 				if err != nil {
@@ -290,10 +290,10 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 				break
 			}
 			if u.IsLost() {
-				if p, ok := peerByAdId[u.Id()]; ok {
+				if p, ok := peerByAdID[u.Id()]; ok {
 					fmt.Fprintln(output, "LOST:", p.description)
 				}
-				delete(peerByAdId, u.Id())
+				delete(peerByAdID, u.Id())
 				delete(lastCall, u.Id())
 				break
 			}
@@ -302,7 +302,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 				ctx.Info(err)
 				break
 			}
-			peerByAdId[p.adId] = p
+			peerByAdID[p.adID] = p
 			fmt.Fprintln(output, "FOUND:", p.description)
 			call(p)
 		case r := <-callResults:
@@ -318,7 +318,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 			now := time.Now()
 			for id, t := range lastCall {
 				if now.Sub(t) > rpcTimeout {
-					call(peerByAdId[id])
+					call(peerByAdID[id])
 				}
 			}
 		case s := <-statRequest:
@@ -326,7 +326,7 @@ func AllFunc(ctx *context.T, output io.Writer) error {
 			ret := new(bytes.Buffer)
 			fmt.Fprintln(ret, "ACTIVE CALLS:", activeCalls)
 			fmt.Fprintln(ret, "PEERS")
-			for id, p := range peerByAdId {
+			for id, p := range peerByAdID {
 				fmt.Fprintf(ret, "%2d) %s -- %v\n", idx, p.description, lastCall[id])
 			}
 			s <- ret.String()
