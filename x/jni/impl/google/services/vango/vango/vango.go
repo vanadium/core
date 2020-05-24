@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/x/jni/impl/google/services/vango"
 	_ "v.io/x/ref/runtime/factories/roaming"
 )

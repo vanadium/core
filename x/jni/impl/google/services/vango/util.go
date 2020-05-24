@@ -204,7 +204,7 @@ func newPeer(ctx *context.T, u discovery.Update) (*peer, error) {
 	return &peer{
 		username:    strings.Join(ulist, ", "),
 		description: fmt.Sprintf("%v at %v (AdId: %v)", ulist, prettyAddrList(addrs), u.Id()),
-		adId:        u.Id(),
+		adID:        u.Id(),
 		preresolved: options.Preresolved{Resolution: &me},
 	}, nil
 
@@ -214,7 +214,7 @@ type peer struct {
 	username    string // Username claimed by the advertisement
 	description string
 	preresolved options.Preresolved
-	adId        discovery.AdId
+	adID        discovery.AdId
 }
 
 func (p *peer) call(ctx *context.T, message string) (string, error) {
