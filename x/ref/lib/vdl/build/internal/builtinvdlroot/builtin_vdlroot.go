@@ -12,7 +12,7 @@
 // v23/vdlroot/vdltool/config.vdl
 // DO NOT EDIT!
 
-package builtin_vdlroot
+package builtinvdlroot
 
 import (
 	"bytes"

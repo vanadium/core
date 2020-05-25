@@ -11,7 +11,7 @@ go get github.com/cosnicolaou/go-bindata/v3/...@v3.0.8
 
 PREFIX=$(dirname "$(go env GOMOD)")
 VDLROOT="${PREFIX}/v23/vdlroot"
-X="${PREFIX}/x/ref/lib/vdl/build/internal/builtin_vdlroot/builtin_vdlroot"
+X="${PREFIX}/x/ref/lib/vdl/build/internal/builtinvdlroot/builtin_vdlroot"
 
 OUT="${X}.go"
 TMP="${X}.tmp.go"
@@ -20,7 +20,7 @@ TMP="${X}.tmp.go"
 cd "${PREFIX}"
 
 # Run go-bindata to generate the file to a tmp file.
-go run github.com/cosnicolaou/go-bindata/v3/go-bindata -o "${TMP}" -pkg builtin_vdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
+go run github.com/cosnicolaou/go-bindata/v3/go-bindata -o "${TMP}" -pkg builtinvdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
 
 # Format the file and add the copyright header.
 gofmt -l -w "${TMP}"

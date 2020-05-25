@@ -57,7 +57,7 @@ import (
 	"v.io/v23/vdl"
 	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/lib/toposort"
-	"v.io/x/ref/lib/vdl/build/internal/builtin_vdlroot"
+	"v.io/x/ref/lib/vdl/build/internal/builtinvdlroot"
 	"v.io/x/ref/lib/vdl/compile"
 	"v.io/x/ref/lib/vdl/parse"
 	"v.io/x/ref/lib/vdl/vdlutil"
@@ -272,7 +272,7 @@ func openFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 func openBuiltInFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 	files := make(map[string]io.ReadCloser, len(fileNames))
 	for _, fileName := range fileNames {
-		file, err := builtin_vdlroot.Asset(fileName)
+		file, err := builtinvdlroot.Asset(fileName)
 		if err != nil {
 			return nil, fmt.Errorf("%s: can't load builtin file: %v", fileName, err)
 		}
@@ -533,7 +533,7 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 	var configFiles []string
 	var lastDir string
 	// Loop through built-in vdl files to create the root package map.
-	fileNames := builtin_vdlroot.AssetNames()
+	fileNames := builtinvdlroot.AssetNames()
 	sort.Strings(fileNames)
 	for _, fileName := range fileNames {
 		dir, base := path.Split(fileName)
@@ -569,7 +569,7 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 // initBuiltInRootConfigs initializes the vdl.configs of built-in root packages.
 func (ds *depSorter) initBuiltInRootConfigs(configFiles []string) {
 	for _, configFile := range configFiles {
-		configData, err := builtin_vdlroot.Asset(configFile)
+		configData, err := builtinvdlroot.Asset(configFile)
 		if err != nil {
 			ds.errorf("%s: can't load builtin config file: %v", configFile, err)
 			continue
