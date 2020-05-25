@@ -22,7 +22,7 @@ func TestFixedBlessingStore(t *testing.T) {
 
 	// Set and SetDefault should fail, other than that, s2 should behave
 	// identically to s1 after setting s1 up
-	s1.Set(b1,security.AllPrincipals) //nolint:errcheck
+	s1.Set(b1, security.AllPrincipals) //nolint:errcheck
 	s1.SetDefault(b1)                  //nolint:errcheck
 
 	if _, err := s2.Set(b2, security.AllPrincipals); err == nil {

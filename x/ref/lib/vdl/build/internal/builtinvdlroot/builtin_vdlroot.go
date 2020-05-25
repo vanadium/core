@@ -298,19 +298,19 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"math": &bintree{nil, map[string]*bintree{
-		"math.vdl":   &bintree{mathMathVdl, map[string]*bintree{}},
-		"vdl.config": &bintree{mathVdlConfig, map[string]*bintree{}},
+	"math": {nil, map[string]*bintree{
+		"math.vdl":   {mathMathVdl, map[string]*bintree{}},
+		"vdl.config": {mathVdlConfig, map[string]*bintree{}},
 	}},
-	"signature": &bintree{nil, map[string]*bintree{
-		"signature.vdl": &bintree{signatureSignatureVdl, map[string]*bintree{}},
+	"signature": {nil, map[string]*bintree{
+		"signature.vdl": {signatureSignatureVdl, map[string]*bintree{}},
 	}},
-	"time": &bintree{nil, map[string]*bintree{
-		"time.vdl":   &bintree{timeTimeVdl, map[string]*bintree{}},
-		"vdl.config": &bintree{timeVdlConfig, map[string]*bintree{}},
+	"time": {nil, map[string]*bintree{
+		"time.vdl":   {timeTimeVdl, map[string]*bintree{}},
+		"vdl.config": {timeVdlConfig, map[string]*bintree{}},
 	}},
-	"vdltool": &bintree{nil, map[string]*bintree{
-		"config.vdl": &bintree{vdltoolConfigVdl, map[string]*bintree{}},
+	"vdltool": {nil, map[string]*bintree{
+		"config.vdl": {vdltoolConfigVdl, map[string]*bintree{}},
 	}},
 }}
 

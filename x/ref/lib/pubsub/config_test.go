@@ -20,7 +20,7 @@ import (
 func ExamplePublisher() {
 	in := make(chan pubsub.Setting)
 	pub := pubsub.NewPublisher()
-	pub.CreateStream("net","network settings",in) //nolint:errcheck
+	pub.CreateStream("net", "network settings", in) //nolint:errcheck
 
 	// A simple producer of IP address settings.
 	producer := func() {
@@ -94,7 +94,7 @@ func ExamplePublisher_Shutdown() {
 
 	consumer := func() {
 		ch := make(chan pubsub.Setting, 10)
-		pub.ForkStream("net",ch) //nolint:errcheck
+		pub.ForkStream("net", ch) //nolint:errcheck
 		consumersReady.Done()
 		i := 0
 		for {

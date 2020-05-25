@@ -23,7 +23,7 @@ cd "${PREFIX}"
 go run github.com/cosnicolaou/go-bindata/v3/go-bindata -o "${TMP}" -pkg builtinvdlroot -prefix "${VDLROOT}" -ignore '(\.api|\.go)' -nometadata -mode 0644 "${VDLROOT}/..."
 
 # Format the file and add the copyright header.
-gofmt -l -w "${TMP}"
+gofmt -s -l -w "${TMP}"
 cat - "${TMP}" >  "${OUT}" <<EOF
 // Copyright 2020 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
