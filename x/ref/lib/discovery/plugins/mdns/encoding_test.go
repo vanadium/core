@@ -14,7 +14,7 @@ import (
 	"v.io/v23/discovery"
 )
 
-func TestEncodeAdId(t *testing.T) {
+func TestEncodeAdID(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		var id discovery.AdId
 		_, err := rand.Read(id[:])
@@ -22,10 +22,10 @@ func TestEncodeAdId(t *testing.T) {
 			panic(err)
 		}
 
-		encoded := encodeAdId(&id)
+		encoded := encodeAdID(&id)
 
 		var decoded discovery.AdId
-		if err := decodeAdId(encoded, &decoded); err != nil {
+		if err := decodeAdID(encoded, &decoded); err != nil {
 			t.Errorf("decode id failed: %v", err)
 			continue
 		}

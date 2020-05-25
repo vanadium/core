@@ -441,7 +441,8 @@ func TestMultipleLargeAdvertisements(t *testing.T) {
 	}
 
 	for _, adinfo := range adinfos {
-		stop, err := testutil.Advertise(ctx, p1, &adinfo)
+		tmp := adinfo
+		stop, err := testutil.Advertise(ctx, p1, &tmp)
 		if err != nil {
 			t.Fatal(err)
 		}
