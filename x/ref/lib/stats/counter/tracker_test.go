@@ -108,13 +108,14 @@ func TestTracker(t *testing.T) {
 	for i, tt := range trackerTests {
 		now = now.Add(tt.after)
 		name := fmt.Sprintf("[T%d] %s:", i, now.Format("15:04:05"))
-		if tt.push > 0 {
+		switch {
+		case tt.push > 0:
 			tracker.Push(tt.push)
 			t.Logf("%s pushed %d\n", name, tt.push)
-		} else if tt.push < 0 {
+		case tt.push < 0:
 			tracker.Reset()
 			t.Log(name, "reset")
-		} else {
+		default:
 			t.Log(name, "none")
 		}
 

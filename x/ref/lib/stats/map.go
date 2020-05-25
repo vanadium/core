@@ -37,7 +37,7 @@ type mapValue struct {
 
 // Set sets the values of the given keys. There must be exactly one value for
 // each key.
-func (m *Map) Set(kvpairs []KeyValue) {
+func (m *Map) Set(kvpairs []KeyValue) { //nolint:gocyclo
 	now := time.Now()
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -45,7 +45,7 @@ func (m *Map) Set(kvpairs []KeyValue) {
 		var v interface{}
 		switch value := kv.Value.(type) {
 		case bool:
-			v = bool(value)
+			v = value
 		case int:
 			v = int64(value)
 		case int8:
@@ -55,7 +55,7 @@ func (m *Map) Set(kvpairs []KeyValue) {
 		case int32:
 			v = int64(value)
 		case int64:
-			v = int64(value)
+			v = value
 		case uint:
 			v = uint64(value)
 		case uint8:
@@ -65,13 +65,13 @@ func (m *Map) Set(kvpairs []KeyValue) {
 		case uint32:
 			v = uint64(value)
 		case uint64:
-			v = uint64(value)
+			v = value
 		case float32:
 			v = float64(value)
 		case float64:
-			v = float64(value)
+			v = value
 		case string:
-			v = string(value)
+			v = value
 		case time.Time:
 			v = value.String()
 		default:
