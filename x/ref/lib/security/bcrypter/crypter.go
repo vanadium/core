@@ -115,12 +115,12 @@ func (c *Crypter) Encrypt(ctx *context.T, forPattern security.BlessingPattern, p
 			if err := ibeParams.Encrypt(string(forPattern), plaintext, ctxt); err != nil {
 				return nil, NewErrInternal(ctx, err)
 			}
-			paramsId, err := idParams(ibeParams)
+			paramsID, err := idParams(ibeParams)
 			if err != nil {
 				return nil, NewErrInternal(ctx, err)
 			}
 			paramsFound = true
-			ciphertext.wire.Bytes[paramsId] = ctxt
+			ciphertext.wire.Bytes[paramsID] = ctxt
 		}
 	}
 	if !paramsFound {
@@ -149,8 +149,8 @@ func decrypt(key ibe.PrivateKey, ciphertext []byte) ([]byte, error) {
 func (c *Crypter) Decrypt(ctx *context.T, ciphertext *Ciphertext) ([]byte, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	for paramsId, cbytes := range ciphertext.wire.Bytes {
-		if keys, found := c.keys[paramsId]; !found {
+	for paramsID, cbytes := range ciphertext.wire.Bytes {
+		if keys, found := c.keys[paramsID]; !found {
 			continue
 		} else if key, found := keys[ciphertext.wire.PatternId]; !found {
 			continue
@@ -171,7 +171,7 @@ func (c *Crypter) AddKey(ctx *context.T, key *PrivateKey) error {
 		return NewErrInvalidPrivateKey(ctx, fmt.Errorf("got %d IBE private keys for blessing %v (and root blessing %v), expected %d", got, key.blessing, key.params.blessing, want))
 	}
 
-	paramsId, err := idParams(key.params.params)
+	paramsID, err := idParams(key.params.params)
 	if err != nil {
 		return NewErrInternal(ctx, err)
 	}
@@ -179,11 +179,11 @@ func (c *Crypter) AddKey(ctx *context.T, key *PrivateKey) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.params[key.params.blessing] = append(c.params[key.params.blessing], key.params.params)
-	if _, found := c.keys[paramsId]; !found {
-		c.keys[paramsId] = make(map[string]ibe.PrivateKey)
+	if _, found := c.keys[paramsID]; !found {
+		c.keys[paramsID] = make(map[string]ibe.PrivateKey)
 	}
 	for i, p := range patterns {
-		c.keys[paramsId][idPattern(p)] = key.keys[i]
+		c.keys[paramsID][idPattern(p)] = key.keys[i]
 	}
 	return nil
 }
@@ -281,7 +281,7 @@ func matchedBy(blessing, root string) []security.BlessingPattern {
 	if !security.BlessingPattern(root).MatchedBy(blessing) {
 		return nil
 	}
-	patterns := make([]security.BlessingPattern, strings.Count(blessing, security.ChainSeparator)+2-strings.Count(string(root), security.ChainSeparator))
+	patterns := make([]security.BlessingPattern, strings.Count(blessing, security.ChainSeparator)+2-strings.Count(root, security.ChainSeparator))
 	patterns[len(patterns)-1] = security.BlessingPattern(blessing).MakeNonExtendable()
 	patterns[len(patterns)-2] = security.BlessingPattern(blessing)
 	for idx := len(patterns) - 3; idx >= 0; idx-- {

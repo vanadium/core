@@ -6,6 +6,7 @@ package raft
 
 import (
 	"io"
+
 	"v.io/v23/context"
 	"v.io/v23/verror"
 )

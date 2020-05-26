@@ -67,7 +67,6 @@ func PermissionsFromSpec(spec access.PermissionsSpec, name string) (access.Permi
 		}
 		defer file.Close()
 		return access.ReadPermissions(file)
-	} else {
-		return access.ReadPermissions(bytes.NewBufferString(literal))
 	}
+	return access.ReadPermissions(bytes.NewBufferString(literal))
 }

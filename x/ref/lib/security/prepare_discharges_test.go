@@ -54,7 +54,7 @@ func inRange(v, start, end time.Time) error {
 	return nil
 }
 
-func TestPrepareDischarges(t *testing.T) {
+func TestPrepareDischarges(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

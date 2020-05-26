@@ -45,7 +45,7 @@ func (w *signingWriter) Write(p []byte) (int, error) {
 		}
 
 		n, err := w.curChunk.Write(pLimited)
-		bytesWritten = bytesWritten + n
+		bytesWritten += n
 		if err != nil {
 			return bytesWritten, err
 		}
@@ -112,7 +112,7 @@ func NewSigningWriteCloser(data, signature io.WriteCloser, s Signer, opts *Optio
 }
 
 func (w *signingWriter) commitHeader() error {
-	if err := binary.Write(w.signatureHash, binary.LittleEndian, int64(w.chunkSizeBytes)); err != nil {
+	if err := binary.Write(w.signatureHash, binary.LittleEndian, w.chunkSizeBytes); err != nil {
 		return err
 	}
 	if err := w.sigEnc.Encode(SignedHeader{w.chunkSizeBytes}); err != nil {

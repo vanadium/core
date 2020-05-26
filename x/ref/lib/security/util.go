@@ -66,8 +66,7 @@ func LoadPEMKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		data = pemBlock.Bytes
 	}
 
-	switch pemBlock.Type {
-	case ecPrivateKeyPEMType:
+	if pemBlock.Type == ecPrivateKeyPEMType {
 		key, err := x509.ParseECPrivateKey(data)
 		if err != nil {
 			// x509.DecryptPEMBlock may occasionally return random

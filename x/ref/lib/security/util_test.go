@@ -37,7 +37,7 @@ func TestLoadSavePEMKey(t *testing.T) {
 
 func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	pass := []byte("openSesame")
-	incorrect_pass := []byte("wrongPassphrase")
+	incorrectPass := []byte("wrongPassphrase")
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatalf("Failed ecdsa.GenerateKey: %v", err)
@@ -48,7 +48,7 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	if err := SavePEMKey(&buf, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	loadedKey, err := LoadPEMKey(&buf, incorrect_pass)
+	loadedKey, err := LoadPEMKey(&buf, incorrectPass)
 	if loadedKey != nil && err != nil {
 		t.Errorf("expected (nil, err != nil) received (%v,%v)", loadedKey, err)
 	}

@@ -67,7 +67,7 @@ func TestCreation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newRaft: %s", err)
 	}
-	vlog.Infof("id is %s", r.Id())
+	vlog.Infof("id is %s", r.ID())
 
 	// Make sure the file is there.
 	info, err := os.Stat(path.Join(td, "00000000000000000000.00000000000000000000.log"))
@@ -108,7 +108,7 @@ func TestPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newRaft: %s", err)
 	}
-	vlog.Infof("id is %s", r.Id())
+	vlog.Infof("id is %s", r.ID())
 
 	// Set the persistent state.
 	if err := r.p.SetCurrentTerm(2); err != nil {
@@ -138,7 +138,7 @@ func TestPersistence(t *testing.T) {
 		t.Fatalf("File didn't last: %s", err)
 	}
 	vlog.Infof("log size %d", info.Size())
-	vlog.Infof("stopping %s", r.Id())
+	vlog.Infof("stopping %s", r.ID())
 	r.Stop()
 
 	// Reopen the persistent store and make sure it matches.
@@ -146,7 +146,7 @@ func TestPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newRaft: %s", err)
 	}
-	vlog.Infof("id is %s", r.Id())
+	vlog.Infof("id is %s", r.ID())
 	if r.p.CurrentTerm() != 2 {
 		t.Fatalf("CurrentTerm: expected %d got %d", 2, r.p.CurrentTerm())
 	}
@@ -174,7 +174,7 @@ func TestPersistence(t *testing.T) {
 		{Term: 4, Index: 4, Cmd: []byte("cmd7")},
 	}
 	compareLogs(t, r.p, test2, "after truncate")
-	vlog.Infof("stopping %s", r.Id())
+	vlog.Infof("stopping %s", r.ID())
 	r.Stop()
 
 	// Make sure the log is still truncated when we reread it.
@@ -182,9 +182,9 @@ func TestPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newRaft: %s", err)
 	}
-	vlog.Infof("id is %s", r.Id())
+	vlog.Infof("id is %s", r.ID())
 	compareLogs(t, r.p, test2, "after truncate and close")
-	vlog.Infof("stopping %s", r.Id())
+	vlog.Infof("stopping %s", r.ID())
 	r.Stop()
 	vlog.Infof("TestPersistence passed")
 }
@@ -233,7 +233,7 @@ func TestSnapshot(t *testing.T) {
 	defer cleanUp(rs)
 	r := rs[0]
 	c1 := r.client
-	vlog.Infof("id is %s", r.Id())
+	vlog.Infof("id is %s", r.ID())
 
 	// This should cause a snapshot.
 	if apperr, err := r.Append(ctx, []byte("string1")); err != nil || apperr != nil {
@@ -273,7 +273,7 @@ outer:
 	defer cleanUp(rs)
 	r = rs[0]
 	c2 := r.client
-	vlog.Infof("new id is %s", r.Id())
+	vlog.Infof("new id is %s", r.ID())
 
 	// Wait for leadership.
 	if !waitForLeadership(r, time.Minute) {

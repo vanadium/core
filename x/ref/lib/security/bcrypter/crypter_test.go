@@ -120,7 +120,7 @@ func TestEncrypt(t *testing.T) {
 	}
 }
 
-func TestDecrypt(t *testing.T) {
+func TestDecrypt(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := context.RootContext()
 	defer shutdown()
 
