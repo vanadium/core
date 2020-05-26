@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package query_checker_test
+package querychecker_test
 
 import (
 	"errors"
@@ -13,8 +13,8 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
-	"v.io/v23/query/engine/internal/query_checker"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/querychecker"
+	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/pattern"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
@@ -242,11 +242,11 @@ func TestQueryChecker(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, syntaxErr := query_parser.Parse(&db, test.query)
+		s, syntaxErr := queryparser.Parse(&db, test.query)
 		if syntaxErr != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, syntaxErr)
 		}
-		err := query_checker.Check(&db, s)
+		err := querychecker.Check(&db, s)
 		if err != nil {
 			t.Errorf("query: %s; got %v, want: nil", test.query, err)
 		}
@@ -743,22 +743,22 @@ func TestKeyRanges(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, syntaxErr := query_parser.Parse(&db, test.query)
+		s, syntaxErr := queryparser.Parse(&db, test.query)
 		if syntaxErr != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, syntaxErr)
 		}
-		err := query_checker.Check(&db, s)
+		err := querychecker.Check(&db, s)
 		if err != nil {
 			t.Errorf("query: %s; got %v, want: nil", test.query, err)
 		}
 		switch sel := (*s).(type) {
-		case query_parser.SelectStatement:
-			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
+		case queryparser.SelectStatement:
+			indexRanges := querychecker.CompileIndexRanges(&queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
 			if !reflect.DeepEqual(test.indexRanges, indexRanges) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, indexRanges.String(), test.indexRanges.String())
 			}
-		case query_parser.DeleteStatement:
-			indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
+		case queryparser.DeleteStatement:
+			indexRanges := querychecker.CompileIndexRanges(&queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
 			if !reflect.DeepEqual(test.indexRanges, indexRanges) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, indexRanges.String(), test.indexRanges.String())
 			}
@@ -1529,33 +1529,33 @@ func TestIndexRanges(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, syntaxErr := query_parser.Parse(&db, test.query)
+		s, syntaxErr := queryparser.Parse(&db, test.query)
 		if syntaxErr != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, syntaxErr)
 		}
-		err := query_checker.Check(&db, s)
+		err := querychecker.Check(&db, s)
 		if err != nil {
 			t.Errorf("query: %s; got %v, want: nil", test.query, err)
 		}
 		switch sel := (*s).(type) {
-		case query_parser.SelectStatement:
+		case queryparser.SelectStatement:
 			for i, fieldName := range test.fieldNames {
-				idxField, err := query_parser.ParseIndexField(&db, fieldName, "Services")
+				idxField, err := queryparser.ParseIndexField(&db, fieldName, "Services")
 				if err != nil {
 					t.Errorf("query: %s;\nGOT  %v\nWANT nil", test.query, err)
 				}
-				indexRanges := query_checker.CompileIndexRanges(idxField, vdl.String, sel.Where)
+				indexRanges := querychecker.CompileIndexRanges(idxField, vdl.String, sel.Where)
 				if !reflect.DeepEqual(test.indexRanges[i], indexRanges) {
 					t.Errorf("query: %s;\nGOT  %v\nWANT %v", test.query, indexRanges, test.indexRanges[i])
 				}
 			}
-		case query_parser.DeleteStatement:
+		case queryparser.DeleteStatement:
 			for i, fieldName := range test.fieldNames {
-				idxField, err := query_parser.ParseIndexField(&db, fieldName, "Services")
+				idxField, err := queryparser.ParseIndexField(&db, fieldName, "Services")
 				if err != nil {
 					t.Errorf("query: %s;\nGOT  %v\nWANT nil", test.query, err)
 				}
-				indexRanges := query_checker.CompileIndexRanges(idxField, vdl.String, sel.Where)
+				indexRanges := querychecker.CompileIndexRanges(idxField, vdl.String, sel.Where)
 				if !reflect.DeepEqual(test.indexRanges[i], indexRanges) {
 					t.Errorf("query: %s;\nGOT  %v\nWANT %v", test.query, indexRanges, test.indexRanges[i])
 				}
@@ -1653,16 +1653,16 @@ func TestLikePatterns(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, syntaxErr := query_parser.Parse(&db, test.query)
+		s, syntaxErr := queryparser.Parse(&db, test.query)
 		if syntaxErr != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, syntaxErr)
 		}
-		err := query_checker.Check(&db, s)
+		err := querychecker.Check(&db, s)
 		if err != nil {
 			t.Errorf("query: %s; got %v, want: nil", test.query, err)
 		}
 		switch sel := (*s).(type) {
-		case query_parser.SelectStatement:
+		case queryparser.SelectStatement:
 			// We know there is exactly one like expression and operand2 contains
 			// a prefix and compiled pattern.
 			p := sel.Where.Expr.Operand2.Pattern
@@ -1678,7 +1678,7 @@ func TestLikePatterns(t *testing.T) {
 					t.Errorf("query: %s;Expected nonMatch: %s; \nGOT  true\nWANT false", test.query, n)
 				}
 			}
-		case query_parser.DeleteStatement:
+		case queryparser.DeleteStatement:
 			// We know there is exactly one like expression and operand2 contains
 			// a prefix and compiled pattern.
 			p := sel.Where.Expr.Operand2.Pattern
@@ -1780,11 +1780,11 @@ func TestQueryCheckerErrors(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, syntaxErr := query_parser.Parse(&db, test.query)
+		s, syntaxErr := queryparser.Parse(&db, test.query)
 		if syntaxErr != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, syntaxErr)
 		} else {
-			err := query_checker.Check(&db, s)
+			err := querychecker.Check(&db, s)
 			// Test both that the ID and offset are equal.
 			testErrOff, _ := syncql.SplitError(test.err)
 			errOff, _ := syncql.SplitError(err)

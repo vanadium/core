@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package query_parser
+package queryparser
 
 import (
 	"fmt"
@@ -570,9 +570,8 @@ func parseWhereClause(db ds.Database, s *scanner.Scanner, token *Token) (*WhereC
 			return nil, nil, err
 		}
 		return &where, token, nil
-	} else {
-		return nil, token, nil
 	}
+	return nil, token, nil
 }
 
 // Parse a parenthesized expression.  Return expression and next token (or error)

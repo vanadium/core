@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	errAdIdSizeMismatch = verror.Register("v.io/v23/discovery.errAdIdSizeMismatch", verror.NoRetry, "id string size mismatch")
+	errAdIDSizeMismatch = verror.Register("v.io/v23/discovery.errAdIDSizeMismatch", verror.NoRetry, "id string size mismatch")
 
 	zeroID = AdId{}
 )
@@ -45,7 +45,7 @@ func ParseAdId(s string) (AdId, error) {
 
 	var id AdId
 	if len(decoded) != len(id) {
-		return zeroID, verror.New(errAdIdSizeMismatch, nil)
+		return zeroID, verror.New(errAdIDSizeMismatch, nil)
 	}
 	copy(id[:], decoded)
 	return id, nil

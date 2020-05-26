@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package query_functions
+package queryfunctions
 
 import (
 	ds "v.io/v23/query/engine/datasource"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
 )
@@ -17,17 +17,17 @@ import (
 // For TypNil, it returns 0.
 // For all other types, it returns an error.
 // e.g., Len("abc") returns 3
-func lenFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func lenFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	switch args[0].Type {
-	case query_parser.TypNil:
+	case queryparser.TypNil:
 		return makeIntOp(args[0].Off, 0), nil
-	case query_parser.TypObject:
+	case queryparser.TypObject:
 		switch args[0].Object.Kind() {
 		case vdl.Array, vdl.List, vdl.Map, vdl.Set:
 			// If array, list, set, map, call Value.Len()
 			return makeIntOp(args[0].Off, int64(args[0].Object.Len())), nil
 		}
-	case query_parser.TypStr:
+	case queryparser.TypStr:
 		// If string, call go's built-in len().
 		return makeIntOp(args[0].Off, int64(len(args[0].Str))), nil
 	}

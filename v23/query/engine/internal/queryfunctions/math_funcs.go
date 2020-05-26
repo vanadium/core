@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package query_functions
+package queryfunctions
 
 import (
 	"math"
 
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/conversions"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/queryparser"
 )
 
-func ceilingFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func ceilingFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func ceilingFunc(db ds.Database, off int64, args []*query_parser.Operand) (*quer
 	return makeFloatOp(off, math.Ceil(f.Float)), nil
 }
 
-func floorFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func floorFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -28,11 +28,11 @@ func floorFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeFloatOp(off, math.Floor(f.Float)), nil
 }
 
-func nanFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func nanFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	return makeFloatOp(off, math.NaN()), nil
 }
 
-func isNanFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func isNanFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func isNanFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeBoolOp(off, math.IsNaN(f.Float)), nil
 }
 
-func infFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func infFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	i, err := conversions.ConvertValueToInt(args[0])
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func infFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 	return makeFloatOp(off, math.Inf(sign)), nil
 }
 
-func isInfFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func isInfFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func isInfFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeBoolOp(off, math.IsInf(f.Float, sign)), nil
 }
 
-func logFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func logFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func logFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 	return makeFloatOp(off, math.Log(f.Float)), nil
 }
 
-func log10Func(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func log10Func(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func log10Func(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeFloatOp(off, math.Log10(f.Float)), nil
 }
 
-func powFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func powFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	x, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func powFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 	return makeFloatOp(off, math.Pow(x.Float, y.Float)), nil
 }
 
-func pow10Func(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func pow10Func(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	x, err := conversions.ConvertValueToInt(args[0])
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func pow10Func(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeFloatOp(off, math.Pow10(int(x.Int))), nil
 }
 
-func modFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func modFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	x, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func modFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 	return makeFloatOp(off, math.Mod(x.Float, y.Float)), nil
 }
 
-func truncateFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func truncateFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	f, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func truncateFunc(db ds.Database, off int64, args []*query_parser.Operand) (*que
 	return makeFloatOp(off, math.Trunc(f.Float)), nil
 }
 
-func remainderFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func remainderFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	x, err := conversions.ConvertValueToFloat(args[0])
 	if err != nil {
 		return nil, err
