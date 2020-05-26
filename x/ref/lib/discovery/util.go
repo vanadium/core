@@ -55,7 +55,7 @@ func hashAd(adinfo *AdInfo) {
 		sort.Strings(keys)
 		for _, k := range keys {
 			w(field, []byte(k))
-			w(field, []byte(adinfo.Ad.Attachments[k]))
+			w(field, adinfo.Ad.Attachments[k])
 		}
 	}
 	hasher.Write(field.Sum(nil)) //nolint:errcheck

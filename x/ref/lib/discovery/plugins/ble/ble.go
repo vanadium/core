@@ -124,9 +124,7 @@ func newWithTTL(ctx *context.T, host string, ttl time.Duration) (idiscovery.Plug
 	statMu.Lock()
 	statPrefix := naming.Join("discovery", "ble", fmt.Sprint(statIdx))
 	statIdx++
-	stats.NewStringFunc(naming.Join(statPrefix, "driver"), func() string {
-		return driver.DebugString()
-	})
+	stats.NewStringFunc(naming.Join(statPrefix, "driver"), driver.DebugString)
 	statMu.Unlock()
 	p := &plugin{
 		advertiser: newAdvertiser(ctx, driver),

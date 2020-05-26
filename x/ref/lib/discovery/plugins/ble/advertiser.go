@@ -62,7 +62,7 @@ func (a *advertiser) addAd(adinfo *idiscovery.AdInfo) error {
 	rec := a.adRecords[adinfo.Ad.InterfaceName]
 	if rec == nil {
 		rec = &adRecord{
-			uuid:    newServiceUuid(adinfo.Ad.InterfaceName),
+			uuid:    newServiceUUID(adinfo.Ad.InterfaceName),
 			adinfos: make(map[discovery.AdId][]byte),
 		}
 		a.adRecords[adinfo.Ad.InterfaceName] = rec
@@ -75,7 +75,7 @@ func (a *advertiser) addAd(adinfo *idiscovery.AdInfo) error {
 		// advertisement from being deduped by cache.
 		a.driver.RemoveService(rec.uuid.String())
 
-		toggleServiceUuid(rec.uuid)
+		toggleServiceUUID(rec.uuid)
 		rec.expiry = time.Time{}
 	}
 	rec.adinfos[adinfo.Ad.Id] = encoded
@@ -107,7 +107,7 @@ func (a *advertiser) removeAd(adinfo *idiscovery.AdInfo) {
 	} else {
 		// Restart advertising with a toggled uuid to avoid the updated advertisement
 		// from being deduped by cache.
-		toggleServiceUuid(rec.uuid)
+		toggleServiceUUID(rec.uuid)
 
 		cs := packToCharacteristics(rec.adinfos)
 		if err := a.driver.AddService(rec.uuid.String(), cs); err != nil {

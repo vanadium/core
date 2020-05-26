@@ -16,10 +16,10 @@ import (
 	"v.io/x/ref/lib/stats"
 )
 
-func (d *idiscovery) advertise(ctx *context.T, session sessionId, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
+func (d *idiscovery) advertise(ctx *context.T, session sessionID, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
 	if !ad.Id.IsValid() {
 		var err error
-		if ad.Id, err = discovery.NewAdId(); err != nil {
+		if ad.Id, err = discovery.NewAdID(); err != nil {
 			return nil, err
 		}
 	}
@@ -87,7 +87,7 @@ func (d *idiscovery) newAdTimestampNs() int64 {
 	return timestampNs
 }
 
-func (d *idiscovery) addAd(id discovery.AdId, session sessionId) bool {
+func (d *idiscovery) addAd(id discovery.AdId, session sessionID) bool {
 	d.adMu.Lock()
 	if _, exist := d.adSessions[id]; exist {
 		d.adMu.Unlock()
@@ -104,7 +104,7 @@ func (d *idiscovery) removeAd(id discovery.AdId) {
 	d.adMu.Unlock()
 }
 
-func (d *idiscovery) getAdSession(id discovery.AdId) sessionId {
+func (d *idiscovery) getAdSession(id discovery.AdId) sessionID {
 	d.adMu.Lock()
 	session := d.adSessions[id]
 	d.adMu.Unlock()

@@ -23,7 +23,7 @@ type update struct {
 }
 
 func (u *update) IsLost() bool          { return u.lost }
-func (u *update) Id() discovery.AdId    { return u.ad.Id }
+func (u *update) ID() discovery.AdId    { return u.ad.Id }
 func (u *update) InterfaceName() string { return u.ad.InterfaceName }
 
 func (u *update) Addresses() []string {
@@ -42,7 +42,9 @@ func (u *update) Attachment(ctx *context.T, name string) <-chan discovery.DataOr
 		copy(r.Data, data)
 		ch <- r
 		close(ch)
-	} else if u.status == AdPartiallyReady {
+		return ch
+	}
+	if u.status == AdPartiallyReady {
 		go u.fetchAttachment(ctx, name, ch)
 	} else {
 		close(ch)

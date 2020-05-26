@@ -23,19 +23,19 @@ func TestServiceUuid(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		interfaceName := randString()
-		uuid := newServiceUuid(interfaceName)
+		uuid := newServiceUUID(interfaceName)
 		if !strings.HasPrefix(uuid.String(), "3dd1d5a8-") {
 			t.Errorf("invalid uuid for %q: %v", interfaceName, uuid.String())
 		}
 
-		toggledUuid := idiscovery.Uuid(append([]byte(nil), uuid...))
-		toggleServiceUuid(toggledUuid)
+		toggledUUID := idiscovery.Uuid(append([]byte(nil), uuid...))
+		toggleServiceUUID(toggledUUID)
 
 		uuidBits := new(big.Int).SetBytes([]byte(uuid))
-		toggledUuidBits := new(big.Int).SetBytes([]byte(toggledUuid))
+		toggledUUIDBits := new(big.Int).SetBytes([]byte(toggledUUID))
 
-		if new(big.Int).Xor(uuidBits, toggledUuidBits).Bit(0) != 1 {
-			t.Errorf("invalid toggled uuid for %v: %v", uuid.String(), toggledUuid.String())
+		if new(big.Int).Xor(uuidBits, toggledUUIDBits).Bit(0) != 1 {
+			t.Errorf("invalid toggled uuid for %v: %v", uuid.String(), toggledUUID.String())
 		}
 	}
 }

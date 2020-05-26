@@ -13,11 +13,10 @@ import (
 	"sort"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/security"
-
 	"v.io/x/ref/lib/security/bcrypter"
 	"v.io/x/ref/test/testutil"
 )
@@ -143,7 +142,7 @@ func MatchLost(ctx *context.T, updates []discovery.Update, wants ...discovery.Ad
 func match(ctx *context.T, updates []discovery.Update, lost bool, wants ...discovery.Advertisement) bool {
 	updateMap := make(map[discovery.AdId]discovery.Update)
 	for _, update := range updates {
-		updateMap[update.Id()] = update
+		updateMap[update.ID()] = update
 	}
 
 	for _, want := range wants {
@@ -157,13 +156,13 @@ func match(ctx *context.T, updates []discovery.Update, lost bool, wants ...disco
 		if !UpdateEqual(ctx, update, want) {
 			return false
 		}
-		delete(updateMap, update.Id())
+		delete(updateMap, update.ID())
 	}
 	return len(updateMap) == 0
 }
 
 func UpdateEqual(ctx *context.T, update discovery.Update, ad discovery.Advertisement) bool {
-	if update.Id() != ad.Id {
+	if update.ID() != ad.Id {
 		return false
 	}
 	if update.InterfaceName() != ad.InterfaceName {

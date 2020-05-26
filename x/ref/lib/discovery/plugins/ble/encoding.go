@@ -28,7 +28,7 @@ const (
 	maxCharacteristicValueLen = 512
 
 	// Format string for packed characteristic uuids.
-	packedCharacteristicUuidFmt = "31ca10d5-0195-54fa-9344-25fcd7072e%x%x"
+	packedCharacteristicUUIDFmt = "31ca10d5-0195-54fa-9344-25fcd7072e%x%x"
 
 	// We should allow up to 16 packed characteristics to keep the packed
 	// characteristic uuids valid. This should be enough since we limit
@@ -37,8 +37,8 @@ const (
 	maxNumPackedCharacteristicsPerService = 16
 )
 
-func cUuid(i, j int) string {
-	return fmt.Sprintf(packedCharacteristicUuidFmt, i, j)
+func cUUID(i, j int) string {
+	return fmt.Sprintf(packedCharacteristicUUIDFmt, i, j)
 }
 
 func packToCharacteristics(encoded map[discovery.AdId][]byte) map[string][]byte {
@@ -48,7 +48,7 @@ func packToCharacteristics(encoded map[discovery.AdId][]byte) map[string][]byte 
 	for _, v := range encoded {
 		buf := bytes.NewBuffer(v)
 		for j := 0; buf.Len() > 0; j++ {
-			cs[cUuid(i, j)] = buf.Next(maxCharacteristicValueLen)
+			cs[cUUID(i, j)] = buf.Next(maxCharacteristicValueLen)
 		}
 		i++
 	}
@@ -112,13 +112,13 @@ func unpackFromCharacteristics(cs map[string][]byte) ([][]byte, error) {
 	var unpacked [][]byte
 	used := 0
 	for i := 0; i < maxNumPackedServices; i++ {
-		if _, ok := cs[cUuid(i, 0)]; !ok {
+		if _, ok := cs[cUUID(i, 0)]; !ok {
 			break
 		}
 
 		var splitted [][]byte
 		for j := 0; j < maxNumPackedCharacteristicsPerService; j++ {
-			uuid := cUuid(i, j)
+			uuid := cUUID(i, j)
 			c, ok := cs[uuid]
 			if !ok {
 				break

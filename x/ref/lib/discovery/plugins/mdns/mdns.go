@@ -84,8 +84,8 @@ type subscription struct {
 }
 
 func interfaceNameToServiceName(interfaceName string) string {
-	serviceUuid := idiscovery.NewServiceUUID(interfaceName)
-	return uuid.UUID(serviceUuid).String() + serviceNameSuffix
+	serviceUUID := idiscovery.NewServiceUUID(interfaceName)
+	return uuid.UUID(serviceUUID).String() + serviceNameSuffix
 }
 
 func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func()) (err error) {

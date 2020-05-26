@@ -49,7 +49,7 @@ func (d *mockDriver) RemoveService(uuid string) {
 	d.mu.Unlock()
 }
 
-func (d *mockDriver) StartScan(uuids []string, baseUuid, maskUUid string, handler ScanHandler) error {
+func (d *mockDriver) StartScan(uuids []string, baseUUID, maskUUID string, handler ScanHandler) error {
 	d.mu.Lock()
 	if d.scanUuids != nil {
 		return errors.New("scan already started")

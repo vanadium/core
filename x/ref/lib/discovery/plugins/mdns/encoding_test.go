@@ -79,7 +79,7 @@ func TestEncodeLargeTxt(t *testing.T) {
 }
 
 func randTxt(n int) string {
-	b := make([]byte, int((n*3+3)/4))
+	b := make([]byte, (n*3+3)/4)
 	_, err := rand.Read(b)
 	if err != nil {
 		panic(err)

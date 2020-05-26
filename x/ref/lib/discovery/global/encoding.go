@@ -42,7 +42,7 @@ func decodeAdFromSuffix(in string) (*discovery.Advertisement, int64, error) {
 	var err error
 	var ok bool
 	ad := &discovery.Advertisement{}
-	if ad.Id, err = discovery.ParseAdId(parts[0]); err != nil {
+	if ad.Id, err = discovery.ParseAdID(parts[0]); err != nil {
 		return nil, 0, err
 	}
 	if ad.InterfaceName, ok = naming.DecodeFromNameElement(parts[1]); !ok {

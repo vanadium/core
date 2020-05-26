@@ -7,7 +7,7 @@ package global
 import (
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/naming"
@@ -19,7 +19,7 @@ import (
 func (d *gdiscovery) Advertise(ctx *context.T, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
 	if !ad.Id.IsValid() {
 		var err error
-		if ad.Id, err = discovery.NewAdId(); err != nil {
+		if ad.Id, err = discovery.NewAdID(); err != nil {
 			return nil, err
 		}
 	}

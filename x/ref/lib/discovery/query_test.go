@@ -77,7 +77,8 @@ func TestQuery(t *testing.T) {
 		}
 
 		for j, ad := range ads {
-			matched, err := m.Match(&ad)
+			tmp := ad
+			matched, err := m.Match(&tmp)
 			if err != nil {
 				t.Errorf("query[%d]: match failed for service[%d]: %v", i, j, err)
 				continue

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sort"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
@@ -65,7 +65,7 @@ func runDiscoveryScan(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	for u := range updates {
 		if u.IsLost() {
-			fmt.Fprint(env.Stdout, "LOST:", u.Id(), "\n\n")
+			fmt.Fprint(env.Stdout, "LOST:", u.ID(), "\n\n")
 			continue
 		}
 		// Pretty print as multi-line text
