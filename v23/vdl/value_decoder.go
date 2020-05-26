@@ -35,7 +35,7 @@ type vdStackEntry struct {
 	Keys       []*Value // keys for set/map
 }
 
-func (d *valueDecoder) StartValue(want *Type) error {
+func (d *valueDecoder) StartValue(want *Type) error { //nolint:gocyclo
 	if d.ignoreNext {
 		d.ignoreNext = false
 		return nil

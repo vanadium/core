@@ -51,7 +51,7 @@ func RegisterNativeError(toFn, fromFn interface{}) {
 	niReg.forError = ni
 }
 
-func deriveNativeInfoError(toFn, fromFn interface{}) (*nativeInfo, error) {
+func deriveNativeInfoError(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:gocyclo
 	if toFn == nil || fromFn == nil {
 		return nil, fmt.Errorf("nil arguments")
 	}
@@ -200,7 +200,7 @@ func fromWireError(wire *WireError) error {
 // which are expected to have the following signatures:
 //   func ToNative(wire W, native *N) error
 //   func FromNative(wire *W, native N) error
-func deriveNativeInfo(toFn, fromFn interface{}) (*nativeInfo, error) {
+func deriveNativeInfo(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:gocyclo
 	if toFn == nil || fromFn == nil {
 		return nil, fmt.Errorf("nil arguments")
 	}

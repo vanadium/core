@@ -26,7 +26,7 @@ func TestNewID(t *testing.T) {
 		if firstRandomValue == nil {
 			firstRandomValue = id[:14]
 		}
-		if !bytes.Equal(firstRandomValue, []byte(id[:14])) {
+		if !bytes.Equal(firstRandomValue, id[:14]) {
 			atLeastOneDiffersFromFirst = true
 		}
 

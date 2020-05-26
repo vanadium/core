@@ -468,10 +468,8 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 	cs := &cancelState{done: make(chan struct{})}
 	if root != nil {
 		root.addChild(cs)
-	} else {
-		if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
-			vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
-		}
+	} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
+		vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
 	}
 	return WithValue(parent, cancelKey, cs), makeCancelFunc(cs, root, nil, Canceled)
 }

@@ -25,18 +25,16 @@ func checkIfPossibleThatArgIsConvertibleToLocation(db ds.Database, arg *query_pa
 		if locStr, err = conversions.ConvertValueToString(arg); err != nil {
 			if err != nil {
 				return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
-			} else {
-				return nil
 			}
+			return nil
 		}
 	case query_parser.TypFunction:
 		if arg.Function.Computed {
 			if locStr, err = conversions.ConvertValueToString(arg.Function.RetValue); err != nil {
 				if err != nil {
 					return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
-				} else {
-					return nil
 				}
+				return nil
 			}
 		} else {
 			// Arg is uncomputed function, can't make determination about arg.
@@ -49,9 +47,8 @@ func checkIfPossibleThatArgIsConvertibleToLocation(db ds.Database, arg *query_pa
 	_, err = time.LoadLocation(locStr.Str)
 	if err != nil {
 		return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // Time(layout, value string)
@@ -97,83 +94,83 @@ func timeInLocation(db ds.Database, off int64, args []*query_parser.Operand) (ti
 
 // Year(v.InvoiceDate, "America/Los_Angeles")
 func year(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Year())), nil
 	}
+	return makeIntOp(off, int64(tim.Year())), nil
 }
 
 // Month(v.InvoiceDate, "America/Los_Angeles")
 func month(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Month())), nil
 	}
+	return makeIntOp(off, int64(tim.Month())), nil
 }
 
 // Day(v.InvoiceDate, "America/Los_Angeles")
 func day(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Day())), nil
 	}
+	return makeIntOp(off, int64(tim.Day())), nil
 }
 
 // Hour(v.InvoiceDate, "America/Los_Angeles")
 func hour(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Hour())), nil
 	}
+	return makeIntOp(off, int64(tim.Hour())), nil
 }
 
 // Minute(v.InvoiceDate, "America/Los_Angeles")
 func minute(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Minute())), nil
 	}
+	return makeIntOp(off, int64(tim.Minute())), nil
 }
 
 // Second(v.InvoiceDate, "America/Los_Angeles")
 func second(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Second())), nil
 	}
+	return makeIntOp(off, int64(tim.Second())), nil
 }
 
 // Nanosecond(v.InvoiceDate, "America/Los_Angeles")
 func nanosecond(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Nanosecond())), nil
 	}
+	return makeIntOp(off, int64(tim.Nanosecond())), nil
 }
 
 // Weekday(v.InvoiceDate, "America/Los_Angeles")
 func weekday(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.Weekday())), nil
 	}
+	return makeIntOp(off, int64(tim.Weekday())), nil
 }
 
 // YearDay(v.InvoiceDate, "America/Los_Angeles")
 func yearDay(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if tim, err := timeInLocation(db, off, args); err != nil {
+	tim, err := timeInLocation(db, off, args)
+	if err != nil {
 		return nil, err
-	} else {
-		return makeIntOp(off, int64(tim.YearDay())), nil
 	}
+	return makeIntOp(off, int64(tim.YearDay())), nil
 }
 
 func makeTimeOp(off int64, tim time.Time) *query_parser.Operand {

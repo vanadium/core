@@ -188,17 +188,15 @@ func (e *encoder81) WriteValueString(tt *vdl.Type, value string) error {
 			return verror.New(errLabelNotInType, nil, value, tt)
 		}
 		return e.writeValue(tt, encodeUint{uint64(enumIndex)}.encode)
-	} else {
-		return e.writeValue(tt, encodeString{value}.encode)
 	}
+	return e.writeValue(tt, encodeString{value}.encode)
 }
 
 func (e *encoder81) WriteValueUint(tt *vdl.Type, value uint64) error {
 	if top := e.top(); top != nil && top.Type.IsBytes() {
 		return e.writeValue(tt, encodeOneByte{byte(value)}.encode)
-	} else {
-		return e.writeValue(tt, encodeUint{value}.encode)
 	}
+	return e.writeValue(tt, encodeUint{value}.encode)
 }
 
 func (e *encoder81) WriteValueInt(tt *vdl.Type, value int64) error {
@@ -237,17 +235,15 @@ func (e *encoder81) NextEntryValueString(tt *vdl.Type, value string) error {
 			return verror.New(errLabelNotInType, nil, value, tt)
 		}
 		return e.nextEntryValue(tt, encodeUint{uint64(enumIndex)}.encode)
-	} else {
-		return e.nextEntryValue(tt, encodeString{value}.encode)
 	}
+	return e.nextEntryValue(tt, encodeString{value}.encode)
 }
 
 func (e *encoder81) NextEntryValueUint(tt *vdl.Type, value uint64) error {
 	if top := e.top(); top != nil && top.Type.IsBytes() {
 		return e.nextEntryValue(tt, encodeOneByte{byte(value)}.encode)
-	} else {
-		return e.nextEntryValue(tt, encodeUint{value}.encode)
 	}
+	return e.nextEntryValue(tt, encodeUint{value}.encode)
 }
 
 func (e *encoder81) NextEntryValueInt(tt *vdl.Type, value int64) error {
@@ -283,17 +279,15 @@ func (e *encoder81) NextFieldValueString(index int, tt *vdl.Type, value string) 
 			return verror.New(errLabelNotInType, nil, value, tt)
 		}
 		return e.nextFieldValue(index, tt, encodeUint{uint64(enumIndex)}.encode)
-	} else {
-		return e.nextFieldValue(index, tt, encodeString{value}.encode)
 	}
+	return e.nextFieldValue(index, tt, encodeString{value}.encode)
 }
 
 func (e *encoder81) NextFieldValueUint(index int, tt *vdl.Type, value uint64) error {
 	if top := e.top(); top != nil && top.Type.IsBytes() {
 		return e.nextFieldValue(index, tt, encodeOneByte{byte(value)}.encode)
-	} else {
-		return e.nextFieldValue(index, tt, encodeUint{value}.encode)
 	}
+	return e.nextFieldValue(index, tt, encodeUint{value}.encode)
 }
 
 func (e *encoder81) NextFieldValueInt(index int, tt *vdl.Type, value int64) error {

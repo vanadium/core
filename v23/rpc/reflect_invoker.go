@@ -476,7 +476,7 @@ func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 	return typeCheckMethodArgs(mtype, sig)
 }
 
-func typeCheckReservedMethod(method reflect.Method) error {
+func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 	switch method.Name {
 	case "Describe__":
 		// Describe__() []InterfaceDesc
@@ -512,7 +512,7 @@ func typeCheckReservedMethod(method reflect.Method) error {
 	return nil
 }
 
-func typeCheckStreamingCall(rtCall reflect.Type, sig *signature.Method) error {
+func typeCheckStreamingCall(rtCall reflect.Type, sig *signature.Method) error { //nolint:gocyclo
 	// The call must be a pointer to a struct.
 	if rtCall.Kind() != reflect.Ptr || rtCall.Elem().Kind() != reflect.Struct {
 		return abortedf(errNeedStreamingCall, rtCall)
@@ -584,7 +584,7 @@ func typeCheckMethodArgs(mtype reflect.Type, sig *signature.Method) error {
 		if err != nil {
 			return abortedf(errInvalidInArg, index, err)
 		}
-		(*sig).InArgs = append((*sig).InArgs, signature.Arg{Type: vdlType})
+		sig.InArgs = append(sig.InArgs, signature.Arg{Type: vdlType})
 	}
 	// The out-args must contain a final error argument, which is handled
 	// specially by the framework.
@@ -596,7 +596,7 @@ func typeCheckMethodArgs(mtype reflect.Type, sig *signature.Method) error {
 		if err != nil {
 			return abortedf(errInvalidOutArg, index, err)
 		}
-		(*sig).OutArgs = append((*sig).OutArgs, signature.Arg{Type: vdlType})
+		sig.OutArgs = append(sig.OutArgs, signature.Arg{Type: vdlType})
 	}
 	return nil
 }
@@ -662,7 +662,8 @@ func makeArgSigs(sigs []signature.Arg, descs []ArgDesc) []signature.Arg {
 	result := make([]signature.Arg, len(sigs))
 	for index, sig := range sigs {
 		if index < len(descs) {
-			sig = *fillArgSig(&sig, descs[index])
+			tmp := sig
+			sig = *fillArgSig(&tmp, descs[index])
 		}
 		result[index] = sig
 	}

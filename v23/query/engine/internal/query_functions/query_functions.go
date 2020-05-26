@@ -98,62 +98,63 @@ func init() {
 // early).  CheckFunction will fill in arg types, return types and may fill in
 // Computed and RetValue.
 func CheckFunction(db ds.Database, f *query_parser.Function) error {
-	if entry, err := lookupFuncName(db, f); err != nil {
+	entry, err := lookupFuncName(db, f)
+	if err != nil {
 		return err
-	} else {
-		f.ArgTypes = entry.argTypes
-		f.RetType = entry.returnType
-		if !entry.hasVarArgs && len(f.Args) != len(entry.argTypes) {
-			return syncql.NewErrFunctionArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
-		}
-		if entry.hasVarArgs && len(f.Args) < len(entry.argTypes) {
-			return syncql.NewErrFunctionAtLeastArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
-		}
-		// Standard check for types of fixed and var args
-		if err = argsStandardCheck(db, f.Off, entry, f.Args); err != nil {
-			return err
-		}
-		// Check if the function can be executed now.
-		// If any arg is not a literal and not a function that has been already executed,
-		// then okToExecuteNow will be set to false.
+	}
+	f.ArgTypes = entry.argTypes
+	f.RetType = entry.returnType
+	if !entry.hasVarArgs && len(f.Args) != len(entry.argTypes) {
+		return syncql.NewErrFunctionArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
+	}
+	if entry.hasVarArgs && len(f.Args) < len(entry.argTypes) {
+		return syncql.NewErrFunctionAtLeastArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
+	}
+	// Standard check for types of fixed and var args
+	if err = argsStandardCheck(db, f.Off, entry, f.Args); err != nil {
+		return err
+	}
+	// Check if the function can be executed now.
+	// If any arg is not a literal and not a function that has been already executed,
+	// then okToExecuteNow will be set to false.
 
-		executeNow := func() bool {
-			for _, arg := range f.Args {
-				switch arg.Type {
-				case query_parser.TypBigInt, query_parser.TypBigRat, query_parser.TypBool, query_parser.TypFloat, query_parser.TypInt, query_parser.TypStr, query_parser.TypTime, query_parser.TypUint:
-					// do nothing
-				case query_parser.TypFunction:
-					if !arg.Function.Computed {
-						return false
-					}
-				default:
+	executeNow := func() bool {
+		for _, arg := range f.Args {
+			switch arg.Type {
+			case query_parser.TypBigInt, query_parser.TypBigRat, query_parser.TypBool, query_parser.TypFloat, query_parser.TypInt, query_parser.TypStr, query_parser.TypTime, query_parser.TypUint:
+				// do nothing
+			case query_parser.TypFunction:
+				if !arg.Function.Computed {
 					return false
 				}
+			default:
+				return false
 			}
-			return true
 		}
+		return true
+	}
 
-		okToExecuteNow := executeNow()
-		// If all of the functions args are literals or already computed functions,
-		// execute this function now and save the result.
-		if okToExecuteNow {
-			op, err := ExecFunction(db, f, f.Args)
-			if err != nil {
-				return err
-			}
-			f.Computed = true
-			f.RetValue = op
-			return nil
-		} else {
-			// We can't execute now, but give the function a chance to complain
-			// about the arguments that it can check now.
-			return FuncCheck(db, f, f.Args)
+	okToExecuteNow := executeNow()
+	// If all of the functions args are literals or already computed functions,
+	// execute this function now and save the result.
+	if okToExecuteNow {
+		op, err := ExecFunction(db, f, f.Args)
+		if err != nil {
+			return err
 		}
+		f.Computed = true
+		f.RetValue = op
+		return nil
+	} else {
+		// We can't execute now, but give the function a chance to complain
+		// about the arguments that it can check now.
+		return FuncCheck(db, f, f.Args)
 	}
 }
 
 func lookupFuncName(db ds.Database, f *query_parser.Function) (*function, error) {
-	if entry, ok := functions[f.Name]; !ok {
+	entry, ok := functions[f.Name]
+	if !ok {
 		// No such function, is the case wrong?
 		if correctCase, ok := lowercaseFunctions[strings.ToLower(f.Name)]; !ok {
 			return nil, syncql.NewErrFunctionNotFound(db.GetContext(), f.Off, f.Name)
@@ -161,34 +162,31 @@ func lookupFuncName(db ds.Database, f *query_parser.Function) (*function, error)
 			// the case is wrong
 			return nil, syncql.NewErrDidYouMeanFunction(db.GetContext(), f.Off, correctCase)
 		}
-	} else {
-		return &entry, nil
 	}
+	return &entry, nil
 }
 
 func FuncCheck(db ds.Database, f *query_parser.Function, args []*query_parser.Operand) error {
 	if entry, err := lookupFuncName(db, f); err != nil {
 		return err
-	} else {
-		if entry.checkArgsAddr != nil {
-			if err := entry.checkArgsAddr(db, f.Off, args); err != nil {
-				return err
-			}
+	} else if entry.checkArgsAddr != nil {
+		if err := entry.checkArgsAddr(db, f.Off, args); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
 func ExecFunction(db ds.Database, f *query_parser.Function, args []*query_parser.Operand) (*query_parser.Operand, error) {
-	if entry, err := lookupFuncName(db, f); err != nil {
+	entry, err := lookupFuncName(db, f)
+	if err != nil {
+		return nil, err
+	}
+	retValue, err := entry.funcAddr(db, f.Off, args)
+	if err != nil {
 		return nil, err
 	} else {
-		retValue, err := entry.funcAddr(db, f.Off, args)
-		if err != nil {
-			return nil, err
-		} else {
-			return retValue, nil
-		}
+		return retValue, nil
 	}
 }
 
@@ -251,7 +249,7 @@ func makeFloatOp(off int64, r float64) *query_parser.Operand {
 	return &o
 }
 
-func checkArg(db ds.Database, off int64, argType query_parser.OperandType, arg *query_parser.Operand) error {
+func checkArg(db ds.Database, off int64, argType query_parser.OperandType, arg *query_parser.Operand) error { //nolint:gocyclo
 	// We can't check unless the arg is a literal or an already computed function,
 	var operandToConvert *query_parser.Operand
 	switch arg.Type {

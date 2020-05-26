@@ -232,7 +232,7 @@ func (d *decoder81) StartValue(want *vdl.Type) error {
 	return nil
 }
 
-func (d *decoder81) setupType(tt, want *vdl.Type) (_ *vdl.Type, lenHint int, flag decStackFlag, _ error) {
+func (d *decoder81) setupType(tt, want *vdl.Type) (_ *vdl.Type, lenHint int, flag decStackFlag, _ error) { //nolint:gocyclo
 	// Handle any, which may be nil.  We "dereference" non-nil any to the inner
 	// type.  If that happens to be an optional, it's handled below.
 	if tt.Kind() == vdl.Any {
@@ -369,9 +369,8 @@ func (d *decoder81) dfsNextType() (*vdl.Type, error) {
 		top.Flag = top.Flag.FlipIsMapKey()
 		if top.Flag.IsMapKey() {
 			return tt.Key(), nil
-		} else {
-			return tt.Elem(), nil
 		}
+		return tt.Elem(), nil
 	case vdl.Union, vdl.Struct:
 		return tt.Field(top.Index).Type, nil
 	}
@@ -400,7 +399,7 @@ func (d *decoder81) NextEntry() (bool, error) {
 	return top.Index == top.LenHint, nil
 }
 
-func (d *decoder81) NextField() (int, error) {
+func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 	top := d.top()
 	if top == nil {
 		return -1, errEmptyDecoderStack
@@ -616,7 +615,7 @@ func (d *decoder81) DecodeInt(bitlen int) (int64, error) {
 	return d.decodeInt(tt, uint(bitlen))
 }
 
-func (d *decoder81) decodeInt(tt *vdl.Type, ubitlen uint) (int64, error) {
+func (d *decoder81) decodeInt(tt *vdl.Type, ubitlen uint) (int64, error) { //nolint:gocyclo
 	const errFmt = "vom: conversion from %v into int%d loses precision: %v"
 	switch tt.Kind() {
 	case vdl.Byte:
@@ -673,7 +672,7 @@ func (d *decoder81) DecodeFloat(bitlen int) (float64, error) {
 	return d.decodeFloat(tt, uint(bitlen))
 }
 
-func (d *decoder81) decodeFloat(tt *vdl.Type, ubitlen uint) (float64, error) {
+func (d *decoder81) decodeFloat(tt *vdl.Type, ubitlen uint) (float64, error) { //nolint:gocyclo
 	const errFmt = "vom: conversion from %v into float%d loses precision: %v"
 	switch tt.Kind() {
 	case vdl.Byte:
@@ -773,7 +772,7 @@ func (d *decoder81) binaryDecodeType() (*vdl.Type, error) {
 	if err != nil {
 		return nil, err
 	}
-	tid, err := d.refTypes.ReferencedTypeId(typeIndex)
+	tid, err := d.refTypes.ReferencedTypeID(typeIndex)
 	if err != nil {
 		return nil, err
 	}

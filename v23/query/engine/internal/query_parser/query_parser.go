@@ -243,7 +243,7 @@ type DeleteStatement struct {
 	Node
 }
 
-func scanToken(s *scanner.Scanner) *Token {
+func scanToken(s *scanner.Scanner) *Token { //nolint:gocyclo
 	// TODO(jkline): Replace golang text/scanner.
 	var token Token
 	tok := s.Scan()
@@ -722,7 +722,7 @@ func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffs
 }
 
 // Parse an operand (field or literal) and return it and the next Token (or error)
-func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *Token, error) {
+func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *Token, error) { //nolint:gocyclo
 	if token.Tok == TokEOF {
 		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
 	}
@@ -743,12 +743,13 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 		// If the next token is not a period, check for true/false/nil.
 		// If true/false or nil, change this operand to a bool or nil, respectively.
 		// Also, check for function call.  If so, change to a function operand.
-		if token.Tok != TokPERIOD && (strings.ToLower(segment.Value) == "true" || strings.ToLower(segment.Value) == "false") {
+		switch {
+		case token.Tok != TokPERIOD && (strings.ToLower(segment.Value) == "true" || strings.ToLower(segment.Value) == "false"):
 			operand.Type = TypBool
 			operand.Bool = strings.ToLower(segment.Value) == "true"
-		} else if token.Tok != TokPERIOD && strings.ToLower(segment.Value) == "nil" {
+		case token.Tok != TokPERIOD && strings.ToLower(segment.Value) == "nil":
 			operand.Type = TypNil
-		} else if token.Tok == TokLEFTPAREN {
+		case token.Tok == TokLEFTPAREN:
 			// Segments with a key specified cannot be function calls.
 			if len(segment.Keys) != 0 {
 				return nil, nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
@@ -758,7 +759,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 			if operand.Function, token, err = parseFunction(db, s, segment.Value, segment.Off, token); err != nil {
 				return nil, nil, err
 			}
-		} else { // This is a field (column) operand.
+		default: // This is a field (column) operand.
 			// If the next token is a period, collect the rest of the segments in the column.
 			for token.Tok != TokEOF && token.Tok == TokPERIOD {
 				token = scanToken(s)
@@ -830,7 +831,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 }
 
 // Parse binary operator and return it and the next Token (or error)
-func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*BinaryOperator, *Token, error) {
+func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*BinaryOperator, *Token, error) { //nolint:gocyclo
 	if token.Tok == TokEOF {
 		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
 	}
@@ -931,13 +932,14 @@ func parseEscapeLimitResultsOffsetClauses(db ds.Database, s *scanner.Scanner, to
 	var oc *ResultsOffsetClause
 	for token.Tok != TokEOF {
 		// Note: Can be in any order.  If more than one, the last one wins
-		if token.Tok == TokIDENT && strings.ToLower(token.Value) == "escape" {
+		switch {
+		case token.Tok == TokIDENT && strings.ToLower(token.Value) == "escape":
 			ec, token, err = parseEscapeClause(db, s, token)
-		} else if token.Tok == TokIDENT && strings.ToLower(token.Value) == "limit" {
+		case token.Tok == TokIDENT && strings.ToLower(token.Value) == "limit":
 			lc, token, err = parseLimitClause(db, s, token)
-		} else if token.Tok == TokIDENT && strings.ToLower(token.Value) == "offset" {
+		case token.Tok == TokIDENT && strings.ToLower(token.Value) == "offset":
 			oc, token, err = parseResultsOffsetClause(db, s, token)
-		} else {
+		default:
 			return ec, lc, oc, token, nil
 		}
 		if err != nil {
@@ -954,11 +956,12 @@ func parseEscapeLimitClauses(db ds.Database, s *scanner.Scanner, token *Token) (
 	var lc *LimitClause
 	for token.Tok != TokEOF {
 		// Note: Can be in any order.  If more than one, the last one wins
-		if token.Tok == TokIDENT && strings.ToLower(token.Value) == "escape" {
+		switch {
+		case token.Tok == TokIDENT && strings.ToLower(token.Value) == "escape":
 			ec, token, err = parseEscapeClause(db, s, token)
-		} else if token.Tok == TokIDENT && strings.ToLower(token.Value) == "limit" {
+		case token.Tok == TokIDENT && strings.ToLower(token.Value) == "limit":
 			lc, token, err = parseLimitClause(db, s, token)
-		} else {
+		default:
 			return ec, lc, token, nil
 		}
 		if err != nil {
@@ -1098,11 +1101,9 @@ func (st SelectStatement) CopyAndSubstitute(db ds.Database, paramValues []*vdl.V
 		if copy.Where, err = st.Where.CopyAndSubstitute(db, paramValues); err != nil {
 			return nil, err
 		}
-	} else {
+	} else if len(paramValues) > 0 {
 		// There is no where clause.  If any paramValues suppied, we have too many.
-		if len(paramValues) > 0 {
-			return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
-		}
+		return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
 	}
 	copy.Escape = st.Escape
 	copy.Limit = st.Limit
@@ -1119,11 +1120,9 @@ func (st DeleteStatement) CopyAndSubstitute(db ds.Database, paramValues []*vdl.V
 		if copy.Where, err = st.Where.CopyAndSubstitute(db, paramValues); err != nil {
 			return nil, err
 		}
-	} else {
+	} else if len(paramValues) > 0 {
 		// There is no where clause.  If any paramValues suppied, we have too many.
-		if len(paramValues) > 0 {
-			return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
-		}
+		return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
 	}
 	copy.Escape = st.Escape
 	copy.Limit = st.Limit
@@ -1378,12 +1377,12 @@ func (o Operand) CopyAndSubstitute(db ds.Database, pi *paramInfo) (*Operand, err
 			// not enough paramater values specified
 			return nil, syncql.NewErrNotEnoughParamValuesSpecified(db.GetContext(), o.Off)
 		}
-		if cpOp, err := ConvertValueToAnOperand(pi.paramValues[pi.cursor], o.Off); err == nil {
+		cpOp, err := ConvertValueToAnOperand(pi.paramValues[pi.cursor], o.Off)
+		if err == nil {
 			pi.cursor++
 			return cpOp, nil
-		} else {
-			return nil, err
 		}
+		return nil, err
 	default:
 		// No need to copy the operand.
 		return &o, nil

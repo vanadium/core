@@ -629,7 +629,8 @@ func TestReflectInvokerPanic(t *testing.T) {
 		if !re.MatchString(fmt.Sprint(err)) {
 			t.Errorf(`ReflectInvoker(%T) got error %v, want regexp "%v"`, test.obj, err, test.regexp)
 		}
-		recov := testutil.CallAndRecover(func() { rpc.ReflectInvokerOrDie(test.obj) })
+		obj := test.obj
+		recov := testutil.CallAndRecover(func() { rpc.ReflectInvokerOrDie(obj) })
 		if !re.MatchString(fmt.Sprint(recov)) {
 			t.Errorf(`ReflectInvokerOrDie(%T) got panic %v, want regexp "%v"`, test.obj, recov, test.regexp)
 		}

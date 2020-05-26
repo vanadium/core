@@ -92,7 +92,7 @@ func TestIsValid(t *testing.T) {
 }
 
 // Test copied from v23/security/pattern_test.go.
-func TestMatch(t *testing.T) {
+func TestMatch(t *testing.T) { //nolint:gocyclo
 	type v []string
 	valid := []struct {
 		Pattern      security.BlessingPattern

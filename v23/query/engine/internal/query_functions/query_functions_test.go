@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/query_functions"
@@ -58,17 +58,17 @@ type functionsErrorTest struct {
 	err  error
 }
 
-var t_2015_06_21 time.Time
-var t_2015_06_21_01_23_45 time.Time
-var t_2015_06_09_01_23_45_8327 time.Time
+var ty2015m06d21 time.Time
+var ty2015m06d21h01m23s45 time.Time
+var ty2015m06d09h01m23s45_8327 time.Time
 
 func init() {
-	t_2015_06_21, _ = time.Parse("2006/01/02 MST", "2015/06/21 PDT")
+	ty2015m06d21, _ = time.Parse("2006/01/02 MST", "2015/06/21 PDT")
 
-	t_2015_06_21_01_23_45, _ = time.Parse("2006/01/02 15:04:05 MST", "2015/06/21 01:23:45 PDT")
+	ty2015m06d21h01m23s45, _ = time.Parse("2006/01/02 15:04:05 MST", "2015/06/21 01:23:45 PDT")
 
 	loc, _ := time.LoadLocation("America/Los_Angeles")
-	t_2015_06_09_01_23_45_8327 = time.Date(2015, 6, 9, 1, 23, 45, 8327, loc)
+	ty2015m06d09h01m23s45_8327 = time.Date(2015, 6, 9, 1, 23, 45, 8327, loc)
 }
 
 func TestFunctions(t *testing.T) {
@@ -106,7 +106,7 @@ func TestFunctions(t *testing.T) {
 			},
 			&query_parser.Operand{
 				Type: query_parser.TypTime,
-				Time: t_2015_06_21,
+				Time: ty2015m06d21,
 			},
 		},
 		// Time
@@ -142,7 +142,7 @@ func TestFunctions(t *testing.T) {
 			},
 			&query_parser.Operand{
 				Type: query_parser.TypTime,
-				Time: t_2015_06_21_01_23_45,
+				Time: ty2015m06d21h01m23s45,
 			},
 		},
 		// Year
@@ -152,7 +152,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -170,7 +170,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -189,7 +189,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -207,7 +207,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -226,7 +226,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -244,7 +244,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -263,7 +263,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -281,7 +281,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -300,7 +300,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -318,7 +318,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -337,7 +337,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -355,7 +355,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -374,7 +374,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -392,7 +392,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -411,7 +411,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -429,7 +429,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,
@@ -448,7 +448,7 @@ func TestFunctions(t *testing.T) {
 				Args: []*query_parser.Operand{
 					{
 						Type: query_parser.TypTime,
-						Time: t_2015_06_09_01_23_45_8327,
+						Time: ty2015m06d09h01m23s45_8327,
 					},
 					{
 						Type: query_parser.TypStr,
@@ -466,7 +466,7 @@ func TestFunctions(t *testing.T) {
 			[]*query_parser.Operand{
 				{
 					Type: query_parser.TypTime,
-					Time: t_2015_06_09_01_23_45_8327,
+					Time: ty2015m06d09h01m23s45_8327,
 				},
 				{
 					Type: query_parser.TypStr,

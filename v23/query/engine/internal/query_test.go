@@ -44,11 +44,12 @@ type keyValueStreamImpl struct {
 }
 
 func compareKeyToLimit(key, limit string) int {
-	if limit == "" || key < limit {
+	switch {
+	case limit == "" || key < limit:
 		return -1
-	} else if key == limit {
+	case key == limit:
 		return 0
-	} else {
+	default:
 		return 1
 	}
 }
@@ -129,7 +130,7 @@ func (db mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) {
 			return t, nil
 		}
 	}
-	return nil, fmt.Errorf("No such table: %s.", table)
+	return nil, fmt.Errorf("no such table: %s", table)
 
 }
 
@@ -2583,8 +2584,8 @@ func plusOne(start string) string {
 		if limit[len(limit)-1] == 255 {
 			limit = limit[:len(limit)-1] // chop off trailing \x00
 		} else {
-			limit[len(limit)-1] += 1 // add 1
-			break                    // no carry
+			limit[len(limit)-1]++ // add 1
+			break                 // no carry
 		}
 	}
 	return string(limit)
@@ -3367,7 +3368,7 @@ func TestExecErrors(t *testing.T) {
 		{
 			"select v from Unknown",
 			// The following error text is dependent on implementation of Database.
-			syncql.NewErrTableCantAccess(db.GetContext(), 14, "Unknown", errors.New("No such table: Unknown.")),
+			syncql.NewErrTableCantAccess(db.GetContext(), 14, "Unknown", errors.New("no such table: Unknown")),
 		},
 		{
 			"select v from Customer offset -1",
@@ -3472,11 +3473,11 @@ func TestExecErrors(t *testing.T) {
 		},
 		{
 			"select StrRepeat(\"foo\", \"x\") from Customer",
-			syncql.NewErrIntConversionError(db.GetContext(), 24, errors.New("Cannot convert operand to int64.")),
+			syncql.NewErrIntConversionError(db.GetContext(), 24, errors.New("cannot convert operand to int64")),
 		},
 		{
 			"select StrCat(v.Address.City, 42) from Customer",
-			syncql.NewErrStringConversionError(db.GetContext(), 30, errors.New("Cannot convert operand to string.")),
+			syncql.NewErrStringConversionError(db.GetContext(), 30, errors.New("cannot convert operand to string")),
 		},
 		{
 			"select v from Customer where k like \"abc %\" escape ' '",

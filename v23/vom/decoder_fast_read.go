@@ -42,7 +42,7 @@ import (
 //
 // REQUIRES: tt is identical to the want type that the user is decoding into,
 // which ensures that we don't need to perform conversions.
-func isFastReadParent(tt *vdl.Type) bool {
+func isFastReadParent(tt *vdl.Type) bool { //nolint:gocyclo
 	switch tt.Kind() {
 	case vdl.Array, vdl.List:
 		elem := tt.Elem().Kind()

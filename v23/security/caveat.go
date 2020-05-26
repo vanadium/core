@@ -334,7 +334,7 @@ func (d *PublicKeyDischarge) signatureCacheKey(digest []byte, key PublicKey, sig
 	}
 	keyhash := key.hash().sum(keybytes)
 	sighash := signature.digest(key.hash())
-	return append(keyhash[:], append(sighash, digest...)...), nil
+	return append(keyhash, append(sighash, digest...)...), nil
 }
 
 func (d *PublicKeyDischarge) sign(signer Signer) error {

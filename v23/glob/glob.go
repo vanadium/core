@@ -169,14 +169,15 @@ func (m *Element) FixedPrefix() (string, bool) {
 	unescaped := ""
 	escape := false
 	for _, c := range m.pattern {
-		if escape {
+		switch {
+		case escape:
 			escape = false
 			unescaped += string(c)
-		} else if strings.ContainsRune("*?[", c) {
+		case strings.ContainsRune("*?[", c):
 			return unescaped, false
-		} else if c == '\\' {
+		case c == '\\':
 			escape = true
-		} else {
+		default:
 			unescaped += string(c)
 		}
 	}

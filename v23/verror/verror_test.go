@@ -339,11 +339,12 @@ func TestBasic(t *testing.T) {
 		}
 
 		stack := verror.Stack(test.err)
-		if stack == nil {
+		switch {
+		case stack == nil:
 			t.Errorf("Stack(%q) got nil, want non-nil", verror.ErrorID(test.err))
-		} else if len(stack) < 1 || 10 < len(stack) {
+		case len(stack) < 1 || 10 < len(stack):
 			t.Errorf("len(Stack(%q)) got %d, want between 1 and 10", verror.ErrorID(test.err), len(stack))
-		} else {
+		default:
 			fnc := runtime.FuncForPC(stack[0])
 			if !strings.Contains(fnc.Name(), "verror_test.init") {
 				t.Errorf("Func.Name(Stack(%q)[0]) got %q, want \"verror.init\"",

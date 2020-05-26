@@ -99,7 +99,7 @@ func (reg *compatRegistry) update(key [2]*Type, compat bool) {
 }
 
 // compat is a recursive helper that implements Compatible.
-func compat(a, b *Type, seenA, seenB map[*Type]bool) bool {
+func compat(a, b *Type, seenA, seenB map[*Type]bool) bool { //nolint:gocyclo
 	// Normalize and break cycles from recursive types.
 	a, b = a.NonOptional(), b.NonOptional()
 	if a == b || seenA[a] || seenB[b] {
@@ -132,20 +132,17 @@ func compat(a, b *Type, seenA, seenB map[*Type]bool) bool {
 		}
 		return false
 	case Set:
-		switch b.Kind() {
-		case Set:
+		if b.Kind() == Set {
 			return compat(a.Key(), b.Key(), seenA, seenB)
 		}
 		return false
 	case Map:
-		switch b.Kind() {
-		case Map:
+		if b.Kind() == Map {
 			return compat(a.Key(), b.Key(), seenA, seenB) && compat(a.Elem(), b.Elem(), seenA, seenB)
 		}
 		return false
 	case Struct:
-		switch b.Kind() {
-		case Struct:
+		if b.Kind() == Struct {
 			if ttIsEmptyStruct(a) || ttIsEmptyStruct(b) {
 				return true // empty struct is compatible with all other structs
 			}
@@ -153,8 +150,7 @@ func compat(a, b *Type, seenA, seenB map[*Type]bool) bool {
 		}
 		return false
 	case Union:
-		switch b.Kind() {
-		case Union:
+		if b.Kind() == Union {
 			return compatFields(a, b, seenA, seenB)
 		}
 		return false

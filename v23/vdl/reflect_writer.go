@@ -67,7 +67,7 @@ func WriteReflect(enc Encoder, rv reflect.Value) error {
 	return writeReflect(enc, rv, tt)
 }
 
-func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error {
+func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocyclo
 	// Fastpath check for non-reflect support.  Optional types are tricky, since
 	// they may be nil, and need SetNextStartValueIsOptional() to be set, so they
 	// can't use this fastpath.  This handles the non-nil *vom.RawBytes and
@@ -120,18 +120,17 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error {
 	if reflect.PtrTo(rv.Type()).Implements(rtVDLWriter) {
 		if rv.CanAddr() {
 			return writeNonReflect(enc, rv.Addr().Interface())
-		} else {
-			// This handles the case where rv implements VDLWrite with a pointer
-			// receiver, but we can't address rv to get a pointer.  E.g.
-			//    type Foo string
-			//    func (x *Foo) VDLWrite(enc vdl.Encoder) error {...}
-			//    rv := Foo{}
-			//
-			// TODO(toddw): Do we need to handle this case?
-			rvPtr := reflect.New(rv.Type())
-			rvPtr.Elem().Set(rv)
-			return writeNonReflect(enc, rvPtr.Interface())
 		}
+		// This handles the case where rv implements VDLWrite with a pointer
+		// receiver, but we can't address rv to get a pointer.  E.g.
+		//    type Foo string
+		//    func (x *Foo) VDLWrite(enc vdl.Encoder) error {...}
+		//    rv := Foo{}
+		//
+		// TODO(toddw): Do we need to handle this case?
+		rvPtr := reflect.New(rv.Type())
+		rvPtr.Elem().Set(rv)
+		return writeNonReflect(enc, rvPtr.Interface())
 	}
 	// Handle marshaling from native type to wire type.
 	if ni := nativeInfoFromNative(rv.Type()); ni != nil {

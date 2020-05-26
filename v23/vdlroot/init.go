@@ -14,8 +14,8 @@
 package vdlroot
 
 import (
-	_ "v.io/v23/vdlroot/math"
-	_ "v.io/v23/vdlroot/signature"
-	_ "v.io/v23/vdlroot/time"
-	_ "v.io/v23/vdlroot/vdltool"
+	_ "v.io/v23/vdlroot/math"      //nolint:golint
+	_ "v.io/v23/vdlroot/signature" //nolint:golint
+	_ "v.io/v23/vdlroot/time"      //nolint:golint
+	_ "v.io/v23/vdlroot/vdltool"   //nolint:golint
 )

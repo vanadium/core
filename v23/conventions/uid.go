@@ -44,9 +44,8 @@ func GetClientUserIds(ctx *context.T, call security.Call) []string {
 	}
 	if len(ids) > 0 {
 		return ids
-	} else {
-		return []string{UnauthenticatedUser}
 	}
+	return []string{UnauthenticatedUser}
 }
 
 // Parse the userId components from a blessing name or a userId string.  Returns nil on failure.

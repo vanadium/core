@@ -15,7 +15,7 @@ import (
 	"v.io/v23/verror"
 )
 
-func TestCertificateDigest(t *testing.T) {
+func TestCertificateDigest(t *testing.T) { //nolint:gocyclo
 	// This test generates a bunch of Certificates and Signatures using the reflect package
 	// to ensure that ever single field of these two is excercised.
 	//
@@ -29,7 +29,7 @@ func TestCertificateDigest(t *testing.T) {
 		signatures   = make([]Signature, 1)
 		numtested    = 0
 
-		v = func(item interface{}) reflect.Value { return reflect.ValueOf(item) }
+		v = reflect.ValueOf
 		// type of field in Certificate/Signature to a set of values to test against.
 		type2values = map[reflect.Type][]reflect.Value{
 			reflect.TypeOf(""):         {v("a"), v("b")},

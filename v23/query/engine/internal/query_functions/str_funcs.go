@@ -24,36 +24,35 @@ func str(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser
 	o := args[0]
 	if strOp, err := conversions.ConvertValueToString(o); err == nil {
 		return strOp, nil
-	} else {
-		var c query_parser.Operand
-		c.Type = query_parser.TypStr
-		c.Off = o.Off
-		switch args[0].Type {
-		case query_parser.TypBigInt:
-			c.Str = o.BigInt.String()
-		case query_parser.TypBigRat:
-			c.Str = o.BigRat.String()
-		case query_parser.TypBool:
-			c.Str = strconv.FormatBool(o.Bool)
-		case query_parser.TypFloat:
-			c.Str = strconv.FormatFloat(o.Float, 'f', -1, 64)
-		case query_parser.TypInt:
-			c.Str = strconv.FormatInt(o.Int, 10)
-		case query_parser.TypTime:
-			c.Str = o.Time.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
-		case query_parser.TypUint:
-			c.Str = strconv.FormatUint(o.Uint, 10)
-		case query_parser.TypObject:
-			// A vdl.TypeObject?
-			// In this case, TypeObject().Name() is used (rather than Type().Name()
-			if o.Object.Kind() == vdl.TypeObject {
-				c.Str = o.Object.TypeObject().Name()
-			} else {
-				c.Str = fmt.Sprintf("%v", o.Object)
-			}
-		}
-		return &c, nil
 	}
+	var c query_parser.Operand
+	c.Type = query_parser.TypStr
+	c.Off = o.Off
+	switch args[0].Type {
+	case query_parser.TypBigInt:
+		c.Str = o.BigInt.String()
+	case query_parser.TypBigRat:
+		c.Str = o.BigRat.String()
+	case query_parser.TypBool:
+		c.Str = strconv.FormatBool(o.Bool)
+	case query_parser.TypFloat:
+		c.Str = strconv.FormatFloat(o.Float, 'f', -1, 64)
+	case query_parser.TypInt:
+		c.Str = strconv.FormatInt(o.Int, 10)
+	case query_parser.TypTime:
+		c.Str = o.Time.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	case query_parser.TypUint:
+		c.Str = strconv.FormatUint(o.Uint, 10)
+	case query_parser.TypObject:
+		// A vdl.TypeObject?
+		// In this case, TypeObject().Name() is used (rather than Type().Name()
+		if o.Object.Kind() == vdl.TypeObject {
+			c.Str = o.Object.TypeObject().Name()
+		} else {
+			c.Str = fmt.Sprintf("%v", o.Object)
+		}
+	}
+	return &c, nil
 }
 
 func atoi(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
@@ -66,7 +65,7 @@ func atoi(db ds.Database, off int64, args []*query_parser.Operand) (*query_parse
 		}
 		return makeIntOp(off, i), nil
 	default:
-		return nil, errors.New("Cannot convert operand to int.")
+		return nil, errors.New("cannot convert operand to int")
 	}
 }
 
@@ -80,7 +79,7 @@ func atof(db ds.Database, off int64, args []*query_parser.Operand) (*query_parse
 		}
 		return makeFloatOp(off, f), nil
 	default:
-		return nil, errors.New("Cannot convert operand to float.")
+		return nil, errors.New("cannot convert operand to float")
 	}
 }
 
@@ -124,9 +123,8 @@ func typeFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_p
 	if args[0].Object.Kind() == vdl.TypeObject {
 		// Believe it or not, Name() doesn't return the name of the type if the type is TypeObject.
 		return makeStrOp(off, args[0].Object.Type().String()), nil
-	} else {
-		return makeStrOp(off, args[0].Object.Type().Name()), nil
 	}
+	return makeStrOp(off, args[0].Object.Type().Name()), nil
 }
 
 func typeFuncFieldCheck(db ds.Database, off int64, args []*query_parser.Operand) error {
@@ -250,10 +248,9 @@ func strRepeat(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	}
 	if count.Int >= 0 {
 		return makeStrOp(off, strings.Repeat(s.Str, int(count.Int))), nil
-	} else {
-		// golang strings.Repeat doesn't like count < 0
-		return makeStrOp(off, ""), nil
 	}
+	// golang strings.Repeat doesn't like count < 0
+	return makeStrOp(off, ""), nil
 }
 
 // StrReplace(s, old, new string) string

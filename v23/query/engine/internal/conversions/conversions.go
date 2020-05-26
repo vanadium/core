@@ -23,7 +23,7 @@ func ConvertValueToString(o *query_parser.Operand) (*query_parser.Operand, error
 		c.Prefix = o.Prefix   // non-nil for rhs of like expressions
 		c.Pattern = o.Pattern // non-nil for rhs of like expressions
 	default:
-		return nil, errors.New("Cannot convert operand to string.")
+		return nil, errors.New("cannot convert operand to string")
 	}
 	return &c, nil
 }
@@ -33,7 +33,7 @@ func ConvertValueToTime(o *query_parser.Operand) (*query_parser.Operand, error) 
 	case query_parser.TypTime:
 		return o, nil
 	default:
-		return nil, errors.New("Cannot convert operand to time.")
+		return nil, errors.New("cannot convert operand to time")
 	}
 }
 
@@ -48,7 +48,7 @@ func ConvertValueToBigRat(o *query_parser.Operand) (*query_parser.Operand, error
 	case query_parser.TypBigRat:
 		c.BigRat = o.BigRat
 	case query_parser.TypBool:
-		return nil, errors.New("Cannot convert bool to big.Rat.")
+		return nil, errors.New("cannot convert bool to big.Rat")
 	case query_parser.TypFloat:
 		var b big.Rat
 		c.BigRat = b.SetFloat64(o.Float)
@@ -60,10 +60,10 @@ func ConvertValueToBigRat(o *query_parser.Operand) (*query_parser.Operand, error
 		var br big.Rat
 		c.BigRat = br.SetInt(&bi)
 	case query_parser.TypObject:
-		return nil, errors.New("Cannot convert object to big.Rat.")
+		return nil, errors.New("cannot convert object to big.Rat")
 	default:
 		// TODO(jkline): Log this logic error and all other similar cases.
-		return nil, errors.New("Cannot convert operand to big.Rat.")
+		return nil, errors.New("cannot convert operand to big.Rat")
 	}
 	return &c, nil
 }
@@ -74,7 +74,7 @@ func ConvertValueToFloat(o *query_parser.Operand) (*query_parser.Operand, error)
 	c.Type = query_parser.TypFloat
 	switch o.Type {
 	case query_parser.TypBool:
-		return nil, errors.New("Cannot convert bool to float64.")
+		return nil, errors.New("cannot convert bool to float64")
 	case query_parser.TypFloat:
 		c.Float = o.Float
 	case query_parser.TypInt:
@@ -82,10 +82,10 @@ func ConvertValueToFloat(o *query_parser.Operand) (*query_parser.Operand, error)
 	case query_parser.TypUint:
 		c.Float = float64(o.Uint)
 	case query_parser.TypObject:
-		return nil, errors.New("Cannot convert object to float64.")
+		return nil, errors.New("cannot convert object to float64")
 	default:
 		// TODO(jkline): Log this logic error and all other similar cases.
-		return nil, errors.New("Cannot convert operand to float64.")
+		return nil, errors.New("cannot convert operand to float64")
 	}
 	return &c, nil
 }
@@ -103,10 +103,10 @@ func ConvertValueToBool(o *query_parser.Operand) (*query_parser.Operand, error) 
 		case "false":
 			c.Bool = false
 		default:
-			return nil, errors.New("Cannot convert object to bool.")
+			return nil, errors.New("cannot convert object to bool")
 		}
 	default:
-		return nil, errors.New("Cannot convert operand to bool.")
+		return nil, errors.New("cannot convert operand to bool")
 	}
 	return &c, nil
 }
@@ -119,7 +119,7 @@ func ConvertValueToBigInt(o *query_parser.Operand) (*query_parser.Operand, error
 	case query_parser.TypBigInt:
 		c.BigInt = o.BigInt
 	case query_parser.TypBool:
-		return nil, errors.New("Cannot convert bool to big.Int.")
+		return nil, errors.New("cannot convert bool to big.Int")
 	case query_parser.TypInt:
 		c.BigInt = big.NewInt(o.Int)
 	case query_parser.TypUint:
@@ -127,10 +127,10 @@ func ConvertValueToBigInt(o *query_parser.Operand) (*query_parser.Operand, error
 		b.SetUint64(o.Uint)
 		c.BigInt = &b
 	case query_parser.TypObject:
-		return nil, errors.New("Cannot convert object to big.Int.")
+		return nil, errors.New("cannot convert object to big.Int")
 	default:
 		// TODO(jkline): Log this logic error and all other similar cases.
-		return nil, errors.New("Cannot convert operand to big.Int.")
+		return nil, errors.New("cannot convert operand to big.Int")
 	}
 	return &c, nil
 }
@@ -141,14 +141,14 @@ func ConvertValueToInt(o *query_parser.Operand) (*query_parser.Operand, error) {
 	c.Type = query_parser.TypInt
 	switch o.Type {
 	case query_parser.TypBool:
-		return nil, errors.New("Cannot convert bool to int64.")
+		return nil, errors.New("cannot convert bool to int64")
 	case query_parser.TypInt:
 		c.Int = o.Int
 	case query_parser.TypObject:
-		return nil, errors.New("Cannot convert object to int64.")
+		return nil, errors.New("cannot convert object to int64")
 	default:
 		// TODO(jkline): Log this logic error and all other similar cases.
-		return nil, errors.New("Cannot convert operand to int64.")
+		return nil, errors.New("cannot convert operand to int64")
 	}
 	return &c, nil
 }
@@ -159,14 +159,14 @@ func ConvertValueToUint(o *query_parser.Operand) (*query_parser.Operand, error) 
 	c.Type = query_parser.TypUint
 	switch o.Type {
 	case query_parser.TypBool:
-		return nil, errors.New("Cannot convert bool to int64.")
+		return nil, errors.New("cannot convert bool to int64")
 	case query_parser.TypUint:
 		c.Uint = o.Uint
 	case query_parser.TypObject:
-		return nil, errors.New("Cannot convert object to int64.")
+		return nil, errors.New("cannot convert object to int64")
 	default:
 		// TODO(jkline): Log this logic error and all other similar cases.
-		return nil, errors.New("Cannot convert operand to int64.")
+		return nil, errors.New("cannot convert operand to int64")
 	}
 	return &c, nil
 }

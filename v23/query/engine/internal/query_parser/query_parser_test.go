@@ -2834,8 +2834,7 @@ func TestSelectParser(t *testing.T) {
 		if err != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, err)
 		}
-		switch (*st).(type) {
-		case query_parser.SelectStatement:
+		if _, ok := (*st).(query_parser.SelectStatement); ok {
 			if !reflect.DeepEqual(test.statement, *st) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, *st, test.statement)
 			}
@@ -4630,8 +4629,7 @@ func TestDeleteParser(t *testing.T) {
 		if err != nil {
 			t.Errorf("query: %s; unexpected error: got %v, want nil", test.query, err)
 		}
-		switch (*st).(type) {
-		case query_parser.DeleteStatement:
+		if _, ok := (*st).(query_parser.DeleteStatement); ok {
 			if !reflect.DeepEqual(test.statement, *st) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, *st, test.statement)
 			}
@@ -5197,8 +5195,7 @@ func TestCopyAndSubstituteSelect(t *testing.T) {
 		if err != nil {
 			t.Errorf("query: %s; unexpected error on st.CopyAndSubstitute: got %v, want nil", test.query, err)
 		}
-		switch (st2).(type) {
-		case query_parser.SelectStatement:
+		if _, ok := (st2).(query_parser.SelectStatement); ok {
 			if !reflect.DeepEqual(test.statement, st2) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, st2, test.statement)
 			}
@@ -5478,8 +5475,7 @@ func TestCopyAndSubstituteDelete(t *testing.T) {
 		if err != nil {
 			t.Errorf("query: %s; unexpected error on st.CopyAndSubstitute: got %v, want nil", test.query, err)
 		}
-		switch (st2).(type) {
-		case query_parser.SelectStatement:
+		if _, ok := (st2).(query_parser.SelectStatement); ok {
 			if !reflect.DeepEqual(test.statement, st2) {
 				t.Errorf("query: %s;\nGOT  %s\nWANT %s", test.query, st2, test.statement)
 			}

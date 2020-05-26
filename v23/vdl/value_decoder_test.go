@@ -207,7 +207,7 @@ func TestValueDecoderDecodeTypeObject(t *testing.T) {
 	}
 }
 
-func testValueDecoderDecodeSequence(t *testing.T, expected interface{}) {
+func testValueDecoderDecodeSequence(t *testing.T, expected interface{}) { //nolint:gocyclo
 	expectedType := TypeOf(expected)
 	vd := ValueOf(expected).Decoder()
 	if err := vd.StartValue(expectedType); err != nil {
@@ -285,7 +285,7 @@ func TestValueDecoderDecodeArray(t *testing.T) {
 	testValueDecoderDecodeSequence(t, [2]string{"a", "b"})
 }
 
-func TestValueDecoderDecodeSet(t *testing.T) {
+func TestValueDecoderDecodeSet(t *testing.T) { //nolint:gocyclo
 	expected := map[string]struct{}{"a": {}, "b": {}}
 	expectedType := TypeOf(expected)
 	vd := ValueOf(expected).Decoder()
@@ -358,7 +358,7 @@ func TestValueDecoderDecodeSet(t *testing.T) {
 	}
 }
 
-func TestValueDecoderDecodeMap(t *testing.T) {
+func TestValueDecoderDecodeMap(t *testing.T) { //nolint:gocyclo
 	expected := map[string]uint32{"a": 3, "b": 7}
 	expectedType := TypeOf(expected)
 	vd := ValueOf(expected).Decoder()
@@ -467,7 +467,7 @@ type decoderTestStruct struct {
 	C string
 }
 
-func TestValueDecoderDecodeStruct(t *testing.T) {
+func TestValueDecoderDecodeStruct(t *testing.T) { //nolint:gocyclo
 	expected := decoderTestStruct{1, []bool{true, false}, "abc"}
 	expectedType := TypeOf(expected)
 	dec := ValueOf(expected).Decoder()

@@ -43,7 +43,7 @@ const (
 	internalNamed // placeholder for named types while they're being built.
 )
 
-func (k Kind) String() string {
+func (k Kind) String() string { //nolint:gocyclo
 	switch k {
 	case Any:
 		return "any"
@@ -93,7 +93,7 @@ func (k Kind) String() string {
 	panic(fmt.Errorf("vdl: unhandled kind: %d", k))
 }
 
-func (k Kind) CamelCase() string {
+func (k Kind) CamelCase() string { //nolint:gocyclo
 	switch k {
 	case Any:
 		return "Any"

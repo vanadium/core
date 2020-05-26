@@ -46,11 +46,12 @@ func infFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 		return nil, err
 	}
 	var sign int
-	if i.Int < 0 {
+	switch {
+	case i.Int < 0:
 		sign = -1
-	} else if i.Int == 0 {
+	case i.Int == 0:
 		sign = 0
-	} else {
+	default:
 		sign = 1
 	}
 
@@ -67,11 +68,12 @@ func isInfFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 		return nil, err
 	}
 	var sign int
-	if i.Int < 0 {
+	switch {
+	case i.Int < 0:
 		sign = -1
-	} else if i.Int == 0 {
+	case i.Int == 0:
 		sign = 0
-	} else {
+	default:
 		sign = 1
 	}
 

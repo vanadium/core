@@ -86,7 +86,7 @@ func ReadReflect(dec Decoder, rv reflect.Value) error {
 // readReflect uses dec to decode a value into rv, which has VDL type tt.  On
 // success we guarantee that StartValue / FinishValue has been called on dec.
 // If calledStart is true, StartValue has already been called.
-func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) error {
+func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) error { //nolint:gocyclo
 	// Handle decoding into an any rv value first, since vom.RawBytes.VDLRead
 	// doesn't support IgnoreNextStartValue, and requires that StartValue hasn't
 	// been called yet.  Note that cases where the dec value is any but the rv
@@ -405,7 +405,7 @@ func readValueScalar(dec Decoder, rv reflect.Value, tt *Type) error {
 	return fmt.Errorf("vdl: readValueScalar called on non-scalar %v, %v", tt, rv.Type())
 }
 
-func readNextEntryScalar(dec Decoder, rv reflect.Value, tt *Type) (bool, error) {
+func readNextEntryScalar(dec Decoder, rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	switch kind := tt.Kind(); kind {
 	case Bool:
 		switch done, value, err := dec.NextEntryValueBool(); {

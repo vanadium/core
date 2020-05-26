@@ -92,7 +92,7 @@ func (g *EntryGenerator) RandSeed(seed int64) {
 // of the tt type.  In theory we could run a compatibility check here for fewer
 // false positives, but we'll need to check compatibility again when generating
 // values anyways, to handle inner types of nested any, so we don't bother.
-func (g *EntryGenerator) candidateTypes(tt *vdl.Type, mode sourceMode) []*vdl.Type {
+func (g *EntryGenerator) candidateTypes(tt *vdl.Type, mode sourceMode) []*vdl.Type { //nolint:gocyclo
 	var candidates []*vdl.Type
 	kind := tt.NonOptional().Kind()
 	if kind.IsNumber() {

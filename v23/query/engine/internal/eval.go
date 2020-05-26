@@ -20,9 +20,8 @@ import (
 func Eval(db ds.Database, k string, v *vdl.Value, e *query_parser.Expression) bool {
 	if query_checker.IsLogicalOperator(e.Operator) {
 		return evalLogicalOperators(db, k, v, e)
-	} else {
-		return evalComparisonOperators(db, k, v, e)
 	}
+	return evalComparisonOperators(db, k, v, e)
 }
 
 func evalLogicalOperators(db ds.Database, k string, v *vdl.Value, e *query_parser.Expression) bool {
@@ -37,7 +36,7 @@ func evalLogicalOperators(db ds.Database, k string, v *vdl.Value, e *query_parse
 	}
 }
 
-func evalComparisonOperators(db ds.Database, k string, v *vdl.Value, e *query_parser.Expression) bool {
+func evalComparisonOperators(db ds.Database, k string, v *vdl.Value, e *query_parser.Expression) bool { //nolint:gocyclo
 	lhsValue := resolveOperand(db, k, v, e.Operand1)
 	// Check for an is nil expression (i.e., v[.<field>...] is nil).
 	// These expressions evaluate to true if the field cannot be resolved.
@@ -86,7 +85,7 @@ func evalComparisonOperators(db ds.Database, k string, v *vdl.Value, e *query_pa
 	return false
 }
 
-func coerceValues(lhsValue, rhsValue *query_parser.Operand) (*query_parser.Operand, *query_parser.Operand, error) {
+func coerceValues(lhsValue, rhsValue *query_parser.Operand) (*query_parser.Operand, *query_parser.Operand, error) { //nolint:gocyclo
 	// TODO(jkline): explore using vdl for coercions ( https://vanadium.github.io/designdocs/vdl-spec.html#conversions ).
 	var err error
 	// If either operand is a string, convert the other to a string.
@@ -352,10 +351,9 @@ func resolveOperand(db ds.Database, k string, v *vdl.Value, o *query_parser.Oper
 		// the computed field.
 		if retValue, err := resolveArgsAndExecFunction(db, k, v, o.Function); err == nil {
 			return retValue
-		} else {
-			// Per spec, function errors resolve to nil
-			return nil
 		}
+		// Per spec, function errors resolve to nil
+		return nil
 	}
 	if o.Type != query_parser.TypField {
 		return o
@@ -364,12 +362,11 @@ func resolveOperand(db ds.Database, k string, v *vdl.Value, o *query_parser.Oper
 	if value.IsNil() {
 		return nil
 	}
-
-	if newOp, err := query_parser.ConvertValueToAnOperand(value, o.Off); err != nil {
+	newOp, err := query_parser.ConvertValueToAnOperand(value, o.Off)
+	if err != nil {
 		return nil
-	} else {
-		return newOp
 	}
+	return newOp
 }
 
 // Auto-dereference Any and Optional values
@@ -490,12 +487,13 @@ func ResolveField(db ds.Database, k string, v *vdl.Value, f *query_parser.Field)
 		// Auto-dereference Any and Optional values
 		object = autoDereference(object)
 		// object must be a struct in order to look for the next segment.
-		if object.Kind() == vdl.Struct {
+		switch {
+		case object.Kind() == vdl.Struct:
 			if object = object.StructFieldByName(segments[i].Value); object == nil {
 				return vdl.ValueOf(nil)
 			}
 			object = resolveWithKey(db, k, v, object, segments[i])
-		} else if object.Kind() == vdl.Union {
+		case object.Kind() == vdl.Union:
 			unionType := object.Type()
 			idx, tempValue := object.UnionField()
 			if segments[i].Value == unionType.Field(idx).Name {
@@ -504,7 +502,7 @@ func ResolveField(db ds.Database, k string, v *vdl.Value, f *query_parser.Field)
 				return vdl.ValueOf(nil)
 			}
 			object = resolveWithKey(db, k, v, object, segments[i])
-		} else {
+		default:
 			return vdl.ValueOf(nil)
 		}
 	}
@@ -538,44 +536,46 @@ func EvalWhereUsingOnlyKey(db ds.Database, w *query_parser.WhereClause, k string
 	return evalExprUsingOnlyKey(db, w.Expr, k)
 }
 
-func evalExprUsingOnlyKey(db ds.Database, e *query_parser.Expression, k string) EvalWithKeyResult {
+func evalExprUsingOnlyKey(db ds.Database, e *query_parser.Expression, k string) EvalWithKeyResult { //nolint:gocyclo
 	switch e.Operator.Type {
 	case query_parser.And:
 		op1Result := evalExprUsingOnlyKey(db, e.Operand1.Expr, k)
 		op2Result := evalExprUsingOnlyKey(db, e.Operand2.Expr, k)
-		if op1Result == INCLUDE && op2Result == INCLUDE {
+		switch {
+		case op1Result == INCLUDE && op2Result == INCLUDE:
 			return INCLUDE
-		} else if op1Result == EXCLUDE || op2Result == EXCLUDE {
+		case op1Result == EXCLUDE || op2Result == EXCLUDE:
 			// One of the operands evaluated to EXCLUDE.
 			// As such, the value is not needed to reject the row.
 			return EXCLUDE
-		} else {
+		default:
 			return FETCH_VALUE
 		}
 	case query_parser.Or:
 		op1Result := evalExprUsingOnlyKey(db, e.Operand1.Expr, k)
 		op2Result := evalExprUsingOnlyKey(db, e.Operand2.Expr, k)
-		if op1Result == INCLUDE || op2Result == INCLUDE {
+		switch {
+		case op1Result == INCLUDE || op2Result == INCLUDE:
 			return INCLUDE
-		} else if op1Result == EXCLUDE && op2Result == EXCLUDE {
+		case op1Result == EXCLUDE && op2Result == EXCLUDE:
 			return EXCLUDE
-		} else {
+		default:
 			return FETCH_VALUE
 		}
 	default:
 		if !query_checker.ContainsKeyOperand(e) {
 			return FETCH_VALUE
-		} else {
-			// at least one operand is a key
-			// May still need to fetch the value (if
-			// one of the operands is a value field or a function).
-			if query_checker.ContainsFunctionOperand(e) || query_checker.ContainsValueFieldOperand(e) {
-				return FETCH_VALUE
-			} else if evalComparisonOperators(db, k, nil, e) {
-				return INCLUDE
-			} else {
-				return EXCLUDE
-			}
+		}
+		// at least one operand is a key
+		// May still need to fetch the value (if
+		// one of the operands is a value field or a function).
+		switch {
+		case query_checker.ContainsFunctionOperand(e) || query_checker.ContainsValueFieldOperand(e):
+			return FETCH_VALUE
+		case evalComparisonOperators(db, k, nil, e):
+			return INCLUDE
+		default:
+			return EXCLUDE
 		}
 	}
 }

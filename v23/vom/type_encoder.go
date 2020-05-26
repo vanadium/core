@@ -22,8 +22,8 @@ var (
 // side of a connection.
 type TypeEncoder struct {
 	typeMu   sync.RWMutex
-	typeToId map[*vdl.Type]TypeId // GUARDED_BY(typeMu)
-	nextId   TypeId               // GUARDED_BY(typeMu)
+	typeToID map[*vdl.Type]TypeId // GUARDED_BY(typeMu)
+	nextID   TypeId               // GUARDED_BY(typeMu)
 
 	encMu           sync.Mutex
 	enc             *encoder81 // GUARDED_BY(encMu)
@@ -40,8 +40,8 @@ func NewTypeEncoder(w io.Writer) *TypeEncoder {
 // writer in the specified VOM version.
 func NewVersionedTypeEncoder(version Version, w io.Writer) *TypeEncoder {
 	return &TypeEncoder{
-		typeToId:        make(map[*vdl.Type]TypeId),
-		nextId:          WireIdFirstUserType,
+		typeToID:        make(map[*vdl.Type]TypeId),
+		nextID:          WireIdFirstUserType,
 		enc:             newEncoderForTypes(version, w),
 		sentVersionByte: false,
 	}
@@ -49,8 +49,8 @@ func NewVersionedTypeEncoder(version Version, w io.Writer) *TypeEncoder {
 
 func newTypeEncoderInternal(version Version, enc *encoder81) *TypeEncoder {
 	return &TypeEncoder{
-		typeToId:        make(map[*vdl.Type]TypeId),
-		nextId:          WireIdFirstUserType,
+		typeToID:        make(map[*vdl.Type]TypeId),
+		nextID:          WireIdFirstUserType,
 		enc:             enc,
 		sentVersionByte: true,
 	}
@@ -92,7 +92,7 @@ func (e *TypeEncoder) encode(tt *vdl.Type) (TypeId, error) {
 }
 
 // encodeType encodes the type
-func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (TypeId, error) {
+func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (TypeId, error) { //nolint:gocyclo
 	// Lookup a type Id for tt or assign a new one.
 	tid, isNew, err := e.lookupOrAssignTypeId(tt)
 	if err != nil {
@@ -107,7 +107,7 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 	var wt wireType
 	switch kind := tt.Kind(); kind {
 	case vdl.Bool, vdl.Byte, vdl.String, vdl.Uint16, vdl.Uint32, vdl.Uint64, vdl.Int8, vdl.Int16, vdl.Int32, vdl.Int64, vdl.Float32, vdl.Float64:
-		wt = wireTypeNamedT{wireNamed{tt.Name(), bootstrapKindToId[kind]}}
+		wt = wireTypeNamedT{wireNamed{tt.Name(), bootstrapKindToID[kind]}}
 	case vdl.Enum:
 		wireEnum := wireEnum{tt.Name(), make([]string, tt.NumEnumLabel())}
 		for ix := 0; ix < tt.NumEnumLabel(); ix++ {
@@ -190,44 +190,44 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 // lookupTypeId returns the id for the type tt if it is already encoded;
 // otherwise zero id is returned.
 func (e *TypeEncoder) lookupTypeId(tt *vdl.Type) TypeId {
-	if tid := bootstrapTypeToId[tt]; tid != 0 {
+	if tid := bootstrapTypeToID[tt]; tid != 0 {
 		return tid
 	}
 	e.typeMu.RLock()
-	tid := e.typeToId[tt]
+	tid := e.typeToID[tt]
 	e.typeMu.RUnlock()
 	return tid
 }
 
 func (e *TypeEncoder) lookupOrAssignTypeId(tt *vdl.Type) (TypeId, bool, error) {
-	if tid := bootstrapTypeToId[tt]; tid != 0 {
+	if tid := bootstrapTypeToID[tt]; tid != 0 {
 		return tid, false, nil
 	}
 	e.typeMu.Lock()
-	tid := e.typeToId[tt]
+	tid := e.typeToID[tt]
 	if tid > 0 {
 		e.typeMu.Unlock()
 		return tid, false, nil
 	}
 
 	// Assign a new id.
-	newId := e.nextId
-	if newId > math.MaxInt64 {
+	newID := e.nextID
+	if newID > math.MaxInt64 {
 		e.typeMu.Unlock()
 		return 0, false, verror.New(errEncodeTypeIdOverflow, nil)
 	}
-	e.nextId++
-	e.typeToId[tt] = newId
+	e.nextID++
+	e.typeToID[tt] = newID
 	e.typeMu.Unlock()
-	return newId, true, nil
+	return newID, true, nil
 }
 
 func (e *TypeEncoder) makeIdToTypeUnlocked() map[TypeId]*vdl.Type {
-	if len(e.typeToId) == 0 {
+	if len(e.typeToID) == 0 {
 		return nil
 	}
-	result := make(map[TypeId]*vdl.Type, len(e.typeToId))
-	for tt, id := range e.typeToId {
+	result := make(map[TypeId]*vdl.Type, len(e.typeToID))
+	for tt, id := range e.typeToID {
 		result[id] = tt
 	}
 	return result

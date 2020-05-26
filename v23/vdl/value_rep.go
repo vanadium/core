@@ -143,12 +143,10 @@ func copyRepMap(rep *repMap) *repMap {
 		for keyrep, kv := range rep.fastIndex {
 			cp.fastIndex[keyrep] = copyKVPair(kv)
 		}
-	} else {
-		if len(rep.slowIndex) > 0 {
-			cp.slowIndex = make([]kvPair, len(rep.slowIndex))
-			for index, kv := range rep.slowIndex {
-				cp.slowIndex[index] = copyKVPair(kv)
-			}
+	} else if len(rep.slowIndex) > 0 {
+		cp.slowIndex = make([]kvPair, len(rep.slowIndex))
+		for index, kv := range rep.slowIndex {
+			cp.slowIndex[index] = copyKVPair(kv)
 		}
 	}
 	return cp
@@ -185,9 +183,8 @@ func (rep *repMap) hasKV(kv kvPair) bool {
 func (rep *repMap) Len() int {
 	if rep.fastIndex != nil {
 		return len(rep.fastIndex)
-	} else {
-		return len(rep.slowIndex)
 	}
+	return len(rep.slowIndex)
 }
 
 func (rep *repMap) String() string {

@@ -98,7 +98,7 @@ func TestHome(t *testing.T) {
 			t.Errorf("%q: expected a single value, got %d (%v)", test.Input, len(b), b)
 			continue
 		}
-		if got := string(b[0].Home()); got != test.Want {
+		if got := b[0].Home(); got != test.Want {
 			t.Errorf("%q: Got %q, want %q", test.Input, got, test.Want)
 		}
 	}

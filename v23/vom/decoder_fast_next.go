@@ -159,7 +159,7 @@ func (d *decoder81) NextEntryValueString() (done bool, value string, err error) 
 	return false, value, err
 }
 
-func (d *decoder81) NextEntryValueUint(bitlen int) (done bool, value uint64, err error) {
+func (d *decoder81) NextEntryValueUint(bitlen int) (done bool, value uint64, err error) { //nolint:gocyclo
 	// NextEntry
 	top := d.top()
 	if top == nil {

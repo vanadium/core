@@ -88,7 +88,7 @@ func (vv *Value) readFromNil(dec Decoder) error {
 	return dec.FinishValue()
 }
 
-func (vv *Value) readNonNilValue(dec Decoder) error {
+func (vv *Value) readNonNilValue(dec Decoder) error { //nolint:gocyclo
 	if vv.Type().IsBytes() {
 		var val []byte
 		fixedLen := -1

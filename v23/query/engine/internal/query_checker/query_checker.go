@@ -121,7 +121,7 @@ func checkWhereClause(db ds.Database, w *query_parser.WhereClause, ec *query_par
 	return checkExpression(db, w.Expr, ec)
 }
 
-func checkExpression(db ds.Database, e *query_parser.Expression, ec *query_parser.EscapeClause) error {
+func checkExpression(db ds.Database, e *query_parser.Expression, ec *query_parser.EscapeClause) error { //nolint:gocyclo
 	if err := checkOperand(db, e.Operand1, ec); err != nil {
 		return err
 	}
@@ -330,8 +330,8 @@ func afterPrefix(prefix string) string {
 		if limit[len(limit)-1] == 255 {
 			limit = limit[:len(limit)-1] // chop off trailing \x00
 		} else {
-			limit[len(limit)-1] += 1 // add 1
-			break                    // no carry
+			limit[len(limit)-1]++ // add 1
+			break                 // no carry
 		}
 	}
 	return string(limit)
@@ -427,22 +427,23 @@ func fieldRangeIntersection(lhs, rhs *ds.StringFieldRanges) *ds.StringFieldRange
 	return fieldRanges
 }
 
-func collectStringFieldRanges(idxField *query_parser.Field, expr *query_parser.Expression) *ds.StringFieldRanges {
-	if IsExpr(expr.Operand1) { // then both operands must be expressions
+func collectStringFieldRanges(idxField *query_parser.Field, expr *query_parser.Expression) *ds.StringFieldRanges { //nolint:gocyclo
+	switch {
+	case IsExpr(expr.Operand1): // then both operands must be expressions
 		lhsStringFieldRanges := collectStringFieldRanges(idxField, expr.Operand1.Expr)
 		rhsStringFieldRanges := collectStringFieldRanges(idxField, expr.Operand2.Expr)
 		if expr.Operator.Type == query_parser.And {
 			// intersection of lhsStringFieldRanges and rhsStringFieldRanges
 			return fieldRangeIntersection(lhsStringFieldRanges, rhsStringFieldRanges)
-		} else { // or
-			// union of lhsStringFieldRanges and rhsStringFieldRanges
-			for _, rhsStringFieldRange := range *rhsStringFieldRanges {
-				addStringFieldRange(rhsStringFieldRange, lhsStringFieldRanges)
-			}
-			return lhsStringFieldRanges
+		} // or
+		// union of lhsStringFieldRanges and rhsStringFieldRanges
+		for _, rhsStringFieldRange := range *rhsStringFieldRanges {
+			addStringFieldRange(rhsStringFieldRange, lhsStringFieldRanges)
 		}
-	} else if ContainsFieldOperand(idxField, expr) { // true if either operand is idxField
-		if IsField(expr.Operand1) && IsField(expr.Operand2) {
+		return lhsStringFieldRanges
+	case ContainsFieldOperand(idxField, expr): // true if either operand is idxField
+		switch {
+		case IsField(expr.Operand1) && IsField(expr.Operand2):
 			//<idx_field> <op> <idx_field>
 			switch expr.Operator.Type {
 			case query_parser.Equal, query_parser.GreaterThanOrEqual, query_parser.LessThanOrEqual:
@@ -452,17 +453,17 @@ func collectStringFieldRanges(idxField *query_parser.Field, expr *query_parser.E
 				// False for all values of indexField
 				return &ds.StringFieldRanges{}
 			}
-		} else if expr.Operator.Type == query_parser.Is {
+		case expr.Operator.Type == query_parser.Is:
 			// <idx_field> is nil
 			// False for entire range
 			// TODO(jkline): Should the Scan contract return values where
 			//               the index field is undefined?
 			return &ds.StringFieldRanges{}
-		} else if expr.Operator.Type == query_parser.IsNot {
+		case expr.Operator.Type == query_parser.IsNot:
 			// k is not nil
 			// True for all all values of indexField.
 			return &ds.StringFieldRanges{StringFieldRangeAll}
-		} else if isStringLiteral(expr.Operand2) {
+		case isStringLiteral(expr.Operand2):
 			// indexField <op> <string-literal>
 			switch expr.Operator.Type {
 			case query_parser.Equal:
@@ -485,7 +486,7 @@ func collectStringFieldRanges(idxField *query_parser.Field, expr *query_parser.E
 					ds.StringFieldRange{Start: string(append([]byte(expr.Operand2.Str), 0)), Limit: MaxRangeLimit},
 				}
 			}
-		} else if isStringLiteral(expr.Operand1) {
+		case isStringLiteral(expr.Operand1):
 			//<string-literal> <op> k
 			switch expr.Operator.Type {
 			case query_parser.Equal:
@@ -504,37 +505,36 @@ func collectStringFieldRanges(idxField *query_parser.Field, expr *query_parser.E
 					ds.StringFieldRange{Start: string(append([]byte(expr.Operand1.Str), 0)), Limit: MaxRangeLimit},
 				}
 			}
-		} else {
+		default:
 			// A function or a field s being compared to the indexField;
 			// or, an indexField is being compared to a literal which
 			// is not a string.  The latter could be considered an error,
 			// but for now, just allow the full range.
 			return &ds.StringFieldRanges{StringFieldRangeAll}
 		}
-	} else { // not a key compare, so it applies to the entire key range
+	default: // not a key compare, so it applies to the entire key range
 		return &ds.StringFieldRanges{StringFieldRangeAll}
 	}
 }
 
 func determineIfNilAllowed(idxField *query_parser.Field, expr *query_parser.Expression) bool {
-	if IsExpr(expr.Operand1) { // then both operands must be expressions
+	switch {
+	case IsExpr(expr.Operand1): // then both operands must be expressions
 		lhsNilAllowed := determineIfNilAllowed(idxField, expr.Operand1.Expr)
 		rhsNilAllowed := determineIfNilAllowed(idxField, expr.Operand2.Expr)
 		if expr.Operator.Type == query_parser.And {
 			return lhsNilAllowed && rhsNilAllowed
-		} else { // or
-			return lhsNilAllowed || rhsNilAllowed
-		}
-	} else if ContainsFieldOperand(idxField, expr) { // true if either operand is idxField
+		} // or
+		return lhsNilAllowed || rhsNilAllowed
+	case ContainsFieldOperand(idxField, expr): // true if either operand is idxField
 		// The only way nil in the index field will evaluate to true is in the
 		// Is Nil case.
 		if expr.Operator.Type == query_parser.Is {
 			// <idx_field> is nil
 			return true
-		} else {
-			return false
 		}
-	} else { // not an index field expresion; as such, nil is allowed for the idx field
+		return false
+	default: // not an index field expresion; as such, nil is allowed for the idx field
 		return true
 	}
 }
@@ -542,39 +542,42 @@ func determineIfNilAllowed(idxField *query_parser.Field, expr *query_parser.Expr
 // Helper function to compare start and limit byte arrays  taking into account that
 // MaxRangeLimit is actually []byte{}.
 func compareLimits(limitA, limitB string) int {
-	if limitA == limitB {
+	switch {
+	case limitA == limitB:
 		return 0
-	} else if limitA == MaxRangeLimit {
+	case limitA == MaxRangeLimit:
 		return 1
-	} else if limitB == MaxRangeLimit {
+	case limitB == MaxRangeLimit:
 		return -1
-	} else if limitA < limitB {
+	case limitA < limitB:
 		return -1
-	} else {
+	default:
 		return 1
 	}
 }
 
 func compareStartToLimit(startA, limitB string) int {
-	if limitB == MaxRangeLimit {
+	switch {
+	case limitB == MaxRangeLimit:
 		return -1
-	} else if startA == limitB {
+	case startA == limitB:
 		return 0
-	} else if startA < limitB {
+	case startA < limitB:
 		return -1
-	} else {
+	default:
 		return 1
 	}
 }
 
 func compareLimitToStart(limitA, startB string) int {
-	if limitA == MaxRangeLimit {
+	switch {
+	case limitA == MaxRangeLimit:
 		return -1
-	} else if limitA == startB {
+	case limitA == startB:
 		return 0
-	} else if limitA < startB {
+	case limitA < startB:
 		return -1
-	} else {
+	default:
 		return 1
 	}
 }

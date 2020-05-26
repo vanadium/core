@@ -207,7 +207,7 @@ func (g *ValueGenerator) gen(tt *vdl.Type, mode GenMode, depth int) *vdl.Value {
 	return value
 }
 
-func (g *ValueGenerator) genNonNilValue(tt *vdl.Type, mode GenMode, depth int) *vdl.Value {
+func (g *ValueGenerator) genNonNilValue(tt *vdl.Type, mode GenMode, depth int) *vdl.Value { //nolint:gocyclo
 	if mode == GenRandom && depth > 0 && g.randomZero() {
 		return vdl.ZeroValue(tt)
 	}

@@ -30,7 +30,7 @@ func Transcode(e Encoder, d Decoder) error {
 	return e.FinishValue()
 }
 
-func transcodeNonNilValue(e Encoder, d Decoder) error {
+func transcodeNonNilValue(e Encoder, d Decoder) error { //nolint:gocyclo
 	if d.Type().IsBytes() {
 		var b []byte
 		fixedLen := -1

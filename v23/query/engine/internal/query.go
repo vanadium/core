@@ -46,9 +46,8 @@ func (qe *queryEngineImpl) GetPreparedStatement(handle int64) (public.PreparedSt
 	qe.mutexPreparedStatements.Unlock()
 	if ok {
 		return &preparedStatementImpl{qe, handle}, nil
-	} else {
-		return nil, syncql.NewErrPreparedStatementNotFound(qe.db.GetContext())
 	}
+	return nil, syncql.NewErrPreparedStatementNotFound(qe.db.GetContext())
 }
 
 func (qe *queryEngineImpl) PrepareStatement(q string) (public.PreparedStatement, error) {
@@ -254,7 +253,7 @@ func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexField
 	return indexes, nil
 }
 
-func execStatement(db ds.Database, s *query_parser.Statement) ([]string, syncql.ResultStream, error) {
+func execStatement(db ds.Database, s *query_parser.Statement) ([]string, syncql.ResultStream, error) { //nolint:gocyclo
 	switch st := (*s).(type) {
 
 	// Select

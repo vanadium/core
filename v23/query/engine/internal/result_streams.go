@@ -51,9 +51,8 @@ func (rs *selectResultStreamImpl) Advance() bool {
 				rs.v = v
 				rs.resultCount++
 				return true
-			} else {
-				rs.skippedCount++
 			}
+			rs.skippedCount++
 		}
 	}
 	if err := rs.keyValueStream.Err(); err != nil {
