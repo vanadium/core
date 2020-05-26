@@ -30,8 +30,8 @@ var (
 	bi4, bi5, bi6 = big.NewInt(4), big.NewInt(5), big.NewInt(6)
 	bi7           = big.NewInt(7)
 	//nolint:deadcode,structcheck,unused,varcheck
-	bi8, bi9         = big.NewInt(8), big.NewInt(9)
-	bi_neg1, bi_neg2 = big.NewInt(-1), big.NewInt(-2)
+	bi8, bi9       = big.NewInt(8), big.NewInt(9)
+	biNeg1, biNeg2 = big.NewInt(-1), big.NewInt(-2)
 
 	//nolint:deadcode,structcheck,unused,varcheck
 	br0           = new(big.Rat)
@@ -40,9 +40,9 @@ var (
 	br7           = big.NewRat(7, 1)
 	//nolint:deadcode,structcheck,unused,varcheck
 	br8, br9 = big.NewRat(8, 1), big.NewRat(9, 1)
-	br_neg1  = big.NewRat(-1, 1)
+	brNeg1   = big.NewRat(-1, 1)
 	//nolint:deadcode,structcheck,unused,varcheck
-	br_neg2 = big.NewRat(-2, 1)
+	brNeg2 = big.NewRat(-2, 1)
 )
 
 func boolConst(t *vdl.Type, x bool) Const     { return FromValue(vdl.BoolValue(t, x)) }
@@ -196,7 +196,7 @@ func TestConstConvertOK(t *testing.T) {
 			v{vdl.IntValue(vdl.Int32Type, 1), vdl.IntValue(int32TypeN, 1),
 				vdl.UintValue(vdl.Uint32Type, 1), vdl.UintValue(uint32TypeN, 1),
 				vdl.FloatValue(vdl.Float32Type, 1), vdl.FloatValue(float32TypeN, 1)}},
-		{c{Integer(bi_neg1), Rational(br_neg1)},
+		{c{Integer(biNeg1), Rational(brNeg1)},
 			v{vdl.IntValue(vdl.Int32Type, -1), vdl.IntValue(int32TypeN, -1),
 				vdl.FloatValue(vdl.Float32Type, -1), vdl.FloatValue(float32TypeN, -1)}},
 		{c{Rational(big.NewRat(1, 2))},
@@ -261,10 +261,10 @@ func TestConstConvertError(t *testing.T) {
 				structAIntType, structAIntTypeN},
 			cantConvert},
 		// Bounds tests
-		{Integer(bi_neg1), ty{vdl.Uint32Type, uint32TypeN}, overflows},
+		{Integer(biNeg1), ty{vdl.Uint32Type, uint32TypeN}, overflows},
 		{Integer(big.NewInt(1 << 32)), ty{vdl.Int32Type, int32TypeN}, overflows},
 		{Integer(big.NewInt(1 << 33)), ty{vdl.Uint32Type, uint32TypeN}, overflows},
-		{Rational(br_neg1), ty{vdl.Uint32Type, uint32TypeN}, overflows},
+		{Rational(brNeg1), ty{vdl.Uint32Type, uint32TypeN}, overflows},
 		{Rational(big.NewRat(1<<32, 1)), ty{vdl.Int32Type, int32TypeN}, overflows},
 		{Rational(big.NewRat(1<<33, 1)), ty{vdl.Uint32Type, uint32TypeN}, overflows},
 		{Rational(big.NewRat(1, 2)),
@@ -298,13 +298,13 @@ func TestConstUnaryOpOK(t *testing.T) {
 		{Pos, intConst(vdl.Int32Type, 1), intConst(vdl.Int32Type, 1)},
 		{Pos, floatConst(float32TypeN, 1), floatConst(float32TypeN, 1)},
 
-		{Neg, Integer(bi1), Integer(bi_neg1)},
-		{Neg, Rational(br1), Rational(br_neg1)},
+		{Neg, Integer(bi1), Integer(biNeg1)},
+		{Neg, Rational(br1), Rational(brNeg1)},
 		{Neg, intConst(vdl.Int32Type, 1), intConst(vdl.Int32Type, -1)},
 		{Neg, floatConst(float32TypeN, 1), floatConst(float32TypeN, -1)},
 
-		{BitNot, Integer(bi1), Integer(bi_neg2)},
-		{BitNot, Rational(br1), Integer(bi_neg2)},
+		{BitNot, Integer(bi1), Integer(biNeg2)},
+		{BitNot, Rational(br1), Integer(biNeg2)},
 		{BitNot, intConst(vdl.Int32Type, 1), intConst(vdl.Int32Type, -2)},
 		{BitNot, uintConst(uint32TypeN, 1), uintConst(uint32TypeN, 1<<32-2)},
 	}

@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	// Built-in consts defined by the compiler.
+	// NilConst is defined by the compiler, as are TrueConst and FalseConst.
 	NilConst   = vdl.ZeroValue(vdl.AnyType) // nil == any(nil)
 	TrueConst  = vdl.BoolValue(nil, true)
 	FalseConst = vdl.BoolValue(nil, false)
@@ -245,7 +245,7 @@ func compileConstExplicit(what string, explicit *vdl.Type, pexpr parse.ConstExpr
 // If implicit is non-nil, we apply it to pexpr if it doesn't have an explicit
 // type specified.  E.g. composite literals and enum labels with no explicit
 // type assume the implicit type.
-func evalConstExpr(implicit *vdl.Type, pexpr parse.ConstExpr, file *File, env *Env) opconst.Const {
+func evalConstExpr(implicit *vdl.Type, pexpr parse.ConstExpr, file *File, env *Env) opconst.Const { //nolint:gocyclo
 	switch pe := pexpr.(type) {
 	case *parse.ConstLit:
 		// All literal constants start out untyped.

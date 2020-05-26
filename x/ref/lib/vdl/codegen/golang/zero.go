@@ -199,7 +199,7 @@ func (g *genIsZero) Expr(ze zeroExpr, tt *vdl.Type, arg namedArg, tmp string) st
 }
 
 // ExprWire is like Expr, but generates code for the wire type tt.
-func (g *genIsZero) ExprWire(ze zeroExpr, tt *vdl.Type, arg namedArg, tmp string) string {
+func (g *genIsZero) ExprWire(ze zeroExpr, tt *vdl.Type, arg namedArg, tmp string) string { //nolint:gocyclo
 	opNot, eq, cond, ref := "", "==", "||", arg.Ref()
 	if ze.GenNotEqual() {
 		opNot, eq, cond = "!", "!=", "&&"

@@ -94,7 +94,7 @@ func %[1]s(dec %[2]sDecoder, x *%[3]s) error {`, g.anonReaderName(anon), g.Pkg("
 	return s
 }
 
-func (g *genRead) body(tt *vdl.Type, arg namedArg, topLevel bool) string {
+func (g *genRead) body(tt *vdl.Type, arg namedArg, topLevel bool) string { //nolint:gocyclo
 	kind := tt.Kind()
 	sta := fmt.Sprintf(`
 	if err := dec.StartValue(%[1]s); err != nil {
@@ -308,8 +308,7 @@ func (g *genRead) bodyBytes(tt *vdl.Type, arg namedArg) string {
 	if err := dec.ReadValueBytes(%[2]d, %[3]s); err != nil {
 		return err
 	}`, init, fixedLen, fillArg)
-	switch {
-	case needAssign:
+	if needAssign {
 		if tt.Elem() == vdl.ByteType {
 			s += fmt.Sprintf(`
 	%[1]s = bytes`, arg.Ref())

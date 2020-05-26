@@ -90,7 +90,7 @@ func typeGo(data *goData, t *vdl.Type) string {
 	return typeGoWire(data, t)
 }
 
-func typeGoWire(data *goData, t *vdl.Type) string {
+func typeGoWire(data *goData, t *vdl.Type) string { //nolint:gocyclo
 	if testingMode {
 		if t.Name() != "" {
 			return t.Name()

@@ -279,7 +279,7 @@ func runner(buf []byte, binary string, args ...string) ([]byte, error) {
 	cmd.Stdin = bytes.NewBuffer(buf)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run %v: %v\n", strings.Join(cmd.Args, " "), err)
+		return nil, fmt.Errorf("failed to run %v: %v", strings.Join(cmd.Args, " "), err)
 	}
 	return output, nil
 }

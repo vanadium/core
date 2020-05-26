@@ -36,7 +36,7 @@ func javaConstVal(v *vdl.Value, env *compile.Env) (ret string) {
 }
 
 // javaVal returns the value string for the provided Value.
-func javaVal(v *vdl.Value, env *compile.Env) string {
+func javaVal(v *vdl.Value, env *compile.Env) string { //nolint:gocyclo
 	const longSuffix = "L"
 	const floatSuffix = "f"
 
@@ -44,9 +44,9 @@ func javaVal(v *vdl.Value, env *compile.Env) string {
 		ret := fmt.Sprintf("new %s[] {", javaType(v.Type().Elem(), false, env))
 		for i := 0; i < v.Len(); i++ {
 			if i > 0 {
-				ret = ret + ", "
+				ret += ", "
 			}
-			ret = ret + javaConstVal(v.Index(i), env)
+			ret += javaConstVal(v.Index(i), env)
 		}
 		return ret + "}"
 	}
@@ -55,9 +55,8 @@ func javaVal(v *vdl.Value, env *compile.Env) string {
 	case vdl.Bool:
 		if v.Bool() {
 			return "true"
-		} else {
-			return "false"
 		}
+		return "false"
 	case vdl.Byte:
 		return "(byte)0x" + strconv.FormatUint(v.Uint(), 16)
 	case vdl.Int8:
@@ -140,9 +139,9 @@ func javaVal(v *vdl.Value, env *compile.Env) string {
 		var ret string
 		for i := 0; i < v.Type().NumField(); i++ {
 			if i > 0 {
-				ret = ret + ", "
+				ret += ", "
 			}
-			ret = ret + javaConstVal(v.StructField(i), env)
+			ret += javaConstVal(v.StructField(i), env)
 		}
 		return ret
 	case vdl.TypeObject:
@@ -150,16 +149,15 @@ func javaVal(v *vdl.Value, env *compile.Env) string {
 	case vdl.Optional:
 		if v.Elem() != nil {
 			return fmt.Sprintf("io.v.v23.vdl.VdlOptional.of(%s)", javaConstVal(v.Elem(), env))
-		} else {
-			return fmt.Sprintf("new %s(%s)", javaType(v.Type(), false, env), javaReflectType(v.Type(), env))
 		}
+		return fmt.Sprintf("new %s(%s)", javaType(v.Type(), false, env), javaReflectType(v.Type(), env))
 	}
 	panic(fmt.Errorf("vdl: javaVal unhandled type %v %v", v.Kind(), v.Type()))
 }
 
 // javaZeroValue returns the zero value string for the provided VDL value.
 // We assume that default constructor of user-defined types returns a zero value.
-func javaZeroValue(t *vdl.Type, env *compile.Env) string {
+func javaZeroValue(t *vdl.Type, env *compile.Env) string { //nolint:gocyclo
 	if _, ok := javaNativeType(t, env); ok {
 		return "null"
 	}

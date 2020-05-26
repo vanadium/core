@@ -513,7 +513,7 @@ func (cm *commentMap) getFileDoc() string {
 	return doc
 }
 
-func attachTypeComments(t Type, cm *commentMap, suffix bool) {
+func attachTypeComments(t Type, cm *commentMap, suffix bool) { //nolint:gocyclo
 	switch tu := t.(type) {
 	case *TypeEnum:
 		for _, label := range tu.Labels {
@@ -628,7 +628,7 @@ func (l *lexer) nextToken() (tok token) {
 // translateToken takes the token we just scanned, and translates it into a
 // token usable by yacc (lval and id).  The done return arg is true when a real
 // yacc token was generated, or false if we need another next/translate pass.
-func (l *lexer) translateToken(tok token, lval *yySymType) (id int, done bool) {
+func (l *lexer) translateToken(tok token, lval *yySymType) (id int, done bool) { //nolint:gocyclo
 	switch tok.t {
 	case scanner.EOF:
 		l.sawEOF = true

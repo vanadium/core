@@ -55,27 +55,24 @@ func javaReflectType(t *vdl.Type, env *compile.Env) string {
 // actually translate vdl int8 into java VdlInt8, and
 // vdl byte into java byte.  We do this because we want the
 // common usage of vdl []byte to translate into java byte[].
-func javaBuiltInType(typ *vdl.Type, forceClass bool) (string, bool) {
+func javaBuiltInType(typ *vdl.Type, forceClass bool) (string, bool) { //nolint:gocyclo
 	if typ == nil {
 		if forceClass {
 			return "java.lang.Void", true
-		} else {
-			return "void", false
 		}
+		return "void", false
 	}
 	switch typ.Kind() {
 	case vdl.Bool:
 		if forceClass {
 			return "java.lang.Boolean", true
-		} else {
-			return "boolean", false
 		}
+		return "boolean", false
 	case vdl.Byte:
 		if forceClass {
 			return "java.lang.Byte", true
-		} else {
-			return "byte", false
 		}
+		return "byte", false
 	case vdl.Int8:
 		return "io.v.v23.vdl.VdlInt8", true
 	case vdl.Uint16:
@@ -83,37 +80,32 @@ func javaBuiltInType(typ *vdl.Type, forceClass bool) (string, bool) {
 	case vdl.Int16:
 		if forceClass {
 			return "java.lang.Short", true
-		} else {
-			return "short", false
 		}
+		return "short", false
 	case vdl.Uint32:
 		return "io.v.v23.vdl.VdlUint32", true
 	case vdl.Int32:
 		if forceClass {
 			return "java.lang.Integer", true
-		} else {
-			return "int", false
 		}
+		return "int", false
 	case vdl.Uint64:
 		return "io.v.v23.vdl.VdlUint64", true
 	case vdl.Int64:
 		if forceClass {
 			return "java.lang.Long", true
-		} else {
-			return "long", false
 		}
+		return "long", false
 	case vdl.Float32:
 		if forceClass {
 			return "java.lang.Float", true
-		} else {
-			return "float", false
 		}
+		return "float", false
 	case vdl.Float64:
 		if forceClass {
 			return "java.lang.Double", true
-		} else {
-			return "double", false
 		}
+		return "double", false
 	case vdl.String:
 		return "java.lang.String", true
 	case vdl.TypeObject:

@@ -612,7 +612,7 @@ func (ds *depSorter) ResolvePath(path string, mode UnknownPathMode) bool {
 // The strategy is to compute one or more directories that contain everything
 // that could possibly be matched, along with a filename pattern to match
 // against.  Then we walk through each directory, matching against the pattern.
-func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) bool {
+func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) bool { //nolint:gocyclo
 	resolvedAny := false
 	type dirAndSrc struct {
 		dir, src string
@@ -659,6 +659,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 	// Walk through root dirs and subdirs, looking for matches.
 	for _, walk := range walkDirs {
 		goModule, isGoModule := ds.goModules[walk.dir]
+		src, dir := walk.src, walk.dir
 		//nolint:errcheck
 		filepath.Walk(walk.dir, func(dirPath string, info os.FileInfo, err error) error {
 			// Ignore errors and non-directory elements.
@@ -673,8 +674,8 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			}
 			// Special-case to skip packages with the vdlroot import prefix.  These
 			// packages should only appear at the root of the package path space.
-			if walk.src != "" {
-				pkgPath := strings.TrimPrefix(dirPath, walk.src)
+			if src != "" {
+				pkgPath := strings.TrimPrefix(dirPath, src)
 				pkgPath = strings.TrimPrefix(pkgPath, "/")
 				if strings.HasPrefix(pkgPath, vdlrootImportPrefix) {
 					return filepath.SkipDir
@@ -701,7 +702,7 @@ func (ds *depSorter) resolveWildcardPath(isDirPath bool, prefix, suffix string) 
 			// TODO(toddw): We could add an optimization to skip subdirs that can't
 			// possibly match the matcher.  E.g. given pattern "a..." we can skip
 			// the subdirs if the dir doesn't start with "a".
-			matchPath := dirPath[len(walk.dir):]
+			matchPath := dirPath[len(dir):]
 			matchPath = strings.TrimPrefix(matchPath, filePathSeparator)
 
 			// Match against the raw path, and also against one with the

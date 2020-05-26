@@ -221,7 +221,7 @@ func cRepTypeString(rep interface{}, t *vdl.Type) string {
 }
 
 // ToValue converts Const c to a Value.
-func (c Const) ToValue() (*vdl.Value, error) {
+func (c Const) ToValue() (*vdl.Value, error) { //nolint:gocyclo
 	if c.rep == nil {
 		return nil, errInvalidConst
 	}
@@ -241,8 +241,7 @@ func (c Const) ToValue() (*vdl.Value, error) {
 	vx := vdl.ZeroValue(c.repType)
 	switch trep := c.rep.(type) {
 	case bool:
-		switch vx.Kind() {
-		case vdl.Bool:
+		if vx.Kind() == vdl.Bool {
 			vx.AssignBool(trep)
 			return vx, nil
 		}
@@ -289,7 +288,7 @@ func errNotSupported(rep interface{}, t *vdl.Type) error {
 }
 
 // EvalUnary returns the result of evaluating (op x).
-func EvalUnary(op UnaryOp, x Const) (Const, error) {
+func EvalUnary(op UnaryOp, x Const) (Const, error) { //nolint:gocyclo
 	if x.rep == nil {
 		return Const{}, errInvalidConst
 	}
@@ -299,8 +298,7 @@ func EvalUnary(op UnaryOp, x Const) (Const, error) {
 	}
 	switch op {
 	case LogicNot:
-		switch tx := x.rep.(type) {
-		case bool:
+		if tx, ok := x.rep.(bool); ok {
 			return makeConst(!tx, x.repType)
 		}
 	case Pos:
@@ -383,8 +381,7 @@ func EvalBinary(op BinaryOp, x, y Const) (Const, error) {
 }
 
 func opLogic(op BinaryOp, x, y interface{}, resType *vdl.Type) (interface{}, error) {
-	switch tx := x.(type) {
-	case bool:
+	if tx, ok := x.(bool); ok {
 		switch op {
 		case LogicOr:
 			return tx || y.(bool), nil
@@ -502,7 +499,7 @@ func constToInt(x Const) (*big.Int, error) {
 // const is untyped.
 //
 // TODO(toddw): Update to handle conversions to optional types.
-func makeConst(rep interface{}, totype *vdl.Type) (Const, error) {
+func makeConst(rep interface{}, totype *vdl.Type) (Const, error) { //nolint:gocyclo
 	if rep == nil {
 		return Const{}, errInvalidConst
 	}
@@ -646,7 +643,7 @@ func convertTypedRat(b *big.Rat, kind vdl.Kind) (*big.Rat, error) {
 // respective types.  Returns the converted values vl and vr which are
 // guaranteed to be of the same type represented by the returned Type, which may
 // be nil if both consts are untyped.
-func coerceConsts(cl, cr Const) (interface{}, interface{}, *vdl.Type, error) {
+func coerceConsts(cl, cr Const) (interface{}, interface{}, *vdl.Type, error) { //nolint:gocyclo
 	var err error
 	if cl.repType != nil && cr.repType != nil {
 		// Both consts are typed - their types must match (no implicit conversion).
@@ -674,13 +671,11 @@ func coerceConsts(cl, cr Const) (interface{}, interface{}, *vdl.Type, error) {
 	// Both consts are untyped, might need to implicitly promote untyped consts.
 	switch vl := cl.rep.(type) {
 	case bool:
-		switch vr := cr.rep.(type) {
-		case bool:
+		if vr, ok := cr.rep.(bool); ok {
 			return vl, vr, nil, nil
 		}
 	case string:
-		switch vr := cr.rep.(type) {
-		case string:
+		if vr, ok := cr.rep.(string); ok {
 			return vl, vr, nil, nil
 		}
 	case *big.Int:

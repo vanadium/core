@@ -289,7 +289,7 @@ func (c typeCompiler) compileDef(ptype parse.Type) vdl.TypeOrPending {
 // compileLit compiles the ptype literal type.  It handles any literal type.
 // Note that array, enum, struct and union are required to be defined and named,
 // and aren't allowed as regular literal types.
-func (c typeCompiler) compileLit(ptype parse.Type) vdl.TypeOrPending {
+func (c typeCompiler) compileLit(ptype parse.Type) vdl.TypeOrPending { //nolint:gocyclo
 	switch pt := ptype.(type) {
 	case *parse.TypeNamed:
 		// Try to resolve the named type from the already-compiled packages in env.
