@@ -49,7 +49,7 @@ func init() {
 	exportMemStats()
 	exportMetaData()
 	exportSysMem()
-	exportSysCpu()
+	exportSysCPU()
 	exportSysDisk()
 }
 
@@ -115,7 +115,7 @@ func exportSysMem() {
 	}()
 }
 
-func exportSysCpu() {
+func exportSysCPU() {
 	// Get field names to export.
 	type cpuStat struct {
 		Percent   float64
@@ -181,7 +181,7 @@ func exportSysDisk() {
 		curPath := path
 		updateStats := func() {
 			if s, err := disk.Usage(curPath); err == nil {
-				updateStats(fmt.Sprintf("system/sysdisk/%s", naming.EncodeAsNameElement(path)), *s, fieldNames)
+				updateStats(fmt.Sprintf("system/sysdisk/%s", naming.EncodeAsNameElement(curPath)), *s, fieldNames)
 			}
 		}
 		go func() {
@@ -206,7 +206,7 @@ func getFieldNames(i interface{}) []string {
 	return fieldNames
 }
 
-func updateStats(rootName string, s interface{}, fieldNames []string) {
+func updateStats(rootName string, s interface{}, fieldNames []string) { //nolint:gocyclo
 	v := reflect.ValueOf(s)
 	for _, name := range fieldNames {
 		counterName := fmt.Sprintf("%s/%s", rootName, name)
@@ -227,7 +227,7 @@ func updateStats(rootName string, s interface{}, fieldNames []string) {
 		case int32:
 			v = int64(t)
 		case int64:
-			v = int64(t)
+			v = t
 		case uint:
 			v = int64(t)
 		case uint8:

@@ -7,18 +7,18 @@ package build
 // SetFromGoArch assigns the GOARCH string label to x. In particular,
 // it takes care of mapping "386" to "x86" as the former is not a
 // valid VDL enum value.
-func (x *Architecture) SetFromGoArch(label string) error {
+func (arch *Architecture) SetFromGoArch(label string) error {
 	switch label {
 	case "386":
-		return x.Set("x86")
+		return arch.Set("x86")
 	default:
-		return x.Set(label)
+		return arch.Set(label)
 	}
 }
 
 // SetFromGoOS assigns the GOOS string label to x.
-func (x *OperatingSystem) SetFromGoOS(label string) error {
-	return x.Set(label)
+func (os *OperatingSystem) SetFromGoOS(label string) error {
+	return os.Set(label)
 }
 
 // ToGoArch returns a GOARCH string label for the given Architecture.

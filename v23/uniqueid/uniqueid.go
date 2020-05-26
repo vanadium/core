@@ -42,7 +42,7 @@ func FromHexString(s string) (Id, error) {
 		// all three implementations, but Go conflates implementations
 		// and their interfaces, so cannot be sure that this isn't an
 		// interface definition cycle, and thus gives up.
-		return id, fmt.Errorf("Cannot convert %s to Id, size mismatch.", s)
+		return id, fmt.Errorf("cannot convert %s to Id, size mismatch", s)
 	}
 	copy(id[:], slice)
 	return id, nil

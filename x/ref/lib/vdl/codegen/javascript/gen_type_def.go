@@ -139,7 +139,7 @@ func makeEnumLabelString(t *vdl.Type, jsnames typeNames) string {
 	return str
 }
 
-func jsKind(k vdl.Kind) string {
+func jsKind(k vdl.Kind) string { //nolint:gocyclo
 	switch k {
 	case vdl.Any:
 		return "vdl.kind.ANY"
@@ -192,7 +192,7 @@ func jsKind(k vdl.Kind) string {
 // builtinJSType indicates whether a vdl.Type has built-in type definition in vdl.js
 // If true, then it returns a pointer to the type definition in javascript/types.js
 // It assumes a variable named "vdl.Types" is already pointing to vom.Types
-func builtinJSType(t *vdl.Type) (string, bool) {
+func builtinJSType(t *vdl.Type) (string, bool) { //nolint:gocyclo
 	_, n := vdl.SplitIdent(t.Name())
 
 	if t == vdl.ErrorType {

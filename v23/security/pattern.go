@@ -93,8 +93,8 @@ func (p BlessingPattern) IsValid() bool {
 //   onlyAlice.MatchedBy("google")  // Returns false
 //   onlyAlice.MatchedBy("google:alice:bob")  // Returns false
 func (p BlessingPattern) MakeNonExtendable() BlessingPattern {
-	if len(p) == 0 || p == BlessingPattern(NoExtension) {
-		return BlessingPattern(NoExtension)
+	if len(p) == 0 || p == NoExtension {
+		return NoExtension
 	}
 	if strings.HasSuffix(string(p), ChainSeparator+string(NoExtension)) {
 		return p

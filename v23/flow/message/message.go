@@ -24,7 +24,7 @@ func Append(ctx *context.T, m Message, to []byte) ([]byte, error) {
 }
 
 // Read reads a message contained in the byte slice 'from'.
-func Read(ctx *context.T, from []byte) (Message, error) {
+func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	if len(from) == 0 {
 		return nil, NewErrInvalidMsg(ctx, invalidType, 0, 0, nil)
 	}

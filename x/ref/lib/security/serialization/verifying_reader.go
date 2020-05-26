@@ -44,7 +44,7 @@ func (r *verifyingReader) Read(p []byte) (int, error) {
 		}
 
 		n, err := r.curChunk.Read(p)
-		bytesRead = bytesRead + n
+		bytesRead += n
 		if err != nil {
 			return bytesRead, err
 		}
@@ -80,7 +80,7 @@ func (r *verifyingReader) readChunk() error {
 		return err
 	}
 
-	if _, err := io.CopyN(&r.curChunk, r.data, int64(r.chunkSizeBytes)); err != nil && err != io.EOF {
+	if _, err := io.CopyN(&r.curChunk, r.data, r.chunkSizeBytes); err != nil && err != io.EOF {
 		return err
 	}
 

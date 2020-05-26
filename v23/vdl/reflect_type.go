@@ -337,7 +337,7 @@ func makeTypeFromReflectLocked(rtOrig, rt reflect.Type, builder *TypeBuilder, pe
 // corresponding to ri.
 //
 // REQUIRES: rtCache is locked
-func makeUnnamedFromReflectLocked(ri *reflectInfo, builder *TypeBuilder, pending map[reflect.Type]TypeOrPending) (TypeOrPending, error) {
+func makeUnnamedFromReflectLocked(ri *reflectInfo, builder *TypeBuilder, pending map[reflect.Type]TypeOrPending) (TypeOrPending, error) { //nolint:gocyclo
 	// Handle enum types
 	if len(ri.EnumLabels) > 0 {
 		enum := builder.Enum()

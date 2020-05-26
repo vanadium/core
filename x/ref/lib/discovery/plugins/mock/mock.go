@@ -34,7 +34,7 @@ func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func(
 	return nil
 }
 
-func (p *plugin) Scan(ctx *context.T, interfaceName string, callback func(*idiscovery.AdInfo), done func()) error {
+func (p *plugin) Scan(ctx *context.T, interfaceName string, callback func(*idiscovery.AdInfo), done func()) error { //nolint:gocyclo
 	rescan := make(chan struct{})
 	go func() {
 		defer close(rescan)
@@ -149,11 +149,12 @@ func (p *plugin) UnregisterAd(adinfo *idiscovery.AdInfo) {
 	p.updated.Broadcast()
 }
 
-func New() *plugin {
+func New() *plugin { //nolint:golint // exported func New returns unexported type
+	// which can be annoying to use.
 	return NewWithAdStatus(idiscovery.AdReady)
 }
 
-func NewWithAdStatus(status idiscovery.AdStatus) *plugin {
+func NewWithAdStatus(status idiscovery.AdStatus) *plugin { //nolint:golint
 	p := &plugin{adStatus: status, adinfoMap: make(map[string]map[discovery.AdId]*idiscovery.AdInfo)}
 	p.updated = sync.NewCond(&p.mu)
 	return p

@@ -59,13 +59,14 @@ func serverInterfaceOutArg(iface *compile.Interface, method *compile.Method, env
 func serverInterfaceStreamingArgType(method *compile.Method, env *compile.Env) string {
 	sendType := javaType(method.OutStream, true, env)
 	recvType := javaType(method.InStream, true, env)
-	if method.OutStream != nil && method.InStream != nil {
+	switch {
+	case method.OutStream != nil && method.InStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ServerStream<%s, %s>", sendType, recvType)
-	} else if method.OutStream != nil {
+	case method.OutStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ServerSendStream<%s>", sendType)
-	} else if method.InStream != nil {
+	case method.InStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ServerRecvStream<%s>", recvType)
-	} else {
+	default:
 		panic(fmt.Errorf("Streaming method without stream sender and receiver: %v", method))
 	}
 }

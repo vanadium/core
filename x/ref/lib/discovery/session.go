@@ -16,7 +16,7 @@ import (
 // sdiscovery is an implementation of discovery.T.
 type sdiscovery struct {
 	d       *idiscovery
-	session sessionId
+	session sessionID
 }
 
 func (sd *sdiscovery) Advertise(ctx *context.T, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
@@ -32,7 +32,7 @@ type sdFactory struct {
 	d *idiscovery
 
 	mu          sync.Mutex
-	lastSession sessionId // GUARDED_BY(mu)
+	lastSession sessionID // GUARDED_BY(mu)
 }
 
 func (f *sdFactory) New(*context.T) (discovery.T, error) {
@@ -47,7 +47,7 @@ func (f *sdFactory) Shutdown() {
 	f.d.shutdown()
 }
 
-func (f *sdFactory) newSession() (sessionId, error) {
+func (f *sdFactory) newSession() (sessionID, error) {
 	f.mu.Lock()
 	session := f.lastSession + 1
 	if session == 0 {

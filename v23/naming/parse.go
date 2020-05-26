@@ -27,7 +27,7 @@ func SplitAddressName(name string) (string, string) {
 	if strings.HasPrefix(name, "@") { // <endpoint>/<suffix>
 		addr, suffix := splitIntoTwo(name, "@@/")
 		if len(suffix) > 0 { // The trailing "@@" was stripped, restore it
-			addr = addr + "@@"
+			addr += "@@"
 		}
 		return addr, suffix
 	}

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestTimeSeries(t *testing.T) {
+func TestTimeSeries(t *testing.T) { //nolint:gocyclo
 	now := time.Unix(1, 0)
 	ts := newTimeSeries(now, 5*time.Second, time.Second)
 

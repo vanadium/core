@@ -169,7 +169,7 @@ type NamePos struct {
 }
 
 func (x *File) String() string      { return fmt.Sprintf("%+v", *x) }
-func (x *Import) String() string    { return fmt.Sprintf("%+v", *x) }
+func (i *Import) String() string    { return fmt.Sprintf("%+v", *i) }
 func (x *ErrorDef) String() string  { return fmt.Sprintf("%+v", *x) }
 func (x *Interface) String() string { return fmt.Sprintf("%+v", *x) }
 func (x *Method) String() string    { return fmt.Sprintf("%+v", *x) }

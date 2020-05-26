@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	ds "v.io/v23/query/engine/datasource"
-	"v.io/v23/query/engine/internal/query_checker"
-	"v.io/v23/query/engine/internal/query_functions"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/querychecker"
+	"v.io/v23/query/engine/internal/queryfunctions"
+	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/engine/public"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
@@ -24,7 +24,7 @@ type queryEngineImpl struct {
 	mutexNextID             sync.Mutex
 	nextID                  int64
 	mutexPreparedStatements sync.Mutex
-	preparedStatements      map[int64]*query_parser.Statement
+	preparedStatements      map[int64]*queryparser.Statement
 }
 
 type preparedStatementImpl struct {
@@ -33,7 +33,7 @@ type preparedStatementImpl struct {
 }
 
 func Create(db ds.Database) public.QueryEngine {
-	return &queryEngineImpl{db: db, nextID: 0, preparedStatements: map[int64]*query_parser.Statement{}}
+	return &queryEngineImpl{db: db, nextID: 0, preparedStatements: map[int64]*queryparser.Statement{}}
 }
 
 func (qe *queryEngineImpl) Exec(q string) ([]string, syncql.ResultStream, error) {
@@ -46,13 +46,12 @@ func (qe *queryEngineImpl) GetPreparedStatement(handle int64) (public.PreparedSt
 	qe.mutexPreparedStatements.Unlock()
 	if ok {
 		return &preparedStatementImpl{qe, handle}, nil
-	} else {
-		return nil, syncql.NewErrPreparedStatementNotFound(qe.db.GetContext())
 	}
+	return nil, syncql.NewErrPreparedStatementNotFound(qe.db.GetContext())
 }
 
 func (qe *queryEngineImpl) PrepareStatement(q string) (public.PreparedStatement, error) {
-	s, err := query_parser.Parse(qe.db, q)
+	s, err := queryparser.Parse(qe.db, q)
 	if err != nil {
 		return nil, err
 	}
@@ -101,19 +100,19 @@ func (p *preparedStatementImpl) Close() {
 }
 
 func Exec(db ds.Database, q string) ([]string, syncql.ResultStream, error) {
-	s, err := query_parser.Parse(db, q)
+	s, err := queryparser.Parse(db, q)
 	if err != nil {
 		return nil, nil, err
 	}
 	return checkAndExec(db, s)
 }
 
-func checkAndExec(db ds.Database, s *query_parser.Statement) ([]string, syncql.ResultStream, error) {
-	if err := query_checker.Check(db, s); err != nil {
+func checkAndExec(db ds.Database, s *queryparser.Statement) ([]string, syncql.ResultStream, error) {
+	if err := querychecker.Check(db, s); err != nil {
 		return nil, nil, err
 	}
 	switch (*s).(type) {
-	case query_parser.SelectStatement, query_parser.DeleteStatement:
+	case queryparser.SelectStatement, queryparser.DeleteStatement:
 		return execStatement(db, s)
 	default:
 		return nil, nil, syncql.NewErrExecOfUnknownStatementType(db.GetContext(), (*s).Offset(), reflect.TypeOf(*s).Name())
@@ -122,17 +121,17 @@ func checkAndExec(db ds.Database, s *query_parser.Statement) ([]string, syncql.R
 
 // Given a key, a value and a SelectClause, return the projection.
 // This function is only called if Eval returned true on the WhereClause expression.
-func ComposeProjection(db ds.Database, k string, v *vdl.Value, s *query_parser.SelectClause) []*vom.RawBytes {
+func ComposeProjection(db ds.Database, k string, v *vdl.Value, s *queryparser.SelectClause) []*vom.RawBytes {
 	var projection []*vom.RawBytes
 	for _, selector := range s.Selectors {
 		switch selector.Type {
-		case query_parser.TypSelField:
+		case queryparser.TypSelField:
 			// If field not found, nil is returned (as per specification).
 			f := ResolveField(db, k, v, selector.Field)
 			projection = append(projection, vom.RawBytesOf(f))
-		case query_parser.TypSelFunc:
+		case queryparser.TypSelFunc:
 			if selector.Function.Computed {
-				projection = append(projection, query_functions.ConvertFunctionRetValueToRawBytes(selector.Function.RetValue))
+				projection = append(projection, queryfunctions.ConvertFunctionRetValueToRawBytes(selector.Function.RetValue))
 			} else {
 				// need to exec function
 				// If error executing function, return nil (as per specification).
@@ -140,7 +139,7 @@ func ComposeProjection(db ds.Database, k string, v *vdl.Value, s *query_parser.S
 				if err != nil {
 					retValue = nil
 				}
-				projection = append(projection, query_functions.ConvertFunctionRetValueToRawBytes(retValue))
+				projection = append(projection, queryfunctions.ConvertFunctionRetValueToRawBytes(retValue))
 			}
 		}
 	}
@@ -151,7 +150,7 @@ func ComposeProjection(db ds.Database, k string, v *vdl.Value, s *query_parser.S
 // return nil if row not selected, else return the projection (type []*vdl.Value).
 // Note: limit and offset clauses are ignored for this function as they make no sense
 // for a single row.
-func ExecSelectSingleRow(db ds.Database, k string, v *vdl.Value, s *query_parser.SelectStatement) []*vom.RawBytes {
+func ExecSelectSingleRow(db ds.Database, k string, v *vdl.Value, s *queryparser.SelectStatement) []*vom.RawBytes {
 	if !Eval(db, k, v, s.Where.Expr) {
 		rs := []*vom.RawBytes{}
 		return rs
@@ -159,7 +158,7 @@ func ExecSelectSingleRow(db ds.Database, k string, v *vdl.Value, s *query_parser
 	return ComposeProjection(db, k, v, s.Select)
 }
 
-func getColumnHeadings(s *query_parser.SelectStatement) []string {
+func getColumnHeadings(s *queryparser.SelectStatement) []string {
 	columnHeaders := []string{}
 	for _, selector := range s.Select.Selectors {
 		columnName := ""
@@ -167,7 +166,7 @@ func getColumnHeadings(s *query_parser.SelectStatement) []string {
 			columnName = selector.As.AltName.Value
 		} else {
 			switch selector.Type {
-			case query_parser.TypSelField:
+			case queryparser.TypSelField:
 				sep := ""
 				for _, segment := range selector.Field.Segments {
 					columnName = columnName + sep + segment.Value
@@ -176,7 +175,7 @@ func getColumnHeadings(s *query_parser.SelectStatement) []string {
 					}
 					sep = "."
 				}
-			case query_parser.TypSelFunc:
+			case queryparser.TypSelFunc:
 				columnName = selector.Function.Name
 			}
 		}
@@ -190,14 +189,14 @@ func getColumnHeadings(s *query_parser.SelectStatement) []string {
 // would be better.  The author of the query can always use the As clause to specify a
 // better heading.  Note: for functions, just the function name is included in the header.
 // When a decision is made, it's best to be consistent for functions and key/indexes.
-func getSegmentKeyAsHeading(segKey *query_parser.Operand) string {
+func getSegmentKeyAsHeading(segKey *queryparser.Operand) string {
 	val := "["
 	switch segKey.Type {
-	case query_parser.TypBigInt:
+	case queryparser.TypBigInt:
 		val += segKey.BigInt.String()
-	case query_parser.TypBigRat:
+	case queryparser.TypBigRat:
 		val += segKey.BigRat.String()
-	case query_parser.TypField:
+	case queryparser.TypField:
 		sep := ""
 		for _, segment := range segKey.Column.Segments {
 			val += sep + segment.Value
@@ -206,21 +205,21 @@ func getSegmentKeyAsHeading(segKey *query_parser.Operand) string {
 			}
 			sep = "."
 		}
-	case query_parser.TypBool:
+	case queryparser.TypBool:
 		val += strconv.FormatBool(segKey.Bool)
-	case query_parser.TypInt:
+	case queryparser.TypInt:
 		val += strconv.FormatInt(segKey.Int, 10)
-	case query_parser.TypFloat:
+	case queryparser.TypFloat:
 		val += strconv.FormatFloat(segKey.Float, 'f', -1, 64)
-	case query_parser.TypFunction:
+	case queryparser.TypFunction:
 		val += segKey.Function.Name
-	case query_parser.TypStr:
+	case queryparser.TypStr:
 		val += segKey.Str
-	case query_parser.TypTime:
+	case queryparser.TypTime:
 		val += segKey.Time.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
-	case query_parser.TypNil:
+	case queryparser.TypNil:
 		val += "<nil>"
-	case query_parser.TypObject:
+	case queryparser.TypObject:
 		val += "<object>"
 	default:
 		val += "<?>"
@@ -229,12 +228,12 @@ func getSegmentKeyAsHeading(segKey *query_parser.Operand) string {
 	return val
 }
 
-func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexFields []ds.Index, w *query_parser.WhereClause) ([]ds.IndexRanges, error) {
+func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexFields []ds.Index, w *queryparser.WhereClause) ([]ds.IndexRanges, error) {
 	indexes := []ds.IndexRanges{}
 
 	// Get IndexRanges for k
-	kField := &query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}
-	idxRanges := *query_checker.CompileIndexRanges(kField, vdl.String, w)
+	kField := &queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}
+	idxRanges := *querychecker.CompileIndexRanges(kField, vdl.String, w)
 	indexes = append(indexes, idxRanges)
 
 	// Get IndexRanges for secondary indexes.
@@ -243,22 +242,22 @@ func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexField
 			return nil, syncql.NewErrIndexKindNotSupported(db.GetContext(), tableOff, idx.Kind.String(), idx.FieldName, tableName)
 		}
 		var err error
-		var idxField *query_parser.Field
+		var idxField *queryparser.Field
 		// Construct a Field from the string.  Use the parser as it knows best.
-		if idxField, err = query_parser.ParseIndexField(db, idx.FieldName, tableName); err != nil {
+		if idxField, err = queryparser.ParseIndexField(db, idx.FieldName, tableName); err != nil {
 			return nil, err
 		}
-		idxRanges := *query_checker.CompileIndexRanges(idxField, idx.Kind, w)
+		idxRanges := *querychecker.CompileIndexRanges(idxField, idx.Kind, w)
 		indexes = append(indexes, idxRanges)
 	}
 	return indexes, nil
 }
 
-func execStatement(db ds.Database, s *query_parser.Statement) ([]string, syncql.ResultStream, error) {
+func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.ResultStream, error) { //nolint:gocyclo
 	switch st := (*s).(type) {
 
 	// Select
-	case query_parser.SelectStatement:
+	case queryparser.SelectStatement:
 		indexes, err := getIndexRanges(db, st.From.Table.Name, st.From.Table.Off, st.From.Table.DBTable.GetIndexFields(), st.Where)
 		if err != nil {
 			return nil, nil, err
@@ -275,7 +274,7 @@ func execStatement(db ds.Database, s *query_parser.Statement) ([]string, syncql.
 		return getColumnHeadings(&st), &resultStream, nil
 
 	// Delete
-	case query_parser.DeleteStatement:
+	case queryparser.DeleteStatement:
 		indexes, err := getIndexRanges(db, st.From.Table.Name, st.From.Table.Off, st.From.Table.DBTable.GetIndexFields(), st.Where)
 		if err != nil {
 			return nil, nil, err
@@ -300,11 +299,11 @@ func execStatement(db ds.Database, s *query_parser.Statement) ([]string, syncql.
 			rv := EvalWhereUsingOnlyKey(db, st.Where, k)
 			var match bool
 			switch rv {
-			case INCLUDE:
+			case Include:
 				match = true
-			case EXCLUDE:
+			case Exclude:
 				match = false
-			case FETCH_VALUE:
+			case FetchValue:
 				match = Eval(db, k, vdl.ValueOf(v), st.Where.Expr)
 			}
 			if match {

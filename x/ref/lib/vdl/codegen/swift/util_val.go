@@ -32,7 +32,7 @@ func swiftConstVal(v *vdl.Value, ctx *swiftContext) (ret string) {
 }
 
 // swiftVal returns the value string for the provided Value.
-func swiftVal(v *vdl.Value, ctx *swiftContext) string {
+func swiftVal(v *vdl.Value, ctx *swiftContext) string { //nolint:gocyclo
 	switch v.Kind() {
 	case vdl.Any:
 		// TODO(azinman) Don't exactly know what to do here to generate the inference code... so instead come back to this
@@ -68,9 +68,8 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 		}
 		if v.Kind() == vdl.Float32 {
 			return "Float(" + c + ")"
-		} else {
-			return "Double(" + c + ")"
 		}
+		return "Double(" + c + ")"
 	case vdl.String:
 		in := v.RawString()
 		return swiftQuoteString(in)
@@ -80,9 +79,9 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 		ret := "["
 		for i := 0; i < v.Len(); i++ {
 			if i > 0 {
-				ret = ret + ", "
+				ret += ", "
 			}
-			ret = ret + swiftConstVal(v.Index(i), ctx)
+			ret += swiftConstVal(v.Index(i), ctx)
 		}
 		return ret + "]"
 	case vdl.Map:
@@ -112,7 +111,7 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 		var ret string
 		for i := 0; i < v.Type().NumField(); i++ {
 			if i > 0 {
-				ret = ret + ", "
+				ret += ", "
 			}
 			fldValue := v.StructField(i)
 			fld := tdef.Type.Field(i)
@@ -125,9 +124,8 @@ func swiftVal(v *vdl.Value, ctx *swiftContext) string {
 	case vdl.Optional:
 		if v.Elem() != nil {
 			return swiftConstVal(v.Elem(), ctx)
-		} else {
-			return "nil"
 		}
+		return "nil"
 	}
 	panic(fmt.Errorf("vdl: swiftVal unhandled type %v %v", v.Kind(), v.Type()))
 }

@@ -187,7 +187,7 @@ func compileImports(pkg *Package, pfiles []*parse.File, env *Env) {
 // TODO(toddw): Remove this function and all helpers, after all code generators
 // have been updated to compute their own dependencies.  The only code that will
 // remain below this point is the loop checking for unused imports.
-func computeDeps(pkg *Package, env *Env) {
+func computeDeps(pkg *Package, env *Env) { //nolint:gocyclo
 	// Check for unused user-supplied imports.
 	for _, file := range pkg.Files {
 		for _, imp := range file.imports {

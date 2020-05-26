@@ -491,8 +491,8 @@ type NamePos parse.NamePos
 
 func (x *Field) String() string   { return fmt.Sprintf("%+v", *x) }
 func (x *NamePos) String() string { return fmt.Sprintf("%+v", *x) }
-func (x *Package) String() string {
-	c := *x
+func (p *Package) String() string {
+	c := *p
 	c.typeMap = nil
 	c.constMap = nil
 	c.ifaceMap = nil
@@ -502,8 +502,8 @@ func (x *Package) String() string {
 	c.ifaceDefs = nil
 	return fmt.Sprintf("%+v", c)
 }
-func (x *File) String() string {
-	c := *x
+func (f *File) String() string {
+	c := *f
 	c.Package = nil // avoid infinite loop
 	return fmt.Sprintf("%+v", c)
 }

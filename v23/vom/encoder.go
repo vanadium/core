@@ -178,9 +178,8 @@ func (entry *encoderStackEntry) nextValueIsAny() bool {
 		// NumStarted is already incremented by the time we check it.
 		if entry.NumStarted%2 == 1 {
 			return tt.Key() == vdl.AnyType
-		} else {
-			return tt.Elem() == vdl.AnyType
 		}
+		return tt.Elem() == vdl.AnyType
 	case vdl.Struct, vdl.Union:
 		return tt.Field(entry.Index).Type == vdl.AnyType
 	}

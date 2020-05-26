@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestBinaryEncodeDecode(t *testing.T) {
+func TestBinaryEncodeDecode(t *testing.T) { //nolint:gocyclo
 	tests := []struct {
 		v   interface{}
 		hex string

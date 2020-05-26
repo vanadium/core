@@ -32,7 +32,7 @@ import (
 // actually translate vdl int8 into swift VdlInt8, and
 // vdl byte into swift byte.  We do this because we want the
 // common usage of vdl []byte to translate into swift byte[].
-func (ctx *swiftContext) swiftBuiltInType(typ *vdl.Type) string {
+func (ctx *swiftContext) swiftBuiltInType(typ *vdl.Type) string { //nolint:gocyclo
 	if typ == nil {
 		return "Void"
 	}

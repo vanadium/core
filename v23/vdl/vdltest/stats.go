@@ -33,7 +33,7 @@ func (info statsTableInfo) ColumnSize(header string) int {
 	total := 0
 	for index, size := range info.ColumnSizes.Map[header] {
 		if index > 0 {
-			total += 1 // account for comma between each value
+			total++ // account for comma between each value
 		}
 		total += size
 	}
@@ -343,8 +343,9 @@ func PrintTypeStats(w io.Writer, types ...*vdl.Type) error {
 		case vdl.Struct, vdl.Union:
 			fns = append(fns, typePropFn{Name: "fields", Fn: (*vdl.Type).NumField})
 		}
+		knd := kind
 		stats.Collect(kind.String(), func(tt *vdl.Type) bool {
-			return tt.Kind() == kind
+			return tt.Kind() == knd
 		}, fns...)
 	}
 	stats.Table.Rows = append(stats.Table.Rows, statRowBreak)
@@ -475,8 +476,9 @@ func PrintEntryStats(w io.Writer, entries ...EntryValue) error {
 			}
 			fns = append(fns, entryPropFn{Name: "nil", Fn: fn, Accumulate: true})
 		}
+		knd := kind
 		stats.Collect(kind.String(), func(e EntryValue) bool {
-			return e.Source.Kind() == kind
+			return e.Source.Kind() == knd
 		}, fns...)
 	}
 	stats.Table.Rows = append(stats.Table.Rows, statRowBreak)

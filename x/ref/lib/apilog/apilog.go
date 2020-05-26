@@ -96,12 +96,12 @@ func LogCallf(ctx *context.T, callerName, format string, v ...interface{}) func(
 	if !l.V(logCallLogLevel) { // TODO(mattr): add call to vtrace.
 		return func(*context.T, string, ...interface{}) {}
 	}
-	invocationId := newInvocationIdentifier()
-	output := fmt.Sprintf("call[%s %s]: %s", callerName, invocationId, fmt.Sprintf(format, v...))
+	invocationID := newInvocationIdentifier()
+	output := fmt.Sprintf("call[%s %s]: %s", callerName, invocationID, fmt.Sprintf(format, v...))
 	l.InfoDepth(1, output)
 	// TODO(mattr): annotate vtrace span.
 	return func(ctx *context.T, format string, v ...interface{}) {
-		output := fmt.Sprintf("return[%s %s]: %v", callerName, invocationId, fmt.Sprintf(format, derefSlice(v)...))
+		output := fmt.Sprintf("return[%s %s]: %v", callerName, invocationID, fmt.Sprintf(format, derefSlice(v)...))
 		getLogger(ctx).InfoDepth(1, output)
 		// TODO(mattr): annotate vtrace span.
 	}

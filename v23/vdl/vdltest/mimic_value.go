@@ -196,7 +196,7 @@ func mimicInt(tt *vdl.Type, base *vdl.Value) *vdl.Value {
 	return vdl.IntValue(tt, x)
 }
 
-func mimicFloat(tt *vdl.Type, base *vdl.Value) *vdl.Value {
+func mimicFloat(tt *vdl.Type, base *vdl.Value) *vdl.Value { //nolint:gocyclo
 	bitlen := uint(tt.Kind().BitLen())
 	var x float64
 	switch base.Kind() {

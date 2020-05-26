@@ -186,7 +186,7 @@ func (d *TypeDecoder) addWireTypeBuildLocked(tid TypeId, wt wireType) error {
 }
 
 func (d *TypeDecoder) lookupKnownType(tid TypeId) *vdl.Type {
-	if tt := bootstrapIdToType[tid]; tt != nil {
+	if tt := bootstrapIDToType[tid]; tt != nil {
 		return tt
 	}
 	d.typeMu.RLock()
@@ -290,7 +290,7 @@ func (d *TypeDecoder) startBaseType(wt wireType, builder *vdl.TypeBuilder) (vdl.
 	}
 }
 
-func (d *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) error {
+func (d *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) error { //nolint:gocyclo
 	switch wt := wt.(type) {
 	case wireTypeEnumT:
 		for _, label := range wt.Value.Labels {

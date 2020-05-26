@@ -86,7 +86,7 @@ func vomDecodeMany(b *testing.B, value interface{}, make func() interface{}) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		reader.Seek(valueOffset,0) //nolint:errcheck
+		reader.Seek(valueOffset, 0) //nolint:errcheck
 		if err := dec.Decode(make()); err != nil {
 			b.Fatal(err)
 		}
@@ -120,7 +120,7 @@ func gobDecode(b *testing.B, value interface{}, make func() interface{}) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		reader.Seek(0,0) //nolint:errcheck
+		reader.Seek(0, 0) //nolint:errcheck
 		if err := gob.NewDecoder(reader).Decode(make()); err != nil {
 			b.Fatal(err)
 		}
@@ -167,7 +167,7 @@ func gobDecodeMany(b *testing.B, value interface{}, make func() interface{}) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		reader.Seek(valueOffset,0) //nolint:errcheck
+		reader.Seek(valueOffset, 0) //nolint:errcheck
 		if err := dec.Decode(make()); err != nil {
 			b.Fatal(err)
 		}

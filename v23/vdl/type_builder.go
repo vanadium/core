@@ -549,7 +549,7 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // contents of each type node.  The seen map breaks infinite loops from
 // recursive types.  Since type cycles may only be created via named types, we
 // keep track of seen types and only dump their names.
-func uniqueTypeStr(t *Type, inCycle map[*Type]bool, shortCycleName bool) string {
+func uniqueTypeStr(t *Type, inCycle map[*Type]bool, shortCycleName bool) string { //nolint:gocyclo
 	if c, ok := inCycle[t]; ok {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
@@ -772,14 +772,13 @@ func existsUnnamedCycle(allTypes map[*Type]bool) error {
 // verifyAndCollectAllTypes returns a nil error iff t and all subtypes are
 // correctly defined. If all subtypes are correctly defined allTypes will be
 // filled with all subtypes of the given Type t.
-func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error {
+func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint:gocyclo
 	if t == nil || allTypes[t] {
 		return nil
 	}
 	allTypes[t] = true
 	// Check kind
-	switch t.kind {
-	case internalNamed:
+	if t.kind == internalNamed {
 		return fmt.Errorf("internal kind %d used in verifyAndCollectAllTypes", t.kind)
 	}
 	// Check name

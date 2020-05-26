@@ -31,7 +31,7 @@ func doGlob(root, pattern string, since time.Time, includeValues bool) ([]libsta
 	return out, nil
 }
 
-func TestStats(t *testing.T) {
+func TestStats(t *testing.T) { //nolint:gocyclo
 	now, start := time.Unix(1, 0), time.Unix(1, 0)
 	counter.TimeNow = func() time.Time { return now }
 

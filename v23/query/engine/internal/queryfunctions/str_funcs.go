@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package query_functions
+package queryfunctions
 
 import (
 	"errors"
@@ -15,76 +15,75 @@ import (
 
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal/conversions"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
 )
 
-func str(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func str(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	o := args[0]
 	if strOp, err := conversions.ConvertValueToString(o); err == nil {
 		return strOp, nil
-	} else {
-		var c query_parser.Operand
-		c.Type = query_parser.TypStr
-		c.Off = o.Off
-		switch args[0].Type {
-		case query_parser.TypBigInt:
-			c.Str = o.BigInt.String()
-		case query_parser.TypBigRat:
-			c.Str = o.BigRat.String()
-		case query_parser.TypBool:
-			c.Str = strconv.FormatBool(o.Bool)
-		case query_parser.TypFloat:
-			c.Str = strconv.FormatFloat(o.Float, 'f', -1, 64)
-		case query_parser.TypInt:
-			c.Str = strconv.FormatInt(o.Int, 10)
-		case query_parser.TypTime:
-			c.Str = o.Time.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
-		case query_parser.TypUint:
-			c.Str = strconv.FormatUint(o.Uint, 10)
-		case query_parser.TypObject:
-			// A vdl.TypeObject?
-			// In this case, TypeObject().Name() is used (rather than Type().Name()
-			if o.Object.Kind() == vdl.TypeObject {
-				c.Str = o.Object.TypeObject().Name()
-			} else {
-				c.Str = fmt.Sprintf("%v", o.Object)
-			}
-		}
-		return &c, nil
 	}
+	var c queryparser.Operand
+	c.Type = queryparser.TypStr
+	c.Off = o.Off
+	switch args[0].Type {
+	case queryparser.TypBigInt:
+		c.Str = o.BigInt.String()
+	case queryparser.TypBigRat:
+		c.Str = o.BigRat.String()
+	case queryparser.TypBool:
+		c.Str = strconv.FormatBool(o.Bool)
+	case queryparser.TypFloat:
+		c.Str = strconv.FormatFloat(o.Float, 'f', -1, 64)
+	case queryparser.TypInt:
+		c.Str = strconv.FormatInt(o.Int, 10)
+	case queryparser.TypTime:
+		c.Str = o.Time.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	case queryparser.TypUint:
+		c.Str = strconv.FormatUint(o.Uint, 10)
+	case queryparser.TypObject:
+		// A vdl.TypeObject?
+		// In this case, TypeObject().Name() is used (rather than Type().Name()
+		if o.Object.Kind() == vdl.TypeObject {
+			c.Str = o.Object.TypeObject().Name()
+		} else {
+			c.Str = fmt.Sprintf("%v", o.Object)
+		}
+	}
+	return &c, nil
 }
 
-func atoi(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func atoi(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	o := args[0]
 	switch o.Type {
-	case query_parser.TypStr:
+	case queryparser.TypStr:
 		i, err := strconv.ParseInt(o.Str, 10, 64)
 		if err != nil {
 			return nil, err
 		}
 		return makeIntOp(off, i), nil
 	default:
-		return nil, errors.New("Cannot convert operand to int.")
+		return nil, errors.New("cannot convert operand to int")
 	}
 }
 
-func atof(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func atof(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	o := args[0]
 	switch o.Type {
-	case query_parser.TypStr:
+	case queryparser.TypStr:
 		f, err := strconv.ParseFloat(o.Str, 64)
 		if err != nil {
 			return nil, err
 		}
 		return makeFloatOp(off, f), nil
 	default:
-		return nil, errors.New("Cannot convert operand to float.")
+		return nil, errors.New("cannot convert operand to float")
 	}
 }
 
-func htmlEscapeFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func htmlEscapeFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	strOp, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -92,7 +91,7 @@ func htmlEscapeFunc(db ds.Database, off int64, args []*query_parser.Operand) (*q
 	return makeStrOp(off, html.EscapeString(strOp.Str)), nil
 }
 
-func htmlUnescapeFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func htmlUnescapeFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	strOp, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -100,7 +99,7 @@ func htmlUnescapeFunc(db ds.Database, off int64, args []*query_parser.Operand) (
 	return makeStrOp(off, html.UnescapeString(strOp.Str)), nil
 }
 
-func lowerCase(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func lowerCase(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	strOp, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -108,7 +107,7 @@ func lowerCase(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeStrOp(off, strings.ToLower(strOp.Str)), nil
 }
 
-func upperCase(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func upperCase(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	strOp, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -116,23 +115,22 @@ func upperCase(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	return makeStrOp(off, strings.ToUpper(strOp.Str)), nil
 }
 
-func typeFunc(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func typeFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	// If operand is not an object, we can't get a type
-	if args[0].Type != query_parser.TypObject {
+	if args[0].Type != queryparser.TypObject {
 		return nil, syncql.NewErrFunctionTypeInvalidArg(db.GetContext(), args[0].Off)
 	}
 	if args[0].Object.Kind() == vdl.TypeObject {
 		// Believe it or not, Name() doesn't return the name of the type if the type is TypeObject.
 		return makeStrOp(off, args[0].Object.Type().String()), nil
-	} else {
-		return makeStrOp(off, args[0].Object.Type().Name()), nil
 	}
+	return makeStrOp(off, args[0].Object.Type().Name()), nil
 }
 
-func typeFuncFieldCheck(db ds.Database, off int64, args []*query_parser.Operand) error {
+func typeFuncFieldCheck(db ds.Database, off int64, args []*queryparser.Operand) error {
 	// At this point, it is known that there is one arg. Make sure it is of type field
 	// and is a value field (i.e., it must begin with a v segment).
-	if args[0].Type != query_parser.TypField || len(args[0].Column.Segments) < 1 || args[0].Column.Segments[0].Value != "v" {
+	if args[0].Type != queryparser.TypField || len(args[0].Column.Segments) < 1 || args[0].Column.Segments[0].Value != "v" {
 		return syncql.NewErrArgMustBeField(db.GetContext(), args[0].Off)
 	}
 	return nil
@@ -142,7 +140,7 @@ func typeFuncFieldCheck(db ds.Database, off int64, args []*query_parser.Operand)
 // array of substrings between those separators. If sep is empty, Split splits after each
 // UTF-8 sequence.
 // e.g., Split("abc.def.ghi", ".") returns a list of "abc", "def", "ghi"
-func split(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func split(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	strArg, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -152,9 +150,9 @@ func split(db ds.Database, off int64, args []*query_parser.Operand) (*query_pars
 		return nil, err
 	}
 
-	var o query_parser.Operand
+	var o queryparser.Operand
 	o.Off = args[0].Off
-	o.Type = query_parser.TypObject
+	o.Type = queryparser.TypObject
 	o.Object = vdl.ValueOf(strings.Split(strArg.Str, sepArg.Str))
 	return &o, nil
 }
@@ -162,27 +160,27 @@ func split(db ds.Database, off int64, args []*query_parser.Operand) (*query_pars
 // Sprintf(<format-str>, arg...) string
 // Sprintf is golang's Sprintf.
 // e.g., Sprintf("The meaning of life is %s.", v.LifeMeaning) returns "The meaning of life is 42."
-func sprintf(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func sprintf(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	sprintfArgs := []interface{}{}
 	for _, arg := range args[1:] {
 		switch arg.Type {
-		case query_parser.TypBigInt:
+		case queryparser.TypBigInt:
 			sprintfArgs = append(sprintfArgs, arg.BigInt)
-		case query_parser.TypBigRat:
+		case queryparser.TypBigRat:
 			sprintfArgs = append(sprintfArgs, arg.BigRat)
-		case query_parser.TypBool:
+		case queryparser.TypBool:
 			sprintfArgs = append(sprintfArgs, arg.Bool)
-		case query_parser.TypFloat:
+		case queryparser.TypFloat:
 			sprintfArgs = append(sprintfArgs, arg.Float)
-		case query_parser.TypInt:
+		case queryparser.TypInt:
 			sprintfArgs = append(sprintfArgs, arg.Int)
-		case query_parser.TypStr:
+		case queryparser.TypStr:
 			sprintfArgs = append(sprintfArgs, arg.Str)
-		case query_parser.TypTime:
+		case queryparser.TypTime:
 			sprintfArgs = append(sprintfArgs, arg.Time)
-		case query_parser.TypObject:
+		case queryparser.TypObject:
 			sprintfArgs = append(sprintfArgs, arg.Object)
-		case query_parser.TypUint:
+		case queryparser.TypUint:
 			sprintfArgs = append(sprintfArgs, arg.Uint)
 		default:
 			sprintfArgs = append(sprintfArgs, nil)
@@ -194,7 +192,7 @@ func sprintf(db ds.Database, off int64, args []*query_parser.Operand) (*query_pa
 // StrCat(str1, str2,... string) string
 // StrCat returns the concatenation of all the string args.
 // e.g., StrCat("abc", ",", "def") returns "abc,def"
-func strCat(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func strCat(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	val := ""
 	for _, arg := range args {
 		str, err := conversions.ConvertValueToString(arg)
@@ -209,7 +207,7 @@ func strCat(db ds.Database, off int64, args []*query_parser.Operand) (*query_par
 // StrIndex(s, sep string) int
 // StrIndex returns the index of sep in s, or -1 is sep is not present in s.
 // e.g., StrIndex("abc", "bc") returns 1.
-func strIndex(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func strIndex(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -224,7 +222,7 @@ func strIndex(db ds.Database, off int64, args []*query_parser.Operand) (*query_p
 // StrLastIndex(s, sep string) int
 // StrLastIndex returns the index of the last instance of sep in s, or -1 is sep is not present in s.
 // e.g., StrLastIndex("abcbc", "bc") returns 3.
-func strLastIndex(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func strLastIndex(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -239,7 +237,7 @@ func strLastIndex(db ds.Database, off int64, args []*query_parser.Operand) (*que
 // StrRepeat(s string, count int) int
 // StrRepeat returns a new string consisting of count copies of the string s.
 // e.g., StrRepeat("abc", 3) returns "abcabcabc".
-func strRepeat(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func strRepeat(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -250,16 +248,15 @@ func strRepeat(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 	}
 	if count.Int >= 0 {
 		return makeStrOp(off, strings.Repeat(s.Str, int(count.Int))), nil
-	} else {
-		// golang strings.Repeat doesn't like count < 0
-		return makeStrOp(off, ""), nil
 	}
+	// golang strings.Repeat doesn't like count < 0
+	return makeStrOp(off, ""), nil
 }
 
 // StrReplace(s, old, new string) string
 // StrReplace returns a copy of s with the first instance of old replaced by new.
 // e.g., StrReplace("abcdef", "bc", "zzzzz") returns "azzzzzdef".
-func strReplace(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func strReplace(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -278,7 +275,7 @@ func strReplace(db ds.Database, off int64, args []*query_parser.Operand) (*query
 // Trim(s string) string
 // Trim returns a copy of s with all leading and trailing white space removed, as defined by Unicode.
 // e.g., Trim(" abc ") returns "abc".
-func trim(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func trim(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -289,7 +286,7 @@ func trim(db ds.Database, off int64, args []*query_parser.Operand) (*query_parse
 // TrimLeft(s string) string
 // TrimLeft returns a copy of s with all leading white space removed, as defined by Unicode.
 // e.g., TrimLeft(" abc ") returns "abc ".
-func trimLeft(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func trimLeft(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -300,7 +297,7 @@ func trimLeft(db ds.Database, off int64, args []*query_parser.Operand) (*query_p
 // TrimRight(s string) string
 // TrimRight returns a copy of s with all leading white space removed, as defined by Unicode.
 // e.g., TrimRight(" abc ") returns "abc ".
-func trimRight(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func trimRight(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err
@@ -311,7 +308,7 @@ func trimRight(db ds.Database, off int64, args []*query_parser.Operand) (*query_
 // RuneCount(s string) int
 // RuneCount returns the number of runes in s.
 // e.g., RuneCount("abc") returns 3.
-func runeCount(db ds.Database, off int64, args []*query_parser.Operand) (*query_parser.Operand, error) {
+func runeCount(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	s, err := conversions.ConvertValueToString(args[0])
 	if err != nil {
 		return nil, err

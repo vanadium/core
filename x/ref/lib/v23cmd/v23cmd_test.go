@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -59,11 +59,13 @@ func runWithInit(ctx *context.T, env *cmdline.Env, args []string) error {
 	return nil
 }
 
+type ctxKey string
+
 const (
-	initKey      = "init key"
-	initValue    = "<init value>"
-	forTestKey   = "for test key"
-	forTestValue = "<for test value>"
+	initKey      ctxKey = "init key"
+	initValue    ctxKey = "<init value>"
+	forTestKey   ctxKey = "for test key"
+	forTestValue ctxKey = "<for test value>"
 )
 
 func initFunc() (*context.T, v23.Shutdown, error) {

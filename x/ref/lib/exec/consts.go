@@ -6,4 +6,4 @@ package exec
 
 // The V23_EXEC_CONFIG environment variable is used to share a base64 encoded JSON
 // dictionary containing an instance of Config between a parent and child process.
-const V23_EXEC_CONFIG = "V23_EXEC_CONFIG"
+const V23_EXEC_CONFIG = "V23_EXEC_CONFIG" //nolint:golint

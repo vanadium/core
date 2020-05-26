@@ -17,7 +17,7 @@ type scanChanElem struct {
 	val *AdInfo
 }
 
-func (d *idiscovery) scan(ctx *context.T, session sessionId, query string) (<-chan discovery.Update, error) {
+func (d *idiscovery) scan(ctx *context.T, session sessionID, query string) (<-chan discovery.Update, error) {
 	// TODO(jhahn): Consider to use multiple target services so that the plugins
 	// can filter advertisements more efficiently if possible.
 	matcher, err := NewMatcher(ctx, query)
@@ -63,16 +63,16 @@ type adref struct {
 
 func (a *adref) set(plugin uint) {
 	mask := uint32(1) << plugin
-	a.refs = a.refs | mask
+	a.refs |= mask
 }
 
 func (a *adref) unset(plugin uint) bool {
 	mask := uint32(1) << plugin
-	a.refs = a.refs & (^mask)
+	a.refs &= (^mask)
 	return a.refs == 0
 }
 
-func (d *idiscovery) doScan(ctx *context.T, session sessionId, matcher Matcher, scanCh chan scanChanElem, updateCh chan<- discovery.Update, done func()) {
+func (d *idiscovery) doScan(ctx *context.T, session sessionID, matcher Matcher, scanCh chan scanChanElem, updateCh chan<- discovery.Update, done func()) { //nolint:gocyclo
 	// Some plugins may not return a full advertisement information when it is lost.
 	// So we keep the advertisements that we've seen so that we can provide the
 	// full advertisement information when it is lost. Note that plugins will not
@@ -127,13 +127,14 @@ func (d *idiscovery) doScan(ctx *context.T, session sessionId, matcher Matcher, 
 					continue
 				}
 			}
-			if adinfo.Status == AdReady {
+			switch {
+			case adinfo.Status == AdReady:
 				// Clear the unnecessary directory addresses.
 				adinfo.DirAddrs = nil
-			} else if len(adinfo.DirAddrs) == 0 {
+			case len(adinfo.DirAddrs) == 0:
 				ctx.Errorf("no directory address available for partial advertisement %v - ignored", id)
 				continue
-			} else if adinfo.Status == AdNotReady {
+			case adinfo.Status == AdNotReady:
 				// Fetch not-ready-to-serve advertisements from the directory server.
 				wg.Add(1)
 				go fetchAd(ctx, adinfo.DirAddrs, id, plugin, scanCh, wg.Done)

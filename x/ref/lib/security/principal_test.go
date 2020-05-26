@@ -31,13 +31,13 @@ func TestLoadPersistentPrincipal(t *testing.T) {
 
 	// If the private key file exists and is encrypted we should succeed with correct passphrase.
 	passphrase := []byte("passphrase")
-	incorrect_passphrase := []byte("incorrect_passphrase")
+	incorrectPassphrase := []byte("incorrectPassphrase")
 	dir = generatePEMFile(passphrase)
 	if _, err = LoadPersistentPrincipal(dir, passphrase); err != nil {
 		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
 	}
 	// and fail with an incorrect passphrase.
-	if _, err = LoadPersistentPrincipal(dir, incorrect_passphrase); err == nil {
+	if _, err = LoadPersistentPrincipal(dir, incorrectPassphrase); err == nil {
 		t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
 	}
 	// and return ErrPassphraseRequired if the passphrase is nil.

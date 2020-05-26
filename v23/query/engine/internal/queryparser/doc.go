@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package query_parser is a parser to parse a simplified select statement (a la SQL) for the
+// Package queryparser is a parser to parse a simplified select statement (a la SQL) for the
 // Vanadium key value store (a.k.a., syncbase).
 //
 // The select is of the form:
@@ -93,4 +93,4 @@
 //
 // Example:
 // select v.Foo.Far, v.Baz[2] from Foobarbaz where Type(v) like "%.Customer" and (v.Foo = 42 and v.Bar not like "abc%) or (k >= "100" and  k < "200")
-package query_parser
+package queryparser

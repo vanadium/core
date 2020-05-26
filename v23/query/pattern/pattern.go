@@ -39,7 +39,7 @@ func Parse(pattern string) (*Pattern, error) {
 // more characters). They can be escaped by escChar; escChar can also escape
 // itself. '_' and '%' cannot be used as escChar; '\x00' escChar disables
 // escaping.
-func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) {
+func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) { //nolint:gocyclo
 	if escChar == '%' || escChar == '_' {
 		return nil, NewErrIllegalEscapeChar(nil)
 	}

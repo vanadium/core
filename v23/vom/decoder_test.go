@@ -374,7 +374,7 @@ type errorReader struct {
 }
 
 func (er *errorReader) Read(p []byte) (int, error) {
-	return 0, fmt.Errorf("errorReader error\n")
+	return 0, fmt.Errorf("errorReader error")
 }
 
 // Test that non-EOF errors on the value stream are returned from Decode() calls.
@@ -427,13 +427,13 @@ func newPipe() (io.ReadCloser, io.WriteCloser) {
 	return p, p
 }
 
-func (r *pipe) Read(p []byte) (n int, err error) {
-	r.m.Lock()
-	defer r.m.Unlock()
-	for r.b.Len() == 0 || r.cancelled {
-		r.c.Wait()
+func (p *pipe) Read(buf []byte) (n int, err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+	for p.b.Len() == 0 || p.cancelled {
+		p.c.Wait()
 	}
-	return r.b.Read(p)
+	return p.b.Read(buf)
 }
 
 func (p *pipe) Close() error {
@@ -444,11 +444,11 @@ func (p *pipe) Close() error {
 	return nil
 }
 
-func (w *pipe) Write(p []byte) (n int, err error) {
-	w.m.Lock()
-	defer w.m.Unlock()
-	defer w.c.Signal()
-	return w.b.Write(p)
+func (p *pipe) Write(buf []byte) (n int, err error) {
+	p.m.Lock()
+	defer p.m.Unlock()
+	defer p.c.Signal()
+	return p.b.Write(buf)
 }
 
 // Test that input found by go-fuzz cannot cause a stack overflow.

@@ -234,7 +234,7 @@ func (bs *blessingStore) DebugString() string {
 
 	buff.WriteString(fmt.Sprintf(format, "Peer pattern", "Blessings"))
 	writePattern := func(pattern security.BlessingPattern) {
-		buff.WriteString(fmt.Sprintf(format, pattern, bs.state.PeerBlessings[security.BlessingPattern(pattern)]))
+		buff.WriteString(fmt.Sprintf(format, pattern, bs.state.PeerBlessings[pattern]))
 	}
 	sorted := make([]string, 0, len(bs.state.PeerBlessings))
 	for k := range bs.state.PeerBlessings {

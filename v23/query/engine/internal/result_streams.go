@@ -6,7 +6,7 @@ package internal
 
 import (
 	ds "v.io/v23/query/engine/datasource"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
 	"v.io/v23/vom"
@@ -15,7 +15,7 @@ import (
 // Select result stream
 type selectResultStreamImpl struct {
 	db              ds.Database
-	selectStatement *query_parser.SelectStatement
+	selectStatement *queryparser.SelectStatement
 	resultCount     int64 // results served so far (needed for limit clause)
 	skippedCount    int64 // skipped so far (needed for offset clause)
 	keyValueStream  ds.KeyValueStream
@@ -38,11 +38,11 @@ func (rs *selectResultStreamImpl) Advance() bool {
 		rv := EvalWhereUsingOnlyKey(rs.db, rs.selectStatement.Where, k)
 		var match bool
 		switch rv {
-		case INCLUDE:
+		case Include:
 			match = true
-		case EXCLUDE:
+		case Exclude:
 			match = false
-		case FETCH_VALUE:
+		case FetchValue:
 			match = Eval(rs.db, k, vdl.ValueOf(v), rs.selectStatement.Where.Expr)
 		}
 		if match {
@@ -51,9 +51,8 @@ func (rs *selectResultStreamImpl) Advance() bool {
 				rs.v = v
 				rs.resultCount++
 				return true
-			} else {
-				rs.skippedCount++
 			}
+			rs.skippedCount++
 		}
 	}
 	if err := rs.keyValueStream.Err(); err != nil {
@@ -77,7 +76,7 @@ func (rs *selectResultStreamImpl) Cancel() {
 // Delete result stream
 type deleteResultStreamImpl struct {
 	db              ds.Database
-	deleteStatement *query_parser.DeleteStatement
+	deleteStatement *queryparser.DeleteStatement
 	deleteCursor    int64 // zero or one
 	deleteCount     int64
 	err             error

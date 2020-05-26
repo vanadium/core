@@ -90,7 +90,7 @@ func (abc *abcRead) Read(p []byte) (int, error) {
 
 func ABCBytes(lim int) []byte {
 	b := make([]byte, lim)
-	io.ReadFull(ABCReader(lim),b) //nolint:errcheck
+	io.ReadFull(ABCReader(lim), b) //nolint:errcheck
 	return b
 }
 

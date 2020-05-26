@@ -174,7 +174,7 @@ func newRaft(ctx *context.T, config *RaftConfig, client RaftClient) (*raft, erro
 	r.sync.requestedcv = sync.NewCond(&r.sync)
 
 	// The RPC interface to other members.
-	eps, err := r.s.newService(nctx, r, config.ServerName, config.HostPort, config.Acl)
+	eps, err := r.s.newService(nctx, r, config.ServerName, config.HostPort, config.ACL)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +183,7 @@ func newRaft(ctx *context.T, config *RaftConfig, client RaftClient) (*raft, erro
 	// from the network address.
 	r.me.id = config.ServerName
 	if r.me.id == "" {
-		r.me.id = string(getShortName(eps[0]))
+		r.me.id = getShortName(eps[0])
 	}
 
 	return r, nil
@@ -215,8 +215,8 @@ func (r *raft) AddMember(ctx *context.T, id string) error {
 	return nil
 }
 
-// Id returns the vanadium name of this server.
-func (r *raft) Id() string {
+// ID returns the vanadium name of this server.
+func (r *raft) ID() string {
 	return r.me.id
 }
 
@@ -649,7 +649,7 @@ func (r *raft) updateFollower(m *member) {
 				return
 			}
 			// We can back up.
-			m.nextIndex = m.nextIndex - 1
+			m.nextIndex--
 			continue
 		}
 

@@ -149,6 +149,7 @@ func allTypes() (types []*Type) {
 func TestTypeMismatch(t *testing.T) {
 	// Make sure we panic if a method is called for a mismatched kind.
 	for _, ty := range allTypes() {
+		ty := ty
 		k := ty.Kind()
 		if k != Enum {
 			ExpectMismatchedKind(t, func() { ty.EnumLabel(0) })
@@ -226,10 +227,11 @@ func TestOptionalTypes(t *testing.T) {
 func TestEnumTypes(t *testing.T) {
 	for _, test := range enums {
 		var x *Type
+		name, labels := test.name, test.labels
 		create := func() {
-			x = EnumType(test.labels...)
-			if test.name != "" {
-				x = NamedType(test.name, x)
+			x = EnumType(labels...)
+			if name != "" {
+				x = NamedType(name, x)
 			}
 		}
 		ExpectPanic(t, create, test.errstr, "%s EnumType", test.name)
@@ -467,13 +469,14 @@ func TestInvalidMapTypes(t *testing.T) {
 	}
 }
 
-func TestStructTypes(t *testing.T) {
+func TestStructTypes(t *testing.T) { //nolint:gocyclo
 	for _, test := range structs {
 		var x *Type
+		name, fields := test.name, test.fields
 		create := func() {
-			x = StructType(test.fields...)
-			if test.name != "" {
-				x = NamedType(test.name, x)
+			x = StructType(fields...)
+			if name != "" {
+				x = NamedType(name, x)
 			}
 		}
 		ExpectPanic(t, create, test.errstr, "%s StructType", test.name)
@@ -544,13 +547,14 @@ func TestStructTypes(t *testing.T) {
 	}
 }
 
-func TestUnionTypes(t *testing.T) {
+func TestUnionTypes(t *testing.T) { //nolint:gocyclo
 	for _, test := range unions {
 		var x *Type
+		name, fields := test.name, test.fields
 		create := func() {
-			x = UnionType(test.fields...)
-			if test.name != "" {
-				x = NamedType(test.name, x)
+			x = UnionType(fields...)
+			if name != "" {
+				x = NamedType(name, x)
 			}
 		}
 		ExpectPanic(t, create, test.errstr, "%s UnionType", test.name)
@@ -621,7 +625,7 @@ func TestUnionTypes(t *testing.T) {
 	}
 }
 
-func TestNamedTypes(t *testing.T) {
+func TestNamedTypes(t *testing.T) { //nolint:gocyclo
 	for _, test := range singletons {
 		var errstr string
 		switch test.k {
@@ -630,7 +634,8 @@ func TestNamedTypes(t *testing.T) {
 		}
 		name := "Named" + test.s
 		var x *Type
-		create := func() { x = NamedType(name, test.t) }
+		typ := test.t
+		create := func() { x = NamedType(name, typ) }
 		ExpectPanic(t, create, errstr, name)
 		if x == nil {
 			continue
@@ -841,7 +846,7 @@ func TestAssignableFrom(t *testing.T) {
 	}
 }
 
-func TestSelfRecursiveType(t *testing.T) {
+func TestSelfRecursiveType(t *testing.T) { //nolint:gocyclo
 	buildTree := func() (*Type, error, *Type, error) {
 		// type Node struct {
 		//   Val      string
@@ -952,7 +957,7 @@ func TestStrictCycleType(t *testing.T) {
 	}
 }
 
-func TestMutuallyRecursiveType(t *testing.T) {
+func TestMutuallyRecursiveType(t *testing.T) { //nolint:gocyclo
 	build := func() (*Type, error, *Type, error, *Type, error, *Type, error) {
 		// type D A
 		// type A struct{X int32;B  B;C C}

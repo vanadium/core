@@ -159,6 +159,8 @@ func defineErrorFormats(name string, plfs []parse.LangFmt, params []*Field, file
 	return lfs
 }
 
+var tagRE = regexp.MustCompile(`\{\:?([0-9a-zA-Z_]+)\:?\}`)
+
 // xlateErrorFormat translates the user-supplied format into the format
 // expected by i18n, mainly translating parameter names into numeric indexes.
 func xlateErrorFormat(format string, params []*Field) (string, error) {
@@ -173,10 +175,7 @@ func xlateErrorFormat(format string, params []*Field) (string, error) {
 	for ix, param := range params {
 		pmap[param.Name] = strconv.Itoa(ix + 3)
 	}
-	tagRE, err := regexp.Compile(`\{\:?([0-9a-zA-Z_]+)\:?\}`)
-	if err != nil {
-		return "", err
-	}
+
 	result, pos := prefix+" ", 0
 	for _, match := range tagRE.FindAllStringSubmatchIndex(format, -1) {
 		// The tag submatch indices are available as match[2], match[3]

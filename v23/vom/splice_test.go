@@ -141,7 +141,7 @@ func TestMerge(t *testing.T) {
 	}
 }
 
-func TestExtract(t *testing.T) {
+func TestExtract(t *testing.T) { //nolint:gocyclo
 	v0 := true
 	v1 := tt1{map[string]bool{"t": true, "f": false}}
 	v2 := tt2{"simple-test"}

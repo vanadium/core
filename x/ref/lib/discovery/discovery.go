@@ -23,7 +23,7 @@ type idiscovery struct {
 
 	adMu          sync.Mutex
 	adTimestampNs int64                         // GUARDED_BY(adMu)
-	adSessions    map[discovery.AdId]sessionId  // GUARDED_BY(adMu)
+	adSessions    map[discovery.AdId]sessionID  // GUARDED_BY(adMu)
 	adSubtasks    map[discovery.AdId]*adSubtask // GUARDED_BY(adMu)
 	adStopTrigger *Trigger
 
@@ -37,7 +37,7 @@ var (
 	statsIdx int
 )
 
-type sessionId uint64
+type sessionID uint64
 
 type adSubtask struct {
 	parent *context.T
@@ -113,7 +113,7 @@ func newDiscovery(ctx *context.T, plugins []Plugin) (*idiscovery, error) {
 	d := &idiscovery{
 		plugins:       make([]Plugin, len(plugins)),
 		tasks:         make(map[*context.T]func()),
-		adSessions:    make(map[discovery.AdId]sessionId),
+		adSessions:    make(map[discovery.AdId]sessionID),
 		adSubtasks:    make(map[discovery.AdId]*adSubtask),
 		adStopTrigger: NewTrigger(),
 		statsPrefix:   statsPrefix,

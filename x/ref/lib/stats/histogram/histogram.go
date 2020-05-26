@@ -74,8 +74,8 @@ func New(opts Options) *Histogram {
 	for i := 0; i < opts.NumBuckets; i++ {
 		h.buckets[i].lowBound = low
 		h.buckets[i].count = counter.New()
-		low = low + int64(delta)
-		delta = delta * (1.0 + opts.GrowthFactor)
+		low += int64(delta)
+		delta *= (1.0 + opts.GrowthFactor)
 	}
 	return &h
 }

@@ -55,14 +55,14 @@ func hashAd(adinfo *AdInfo) {
 		sort.Strings(keys)
 		for _, k := range keys {
 			w(field, []byte(k))
-			w(field, []byte(adinfo.Ad.Attachments[k]))
+			w(field, adinfo.Ad.Attachments[k])
 		}
 	}
 	hasher.Write(field.Sum(nil)) //nolint:errcheck
 
 	field.Reset()
 	var buf bytes.Buffer
-	binary.Write(&buf,binary.LittleEndian,adinfo.EncryptionAlgorithm) //nolint:errcheck
+	binary.Write(&buf, binary.LittleEndian, adinfo.EncryptionAlgorithm) //nolint:errcheck
 	w(field, buf.Bytes())
 	for _, key := range adinfo.EncryptionKeys {
 		w(field, []byte(key))

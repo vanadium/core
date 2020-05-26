@@ -25,10 +25,9 @@ import (
 	"strings"
 	"sync"
 
-	"v.io/x/lib/vlog"
-
 	"v.io/v23/context"
 	"v.io/v23/verror"
+	"v.io/x/lib/vlog"
 )
 
 const (
@@ -89,7 +88,7 @@ func (p *fsPersist) SetCurrentTerm(ct Term) error {
 func (p *fsPersist) IncCurrentTerm() error {
 	p.Lock()
 	defer p.Unlock()
-	p.currentTerm = p.currentTerm + 1
+	p.currentTerm++
 	return p.syncLog()
 }
 
@@ -491,7 +490,7 @@ func openPersist(ctx *context.T, r *raft, snapshotThreshold int64) (*fsPersist, 
 	defer p.Unlock()
 
 	// Randomize max size so all members aren't checkpointing at the same time.
-	p.snapshotThreshold = p.snapshotThreshold + rand.Int63n(1+(p.snapshotThreshold>>3))
+	p.snapshotThreshold += rand.Int63n(1 + (p.snapshotThreshold >> 3))
 
 	// Read the persistent state, the latest snapshot, and any log entries since then.
 	if err := p.readState(ctx, r); err != nil {
@@ -544,7 +543,7 @@ func parseFileName(s string) (Term, Index, error) {
 // and a prefix of the log.
 //
 // Assumes p is locked.
-func (p *fsPersist) readState(ctx *context.T, r *raft) error {
+func (p *fsPersist) readState(ctx *context.T, r *raft) error { //nolint:gocyclo
 	d, err := os.Open(p.dir)
 	if err != nil {
 		return err

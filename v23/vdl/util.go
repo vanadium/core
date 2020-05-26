@@ -203,7 +203,7 @@ var (
 //
 // TODO(toddw): Cache the generated zero values, if it's too expensive to
 // generate them each time.
-func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) {
+func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) { //nolint:gocyclo
 	// Easy fastpath; if the type doesn't contain the hard types inline, the
 	// regular Go zero value is sufficient.
 	if !tt.ContainsKind(WalkInline, kkZeroValueNotCanonical...) {
@@ -290,7 +290,7 @@ func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) {
 //   TypeObject:     nil, or AnyType
 //   Union:          nil, or zero value of field 0
 //   List, Set, Map: nil, or empty
-func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) {
+func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	// Walk pointers and interfaces, and handle nil values.
 	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
 		if rv.IsNil() {

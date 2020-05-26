@@ -20,7 +20,7 @@ import (
 func ExamplePublisher() {
 	in := make(chan pubsub.Setting)
 	pub := pubsub.NewPublisher()
-	pub.CreateStream("net","network settings",in) //nolint:errcheck
+	pub.CreateStream("net", "network settings", in) //nolint:errcheck
 
 	// A simple producer of IP address settings.
 	producer := func() {
@@ -94,7 +94,7 @@ func ExamplePublisher_Shutdown() {
 
 	consumer := func() {
 		ch := make(chan pubsub.Setting, 10)
-		pub.ForkStream("net",ch) //nolint:errcheck
+		pub.ForkStream("net", ch) //nolint:errcheck
 		consumersReady.Done()
 		i := 0
 		for {
@@ -124,7 +124,7 @@ func ExamplePublisher_Shutdown() {
 	// done
 }
 
-func TestSimple(t *testing.T) {
+func TestSimple(t *testing.T) { //nolint:gocyclo
 	ch := make(chan pubsub.Setting, 2)
 	pub := pubsub.NewPublisher()
 	if _, err := pub.ForkStream("stream", nil); err == nil || verror.ErrorID(err) != "v.io/x/ref/lib/pubsub.errStreamDoesntExist" {
@@ -211,7 +211,7 @@ func consumer(t *testing.T, pub *pubsub.Publisher, limit, bufsize int, errch cha
 	starter.Done()
 	i, i2 := 0, 0
 	if st.Latest["i"] != nil {
-		i = int(st.Latest["i"].Value().(int))
+		i = st.Latest["i"].Value().(int)
 	}
 	if st.Latest["f"] != nil {
 		i2 = int(st.Latest["f"].Value().(float64))
@@ -319,7 +319,7 @@ func TestDurationFlag(t *testing.T) {
 	if err := d.Set("1s"); err != nil {
 		t.Errorf("unexpected error %s", err)
 	}
-	if got, want := d.Duration, time.Duration(time.Second); got != want {
+	if got, want := d.Duration, time.Second; got != want {
 		t.Errorf("got %s, expected %s", got, want)
 	}
 	if err := d.Set("1t"); err == nil || err.Error() != "time: unknown unit t in duration 1t" {

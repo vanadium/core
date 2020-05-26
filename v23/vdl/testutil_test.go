@@ -196,7 +196,7 @@ type (
 	NMapStringEmpty          map[NString]struct{}
 	NMapStringBool           map[NString]NBool
 	NStructXYZBool           struct{ X, Y, Z NBool }
-	NStructXYZBoolUnexported struct{ a,X,b,Y,c,Z,d NBool } //nolint:structcheck,unused
+	NStructXYZBoolUnexported struct{ a, X, b, Y, c, Z, d NBool } //nolint:structcheck,unused
 	NStructWXBool            struct{ W, X NBool }
 	// Composite types representing maps of strings to numbers.
 	NMapStringByte    map[NString]NByte
@@ -322,13 +322,13 @@ type (
 	NUnionABC interface {
 		Index() int
 		Name() string
-		VDLReflect(__NUnionABCReflect)
+		VDLReflect(privateNUnionABCReflect)
 	}
 	NUnionABCA struct{ Value bool }
 	NUnionABCB struct{ Value string }
 	NUnionABCC struct{ Value NStructInt64 }
 
-	__NUnionABCReflect struct {
+	privateNUnionABCReflect struct {
 		Type  NUnionABC
 		Union struct {
 			A NUnionABCA
@@ -338,28 +338,28 @@ type (
 	}
 )
 
-func (NUnionABCA) Name() string                  { return "A" }
-func (NUnionABCA) Index() int                    { return 0 }
-func (NUnionABCA) VDLReflect(__NUnionABCReflect) {}
-func (NUnionABCB) Name() string                  { return "B" }
-func (NUnionABCB) Index() int                    { return 1 }
-func (NUnionABCB) VDLReflect(__NUnionABCReflect) {}
-func (NUnionABCC) Name() string                  { return "C" }
-func (NUnionABCC) Index() int                    { return 2 }
-func (NUnionABCC) VDLReflect(__NUnionABCReflect) {}
+func (NUnionABCA) Name() string                       { return "A" }
+func (NUnionABCA) Index() int                         { return 0 }
+func (NUnionABCA) VDLReflect(privateNUnionABCReflect) {}
+func (NUnionABCB) Name() string                       { return "B" }
+func (NUnionABCB) Index() int                         { return 1 }
+func (NUnionABCB) VDLReflect(privateNUnionABCReflect) {}
+func (NUnionABCC) Name() string                       { return "C" }
+func (NUnionABCC) Index() int                         { return 2 }
+func (NUnionABCC) VDLReflect(privateNUnionABCReflect) {}
 
 // union{B string;C NStructInt64;D int64}
 type (
 	NUnionBCD interface {
 		Index() int
 		Name() string
-		VDLReflect(__NUnionBCDDesc)
+		VDLReflect(privateNUnionBCDDesc)
 	}
 	NUnionBCDB struct{ Value string }
 	NUnionBCDC struct{ Value NStructInt64 }
 	NUnionBCDD struct{ Value int64 }
 
-	__NUnionBCDDesc struct {
+	privateNUnionBCDDesc struct {
 		Type  NUnionBCD
 		Union struct {
 			B NUnionBCDB
@@ -369,15 +369,15 @@ type (
 	}
 )
 
-func (NUnionBCDB) Name() string               { return "B" }
-func (NUnionBCDB) Index() int                 { return 0 }
-func (NUnionBCDB) VDLReflect(__NUnionBCDDesc) {}
-func (NUnionBCDC) Name() string               { return "C" }
-func (NUnionBCDC) Index() int                 { return 1 }
-func (NUnionBCDC) VDLReflect(__NUnionBCDDesc) {}
-func (NUnionBCDD) Name() string               { return "D" }
-func (NUnionBCDD) Index() int                 { return 2 }
-func (NUnionBCDD) VDLReflect(__NUnionBCDDesc) {}
+func (NUnionBCDB) Name() string                    { return "B" }
+func (NUnionBCDB) Index() int                      { return 0 }
+func (NUnionBCDB) VDLReflect(privateNUnionBCDDesc) {}
+func (NUnionBCDC) Name() string                    { return "C" }
+func (NUnionBCDC) Index() int                      { return 1 }
+func (NUnionBCDC) VDLReflect(privateNUnionBCDDesc) {}
+func (NUnionBCDD) Name() string                    { return "D" }
+func (NUnionBCDD) Index() int                      { return 2 }
+func (NUnionBCDD) VDLReflect(privateNUnionBCDDesc) {}
 
 // Special-case error types
 type NonPtrError struct{}
@@ -416,12 +416,12 @@ type (
 		Index() int
 		Interface() interface{}
 		Name() string
-		VDLReflect(__NUnionWireReflect)
+		VDLReflect(privateNUnionWireReflect)
 	}
 	NUnionWireA struct{ Value bool }
 	NUnionWireB struct{ Value int64 }
 
-	__NUnionWireReflect struct {
+	privateNUnionWireReflect struct {
 		Type  NUnionWire
 		Union struct {
 			A NUnionWireA
@@ -432,14 +432,14 @@ type (
 	NUnionNative string
 )
 
-func (x NUnionWireA) Name() string                   { return "A" }
-func (x NUnionWireA) Interface() interface{}         { return x.Value }
-func (x NUnionWireA) Index() int                     { return 0 }
-func (x NUnionWireA) VDLReflect(__NUnionWireReflect) {}
-func (x NUnionWireB) Name() string                   { return "B" }
-func (x NUnionWireB) Interface() interface{}         { return x.Value }
-func (x NUnionWireB) Index() int                     { return 1 }
-func (x NUnionWireB) VDLReflect(__NUnionWireReflect) {}
+func (x NUnionWireA) Name() string                        { return "A" }
+func (x NUnionWireA) Interface() interface{}              { return x.Value }
+func (x NUnionWireA) Index() int                          { return 0 }
+func (x NUnionWireA) VDLReflect(privateNUnionWireReflect) {}
+func (x NUnionWireB) Name() string                        { return "B" }
+func (x NUnionWireB) Interface() interface{}              { return x.Value }
+func (x NUnionWireB) Index() int                          { return 1 }
+func (x NUnionWireB) VDLReflect(privateNUnionWireReflect) {}
 
 func nUnionWireToNative(w NUnionWire, n *NUnionNative) error {
 	*n = NUnionNative(fmt.Sprintf("%s=%v", w.Name(), w.Interface()))

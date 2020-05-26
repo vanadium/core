@@ -16,7 +16,7 @@ type dummyDriver struct{}
 
 func (dummyDriver) AddService(uuid string, characteristics map[string][]byte) error { return nil }
 func (dummyDriver) RemoveService(uuid string)                                       {}
-func (dummyDriver) StartScan(uuids []string, baseUuid, maskUUid string, handler ScanHandler) error {
+func (dummyDriver) StartScan(uuids []string, baseUUID, maskUUID string, handler ScanHandler) error {
 	return nil
 }
 func (dummyDriver) StopScan()           {}

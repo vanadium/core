@@ -42,7 +42,9 @@ func (u *update) Attachment(ctx *context.T, name string) <-chan discovery.DataOr
 		copy(r.Data, data)
 		ch <- r
 		close(ch)
-	} else if u.status == AdPartiallyReady {
+		return ch
+	}
+	if u.status == AdPartiallyReady {
 		go u.fetchAttachment(ctx, name, ch)
 	} else {
 		close(ch)

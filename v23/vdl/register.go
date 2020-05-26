@@ -197,7 +197,7 @@ type reflectField struct {
 
 // deriveReflectInfo returns the reflectInfo corresponding to rt.
 // REQUIRES: rt has been normalized, and pointers have been flattened.
-func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
+func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) { //nolint:gocyclo
 	riReg.RLock()
 	if ri, ok := riReg.fromType[rt]; ok {
 		riReg.RUnlock()
@@ -285,7 +285,7 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) {
 //   }) {}
 //   func (Foo) String() string {}
 //   func (*Foo) Set(string) error {}
-func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error {
+func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error { //nolint:gocyclo
 	if rt != ri.Type || rt.Kind() == reflect.Interface {
 		return fmt.Errorf("enum type %q invalid (mismatched type %q)", rt, ri.Type)
 	}
@@ -378,7 +378,7 @@ func describeUnion(unionReflect, rt reflect.Type, ri *reflectInfo) error {
 // TypeToReflect returns the reflect.Type corresponding to t.  We look up
 // named types in our registry, and build the unnamed types that we can via the
 // Go reflect package.  Returns nil for types that can't be manufactured.
-func TypeToReflect(t *Type) reflect.Type {
+func TypeToReflect(t *Type) reflect.Type { //nolint:gocyclo
 	if t.Name() != "" {
 		// Named types cannot be manufactured via Go reflect, so we lookup in our
 		// registry instead.
@@ -437,7 +437,7 @@ func TypeToReflect(t *Type) reflect.Type {
 // TODO(toddw): Replace TypeToReflect with this function, after the old
 // conversion logic has been removed.  Using this function with the old
 // conversion logic breaks the tests, which aren't worth it to fix.
-func typeToReflectNew(t *Type) reflect.Type {
+func typeToReflectNew(t *Type) reflect.Type { //nolint:gocyclo
 	if t.Name() != "" {
 		// Named types cannot be manufactured via Go reflect, so we lookup in our
 		// registry instead.

@@ -30,14 +30,14 @@ var (
 	reLargeTxtRecord = regexp.MustCompile("^" + attrLargeTxtPrefix + "[0-~][0-~]=")
 )
 
-// encodeAdId encodes the given advertisement id to a valid host name by using
+// encodeAdID encodes the given advertisement id to a valid host name by using
 // "Extended Hex Alphabet" defined in RFC 4648. This removes any padding characters.
-func encodeAdId(id *discovery.AdId) string {
+func encodeAdID(id *discovery.AdId) string {
 	return strings.TrimRight(base32.HexEncoding.EncodeToString(id[:]), "=")
 }
 
-// decodeAdId decodes the given host name to the advertisement id.
-func decodeAdId(hostname string, id *discovery.AdId) error {
+// decodeAdID decodes the given host name to the advertisement id.
+func decodeAdID(hostname string, id *discovery.AdId) error {
 	// Add padding characters if needed.
 	if p := len(hostname) % 8; p > 0 {
 		hostname += strings.Repeat("=", 8-p)

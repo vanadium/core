@@ -86,7 +86,7 @@ func %[1]s(enc %[2]sEncoder, x %[3]s) error {%[4]s
 	return s
 }
 
-func (g *genWrite) body(tt *vdl.Type, arg namedArg, skipNilCheck, topLevel bool) string {
+func (g *genWrite) body(tt *vdl.Type, arg namedArg, skipNilCheck, topLevel bool) string { //nolint:gocyclo
 	kind := tt.Kind()
 	sta := fmt.Sprintf(`
 	if err := enc.StartValue(%[1]s); err != nil {
@@ -226,7 +226,7 @@ func (g *genWrite) hasFastpath(tt *vdl.Type, nativeConv bool) bool {
 	return method != ""
 }
 
-func (g *genWrite) fastpathInfo(tt *vdl.Type, arg namedArg, nativeConv bool) (method string, params []string, init string) {
+func (g *genWrite) fastpathInfo(tt *vdl.Type, arg namedArg, nativeConv bool) (method string, params []string, init string) { //nolint:gocyclo
 	kind := tt.Kind()
 	p1, p2 := "", ""
 	// When fastpathInfo is called in order to produce NextEntry* or NextField*

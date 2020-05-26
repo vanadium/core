@@ -160,7 +160,7 @@ func (rb *RawBytes) VDLRead(dec vdl.Decoder) error {
 		tids, idToType := enc.tids.tids, enc.typeEnc.makeIdToTypeUnlocked()
 		rb.RefTypes = make([]*vdl.Type, len(tids))
 		for i, tid := range tids {
-			tt := bootstrapIdToType[tid]
+			tt := bootstrapIDToType[tid]
 			if tt == nil {
 				if tt = idToType[tid]; tt == nil {
 					return fmt.Errorf("vom: internal error, type id %d in %v doesn't exist in %v", i, tids, idToType)

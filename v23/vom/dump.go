@@ -409,7 +409,7 @@ func (d *dumpWorker) decodeNextValue() error {
 	return err
 }
 
-func (d *dumpWorker) decodeValueType() (*vdl.Type, error) {
+func (d *dumpWorker) decodeValueType() (*vdl.Type, error) { //nolint:gocyclo
 	for {
 		// Decode the version byte. To make the dumper easier to use on partial
 		// data, the version byte is optional, and is allowed to appear before any
@@ -422,8 +422,7 @@ func (d *dumpWorker) decodeValueType() (*vdl.Type, error) {
 					return nil, err
 				}
 			}
-			switch version := Version(d.buf.PeekAvailableByte()); version {
-			case Version81:
+			if version := Version(d.buf.PeekAvailableByte()); version == Version81 {
 				d.version = version
 				d.buf.SkipAvailable(1)
 				d.writeAtom(DumpKindVersion, PrimitivePByte{byte(version)}, version.String())
@@ -486,7 +485,7 @@ func (d *dumpWorker) decodeValueType() (*vdl.Type, error) {
 
 // decodeValueMsg decodes the rest of the message assuming type t, handling the
 // optional message length.
-func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error {
+func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error { //nolint:gocyclo
 	if d.version >= Version81 && (containsAny(tt) || containsTypeObject(tt)) {
 		d.prepareAtom("waiting for reference type ids")
 		tidsLen, err := binaryDecodeLen(d.buf)
@@ -549,7 +548,7 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error {
 }
 
 // decodeValue decodes the rest of the message assuming type tt.
-func (d *dumpWorker) decodeValue(tt *vdl.Type) error {
+func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 	ttFrom := tt
 	if tt.Kind() == vdl.Optional {
 		d.prepareAtom("waiting for optional control byte")

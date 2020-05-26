@@ -91,7 +91,7 @@ func TestDirectoryBasic(t *testing.T) {
 	}
 }
 
-func TestDirectoryRoaming(t *testing.T) {
+func TestDirectoryRoaming(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

@@ -432,7 +432,7 @@ func TestPrincipalSignaturePurpose(t *testing.T) {
 	}
 }
 
-func TestUnionOfBlessings(t *testing.T) {
+func TestUnionOfBlessings(t *testing.T) { //nolint:gocyclo
 	// A bunch of principals bless p
 	var (
 		p1    = newPrincipal(t)
@@ -772,7 +772,7 @@ func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
 	}
 }
 
-func TestOverrideCaveatValidation(t *testing.T) {
+func TestOverrideCaveatValidation(t *testing.T) { //nolint:gocyclo
 	falseReturningCav := Caveat{
 		Id: uniqueid.Id{0x99, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 	}
@@ -934,7 +934,7 @@ func BenchmarkRemoteBlessingNames(b *testing.B) {
 	b.StopTimer() // So the cancel() call isn't included.
 }
 
-func TestSigningBlessings(t *testing.T) {
+func TestSigningBlessings(t *testing.T) { //nolint:gocyclo
 	var (
 		google = newPrincipal(t)
 		alice  = newPrincipal(t)

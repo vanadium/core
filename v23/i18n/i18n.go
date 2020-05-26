@@ -128,7 +128,7 @@ func (cat *Catalogue) Lookup(langID LangID, msgID MsgID) (result string) {
 // The last instance of the string "{_}" is replaced with a space-separated
 // list of positional parameters unused by other {...} sequences.
 // Missing parameters are replaced with "?".
-func FormatParams(formatStr string, v ...interface{}) (result string) {
+func FormatParams(formatStr string, v ...interface{}) (result string) { //nolint:gocyclo
 	prefix := ""                   // The text before {_}, if any.
 	underbar := false              // Whether {_} appears in formatStr.
 	underbarLeadingColon := false  // true if {:_}

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package query_functions describes SyncQL's built-in functions.
+// Package queryfunctions describes SyncQL's built-in functions.
 //
 // This package is called by the query_checker package to check that
 // a function exists and is being passed the correct number of
@@ -48,4 +48,4 @@
 //               is called at checker time rather than this function.
 //               DO NOT sepecify a checkArgsAddr if all that is to be checked is the number
 //               and types of args. These checks are standard.
-package query_functions
+package queryfunctions

@@ -289,7 +289,7 @@ func TestRootBlessings(t *testing.T) {
 	}
 }
 
-func TestNamelessBlessing(t *testing.T) {
+func TestNamelessBlessing(t *testing.T) { //nolint:gocyclo
 	var (
 		alice          = newPrincipal(t)
 		bob            = newPrincipal(t)

@@ -39,7 +39,7 @@ func TestValueInvalid(t *testing.T) {
 	}
 }
 
-func TestValue(t *testing.T) {
+func TestValue(t *testing.T) { //nolint:gocyclo
 	tests := []struct {
 		k Kind
 		t *Type
@@ -400,7 +400,7 @@ func assignArray(t *testing.T, x *Value) {
 	}
 }
 
-func assignList(t *testing.T, x *Value) {
+func assignList(t *testing.T, x *Value) { //nolint:gocyclo
 	if x.Kind() == List {
 		if x.Type().IsBytes() {
 			assignBytes(t, x)
@@ -460,7 +460,7 @@ func assignList(t *testing.T, x *Value) {
 	}
 }
 
-func assignBytes(t *testing.T, x *Value) {
+func assignBytes(t *testing.T, x *Value) { //nolint:gocyclo
 	abval, abcval, abcdval := []byte("ab"), []byte("abc"), []byte("abcd")
 	zeroval, typestr := []byte{}, "[]byte"
 	if x.Kind() == Array {
@@ -595,7 +595,7 @@ func matchMapString(a, b string) bool {
 	return strings.Join(asplit, "") == strings.Join(bsplit, "")
 }
 
-func assignSet(t *testing.T, x *Value) {
+func assignSet(t *testing.T, x *Value) { //nolint:gocyclo
 	if x.Kind() == Set {
 		k1, k2, k3 := key1, key2, key3
 		setstr1 := `set[struct{I int64;S string}]{{I: 1, S: "A"}, {I: 2, S: "B"}}`
@@ -665,7 +665,7 @@ func assignSet(t *testing.T, x *Value) {
 	}
 }
 
-func assignMap(t *testing.T, x *Value) {
+func assignMap(t *testing.T, x *Value) { //nolint:gocyclo
 	if x.Kind() == Map {
 		k1, k2, k3 := key1, key2, key3
 		v1, v2 := int1, int2

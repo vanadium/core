@@ -88,7 +88,7 @@ func untypedConst(data *goData, v *vdl.Value) string {
 	return untypedConstWire(data, v)
 }
 
-func untypedConstWire(data *goData, v *vdl.Value) string {
+func untypedConstWire(data *goData, v *vdl.Value) string { //nolint:gocyclo
 	k, t := v.Kind(), v.Type()
 	typestr := typeGoWire(data, t)
 	if isByteList(t) {
@@ -290,9 +290,8 @@ func constNative(data *goData, v *vdl.Value, typed bool) string {
 			// type is sufficient to represent the value.
 			if typed {
 				return typedConstNativeZero(native.Kind, nType)
-			} else {
-				return untypedConstNativeZero(native.Kind, nType)
 			}
+			return untypedConstNativeZero(native.Kind, nType)
 		}
 		return constNativeConversion(data, v, nType, toNative(data, native, v.Type()))
 	}

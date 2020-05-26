@@ -115,14 +115,13 @@ func formatByteBuffer(buffer []byte) string {
 
 // untypedConst generates a javascript string representing a constant that is
 // not wrapped with type information.
-func untypedConst(names typeNames, v *vdl.Value) string {
+func untypedConst(names typeNames, v *vdl.Value) string { //nolint:gocyclo
 	switch v.Kind() {
 	case vdl.Bool:
 		if v.Bool() {
 			return "true"
-		} else {
-			return "false"
 		}
+		return "false"
 	case vdl.Byte, vdl.Uint16, vdl.Uint32:
 		return strconv.FormatUint(v.Uint(), 10)
 	case vdl.Int8, vdl.Int16, vdl.Int32:

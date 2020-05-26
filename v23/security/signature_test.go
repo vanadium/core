@@ -19,7 +19,7 @@ var curvesToTest = []elliptic.Curve{
 	elliptic.P521(),
 }
 
-func TestSignature(t *testing.T) {
+func TestSignature(t *testing.T) { //nolint:gocyclo
 	for _, curve := range curvesToTest {
 		nbits := curve.Params().BitSize
 		key, err := ecdsa.GenerateKey(curve, rand.Reader)

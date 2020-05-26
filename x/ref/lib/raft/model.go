@@ -57,8 +57,8 @@ type Raft interface {
 	// currently host:port.  This has to be done before starting the server.
 	AddMember(ctx *context.T, id string) error
 
-	// Id returns the id of this member.
-	Id() string
+	// ID returns the id of this member.
+	ID() string
 
 	// Start starts the local server communicating with other members.
 	Start()
@@ -74,7 +74,7 @@ type Raft interface {
 	Append(ctx *context.T, cmd []byte) (applyError, raftError error)
 
 	// Status returns the state of the raft.
-	Status() (myId string, role int, leader string)
+	Status() (myID string, role int, leader string)
 
 	// StartElection forces an election.  Normally just used for debugging.
 	StartElection()
@@ -87,7 +87,7 @@ type RaftConfig struct {
 	ServerName        string            // Where to mount if not empty.
 	Heartbeat         time.Duration     // Time between heartbeats.
 	SnapshotThreshold int64             // Approximate number of log entries between snapshots.
-	Acl               access.AccessList // For sending RPC to the members.
+	ACL               access.AccessList // For sending RPC to the members.
 }
 
 // NewRaft creates a new raft server.

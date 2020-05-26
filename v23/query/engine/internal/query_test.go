@@ -15,8 +15,8 @@ import (
 	"v.io/v23/context"
 	ds "v.io/v23/query/engine/datasource"
 	"v.io/v23/query/engine/internal"
-	"v.io/v23/query/engine/internal/query_checker"
-	"v.io/v23/query/engine/internal/query_parser"
+	"v.io/v23/query/engine/internal/querychecker"
+	"v.io/v23/query/engine/internal/queryparser"
 	td "v.io/v23/query/engine/internal/testdata"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
@@ -44,11 +44,12 @@ type keyValueStreamImpl struct {
 }
 
 func compareKeyToLimit(key, limit string) int {
-	if limit == "" || key < limit {
+	switch {
+	case limit == "" || key < limit:
 		return -1
-	} else if key == limit {
+	case key == limit:
 		return 0
-	} else {
+	default:
 		return 1
 	}
 }
@@ -129,7 +130,7 @@ func (db mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) {
 			return t, nil
 		}
 	}
-	return nil, fmt.Errorf("No such table: %s.", table)
+	return nil, fmt.Errorf("no such table: %s", table)
 
 }
 
@@ -631,7 +632,7 @@ type execSelectErrorTest struct {
 type execResolveFieldTest struct {
 	k string
 	v *vom.RawBytes
-	f query_parser.Field
+	f queryparser.Field
 	r *vom.RawBytes
 }
 
@@ -2583,8 +2584,8 @@ func plusOne(start string) string {
 		if limit[len(limit)-1] == 255 {
 			limit = limit[:len(limit)-1] // chop off trailing \x00
 		} else {
-			limit[len(limit)-1] += 1 // add 1
-			break                    // no carry
+			limit[len(limit)-1]++ // add 1
+			break                 // no carry
 		}
 	}
 	return string(limit)
@@ -2922,24 +2923,24 @@ func TestKeyRanges(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, synErr := query_parser.Parse(db, test.query)
+		s, synErr := queryparser.Parse(db, test.query)
 		if synErr != nil {
 			t.Errorf("query: %s; got %v, want nil", test.query, synErr)
 		}
 		if synErr == nil {
-			semErr := query_checker.Check(db, s)
+			semErr := querychecker.Check(db, s)
 			if semErr != nil {
 				t.Errorf("query: %s; got %v, want nil", test.query, semErr)
 			}
 			if semErr == nil {
 				switch sel := (*s).(type) {
-				case query_parser.SelectStatement:
-					indexRanges := query_checker.CompileIndexRanges(&query_parser.Field{Segments: []query_parser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
+				case queryparser.SelectStatement:
+					indexRanges := querychecker.CompileIndexRanges(&queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}, vdl.String, sel.Where)
 					if !reflect.DeepEqual(test.indexRanges, indexRanges) {
 						t.Errorf("query: %s;\nGOT  %v\nWANT %v", test.query, indexRanges, test.indexRanges)
 					}
 				default:
-					t.Errorf("query: %s; got %v, want query_parser.SelectStatement", test.query, reflect.TypeOf(*s))
+					t.Errorf("query: %s; got %v, want queryparser.SelectStatement", test.query, reflect.TypeOf(*s))
 				}
 			}
 		}
@@ -2953,53 +2954,53 @@ func TestEvalWhereUsingOnlyKey(t *testing.T) {
 			// Row will be selected using only the key.
 			"select k, v from Customer where k like \"abc%\"",
 			"abcdef",
-			internal.INCLUDE,
+			internal.Include,
 		},
 		{
 			// Row will be rejected using only the key.
 			"select k, v from Customer where k like \"abc\"",
 			"abcd",
-			internal.EXCLUDE,
+			internal.Exclude,
 		},
 		{
 			// Need value to determine if row should be selected.
 			"select k, v from Customer where k = \"abc\" or v.zip = \"94303\"",
 			"abcd",
-			internal.FETCH_VALUE,
+			internal.FetchValue,
 		},
 		{
 			// Need value (i.e., its type) to determine if row should be selected.
 			"select k, v from Customer where k = \"xyz\" or Type(v) like \"%.foo.Bar\"",
 			"wxyz",
-			internal.FETCH_VALUE,
+			internal.FetchValue,
 		},
 		{
 			// Although value is in where clause, it is not needed to reject row.
 			"select k, v from Customer where k = \"abcd\" and v.zip = \"94303\"",
 			"abcde",
-			internal.EXCLUDE,
+			internal.Exclude,
 		},
 	}
 
 	for _, test := range basic {
-		s, synErr := query_parser.Parse(db, test.query)
+		s, synErr := queryparser.Parse(db, test.query)
 		if synErr != nil {
 			t.Errorf("query: %s; got %v, want nil", test.query, synErr)
 		}
 		if synErr == nil {
-			semErr := query_checker.Check(db, s)
+			semErr := querychecker.Check(db, s)
 			if semErr != nil {
 				t.Errorf("query: %s; got %v, want nil", test.query, semErr)
 			}
 			if semErr == nil {
 				switch sel := (*s).(type) {
-				case query_parser.SelectStatement:
+				case queryparser.SelectStatement:
 					result := internal.EvalWhereUsingOnlyKey(db, sel.Where, test.key)
 					if result != test.result {
 						t.Errorf("query: %s; got %v, want %v", test.query, result, test.result)
 					}
 				default:
-					t.Errorf("query: %s; got %v, want query_parser.SelectStatement", test.query, reflect.TypeOf(*s))
+					t.Errorf("query: %s; got %v, want queryparser.SelectStatement", test.query, reflect.TypeOf(*s))
 				}
 			}
 		}
@@ -3191,24 +3192,24 @@ func TestEval(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, synErr := query_parser.Parse(db, test.query)
+		s, synErr := queryparser.Parse(db, test.query)
 		if synErr != nil {
 			t.Errorf("query: %s; got %v, want nil", test.query, synErr)
 		}
 		if synErr == nil {
-			semErr := query_checker.Check(db, s)
+			semErr := querychecker.Check(db, s)
 			if semErr != nil {
 				t.Errorf("query: %s; got %v, want nil", test.query, semErr)
 			}
 			if semErr == nil {
 				switch sel := (*s).(type) {
-				case query_parser.SelectStatement:
+				case queryparser.SelectStatement:
 					result := internal.Eval(db, test.k, vdl.ValueOf(test.v), sel.Where.Expr)
 					if result != test.result {
 						t.Errorf("query: %s; got %v, want %v", test.query, result, test.result)
 					}
 				default:
-					t.Errorf("query: %s; got %v, want query_parser.SelectStatement", test.query, reflect.TypeOf(*s))
+					t.Errorf("query: %s; got %v, want queryparser.SelectStatement", test.query, reflect.TypeOf(*s))
 				}
 			}
 		}
@@ -3246,24 +3247,24 @@ func TestProjection(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, synErr := query_parser.Parse(db, test.query)
+		s, synErr := queryparser.Parse(db, test.query)
 		if synErr != nil {
 			t.Errorf("query: %s; got %v, want nil", test.query, synErr)
 		}
 		if synErr == nil {
-			semErr := query_checker.Check(db, s)
+			semErr := querychecker.Check(db, s)
 			if semErr != nil {
 				t.Errorf("query: %s; got %v, want nil", test.query, semErr)
 			}
 			if semErr == nil {
 				switch sel := (*s).(type) {
-				case query_parser.SelectStatement:
+				case queryparser.SelectStatement:
 					result := internal.ComposeProjection(db, test.k, vdl.ValueOf(test.v), sel.Select)
 					if !reflect.DeepEqual(result, test.result) {
 						t.Errorf("query: %s; got %v, want %v", test.query, result, test.result)
 					}
 				default:
-					t.Errorf("query: %s; got %v, want query_parser.SelectStatement", test.query, reflect.TypeOf(*s))
+					t.Errorf("query: %s; got %v, want queryparser.SelectStatement", test.query, reflect.TypeOf(*s))
 				}
 			}
 		}
@@ -3332,24 +3333,24 @@ func TestExecSelectSingleRow(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		s, synErr := query_parser.Parse(db, test.query)
+		s, synErr := queryparser.Parse(db, test.query)
 		if synErr != nil {
 			t.Errorf("query: %s; got %v, want nil", test.query, synErr)
 		}
 		if synErr == nil {
-			semErr := query_checker.Check(db, s)
+			semErr := querychecker.Check(db, s)
 			if semErr != nil {
 				t.Errorf("query: %s; got %v, want nil", test.query, semErr)
 			}
 			if semErr == nil {
 				switch sel := (*s).(type) {
-				case query_parser.SelectStatement:
+				case queryparser.SelectStatement:
 					result := internal.ExecSelectSingleRow(db, test.k, vdl.ValueOf(test.v), &sel)
 					if !reflect.DeepEqual(result, test.result) {
 						t.Errorf("query: %s; got %v, want %v", test.query, result, test.result)
 					}
 				default:
-					t.Errorf("query: %s; got %v, want query_parser.SelectStatement", test.query, reflect.TypeOf(*s))
+					t.Errorf("query: %s; got %v, want queryparser.SelectStatement", test.query, reflect.TypeOf(*s))
 				}
 			}
 		}
@@ -3367,7 +3368,7 @@ func TestExecErrors(t *testing.T) {
 		{
 			"select v from Unknown",
 			// The following error text is dependent on implementation of Database.
-			syncql.NewErrTableCantAccess(db.GetContext(), 14, "Unknown", errors.New("No such table: Unknown.")),
+			syncql.NewErrTableCantAccess(db.GetContext(), 14, "Unknown", errors.New("no such table: Unknown")),
 		},
 		{
 			"select v from Customer offset -1",
@@ -3472,11 +3473,11 @@ func TestExecErrors(t *testing.T) {
 		},
 		{
 			"select StrRepeat(\"foo\", \"x\") from Customer",
-			syncql.NewErrIntConversionError(db.GetContext(), 24, errors.New("Cannot convert operand to int64.")),
+			syncql.NewErrIntConversionError(db.GetContext(), 24, errors.New("cannot convert operand to int64")),
 		},
 		{
 			"select StrCat(v.Address.City, 42) from Customer",
-			syncql.NewErrStringConversionError(db.GetContext(), 30, errors.New("Cannot convert operand to string.")),
+			syncql.NewErrStringConversionError(db.GetContext(), 30, errors.New("cannot convert operand to string")),
 		},
 		{
 			"select v from Customer where k like \"abc %\" escape ' '",
@@ -3499,36 +3500,36 @@ func TestResolveField(t *testing.T) {
 		{
 			custTable.rows[0].key,
 			custTable.rows[0].value,
-			query_parser.Field{
-				Segments: []query_parser.Segment{
+			queryparser.Field{
+				Segments: []queryparser.Segment{
 					{
 						Value: "k",
-						Node:  query_parser.Node{Off: 7},
+						Node:  queryparser.Node{Off: 7},
 					},
 				},
-				Node: query_parser.Node{Off: 7},
+				Node: queryparser.Node{Off: 7},
 			},
 			vom.RawBytesOf("001"),
 		},
 		{
 			custTable.rows[0].key,
 			custTable.rows[0].value,
-			query_parser.Field{
-				Segments: []query_parser.Segment{
+			queryparser.Field{
+				Segments: []queryparser.Segment{
 					{
 						Value: "v",
-						Node:  query_parser.Node{Off: 7},
+						Node:  queryparser.Node{Off: 7},
 					},
 					{
 						Value: "Address",
-						Node:  query_parser.Node{Off: 7},
+						Node:  queryparser.Node{Off: 7},
 					},
 					{
 						Value: "City",
-						Node:  query_parser.Node{Off: 7},
+						Node:  queryparser.Node{Off: 7},
 					},
 				},
-				Node: query_parser.Node{Off: 7},
+				Node: queryparser.Node{Off: 7},
 			},
 			vom.RawBytesOf("Palo Alto"),
 		},

@@ -52,7 +52,7 @@ func TypedConst(v *vdl.Value, pkgPath string, imports codegen.Imports) string {
 
 // UntypedConst returns the untyped vdl const corresponding to v, in the given
 // pkgPath, with the given imports.
-func UntypedConst(v *vdl.Value, pkgPath string, imports codegen.Imports) string {
+func UntypedConst(v *vdl.Value, pkgPath string, imports codegen.Imports) string { //nolint:gocyclo
 	k, t := v.Kind(), v.Type()
 	if t.IsBytes() {
 		return strconv.Quote(string(v.Bytes()))

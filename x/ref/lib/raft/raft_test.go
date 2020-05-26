@@ -22,7 +22,7 @@ func waitForLogAgreement(rs []*raft, timeout time.Duration) bool {
 		indexMap := make(map[Index]string)
 		termMap := make(map[Term]string)
 		for _, r := range rs {
-			id := r.Id()
+			id := r.ID()
 			indexMap[r.p.LastIndex()] = id
 			termMap[r.p.LastTerm()] = id
 		}

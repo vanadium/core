@@ -182,10 +182,8 @@ func TestParseHostPort(t *testing.T) {
 		epString := FormatEndpoint("tcp", addr)
 		if ep, err := ParseEndpoint(epString); err != nil {
 			t.Errorf("NewEndpoint(%q) failed with %v", addr, err)
-		} else {
-			if !reflect.DeepEqual(test.Endpoint, ep) {
-				t.Errorf("Got endpoint %T = %#v, want %T = %#v for string %q", ep, ep, test.Endpoint, test.Endpoint, addr)
-			}
+		} else if !reflect.DeepEqual(test.Endpoint, ep) {
+			t.Errorf("Got endpoint %T = %#v, want %T = %#v for string %q", ep, ep, test.Endpoint, test.Endpoint, addr)
 		}
 	}
 }

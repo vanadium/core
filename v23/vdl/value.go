@@ -39,7 +39,7 @@ var zeroTypeObject = AnyType // the zero TypeObject returns the any type
 type enumIndex int
 
 // zeroRep returns the zero representation for each kind of type.
-func zeroRep(t *Type) interface{} {
+func zeroRep(t *Type) interface{} { //nolint:gocyclo
 	if t.IsBytes() {
 		// Represent []byte and [N]byte as repBytes.
 		// Represent repBytes.Index as *byte.
@@ -77,7 +77,7 @@ func zeroRep(t *Type) interface{} {
 	}
 }
 
-func isZeroRep(t *Type, rep interface{}) bool {
+func isZeroRep(t *Type, rep interface{}) bool { //nolint:gocyclo
 	switch trep := rep.(type) {
 	case bool:
 		return !trep
@@ -323,7 +323,7 @@ func CopyValue(v *Value) *Value {
 // TODO(toddw): The Value representation currently allows non-nil any,
 // e.g. Value{Type:AnyType, Rep: ...}.  We will soon remove this support.
 // EqualValue does not distinguish non-nil any from the inner value.
-func EqualValue(a, b *Value) bool {
+func EqualValue(a, b *Value) bool { //nolint:gocyclo
 	if a == nil || b == nil {
 		return a == nil && b == nil
 	}

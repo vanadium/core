@@ -335,8 +335,7 @@ func VWireUnionNArrayFromNative(wire *VWireUnionNArray, native VNativeWireUnionN
 }
 func VWireUnionNSliceToNative(wire VWireUnionNSlice, native *VNativeWireUnionNSlice) error {
 	*native = nil
-	switch wt := wire.(type) {
-	case VWireUnionNSliceX:
+	if wt, ok := wire.(VWireUnionNSliceX); ok {
 		switch {
 		case wt.Value == "+":
 			*native = VNativeWireUnionNSlice{""}

@@ -15,7 +15,7 @@ var (
 	errLeftOverBytes            = verror.Register(pkgPath+".errLeftOverBytes", verror.NoRetry, "{1:}{2:} vom: {3} leftover bytes{:_}")
 	errDecodeValueUnhandledType = verror.Register(pkgPath+".errDecodeValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: decodeValue unhandled type {3}{:_}")
 	errIgnoreValueUnhandledType = verror.Register(pkgPath+".errIgnoreValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: ignoreValue unhandled type {3}{:_}")
-	errInvalidTypeIdIndex       = verror.Register(pkgPath+".errInvalidTypeIdIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into type id table {:_}")
+	errInvalidTypeIDIndex       = verror.Register(pkgPath+".errInvalidTypeIDIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into type id table {:_}")
 	errInvalidAnyIndex          = verror.Register(pkgPath+".errInvalidAnyIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into anyLen table {:_}")
 )
 
@@ -100,7 +100,7 @@ func (d *decoder81) readAnyHeader() (*vdl.Type, int, error) {
 	var tid TypeId
 	if d.buf.version == Version80 {
 		tid = TypeId(typeIndex)
-	} else if tid, err = d.refTypes.ReferencedTypeId(typeIndex); err != nil {
+	} else if tid, err = d.refTypes.ReferencedTypeID(typeIndex); err != nil {
 		return nil, 0, err
 	}
 	// Look up the referenced type id.
@@ -123,7 +123,7 @@ func (d *decoder81) readAnyHeader() (*vdl.Type, int, error) {
 	return ttElem, anyLen, nil
 }
 
-func (d *decoder81) skipValue(tt *vdl.Type) error {
+func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 	if tt.IsBytes() {
 		len, err := binaryDecodeLenOrArrayLen(d.buf, tt)
 		if err != nil {
@@ -212,7 +212,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error {
 		case err != nil:
 			return err
 		default:
-			tid, err := d.refTypes.ReferencedTypeId(index)
+			tid, err := d.refTypes.ReferencedTypeID(index)
 			if err != nil {
 				return err
 			}
@@ -227,7 +227,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error {
 	}
 }
 
-func (d *decoder81) nextMessage() (TypeId, error) {
+func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	if leftover := d.buf.RemoveLimit(); leftover > 0 {
 		return 0, verror.New(errLeftOverBytes, nil, leftover)
 	}
@@ -288,11 +288,11 @@ func (d *decoder81) nextMessage() (TypeId, error) {
 			return 0, err
 		}
 		for i := 0; i < int(l); i++ {
-			refId, err := binaryDecodeUint(d.buf)
+			refID, err := binaryDecodeUint(d.buf)
 			if err != nil {
 				return 0, err
 			}
-			d.refTypes.AddTypeID(TypeId(refId))
+			d.refTypes.AddTypeID(TypeId(refID))
 		}
 	}
 	if hasAny && d.buf.version != Version80 {
@@ -374,9 +374,9 @@ func (refTypes *referencedTypes) AddTypeID(tid TypeId) {
 	refTypes.tids = append(refTypes.tids, tid)
 }
 
-func (refTypes *referencedTypes) ReferencedTypeId(index uint64) (TypeId, error) {
+func (refTypes *referencedTypes) ReferencedTypeID(index uint64) (TypeId, error) {
 	if index >= uint64(len(refTypes.tids)) {
-		return 0, verror.New(errInvalidTypeIdIndex, nil)
+		return 0, verror.New(errInvalidTypeIDIndex, nil)
 	}
 	return refTypes.tids[index], nil
 }

@@ -7,10 +7,9 @@ package discovery_test
 import (
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/discovery"
 	"v.io/v23/naming"
-
 	idiscovery "v.io/x/ref/lib/discovery"
 	fdiscovery "v.io/x/ref/lib/discovery/factory"
 	"v.io/x/ref/lib/discovery/plugins/mock"

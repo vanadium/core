@@ -14,7 +14,7 @@ import (
 	idiscovery "v.io/x/ref/lib/discovery"
 )
 
-func TestEncode(t *testing.T) {
+func TestEncode(t *testing.T) { //nolint:gocyclo
 	rand := rand.New(rand.NewSource(0))
 	randBytes := func(n int) []byte {
 		p := make([]byte, rand.Intn(n))

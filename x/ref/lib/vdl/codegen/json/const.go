@@ -17,7 +17,7 @@ import (
 //
 // TODO(razvanm): use this function to replace most (all?) of the untypedConst
 // function from v.io/x/ref/lib/vdl/codegen/javascript.
-func Const(v *vdl.Value, pkgPath string, imports codegen.Imports) string {
+func Const(v *vdl.Value, pkgPath string, imports codegen.Imports) string { //nolint:gocyclo
 	switch v.Kind() {
 	case vdl.Bool:
 		if v.Bool() {

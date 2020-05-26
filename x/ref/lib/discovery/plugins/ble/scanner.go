@@ -123,15 +123,15 @@ func (s *scanner) scanLoop() {
 		uuids := make([]string, 0, len(s.listeners)*2)
 		if _, ok := s.listeners[""]; !ok {
 			for interfaceName := range s.listeners {
-				uuid := newServiceUuid(interfaceName)
+				uuid := newServiceUUID(interfaceName)
 				uuids = append(uuids, uuid.String())
-				toggleServiceUuid(uuid)
+				toggleServiceUUID(uuid)
 				uuids = append(uuids, uuid.String())
 			}
 		}
 		s.mu.Unlock()
 
-		if err := s.driver.StartScan(uuids, vanadiumUuidBase, vanadiumUuidMask, s); err != nil {
+		if err := s.driver.StartScan(uuids, vanadiumUUIDBase, vanadiumUUIDMask, s); err != nil {
 			s.ctx.Error(err)
 		} else {
 			isScanning = true

@@ -84,15 +84,15 @@ type subscription struct {
 }
 
 func interfaceNameToServiceName(interfaceName string) string {
-	serviceUuid := idiscovery.NewServiceUUID(interfaceName)
-	return uuid.UUID(serviceUuid).String() + serviceNameSuffix
+	serviceUUID := idiscovery.NewServiceUUID(interfaceName)
+	return uuid.UUID(serviceUUID).String() + serviceNameSuffix
 }
 
 func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func()) (err error) {
 	serviceName := interfaceNameToServiceName(adinfo.Ad.InterfaceName)
 	// We use the instance uuid as the host name so that we can get the instance uuid
 	// from the lost service instance, which has no txt records at all.
-	hostName := encodeAdId(&adinfo.Ad.Id)
+	hostName := encodeAdID(&adinfo.Ad.Id)
 	txt, err := newTxtRecords(adinfo)
 	if err != nil {
 		done()
@@ -114,8 +114,8 @@ func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func(
 		return err
 	}
 	stop := func() {
-		p.mdns.RemoveService(serviceName,hostName,0,txt...)    //nolint:errcheck
-		p.mdns.RemoveService(v23ServiceName,hostName,0,txt...) //nolint:errcheck
+		p.mdns.RemoveService(serviceName, hostName, 0, txt...)    //nolint:errcheck
+		p.mdns.RemoveService(v23ServiceName, hostName, 0, txt...) //nolint:errcheck
 		done()
 	}
 	p.adStopper.Add(stop, ctx.Done())
@@ -347,7 +347,7 @@ func newTxtRecords(adinfo *idiscovery.AdInfo) ([]string, error) {
 	return packTxtRecords(idiscovery.AdPartiallyReady, core, dir, required, selected)
 }
 
-func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) {
+func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) { //nolint:gocyclo
 	// Note that service.Name starts with a host name, which is the instance uuid.
 	p := strings.SplitN(service.Name, ".", 2)
 	if len(p) < 1 {
@@ -355,7 +355,7 @@ func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) {
 	}
 
 	adinfo := &idiscovery.AdInfo{}
-	if err := decodeAdId(p[0], &adinfo.Ad.Id); err != nil {
+	if err := decodeAdID(p[0], &adinfo.Ad.Id); err != nil {
 		return nil, fmt.Errorf("invalid host name: %v", err)
 	}
 

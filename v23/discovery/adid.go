@@ -12,14 +12,14 @@ import (
 )
 
 var (
-	errAdIdSizeMismatch = verror.Register("v.io/v23/discovery.errAdIdSizeMismatch", verror.NoRetry, "id string size mismatch")
+	errAdIDSizeMismatch = verror.Register("v.io/v23/discovery.errAdIDSizeMismatch", verror.NoRetry, "id string size mismatch")
 
-	zeroId = AdId{}
+	zeroID = AdId{}
 )
 
 // IsValid reports whether the id is valid.
 func (id AdId) IsValid() bool {
-	return id != zeroId
+	return id != zeroID
 }
 
 // String returns the string corresponding to the id.
@@ -31,7 +31,7 @@ func (id AdId) String() string {
 func NewAdId() (AdId, error) {
 	var id AdId
 	if _, err := rand.Read(id[:]); err != nil {
-		return zeroId, err
+		return zeroID, err
 	}
 	return id, nil
 }
@@ -40,12 +40,12 @@ func NewAdId() (AdId, error) {
 func ParseAdId(s string) (AdId, error) {
 	decoded, err := hex.DecodeString(s)
 	if err != nil {
-		return zeroId, err
+		return zeroID, err
 	}
 
 	var id AdId
 	if len(decoded) != len(id) {
-		return zeroId, verror.New(errAdIdSizeMismatch, nil)
+		return zeroID, verror.New(errAdIDSizeMismatch, nil)
 	}
 	copy(id[:], decoded)
 	return id, nil

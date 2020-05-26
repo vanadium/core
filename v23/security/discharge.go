@@ -39,8 +39,7 @@ func (d Discharge) ID() string {
 // discharge.
 func (d Discharge) ThirdPartyCaveats() []ThirdPartyCaveat {
 	var ret []ThirdPartyCaveat
-	switch v := d.wire.(type) {
-	case WireDischargePublicKey:
+	if v, ok := d.wire.(WireDischargePublicKey); ok {
 		for _, cav := range v.Value.Caveats {
 			if tp := cav.ThirdPartyDetails(); tp != nil {
 				ret = append(ret, tp)
@@ -54,8 +53,7 @@ func (d Discharge) ThirdPartyCaveats() []ThirdPartyCaveat {
 // value of time.Time if the discharge does not expire.
 func (d Discharge) Expiry() time.Time {
 	var min time.Time
-	switch v := d.wire.(type) {
-	case WireDischargePublicKey:
+	if v, ok := d.wire.(WireDischargePublicKey); ok {
 		for _, cav := range v.Value.Caveats {
 			if t := expiryTime(cav); !t.IsZero() && (min.IsZero() || t.Before(min)) {
 				min = t
@@ -89,8 +87,7 @@ func WireDischargeFromNative(wire *WireDischarge, native Discharge) error {
 }
 
 func expiryTime(cav Caveat) time.Time {
-	switch cav.Id {
-	case ExpiryCaveat.Id:
+	if cav.Id == ExpiryCaveat.Id {
 		var t time.Time
 		if err := vom.Decode(cav.ParamVom, &t); err != nil {
 			// TODO(jsimsa): Decide what (if any) logging mechanism to use.

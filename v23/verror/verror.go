@@ -159,25 +159,25 @@ func (E) VDLReflect(struct {
 }) {
 }
 
-func (x E) VDLEqual(yiface interface{}) bool {
+func (e E) VDLEqual(yiface interface{}) bool {
 	y := yiface.(E)
 	switch {
-	case x.ID != y.ID:
+	case e.ID != y.ID:
 		return false
-	case x.Action != y.Action:
+	case e.Action != y.Action:
 		return false
-	case x.Error() != y.Error():
+	case e.Error() != y.Error():
 		// NOTE: We compare the result of Error() rather than comparing the Msg
 		// fields, since the Msg field isn't always set; Msg=="" is equivalent to
 		// Msg==v.io/v23/verror.Unknown.
 		//
 		// TODO(toddw): Investigate the root cause of this.
 		return false
-	case len(x.ParamList) != len(y.ParamList):
+	case len(e.ParamList) != len(y.ParamList):
 		return false
 	}
-	for i := range x.ParamList {
-		if !vdl.DeepEqual(x.ParamList[i], y.ParamList[i]) {
+	for i := range e.ParamList {
+		if !vdl.DeepEqual(e.ParamList[i], y.ParamList[i]) {
 			return false
 		}
 	}
@@ -190,18 +190,18 @@ var (
 	ttListAny       = vdl.ListType(vdl.AnyType)
 )
 
-func (x E) VDLWrite(enc vdl.Encoder) error {
+func (e E) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 	if err := enc.StartValue(ttErrorElem); err != nil {
 		return err
 	}
-	if x.ID != "" {
-		if err := enc.NextFieldValueString(0, vdl.StringType, string(x.ID)); err != nil {
+	if e.ID != "" {
+		if err := enc.NextFieldValueString(0, vdl.StringType, string(e.ID)); err != nil {
 			return err
 		}
 	}
-	if x.Action != NoRetry {
+	if e.Action != NoRetry {
 		var actionStr string
-		switch x.Action {
+		switch e.Action {
 		case RetryConnection:
 			actionStr = "RetryConnection"
 		case RetryRefetch:
@@ -209,37 +209,37 @@ func (x E) VDLWrite(enc vdl.Encoder) error {
 		case RetryBackoff:
 			actionStr = "RetryBackoff"
 		default:
-			return fmt.Errorf("action %d not in enum WireRetryCode", x.Action)
+			return fmt.Errorf("action %d not in enum WireRetryCode", e.Action)
 		}
 		if err := enc.NextFieldValueString(1, ttWireRetryCode, actionStr); err != nil {
 			return err
 		}
 	}
-	if x.Msg != "" {
-		if err := enc.NextFieldValueString(2, vdl.StringType, x.Msg); err != nil {
+	if e.Msg != "" {
+		if err := enc.NextFieldValueString(2, vdl.StringType, e.Msg); err != nil {
 			return err
 		}
 	}
-	if len(x.ParamList) != 0 {
+	if len(e.ParamList) != 0 {
 		if err := enc.NextField(3); err != nil {
 			return err
 		}
 		if err := enc.StartValue(ttListAny); err != nil {
 			return err
 		}
-		if err := enc.SetLenHint(len(x.ParamList)); err != nil {
+		if err := enc.SetLenHint(len(e.ParamList)); err != nil {
 			return err
 		}
-		for i := 0; i < len(x.ParamList); i++ {
+		for i := 0; i < len(e.ParamList); i++ {
 			if err := enc.NextEntry(false); err != nil {
 				return err
 			}
-			if x.ParamList[i] == nil {
+			if e.ParamList[i] == nil {
 				if err := enc.NilValue(vdl.AnyType); err != nil {
 					return err
 				}
 			} else {
-				if err := vdl.Write(enc, x.ParamList[i]); err != nil {
+				if err := vdl.Write(enc, e.ParamList[i]); err != nil {
 					return err
 				}
 			}
@@ -257,8 +257,8 @@ func (x E) VDLWrite(enc vdl.Encoder) error {
 	return enc.FinishValue()
 }
 
-func (x *E) VDLRead(dec vdl.Decoder) error {
-	*x = E{}
+func (e *E) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	*e = E{}
 	if err := dec.StartValue(ttErrorElem); err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func (x *E) VDLRead(dec vdl.Decoder) error {
 			if err != nil {
 				return err
 			}
-			x.ID = ID(id)
+			e.ID = ID(id)
 		case 1:
 			code, err := dec.ReadValueString()
 			if err != nil {
@@ -295,13 +295,13 @@ func (x *E) VDLRead(dec vdl.Decoder) error {
 			}
 			switch code {
 			case "NoRetry":
-				x.Action = NoRetry
+				e.Action = NoRetry
 			case "RetryConnection":
-				x.Action = RetryConnection
+				e.Action = RetryConnection
 			case "RetryRefetch":
-				x.Action = RetryRefetch
+				e.Action = RetryRefetch
 			case "RetryBackoff":
-				x.Action = RetryBackoff
+				e.Action = RetryBackoff
 			default:
 				return fmt.Errorf("label %s not in enum WireRetryCode", code)
 			}
@@ -310,16 +310,16 @@ func (x *E) VDLRead(dec vdl.Decoder) error {
 			if err != nil {
 				return err
 			}
-			x.Msg = msg
+			e.Msg = msg
 		case 3:
 			if err := dec.StartValue(ttListAny); err != nil {
 				return err
 			}
 			switch len := dec.LenHint(); {
 			case len > 0:
-				x.ParamList = make([]interface{}, 0, len)
+				e.ParamList = make([]interface{}, 0, len)
 			default:
-				x.ParamList = nil
+				e.ParamList = nil
 			}
 			for {
 				switch done, err := dec.NextEntry(); {
@@ -335,7 +335,7 @@ func (x *E) VDLRead(dec vdl.Decoder) error {
 				if err := vdl.Read(dec, &elem); err != nil {
 					return err
 				}
-				x.ParamList = append(x.ParamList, elem)
+				e.ParamList = append(e.ParamList, elem)
 			}
 		}
 	}
@@ -424,7 +424,7 @@ func Stack(err error) PCs {
 
 func (st PCs) String() string {
 	buf := bytes.NewBufferString("")
-	StackToText(buf,st) //nolint:errcheck
+	StackToText(buf, st) //nolint:errcheck
 	return buf.String()
 }
 
@@ -529,7 +529,7 @@ func isEmptyString(v interface{}) bool {
 
 // convertInternal is like ExplicitConvert(), but takes a slice of PC values as an argument,
 // rather than constructing one from the caller's PC.
-func convertInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, err error) E {
+func convertInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, err error) E { //nolint:gocyclo
 	// If err is already a verror.E, we wish to:
 	//  - retain all set parameters.
 	//  - if not yet set, set parameters 0 and 1 from componentName and
@@ -538,71 +538,70 @@ func convertInternal(idAction IDAction, langID i18n.LangID, componentName string
 	//    in our catalogue, use it.  Otherwise, retain a message (assuming
 	//    additional parameters were not set) even if the language is not
 	//    correct.
-	if e, ok := assertIsE(err); !ok {
+	e, ok := assertIsE(err)
+	if !ok {
 		return makeInternal(idAction, langID, componentName, opName, stack, err.Error())
-	} else {
-		oldParams := e.ParamList
-
-		// Convert all embedded E errors, recursively.
-		for i := range oldParams {
-			if subErr, isE := oldParams[i].(E); isE {
-				oldParams[i] = convertInternal(idAction, langID, componentName, opName, stack, subErr)
-			} else if subErrs, isSubErrs := oldParams[i].(SubErrs); isSubErrs {
-				for j := range subErrs {
-					if subErr, isE := subErrs[j].Err.(E); isE {
-						subErrs[j].Err = convertInternal(idAction, langID, componentName, opName, stack, subErr)
-					}
-				}
-				oldParams[i] = subErrs
-			}
-		}
-
-		// Create a non-empty format string if we have the language in the catalogue.
-		var formatStr string
-		if langID != i18n.NoLangID {
-			id := e.ID
-			if id == "" {
-				id = ErrUnknown.ID
-			}
-			formatStr = i18n.Cat().Lookup(langID, i18n.MsgID(id))
-		}
-
-		// Ignore the caller-supplied component and operation if we already have them.
-		if componentName != "" && len(oldParams) >= 1 && !isEmptyString(oldParams[0]) {
-			componentName = ""
-		}
-		if opName != "" && len(oldParams) >= 2 && !isEmptyString(oldParams[1]) {
-			opName = ""
-		}
-
-		var msg string
-		var newParams []interface{}
-		if componentName == "" && opName == "" {
-			if formatStr == "" {
-				return e // Nothing to change.
-			} else { // Parameter list does not change.
-				newParams = e.ParamList
-				msg = i18n.FormatParams(formatStr, newParams...)
-			}
-		} else { // Replace at least one of the first two parameters.
-			newLen := len(oldParams)
-			if newLen < 2 {
-				newLen = 2
-			}
-			newParams = make([]interface{}, newLen)
-			copy(newParams, oldParams)
-			if componentName != "" {
-				newParams[0] = componentName
-			}
-			if opName != "" {
-				newParams[1] = opName
-			}
-			if formatStr != "" {
-				msg = i18n.FormatParams(formatStr, newParams...)
-			}
-		}
-		return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil}
 	}
+	oldParams := e.ParamList
+
+	// Convert all embedded E errors, recursively.
+	for i := range oldParams {
+		if subErr, isE := oldParams[i].(E); isE {
+			oldParams[i] = convertInternal(idAction, langID, componentName, opName, stack, subErr)
+		} else if subErrs, isSubErrs := oldParams[i].(SubErrs); isSubErrs {
+			for j := range subErrs {
+				if subErr, isE := subErrs[j].Err.(E); isE {
+					subErrs[j].Err = convertInternal(idAction, langID, componentName, opName, stack, subErr)
+				}
+			}
+			oldParams[i] = subErrs
+		}
+	}
+
+	// Create a non-empty format string if we have the language in the catalogue.
+	var formatStr string
+	if langID != i18n.NoLangID {
+		id := e.ID
+		if id == "" {
+			id = ErrUnknown.ID
+		}
+		formatStr = i18n.Cat().Lookup(langID, i18n.MsgID(id))
+	}
+
+	// Ignore the caller-supplied component and operation if we already have them.
+	if componentName != "" && len(oldParams) >= 1 && !isEmptyString(oldParams[0]) {
+		componentName = ""
+	}
+	if opName != "" && len(oldParams) >= 2 && !isEmptyString(oldParams[1]) {
+		opName = ""
+	}
+
+	var msg string
+	var newParams []interface{}
+	if componentName == "" && opName == "" {
+		if formatStr == "" {
+			return e // Nothing to change.
+		} // Parameter list does not change.
+		newParams = e.ParamList
+		msg = i18n.FormatParams(formatStr, newParams...)
+	} else { // Replace at least one of the first two parameters.
+		newLen := len(oldParams)
+		if newLen < 2 {
+			newLen = 2
+		}
+		newParams = make([]interface{}, newLen)
+		copy(newParams, oldParams)
+		if componentName != "" {
+			newParams[0] = componentName
+		}
+		if opName != "" {
+			newParams[1] = opName
+		}
+		if formatStr != "" {
+			msg = i18n.FormatParams(formatStr, newParams...)
+		}
+	}
+	return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil}
 }
 
 // ExplicitConvert converts a regular err into an E error, setting its IDAction to idAction.  If
@@ -613,14 +612,13 @@ func convertInternal(idAction IDAction, langID i18n.LangID, componentName string
 func ExplicitConvert(idAction IDAction, langID i18n.LangID, componentName string, opName string, err error) error {
 	if err == nil {
 		return nil
-	} else {
-		var stack []uintptr
-		if _, isE := assertIsE(err); !isE { // Walk the stack only if convertInternal will allocate an E.
-			stack = make([]uintptr, maxPCs)
-			stack = stack[:runtime.Callers(2, stack)]
-		}
-		return convertInternal(idAction, langID, componentName, opName, stack, err)
 	}
+	var stack []uintptr
+	if _, isE := assertIsE(err); !isE { // Walk the stack only if convertInternal will allocate an E.
+		stack = make([]uintptr, maxPCs)
+		stack = stack[:runtime.Callers(2, stack)]
+	}
+	return convertInternal(idAction, langID, componentName, opName, stack, err)
 }
 
 // defaultCtx is the context used when a nil context.T is passed to New() or Convert().
@@ -760,7 +758,6 @@ func addSubErrsInternal(err error, langID i18n.LangID, componentName string, opN
 	}
 	var subErrs SubErrs
 	index := e.subErrorIndex()
-	copy(e.ParamList, e.ParamList)
 	if index == len(e.ParamList) {
 		e.ParamList = append(e.ParamList, subErrs)
 	} else {
@@ -811,7 +808,7 @@ func debugStringInternal(err error, prefix string, name string) string {
 	// Append err's stack, indented a little.
 	prefix += "  "
 	buf := bytes.NewBufferString("")
-	stackToTextIndent(buf,Stack(err),prefix) //nolint:errcheck
+	stackToTextIndent(buf, Stack(err), prefix) //nolint:errcheck
 	str += "\n" + buf.String()
 	// Print all the subordinate errors, even the ones that were not
 	// printed by Error(), indented a bit further.

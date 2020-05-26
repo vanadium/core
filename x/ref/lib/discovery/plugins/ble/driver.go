@@ -31,12 +31,12 @@ type Driver interface {
 	// StartScan starts BLE scanning for the specified uuids and the scan results will be
 	// delivered through the scan handler.
 	//
-	// An empty uuids means all Vanadium services. The driver may use baseUuid and maskUuid
+	// An empty uuids means all Vanadium services. The driver maypl use baseUuid and maskUuid
 	// to filter Vanadium services.
 	//
 	// It is guarantted that there is at most one active scan at any given time. That is,
 	// StopScan() will be called before starting a new scan.
-	StartScan(uuids []string, baseUuid, maskUuid string, handler ScanHandler) error
+	StartScan(uuids []string, baseUUID, maskUUID string, handler ScanHandler) error
 
 	// StopScan stops BLE scanning.
 	StopScan()

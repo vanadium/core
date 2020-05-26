@@ -50,7 +50,7 @@ func (x Time) Normalize() Time {
 // Now returns the current time.
 func Now() Time {
 	var t Time
-	TimeFromNative(&t,time.Now()) //nolint:errcheck
+	TimeFromNative(&t, time.Now()) //nolint:errcheck
 	return t
 }
 
@@ -85,13 +85,13 @@ func DurationFromNative(wire *Duration, native time.Duration) error {
 // undefined for large invalid values, e.g. {int64max,int32max}.
 func (x Duration) Normalize() Duration {
 	x.Seconds += int64(x.Nanos / nanosPerSecond)
-	x.Nanos = x.Nanos % nanosPerSecond
+	x.Nanos %= nanosPerSecond
 	switch {
 	case x.Seconds < 0 && x.Nanos > 0:
-		x.Seconds += 1
+		x.Seconds++
 		x.Nanos -= nanosPerSecond
 	case x.Seconds > 0 && x.Nanos < 0:
-		x.Seconds -= 1
+		x.Seconds--
 		x.Nanos += nanosPerSecond
 	}
 	return x

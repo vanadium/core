@@ -182,7 +182,7 @@ func TestTimeDurationNativeConversion(t *testing.T) {
 	}
 }
 
-func TestDeadline(t *testing.T) {
+func TestDeadline(t *testing.T) { //nolint:gocyclo
 	// The deadline wire<->native conversions involve computations against
 	// time.Now(), and there's no guarantee that that time.Now() is strictly
 	// increasing, or very accurate.  So we define a fudge factor offset for our

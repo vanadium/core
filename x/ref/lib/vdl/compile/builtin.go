@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// The BuiltInPackage and BuiltInFile are used to hold the built-ins.
+	// BuiltInPackage and BuiltInFile are used to hold the built-ins.
 	BuiltInPackage = newPackage("", "_builtin", "_builtin", vdltool.Config{})
 	BuiltInFile    = &File{BaseName: "_builtin.vdl"}
 )

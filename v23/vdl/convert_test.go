@@ -591,13 +591,13 @@ func rvFromUint(u uint64) (result []interface{}) {
 		result = append(result, int64(u), vdl.NInt64(u))
 		fallthrough
 	default:
-		result = append(result, uint64(u), vdl.NUint64(u))
+		result = append(result, u, vdl.NUint64(u))
 	}
 	return result
 }
 
 // vvFromInt returns all *Values that can represent i without loss of precision.
-func vvFromInt(i int64) (result []*vdl.Value) {
+func vvFromInt(i int64) (result []*vdl.Value) { //nolint:gocyclo
 	u, f := uint64(i), float64(i)
 	switch {
 	case math.MinInt8 <= i && i <= math.MaxInt8:
@@ -658,7 +658,7 @@ func vvFromInt(i int64) (result []*vdl.Value) {
 }
 
 // rvFromInt returns all values that can represent i without loss of precision.
-func rvFromInt(i int64) (result []interface{}) {
+func rvFromInt(i int64) (result []interface{}) { //nolint:gocyclo
 	switch {
 	case math.MinInt8 <= i && i <= math.MaxInt8:
 		result = append(result, int8(i), vdl.NInt8(i))
@@ -676,7 +676,7 @@ func rvFromInt(i int64) (result []interface{}) {
 		result = append(result, float64(i), vdl.NFloat64(i))
 		fallthrough
 	default:
-		result = append(result, int64(i), vdl.NInt64(i))
+		result = append(result, i, vdl.NInt64(i))
 	}
 	if i < 0 {
 		return
@@ -709,7 +709,7 @@ func vvFloat(f float64) []*vdl.Value {
 func rvFloat(f float64) []interface{} {
 	return []interface{}{
 		float32(f), vdl.NFloat32(f),
-		float64(f), vdl.NFloat64(f),
+		f, vdl.NFloat64(f),
 	}
 }
 
@@ -918,7 +918,7 @@ type vvrv struct {
 	rv []interface{}
 }
 
-func testConverterWantSrc(t *testing.T, vvrvWant, vvrvSrc vvrv) {
+func testConverterWantSrc(t *testing.T, vvrvWant, vvrvSrc vvrv) { //nolint:gocyclo
 	// We run each testConvert helper twice; the first call tests filling in a
 	// zero dst, and the second call tests filling in a non-zero dst.
 
@@ -1043,7 +1043,7 @@ func canCreateGoObject(tt *vdl.Type) bool {
 	return tt == vdl.AnyType || vdl.TypeToReflect(tt) != nil || tt == vdl.ErrorType || tt == vdl.ErrorType.Elem()
 }
 
-func testConvert(t *testing.T, prefix string, dst, src, want interface{}, deref int, optWant bool, expectedErr string) {
+func testConvert(t *testing.T, prefix string, dst, src, want interface{}, deref int, optWant bool, expectedErr string) { //nolint:gocyclo
 	const ptrDepth = 3
 	rvDst := reflect.ValueOf(dst)
 	for dstptrs := 0; dstptrs < ptrDepth; dstptrs++ {

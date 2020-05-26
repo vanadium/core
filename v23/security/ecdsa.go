@@ -34,13 +34,15 @@ func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
 }
 
 func (pk *ecdsaPublicKey) hash() Hash {
-	if nbits := pk.key.Curve.Params().BitSize; nbits <= 160 {
+	nbits := pk.key.Curve.Params().BitSize
+	switch {
+	case nbits <= 160:
 		return SHA1Hash
-	} else if nbits <= 256 {
+	case nbits <= 256:
 		return SHA256Hash
-	} else if nbits <= 384 {
+	case nbits <= 384:
 		return SHA384Hash
-	} else {
+	default:
 		return SHA512Hash
 	}
 }

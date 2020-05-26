@@ -47,7 +47,7 @@ func findPathIndex(path []unsafe.Pointer, target unsafe.Pointer) int {
 	return -1
 }
 
-func deepEqual(a, b reflect.Value, pathA, pathB []unsafe.Pointer) bool {
+func deepEqual(a, b reflect.Value, pathA, pathB []unsafe.Pointer) bool { //nolint:gocyclo
 	if !a.IsValid() || !b.IsValid() {
 		return a.IsValid() == b.IsValid()
 	}

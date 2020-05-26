@@ -89,13 +89,14 @@ func clientInterfaceStreamingOutArg(iface *compile.Interface, method *compile.Me
 	sendType := javaType(method.InStream, true, env)
 	recvType := javaType(method.OutStream, true, env)
 	finishType := clientInterfaceNonStreamingOutArg(iface, method, true, env)
-	if method.InStream != nil && method.OutStream != nil {
+	switch {
+	case method.InStream != nil && method.OutStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ClientStream<%s, %s, %s>", sendType, recvType, finishType)
-	} else if method.InStream != nil {
+	case method.InStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ClientSendStream<%s, %s>", sendType, finishType)
-	} else if method.OutStream != nil {
+	case method.OutStream != nil:
 		return fmt.Sprintf("io.v.v23.vdl.ClientRecvStream<%s, %s>", recvType, finishType)
-	} else {
+	default:
 		panic(fmt.Errorf("Streaming method without stream sender and receiver: %v", method))
 	}
 }

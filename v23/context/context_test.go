@@ -190,17 +190,19 @@ func TestValueContext(t *testing.T) {
 
 }
 
+type ctxKey string
+
 func TestRootCancel(t *testing.T) {
 	root, rootcancel := context.RootContext()
 	a, acancel := context.WithCancel(root)
-	b := context.WithValue(a, "key", "value")
+	b := context.WithValue(a, ctxKey("key"), "value")
 
 	c, ccancel := context.WithRootCancel(b)
 	d, _ := context.WithCancel(c)
 
 	e, _ := context.WithRootCancel(b)
 
-	if s, ok := d.Value("key").(string); !ok || s != "value" {
+	if s, ok := d.Value(ctxKey("key")).(string); !ok || s != "value" {
 		t.Error("Lost a value but shouldn't have.")
 	}
 
@@ -273,26 +275,26 @@ func (*stringLogger) Panicf(format string, args ...interface{}) {}
 func (*stringLogger) V(level int) bool                 { return false }
 func (*stringLogger) VDepth(depth int, level int) bool { return false }
 
-func (d *stringLogger) VI(level int) interface {
+func (sl *stringLogger) VI(level int) interface {
 	Info(args ...interface{})
 	Infof(format string, args ...interface{})
 	InfoDepth(depth int, args ...interface{})
 	InfoStack(all bool)
 } {
-	return d
+	return sl
 }
-func (d *stringLogger) VIDepth(depth int, level int) interface {
+func (sl *stringLogger) VIDepth(depth int, level int) interface {
 	Info(args ...interface{})
 	Infof(format string, args ...interface{})
 	InfoDepth(depth int, args ...interface{})
 	InfoStack(all bool)
 } {
-	return d
+	return sl
 }
 
 func (*stringLogger) FlushLog()      {}
 func (*stringLogger) LogDir() string { return "" }
-func (*stringLogger) Stats() (Info, Error struct{ Lines, Bytes int64 }) {
+func (*stringLogger) Stats() (infoStats, errorStats struct{ Lines, Bytes int64 }) {
 	return struct{ Lines, Bytes int64 }{0, 0}, struct{ Lines, Bytes int64 }{0, 0}
 }
 func (*stringLogger) ConfigureFromFlags() error             { return nil }
