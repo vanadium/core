@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"strings"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vom"

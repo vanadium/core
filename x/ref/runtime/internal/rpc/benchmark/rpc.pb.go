@@ -32,8 +32,11 @@ It has these top-level messages:
 
 package benchmark
 
-import proto "github.com/golang/protobuf/proto"
-import math "math"
+import (
+	math "math"
+
+	proto "github.com/golang/protobuf/proto"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

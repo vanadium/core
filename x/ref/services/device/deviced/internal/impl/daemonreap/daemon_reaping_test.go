@@ -48,7 +48,7 @@ func TestDaemonRestart(t *testing.T) {
 	utiltest.VerifyState(t, ctx, device.InstanceStateRunning, appID, instanceID)
 
 	for i := 0; i < nRestarts; i++ {
-		syscall.Kill(int(pid),9) //nolint:errcheck
+		syscall.Kill(int(pid), 9) //nolint:errcheck
 		utiltest.PollingWait(t, int(pid))
 
 		// instanceID should be restarted automatically.
@@ -67,7 +67,7 @@ func TestDaemonRestart(t *testing.T) {
 	}
 
 	// Kill the application again.
-	syscall.Kill(int(pid),9) //nolint:errcheck
+	syscall.Kill(int(pid), 9) //nolint:errcheck
 	utiltest.PollingWait(t, int(pid))
 
 	// The reaper should no longer restart the application:

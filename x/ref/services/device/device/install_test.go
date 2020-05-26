@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/services/application"
 	"v.io/v23/services/device"

@@ -49,7 +49,7 @@ func (a *agentd) MintDischarge(forCaveat, caveatOnDischarge security.Caveat, add
 func (a *agentd) unlock() {
 	a.mu.Unlock()
 	for _, conn := range a.ipc.Connections() {
-		go conn.Call("FlushAllCaches",nil) //nolint:errcheck
+		go conn.Call("FlushAllCaches", nil) //nolint:errcheck
 	}
 }
 

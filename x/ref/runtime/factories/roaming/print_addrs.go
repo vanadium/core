@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+
 	"v.io/x/lib/netstate"
 )
 

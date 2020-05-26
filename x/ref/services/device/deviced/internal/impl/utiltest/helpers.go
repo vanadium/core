@@ -862,7 +862,7 @@ func PollingWait(t *testing.T, pid int) {
 	for syscall.Kill(pid, 0) == nil {
 		select {
 		case <-timeOut:
-			syscall.Kill(pid,9) //nolint:errcheck
+			syscall.Kill(pid, 9) //nolint:errcheck
 			t.Fatal(testutil.FormatLogLine(2, "Timed out waiting for PID %v to terminate", pid))
 		case <-time.After(time.Millisecond):
 			// Try again.

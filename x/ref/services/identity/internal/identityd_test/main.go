@@ -13,7 +13,7 @@ import (
 	"net"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/security"

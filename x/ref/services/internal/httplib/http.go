@@ -6,6 +6,7 @@ package httplib
 
 import (
 	"bytes"
+
 	"golang.org/x/net/trace"
 
 	"v.io/v23/context"

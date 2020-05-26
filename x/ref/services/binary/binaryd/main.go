@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"os"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/lib/netstate"

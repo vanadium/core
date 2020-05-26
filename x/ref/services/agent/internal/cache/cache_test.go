@@ -152,7 +152,7 @@ func TestRootsDump(t *testing.T) {
 		t.Errorf("Dump() got %v, want %v", got, orig)
 	}
 
-	impl.Add(key,"carol") //nolint:errcheck
+	impl.Add(key, "carol") //nolint:errcheck
 	if got := cache.Dump(); !reflect.DeepEqual(orig, got) {
 		t.Errorf("Dump() got %v, want %v", got, orig)
 	}
@@ -234,7 +234,7 @@ func TestSet(t *testing.T) {
 	}
 	john, _ := testutil.NewPrincipal("john").BlessingStore().Default()
 
-	store.Set(noBlessings,"...") //nolint:errcheck
+	store.Set(noBlessings, "...") //nolint:errcheck
 	if _, err := cache.Set(bob, "bob"); err != nil {
 		t.Errorf("Set() failed: %v", err)
 	}
@@ -290,14 +290,14 @@ func TestForPeerCaching(t *testing.T) {
 		t.Fatalf("BlessSelf failed: %v", err)
 	}
 
-	store.Set(security.Blessings{},"...") //nolint:errcheck
-	store.Set(bob,"bob")                  //nolint:errcheck
+	store.Set(security.Blessings{}, "...") //nolint:errcheck
+	store.Set(bob, "bob")                  //nolint:errcheck
 
 	if got := cache.ForPeer("bob:server"); !reflect.DeepEqual(bob, got) {
 		t.Errorf("ForPeer(bob:server) got: %v, want: %v", got, bob)
 	}
 
-	store.Set(alice,"bob") //nolint:errcheck
+	store.Set(alice, "bob") //nolint:errcheck
 	if got := cache.ForPeer("bob:server"); !reflect.DeepEqual(bob, got) {
 		t.Errorf("ForPeer(bob:server) got: %v, want: %v", got, bob)
 	}
@@ -326,7 +326,7 @@ func TestPeerBlessings(t *testing.T) {
 		t.Errorf("PeerBlessings() got %v, want %v", got, orig)
 	}
 
-	store.Set(alice,"carol") //nolint:errcheck
+	store.Set(alice, "carol") //nolint:errcheck
 	if got := cache.PeerBlessings(); !reflect.DeepEqual(orig, got) {
 		t.Errorf("PeerBlessings() got %v, want %v", got, orig)
 	}

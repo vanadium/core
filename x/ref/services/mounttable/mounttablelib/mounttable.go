@@ -757,7 +757,7 @@ out:
 	// Hold no locks while we are sending on the channel to avoid livelock.
 	n.Unlock()
 	// Intermediate nodes are marked as serving a mounttable since they answer the mounttable methods.
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name,ServesMountTable: true}}) //nolint:errcheck
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name, ServesMountTable: true}}) //nolint:errcheck
 }
 
 // Glob finds matches in the namespace.  If we reach a mount point before matching the
@@ -801,7 +801,7 @@ func (ms *mountContext) linkToLeaf(cc *callContext, gCall rpc.GlobServerCall) {
 		servers[i].Server = naming.Join(s.Server, strings.Join(elems, "/"))
 	}
 	n.Unlock()
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "",Servers: servers}}) //nolint:errcheck
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: servers}}) //nolint:errcheck
 }
 
 func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perms access.Permissions, version string) error {
@@ -845,7 +845,7 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 	n.vPerms, err = n.vPerms.Set(ctx, version, perms)
 	if err == nil {
 		if mt.persisting {
-			mt.persist.persistPerms(ms.name,n.creator,n.vPerms) //nolint:errcheck
+			mt.persist.persistPerms(ms.name, n.creator, n.vPerms) //nolint:errcheck
 		}
 		n.explicitPermissions = true
 	}
