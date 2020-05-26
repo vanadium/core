@@ -28,7 +28,7 @@ func (id AdId) String() string {
 }
 
 // NewId returns a new random id.
-func NewAdID() (AdId, error) {
+func NewAdId() (AdId, error) {
 	var id AdId
 	if _, err := rand.Read(id[:]); err != nil {
 		return zeroID, err
@@ -37,7 +37,7 @@ func NewAdID() (AdId, error) {
 }
 
 // Parse decodes the hexadecimal string into id.
-func ParseAdID(s string) (AdId, error) {
+func ParseAdId(s string) (AdId, error) {
 	decoded, err := hex.DecodeString(s)
 	if err != nil {
 		return zeroID, err

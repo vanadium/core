@@ -23,7 +23,7 @@ type update struct {
 }
 
 func (u *update) IsLost() bool          { return u.lost }
-func (u *update) ID() discovery.AdId    { return u.ad.Id }
+func (u *update) Id() discovery.AdId    { return u.ad.Id }
 func (u *update) InterfaceName() string { return u.ad.InterfaceName }
 
 func (u *update) Addresses() []string {

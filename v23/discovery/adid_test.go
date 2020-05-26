@@ -9,7 +9,7 @@ import "testing"
 func TestAdIdBasic(t *testing.T) {
 	ids := make(map[AdId]struct{})
 	for x := 0; x < 100; x++ {
-		id, err := NewAdID()
+		id, err := NewAdId()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -21,7 +21,7 @@ func TestAdIdBasic(t *testing.T) {
 			t.Errorf("NewAdId returned duplicated id %q", id)
 		}
 
-		decoded, err := ParseAdID(id.String())
+		decoded, err := ParseAdId(id.String())
 		if err != nil {
 			t.Error(err)
 		}

@@ -142,7 +142,7 @@ func MatchLost(ctx *context.T, updates []discovery.Update, wants ...discovery.Ad
 func match(ctx *context.T, updates []discovery.Update, lost bool, wants ...discovery.Advertisement) bool {
 	updateMap := make(map[discovery.AdId]discovery.Update)
 	for _, update := range updates {
-		updateMap[update.ID()] = update
+		updateMap[update.Id()] = update
 	}
 
 	for _, want := range wants {
@@ -156,13 +156,13 @@ func match(ctx *context.T, updates []discovery.Update, lost bool, wants ...disco
 		if !UpdateEqual(ctx, update, want) {
 			return false
 		}
-		delete(updateMap, update.ID())
+		delete(updateMap, update.Id())
 	}
 	return len(updateMap) == 0
 }
 
 func UpdateEqual(ctx *context.T, update discovery.Update, ad discovery.Advertisement) bool {
-	if update.ID() != ad.Id {
+	if update.Id() != ad.Id {
 		return false
 	}
 	if update.InterfaceName() != ad.InterfaceName {

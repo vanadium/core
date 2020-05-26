@@ -19,7 +19,7 @@ import (
 func (d *gdiscovery) Advertise(ctx *context.T, ad *discovery.Advertisement, visibility []security.BlessingPattern) (<-chan struct{}, error) {
 	if !ad.Id.IsValid() {
 		var err error
-		if ad.Id, err = discovery.NewAdID(); err != nil {
+		if ad.Id, err = discovery.NewAdId(); err != nil {
 			return nil, err
 		}
 	}

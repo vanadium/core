@@ -25,7 +25,7 @@ func TestUpdateBasic(t *testing.T) {
 		if got, want := update.IsLost(), adinfo.Lost; got != want {
 			t.Errorf("IsLost: got %v, but want %v", got, want)
 		}
-		if got, want := update.ID(), adinfo.Ad.Id; got != want {
+		if got, want := update.Id(), adinfo.Ad.Id; got != want {
 			t.Errorf("Id: got %v, but want %v", got, want)
 		}
 		if got, want := update.Addresses(), adinfo.Ad.Addresses; !reflect.DeepEqual(got, want) {
