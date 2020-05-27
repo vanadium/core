@@ -198,6 +198,7 @@ func DownloadToFile(ctx *context.T, von, path string) error {
 	return nil
 }
 
+//nolint:golint // API change required.
 func DownloadUrl(ctx *context.T, von string) (string, int64, error) {
 	url, ttl, err := repository.BinaryClient(von).DownloadUrl(ctx)
 	if err != nil {

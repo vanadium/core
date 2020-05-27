@@ -43,7 +43,7 @@ sourcing the envelopes.
 }
 
 // simpleGlob globs the provided endpoint as the namespace cmd does.
-func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) (error, []error) {
+func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) ([]error, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
@@ -51,7 +51,7 @@ func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) (error, []err
 	c, err := ns.Glob(ctx, pattern)
 	if err != nil {
 		vlog.Infof("ns.Glob(%q) failed: %v", pattern, err)
-		return err, nil
+		return nil, err
 	}
 
 	errors := []*naming.GlobError{}
@@ -70,7 +70,7 @@ func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) (error, []err
 	for _, err := range errors {
 		globErrors = append(globErrors, fmt.Errorf("glob error: %s: %v", err.Name, err.Error))
 	}
-	return nil, globErrors
+	return globErrors, nil
 }
 
 func logGlobErrors(env *cmdline.Env, errors []error) {
@@ -96,7 +96,7 @@ func getProfileNames(ctx *context.T, env *cmdline.Env, endpoint string) ([]strin
 
 func getNames(ctx *context.T, env *cmdline.Env, endpoint string) ([]string, error) {
 	resultSet := make(map[string]struct{})
-	err, errors := mapGlob(ctx, endpoint, func(s string) {
+	errors, err := mapGlob(ctx, endpoint, func(s string) {
 		resultSet[s] = struct{}{}
 	})
 

@@ -52,6 +52,7 @@ type IPC struct {
 // It can be used to make rpcs to the other process.  It also
 // dispatches rpcs from that process to handlers registered with the
 // parent IPC object.
+//nolint:golint // API change required.
 type IPCConn struct {
 	enc    *vom.Encoder
 	dec    *vom.Decoder

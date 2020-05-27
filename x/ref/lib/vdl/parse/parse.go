@@ -36,6 +36,7 @@ type Opts struct {
 // accumulated errors, and parses the vdl into a parse.File containing the parse
 // tree.  Returns nil if any errors are encountered, with errs containing more
 // information.  Otherwise returns the parsed File.
+//nolint:golint // API change required.
 func ParseFile(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) *File {
 	start := startFile
 	if opts.ImportsOnly {
@@ -48,6 +49,7 @@ func ParseFile(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) 
 // accumulated errors, and parses the config into a parse.Config containing the
 // parse tree.  Returns nil if any errors are encountered, with errs containing
 // more information.  Otherwise returns the parsed Config.
+//nolint:golint // API change required.
 func ParseConfig(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) *Config {
 	start := startConfig
 	if opts.ImportsOnly {
@@ -105,6 +107,7 @@ func parse(fileName string, src io.Reader, startTok int, errs *vdlutil.Errors) *
 // data is specified in VDL syntax, with commas separating multiple expressions.
 // There must be at least one expression specified in data.  Errors are returned
 // in errs.
+//nolint:golint // API change required.
 func ParseExprs(data string, errs *vdlutil.Errors) []ConstExpr {
 	const name = "exprs"
 	lex := newLexer(name, strings.NewReader(data), startExprs, errs)

@@ -34,6 +34,7 @@ type obj struct {
 	children []string
 }
 
+//nolint:golint // API change required.
 func (o obj) GlobChildren__(_ *context.T, call GlobChildrenServerCall, matcher *glob.Element) error {
 	sender := call.SendStream()
 	for _, v := range o.children {

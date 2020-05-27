@@ -385,6 +385,7 @@ func (f *instanceStateFlag) Set(s string) error {
 	})
 }
 
+//nolint:golint // API change required.
 func InstanceStates(states ...device.InstanceState) (f instanceStateFlag) {
 	for _, s := range states {
 		f.add(s)
@@ -392,6 +393,7 @@ func InstanceStates(states ...device.InstanceState) (f instanceStateFlag) {
 	return
 }
 
+//nolint:golint // API change required.
 func ExcludeInstanceStates(states ...device.InstanceState) instanceStateFlag {
 	f := InstanceStates(states...)
 	f.exclude = true
@@ -408,6 +410,7 @@ func (f *installationStateFlag) Set(s string) error {
 	})
 }
 
+//nolint:golint // API change required.
 func InstallationStates(states ...device.InstallationState) (f installationStateFlag) {
 	for _, s := range states {
 		f.add(s)
@@ -415,6 +418,7 @@ func InstallationStates(states ...device.InstallationState) (f installationState
 	return
 }
 
+//nolint:golint // API change required.
 func ExcludeInstallationStates(states ...device.InstallationState) installationStateFlag {
 	f := InstallationStates(states...)
 	f.exclude = true

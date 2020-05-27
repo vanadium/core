@@ -288,6 +288,7 @@ func (i *binaryService) Download(ctx *context.T, call repository.BinaryDownloadS
 
 // TODO(jsimsa): Design and implement an access control mechanism for
 // the URL-based downloads.
+//nolint:golint // API change required.
 func (i *binaryService) DownloadUrl(ctx *context.T, _ rpc.ServerCall) (string, int64, error) {
 	ctx.Infof("%v.DownloadUrl()", i.suffix)
 	return i.state.rootURL + "/" + i.suffix, 0, nil
@@ -406,6 +407,7 @@ func (i *binaryService) Upload(ctx *context.T, call repository.BinaryUploadServe
 	return nil
 }
 
+//nolint:golint // API change required.
 func (i *binaryService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	elems := strings.Split(i.suffix, "/")
 	if len(elems) == 1 && elems[0] == "" {

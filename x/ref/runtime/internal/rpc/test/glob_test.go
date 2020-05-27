@@ -290,6 +290,7 @@ type globObject struct {
 	n *node
 }
 
+//nolint:golint // API change required.
 func (o *globObject) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	o.globLoop(call, "", g, o.n)
 	return nil
@@ -314,6 +315,7 @@ type vChildrenObject struct {
 	n *node
 }
 
+//nolint:golint // API change required.
 func (o *vChildrenObject) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	sender := call.SendStream()
 	for child := range o.n.children {

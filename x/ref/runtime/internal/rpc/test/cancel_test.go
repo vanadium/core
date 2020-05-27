@@ -363,7 +363,7 @@ func TestChannelTimeout_Proxy(t *testing.T) {
 	testChannelTimeout(t, v23.WithListenSpec(ctx, ls))
 }
 
-func testChannelTimeOut_Server(t *testing.T, ctx *context.T) {
+func testChannelTimeOutServer(t *testing.T, ctx *context.T) {
 	conns := make(chan disconnect, 1)
 	sctx := v23.WithListenSpec(ctx, rpc.ListenSpec{
 		Addrs: rpc.ListenAddrs{{Protocol: "debug", Address: "tcp/127.0.0.1:0"}},
@@ -408,13 +408,13 @@ func testChannelTimeOut_Server(t *testing.T, ctx *context.T) {
 	<-done
 }
 
-func TestChannelTimeout_Server(t *testing.T) {
+func TestChannelTimeoutServer(t *testing.T) {
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
-	testChannelTimeOut_Server(t, ctx)
+	testChannelTimeOutServer(t, ctx)
 }
 
-func TestChannelTimeout_ServerProxy(t *testing.T) {
+func TestChannelTimeoutServerProxy(t *testing.T) {
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 	ls := v23.GetListenSpec(ctx)
@@ -429,5 +429,5 @@ func TestChannelTimeout_ServerProxy(t *testing.T) {
 		cancel()
 		<-p.Closed()
 	}()
-	testChannelTimeOut_Server(t, v23.WithListenSpec(ctx, ls))
+	testChannelTimeOutServer(t, v23.WithListenSpec(ctx, ls))
 }

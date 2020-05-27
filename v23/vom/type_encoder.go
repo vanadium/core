@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	errEncodeTypeIdOverflow = verror.Register(pkgPath+".errEncodeTypeIdOverflow", verror.NoRetry, "{1:}{2:} vom: encoder type id overflow{:_}")
+	errEncodeTypeIDOverflow = verror.Register(pkgPath+".errEncodeTypeIDOverflow", verror.NoRetry, "{1:}{2:} vom: encoder type id overflow{:_}")
 	errUnhandledType        = verror.Register(pkgPath+".errUnhandledType", verror.NoRetry, "{1:}{2:} vom: encode unhandled type {3}{:_}")
 )
 
@@ -61,7 +61,7 @@ func newTypeEncoderInternal(version Version, enc *encoder81) *TypeEncoder {
 // the order that we recurse and consequentially may be sent out of sequential
 // order if type information for children is sent (before the parent type).
 func (e *TypeEncoder) encode(tt *vdl.Type) (TypeId, error) {
-	if tid := e.lookupTypeId(tt); tid != 0 {
+	if tid := e.lookupTypeID(tt); tid != 0 {
 		return tid, nil
 	}
 
@@ -94,7 +94,7 @@ func (e *TypeEncoder) encode(tt *vdl.Type) (TypeId, error) {
 // encodeType encodes the type
 func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (TypeId, error) { //nolint:gocyclo
 	// Lookup a type Id for tt or assign a new one.
-	tid, isNew, err := e.lookupOrAssignTypeId(tt)
+	tid, isNew, err := e.lookupOrAssignTypeID(tt)
 	if err != nil {
 		return 0, err
 	}
@@ -187,9 +187,9 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 	return tid, nil
 }
 
-// lookupTypeId returns the id for the type tt if it is already encoded;
+// lookupTypeID returns the id for the type tt if it is already encoded;
 // otherwise zero id is returned.
-func (e *TypeEncoder) lookupTypeId(tt *vdl.Type) TypeId {
+func (e *TypeEncoder) lookupTypeID(tt *vdl.Type) TypeId {
 	if tid := bootstrapTypeToID[tt]; tid != 0 {
 		return tid
 	}
@@ -199,7 +199,7 @@ func (e *TypeEncoder) lookupTypeId(tt *vdl.Type) TypeId {
 	return tid
 }
 
-func (e *TypeEncoder) lookupOrAssignTypeId(tt *vdl.Type) (TypeId, bool, error) {
+func (e *TypeEncoder) lookupOrAssignTypeID(tt *vdl.Type) (TypeId, bool, error) {
 	if tid := bootstrapTypeToID[tt]; tid != 0 {
 		return tid, false, nil
 	}
@@ -214,7 +214,7 @@ func (e *TypeEncoder) lookupOrAssignTypeId(tt *vdl.Type) (TypeId, bool, error) {
 	newID := e.nextID
 	if newID > math.MaxInt64 {
 		e.typeMu.Unlock()
-		return 0, false, verror.New(errEncodeTypeIdOverflow, nil)
+		return 0, false, verror.New(errEncodeTypeIDOverflow, nil)
 	}
 	e.nextID++
 	e.typeToID[tt] = newID
@@ -222,7 +222,7 @@ func (e *TypeEncoder) lookupOrAssignTypeId(tt *vdl.Type) (TypeId, bool, error) {
 	return newID, true, nil
 }
 
-func (e *TypeEncoder) makeIdToTypeUnlocked() map[TypeId]*vdl.Type {
+func (e *TypeEncoder) makeIDToTypeUnlocked() map[TypeId]*vdl.Type {
 	if len(e.typeToID) == 0 {
 		return nil
 	}

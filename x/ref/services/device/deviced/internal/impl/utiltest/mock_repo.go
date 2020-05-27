@@ -160,6 +160,7 @@ func (i *brInvoker) Download(ctx *context.T, call repository.BinaryDownloadServe
 	}
 }
 
+//nolint:golint // API change required.
 func (*brInvoker) DownloadUrl(ctx *context.T, _ rpc.ServerCall) (string, int64, error) {
 	ctx.VI(1).Infof("DownloadUrl()")
 	return "", 0, nil

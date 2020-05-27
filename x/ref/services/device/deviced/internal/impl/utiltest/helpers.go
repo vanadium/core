@@ -662,6 +662,7 @@ type globTestRegexHelper struct {
 	statsTrimRE                      *regexp.Regexp
 }
 
+//nolint:golint // API change required.
 func NewGlobTestRegexHelper(appName string) *globTestRegexHelper {
 	return &globTestRegexHelper{
 		logFileTimeStampRE:               regexp.MustCompile("(STDOUT|STDERR)-[0-9]+$"),

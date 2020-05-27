@@ -1023,6 +1023,7 @@ func (b byBaseName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 //
 // All imports that pkg depend on must have already been compiled and populated
 // into env.
+//nolint:golint // API change required.
 func BuildPackage(pkg *Package, env *compile.Env) *compile.Package {
 	pfiles := ParsePackage(pkg, parse.Opts{}, env.Errors)
 	return compile.CompilePackage(pkg.Path, pkg.GenPath, pfiles, pkg.Config, env)
@@ -1039,6 +1040,7 @@ func BuildPackage(pkg *Package, env *compile.Env) *compile.Package {
 // All packages that the config src depends on must have already been compiled
 // and populated into env.  The imports are injected into the parsed src,
 // behaving as if the src had listed the imports explicitly.
+//nolint:golint // API change required.
 func BuildConfig(fileName string, src io.Reader, implicit *vdl.Type, imports []string, env *compile.Env) *vdl.Value {
 	pconfig := parse.ParseConfig(fileName, src, parse.Opts{}, env.Errors)
 	if pconfig != nil {
@@ -1050,6 +1052,7 @@ func BuildConfig(fileName string, src io.Reader, implicit *vdl.Type, imports []s
 // BuildConfigValue is a convenience function that runs BuildConfig, and then
 // converts the result into value.  The implicit type used by BuildConfig is
 // inferred from the value.
+//nolint:golint // API change required.
 func BuildConfigValue(fileName string, src io.Reader, imports []string, env *compile.Env, value interface{}) {
 	rv := reflect.ValueOf(value)
 	tt, err := vdl.TypeFromReflect(rv.Type())
@@ -1085,6 +1088,7 @@ func BuildConfigValue(fileName string, src io.Reader, imports []string, env *com
 //
 // All imports that the input data depends on must have already been compiled
 // and populated into env.
+//nolint:golint // API change required.
 func BuildExprs(data string, types []*vdl.Type, env *compile.Env) []*vdl.Value {
 	var values []*vdl.Value
 	var t *vdl.Type

@@ -4,4 +4,5 @@
 
 // Package wsh_nacl registers the websocket 'hybrid' protocol for nacl
 // architectures. It will only be built if on the nacl architecture.
+//nolint:golint // API change required.
 package wsh_nacl
