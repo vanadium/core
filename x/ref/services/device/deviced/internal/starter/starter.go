@@ -20,7 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	displib "v.io/x/ref/lib/dispatcher"
-	_ "v.io/x/ref/runtime/factories/roaming" //nolint:glint
+	_ "v.io/x/ref/runtime/factories/roaming" //nolint:golint
 	"v.io/x/ref/services/debug/debuglib"
 	"v.io/x/ref/services/device/deviced/internal/impl"
 	"v.io/x/ref/services/device/deviced/internal/versioning"
