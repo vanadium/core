@@ -31,22 +31,20 @@ var (
 func LaunchAgent(credsDir, agentBin string, printCredsEnv bool, flags ...string) error {
 	// Use an absolute path to the credentials directory to avoid relying on
 	// a specific cwd setting when starting the agent.
-	if path, err := filepath.Abs(credsDir); err != nil {
+	path, err := filepath.Abs(credsDir)
+	if err != nil {
 		return verror.New(errFilepathAbs, nil, credsDir, err)
-	} else {
-		credsDir = path
 	}
+	credsDir = path
 	// Use an absolute path to the agent to avoid relying on a specific cwd
 	// setting when starting the agent.
-	agentBin, err := exec.LookPath(agentBin)
-	if err != nil {
+	if agentBin, err = exec.LookPath(agentBin); err != nil {
 		return err
 	}
-	if path, err := filepath.Abs(agentBin); err != nil {
+	if path, err = filepath.Abs(agentBin); err != nil {
 		return verror.New(errFilepathAbs, nil, agentBin, err)
-	} else {
-		agentBin = path
 	}
+	agentBin = path
 
 	agentRead, agentWrite, err := os.Pipe()
 	if err != nil {

@@ -261,16 +261,18 @@ func runDelegate(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	// Create a blessings
 	var caveats []security.Caveat
-	if c, err := delegateAccessCaveat(); err != nil {
+	c, err := delegateAccessCaveat()
+	if err != nil {
 		return err
-	} else {
-		caveats = append(caveats, c)
 	}
-	if c, err := security.NewExpiryCaveat(time.Now().Add(duration)); err != nil {
+	caveats = append(caveats, c)
+
+	c, err = security.NewExpiryCaveat(time.Now().Add(duration))
+	if err != nil {
 		return err
-	} else {
-		caveats = append(caveats, c)
 	}
+	caveats = append(caveats, c)
+
 	p := v23.GetPrincipal(ctx)
 	b, _ := p.BlessingStore().Default()
 	blessing, err := p.Bless(pub, b, extension, caveats[0], caveats[1:]...)

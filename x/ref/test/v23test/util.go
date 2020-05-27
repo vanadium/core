@@ -19,7 +19,7 @@ import (
 )
 
 // TODO(sadovsky): Drop this hack once the TODOs in v23test.go are addressed.
-func maybeAddTcpAddressFlag(sh *Shell, args *[]string) {
+func maybeAddTCPAddressFlag(sh *Shell, args *[]string) {
 	if _, ok := sh.Vars[envShellTestProcess]; ok {
 		*args = append(*args, "-v23.tcp.address=127.0.0.1:0")
 	}
@@ -42,7 +42,7 @@ func (sh *Shell) StartRootMountTableWithOpts(opts mounttablelib.Opts) func(sig o
 		return nil
 	}
 	args := []string{}
-	maybeAddTcpAddressFlag(sh, &args)
+	maybeAddTCPAddressFlag(sh, &args)
 	cmd.Args = append(cmd.Args, args...)
 	cmd.Start()
 	if sh.Err != nil {

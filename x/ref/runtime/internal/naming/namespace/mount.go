@@ -29,15 +29,15 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 		switch v := o.(type) {
 		case naming.ReplaceMount:
 			if v {
-				flags |= naming.MountFlag(naming.Replace)
+				flags |= naming.Replace
 			}
 		case naming.ServesMountTable:
 			if v {
-				flags |= naming.MountFlag(naming.MT)
+				flags |= naming.MT
 			}
 		case naming.IsLeaf:
 			if v {
-				flags |= naming.MountFlag(naming.Leaf)
+				flags |= naming.Leaf
 			}
 		}
 	}

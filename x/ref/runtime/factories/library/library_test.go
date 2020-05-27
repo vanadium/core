@@ -46,23 +46,23 @@ func TestStatic(t *testing.T) {
 }
 
 func TestCommandLineFlagDefaults(t *testing.T) {
-	old_protocol := flags.DefaultProtocol()
-	old_hostport := flags.DefaultHostPort()
-	old_proxy := flags.DefaultProxy()
-	old_roots := flags.DefaultNamespaceRootsNoEnv()
-	old_perms := flags.DefaultPermissions()
-	old_literal := flags.DefaultPermissionsLiteral()
-	old_permspec := library.ConfigurePermissionsFromFlags
+	oldProtocol := flags.DefaultProtocol()
+	oldHostport := flags.DefaultHostPort()
+	oldProxy := flags.DefaultProxy()
+	oldRoots := flags.DefaultNamespaceRootsNoEnv()
+	oldPerms := flags.DefaultPermissions()
+	oldLiteral := flags.DefaultPermissionsLiteral()
+	oldPermSpec := library.ConfigurePermissionsFromFlags
 	defer func() {
-		flags.SetDefaultProtocol(old_protocol)
-		flags.SetDefaultHostPort(old_hostport)
-		flags.SetDefaultProxy(old_proxy)
-		flags.SetDefaultNamespaceRoots(old_roots...)
-		flags.SetDefaultPermissionsLiteral(old_literal)
-		for k, v := range old_perms {
+		flags.SetDefaultProtocol(oldProtocol)
+		flags.SetDefaultHostPort(oldHostport)
+		flags.SetDefaultProxy(oldProxy)
+		flags.SetDefaultNamespaceRoots(oldRoots...)
+		flags.SetDefaultPermissionsLiteral(oldLiteral)
+		for k, v := range oldPerms {
 			flags.SetDefaultPermissions(k, v)
 		}
-		library.ConfigurePermissionsFromFlags = old_permspec
+		library.ConfigurePermissionsFromFlags = oldPermSpec
 	}()
 	flags.SetDefaultProtocol("tcp6")
 	flags.SetDefaultHostPort("127.0.0.2:9999")

@@ -61,11 +61,10 @@ func getConnectionOptions(ctx *context.T, opts []rpc.CallOpt) *connectionOpts {
 		case options.ConnectionTimeout:
 			if dur := time.Duration(t); dur == 0 {
 				copts.useOnlyCached = true
-			} else {
+			} else if dl := now.Add(dur); dl.Before(copts.connDeadline) || copts.connDeadline.IsZero() {
 				// Use the minimum of all the timeouts passed in.
-				if dl := now.Add(dur); dl.Before(copts.connDeadline) || copts.connDeadline.IsZero() {
-					copts.connDeadline = dl
-				}
+				copts.connDeadline = dl
+
 			}
 		case options.ChannelTimeout:
 			// Use the minimum channel timeout.
@@ -89,8 +88,7 @@ func getConnectionOptions(ctx *context.T, opts []rpc.CallOpt) *connectionOpts {
 
 func getNoNamespaceOpt(opts []rpc.CallOpt) bool {
 	for _, o := range opts {
-		switch o.(type) {
-		case options.Preresolved:
+		if _, ok := o.(options.Preresolved); ok {
 			return true
 		}
 	}

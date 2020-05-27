@@ -21,9 +21,9 @@ func (f *httpService) RawDo(_ *context.T, _ rpc.ServerCall, req v23_http.Request
 	data []byte, err error) {
 
 	buf := bytes.NewBuffer(data)
-	http_req := httplib.HTTPRequestFromVDLRequest(req)
+	httpReq := httplib.HTTPRequestFromVDLRequest(req)
 
-	trace.Render(buf, http_req, false)
+	trace.Render(buf, httpReq, false)
 
 	return buf.Bytes(), nil
 }

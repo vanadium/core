@@ -224,8 +224,8 @@ func TestInstallLocalCommand(t *testing.T) { //nolint:gocyclo
 			},
 		},
 	} {
-		const appId = "myBestAppID"
-		rootTape.SetResponses(InstallResponse{appId, nil})
+		const appID = "myBestAppID"
+		rootTape.SetResponses(InstallResponse{appID, nil})
 		if c.config != nil {
 			jsonConfig, err := json.Marshal(c.config)
 			if err != nil {
@@ -244,7 +244,7 @@ func TestInstallLocalCommand(t *testing.T) { //nolint:gocyclo
 		if err := v23cmd.ParseAndRunForTest(cmd, ctx, env, c.args); err != nil {
 			t.Fatalf("test case %d: %v", i, err)
 		}
-		if expected, got := naming.Join(deviceName, appId), strings.TrimSpace(stdout.String()); got != expected {
+		if expected, got := naming.Join(deviceName, appID), strings.TrimSpace(stdout.String()); got != expected {
 			t.Fatalf("test case %d: Unexpected output from Install. Got %q, expected %q", i, got, expected)
 		}
 		if got, expected := rootTape.Play(), []interface{}{c.expectedTape}; !reflect.DeepEqual(expected, got) {

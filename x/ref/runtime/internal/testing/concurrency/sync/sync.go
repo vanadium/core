@@ -59,9 +59,8 @@ func (m *RWMutex) RLock() {
 func (m *RWMutex) RLocker() sync.Locker {
 	if t := concurrency.T(); t != nil {
 		return (*rlocker)(m)
-	} else {
-		return m.m.RLocker()
 	}
+	return m.m.RLocker()
 }
 
 func (m *RWMutex) RUnlock() {

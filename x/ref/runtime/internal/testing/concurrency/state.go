@@ -95,7 +95,7 @@ func (s *state) addBranch(branch []*choice, seeds *stack) error {
 	}
 	next, found := s.children[choice.next]
 	if !found {
-		return fmt.Errorf("invalid choice (no transition fo thread %d).", choice.next)
+		return fmt.Errorf("invalid choice (no transition fo thread %d)", choice.next)
 	}
 	next.visited = true
 	branch = branch[1:]

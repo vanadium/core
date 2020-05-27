@@ -20,7 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	displib "v.io/x/ref/lib/dispatcher"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/roaming" //nolint:glint
 	"v.io/x/ref/services/debug/debuglib"
 	"v.io/x/ref/services/device/deviced/internal/impl"
 	"v.io/x/ref/services/device/deviced/internal/versioning"
@@ -205,18 +205,16 @@ func startClaimedDevice(ctx *context.T, args Args) (func(), error) {
 	if err != nil {
 		ctx.Errorf("Failed to start mounttable service: %v", err)
 		return nil, err
-	} else {
-		ctx.Infof("Started mount table.")
 	}
+	ctx.Infof("Started mount table.")
 	ctx.Infof("Starting device service...")
 	stopDevice, err := startDeviceServer(ctx, args.Device, mtName, permStore)
 	if err != nil {
 		ctx.Errorf("Failed to start device service: %v", err)
 		stopMT()
 		return nil, err
-	} else {
-		ctx.Infof("Started device service.")
 	}
+	ctx.Infof("Started device service.")
 	if args.MountGlobalNamespaceInLocalNamespace {
 		ctx.Infof("Mounting %v ...", mtName)
 		mountGlobalNamespaceInLocalNamespace(ctx, mtName)

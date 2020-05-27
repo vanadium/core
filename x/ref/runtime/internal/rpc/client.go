@@ -723,8 +723,7 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 	call := security.NewCall(callparams)
 	var grantedB security.Blessings
 	for _, o := range opts {
-		switch v := o.(type) {
-		case rpc.Granter:
+		if v, ok := o.(rpc.Granter); ok {
 			if b, err := v.Grant(ctx, call); err != nil {
 				return grantedB, verror.New(errBlessingGrant, fc.ctx, err)
 			} else if grantedB, err = security.UnionOfBlessings(grantedB, b); err != nil {

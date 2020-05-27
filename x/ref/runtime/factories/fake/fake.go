@@ -17,10 +17,10 @@ import (
 
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
-	_ "v.io/x/ref/runtime/protocols/local"
-	_ "v.io/x/ref/runtime/protocols/tcp"
-	_ "v.io/x/ref/runtime/protocols/ws"
-	_ "v.io/x/ref/runtime/protocols/wsh"
+	_ "v.io/x/ref/runtime/protocols/local" //nolint:golint
+	_ "v.io/x/ref/runtime/protocols/tcp"   //nolint:golint
+	_ "v.io/x/ref/runtime/protocols/ws"    //nolint:golint
+	_ "v.io/x/ref/runtime/protocols/wsh"   //nolint:golint
 )
 
 var (

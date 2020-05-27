@@ -36,7 +36,7 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/internal/logger"
 	vsecurity "v.io/x/ref/lib/security"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/roaming" //nolint:golint
 	"v.io/x/ref/services/device/deviced/internal/impl"
 	"v.io/x/ref/services/device/deviced/internal/versioning"
 	"v.io/x/ref/services/internal/binarylib"

@@ -68,7 +68,7 @@ func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) (error, []err
 
 	globErrors := make([]error, 0, len(errors))
 	for _, err := range errors {
-		globErrors = append(globErrors, fmt.Errorf("Glob error: %s: %v\n", err.Name, err.Error))
+		globErrors = append(globErrors, fmt.Errorf("glob error: %s: %v", err.Name, err.Error))
 	}
 	return nil, globErrors
 }

@@ -139,8 +139,8 @@ func deviceManagerFunc(publishName string, args ...string) error {
 	return nil
 }
 
-// This is the same as DeviceManager above, except that it has a different major
-// version number.
+// DeviceManagerV10 is the same as DeviceManager above, except that it has a
+// different major version number.
 var DeviceManagerV10 = gosh.RegisterFunc("DeviceManagerV10", func(publishName string, args ...string) error {
 	versioning.CurrentVersion = versioning.Version{Major: 10, Minor: 0} // Set the version number to 10.0
 	return deviceManagerFunc(publishName, args...)

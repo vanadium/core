@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var nextId = 0
+var nextID = 0
 
 type Dep struct {
 	deps    []*Dep
@@ -18,8 +18,8 @@ type Dep struct {
 }
 
 func NewDep(deps ...*Dep) *Dep {
-	d := &Dep{deps: deps, id: nextId}
-	nextId++
+	d := &Dep{deps: deps, id: nextID}
+	nextID++
 	return d
 }
 

@@ -25,17 +25,17 @@ func VDLRequestFromHTTPRequest(req *go_http.Request) v23_http.Request {
 		Fragment: req.URL.Fragment,
 	}
 
-	body_buf := new(bytes.Buffer)
-	body_buf.ReadFrom(req.Body) //nolint:errcheck
+	bodyBuf := new(bytes.Buffer)
+	bodyBuf.ReadFrom(req.Body) //nolint:errcheck
 
-	ifc_req := v23_http.Request{
+	return v23_http.Request{
 		Method:           req.Method,
 		Url:              url,
 		Proto:            req.Proto,
 		ProtoMajor:       int16(req.ProtoMajor),
 		ProtoMinor:       int16(req.ProtoMinor),
 		Header:           req.Header,
-		Body:             body_buf.Bytes(),
+		Body:             bodyBuf.Bytes(),
 		ContentLength:    req.ContentLength,
 		TransferEncoding: req.TransferEncoding,
 		Close:            req.Close,
@@ -46,7 +46,6 @@ func VDLRequestFromHTTPRequest(req *go_http.Request) v23_http.Request {
 		RemoteAddr:       req.RemoteAddr,
 		RequestUri:       req.RequestURI,
 	}
-	return ifc_req
 }
 
 func HTTPRequestFromVDLRequest(req v23_http.Request) *go_http.Request {
@@ -61,7 +60,7 @@ func HTTPRequestFromVDLRequest(req v23_http.Request) *go_http.Request {
 		Fragment: req.Url.Fragment,
 	}
 
-	http_req := &go_http.Request{
+	return &go_http.Request{
 		Method:           req.Method,
 		URL:              url,
 		Proto:            req.Proto,
@@ -80,5 +79,4 @@ func HTTPRequestFromVDLRequest(req v23_http.Request) *go_http.Request {
 		RemoteAddr:       req.RemoteAddr,
 		RequestURI:       req.RequestUri,
 	}
-	return http_req
 }

@@ -116,7 +116,7 @@ func addToPATH(env []string, dir string) []string {
 // environment and the supplied command-line flags.
 func SelfInstall(ctx *context.T, installDir, suidHelper, restarter, agent, initHelper, origin string, singleUser, sessionMode, init bool, args, env []string, stderr, stdout io.Writer) error { //nolint:gocyclo
 	if os.Getenv(ref.EnvCredentials) != "" {
-		return fmt.Errorf("Attempting to install device manager with the %q environment variable set.", ref.EnvCredentials)
+		return fmt.Errorf("attempting to install device manager with the %q environment variable set", ref.EnvCredentials)
 	}
 	root := filepath.Join(installDir, dmRoot)
 	if _, err := os.Stat(root); err == nil || !os.IsNotExist(err) {
@@ -125,7 +125,7 @@ func SelfInstall(ctx *context.T, installDir, suidHelper, restarter, agent, initH
 	deviceDir := filepath.Join(root, "device-manager", "base")
 	perm := os.FileMode(0711)
 	if err := os.MkdirAll(deviceDir, perm); err != nil {
-		return fmt.Errorf("MkdirAll(%v, %v) failed: %v", deviceDir, perm, err)
+		return fmt.Errorf("mkdirAll(%v, %v) failed: %v", deviceDir, perm, err)
 	}
 
 	// save info about the binary creating this tree
@@ -283,7 +283,7 @@ func Start(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 	}
 
 	if os.Getenv(ref.EnvCredentials) != "" {
-		return fmt.Errorf("Attempting to run device manager with the %q environment variable set.", ref.EnvCredentials)
+		return fmt.Errorf("attempting to run device manager with the %q environment variable set", ref.EnvCredentials)
 	}
 	dmScript := filepath.Join(root, "deviced.sh")
 	cmd := exec.Command(dmScript)

@@ -144,19 +144,20 @@ func publishOne(ctx *context.T, env *cmdline.Env, binPath, binary string) error 
 	appClient := repository.ApplicationClient(appVON)
 	envelope, err := appClient.Match(ctx, []string{profile})
 	// TODO(caprita): Fix https://github.com/vanadium/issues/issues/679
-	if errID := verror.ErrorID(err); errID == verror.ErrNoExist.ID || errID == "v.io/x/ref/services/application/applicationd.InvalidSuffix" {
+	errID := verror.ErrorID(err)
+	switch {
+	case errID == verror.ErrNoExist.ID || errID == "v.io/x/ref/services/application/applicationd.InvalidSuffix":
 		// There was nothing published yet, create a new envelope.
 		envelope = application.Envelope{Title: title}
-	} else if err != nil {
+	case err != nil:
 		return err
-	} else {
+	case title != binaryName && title != envelope.Title:
 		// We are going to be updating an existing envelope
 
 		// Complain if a title was specified explicitly and does not match the one in the
 		// envelope, because we are not going to update the one in the envelope
-		if title != binaryName && title != envelope.Title {
-			return fmt.Errorf("Specified title (%v) does not match title in existing envelope (%v)", title, envelope.Title)
-		}
+
+		return fmt.Errorf("Specified title (%v) does not match title in existing envelope (%v)", title, envelope.Title)
 	}
 
 	envelope.Binary.File = binaryVON

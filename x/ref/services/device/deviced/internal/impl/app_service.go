@@ -308,11 +308,11 @@ func saveOrigin(ctx *context.T, dir, originVON string) error {
 
 func loadOrigin(ctx *context.T, dir string) (string, error) {
 	path := filepath.Join(dir, "origin")
-	if originBytes, err := ioutil.ReadFile(path); err != nil {
+	originBytes, err := ioutil.ReadFile(path)
+	if err != nil {
 		return "", verror.New(errors.ErrOperationFailed, ctx, fmt.Sprintf("ReadFile(%v) failed: %v", path, err))
-	} else {
-		return string(originBytes), nil
 	}
+	return string(originBytes), nil
 }
 
 // generateID returns a new unique id string.  The uniqueness is based on the
@@ -737,9 +737,8 @@ func genCmd(ctx *context.T, instanceDir, nsRoot string) (*exec.Cmd, error) {
 	sanitize := func(r rune) rune {
 		if strconv.IsPrint(r) {
 			return r
-		} else {
-			return '_'
 		}
+		return '_'
 	}
 	appName := strings.Map(sanitize, rawAppName)
 	saArgs.progname = appName
@@ -822,11 +821,11 @@ func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) 
 	}
 	cfg.Set(mgmt.AppCycleBlessingsKey, info.AppCycleBlessings)
 
-	if instanceName, err := instanceNameFromDir(ctx, instanceDir); err != nil {
+	instanceName, err := instanceNameFromDir(ctx, instanceDir)
+	if err != nil {
 		return 0, err
-	} else {
-		cfg.Set(mgmt.InstanceNameKey, naming.Join(i.appServiceName, instanceName))
 	}
+	cfg.Set(mgmt.InstanceNameKey, naming.Join(i.appServiceName, instanceName))
 
 	appPermsDir := filepath.Join(instanceDir, "debugacls", "data")
 	cfg.Set("v23.permissions.file", "runtime:"+appPermsDir)
@@ -1523,24 +1522,24 @@ Config: {{printf "%+v" .Config}}
 	}{}
 	debugInfo.InstallationDir = installationDir
 
-	if origin, err := loadOrigin(ctx, installationDir); err != nil {
+	origin, err := loadOrigin(ctx, installationDir)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.Origin = origin
 	}
+	debugInfo.Origin = origin
 
 	currLink := filepath.Join(installationDir, "current")
-	if envelope, err := loadEnvelope(ctx, currLink); err != nil {
+	envelope, err := loadEnvelope(ctx, currLink)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.Envelope = envelope
 	}
+	debugInfo.Envelope = envelope
 
-	if config, err := loadConfig(ctx, installationDir); err != nil {
+	config, err := loadConfig(ctx, installationDir)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.Config = config
 	}
+	debugInfo.Config = config
 
 	var buf bytes.Buffer
 	if err := installationDebugTemplate.Execute(&buf, debugInfo); err != nil {
@@ -1586,28 +1585,30 @@ Roots: {{.Principal.Roots.DebugString}}
 	debugInfo.InstanceDir = instanceDir
 
 	debugInfo.SystemName = suidHelper.usernameForPrincipal(ctx, call, i.uat)
-	if startSystemName, err := readSystemNameForInstance(instanceDir); err != nil {
+	startSystemName, err := readSystemNameForInstance(instanceDir)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.StartSystemName = startSystemName
 	}
+	debugInfo.StartSystemName = startSystemName
 
-	if info, err := loadInstanceInfo(ctx, instanceDir); err != nil {
+	info, err := loadInstanceInfo(ctx, instanceDir)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.Info = info
 	}
-	if cmd, err := genCmd(ctx, instanceDir, i.runner.mtAddress); err != nil {
-		return "", err
-	} else {
-		debugInfo.Cmd = cmd
-	}
+	debugInfo.Info = info
 
-	if envelope, err := loadEnvelopeForInstance(ctx, instanceDir); err != nil {
+	cmd, err := genCmd(ctx, instanceDir, i.runner.mtAddress)
+	if err != nil {
 		return "", err
-	} else {
-		debugInfo.Envelope = envelope
 	}
+	debugInfo.Cmd = cmd
+
+	envelope, err := loadEnvelopeForInstance(ctx, instanceDir)
+	if err != nil {
+		return "", err
+	}
+	debugInfo.Envelope = envelope
+
 	// TODO(caprita): Load requires that the principal be Serve-ing.
 	if debugInfo.Principal, err = i.runner.principalMgr.Load(instanceDir); err != nil {
 		return "", err

@@ -19,7 +19,6 @@
 //     (e) /sendmacaroon sends a macaroon with blessing information to client
 //         (via a redirect to an HTTP server run by the tool).
 //     (f) Client invokes bless rpc with macaroon.
-
 package oauth
 
 import (
@@ -297,9 +296,9 @@ func (h *handler) revoke(ctx *context.T, w http.ResponseWriter, r *http.Request)
 	w.Write([]byte(success)) //nolint:errcheck
 }
 
-func (h *handler) validateRevocationToken(ctx *context.T, Token string, r *http.Request) (string, error) {
+func (h *handler) validateRevocationToken(ctx *context.T, token string, r *http.Request) (string, error) {
 	var encCaveatID string
-	if err := h.csrfCop.ValidateToken(Token, r, clientIDCookie, &encCaveatID); err != nil {
+	if err := h.csrfCop.ValidateToken(token, r, clientIDCookie, &encCaveatID); err != nil {
 		return "", fmt.Errorf("invalid CSRF token: %v in request: %#v", err, r)
 	}
 	caveatID, err := base64.URLEncoding.DecodeString(encCaveatID)

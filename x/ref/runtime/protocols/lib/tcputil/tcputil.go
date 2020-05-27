@@ -125,7 +125,7 @@ func TCPResolveAddrs(ctx *context.T, address string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := ":" + string(port)
+	s := ":" + port
 	for _, ip := range ips {
 		addrs = append(addrs, ip.String()+s)
 	}

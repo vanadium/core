@@ -64,7 +64,7 @@ func TestBadMacaroon(t *testing.T) {
 
 	// Restore data, but change the Signature.
 	msg.Data = []byte("Hello")
-	msg.Sig.R[0] += 1
+	msg.Sig.R[0]++
 
 	if v, err = vom.Encode(msg); err != nil {
 		t.Fatalf("vom.Encode failed: %v", err)

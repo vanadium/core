@@ -18,10 +18,10 @@ import (
 )
 
 func main() {
-	cmdline.Main(cmdUniqueId)
+	cmdline.Main(cmdUniqueID)
 }
 
-var cmdUniqueId = &cmdline.Command{
+var cmdUniqueID = &cmdline.Command{
 	Name:  "uniqueid",
 	Short: "generates unique identifiers",
 	Long: `
@@ -81,6 +81,8 @@ func runInject(env *cmdline.Env, args []string) error {
 	return nil
 }
 
+var uniqueRE = regexp.MustCompile("[$]UNIQUEID")
+
 // injectIntoFile replaces $UNIQUEID$ strings when they exist in the specified file.
 func injectIntoFile(filename string) error {
 	inbytes, err := ioutil.ReadFile(filename)
@@ -89,11 +91,7 @@ func injectIntoFile(filename string) error {
 	}
 
 	// Replace $UNIQUEID$ with generated ids.
-	re, err := regexp.Compile("[$]UNIQUEID")
-	if err != nil {
-		return err
-	}
-	replaced := re.ReplaceAllFunc(inbytes, func(match []byte) []byte {
+	replaced := uniqueRE.ReplaceAllFunc(inbytes, func(match []byte) []byte {
 		id, randErr := uniqueid.Random()
 		if randErr != nil {
 			err = randErr

@@ -102,7 +102,7 @@ type InstallStimulus struct {
 }
 
 type InstallResponse struct {
-	appId string
+	appID string
 	err   error
 }
 
@@ -133,9 +133,8 @@ func packageSize(pkgPath string) int64 {
 			size += i.Size()
 		}
 		return size
-	} else {
-		return info.Size()
 	}
+	return info.Size()
 }
 
 func fetchPackageSize(ctx *context.T, pkgVON string) (int64, error) {
@@ -198,7 +197,7 @@ func (mdi *mockDeviceInvoker) Install(ctx *context.T, _ rpc.ServerCall, appName 
 		is.envelope = envelope
 	}
 	r := mdi.tape.Record(is).(InstallResponse)
-	return r.appId, r.err
+	return r.appID, r.err
 }
 
 func (mdi *mockDeviceInvoker) Run(*context.T, rpc.ServerCall) error {

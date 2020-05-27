@@ -194,8 +194,7 @@ func withTimeout(ctx *context.T) (*context.T, func()) {
 // CacheCtl implements namespace.T.CacheCtl
 func (ns *namespace) CacheCtl(ctls ...naming.CacheCtl) []naming.CacheCtl {
 	for _, c := range ctls {
-		switch v := c.(type) {
-		case naming.DisableCache:
+		if v, ok := c.(naming.DisableCache); ok {
 			disableCache := bool(v)
 			ns.Lock()
 			if _, isDisabled := ns.resolutionCache.(nullCache); isDisabled != disableCache {

@@ -165,11 +165,11 @@ func (a *accessTokenBlesser) blessingExtension(r *http.Request) (string, error) 
 	return strings.Join([]string{clientID, email}, security.ChainSeparator), nil
 }
 
-func (a *accessTokenBlesser) encodeBlessingsJson(b security.Blessings) ([]byte, error) {
+func (a *accessTokenBlesser) encodeBlessingsJSON(b security.Blessings) ([]byte, error) {
 	return json.Marshal(security.MarshalBlessings(b))
 }
 
-func (a *accessTokenBlesser) encodeBlessingsVom(b security.Blessings) (string, error) {
+func (a *accessTokenBlesser) encodeBlessingsVOM(b security.Blessings) (string, error) {
 	bVom, err := vom.Encode(b)
 	if err != nil {
 		return "", fmt.Errorf("vom.Encode(%v) failed: %v", b, err)
@@ -230,7 +230,7 @@ func (a *accessTokenBlesser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	switch outputFormat {
 	case jsonFormat:
-		encodedBlessings, err := a.encodeBlessingsJson(blessings)
+		encodedBlessings, err := a.encodeBlessingsJSON(blessings)
 		if err != nil {
 			a.ctx.Infof("Failed to encode blessings [%v] for request %#v", err, r)
 			util.HTTPServerError(w, fmt.Errorf("failed to encode blessings in format %v: %v", outputFormat, err))
@@ -239,7 +239,7 @@ func (a *accessTokenBlesser) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(encodedBlessings) //nolint:errcheck
 	case base64VomFormat:
-		encodedBlessings, err := a.encodeBlessingsVom(blessings)
+		encodedBlessings, err := a.encodeBlessingsVOM(blessings)
 		if err != nil {
 			a.ctx.Infof("Failed to encode blessings [%v] for request %#v", err, r)
 			util.HTTPServerError(w, fmt.Errorf("failed to encode blessings in format %v: %v", outputFormat, err))

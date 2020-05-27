@@ -50,7 +50,7 @@ var (
 	numEntries int
 	startPos   int64
 	raw        bool
-	rawJson    bool
+	rawJSON    bool
 	showType   bool
 	pprofCmd   string
 	timeout    time.Duration
@@ -69,7 +69,7 @@ func init() {
 
 	// stats read flags
 	cmdStatsRead.Flags.BoolVar(&raw, "raw", false, "When true, the command will display the raw value of the object.")
-	cmdStatsRead.Flags.BoolVar(&rawJson, "json", false, "When true, the command will display the raw value of the object in json format.")
+	cmdStatsRead.Flags.BoolVar(&rawJSON, "json", false, "When true, the command will display the raw value of the object in json format.")
 	cmdStatsRead.Flags.BoolVar(&showType, "type", false, "When true, the type of the values will be displayed.")
 
 	// stats watch flags
@@ -324,8 +324,7 @@ func runStatsRead(ctx *context.T, env *cmdline.Env, args []string) error {
 	go func() {
 		var wg sync.WaitGroup
 		for me := range globResults {
-			switch v := me.(type) {
-			case *naming.GlobReplyEntry:
+			if v, ok := me.(*naming.GlobReplyEntry); ok {
 				wg.Add(1)
 				go doValue(ctx, v.Value.Name, output, errors, &wg)
 			}
@@ -343,12 +342,12 @@ func runStatsRead(ctx *context.T, env *cmdline.Env, args []string) error {
 			fmt.Fprintln(env.Stderr, err)
 		case out, ok := <-output:
 			if !ok {
-				if rawJson {
+				if rawJSON {
 					fmt.Fprintf(env.Stdout, "[%s]", strings.Join(jsonOutputs, ","))
 				}
 				return lastErr
 			}
-			if rawJson {
+			if rawJSON {
 				jsonOutputs = append(jsonOutputs, out)
 			} else {
 				fmt.Fprintln(env.Stdout, out)
@@ -372,7 +371,7 @@ func doValue(ctx *context.T, name string, output chan<- string, errors chan<- er
 		// fv is still valid, so dump it out too.
 	}
 	// Add "name" to the returned json string if "-json" flag is set.
-	if rawJson {
+	if rawJSON {
 		output <- strings.Replace(fv, "{", fmt.Sprintf(`{"Name":%q,`, name), 1)
 	} else {
 		output <- fmt.Sprintf("%s: %v", name, fv)
@@ -471,7 +470,7 @@ func formatValue(rb *vom.RawBytes) (string, error) {
 	if showType {
 		ret += value.Type().String() + ": "
 	}
-	if rawJson {
+	if rawJSON {
 		var converted interface{}
 		// We will just return raw string if any of the following steps fails.
 		if err := vdl.Convert(&converted, value); err != nil {

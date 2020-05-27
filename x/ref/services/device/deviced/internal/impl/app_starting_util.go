@@ -56,10 +56,8 @@ func (a *appWatcher) watchAppPid(ctx *context.T) {
 			if err := syscall.Kill(a.pid, 0); err != nil && err != syscall.EPERM {
 				ctx.Errorf("App died in startup: pid=%d: %v", a.pid, err)
 				return
-			} else {
-				ctx.VI(2).Infof("App pid %d is alive", a.pid)
 			}
-
+			ctx.VI(2).Infof("App pid %d is alive", a.pid)
 		case <-a.stopper:
 			ctx.Errorf("AppWatcher was stopped")
 			return

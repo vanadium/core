@@ -101,7 +101,7 @@ func (pm *filesystemPrincipalManager) New() (string, error) {
 	return dir, nil
 }
 
-func (m *filesystemPrincipalManager) Principal(handle string) (security.Principal, error) {
+func (pm *filesystemPrincipalManager) Principal(handle string) (security.Principal, error) {
 	return libsec.LoadPersistentPrincipal(handle, nil)
 }
 
@@ -147,6 +147,6 @@ func (pm *agentPrincipalManager) New() (string, error) {
 	return sockPath, nil
 }
 
-func (m *agentPrincipalManager) Principal(handle string) (security.Principal, error) {
+func (pm *agentPrincipalManager) Principal(handle string) (security.Principal, error) {
 	return agentlib.NewAgentPrincipalX(handle)
 }

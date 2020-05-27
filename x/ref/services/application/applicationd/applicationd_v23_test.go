@@ -80,7 +80,7 @@ func TestV23ApplicationRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := appEnvelopeFile.Write([]byte(wantEnvelope)); err != nil {
+	if _, err := appEnvelopeFile.Write(wantEnvelope); err != nil {
 		t.Fatalf("Write() failed: %v", err)
 	}
 	putEnvelope(t, sh, clientBin, clientCreds, appRepoName, appRepoSuffix, appEnvelopeFile.Name())

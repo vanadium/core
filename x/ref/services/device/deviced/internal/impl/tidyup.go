@@ -39,7 +39,7 @@ func shouldDelete(idir, suffix string, now time.Time) (bool, error) {
 	return oldEnoughToTidy(fi, now), nil
 }
 
-// Exposed for replacability in tests.
+// MockableNow is exposed for replacability in tests.
 var MockableNow = time.Now
 
 // shouldDeleteInstallation returns true if the tidying policy holds

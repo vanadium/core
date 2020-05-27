@@ -281,7 +281,7 @@ this tool. - is used for STDIN.
 					}
 					fmt.Println("")
 					for cavidx, cav := range cert.Caveats {
-						fmt.Printf("    (%d) %v\n", cavidx, &cav)
+						fmt.Printf("    (%d) %v\n", cavidx, cav.String())
 					}
 				}
 			}
@@ -1234,17 +1234,18 @@ func printBlessingsInfo(names bool, rootKey, caveats string, blessings security.
 	if blessings.IsZero() {
 		return fmt.Errorf("no blessings found")
 	}
-	if names {
+	switch {
+	case names:
 		fmt.Println(strings.Replace(fmt.Sprint(blessings), ",", "\n", -1))
 		return nil
-	} else if len(rootKey) > 0 {
+	case len(rootKey) > 0:
 		chain, err := getChainByName(blessings, rootKey)
 		if err != nil {
 			return err
 		}
 		fmt.Println(rootkey(chain))
 		return nil
-	} else if len(caveats) > 0 {
+	case len(caveats) > 0:
 		chain, err := getChainByName(blessings, caveats)
 		if err != nil {
 			return err

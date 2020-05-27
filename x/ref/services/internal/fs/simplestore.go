@@ -151,12 +151,11 @@ func isVOM(file io.ReadSeeker) (bool, error) {
 	if c > 0 {
 		if oneByte[0] == vomGobMagicByte {
 			return true, nil
-		} else {
-			if _, err := file.Seek(0, 0); err != nil {
-				return false, verror.New(errFileSystemError, nil, err)
-			}
-			return false, nil
 		}
+		if _, err := file.Seek(0, 0); err != nil {
+			return false, verror.New(errFileSystemError, nil, err)
+		}
+		return false, nil
 	}
 	return false, err
 }
@@ -441,15 +440,13 @@ func (o *boundObject) transactionExists() bool {
 func (o *boundObject) Exists(_ interface{}) (bool, error) {
 	if o.ms.haveTransactionNameBinding {
 		return o.transactionExists(), nil
-	} else {
-		_, inBase := o.ms.data[o.path]
-		if inBase {
+	}
+	if _, inBase := o.ms.data[o.path]; inBase {
+		return true, nil
+	}
+	for k := range o.ms.data {
+		if strings.HasPrefix(k, o.path) {
 			return true, nil
-		}
-		for k := range o.ms.data {
-			if strings.HasPrefix(k, o.path) {
-				return true, nil
-			}
 		}
 	}
 	return false, nil
@@ -492,9 +489,8 @@ func (o *boundObject) bareGet() (*boundObject, error) {
 func (o *boundObject) Get(_ interface{}) (*boundObject, error) {
 	if o.ms.haveTransactionNameBinding {
 		return o.transactionBoundGet()
-	} else {
-		return o.bareGet()
 	}
+	return o.bareGet()
 }
 
 func (o *boundObject) Put(_ interface{}, envelope interface{}) (*boundObject, error) {

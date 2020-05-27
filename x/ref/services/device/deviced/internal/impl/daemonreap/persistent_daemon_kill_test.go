@@ -53,7 +53,7 @@ func TestReapRestartsDaemonMode(t *testing.T) {
 
 	// Kill instance[0] and wait until it exits before proceeding.
 	syscall.Kill(pid, 9) //nolint:errcheck
-	utiltest.PollingWait(t, int(pid))
+	utiltest.PollingWait(t, pid)
 
 	// Run another device manager to replace the dead one.
 	dm = utiltest.DeviceManagerCmd(sh, utiltest.DeviceManager, "dm", root, helperPath, "unused_app_repo_name", "unused_curr_link")

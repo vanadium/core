@@ -124,7 +124,7 @@ func TestDownloadSignatureMatch(t *testing.T) { //nolint:gocyclo
 	}
 
 	// Verify that when the binary is corrupted, signature verification fails.
-	up[0] = up[0] ^ 0xFF
+	up[0] ^= 0xFF
 	if err := binarylib.Delete(ctx, naming.Join(binaryVON, "testbinary")); err != nil {
 		t.Fatalf("Delete(%v) failed:%v", binaryVON, err)
 	}
@@ -136,7 +136,7 @@ func TestDownloadSignatureMatch(t *testing.T) { //nolint:gocyclo
 	}
 
 	// Restore the binary and verify that installation succeeds.
-	up[0] = up[0] ^ 0xFF
+	up[0] ^= 0xFF
 	if err := binarylib.Delete(ctx, naming.Join(binaryVON, "testbinary")); err != nil {
 		t.Fatalf("Delete(%v) failed:%v", binaryVON, err)
 	}
@@ -148,7 +148,7 @@ func TestDownloadSignatureMatch(t *testing.T) { //nolint:gocyclo
 	}
 
 	// Verify that when the package contents are corrupted, signature verification fails.
-	pkgContents[0] = pkgContents[0] ^ 0xFF
+	pkgContents[0] ^= 0xFF
 	if err := binarylib.Delete(ctx, pkgVON); err != nil {
 		t.Fatalf("Delete(%v) failed:%v", pkgVON, err)
 	}

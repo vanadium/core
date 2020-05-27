@@ -130,7 +130,7 @@ func testHTTP(url string, expect ...string) error {
 	body := buf.String()
 	for _, e := range expect {
 		if !strings.Contains(body, e) {
-			return fmt.Errorf("failed to find [%v] in contents of %q\n%v\n", e, url, body)
+			return fmt.Errorf("failed to find [%v] in contents of %q: %v", e, url, body)
 		}
 	}
 	return nil

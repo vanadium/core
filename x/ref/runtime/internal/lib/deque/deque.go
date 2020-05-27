@@ -110,7 +110,7 @@ func (q *T) reserve() {
 			return
 		}
 		contents := make([]interface{}, q.size*2)
-		i := copy(contents[:], q.contents[q.fx:])
+		i := copy(contents, q.contents[q.fx:])
 		copy(contents[i:], q.contents[:q.fx])
 		q.contents = contents
 		q.fx = 0

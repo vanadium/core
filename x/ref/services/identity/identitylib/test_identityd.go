@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	externalHttpAddr = flag.String("external-http-addr", "", "External address on which the HTTP server listens on. If none is provided the server will only listen on -http-addr.")
+	externalHTTPAddr = flag.String("external-http-addr", "", "External address on which the HTTP server listens on. If none is provided the server will only listen on -http-addr.")
 	httpAddr         = flag.CommandLine.String("http-addr", "localhost:0", "Address on which the HTTP server listens on.")
 	tlsConfig        = flag.CommandLine.String("tls-config", "", "Comma-separated list of TLS certificate and private key files. This must be provided.")
 )
@@ -39,8 +39,8 @@ var TestIdentityd = gosh.RegisterFunc("TestIdentityd", func() error {
 
 	// If no tls-config has been provided, generate new cert and key and use them.
 	if flag.CommandLine.Lookup("tls-config").Value.String() == "" {
-		addr := *externalHttpAddr
-		if *externalHttpAddr == "" {
+		addr := *externalHTTPAddr
+		if *externalHTTPAddr == "" {
 			addr = *httpAddr
 		}
 		host, _, err := net.SplitHostPort(addr)
@@ -82,10 +82,10 @@ var TestIdentityd = gosh.RegisterFunc("TestIdentityd", func() error {
 		"",
 		nil)
 
-	_, eps, externalHttpAddress := s.Listen(ctx, ctx, *externalHttpAddr, *httpAddr, *tlsConfig)
+	_, eps, externalHTTPAddress := s.Listen(ctx, ctx, *externalHTTPAddr, *httpAddr, *tlsConfig)
 
 	fmt.Printf("TEST_IDENTITYD_NAME=%s\n", eps[0])
-	fmt.Printf("TEST_IDENTITYD_HTTP_ADDR=%s\n", externalHttpAddress)
+	fmt.Printf("TEST_IDENTITYD_HTTP_ADDR=%s\n", externalHTTPAddress)
 
 	<-signals.ShutdownOnSignals(ctx)
 	return nil

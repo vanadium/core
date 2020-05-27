@@ -298,12 +298,12 @@ func (s *Session) ExpectSetRE(expected ...string) [][]string {
 	if s.Failed() {
 		return nil
 	}
-	if match, err := s.expectSetRE(len(expected), expected...); err != nil {
+	match, err := s.expectSetRE(len(expected), expected...)
+	if err != nil {
 		s.error(err)
 		return nil
-	} else {
-		return match
 	}
+	return match
 }
 
 // ExpectSetEventuallyRE is like ExpectSetRE except that it reads as much
@@ -321,12 +321,12 @@ func (s *Session) ExpectSetEventuallyRE(expected ...string) [][]string {
 	if s.Failed() {
 		return nil
 	}
-	if matches, err := s.expectSetRE(-1, expected...); err != nil {
+	matches, err := s.expectSetRE(-1, expected...)
+	if err != nil {
 		s.error(err)
 		return nil
-	} else {
-		return matches
 	}
+	return matches
 }
 
 // expectSetRE will look for the expected set of patterns in the next

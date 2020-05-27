@@ -148,12 +148,12 @@ func runProfiles(ctx *context.T, env *cmdline.Env, args []string) error {
 	app := repository.ApplicationClient(name)
 	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
-	if profiles, err := app.Profiles(ctx); err != nil {
+	profiles, err := app.Profiles(ctx)
+	if err != nil {
 		return err
-	} else {
-		fmt.Fprintln(env.Stdout, strings.Join(profiles, ","))
-		return nil
 	}
+	fmt.Fprintln(env.Stdout, strings.Join(profiles, ","))
+	return nil
 }
 
 var cmdPut = &cmdline.Command{

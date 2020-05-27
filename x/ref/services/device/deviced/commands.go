@@ -34,12 +34,12 @@ func installationDir(ctx *context.T, env *cmdline.Env) string {
 	if d := env.Vars[deviceDirEnv]; d != "" {
 		return d
 	}
-	if d, err := os.Getwd(); err != nil {
+	d, err := os.Getwd()
+	if err != nil {
 		ctx.Errorf("Failed to get current dir: %v", err)
 		return ""
-	} else {
-		return d
 	}
+	return d
 }
 
 var cmdInstall = &cmdline.Command{

@@ -34,5 +34,4 @@
 //
 // See mutex_test.go for an example on how to use this framework to
 // test concurrent access to mutexes.
-
 package concurrency

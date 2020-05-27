@@ -122,7 +122,7 @@ func NewGlobResult(name string, status device.Status) (*GlobResult, error) {
 	case device.StatusDevice:
 		kind = DeviceServiceObject
 	default:
-		return nil, fmt.Errorf("Status(%v) returned unrecognized status type %T\n", name, status)
+		return nil, fmt.Errorf("status(%v) returned unrecognized status type %T", name, status)
 	}
 	return &GlobResult{
 		Name:   name,

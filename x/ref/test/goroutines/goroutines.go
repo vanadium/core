@@ -246,7 +246,7 @@ func NoLeaks(t ErrorReporter, wait time.Duration) func() {
 				return
 			}
 			time.Sleep(backoff)
-			if backoff = backoff * 2; backoff > time.Second {
+			if backoff *= 2; backoff > time.Second {
 				backoff = time.Second
 			}
 		}

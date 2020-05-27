@@ -36,7 +36,7 @@ import (
 
 var (
 	googleConfigWeb                                                  string
-	externalHttpAddr, httpAddr, tlsConfig, assetsPrefix, mountPrefix string
+	externalHTTPAddr, httpAddr, tlsConfig, assetsPrefix, mountPrefix string
 	dischargerLocation                                               string
 	sqlConf                                                          string
 	registeredAppConfig                                              string
@@ -53,14 +53,14 @@ func init() {
 	cmdIdentityD.Flags.StringVar(&registeredAppConfig, "registered-apps", "", "Path to the config file for registered oauth clients.")
 
 	// Flags controlling the HTTP server
-	cmdIdentityD.Flags.StringVar(&externalHttpAddr, "external-http-addr", "", "External address on which the HTTP server listens on.  If none is provided the server will only listen on -http-addr.")
+	cmdIdentityD.Flags.StringVar(&externalHTTPAddr, "external-http-addr", "", "External address on which the HTTP server listens on.  If none is provided the server will only listen on -http-addr.")
 	cmdIdentityD.Flags.StringVar(&httpAddr, "http-addr", "localhost:8125", "Address on which the HTTP server listens on.")
 	cmdIdentityD.Flags.StringVar(&tlsConfig, "tls-config", "", "Comma-separated list of TLS certificate and private key files, in that order.  This must be provided.")
 	cmdIdentityD.Flags.StringVar(&assetsPrefix, "assets-prefix", "", "Host serving the web assets for the identity server.")
 	cmdIdentityD.Flags.StringVar(&mountPrefix, "mount-prefix", "identity", "Mount name prefix to use.  May be rooted.")
 
 	// Flag controlling auditing and revocation of Blessing operations
-	cmdIdentityD.Flags.StringVar(&sqlConf, "sql-config", "", "Path to configuration file for MySQL database connection. Database is used to persist blessings for auditing and revocation. "+dbutil.SqlConfigFileDescription)
+	cmdIdentityD.Flags.StringVar(&sqlConf, "sql-config", "", "Path to configuration file for MySQL database connection. Database is used to persist blessings for auditing and revocation. "+dbutil.SQLConfigFileDescription)
 	cmdIdentityD.Flags.StringVar(&dischargerLocation, "discharger-location", "", "The name of the discharger service. May be rooted. If empty, the published name is used.")
 }
 
@@ -98,7 +98,7 @@ func runIdentityD(ctx *context.T, env *cmdline.Env, args []string) error {
 	var sqlDB *sql.DB
 	var err error
 	if sqlConf != "" {
-		if sqlDB, err = dbutil.NewSqlDBConnFromFile(sqlConf, "SERIALIZABLE"); err != nil {
+		if sqlDB, err = dbutil.NewSQLDBConnFromFile(sqlConf, "SERIALIZABLE"); err != nil {
 			return env.UsageErrorf("Failed to create sqlDB: %v", err)
 		}
 	}
@@ -142,7 +142,7 @@ func runIdentityD(ctx *context.T, env *cmdline.Env, args []string) error {
 		mountPrefix,
 		dischargerLocation,
 		registeredApps)
-	s.Serve(ctx, oauthCtx, externalHttpAddr, httpAddr, tlsConfig)
+	s.Serve(ctx, oauthCtx, externalHTTPAddr, httpAddr, tlsConfig)
 	return nil
 }
 

@@ -354,8 +354,7 @@ func doGlobX(t *testing.T, ctx *context.T, ep, suffix, pattern string, joinServe
 		if err != nil {
 			boom(t, "Glob.StartCall %s: %s: %v", name, pattern, err)
 		}
-		switch v := gr.(type) {
-		case naming.GlobReplyEntry:
+		if v, ok := gr.(naming.GlobReplyEntry); ok {
 			if joinServer && len(v.Value.Servers) > 0 {
 				reply = append(reply, naming.JoinAddressName(v.Value.Servers[0].Server, v.Value.Name))
 			} else {

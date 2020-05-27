@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	// We may want to be able to override these (e.g. for testing), hence
+	// ForceStopExitCode may need be to overridden (e.g. for testing), hence
 	// the variables.
 	ForceStopExitCode     = v23.ForceStopExitCode
 	UnhandledStopExitCode = v23.UnhandledStopExitCode

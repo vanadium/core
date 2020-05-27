@@ -554,8 +554,8 @@ func gen(audit bool, targets []*build.Package, env *compile.Env) bool { //nolint
 				if handleErrorOrSkip("--js-out-dir", err, env) {
 					continue
 				}
+				prefix := filepath.Clean(target.Dir[0 : len(target.Dir)-len(target.GenPath)])
 				path := func(importPath string) string {
-					prefix := filepath.Clean(target.Dir[0 : len(target.Dir)-len(target.GenPath)])
 					pkgDir := filepath.Join(prefix, filepath.FromSlash(importPath))
 					fullDir, err := xlateOutDir(pkgDir, importPath, optGenJavascriptOutDir, importPath)
 					if err != nil {

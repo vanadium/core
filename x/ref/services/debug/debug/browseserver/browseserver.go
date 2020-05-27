@@ -619,7 +619,7 @@ var (
 )
 
 type traceWithStart struct {
-	Id    string
+	ID    string
 	Start time.Time
 }
 
@@ -648,7 +648,7 @@ func bucketTraces(ctx *context.T, name string) (map[string]traceSort, error) {
 		}
 		startTime := findStartTime(node)
 		endTime := findEndTime(node)
-		traceNode := traceWithStart{Id: trace.Id.String(), Start: startTime}
+		traceNode := traceWithStart{ID: trace.Id.String(), Start: startTime}
 		duration := endTime.Sub(startTime).Seconds()
 		if endTime.IsZero() || startTime.IsZero() {
 			// Set the duration so something small but greater than zero so it shows up in
@@ -711,7 +711,7 @@ func (a *allTracesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type divTree struct {
-	Id string
+	ID string
 	// Start is a value from 0-100 which is the percentage of time into the parent span's duration
 	// that this span started.
 	Start int
@@ -750,7 +750,7 @@ func convertToTree(n *vtrace.Node, parentStart time.Time, parentEnd time.Time) *
 		width = 1
 	}
 	top := &divTree{
-		Id:    n.Span.Id.String(),
+		ID:    n.Span.Id.String(),
 		Start: start,
 		Width: width,
 		Name:  n.Span.Name,
@@ -833,7 +833,7 @@ type vtraceHandler struct{ *handler }
 func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		server  = r.FormValue("n")
-		traceId = r.FormValue("t")
+		traceID = r.FormValue("t")
 		name    = naming.Join(server, "__debug", "vtrace")
 	)
 
@@ -845,18 +845,18 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	stub := svtrace.StoreClient(name)
 	ctx, tracer := newTracer(v.ctx)
-	id, err := uniqueid.FromHexString(traceId)
+	id, err := uniqueid.FromHexString(traceID)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Invalid trace id %s: %v", traceId, err)
+		fmt.Fprintf(w, "Invalid trace id %s: %v", traceID, err)
 		return
 	}
 
 	trace, err := stub.Trace(ctx, id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Unknown trace id: %s", traceId)
+		fmt.Fprintf(w, "Unknown trace id: %s", traceID)
 		return
 	}
 
@@ -873,14 +873,14 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tree := convertToTree(node, findStartTime(node), findEndTime(node))
 	data := struct {
-		Id          string
+		ID          string
 		Root        *divTree
 		ServerName  string
 		CommandLine string
 		DebugTrace  string
 		Vtrace      *Tracer
 	}{
-		Id:          traceId,
+		ID:          traceID,
 		Root:        tree,
 		ServerName:  server,
 		CommandLine: fmt.Sprintf("debug vtraces %q", name),

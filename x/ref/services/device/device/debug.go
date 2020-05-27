@@ -28,11 +28,11 @@ func init() {
 }
 
 func runDebug(entry GlobResult, ctx *context.T, stdout, _ io.Writer) error {
-	if description, err := device.DeviceClient(entry.Name).Debug(ctx); err != nil {
+	description, err := device.DeviceClient(entry.Name).Debug(ctx)
+	if err != nil {
 		return fmt.Errorf("Debug failed: %v", err)
-	} else {
-		line := strings.Repeat("*", len(entry.Name)+4)
-		fmt.Fprintf(stdout, "%s\n* %s *\n%s\n%v\n", line, entry.Name, line, description)
 	}
+	line := strings.Repeat("*", len(entry.Name)+4)
+	fmt.Fprintf(stdout, "%s\n* %s *\n%s\n%v\n", line, entry.Name, line, description)
 	return nil
 }

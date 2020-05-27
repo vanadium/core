@@ -91,9 +91,11 @@ func NewControlCipherRPC11(myPublicKey, myPrivateKey, theirPublicKey *BoxKey) Co
 	// so this change is permanent for the duration of the stream.
 	if bytes.Compare(myPublicKey[:], theirPublicKey[:]) < 0 {
 		c.enc.nonce[8] = 1
+		//nolint:gocritic // append result not assigned to the same slice
 		c.channelBinding = append(myPublicKey[:], theirPublicKey[:]...)
 	} else {
 		c.dec.nonce[8] = 1
+		//nolint:gocritic // append result not assigned to the same slice
 		c.channelBinding = append(theirPublicKey[:], myPublicKey[:]...)
 	}
 	return &c

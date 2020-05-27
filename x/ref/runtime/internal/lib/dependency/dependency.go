@@ -13,8 +13,8 @@ import (
 	"sync"
 )
 
-var NotFoundError = fmt.Errorf(
-	"Attempting to create an object whose dependency has already been terminated.")
+var ErrNotFound = fmt.Errorf(
+	"attempting to create an object whose dependency has already been terminated")
 
 // Every object in a Graph depends on the all key.  We can wait on this key
 // to know when all objects have been closed.
@@ -63,7 +63,7 @@ func NewGraph() *Graph {
 // Depend adds obj as a node in the dependency graph and notes it's
 // dependencies on all the objects in 'on'.  If any of the
 // dependencies are already closed (or are not in the graph at all)
-// then Depend returns NotFoundError and does not add any edges.
+// then Depend returns ErrNotFound and does not add any edges.
 func (g *Graph) Depend(obj interface{}, on ...interface{}) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()
@@ -71,14 +71,15 @@ func (g *Graph) Depend(obj interface{}, on ...interface{}) error {
 	nodes := make([]*node, len(on)+1)
 	for i := range on {
 		if nodes[i] = g.nodes[on[i]]; nodes[i] == nil {
-			return NotFoundError
+			return ErrNotFound
 		}
 	}
-	if alln := g.nodes[all{}]; alln == nil {
-		return NotFoundError
-	} else {
-		nodes[len(on)] = alln
+	alln := g.nodes[all{}]
+	if alln == nil {
+		return ErrNotFound
 	}
+	nodes[len(on)] = alln
+
 	for _, n := range nodes {
 		n.dependents++
 	}

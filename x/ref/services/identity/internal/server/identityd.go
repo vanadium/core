@@ -95,7 +95,7 @@ func findUnusedPort() (int, error) {
 	return 0, nil
 }
 
-func (s *IdentityServer) Serve(ctx, oauthCtx *context.T, externalHttpAddr, httpAddr, tlsConfig string) {
+func (s *IdentityServer) Serve(ctx, oauthCtx *context.T, externalHTTPAddr, httpAddr, tlsConfig string) {
 	ctx, err := v23.WithPrincipal(ctx, audit.NewPrincipal(ctx, s.auditor))
 	if err != nil {
 		ctx.Panic(err)
@@ -113,7 +113,7 @@ func (s *IdentityServer) Serve(ctx, oauthCtx *context.T, externalHttpAddr, httpA
 		httpAddr = net.JoinHostPort(httphost, strconv.Itoa(httpportNum))
 	}
 	ctx, cancel := context.WithCancel(ctx)
-	rpcServer, _, externalAddr := s.Listen(ctx, oauthCtx, externalHttpAddr, httpAddr, tlsConfig)
+	rpcServer, _, externalAddr := s.Listen(ctx, oauthCtx, externalHTTPAddr, httpAddr, tlsConfig)
 	fmt.Printf("HTTP_ADDR=%s\n", externalAddr)
 	if len(s.rootedObjectAddrs) > 0 {
 		fmt.Printf("NAME=%s\n", s.rootedObjectAddrs[0].Name())
@@ -125,7 +125,7 @@ func (s *IdentityServer) Serve(ctx, oauthCtx *context.T, externalHttpAddr, httpA
 	ctx.Infof("Successfully stopped the rpc server.")
 }
 
-func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHttpAddr, httpAddr, tlsConfig string) (rpc.Server, []string, string) {
+func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHTTPAddr, httpAddr, tlsConfig string) (rpc.Server, []string, string) {
 	// json-encoded public key and blessing names of this server
 	principal := v23.GetPrincipal(ctx)
 	http.Handle("/auth/blessing-root", handlers.BlessingRoot{P: principal})
@@ -135,7 +135,7 @@ func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHttpAddr, http
 		ctx.Fatalf("Failed to setup vanadium services for blessing: %v", err)
 	}
 
-	externalHttpAddr = httpAddress(externalHttpAddr, httpAddr)
+	externalHTTPAddr = httpAddress(externalHTTPAddr, httpAddr)
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
@@ -144,7 +144,7 @@ func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHttpAddr, http
 	n := "/auth/google/"
 	args := oauth.HandlerArgs{
 		Principal:          principal,
-		Addr:               fmt.Sprintf("%s%s", externalHttpAddr, n),
+		Addr:               fmt.Sprintf("%s%s", externalHTTPAddr, n),
 		BlessingLogReader:  s.blessingLogReader,
 		RevocationManager:  s.revocationManager,
 		DischargerLocation: s.dischargerLocation,
@@ -183,9 +183,9 @@ func (s *IdentityServer) Listen(ctx, oauthCtx *context.T, externalHttpAddr, http
 			ctx.Info("Failed to render template:", err)
 		}
 	})
-	ctx.Infof("Running HTTP server at: %v", externalHttpAddr)
+	ctx.Infof("Running HTTP server at: %v", externalHTTPAddr)
 	go runHTTPSServer(ctx, httpAddr, tlsConfig)
-	return rpcServer, published, externalHttpAddr
+	return rpcServer, published, externalHTTPAddr
 }
 
 func appendSuffixTo(objectname []string, suffix string) []string {
@@ -281,10 +281,10 @@ func runHTTPSServer(ctx *context.T, addr, tlsConfig string) {
 	}
 }
 
-func httpAddress(externalHttpAddr, httpAddr string) string {
-	// If an externalHttpAddr is provided use that.
-	if externalHttpAddr != "" {
-		httpAddr = externalHttpAddr
+func httpAddress(externalHTTPAddr, httpAddr string) string {
+	// If an externalHTTPAddr is provided use that.
+	if externalHTTPAddr != "" {
+		httpAddr = externalHTTPAddr
 	}
 	return fmt.Sprintf("https://%v", httpAddr)
 }

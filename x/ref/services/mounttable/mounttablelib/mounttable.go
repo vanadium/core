@@ -244,7 +244,7 @@ func (n *node) satisfies(mt *mountTable, cc *callContext, tags []mounttable.Tag)
 	return verror.New(verror.ErrNoAccess, cc.ctx, cc.rbn)
 }
 
-func expand(al *access.AccessList, name string) *access.AccessList {
+func expand(al access.AccessList, name string) *access.AccessList {
 	newAccessList := new(access.AccessList)
 	for _, bp := range al.In {
 		newAccessList.In = append(newAccessList.In, security.BlessingPattern(strings.Replace(string(bp), templateVar, name, -1)))
@@ -264,7 +264,7 @@ func (n *node) satisfiesTemplate(cc *callContext, tags []mounttable.Tag, name st
 	}
 	// Match client's blessings against the AccessLists.
 	for _, tag := range tags {
-		if al, exists := n.permsTemplate[string(tag)]; exists && expand(&al, name).Includes(cc.rbn...) {
+		if al, exists := n.permsTemplate[string(tag)]; exists && expand(al, name).Includes(cc.rbn...) {
 			return nil
 		}
 	}
@@ -292,7 +292,7 @@ func CopyPermissions(cc *callContext, cur *node) *VersionedPermissions {
 func createVersionedPermissionsFromTemplate(perms access.Permissions, name string) *VersionedPermissions {
 	vPerms := NewVersionedPermissions()
 	for tag, al := range perms {
-		vPerms.P[tag] = *expand(&al, name)
+		vPerms.P[tag] = *expand(al, name)
 	}
 	return vPerms
 }

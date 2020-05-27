@@ -92,8 +92,7 @@ func TestDebugServer(t *testing.T) {
 				}
 				break
 			}
-			switch v := gr.(type) {
-			case naming.GlobReplyEntry:
+			if v, ok := gr.(naming.GlobReplyEntry); ok {
 				results = append(results, v.Value.Name)
 			}
 		}

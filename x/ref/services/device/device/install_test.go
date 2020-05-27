@@ -39,7 +39,7 @@ func TestInstallCommand(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	env := &cmdline.Env{Stdout: &stdout, Stderr: &stderr}
 	deviceName := server.Status().Endpoints[0].Name()
-	appId := "myBestAppID"
+	appID := "myBestAppID"
 	cfg := device.Config{"someflag": "somevalue"}
 	pkg := application.Packages{"pkg": application.SignedFile{File: "somename"}}
 	rootTape := tapes.ForSuffix("")
@@ -80,7 +80,7 @@ func TestInstallCommand(t *testing.T) {
 			nil,
 			nil,
 			false,
-			InstallResponse{appId, nil},
+			InstallResponse{appID, nil},
 			InstallStimulus{"Install", appNameNoFetch, nil, nil, application.Envelope{}, nil},
 		},
 		{
@@ -88,7 +88,7 @@ func TestInstallCommand(t *testing.T) {
 			cfg,
 			pkg,
 			false,
-			InstallResponse{appId, nil},
+			InstallResponse{appID, nil},
 			InstallStimulus{"Install", appNameNoFetch, cfg, pkg, application.Envelope{}, nil},
 		},
 	} {
@@ -120,7 +120,7 @@ func TestInstallCommand(t *testing.T) {
 			if err != nil {
 				t.Fatalf("test case %d: %v", i, err)
 			}
-			if expected, got := naming.Join(deviceName, appId), strings.TrimSpace(stdout.String()); got != expected {
+			if expected, got := naming.Join(deviceName, appID), strings.TrimSpace(stdout.String()); got != expected {
 				t.Fatalf("test case %d: Unexpected output from Install. Got %q, expected %q", i, got, expected)
 			}
 			if got, expected := rootTape.Play(), []interface{}{c.expectedTape}; !reflect.DeepEqual(expected, got) {

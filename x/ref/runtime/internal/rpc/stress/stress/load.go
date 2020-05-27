@@ -31,9 +31,9 @@ func init() {
 
 type loadStats struct {
 	Iterations uint64
-	MsecPerRpc float64
-	Qps        float64
-	QpsPerCore float64
+	MsecPerRPC float64
+	QPS        float64
+	QPSPerCore float64
 }
 
 var cmdLoadTest = &cmdline.Command{
@@ -72,8 +72,8 @@ func runLoadTest(ctx *context.T, env *cmdline.Env, args []string) error {
 			stats.Iterations = internal.CallEcho(ctx, server, payloadSize, duration)
 			elapsed := time.Since(start)
 
-			stats.Qps = float64(stats.Iterations) / elapsed.Seconds()
-			stats.MsecPerRpc = 1000 / stats.Qps
+			stats.QPS = float64(stats.Iterations) / elapsed.Seconds()
+			stats.MsecPerRPC = 1000 / stats.QPS
 			done <- stats
 		}(server)
 	}
@@ -81,11 +81,11 @@ func runLoadTest(ctx *context.T, env *cmdline.Env, args []string) error {
 	for i := 0; i < len(args); i++ {
 		stats := <-done
 		merged.Iterations += stats.Iterations
-		merged.MsecPerRpc += stats.MsecPerRpc
-		merged.Qps += stats.Qps
+		merged.MsecPerRPC += stats.MsecPerRPC
+		merged.QPS += stats.QPS
 	}
-	merged.MsecPerRpc /= float64(len(args))
-	merged.QpsPerCore = merged.Qps / float64(cores)
+	merged.MsecPerRPC /= float64(len(args))
+	merged.QPSPerCore = merged.QPS / float64(cores)
 	elapsed := time.Since(start)
 	fmt.Printf("done after %v\n", elapsed)
 	return outLoadStats(env.Stdout, outFormat, "load stats:", &merged)
@@ -96,9 +96,9 @@ func outLoadStats(w io.Writer, format, title string, stats *loadStats) error {
 	case "text":
 		fmt.Fprintf(w, "%s\n", title)
 		fmt.Fprintf(w, "\tnumber of RPCs:\t\t%d\n", stats.Iterations)
-		fmt.Fprintf(w, "\tlatency (msec/rpc):\t%.2f\n", stats.MsecPerRpc)
-		fmt.Fprintf(w, "\tqps:\t\t\t%.2f\n", stats.Qps)
-		fmt.Fprintf(w, "\tqps/core:\t\t%.2f\n", stats.QpsPerCore)
+		fmt.Fprintf(w, "\tlatency (msec/rpc):\t%.2f\n", stats.MsecPerRPC)
+		fmt.Fprintf(w, "\tQPS:\t\t\t%.2f\n", stats.QPS)
+		fmt.Fprintf(w, "\tQPS/core:\t\t%.2f\n", stats.QPSPerCore)
 	case "json":
 		b, err := json.Marshal(stats)
 		if err != nil {
@@ -106,7 +106,7 @@ func outLoadStats(w io.Writer, format, title string, stats *loadStats) error {
 		}
 		fmt.Fprintf(w, "%s%s\n", title, b)
 	default:
-		return fmt.Errorf("invalid output format: %s\n", format)
+		return fmt.Errorf("invalid output format: %s", format)
 	}
 	return nil
 }
