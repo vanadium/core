@@ -34,7 +34,7 @@ func (d *statsDispatcher) Lookup(_ *context.T, suffix string) (interface{}, secu
 	return statslib.NewStatsService(suffix, 100*time.Millisecond), nil, nil
 }
 
-func TestStatsImpl(t *testing.T) {
+func TestStatsImpl(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

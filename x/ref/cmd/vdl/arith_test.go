@@ -272,7 +272,7 @@ func TestCalculator(t *testing.T) {
 	})
 }
 
-func TestArith(t *testing.T) {
+func TestArith(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

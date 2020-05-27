@@ -6,7 +6,7 @@ package lru
 
 import "testing"
 
-func TestBasic(t *testing.T) {
+func TestBasic(t *testing.T) { //nolint:gocyclo
 	c := New(3)
 	// Put (A, 1), (B, 2), (A, 3), (B, 4)
 	// (A, 1) should be evicted when (B, 4) is inserted.

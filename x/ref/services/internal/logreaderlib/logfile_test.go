@@ -40,7 +40,7 @@ func writeAndSync(t *testing.T, w *os.File, s string) {
 	}
 }
 
-func TestReadLogImplNoFollow(t *testing.T) {
+func TestReadLogImplNoFollow(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

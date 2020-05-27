@@ -409,7 +409,7 @@ func (h *statsHandler) GetTimeSeriesData(server string, children []string, ctx *
 
 type logsHandler struct{ *handler }
 
-func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *logsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) { //nolint:gocyclo
 	var (
 		server = r.FormValue("n")
 		log    = r.FormValue("l")

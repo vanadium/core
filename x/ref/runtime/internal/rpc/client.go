@@ -322,7 +322,7 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 // you can re-resolve.
 //
 // TODO(toddw): Remove action from out-args, the error should tell us the action.
-func (c *client) tryConnectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, verror.ActionCode, bool, error) {
+func (c *client) tryConnectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, verror.ActionCode, bool, error) { //nolint:gocyclo
 	blessingPattern, name := security.SplitPatternName(name)
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {

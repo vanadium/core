@@ -23,7 +23,7 @@ import (
 //
 // TODO(jsimsa): Avoid computing the host device description from
 // scratch if a recent cached copy exists.
-func ComputeDeviceProfile() (*profile.Specification, error) {
+func ComputeDeviceProfile() (*profile.Specification, error) { //nolint:gocyclo
 	result := profile.Specification{}
 
 	// Find out what the supported operating system, file format, and

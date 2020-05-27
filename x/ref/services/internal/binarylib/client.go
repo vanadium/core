@@ -207,7 +207,7 @@ func DownloadUrl(ctx *context.T, von string) (string, int64, error) {
 	return url, ttl, nil
 }
 
-func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repository.BinaryClientStub, part int, size int64) (bool, error) {
+func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repository.BinaryClientStub, part int, size int64) (bool, error) { //nolint:gocyclo
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 

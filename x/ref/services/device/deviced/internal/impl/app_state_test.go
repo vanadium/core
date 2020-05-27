@@ -13,7 +13,7 @@ import (
 )
 
 // TestInstallationState verifies the state transition logic for app installations.
-func TestInstallationState(t *testing.T) {
+func TestInstallationState(t *testing.T) { //nolint:gocyclo
 	dir, err := ioutil.TempDir("", "installation")
 	if err != nil {
 		t.Fatalf("Failed to create temp dir: %v", err)

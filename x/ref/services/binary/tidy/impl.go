@@ -109,7 +109,7 @@ func getNames(ctx *context.T, env *cmdline.Env, endpoint string) ([]string, erro
 	return s, nil
 }
 
-func runBinaryTidy(ctx *context.T, env *cmdline.Env, args []string) error {
+func runBinaryTidy(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if expected, got := 2, len(args); expected != got {
 		return env.UsageErrorf("match: incorrect number of arguments, expected %d, got %d", expected, got)
 	}

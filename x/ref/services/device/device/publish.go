@@ -89,7 +89,7 @@ func setAccessLists(ctx *context.T, env *cmdline.Env, von string) error {
 	return nil
 }
 
-func publishOne(ctx *context.T, env *cmdline.Env, binPath, binary string) error {
+func publishOne(ctx *context.T, env *cmdline.Env, binPath, binary string) error { //nolint:gocyclo
 	var binaryName, envelopeName, title string
 	binaryRE := regexp.MustCompile(`^([^:@]+)(:[^@]+)?(@.+)?$`)
 	if parts := binaryRE.FindStringSubmatch(binary); len(parts) == 4 {

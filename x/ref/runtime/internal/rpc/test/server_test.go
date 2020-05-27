@@ -293,7 +293,7 @@ func mountedBlessings(ctx *context.T, name string) ([]string, error) {
 	return nil, nil
 }
 
-func TestUpdateServerBlessings(t *testing.T) {
+func TestUpdateServerBlessings(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

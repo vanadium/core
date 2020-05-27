@@ -218,7 +218,7 @@ func configureLogging() error {
 }
 
 // Init creates a new v23.Runtime.
-func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
+func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nolint:gocyclo
 	initialized, running := state.getState()
 	if AllowMultipleInitializations && running {
 		return nil, nil, nil, fmt.Errorf("library.Init called whilst a previous instance is still running, the shutdown callback has not bee called")

@@ -45,7 +45,7 @@ Sample queries:
 	}
 )
 
-func runDiscoveryScan(ctx *context.T, env *cmdline.Env, args []string) error {
+func runDiscoveryScan(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	var query string
 	switch len(args) {
 	case 0:

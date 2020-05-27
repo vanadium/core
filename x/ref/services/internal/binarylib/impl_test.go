@@ -224,7 +224,7 @@ func TestResumption(t *testing.T) {
 }
 
 // TestErrors checks that the binary interface correctly reports errors.
-func TestErrors(t *testing.T) {
+func TestErrors(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	rg := testutil.NewRandGenerator(t.Logf)

@@ -81,7 +81,7 @@ To generate TLS certificates so the HTTP server can use SSL:
 `,
 }
 
-func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
+func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if remoteSignerBlessings != "" {
 		signer, err := restsigner.NewRestSigner()
 		if err != nil {

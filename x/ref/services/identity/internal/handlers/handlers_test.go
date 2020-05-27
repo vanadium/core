@@ -93,7 +93,7 @@ func TestBlessingRootBase64VOM(t *testing.T) {
 	}
 }
 
-func TestBless(t *testing.T) {
+func TestBless(t *testing.T) { //nolint:gocyclo
 	var (
 		blesserPrin = testutil.NewPrincipal("blesser")
 		blesseePrin = testutil.NewPrincipal("blessee")

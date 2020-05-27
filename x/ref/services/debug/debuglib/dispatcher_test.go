@@ -32,7 +32,7 @@ import (
 	"v.io/x/ref/test/testutil"
 )
 
-func TestDebugServer(t *testing.T) {
+func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

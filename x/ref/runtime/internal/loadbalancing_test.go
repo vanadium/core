@@ -49,7 +49,7 @@ func countServers(responses []string, sa, sb string) (ca, cb int) {
 	return strings.Count(joined, sa), strings.Count(joined, sb)
 }
 
-func TestApproximateLoadBalancing(t *testing.T) {
+func TestApproximateLoadBalancing(t *testing.T) { //nolint:gocyclo
 	lspec := rpc.ListenSpec{
 		Addrs: rpc.ListenAddrs{
 			{Protocol: "tcp", Address: "127.0.0.1:0"},

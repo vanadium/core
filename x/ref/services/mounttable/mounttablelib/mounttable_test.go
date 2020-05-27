@@ -748,7 +748,7 @@ func serverCount(t *testing.T, ctx *context.T, addr string) int64 {
 	return getCounter(t, ctx, name)
 }
 
-func TestStatsCounters(t *testing.T) {
+func TestStatsCounters(t *testing.T) { //nolint:gocyclo
 	rootCtx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

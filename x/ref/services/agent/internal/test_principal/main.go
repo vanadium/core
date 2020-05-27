@@ -49,7 +49,7 @@ var cmdTestPrincipal = &cmdline.Command{
 	Long:   "Command test_principal runs tests against a principal.",
 }
 
-func runTestPrincipal(ctx *context.T, env *cmdline.Env, args []string) error {
+func runTestPrincipal(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	var errors []string
 	errorf := func(format string, args ...interface{}) {
 		_, file, line, _ := runtime.Caller(1)

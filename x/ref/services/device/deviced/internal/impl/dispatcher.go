@@ -203,7 +203,7 @@ func newTestableHierarchicalAuth(testMode bool, rootDir, childDir string, get pa
 	return pathperms.NewHierarchicalAuthorizer(rootDir, childDir, get)
 }
 
-func (d *dispatcher) internalLookup(suffix string) (interface{}, security.Authorizer, error) {
+func (d *dispatcher) internalLookup(suffix string) (interface{}, security.Authorizer, error) { //nolint:gocyclo
 	components := strings.Split(suffix, "/")
 	for i := 0; i < len(components); i++ {
 		if len(components[i]) == 0 {

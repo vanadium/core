@@ -109,7 +109,7 @@ remote process as myservices/myservice with the same authorization as Alice.
 	}
 )
 
-func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error {
+func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if len(args) == 0 {
 		return env.UsageErrorf("must provide at least a single vanadium object name")
 	}

@@ -64,7 +64,7 @@ func main() {
 	cmdline.Main(cmdVbecome)
 }
 
-func vbecome(ctx *context.T, env *cmdline.Env, args []string) error {
+func vbecome(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if len(args) == 0 {
 		if shell := env.Vars["SHELL"]; shell != "" {
 			args = []string{shell}

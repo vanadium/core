@@ -32,7 +32,7 @@ func init() {
 	library.AllowMultipleInitializations = true
 }
 
-func TestDownloadSignatureMatch(t *testing.T) {
+func TestDownloadSignatureMatch(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	rg := testutil.NewRandGenerator(t.Logf)

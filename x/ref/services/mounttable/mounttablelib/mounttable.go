@@ -653,7 +653,7 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 }
 
 // globStep is called with n and n.parent locked.  Returns with both unlocked.
-func (mt *mountTable) globStep(cc *callContext, n *node, name string, pattern *glob.Glob, gCall rpc.GlobServerCall) {
+func (mt *mountTable) globStep(cc *callContext, n *node, name string, pattern *glob.Glob, gCall rpc.GlobServerCall) { //nolint:gocyclo
 	if shouldAbort(cc) {
 		n.parent.Unlock()
 		n.Unlock()

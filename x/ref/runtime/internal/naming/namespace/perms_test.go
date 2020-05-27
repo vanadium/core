@@ -122,7 +122,7 @@ var openPerms = access.Permissions{
 	},
 }
 
-func TestPermissions(t *testing.T) {
+func TestPermissions(t *testing.T) { //nolint:gocyclo
 	// Create three different personalities.
 	// TODO(p): Use the multiple personalities to test Permissions functionality.
 	rootCtx, aliceCtx, _, shutdown := initTest()

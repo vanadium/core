@@ -212,7 +212,7 @@ func servePackage(p string, ms *mapServer, tmpZipDir string) (string, string, er
 //
 // It sets up an app and binary server that only lives for the duration of the
 // command, and listens on the profile's listen spec.
-func runInstallLocal(ctx *context.T, env *cmdline.Env, args []string) error {
+func runInstallLocal(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if expectedMin, got := 2, len(args); got < expectedMin {
 		return env.UsageErrorf("install-local: incorrect number of arguments, expected at least %d, got %d", expectedMin, got)
 	}

@@ -45,7 +45,7 @@ type storeElement struct {
 //      it will be renamed persistent.perms becoming the new log.
 //   old.permslog - the previous version of persistent.perms.  This is left around primarily for debugging
 //      and as an emergency backup.
-func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence {
+func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence { //nolint:gocyclo
 	s := &store{mt: mt, dir: dir}
 	file := path.Join(dir, "persistent.permslog")
 	tmp := path.Join(dir, "tmp.permslog")

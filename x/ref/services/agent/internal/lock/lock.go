@@ -201,7 +201,7 @@ func (l *dirLock) sleep() {
 }
 
 // TryLock implements TryLockerSafe.TryLock.
-func (l *dirLock) TryLock() (bool, error) {
+func (l *dirLock) TryLock() (bool, error) { //nolint:gocyclo
 retry:
 	for tries := 0; tries < maxTries; tries++ {
 		var masterLockInfo []byte

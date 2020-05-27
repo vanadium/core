@@ -21,7 +21,7 @@ func AreComparableTypes(a, b reflect.Type) bool {
 	return areComparable(a, b, make(map[reflect.Type]bool))
 }
 
-func areComparable(a, b reflect.Type, seen map[reflect.Type]bool) bool {
+func areComparable(a, b reflect.Type, seen map[reflect.Type]bool) bool { //nolint:gocyclo
 	if a.Kind() != b.Kind() {
 		if isUint(a) && isUint(b) || isInt(a) && isInt(b) || isFloat(a) && isFloat(b) || isComplex(a) && isComplex(b) {
 			return true // Special-case for comparable numbers.
@@ -106,7 +106,7 @@ func Less(a, b interface{}) bool {
 // if a and b are cyclic and equal, this will infinite loop.  Arrays, slices and
 // structs use lexicographic ordering, and complex numbers compare real before
 // imaginary.
-func LessValues(a, b reflect.Value) bool {
+func LessValues(a, b reflect.Value) bool { //nolint:gocyclo
 	if a.Kind() != b.Kind() {
 		return false // Different kinds are incomparable.
 	}

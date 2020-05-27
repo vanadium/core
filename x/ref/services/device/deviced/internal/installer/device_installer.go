@@ -114,7 +114,7 @@ func addToPATH(env []string, dir string) []string {
 
 // SelfInstall installs the device manager and configures it using the
 // environment and the supplied command-line flags.
-func SelfInstall(ctx *context.T, installDir, suidHelper, restarter, agent, initHelper, origin string, singleUser, sessionMode, init bool, args, env []string, stderr, stdout io.Writer) error {
+func SelfInstall(ctx *context.T, installDir, suidHelper, restarter, agent, initHelper, origin string, singleUser, sessionMode, init bool, args, env []string, stderr, stdout io.Writer) error { //nolint:gocyclo
 	if os.Getenv(ref.EnvCredentials) != "" {
 		return fmt.Errorf("Attempting to install device manager with the %q environment variable set.", ref.EnvCredentials)
 	}
@@ -313,7 +313,7 @@ func Start(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
 }
 
 // Stop stops the device manager.
-func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error {
+func Stop(ctx *context.T, installDir string, stderr, stdout io.Writer) error { //nolint:gocyclo
 	root := filepath.Join(installDir, dmRoot)
 	if initMode, err := initCommand(root, "stop", stderr, stdout); err != nil {
 		return err

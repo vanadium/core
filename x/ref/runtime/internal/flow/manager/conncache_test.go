@@ -160,7 +160,7 @@ func TestCacheReserve(t *testing.T) {
 	}
 }
 
-func TestCacheFind(t *testing.T) {
+func TestCacheFind(t *testing.T) { //nolint:gocyclo
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -259,7 +259,7 @@ func TestCacheFind(t *testing.T) {
 	<-proxyConn.Closed()
 }
 
-func TestLRU(t *testing.T) {
+func TestLRU(t *testing.T) { //nolint:gocyclo
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -363,7 +363,7 @@ func TestLRU(t *testing.T) {
 	}
 }
 
-func TestIdleConns(t *testing.T) {
+func TestIdleConns(t *testing.T) { //nolint:gocyclo
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

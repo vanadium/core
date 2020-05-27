@@ -16,7 +16,7 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-func TestLameDuck(t *testing.T) {
+func TestLameDuck(t *testing.T) { //nolint:gocyclo
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 
 	ctx, shutdown := test.V23Init()

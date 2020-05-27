@@ -431,7 +431,7 @@ func (c *ConnCache) Reserve(ctx *context.T, remote naming.Endpoint) *Reservation
 // If num is greater than the number of connections in the cache, all cached
 // connections will be closed and removed.
 // KillConnections returns an error iff the cache is closed.
-func (c *ConnCache) KillConnections(ctx *context.T, num int) error {
+func (c *ConnCache) KillConnections(ctx *context.T, num int) error { //nolint:gocyclo
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.conns == nil {

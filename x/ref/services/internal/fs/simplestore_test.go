@@ -103,7 +103,7 @@ func allPathsEqual(ts *fs.Memstore, pvs []PathValue) error {
 	return nil
 }
 
-func TestSerializeDeserialize(t *testing.T) {
+func TestSerializeDeserialize(t *testing.T) { //nolint:gocyclo
 	path := tempFile(t)
 	defer os.Remove(path)
 	memstoreOriginal, err := fs.NewMemstore(path)

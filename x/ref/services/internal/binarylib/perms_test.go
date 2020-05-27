@@ -119,7 +119,7 @@ func TestBinaryCreateAccessList(t *testing.T) {
 	}
 }
 
-func TestBinaryRootAccessList(t *testing.T) {
+func TestBinaryRootAccessList(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	rg := testutil.NewRandGenerator(t.Logf)

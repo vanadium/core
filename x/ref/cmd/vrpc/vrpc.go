@@ -220,7 +220,7 @@ func runSignature(ctx *context.T, env *cmdline.Env, args []string) error {
 	return nil
 }
 
-func runCall(ctx *context.T, env *cmdline.Env, args []string) error {
+func runCall(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	// Error-check args, and set up argsdata with a comma-separated list of
 	// arguments, allowing each individual arg to already be comma-separated.
 	//

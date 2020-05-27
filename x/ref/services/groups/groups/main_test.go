@@ -91,7 +91,7 @@ func startServer(ctx *context.T, t *testing.T) (rpc.Server, naming.Endpoint) {
 	return s, s.Status().Endpoints[0]
 }
 
-func TestGroupClient(t *testing.T) {
+func TestGroupClient(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

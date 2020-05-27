@@ -505,6 +505,7 @@ func (a proxyAuthorizer) BlessingsForPeer(ctx *context.T, proxyBlessings []strin
 	return blessings, discharges, nil
 }
 
+//nolint:gocyclo
 func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.Endpoint,
 	errKey struct{ Protocol, Address string }, acceptFailed chan struct{}) {
 	defer m.ls.listenLoops.Done()

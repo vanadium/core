@@ -654,7 +654,7 @@ func TestBadRoots(t *testing.T) {
 	}
 }
 
-func TestAuthorizationDuringResolve(t *testing.T) {
+func TestAuthorizationDuringResolve(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

@@ -213,7 +213,7 @@ func (s *state) happensBefore(other *state) bool {
 // mayInterfereWith checks if the execution of the transition that
 // leads to this state may interfere with the execution of the
 // transition that leads to the given state.
-func (s *state) mayInterfereWith(other *state) bool {
+func (s *state) mayInterfereWith(other *state) bool { //nolint:gocyclo
 	if (s.kind == tMutexLock && other.kind == tMutexUnlock) ||
 		(s.kind == tMutexUnlock && other.kind == tMutexLock) {
 		return false

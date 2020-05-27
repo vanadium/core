@@ -164,7 +164,7 @@ func runDump(env *cmdline.Env, args []string) error {
 //
 // Any leftover non-command single byte is stored in buf and bufStart is set, so
 // that the next iteration of ReadLoop can read after those bytes.
-func runDumpHexStream(dumper *vom.Dumper) error {
+func runDumpHexStream(dumper *vom.Dumper) error { //nolint:gocyclo
 	buf := make([]byte, 1024)
 	bufStart := 0
 ReadLoop:

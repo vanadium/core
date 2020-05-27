@@ -227,7 +227,7 @@ func (f *flw) currentContextLocked() *context.T {
 	return f.ctx
 }
 
-func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
+func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { //nolint:gocyclo
 	ctx := f.currentContext()
 	select {
 	// Catch cancellations early.  If we caught a cancel when waiting

@@ -790,7 +790,7 @@ func instanceNameFromDir(ctx *context.T, instanceDir string) (string, error) {
 	return env.Title + "/" + installation + "/" + instance, nil
 }
 
-func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) (int, error) {
+func (i *appRunner) startCmd(ctx *context.T, instanceDir string, cmd *exec.Cmd) (int, error) { //nolint:gocyclo
 	info, err := loadInstanceInfo(ctx, instanceDir)
 	if err != nil {
 		return 0, err

@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/services/internal/servicetest"
 )
 
-func TestClaimCommand(t *testing.T) {
+func TestClaimCommand(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

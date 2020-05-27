@@ -57,7 +57,7 @@ func (info *orderInfo) sharingEqual(a, b uintptr) (bool, bool) { // (equal, seen
 	return true, false
 }
 
-func deepEqual(a, b reflect.Value, info *orderInfo, options *DeepEqualOpts) bool {
+func deepEqual(a, b reflect.Value, info *orderInfo, options *DeepEqualOpts) bool { //nolint:gocyclo
 	// We only consider sharing via explicit pointers, and ignore sharing via
 	// slices, maps or pointers to internal data.
 	if !a.IsValid() || !b.IsValid() {

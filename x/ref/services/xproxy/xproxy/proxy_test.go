@@ -160,7 +160,7 @@ func callClient(ctx *context.T, m string) error {
 	return nil
 }
 
-func testServerRestart(t *testing.T, lspec rpc.ListenSpec) {
+func testServerRestart(t *testing.T, lspec rpc.ListenSpec) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

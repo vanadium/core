@@ -955,7 +955,7 @@ func TestDischargePurgeFromCache(t *testing.T) {
 	}
 }
 
-func TestReplayAttack(t *testing.T) {
+func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

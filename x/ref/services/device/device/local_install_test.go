@@ -34,7 +34,7 @@ func createFile(t *testing.T, path string, contents string) {
 	}
 }
 
-func TestInstallLocalCommand(t *testing.T) {
+func TestInstallLocalCommand(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

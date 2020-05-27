@@ -143,7 +143,7 @@ func (d *dispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.
 	return repository.ApplicationServer(&server{suffix: suffix}), nil, nil
 }
 
-func TestApplicationClient(t *testing.T) {
+func TestApplicationClient(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

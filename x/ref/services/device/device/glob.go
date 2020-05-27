@@ -150,7 +150,7 @@ func (a byTypeAndName) Less(i, j int) bool {
 // The outputs from each of the handlers are sorted: installations first, then
 // instances (and alphabetically by object name for each group).
 // The identifier is exported for use in unit tests.
-func Run(ctx *context.T, env *cmdline.Env, args []string, handler GlobHandler, s GlobSettings) error {
+func Run(ctx *context.T, env *cmdline.Env, args []string, handler GlobHandler, s GlobSettings) error { //nolint:gocyclo
 	results := glob(ctx, env, args)
 	sort.Sort(byTypeAndName(results))
 	results = filterResults(results, s)

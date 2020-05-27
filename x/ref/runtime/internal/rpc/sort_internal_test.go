@@ -37,7 +37,7 @@ func TestIncompatible(t *testing.T) {
 	}
 }
 
-func TestOrderingByProtocol(t *testing.T) {
+func TestOrderingByProtocol(t *testing.T) { //nolint:gocyclo
 	servers := []naming.MountedServer{}
 	_, ipnet, _ := net.ParseCIDR("127.0.0.0/8")
 	ipnets := []*net.IPNet{ipnet}

@@ -20,7 +20,7 @@ import (
 )
 
 // TestHTTP checks that HTTP download works.
-func TestHTTP(t *testing.T) {
+func TestHTTP(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	rg := testutil.NewRandGenerator(t.Logf)

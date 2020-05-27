@@ -45,7 +45,7 @@ func newCipher(ver testCipherVersion) (c1, c2 crypto.ControlCipher, err error) {
 	return
 }
 
-func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
+func testCipherOpenSeal(t *testing.T, ver testCipherVersion) { //nolint:gocyclo
 	c1, c2, err := newCipher(ver)
 	if err != nil {
 		t.Fatalf("can't create cipher: %v", err)

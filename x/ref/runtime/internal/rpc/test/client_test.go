@@ -270,7 +270,7 @@ func TestTimeout(t *testing.T) {
 	}
 }
 
-func TestStartCallErrors(t *testing.T) {
+func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	sh, ctx, _, cleanup := testInit(t, false)
 	defer cleanup()
 
