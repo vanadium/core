@@ -65,7 +65,7 @@ func verifyAppWorkspace(t *testing.T, root, appID, instanceID string) {
 
 // TestLifeOfAnApp installs an app, instantiates, runs, kills, and deletes
 // several instances, and performs updates.
-func TestLifeOfAnApp(t *testing.T) {
+func TestLifeOfAnApp(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -457,11 +457,12 @@ func determineShouldKeep(t *testing.T, root, globpath, state string) map[string]
 	for _, idir := range paths {
 		p := filepath.Join(idir, state)
 		_, err := os.Stat(p)
-		if os.IsNotExist(err) {
+		switch {
+		case os.IsNotExist(err):
 			shouldKeep[idir] = true
-		} else if err == nil {
+		case err == nil:
 			shouldKeep[idir] = false
-		} else {
+		default:
 			t.Errorf("determineShouldKeep Stat(%s) failed: %v", p, err)
 		}
 	}

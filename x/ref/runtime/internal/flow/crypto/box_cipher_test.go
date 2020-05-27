@@ -37,15 +37,14 @@ func newCipher(ver testCipherVersion) (c1, c2 crypto.ControlCipher, err error) {
 	if err != nil {
 		return nil, nil, errors.New("can't generate key")
 	}
-	switch ver {
-	case cipherRPC11:
+	if ver == cipherRPC11 {
 		c1 = crypto.NewControlCipherRPC11((*crypto.BoxKey)(pk1), (*crypto.BoxKey)(sk1), (*crypto.BoxKey)(pk2))
 		c2 = crypto.NewControlCipherRPC11((*crypto.BoxKey)(pk2), (*crypto.BoxKey)(sk2), (*crypto.BoxKey)(pk1))
 	}
 	return
 }
 
-func testCipherOpenSeal(t *testing.T, ver testCipherVersion) {
+func testCipherOpenSeal(t *testing.T, ver testCipherVersion) { //nolint:gocyclo
 	c1, c2, err := newCipher(ver)
 	if err != nil {
 		t.Fatalf("can't create cipher: %v", err)

@@ -14,8 +14,8 @@ func NewMockOAuth(mockEmail, mockClientID string) OAuthProvider {
 	return &mockOAuth{email: mockEmail, clientID: mockClientID}
 }
 
-func (m *mockOAuth) AuthURL(redirectUrl string, state string, _ AuthURLApproval) string {
-	return redirectUrl + "?state=" + state
+func (m *mockOAuth) AuthURL(redirectURL string, state string, _ AuthURLApproval) string {
+	return redirectURL + "?state=" + state
 }
 
 func (m *mockOAuth) ExchangeAuthCodeForEmail(string, string) (string, error) {

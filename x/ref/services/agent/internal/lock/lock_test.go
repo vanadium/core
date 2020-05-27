@@ -189,7 +189,7 @@ func TestLevelLockStale(t *testing.T) {
 
 // TestLock tests the exported TryLocker and TryLockerSafe methods.  This is a
 // black-box test (if we ignore the timeKeeper manipulation).
-func TestLock(t *testing.T) {
+func TestLock(t *testing.T) { //nolint:gocyclo
 	d, l := setup(t)
 	defer os.RemoveAll(d)
 
@@ -291,7 +291,7 @@ func assertNumLockFiles(t *testing.T, d string, num int) {
 
 // TestLockLevelStateChanges verifies the behavior of TryLock when faced with a
 // variety of level lock states that may change while TryLock is executing.
-func TestLockLevelStateChanges(t *testing.T) {
+func TestLockLevelStateChanges(t *testing.T) { //nolint:gocyclo
 	d, l := setup(t)
 	defer os.RemoveAll(d)
 	sh := gosh.NewShell(t)
@@ -506,7 +506,7 @@ const (
 // TestLockLevelConfigurations verifies the behavior of TryLock when faced with
 // a variety of initial lock level states and changes to the states while
 // TryLock sleeps.
-func TestLockLevelConfigurations(t *testing.T) {
+func TestLockLevelConfigurations(t *testing.T) { //nolint:gocyclo
 	d, l := setup(t)
 	defer os.RemoveAll(d)
 	sh := gosh.NewShell(t)

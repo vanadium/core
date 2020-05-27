@@ -32,7 +32,7 @@ import (
 	"v.io/x/ref/test/testutil"
 )
 
-func TestDebugServer(t *testing.T) {
+func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -167,8 +167,7 @@ func TestDebugServer(t *testing.T) {
 		}
 		results := []string{}
 		for res := range c {
-			switch v := res.(type) {
-			case *naming.GlobReplyEntry:
+			if v, ok := res.(*naming.GlobReplyEntry); ok {
 				results = append(results, v.Value.Name)
 			}
 		}
@@ -185,8 +184,7 @@ func TestDebugServer(t *testing.T) {
 		results = []string{}
 		for res := range c {
 			t.Logf("got %v", res)
-			switch v := res.(type) {
-			case *naming.GlobReplyEntry:
+			if v, ok := res.(*naming.GlobReplyEntry); ok {
 				results = append(results, v.Value.Name)
 			}
 		}
@@ -204,8 +202,7 @@ func TestDebugServer(t *testing.T) {
 		}
 		results = []string{}
 		for res := range c {
-			switch v := res.(type) {
-			case *naming.GlobReplyEntry:
+			if v, ok := res.(*naming.GlobReplyEntry); ok {
 				results = append(results, v.Value.Name)
 			}
 		}
@@ -227,8 +224,7 @@ func TestDebugServer(t *testing.T) {
 		}
 		results = []string{}
 		for res := range c {
-			switch v := res.(type) {
-			case *naming.GlobReplyEntry:
+			if v, ok := res.(*naming.GlobReplyEntry); ok {
 				if strings.HasPrefix(v.Value.Name, "stats/") && !strings.HasPrefix(v.Value.Name, "stats/testing/") {
 					// Skip any non-testing stats.
 					continue

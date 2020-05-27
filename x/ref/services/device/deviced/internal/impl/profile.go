@@ -23,7 +23,7 @@ import (
 //
 // TODO(jsimsa): Avoid computing the host device description from
 // scratch if a recent cached copy exists.
-func ComputeDeviceProfile() (*profile.Specification, error) {
+func ComputeDeviceProfile() (*profile.Specification, error) { //nolint:gocyclo
 	result := profile.Specification{}
 
 	// Find out what the supported operating system, file format, and
@@ -43,7 +43,7 @@ func ComputeDeviceProfile() (*profile.Specification, error) {
 	case build.OperatingSystemAndroid:
 		result.Format = build.FormatElf
 	default:
-		return nil, errors.New("Unsupported operating system: " + os.String())
+		return nil, errors.New("unsupported operating system: " + os.String())
 	}
 	var arch build.Architecture
 	if err := arch.SetFromGoArch(runtime.GOARCH); err != nil {
@@ -64,7 +64,7 @@ func ComputeDeviceProfile() (*profile.Specification, error) {
 		buf := bytes.NewBuffer(output)
 		// Throw away the first line of output from ldconfig.
 		if _, err := buf.ReadString('\n'); err != nil {
-			return nil, errors.New("Could not identify libraries.")
+			return nil, errors.New("could not identify libraries")
 		}
 		// Extract the library name and version from every subsequent line.
 		result.Libraries = make(map[profile.Library]struct{})
@@ -74,7 +74,7 @@ func ComputeDeviceProfile() (*profile.Specification, error) {
 			if len(words) > 0 {
 				tokens := strings.Split(words[0], ".so")
 				if len(tokens) != 2 {
-					return nil, errors.New("Could not identify library: " + words[0])
+					return nil, errors.New("could not identify library: " + words[0])
 				}
 				name := strings.TrimPrefix(tokens[0], "lib")
 				major, minor := "", ""
@@ -96,7 +96,7 @@ func ComputeDeviceProfile() (*profile.Specification, error) {
 	case "android":
 		// TODO(caprita): Implement.
 	default:
-		return nil, errors.New("Unsupported operating system: " + runtime.GOOS)
+		return nil, errors.New("unsupported operating system: " + runtime.GOOS)
 	}
 	return &result, nil
 }

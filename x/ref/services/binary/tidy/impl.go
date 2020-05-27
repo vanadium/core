@@ -12,7 +12,7 @@ import (
 	"sort"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/x/lib/cmdline"
@@ -68,7 +68,7 @@ func mapGlob(ctx *context.T, pattern string, mapFunc func(string)) (error, []err
 
 	globErrors := make([]error, 0, len(errors))
 	for _, err := range errors {
-		globErrors = append(globErrors, fmt.Errorf("Glob error: %s: %v\n", err.Name, err.Error))
+		globErrors = append(globErrors, fmt.Errorf("glob error: %s: %v", err.Name, err.Error))
 	}
 	return nil, globErrors
 }
@@ -109,7 +109,7 @@ func getNames(ctx *context.T, env *cmdline.Env, endpoint string) ([]string, erro
 	return s, nil
 }
 
-func runBinaryTidy(ctx *context.T, env *cmdline.Env, args []string) error {
+func runBinaryTidy(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if expected, got := 2, len(args); expected != got {
 		return env.UsageErrorf("match: incorrect number of arguments, expected %d, got %d", expected, got)
 	}

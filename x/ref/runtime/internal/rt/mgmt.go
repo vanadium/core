@@ -27,7 +27,7 @@ var (
 	errConfigKeyNotSet = verror.Register(pkgPath+".errConfigKeyNotSet", verror.NoRetry, "{1:}{2:} {3} is not set{:_}")
 )
 
-func (rt *Runtime) initMgmt(ctx *context.T) error {
+func (rt *Runtime) initMgmt(ctx *context.T) error { //nolint:gocyclo
 	config, err := exec.ReadConfigFromOSEnv()
 	if err != nil {
 		return verror.New(errInvalidConfig, ctx, err)

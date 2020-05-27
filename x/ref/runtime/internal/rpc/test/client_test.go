@@ -270,7 +270,7 @@ func TestTimeout(t *testing.T) {
 	}
 }
 
-func TestStartCallErrors(t *testing.T) {
+func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	sh, ctx, _, cleanup := testInit(t, false)
 	defer cleanup()
 
@@ -366,8 +366,8 @@ func TestStartCallErrors(t *testing.T) {
 	addr = naming.FormatEndpoint("tcp", "203.0.113.10:8101")
 
 	nctx, cancel = context.WithTimeout(ctx, 100*time.Millisecond)
-	new_name := naming.JoinAddressName(addr, "")
-	call, err = client.StartCall(nctx, new_name, "noname", nil, options.NoRetry{})
+	newName := naming.JoinAddressName(addr, "")
+	call, err = client.StartCall(nctx, newName, "noname", nil, options.NoRetry{})
 	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
 		verror.ErrorID(err) != verror.ErrNoServers.ID {
 		t.Errorf("wrong error: %s", err)

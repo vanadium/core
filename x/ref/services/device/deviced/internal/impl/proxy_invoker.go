@@ -229,7 +229,7 @@ func (c *call) Send(v interface{}) error {
 
 func (p *proxyInvoker) Glob__(ctx *context.T, serverCall rpc.GlobServerCall, g *glob.Glob) error {
 	pattern := g.String()
-	p.Invoke(ctx,&call{serverCall},rpc.GlobMethod,[]interface{}{&pattern}) //nolint:errcheck
+	p.Invoke(ctx, &call{serverCall}, rpc.GlobMethod, []interface{}{&pattern}) //nolint:errcheck
 	return nil
 }
 

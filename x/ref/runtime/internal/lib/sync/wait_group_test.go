@@ -58,7 +58,7 @@ func TestConcurrentWait(t *testing.T) {
 			select {
 			case <-done:
 			default:
-				errCh <- fmt.Errorf("Wait returned before Done.")
+				errCh <- fmt.Errorf("wait returned before Done")
 				return
 			}
 			errCh <- nil
@@ -110,7 +110,7 @@ func TestIdempotentWait(t *testing.T) {
 			case <-done:
 				errCh <- nil
 			default:
-				errCh <- fmt.Errorf("Wait returned before Done.")
+				errCh <- fmt.Errorf("wait returned before Done")
 			}
 		}()
 	}
@@ -132,7 +132,7 @@ func TestDoneFailsBeforeAdd(t *testing.T) {
 	var w WaitGroup
 	defer func() {
 		if r := recover(); r == nil {
-			t.Fatal("Done succeeded before Add.")
+			t.Fatal("done succeeded before Add")
 		}
 	}()
 	w.Done()

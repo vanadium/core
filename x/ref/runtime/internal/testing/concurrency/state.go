@@ -95,7 +95,7 @@ func (s *state) addBranch(branch []*choice, seeds *stack) error {
 	}
 	next, found := s.children[choice.next]
 	if !found {
-		return fmt.Errorf("invalid choice (no transition fo thread %d).", choice.next)
+		return fmt.Errorf("invalid choice (no transition fo thread %d)", choice.next)
 	}
 	next.visited = true
 	branch = branch[1:]
@@ -213,7 +213,7 @@ func (s *state) happensBefore(other *state) bool {
 // mayInterfereWith checks if the execution of the transition that
 // leads to this state may interfere with the execution of the
 // transition that leads to the given state.
-func (s *state) mayInterfereWith(other *state) bool {
+func (s *state) mayInterfereWith(other *state) bool { //nolint:gocyclo
 	if (s.kind == tMutexLock && other.kind == tMutexUnlock) ||
 		(s.kind == tMutexUnlock && other.kind == tMutexLock) {
 		return false

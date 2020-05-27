@@ -27,10 +27,10 @@ import (
 )
 
 // SQL statement suffix to be appended when creating tables.
-const SqlCreateTableSuffix = "CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+const SQLCreateTableSuffix = "CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
 
 // Description of the SQL configuration file format.
-const SqlConfigFileDescription = `File must contain a JSON object of the following form:
+const SQLConfigFileDescription = `File must contain a JSON object of the following form:
    {
     "dataSourceName": "[username[:password]@][protocol[(address)]]/dbname", (the connection string required by go-sql-driver; database name must be specified, query parameters are not supported)
     "tlsDisable": "false|true", (defaults to false; if set to true, uses an unencrypted connection; otherwise, the following fields are mandatory)
@@ -41,10 +41,10 @@ const SqlConfigFileDescription = `File must contain a JSON object of the followi
    }
 Paths must be either absolute or relative to the configuration file directory.`
 
-// SqlConfig holds the fields needed to connect to a SQL instance and to
+// SQLConfig holds the fields needed to connect to a SQL instance and to
 // configure TLS encryption of the information sent over the wire. It must be
 // activated via Activate() before use.
-type SqlConfig struct {
+type SQLConfig struct {
 	// DataSourceName is the connection string as required by go-sql-driver:
 	// "[username[:password]@][protocol[(address)]]/dbname";
 	// database name must be specified, query parameters are not supported.
@@ -62,12 +62,12 @@ type SqlConfig struct {
 	ClientKeyPath string `json:"clientKeyPath"`
 }
 
-// ActiveSqlConfig represents a SQL configuration that has been activated
+// ActiveSQLConfig represents a SQL configuration that has been activated
 // by registering the TLS configuration (if applicable). It can be used for
 // opening SQL database connections.
-type ActiveSqlConfig struct {
-	// cfg is a copy of the SqlConfig that was activated.
-	cfg *SqlConfig
+type ActiveSQLConfig struct {
+	// cfg is a copy of the SQLConfig that was activated.
+	cfg *SQLConfig
 	// tlsConfigIdentifier is the identifier under which the TLS configuration
 	// is registered with go-sql-driver. It is computed as a secure hash of the
 	// SqlConfig after resolving any relative paths.
@@ -78,12 +78,12 @@ type ActiveSqlConfig struct {
 // described in SqlConfigFileDescription; also see links below).
 // https://github.com/go-sql-driver/mysql/#dsn-data-source-name
 // https://github.com/go-sql-driver/mysql/#tls
-func ParseSqlConfigFromFile(sqlConfigFile string) (*SqlConfig, error) {
+func ParseSQLConfigFromFile(sqlConfigFile string) (*SQLConfig, error) {
 	configJSON, err := ioutil.ReadFile(sqlConfigFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed reading SQL config file %q: %v", sqlConfigFile, err)
 	}
-	var config SqlConfig
+	var config SQLConfig
 	if err = json.Unmarshal(configJSON, &config); err != nil {
 		// TODO(ivanpi): Parsing errors might leak the SQL password into error
 		// logs, depending on standard library implementation.
@@ -97,9 +97,9 @@ func ParseSqlConfigFromFile(sqlConfigFile string) (*SqlConfig, error) {
 // Certificate paths from SqlConfig that aren't absolute are interpreted relative
 // to certBaseDir.
 // For more information see https://github.com/go-sql-driver/mysql/#tls
-func (sc *SqlConfig) Activate(certBaseDir string) (*ActiveSqlConfig, error) {
+func (sc *SQLConfig) Activate(certBaseDir string) (*ActiveSQLConfig, error) {
 	if sc.TLSDisable {
-		return &ActiveSqlConfig{
+		return &ActiveSQLConfig{
 			cfg: sc.normalizePaths(""),
 		}, nil
 	}
@@ -108,21 +108,21 @@ func (sc *SqlConfig) Activate(certBaseDir string) (*ActiveSqlConfig, error) {
 		return nil, fmt.Errorf("failed resolving certificate base directory %q: %v", certBaseDir, err)
 	}
 	scn := sc.normalizePaths(cbdAbs)
-	configId := scn.hash()
-	if err = registerSqlTLSConfig(scn, configId); err != nil {
+	configID := scn.hash()
+	if err = registerSQLTLSConfig(scn, configID); err != nil {
 		return nil, fmt.Errorf("failed registering TLS config: %v", err)
 	}
-	return &ActiveSqlConfig{
+	return &ActiveSQLConfig{
 		cfg:                 scn,
-		tlsConfigIdentifier: configId,
+		tlsConfigIdentifier: configID,
 	}, nil
 }
 
 // Convenience function to parse and activate the SQL configuration file.
 // Certificate paths that aren't absolute are interpreted relative to the
 // directory containing sqlConfigFile.
-func ActivateSqlConfigFromFile(sqlConfigFile string) (*ActiveSqlConfig, error) {
-	cfg, err := ParseSqlConfigFromFile(sqlConfigFile)
+func ActivateSQLConfigFromFile(sqlConfigFile string) (*ActiveSQLConfig, error) {
+	cfg, err := ParseSQLConfigFromFile(sqlConfigFile)
 	if err != nil {
 		return nil, err
 	}
@@ -136,23 +136,23 @@ func ActivateSqlConfigFromFile(sqlConfigFile string) (*ActiveSqlConfig, error) {
 // Opens a connection to the SQL database using the provided configuration.
 // Sets the specified transaction isolation (see link below).
 // https://dev.mysql.com/doc/refman/5.5/en/server-system-variables.html#sysvar_tx_isolation
-func (sqlConfig *ActiveSqlConfig) NewSqlDBConn(txIsolation string) (*sql.DB, error) {
-	return openSqlDBConn(configureSqlDBConn(sqlConfig, txIsolation))
+func (sqlConfig *ActiveSQLConfig) NewSQLDBConn(txIsolation string) (*sql.DB, error) {
+	return openSQLDBConn(configureSQLDBConn(sqlConfig, txIsolation))
 }
 
 // Convenience function to parse and activate the configuration file and open
 // a connection to the SQL database. If multiple connections with the same
-// configuration are needed, a single ActivateSqlConfigFromFile() and multiple
-// NewSqlDbConn() calls are recommended instead.
-func NewSqlDBConnFromFile(sqlConfigFile, txIsolation string) (*sql.DB, error) {
-	config, err := ActivateSqlConfigFromFile(sqlConfigFile)
+// configuration are needed, a single ActivateSQLConfigFromFile() and multiple
+// NewSQLDbConn() calls are recommended instead.
+func NewSQLDBConnFromFile(sqlConfigFile, txIsolation string) (*sql.DB, error) {
+	config, err := ActivateSQLConfigFromFile(sqlConfigFile)
 	if err != nil {
 		return nil, err
 	}
-	return config.NewSqlDBConn(txIsolation)
+	return config.NewSQLDBConn(txIsolation)
 }
 
-func configureSqlDBConn(sqlConfig *ActiveSqlConfig, txIsolation string) string {
+func configureSQLDBConn(sqlConfig *ActiveSQLConfig, txIsolation string) string {
 	params := url.Values{}
 	// Setting charset is unnecessary when collation is set, according to
 	// https://github.com/go-sql-driver/mysql/#charset
@@ -168,7 +168,7 @@ func configureSqlDBConn(sqlConfig *ActiveSqlConfig, txIsolation string) string {
 	return sqlConfig.cfg.DataSourceName + "?" + params.Encode()
 }
 
-func openSqlDBConn(dataSrcName string) (*sql.DB, error) {
+func openSQLDBConn(dataSrcName string) (*sql.DB, error) {
 	// Prevent leaking the SQL password into error logs.
 	sanitizedDSN := dataSrcName[strings.LastIndex(dataSrcName, "@")+1:]
 	db, err := sql.Open("mysql", dataSrcName)
@@ -181,10 +181,10 @@ func openSqlDBConn(dataSrcName string) (*sql.DB, error) {
 	return db, nil
 }
 
-// registerSqlTLSConfig sets up the SQL connection to use TLS encryption
-// and registers the configuration under configId.
+// registerSQLTLSConfig sets up the SQL connection to use TLS encryption
+// and registers the configuration under configID.
 // For more information see https://github.com/go-sql-driver/mysql/#tls
-func registerSqlTLSConfig(cfg *SqlConfig, configId string) error {
+func registerSQLTLSConfig(cfg *SQLConfig, configID string) error {
 	rootCertPool := x509.NewCertPool()
 	pem, err := ioutil.ReadFile(cfg.RootCertPath)
 	if err != nil {
@@ -198,7 +198,7 @@ func registerSqlTLSConfig(cfg *SqlConfig, configId string) error {
 		return fmt.Errorf("failed loading client key pair (%v, %v): %v", cfg.ClientCertPath, cfg.ClientKeyPath, err)
 	}
 	clientCert := []tls.Certificate{ckpair}
-	return mysql.RegisterTLSConfig(configId, &tls.Config{
+	return mysql.RegisterTLSConfig(configID, &tls.Config{
 		RootCAs:      rootCertPool,
 		Certificates: clientCert,
 		ServerName:   cfg.TLSServerName,
@@ -211,7 +211,7 @@ func registerSqlTLSConfig(cfg *SqlConfig, configId string) error {
 
 // Computes a secure hash of the SqlConfig. Paths are canonicalized before
 // hashing.
-func (sc *SqlConfig) hash() string {
+func (sc *SQLConfig) hash() string {
 	scn := sc.normalizePaths("")
 	fieldsToHash := []interface{}{
 		scn.DataSourceName, scn.TLSDisable, scn.TLSServerName,
@@ -226,9 +226,9 @@ func (sc *SqlConfig) hash() string {
 	return hex.EncodeToString(structHash[:])
 }
 
-// Returns a copy of the SqlConfig with certificate paths canonicalized and
+// Returns a copy of the SQLConfig with certificate paths canonicalized and
 // resolved relative to certBaseDir. Blank paths remain blank.
-func (sc *SqlConfig) normalizePaths(certBaseDir string) *SqlConfig {
+func (sc *SQLConfig) normalizePaths(certBaseDir string) *SQLConfig {
 	scn := *sc
 	for _, path := range []*string{&scn.RootCertPath, &scn.ClientCertPath, &scn.ClientKeyPath} {
 		*path = normalizePath(*path, certBaseDir)

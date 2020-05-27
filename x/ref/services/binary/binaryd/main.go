@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"os"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/lib/netstate"
@@ -95,11 +95,11 @@ func runBinaryD(ctx *context.T, env *cmdline.Env, args []string) error {
 
 	dis, err := binarylib.NewDispatcher(ctx, state)
 	if err != nil {
-		return fmt.Errorf("NewDispatcher() failed: %v\n", err)
+		return fmt.Errorf("newDispatcher() failed: %v", err)
 	}
 	ctx, server, err := v23.WithNewDispatchingServer(ctx, name, dis)
 	if err != nil {
-		return fmt.Errorf("NewServer() failed: %v", err)
+		return fmt.Errorf("newServer() failed: %v", err)
 	}
 	epName := server.Status().Endpoints[0].Name()
 	if name != "" {

@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/verror"
@@ -106,10 +106,8 @@ func runServer(ctx *context.T, _ *cmdline.Env, _ []string) error {
 	}
 	if testMode {
 		dev.ListenSpec = rpc.ListenSpec{Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}}}
-	} else {
-		if dev.ListenSpec, err = derivedListenSpec(ctx, ns.ListenSpec, *dmPort); err != nil {
-			return err
-		}
+	} else if dev.ListenSpec, err = derivedListenSpec(ctx, ns.ListenSpec, *dmPort); err != nil {
+		return err
 	}
 	// We grab the shutdown channel at this point in order to ensure that we
 	// register a listener for the app cycle manager Stop before we start

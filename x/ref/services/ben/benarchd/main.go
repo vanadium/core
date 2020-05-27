@@ -65,7 +65,7 @@ func run(ctx *context.T, env *cmdline.Env, args []string) error {
 	switch driver {
 	case "sqlconfig":
 		// I'll admit, I have no clude of SERIALIZABLE is the right choice.
-		db, err = dbutil.NewSqlDBConnFromFile(dataSource, "SERIALIZABLE")
+		db, err = dbutil.NewSQLDBConnFromFile(dataSource, "SERIALIZABLE")
 	default:
 		db, err = sql.Open(driver, dataSource)
 	}
@@ -84,7 +84,7 @@ func run(ctx *context.T, env *cmdline.Env, args []string) error {
 		return err
 	}
 	ctx.Infof("HTTP server at http://%v", ln.Addr())
-	go http.Serve(ln,internal.NewHTTPHandler(assets,store)) //nolint:errcheck
+	go http.Serve(ln, internal.NewHTTPHandler(assets, store)) //nolint:errcheck
 
 	// Start the v23 RPC service
 	pubAddr := fmt.Sprintf("http://%v", ln.Addr())

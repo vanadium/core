@@ -55,7 +55,7 @@ var ExecScript = gosh.RegisterFunc("ExecScript", func(script string) error {
 var DeviceManager = gosh.RegisterFunc("DeviceManager", deviceManagerFunc)
 
 func waitForEOF(r io.Reader) {
-	io.Copy(ioutil.Discard,r) //nolint:errcheck
+	io.Copy(ioutil.Discard, r) //nolint:errcheck
 }
 
 func deviceManagerFunc(publishName string, args ...string) error {
@@ -124,7 +124,7 @@ func deviceManagerFunc(publishName string, args ...string) error {
 	}
 	// Manually mount the claimable service in the 'global' mounttable.
 	for _, ep := range claimableEps {
-		v23.GetNamespace(ctx).Mount(ctx,"claimable",ep.Name(),0) //nolint:errcheck
+		v23.GetNamespace(ctx).Mount(ctx, "claimable", ep.Name(), 0) //nolint:errcheck
 	}
 	fmt.Println("READY")
 
@@ -139,8 +139,8 @@ func deviceManagerFunc(publishName string, args ...string) error {
 	return nil
 }
 
-// This is the same as DeviceManager above, except that it has a different major
-// version number.
+// DeviceManagerV10 is the same as DeviceManager above, except that it has a
+// different major version number.
 var DeviceManagerV10 = gosh.RegisterFunc("DeviceManagerV10", func(publishName string, args ...string) error {
 	versioning.CurrentVersion = versioning.Version{Major: 10, Minor: 0} // Set the version number to 10.0
 	return deviceManagerFunc(publishName, args...)

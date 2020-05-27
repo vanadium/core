@@ -50,11 +50,12 @@ func runClaim(ctx *context.T, env *cmdline.Env, args []string) error {
 		if err != nil {
 			return fmt.Errorf("Failed to base64 decode publickey: %v", err)
 		}
-		if deviceKey, err := security.UnmarshalPublicKey(marshalledPublicKey); err != nil {
+		deviceKey, err := security.UnmarshalPublicKey(marshalledPublicKey)
+		if err != nil {
 			return fmt.Errorf("Failed to unmarshal device public key:%v", err)
-		} else {
-			serverAuth = security.PublicKeyAuthorizer(deviceKey)
 		}
+		serverAuth = security.PublicKeyAuthorizer(deviceKey)
+
 	} else {
 		// Skip server endpoint authorization since an unclaimed device might
 		// have roots that will not be recognized by the claimer.

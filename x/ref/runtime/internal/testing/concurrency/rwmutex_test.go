@@ -47,7 +47,7 @@ func createRWMutexSets(n int) (map[int]bool, map[int]bool, map[int]bool, map[int
 // rw.Lock(), rw.Unlock(), rw.RLock(), rw.RUnlock(),
 // rw.RLocker().Lock(), and rw.RLocker().Unlock(). The inputs identify
 // the threads that wish to invoke these functions.
-func generateRWMutexOutputs(locks, rlocks, runlocks, llocks, lunlocks map[int]bool) []string {
+func generateRWMutexOutputs(locks, rlocks, runlocks, llocks, lunlocks map[int]bool) []string { //nolint:gocyclo
 	if length(locks) == 0 && length(rlocks) == 0 && length(runlocks) == 0 && length(llocks) == 0 && length(lunlocks) == 0 {
 		// Base case.
 		return []string{""}

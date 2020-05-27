@@ -73,7 +73,7 @@ func checkNoProfile(t *testing.T, ctx *context.T, stub repository.ApplicationCli
 
 // TestInterface tests that the implementation correctly implements
 // the Application interface.
-func TestInterface(t *testing.T) {
+func TestInterface(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

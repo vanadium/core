@@ -98,6 +98,7 @@ func WithNewServer(ctx *context.T,
 	return WithNewDispatchingServer(ctx, name, d, settingsPublisher, opts...)
 }
 
+//nolint:gocyclo
 func WithNewDispatchingServer(ctx *context.T,
 	name string, dispatcher rpc.Dispatcher,
 	settingsPublisher *pubsub.Publisher,

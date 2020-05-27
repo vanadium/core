@@ -12,7 +12,7 @@ import (
 	"path"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/security"
@@ -40,7 +40,7 @@ func writeAndSync(t *testing.T, w *os.File, s string) {
 	}
 }
 
-func TestReadLogImplNoFollow(t *testing.T) {
+func TestReadLogImplNoFollow(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

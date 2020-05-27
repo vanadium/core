@@ -18,12 +18,12 @@ import (
 const serialNumberLabel = "\"IOPlatformSerialNumber\""
 
 func getSystemID() (string, error) {
-	var output string
-	if out, err := exec.Command("ioreg", "-c", "IOPlatformExpertDevice", "-d", "2").Output(); err != nil {
+	out, err := exec.Command("ioreg", "-c", "IOPlatformExpertDevice", "-d", "2").Output()
+	if err != nil {
 		return "", err
-	} else {
-		output = string(out)
 	}
+	output := string(out)
+
 	// We're looking for a line like this:
 	//     "IOPlatformSerialNumber" = "F2GMN0QMF7VD"
 	if i := strings.Index(output, serialNumberLabel); i >= 0 {

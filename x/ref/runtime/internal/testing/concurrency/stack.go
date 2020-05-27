@@ -49,7 +49,7 @@ func (s *stack) Pop() (*state, error) {
 		s.contents = s.contents[:l-1]
 		return x, nil
 	}
-	return nil, errors.New("Stack is empty.")
+	return nil, errors.New("stack is empty")
 }
 
 // Push adds a new element to the top of the stack.

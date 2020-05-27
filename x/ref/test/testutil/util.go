@@ -49,7 +49,7 @@ func (opts FileTreeOpts) debug(format string, args ...interface{}) {
 
 // FileTreeEqual returns true if the filesystem trees rooted at aRoot and bRoot
 // are the same.  Use opts to control how matching is performed.
-func FileTreeEqual(aRoot, bRoot string, opts FileTreeOpts) (bool, error) {
+func FileTreeEqual(aRoot, bRoot string, opts FileTreeOpts) (bool, error) { //nolint:gocyclo
 	type node struct {
 		path string
 		info os.FileInfo

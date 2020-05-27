@@ -76,6 +76,7 @@ var (
 	ErrInvalidSuffix   = verror.Register(pkgPath+".errInvalidSuffix", verror.NoRetry, "{1:}{2:} invalid suffix{:_}")
 )
 
+// MissingPart represents a composite literal for use with VDL.
 // TODO(jsimsa): When VDL supports composite literal constants, remove
 // this definition.
 var MissingPart = binary.PartInfo{

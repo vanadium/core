@@ -17,12 +17,12 @@ import (
 )
 
 func getHostname(t *testing.T) string {
-	if hostname, err := os.Hostname(); err != nil {
+	hostname, err := os.Hostname()
+	if err != nil {
 		t.Fatalf("Hostname() failed: %v", err)
 		return ""
-	} else {
-		return hostname
 	}
+	return hostname
 }
 
 func start(c *v23test.Cmd) *expect.Session {

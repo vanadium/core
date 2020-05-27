@@ -146,7 +146,7 @@ func (c *Conn) acceptHandshake(
 	return rtt, err
 }
 
-func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool) ([]byte, naming.Endpoint, time.Time, error) {
+func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
 	var rttstart time.Time
 	pk, sk, err := box.GenerateKey(rand.Reader)
 	if err != nil {

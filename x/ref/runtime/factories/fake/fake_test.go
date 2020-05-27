@@ -7,7 +7,7 @@ package fake_test
 import (
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 
 	_ "v.io/x/ref/runtime/factories/fake"
 )

@@ -38,8 +38,7 @@ func translateToGobEncodeable(in interface{}) interface{} {
 func (ms *Memstore) GetGOBConvertedMemstore() map[string]interface{} {
 	convertedMap := make(map[string]interface{})
 	for k, v := range ms.data {
-		switch tv := v.(type) {
-		case application.Envelope:
+		if tv, ok := v.(application.Envelope); ok {
 			convertedMap[k] = translateToGobEncodeable(tv)
 		}
 	}

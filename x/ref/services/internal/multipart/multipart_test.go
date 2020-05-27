@@ -37,7 +37,7 @@ func read(t *testing.T, m http.File, thisMuch int) string {
 }
 
 // TestFile verifies the http.File operations on the multipart file.
-func TestFile(t *testing.T) {
+func TestFile(t *testing.T) { //nolint:gocyclo
 	contents := []string{"v", "is", "for", "vanadium"}
 	files := make([]*os.File, len(contents))
 	d, err := ioutil.TempDir("", "multiparts")

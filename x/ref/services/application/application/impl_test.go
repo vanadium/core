@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -143,7 +143,7 @@ func (d *dispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.
 	return repository.ApplicationServer(&server{suffix: suffix}), nil, nil
 }
 
-func TestApplicationClient(t *testing.T) {
+func TestApplicationClient(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

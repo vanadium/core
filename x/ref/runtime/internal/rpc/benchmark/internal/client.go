@@ -61,7 +61,7 @@ func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, ch
 // it's done. It also returns a callback function to stop the streaming. Each iteration
 // requests 'chunkCnt' chunks on the stream and receives that number of chunks back.
 // Each chunk has the given payload size. Zero 'iterations' means unlimited.
-func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, stats *tbm.Stats) (<-chan int, func()) {
+func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, stats *tbm.Stats) (<-chan int, func()) { //nolint:gocyclo
 	stub := benchmark.BenchmarkClient(address)
 	payload := make([]byte, payloadSize)
 	for i := range payload {

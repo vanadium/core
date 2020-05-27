@@ -35,7 +35,7 @@ import (
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/stats"
-	_ "v.io/x/ref/lib/stats/sysstats"
+	_ "v.io/x/ref/lib/stats/sysstats" //nolint:golint
 	"v.io/x/ref/runtime/internal/flow/manager"
 	"v.io/x/ref/runtime/internal/lib/dependency"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"

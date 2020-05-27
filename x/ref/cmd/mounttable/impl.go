@@ -15,7 +15,7 @@ import (
 
 	"v.io/x/lib/cmdline"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
@@ -69,8 +69,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 		if err := call.Recv(&gr); err != nil {
 			break
 		}
-		switch v := gr.(type) {
-		case naming.GlobReplyEntry:
+		if v, ok := gr.(naming.GlobReplyEntry); ok {
 			fmt.Fprint(env.Stdout, v.Value.Name)
 			for _, s := range v.Value.Servers {
 				fmt.Fprintf(env.Stdout, " %s (Deadline %s)", s.Server, s.Deadline.Time)
@@ -124,11 +123,11 @@ func runMount(ctx *context.T, env *cmdline.Env, args []string) error {
 		for _, c := range args[3] {
 			switch c {
 			case 'L':
-				flags |= naming.MountFlag(naming.Leaf)
+				flags |= naming.Leaf
 			case 'M':
-				flags |= naming.MountFlag(naming.MT)
+				flags |= naming.MT
 			case 'R':
-				flags |= naming.MountFlag(naming.Replace)
+				flags |= naming.Replace
 			}
 		}
 	}

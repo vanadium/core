@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/verror"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/security"
@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/services/internal/servicetest"
 )
 
-func TestClaimCommand(t *testing.T) {
+func TestClaimCommand(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -69,10 +69,8 @@ func TestClaimCommand(t *testing.T) {
 	var deviceKeyWrong []byte
 	if publicKey, _, err := security.NewPrincipalKey(); err != nil {
 		t.Fatalf("NewPrincipalKey failed: %v", err)
-	} else {
-		if deviceKeyWrong, err = publicKey.MarshalBinary(); err != nil {
-			t.Fatalf("Failed to marshal principal public key: %v", err)
-		}
+	} else if deviceKeyWrong, err = publicKey.MarshalBinary(); err != nil {
+		t.Fatalf("Failed to marshal principal public key: %v", err)
 	}
 	if err := v23cmd.ParseAndRunForTest(cmd, ctx, env, []string{"claim", deviceName, "grant", pairingToken, base64.URLEncoding.EncodeToString(deviceKeyWrong)}); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
 		t.Fatalf("wrongly failed to receive correct error on claim with incorrect device key:%v id:%v", err, verror.ErrorID(err))

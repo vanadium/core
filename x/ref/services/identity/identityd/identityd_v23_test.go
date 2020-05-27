@@ -64,7 +64,7 @@ func seekBlessings(t *testing.T, sh *v23test.Shell, principal, httpAddr string) 
 	// URL that can be used to retrieve the blessings.
 	output := httpGet(t, line)
 	if want := "Received blessings: <tt>root:u:testemail@example.com:test-extension"; !strings.Contains(output, want) {
-		t.Fatalf("failed to seek blessings: %v", string(output))
+		t.Fatalf("failed to seek blessings: %v", output)
 	}
 }
 

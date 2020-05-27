@@ -176,7 +176,7 @@ func dumpRegular(w io.Writer, path string) error {
 		if _, err := w.Write(data); err != nil {
 			return err
 		}
-		io.Copy(w,f) //nolint:errcheck
+		io.Copy(w, f) //nolint:errcheck
 		fmt.Fprintln(w)
 	}
 	return nil

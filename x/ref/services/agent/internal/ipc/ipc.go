@@ -57,7 +57,7 @@ type IPCConn struct {
 	dec    *vom.Decoder
 	conn   net.Conn
 	mu     sync.Mutex
-	nextId uint64
+	nextID uint64
 	ipc    *IPC
 	rpcs   map[uint64]rpcInfo
 }
@@ -350,8 +350,8 @@ func (ipc *IPC) startCall(c *IPCConn, method string, args []interface{}, results
 	}()
 	defer c.mu.Unlock()
 	c.mu.Lock()
-	header.Value.Id = c.nextId
-	c.nextId++
+	header.Value.Id = c.nextID
+	c.nextID++
 	vlog.VI(4).Infof("startCall sending %v", header)
 	if err := c.enc.Encode(header); err != nil {
 		// TODO(ribrdb): Close?

@@ -290,7 +290,7 @@ func TestPermsMemStore(t *testing.T) {
 	testPermsHelper(t, memstore)
 }
 
-func testPermsHelper(t *testing.T, be backend) {
+func testPermsHelper(t *testing.T, be backend) { //nolint:gocyclo
 	ctx, serverName, cleanup := setupOrDie(be)
 	defer cleanup()
 
@@ -400,7 +400,7 @@ func TestAddMemStore(t *testing.T) {
 }
 
 // testAddHelper tests mirror testRemoveHelper tests.
-func testAddHelper(t *testing.T, be backend) {
+func testAddHelper(t *testing.T, be backend) { //nolint:gocyclo
 	ctx, serverName, cleanup := setupOrDie(be)
 	defer cleanup()
 
@@ -489,7 +489,7 @@ func TestRemoveMemStore(t *testing.T) {
 }
 
 // testRemoveHelper tests mirror testAddHelper tests.
-func testRemoveHelper(t *testing.T, be backend) {
+func testRemoveHelper(t *testing.T, be backend) { //nolint:gocyclo
 	ctx, serverName, cleanup := setupOrDie(be)
 	defer cleanup()
 

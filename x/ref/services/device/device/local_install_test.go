@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/security"
 	"v.io/v23/services/application"
@@ -34,7 +34,7 @@ func createFile(t *testing.T, path string, contents string) {
 	}
 }
 
-func TestInstallLocalCommand(t *testing.T) {
+func TestInstallLocalCommand(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -224,8 +224,8 @@ func TestInstallLocalCommand(t *testing.T) {
 			},
 		},
 	} {
-		const appId = "myBestAppID"
-		rootTape.SetResponses(InstallResponse{appId, nil})
+		const appID = "myBestAppID"
+		rootTape.SetResponses(InstallResponse{appID, nil})
 		if c.config != nil {
 			jsonConfig, err := json.Marshal(c.config)
 			if err != nil {
@@ -244,7 +244,7 @@ func TestInstallLocalCommand(t *testing.T) {
 		if err := v23cmd.ParseAndRunForTest(cmd, ctx, env, c.args); err != nil {
 			t.Fatalf("test case %d: %v", i, err)
 		}
-		if expected, got := naming.Join(deviceName, appId), strings.TrimSpace(stdout.String()); got != expected {
+		if expected, got := naming.Join(deviceName, appID), strings.TrimSpace(stdout.String()); got != expected {
 			t.Fatalf("test case %d: Unexpected output from Install. Got %q, expected %q", i, got, expected)
 		}
 		if got, expected := rootTape.Play(), []interface{}{c.expectedTape}; !reflect.DeepEqual(expected, got) {

@@ -354,8 +354,7 @@ func doGlobX(t *testing.T, ctx *context.T, ep, suffix, pattern string, joinServe
 		if err != nil {
 			boom(t, "Glob.StartCall %s: %s: %v", name, pattern, err)
 		}
-		switch v := gr.(type) {
-		case naming.GlobReplyEntry:
+		if v, ok := gr.(naming.GlobReplyEntry); ok {
 			if joinServer && len(v.Value.Servers) > 0 {
 				reply = append(reply, naming.JoinAddressName(v.Value.Servers[0].Server, v.Value.Name))
 			} else {
@@ -748,7 +747,7 @@ func serverCount(t *testing.T, ctx *context.T, addr string) int64 {
 	return getCounter(t, ctx, name)
 }
 
-func TestStatsCounters(t *testing.T) {
+func TestStatsCounters(t *testing.T) { //nolint:gocyclo
 	rootCtx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 

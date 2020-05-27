@@ -53,20 +53,20 @@ func (r *Random) RandomInt63() int64 {
 }
 
 // RandomBytes generates the given number of random bytes.
-func (rand *Random) RandomBytes(size int) []byte {
+func (r *Random) RandomBytes(size int) []byte {
 	buffer := make([]byte, size)
 	randomMutex.Lock()
 	defer randomMutex.Unlock()
 	// Generate a 10MB of random bytes since that is a value commonly
 	// used in the tests.
 	if len(random) == 0 {
-		random = generateRandomBytes(rand, 10<<20)
+		random = generateRandomBytes(r, 10<<20)
 	}
 	if size > len(random) {
-		extra := generateRandomBytes(rand, size-len(random))
+		extra := generateRandomBytes(r, size-len(random))
 		random = append(random, extra...)
 	}
-	start := rand.RandomIntn(len(random) - size + 1)
+	start := r.RandomIntn(len(random) - size + 1)
 	copy(buffer, random[start:start+size])
 	return buffer
 }
@@ -128,7 +128,7 @@ func generateRandomBytes(rand *Random, size int) []byte {
 	buffer := make([]byte, size)
 	offset := 0
 	for {
-		bits := int64(rand.RandomInt63())
+		bits := rand.RandomInt63()
 		for i := 0; i < 8; i++ {
 			buffer[offset] = byte(bits & 0xff)
 			size--

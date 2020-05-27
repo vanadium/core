@@ -19,7 +19,7 @@ import (
 
 // TestAssociationPersistence verifies correct operation of association
 // persistence code.
-func TestAssociationPersistence(t *testing.T) {
+func TestAssociationPersistence(t *testing.T) { //nolint:gocyclo
 	td, err := ioutil.TempDir("", "device_test")
 	if err != nil {
 		t.Fatalf("TempDir failed: %v", err)

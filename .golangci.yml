@@ -3,6 +3,8 @@ run:
   issues-exit-code: 1
   tests: true
   build-tags:
+  skip-dirs:
+    - x/ref/services/internal/restsigner/signer/v1
 
 linters-settings:
   gocyclo:

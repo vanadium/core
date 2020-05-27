@@ -43,7 +43,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, usage, os.Args[0], flagDefaults.String())
 }
 
-func main() {
+func main() { //nolint:gocyclo
 	fmt.Fprintln(os.Stderr, os.Args)
 	if os.Geteuid() != 0 && os.Getuid() != 0 {
 		fmt.Fprintln(os.Stderr, "uid is ", os.Getuid(), ", effective uid is ", os.Geteuid())

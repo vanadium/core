@@ -510,11 +510,12 @@ func TestRPCClientAuthorization(t *testing.T) {
 			t.Fatal(err)
 		}
 		err = client.Call(cctx, test.name, test.method, test.args, makeResultPtrs(test.results))
-		if err != nil && test.authorized {
+		switch {
+		case err != nil && test.authorized:
 			t.Errorf(`%s client.Call got error: "%v", wanted the RPC to succeed`, name, err)
-		} else if err == nil && !test.authorized {
+		case err == nil && !test.authorized:
 			t.Errorf("%s call.Finish succeeded, expected authorization failure", name)
-		} else if !test.authorized && verror.ErrorID(err) != verror.ErrNoAccess.ID {
+		case !test.authorized && verror.ErrorID(err) != verror.ErrNoAccess.ID:
 			t.Errorf("%s. call.Finish returned error %v(%v), wanted %v", name, verror.ErrorID(verror.Convert(verror.ErrNoAccess, nil, err)), err, verror.ErrNoAccess)
 		}
 	}
@@ -955,7 +956,7 @@ func TestDischargePurgeFromCache(t *testing.T) {
 	}
 }
 
-func TestReplayAttack(t *testing.T) {
+func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -1361,8 +1362,7 @@ func (c *manInMiddleConn) ReadMsg() ([]byte, error) {
 	b, err := c.Conn.ReadMsg()
 	if len(b) > 0 {
 		m, _ := message.Read(c.ctx, b)
-		switch msg := m.(type) {
-		case *message.Setup:
+		if msg, ok := m.(*message.Setup); ok {
 			// The malicious man in the middle changes the max version to a bad version.
 			msg.Versions = version.RPCVersionRange{Min: version.RPCVersion10, Max: 100}
 			b, err = message.Append(c.ctx, msg, nil)

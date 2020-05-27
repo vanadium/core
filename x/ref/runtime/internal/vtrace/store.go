@@ -247,7 +247,7 @@ func (ts *traceStore) merge(spans []vtrace.SpanRecord) {
 	// and end before now.
 	for _, span := range spans {
 		if ts.spans[span.Id] == nil {
-			ts.spans[span.Id] = copySpanRecord(&span)
+			ts.spans[span.Id] = copySpanRecord(span)
 		}
 	}
 }
@@ -271,7 +271,7 @@ func (ts *traceStore) moveAfter(prev *traceStore) {
 	prev.next = ts
 }
 
-func copySpanRecord(in *vtrace.SpanRecord) *vtrace.SpanRecord {
+func copySpanRecord(in vtrace.SpanRecord) *vtrace.SpanRecord {
 	return &vtrace.SpanRecord{
 		Id:          in.Id,
 		Parent:      in.Parent,
@@ -285,7 +285,7 @@ func copySpanRecord(in *vtrace.SpanRecord) *vtrace.SpanRecord {
 func (ts *traceStore) traceRecord(out *vtrace.TraceRecord) {
 	spans := make([]vtrace.SpanRecord, 0, len(ts.spans))
 	for _, span := range ts.spans {
-		spans = append(spans, *copySpanRecord(span))
+		spans = append(spans, *copySpanRecord(*span))
 	}
 	out.Id = ts.id
 	out.Spans = spans

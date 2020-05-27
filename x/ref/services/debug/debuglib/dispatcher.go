@@ -31,7 +31,7 @@ func NewDispatcher(authorizer security.Authorizer) rpc.Dispatcher {
 	return &dispatcher{authorizer}
 }
 
-// The first part of the names of the objects served by this dispatcher.
+// RootName is the first part of the names of the objects served by this dispatcher.
 var RootName = "__debug"
 
 func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, security.Authorizer, error) {

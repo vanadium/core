@@ -19,7 +19,7 @@ import (
 	"syscall"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/lib/cmdline"
@@ -64,12 +64,12 @@ func main() {
 	cmdline.Main(cmdVbecome)
 }
 
-func vbecome(ctx *context.T, env *cmdline.Env, args []string) error {
+func vbecome(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if len(args) == 0 {
 		if shell := env.Vars["SHELL"]; shell != "" {
 			args = []string{shell}
 		} else {
-			return fmt.Errorf("You must specify a command to run.")
+			return fmt.Errorf("you must specify a command to run")
 		}
 	}
 

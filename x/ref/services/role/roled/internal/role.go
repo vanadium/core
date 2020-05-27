@@ -159,7 +159,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 			return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
 		}
 		if ret, err = security.UnionOfBlessings(ret, b); err != nil {
-			verror.Convert(verror.ErrInternal,ctx,err) //nolint:errcheck
+			verror.Convert(verror.ErrInternal, ctx, err) //nolint:errcheck
 		}
 	}
 	return ret, nil

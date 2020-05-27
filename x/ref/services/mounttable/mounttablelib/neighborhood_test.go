@@ -24,7 +24,7 @@ type stopper interface {
 	Stop()
 }
 
-func TestNeighborhood(t *testing.T) {
+func TestNeighborhood(t *testing.T) { //nolint:gocyclo
 	t.Skip("This test is timeing out due the mdns code hanging whilst closing a UDP connection - see the defer nhd.(stopper).Stop() line below")
 	rootCtx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()

@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/ref/examples/rps"
 	"v.io/x/ref/test/testutil"

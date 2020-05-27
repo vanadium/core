@@ -26,7 +26,7 @@ type BlessingRoot struct {
 // hits this route.
 var (
 	cacheMu                 sync.RWMutex
-	cachedResponseJson      []byte
+	cachedResponseJSON      []byte
 	cachedResponseBase64VOM []byte
 )
 
@@ -66,8 +66,8 @@ func (b BlessingRoot) base64vomResponse(w http.ResponseWriter, r *http.Request) 
 
 func (b BlessingRoot) jsonResponse(w http.ResponseWriter, r *http.Request) {
 	cacheMu.RLock()
-	if cachedResponseJson != nil {
-		respondString(w, "application/json", cachedResponseJson)
+	if cachedResponseJSON != nil {
+		respondString(w, "application/json", cachedResponseJSON)
 		cacheMu.RUnlock()
 		return
 	}
@@ -105,7 +105,7 @@ func (b BlessingRoot) jsonResponse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cacheMu.Lock()
-	cachedResponseJson = res
+	cachedResponseJSON = res
 	cacheMu.Unlock()
 	respondString(w, "application/json", res)
 }

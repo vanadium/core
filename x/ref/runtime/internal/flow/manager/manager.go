@@ -505,6 +505,7 @@ func (a proxyAuthorizer) BlessingsForPeer(ctx *context.T, proxyBlessings []strin
 	return blessings, discharges, nil
 }
 
+//nolint:gocyclo
 func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.Endpoint,
 	errKey struct{ Protocol, Address string }, acceptFailed chan struct{}) {
 	defer m.ls.listenLoops.Done()
@@ -935,8 +936,7 @@ func (m *manager) dialConn(
 	protocol, _ := flow.RegisteredProtocol(remote.Protocol)
 	flowConn, err := dial(ctx, protocol, remote.Protocol, remote.Address)
 	if err != nil {
-		switch err := err.(type) {
-		case *net.OpError:
+		if err, ok := err.(*net.OpError); ok {
 			if err, ok := err.Err.(net.Error); ok && err.Timeout() {
 				return nil, nil, iflow.MaybeWrapError(verror.ErrTimeout, ctx, err)
 			}

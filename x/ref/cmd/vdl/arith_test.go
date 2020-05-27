@@ -27,17 +27,17 @@ import (
 	_ "v.io/x/ref/runtime/factories/generic"
 )
 
-var generatedError = errors.New("generated error")
+var errGenerated = errors.New("generated error")
 
 // serverArith implements the arith.Arith interface.
 type serverArith struct{}
 
-func (*serverArith) Add(_ *context.T, _ rpc.ServerCall, A, B int32) (int32, error) {
-	return A + B, nil
+func (*serverArith) Add(_ *context.T, _ rpc.ServerCall, a, b int32) (int32, error) {
+	return a + b, nil
 }
 
-func (*serverArith) DivMod(_ *context.T, _ rpc.ServerCall, A, B int32) (int32, int32, error) {
-	return A / B, A % B, nil
+func (*serverArith) DivMod(_ *context.T, _ rpc.ServerCall, a, b int32) (int32, int32, error) {
+	return a / b, a % b, nil
 }
 
 func (*serverArith) Sub(_ *context.T, _ rpc.ServerCall, args base.Args) (int32, error) {
@@ -49,8 +49,8 @@ func (*serverArith) Mul(_ *context.T, _ rpc.ServerCall, nestedArgs base.NestedAr
 }
 
 func (*serverArith) Count(_ *context.T, call arith.ArithCountServerCall, start int32) error {
-	const kNum = 1000
-	for i := int32(0); i < kNum; i++ {
+	const iterations = 1000
+	for i := int32(0); i < iterations; i++ {
 		if err := call.SendStream().Send(start + i); err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func (*serverArith) StreamingAdd(_ *context.T, call arith.ArithStreamingAddServe
 }
 
 func (*serverArith) GenError(_ *context.T, _ rpc.ServerCall) error {
-	return generatedError
+	return errGenerated
 }
 
 func (*serverArith) QuoteAny(_ *context.T, _ rpc.ServerCall, any *vom.RawBytes) (*vom.RawBytes, error) {
@@ -272,7 +272,7 @@ func TestCalculator(t *testing.T) {
 	})
 }
 
-func TestArith(t *testing.T) {
+func TestArith(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -393,7 +393,7 @@ func TestArith(t *testing.T) {
 		}
 
 		if err := ar.GenError(ctx); err == nil {
-			t.Errorf("GenError: got %v but expected %v", err, generatedError)
+			t.Errorf("GenError: got %v but expected %v", err, errGenerated)
 		}
 
 		// Server-side stubs

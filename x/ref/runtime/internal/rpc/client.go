@@ -322,7 +322,7 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 // you can re-resolve.
 //
 // TODO(toddw): Remove action from out-args, the error should tell us the action.
-func (c *client) tryConnectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, verror.ActionCode, bool, error) {
+func (c *client) tryConnectToName(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (*serverStatus, verror.ActionCode, bool, error) { //nolint:gocyclo
 	blessingPattern, name := security.SplitPatternName(name)
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {
@@ -723,8 +723,7 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 	call := security.NewCall(callparams)
 	var grantedB security.Blessings
 	for _, o := range opts {
-		switch v := o.(type) {
-		case rpc.Granter:
+		if v, ok := o.(rpc.Granter); ok {
 			if b, err := v.Grant(ctx, call); err != nil {
 				return grantedB, verror.New(errBlessingGrant, fc.ctx, err)
 			} else if grantedB, err = security.UnionOfBlessings(grantedB, b); err != nil {

@@ -28,10 +28,11 @@ func runDescribe(ctx *context.T, env *cmdline.Env, args []string) error {
 		return env.UsageErrorf("describe: incorrect number of arguments, expected %d, got %d", expected, got)
 	}
 	deviceName := args[0]
-	if description, err := device.DeviceClient(deviceName).Describe(ctx); err != nil {
+	description, err := device.DeviceClient(deviceName).Describe(ctx)
+	if err != nil {
 		return fmt.Errorf("Describe failed: %v", err)
-	} else {
-		fmt.Fprintf(env.Stdout, "%+v\n", description)
 	}
+	fmt.Fprintf(env.Stdout, "%+v\n", description)
+
 	return nil
 }

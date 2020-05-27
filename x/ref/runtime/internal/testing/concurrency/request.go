@@ -280,9 +280,8 @@ func (r rwMutexLockRequest) enabled(ctx *context) bool {
 	rw, ok := ctx.rwMutexes[r.rwMutex]
 	if r.read {
 		return !ok || rw.free() || rw.shared()
-	} else {
-		return !ok || rw.free()
 	}
+	return !ok || rw.free()
 }
 
 func (r rwMutexLockRequest) execute(ready chan struct{}, e *execution) {
@@ -303,9 +302,8 @@ func (r rwMutexLockRequest) execute(ready chan struct{}, e *execution) {
 func (r rwMutexLockRequest) kind() transitionKind {
 	if r.read {
 		return tRWMutexRLock
-	} else {
-		return tRWMutexLock
 	}
+	return tRWMutexLock
 }
 
 func (r rwMutexLockRequest) process(e *execution) {
@@ -345,9 +343,8 @@ func (r rwMutexUnlockRequest) enabled(ctx *context) bool {
 	}
 	if r.read {
 		return rw.shared()
-	} else {
-		return rw.exclusive()
 	}
+	return rw.exclusive()
 }
 
 func (r rwMutexUnlockRequest) execute(ready chan struct{}, e *execution) {
@@ -367,9 +364,8 @@ func (r rwMutexUnlockRequest) execute(ready chan struct{}, e *execution) {
 func (r rwMutexUnlockRequest) kind() transitionKind {
 	if r.read {
 		return tRWMutexRUnlock
-	} else {
-		return tRWMutexUnlock
 	}
+	return tRWMutexUnlock
 }
 
 func (r rwMutexUnlockRequest) process(e *execution) {

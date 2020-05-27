@@ -230,11 +230,11 @@ func TestV23VTrace(t *testing.T) {
 	if len(fields) < 3 {
 		t.Fatalf("expected at least 3 space-delimited fields, got %d: %v", len(fields), traceContent)
 	}
-	traceId := fields[2]
+	traceID := fields[2]
 
 	// Do a sanity check on the trace ID: it should be a 32-character hex ID prefixed with 0x
-	if match, _ := regexp.MatchString("0x[0-9a-f]{32}", traceId); !match {
-		t.Fatalf("wanted a 32-character hex ID prefixed with 0x, got %s", traceId)
+	if match, _ := regexp.MatchString("0x[0-9a-f]{32}", traceID); !match {
+		t.Fatalf("wanted a 32-character hex ID prefixed with 0x, got %s", traceID)
 	}
 
 	// Do another traced read, this will generate a new trace entry.
@@ -248,7 +248,7 @@ func TestV23VTrace(t *testing.T) {
 
 	// Now ask for a particular trace. The output should contain exactly
 	// one trace whose ID is equal to the one we asked for.
-	got, want = sh.Cmd(binary, "vtrace", "__debug/vtrace", traceId).Stdout(), 1
+	got, want = sh.Cmd(binary, "vtrace", "__debug/vtrace", traceID).Stdout(), 1
 	if count := strings.Count(got, "Trace -"); count != want {
 		t.Fatalf("unexpected trace count, want %d, got %d\n%s", want, count, got)
 	}
@@ -257,8 +257,8 @@ func TestV23VTrace(t *testing.T) {
 		t.Fatalf("expected at least 3 space-delimited fields, got %d: %v", len(fields), got)
 	}
 	got = fields[2]
-	if traceId != got {
-		t.Fatalf("unexpected traceId, want %s, got %s", traceId, got)
+	if traceID != got {
+		t.Fatalf("unexpected traceID, want %s, got %s", traceID, got)
 	}
 }
 

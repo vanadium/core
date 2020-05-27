@@ -488,7 +488,7 @@ func shouldGenerate(config vdltool.Config, lang vdltool.GenLanguage) bool {
 // gen generates the given targets with env.  If audit is true, only checks
 // whether any packages are stale; otherwise files will actually be written out.
 // Returns true if any packages are stale.
-func gen(audit bool, targets []*build.Package, env *compile.Env) bool {
+func gen(audit bool, targets []*build.Package, env *compile.Env) bool { //nolint:gocyclo
 	anychanged := false
 	// Cache original file-system directories for Swift codegen (which needs to
 	// traverse the filesystem to find declarations of SwiftModule in vdl.config)
@@ -554,8 +554,8 @@ func gen(audit bool, targets []*build.Package, env *compile.Env) bool {
 				if handleErrorOrSkip("--js-out-dir", err, env) {
 					continue
 				}
+				prefix := filepath.Clean(target.Dir[0 : len(target.Dir)-len(target.GenPath)])
 				path := func(importPath string) string {
-					prefix := filepath.Clean(target.Dir[0 : len(target.Dir)-len(target.GenPath)])
 					pkgDir := filepath.Join(prefix, filepath.FromSlash(importPath))
 					fullDir, err := xlateOutDir(pkgDir, importPath, optGenJavascriptOutDir, importPath)
 					if err != nil {

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/naming"
 	"v.io/v23/verror"
 	"v.io/x/lib/cmdline"

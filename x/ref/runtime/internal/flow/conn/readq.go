@@ -81,7 +81,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 		if len(buf) > 0 {
 			r.bufs[r.b] = buf
 		} else {
-			r.nbufs -= 1
+			r.nbufs--
 			r.b = (r.b + 1) % len(r.bufs)
 		}
 		r.size -= n
@@ -100,7 +100,7 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 		out = r.bufs[r.b]
 		r.b = (r.b + 1) % len(r.bufs)
 		r.size -= len(out)
-		r.nbufs -= 1
+		r.nbufs--
 	}
 	r.mu.Unlock()
 	if r.conn != nil {

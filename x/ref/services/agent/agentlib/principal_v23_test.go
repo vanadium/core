@@ -33,7 +33,7 @@ func createFakeV23AgentdDir(t *testing.T, sh *v23test.Shell) string {
 }
 
 // TestV23AgentPrincipal tests LoadPrincipal, which spawns an agent process.
-func TestV23AgentPrincipal(t *testing.T) {
+func TestV23AgentPrincipal(t *testing.T) { //nolint:gocyclo
 	v23test.SkipUnlessRunningIntegrationTests(t)
 
 	sh := v23test.NewShell(t, nil)

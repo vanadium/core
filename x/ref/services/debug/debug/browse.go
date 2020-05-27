@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -109,7 +109,7 @@ remote process as myservices/myservice with the same authorization as Alice.
 	}
 )
 
-func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error {
+func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if len(args) == 0 {
 		return env.UsageErrorf("must provide at least a single vanadium object name")
 	}
@@ -261,16 +261,18 @@ func runDelegate(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	// Create a blessings
 	var caveats []security.Caveat
-	if c, err := delegateAccessCaveat(); err != nil {
+	c, err := delegateAccessCaveat()
+	if err != nil {
 		return err
-	} else {
-		caveats = append(caveats, c)
 	}
-	if c, err := security.NewExpiryCaveat(time.Now().Add(duration)); err != nil {
+	caveats = append(caveats, c)
+
+	c, err = security.NewExpiryCaveat(time.Now().Add(duration))
+	if err != nil {
 		return err
-	} else {
-		caveats = append(caveats, c)
 	}
+	caveats = append(caveats, c)
+
 	p := v23.GetPrincipal(ctx)
 	b, _ := p.BlessingStore().Default()
 	blessing, err := p.Bless(pub, b, extension, caveats[0], caveats[1:]...)

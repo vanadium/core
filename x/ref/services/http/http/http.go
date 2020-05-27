@@ -27,31 +27,31 @@ var (
 func traceDataHandler(w http.ResponseWriter, req *http.Request) {
 	var data []byte
 
-	vdl_req := httplib.VDLRequestFromHTTPRequest(req)
+	vdlReq := httplib.VDLRequestFromHTTPRequest(req)
 	client := v23.GetClient(ctx)
-	err := client.Call(ctx, endpoint, "RawDo", []interface{}{vdl_req}, []interface{}{&data})
+	err := client.Call(ctx, endpoint, "RawDo", []interface{}{vdlReq}, []interface{}{&data})
 
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte(fmt.Sprintf("%T",err))) //nolint:errcheck
+		w.Write([]byte(fmt.Sprintf("%T", err))) //nolint:errcheck
 	} else {
 		w.Write(data) //nolint:errcheck
 	}
 }
 
 func findPortAndListen(mux *http.ServeMux) {
-	fmt_port := func(port int) string { return fmt.Sprintf("localhost:%d", port) }
-	curr_port := 3000
+	fmtPort := func(port int) string { return fmt.Sprintf("localhost:%d", port) }
+	currPort := 3000
 
 	for {
-		ln, err := net.Listen("tcp", fmt_port(curr_port))
+		ln, err := net.Listen("tcp", fmtPort(currPort))
 		if err == nil {
-			log.Println("Monitoring on " + fmt_port(curr_port) + "/debug/requests...")
+			log.Println("Monitoring on " + fmtPort(currPort) + "/debug/requests...")
 			defer ln.Close()
-			http.Serve(ln,mux) //nolint:errcheck
+			http.Serve(ln, mux) //nolint:errcheck
 			break
 		}
-		curr_port += 1
+		currPort++
 	}
 }
 

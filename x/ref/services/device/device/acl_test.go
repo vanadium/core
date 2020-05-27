@@ -82,7 +82,7 @@ self/bad !Admin
 	}
 }
 
-func TestAccessListSetCommand(t *testing.T) {
+func TestAccessListSetCommand(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

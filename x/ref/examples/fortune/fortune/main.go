@@ -10,7 +10,7 @@ import (
 	"log"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/ref/examples/fortune"
 	_ "v.io/x/ref/runtime/factories/generic"

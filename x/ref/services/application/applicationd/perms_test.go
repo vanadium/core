@@ -44,7 +44,7 @@ var appRepository = gosh.RegisterFunc("appRepository", func(publishName, storedi
 	<-signals.ShutdownOnSignals(ctx)
 })
 
-func TestApplicationUpdatePermissions(t *testing.T) {
+func TestApplicationUpdatePermissions(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 
@@ -173,7 +173,7 @@ func TestApplicationUpdatePermissions(t *testing.T) {
 	}
 }
 
-func TestPerAppPermissions(t *testing.T) {
+func TestPerAppPermissions(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23InitWithMounttable()
 	defer shutdown()
 	// By default, all principals in this test will have blessings generated based

@@ -10,7 +10,7 @@ package main
 import (
 	"fmt"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"

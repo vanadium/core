@@ -77,7 +77,7 @@ func garbageCollectLogs(env *cmdline.Env, args []string) error {
 	return lastErr
 }
 
-func processDirectory(env *cmdline.Env, logdir string, timeCutoff time.Time, programRE *regexp.Regexp, username string) error {
+func processDirectory(env *cmdline.Env, logdir string, timeCutoff time.Time, programRE *regexp.Regexp, username string) error { //nolint:gocyclo
 	fmt.Fprintf(env.Stdout, "Processing: %q\n", logdir)
 
 	f, err := os.Open(logdir)

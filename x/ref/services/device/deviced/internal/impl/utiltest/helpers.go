@@ -36,7 +36,7 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/internal/logger"
 	vsecurity "v.io/x/ref/lib/security"
-	_ "v.io/x/ref/runtime/factories/roaming"
+	_ "v.io/x/ref/runtime/factories/roaming" //nolint:golint
 	"v.io/x/ref/services/device/deviced/internal/impl"
 	"v.io/x/ref/services/device/deviced/internal/versioning"
 	"v.io/x/ref/services/internal/binarylib"
@@ -862,7 +862,7 @@ func PollingWait(t *testing.T, pid int) {
 	for syscall.Kill(pid, 0) == nil {
 		select {
 		case <-timeOut:
-			syscall.Kill(pid,9) //nolint:errcheck
+			syscall.Kill(pid, 9) //nolint:errcheck
 			t.Fatal(testutil.FormatLogLine(2, "Timed out waiting for PID %v to terminate", pid))
 		case <-time.After(time.Millisecond):
 			// Try again.

@@ -244,7 +244,7 @@ func (n *node) satisfies(mt *mountTable, cc *callContext, tags []mounttable.Tag)
 	return verror.New(verror.ErrNoAccess, cc.ctx, cc.rbn)
 }
 
-func expand(al *access.AccessList, name string) *access.AccessList {
+func expand(al access.AccessList, name string) *access.AccessList {
 	newAccessList := new(access.AccessList)
 	for _, bp := range al.In {
 		newAccessList.In = append(newAccessList.In, security.BlessingPattern(strings.Replace(string(bp), templateVar, name, -1)))
@@ -264,7 +264,7 @@ func (n *node) satisfiesTemplate(cc *callContext, tags []mounttable.Tag, name st
 	}
 	// Match client's blessings against the AccessLists.
 	for _, tag := range tags {
-		if al, exists := n.permsTemplate[string(tag)]; exists && expand(&al, name).Includes(cc.rbn...) {
+		if al, exists := n.permsTemplate[string(tag)]; exists && expand(al, name).Includes(cc.rbn...) {
 			return nil
 		}
 	}
@@ -292,7 +292,7 @@ func CopyPermissions(cc *callContext, cur *node) *VersionedPermissions {
 func createVersionedPermissionsFromTemplate(perms access.Permissions, name string) *VersionedPermissions {
 	vPerms := NewVersionedPermissions()
 	for tag, al := range perms {
-		vPerms.P[tag] = *expand(&al, name)
+		vPerms.P[tag] = *expand(al, name)
 	}
 	return vPerms
 }
@@ -653,7 +653,7 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 }
 
 // globStep is called with n and n.parent locked.  Returns with both unlocked.
-func (mt *mountTable) globStep(cc *callContext, n *node, name string, pattern *glob.Glob, gCall rpc.GlobServerCall) {
+func (mt *mountTable) globStep(cc *callContext, n *node, name string, pattern *glob.Glob, gCall rpc.GlobServerCall) { //nolint:gocyclo
 	if shouldAbort(cc) {
 		n.parent.Unlock()
 		n.Unlock()
@@ -757,7 +757,7 @@ out:
 	// Hold no locks while we are sending on the channel to avoid livelock.
 	n.Unlock()
 	// Intermediate nodes are marked as serving a mounttable since they answer the mounttable methods.
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name,ServesMountTable: true}}) //nolint:errcheck
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: name, ServesMountTable: true}}) //nolint:errcheck
 }
 
 // Glob finds matches in the namespace.  If we reach a mount point before matching the
@@ -801,7 +801,7 @@ func (ms *mountContext) linkToLeaf(cc *callContext, gCall rpc.GlobServerCall) {
 		servers[i].Server = naming.Join(s.Server, strings.Join(elems, "/"))
 	}
 	n.Unlock()
-	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "",Servers: servers}}) //nolint:errcheck
+	gCall.SendStream().Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: servers}}) //nolint:errcheck
 }
 
 func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perms access.Permissions, version string) error {
@@ -845,7 +845,7 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 	n.vPerms, err = n.vPerms.Set(ctx, version, perms)
 	if err == nil {
 		if mt.persisting {
-			mt.persist.persistPerms(ms.name,n.creator,n.vPerms) //nolint:errcheck
+			mt.persist.persistPerms(ms.name, n.creator, n.vPerms) //nolint:errcheck
 		}
 		n.explicitPermissions = true
 	}

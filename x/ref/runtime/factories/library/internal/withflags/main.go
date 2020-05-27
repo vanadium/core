@@ -9,7 +9,7 @@ package main
 import (
 	"fmt"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/factories/library"
 )

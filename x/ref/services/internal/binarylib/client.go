@@ -207,7 +207,7 @@ func DownloadUrl(ctx *context.T, von string) (string, int64, error) {
 	return url, ttl, nil
 }
 
-func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repository.BinaryClientStub, part int, size int64) (bool, error) {
+func uploadPartAttempt(ctx *context.T, h hash.Hash, r io.ReadSeeker, client repository.BinaryClientStub, part int, size int64) (bool, error) { //nolint:gocyclo
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -314,7 +314,7 @@ func upload(ctx *context.T, r io.ReadSeeker, mediaInfo repository.MediaInfo, von
 
 func signHash(ctx *context.T, h hash.Hash) (*security.Signature, error) {
 	hash := h.Sum(nil)
-	sig, err := v23.GetPrincipal(ctx).Sign(hash[:])
+	sig, err := v23.GetPrincipal(ctx).Sign(hash)
 	if err != nil {
 		ctx.Errorf("Sign() of hash failed:%v", err)
 		return nil, err

@@ -62,7 +62,7 @@ func (a *Allocator) Alloc(bytes uint) *Slice {
 	}
 	free := a.index
 	base := free + a.reserve
-	a.index += uint(n)
+	a.index += n
 	return a.iobuf.slice(free, base, a.index)
 }
 

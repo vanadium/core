@@ -97,11 +97,11 @@ func newDatabaseEntry(entry audit.Entry) (databaseEntry, error) {
 	}
 	var caveats []security.Caveat
 	for _, arg := range entry.Arguments[3:] {
-		if cav, ok := arg.(security.Caveat); !ok {
+		cav, ok := arg.(security.Caveat)
+		if !ok {
 			return d, fmt.Errorf("failed to extract Caveat")
-		} else {
-			caveats = append(caveats, cav)
 		}
+		caveats = append(caveats, cav)
 	}
 	var blessings security.Blessings
 	if blessings, ok = entry.Results[0].(security.Blessings); !ok {

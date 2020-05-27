@@ -35,11 +35,11 @@ type set struct {
 	conns map[flow.Conn]bool
 }
 
-func (w *set) add(c flow.Conn) flow.Conn {
-	w.mu.Lock()
-	w.conns[c] = true
-	w.mu.Unlock()
-	return &conn{c, w}
+func (s *set) add(c flow.Conn) flow.Conn {
+	s.mu.Lock()
+	s.conns[c] = true
+	s.mu.Unlock()
+	return &conn{c, s}
 }
 
 func (s *set) remove(c flow.Conn) {
@@ -74,7 +74,7 @@ func TestRemoteDialerClose(t *testing.T) {
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
-	d.Close(ctx, fmt.Errorf("Closing randomly."))
+	d.Close(ctx, fmt.Errorf("closing randomly"))
 	<-d.Closed()
 	<-a.Closed()
 	if s.open() != 0 {
@@ -93,7 +93,7 @@ func TestRemoteAcceptorClose(t *testing.T) {
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
-	a.Close(ctx, fmt.Errorf("Closing randomly."))
+	a.Close(ctx, fmt.Errorf("closing randomly"))
 	<-a.Closed()
 	<-d.Closed()
 	if s.open() != 0 {
@@ -127,14 +127,14 @@ func TestDialAfterConnClose(t *testing.T) {
 		t.Fatal(derr, aerr)
 	}
 
-	d.Close(ctx, fmt.Errorf("Closing randomly."))
+	d.Close(ctx, fmt.Errorf("closing randomly"))
 	<-d.Closed()
 	<-a.Closed()
 	if _, err := d.Dial(ctx, d.LocalBlessings(), nil, naming.Endpoint{}, 0, false); err == nil {
-		t.Errorf("Nil error dialing on dialer")
+		t.Errorf("nil error dialing on dialer")
 	}
 	if _, err := a.Dial(ctx, a.LocalBlessings(), nil, naming.Endpoint{}, 0, false); err == nil {
-		t.Errorf("Nil error dialing on acceptor")
+		t.Errorf("nil error dialing on acceptor")
 	}
 }
 
@@ -157,7 +157,7 @@ func TestReadWriteAfterConnClose(t *testing.T) {
 		if _, err := df.WriteMsg([]byte("there")); err != nil {
 			t.Fatalf("second write failed: %v", err)
 		}
-		df.(*flw).conn.Close(ctx, fmt.Errorf("Closing randomly."))
+		df.(*flw).conn.Close(ctx, fmt.Errorf("closing randomly"))
 		<-af.Conn().Closed()
 		if got, err := af.ReadMsg(); err != nil {
 			t.Fatalf("read failed: %v", err)

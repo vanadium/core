@@ -52,7 +52,7 @@ type ManageLog interface {
 type dummy struct{}
 
 func (*dummy) LogDir() string { return "" }
-func (*dummy) Stats() (Info, Error struct{ Lines, Bytes int64 }) {
+func (*dummy) Stats() (infoStats, errorStats struct{ Lines, Bytes int64 }) {
 	return struct{ Lines, Bytes int64 }{0, 0}, struct{ Lines, Bytes int64 }{0, 0}
 }
 func (*dummy) ConfigureFromFlags(opts ...vlog.LoggingOpts) error { return nil }

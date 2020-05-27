@@ -169,10 +169,8 @@ func BaseCleanupDir(ctx *context.T, path, helper string) {
 		if len(out) != 0 {
 			ctx.Errorf("exec.Command(%s %s %s).CombinedOutput() generated output: %v", helper, "--rm", path, string(out))
 		}
-	} else {
-		if err := os.RemoveAll(path); err != nil {
-			ctx.Errorf("RemoveAll(%v) failed: %v", path, err)
-		}
+	} else if err := os.RemoveAll(path); err != nil {
+		ctx.Errorf("RemoveAll(%v) failed: %v", path, err)
 	}
 }
 

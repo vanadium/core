@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var internalErr = fmt.Errorf("internal error")
+var errInternal = fmt.Errorf("internal error")
 
 // NewFile creates the multipart file out of the provided parts.
 // The sizes of the parts are captured at the outset and not updated
@@ -137,7 +137,7 @@ func (m *multipartFile) Read(buf []byte) (int, error) {
 	m.partOffset += int64(n)
 	if m.partOffset > p.size {
 		// Likely, the file has changed.
-		return 0, internalErr
+		return 0, errInternal
 	}
 	if m.partOffset == p.size {
 		m.activePart++
@@ -181,5 +181,5 @@ func (m *multipartFile) Seek(offset int64, whence int) (int64, error) {
 		return target, nil
 	}
 	// target <= m.totalSize() should ensure this is never reached.
-	return 0, internalErr // Should not be reached.
+	return 0, errInternal // Should not be reached.
 }

@@ -144,7 +144,7 @@ func (c *ttlCache) lookup(ctx *context.T, name string) (naming.MountEntry, error
 			// The rotated set is stored and returned on the next invocation
 			// of lookup.
 			tmp := e
-			tmp.Servers = append(e.Servers[1:], e.Servers[0])
+			tmp.Servers = append(tmp.Servers[1:], e.Servers[0])
 			c.entries[prefix] = tmp
 		}
 		return e, nil

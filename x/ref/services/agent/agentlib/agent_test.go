@@ -53,9 +53,8 @@ var getPrincipalAndHang = gosh.RegisterFunc("getPrincipalAndHang", func() {
 func newAgent(path string, cached bool) (security.Principal, error) {
 	if cached {
 		return agentlib.NewAgentPrincipalX(path)
-	} else {
-		return agentlib.NewUncachedPrincipalX(path)
 	}
+	return agentlib.NewUncachedPrincipalX(path)
 }
 
 func setupAgentPair(t *testing.T, p security.Principal) (security.Principal, security.Principal, func()) {
@@ -159,7 +158,7 @@ func TestAgent(t *testing.T) {
 	}
 	// There's no synchronization, so keep fetching from the other client.
 	// Eventually it should get notified of the new value.
-	for i := 0; i < 10000 && !reflect.DeepEqual(blessing, def(agent1)); i += 1 {
+	for i := 0; i < 10000 && !reflect.DeepEqual(blessing, def(agent1)); i++ {
 		time.Sleep(100 * time.Millisecond)
 	}
 

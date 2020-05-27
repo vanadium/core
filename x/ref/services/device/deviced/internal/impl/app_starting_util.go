@@ -56,10 +56,8 @@ func (a *appWatcher) watchAppPid(ctx *context.T) {
 			if err := syscall.Kill(a.pid, 0); err != nil && err != syscall.EPERM {
 				ctx.Errorf("App died in startup: pid=%d: %v", a.pid, err)
 				return
-			} else {
-				ctx.VI(2).Infof("App pid %d is alive", a.pid)
 			}
-
+			ctx.VI(2).Infof("App pid %d is alive", a.pid)
 		case <-a.stopper:
 			ctx.Errorf("AppWatcher was stopped")
 			return
@@ -135,7 +133,7 @@ func (a *appHandshaker) doHandshake(ctx *context.T, cmd *exec.Cmd, listener call
 	// The appWatcher will stop the listener if the pid dies while waiting below
 	childName, err := listener.waitForValue(childReadyTimeout)
 	if err != nil {
-		suidHelper.terminatePid(ctx,pidFromHelper,nil,nil) //nolint:errcheck
+		suidHelper.terminatePid(ctx, pidFromHelper, nil, nil) //nolint:errcheck
 		return 0, "", verror.New(errors.ErrOperationFailed, ctx,
 			fmt.Sprintf("Waiting for child name: %v", err))
 	}

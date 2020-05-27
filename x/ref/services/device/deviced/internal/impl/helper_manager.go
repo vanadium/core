@@ -194,7 +194,6 @@ func (s suidHelperState) usernameForPrincipal(ctx *context.T, call security.Call
 	systemName, present := uat.SystemAccountForBlessings(identityNames)
 	if present {
 		return systemName
-	} else {
-		return s.dmUser
 	}
+	return s.dmUser
 }

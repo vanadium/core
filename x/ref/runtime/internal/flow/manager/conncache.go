@@ -431,7 +431,7 @@ func (c *ConnCache) Reserve(ctx *context.T, remote naming.Endpoint) *Reservation
 // If num is greater than the number of connections in the cache, all cached
 // connections will be closed and removed.
 // KillConnections returns an error iff the cache is closed.
-func (c *ConnCache) KillConnections(ctx *context.T, num int) error {
+func (c *ConnCache) KillConnections(ctx *context.T, num int) error { //nolint:gocyclo
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.conns == nil {
@@ -454,14 +454,16 @@ func (c *ConnCache) KillConnections(ctx *context.T, num int) error {
 	}
 	k := 0
 	for _, e := range entries {
-		if status := e.conn.Status(); status >= conn.Closing {
+		status := e.conn.Status()
+		switch {
+		case status >= conn.Closing:
 			// Remove undialable conns.
 			c.removeEntryLocked(e)
-		} else if status == conn.LameDuckAcknowledged && e.conn.CloseIfIdle(ctx, c.idleExpiry) {
+		case status == conn.LameDuckAcknowledged && e.conn.CloseIfIdle(ctx, c.idleExpiry):
 			// Close and remove lameducked or idle connections.
 			c.removeEntryLocked(e)
 			num--
-		} else {
+		default:
 			entries[k] = e
 			k++
 		}
@@ -567,8 +569,8 @@ func (c *ConnCache) String() string {
 
 // ExportStats exports cache information to the global stats.
 func (c *ConnCache) ExportStats(prefix string) {
-	stats.NewStringFunc(naming.Join(prefix, "cache"), func() string { return c.debugStringForCache() })
-	stats.NewStringFunc(naming.Join(prefix, "reserved"), func() string { return c.debugStringForDialing() })
+	stats.NewStringFunc(naming.Join(prefix, "cache"), c.debugStringForCache)
+	stats.NewStringFunc(naming.Join(prefix, "reserved"), c.debugStringForDialing)
 }
 
 func (c *ConnCache) insertConnLocked(remote naming.Endpoint, conn CachedConn, proxy bool, keyByAddr bool, cancel context.CancelFunc) bool {

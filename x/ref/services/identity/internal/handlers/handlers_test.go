@@ -93,7 +93,7 @@ func TestBlessingRootBase64VOM(t *testing.T) {
 	}
 }
 
-func TestBless(t *testing.T) {
+func TestBless(t *testing.T) { //nolint:gocyclo
 	var (
 		blesserPrin = testutil.NewPrincipal("blesser")
 		blesseePrin = testutil.NewPrincipal("blessee")
@@ -269,17 +269,18 @@ func TestBless(t *testing.T) {
 				t.Error(err)
 				continue
 			}
-			if len(testcase.caveats) > 0 {
+			switch {
+			case len(testcase.caveats) > 0:
 				// The blessing must have exactly those caveats that were provided in the request.
 				if !caveatsMatch(t, caveats, testcase.caveats) {
 					t.Errorf("got blessings with caveats %v, want blessings with caveats %v", caveats, testcase.caveats)
 				}
-			} else if len(caveats) != 1 {
+			case len(caveats) != 1:
 				t.Errorf("got blessings with %d caveats, want blessings with 1 caveats", len(caveats))
-			} else if testcase.params.RevocationManager != nil && caveats[0].Id != security.PublicKeyThirdPartyCaveat.Id {
+			case testcase.params.RevocationManager != nil && caveats[0].Id != security.PublicKeyThirdPartyCaveat.Id:
 				// The blessing must have a third-party revocation caveat.
 				t.Errorf("got blessings with caveat (%v), want blessings with a PublicKeyThirdPartyCaveat", caveats[0].Id)
-			} else if testcase.params.RevocationManager == nil && caveats[0].Id != security.ExpiryCaveat.Id {
+			case testcase.params.RevocationManager == nil && caveats[0].Id != security.ExpiryCaveat.Id:
 				// The blessing must have an expiry caveat.
 				t.Errorf("got blessings with caveat (%v), want blessings with an ExpiryCaveat", caveats[0].Id)
 			}
@@ -317,15 +318,15 @@ type caveatsSorter struct {
 func (c caveatsSorter) Len() int      { return len(c.caveats) }
 func (c caveatsSorter) Swap(i, j int) { c.caveats[i], c.caveats[j] = c.caveats[j], c.caveats[i] }
 func (c caveatsSorter) Less(i, j int) bool {
-	b_i, err := vom.Encode(c.caveats[i])
+	bi, err := vom.Encode(c.caveats[i])
 	if err != nil {
 		c.t.Fatal(err)
 	}
-	b_j, err := vom.Encode(c.caveats[j])
+	bj, err := vom.Encode(c.caveats[j])
 	if err != nil {
 		c.t.Fatal(err)
 	}
-	return bytes.Compare(b_i, b_j) == -1
+	return bytes.Compare(bi, bj) == -1
 }
 
 func caveatsMatch(t *testing.T, got, want []security.Caveat) bool {

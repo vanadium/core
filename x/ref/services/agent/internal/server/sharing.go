@@ -11,7 +11,7 @@ import (
 // watchers provides synchronization and notifications for a shared resource.
 type watchers struct {
 	mu      sync.RWMutex
-	nextId  int
+	nextID  int
 	clients map[int][]chan struct{}
 }
 
@@ -37,8 +37,8 @@ func (p *watchers) unlock(id int) {
 
 func (p *watchers) newID() int {
 	p.mu.Lock()
-	id := p.nextId
-	p.nextId += 1
+	id := p.nextID
+	p.nextID++
 	p.mu.Unlock()
 	return id
 }

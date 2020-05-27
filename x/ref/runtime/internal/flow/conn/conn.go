@@ -836,7 +836,7 @@ func (c *Conn) releaseOutstandingBorrowedLocked(fid, val uint64) {
 	}
 }
 
-func (c *Conn) handleMessage(ctx *context.T, m message.Message) error {
+func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint:gocyclo
 	switch msg := m.(type) {
 	case *message.TearDown:
 		var err error

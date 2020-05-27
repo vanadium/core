@@ -118,7 +118,7 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 	logger.Global().VI(2).Infof("listening for service vanadium on port %d", port)
 	m.SubscribeToService("vanadium")
 	if len(host) > 0 {
-		m.AddService("vanadium","",port,txt...) //nolint:errcheck
+		m.AddService("vanadium", "", port, txt...) //nolint:errcheck
 	}
 
 	// A small sleep to allow the world to learn about us and vice versa.  Not

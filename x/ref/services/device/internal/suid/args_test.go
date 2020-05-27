@@ -16,8 +16,8 @@ import (
 // ids across the set of systems we are testing.
 const (
 	testUserName = "daemon"
-	testUid      = 1
-	testGid      = 1
+	testUID      = 1
+	testGID      = 1
 )
 
 func TestParseArguments(t *testing.T) {
@@ -40,8 +40,8 @@ func TestParseArguments(t *testing.T) {
 			[]string{"A=B"},
 			"",
 			WorkParameters{
-				uid:       testUid,
-				gid:       testGid,
+				uid:       testUID,
+				gid:       testGID,
 				workspace: "",
 				agentsock: "",
 				logDir:    "",
@@ -62,8 +62,8 @@ func TestParseArguments(t *testing.T) {
 			[]string{"A=B"},
 			"",
 			WorkParameters{
-				uid:       testUid,
-				gid:       testGid,
+				uid:       testUID,
+				gid:       testGID,
 				workspace: "/hello",
 				agentsock: "/tmp/sXXXX",
 				logDir:    "/logging",

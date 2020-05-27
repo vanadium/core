@@ -70,11 +70,12 @@ func TestGet(t *testing.T) {
 		bycreator[key] = g
 	}
 	a := bycreator["v.io/x/ref/test/goroutines.runGoA"]
-	if a == nil {
+	switch {
+	case a == nil:
 		t.Errorf("runGoA is missing")
-	} else if len(a.Stack) < 1 {
+	case len(a.Stack) < 1:
 		t.Errorf("got %d expected at least 1: %s", len(a.Stack), Format(a))
-	} else if !strings.HasPrefix(a.Stack[0].Call, "v.io/x/ref/test/goroutines.waitForIt") {
+	case !strings.HasPrefix(a.Stack[0].Call, "v.io/x/ref/test/goroutines.waitForIt"):
 		t.Errorf("got %s, wanted it to start with v.io/x/ref/test/goroutines.waitForIt",
 			a.Stack[0].Call)
 	}

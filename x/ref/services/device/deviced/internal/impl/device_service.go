@@ -235,7 +235,7 @@ func (s *deviceService) newLogfile(prefix string) (*os.File, error) {
 
 // TODO(cnicolaou): would this be better implemented using the v23test/gosh
 // framework now that it exists?
-func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, envelope *application.Envelope) error {
+func (s *deviceService) testDeviceManager(ctx *context.T, workspace string, envelope *application.Envelope) error { //nolint:gocyclo
 	path := filepath.Join(workspace, "deviced.sh")
 	cmd := exec.Command(path)
 	cmd.Env = []string{"DEVICE_MANAGER_DONT_REDIRECT_STDOUT_STDERR=1"}
@@ -385,7 +385,7 @@ func GenerateScript(workspace string, configSettings []string, envelope *applica
 	return nil
 }
 
-func (s *deviceService) updateDeviceManager(ctx *context.T) error {
+func (s *deviceService) updateDeviceManager(ctx *context.T) error { //nolint:gocyclo
 	if len(s.config.Origin) == 0 {
 		return verror.New(errors.ErrUpdateNoOp, ctx)
 	}

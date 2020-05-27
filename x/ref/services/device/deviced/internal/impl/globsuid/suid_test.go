@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -36,7 +36,7 @@ func init() {
 	impl.IsSetuid = possiblyMockIsSetuid
 }
 
-func TestAppWithSuidHelper(t *testing.T) {
+func TestAppWithSuidHelper(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

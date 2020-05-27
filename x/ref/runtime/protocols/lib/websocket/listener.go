@@ -49,7 +49,7 @@ func listener(protocol, address string, hybrid bool) (flow.Listener, error) {
 	}
 	go ln.netAcceptLoop()
 	httpsrv := http.Server{Handler: ln}
-	go httpsrv.Serve(&chanListener{Listener: netLn,c: ln.httpQ}) //nolint:errcheck
+	go httpsrv.Serve(&chanListener{Listener: netLn, c: ln.httpQ}) //nolint:errcheck
 	return ln, nil
 }
 

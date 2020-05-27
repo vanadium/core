@@ -102,7 +102,7 @@ func flagsFor(cmd *cmdline.Command) (ret []string) {
 	return
 }
 
-func runAgentD(env *cmdline.Env, args []string) error {
+func runAgentD(env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if !version.Supported.Contains(versionToUse) {
 		return fmt.Errorf("version %v not in the supported range %v", versionToUse, version.Supported)
 	}

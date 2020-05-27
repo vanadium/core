@@ -143,8 +143,7 @@ func runDump(env *cmdline.Env, args []string) error {
 	dumper := vom.NewDumper(vom.NewDumpWriter(env.Stdout))
 	defer dumper.Close()
 	// Handle simple non-hex cases.
-	switch flagDataRep {
-	case dataRepBinary:
+	if flagDataRep == dataRepBinary {
 		_, err := io.Copy(dumper, os.Stdin)
 		return err
 	}
@@ -164,7 +163,7 @@ func runDump(env *cmdline.Env, args []string) error {
 //
 // Any leftover non-command single byte is stored in buf and bufStart is set, so
 // that the next iteration of ReadLoop can read after those bytes.
-func runDumpHexStream(dumper *vom.Dumper) error {
+func runDumpHexStream(dumper *vom.Dumper) error { //nolint:gocyclo
 	buf := make([]byte, 1024)
 	bufStart := 0
 ReadLoop:
@@ -198,7 +197,7 @@ ReadLoop:
 				continue ReadLoop
 			}
 			if end%2 == 1 {
-				end -= 1 // Ensure the end is on an even boundary.
+				end-- // Ensure the end is on an even boundary.
 			}
 			// Write this even-sized chunk of hex bytes to the dumper.
 			binbytes, err := hex.DecodeString(string(hexbytes[:end]))
@@ -232,8 +231,7 @@ ReadLoop:
 
 func dataToBinaryBytes(data string) ([]byte, error) {
 	// Transform all data representations to binary.
-	switch flagDataRep {
-	case dataRepHex:
+	if flagDataRep == dataRepHex {
 		// Remove all whitespace out of the hex string.
 		binbytes, err := hex.DecodeString(strings.Map(dropWhitespace, data))
 		if err != nil {

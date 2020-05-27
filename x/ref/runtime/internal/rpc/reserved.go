@@ -193,7 +193,7 @@ type gState struct {
 	depth int
 }
 
-func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern string) error {
+func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern string) error { //nolint:gocyclo
 	ctx.VI(3).Infof("rpc Glob: Incoming request: %q.Glob(%q)", i.receiver, pattern)
 	g, err := glob.Parse(pattern)
 	if err != nil {

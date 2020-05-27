@@ -141,7 +141,7 @@ func outSumStats(w io.Writer, format, title string, stats *stress.SumStats) erro
 		}
 		fmt.Fprintf(w, "%s%s\n", title, b)
 	default:
-		return fmt.Errorf("invalid output format: %s\n", format)
+		return fmt.Errorf("invalid output format: %s", format)
 	}
 	return nil
 }

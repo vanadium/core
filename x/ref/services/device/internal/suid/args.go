@@ -56,7 +56,7 @@ const SavedArgs = "V23_SAVED_ARGS"
 
 var (
 	flagUsername, flagWorkspace, flagLogDir, flagRun, flagProgName, flagAgentSock *string
-	flagMinimumUid                                                                *int64
+	flagMinimumUID                                                                *int64
 	flagRemove, flagKill, flagChown, flagDryrun                                   *bool
 )
 
@@ -72,7 +72,7 @@ func setupFlags(fs *flag.FlagSet) {
 	flagLogDir = fs.String("logdir", "", "Path to the log directory.")
 	flagRun = fs.String("run", "", "Path to the application to exec.")
 	flagProgName = fs.String("progname", "unnamed_app", "Visible name of the application, used in argv[0]")
-	flagMinimumUid = fs.Int64("minuid", uidThreshold, "UIDs cannot be less than this number.")
+	flagMinimumUID = fs.Int64("minuid", uidThreshold, "UIDs cannot be less than this number.")
 	flagRemove = fs.Bool("rm", false, "Remove the file trees given as command-line arguments.")
 	flagKill = fs.Bool("kill", false, "Kill process ids given as command-line arguments.")
 	flagChown = fs.Bool("chown", false, "Change owner of files and directories given as command-line arguments to the user specified by this flag")
@@ -131,8 +131,8 @@ func checkFlagCombinations(fs *flag.FlagSet) error {
 // are not present. It's not a comprehensive check -- e.g. we may be running as user
 // <username> and suppress the warning, but still fail to chown a file owned by some other user.
 func warnMissingSuidPrivs(uid int) {
-	osUid, osEuid := os.Getuid(), os.Geteuid()
-	if osUid == 0 || osEuid == 0 || osUid == uid || osEuid == uid {
+	osUID, osEUID := os.Getuid(), os.Geteuid()
+	if osUID == 0 || osEUID == 0 || osUID == uid || osEUID == uid {
 		return
 	}
 
@@ -190,9 +190,9 @@ func (wp *WorkParameters) ProcessArguments(fs *flag.FlagSet, env []string) error
 		warnMissingSuidPrivs(int(uid))
 
 		// Uids less than 501 can be special so we forbid running as them.
-		if uid < *flagMinimumUid {
+		if uid < *flagMinimumUID {
 			return verror.New(errUIDTooLow, nil,
-				uid, *flagMinimumUid)
+				uid, *flagMinimumUID)
 		}
 		wp.uid = int(uid)
 		wp.gid = int(gid)

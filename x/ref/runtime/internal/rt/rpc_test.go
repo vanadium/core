@@ -229,7 +229,7 @@ func (ds *dischargeService) Discharge(ctx *context.T, call rpc.StreamServerCall,
 	return call.Security().LocalPrincipal().MintDischarge(cav, caveat)
 }
 
-func TestServerDischarges(t *testing.T) {
+func TestServerDischarges(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 

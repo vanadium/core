@@ -204,9 +204,8 @@ func getGoogleCloudBlessings(ctx *context.T) error {
 				return err
 			}
 			return lsecurity.SetDefaultBlessings(principal, blessings)
-		} else {
-			ctx.Infof("error from oauth-blesser: %v", err)
 		}
+		ctx.Infof("error from oauth-blesser: %v", err)
 	}
 	return fmt.Errorf("too many failures")
 }

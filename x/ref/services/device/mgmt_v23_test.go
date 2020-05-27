@@ -112,7 +112,7 @@ func TestV23DeviceManagerMultiUser(t *testing.T) {
 	}
 }
 
-func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withSuid bool) {
+func testCore(t *testing.T, sh *v23test.Shell, appUser, deviceUser string, withSuid bool) { //nolint:gocyclo
 	defer fmt.Fprintf(os.Stderr, "--------------- SHUTDOWN ---------------\n")
 
 	// Call sh.StartRootMountTable() first, since it updates sh.Vars, which is

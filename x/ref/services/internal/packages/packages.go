@@ -231,7 +231,7 @@ func extractZip(zipFile, installDir string) error {
 	return nil
 }
 
-func extractTar(pkgFile string, encoding string, installDir string) error {
+func extractTar(pkgFile string, encoding string, installDir string) error { //nolint:gocyclo
 	if err := os.Mkdir(installDir, os.FileMode(createDirMode)); err != nil {
 		return verror.New(errMkDirFailed, nil, installDir, err)
 	}

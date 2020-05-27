@@ -13,7 +13,7 @@ import (
 	"net"
 	"time"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/security"
@@ -30,7 +30,7 @@ import (
 )
 
 var (
-	externalHttpAddr           string
+	externalHTTPAddr           string
 	httpAddr                   string
 	tlsConfig                  string
 	assetsPrefix               string
@@ -46,7 +46,7 @@ var (
 
 func init() {
 	// Flags controlling the HTTP server
-	cmdTest.Flags.StringVar(&externalHttpAddr, "external-http-addr", "", "External address on which the HTTP server listens on.  If none is provided the server will only listen on -http-addr.")
+	cmdTest.Flags.StringVar(&externalHTTPAddr, "external-http-addr", "", "External address on which the HTTP server listens on.  If none is provided the server will only listen on -http-addr.")
 	cmdTest.Flags.StringVar(&httpAddr, "http-addr", "localhost:0", "Address on which the HTTP server listens on.")
 	cmdTest.Flags.StringVar(&tlsConfig, "tls-config", "", "Comma-separated list of TLS certificate and private key files, in that order.  This must be provided.")
 	cmdTest.Flags.StringVar(&assetsPrefix, "assets-prefix", "", "Host serving the web assets for the identity server.")
@@ -81,7 +81,7 @@ To generate TLS certificates so the HTTP server can use SSL:
 `,
 }
 
-func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
+func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:gocyclo
 	if remoteSignerBlessings != "" {
 		signer, err := restsigner.NewRestSigner()
 		if err != nil {
@@ -100,7 +100,8 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
 		}
 	}
 	oauthCtx := ctx
-	if oauthRemoteSignerBlessings != "" {
+	switch {
+	case oauthRemoteSignerBlessings != "":
 		signer, err := restsigner.NewRestSigner()
 		if err != nil {
 			return fmt.Errorf("failed to create remote signer: %v", err)
@@ -116,7 +117,7 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
 		if oauthCtx, err = v23.WithPrincipal(ctx, p); err != nil {
 			return fmt.Errorf("failed to set principal: %v", err)
 		}
-	} else if oauthAgentPath != "" {
+	case oauthAgentPath != "":
 		principal, err := agentlib.NewAgentPrincipalX(oauthAgentPath)
 		if err != nil {
 			return err
@@ -124,7 +125,7 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
 		if oauthCtx, err = v23.WithPrincipal(ctx, principal); err != nil {
 			return fmt.Errorf("failed to set principal: %v", err)
 		}
-	} else if oauthCredentialsDir != "" {
+	case oauthCredentialsDir != "":
 		// TODO(sadovsky): Delete this and update identityd_v23_test.go to use
 		// oauthAgentPath once v23test's agentPrincipalManager is implemented.
 		principal, err := security.LoadPersistentPrincipal(oauthCredentialsDir, nil)
@@ -141,8 +142,8 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
 
 	// If no tlsConfig has been provided, write and use our own.
 	if flag.Lookup("tls-config").Value.String() == "" {
-		addr := externalHttpAddr
-		if externalHttpAddr == "" {
+		addr := externalHTTPAddr
+		if externalHTTPAddr == "" {
 			addr = httpAddr
 		}
 		host, _, err := net.SplitHostPort(addr)
@@ -180,6 +181,6 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error {
 		mountPrefix,
 		dischargerLocation,
 		nil)
-	s.Serve(ctx, oauthCtx, externalHttpAddr, httpAddr, tlsConfig)
+	s.Serve(ctx, oauthCtx, externalHTTPAddr, httpAddr, tlsConfig)
 	return nil
 }

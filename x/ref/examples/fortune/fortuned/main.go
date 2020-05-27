@@ -9,7 +9,7 @@ import (
 	"flag"
 	"log"
 
-	"v.io/v23"
+	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/x/ref/examples/fortune"
 	"v.io/x/ref/examples/fortune/fortuned/internal"
