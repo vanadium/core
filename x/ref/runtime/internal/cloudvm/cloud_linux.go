@@ -26,10 +26,10 @@ import (
 // header, it is also not a GCE instance. The body of the document contains the
 // external IP address, if present. Otherwise, the body is empty.
 // See https://developers.google.com/compute/docs/metadata for details.
-const gceExternalUrl = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
-const gceInternalUrl = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip"
-const awsExternalUrl = "http://169.254.169.254/latest/meta-data/public-ipv4"
-const awsInternalUrl = "http://169.254.169.254/latest/meta-data/local-ipv4"
+const gceExternalURL = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
+const gceInternalURL = "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip"
+const awsExternalURL = "http://169.254.169.254/latest/meta-data/public-ipv4"
+const awsInternalURL = "http://169.254.169.254/latest/meta-data/local-ipv4"
 
 var (
 	onceGCE    sync.Once
@@ -39,6 +39,8 @@ var (
 	internalIP net.IP
 	externalIP net.IP
 )
+
+// TODO(cnicolaou): change InitGCE and initAWS to take a context.
 
 func InitGCE(timeout time.Duration, cancel <-chan struct{}) {
 	onceGCE.Do(func() {
@@ -82,8 +84,8 @@ func ExternalIPAddress() net.IP {
 
 func gceTest(timeout time.Duration, cancel <-chan struct{}) {
 	var err error
-	internalIP, _ = gceGetIP(gceInternalUrl, timeout, cancel)
-	if externalIP, err = gceGetIP(gceExternalUrl, timeout, cancel); err != nil {
+	internalIP, _ = gceGetIP(gceInternalURL, timeout, cancel)
+	if externalIP, err = gceGetIP(gceExternalURL, timeout, cancel); err != nil {
 		return
 	}
 
@@ -117,7 +119,7 @@ func gceGetMeta(url string, timeout time.Duration, cancel <-chan struct{}) (stri
 	if err != nil {
 		return "", err
 	}
-	req.Cancel = cancel
+	req.Cancel = cancel //nolint:staticcheck //ignore:SA1019
 	req.Header.Add("Metadata-Flavor", "Google")
 	resp, err := client.Do(req)
 	if err != nil {
@@ -138,8 +140,8 @@ func gceGetMeta(url string, timeout time.Duration, cancel <-chan struct{}) (stri
 }
 
 func awsTest(timeout time.Duration, cancel <-chan struct{}) {
-	externalIP = awsGetIP(awsExternalUrl, timeout, cancel)
-	internalIP = awsGetIP(awsInternalUrl, timeout, cancel)
+	externalIP = awsGetIP(awsExternalURL, timeout, cancel)
+	internalIP = awsGetIP(awsInternalURL, timeout, cancel)
 	onAWS = true
 }
 
@@ -149,7 +151,7 @@ func awsGetIP(url string, timeout time.Duration, cancel <-chan struct{}) net.IP 
 	if err != nil {
 		return nil
 	}
-	req.Cancel = cancel
+	req.Cancel = cancel //nolint:staticcheck //ignore:SA1019
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil
