@@ -140,6 +140,7 @@ func (i binaryInvoker) Download(ctx *context.T, call repository.BinaryDownloadSe
 	}
 }
 
+//nolint:golint // API change required.
 func (binaryInvoker) DownloadUrl(*context.T, rpc.ServerCall) (string, int64, error) {
 	return "", 0, errNotImplemented
 }

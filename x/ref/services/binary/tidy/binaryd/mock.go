@@ -70,6 +70,7 @@ type GlobResponse struct {
 	Err     error
 }
 
+//nolint:golint // API change required.
 func (mdi *MockBinarydInvoker) Glob__(p *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	gs := GlobStimulus{g.String()}
 	gr := mdi.Tape.Record(gs).(GlobResponse)

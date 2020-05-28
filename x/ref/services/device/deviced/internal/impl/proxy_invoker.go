@@ -227,6 +227,7 @@ func (c *call) Send(v interface{}) error {
 	return c.SendStream().Send(v.(naming.GlobReply))
 }
 
+//nolint:golint // API change required.
 func (p *proxyInvoker) Glob__(ctx *context.T, serverCall rpc.GlobServerCall, g *glob.Glob) error {
 	pattern := g.String()
 	p.Invoke(ctx, &call{serverCall}, rpc.GlobMethod, []interface{}{&pattern}) //nolint:errcheck

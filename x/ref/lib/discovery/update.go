@@ -22,7 +22,9 @@ type update struct {
 	timestamp time.Time
 }
 
-func (u *update) IsLost() bool          { return u.lost }
+func (u *update) IsLost() bool { return u.lost }
+
+//nolint:golint // API change required.
 func (u *update) Id() discovery.AdId    { return u.ad.Id }
 func (u *update) InterfaceName() string { return u.ad.InterfaceName }
 

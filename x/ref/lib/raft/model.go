@@ -15,6 +15,7 @@ import (
 // Raft provides a consistent log across multiple instances of a client.
 
 // RaftClient defines the call backs from the Raft library to the application.
+//nolint:golint // API change required.
 type RaftClient interface {
 	// Apply appies a logged command, 'cmd', to the client. The commands will
 	// be delivered in the same order and with the same 'index' to all clients.
@@ -81,6 +82,7 @@ type Raft interface {
 }
 
 // RaftConfig is passed to NewRaft to avoid lots of parameters.
+//nolint:golint // API change required.
 type RaftConfig struct {
 	LogDir            string            // Directory in which to put log and snapshot files.
 	HostPort          string            // For RPCs from other members.

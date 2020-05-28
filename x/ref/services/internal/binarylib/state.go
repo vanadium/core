@@ -51,6 +51,7 @@ type state struct {
 
 // NewState creates a new state object for the binary service.  This
 // should be passed into both NewDispatcher and NewHTTPRoot.
+//nolint:golint // API change required.
 func NewState(rootDir, rootURL string, depth int) (*state, error) {
 	if min, max := 0, md5.Size-1; min > depth || depth > max {
 		return nil, verror.New(errUnexpectedDepth, nil, min, max, depth)

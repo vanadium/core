@@ -54,6 +54,7 @@ func (s *server) Download(ctx *context.T, call repository.BinaryDownloadServerCa
 	return nil
 }
 
+//nolint:golint // API change required.
 func (s *server) DownloadUrl(ctx *context.T, _ rpc.ServerCall) (string, int64, error) {
 	ctx.Infof("DownloadUrl() was called. suffix=%v", s.suffix)
 	if s.suffix != "" {

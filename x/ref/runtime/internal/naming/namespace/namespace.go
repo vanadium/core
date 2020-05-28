@@ -63,6 +63,7 @@ func badRoots(roots []string) error {
 }
 
 // Create a new namespace.
+//nolint:golint // API change required.
 func New(roots ...string) (*namespace, error) {
 	if !rooted(roots) {
 		return nil, badRoots(roots)

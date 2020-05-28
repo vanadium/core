@@ -47,6 +47,7 @@ func (i *roleService) SeekBlessings(ctx *context.T, call rpc.ServerCall) (securi
 	return createBlessings(ctx, call.Security(), i.roleConfig, v23.GetPrincipal(ctx), extensions, caveats, i.serverConfig.dischargerLocation)
 }
 
+//nolint:golint // API change required.
 func (i *roleService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	return globChildren(ctx, call, i.serverConfig, m)
 }

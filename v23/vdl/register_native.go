@@ -185,7 +185,7 @@ func nativeInfoForError() (*nativeInfo, error) {
 	return ni, nil
 }
 
-var errNoRegisterNativeError = errors.New(`vdl: RegisterNative must be called to register error<->WireError conversions.  Import the "v.io/v23/verror" package in your program.`)
+var errNoRegisterNativeError = errors.New(`vdl: RegisterNative must be called to register error<->WireError conversions.  Import the "v.io/v23/verror" package in your program`)
 
 // Generated code in the vdl package can use fromWireError to convert from wireError to verror.E.
 //nolint:deadcode,unused

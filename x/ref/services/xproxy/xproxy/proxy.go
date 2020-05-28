@@ -45,6 +45,7 @@ type proxy struct {
 	closing            bool
 }
 
+//nolint:golint // API change required.
 func New(ctx *context.T, name string, auth security.Authorizer) (*proxy, error) {
 	mgr, err := v23.NewFlowManager(ctx, 0)
 	if err != nil {

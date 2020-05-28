@@ -291,6 +291,7 @@ type GlobResponse struct {
 	err     error
 }
 
+//nolint:golint // API change required.
 func (mdi *mockDeviceInvoker) Glob__(_ *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	gs := GlobStimulus{g.String()}
 	gr := mdi.tape.Record(gs).(GlobResponse)

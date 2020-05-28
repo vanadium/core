@@ -38,6 +38,7 @@ func NewStatsService(suffix string, watchFreq time.Duration) interface{} {
 }
 
 // Glob__ returns the name of all objects that match pattern.
+//nolint:golint // API change required.
 func (i *statsService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	ctx.VI(1).Infof("%v.Glob__(%q)", i.suffix, g.String())
 	sender := call.SendStream()

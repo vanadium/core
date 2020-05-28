@@ -280,6 +280,7 @@ type boundObject struct {
 }
 
 // BindObject sets the path string for subsequent operations.
+//nolint:golint // API change required.
 func (ms *Memstore) BindObject(path string) *boundObject {
 	pathParts := strings.SplitN(path, "/", 2)
 	if pathParts[0] == transactionNamePrefix {
@@ -441,7 +442,8 @@ func (o *boundObject) Exists(_ interface{}) (bool, error) {
 	if o.ms.haveTransactionNameBinding {
 		return o.transactionExists(), nil
 	}
-	if _, inBase := o.ms.data[o.path]; inBase {
+	_, inBase := o.ms.data[o.path]
+	if inBase {
 		return true, nil
 	}
 	for k := range o.ms.data {

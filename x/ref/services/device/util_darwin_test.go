@@ -35,7 +35,7 @@ func (uids uidMap) findAvailable() (int, error) {
 }
 
 //nolint:deadcode,unused
-func newUidMap(sh *v23test.Shell) uidMap {
+func newUIDMap(sh *v23test.Shell) uidMap {
 	// `dscl . -list /Users UniqueID` into a datastructure.
 	userstring := sh.Cmd("dscl", ".", "-list", "/Users", "UniqueID").Stdout()
 	users := strings.Split(userstring, "\n")
@@ -77,7 +77,7 @@ func makeTestAccounts(t *testing.T, sh *v23test.Shell) {
 		return
 	}
 
-	uids := newUidMap(sh)
+	uids := newUIDMap(sh)
 	if needVanaErr != nil {
 		vanauid, err := uids.findAvailable()
 		if err != nil {

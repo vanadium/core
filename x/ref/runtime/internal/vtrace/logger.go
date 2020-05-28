@@ -16,6 +16,7 @@ const (
 	initialMaxStackBufSize = 128 * 1024
 )
 
+//nolint:golint // API change required.
 type VTraceLogger struct{}
 
 func (*VTraceLogger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {

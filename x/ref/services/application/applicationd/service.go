@@ -260,6 +260,7 @@ func (i *appRepoService) allAppVersions(appName string) ([]string, error) {
 	return i.allAppVersionsForProfiles(appName, profiles)
 }
 
+//nolint:golint // API change required.
 func (i *appRepoService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	ctx.VI(0).Infof("%v.GlobChildren__()", i.suffix)
 	i.store.Lock()

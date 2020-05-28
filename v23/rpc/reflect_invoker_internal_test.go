@@ -47,6 +47,7 @@ func (o *tags) Delta(*context.T, ServerCall, int) (int, error)                  
 func (o *tags) Epsilon(*context.T, ServerCall, int, string) (int, string, error) { return 0, "", nil }
 func (o *tags) Error(*context.T, ServerCall) error                               { return errApp }
 
+//nolint:golint // API change required.
 func (o *tags) Describe__() []InterfaceDesc {
 	return []InterfaceDesc{{
 		Methods: []MethodDesc{
@@ -145,25 +146,53 @@ func (*badRecv3Call) RecvStream() interface {
 	return nil
 }
 
-func (badoutargs) NoFinalError1(*context.T, ServerCall)                 {}
-func (badoutargs) NoFinalError2(*context.T, ServerCall) string          { return "" }
-func (badoutargs) NoFinalError3(*context.T, ServerCall) (bool, string)  { return false, "" }
+func (badoutargs) NoFinalError1(*context.T, ServerCall)                {}
+func (badoutargs) NoFinalError2(*context.T, ServerCall) string         { return "" }
+func (badoutargs) NoFinalError3(*context.T, ServerCall) (bool, string) { return false, "" }
+
+//nolint:golint // API change required.
 func (badoutargs) NoFinalError4(*context.T, ServerCall) (error, string) { return nil, "" }
 
-func (badGlobber) Globber()                                                    {}
-func (badGlob1) Glob__()                                                       {}
-func (badGlob2) Glob__(*context.T)                                             {}
-func (badGlob3) Glob__(*context.T, ServerCall)                                 {}
-func (badGlob4) Glob__(*context.T, ServerCall, string)                         {}
+func (badGlobber) Globber() {}
+
+//nolint:golint // API change required.
+func (badGlob1) Glob__() {}
+
+//nolint:golint // API change required.
+func (badGlob2) Glob__(*context.T) {}
+
+//nolint:golint // API change required.
+func (badGlob3) Glob__(*context.T, ServerCall) {}
+
+//nolint:golint // API change required.
+func (badGlob4) Glob__(*context.T, ServerCall, string) {}
+
+//nolint:golint // API change required.
 func (badGlob5) Glob__(*context.T, ServerCall, string) <-chan naming.GlobReply { return nil }
-func (badGlob6) Glob__(*context.T, ServerCall, string) error                   { return nil }
-func (badGlob7) Glob__() (<-chan naming.GlobReply, error)                      { return nil, nil }
-func (badGlobChildren1) GlobChildren__()                                       {}
-func (badGlobChildren2) GlobChildren__(*context.T)                             {}
-func (badGlobChildren3) GlobChildren__(*context.T, ServerCall)                 {}
-func (badGlobChildren4) GlobChildren__(*context.T, ServerCall) <-chan string   { return nil }
-func (badGlobChildren5) GlobChildren__(*context.T, ServerCall) error           { return nil }
-func (badGlobChildren6) GlobChildren__() (<-chan string, error)                { return nil, nil }
+
+//nolint:golint // API change required.
+func (badGlob6) Glob__(*context.T, ServerCall, string) error { return nil }
+
+//nolint:golint // API change required.
+func (badGlob7) Glob__() (<-chan naming.GlobReply, error) { return nil, nil }
+
+//nolint:golint // API change required.
+func (badGlobChildren1) GlobChildren__() {}
+
+//nolint:golint // API change required.
+func (badGlobChildren2) GlobChildren__(*context.T) {}
+
+//nolint:golint // API change required.
+func (badGlobChildren3) GlobChildren__(*context.T, ServerCall) {}
+
+//nolint:golint // API change required.
+func (badGlobChildren4) GlobChildren__(*context.T, ServerCall) <-chan string { return nil }
+
+//nolint:golint // API change required.
+func (badGlobChildren5) GlobChildren__(*context.T, ServerCall) error { return nil }
+
+//nolint:golint // API change required.
+func (badGlobChildren6) GlobChildren__() (<-chan string, error) { return nil, nil }
 
 const (
 	badInit = `Init must have signature`

@@ -157,7 +157,7 @@ func (rb *RawBytes) VDLRead(dec vdl.Decoder) error {
 	if enc.tids == nil || len(enc.tids.tids) == 0 {
 		rb.RefTypes = nil
 	} else {
-		tids, idToType := enc.tids.tids, enc.typeEnc.makeIdToTypeUnlocked()
+		tids, idToType := enc.tids.tids, enc.typeEnc.makeIDToTypeUnlocked()
 		rb.RefTypes = make([]*vdl.Type, len(tids))
 		for i, tid := range tids {
 			tt := bootstrapIDToType[tid]

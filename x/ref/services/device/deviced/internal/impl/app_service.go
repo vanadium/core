@@ -1411,6 +1411,7 @@ func (i *appService) scanInstance(ctx *context.T, tree *treeNode, title, instanc
 	}
 }
 
+//nolint:golint // API change required.
 func (i *appService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	tree := newTreeNode()
 	switch len(i.suffix) {

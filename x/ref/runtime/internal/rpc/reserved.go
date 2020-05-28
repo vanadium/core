@@ -42,6 +42,7 @@ type reservedMethods struct {
 	selfInvoker  rpc.Invoker
 }
 
+//nolint:golint // API change required.
 func (r *reservedMethods) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{{
 		Name: "__Reserved",

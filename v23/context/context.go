@@ -106,6 +106,7 @@ const (
 
 // ContextLogger is a logger that uses a passed in T to configure
 // the logging behavior.
+//nolint:golint // API change required.
 type ContextLogger interface {
 	// InfoDepth logs to the INFO log. depth is used to determine which call frame to log.
 	InfoDepth(ctx *T, depth int, args ...interface{})
@@ -129,10 +130,12 @@ type ContextLogger interface {
 type CancelFunc func()
 
 // Cancelled is returned by contexts which have been cancelled.
+//nolint:golint // API change required.
 var Canceled = errors.New("context canceled")
 
 // DeadlineExceeded is returned by contexts that have exceeded their
 // deadlines and therefore been canceled automatically.
+//nolint:golint // API change required.
 var DeadlineExceeded = errors.New("context deadline exceeded")
 
 // T carries deadlines, cancellation and data across API boundaries.

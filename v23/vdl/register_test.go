@@ -315,9 +315,9 @@ type (
 		Index() int
 		Interface() interface{}
 		Name() string
-		VDLReflect(__NameConflictReflect)
+		VDLReflect(privateNameConflictReflect)
 	}
-	__NameConflictReflect struct {
+	privateNameConflictReflect struct {
 		Name  string `vdl:"v.io/v23/vdl.OtherNameConflictType"`
 		Type  NameConflictType
 		Union struct{ A NameConflictUnionField }
@@ -326,10 +326,10 @@ type (
 	OtherNameConflictType  struct{}
 )
 
-func (x NameConflictUnionField) Index() int                       { return 0 }
-func (x NameConflictUnionField) Interface() interface{}           { return x.Value }
-func (x NameConflictUnionField) Name() string                     { return "A" }
-func (x NameConflictUnionField) VDLReflect(__NameConflictReflect) {}
+func (x NameConflictUnionField) Index() int                            { return 0 }
+func (x NameConflictUnionField) Interface() interface{}                { return x.Value }
+func (x NameConflictUnionField) Name() string                          { return "A" }
+func (x NameConflictUnionField) VDLReflect(privateNameConflictReflect) {}
 
 func TestReflectNameConflicts(t *testing.T) {
 	Register(NameConflictUnionField{})

@@ -65,6 +65,7 @@ func (pprofService) Profile(ctx *context.T, call s_pprof.PProfProfileServerCall,
 
 // CPUProfile enables CPU profiling for the requested duration and
 // streams the profile data.
+//nolint:golint // API change required.
 func (pprofService) CpuProfile(ctx *context.T, call s_pprof.PProfCpuProfileServerCall, seconds int32) error {
 	if seconds <= 0 || seconds > 3600 {
 		return verror.New(errInvalidSeconds, ctx, seconds)
