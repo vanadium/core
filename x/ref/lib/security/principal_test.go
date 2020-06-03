@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"v.io/v23/verror"
+	"v.io/x/ref/lib/security/internal"
 )
 
 func TestLoadPersistentPrincipal(t *testing.T) {
@@ -105,7 +106,7 @@ func generatePEMFile(passphrase []byte) (dir string) {
 		panic(err)
 	}
 	defer f.Close()
-	if err = SavePEMKey(f, key, passphrase); err != nil {
+	if err = internal.SavePEMKey(f, key, passphrase); err != nil {
 		panic(err)
 	}
 	return dir

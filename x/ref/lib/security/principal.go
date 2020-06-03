@@ -11,11 +11,17 @@ import (
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	"v.io/x/ref/lib/security/internal"
 )
 
 const pkgPath = "v.io/x/ref/lib/security"
 
 var (
+	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
+	ErrBadPassphrase = verror.Register(pkgPath+".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
+	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
+	ErrPassphraseRequired = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
+
 	errCantCreateSigner      = verror.Register(pkgPath+".errCantCreateSigner", verror.NoRetry, "{1:}{2:} failed to create serialization.Signer{:_}")
 	errCantLoadBlessingRoots = verror.Register(pkgPath+".errCantLoadBlessingRoots", verror.NoRetry, "{1:}{2:} failed to load BlessingRoots{:_}")
 	errCantLoadBlessingStore = verror.Register(pkgPath+".errCantLoadBlessingStore", verror.NoRetry, "{1:}{2:} failed to load BlessingStore{:_}")
@@ -191,11 +197,15 @@ func loadKeyFromDir(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 	defer f.Close()
-	key, err := LoadPEMKey(f, passphrase)
-	if err != nil {
-		return nil, err
+	switch key, err := internal.LoadPEMKey(f, passphrase); {
+	case err == nil:
+		return key.(*ecdsa.PrivateKey), nil
+	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
+		return nil, verror.New(ErrBadPassphrase, nil)
+	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
+		return nil, verror.New(ErrPassphraseRequired, nil)
 	}
-	return key.(*ecdsa.PrivateKey), nil
+	return nil, err
 }
 
 func initKey(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {
@@ -209,7 +219,7 @@ func initKey(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {
 	if err != nil {
 		return nil, verror.New(errCantGenerateKey, nil, err)
 	}
-	if err := SavePEMKey(f, key, passphrase); err != nil {
+	if err := internal.SavePEMKey(f, key, passphrase); err != nil {
 		return nil, verror.New(errCantSaveKey, nil, keyFile, err)
 	}
 	return key, nil
