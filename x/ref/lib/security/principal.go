@@ -5,13 +5,17 @@
 package security
 
 import (
+	gocontext "context"
 	"crypto/ecdsa"
 	"os"
 	"path"
+	"path/filepath"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
+	"v.io/x/ref/lib/security/signing"
+	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
 const pkgPath = "v.io/x/ref/lib/security"
@@ -68,8 +72,14 @@ func NewPrincipalStateSerializer(dir string) (*PrincipalStateSerializer, error) 
 		return nil, err
 	}
 	return &PrincipalStateSerializer{
-		BlessingRoots: NewFileSerializer(path.Join(dir, blessingRootsDataFile), path.Join(dir, blessingRootsSigFile)),
-		BlessingStore: NewFileSerializer(path.Join(dir, blessingStoreDataFile), path.Join(dir, blessingStoreSigFile)),
+		BlessingRoots: NewFileSerializer(
+			path.Join(dir, "blessingroots.lock"),
+			path.Join(dir, blessingRootsDataFile),
+			path.Join(dir, blessingRootsSigFile)),
+		BlessingStore: NewFileSerializer(
+			path.Join(dir, "blessingstore.lock"),
+			path.Join(dir, blessingStoreDataFile),
+			path.Join(dir, blessingStoreSigFile)),
 	}, nil
 }
 
@@ -111,17 +121,29 @@ func NewPrincipalFromSigner(signer security.Signer, state *PrincipalStateSeriali
 // If private key file exists then 'passphrase' must be correct, otherwise
 // ErrBadPassphrase will be returned.
 func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	key, err := loadKeyFromDir(dir, passphrase)
-	if err != nil {
-		return nil, err
-	}
 	// Note, dir must exist if we reach here, so the mkdir(dir) in
 	// NewPrincipalStateSerializer is a no-op.
 	state, err := NewPrincipalStateSerializer(dir)
 	if err != nil {
 		return nil, err
 	}
-	return NewPrincipalFromSigner(security.NewInMemoryECDSASigner(key), state)
+	var svc signing.Service
+
+	// TODO(cnicolaou): determine when/how to use SSH agent.
+	svc = keyfile.NewSigningService()
+	signer, err := svc.Signer(gocontext.TODO(), filepath.Join(dir, privateKeyFile), passphrase)
+	switch {
+	case err == nil:
+		return NewPrincipalFromSigner(signer, state)
+	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
+		return nil, verror.New(ErrBadPassphrase, nil)
+	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
+		return nil, verror.New(ErrPassphraseRequired, nil)
+	case os.IsNotExist(err):
+		return nil, err
+	default:
+		return nil, verror.New(errCantCreateSigner, nil, err)
+	}
 }
 
 // CreatePersistentPrincipal creates a new principal (private key,
@@ -188,24 +210,6 @@ func mkDir(dir string) error {
 		return verror.New(errCantCreate, nil, dir, err)
 	}
 	return nil
-}
-
-func loadKeyFromDir(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {
-	keyFile := path.Join(dir, privateKeyFile)
-	f, err := os.Open(keyFile)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	switch key, err := internal.LoadPEMKey(f, passphrase); {
-	case err == nil:
-		return key.(*ecdsa.PrivateKey), nil
-	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
-		return nil, verror.New(ErrBadPassphrase, nil)
-	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
-		return nil, verror.New(ErrPassphraseRequired, nil)
-	}
-	return nil, err
 }
 
 func initKey(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {

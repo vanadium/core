@@ -34,10 +34,11 @@ const cacheKeyFormat = uint32(1)
 
 // blessingStore implements security.BlessingStore.
 type blessingStore struct {
-	publicKey  security.PublicKey
+	publicKey security.PublicKey
+	// NOTE: serializer and signer are nil for an in-memory store.
 	serializer SerializerReaderWriter
 	signer     serialization.Signer
-	mu         sync.RWMutex
+	mu         sync.Mutex
 	state      blessingStoreState // GUARDED_BY(mu)
 	defCh      chan struct{}      // GUARDED_BY(mu) - Notifications for changes in the default blessings
 }
@@ -51,6 +52,10 @@ func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.Ble
 	}
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+	if err := bs.load(); err != nil {
+		return security.Blessings{}, err
+	}
+
 	old, hadold := bs.state.PeerBlessings[forPeers]
 	if !blessings.IsZero() {
 		bs.state.PeerBlessings[forPeers] = blessings
@@ -69,8 +74,13 @@ func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.Ble
 }
 
 func (bs *blessingStore) ForPeer(peerBlessings ...string) security.Blessings {
-	bs.mu.RLock()
-	defer bs.mu.RUnlock()
+	bs.mu.Lock()
+	defer bs.mu.Unlock()
+
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+		return security.Blessings{}
+	}
 
 	var ret security.Blessings
 	for pattern, b := range bs.state.PeerBlessings {
@@ -86,8 +96,11 @@ func (bs *blessingStore) ForPeer(peerBlessings ...string) security.Blessings {
 }
 
 func (bs *blessingStore) Default() (security.Blessings, <-chan struct{}) {
-	bs.mu.RLock()
-	defer bs.mu.RUnlock()
+	bs.mu.Lock()
+	defer bs.mu.Unlock()
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+	}
 	return bs.state.DefaultBlessings, bs.defCh
 }
 
@@ -97,6 +110,10 @@ func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
 		return verror.New(errStoreAddMismatch, nil)
 	}
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+	}
+
 	oldDefault := bs.state.DefaultBlessings
 	bs.state.DefaultBlessings = blessings
 	if err := bs.save(); err != nil {
@@ -113,10 +130,22 @@ func (bs *blessingStore) PublicKey() security.PublicKey {
 }
 
 func (bs *blessingStore) String() string {
+	bs.mu.Lock()
+	defer bs.mu.Unlock()
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+	}
 	return fmt.Sprintf("{state: %v, publicKey: %v}", bs.state, bs.publicKey)
 }
 
 func (bs *blessingStore) PeerBlessings() map[security.BlessingPattern]security.Blessings {
+	bs.mu.Lock()
+	defer bs.mu.Unlock()
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+		return map[security.BlessingPattern]security.Blessings{}
+	}
+
 	m := make(map[security.BlessingPattern]security.Blessings)
 	for pattern, b := range bs.state.PeerBlessings {
 		m[pattern] = b
@@ -132,6 +161,10 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 	}
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+	if err := bs.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", bs.state, err)
+		return
+	}
 	old, hadold := bs.state.Discharges[key]
 	bs.state.Discharges[key] = CachedDischarge{
 		Discharge: discharge,
@@ -146,6 +179,9 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 	}
 }
 
+
+xxxx load for dischage cache?
+
 func (bs *blessingStore) ClearDischarges(discharges ...security.Discharge) {
 	bs.mu.Lock()
 	clearDischargesFromCache(bs.state.Discharges, discharges...)
@@ -157,8 +193,8 @@ func (bs *blessingStore) Discharge(caveat security.Caveat, impetus security.Disc
 	if !cacheable {
 		return security.Discharge{}, time.Time{}
 	}
-	defer bs.mu.Unlock()
 	bs.mu.Lock()
+	defer bs.mu.Unlock()
 	return dischargeFromCache(bs.state.Discharges, key)
 }
 
@@ -255,10 +291,11 @@ func (bs *blessingStore) save() error {
 	if (bs.signer == nil) && (bs.serializer == nil) {
 		return nil
 	}
-	data, signature, err := bs.serializer.Writers()
+	data, signature, unlock, err := bs.serializer.Writers()
 	if err != nil {
 		return err
 	}
+	defer unlock()
 	return encodeAndStore(bs.state, data, signature, bs.signer)
 }
 
@@ -289,14 +326,20 @@ func (bs *blessingStore) verifyState() error {
 	return nil
 }
 
-func (bs *blessingStore) deserialize() error {
-	data, signature, err := bs.serializer.Readers()
+// load is only called/used for a persistent store.
+func (bs *blessingStore) load() error {
+	if (bs.signer == nil) && (bs.serializer == nil) {
+		return nil
+	}
+	data, signature, unlock, err := bs.serializer.Readers()
 	if err != nil {
 		return err
 	}
+	defer unlock()
 	if data == nil && signature == nil {
 		return nil
 	}
+	bs.state = blessingStoreState{}
 	if err := decodeFromStorage(&bs.state, data, signature, bs.signer.PublicKey()); err != nil {
 		return err
 	}
@@ -328,7 +371,7 @@ func newPersistingBlessingStore(serializer SerializerReaderWriter, signer serial
 		signer:     signer,
 		defCh:      make(chan struct{}),
 	}
-	if err := bs.deserialize(); err != nil {
+	if err := bs.load(); err != nil {
 		return nil, err
 	}
 	if bs.state.PeerBlessings == nil {

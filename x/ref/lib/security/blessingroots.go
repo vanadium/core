@@ -20,9 +20,10 @@ var errRootsAddPattern = verror.Register(pkgPath+".errRootsAddPattern", verror.N
 
 // blessingRoots implements security.BlessingRoots.
 type blessingRoots struct {
+	// NOTE: persistedData and signer are nil for an in-memory store.
 	persistedData SerializerReaderWriter
 	signer        serialization.Signer
-	mu            sync.RWMutex
+	mu            sync.Mutex
 	state         blessingRootsState // GUARDED_BY(mu)
 }
 
@@ -37,6 +38,9 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 	key := string(root)
 	br.mu.Lock()
 	defer br.mu.Unlock()
+	if err := br.load(); err != nil {
+		return err
+	}
 	patterns := br.state[key]
 	for _, p := range patterns {
 		if p == pattern {
@@ -44,24 +48,25 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 		}
 	}
 	br.state[key] = append(patterns, pattern)
-
 	if err := br.save(); err != nil {
-		br.state[key] = patterns[:len(patterns)-1]
+		// TODO(cnicolaou): why bother with this?
+		// br.state[key] = patterns[:len(patterns)-1]
 		return err
 	}
-
 	return nil
 }
 
 func (br *blessingRoots) Recognized(root []byte, blessing string) error {
-	br.mu.RLock()
+	br.mu.Lock()
+	defer br.mu.Unlock()
+	if err := br.load(); err != nil {
+		return err
+	}
 	for _, p := range br.state[string(root)] {
 		if p.MatchedBy(blessing) {
-			br.mu.RUnlock()
 			return nil
 		}
 	}
-	br.mu.RUnlock()
 	// Silly to have to unmarshal the public key on an error.
 	// Change the error message to not require that?
 	obj, err := security.UnmarshalPublicKey(root)
@@ -73,8 +78,12 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
 	dump := make(map[security.BlessingPattern][]security.PublicKey)
-	br.mu.RLock()
-	defer br.mu.RUnlock()
+	br.mu.Lock()
+	defer br.mu.Unlock()
+	if err := br.load(); err != nil {
+		vlog.Errorf("failed to load blessing from %v: %v", br.persistedData, err)
+		return map[security.BlessingPattern][]security.PublicKey{}
+	}
 	for keyStr, patterns := range br.state {
 		key, err := security.UnmarshalPublicKey([]byte(keyStr))
 		if err != nil {
@@ -100,6 +109,11 @@ func (br *blessingRoots) DebugString() string {
 	const format = "%-47s   %s\n"
 	b := bytes.NewBufferString(fmt.Sprintf(format, "Public key", "Pattern"))
 	var s rootSorter
+	br.mu.Lock()
+	defer br.mu.Unlock()
+	if err := br.load(); err != nil {
+		return fmt.Sprintf("failed to load blessing roots from %v: %v", br.persistedData, err)
+	}
 	for keyBytes, patterns := range br.state {
 		key, err := security.UnmarshalPublicKey([]byte(keyBytes))
 		if err != nil {
@@ -129,11 +143,30 @@ func (br *blessingRoots) save() error {
 	if (br.signer == nil) && (br.persistedData == nil) {
 		return nil
 	}
-	data, signature, err := br.persistedData.Writers()
+	data, signature, unlock, err := br.persistedData.Writers()
 	if err != nil {
 		return err
 	}
+	defer unlock()
 	return encodeAndStore(br.state, data, signature, br.signer)
+}
+
+func (br *blessingRoots) load() error {
+	if (br.signer == nil) && (br.persistedData == nil) {
+		return nil
+	}
+	br.state = make(blessingRootsState)
+	data, signature, unlock, err := br.persistedData.Readers()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	if (data != nil) && (signature != nil) {
+		if err := decodeFromStorage(&br.state, data, signature, br.signer.PublicKey()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // NewBlessingRoots returns an implementation of security.BlessingRoots
@@ -159,18 +192,11 @@ func newPersistingBlessingRoots(persistedData SerializerReaderWriter, signer ser
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
 	}
 	br := &blessingRoots{
-		state:         make(blessingRootsState),
 		persistedData: persistedData,
 		signer:        signer,
 	}
-	data, signature, err := br.persistedData.Readers()
-	if err != nil {
+	if err := br.load(); err != nil {
 		return nil, err
-	}
-	if (data != nil) && (signature != nil) {
-		if err := decodeFromStorage(&br.state, data, signature, br.signer.PublicKey()); err != nil {
-			return nil, err
-		}
 	}
 	return br, nil
 }
