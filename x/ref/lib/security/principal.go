@@ -5,7 +5,7 @@
 package security
 
 import (
-	gocontext "context"
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -74,7 +74,7 @@ func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) 
 // Signer with blessing roots and blessings store loaded from the supplied
 // state directory.
 func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (security.Principal, error) {
-	blessingsStore, blessingRoots, err := newStores(signer, dir, true, time.Duration(0))
+	blessingsStore, blessingRoots, err := newStores(context.TODO(), signer, dir, true, time.Duration(0))
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (securit
 // The newly loaded is principal's persistent store is locked and the returned
 // unlock function must be called to release that lock.
 func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	return loadPersistentPrincipal(dir, passphrase, false, time.Duration(0))
+	return loadPersistentPrincipal(context.TODO(), dir, passphrase, false, time.Duration(0))
 }
 
 // LoadPersistentPrincipalDaemon is like LoadPersistentPrincipal but is
@@ -102,26 +102,26 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 // update duration is specified then the principal will be reloaded
 // at the frequence specified by that duration. In addition, on systems
 // that support it, a SIGHUP can be used to request an immediate reload.
-func LoadPersistentPrincipalDaemon(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	return loadPersistentPrincipal(dir, passphrase, readonly, update)
+func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+	return loadPersistentPrincipal(ctx, dir, passphrase, readonly, update)
 }
 
-func loadPersistentPrincipal(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
 	unlock, err := flock.Lock()
 	if err != nil {
 		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
 	defer unlock()
-	return newPersistentPrincipal(dir, passphrase, false, time.Duration(0))
+	return newPersistentPrincipal(ctx, dir, passphrase, false, time.Duration(0))
 }
 
-func newPersistentPrincipal(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newSigner(dir, passphrase)
+func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+	signer, err := newSigner(ctx, dir, passphrase)
 	if err != nil {
 		return nil, err
 	}
-	blessingsStore, blessingRoots, err := newStores(signer, dir, readonly, update)
+	blessingsStore, blessingRoots, err := newStores(ctx, signer, dir, readonly, update)
 	if err != nil {
 		return nil, err
 	}
@@ -167,22 +167,22 @@ func CreatePersistentPrincipalUsingKey(key interface{}, dir string, passphrase [
 		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
 	defer unlock()
-	return createPersistentPrincipal(key, dir, passphrase)
+	return createPersistentPrincipal(context.TODO(), key, dir, passphrase)
 }
 
-func createPersistentPrincipal(key interface{}, dir string, passphrase []byte) (principal security.Principal, err error) {
+func createPersistentPrincipal(ctx context.Context, key interface{}, dir string, passphrase []byte) (principal security.Principal, err error) {
 	if err := writeNewKey(key, dir, passphrase); err != nil {
 		return nil, err
 	}
 	var update time.Duration
-	return newPersistentPrincipal(dir, passphrase, false, update)
+	return newPersistentPrincipal(ctx, dir, passphrase, false, update)
 }
 
-func newSigner(dir string, passphrase []byte) (security.Signer, error) {
+func newSigner(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
 	var svc signing.Service
 	// TODO(cnicolaou): determine when to use SSH agent.
 	svc = keyfile.NewSigningService()
-	signer, err := svc.Signer(gocontext.TODO(), filepath.Join(dir, privateKeyFile), passphrase)
+	signer, err := svc.Signer(ctx, filepath.Join(dir, privateKeyFile), passphrase)
 	switch {
 	case err == nil:
 		return signer, nil
@@ -197,7 +197,7 @@ func newSigner(dir string, passphrase []byte) (security.Signer, error) {
 	}
 }
 
-func newStores(signer security.Signer, dir string, readonly bool, update time.Duration) (security.BlessingStore, security.BlessingRoots, error) {
+func newStores(ctx context.Context, signer security.Signer, dir string, readonly bool, update time.Duration) (security.BlessingStore, security.BlessingRoots, error) {
 	serializationSigner := &serializationSigner{signer}
 
 	blessingRootsSerializer := newFileSerializer(
@@ -215,6 +215,7 @@ func newStores(signer security.Signer, dir string, readonly bool, update time.Du
 	}
 
 	blessingRoots, err := NewPersistentBlessingRoots(
+		ctx,
 		filepath.Join(dir, blessingsRootsLockFilename),
 		rootsReader,
 		rootsWriter,
@@ -225,6 +226,7 @@ func newStores(signer security.Signer, dir string, readonly bool, update time.Du
 		return nil, nil, err
 	}
 	blessingsStore, err := NewPersistentBlessingStore(
+		ctx,
 		filepath.Join(dir, blessingStoreLockFilename),
 		storeReader,
 		storeWriter,

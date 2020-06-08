@@ -6,14 +6,19 @@ package security
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"os"
+	"os/signal"
 	"sort"
 	"sync"
+	"syscall"
 	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
+	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
 )
@@ -164,17 +169,36 @@ func (br *blessingRoots) load() error {
 	if br.readers == nil {
 		return nil
 	}
-	br.state = make(blessingRootsState)
 	data, signature, err := br.readers.Readers()
 	if err != nil {
 		return err
 	}
-	if (data != nil) && (signature != nil) {
-		if err := decodeFromStorage(&br.state, data, signature, br.signer.PublicKey()); err != nil {
-			return err
-		}
+	if data == nil && signature == nil {
+		return nil
 	}
+	state := make(blessingRootsState)
+	if err := decodeFromStorage(&state, data, signature, br.signer.PublicKey()); err != nil {
+		return err
+	}
+	br.state = state
 	return nil
+}
+
+func reload(ctx context.Context, loader func() (func(), error), hupCh <-chan os.Signal, update time.Duration) {
+	for {
+		select {
+		case <-time.After(update):
+		case <-hupCh:
+		case <-ctx.Done():
+			return
+		}
+		unlock, err := loader()
+		if err != nil {
+			logger.Global().Infof("failed top reload principal: %v", err)
+			continue
+		}
+		unlock()
+	}
 }
 
 // NewBlessingRoots returns an implementation of security.BlessingRoots
@@ -190,7 +214,7 @@ func NewBlessingRoots() security.BlessingRoots {
 // that is initialized with the persisted data. The returned security.BlessingStore
 // will persists any updates to its state if the supplied writers serializer
 // is specified.
-func NewPersistentBlessingRoots(lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, update time.Duration) (security.BlessingRoots, error) {
+func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, update time.Duration) (security.BlessingRoots, error) {
 	// TODO(cnicolaou): implement update.
 	if readers == nil || signer == nil {
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
@@ -200,9 +224,19 @@ func NewPersistentBlessingRoots(lockFilePath string, readers SerializerReader, w
 		readers: readers,
 		writers: writers,
 		signer:  signer,
+		state:   make(blessingRootsState),
 	}
 	if err := br.load(); err != nil {
 		return nil, err
+	}
+	if update > 0 {
+		hupCh := make(chan os.Signal, 1)
+		signal.Notify(hupCh, syscall.SIGHUP)
+		go reload(ctx, func() (func(), error) {
+			br.mu.Lock()
+			defer br.mu.Unlock()
+			return br.lockAndLoad()
+		}, hupCh, update)
 	}
 	return br, nil
 }

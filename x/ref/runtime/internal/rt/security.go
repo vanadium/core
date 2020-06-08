@@ -5,6 +5,7 @@
 package rt
 
 import (
+	gocontext "context"
 	"fmt"
 	"math/rand"
 	"os"
@@ -25,17 +26,20 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 	if principal, _ := ctx.Value(principalKey).(security.Principal); principal != nil {
 		return principal, func() {}, nil
 	}
+
 	if len(credentials) > 0 {
 		// Explicitly specified credentials, load them from the crdentials
-		// location without the ability to write them back, but reloading
-		// them periodically.
+		// location without the ability to write them back to persistent
+		// storage, but rather reloading them periodically or on a signal.
 		reloadPeriod := 5 * time.Minute
 		if update := os.Getenv(ref.EnvCredentialsReloadInterval); len(update) > 0 {
 			if tmp, err := time.ParseDuration(update); err == nil {
 				reloadPeriod = tmp
 			}
 		}
+		goctx, cancel := gocontext.WithCancel(gocontext.Background())
 		principal, err := vsecurity.LoadPersistentPrincipalDaemon(
+			goctx,
 			credentials,
 			nil,
 			true,
@@ -44,7 +48,7 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 		if err != nil {
 			return nil, nil, verror.New(errCredentialsInit, ctx, credentials, err)
 		}
-		return principal, func() {}, nil
+		return principal, func() { cancel() }, nil
 	}
 
 	// No agent, no explicit credentials specified: create a new principal
