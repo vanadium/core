@@ -6,17 +6,14 @@ package v23test
 
 import (
 	"io/ioutil"
-	"path/filepath"
 
 	"v.io/v23/security"
 	libsec "v.io/x/ref/lib/security"
-	"v.io/x/ref/services/agent/agentlib"
-	"v.io/x/ref/services/agent/server"
 )
 
 // Credentials represents a principal with a set of blessings. It is designed to
-// be implementable using either the filesystem (with a credentials dir) or the
-// Vanadium security agent.
+// be implementable using either the filesystem (with a credentials dir) or
+// an external agent.
 type Credentials struct {
 	Handle    string
 	Principal security.Principal // equal to pm.Principal(Handle)
@@ -103,50 +100,4 @@ func (pm *filesystemPrincipalManager) New() (string, error) {
 
 func (pm *filesystemPrincipalManager) Principal(handle string) (security.Principal, error) {
 	return libsec.LoadPersistentPrincipal(handle, nil)
-}
-
-////////////////////////////////////////
-// agentPrincipalManager
-
-// agentPrincipalManager creates filesystem-based credentials, starts an agent
-// per credentials directory, and passes back the agent socket file as the
-// 'handle'.
-//
-// TODO(caprita): We should pass back the credentials directory itself as the
-// handle, and not the socket: clients can use agentlib.LoadPrincipal to
-// transparently find the socket and load the credentials.  However, some tests
-// currently expect v23test.Shell to set V23_AGENT_PATH instead of
-// V23_CREDENTIALS on the commands it starts, and we need to fix those tests
-// first.
-
-type agentPrincipalManager struct {
-	rootDir string
-}
-
-func newAgentPrincipalManager(rootDir string) (principalManager, error) {
-	return &agentPrincipalManager{rootDir: rootDir}, nil
-}
-
-func (pm *agentPrincipalManager) New() (string, error) {
-	credsDir, err := ioutil.TempDir(pm.rootDir, "")
-	if err != nil {
-		return "", err
-	}
-	p, err := libsec.CreatePersistentPrincipal(credsDir, nil)
-	if err != nil {
-		return "", err
-	}
-	sockDir, err := ioutil.TempDir(pm.rootDir, "")
-	if err != nil {
-		return "", err
-	}
-	sockPath := filepath.Join(sockDir, "s")
-	if _, err = server.Serve(p, sockPath); err != nil {
-		return "", err
-	}
-	return sockPath, nil
-}
-
-func (pm *agentPrincipalManager) Principal(handle string) (security.Principal, error) {
-	return agentlib.NewAgentPrincipalX(handle)
 }

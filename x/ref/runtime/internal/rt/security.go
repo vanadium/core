@@ -14,11 +14,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref"
-	"v.io/x/ref/lib/exec"
-	"v.io/x/ref/lib/mgmt"
 	vsecurity "v.io/x/ref/lib/security"
-	"v.io/x/ref/services/agent"
-	"v.io/x/ref/services/agent/agentlib"
 )
 
 var (
@@ -30,21 +26,27 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 		return principal, func() {}, nil
 	}
 	if len(credentials) > 0 {
-		// Explicitly specified credentials, use (or set up) an agent
-		// that serves the principal; or otherwise load the principal
-		// exclusively.
-		principal, err := agentlib.LoadPrincipal(credentials)
+		// Explicitly specified credentials, load them from the crdentials
+		// location without the ability to write them back, but reloading
+		// them periodically.
+		reloadPeriod := 5 * time.Minute
+		if update := os.Getenv(ref.EnvCredentialsReloadInterval); len(update) > 0 {
+			if tmp, err := time.ParseDuration(update); err == nil {
+				reloadPeriod = tmp
+			}
+		}
+		principal, err := vsecurity.LoadPersistentPrincipalDaemon(
+			credentials,
+			nil,
+			true,
+			reloadPeriod,
+		)
 		if err != nil {
 			return nil, nil, verror.New(errCredentialsInit, ctx, credentials, err)
 		}
-		return principal, func() { principal.Close() }, nil
+		return principal, func() {}, nil
 	}
-	// Use credentials stored in the agent.
-	if principal, err := ipcAgent(); err != nil {
-		return nil, nil, err
-	} else if principal != nil {
-		return principal, func() { principal.Close() }, nil
-	}
+
 	// No agent, no explicit credentials specified: create a new principal
 	// and blessing in memory.
 	principal, err := vsecurity.NewPrincipal()
@@ -52,25 +54,6 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 		return principal, nil, err
 	}
 	return principal, func() {}, vsecurity.InitDefaultBlessings(principal, defaultBlessingName())
-}
-
-func ipcAgent() (agent.Principal, error) {
-	var config exec.Config
-	config, err := exec.ReadConfigFromOSEnv()
-	if err != nil {
-		return nil, err
-	}
-	var path string
-	if config != nil {
-		// We were started by a parent (presumably, device manager).
-		path, _ = config.Get(mgmt.SecurityAgentPathConfigKey)
-	} else {
-		path = os.Getenv(ref.EnvAgentPath)
-	}
-	if path == "" {
-		return nil, nil
-	}
-	return agentlib.NewAgentPrincipalX(path)
 }
 
 func defaultBlessingName() string {

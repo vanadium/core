@@ -15,10 +15,7 @@ import (
 	"testing"
 
 	v23 "v.io/v23"
-	"v.io/v23/context"
-	"v.io/v23/rpc"
 	"v.io/x/lib/gosh"
-	"v.io/x/ref/lib/mgmt"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
@@ -300,20 +297,6 @@ func TestParseSignalsList(t *testing.T) {
 	if !isSignalInSet(signals.STOP, list) {
 		t.Errorf("signal %s not in signal set, as expected: %v", signals.STOP, list)
 	}
-}
-
-//nolint:deadcode,unused
-type configServer struct {
-	ch chan<- string
-}
-
-func (c *configServer) Set(_ *context.T, _ rpc.ServerCall, key, value string) error {
-	if key != mgmt.AppCycleManagerConfigKey {
-		return fmt.Errorf("Unexpected key: %v", key)
-	}
-	c.ch <- value
-	return nil
-
 }
 
 func TestMain(m *testing.M) {

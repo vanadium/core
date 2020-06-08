@@ -117,7 +117,7 @@ func TestV23IdentityServer(t *testing.T) {
 	cmd := sh.Cmd(identityd,
 		"-v23.tcp.address=127.0.0.1:0",
 		"-http-addr=127.0.0.1:0",
-		"-oauth-agent-path="+oauthCreds.Handle).WithCredentials(creds)
+		"-oauth-credentials-dir="+oauthCreds.Handle).WithCredentials(creds)
 	cmd.Start()
 	httpAddr := cmd.S.ExpectVar("HTTP_ADDR")
 	v23Addr := cmd.S.ExpectVar("NAME")

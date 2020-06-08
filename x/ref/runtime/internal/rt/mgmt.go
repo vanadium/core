@@ -14,7 +14,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
-
 	"v.io/x/ref/lib/exec"
 	"v.io/x/ref/lib/mgmt"
 	vsecurity "v.io/x/ref/lib/security"
@@ -54,6 +53,7 @@ func (rt *Runtime) initMgmt(ctx *context.T) error { //nolint:gocyclo
 			return err
 		}
 	} else {
+		// TODO(cnicolaou): delete this.
 		// TODO(caprita,ashankar): This case should only happen when
 		// the device manager starts itself up as a child process for
 		// testing (see services/device/deviced/internal/impl/device_service.go,
@@ -61,6 +61,8 @@ func (rt *Runtime) initMgmt(ctx *context.T) error { //nolint:gocyclo
 		// FIx that up so it is no longer the case?
 		blessings, _ = rt.GetPrincipal(ctx).BlessingStore().Default()
 	}
+
+	// TODO(cnicolaou): delete this.
 	// Arguably could use the same principal with a different blessing store
 	// and blessing roots. However, at the time of this writing there wasn't
 	// a particularly convenient way to do so, and this alternative scheme

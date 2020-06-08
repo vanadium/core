@@ -4,6 +4,8 @@
 
 package appcycle
 
+// TODO(cnicolaou): delete this.
+
 import (
 	"fmt"
 	"os"

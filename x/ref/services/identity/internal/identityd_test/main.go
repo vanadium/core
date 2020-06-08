@@ -19,7 +19,6 @@ import (
 	"v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
-	"v.io/x/ref/services/agent/agentlib"
 	"v.io/x/ref/services/identity/internal/auditor"
 	"v.io/x/ref/services/identity/internal/caveats"
 	"v.io/x/ref/services/identity/internal/oauth"
@@ -40,8 +39,8 @@ var (
 	oauthEmail                 string
 	remoteSignerBlessings      string
 	oauthRemoteSignerBlessings string
-	oauthAgentPath             string
-	oauthCredentialsDir        string
+	// oauthAgentPath             string
+	oauthCredentialsDir string
 )
 
 func init() {
@@ -56,7 +55,6 @@ func init() {
 	cmdTest.Flags.StringVar(&oauthEmail, "oauth-email", "testemail@example.com", "Username for the mock oauth to put in the returned blessings.")
 	cmdTest.Flags.StringVar(&remoteSignerBlessings, "remote-signer-blessing-dir", "", "Path to the blessings to use with the remote signer. Use the empty string to disable the remote signer.")
 	cmdTest.Flags.StringVar(&oauthRemoteSignerBlessings, "remote-signer-o-blessing-dir", "", "Path to the blessings to use with the remote signer for oauth. Use the empty string to disable the remote signer.")
-	cmdTest.Flags.StringVar(&oauthAgentPath, "oauth-agent-path", "", "Path to the agent to use for the oauth http handler.")
 	cmdTest.Flags.StringVar(&oauthCredentialsDir, "oauth-credentials-dir", "", "Path to the credentials to use for the oauth http handler.")
 }
 
@@ -109,17 +107,7 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error { /
 		if oauthCtx, err = v23.WithPrincipal(ctx, p); err != nil {
 			return fmt.Errorf("failed to set principal: %v", err)
 		}
-	case oauthAgentPath != "":
-		principal, err := agentlib.NewAgentPrincipalX(oauthAgentPath)
-		if err != nil {
-			return err
-		}
-		if oauthCtx, err = v23.WithPrincipal(ctx, principal); err != nil {
-			return fmt.Errorf("failed to set principal: %v", err)
-		}
 	case oauthCredentialsDir != "":
-		// TODO(sadovsky): Delete this and update identityd_v23_test.go to use
-		// oauthAgentPath once v23test's agentPrincipalManager is implemented.
 		principal, err := security.LoadPersistentPrincipal(oauthCredentialsDir, nil)
 		if err != nil {
 			return err

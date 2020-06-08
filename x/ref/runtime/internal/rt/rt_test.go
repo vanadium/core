@@ -146,7 +146,7 @@ var runner = gosh.RegisterFunc("runner", func() error {
 	}
 	fmt.Printf("RUNNER_DEFAULT_BLESSING=%v\n", defaultBlessing(p))
 	c := sh.FuncCmd(principal)
-	// Make sure the child gets its credentials from this shell (via agent), not
+	// Make sure the child gets its credentials from this shell, not
 	// from the original EnvCredentials env var.
 	delete(c.Vars, ref.EnvCredentials)
 	c.PropagateOutput = true
@@ -161,37 +161,6 @@ func createCredentialsInDir(t *testing.T, dir string, blessing string) {
 	}
 	if err := vsecurity.InitDefaultBlessings(principal, blessing); err != nil {
 		t.Fatalf("unexpected error: %s", err)
-	}
-}
-
-func TestPrincipalInheritance(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	// Test that the child inherits from the parent's credentials correctly.
-	// The running test process may or may not have a credentials directory set
-	// up, so we have to use a 'runner' process to ensure the correct setup.
-	cdir := tmpDir(t)
-	defer os.RemoveAll(cdir)
-
-	createCredentialsInDir(t, cdir, "test")
-
-	// Directory supplied by the environment.
-	c := sh.FuncCmd(runner)
-	c.Vars[ref.EnvCredentials] = cdir
-	c.Start()
-
-	runnerBlessing := c.S.ExpectVar("RUNNER_DEFAULT_BLESSING")
-	principalBlessing := c.S.ExpectVar("DEFAULT_BLESSING")
-	if err := c.S.Error(); err != nil {
-		t.Fatalf("failed to read input from children: %s", err)
-	}
-	c.Wait()
-
-	wantRunnerBlessing := "test"
-	wantPrincipalBlessing := "test:child"
-	if runnerBlessing != wantRunnerBlessing || principalBlessing != wantPrincipalBlessing {
-		t.Fatalf("unexpected default blessing: got runner %s, principal %s, want runner %s, principal %s", runnerBlessing, principalBlessing, wantRunnerBlessing, wantPrincipalBlessing)
 	}
 }
 
@@ -212,28 +181,24 @@ func TestPrincipalInit(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Note, v23test.Shell uses the agent to pass credentials to its children.
+	// Note, v23test.Shell will not pass any credentials to its children.
 	sh := v23test.NewShell(t, nil)
 	defer sh.Cleanup()
 
-	// Test that the shell uses the EnvAgentPath, not EnvCredentials, to pass
-	// credentials to its children.
+	// Test that the shell uses EnvCredentials to pass credentials to its children.
 	c := sh.FuncCmd(principal)
-	if _, ok := c.Vars[ref.EnvCredentials]; ok {
-		t.Fatal("Did not expect child to have EnvCredentials set")
-	}
-	if _, ok := c.Vars[ref.EnvAgentPath]; !ok {
-		t.Fatal("Expected child to have EnvAgentPath set")
+	if _, ok := c.Vars[ref.EnvCredentials]; !ok {
+		t.Fatal("expected child to have EnvCredentials set")
 	}
 
-	// Test that with ref.EnvCredentials unset, the child runtime's principal is
+	// Test that with ref.EnvCredentials set, the child runtime's principal is
 	// initialized as expected.
 	if got, want := collect(sh, nil), "root:child"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 
 	// Test that credentials specified via the ref.EnvCredentials environment
-	// variable take precedence over credentials from ref.EnvAgentPath.
+	// variable take are in use.
 	cdir1 := tmpDir(t)
 	defer os.RemoveAll(cdir1)
 	createCredentialsInDir(t, cdir1, "test_env")
@@ -244,8 +209,7 @@ func TestPrincipalInit(t *testing.T) {
 	}
 
 	// Test that credentials specified via the command line (--v23.credentials)
-	// take precedence over the ref.EnvCredentials and ref.EnvAgentPath
-	// environment variables.
+	// take precedence over the ref.EnvCredentials environment variables.
 	cdir2 := tmpDir(t)
 	defer os.RemoveAll(cdir2)
 	createCredentialsInDir(t, cdir2, "test_cmd")
