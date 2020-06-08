@@ -136,7 +136,7 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 				return fmt.Errorf("expected an ECDSA private in in --key, got %T", tmp)
 			}
 		}
-		principal, err := seclib.NewPrincipalFromSigner(security.NewInMemoryECDSASigner(key), nil)
+		principal, err := seclib.NewPrincipalFromSigner(security.NewInMemoryECDSASigner(key))
 		if err != nil {
 			return fmt.Errorf("unable to use --key: %v", err)
 		}
@@ -251,7 +251,7 @@ func runDelegate(ctx *context.T, env *cmdline.Env, args []string) error {
 		name = args[2]
 	}
 	// Create a new private key.
-	pub, priv, err := seclib.NewPrincipalKey()
+	pub, priv, err := seclib.NewECDSAKeyPair()
 	if err != nil {
 		return err
 	}

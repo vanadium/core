@@ -23,7 +23,7 @@ func createSSHKey(dir string) error {
 }
 
 func createPEMKey(dir string) error {
-	_, key, err := vsecurity.NewPrincipalKey()
+	_, key, err := vsecurity.NewECDSAKeyPair()
 	if err != nil {
 		return err
 	}

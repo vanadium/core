@@ -87,11 +87,7 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error { /
 		if err != nil {
 			return fmt.Errorf("failed to create remote signer: %v", err)
 		}
-		state, err := security.NewPrincipalStateSerializer(remoteSignerBlessings)
-		if err != nil {
-			return fmt.Errorf("failed to create blessing serializer: %v", err)
-		}
-		p, err := security.NewPrincipalFromSigner(signer, state)
+		p, err := security.NewPrincipalFromSignerAndState(signer, remoteSignerBlessings)
 		if err != nil {
 			return fmt.Errorf("failed to create principal: %v", err)
 		}
@@ -106,11 +102,7 @@ func runIdentityDTest(ctx *context.T, env *cmdline.Env, args []string) error { /
 		if err != nil {
 			return fmt.Errorf("failed to create remote signer: %v", err)
 		}
-		state, err := security.NewPrincipalStateSerializer(oauthRemoteSignerBlessings)
-		if err != nil {
-			return fmt.Errorf("failed to create blessing serializer: %v", err)
-		}
-		p, err := security.NewPrincipalFromSigner(signer, state)
+		p, err := security.NewPrincipalFromSignerAndState(signer, oauthRemoteSignerBlessings)
 		if err != nil {
 			return fmt.Errorf("failed to create principal: %v", err)
 		}

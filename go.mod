@@ -3,7 +3,6 @@ module v.io
 go 1.13
 
 require (
-	cloudeng.io/os v0.0.0-00010101000000-000000000000
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -27,4 +26,3 @@ require (
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
-replace cloudeng.io/os => /Users/cnicolaou/Dropbox/github.com/cloudengio/go.pkgs/os

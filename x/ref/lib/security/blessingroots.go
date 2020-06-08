@@ -9,10 +9,12 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
+	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
 )
 
@@ -20,11 +22,12 @@ var errRootsAddPattern = verror.Register(pkgPath+".errRootsAddPattern", verror.N
 
 // blessingRoots implements security.BlessingRoots.
 type blessingRoots struct {
-	// NOTE: persistedData and signer are nil for an in-memory store.
-	persistedData SerializerReaderWriter
-	signer        serialization.Signer
-	mu            sync.Mutex
-	state         blessingRootsState // GUARDED_BY(mu)
+	readers SerializerReader
+	writers SerializerWriter
+	signer  serialization.Signer
+	flock   *lockedfile.Mutex // GUARDS persistent store
+	mu      sync.RWMutex
+	state   blessingRootsState // GUARDED_BY(mu)
 }
 
 func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) error {
@@ -38,9 +41,13 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 	key := string(root)
 	br.mu.Lock()
 	defer br.mu.Unlock()
-	if err := br.load(); err != nil {
+
+	unlock, err := br.lockAndLoad()
+	if err != nil {
 		return err
 	}
+	defer unlock()
+
 	patterns := br.state[key]
 	for _, p := range patterns {
 		if p == pattern {
@@ -48,25 +55,24 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 		}
 	}
 	br.state[key] = append(patterns, pattern)
+
 	if err := br.save(); err != nil {
-		// TODO(cnicolaou): why bother with this?
-		// br.state[key] = patterns[:len(patterns)-1]
+		br.state[key] = patterns[:len(patterns)-1]
 		return err
 	}
+
 	return nil
 }
 
 func (br *blessingRoots) Recognized(root []byte, blessing string) error {
-	br.mu.Lock()
-	defer br.mu.Unlock()
-	if err := br.load(); err != nil {
-		return err
-	}
+	br.mu.RLock()
 	for _, p := range br.state[string(root)] {
 		if p.MatchedBy(blessing) {
+			br.mu.RUnlock()
 			return nil
 		}
 	}
+	br.mu.RUnlock()
 	// Silly to have to unmarshal the public key on an error.
 	// Change the error message to not require that?
 	obj, err := security.UnmarshalPublicKey(root)
@@ -78,12 +84,8 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
 	dump := make(map[security.BlessingPattern][]security.PublicKey)
-	br.mu.Lock()
-	defer br.mu.Unlock()
-	if err := br.load(); err != nil {
-		vlog.Errorf("failed to load blessing from %v: %v", br.persistedData, err)
-		return map[security.BlessingPattern][]security.PublicKey{}
-	}
+	br.mu.RLock()
+	defer br.mu.RUnlock()
 	for keyStr, patterns := range br.state {
 		key, err := security.UnmarshalPublicKey([]byte(keyStr))
 		if err != nil {
@@ -109,11 +111,6 @@ func (br *blessingRoots) DebugString() string {
 	const format = "%-47s   %s\n"
 	b := bytes.NewBufferString(fmt.Sprintf(format, "Public key", "Pattern"))
 	var s rootSorter
-	br.mu.Lock()
-	defer br.mu.Unlock()
-	if err := br.load(); err != nil {
-		return fmt.Sprintf("failed to load blessing roots from %v: %v", br.persistedData, err)
-	}
 	for keyBytes, patterns := range br.state {
 		key, err := security.UnmarshalPublicKey([]byte(keyBytes))
 		if err != nil {
@@ -140,27 +137,38 @@ func (s rootSorter) Less(i, j int) bool { return s[i].patterns < s[j].patterns }
 func (s rootSorter) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (br *blessingRoots) save() error {
-	if (br.signer == nil) && (br.persistedData == nil) {
+	if (br.signer == nil) && (br.writers == nil) {
 		return nil
 	}
-	data, signature, unlock, err := br.persistedData.Writers()
+	data, signature, err := br.writers.Writers()
 	if err != nil {
 		return err
 	}
-	defer unlock()
 	return encodeAndStore(br.state, data, signature, br.signer)
 }
 
+func (br *blessingRoots) lockAndLoad() (func(), error) {
+	if br.flock == nil {
+		// in-memory store
+		return func() {}, br.load()
+	}
+	unlock, err := br.flock.Lock()
+	if err != nil {
+		return nil, err
+	}
+	err = br.load()
+	return unlock, err
+}
+
 func (br *blessingRoots) load() error {
-	if (br.signer == nil) && (br.persistedData == nil) {
+	if br.readers == nil {
 		return nil
 	}
 	br.state = make(blessingRootsState)
-	data, signature, unlock, err := br.persistedData.Readers()
+	data, signature, err := br.readers.Readers()
 	if err != nil {
 		return err
 	}
-	defer unlock()
 	if (data != nil) && (signature != nil) {
 		if err := decodeFromStorage(&br.state, data, signature, br.signer.PublicKey()); err != nil {
 			return err
@@ -170,30 +178,28 @@ func (br *blessingRoots) load() error {
 }
 
 // NewBlessingRoots returns an implementation of security.BlessingRoots
-// that keeps all state in memory.
+// that keeps all state in memory. The returned BlessingRoots is initialized
+// with an empty set of keys.
 func NewBlessingRoots() security.BlessingRoots {
-	return newInMemoryBlessingRoots()
-}
-
-// newInMemoryBlessingRoots returns an in-memory security.BlessingRoots.
-//
-// The returned BlessingRoots is initialized with an empty set of keys.
-func newInMemoryBlessingRoots() security.BlessingRoots {
 	return &blessingRoots{
 		state: make(blessingRootsState),
 	}
 }
 
-// newPersistingBlessingRoots returns a security.BlessingRoots for a principal
-// that is initialized with the persisted data. The returned security.BlessingRoots
-// also persists any updates to its state.
-func newPersistingBlessingRoots(persistedData SerializerReaderWriter, signer serialization.Signer) (security.BlessingRoots, error) {
-	if persistedData == nil || signer == nil {
+// NewPersistentBlessingRoots returns a security.BlessingRoots for a principal
+// that is initialized with the persisted data. The returned security.BlessingStore
+// will persists any updates to its state if the supplied writers serializer
+// is specified.
+func NewPersistentBlessingRoots(lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, update time.Duration) (security.BlessingRoots, error) {
+	// TODO(cnicolaou): implement update.
+	if readers == nil || signer == nil {
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
 	}
 	br := &blessingRoots{
-		persistedData: persistedData,
-		signer:        signer,
+		flock:   lockedfile.MutexAt(lockFilePath),
+		readers: readers,
+		writers: writers,
+		signer:  signer,
 	}
 	if err := br.load(); err != nil {
 		return nil, err

@@ -21,7 +21,7 @@ type rootsTester [4][]byte
 func newRootsTester() *rootsTester {
 	var tester rootsTester
 	for idx := range tester {
-		key, _, err := NewPrincipalKey()
+		key, _, err := NewECDSAKeyPair()
 		if err != nil {
 			panic(err)
 		}
@@ -162,6 +162,7 @@ func TestBlessingRootsPersistence(t *testing.T) {
 	if err := tester.testDump(p.Roots()); err != nil {
 		t.Error(err)
 	}
+
 	// Recreate the principal (and thus BlessingRoots)
 	p2, err := LoadPersistentPrincipal(dir, nil)
 	if err != nil {

@@ -48,6 +48,7 @@ func loadPrincipalLocally(credentials string) (agent.Principal, error) {
 	if err != nil {
 		return nil, err
 	}
+	// this code is going to get deleted.
 	if os.Getenv(ref.EnvDisableCredentialsLocking) != "" {
 		return &localPrincipal{Principal: p}, nil
 	}

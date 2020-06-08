@@ -14,7 +14,6 @@ test-integration:
 		v.io/x/ref/services/xproxy/xproxyd \
 		v.io/x/ref/services/mounttable/mounttabled \
 		v.io/x/ref/services/debug/debug \
-		v.io/x/ref/services/agent/v23agentd \
 		v.io/x/ref/services/agent/vbecome \
 		v.io/x/ref/services/agent/agentlib \
 		v.io/x/ref/test/hello \

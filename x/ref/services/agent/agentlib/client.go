@@ -258,11 +258,12 @@ func (b *blessingStore) DebugString() (s string) {
 	return
 }
 
-func (b *blessingStore) CacheDischarge(d security.Discharge, c security.Caveat, i security.DischargeImpetus) {
+func (b *blessingStore) CacheDischarge(d security.Discharge, c security.Caveat, i security.DischargeImpetus) error {
 	err := b.caller.call("BlessingStoreCacheDischarge", results(), d, c, i)
 	if err != nil {
 		logger.Global().Infof("error calling BlessingStoreCacheDischarge: %v", err)
 	}
+	return err
 }
 
 func (b *blessingStore) ClearDischarges(discharges ...security.Discharge) {

@@ -109,8 +109,9 @@ func (s *immutableBlessingStore) PublicKey() security.PublicKey {
 func (s *immutableBlessingStore) PeerBlessings() map[security.BlessingPattern]security.Blessings {
 	return s.impl.PeerBlessings()
 }
-func (s *immutableBlessingStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) {
+func (s *immutableBlessingStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) error {
 	s.impl.CacheDischarge(discharge, caveat, impetus)
+	return nil
 }
 func (s *immutableBlessingStore) ClearDischarges(discharges ...security.Discharge) {
 	s.impl.ClearDischarges(discharges...)
@@ -124,7 +125,7 @@ func (s *immutableBlessingStore) DebugString() string {
 
 // DischargeCache is a subset of the security.BlessingStore interface that deals with caching discharges.
 type DischargeCache interface {
-	CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus)
+	CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) error
 	ClearDischarges(discharges ...security.Discharge)
 	Discharge(caveat security.Caveat, impetus security.DischargeImpetus) (security.Discharge, time.Time)
 }
@@ -134,15 +135,16 @@ type dischargeCacheImpl struct {
 	m map[dischargeCacheKey]CachedDischarge
 }
 
-func (c *dischargeCacheImpl) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) {
+func (c *dischargeCacheImpl) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) error {
 	id := discharge.ID()
 	key, cacheable := dcacheKey(caveat.ThirdPartyDetails(), impetus)
 	if id == "" || !cacheable {
-		return
+		return nil
 	}
 	c.l.Lock()
 	c.m[key] = CachedDischarge{discharge, time.Now()}
 	c.l.Unlock()
+	return nil
 }
 func (c *dischargeCacheImpl) ClearDischarges(discharges ...security.Discharge) {
 	c.l.Lock()
@@ -183,8 +185,9 @@ func (s *fixedBlessingsStore) PublicKey() security.PublicKey {
 func (s *fixedBlessingsStore) PeerBlessings() map[security.BlessingPattern]security.Blessings {
 	return map[security.BlessingPattern]security.Blessings{security.AllPrincipals: s.b}
 }
-func (s *fixedBlessingsStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) {
+func (s *fixedBlessingsStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) error {
 	s.dcache.CacheDischarge(discharge, caveat, impetus)
+	return nil
 }
 func (s *fixedBlessingsStore) ClearDischarges(discharges ...security.Discharge) {
 	s.dcache.ClearDischarges(discharges...)

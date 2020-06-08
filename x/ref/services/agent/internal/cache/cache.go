@@ -312,10 +312,11 @@ func (s *cachedStore) String() string {
 	return fmt.Sprintf("cached[%s]", s.impl)
 }
 
-func (s *cachedStore) CacheDischarge(d security.Discharge, c security.Caveat, i security.DischargeImpetus) {
+func (s *cachedStore) CacheDischarge(d security.Discharge, c security.Caveat, i security.DischargeImpetus) error {
 	s.mu.Lock()
 	s.impl.CacheDischarge(d, c, i)
 	s.mu.Unlock()
+	return nil
 }
 
 func (s *cachedStore) ClearDischarges(discharges ...security.Discharge) {

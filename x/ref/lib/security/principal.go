@@ -6,19 +6,23 @@ package security
 
 import (
 	gocontext "context"
-	"crypto/ecdsa"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
+	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/signing"
 	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
-const pkgPath = "v.io/x/ref/lib/security"
+const (
+	pkgPath = "v.io/x/ref/lib/security"
+)
 
 var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
@@ -38,80 +42,44 @@ var (
 )
 
 const (
-	blessingStoreDataFile = "blessingstore.data"
-	blessingStoreSigFile  = "blessingstore.sig"
+	blessingStoreDataFile     = "blessingstore.data"
+	blessingStoreSigFile      = "blessingstore.sig"
+	blessingStoreLockFilename = "blessings.lock"
 
-	blessingRootsDataFile = "blessingroots.data"
-	blessingRootsSigFile  = "blessingroots.sig"
+	blessingRootsDataFile      = "blessingroots.data"
+	blessingRootsSigFile       = "blessingroots.sig"
+	blessingsRootsLockFilename = "blessingroots.lock"
 
-	privateKeyFile = "privatekey.pem"
+	directoryLockfileName = "dir.lock"
+	privateKeyFile        = "privatekey.pem"
 )
 
-// NewPrincipal mints a new private key and generates a principal based on this
-// key, storing its BlessingRoots and BlessingStore in memory.
+// NewPrincipal mints a new private (ecdsa) key and generates a principal
+// based on this key, storing its BlessingRoots and BlessingStore in memory.
 func NewPrincipal() (security.Principal, error) {
-	pub, priv, err := NewPrincipalKey()
+	pub, priv, err := NewECDSAKeyPair()
 	if err != nil {
 		return nil, err
 	}
-	return security.CreatePrincipal(security.NewInMemoryECDSASigner(priv), newInMemoryBlessingStore(pub), newInMemoryBlessingRoots())
+	return security.CreatePrincipal(security.NewInMemoryECDSASigner(priv), NewBlessingStore(pub), NewBlessingRoots())
 }
 
-// PrincipalStateSerializer is used to persist BlessingRoots/BlessingStore state
-// for a principal with the provided SerializerReaderWriters.
-type PrincipalStateSerializer struct {
-	BlessingRoots SerializerReaderWriter
-	BlessingStore SerializerReaderWriter
+// NewPrincipalFromSigner creates a new Principal using the provided
+// Signer with in-memory blessing roots and blessings store.
+func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) {
+	return security.CreatePrincipal(signer, NewBlessingStore(signer.PublicKey()), NewBlessingRoots())
 }
 
-// NewPrincipalStateSerializer is a convenience function that returns a
-// serializer for BlessingStore and BlessingRoots given a directory location. We
-// create the directory if it does not already exist.
-func NewPrincipalStateSerializer(dir string) (*PrincipalStateSerializer, error) {
-	if err := mkDir(dir); err != nil {
+// NewPrincipalFromSignerAndState creates a new Principal using the provided
+// Signer with blessing roots and blessings store loaded from the supplied
+// state directory.
+func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (security.Principal, error) {
+	blessingsStore, blessingRoots, err := newStores(signer, dir, true, time.Duration(0))
+	if err != nil {
 		return nil, err
 	}
-	return &PrincipalStateSerializer{
-		BlessingRoots: NewFileSerializer(
-			path.Join(dir, "blessingroots.lock"),
-			path.Join(dir, blessingRootsDataFile),
-			path.Join(dir, blessingRootsSigFile)),
-		BlessingStore: NewFileSerializer(
-			path.Join(dir, "blessingstore.lock"),
-			path.Join(dir, blessingStoreDataFile),
-			path.Join(dir, blessingStoreSigFile)),
-	}, nil
+	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
-
-// NewPrincipalFromSigner creates a new principal using the provided Signer. If
-// previously persisted state is available, we use the serializers to populate
-// BlessingRoots/BlessingStore for the Principal. If provided, changes to the
-// state are persisted and committed with the same serializers. Otherwise, the
-// state (ie: BlessingStore, BlessingRoots) is kept in memory.
-func NewPrincipalFromSigner(signer security.Signer, state *PrincipalStateSerializer) (security.Principal, error) {
-	if state == nil {
-		return security.CreatePrincipal(signer, newInMemoryBlessingStore(signer.PublicKey()), newInMemoryBlessingRoots())
-	}
-	serializationSigner, err := security.CreatePrincipal(signer, nil, nil)
-	if err != nil {
-		return nil, verror.New(errCantCreateSigner, nil, err)
-	}
-	blessingRoots, err := newPersistingBlessingRoots(state.BlessingRoots, serializationSigner)
-	if err != nil {
-		return nil, verror.New(errCantLoadBlessingRoots, nil, err)
-	}
-	blessingStore, err := newPersistingBlessingStore(state.BlessingStore, serializationSigner)
-	if err != nil {
-		return nil, verror.New(errCantLoadBlessingStore, nil, err)
-	}
-	return security.CreatePrincipal(signer, blessingStore, blessingRoots)
-}
-
-// TODO(caprita): LoadPersistentPrincipal and CreatePersistentPrincipal load the
-// principal without concern to locking or sharing.  Provide alternatives to
-// these in agentlib that lock or use agent, and replace as many existing uses
-// of LoadPersistentPrincipal and CreatePersistentPrincipal with the safer
-// alternatives.
 
 // LoadPersistentPrincipal reads state for a principal (private key,
 // BlessingRoots, BlessingStore) from the provided directory 'dir' and commits
@@ -120,21 +88,104 @@ func NewPrincipalFromSigner(signer security.Signer, state *PrincipalStateSeriali
 // os.IsNotExist(err) is true.
 // If private key file exists then 'passphrase' must be correct, otherwise
 // ErrBadPassphrase will be returned.
+// The newly loaded is principal's persistent store is locked and the returned
+// unlock function must be called to release that lock.
 func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	// Note, dir must exist if we reach here, so the mkdir(dir) in
-	// NewPrincipalStateSerializer is a no-op.
-	state, err := NewPrincipalStateSerializer(dir)
+	return loadPersistentPrincipal(dir, passphrase, false, time.Duration(0))
+}
+
+// LoadPersistentPrincipalDaemon is like LoadPersistentPrincipal but is
+// intended for use in long running applications which may not need
+// to initiate changes to the principal but may need to reload its
+// blessings roots and stores. If readonly is true, the principal will
+// not write changes to its underlying persistent store. If a non-zero
+// update duration is specified then the principal will be reloaded
+// at the frequence specified by that duration. In addition, on systems
+// that support it, a SIGHUP can be used to request an immediate reload.
+func LoadPersistentPrincipalDaemon(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+	return loadPersistentPrincipal(dir, passphrase, readonly, update)
+}
+
+func loadPersistentPrincipal(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
+	unlock, err := flock.Lock()
+	if err != nil {
+		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	}
+	defer unlock()
+	return newPersistentPrincipal(dir, passphrase, false, time.Duration(0))
+}
+
+func newPersistentPrincipal(dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
+	signer, err := newSigner(dir, passphrase)
 	if err != nil {
 		return nil, err
 	}
-	var svc signing.Service
+	blessingsStore, blessingRoots, err := newStores(signer, dir, readonly, update)
+	if err != nil {
+		return nil, err
+	}
+	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
+}
 
-	// TODO(cnicolaou): determine when/how to use SSH agent.
+// CreatePersistentPrincipal creates a new Principal using a newly generated
+// ECSDA key and commits all state changes to the provided directory.
+// Use CreatePersistentPrincipalUsingKey to specify a different key
+// type or to use an existing key.
+//
+// The private key is serialized and saved encrypted if the
+// 'passphrase' is non-nil, and unencrypted otherwise.
+//
+// If the directory has any preexisting principal data,
+// CreatePersistentPrincipal will return an error.
+//
+// The specified directory may not exist, in which case it will be created.
+func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
+	_, key, err := NewECDSAKeyPair()
+	if err != nil {
+		return nil, verror.New(errCantGenerateKey, nil, err)
+	}
+	return CreatePersistentPrincipalUsingKey(key, dir, passphrase)
+}
+
+// CreatePersistentPrincipalUsingKey is like CreatePersistentPrincipal but
+// will use the supplied key instead of creating one.
+func CreatePersistentPrincipalUsingKey(key interface{}, dir string, passphrase []byte) (security.Principal, error) {
+	if key == nil {
+		var err error
+		_, key, err = NewECDSAKeyPair()
+		if err != nil {
+			return nil, verror.New(errCantGenerateKey, nil, err)
+		}
+	}
+	if err := mkDir(dir); err != nil {
+		return nil, err
+	}
+	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
+	unlock, err := flock.Lock()
+	if err != nil {
+		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	}
+	defer unlock()
+	return createPersistentPrincipal(key, dir, passphrase)
+}
+
+func createPersistentPrincipal(key interface{}, dir string, passphrase []byte) (principal security.Principal, err error) {
+	if err := writeNewKey(key, dir, passphrase); err != nil {
+		return nil, err
+	}
+	var update time.Duration
+	return newPersistentPrincipal(dir, passphrase, false, update)
+}
+
+func newSigner(dir string, passphrase []byte) (security.Signer, error) {
+	var svc signing.Service
+	// TODO(cnicolaou): determine when to use SSH agent.
 	svc = keyfile.NewSigningService()
 	signer, err := svc.Signer(gocontext.TODO(), filepath.Join(dir, privateKeyFile), passphrase)
 	switch {
 	case err == nil:
-		return NewPrincipalFromSigner(signer, state)
+		return signer, nil
 	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
 		return nil, verror.New(ErrBadPassphrase, nil)
 	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
@@ -146,34 +197,47 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 	}
 }
 
-// CreatePersistentPrincipal creates a new principal (private key,
-// BlessingRoots, BlessingStore) and commits all state changes to the provided
-// directory.
-//
-// The generated private key is serialized and saved encrypted if the
-// 'passphrase' is non-nil, and unencrypted otherwise.
-//
-// If the directory has any preexisting principal data,
-// CreatePersistentPrincipal will return an error.
-//
-// The specified directory may not exist, in which case it gets created by this
-// function.
-func CreatePersistentPrincipal(dir string, passphrase []byte) (principal security.Principal, err error) {
-	if err := mkDir(dir); err != nil {
-		return nil, err
+func newStores(signer security.Signer, dir string, readonly bool, update time.Duration) (security.BlessingStore, security.BlessingRoots, error) {
+	serializationSigner := &serializationSigner{signer}
+
+	blessingRootsSerializer := newFileSerializer(
+		path.Join(dir, blessingRootsDataFile),
+		path.Join(dir, blessingRootsSigFile))
+	rootsReader, rootsWriter := SerializerReader(blessingRootsSerializer), SerializerWriter(blessingRootsSerializer)
+
+	blessingStoreSerializer := newFileSerializer(
+		path.Join(dir, blessingStoreDataFile),
+		path.Join(dir, blessingStoreSigFile))
+	storeReader, storeWriter := SerializerReader(blessingStoreSerializer), SerializerWriter(blessingStoreSerializer)
+
+	if readonly {
+		rootsWriter, storeWriter = nil, nil
 	}
-	key, err := initKey(dir, passphrase)
+
+	blessingRoots, err := NewPersistentBlessingRoots(
+		filepath.Join(dir, blessingsRootsLockFilename),
+		rootsReader,
+		rootsWriter,
+		serializationSigner,
+		update,
+	)
 	if err != nil {
-		return nil, verror.New(errCantInitPrivateKey, nil, err)
+		return nil, nil, err
 	}
-	state, err := NewPrincipalStateSerializer(dir)
+	blessingsStore, err := NewPersistentBlessingStore(
+		filepath.Join(dir, blessingStoreLockFilename),
+		storeReader,
+		storeWriter,
+		serializationSigner,
+		update,
+	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return NewPrincipalFromSigner(security.NewInMemoryECDSASigner(key), state)
+	return blessingsStore, blessingRoots, nil
 }
 
-// SetDefaultBlessings sets the provided blessings as default and shareable with
+// SetDefault`Blessings `sets the provided blessings as default and shareable with
 // all peers on provided principal's BlessingStore, and also adds it as a root
 // to the principal's BlessingRoots.
 func SetDefaultBlessings(p security.Principal, blessings security.Blessings) error {
@@ -212,19 +276,15 @@ func mkDir(dir string) error {
 	return nil
 }
 
-func initKey(dir string, passphrase []byte) (*ecdsa.PrivateKey, error) {
+func writeNewKey(key interface{}, dir string, passphrase []byte) error {
 	keyFile := path.Join(dir, privateKeyFile)
 	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
-		return nil, verror.New(errCantOpenForWriting, nil, keyFile, err)
+		return verror.New(errCantOpenForWriting, nil, keyFile, err)
 	}
 	defer f.Close()
-	_, key, err := NewPrincipalKey()
-	if err != nil {
-		return nil, verror.New(errCantGenerateKey, nil, err)
-	}
 	if err := internal.SavePEMKey(f, key, passphrase); err != nil {
-		return nil, verror.New(errCantSaveKey, nil, keyFile, err)
+		return verror.New(errCantSaveKey, nil, keyFile, err)
 	}
-	return key, nil
+	return nil
 }

@@ -78,7 +78,7 @@ func vbecome(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:g
 		return err
 	}
 	signer := security.NewInMemoryECDSASigner(key)
-	principal, err := vsecurity.NewPrincipalFromSigner(signer, nil)
+	principal, err := vsecurity.NewPrincipalFromSigner(signer)
 	if err != nil {
 		return err
 	}

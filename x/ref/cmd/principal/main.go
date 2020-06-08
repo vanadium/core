@@ -810,7 +810,12 @@ principal will have no blessings.
 					return err
 				}
 			}
-			p, err := vsecurity.CreatePersistentPrincipal(dir, pass)
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, key, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return err
+			}
+			p, err := vsecurity.CreatePersistentPrincipalUsingKey(key, dir, pass)
 			if err != nil {
 				return err
 			}
@@ -887,7 +892,12 @@ forked principal.
 					return err
 				}
 			}
-			p, err := vsecurity.CreatePersistentPrincipal(dir, pass)
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return err
+			}
+			p, err := vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, dir, pass)
 			if err != nil {
 				return err
 			}
@@ -1120,7 +1130,12 @@ func blessOverFileSystem(p security.Principal, tobless string, with security.Ble
 	if finfo, err := os.Stat(tobless); err == nil && finfo.IsDir() {
 		other, err := vsecurity.LoadPersistentPrincipal(tobless, nil)
 		if err != nil {
-			if other, err = vsecurity.CreatePersistentPrincipal(tobless, nil); err != nil {
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return security.Blessings{}, err
+			}
+			if other, err = vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, tobless, nil); err != nil {
 				return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
 			}
 		}
