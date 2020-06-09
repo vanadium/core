@@ -16,7 +16,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/signing"
 	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
@@ -33,7 +32,6 @@ var (
 	errCantCreateSigner      = verror.Register(pkgPath+".errCantCreateSigner", verror.NoRetry, "{1:}{2:} failed to create serialization.Signer{:_}")
 	errCantLoadBlessingRoots = verror.Register(pkgPath+".errCantLoadBlessingRoots", verror.NoRetry, "{1:}{2:} failed to load BlessingRoots{:_}")
 	errCantLoadBlessingStore = verror.Register(pkgPath+".errCantLoadBlessingStore", verror.NoRetry, "{1:}{2:} failed to load BlessingStore{:_}")
-	errCantInitPrivateKey    = verror.Register(pkgPath+".errCantInitPrivateKey", verror.NoRetry, "{1:}{2:} failed to initialize private key{:_}")
 	errNotADirectory         = verror.Register(pkgPath+".errNotADirectory", verror.NoRetry, "{1:}{2:} {3} is not a directory{:_}")
 	errCantCreate            = verror.Register(pkgPath+".errCantCreate", verror.NoRetry, "{1:}{2:} failed to create {3}{:_}")
 	errCantOpenForWriting    = verror.Register(pkgPath+".errCantOpenForWriting", verror.NoRetry, "{1:}{2:} failed to open {3} for writing{:_}")
@@ -96,11 +94,11 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 
 // LoadPersistentPrincipalDaemon is like LoadPersistentPrincipal but is
 // intended for use in long running applications which may not need
-// to initiate changes to the principal but may need to reload its
+// to initiate changes to the principal but may need to reload their
 // blessings roots and stores. If readonly is true, the principal will
 // not write changes to its underlying persistent store. If a non-zero
 // update duration is specified then the principal will be reloaded
-// at the frequence specified by that duration. In addition, on systems
+// at the frequency implied by that duration. In addition, on systems
 // that support it, a SIGHUP can be used to request an immediate reload.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
 	return loadPersistentPrincipal(ctx, dir, passphrase, readonly, update)
@@ -143,7 +141,7 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	_, key, err := NewECDSAKeyPair()
 	if err != nil {
-		return nil, verror.New(errCantGenerateKey, nil, err)
+		return nil, err
 	}
 	return CreatePersistentPrincipalUsingKey(key, dir, passphrase)
 }
@@ -155,7 +153,7 @@ func CreatePersistentPrincipalUsingKey(key interface{}, dir string, passphrase [
 		var err error
 		_, key, err = NewECDSAKeyPair()
 		if err != nil {
-			return nil, verror.New(errCantGenerateKey, nil, err)
+			return nil, err
 		}
 	}
 	if err := mkDir(dir); err != nil {
@@ -179,9 +177,8 @@ func createPersistentPrincipal(ctx context.Context, key interface{}, dir string,
 }
 
 func newSigner(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	var svc signing.Service
 	// TODO(cnicolaou): determine when to use SSH agent.
-	svc = keyfile.NewSigningService()
+	svc := keyfile.NewSigningService()
 	signer, err := svc.Signer(ctx, filepath.Join(dir, privateKeyFile), passphrase)
 	switch {
 	case err == nil:

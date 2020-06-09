@@ -26,8 +26,6 @@ import (
 //   directly in some cases.
 
 type keyfile struct {
-	dir    string
-	signer security.Signer
 }
 
 func NewSigningService() signing.Service {

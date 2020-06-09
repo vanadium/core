@@ -46,6 +46,7 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 			reloadPeriod,
 		)
 		if err != nil {
+			cancel()
 			return nil, nil, verror.New(errCredentialsInit, ctx, credentials, err)
 		}
 		return principal, func() { cancel() }, nil

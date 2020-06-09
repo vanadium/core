@@ -24,7 +24,7 @@ func TestLoadPersistentPrincipal(t *testing.T) {
 	}
 	// If the key file exists and is unencrypted we should succeed.
 	dir := generatePEMFile(nil)
-	if _,  err := LoadPersistentPrincipal(dir, nil,); err != nil {
+	if _, err := LoadPersistentPrincipal(dir, nil); err != nil {
 		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
 	}
 	os.RemoveAll(dir)
@@ -33,7 +33,7 @@ func TestLoadPersistentPrincipal(t *testing.T) {
 	passphrase := []byte("passphrase")
 	incorrectPassphrase := []byte("incorrectPassphrase")
 	dir = generatePEMFile(passphrase)
-	if _,  err := LoadPersistentPrincipal(dir, passphrase);err != nil {
+	if _, err := LoadPersistentPrincipal(dir, passphrase); err != nil {
 		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
 	}
 
@@ -69,11 +69,11 @@ func testCreatePersistentPrincipal(t *testing.T, message, passphrase []byte) {
 	}
 	defer os.RemoveAll(dir)
 
-	p,  err := CreatePersistentPrincipal(dir, passphrase)
+	p, err := CreatePersistentPrincipal(dir, passphrase)
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	_, err = CreatePersistentPrincipal(dir, passphrase)
 	if err == nil {
 		t.Error("CreatePersistentPrincipal passed unexpectedly")
@@ -84,7 +84,7 @@ func testCreatePersistentPrincipal(t *testing.T, message, passphrase []byte) {
 		t.Fatal(err)
 	}
 
-	p2,  err := LoadPersistentPrincipal(dir, passphrase)
+	p2, err := LoadPersistentPrincipal(dir, passphrase)
 	if err != nil {
 		t.Fatalf("%s failed: %v", message, err)
 	}

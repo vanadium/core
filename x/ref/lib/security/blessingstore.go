@@ -379,7 +379,7 @@ func (bs *blessingStore) load() error {
 	}
 	state, err := loadState(data, signature, bs.publicKey, bs.signer.PublicKey())
 	if err != nil {
-		return err
+		return verror.New(errCantLoadBlessingStore, nil, err)
 	}
 	bs.state = state
 	return nil

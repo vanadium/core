@@ -178,7 +178,7 @@ func (br *blessingRoots) load() error {
 	}
 	state := make(blessingRootsState)
 	if err := decodeFromStorage(&state, data, signature, br.signer.PublicKey()); err != nil {
-		return err
+		return verror.New(errCantLoadBlessingRoots, nil, err)
 	}
 	br.state = state
 	return nil

@@ -131,29 +131,6 @@ var principal = gosh.RegisterFunc("principal", func() error {
 	return nil
 })
 
-// Runner runs 'principal' in a subprocess, then reports back with its own
-// security info as well as its child's.
-var runner = gosh.RegisterFunc("runner", func() error {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-
-	sh := v23test.NewShell(nil, ctx)
-	defer sh.Cleanup()
-
-	p := v23.GetPrincipal(sh.Ctx)
-	if err := validatePrincipal(p); err != nil {
-		return err
-	}
-	fmt.Printf("RUNNER_DEFAULT_BLESSING=%v\n", defaultBlessing(p))
-	c := sh.FuncCmd(principal)
-	// Make sure the child gets its credentials from this shell, not
-	// from the original EnvCredentials env var.
-	delete(c.Vars, ref.EnvCredentials)
-	c.PropagateOutput = true
-	c.Run()
-	return nil
-})
-
 func createCredentialsInDir(t *testing.T, dir string, blessing string) {
 	principal, err := vsecurity.CreatePersistentPrincipal(dir, nil)
 	if err != nil {
