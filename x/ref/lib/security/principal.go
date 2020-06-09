@@ -108,6 +108,9 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
 	unlock, err := flock.Lock()
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, err
+		}
 		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
 	defer unlock()

@@ -22,7 +22,7 @@ import (
 
 func TestLoadPersistentPrincipal(t *testing.T) {
 	// If the directory does not exist want os.IsNotExists.
-	if _, err := LoadPersistentPrincipal("/tmp/fake/path/", nil); !os.IsNotExist(err) {
+	if _, err := LoadPersistentPrincipal("/cantexist/fake/path/", nil); !os.IsNotExist(err) {
 		t.Errorf("invalid path should return does not exist error, instead got %v", err)
 	}
 	// If the key file exists and is unencrypted we should succeed.
@@ -117,6 +117,7 @@ func generatePEMFile(passphrase []byte) (dir string) {
 }
 
 func createAliceAndBob(ctx gocontext.Context, t *testing.T) (principals, daemons map[string]security.Principal) {
+	principals, daemons = map[string]security.Principal{}, map[string]security.Principal{}
 	for _, p := range []string{"alice", "bob"} {
 		dir, err := ioutil.TempDir("", "alice")
 		if err != nil {
