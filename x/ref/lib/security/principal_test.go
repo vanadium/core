@@ -116,19 +116,12 @@ func generatePEMFile(passphrase []byte) (dir string) {
 	return dir
 }
 
-func TestDaemonMode(t *testing.T) {
-	ctx, cancel := gocontext.WithCancel(gocontext.Background())
-	defer cancel()
-	// Create two principls that don't trust each other.
-	dirs := map[string]string{}
-	principals := map[string]security.Principal{}
-	daemons := map[string]security.Principal{}
+func createAliceAndBob(ctx gocontext.Context, t *testing.T) (principals, daemons map[string]security.Principal) {
 	for _, p := range []string{"alice", "bob"} {
 		dir, err := ioutil.TempDir("", "alice")
 		if err != nil {
 			t.Fatal(err)
 		}
-		dirs[p] = dir
 		if _, err := CreatePersistentPrincipal(dir, nil); err != nil {
 			t.Fatal(err)
 		}
@@ -143,6 +136,32 @@ func TestDaemonMode(t *testing.T) {
 		}
 		principals[p] = principal
 	}
+	return
+}
+
+func waitForDefaultChanges(ap, bp security.Principal) {
+	_, aCh := ap.BlessingStore().Default()
+	_, bCh := bp.BlessingStore().Default()
+
+	a, b := false, false
+	for {
+		select {
+		case <-aCh:
+			a = true
+		case <-bCh:
+			b = true
+		}
+		time.Sleep(time.Millisecond)
+		if a && b {
+			break
+		}
+	}
+}
+func TestDaemonMode(t *testing.T) {
+	ctx, cancel := gocontext.WithCancel(gocontext.Background())
+	defer cancel()
+	// Create two principls that don't trust each other.
+	principals, daemons := createAliceAndBob(ctx, t)
 
 	alice, bob := principals["alice"], principals["bob"]
 	aliced, bobd := daemons["alice"], daemons["bob"]
@@ -167,22 +186,8 @@ func TestDaemonMode(t *testing.T) {
 	// Don't send a SIGHIP to ourselves here since it seems to crash vscode!
 
 	// Wait for default blessings to change.
-	_, aliceCh := aliced.BlessingStore().Default()
-	_, bobCh := bobd.BlessingStore().Default()
+	waitForDefaultChanges(aliced, bobd)
 
-	a, b := false, false
-	for {
-		select {
-		case <-aliceCh:
-			a = true
-		case <-bobCh:
-			b = true
-		}
-		time.Sleep(time.Millisecond)
-		if a && b {
-			break
-		}
-	}
 	for _, p := range []string{"alice", "bob"} {
 		dp := daemons[p]
 		if got, want := len(dp.Roots().Dump()), 1; got != want {
