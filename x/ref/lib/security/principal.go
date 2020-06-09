@@ -111,7 +111,7 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
 	defer unlock()
-	return newPersistentPrincipal(ctx, dir, passphrase, false, time.Duration(0))
+	return newPersistentPrincipal(ctx, dir, passphrase, false, update)
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {

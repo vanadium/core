@@ -381,6 +381,10 @@ func (bs *blessingStore) load() error {
 	if err != nil {
 		return verror.New(errCantLoadBlessingStore, nil, err)
 	}
+	if !state.DefaultBlessings.Equivalent(bs.state.DefaultBlessings) {
+		close(bs.defCh)
+		bs.defCh = make(chan struct{})
+	}
 	bs.state = state
 	return nil
 }

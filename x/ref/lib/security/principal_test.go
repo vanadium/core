@@ -5,6 +5,7 @@
 package security
 
 import (
+	gocontext "context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -12,7 +13,9 @@ import (
 	"os"
 	"path"
 	"testing"
+	"time"
 
+	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 )
@@ -111,4 +114,109 @@ func generatePEMFile(passphrase []byte) (dir string) {
 		panic(err)
 	}
 	return dir
+}
+
+func TestDaemonMode(t *testing.T) {
+	ctx, cancel := gocontext.WithCancel(gocontext.Background())
+	defer cancel()
+	// Create two principls that don't trust each other.
+	dirs := map[string]string{}
+	principals := map[string]security.Principal{}
+	daemons := map[string]security.Principal{}
+	for _, p := range []string{"alice", "bob"} {
+		dir, err := ioutil.TempDir("", "alice")
+		if err != nil {
+			t.Fatal(err)
+		}
+		dirs[p] = dir
+		if _, err := CreatePersistentPrincipal(dir, nil); err != nil {
+			t.Fatal(err)
+		}
+		principal, err := LoadPersistentPrincipalDaemon(ctx, dir, nil, true, time.Second)
+		if err != nil {
+			t.Fatal(err)
+		}
+		daemons[p] = principal
+		principal, err = LoadPersistentPrincipal(dir, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		principals[p] = principal
+	}
+
+	alice, bob := principals["alice"], principals["bob"]
+	aliced, bobd := daemons["alice"], daemons["bob"]
+
+	for _, p := range []string{"alice", "bob"} {
+		self, err := principals[p].BlessSelf(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		SetDefaultBlessings(principals[p], self)
+		// Default blessings will not have been reloaded by the daemons yet.
+		dp := daemons[p]
+		if got, want := len(dp.Roots().Dump()), 0; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		def, _ := dp.BlessingStore().Default()
+		if got, want := def.IsZero(), true; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+
+	// Don't send a SIGHIP to ourselves here since it seems to crash vscode!
+
+	// Wait for default blessings to change.
+	_, aliceCh := aliced.BlessingStore().Default()
+	_, bobCh := bobd.BlessingStore().Default()
+
+	a, b := false, false
+	for {
+		select {
+		case <-aliceCh:
+			a = true
+		case <-bobCh:
+			b = true
+		}
+		time.Sleep(time.Millisecond)
+		if a && b {
+			break
+		}
+	}
+	for _, p := range []string{"alice", "bob"} {
+		dp := daemons[p]
+		if got, want := len(dp.Roots().Dump()), 1; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		def, _ := dp.BlessingStore().Default()
+		if got, want := def.IsZero(), false; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+
+	if got, want := bobd.BlessingStore().DebugString(), bob.BlessingStore().DebugString(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	blessings, _ := alice.BlessingStore().Default()
+	for1h, _ := security.NewExpiryCaveat(time.Now().Add(time.Hour))
+	forBob, err := alice.Bless(bob.PublicKey(), blessings, "friend:bob", for1h)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bob.BlessingStore().Set(forBob, "alice")
+	if got, want := bobd.BlessingStore().DebugString(), bob.BlessingStore().DebugString(); got == want {
+		t.Errorf("got %v should not equal want %v", got, want)
+	}
+
+	for i := 0; i < 6; i++ { // 3 seconds at most.
+		time.Sleep(time.Millisecond * 500)
+		if got, want := bobd.BlessingStore().DebugString(), bob.BlessingStore().DebugString(); got == want {
+			break
+		}
+	}
+	if got, want := bobd.BlessingStore().DebugString(), bob.BlessingStore().DebugString(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
 }
