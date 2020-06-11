@@ -31,7 +31,6 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 		roots = errRoots{}
 	}
 	if got, want := store.PublicKey(), signer.PublicKey(); !reflect.DeepEqual(got, want) {
-		panic("etf")
 		return nil, verror.New(errBadStoreKey, nil, got, want)
 	}
 	return &principal{signer: signer, store: store, roots: roots}, nil

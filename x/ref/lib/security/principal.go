@@ -259,8 +259,7 @@ func loadPublicKey(ctx context.Context, dir string) (security.PublicKey, error) 
 	if err != nil {
 		return nil, err
 	}
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
+	if k, ok := key.(*ecdsa.PublicKey); ok {
 		return security.NewECDSAPublicKey(k), nil
 	}
 	return nil, verror.New(errUnsupportedKeyType, nil, fmt.Sprintf("%T", key))
