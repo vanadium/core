@@ -46,7 +46,7 @@ func determineSigner(key interface{}) (security.Signer, error) {
 // Signer implements v.io/ref/lib/security.SigningService.
 // The suffix for keyFile determines how the file is parsed:
 //   - .pem for PEM files
-//   - .ssh for ssh private key files
+//   - .ssh for ssh private key files and .ssh.pub for public keys.
 func (kf *keyfile) Signer(ctx context.Context, keyFile string, passphrase []byte) (security.Signer, error) {
 	f, err := os.Open(keyFile)
 	if err != nil {
@@ -55,7 +55,7 @@ func (kf *keyfile) Signer(ctx context.Context, keyFile string, passphrase []byte
 	defer f.Close()
 	switch {
 	case strings.HasSuffix(keyFile, ".pem"):
-		key, err := internal.LoadPEMKey(f, passphrase)
+		key, err := internal.LoadPEMPrivateKey(f, passphrase)
 		if err != nil {
 			return nil, err
 		}

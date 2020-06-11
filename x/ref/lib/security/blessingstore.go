@@ -377,7 +377,7 @@ func (bs *blessingStore) load() error {
 	if data == nil && signature == nil {
 		return nil
 	}
-	state, err := loadState(data, signature, bs.publicKey, bs.signer.PublicKey())
+	state, err := loadState(data, signature, bs.publicKey, bs.publicKey)
 	if err != nil {
 		return verror.New(errCantLoadBlessingStore, nil, err)
 	}
@@ -393,18 +393,22 @@ func (bs *blessingStore) load() error {
 // that is initialized with the persisted data. The returned security.BlessingStore
 // will persists any updates to its state if the supplied writers serializer
 // is specified.
-func NewPersistentBlessingStore(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, update time.Duration) (security.BlessingStore, error) {
-	if readers == nil || signer == nil {
+func NewPersistentBlessingStore(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingStore, error) {
+	if readers == nil || (writers != nil && signer == nil) {
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
 	}
 	bs := &blessingStore{
-		flock:     lockedfile.MutexAt(lockFilePath),
-		publicKey: signer.PublicKey(),
-		readers:   readers,
-		writers:   writers,
-		signer:    signer,
-		defCh:     make(chan struct{}),
-		state:     newBlessingStoreState(),
+		flock:   lockedfile.MutexAt(lockFilePath),
+		readers: readers,
+		writers: writers,
+		signer:  signer,
+		defCh:   make(chan struct{}),
+		state:   newBlessingStoreState(),
+	}
+	if signer != nil {
+		bs.publicKey = signer.PublicKey()
+	} else {
+		bs.publicKey = publicKey
 	}
 	if err := bs.load(); err != nil {
 		return nil, err

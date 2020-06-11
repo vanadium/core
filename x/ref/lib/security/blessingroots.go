@@ -27,12 +27,13 @@ var errRootsAddPattern = verror.Register(pkgPath+".errRootsAddPattern", verror.N
 
 // blessingRoots implements security.BlessingRoots.
 type blessingRoots struct {
-	readers SerializerReader
-	writers SerializerWriter
-	signer  serialization.Signer
-	flock   *lockedfile.Mutex // GUARDS persistent store
-	mu      sync.RWMutex
-	state   blessingRootsState // GUARDED_BY(mu)
+	readers   SerializerReader
+	writers   SerializerWriter
+	signer    serialization.Signer
+	publicKey security.PublicKey
+	flock     *lockedfile.Mutex // GUARDS persistent store
+	mu        sync.RWMutex
+	state     blessingRootsState // GUARDED_BY(mu)
 }
 
 func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) error {
@@ -177,7 +178,7 @@ func (br *blessingRoots) load() error {
 		return nil
 	}
 	state := make(blessingRootsState)
-	if err := decodeFromStorage(&state, data, signature, br.signer.PublicKey()); err != nil {
+	if err := decodeFromStorage(&state, data, signature, br.publicKey); err != nil {
 		return verror.New(errCantLoadBlessingRoots, nil, err)
 	}
 	br.state = state
@@ -214,9 +215,8 @@ func NewBlessingRoots() security.BlessingRoots {
 // that is initialized with the persisted data. The returned security.BlessingStore
 // will persists any updates to its state if the supplied writers serializer
 // is specified.
-func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, update time.Duration) (security.BlessingRoots, error) {
-	// TODO(cnicolaou): implement update.
-	if readers == nil || signer == nil {
+func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingRoots, error) {
+	if readers == nil || (writers != nil && signer == nil) {
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
 	}
 	br := &blessingRoots{
@@ -225,6 +225,11 @@ func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, reader
 		writers: writers,
 		signer:  signer,
 		state:   make(blessingRootsState),
+	}
+	if signer != nil {
+		br.publicKey = signer.PublicKey()
+	} else {
+		br.publicKey = publicKey
 	}
 	if err := br.load(); err != nil {
 		return nil, err

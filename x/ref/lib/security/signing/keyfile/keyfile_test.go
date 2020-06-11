@@ -27,7 +27,12 @@ func createPEMKey(dir string) error {
 	if err != nil {
 		return err
 	}
-	return internal.CreateVanadiumPEMFileNoPassphrase(key, path.Join(dir, "privatekey.pem"))
+	return internal.WritePEMKeyPair(
+		key,
+		path.Join(dir, "privatekey.pem"),
+		path.Join(dir, "publickey.pem"),
+		nil,
+	)
 }
 
 func createKeys(dir string) error {

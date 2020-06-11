@@ -26,11 +26,11 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 	if principal, _ := ctx.Value(principalKey).(security.Principal); principal != nil {
 		return principal, func() {}, nil
 	}
-
 	if len(credentials) > 0 {
-		// Explicitly specified credentials, load them from the crdentials
+		// Explicitly specified credentials, load them from the credentials
 		// location without the ability to write them back to persistent
 		// storage, but rather reloading them periodically or on a signal.
+		readonly := true // should this be an option?
 		reloadPeriod := 5 * time.Minute
 		if update := os.Getenv(ref.EnvCredentialsReloadInterval); len(update) > 0 {
 			if tmp, err := time.ParseDuration(update); err == nil {
@@ -41,11 +41,12 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 		principal, err := vsecurity.LoadPersistentPrincipalDaemon(
 			goctx,
 			credentials,
-			nil,
-			true,
+			nil, // no passphrase.
+			readonly,
 			reloadPeriod,
 		)
 		if err != nil {
+
 			cancel()
 			return nil, nil, verror.New(errCredentialsInit, ctx, credentials, err)
 		}

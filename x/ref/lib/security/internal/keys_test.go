@@ -21,16 +21,24 @@ func TestLoadSavePEMKey(t *testing.T) {
 		t.Fatalf("Failed ecdsa.GenerateKey: %v", err)
 	}
 
-	var buf bytes.Buffer
-	if err := SavePEMKey(&buf, key, nil); err != nil {
+	var privateKeyBuf, publicKeyBuf bytes.Buffer
+	if err := SavePEMKeyPair(&privateKeyBuf, &publicKeyBuf, key, nil); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
 
-	loadedKey, err := LoadPEMKey(&buf, nil)
+	loadedKey, err := LoadPEMPrivateKey(&privateKeyBuf, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(loadedKey, key) {
+		t.Fatalf("Got key %v, but want %v", loadedKey, key)
+	}
+
+	loadedKey, err = LoadPEMPublicKey(&publicKeyBuf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(loadedKey, &key.PublicKey) {
 		t.Fatalf("Got key %v, but want %v", loadedKey, key)
 	}
 }
@@ -45,19 +53,19 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	var buf bytes.Buffer
 
 	// Test incorrect passphrase.
-	if err := SavePEMKey(&buf, key, pass); err != nil {
+	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	loadedKey, err := LoadPEMKey(&buf, incorrectPass)
+	loadedKey, err := LoadPEMPrivateKey(&buf, incorrectPass)
 	if loadedKey != nil && err != nil {
 		t.Errorf("expected (nil, err != nil) received (%v,%v)", loadedKey, err)
 	}
 
 	// Test correct password.
-	if err := SavePEMKey(&buf, key, pass); err != nil {
+	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	loadedKey, err = LoadPEMKey(&buf, pass)
+	loadedKey, err = LoadPEMPrivateKey(&buf, pass)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,10 +74,10 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	}
 
 	// Test nil passphrase.
-	if err := SavePEMKey(&buf, key, pass); err != nil {
+	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	if loadedKey, err = LoadPEMKey(&buf, nil); loadedKey != nil || verror.ErrorID(err) != ErrPassphraseRequired.ID {
+	if loadedKey, err = LoadPEMPrivateKey(&buf, nil); loadedKey != nil || verror.ErrorID(err) != ErrPassphraseRequired.ID {
 		t.Fatalf("expected(nil, ErrPassphraseRequired), instead got (%v, %v)", loadedKey, err)
 	}
 }

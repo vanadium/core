@@ -105,12 +105,12 @@ func generatePEMFile(passphrase []byte) (dir string) {
 	if err != nil {
 		panic(err)
 	}
-	f, err := os.Create(path.Join(dir, privateKeyFile))
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	if err = internal.SavePEMKey(f, key, passphrase); err != nil {
+	if err := internal.WritePEMKeyPair(
+		key,
+		path.Join(dir, privateKeyFile),
+		path.Join(dir, publicKeyFile),
+		passphrase,
+	); err != nil {
 		panic(err)
 	}
 	return dir
@@ -225,4 +225,34 @@ func TestDaemonMode(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+}
+
+func TestDaemonPublicKeyOnly(t *testing.T) {
+	dir, err := ioutil.TempDir("", "TestCreatePersistentPrincipal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	p, err := CreatePersistentPrincipal(dir, []byte("with-passphrase"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	message := []byte("to-be-signed")
+	sig, err := p.Sign(message)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a principal with only the public key from the original
+	// principal above.
+	ctx := gocontext.Background()
+	pk, err := LoadPersistentPrincipalDaemon(ctx, dir, nil, true, time.Duration(0))
+	if err != nil {
+		t.Fatalf("%s failed: %v", message, err)
+	}
+	if !sig.Verify(pk.PublicKey(), message) {
+		t.Errorf("%s failed: p.PublicKey=%v, p2.PublicKey=%v", message, p.PublicKey(), pk.PublicKey())
+	}
 }
