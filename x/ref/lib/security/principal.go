@@ -17,6 +17,7 @@ import (
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
+	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/security/serialization"
 	"v.io/x/ref/lib/security/signing/keyfile"
 )
@@ -94,6 +95,32 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 	return loadPersistentPrincipal(context.TODO(), dir, passphrase, false, time.Duration(0))
 }
 
+// LoadPersistentPrincipalWithPassphrasePrompt is like LoadPersistentPrincipal but will
+// prompt for a passphrase if one is required.
+func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal, error) {
+	ctx := context.TODO()
+	p, err := loadPersistentPrincipal(ctx, dir, nil, false, time.Duration(0))
+	if err == nil {
+		return p, nil
+	}
+	if verror.ErrorID(err) != ErrPassphraseRequired.ID {
+		return nil, err
+	}
+	pass, err := passphrase.Get(fmt.Sprintf("Passphrase required to decrypt encrypted private key file for credentials in %v.\nEnter passphrase: ", dir))
+	if err != nil {
+		return nil, err
+	}
+	defer ZeroPassphrase(pass)
+	return loadPersistentPrincipal(ctx, dir, pass, false, time.Duration(0))
+}
+
+// ZeroPassphrase overwrites the passphrase.
+func ZeroPassphrase(pass []byte) {
+	for i := range pass {
+		pass[i] = 0
+	}
+}
+
 // LoadPersistentPrincipalDaemon is like LoadPersistentPrincipal but is
 // intended for use in long running applications which may not need
 // to initiate changes to the principal but may need to reload their
@@ -102,7 +129,7 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 // update duration is specified then the principal will be reloaded
 // at the frequency implied by that duration. In addition, on systems
 // that support it, a SIGHUP can be used to request an immediate reload.
-// If passphrase is nil, readonly is true and the private key file is encrypted
+// If pwphrase is nil, readonly is true and the private key file is encrypted
 // LoadPersistentPrincipalDaemon will not attempt to create a signer and will
 // instead just the principal's public key.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {

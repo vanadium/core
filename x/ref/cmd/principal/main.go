@@ -26,7 +26,6 @@ import (
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref"
@@ -820,6 +819,7 @@ principal will have no blessings.
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
 				}
+				defer vsecurity.ZeroPassphrase(pass)
 			}
 			// TODO(cnicolaou): provide a means of to specify key type.
 			_, key, err := vsecurity.NewECDSAKeyPair()
@@ -1551,18 +1551,5 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 	if credFlag == nil {
 		return nil, fmt.Errorf("failed to lookup %v flag", flagName)
 	}
-	dir := credFlag.Value.String()
-	p, err := vsecurity.LoadPersistentPrincipal(dir, nil)
-	if err == nil {
-		return p, nil
-	}
-	if verror.ErrorID(err) != vsecurity.ErrPassphraseRequired.ID {
-		return nil, err
-	}
-	// Prompt for a passphrase.
-	pw, err := passphrase.Get("password: ")
-	if err != nil {
-		return nil, err
-	}
-	return vsecurity.LoadPersistentPrincipal(dir, pw)
+	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }
