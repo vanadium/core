@@ -69,7 +69,7 @@ jobs:
 
 version: 2.1
 orbs:
-  go: circleci/go@1.1.2
+  go: circleci/go@1.2.0
 workflows:
   main:
     jobs:
