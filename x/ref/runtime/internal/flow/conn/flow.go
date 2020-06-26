@@ -453,6 +453,11 @@ func (f *flw) Closed() <-chan struct{} {
 	return f.currentContext().Done()
 }
 
+// ID returns the ID of this flow.
+func (f *flw) ID() uint64 {
+	return f.id
+}
+
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	f.conn.mu.Lock()
 	cancel := f.cancel

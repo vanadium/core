@@ -262,7 +262,17 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			rttend = time.Now()
 			break
 		}
-		if _, ok := msg.(*message.OpenFlow); ok {
+		switch m := msg.(type) {
+		case *message.TearDown:
+			// A teardown message may be sent by the client if it decides
+			// that it doesn't trust the server. We handle it here and return
+			// a connection closed error rather than waiting for the readMsg
+			// above to fail when it tries to read from the closed connection.
+			if err := c.handleMessage(ctx, msg); err != nil {
+				vlog.Infof("readRemoteAuth: handleMessage teardown: failed: %v", err)
+			}
+			return security.Blessings{}, nil, rttend, verror.New(ErrConnectionClosed, ctx)
+		case *message.OpenFlow:
 			// If we get an OpenFlow message here it needs to be handled
 			// asynchronously since it will call the flow handler
 			// which will block until NewAccepted (which calls
@@ -270,7 +280,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// to be handled by readLoop.
 			go func() {
 				if err := c.handleMessage(ctx, msg); err != nil {
-					vlog.Infof("handleMessage: %v", err)
+					vlog.Infof("hreadRemoteAuth: andleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
 			}()
 			continue

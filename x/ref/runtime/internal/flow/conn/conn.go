@@ -248,6 +248,10 @@ func NewDialed(
 			select {
 			case <-done:
 				canceled = true
+				// There is always the possibility that the handshake fails
+				// (eg. the client doesn't trust the server), so make sure to
+				// record any such error.
+				ferr = err
 				// Handshake done.
 			case <-timer.C:
 				// Report the timeout not the cancelation, hence

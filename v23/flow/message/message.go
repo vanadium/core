@@ -65,6 +65,19 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	return m, m.read(ctx, from)
 }
 
+// FlowID returns the id of the flow this message is associated with for
+// message types that are bound to a flow, zero otherwise.
+func FlowID(m interface{}) uint64 {
+	switch a := m.(type) {
+	case *Data:
+		return a.ID
+	case *OpenFlow:
+		return a.ID
+	default:
+		return 0
+	}
+}
+
 // Message is implemented by all low-level messages defined by this package.
 type Message interface {
 	append(ctx *context.T, data []byte) ([]byte, error)
