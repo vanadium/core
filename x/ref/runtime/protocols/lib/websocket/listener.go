@@ -123,9 +123,9 @@ func (ln *wsTCPListener) netAcceptLoop() {
 			ln.acceptQ <- err
 			continue
 		}
-		logger.Global().VI(1).Infof("New net.Conn accepted from %s (local address: %s)", conn.RemoteAddr(), conn.LocalAddr())
+		logger.Global().VI(2).Infof("New net.Conn accepted from %s (local address: %s)", conn.RemoteAddr(), conn.LocalAddr())
 		if err := tcputil.EnableTCPKeepAlive(conn); err != nil {
-			logger.Global().Errorf("Failed to enable TCP keep alive: %v", err)
+			logger.Global().Errorf("Failed to enable TCP keep alive for connection from %s (local address %s): %v", conn.RemoteAddr(), conn.LocalAddr(), err)
 		}
 		classifications.Add(1)
 		go ln.classify(conn, &classifications)
@@ -146,13 +146,14 @@ func (ln *wsTCPListener) classify(conn net.Conn, done *sync.WaitGroup) {
 		n, err := io.ReadFull(conn, magic[:])
 		if err != nil {
 			// Unable to classify, ignore this connection.
-			logger.Global().VI(1).Infof("Shutting down connection from %v since the magic bytes could not be read: %v", conn.RemoteAddr(), err)
+			logger.Global().VI(2).Infof("Shutting down connection from %v since the magic bytes could not be read: %v", conn.RemoteAddr(), err)
 			conn.Close()
 			return
 		}
 		conn = &hybridConn{conn: conn, buffered: magic[:n]}
 		isHTTP = magic[0] == 'G'
 	}
+	logger.Global().VI(1).Infof("New net.Conn accepted from %s (local address: %s), classified: isHTTP %v", conn.RemoteAddr(), conn.LocalAddr(), isHTTP)
 	if isHTTP {
 		ln.httpReq.Add(1)
 		ln.httpQ <- conn
