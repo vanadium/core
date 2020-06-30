@@ -349,7 +349,10 @@ machine and the name of the user running this command.
 			if err != nil {
 				return err
 			}
-			principal := v23.GetPrincipal(ctx)
+			principal, err := getMutablePrincipal(root)
+			if err != nil {
+				return err
+			}
 			blessing, err := principal.BlessSelf(name, caveats...)
 			if err != nil {
 				return fmt.Errorf("failed to create self-signed blessing for name %q: %v", name, err)
@@ -624,8 +627,10 @@ blessing can be shared with.
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			pattern := security.BlessingPattern(args[1])
-
-			p := v23.GetPrincipal(ctx)
+			p, err := getMutablePrincipal(root)
+			if err != nil {
+				return err
+			}
 			if _, err := p.BlessingStore().Set(blessings, pattern); err != nil {
 				return fmt.Errorf("failed to set blessings %v for peers %v: %v", blessings, pattern, err)
 			}
@@ -670,7 +675,10 @@ this tool. - is used for STDIN.
 			if len(args) != 1 && len(args) != 2 {
 				return fmt.Errorf("requires either one argument <file>, or two arguments <blessing pattern> <key>, provided %d", len(args))
 			}
-			p := v23.GetPrincipal(ctx)
+			p, err := getMutablePrincipal(root)
+			if err != nil {
+				return err
+			}
 			if len(args) == 1 {
 				blessings, err := decodeBlessings(args[0])
 				if err != nil {
@@ -758,8 +766,10 @@ this tool. - is used for STDIN.
 			if err != nil {
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
-
-			p := v23.GetPrincipal(ctx)
+			p, err := getMutablePrincipal(root)
+			if err != nil {
+				return err
+			}
 			if err := p.BlessingStore().SetDefault(blessings); err != nil {
 				return fmt.Errorf("failed to set blessings %v as default: %v", blessings, err)
 			}
@@ -809,8 +819,14 @@ principal will have no blessings.
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
 				}
+				defer vsecurity.ZeroPassphrase(pass)
 			}
-			p, err := vsecurity.CreatePersistentPrincipal(dir, pass)
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, key, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return err
+			}
+			p, err := vsecurity.CreatePersistentPrincipalUsingKey(key, dir, pass)
 			if err != nil {
 				return err
 			}
@@ -887,7 +903,12 @@ forked principal.
 					return err
 				}
 			}
-			p, err := vsecurity.CreatePersistentPrincipal(dir, pass)
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return err
+			}
+			p, err := vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, dir, pass)
 			if err != nil {
 				return err
 			}
@@ -1009,7 +1030,10 @@ This file can be supplied to bless:
 			if _, err := rand.Read(token[:]); err != nil {
 				return fmt.Errorf("unable to generate token: %v", err)
 			}
-			p := v23.GetPrincipal(ctx)
+			p, err := getMutablePrincipal(root)
+			if err != nil {
+				return err
+			}
 			service := &recvBlessingsService{
 				setDefault:           flagRecvBlessings.SetDefault,
 				recvBlessingsForPeer: flagRecvBlessings.ForPeer,
@@ -1040,6 +1064,16 @@ This file can be supplied to bless:
 			fmt.Println("...waiting for sender..")
 			return <-service.notify
 		}),
+	}
+
+	root = &cmdline.Command{
+		Name:  "principal",
+		Short: "creates and manages Vanadium principals and blessings",
+		Long: `
+Command principal creates and manages Vanadium principals and blessings.
+
+All objects are printed using base64url-vom-encoding.
+`,
 	}
 )
 
@@ -1120,7 +1154,12 @@ func blessOverFileSystem(p security.Principal, tobless string, with security.Ble
 	if finfo, err := os.Stat(tobless); err == nil && finfo.IsDir() {
 		other, err := vsecurity.LoadPersistentPrincipal(tobless, nil)
 		if err != nil {
-			if other, err = vsecurity.CreatePersistentPrincipal(tobless, nil); err != nil {
+			// TODO(cnicolaou): provide a means of to specify key type.
+			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
+			if err != nil {
+				return security.Blessings{}, err
+			}
+			if other, err = vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, tobless, nil); err != nil {
 				return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
 			}
 		}
@@ -1199,16 +1238,7 @@ All blessings are printed to stdout using base64url-vom-encoding.
 		Children: []*cmdline.Command{cmdGetDefault, cmdGetForPeer, cmdGetPublicKey, cmdGetTrustedRoots, cmdGetPeerMap},
 	}
 
-	root := &cmdline.Command{
-		Name:  "principal",
-		Short: "creates and manages Vanadium principals and blessings",
-		Long: `
-Command principal creates and manages Vanadium principals and blessings.
-
-All objects are printed using base64url-vom-encoding.
-`,
-		Children: []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion},
-	}
+	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion}
 	cmdline.Main(root)
 }
 
@@ -1513,4 +1543,13 @@ func blessings2wire(b security.Blessings) (security.WireBlessings, error) {
 	}
 	err = vom.Decode(data, &wire)
 	return wire, err
+}
+
+func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
+	flagName := "v23.credentials"
+	credFlag := root.ParsedFlags.Lookup(flagName)
+	if credFlag == nil {
+		return nil, fmt.Errorf("failed to lookup %v flag", flagName)
+	}
+	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }

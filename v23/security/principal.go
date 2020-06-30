@@ -36,6 +36,19 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 	return &principal{signer: signer, store: store, roots: roots}, nil
 }
 
+// CreatePrincipalPublicKeyOnly returns a Principal that cannot sign new blessings
+// and has only the public key portion of the original key pair used to create
+// it.
+func CreatePrincipalPublicKeyOnly(publicKey PublicKey, store BlessingStore, roots BlessingRoots) (Principal, error) {
+	if store == nil {
+		store = errStore{publicKey}
+	}
+	if roots == nil {
+		roots = errRoots{}
+	}
+	return &principal{signer: nil, publicKey: publicKey, store: store, roots: roots}, nil
+}
+
 var (
 	// Every Signer.Sign operation conducted by the principal fills in a
 	// "purpose" before signing to prevent "type attacks" so that a signature obtained
@@ -50,6 +63,7 @@ var (
 	signPurpose      = []byte(SignatureForMessageSigning)
 	dischargePurpose = []byte(SignatureForDischarge)
 
+	errNilSigner          = verror.Register(pkgPath+".errNilSigner", verror.NoRetry, "{1:}{2:}underlying signer is nil{:_}")
 	errNilStore           = verror.Register(pkgPath+".errNilStore", verror.NoRetry, "{1:}{2:}underlying BlessingStore object is nil{:_}")
 	errNilRoots           = verror.Register(pkgPath+".errNilRoots", verror.NoRetry, "{1:}{2:}underlying BlessingRoots object is nil{:_}")
 	errNeedCert           = verror.Register(pkgPath+".errNeedCert", verror.NoRetry, "{1:}{2:}the Blessings to bless 'with' must have at least one certificate{:_}")
@@ -57,6 +71,7 @@ var (
 	errCantExtendBlessing = verror.Register(pkgPath+".errCantExtendBlessing", verror.NoRetry, "{1:}{2:}Principal with public key {3} cannot extend blessing with public key {4}{:_}")
 	errCantMintDischarges = verror.Register(pkgPath+".errCantMintDischarges", verror.NoRetry, "{1:}{2:}cannot mint discharges for {3}{:_}")
 	errCantSignDischarge  = verror.Register(pkgPath+".errCantSignDischarge", verror.NoRetry, "{1:}{2:}failed to sign discharge: {3}{:_}")
+	errSigningNotSupprted = verror.Register(pkgPath+".errSigningNotSupprted", verror.NoRetry, "{1:}{2:}signing not supported, only public key available{:_}")
 )
 
 type errStore struct {
@@ -70,7 +85,7 @@ func (errStore) ForPeer(peerBlessings ...string) Blessings                     {
 func (errStore) SetDefault(blessings Blessings) error                          { return verror.New(errNilStore, nil) }
 func (errStore) Default() (Blessings, <-chan struct{})                         { return Blessings{}, nil }
 func (errStore) PeerBlessings() map[BlessingPattern]Blessings                  { return nil }
-func (errStore) CacheDischarge(Discharge, Caveat, DischargeImpetus)            {}
+func (errStore) CacheDischarge(Discharge, Caveat, DischargeImpetus) error      { return nil }
 func (errStore) ClearDischarges(...Discharge)                                  {}
 func (errStore) Discharge(Caveat, DischargeImpetus) (d Discharge, t time.Time) { return d, t }
 func (errStore) DebugString() string                                           { return verror.New(errNilStore, nil).Error() }
@@ -84,9 +99,10 @@ func (errRoots) Dump() map[BlessingPattern][]PublicKey { return nil }
 func (errRoots) DebugString() string                   { return verror.New(errNilRoots, nil).Error() }
 
 type principal struct {
-	signer Signer
-	roots  BlessingRoots
-	store  BlessingStore
+	signer    Signer
+	publicKey PublicKey
+	roots     BlessingRoots
+	store     BlessingStore
 }
 
 func (p *principal) Bless(key PublicKey, with Blessings, extension string, caveat Caveat, additionalCaveats ...Caveat) (Blessings, error) {
@@ -119,6 +135,9 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 }
 
 func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error) {
+	if p.signer == nil {
+		return Blessings{}, verror.New(errNilSigner, nil)
+	}
 	cert, err := newUnsignedCertificate(name, p.PublicKey(), caveats...)
 	if err != nil {
 		return Blessings{}, err
@@ -137,6 +156,9 @@ func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 }
 
 func (p *principal) Sign(message []byte) (Signature, error) {
+	if p.signer == nil {
+		return Signature{}, verror.New(errSigningNotSupprted, nil)
+	}
 	return p.signer.Sign(signPurpose, message)
 }
 
@@ -154,6 +176,9 @@ func (p *principal) MintDischarge(forCaveat, caveatOnDischarge Caveat, additiona
 }
 
 func (p *principal) PublicKey() PublicKey {
+	if p.signer == nil {
+		return p.publicKey
+	}
 	return p.signer.PublicKey()
 }
 

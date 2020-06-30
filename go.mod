@@ -16,7 +16,7 @@ require (
 	github.com/shirou/gopsutil v2.19.9+incompatible
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/crypto v0.0.0-20200602180216-279210d13fed
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/api v0.9.0
@@ -25,3 +25,4 @@ require (
 )
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
+

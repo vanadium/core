@@ -16,7 +16,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
-	"v.io/x/ref"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/services/mounttable/mounttablelib"
 	"v.io/x/ref/test/testutil"
@@ -80,21 +79,6 @@ func editNamespace(ctx *context.T, v23testProcess, createMounttable bool) {
 	ns.SetRoots(s.Status().Endpoints[0].Name()) //nolint:errcheck
 }
 
-func editEnvironment(v23testProcess bool) func() {
-	// We don't want to launch on-demand agents when loading
-	// credentials from disk in tests.  The exception is where we
-	// explicitly test the agent loading behavior, in which case the
-	// test will unset this environment variable following context
-	// creation.  For Shell child processes, just respect what the
-	// parent configured for them.
-	if v23testProcess {
-		return nil
-	}
-	oldEnv := os.Getenv(ref.EnvCredentialsNoAgent)
-	os.Setenv(ref.EnvCredentialsNoAgent, "1")
-	return func() { os.Setenv(ref.EnvCredentialsNoAgent, oldEnv) }
-}
-
 // internalInit initializes the runtime and returns a new context.
 func internalInit(createMounttable bool) (*context.T, func()) {
 	ctx, shutdown := v23.Init()
@@ -111,13 +95,6 @@ func internalInit(createMounttable bool) (*context.T, func()) {
 
 	editNamespace(ctx, v23testProcess, createMounttable)
 
-	if undo := editEnvironment(v23testProcess); undo != nil {
-		orig := shutdown
-		shutdown = func() {
-			undo()
-			orig()
-		}
-	}
 	return ctx, shutdown
 }
 

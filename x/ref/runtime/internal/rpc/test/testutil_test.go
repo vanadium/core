@@ -89,7 +89,8 @@ func (*singleBlessingStore) DebugString() string {
 func (*singleBlessingStore) PeerBlessings() map[security.BlessingPattern]security.Blessings {
 	return nil
 }
-func (*singleBlessingStore) CacheDischarge(security.Discharge, security.Caveat, security.DischargeImpetus) {
+func (*singleBlessingStore) CacheDischarge(security.Discharge, security.Caveat, security.DischargeImpetus) error {
+	return nil
 }
 func (*singleBlessingStore) ClearDischarges(...security.Discharge) {
 }

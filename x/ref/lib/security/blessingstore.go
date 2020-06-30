@@ -9,17 +9,23 @@ package security
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"fmt"
+	"io"
+	"os"
+	"os/signal"
 	"reflect"
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
+	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
 )
 
@@ -34,12 +40,14 @@ const cacheKeyFormat = uint32(1)
 
 // blessingStore implements security.BlessingStore.
 type blessingStore struct {
-	publicKey  security.PublicKey
-	serializer SerializerReaderWriter
-	signer     serialization.Signer
-	mu         sync.RWMutex
-	state      blessingStoreState // GUARDED_BY(mu)
-	defCh      chan struct{}      // GUARDED_BY(mu) - Notifications for changes in the default blessings
+	publicKey security.PublicKey
+	readers   SerializerReader
+	writers   SerializerWriter
+	signer    serialization.Signer
+	flock     *lockedfile.Mutex // GUARDS persistent store
+	mu        sync.RWMutex
+	state     blessingStoreState // GUARDED_BY(mu)
+	defCh     chan struct{}      // GUARDED_BY(mu) - Notifications for changes in the default blessings
 }
 
 func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.BlessingPattern) (security.Blessings, error) {
@@ -51,6 +59,13 @@ func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.Ble
 	}
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+
+	unlock, err := bs.lockAndLoad()
+	if err != nil {
+		return security.Blessings{}, err
+	}
+	defer unlock()
+
 	old, hadold := bs.state.PeerBlessings[forPeers]
 	if !blessings.IsZero() {
 		bs.state.PeerBlessings[forPeers] = blessings
@@ -94,6 +109,13 @@ func (bs *blessingStore) Default() (security.Blessings, <-chan struct{}) {
 func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+
+	unlock, err := bs.lockAndLoad()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+
 	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
 		return verror.New(errStoreAddMismatch, nil)
 	}
@@ -124,14 +146,21 @@ func (bs *blessingStore) PeerBlessings() map[security.BlessingPattern]security.B
 	return m
 }
 
-func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) {
+func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat security.Caveat, impetus security.DischargeImpetus) error {
 	id := discharge.ID()
 	key, cacheable := dcacheKey(caveat.ThirdPartyDetails(), impetus)
 	if id == "" || !cacheable {
-		return
+		return nil
 	}
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
+
+	unlock, err := bs.lockAndLoad()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+
 	old, hadold := bs.state.Discharges[key]
 	bs.state.Discharges[key] = CachedDischarge{
 		Discharge: discharge,
@@ -143,7 +172,9 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 		} else {
 			delete(bs.state.Discharges, key)
 		}
+		return err
 	}
+	return nil
 }
 
 func (bs *blessingStore) ClearDischarges(discharges ...security.Discharge) {
@@ -252,90 +283,144 @@ func (bs *blessingStore) DebugString() string {
 }
 
 func (bs *blessingStore) save() error {
-	if (bs.signer == nil) && (bs.serializer == nil) {
+	if (bs.signer == nil) && (bs.writers == nil) {
 		return nil
 	}
-	data, signature, err := bs.serializer.Writers()
+	data, signature, err := bs.writers.Writers()
 	if err != nil {
 		return err
 	}
 	return encodeAndStore(bs.state, data, signature, bs.signer)
 }
 
-// newInMemoryBlessingStore returns an in-memory security.BlessingStore for a
-// principal with the provided PublicKey.
-//
-// The returned BlessingStore is initialized with an empty set of blessings.
-func newInMemoryBlessingStore(publicKey security.PublicKey) security.BlessingStore {
-	return &blessingStore{
-		publicKey: publicKey,
-		state: blessingStoreState{
-			PeerBlessings: make(map[security.BlessingPattern]security.Blessings),
-			Discharges:    make(map[dischargeCacheKey]CachedDischarge),
-		},
-		defCh: make(chan struct{}),
+func newBlessingStoreState() blessingStoreState {
+	return blessingStoreState{
+		PeerBlessings: make(map[security.BlessingPattern]security.Blessings),
+		Discharges:    make(map[dischargeCacheKey]CachedDischarge),
 	}
 }
 
-func (bs *blessingStore) verifyState() error {
-	for _, b := range bs.state.PeerBlessings {
-		if !reflect.DeepEqual(b.PublicKey(), bs.publicKey) {
-			return verror.New(errBlessingsNotForKey, nil, b, bs.publicKey)
+// NewBlessingStore returns an in-memory security.BlessingStore for a
+// principal with the provided PublicKey.
+//
+// The returned BlessingStore is initialized with an empty set of blessings.
+func NewBlessingStore(publicKey security.PublicKey) security.BlessingStore {
+	return &blessingStore{
+		publicKey: publicKey,
+		state:     newBlessingStoreState(),
+		defCh:     make(chan struct{}),
+	}
+}
+
+func verifyState(publicKey security.PublicKey, state blessingStoreState) error {
+	for _, b := range state.PeerBlessings {
+		if !reflect.DeepEqual(b.PublicKey(), publicKey) {
+			return verror.New(errBlessingsNotForKey, nil, b, publicKey)
 		}
 	}
-	if !bs.state.DefaultBlessings.IsZero() && !reflect.DeepEqual(bs.state.DefaultBlessings.PublicKey(), bs.publicKey) {
-		return verror.New(errBlessingsNotForKey, nil, bs.state.DefaultBlessings, bs.publicKey)
+	if !state.DefaultBlessings.IsZero() && !reflect.DeepEqual(state.DefaultBlessings.PublicKey(), publicKey) {
+		return verror.New(errBlessingsNotForKey, nil, state.DefaultBlessings, publicKey)
 	}
 	return nil
 }
 
-func (bs *blessingStore) deserialize() error {
-	data, signature, err := bs.serializer.Readers()
+func (bs *blessingStore) lockAndLoad() (func(), error) {
+	if bs.flock == nil {
+		// in-memory store
+		return func() {}, bs.load()
+	}
+	unlock, err := bs.flock.Lock()
+	if err != nil {
+		return nil, err
+	}
+	err = bs.load()
+	return unlock, err
+}
+
+func loadState(data, signature io.ReadCloser, publicKey, signerPublicKey security.PublicKey) (blessingStoreState, error) {
+	state := newBlessingStoreState()
+	if err := decodeFromStorage(&state, data, signature, signerPublicKey); err != nil {
+		return blessingStoreState{}, err
+	}
+	if state.CacheKeyFormat != cacheKeyFormat {
+		state.CacheKeyFormat = cacheKeyFormat
+		state.Discharges = make(map[dischargeCacheKey]CachedDischarge)
+	} else if len(state.DischargeCache) > 0 {
+		// If the old DischargeCache field is present, upgrade to the new field.
+		for k, v := range state.DischargeCache {
+			state.Discharges[k] = CachedDischarge{
+				Discharge: v,
+			}
+		}
+		state.DischargeCache = nil
+	}
+	if state.PeerBlessings == nil {
+		state.PeerBlessings = make(map[security.BlessingPattern]security.Blessings)
+	}
+	if state.Discharges == nil {
+		state.Discharges = make(map[dischargeCacheKey]CachedDischarge)
+	}
+	if err := verifyState(publicKey, state); err != nil {
+		return blessingStoreState{}, err
+	}
+	return state, nil
+}
+
+func (bs *blessingStore) load() error {
+	if bs.readers == nil {
+		return nil
+	}
+	data, signature, err := bs.readers.Readers()
 	if err != nil {
 		return err
 	}
 	if data == nil && signature == nil {
 		return nil
 	}
-	if err := decodeFromStorage(&bs.state, data, signature, bs.signer.PublicKey()); err != nil {
-		return err
+	state, err := loadState(data, signature, bs.publicKey, bs.publicKey)
+	if err != nil {
+		return verror.New(errCantLoadBlessingStore, nil, err)
 	}
-	if bs.state.CacheKeyFormat != cacheKeyFormat {
-		bs.state.CacheKeyFormat = cacheKeyFormat
-		bs.state.Discharges = make(map[dischargeCacheKey]CachedDischarge)
-	} else if len(bs.state.DischargeCache) > 0 {
-		// If the old DischargeCache field is present, upgrade to the new field.
-		for k, v := range bs.state.DischargeCache {
-			bs.state.Discharges[k] = CachedDischarge{
-				Discharge: v,
-			}
-		}
-		bs.state.DischargeCache = nil
+	if !state.DefaultBlessings.Equivalent(bs.state.DefaultBlessings) {
+		close(bs.defCh)
+		bs.defCh = make(chan struct{})
 	}
-	return bs.verifyState()
+	bs.state = state
+	return nil
 }
 
-// newPersistingBlessingStore returns a security.BlessingStore for a principal
+// NewPersistentBlessingStore returns a security.BlessingStore for a principal
 // that is initialized with the persisted data. The returned security.BlessingStore
-// also persists any updates to its state.
-func newPersistingBlessingStore(serializer SerializerReaderWriter, signer serialization.Signer) (security.BlessingStore, error) {
-	if serializer == nil || signer == nil {
+// will persists any updates to its state if the supplied writers serializer
+// is specified.
+func NewPersistentBlessingStore(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingStore, error) {
+	if readers == nil || (writers != nil && signer == nil) {
 		return nil, verror.New(errDataOrSignerUnspecified, nil)
 	}
 	bs := &blessingStore{
-		publicKey:  signer.PublicKey(),
-		serializer: serializer,
-		signer:     signer,
-		defCh:      make(chan struct{}),
+		flock:   lockedfile.MutexAt(lockFilePath),
+		readers: readers,
+		writers: writers,
+		signer:  signer,
+		defCh:   make(chan struct{}),
+		state:   newBlessingStoreState(),
 	}
-	if err := bs.deserialize(); err != nil {
+	if signer != nil {
+		bs.publicKey = signer.PublicKey()
+	} else {
+		bs.publicKey = publicKey
+	}
+	if err := bs.load(); err != nil {
 		return nil, err
 	}
-	if bs.state.PeerBlessings == nil {
-		bs.state.PeerBlessings = make(map[security.BlessingPattern]security.Blessings)
-	}
-	if bs.state.Discharges == nil {
-		bs.state.Discharges = make(map[dischargeCacheKey]CachedDischarge)
+	if update > 0 {
+		hupCh := make(chan os.Signal, 1)
+		signal.Notify(hupCh, syscall.SIGHUP)
+		go reload(ctx, func() (func(), error) {
+			bs.mu.Lock()
+			defer bs.mu.Unlock()
+			return bs.lockAndLoad()
+		}, hupCh, update)
 	}
 	return bs, nil
 }

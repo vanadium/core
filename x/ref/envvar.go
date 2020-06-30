@@ -22,25 +22,9 @@ const (
 	// See v.io/x/ref/lib/security.CreatePersistentPrincipal.
 	EnvCredentials = "V23_CREDENTIALS"
 
-	// EnvCredentialsNoAgent is the name of the environment variable
-	// indicating whether an agent should be started to serve credentials to
-	// be loaded from a directory.  If set to anything but empty string, no
-	// attempt is made to load an agent.
-	//
-	// Typically used in tests or on platforms where launching agents is not
-	// desirable.
-	//
-	// See v.io/x/ref/security/agent/agentlib.LoadPrincipal.
-	EnvCredentialsNoAgent = "V23_CREDENTIALS_NO_AGENT"
-
-	// EnvAgentPath is the name of the environment variable pointing to a
-	// socket of the agent process containing all the credentials for a
-	// principal (the blessing store, the blessing roots, possibly the
-	// private key etc.).
-	//
-	// Typically only one of EnvCredentials or EnvAgentPath will be set in a
-	// process. If both are set, then EnvCredentials takes preference.
-	EnvAgentPath = "V23_AGENT_PATH"
+	// EnvCredentialsReloadInterval is the name of the environment variable
+	// that specifies the interval between credentials reloads.
+	EnvCredentialsReloadInterval = "V23_CREDENTIALS_RELOAD_INTERVAL"
 
 	// EnvNamespacePrefix is the prefix of all environment variables that
 	// define a namespace root.
@@ -65,10 +49,6 @@ const (
 
 	// When set and non-empty, the namespace client will not use caching.
 	EnvDisableNamespaceCache = "V23_DISABLE_NS_CACHE"
-
-	// If the credentials are loaded from a directory then don't lock the
-	// directory.
-	EnvDisableCredentialsLocking = "V23_CREDENTIALS_NO_LOCK"
 )
 
 // EnvNamespaceRoots returns the set of namespace roots to be used by the

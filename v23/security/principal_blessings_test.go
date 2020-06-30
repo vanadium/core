@@ -843,13 +843,13 @@ func TestOverrideCaveatValidation(t *testing.T) { //nolint:gocyclo
 		LocalPrincipal:  p,
 		RemoteBlessings: bunion,
 	}))
-	expectedFailInfos := map[string]error{
-		"falsetrue":  falseResultErr,
-		"true:false": falseResultErr,
+	expectedFailInfos := map[string]string{
+		"falsetrue":  falseResultErr.Error(),
+		"true:false": falseResultErr.Error(),
 	}
-	failInfos := map[string]error{}
+	failInfos := map[string]string{}
 	for _, info := range infos {
-		failInfos[info.Blessing] = info.Err
+		failInfos[info.Blessing] = info.Err.Error()
 	}
 	if !reflect.DeepEqual(failInfos, expectedFailInfos) {
 		t.Fatalf("Unexpected failinfos from RemoteBlessingNames. Got %v, want %v", failInfos, expectedFailInfos)

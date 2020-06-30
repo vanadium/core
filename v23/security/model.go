@@ -231,7 +231,7 @@ type BlessingStore interface {
 	PeerBlessings() map[BlessingPattern]Blessings
 
 	// CacheDischarge inserts the discharge for the provided impetus and caveat into the cache.
-	CacheDischarge(discharge Discharge, caveat Caveat, impetus DischargeImpetus)
+	CacheDischarge(discharge Discharge, caveat Caveat, impetus DischargeImpetus) error
 
 	// ClearDischarges clears the input discharges from the BlessingStore's
 	// discharge cache.

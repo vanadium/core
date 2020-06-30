@@ -33,7 +33,6 @@ import (
 const (
 	envChildOutputDir   = "TMPDIR"
 	envShellTestProcess = "V23_SHELL_TEST_PROCESS"
-	useAgent            = true
 )
 
 var envPrincipal string
@@ -43,11 +42,7 @@ var (
 )
 
 func init() {
-	if useAgent {
-		envPrincipal = ref.EnvAgentPath
-	} else {
-		envPrincipal = ref.EnvCredentials
-	}
+	envPrincipal = ref.EnvCredentials
 }
 
 // TODO(sadovsky):
@@ -106,15 +101,11 @@ func NewShell(tb testing.TB, ctx *context.T) *Shell {
 	if envChildOutputDir != "TMPDIR" { // sanity check
 		panic(envChildOutputDir)
 	}
-	for _, key := range []string{ref.EnvCredentials, ref.EnvAgentPath} {
+	for _, key := range []string{ref.EnvCredentials} {
 		delete(sh.Vars, key)
 	}
 	if sh.tb != nil {
 		sh.Vars[envShellTestProcess] = "1"
-		// We don't want to launch on-demand agents when loading
-		// credentials from disk in tests.  See also similar setting in
-		// test.V23Init().
-		sh.Vars[ref.EnvCredentialsNoAgent] = "1"
 	}
 
 	cleanup := true
@@ -398,15 +389,7 @@ func (sh *Shell) initPrincipalManager() error {
 	if sh.Err != nil {
 		return errAlreadyHandled{sh.Err}
 	}
-	var pm principalManager
-	if useAgent {
-		var err error
-		if pm, err = newAgentPrincipalManager(dir); err != nil {
-			return err
-		}
-	} else {
-		pm = newFilesystemPrincipalManager(dir)
-	}
+	pm := newFilesystemPrincipalManager(dir)
 	sh.pm = pm
 	return nil
 }

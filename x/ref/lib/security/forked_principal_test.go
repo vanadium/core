@@ -17,7 +17,7 @@ func TestFixedBlessingStore(t *testing.T) {
 	b2, _ := p.BlessSelf("other")
 	tpcav := mkCaveat(security.NewPublicKeyCaveat(p.PublicKey(), "location", security.ThirdPartyRequirements{}, security.UnconstrainedUse()))
 	d := mkDischarge(p.MintDischarge(tpcav, security.UnconstrainedUse()))
-	s1 := newInMemoryBlessingStore(p.PublicKey())
+	s1 := NewBlessingStore(p.PublicKey())
 	s2 := FixedBlessingsStore(b1, s1)
 
 	// Set and SetDefault should fail, other than that, s2 should behave
@@ -59,7 +59,7 @@ func TestImmutableBlessingStore(t *testing.T) {
 	bdef, _ := p.BlessSelf("default")
 	tpcav := mkCaveat(security.NewPublicKeyCaveat(p.PublicKey(), "location", security.ThirdPartyRequirements{}, security.UnconstrainedUse()))
 	d := mkDischarge(p.MintDischarge(tpcav, security.UnconstrainedUse()))
-	s1 := newInMemoryBlessingStore(p.PublicKey())
+	s1 := NewBlessingStore(p.PublicKey())
 	s2 := ImmutableBlessingStore(s1)
 
 	// Set and SetDefault called on s1 should affect s2
@@ -95,9 +95,9 @@ func TestImmutableBlessingStore(t *testing.T) {
 }
 
 func TestImmutableBlessingRoots(t *testing.T) {
-	pubkey, _, _ := NewPrincipalKey()
+	pubkey, _, _ := NewECDSAKeyPair()
 	pk, _ := pubkey.MarshalBinary()
-	r1 := newInMemoryBlessingRoots()
+	r1 := NewBlessingRoots()
 	r2 := ImmutableBlessingRoots(r1)
 	pat := "pattern1"
 
