@@ -11,13 +11,40 @@ import (
 	"v.io/v23/naming"
 )
 
-func TestDefaultAuthorizer(t *testing.T) {
-	var (
-		pali = newPrincipal(t)
-		pbob = newPrincipal(t)
-		pche = newPrincipal(t)
-		pdis = newPrincipal(t) // third-party caveat discharger
+func TestDefaultAuthorizerECDSA(t *testing.T) {
+	testDefaultAuthorizer(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestDefaultAuthorizerED25519(t *testing.T) {
+	testDefaultAuthorizer(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 
+func TestDefaultAuthorizer(t *testing.T) {
+	testDefaultAuthorizer(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+	testDefaultAuthorizer(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis Principal) { // pdis is the third-party caveat discharger.
+	var (
 		che, _ = pche.BlessSelf("che")
 		ali, _ = pali.BlessSelf("ali")
 		bob, _ = pbob.BlessSelf("bob")
@@ -145,11 +172,32 @@ func mkThirdPartyCaveat(t *testing.T, discharger PublicKey, location string, c C
 	return tpc
 }
 
-func TestAllowEveryone(t *testing.T) {
-	var (
-		pali = newPrincipal(t)
-		pbob = newPrincipal(t)
+func TestAllowEveryoneECDSA(t *testing.T) {
+	testAllowEveryone(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestAllowEveryoneED25519(t *testing.T) {
+	testAllowEveryone(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 
+func TestAllowEveryone(t *testing.T) {
+	testAllowEveryone(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+	testAllowEveryone(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func testAllowEveryone(t *testing.T, pali, pbob Principal) {
+	var (
 		ali, _ = pali.BlessSelf("ali")
 		bob, _ = pbob.BlessSelf("bob")
 
@@ -164,12 +212,32 @@ func TestAllowEveryone(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+func TestPublicKeyAuthorizerECDSA(t *testing.T) {
+	testPublicKeyAuthorizer(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestPublicKeyAuthorizerED25519(t *testing.T) {
+	testPublicKeyAuthorizer(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 
 func TestPublicKeyAuthorizer(t *testing.T) {
-	var (
-		pali = newPrincipal(t)
-		pbob = newPrincipal(t)
+	testPublicKeyAuthorizer(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+	testPublicKeyAuthorizer(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+	)
+}
 
+func testPublicKeyAuthorizer(t *testing.T, pali, pbob Principal) {
+	var (
 		ali, _ = pali.BlessSelf("ali")
 		bob, _ = pbob.BlessSelf("bob")
 
@@ -188,11 +256,31 @@ func TestPublicKeyAuthorizer(t *testing.T) {
 	}
 }
 
+func TestEndpointAuthorizerECDSA(t *testing.T) {
+	testEndpointAuthorizer(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestEndpointAuthorizerED25519(t *testing.T) {
+	testEndpointAuthorizer(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 func TestEndpointAuthorizer(t *testing.T) {
-	var (
-		pali = newPrincipal(t)
-		pbob = newPrincipal(t)
+	testEndpointAuthorizer(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+	testEndpointAuthorizer(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+	)
+}
 
+func testEndpointAuthorizer(t *testing.T, pali, pbob Principal) {
+	var (
 		ali, _       = pali.BlessSelf("ali")
 		alifriend, _ = pali.Bless(pbob.PublicKey(), ali, "friend", UnconstrainedUse())
 

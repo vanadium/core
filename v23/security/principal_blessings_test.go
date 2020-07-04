@@ -18,19 +18,27 @@ import (
 	"v.io/v23/verror"
 )
 
-func TestBlessSelf(t *testing.T) {
-	var (
-		tp = newPrincipal(t) // principal where blessings are tested
-		p  = newPrincipal(t)
+func TestBlessSelfECDSA(t *testing.T) {
+	testBlessSelf(t, newECDSAPrincipal(t), newECDSAPrincipal(t))
+}
 
-		call = func(method string) CallParams {
-			return CallParams{
-				LocalPrincipal: tp,
-				Method:         method,
-			}
+func TestBlessSelfED25519(t *testing.T) {
+	testBlessSelf(t, newED25519Principal(t), newED25519Principal(t))
+}
+
+func TestBlessSel(t *testing.T) {
+	testBlessSelf(t, newECDSAPrincipal(t), newED25519Principal(t))
+	testBlessSelf(t, newED25519Principal(t), newECDSAPrincipal(t))
+}
+
+func testBlessSelf(t *testing.T, tp, p Principal) {
+	// tp is the principal where blessings are tested.
+	call := func(method string) CallParams {
+		return CallParams{
+			LocalPrincipal: tp,
+			Method:         method,
 		}
-	)
-
+	}
 	alice, err := p.BlessSelf("alice", newCaveat(NewMethodCaveat("Method")))
 	if err != nil {
 		t.Fatal(err)
@@ -53,22 +61,49 @@ func TestBlessSelf(t *testing.T) {
 	}
 }
 
-func TestBless(t *testing.T) {
-	var (
-		tp = newPrincipal(t) // principal where blessings are tested
-
-		p1    = newPrincipal(t)
-		p2    = newPrincipal(t)
-		p3    = newPrincipal(t)
-		alice = blessSelf(t, p1, "alice")
-		call  = func(method, suffix string) CallParams {
-			return CallParams{
-				LocalPrincipal: tp,
-				Method:         method,
-				Suffix:         suffix,
-			}
-		}
+func TestBlessECDSA(t *testing.T) {
+	testBless(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
 	)
+}
+
+func TestBlessED25519(t *testing.T) {
+	testBless(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func TestBless(t *testing.T) {
+	testBless(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+	testBless(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func testBless(t *testing.T, tp, p1, p2, p3 Principal) {
+	// tp is the principal where blessings are tested
+	alice := blessSelf(t, p1, "alice")
+	call := func(method, suffix string) CallParams {
+		return CallParams{
+			LocalPrincipal: tp,
+			Method:         method,
+			Suffix:         suffix,
+		}
+	}
 	addToRoots(t, tp, alice)
 	// p1 blessing p2 'with' empty Blessings should fail.
 	if b, err := p1.Bless(p2.PublicKey(), Blessings{}, "friend", UnconstrainedUse()); err == nil {
@@ -105,10 +140,21 @@ func TestBless(t *testing.T) {
 	}
 }
 
+func TestThirdPartyCaveatsECDSA(t *testing.T) {
+	testThirdPartyCaveats(t, newECDSAPrincipal(t), newECDSAPrincipal(t))
+}
+func TestThirdPartyCaveatsED25519(t *testing.T) {
+	testThirdPartyCaveats(t, newED25519Principal(t), newED25519Principal(t))
+}
+
 func TestThirdPartyCaveats(t *testing.T) {
+	testThirdPartyCaveats(t, newECDSAPrincipal(t), newED25519Principal(t))
+	testThirdPartyCaveats(t, newED25519Principal(t), newECDSAPrincipal(t))
+
+}
+
+func testThirdPartyCaveats(t *testing.T, p1, p2 Principal) {
 	var (
-		p1  = newPrincipal(t)
-		p2  = newPrincipal(t)
 		tp1 = newCaveat(NewPublicKeyCaveat(p1.PublicKey(), "peoria", ThirdPartyRequirements{}, UnconstrainedUse()))
 		tp2 = newCaveat(NewPublicKeyCaveat(p1.PublicKey(), "london", ThirdPartyRequirements{}, UnconstrainedUse()))
 		tp3 = newCaveat(NewPublicKeyCaveat(p1.PublicKey(), "delhi", ThirdPartyRequirements{}, UnconstrainedUse()))
@@ -131,7 +177,21 @@ func TestThirdPartyCaveats(t *testing.T) {
 	}
 }
 
+func TestBlessingNamesECDSA(t *testing.T) {
+	testBlessingNames(t, newECDSAPrincipal(t), newECDSAPrincipal(t))
+}
+
+func TestBlessingNamesED25519(t *testing.T) {
+	testBlessingNames(t, newED25519Principal(t), newED25519Principal(t))
+}
+
 func TestBlessingNames(t *testing.T) {
+	testBlessingNames(t, newED25519Principal(t), newECDSAPrincipal(t))
+	testBlessingNames(t, newECDSAPrincipal(t), newED25519Principal(t))
+
+}
+
+func testBlessingNames(t *testing.T, p1, p2 Principal) {
 	expiryCaveat, err := NewExpiryCaveat(time.Now().Add(time.Minute))
 	if err != nil {
 		t.Fatal(err)
@@ -143,9 +203,7 @@ func TestBlessingNames(t *testing.T) {
 	noCaveat := UnconstrainedUse()
 
 	var (
-		p1     = newPrincipal(t)
 		alice  = blessSelf(t, p1, "alice", expiryCaveat)
-		p2     = newPrincipal(t)
 		bob    = blessSelf(t, p2, "bob", noCaveat)
 		notBob = blessSelf(t, p2, "bobUnrecognized", noCaveat)
 	)
@@ -213,14 +271,39 @@ func TestBlessingNames(t *testing.T) {
 	}
 }
 
+func TestBlessingsECDSA(t *testing.T) {
+	testBlessings(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t).PublicKey(),
+	)
+}
+
+func TestBlessingsED25519(t *testing.T) {
+	testBlessings(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t).PublicKey(),
+	)
+}
+
 func TestBlessings(t *testing.T) {
+	testBlessings(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t).PublicKey(),
+	)
+	testBlessings(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t).PublicKey(),
+	)
+}
+
+func testBlessings(t *testing.T, tp, p Principal, p2 PublicKey) {
 	type s []string
 
 	var (
-		tp = newPrincipal(t) // principal where blessings are tested
-
-		p     = newPrincipal(t)
-		p2    = newPrincipal(t).PublicKey()
 		alice = blessSelf(t, p, "alice")
 		valid = s{
 			"a",
@@ -276,12 +359,23 @@ func TestBlessings(t *testing.T) {
 		}
 	}
 }
-
-func TestCreatePrincipalWithNilStoreAndRoots(t *testing.T) {
+func TestCreatePrincipalWithNilStoreAndRootsECDSA(t *testing.T) {
 	p, err := CreatePrincipal(newECDSASigner(t, elliptic.P256()), nil, nil)
 	if err != nil {
-		t.Fatalf("CreatePrincipal failed: %v", err)
+		t.Fatalf("CreatePrincipal using ECDSA signer failed: %v", err)
 	}
+	testCreatePrincipalWithNilStoreAndRoots(t, p)
+}
+
+func TestCreatePrincipalWithNilStoreAndRootsED25519(t *testing.T) {
+	p, err := CreatePrincipal(newED25519Signer(t), nil, nil)
+	if err != nil {
+		t.Fatalf("CreatePrincipal using ECDSA signer failed: %v", err)
+	}
+	testCreatePrincipalWithNilStoreAndRoots(t, p)
+}
+
+func testCreatePrincipalWithNilStoreAndRoots(t *testing.T, p Principal) {
 	const (
 		noRootsErr = "BlessingRoots object is nil"
 		noStoreErr = "BlessingStore object is nil"
@@ -327,16 +421,43 @@ func TestCreatePrincipalWithNilStoreAndRoots(t *testing.T) {
 	}
 }
 
+func TestAddToRootsECDSA(t *testing.T) {
+	testAddToRoots(t,
+		newECDSAPrincipal,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t).PublicKey(),
+	)
+}
+func TestAddToRootsED25519(t *testing.T) {
+	testAddToRoots(t,
+		newED25519Principal,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t).PublicKey(),
+	)
+}
+
 func TestAddToRoots(t *testing.T) {
+	testAddToRoots(t,
+		newECDSAPrincipal,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t).PublicKey(),
+	)
+	testAddToRoots(t,
+		newED25519Principal,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t).PublicKey(),
+	)
+}
+
+func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) Principal, p1, p2 Principal, p3 PublicKey) {
 	type s []string
 	var (
-		p1          = newPrincipal(t)
 		aliceFriend = blessSelf(t, p1, "alice:friend")
-
-		p2      = newPrincipal(t)
-		charlie = blessSelf(t, p2, "charlie")
-
-		p3 = newPrincipal(t).PublicKey()
+		charlie     = blessSelf(t, p2, "charlie")
 	)
 	aliceFriendSpouse, err := p1.Bless(p3, aliceFriend, "spouse", UnconstrainedUse())
 	if err != nil {
@@ -367,7 +488,7 @@ func TestAddToRoots(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		tp := newPrincipal(t) // principal where roots are tested.
+		tp := tpFunc(t) // principal where roots are tested.
 		if err := AddToRoots(tp, test.add); err != nil {
 			t.Error(err)
 			continue
@@ -389,11 +510,16 @@ func TestAddToRoots(t *testing.T) {
 	}
 }
 
-func TestPrincipalSign(t *testing.T) {
-	var (
-		p       = newPrincipal(t)
-		message = make([]byte, 10)
-	)
+func TestPrincipalSignECDSA(t *testing.T) {
+	testPrincipalSign(t, newECDSAPrincipal(t))
+}
+
+func TestPrincipalSignED25519(t *testing.T) {
+	testPrincipalSign(t, newED25519Principal(t))
+}
+
+func testPrincipalSign(t *testing.T, p Principal) {
+	var message = make([]byte, 10)
 	if sig, err := p.Sign(message); err != nil {
 		t.Error(err)
 	} else if !sig.Verify(p.PublicKey(), message) {
@@ -401,9 +527,16 @@ func TestPrincipalSign(t *testing.T) {
 	}
 }
 
-func TestPrincipalSignaturePurpose(t *testing.T) {
+func TestPrincipalSignaturePurposeECDSA(t *testing.T) {
+	testPrincipalSignaturePurpose(t, newECDSAPrincipal, newECDSAPrincipal(t))
+}
+
+func TestPrincipalSignaturePurposeED25519(t *testing.T) {
+	testPrincipalSignaturePurpose(t, newED25519Principal, newED25519Principal(t))
+}
+
+func testPrincipalSignaturePurpose(t *testing.T, pfn func(testing.TB) Principal, p Principal) {
 	// Ensure that logically different private key operations result in different purposes in the signatures.
-	p := newPrincipal(t)
 
 	// signPurpose for Sign
 	if sig, err := p.Sign(make([]byte, 1)); err != nil {
@@ -420,7 +553,7 @@ func TestPrincipalSignaturePurpose(t *testing.T) {
 	if sig := selfBlessing.chains[0][0].Signature; !bytes.Equal(sig.Purpose, blessPurpose) {
 		t.Errorf("BlessSelf used signature with purpose %q, want %q", sig.Purpose, blessPurpose)
 	}
-	otherBlessing, err := p.Bless(newPrincipal(t).PublicKey(), selfBlessing, "bar", UnconstrainedUse())
+	otherBlessing, err := p.Bless(pfn(t).PublicKey(), selfBlessing, "bar", UnconstrainedUse())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -432,14 +565,43 @@ func TestPrincipalSignaturePurpose(t *testing.T) {
 	}
 }
 
-func TestUnionOfBlessings(t *testing.T) { //nolint:gocyclo
+func TestUnionOfBlessingsECDSA(t *testing.T) {
+	testUnionOfBlessings(t,
+		newECDSAPrincipal,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestUnionOfBlessingsED25519(t *testing.T) {
+	testUnionOfBlessings(t,
+		newED25519Principal,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func TestUnionOfBlessings(t *testing.T) {
+	testUnionOfBlessings(t,
+		newECDSAPrincipal,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+	testUnionOfBlessings(t,
+		newED25519Principal,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func testUnionOfBlessings(t *testing.T, pfn func(testing.TB) Principal, p1, p2, p Principal) {
 	// A bunch of principals bless p
 	var (
-		p1    = newPrincipal(t)
-		p2    = newPrincipal(t)
 		alice = blessSelf(t, p1, "alice")
 		bob   = blessSelf(t, p2, "bob")
-		p     = newPrincipal(t)
 		carol = blessSelf(t, p, "carol")
 		empty Blessings
 
@@ -449,7 +611,7 @@ func TestUnionOfBlessings(t *testing.T) { //nolint:gocyclo
 			params := CallParams{
 				Method:         method,
 				Suffix:         suffix,
-				LocalPrincipal: newPrincipal(t),
+				LocalPrincipal: pfn(t),
 			}
 			for _, r := range recognized {
 				addToRoots(t, params.LocalPrincipal, r)
@@ -471,46 +633,37 @@ func TestUnionOfBlessings(t *testing.T) { //nolint:gocyclo
 		t.Fatal(err)
 	}
 
-	if err := checkBlessings(friend, call("Method", "Suffix")); err != nil {
+	for _, tc := range []struct {
+		params CallParams
+		want   []string
+	}{
 		// The authorizing principal does not recognize either alice or bob
 		// and thus does not recognize "friend".
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("OtherMethod", "Suffix", alice, bob)); err != nil {
+		{call("Method", "Suffix"), nil},
 		// Caveats not satisfied.
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", carol), "carol"); err != nil {
+		{call("OtherMethod", "Suffix", alice, bob), nil},
 		// No caveats on the recognized "carol" blessing.
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", alice), "alice:friend"); err != nil {
+		{call("Method", "Suffix", carol), []string{"carol"}},
 		// Caveats on the recognized blessing are satisfied.
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", alice, carol), "carol", "alice:friend"); err != nil {
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", bob), "bob:friend"); err != nil {
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", bob, carol), "carol", "bob:friend"); err != nil {
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("Method", "Suffix", alice, bob, carol), "carol", "alice:friend", "bob:friend"); err != nil {
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("AliceMethod", "Suffix", alice, bob), "alice:friend"); err != nil {
+		{call("Method", "Suffix", alice), []string{"alice:friend"}},
+
+		{call("Method", "Suffix", alice, carol), []string{"carol", "alice:friend"}},
+		{call("Method", "Suffix", bob), []string{"bob:friend"}},
+
+		{call("Method", "Suffix", bob, carol), []string{"carol", "bob:friend"}},
+		{call("Method", "Suffix", alice, bob, carol), []string{"carol", "alice:friend", "bob:friend"}},
 		// Caveats on only one of the two recognized blessings is satisfied.
-		t.Error(err)
-	}
-	if err := checkBlessings(friend, call("BobMethod", "Suffix", alice, bob), "bob:friend"); err != nil {
+		{call("AliceMethod", "Suffix", alice, bob), []string{"alice:friend"}},
 		// Caveats on only one of the two recognized blessings is satisfied.
-		t.Error(err)
+		{call("BobMethod", "Suffix", alice, bob), []string{"bob:friend"}},
+	} {
+		if err := checkBlessings(friend, tc.params, tc.want...); err != nil {
+			t.Errorf("failed for call params: %v (want: %v): %v\n", tc.params, tc.want, err)
+		}
 	}
 
 	// p can bless p3 further, allowing only method calls on 'Suffix'.
-	spouse, err := p.Bless(newPrincipal(t).PublicKey(), friend, "spouse", newSuffixCaveat("Suffix"))
+	spouse, err := p.Bless(pfn(t).PublicKey(), friend, "spouse", newSuffixCaveat("Suffix"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -530,16 +683,46 @@ func TestUnionOfBlessings(t *testing.T) { //nolint:gocyclo
 	}
 }
 
+func TestCertificateCompositionAttackECDSA(t *testing.T) {
+	testCertificateCompositionAttack(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestCertificateCompositionAttackED25519(t *testing.T) {
+	testCertificateCompositionAttack(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 func TestCertificateCompositionAttack(t *testing.T) {
-	var (
-		tp = newPrincipal(t) // principal for testing blessings.
+	testCertificateCompositionAttack(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+	testCertificateCompositionAttack(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 
-		p1    = newPrincipal(t)
+func testCertificateCompositionAttack(t *testing.T, tp, p1, p2, p3, p4 Principal) {
+	// tp is the principal for testing blessings.
+	var (
 		alice = blessSelf(t, p1, "alice")
-		p2    = newPrincipal(t)
 		bob   = blessSelf(t, p2, "bob")
-		p3    = newPrincipal(t)
-		p4    = newPrincipal(t)
 		cp    = CallParams{Method: "Foo", LocalPrincipal: tp}
 	)
 	addToRoots(t, tp, alice)
@@ -586,17 +769,41 @@ func TestCertificateCompositionAttack(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-
-func TestCertificateTamperingAttack(t *testing.T) {
-	var (
-		tp = newPrincipal(t) // principal for testing blessings.
-
-		p1 = newPrincipal(t)
-		p2 = newPrincipal(t)
-		p3 = newPrincipal(t)
-
-		alice = blessSelf(t, p1, "alice")
+func TestCertificateTamperingAttackECDSA(t *testing.T) {
+	testCertificateTamperingAttack(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
 	)
+
+}
+func TestCertificateTamperingAttackED25519(t *testing.T) {
+	testCertificateTamperingAttack(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+func TestCertificateTamperingAttack(t *testing.T) {
+	testCertificateTamperingAttack(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+	testCertificateTamperingAttack(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func testCertificateTamperingAttack(t *testing.T, tp, p1, p2, p3 Principal) {
+	// tp is principal for testing blessings.
+	alice := blessSelf(t, p1, "alice")
 	addToRoots(t, tp, alice)
 
 	alicefriend, err := p1.Bless(p2.PublicKey(), alice, "friend", UnconstrainedUse())
@@ -616,12 +823,39 @@ func TestCertificateTamperingAttack(t *testing.T) {
 	}
 }
 
-func TestCertificateChainsTamperingAttack(t *testing.T) {
-	var (
-		tp = newPrincipal(t) // principal for testing blessings.
+func TestCertificateChainsTamperingAttackECDSA(t *testing.T) {
+	testCertificateChainsTamperingAttack(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
 
-		p1    = newPrincipal(t)
-		p2    = newPrincipal(t)
+func TestCertificateChainsTamperingAttackED25519(t *testing.T) {
+	testCertificateChainsTamperingAttack(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func TestCertificateChainsTamperingAttack(t *testing.T) {
+	testCertificateChainsTamperingAttack(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+	testCertificateChainsTamperingAttack(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func testCertificateChainsTamperingAttack(t *testing.T, tp, p1, p2 Principal) {
+	// tp is principal for testing blessings.
+	var (
+		// tp is principal for testing blessings.
 		alice = blessSelf(t, p1, "alice")
 		bob   = blessSelf(t, p2, "bob")
 	)
@@ -637,10 +871,18 @@ func TestCertificateChainsTamperingAttack(t *testing.T) {
 		t.Error(err)
 	}
 }
+func TestBlessingToAndFromWireECDSA(t *testing.T) {
+	testBlessingToAndFromWire(t, newECDSAPrincipal(t))
 
-func TestBlessingToAndFromWire(t *testing.T) {
+}
+
+func TestBlessingToAndFromWireED25519(t *testing.T) {
+	testBlessingToAndFromWire(t, newED25519Principal(t))
+}
+
+func testBlessingToAndFromWire(t *testing.T, p Principal) {
 	// WireBlessings and Blessings should be basically interchangeable.
-	native, err := newPrincipal(t).BlessSelf("self")
+	native, err := p.BlessSelf("self")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -658,10 +900,21 @@ func TestBlessingToAndFromWire(t *testing.T) {
 		t.Errorf("native->wire->native changed value from %#v to %#v", native, dup)
 	}
 }
+func TestBlessingsRoundTripECDSA(t *testing.T) {
+	testBlessingsRoundTrip(t, newECDSAPrincipal(t), newECDSAPrincipal(t))
+}
+func TestBlessingsRoundTripED25519(t *testing.T) {
+	testBlessingsRoundTrip(t, newED25519Principal(t), newED25519Principal(t))
+}
 
 func TestBlessingsRoundTrip(t *testing.T) {
+	testBlessingsRoundTrip(t, newECDSAPrincipal(t), newED25519Principal(t))
+	testBlessingsRoundTrip(t, newED25519Principal(t), newECDSAPrincipal(t))
+}
+
+func testBlessingsRoundTrip(t *testing.T, p1, p2 Principal) {
 	// Test that the blessing obtained after roundtripping is identical to the original.
-	b, err := newPrincipal(t).BlessSelf("self")
+	b, err := p1.BlessSelf("self")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -670,7 +923,7 @@ func TestBlessingsRoundTrip(t *testing.T) {
 		t.Fatalf("Got (%#v, %v), want (%#v, nil)", got, err, b)
 	}
 	// Putzing around with the wire representation should break the decoding.
-	otherkey, err := newPrincipal(t).PublicKey().MarshalBinary()
+	otherkey, err := p2.PublicKey().MarshalBinary()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -690,7 +943,33 @@ func TestBlessingsRoundTrip(t *testing.T) {
 	}
 }
 
+func TestBlessingsOnWireWithMissingCertificatesECDSA(t *testing.T) {
+	testBlessingsOnWireWithMissingCertificates(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+func TestBlessingsOnWireWithMissingCertificatesED25519(t *testing.T) {
+	testBlessingsOnWireWithMissingCertificates(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t))
+}
+
 func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
+	testBlessingsOnWireWithMissingCertificates(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+	testBlessingsOnWireWithMissingCertificates(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t))
+}
+
+func testBlessingsOnWireWithMissingCertificates(t *testing.T, rootP, middlemanP, leafP Principal) {
 	var (
 		B = func(b Blessings, err error) Blessings {
 			if err != nil {
@@ -701,12 +980,9 @@ func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
 
 		// Create "leaf", a blessing involving three certificates that bind the name
 		// root:middleman:leaf to the leaf principal.
-		rootP      = newPrincipal(t)
-		middlemanP = newPrincipal(t)
-		leafP      = newPrincipal(t)
-		root       = B(rootP.BlessSelf("root"))
-		middleman  = B(rootP.Bless(middlemanP.PublicKey(), root, "middleman", UnconstrainedUse()))
-		leaf       = B(middlemanP.Bless(leafP.PublicKey(), middleman, "leaf", UnconstrainedUse()))
+		root      = B(rootP.BlessSelf("root"))
+		middleman = B(rootP.Bless(middlemanP.PublicKey(), root, "middleman", UnconstrainedUse()))
+		leaf      = B(middlemanP.Bless(leafP.PublicKey(), middleman, "leaf", UnconstrainedUse()))
 
 		wire WireBlessings
 		tmp  Blessings
@@ -771,8 +1047,15 @@ func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
 		wire.CertificateChains[idx] = chain
 	}
 }
+func TestOverrideCaveatValidationECDSA(t *testing.T) {
+	testOverrideCaveatValidation(t, newECDSAPrincipal(t))
+}
 
-func TestOverrideCaveatValidation(t *testing.T) { //nolint:gocyclo
+func TestOverrideCaveatValidationED25519(t *testing.T) {
+	testOverrideCaveatValidation(t, newED25519Principal(t))
+}
+
+func testOverrideCaveatValidation(t *testing.T, p Principal) {
 	falseReturningCav := Caveat{
 		Id: uniqueid.Id{0x99, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 	}
@@ -781,29 +1064,12 @@ func TestOverrideCaveatValidation(t *testing.T) { //nolint:gocyclo
 	}
 	falseResultErr := fmt.Errorf("False caveat result")
 
-	validator := func(_ *context.T, _ Call, cavs [][]Caveat) []error {
-		results := make([]error, len(cavs))
-		for i, chain := range cavs {
-			for _, cav := range chain {
-				switch cav.Id {
-				case falseReturningCav.Id:
-					results[i] = falseResultErr
-				case trueReturningCav.Id:
-				case ConstCaveat.Id:
-					if !reflect.DeepEqual(cav, UnconstrainedUse()) {
-						t.Fatalf("Unexpected const caveat")
-					}
-				default:
-					t.Fatalf("Unexpected caveat: %#v", cav)
-				}
-			}
-		}
-		return results
+	validator := func(ctx *context.T, call Call, cavs [][]Caveat) []error {
+		return overideCaveatValidator(t, ctx, call, trueReturningCav.Id, falseReturningCav.Id, falseResultErr, cavs)
 	}
 	setCaveatValidationForTest(validator)
 	defer setCaveatValidationForTest(defaultCaveatValidation)
 
-	p := newPrincipal(t)
 	ctx, cf := context.RootContext()
 	defer cf()
 
@@ -862,9 +1128,36 @@ func TestOverrideCaveatValidation(t *testing.T) { //nolint:gocyclo
 	}
 }
 
-func TestRemoteBlessingNames(t *testing.T) {
+func overideCaveatValidator(t *testing.T, _ *context.T, _ Call, trueID, falseID uniqueid.Id, falseResultErr error, cavs [][]Caveat) []error {
+	results := make([]error, len(cavs))
+	for i, chain := range cavs {
+		for _, cav := range chain {
+			switch cav.Id {
+			case falseID:
+				results[i] = falseResultErr
+			case trueID:
+			case ConstCaveat.Id:
+				if !reflect.DeepEqual(cav, UnconstrainedUse()) {
+					t.Fatalf("Unexpected const caveat")
+				}
+			default:
+				t.Fatalf("Unexpected caveat: %#v", cav)
+			}
+		}
+	}
+	return results
+}
+
+func TestRemoteBlessingNamesECDSA(t *testing.T) {
+	testRemoteBlessingNames(t, newECDSAPrincipal(t))
+}
+
+func TestRemoteBlessingNamesED25519(t *testing.T) {
+	testRemoteBlessingNames(t, newED25519Principal(t))
+}
+
+func testRemoteBlessingNames(t *testing.T, p Principal) {
 	var (
-		p          = newPrincipal(t)
 		mkBlessing = func(name string, cav ...Caveat) Blessings {
 			ret, err := p.BlessSelf(name, cav...)
 			if err != nil {
@@ -909,13 +1202,20 @@ func TestRemoteBlessingNames(t *testing.T) {
 	}
 }
 
-func BenchmarkRemoteBlessingNames(b *testing.B) {
-	p := newPrincipal(b)
+func BenchmarkRemoteBlessingNamesECDSA(b *testing.B) {
+	benchmarkRemoteBlessingNames(b, newECDSAPrincipal(b), newECDSAPrincipal(b))
+}
+
+func BenchmarkRemoteBlessingNamesED25519(b *testing.B) {
+	benchmarkRemoteBlessingNames(b, newED25519Principal(b), newED25519Principal(b))
+}
+
+func benchmarkRemoteBlessingNames(b *testing.B, p, p2 Principal) {
 	local, err := p.BlessSelf("local")
 	if err != nil {
 		b.Fatal(err)
 	}
-	remote, err := p.Bless(newPrincipal(b).PublicKey(), local, "delegate", UnconstrainedUse())
+	remote, err := p.Bless(p2.PublicKey(), local, "delegate", UnconstrainedUse())
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -934,12 +1234,37 @@ func BenchmarkRemoteBlessingNames(b *testing.B) {
 	b.StopTimer() // So the cancel() call isn't included.
 }
 
-func TestSigningBlessings(t *testing.T) { //nolint:gocyclo
-	var (
-		google = newPrincipal(t)
-		alice  = newPrincipal(t)
-		bob    = newPrincipal(t)
+func TestSigningBlessingsECDSA(t *testing.T) {
+	testSigningBlessings(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
 
+func TestSigningBlessingsED25519(t *testing.T) {
+	testSigningBlessings(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
+
+func TestSigningBlessings(t *testing.T) {
+	testSigningBlessings(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+	testSigningBlessings(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+}
+
+func testSigningBlessings(t *testing.T, google, alice, bob Principal) {
+	var (
 		googleB, _ = google.BlessSelf("google")
 
 		peerCav, _  = NewCaveat(PeerBlessingsCaveat, []BlessingPattern{"youtube"})
@@ -952,19 +1277,6 @@ func TestSigningBlessings(t *testing.T) { //nolint:gocyclo
 		googleAliceFalse, _   = google.Bless(alice.PublicKey(), googleB, "alice:false", falseCav)
 		googleAlice, _        = google.Bless(alice.PublicKey(), googleB, "alice", newCaveat(NewExpiryCaveat(time.Now().Add(time.Hour))), trueCav)
 		aliceB, _             = UnionOfBlessings(aliceSelf, googleYoutubeUser, googleAliceExpired, googleAliceFalse, googleAlice)
-
-		// rawNames returns the blessing names encapsulated in the provided blessings, without
-		// validating any caveats and blessing roots.
-		rawNames = func(b Blessings) []string {
-			var ret []string
-			for _, chain := range b.chains {
-				if len(chain) == 0 {
-					continue
-				}
-				ret = append(ret, claimedName(chain))
-			}
-			return ret
-		}
 	)
 	if err := AddToRoots(bob, googleB); err != nil {
 		t.Fatal(err)
@@ -999,26 +1311,45 @@ func TestSigningBlessings(t *testing.T) { //nolint:gocyclo
 		t.Fatalf("SigningBlessingNames(%v): got %d rejected blessing names, want 4", aliceB, got)
 	}
 	for _, r := range rejected {
-		switch r.Blessing {
-		case "alice":
-			if got, want := verror.ErrorID(r.Err), ErrUnrecognizedRoot.ID; got != want {
-				t.Errorf("SigningBlessingNames(%v): rejected blessing %v with errorID %v, want errorID %v", aliceB, r.Blessing, got, want)
-			}
-		case "google:alice:false":
-			if got, want := verror.ErrorID(r.Err), ErrCaveatValidation.ID; got != want {
-				t.Errorf("SigningBlessingNames(%v): rejected blessing %v with errorID %v, want errorID %v", aliceB, r.Blessing, got, want)
-			}
-		case "google:alice:expired":
-			if got, want := verror.ErrorID(r.Err), ErrCaveatValidation.ID; got != want {
-				t.Errorf("SigningBlessingNames(%v): rejected blessing %v with errorID %v, want errorID %v", aliceB, r.Blessing, got, want)
-			}
-		case "google:youtube:user":
-			if got, want := verror.ErrorID(r.Err), ErrInvalidSigningBlessingCaveat.ID; got != want {
-				t.Errorf("SigningBlessingNames(%v): rejected blessing %v with errorID %v, want errorID %v", aliceB, r.Blessing, got, want)
-			}
-		default:
-			t.Errorf("SigningBlessingNames(%v): invalid rejected blessing name %v", aliceB, r.Blessing)
-
+		if err := validateAliceRejectedBlessingError(r); err != nil {
+			t.Errorf("SigningBlessingNames(%v): %v", aliceB, err)
 		}
 	}
+}
+
+func validateAliceRejectedBlessingError(r RejectedBlessing) error {
+	switch r.Blessing {
+	case "alice":
+		if got, want := verror.ErrorID(r.Err), ErrUnrecognizedRoot.ID; got != want {
+			return fmt.Errorf("rejected blessing %v with errorID %v, want errorID %v", r.Blessing, got, want)
+		}
+	case "google:alice:false":
+		if got, want := verror.ErrorID(r.Err), ErrCaveatValidation.ID; got != want {
+			return fmt.Errorf("rejected blessing %v with errorID %v, want errorID %v", r.Blessing, got, want)
+		}
+	case "google:alice:expired":
+		if got, want := verror.ErrorID(r.Err), ErrCaveatValidation.ID; got != want {
+			return fmt.Errorf("rejected blessing %v with errorID %v, want errorID %v", r.Blessing, got, want)
+		}
+	case "google:youtube:user":
+		if got, want := verror.ErrorID(r.Err), ErrInvalidSigningBlessingCaveat.ID; got != want {
+			return fmt.Errorf("rejected blessing %v with errorID %v, want errorID %v", r.Blessing, got, want)
+		}
+	default:
+		return fmt.Errorf("invalid rejected blessing name %v", r.Blessing)
+	}
+	return nil
+}
+
+// rawNames returns the blessing names encapsulated in the provided blessings,
+// without validating any caveats and blessing roots.
+func rawNames(b Blessings) []string {
+	var ret []string
+	for _, chain := range b.chains {
+		if len(chain) == 0 {
+			continue
+		}
+		ret = append(ret, claimedName(chain))
+	}
+	return ret
 }

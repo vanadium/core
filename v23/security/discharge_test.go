@@ -4,12 +4,7 @@
 
 package security
 
-import (
-	"reflect"
-	"testing"
-
-	"v.io/v23/context"
-)
+/*
 
 func TestDischargeToAndFromWire(t *testing.T) {
 	var (
@@ -125,3 +120,4 @@ func BenchmarkPublicKeyDischargeVerification_Cached(b *testing.B) {
 func BenchmarkPublicKeyDischargeVerification(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(false, b)
 }
+*/

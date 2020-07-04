@@ -457,13 +457,15 @@ func (x *Hash) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 type Signature struct {
 	// Purpose of the signature. Can be used to prevent type attacks.
 	// (See Section 4.2 of http://www-users.cs.york.ac.uk/~jac/PublishedPapers/reviewV1_1997.pdf for example).
-	// The actual signature (R, S values for ECDSA keys) is produced by signing: Hash(Hash(message), Hash(Purpose)).
+	// The actual signature (R, S values for ECDSA keys, byte slice for ED25519) is produced by signing: Hash(Hash(message), Hash(Purpose)).
 	Purpose []byte
 	// Cryptographic hash function applied to the message before computing the signature.
 	Hash Hash
-	// Pair of integers that make up an ECDSA signature.
+	// Pair of integers that make up an ECDSA signature, they will be nil for and ed25519 signature.
 	R []byte
 	S []byte
+	// Ed25519 contains an ed25519 signature, it will be nil for an ecdsa signature.
+	Ed25519 []byte
 }
 
 func (Signature) VDLReflect(struct {
@@ -482,6 +484,9 @@ func (x Signature) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.S) != 0 {
+		return false
+	}
+	if len(x.Ed25519) != 0 {
 		return false
 	}
 	return true
@@ -508,6 +513,11 @@ func (x Signature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 	}
 	if len(x.S) != 0 {
 		if err := enc.NextFieldValueBytes(3, vdlTypeList4, x.S); err != nil {
+			return err
+		}
+	}
+	if len(x.Ed25519) != 0 {
+		if err := enc.NextFieldValueBytes(4, vdlTypeList4, x.Ed25519); err != nil {
 			return err
 		}
 	}
@@ -558,6 +568,10 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			}
 		case 3:
 			if err := dec.ReadValueBytes(-1, &x.S); err != nil {
+				return err
+			}
+		case 4:
+			if err := dec.ReadValueBytes(-1, &x.Ed25519); err != nil {
 				return err
 			}
 		}
@@ -711,6 +725,115 @@ func (x *BlessingPattern) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
+// EcdsaOnlySignature represents a digital signature for ecdsa only. It is
+// defined purely for testing purposes to ensure that instances of services
+// created before the addition of ED25519 support can interoperat with ones
+// that do support ED25519.
+type EcdsaOnlySignature struct {
+	Purpose []byte
+	Hash    Hash
+	R       []byte
+	S       []byte
+}
+
+func (EcdsaOnlySignature) VDLReflect(struct {
+	Name string `vdl:"v.io/v23/security.EcdsaOnlySignature"`
+}) {
+}
+
+func (x EcdsaOnlySignature) VDLIsZero() bool { //nolint:gocyclo
+	if len(x.Purpose) != 0 {
+		return false
+	}
+	if x.Hash != "" {
+		return false
+	}
+	if len(x.R) != 0 {
+		return false
+	}
+	if len(x.S) != 0 {
+		return false
+	}
+	return true
+}
+
+func (x EcdsaOnlySignature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct12); err != nil {
+		return err
+	}
+	if len(x.Purpose) != 0 {
+		if err := enc.NextFieldValueBytes(0, vdlTypeList4, x.Purpose); err != nil {
+			return err
+		}
+	}
+	if x.Hash != "" {
+		if err := enc.NextFieldValueString(1, vdlTypeString8, string(x.Hash)); err != nil {
+			return err
+		}
+	}
+	if len(x.R) != 0 {
+		if err := enc.NextFieldValueBytes(2, vdlTypeList4, x.R); err != nil {
+			return err
+		}
+	}
+	if len(x.S) != 0 {
+		if err := enc.NextFieldValueBytes(3, vdlTypeList4, x.S); err != nil {
+			return err
+		}
+	}
+	if err := enc.NextField(-1); err != nil {
+		return err
+	}
+	return enc.FinishValue()
+}
+
+func (x *EcdsaOnlySignature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	*x = EcdsaOnlySignature{}
+	if err := dec.StartValue(vdlTypeStruct12); err != nil {
+		return err
+	}
+	decType := dec.Type()
+	for {
+		index, err := dec.NextField()
+		switch {
+		case err != nil:
+			return err
+		case index == -1:
+			return dec.FinishValue()
+		}
+		if decType != vdlTypeStruct12 {
+			index = vdlTypeStruct12.FieldIndexByName(decType.Field(index).Name)
+			if index == -1 {
+				if err := dec.SkipValue(); err != nil {
+					return err
+				}
+				continue
+			}
+		}
+		switch index {
+		case 0:
+			if err := dec.ReadValueBytes(-1, &x.Purpose); err != nil {
+				return err
+			}
+		case 1:
+			switch value, err := dec.ReadValueString(); {
+			case err != nil:
+				return err
+			default:
+				x.Hash = Hash(value)
+			}
+		case 2:
+			if err := dec.ReadValueBytes(-1, &x.R); err != nil {
+				return err
+			}
+		case 3:
+			if err := dec.ReadValueBytes(-1, &x.S); err != nil {
+				return err
+			}
+		}
+	}
+}
+
 // DischargeImpetus encapsulates the motivation for a discharge being sought.
 //
 // These values are reported by a principal that is requesting a Discharge for
@@ -746,7 +869,7 @@ func (x DischargeImpetus) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x DischargeImpetus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct12); err != nil {
+	if err := enc.StartValue(vdlTypeStruct13); err != nil {
 		return err
 	}
 	if len(x.Server) != 0 {
@@ -777,7 +900,7 @@ func (x DischargeImpetus) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 }
 
 func vdlWriteAnonList2(enc vdl.Encoder, x []BlessingPattern) error {
-	if err := enc.StartValue(vdlTypeList13); err != nil {
+	if err := enc.StartValue(vdlTypeList14); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -795,7 +918,7 @@ func vdlWriteAnonList2(enc vdl.Encoder, x []BlessingPattern) error {
 }
 
 func vdlWriteAnonList3(enc vdl.Encoder, x []*vom.RawBytes) error {
-	if err := enc.StartValue(vdlTypeList14); err != nil {
+	if err := enc.StartValue(vdlTypeList15); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -823,7 +946,7 @@ func vdlWriteAnonList3(enc vdl.Encoder, x []*vom.RawBytes) error {
 
 func (x *DischargeImpetus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = DischargeImpetus{}
-	if err := dec.StartValue(vdlTypeStruct12); err != nil {
+	if err := dec.StartValue(vdlTypeStruct13); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -835,8 +958,8 @@ func (x *DischargeImpetus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct12 {
-			index = vdlTypeStruct12.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct13 {
+			index = vdlTypeStruct13.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -865,7 +988,7 @@ func (x *DischargeImpetus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 }
 
 func vdlReadAnonList2(dec vdl.Decoder, x *[]BlessingPattern) error {
-	if err := dec.StartValue(vdlTypeList13); err != nil {
+	if err := dec.StartValue(vdlTypeList14); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -886,7 +1009,7 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]BlessingPattern) error {
 }
 
 func vdlReadAnonList3(dec vdl.Decoder, x *[]*vom.RawBytes) error {
-	if err := dec.StartValue(vdlTypeList14); err != nil {
+	if err := dec.StartValue(vdlTypeList15); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -947,7 +1070,7 @@ func (x Certificate) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct15); err != nil {
+	if err := enc.StartValue(vdlTypeStruct16); err != nil {
 		return err
 	}
 	if x.Extension != "" {
@@ -984,7 +1107,7 @@ func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 
 func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Certificate{}
-	if err := dec.StartValue(vdlTypeStruct15); err != nil {
+	if err := dec.StartValue(vdlTypeStruct16); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -996,8 +1119,8 @@ func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct15 {
-			index = vdlTypeStruct15.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct16 {
+			index = vdlTypeStruct16.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1056,7 +1179,7 @@ func (x CaveatDescriptor) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x CaveatDescriptor) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct16); err != nil {
+	if err := enc.StartValue(vdlTypeStruct17); err != nil {
 		return err
 	}
 	if x.Id != (uniqueid.Id{}) {
@@ -1079,7 +1202,7 @@ func (x *CaveatDescriptor) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = CaveatDescriptor{
 		ParamType: vdl.AnyType,
 	}
-	if err := dec.StartValue(vdlTypeStruct16); err != nil {
+	if err := dec.StartValue(vdlTypeStruct17); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1091,8 +1214,8 @@ func (x *CaveatDescriptor) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct16 {
-			index = vdlTypeStruct16.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct17 {
+			index = vdlTypeStruct17.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1141,7 +1264,7 @@ func (x WireBlessings) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x WireBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct17); err != nil {
+	if err := enc.StartValue(vdlTypeStruct18); err != nil {
 		return err
 	}
 	if len(x.CertificateChains) != 0 {
@@ -1159,7 +1282,7 @@ func (x WireBlessings) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 }
 
 func vdlWriteAnonList4(enc vdl.Encoder, x [][]Certificate) error {
-	if err := enc.StartValue(vdlTypeList18); err != nil {
+	if err := enc.StartValue(vdlTypeList19); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -1180,7 +1303,7 @@ func vdlWriteAnonList4(enc vdl.Encoder, x [][]Certificate) error {
 }
 
 func vdlWriteAnonList5(enc vdl.Encoder, x []Certificate) error {
-	if err := enc.StartValue(vdlTypeList19); err != nil {
+	if err := enc.StartValue(vdlTypeList20); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -1202,7 +1325,7 @@ func vdlWriteAnonList5(enc vdl.Encoder, x []Certificate) error {
 
 func (x *WireBlessings) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = WireBlessings{}
-	if err := dec.StartValue(vdlTypeStruct17); err != nil {
+	if err := dec.StartValue(vdlTypeStruct18); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1214,8 +1337,8 @@ func (x *WireBlessings) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct17 {
-			index = vdlTypeStruct17.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct18 {
+			index = vdlTypeStruct18.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1233,7 +1356,7 @@ func (x *WireBlessings) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 }
 
 func vdlReadAnonList4(dec vdl.Decoder, x *[][]Certificate) error {
-	if err := dec.StartValue(vdlTypeList18); err != nil {
+	if err := dec.StartValue(vdlTypeList19); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -1258,7 +1381,7 @@ func vdlReadAnonList4(dec vdl.Decoder, x *[][]Certificate) error {
 }
 
 func vdlReadAnonList5(dec vdl.Decoder, x *[]Certificate) error {
-	if err := dec.StartValue(vdlTypeList19); err != nil {
+	if err := dec.StartValue(vdlTypeList20); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -1321,7 +1444,7 @@ func (x WireDischargePublicKey) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x WireDischargePublicKey) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeUnion20); err != nil {
+	if err := enc.StartValue(vdlTypeUnion21); err != nil {
 		return err
 	}
 	if err := enc.NextField(0); err != nil {
@@ -1337,7 +1460,7 @@ func (x WireDischargePublicKey) VDLWrite(enc vdl.Encoder) error { //nolint:gocyc
 }
 
 func VDLReadWireDischarge(dec vdl.Decoder, x *WireDischarge) error { //nolint:gocyclo
-	if err := dec.StartValue(vdlTypeUnion20); err != nil {
+	if err := dec.StartValue(vdlTypeUnion21); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1348,9 +1471,9 @@ func VDLReadWireDischarge(dec vdl.Decoder, x *WireDischarge) error { //nolint:go
 	case index == -1:
 		return fmt.Errorf("missing field in union %T, from %v", x, decType)
 	}
-	if decType != vdlTypeUnion20 {
+	if decType != vdlTypeUnion21 {
 		name := decType.Field(index).Name
-		index = vdlTypeUnion20.FieldIndexByName(name)
+		index = vdlTypeUnion21.FieldIndexByName(name)
 		if index == -1 {
 			return fmt.Errorf("field %q not in union %T, from %v", name, x, decType)
 		}
@@ -1381,7 +1504,7 @@ func (x RejectedBlessing) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x RejectedBlessing) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct21); err != nil {
+	if err := enc.StartValue(vdlTypeStruct22); err != nil {
 		return err
 	}
 	if x.Blessing != "" {
@@ -1405,7 +1528,7 @@ func (x RejectedBlessing) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 
 func (x *RejectedBlessing) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = RejectedBlessing{}
-	if err := dec.StartValue(vdlTypeStruct21); err != nil {
+	if err := dec.StartValue(vdlTypeStruct22); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -1417,8 +1540,8 @@ func (x *RejectedBlessing) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct21 {
-			index = vdlTypeStruct21.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct22 {
+			index = vdlTypeStruct22.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -1676,15 +1799,16 @@ var (
 	vdlTypeStruct10 *vdl.Type
 	vdlTypeString11 *vdl.Type
 	vdlTypeStruct12 *vdl.Type
-	vdlTypeList13   *vdl.Type
+	vdlTypeStruct13 *vdl.Type
 	vdlTypeList14   *vdl.Type
-	vdlTypeStruct15 *vdl.Type
+	vdlTypeList15   *vdl.Type
 	vdlTypeStruct16 *vdl.Type
 	vdlTypeStruct17 *vdl.Type
-	vdlTypeList18   *vdl.Type
+	vdlTypeStruct18 *vdl.Type
 	vdlTypeList19   *vdl.Type
-	vdlTypeUnion20  *vdl.Type
-	vdlTypeStruct21 *vdl.Type
+	vdlTypeList20   *vdl.Type
+	vdlTypeUnion21  *vdl.Type
+	vdlTypeStruct22 *vdl.Type
 )
 
 var initializeVDLCalled bool
@@ -1721,6 +1845,7 @@ func initializeVDL() struct{} {
 	vdl.Register((*Signature)(nil))
 	vdl.Register((*PublicKeyDischarge)(nil))
 	vdl.Register((*BlessingPattern)(nil))
+	vdl.Register((*EcdsaOnlySignature)(nil))
 	vdl.Register((*DischargeImpetus)(nil))
 	vdl.Register((*Certificate)(nil))
 	vdl.Register((*CaveatDescriptor)(nil))
@@ -1740,16 +1865,17 @@ func initializeVDL() struct{} {
 	vdlTypeStruct9 = vdl.TypeOf((*Signature)(nil)).Elem()
 	vdlTypeStruct10 = vdl.TypeOf((*PublicKeyDischarge)(nil)).Elem()
 	vdlTypeString11 = vdl.TypeOf((*BlessingPattern)(nil))
-	vdlTypeStruct12 = vdl.TypeOf((*DischargeImpetus)(nil)).Elem()
-	vdlTypeList13 = vdl.TypeOf((*[]BlessingPattern)(nil))
-	vdlTypeList14 = vdl.TypeOf((*[]*vom.RawBytes)(nil))
-	vdlTypeStruct15 = vdl.TypeOf((*Certificate)(nil)).Elem()
-	vdlTypeStruct16 = vdl.TypeOf((*CaveatDescriptor)(nil)).Elem()
-	vdlTypeStruct17 = vdl.TypeOf((*WireBlessings)(nil)).Elem()
-	vdlTypeList18 = vdl.TypeOf((*[][]Certificate)(nil))
-	vdlTypeList19 = vdl.TypeOf((*[]Certificate)(nil))
-	vdlTypeUnion20 = vdl.TypeOf((*WireDischarge)(nil))
-	vdlTypeStruct21 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
+	vdlTypeStruct12 = vdl.TypeOf((*EcdsaOnlySignature)(nil)).Elem()
+	vdlTypeStruct13 = vdl.TypeOf((*DischargeImpetus)(nil)).Elem()
+	vdlTypeList14 = vdl.TypeOf((*[]BlessingPattern)(nil))
+	vdlTypeList15 = vdl.TypeOf((*[]*vom.RawBytes)(nil))
+	vdlTypeStruct16 = vdl.TypeOf((*Certificate)(nil)).Elem()
+	vdlTypeStruct17 = vdl.TypeOf((*CaveatDescriptor)(nil)).Elem()
+	vdlTypeStruct18 = vdl.TypeOf((*WireBlessings)(nil)).Elem()
+	vdlTypeList19 = vdl.TypeOf((*[][]Certificate)(nil))
+	vdlTypeList20 = vdl.TypeOf((*[]Certificate)(nil))
+	vdlTypeUnion21 = vdl.TypeOf((*WireDischarge)(nil))
+	vdlTypeStruct22 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
 
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatNotRegistered.ID), "{1:}{2:} no validation function registered for caveat id {3}")

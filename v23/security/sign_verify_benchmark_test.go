@@ -6,6 +6,7 @@ package security
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"testing"
@@ -17,25 +18,37 @@ type bmkey struct {
 }
 
 var (
-	ecdsaKey *bmkey
-	message  = []byte("over the mountain and under the bridge")
-	purpose  = []byte("benchmarking")
+	ecdsaKey   *bmkey
+	ed25519Key *bmkey
+	message    = []byte("over the mountain and under the bridge")
+	purpose    = []byte("benchmarking")
 )
 
 func init() {
+	// ECDSA signer.
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	signer, err := newGoStdlibSigner(key)
-	if err != nil {
-		panic(err)
-	}
+	signer := NewInMemoryECDSASigner(key)
 	signature, err := signer.Sign(purpose, message)
 	if err != nil {
 		panic(err)
 	}
 	ecdsaKey = &bmkey{signer, signature}
+
+	// ED25519 signer.
+	_, privKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		panic(err)
+	}
+	signer = NewInMemoryED25519Signer(privKey)
+
+	signature, err = signer.Sign(purpose, message)
+	if err != nil {
+		panic(err)
+	}
+	ed25519Key = &bmkey{signer, signature}
 }
 
 func benchmarkSign(k *bmkey, b *testing.B) {
@@ -62,4 +75,12 @@ func BenchmarkSign_ECDSA(b *testing.B) {
 
 func BenchmarkVerify_ECDSA(b *testing.B) {
 	benchmarkVerify(ecdsaKey, b)
+}
+
+func BenchmarkSign_ED25519(b *testing.B) {
+	benchmarkSign(ed25519Key, b)
+}
+
+func BenchmarkVerify_ED25519(b *testing.B) {
+	benchmarkVerify(ed25519Key, b)
 }

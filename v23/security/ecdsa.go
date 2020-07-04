@@ -6,7 +6,6 @@ package security
 
 import (
 	"crypto/ecdsa"
-	"crypto/rand"
 	"crypto/x509"
 	"math/big"
 
@@ -16,10 +15,6 @@ import (
 // NewECDSAPublicKey creates a PublicKey object that uses the ECDSA algorithm and the provided ECDSA public key.
 func NewECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
 	return newECDSAPublicKeyImpl(key)
-}
-
-func newGoStdlibPublicKey(key *ecdsa.PublicKey) PublicKey {
-	return &ecdsaPublicKey{key}
 }
 
 type ecdsaPublicKey struct {
@@ -58,13 +53,6 @@ func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) Signer {
 		panic(err)
 	}
 	return signer
-}
-
-func newGoStdlibSigner(key *ecdsa.PrivateKey) (Signer, error) {
-	sign := func(data []byte) (r, s *big.Int, err error) {
-		return ecdsa.Sign(rand.Reader, key, data)
-	}
-	return &ecdsaSigner{sign: sign, pubkey: newGoStdlibPublicKey(&key.PublicKey)}, nil
 }
 
 // NewECDSASigner creates a Signer that uses the provided function to sign

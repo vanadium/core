@@ -280,7 +280,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// to be handled by readLoop.
 			go func() {
 				if err := c.handleMessage(ctx, msg); err != nil {
-					vlog.Infof("hreadRemoteAuth: andleMessage for openFlow for flow %v: failed: %v", m.ID, err)
+					vlog.Infof("readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
 			}()
 			continue

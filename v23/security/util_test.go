@@ -9,6 +9,7 @@ package security
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
@@ -95,10 +96,26 @@ func newECDSASigner(t testing.TB, curve elliptic.Curve) Signer {
 	return NewInMemoryECDSASigner(key)
 }
 
-func newPrincipal(t testing.TB) Principal {
+func newED25519Signer(t testing.TB) Signer {
+	_, key, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("Failed to generate ED25519 key: %v", err)
+	}
+	return NewInMemoryED25519Signer(key)
+}
+
+func newECDSAPrincipal(t testing.TB) Principal {
 	p, err := CreatePrincipal(newECDSASigner(t, elliptic.P256()), nil, &roots{})
 	if err != nil {
-		t.Fatalf("CreatePrincipal failed: %v", err)
+		t.Fatalf("CreatePrincipal using ECDSA signer failed: %v", err)
+	}
+	return p
+}
+
+func newED25519Principal(t testing.TB) Principal {
+	p, err := CreatePrincipal(newED25519Signer(t), nil, &roots{})
+	if err != nil {
+		t.Fatalf("CreatePrincipal using ED25519 signer failed: %v", err)
 	}
 	return p
 }

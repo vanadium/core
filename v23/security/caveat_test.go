@@ -16,9 +16,16 @@ import (
 	"v.io/v23/verror"
 )
 
-func TestStandardCaveatFactories(t *testing.T) {
+func TestStandardCaveatFactoriesECDSA(t *testing.T) {
+	testStandardCaveatFactories(t, newECDSAPrincipal(t))
+}
+
+func TestStandardCaveatFactoriesED25519(t *testing.T) {
+	testStandardCaveatFactories(t, newED25519Principal(t))
+}
+
+func testStandardCaveatFactories(t *testing.T, self Principal) {
 	var (
-		self      = newPrincipal(t)
 		balice, _ = UnionOfBlessings(blessSelf(t, self, "alice:phone"), blessSelf(t, self, "alice:tablet"))
 		bother    = blessSelf(t, self, "other")
 		b, _      = UnionOfBlessings(balice, bother)
@@ -65,14 +72,38 @@ func TestStandardCaveatFactories(t *testing.T) {
 		}
 	}
 }
+func TestPublicKeyThirdPartyCaveatECDSA(t *testing.T) {
+	testPublicKeyThirdPartyCaveat(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func TestPublicKeyThirdPartyCaveatED25519(t *testing.T) {
+	testPublicKeyThirdPartyCaveat(t,
+		newED25519Principal(t),
+		newED25519Principal(t),
+	)
+}
 
 func TestPublicKeyThirdPartyCaveat(t *testing.T) {
+	testPublicKeyThirdPartyCaveat(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t),
+	)
+	testPublicKeyThirdPartyCaveat(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
+	randomserver Principal) {
 	var (
-		now              = time.Now()
-		valid            = newCaveat(NewExpiryCaveat(now.Add(time.Second)))
-		expired          = newCaveat(NewExpiryCaveat(now.Add(-1 * time.Second)))
-		discharger       = newPrincipal(t)
-		randomserver     = newPrincipal(t)
+		now     = time.Now()
+		valid   = newCaveat(NewExpiryCaveat(now.Add(time.Second)))
+		expired = newCaveat(NewExpiryCaveat(now.Add(-1 * time.Second)))
+
 		ctxCancelAndCall = func(method string, discharges ...Discharge) (*context.T, context.CancelFunc, Call) {
 			params := &CallParams{
 				Timestamp:        now,
@@ -258,7 +289,15 @@ func TestRegisterCaveat(t *testing.T) {
 	}
 }
 
-func TestThirdPartyDetails(t *testing.T) {
+func TestThirdPartyDetailsECDSA(t *testing.T) {
+	testThirdPartyDetails(t, newECDSAPrincipal(t))
+}
+
+func TestThirdPartyDetailsED25519(t *testing.T) {
+	testThirdPartyDetails(t, newED25519Principal(t))
+}
+
+func testThirdPartyDetails(t *testing.T, p Principal) {
 	niltests := []Caveat{
 		newCaveat(NewExpiryCaveat(time.Now())),
 		newCaveat(NewMethodCaveat("Foo", "Bar")),
@@ -269,7 +308,7 @@ func TestThirdPartyDetails(t *testing.T) {
 		}
 	}
 	req := ThirdPartyRequirements{ReportMethod: true}
-	c, err := NewPublicKeyCaveat(newPrincipal(t).PublicKey(), "location", req, newCaveat(NewExpiryCaveat(time.Now())))
+	c, err := NewPublicKeyCaveat(p.PublicKey(), "location", req, newCaveat(NewExpiryCaveat(time.Now())))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,13 +319,20 @@ func TestThirdPartyDetails(t *testing.T) {
 	}
 }
 
-func TestPublicKeyDischargeExpiry(t *testing.T) {
+func TestPublicKeyDischargeExpiryECDSA(t *testing.T) {
+	testPublicKeyDischargeExpiry(t, newECDSAPrincipal(t))
+}
+
+func TestPublicKeyDischargeExpiryED25519(t *testing.T) {
+	testPublicKeyDischargeExpiry(t, newED25519Principal(t))
+}
+
+func testPublicKeyDischargeExpiry(t *testing.T, discharger Principal) {
 	var (
-		discharger = newPrincipal(t)
-		now        = time.Now()
-		oneh       = newCaveat(NewExpiryCaveat(now.Add(time.Hour)))
-		twoh       = newCaveat(NewExpiryCaveat(now.Add(2 * time.Hour)))
-		threeh     = newCaveat(NewExpiryCaveat(now.Add(3 * time.Hour)))
+		now    = time.Now()
+		oneh   = newCaveat(NewExpiryCaveat(now.Add(time.Hour)))
+		twoh   = newCaveat(NewExpiryCaveat(now.Add(2 * time.Hour)))
+		threeh = newCaveat(NewExpiryCaveat(now.Add(3 * time.Hour)))
 	)
 
 	tpc, err := NewPublicKeyCaveat(discharger.PublicKey(), "location", ThirdPartyRequirements{}, oneh)
@@ -344,7 +390,7 @@ func BenchmarkValidateCaveat(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if err := cav.Validate(ctx, call); err != nil {
-			b.Fatal(b)
+			b.Fatalf("iteration: %v: %v", i, err)
 		}
 	}
 }

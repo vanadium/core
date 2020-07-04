@@ -31,9 +31,14 @@ func (sig *Signature) digest(hashfn Hash) []byte {
 	}
 	w([]byte(sig.Hash))
 	w(sig.Purpose)
-	w([]byte("ECDSA")) // The signing algorithm
-	w(sig.R)
-	w(sig.S)
+	if len(sig.Ed25519) > 0 {
+		w([]byte("ED25519")) // The signing algorithm
+		w(sig.Ed25519)
+	} else {
+		w([]byte("ECDSA")) // The signing algorithm
+		w(sig.R)
+		w(sig.S)
+	}
 	return hashfn.sum(fields)
 }
 
