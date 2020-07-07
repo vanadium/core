@@ -4,13 +4,24 @@
 
 package security
 
-/*
+import (
+	"crypto/elliptic"
+	"reflect"
+	"testing"
 
-func TestDischargeToAndFromWire(t *testing.T) {
-	var (
-		p   = newPrincipal(t)
-		cav = newCaveat(NewPublicKeyCaveat(p.PublicKey(), "peoria", ThirdPartyRequirements{}, UnconstrainedUse()))
-	)
+	"v.io/v23/context"
+)
+
+func TestDischargeToAndFromWireECDSA(t *testing.T) {
+	testDischargeToAndFromWire(t, newECDSAPrincipal(t))
+}
+
+func TestDischargeToAndFromWireED25519(t *testing.T) {
+	testDischargeToAndFromWire(t, newED25519Principal(t))
+}
+
+func testDischargeToAndFromWire(t *testing.T, p Principal) {
+	cav := newCaveat(NewPublicKeyCaveat(p.PublicKey(), "peoria", ThirdPartyRequirements{}, UnconstrainedUse()))
 	discharge, err := p.MintDischarge(cav, UnconstrainedUse())
 	if err != nil {
 		t.Fatal(err)
@@ -35,11 +46,30 @@ func TestDischargeToAndFromWire(t *testing.T) {
 		t.Errorf("Got (%#v, %v) want (%#v, nil)", d3, err, discharge)
 	}
 }
+func TestDischargeSignatureCachingECDSA(t *testing.T) {
+	testDischargeSignatureCaching(t,
+		newECDSAPrincipal(t),
+		newECDSAPrincipal(t),
+	)
+}
+
+func TestDischargeSignatureCachingED25519(t *testing.T) {
+	testDischargeSignatureCaching(t,
+		newED25519Principal(t),
+		newED25519Principal(t))
+}
 
 func TestDischargeSignatureCaching(t *testing.T) {
+	testDischargeSignatureCaching(t,
+		newECDSAPrincipal(t),
+		newED25519Principal(t))
+	testDischargeSignatureCaching(t,
+		newED25519Principal(t),
+		newECDSAPrincipal(t))
+}
+
+func testDischargeSignatureCaching(t *testing.T, p1, p2 Principal) {
 	var (
-		p1          = newPrincipal(t)
-		p2          = newPrincipal(t)
 		cav         = newCaveat(NewPublicKeyCaveat(p1.PublicKey(), "peoria", ThirdPartyRequirements{}, UnconstrainedUse()))
 		ctx, cancel = context.RootContext()
 		mkCall      = func(d Discharge) Call {
@@ -66,8 +96,17 @@ func TestDischargeSignatureCaching(t *testing.T) {
 	}
 }
 
-func BenchmarkDischargeEquality(b *testing.B) {
-	p, err := CreatePrincipal(newSigner(), nil, nil)
+func BenchmarkDischargeEqualityECDSA(b *testing.B) {
+	benchmarkDischargeEquality(b, newECDSASigner(b, elliptic.P256()))
+
+}
+
+func BenchmarkDischargeEqualityED25519(b *testing.B) {
+	benchmarkDischargeEquality(b, newED25519Signer(b))
+}
+
+func benchmarkDischargeEquality(b *testing.B, signer Signer) {
+	p, err := CreatePrincipal(signer, nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -82,12 +121,12 @@ func BenchmarkDischargeEquality(b *testing.B) {
 	}
 }
 
-func benchmarkPublicKeyDischargeVerification(caching bool, b *testing.B) {
+func benchmarkPublicKeyDischargeVerification(caching bool, b *testing.B, signer Signer) {
 	if !caching {
 		dischargeSignatureCache.disable()
 		defer dischargeSignatureCache.enable()
 	}
-	p, err := CreatePrincipal(newSigner(), nil, nil)
+	p, err := CreatePrincipal(signer, nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -114,10 +153,18 @@ func benchmarkPublicKeyDischargeVerification(caching bool, b *testing.B) {
 	}
 }
 
-func BenchmarkPublicKeyDischargeVerification_Cached(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(true, b)
+func BenchmarkPublicKeyDischargeVerificationCachedECDSA(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(true, b, newECDSASigner(b, elliptic.P256()))
 }
-func BenchmarkPublicKeyDischargeVerification(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(false, b)
+
+func BenchmarkPublicKeyDischargeVerificationCachedED25519(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(true, b, newED25519Signer(b))
 }
-*/
+
+func BenchmarkPublicKeyDischargeVerificationECDSA(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(false, b, newECDSASigner(b, elliptic.P256()))
+}
+
+func BenchmarkPublicKeyDischargeVerificationED25519(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(false, b, newED25519Signer(b))
+}

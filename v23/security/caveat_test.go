@@ -380,7 +380,7 @@ func BenchmarkNewCaveat(b *testing.B) {
 
 // Benchmark caveat valdation using one of the simplest caveats (expiry).
 func BenchmarkValidateCaveat(b *testing.B) {
-	cav, err := NewExpiryCaveat(time.Now())
+	cav, err := NewExpiryCaveat(time.Now().Add(time.Hour))
 	if err != nil {
 		b.Fatal(err)
 	}

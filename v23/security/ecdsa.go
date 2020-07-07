@@ -6,6 +6,7 @@ package security
 
 import (
 	"crypto/ecdsa"
+	"crypto/rand"
 	"crypto/x509"
 	"math/big"
 
@@ -87,4 +88,15 @@ func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
 
 func (c *ecdsaSigner) PublicKey() PublicKey {
 	return c.pubkey
+}
+
+func newGoStdlibECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
+	sign := func(data []byte) (r, s *big.Int, err error) {
+		return ecdsa.Sign(rand.Reader, key, data)
+	}
+	return &ecdsaSigner{sign: sign, pubkey: newGoStdlibECDSAPublicKey(&key.PublicKey)}, nil
+}
+
+func newGoStdlibECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
+	return &ecdsaPublicKey{key}
 }

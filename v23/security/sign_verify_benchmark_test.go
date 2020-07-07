@@ -24,31 +24,47 @@ var (
 	purpose    = []byte("benchmarking")
 )
 
-func init() {
-	// ECDSA signer.
+func newECDSABenchmarkKey(sfn func(*ecdsa.PrivateKey) (Signer, error)) *bmkey {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	signer := NewInMemoryECDSASigner(key)
+	signer, err := sfn(key)
+	if err != nil {
+		panic(err)
+	}
 	signature, err := signer.Sign(purpose, message)
 	if err != nil {
 		panic(err)
 	}
-	ecdsaKey = &bmkey{signer, signature}
+	return &bmkey{signer, signature}
+}
 
-	// ED25519 signer.
+func newED25519BenchmarkKey(sfn func(ed25519.PrivateKey) (Signer, error)) *bmkey {
 	_, privKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	signer = NewInMemoryED25519Signer(privKey)
-
-	signature, err = signer.Sign(purpose, message)
+	signer, err := sfn(privKey)
 	if err != nil {
 		panic(err)
 	}
-	ed25519Key = &bmkey{signer, signature}
+	signature, err := signer.Sign(purpose, message)
+	if err != nil {
+		panic(err)
+	}
+	return &bmkey{signer, signature}
+}
+
+func init() {
+	ecdsaKey = newECDSABenchmarkKey(
+		func(k *ecdsa.PrivateKey) (Signer, error) {
+			return NewInMemoryECDSASigner(k), nil
+		})
+	ed25519Key = newED25519BenchmarkKey(
+		func(k ed25519.PrivateKey) (Signer, error) {
+			return NewInMemoryED25519Signer(k), nil
+		})
 }
 
 func benchmarkSign(k *bmkey, b *testing.B) {
