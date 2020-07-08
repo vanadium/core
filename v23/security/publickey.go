@@ -67,9 +67,9 @@ func UnmarshalPublicKey(bytes []byte) (PublicKey, error) {
 	}
 	switch v := key.(type) {
 	case *ecdsa.PublicKey:
-		return &ecdsaPublicKey{v}, nil
+		return newECDSAPublicKeyImpl(v), nil
 	case ed25519.PublicKey:
-		return &ed25519PublicKey{v}, nil
+		return newED25519PublicKeyImpl(v), nil
 	default:
 		return nil, verror.New(errUnrecognizedKey, nil, fmt.Sprintf("%T", key))
 	}

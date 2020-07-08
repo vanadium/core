@@ -32,6 +32,7 @@ import (
 	"runtime"
 
 	"v.io/v23/verror"
+	"v.io/x/lib/vlog"
 )
 
 var (
@@ -66,7 +67,16 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 	}
 	status := C.ECDSA_do_verify(uchar(digest), C.int(len(digest)), sig, k.k)
 	C.ECDSA_SIG_free(sig)
-	return status == 1
+	if status != 1 {
+		// Make sure to read out all errors associated with this thread
+		// since verification failures are recorded as errors.
+		err := opensslGetErrors()
+		if status != 0 {
+			vlog.Errorf("ECDSA_do_verify: %v", err)
+		}
+		return false
+	}
+	return true
 }
 
 func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
@@ -111,14 +121,16 @@ type opensslECDSASigner struct {
 func (k *opensslECDSASigner) finalize() {
 	C.EC_KEY_free(k.k)
 }
+
 func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
 	var errno C.ulong
 	sig := C.openssl_ECDSA_do_sign(uchar(data), C.int(len(data)), k.k, &errno)
 	if sig == nil {
 		return nil, nil, opensslMakeError(errno)
 	}
-	var pr, ps *C.BIGNUM
-	C.ECDSA_SIG_get0(sig, &pr, &ps)
+	defer C.ECDSA_SIG_free(sig)
+	pr := C.ECDSA_SIG_get0_r(sig)
+	ps := C.ECDSA_SIG_get0_s(sig)
 	var (
 		rlen = (int(C.BN_num_bits(pr)) + 7) / 8
 		slen = (int(C.BN_num_bits(ps)) + 7) / 8
@@ -131,9 +143,7 @@ func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
 	}
 	r = big.NewInt(0).SetBytes(buf[0:int(C.BN_bn2bin(pr, uchar(buf)))])
 	s = big.NewInt(0).SetBytes(buf[0:int(C.BN_bn2bin(ps, uchar(buf)))])
-	C.ECDSA_SIG_free(sig)
-	C.BN_free(pr)
-	C.BN_free(ps)
+
 	return r, s, nil
 }
 
