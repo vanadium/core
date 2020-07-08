@@ -18,3 +18,4 @@ test-integration:
 		v.io/x/ref/examples/tunnel/tunneld \
 		v.io/x/ref/examples/rps/rpsbot \
 		-v23.tests
+	go test v.io/v23/security/... -tags openssl

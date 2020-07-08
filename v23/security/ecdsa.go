@@ -46,14 +46,12 @@ func (pk *ecdsaPublicKey) hash() Hash {
 // NewInMemoryECDSASigner creates a Signer that uses the provided ECDSA private
 // key to sign messages.  This private key is kept in the clear in the memory
 // of the running process.
-func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) Signer {
-	// TODO(ashankar): Change this function to return an error
-	// and not panic.
+func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 	signer, err := newInMemoryECDSASignerImpl(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return signer
+	return signer, nil
 }
 
 // NewECDSASigner creates a Signer that uses the provided function to sign

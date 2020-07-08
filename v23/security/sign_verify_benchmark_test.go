@@ -57,14 +57,8 @@ func newED25519BenchmarkKey(sfn func(ed25519.PrivateKey) (Signer, error)) *bmkey
 }
 
 func init() {
-	ecdsaKey = newECDSABenchmarkKey(
-		func(k *ecdsa.PrivateKey) (Signer, error) {
-			return NewInMemoryECDSASigner(k), nil
-		})
-	ed25519Key = newED25519BenchmarkKey(
-		func(k ed25519.PrivateKey) (Signer, error) {
-			return NewInMemoryED25519Signer(k), nil
-		})
+	ecdsaKey = newECDSABenchmarkKey(NewInMemoryECDSASigner)
+	ed25519Key = newED25519BenchmarkKey(NewInMemoryED25519Signer)
 }
 
 func benchmarkSign(k *bmkey, b *testing.B) {

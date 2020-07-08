@@ -11,14 +11,22 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
+	"v.io/x/ref/test/testutil"
 )
 
-func TestAccessTagCaveat(t *testing.T) {
+func TestAccessTagCaveatECDSA(t *testing.T) {
+	testAccessTagCaveat(t, testutil.NewECDSAPrincipal(t), testutil.NewED25519Principal(t))
+}
+
+func TestAccessTagCaveatED25519(t *testing.T) {
+	testAccessTagCaveat(t, testutil.NewED25519Principal(t), testutil.NewECDSAPrincipal(t))
+}
+
+func testAccessTagCaveat(t *testing.T, server, other security.Principal) {
 	var (
-		server     = newPrincipal(t)
 		bserver, _ = server.BlessSelf("server")
 		caveat, _  = access.NewAccessTagCaveat(access.Debug, access.Resolve)
-		bclient, _ = server.Bless(newPrincipal(t).PublicKey(), bserver, "debugger", caveat)
+		bclient, _ = server.Bless(other.PublicKey(), bserver, "debugger", caveat)
 		tests      = []struct {
 			MethodTags []*vdl.Value
 			OK         bool

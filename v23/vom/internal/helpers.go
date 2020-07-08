@@ -203,7 +203,11 @@ func newSigner() security.Signer {
 	if err != nil {
 		panic(err)
 	}
-	return security.NewInMemoryECDSASigner(key)
+	signer, err := security.NewInMemoryECDSASigner(key)
+	if err != nil {
+		panic(err)
+	}
+	return signer
 }
 
 // createTypicalBlessings creates a blessings with certificate structures and

@@ -5,15 +5,12 @@
 package conventions
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"fmt"
 	"reflect"
 	"testing"
 
 	"v.io/v23/context"
 	"v.io/v23/security"
+	"v.io/x/ref/test/testutil"
 )
 
 func TestParseUserId(t *testing.T) {
@@ -35,12 +32,19 @@ func TestParseUserId(t *testing.T) {
 	}
 }
 
-func TestGetClientUserIds(t *testing.T) {
+func TestGetClientUserIdsECDSA(t *testing.T) {
+	testGetClientUserIds(t, testutil.NewECDSAPrincipal(t))
+}
+
+func TestGetClientUserIdsED25519(t *testing.T) {
+	testGetClientUserIds(t, testutil.NewED25519Principal(t))
+}
+
+func testGetClientUserIds(t *testing.T, bob security.Principal) {
 	ctx, shutdown := context.RootContext()
 	defer shutdown()
 
 	// Bob is the remote principal (and the local one too)
-	bob := newPrincipal(t)
 	blessings, err := bob.BlessSelf("idt:u:bob:memyselfandi")
 	if err != nil {
 		t.Errorf("blessing myself %s", err)
@@ -87,42 +91,4 @@ func TestGetClientUserIds(t *testing.T) {
 	if want, got := []string{"idt:u:bob", ServerUser}, GetClientUserIds(ctx, call); !reflect.DeepEqual(got, want) {
 		t.Errorf("GetClientUserIds() wanted %v, got %v", want, got)
 	}
-}
-
-func newPrincipal(t *testing.T) security.Principal {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	p, err := security.CreatePrincipal(
-		security.NewInMemoryECDSASigner(key),
-		nil,
-		&trustAllRoots{dump: make(map[security.BlessingPattern][]security.PublicKey)},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return p
-}
-
-type trustAllRoots struct {
-	dump map[security.BlessingPattern][]security.PublicKey
-}
-
-func (r *trustAllRoots) Add(root []byte, pattern security.BlessingPattern) error {
-	key, err := security.UnmarshalPublicKey(root)
-	if err != nil {
-		return err
-	}
-	r.dump[pattern] = append(r.dump[pattern], key)
-	return nil
-}
-func (r *trustAllRoots) Recognized(root []byte, blessing string) error {
-	return nil
-}
-func (r *trustAllRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
-	return r.dump
-}
-func (r *trustAllRoots) DebugString() string {
-	return fmt.Sprintf("%v", r)
 }

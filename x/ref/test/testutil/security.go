@@ -5,6 +5,13 @@
 package testutil
 
 import (
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rand"
+	"fmt"
+	"testing"
+
 	"v.io/v23/security"
 	vsecurity "v.io/x/ref/lib/security"
 )
@@ -114,4 +121,70 @@ func (idp *IDProvider) NewBlessings(p security.Principal, extension string, cave
 // PublicKey returns the public key of the identity provider.
 func (idp *IDProvider) PublicKey() security.PublicKey {
 	return idp.p.PublicKey()
+}
+
+type trustAllRoots struct {
+	dump map[security.BlessingPattern][]security.PublicKey
+}
+
+func (r *trustAllRoots) Add(root []byte, pattern security.BlessingPattern) error {
+	key, err := security.UnmarshalPublicKey(root)
+	if err != nil {
+		return err
+	}
+	r.dump[pattern] = append(r.dump[pattern], key)
+	return nil
+}
+func (r *trustAllRoots) Recognized(root []byte, blessing string) error {
+	return nil
+}
+func (r *trustAllRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
+	return r.dump
+}
+func (r *trustAllRoots) DebugString() string {
+	return fmt.Sprintf("%v", r)
+}
+
+// NewECDSAPrincipal returns a new ECDSA based principal that trusts all
+// blessing roots.
+func NewECDSAPrincipal(t *testing.T) security.Principal {
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	signer, err := security.NewInMemoryECDSASigner(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := security.CreatePrincipal(
+		signer,
+		nil,
+		&trustAllRoots{dump: make(map[security.BlessingPattern][]security.PublicKey)},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+// NewED25519Principal returns a new ED25519 based principal that trusts all
+// blessing roots.
+func NewED25519Principal(t *testing.T) security.Principal {
+	_, key, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	signer, err := security.NewInMemoryED25519Signer(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := security.CreatePrincipal(
+		signer,
+		nil,
+		&trustAllRoots{dump: make(map[security.BlessingPattern][]security.PublicKey)},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
 }

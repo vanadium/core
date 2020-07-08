@@ -113,7 +113,11 @@ func TestECDSASignature(t *testing.T) {
 			t.Errorf("Failed to generate key for curve of %d bits: %v", nbits, err)
 			continue
 		}
-		signer := NewInMemoryECDSASigner(key)
+		signer, err := NewInMemoryECDSASigner(key)
+		if err != nil {
+			t.Errorf("Failed to create signer for curve of %d bits: %v", nbits, err)
+			continue
+		}
 		if err := testSigning(signer, nbits); err != nil {
 			t.Errorf("signing failed for curve with %d bits: %v", nbits, err)
 		}
@@ -125,7 +129,10 @@ func TestED25519Signature(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to generate key for ed25519: %v", err)
 	}
-	signer := NewInMemoryED25519Signer(privKey)
+	signer, err := NewInMemoryED25519Signer(privKey)
+	if err != nil {
+		t.Fatalf("Failed to create signer: %v", err)
+	}
 	if err := testSigning(signer, 512); err != nil {
 		t.Errorf("signing failed for ed25519: %v", err)
 	}
@@ -185,7 +192,11 @@ func TestSignaturePurpose(t *testing.T) {
 			t.Errorf("Failed to generate key for curve of %d bits: %v", nbits, err)
 			continue
 		}
-		signer := NewInMemoryECDSASigner(key)
+		signer, err := NewInMemoryECDSASigner(key)
+		if err != nil {
+			t.Errorf("Failed to creater signer key for curve of %d bits: %v", nbits, err)
+			continue
+		}
 		if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {
 			t.Errorf("testSignaturePurpose failed for curve with %d bits: %v", nbits, err)
 		}
@@ -194,7 +205,10 @@ func TestSignaturePurpose(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to generate key for ed25519: %v", err)
 	}
-	signer := NewInMemoryED25519Signer(privKey)
+	signer, err := NewInMemoryED25519Signer(privKey)
+	if err != nil {
+		t.Fatalf("Failed to create signer: %v", err)
+	}
 	if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {
 		t.Errorf("testSignaturePurpose failed ed25519: %v", err)
 	}
@@ -205,7 +219,10 @@ func TestBackwardsCompatibility(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to generate key for ed25519: %v", err)
 	}
-	signer := NewInMemoryECDSASigner(key)
+	signer, err := NewInMemoryECDSASigner(key)
+	if err != nil {
+		t.Fatalf("Failed to create signer: %v", err)
+	}
 	message := []byte("hello there new implementation")
 	sig, err := signer.Sign([]byte(SignatureForMessageSigning), message)
 	if err != nil {

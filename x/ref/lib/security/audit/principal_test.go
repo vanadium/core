@@ -254,7 +254,10 @@ func newPrincipal(t *testing.T) security.Principal {
 	if err != nil {
 		t.Fatal(err)
 	}
-	signer := security.NewInMemoryECDSASigner(key)
+	signer, err := security.NewInMemoryECDSASigner(key)
+	if err != nil {
+		t.Fatal(err)
+	}
 	p, err := security.CreatePrincipal(signer, nil, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -93,7 +93,11 @@ func newECDSASigner(t testing.TB, curve elliptic.Curve) Signer {
 	if err != nil {
 		t.Fatalf("Failed to generate ECDSA key: %v", err)
 	}
-	return NewInMemoryECDSASigner(key)
+	signer, err := NewInMemoryECDSASigner(key)
+	if err != nil {
+		t.Fatalf("Failed to generate ECDSA signer: %v", err)
+	}
+	return signer
 }
 
 func newED25519Signer(t testing.TB) Signer {
@@ -101,7 +105,11 @@ func newED25519Signer(t testing.TB) Signer {
 	if err != nil {
 		t.Fatalf("Failed to generate ED25519 key: %v", err)
 	}
-	return NewInMemoryED25519Signer(key)
+	signer, err := NewInMemoryED25519Signer(key)
+	if err != nil {
+		t.Fatalf("Failed to generate ED25519 signer: %v", err)
+	}
+	return signer
 }
 
 func newECDSAPrincipal(t testing.TB) Principal {

@@ -62,7 +62,11 @@ func NewPrincipal() (security.Principal, error) {
 	if err != nil {
 		return nil, err
 	}
-	return security.CreatePrincipal(security.NewInMemoryECDSASigner(priv), NewBlessingStore(pub), NewBlessingRoots())
+	signer, err := security.NewInMemoryECDSASigner(priv)
+	if err != nil {
+		return nil, err
+	}
+	return security.CreatePrincipal(signer, NewBlessingStore(pub), NewBlessingRoots())
 }
 
 // NewPrincipalFromSigner creates a new Principal using the provided

@@ -34,14 +34,12 @@ func (pk *ed25519PublicKey) hash() Hash {
 // NewInMemoryED25519Signer creates a Signer that uses the provided ED25519
 // private  key to sign messages.  This private key is kept in the clear in
 // the memory of the running process.
-func NewInMemoryED25519Signer(key ed25519.PrivateKey) Signer {
-	// TODO(ashankar): Change this function to return an error
-	// and not panic.
+func NewInMemoryED25519Signer(key ed25519.PrivateKey) (Signer, error) {
 	signer, err := newInMemoryED25519SignerImpl(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return signer
+	return signer, nil
 }
 
 // NewED25519Signer creates a Signer that uses the provided function to sign

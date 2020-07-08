@@ -35,9 +35,9 @@ func NewSigningService() signing.Service {
 func determineSigner(key interface{}) (security.Signer, error) {
 	switch v := key.(type) {
 	case *ecdsa.PrivateKey:
-		return security.NewInMemoryECDSASigner(v), nil
-	case *ed25519.PrivateKey:
-		return nil, fmt.Errorf("unsupported signing key type %T", key)
+		return security.NewInMemoryECDSASigner(v)
+	case ed25519.PrivateKey:
+		return security.NewInMemoryED25519Signer(v)
 	default:
 		return nil, fmt.Errorf("unsupported signing key type %T", key)
 	}
