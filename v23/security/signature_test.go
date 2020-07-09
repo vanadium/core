@@ -194,7 +194,7 @@ func TestSignaturePurpose(t *testing.T) {
 		}
 		signer, err := NewInMemoryECDSASigner(key)
 		if err != nil {
-			t.Errorf("Failed to creater signer key for curve of %d bits: %v", nbits, err)
+			t.Errorf("Failed to creator signer key for curve of %d bits: %v", nbits, err)
 			continue
 		}
 		if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {

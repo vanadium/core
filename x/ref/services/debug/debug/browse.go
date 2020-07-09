@@ -138,7 +138,7 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 		}
 		signer, err := security.NewInMemoryECDSASigner(key)
 		if err != nil {
-			return fmt.Errorf("failed to create an ECDSA signer: %v\n", err)
+			return fmt.Errorf("failed to create an ECDSA signer: %v", err)
 		}
 		principal, err := seclib.NewPrincipalFromSigner(signer)
 		if err != nil {
