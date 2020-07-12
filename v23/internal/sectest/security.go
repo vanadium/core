@@ -230,7 +230,7 @@ func NewMethodCaveat(t testing.TB, method string, additionalMethods ...string) s
 	return c
 }
 
-// Caveat that validates iff Call.Suffix matches the string.
+// SuffixCaveat is a Caveat that validates iff Call.Suffix matches the string.
 //
 // Since at the time of this writing, it was not clear that we want to make caveats on
 // suffixes generally available, this type is implemented in this test file.
@@ -250,6 +250,7 @@ func NewSuffixCaveat(t *testing.T, suffix string) security.Caveat {
 	return c
 }
 
+// AddToRoots calls security.AddAddToRoots.
 func AddToRoots(t *testing.T, p security.Principal, b security.Blessings) {
 	if err := security.AddToRoots(p, b); err != nil {
 		t.Fatal(err)
