@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
-	"v.io/x/ref/test/testutil"
 )
 
 func TestParseUserId(t *testing.T) {
@@ -33,11 +33,11 @@ func TestParseUserId(t *testing.T) {
 }
 
 func TestGetClientUserIdsECDSA(t *testing.T) {
-	testGetClientUserIds(t, testutil.NewECDSAPrincipal(t))
+	testGetClientUserIds(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
 }
 
 func TestGetClientUserIdsED25519(t *testing.T) {
-	testGetClientUserIds(t, testutil.NewED25519Principal(t))
+	testGetClientUserIds(t, sectest.NewED25519PrincipalTrustAllRoots(t))
 }
 
 func testGetClientUserIds(t *testing.T, bob security.Principal) {

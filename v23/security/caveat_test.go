@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package security
+package security_test
 
 import (
 	"fmt"
@@ -11,53 +11,70 @@ import (
 	"time"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
+	"v.io/v23/security"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 )
 
 func TestStandardCaveatFactoriesECDSA(t *testing.T) {
-	testStandardCaveatFactories(t, newECDSAPrincipal(t))
+	testStandardCaveatFactories(t, sectest.NewECDSAPrincipalP256(t))
 }
 
 func TestStandardCaveatFactoriesED25519(t *testing.T) {
-	testStandardCaveatFactories(t, newED25519Principal(t))
+	testStandardCaveatFactories(t, sectest.NewED25519Principal(t))
 }
 
-func testStandardCaveatFactories(t *testing.T, self Principal) {
+func testStandardCaveatFactories(t *testing.T, self security.Principal) {
 	var (
-		balice, _ = UnionOfBlessings(blessSelf(t, self, "alice:phone"), blessSelf(t, self, "alice:tablet"))
-		bother    = blessSelf(t, self, "other")
-		b, _      = UnionOfBlessings(balice, bother)
-		now       = time.Now()
-		call      = NewCall(&CallParams{
+		balice, _ = security.UnionOfBlessings(
+			sectest.BlessSelf(t, self, "alice:phone"),
+			sectest.BlessSelf(t, self, "alice:tablet"))
+		bother = sectest.BlessSelf(t, self, "other")
+		b, _   = security.UnionOfBlessings(balice, bother)
+		now    = time.Now()
+		call   = security.NewCall(&security.CallParams{
 			Timestamp:      now,
 			Method:         "Foo",
 			LocalPrincipal: self,
 			LocalBlessings: b,
 		})
-		C     = newCaveat
+		C = func(c security.Caveat, err error) security.Caveat {
+			if err != nil {
+				t.Fatal(err)
+			}
+			return c
+		}
 		tests = []struct {
-			cav Caveat
+			cav security.Caveat
 			ok  bool
 		}{
 			// ExpiryCaveat
-			{C(NewExpiryCaveat(now.Add(time.Second))), true},
-			{C(NewExpiryCaveat(now.Add(-1 * time.Second))), false},
+			{C(security.NewExpiryCaveat(now.Add(time.Second))), true},
+			{C(security.NewExpiryCaveat(now.Add(-1 * time.Second))), false},
 			// MethodCaveat
-			{C(NewMethodCaveat("Foo")), true},
-			{C(NewMethodCaveat("Bar")), false},
-			{C(NewMethodCaveat("Foo", "Bar")), true},
-			{C(NewMethodCaveat("Bar", "Baz")), false},
+			{C(security.NewMethodCaveat("Foo")), true},
+			{C(security.NewMethodCaveat("Bar")), false},
+			{C(security.NewMethodCaveat("Foo", "Bar")), true},
+			{C(security.NewMethodCaveat("Bar", "Baz")), false},
 			// PeerBlesingsCaveat
-			{C(NewCaveat(PeerBlessingsCaveat, []BlessingPattern{"alice:phone"})), true},
-			{C(NewCaveat(PeerBlessingsCaveat, []BlessingPattern{"alice:tablet", "other"})), true},
-			{C(NewCaveat(PeerBlessingsCaveat, []BlessingPattern{"alice:laptop", "other", "alice:$"})), false},
-			{C(NewCaveat(PeerBlessingsCaveat, []BlessingPattern{"alice:laptop", "other", "alice"})), true},
+			{C(security.NewCaveat(security.PeerBlessingsCaveat,
+				[]security.BlessingPattern{"alice:phone"})),
+				true},
+			{C(security.NewCaveat(security.PeerBlessingsCaveat,
+				[]security.BlessingPattern{"alice:tablet", "other"})),
+				true},
+			{C(security.NewCaveat(security.PeerBlessingsCaveat,
+				[]security.BlessingPattern{"alice:laptop", "other", "alice:$"})),
+				false},
+			{C(security.NewCaveat(security.PeerBlessingsCaveat,
+				[]security.BlessingPattern{"alice:laptop", "other", "alice"})),
+				true},
 		}
 	)
 
-	if err := AddToRoots(self, balice); err != nil {
+	if err := security.AddToRoots(self, balice); err != nil {
 		t.Fatal(err)
 	}
 
@@ -67,58 +84,58 @@ func testStandardCaveatFactories(t *testing.T, self Principal) {
 		err := test.cav.Validate(ctx, call)
 		if test.ok && err != nil {
 			t.Errorf("#%d: %v.Validate(...) failed validation: %v", idx, test.cav, err)
-		} else if !test.ok && verror.ErrorID(err) != ErrCaveatValidation.ID {
-			t.Errorf("#%d: %v.Validate(...) returned error='%v' (errorid=%v), want errorid=%v", idx, test.cav, err, verror.ErrorID(err), ErrCaveatValidation.ID)
+		} else if !test.ok && verror.ErrorID(err) != security.ErrCaveatValidation.ID {
+			t.Errorf("#%d: %v.Validate(...) returned error='%v' (errorid=%v), want errorid=%v", idx, test.cav, err, verror.ErrorID(err), security.ErrCaveatValidation.ID)
 		}
 	}
 }
 func TestPublicKeyThirdPartyCaveatECDSA(t *testing.T) {
 	testPublicKeyThirdPartyCaveat(t,
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
 func TestPublicKeyThirdPartyCaveatED25519(t *testing.T) {
 	testPublicKeyThirdPartyCaveat(t,
-		newED25519Principal(t),
-		newED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
 	)
 }
 
 func TestPublicKeyThirdPartyCaveat(t *testing.T) {
 	testPublicKeyThirdPartyCaveat(t,
-		newECDSAPrincipal(t),
-		newED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewED25519Principal(t),
 	)
 	testPublicKeyThirdPartyCaveat(t,
-		newED25519Principal(t),
-		newECDSAPrincipal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
 func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
-	randomserver Principal) {
+	randomserver security.Principal) {
 	var (
 		now     = time.Now()
-		valid   = newCaveat(NewExpiryCaveat(now.Add(time.Second)))
-		expired = newCaveat(NewExpiryCaveat(now.Add(-1 * time.Second)))
+		valid   = sectest.NewExpiryCaveat(t, now.Add(time.Second))
+		expired = sectest.NewExpiryCaveat(t, now.Add(-1*time.Second))
 
-		ctxCancelAndCall = func(method string, discharges ...Discharge) (*context.T, context.CancelFunc, Call) {
-			params := &CallParams{
+		ctxCancelAndCall = func(method string, discharges ...security.Discharge) (*context.T, context.CancelFunc, security.Call) {
+			params := &security.CallParams{
 				Timestamp:        now,
 				Method:           method,
-				RemoteDischarges: make(map[string]Discharge),
+				RemoteDischarges: make(map[string]security.Discharge),
 			}
 			for _, d := range discharges {
 				params.RemoteDischarges[d.ID()] = d
 			}
 			root, cancel := context.RootContext()
-			return root, cancel, NewCall(params)
+			return root, cancel, security.NewCall(params)
 		}
 	)
 
-	tpc, err := NewPublicKeyCaveat(discharger.PublicKey(), "location", ThirdPartyRequirements{}, valid)
+	tpc, err := security.NewPublicKeyCaveat(discharger.PublicKey(), "location", security.ThirdPartyRequirements{}, valid)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +146,7 @@ func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
 		t.Fatal(err)
 	}
 	// Should validate when the discharge is present (and caveats on the discharge are met).
-	d, err := discharger.MintDischarge(tpc, newCaveat(NewMethodCaveat("Method1")))
+	d, err := discharger.MintDischarge(tpc, sectest.NewMethodCaveat(t, "Method1"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,12 +162,12 @@ func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
 		t.Fatal(err)
 	}
 	// Discharge can be converted to and from wire format:
-	var d2 Discharge
-	if err := roundTrip(d, &d2); err != nil || !reflect.DeepEqual(d, d2) {
+	var d2 security.Discharge
+	if err := sectest.RoundTrip(d, &d2); err != nil || !reflect.DeepEqual(d, d2) {
 		t.Errorf("Got (%#v, %v), want (%#v, nil)", d2, err, d)
 	}
 	// A discharge minted by another principal should not be respected.
-	if d, err = randomserver.MintDischarge(tpc, UnconstrainedUse()); err == nil {
+	if d, err = randomserver.MintDischarge(tpc, security.UnconstrainedUse()); err == nil {
 		ctx3, cancel3, call3 := ctxCancelAndCall("Method1", d)
 		defer cancel3()
 		if err := matchesError(tpc.Validate(ctx3, call3), "signature verification on discharge"); err != nil {
@@ -158,13 +175,13 @@ func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
 		}
 	}
 	// And ThirdPartyCaveat should not be dischargeable if caveats encoded within it fail validation.
-	tpc, err = NewPublicKeyCaveat(discharger.PublicKey(), "location", ThirdPartyRequirements{}, expired)
+	tpc, err = security.NewPublicKeyCaveat(discharger.PublicKey(), "location", security.ThirdPartyRequirements{}, expired)
 	if err != nil {
 		t.Fatal(err)
 	}
 	ctx, cancel := context.RootContext()
 	defer cancel()
-	call := NewCall(&CallParams{Timestamp: now})
+	call := security.NewCall(&security.CallParams{Timestamp: now})
 	if merr := matchesError(tpc.ThirdPartyDetails().Dischargeable(ctx, call), "could not validate embedded restriction"); merr != nil {
 		t.Fatal(merr)
 	}
@@ -175,43 +192,43 @@ func TestCaveat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	anyCd := CaveatDescriptor{
+	anyCd := security.CaveatDescriptor{
 		Id:        uid,
 		ParamType: vdl.AnyType,
 	}
-	if _, err := NewCaveat(anyCd, 9); verror.ErrorID(err) != ErrCaveatParamAny.ID {
-		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), ErrCaveatParamAny.ID)
+	if _, err := security.NewCaveat(anyCd, 9); verror.ErrorID(err) != security.ErrCaveatParamAny.ID {
+		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamAny.ID)
 	}
-	cd := CaveatDescriptor{
+	cd := security.CaveatDescriptor{
 		Id:        uid,
 		ParamType: vdl.TypeOf(string("")),
 	}
-	if _, err := NewCaveat(cd, nil); verror.ErrorID(err) != ErrCaveatParamTypeMismatch.ID {
-		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), ErrCaveatParamTypeMismatch.ID)
+	if _, err := security.NewCaveat(cd, nil); verror.ErrorID(err) != security.ErrCaveatParamTypeMismatch.ID {
+		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamTypeMismatch.ID)
 	}
 	// A param of type *vdl.Value with underlying type string should succeed.
-	if _, err := NewCaveat(cd, vdl.StringValue(nil, "")); err != nil {
+	if _, err := security.NewCaveat(cd, vdl.StringValue(nil, "")); err != nil {
 		t.Errorf("vdl value should have succeeded: %v", err)
 	}
-	call := NewCall(&CallParams{
+	call := security.NewCall(&security.CallParams{
 		Method: "Foo",
 	})
 	ctx, cancel := context.RootContext()
 	defer cancel()
-	c1, err := NewCaveat(cd, "Foo")
+	c1, err := security.NewCaveat(cd, "Foo")
 	if err != nil {
 		t.Fatal(err)
 	}
-	c2, err := NewCaveat(cd, "Bar")
+	c2, err := security.NewCaveat(cd, "Bar")
 	if err != nil {
 		t.Fatal(err)
 	}
 	// Validation will fail when the validation function isn't registered.
-	if err := c1.Validate(ctx, call); verror.ErrorID(err) != ErrCaveatNotRegistered.ID {
-		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), ErrCaveatNotRegistered.ID)
+	if err := c1.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatNotRegistered.ID {
+		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatNotRegistered.ID)
 	}
 	// Once registered, then it should be invoked
-	RegisterCaveatValidator(cd, func(ctx *context.T, call Call, param string) error {
+	security.RegisterCaveatValidator(cd, func(ctx *context.T, call security.Call, param string) error {
 		if call.Method() == param {
 			return nil
 		}
@@ -220,13 +237,13 @@ func TestCaveat(t *testing.T) {
 	if err := c1.Validate(ctx, call); err != nil {
 		t.Error(err)
 	}
-	if err := c2.Validate(ctx, call); verror.ErrorID(err) != ErrCaveatValidation.ID {
-		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), ErrCaveatValidation.ID)
+	if err := c2.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatValidation.ID {
+		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatValidation.ID)
 	}
 	// If a malformed caveat was received, then validation should fail
-	c3 := Caveat{Id: cd.Id, ParamVom: nil}
-	if err := c3.Validate(ctx, call); verror.ErrorID(err) != ErrCaveatParamCoding.ID {
-		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), ErrCaveatParamCoding.ID)
+	c3 := security.Caveat{Id: cd.Id, ParamVom: nil}
+	if err := c3.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatParamCoding.ID {
+		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamCoding.ID)
 	}
 }
 
@@ -236,7 +253,7 @@ func TestRegisterCaveat(t *testing.T) {
 		t.Fatal(err)
 	}
 	var (
-		cd = CaveatDescriptor{
+		cd = security.CaveatDescriptor{
 			Id:        uid,
 			ParamType: vdl.TypeOf(string("")),
 		}
@@ -250,39 +267,39 @@ func TestRegisterCaveat(t *testing.T) {
 	)
 	func() {
 		defer expectPanic("not a function")
-		RegisterCaveatValidator(cd, "not a function")
+		security.RegisterCaveatValidator(cd, "not a function")
 	}()
 	func() {
 		defer expectPanic("wrong #outputs")
-		RegisterCaveatValidator(cd, func(*context.T, Call, string) (error, error) { return nil, nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, security.Call, string) (error, error) { return nil, nil })
 	}()
 	func() {
 		defer expectPanic("bad output type")
-		RegisterCaveatValidator(cd, func(*context.T, Call, string) int { return 0 })
+		security.RegisterCaveatValidator(cd, func(*context.T, security.Call, string) int { return 0 })
 	}()
 	func() {
 		defer expectPanic("wrong #inputs")
-		RegisterCaveatValidator(cd, func(*context.T, string) error { return nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, string) error { return nil })
 	}()
 	func() {
 		defer expectPanic("bad input arg 0")
-		RegisterCaveatValidator(cd, func(int, Call, string) error { return nil })
+		security.RegisterCaveatValidator(cd, func(int, security.Call, string) error { return nil })
 	}()
 	func() {
 		defer expectPanic("bad input arg 1")
-		RegisterCaveatValidator(cd, func(*context.T, int, string) error { return nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, int, string) error { return nil })
 	}()
 	func() {
 		defer expectPanic("bad input arg 2")
-		RegisterCaveatValidator(cd, func(*context.T, Call, int) error { return nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, security.Call, int) error { return nil })
 	}()
 	func() {
 		// Successful registration: No panic:
-		RegisterCaveatValidator(cd, func(*context.T, Call, string) error { return nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, security.Call, string) error { return nil })
 	}()
 	func() {
 		defer expectPanic("Duplication registration")
-		RegisterCaveatValidator(cd, func(*context.T, Call, string) error { return nil })
+		security.RegisterCaveatValidator(cd, func(*context.T, security.Call, string) error { return nil })
 	}()
 	if got, want := npanics, 8; got != want {
 		t.Errorf("Got %d panics, want %d", got, want)
@@ -290,25 +307,25 @@ func TestRegisterCaveat(t *testing.T) {
 }
 
 func TestThirdPartyDetailsECDSA(t *testing.T) {
-	testThirdPartyDetails(t, newECDSAPrincipal(t))
+	testThirdPartyDetails(t, sectest.NewECDSAPrincipalP256(t))
 }
 
 func TestThirdPartyDetailsED25519(t *testing.T) {
-	testThirdPartyDetails(t, newED25519Principal(t))
+	testThirdPartyDetails(t, sectest.NewED25519Principal(t))
 }
 
-func testThirdPartyDetails(t *testing.T, p Principal) {
-	niltests := []Caveat{
-		newCaveat(NewExpiryCaveat(time.Now())),
-		newCaveat(NewMethodCaveat("Foo", "Bar")),
+func testThirdPartyDetails(t *testing.T, p security.Principal) {
+	niltests := []security.Caveat{
+		sectest.NewExpiryCaveat(t, time.Now()),
+		sectest.NewMethodCaveat(t, "Foo", "Bar"),
 	}
 	for _, c := range niltests {
 		if tp := c.ThirdPartyDetails(); tp != nil {
 			t.Errorf("Caveat [%v] recognized as a third-party caveat: %v", c, tp)
 		}
 	}
-	req := ThirdPartyRequirements{ReportMethod: true}
-	c, err := NewPublicKeyCaveat(p.PublicKey(), "location", req, newCaveat(NewExpiryCaveat(time.Now())))
+	req := security.ThirdPartyRequirements{ReportMethod: true}
+	c, err := security.NewPublicKeyCaveat(p.PublicKey(), "location", req, sectest.NewExpiryCaveat(t, time.Now()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -320,28 +337,28 @@ func testThirdPartyDetails(t *testing.T, p Principal) {
 }
 
 func TestPublicKeyDischargeExpiryECDSA(t *testing.T) {
-	testPublicKeyDischargeExpiry(t, newECDSAPrincipal(t))
+	testPublicKeyDischargeExpiry(t, sectest.NewECDSAPrincipalP256(t))
 }
 
 func TestPublicKeyDischargeExpiryED25519(t *testing.T) {
-	testPublicKeyDischargeExpiry(t, newED25519Principal(t))
+	testPublicKeyDischargeExpiry(t, sectest.NewED25519Principal(t))
 }
 
-func testPublicKeyDischargeExpiry(t *testing.T, discharger Principal) {
+func testPublicKeyDischargeExpiry(t *testing.T, discharger security.Principal) {
 	var (
 		now    = time.Now()
-		oneh   = newCaveat(NewExpiryCaveat(now.Add(time.Hour)))
-		twoh   = newCaveat(NewExpiryCaveat(now.Add(2 * time.Hour)))
-		threeh = newCaveat(NewExpiryCaveat(now.Add(3 * time.Hour)))
+		oneh   = sectest.NewExpiryCaveat(t, now.Add(time.Hour))
+		twoh   = sectest.NewExpiryCaveat(t, now.Add(2*time.Hour))
+		threeh = sectest.NewExpiryCaveat(t, now.Add(3*time.Hour))
 	)
 
-	tpc, err := NewPublicKeyCaveat(discharger.PublicKey(), "location", ThirdPartyRequirements{}, oneh)
+	tpc, err := security.NewPublicKeyCaveat(discharger.PublicKey(), "location", security.ThirdPartyRequirements{}, oneh)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Mint three discharges; one with no ExpiryCaveat...
-	noExpiry, err := discharger.MintDischarge(tpc, newCaveat(NewMethodCaveat("Method1")))
+	noExpiry, err := discharger.MintDischarge(tpc, sectest.NewMethodCaveat(t, "Method1"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -372,7 +389,7 @@ func testPublicKeyDischargeExpiry(t *testing.T, discharger Principal) {
 // (expiry)
 func BenchmarkNewCaveat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if _, err := NewExpiryCaveat(time.Time{}); err != nil {
+		if _, err := security.NewExpiryCaveat(time.Time{}); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -380,11 +397,11 @@ func BenchmarkNewCaveat(b *testing.B) {
 
 // Benchmark caveat valdation using one of the simplest caveats (expiry).
 func BenchmarkValidateCaveat(b *testing.B) {
-	cav, err := NewExpiryCaveat(time.Now().Add(time.Hour))
+	cav, err := security.NewExpiryCaveat(time.Now().Add(time.Hour))
 	if err != nil {
 		b.Fatal(err)
 	}
-	call := NewCall(&CallParams{})
+	call := security.NewCall(&security.CallParams{})
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	b.ResetTimer()

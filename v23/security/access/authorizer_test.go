@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/security/access/internal"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
-	"v.io/x/ref/test/testutil"
 )
 
 func authorize(authorizer security.Authorizer, params *security.CallParams) error {
@@ -35,17 +35,17 @@ func enforceable(al access.AccessList, p security.Principal) error {
 
 func TestAccessListAuthorizerECDSA(t *testing.T) {
 	testAccessListAuthorizer(t,
-		testutil.NewECDSAPrincipal(t),
-		testutil.NewECDSAPrincipal(t),
-		testutil.NewECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
 	)
 }
 
 func TestAccessListAuthorizerED25519(t *testing.T) {
 	testAccessListAuthorizer(t,
-		testutil.NewED25519Principal(t),
-		testutil.NewED25519Principal(t),
-		testutil.NewED25519Principal(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t),
 	)
 }
 
@@ -96,11 +96,11 @@ func testAccessListAuthorizer(t *testing.T, pali, pbob, pche security.Principal)
 }
 
 func TestAccessListEnforceableECDSA(t *testing.T) {
-	testAccessListEnforceable(t, testutil.NewECDSAPrincipal(t))
+	testAccessListEnforceable(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
 }
 
 func TestAccessListEnforceableED25519(t *testing.T) {
-	testAccessListEnforceable(t, testutil.NewED25519Principal(t))
+	testAccessListEnforceable(t, sectest.NewED25519PrincipalTrustAllRoots(t))
 }
 
 func testAccessListEnforceable(t *testing.T, p security.Principal) {
@@ -215,8 +215,8 @@ func TestPermissionsAuthorizer(t *testing.T) {
 
 	var (
 		// Two principals: The "server" and the "client"
-		pserver   = testutil.NewECDSAPrincipal(t)
-		pclient   = testutil.NewED25519Principal(t)
+		pserver   = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
+		pclient   = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _ = pserver.BlessSelf("server")
 
 		// B generates the provided blessings for the client and ensures
@@ -283,11 +283,11 @@ func TestPermissionsAuthorizer(t *testing.T) {
 }
 
 func TestPermissionsAuthorizerSelfRPCsECDSA(t *testing.T) {
-	testPermissionsAuthorizerSelfRPCs(t, testutil.NewECDSAPrincipal(t))
+	testPermissionsAuthorizerSelfRPCs(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
 }
 
 func TestPermissionsAuthorizerSelfRPCsED25519(t *testing.T) {
-	testPermissionsAuthorizerSelfRPCs(t, testutil.NewED25519Principal(t))
+	testPermissionsAuthorizerSelfRPCs(t, sectest.NewED25519PrincipalTrustAllRoots(t))
 }
 
 func testPermissionsAuthorizerSelfRPCs(t *testing.T, p security.Principal) {
@@ -317,8 +317,8 @@ func testPermissionsAuthorizerSelfRPCs(t *testing.T, p security.Principal) {
 func TestPermissionsAuthorizerWithNilAccessList(t *testing.T) {
 	var (
 		authorizer, _ = access.PermissionsAuthorizer(nil, vdl.TypeOf(internal.Read))
-		pserver       = testutil.NewED25519Principal(t)
-		pclient       = testutil.NewECDSAPrincipal(t)
+		pserver       = sectest.NewED25519PrincipalTrustAllRoots(t)
+		pclient       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
 		server, _     = pserver.BlessSelf("server")
 		client, _     = pclient.BlessSelf("client")
 	)
@@ -347,8 +347,8 @@ func TestPermissionsAuthorizerFromFile(t *testing.T) {
 
 	var (
 		authorizer, _  = access.PermissionsAuthorizerFromFile(filename, vdl.TypeOf(internal.Read))
-		pserver        = testutil.NewED25519Principal(t)
-		pclient        = testutil.NewECDSAPrincipal(t)
+		pserver        = sectest.NewED25519PrincipalTrustAllRoots(t)
+		pclient        = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
 		server, _      = pserver.BlessSelf("alice")
 		alicefriend, _ = pserver.Bless(pclient.PublicKey(), server, "friend:bob", security.UnconstrainedUse())
 		params         = &security.CallParams{
@@ -401,8 +401,8 @@ func TestMultipleTags(t *testing.T) {
 			"W": allowAll,
 		}
 		authorizer, _ = access.PermissionsAuthorizer(perms, vdl.TypeOf(internal.Read))
-		pserver       = testutil.NewECDSAPrincipal(t)
-		pclient       = testutil.NewED25519Principal(t)
+		pserver       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
+		pclient       = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _     = pserver.BlessSelf("server")
 		client, _     = pclient.BlessSelf("client")
 		call          = &security.CallParams{

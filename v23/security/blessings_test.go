@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package security
+package security_test
 
 import (
 	"bytes"
@@ -12,45 +12,47 @@ import (
 	"time"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
+	"v.io/v23/security"
 	"v.io/v23/vom"
 )
 
 func TestByteSizeECDSA(t *testing.T) {
 	testByteSize(t,
-		newECDSASigner(t, elliptic.P256()),
-		newECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) Signer {
-			return newECDSASigner(t, elliptic.P256())
+		sectest.NewECDSASigner(t, elliptic.P256()),
+		sectest.NewECDSASigner(t, elliptic.P256()),
+		func(t testing.TB) security.Signer {
+			return sectest.NewECDSASigner(t, elliptic.P256())
 		},
 	)
 }
 
 func TestByteSizeED25519(t *testing.T) {
 	testByteSize(t,
-		newED25519Signer(t),
-		newED25519Signer(t),
-		newED25519Signer,
+		sectest.NewED25519Signer(t),
+		sectest.NewED25519Signer(t),
+		sectest.NewED25519Signer,
 	)
 }
 
 func TestByteSize(t *testing.T) {
 	testByteSize(t,
-		newED25519Signer(t),
-		newECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) Signer {
-			return newECDSASigner(t, elliptic.P256())
+		sectest.NewED25519Signer(t),
+		sectest.NewECDSASigner(t, elliptic.P256()),
+		func(t testing.TB) security.Signer {
+			return sectest.NewECDSASigner(t, elliptic.P256())
 		},
 	)
 	testByteSize(t,
-		newECDSASigner(t, elliptic.P256()),
-		newED25519Signer(t),
-		newED25519Signer,
+		sectest.NewECDSASigner(t, elliptic.P256()),
+		sectest.NewED25519Signer(t),
+		sectest.NewED25519Signer,
 	)
 	testByteSize(t,
-		newED25519Signer(t),
-		newECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) Signer {
-			return newECDSASigner(t, elliptic.P256())
+		sectest.NewED25519Signer(t),
+		sectest.NewECDSASigner(t, elliptic.P256()),
+		func(t testing.TB) security.Signer {
+			return sectest.NewECDSASigner(t, elliptic.P256())
 		},
 	)
 
@@ -68,8 +70,8 @@ func TestByteSize(t *testing.T) {
 //   Blessing with 4 certificates               : 1149 bytes (a:a:a:a)
 //   Marshaled caveat                           :   55 bytes (0xa64c2d0119fba3348071feeb2f308000(time.Time=0001-01-01 00:00:00 +0000 UTC))
 //   Marshaled caveat                           :    6 bytes (0x54a676398137187ecdb26d2d69ba0003([]string=[m]))
-func testByteSize(t *testing.T, s1, s2 Signer, sfn func(testing.TB) Signer) {
-	blessingsize := func(b Blessings) int {
+func testByteSize(t *testing.T, s1, s2 security.Signer, sfn func(testing.TB) security.Signer) {
+	blessingsize := func(b security.Blessings) int {
 		buf, err := vom.Encode(b)
 		if err != nil {
 			t.Fatal(err)
@@ -89,54 +91,54 @@ func testByteSize(t *testing.T, s1, s2 Signer, sfn func(testing.TB) Signer) {
 	t.Logf("Marshaled P256 ECDSA key                   : %4d bytes", len(key))
 	t.Logf("Major components of an ECDSA signature     : %4d bytes", sigbytes)
 	// Byte sizes of blessings (with no caveats in any certificates).
-	t.Logf("VOM type information overhead for blessings: %4d bytes", blessingsize(Blessings{}))
+	t.Logf("VOM type information overhead for blessings: %4d bytes", blessingsize(security.Blessings{}))
 	for ncerts := 1; ncerts < 5; ncerts++ {
 		b := makeBlessings(t, sfn, ncerts)
 		t.Logf("Blessing with %d certificates               : %4d bytes (%v)", ncerts, blessingsize(b), b)
 	}
 	// Byte size of framework caveats.
-	logCaveatSize := func(c Caveat, err error) {
+	logCaveatSize := func(c security.Caveat, err error) {
 		if err != nil {
 			t.Fatal(err)
 		}
 		t.Logf("Marshaled caveat                           : %4d bytes (%v)", len(c.ParamVom), &c)
 	}
-	logCaveatSize(NewExpiryCaveat(time.Now()))
-	logCaveatSize(NewMethodCaveat("m"))
+	logCaveatSize(security.NewExpiryCaveat(time.Now()))
+	logCaveatSize(security.NewMethodCaveat("m"))
 }
 
 func TestBlessingCouldHaveNamesECDSA(t *testing.T) {
 	testBlessingCouldHaveNames(t,
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
 func TestBlessingCouldHaveNamesED25519(t *testing.T) {
 	testBlessingCouldHaveNames(t,
-		newED25519Principal(t),
-		newED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
 	)
 }
 
 func TestBlessingCouldHaveNames(t *testing.T) {
 	testBlessingCouldHaveNames(t,
-		newECDSAPrincipal(t),
-		newED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewED25519Principal(t),
 	)
 	testBlessingCouldHaveNames(t,
-		newED25519Principal(t),
-		newECDSAPrincipal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
-func testBlessingCouldHaveNames(t *testing.T, alice, bob Principal) {
-	falseCaveat, err := NewCaveat(ConstCaveat, false)
+func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
+	falseCaveat, err := security.NewCaveat(security.ConstCaveat, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	bless := func(p Principal, key PublicKey, with Blessings, extension string) Blessings {
+	bless := func(p security.Principal, key security.PublicKey, with security.Blessings, extension string) security.Blessings {
 		b, err := p.Bless(key, with, extension, falseCaveat)
 		if err != nil {
 			t.Fatal(err)
@@ -145,12 +147,12 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob Principal) {
 	}
 
 	var (
-		bbob = blessSelf(t, bob, "bob:tablet")
+		bbob = sectest.BlessSelf(t, bob, "bob:tablet")
 
-		balice1   = blessSelf(t, alice, "alice")
-		balice2   = blessSelf(t, alice, "alice:phone:youtube", falseCaveat)
+		balice1   = sectest.BlessSelf(t, alice, "alice")
+		balice2   = sectest.BlessSelf(t, alice, "alice:phone:youtube", falseCaveat)
 		balice3   = bless(bob, alice.PublicKey(), bbob, "friend")
-		balice, _ = UnionOfBlessings(balice1, balice2, balice3)
+		balice, _ = security.UnionOfBlessings(balice1, balice2, balice3)
 	)
 
 	tests := []struct {
@@ -178,26 +180,26 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob Principal) {
 }
 
 func TestBlessingsExpiryECDSA(t *testing.T) {
-	testBlessingsExpiry(t, newECDSASigner(t, elliptic.P256()))
+	testBlessingsExpiry(t, sectest.NewECDSASignerP256(t))
 }
 
 func TestBlessingsExpiryED25519(t *testing.T) {
-	testBlessingsExpiry(t, newED25519Signer(t))
+	testBlessingsExpiry(t, sectest.NewED25519Signer(t))
 }
 
-func testBlessingsExpiry(t *testing.T, signer Signer) {
-	p, err := CreatePrincipal(signer, nil, nil)
+func testBlessingsExpiry(t *testing.T, signer security.Signer) {
+	p, err := security.CreatePrincipal(signer, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	now := time.Now()
 	oneHour := now.Add(time.Hour)
 	twoHour := now.Add(2 * time.Hour)
-	oneHourCav, err := NewExpiryCaveat(oneHour)
+	oneHourCav, err := security.NewExpiryCaveat(oneHour)
 	if err != nil {
 		t.Fatal(err)
 	}
-	twoHourCav, err := NewExpiryCaveat(twoHour)
+	twoHourCav, err := security.NewExpiryCaveat(twoHour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +214,7 @@ func testBlessingsExpiry(t *testing.T, signer Signer) {
 		t.Fatal(err)
 	}
 	// noExpiryB should never expiry.
-	noExpiryB, err := p.BlessSelf("self", UnconstrainedUse())
+	noExpiryB, err := p.BlessSelf("self", security.UnconstrainedUse())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -228,45 +230,45 @@ func testBlessingsExpiry(t *testing.T, signer Signer) {
 }
 func TestBlessingsUniqueIDECDSA(t *testing.T) {
 	testBlessingsUniqueID(t,
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 
 }
 
 func TestBlessingsUniqueIDED25519(t *testing.T) {
 	testBlessingsUniqueID(t,
-		newED25519Principal(t),
-		newED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
 	)
 }
 
 func TestBlessingsUniqueID(t *testing.T) {
 	testBlessingsUniqueID(t,
-		newED25519Principal(t),
-		newECDSAPrincipal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 	testBlessingsUniqueID(t,
-		newED25519Principal(t),
-		newECDSAPrincipal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
-func testBlessingsUniqueID(t *testing.T, palice, pbob Principal) {
+func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 	var (
 
 		// Create blessings using all the methods available to create
 		// them: Bless, BlessSelf, UnionOfBlessings, NamelessBlessings.
-		nameless, _  = NamelessBlessing(palice.PublicKey())
-		alice        = blessSelf(t, palice, "alice")
-		bob          = blessSelf(t, pbob, "bob")
-		bobfriend, _ = pbob.Bless(alice.PublicKey(), bob, "friend", UnconstrainedUse())
-		bobspouse, _ = pbob.Bless(alice.PublicKey(), bob, "spouse", UnconstrainedUse())
+		nameless, _  = security.NamelessBlessing(palice.PublicKey())
+		alice        = sectest.BlessSelf(t, palice, "alice")
+		bob          = sectest.BlessSelf(t, pbob, "bob")
+		bobfriend, _ = pbob.Bless(alice.PublicKey(), bob, "friend", security.UnconstrainedUse())
+		bobspouse, _ = pbob.Bless(alice.PublicKey(), bob, "spouse", security.UnconstrainedUse())
 
-		u1, _ = UnionOfBlessings(alice, bobfriend, bobspouse)
-		u2, _ = UnionOfBlessings(bobfriend, bobspouse, alice)
+		u1, _ = security.UnionOfBlessings(alice, bobfriend, bobspouse)
+		u2, _ = security.UnionOfBlessings(bobfriend, bobspouse, alice)
 
-		all = []Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
+		all = []security.Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
 	)
 	// Each individual blessing should have a different UniqueID, and different from u1
 	for i := 0; i < len(all); i++ {
@@ -286,7 +288,7 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob Principal) {
 		if err != nil {
 			t.Errorf("%q failed VOM encoding: %v", b1, err)
 		}
-		var deserialized Blessings
+		var deserialized security.Blessings
 		if err := vom.Decode(serialized, &deserialized); err != nil || !bytes.Equal(b1.UniqueID(), deserialized.UniqueID()) {
 			t.Errorf("%q: UniqueID mismatch after VOM round-tripping. VOM decode error: %v", b1, err)
 		}
@@ -300,8 +302,8 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob Principal) {
 	// should not have the same unique id.
 	const commonName = "alice"
 	var (
-		alice1 = blessSelf(t, palice, commonName)
-		alice2 = blessSelf(t, pbob, commonName)
+		alice1 = sectest.BlessSelf(t, palice, commonName)
+		alice2 = sectest.BlessSelf(t, pbob, commonName)
 	)
 	if bytes.Equal(alice1.UniqueID(), alice2.UniqueID()) {
 		t.Errorf("Blessings for different public keys but the same name have the same unique id!")
@@ -310,29 +312,29 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob Principal) {
 
 func TestRootBlessingsECDSA(t *testing.T) {
 	testRootBlessings(t,
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
 func TestRootBlessingsED25519(t *testing.T) {
 	testRootBlessings(t,
-		newED25519Principal(t),
-		newED25519Principal(t),
-		newED25519Principal(t),
-		newED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
 	)
 }
 
-func testRootBlessings(t *testing.T, alpha, beta, gamma, alice Principal) {
-	falseCaveat, err := NewCaveat(ConstCaveat, false)
+func testRootBlessings(t *testing.T, alpha, beta, gamma, alice security.Principal) {
+	falseCaveat, err := security.NewCaveat(security.ConstCaveat, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	bless := func(p Principal, key PublicKey, with Blessings, extension string) Blessings {
+	bless := func(p security.Principal, key security.PublicKey, with security.Blessings, extension string) security.Blessings {
 		b, err := p.Bless(key, with, extension, falseCaveat)
 		if err != nil {
 			t.Fatal(err)
@@ -340,8 +342,8 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice Principal) {
 		return b
 	}
 
-	union := func(b ...Blessings) Blessings {
-		ret, err := UnionOfBlessings(b...)
+	union := func(b ...security.Blessings) security.Blessings {
+		ret, err := security.UnionOfBlessings(b...)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -349,27 +351,27 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice Principal) {
 	}
 
 	var (
-		balpha = blessSelf(t, alpha, "alpha")
-		bbeta  = blessSelf(t, beta, "beta")
-		bgamma = blessSelf(t, gamma, "gamma")
-		balice = blessSelf(t, alice, "alice")
+		balpha = sectest.BlessSelf(t, alpha, "alpha")
+		bbeta  = sectest.BlessSelf(t, beta, "beta")
+		bgamma = sectest.BlessSelf(t, gamma, "gamma")
+		balice = sectest.BlessSelf(t, alice, "alice")
 
 		bAlphaFriend             = bless(alpha, alice.PublicKey(), balpha, "friend")
 		bBetaEnemy               = bless(beta, alice.PublicKey(), bbeta, "enemy")
 		bGammaAcquaintanceFriend = bless(alpha, alice.PublicKey(), bless(gamma, alpha.PublicKey(), bgamma, "acquaintance"), "friend")
 
 		tests = []struct {
-			b Blessings
-			r []Blessings
+			b security.Blessings
+			r []security.Blessings
 		}{
-			{balice, []Blessings{balice}},
-			{bAlphaFriend, []Blessings{balpha}},
-			{union(balice, bAlphaFriend), []Blessings{balice, balpha}},
-			{union(bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend), []Blessings{balpha, bbeta, bgamma}},
+			{balice, []security.Blessings{balice}},
+			{bAlphaFriend, []security.Blessings{balpha}},
+			{union(balice, bAlphaFriend), []security.Blessings{balice, balpha}},
+			{union(bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend), []security.Blessings{balpha, bbeta, bgamma}},
 		}
 	)
 	for _, test := range tests {
-		roots := RootBlessings(test.b)
+		roots := security.RootBlessings(test.b)
 		if got, want := roots, test.r; !reflect.DeepEqual(got, want) {
 			t.Errorf("%v: Got %#v, want %#v", test.b, got, want)
 		}
@@ -379,7 +381,7 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice Principal) {
 		if err != nil {
 			t.Errorf("%v: vom encoding error: %v", test.b, err)
 		}
-		var deserialized []Blessings
+		var deserialized []security.Blessings
 		if err := vom.Decode(serialized, &deserialized); err != nil || !reflect.DeepEqual(roots, deserialized) {
 			t.Errorf("%v: Failed roundtripping: Got %#v want %#v", test.b, roots, deserialized)
 		}
@@ -388,23 +390,23 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice Principal) {
 
 func TestNamelessBlessingECDSA(t *testing.T) {
 	testNamelessBlessing(t,
-		newECDSAPrincipal(t),
-		newECDSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewECDSAPrincipalP256(t),
 	)
 }
 
 func TestNamelessBlessingED25519(t *testing.T) {
 	testNamelessBlessing(t,
-		newED25519Principal(t),
-		newED25519Principal(t),
+		sectest.NewED25519Principal(t),
+		sectest.NewED25519Principal(t),
 	)
 }
 
-func testNamelessBlessing(t *testing.T, alice, bob Principal) {
+func testNamelessBlessing(t *testing.T, alice, bob security.Principal) {
 	var (
-		balice, _      = NamelessBlessing(alice.PublicKey())
-		baliceagain, _ = NamelessBlessing(alice.PublicKey())
-		bbob, _        = NamelessBlessing(bob.PublicKey())
+		balice, _      = security.NamelessBlessing(alice.PublicKey())
+		baliceagain, _ = security.NamelessBlessing(alice.PublicKey())
+		bbob, _        = security.NamelessBlessing(bob.PublicKey())
 	)
 	if got, want := balice.PublicKey(), alice.PublicKey(); !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -433,55 +435,55 @@ func testNamelessBlessing(t *testing.T, alice, bob Principal) {
 	if got, want := balice.String(), ""; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := len(RootBlessings(balice)), 0; got != want {
+	if got, want := len(security.RootBlessings(balice)), 0; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got := SigningBlessings(balice); !got.IsZero() {
+	if got := security.SigningBlessings(balice); !got.IsZero() {
 		t.Errorf("got %v, want zero blessings", got)
 	}
 	ctx, cancel := context.RootContext()
 	defer cancel()
-	if gotname, gotrejected := SigningBlessingNames(ctx, alice, balice); len(gotname)+len(gotrejected) > 0 {
+	if gotname, gotrejected := security.SigningBlessingNames(ctx, alice, balice); len(gotname)+len(gotrejected) > 0 {
 		t.Errorf("got %v, %v, want nil, nil", gotname, gotrejected)
 	}
 	testNamelessBlessingCall(t, ctx, alice, bob, balice, baliceagain, bbob)
 }
 
-func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob Principal, balice, baliceagain, bbob Blessings) {
+func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob security.Principal, balice, baliceagain, bbob security.Blessings) {
 
-	call := NewCall(&CallParams{
+	call := security.NewCall(&security.CallParams{
 		LocalPrincipal:  alice,
 		RemoteBlessings: bbob,
 	})
-	if gotname, gotrejected := RemoteBlessingNames(ctx, call); len(gotname)+len(gotrejected) > 0 {
+	if gotname, gotrejected := security.RemoteBlessingNames(ctx, call); len(gotname)+len(gotrejected) > 0 {
 		t.Errorf("got %v, %v, want nil, nil", gotname, gotrejected)
 	}
-	call = NewCall(&CallParams{
+	call = security.NewCall(&security.CallParams{
 		LocalPrincipal: alice,
 		LocalBlessings: balice,
 	})
-	if got := LocalBlessingNames(ctx, call); len(got) > 0 {
+	if got := security.LocalBlessingNames(ctx, call); len(got) > 0 {
 		t.Errorf("got %v, want nil", got)
 	}
-	if got := BlessingNames(alice, balice); len(got) > 0 {
+	if got := security.BlessingNames(alice, balice); len(got) > 0 {
 		t.Errorf("got %v, want nil", got)
 	}
-	var b Blessings
-	if err := roundTrip(balice, &b); err != nil {
+	var b security.Blessings
+	if err := sectest.RoundTrip(balice, &b); err != nil {
 		t.Fatal(err)
 	}
 	if !balice.Equivalent(b) {
 		t.Errorf("got %#v, want %#v", b, balice)
 	}
-	if _, err := alice.Bless(bob.PublicKey(), balice, "friend", UnconstrainedUse()); err == nil {
+	if _, err := alice.Bless(bob.PublicKey(), balice, "friend", security.UnconstrainedUse()); err == nil {
 		t.Errorf("bless operation should have failed")
 	}
 	// Union of two nameless blessings should be nameless.
-	if got, err := UnionOfBlessings(balice, baliceagain); err != nil || !got.Equivalent(balice) {
+	if got, err := security.UnionOfBlessings(balice, baliceagain); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}
 	// Union of zero and nameless blessings hsoudl be nameless.
-	if got, err := UnionOfBlessings(balice, Blessings{}); err != nil || !got.Equivalent(balice) {
+	if got, err := security.UnionOfBlessings(balice, security.Blessings{}); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}
 	// Union of zero, nameless, and named blessings should be the named blessings.
@@ -489,24 +491,26 @@ func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob Principal
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, err := UnionOfBlessings(balice, Blessings{}, named); err != nil || !got.Equivalent(named) {
+	if got, err := security.UnionOfBlessings(balice, security.Blessings{}, named); err != nil || !got.Equivalent(named) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, named, err)
 	}
 }
 
 func BenchmarkBlessECDSA(b *testing.B) {
 	benchmarkBless(b,
-		newECDSASigner(b, elliptic.P256()),
-		newECDSASigner(b, elliptic.P256()),
+		sectest.NewECDSASigner(b, elliptic.P256()),
+		sectest.NewECDSASigner(b, elliptic.P256()),
 	)
 }
 
 func BenchmarkBlessED25519(b *testing.B) {
-	benchmarkBless(b, newED25519Signer(b), newED25519Signer(b))
+	benchmarkBless(b,
+		sectest.NewED25519Signer(b),
+		sectest.NewED25519Signer(b))
 }
 
-func benchmarkBless(b *testing.B, s1, s2 Signer) {
-	p, err := CreatePrincipal(s1, nil, nil)
+func benchmarkBless(b *testing.B, s1, s2 security.Signer) {
+	p, err := security.CreatePrincipal(s1, nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -515,7 +519,7 @@ func benchmarkBless(b *testing.B, s1, s2 Signer) {
 		b.Fatal(err)
 	}
 	// Include at least one caveat as having caveats should be the common case.
-	caveat, err := NewExpiryCaveat(time.Now().Add(time.Hour))
+	caveat, err := security.NewExpiryCaveat(time.Now().Add(time.Hour))
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -528,47 +532,47 @@ func benchmarkBless(b *testing.B, s1, s2 Signer) {
 	}
 }
 func BenchmarkVerifyCertificateIntegrityECDSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) Signer {
-		return newECDSASigner(t, elliptic.P256())
+	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
+		return sectest.NewECDSASigner(t, elliptic.P256())
 	})
 }
 
 func BenchmarkVerifyCertificateIntegrityED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, newED25519Signer)
+	benchmarkVerifyCertificateIntegrity(b, sectest.NewED25519Signer)
 }
 
-func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) Signer) {
+func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) security.Signer) {
 	native := makeBlessings(b, sfn, 1)
-	var wire WireBlessings
-	if err := WireBlessingsFromNative(&wire, native); err != nil {
+	var wire security.WireBlessings
+	if err := security.WireBlessingsFromNative(&wire, native); err != nil {
 		b.Fatal(err)
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := WireBlessingsToNative(wire, &native); err != nil {
+		if err := security.WireBlessingsToNative(wire, &native); err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingECDSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) Signer {
-		return newECDSASigner(t, elliptic.P256())
+	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
+		return sectest.NewECDSASigner(t, elliptic.P256())
 	})
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, newED25519Signer)
+	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewED25519Signer)
 }
 
-func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) Signer) {
-	signatureCache.disable()
-	defer signatureCache.enable()
+func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) security.Signer) {
+	security.DisableSignatureCache()
+	defer security.EnableSignatureCache()
 	benchmarkVerifyCertificateIntegrity(b, sfn)
 }
 
-func makeBlessings(t testing.TB, sfn func(testing.TB) Signer, ncerts int) Blessings {
-	p, err := CreatePrincipal(sfn(t), nil, nil)
+func makeBlessings(t testing.TB, sfn func(testing.TB) security.Signer, ncerts int) security.Blessings {
+	p, err := security.CreatePrincipal(sfn(t), nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -577,11 +581,11 @@ func makeBlessings(t testing.TB, sfn func(testing.TB) Signer, ncerts int) Blessi
 		t.Fatal(err)
 	}
 	for i := 1; i < ncerts; i++ {
-		p2, err := CreatePrincipal(sfn(t), nil, nil)
+		p2, err := security.CreatePrincipal(sfn(t), nil, nil)
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
-		b2, err := p.Bless(p2.PublicKey(), b, "a", UnconstrainedUse())
+		b2, err := p.Bless(p2.PublicKey(), b, "a", security.UnconstrainedUse())
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
