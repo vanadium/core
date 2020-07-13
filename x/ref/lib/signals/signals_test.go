@@ -24,8 +24,7 @@ import (
 func stopLoop(stdin io.Reader, ch chan<- struct{}) {
 	scanner := bufio.NewScanner(stdin)
 	for scanner.Scan() {
-		switch scanner.Text() {
-		case "close":
+		if scanner.Text() == "close" {
 			close(ch)
 			return
 		}

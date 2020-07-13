@@ -33,8 +33,7 @@ func remoteCmdLoop(ctx *context.T, stdin io.Reader) func() {
 	go func() {
 		scanner := bufio.NewScanner(stdin)
 		for scanner.Scan() {
-			switch scanner.Text() {
-			case "close":
+			if scanner.Text() == "close" {
 				close(done)
 				return
 			}
@@ -90,20 +89,16 @@ var complexServerProgram = gosh.RegisterFunc("complexServerProgram", func() {
 	// clean shutdown steps.
 	go func() {
 		// First signal received.
-		select {
-		case sig := <-sigChan:
-			// If the developer wants to take different actions
-			// depending on the type of signal, they can do it here.
-			fmt.Println("Received signal", sig)
-		}
+		sig := <-sigChan
+		// If the developer wants to take different actions
+		// depending on the type of signal, they can do it here.
+		fmt.Println("Received signal", sig)
 		// This commences the cleanup stage.
 		done.Done()
 		// Wait for a second signal or stop command, and force an exit,
 		// but only once all blocking cleanup code (if any) has
 		// completed.
-		select {
-		case <-sigChan:
-		}
+		<-sigChan
 		<-blockingCh
 		os.Exit(signals.DoubleStopExitCode)
 	}()
