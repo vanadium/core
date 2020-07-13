@@ -34,74 +34,6 @@ import (
 	"v.io/v23/security/access"
 )
 
-const (
-	// LocalStop is the message received on AppCycle.WaitForStop when the stop was
-	// initiated by the process itself.
-	LocalStop = "localstop"
-	// RemoteStop is the message received on AppCycle.WaitForStop when the stop was
-	// initiated via an RPC call (AppCycle.Stop).
-	RemoteStop = "remotestop"
-	// Default values for exit codes returned by the process when exiting
-	// via the AppCycle component.
-	UnhandledStopExitCode = 1
-	ForceStopExitCode     = 1
-)
-
-// Task is streamed to channels registered using TrackTask to provide a sense of
-// the progress of the application's shutdown sequence.  For a description of
-// the fields, see the Task struct in the v23/services/appcycle package, which
-// it mirrors.
-type Task struct {
-	Progress, Goal int32
-}
-
-// AppCycle is the interface for managing the shutdown of a runtime
-// remotely and locally. An appropriate instance of this is provided by
-// the RuntimeFactory to the runtime implementation which in turn arranges to
-// serve it on an appropriate network address.
-type AppCycle interface {
-	// Stop causes all the channels returned by WaitForStop to return the
-	// LocalStop message, to give the application a chance to shut down.
-	// Stop does not block.  If any of the channels are not receiving,
-	// the message is not sent on them.
-	// If WaitForStop had never been called, Stop acts like ForceStop.
-	Stop(ctx *context.T)
-
-	// ForceStop causes the application to exit immediately with an error
-	// code.
-	ForceStop(ctx *context.T)
-
-	// WaitForStop takes in a channel on which a stop event will be
-	// conveyed.  The stop event is represented by a string identifying the
-	// source of the event.  For example, when Stop is called locally, the
-	// LocalStop message will be received on the channel.  If the channel is
-	// not being received on, or is full, no message is sent on it.
-	//
-	// The channel is assumed to remain open while messages could be sent on
-	// it.  The channel will be automatically closed during the call to
-	// Cleanup.
-	WaitForStop(ctx *context.T, ch chan<- string)
-
-	// AdvanceGoal extends the goal value in the shutdown task tracker.
-	// Non-positive delta is ignored.
-	AdvanceGoal(delta int32)
-	// AdvanceProgress advances the progress value in the shutdown task
-	// tracker.  Non-positive delta is ignored.
-	AdvanceProgress(delta int32)
-	// TrackTask registers a channel to receive task updates (a Task will be
-	// sent on the channel if either the goal or progress values of the
-	// task have changed).  If the channel is not being received on, or is
-	// full, no Task is sent on it.
-	//
-	// The channel is assumed to remain open while Tasks could be sent on
-	// it.
-	TrackTask(chan<- Task)
-
-	// Remote returns an object to serve the remotely accessible AppCycle
-	// interface (as defined in v23/services/appcycle)
-	Remote() interface{}
-}
-
 // Runtime is the interface that concrete Vanadium implementations must
 // implement.  It will not be used directly by application builders.
 // They will instead use the package level functions that mirror these
@@ -132,9 +64,6 @@ type Runtime interface {
 
 	// GetNamespace returns the Namespace in 'ctx'.
 	GetNamespace(ctx *context.T) namespace.T
-
-	// GetAppCycle returns the AppCycle in 'ctx'.
-	GetAppCycle(ctx *context.T) AppCycle
 
 	// GetListenSpec returns the ListenSpec in 'ctx'.
 	GetListenSpec(ctx *context.T) rpc.ListenSpec
@@ -237,11 +166,6 @@ func WithNewNamespace(ctx *context.T, roots ...string) (*context.T, namespace.T,
 // GetNamespace returns the Namespace in 'ctx'.
 func GetNamespace(ctx *context.T) namespace.T {
 	return initState.currentRuntime().GetNamespace(ctx)
-}
-
-// GetAppCycle returns the AppCycle in 'ctx'.
-func GetAppCycle(ctx *context.T) AppCycle {
-	return initState.currentRuntime().GetAppCycle(ctx)
 }
 
 // GetListenSpec returns the ListenSpec in 'ctx'.

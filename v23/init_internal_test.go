@@ -38,7 +38,6 @@ func (*mockRuntime) WithNewNamespace(ctx *context.T, roots ...string) (*context.
 	return nil, nil, nil
 }
 func (*mockRuntime) GetNamespace(ctx *context.T) namespace.T     { return nil }
-func (*mockRuntime) GetAppCycle(ctx *context.T) AppCycle         { return nil }
 func (*mockRuntime) GetListenSpec(ctx *context.T) rpc.ListenSpec { return rpc.ListenSpec{} }
 
 func (*mockRuntime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {

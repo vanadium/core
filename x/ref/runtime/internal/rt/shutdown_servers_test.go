@@ -34,11 +34,6 @@ func remoteCmdLoop(ctx *context.T, stdin io.Reader) func() {
 		scanner := bufio.NewScanner(stdin)
 		for scanner.Scan() {
 			switch scanner.Text() {
-			case "stop":
-				v23.GetAppCycle(ctx).Stop(ctx)
-			case "forcestop":
-				fmt.Println("straight exit")
-				v23.GetAppCycle(ctx).ForceStop(ctx)
 			case "close":
 				close(done)
 				return
@@ -85,11 +80,6 @@ var complexServerProgram = gosh.RegisterFunc("complexServerProgram", func() {
 	sigChan := make(chan os.Signal, 2)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 
-	// This is how to configure handling of stop commands to allow clean
-	// shutdown.
-	stopChan := make(chan string, 2)
-	v23.GetAppCycle(ctx).WaitForStop(ctx, stopChan)
-
 	// Blocking is used to prevent the process from exiting upon receiving a
 	// second signal or stop command while critical cleanup code is
 	// executing.
@@ -105,8 +95,6 @@ var complexServerProgram = gosh.RegisterFunc("complexServerProgram", func() {
 			// If the developer wants to take different actions
 			// depending on the type of signal, they can do it here.
 			fmt.Println("Received signal", sig)
-		case stop := <-stopChan:
-			fmt.Println("Stop", stop)
 		}
 		// This commences the cleanup stage.
 		done.Done()
@@ -115,7 +103,6 @@ var complexServerProgram = gosh.RegisterFunc("complexServerProgram", func() {
 		// completed.
 		select {
 		case <-sigChan:
-		case <-stopChan:
 		}
 		<-blockingCh
 		os.Exit(signals.DoubleStopExitCode)

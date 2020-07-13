@@ -7,6 +7,7 @@ package rpc_test
 import (
 	"flag"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -17,8 +18,6 @@ import (
 	"v.io/v23/security/access"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/factories/fake"
-	"v.io/x/ref/runtime/internal"
-	"v.io/x/ref/runtime/internal/lib/appcycle"
 	irpc "v.io/x/ref/runtime/internal/rpc"
 	grt "v.io/x/ref/runtime/internal/rt"
 	"v.io/x/ref/test"
@@ -28,20 +27,17 @@ var commonFlags *flags.Flags
 
 func init() {
 	commonFlags = flags.CreateAndRegister(flag.CommandLine, flags.Runtime)
-	if err := internal.ParseFlagsIncV23Env(commonFlags); err != nil {
+	if err := commonFlags.Parse(os.Args[1:], nil); err != nil {
 		panic(err)
 	}
 }
 
 func setupRuntime() {
-	ac := appcycle.New()
-
 	listenSpec := rpc.ListenSpec{Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}}}
 
 	rootctx, rootcancel := context.RootContext()
 	ctx, cancel := context.WithCancel(rootctx)
 	runtime, ctx, sd, err := grt.Init(ctx,
-		ac,
 		nil,
 		nil,
 		nil,
@@ -55,7 +51,6 @@ func setupRuntime() {
 		panic(err)
 	}
 	shutdown := func() {
-		ac.Shutdown()
 		cancel()
 		sd()
 		rootcancel()
