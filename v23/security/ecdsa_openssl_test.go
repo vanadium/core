@@ -15,33 +15,21 @@ import (
 	"testing"
 )
 
-var opensslKey *bmkey
+var opensslECDSAKey *bmkey
 
 func init() {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-	signer, err := newOpenSSLSigner(key)
-	if err != nil {
-		panic(err)
-	}
-	signature, err := signer.Sign(purpose, message)
-	if err != nil {
-		panic(err)
-	}
-	opensslKey = &bmkey{signer, signature}
+	opensslECDSAKey = newECDSABenchmarkKey(newOpenSSLECDSASigner)
 }
 
 func BenchmarkSign_ECDSA_OpenSSL(b *testing.B) {
-	benchmarkSign(opensslKey, b)
+	benchmarkSign(opensslECDSAKey, b)
 }
 
 func BenchmarkVerify_ECDSA_OpenSSL(b *testing.B) {
-	benchmarkVerify(opensslKey, b)
+	benchmarkVerify(opensslECDSAKey, b)
 }
 
-func TestOpenSSLCompatibility(t *testing.T) {
+func TestOpenSSLCompatibilityECDSA(t *testing.T) {
 	t.Log(openssl_version())
 	var (
 		purpose = make([]byte, 5)
@@ -57,15 +45,15 @@ func TestOpenSSLCompatibility(t *testing.T) {
 	for curveidx, curve := range []elliptic.Curve{elliptic.P224(), elliptic.P256(), elliptic.P384(), elliptic.P521()} {
 		key, err := ecdsa.GenerateKey(curve, rand.Reader)
 		if err != nil {
-			t.Errorf("Failed to generate key #%d", curveidx)
+			t.Errorf("Failed to generate key #%d: %v", curveidx, err)
 			continue
 		}
-		golang, err := newGoStdlibSigner(key)
+		golang, err := newGoStdlibECDSASigner(key)
 		if err != nil {
 			t.Error(err)
 			continue
 		}
-		openssl, err := newOpenSSLSigner(key)
+		openssl, err := newOpenSSLECDSASigner(key)
 		if err != nil {
 			t.Error(err)
 			continue

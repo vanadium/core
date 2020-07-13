@@ -5,7 +5,10 @@
 package security
 
 import (
+	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/md5"
+	"crypto/x509"
 	"encoding"
 	"fmt"
 
@@ -39,7 +42,7 @@ type PublicKey interface {
 	verify(digest []byte, signature *Signature) bool
 }
 
-func publicKeyString(pk PublicKey) string {
+func publicKeyString(pk encoding.BinaryMarshaler) string {
 	bytes, err := pk.MarshalBinary()
 	if err != nil {
 		return fmt.Sprintf("<invalid public key: %v>", err)
@@ -55,8 +58,19 @@ func publicKeyString(pk PublicKey) string {
 	return string(repr[:len(repr)-1])
 }
 
-// UnmarshalPublicKey returns a PublicKey object from the DER-encoded PKIX represntation of it
-// (typically obtianed via PublicKey.MarshalBinary).
+// UnmarshalPublicKey returns a PublicKey object from the DER-encoded PKIX
+// represntation of it (typically obtianed via PublicKey.MarshalBinary).
 func UnmarshalPublicKey(bytes []byte) (PublicKey, error) {
-	return unmarshalPublicKeyImpl(bytes)
+	key, err := x509.ParsePKIXPublicKey(bytes)
+	if err != nil {
+		return nil, err
+	}
+	switch v := key.(type) {
+	case *ecdsa.PublicKey:
+		return newECDSAPublicKeyImpl(v), nil
+	case ed25519.PublicKey:
+		return newED25519PublicKeyImpl(v), nil
+	default:
+		return nil, verror.New(errUnrecognizedKey, nil, fmt.Sprintf("%T", key))
+	}
 }

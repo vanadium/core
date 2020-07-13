@@ -1,0 +1,10 @@
+package ecdsaonly
+
+type Hash string
+
+// Signature represents a digital signature.
+type Signature struct {
+	Purpose []byte
+	Hash Hash
+	R, S []byte
+}

@@ -8,17 +8,29 @@ import (
 	"testing"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-func TestAccessTagCaveat(t *testing.T) {
+func TestAccessTagCaveatECDSA(t *testing.T) {
+	testAccessTagCaveat(t,
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t))
+}
+
+func TestAccessTagCaveatED25519(t *testing.T) {
+	testAccessTagCaveat(t,
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t))
+}
+
+func testAccessTagCaveat(t *testing.T, server, other security.Principal) {
 	var (
-		server     = newPrincipal(t)
 		bserver, _ = server.BlessSelf("server")
 		caveat, _  = access.NewAccessTagCaveat(access.Debug, access.Resolve)
-		bclient, _ = server.Bless(newPrincipal(t).PublicKey(), bserver, "debugger", caveat)
+		bclient, _ = server.Bless(other.PublicKey(), bserver, "debugger", caveat)
 		tests      = []struct {
 			MethodTags []*vdl.Value
 			OK         bool

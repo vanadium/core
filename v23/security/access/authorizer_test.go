@@ -5,10 +5,6 @@
 package access_test
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -17,6 +13,7 @@ import (
 	"time"
 
 	"v.io/v23/context"
+	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/security/access/internal"
@@ -36,12 +33,24 @@ func enforceable(al access.AccessList, p security.Principal) error {
 	return al.Enforceable(ctx, p)
 }
 
-func TestAccessListAuthorizer(t *testing.T) {
-	var (
-		pali = newPrincipal(t)
-		pbob = newPrincipal(t)
-		pche = newPrincipal(t)
+func TestAccessListAuthorizerECDSA(t *testing.T) {
+	testAccessListAuthorizer(t,
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
+	)
+}
 
+func TestAccessListAuthorizerED25519(t *testing.T) {
+	testAccessListAuthorizer(t,
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+		sectest.NewED25519PrincipalTrustAllRoots(t),
+	)
+}
+
+func testAccessListAuthorizer(t *testing.T, pali, pbob, pche security.Principal) {
+	var (
 		expired, _ = security.NewExpiryCaveat(time.Now().Add(-1 * time.Minute))
 
 		ali, _                = pbob.BlessSelf("ali")
@@ -86,8 +95,15 @@ func TestAccessListAuthorizer(t *testing.T) {
 	}
 }
 
-func TestAccessListEnforceable(t *testing.T) {
-	p := newPrincipal(t)
+func TestAccessListEnforceableECDSA(t *testing.T) {
+	testAccessListEnforceable(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
+}
+
+func TestAccessListEnforceableED25519(t *testing.T) {
+	testAccessListEnforceable(t, sectest.NewED25519PrincipalTrustAllRoots(t))
+}
+
+func testAccessListEnforceable(t *testing.T, p security.Principal) {
 	if key, err := p.PublicKey().MarshalBinary(); err != nil {
 		t.Fatal(err)
 	} else {
@@ -199,8 +215,8 @@ func TestPermissionsAuthorizer(t *testing.T) {
 
 	var (
 		// Two principals: The "server" and the "client"
-		pserver   = newPrincipal(t)
-		pclient   = newPrincipal(t)
+		pserver   = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
+		pclient   = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _ = pserver.BlessSelf("server")
 
 		// B generates the provided blessings for the client and ensures
@@ -266,11 +282,18 @@ func TestPermissionsAuthorizer(t *testing.T) {
 	}
 }
 
-func TestPermissionsAuthorizerSelfRPCs(t *testing.T) {
+func TestPermissionsAuthorizerSelfRPCsECDSA(t *testing.T) {
+	testPermissionsAuthorizerSelfRPCs(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
+}
+
+func TestPermissionsAuthorizerSelfRPCsED25519(t *testing.T) {
+	testPermissionsAuthorizerSelfRPCs(t, sectest.NewED25519PrincipalTrustAllRoots(t))
+}
+
+func testPermissionsAuthorizerSelfRPCs(t *testing.T, p security.Principal) {
 	var (
 		// Client and server are the same principal, though have
 		// different blessings.
-		p         = newPrincipal(t)
 		client, _ = p.BlessSelf("client")
 		server, _ = p.BlessSelf("server")
 		// Authorizer with access.Permissions that grant access to noone.
@@ -294,8 +317,8 @@ func TestPermissionsAuthorizerSelfRPCs(t *testing.T) {
 func TestPermissionsAuthorizerWithNilAccessList(t *testing.T) {
 	var (
 		authorizer, _ = access.PermissionsAuthorizer(nil, vdl.TypeOf(internal.Read))
-		pserver       = newPrincipal(t)
-		pclient       = newPrincipal(t)
+		pserver       = sectest.NewED25519PrincipalTrustAllRoots(t)
+		pclient       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
 		server, _     = pserver.BlessSelf("server")
 		client, _     = pclient.BlessSelf("client")
 	)
@@ -324,8 +347,8 @@ func TestPermissionsAuthorizerFromFile(t *testing.T) {
 
 	var (
 		authorizer, _  = access.PermissionsAuthorizerFromFile(filename, vdl.TypeOf(internal.Read))
-		pserver        = newPrincipal(t)
-		pclient        = newPrincipal(t)
+		pserver        = sectest.NewED25519PrincipalTrustAllRoots(t)
+		pclient        = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
 		server, _      = pserver.BlessSelf("alice")
 		alicefriend, _ = pserver.Bless(pclient.PublicKey(), server, "friend:bob", security.UnconstrainedUse())
 		params         = &security.CallParams{
@@ -378,8 +401,8 @@ func TestMultipleTags(t *testing.T) {
 			"W": allowAll,
 		}
 		authorizer, _ = access.PermissionsAuthorizer(perms, vdl.TypeOf(internal.Read))
-		pserver       = newPrincipal(t)
-		pclient       = newPrincipal(t)
+		pserver       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
+		pclient       = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _     = pserver.BlessSelf("server")
 		client, _     = pclient.BlessSelf("client")
 		call          = &security.CallParams{
@@ -414,42 +437,4 @@ func methodTags(name string) []*vdl.Value {
 		}
 	}
 	return nil
-}
-
-func newPrincipal(t *testing.T) security.Principal {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	p, err := security.CreatePrincipal(
-		security.NewInMemoryECDSASigner(key),
-		nil,
-		&trustAllRoots{dump: make(map[security.BlessingPattern][]security.PublicKey)},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return p
-}
-
-type trustAllRoots struct {
-	dump map[security.BlessingPattern][]security.PublicKey
-}
-
-func (r *trustAllRoots) Add(root []byte, pattern security.BlessingPattern) error {
-	key, err := security.UnmarshalPublicKey(root)
-	if err != nil {
-		return err
-	}
-	r.dump[pattern] = append(r.dump[pattern], key)
-	return nil
-}
-func (r *trustAllRoots) Recognized(root []byte, blessing string) error {
-	return nil
-}
-func (r *trustAllRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
-	return r.dump
-}
-func (r *trustAllRoots) DebugString() string {
-	return fmt.Sprintf("%v", r)
 }

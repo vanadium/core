@@ -389,14 +389,6 @@ func overrideCaveatValidation(fn func(ctx *context.T, call Call, sets [][]Caveat
 	caveatValidationMu.Unlock()
 }
 
-func setCaveatValidationForTest(fn func(ctx *context.T, call Call, sets [][]Caveat) []error) {
-	// For tests we skip the panic on multiple calls, so that we can easily revert
-	// to the default validator.
-	caveatValidationMu.Lock()
-	caveatValidation = fn
-	caveatValidationMu.Unlock()
-}
-
 func getCaveatValidation() func(ctx *context.T, call Call, sets [][]Caveat) []error {
 	caveatValidationMu.RLock()
 	fn := caveatValidation

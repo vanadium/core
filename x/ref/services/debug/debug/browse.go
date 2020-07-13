@@ -136,7 +136,11 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 				return fmt.Errorf("expected an ECDSA private in in --key, got %T", tmp)
 			}
 		}
-		principal, err := seclib.NewPrincipalFromSigner(security.NewInMemoryECDSASigner(key))
+		signer, err := security.NewInMemoryECDSASigner(key)
+		if err != nil {
+			return fmt.Errorf("failed to create an ECDSA signer: %v", err)
+		}
+		principal, err := seclib.NewPrincipalFromSigner(signer)
 		if err != nil {
 			return fmt.Errorf("unable to use --key: %v", err)
 		}

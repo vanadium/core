@@ -18,10 +18,6 @@ func NewECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
 	return newECDSAPublicKeyImpl(key)
 }
 
-func newGoStdlibPublicKey(key *ecdsa.PublicKey) PublicKey {
-	return &ecdsaPublicKey{key}
-}
-
 type ecdsaPublicKey struct {
 	key *ecdsa.PublicKey
 }
@@ -50,21 +46,12 @@ func (pk *ecdsaPublicKey) hash() Hash {
 // NewInMemoryECDSASigner creates a Signer that uses the provided ECDSA private
 // key to sign messages.  This private key is kept in the clear in the memory
 // of the running process.
-func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) Signer {
-	// TODO(ashankar): Change this function to return an error
-	// and not panic.
+func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 	signer, err := newInMemoryECDSASignerImpl(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return signer
-}
-
-func newGoStdlibSigner(key *ecdsa.PrivateKey) (Signer, error) {
-	sign := func(data []byte) (r, s *big.Int, err error) {
-		return ecdsa.Sign(rand.Reader, key, data)
-	}
-	return &ecdsaSigner{sign: sign, pubkey: newGoStdlibPublicKey(&key.PublicKey)}, nil
+	return signer, nil
 }
 
 // NewECDSASigner creates a Signer that uses the provided function to sign
@@ -99,4 +86,15 @@ func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
 
 func (c *ecdsaSigner) PublicKey() PublicKey {
 	return c.pubkey
+}
+
+func newGoStdlibECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
+	sign := func(data []byte) (r, s *big.Int, err error) {
+		return ecdsa.Sign(rand.Reader, key, data)
+	}
+	return &ecdsaSigner{sign: sign, pubkey: newGoStdlibECDSAPublicKey(&key.PublicKey)}, nil
+}
+
+func newGoStdlibECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
+	return &ecdsaPublicKey{key}
 }
