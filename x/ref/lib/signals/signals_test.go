@@ -14,7 +14,6 @@ import (
 	"syscall"
 	"testing"
 
-	v23 "v.io/v23"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -22,15 +21,12 @@ import (
 	"v.io/x/ref/test/v23test"
 )
 
-func stopLoop(stop func(), stdin io.Reader, ch chan<- struct{}) {
+func stopLoop(stdin io.Reader, ch chan<- struct{}) {
 	scanner := bufio.NewScanner(stdin)
 	for scanner.Scan() {
-		switch scanner.Text() {
-		case "close":
+		if scanner.Text() == "close" {
 			close(ch)
 			return
-		case "stop":
-			stop()
 		}
 	}
 }
@@ -39,8 +35,7 @@ func program(sigs ...os.Signal) {
 	ctx, shutdown := test.V23Init()
 	closeStopLoop := make(chan struct{})
 	// obtain ac here since stopLoop may execute after shutdown is called below
-	ac := v23.GetAppCycle(ctx)
-	go stopLoop(func() { ac.Stop(ctx) }, os.Stdin, closeStopLoop)
+	go stopLoop(os.Stdin, closeStopLoop)
 	wait := signals.ShutdownOnSignals(ctx, sigs...)
 	fmt.Printf("ready\n")
 	fmt.Printf("received signal %s\n", <-wait)
@@ -65,8 +60,7 @@ var handleDefaultsIgnoreChan = gosh.RegisterFunc("handleDefaultsIgnoreChan", fun
 	defer shutdown()
 	closeStopLoop := make(chan struct{})
 	// obtain ac here since stopLoop may execute after shutdown is called below
-	ac := v23.GetAppCycle(ctx)
-	go stopLoop(func() { ac.Stop(ctx) }, os.Stdin, closeStopLoop)
+	go stopLoop(os.Stdin, closeStopLoop)
 	signals.ShutdownOnSignals(ctx)
 	fmt.Printf("ready\n")
 	<-closeStopLoop
@@ -116,54 +110,12 @@ func TestCleanShutdownSignal(t *testing.T) {
 	cmd.Wait()
 }
 
-// TestCleanShutdownStop verifies that sending a stop command to a child that
-// handles stop commands by default causes the child to shut down cleanly.
-func TestCleanShutdownStop(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	cmd, stdinPipe := startFunc(t, sh, handleDefaults, false)
-	cmd.S.Expect("ready")
-	fmt.Fprintf(stdinPipe, "stop\n")
-	cmd.S.Expectf("received signal %s", v23.LocalStop)
-	fmt.Fprintf(stdinPipe, "close\n")
-	cmd.Wait()
-}
-
-// TestCleanShutdownStopCustom verifies that sending a stop command to a child
-// that handles stop command as part of a custom set of signals handled, causes
-// the child to shut down cleanly.
-func TestCleanShutdownStopCustom(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	cmd, stdinPipe := startFunc(t, sh, handleCustomWithStop, false)
-	cmd.S.Expect("ready")
-	fmt.Fprintf(stdinPipe, "stop\n")
-	cmd.S.Expectf("received signal %s", v23.LocalStop)
-	fmt.Fprintf(stdinPipe, "close\n")
-	cmd.Wait()
-}
-
 func checkExitStatus(t *testing.T, cmd *v23test.Cmd, code int) {
 	if got, want := cmd.Err, fmt.Errorf("exit status %d", code); got.Error() != want.Error() {
 		_, file, line, _ := runtime.Caller(1)
 		file = filepath.Base(file)
 		t.Errorf("%s:%d: got %q, want %q", file, line, got, want)
 	}
-}
-
-// TestStopNoHandler verifies that sending a stop command to a child that does
-// not handle stop commands causes the child to exit immediately.
-func TestStopNoHandler(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	cmd, stdinPipe := startFunc(t, sh, handleCustom, true)
-	cmd.S.Expect("ready")
-	fmt.Fprintf(stdinPipe, "stop\n")
-	cmd.Wait()
-	checkExitStatus(t, cmd, v23.UnhandledStopExitCode)
 }
 
 // TestDoubleSignal verifies that sending a succession of two signals to a child
@@ -180,39 +132,6 @@ func TestDoubleSignal(t *testing.T) {
 	cmd.S.Expectf("received signal %s", syscall.SIGTERM)
 	checkSignalIsDefault(t, syscall.SIGINT)
 	cmd.Signal(syscall.SIGINT)
-	cmd.Wait()
-	checkExitStatus(t, cmd, signals.DoubleStopExitCode)
-}
-
-// TestSignalAndStop verifies that sending a signal followed by a stop command
-// to a child that handles these by default causes the child to exit immediately
-// upon receiving the stop command.
-func TestSignalAndStop(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	cmd, stdinPipe := startFunc(t, sh, handleDefaults, true)
-	cmd.S.Expect("ready")
-	checkSignalIsDefault(t, syscall.SIGTERM)
-	cmd.Signal(syscall.SIGTERM)
-	cmd.S.Expectf("received signal %s", syscall.SIGTERM)
-	fmt.Fprintf(stdinPipe, "stop\n")
-	cmd.Wait()
-	checkExitStatus(t, cmd, signals.DoubleStopExitCode)
-}
-
-// TestDoubleStop verifies that sending a succession of stop commands to a child
-// that handles stop commands by default causes the child to exit immediately
-// upon receiving the second stop command.
-func TestDoubleStop(t *testing.T) {
-	sh := v23test.NewShell(t, nil)
-	defer sh.Cleanup()
-
-	cmd, stdinPipe := startFunc(t, sh, handleDefaults, true)
-	cmd.S.Expect("ready")
-	fmt.Fprintf(stdinPipe, "stop\n")
-	cmd.S.Expectf("received signal %s", v23.LocalStop)
-	fmt.Fprintf(stdinPipe, "stop\n")
 	cmd.Wait()
 	checkExitStatus(t, cmd, signals.DoubleStopExitCode)
 }
