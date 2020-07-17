@@ -7,9 +7,9 @@ package security
 import (
 	"context"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"time"
 
@@ -18,8 +18,6 @@ import (
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/passphrase"
-	"v.io/x/ref/lib/security/serialization"
-	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
 const (
@@ -154,7 +152,7 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newSigner(ctx, dir, passphrase)
+	signer, err := newFileSigner(ctx, dir, passphrase)
 	if err != nil {
 		if verror.ErrorID(err) != ErrPassphraseRequired.ID || !readonly || passphrase != nil {
 			return nil, err
@@ -180,79 +178,6 @@ func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update
 	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
 }
 
-// CreatePersistentPrincipal creates a new Principal using a newly generated
-// ECSDA key and commits all state changes to the provided directory.
-// Use CreatePersistentPrincipalUsingKey to specify a different key
-// type or to use an existing key.
-//
-// The private key is serialized and saved encrypted if the
-// 'passphrase' is non-nil, and unencrypted otherwise.
-//
-// If the directory has any preexisting principal data,
-// CreatePersistentPrincipal will return an error.
-//
-// The specified directory may not exist, in which case it will be created.
-func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	_, key, err := NewECDSAKeyPair()
-	if err != nil {
-		return nil, err
-	}
-	return CreatePersistentPrincipalUsingKey(key, dir, passphrase)
-}
-
-// CreatePersistentPrincipalUsingKey is like CreatePersistentPrincipal but
-// will use the supplied key instead of creating one.
-func CreatePersistentPrincipalUsingKey(key interface{}, dir string, passphrase []byte) (security.Principal, error) {
-	if key == nil {
-		var err error
-		_, key, err = NewECDSAKeyPair()
-		if err != nil {
-			return nil, err
-		}
-	}
-	if err := mkDir(dir); err != nil {
-		return nil, err
-	}
-	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	unlock, err := flock.Lock()
-	if err != nil {
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
-	}
-	defer unlock()
-	return createPersistentPrincipal(context.TODO(), key, dir, passphrase)
-}
-
-func createPersistentPrincipal(ctx context.Context, key interface{}, dir string, passphrase []byte) (principal security.Principal, err error) {
-	if err := internal.WritePEMKeyPair(
-		key,
-		path.Join(dir, privateKeyFile),
-		path.Join(dir, publicKeyFile),
-		passphrase,
-	); err != nil {
-		return nil, err
-	}
-	var update time.Duration
-	return newPersistentPrincipal(ctx, dir, passphrase, false, update)
-}
-
-func newSigner(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	// TODO(cnicolaou): determine when/how to use SSH agent, fido etc.
-	svc := keyfile.NewSigningService()
-	signer, err := svc.Signer(ctx, filepath.Join(dir, privateKeyFile), passphrase)
-	switch {
-	case err == nil:
-		return signer, nil
-	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
-		return nil, verror.New(ErrBadPassphrase, nil)
-	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
-		return nil, verror.New(ErrPassphraseRequired, nil)
-	case os.IsNotExist(err):
-		return nil, err
-	default:
-		return nil, verror.New(errCantCreateSigner, nil, err)
-	}
-}
-
 func loadPublicKey(ctx context.Context, dir string) (security.PublicKey, error) {
 	f, err := os.Open(filepath.Join(dir, publicKeyFile))
 	if err != nil {
@@ -263,56 +188,13 @@ func loadPublicKey(ctx context.Context, dir string) (security.PublicKey, error) 
 	if err != nil {
 		return nil, err
 	}
-	if k, ok := key.(*ecdsa.PublicKey); ok {
+	switch k := key.(type) {
+	case *ecdsa.PublicKey:
 		return security.NewECDSAPublicKey(k), nil
+	case ed25519.PublicKey:
+		return security.NewED25519PublicKey(k), nil
 	}
 	return nil, verror.New(errUnsupportedKeyType, nil, fmt.Sprintf("%T", key))
-}
-
-func newStores(ctx context.Context, signer security.Signer, publicKey security.PublicKey, dir string, readonly bool, update time.Duration) (security.BlessingStore, security.BlessingRoots, error) {
-
-	blessingRootsSerializer := newFileSerializer(
-		path.Join(dir, blessingRootsDataFile),
-		path.Join(dir, blessingRootsSigFile))
-	rootsReader, rootsWriter := SerializerReader(blessingRootsSerializer), SerializerWriter(blessingRootsSerializer)
-
-	blessingStoreSerializer := newFileSerializer(
-		path.Join(dir, blessingStoreDataFile),
-		path.Join(dir, blessingStoreSigFile))
-	storeReader, storeWriter := SerializerReader(blessingStoreSerializer), SerializerWriter(blessingStoreSerializer)
-
-	var signerSerialization serialization.Signer
-	if readonly {
-		rootsWriter, storeWriter = nil, nil
-	} else {
-		signerSerialization = &serializationSigner{signer}
-	}
-
-	blessingRoots, err := NewPersistentBlessingRoots(
-		ctx,
-		filepath.Join(dir, blessingsRootsLockFilename),
-		rootsReader,
-		rootsWriter,
-		signerSerialization,
-		publicKey,
-		update,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	blessingsStore, err := NewPersistentBlessingStore(
-		ctx,
-		filepath.Join(dir, blessingStoreLockFilename),
-		storeReader,
-		storeWriter,
-		signerSerialization,
-		publicKey,
-		update,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	return blessingsStore, blessingRoots, nil
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with
@@ -341,15 +223,4 @@ func InitDefaultBlessings(p security.Principal, name string) error {
 		return err
 	}
 	return SetDefaultBlessings(p, blessing)
-}
-
-func mkDir(dir string) error {
-	if finfo, err := os.Stat(dir); err == nil {
-		if !finfo.IsDir() {
-			return verror.New(errNotADirectory, nil, dir)
-		}
-	} else if err := os.MkdirAll(dir, 0700); err != nil {
-		return verror.New(errCantCreate, nil, dir, err)
-	}
-	return nil
 }

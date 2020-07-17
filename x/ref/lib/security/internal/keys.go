@@ -2,6 +2,7 @@ package internal
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
@@ -15,9 +16,10 @@ import (
 )
 
 const (
-	pkgPath             = "v.io/x/ref/lib/security/internal"
-	ecPrivateKeyPEMType = "EC PRIVATE KEY"
-	ecPublicKeyPEMType  = "EC PUBLIC KEY"
+	pkgPath                = "v.io/x/ref/lib/security/internal"
+	ecPrivateKeyPEMType    = "EC PRIVATE KEY"
+	ecPublicKeyPEMType     = "EC PUBLIC KEY"
+	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
 )
 
 var (
@@ -60,7 +62,7 @@ func openKeyFile(keyFile string) (*os.File, error) {
 	return f, nil
 }
 
-// WritePEMKeyPair writes an key pair in pem format.
+// WritePEMKeyPair writes a key pair in pem format.
 func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, passphrase []byte) error {
 	private, err := openKeyFile(privateKeyFile)
 	if err != nil {
@@ -103,13 +105,20 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		data = pemBlock.Bytes
 	}
 
-	if pemBlock.Type == ecPrivateKeyPEMType {
+	switch pemBlock.Type {
+	case ecPrivateKeyPEMType:
 		key, err := x509.ParseECPrivateKey(data)
 		if err != nil {
 			// x509.DecryptPEMBlock may occasionally return random
 			// bytes for data with a nil error when the passphrase
 			// is invalid; hence, failure to parse data could be due
 			// to a bad passphrase.
+			return nil, verror.New(ErrBadPassphrase, nil)
+		}
+		return key, nil
+	case pkcs8PrivateKeyPEMType:
+		key, err := x509.ParsePKCS8PrivateKey(data)
+		if err != nil {
 			return nil, verror.New(ErrBadPassphrase, nil)
 		}
 		return key, nil
@@ -145,6 +154,15 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 		}
 		if public != nil {
 			if publicData, err = x509.MarshalPKIXPublicKey(&k.PublicKey); err != nil {
+				return err
+			}
+		}
+	case ed25519.PrivateKey:
+		if privateData, err = x509.MarshalPKCS8PrivateKey(k); err != nil {
+			return err
+		}
+		if public != nil {
+			if publicData, err = x509.MarshalPKIXPublicKey(k.Public()); err != nil {
 				return err
 			}
 		}
