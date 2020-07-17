@@ -18,14 +18,29 @@ import (
 	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
+// It turns out that ssh-add behaves differently on different systems with
+// respect to how keys are named in the agent. On macos, the -C comment
+// field is respected. However on linux, or at least on circleci's go
+// images, the -C comment is not respected for ecdsa keys and instead
+// the filename used with ssh-add is used as the comment. In this test
+// care is taken to ensure that the -C comments and filenames used
+// as the same.
+
 func sshkeygen(dir, filename string, args ...string) error {
-	args = append(args, "-f", filepath.Join(dir, filename), "-N", "")
+	filepath := filepath.Join(dir, filename)
+	args = append(args, "-f", filepath, "-N", "")
 	cmd := exec.Command("ssh-keygen", args...)
+	fmt.Println(strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		fmt.Printf("Failed: %v: %v\n", strings.Join(cmd.Args, " "), err)
 		fmt.Println(string(output))
 		return err
 	}
+	buf, _ := ioutil.ReadFile(filepath)
+	fmt.Println(string(buf))
+	buf, _ = ioutil.ReadFile(filepath + ".pub")
+	fmt.Println(string(buf))
 	return nil
 }
 
@@ -44,7 +59,7 @@ func generateKeys(dir string) error {
 	return nil
 }
 
-func startAgent() (func(), error) {
+func startAndConfigureAgent() (func(), error) {
 	tmpdir, err := ioutil.TempDir("", "ssh-keygen")
 	if err != nil {
 		return nil, err
@@ -62,6 +77,8 @@ func startAgent() (func(), error) {
 	first := lines[0]
 	addr := strings.TrimPrefix(first, "SSH_AUTH_SOCK=")
 	addr = strings.TrimSuffix(addr, "; export SSH_AUTH_SOCK;")
+	// Configure the sshagent package to use this agent and not the
+	// user's existing one.
 	sshagent.SetAgentAddress(func() string {
 		return addr
 	})
@@ -80,22 +97,26 @@ func startAgent() (func(), error) {
 			fmt.Printf("killing: %v\n", int(pid))
 		}
 	}
-
 	cmd = exec.Command("ssh-add",
-		filepath.Join(tmpdir, "rsa"),
-		filepath.Join(tmpdir, "ecdsa-256"),
-		filepath.Join(tmpdir, "ecdsa-384"),
-		filepath.Join(tmpdir, "ecdsa-521"),
-		filepath.Join(tmpdir, "ed25519"))
+		"rsa",
+		"ecdsa-256",
+		"ecdsa-384",
+		"ecdsa-521",
+		"ed25519")
+	cmd.Dir = tmpdir
 	cmd.Env = []string{"SSH_AUTH_SOCK=" + addr}
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return cleanup, fmt.Errorf("failed to add ssh keys: %v: %s", err, output)
 	}
+	cmd = exec.Command("ssh-add", "-l")
+	cmd.Env = []string{"SSH_AUTH_SOCK=" + addr}
+	output, _ = cmd.CombinedOutput()
+	fmt.Printf("%s\n", output)
 	return cleanup, nil
 }
 
 func TestMain(m *testing.M) {
-	cleanup, err := startAgent()
+	cleanup, err := startAndConfigureAgent()
 	if err != nil {
 		flag.Parse()
 		cleanup()
@@ -107,8 +128,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestAgentSigningVanadiumVerification(t *testing.T) {
-	ctx := context.Background()
+func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, passphrase []byte) {
 	service := sshagent.NewSigningService()
 	randSource := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for _, keyComment := range []string{
@@ -122,7 +142,7 @@ func TestAgentSigningVanadiumVerification(t *testing.T) {
 		if err != nil {
 			t.Fatalf("rand: %v", err)
 		}
-		signer, err := service.Signer(ctx, keyComment, nil)
+		signer, err := service.Signer(ctx, keyComment, passphrase)
 		if err != nil {
 			t.Fatalf("service.Signer: %v", err)
 		}
@@ -143,6 +163,29 @@ func TestAgentSigningVanadiumVerification(t *testing.T) {
 	defer service.Close(ctx)
 }
 
-// test agent passphrase locking
-// test agent errors, run sshagent mock server, or just kill
-// existing one?
+func TestAgentSigningVanadiumVerification(t *testing.T) {
+	ctx := context.Background()
+	testAgentSigningVanadiumVerification(ctx, t, nil)
+}
+
+func TestAgentSigningVanadiumVerificationPassphrase(t *testing.T) {
+	ctx := context.Background()
+	passphrase := []byte("something")
+	service := sshagent.NewSigningService()
+	agent := service.(*sshagent.Client)
+	if err := agent.Lock(passphrase); err != nil {
+		t.Fatalf("agent.Lock: %v", err)
+	}
+	_, err := service.Signer(ctx, "ed25519", nil)
+	if err == nil || !strings.Contains(err.Error(), "not found") {
+		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)
+	}
+	testAgentSigningVanadiumVerification(ctx, t, passphrase)
+
+	// make sure agent is still locked.
+	_, err = service.Signer(ctx, "ed25519", nil)
+	if err == nil || !strings.Contains(err.Error(), "not found") {
+		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)
+	}
+
+}

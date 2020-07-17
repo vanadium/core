@@ -58,19 +58,58 @@ func (ac *Client) connect() error {
 	ac.agent = agent.NewClient(conn)
 	return nil
 }
+
 func (ac *Client) Lock(passphrase []byte) error {
-	return ac.agent.Lock(passphrase)
+	if err := ac.connect(); err != nil {
+		return err
+	}
+	if err := ac.agent.Lock(passphrase); err != nil {
+		return fmt.Errorf("failed to lock agent: %v", err)
+	}
+	return nil
 }
 
 func (ac *Client) Unlock(passphrase []byte) error {
-	return ac.agent.Unlock(passphrase)
+	if err := ac.connect(); err != nil {
+		return err
+	}
+	if err := ac.agent.Unlock(passphrase); err != nil {
+		return fmt.Errorf("failed to unlock agent: %v", err)
+	}
+	return nil
+}
+
+func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, error) {
+	passthrough := func(err error) error { return err }
+	if pw == nil {
+		return passthrough, nil
+	}
+	if err := client.Unlock(pw); err != nil {
+		return passthrough, err
+	}
+	return func(err error) error {
+		nerr := client.Lock(pw)
+		if err == nil {
+			err = nerr
+		}
+		return err
+	}, nil
 }
 
 // Signer implements signing.Service.
-func (ac *Client) Signer(ctx context.Context, key string, passphrase []byte) (security.Signer, error) {
+func (ac *Client) Signer(ctx context.Context, key string, passphrase []byte) (s security.Signer, err error) {
 	if err := ac.connect(); err != nil {
 		return nil, err
 	}
+
+	relock, err := handleLock(ac.agent, passphrase)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = relock(err)
+	}()
+
 	k, err := ac.lookup(key)
 	if err != nil {
 		return nil, err
@@ -184,17 +223,13 @@ type signer struct {
 
 // Sign implements security.Signer.
 func (sn *signer) Sign(purpose, message []byte) (sig security.Signature, err error) {
-	if pw := sn.passphrase; pw != nil {
-		if err = sn.service.Unlock(pw); err != nil {
-			return
-		}
-		defer func() {
-			nerr := sn.service.Lock(pw)
-			if err == nil {
-				err = nerr
-			}
-		}()
+	relock, err := handleLock(sn.service.agent, sn.passphrase)
+	if err != nil {
+		return security.Signature{}, err
 	}
+	defer func() {
+		err = relock(err)
+	}()
 	return sn.service.sign(purpose, message, sn.name, sn.sshPK, sn.v23PK)
 }
 
