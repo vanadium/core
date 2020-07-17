@@ -187,5 +187,4 @@ func TestAgentSigningVanadiumVerificationPassphrase(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)
 	}
-
 }
