@@ -115,7 +115,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 	// make sure that no keys lead to a failure.
 	os.Remove(filepath.Join(dir, privateKeyFile))
 	os.Remove(filepath.Join(dir, "ecdsa-384.pub"))
-	p, err = LoadPersistentPrincipal(dir, nil)
+	_, err = LoadPersistentPrincipal(dir, nil)
 	if err == nil {
 		t.Errorf("unencrypted LoadPersistentPrincipal should have failed")
 	}
@@ -399,7 +399,7 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer client.Unlock(passphrase)
-	testDaemonPublicKeyOnly(t, funcForSSHKey("ecdsa-256.pub"), []byte(passphrase))
+	testDaemonPublicKeyOnly(t, funcForSSHKey("ecdsa-256.pub"), passphrase)
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {

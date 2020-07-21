@@ -16,7 +16,7 @@ import (
 	"v.io/v23/verror"
 )
 
-// DefaultSSHAgentSockNameFunc can be overriden to return the address of a custom
+// DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
 // ssh agent to use instead of the one specified by SSH_AUTH_SOCK. This is
 // primarily intended for tests.
 var DefaultSSHAgentSockNameFunc = func() string {

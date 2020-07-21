@@ -96,7 +96,7 @@ func DigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte,
 // HashedDigestsForSSH hashes the digests returned by DigestsForSSH using
 // an appropriate hash function for the ssh key. The ED25519 implementation
 // in openSSH does not rehash internally and consequently this is needed
-// for compatibily with the Vanadium code.
+// for compatibility with the Vanadium code.
 func HashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte, security.Hash, error) {
 	hashName, hasher := hashForSSHKey(sshPK)
 	sum, err := digest(hasher, v23PK, message, purpose)
@@ -110,7 +110,7 @@ func HashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([
 
 // UnmarshalSSHECDSASignature unmarshals the R and S signature components
 // from the returned signature.
-func UnmarshalSSHECDSASignature(sig *ssh.Signature) (R, S []byte, err error) {
+func UnmarshalSSHECDSASignature(sig *ssh.Signature) (r, s []byte, err error) {
 	var ecSig struct {
 		R, S *big.Int
 	}
