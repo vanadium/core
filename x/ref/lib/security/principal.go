@@ -8,6 +8,8 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rand"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -60,14 +62,15 @@ const (
 // NewPrincipal mints a new private (ecdsa) key and generates a principal
 // based on this key, storing its BlessingRoots and BlessingStore in memory.
 func NewPrincipal() (security.Principal, error) {
-	pub, priv, err := NewECDSAKeyPair()
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, err
+		return nil, verror.New(errCantGenerateKey, nil, err)
 	}
 	signer, err := security.NewInMemoryECDSASigner(priv)
 	if err != nil {
 		return nil, err
 	}
+	pub := security.NewECDSAPublicKey(&priv.PublicKey)
 	return security.CreatePrincipal(signer, NewBlessingStore(pub), NewBlessingRoots())
 }
 

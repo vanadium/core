@@ -5,6 +5,9 @@
 package security
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,16 +19,20 @@ import (
 	"v.io/v23/verror"
 )
 
+func createAndMarshalPublicKey() ([]byte, error) {
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	return security.NewECDSAPublicKey(&priv.PublicKey).MarshalBinary()
+}
+
 type rootsTester [4][]byte
 
 func newRootsTester() *rootsTester {
 	var tester rootsTester
 	for idx := range tester {
-		key, _, err := NewECDSAKeyPair()
-		if err != nil {
-			panic(err)
-		}
-		keybytes, err := key.MarshalBinary()
+		keybytes, err := createAndMarshalPublicKey()
 		if err != nil {
 			panic(err)
 		}
