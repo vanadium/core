@@ -3,6 +3,7 @@ package internal
 import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
@@ -10,8 +11,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
+	"strings"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/verror"
 )
 
@@ -36,30 +38,29 @@ var (
 	errCantSaveKeyPair     = verror.Register(pkgPath+".errCantSaveKeyPair", verror.NoRetry, "{1:}{2:} failed to save private key to {3}, {4}{:_}")
 )
 
-// SSHKeygenNoPassphrase creates an ssh key pair using sshkeygen without
-// a passphrase. It is intended for testing.
-func SSHKeygenNoPassphrase(filename, comment, keyType, bits string) error {
-	cmd := exec.Command("ssh-keygen",
-		"-C", comment,
-		"-f", filename,
-		"-t", keyType,
-		"-b", bits,
-		"-N", "",
-		"-q",
-	)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to generate ssh key: %v: %s", err, out)
-	}
-	return nil
-}
-
 func openKeyFile(keyFile string) (*os.File, error) {
-	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
 	if err != nil {
 		return nil, verror.New(errCantOpenForWriting, nil, keyFile, err)
 	}
 	return f, nil
+}
+
+// CopyKeyFile copies a keyfile, it wqill fail if it can't overwrite
+// an existing file.
+func CopyKeyFile(fromFile, toFile string) error {
+	to, err := openKeyFile(toFile)
+	if err != nil {
+		return err
+	}
+	defer to.Close()
+	from, err := os.Open(fromFile)
+	if err != nil {
+		return err
+	}
+	defer from.Close()
+	_, err = io.Copy(to, from)
+	return err
 }
 
 // WritePEMKeyPair writes a key pair in pem format.
@@ -80,7 +81,7 @@ func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, pass
 	return nil
 }
 
-// LoadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
+// loadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
 // If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
 func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	pemBlockBytes, err := ioutil.ReadAll(r)
@@ -126,17 +127,66 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	return nil, verror.New(errPEMKeyBlockBadType, nil, pemBlock.Type)
 }
 
+// LoadPEMPublicKeyFile loads a public key file in PEM PKIX format.
+func LoadPEMPublicKeyFile(filename string) (interface{}, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	key, err := LoadPEMPublicKey(f)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load public key from: %v: %v", filename, err)
+	}
+	return key, nil
+}
+
 // LoadPEMPublicKey loads a public key in PEM PKIX format.
 func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
 	pemBlockBytes, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read bytes: %v", err)
 	}
 	pemBlock, _ := pem.Decode(pemBlockBytes)
 	if pemBlock == nil {
 		return nil, verror.New(errNoPEMKeyBlock, nil)
 	}
-	return x509.ParsePKIXPublicKey(pemBlock.Bytes)
+	key, err := x509.ParsePKIXPublicKey(pemBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("x509.ParsePKIXPublicKey: failed to parse bytes: %v", err)
+	}
+	return key, nil
+}
+
+// LoadSSHPublicKeyFile loads a public key file in SSH authorized hosts format.
+func LoadSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
+	if !strings.HasSuffix(filename, ".pub") {
+		return nil, "", fmt.Errorf("%v does not have suffix: .pub", filename)
+	}
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("XXX %q -> %v\n", filename, err)
+		return nil, "", err
+	}
+	defer f.Close()
+	key, comment, err := LoadSSHPublicKey(f)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to load ssh public key from: %v: %v", filename, err)
+	}
+	return key, comment, nil
+}
+
+// LoadSSHPublicKey loads a public key in SSH authorized hosts format.
+func LoadSSHPublicKey(r io.Reader) (ssh.PublicKey, string, error) {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to read bytes: %v", err)
+	}
+	key, comment, _, _, err := ssh.ParseAuthorizedKey(data)
+	if err != nil {
+		return nil, "", err
+	}
+	return key, comment, nil
 }
 
 // SavePEMKey marshals 'key', encrypts it using 'passphrase', and saves the bytes to 'w' in PEM format.
@@ -147,6 +197,7 @@ func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
 func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byte) error {
 	var privateData, publicData []byte
 	var err error
+	var pemType string
 	switch k := key.(type) {
 	case *ecdsa.PrivateKey:
 		if privateData, err = x509.MarshalECPrivateKey(k); err != nil {
@@ -157,6 +208,7 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 				return err
 			}
 		}
+		pemType = ecPrivateKeyPEMType
 	case ed25519.PrivateKey:
 		if privateData, err = x509.MarshalPKCS8PrivateKey(k); err != nil {
 			return err
@@ -166,19 +218,20 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 				return err
 			}
 		}
+		pemType = pkcs8PrivateKeyPEMType
 	default:
 		return verror.New(errCantSaveKeyType, nil, fmt.Sprintf("%T", k))
 	}
 
 	var pemKey *pem.Block
 	if passphrase != nil {
-		pemKey, err = x509.EncryptPEMBlock(rand.Reader, ecPrivateKeyPEMType, privateData, passphrase, x509.PEMCipherAES256)
+		pemKey, err = x509.EncryptPEMBlock(rand.Reader, pemType, privateData, passphrase, x509.PEMCipherAES256)
 		if err != nil {
 			return verror.New(errCantEncryptPEMBlock, nil, err)
 		}
 	} else {
 		pemKey = &pem.Block{
-			Type:  ecPrivateKeyPEMType,
+			Type:  pemType,
 			Bytes: privateData,
 		}
 	}
@@ -195,4 +248,57 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 		Bytes: publicData,
 	}
 	return pem.Encode(public, pemKey)
+}
+
+// ParseECDSAKey creates an ecdsa.PublicKey from an ssh ECDSA key.
+func ParseECDSAKey(key ssh.PublicKey) (*ecdsa.PublicKey, error) {
+	var sshWire struct {
+		Name string
+		ID   string
+		Key  []byte
+	}
+	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal key type: %v: %v", key.Type(), err)
+	}
+	pk := new(ecdsa.PublicKey)
+	switch sshWire.ID {
+	case "nistp256":
+		pk.Curve = elliptic.P256()
+	case "nistp384":
+		pk.Curve = elliptic.P384()
+	case "nistp521":
+		pk.Curve = elliptic.P521()
+	default:
+		return nil, fmt.Errorf("uncrecognised ecdsa curve: %v", sshWire.ID)
+	}
+	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key)
+	if pk.X == nil || pk.Y == nil {
+		return nil, fmt.Errorf("invalid curve point")
+	}
+	return pk, nil
+}
+
+// ParseED25519Key creates an ed25519.PublicKey from an ssh ED25519 key.
+func ParseED25519Key(key ssh.PublicKey) (ed25519.PublicKey, error) {
+	var sshWire struct {
+		Name     string
+		KeyBytes []byte
+	}
+	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal key %v: %v", key.Type(), err)
+	}
+	return ed25519.PublicKey(sshWire.KeyBytes), nil
+}
+
+// CryptoKeyFromSSHKey returns one of *ecdsa.PublicKey or
+// ed25519.PublicKey from the the supplied ssh PublicKey.
+func CryptoKeyFromSSHKey(pk ssh.PublicKey) (interface{}, error) {
+	switch pk.Type() {
+	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
+		return ParseECDSAKey(pk)
+	case ssh.KeyAlgoED25519:
+		return ParseED25519Key(pk)
+	default:
+		return nil, fmt.Errorf("unsupported ssh key key tyoe %v", pk.Type())
+	}
 }

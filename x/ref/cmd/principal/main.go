@@ -74,11 +74,11 @@ type WithPassphraseFlag struct {
 	WithPassphrase bool `cmdline:"with-passphrase,true,'If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.'"`
 }
 
-// CryptoKeyFlags represents the flag used to specify the type of key
+// KeyFlags represents the flag used to specify the type of key
 // to generate for a new principal.
-type CryptoKeyFlags struct {
-	KeyType     string `cmdline:"ecdsa,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
-	SSHAgentKey string `cmdline:"ssh-agent-key,,'If set, use the key hosted by the acessible ssh-agent with the specified name/comment rather than creating a new private key.'"`
+type KeyFlags struct {
+	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
+	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 }
 
 // ForPeerFlag represents a --for-peer flag.
@@ -136,7 +136,7 @@ var (
 		WithFlag
 		CreateOverwriteFlag
 		WithPassphraseFlag
-		CryptoKeyFlags
+		KeyFlags
 		RequireCaveats bool `cmdline:"require-caveats,true,'If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser'"`
 	}{}
 	flagForkDef = cmdline.FlagDefinitions{Flags: &flagFork}
@@ -202,7 +202,7 @@ var (
 	flagCreate = struct {
 		CreateOverwriteFlag
 		WithPassphraseFlag
-		CryptoKeyFlags
+		KeyFlags
 	}{}
 	flagCreateDef = cmdline.FlagDefinitions{Flags: &flagCreate}
 
@@ -819,7 +819,6 @@ principal will have no blessings.
 				return fmt.Errorf("requires one or two arguments: <directory> [and optional <blessing>], provided %d", len(args))
 			}
 			dir := args[0]
-
 			var pass []byte
 			if flagCreate.WithPassphrase {
 				var err error
@@ -832,7 +831,7 @@ principal will have no blessings.
 				gocontext.TODO(),
 				dir,
 				flagCreate.KeyType,
-				flagCreate.SSHAgentKey,
+				flagCreate.SSHAgentPublicKeyFile,
 				pass,
 				flagCreate.CreateOverwrite)
 			if err != nil {
@@ -915,9 +914,12 @@ forked principal.
 				gocontext.TODO(),
 				dir,
 				flagFork.KeyType,
-				flagFork.SSHAgentKey,
+				flagFork.SSHAgentPublicKeyFile,
 				pass,
 				flagFork.CreateOverwrite)
+			if err != nil {
+				return fmt.Errorf("failed to create principal: %v", err)
+			}
 			key := p.PublicKey()
 			rp := v23.GetPrincipal(ctx)
 			blessings, err := rp.Bless(key, with, extension, caveats[0], caveats[1:]...)
@@ -1559,23 +1561,22 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 		}
 		return os.RemoveAll(dir)
 	}
+	var privateKey interface{}
+	var err error
 	if len(sshKey) == 0 {
-		privateKey, err := vsecurity.NewPrivateKey(keyType)
-		if err != nil {
-			return nil, err
+		privateKey, err = vsecurity.NewPrivateKey(keyType)
+	} else {
+		service := sshagent.NewClient()
+		privateKey = vsecurity.SSHAgentHostedKey{
+			PublicKeyFile: sshKey,
+			Agent:         service,
 		}
-		if err := removeExisting(); err != nil {
-			return nil, err
-		}
-		return vsecurity.CreatePersistentPrincipalUsingKey(ctx, privateKey, dir, pass)
 	}
-	service := sshagent.NewSigningService()
-	signer, err := service.Signer(ctx, sshKey, pass)
 	if err != nil {
 		return nil, err
 	}
 	if err := removeExisting(); err != nil {
 		return nil, err
 	}
-	return vsecurity.CreatePersistentPrincipalUsingSigner(ctx, signer, dir)
+	return vsecurity.CreatePersistentPrincipalUsingKey(ctx, privateKey, dir, pass)
 }

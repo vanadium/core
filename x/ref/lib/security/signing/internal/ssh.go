@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/sha256"
 	"crypto/sha512"
 	"fmt"
@@ -11,6 +9,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/internal"
 )
 
 // IsSupported returns true if the suplied ssh key type is supported.
@@ -42,42 +41,20 @@ func hashForSSHKey(key ssh.PublicKey) (security.Hash, hash.Hash) {
 
 // FromECDSAKey creates a security.PublicKey from an ssh ECDSA key.
 func FromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
-	var sshWire struct {
-		Name string
-		ID   string
-		Key  []byte
+	k, err := internal.ParseECDSAKey(key)
+	if err != nil {
+		return nil, err
 	}
-	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal key type: %v: %v", key.Type(), err)
-	}
-	pk := new(ecdsa.PublicKey)
-	switch sshWire.ID {
-	case "nistp256":
-		pk.Curve = elliptic.P256()
-	case "nistp384":
-		pk.Curve = elliptic.P384()
-	case "nistp521":
-		pk.Curve = elliptic.P521()
-	default:
-		return nil, fmt.Errorf("uncrecognised ecdsa curve: %v", sshWire.ID)
-	}
-	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key)
-	if pk.X == nil || pk.Y == nil {
-		return nil, fmt.Errorf("invalid curve point")
-	}
-	return security.NewECDSAPublicKey(pk), nil
+	return security.NewECDSAPublicKey(k), nil
 }
 
-// FromED25512Key creates a security.PublicKey from an ssh ED25519 key.
+// FromECDSAKey creates a security.PublicKey from an ssh ED25519 key.
 func FromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
-	var sshWire struct {
-		Name     string
-		KeyBytes []byte
+	k, err := internal.ParseED25519Key(key)
+	if err != nil {
+		return nil, err
 	}
-	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal key %v: %v", key.Type(), err)
-	}
-	return security.NewED25519PublicKey(sshWire.KeyBytes), nil
+	return security.NewED25519PublicKey(k), nil
 }
 
 func digest(hasher hash.Hash, messages ...[]byte) ([]byte, error) {

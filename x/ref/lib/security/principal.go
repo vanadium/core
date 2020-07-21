@@ -9,15 +9,20 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/passphrase"
+	"v.io/x/ref/lib/security/signing/keyfile"
+	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 const (
@@ -28,8 +33,7 @@ var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
 	ErrBadPassphrase = verror.Register(pkgPath+".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
 	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
-	ErrPassphraseRequired = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
-
+	ErrPassphraseRequired    = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
 	errCantCreateSigner      = verror.Register(pkgPath+".errCantCreateSigner", verror.NoRetry, "{1:}{2:} failed to create serialization.Signer{:_}")
 	errCantLoadBlessingRoots = verror.Register(pkgPath+".errCantLoadBlessingRoots", verror.NoRetry, "{1:}{2:} failed to load BlessingRoots{:_}")
 	errCantLoadBlessingStore = verror.Register(pkgPath+".errCantLoadBlessingStore", verror.NoRetry, "{1:}{2:} failed to load BlessingStore{:_}")
@@ -131,7 +135,7 @@ func ZeroPassphrase(pass []byte) {
 // update duration is specified then the principal will be reloaded
 // at the frequency implied by that duration. In addition, on systems
 // that support it, a SIGHUP can be used to request an immediate reload.
-// If pwphrase is nil, readonly is true and the private key file is encrypted
+// If passphrase is nil, readonly is true and the private key file is encrypted
 // LoadPersistentPrincipalDaemon will not attempt to create a signer and will
 // instead just the principal's public key.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
@@ -152,9 +156,9 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newFileSigner(ctx, dir, passphrase)
+	signer, err := newSignerFromFiles(ctx, dir, passphrase)
 	if err != nil {
-		if verror.ErrorID(err) != ErrPassphraseRequired.ID || !readonly || passphrase != nil {
+		if !readonly {
 			return nil, err
 		}
 		return newPersistentPrincipalPublicKeyOnly(ctx, dir, update)
@@ -166,8 +170,63 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
 
+func newSignerFromFiles(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var privatePEM, publicSSH string
+	for _, file := range files {
+		name := file.Name()
+		switch {
+		case name == privateKeyFile:
+			privatePEM = name
+		case strings.HasSuffix(name, ".pub"):
+			publicSSH = name
+		}
+	}
+	if len(privatePEM) > 0 && len(publicSSH) > 0 {
+		return nil, fmt.Errorf("multiple key files found: %v and %v", privatePEM, publicSSH)
+	}
+	switch {
+	case len(privatePEM) > 0:
+		return newFileSigner(ctx, filepath.Join(dir, privatePEM), passphrase)
+	case len(publicSSH) > 0:
+		return newSSHAgentSigner(ctx, filepath.Join(dir, publicSSH), passphrase)
+	}
+	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %s", dir)
+}
+
+func handleSignerError(signer security.Signer, err error) (security.Signer, error) {
+	switch {
+	case err == nil:
+		return signer, nil
+	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
+		return nil, verror.New(ErrBadPassphrase, nil)
+	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
+		return nil, verror.New(ErrPassphraseRequired, nil)
+	case os.IsNotExist(err):
+		return nil, err
+	default:
+		return nil, verror.New(errCantCreateSigner, nil, err)
+	}
+}
+
+func newFileSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	svc := keyfile.NewSigningService()
+	signer, err := svc.Signer(ctx, filename, passphrase)
+	return handleSignerError(signer, err)
+}
+
+func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	svc := sshagent.NewSigningService()
+	svc.(*sshagent.Client).SetAgentSockName(DefaultSSHAgentSockNameFunc())
+	signer, err := svc.Signer(ctx, filename, passphrase)
+	return handleSignerError(signer, err)
+}
+
 func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := loadPublicKey(ctx, dir)
+	publicKey, err := newPublicKeyFromFiles(ctx, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -177,16 +236,37 @@ func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update
 	}
 	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
 }
-
-func loadPublicKey(ctx context.Context, dir string) (security.PublicKey, error) {
-	f, err := os.Open(filepath.Join(dir, publicKeyFile))
+func newPublicKeyFromFiles(ctx context.Context, dir string) (security.PublicKey, error) {
+	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	key, err := internal.LoadPEMPublicKey(f)
+	var publicPEM, publicSSH string
+	for _, file := range files {
+		name := file.Name()
+		switch {
+		case name == publicKeyFile:
+			publicPEM = name
+		case strings.HasSuffix(name, ".pub"):
+			publicSSH = name
+		}
+	}
+	if len(publicPEM) > 0 && len(publicSSH) > 0 {
+		return nil, fmt.Errorf("multiple key files found: %v and %v", publicPEM, publicSSH)
+	}
+	var key interface{}
+	switch {
+	case len(publicPEM) > 0:
+		key, err = internal.LoadPEMPublicKeyFile(filepath.Join(dir, publicPEM))
+	case len(publicSSH) > 0:
+		var sshKey ssh.PublicKey
+		sshKey, _, err = internal.LoadSSHPublicKeyFile(filepath.Join(dir, publicSSH))
+		if err == nil {
+			key, err = internal.CryptoKeyFromSSHKey(sshKey)
+		}
+	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load public key: %v", err)
 	}
 	switch k := key.(type) {
 	case *ecdsa.PublicKey:

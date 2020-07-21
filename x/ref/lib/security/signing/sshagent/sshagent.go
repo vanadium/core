@@ -4,6 +4,7 @@
 package sshagent
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net"
@@ -13,6 +14,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"v.io/v23/security"
+	secinternal "v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing"
 	"v.io/x/ref/lib/security/signing/internal"
 )
@@ -22,6 +24,7 @@ type Client struct {
 	mu    sync.Mutex
 	conn  net.Conn
 	agent agent.ExtendedAgent
+	sock  string
 }
 
 // NewClient returns a new instance of Client.
@@ -35,19 +38,35 @@ func NewSigningService() signing.Service {
 	return &Client{}
 }
 
-// for testing only.
-var sockNameFunc = func() string {
-	return os.Getenv("SSH_AUTH_SOCK")
+// SetAgentSockName will call the SetAgentSockName method on the
+// specified signing.Service iff it is an instance of sshagent.Client.
+func SetAgentSockName(service signing.Service, name string) {
+	if ac, ok := service.(*Client); ok {
+		ac.SetAgentSockName(name)
+	}
+}
+
+// SetAgentSockName specifies the name of the unix domain socket to use
+// to communicate with the agent. It must be called before any other
+// method, otherwise the value of the SSH_AUTH_SOCK environment variable
+// is used.
+func (ac *Client) SetAgentSockName(name string) {
+	ac.mu.Lock()
+	defer ac.mu.Unlock()
+	ac.sock = name
 }
 
 func (ac *Client) connect() error {
 	ac.mu.Lock()
+	sockName := ac.sock
+	if len(sockName) == 0 {
+		sockName = os.Getenv("SSH_AUTH_SOCK")
+	}
 	if ac.conn != nil && ac.agent != nil {
 		ac.mu.Unlock()
 		return nil
 	}
 	ac.mu.Unlock()
-	sockName := sockNameFunc()
 	conn, err := net.Dial("unix", sockName)
 	if err != nil {
 		return fmt.Errorf("failed to open %v: %v", sockName, err)
@@ -59,6 +78,7 @@ func (ac *Client) connect() error {
 	return nil
 }
 
+// Lock will lock the agent using the specified passphrase.
 func (ac *Client) Lock(passphrase []byte) error {
 	if err := ac.connect(); err != nil {
 		return err
@@ -69,6 +89,7 @@ func (ac *Client) Lock(passphrase []byte) error {
 	return nil
 }
 
+// Unlock will unlock the agent using the specified passphrase.
 func (ac *Client) Unlock(passphrase []byte) error {
 	if err := ac.connect(); err != nil {
 		return err
@@ -97,7 +118,11 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 }
 
 // Signer implements signing.Service.
-func (ac *Client) Signer(ctx context.Context, key string, passphrase []byte) (s security.Signer, err error) {
+func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase []byte) (s security.Signer, err error) {
+	key, comment, err := secinternal.LoadSSHPublicKeyFile(publicKeyFile)
+	if err != nil {
+		return nil, err
+	}
 	if err := ac.connect(); err != nil {
 		return nil, err
 	}
@@ -110,7 +135,7 @@ func (ac *Client) Signer(ctx context.Context, key string, passphrase []byte) (s 
 		err = relock(err)
 	}()
 
-	k, err := ac.lookup(key)
+	k, err := ac.lookup(key, comment)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +161,7 @@ func (ac *Client) Signer(ctx context.Context, key string, passphrase []byte) (s 
 		sshPK:      pk,
 		v23PK:      vpk,
 		key:        k,
-		name:       key}, nil
+		name:       ssh.FingerprintSHA256(key)}, nil
 }
 
 // Close implements signing.Service.
@@ -144,20 +169,21 @@ func (ac *Client) Close(ctx context.Context) error {
 	return ac.conn.Close()
 }
 
-func (ac *Client) lookup(name string) (*agent.Key, error) {
+func (ac *Client) lookup(key ssh.PublicKey, comment string) (*agent.Key, error) {
 	keys, err := ac.agent.List()
 	if err != nil {
 		return nil, err
 	}
+	pk := key.Marshal()
 	for _, key := range keys {
-		if key.Comment == name {
+		if bytes.Equal(pk, key.Blob) && key.Comment == comment {
 			if !internal.IsSupported(key) {
-				return nil, fmt.Errorf("key %v (%v) is not a supported type", name, key.Type())
+				return nil, fmt.Errorf("key %v (%v) is not a supported type", comment, key.Type())
 			}
 			return key, nil
 		}
 	}
-	return nil, fmt.Errorf("key with comment/name %v not found", name)
+	return nil, fmt.Errorf("key not found: %v %v ", ssh.FingerprintSHA256(key), comment)
 }
 
 func (ac *Client) ecdsaSign(sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {

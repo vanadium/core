@@ -7,11 +7,17 @@ package internal
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/verror"
 )
 
@@ -79,5 +85,126 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	}
 	if loadedKey, err = LoadPEMPrivateKey(&buf, nil); loadedKey != nil || verror.ErrorID(err) != ErrPassphraseRequired.ID {
 		t.Fatalf("expected(nil, ErrPassphraseRequired), instead got (%v, %v)", loadedKey, err)
+	}
+}
+
+func TestSSHParseED25519(t *testing.T) {
+	pk, _, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sshpk, err := ssh.NewPublicKey(pk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	npk, err := ParseED25519Key(sshpk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := pk, npk; !bytes.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	ck, err := CryptoKeyFromSSHKey(sshpk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ek, ok := ck.(ed25519.PublicKey)
+	if !ok {
+		t.Fatalf("wrong type %T", ck)
+	}
+	if got, want := ek, npk; !bytes.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestSSHParseECDSA(t *testing.T) {
+	k, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pk := &k.PublicKey
+	sshpk, err := ssh.NewPublicKey(pk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	npk, err := ParseECDSAKey(sshpk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := pk, npk; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	ck, err := CryptoKeyFromSSHKey(sshpk)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ek, ok := ck.(*ecdsa.PublicKey)
+	if !ok {
+		t.Fatalf("wrong type %T", ck)
+	}
+	if got, want := ek, npk; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestCopyKeyFile(t *testing.T) {
+	dir, err := ioutil.TempDir("", "TestWriting")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	from, to := filepath.Join(dir, "from"), filepath.Join(dir, "to")
+	if err := ioutil.WriteFile(from, []byte{'0', '1', '\n'}, 0666); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := CopyKeyFile(from, to); err != nil {
+		t.Fatal(err)
+	}
+	if err := CopyKeyFile(from, to); err == nil || !strings.Contains(err.Error(), "file exists") {
+		t.Fatal("expected an error")
+	}
+
+	fi, err := os.Stat(to)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := fi.Mode().Perm(), os.FileMode(0400); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+}
+
+func TestPEMFiles(t *testing.T) {
+	dir, err := ioutil.TempDir("", "TestWriting")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	key, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	public, private := filepath.Join(dir, "public.pem"), filepath.Join(dir, "private.pem")
+
+	if err := WritePEMKeyPair(key, public, private, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := WritePEMKeyPair(key, public, private, nil); err == nil || !strings.Contains(err.Error(), "file exists") {
+		t.Fatal("expected an error")
+	}
+
+	for _, filename := range []string{public, private} {
+		fi, err := os.Stat(filename)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := fi.Mode().Perm(), os.FileMode(0400); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
 	}
 }

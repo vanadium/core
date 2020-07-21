@@ -2,44 +2,43 @@ package keyfile_test
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rand"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"testing"
 
-	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
-func createSSHKey(dir string) error {
-	return internal.SSHKeygenNoPassphrase(
-		filepath.Join(dir, "ecdsa.ssh"),
-		"ecdsa-ssh",
-		"ecdsa",
-		"521",
-	)
-}
-
-func createPEMKey(dir string) error {
-	_, key, err := vsecurity.NewECDSAKeyPair()
-	if err != nil {
-		return err
-	}
-	return internal.WritePEMKeyPair(
+func writeKeyFiles(t *testing.T, key interface{}, dir, privateKey, publicKey string) {
+	err := internal.WritePEMKeyPair(
 		key,
-		path.Join(dir, "privatekey.pem"),
-		path.Join(dir, "publickey.pem"),
+		path.Join(dir, privateKey),
+		path.Join(dir, publicKey),
 		nil,
 	)
+	if err != nil {
+		t.Fatalf("failt to write %v, %v in dir %v: %v", privateKey, publicKey, dir, err)
+	}
 }
 
-func createKeys(dir string) error {
-	if err := createSSHKey(dir); err != nil {
-		return err
+func createPEMKeys(t *testing.T, dir string) {
+	_, key1, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("failed to genered ed25519 key: %v", err)
 	}
-	return createPEMKey(dir)
+	writeKeyFiles(t, key1, dir, "privatekey.pem", "publickey.pem")
+	key2, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("failed to genered ecdsa key: %v", err)
+	}
+	writeKeyFiles(t, key2, dir, "ecdsa.pem", "ecdsa-public.pem")
 }
 
 func TestKeyFiles(t *testing.T) {
@@ -50,11 +49,8 @@ func TestKeyFiles(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	if err := createKeys(tmpDir); err != nil {
-		t.Fatalf("createKeys: %v", err)
-	}
-
-	for _, keyFilename := range []string{"privatekey.pem", "ecdsa.ssh"} {
+	createPEMKeys(t, tmpDir)
+	for _, keyFilename := range []string{"privatekey.pem", "ecdsa.pem"} {
 		svc := keyfile.NewSigningService()
 		signer, err := svc.Signer(ctx, filepath.Join(tmpDir, keyFilename), nil)
 		if err != nil {
