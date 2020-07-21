@@ -15,7 +15,6 @@ import (
 	"syscall"
 	"time"
 
-	v23 "v.io/v23"
 	"v.io/v23/context"
 )
 
@@ -74,7 +73,6 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 				sawStop = true
 				if ctx != nil {
 					stopWaiter := make(chan string, 1)
-					v23.GetAppCycle(ctx).WaitForStop(ctx, stopWaiter)
 					go func() {
 						for {
 							ch <- stopSignal(<-stopWaiter)

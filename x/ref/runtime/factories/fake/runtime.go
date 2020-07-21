@@ -54,11 +54,6 @@ func (r *Runtime) GetPrincipal(ctx *context.T) security.Principal {
 	return p
 }
 
-func (r *Runtime) GetAppCycle(ctx *context.T) v23.AppCycle {
-	// nologcall
-	panic("unimplemented")
-}
-
 func (r *Runtime) WithBackgroundContext(ctx *context.T) *context.T {
 	// Note we add an extra context with a nil value here.
 	// This prevents users from travelling back through the

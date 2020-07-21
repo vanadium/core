@@ -43,6 +43,8 @@ import (
 	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 )
 
+const pkgPath = "v.io/x/ref/option/internal/rt"
+
 type contextKey int
 
 const (
@@ -69,7 +71,6 @@ var (
 var setPrincipalCounter int32 = -1
 
 type initData struct {
-	appCycle          v23.AppCycle
 	discoveryFactory  idiscovery.Factory
 	namespaceFactory  inamespace.Factory
 	protocols         []string
@@ -89,7 +90,6 @@ type Runtime struct {
 
 func Init(
 	ctx *context.T,
-	appCycle v23.AppCycle,
 	discoveryFactory idiscovery.Factory,
 	namespaceFactory inamespace.Factory,
 	protocols []string,
@@ -102,7 +102,6 @@ func Init(
 	r := &Runtime{deps: dependency.NewGraph()}
 
 	ctx = context.WithValue(ctx, initKey, &initData{
-		appCycle:          appCycle,
 		discoveryFactory:  discoveryFactory,
 		namespaceFactory:  namespaceFactory,
 		protocols:         protocols,
@@ -216,7 +215,8 @@ func (r *Runtime) addChild(ctx *context.T, me interface{}, stop func(), dependsO
 }
 
 func (r *Runtime) Init(ctx *context.T) error {
-	return r.initMgmt(ctx)
+	// Currently only a placeholder.
+	return nil
 }
 
 func (r *Runtime) shutdown() {
@@ -380,12 +380,6 @@ func (*Runtime) GetNamespace(ctx *context.T) namespace.T {
 	// nologcall
 	ns, _ := ctx.Value(namespaceKey).(namespace.T)
 	return ns
-}
-
-func (*Runtime) GetAppCycle(ctx *context.T) v23.AppCycle {
-	// nologcall
-	id, _ := ctx.Value(initKey).(*initData)
-	return id.appCycle
 }
 
 func (*Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {

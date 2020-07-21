@@ -23,6 +23,7 @@ package library
 import (
 	"flag"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -38,7 +39,6 @@ import (
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/runtime/internal"
-	"v.io/x/ref/runtime/internal/lib/appcycle"
 	"v.io/x/ref/runtime/internal/rt"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
 	_ "v.io/x/ref/runtime/protocols/tcp" // Initialize tcp, ws and wsh.
@@ -177,7 +177,7 @@ func EnableCommandlineFlags() {
 func EnableFlags(fs *flag.FlagSet, parse bool) error {
 	flagSet = flags.CreateAndRegister(fs, configuredFlags()...)
 	if parse {
-		if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+		if err := flagSet.Parse(os.Args[1:], nil); err != nil {
 			return err
 		}
 		state.rtParsed()
@@ -240,7 +240,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		rtParsed := state.getParsingState()
 		if !rtParsed {
 			// Only parse flags if EnableFlags has been called.
-			if err := internal.ParseFlagsIncV23Env(flagSet); err != nil {
+			if err := flagSet.Parse(os.Args[1:], nil); err != nil {
 				if err == flag.ErrHelp {
 					return nil, nil, nil, err
 				}
@@ -278,10 +278,9 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		}
 	}
 
-	ac := appcycle.New()
 	discoveryFactory, err := dfactory.New(ctx)
 	if err != nil {
-		ishutdown(ac.Shutdown, cancelCloud)
+		ishutdown(cancelCloud)
 		return nil, nil, nil, err
 	}
 
@@ -307,7 +306,6 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 	}
 
 	runtime, ctx, shutdown, err := rt.Init(ctx,
-		ac,
 		discoveryFactory,
 		nil,
 		nil,
@@ -318,12 +316,12 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		&PermissionsSpec,
 		ConnectionExpiryDuration)
 	if err != nil {
-		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
+		ishutdown(cancelCloud, discoveryFactory.Shutdown)
 		return nil, nil, nil, err
 	}
 
 	runtimeFactoryShutdown := func() {
-		ishutdown(ac.Shutdown, cancelCloud, discoveryFactory.Shutdown)
+		ishutdown(cancelCloud, discoveryFactory.Shutdown)
 		shutdown()
 		flagSet = previousFlagSet
 		state.setRunning(false)

@@ -13,7 +13,6 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 //////////////////////////////////////////////////
 // Type definitions
 
-// Hash identifies a cryptographic hash function approved for use in signature algorithms.
 type Hash string
 
 func (Hash) VDLReflect(struct {
@@ -44,15 +43,10 @@ func (x *Hash) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 // Signature represents a digital signature.
 type Signature struct {
-	// Purpose of the signature. Can be used to prevent type attacks.
-	// (See Section 4.2 of http://www-users.cs.york.ac.uk/~jac/PublishedPapers/reviewV1_1997.pdf for example).
-	// The actual signature (R, S values for ECDSA keys, byte slice for ED25519) is produced by signing: Hash(Hash(message), Hash(Purpose)).
 	Purpose []byte
-	// Cryptographic hash function applied to the message before computing the signature.
-	Hash Hash
-	// Pair of integers that make up an ECDSA signature, they will be nil for and ed25519 signature.
-	R []byte
-	S []byte
+	Hash    Hash
+	R       []byte
+	S       []byte
 }
 
 func (Signature) VDLReflect(struct {
