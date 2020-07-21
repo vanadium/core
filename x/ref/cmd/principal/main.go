@@ -74,8 +74,8 @@ type WithPassphraseFlag struct {
 	WithPassphrase bool `cmdline:"with-passphrase,true,'If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.'"`
 }
 
-// KeyFlags represents the flag used to specify the type of key
-// to generate for a new principal.
+// KeyFlags represents the flag used to specify the type of key to generate/use
+// for a new principal.
 type KeyFlags struct {
 	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
@@ -1161,6 +1161,7 @@ func blessOverFileSystem(p security.Principal, tobless string, with security.Ble
 	if finfo, err := os.Stat(tobless); err == nil && finfo.IsDir() {
 		other, err := vsecurity.LoadPersistentPrincipal(tobless, nil)
 		if err != nil {
+
 			return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
 		}
 		key = other.PublicKey()

@@ -165,7 +165,6 @@ func LoadSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
 	}
 	f, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("XXX %q -> %v\n", filename, err)
 		return nil, "", err
 	}
 	defer f.Close()

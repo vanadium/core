@@ -109,8 +109,14 @@ setup to use by default.  If a blessing argument is not provided, the new
 principal will have no blessings.
 
 The principal create flags are:
+ -key-type=ecdsa256
+   The type of key to be created, allowed values are ecdsa256, ecdsa384,
+   ecdsa521, ed25519.
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
+ -ssh-public-key=
+   If set, use the key hosted by the accessible ssh-agent that corresponds to
+   the specified public key file.
  -with-passphrase=true
    If true, the user is prompted for a passphrase to encrypt the principal.
    Otherwise, the principal is stored unencrypted.
@@ -141,12 +147,18 @@ The principal fork flags are:
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
  -for=0s
    Duration of blessing validity (zero implies no expiration)
+ -key-type=ecdsa256
+   The type of key to be created, allowed values are ecdsa256, ecdsa384,
+   ecdsa521, ed25519.
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
  -require-caveats=true
    If false, allow blessing without any caveats. This is typically not advised
    as the principal wielding the blessing will be almost as powerful as its
    blesser
+ -ssh-public-key=
+   If set, use the key hosted by the accessible ssh-agent that corresponds to
+   the specified public key file.
  -with=
    Path to file containing blessing to extend
  -with-passphrase=true

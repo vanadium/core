@@ -2,6 +2,9 @@ package security
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"fmt"
 	"os"
 	"path"
@@ -25,22 +28,12 @@ func WritePEMKeyPair(key interface{}, dir string, passphrase []byte) error {
 	)
 }
 
-// CreatePersistentPrincipal creates a new Principal using a newly generated
-// ECSDA key and commits all state changes to the provided directory.
-// Use CreatePersistentPrincipalUsingKey to specify a different key
-// type or to use an existing key.
-//
-// The private key is serialized and saved encrypted if the
-// 'passphrase' is non-nil, and unencrypted otherwise.
-//
-// If the directory has any preexisting principal data,
-// CreatePersistentPrincipal will return an error.
-//
-// The specified directory may not exist, in which case it will be created.
+// CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
+// creates a new Principal using a newly generated ECSDA key by calling
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	_, key, err := NewECDSAKeyPair()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, err
+		return nil, verror.New(errCantGenerateKey, nil, err)
 	}
 	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
 }
@@ -65,13 +58,6 @@ type SSHAgentHostedKey struct {
 // The follow key types are supported:
 // *ecdsa.PrivateKey, ed25519.PrivateKey and SSHAgentHostedKey.
 func CreatePersistentPrincipalUsingKey(ctx context.Context, key interface{}, dir string, passphrase []byte) (security.Principal, error) {
-	if key == nil {
-		var err error
-		_, key, err = NewECDSAKeyPair()
-		if err != nil {
-			return nil, err
-		}
-	}
 	unlock, err := initAndLockPrincipalDir(dir)
 	if err != nil {
 		return nil, err
