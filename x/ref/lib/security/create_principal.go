@@ -19,17 +19,8 @@ import (
 	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
-func WritePEMKeyPair(key interface{}, dir string, passphrase []byte) error {
-	return internal.WritePEMKeyPair(
-		key,
-		path.Join(dir, privateKeyFile),
-		path.Join(dir, publicKeyFile),
-		passphrase,
-	)
-}
-
 // CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
-// creates a new Principal using a newly generated ECSDA key by calling
+// creates a new Principal using a newly generated ECSDA key.
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -40,7 +31,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 
 // SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
 // key file must be accessible and is used to identify the private key hosted
-// by the ssh agent.
+// by the ssh agent. Currently ecdsa and ed25519 key types are supported.
 type SSHAgentHostedKey struct {
 	PublicKeyFile string
 	Agent         *sshagent.Client

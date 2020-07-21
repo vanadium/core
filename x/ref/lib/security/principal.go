@@ -159,7 +159,7 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newSignerFromFiles(ctx, dir, passphrase)
+	signer, err := newSignerFromState(ctx, dir, passphrase)
 	if err != nil {
 		if !readonly {
 			return nil, err
@@ -173,7 +173,11 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
 
-func newSignerFromFiles(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
+// newSignerFromState will create a signer based on the keys found in the
+// supplied state directory. It looks for a privatekey.pem or an ssh
+// .pub file which it will use to lookup the matching private key in
+// its accessible ssh agent.
+func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
@@ -229,7 +233,7 @@ func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) 
 }
 
 func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := newPublicKeyFromFiles(ctx, dir)
+	publicKey, err := newPublicKeyFromState(ctx, dir)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +243,11 @@ func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update
 	}
 	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
 }
-func newPublicKeyFromFiles(ctx context.Context, dir string) (security.PublicKey, error) {
+
+// newPublicKeyFromState looks for a public key file in the specified
+// state directory. It will accept either a publickey.pem file or an ssh
+// .pub file.
+func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey, error) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
