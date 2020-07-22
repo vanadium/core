@@ -24,6 +24,7 @@ import (
 	"v.io/x/ref/lib/signals"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
+	"v.io/x/ref/services/internal/statslib"
 	"v.io/x/ref/services/xproxy/xproxy"
 )
 
@@ -82,17 +83,19 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 		monitoringName = name + "-mon"
 	}
 	ctx = v23.WithListenSpec(ctx, rpc.ListenSpec{Proxy: proxyEndpoint.Name()})
-	if _, _, err := v23.WithNewDispatchingServer(ctx, monitoringName, &nilDispatcher{}); err != nil {
+	if _, _, err := v23.WithNewDispatchingServer(ctx, monitoringName, &statsDispatcher{auth}); err != nil {
 		return fmt.Errorf("NewServer failed: %v", err)
 	}
 	<-signals.ShutdownOnSignals(ctx)
 	return nil
 }
 
-type nilDispatcher struct{}
+type statsDispatcher struct {
+	auth security.Authorizer
+}
 
-func (nilDispatcher) Lookup(*context.T, string) (interface{}, security.Authorizer, error) {
-	return nil, nil, nil
+func (d *statsDispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.Authorizer, error) {
+	return statslib.NewStatsService(suffix, 100*time.Millisecond), d.auth, nil
 }
 
 // healthzHandler implements net/http.Handler
