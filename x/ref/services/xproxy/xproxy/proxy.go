@@ -37,11 +37,13 @@ type perDirection struct {
 }
 
 type perServerStats struct {
+	requests *counter.Counter
 	to, from perDirection
 }
 
 func newPerServerStats(ep string) *perServerStats {
 	return &perServerStats{
+		requests: stats.NewCounter(naming.Join(ep, "requests")),
 		to: perDirection{
 			msgs:  stats.NewCounter(naming.Join(ep, "to", "msgs")),
 			bytes: stats.NewCounter(naming.Join(ep, "to", "bytes")),
@@ -262,6 +264,8 @@ func (p *Proxy) handleConnection(ctx *context.T, f flow.Flow) {
 		p.mu.Unlock()
 	case *message.ProxyServerRequest:
 		p.mu.Lock()
+		stats := p.statsForLocked(f.RemoteEndpoint())
+		stats.requests.Incr(1)
 		err = p.replyToServerLocked(ctx, f)
 		if err == nil {
 			p.proxiedServers = append(p.proxiedServers, f)
@@ -294,6 +298,16 @@ func (p *Proxy) listenLoop(ctx *context.T) {
 	}
 }
 
+func (p *Proxy) statsForLocked(ep naming.Endpoint) *perServerStats {
+	rid := ep.RoutingID.String()
+	stats := p.proxiedStats[rid]
+	if stats == nil {
+		stats = newPerServerStats(rid)
+		p.proxiedStats[rid] = stats
+	}
+	return stats
+}
+
 func (p *Proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) error {
 	fout, err := p.dialNextHop(ctx, f, m)
 	if err != nil {
@@ -306,22 +320,17 @@ func (p *Proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) erro
 		return NewErrProxyAlreadyClosed(ctx)
 	}
 	// Configure stats.
-	ep := m.PeerRemoteEndpoint.String()
-	stats := p.proxiedStats[ep]
-	if stats == nil {
-		stats = newPerServerStats(ep)
-		p.proxiedStats[ep] = stats
-	}
+	stats := p.statsForLocked(m.PeerRemoteEndpoint)
 	f.DisableFragmentation()
 	fout.DisableFragmentation()
 	p.wg.Add(2)
 	p.mu.Unlock()
-	go p.forwardLoop(ctx, f, fout, &stats.to, ep)
-	go p.forwardLoop(ctx, fout, f, &stats.from, ep)
+	go p.forwardLoop(ctx, f, fout, &stats.to)
+	go p.forwardLoop(ctx, fout, f, &stats.from)
 	return nil
 }
 
-func (p *Proxy) forwardLoop(ctx *context.T, fin, fout flow.Flow, ps *perDirection, server string) {
+func (p *Proxy) forwardLoop(ctx *context.T, fin, fout flow.Flow, ps *perDirection) {
 	defer p.wg.Done()
 	n, err := framedCopy(fin, fout)
 	if err != nil && err != io.EOF {

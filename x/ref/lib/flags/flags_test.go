@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"testing"
 
+	"v.io/v23/rpc"
 	"v.io/x/ref"
 	"v.io/x/ref/lib/flags"
 )
@@ -276,6 +277,36 @@ func TestListenFlags(t *testing.T) {
 		if got, want := lf.Addrs[i].Address, p; got != want {
 			t.Errorf("got %q, want %q", got, want)
 		}
+	}
+}
+
+func TestListenProxyFlags(t *testing.T) {
+	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err := fl.Parse([]string{}, nil); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	lf := fl.ListenFlags()
+
+	if got, want := lf.ProxyPolicy.Value(), rpc.UseFirstProxy; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+
+	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err := fl.Parse([]string{"--v23.proxy=proxy-server", "--v23.proxy.policy=all"}, nil); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	lf = fl.ListenFlags()
+
+	if got, want := lf.Proxy, "proxy-server"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got, want := lf.ProxyPolicy.Value(), rpc.UseAllProxies; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+
+	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err := fl.Parse([]string{"--v23.proxy=proxy-server", "--v23.proxy.policy=any"}, nil); err == nil {
+		t.Fatalf("expected error: %s", err)
 	}
 }
 

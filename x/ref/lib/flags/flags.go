@@ -206,6 +206,7 @@ func NewListenFlags() *ListenFlags {
 	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
+	lf.ProxyPolicy.policy = DefaultProxyPolicy()
 	return lf
 }
 
@@ -215,9 +216,11 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	f.Addresses.flags = f
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
-			"v23.proxy": DefaultProxy(),
+			"v23.proxy":        DefaultProxy(),
+			"v23.proxy.policy": DefaultProxyPolicy(),
 		}, map[string]string{
-			"v23.proxy": "",
+			"v23.proxy":        "",
+			"v23.proxy.policy": "first",
 		},
 	)
 	if err != nil {

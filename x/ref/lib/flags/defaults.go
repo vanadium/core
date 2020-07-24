@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 
+	"v.io/v23/rpc"
 	"v.io/x/ref"
 )
 
@@ -18,6 +19,7 @@ var (
 	defaultProtocol           string            // GUARDED_BY defaultMu
 	defaultHostPort           string            // GUARDED_BY defaultMu
 	defaultProxy              string            // GUARDED_BY defaultMu
+	defaultProxyPolicy        rpc.ProxyPolicy   // GUARDED_BY defaultMu
 	defaultPermissionsLiteral string            // GUARDED_BY defaultMu
 	defaultPermissions        map[string]string // GUARDED_BY defaultMu
 	defaultMu                 sync.RWMutex
@@ -61,11 +63,26 @@ func SetDefaultProxy(s string) {
 	defaultProxy = s
 }
 
+// SetDefaultProxyPolicy sets the default proxy used when --v23.proxy.policy
+// is not provided. It must be called before flags are parsed for it to take effect.
+func SetDefaultProxyPolicy(p rpc.ProxyPolicy) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultProxyPolicy = p
+}
+
 // DefaultProxy returns the current default proxy.
 func DefaultProxy() string {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
 	return defaultProxy
+}
+
+// DefaultProxyPolicy returns the current default proxy.
+func DefaultProxyPolicy() rpc.ProxyPolicy {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultProxyPolicy
 }
 
 // SetDefaultNamespaceRoots sets the default value for --v23.namespace.root

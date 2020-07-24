@@ -28,7 +28,7 @@ import (
 	"v.io/x/ref/services/xproxy/xproxy"
 )
 
-var healthzAddr, name, acl string
+var healthzAddr, name, acl, statsACL string
 
 const healthTimeout = 10 * time.Second
 
@@ -36,6 +36,7 @@ func main() {
 	cmdProxyD.Flags.StringVar(&healthzAddr, "healthz-address", "", "Network address on which the HTTP healthz server runs.  It is intended to be used with a load balancer.  The load balancer must be able to reach this address in order to verify that the proxy server is running.")
 	cmdProxyD.Flags.StringVar(&name, "name", "", "Name to mount the proxy as.")
 	cmdProxyD.Flags.StringVar(&acl, "access-list", "", "Blessings that are authorized to listen via the proxy.  JSON-encoded representation of access.AccessList.  An empty string implies the default authorization policy.")
+	cmdProxyD.Flags.StringVar(&statsACL, "stats-access-list", "", "Blessings that are authorized to access the proxy's statistics.  JSON-encoded representation of access.AccessList.  An empty string implies the default authorization policy.")
 
 	cmdline.HideGlobalFlagsExcept()
 	cmdline.Main(cmdProxyD)
@@ -53,9 +54,24 @@ Command proxyd is a daemon that listens for connections from Vanadium services
 
 func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 	// TODO(suharshs): Add ability to specify multiple proxies through this tool.
-	auth, err := authorizer(ctx)
+	auth, err := authorizer(ctx, acl)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse --access-list: %v", err)
+	}
+	if auth != nil {
+		ctx.Infof("Using access list to control proxy use: %v", auth.(access.AccessList))
+	} else {
+		ctx.Infof("--access-list not specified")
+	}
+
+	statsAuth, err := authorizer(ctx, statsACL)
+	if err != nil {
+		return fmt.Errorf("failed to parse --stats-access-list: %v", err)
+	}
+	if statsAuth != nil {
+		ctx.Infof("Using access list to control access to statistics: %v", statsAuth.(access.AccessList))
+	} else {
+		ctx.Infof("--stats-access-list not specified")
 	}
 	proxy, err := xproxy.New(ctx, name, auth)
 	if err != nil {
@@ -77,13 +93,13 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 
 	// Start an RPC Server that listens through the proxy itself. This
-	// server will serve reserved methods only.
+	// server will serve reserved methods only and in particular a stats service.
 	var monitoringName string
 	if len(name) > 0 {
 		monitoringName = name + "-mon"
 	}
 	ctx = v23.WithListenSpec(ctx, rpc.ListenSpec{Proxy: proxyEndpoint.Name()})
-	if _, _, err := v23.WithNewDispatchingServer(ctx, monitoringName, &statsDispatcher{auth}); err != nil {
+	if _, _, err := v23.WithNewDispatchingServer(ctx, monitoringName, &statsDispatcher{statsAuth}); err != nil {
 		return fmt.Errorf("NewServer failed: %v", err)
 	}
 	<-signals.ShutdownOnSignals(ctx)
@@ -120,7 +136,7 @@ func startHealthzServer(ctx *context.T, addr string) {
 	}
 }
 
-func authorizer(ctx *context.T) (security.Authorizer, error) {
+func authorizer(ctx *context.T, acl string) (security.Authorizer, error) {
 	if len(acl) > 0 {
 		var list access.AccessList
 		if err := json.NewDecoder(bytes.NewBufferString(acl)).Decode(&list); err != nil {
@@ -129,7 +145,6 @@ func authorizer(ctx *context.T) (security.Authorizer, error) {
 		// Always add ourselves, for the the reserved methods server
 		// started below.
 		list.In = append(list.In, security.DefaultBlessingPatterns(v23.GetPrincipal(ctx))...)
-		ctx.Infof("Using access list to control proxy use: %v", list)
 		return list, nil
 	}
 	return nil, nil
