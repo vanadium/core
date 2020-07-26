@@ -225,6 +225,7 @@ func (p *Proxy) ListeningEndpoints() []naming.Endpoint {
 	return p.m.Status().Endpoints
 }
 
+/*
 // MultipleProxyEndpoints returns the endpoints that the proxy is forwarding.
 func (p *Proxy) MultipleProxyEndpoints() []naming.Endpoint {
 	var eps []naming.Endpoint
@@ -235,6 +236,7 @@ func (p *Proxy) MultipleProxyEndpoints() []naming.Endpoint {
 	p.mu.Unlock()
 	return eps
 }
+*/
 
 func (p *Proxy) handleConnection(ctx *context.T, f flow.Flow) {
 	defer p.wg.Done()

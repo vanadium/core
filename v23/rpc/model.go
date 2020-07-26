@@ -130,7 +130,7 @@ const (
 	// the mounttable.
 	UseRandomProxy
 	// UseAllProxies will simultaneously use all of the proxies returned by the
-	// mounttable.
+	// mounttable or up the number specified by ProxyLimit.
 	UseAllProxies
 )
 
@@ -146,6 +146,11 @@ type ListenSpec struct {
 
 	// The policy to use when selecting from multiple proxies.
 	ProxyPolicy ProxyPolicy
+
+	// ProxyLimit sets a limit on the number of proxies to be used when the
+	// ProxyPolicy is UseAllProxies. 0 implies no limit, ie. all available
+	// proxies are used.
+	ProxyLimit int
 
 	// The address chooser to use for determining preferred publishing
 	// addresses.

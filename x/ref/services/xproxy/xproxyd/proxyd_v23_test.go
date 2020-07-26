@@ -34,11 +34,12 @@ func init() {
 }
 
 const (
-	proxyName    = "proxy"     // Name which the proxy mounts itself at
-	serverName   = "server"    // Name which the server mounts itself at
-	responseVar  = "RESPONSE"  // Name of the variable used by client program to output the first response
-	responseVar1 = "RESPONSE1" // Name of the variable used by client program to output the second response
-	downloadSize = 64 * 1024 * 1024
+	proxyName        = "proxy"     // Name which the proxy mounts itself at
+	serverName       = "server"    // Name which the server mounts itself at
+	responseVar      = "RESPONSE"  // Name of the variable used by client program to output the first response
+	responseVar1     = "RESPONSE1" // Name of the variable used by client program to output the second response
+	downloadSize     = 64 * 1024 * 1024
+	using2OfMProxies = 2 // Use 2 out of the total available set of proxies when using all proxies.
 )
 
 func TestV23Proxyd(t *testing.T) {
@@ -55,7 +56,12 @@ func TestV23Proxyd(t *testing.T) {
 	)
 
 	// Start proxyd.
-	sh.Cmd(proxyd, "--v23.tcp.address=127.0.0.1:0", "--name="+proxyName, "--access-list", "{\"In\":[\"root:server\"]}").WithCredentials(proxydCreds).Start()
+	sh.Cmd(proxyd,
+		"--v23.tcp.address=127.0.0.1:0",
+		"--name="+proxyName,
+		"--access-list", "{\"In\":[\"root:server\"]}",
+		"--stats-access-list", "{\"In\":[\"root:server\"]}",
+	).WithCredentials(proxydCreds).Start()
 
 	// Start the server that only listens via the proxy.
 	sh.FuncCmd(runServer).WithCredentials(serverCreds).Start()
@@ -63,6 +69,7 @@ func TestV23Proxyd(t *testing.T) {
 	// Run the client.
 	cmd := sh.FuncCmd(runClient).WithCredentials(clientCreds)
 	cmd.Run()
+
 	if got, want := cmd.S.ExpectVar(responseVar), "server [root:server] saw client [root:client]"; got != want {
 		t.Fatalf("Got %q, want %q", got, want)
 	}
@@ -83,27 +90,28 @@ func TestV23MultipleProxyd(t *testing.T) {
 		numProxies  = 3
 	)
 
+	ns := v23.GetNamespace(sh.Ctx)
+	ns.CacheCtl(naming.DisableCache(true))
+
 	proxyLogs, proxyStatsAddresses := startProxies(t, sh, numProxies)
 
 	t.Logf("starting servers.....\n")
 	// Start the servers that use the first and all proxies once since the
 	// set of proxies they connect to is deterministic.
-	firstProxyAddress, firstProxyLog, _, err := startServer(t, sh, serverName, runServer, serverCreds)
+	firstProxyAddress, firstProxyLog, _, err := startServer(t, sh, serverName, 1, runServer, serverCreds)
 	if err != nil {
 		t.Fatalf("first proxy policy server: %v", err)
 	}
 
-	allProxiesAddress, allProxiesLog, allcmd, err := startServer(t, sh, serverName+"-all", runServerAllProxies, serverCreds)
+	allProxiesAddress, allProxiesLog, _, err := startServer(t, sh, serverName+"-all", using2OfMProxies, runServerAllProxies, serverCreds)
 	if err != nil {
-		allcmd.Wait()
-		t.Log(allProxiesLog)
 		t.Fatalf("all proxy policy server: %v", err)
 	}
 
 	// Run all of the clients.
 	t.Logf("running clients.....\n")
 	for _, fn := range []*gosh.Func{runClient, runClientAllProxiesServer} {
-		if err := runSingleClient(sh, fn, clientCreds, 2); err != nil {
+		if err := runSingleClient(sh, fn, clientCreds); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -141,19 +149,17 @@ func TestV23MultipleProxyd(t *testing.T) {
 	// This server should always connect to all proxies.
 	used = proxiesUsedForServer(proxyRequests, allProxiesStatsPrefix)
 	t.Logf("all policies server used proxies %v\n", used)
-	if got, want := used, allProxyIndices(numProxies); !reflect.DeepEqual(got, want) {
+	if got, want := len(used), using2OfMProxies; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	for i := 0; i < numProxies; i++ {
+	for _, i := range used {
 		if sumFor(proxiedBytes[i], allProxiesStatsPrefix) == 0 {
 			t.Errorf("no bytes counted for %v with proxy %v", firstProxyStatsPrefix, i)
 		}
-
 		if sumFor(proxiedMessages[i], allProxiesStatsPrefix) == 0 {
 			t.Errorf("no messages counted for %v with proxy %v", firstProxyStatsPrefix, i)
 		}
-
 	}
 
 	if t.Failed() {
@@ -179,19 +185,18 @@ func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresse
 
 	// Run the server.
 	t.Logf("starting server.....\n")
-	proxyAddress, proxyLog, serverCmd, err := startServer(t, sh, serverName+"-random", runServerRandomProxy, serverCreds)
+	serverAddress, serverLog, serverCmd, err := startServer(t, sh, serverName+"-random", 1, runServerRandomProxy, serverCreds)
 	if err != nil {
 		t.Fatalf("random proxies policy server: %v", err)
 	}
 	// Make sure to kill the server on returning from this function.
 	defer func() {
-		t.Logf("stopping server.....\n")
 		serverCmd.Terminate(os.Interrupt)
 	}()
 
 	// Run the client.
 	t.Logf("running clients.....\n")
-	if err := runSingleClient(sh, runClientRandProxyServer, clientCreds, 2); err != nil {
+	if err := runSingleClient(sh, runClientRandProxyServer, clientCreds); err != nil {
 		t.Fatal(err)
 	}
 
@@ -201,7 +206,7 @@ func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresse
 	if err != nil {
 		t.Fatal(err)
 	}
-	proxyStatsPrefix := statsPrefix(proxyAddress)
+	proxyStatsPrefix := statsPrefix(serverAddress)
 	proxyRequests, proxiedMessages, proxiedBytes, err := gatherStats(ctx, proxyStatsAddresses, proxyStatsPrefix)
 	if err != nil {
 		t.Error(err)
@@ -222,7 +227,7 @@ func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresse
 	}
 
 	// Return true if the chosen proxy was not the first one.
-	return len(used) == 1 && used[0] != 0, proxyLog
+	return len(used) == 1 && used[0] != 0, serverLog
 }
 
 func TestV23MultipleProxydRandom(t *testing.T) {
@@ -239,6 +244,8 @@ func TestV23MultipleProxydRandom(t *testing.T) {
 		numProxies = 6
 	)
 
+	ns := v23.GetNamespace(sh.Ctx)
+	ns.CacheCtl(naming.DisableCache(true))
 	proxyLogs, proxyStatsAddresses := startProxies(t, sh, numProxies)
 
 	// The server that makes a random selection will be started multiple times
@@ -276,7 +283,7 @@ func waitForNMountedServers(t *testing.T, ctx *context.T, ns namespace.T, name s
 	return waitForFunc(t, ctx, ns, name, func(resolved *naming.MountEntry, err error) (bool, error) {
 		if err == nil {
 			if resolved != nil {
-				t.Logf("found %v instances of %v", len(resolved.Servers), name)
+				t.Logf("%v: found %v/%v instances of %v", time.Now(), len(resolved.Servers), expected, name)
 				for i, s := range resolved.Servers {
 					t.Logf("%v: %v/%v: %v", name, i, len(resolved.Servers), s.Server)
 				}
@@ -329,6 +336,7 @@ func waitForFunc(t *testing.T, ctx *context.T, ns namespace.T, name string,
 }
 
 func startProxies(t *testing.T, sh *v23test.Shell, numProxies int) ([]*bytes.Buffer, []naming.MountedServer) {
+	ns := v23.GetNamespace(sh.Ctx)
 	proxyd := v23test.BuildGoPkg(sh, "v.io/x/ref/services/xproxy/xproxyd")
 	proxyLogs := make([]*bytes.Buffer, numProxies)
 	// Start multiple proxies.
@@ -347,14 +355,21 @@ func startProxies(t *testing.T, sh *v23test.Shell, numProxies int) ([]*bytes.Buf
 		cmd.Start()
 	}
 	// Wait for all proxies to be mounted.
-	ns := v23.GetNamespace(sh.Ctx)
-	ns.CacheCtl(naming.DisableCache(true))
 	proxyAddresses, err := waitForNMountedServers(t, sh.Ctx, ns, proxyName, numProxies)
 	if err != nil {
+		for i, log := range proxyLogs {
+			t.Logf("proxy %v", i)
+			t.Log(log.String())
+		}
 		t.Fatal(err)
 	}
+
 	proxyStatsAddresses, err := waitForNMountedServers(t, sh.Ctx, ns, proxyName+"-mon", numProxies)
 	if err != nil {
+		for i, log := range proxyLogs {
+			t.Logf("proxy %v", i)
+			t.Log(log.String())
+		}
 		t.Fatal(err)
 	}
 
@@ -398,20 +413,12 @@ func sumFor(stats map[string]int64, server string) int64 {
 	return r
 }
 
-func allProxyIndices(n int) []int {
-	a := make([]int, n)
-	for i := 0; i < n; i++ {
-		a[i] = i
-	}
-	return a
-}
-
 func statsPrefix(address string) string {
 	ep, _ := naming.ParseEndpoint(address)
 	return ep.RoutingID.String()
 }
 
-func startServer(t *testing.T, sh *v23test.Shell, name string, fn *gosh.Func, creds *v23test.Credentials) (string, *bytes.Buffer, *v23test.Cmd, error) {
+func startServer(t *testing.T, sh *v23test.Shell, name string, expected int, fn *gosh.Func, creds *v23test.Credentials) (string, *bytes.Buffer, *v23test.Cmd, error) {
 	log := &bytes.Buffer{}
 	// Run a server that uses all proxies simultaneously.
 	cmd := sh.FuncCmd(fn).WithCredentials(creds)
@@ -419,7 +426,7 @@ func startServer(t *testing.T, sh *v23test.Shell, name string, fn *gosh.Func, cr
 	cmd.AddStderrWriter(log)
 	cmd.Start()
 	ns := v23.GetNamespace(sh.Ctx)
-	server, err := waitForNMountedServers(t, sh.Ctx, ns, name, 1)
+	server, err := waitForNMountedServers(t, sh.Ctx, ns, name, expected)
 	if err != nil {
 		t.Logf("failed to start server %v: %v\n", name, err)
 		t.Log(log.String())
@@ -428,68 +435,81 @@ func startServer(t *testing.T, sh *v23test.Shell, name string, fn *gosh.Func, cr
 	return server[0].Server, log, cmd, nil
 }
 
-func createProxiedServer(name, proxy string, policy rpc.ProxyPolicy) func() error {
+func createProxiedServer(name, proxy string, policy rpc.ProxyPolicy, limit int) func() error {
 	return func() error {
 		ctx, shutdown := test.V23Init()
-		defer shutdown()
+		defer func() {
+			fmt.Println("calling shutdown")
+			shutdown()
+			fmt.Println("shutdown done")
+		}()
 		// Set the listen spec to listen only via the proxy.
-		ctx = v23.WithListenSpec(ctx, rpc.ListenSpec{Proxy: proxy, ProxyPolicy: policy})
+		ls := rpc.ListenSpec{Proxy: proxy, ProxyPolicy: policy, ProxyLimit: limit}
+		ctx = v23.WithListenSpec(ctx, ls)
 		if _, _, err := v23.WithNewServer(ctx, name, service{}, security.AllowEveryone()); err != nil {
 			return err
 		}
+		fmt.Println("waiting for signal")
 		<-signals.ShutdownOnSignals(ctx)
+		fmt.Println("got signal")
 		return nil
 	}
 }
 
 var runServer = gosh.RegisterFunc(
 	"runServer",
-	createProxiedServer(serverName, proxyName, rpc.UseFirstProxy),
+	createProxiedServer(serverName, proxyName, rpc.UseFirstProxy, 0),
 )
 var runServerRandomProxy = gosh.RegisterFunc(
 	"runServerRandomProxy",
-	createProxiedServer(serverName+"-random", proxyName, rpc.UseRandomProxy),
+	createProxiedServer(serverName+"-random", proxyName, rpc.UseRandomProxy, 0),
 )
 var runServerAllProxies = gosh.RegisterFunc(
 	"runServerAllProxies",
-	createProxiedServer(serverName+"-all", proxyName, rpc.UseAllProxies),
+	createProxiedServer(serverName+"-all", proxyName, rpc.UseAllProxies, using2OfMProxies),
 )
 
-func createClient(serverName string) func() error {
+func createClient(serverName string, iterations int) func() error {
 	return func() error {
 		ctx, shutdown := test.V23Init()
 		defer shutdown()
 		var response string
 		var payload []byte
-		if err := v23.GetClient(ctx).Call(ctx, serverName, "Echo", nil, []interface{}{&response}); err != nil {
-			return err
+		for i := 0; i < iterations; i++ {
+			if err := v23.GetClient(ctx).Call(ctx, serverName, "Echo", nil, []interface{}{&response}); err != nil {
+				return err
+			}
+			if err := v23.GetClient(ctx).Call(ctx, serverName, "Download", []interface{}{downloadSize}, []interface{}{&response, &payload}); err != nil {
+				return err
+			}
+			if i == 0 {
+				fmt.Printf("%v=%v\n", responseVar, response)
+				fmt.Printf("%v=%v\n", responseVar1, len(payload))
+			}
 		}
-		if err := v23.GetClient(ctx).Call(ctx, serverName, "Download", []interface{}{downloadSize}, []interface{}{&response, &payload}); err != nil {
-			return err
-		}
-		fmt.Printf("%v=%v\n", responseVar, response)
-		fmt.Printf("%v=%v\n", responseVar1, len(payload))
 		return nil
 	}
 }
 
-func runSingleClient(sh *v23test.Shell, fn *gosh.Func, creds *v23test.Credentials, iterations int) error {
-	for i := 0; i < iterations; i++ {
-		cmd := sh.FuncCmd(fn).WithCredentials(creds)
-		cmd.Run()
-		if got, want := cmd.S.ExpectVar(responseVar), "server [root:server] saw client [root:client]"; got != want {
-			return fmt.Errorf("Got %q, want %q", got, want)
-		}
-		if got, want := cmd.S.ExpectVar(responseVar1), fmt.Sprintf("%v", downloadSize); got != want {
-			return fmt.Errorf("Got %q, want %q", got, want)
-		}
+func runSingleClient(sh *v23test.Shell, fn *gosh.Func, creds *v23test.Credentials) error {
+	cmd := sh.FuncCmd(fn).WithCredentials(creds)
+	cmd.AddStderrWriter(os.Stdout)
+	cmd.AddStdoutWriter(os.Stdout)
+	cmd.Run()
+	if got, want := cmd.S.ExpectVar(responseVar), "server [root:server] saw client [root:client]"; got != want {
+		return fmt.Errorf("Got %q, want %q", got, want)
+	}
+	if got, want := cmd.S.ExpectVar(responseVar1), fmt.Sprintf("%v", downloadSize); got != want {
+		return fmt.Errorf("Got %q, want %q", got, want)
 	}
 	return nil
 }
 
-var runClient = gosh.RegisterFunc("runClient", createClient(serverName))
-var runClientRandProxyServer = gosh.RegisterFunc("runClient", createClient(serverName+"-random"))
-var runClientAllProxiesServer = gosh.RegisterFunc("runClient", createClient(serverName+"-all"))
+var runClient = gosh.RegisterFunc("runClient", createClient(serverName, 1))
+var runClientRandProxyServer = gosh.RegisterFunc("runClientRandom", createClient(serverName+"-random", 1))
+
+// Run the 'all proxies' example enough times to ensure that the client uses all of the proxies.
+var runClientAllProxiesServer = gosh.RegisterFunc("runClientAll", createClient(serverName+"-all", 20))
 
 func intStatForName(ctx *context.T, server, suffix string) (int64, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)

@@ -7,7 +7,6 @@ package rpc
 import (
 	"fmt"
 	"io"
-	"math/rand"
 	"net"
 	"reflect"
 	"strings"
@@ -50,9 +49,10 @@ var (
 )
 
 const (
-	reconnectDelay   = 50 * time.Millisecond
-	bidiProtocol     = "bidi"
-	relistenInterval = time.Second
+	reconnectDelay           = 50 * time.Millisecond
+	proxyResolveUpdatePeriod = time.Second
+	bidiProtocol             = "bidi"
+	relistenInterval         = time.Second
 )
 
 type server struct {
@@ -380,7 +380,13 @@ func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	lctx, s.stopListens = context.WithCancel(ctx)
 	if len(listenSpec.Proxy) > 0 {
 		s.active.Add(1)
-		go s.connectToProxy(lctx, listenSpec.Proxy, listenSpec.ProxyPolicy)
+		go func() {
+			pm := newProxyManager(listenSpec.Proxy,
+				listenSpec.ProxyPolicy,
+				listenSpec.ProxyLimit)
+			pm.manageProxyConnections(ctx, s)
+			s.active.Done()
+		}()
 	}
 	for _, addr := range listenSpec.Addrs {
 		if len(addr.Address) > 0 {
@@ -427,56 +433,6 @@ func (s *server) relisten(ctx *context.T, protocol, address string, ch <-chan st
 		if ch, err = s.flowMgr.Listen(ctx, protocol, address); err != nil {
 			s.ctx.Infof("Listen(%q, %q, ...) failed: %v", protocol, address, err)
 		}
-	}
-}
-
-func (s *server) connectToProxy(ctx *context.T, name string, policy rpc.ProxyPolicy) {
-	var proxyRand *rand.Rand
-	if policy == rpc.UseRandomProxy {
-		proxyRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-	}
-	defer s.active.Done()
-	for delay := reconnectDelay; ; delay = nextDelay(delay) {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-		time.Sleep(delay - reconnectDelay)
-		eps, err := s.resolveToEndpoint(ctx, name)
-		if err != nil {
-			s.ctx.VI(2).Infof("resolveToEndpoint(%q) failed: %v", name, err)
-			continue
-		}
-		if policy == rpc.UseAllProxies {
-			// more complex case.
-			//continue
-		}
-		chosen := 0
-		if policy == rpc.UseRandomProxy {
-			chosen = proxyRand.Intn(len(eps))
-		}
-		ep := eps[chosen]
-		s.ctx.Infof("Using proxy %v/%v: %v", chosen, len(eps), ep)
-		for i, ep := range eps {
-			s.ctx.Infof("Available proxy %v: %v", i, ep)
-		}
-		ch, err := s.flowMgr.ProxyListen(ctx, name, ep)
-		if err != nil {
-			s.ctx.Errorf("ProxyListen(%q) failed: %v. Reconnecting...", eps, err)
-		} else {
-			<-ch
-			delay = reconnectDelay / 2
-		}
-		/*
-			var ch <-chan struct{}
-			if ch, err = s.tryProxyEndpoints(ctx, name, eps); err != nil {
-				s.ctx.Errorf("ProxyListen(%q) failed: %v. Reconnecting...", eps, err)
-			} else {
-				<-ch
-				delay = reconnectDelay / 2
-			}
-		*/
 	}
 }
 

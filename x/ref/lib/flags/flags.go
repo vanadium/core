@@ -207,6 +207,7 @@ func NewListenFlags() *ListenFlags {
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
 	lf.ProxyPolicy.policy = DefaultProxyPolicy()
+	lf.ProxyLimit = DefaultProxyLimit()
 	return lf
 }
 
@@ -218,9 +219,11 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 		map[string]interface{}{
 			"v23.proxy":        DefaultProxy(),
 			"v23.proxy.policy": DefaultProxyPolicy(),
+			"v23.proxy.limit":  DefaultProxyLimit(),
 		}, map[string]string{
 			"v23.proxy":        "",
 			"v23.proxy.policy": "first",
+			"v23.proxy.limit":  "0",
 		},
 	)
 	if err != nil {
