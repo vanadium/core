@@ -73,7 +73,8 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 	} else {
 		ctx.Infof("--stats-access-list not specified")
 	}
-	proxy, err := xproxy.New(ctx, name, auth)
+	proxyCtx, proxyCancel := context.WithCancel(ctx)
+	proxy, err := xproxy.New(proxyCtx, name, auth)
 	if err != nil {
 		return err
 	}
@@ -99,10 +100,26 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 		monitoringName = name + "-mon"
 	}
 	ctx = v23.WithListenSpec(ctx, rpc.ListenSpec{Proxy: proxyEndpoint.Name()})
-	if _, _, err := v23.WithNewDispatchingServer(ctx, monitoringName, &statsDispatcher{statsAuth}); err != nil {
+	_, statsServer, err := v23.WithNewDispatchingServer(proxyCtx, monitoringName, &statsDispatcher{statsAuth})
+	if err != nil {
 		return fmt.Errorf("NewServer failed: %v", err)
 	}
+	if len(name) > 0 {
+		eps := statsServer.Status().Endpoints
+		if len(eps) == 1 {
+			// Again, print out the address of the stats server for
+			// integration tests.
+			fmt.Printf("STATS=%s\n", eps[0].Name())
+		}
+	}
+	fmt.Printf("Proxy stats listenng on: %v", statsServer.Status().Endpoints)
+
 	<-signals.ShutdownOnSignals(ctx)
+	// Specifically remove this server from the mounttable to ensure that the
+	// mounttable is updated as quickly as possible.
+	proxyCancel()
+	<-proxy.Closed()
+	<-statsServer.Closed()
 	return nil
 }
 

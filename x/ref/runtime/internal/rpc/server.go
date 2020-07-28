@@ -49,10 +49,8 @@ var (
 )
 
 const (
-	reconnectDelay           = 50 * time.Millisecond
-	proxyResolveUpdatePeriod = time.Second
-	bidiProtocol             = "bidi"
-	relistenInterval         = time.Second
+	bidiProtocol     = "bidi"
+	relistenInterval = time.Second
 )
 
 type server struct {
@@ -342,6 +340,7 @@ func (s *server) resolveToEndpoint(ctx *context.T, address string) ([]naming.End
 	ns := v23.GetNamespace(ctx)
 	ns.FlushCacheEntry(ctx, address)
 	resolved, err := ns.Resolve(ctx, address)
+
 	if err != nil {
 		return nil, err
 	}
