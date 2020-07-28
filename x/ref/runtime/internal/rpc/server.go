@@ -372,6 +372,10 @@ func (s *server) createEndpoint(lep naming.Endpoint) naming.Endpoint {
 	return lep
 }
 
+func (s *server) proxyListen(ctx *context.T, name string, ep naming.Endpoint) (<-chan struct{}, error) {
+	return s.flowMgr.ProxyListen(ctx, name, ep)
+}
+
 func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	defer s.Unlock()
 	s.Lock()
@@ -380,10 +384,11 @@ func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	if len(listenSpec.Proxy) > 0 {
 		s.active.Add(1)
 		go func() {
-			pm := newProxyManager(listenSpec.Proxy,
+			pm := newProxyManager(s,
+				listenSpec.Proxy,
 				listenSpec.ProxyPolicy,
 				listenSpec.ProxyLimit)
-			pm.manageProxyConnections(ctx, s)
+			pm.manageProxyConnections(ctx)
 			s.active.Done()
 		}()
 	}

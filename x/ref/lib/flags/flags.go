@@ -38,6 +38,8 @@ const (
 	// --v23.tcp.protocol
 	// --v23.tcp.address
 	// --v23.proxy
+	// --v23.proxy.policy
+	// --v23.proxy.limit
 	Listen
 	// Permissions identifies the flags typically required to configure
 	// authorization.

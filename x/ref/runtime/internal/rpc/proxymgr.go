@@ -11,28 +11,41 @@ import (
 )
 
 const (
-	reconnectDelay           = 50 * time.Millisecond
-	proxyResolveUpdatePeriod = time.Second
+	proxyReconnectDelay = 50 * time.Millisecond
+	proxyReResolveDelay = time.Second
 )
+
+// serverProxyAPI represents the operations the proxy manager expects of
+// the rpc server.
+type serverProxyAPI interface {
+	resolveToEndpoint(ctx *context.T, address string) ([]naming.Endpoint, error)
+	proxyListen(ctx *context.T, name string, ep naming.Endpoint) (<-chan struct{}, error)
+}
 
 // proxymanager is used to managed connections to one or more proxies.
 type proxyManager struct {
 	sync.Mutex
-	policy    rpc.ProxyPolicy
-	rand      *rand.Rand //
-	limit     int        // max number of proxies to use.
-	proxyName string
-	proxies   []naming.Endpoint
-	active    map[string]bool
+	reconnectDelay time.Duration
+	resolveDelay   time.Duration
+	server         serverProxyAPI
+	policy         rpc.ProxyPolicy
+	rand           *rand.Rand //
+	limit          int        // max number of proxies to use.
+	proxyName      string
+	proxies        []naming.Endpoint
+	active         map[string]bool
 }
 
-func newProxyManager(proxyName string, policy rpc.ProxyPolicy, limit int) *proxyManager {
+func newProxyManager(s serverProxyAPI, proxyName string, policy rpc.ProxyPolicy, limit int) *proxyManager {
 	pm := &proxyManager{
-		policy:    policy,
-		limit:     limit,
-		proxyName: proxyName,
-		active:    map[string]bool{},
-		rand:      rand.New(rand.NewSource(time.Now().UnixNano())),
+		reconnectDelay: proxyReconnectDelay,
+		resolveDelay:   proxyReResolveDelay,
+		server:         s,
+		policy:         policy,
+		limit:          limit,
+		proxyName:      proxyName,
+		active:         map[string]bool{},
+		rand:           rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 	switch policy {
 	case rpc.UseFirstProxy, rpc.UseRandomProxy:
@@ -69,7 +82,7 @@ func (pm *proxyManager) isAvailable(proxy naming.Endpoint) bool {
 
 // idle returns the set of proxies that are availabled but not currently active.
 // The returned number of proxies is capped at pm.limit if is not zero.
-func (pm *proxyManager) idle(s *server) []naming.Endpoint {
+func (pm *proxyManager) idle(ctx *context.T) []naming.Endpoint {
 	idle := []naming.Endpoint{}
 	pm.Lock()
 	defer pm.Unlock()
@@ -84,16 +97,16 @@ func (pm *proxyManager) idle(s *server) []naming.Endpoint {
 	}
 	switch pm.policy {
 	case rpc.UseFirstProxy:
-		s.ctx.Infof("idle proxies: first proxy %v/%v", idle[:1], nidle)
+		ctx.Infof("idle proxies: first proxy %v/%v", idle[:1], nidle)
 		return idle[:1]
 	case rpc.UseRandomProxy:
 		chosen := pm.rand.Intn(nidle)
-		s.ctx.Infof("idle proxies: random proxy %v/%v", chosen, nidle)
+		ctx.Infof("idle proxies: random proxy %v/%v", chosen, nidle)
 		return []naming.Endpoint{idle[chosen]}
 	}
 	needed := pm.limit - len(pm.active)
 	if pm.limit == 0 || needed > nidle {
-		s.ctx.Infof("idle proxies: all idle proxies %v", nidle)
+		ctx.Infof("idle proxies: all idle proxies %v", nidle)
 		return idle
 	}
 	// randomize the selection of the subset of proxies.
@@ -103,7 +116,7 @@ func (pm *proxyManager) idle(s *server) []naming.Endpoint {
 		selected[i] = idle[idx]
 		i++
 	}
-	s.ctx.Infof("idle proxies: %v of %v idle proxies: %v", needed, nidle, selected)
+	ctx.Infof("idle proxies: %v of %v idle proxies: %v", needed, nidle, selected)
 	return selected
 }
 
@@ -114,7 +127,7 @@ func (pm *proxyManager) shouldGrow() bool {
 	defer pm.Unlock()
 	switch pm.policy {
 	case rpc.UseFirstProxy, rpc.UseRandomProxy:
-		return len(pm.active) < 1
+		return len(pm.active) == 0
 	}
 	return (pm.limit == 0) || (pm.limit > len(pm.active))
 }
@@ -123,35 +136,19 @@ func (pm *proxyManager) shouldGrow() bool {
 func (pm *proxyManager) canGrow() bool {
 	pm.Lock()
 	defer pm.Unlock()
+	switch pm.policy {
+	case rpc.UseFirstProxy, rpc.UseRandomProxy:
+		return len(pm.active) == 0 && len(pm.proxies) > 0
+	}
 	return len(pm.proxies) > len(pm.active)
 }
 
-/*
-func compareEndpointSlices(a, b []naming.Endpoint) bool {
-	if len(a) != len(b) {
-		return true
-	}
-	al, bl := make([]string, len(a)), make([]string, len(b))
-	for i := 0; i < len(a); i++ {
-		al[i] = a[i].String()
-		bl[i] = b[i].String()
-	}
-	sort.Strings(al)
-	sort.Strings(bl)
-	for i, e := range al {
-		if e != bl[i] {
-			return true
-		}
-	}
-	return false
-}*/
-
 // updateAvailableProxies reresolves the proxy with the mounttable to determine
 // the cureent set of available proxies.
-func (pm *proxyManager) updateAvailableProxies(ctx *context.T, s *server) {
-	eps, err := s.resolveToEndpoint(ctx, pm.proxyName)
+func (pm *proxyManager) updateAvailableProxies(ctx *context.T) {
+	eps, err := pm.server.resolveToEndpoint(ctx, pm.proxyName)
 	if err != nil {
-		s.ctx.VI(2).Infof("resolveToEndpoint(%q) failed: %v", pm.proxyName, err)
+		ctx.VI(2).Infof("resolveToEndpoint(%q) failed: %v", pm.proxyName, err)
 		return
 	}
 	updated := make([]naming.Endpoint, len(eps))
@@ -173,12 +170,12 @@ func (pm *proxyManager) markInActive(ep naming.Endpoint) {
 	delete(pm.active, ep.String())
 }
 
-func (pm *proxyManager) connectToSingleProxy(ctx *context.T, s *server, name string, ep naming.Endpoint) {
+func (pm *proxyManager) connectToSingleProxy(ctx *context.T, name string, ep naming.Endpoint) {
 	pm.markActive(ep)
 	defer pm.markInActive(ep)
-	for delay := reconnectDelay; ; delay = nextDelay(delay) {
+	for delay := pm.reconnectDelay; ; delay = nextDelay(delay) {
 		if !pm.isAvailable(ep) {
-			ctx.Infof("ProxyListen(%q): proxy is no longer available\n", ep)
+			ctx.Infof("connectToSingleProxy(%q): proxy is no longer available\n", ep)
 			return
 		}
 		select {
@@ -186,44 +183,62 @@ func (pm *proxyManager) connectToSingleProxy(ctx *context.T, s *server, name str
 			return
 		default:
 		}
-		time.Sleep(delay - reconnectDelay)
-		ch, err := s.flowMgr.ProxyListen(ctx, name, ep)
+		time.Sleep(delay - pm.reconnectDelay)
+		ch, err := pm.server.proxyListen(ctx, name, ep)
 		if err != nil {
-			ctx.Errorf("ProxyListen(%q) failed: %v. Reconnecting..", ep, err)
+			ctx.Errorf("connectToSingleProxy(%q) failed: %v. Reconnecting..", ep, err)
 			// Update the set of available proxies on encountering an error and
 			// popssible exit at the top the loop.
-			pm.updateAvailableProxies(ctx, s)
+			pm.updateAvailableProxies(ctx)
 		} else {
 			select {
 			case <-ctx.Done():
 				return
 			case <-ch:
 			}
-			delay = reconnectDelay / 2
+			delay = pm.reconnectDelay / 2
 		}
 	}
 }
 
-func (pm *proxyManager) manageProxyConnections(ctx *context.T, s *server) {
+func (pm *proxyManager) tryConnections(ctx *context.T, notifyCh chan struct{}) bool {
+	idle := pm.idle(ctx)
+	if len(idle) == 0 {
+		pm.updateAvailableProxies(ctx)
+		return false
+	}
+	for _, ep := range idle {
+		go func(ep naming.Endpoint) {
+			pm.connectToSingleProxy(ctx, pm.proxyName, ep)
+			notifyCh <- struct{}{}
+		}(ep)
+	}
+	return true
+}
+
+func drainNotifyChan(ch chan struct{}) {
+	for {
+		select {
+		case <-ch:
+		default:
+			return
+		}
+	}
+}
+
+func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 	notifyCh := make(chan struct{}, 10)
-	pm.updateAvailableProxies(ctx, s)
+	pm.updateAvailableProxies(ctx)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
 		}
-		idle := pm.idle(s)
-		if len(idle) == 0 {
-			time.Sleep(proxyResolveUpdatePeriod)
-			pm.updateAvailableProxies(ctx, s)
+		if !pm.tryConnections(ctx, notifyCh) {
+			// Nothing to do, sleep before retrying.
+			time.Sleep(pm.resolveDelay)
 			continue
-		}
-		for _, ep := range idle {
-			go func(ep naming.Endpoint) {
-				pm.connectToSingleProxy(ctx, s, pm.proxyName, ep)
-				notifyCh <- struct{}{}
-			}(ep)
 		}
 		select {
 		case <-ctx.Done():
@@ -231,14 +246,7 @@ func (pm *proxyManager) manageProxyConnections(ctx *context.T, s *server) {
 		case <-notifyCh:
 			// Wait for a change and then drain the channel of any pending
 			// notifications before re-evaluating the set of available proxies.
-			for {
-				select {
-				case <-notifyCh:
-				default:
-					goto done
-				}
-			}
-		done:
+			drainNotifyChan(notifyCh)
 		}
 		// Wait for a change in the set of available proxies.
 		if pm.shouldGrow() {
@@ -246,11 +254,10 @@ func (pm *proxyManager) manageProxyConnections(ctx *context.T, s *server) {
 				select {
 				case <-ctx.Done():
 					return
-				case <-time.After(proxyResolveUpdatePeriod):
+				case <-time.After(pm.resolveDelay):
 				}
-				pm.updateAvailableProxies(ctx, s)
+				pm.updateAvailableProxies(ctx)
 				if pm.canGrow() {
-					ctx.Infof("can grow....")
 					break
 				}
 			}
