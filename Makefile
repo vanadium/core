@@ -19,3 +19,4 @@ test-integration:
 		v.io/x/ref/examples/rps/rpsbot \
 		-v23.tests
 	go test v.io/v23/security/... -tags openssl
+	go test v.io/x/ref/lib/security/... -tags openssl

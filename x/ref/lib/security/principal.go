@@ -7,19 +7,24 @@ package security
 import (
 	"context"
 	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rand"
 	"fmt"
+	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/passphrase"
-	"v.io/x/ref/lib/security/serialization"
 	"v.io/x/ref/lib/security/signing/keyfile"
+	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 const (
@@ -30,8 +35,7 @@ var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
 	ErrBadPassphrase = verror.Register(pkgPath+".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
 	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
-	ErrPassphraseRequired = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
-
+	ErrPassphraseRequired    = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
 	errCantCreateSigner      = verror.Register(pkgPath+".errCantCreateSigner", verror.NoRetry, "{1:}{2:} failed to create serialization.Signer{:_}")
 	errCantLoadBlessingRoots = verror.Register(pkgPath+".errCantLoadBlessingRoots", verror.NoRetry, "{1:}{2:} failed to load BlessingRoots{:_}")
 	errCantLoadBlessingStore = verror.Register(pkgPath+".errCantLoadBlessingStore", verror.NoRetry, "{1:}{2:} failed to load BlessingStore{:_}")
@@ -58,14 +62,15 @@ const (
 // NewPrincipal mints a new private (ecdsa) key and generates a principal
 // based on this key, storing its BlessingRoots and BlessingStore in memory.
 func NewPrincipal() (security.Principal, error) {
-	pub, priv, err := NewECDSAKeyPair()
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, err
+		return nil, verror.New(errCantGenerateKey, nil, err)
 	}
 	signer, err := security.NewInMemoryECDSASigner(priv)
 	if err != nil {
 		return nil, err
 	}
+	pub := security.NewECDSAPublicKey(&priv.PublicKey)
 	return security.CreatePrincipal(signer, NewBlessingStore(pub), NewBlessingRoots())
 }
 
@@ -133,7 +138,7 @@ func ZeroPassphrase(pass []byte) {
 // update duration is specified then the principal will be reloaded
 // at the frequency implied by that duration. In addition, on systems
 // that support it, a SIGHUP can be used to request an immediate reload.
-// If pwphrase is nil, readonly is true and the private key file is encrypted
+// If passphrase is nil, readonly is true and the private key file is encrypted
 // LoadPersistentPrincipalDaemon will not attempt to create a signer and will
 // instead just the principal's public key.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
@@ -154,9 +159,9 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newSigner(ctx, dir, passphrase)
+	signer, err := newSignerFromState(ctx, dir, passphrase)
 	if err != nil {
-		if verror.ErrorID(err) != ErrPassphraseRequired.ID || !readonly || passphrase != nil {
+		if !readonly {
 			return nil, err
 		}
 		return newPersistentPrincipalPublicKeyOnly(ctx, dir, update)
@@ -168,77 +173,38 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
 
-func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := loadPublicKey(ctx, dir)
+// newSignerFromState will create a signer based on the keys found in the
+// supplied state directory. It looks for a privatekey.pem or an ssh
+// .pub file which it will use to lookup the matching private key in
+// its accessible ssh agent.
+func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
+	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
-	blessingsStore, blessingRoots, err := newStores(ctx, nil, publicKey, dir, true, update)
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
-}
-
-// CreatePersistentPrincipal creates a new Principal using a newly generated
-// ECSDA key and commits all state changes to the provided directory.
-// Use CreatePersistentPrincipalUsingKey to specify a different key
-// type or to use an existing key.
-//
-// The private key is serialized and saved encrypted if the
-// 'passphrase' is non-nil, and unencrypted otherwise.
-//
-// If the directory has any preexisting principal data,
-// CreatePersistentPrincipal will return an error.
-//
-// The specified directory may not exist, in which case it will be created.
-func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	_, key, err := NewECDSAKeyPair()
-	if err != nil {
-		return nil, err
-	}
-	return CreatePersistentPrincipalUsingKey(key, dir, passphrase)
-}
-
-// CreatePersistentPrincipalUsingKey is like CreatePersistentPrincipal but
-// will use the supplied key instead of creating one.
-func CreatePersistentPrincipalUsingKey(key interface{}, dir string, passphrase []byte) (security.Principal, error) {
-	if key == nil {
-		var err error
-		_, key, err = NewECDSAKeyPair()
-		if err != nil {
-			return nil, err
+	var privatePEM, publicSSH string
+	for _, file := range files {
+		name := file.Name()
+		switch {
+		case name == privateKeyFile:
+			privatePEM = name
+		case strings.HasSuffix(name, ".pub"):
+			publicSSH = name
 		}
 	}
-	if err := mkDir(dir); err != nil {
-		return nil, err
+	if len(privatePEM) > 0 && len(publicSSH) > 0 {
+		return nil, fmt.Errorf("multiple key files found: %v and %v", privatePEM, publicSSH)
 	}
-	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	unlock, err := flock.Lock()
-	if err != nil {
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	switch {
+	case len(privatePEM) > 0:
+		return newFileSigner(ctx, filepath.Join(dir, privatePEM), passphrase)
+	case len(publicSSH) > 0:
+		return newSSHAgentSigner(ctx, filepath.Join(dir, publicSSH), passphrase)
 	}
-	defer unlock()
-	return createPersistentPrincipal(context.TODO(), key, dir, passphrase)
+	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %s", dir)
 }
 
-func createPersistentPrincipal(ctx context.Context, key interface{}, dir string, passphrase []byte) (principal security.Principal, err error) {
-	if err := internal.WritePEMKeyPair(
-		key,
-		path.Join(dir, privateKeyFile),
-		path.Join(dir, publicKeyFile),
-		passphrase,
-	); err != nil {
-		return nil, err
-	}
-	var update time.Duration
-	return newPersistentPrincipal(ctx, dir, passphrase, false, update)
-}
-
-func newSigner(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	// TODO(cnicolaou): determine when/how to use SSH agent, fido etc.
-	svc := keyfile.NewSigningService()
-	signer, err := svc.Signer(ctx, filepath.Join(dir, privateKeyFile), passphrase)
+func handleSignerError(signer security.Signer, err error) (security.Signer, error) {
 	switch {
 	case err == nil:
 		return signer, nil
@@ -253,66 +219,73 @@ func newSigner(ctx context.Context, dir string, passphrase []byte) (security.Sig
 	}
 }
 
-func loadPublicKey(ctx context.Context, dir string) (security.PublicKey, error) {
-	f, err := os.Open(filepath.Join(dir, publicKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	key, err := internal.LoadPEMPublicKey(f)
-	if err != nil {
-		return nil, err
-	}
-	if k, ok := key.(*ecdsa.PublicKey); ok {
-		return security.NewECDSAPublicKey(k), nil
-	}
-	return nil, verror.New(errUnsupportedKeyType, nil, fmt.Sprintf("%T", key))
+func newFileSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	svc := keyfile.NewSigningService()
+	signer, err := svc.Signer(ctx, filename, passphrase)
+	return handleSignerError(signer, err)
 }
 
-func newStores(ctx context.Context, signer security.Signer, publicKey security.PublicKey, dir string, readonly bool, update time.Duration) (security.BlessingStore, security.BlessingRoots, error) {
+func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	svc := sshagent.NewSigningService()
+	svc.(*sshagent.Client).SetAgentSockName(DefaultSSHAgentSockNameFunc())
+	signer, err := svc.Signer(ctx, filename, passphrase)
+	return handleSignerError(signer, err)
+}
 
-	blessingRootsSerializer := newFileSerializer(
-		path.Join(dir, blessingRootsDataFile),
-		path.Join(dir, blessingRootsSigFile))
-	rootsReader, rootsWriter := SerializerReader(blessingRootsSerializer), SerializerWriter(blessingRootsSerializer)
-
-	blessingStoreSerializer := newFileSerializer(
-		path.Join(dir, blessingStoreDataFile),
-		path.Join(dir, blessingStoreSigFile))
-	storeReader, storeWriter := SerializerReader(blessingStoreSerializer), SerializerWriter(blessingStoreSerializer)
-
-	var signerSerialization serialization.Signer
-	if readonly {
-		rootsWriter, storeWriter = nil, nil
-	} else {
-		signerSerialization = &serializationSigner{signer}
-	}
-
-	blessingRoots, err := NewPersistentBlessingRoots(
-		ctx,
-		filepath.Join(dir, blessingsRootsLockFilename),
-		rootsReader,
-		rootsWriter,
-		signerSerialization,
-		publicKey,
-		update,
-	)
+func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
+	publicKey, err := newPublicKeyFromState(ctx, dir)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	blessingsStore, err := NewPersistentBlessingStore(
-		ctx,
-		filepath.Join(dir, blessingStoreLockFilename),
-		storeReader,
-		storeWriter,
-		signerSerialization,
-		publicKey,
-		update,
-	)
+	blessingsStore, blessingRoots, err := newStores(ctx, nil, publicKey, dir, true, update)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return blessingsStore, blessingRoots, nil
+	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
+}
+
+// newPublicKeyFromState looks for a public key file in the specified
+// state directory. It will accept either a publickey.pem file or an ssh
+// .pub file.
+func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var publicPEM, publicSSH string
+	for _, file := range files {
+		name := file.Name()
+		switch {
+		case name == publicKeyFile:
+			publicPEM = name
+		case strings.HasSuffix(name, ".pub"):
+			publicSSH = name
+		}
+	}
+	if len(publicPEM) > 0 && len(publicSSH) > 0 {
+		return nil, fmt.Errorf("multiple key files found: %v and %v", publicPEM, publicSSH)
+	}
+	var key interface{}
+	switch {
+	case len(publicPEM) > 0:
+		key, err = internal.LoadPEMPublicKeyFile(filepath.Join(dir, publicPEM))
+	case len(publicSSH) > 0:
+		var sshKey ssh.PublicKey
+		sshKey, _, err = internal.LoadSSHPublicKeyFile(filepath.Join(dir, publicSSH))
+		if err == nil {
+			key, err = internal.CryptoKeyFromSSHKey(sshKey)
+		}
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to load public key: %v", err)
+	}
+	switch k := key.(type) {
+	case *ecdsa.PublicKey:
+		return security.NewECDSAPublicKey(k), nil
+	case ed25519.PublicKey:
+		return security.NewED25519PublicKey(k), nil
+	}
+	return nil, verror.New(errUnsupportedKeyType, nil, fmt.Sprintf("%T", key))
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with
@@ -341,15 +314,4 @@ func InitDefaultBlessings(p security.Principal, name string) error {
 		return err
 	}
 	return SetDefaultBlessings(p, blessing)
-}
-
-func mkDir(dir string) error {
-	if finfo, err := os.Stat(dir); err == nil {
-		if !finfo.IsDir() {
-			return verror.New(errNotADirectory, nil, dir)
-		}
-	} else if err := os.MkdirAll(dir, 0700); err != nil {
-		return verror.New(errCantCreate, nil, dir, err)
-	}
-	return nil
 }

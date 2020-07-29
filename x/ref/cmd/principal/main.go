@@ -9,6 +9,7 @@ package main
 
 import (
 	"bytes"
+	gocontext "context"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
@@ -31,6 +32,7 @@ import (
 	"v.io/x/ref"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
+	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
 )
@@ -70,6 +72,13 @@ type CreateOverwriteFlag struct {
 // WithPassphraseFlag represent a --with-passphrase flag.
 type WithPassphraseFlag struct {
 	WithPassphrase bool `cmdline:"with-passphrase,true,'If true, the user is prompted for a passphrase to encrypt the principal. Otherwise, the principal is stored unencrypted.'"`
+}
+
+// KeyFlags represents the flag used to specify the type of key to generate/use
+// for a new principal.
+type KeyFlags struct {
+	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
+	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 }
 
 // ForPeerFlag represents a --for-peer flag.
@@ -127,6 +136,7 @@ var (
 		WithFlag
 		CreateOverwriteFlag
 		WithPassphraseFlag
+		KeyFlags
 		RequireCaveats bool `cmdline:"require-caveats,true,'If false, allow blessing without any caveats. This is typically not advised as the principal wielding the blessing will be almost as powerful as its blesser'"`
 	}{}
 	flagForkDef = cmdline.FlagDefinitions{Flags: &flagFork}
@@ -192,6 +202,7 @@ var (
 	flagCreate = struct {
 		CreateOverwriteFlag
 		WithPassphraseFlag
+		KeyFlags
 	}{}
 	flagCreateDef = cmdline.FlagDefinitions{Flags: &flagCreate}
 
@@ -808,11 +819,6 @@ principal will have no blessings.
 				return fmt.Errorf("requires one or two arguments: <directory> [and optional <blessing>], provided %d", len(args))
 			}
 			dir := args[0]
-			if flagCreate.CreateOverwrite {
-				if err := os.RemoveAll(dir); err != nil {
-					return err
-				}
-			}
 			var pass []byte
 			if flagCreate.WithPassphrase {
 				var err error
@@ -821,14 +827,15 @@ principal will have no blessings.
 				}
 				defer vsecurity.ZeroPassphrase(pass)
 			}
-			// TODO(cnicolaou): provide a means of to specify key type.
-			_, key, err := vsecurity.NewECDSAKeyPair()
+			p, err := createPersistentPrincipal(
+				gocontext.TODO(),
+				dir,
+				flagCreate.KeyType,
+				flagCreate.SSHAgentPublicKeyFile,
+				pass,
+				flagCreate.CreateOverwrite)
 			if err != nil {
-				return err
-			}
-			p, err := vsecurity.CreatePersistentPrincipalUsingKey(key, dir, pass)
-			if err != nil {
-				return err
+				return fmt.Errorf("failed to create principal: %v", err)
 			}
 			if len(args) == 2 {
 				name := args[1]
@@ -903,16 +910,16 @@ forked principal.
 					return err
 				}
 			}
-			// TODO(cnicolaou): provide a means of to specify key type.
-			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
+			p, err := createPersistentPrincipal(
+				gocontext.TODO(),
+				dir,
+				flagFork.KeyType,
+				flagFork.SSHAgentPublicKeyFile,
+				pass,
+				flagFork.CreateOverwrite)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create principal: %v", err)
 			}
-			p, err := vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, dir, pass)
-			if err != nil {
-				return err
-			}
-
 			key := p.PublicKey()
 			rp := v23.GetPrincipal(ctx)
 			blessings, err := rp.Bless(key, with, extension, caveats[0], caveats[1:]...)
@@ -1154,14 +1161,8 @@ func blessOverFileSystem(p security.Principal, tobless string, with security.Ble
 	if finfo, err := os.Stat(tobless); err == nil && finfo.IsDir() {
 		other, err := vsecurity.LoadPersistentPrincipal(tobless, nil)
 		if err != nil {
-			// TODO(cnicolaou): provide a means of to specify key type.
-			_, ecdsaKey, err := vsecurity.NewECDSAKeyPair()
-			if err != nil {
-				return security.Blessings{}, err
-			}
-			if other, err = vsecurity.CreatePersistentPrincipalUsingKey(ecdsaKey, tobless, nil); err != nil {
-				return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
-			}
+
+			return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
 		}
 		key = other.PublicKey()
 	} else if str, err := read(tobless); err != nil {
@@ -1552,4 +1553,31 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 		return nil, fmt.Errorf("failed to lookup %v flag", flagName)
 	}
 	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
+}
+
+func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey string, pass []byte, overwrite bool) (security.Principal, error) {
+	removeExisting := func() error {
+		if !overwrite {
+			return nil
+		}
+		return os.RemoveAll(dir)
+	}
+	var privateKey interface{}
+	var err error
+	if len(sshKey) == 0 {
+		privateKey, err = vsecurity.NewPrivateKey(keyType)
+	} else {
+		service := sshagent.NewClient()
+		privateKey = vsecurity.SSHAgentHostedKey{
+			PublicKeyFile: sshKey,
+			Agent:         service,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	if err := removeExisting(); err != nil {
+		return nil, err
+	}
+	return vsecurity.CreatePersistentPrincipalUsingKey(ctx, privateKey, dir, pass)
 }

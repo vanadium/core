@@ -95,8 +95,7 @@ func TestImmutableBlessingStore(t *testing.T) {
 }
 
 func TestImmutableBlessingRoots(t *testing.T) {
-	pubkey, _, _ := NewECDSAKeyPair()
-	pk, _ := pubkey.MarshalBinary()
+	pk, _ := createAndMarshalPublicKey()
 	r1 := NewBlessingRoots()
 	r2 := ImmutableBlessingRoots(r1)
 	pat := "pattern1"
