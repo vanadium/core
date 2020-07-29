@@ -6,6 +6,8 @@ package main
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
@@ -255,7 +257,7 @@ func runDelegate(ctx *context.T, env *cmdline.Env, args []string) error {
 		name = args[2]
 	}
 	// Create a new private key.
-	pub, priv, err := seclib.NewECDSAKeyPair()
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return err
 	}
@@ -279,7 +281,7 @@ func runDelegate(ctx *context.T, env *cmdline.Env, args []string) error {
 
 	p := v23.GetPrincipal(ctx)
 	b, _ := p.BlessingStore().Default()
-	blessing, err := p.Bless(pub, b, extension, caveats[0], caveats[1:]...)
+	blessing, err := p.Bless(security.NewECDSAPublicKey(&priv.PublicKey), b, extension, caveats[0], caveats[1:]...)
 	if err != nil {
 		return err
 	}

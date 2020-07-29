@@ -5,6 +5,7 @@
 package main_test
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
+	"v.io/x/ref/test/testutil/testsshagent"
 	"v.io/x/ref/test/v23test"
 )
 
@@ -55,6 +57,7 @@ func removeCaveats(input string) string {
 func TestV23BlessSelf(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -64,24 +67,33 @@ func TestV23BlessSelf(t *testing.T) {
 	)
 
 	bin := v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
-	sh.Cmd(bin, "create", aliceDir, "alice").Run()
 
-	redirect(t, withCreds(aliceDir, sh.Cmd(bin, "blessself", "alicereborn")), aliceBlessingFile)
-	got := removePublicKeys(withCreds(aliceDir, sh.Cmd(bin, "dumpblessings", aliceBlessingFile)).Stdout())
-	want := `Blessings          : alicereborn
+	for _, flags := range [][]string{
+		nil,
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--key-type=ecdsa521"},
+	} {
+		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
+
+		redirect(t, withCreds(aliceDir, sh.Cmd(bin, "blessself", "alicereborn")), aliceBlessingFile)
+		got := removePublicKeys(withCreds(aliceDir, sh.Cmd(bin, "dumpblessings", aliceBlessingFile)).Stdout())
+		want := `Blessings          : alicereborn
 PublicKey          : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Certificate chains : 1
 Chain #0 (1 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
   Certificate #0: alicereborn with 0 caveats
 `
-	if want != got {
-		t.Fatalf("unexpected output, wanted \n%s, got\n%s", want, got)
+		if want != got {
+			t.Fatalf("unexpected output, wanted \n%s, got\n%s", want, got)
+		}
+		os.RemoveAll(aliceDir)
 	}
 }
 
 func TestV23Store(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -94,7 +106,7 @@ func TestV23Store(t *testing.T) {
 	)
 
 	// Create two principals: alice and bob.
-	sh.Cmd(bin, "create", aliceDir, "alice").Run()
+	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ed25519.pub"), aliceDir, "alice").Run()
 	sh.Cmd(bin, "create", bobDir, "bob").Run()
 
 	// Bless Bob with Alice's principal.
@@ -146,6 +158,7 @@ alice:friend
 func TestV23Dump(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -155,10 +168,16 @@ func TestV23Dump(t *testing.T) {
 		aliceExpiredDir = filepath.Join(outputDir, "alice-expired")
 	)
 
-	sh.Cmd(bin, "create", aliceDir, "alice").Run()
+	for _, flags := range [][]string{
+		nil,
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--key-type=ecdsa521"},
+	} {
 
-	got := removePublicKeys(withCreds(aliceDir, sh.Cmd(bin, "dump")).Stdout())
-	want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
+		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
+
+		got := removePublicKeys(withCreds(aliceDir, sh.Cmd(bin, "dump")).Stdout())
+		want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Default Blessings : alice
 ---------------- BlessingStore ----------------
 Default Blessings                alice
@@ -168,19 +187,19 @@ Peer pattern                     Blessings
 Public key                                        Pattern
 XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX   [alice]
 `
-	if want != got {
-		t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
-	}
+		if want != got {
+			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+		}
 
-	got = withCreds(aliceDir, sh.Cmd(bin, "dump", "-s")).Stdout()
-	want = "alice\n"
-	if want != got {
-		t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
-	}
+		got = withCreds(aliceDir, sh.Cmd(bin, "dump", "-s")).Stdout()
+		want = "alice\n"
+		if want != got {
+			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+		}
 
-	sh.Cmd(bin, "--v23.credentials="+aliceDir, "fork", "--for", "-1h", aliceExpiredDir, "expired").Run()
-	got = removePublicKeys(withCreds(aliceExpiredDir, sh.Cmd(bin, "dump")).Stdout())
-	want = `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
+		sh.Cmd(bin, "--v23.credentials="+aliceDir, "fork", "--for", "-1h", aliceExpiredDir, "expired").Run()
+		got = removePublicKeys(withCreds(aliceExpiredDir, sh.Cmd(bin, "dump")).Stdout())
+		want = `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Default Blessings : alice:expired [EXPIRED]
 ---------------- BlessingStore ----------------
 Default Blessings                alice:expired
@@ -190,14 +209,17 @@ Peer pattern                     Blessings
 Public key                                        Pattern
 XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX   [alice]
 `
-	if want != got {
-		t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
-	}
+		if want != got {
+			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+		}
 
-	got = withCreds(aliceExpiredDir, sh.Cmd(bin, "dump", "-s")).Stdout()
-	want = "alice:expired [EXPIRED]\n"
-	if want != got {
-		t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+		got = withCreds(aliceExpiredDir, sh.Cmd(bin, "dump", "-s")).Stdout()
+		want = "alice:expired [EXPIRED]\n"
+		if want != got {
+			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+		}
+		os.RemoveAll(aliceDir)
+		os.RemoveAll(aliceExpiredDir)
 	}
 }
 
@@ -266,6 +288,7 @@ func blessArgsFromRecvBlessings(s *expect.Session) []string {
 func TestV23RecvBlessings(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -279,7 +302,7 @@ func TestV23RecvBlessings(t *testing.T) {
 
 	// Generate principals
 	sh.Cmd(bin, "create", aliceDir, "alice").Run()
-	sh.Cmd(bin, "create", bobDir, "bob").Run()
+	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ecdsa-384.pub"), bobDir, "bob").Run()
 	sh.Cmd(bin, "create", carolDir, "carol").Run()
 
 	// Run recvblessings on carol, and have alice send blessings over
@@ -454,6 +477,7 @@ XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX   [bob]
 func TestV23Fork(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -465,17 +489,25 @@ func TestV23Fork(t *testing.T) {
 		tmpfile               = filepath.Join(outputDir, "tmpfile")
 	)
 
-	// Generate principals for alice.
-	sh.Cmd(bin, "create", aliceDir, "alice").Run()
+	for _, flags := range [][]string{
+		nil,
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--key-type=ecdsa521"},
+	} {
 
-	// Run fork to setup up credentials for alice:phone that are
-	// blessed by alice under the extension "phone".
-	sh.Cmd(bin, "--v23.credentials="+aliceDir, "fork", "--for", "1h", alicePhoneDir, "phone").Run()
+		// Generate principals for alice.
+		sh.Cmd(bin, "create", aliceDir, "alice").Run()
 
-	// Dump alice-phone out, the only blessings it has must be from alice (alice:phone).
-	{
-		got := removePublicKeys(sh.Cmd(bin, "--v23.credentials="+alicePhoneDir, "dump").Stdout())
-		want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
+		// Run fork to setup up credentials for alice:phone that are
+		// blessed by alice under the extension "phone".
+		args := append([]string{"--v23.credentials=" + aliceDir},
+			mergeFlags("fork", flags, "--for", "1h", alicePhoneDir, "phone")...)
+		sh.Cmd(bin, args...).Run()
+
+		// Dump alice-phone out, the only blessings it has must be from alice (alice:phone).
+		{
+			got := removePublicKeys(sh.Cmd(bin, "--v23.credentials="+alicePhoneDir, "dump").Stdout())
+			want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Default Blessings : alice:phone
 ---------------- BlessingStore ----------------
 Default Blessings                alice:phone
@@ -485,15 +517,15 @@ Peer pattern                     Blessings
 Public key                                        Pattern
 XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX   [alice]
 `
-		if want != got {
-			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			if want != got {
+				t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			}
 		}
-	}
-	// And it should have an expiry caveat
-	{
-		redirect(t, sh.Cmd(bin, "--v23.credentials", alicePhoneDir, "get", "default"), tmpfile)
-		got := removeCaveats(removePublicKeys(sh.Cmd(bin, "dumpblessings", tmpfile).Stdout()))
-		want := `Blessings          : alice:phone
+		// And it should have an expiry caveat
+		{
+			redirect(t, sh.Cmd(bin, "--v23.credentials", alicePhoneDir, "get", "default"), tmpfile)
+			got := removeCaveats(removePublicKeys(sh.Cmd(bin, "dumpblessings", tmpfile).Stdout()))
+			want := `Blessings          : alice:phone
 PublicKey          : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Certificate chains : 1
 Chain #0 (2 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
@@ -501,17 +533,17 @@ Chain #0 (2 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:
   Certificate #1: phone with 1 caveat
     (0) ExpiryCaveat
 `
-		if want != got {
-			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			if want != got {
+				t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			}
 		}
-	}
 
-	// Run fork to setup up credentials for alice:phone:calendar that are
-	// blessed by alice:phone under the extension "calendar".
-	sh.Cmd(bin, "--v23.credentials="+alicePhoneDir, "fork", "--for", "1h", alicePhoneCalendarDir, "calendar").Run()
-	{
-		got := removePublicKeys(sh.Cmd(bin, "--v23.credentials="+alicePhoneCalendarDir, "dump").Stdout())
-		want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
+		// Run fork to setup up credentials for alice:phone:calendar that are
+		// blessed by alice:phone under the extension "calendar".
+		sh.Cmd(bin, "--v23.credentials="+alicePhoneDir, "fork", "--for", "1h", alicePhoneCalendarDir, "calendar").Run()
+		{
+			got := removePublicKeys(sh.Cmd(bin, "--v23.credentials="+alicePhoneCalendarDir, "dump").Stdout())
+			want := `Public key : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Default Blessings : alice:phone:calendar
 ---------------- BlessingStore ----------------
 Default Blessings                alice:phone:calendar
@@ -521,14 +553,14 @@ Peer pattern                     Blessings
 Public key                                        Pattern
 XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX   [alice]
 `
-		if want != got {
-			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			if want != got {
+				t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			}
 		}
-	}
-	{
-		redirect(t, sh.Cmd(bin, "--v23.credentials", alicePhoneCalendarDir, "get", "default"), tmpfile)
-		got := removeCaveats(removePublicKeys(sh.Cmd(bin, "dumpblessings", tmpfile).Stdout()))
-		want := `Blessings          : alice:phone:calendar
+		{
+			redirect(t, sh.Cmd(bin, "--v23.credentials", alicePhoneCalendarDir, "get", "default"), tmpfile)
+			got := removeCaveats(removePublicKeys(sh.Cmd(bin, "dumpblessings", tmpfile).Stdout()))
+			want := `Blessings          : alice:phone:calendar
 PublicKey          : XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
 Certificate chains : 1
 Chain #0 (3 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX
@@ -538,15 +570,20 @@ Chain #0 (3 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:
   Certificate #2: calendar with 1 caveat
     (0) ExpiryCaveat
 `
-		if want != got {
-			t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			if want != got {
+				t.Fatalf("unexpected output, got\n%s, wanted\n%s", got, want)
+			}
 		}
+		os.RemoveAll(aliceDir)
+		os.RemoveAll(alicePhoneDir)
+		os.RemoveAll(alicePhoneCalendarDir)
 	}
 }
 
 func TestV23Create(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
 	defer sh.Cleanup()
 
 	var (
@@ -565,25 +602,31 @@ func TestV23Create(t *testing.T) {
 			}
 		}
 	}
+	for _, flags := range [][]string{
+		nil,
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--key-type=ecdsa521"},
+	} {
+		// Creating a principal should succeed the first time.
+		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
+		checkBlessing("alice")
 
-	// Creating a principal should succeed the first time.
-	sh.Cmd(bin, "create", aliceDir, "alice").Run()
-	checkBlessing("alice")
+		// The second time should fail (the create command won't override an existing principal).
+		cmd := sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...)
+		cmd.ExitErrorIsOk = true
+		if cmd.Run(); cmd.Err == nil {
+			t.Fatalf("principal creation should have failed, but did not")
+		}
 
-	// The second time should fail (the create command won't override an existing principal).
-	cmd := sh.Cmd(bin, "create", aliceDir, "alice")
-	cmd.ExitErrorIsOk = true
-	if cmd.Run(); cmd.Err == nil {
-		t.Fatalf("principal creation should have failed, but did not")
+		// If we specify -overwrite, it will.
+		sh.Cmd(bin, "create", "--overwrite", aliceDir, "alice").Run()
+		checkBlessing("alice")
+
+		// If we create a principal without specifying a blessing name, it will have no blessing.
+		sh.Cmd(bin, "create", "--overwrite", aliceDir).Run()
+		checkBlessing("")
+		os.RemoveAll(aliceDir)
 	}
-
-	// If we specify -overwrite, it will.
-	sh.Cmd(bin, "create", "--overwrite", aliceDir, "alice").Run()
-	checkBlessing("alice")
-
-	// If we create a principal without specifying a blessing name, it will have no blessing.
-	sh.Cmd(bin, "create", "--overwrite", aliceDir).Run()
-	checkBlessing("")
 }
 
 func TestV23CreateWithPassphrase(t *testing.T) {
@@ -948,6 +991,39 @@ Chain #1 (2 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:
 	}
 }
 
+var (
+	sshKeyDir    string
+	sshAgentAddr string
+)
+
+func withSSHAgent(sh *v23test.Shell) {
+	sh.Vars["SSH_AUTH_SOCK"] = sshAgentAddr
+}
+
+func mergeFlags(verb string, flags []string, arguments ...string) []string {
+	cl := []string{verb}
+	cl = append(cl, flags...)
+	return append(cl, arguments...)
+}
+
 func TestMain(m *testing.M) {
-	v23test.TestMain(m)
+	var err error
+	var cleanup func()
+	cleanup, sshAgentAddr, sshKeyDir, err = testsshagent.StartPreconfiguredAgent()
+	if err != nil {
+		panic(err)
+	}
+	// Needed for LoadPrincipal etc to use the ssh agent started above.
+	security.DefaultSSHAgentSockNameFunc = func() string {
+		return sshAgentAddr
+	}
+	flag.Parse()
+	var code int
+	func() {
+		defer v23test.InitMain()()
+		code = m.Run()
+	}()
+	cleanup()
+	os.RemoveAll(sshKeyDir)
+	os.Exit(code)
 }
