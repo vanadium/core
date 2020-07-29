@@ -118,7 +118,7 @@ func (f AddressChooserFunc) ChooseAddresses(protocol string, candidates []net.Ad
 }
 
 // ProxyPolicy determines how a server will chose an rpc proxy when multiple
-// are available, that is when multipe proxy instances are mounted under the
+// are available, that is when multiple proxy instances are mounted under the
 // same name.
 type ProxyPolicy int
 

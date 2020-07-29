@@ -510,7 +510,7 @@ func waitForFunc(t *testing.T, ctx *context.T, ns namespace.T, name string,
 	return nil, fmt.Errorf("timed out after %v waiting for %v", time.Since(start), name)
 }
 
-// proxyInfo contains the adress of the proxy and its associated stats server.
+// proxyInfo contains the address of the proxy and its associated stats server.
 type proxyInfo struct {
 	cmd            *v23test.Cmd
 	log            *bytes.Buffer
