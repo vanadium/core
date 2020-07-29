@@ -33,8 +33,6 @@ The identityd_test flags are:
    Address on which the HTTP server listens on.
  -mount-prefix=identity
    Mount name prefix to use.  May be rooted.
- -oauth-agent-path=
-   Path to the agent to use for the oauth http handler.
  -oauth-credentials-dir=
    Path to the credentials to use for the oauth http handler.
  -oauth-email=testemail@example.com
@@ -82,6 +80,11 @@ The global flags are:
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
+ -v23.proxy.limit=0
+   max number of proxies to connect to when the policy is to connect to all
+   proxies; 0 implies all proxies
+ -v23.proxy.policy=first
+   policy for choosing from a set of available proxy instances
  -v23.tcp.address=
    address to listen on
  -v23.tcp.protocol=
