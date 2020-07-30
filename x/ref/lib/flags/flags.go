@@ -50,6 +50,16 @@ const (
 	// which will be concatenated)
 	// This flag allows permissions to specified directly on the command line.
 	Permissions
+	// Virtualized identifies the flags typically required to configure a server
+	// running in some form of virtualized or isolated environment such
+	// as AWS, GCE or within a docker container.
+	// v23.virtualized.docker
+	// v23.virtualized.provider
+	// v23.virtualized.discover-public-address
+	// v23.virtualized.tcp.public-protocol
+	// v23.virtualized.tcp.public-address
+	// v23.virtualized.literal-dns-name
+	Virtualized
 )
 
 // Flags represents the set of flag groups created by a call to
@@ -226,6 +236,58 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	}
 }
 
+// CreateAndRegisterVirtualizedFlags creates and registers the VirtualizedFlags
+// group with the supplied flag.FlagSet.
+func CreateAndRegisterVirtualizedFlags(fs *flag.FlagSet) *VirtualizedFlags {
+	lf := NewVirtualizedFlags()
+	RegisterVirtualizedFlags(fs, lf)
+	return lf
+}
+
+// NewVirtualizedFlags creates a new VirtualizedFlags with appropriate defaults.
+func NewVirtualizedFlags() *VirtualizedFlags {
+	def := DefaultVirtualizedFlagValues()
+	vf := &VirtualizedFlags{}
+	var ipHostPortFlag IPHostPortFlag
+	if err := ipHostPortFlag.Set(def.PublicAddress); err != nil {
+		panic(err)
+	}
+	var protocolFlag TCPProtocolFlag
+	if err := protocolFlag.Set(def.PublicProtocol); err != nil {
+		panic(err)
+	}
+	vf.PublicProtocol = tcpProtocolFlagVar{validator: protocolFlag}
+	vf.PublicAddress = ipHostPortFlagVar{validator: ipHostPortFlag}
+	return vf
+}
+
+// RegisterVirtualizedFlags registers the supplied VirtualizedFlags variable with
+// the supplied FlagSet.
+func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) {
+	def := DefaultVirtualizedFlagValues()
+	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+		map[string]interface{}{
+			"v23.virtualized.docker":                  def.Dockerized,
+			"v23.virtualized.provider":                def.VirtualizationProvider,
+			"v23.virtualized.discover-public-address": def.DiscoverPublicIP,
+			"v23.virtualized.tcp.public-protocol":     def.PublicProtocol,
+			"v23.virtualized.tcp.public-address":      def.PublicAddress,
+			"v23.virtualized.literal-dns-name":        def.LiteralDNSName,
+		}, map[string]string{
+			"v23.virtualized.docker":                  "false",
+			"v23.virtualized.provider":                "",
+			"v23.virtualized.discover-public-address": "true",
+			"v23.virtualized.tcp.public-protocol":     "",
+			"v23.virtualized.tcp.public-address":      "",
+			"v23.virtualized.literal-dns-name":        "",
+		},
+	)
+	if err != nil {
+		// panic since this is clearly a programming error.
+		panic(err)
+	}
+}
+
 // CreateAndRegister creates a new set of flag groups as specified by the
 // supplied flag group parameters and registers them with the supplied
 // flag.FlagSet.
@@ -242,6 +304,8 @@ func CreateAndRegister(fs *flag.FlagSet, groups ...FlagGroup) *Flags {
 			f.groups[Listen] = CreateAndRegisterListenFlags(fs)
 		case Permissions:
 			f.groups[Permissions] = CreateAndRegisterPermissionsFlags(fs)
+		case Virtualized:
+			f.groups[Virtualized] = CreateAndRegisterVirtualizedFlags(fs)
 		}
 	}
 	return f
@@ -260,6 +324,14 @@ func refreshDefaults(f *Flags) {
 			}
 			if !v.Addresses.isSet {
 				v.Addresses.validator.Set(defaultHostPort) //nolint:errcheck
+			}
+
+		case *VirtualizedFlags:
+			if !v.PublicProtocol.isSet {
+				v.PublicProtocol.validator.Set(defaultVirtualized.PublicProtocol) //nolint:errcheck
+			}
+			if !v.PublicAddress.isSet {
+				v.PublicAddress.validator.Set(defaultVirtualized.PublicAddress) //nolint:errcheck
 			}
 		}
 	}
@@ -295,6 +367,15 @@ func (f *Flags) ListenFlags() ListenFlags {
 		return n
 	}
 	return ListenFlags{}
+}
+
+func (f *Flags) VirtualizedFlags() VirtualizedFlags {
+	if p := f.groups[Virtualized]; p != nil {
+		vf := p.(*VirtualizedFlags)
+		n := *vf
+		return n
+	}
+	return VirtualizedFlags{}
 }
 
 // PermissionsFlags returns a copy of the Permissions flag group stored in

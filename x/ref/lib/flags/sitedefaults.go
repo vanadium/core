@@ -45,4 +45,7 @@ func init() {
 	defaultProxy = merged["proxy"].(string)
 	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
 	defaultPermissions = merged["permissions"].(map[string]string)
+	defaultVirtualized = VirtualizedFlagDefaults{
+		PublicProtocol: merged["protocol"].(string),
+	}
 }

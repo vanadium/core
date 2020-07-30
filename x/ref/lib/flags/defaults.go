@@ -12,14 +12,16 @@ import (
 )
 
 var (
-	defaultNamespaceRoots     []string          // GUARDED_BY defaultMu
-	defaultCredentialsDir     string            // GUARDED_BY defaultMu
-	defaultI18nCatalogue      string            // GUARDED_BY defaultMu
-	defaultProtocol           string            // GUARDED_BY defaultMu
-	defaultHostPort           string            // GUARDED_BY defaultMu
-	defaultProxy              string            // GUARDED_BY defaultMu
-	defaultPermissionsLiteral string            // GUARDED_BY defaultMu
-	defaultPermissions        map[string]string // GUARDED_BY defaultMu
+	// all defaults are GUARDED_BY defaultMu
+	defaultNamespaceRoots     []string
+	defaultCredentialsDir     string
+	defaultI18nCatalogue      string
+	defaultProtocol           string
+	defaultHostPort           string
+	defaultProxy              string
+	defaultPermissionsLiteral string
+	defaultPermissions        map[string]string
+	defaultVirtualized        VirtualizedFlagDefaults
 	defaultMu                 sync.RWMutex
 )
 
@@ -173,4 +175,20 @@ func DefaultPermissions() map[string]string {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
 	return defaultPermissions
+}
+
+// SetDefaultVirtualizedFlagValues sets the default values to use for
+// the Virtualized flags group.
+func SetDefaultVirtualizedFlagValues(values VirtualizedFlagDefaults) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultVirtualized = values
+}
+
+// DefaultVirtualizedFlagValues returns the default values to use for
+// the Virtualized flags group.
+func DefaultVirtualizedFlagValues() VirtualizedFlagDefaults {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultVirtualized
 }
