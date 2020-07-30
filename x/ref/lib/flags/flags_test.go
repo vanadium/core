@@ -239,46 +239,6 @@ func TestDefaults(t *testing.T) {
 	}
 }
 
-func TestListenFlags(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
-	if err := fl.Parse([]string{}, nil); err != nil {
-		t.Fatalf("unexpected error: %s", err)
-	}
-	lf := fl.ListenFlags()
-	if got, want := len(lf.Addrs), 1; got != want {
-		t.Errorf("got %d, want %d", got, want)
-	}
-
-	// Test the default protocol and address is "wsh" and ":0".
-	def := struct{ Protocol, Address string }{"wsh", ":0"}
-	if got, want := lf.Addrs[0], def; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
-
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
-	if err := fl.Parse([]string{
-		"--v23.tcp.address=172.0.0.1:10", // Will default to protocol "wsh".
-		"--v23.tcp.protocol=tcp", "--v23.tcp.address=127.0.0.10:34",
-		"--v23.tcp.protocol=ws4", "--v23.tcp.address=127.0.0.10:44",
-		"--v23.tcp.protocol=tcp6", "--v23.tcp.address=172.0.0.100:100"}, nil); err != nil {
-		t.Fatalf("unexpected error: %s", err)
-	}
-	lf = fl.ListenFlags()
-	if got, want := len(lf.Addrs), 4; got != want {
-		t.Fatalf("got %d, want %d", got, want)
-	}
-	for i, p := range []string{"wsh", "tcp", "ws4", "tcp6"} {
-		if got, want := lf.Addrs[i].Protocol, p; got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
-	}
-	for i, p := range []string{"172.0.0.1:10", "127.0.0.10:34", "127.0.0.10:44", "172.0.0.100:100"} {
-		if got, want := lf.Addrs[i].Address, p; got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
-	}
-}
-
 func TestDuplicateFlags(t *testing.T) {
 	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
 	if err := fl.Parse([]string{

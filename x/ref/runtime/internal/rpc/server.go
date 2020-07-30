@@ -49,7 +49,6 @@ var (
 )
 
 const (
-	reconnectDelay   = 50 * time.Millisecond
 	bidiProtocol     = "bidi"
 	relistenInterval = time.Second
 )
@@ -329,7 +328,6 @@ func (s *server) Status() rpc.ServerStatus {
 			break
 		}
 	}
-
 	mgrStat := s.flowMgr.Status()
 	status.ListenErrors = mgrStat.ListenErrors
 	status.ProxyErrors = mgrStat.ProxyErrors
@@ -342,13 +340,16 @@ func (s *server) resolveToEndpoint(ctx *context.T, address string) ([]naming.End
 	ns := v23.GetNamespace(ctx)
 	ns.FlushCacheEntry(ctx, address)
 	resolved, err := ns.Resolve(ctx, address)
+
 	if err != nil {
 		return nil, err
 	}
+
 	// An empty set of protocols means all protocols...
 	if resolved.Servers, err = filterAndOrderServers(resolved.Servers, s.preferredProtocols); err != nil {
 		return nil, err
 	}
+
 	var eps []naming.Endpoint
 	for _, n := range resolved.Names() {
 		address, suffix := naming.SplitAddressName(n)
@@ -371,6 +372,10 @@ func (s *server) createEndpoint(lep naming.Endpoint) naming.Endpoint {
 	return lep
 }
 
+func (s *server) proxyListen(ctx *context.T, name string, ep naming.Endpoint) (<-chan struct{}, error) {
+	return s.flowMgr.ProxyListen(ctx, name, ep)
+}
+
 func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	defer s.Unlock()
 	s.Lock()
@@ -378,7 +383,14 @@ func (s *server) listen(ctx *context.T, listenSpec rpc.ListenSpec) {
 	lctx, s.stopListens = context.WithCancel(ctx)
 	if len(listenSpec.Proxy) > 0 {
 		s.active.Add(1)
-		go s.connectToProxy(lctx, listenSpec.Proxy)
+		go func() {
+			pm := newProxyManager(s,
+				listenSpec.Proxy,
+				listenSpec.ProxyPolicy,
+				listenSpec.ProxyLimit)
+			pm.manageProxyConnections(ctx)
+			s.active.Done()
+		}()
 	}
 	for _, addr := range listenSpec.Addrs {
 		if len(addr.Address) > 0 {
@@ -424,30 +436,6 @@ func (s *server) relisten(ctx *context.T, protocol, address string, ch <-chan st
 		}
 		if ch, err = s.flowMgr.Listen(ctx, protocol, address); err != nil {
 			s.ctx.Infof("Listen(%q, %q, ...) failed: %v", protocol, address, err)
-		}
-	}
-}
-
-func (s *server) connectToProxy(ctx *context.T, name string) {
-	defer s.active.Done()
-	for delay := reconnectDelay; ; delay = nextDelay(delay) {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-		time.Sleep(delay - reconnectDelay)
-		eps, err := s.resolveToEndpoint(ctx, name)
-		if err != nil {
-			s.ctx.VI(2).Infof("resolveToEndpoint(%q) failed: %v", name, err)
-			continue
-		}
-		var ch <-chan struct{}
-		if ch, err = s.tryProxyEndpoints(ctx, name, eps); err != nil {
-			s.ctx.Errorf("ProxyListen(%q) failed: %v. Reconnecting...", eps, err)
-		} else {
-			<-ch
-			delay = reconnectDelay / 2
 		}
 	}
 }

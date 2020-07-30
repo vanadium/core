@@ -117,6 +117,36 @@ func (f AddressChooserFunc) ChooseAddresses(protocol string, candidates []net.Ad
 	return f(protocol, candidates)
 }
 
+// ProxyPolicy determines how a server will chose an rpc proxy when multiple
+// are available, that is when multiple proxy instances are mounted under the
+// same name.
+type ProxyPolicy int
+
+const (
+	// UseFirstProxy will use the first proxy addresse found in the set returned
+	// by the mounttable.
+	UseFirstProxy ProxyPolicy = iota
+	// UseRandomProxy will randomly select from proxy addresses returned by
+	// the mounttable.
+	UseRandomProxy
+	// UseAllProxies will simultaneously use all of the proxies returned by the
+	// mounttable or up the number specified by ProxyLimit.
+	UseAllProxies
+)
+
+// String implements fmt.Stringer.
+func (pp ProxyPolicy) String() string {
+	switch pp {
+	case UseFirstProxy:
+		return "first"
+	case UseRandomProxy:
+		return "random"
+	case UseAllProxies:
+		return "all"
+	}
+	return ""
+}
+
 // ListenSpec specifies the information required to create a set of listening
 // network endpoints for a server and, optionally, the name of a proxy
 // to use in conjunction with that listener.
@@ -126,6 +156,14 @@ type ListenSpec struct {
 
 	// The name of a proxy to be used to proxy connections to this listener.
 	Proxy string
+
+	// The policy to use when selecting from multiple proxies.
+	ProxyPolicy ProxyPolicy
+
+	// ProxyLimit sets a limit on the number of proxies to be used when the
+	// ProxyPolicy is UseAllProxies. 0 implies no limit, ie. all available
+	// proxies are used.
+	ProxyLimit int
 
 	// The address chooser to use for determining preferred publishing
 	// addresses.

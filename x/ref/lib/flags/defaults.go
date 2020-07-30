@@ -8,17 +8,20 @@ import (
 	"os"
 	"sync"
 
+	"v.io/v23/rpc"
 	"v.io/x/ref"
 )
 
 var (
-	// all defaults are GUARDED_BY defaultMu
+	// All GUARDED_BY defaultMu
 	defaultNamespaceRoots     []string
 	defaultCredentialsDir     string
 	defaultI18nCatalogue      string
 	defaultProtocol           string
 	defaultHostPort           string
 	defaultProxy              string
+	defaultProxyPolicy        rpc.ProxyPolicy
+	defaultProxyLimit         int
 	defaultPermissionsLiteral string
 	defaultPermissions        map[string]string
 	defaultVirtualized        VirtualizedFlagDefaults
@@ -68,6 +71,36 @@ func DefaultProxy() string {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
 	return defaultProxy
+}
+
+// SetDefaultProxyPolicy sets the default proxy used when --v23.proxy.policy
+// is not provided. It must be called before flags are parsed for it to take effect.
+func SetDefaultProxyPolicy(p rpc.ProxyPolicy) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultProxyPolicy = p
+}
+
+// DefaultProxyPolicy returns the current default proxy policy.
+func DefaultProxyPolicy() rpc.ProxyPolicy {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultProxyPolicy
+}
+
+// SetDefaultProxyLimit sets the default proxy used when --v23.proxy.limit
+// is not provided. It must be called before flags are parsed for it to take effect.
+func SetDefaultProxyLimit(l int) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultProxyLimit = l
+}
+
+// DefaultProxyLimit returns the current default proxy limit.
+func DefaultProxyLimit() int {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultProxyLimit
 }
 
 // SetDefaultNamespaceRoots sets the default value for --v23.namespace.root

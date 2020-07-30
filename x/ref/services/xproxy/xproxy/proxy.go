@@ -19,8 +19,9 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
-
 	"v.io/x/ref/lib/publisher"
+	"v.io/x/ref/lib/stats"
+	"v.io/x/ref/lib/stats/counter"
 )
 
 const (
@@ -30,7 +31,32 @@ const (
 	relistenInterval = time.Second
 )
 
-type proxy struct {
+type perDirection struct {
+	msgs  *counter.Counter
+	bytes *counter.Counter
+}
+
+type perServerStats struct {
+	requests *counter.Counter
+	to, from perDirection
+}
+
+func newPerServerStats(ep string) *perServerStats {
+	return &perServerStats{
+		requests: stats.NewCounter(naming.Join(ep, "requests")),
+		to: perDirection{
+			msgs:  stats.NewCounter(naming.Join(ep, "to", "msgs")),
+			bytes: stats.NewCounter(naming.Join(ep, "to", "bytes")),
+		},
+		from: perDirection{
+			msgs:  stats.NewCounter(naming.Join(ep, "from", "msgs")),
+			bytes: stats.NewCounter(naming.Join(ep, "from", "bytes")),
+		},
+	}
+}
+
+// Proxy represents an instance of a proxy service.
+type Proxy struct {
 	m      flow.Manager
 	pub    *publisher.T
 	closed chan struct{}
@@ -40,20 +66,22 @@ type proxy struct {
 	mu                 sync.Mutex
 	listeningEndpoints map[string]naming.Endpoint   // keyed by endpoint string
 	proxyEndpoints     map[string][]naming.Endpoint // keyed by proxy address
+	proxiedStats       map[string]*perServerStats   // stats for each server that is listening through us.
 	proxiedProxies     []flow.Flow                  // flows of proxies that are listening through us.
 	proxiedServers     []flow.Flow                  // flows of servers that are listening through us.
 	closing            bool
 }
 
-//nolint:golint // API change required.
-func New(ctx *context.T, name string, auth security.Authorizer) (*proxy, error) {
+// New returns a new instance of Proxy.
+func New(ctx *context.T, name string, auth security.Authorizer) (*Proxy, error) {
 	mgr, err := v23.NewFlowManager(ctx, 0)
 	if err != nil {
 		return nil, err
 	}
-	p := &proxy{
+	p := &Proxy{
 		m:                  mgr,
 		auth:               auth,
+		proxiedStats:       make(map[string]*perServerStats),
 		proxyEndpoints:     make(map[string][]naming.Endpoint),
 		listeningEndpoints: make(map[string]naming.Endpoint),
 		pub:                publisher.New(ctx, v23.GetNamespace(ctx), time.Minute),
@@ -97,11 +125,12 @@ func New(ctx *context.T, name string, auth security.Authorizer) (*proxy, error) 
 	return p, nil
 }
 
-func (p *proxy) Closed() <-chan struct{} {
+// Closed returns a channel that will be closed when the proxy is shutdown.
+func (p *Proxy) Closed() <-chan struct{} {
 	return p.closed
 }
 
-func (p *proxy) updateEndpointsLoop(ctx *context.T, changed <-chan struct{}) {
+func (p *Proxy) updateEndpointsLoop(ctx *context.T, changed <-chan struct{}) {
 	defer p.wg.Done()
 	for changed != nil {
 		<-changed
@@ -111,7 +140,7 @@ func (p *proxy) updateEndpointsLoop(ctx *context.T, changed <-chan struct{}) {
 	}
 }
 
-func (p *proxy) updateListeningEndpoints(ctx *context.T, leps []naming.Endpoint) {
+func (p *Proxy) updateListeningEndpoints(ctx *context.T, leps []naming.Endpoint) {
 	p.mu.Lock()
 	endpoints := make(map[string]naming.Endpoint)
 	for _, ep := range leps {
@@ -141,7 +170,7 @@ func (p *proxy) updateListeningEndpoints(ctx *context.T, leps []naming.Endpoint)
 	}
 }
 
-func (p *proxy) sendUpdatesLocked(ctx *context.T) {
+func (p *Proxy) sendUpdatesLocked(ctx *context.T) {
 	// Send updates to the proxies and servers that are listening through us.
 	// TODO(suharshs): Should we send these in parallel?
 	i := 0
@@ -190,12 +219,15 @@ func setDiff(a, b map[string]naming.Endpoint) map[string]naming.Endpoint {
 	return ret
 }
 
-func (p *proxy) ListeningEndpoints() []naming.Endpoint {
+// ListeningEndpoints returns the endpoints the proxy is listening on.
+func (p *Proxy) ListeningEndpoints() []naming.Endpoint {
 	// TODO(suharshs): Return other struct information here as well.
 	return p.m.Status().Endpoints
 }
 
-func (p *proxy) MultipleProxyEndpoints() []naming.Endpoint {
+/*
+// MultipleProxyEndpoints returns the endpoints that the proxy is forwarding.
+func (p *Proxy) MultipleProxyEndpoints() []naming.Endpoint {
 	var eps []naming.Endpoint
 	p.mu.Lock()
 	for _, v := range p.proxyEndpoints {
@@ -204,8 +236,9 @@ func (p *proxy) MultipleProxyEndpoints() []naming.Endpoint {
 	p.mu.Unlock()
 	return eps
 }
+*/
 
-func (p *proxy) handleConnection(ctx *context.T, f flow.Flow) {
+func (p *Proxy) handleConnection(ctx *context.T, f flow.Flow) {
 	defer p.wg.Done()
 	msg, err := readMessage(ctx, f)
 	if err != nil {
@@ -233,6 +266,8 @@ func (p *proxy) handleConnection(ctx *context.T, f flow.Flow) {
 		p.mu.Unlock()
 	case *message.ProxyServerRequest:
 		p.mu.Lock()
+		stats := p.statsForLocked(f.RemoteEndpoint())
+		stats.requests.Incr(1)
 		err = p.replyToServerLocked(ctx, f)
 		if err == nil {
 			p.proxiedServers = append(p.proxiedServers, f)
@@ -246,7 +281,7 @@ func (p *proxy) handleConnection(ctx *context.T, f flow.Flow) {
 	}
 }
 
-func (p *proxy) listenLoop(ctx *context.T) {
+func (p *Proxy) listenLoop(ctx *context.T) {
 	defer p.wg.Done()
 	for {
 		f, err := p.m.Accept(ctx)
@@ -265,7 +300,17 @@ func (p *proxy) listenLoop(ctx *context.T) {
 	}
 }
 
-func (p *proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) error {
+func (p *Proxy) statsForLocked(ep naming.Endpoint) *perServerStats {
+	rid := ep.RoutingID.String()
+	stats := p.proxiedStats[rid]
+	if stats == nil {
+		stats = newPerServerStats(rid)
+		p.proxiedStats[rid] = stats
+	}
+	return stats
+}
+
+func (p *Proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) error {
 	fout, err := p.dialNextHop(ctx, f, m)
 	if err != nil {
 		f.Close()
@@ -276,40 +321,47 @@ func (p *proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) erro
 		p.mu.Unlock()
 		return NewErrProxyAlreadyClosed(ctx)
 	}
+	// Configure stats.
+	stats := p.statsForLocked(m.PeerRemoteEndpoint)
 	f.DisableFragmentation()
 	fout.DisableFragmentation()
 	p.wg.Add(2)
 	p.mu.Unlock()
-	go p.forwardLoop(ctx, f, fout)
-	go p.forwardLoop(ctx, fout, f)
+	go p.forwardLoop(ctx, f, fout, &stats.to)
+	go p.forwardLoop(ctx, fout, f, &stats.from)
 	return nil
 }
 
-func (p *proxy) forwardLoop(ctx *context.T, fin, fout flow.Flow) {
+func (p *Proxy) forwardLoop(ctx *context.T, fin, fout flow.Flow, ps *perDirection) {
 	defer p.wg.Done()
-	if err := framedCopy(fin, fout); err != nil && err != io.EOF {
+	n, err := framedCopy(fin, fout)
+	if err != nil && err != io.EOF {
 		ctx.Errorf("Error forwarding: %v", err)
 	}
+	ps.msgs.Incr(1)
+	ps.bytes.Incr(n)
 	fin.Close()
 	fout.Close()
 }
 
-func framedCopy(fin, fout flow.Flow) error {
+func framedCopy(fin, fout flow.Flow) (int64, error) {
+	total := 0
 	for {
 		msg, err := fin.ReadMsg()
+		total += len(msg)
 		if err != nil {
 			if err == io.EOF {
 				_, err = fout.WriteMsg(msg)
 			}
-			return err
+			return int64(total), err
 		}
 		if _, err = fout.WriteMsg(msg); err != nil {
-			return err
+			return int64(total), err
 		}
 	}
 }
 
-func (p *proxy) dialNextHop(ctx *context.T, f flow.Flow, m *message.Setup) (flow.Flow, error) {
+func (p *Proxy) dialNextHop(ctx *context.T, f flow.Flow, m *message.Setup) (flow.Flow, error) {
 	var (
 		rid naming.RoutingID
 		err error
@@ -340,7 +392,7 @@ func (p *proxy) dialNextHop(ctx *context.T, f flow.Flow, m *message.Setup) (flow
 	return fout, writeMessage(ctx, m, fout)
 }
 
-func (p *proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
+func (p *Proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	if err := p.authorizeFlow(ctx, f); err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
 			//nolint:errcheck
@@ -360,7 +412,7 @@ func (p *proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	return writeMessage(ctx, &message.ProxyResponse{Endpoints: eps}, f)
 }
 
-func (p *proxy) authorizeFlow(ctx *context.T, f flow.Flow) error {
+func (p *Proxy) authorizeFlow(ctx *context.T, f flow.Flow) error {
 	call := security.NewCall(&security.CallParams{
 		LocalPrincipal:   v23.GetPrincipal(ctx),
 		LocalBlessings:   f.LocalBlessings(),
@@ -372,7 +424,7 @@ func (p *proxy) authorizeFlow(ctx *context.T, f flow.Flow) error {
 	return p.auth.Authorize(ctx, call)
 }
 
-func (p *proxy) replyToProxyLocked(ctx *context.T, f flow.Flow) error {
+func (p *Proxy) replyToProxyLocked(ctx *context.T, f flow.Flow) error {
 	// Add the routing id of the incoming proxy to the routes. The routing id of the
 	// returned endpoint doesn't matter because it will eventually be replaced
 	// by a server's rid by some later proxy.
@@ -389,7 +441,7 @@ func (p *proxy) replyToProxyLocked(ctx *context.T, f flow.Flow) error {
 	return writeMessage(ctx, &message.ProxyResponse{Endpoints: eps}, f)
 }
 
-func (p *proxy) returnEndpointsLocked(ctx *context.T, rid naming.RoutingID, route string) ([]naming.Endpoint, error) {
+func (p *Proxy) returnEndpointsLocked(ctx *context.T, rid naming.RoutingID, route string) ([]naming.Endpoint, error) {
 	eps := p.m.Status().Endpoints
 	for _, peps := range p.proxyEndpoints {
 		eps = append(eps, peps...)
@@ -416,7 +468,7 @@ func (p *proxy) returnEndpointsLocked(ctx *context.T, rid naming.RoutingID, rout
 // If err != nil, relisten will attempt to listen on the protocol, address immediately, since
 // the previous attempt failed.
 // Otherwise, ch will be non-nil, and relisten will attempt to relisten once ch is closed.
-func (p *proxy) relisten(ctx *context.T, protocol, address string, ch <-chan struct{}, err error) {
+func (p *Proxy) relisten(ctx *context.T, protocol, address string, ch <-chan struct{}, err error) {
 	defer p.wg.Done()
 	for {
 		if err != nil {
@@ -440,7 +492,7 @@ func (p *proxy) relisten(ctx *context.T, protocol, address string, ch <-chan str
 	}
 }
 
-func (p *proxy) connectToProxy(ctx *context.T, name string) {
+func (p *Proxy) connectToProxy(ctx *context.T, name string) {
 	defer p.wg.Done()
 	for delay := reconnectDelay; ; delay = nextDelay(delay) {
 		time.Sleep(delay - reconnectDelay)
@@ -462,7 +514,7 @@ func (p *proxy) connectToProxy(ctx *context.T, name string) {
 	}
 }
 
-func (p *proxy) tryProxyEndpoints(ctx *context.T, name string, eps []naming.Endpoint) error {
+func (p *Proxy) tryProxyEndpoints(ctx *context.T, name string, eps []naming.Endpoint) error {
 	var lastErr error
 	for _, ep := range eps {
 		if lastErr = p.proxyListen(ctx, name, ep); lastErr == nil {
@@ -472,7 +524,7 @@ func (p *proxy) tryProxyEndpoints(ctx *context.T, name string, eps []naming.Endp
 	return lastErr
 }
 
-func (p *proxy) proxyListen(ctx *context.T, name string, ep naming.Endpoint) error {
+func (p *Proxy) proxyListen(ctx *context.T, name string, ep naming.Endpoint) error {
 	defer p.updateProxyEndpoints(ctx, name, nil)
 	f, err := p.m.Dial(ctx, ep, proxyAuthorizer{}, 0)
 	if err != nil {
@@ -504,7 +556,7 @@ func nextDelay(delay time.Duration) time.Duration {
 	return delay
 }
 
-func (p *proxy) updateProxyEndpoints(ctx *context.T, address string, eps []naming.Endpoint) {
+func (p *Proxy) updateProxyEndpoints(ctx *context.T, address string, eps []naming.Endpoint) {
 	p.mu.Lock()
 	if len(eps) > 0 {
 		p.proxyEndpoints[address] = eps

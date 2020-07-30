@@ -30,7 +30,10 @@ import (
 	"golang.org/x/net/trace"
 )
 
-const pkgPath = "v.io/x/ref/runtime/internal/rpc"
+const (
+	pkgPath        = "v.io/x/ref/runtime/internal/rpc"
+	reconnectDelay = 50 * time.Millisecond
+)
 
 func reg(id, msg string) verror.IDAction {
 	// Note: the error action is never used and is instead computed
