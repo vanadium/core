@@ -64,6 +64,13 @@ func SetDefaultProxy(s string) {
 	defaultProxy = s
 }
 
+// DefaultProxy returns the current default proxy.
+func DefaultProxy() string {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultProxy
+}
+
 // SetDefaultProxyPolicy sets the default proxy used when --v23.proxy.policy
 // is not provided. It must be called before flags are parsed for it to take effect.
 func SetDefaultProxyPolicy(p rpc.ProxyPolicy) {
@@ -72,26 +79,19 @@ func SetDefaultProxyPolicy(p rpc.ProxyPolicy) {
 	defaultProxyPolicy = p
 }
 
+// DefaultProxyPolicy returns the current default proxy policy.
+func DefaultProxyPolicy() rpc.ProxyPolicy {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	return defaultProxyPolicy
+}
+
 // SetDefaultProxyLimit sets the default proxy used when --v23.proxy.limit
 // is not provided. It must be called before flags are parsed for it to take effect.
 func SetDefaultProxyLimit(l int) {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
 	defaultProxyLimit = l
-}
-
-// DefaultProxy returns the current default proxy.
-func DefaultProxy() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultProxy
-}
-
-// DefaultProxyPolicy returns the current default proxy policy.
-func DefaultProxyPolicy() rpc.ProxyPolicy {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultProxyPolicy
 }
 
 // DefaultProxyLimit returns the current default proxy limit.

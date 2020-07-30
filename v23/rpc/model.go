@@ -134,6 +134,19 @@ const (
 	UseAllProxies
 )
 
+// String implements fmt.Stringer.
+func (pp ProxyPolicy) String() string {
+	switch pp {
+	case UseFirstProxy:
+		return "first"
+	case UseRandomProxy:
+		return "random"
+	case UseAllProxies:
+		return "all"
+	}
+	return ""
+}
+
 // ListenSpec specifies the information required to create a set of listening
 // network endpoints for a server and, optionally, the name of a proxy
 // to use in conjunction with that listener.

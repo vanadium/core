@@ -4,7 +4,10 @@
 
 package flags
 
-import "v.io/x/ref/lib/flags/sitedefaults"
+import (
+	"v.io/v23/rpc"
+	"v.io/x/ref/lib/flags/sitedefaults"
+)
 
 var defaultValues = []map[string]interface{}{}
 
@@ -32,6 +35,7 @@ func init() {
 		"protocol":           "wsh",
 		"hostPort":           ":0",
 		"proxy":              "",
+		"proxyPolicy":        rpc.UseRandomProxy,
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
 	})
@@ -43,6 +47,7 @@ func init() {
 	defaultProtocol = merged["protocol"].(string)
 	defaultHostPort = merged["hostPort"].(string)
 	defaultProxy = merged["proxy"].(string)
+	defaultProxyPolicy = merged["proxyPolicy"].(rpc.ProxyPolicy)
 	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
 	defaultPermissions = merged["permissions"].(map[string]string)
 }

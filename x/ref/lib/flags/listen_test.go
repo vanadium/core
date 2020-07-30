@@ -141,8 +141,8 @@ func TestListenProxyFlags(t *testing.T) {
 	}
 	lf := fl.ListenFlags()
 
-	if got, want := lf.ProxyPolicy.Value(), rpc.UseFirstProxy; got != want {
-		t.Errorf("got %q, want %q", got, want)
+	if got, want := lf.ProxyPolicy.Value(), rpc.UseRandomProxy; got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 
 	if got, want := lf.ProxyLimit, 0; got != want {

@@ -171,15 +171,7 @@ func (policy *proxyPolicyFlagVar) Get() interface{} {
 }
 
 func (policy *proxyPolicyFlagVar) String() string {
-	switch policy.policy {
-	case rpc.UseFirstProxy:
-		return "first"
-	case rpc.UseRandomProxy:
-		return "random"
-	case rpc.UseAllProxies:
-		return "all"
-	}
-	return ""
+	return policy.policy.String()
 }
 
 func (policy *proxyPolicyFlagVar) Set(s string) error {

@@ -224,10 +224,13 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 			"v23.proxy.limit":  DefaultProxyLimit(),
 		}, map[string]string{
 			"v23.proxy":        "",
-			"v23.proxy.policy": "first",
-			"v23.proxy.limit":  "0",
+			"v23.proxy.policy": "",
+			"v23.proxy.limit":  "",
 		},
 	)
+	// TODO(cnicolaou): remove this statement when flagvar.RegisterFlagsInStruct
+	//   correctly handles enum defaults.
+	f.ProxyPolicy.policy = DefaultProxyPolicy()
 	if err != nil {
 		// panic since this is clearly a programming error.
 		panic(err)
