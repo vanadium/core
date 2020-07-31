@@ -41,7 +41,6 @@ func (t *TCPProtocolFlag) Set(s string) error {
 	default:
 		return verror.New(errNotTCP, nil, s)
 	}
-
 }
 
 // String implements flag.Value.
@@ -152,36 +151,34 @@ type ListenAddrs []struct {
 type ListenFlags struct {
 	Addrs       ListenAddrs
 	Proxy       string             `cmdline:"v23.proxy,,object name of proxy service to use to export services across network boundaries"`
-	ProxyPolicy proxyPolicyFlagVar `cmdline:"v23.proxy.policy,first,policy for choosing from a set of available proxy instances"`
+	ProxyPolicy ProxyPolicyFlag    `cmdline:"v23.proxy.policy,first,policy for choosing from a set of available proxy instances"`
 	ProxyLimit  int                `cmdline:"v23.proxy.limit,0,'max number of proxies to connect to when the policy is to connect to all proxies; 0 implies all proxies'"`
 	Protocol    tcpProtocolFlagVar `cmdline:"v23.tcp.protocol,,protocol to listen with"`
 	Addresses   ipHostPortFlagVar  `cmdline:"v23.tcp.address,,address to listen on"`
 }
 
-type proxyPolicyFlagVar struct {
-	policy rpc.ProxyPolicy
+type ProxyPolicyFlag rpc.ProxyPolicy
+
+func (policy ProxyPolicyFlag) Value() rpc.ProxyPolicy {
+	return rpc.ProxyPolicy(policy)
 }
 
-func (policy *proxyPolicyFlagVar) Value() rpc.ProxyPolicy {
-	return policy.policy
+func (policy ProxyPolicyFlag) Get() interface{} {
+	return policy
 }
 
-func (policy *proxyPolicyFlagVar) Get() interface{} {
-	return policy.policy
+func (policy ProxyPolicyFlag) String() string {
+	return rpc.ProxyPolicy(policy).String()
 }
 
-func (policy *proxyPolicyFlagVar) String() string {
-	return policy.policy.String()
-}
-
-func (policy *proxyPolicyFlagVar) Set(s string) error {
+func (policy *ProxyPolicyFlag) Set(s string) error {
 	switch s {
 	case "first":
-		policy.policy = rpc.UseFirstProxy
+		*policy = ProxyPolicyFlag(rpc.UseFirstProxy)
 	case "random":
-		policy.policy = rpc.UseRandomProxy
+		*policy = ProxyPolicyFlag(rpc.UseRandomProxy)
 	case "all":
-		policy.policy = rpc.UseAllProxies
+		*policy = ProxyPolicyFlag(rpc.UseAllProxies)
 	default:
 		return fmt.Errorf("unsupported proxy policy: %v, must be one of 'first', 'random' or 'all'", s)
 	}

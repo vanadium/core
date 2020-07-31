@@ -379,7 +379,9 @@ func TestRefreshAlreadySetDefaults(t *testing.T) {
 	}
 	flags.SetDefaultNamespaceRoots("/128.1.1.1:2")
 	flags.SetDefaultHostPort("128.0.0.1:11")
-	fl.Parse([]string{}, nil) //nolint:errcheck
+	if err := fl.Parse([]string{}, nil); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
 	rtf = fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)

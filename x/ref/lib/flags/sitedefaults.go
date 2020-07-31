@@ -36,8 +36,12 @@ func init() {
 		"hostPort":           ":0",
 		"proxy":              "",
 		"proxyPolicy":        rpc.UseRandomProxy,
+		"proxyLimit":         0,
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
+		"virtualized": VirtualizedFlagDefaults{
+			DiscoverPublicIP: true,
+		},
 	})
 	registerDefaults(sitedefaults.Defaults)
 	merged := mergeDefaultValues()
@@ -48,9 +52,8 @@ func init() {
 	defaultHostPort = merged["hostPort"].(string)
 	defaultProxy = merged["proxy"].(string)
 	defaultProxyPolicy = merged["proxyPolicy"].(rpc.ProxyPolicy)
+	defaultProxyLimit = merged["proxyLimit"].(int)
 	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
 	defaultPermissions = merged["permissions"].(map[string]string)
-	defaultVirtualized = VirtualizedFlagDefaults{
-		PublicProtocol: merged["protocol"].(string),
-	}
+	defaultVirtualized = merged["virtualized"].(VirtualizedFlagDefaults)
 }

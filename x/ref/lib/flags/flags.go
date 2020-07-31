@@ -6,6 +6,7 @@ package flags
 
 import (
 	"flag"
+	"fmt"
 	"strings"
 
 	"v.io/v23/verror"
@@ -60,7 +61,7 @@ const (
 	// v23.virtualized.discover-public-address
 	// v23.virtualized.tcp.public-protocol
 	// v23.virtualized.tcp.public-address
-	// v23.virtualized.literal-dns-name
+	// v23.virtualized.dns.public-name
 	Virtualized
 )
 
@@ -218,7 +219,7 @@ func NewListenFlags() *ListenFlags {
 	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
-	lf.ProxyPolicy.policy = DefaultProxyPolicy()
+	lf.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
 	lf.ProxyLimit = DefaultProxyLimit()
 	return lf
 }
@@ -240,7 +241,7 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	)
 	// TODO(cnicolaou): remove this statement when flagvar.RegisterFlagsInStruct
 	//   correctly handles enum defaults.
-	f.ProxyPolicy.policy = DefaultProxyPolicy()
+	f.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
 	if err != nil {
 		// panic since this is clearly a programming error.
 		panic(err)
@@ -259,16 +260,12 @@ func CreateAndRegisterVirtualizedFlags(fs *flag.FlagSet) *VirtualizedFlags {
 func NewVirtualizedFlags() *VirtualizedFlags {
 	def := DefaultVirtualizedFlagValues()
 	vf := &VirtualizedFlags{}
-	var ipHostPortFlag IPHostPortFlag
-	if err := ipHostPortFlag.Set(def.PublicAddress); err != nil {
-		panic(err)
-	}
-	var protocolFlag TCPProtocolFlag
-	if err := protocolFlag.Set(def.PublicProtocol); err != nil {
-		panic(err)
-	}
-	vf.PublicProtocol = tcpProtocolFlagVar{validator: protocolFlag}
-	vf.PublicAddress = ipHostPortFlagVar{validator: ipHostPortFlag}
+	vf.Dockerized = def.Dockerized
+	vf.DiscoverPublicIP = def.DiscoverPublicIP
+	vf.LiteralDNSName = def.LiteralDNSName
+	vf.VirtualizationProvider = def.VirtualizationProvider
+	vf.PublicProtocol.Set(def.PublicProtocol)
+	vf.PublicAddress.Set(def.PublicAddress)
 	return vf
 }
 
@@ -276,21 +273,25 @@ func NewVirtualizedFlags() *VirtualizedFlags {
 // the supplied FlagSet.
 func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) {
 	def := DefaultVirtualizedFlagValues()
+	address := &IPHostPortFlag{}
+	address.Set(def.PublicAddress)
+	protocol := &TCPProtocolFlag{}
+	protocol.Set(def.PublicProtocol)
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
 			"v23.virtualized.docker":                  def.Dockerized,
 			"v23.virtualized.provider":                def.VirtualizationProvider,
 			"v23.virtualized.discover-public-address": def.DiscoverPublicIP,
-			"v23.virtualized.tcp.public-protocol":     def.PublicProtocol,
-			"v23.virtualized.tcp.public-address":      def.PublicAddress,
-			"v23.virtualized.literal-dns-name":        def.LiteralDNSName,
+			"v23.virtualized.tcp.public-protocol":     protocol,
+			"v23.virtualized.tcp.public-address":      address,
+			"v23.virtualized.dns.public-name":         def.LiteralDNSName,
 		}, map[string]string{
 			"v23.virtualized.docker":                  "false",
 			"v23.virtualized.provider":                "",
 			"v23.virtualized.discover-public-address": "true",
 			"v23.virtualized.tcp.public-protocol":     "",
 			"v23.virtualized.tcp.public-address":      "",
-			"v23.virtualized.literal-dns-name":        "",
+			"v23.virtualized.dns.public-name":         "",
 		},
 	)
 	if err != nil {
@@ -320,32 +321,6 @@ func CreateAndRegister(fs *flag.FlagSet, groups ...FlagGroup) *Flags {
 		}
 	}
 	return f
-}
-
-func refreshDefaults(f *Flags) {
-	for _, g := range f.groups {
-		switch v := g.(type) {
-		case *RuntimeFlags:
-			if v.NamespaceRoots.isDefault {
-				v.NamespaceRoots.Roots = DefaultNamespaceRoots()
-			}
-		case *ListenFlags:
-			if !v.Protocol.isSet {
-				v.Protocol.validator.Set(defaultProtocol) //nolint:errcheck
-			}
-			if !v.Addresses.isSet {
-				v.Addresses.validator.Set(defaultHostPort) //nolint:errcheck
-			}
-
-		case *VirtualizedFlags:
-			if !v.PublicProtocol.isSet {
-				v.PublicProtocol.validator.Set(defaultVirtualized.PublicProtocol) //nolint:errcheck
-			}
-			if !v.PublicAddress.isSet {
-				v.PublicAddress.validator.Set(defaultVirtualized.PublicAddress) //nolint:errcheck
-			}
-		}
-	}
 }
 
 // RuntimeFlags returns the Runtime flag subset stored in its Flags
@@ -380,15 +355,6 @@ func (f *Flags) ListenFlags() ListenFlags {
 	return ListenFlags{}
 }
 
-func (f *Flags) VirtualizedFlags() VirtualizedFlags {
-	if p := f.groups[Virtualized]; p != nil {
-		vf := p.(*VirtualizedFlags)
-		n := *vf
-		return n
-	}
-	return VirtualizedFlags{}
-}
-
 // PermissionsFlags returns a copy of the Permissions flag group stored in
 // Flags. This copy will contain default values if the Permissions flag group
 // was not specified when CreateAndRegister was called. The HasGroup method can
@@ -398,6 +364,21 @@ func (f *Flags) PermissionsFlags() PermissionsFlags {
 		return *(p.(*PermissionsFlags))
 	}
 	return PermissionsFlags{}
+}
+
+// VirtualizedFlags returns a copy of the Virtualized flag group stored in Flags.
+// This copy will contain default values if the Virtualized flag group
+// was not specified when CreateAndRegister was called. The HasGroup
+// method can be used for testing to see if any given group was configured.
+func (f *Flags) VirtualizedFlags() VirtualizedFlags {
+	if p := f.groups[Virtualized]; p != nil {
+		vf := p.(*VirtualizedFlags)
+		n := *vf
+		n.PublicAddress.Set(vf.PublicAddress.String())
+		n.PublicProtocol.Set(vf.PublicProtocol.String())
+		return n
+	}
+	return VirtualizedFlags{}
 }
 
 // HasGroup returns group if the supplied FlagGroup has been created
@@ -413,19 +394,25 @@ func (f *Flags) Args() []string {
 }
 
 // Parse parses the supplied args, as per flag.Parse.  The config can optionally
-// specify flag overrides.
+// specify flag overrides. Any default values modified since the last call to
+// Parse will used.
 func (f *Flags) Parse(args []string, cfg map[string]string) error {
 	// Refresh any defaults that may have changed.
-	refreshDefaults(f)
+	if err := refreshDefaults(f); err != nil {
+		return err
+	}
 
 	// TODO(cnicolaou): implement a single env var 'VANADIUM_OPTS'
 	// that can be used to specify any command line.
 	if err := f.FlagSet.Parse(args); err != nil {
 		return err
 	}
+
 	for k, v := range cfg {
 		if f.FlagSet.Lookup(k) != nil {
-			f.FlagSet.Set(k, v) //nolint:errcheck
+			if err := f.FlagSet.Set(k, v); err != nil {
+				return fmt.Errorf("failed to set flag %v to %v: %v", k, v, err)
+			}
 		}
 	}
 	return nil
