@@ -44,6 +44,11 @@ const (
 	// initialization will fail if the GCE metadata is inaccessible.
 	EnvExpectGoogleComputeEngine = "V23_EXPECT_GOOGLE_COMPUTE_ENGINE"
 
+	// EnvVirtualizationProvider is the name of the environment variable
+	// naming the virtualization/cloud provider that the process is
+	// expected to be run under. It replaces EnvExpectGoogleComputeEngine.
+	EnvVirtualizationProvider = "V23_VIRTUALIZATION_PROVIDER"
+
 	// A comma-separated list of path names to export disk stats for.
 	EnvSysStatsDiskPaths = "V23_SYS_STATS_DISK_PATHS"
 

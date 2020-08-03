@@ -119,14 +119,20 @@ type VtraceFlags struct {
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
 // with the supplied flag.FlagSet.
-func CreateAndRegisterRuntimeFlags(fs *flag.FlagSet) *RuntimeFlags {
-	rf := NewRuntimeFlags()
-	RegisterRuntimeFlags(fs, rf)
-	return rf
+func CreateAndRegisterRuntimeFlags(fs *flag.FlagSet) (*RuntimeFlags, error) {
+	rf, err := NewRuntimeFlags()
+	if err != nil {
+		return nil, err
+	}
+	err = RegisterRuntimeFlags(fs, rf)
+	if err != nil {
+		return nil, err
+	}
+	return rf, nil
 }
 
 // NewRuntimeFlags creates a new RuntimeFlags with appropriate defaults.
-func NewRuntimeFlags() *RuntimeFlags {
+func NewRuntimeFlags() (*RuntimeFlags, error) {
 	rf := &RuntimeFlags{}
 	_, roots := ref.EnvNamespaceRoots()
 	if len(roots) == 0 {
@@ -144,12 +150,12 @@ func NewRuntimeFlags() *RuntimeFlags {
 		LogLevel:       0,
 		CollectRegexp:  "",
 	}
-	return rf
+	return rf, nil
 }
 
 // RegisterRuntimeFlags registers the supplied RuntimeFlags variable with
 // the supplied FlagSet.
-func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
+func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) error {
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
 			"v23.credentials":    DefaultCredentialsDir(),
@@ -161,72 +167,76 @@ func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) {
 			"v23.i18n-catalogue": "",
 		},
 	)
-	if err != nil {
-		// panic since this is clearly a programming error.
-		panic(err)
-	}
+	return err
 }
 
 // CreateAndRegisterPermissionsFlags creates and registers a PermissionsFlags
 // with the supplied FlagSet.
-func CreateAndRegisterPermissionsFlags(fs *flag.FlagSet) *PermissionsFlags {
-	pf := NewPermissionsFlags()
-	RegisterPermissionsFlags(fs, pf)
-	return pf
+func CreateAndRegisterPermissionsFlags(fs *flag.FlagSet) (*PermissionsFlags, error) {
+	pf, err := NewPermissionsFlags()
+	if err != nil {
+		return nil, err
+	}
+	err = RegisterPermissionsFlags(fs, pf)
+	if err != nil {
+		return nil, err
+	}
+	return pf, nil
 }
 
 // NewPermissionsFlags creates a PermissionsFlags with appropriate defaults.
-func NewPermissionsFlags() *PermissionsFlags {
+func NewPermissionsFlags() (*PermissionsFlags, error) {
 	return &PermissionsFlags{
 		Files:   PermissionsFlag{files: DefaultPermissions()},
 		Literal: PermissionsLiteralFlag{permissions: DefaultPermissionsLiteral()},
-	}
+	}, nil
 }
 
 // RegisterPermissionsFlags registers the supplied PermissionsFlags with
 // the supplied FlagSet.
-func RegisterPermissionsFlags(fs *flag.FlagSet, f *PermissionsFlags) {
-	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+func RegisterPermissionsFlags(fs *flag.FlagSet, f *PermissionsFlags) error {
+	return flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		nil,
 		map[string]string{
 			"v23.permissions.file": "",
 		})
-	if err != nil {
-		// panic since this is clearly a programming error.
-		panic(err)
-	}
 }
 
 // CreateAndRegisterListenFlags creates and registers the ListenFlags
 // group with the supplied flag.FlagSet.
-func CreateAndRegisterListenFlags(fs *flag.FlagSet) *ListenFlags {
-	lf := NewListenFlags()
-	RegisterListenFlags(fs, lf)
-	return lf
+func CreateAndRegisterListenFlags(fs *flag.FlagSet) (*ListenFlags, error) {
+	lf, err := NewListenFlags()
+	if err != nil {
+		return nil, err
+	}
+	if err := RegisterListenFlags(fs, lf); err != nil {
+		return nil, err
+	}
+	return lf, nil
 }
 
 // NewListenFlags creates a new ListenFlags with appropriate defaults.
-func NewListenFlags() *ListenFlags {
+func NewListenFlags() (*ListenFlags, error) {
 	lf := &ListenFlags{}
 	var ipHostPortFlag IPHostPortFlag
 	if err := ipHostPortFlag.Set(DefaultHostPort()); err != nil {
-		panic(err)
+		return nil, err
 	}
 	var protocolFlag TCPProtocolFlag
 	if err := protocolFlag.Set(DefaultProtocol()); err != nil {
-		panic(err)
+		return nil, err
 	}
 	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
 	lf.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
 	lf.ProxyLimit = DefaultProxyLimit()
-	return lf
+	return lf, nil
 }
 
 // RegisterListenFlags registers the supplied ListenFlags variable with
 // the supplied FlagSet.
-func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
+func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) error {
 	f.Addresses.flags = f
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
@@ -242,36 +252,35 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	// TODO(cnicolaou): remove this statement when flagvar.RegisterFlagsInStruct
 	//   correctly handles enum defaults.
 	f.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
-	if err != nil {
-		// panic since this is clearly a programming error.
-		panic(err)
-	}
+	return err
 }
 
 // CreateAndRegisterVirtualizedFlags creates and registers the VirtualizedFlags
 // group with the supplied flag.FlagSet.
-func CreateAndRegisterVirtualizedFlags(fs *flag.FlagSet) *VirtualizedFlags {
-	lf := NewVirtualizedFlags()
-	RegisterVirtualizedFlags(fs, lf)
-	return lf
+func CreateAndRegisterVirtualizedFlags(fs *flag.FlagSet) (*VirtualizedFlags, error) {
+	lf, err := NewVirtualizedFlags()
+	if err != nil {
+		return nil, err
+	}
+	err = RegisterVirtualizedFlags(fs, lf)
+	if err != nil {
+		return nil, err
+	}
+	return lf, nil
 }
 
 // NewVirtualizedFlags creates a new VirtualizedFlags with appropriate defaults.
-func NewVirtualizedFlags() *VirtualizedFlags {
-	def := DefaultVirtualizedFlagValues()
+func NewVirtualizedFlags() (*VirtualizedFlags, error) {
 	vf := &VirtualizedFlags{}
-	vf.Dockerized = def.Dockerized
-	vf.DiscoverPublicIP = def.DiscoverPublicIP
-	vf.LiteralDNSName = def.LiteralDNSName
-	vf.VirtualizationProvider = def.VirtualizationProvider
-	vf.PublicProtocol.Set(def.PublicProtocol)
-	vf.PublicAddress.Set(def.PublicAddress)
-	return vf
+	if err := initVirtualizedFlagsFromDefaults(vf); err != nil {
+		return nil, err
+	}
+	return vf, nil
 }
 
 // RegisterVirtualizedFlags registers the supplied VirtualizedFlags variable with
 // the supplied FlagSet.
-func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) {
+func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) error {
 	def := DefaultVirtualizedFlagValues()
 	address := &IPHostPortFlag{}
 	address.Set(def.PublicAddress)
@@ -279,48 +288,47 @@ func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) {
 	protocol.Set(def.PublicProtocol)
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
-			"v23.virtualized.docker":                  def.Dockerized,
-			"v23.virtualized.provider":                def.VirtualizationProvider,
-			"v23.virtualized.discover-public-address": def.DiscoverPublicIP,
-			"v23.virtualized.tcp.public-protocol":     protocol,
-			"v23.virtualized.tcp.public-address":      address,
-			"v23.virtualized.dns.public-name":         def.LiteralDNSName,
+			"v23.virtualized.docker":              def.Dockerized,
+			"v23.virtualized.provider":            def.VirtualizationProvider,
+			"v23.virtualized.tcp.public-protocol": protocol,
+			"v23.virtualized.tcp.public-address":  address,
+			"v23.virtualized.dns.public-name":     def.LiteralDNSName,
 		}, map[string]string{
-			"v23.virtualized.docker":                  "false",
-			"v23.virtualized.provider":                "",
-			"v23.virtualized.discover-public-address": "true",
-			"v23.virtualized.tcp.public-protocol":     "",
-			"v23.virtualized.tcp.public-address":      "",
-			"v23.virtualized.dns.public-name":         "",
+			"v23.virtualized.docker":              "",
+			"v23.virtualized.provider":            "",
+			"v23.virtualized.tcp.public-protocol": "",
+			"v23.virtualized.tcp.public-address":  "",
+			"v23.virtualized.dns.public-name":     "",
 		},
 	)
-	if err != nil {
-		// panic since this is clearly a programming error.
-		panic(err)
-	}
+	return err
 }
 
 // CreateAndRegister creates a new set of flag groups as specified by the
 // supplied flag group parameters and registers them with the supplied
 // flag.FlagSet.
-func CreateAndRegister(fs *flag.FlagSet, groups ...FlagGroup) *Flags {
+func CreateAndRegister(fs *flag.FlagSet, groups ...FlagGroup) (*Flags, error) {
 	if len(groups) == 0 {
-		return nil
+		return nil, nil
 	}
 	f := &Flags{FlagSet: fs, groups: make(map[FlagGroup]interface{})}
 	for _, g := range groups {
+		var err error
 		switch g {
 		case Runtime:
-			f.groups[Runtime] = CreateAndRegisterRuntimeFlags(fs)
+			f.groups[Runtime], err = CreateAndRegisterRuntimeFlags(fs)
 		case Listen:
-			f.groups[Listen] = CreateAndRegisterListenFlags(fs)
+			f.groups[Listen], err = CreateAndRegisterListenFlags(fs)
 		case Permissions:
-			f.groups[Permissions] = CreateAndRegisterPermissionsFlags(fs)
+			f.groups[Permissions], err = CreateAndRegisterPermissionsFlags(fs)
 		case Virtualized:
-			f.groups[Virtualized] = CreateAndRegisterVirtualizedFlags(fs)
+			f.groups[Virtualized], err = CreateAndRegisterVirtualizedFlags(fs)
+		}
+		if err != nil {
+			return nil, err
 		}
 	}
-	return f
+	return f, nil
 }
 
 // RuntimeFlags returns the Runtime flag subset stored in its Flags
@@ -378,7 +386,7 @@ func (f *Flags) VirtualizedFlags() VirtualizedFlags {
 		n.PublicProtocol.Set(vf.PublicProtocol.String())
 		return n
 	}
-	return VirtualizedFlags{}
+	return VirtualizedFlags{VirtualizationProvider: Native}
 }
 
 // HasGroup returns group if the supplied FlagGroup has been created

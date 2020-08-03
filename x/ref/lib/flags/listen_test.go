@@ -95,7 +95,10 @@ func TestIPHostPortFlag(t *testing.T) {
 }
 
 func TestListenFlags(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -110,7 +113,10 @@ func TestListenFlags(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{
 		"--v23.tcp.address=172.0.0.1:10", // Will default to protocol "wsh".
 		"--v23.tcp.protocol=tcp", "--v23.tcp.address=127.0.0.10:34",
@@ -135,7 +141,10 @@ func TestListenFlags(t *testing.T) {
 }
 
 func TestListenProxyFlags(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -149,7 +158,10 @@ func TestListenProxyFlags(t *testing.T) {
 		t.Errorf("got %q, want %q", got, want)
 	}
 
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{"--v23.proxy=proxy-server", "--v23.proxy.policy=all", "--v23.proxy.limit=3"}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -164,7 +176,10 @@ func TestListenProxyFlags(t *testing.T) {
 	if got, want := lf.ProxyLimit, 3; got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{"--v23.proxy=proxy-server", "--v23.proxy.policy=any"}, nil); err == nil {
 		t.Fatalf("expected error: %s", err)
 	}

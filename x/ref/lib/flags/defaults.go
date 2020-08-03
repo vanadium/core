@@ -17,7 +17,7 @@ import (
 var (
 	// All GUARDED_BY defaultMu
 	// Initial values that override these are set by the init function in
-	// sitedefaults.go. Any defaults set here will be overriden by those
+	// sitedefaults.go. Any defaults set here will be overridden by those
 	// set in sitedefaults.go. Note that the sitedefaults package is
 	// is a submodule that can be maintained separately by each site via a
 	// 'replace' statement in go.mod to provide site specific defaults.
@@ -61,53 +61,68 @@ func hasNewDefault(ptr interface{}) bool {
 	return defaultExplicitlySet[ptr]
 }
 
+func refreshRuntimeFlagsFromDefaults(v *RuntimeFlags) error {
+	if v.NamespaceRoots.isDefault {
+		// Allow for reading the defaults from the environment.
+		v.NamespaceRoots.Roots = DefaultNamespaceRoots()
+	}
+	if hasNewDefault(&defaultCredentialsDir) {
+		v.Credentials = defaultCredentialsDir
+	}
+	if hasNewDefault(&defaultI18nCatalogue) {
+		v.I18nCatalogue = defaultI18nCatalogue
+	}
+	return nil
+}
+
+func refreshListenFlagsFromDefaults(v *ListenFlags) error {
+	if !v.Protocol.isSet {
+		if err := v.Protocol.validator.Set(defaultProtocol); err != nil {
+			return err
+		}
+	}
+	if !v.Addresses.isSet {
+		if err := v.Addresses.validator.Set(defaultHostPort); err != nil {
+			return err
+		}
+	}
+	if hasNewDefault(&defaultProxy) {
+		v.Proxy = defaultProxy
+	}
+	if hasNewDefault(&defaultProxyPolicy) {
+		v.ProxyPolicy = ProxyPolicyFlag(defaultProxyPolicy)
+	}
+	if hasNewDefault(&defaultProxyLimit) {
+		v.ProxyLimit = defaultProxyLimit
+	}
+	return nil
+}
+
+func initVirtualizedFlagsFromDefaults(v *VirtualizedFlags) error {
+	v.Dockerized = defaultVirtualized.Dockerized
+	v.LiteralDNSName = defaultVirtualized.LiteralDNSName
+	v.VirtualizationProvider = VirtualizationProvider(defaultVirtualized.VirtualizationProvider)
+	if err := v.PublicProtocol.Set(defaultVirtualized.PublicProtocol); err != nil {
+		return err
+	}
+	return v.PublicAddress.Set(defaultVirtualized.PublicAddress)
+}
+
 func refreshDefaults(f *Flags) error {
 	for _, g := range f.groups {
+		var err error
 		switch v := g.(type) {
 		case *RuntimeFlags:
-			if v.NamespaceRoots.isDefault {
-				// Allow for reading the defaults from the environment.
-				v.NamespaceRoots.Roots = DefaultNamespaceRoots()
-			}
-			if hasNewDefault(&defaultCredentialsDir) {
-				v.Credentials = defaultCredentialsDir
-			}
-			if hasNewDefault(&defaultI18nCatalogue) {
-				v.I18nCatalogue = defaultI18nCatalogue
-			}
+			err = refreshRuntimeFlagsFromDefaults(v)
 		case *ListenFlags:
-			if !v.Protocol.isSet {
-				if err := v.Protocol.validator.Set(defaultProtocol); err != nil {
-					return err
-				}
-			}
-			if !v.Addresses.isSet {
-				if err := v.Addresses.validator.Set(defaultHostPort); err != nil {
-					return err
-				}
-			}
-			if hasNewDefault(&defaultProxy) {
-				v.Proxy = defaultProxy
-			}
-			if hasNewDefault(&defaultProxyPolicy) {
-				v.ProxyPolicy = ProxyPolicyFlag(defaultProxyPolicy)
-			}
-			if hasNewDefault(&defaultProxyLimit) {
-				v.ProxyLimit = defaultProxyLimit
-			}
+			err = refreshListenFlagsFromDefaults(v)
 		case *VirtualizedFlags:
 			if hasNewDefault(&defaultVirtualized) {
-				v.Dockerized = defaultVirtualized.Dockerized
-				v.DiscoverPublicIP = defaultVirtualized.DiscoverPublicIP
-				v.LiteralDNSName = defaultVirtualized.LiteralDNSName
-				v.VirtualizationProvider = defaultVirtualized.VirtualizationProvider
-				if err := v.PublicProtocol.Set(defaultVirtualized.PublicProtocol); err != nil {
-					return err
-				}
-				if err := v.PublicAddress.Set(defaultVirtualized.PublicAddress); err != nil {
-					return err
-				}
+				err = initVirtualizedFlagsFromDefaults(v)
 			}
+		}
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -316,9 +331,20 @@ func SetDefaultVirtualizedFlagValues(values VirtualizedFlagDefaults) {
 }
 
 // DefaultVirtualizedFlagValues returns the default values to use for
-// the Virtualized flags group.
+// the Virtualized flags group taking V23_VIRTUALIZATION_PROVIDER into account.
+// In addition, if V23_EXPECT_GOOGLE_COMPUTE_ENGINE is set then GCP is assumed
+// to be the virtualization provider. V23_EXPECT_GOOGLE_COMPUTE_ENGINE will
+// be removed in the near future (as of 7/30/20). V23_VIRTUALIZATION_PROVIDER will
+// override the effect of V23_EXPECT_GOOGLE_COMPUTE_ENGINE.
 func DefaultVirtualizedFlagValues() VirtualizedFlagDefaults {
 	defaultMu.Lock()
 	defer defaultMu.Unlock()
-	return defaultVirtualized
+	def := defaultVirtualized
+	if p := os.Getenv(ref.EnvExpectGoogleComputeEngine); len(p) > 0 {
+		def.VirtualizationProvider = string(GCP)
+	}
+	if p := os.Getenv(ref.EnvVirtualizationProvider); len(p) > 0 {
+		def.VirtualizationProvider = p
+	}
+	return def
 }

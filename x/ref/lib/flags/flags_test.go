@@ -17,11 +17,11 @@ import (
 
 func TestFlags(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	if flags.CreateAndRegister(fs) != nil {
-		t.Fatalf("should have returned a nil value")
+	if fl, err := flags.CreateAndRegister(fs); fl != nil || err != nil {
+		t.Fatalf("should have returned nil and no error")
 	}
-	fl := flags.CreateAndRegister(fs, flags.Runtime)
-	if fl == nil {
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime)
+	if err != nil {
 		t.Errorf("should have succeeded")
 	}
 	creds := "creddir"
@@ -48,7 +48,10 @@ func TestFlags(t *testing.T) {
 
 func TestPermissionsFlags(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	if err != nil {
+		t.Fatal(err)
+	}
 	args := []string{"--v23.permissions.file=runtime:foo.json", "--v23.permissions.file=bar:bar.json", "--v23.permissions.file=baz:bar:baz.json"}
 	fl.Parse(args, nil) //nolint:errcheck
 	permsf := fl.PermissionsFlags()
@@ -69,7 +72,10 @@ func TestPermissionsFlags(t *testing.T) {
 
 func TestPermissionsLiteralFlags(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	if err != nil {
+		t.Fatal(err)
+	}
 	args := []string{`--v23.permissions.literal={"x":"hedgehog"}`,
 		`--v23.permissions.literal={"y":"badger"}`}
 	fl.Parse(args, nil) //nolint:errcheck
@@ -85,7 +91,10 @@ func TestPermissionsLiteralFlags(t *testing.T) {
 
 func TestPermissionsLiteralBoth(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+	if err != nil {
+		t.Fatal(err)
+	}
 	args := []string{"--v23.permissions.file=runtime:foo.json", `--v23.permissions.literal={"x":"hedgehog"}`}
 	fl.Parse(args, nil) //nolint:errcheck
 	permsf := fl.PermissionsFlags()
@@ -107,8 +116,13 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 		{[]string{`--v23.permissions.literal={"x":"hedgehog"}`}, true},
 	} {
 		fs := flag.NewFlagSet("test", flag.ContinueOnError)
-		fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
-		fl.Parse(tc.args, nil) //nolint:errcheck
+		fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Permissions)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := fl.Parse(tc.args, nil); err != nil {
+			t.Fatal(err)
+		}
 		permsf = fl.PermissionsFlags()
 		if got, want := permsf.ExplicitlySpecified(), tc.set; got != want {
 			t.Errorf("got %v, want %v", got, want)
@@ -119,11 +133,13 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 func TestFlagError(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
 	fs.SetOutput(ioutil.Discard)
-	fl := flags.CreateAndRegister(fs, flags.Runtime)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
 	addr := "192.168.10.1:0"
 	args := []string{"--xxxv23.tcp.address=" + addr, "not an arg"}
-	err := fl.Parse(args, nil) //nolint:errcheck
-	if err == nil {
+	if err := fl.Parse(args, nil); err == nil {
 		t.Fatalf("expected this to fail!")
 	}
 	if got, want := len(fl.Args()), 1; got != want {
@@ -131,7 +147,10 @@ func TestFlagError(t *testing.T) {
 	}
 
 	fs = flag.NewFlagSet("test", flag.ContinueOnError)
-	fl = flags.CreateAndRegister(fs, flags.Permissions)
+	fl, err = flags.CreateAndRegister(fs, flags.Permissions)
+	if err != nil {
+		t.Fatal(err)
+	}
 	args = []string{"--v23.permissions.file=noname"}
 	err = fl.Parse(args, nil)
 	if err == nil {
@@ -140,7 +159,10 @@ func TestFlagError(t *testing.T) {
 }
 
 func TestFlagsGroups(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime, flags.Listen)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime, flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got, want := fl.HasGroup(flags.Listen), true; got != want {
 		t.Errorf("got %t, want %t", got, want)
 	}
@@ -172,7 +194,10 @@ func TestEnvVars(t *testing.T) {
 	defer os.Setenv(rootEnvVar0, oldroot0)
 
 	os.Setenv(ref.EnvCredentials, "bar")
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -191,7 +216,10 @@ func TestEnvVars(t *testing.T) {
 
 	os.Setenv(rootEnvVar, "a:1")
 	os.Setenv(rootEnvVar0, "a:2")
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	fl, err = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -220,7 +248,10 @@ func TestDefaults(t *testing.T) {
 	os.Setenv(rootEnvVar, "")
 	os.Setenv(rootEnvVar0, "")
 
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime, flags.Permissions)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime, flags.Permissions)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -240,7 +271,10 @@ func TestDefaults(t *testing.T) {
 }
 
 func TestDuplicateFlags(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := fl.Parse([]string{
 		"--v23.tcp.address=172.0.0.1:10", "--v23.tcp.address=172.0.0.1:10", "--v23.tcp.address=172.0.0.1:34",
 		"--v23.tcp.protocol=tcp", "--v23.tcp.address=172.0.0.1:10", "--v23.tcp.address=172.0.0.1:10", "--v23.tcp.address=172.0.0.1:34",
@@ -275,7 +309,10 @@ func TestDuplicateFlags(t *testing.T) {
 		t.Fatalf("got %#v, want %#v", got, want)
 	}
 
-	fl = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	fl, err = flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if err := fl.Parse([]string{"--v23.namespace.root=ab", "--v23.namespace.root=xy", "--v23.namespace.root=ab"}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -295,7 +332,10 @@ func TestConfig(t *testing.T) {
 	var testFlag1, testFlag2 string
 	fs.StringVar(&testFlag1, "test_flag1", "default1", "")
 	fs.StringVar(&testFlag2, "test_flag2", "default2", "")
-	fl := flags.CreateAndRegister(fs, flags.Runtime)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
 	args := []string{
 		"--v23.namespace.root=argRoot1",
 		"--v23.namespace.root=argRoot2",
@@ -338,24 +378,34 @@ func TestRefreshDefaults(t *testing.T) {
 	nsRoot := "/127.0.0.1:8101"
 	hostPort := "128.0.0.1:11"
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// It's possible to set defaults after CreateAndRegister, but before Parse.
 	flags.SetDefaultNamespaceRoots(nsRoot)
 	flags.SetDefaultHostPort(hostPort)
 	flags.SetDefaultProtocol("tcp6")
-	fl.Parse([]string{}, nil) //nolint:errcheck
+	if err := fl.Parse([]string{}, nil); err != nil {
+		t.Fatal(err)
+	}
+
 	rtf := fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{nsRoot}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
 	lf := fl.ListenFlags()
 	want := flags.ListenAddrs{struct{ Protocol, Address string }{"tcp6", hostPort}}
 	if got := lf.Addrs; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
 	changed := "/128.1.1.1:1"
 	flags.SetDefaultNamespaceRoots(changed)
-	fl.Parse([]string{}, nil) //nolint:errcheck
+	if err := fl.Parse([]string{}, nil); err != nil {
+		t.Fatal(err)
+	}
 	rtf = fl.RuntimeFlags()
 	if got, want := rtf.NamespaceRoots.Roots, []string{changed}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -369,7 +419,10 @@ func TestRefreshAlreadySetDefaults(t *testing.T) {
 	defer flags.SetDefaultProtocol("wsh")
 
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fl := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
+	fl, err := flags.CreateAndRegister(fs, flags.Runtime, flags.Listen)
+	if err != nil {
+		t.Fatal(err)
+	}
 	nsRoot := "/127.0.1.1:10"
 	hostPort := "127.0.0.1:10"
 	fl.Parse([]string{"--v23.namespace.root", nsRoot, "--v23.tcp.address", hostPort}, nil) //nolint:errcheck

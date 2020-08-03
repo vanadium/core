@@ -9,13 +9,16 @@ import (
 )
 
 func TestVirtualizedFlags(t *testing.T) {
-	fl := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Virtualized)
+	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Virtualized)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got, want := fl.HasGroup(flags.Virtualized), true; got != want {
 		t.Errorf("got %t, want %t", got, want)
 	}
 
 	expected := flags.VirtualizedFlags{
-		DiscoverPublicIP: true,
+		PublicProtocol: flags.TCPProtocolFlag{Protocol: "wsh"},
 	}
 
 	if got, want := fl.VirtualizedFlags(), expected; !reflect.DeepEqual(got, want) {
@@ -25,7 +28,6 @@ func TestVirtualizedFlags(t *testing.T) {
 	if err := fl.Parse([]string{
 		"--v23.virtualized.docker=true",
 		"--v23.virtualized.provider=foobar",
-		"--v23.virtualized.discover-public-address=false",
 		"--v23.virtualized.tcp.public-protocol=tcp",
 		"--v23.virtualized.tcp.public-address=8.8.2.2:17",
 		"--v23.virtualized.dns.public-name=my-load-balancer",
@@ -36,7 +38,6 @@ func TestVirtualizedFlags(t *testing.T) {
 	expected = flags.VirtualizedFlags{
 		Dockerized:             true,
 		VirtualizationProvider: "foobar",
-		DiscoverPublicIP:       false,
 		LiteralDNSName:         "my-load-balancer",
 	}
 	expected.PublicProtocol.Set("tcp")
@@ -44,5 +45,4 @@ func TestVirtualizedFlags(t *testing.T) {
 	if got, want := fl.VirtualizedFlags(), expected; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %#v, want %#v", got, want)
 	}
-
 }
