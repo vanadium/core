@@ -157,7 +157,7 @@ func TestV23MultipleProxyd(t *testing.T) {
 	}
 }
 
-func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresses []naming.MountedServer, clientCreds, serverCreds *v23test.Credentials) (bool, *bytes.Buffer) {
+func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresses []naming.MountedServer, clientCreds, serverCreds *v23test.Credentials) (int, *bytes.Buffer) {
 	// Make sure that there isn't a server already running and mounted.
 	ns := v23.GetNamespace(sh.Ctx)
 	ns.CacheCtl(naming.DisableCache(true))
@@ -203,8 +203,10 @@ func tryRandomProxySelection(t *testing.T, sh *v23test.Shell, proxyStatsAddresse
 		}
 	}
 
-	// Return true if the chosen proxy was not the first one.
-	return len(used) == 1 && used[0] != 0, serverLog
+	if len(used) > 0 {
+		return used[0], serverLog
+	}
+	return -1, serverLog
 }
 
 func TestV23MultipleProxydRandom(t *testing.T) {
@@ -230,12 +232,19 @@ func TestV23MultipleProxydRandom(t *testing.T) {
 	// This will either succeed or be timed out!
 	serverLogs := []*bytes.Buffer{}
 	start := time.Now()
+	prev := -1
 	for {
-		ok, serverLog := tryRandomProxySelection(t, sh, proxyStatsAddresses, clientCreds, serverCreds)
+		used, serverLog := tryRandomProxySelection(t, sh, proxyStatsAddresses, clientCreds, serverCreds)
+		if used < 0 {
+			t.Errorf("failed to select a proxy")
+			continue
+		}
+		t.Logf("Random proxy policy selected proxy: %v", used)
 		serverLogs = append(serverLogs, serverLog)
-		if ok {
+		if prev >= 0 && prev != used {
 			break
 		}
+		prev = used
 		if d := time.Since(start); d > time.Minute {
 			t.Errorf("timing out after %v and %v attempts", d, len(serverLogs))
 			break
