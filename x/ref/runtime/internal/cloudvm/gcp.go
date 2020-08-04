@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"v.io/x/ref/lib/stats"
+	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 )
 
 // This URL returns the external IP address assigned to the local GCE instance.
@@ -26,19 +27,31 @@ import (
 // external IP address, if present. Otherwise, the body is empty.
 // See https://developers.google.com/compute/docs/metadata for details.
 // They are variables so that tests may override them.
-const (
-	gcpInternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
-	gcpExternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/ip"
-	gcpProjectIDPath  = "/computeMetadata/v1/project/project-id"
-	gcpZonePath       = "/computeMetadata/v1/instance/zone"
-)
 
-var (
-	gcpExternalURL  = "http://metadata.google.internal" + gcpExternalIPPath
-	gcpInternalURL  = "http://metadata.google.internal" + gcpInternalIPPath
-	gcpProjectIDURL = "http://metadata.google.internal" + gcpProjectIDPath
-	gcpZoneIDUrl    = "http://metadata.google.internal" + gcpZonePath
-)
+var gcpHost string = cloudpaths.GCPHost
+
+// SetGCPMetadataHost can be used to override the default metadata host
+// for testing purposes.
+func SetGCPMetadataHost(host string) {
+	gcpHost = host
+}
+
+func gcpMetadataHost() string {
+	return gcpHost
+}
+
+func gcpExternalURL() string {
+	return gcpMetadataHost() + cloudpaths.GCPExternalIPPath
+}
+func gcpInternalURL() string {
+	return gcpMetadataHost() + cloudpaths.GCPInternalIPPath
+}
+func gcpProjectIDURL() string {
+	return gcpMetadataHost() + cloudpaths.GCPProjectIDPath
+}
+func gcpZoneIDUrl() string {
+	return gcpMetadataHost() + cloudpaths.GCPZonePath
+}
 
 const (
 
@@ -71,8 +84,8 @@ func gcpInit(ctx context.Context, timeout time.Duration) bool {
 	vars := []struct {
 		name, url string
 	}{
-		{GCPProjectIDStatName, gcpProjectIDURL},
-		{GCPRegionStatName, gcpZoneIDUrl},
+		{GCPProjectIDStatName, gcpProjectIDURL()},
+		{GCPRegionStatName, gcpZoneIDUrl()},
 	}
 	for _, v := range vars {
 		body, err := gcpGetMeta(ctx, v.url, timeout)
@@ -86,12 +99,12 @@ func gcpInit(ctx context.Context, timeout time.Duration) bool {
 
 // GCPPublicAddrs returns the current public addresses of this GCP instance.
 func GCPPublicAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return gcpGetAddr(ctx, gcpExternalURL, timeout)
+	return gcpGetAddr(ctx, gcpExternalURL(), timeout)
 }
 
 // GCPPrivateAddrs returns the current private addresses of this GCP instance.
 func GCPPrivateAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return gcpGetAddr(ctx, gcpInternalURL, timeout)
+	return gcpGetAddr(ctx, gcpInternalURL(), timeout)
 }
 
 func gcpGetAddr(ctx context.Context, url string, timeout time.Duration) ([]net.Addr, error) {

@@ -38,7 +38,7 @@ func TestVirtualizedFlags(t *testing.T) {
 	expected = flags.VirtualizedFlags{
 		Dockerized:             true,
 		VirtualizationProvider: "foobar",
-		LiteralDNSName:         "my-load-balancer",
+		PublicDNSName:          "my-load-balancer",
 	}
 	expected.PublicProtocol.Set("tcp")
 	expected.PublicAddress.Set("8.8.2.2:17")

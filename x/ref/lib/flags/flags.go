@@ -288,17 +288,19 @@ func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) error {
 	protocol.Set(def.PublicProtocol)
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
-			"v23.virtualized.docker":              def.Dockerized,
-			"v23.virtualized.provider":            def.VirtualizationProvider,
-			"v23.virtualized.tcp.public-protocol": protocol,
-			"v23.virtualized.tcp.public-address":  address,
-			"v23.virtualized.dns.public-name":     def.LiteralDNSName,
+			"v23.virtualized.docker":                      def.Dockerized,
+			"v23.virtualized.provider":                    def.VirtualizationProvider,
+			"v23.virtualized.tcp.public-protocol":         protocol,
+			"v23.virtualized.tcp.public-address":          address,
+			"v23.virtualized.dns.public-name":             def.PublicDNSName,
+			"v23.virtualized.advertise-private-addresses": def.AdvertisePrivateAddresses,
 		}, map[string]string{
-			"v23.virtualized.docker":              "",
-			"v23.virtualized.provider":            "",
-			"v23.virtualized.tcp.public-protocol": "",
-			"v23.virtualized.tcp.public-address":  "",
-			"v23.virtualized.dns.public-name":     "",
+			"v23.virtualized.docker":                      "",
+			"v23.virtualized.provider":                    "",
+			"v23.virtualized.tcp.public-protocol":         "",
+			"v23.virtualized.tcp.public-address":          "",
+			"v23.virtualized.dns.public-name":             "",
+			"v23.virtualized.advertise-private-addresses": "",
 		},
 	)
 	return err

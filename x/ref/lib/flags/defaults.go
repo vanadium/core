@@ -100,7 +100,7 @@ func refreshListenFlagsFromDefaults(v *ListenFlags) error {
 
 func initVirtualizedFlagsFromDefaults(v *VirtualizedFlags) error {
 	v.Dockerized = defaultVirtualized.Dockerized
-	v.LiteralDNSName = defaultVirtualized.LiteralDNSName
+	v.PublicDNSName = defaultVirtualized.PublicDNSName
 	v.VirtualizationProvider = VirtualizationProvider(defaultVirtualized.VirtualizationProvider)
 	if err := v.PublicProtocol.Set(defaultVirtualized.PublicProtocol); err != nil {
 		return err

@@ -18,28 +18,33 @@ import (
 	"time"
 
 	"v.io/x/ref/lib/stats"
+	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 )
 
-// This URL returns the external IP address assigned to the local GCE instance.
-// If a HTTP GET request fails for any reason, this is not a GCE instance. If
-// the result of the GET request doesn't contain a "Metadata-Flavor: Google"
-// header, it is also not a GCE instance. The body of the document contains the
-// external IP address, if present. Otherwise, the body is empty.
-// See https://developers.google.com/compute/docs/metadata for details.
-// They are variables so that tests may override them.
-const (
-	awsTokenPath       = "/latest/api/token"
-	awsIdentityDocPath = "/latest/dynamic/instance-identity/document"
-	awsPublicIPPath    = "/latest/meta-data/public-ipv4"
-	awsPrivateIPPath   = "/latest/meta-data/local-ipv4"
-)
+var awsHost string = cloudpaths.AWSHost
 
-var (
-	awsExternalURL    = "http://169.254.169.254" + awsPublicIPPath
-	awsInternalURL    = "http://169.254.169.254" + awsPrivateIPPath
-	awsIdentityDocURL = "http://169.254.169.254" + awsIdentityDocPath
-	awsTokenURL       = "http://169.254.169.254" + awsTokenPath
-)
+// SetAWSMetadataHost can be used to override the default metadata host
+// for testing purposes.
+func SetAWSMetadataHost(host string) {
+	awsHost = host
+}
+
+func awsMetadataHost() string {
+	return awsHost
+}
+
+func awsExternalURL() string {
+	return awsMetadataHost() + cloudpaths.AWSPublicIPPath
+}
+func awsInternalURL() string {
+	return awsMetadataHost() + cloudpaths.AWSPrivateIPPath
+}
+func awsIdentityDocURL() string {
+	return awsMetadataHost() + cloudpaths.AWSIdentityDocPath
+}
+func awsTokenURL() string {
+	return awsMetadataHost() + cloudpaths.AWSTokenPath
+}
 
 const (
 	// AWSAccountIDStatName is the name of a v.io/x/ref/lib/stats
@@ -67,17 +72,17 @@ func OnAWS(ctx context.Context, timeout time.Duration) bool {
 
 // AWSPublicAddrs returns the current public IP of this AWS instance.
 func AWSPublicAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, awsExternalURL, timeout)
+	return awsGetAddr(ctx, awsExternalURL(), timeout)
 }
 
 // AWSPrivateAddrs returns the current private Addrs of this AWS instance.
 func AWSPrivateAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, awsInternalURL, timeout)
+	return awsGetAddr(ctx, awsInternalURL(), timeout)
 }
 
 func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, error) {
 	client := &http.Client{Timeout: timeout}
-	token, err := awsSetIMDSv2Token(ctx, awsTokenURL, timeout)
+	token, err := awsSetIMDSv2Token(ctx, awsTokenURL(), timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +100,6 @@ func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, err
 		return nil, err
 	}
 	if server := resp.Header["Server"]; len(server) != 1 || server[0] != "EC2ws" {
-		fmt.Printf("AWS HEADER ERR: %v\n", err)
 		return nil, fmt.Errorf("wrong headers.")
 	}
 	return ioutil.ReadAll(resp.Body)
@@ -104,7 +108,7 @@ func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, err
 // awsInit returns true if it can access AWS project metadata. It also
 // creates two stats variables with the account ID and zone.
 func awsInit(ctx context.Context, timeout time.Duration) bool {
-	body, err := awsGet(ctx, awsIdentityDocURL, timeout)
+	body, err := awsGet(ctx, awsIdentityDocURL(), timeout)
 	if err != nil {
 		return false
 	}

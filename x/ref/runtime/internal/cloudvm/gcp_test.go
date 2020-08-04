@@ -6,50 +6,18 @@ package cloudvm
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"net/http"
 	"testing"
 	"time"
 
 	"v.io/x/ref/lib/stats"
+	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
+	"v.io/x/ref/runtime/internal/cloudvm/cloudvmtest"
 )
 
-func startGCPMetadataServer(t *testing.T) (net.Addr, func()) {
-	l, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	respond := func(w http.ResponseWriter, r *http.Request, format string, args ...interface{}) {
-		w.Header().Add("Metadata-Flavor", "Google")
-		if m := r.Header["Metadata-Flavor"]; len(m) != 1 || m[0] != "Google" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-		fmt.Fprintf(w, format, args...)
-	}
-	http.HandleFunc(gcpProjectIDPath, func(w http.ResponseWriter, r *http.Request) {
-		respond(w, r, wellKnowAccount)
-	})
-	http.HandleFunc(gcpZonePath, func(w http.ResponseWriter, r *http.Request) {
-		respond(w, r, wellKnowRegion)
-	})
-	http.HandleFunc(gcpExternalIPPath, func(w http.ResponseWriter, r *http.Request) {
-		respond(w, r, wellKnownPrivateIP)
-	})
-	http.HandleFunc(gcpInternalIPPath, func(w http.ResponseWriter, r *http.Request) {
-		respond(w, r, wellKnownPrivateIP)
-	})
-	http.HandleFunc(gcpExternalIPPath+"/noip", func(w http.ResponseWriter, r *http.Request) {
-		respond(w, r, "")
-	})
-	go http.Serve(l, nil)
-	host := "http://" + l.Addr().String()
-	gcpExternalURL = host + gcpExternalIPPath
-	gcpInternalURL = host + gcpInternalIPPath
-	gcpProjectIDURL = host + gcpProjectIDPath
-	gcpZoneIDUrl = host + gcpZonePath
-	return l.Addr(), func() { l.Close() }
+func startGCPMetadataServer(t *testing.T) (string, func()) {
+	host, close := cloudvmtest.StartGCPMetadataServer(t)
+	SetGCPMetadataHost(host)
+	return host, close
 }
 
 func testStats(t *testing.T, idStat, regionStat string) {
@@ -69,7 +37,7 @@ func testStats(t *testing.T, idStat, regionStat string) {
 	}
 }
 
-func TestGCE(t *testing.T) {
+func TestGCP(t *testing.T) {
 	ctx := context.Background()
 	host, stop := startGCPMetadataServer(t)
 	defer stop()
@@ -84,7 +52,7 @@ func TestGCE(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := priv[0].String(), wellKnownPrivateIP; got != want {
+	if got, want := priv[0].String(), cloudvmtest.WellKnownPrivateIP; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
@@ -92,10 +60,10 @@ func TestGCE(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := pub[0].String(), wellKnownPrivateIP; got != want {
+	if got, want := pub[0].String(), cloudvmtest.WellKnownPrivateIP; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	externalURL := "http://" + host.String() + gcpExternalIPPath + "/noip"
+	externalURL := host + cloudpaths.GCPExternalIPPath + "/noip"
 	noip, err := gcpGetAddr(ctx, externalURL, time.Second)
 	if err != nil {
 		t.Fatal(err)

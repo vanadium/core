@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"runtime/debug"
 	"sync"
 	"time"
 
@@ -23,9 +22,8 @@ type getAddrFunc func(context.Context, time.Duration) ([]net.Addr, error)
 type CloudVM struct {
 	cfg                           *flags.VirtualizedFlags
 	logger                        logging.Logger
+	includePrivateAddresses       bool
 	mu                            sync.Mutex
-	dnsname                       net.Addr    // GUARDED_BY(mu)
-	ipaddrs                       []net.Addr  // GUARDED_BY(mu)
 	getPublicAddr, getPrivateAddr getAddrFunc // GUARDED_BY(mu)
 	addrs                         []net.Addr  // GUARDED_BY(mu)
 }
@@ -38,10 +36,13 @@ var (
 
 // InitCloudVM initializes the CloudVM metadata using the configuration
 // provided by VirtualizedFlags. It implements rpc.AddressChooser and
-// provides a Refresh method to update addresses based on current metadata
-// settings. If PublicAddress is set it is used, then if a LiteralDNSName
-// is set then it is used before finally trying to obtain public and private
-// addresses from the virtualization/cloud provider environment's metadata.
+// provides a RefreshAddress method to update addresses based on current metadata
+// settings. If PublicDNSName is set it is used, then PublicAddress and finally,
+// if a VirtualizationProvider is defined its metadata service will be used.
+// If the AdvertisePrivateAddresses flag is set then the private addresses
+// and the candidate addresses supplied to the address chooser will also be
+// returned by ChoseAddresses, otherwise only the public/external ones
+// will be returned.
 func InitCloudVM(ctx context.Context, logger logging.Logger, fl *flags.VirtualizedFlags) (*CloudVM, error) {
 	once.Do(func() {
 		cvm, cvmErr = newCloudVM(ctx, logger, fl)
@@ -51,29 +52,9 @@ func InitCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualiz
 
 func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.VirtualizedFlags) (*CloudVM, error) {
 	cvm := &CloudVM{
-		cfg:    fl,
-		logger: logger,
-	}
-	if fl.VirtualizationProvider == flags.Native {
-		return cvm, nil
-	}
-	if len(fl.LiteralDNSName) > 0 {
-		cvm.dnsname = netstate.NewNetAddr(
-			fl.PublicProtocol.Protocol,
-			fl.LiteralDNSName)
-	}
-	if pa := fl.PublicAddress; len(pa.String()) > 0 {
-		if len(pa.IP) > 0 {
-			cvm.ipaddrs = make([]net.Addr, len(pa.IP))
-			for i, a := range pa.IP {
-				cvm.ipaddrs[i] = a
-			}
-		} else {
-			addr := netstate.NewNetAddr(
-				fl.PublicProtocol.Protocol,
-				net.JoinHostPort(pa.Address, pa.Port))
-			cvm.ipaddrs = []net.Addr{addr}
-		}
+		cfg:                     fl,
+		logger:                  logger,
+		includePrivateAddresses: fl.AdvertisePrivateAddresses,
 	}
 	isaws := func() {
 		cvm.getPublicAddr = cloudvm.AWSPublicAddrs
@@ -105,27 +86,10 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		isgcp()
 		return refresh()
 	}
-
-	var wg sync.WaitGroup
-	var aws, gcp bool
-	wg.Add(2)
-	go func() {
-		aws = cloudvm.OnAWS(ctx, time.Second)
-		wg.Done()
-	}()
-	go func() {
-		gcp = cloudvm.OnGCP(ctx, time.Second)
-		wg.Done()
-	}()
-	wg.Wait()
-	switch {
-	case aws:
-		isaws()
-	case gcp:
-		isgcp()
-	default:
-		return nil, fmt.Errorf("running on unsupported virtualization provider")
+	noop := func(context.Context, time.Duration) ([]net.Addr, error) {
+		return nil, nil
 	}
+	cvm.getPublicAddr, cvm.getPrivateAddr = noop, noop
 	return refresh()
 }
 
@@ -134,18 +98,50 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 	cvm.mu.Lock()
 	defer cvm.mu.Unlock()
-	if cvm.dnsname != nil || len(cvm.ipaddrs) > 0 {
+
+	firstAddress := func(addrs []net.Addr) string {
+		if len(addrs) == 0 {
+			return ""
+		}
+		return addrs[0].String()
+	}
+
+	switch {
+	case len(cvm.cfg.PublicDNSName) > 0:
+		cvm.addrs = []net.Addr{netstate.NewNetAddr(
+			cvm.cfg.PublicProtocol.Protocol, cvm.cfg.PublicDNSName)}
+		cvm.logger.Infof("cloudvm.RefreshAddresses: using dnsname: %v", cvm.cfg.PublicDNSName)
+		return nil
+	case len(cvm.cfg.PublicAddress.String()) > 0:
+		cvm.addrs = nil
+		if len(cvm.cfg.PublicAddress.IP) > 0 {
+			for _, a := range cvm.cfg.PublicAddress.IP {
+				cvm.addrs = append(cvm.addrs, a)
+			}
+		} else {
+			cvm.addrs = []net.Addr{netstate.NewNetAddr(
+				cvm.cfg.PublicProtocol.Protocol,
+				net.JoinHostPort(
+					cvm.cfg.PublicAddress.Address,
+					cvm.cfg.PublicAddress.Port))}
+		}
+		cvm.logger.Infof("cloudvm.RefreshAddresses: using public addresses, first one is: %v...", firstAddress(cvm.addrs))
 		return nil
 	}
-	pub, err := cvm.getPublicAddr(ctx, time.Second)
+	var err error
+	cvm.addrs, err = cvm.getPublicAddr(ctx, time.Second)
 	if err != nil {
 		return err
 	}
-	priv, err := cvm.getPublicAddr(ctx, time.Second)
-	if err != nil {
-		return err
+	cvm.logger.Infof("cloudvm.RefreshAddresses: using public addresses obtained from metadata, first one is: %v...", firstAddress(cvm.addrs))
+	if cvm.includePrivateAddresses {
+		priv, err := cvm.getPrivateAddr(ctx, time.Second)
+		if err != nil {
+			return err
+		}
+		cvm.addrs = append(cvm.addrs, priv...)
+		cvm.logger.Infof("cloudvm.RefreshAddresses: also using private addresses obtained from metadata, first one is: %v...", firstAddress(priv))
 	}
-	cvm.addrs = append(pub, priv...)
 	return nil
 }
 
@@ -153,19 +149,8 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 func (cvm *CloudVM) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
 	cvm.mu.Lock()
 	defer cvm.mu.Unlock()
-	debug.PrintStack()
-	if len(cvm.ipaddrs) > 0 {
-		cvm.logger.Infof("cloudvm.ChooseAddresses: returning public IP set on the command line")
-		return cvm.ipaddrs, nil
+	if cvm.includePrivateAddresses {
+		return append(cvm.addrs, candidates...), nil
 	}
-	if cvm.dnsname != nil {
-		cvm.logger.Infof("cloudvm.ChooseAddresses: returning dns name set on the command line")
-		return []net.Addr{cvm.dnsname}, nil
-	}
-	if len(cvm.addrs) > 0 {
-		cvm.logger.Infof("cloudvm.ChooseAddresses: returning public and private addresses obtained from the cloud provider")
-		return cvm.addrs, nil
-	}
-	cvm.logger.Infof("cloudvm.ChooseAddresses: returning original candidates")
-	return candidates, nil
+	return cvm.addrs, nil
 }
