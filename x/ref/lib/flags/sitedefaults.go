@@ -40,8 +40,9 @@ func init() {
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
 		"virtualized": VirtualizedFlagDefaults{
-			VirtualizationProvider: string(Native),
-			PublicProtocol:         "wsh",
+			VirtualizationProvider:    string(Native),
+			PublicProtocol:            "wsh",
+			AdvertisePrivateAddresses: true,
 		},
 	})
 	registerDefaults(sitedefaults.Defaults)

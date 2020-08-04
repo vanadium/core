@@ -18,8 +18,8 @@ import (
 
 type service struct{}
 
-func (service) Ping(ctx *context.T, call rpc.ServerCall) (string, error) {
-	return "hello", nil
+func (service) Ping(ctx *context.T, call rpc.ServerCall, msg string) (string, error) {
+	return "ping: " + msg, nil
 }
 
 var name string
@@ -34,6 +34,7 @@ func main() {
 	defer func() {
 		shutdown()
 	}()
+	ctx, cancel := context.WithCancel(ctx)
 	_, srv, err := v23.WithNewServer(ctx, name, service{}, security.AllowEveryone())
 	if err != nil {
 		fmt.Printf("v23.WithNewServerFailed: %v", err)
@@ -44,4 +45,6 @@ func main() {
 		fmt.Printf("%v: %v\n", i, ep)
 	}
 	<-signals.ShutdownOnSignals(ctx)
+	cancel()
+	<-srv.Closed()
 }
