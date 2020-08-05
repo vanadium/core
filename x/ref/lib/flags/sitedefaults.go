@@ -42,6 +42,7 @@ func init() {
 		"virtualized": VirtualizedFlagDefaults{
 			VirtualizationProvider:    string(Native),
 			PublicProtocol:            "wsh",
+			PublicDNSPort:             "0",
 			AdvertisePrivateAddresses: true,
 		},
 	})

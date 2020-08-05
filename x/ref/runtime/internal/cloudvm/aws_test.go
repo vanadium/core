@@ -42,7 +42,7 @@ func TestAWS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := pub[0].String(), cloudvmtest.WellKnownPrivateIP; got != want {
+	if got, want := pub[0].String(), cloudvmtest.WellKnownPublicIP; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	externalURL := host + cloudpaths.AWSPublicIPPath + "/noip"

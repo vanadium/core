@@ -28,15 +28,15 @@ func StartGCPMetadataServer(t *testing.T) (string, func()) {
 	}
 	http.HandleFunc(cloudpaths.GCPProjectIDPath,
 		func(w http.ResponseWriter, r *http.Request) {
-			respond(w, r, WellKnowAccount)
+			respond(w, r, WellKnownAccount)
 		})
 	http.HandleFunc(cloudpaths.GCPZonePath,
 		func(w http.ResponseWriter, r *http.Request) {
-			respond(w, r, WellKnowRegion)
+			respond(w, r, WellKnownRegion)
 		})
 	http.HandleFunc(cloudpaths.GCPExternalIPPath,
 		func(w http.ResponseWriter, r *http.Request) {
-			respond(w, r, WellKnownPrivateIP)
+			respond(w, r, WellKnownPublicIP)
 		})
 	http.HandleFunc(cloudpaths.GCPInternalIPPath,
 		func(w http.ResponseWriter, r *http.Request) {

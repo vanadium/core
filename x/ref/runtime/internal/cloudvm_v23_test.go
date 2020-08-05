@@ -43,9 +43,9 @@ func assertWithLogs(t *testing.T, err error, msg string, logs []*bytes.Buffer) {
 	_, file, line, _ := runtime.Caller(2)
 	loc := fmt.Sprintf("%v:%v", filepath.Base(file), line)
 	for i, log := range logs {
-		t.Logf("%v: -------------", loc)
-		t.Logf("%v: log from: %s:%v: %v", loc, msg, i, log.String())
-		t.Logf("%v: -------------", loc)
+		t.Logf("%v: start log from: %s:%v ------", loc, msg, i)
+		t.Log(log.String())
+		t.Logf("%v:   end log from: %s:%v ------", loc, msg, i)
 	}
 	t.Fatalf("%v: %s: %s", loc, msg, err)
 }
@@ -94,8 +94,11 @@ func TestV23Virtualized(t *testing.T) {
 		"--v23.virtualized.advertise-private-addresses=true",
 		"--v23.virtualized.dns.public-name="+localHostName)
 
-	servers, err = waitForMountedServersIncluding(t, sh.Ctx, ns, serverName, localHostName)
-	assert("wait-for-server", si.log)
+	_, err = waitForMountedServersIncluding(t, sh.Ctx, ns, serverName, localHostName)
+	assert("wait-for-server-with-dns-name", si.log)
+	servers, err = waitForMountedServersIncluding(t, sh.Ctx, ns, serverName, "127.0.0.1")
+	assert("wait-for-server-with-localhost", si.log)
+
 	// Make sure there is at least one private address.
 	if got, want := len(servers), 2; got < want {
 		t.Errorf("got %v, want >= %v", got, want)
@@ -183,10 +186,10 @@ func waitForNoMountedServers(t *testing.T, ctx *context.T, ns namespace.T, name 
 
 func waitForMountedServersIncluding(t *testing.T, ctx *context.T, ns namespace.T, name, including string) ([]naming.MountedServer, error) {
 	start := time.Now()
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
-	defer cancel()
 	for {
-		resolved, err := ns.Resolve(ctx, name)
+		cctx, cancel := context.WithTimeout(ctx, time.Second)
+		defer cancel()
+		resolved, err := ns.Resolve(cctx, name)
 		if err != nil {
 			if verror.ErrorID(err) == naming.ErrNoSuchName.ID {
 				time.Sleep(time.Millisecond * 200)
@@ -203,7 +206,7 @@ func waitForMountedServersIncluding(t *testing.T, ctx *context.T, ns namespace.T
 				if err != nil {
 					return nil, err
 				}
-				if strings.Contains(ep.Address, localHostName) {
+				if strings.Contains(ep.Address, including) {
 					return resolved.Servers, nil
 				}
 			}

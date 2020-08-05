@@ -22,6 +22,7 @@ type getAddrFunc func(context.Context, time.Duration) ([]net.Addr, error)
 type CloudVM struct {
 	cfg                           *flags.VirtualizedFlags
 	logger                        logging.Logger
+	dnsNameAndPort                string
 	includePrivateAddresses       bool
 	mu                            sync.Mutex
 	getPublicAddr, getPrivateAddr getAddrFunc // GUARDED_BY(mu)
@@ -37,7 +38,7 @@ var (
 // InitCloudVM initializes the CloudVM metadata using the configuration
 // provided by VirtualizedFlags. It implements rpc.AddressChooser and
 // provides a RefreshAddress method to update addresses based on current metadata
-// settings. If PublicDNSName is set it is used, then PublicAddress and finally,
+// settings. If PublicAddress is set it is used, then PublicDNSName and finally,
 // if a VirtualizationProvider is defined its metadata service will be used.
 // If the AdvertisePrivateAddresses flag is set then the private addresses
 // and the candidate addresses supplied to the address chooser will also be
@@ -56,6 +57,15 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		logger:                  logger,
 		includePrivateAddresses: fl.AdvertisePrivateAddresses,
 	}
+
+	if len(fl.PublicDNSName) > 0 {
+		if len(fl.PublicDNSPort) == 0 || fl.PublicDNSPort == "0" {
+			cvm.dnsNameAndPort = fl.PublicDNSName
+		} else {
+			cvm.dnsNameAndPort = net.JoinHostPort(fl.PublicDNSName, fl.PublicDNSPort)
+		}
+	}
+
 	isaws := func() {
 		cvm.getPublicAddr = cloudvm.AWSPublicAddrs
 		cvm.getPrivateAddr = cloudvm.AWSPrivateAddrs
@@ -107,25 +117,31 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 	}
 
 	switch {
-	case len(cvm.cfg.PublicDNSName) > 0:
-		cvm.addrs = []net.Addr{netstate.NewNetAddr(
-			cvm.cfg.PublicProtocol.Protocol, cvm.cfg.PublicDNSName)}
-		cvm.logger.Infof("cloudvm.RefreshAddresses: using dnsname: %v", cvm.cfg.PublicDNSName)
-		return nil
 	case len(cvm.cfg.PublicAddress.String()) > 0:
 		cvm.addrs = nil
-		if len(cvm.cfg.PublicAddress.IP) > 0 {
+		if len(cvm.cfg.PublicAddress.IP) > 1 {
 			for _, a := range cvm.cfg.PublicAddress.IP {
-				cvm.addrs = append(cvm.addrs, a)
+				p := a.Network()
+				if p == "ip" {
+					p = cvm.cfg.PublicProtocol.Protocol
+				}
+				na := netstate.NewNetAddr(
+					p,
+					net.JoinHostPort(a.String(), cvm.cfg.PublicAddress.Port))
+				cvm.addrs = append(cvm.addrs, na)
 			}
 		} else {
 			cvm.addrs = []net.Addr{netstate.NewNetAddr(
 				cvm.cfg.PublicProtocol.Protocol,
-				net.JoinHostPort(
-					cvm.cfg.PublicAddress.Address,
-					cvm.cfg.PublicAddress.Port))}
+				cvm.cfg.PublicAddress.Address)}
 		}
 		cvm.logger.Infof("cloudvm.RefreshAddresses: using public addresses, first one is: %v...", firstAddress(cvm.addrs))
+		return nil
+	case len(cvm.cfg.PublicDNSName) > 0:
+		cvm.addrs = []net.Addr{netstate.NewNetAddr(
+			cvm.cfg.PublicProtocol.Protocol,
+			cvm.dnsNameAndPort)}
+		cvm.logger.Infof("cloudvm.RefreshAddresses: using dnsname: %v", cvm.cfg.PublicDNSName)
 		return nil
 	}
 	var err error
@@ -145,12 +161,25 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 	return nil
 }
 
+func filterForProtocol(protocol string, addrs []net.Addr) []net.Addr {
+	r := []net.Addr{}
+	for _, a := range addrs {
+		// If the address contains no protocol or its protocol is 'ip' then
+		// it is assumed that it can support any protocol.
+		if p := a.Network(); len(p) == 0 || p == "ip" || p == protocol {
+			r = append(r, a)
+		}
+	}
+	return r
+}
+
 // ChooseAddresses implements rpc.AddressChooser.
 func (cvm *CloudVM) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
 	cvm.mu.Lock()
 	defer cvm.mu.Unlock()
+	forProtocol := filterForProtocol(protocol, cvm.addrs)
 	if cvm.includePrivateAddresses {
-		return append(cvm.addrs, candidates...), nil
+		return append(forProtocol, filterForProtocol(protocol, candidates)...), nil
 	}
-	return cvm.addrs, nil
+	return forProtocol, nil
 }

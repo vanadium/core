@@ -11,6 +11,7 @@ type VirtualizedFlags struct {
 	PublicProtocol            TCPProtocolFlag        `cmdline:"v23.virtualized.tcp.public-protocol,,if set the process will use this protocol for its entry in the mounttable"`
 	PublicAddress             IPHostPortFlag         `cmdline:"v23.virtualized.tcp.public-address,,if set the process will use this address (resolving via dns if appropriate) for its entry in the mounttable"`
 	PublicDNSName             string                 `cmdline:"v23.virtualized.dns.public-name,,if set the process will use the supplied dns name literally (ie. without resolution) for its entry in the mounttable"`
+	PublicDNSPort             string                 `cmdline:"v23.virtualized.dns.public-port,,if set the process will listen on this port"`
 	AdvertisePrivateAddresses bool                   `cmdline:"v23.virtualized.advertise-private-addresses,,if set the process will also advertise its private addresses"`
 }
 
@@ -21,6 +22,7 @@ type VirtualizedFlagDefaults struct {
 	PublicProtocol            string
 	PublicAddress             string
 	PublicDNSName             string
+	PublicDNSPort             string
 	AdvertisePrivateAddresses bool
 }
 

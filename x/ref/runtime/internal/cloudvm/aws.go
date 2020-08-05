@@ -100,7 +100,7 @@ func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, err
 		return nil, err
 	}
 	if server := resp.Header["Server"]; len(server) != 1 || server[0] != "EC2ws" {
-		return nil, fmt.Errorf("wrong headers.")
+		return nil, fmt.Errorf("wrong headers")
 	}
 	return ioutil.ReadAll(resp.Body)
 }
@@ -148,6 +148,9 @@ func awsGetAddr(ctx context.Context, url string, timeout time.Duration) ([]net.A
 func awsSetIMDSv2Token(ctx context.Context, url string, timeout time.Duration) (string, error) {
 	client := &http.Client{Timeout: timeout}
 	req, err := http.NewRequestWithContext(ctx, "PUT", url, nil)
+	if err != nil {
+		return "", err
+	}
 	req.Header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60")
 	resp, err := client.Do(req)
 	if err != nil {

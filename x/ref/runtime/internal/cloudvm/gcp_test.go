@@ -25,14 +25,14 @@ func testStats(t *testing.T, idStat, regionStat string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := val.(string), "12345678"; got != want {
+	if got, want := val.(string), cloudvmtest.WellKnownAccount; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	val, err = stats.Value(regionStat)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := val.(string), "us-west-12"; got != want {
+	if got, want := val.(string), cloudvmtest.WellKnownRegion; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
@@ -60,7 +60,7 @@ func TestGCP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got, want := pub[0].String(), cloudvmtest.WellKnownPrivateIP; got != want {
+	if got, want := pub[0].String(), cloudvmtest.WellKnownPublicIP; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	externalURL := host + cloudpaths.GCPExternalIPPath + "/noip"

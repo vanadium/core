@@ -39,8 +39,8 @@ func StartAWSMetadataServer(t *testing.T) (string, func()) {
 		}
 		w.Header().Add("Server", "EC2ws")
 		id := map[string]interface{}{
-			"accountId": WellKnowAccount,
-			"region":    WellKnowRegion,
+			"accountId": WellKnownAccount,
+			"region":    WellKnownRegion,
 		}
 		buf, err := json.Marshal(id)
 		if err != nil {
@@ -64,7 +64,7 @@ func StartAWSMetadataServer(t *testing.T) (string, func()) {
 		})
 	http.HandleFunc(cloudpaths.AWSPublicIPPath,
 		func(w http.ResponseWriter, r *http.Request) {
-			respond(w, r, WellKnownPrivateIP)
+			respond(w, r, WellKnownPublicIP)
 		})
 	http.HandleFunc(cloudpaths.AWSPublicIPPath+"/noip",
 		func(w http.ResponseWriter, r *http.Request) {
