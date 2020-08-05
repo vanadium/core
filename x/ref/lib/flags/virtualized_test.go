@@ -18,11 +18,12 @@ func TestVirtualizedFlags(t *testing.T) {
 	}
 
 	expected := flags.VirtualizedFlags{
-		PublicProtocol: flags.TCPProtocolFlag{Protocol: "wsh"},
+		AdvertisePrivateAddresses: true,
+		PublicProtocol:            flags.TCPProtocolFlag{Protocol: "wsh"},
 	}
 
 	if got, want := fl.VirtualizedFlags(), expected; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
+		t.Errorf("got %#v, want %#v", got, want)
 	}
 
 	if err := fl.Parse([]string{
@@ -30,19 +31,20 @@ func TestVirtualizedFlags(t *testing.T) {
 		"--v23.virtualized.provider=foobar",
 		"--v23.virtualized.tcp.public-protocol=tcp",
 		"--v23.virtualized.tcp.public-address=8.8.2.2:17",
-		"--v23.virtualized.dns.public-name=my-load-balancer",
+		"--v23.virtualized.dns.public-name=my-load-balancer:20",
 	}, nil); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
 	expected = flags.VirtualizedFlags{
-		Dockerized:             true,
-		VirtualizationProvider: "foobar",
-		PublicDNSName:          "my-load-balancer",
+		Dockerized:                true,
+		AdvertisePrivateAddresses: true,
+		VirtualizationProvider:    "foobar",
 	}
+	expected.PublicDNSName.Set("my-load-balancer:20")
 	expected.PublicProtocol.Set("tcp")
 	expected.PublicAddress.Set("8.8.2.2:17")
 	if got, want := fl.VirtualizedFlags(), expected; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %#v, want %#v", got, want)
+		t.Errorf("got %v, want %v", got, want)
 	}
 }

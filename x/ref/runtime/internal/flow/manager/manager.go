@@ -200,11 +200,13 @@ func (m *manager) Listen(ctx *context.T, protocol, address string) (<-chan struc
 	defer m.ls.mu.Unlock()
 	m.ls.mu.Lock()
 	if m.ls.listeners == nil {
+
 		if ln != nil {
 			ln.Close()
 		}
 		return nil, flow.NewErrBadState(ctx, NewErrManagerClosed(ctx))
 	}
+
 	errKey := struct{ Protocol, Address string }{Protocol: protocol, Address: address}
 	if lnErr != nil {
 		m.ls.listenErrors[errKey] = lnErr
@@ -341,7 +343,14 @@ func (m *manager) createEndpoints(ctx *context.T, lep naming.Endpoint) ([]naming
 		if err != nil {
 			return nil, false, err
 		}
-		n.Address = net.JoinHostPort(addr.String(), port)
+		if _, _, err := net.SplitHostPort(addr.String()); err == nil {
+			// Endpoint already has port, do not override it since it
+			// was likely selected specifically to be allow for NAT
+			// traversal etc.
+			n.Address = addr.String()
+		} else {
+			n.Address = net.JoinHostPort(addr.String(), port)
+		}
 		ieps = append(ieps, n)
 	}
 	return ieps, unspecified, nil

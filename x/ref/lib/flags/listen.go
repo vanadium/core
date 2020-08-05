@@ -117,6 +117,53 @@ func (ip IPHostPortFlag) String() string {
 	return net.JoinHostPort(host, ip.Port)
 }
 
+// HostPortFlag implements flag.Value to provide validation of the
+// command line value it is set to. The allowed format is <host>:<port>;
+// the host may be specified as a hostname or as an IP
+// address (v4 or v6). A DNS hostname is never resolved.
+type HostPortFlag struct {
+	Host string
+	Port string
+}
+
+// Get implements flag.Getter.
+func (ip HostPortFlag) Get() interface{} {
+	return ip.String()
+}
+
+// Set implements flag.Value.
+func (ip *HostPortFlag) Set(s string) error {
+	if len(s) == 0 {
+		ip.Port, ip.Host = "", ""
+		return nil
+	}
+	host, port, err := net.SplitHostPort(s)
+	if err != nil {
+		// no port number in s.
+		host = s
+		ip.Port = "0"
+	} else {
+		// have a port in s.
+		if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+			return verror.New(errCantParsePort, nil, s)
+		}
+		ip.Port = port
+	}
+	ip.Host = host
+	return nil
+}
+
+// Implements flag.Value.String
+func (ip HostPortFlag) String() string {
+	if len(ip.Port) == 0 && len(ip.Port) == 0 {
+		return ""
+	}
+	if len(ip.Port) == 0 || ip.Port == "0" {
+		return ip.Host
+	}
+	return net.JoinHostPort(ip.Host, ip.Port)
+}
+
 // IPFlag implements flag.Value in order to provide validation of
 // IP addresses in the flag package.
 type IPFlag struct{ net.IP }

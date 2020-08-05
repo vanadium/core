@@ -94,6 +94,34 @@ func TestIPHostPortFlag(t *testing.T) {
 	}
 }
 
+func TestHostPortFlag(t *testing.T) {
+	host := &flags.HostPortFlag{}
+	if err := host.Set("localhost:122"); err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+	if got, want := host.Host, "localhost"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got, want := host.Port, "122"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if got, want := host.String(), "localhost:122"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	if err := host.Set("localhost"); err != nil {
+		t.Errorf("unexpected error: %s", err)
+	}
+	if got, want := host.String(), "localhost"; got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	for _, s := range []string{":", ":59999999", "host:x"} {
+		f := &flags.HostPortFlag{}
+		if err := f.Set(s); err == nil {
+			t.Errorf("expected an error for %q, %#v", s, f)
+		}
+	}
+}
+
 func TestListenFlags(t *testing.T) {
 	fl, err := flags.CreateAndRegister(flag.NewFlagSet("test", flag.ContinueOnError), flags.Listen)
 	if err != nil {

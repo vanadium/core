@@ -85,7 +85,7 @@ func TestCloudVMNative(t *testing.T) {
 	cfg.VirtualizationProvider = flags.Native
 	cfg.PublicProtocol.Set("wsh")
 	cfg.PublicAddress.Set("8.8.8.4:20")
-	cfg.PublicDNSName = "myloadbalancer.com"
+	cfg.PublicDNSName.Set("myloadbalancer.com")
 	addrs := chooseAddrs(t, "public", cfg)
 	if got, want := len(addrs), 1; got != want {
 		t.Fatalf("got %v, want %v", got, want)
@@ -113,17 +113,16 @@ func TestCloudVMNative(t *testing.T) {
 
 	// With no public address, the DNS name is used.
 	cfg.PublicAddress = flags.IPHostPortFlag{}
-	cfg.PublicDNSPort = "0"
 	addrs = chooseAddrs(t, "public", cfg)
 	if got, want := len(addrs), 1; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
-	if got, want := addrs[0].String(), "myloadbalancer.com"; got != want {
+	if got, want := addrs[0].String(), "myloadbalancer.com:0"; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
 	// Set an explicit port.
-	cfg.PublicDNSPort = "80"
+	cfg.PublicDNSName.Set("myloadbalancer.com:80")
 	addrs = chooseAddrs(t, "public", cfg)
 	if got, want := len(addrs), 1; got != want {
 		t.Fatalf("got %v, want %v", got, want)

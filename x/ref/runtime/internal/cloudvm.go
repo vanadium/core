@@ -57,14 +57,7 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		logger:                  logger,
 		includePrivateAddresses: fl.AdvertisePrivateAddresses,
 	}
-
-	if len(fl.PublicDNSName) > 0 {
-		if len(fl.PublicDNSPort) == 0 || fl.PublicDNSPort == "0" {
-			cvm.dnsNameAndPort = fl.PublicDNSName
-		} else {
-			cvm.dnsNameAndPort = net.JoinHostPort(fl.PublicDNSName, fl.PublicDNSPort)
-		}
-	}
+	cvm.dnsNameAndPort = fl.PublicDNSName.String()
 
 	isaws := func() {
 		cvm.getPublicAddr = cloudvm.AWSPublicAddrs
@@ -111,7 +104,7 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 
 	firstAddress := func(addrs []net.Addr) string {
 		if len(addrs) == 0 {
-			return ""
+			return "<none>"
 		}
 		return addrs[0].String()
 	}
@@ -125,9 +118,7 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 				if p == "ip" {
 					p = cvm.cfg.PublicProtocol.Protocol
 				}
-				na := netstate.NewNetAddr(
-					p,
-					net.JoinHostPort(a.String(), cvm.cfg.PublicAddress.Port))
+				na := netstate.NewNetAddr(p, a.String())
 				cvm.addrs = append(cvm.addrs, na)
 			}
 		} else {
@@ -137,11 +128,11 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 		}
 		cvm.logger.Infof("cloudvm.RefreshAddresses: using public addresses, first one is: %v...", firstAddress(cvm.addrs))
 		return nil
-	case len(cvm.cfg.PublicDNSName) > 0:
+	case len(cvm.dnsNameAndPort) > 0:
 		cvm.addrs = []net.Addr{netstate.NewNetAddr(
 			cvm.cfg.PublicProtocol.Protocol,
 			cvm.dnsNameAndPort)}
-		cvm.logger.Infof("cloudvm.RefreshAddresses: using dnsname: %v", cvm.cfg.PublicDNSName)
+		cvm.logger.Infof("cloudvm.RefreshAddresses: using dnsname: %v", cvm.dnsNameAndPort)
 		return nil
 	}
 	var err error
