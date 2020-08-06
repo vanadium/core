@@ -117,7 +117,7 @@ func TestCloudVMNative(t *testing.T) {
 	if got, want := len(addrs), 1; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
-	if got, want := addrs[0].String(), "myloadbalancer.com:0"; got != want {
+	if got, want := addrs[0].String(), "myloadbalancer.com"; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 

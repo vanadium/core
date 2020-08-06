@@ -155,7 +155,7 @@ func (ip *HostPortFlag) Set(s string) error {
 
 // Implements flag.Value.String
 func (ip HostPortFlag) String() string {
-	if len(ip.Port) == 0 && len(ip.Port) == 0 {
+	if len(ip.Host) == 0 && len(ip.Port) == 0 {
 		return ""
 	}
 	if len(ip.Port) == 0 || ip.Port == "0" {
