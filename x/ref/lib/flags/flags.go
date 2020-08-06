@@ -226,10 +226,14 @@ func NewListenFlags() (*ListenFlags, error) {
 	if err := protocolFlag.Set(DefaultProtocol()); err != nil {
 		return nil, err
 	}
+	var proxyFlag ProxyPolicyFlag
+	if err := proxyFlag.Set(DefaultProxyPolicy().String()); err != nil {
+		panic(err)
+	}
 	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
-	lf.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
+	lf.ProxyPolicy = proxyFlag
 	lf.ProxyLimit = DefaultProxyLimit()
 	return lf, nil
 }
@@ -249,9 +253,6 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) error {
 			"v23.proxy.limit":  "",
 		},
 	)
-	// TODO(cnicolaou): remove this statement when flagvar.RegisterFlagsInStruct
-	//   correctly handles enum defaults.
-	f.ProxyPolicy = ProxyPolicyFlag(DefaultProxyPolicy())
 	return err
 }
 
