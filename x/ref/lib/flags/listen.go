@@ -152,13 +152,14 @@ type ListenAddrs []struct {
 type ListenFlags struct {
 	Addrs       ListenAddrs
 	Proxy       string             `cmdline:"v23.proxy,,object name of proxy service to use to export services across network boundaries"`
-	ProxyPolicy proxyPolicyFlagVar `cmdline:"v23.proxy.policy,first,policy for choosing from a set of available proxy instances"`
+	ProxyPolicy proxyPolicyFlagVar `cmdline:"v23.proxy.policy,,policy for choosing from a set of available proxy instances"`
 	ProxyLimit  int                `cmdline:"v23.proxy.limit,0,'max number of proxies to connect to when the policy is to connect to all proxies; 0 implies all proxies'"`
 	Protocol    tcpProtocolFlagVar `cmdline:"v23.tcp.protocol,,protocol to listen with"`
 	Addresses   ipHostPortFlagVar  `cmdline:"v23.tcp.address,,address to listen on"`
 }
 
 type proxyPolicyFlagVar struct {
+	isSet  bool
 	policy rpc.ProxyPolicy
 }
 
@@ -185,6 +186,7 @@ func (policy *proxyPolicyFlagVar) Set(s string) error {
 	default:
 		return fmt.Errorf("unsupported proxy policy: %v, must be one of 'first', 'random' or 'all'", s)
 	}
+	policy.isSet = true
 	return nil
 }
 
