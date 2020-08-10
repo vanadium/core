@@ -49,10 +49,10 @@ type DischargerClientMethods interface {
 	Discharge(_ *context.T, Caveat security.Caveat, Impetus security.DischargeImpetus, _ ...rpc.CallOpt) (Discharge security.Discharge, _ error)
 }
 
-// DischargerClientStub adds universal methods to DischargerClientMethods.
+// DischargerClientStub embeds DischargerClientMethods and is a
+// placeholder for additional management operations.
 type DischargerClientStub interface {
 	DischargerClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // DischargerClient returns a client stub for Discharger.

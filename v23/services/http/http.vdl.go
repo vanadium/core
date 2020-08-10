@@ -571,10 +571,10 @@ type HttpClientMethods interface {
 	RawDo(_ *context.T, req Request, _ ...rpc.CallOpt) (data []byte, _ error)
 }
 
-// HttpClientStub adds universal methods to HttpClientMethods.
+// HttpClientStub embeds HttpClientMethods and is a
+// placeholder for additional management operations.
 type HttpClientStub interface {
 	HttpClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // HttpClient returns a client stub for Http.

@@ -33,10 +33,10 @@ type FortuneClientMethods interface {
 	Has(_ *context.T, fortune string, _ ...rpc.CallOpt) (bool, error)
 }
 
-// FortuneClientStub adds universal methods to FortuneClientMethods.
+// FortuneClientStub embeds FortuneClientMethods and is a
+// placeholder for additional management operations.
 type FortuneClientStub interface {
 	FortuneClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // FortuneClient returns a client stub for Fortune.

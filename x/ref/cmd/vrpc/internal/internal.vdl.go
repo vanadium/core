@@ -180,10 +180,10 @@ type TypeTesterClientMethods interface {
 	ZStream(_ *context.T, NumStreamItems int32, StreamItem bool, _ ...rpc.CallOpt) (TypeTesterZStreamClientCall, error)
 }
 
-// TypeTesterClientStub adds universal methods to TypeTesterClientMethods.
+// TypeTesterClientStub embeds TypeTesterClientMethods and is a
+// placeholder for additional management operations.
 type TypeTesterClientStub interface {
 	TypeTesterClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // TypeTesterClient returns a client stub for TypeTester.

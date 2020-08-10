@@ -33,10 +33,10 @@ type TidyableClientMethods interface {
 	TidyNow(*context.T, ...rpc.CallOpt) error
 }
 
-// TidyableClientStub adds universal methods to TidyableClientMethods.
+// TidyableClientStub embeds TidyableClientMethods and is a
+// placeholder for additional management operations.
 type TidyableClientStub interface {
 	TidyableClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // TidyableClient returns a client stub for Tidyable.

@@ -33,8 +33,6 @@ The identityd_test flags are:
    Address on which the HTTP server listens on.
  -mount-prefix=identity
    Mount name prefix to use.  May be rooted.
- -oauth-agent-path=
-   Path to the agent to use for the oauth http handler.
  -oauth-credentials-dir=
    Path to the credentials to use for the oauth http handler.
  -oauth-email=testemail@example.com

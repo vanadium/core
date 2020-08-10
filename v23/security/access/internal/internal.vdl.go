@@ -75,10 +75,10 @@ type MyObjectClientMethods interface {
 	NoTags(*context.T, ...rpc.CallOpt) error // No tags attached to this.
 }
 
-// MyObjectClientStub adds universal methods to MyObjectClientMethods.
+// MyObjectClientStub embeds MyObjectClientMethods and is a
+// placeholder for additional management operations.
 type MyObjectClientStub interface {
 	MyObjectClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // MyObjectClient returns a client stub for MyObject.

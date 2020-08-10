@@ -32,10 +32,10 @@ type CollectionClientMethods interface {
 	Lookup(*context.T, ...rpc.CallOpt) ([]byte, error)
 }
 
-// CollectionClientStub adds universal methods to CollectionClientMethods.
+// CollectionClientStub embeds CollectionClientMethods and is a
+// placeholder for additional management operations.
 type CollectionClientStub interface {
 	CollectionClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // CollectionClient returns a client stub for Collection.

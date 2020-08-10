@@ -160,10 +160,10 @@ type MacaroonBlesserClientMethods interface {
 	Bless(_ *context.T, macaroon string, _ ...rpc.CallOpt) (blessing security.Blessings, _ error)
 }
 
-// MacaroonBlesserClientStub adds universal methods to MacaroonBlesserClientMethods.
+// MacaroonBlesserClientStub embeds MacaroonBlesserClientMethods and is a
+// placeholder for additional management operations.
 type MacaroonBlesserClientStub interface {
 	MacaroonBlesserClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // MacaroonBlesserClient returns a client stub for MacaroonBlesser.

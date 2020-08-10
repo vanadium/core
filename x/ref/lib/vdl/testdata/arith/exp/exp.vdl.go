@@ -27,10 +27,10 @@ type ExpClientMethods interface {
 	Exp(_ *context.T, x float64, _ ...rpc.CallOpt) (float64, error)
 }
 
-// ExpClientStub adds universal methods to ExpClientMethods.
+// ExpClientStub embeds ExpClientMethods and is a
+// placeholder for additional management operations.
 type ExpClientStub interface {
 	ExpClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ExpClient returns a client stub for Exp.
