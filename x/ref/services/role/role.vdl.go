@@ -45,10 +45,10 @@ type RoleClientMethods interface {
 	SeekBlessings(*context.T, ...rpc.CallOpt) (security.Blessings, error)
 }
 
-// RoleClientStub adds universal methods to RoleClientMethods.
+// RoleClientStub embeds RoleClientMethods and is a
+// placeholder for additional management operations.
 type RoleClientStub interface {
 	RoleClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // RoleClient returns a client stub for Role.

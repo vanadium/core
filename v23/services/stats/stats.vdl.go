@@ -60,10 +60,10 @@ type StatsClientMethods interface {
 	Value(*context.T, ...rpc.CallOpt) (*vom.RawBytes, error)
 }
 
-// StatsClientStub adds universal methods to StatsClientMethods.
+// StatsClientStub embeds StatsClientMethods and is a
+// placeholder for additional management operations.
 type StatsClientStub interface {
 	StatsClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // StatsClient returns a client stub for Stats.

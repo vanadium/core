@@ -22,7 +22,7 @@ go run "github.com/cosnicolaou/go-bindata/v3/go-bindata" \
     -o "${TMP}" -pkg assets -ignore '\.go$' -nometadata -mode 0644 .
 go fmt "${TMP}" >/dev/null
 cat - "${TMP}" > "${OUT}" << EOF
-// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Copyright 2020 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 

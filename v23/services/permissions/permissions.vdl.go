@@ -99,10 +99,10 @@ type ObjectClientMethods interface {
 	GetPermissions(*context.T, ...rpc.CallOpt) (perms access.Permissions, version string, _ error)
 }
 
-// ObjectClientStub adds universal methods to ObjectClientMethods.
+// ObjectClientStub embeds ObjectClientMethods and is a
+// placeholder for additional management operations.
 type ObjectClientStub interface {
 	ObjectClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ObjectClient returns a client stub for Object.

@@ -38,10 +38,10 @@ type StoreClientMethods interface {
 	AllTraces(*context.T, ...rpc.CallOpt) (StoreAllTracesClientCall, error)
 }
 
-// StoreClientStub adds universal methods to StoreClientMethods.
+// StoreClientStub embeds StoreClientMethods and is a
+// placeholder for additional management operations.
 type StoreClientStub interface {
 	StoreClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // StoreClient returns a client stub for Store.

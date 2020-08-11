@@ -247,10 +247,10 @@ type raftProtoClientMethods interface {
 	InstallSnapshot(_ *context.T, term Term, leaderId string, appliedTerm Term, appliedIndex Index, _ ...rpc.CallOpt) (raftProtoInstallSnapshotClientCall, error)
 }
 
-// raftProtoClientStub adds universal methods to raftProtoClientMethods.
+// raftProtoClientStub embeds raftProtoClientMethods and is a
+// placeholder for additional management operations.
 type raftProtoClientStub interface {
 	raftProtoClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // raftProtoClient returns a client stub for raftProto.

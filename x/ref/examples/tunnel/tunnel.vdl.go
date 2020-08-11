@@ -592,10 +592,10 @@ type TunnelClientMethods interface {
 	Shell(_ *context.T, command string, shellOpts ShellOpts, _ ...rpc.CallOpt) (TunnelShellClientCall, error)
 }
 
-// TunnelClientStub adds universal methods to TunnelClientMethods.
+// TunnelClientStub embeds TunnelClientMethods and is a
+// placeholder for additional management operations.
 type TunnelClientStub interface {
 	TunnelClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // TunnelClient returns a client stub for Tunnel.
@@ -1147,10 +1147,10 @@ type ForwarderClientMethods interface {
 	Forward(*context.T, ...rpc.CallOpt) (ForwarderForwardClientCall, error)
 }
 
-// ForwarderClientStub adds universal methods to ForwarderClientMethods.
+// ForwarderClientStub embeds ForwarderClientMethods and is a
+// placeholder for additional management operations.
 type ForwarderClientStub interface {
 	ForwarderClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ForwarderClient returns a client stub for Forwarder.

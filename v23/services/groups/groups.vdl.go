@@ -438,10 +438,10 @@ type GroupReaderClientMethods interface {
 	Get(_ *context.T, req GetRequest, reqVersion string, _ ...rpc.CallOpt) (res GetResponse, version string, _ error)
 }
 
-// GroupReaderClientStub adds universal methods to GroupReaderClientMethods.
+// GroupReaderClientStub embeds GroupReaderClientMethods and is a
+// placeholder for additional management operations.
 type GroupReaderClientStub interface {
 	GroupReaderClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // GroupReaderClient returns a client stub for GroupReader.
@@ -667,10 +667,10 @@ type GroupClientMethods interface {
 	Remove(_ *context.T, entry BlessingPatternChunk, version string, _ ...rpc.CallOpt) error
 }
 
-// GroupClientStub adds universal methods to GroupClientMethods.
+// GroupClientStub embeds GroupClientMethods and is a
+// placeholder for additional management operations.
 type GroupClientStub interface {
 	GroupClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // GroupClient returns a client stub for Group.

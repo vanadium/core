@@ -238,10 +238,10 @@ type StressClientMethods interface {
 	Stop(*context.T, ...rpc.CallOpt) error
 }
 
-// StressClientStub adds universal methods to StressClientMethods.
+// StressClientStub embeds StressClientMethods and is a
+// placeholder for additional management operations.
 type StressClientStub interface {
 	StressClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // StressClient returns a client stub for Stress.

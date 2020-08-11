@@ -20,6 +20,7 @@ require (
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/api v0.9.0
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	v.io/x/lib v0.1.5
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )

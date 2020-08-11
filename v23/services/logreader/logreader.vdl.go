@@ -136,10 +136,10 @@ type LogFileClientMethods interface {
 	ReadLog(_ *context.T, startPos int64, numEntries int32, follow bool, _ ...rpc.CallOpt) (LogFileReadLogClientCall, error)
 }
 
-// LogFileClientStub adds universal methods to LogFileClientMethods.
+// LogFileClientStub embeds LogFileClientMethods and is a
+// placeholder for additional management operations.
 type LogFileClientStub interface {
 	LogFileClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // LogFileClient returns a client stub for LogFile.
