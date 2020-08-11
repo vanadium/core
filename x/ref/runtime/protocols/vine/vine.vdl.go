@@ -231,10 +231,10 @@ type VineClientMethods interface {
 	SetBehaviors(_ *context.T, behaviors map[PeerKey]PeerBehavior, _ ...rpc.CallOpt) error
 }
 
-// VineClientStub adds universal methods to VineClientMethods.
+// VineClientStub embeds VineClientMethods and is a
+// placeholder for additional management operations.
 type VineClientStub interface {
 	VineClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // VineClient returns a client stub for Vine.

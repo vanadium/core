@@ -168,10 +168,10 @@ type MountTableClientMethods interface {
 	ResolveStep(*context.T, ...rpc.CallOpt) (naming.MountEntry, error)
 }
 
-// MountTableClientStub adds universal methods to MountTableClientMethods.
+// MountTableClientStub embeds MountTableClientMethods and is a
+// placeholder for additional management operations.
 type MountTableClientStub interface {
 	MountTableClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // MountTableClient returns a client stub for MountTable.

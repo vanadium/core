@@ -4,4 +4,4 @@
 # license that can be found in the LICENSE file.
 
 go run "v.io/v23/vom/internal/vombenchgen" -- "../bench_test.go"
-go fmt "../bench_test.go"
+gofmt -w -s "../bench_test.go"

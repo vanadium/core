@@ -2872,10 +2872,10 @@ type ServiceAClientMethods interface {
 	MethodA4(_ *context.T, a int32, _ ...rpc.CallOpt) (ServiceAMethodA4ClientCall, error)
 }
 
-// ServiceAClientStub adds universal methods to ServiceAClientMethods.
+// ServiceAClientStub embeds ServiceAClientMethods and is a
+// placeholder for additional management operations.
 type ServiceAClientStub interface {
 	ServiceAClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ServiceAClient returns a client stub for ServiceA.
@@ -3333,10 +3333,10 @@ type ServiceBClientMethods interface {
 	MethodB1(_ *context.T, a Scalars, b Composites, _ ...rpc.CallOpt) (c CompComp, _ error)
 }
 
-// ServiceBClientStub adds universal methods to ServiceBClientMethods.
+// ServiceBClientStub embeds ServiceBClientMethods and is a
+// placeholder for additional management operations.
 type ServiceBClientStub interface {
 	ServiceBClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ServiceBClient returns a client stub for ServiceB.

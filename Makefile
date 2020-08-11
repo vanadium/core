@@ -20,3 +20,10 @@ test-integration:
 		-v23.tests
 	go test v.io/v23/security/... -tags openssl
 	go test v.io/x/ref/lib/security/... -tags openssl
+
+
+refresh:
+	go generate ./...
+	go run cloudeng.io/go/cmd/goannotate --config=vanadium-code-annotations.yaml --annotation=copyright ./...
+	go mod tidy
+

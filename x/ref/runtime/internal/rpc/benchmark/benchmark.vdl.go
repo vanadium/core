@@ -34,10 +34,10 @@ type BenchmarkClientMethods interface {
 	EchoStream(*context.T, ...rpc.CallOpt) (BenchmarkEchoStreamClientCall, error)
 }
 
-// BenchmarkClientStub adds universal methods to BenchmarkClientMethods.
+// BenchmarkClientStub embeds BenchmarkClientMethods and is a
+// placeholder for additional management operations.
 type BenchmarkClientStub interface {
 	BenchmarkClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // BenchmarkClient returns a client stub for Benchmark.

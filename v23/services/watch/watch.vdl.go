@@ -456,10 +456,10 @@ type GlobWatcherClientMethods interface {
 	WatchGlob(_ *context.T, req GlobRequest, _ ...rpc.CallOpt) (GlobWatcherWatchGlobClientCall, error)
 }
 
-// GlobWatcherClientStub adds universal methods to GlobWatcherClientMethods.
+// GlobWatcherClientStub embeds GlobWatcherClientMethods and is a
+// placeholder for additional management operations.
 type GlobWatcherClientStub interface {
 	GlobWatcherClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // GlobWatcherClient returns a client stub for GlobWatcher.

@@ -1181,10 +1181,10 @@ type JudgeClientMethods interface {
 	Play(_ *context.T, Id GameId, _ ...rpc.CallOpt) (JudgePlayClientCall, error)
 }
 
-// JudgeClientStub adds universal methods to JudgeClientMethods.
+// JudgeClientStub embeds JudgeClientMethods and is a
+// placeholder for additional management operations.
 type JudgeClientStub interface {
 	JudgeClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // JudgeClient returns a client stub for Judge.
@@ -1506,10 +1506,10 @@ type PlayerClientMethods interface {
 	Challenge(_ *context.T, Address string, Id GameId, Opts GameOptions, _ ...rpc.CallOpt) error
 }
 
-// PlayerClientStub adds universal methods to PlayerClientMethods.
+// PlayerClientStub embeds PlayerClientMethods and is a
+// placeholder for additional management operations.
 type PlayerClientStub interface {
 	PlayerClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // PlayerClient returns a client stub for Player.
@@ -1613,10 +1613,10 @@ type ScoreKeeperClientMethods interface {
 	Record(_ *context.T, Score ScoreCard, _ ...rpc.CallOpt) error
 }
 
-// ScoreKeeperClientStub adds universal methods to ScoreKeeperClientMethods.
+// ScoreKeeperClientStub embeds ScoreKeeperClientMethods and is a
+// placeholder for additional management operations.
 type ScoreKeeperClientStub interface {
 	ScoreKeeperClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ScoreKeeperClient returns a client stub for ScoreKeeper.
@@ -1717,10 +1717,10 @@ type RockPaperScissorsClientMethods interface {
 	ScoreKeeperClientMethods
 }
 
-// RockPaperScissorsClientStub adds universal methods to RockPaperScissorsClientMethods.
+// RockPaperScissorsClientStub embeds RockPaperScissorsClientMethods and is a
+// placeholder for additional management operations.
 type RockPaperScissorsClientStub interface {
 	RockPaperScissorsClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // RockPaperScissorsClient returns a client stub for RockPaperScissors.

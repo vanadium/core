@@ -36,10 +36,10 @@ type BenchmarkArchiverClientMethods interface {
 	Archive(_ *context.T, scenario ben.Scenario, code ben.SourceCode, runs []ben.Run, _ ...rpc.CallOpt) (string, error)
 }
 
-// BenchmarkArchiverClientStub adds universal methods to BenchmarkArchiverClientMethods.
+// BenchmarkArchiverClientStub embeds BenchmarkArchiverClientMethods and is a
+// placeholder for additional management operations.
 type BenchmarkArchiverClientStub interface {
 	BenchmarkArchiverClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // BenchmarkArchiverClient returns a client stub for BenchmarkArchiver.

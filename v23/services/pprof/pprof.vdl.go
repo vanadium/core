@@ -48,10 +48,10 @@ type PProfClientMethods interface {
 	Symbol(_ *context.T, programCounters []uint64, _ ...rpc.CallOpt) ([]string, error)
 }
 
-// PProfClientStub adds universal methods to PProfClientMethods.
+// PProfClientStub embeds PProfClientMethods and is a
+// placeholder for additional management operations.
 type PProfClientStub interface {
 	PProfClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // PProfClient returns a client stub for PProf.
