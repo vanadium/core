@@ -1,3 +1,7 @@
+// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package sshagent provides the ability to use openssh's ssh-agent
 // to carry out key signing operations using keys stored therein.
 // This allows ssh keys to be used as Vanadium principals.

@@ -57,10 +57,10 @@ type TrigonometryClientMethods interface {
 	Cosine(_ *context.T, angle float64, _ ...rpc.CallOpt) (float64, error)
 }
 
-// TrigonometryClientStub adds universal methods to TrigonometryClientMethods.
+// TrigonometryClientStub embeds TrigonometryClientMethods and is a
+// placeholder for additional management operations.
 type TrigonometryClientStub interface {
 	TrigonometryClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // TrigonometryClient returns a client stub for Trigonometry.
@@ -185,10 +185,10 @@ type AdvancedMathClientMethods interface {
 	exp.ExpClientMethods
 }
 
-// AdvancedMathClientStub adds universal methods to AdvancedMathClientMethods.
+// AdvancedMathClientStub embeds AdvancedMathClientMethods and is a
+// placeholder for additional management operations.
 type AdvancedMathClientStub interface {
 	AdvancedMathClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // AdvancedMathClient returns a client stub for AdvancedMath.
@@ -306,10 +306,10 @@ type ArithClientMethods interface {
 	QuoteAny(_ *context.T, a *vom.RawBytes, _ ...rpc.CallOpt) (*vom.RawBytes, error)
 }
 
-// ArithClientStub adds universal methods to ArithClientMethods.
+// ArithClientStub embeds ArithClientMethods and is a
+// placeholder for additional management operations.
 type ArithClientStub interface {
 	ArithClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // ArithClient returns a client stub for Arith.
@@ -891,10 +891,10 @@ type CalculatorClientMethods interface {
 	Off(*context.T, ...rpc.CallOpt) error // Off turns the calculator off.
 }
 
-// CalculatorClientStub adds universal methods to CalculatorClientMethods.
+// CalculatorClientStub embeds CalculatorClientMethods and is a
+// placeholder for additional management operations.
 type CalculatorClientStub interface {
 	CalculatorClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // CalculatorClient returns a client stub for Calculator.

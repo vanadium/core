@@ -510,10 +510,10 @@ type DirectoryClientMethods interface {
 	GetAttachment(_ *context.T, id discovery.AdId, name string, _ ...rpc.CallOpt) ([]byte, error)
 }
 
-// DirectoryClientStub adds universal methods to DirectoryClientMethods.
+// DirectoryClientStub embeds DirectoryClientMethods and is a
+// placeholder for additional management operations.
 type DirectoryClientStub interface {
 	DirectoryClientMethods
-	rpc.UniversalServiceMethods
 }
 
 // DirectoryClient returns a client stub for Directory.

@@ -1,3 +1,7 @@
+// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package keyfile provides a signing service that uses files to store
 // keys. Currently .pem and ssh private key file formats are supported.
 package keyfile

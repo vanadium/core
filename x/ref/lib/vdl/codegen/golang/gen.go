@@ -716,10 +716,10 @@ func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context")
 	{{$method.Doc}}{{$method.Name}}({{argNameTypes "" ($data.CtxVar "_") "" ($data.OptsVar "_") $data $method.InArgs}}) {{outArgsClient "" "_" $data $iface $method}}{{$method.DocSuffix}}{{end}}
 }
 
-// {{$iface.Name}}ClientStub adds universal methods to {{$iface.Name}}ClientMethods.
+// {{$iface.Name}}ClientStub embeds {{$iface.Name}}ClientMethods and is a
+// placeholder for additional management operations.
 type {{$iface.Name}}ClientStub interface {
 	{{$iface.Name}}ClientMethods
-	{{$rpc_}}UniversalServiceMethods
 }
 
 // {{$iface.Name}}Client returns a client stub for {{$iface.Name}}.
