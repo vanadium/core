@@ -322,7 +322,7 @@ func TestDurationFlag(t *testing.T) {
 	if got, want := d.Duration, time.Second; got != want {
 		t.Errorf("got %s, expected %s", got, want)
 	}
-	if err := d.Set("1t"); err == nil || err.Error() != "time: unknown unit t in duration 1t" {
+	if err := d.Set("1t"); err == nil || err.Error() != `time: unknown unit "t" in duration "1t"` {
 		t.Errorf("expected error %v", err)
 	}
 }
