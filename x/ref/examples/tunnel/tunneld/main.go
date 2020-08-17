@@ -46,6 +46,8 @@ func runTunnelD(ctx *context.T, env *cmdline.Env, args []string) error {
 		auth security.Authorizer
 		err  error
 	)
+	ctx, waitForSignals := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer waitForSignals()
 	switch {
 	case aclLiteral != "":
 		var perms access.Permissions
@@ -69,6 +71,5 @@ func runTunnelD(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	ctx.Infof("Published as %q", name)
 
-	<-signals.ShutdownOnSignals(ctx)
 	return nil
 }
