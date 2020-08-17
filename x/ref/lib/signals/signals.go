@@ -18,23 +18,6 @@ import (
 	"v.io/v23/context"
 )
 
-type stopSignal string
-
-func (stopSignal) Signal()          {}
-func (s stopSignal) String() string { return string(s) }
-
-const (
-	STOP               = stopSignal("")
-	DoubleStopExitCode = 1
-)
-
-// TODO(caprita): Needless to say, this is a hack.  The motivator was getting
-// the device manager (run by the security agent) to shut down cleanly when the
-// process group containing both the agent and device manager receives a signal
-// (and the agent propagates that signal to the child).  We should be able to
-// finesse this by demonizing the device manager and/or being smarter about how
-// and when the agent sends the signal to the child.
-
 // SameSignalTimeWindow specifies the time window during which multiple
 // deliveries of the same signal are counted as one signal.  If set to zero, no
 // such de-duping occurs.  This is useful in situations where a process receives
@@ -47,16 +30,23 @@ const (
 // and never reset afterwards.
 var SameSignalTimeWindow time.Duration
 
+const (
+	DoubleStopExitCode = 1
+)
+
 // Default returns a set of platform-specific signals that applications are
 // encouraged to listen on.
 func Default() []os.Signal {
-	return []os.Signal{syscall.SIGTERM, syscall.SIGINT, STOP}
+	return []os.Signal{syscall.SIGTERM, syscall.SIGINT}
 }
+
+// TODO(cnicolaou): replace the use of context.T with context.Context.
 
 // ShutdownOnSignals registers signal handlers for the specified signals, or, if
 // none are specified, the default signals.  The first signal received will be
 // made available on the returned channel; upon receiving a second signal, the
-// process will exit.
+// process will exit if that signal differs from the first, or if the same it
+// arrives more than a second after the first.
 func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 	if len(signals) == 0 {
 		signals = Default()
@@ -64,36 +54,22 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 	// At least a buffer of length two so that we don't drop the first two
 	// signals we get on account of the channel being full.
 	ch := make(chan os.Signal, 2)
-	sawStop := false
-	var signalsNoStop []os.Signal
-	for _, s := range signals {
-		switch s {
-		case STOP:
-			if !sawStop {
-				sawStop = true
-				if ctx != nil {
-					stopWaiter := make(chan string, 1)
-					go func() {
-						for {
-							ch <- stopSignal(<-stopWaiter)
-						}
-					}()
-				}
-			}
-		default:
-			signalsNoStop = append(signalsNoStop, s)
-		}
-	}
-	if len(signalsNoStop) > 0 {
-		signal.Notify(ch, signalsNoStop...)
-	}
+	signal.Notify(ch, signals...)
+
 	// At least a buffer of length one so that we don't block on ret <- sig.
 	ret := make(chan os.Signal, 1)
 	go func() {
 		// First signal received.
-		sig := <-ch
-		sigTime := time.Now()
-		ret <- sig
+		var sig os.Signal
+		var sigTime time.Time
+		select {
+		case sig = <-ch:
+			sigTime = time.Now()
+			ret <- sig
+		case <-ctx.Done():
+			ret <- ContextDoneSignal(ctx.Err().Error())
+			return
+		}
 		// Wait for a second signal, and force an exit if the process is
 		// still executing cleanup code.
 		for {
@@ -108,3 +84,45 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 	}()
 	return ret
 }
+
+// ShutdownOnSignalsWithCancel is like ShutdownOnSignals except it forks the
+// supplied context to obtain a cancel function which is called by the returned
+// function when a signal is received. The returned function can be called to
+// wait for the signal to be received or for the context to be canceled.
+// Typical usage would be:
+//
+//    func main() {
+// 	    ctx, shutdown := v23.Init()
+//      defer shutdown()
+//      ctx, waitForInterrupt := ShutdownOnSignalsWithCancel(ctx)
+//      defer waitForInterrupt()
+//
+//      _, srv, err := v23.WithNewServer(ctx, ...)
+//
+//    }
+//
+// waitForInterrupt will wait for a signal to be received at which point it
+// will cancel the context and thus the server created by WithNewServer to
+// initiate its internal shutdown. The deferred shutdown returned by v23.Init()
+// will then wait for that the server to complete its shutdown.
+// Canceling the context is treated as receipt of a custom signal,
+// ContextDoneSignal, in terms of its returns value.
+func ShutdownOnSignalsWithCancel(ctx *context.T, signals ...os.Signal) (*context.T, func() os.Signal) {
+	ctx, cancel := context.WithCancel(ctx)
+	ch := ShutdownOnSignals(ctx, signals...)
+	return ctx, func() os.Signal {
+		select {
+		case sig := <-ch:
+			cancel()
+			return sig
+		case <-ctx.Done():
+			cancel()
+			return ContextDoneSignal(ctx.Err().Error())
+		}
+	}
+}
+
+type ContextDoneSignal string
+
+func (ContextDoneSignal) Signal()          {}
+func (s ContextDoneSignal) String() string { return string(s) }
