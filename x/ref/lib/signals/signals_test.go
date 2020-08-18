@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"testing"
 
+	"v.io/v23/context"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -31,8 +32,13 @@ func stopLoop(stdin io.Reader, ch chan<- struct{}) {
 	}
 }
 
-func program(sigs ...os.Signal) {
+func program(cancelSelf bool, sigs ...os.Signal) {
 	ctx, shutdown := test.V23Init()
+	if cancelSelf {
+		nctx, cancel := context.WithCancel(ctx)
+		go cancel()
+		ctx = nctx
+	}
 	closeStopLoop := make(chan struct{})
 	// obtain ac here since stopLoop may execute after shutdown is called below
 	go stopLoop(os.Stdin, closeStopLoop)
@@ -44,15 +50,15 @@ func program(sigs ...os.Signal) {
 }
 
 var handleDefaults = gosh.RegisterFunc("handleDefaults", func() {
-	program()
+	program(false)
 })
 
 var handleCustom = gosh.RegisterFunc("handleCustom", func() {
-	program(syscall.SIGABRT)
+	program(false, syscall.SIGABRT)
 })
 
-var handleCustomWithStop = gosh.RegisterFunc("handleCustomWithStop", func() {
-	program(signals.STOP, syscall.SIGABRT, syscall.SIGHUP)
+var handleCancel = gosh.RegisterFunc("handlCancel", func() {
+	program(true, syscall.SIGABRT)
 })
 
 var handleDefaultsIgnoreChan = gosh.RegisterFunc("handleDefaultsIgnoreChan", func() {
@@ -64,6 +70,35 @@ var handleDefaultsIgnoreChan = gosh.RegisterFunc("handleDefaultsIgnoreChan", fun
 	signals.ShutdownOnSignals(ctx)
 	fmt.Printf("ready\n")
 	<-closeStopLoop
+})
+
+func programWithContext(cancelSelf bool, sig ...os.Signal) {
+	ctx, shutdown := test.V23Init()
+	defer func() {
+		shutdown()
+		fmt.Printf("shutdown complete\n")
+	}()
+	if cancelSelf {
+		nctx, cancel := context.WithCancel(ctx)
+		go cancel()
+		ctx = nctx
+	}
+	ctx, waitForInterrupt := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer func() {
+		sig := waitForInterrupt()
+		fmt.Printf("received signal %v\n", sig)
+		<-ctx.Done()
+		fmt.Println(ctx.Err())
+	}()
+	fmt.Printf("ready\n")
+}
+
+var handleWithContext = gosh.RegisterFunc("handleWithContext", func() {
+	programWithContext(false, syscall.SIGINT)
+})
+
+var handleWithSelfCancel = gosh.RegisterFunc("handleWithSelfCancel", func() {
+	programWithContext(true, syscall.SIGINT)
 })
 
 func isSignalInSet(sig os.Signal, set []os.Signal) bool {
@@ -91,6 +126,8 @@ func startFunc(t *testing.T, sh *v23test.Shell, f *gosh.Func, exitErrorIsOk bool
 	cmd := sh.FuncCmd(f)
 	wc := cmd.StdinPipe()
 	cmd.ExitErrorIsOk = exitErrorIsOk
+	//	cmd.AddStdoutWriter(os.Stdout)
+	//	cmd.AddStderrWriter(os.Stdout)
 	cmd.Start()
 	return cmd, wc
 }
@@ -106,6 +143,19 @@ func TestCleanShutdownSignal(t *testing.T) {
 	checkSignalIsDefault(t, syscall.SIGINT)
 	cmd.Signal(syscall.SIGINT)
 	cmd.S.Expectf("received signal %s", syscall.SIGINT)
+	fmt.Fprintf(stdinPipe, "close\n")
+	cmd.Wait()
+}
+
+// TestCleanContextCancel verifies that canceling the context will
+// lead to a clean exit.
+func TestCleanContextCancel(t *testing.T) {
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+
+	cmd, stdinPipe := startFunc(t, sh, handleCancel, false)
+	cmd.S.Expect("ready")
+	cmd.S.Expectf("received signal %s", signals.ContextDoneSignal("context canceled"))
 	fmt.Fprintf(stdinPipe, "close\n")
 	cmd.Wait()
 }
@@ -185,37 +235,41 @@ func TestHandlerCustomSignal(t *testing.T) {
 	cmd.Wait()
 }
 
-// TestHandlerCustomSignalWithStop verifies that sending a custom stop signal
-// to a server that listens for that signal causes the server to shut down
-// cleanly, even when a STOP signal is also among the handled signals.
-func TestHandlerCustomSignalWithStop(t *testing.T) {
-	for _, signal := range []syscall.Signal{syscall.SIGABRT, syscall.SIGHUP} {
-		func() {
-			sh := v23test.NewShell(t, nil)
-			defer sh.Cleanup()
-
-			cmd, stdinPipe := startFunc(t, sh, handleCustomWithStop, false)
-			cmd.S.Expect("ready")
-			checkSignalIsNotDefault(t, signal)
-			cmd.Signal(signal)
-			cmd.S.Expectf("received signal %s", signal)
-			fmt.Fprintf(stdinPipe, "close\n")
-			cmd.Wait()
-		}()
-	}
-}
-
 // TestParseSignalsList verifies that ShutdownOnSignals correctly interprets
 // the input list of signals.
 func TestParseSignalsList(t *testing.T) {
-	list := []os.Signal{signals.STOP, syscall.SIGTERM}
+	list := []os.Signal{syscall.SIGTERM}
 	signals.ShutdownOnSignals(nil, list...)
 	if !isSignalInSet(syscall.SIGTERM, list) {
 		t.Errorf("signal %s not in signal set, as expected: %v", syscall.SIGTERM, list)
 	}
-	if !isSignalInSet(signals.STOP, list) {
-		t.Errorf("signal %s not in signal set, as expected: %v", signals.STOP, list)
-	}
+}
+
+func TestCleanShutdownSignalWithContext(t *testing.T) {
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+	cmd, stdinPipe := startFunc(t, sh, handleWithContext, false)
+	cmd.S.Expect("ready")
+	cmd.Signal(syscall.SIGINT)
+	cmd.S.Expectf("received signal %s", syscall.SIGINT)
+	cmd.S.Expectf("context canceled")
+	cmd.S.Expectf("shutdown complete")
+	fmt.Fprintf(stdinPipe, "close\n")
+	cmd.Wait()
+}
+
+func TestCleanShutdownSignalWithSelfCancel(t *testing.T) {
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+	cmd, stdinPipe := startFunc(t, sh, handleWithSelfCancel, false)
+	cmd.S.Expect("ready")
+	// No need to send a signal since handleWithSelfCancel will cancel
+	// its context and hence exit as if it received the pseudo signal.
+	cmd.S.Expectf("received signal %s", signals.ContextDoneSignal("context canceled"))
+	cmd.S.Expectf("context canceled")
+	cmd.S.Expectf("shutdown complete")
+	fmt.Fprintf(stdinPipe, "close\n")
+	cmd.Wait()
 }
 
 func TestMain(m *testing.M) {

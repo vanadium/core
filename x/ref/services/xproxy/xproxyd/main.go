@@ -53,6 +53,7 @@ Command proxyd is a daemon that listens for connections from Vanadium services
 }
 
 func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
+	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
 	// TODO(suharshs): Add ability to specify multiple proxies through this tool.
 	auth, err := authorizer(ctx, acl)
 	if err != nil {
@@ -74,6 +75,7 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 		ctx.Infof("--stats-access-list not specified")
 	}
 	proxyCtx, proxyCancel := context.WithCancel(ctx)
+	defer proxyCancel()
 	proxy, err := xproxy.New(proxyCtx, name, auth)
 	if err != nil {
 		return err
@@ -112,14 +114,9 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 			fmt.Printf("STATS=%s\n", eps[0].Name())
 		}
 	}
-	fmt.Printf("Proxy stats listenng on: %v", statsServer.Status().Endpoints)
-
-	<-signals.ShutdownOnSignals(ctx)
-	// Specifically remove this server from the mounttable to ensure that the
-	// mounttable is updated as quickly as possible.
+	fmt.Printf("Proxy stats listening on: %v", statsServer.Status().Endpoints)
+	waitForSignal()
 	proxyCancel()
-	<-proxy.Closed()
-	<-statsServer.Closed()
 	return nil
 }
 

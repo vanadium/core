@@ -47,6 +47,8 @@ v.io/v23/services/groups.Group interface.
 }
 
 func runGroupsD(ctx *context.T, env *cmdline.Env, args []string) error {
+	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer waitForSignal()
 	dispatcher, err := lib.NewGroupsDispatcher(flagRootDir, flagEngine)
 	if err != nil {
 		return err
@@ -56,8 +58,5 @@ func runGroupsD(ctx *context.T, env *cmdline.Env, args []string) error {
 		return fmt.Errorf("NewDispatchingServer(%v) failed: %v", flagName, err)
 	}
 	ctx.Infof("Groups server running at endpoint=%q", server.Status().Endpoints[0].Name())
-
-	// Wait until shutdown.
-	<-signals.ShutdownOnSignals(ctx)
 	return nil
 }

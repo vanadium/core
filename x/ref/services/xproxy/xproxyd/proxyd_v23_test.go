@@ -635,6 +635,7 @@ func sortProxyAddresses(t *testing.T, serving, stats []naming.MountedServer, pai
 		}
 		found := false
 		for _, p := range stats {
+			fmt.Printf("CMP\n\t%v\n\t%v\n", naming.JoinAddressName(p.Server, ""), info.proxyStatsName)
 			if naming.JoinAddressName(p.Server, "") == info.proxyStatsName {
 				sortedStats[i] = p
 				sortedProxyInfo[i] = info
