@@ -16,7 +16,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 
@@ -53,6 +52,7 @@ Command proxyd is a daemon that listens for connections from Vanadium services
 }
 
 func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
+	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
 	// TODO(suharshs): Add ability to specify multiple proxies through this tool.
 	auth, err := authorizer(ctx, acl)
 	if err != nil {
@@ -93,33 +93,32 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 		go startHealthzServer(ctx, healthzAddr)
 	}
 
-	// Start an RPC Server that listens through the proxy itself. This
-	// server will serve reserved methods only and in particular a stats service.
 	var monitoringName string
 	if len(name) > 0 {
 		monitoringName = name + "-mon"
 	}
-	ctx = v23.WithListenSpec(ctx, rpc.ListenSpec{Proxy: proxyEndpoint.Name()})
-	_, statsServer, err := v23.WithNewDispatchingServer(proxyCtx, monitoringName, &statsDispatcher{statsAuth})
+
+	// Start a Stats service that is as accessible as the proxy itself but
+	// with it's own ACL.
+	_, statsServer, err := v23.WithNewDispatchingServer(
+		ctx,
+		monitoringName,
+		&statsDispatcher{statsAuth})
 	if err != nil {
 		return fmt.Errorf("NewServer failed: %v", err)
 	}
+
 	if len(name) > 0 {
 		eps := statsServer.Status().Endpoints
 		if len(eps) == 1 {
-			// Again, print out the address of the stats server for
-			// integration tests.
+			// Print out the address of the stats server for integration tests.
 			fmt.Printf("STATS=%s\n", eps[0].Name())
 		}
 	}
-	fmt.Printf("Proxy stats listenng on: %v", statsServer.Status().Endpoints)
-
-	<-signals.ShutdownOnSignals(ctx)
-	// Specifically remove this server from the mounttable to ensure that the
-	// mounttable is updated as quickly as possible.
+	fmt.Printf("Proxy stats listening on: %v", statsServer.Status().Endpoints)
+	waitForSignal()
 	proxyCancel()
 	<-proxy.Closed()
-	<-statsServer.Closed()
 	return nil
 }
 
