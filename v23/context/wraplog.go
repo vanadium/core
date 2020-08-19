@@ -145,6 +145,7 @@ func (t *T) VI(level int) interface {
 	}
 	return out
 }
+
 func (t *T) VIDepth(depth int, level int) interface {
 	Info(args ...interface{})
 	Infof(format string, args ...interface{})
