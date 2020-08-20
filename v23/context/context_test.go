@@ -43,22 +43,15 @@ func testCancel(t *testing.T, ctx *context.T, cancel context.CancelFunc) {
 	}
 }
 
-func TestRootContext(t *testing.T) {
+func TestRInitialization(t *testing.T) {
 	var ctx *context.T
-
 	if ctx.Initialized() {
 		t.Error("Nil context should be uninitialized")
 	}
-	//	if got := ctx.Err(); got != nil {
-	//		t.Errorf("Expected nil error, got: %v", got)
-	//	}
 	ctx = &context.T{}
 	if ctx.Initialized() {
 		t.Error("Zero context should be uninitialized")
 	}
-	//	if got := ctx.Err(); got != nil {
-	//		t.Errorf("Expected nil error, got: %v", got)
-	//	}
 }
 
 func TestCancelContext(t *testing.T) {
@@ -194,16 +187,24 @@ type ctxKey string
 
 func TestRootCancel(t *testing.T) {
 	root, rootcancel := context.RootContext()
+	root = context.WithValue(root, ctxKey("tlKey"), "tlValue")
 	a, acancel := context.WithCancel(root)
 	b := context.WithValue(a, ctxKey("key"), "value")
 
 	c, ccancel := context.WithRootCancel(b)
 	d, _ := context.WithCancel(c)
+	f, _ := context.WithCancel(d)
 
 	e, _ := context.WithRootCancel(b)
 
-	if s, ok := d.Value(ctxKey("key")).(string); !ok || s != "value" {
-		t.Error("Lost a value but shouldn't have.")
+	for _, vctx := range []*context.T{d, e, f} {
+		if s, ok := vctx.Value(ctxKey("tlKey")).(string); !ok || s != "tlValue" {
+			t.Error("Lost a value but shouldn't have.")
+		}
+
+		if s, ok := vctx.Value(ctxKey("key")).(string); !ok || s != "value" {
+			t.Error("Lost a value but shouldn't have.")
+		}
 	}
 
 	// If we cancel a, b will get canceled but c will not.
@@ -225,12 +226,93 @@ func TestRootCancel(t *testing.T) {
 
 	// Cancelling the root should cancel e.
 	rootcancel()
+	select {
+	case <-root.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("timedout waiting for root")
+
+	}
+	select {
+	case <-e.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("timedout waiting for e")
+	}
+}
+
+func TestRootCancelChain(t *testing.T) {
+	root, rootcancel := context.RootContext()
+	root = context.WithValue(root, ctxKey("tlKey"), "tlValue")
+	a, acancel := context.WithCancel(root)
+	b := context.WithValue(a, ctxKey("key"), "value")
+
+	c, ccancel := context.WithRootCancel(b)
+	d, _ := context.WithCancel(c)
+	e, _ := context.WithRootCancel(d)
+	f, _ := context.WithCancel(e)
+
+	for _, vctx := range []*context.T{c, d, e, f} {
+		if s, ok := vctx.Value(ctxKey("tlKey")).(string); !ok || s != "tlValue" {
+			t.Error("Lost a value but shouldn't have.")
+		}
+
+		if s, ok := vctx.Value(ctxKey("key")).(string); !ok || s != "value" {
+			t.Error("Lost a value but shouldn't have.")
+		}
+	}
+
+	// If we cancel a, b will get canceled but c, d, e, f will not.
+	acancel()
+	<-a.Done()
+	<-b.Done()
+	select {
+	case <-c.Done():
+		t.Error("C should not yet be canceled.")
+	case <-d.Done():
+		t.Error("D should not yet be canceled.")
+	case <-e.Done():
+		t.Error("E should not yet be canceled.")
+	case <-f.Done():
+		t.Error("F should not yet be canceled.")
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	// If we cancel c, d will get canceled but not e or f.
+	ccancel()
+	<-c.Done()
+	<-d.Done()
+	select {
+	case <-e.Done():
+		t.Error("E should not yet be canceled.")
+	case <-f.Done():
+		t.Error("F should not yet be canceled.")
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	// If we cancel the original root, everything should now be canceled.
+	rootcancel()
 	<-root.Done()
 	<-e.Done()
+	<-f.Done()
+
+	// Make sure rootcancel cancels everything.
+	root, rootcancel = context.RootContext()
+	a, _ = context.WithCancel(root)
+	b = context.WithValue(a, ctxKey("key"), "value")
+
+	c, _ = context.WithRootCancel(b)
+	d, _ = context.WithCancel(c)
+	e, _ = context.WithRootCancel(d)
+	f, _ = context.WithCancel(e)
+
+	rootcancel()
+	for _, ctx := range []*context.T{a, b, c, d, e, f} {
+		<-ctx.Done()
+	}
 }
 
 func TestRootCancel_GoContext(t *testing.T) {
 	root, rootcancel := context.RootContext()
+
 	a, acancel := gocontext.WithCancel(root)
 	b := context.FromGoContext(a)
 	c, _ := context.WithRootCancel(b)

@@ -5,6 +5,7 @@
 package test
 
 import (
+	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -29,6 +30,10 @@ func (s *simple) Sleep(*context.T, rpc.ServerCall) error {
 
 func (s *simple) Ping(_ *context.T, _ rpc.ServerCall) (string, error) {
 	return "pong", nil
+}
+
+func (s *simple) PingWithArgs(_ *context.T, _ rpc.ServerCall, a, b, c string) (string, error) {
+	return fmt.Sprintf("pong %s %s %s", a, b, c), nil
 }
 
 func (s *simple) Echo(_ *context.T, _ rpc.ServerCall, arg string) (string, error) {
@@ -81,6 +86,7 @@ func (s *simple) Inc(_ *context.T, call rpc.StreamServerCall, inc int) (int, err
 
 func startSimpleServer(t *testing.T, ctx *context.T) (string, func()) {
 	done := make(chan struct{})
+	ctx.Infof("PRINCIAPL: %v\n", v23.GetPrincipal(ctx).PublicKey().String())
 	_, server, err := v23.WithNewServer(ctx, "", &simple{done}, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -89,7 +95,7 @@ func startSimpleServer(t *testing.T, ctx *context.T) (string, func()) {
 }
 
 func TestSimpleRPC(t *testing.T) {
-	ctx, shutdown := test.V23InitWithMounttable()
+	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	name, fn := startSimpleServer(t, ctx)
 	defer fn()
@@ -106,10 +112,22 @@ func TestSimpleRPC(t *testing.T) {
 	if got, want := response, "pong"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
+
+	call, err = client.StartCall(ctx, name, "PingWithArgs", []interface{}{"x", "y", "z"})
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	response = ""
+	if err := call.Finish(&response); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	if got, want := response, "pong x y z"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
 }
 
 func TestSimpleStreaming(t *testing.T) {
-	ctx, shutdown := test.V23InitWithMounttable()
+	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	name, fn := startSimpleServer(t, ctx)
 	defer fn()

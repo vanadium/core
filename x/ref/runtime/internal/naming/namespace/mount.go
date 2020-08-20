@@ -5,7 +5,6 @@
 package namespace
 
 import (
-	"fmt"
 	"time"
 
 	v23 "v.io/v23"
@@ -54,7 +53,6 @@ func (ns *namespace) Mount(ctx *context.T, name, server string, ttl time.Duratio
 			timeoutCtx, cancel := withTimeout(ctx)
 			defer cancel()
 			err = v23.GetClient(ctx).Call(timeoutCtx, name, "Mount", []interface{}{server, uint32(ttl.Seconds()), flags}, nil, copts...)
-			fmt.Printf("ERRRRR>>>>>>>>> %v\n", err)
 			// Always attempt all mounts, but report the last error found.
 		}
 	}

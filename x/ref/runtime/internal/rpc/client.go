@@ -160,7 +160,10 @@ func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []int
 	connOpts := getConnectionOptions(ctx, opts)
 	var prevErr error
 	for retries := uint(0); ; retries++ {
+		ctx.Infof(">>>> %v .. %v start\n", name, method)
 		call, err := c.startCall(ctx, name, method, inArgs, connOpts, opts)
+		ctx.Infof(">>>> %v .. %v -> %v\n", name, method, err)
+
 		if err != nil {
 			// See explanation in connectToName.
 			tr.LazyPrintf("%s\n", err)
@@ -202,7 +205,9 @@ func (c *client) startCall(ctx *context.T, name, method string, args []interface
 		return nil, err
 	}
 
+	ctx.Infof("connectToName: start ctx %p: %v %v\n", ctx, name, method)
 	if verr := fc.start(r.suffix, method, args, opts); verr != nil {
+		ctx.Infof("connectToName: start ctx %p: %v %v -> %v\n", ctx, name, method, verr)
 		return nil, verr
 	}
 	return fc, nil
@@ -684,6 +689,7 @@ func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rp
 		return fc.close(berr)
 	}
 	deadline, _ := fc.ctx.Deadline()
+	fc.ctx.Infof("DEADLINE from ctx %p", fc.ctx)
 	req := rpc.Request{
 		Suffix:           suffix,
 		Method:           method,

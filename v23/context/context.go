@@ -77,29 +77,19 @@ package context
 
 import (
 	"context"
+	"sync/atomic"
 	"time"
 
 	"v.io/v23/logging"
+	"v.io/x/lib/vlog"
 )
 
 type internalKey int
 
 const (
-	loggerKey = internalKey(iota)
-	ctxLoggerKey
-
 	rootKey = internalKey(iota)
-	cancelKey
-	deadlineKey
-	rootCancelStateKey
-
-	// vmarker is never stored as a key. However,
-	// gocontext.Context.Value(vmarkerKey) will return a *T object if there's a *T
-	// object in the context chain. So you can use it to discover the logger even
-	// if you don't know the concrete representation of the context object.
-	vmarkerKey
-	// gomarker is stored as a key in T wrapping a generic gocontext.Context.
-	gomarkerKey
+	loggerKey
+	ctxLoggerKey
 )
 
 // ContextLogger is a logger that uses a passed in T to configure
@@ -141,6 +131,8 @@ type T struct {
 	context.Context
 	logger    logging.Logger
 	ctxLogger ContextLogger
+	parent    *T
+	key       interface{}
 }
 
 // RootContext creates a new root context with no data attached.
@@ -152,39 +144,46 @@ type T struct {
 // runtime to test a function that reads from a T.
 func RootContext() (*T, CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx = context.WithValue(ctx, loggerKey, logging.Discard)
-	return &T{
-		Context: ctx,
-		logger:  logging.Discard,
-	}, CancelFunc(cancel)
+	nctx := &T{Context: ctx, logger: logging.Discard}
+	nctx = WithValue(nctx, rootKey, nctx)
+	nctx = WithValue(nctx, loggerKey, logging.Discard)
+	return nctx, CancelFunc(cancel)
+}
+
+func newChild(parent *T, ctx context.Context) *T {
+	child := *parent
+	child.parent = parent
+	child.Context = ctx
+	return &child
 }
 
 // WithLogger returns a child of the current context that embeds the supplied
 // logger.
 func WithLogger(parent *T, logger logging.Logger) *T {
-	child := *parent
-	child.Context = context.WithValue(parent.Context, loggerKey, logger)
+	if !parent.Initialized() {
+		return nil
+	}
+	child := newChild(parent, context.WithValue(parent.Context, loggerKey, logger))
 	child.logger = logger
-	return &child
+	return child
 }
 
 // WithContextLogger returns a child of the current context that embeds the supplied
 // context logger.
 // TODO(cnicolaou): consider getting rid of ContextLogger altogether.
 func WithContextLogger(parent *T, logger ContextLogger) *T {
-	child := *parent
-	child.Context = context.WithValue(parent.Context, ctxLoggerKey, logger)
+	if !parent.Initialized() {
+		return nil
+	}
+	child := newChild(parent, context.WithValue(parent.Context, ctxLoggerKey, logger))
 	child.ctxLogger = logger
-	return &child
+	return child
 }
 
 // LoggerFromContext returns the implementation of the logger
 // associated with this context. It should almost never need to be used by application
 // code.
 func LoggerFromContext(ctx context.Context) interface{} {
-	if t, ok := ctx.(*T); ok {
-		return t.logger
-	}
 	if v := ctx.Value(loggerKey); v != nil {
 		return v
 	}
@@ -197,21 +196,12 @@ func (t *T) Initialized() bool {
 	return t != nil && t.Context != nil
 }
 
-// Err implements context.Context but additional checking for being
-// initialized.
-func (t *T) Err() error {
-	if !t.Initialized() {
-		return nil
-	}
-	return t.Context.Err()
-}
-
 // WithValue returns a child of the current context that will return
 // the given val when Value(key) is called.
 func WithValue(parent *T, key interface{}, val interface{}) *T {
-	child := *parent
-	child.Context = context.WithValue(parent.Context, key, val)
-	return &child
+	child := newChild(parent, context.WithValue(parent.Context, key, val))
+	child.key = key
+	return child
 }
 
 // WithCancel returns a child of the current context along with
@@ -220,9 +210,8 @@ func WithValue(parent *T, key interface{}, val interface{}) *T {
 // (and all context further derived from it) will be closed.
 func WithCancel(parent *T) (*T, CancelFunc) {
 	ctx, cancel := context.WithCancel(parent.Context)
-	child := *parent
-	child.Context = ctx
-	return &child, CancelFunc(cancel)
+	child := newChild(parent, ctx)
+	return child, CancelFunc(cancel)
 }
 
 // FromGoContext creates a Vanadium Context object from a generic Context.
@@ -230,24 +219,17 @@ func FromGoContext(ctx context.Context) *T {
 	if vctx, ok := ctx.(*T); ok {
 		return vctx
 	}
-	var (
-		logger    logging.Logger = logging.Discard
-		ctxLogger ContextLogger
-	)
+	nctx := &T{Context: ctx, logger: logging.Discard}
 	if v := ctx.Value(loggerKey); v != nil {
-		logger = v.(logging.Logger)
+		nctx = WithValue(nctx, loggerKey, v)
 	}
 	if v := ctx.Value(ctxLoggerKey); v != nil {
-		ctxLogger = v.(ContextLogger)
+		nctx = WithValue(nctx, ctxLoggerKey, v)
 	}
-	return &T{
-		Context:   ctx,
-		logger:    logger,
-		ctxLogger: ctxLogger,
-	}
+	return nctx
 }
 
-//var nRootCancelWarning int32
+var nRootCancelWarning int32
 
 // WithRootCancel returns a context derived from parent, but that is
 // detached from the deadlines and cancellation hierarchy so that this
@@ -255,19 +237,30 @@ func FromGoContext(ctx context.Context) *T {
 // called, or the RootContext from which this context is ultimately
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
-	ctx, cancel := context.WithCancel(parent.Context)
-	child := *parent
-	child.Context = ctx
-	return &child, CancelFunc(cancel)
-	/*
-		root := parent.Value(rootCancelStateKey).(*cancelState)
-		cs := &cancelState{done: make(chan struct{})}
-		if root != nil {
-			root.addChild(cs)
-		} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
-			vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
+	// Create a new context and copy over the keys.
+	nctx := context.Background()
+	for p := parent; p != nil; p = p.parent {
+		if val := p.Context.Value(p.key); val != nil {
+			nctx = context.WithValue(nctx, p.key, val)
 		}
-		return WithValue(parent, cancelKey, cs), makeCancelFunc(cs, root, nil, Canceled)*/
+	}
+	ctx, cancel := context.WithCancel(nctx)
+
+	if val := parent.Value(rootKey); val != nil {
+		rootCtx := val.(context.Context)
+		// Forward the cancelation from the root context to the newly
+		// created one.
+		go func() {
+			select {
+			case <-rootCtx.Done():
+				cancel()
+			}
+		}()
+	} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
+		vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
+	}
+	child := newChild(parent, ctx)
+	return child, CancelFunc(cancel)
 }
 
 // WithDeadline returns a child of the current context along with a
@@ -278,16 +271,14 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 // so that resources associated with their timers may be released.
 func WithDeadline(parent *T, deadline time.Time) (*T, CancelFunc) {
 	ctx, cancel := context.WithDeadline(parent.Context, deadline)
-	child := *parent
-	child.Context = ctx
-	return &child, CancelFunc(cancel)
+	child := newChild(parent, ctx)
+	return child, CancelFunc(cancel)
 }
 
 // WithTimeout is similar to WithDeadline except a Duration is given
 // that represents a relative point in time from now.
 func WithTimeout(parent *T, timeout time.Duration) (*T, CancelFunc) {
 	ctx, cancel := context.WithTimeout(parent.Context, timeout)
-	child := *parent
-	child.Context = ctx
-	return &child, CancelFunc(cancel)
+	child := newChild(parent, ctx)
+	return child, CancelFunc(cancel)
 }

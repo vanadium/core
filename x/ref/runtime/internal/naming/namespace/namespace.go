@@ -5,7 +5,6 @@
 package namespace
 
 import (
-	"fmt"
 	"os"
 	"sync"
 	"time"
@@ -186,11 +185,8 @@ func emptyFunc() {}
 func withTimeout(ctx *context.T) (*context.T, func()) {
 	var cancel func()
 	if _, ok := ctx.Deadline(); !ok {
-		fmt.Printf("withTimeout: %p\n", ctx)
 		ctx, cancel = context.WithTimeout(ctx, callTimeout)
 	} else {
-		fmt.Printf("withTimeout: no deadline %p\n", ctx)
-
 		cancel = emptyFunc
 	}
 	return ctx, cancel

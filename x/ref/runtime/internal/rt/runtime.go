@@ -273,6 +273,7 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 		}
 	}
 	ctx = context.WithValue(ctx, principalKey, principal)
+	ctx.Infof("SET PRINCIPAL: %v %v: %v", principalKey, principal, principal.PublicKey().String())
 	return ctx, r.addChild(ctx, principal, stop)
 }
 

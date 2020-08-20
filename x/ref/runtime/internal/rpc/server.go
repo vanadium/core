@@ -112,7 +112,9 @@ func WithNewDispatchingServer(ctx *context.T,
 		return ctx, nil, err
 	}
 	origCtx := ctx // the original context may be returned on error paths
+
 	ctx, cancel := context.WithCancel(ctx)
+
 	statsPrefix := naming.Join("rpc", "server", "routing-id", rid.String())
 	s := &server{
 		ctx:               ctx,
@@ -128,6 +130,9 @@ func WithNewDispatchingServer(ctx *context.T,
 		closed:            make(chan struct{}),
 		outstanding:       newOutstandingStats(naming.Join("rpc", "server", "outstanding", rid.String())),
 	}
+
+	ctx.Infof("withNewServer: orig ctx %p, cancel: %p, s.ctx: %p", origCtx, ctx, s.ctx)
+
 	channelTimeout := time.Duration(0)
 	connIdleExpiry := time.Duration(0)
 	var authorizedPeers []security.BlessingPattern
@@ -189,6 +194,7 @@ func WithNewDispatchingServer(ctx *context.T,
 		s.cancel()
 		return origCtx, nil, err
 	}
+
 	pubctx, pubcancel := context.WithCancel(s.ctx)
 	s.publisher = publisher.New(pubctx, v23.GetNamespace(s.ctx), publishPeriod)
 	s.active.Add(1)

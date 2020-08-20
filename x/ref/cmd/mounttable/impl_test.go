@@ -108,6 +108,10 @@ func TestMountTableClient(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
+	tmp := v23.GetPrincipal(ctx)
+	ctx.Infof("GET PRINCIPAL: %v\n", tmp)
+
+	ctx.Infof("TestMountTableClient: ctx %p", ctx)
 	_, server, err := v23.WithNewDispatchingServer(ctx, "", new(dispatcher))
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
