@@ -43,9 +43,15 @@ func testCancel(t *testing.T, ctx *context.T, cancel context.CancelFunc) {
 	}
 }
 
-func TestRInitialization(t *testing.T) {
+func TestInitialization(t *testing.T) {
 	var ctx *context.T
 	if ctx.Initialized() {
+		t.Error("Nil context should be uninitialized")
+	}
+	if context.WithLogger(ctx, nil) != nil {
+		t.Error("Nil context should be uninitialized")
+	}
+	if context.WithContextLogger(ctx, nil) != nil {
 		t.Error("Nil context should be uninitialized")
 	}
 	ctx = &context.T{}
@@ -189,7 +195,11 @@ func TestRootCancel(t *testing.T) {
 	root, rootcancel := context.RootContext()
 	root = context.WithValue(root, ctxKey("tlKey"), "tlValue")
 	a, acancel := context.WithCancel(root)
-	b := context.WithValue(a, ctxKey("key"), "value")
+	// Most recent WithValue calls override previous ones,
+	// make sure that WithRootCancel preserves that ordering.
+	b := context.WithValue(a, ctxKey("key"), "valueLast")
+	b = context.WithValue(b, ctxKey("key"), "valueMiddle")
+	b = context.WithValue(b, ctxKey("key"), "value")
 
 	c, ccancel := context.WithRootCancel(b)
 	d, _ := context.WithCancel(c)
@@ -197,13 +207,12 @@ func TestRootCancel(t *testing.T) {
 
 	e, _ := context.WithRootCancel(b)
 
-	for _, vctx := range []*context.T{d, e, f} {
+	for i, vctx := range []*context.T{d, e, f} {
 		if s, ok := vctx.Value(ctxKey("tlKey")).(string); !ok || s != "tlValue" {
-			t.Error("Lost a value but shouldn't have.")
+			t.Errorf("%v: lost or wrong value....", i)
 		}
-
 		if s, ok := vctx.Value(ctxKey("key")).(string); !ok || s != "value" {
-			t.Error("Lost a value but shouldn't have.")
+			t.Errorf("%v: lost or wrong value....", i)
 		}
 	}
 
@@ -382,6 +391,25 @@ func (*stringLogger) Stats() (infoStats, errorStats struct{ Lines, Bytes int64 }
 func (*stringLogger) ConfigureFromFlags() error             { return nil }
 func (*stringLogger) ExplicitlySetFlags() map[string]string { return nil }
 
+type ctxLogger stringLogger
+
+func (cl *ctxLogger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
+	(*stringLogger)(cl).InfoDepth(depth, args...)
+}
+
+func (cl *ctxLogger) InfoStack(ctx *context.T, all bool) {
+	(*stringLogger)(cl).InfoStack(all)
+}
+
+func (cl *ctxLogger) VDepth(ctx *context.T, depth int, level int) bool {
+	return (*stringLogger)(cl).VDepth(depth, level)
+}
+
+func (cl *ctxLogger) VIDepth(ctx *context.T, depth int, level int) context.ContextLogger {
+	return cl
+
+}
+
 func TestLogging(t *testing.T) {
 	root, rootcancel := context.RootContext()
 	var _ logging.Logger = root
@@ -391,7 +419,32 @@ func TestLogging(t *testing.T) {
 	ctx := context.WithLogger(root, logger)
 	ctx.Infof("Oh, %s", "hello there")
 
+	if got, want := context.LoggerFromContext(ctx), logger; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
 	if got, want := logger.String(), "Oh, hello there"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	clogger := &stringLogger{}
+	ctx = context.WithContextLogger(root, (*ctxLogger)(clogger))
+	ctx.Infof("Oh, %s", "hello there")
+
+	if got, want := clogger.String(), "Oh, hello there"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	ctx = context.WithLogger(root, logger)
+	ctx = context.WithContextLogger(ctx, (*ctxLogger)(clogger))
+	cctx := gocontext.WithValue(ctx, ctxKey("a"), "a")
+	gctx := context.FromGoContext(cctx)
+	if got, want := context.LoggerFromContext(gctx).(*stringLogger), logger; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	rctx, _ := context.WithRootCancel(ctx)
+	if got, want := context.LoggerFromContext(rctx), logger; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 

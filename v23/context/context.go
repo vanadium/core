@@ -145,16 +145,19 @@ type T struct {
 func RootContext() (*T, CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
 	nctx := &T{Context: ctx, logger: logging.Discard}
-	nctx = WithValue(nctx, rootKey, nctx)
 	nctx = WithValue(nctx, loggerKey, logging.Discard)
+	nctx = WithValue(nctx, rootKey, nctx)
 	return nctx, CancelFunc(cancel)
 }
 
 func newChild(parent *T, ctx context.Context) *T {
-	child := *parent
-	child.parent = parent
-	child.Context = ctx
-	return &child
+	return &T{
+		parent:    parent,
+		Context:   ctx,
+		logger:    parent.logger,
+		ctxLogger: parent.ctxLogger,
+		key:       nil,
+	}
 }
 
 // WithLogger returns a child of the current context that embeds the supplied
@@ -163,7 +166,7 @@ func WithLogger(parent *T, logger logging.Logger) *T {
 	if !parent.Initialized() {
 		return nil
 	}
-	child := newChild(parent, context.WithValue(parent.Context, loggerKey, logger))
+	child := WithValue(parent, loggerKey, logger)
 	child.logger = logger
 	return child
 }
@@ -175,7 +178,7 @@ func WithContextLogger(parent *T, logger ContextLogger) *T {
 	if !parent.Initialized() {
 		return nil
 	}
-	child := newChild(parent, context.WithValue(parent.Context, ctxLoggerKey, logger))
+	child := WithValue(parent, ctxLoggerKey, logger)
 	child.ctxLogger = logger
 	return child
 }
@@ -184,10 +187,7 @@ func WithContextLogger(parent *T, logger ContextLogger) *T {
 // associated with this context. It should almost never need to be used by application
 // code.
 func LoggerFromContext(ctx context.Context) interface{} {
-	if v := ctx.Value(loggerKey); v != nil {
-		return v
-	}
-	return nil
+	return ctx.Value(loggerKey)
 }
 
 // Initialized returns true if this context has been properly initialized
@@ -231,6 +231,20 @@ func FromGoContext(ctx context.Context) *T {
 
 var nRootCancelWarning int32
 
+func copyValues(ctx *T) context.Context {
+	if ctx == nil {
+		return context.Background()
+	}
+	nctx := copyValues(ctx.parent)
+	if ctx.key == nil {
+		return nctx
+	}
+	if val := ctx.Value(ctx.key); val != nil {
+		return context.WithValue(nctx, ctx.key, val)
+	}
+	return nctx
+}
+
 // WithRootCancel returns a context derived from parent, but that is
 // detached from the deadlines and cancellation hierarchy so that this
 // context will only ever be canceled when the returned CancelFunc is
@@ -238,12 +252,7 @@ var nRootCancelWarning int32
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
 	// Create a new context and copy over the keys.
-	nctx := context.Background()
-	for p := parent; p != nil; p = p.parent {
-		if val := p.Context.Value(p.key); val != nil {
-			nctx = context.WithValue(nctx, p.key, val)
-		}
-	}
+	nctx := copyValues(parent)
 	ctx, cancel := context.WithCancel(nctx)
 
 	if val := parent.Value(rootKey); val != nil {

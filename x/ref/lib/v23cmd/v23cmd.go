@@ -91,7 +91,6 @@ func ParseAndRunForTest(cmd *cmdline.Command, ctx *context.T, env *cmdline.Env, 
 	}
 	if x, ok := r.(runner); ok {
 		return x.run(ctx, env, args)
-
 	}
 	return r.Run(env, args)
 }

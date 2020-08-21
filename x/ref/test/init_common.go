@@ -45,9 +45,7 @@ func editPrincipal(ctx *context.T, v23testProcess bool) *context.T {
 		return ctx
 	}
 	var err error
-	tp := testutil.NewPrincipal(TestBlessing)
-	ctx.Infof("TEST PRINCIPAL %v", tp.PublicKey().String())
-	if ctx, err = v23.WithPrincipal(ctx, tp); err != nil {
+	if ctx, err = v23.WithPrincipal(ctx, testutil.NewPrincipal(TestBlessing)); err != nil {
 		panic(err)
 	}
 	return ctx

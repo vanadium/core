@@ -236,7 +236,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	// notifying ourselves.
 	case <-ctx.Done():
 		f.close(ctx, false, ctx.Err())
-		ctx.Infof(">>>>>>>> EOF........: %p (%v) %v\n", ctx, ctx.Done(), ctx.Err())
 		return 0, io.EOF
 	default:
 	}

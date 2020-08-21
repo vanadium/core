@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -257,6 +258,7 @@ func check(t *testing.T, expected, results []string) {
 		}
 	}
 	if len(missing) > 0 {
-		t.Errorf("Result %v missing expected results %v", results, missing)
+		_, _, line, _ := runtime.Caller(1)
+		t.Errorf("line %v: Result %v missing expected results %v", line, results, missing)
 	}
 }

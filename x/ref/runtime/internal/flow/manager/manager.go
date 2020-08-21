@@ -520,9 +520,6 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 		}
 		m.ls.mu.Unlock()
 	}()
-
-	ctx.Infof("lnAcceptLoop: principal: %v", v23.GetPrincipal(ctx).PublicKey().String())
-
 	const killConnectionsRetryDelay = 5 * time.Millisecond
 	for {
 		flowConn, err := ln.Accept(ctx)
