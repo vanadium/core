@@ -2,11 +2,33 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// redo documentation...
-
-// Package context implements a mechanism to carry data across API boundaries.
-// The context.T struct carries deadlines and cancellation as well as other
-// arbitrary values.
+// Package context provides an implementation of context.Context with
+// additional functionality used within the Vanadium code base. The functions
+// in this package mirror those from the go library's context package with
+// two key differences as documented below.
+//
+// 1. context.T provides the concept of a 'root' context that is typically
+//    created by the runtime and made available to the application code.
+//    The WithRootCancel function creates a context from the root context that
+//    is detached from all of its parent contexts, except for the root, in terms
+//    of cancelation (both explicit and time based cancelation) but otherwise
+//    inherits all other state from its parent. Such contexts are used for
+//    asynchronous operations that persist past the return of the function tha
+//    created funtion. A typical use case would be a goroutine listening for
+//    new network connections. Canceling the immediate parent of these contexts
+//    has no effect on them; canceling the root context will lead to their
+//    cancelation and is therefore a convenient mechanism for the runtime to
+//    terminate all asynchronous/background processing when it is shutdown
+//    This gives these background processes the opportunity to clean up any
+//    external state.
+// 2. context.T provides access to logging functions and thus allows for
+//    different packages or code paths to be configured to use different
+//    loggers.
+//
+// Note that since context.T implements context.Context (it embeds the interface)
+// it can be passed in to code that expects context.Context. In addition APIs
+// that do not manipulate the context using the functions in this package should
+// be written to expect a context.Context rather than *context.T.
 //
 // Application code receives contexts in two main ways:
 //
@@ -42,37 +64,6 @@
 //      }
 //    }
 //
-// Contexts form a tree where derived contexts are children of the
-// contexts from which they were derived.  Children inherit all the
-// properties of their parent except for the property being replaced
-// (the deadline in the example above).
-//
-// Contexts are extensible.  The Value/WithValue functions allow you to attach
-// new information to the context and extend its capabilities.
-// In the same way we derive new contexts via the 'With' family of functions
-// you can create methods to attach new data:
-//
-//    package auth
-//
-//    import "v.io/v23/context"
-//
-//    type Auth struct{...}
-//
-//    type key int
-//    const authKey = key(0)
-//
-//    function WithAuth(parent *context.T, data *Auth) *context.T {
-//        return context.WithValue(parent, authKey, data)
-//    }
-//
-//    function GetAuth(ctx *context.T) *Auth {
-//        data, _ := ctx.Value(authKey).(*Auth)
-//        return data
-//    }
-//
-// Note that a value of any type can be used as a key, but you should
-// use an unexported value of an unexported type to ensure that no
-// collisions can occur.
 package context
 
 import (
