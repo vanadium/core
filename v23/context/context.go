@@ -246,6 +246,12 @@ func copyValues(ctx *T) context.Context {
 // called, or the RootContext from which this context is ultimately
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
+	// TODO(cnicolaou): implementing WithRootCancel adds a good deal of
+	//   complexity here that may be avoidable if WithRootCanel is moved to
+	//   the v23 runtime API which can keep track of the keys it sets. The
+	//   primary reason to not do so is that application code may be using
+	//   this function directly.
+
 	// Create a new context and copy over the keys.
 	nctx := copyValues(parent)
 	ctx, cancel := context.WithCancel(nctx)
