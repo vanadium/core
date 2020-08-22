@@ -14,7 +14,7 @@
 //    of cancelation (both explicit and time based cancelation) but otherwise
 //    inherits all other state from its parent. Such contexts are used for
 //    asynchronous operations that persist past the return of the function tha
-//    created funtion. A typical use case would be a goroutine listening for
+//    created function. A typical use case would be a goroutine listening for
 //    new network connections. Canceling the immediate parent of these contexts
 //    has no effect on them; canceling the root context will lead to their
 //    cancelation and is therefore a convenient mechanism for the runtime to
@@ -103,9 +103,10 @@ type ContextLogger interface {
 	VIDepth(ctx *T, depth int, level int) ContextLogger
 }
 
+// CancelFunc is the signature of the function used to cancel a context.
 type CancelFunc context.CancelFunc
 
-// Cancelled is returned by contexts which have been cancelled.
+// Canceled is returned by contexts which have been canceled.
 var Canceled = context.Canceled
 
 // DeadlineExceeded is returned by contexts that have exceeded their
@@ -122,8 +123,11 @@ type T struct {
 	context.Context
 	logger    logging.Logger
 	ctxLogger ContextLogger
-	parent    *T
-	key       interface{}
+	// parent and key are used to keep track of all the keys that are used
+	// WithValue so that WithRootCancel can copy the key/value pairs to
+	// the new background context that it creates.
+	parent *T
+	key    interface{}
 }
 
 // RootContext creates a new root context with no data attached.
@@ -141,7 +145,7 @@ func RootContext() (*T, CancelFunc) {
 	return nctx, CancelFunc(cancel)
 }
 
-func newChild(parent *T, ctx context.Context) *T {
+func newChild(ctx context.Context, parent *T) *T {
 	return &T{
 		parent:    parent,
 		Context:   ctx,
@@ -190,7 +194,7 @@ func (t *T) Initialized() bool {
 // WithValue returns a child of the current context that will return
 // the given val when Value(key) is called.
 func WithValue(parent *T, key interface{}, val interface{}) *T {
-	child := newChild(parent, context.WithValue(parent.Context, key, val))
+	child := newChild(context.WithValue(parent.Context, key, val), parent)
 	child.key = key
 	return child
 }
@@ -201,7 +205,7 @@ func WithValue(parent *T, key interface{}, val interface{}) *T {
 // (and all context further derived from it) will be closed.
 func WithCancel(parent *T) (*T, CancelFunc) {
 	ctx, cancel := context.WithCancel(parent.Context)
-	child := newChild(parent, ctx)
+	child := newChild(ctx, parent)
 	return child, CancelFunc(cancel)
 }
 
@@ -245,21 +249,18 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 	// Create a new context and copy over the keys.
 	nctx := copyValues(parent)
 	ctx, cancel := context.WithCancel(nctx)
-
 	if val := parent.Value(rootKey); val != nil {
 		rootCtx := val.(context.Context)
 		// Forward the cancelation from the root context to the newly
-		// created one.
+		// created context.
 		go func() {
-			select {
-			case <-rootCtx.Done():
-				cancel()
-			}
+			<-rootCtx.Done()
+			cancel()
 		}()
 	} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
 		vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
 	}
-	child := newChild(parent, ctx)
+	child := newChild(ctx, parent)
 	return child, CancelFunc(cancel)
 }
 
@@ -271,7 +272,7 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 // so that resources associated with their timers may be released.
 func WithDeadline(parent *T, deadline time.Time) (*T, CancelFunc) {
 	ctx, cancel := context.WithDeadline(parent.Context, deadline)
-	child := newChild(parent, ctx)
+	child := newChild(ctx, parent)
 	return child, CancelFunc(cancel)
 }
 
@@ -279,6 +280,6 @@ func WithDeadline(parent *T, deadline time.Time) (*T, CancelFunc) {
 // that represents a relative point in time from now.
 func WithTimeout(parent *T, timeout time.Duration) (*T, CancelFunc) {
 	ctx, cancel := context.WithTimeout(parent.Context, timeout)
-	child := newChild(parent, ctx)
+	child := newChild(ctx, parent)
 	return child, CancelFunc(cancel)
 }
