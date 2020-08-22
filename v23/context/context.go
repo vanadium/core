@@ -114,7 +114,6 @@ var Canceled = context.Canceled
 var DeadlineExceeded = context.DeadlineExceeded
 
 // T carries deadlines, cancellation and data across API boundaries.
-
 // It is safe to use a T from multiple goroutines simultaneously.  The
 // zero-type of context is uninitialized and will panic if used
 // directly by application code. It also implements v23/logging.Logger and
@@ -209,28 +208,36 @@ func WithCancel(parent *T) (*T, CancelFunc) {
 	return child, CancelFunc(cancel)
 }
 
-// FromGoContext creates a Vanadium Context object from a generic Context.
+// FromGoContext creates a Vanadium Context object from a generic Context. If
+// the implementation of ctx is a *T it will be returned, if not, a new *T will
+// be created with a default logger that discards its output.
 func FromGoContext(ctx context.Context) *T {
 	if vctx, ok := ctx.(*T); ok {
 		return vctx
 	}
+	return &T{Context: ctx, logger: logging.Discard}
+}
+
+// FromGoContextWithValues is like FromGoContext except that it will
+// copy values from the specified 'peer' *T to a newly created
+// *T. Note that if the supplied context is already a *T it will
+// returned directly and no values will be copied to it.
+func FromGoContextWithValues(ctx context.Context, peer *T) *T {
+	if vctx, ok := ctx.(*T); ok {
+		return vctx
+	}
 	nctx := &T{Context: ctx, logger: logging.Discard}
-	if v := ctx.Value(loggerKey); v != nil {
-		nctx = WithValue(nctx, loggerKey, v)
-	}
-	if v := ctx.Value(ctxLoggerKey); v != nil {
-		nctx = WithValue(nctx, ctxLoggerKey, v)
-	}
+	nctx.Context = copyValues(peer, ctx)
 	return nctx
 }
 
 var nRootCancelWarning int32
 
-func copyValues(ctx *T) context.Context {
+func copyValues(ctx *T, root context.Context) context.Context {
 	if ctx == nil {
-		return context.Background()
+		return root
 	}
-	nctx := copyValues(ctx.parent)
+	nctx := copyValues(ctx.parent, root)
 	if ctx.key == nil {
 		return nctx
 	}
@@ -246,14 +253,8 @@ func copyValues(ctx *T) context.Context {
 // called, or the RootContext from which this context is ultimately
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
-	// TODO(cnicolaou): implementing WithRootCancel adds a good deal of
-	//   complexity here that may be avoidable if WithRootCanel is moved to
-	//   the v23 runtime API which can keep track of the keys it sets. The
-	//   primary reason to not do so is that application code may be using
-	//   this function directly.
-
 	// Create a new context and copy over the keys.
-	nctx := copyValues(parent)
+	nctx := copyValues(parent, context.Background())
 	ctx, cancel := context.WithCancel(nctx)
 	if val := parent.Value(rootKey); val != nil {
 		rootCtx := val.(context.Context)
