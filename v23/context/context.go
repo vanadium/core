@@ -227,17 +227,17 @@ func FromGoContextWithValues(ctx context.Context, peer *T) *T {
 		return vctx
 	}
 	nctx := &T{Context: ctx, logger: logging.Discard}
-	nctx.Context = copyValues(peer, ctx)
+	nctx.Context = copyValues(ctx, peer)
 	return nctx
 }
 
 var nRootCancelWarning int32
 
-func copyValues(ctx *T, root context.Context) context.Context {
+func copyValues(root context.Context, ctx *T) context.Context {
 	if ctx == nil {
 		return root
 	}
-	nctx := copyValues(ctx.parent, root)
+	nctx := copyValues(root, ctx.parent)
 	if ctx.key == nil {
 		return nctx
 	}
@@ -254,7 +254,7 @@ func copyValues(ctx *T, root context.Context) context.Context {
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
 	// Create a new context and copy over the keys.
-	nctx := copyValues(parent, context.Background())
+	nctx := copyValues(context.Background(), parent)
 	ctx, cancel := context.WithCancel(nctx)
 	if val := parent.Value(rootKey); val != nil {
 		rootCtx := val.(context.Context)

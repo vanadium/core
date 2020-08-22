@@ -25,7 +25,7 @@ func TestCopy(t *testing.T) {
 	root = WithValue(root, ts(0), ts(-1))
 	hasKeys(root, t, rootKey, loggerKey, ts(0))
 	gctx = FromGoContextWithValues(context.Background(), root)
-	hasKeys(root, t, rootKey, loggerKey, ts(0))
+	hasKeys(gctx, t, rootKey, loggerKey, ts(0))
 
 	rc, cancel := WithRootCancel(root)
 	defer cancel()
