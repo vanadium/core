@@ -98,7 +98,7 @@ type viLogger struct {
 		InfoDepth(depth int, args ...interface{})
 		InfoStack(all bool)
 	}
-	ctxLogger ContextLogger
+	ctxLogger Logger
 }
 
 func (v *viLogger) Info(args ...interface{}) {

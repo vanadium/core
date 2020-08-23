@@ -405,7 +405,7 @@ func (cl *ctxLogger) VDepth(ctx *context.T, depth int, level int) bool {
 	return (*stringLogger)(cl).VDepth(depth, level)
 }
 
-func (cl *ctxLogger) VIDepth(ctx *context.T, depth int, level int) context.ContextLogger {
+func (cl *ctxLogger) VIDepth(ctx *context.T, depth int, level int) context.Logger {
 	return cl
 
 }

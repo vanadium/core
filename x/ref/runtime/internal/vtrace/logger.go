@@ -16,10 +16,9 @@ const (
 	initialMaxStackBufSize = 128 * 1024
 )
 
-//nolint:golint // API change required.
-type VTraceLogger struct{}
+type Logger struct{}
 
-func (*VTraceLogger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
+func (*Logger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
 	span := getSpan(ctx)
 	if span == nil {
 		return
@@ -29,12 +28,11 @@ func (*VTraceLogger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
 	span.Annotate(output)
 }
 
-func (*VTraceLogger) InfoStack(ctx *context.T, all bool) {
+func (*Logger) InfoStack(ctx *context.T, all bool) {
 	span := getSpan(ctx)
 	if span == nil {
 		return
 	}
-
 	span.Annotate(printStack(all))
 }
 
@@ -60,11 +58,11 @@ func printStack(all bool) string {
 	return string(trace)
 }
 
-func (*VTraceLogger) VDepth(ctx *context.T, depth int, level int) bool {
+func (*Logger) VDepth(ctx *context.T, depth int, level int) bool {
 	return GetVTraceLevel(ctx) >= level
 }
 
-func (v *VTraceLogger) VIDepth(ctx *context.T, depth int, level int) context.ContextLogger {
+func (v *Logger) VIDepth(ctx *context.T, depth int, level int) context.Logger {
 	// InfoStack logs the current goroutine's stack if the all parameter
 	// is false, or the stacks of all goroutine{
 	if v.VDepth(ctx, depth, level) {

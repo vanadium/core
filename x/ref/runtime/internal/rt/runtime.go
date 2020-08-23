@@ -154,7 +154,8 @@ func Init(
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: failed to add child to vtrace: %v\n", os.Args[0], err)
 	}
-	ctx = context.WithContextLogger(ctx, &ivtrace.VTraceLogger{})
+
+	ctx = context.WithContextLogger(ctx, &ivtrace.Logger{})
 
 	// Setup i18n.
 	ctx = i18n.WithLangID(ctx, i18n.LangIDFromEnv())

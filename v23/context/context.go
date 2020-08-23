@@ -83,10 +83,8 @@ const (
 	ctxLoggerKey
 )
 
-// ContextLogger is a logger that uses a passed in T to configure
-// the logging behavior.
-//nolint:golint // API change required.
-type ContextLogger interface {
+// Logger is a logger that uses a passed in T to configure the logging behavior.
+type Logger interface {
 	// InfoDepth logs to the INFO log. depth is used to determine which call frame to log.
 	InfoDepth(ctx *T, depth int, args ...interface{})
 
@@ -100,7 +98,7 @@ type ContextLogger interface {
 
 	// VIDepth is like VDepth, except that it returns nil if there level is greater than the
 	// configured log level.
-	VIDepth(ctx *T, depth int, level int) ContextLogger
+	VIDepth(ctx *T, depth int, level int) Logger
 }
 
 // CancelFunc is the signature of the function used to cancel a context.
@@ -121,7 +119,7 @@ var DeadlineExceeded = context.DeadlineExceeded
 type T struct {
 	context.Context
 	logger    logging.Logger
-	ctxLogger ContextLogger
+	ctxLogger Logger
 	// parent and key are used to keep track of all the keys that are used
 	// WithValue so that WithRootCancel can copy the key/value pairs to
 	// the new background context that it creates.
@@ -167,8 +165,7 @@ func WithLogger(parent *T, logger logging.Logger) *T {
 
 // WithContextLogger returns a child of the current context that embeds the supplied
 // context logger.
-// TODO(cnicolaou): consider getting rid of ContextLogger altogether.
-func WithContextLogger(parent *T, logger ContextLogger) *T {
+func WithContextLogger(parent *T, logger Logger) *T {
 	if !parent.Initialized() {
 		return nil
 	}
@@ -180,8 +177,9 @@ func WithContextLogger(parent *T, logger ContextLogger) *T {
 // LoggerFromContext returns the implementation of the logger
 // associated with this context. It should almost never need to be used by application
 // code.
-func LoggerFromContext(ctx context.Context) interface{} {
-	return ctx.Value(loggerKey)
+func LoggerFromContext(ctx context.Context) logging.Logger {
+	l, _ := ctx.Value(loggerKey).(logging.Logger)
+	return l
 }
 
 // Initialized returns true if this context has been properly initialized
