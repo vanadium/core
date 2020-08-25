@@ -74,37 +74,37 @@ func (t *T) Errorf(format string, args ...interface{}) {
 	t.ctxLogger.InfoDepth(t, 1, line)
 }
 
-// Fatal implements logging.FatalLog; it calls the registerd Logger but not
+// Fatal implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Fatal(args ...interface{}) {
 	t.logger.FatalDepth(1, args...)
 }
 
-// FatalDepth implements logging.FatalLog; it calls the registerd Logger but not
+// FatalDepth implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) FatalDepth(depth int, args ...interface{}) {
 	t.logger.FatalDepth(depth+1, args...)
 }
 
-// Fatalf implements logging.FatalLog; it calls the registerd Logger but not
+// Fatalf implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Fatalf(format string, args ...interface{}) {
 	t.logger.FatalDepth(1, fmt.Sprintf(format, args...))
 }
 
-// Panic implements logging.PanicLog; it calls the registerd Logger but not
+// Panic implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Panic(args ...interface{}) {
 	t.logger.PanicDepth(1, args...)
 }
 
-// PanicDepth implements logging.PanicLog; it calls the registerd Logger but not
+// PanicDepth implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) PanicDepth(depth int, args ...interface{}) {
 	t.logger.PanicDepth(depth+1, args...)
 }
 
-// Panicf implements logging.PanicLog; it calls the registerd Logger but not
+// Panicf implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Panicf(format string, args ...interface{}) {
 	t.logger.PanicDepth(1, fmt.Sprintf(format, args...))
