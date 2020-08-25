@@ -70,3 +70,5 @@ func (v *Logger) VIDepth(ctx *context.T, depth int, level int) context.Logger {
 	}
 	return nil
 }
+
+func (v *Logger) FlushLog() {}

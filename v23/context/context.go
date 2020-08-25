@@ -83,7 +83,8 @@ const (
 	ctxLoggerKey
 )
 
-// Logger is a logger that uses a passed in T to configure the logging behavior.
+// Logger is a logger that uses a passed in T to configure the logging behavior;
+// it is called by the correspoding logging methods of *T.
 type Logger interface {
 	// InfoDepth logs to the INFO log. depth is used to determine which call frame to log.
 	InfoDepth(ctx *T, depth int, args ...interface{})
@@ -99,6 +100,9 @@ type Logger interface {
 	// VIDepth is like VDepth, except that it returns nil if there level is greater than the
 	// configured log level.
 	VIDepth(ctx *T, depth int, level int) Logger
+
+	// Flush flushes all pending log I/O.
+	FlushLog()
 }
 
 // CancelFunc is the signature of the function used to cancel a context.
@@ -136,10 +140,19 @@ type T struct {
 // runtime to test a function that reads from a T.
 func RootContext() (*T, CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
-	nctx := &T{Context: ctx, logger: logging.Discard}
-	nctx = WithValue(nctx, loggerKey, logging.Discard)
+	nctx := newT(ctx)
+	nctx = WithValue(nctx, loggerKey, nctx.logger)
+	nctx = WithValue(nctx, ctxLoggerKey, nctx.ctxLogger)
 	nctx = WithValue(nctx, rootKey, nctx)
 	return nctx, CancelFunc(cancel)
+}
+
+func newT(ctx context.Context) *T {
+	return &T{
+		Context:   ctx,
+		logger:    logging.Discard,
+		ctxLogger: &loggerDiscard{},
+	}
 }
 
 func newChild(ctx context.Context, parent *T) *T {
@@ -213,7 +226,7 @@ func FromGoContext(ctx context.Context) *T {
 	if vctx, ok := ctx.(*T); ok {
 		return vctx
 	}
-	return &T{Context: ctx, logger: logging.Discard}
+	return newT(ctx)
 }
 
 // FromGoContextWithValues is like FromGoContext except that it will
@@ -224,7 +237,7 @@ func FromGoContextWithValues(ctx context.Context, peer *T) *T {
 	if vctx, ok := ctx.(*T); ok {
 		return vctx
 	}
-	nctx := &T{Context: ctx, logger: logging.Discard}
+	nctx := newT(ctx)
 	nctx.Context = copyValues(ctx, peer)
 	return nctx
 }

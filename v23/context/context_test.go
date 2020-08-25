@@ -407,11 +407,13 @@ func (cl *ctxLogger) VDepth(ctx *context.T, depth int, level int) bool {
 
 func (cl *ctxLogger) VIDepth(ctx *context.T, depth int, level int) context.Logger {
 	return cl
-
 }
+
+func (cl *ctxLogger) FlushLog() {}
 
 func TestLogging(t *testing.T) {
 	root, rootcancel := context.RootContext()
+
 	var _ logging.Logger = root
 	root.Infof("this message should be silently discarded")
 
