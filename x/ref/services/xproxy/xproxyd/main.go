@@ -51,8 +51,8 @@ Command proxyd is a daemon that listens for connections from Vanadium services
 }
 
 func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
-	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
-	defer waitForSignal()
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer handler.WaitForSignal()
 	// TODO(suharshs): Add ability to specify multiple proxies through this tool.
 	auth, err := authorizer(ctx)
 	if err != nil {
