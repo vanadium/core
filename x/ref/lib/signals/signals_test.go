@@ -83,9 +83,9 @@ func programWithContext(cancelSelf bool, sig ...os.Signal) {
 		go cancel()
 		ctx = nctx
 	}
-	ctx, waitForInterrupt := signals.ShutdownOnSignalsWithCancel(ctx)
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
 	defer func() {
-		sig := waitForInterrupt()
+		sig := handler.WaitForSignal()
 		fmt.Printf("received signal %v\n", sig)
 		<-ctx.Done()
 		fmt.Println(ctx.Err())
@@ -238,8 +238,10 @@ func TestHandlerCustomSignal(t *testing.T) {
 // TestParseSignalsList verifies that ShutdownOnSignals correctly interprets
 // the input list of signals.
 func TestParseSignalsList(t *testing.T) {
+	ctx, cancel := context.RootContext()
+	defer cancel()
 	list := []os.Signal{syscall.SIGTERM}
-	signals.ShutdownOnSignals(nil, list...)
+	signals.ShutdownOnSignals(ctx, list...)
 	if !isSignalInSet(syscall.SIGTERM, list) {
 		t.Errorf("signal %s not in signal set, as expected: %v", syscall.SIGTERM, list)
 	}

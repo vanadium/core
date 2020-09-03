@@ -190,7 +190,7 @@ var simpleServerProgram = gosh.RegisterFunc("simpleServerProgram", func() {
 	// Note, if the developer wants to exit immediately upon receiving a
 	// signal or stop command, they can skip this, in which case the default
 	// behavior is for the process to exit.
-	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
 
 	// This is part of the test setup -- we need a way to accept
 	// commands from the parent process to simulate Stop and
@@ -215,7 +215,7 @@ var simpleServerProgram = gosh.RegisterFunc("simpleServerProgram", func() {
 
 	// Wait for shutdown, which will also cancel the context
 	// when a signal is received.
-	sig := waitForSignal()
+	sig := handler.WaitForSignal()
 
 	// Note: this is not strictly required since the defer'ed shutdown
 	// function will also call <- server.Closed()

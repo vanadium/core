@@ -46,8 +46,8 @@ func runTunnelD(ctx *context.T, env *cmdline.Env, args []string) error {
 		auth security.Authorizer
 		err  error
 	)
-	ctx, waitForSignals := signals.ShutdownOnSignalsWithCancel(ctx)
-	defer waitForSignals()
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer handler.WaitForSignal()
 	switch {
 	case aclLiteral != "":
 		var perms access.Permissions

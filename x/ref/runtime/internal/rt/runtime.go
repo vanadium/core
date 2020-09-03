@@ -66,6 +66,7 @@ func init() {
 
 var (
 	errDiscoveryNotInitialized = verror.Register(pkgPath+".errDiscoveryNotInitialized", verror.NoRetry, "{1:}{2:} discovery not initialized")
+	errContextNotInitialized   = verror.Register(pkgPath+".errContextNotInitialized", verror.NoRetry, "{1:}{2:} context not initialized")
 )
 
 var setPrincipalCounter int32 = -1
@@ -153,7 +154,8 @@ func Init(
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: failed to add child to vtrace: %v\n", os.Args[0], err)
 	}
-	ctx = context.WithContextLogger(ctx, &ivtrace.VTraceLogger{})
+
+	ctx = context.WithContextLogger(ctx, &ivtrace.Logger{})
 
 	// Setup i18n.
 	ctx = i18n.WithLangID(ctx, i18n.LangIDFromEnv())
@@ -299,9 +301,15 @@ func (r *Runtime) WithPrincipal(ctx *context.T, principal security.Principal) (*
 }
 
 func (*Runtime) GetPrincipal(ctx *context.T) security.Principal {
-	// nologcall
 	p, _ := ctx.Value(principalKey).(security.Principal)
 	return p
+}
+
+func getInitData(ctx *context.T) (*initData, error) {
+	if tmp := ctx.Value(initKey); tmp != nil {
+		return tmp.(*initData), nil
+	}
+	return nil, verror.New(errContextNotInitialized, ctx, fmt.Errorf("context not initialized by this runtime"))
 }
 
 func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context.T, rpc.Client, error) {
@@ -315,8 +323,17 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 			hasExpiration = true
 		}
 	}
-	p, _ := ctx.Value(principalKey).(security.Principal)
-	id, _ := ctx.Value(initKey).(*initData)
+	id, err := getInitData(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	var p security.Principal
+	if tmp := ctx.Value(principalKey); tmp != nil {
+		p = tmp.(security.Principal)
+	} else {
+		return nil, nil, verror.New(errContextNotInitialized, ctx, fmt.Errorf("principal not set in context"))
+	}
+
 	if !hasProtocol && id.protocols != nil {
 		otherOpts = append(otherOpts, irpc.PreferredProtocols(id.protocols))
 	}
@@ -337,15 +354,16 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 }
 
 func (*Runtime) GetClient(ctx *context.T) rpc.Client {
-	// nologcall
 	cl, _ := ctx.Value(clientKey).(rpc.Client)
 	return cl
 }
 
 func (r *Runtime) setNewNamespace(ctx *context.T, roots ...string) (*context.T, namespace.T, error) {
-	id, _ := ctx.Value(initKey).(*initData)
+	id, err := getInitData(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
 	var ns namespace.T
-	var err error
 	if ns, err = inamespace.New(roots...); err != nil {
 		return nil, nil, err
 	}
@@ -377,13 +395,11 @@ func (r *Runtime) WithNewNamespace(ctx *context.T, roots ...string) (*context.T,
 }
 
 func (*Runtime) GetNamespace(ctx *context.T) namespace.T {
-	// nologcall
 	ns, _ := ctx.Value(namespaceKey).(namespace.T)
 	return ns
 }
 
 func (*Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
-	// nologcall
 	ls, _ := ctx.Value(listenKey).(rpc.ListenSpec)
 	return ls
 }
@@ -393,7 +409,6 @@ func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 }
 
 func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
-	// nologcall
 	ps, _ := ctx.Value(permissionSpecKey).(access.PermissionsSpec)
 	return ps
 }
@@ -421,7 +436,10 @@ func (*Runtime) GetBackgroundContext(ctx *context.T) *context.T {
 
 func (*Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
 	// nologcall
-	id, _ := ctx.Value(initKey).(*initData)
+	id, err := getInitData(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if id.discoveryFactory != nil {
 		return id.discoveryFactory.New(ctx)
 	}
@@ -433,7 +451,6 @@ func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *co
 }
 
 func (*Runtime) GetReservedNameDispatcher(ctx *context.T) rpc.Dispatcher {
-	// nologcall
 	if d, ok := ctx.Value(reservedNameKey).(rpc.Dispatcher); ok {
 		return d
 	}
@@ -445,7 +462,10 @@ func (r *Runtime) NewFlowManager(ctx *context.T, channelTimeout time.Duration) (
 	if err != nil {
 		return nil, err
 	}
-	id, _ := ctx.Value(initKey).(*initData)
+	id, err := getInitData(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return manager.New(ctx, rid, id.settingsPublisher, channelTimeout, id.connIdleExpiry, nil), nil
 }
 
@@ -456,7 +476,10 @@ func (r *Runtime) commonServerInit(ctx *context.T, opts ...rpc.ServerOpt) (*pubs
 			Dispatcher: reservedDispatcher,
 		})
 	}
-	id, _ := ctx.Value(initKey).(*initData)
+	id, err := getInitData(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
 	if id.protocols != nil {
 		otherOpts = append(otherOpts, irpc.PreferredServerResolveProtocols(id.protocols))
 	}

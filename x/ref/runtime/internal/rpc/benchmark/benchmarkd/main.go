@@ -33,7 +33,7 @@ var cmdRoot = &cmdline.Command{
 }
 
 func runBenchmarkD(ctx *context.T, env *cmdline.Env, args []string) error {
-	ctx, waitForSignals := signals.ShutdownOnSignalsWithCancel(ctx)
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
 	ctx, server, err := v23.WithNewServer(
 		ctx,
 		"",
@@ -44,6 +44,6 @@ func runBenchmarkD(ctx *context.T, env *cmdline.Env, args []string) error {
 		ctx.Fatalf("NewServer failed: %v", err)
 	}
 	ctx.Infof("Listening on %s", server.Status().Endpoints[0].Name())
-	waitForSignals()
+	handler.WaitForSignal()
 	return nil
 }

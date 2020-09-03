@@ -44,7 +44,7 @@ func (*helloServer) Hello(ctx *context.T, call rpc.ServerCall) (string, error) {
 }
 
 func runHelloServer(ctx *context.T, env *cmdline.Env, args []string) error {
-	ctx, waitForSignals := signals.ShutdownOnSignalsWithCancel(ctx)
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
 	_, server, err := v23.WithNewServer(ctx, name, &helloServer{}, security.AllowEveryone())
 	if err != nil {
 		return fmt.Errorf("NewServer: %v", err)
@@ -52,6 +52,6 @@ func runHelloServer(ctx *context.T, env *cmdline.Env, args []string) error {
 	if eps := server.Status().Endpoints; len(eps) > 0 {
 		fmt.Printf("SERVER_NAME=%s\n", eps[0].Name())
 	}
-	waitForSignals()
+	handler.WaitForSignal()
 	return nil
 }
