@@ -5,7 +5,9 @@
 package rt_test
 
 import (
+	gocontext "context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -185,5 +187,23 @@ func TestFlowManager(t *testing.T) {
 	newman, err := v23.NewFlowManager(ctx, 0)
 	if err != nil || newman == nil || newman == oldman {
 		t.Fatalf("NewFlowManager failed: %v, %v", newman, err)
+	}
+}
+
+func TestContextInitialization(t *testing.T) {
+	_, shutdown := test.V23Init()
+	defer shutdown()
+	ctx := context.FromGoContext(gocontext.Background())
+	_, _, err := v23.WithNewNamespace(ctx, "/dummy")
+	if err == nil || !strings.Contains(err.Error(), "context not initialized") {
+		t.Fatalf("expected a specific error: %v", err)
+	}
+	_, _, err = v23.WithNewClient(ctx)
+	if err == nil || !strings.Contains(err.Error(), "context not initialized") {
+		t.Fatalf("expected a specific error: %v", err)
+	}
+	_, err = v23.NewDiscovery(ctx)
+	if err == nil || !strings.Contains(err.Error(), "context not initialized") {
+		t.Fatalf("expected a specific error: %v", err)
 	}
 }

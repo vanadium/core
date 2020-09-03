@@ -5,6 +5,7 @@
 package context_test
 
 import (
+	"context"
 	gocontext "context"
 	"testing"
 	"time"
@@ -66,4 +67,20 @@ func TestValue(t *testing.T) {
 	<-c1.Done()
 	<-c2.Done()
 	<-c3.Done()
+}
+
+func TestValueCopy(t *testing.T) {
+	root, rootcancel := vcontext.RootContext()
+	type ts string // define a new type to avoid collisions with string
+	root = vcontext.WithValue(root, ts("foo"), ts("bar"))
+	defer rootcancel()
+	gctx := gocontext.Background()
+	gctx = context.WithValue(gctx, ts("foo1"), ts("bar1"))
+	ctx := vcontext.FromGoContextWithValues(gctx, root)
+	if got, want := ctx.Value(ts("foo")).(ts), ts("bar"); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := ctx.Value(ts("foo1")).(ts), ts("bar1"); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }

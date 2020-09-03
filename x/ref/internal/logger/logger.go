@@ -72,7 +72,7 @@ func Manager(logger logging.Logger) ManageLog {
 	// of logging.Logger and look for ManageLog being implemented by it,
 	// since context.T can never implement ManageLog itself.
 	if ctx, ok := logger.(*context.T); ok {
-		if l, ok := ctx.LoggerImplementation().(logging.Logger); ok {
+		if l := context.LoggerFromContext(ctx); l != nil {
 			return Manager(l)
 		}
 	}

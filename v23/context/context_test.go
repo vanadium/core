@@ -43,21 +43,20 @@ func testCancel(t *testing.T, ctx *context.T, cancel context.CancelFunc) {
 	}
 }
 
-func TestRootContext(t *testing.T) {
+func TestInitialization(t *testing.T) {
 	var ctx *context.T
-
 	if ctx.Initialized() {
 		t.Error("Nil context should be uninitialized")
 	}
-	if got := ctx.Err(); got != nil {
-		t.Errorf("Expected nil error, got: %v", got)
+	if context.WithLogger(ctx, nil) != nil {
+		t.Error("Nil context should be uninitialized")
+	}
+	if context.WithContextLogger(ctx, nil) != nil {
+		t.Error("Nil context should be uninitialized")
 	}
 	ctx = &context.T{}
 	if ctx.Initialized() {
 		t.Error("Zero context should be uninitialized")
-	}
-	if got := ctx.Err(); got != nil {
-		t.Errorf("Expected nil error, got: %v", got)
 	}
 }
 
@@ -194,16 +193,27 @@ type ctxKey string
 
 func TestRootCancel(t *testing.T) {
 	root, rootcancel := context.RootContext()
+	root = context.WithValue(root, ctxKey("tlKey"), "tlValue")
 	a, acancel := context.WithCancel(root)
-	b := context.WithValue(a, ctxKey("key"), "value")
+	// Most recent WithValue calls override previous ones,
+	// make sure that WithRootCancel preserves that ordering.
+	b := context.WithValue(a, ctxKey("key"), "valueLast")
+	b = context.WithValue(b, ctxKey("key"), "valueMiddle")
+	b = context.WithValue(b, ctxKey("key"), "value")
 
 	c, ccancel := context.WithRootCancel(b)
 	d, _ := context.WithCancel(c)
+	f, _ := context.WithCancel(d)
 
 	e, _ := context.WithRootCancel(b)
 
-	if s, ok := d.Value(ctxKey("key")).(string); !ok || s != "value" {
-		t.Error("Lost a value but shouldn't have.")
+	for i, vctx := range []*context.T{d, e, f} {
+		if s, ok := vctx.Value(ctxKey("tlKey")).(string); !ok || s != "tlValue" {
+			t.Errorf("%v: lost or wrong value....", i)
+		}
+		if s, ok := vctx.Value(ctxKey("key")).(string); !ok || s != "value" {
+			t.Errorf("%v: lost or wrong value....", i)
+		}
 	}
 
 	// If we cancel a, b will get canceled but c will not.
@@ -225,12 +235,93 @@ func TestRootCancel(t *testing.T) {
 
 	// Cancelling the root should cancel e.
 	rootcancel()
+	select {
+	case <-root.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("timedout waiting for root")
+
+	}
+	select {
+	case <-e.Done():
+	case <-time.After(5 * time.Second):
+		t.Fatal("timedout waiting for e")
+	}
+}
+
+func TestRootCancelChain(t *testing.T) {
+	root, rootcancel := context.RootContext()
+	root = context.WithValue(root, ctxKey("tlKey"), "tlValue")
+	a, acancel := context.WithCancel(root)
+	b := context.WithValue(a, ctxKey("key"), "value")
+
+	c, ccancel := context.WithRootCancel(b)
+	d, _ := context.WithCancel(c)
+	e, _ := context.WithRootCancel(d)
+	f, _ := context.WithCancel(e)
+
+	for _, vctx := range []*context.T{c, d, e, f} {
+		if s, ok := vctx.Value(ctxKey("tlKey")).(string); !ok || s != "tlValue" {
+			t.Error("Lost a value but shouldn't have.")
+		}
+
+		if s, ok := vctx.Value(ctxKey("key")).(string); !ok || s != "value" {
+			t.Error("Lost a value but shouldn't have.")
+		}
+	}
+
+	// If we cancel a, b will get canceled but c, d, e, f will not.
+	acancel()
+	<-a.Done()
+	<-b.Done()
+	select {
+	case <-c.Done():
+		t.Error("C should not yet be canceled.")
+	case <-d.Done():
+		t.Error("D should not yet be canceled.")
+	case <-e.Done():
+		t.Error("E should not yet be canceled.")
+	case <-f.Done():
+		t.Error("F should not yet be canceled.")
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	// If we cancel c, d will get canceled but not e or f.
+	ccancel()
+	<-c.Done()
+	<-d.Done()
+	select {
+	case <-e.Done():
+		t.Error("E should not yet be canceled.")
+	case <-f.Done():
+		t.Error("F should not yet be canceled.")
+	case <-time.After(100 * time.Millisecond):
+	}
+
+	// If we cancel the original root, everything should now be canceled.
+	rootcancel()
 	<-root.Done()
 	<-e.Done()
+	<-f.Done()
+
+	// Make sure rootcancel cancels everything.
+	root, rootcancel = context.RootContext()
+	a, _ = context.WithCancel(root)
+	b = context.WithValue(a, ctxKey("key"), "value")
+
+	c, _ = context.WithRootCancel(b)
+	d, _ = context.WithCancel(c)
+	e, _ = context.WithRootCancel(d)
+	f, _ = context.WithCancel(e)
+
+	rootcancel()
+	for _, ctx := range []*context.T{a, b, c, d, e, f} {
+		<-ctx.Done()
+	}
 }
 
 func TestRootCancel_GoContext(t *testing.T) {
 	root, rootcancel := context.RootContext()
+
 	a, acancel := gocontext.WithCancel(root)
 	b := context.FromGoContext(a)
 	c, _ := context.WithRootCancel(b)
@@ -300,8 +391,29 @@ func (*stringLogger) Stats() (infoStats, errorStats struct{ Lines, Bytes int64 }
 func (*stringLogger) ConfigureFromFlags() error             { return nil }
 func (*stringLogger) ExplicitlySetFlags() map[string]string { return nil }
 
+type ctxLogger stringLogger
+
+func (cl *ctxLogger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
+	(*stringLogger)(cl).InfoDepth(depth, args...)
+}
+
+func (cl *ctxLogger) InfoStack(ctx *context.T, all bool) {
+	(*stringLogger)(cl).InfoStack(all)
+}
+
+func (cl *ctxLogger) VDepth(ctx *context.T, depth int, level int) bool {
+	return (*stringLogger)(cl).VDepth(depth, level)
+}
+
+func (cl *ctxLogger) VIDepth(ctx *context.T, depth int, level int) context.Logger {
+	return cl
+}
+
+func (cl *ctxLogger) FlushLog() {}
+
 func TestLogging(t *testing.T) {
 	root, rootcancel := context.RootContext()
+
 	var _ logging.Logger = root
 	root.Infof("this message should be silently discarded")
 
@@ -309,7 +421,32 @@ func TestLogging(t *testing.T) {
 	ctx := context.WithLogger(root, logger)
 	ctx.Infof("Oh, %s", "hello there")
 
+	if got, want := context.LoggerFromContext(ctx), logger; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
 	if got, want := logger.String(), "Oh, hello there"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	clogger := &stringLogger{}
+	ctx = context.WithContextLogger(root, (*ctxLogger)(clogger))
+	ctx.Infof("Oh, %s", "hello there")
+
+	if got, want := clogger.String(), "Oh, hello there"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	ctx = context.WithLogger(root, logger)
+	ctx = context.WithContextLogger(ctx, (*ctxLogger)(clogger))
+	cctx := gocontext.WithValue(ctx, ctxKey("a"), "a")
+	gctx := context.FromGoContext(cctx)
+	if got, want := context.LoggerFromContext(gctx).(*stringLogger), logger; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	rctx, _ := context.WithRootCancel(ctx)
+	if got, want := context.LoggerFromContext(rctx), logger; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
