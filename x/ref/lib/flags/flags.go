@@ -248,9 +248,7 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) error {
 			"v23.proxy.policy": DefaultProxyPolicy(),
 			"v23.proxy.limit":  DefaultProxyLimit(),
 		}, map[string]string{
-			"v23.proxy":        "",
-			"v23.proxy.policy": "",
-			"v23.proxy.limit":  "",
+			"v23.proxy": "",
 		},
 	)
 	return err
