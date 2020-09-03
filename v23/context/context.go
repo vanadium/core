@@ -2,9 +2,33 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package context implements a mechanism to carry data across API boundaries.
-// The context.T struct carries deadlines and cancellation as well as other
-// arbitrary values.
+// Package context provides an implementation of context.Context with
+// additional functionality used within the Vanadium code base. The functions
+// in this package mirror those from the go library's context package with
+// two key differences as documented below.
+//
+// 1. context.T provides the concept of a 'root' context that is typically
+//    created by the runtime and made available to the application code.
+//    The WithRootCancel function creates a context from the root context that
+//    is detached from all of its parent contexts, except for the root, in terms
+//    of cancelation (both explicit and time based cancelation) but otherwise
+//    inherits all other state from its parent. Such contexts are used for
+//    asynchronous operations that persist past the return of the function tha
+//    created function. A typical use case would be a goroutine listening for
+//    new network connections. Canceling the immediate parent of these contexts
+//    has no effect on them; canceling the root context will lead to their
+//    cancelation and is therefore a convenient mechanism for the runtime to
+//    terminate all asynchronous/background processing when it is shutdown
+//    This gives these background processes the opportunity to clean up any
+//    external state.
+// 2. context.T provides access to logging functions and thus allows for
+//    different packages or code paths to be configured to use different
+//    loggers.
+//
+// Note that since context.T implements context.Context (it embeds the interface)
+// it can be passed in to code that expects context.Context. In addition APIs
+// that do not manipulate the context using the functions in this package should
+// be written to expect a context.Context rather than *context.T.
 //
 // Application code receives contexts in two main ways:
 //
@@ -40,46 +64,10 @@
 //      }
 //    }
 //
-// Contexts form a tree where derived contexts are children of the
-// contexts from which they were derived.  Children inherit all the
-// properties of their parent except for the property being replaced
-// (the deadline in the example above).
-//
-// Contexts are extensible.  The Value/WithValue functions allow you to attach
-// new information to the context and extend its capabilities.
-// In the same way we derive new contexts via the 'With' family of functions
-// you can create methods to attach new data:
-//
-//    package auth
-//
-//    import "v.io/v23/context"
-//
-//    type Auth struct{...}
-//
-//    type key int
-//    const authKey = key(0)
-//
-//    function WithAuth(parent *context.T, data *Auth) *context.T {
-//        return context.WithValue(parent, authKey, data)
-//    }
-//
-//    function GetAuth(ctx *context.T) *Auth {
-//        data, _ := ctx.Value(authKey).(*Auth)
-//        return data
-//    }
-//
-// Note that a value of any type can be used as a key, but you should
-// use an unexported value of an unexported type to ensure that no
-// collisions can occur.
 package context
 
 import (
-	gocontext "context"
-	"errors"
-	"fmt"
-	"os"
-	"runtime"
-	"sync"
+	"context"
 	"sync/atomic"
 	"time"
 
@@ -91,23 +79,13 @@ type internalKey int
 
 const (
 	rootKey = internalKey(iota)
-	cancelKey
-	deadlineKey
-	rootCancelStateKey
-
-	// vmarker is never stored as a key. However,
-	// gocontext.Context.Value(vmarkerKey) will return a *T object if there's a *T
-	// object in the context chain. So you can use it to discover the logger even
-	// if you don't know the concrete representation of the context object.
-	vmarkerKey
-	// gomarker is stored as a key in T wrapping a generic gocontext.Context.
-	gomarkerKey
+	loggerKey
+	ctxLoggerKey
 )
 
-// ContextLogger is a logger that uses a passed in T to configure
-// the logging behavior.
-//nolint:golint // API change required.
-type ContextLogger interface {
+// Logger is a logger that uses a passed in T to configure the logging behavior;
+// it is called by the correspoding logging methods of *T.
+type Logger interface {
 	// InfoDepth logs to the INFO log. depth is used to determine which call frame to log.
 	InfoDepth(ctx *T, depth int, args ...interface{})
 
@@ -121,22 +99,21 @@ type ContextLogger interface {
 
 	// VIDepth is like VDepth, except that it returns nil if there level is greater than the
 	// configured log level.
-	VIDepth(ctx *T, depth int, level int) ContextLogger
+	VIDepth(ctx *T, depth int, level int) Logger
+
+	// Flush flushes all pending log I/O.
+	FlushLog()
 }
 
-// CancelFunc is used to cancel a context.  The first call will
-// cause the paired context and all descendants to close their Done()
-// channels.  Further calls do nothing.
-type CancelFunc func()
+// CancelFunc is the signature of the function used to cancel a context.
+type CancelFunc context.CancelFunc
 
-// Cancelled is returned by contexts which have been cancelled.
-//nolint:golint // API change required.
-var Canceled = errors.New("context canceled")
+// Canceled is returned by contexts which have been canceled.
+var Canceled = context.Canceled
 
 // DeadlineExceeded is returned by contexts that have exceeded their
 // deadlines and therefore been canceled automatically.
-//nolint:golint // API change required.
-var DeadlineExceeded = errors.New("context deadline exceeded")
+var DeadlineExceeded = context.DeadlineExceeded
 
 // T carries deadlines, cancellation and data across API boundaries.
 // It is safe to use a T from multiple goroutines simultaneously.  The
@@ -144,11 +121,14 @@ var DeadlineExceeded = errors.New("context deadline exceeded")
 // directly by application code. It also implements v23/logging.Logger and
 // hence can be used directly for logging (e.g. ctx.Infof(...)).
 type T struct {
-	parent     *T
-	goparent   gocontext.Context
-	logger     logging.Logger
-	ctxLogger  ContextLogger
-	key, value interface{}
+	context.Context
+	logger    logging.Logger
+	ctxLogger Logger
+	// parent and key are used to keep track of all the keys that are used
+	// WithValue so that WithRootCancel can copy the key/value pairs to
+	// the new background context that it creates.
+	parent *T
+	key    interface{}
 }
 
 // RootContext creates a new root context with no data attached.
@@ -159,255 +139,74 @@ type T struct {
 // is sometimes useful in tests, where it is undesirable to initialize a
 // runtime to test a function that reads from a T.
 func RootContext() (*T, CancelFunc) {
-	ctx := &T{logger: logging.Discard, key: rootKey}
-	t, cs, cancelParent := withCancelState(ctx)
-	if cancelParent != nil {
-		panic(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
+	nctx := newT(ctx)
+	nctx = WithValue(nctx, loggerKey, nctx.logger)
+	nctx = WithValue(nctx, ctxLoggerKey, nctx.ctxLogger)
+	nctx = WithValue(nctx, rootKey, nctx)
+	return nctx, CancelFunc(cancel)
+}
+
+func newT(ctx context.Context) *T {
+	return &T{
+		Context:   ctx,
+		logger:    logging.Discard,
+		ctxLogger: &loggerDiscard{},
 	}
-	return WithValue(t, rootCancelStateKey, cs), makeCancelFunc(cs, cancelParent, nil, Canceled)
+}
+
+func newChild(ctx context.Context, parent *T) *T {
+	return &T{
+		parent:    parent,
+		Context:   ctx,
+		logger:    parent.logger,
+		ctxLogger: parent.ctxLogger,
+		key:       nil,
+	}
 }
 
 // WithLogger returns a child of the current context that embeds the supplied
 // logger.
 func WithLogger(parent *T, logger logging.Logger) *T {
-	child := *parent
+	if !parent.Initialized() {
+		return nil
+	}
+	child := WithValue(parent, loggerKey, logger)
 	child.logger = logger
-	return &child
+	return child
 }
 
 // WithContextLogger returns a child of the current context that embeds the supplied
-// context logger
-func WithContextLogger(parent *T, logger ContextLogger) *T {
-	child := *parent
+// context logger.
+func WithContextLogger(parent *T, logger Logger) *T {
+	if !parent.Initialized() {
+		return nil
+	}
+	child := WithValue(parent, ctxLoggerKey, logger)
 	child.ctxLogger = logger
-	return &child
+	return child
 }
 
-// LoggerImplementation returns the implementation of the logger associated
-// with this context. It should almost never need to be used by application
+// LoggerFromContext returns the implementation of the logger
+// associated with this context. It should almost never need to be used by application
 // code.
-func (t *T) LoggerImplementation() interface{} {
-	return t.logger
+func LoggerFromContext(ctx context.Context) logging.Logger {
+	l, _ := ctx.Value(loggerKey).(logging.Logger)
+	return l
 }
 
 // Initialized returns true if this context has been properly initialized
 // by a runtime.
 func (t *T) Initialized() bool {
-	return t != nil && t.key != nil
-}
-
-// Value is used to carry data across API boundaries.  This should be
-// used only for data that is relevant across multiple API boundaries
-// and not just to pass extra parameters to functions and methods.
-// Any type that supports equality can be used as a key, but an
-// unexported type should be used to prevent collisions.
-func (t *T) Value(key interface{}) interface{} {
-	if key == vmarkerKey {
-		return t
-	}
-	for t != nil {
-		if key == t.key {
-			return t.value
-		}
-		if t.goparent != nil {
-			if t.parent != nil {
-				panic(t)
-			}
-			return t.goparent.Value(key)
-		}
-		t = t.parent
-	}
-	return nil
-}
-
-// Deadline returns the time at which this context will be automatically
-// canceled.
-func (t *T) Deadline() (deadline time.Time, ok bool) {
-	if deadline, ok := t.Value(deadlineKey).(*deadlineState); ok {
-		return deadline.deadline, true
-	}
-	return
-}
-
-// After the channel returned by Done() is closed, Err() will return
-// either Canceled or DeadlineExceeded.
-func (t *T) Err() error {
-	if cancel, ok := t.Value(cancelKey).(*cancelState); ok {
-		cancel.mu.Lock()
-		defer cancel.mu.Unlock()
-		return cancel.err
-	}
-	return nil
-}
-
-// Done returns a channel which will be closed when this context.T
-// is canceled or exceeds its deadline.  Successive calls will
-// return the same value.  Implementations may return nil if they can
-// never be canceled.
-func (t *T) Done() <-chan struct{} {
-	if cancel, ok := t.Value(cancelKey).(*cancelState); ok {
-		return cancel.done
-	}
-	return nil
-}
-
-// cancelState helps pass cancellation down the context tree.
-type cancelState struct {
-	done chan struct{}
-
-	mu       sync.Mutex
-	err      error                 // GUARDED_BY(mu)
-	children map[*cancelState]bool // GUARDED_BY(mu)
-}
-
-// A leakCheck is used to point from the cancel() func to cancelState.
-// If leakedContextPCs > 0, leaked, uncancelled cancelState objects are reported.
-type leakCheck struct {
-	cs         *cancelState
-	funcCalled bool // whether CancelFunc has been called; under cs.mu.
-	stack      []uintptr
-}
-
-var leakedContextPCs int = 0 // stack frames to print for leaked allocation sites.
-var initLeakCheckerOnce sync.Once
-var leakCheckerFile *os.File
-
-// initLeakChecker initializes leak checking if the file $VCONTEXT_LEAK_CHECK
-// can be opened.
-func initLeakChecker() {
-	fileName := os.Getenv("VCONTEXT_LEAK_CHECK")
-	if len(fileName) != 0 {
-		var err error
-		leakCheckerFile, err = os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
-		if err == nil {
-			leakedContextPCs = 20
-		}
-	}
-}
-
-// makeCancelFunc returns a function that cancels cancelState *cs with err, and
-// it timer!=nil, stops *timer.  Requires that *cs has cancellation parent
-// *cancelParent if cancelParent != nil.  It may use an indirection through a
-// leakCheck if $VCONTEXT_LEAK_CHECK is set.
-func makeCancelFunc(cs *cancelState, cancelParent *cancelState, timer *time.Timer, err error) (cancelFunc CancelFunc) {
-	initLeakCheckerOnce.Do(initLeakChecker)
-	if leakedContextPCs > 0 && err != DeadlineExceeded { // the timer is allowed to leak its callbacks.
-		lc := &leakCheck{cs: cs, stack: make([]uintptr, leakedContextPCs)}
-		lc.stack = lc.stack[:runtime.Callers(2, lc.stack)]
-		runtime.SetFinalizer(lc, checkForLeaks)
-		cancelFunc = func() { // captures cancelParent, timer, err, and lc (not cs).
-			if cancelParent != nil {
-				cancelParent.removeChild(lc.cs)
-			}
-			if timer != nil {
-				timer.Stop()
-			}
-			lc.cs.cancel(err)
-			runtime.SetFinalizer(lc, nil)
-			lc.cs.mu.Lock()
-			lc.funcCalled = true
-			lc.cs.mu.Unlock()
-		}
-	} else {
-		cancelFunc = func() { // captures cancelParent, timer, err, and cs.
-			if cancelParent != nil {
-				cancelParent.removeChild(cs)
-			}
-			if timer != nil {
-				timer.Stop()
-			}
-			cs.cancel(err)
-		}
-	}
-	return cancelFunc
-}
-
-// checkForLeaks is called when the garbage collector finds that a leakCheck
-// object can be collected.
-func checkForLeaks(lc *leakCheck) {
-	cs := lc.cs
-	cs.mu.Lock()
-	funcCalled := lc.funcCalled
-	cs.mu.Unlock()
-	if !funcCalled {
-		var stack string
-		if lc.stack != nil {
-			stack = ": stack:\n"
-			for _, pc := range lc.stack {
-				fnc := runtime.FuncForPC(pc)
-				file, line := fnc.FileLine(pc)
-				stack += fmt.Sprintf("   %s:%d: %s\n", file, line, fnc.Name())
-			}
-		}
-		fmt.Fprintf(leakCheckerFile, "v.io/v23/context: CancelFunc garbage collected without call%s\n", stack)
-	}
-}
-
-func (c *cancelState) addChild(child *cancelState) {
-	c.mu.Lock()
-
-	if c.err != nil {
-		err := c.err
-		c.mu.Unlock()
-		child.cancel(err)
-		return
-	}
-
-	if c.children == nil {
-		c.children = make(map[*cancelState]bool)
-	}
-	c.children[child] = true
-	c.mu.Unlock()
-}
-
-func (c *cancelState) removeChild(child *cancelState) {
-	c.mu.Lock()
-	delete(c.children, child)
-	c.mu.Unlock()
-}
-
-func (c *cancelState) cancel(err error) {
-	var children map[*cancelState]bool
-
-	c.mu.Lock()
-	if c.err == nil {
-		c.err = err
-		children = c.children
-		c.children = nil
-		close(c.done)
-	}
-	c.mu.Unlock()
-
-	for child := range children {
-		child.cancel(err)
-	}
-}
-
-// A deadlineState helps cancel contexts when a deadline expires.
-type deadlineState struct {
-	deadline time.Time
-	timer    *time.Timer
+	return t != nil && t.Context != nil
 }
 
 // WithValue returns a child of the current context that will return
 // the given val when Value(key) is called.
 func WithValue(parent *T, key interface{}, val interface{}) *T {
-	if !parent.Initialized() {
-		panic("Trying to derive a context from an uninitialized context.")
-	}
-	if key == nil {
-		panic("Attempting to store a context value with an untyped nil key.")
-	}
-	return &T{logger: parent.logger, ctxLogger: parent.ctxLogger, parent: parent, key: key, value: val}
-}
-
-func withCancelState(parent *T) (t *T, cs *cancelState, cancelParent *cancelState) {
-	cs = &cancelState{done: make(chan struct{})}
-	cancelParent, ok := parent.Value(cancelKey).(*cancelState)
-	if ok {
-		cancelParent.addChild(cs)
-	}
-	return WithValue(parent, cancelKey, cs), cs, cancelParent
+	child := newChild(context.WithValue(parent.Context, key, val), parent)
+	child.key = key
+	return child
 }
 
 // WithCancel returns a child of the current context along with
@@ -415,66 +214,72 @@ func withCancelState(parent *T) (t *T, cs *cancelState, cancelParent *cancelStat
 // called the channels returned by the Done() methods of the new context
 // (and all context further derived from it) will be closed.
 func WithCancel(parent *T) (*T, CancelFunc) {
-	t, cs, cancelParent := withCancelState(parent)
-	return t, makeCancelFunc(cs, cancelParent, nil, Canceled)
+	ctx, cancel := context.WithCancel(parent.Context)
+	child := newChild(ctx, parent)
+	return child, CancelFunc(cancel)
 }
 
-func withDeadlineState(parent *T, deadline time.Time, timeout time.Duration) (*T, CancelFunc) {
-	t, cs, cancelParent := withCancelState(parent)
-	ds := &deadlineState{deadline, time.AfterFunc(timeout, makeCancelFunc(cs, cancelParent, nil, DeadlineExceeded))}
-	return WithValue(t, deadlineKey, ds), makeCancelFunc(cs, cancelParent, ds.timer, Canceled)
-}
-
-// FromGoContext creates a Vanadium Context object from a generic Context.
-//
-// Note: a goroutine will leak if the original context is not cancelled.
-func FromGoContext(ctx gocontext.Context) *T {
+// FromGoContext creates a Vanadium Context object from a generic Context. If
+// the implementation of ctx is a *T it will be returned, if not, a new *T will
+// be created with a default logger that discards its output.
+func FromGoContext(ctx context.Context) *T {
 	if vctx, ok := ctx.(*T); ok {
 		return vctx
 	}
-	var (
-		logger    logging.Logger = logging.Discard
-		ctxLogger ContextLogger
-	)
-	if vparent := ctx.Value(vmarkerKey); vparent != nil {
-		logger = vparent.(*T).logger
-		ctxLogger = vparent.(*T).ctxLogger
+	return newT(ctx)
+}
+
+// FromGoContextWithValues is like FromGoContext except that it will
+// copy values from the specified 'peer' *T to a newly created
+// *T. Note that if the supplied context is already a *T it will
+// returned directly and no values will be copied to it.
+func FromGoContextWithValues(ctx context.Context, peer *T) *T {
+	if vctx, ok := ctx.(*T); ok {
+		return vctx
 	}
-	t, cancel := WithCancel(&T{
-		goparent:  ctx,
-		logger:    logger,
-		ctxLogger: ctxLogger,
-		key:       gomarkerKey,
-	})
-	if done := ctx.Done(); done != nil {
-		// Propagate the cancellation.
-		go func() {
-			select {
-			case <-done:
-				cancel()
-			case <-t.Done():
-			}
-		}()
-	}
-	return t
+	nctx := newT(ctx)
+	nctx.Context = copyValues(ctx, peer)
+	return nctx
 }
 
 var nRootCancelWarning int32
 
-// WithRootContext returns a context derived from parent, but that is
+func copyValues(root context.Context, ctx *T) context.Context {
+	if ctx == nil {
+		return root
+	}
+	nctx := copyValues(root, ctx.parent)
+	if ctx.key == nil {
+		return nctx
+	}
+	if val := ctx.Value(ctx.key); val != nil {
+		return context.WithValue(nctx, ctx.key, val)
+	}
+	return nctx
+}
+
+// WithRootCancel returns a context derived from parent, but that is
 // detached from the deadlines and cancellation hierarchy so that this
 // context will only ever be canceled when the returned CancelFunc is
 // called, or the RootContext from which this context is ultimately
 // derived is canceled.
 func WithRootCancel(parent *T) (*T, CancelFunc) {
-	root := parent.Value(rootCancelStateKey).(*cancelState)
-	cs := &cancelState{done: make(chan struct{})}
-	if root != nil {
-		root.addChild(cs)
+	// Create a new context and copy over the keys.
+	nctx := copyValues(context.Background(), parent)
+	ctx, cancel := context.WithCancel(nctx)
+	if val := parent.Value(rootKey); val != nil {
+		rootCtx := val.(context.Context)
+		// Forward the cancelation from the root context to the newly
+		// created context.
+		go func() {
+			<-rootCtx.Done()
+			cancel()
+		}()
 	} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
 		vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)
 	}
-	return WithValue(parent, cancelKey, cs), makeCancelFunc(cs, root, nil, Canceled)
+	child := newChild(ctx, parent)
+	return child, CancelFunc(cancel)
 }
 
 // WithDeadline returns a child of the current context along with a
@@ -484,11 +289,15 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 // Contexts should be cancelled when they are no longer needed
 // so that resources associated with their timers may be released.
 func WithDeadline(parent *T, deadline time.Time) (*T, CancelFunc) {
-	return withDeadlineState(parent, deadline, time.Until(deadline))
+	ctx, cancel := context.WithDeadline(parent.Context, deadline)
+	child := newChild(ctx, parent)
+	return child, CancelFunc(cancel)
 }
 
 // WithTimeout is similar to WithDeadline except a Duration is given
 // that represents a relative point in time from now.
 func WithTimeout(parent *T, timeout time.Duration) (*T, CancelFunc) {
-	return withDeadlineState(parent, time.Now().Add(timeout), timeout)
+	ctx, cancel := context.WithTimeout(parent.Context, timeout)
+	child := newChild(ctx, parent)
+	return child, CancelFunc(cancel)
 }
