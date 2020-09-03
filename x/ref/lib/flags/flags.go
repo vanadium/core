@@ -38,6 +38,8 @@ const (
 	// --v23.tcp.protocol
 	// --v23.tcp.address
 	// --v23.proxy
+	// --v23.proxy.policy
+	// --v23.proxy.limit
 	Listen
 	// Permissions identifies the flags typically required to configure
 	// authorization.
@@ -203,9 +205,15 @@ func NewListenFlags() *ListenFlags {
 	if err := protocolFlag.Set(DefaultProtocol()); err != nil {
 		panic(err)
 	}
+	var proxyFlag proxyPolicyFlagVar
+	if err := proxyFlag.Set(DefaultProxyPolicy().String()); err != nil {
+		panic(err)
+	}
 	lf.Protocol = tcpProtocolFlagVar{validator: protocolFlag}
 	lf.Addresses = ipHostPortFlagVar{validator: ipHostPortFlag}
 	lf.Proxy = DefaultProxy()
+	lf.ProxyPolicy = proxyFlag
+	lf.ProxyLimit = DefaultProxyLimit()
 	return lf
 }
 
@@ -215,9 +223,13 @@ func RegisterListenFlags(fs *flag.FlagSet, f *ListenFlags) {
 	f.Addresses.flags = f
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
-			"v23.proxy": DefaultProxy(),
+			"v23.proxy":        DefaultProxy(),
+			"v23.proxy.policy": DefaultProxyPolicy(),
+			"v23.proxy.limit":  DefaultProxyLimit(),
 		}, map[string]string{
-			"v23.proxy": "",
+			"v23.proxy":        "",
+			"v23.proxy.policy": "",
+			"v23.proxy.limit":  "",
 		},
 	)
 	if err != nil {
@@ -260,6 +272,9 @@ func refreshDefaults(f *Flags) {
 			}
 			if !v.Addresses.isSet {
 				v.Addresses.validator.Set(defaultHostPort) //nolint:errcheck
+			}
+			if !v.ProxyPolicy.isSet {
+				v.ProxyPolicy.Set(defaultProxyPolicy.String()) //nolint:errcheck
 			}
 		}
 	}

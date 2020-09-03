@@ -287,6 +287,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 	listenSpec := rpc.ListenSpec{
 		Addrs:          rpc.ListenAddrs(listenFlags.Addrs),
 		Proxy:          listenFlags.Proxy,
+		ProxyPolicy:    listenFlags.ProxyPolicy.Value(),
 		AddressChooser: internal.NewAddressChooser(logger.Global()),
 	}
 

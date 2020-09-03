@@ -61,8 +61,9 @@ type listenState struct {
 	serverBlessings security.Blessings
 	serverNames     []string
 	listeners       map[flow.Listener]*endpointState
-	proxyEndpoints  []naming.Endpoint
-	proxyErrors     map[string]error
+	// maintain a list of endpoints per proxy being used.
+	proxyEndpoints map[string][]naming.Endpoint
+	proxyErrors    map[string]error
 	// TODO(suharshs): Look into making the struct{Protocol, Address string} into
 	// a named struct. This may involve changing v.io/v23/rpc.ListenAddrs.
 	listenErrors map[struct{ Protocol, Address string }]error
@@ -102,6 +103,7 @@ func New(
 			dirty:                 make(chan struct{}),
 			dhcpPublisher:         dhcpPublisher,
 			proxyFlows:            make(map[string]flow.Flow),
+			proxyEndpoints:        make(map[string][]naming.Endpoint),
 			proxyErrors:           make(map[string]error),
 			listenErrors:          make(map[struct{ Protocol, Address string }]error),
 			serverAuthorizedPeers: authorizedPeers,
@@ -433,10 +435,10 @@ func (m *manager) updateProxyEndpoints(eps []naming.Endpoint, name string, err e
 	if origErr := m.ls.proxyErrors[name]; origErr != nil {
 		errS = origErr.Error()
 	}
-	if endpointsEqual(m.ls.proxyEndpoints, eps) && errS == origErrS {
+	if endpointsEqual(m.ls.proxyEndpoints[flowKey], eps) && errS == origErrS {
 		return
 	}
-	m.ls.proxyEndpoints = eps
+	m.ls.proxyEndpoints[flowKey] = eps
 	m.ls.proxyErrors[name] = err
 	// The proxy endpoints have changed so we need to notify any watchers to
 	// requery Status.
@@ -712,8 +714,12 @@ func (m *manager) Status() flow.ListenStatus {
 		return status
 	}
 	m.ls.mu.Lock()
-	status.Endpoints = make([]naming.Endpoint, len(m.ls.proxyEndpoints))
-	copy(status.Endpoints, m.ls.proxyEndpoints)
+	status.Endpoints = nil
+	if len(m.ls.proxyEndpoints) > 0 {
+		for _, eps := range m.ls.proxyEndpoints {
+			status.Endpoints = append(status.Endpoints, eps...)
+		}
+	}
 	for _, epState := range m.ls.listeners {
 		status.Endpoints = append(status.Endpoints, epState.leps...)
 	}

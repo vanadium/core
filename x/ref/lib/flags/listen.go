@@ -9,6 +9,7 @@ import (
 	"net"
 	"strconv"
 
+	"v.io/v23/rpc"
 	"v.io/v23/verror"
 )
 
@@ -149,10 +150,44 @@ type ListenAddrs []struct {
 
 // ListenFlags contains the values of the Listen flag group.
 type ListenFlags struct {
-	Addrs     ListenAddrs
-	Proxy     string             `cmdline:"v23.proxy,,object name of proxy service to use to export services across network boundaries"`
-	Protocol  tcpProtocolFlagVar `cmdline:"v23.tcp.protocol,,protocol to listen with"`
-	Addresses ipHostPortFlagVar  `cmdline:"v23.tcp.address,,address to listen on"`
+	Addrs       ListenAddrs
+	Proxy       string             `cmdline:"v23.proxy,,object name of proxy service to use to export services across network boundaries"`
+	ProxyPolicy proxyPolicyFlagVar `cmdline:"v23.proxy.policy,,policy for choosing from a set of available proxy instances"`
+	ProxyLimit  int                `cmdline:"v23.proxy.limit,0,'max number of proxies to connect to when the policy is to connect to all proxies; 0 implies all proxies'"`
+	Protocol    tcpProtocolFlagVar `cmdline:"v23.tcp.protocol,,protocol to listen with"`
+	Addresses   ipHostPortFlagVar  `cmdline:"v23.tcp.address,,address to listen on"`
+}
+
+type proxyPolicyFlagVar struct {
+	isSet  bool
+	policy rpc.ProxyPolicy
+}
+
+func (policy *proxyPolicyFlagVar) Value() rpc.ProxyPolicy {
+	return policy.policy
+}
+
+func (policy *proxyPolicyFlagVar) Get() interface{} {
+	return policy.policy
+}
+
+func (policy *proxyPolicyFlagVar) String() string {
+	return policy.policy.String()
+}
+
+func (policy *proxyPolicyFlagVar) Set(s string) error {
+	switch s {
+	case "first":
+		policy.policy = rpc.UseFirstProxy
+	case "random":
+		policy.policy = rpc.UseRandomProxy
+	case "all":
+		policy.policy = rpc.UseAllProxies
+	default:
+		return fmt.Errorf("unsupported proxy policy: %v, must be one of 'first', 'random' or 'all'", s)
+	}
+	policy.isSet = true
+	return nil
 }
 
 type tcpProtocolFlagVar struct {
