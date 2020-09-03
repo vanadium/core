@@ -52,10 +52,10 @@ The global flags are:
  -v23.proxy=
    object name of proxy service to use to export services across network
    boundaries
- -v23.proxy.limit=0
+ -v23.proxy.limit=
    max number of proxies to connect to when the policy is to connect to all
    proxies; 0 implies all proxies
- -v23.proxy.policy=first
+ -v23.proxy.policy=
    policy for choosing from a set of available proxy instances
  -v23.tcp.address=
    address to listen on
