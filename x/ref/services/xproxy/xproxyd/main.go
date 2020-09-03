@@ -79,6 +79,10 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 	if err != nil {
 		return err
 	}
+	handler.RegisterCancel(func() {
+		proxyCancel()
+		<-proxy.Closed()
+	})
 	peps := proxy.ListeningEndpoints()
 	proxyEndpoint := peps[0]
 
@@ -117,9 +121,6 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 		}
 	}
 	fmt.Printf("Proxy stats listening on: %v", statsServer.Status().Endpoints)
-	handler.WaitForSignal()
-	proxyCancel()
-	<-proxy.Closed()
 	return nil
 }
 
