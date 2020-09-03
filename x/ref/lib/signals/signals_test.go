@@ -83,9 +83,9 @@ func programWithContext(cancelSelf bool, sig ...os.Signal) {
 		go cancel()
 		ctx = nctx
 	}
-	ctx, waitForInterrupt := signals.ShutdownOnSignalsWithCancel(ctx)
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
 	defer func() {
-		sig := waitForInterrupt()
+		sig := handler.WaitForSignal()
 		fmt.Printf("received signal %v\n", sig)
 		<-ctx.Done()
 		fmt.Println(ctx.Err())

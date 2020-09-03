@@ -47,8 +47,8 @@ v.io/v23/services/groups.Group interface.
 }
 
 func runGroupsD(ctx *context.T, env *cmdline.Env, args []string) error {
-	ctx, waitForSignal := signals.ShutdownOnSignalsWithCancel(ctx)
-	defer waitForSignal()
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer handler.WaitForSignal()
 	dispatcher, err := lib.NewGroupsDispatcher(flagRootDir, flagEngine)
 	if err != nil {
 		return err
