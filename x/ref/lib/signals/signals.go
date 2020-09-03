@@ -12,6 +12,7 @@ package signals
 import (
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -39,8 +40,6 @@ const (
 func Default() []os.Signal {
 	return []os.Signal{syscall.SIGTERM, syscall.SIGINT}
 }
-
-// TODO(cnicolaou): replace the use of context.T with context.Context.
 
 // ShutdownOnSignals registers signal handlers for the specified signals, or, if
 // none are specified, the default signals.  The first signal received will be
@@ -85,6 +84,48 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 	return ret
 }
 
+// Handler represents a signal handler that can be used to wait for signal
+// reception or context cancelation as per NotifyWithCancel. In addition
+// it can be used to register additional cancel functions to be invoked
+// on signal reception or context cancelation.
+type Handler struct {
+	ctx        *context.T
+	cancel     context.CancelFunc
+	ch         <-chan os.Signal
+	mu         sync.Mutex
+	cancelList []func() // GUARDED_BY(mu)
+}
+
+// RegisterCancel registers one or more cancel functions to be invoked
+// when a signal is received or the original context is canceled.
+func (h *Handler) RegisterCancel(fns ...func()) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.cancelList = append(h.cancelList, fns...)
+}
+
+func (h *Handler) cancelAll() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.cancel()
+	for _, cancel := range h.cancelList {
+		cancel()
+	}
+}
+
+// WaitForSignal will wait for a signal to be received. Context cancelation
+// is translated into a ContextDoneSignal signal.
+func (h *Handler) WaitForSignal() os.Signal {
+	select {
+	case sig := <-h.ch:
+		h.cancelAll()
+		return sig
+	case <-h.ctx.Done():
+		h.cancelAll()
+		return ContextDoneSignal(h.ctx.Err().Error())
+	}
+}
+
 // ShutdownOnSignalsWithCancel is like ShutdownOnSignals except it forks the
 // supplied context to obtain a cancel function which is called by the returned
 // function when a signal is received. The returned function can be called to
@@ -94,8 +135,8 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 //    func main() {
 // 	    ctx, shutdown := v23.Init()
 //      defer shutdown()
-//      ctx, waitForInterrupt := ShutdownOnSignalsWithCancel(ctx)
-//      defer waitForInterrupt()
+//      ctx, handler := ShutdownOnSignalsWithCancel(ctx)
+//      defer handler.WaitForSignal()
 //
 //      _, srv, err := v23.WithNewServer(ctx, ...)
 //
@@ -107,19 +148,14 @@ func ShutdownOnSignals(ctx *context.T, signals ...os.Signal) <-chan os.Signal {
 // will then wait for that the server to complete its shutdown.
 // Canceling the context is treated as receipt of a custom signal,
 // ContextDoneSignal, in terms of its returns value.
-func ShutdownOnSignalsWithCancel(ctx *context.T, signals ...os.Signal) (*context.T, func() os.Signal) {
+func ShutdownOnSignalsWithCancel(ctx *context.T, signals ...os.Signal) (*context.T, *Handler) {
 	ctx, cancel := context.WithCancel(ctx)
-	ch := ShutdownOnSignals(ctx, signals...)
-	return ctx, func() os.Signal {
-		select {
-		case sig := <-ch:
-			cancel()
-			return sig
-		case <-ctx.Done():
-			cancel()
-			return ContextDoneSignal(ctx.Err().Error())
-		}
+	handler := &Handler{
+		ctx:    ctx,
+		cancel: cancel,
+		ch:     ShutdownOnSignals(ctx, signals...),
 	}
+	return ctx, handler
 }
 
 type ContextDoneSignal string
