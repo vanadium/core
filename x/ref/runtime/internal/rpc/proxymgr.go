@@ -192,7 +192,7 @@ func (pm *proxyManager) connectToSingleProxy(ctx *context.T, name string, ep nam
 		if err != nil {
 			ctx.Errorf("connectToSingleProxy(%q) failed: %v. Reconnecting..", ep, err)
 			// Update the set of available proxies on encountering an error and
-			// popssible exit at the top the loop.
+			// possible exit at the top the loop.
 			pm.updateAvailableProxies(ctx)
 		} else {
 			select {
