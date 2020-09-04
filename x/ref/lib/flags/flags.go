@@ -281,16 +281,21 @@ func NewVirtualizedFlags() (*VirtualizedFlags, error) {
 // the supplied FlagSet.
 func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) error {
 	def := DefaultVirtualizedFlagValues()
+	provider := &VirtualizationProviderFlag{}
+	err := provider.Set(def.VirtualizationProvider)
 	address := &IPHostPortFlag{}
-	address.Set(def.PublicAddress)
+	err = address.Set(def.PublicAddress)
 	protocol := &TCPProtocolFlag{}
-	protocol.Set(def.PublicProtocol)
+	err = protocol.Set(def.PublicProtocol)
 	dnsname := &HostPortFlag{}
-	dnsname.Set(def.PublicDNSName)
-	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+	err = dnsname.Set(def.PublicDNSName)
+	if err != nil {
+		return err
+	}
+	err = flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
 			"v23.virtualized.docker":                      def.Dockerized,
-			"v23.virtualized.provider":                    def.VirtualizationProvider,
+			"v23.virtualized.provider":                    provider,
 			"v23.virtualized.tcp.public-protocol":         protocol,
 			"v23.virtualized.tcp.public-address":          address,
 			"v23.virtualized.dns.public-name":             dnsname,
@@ -389,7 +394,9 @@ func (f *Flags) VirtualizedFlags() VirtualizedFlags {
 		n.PublicProtocol.Set(vf.PublicProtocol.String())
 		return n
 	}
-	return VirtualizedFlags{VirtualizationProvider: Native}
+	vf := VirtualizedFlags{}
+	vf.VirtualizationProvider.Set("")
+	return vf
 }
 
 // HasGroup returns group if the supplied FlagGroup has been created

@@ -21,7 +21,6 @@
 package library
 
 import (
-	gocontext "context"
 	"flag"
 	"fmt"
 	"net"
@@ -296,16 +295,11 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 	}
 
 	var chooser rpc.AddressChooser = &passthroughAddressChooser{}
-	var cvm *internal.CloudVM
 	var err error
 
 	if CloudVM {
 		vf := flagSet.VirtualizedFlags()
-		cvm, err = internal.InitCloudVM(gocontext.TODO(), logger.Global(), &vf)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-		chooser = cvm
+		chooser = internal.AsyncCloudAddressChoser(ctx, logger.Global(), &vf)
 	}
 
 	discoveryFactory, err := dfactory.New(ctx)

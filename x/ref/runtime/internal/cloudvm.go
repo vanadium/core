@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"v.io/v23/logging"
+	"v.io/v23/rpc"
 	"v.io/x/lib/netstate"
 	"v.io/x/ref/lib/flags"
 	"v.io/x/ref/runtime/internal/cloudvm"
@@ -51,6 +52,35 @@ func InitCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualiz
 	return cvm, cvmErr
 }
 
+type asyncChooser struct {
+	ch  <-chan struct{}
+	ctx context.Context
+}
+
+func (ac *asyncChooser) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
+	select {
+	case <-ac.ch:
+		return cvm.ChooseAddresses(protocol, candidates)
+	case <-ac.ctx.Done():
+		return nil, ac.ctx.Err()
+	}
+}
+
+// AsyncCloudAddressChoser asynchronously initializes the cloud vm environment
+// and returns an rpc.AddressChooser that will wait for the environment to be
+// determined.
+func AsyncCloudAddressChoser(ctx context.Context, logger logging.Logger, fl *flags.VirtualizedFlags) rpc.AddressChooser {
+	ch := make(chan struct{})
+	go func() {
+		InitCloudVM(ctx, logger, fl)
+		close(ch)
+	}()
+	return &asyncChooser{
+		ch:  ch,
+		ctx: ctx,
+	}
+}
+
 func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.VirtualizedFlags) (*CloudVM, error) {
 	cvm := &CloudVM{
 		cfg:                     fl,
@@ -68,6 +98,14 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		cvm.getPrivateAddr = cloudvm.GCPPrivateAddrs
 	}
 
+	isnative := func() (*CloudVM, error) {
+		noop := func(context.Context, time.Duration) ([]net.Addr, error) {
+			return nil, nil
+		}
+		cvm.getPublicAddr, cvm.getPrivateAddr = noop, noop
+		return cvm, nil
+	}
+
 	refresh := func() (*CloudVM, error) {
 		if err := cvm.RefreshAddresses(ctx); err != nil {
 			return nil, err
@@ -75,25 +113,27 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		return cvm, nil
 	}
 
-	switch fl.VirtualizationProvider {
+	switch fl.VirtualizationProvider.Get().(flags.VirtualizationProvider) {
 	case flags.AWS:
 		if !cloudvm.OnAWS(ctx, time.Second) {
-			return nil, fmt.Errorf("this process is not running on AWS even though its command line says it is")
+			if fl.DissallowNativeFallback {
+				return nil, fmt.Errorf("this process is not running on AWS even though its command line says it is")
+			}
+			return isnative()
 		}
 		isaws()
 		return refresh()
 	case flags.GCP:
 		if !cloudvm.OnGCP(ctx, time.Second) {
-			return nil, fmt.Errorf("this process is not running on GCP even though its command line says it is")
+			if fl.DissallowNativeFallback {
+				return nil, fmt.Errorf("this process is not running on GCP even though its command line says it is")
+			}
+			return isnative()
 		}
 		isgcp()
 		return refresh()
 	}
-	noop := func(context.Context, time.Duration) ([]net.Addr, error) {
-		return nil, nil
-	}
-	cvm.getPublicAddr, cvm.getPrivateAddr = noop, noop
-	return refresh()
+	return isnative()
 }
 
 // RefreshAddresses updates the addresses from the viurtualization/cloud
@@ -173,4 +213,8 @@ func (cvm *CloudVM) ChooseAddresses(protocol string, candidates []net.Addr) ([]n
 		return append(forProtocol, filterForProtocol(protocol, candidates)...), nil
 	}
 	return forProtocol, nil
+}
+
+func AsyncAddressChooser(ctx context.Context) {
+
 }

@@ -31,10 +31,9 @@ func init() {
 func main() {
 	flag.Parse()
 	ctx, shutdown := v23.Init()
-	defer func() {
-		shutdown()
-	}()
-	ctx, cancel := context.WithCancel(ctx)
+	defer shutdown()
+	ctx, handler := signals.ShutdownOnSignalsWithCancel(ctx)
+	defer handler.WaitForSignal()
 	_, srv, err := v23.WithNewServer(ctx, name, service{}, security.AllowEveryone())
 	if err != nil {
 		fmt.Printf("v23.WithNewServerFailed: %v", err)
@@ -44,7 +43,4 @@ func main() {
 	for i, ep := range srv.Status().Endpoints {
 		fmt.Printf("%v: %v\n", i, ep)
 	}
-	<-signals.ShutdownOnSignals(ctx)
-	cancel()
-	<-srv.Closed()
 }

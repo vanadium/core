@@ -10,8 +10,8 @@ const (
 
 const (
 	GCPHost           = "http://metadata.google.internal"
-	GCPInternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
-	GCPExternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/ip"
+	GCPExternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"
+	GCPInternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/ip"
 	GCPProjectIDPath  = "/computeMetadata/v1/project/project-id"
 	GCPZonePath       = "/computeMetadata/v1/instance/zone"
 )

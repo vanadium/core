@@ -70,6 +70,9 @@ The global flags are:
    protocol to listen with
  -v23.virtualized.advertise-private-addresses=
    if set the process will also advertise its private addresses
+ -v23.virtualized.disallow-native-fallback=false
+   if set, a failure to detect the requested virtualization provider will result
+   in an error, otherwise, native mode is used
  -v23.virtualized.dns.public-name=
    if set the process will use the supplied dns name (and port) without
    resolution for its entry in the mounttable
