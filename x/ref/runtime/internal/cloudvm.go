@@ -98,19 +98,19 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 		cvm.getPrivateAddr = cloudvm.GCPPrivateAddrs
 	}
 
-	isnative := func() (*CloudVM, error) {
-		noop := func(context.Context, time.Duration) ([]net.Addr, error) {
-			return nil, nil
-		}
-		cvm.getPublicAddr, cvm.getPrivateAddr = noop, noop
-		return cvm, nil
-	}
-
 	refresh := func() (*CloudVM, error) {
 		if err := cvm.RefreshAddresses(ctx); err != nil {
 			return nil, err
 		}
 		return cvm, nil
+	}
+
+	isnative := func() (*CloudVM, error) {
+		noop := func(context.Context, time.Duration) ([]net.Addr, error) {
+			return nil, nil
+		}
+		cvm.getPublicAddr, cvm.getPrivateAddr = noop, noop
+		return refresh()
 	}
 
 	switch fl.VirtualizationProvider.Get().(flags.VirtualizationProvider) {
@@ -213,8 +213,4 @@ func (cvm *CloudVM) ChooseAddresses(protocol string, candidates []net.Addr) ([]n
 		return append(forProtocol, filterForProtocol(protocol, candidates)...), nil
 	}
 	return forProtocol, nil
-}
-
-func AsyncAddressChooser(ctx context.Context) {
-
 }

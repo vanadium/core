@@ -51,7 +51,7 @@ func TestCloudVMProviders(t *testing.T) {
 
 	for _, provider := range []flags.VirtualizationProvider{flags.AWS, flags.GCP} {
 		cfg.AdvertisePrivateAddresses = false
-		cfg.VirtualizationProvider = provider
+		cfg.VirtualizationProvider = flags.VirtualizationProviderFlag{Provider: provider}
 		addrs := chooseAddrs(t, fmt.Sprintf("public %v", provider), cfg)
 		if got, want := len(addrs), 1; got != want {
 			t.Fatalf("got %v, want %v", got, want)
@@ -82,7 +82,7 @@ func TestCloudVMNative(t *testing.T) {
 
 	// PublicAddress trumps a DNS name.
 	cfg.AdvertisePrivateAddresses = false
-	cfg.VirtualizationProvider = flags.Native
+	cfg.VirtualizationProvider.Set(string(flags.Native))
 	cfg.PublicProtocol.Set("wsh")
 	cfg.PublicAddress.Set("8.8.8.4:20")
 	cfg.PublicDNSName.Set("myloadbalancer.com")
