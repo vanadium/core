@@ -28,7 +28,7 @@ func TestVirtualizedFlags(t *testing.T) {
 
 	if err := fl.Parse([]string{
 		"--v23.virtualized.docker=true",
-		"--v23.virtualized.provider=foobar",
+		"--v23.virtualized.provider=aws",
 		"--v23.virtualized.tcp.public-protocol=tcp",
 		"--v23.virtualized.tcp.public-address=8.8.2.2:17",
 		"--v23.virtualized.dns.public-name=my-load-balancer:20",
@@ -39,7 +39,7 @@ func TestVirtualizedFlags(t *testing.T) {
 	expected = flags.VirtualizedFlags{
 		Dockerized:                true,
 		AdvertisePrivateAddresses: true,
-		VirtualizationProvider:    "foobar",
+		VirtualizationProvider:    flags.VirtualizationProviderFlag{Provider: flags.AWS},
 	}
 	expected.PublicDNSName.Set("my-load-balancer:20")
 	expected.PublicProtocol.Set("tcp")
