@@ -118,8 +118,8 @@ func (ip IPHostPortFlag) String() string {
 }
 
 // HostPortFlag implements flag.Value to provide validation of the
-// command line value it is set to. The allowed format is <host>:<port>;
-// the host may be specified as a hostname or as an IP
+// command line value it is set to. The allowed format is <host>:<port>.
+// The host may be specified as a hostname or as an IP
 // address (v4 or v6). A DNS hostname is never resolved.
 type HostPortFlag struct {
 	Host string

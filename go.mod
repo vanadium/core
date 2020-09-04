@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/cosnicolaou/go-bindata/v3 v3.0.8 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
@@ -20,7 +19,6 @@ require (
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/tools v0.0.0-20200903185744-af4cc2cd812e // indirect
 	google.golang.org/api v0.9.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	v.io/x/lib v0.1.5
