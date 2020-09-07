@@ -5,6 +5,7 @@
 package testutil
 
 import (
+	"fmt"
 	"io"
 	"sort"
 
@@ -18,6 +19,7 @@ import (
 // a sorted list of matching object names, or an error.
 func GlobName(ctx *context.T, name, pattern string) ([]string, []naming.GlobError, error) {
 	client := v23.GetClient(ctx)
+	fmt.Printf("GLOB: %v %v\n", name, pattern)
 	call, err := client.StartCall(ctx, name, rpc.GlobMethod, []interface{}{pattern})
 	if err != nil {
 		return nil, nil, err

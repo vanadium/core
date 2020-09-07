@@ -22,7 +22,10 @@ require (
 	google.golang.org/api v0.9.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	v.io/x/lib v0.1.5
+	v.io/x/ref/internal/logger v0.0.0-00010101000000-000000000000
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
+
+replace v.io/x/ref/internal/logger => ./x/ref/internal/logger

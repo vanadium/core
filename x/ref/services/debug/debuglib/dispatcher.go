@@ -6,6 +6,7 @@
 package debuglib
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -53,6 +54,8 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	} else {
 		suffix = ""
 	}
+	fmt.Printf("DEBUG: %v\n", strings.Join(parts, " -- "))
+
 	switch parts[0] {
 	case "logs":
 		return logreaderlib.NewLogFileService(logger.Manager(ctx).LogDir(), suffix), d.auth, nil

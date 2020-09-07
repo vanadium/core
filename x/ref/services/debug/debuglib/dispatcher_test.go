@@ -5,6 +5,7 @@
 package debuglib_test
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -55,7 +56,9 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 
 	// Use logger configured with the directory that we want to use for this test.
 	testLogger := vlog.NewLogger("TestDebugServer")
-	testLogger.Configure(vlog.LogDir(workdir)) //nolint:errcheck
+	if err := testLogger.Configure(vlog.LogDir(workdir)); err != nil {
+		t.Fatalf("testLogger.Configure: %v", err)
+	}
 	ctx = context.WithLogger(ctx, testLogger)
 
 	disp := debuglib.NewDispatcher(nil)
@@ -67,11 +70,14 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 
 	// Access a logs directory that exists.
 	{
+		fmt.Printf(">>>>>>> glob\n")
 		results, _, err := testutil.GlobName(ctx, naming.JoinAddressName(endpoint, "debug/logs"), "*")
 		if err != nil {
 			t.Errorf("Glob failed: %v", err)
 		}
 		check(t, []string{"test.INFO"}, results)
+		fmt.Printf(">>>>>>> glob DONE...\n")
+
 	}
 
 	// Access a logs directory that doesn't exist.

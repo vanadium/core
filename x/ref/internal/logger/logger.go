@@ -8,21 +8,9 @@
 package logger
 
 import (
-	"v.io/x/lib/vlog"
-
-	"v.io/v23/context"
 	"v.io/v23/logging"
+	"v.io/x/lib/vlog"
 )
-
-// Global returns the global logger.
-func Global() logging.Logger {
-	return vlog.Log
-}
-
-// NewLogger creates a new logger with the supplied name.
-func NewLogger(name string) logging.Logger {
-	return vlog.NewLogger(name)
-}
 
 // ManageLog defines the methods for managing and configuring a logger.
 type ManageLog interface {
@@ -49,6 +37,21 @@ type ManageLog interface {
 	ExplicitlySetFlags() map[string]string
 }
 
+type ManagedLogger interface {
+	logging.Logger
+	ManageLog
+}
+
+// Global returns the global logger.
+func Global() ManagedLogger {
+	return vlog.Log
+}
+
+// NewLogger creates a new logger with the supplied name.
+func NewLogger(name string) ManagedLogger {
+	return vlog.NewLogger(name)
+}
+
 type dummy struct{}
 
 func (*dummy) LogDir() string { return "" }
@@ -67,14 +70,6 @@ func (*dummy) ExplicitlySetFlags() map[string]string { return nil }
 func Manager(logger logging.Logger) ManageLog {
 	if vl, ok := logger.(ManageLog); ok {
 		return vl
-	}
-	// If the logger is a context.T then ask it for its implementation
-	// of logging.Logger and look for ManageLog being implemented by it,
-	// since context.T can never implement ManageLog itself.
-	if ctx, ok := logger.(*context.T); ok {
-		if l := context.LoggerFromContext(ctx); l != nil {
-			return Manager(l)
-		}
 	}
 	return &dummy{}
 }
