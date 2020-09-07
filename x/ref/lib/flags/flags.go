@@ -282,17 +282,22 @@ func NewVirtualizedFlags() (*VirtualizedFlags, error) {
 func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) error {
 	def := DefaultVirtualizedFlagValues()
 	provider := &VirtualizationProviderFlag{}
-	err := provider.Set(def.VirtualizationProvider)
-	address := &IPHostPortFlag{}
-	err = address.Set(def.PublicAddress)
-	protocol := &TCPProtocolFlag{}
-	err = protocol.Set(def.PublicProtocol)
-	dnsname := &HostPortFlag{}
-	err = dnsname.Set(def.PublicDNSName)
-	if err != nil {
+	if err := provider.Set(def.VirtualizationProvider); err != nil {
 		return err
 	}
-	err = flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
+	address := &IPHostPortFlag{}
+	if err := address.Set(def.PublicAddress); err != nil {
+		return err
+	}
+	protocol := &TCPProtocolFlag{}
+	if err := protocol.Set(def.PublicProtocol); err != nil {
+		return err
+	}
+	dnsname := &HostPortFlag{}
+	if err := dnsname.Set(def.PublicDNSName); err != nil {
+		return err
+	}
+	return flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
 			"v23.virtualized.docker":                      def.Dockerized,
 			"v23.virtualized.provider":                    provider,
@@ -309,7 +314,6 @@ func RegisterVirtualizedFlags(fs *flag.FlagSet, f *VirtualizedFlags) error {
 			"v23.virtualized.advertise-private-addresses": "",
 		},
 	)
-	return err
 }
 
 // CreateAndRegister creates a new set of flag groups as specified by the
