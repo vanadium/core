@@ -54,11 +54,13 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	} else {
 		suffix = ""
 	}
-	fmt.Printf("DEBUG: %v\n", strings.Join(parts, " -- "))
-
 	switch parts[0] {
 	case "logs":
-		return logreaderlib.NewLogFileService(logger.Manager(ctx).LogDir(), suffix), d.auth, nil
+		mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+		if ok {
+			return logreaderlib.NewLogFileService(mgr.LogDir(), suffix), d.auth, nil
+		}
+		return nil, d.auth, fmt.Errorf("%T does not implement logger.ManagerLog", mgr)
 	case "pprof":
 		return pproflib.NewPProfService(), d.auth, nil
 	case "stats":

@@ -11,7 +11,6 @@
 package logreaderlib
 
 import (
-	"fmt"
 	"io"
 	"math"
 	"os"
@@ -119,7 +118,6 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 //nolint:golint // API change required.
 func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	ctx.VI(1).Infof("%v.GlobChildren__()", i.suffix)
-
 	dirName, err := translateNameToFilename(i.root, i.suffix)
 	if err != nil {
 		return err
@@ -142,8 +140,6 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 	defer f.Close()
 	for {
 		fi, err := f.Readdir(100)
-		cwd, _ := os.Getwd()
-		fmt.Printf("READDIR: %v (%v) %v\n", dirName, cwd, len(fi))
 		if err == io.EOF {
 			break
 		}

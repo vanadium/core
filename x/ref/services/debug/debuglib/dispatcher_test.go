@@ -5,7 +5,6 @@
 package debuglib_test
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -70,14 +69,11 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 
 	// Access a logs directory that exists.
 	{
-		fmt.Printf(">>>>>>> glob\n")
 		results, _, err := testutil.GlobName(ctx, naming.JoinAddressName(endpoint, "debug/logs"), "*")
 		if err != nil {
 			t.Errorf("Glob failed: %v", err)
 		}
 		check(t, []string{"test.INFO"}, results)
-		fmt.Printf(">>>>>>> glob DONE...\n")
-
 	}
 
 	// Access a logs directory that doesn't exist.

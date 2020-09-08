@@ -52,28 +52,6 @@ func NewLogger(name string) ManagedLogger {
 	return vlog.NewLogger(name)
 }
 
-type dummy struct{}
-
-func (*dummy) LogDir() string { return "" }
-func (*dummy) Stats() (infoStats, errorStats struct{ Lines, Bytes int64 }) {
-	return struct{ Lines, Bytes int64 }{0, 0}, struct{ Lines, Bytes int64 }{0, 0}
-}
-func (*dummy) ConfigureFromFlags(opts ...vlog.LoggingOpts) error { return nil }
-func (*dummy) ConfigureFromArgs(opts ...vlog.LoggingOpts) error  { return nil }
-
-func (*dummy) ExplicitlySetFlags() map[string]string { return nil }
-
-// Manager determines if the supplied logging.Logger implements ManageLog and if so
-// returns an instance of it. If it doesn't implement ManageLog then Manager
-// will return a dummy implementation that is essentially a no-op. It is
-// always safe to use it as: logger.Manager(logger.Global()).LogDir() for example.
-func Manager(logger logging.Logger) ManageLog {
-	if vl, ok := logger.(ManageLog); ok {
-		return vl
-	}
-	return &dummy{}
-}
-
 // IsAlreadyConfiguredError returns true if the err parameter indicates
 // the the logger has already been configured.
 func IsAlreadyConfiguredError(err error) bool {
