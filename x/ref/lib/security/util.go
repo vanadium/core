@@ -11,6 +11,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
+
+	"v.io/x/ref/lib/security/internal/lockedfile"
 )
 
 // DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
@@ -36,4 +38,29 @@ func NewPrivateKey(keyType string) (interface{}, error) {
 	default:
 		return nil, fmt.Errorf("unsupported key type: %v", keyType)
 	}
+}
+
+// lockAndLoad only needs to read the credentials information.
+func readLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), error) {
+	if flock == nil {
+		// in-memory store
+		return func() {}, loader()
+	}
+	unlock, err := flock.RLock()
+	if err != nil {
+		return nil, err
+	}
+	return unlock, loader()
+}
+
+func writeLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), error) {
+	if flock == nil {
+		// in-memory store
+		return func() {}, loader()
+	}
+	unlock, err := flock.Lock()
+	if err != nil {
+		return nil, err
+	}
+	return unlock, loader()
 }

@@ -60,7 +60,7 @@ func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.Ble
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
 
-	unlock, err := bs.lockAndLoad()
+	unlock, err := bs.writeLockAndLoad()
 	if err != nil {
 		return security.Blessings{}, err
 	}
@@ -110,7 +110,7 @@ func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
 
-	unlock, err := bs.lockAndLoad()
+	unlock, err := bs.writeLockAndLoad()
 	if err != nil {
 		return err
 	}
@@ -155,7 +155,7 @@ func (bs *blessingStore) CacheDischarge(discharge security.Discharge, caveat sec
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
 
-	unlock, err := bs.lockAndLoad()
+	unlock, err := bs.writeLockAndLoad()
 	if err != nil {
 		return err
 	}
@@ -324,17 +324,12 @@ func verifyState(publicKey security.PublicKey, state blessingStoreState) error {
 	return nil
 }
 
-func (bs *blessingStore) lockAndLoad() (func(), error) {
-	if bs.flock == nil {
-		// in-memory store
-		return func() {}, bs.load()
-	}
-	unlock, err := bs.flock.Lock()
-	if err != nil {
-		return nil, err
-	}
-	err = bs.load()
-	return unlock, err
+func (bs *blessingStore) readLockAndLoad() (func(), error) {
+	return readLockAndLoad(bs.flock, bs.load)
+}
+
+func (bs *blessingStore) writeLockAndLoad() (func(), error) {
+	return writeLockAndLoad(bs.flock, bs.load)
 }
 
 func loadState(data, signature io.ReadCloser, publicKey, signerPublicKey security.PublicKey) (blessingStoreState, error) {
@@ -419,7 +414,7 @@ func NewPersistentBlessingStore(ctx context.Context, lockFilePath string, reader
 		go reload(ctx, func() (func(), error) {
 			bs.mu.Lock()
 			defer bs.mu.Unlock()
-			return bs.lockAndLoad()
+			return bs.readLockAndLoad()
 		}, hupCh, update)
 	}
 	return bs, nil
