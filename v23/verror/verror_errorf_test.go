@@ -159,8 +159,20 @@ func TestUnwrap(t *testing.T) {
 	} {
 		err = errors.Unwrap(err)
 		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v got %v, want %v", i, got, want)
+			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 	}
 
+}
+
+func TestRegister(t *testing.T) {
+	e1 := verror.Register(".err1", verror.NoRetry, "{1}{:2} a message")
+	e2 := verror.Register("err1", verror.NoRetry, "{1}{:2} a message")
+	e3 := verror.Register("v.io/v23/verror.err1", verror.NoRetry, "{1}{:2} a message")
+	if got, want := e1.ID, e2.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := e1.ID, e3.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }

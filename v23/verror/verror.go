@@ -23,9 +23,11 @@
 //
 // To define a new error identifier, for example "someNewError", client code is
 // expected to declare a variable like this:
-//      var someNewError = verror.Register("my/package/name.someNewError", NoRetry,
+//      var someNewError = verror.Register("someNewError", NoRetry,
 //                                         "{1} {2} English text for new error")
 // Text for other languages can be added to the default i18n Catalogue.
+// Note that verror.Register will determine the name of the calling package
+// and prepend it to 'someNewError'.
 //
 // If the error should cause a client to retry, consider replacing "NoRetry" with
 // one of the other Action codes below.
