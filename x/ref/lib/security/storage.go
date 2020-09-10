@@ -5,17 +5,17 @@
 package security
 
 import (
+	"fmt"
 	"io"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/x/ref/lib/security/serialization"
 )
 
 func encodeAndStore(obj interface{}, data, signature io.WriteCloser, signer serialization.Signer) error {
 	if data == nil || signature == nil {
-		return verror.Errorf("invalid data/signature handles data:{3} sig:{4}{:_}", data, signature)
+		return fmt.Errorf("invalid data/signature handles data:%v sig:%v", data, signature)
 	}
 	swc, err := serialization.NewSigningWriteCloser(data, signature, signer, nil)
 	if err != nil {
@@ -31,7 +31,7 @@ func encodeAndStore(obj interface{}, data, signature io.WriteCloser, signer seri
 
 func decodeFromStorage(obj interface{}, data, signature io.ReadCloser, publicKey security.PublicKey) error {
 	if data == nil || signature == nil {
-		return verror.Errorf("invalid data/signature handles data:{3} sig:{4}{:_}", data, signature)
+		return fmt.Errorf("invalid data/signature handles data:%v sig:%v", data, signature)
 	}
 	defer data.Close()
 	defer signature.Close()

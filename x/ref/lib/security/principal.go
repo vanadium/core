@@ -53,7 +53,7 @@ const (
 func NewPrincipal() (security.Principal, error) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, verror.Errorf("failed to generate private key{:_}", err)
+		return nil, fmt.Errorf("failed to generate private key: %v", err)
 	}
 	signer, err := security.NewInMemoryECDSASigner(priv)
 	if err != nil {
@@ -141,7 +141,7 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 		if os.IsNotExist(err) {
 			return nil, err
 		}
-		return nil, verror.Errorf("failed to lock {3}{:_}", flock, err)
+		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
 	defer unlock()
 	return newPersistentPrincipal(ctx, dir, passphrase, readonly, update)
@@ -182,7 +182,7 @@ func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (sec
 		}
 	}
 	if len(privatePEM) > 0 && len(publicSSH) > 0 {
-		return nil, verror.Errorf("multiple key files found: {3} and {4}", privatePEM, publicSSH)
+		return nil, fmt.Errorf("multiple key files found: %v and %v", privatePEM, publicSSH)
 	}
 	switch {
 	case len(privatePEM) > 0:
@@ -190,7 +190,7 @@ func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (sec
 	case len(publicSSH) > 0:
 		return newSSHAgentSigner(ctx, filepath.Join(dir, publicSSH), passphrase)
 	}
-	return nil, verror.Errorf("failed to find an appropriate private or public key file in {3}", dir)
+	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %v", dir)
 }
 
 func handleSignerError(signer security.Signer, err error) (security.Signer, error) {
@@ -204,7 +204,7 @@ func handleSignerError(signer security.Signer, err error) (security.Signer, erro
 	case os.IsNotExist(err):
 		return nil, err
 	default:
-		return nil, verror.Errorf("failed to create serialization.Signer{:_}", err)
+		return nil, fmt.Errorf("failed to create serialization.Signer: %v", err)
 	}
 }
 
@@ -252,7 +252,7 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 		}
 	}
 	if len(publicPEM) > 0 && len(publicSSH) > 0 {
-		return nil, verror.Errorf("multiple key files found: {3} and {4}", publicPEM, publicSSH)
+		return nil, fmt.Errorf("multiple key files found: %v and %v", publicPEM, publicSSH)
 	}
 	var key interface{}
 	switch {
@@ -266,7 +266,7 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 		}
 	}
 	if err != nil {
-		return nil, verror.Errorf("failed to load public key{:_}", err)
+		return nil, fmt.Errorf("failed to load public key: %v", err)
 	}
 	switch k := key.(type) {
 	case *ecdsa.PublicKey:
@@ -274,7 +274,7 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 	case ed25519.PublicKey:
 		return security.NewED25519PublicKey(k), nil
 	}
-	return nil, verror.Errorf("unsupported key type{:_}", fmt.Sprintf("%T", key))
+	return nil, fmt.Errorf("unsupported key type %T", key)
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with

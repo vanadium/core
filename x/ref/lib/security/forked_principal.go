@@ -11,10 +11,11 @@ import (
 	"time"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 )
 
-const immutableErrFormat = "mutation not supported on this immutable type (type={3:} method={4:}"
+func unsupportedMutation(typ interface{}, op string) error {
+	return fmt.Errorf("mutation not supported on this immutable type (type=%T) method=%v", typ, op)
+}
 
 // ForkPrincipal returns a principal that has the same private key as p but
 // uses store and roots instead of the BlessingStore and BlessingRoots in p.
@@ -28,7 +29,7 @@ func ForkPrincipal(p security.Principal, store security.BlessingStore, roots sec
 		return nil, err
 	}
 	if !bytes.Equal(k1, k2) {
-		return nil, verror.Errorf("principal's public key {3:} does not match store's public key {4:}", p.PublicKey(), store.PublicKey())
+		return nil, fmt.Errorf("principal's public key %s does not match store's public key %v", p.PublicKey(), store.PublicKey())
 	}
 	return &forkedPrincipal{p, store, roots}, nil
 }
@@ -89,13 +90,13 @@ type immutableBlessingStore struct {
 }
 
 func (s *immutableBlessingStore) Set(security.Blessings, security.BlessingPattern) (security.Blessings, error) {
-	return security.Blessings{}, verror.Errorf(immutableErrFormat, fmt.Sprintf("%T", s), "Set")
+	return security.Blessings{}, unsupportedMutation(s, "Set")
 }
 func (s *immutableBlessingStore) ForPeer(peerBlessings ...string) security.Blessings {
 	return s.impl.ForPeer(peerBlessings...)
 }
 func (s *immutableBlessingStore) SetDefault(security.Blessings) error {
-	return verror.Errorf(immutableErrFormat, fmt.Sprintf("%T", s), "SetDefault")
+	return unsupportedMutation(s, "SetDefault")
 }
 func (s *immutableBlessingStore) Default() (security.Blessings, <-chan struct{}) {
 	return s.impl.Default()
@@ -165,13 +166,13 @@ type fixedBlessingsStore struct {
 }
 
 func (s *fixedBlessingsStore) Set(security.Blessings, security.BlessingPattern) (security.Blessings, error) {
-	return security.Blessings{}, verror.Errorf(immutableErrFormat, fmt.Sprintf("%T", s), "Set")
+	return security.Blessings{}, unsupportedMutation(s, "Set")
 }
 func (s *fixedBlessingsStore) ForPeer(peerBlessings ...string) security.Blessings {
 	return s.b
 }
 func (s *fixedBlessingsStore) SetDefault(security.Blessings) error {
-	return verror.Errorf(immutableErrFormat, fmt.Sprintf("%T", s), "SetDefault")
+	return unsupportedMutation(s, "SetDefault")
 }
 func (s *fixedBlessingsStore) Default() (security.Blessings, <-chan struct{}) {
 	return s.b, s.ch
@@ -210,5 +211,5 @@ func (r *immutableBlessingRoots) Dump() map[security.BlessingPattern][]security.
 }
 func (r *immutableBlessingRoots) DebugString() string { return r.impl.DebugString() }
 func (r *immutableBlessingRoots) Add([]byte, security.BlessingPattern) error {
-	return verror.Errorf(immutableErrFormat, fmt.Sprintf("%T", r), "Add")
+	return fmt.Errorf("mutation not supported on this immutable type (type=%T) method=%v", r, "Add")
 }

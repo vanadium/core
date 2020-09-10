@@ -9,9 +9,8 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"fmt"
 	"os"
-
-	"v.io/v23/verror"
 )
 
 // DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
@@ -35,6 +34,6 @@ func NewPrivateKey(keyType string) (interface{}, error) {
 		_, privateKey, err := ed25519.GenerateKey(rand.Reader)
 		return privateKey, err
 	default:
-		return nil, verror.Errorf("unsupported key type: {3}", keyType)
+		return nil, fmt.Errorf("unsupported key type: %T", keyType)
 	}
 }

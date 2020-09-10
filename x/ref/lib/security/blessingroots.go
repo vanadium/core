@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/lib/security/internal/lockedfile"
@@ -36,7 +35,7 @@ type blessingRoots struct {
 
 func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) error {
 	if pattern == security.AllPrincipals {
-		return verror.Errorf("a root cannot be recognized for all blessing names (i.e., the pattern '...')")
+		return fmt.Errorf("a root cannot be recognized for all blessing names (i.e., the pattern '...')")
 	}
 	// Sanity check to avoid invalid keys being added.
 	if _, err := security.UnmarshalPublicKey(root); err != nil {
@@ -177,7 +176,7 @@ func (br *blessingRoots) load() error {
 	}
 	state := make(blessingRootsState)
 	if err := decodeFromStorage(&state, data, signature, br.publicKey); err != nil {
-		return verror.Errorf("failed to load BlessingRoots{:_}", err)
+		return fmt.Errorf("failed to load BlessingRoots: %v", err)
 	}
 	br.state = state
 	return nil
@@ -215,7 +214,7 @@ func NewBlessingRoots() security.BlessingRoots {
 // is specified.
 func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingRoots, error) {
 	if readers == nil || (writers != nil && signer == nil) {
-		return nil, verror.Errorf("blessing's public key does not match store's public key")
+		return nil, fmt.Errorf("blessing's public key does not match store's public key")
 	}
 	br := &blessingRoots{
 		flock:   lockedfile.MutexAt(lockFilePath),

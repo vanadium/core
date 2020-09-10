@@ -22,7 +22,6 @@ import (
 )
 
 const (
-	pkgPath                = "v.io/x/ref/lib/security/internal"
 	ecPrivateKeyPEMType    = "EC PRIVATE KEY"
 	ecPublicKeyPEMType     = "EC PUBLIC KEY"
 	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
@@ -30,22 +29,15 @@ const (
 
 var (
 	// ErrBadPassphrase is a possible return error from LoadPEMPrivateKey()
-	ErrBadPassphrase = verror.Register(pkgPath+".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
+	ErrBadPassphrase = verror.Register(".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
 	// ErrPassphraseRequired is a possible return error from LoadPEMPrivateKey()
-	ErrPassphraseRequired = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
-
-	errNoPEMKeyBlock       = verror.Register(pkgPath+".errNoPEMKeyBlock", verror.NoRetry, "{1:}{2:} no PEM key block read{:_}")
-	errPEMKeyBlockBadType  = verror.Register(pkgPath+".errPEMKeyBlockBadType", verror.NoRetry, "{1:}{2:} PEM key block has an unrecognized type{:_}")
-	errCantSaveKeyType     = verror.Register(pkgPath+".errCantSaveKeyType", verror.NoRetry, "{1:}{2:} key of type {3} cannot be saved{:_}")
-	errCantEncryptPEMBlock = verror.Register(pkgPath+".errCantEncryptPEMBlock", verror.NoRetry, "{1:}{2:} failed to encrypt pem block{:_}")
-	errCantOpenForWriting  = verror.Register(pkgPath+".errCantOpenForWriting", verror.NoRetry, "{1:}{2:} failed to open {3} for writing{:_}")
-	errCantSaveKeyPair     = verror.Register(pkgPath+".errCantSaveKeyPair", verror.NoRetry, "{1:}{2:} failed to save private key to {3}, {4}{:_}")
+	ErrPassphraseRequired = verror.Register(".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
 )
 
 func openKeyFile(keyFile string) (*os.File, error) {
 	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
 	if err != nil {
-		return nil, verror.New(errCantOpenForWriting, nil, keyFile, err)
+		return nil, fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
 	}
 	return f, nil
 }
@@ -80,7 +72,7 @@ func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, pass
 	}
 	defer public.Close()
 	if err := SavePEMKeyPair(private, public, key, passphrase); err != nil {
-		return verror.New(errCantSaveKeyPair, nil, privateKeyFile, publicKeyFile, err)
+		return fmt.Errorf("failed to save private key to %v, %v: %v", privateKeyFile, publicKeyFile, err)
 	}
 	return nil
 }
@@ -94,7 +86,7 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	}
 	pemBlock, _ := pem.Decode(pemBlockBytes)
 	if pemBlock == nil {
-		return nil, verror.New(errNoPEMKeyBlock, nil)
+		return nil, fmt.Errorf("no PEM key block read")
 	}
 	var data []byte
 	if x509.IsEncryptedPEMBlock(pemBlock) {
@@ -128,7 +120,7 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		}
 		return key, nil
 	}
-	return nil, verror.New(errPEMKeyBlockBadType, nil, pemBlock.Type)
+	return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 }
 
 // LoadPEMPublicKeyFile loads a public key file in PEM PKIX format.
@@ -153,7 +145,7 @@ func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
 	}
 	pemBlock, _ := pem.Decode(pemBlockBytes)
 	if pemBlock == nil {
-		return nil, verror.New(errNoPEMKeyBlock, nil)
+		return nil, fmt.Errorf("no PEM key block read")
 	}
 	key, err := x509.ParsePKIXPublicKey(pemBlock.Bytes)
 	if err != nil {
@@ -223,14 +215,14 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 		}
 		pemType = pkcs8PrivateKeyPEMType
 	default:
-		return verror.New(errCantSaveKeyType, nil, fmt.Sprintf("%T", k))
+		return fmt.Errorf("key of type %T cannot be saved", k)
 	}
 
 	var pemKey *pem.Block
 	if passphrase != nil {
 		pemKey, err = x509.EncryptPEMBlock(rand.Reader, pemType, privateData, passphrase, x509.PEMCipherAES256)
 		if err != nil {
-			return verror.New(errCantEncryptPEMBlock, nil, err)
+			return fmt.Errorf("failed to encrypt pem block: %v", err)
 		}
 	} else {
 		pemKey = &pem.Block{
