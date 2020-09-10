@@ -161,7 +161,7 @@ func Errorf(format string, v ...interface{}) error {
 // have exported (and hence testable) IDAction values and that are not
 // internationalizable. A unique ID is created based on the package, file and line
 // number of the caller. VErrorf prepends {1:}{2:} to the supplied formeat
-// and hence these positional parameters should be omited  from the supplied
+// and hence these positional parameters should be omitted  from the supplied
 // format; the format is otherwise interpreted as per verror.Register
 // and verror.New.
 //

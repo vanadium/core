@@ -38,7 +38,7 @@ func TestErrorf(t *testing.T) {
 	if got, want := verror.DebugString(err), "runtime.goexit"; !strings.Contains(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:24"; !strings.Contains(got, want) {
+	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:26"; !strings.Contains(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
