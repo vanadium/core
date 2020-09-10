@@ -9,7 +9,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -28,7 +27,7 @@ import (
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, verror.New(errCantGenerateKey, nil, err)
+		return nil, verror.Errorf("failed to generate private key{:_}", err)
 	}
 	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
 }
@@ -89,7 +88,7 @@ func createSSHAgentPrincipal(ctx context.Context, service *sshagent.Client, sshP
 		return nil, err
 	}
 	if err := internal.CopyKeyFile(from, to); err != nil {
-		return nil, fmt.Errorf("failed to copy ssh public key file: %v to %v: %v", from, to, err)
+		return nil, verror.Errorf("failed to copy ssh public key file: {3} to {4}{:_}", from, to, err)
 	}
 	signer, err := service.Signer(ctx, to, passphrase)
 	if err != nil {
@@ -110,10 +109,10 @@ func createPrincipalUsingSigner(ctx context.Context, signer security.Signer, dir
 func mkDir(dir string) error {
 	if finfo, err := os.Stat(dir); err == nil {
 		if !finfo.IsDir() {
-			return verror.New(errNotADirectory, nil, dir)
+			return verror.Errorf("{3} is not a directory{:_}", dir)
 		}
 	} else if err := os.MkdirAll(dir, 0700); err != nil {
-		return verror.New(errCantCreate, nil, dir, err)
+		return verror.Errorf("failed to create {3}{:_}", dir, err)
 	}
 	return nil
 }
@@ -125,7 +124,7 @@ func initAndLockPrincipalDir(dir string) (func(), error) {
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
 	unlock, err := flock.Lock()
 	if err != nil {
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+		return nil, verror.Errorf("failed to lock {3}{:_}", flock, err)
 	}
 	return unlock, nil
 }

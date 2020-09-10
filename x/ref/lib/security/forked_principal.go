@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	errImmutable         = verror.Register(pkgPath+".errImmutable", verror.NoRetry, "{1:}{2:} mutation not supported on this immutable type (type={3:} method={4:}")
-	errPublicKeyMismatch = verror.Register(pkgPath+".errPublicKeyMismatch", verror.NoRetry, "{1:}{2:} principal's public key {3:} does not match store's public key {4:}")
+	errImmutable         = verror.Register("errImmutable", verror.NoRetry, "{1:}{2:} mutation not supported on this immutable type (type={3:} method={4:}")
+	errPublicKeyMismatch = verror.Register("errPublicKeyMismatch", verror.NoRetry, "{1:}{2:} principal's public key {3:} does not match store's public key {4:}")
 )
 
 // ForkPrincipal returns a principal that has the same private key as p but

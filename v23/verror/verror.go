@@ -81,6 +81,10 @@
 // any.  If the default context has not been set, the error generated has no
 // language, component and operation values; they will be filled in by the
 // first Convert() call that does have these values.
+//
+// The verror implementation supports errors.Is and errors.Unwrap. Note
+// that errors.Unwrap provides access to SubErr's as well as to chained
+// instances of error.
 package verror
 
 import (
@@ -127,6 +131,7 @@ func (ac ActionCode) RetryAction() ActionCode {
 // "PKGPATH.NAME" - e.g. ErrIDFoo defined in the "v23/verror" package has id
 // "v23/verror.ErrIDFoo".  It is unwise ever to create two IDActions that
 // associate different ActionCodes with the same ID.
+// IDAction implements error so that it may be used with errors.Is.
 type IDAction struct {
 	ID     ID
 	Action ActionCode
@@ -134,10 +139,50 @@ type IDAction struct {
 
 // Register returns a IDAction with the given ID and Action fields, and
 // inserts a message into the default i18n Catalogue in US English.
-// Other languages can be added by adding to the Catalogue.
+// Other languages can be added by adding to the Catalogue. Register
+// will internal prepend the caller's package path to id if it's not
+// already present. The intent
 func Register(id ID, action ActionCode, englishText string) IDAction {
+	id = ensurePackagePath(id)
 	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID(id), englishText)
 	return IDAction{id, action}
+}
+
+// Errorf calls VErrorf with a nil context and a NoRetry action. The supplied
+// format string should omit {1} and {2} since they are prepedend by VErrorf.
+//
+//   return verror.Errorf("arg {3} led to error{:_}", arg, err)
+//
+func Errorf(format string, v ...interface{}) error {
+	return VErrorf(nil, NoRetry, format, v...)
+}
+
+// VErrorf creates a new verror.E that is intended for errors that do not
+// have exported (and hence testable) IDAction values and that are not
+// internationalizable. A unique ID is created based on the package, file and line
+// number of the caller. VErrorf prepends {1:}{2:} to the supplied formeat
+// and hence these positional parameters should be omited  from the supplied
+// format; the format is otherwise interpreted as per verror.Register
+// and verror.New.
+//
+//   return verror.VErrorf(ctx, verror.RetryBackoff,
+//       "arg {3} led to a temporary error{:_}", arg, err)
+//
+func VErrorf(ctx *context.T, action ActionCode, format string, v ...interface{}) error {
+	format = "{1:}{2:} " + format
+	_, componentName, opName := dataFromContext(ctx)
+	stack := make([]uintptr, maxPCs)
+	stack = stack[:runtime.Callers(2, stack)]
+	frame, _ := runtime.CallersFrames(stack).Next()
+	pkgPath, _ := pkgPathCache.pkgPath(frame.File)
+	id := ID(fmt.Sprintf("%s:%s:%d", pkgPath, filepath.Base(frame.File), frame.Line))
+	if id == "::" {
+		id = ErrUnknown.ID
+	}
+	chainedPCs := chainPCs(v)
+	params := append([]interface{}{componentName, opName}, v...)
+	msg := i18n.FormatParams(format, params...)
+	return E{id, action, msg, params, stack, chainedPCs}
 }
 
 // E is the in-memory representation of a verror error.
@@ -345,7 +390,7 @@ const maxPCs = 40 // Maximum number of PC values we'll include in a stack trace.
 
 // A SubErrs is a special type that allows clients to include a list of
 // subordinate errors to an error's parameter list.  Clients can add a SubErrs
-// to the parameter list directly, via New() of include one in an existing
+// to the parameter list directly, via New() or include one in an existing
 // error using AddSubErrs().  Each element of the slice has a name, an error,
 // and an integer that encodes options such as verror.Print as bits set within
 // it.  By convention, clients are expected to use name of the form "X=Y" to
@@ -465,10 +510,7 @@ func isDefaultIDAction(id ID, action ActionCode) bool {
 	return id == "" && action == 0
 }
 
-// makeInternal is like ExplicitNew(), but takes a slice of PC values as an argument,
-// rather than constructing one from the caller's PC.
-func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, v ...interface{}) E {
-	msg := ""
+func chainPCs(v []interface{}) []uintptr {
 	var chainedPCs []uintptr
 	for _, par := range v {
 		if err, ok := par.(error); ok {
@@ -478,6 +520,14 @@ func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, o
 			}
 		}
 	}
+	return chainedPCs
+}
+
+// makeInternal is like ExplicitNew(), but takes a slice of PC values as an argument,
+// rather than constructing one from the caller's PC.
+func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, v ...interface{}) E {
+	msg := ""
+	chainedPCs := chainPCs(v)
 	params := append([]interface{}{componentName, opName}, v...)
 	if langID != i18n.NoLangID {
 		id := idAction.ID
@@ -687,13 +737,17 @@ func (e E) Error() string {
 	return msg
 }
 
+func (subErr SubErr) String() string {
+	return fmt.Sprintf("[%s: %s]", subErr.Name, subErr.Err.Error())
+}
+
 // String is the default printing function for SubErrs.
 func (subErrs SubErrs) String() (result string) {
 	if len(subErrs) > 0 {
 		sep := ""
 		for _, s := range subErrs {
 			if (s.Options & Print) != 0 {
-				result += fmt.Sprintf("%s[%s: %s]", sep, s.Name, s.Err.Error())
+				result += fmt.Sprintf("%s%s", sep, s.String())
 				sep = ", "
 			}
 		}
@@ -742,7 +796,7 @@ func subErrors(err error) (r SubErrs) {
 			}
 		}
 	}
-	return r
+	return
 }
 
 // addSubErrsInternal returns a copy of err with supplied errors appended as
