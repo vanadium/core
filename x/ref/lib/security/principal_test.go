@@ -91,7 +91,7 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 		err = os.Chmod(path, mode)
 		nfi, _ := os.Stat(path)
 		if nfi.Mode().Perm() != mode {
-			t.Fatalf("failed to set permisions for %v", path)
+			t.Fatalf("failed to set permissions for %v", path)
 		}
 		return err
 	})
