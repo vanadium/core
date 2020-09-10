@@ -16,11 +16,6 @@ import (
 	"v.io/v23/vom"
 )
 
-var (
-	errCantBeNilSigner = verror.Register(pkgPath+".errCantBeNilSigner", verror.NoRetry, "{1:}{2:} data:{3} signature:{4} signer:{5} cannot be nil{:_}")
-	errCantSign        = verror.Register(pkgPath+".errCantSign", verror.NoRetry, "{1:}{2:} signing failed{:_}")
-)
-
 const defaultChunkSizeBytes = 1 << 20
 
 // signingWriter implements io.WriteCloser.
@@ -96,7 +91,7 @@ type Signer interface {
 //       signature WriteClosers.
 func NewSigningWriteCloser(data, signature io.WriteCloser, s Signer, opts *Options) (io.WriteCloser, error) {
 	if (data == nil) || (signature == nil) || (s == nil) {
-		return nil, verror.New(errCantBeNilSigner, nil, data, signature, s)
+		return nil, verror.Errorf("data:{3} signature:{4} signer:{5} cannot be nil", data, signature, s)
 	}
 	enc := vom.NewEncoder(signature)
 	w := &signingWriter{data: data, signature: signature, signer: s, signatureHash: sha256.New(), chunkSizeBytes: defaultChunkSizeBytes, sigEnc: enc}
@@ -139,7 +134,7 @@ func (w *signingWriter) commitChunk(force bool) error {
 func (w *signingWriter) commitSignature() error {
 	sig, err := w.signer.Sign(w.signatureHash.Sum(nil))
 	if err != nil {
-		return verror.New(errCantSign, nil, err)
+		return verror.Errorf("signing failed{:_}", err)
 	}
 
 	return w.sigEnc.Encode(SignedDataSignature{sig})
