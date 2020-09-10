@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	errDumperClosed  = verror.Register(pkgPath+".errDumperClosed", verror.NoRetry, "{1:}{2:} vom: Dumper closed{:_}")
-	errDumperFlushed = verror.Register(pkgPath+".errDumperFlushed", verror.NoRetry, "{1:}{2:} vom: Dumper flushed{:_}")
+	errDumperClosed  = verror.Register(".errDumperClosed", verror.NoRetry, "{1:}{2:} vom: Dumper closed{:_}")
+	errDumperFlushed = verror.Register(".errDumperFlushed", verror.NoRetry, "{1:}{2:} vom: Dumper flushed{:_}")
 )
 
 // Dump returns a human-readable dump of the given vom data, in the default

@@ -16,13 +16,10 @@ import (
 	"v.io/v23/verror"
 )
 
-// Mostly copied code from security/access.
-const pkgPath = "v.io/v23/services/groups"
-
 var (
-	errTagNeedsString     = verror.Register(pkgPath+".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
-	errNoMethodTags       = verror.Register(pkgPath+".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
-	errMultipleMethodTags = verror.Register(pkgPath+".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
+	errTagNeedsString     = verror.Register(".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
+	errNoMethodTags       = verror.Register(".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
+	errMultipleMethodTags = verror.Register(".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
 )
 
 func PermissionsAuthorizer(perms access.Permissions, tagType *vdl.Type) (security.Authorizer, error) {

@@ -12,13 +12,11 @@ import (
 	"v.io/v23/verror"
 )
 
-const pkgPath = "v.io/x/ref/lib/pubsub"
-
 var (
-	errNeedNonNilChannel = verror.Register(pkgPath+".errNeedNonNilChannel", verror.NoRetry, "must provide a non-nil channel")
-	errStreamExists      = verror.Register(pkgPath+".errStreamExists", verror.NoRetry, "stream {3} already exists")
-	errStreamShutDown    = verror.Register(pkgPath+".errStreamShutDown", verror.NoRetry, "stream {3} has been shut down")
-	errStreamDoesntExist = verror.Register(pkgPath+".errStreamDoesntExist", verror.NoRetry, "stream {3} doesn't exist")
+	errNeedNonNilChannel = verror.Register(".errNeedNonNilChannel", verror.NoRetry, "must provide a non-nil channel")
+	errStreamExists      = verror.Register(".errStreamExists", verror.NoRetry, "stream {3} already exists")
+	errStreamShutDown    = verror.Register(".errStreamShutDown", verror.NoRetry, "stream {3} has been shut down")
+	errStreamDoesntExist = verror.Register(".errStreamDoesntExist", verror.NoRetry, "stream {3} doesn't exist")
 )
 
 // A Publisher provides a mechanism for communicating Settings from a set

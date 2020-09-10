@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	errUnrecognizedKey = verror.Register(pkgPath+".errUnrecognizedKey", verror.NoRetry, "{1:}{2:}unrecognized PublicKey type({3}){:_}")
+	errUnrecognizedKey = verror.Register(".errUnrecognizedKey", verror.NoRetry, "{1:}{2:}unrecognized PublicKey type({3}){:_}")
 )
 
 // PublicKey represents a public key using an unspecified algorithm.

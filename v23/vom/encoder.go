@@ -20,9 +20,9 @@ func (v Version) String() string {
 var (
 	errEmptyEncoderStack     = errors.New("vom: empty encoder stack")
 	errEntriesMustSetLenHint = errors.New("vom: entries must set LenHint")
-	errLabelNotInType        = verror.Register(pkgPath+".errLabelNotInType", verror.NoRetry, "{1:}{2:} enum label {3} doesn't exist in type {4}{:_}")
-	errUnusedTypeIds         = verror.Register(pkgPath+".errUnusedTypeIds", verror.NoRetry, "{1:}{2:} vom: some type ids unused during encode {:_}")
-	errUnusedAnys            = verror.Register(pkgPath+".errUnusedAnys", verror.NoRetry, "{1:}{2:} vom: some anys unused during encode {:_}")
+	errLabelNotInType        = verror.Register(".errLabelNotInType", verror.NoRetry, "{1:}{2:} enum label {3} doesn't exist in type {4}{:_}")
+	errUnusedTypeIds         = verror.Register(".errUnusedTypeIds", verror.NoRetry, "{1:}{2:} vom: some type ids unused during encode {:_}")
+	errUnusedAnys            = verror.Register(".errUnusedAnys", verror.NoRetry, "{1:}{2:} vom: some anys unused during encode {:_}")
 )
 
 const (

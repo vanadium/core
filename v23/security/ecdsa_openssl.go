@@ -36,7 +36,7 @@ import (
 )
 
 var (
-	errUnsupportedCurve = verror.Register(pkgPath+".errUnsupportedCurve", verror.NoRetry, "{1:}{2:} elliptic curve {3} is not supported")
+	errUnsupportedCurve = verror.Register(".errUnsupportedCurve", verror.NoRetry, "{1:}{2:} elliptic curve {3} is not supported")
 )
 
 type opensslECDSAPublicKey struct {

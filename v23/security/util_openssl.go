@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	errOpenSSL = verror.Register(pkgPath+".errOpenSSL", verror.NoRetry, "{1:}{2:} OpenSSL error ({3}): {4} in {5}:{6} ({7}:{8})")
+	errOpenSSL = verror.Register(".errOpenSSL", verror.NoRetry, "{1:}{2:} OpenSSL error ({3}): {4} in {5}:{6} ({7}:{8})")
 )
 
 func opensslMakeError(errno C.ulong) error {

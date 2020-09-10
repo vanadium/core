@@ -23,13 +23,12 @@ import (
 )
 
 const (
-	pkgPath   = "v.io/x/ref/services/internal/pathperms"
 	sigName   = "signature"
 	permsName = "data"
 )
 
 var (
-	ErrOperationFailed = verror.Register(pkgPath+".OperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
+	ErrOperationFailed = verror.Register(".OperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
 )
 
 type pathEntry struct {

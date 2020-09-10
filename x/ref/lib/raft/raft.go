@@ -24,13 +24,11 @@ import (
 	"v.io/v23/verror"
 )
 
-const pkgPath = "v.io/x/ref/lib.raft"
-
 var (
-	errAddAfterStart = verror.Register(pkgPath+".errAddAfterStart", verror.NoRetry, "{1:}{2:} adding member after start{:_}")
-	errNotLeader     = verror.Register(pkgPath+".errNotLeader", verror.NoRetry, "{1:}{2:} not the leader{:_}")
-	errTimedOut      = verror.Register(pkgPath+".errTimedOut", verror.NoRetry, "{1:}{2:} request timed out{:_}")
-	errBadTerm       = verror.Register(pkgPath+".errBadTerm", verror.NoRetry, "{1:}{2:} new term {3} < {4} {:_}")
+	errAddAfterStart = verror.Register(".errAddAfterStart", verror.NoRetry, "{1:}{2:} adding member after start{:_}")
+	errNotLeader     = verror.Register(".errNotLeader", verror.NoRetry, "{1:}{2:} not the leader{:_}")
+	errTimedOut      = verror.Register(".errTimedOut", verror.NoRetry, "{1:}{2:} request timed out{:_}")
+	errBadTerm       = verror.Register(".errBadTerm", verror.NoRetry, "{1:}{2:} new term {3} < {4} {:_}")
 )
 
 // member keeps track of another member's state.

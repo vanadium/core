@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	errOutOfSequence = verror.Register(pkgPath+".errOutOfSequence", verror.NoRetry, "{1:}{2:} append {3}, {4} out of sequence{:_}")
+	errOutOfSequence = verror.Register(".errOutOfSequence", verror.NoRetry, "{1:}{2:} append {3}, {4} out of sequence{:_}")
 )
 
 // persistent represents all the persistent state for the raft algorithm.  The division exists should we

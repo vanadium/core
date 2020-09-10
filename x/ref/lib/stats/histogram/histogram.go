@@ -14,10 +14,8 @@ import (
 	"v.io/x/ref/services/stats"
 )
 
-const pkgPath = "v.io/x/ref/lib/stats/histogram"
-
 var (
-	errNoBucketForValue = verror.Register(pkgPath+".errNoBucketForValue", verror.NoRetry, "{1:}{2:} no bucket for value{:_}")
+	errNoBucketForValue = verror.Register(".errNoBucketForValue", verror.NoRetry, "{1:}{2:} no bucket for value{:_}")
 )
 
 // A Histogram accumulates values in the form of a histogram. The type of the

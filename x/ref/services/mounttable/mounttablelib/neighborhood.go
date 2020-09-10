@@ -27,13 +27,13 @@ import (
 )
 
 var (
-	errNoUsefulAddresses             = verror.Register(pkgPath+".errNoUsefulAddresses", verror.NoRetry, "{1:}{2:} neighborhood passed no useful addresses{:_}")
-	errCantFindPort                  = verror.Register(pkgPath+".errCantFindPort", verror.NoRetry, "{1:}{2:} neighborhood couldn't determine a port to use{:_}")
-	errDoesntImplementMount          = verror.Register(pkgPath+".errDoesntImplementMount", verror.NoRetry, "{1:}{2:} this server does not implement Mount{:_}")
-	errDoesntImplementUnmount        = verror.Register(pkgPath+".errDoesntImplementUnmount", verror.NoRetry, "{1:}{2:} this server does not implement Unmount{:_}")
-	errDoesntImplementDelete         = verror.Register(pkgPath+".errDoesntImplementDelete", verror.NoRetry, "{1:}{2:} this server does not implement Delete{:_}")
-	errDoesntImplementSetPermissions = verror.Register(pkgPath+".errDoesntImplementSetPermissions", verror.NoRetry, "{1:}{2:} this server does not implement SetPermissions{:_}")
-	errSlashInHostName               = verror.Register(pkgPath+".errSlashInHostName", verror.NoRetry, "{1:}{2:} hostname may not contain '/'{:_}")
+	errNoUsefulAddresses             = verror.Register(".errNoUsefulAddresses", verror.NoRetry, "{1:}{2:} neighborhood passed no useful addresses{:_}")
+	errCantFindPort                  = verror.Register(".errCantFindPort", verror.NoRetry, "{1:}{2:} neighborhood couldn't determine a port to use{:_}")
+	errDoesntImplementMount          = verror.Register(".errDoesntImplementMount", verror.NoRetry, "{1:}{2:} this server does not implement Mount{:_}")
+	errDoesntImplementUnmount        = verror.Register(".errDoesntImplementUnmount", verror.NoRetry, "{1:}{2:} this server does not implement Unmount{:_}")
+	errDoesntImplementDelete         = verror.Register(".errDoesntImplementDelete", verror.NoRetry, "{1:}{2:} this server does not implement Delete{:_}")
+	errDoesntImplementSetPermissions = verror.Register(".errDoesntImplementSetPermissions", verror.NoRetry, "{1:}{2:} this server does not implement SetPermissions{:_}")
+	errSlashInHostName               = verror.Register(".errSlashInHostName", verror.NoRetry, "{1:}{2:} hostname may not contain '/'{:_}")
 )
 
 const addressPrefix = "address:"

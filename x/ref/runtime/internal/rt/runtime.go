@@ -43,8 +43,6 @@ import (
 	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 )
 
-const pkgPath = "v.io/x/ref/option/internal/rt"
-
 type contextKey int
 
 const (
@@ -65,8 +63,8 @@ func init() {
 }
 
 var (
-	errDiscoveryNotInitialized = verror.Register(pkgPath+".errDiscoveryNotInitialized", verror.NoRetry, "{1:}{2:} discovery not initialized")
-	errContextNotInitialized   = verror.Register(pkgPath+".errContextNotInitialized", verror.NoRetry, "{1:}{2:} context not initialized")
+	errDiscoveryNotInitialized = verror.Register(".errDiscoveryNotInitialized", verror.NoRetry, "{1:}{2:} discovery not initialized")
+	errContextNotInitialized   = verror.Register(".errContextNotInitialized", verror.NoRetry, "{1:}{2:} context not initialized")
 )
 
 var setPrincipalCounter int32 = -1

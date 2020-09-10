@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	errNoServers = verror.Register(pkgPath+".errNoServers", verror.NoRetry, "{1} {2} No servers found to resolve query {_}")
+	errNoServers = verror.Register(".errNoServers", verror.NoRetry, "{1} {2} No servers found to resolve query {_}")
 )
 
 // resolveAgainstMountTable asks each server in e.Servers that might be a mounttable to resolve e.Name.  The requests

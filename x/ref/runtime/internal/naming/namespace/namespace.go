@@ -24,10 +24,8 @@ import (
 const defaultMaxResolveDepth = 32
 const defaultMaxRecursiveGlobDepth = 10
 
-const pkgPath = "v.io/x/ref/runtime/internal/naming/namespace"
-
 var (
-	errNotRootedName = verror.Register(pkgPath+".errNotRootedName", verror.NoRetry, "{1:}{2:} At least one root is not a rooted name{:_}")
+	errNotRootedName = verror.Register(".errNotRootedName", verror.NoRetry, "{1:}{2:} At least one root is not a rooted name{:_}")
 )
 
 // namespace is an implementation of namespace.T.

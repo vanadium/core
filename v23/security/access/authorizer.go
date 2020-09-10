@@ -15,13 +15,11 @@ import (
 	"v.io/v23/verror"
 )
 
-const pkgPath = "v.io/v23/security/access"
-
 var (
-	errTagNeedsString              = verror.Register(pkgPath+".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
-	errNoMethodTags                = verror.Register(pkgPath+".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
-	errMultipleMethodTags          = verror.Register(pkgPath+".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
-	errCantReadPermissionsFromFile = verror.Register(pkgPath+".errCantReadPermissionsFromFile", verror.NoRetry, "{1:}{2:}failed to read Permissions from file{:_}")
+	errTagNeedsString              = verror.Register(".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
+	errNoMethodTags                = verror.Register(".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
+	errMultipleMethodTags          = verror.Register(".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
+	errCantReadPermissionsFromFile = verror.Register(".errCantReadPermissionsFromFile", verror.NoRetry, "{1:}{2:}failed to read Permissions from file{:_}")
 )
 
 // PermissionsAuthorizer implements an authorization policy where access is

@@ -6,8 +6,6 @@ package logreaderlib
 
 import "v.io/v23/verror"
 
-const pkgPath = "v.io/x/ref/services/internal/logreaderlib"
-
 var (
-	errOperationFailed = verror.Register(pkgPath+".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
+	errOperationFailed = verror.Register(".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
 )

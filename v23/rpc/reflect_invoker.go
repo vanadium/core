@@ -381,7 +381,6 @@ func abortedf(embeddedErr verror.IDAction, v ...interface{}) error {
 }
 
 const (
-	pkgPath    = "v.io/v23/rpc"
 	useCall    = "  Use either rpc.ServerCall for non-streaming methods, or use a non-interface typesafe call for streaming methods."
 	forgotWrap = useCall + "  Perhaps you forgot to wrap your server with the VDL-generated server stub."
 )
@@ -403,37 +402,37 @@ var (
 	// silently ignore the error.
 
 	// These errors are not embedded in other errors.
-	errReflectInvokerNil   = verror.Register(pkgPath+".errReflectInvokerNil", verror.NoRetry, "{1:}{2:}rpc: ReflectInvoker(nil) is invalid{:_}")
-	errNoCompatibleMethods = verror.Register(pkgPath+".errNoCompatibleMethods", verror.NoRetry, "{1:}{2:}rpc: type {3} has no compatible methods{:_}")
-	errTagError            = verror.Register(pkgPath+".errTagError", verror.NoRetry, "{1:}{2:}rpc: type {3} tag error{:_}")
-	errAbortedDetail       = verror.Register(pkgPath+".errAbortedDetail", verror.NoRetry, "{1:}{2:}rpc: type {3}.{4}{:_}")
+	errReflectInvokerNil   = verror.Register(".errReflectInvokerNil", verror.NoRetry, "{1:}{2:}rpc: ReflectInvoker(nil) is invalid{:_}")
+	errNoCompatibleMethods = verror.Register(".errNoCompatibleMethods", verror.NoRetry, "{1:}{2:}rpc: type {3} has no compatible methods{:_}")
+	errTagError            = verror.Register(".errTagError", verror.NoRetry, "{1:}{2:}rpc: type {3} tag error{:_}")
+	errAbortedDetail       = verror.Register(".errAbortedDetail", verror.NoRetry, "{1:}{2:}rpc: type {3}.{4}{:_}")
 
 	// These errors are embedded in verror.ErrInternal:
-	errReservedMethod = verror.Register(pkgPath+".errReservedMethod", verror.NoRetry, "{1:}{2:}Reserved method{:_}")
+	errReservedMethod = verror.Register(".errReservedMethod", verror.NoRetry, "{1:}{2:}Reserved method{:_}")
 
 	// These errors are embedded in verror.ErrBadArg:
-	errMethodNotExported = verror.Register(pkgPath+".errMethodNotExported", verror.NoRetry, "{1:}{2:}Method not exported{:_}")
-	errNonRPCMethod      = verror.Register(pkgPath+".errNonRPCMethod", verror.NoRetry, "{1:}{2:}Non-rpc method, at least 2 in-args are required, with first arg *context.T."+useCall+"{:_}")
+	errMethodNotExported = verror.Register(".errMethodNotExported", verror.NoRetry, "{1:}{2:}Method not exported{:_}")
+	errNonRPCMethod      = verror.Register(".errNonRPCMethod", verror.NoRetry, "{1:}{2:}Non-rpc method, at least 2 in-args are required, with first arg *context.T."+useCall+"{:_}")
 
 	// These errors are expected to be embedded in verror.Aborted, via abortedf():
-	errNoFinalErrorOutArg = verror.Register(pkgPath+".errNoFinalErrorOutArg", verror.NoRetry, "{1:}{2:}Invalid out-args (final out-arg must be error){:_}")
-	errBadDescribe        = verror.Register(pkgPath+".errBadDescribe", verror.NoRetry, "{1:}{2:}Describe__ must have signature Describe__() []rpc.InterfaceDesc{:_}")
-	errBadGlobber         = verror.Register(pkgPath+".errBadGlobber", verror.NoRetry, "{1:}{2:}Globber must have signature Globber() *rpc.GlobState{:_}")
-	errBadGlob            = verror.Register(pkgPath+".errBadGlob", verror.NoRetry, "{1:}{2:}Glob__ must have signature Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error{:_}")
-	errBadGlobChildren    = verror.Register(pkgPath+".errBadGlobChildren", verror.NoRetry, "{1:}{2:}GlobChildren__ must have signature GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error{:_}")
+	errNoFinalErrorOutArg = verror.Register(".errNoFinalErrorOutArg", verror.NoRetry, "{1:}{2:}Invalid out-args (final out-arg must be error){:_}")
+	errBadDescribe        = verror.Register(".errBadDescribe", verror.NoRetry, "{1:}{2:}Describe__ must have signature Describe__() []rpc.InterfaceDesc{:_}")
+	errBadGlobber         = verror.Register(".errBadGlobber", verror.NoRetry, "{1:}{2:}Globber must have signature Globber() *rpc.GlobState{:_}")
+	errBadGlob            = verror.Register(".errBadGlob", verror.NoRetry, "{1:}{2:}Glob__ must have signature Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error{:_}")
+	errBadGlobChildren    = verror.Register(".errBadGlobChildren", verror.NoRetry, "{1:}{2:}GlobChildren__ must have signature GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error{:_}")
 
-	errNeedStreamingCall       = verror.Register(pkgPath+".errNeedStreamingCall", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must be pointer to a struct representing the typesafe streaming call."+forgotWrap+"{:_}")
-	errNeedInitMethod          = verror.Register(pkgPath+".errNeedInitMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have Init method."+forgotWrap+"{:_}")
-	errNeedSigFunc             = verror.Register(pkgPath+".errNeedNeedSigFunc", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; Init must have signature func (*) Init(rpc.StreamServerCall)."+forgotWrap+"{:_}")
-	errNeedStreamMethod        = verror.Register(pkgPath+".errNeedStreamMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have at least one of RecvStream or SendStream methods."+forgotWrap+"{:_}")
-	errInvalidInStream         = verror.Register(pkgPath+".errInvalidInStream", verror.NoRetry, "{1:}{2:}Invalid in-stream type{:_}")
-	errInvalidOutStream        = verror.Register(pkgPath+".errInvalidOutStream", verror.NoRetry, "{1:}{2:}Invalid out-stream type{:_}")
-	errNeedRecvStreamSignature = verror.Register(pkgPath+".errNeedRecvStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; RecvStream must have signature func (*) RecvStream() interface{ Advance() bool; Value() _; Err() error }."+forgotWrap+"{:_}")
-	errNeedSendStreamSignature = verror.Register(pkgPath+".errNeedSendStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; SendStream must have signature func (*) SendStream() interface{ Send(_) error }."+forgotWrap+"{:_}")
-	errInvalidInArg            = verror.Register(pkgPath+".errInvalidInArg", verror.NoRetry, "{1:}{2:}Invalid in-arg {3} type{:_}")
-	errInvalidOutArg           = verror.Register(pkgPath+".errInvalidOutArg", verror.NoRetry, "{1:}{2:}Invalid out-arg {3} type{:_}")
-	errDifferentTags           = verror.Register(pkgPath+".errDifferentTags", verror.NoRetry, "{1:}{2:}different tags {3} and {4}{:_}")
-	errUnknown                 = verror.Register(pkgPath+".errUnknown", verror.NoRetry, "{1:}{2:}method {3}{:_}")
+	errNeedStreamingCall       = verror.Register(".errNeedStreamingCall", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must be pointer to a struct representing the typesafe streaming call."+forgotWrap+"{:_}")
+	errNeedInitMethod          = verror.Register(".errNeedInitMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have Init method."+forgotWrap+"{:_}")
+	errNeedSigFunc             = verror.Register(".errNeedNeedSigFunc", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; Init must have signature func (*) Init(rpc.StreamServerCall)."+forgotWrap+"{:_}")
+	errNeedStreamMethod        = verror.Register(".errNeedStreamMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have at least one of RecvStream or SendStream methods."+forgotWrap+"{:_}")
+	errInvalidInStream         = verror.Register(".errInvalidInStream", verror.NoRetry, "{1:}{2:}Invalid in-stream type{:_}")
+	errInvalidOutStream        = verror.Register(".errInvalidOutStream", verror.NoRetry, "{1:}{2:}Invalid out-stream type{:_}")
+	errNeedRecvStreamSignature = verror.Register(".errNeedRecvStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; RecvStream must have signature func (*) RecvStream() interface{ Advance() bool; Value() _; Err() error }."+forgotWrap+"{:_}")
+	errNeedSendStreamSignature = verror.Register(".errNeedSendStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; SendStream must have signature func (*) SendStream() interface{ Send(_) error }."+forgotWrap+"{:_}")
+	errInvalidInArg            = verror.Register(".errInvalidInArg", verror.NoRetry, "{1:}{2:}Invalid in-arg {3} type{:_}")
+	errInvalidOutArg           = verror.Register(".errInvalidOutArg", verror.NoRetry, "{1:}{2:}Invalid out-arg {3} type{:_}")
+	errDifferentTags           = verror.Register(".errDifferentTags", verror.NoRetry, "{1:}{2:}different tags {3} and {4}{:_}")
+	errUnknown                 = verror.Register(".errUnknown", verror.NoRetry, "{1:}{2:}method {3}{:_}")
 )
 
 func typeCheckMethod(method reflect.Method, sig *signature.Method) error {

@@ -16,12 +16,10 @@ import (
 	"v.io/v23/verror"
 )
 
-const pkgPath = "v.io/x/ref/services/internal/pproflib"
-
 // Errors
 var (
-	errNoProfile      = verror.Register(pkgPath+".errNoProfile", verror.NoRetry, "{1:}{2:} profile does not exist{:_}")
-	errInvalidSeconds = verror.Register(pkgPath+".errInvalidSeconds", verror.NoRetry, "{1:}{2:} invalid number of seconds{:_}")
+	errNoProfile      = verror.Register(".errNoProfile", verror.NoRetry, "{1:}{2:} profile does not exist{:_}")
+	errInvalidSeconds = verror.Register(".errInvalidSeconds", verror.NoRetry, "{1:}{2:} invalid number of seconds{:_}")
 )
 
 // NewPProfService returns a new pprof service implementation.

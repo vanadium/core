@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	errDecodeZeroTypeID         = verror.Register(pkgPath+".errDecodeZeroTypeID", verror.NoRetry, "{1:}{2:} vom: zero type id{:_}")
-	errIndexOutOfRange          = verror.Register(pkgPath+".errIndexOutOfRange", verror.NoRetry, "{1:}{2:} vom: index out of range{:_}")
-	errLeftOverBytes            = verror.Register(pkgPath+".errLeftOverBytes", verror.NoRetry, "{1:}{2:} vom: {3} leftover bytes{:_}")
-	errDecodeValueUnhandledType = verror.Register(pkgPath+".errDecodeValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: decodeValue unhandled type {3}{:_}")
-	errIgnoreValueUnhandledType = verror.Register(pkgPath+".errIgnoreValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: ignoreValue unhandled type {3}{:_}")
-	errInvalidTypeIDIndex       = verror.Register(pkgPath+".errInvalidTypeIDIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into type id table {:_}")
-	errInvalidAnyIndex          = verror.Register(pkgPath+".errInvalidAnyIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into anyLen table {:_}")
+	errDecodeZeroTypeID         = verror.Register(".errDecodeZeroTypeID", verror.NoRetry, "{1:}{2:} vom: zero type id{:_}")
+	errIndexOutOfRange          = verror.Register(".errIndexOutOfRange", verror.NoRetry, "{1:}{2:} vom: index out of range{:_}")
+	errLeftOverBytes            = verror.Register(".errLeftOverBytes", verror.NoRetry, "{1:}{2:} vom: {3} leftover bytes{:_}")
+	errDecodeValueUnhandledType = verror.Register(".errDecodeValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: decodeValue unhandled type {3}{:_}")
+	errIgnoreValueUnhandledType = verror.Register(".errIgnoreValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: ignoreValue unhandled type {3}{:_}")
+	errInvalidTypeIDIndex       = verror.Register(".errInvalidTypeIDIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into type id table {:_}")
+	errInvalidAnyIndex          = verror.Register(".errInvalidAnyIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into anyLen table {:_}")
 )
 
 func (d *decoder81) decodeTypeDefs() error {

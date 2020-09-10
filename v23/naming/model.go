@@ -7,16 +7,15 @@ package naming
 import "v.io/v23/verror"
 
 const (
-	pkgPath         = "v.io/v23/naming"
 	UnknownProtocol = ""
 )
 
 var (
-	ErrNameExists              = verror.Register(pkgPath+".nameExists", verror.NoRetry, "{1} {2} Name exists {_}")
-	ErrNoSuchName              = verror.Register(pkgPath+".nameDoesntExist", verror.NoRetry, "{1} {2} Name {3} doesn't exist {_}")
-	ErrNoSuchNameRoot          = verror.Register(pkgPath+".rootNameDoesntExist", verror.NoRetry, "{1} {2} Namespace root name {3} doesn't exist {_}")
-	ErrResolutionDepthExceeded = verror.Register(pkgPath+".resolutionDepthExceeded", verror.NoRetry, "{1} {2} Resolution depth exceeded {_}")
-	ErrNoMountTable            = verror.Register(pkgPath+".noMounttable", verror.NoRetry, "{1} {2} No mounttable {_}")
+	ErrNameExists              = verror.Register(".nameExists", verror.NoRetry, "{1} {2} Name exists {_}")
+	ErrNoSuchName              = verror.Register(".nameDoesntExist", verror.NoRetry, "{1} {2} Name {3} doesn't exist {_}")
+	ErrNoSuchNameRoot          = verror.Register(".rootNameDoesntExist", verror.NoRetry, "{1} {2} Namespace root name {3} doesn't exist {_}")
+	ErrResolutionDepthExceeded = verror.Register(".resolutionDepthExceeded", verror.NoRetry, "{1} {2} Resolution depth exceeded {_}")
+	ErrNoMountTable            = verror.Register(".noMounttable", verror.NoRetry, "{1} {2} No mounttable {_}")
 )
 
 // Names returns the servers represented by MountEntry as names, including

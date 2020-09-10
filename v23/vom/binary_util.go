@@ -15,16 +15,14 @@ import (
 
 // Binary encoding and decoding routines.
 
-const pkgPath = "v.io/v23/vom"
-
 var (
-	errInvalid             = verror.Register(pkgPath+".errInvalid", verror.NoRetry, "{1:}{2:} vom: invalid encoding{:_}")
-	errInvalidLenOrControl = verror.Register(pkgPath+".errInvalidLenOrControl", verror.NoRetry, "{1:}{2:} vom: invalid len or control byte {3}{:_}")
-	errMsgLen              = verror.Register(pkgPath+".errMsgLen", verror.NoRetry, "{1:}{2:} vom: message larger than {3} bytes{:_}")
+	errInvalid             = verror.Register(".errInvalid", verror.NoRetry, "{1:}{2:} vom: invalid encoding{:_}")
+	errInvalidLenOrControl = verror.Register(".errInvalidLenOrControl", verror.NoRetry, "{1:}{2:} vom: invalid len or control byte {3}{:_}")
+	errMsgLen              = verror.Register(".errMsgLen", verror.NoRetry, "{1:}{2:} vom: message larger than {3} bytes{:_}")
 
-	errBadControlCode         = verror.Register(pkgPath+".errBadControlCode", verror.NoRetry, "{1:}{2:} invalid control code{:_}")
-	errBadVersionByte         = verror.Register(pkgPath+".errBadVersionByte", verror.NoRetry, "{1:}{2:} bad version byte {3}")
-	errEndedBeforeVersionByte = verror.Register(pkgPath+".errEndedBeforeVersionByte", verror.NoRetry, "{1:}{2:} ended before version byte received {:_}")
+	errBadControlCode         = verror.Register(".errBadControlCode", verror.NoRetry, "{1:}{2:} invalid control code{:_}")
+	errBadVersionByte         = verror.Register(".errBadVersionByte", verror.NoRetry, "{1:}{2:} bad version byte {3}")
+	errEndedBeforeVersionByte = verror.Register(".errEndedBeforeVersionByte", verror.NoRetry, "{1:}{2:} ended before version byte received {:_}")
 )
 
 const (

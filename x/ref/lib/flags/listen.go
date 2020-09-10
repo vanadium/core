@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	errNotTCP           = verror.Register(pkgPath+".errNotTCP", verror.NoRetry, "{1:}{2:} {3} is not a tcp protocol{:_}")
-	errCantParsePort    = verror.Register(pkgPath+".errCantParsePort", verror.NoRetry, "{1:}{2:} failed to parse port number from {3}{:_}")
-	errNeedIPOrHostName = verror.Register(pkgPath+".errNeedIPOrHostName", verror.NoRetry, "{1:}{2:} {3} is neither an IP address nor a host name{:_}")
-	errBadIP            = verror.Register(pkgPath+".errBadIP", verror.NoRetry, "{1:}{2:} failed to parse {3} as an IP address{:_}")
+	errNotTCP           = verror.Register(".errNotTCP", verror.NoRetry, "{1:}{2:} {3} is not a tcp protocol{:_}")
+	errCantParsePort    = verror.Register(".errCantParsePort", verror.NoRetry, "{1:}{2:} failed to parse port number from {3}{:_}")
+	errNeedIPOrHostName = verror.Register(".errNeedIPOrHostName", verror.NoRetry, "{1:}{2:} {3} is neither an IP address nor a host name{:_}")
+	errBadIP            = verror.Register(".errBadIP", verror.NoRetry, "{1:}{2:} failed to parse {3} as an IP address{:_}")
 )
 
 // TCPProtocolFlag implements flag.Value to provide validation of the command

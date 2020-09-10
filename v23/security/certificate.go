@@ -14,15 +14,15 @@ import (
 )
 
 var (
-	errCantMarshalKey             = verror.Register(pkgPath+".errCantMarshalKey", verror.NoRetry, "{1:}{2:}failed to marshal PublicKey into a Certificate{:_}")
-	errInapproriateCertSignature  = verror.Register(pkgPath+".errInapproriateCertSignature", verror.NoRetry, "{1:}{2:}signature on certificate(for {3}) was not intended for certification (purpose={4}){:_}")
-	errBadBlessingExtensionInCert = verror.Register(pkgPath+".errBadBlessingExtensionInCert", verror.NoRetry, "{1:}{2:}invalid blessing extension in certificate(for {3}){:_}")
-	errBadCertSignature           = verror.Register(pkgPath+".errBadCertSignature", verror.NoRetry, "{1:}{2:}invalid Signature in certificate(for \"{3}\"), signing key{:_}")
-	errBadBlessingEmptyExtension  = verror.Register(pkgPath+".errBadBlessingEmptyExtension", verror.NoRetry, "{1:}{2:}invalid blessing extension(empty string){:_}")
-	errBadBlessingBadStart        = verror.Register(pkgPath+".errBadBlessingBadStart", verror.NoRetry, "{1:}{2:}invalid blessing extension(starts with {3}){:_}")
-	errBadBlessingBadEnd          = verror.Register(pkgPath+".errBadBlessingBadEnd", verror.NoRetry, "{1:}{2:}invalid blessing extension(ends with {3}){:_}")
-	errBadBlessingExtension       = verror.Register(pkgPath+".errBadBlessingExtension", verror.NoRetry, "{1:}{2:}invalid blessing extension({3}){:_}")
-	errBadBlessingBadSubstring    = verror.Register(pkgPath+".errBadBlessingBadSubstring", verror.NoRetry, "{1:}{2:}invalid blessing extension({3} has {4} as a substring){:_}")
+	errCantMarshalKey             = verror.Register(".errCantMarshalKey", verror.NoRetry, "{1:}{2:}failed to marshal PublicKey into a Certificate{:_}")
+	errInapproriateCertSignature  = verror.Register(".errInapproriateCertSignature", verror.NoRetry, "{1:}{2:}signature on certificate(for {3}) was not intended for certification (purpose={4}){:_}")
+	errBadBlessingExtensionInCert = verror.Register(".errBadBlessingExtensionInCert", verror.NoRetry, "{1:}{2:}invalid blessing extension in certificate(for {3}){:_}")
+	errBadCertSignature           = verror.Register(".errBadCertSignature", verror.NoRetry, "{1:}{2:}invalid Signature in certificate(for \"{3}\"), signing key{:_}")
+	errBadBlessingEmptyExtension  = verror.Register(".errBadBlessingEmptyExtension", verror.NoRetry, "{1:}{2:}invalid blessing extension(empty string){:_}")
+	errBadBlessingBadStart        = verror.Register(".errBadBlessingBadStart", verror.NoRetry, "{1:}{2:}invalid blessing extension(starts with {3}){:_}")
+	errBadBlessingBadEnd          = verror.Register(".errBadBlessingBadEnd", verror.NoRetry, "{1:}{2:}invalid blessing extension(ends with {3}){:_}")
+	errBadBlessingExtension       = verror.Register(".errBadBlessingExtension", verror.NoRetry, "{1:}{2:}invalid blessing extension({3}){:_}")
+	errBadBlessingBadSubstring    = verror.Register(".errBadBlessingBadSubstring", verror.NoRetry, "{1:}{2:}invalid blessing extension({3} has {4} as a substring){:_}")
 
 	// invalidBlessingSubStrings are strings that a blessing extension cannot have as a substring.
 	invalidBlessingSubStrings = []string{string(AllPrincipals), ChainSeparator + ChainSeparator /* double chain separator not allowed */, ",", "@@", "(", ")", "<", ">", "/"}

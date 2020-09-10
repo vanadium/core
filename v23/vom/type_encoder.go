@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	errEncodeTypeIDOverflow = verror.Register(pkgPath+".errEncodeTypeIDOverflow", verror.NoRetry, "{1:}{2:} vom: encoder type id overflow{:_}")
-	errUnhandledType        = verror.Register(pkgPath+".errUnhandledType", verror.NoRetry, "{1:}{2:} vom: encode unhandled type {3}{:_}")
+	errEncodeTypeIDOverflow = verror.Register(".errEncodeTypeIDOverflow", verror.NoRetry, "{1:}{2:} vom: encoder type id overflow{:_}")
+	errUnhandledType        = verror.Register(".errUnhandledType", verror.NoRetry, "{1:}{2:} vom: encode unhandled type {3}{:_}")
 )
 
 // TypeEncoder manages the transmission and marshaling of types to the other

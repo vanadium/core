@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	errTypeInvalid        = verror.Register(pkgPath+".errTypeInvalid", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} invalid, the min user type id is {5}{:_}")
-	errAlreadyDefined     = verror.Register(pkgPath+".errAlreadyDefined", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} already defined as {5}{:_}")
-	errUnknownType        = verror.Register(pkgPath+".errUnknownType", verror.NoRetry, "{1:}{2:} vom: unknown type id {3}{:_}")
-	errUnknownWireTypeDef = verror.Register(pkgPath+".errUnknownWireTypeDef", verror.NoRetry, "{1:}{2:} vom: unknown wire type definition {3}{:_}")
-	errStartNotCalled     = verror.Register(pkgPath+".errStartNotCalled", verror.NoRetry, "{1:}{2:} vom: Start has not been called")
+	errTypeInvalid        = verror.Register(".errTypeInvalid", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} invalid, the min user type id is {5}{:_}")
+	errAlreadyDefined     = verror.Register(".errAlreadyDefined", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} already defined as {5}{:_}")
+	errUnknownType        = verror.Register(".errUnknownType", verror.NoRetry, "{1:}{2:} vom: unknown type id {3}{:_}")
+	errUnknownWireTypeDef = verror.Register(".errUnknownWireTypeDef", verror.NoRetry, "{1:}{2:} vom: unknown wire type definition {3}{:_}")
+	errStartNotCalled     = verror.Register(".errStartNotCalled", verror.NoRetry, "{1:}{2:} vom: Start has not been called")
 )
 
 // TypeDecoder manages the receipt and unmarshalling of types from the other

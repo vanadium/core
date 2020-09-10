@@ -25,20 +25,18 @@ import (
 	"v.io/x/ref/lib/timekeeper"
 )
 
-const pkgPath = "v.io/x/ref/services/mounttable/mounttablelib"
-
 const defaultMaxNodesPerUser = 1000
 const maxNameElementLen = 512
 
 var (
-	errMalformedAddress   = verror.Register(pkgPath+".errMalformedAddress", verror.NoRetry, "{1:}{2:} malformed address {3} for mounted server {4}{:_}")
-	errMTDoesntMatch      = verror.Register(pkgPath+".errMTDoesntMatch", verror.NoRetry, "{1:}{2:} MT doesn't match{:_}")
-	errLeafDoesntMatch    = verror.Register(pkgPath+".errLeafDoesntMatch", verror.NoRetry, "{1:}{2:} Leaf doesn't match{:_}")
-	errCantDeleteRoot     = verror.Register(pkgPath+".errCantDeleteRoot", verror.NoRetry, "{1:}{2:} cannot delete root node{:_}")
-	errNotEmpty           = verror.Register(pkgPath+".errNotEmpty", verror.NoRetry, "{1:}{2:} cannot delete {3}: has children{:_}")
-	errTooManyNodes       = verror.Register(pkgPath+".errTooManyNodes", verror.NoRetry, "{1:}{2:} User has exceeded his node limit {:_}")
-	errNameElementTooLong = verror.Register(pkgPath+".errNameElementTooLong", verror.NoRetry, "{1:}{2:} path element {3}: too long {:_}")
-	errInvalidPermsFile   = verror.Register(pkgPath+".errInvalidPermsFile", verror.NoRetry, "{1:}{2:} perms file {3} invalid {:_}")
+	errMalformedAddress   = verror.Register(".errMalformedAddress", verror.NoRetry, "{1:}{2:} malformed address {3} for mounted server {4}{:_}")
+	errMTDoesntMatch      = verror.Register(".errMTDoesntMatch", verror.NoRetry, "{1:}{2:} MT doesn't match{:_}")
+	errLeafDoesntMatch    = verror.Register(".errLeafDoesntMatch", verror.NoRetry, "{1:}{2:} Leaf doesn't match{:_}")
+	errCantDeleteRoot     = verror.Register(".errCantDeleteRoot", verror.NoRetry, "{1:}{2:} cannot delete root node{:_}")
+	errNotEmpty           = verror.Register(".errNotEmpty", verror.NoRetry, "{1:}{2:} cannot delete {3}: has children{:_}")
+	errTooManyNodes       = verror.Register(".errTooManyNodes", verror.NoRetry, "{1:}{2:} User has exceeded his node limit {:_}")
+	errNameElementTooLong = verror.Register(".errNameElementTooLong", verror.NoRetry, "{1:}{2:} path element {3}: too long {:_}")
+	errInvalidPermsFile   = verror.Register(".errInvalidPermsFile", verror.NoRetry, "{1:}{2:} perms file {3} invalid {:_}")
 )
 
 var (

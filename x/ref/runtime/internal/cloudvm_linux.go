@@ -18,11 +18,9 @@ import (
 	"v.io/x/ref/runtime/internal/cloudvm"
 )
 
-const pkgPath = "v.io/x/ref/runtime/internal"
-
 var (
-	errNotGoogleComputeEngine = verror.Register(pkgPath+".errNotGoogleComputeEngine", verror.NoRetry, "{1:}{2:} failed to access gce metadata")
-	errGCENoExternalIP        = verror.Register(pkgPath+".errGCENoExternalIP", verror.NoRetry, "{1:}{2:} gce instance does not have an external IP address")
+	errNotGoogleComputeEngine = verror.Register(".errNotGoogleComputeEngine", verror.NoRetry, "{1:}{2:} failed to access gce metadata")
+	errGCENoExternalIP        = verror.Register(".errGCENoExternalIP", verror.NoRetry, "{1:}{2:} gce instance does not have an external IP address")
 
 	initialized bool
 	mu          sync.Mutex

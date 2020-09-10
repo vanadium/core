@@ -25,10 +25,8 @@ type statsService struct {
 	watchFreq time.Duration
 }
 
-const pkgPath = "v.io/x/ref/services/internal/statslib"
-
 var (
-	errOperationFailed = verror.Register(pkgPath+".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
+	errOperationFailed = verror.Register(".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
 )
 
 // NewStatsService returns a stats server implementation. The value of watchFreq

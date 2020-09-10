@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	errCredentialsInit = verror.Register(pkgPath+".errCredentialsInit", verror.NoRetry, "failed to initialize credentials, perhaps you need to create them with 'principal create {3}' (error: {4})")
+	errCredentialsInit = verror.Register(".errCredentialsInit", verror.NoRetry, "failed to initialize credentials, perhaps you need to create them with 'principal create {3}' (error: {4})")
 )
 
 func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Principal, func(), error) {

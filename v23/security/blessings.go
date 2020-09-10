@@ -18,12 +18,12 @@ import (
 )
 
 var (
-	errEmptyChain         = verror.Register(pkgPath+".errEmptyChain", verror.NoRetry, "empty certificate chain in blessings")
-	errMisconfiguredRoots = verror.Register(pkgPath+".errMisconfiguredRoots", verror.NoRetry, "recognized root certificates not configured")
-	errMultiplePublicKeys = verror.Register(pkgPath+".errMultiplePublicKeys", verror.NoRetry, "invalid blessings: two certificate chains that bind to different public keys")
-	errInvalidUnion       = verror.Register(pkgPath+".errInvalidUnion", verror.NoRetry, "cannot create union of blessings bound to different public keys")
-	errNeedRoots          = verror.Register(pkgPath+".errNeedRoots", verror.NoRetry, "{1:}{2:}principal does not have any BlessingRoots{:_}")
-	errCantAddRoot        = verror.Register(pkgPath+".errCantAddRoot", verror.NoRetry, "{1:}{2:}failed to Add root: {3} for pattern: {4} to this principal's roots: {5}{:_}")
+	errEmptyChain         = verror.Register(".errEmptyChain", verror.NoRetry, "empty certificate chain in blessings")
+	errMisconfiguredRoots = verror.Register(".errMisconfiguredRoots", verror.NoRetry, "recognized root certificates not configured")
+	errMultiplePublicKeys = verror.Register(".errMultiplePublicKeys", verror.NoRetry, "invalid blessings: two certificate chains that bind to different public keys")
+	errInvalidUnion       = verror.Register(".errInvalidUnion", verror.NoRetry, "cannot create union of blessings bound to different public keys")
+	errNeedRoots          = verror.Register(".errNeedRoots", verror.NoRetry, "{1:}{2:}principal does not have any BlessingRoots{:_}")
+	errCantAddRoot        = verror.Register(".errCantAddRoot", verror.NoRetry, "{1:}{2:}failed to Add root: {3} for pattern: {4} to this principal's roots: {5}{:_}")
 )
 
 // Blessings encapsulates all cryptographic operations required to

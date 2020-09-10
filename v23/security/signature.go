@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	errSignCantHash = verror.Register(pkgPath+".errSignCantHash", verror.NoRetry, "{1:}{2:}unable to create bytes to sign from message with hashing function {3}{:_}")
+	errSignCantHash = verror.Register(".errSignCantHash", verror.NoRetry, "{1:}{2:}unable to create bytes to sign from message with hashing function {3}{:_}")
 )
 
 // Verify returns true iff sig is a valid signature for a message.
