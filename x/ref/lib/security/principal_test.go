@@ -55,7 +55,7 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 		t.Errorf("invalid path should return does not exist error, instead got %v", err)
 	}
 	// If the key file exists and is unencrypted we should succeed.
-	dir := generatePEMFile(nil)
+	dir := generatePEMPrincipal(nil)
 	if _, err := LoadPersistentPrincipal(dir, nil); err != nil {
 		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
 	}
@@ -64,8 +64,9 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 	// If the private key file exists and is encrypted we should succeed with correct passphrase.
 	passphrase := []byte("passphrase")
 	incorrectPassphrase := []byte("incorrectPassphrase")
-	dir = generatePEMFile(passphrase)
-	if _, err := LoadPersistentPrincipal(dir, passphrase); err != nil {
+	dir = generatePEMPrincipal(passphrase)
+	p, err := LoadPersistentPrincipal(dir, passphrase)
+	if err != nil {
 		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
 	}
 
@@ -76,6 +77,34 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 	// and return ErrPassphraseRequired if the passphrase is nil.
 	if _, err := LoadPersistentPrincipal(dir, nil); verror.ErrorID(err) != ErrPassphraseRequired.ID {
 		t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
+	}
+
+	// Test read-only access.
+	err = filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		mode := os.FileMode(0400)
+		if fi.IsDir() {
+			mode = 0500
+		}
+		err = os.Chmod(path, mode)
+		nfi, _ := os.Stat(path)
+		if nfi.Mode().Perm() != mode {
+			t.Fatalf("failed to set permisions for %v", path)
+		}
+		return err
+	})
+	if err != nil {
+		t.Fatalf("failed to set creds to readonly: %v", err)
+	}
+
+	rp, err := LoadPersistentPrincipal(dir, passphrase)
+	if err != nil {
+		t.Errorf("encrypted LoadPersistentPrincipal from readonly directgory should have succeeded: %v", err)
+	}
+	if got, want := rp.PublicKey().String(), p.PublicKey().String(); got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 	os.RemoveAll(dir)
 }
@@ -88,8 +117,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	// use an ssh key and agent for signing.
-	internal.CopyKeyFile(filepath.Join(sshKeyDir, "ecdsa-384.pub"),
-		filepath.Join(dir, "ecdsa-384.pub"))
+	useSSHPublicKeyAsPrincipal(sshKeyDir, dir, "ecdsa-384.pub")
 	p, err := LoadPersistentPrincipal(dir, nil)
 	if err != nil {
 		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
@@ -253,8 +281,25 @@ func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte
 	}
 }
 
-func generatePEMFile(passphrase []byte) (dir string) {
+func useSSHPublicKeyAsPrincipal(from, to, name string) {
+	err := internal.CopyKeyFile(
+		filepath.Join(from, name),
+		filepath.Join(to, name))
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func generatePEMPrincipal(passphrase []byte) (dir string) {
 	dir, err := ioutil.TempDir("", "TestLoadPersistentPrincipal")
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filepath.Join(dir, directoryLockfileName), nil, 0666)
 	if err != nil {
 		panic(err)
 	}
