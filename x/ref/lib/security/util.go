@@ -47,7 +47,7 @@ func readLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), erro
 		// in-memory store
 		return func() {}, loader()
 	}
-	if len(os.Getenv(ref.EnvCredentialsReadonlyFileSystem)) > 0 {
+	if _, ok := ref.ReadonlyCredentialsDir(); ok {
 		// running on a read-only filesystem.
 		return func() {}, loader()
 	}
@@ -63,9 +63,9 @@ func writeLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), err
 		// in-memory store
 		return func() {}, loader()
 	}
-	if len(os.Getenv(ref.EnvCredentialsReadonlyFileSystem)) > 0 {
+	if reason, ok := ref.ReadonlyCredentialsDir(); ok {
 		// running on a read-only filesystem.
-		return func() {}, fmt.Errorf("%v is set and hence it is impossible to write to the credentials directory", ref.EnvCredentialsReadonlyFileSystem)
+		return func() {}, fmt.Errorf("the credentials directory is considered read-only and hence writes are disallowed (%v)", reason)
 	}
 	unlock, err := flock.Lock()
 	if err != nil {
