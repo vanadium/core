@@ -88,6 +88,8 @@ func EnvNamespaceRoots() (map[string]string, []string) {
 func EnvClearCredentials() error {
 	for _, v := range []string{
 		EnvCredentials,
+		EnvCredentialsReadonlyFileSystem,
+		EnvCredentialsNoLockDeprecated,
 	} {
 		if err := os.Unsetenv(v); err != nil {
 			return err
