@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 
+	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 )
 
@@ -46,6 +47,10 @@ func readLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), erro
 		// in-memory store
 		return func() {}, loader()
 	}
+	if len(os.Getenv(ref.EnvCredentialsReadonlyFileSystem)) > 0 {
+		// running on a read-only filesystem.
+		return func() {}, loader()
+	}
 	unlock, err := flock.RLock()
 	if err != nil {
 		return nil, err
@@ -57,6 +62,10 @@ func writeLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), err
 	if flock == nil {
 		// in-memory store
 		return func() {}, loader()
+	}
+	if len(os.Getenv(ref.EnvCredentialsReadonlyFileSystem)) > 0 {
+		// running on a read-only filesystem.
+		return func() {}, fmt.Errorf("%v is set and hence it is impossible to write to the credentials directory", ref.EnvCredentialsReadonlyFileSystem)
 	}
 	unlock, err := flock.Lock()
 	if err != nil {

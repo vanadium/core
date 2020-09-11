@@ -22,6 +22,10 @@ const (
 	// See v.io/x/ref/lib/security.CreatePersistentPrincipal.
 	EnvCredentials = "V23_CREDENTIALS"
 
+	// When set and non-empty, EnvCredentials is hosted on a read-only
+	// filesystem.
+	EnvCredentialsReadonlyFileSystem = "V23_CREDENTIALS_EADONLY_FILESYSTEM"
+
 	// EnvCredentialsReloadInterval is the name of the environment variable
 	// that specifies the interval between credentials reloads.
 	EnvCredentialsReloadInterval = "V23_CREDENTIALS_RELOAD_INTERVAL"
