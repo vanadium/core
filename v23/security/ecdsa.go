@@ -8,9 +8,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/x509"
+	"fmt"
 	"math/big"
-
-	"v.io/v23/verror"
 )
 
 // NewECDSAPublicKey creates a PublicKey object that uses the ECDSA algorithm and the provided ECDSA public key.
@@ -70,7 +69,7 @@ type ecdsaSigner struct {
 func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
 	hash := c.pubkey.hash()
 	if message = messageDigest(hash, purpose, message, c.pubkey); message == nil {
-		return Signature{}, verror.New(errSignCantHash, nil, hash)
+		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
 	}
 	r, s, err := c.sign(message)
 	if err != nil {

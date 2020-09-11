@@ -28,15 +28,11 @@ import "C"
 import (
 	"crypto/ecdsa"
 	"crypto/x509"
+	"fmt"
 	"math/big"
 	"runtime"
 
-	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
-)
-
-var (
-	errUnsupportedCurve = verror.Register(".errUnsupportedCurve", verror.NoRetry, "{1:}{2:} elliptic curve {3} is not supported")
 )
 
 type opensslECDSAPublicKey struct {
@@ -110,7 +106,7 @@ func openssl_hash_for_key(k *C.EC_KEY) (Hash, error) {
 		return SHA512Hash, nil
 	default:
 		var h Hash
-		return h, verror.New(errUnsupportedCurve, nil, C.GoString(C.OBJ_nid2sn(C.int(id))))
+		return h, fmt.Errorf("elliptic curve %v is not supported", C.GoString(C.OBJ_nid2sn(C.int(id))))
 	}
 }
 

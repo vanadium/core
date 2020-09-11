@@ -5,10 +5,9 @@
 package security
 
 import (
+	"fmt"
 	"reflect"
 	"time"
-
-	"v.io/v23/verror"
 )
 
 // CreatePrincipal returns a Principal that uses 'signer' for all
@@ -31,7 +30,7 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 		roots = errRoots{}
 	}
 	if got, want := store.PublicKey(), signer.PublicKey(); !reflect.DeepEqual(got, want) {
-		return nil, verror.New(errBadStoreKey, nil, got, want)
+		return nil, fmt.Errorf("store's public key: %v does not match signer's public key: %v", got, want)
 	}
 	return &principal{signer: signer, store: store, roots: roots}, nil
 }
@@ -62,16 +61,6 @@ var (
 	blessPurpose     = []byte(SignatureForBlessingCertificates)
 	signPurpose      = []byte(SignatureForMessageSigning)
 	dischargePurpose = []byte(SignatureForDischarge)
-
-	errNilSigner          = verror.Register(".errNilSigner", verror.NoRetry, "{1:}{2:}underlying signer is nil{:_}")
-	errNilStore           = verror.Register(".errNilStore", verror.NoRetry, "{1:}{2:}underlying BlessingStore object is nil{:_}")
-	errNilRoots           = verror.Register(".errNilRoots", verror.NoRetry, "{1:}{2:}underlying BlessingRoots object is nil{:_}")
-	errNeedCert           = verror.Register(".errNeedCert", verror.NoRetry, "{1:}{2:}the Blessings to bless 'with' must have at least one certificate{:_}")
-	errBadStoreKey        = verror.Register(".errBadStoreKey", verror.NoRetry, "{1:}{2:}store's public key: {3} does not match signer's public key: {4}{:_}")
-	errCantExtendBlessing = verror.Register(".errCantExtendBlessing", verror.NoRetry, "{1:}{2:}Principal with public key {3} cannot extend blessing with public key {4}{:_}")
-	errCantMintDischarges = verror.Register(".errCantMintDischarges", verror.NoRetry, "{1:}{2:}cannot mint discharges for {3}{:_}")
-	errCantSignDischarge  = verror.Register(".errCantSignDischarge", verror.NoRetry, "{1:}{2:}failed to sign discharge: {3}{:_}")
-	errSigningNotSupprted = verror.Register(".errSigningNotSupprted", verror.NoRetry, "{1:}{2:}signing not supported, only public key available{:_}")
 )
 
 type errStore struct {
@@ -79,24 +68,37 @@ type errStore struct {
 }
 
 func (errStore) Set(Blessings, BlessingPattern) (Blessings, error) {
-	return Blessings{}, verror.New(errNilStore, nil)
+	return Blessings{}, fmt.Errorf("underlying BlessingStore object is nil")
 }
-func (errStore) ForPeer(peerBlessings ...string) Blessings                     { return Blessings{} }
-func (errStore) SetDefault(blessings Blessings) error                          { return verror.New(errNilStore, nil) }
+func (errStore) ForPeer(peerBlessings ...string) Blessings { return Blessings{} }
+func (errStore) SetDefault(blessings Blessings) error {
+	return fmt.Errorf("underlying BlessingStore object is nil")
+}
 func (errStore) Default() (Blessings, <-chan struct{})                         { return Blessings{}, nil }
 func (errStore) PeerBlessings() map[BlessingPattern]Blessings                  { return nil }
 func (errStore) CacheDischarge(Discharge, Caveat, DischargeImpetus) error      { return nil }
 func (errStore) ClearDischarges(...Discharge)                                  {}
 func (errStore) Discharge(Caveat, DischargeImpetus) (d Discharge, t time.Time) { return d, t }
-func (errStore) DebugString() string                                           { return verror.New(errNilStore, nil).Error() }
-func (s errStore) PublicKey() PublicKey                                        { return s.key }
+func (errStore) DebugString() string {
+	return fmt.Errorf("underlying BlessingStore object is nil").Error()
+}
+func (s errStore) PublicKey() PublicKey { return s.key }
 
 type errRoots struct{}
 
-func (errRoots) Add([]byte, BlessingPattern) error     { return verror.New(errNilRoots, nil) }
-func (errRoots) Recognized([]byte, string) error       { return verror.New(errNilRoots, nil) }
+func (errRoots) Add([]byte, BlessingPattern) error {
+	return fmt.Errorf("underlying BlessingRoots object is nil")
+}
+
+func (errRoots) Recognized([]byte, string) error {
+	return fmt.Errorf("underlying BlessingRoots object is nil")
+}
+
 func (errRoots) Dump() map[BlessingPattern][]PublicKey { return nil }
-func (errRoots) DebugString() string                   { return verror.New(errNilRoots, nil).Error() }
+
+func (errRoots) DebugString() string {
+	return fmt.Errorf("underlying BlessingRoots object is nil").Error()
+}
 
 type principal struct {
 	signer    Signer
@@ -107,10 +109,10 @@ type principal struct {
 
 func (p *principal) Bless(key PublicKey, with Blessings, extension string, caveat Caveat, additionalCaveats ...Caveat) (Blessings, error) {
 	if with.IsZero() || with.isNamelessBlessing() {
-		return Blessings{}, verror.New(errNeedCert, nil)
+		return Blessings{}, fmt.Errorf("the Blessings to bless 'with' must have at least one certificate")
 	}
 	if !reflect.DeepEqual(with.PublicKey(), p.PublicKey()) {
-		return Blessings{}, verror.New(errCantExtendBlessing, nil, p.PublicKey(), with.PublicKey())
+		return Blessings{}, fmt.Errorf("Principal with public key %v cannot extend blessing with public key %v", p.PublicKey(), with.PublicKey())
 	}
 	caveats := append(additionalCaveats, caveat)
 	cert, err := newUnsignedCertificate(extension, key, caveats...)
@@ -136,7 +138,7 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 
 func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error) {
 	if p.signer == nil {
-		return Blessings{}, verror.New(errNilSigner, nil)
+		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}
 	cert, err := newUnsignedCertificate(name, p.PublicKey(), caveats...)
 	if err != nil {
@@ -157,20 +159,20 @@ func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 
 func (p *principal) Sign(message []byte) (Signature, error) {
 	if p.signer == nil {
-		return Signature{}, verror.New(errSigningNotSupprted, nil)
+		return Signature{}, fmt.Errorf("signing not supported, only public key available")
 	}
 	return p.signer.Sign(signPurpose, message)
 }
 
 func (p *principal) MintDischarge(forCaveat, caveatOnDischarge Caveat, additionalCaveatsOnDischarge ...Caveat) (Discharge, error) {
 	if forCaveat.Id != PublicKeyThirdPartyCaveat.Id {
-		return Discharge{}, verror.New(errCantMintDischarges, nil, forCaveat)
+		return Discharge{}, fmt.Errorf("cannot mint discharges for %v", forCaveat)
 	}
 	id := forCaveat.ThirdPartyDetails().ID()
 	dischargeCaveats := append(additionalCaveatsOnDischarge, caveatOnDischarge)
 	d := PublicKeyDischarge{ThirdPartyCaveatId: id, Caveats: dischargeCaveats}
 	if err := d.sign(p.signer); err != nil {
-		return Discharge{}, verror.New(errCantSignDischarge, nil, err)
+		return Discharge{}, fmt.Errorf("failed to sign discharge: %v", err)
 	}
 	return Discharge{WireDischargePublicKey{d}}, nil
 }

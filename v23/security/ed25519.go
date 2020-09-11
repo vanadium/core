@@ -7,8 +7,7 @@ package security
 import (
 	"crypto/ed25519"
 	"crypto/x509"
-
-	"v.io/v23/verror"
+	"fmt"
 )
 
 // NewED25519PublicKey creates a PublicKey object that uses the ED25519
@@ -58,7 +57,7 @@ type ed25519Signer struct {
 func (c *ed25519Signer) Sign(purpose, message []byte) (Signature, error) {
 	hash := c.pubkey.hash()
 	if message = messageDigest(hash, purpose, message, c.pubkey); message == nil {
-		return Signature{}, verror.New(errSignCantHash, nil, hash)
+		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
 	}
 	sig, err := c.sign(message)
 	if err != nil {

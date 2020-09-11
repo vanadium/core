@@ -18,25 +18,10 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
 )
 
 var (
-	errCaveatRegisteredTwice          = verror.Register(".errCaveatRegisteredTwice", verror.NoRetry, "{1:}{2:}Caveat with UUID {3} registered twice. Once with ({4}, fn={5}) from {6}, once with ({7}, fn={8}) from {9}{:_}")
-	errBadCaveatDescriptorType        = verror.Register(".errBadCaveatDescriptorType", verror.NoRetry, "{1:}{2:}invalid caveat descriptor: vdl.Type({3}) cannot be converted to a Go type{:_}")
-	errBadCaveatDescriptorKind        = verror.Register(".errBadCaveatDescriptorKind", verror.NoRetry, "{1:}{2:}invalid caveat validator: must be {3}, not {4}{:_}")
-	errBadCaveatOutputNum             = verror.Register(".errBadCaveatOutputNum", verror.NoRetry, "{1:}{2:}invalid caveat validator: expected {3} outputs, not {4}{:_}")
-	errBadCaveatOutput                = verror.Register(".errBadCaveatOutput", verror.NoRetry, "{1:}{2:}invalid caveat validator: output must be {3}, not {4}{:_}")
-	errBadCaveatInputs                = verror.Register(".errBadCaveatInputs", verror.NoRetry, "{1:}{2:}invalid caveat validator: expected {3} inputs, not {4}{:_}")
-	errBadCaveat1stArg                = verror.Register(".errBadCaveat1stArg", verror.NoRetry, "{1:}{2:}invalid caveat validator: first argument must be {3}, not {4}{:_}")
-	errBadCaveat2ndArg                = verror.Register(".errBadCaveat2ndArg", verror.NoRetry, "{1:}{2:}invalid caveat validator: second argument must be {3}, not {4}{:_}")
-	errBadCaveat3rdArg                = verror.Register(".errBadCaveat3rdArg", verror.NoRetry, "{1:}{2:}invalid caveat validator: third argument must be {3}, not {4}{:_}")
-	errBadCaveatRestriction           = verror.Register(".errBadCaveatRestriction", verror.NoRetry, "{1:}{2:}could not validate embedded restriction({3}): {4}{:_}")
-	errCantUnmarshalDischargeKey      = verror.Register(".errCantUnmarshalDischargeKey", verror.NoRetry, "{1:}{2:}invalid {3}: failed to unmarshal discharger's public key: {4}{:_}")
-	errInapproriateDischargeSignature = verror.Register(".errInapproriateDischargeSignature", verror.NoRetry, "{1:}{2:}signature on discharge for caveat {3} was not intended for discharges(purpose={4}){:_}")
-	errBadDischargeSignature          = verror.Register(".errBadDischargeSignature", verror.NoRetry, "{1:}{2:}signature verification on discharge for caveat {3} failed{:_}")
-
 	dischargeSignatureCache = &sigCache{m: make(map[[sha256.Size]byte]bool)}
 )
 
@@ -75,12 +60,12 @@ func (r *caveatRegistry) register(d CaveatDescriptor, validator interface{}) err
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if e, exists := r.byUUID[d.Id]; exists {
-		return verror.New(errCaveatRegisteredTwice, nil, d.Id, e.desc.ParamType, e.validatorFn.Interface(), e.registerer, d.ParamType, validator, registerer)
+		return fmt.Errorf("caveat with UUID %v registered twice. Once with (%v, fn=%v) from %v, once with (%v, fn=%v) from %v", d.Id, e.desc.ParamType, e.validatorFn.Interface(), e.registerer, d.ParamType, validator, registerer)
 	}
 	fn := reflect.ValueOf(validator)
 	param := vdl.TypeToReflect(d.ParamType)
 	if param == nil {
-		return verror.New(errBadCaveatDescriptorType, nil, d.ParamType)
+		return fmt.Errorf("invalid caveat descriptor: vdl.Type(%v) cannot be converted to a Go type", d.ParamType)
 	}
 	var (
 		rtErr  = reflect.TypeOf((*error)(nil)).Elem()
@@ -88,25 +73,25 @@ func (r *caveatRegistry) register(d CaveatDescriptor, validator interface{}) err
 		rtCall = reflect.TypeOf((*Call)(nil)).Elem()
 	)
 	if got, want := fn.Kind(), reflect.Func; got != want {
-		return verror.New(errBadCaveatDescriptorKind, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: must be %v, not %v", want, got)
 	}
 	if got, want := fn.Type().NumOut(), 1; got != want {
-		return verror.New(errBadCaveatOutputNum, nil, want, got)
+		return fmt.Errorf("nvalid caveat validator: expected %v outputs, not %v", want, got)
 	}
 	if got, want := fn.Type().Out(0), rtErr; got != want {
-		return verror.New(errBadCaveatOutput, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: output must be %v, not %v", want, got)
 	}
 	if got, want := fn.Type().NumIn(), 3; got != want {
-		return verror.New(errBadCaveatInputs, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: expected %v inputs, not %v", want, got)
 	}
 	if got, want := fn.Type().In(0), rtCtx; got != want {
-		return verror.New(errBadCaveat1stArg, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: first argument must be %v, not %v", want, got)
 	}
 	if got, want := fn.Type().In(1), rtCall; got != want {
-		return verror.New(errBadCaveat2ndArg, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: second argument must be %v, not %v", want, got)
 	}
 	if got, want := fn.Type().In(2), param; got != want {
-		return verror.New(errBadCaveat3rdArg, nil, want, got)
+		return fmt.Errorf("invalid caveat validator: third argument must be %v, not %v", want, got)
 	}
 	r.byUUID[d.Id] = registryEntry{d, fn, param, registerer}
 	return nil
@@ -284,7 +269,7 @@ func (c *publicKeyThirdPartyCaveatParam) Dischargeable(ctx *context.T, call Call
 	// Validate the caveats embedded within this third-party caveat.
 	for _, cav := range c.Caveats {
 		if err := cav.Validate(ctx, call); err != nil {
-			return verror.New(errBadCaveatRestriction, ctx, cav, err)
+			return fmt.Errorf("could not validate embedded restriction(%v): %v", cav, err)
 		}
 	}
 	return nil
@@ -293,7 +278,7 @@ func (c *publicKeyThirdPartyCaveatParam) Dischargeable(ctx *context.T, call Call
 func (c *publicKeyThirdPartyCaveatParam) discharger(ctx *context.T) (PublicKey, error) {
 	key, err := UnmarshalPublicKey(c.DischargerKey)
 	if err != nil {
-		return nil, verror.New(errCantUnmarshalDischargeKey, ctx, fmt.Sprintf("%T", *c), err)
+		return nil, fmt.Errorf("invalid %T: failed to unmarshal discharger's public key: %v", *c, err)
 	}
 	return key, nil
 }
@@ -312,7 +297,7 @@ func (d *PublicKeyDischarge) digest(hash Hash) []byte {
 
 func (d *PublicKeyDischarge) verify(ctx *context.T, key PublicKey) error {
 	if !bytes.Equal(d.Signature.Purpose, dischargePurpose) {
-		return verror.New(errInapproriateDischargeSignature, ctx, d.ThirdPartyCaveatId, d.Signature.Purpose)
+		return fmt.Errorf("signature on discharge for caveat %v was not intended for discharges(purpose=%v)", d.ThirdPartyCaveatId, d.Signature.Purpose)
 	}
 	digest := d.digest(key.hash())
 	cachekey, err := d.signatureCacheKey(digest, key, d.Signature)
@@ -320,7 +305,7 @@ func (d *PublicKeyDischarge) verify(ctx *context.T, key PublicKey) error {
 		return nil
 	}
 	if !d.Signature.Verify(key, digest) {
-		return verror.New(errBadDischargeSignature, ctx, d.ThirdPartyCaveatId)
+		return fmt.Errorf("signature verification on discharge for caveat %v failed", d.ThirdPartyCaveatId)
 	}
 	dischargeSignatureCache.cache([][]byte{cachekey})
 	return nil

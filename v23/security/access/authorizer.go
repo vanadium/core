@@ -12,14 +12,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
-)
-
-var (
-	errTagNeedsString              = verror.Register(".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
-	errNoMethodTags                = verror.Register(".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
-	errMultipleMethodTags          = verror.Register(".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
-	errCantReadPermissionsFromFile = verror.Register(".errCantReadPermissionsFromFile", verror.NoRetry, "{1:}{2:}failed to read Permissions from file{:_}")
 )
 
 // PermissionsAuthorizer implements an authorization policy where access is
@@ -151,7 +143,7 @@ func AuthorizerFromSpec(ps PermissionsSpec, name string, tagType *vdl.Type) (sec
 }
 
 func errTagType(tt *vdl.Type) error {
-	return verror.New(errTagNeedsString, nil, verror.New(errTagNeedsString, nil, tt, tt.Kind()))
+	return fmt.Errorf("tag type(%v) must be backed by a string not %v", tt, tt.Kind())
 }
 
 type authorizer struct {
@@ -165,7 +157,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 	for _, tag := range call.MethodTags() {
 		if tag.Type() == a.tagType {
 			if hastag {
-				return verror.New(errMultipleMethodTags, ctx, call.Suffix(), call.Method(), a.tagType, call.MethodTags())
+				return fmt.Errorf("PermissionsAuthorizer on %v.%v cannot handle multiple tags of type %v (%v); this is likely unintentional", call.Suffix(), call.Method(), a.tagType, call.MethodTags())
 			}
 			hastag = true
 			if acl, exists := a.perms[tag.RawString()]; !exists || !acl.Includes(blessings...) {
@@ -174,7 +166,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 		}
 	}
 	if !hastag {
-		return verror.New(errNoMethodTags, ctx, call.Suffix(), call.Method(), a.tagType)
+		return fmt.Errorf("PermissionsAuthorizer.Authorize called on %v.%v, which has no tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType)
 	}
 	return nil
 }
@@ -188,7 +180,7 @@ func (a *fileAuthorizer) Authorize(ctx *context.T, call security.Call) error {
 	perms, err := loadPermissionsFromFile(a.filename)
 	if err != nil {
 		// TODO(ashankar): Information leak?
-		return verror.New(errCantReadPermissionsFromFile, ctx, err)
+		return fmt.Errorf("failed to read Permissions from file: %v", err)
 	}
 	return (&authorizer{perms, a.tagType}).Authorize(ctx, call)
 }

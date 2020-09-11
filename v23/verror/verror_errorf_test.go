@@ -27,12 +27,11 @@ func TestErrorf(t *testing.T) {
 	defer shutdown()
 	ctx := verror.WithComponentName(rootCtx, "component")
 	ctx, _ = vtrace.WithNewSpan(ctx, "op")
-	err := verror.VErrorf(ctx, verror.RetryBackoff, "my error {_}", fmt.Errorf("oops"))
+	err := verror.Create(ctx, verror.RetryBackoff, "my error %v", fmt.Errorf("oops"))
 	if got, want := err.Error(), "component:op: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	id := "v.io/v23/verror:verror_errorf_test.go"
-	if got, want := string(verror.ErrorID(err)), id; !strings.Contains(got, want) {
+	if got, want := verror.ErrorID(err), verror.ErrUnknown.ID; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.Action(err), verror.RetryBackoff; got != want {
@@ -42,11 +41,11 @@ func TestErrorf(t *testing.T) {
 	if got, want := verror.DebugString(err), "runtime.goexit"; !strings.Contains(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:26"; !strings.Contains(got, want) {
+	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:30"; !strings.Contains(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	err = verror.Errorf("my error {_}", fmt.Errorf("oops"))
+	err = verror.Errorf("my error %v", fmt.Errorf("oops"))
 	if got, want := err.Error(), "verror.test: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}

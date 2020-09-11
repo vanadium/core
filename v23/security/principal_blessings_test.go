@@ -682,7 +682,7 @@ func testUnionOfBlessings(t *testing.T, pfn func(testing.TB) security.Principal,
 	}
 
 	// However, UnionOfBlessings must not mix up public keys
-	if mixed, err := security.UnionOfBlessings(alice, bob); !security.IsInvalidUnion(verror.ErrorID(err)) || !mixed.IsZero() {
+	if mixed, err := security.UnionOfBlessings(alice, bob); err == nil || !mixed.IsZero() {
 		t.Errorf("Got (%v, %v(errorid=%v)), want errInvalidUnion", mixed, err, verror.ErrorID(err))
 	}
 }

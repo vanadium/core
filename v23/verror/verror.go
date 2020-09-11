@@ -150,41 +150,39 @@ func Register(id ID, action ActionCode, englishText string) IDAction {
 	return IDAction{id, action}
 }
 
-// Errorf calls VErrorf with a nil context and a NoRetry action. The supplied
-// format string should omit {1} and {2} since they are prepedend by VErrorf.
-//
-//   return verror.Errorf("arg {3} led to error{:_}", arg, err)
-//
+// Errorf calls Create with a nil context and NoRetry action. Note that fmt
+// style formatting is used and not v.io/v23/i18n.
 func Errorf(format string, v ...interface{}) error {
-	return VErrorf(nil, NoRetry, format, v...)
+	return verrorf(nil, NoRetry, format, v)
 }
 
-// VErrorf creates a new verror.E that is intended for errors that do not
-// have exported (and hence testable) IDAction values and that are not
-// internationalizable. A unique ID is created based on the package, file and line
-// number of the caller. VErrorf prepends {1:}{2:} to the supplied formeat
-// and hence these positional parameters should be omitted  from the supplied
-// format; the format is otherwise interpreted as per verror.Register
-// and verror.New.
-//
-//   return verror.VErrorf(ctx, verror.RetryBackoff,
-//       "arg {3} led to a temporary error{:_}", arg, err)
-//
-func VErrorf(ctx *context.T, action ActionCode, format string, v ...interface{}) error {
-	format = "{1:}{2:} " + format
+// Create creates a new verror.E that is intended for errors that do not
+// have exported (and hence testable) IDAction values and that are not intended
+// for localization. Their ID is ErrUnknown.ID. Create prepends the component
+// and operation name if they can be extracted from the context. Note that fmt
+// style formatting is used and not v.io/v23/i18n.
+func Create(ctx *context.T, action ActionCode, format string, v ...interface{}) error {
+	return verrorf(ctx, action, format, v)
+}
+
+func verrorf(ctx *context.T, action ActionCode, format string, v []interface{}) error {
 	_, componentName, opName := dataFromContext(ctx)
-	stack := make([]uintptr, maxPCs)
-	stack = stack[:runtime.Callers(2, stack)]
-	frame, _ := runtime.CallersFrames(stack).Next()
-	pkgPath, _ := pkgPathCache.pkgPath(frame.File)
-	id := ID(fmt.Sprintf("%s:%s:%d", pkgPath, filepath.Base(frame.File), frame.Line))
-	if id == "::" {
-		id = ErrUnknown.ID
+	prefix := ""
+	if len(componentName) > 0 && len(opName) > 0 {
+		prefix = componentName + ":" + opName + ": "
+	} else {
+		if len(componentName) > 0 {
+			prefix = componentName + ": "
+		} else {
+			prefix = opName + ": "
+		}
 	}
+	stack := make([]uintptr, maxPCs)
+	stack = stack[:runtime.Callers(3, stack)]
 	chainedPCs := chainPCs(v)
+	msg := fmt.Sprintf(format, v...)
 	params := append([]interface{}{componentName, opName}, v...)
-	msg := i18n.FormatParams(format, params...)
-	return E{id, action, msg, params, stack, chainedPCs}
+	return E{ErrUnknown.ID, action, prefix + msg, params, stack, chainedPCs}
 }
 
 // E is the in-memory representation of a verror error.

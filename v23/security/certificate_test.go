@@ -9,12 +9,12 @@ import (
 	"crypto/elliptic"
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 )
 
 func defaultFieldValues(t *testing.T) map[reflect.Type][]reflect.Value {
@@ -289,7 +289,7 @@ func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
 		C4, _, _   = security.ExposeChainCertificate(sUser, C3, cDelegate)                                   // alpha:user:delegate
 		Cbad, _, _ = security.ExposeChainCertificate(sUser, []security.Certificate{C2[0], C3[1]}, cDelegate) // malformed beta:user:delegate
 
-		validate = func(chain []security.Certificate, expectedKeyBytes []byte, expectedError verror.ID) error {
+		validate = func(chain []security.Certificate, expectedKeyBytes []byte, expectedError string) error {
 			var expectedKey security.PublicKey
 			var err error
 			if len(expectedKeyBytes) > 0 {
@@ -303,8 +303,10 @@ func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
 				if !reflect.DeepEqual(expectedKey, p) {
 					return fmt.Errorf("Got (%v, %v) wanted (%v, %q) on call #%d to validateCertificateChain", p, err, expectedKey, expectedError, i)
 				}
-				if got, want := verror.ErrorID(err), expectedError; got != want {
-					return fmt.Errorf("Got error %v (id=%q) want error id=%q on call #%d to validateCertificateChain", err, got, want, i)
+				if len(expectedError) > 0 {
+					if err == nil || !strings.Contains(err.Error(), expectedError) {
+						return fmt.Errorf("Got error %v want error id=%q on call #%d to validateCertificateChain", err, expectedError, i)
+					}
 				}
 				if got, want := (err == nil), (len(digest) != 0); got != want {
 					return fmt.Errorf("Validation error:%v, Digest:%v on call #%d to validateCertificateChain", got, want, i)
@@ -316,14 +318,14 @@ func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
 		tests = []struct {
 			Chain     []security.Certificate
 			PublicKey []byte
-			Error     verror.ID
+			Error     string
 		}{
 			{C1, pRoot, ""},
 			{C2, pRoot, ""},
 			{C3, pUser, ""},
 			{C4, pDelegate, ""},
 			{[]security.Certificate{C1[0], C3[1]}, pUser, ""}, // Same as C3
-			{Cbad, nil, security.ExposeBadSignatureID()},
+			{Cbad, nil, "invalid Signature in certificate"},
 		}
 	)
 	for idx, test := range tests {
