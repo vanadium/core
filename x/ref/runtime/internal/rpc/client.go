@@ -827,7 +827,7 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	defer vtrace.GetSpan(fc.ctx).Finish()
 	if fc.finished {
 		err := errClientFinishAlreadyCalled.Errorf(fc.ctx, "rpc.ClientCall.Finish has already been called")
-		return fc.close(verror.New(verror.ErrBadState, fc.ctx, err))
+		return fc.close(verror.ErrBadState.Errorf(fc.ctx, "%v", err))
 	}
 	fc.finished = true
 

@@ -214,7 +214,7 @@ func Message(ctx *context.T, msg string, params ...interface{}) error {
 
 func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
 	_, componentName, opName := dataFromContext(ctx)
-	prefix := "" //string(id.ID)
+	prefix := string(id.ID)
 	if len(componentName) > 0 && len(opName) > 0 {
 		prefix = componentName + ":" + opName + ": "
 	} else {
