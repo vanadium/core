@@ -29,7 +29,7 @@ func TestErrorf(t *testing.T) {
 	ctx, _ = vtrace.WithNewSpan(ctx, "op")
 	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
 	err := myerr.Errorf(ctx, "my error %v", fmt.Errorf("oops"))
-	if got, want := err.Error(), "component:op: my error oops"; got != want {
+	if got, want := err.Error(), "v.io/v23/verror.myerr: component:op: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
@@ -48,7 +48,7 @@ func TestErrorf(t *testing.T) {
 	}
 
 	err = verror.Errorf(nil, "my error %v", fmt.Errorf("oops"))
-	if got, want := err.Error(), "verror.test: my error oops"; got != want {
+	if got, want := err.Error(), "v.io/v23/verror.Unknown: verror.test: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	nerr := verror.AddSubErrs(err, nil, verror.SubErr{
@@ -69,7 +69,7 @@ func TestMessage(t *testing.T) {
 	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
 	nerr := fmt.Errorf("oops")
 	err := myerr.Message(ctx, fmt.Sprintf("my error %v in some language", nerr), nerr)
-	if got, want := err.Error(), "component:op: my error oops in some language"; got != want {
+	if got, want := err.Error(), "v.io/v23/verror.myerr: component:op: my error oops in some language"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
@@ -80,7 +80,7 @@ func TestMessage(t *testing.T) {
 	}
 
 	err = verror.Message(nil, fmt.Sprintf("my error %v in some language", nerr), nerr)
-	if got, want := err.Error(), "verror.test: my error oops in some language"; got != want {
+	if got, want := err.Error(), "v.io/v23/verror.Unknown: verror.test: my error oops in some language"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ErrUnknown.ID; got != want {

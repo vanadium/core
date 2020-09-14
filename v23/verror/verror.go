@@ -185,6 +185,8 @@ func NewIDAction(id ID, action ActionCode) IDAction {
 	return IDAction{ensurePackagePath(id), action}
 }
 
+// NewID creates a new instance of IDAction with the given ID and a NoRetry
+// Action.
 func NewID(id ID) IDAction {
 	return IDAction{ensurePackagePath(id), NoRetry}
 }
@@ -214,14 +216,17 @@ func Message(ctx *context.T, msg string, params ...interface{}) error {
 
 func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
 	_, componentName, opName := dataFromContext(ctx)
-	prefix := string(id.ID)
+	prefix := ""
+	if len(id.ID) > 0 {
+		prefix = string(id.ID) + ": "
+	}
 	if len(componentName) > 0 && len(opName) > 0 {
-		prefix = componentName + ":" + opName + ": "
+		prefix += componentName + ":" + opName + ": "
 	} else {
 		if len(componentName) > 0 {
-			prefix = componentName + ": "
+			prefix += componentName + ": "
 		} else {
-			prefix = opName + ": "
+			prefix += opName + ": "
 		}
 	}
 	stack := make([]uintptr, maxPCs)
@@ -229,6 +234,28 @@ func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
 	chainedPCs := chainPCs(v)
 	params := append([]interface{}{componentName, opName}, v...)
 	return E{id.ID, id.Action, prefix + msg, params, stack, chainedPCs}
+}
+
+func WithSubErrors(err error, errors ...error) error {
+	e, ok := assertIsE(err)
+	if !ok {
+		return err
+	}
+	e.ParamList = append(e.ParamList, errors)
+	for _, se := range errors {
+		switch v := se.(type) {
+		case SubErr:
+			if v.Options != Print {
+				continue
+			}
+		case *SubErr:
+			if v.Options != Print {
+				continue
+			}
+		}
+		e.Msg += " " + se.Error()
+	}
+	return e
 }
 
 // E is the in-memory representation of a verror error.

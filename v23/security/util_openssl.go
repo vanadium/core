@@ -18,8 +18,6 @@ import "C"
 import (
 	"fmt"
 	"unsafe"
-
-	"v.io/v23/verror"
 )
 
 func opensslMakeError(errno C.ulong) error {
@@ -50,8 +48,7 @@ func opensslGetErrors() error {
 		if errno == 0 {
 			break
 		}
-		nerr := verror.New(errOpenSSL,
-			nil,
+		nerr := fmt.Errorf("OpenSSL error (%v): %v in %v:%v, %v:%v",
 			errno,
 			C.GoString(C.ERR_func_error_string(errno)),
 			C.GoString(C.ERR_lib_error_string(errno)),

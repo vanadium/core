@@ -18,16 +18,9 @@ import (
 )
 
 var (
-	// These errors are intended to be used as arguments to higher
-	// level errors and hence {1}{2} is omitted from their format
-	// strings to avoid repeating these n-times in the final error
-	// message visible to the user.
-	errMalformedEndpoint   = reg(".errMalformedEndpoint", "malformed endpoint{:3}")
-	errUndesiredProtocol   = reg(".errUndesiredProtocol", "undesired protocol{:3}")
-	errNoCompatibleServers = reg(".errNoComaptibleServers", "failed to find any compatible servers{:3}")
+	errNoCompatibleServers        = verror.NewID("errNoComaptibleServers")
+	defaultPreferredProtocolOrder = mkProtocolRankMap([]string{"unixfd", "wsh", "tcp4", "tcp", "*"})
 )
-
-var defaultPreferredProtocolOrder = mkProtocolRankMap([]string{"unixfd", "wsh", "tcp4", "tcp", "*"})
 
 type serverLocality int
 
@@ -75,7 +68,7 @@ func filterAndOrderServers(servers []naming.MountedServer, protocols []string, i
 		cacheMu.Unlock()
 	}
 	var (
-		errs       = verror.SubErrs{}
+		errs       = []error{}
 		list       = make(sortableServerList, 0, len(servers))
 		protoRanks = mkProtocolRankMap(protocols)
 		// TODO(suharshs): We can sort protocols before concatenating to increase
@@ -99,7 +92,8 @@ func filterAndOrderServers(servers []naming.MountedServer, protocols []string, i
 		list = append(list, ss)
 	}
 	if len(list) == 0 {
-		return nil, verror.AddSubErrs(verror.New(errNoCompatibleServers, nil), nil, errs...)
+		return nil,
+			verror.WithSubErrors(errNoCompatibleServers.Errorf(nil, "failed to find any compatible servers"), errs...)
 	}
 	// TODO(ashankar): Don't have to use stable sorting, could
 	// just use sort.Sort. The only problem with that is the
@@ -125,7 +119,7 @@ func mkSortableServer(server naming.MountedServer, protoRanks map[string]int, pr
 
 	ep, err := name2endpoint(name)
 	if err != nil {
-		return sortableServer{}, verror.New(errMalformedEndpoint, nil, err)
+		return sortableServer{}, fmt.Errorf("malformed endpoint: %v", err)
 	}
 	rank, err := protocol2rank(ep.Addr().Network(), protoRanks)
 	if err != nil {
@@ -183,7 +177,7 @@ func protocol2rank(protocol string, ranks map[string]int) (int, error) {
 	if protocol == naming.UnknownProtocol {
 		return -1, nil
 	}
-	return 0, verror.New(errUndesiredProtocol, nil, protocol)
+	return 0, fmt.Errorf("undesired protocol: %v", protocol)
 }
 
 // locality returns the serverLocality to use given an endpoint and the
