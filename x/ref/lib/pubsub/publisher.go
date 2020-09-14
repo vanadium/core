@@ -8,15 +8,6 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-
-	"v.io/v23/verror"
-)
-
-var (
-	errNeedNonNilChannel = verror.Register(".errNeedNonNilChannel", verror.NoRetry, "must provide a non-nil channel")
-	errStreamExists      = verror.Register(".errStreamExists", verror.NoRetry, "stream {3} already exists")
-	errStreamShutDown    = verror.Register(".errStreamShutDown", verror.NoRetry, "stream {3} has been shut down")
-	errStreamDoesntExist = verror.Register(".errStreamDoesntExist", verror.NoRetry, "stream {3} doesn't exist")
 )
 
 // A Publisher provides a mechanism for communicating Settings from a set
@@ -78,12 +69,12 @@ type fork struct {
 // and then close the channel it has passed to CreateStream.
 func (p *Publisher) CreateStream(name, description string, ch <-chan Setting) (<-chan struct{}, error) {
 	if ch == nil {
-		return nil, verror.New(errNeedNonNilChannel, nil)
+		return nil, fmt.Errorf("must provide a non-nil channel")
 	}
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.streams[name] != nil {
-		return nil, verror.New(errStreamExists, nil, name)
+		return nil, fmt.Errorf("stream %v already exists", name)
 	}
 	f := &fork{desc: description, in: ch, vals: make(map[string]Setting)}
 	p.streams[name] = f
@@ -137,11 +128,11 @@ func (p *Publisher) ForkStream(name string, ch chan<- Setting) (*Stream, error) 
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.shutdown {
-		return nil, verror.New(errStreamShutDown, nil, name)
+		return nil, fmt.Errorf("stream %v has been shut down", name)
 	}
 	f := p.streams[name]
 	if f == nil {
-		return nil, verror.New(errStreamDoesntExist, nil, name)
+		return nil, fmt.Errorf("stream %v doesn't exist", name)
 	}
 	f.Lock()
 	defer f.Unlock()
@@ -160,11 +151,11 @@ func (p *Publisher) CloseFork(name string, ch chan<- Setting) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.shutdown {
-		return verror.New(errStreamShutDown, nil, name)
+		return fmt.Errorf("stream %v has been shut down", name)
 	}
 	f := p.streams[name]
 	if f == nil {
-		return verror.New(errStreamDoesntExist, nil, name)
+		return fmt.Errorf("stream %v doesn't exist", name)
 	}
 	f.Lock()
 	defer f.Unlock()

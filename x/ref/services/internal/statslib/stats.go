@@ -7,6 +7,7 @@
 package statslib
 
 import (
+	"fmt"
 	"time"
 
 	"v.io/v23/context"
@@ -24,10 +25,6 @@ type statsService struct {
 	suffix    string
 	watchFreq time.Duration
 }
-
-var (
-	errOperationFailed = verror.Register(".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
-)
 
 // NewStatsService returns a stats server implementation. The value of watchFreq
 // is used to specify the time between WatchGlob updates.
@@ -76,7 +73,7 @@ Loop:
 			if verror.ErrorID(err) == verror.ErrNoExist.ID {
 				return verror.New(verror.ErrNoExist, ctx, i.suffix)
 			}
-			return verror.New(errOperationFailed, ctx, i.suffix)
+			return fmt.Errorf("operation failed for %v", i.suffix)
 		}
 		for _, change := range changes {
 			if err := call.SendStream().Send(change); err != nil {
@@ -103,7 +100,7 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 	case verror.ErrorID(err) == stats.ErrNoValue.ID:
 		return nil, stats.NewErrNoValue(ctx, i.suffix)
 	case err != nil:
-		return nil, verror.New(errOperationFailed, ctx, i.suffix)
+		return nil, fmt.Errorf("operation failed for %v", i.suffix)
 	}
 	rb, err := vom.RawBytesFromValue(rv)
 	if err != nil {

@@ -11,6 +11,7 @@
 package logreaderlib
 
 import (
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -39,7 +40,7 @@ func translateNameToFilename(root, name string) (string, error) {
 	// directory. This could happen if suffix contains "../", which get
 	// collapsed by filepath.Join().
 	if !strings.HasPrefix(p, root) {
-		return "", verror.New(errOperationFailed, nil, name)
+		return "", fmt.Errorf("%v: outside of root directory", name)
 	}
 	return p, nil
 }
@@ -66,10 +67,10 @@ func (i *logfileService) Size(ctx *context.T, _ rpc.ServerCall) (int64, error) {
 			return 0, verror.New(verror.ErrNoExist, ctx, fname)
 		}
 		ctx.Errorf("Stat(%v) failed: %v", fname, err)
-		return 0, verror.New(errOperationFailed, ctx, fname)
+		return 0, fmt.Errorf("failed to stat %v: %v", fname, err)
 	}
 	if fi.IsDir() {
-		return 0, verror.New(errOperationFailed, ctx, fname)
+		return 0, fmt.Errorf("%v is a directory", fname)
 	}
 	return fi.Size(), nil
 }
@@ -86,10 +87,10 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 		if os.IsNotExist(err) {
 			return 0, verror.New(verror.ErrNoExist, ctx, fname)
 		}
-		return 0, verror.New(errOperationFailed, ctx, fname)
+		return 0, fmt.Errorf("failed to open: %v: %v", fname, err)
 	}
 	if startpos, err = f.Seek(startpos, 0); err != nil {
-		return 0, verror.New(errOperationFailed, ctx, fname, err)
+		return 0, fmt.Errorf("failed to seek to start: %v: %v", fname, err)
 	}
 	reader := newFollowReader(ctx, f, startpos, follow)
 	if numEntries == logreader.AllEntries {
@@ -104,7 +105,7 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 			return reader.tell(), verror.NewErrEndOfFile(ctx)
 		}
 		if err != nil {
-			return reader.tell(), verror.New(errOperationFailed, ctx, fname)
+			return reader.tell(), fmt.Errorf("failed to read line: %v: %v", fname, err)
 		}
 		if err := call.SendStream().Send(logreader.LogEntry{Position: offset, Line: line}); err != nil {
 			return reader.tell(), err
@@ -127,7 +128,7 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 		if os.IsNotExist(err) {
 			return verror.New(verror.ErrNoExist, ctx, dirName)
 		}
-		return verror.New(errOperationFailed, ctx, dirName)
+		return fmt.Errorf("failed to stat %v: %v", dirName, err)
 	}
 	if !stat.IsDir() {
 		return nil

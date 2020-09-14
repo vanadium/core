@@ -5,7 +5,9 @@
 package namespace
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -23,10 +25,6 @@ import (
 
 const defaultMaxResolveDepth = 32
 const defaultMaxRecursiveGlobDepth = 10
-
-var (
-	errNotRootedName = verror.Register(".errNotRootedName", verror.NoRetry, "{1:}{2:} At least one root is not a rooted name{:_}")
-)
 
 // namespace is an implementation of namespace.T.
 type namespace struct {
@@ -57,7 +55,7 @@ func rooted(names []string) bool {
 }
 
 func badRoots(roots []string) error {
-	return verror.New(errNotRootedName, nil, roots)
+	return fmt.Errorf("at least one root is not a rooted name: %v", strings.Join(roots, ", "))
 }
 
 // Create a new namespace.

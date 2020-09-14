@@ -31,7 +31,6 @@ import (
 )
 
 const (
-	pkgPath        = "v.io/x/ref/runtime/internal/rpc"
 	reconnectDelay = 50 * time.Millisecond
 )
 
@@ -39,27 +38,18 @@ func reg(id, msg string) verror.IDAction {
 	// Note: the error action is never used and is instead computed
 	// at a higher level. The errors here are purely for informational
 	// purposes.
-	return verror.Register(verror.ID(pkgPath+id), verror.NoRetry, msg)
+	return verror.Register(verror.ID(id), verror.NoRetry, msg)
 }
 
 var (
-	// These errors are intended to be used as arguments to higher
-	// level errors and hence {1}{2} is omitted from their format
-	// strings to avoid repeating these n-times in the final error
-	// message visible to the user.
-	errClientCloseAlreadyCalled  = reg(".errCloseAlreadyCalled", "rpc.Client.Close has already been called")
-	errClientFinishAlreadyCalled = reg(".errFinishAlreadyCalled", "rpc.ClientCall.Finish has already been called")
-	errNonRootedName             = reg(".errNonRootedName", "{3} does not appear to contain an address")
-	errInvalidEndpoint           = reg(".errInvalidEndpoint", "failed to parse endpoint")
-	errRequestEncoding           = reg(".errRequestEncoding", "failed to encode request {3}{:4}")
-	errArgEncoding               = reg(".errArgEncoding", "failed to encode arg #{3}{:4:}")
-	errMismatchedResults         = reg(".errMismatchedResults", "got {3} results, but want {4}")
-	errResultDecoding            = reg(".errResultDecoding", "failed to decode result #{3}{:4}")
-	errResponseDecoding          = reg(".errResponseDecoding", "failed to decode response{:3}")
-	errRemainingStreamResults    = reg(".errRemaingStreamResults", "stream closed with remaining stream results")
-	errBlessingGrant             = reg(".errBlessingGrant", "failed to grant blessing to server with blessings{:3}")
-	errBlessingAdd               = reg(".errBlessingAdd", "failed to add blessing granted to server{:3}")
-	errPeerAuthorizeFailed       = reg(".errPeerAuthorizedFailed", "failed to authorize flow with remote blessings{:3} {:4}")
+	errClientCloseAlreadyCalled  = verror.NewID("errCloseAlreadyCalled")
+	errClientFinishAlreadyCalled = verror.NewID("errFinishAlreadyCalled")
+	errRequestEncoding           = verror.NewID("errRequestEncoding")
+	errArgEncoding               = verror.NewID("errArgEncoding")
+	errResponseDecoding          = verror.NewID("errResponseDecoding")
+	errResultDecoding            = verror.NewID("errResultDecoding")
+	errRemainingStreamResults    = verror.NewID("errRemaingStreamResults")
+	errPeerAuthorizeFailed       = verror.NewID("errPeerAuthorizedFailed")
 )
 
 func isTimeout(err error) bool {
@@ -366,7 +356,7 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 		c.mu.Lock()
 		if c.closing {
 			c.mu.Unlock()
-			return nil, verror.NoRetry, false, verror.New(errClientCloseAlreadyCalled, ctx)
+			return nil, verror.NoRetry, false, errClientCloseAlreadyCalled.Errorf(ctx, "rpc.Client.Close has already been called")
 		}
 		c.wg.Add(1)
 		c.mu.Unlock()
@@ -446,14 +436,14 @@ func (c *client) tryConnectToServer(
 
 	address, suffix := naming.SplitAddressName(server)
 	if len(address) == 0 {
-		status.serverErr = suberr(verror.New(errNonRootedName, ctx, server))
+		status.serverErr = suberr(fmt.Errorf("%v does not appear to contain an address", server))
 		return
 	}
 	status.suffix = suffix
 
 	ep, err := naming.ParseEndpoint(address)
 	if err != nil {
-		status.serverErr = suberr(verror.New(errInvalidEndpoint, ctx))
+		status.serverErr = suberr(fmt.Errorf("failed to parse endpoint"))
 		return
 	}
 	var flw flow.Flow
@@ -674,7 +664,7 @@ func (fc *flowClient) close(err error) error {
 		}
 	}
 	switch verror.ErrorID(err) {
-	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID:
+	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID:
 		return verror.New(verror.ErrBadProtocol, fc.ctx, err)
 	}
 	return err
@@ -697,12 +687,12 @@ func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rp
 		Language:         string(i18n.GetLangID(fc.ctx)),
 	}
 	if err := fc.enc.Encode(req); err != nil {
-		berr := verror.New(verror.ErrBadProtocol, fc.ctx, verror.New(errRequestEncoding, fc.ctx, fmt.Sprintf("%#v", req), err))
+		berr := errRequestEncoding.Errorf(fc.ctx, "failed to encode request %#v: %v", req, err)
 		return fc.close(berr)
 	}
 	for ix, arg := range args {
 		if err := fc.enc.Encode(arg); err != nil {
-			berr := verror.New(errArgEncoding, fc.ctx, ix, err)
+			berr := errArgEncoding.Errorf(fc.ctx, "failed to encode arg #%v: %v", ix, err)
 			return fc.close(berr)
 		}
 	}
@@ -728,9 +718,9 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 	for _, o := range opts {
 		if v, ok := o.(rpc.Granter); ok {
 			if b, err := v.Grant(ctx, call); err != nil {
-				return grantedB, verror.New(errBlessingGrant, fc.ctx, err)
+				return grantedB, fmt.Errorf("failed to grant blessing to server with blessings: %v", err)
 			} else if grantedB, err = security.UnionOfBlessings(grantedB, b); err != nil {
-				return grantedB, verror.New(errBlessingAdd, fc.ctx, err)
+				return grantedB, fmt.Errorf("failed to add blessing granted to server: %v", err)
 			}
 		}
 	}
@@ -750,10 +740,12 @@ func (fc *flowClient) Send(item interface{}) error {
 	}
 	// The empty request header indicates what follows is a streaming arg.
 	if err := fc.enc.Encode(rpc.Request{}); err != nil {
-		return fc.close(verror.New(errRequestEncoding, fc.ctx, rpc.Request{}, err))
+		berr := errRequestEncoding.Errorf(fc.ctx, "failed to encode stream request: %v", err)
+		return fc.close(berr)
 	}
 	if err := fc.enc.Encode(item); err != nil {
-		return fc.close(verror.New(errArgEncoding, fc.ctx, -1, err))
+		berr := errArgEncoding.Errorf(fc.ctx, "failed to encode stream item: %v", err)
+		return fc.close(berr)
 	}
 	return fc.flow.Flush()
 }
@@ -768,8 +760,10 @@ func (fc *flowClient) Recv(itemptr interface{}) error {
 
 	// Decode the response header and handle errors and EOF.
 	if err := fc.dec.Decode(&fc.response); err != nil {
-		id, verr := decodeNetError(fc.ctx, err)
-		berr := verror.New(id, fc.ctx, verror.New(errResponseDecoding, fc.ctx, verr))
+		/*id, verr := decodeNetError(fc.ctx, err)
+		suberr := errResponseDecoding.Errorf(fc.ctx, "failed to decode response: %v", verr)
+		berr := id.Errorf(fc.ctx, "decode error: %v", suberr)*/
+		berr := decodingResponseError(fc.ctx, err, "streaming header")
 		return fc.close(berr)
 	}
 	if fc.response.Error != nil {
@@ -783,8 +777,10 @@ func (fc *flowClient) Recv(itemptr interface{}) error {
 	}
 	// Decode the streaming result.
 	if err := fc.dec.Decode(itemptr); err != nil {
-		id, verr := decodeNetError(fc.ctx, err)
-		berr := verror.New(id, fc.ctx, verror.New(errResponseDecoding, fc.ctx, verr))
+		/*id, verr := decodeNetError(fc.ctx, err)
+		suberr := errResponseDecoding.Errorf(fc.ctx, "failed to decode response: %v", verr)
+		berr := id.Errorf(fc.ctx, "streaming decode error: %v", suberr)*/
+		berr := decodingResponseError(fc.ctx, err, "streaming item")
 		// TODO(cnicolaou): should we be caching this?
 		fc.response.Error = berr
 		return fc.close(berr)
@@ -830,7 +826,7 @@ func (fc *flowClient) closeSend() error {
 func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	defer vtrace.GetSpan(fc.ctx).Finish()
 	if fc.finished {
-		err := verror.New(errClientFinishAlreadyCalled, fc.ctx)
+		err := errClientFinishAlreadyCalled.Errorf(fc.ctx, "rpc.ClientCall.Finish has already been called")
 		return fc.close(verror.New(verror.ErrBadState, fc.ctx, err))
 	}
 	fc.finished = true
@@ -853,14 +849,15 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	// Decode the response header, if it hasn't already been decoded by Recv.
 	if fc.response.Error == nil && !fc.response.EndStreamResults {
 		if err := fc.dec.Decode(&fc.response); err != nil {
-			id, verr := decodeNetError(fc.ctx, err)
-			berr := verror.New(id, fc.ctx, verror.New(errResponseDecoding, fc.ctx, verr))
+			/*id, verr := decodeNetError(fc.ctx, err)
+			berr := verror.New(id, fc.ctx, verror.New(errResponseDecoding, fc.ctx, verr))*/
+			berr := decodingResponseError(fc.ctx, err, "finish")
 			return fc.close(berr)
 		}
 
 		// The response header must indicate the streaming results have ended.
 		if fc.response.Error == nil && !fc.response.EndStreamResults {
-			berr := verror.New(errRemainingStreamResults, fc.ctx)
+			berr := errRemainingStreamResults.Errorf(fc.ctx, "stream closed with remaining stream results")
 			return fc.close(berr)
 		}
 	}
@@ -887,7 +884,8 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 		return fc.close(verror.Convert(verror.ErrInternal, fc.ctx, fc.response.Error))
 	}
 	if got, want := fc.response.NumPosResults, uint64(len(resultptrs)); got != want {
-		berr := verror.New(verror.ErrBadProtocol, fc.ctx, verror.New(errMismatchedResults, fc.ctx, got, want))
+		suberr := fmt.Errorf("got %v results, but want %v", got, want)
+		berr := verror.ErrBadProtocol.Errorf(fc.ctx, "failed to decode results: %v", suberr)
 		return fc.close(berr)
 	}
 	for ix, r := range resultptrs {
@@ -947,7 +945,7 @@ func (x peerAuthorizer) AuthorizePeer(
 		RemoteEndpoint:   remoteEP,
 	})
 	if err := x.auth.Authorize(ctx, call); err != nil {
-		return nil, nil, verror.New(errPeerAuthorizeFailed, ctx, call.RemoteBlessings(), err)
+		return nil, nil, errPeerAuthorizeFailed.Errorf(ctx, "failed to authorize flow with remote blessings: %v: %v", call.RemoteBlessings(), err)
 	}
 	peerNames, rejectedPeerNames := security.RemoteBlessingNames(ctx, call)
 	return peerNames, rejectedPeerNames, nil
@@ -1029,6 +1027,14 @@ func suberrName(server, name, method string) string {
 		return fmt.Sprintf("%s.%s", server, method)
 	}
 	return fmt.Sprintf("%s:%s.%s", server, name, method)
+}
+
+func decodingResponseError(ctx *context.T, err error, detail string) error {
+	id, _ := decodeNetError(ctx, err)
+	if id.ID != verror.ErrBadProtocol.ID {
+		return errResponseDecoding.Errorf(ctx, "failed to decode results: %v: %v", detail, id.Errorf(ctx, "network error: %v", err))
+	}
+	return errResponseDecoding.Errorf(ctx, "failed to decode results: %v: %v", detail, err)
 }
 
 // decodeNetError tests for a net.Error from the lower stream code and

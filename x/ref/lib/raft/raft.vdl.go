@@ -13,8 +13,10 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
+	"v.io/v23/verror"
 )
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
@@ -203,6 +205,24 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 const ClientEntry = byte(0)
 const RaftEntry = byte(1)
+
+//////////////////////////////////////////////////
+// Error definitions
+
+var (
+	ErrNotLeader     = verror.Register("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry, "{1:}{2:} not the leader")
+	ErrOutOfSequence = verror.Register("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry, "{1:}{2:} append {3}, {4} out of sequence")
+)
+
+// NewErrNotLeader returns an error with the ErrNotLeader ID.
+func NewErrNotLeader(ctx *context.T) error {
+	return verror.New(ErrNotLeader, ctx)
+}
+
+// NewErrOutOfSequence returns an error with the ErrOutOfSequence ID.
+func NewErrOutOfSequence(ctx *context.T, prevTerm Term, prevIdx Index) error {
+	return verror.New(ErrOutOfSequence, ctx, prevTerm, prevIdx)
+}
 
 //////////////////////////////////////////////////
 // Interface definitions
@@ -691,6 +711,10 @@ func initializeVDL() struct{} {
 	vdlTypeUint642 = vdl.TypeOf((*Index)(nil))
 	vdlTypeStruct3 = vdl.TypeOf((*LogEntry)(nil)).Elem()
 	vdlTypeList4 = vdl.TypeOf((*[]byte)(nil))
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotLeader.ID), "{1:}{2:} not the leader")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrOutOfSequence.ID), "{1:}{2:} append {3}, {4} out of sequence")
 
 	return struct{}{}
 }

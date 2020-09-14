@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -197,9 +198,9 @@ func handleSignerError(signer security.Signer, err error) (security.Signer, erro
 	switch {
 	case err == nil:
 		return signer, nil
-	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
+	case errors.Is(err, internal.ErrBadPassphrase):
 		return nil, verror.New(ErrBadPassphrase, nil)
-	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
+	case errors.Is(err, internal.ErrPassphraseRequired):
 		return nil, verror.New(ErrPassphraseRequired, nil)
 	case os.IsNotExist(err):
 		return nil, err

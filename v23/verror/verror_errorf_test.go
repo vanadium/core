@@ -27,11 +27,12 @@ func TestErrorf(t *testing.T) {
 	defer shutdown()
 	ctx := verror.WithComponentName(rootCtx, "component")
 	ctx, _ = vtrace.WithNewSpan(ctx, "op")
-	err := verror.Create(ctx, verror.RetryBackoff, "my error %v", fmt.Errorf("oops"))
+	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
+	err := myerr.Errorf(ctx, "my error %v", fmt.Errorf("oops"))
 	if got, want := err.Error(), "component:op: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := verror.ErrorID(err), verror.ErrUnknown.ID; got != want {
+	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.Action(err), verror.RetryBackoff; got != want {
@@ -39,13 +40,14 @@ func TestErrorf(t *testing.T) {
 	}
 
 	if got, want := verror.DebugString(err), "runtime.goexit"; !strings.Contains(got, want) {
-		t.Errorf("got %v, want %v", got, want)
+		t.Errorf("%v does not contain %v", got, want)
 	}
-	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:30"; !strings.Contains(got, want) {
-		t.Errorf("got %v, want %v", got, want)
+	if got, want := verror.Stack(err).String(), "verror_errorf_test.go:31"; !strings.Contains(got, want) {
+		fmt.Println(verror.Stack(err))
+		t.Errorf("%v does not contain %v", got, want)
 	}
 
-	err = verror.Errorf("my error %v", fmt.Errorf("oops"))
+	err = verror.Errorf(nil, "my error %v", fmt.Errorf("oops"))
 	if got, want := err.Error(), "verror.test: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
@@ -57,12 +59,49 @@ func TestErrorf(t *testing.T) {
 	if got, want := strings.Count(verror.DebugString(nerr), "runtime.goexit"), 2; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+}
 
+func TestMessage(t *testing.T) {
+	rootCtx, shutdown := test.V23Init()
+	defer shutdown()
+	ctx := verror.WithComponentName(rootCtx, "component")
+	ctx, _ = vtrace.WithNewSpan(ctx, "op")
+	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
+	nerr := fmt.Errorf("oops")
+	err := myerr.Message(ctx, fmt.Sprintf("my error %v in some language", nerr), nerr)
+	if got, want := err.Error(), "component:op: my error oops in some language"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := verror.Action(err), verror.RetryBackoff; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	err = verror.Message(nil, fmt.Sprintf("my error %v in some language", nerr), nerr)
+	if got, want := err.Error(), "verror.test: my error oops in some language"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := verror.ErrorID(err), verror.ErrUnknown.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := verror.Action(err), verror.NoRetry; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	nerr = verror.AddSubErrs(err, nil, verror.SubErr{
+		Name:    "a=1",
+		Err:     aEN1,
+		Options: verror.Print,
+	})
+	if got, want := strings.Count(verror.DebugString(nerr), "runtime.goexit"), 2; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }
 
 func TestCompatibility(t *testing.T) {
-	err1 := verror.New(idActionA, nil)
-	err2 := verror.New(idActionA, nil)
+	err1 := idActionA.Errorf(nil, "oh my")
+	err2 := idActionA.Errorf(nil, "an error")
 
 	if !errors.Is(err1, idActionA) {
 		t.Errorf("errors.Is returned false, should be true")
@@ -74,8 +113,8 @@ func TestCompatibility(t *testing.T) {
 		t.Errorf("errors.Is returned false, should be true")
 	}
 
-	err3 := verror.Errorf("oh my {_}", err1)
-	err4 := verror.Errorf("oh my {_}", err1)
+	err3 := verror.Errorf(nil, "oh my %v", err1)
+	err4 := verror.Errorf(nil, "oh my %v", err1)
 	if !errors.Is(err3, err3) {
 		t.Errorf("errors.Is returned false, should be true")
 	}
@@ -172,6 +211,16 @@ func TestRegister(t *testing.T) {
 	e1 := verror.Register(".err1", verror.NoRetry, "{1}{:2} a message")
 	e2 := verror.Register("err1", verror.NoRetry, "{1}{:2} a message")
 	e3 := verror.Register("v.io/v23/verror.err1", verror.NoRetry, "{1}{:2} a message")
+	if got, want := e1.ID, e2.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := e1.ID, e3.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	e1 = verror.NewIDAction(".err1", verror.NoRetry)
+	e2 = verror.NewIDAction("err1", verror.NoRetry)
+	e3 = verror.NewIDAction("v.io/v23/verror.err1", verror.NoRetry)
 	if got, want := e1.ID, e2.ID; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}

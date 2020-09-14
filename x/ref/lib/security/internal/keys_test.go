@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,7 +19,6 @@ import (
 	"testing"
 
 	"golang.org/x/crypto/ssh"
-	"v.io/v23/verror"
 )
 
 func TestLoadSavePEMKey(t *testing.T) {
@@ -83,7 +83,7 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	if loadedKey, err = LoadPEMPrivateKey(&buf, nil); loadedKey != nil || verror.ErrorID(err) != ErrPassphraseRequired.ID {
+	if loadedKey, err = LoadPEMPrivateKey(&buf, nil); loadedKey != nil || !errors.Is(err, ErrPassphraseRequired) {
 		t.Fatalf("expected(nil, ErrPassphraseRequired), instead got (%v, %v)", loadedKey, err)
 	}
 }

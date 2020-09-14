@@ -145,6 +145,7 @@ func mkThirdPartyCaveat(discharger security.PublicKey, location string, c securi
 
 func matchesErrorPattern(err error, id verror.IDAction, pattern string) bool {
 	if len(pattern) > 0 && err != nil && !strings.Contains(err.Error(), pattern) {
+		fmt.Printf("\n\n %v not in %v\n", pattern, err.Error())
 		return false
 	}
 	if err == nil && id.ID == "" {

@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	"v.io/v23/verror"
 )
 
 // PermissionsFlag represents a flag.Value for --v23.permissions.file
@@ -32,7 +30,7 @@ func (permsf *PermissionsFlag) Set(v string) error {
 	}
 	parts := strings.SplitN(v, ":", 2)
 	if len(parts) != 2 {
-		return verror.New(errNotNameColonFile, nil, v)
+		return fmt.Errorf("%v is not in 'name:file' format", v)
 	}
 	name, file := parts[0], parts[1]
 	permsf.files[name] = file

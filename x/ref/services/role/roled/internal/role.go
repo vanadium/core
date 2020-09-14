@@ -5,6 +5,7 @@
 package internal
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -16,10 +17,6 @@ import (
 	"v.io/v23/verror"
 
 	"v.io/x/ref/services/role"
-)
-
-var (
-	errNoLocalBlessings = verror.Register("v.io/x/ref/services/role/roled/internal/noLocalBlessings", verror.NoRetry, "{1:}{2:} no local blessings")
 )
 
 type roleService struct {
@@ -114,7 +111,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 	blessWithNames := security.LocalBlessingNames(ctx, call)
 	publicKey := call.RemoteBlessings().PublicKey()
 	if len(blessWithNames) == 0 {
-		return security.Blessings{}, verror.New(errNoLocalBlessings, ctx)
+		return security.Blessings{}, fmt.Errorf("no local blessings")
 	}
 
 	var ret security.Blessings

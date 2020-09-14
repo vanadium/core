@@ -5,11 +5,13 @@
 package mounttablelib
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
+	mdns "github.com/vanadium/go-mdns-sd"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -20,20 +22,7 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 	"v.io/v23/verror"
 	"v.io/x/lib/netconfig"
-
 	"v.io/x/ref/internal/logger"
-
-	mdns "github.com/vanadium/go-mdns-sd"
-)
-
-var (
-	errNoUsefulAddresses             = verror.Register(".errNoUsefulAddresses", verror.NoRetry, "{1:}{2:} neighborhood passed no useful addresses{:_}")
-	errCantFindPort                  = verror.Register(".errCantFindPort", verror.NoRetry, "{1:}{2:} neighborhood couldn't determine a port to use{:_}")
-	errDoesntImplementMount          = verror.Register(".errDoesntImplementMount", verror.NoRetry, "{1:}{2:} this server does not implement Mount{:_}")
-	errDoesntImplementUnmount        = verror.Register(".errDoesntImplementUnmount", verror.NoRetry, "{1:}{2:} this server does not implement Unmount{:_}")
-	errDoesntImplementDelete         = verror.Register(".errDoesntImplementDelete", verror.NoRetry, "{1:}{2:} this server does not implement Delete{:_}")
-	errDoesntImplementSetPermissions = verror.Register(".errDoesntImplementSetPermissions", verror.NoRetry, "{1:}{2:} this server does not implement SetPermissions{:_}")
-	errSlashInHostName               = verror.Register(".errSlashInHostName", verror.NoRetry, "{1:}{2:} hostname may not contain '/'{:_}")
 )
 
 const addressPrefix = "address:"
@@ -83,7 +72,7 @@ func getPort(address string) uint16 {
 
 func newNeighborhood(host string, addresses []string, loopback bool) (*neighborhood, error) {
 	if strings.Contains(host, "/") {
-		return nil, verror.New(errSlashInHostName, nil)
+		return nil, fmt.Errorf("hostname may not contain '/': %v", host)
 	}
 
 	// Create the TXT contents with addresses to announce. Also pick up a port number.
@@ -96,10 +85,10 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 		}
 	}
 	if txt == nil {
-		return nil, verror.New(errNoUsefulAddresses, nil)
+		return nil, fmt.Errorf("neighborhood passed no useful addresses")
 	}
 	if port == 0 {
-		return nil, verror.New(errCantFindPort, nil)
+		return nil, fmt.Errorf("neighborhood couldn't determine a port to use{")
 	}
 
 	// Start up MDNS, subscribe to the vanadium service, and add us as a vanadium service provider.
@@ -263,17 +252,17 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 
 // Mount not implemented.
 func (ns *neighborhoodService) Mount(ctx *context.T, _ rpc.ServerCall, _ string, _ uint32, _ naming.MountFlag) error {
-	return verror.New(errDoesntImplementMount, ctx)
+	return verror.New(verror.ErrNotImplemented, ctx)
 }
 
 // Unmount not implemented.
 func (*neighborhoodService) Unmount(ctx *context.T, _ rpc.ServerCall, _ string) error {
-	return verror.New(errDoesntImplementUnmount, ctx)
+	return verror.New(verror.ErrNotImplemented, ctx)
 }
 
 // Delete not implemented.
 func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) error {
-	return verror.New(errDoesntImplementDelete, ctx)
+	return verror.New(verror.ErrNotImplemented, ctx)
 }
 
 // Glob__ implements rpc.AllGlobber
@@ -308,7 +297,7 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 }
 
 func (*neighborhoodService) SetPermissions(ctx *context.T, _ rpc.ServerCall, _ access.Permissions, _ string) error {
-	return verror.New(errDoesntImplementSetPermissions, ctx)
+	return verror.New(verror.ErrNotImplemented, ctx)
 }
 
 func (*neighborhoodService) GetPermissions(*context.T, rpc.ServerCall) (access.Permissions, string, error) {

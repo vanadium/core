@@ -3,7 +3,15 @@
 // license that can be found in the LICENSE file.
 
 // Package verror implements an error reporting mechanism that works across
-// programming environments, and a set of common errors.
+// programming environments, and a set of common errors. It captures the location
+// and parameters of the error call site to aid debugging. Rudimentary i18n support
+// is provided, but now that more comprehensive i18n packages are available
+// its use deprecated. That is, Register and New are deprecated in favour of
+// NewIDAction, IDAction.Errorf and IDAction.Message. Errorf is not intended
+// or localization, whereas Message accepts a preformatted message to allow
+// for localization via an alternative package/framework.
+//
+// NOTE that the deprecated i18n support will be removed in the near future.
 //
 // Each error has an identifier string, which is used for equality checks.
 // E.g. a Javascript client can check if a Go server returned a NoExist error by
@@ -15,11 +23,30 @@
 // whether to retry the operation after receiving the error.
 //
 // Each error also contains a list of typed parameters, and an error message.
-// The error message is created by looking up a format string keyed on the error
-// identifier, and applying the parameters to the format string.  This enables
-// error messages to be generated in different languages.
+// The error message may be created in three ways:
+//   1. Via the Errorf method using fmt.Sprintf formatting.
+//   2. Via the Message method where the error message is preformatted and the
+//      parameter list is recorded.
+//   3. The error message is created by looking up a format string keyed on the error
+//      identifier, and applying the parameters to the format string.  This enables
+//      error messages to be generated in different languages. Note that this
+//      method is now deprecated.
 //
-// Examples
+// Contemporary Example:
+//
+// To define a new error identifier, for example "someNewError", client code is
+// expected to declare a variable like this:
+//     var someNewError = verror.Register("someNewError", NoRetry)
+//     ...
+//     return someNewError.Errorf(ctx, "my error message: %v", err)
+//
+// Alternatively, to use golang.org/x/text/messsage for localization:
+//    p := message.NewPrinter(language.BritishEnglish)
+//    msg := p.Sprintf("invalid name: %v: %v", name, err)
+//    return someNewError.Message(ctx, msg, name, err)
+//
+//
+// Deprecated Usage Example:
 //
 // To define a new error identifier, for example "someNewError", client code is
 // expected to declare a variable like this:
@@ -142,32 +169,52 @@ type IDAction struct {
 // Register returns a IDAction with the given ID and Action fields, and
 // inserts a message into the default i18n Catalogue in US English.
 // Other languages can be added by adding to the Catalogue. Register
-// will internal prepend the caller's package path to id if it's not
-// already present. The intent
+// will internally prepend the caller's package path to id if it's not
+// already present.
 func Register(id ID, action ActionCode, englishText string) IDAction {
 	id = ensurePackagePath(id)
 	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID(id), englishText)
 	return IDAction{id, action}
 }
 
-// Errorf calls Create with a nil context and NoRetry action. Note that fmt
-// style formatting is used and not v.io/v23/i18n.
-func Errorf(format string, v ...interface{}) error {
-	return verrorf(nil, NoRetry, format, v)
+// NewIDAction creates a new instance of IDAction with the given ID and Action
+// field. It should be used when localization support is not required instead
+// of Register.  NewIDAction will internally prepend the caller's package path
+// to id if it's not already present.
+func NewIDAction(id ID, action ActionCode) IDAction {
+	return IDAction{ensurePackagePath(id), action}
 }
 
-// Create creates a new verror.E that is intended for errors that do not
-// have exported (and hence testable) IDAction values and that are not intended
-// for localization. Their ID is ErrUnknown.ID. Create prepends the component
-// and operation name if they can be extracted from the context. Note that fmt
-// style formatting is used and not v.io/v23/i18n.
-func Create(ctx *context.T, action ActionCode, format string, v ...interface{}) error {
-	return verrorf(ctx, action, format, v)
+func NewID(id ID) IDAction {
+	return IDAction{ensurePackagePath(id), NoRetry}
 }
 
-func verrorf(ctx *context.T, action ActionCode, format string, v []interface{}) error {
+// Errorf creates a new verror.E that uses fmt.Errorf formatting and is not
+// intended for localization. Errorf prepends the component and
+// operation name if they can be extracted from the context.
+func (id IDAction) Errorf(ctx *context.T, format string, params ...interface{}) error {
+	return verrorf(ctx, id, fmt.Sprintf(format, params...), params)
+}
+
+// Message is intended for pre-internationalizated messages. The msg is assumed
+// to be have been preformated and the params are recorded in E.ParamList.
+func (id IDAction) Message(ctx *context.T, msg string, params ...interface{}) error {
+	return verrorf(ctx, id, msg, params)
+}
+
+// Errorf is like ErrUnknown.Errorf.
+func Errorf(ctx *context.T, format string, params ...interface{}) error {
+	return verrorf(ctx, ErrUnknown, fmt.Sprintf(format, params...), params)
+}
+
+// Message is like ErrUnknown.Message.
+func Message(ctx *context.T, msg string, params ...interface{}) error {
+	return verrorf(ctx, ErrUnknown, msg, params)
+}
+
+func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
 	_, componentName, opName := dataFromContext(ctx)
-	prefix := ""
+	prefix := "" //string(id.ID)
 	if len(componentName) > 0 && len(opName) > 0 {
 		prefix = componentName + ":" + opName + ": "
 	} else {
@@ -180,9 +227,8 @@ func verrorf(ctx *context.T, action ActionCode, format string, v []interface{}) 
 	stack := make([]uintptr, maxPCs)
 	stack = stack[:runtime.Callers(3, stack)]
 	chainedPCs := chainPCs(v)
-	msg := fmt.Sprintf(format, v...)
 	params := append([]interface{}{componentName, opName}, v...)
-	return E{ErrUnknown.ID, action, prefix + msg, params, stack, chainedPCs}
+	return E{id.ID, id.Action, prefix + msg, params, stack, chainedPCs}
 }
 
 // E is the in-memory representation of a verror error.

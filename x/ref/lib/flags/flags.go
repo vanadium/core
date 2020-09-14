@@ -8,13 +8,8 @@ import (
 	"flag"
 	"strings"
 
-	"v.io/v23/verror"
 	"v.io/x/lib/cmd/flagvar"
 	"v.io/x/ref"
-)
-
-var (
-	errNotNameColonFile = verror.Register(".errNotNameColonFile", verror.NoRetry, "{1:}{2:} {3} is not in 'name:file' format{:_}")
 )
 
 // FlagGroup is the type for identifying groups of related flags.

@@ -17,7 +17,8 @@ import (
 )
 
 var (
-	errNoServers = verror.Register(".errNoServers", verror.NoRetry, "{1} {2} No servers found to resolve query {_}")
+	errNoServers = verror.NewIDAction(".errNoServers", verror.NoRetry)
+	///, "{1} {2} No servers found to resolve query {_}")
 )
 
 // resolveAgainstMountTable asks each server in e.Servers that might be a mounttable to resolve e.Name.  The requests
@@ -56,7 +57,7 @@ func (ns *namespace) resolveAgainstMountTable(ctx *context.T, client rpc.Client,
 	// If we have no servers to query, give up.
 	if len(e.Servers) == 0 {
 		ctx.VI(2).Infof("resolveAMT %s -> No servers", e.Name)
-		return nil, verror.New(errNoServers, ctx)
+		return nil, errNoServers.Errorf(ctx, "no servers found to resolve query")
 	}
 	// We have preresolved the servers.  Pass the mount entry to the call.
 	opts = append(opts, options.Preresolved{Resolution: e})

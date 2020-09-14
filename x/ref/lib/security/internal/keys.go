@@ -11,6 +11,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,7 +19,6 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/ssh"
-	"v.io/v23/verror"
 )
 
 const (
@@ -29,9 +29,10 @@ const (
 
 var (
 	// ErrBadPassphrase is a possible return error from LoadPEMPrivateKey()
-	ErrBadPassphrase = verror.Register(".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
+	ErrBadPassphrase = errors.New("passphrase incorrect for decrypting private key")
+
 	// ErrPassphraseRequired is a possible return error from LoadPEMPrivateKey()
-	ErrPassphraseRequired = verror.Register(".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
+	ErrPassphraseRequired = errors.New("passphrase required for decrypting private key")
 )
 
 func openKeyFile(keyFile string) (*os.File, error) {
@@ -92,11 +93,11 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	if x509.IsEncryptedPEMBlock(pemBlock) {
 		// Assume empty passphrase is disallowed.
 		if len(passphrase) == 0 {
-			return nil, verror.New(ErrPassphraseRequired, nil)
+			return nil, ErrPassphraseRequired
 		}
 		data, err = x509.DecryptPEMBlock(pemBlock, passphrase)
 		if err != nil {
-			return nil, verror.New(ErrBadPassphrase, nil)
+			return nil, ErrBadPassphrase
 		}
 	} else {
 		data = pemBlock.Bytes
@@ -110,13 +111,13 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 			// bytes for data with a nil error when the passphrase
 			// is invalid; hence, failure to parse data could be due
 			// to a bad passphrase.
-			return nil, verror.New(ErrBadPassphrase, nil)
+			return nil, ErrBadPassphrase
 		}
 		return key, nil
 	case pkcs8PrivateKeyPEMType:
 		key, err := x509.ParsePKCS8PrivateKey(data)
 		if err != nil {
-			return nil, verror.New(ErrBadPassphrase, nil)
+			return nil, ErrBadPassphrase
 		}
 		return key, nil
 	}
