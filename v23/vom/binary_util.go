@@ -5,6 +5,7 @@
 package vom
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"reflect"
@@ -14,6 +15,8 @@ import (
 )
 
 // Binary encoding and decoding routines.
+
+var errInvalid = errors.New("vom: invalid encoding")
 
 func errEndedBeforeVersionByte(err error) error {
 	return fmt.Errorf("ended before version byte received: %v", err)
