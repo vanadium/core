@@ -5,25 +5,35 @@
 package vom
 
 import (
+	"fmt"
 	"math"
 	"reflect"
 	"unsafe"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 )
 
 // Binary encoding and decoding routines.
 
-var (
-	errInvalid             = verror.Register(".errInvalid", verror.NoRetry, "{1:}{2:} vom: invalid encoding{:_}")
-	errInvalidLenOrControl = verror.Register(".errInvalidLenOrControl", verror.NoRetry, "{1:}{2:} vom: invalid len or control byte {3}{:_}")
-	errMsgLen              = verror.Register(".errMsgLen", verror.NoRetry, "{1:}{2:} vom: message larger than {3} bytes{:_}")
+func errEndedBeforeVersionByte(err error) error {
+	return fmt.Errorf("ended before version byte received: %v", err)
+}
 
-	errBadControlCode         = verror.Register(".errBadControlCode", verror.NoRetry, "{1:}{2:} invalid control code{:_}")
-	errBadVersionByte         = verror.Register(".errBadVersionByte", verror.NoRetry, "{1:}{2:} bad version byte {3}")
-	errEndedBeforeVersionByte = verror.Register(".errEndedBeforeVersionByte", verror.NoRetry, "{1:}{2:} ended before version byte received {:_}")
-)
+func errBadVersionByte(v Version) error {
+	return fmt.Errorf("bad version byte: %02x", v)
+}
+
+func errMsgLen(l int) error {
+	return fmt.Errorf("vom: message larger than %v bytes", l)
+}
+
+func errInvalidLenOrControl(first byte) error {
+	return fmt.Errorf("vom: invalid len or control byte %02x", first)
+}
+
+func errBadControlCode(code byte) error {
+	return fmt.Errorf("invalid control code: %02x", code)
+}
 
 const (
 	uint64Size          = 8
@@ -58,7 +68,7 @@ func lenUint(v uint64) int {
 
 func binaryEncodeControl(buf *encbuf, v byte) {
 	if v < 0x80 || v > 0xef {
-		panic(verror.New(errBadControlCode, nil, v))
+		panic(errBadControlCode(v))
 	}
 	buf.WriteOneByte(v)
 }
@@ -77,7 +87,7 @@ func binaryDecodeControlOnly(buf *decbuf, want byte) (bool, error) {
 		return false, nil // not a control byte
 	}
 	if ctrl != want {
-		return false, verror.New(errBadControlCode, nil, ctrl)
+		return false, errBadControlCode(ctrl)
 	}
 	buf.SkipAvailable(1)
 	return true, nil
@@ -115,7 +125,7 @@ func binaryDecodeBool(buf *decbuf) (bool, error) {
 	}
 	value := buf.ReadAvailableByte()
 	if value > 1 {
-		return false, verror.New(errInvalid, nil) // TODO: better error
+		return false, errInvalid // TODO: better error
 	}
 	return value != 0, nil
 }
@@ -205,7 +215,7 @@ func binaryDecodeUint(buf *decbuf) (uint64, error) {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return 0, verror.New(errInvalidLenOrControl, nil, firstByte)
+		return 0, errInvalidLenOrControl(firstByte)
 	}
 	if !buf.IsAvailable(byteLen) {
 		if err := buf.Fill(byteLen); err != nil {
@@ -234,7 +244,7 @@ func binaryPeekUint(buf *decbuf) (uint64, int, error) {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return 0, 0, verror.New(errInvalidLenOrControl, nil, firstByte)
+		return 0, 0, errInvalidLenOrControl(firstByte)
 	}
 	byteLen++ // account for initial len byte
 	if !buf.IsAvailable(byteLen) {
@@ -265,7 +275,7 @@ func binarySkipUint(buf *decbuf) error {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return verror.New(errInvalidLenOrControl, nil, firstByte)
+		return errInvalidLenOrControl(firstByte)
 	}
 	byteLen++ // account for initial len byte
 	if !buf.IsAvailable(byteLen) {
@@ -291,7 +301,7 @@ func binaryPeekUintByteLen(buf *decbuf) (int, error) {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return 0, verror.New(errInvalidLenOrControl, nil, firstByte)
+		return 0, errInvalidLenOrControl(firstByte)
 	}
 	return 1 + byteLen, nil
 }
@@ -302,7 +312,7 @@ func binaryDecodeLen(buf *decbuf) (int, error) {
 	case err != nil:
 		return 0, err
 	case ulen > maxBinaryMsgLen:
-		return 0, verror.New(errMsgLen, nil, maxBinaryMsgLen)
+		return 0, errMsgLen(maxBinaryMsgLen)
 	}
 	return int(ulen), nil
 }
@@ -314,7 +324,7 @@ func binaryDecodeLenOrArrayLen(buf *decbuf, t *vdl.Type) (int, error) {
 	}
 	if t.Kind() == vdl.Array {
 		if len != 0 {
-			return 0, verror.New(errInvalid, nil) // TODO(toddw): better error
+			return 0, errInvalid // TODO(toddw): better error
 		}
 		return t.Len(), nil
 	}
@@ -350,7 +360,7 @@ func binaryDecodeInt(buf *decbuf) (int64, error) {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return 0, verror.New(errInvalidLenOrControl, nil, firstByte)
+		return 0, errInvalidLenOrControl(firstByte)
 	}
 	if !buf.IsAvailable(byteLen) {
 		if err := buf.Fill(byteLen); err != nil {
@@ -385,7 +395,7 @@ func binaryPeekInt(buf *decbuf) (int64, int, error) {
 	// Handle multi-byte encoding.
 	byteLen := int(-int8(firstByte))
 	if byteLen < 1 || byteLen > uint64Size {
-		return 0, 0, verror.New(errInvalidLenOrControl, nil, firstByte)
+		return 0, 0, errInvalidLenOrControl(firstByte)
 	}
 	byteLen++ // account for initial len byte
 	if !buf.IsAvailable(byteLen) {

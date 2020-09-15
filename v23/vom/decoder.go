@@ -12,7 +12,6 @@ import (
 	"os"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 )
 
 const (
@@ -429,7 +428,7 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		case err != nil:
 			return -1, err
 		case index >= uint64(top.Type.NumField()):
-			return -1, verror.New(errIndexOutOfRange, nil)
+			return -1, errIndexOutOfRange
 		default:
 			// Set LenHint=Index+1 so that we'll know we're done next time around.
 			field = int(index)
@@ -451,7 +450,7 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		case err != nil:
 			return -1, err
 		case index >= uint64(top.Type.NumField()):
-			return -1, verror.New(errIndexOutOfRange, nil)
+			return -1, errIndexOutOfRange
 		default:
 			field = int(index)
 			top.Index = field

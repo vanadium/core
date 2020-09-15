@@ -10,7 +10,6 @@ import (
 	"io"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 )
 
 func (v Version) String() string {
@@ -20,10 +19,11 @@ func (v Version) String() string {
 var (
 	errEmptyEncoderStack     = errors.New("vom: empty encoder stack")
 	errEntriesMustSetLenHint = errors.New("vom: entries must set LenHint")
-	errLabelNotInType        = verror.Register(".errLabelNotInType", verror.NoRetry, "{1:}{2:} enum label {3} doesn't exist in type {4}{:_}")
-	errUnusedTypeIds         = verror.Register(".errUnusedTypeIds", verror.NoRetry, "{1:}{2:} vom: some type ids unused during encode {:_}")
-	errUnusedAnys            = verror.Register(".errUnusedAnys", verror.NoRetry, "{1:}{2:} vom: some anys unused during encode {:_}")
 )
+
+func errLabelNotInType(value string, tt *vdl.Type) error {
+	return fmt.Errorf("enum label %v doesn't exist in type %v", value, tt)
+}
 
 const (
 	typeIDListInitialSize = 16
@@ -514,7 +514,7 @@ func (e *encoder81) EncodeString(value string) error {
 	if tt := top.Type; tt.Kind() == vdl.Enum {
 		index := tt.EnumIndex(value)
 		if index < 0 {
-			return verror.New(errLabelNotInType, nil, value, tt)
+			return errLabelNotInType(value, tt)
 		}
 		binaryEncodeUint(e.buf, uint64(index))
 	} else {
@@ -592,7 +592,7 @@ func (l *typeIDList) ReferenceTypeID(tid TypeId) uint64 {
 
 func (l *typeIDList) Reset() error {
 	if l.totalSent != len(l.tids) {
-		return verror.New(errUnusedTypeIds, nil)
+		return fmt.Errorf("vom: some type ids unused during encode")
 	}
 	l.tids = l.tids[:0]
 	l.totalSent = 0
@@ -639,7 +639,7 @@ func (l *anyLenList) FinishAny(start anyStartRef, endMarker int) {
 
 func (l *anyLenList) Reset() error {
 	if l.totalSent != len(l.lens) {
-		return verror.New(errUnusedAnys, nil)
+		return fmt.Errorf("vom: some anys unused during encode")
 	}
 	l.lens = l.lens[:0]
 	l.totalSent = 0

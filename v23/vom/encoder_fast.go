@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 )
 
 // This file contains the WriteValue*, NextEntryValue* and NextFieldValue*
@@ -185,7 +184,7 @@ func (e *encoder81) WriteValueString(tt *vdl.Type, value string) error {
 	if tt.Kind() == vdl.Enum {
 		enumIndex := tt.EnumIndex(value)
 		if enumIndex < 0 {
-			return verror.New(errLabelNotInType, nil, value, tt)
+			return errLabelNotInType(value, tt)
 		}
 		return e.writeValue(tt, encodeUint{uint64(enumIndex)}.encode)
 	}
@@ -232,7 +231,7 @@ func (e *encoder81) NextEntryValueString(tt *vdl.Type, value string) error {
 	if tt.Kind() == vdl.Enum {
 		enumIndex := tt.EnumIndex(value)
 		if enumIndex < 0 {
-			return verror.New(errLabelNotInType, nil, value, tt)
+			return errLabelNotInType(value, tt)
 		}
 		return e.nextEntryValue(tt, encodeUint{uint64(enumIndex)}.encode)
 	}
@@ -276,7 +275,7 @@ func (e *encoder81) NextFieldValueString(index int, tt *vdl.Type, value string) 
 	if tt.Kind() == vdl.Enum {
 		enumIndex := tt.EnumIndex(value)
 		if enumIndex < 0 {
-			return verror.New(errLabelNotInType, nil, value, tt)
+			return errLabelNotInType(value, tt)
 		}
 		return e.nextFieldValue(index, tt, encodeUint{uint64(enumIndex)}.encode)
 	}

@@ -5,17 +5,12 @@
 package vom
 
 import (
+	"fmt"
 	"io"
 	"math"
 	"sync"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
-)
-
-var (
-	errEncodeTypeIDOverflow = verror.Register(".errEncodeTypeIDOverflow", verror.NoRetry, "{1:}{2:} vom: encoder type id overflow{:_}")
-	errUnhandledType        = verror.Register(".errUnhandledType", verror.NoRetry, "{1:}{2:} vom: encode unhandled type {3}{:_}")
 )
 
 // TypeEncoder manages the transmission and marshaling of types to the other
@@ -169,7 +164,7 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 		}
 		wt = wireTypeOptionalT{wireOptional{tt.Name(), elm}}
 	default:
-		panic(verror.New(errUnhandledType, nil, tt))
+		panic(fmt.Errorf("vom: encode unhandled type %v", tt))
 	}
 
 	// TODO(bprosnitz) Only perform the walk when there are cycles or otherwise optimize this
@@ -214,7 +209,7 @@ func (e *TypeEncoder) lookupOrAssignTypeID(tt *vdl.Type) (TypeId, bool, error) {
 	newID := e.nextID
 	if newID > math.MaxInt64 {
 		e.typeMu.Unlock()
-		return 0, false, verror.New(errEncodeTypeIDOverflow, nil)
+		return 0, false, fmt.Errorf("vom: encoder type id overflow")
 	}
 	e.nextID++
 	e.typeToID[tt] = newID
