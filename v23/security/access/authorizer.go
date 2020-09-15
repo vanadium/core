@@ -74,8 +74,8 @@ import (
 // to the "Set" and "SetIndex" methods. A peer presenting "alice:family:mom"
 // will get access to all methods.
 func PermissionsAuthorizer(perms Permissions, tagType *vdl.Type) (security.Authorizer, error) {
-	if tagType.Kind() != vdl.String {
-		return nil, errTagType(tagType)
+	if err := validateTagType(tagType); err != nil {
+		return nil, err
 	}
 	return &authorizer{perms, tagType}, nil
 }
@@ -96,10 +96,17 @@ func TypicalTagTypePermissionsAuthorizer(perms Permissions) security.Authorizer 
 // TODO(ashankar,ataly): Use inotify or a similar mechanism to watch for
 // changes.
 func PermissionsAuthorizerFromFile(filename string, tagType *vdl.Type) (security.Authorizer, error) {
-	if tagType.Kind() != vdl.String {
-		return nil, errTagType(tagType)
+	if err := validateTagType(tagType); err != nil {
+		return nil, err
 	}
 	return &fileAuthorizer{filename, tagType}, nil
+}
+
+func validateTagType(tt *vdl.Type) error {
+	if tt.Kind() != vdl.String {
+		return fmt.Errorf("tag type(%v) must be backed by a string not %v", tt, tt.Kind())
+	}
+	return nil
 }
 
 // PermissionsSpec represents a specification for permissions derived
@@ -142,10 +149,6 @@ func AuthorizerFromSpec(ps PermissionsSpec, name string, tagType *vdl.Type) (sec
 	return PermissionsAuthorizer(perms, tagType)
 }
 
-func errTagType(tt *vdl.Type) error {
-	return fmt.Errorf("tag type(%v) must be backed by a string not %v", tt, tt.Kind())
-}
-
 type authorizer struct {
 	perms   Permissions
 	tagType *vdl.Type
@@ -157,7 +160,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 	for _, tag := range call.MethodTags() {
 		if tag.Type() == a.tagType {
 			if hastag {
-				return fmt.Errorf("PermissionsAuthorizer on %v.%v cannot handle multiple tags of type %v (%v); this is likely unintentional", call.Suffix(), call.Method(), a.tagType, call.MethodTags())
+				return NewErrMultipleTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
 			}
 			hastag = true
 			if acl, exists := a.perms[tag.RawString()]; !exists || !acl.Includes(blessings...) {
@@ -166,7 +169,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 		}
 	}
 	if !hastag {
-		return fmt.Errorf("PermissionsAuthorizer.Authorize called on %v.%v, which has no tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType)
+		return NewErrNoTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
 	}
 	return nil
 }

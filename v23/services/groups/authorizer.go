@@ -9,28 +9,19 @@
 package groups
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
-)
-
-var (
-	errTagNeedsString     = verror.Register(".errTagNeedsString", verror.NoRetry, "{1:}{2:}tag type({3}) must be backed by a string not {4}{:_}")
-	errNoMethodTags       = verror.Register(".errNoMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer.Authorize called on {3}.{4}, which has no tags of type {5}; this is likely unintentional{:_}")
-	errMultipleMethodTags = verror.Register(".errMultipleMethodTags", verror.NoRetry, "{1:}{2:}PermissionsAuthorizer on {3}.{4} cannot handle multiple tags of type {5} ({6}); this is likely unintentional{:_}")
 )
 
 func PermissionsAuthorizer(perms access.Permissions, tagType *vdl.Type) (security.Authorizer, error) {
 	if tagType.Kind() != vdl.String {
-		return nil, errTagType(tagType)
+		return nil, fmt.Errorf("tag type(%v) must be backed by a string not %v", tagType, tagType.Kind())
 	}
 	return &authorizer{perms, tagType}, nil
-}
-
-func errTagType(tt *vdl.Type) error {
-	return verror.New(errTagNeedsString, nil, verror.New(errTagNeedsString, nil, tt, tt.Kind()))
 }
 
 type authorizer struct {
@@ -44,7 +35,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 	for _, tag := range call.MethodTags() {
 		if tag.Type() == a.tagType {
 			if hasTag {
-				return verror.New(errMultipleMethodTags, ctx, call.Suffix(), call.Method(), a.tagType, call.MethodTags())
+				return access.NewErrMultipleTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
 			}
 			hasTag = true
 			if acl, exists := a.perms[tag.RawString()]; !exists || !includes(ctx, acl, convertToSet(blessings...)) {
@@ -53,7 +44,7 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 		}
 	}
 	if !hasTag {
-		return verror.New(errNoMethodTags, ctx, call.Suffix(), call.Method(), a.tagType)
+		return access.NewErrNoTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
 	}
 	return nil
 }

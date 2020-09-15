@@ -173,5 +173,14 @@ error (
 
 	AccessTagCaveatValidation(methodTags []string, caveatTags []Tag){
 		"en": "access tags on method ({methodTags}) do not include any of the ones in the caveat ({caveatTags}), or the method is using a different tag type",
-	}
+  }
+
+  MultipleTags(suffix, method string, tag string) {
+    "en": "authorizer on {suffix}.{method} cannot handle multiple tags of type {tag}; this is likely unintentional",
+  }
+
+  NoTags(suffix, method string, tag string) {
+    "en": "authorizer on {suffix}.{method} has no tags of type {tag}; this is likely unintentional",
+  }
+
 )
