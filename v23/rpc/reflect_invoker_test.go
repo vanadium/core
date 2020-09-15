@@ -498,6 +498,7 @@ func TestReflectInvokerSignature(t *testing.T) {
 
 type (
 	badcall        struct{}
+	arbitraryCall  struct{}
 	noInitCall     struct{ rpc.ServerCall }
 	badInit1Call   struct{ rpc.ServerCall }
 	badInit2Call   struct{ rpc.ServerCall }
@@ -525,6 +526,8 @@ type (
 	badGlobChildren4 struct{}
 	badGlobChildren5 struct{}
 )
+
+func (arbitraryCall) SomeExportedCall() int { return 0 }
 
 //nolint:deadcode,unused
 func (badcall) notExported(*context.T, rpc.ServerCall) error { return nil }
@@ -631,7 +634,8 @@ func TestReflectInvokerPanic(t *testing.T) {
 	}
 	tests := []testcase{
 		{nil, `ReflectInvoker\(nil\) is invalid`},
-		{struct{}{}, "no compatible methods"},
+		{struct{}{}, "no exported methods"},
+		{arbitraryCall{}, "no compatible methods"},
 		{badcall{}, "invalid streaming call"},
 		{badoutargs{}, "final out-arg must be error"},
 		{badGlobber{}, "Globber must have signature"},

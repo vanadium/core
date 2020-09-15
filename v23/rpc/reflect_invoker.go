@@ -5,6 +5,8 @@
 package rpc
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
 	"sort"
 	"sync"
@@ -291,7 +293,7 @@ var reflectCache = &reflectRegistry{infoMap: make(map[reflect.Type]*reflectInfo)
 // returned information is always the same for all instances of a given type.
 func newReflectInfo(obj interface{}) (*reflectInfo, error) {
 	if obj == nil {
-		return nil, verror.New(errReflectInvokerNil, nil)
+		return nil, fmt.Errorf("rpc: ReflectInvoker(nil) is invalid")
 	}
 	// First make methodInfos, based on reflect.Type, which also captures the name
 	// and in, out and streaming types of each method in methodSigs.  This
@@ -304,16 +306,17 @@ func newReflectInfo(obj interface{}) (*reflectInfo, error) {
 		return nil, err
 	case len(methodInfos) == 0 && determineGlobState(obj) == nil:
 		if m := TypeCheckMethods(obj); len(m) > 0 {
-			return nil, verror.New(errNoCompatibleMethods, nil, rt, TypeCheckMethods(obj))
+			return nil,
+				fmt.Errorf("rpc: type %v has no compatible methods: available methods are %v", rt, TypeCheckMethods(obj))
 		}
-		return nil, verror.New(errNoCompatibleMethods, nil, rt, "no exported methods")
+		return nil, fmt.Errorf("rpc: type %v has no exported methods", rt)
 	}
 	// Now attach method tags to each methodInfo.  Since this is based on the desc
 	// provided by the user, there's no guarantee it's "correct", but if the same
 	// method is described by multiple interfaces, we check the tags are the same.
 	desc := describe(obj)
 	if err := attachMethodTags(methodInfos, desc); verror.ErrorID(err) == verror.ErrAborted.ID {
-		return nil, verror.New(errTagError, nil, rt, err)
+		return nil, fmt.Errorf("rpc: type %v tag error: %v", rt, err)
 	}
 	// Finally create the signature.  This combines the desc provided by the user
 	// with the methodSigs computed via reflection.  We ensure that the method
@@ -349,7 +352,11 @@ func makeMethods(rt reflect.Type) (map[string]methodInfo, map[string]signature.M
 		var sig signature.Method
 		if err := typeCheckMethod(method, &sig); err != nil {
 			if verror.ErrorID(err) == verror.ErrAborted.ID {
-				return nil, nil, verror.New(errAbortedDetail, nil, rt.String(), method.Name, err)
+				if ue := errors.Unwrap(err); ue != nil {
+					// A much less noisy error message.
+					return nil, nil, ue
+				}
+				return nil, nil, err
 			}
 			continue
 		}
@@ -376,8 +383,8 @@ func makeMethodInfo(method reflect.Method) methodInfo {
 	return info
 }
 
-func abortedf(embeddedErr verror.IDAction, v ...interface{}) error {
-	return verror.New(verror.ErrAborted, nil, verror.New(embeddedErr, nil, v...))
+func abortedf(err error) error {
+	return verror.New(verror.ErrAborted, nil, err)
 }
 
 const (
@@ -401,39 +408,20 @@ var (
 	// ReflectInvoker will panic iff the error is Aborted, otherwise it will
 	// silently ignore the error.
 
-	// These errors are not embedded in other errors.
-	errReflectInvokerNil   = verror.Register(".errReflectInvokerNil", verror.NoRetry, "{1:}{2:}rpc: ReflectInvoker(nil) is invalid{:_}")
-	errNoCompatibleMethods = verror.Register(".errNoCompatibleMethods", verror.NoRetry, "{1:}{2:}rpc: type {3} has no compatible methods{:_}")
-	errTagError            = verror.Register(".errTagError", verror.NoRetry, "{1:}{2:}rpc: type {3} tag error{:_}")
-	errAbortedDetail       = verror.Register(".errAbortedDetail", verror.NoRetry, "{1:}{2:}rpc: type {3}.{4}{:_}")
-
 	// These errors are embedded in verror.ErrInternal:
-	errReservedMethod = verror.Register(".errReservedMethod", verror.NoRetry, "{1:}{2:}Reserved method{:_}")
-
-	// These errors are embedded in verror.ErrBadArg:
-	errMethodNotExported = verror.Register(".errMethodNotExported", verror.NoRetry, "{1:}{2:}Method not exported{:_}")
-	errNonRPCMethod      = verror.Register(".errNonRPCMethod", verror.NoRetry, "{1:}{2:}Non-rpc method, at least 2 in-args are required, with first arg *context.T."+useCall+"{:_}")
+	errReservedMethod = errors.New("Reserved method")
 
 	// These errors are expected to be embedded in verror.Aborted, via abortedf():
-	errNoFinalErrorOutArg = verror.Register(".errNoFinalErrorOutArg", verror.NoRetry, "{1:}{2:}Invalid out-args (final out-arg must be error){:_}")
-	errBadDescribe        = verror.Register(".errBadDescribe", verror.NoRetry, "{1:}{2:}Describe__ must have signature Describe__() []rpc.InterfaceDesc{:_}")
-	errBadGlobber         = verror.Register(".errBadGlobber", verror.NoRetry, "{1:}{2:}Globber must have signature Globber() *rpc.GlobState{:_}")
-	errBadGlob            = verror.Register(".errBadGlob", verror.NoRetry, "{1:}{2:}Glob__ must have signature Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error{:_}")
-	errBadGlobChildren    = verror.Register(".errBadGlobChildren", verror.NoRetry, "{1:}{2:}GlobChildren__ must have signature GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error{:_}")
-
-	errNeedStreamingCall       = verror.Register(".errNeedStreamingCall", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must be pointer to a struct representing the typesafe streaming call."+forgotWrap+"{:_}")
-	errNeedInitMethod          = verror.Register(".errNeedInitMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have Init method."+forgotWrap+"{:_}")
-	errNeedSigFunc             = verror.Register(".errNeedNeedSigFunc", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; Init must have signature func (*) Init(rpc.StreamServerCall)."+forgotWrap+"{:_}")
-	errNeedStreamMethod        = verror.Register(".errNeedStreamMethod", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; must have at least one of RecvStream or SendStream methods."+forgotWrap+"{:_}")
-	errInvalidInStream         = verror.Register(".errInvalidInStream", verror.NoRetry, "{1:}{2:}Invalid in-stream type{:_}")
-	errInvalidOutStream        = verror.Register(".errInvalidOutStream", verror.NoRetry, "{1:}{2:}Invalid out-stream type{:_}")
-	errNeedRecvStreamSignature = verror.Register(".errNeedRecvStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; RecvStream must have signature func (*) RecvStream() interface{ Advance() bool; Value() _; Err() error }."+forgotWrap+"{:_}")
-	errNeedSendStreamSignature = verror.Register(".errNeedSendStreamSignature", verror.NoRetry, "{1:}{2:}Call arg %s is invalid streaming call; SendStream must have signature func (*) SendStream() interface{ Send(_) error }."+forgotWrap+"{:_}")
-	errInvalidInArg            = verror.Register(".errInvalidInArg", verror.NoRetry, "{1:}{2:}Invalid in-arg {3} type{:_}")
-	errInvalidOutArg           = verror.Register(".errInvalidOutArg", verror.NoRetry, "{1:}{2:}Invalid out-arg {3} type{:_}")
-	errDifferentTags           = verror.Register(".errDifferentTags", verror.NoRetry, "{1:}{2:}different tags {3} and {4}{:_}")
-	errUnknown                 = verror.Register(".errUnknown", verror.NoRetry, "{1:}{2:}method {3}{:_}")
+	errNoFinalErrorOutArg = errors.New("Invalid out-args (final out-arg must be error")
+	errBadDescribe        = errors.New("Describe__ must have signature Describe__() []rpc.InterfaceDesc")
+	errBadGlobber         = errors.New("Globber must have signature Globber() *rpc.GlobState")
+	errBadGlob            = errors.New("Glob__ must have signature Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error")
+	errBadGlobChildren    = errors.New("GlobChildren__ must have signature GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error")
 )
+
+func errNonRPCMethod(name string) error {
+	return fmt.Errorf("Non-rpc method %s, at least 2 in-args are required, with first arg *context.T.%s", name, useCall)
+}
 
 func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 	if err := typeCheckReservedMethod(method); err != nil {
@@ -441,13 +429,13 @@ func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 	}
 	// Unexported methods always have a non-empty pkg path.
 	if method.PkgPath != "" {
-		return verror.New(verror.ErrBadArg, nil, verror.New(errMethodNotExported, nil))
+		return verror.New(verror.ErrBadArg, nil, fmt.Errorf("Method %s not exported", method.Name))
 	}
 	sig.Name = method.Name
 	mtype := method.Type
 	// Method must have at least 3 in args (receiver, ctx, call).
 	if in := mtype.NumIn(); in < 3 || mtype.In(1) != rtPtrToContext {
-		return verror.New(verror.ErrBadArg, nil, verror.New(errNonRPCMethod, nil))
+		return verror.New(verror.ErrBadArg, nil, errNonRPCMethod(method.Name))
 	}
 	switch in2 := mtype.In(2); {
 	case in2 == rtStreamServerCall:
@@ -470,7 +458,7 @@ func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 			return err
 		}
 	default:
-		return verror.New(verror.ErrBadArg, nil, verror.New(errNonRPCMethod, nil))
+		return verror.New(verror.ErrBadArg, nil, errNonRPCMethod(method.Name))
 	}
 	return typeCheckMethodArgs(mtype, sig)
 }
@@ -483,14 +471,14 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtSliceOfInterfaceDesc {
 			return abortedf(errBadDescribe)
 		}
-		return verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil))
+		return verror.New(verror.ErrInternal, nil, errReservedMethod)
 	case "Globber":
 		// Globber() *GlobState
 		if t := method.Type; t.NumIn() != 1 || t.NumOut() != 1 ||
 			t.Out(0) != rtPtrToGlobState {
 			return abortedf(errBadGlobber)
 		}
-		return verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil))
+		return verror.New(verror.ErrInternal, nil, errReservedMethod)
 	case "Glob__":
 		// Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error
 		if t := method.Type; t.NumIn() != 4 || t.NumOut() != 1 ||
@@ -498,7 +486,7 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtError {
 			return abortedf(errBadGlob)
 		}
-		return verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil))
+		return verror.New(verror.ErrInternal, nil, errReservedMethod)
 	case "GlobChildren__":
 		// GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error
 		if t := method.Type; t.NumIn() != 4 || t.NumOut() != 1 ||
@@ -506,36 +494,44 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtError {
 			return abortedf(errBadGlobChildren)
 		}
-		return verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil))
+		return verror.New(verror.ErrInternal, nil, errReservedMethod)
 	}
 	return nil
+}
+
+func errNeedRecvStreamSignature(arg reflect.Type) error {
+	return fmt.Errorf("Call arg %s is invalid streaming call; RecvStream must have signature func (*) RecvStream() interface{ Advance() bool; Value() _; Err() error }.%s", arg, forgotWrap)
+}
+
+func errNeedSendStreamSignature(arg reflect.Type) error {
+	return fmt.Errorf("Call arg %s is invalid streaming call; SendStream must have signature func (*) SendStream() interface{ Send(_) error }.%s", arg, forgotWrap)
 }
 
 func typeCheckStreamingCall(rtCall reflect.Type, sig *signature.Method) error { //nolint:gocyclo
 	// The call must be a pointer to a struct.
 	if rtCall.Kind() != reflect.Ptr || rtCall.Elem().Kind() != reflect.Struct {
-		return abortedf(errNeedStreamingCall, rtCall)
+		return abortedf(fmt.Errorf("Call arg %s is invalid streaming call; must be pointer to a struct representing the typesafe streaming call.%s", rtCall, forgotWrap))
 	}
 	// Must have Init(rpc.StreamServerCall) method.
 	mInit, hasInit := rtCall.MethodByName("Init")
 	if !hasInit {
-		return abortedf(errNeedInitMethod, rtCall)
+		return abortedf(fmt.Errorf("Call arg %s is invalid streaming call; must have Init method.%s", rtCall, forgotWrap))
 	}
 	if t := mInit.Type; t.NumIn() != 2 || t.In(0).Kind() != reflect.Ptr || t.In(1) != rtStreamServerCall || t.NumOut() != 0 {
-		return abortedf(errNeedSigFunc, rtCall)
+		return abortedf(fmt.Errorf("Call arg %s is invalid streaming call; Init must have signature func (*) Init(rpc.StreamServerCall).%s", rtCall, forgotWrap))
 	}
 	// Must have either RecvStream or SendStream method, or both.
 	mRecvStream, hasRecvStream := rtCall.MethodByName("RecvStream")
 	mSendStream, hasSendStream := rtCall.MethodByName("SendStream")
 	if !hasRecvStream && !hasSendStream {
-		return abortedf(errNeedStreamMethod, rtCall)
+		return abortedf(fmt.Errorf("Call arg %s is invalid streaming call; must have at least one of RecvStream or SendStream methods.%s", rtCall, forgotWrap))
 	}
 	if hasRecvStream {
 		// func (*) RecvStream() interface{ Advance() bool; Value() _; Err() error }
 		tRecv := mRecvStream.Type
 		if tRecv.NumIn() != 1 || tRecv.In(0).Kind() != reflect.Ptr ||
 			tRecv.NumOut() != 1 || tRecv.Out(0).Kind() != reflect.Interface {
-			return abortedf(errNeedRecvStreamSignature, rtCall)
+			return abortedf(errNeedRecvStreamSignature(rtCall))
 		}
 		mA, hasA := tRecv.Out(0).MethodByName("Advance")
 		mV, hasV := tRecv.Out(0).MethodByName("Value")
@@ -545,11 +541,11 @@ func typeCheckStreamingCall(rtCall reflect.Type, sig *signature.Method) error { 
 			tA.NumIn() != 0 || tA.NumOut() != 1 || tA.Out(0) != rtBool ||
 			tV.NumIn() != 0 || tV.NumOut() != 1 || // tV.Out(0) is in-stream type
 			tE.NumIn() != 0 || tE.NumOut() != 1 || tE.Out(0) != rtError {
-			return abortedf(errNeedRecvStreamSignature, rtCall)
+			return abortedf(errNeedRecvStreamSignature(rtCall))
 		}
 		inType, err := vdl.TypeFromReflect(tV.Out(0))
 		if err != nil {
-			return abortedf(errInvalidInStream, err)
+			return abortedf(fmt.Errorf("Invalid in-stream type: %v", err))
 		}
 		sig.InStream = &signature.Arg{Type: inType}
 	}
@@ -558,18 +554,18 @@ func typeCheckStreamingCall(rtCall reflect.Type, sig *signature.Method) error { 
 		tSend := mSendStream.Type
 		if tSend.NumIn() != 1 || tSend.In(0).Kind() != reflect.Ptr ||
 			tSend.NumOut() != 1 || tSend.Out(0).Kind() != reflect.Interface {
-			return abortedf(errNeedSendStreamSignature, rtCall)
+			return abortedf(errNeedSendStreamSignature(rtCall))
 		}
 		mS, hasS := tSend.Out(0).MethodByName("Send")
 		tS := mS.Type
 		if !hasS ||
 			tS.NumIn() != 1 || // tS.In(0) is out-stream type
 			tS.NumOut() != 1 || tS.Out(0) != rtError {
-			return abortedf(errNeedSendStreamSignature, rtCall)
+			return abortedf(errNeedSendStreamSignature(rtCall))
 		}
 		outType, err := vdl.TypeFromReflect(tS.In(0))
 		if err != nil {
-			return abortedf(errInvalidOutStream, err)
+			return abortedf(fmt.Errorf("Invalid out-stream type: %v", err))
 		}
 		sig.OutStream = &signature.Arg{Type: outType}
 	}
@@ -581,19 +577,19 @@ func typeCheckMethodArgs(mtype reflect.Type, sig *signature.Method) error {
 	for index := 3; index < mtype.NumIn(); index++ {
 		vdlType, err := vdl.TypeFromReflect(mtype.In(index))
 		if err != nil {
-			return abortedf(errInvalidInArg, index, err)
+			return abortedf(fmt.Errorf("Invalid in-arg %v type: %v", index, err))
 		}
 		sig.InArgs = append(sig.InArgs, signature.Arg{Type: vdlType})
 	}
 	// The out-args must contain a final error argument, which is handled
 	// specially by the framework.
 	if mtype.NumOut() == 0 || mtype.Out(mtype.NumOut()-1) != rtError {
-		return abortedf(errNoFinalErrorOutArg)
+		return abortedf(fmt.Errorf("Invalid out-args (final out-arg must be error)"))
 	}
 	for index := 0; index < mtype.NumOut()-1; index++ {
 		vdlType, err := vdl.TypeFromReflect(mtype.Out(index))
 		if err != nil {
-			return abortedf(errInvalidOutArg, index, err)
+			return abortedf(fmt.Errorf("Invalid out-arg %v type: %v", index, err))
 		}
 		sig.OutArgs = append(sig.OutArgs, signature.Arg{Type: vdlType})
 	}
@@ -693,7 +689,7 @@ func extractTagsForMethod(desc []InterfaceDesc, name string) ([]*vdl.Value, erro
 					seenFirst = true
 					first = tags
 				case !equalTags(first, tags):
-					return nil, abortedf(errDifferentTags, first, tags)
+					return nil, abortedf(fmt.Errorf("different tags %v and %v", first, tags))
 				}
 			}
 		}
@@ -719,7 +715,7 @@ func attachMethodTags(infos map[string]methodInfo, desc []InterfaceDesc) error {
 	for name, info := range infos {
 		tags, err := extractTagsForMethod(desc, name)
 		if err != nil {
-			return abortedf(errUnknown, name, err)
+			return abortedf(fmt.Errorf("method %v: %v", name, err))
 		}
 		info.tags = tags
 		infos[name] = info

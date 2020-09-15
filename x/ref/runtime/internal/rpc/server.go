@@ -134,17 +134,19 @@ func WithNewDispatchingServer(ctx *context.T,
 			authorizedPeers = []security.BlessingPattern(opt)
 			if len(authorizedPeers) == 0 {
 				s.cancel()
-				return origCtx, nil, verror.New(verror.ErrBadArg, ctx, newErrServerPeersEmpty(ctx))
-			}
-			if len(name) != 0 {
-				// TODO(ataly, ashankar): Since the server's blessing names are revealed to the
-				// mounttable via the server's endpoint, we forbid servers created with the
-				// ServerPeers option from publishing themselves. We should relax this restriction
-				// and instead check: (1) the mounttable is in the set of peers authorized by the
-				// server, and (2) the mounttable reveals the server's endpoint to only the set
-				// of authorized peers. (2) can be enforced using Resolve ACLs.
-				s.cancel()
-				return origCtx, nil, verror.New(verror.ErrBadArg, ctx, newErrServerPeersWithPublishing(ctx))
+				return origCtx, nil, verror.New(verror.ErrBadArg, ctx,
+					fmt.Errorf("no peers are authorized to communicate with the server"))
+				if len(name) != 0 {
+					// TODO(ataly, ashankar): Since the server's blessing names are revealed to the
+					// mounttable via the server's endpoint, we forbid servers created with the
+					// ServerPeers option from publishing themselves. We should relax this restriction
+					// and instead check: (1) the mounttable is in the set of peers authorized by the
+					// server, and (2) the mounttable reveals the server's endpoint to only the set
+					// of authorized peers. (2) can be enforced using Resolve ACLs.
+					s.cancel()
+					return origCtx, nil, verror.New(verror.ErrBadArg, ctx,
+						fmt.Errorf("serverPeers option is not supported for servers that publish their endpoint at a mounttable"))
+				}
 			}
 		case IdleConnectionExpiry:
 			connIdleExpiry = time.Duration(opt)
@@ -638,7 +640,8 @@ func authorize(ctx *context.T, call security.Call, auth security.Authorizer) err
 		auth = security.DefaultAuthorizer()
 	}
 	if err := auth.Authorize(ctx, call); err != nil {
-		nerr := verror.New(verror.ErrNoAccess, ctx, newErrBadAuth(ctx, call.Suffix(), call.Method(), err))
+		nerr := verror.New(verror.ErrNoAccess, ctx,
+			fmt.Errorf("not authorized to call %v.%v: %v", call.Suffix(), call.Method(), err))
 		return nerr
 	}
 	return nil
@@ -709,7 +712,8 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	// Decode the initial request.
 	var req rpc.Request
 	if err := fs.dec.Decode(&req); err != nil {
-		return nil, verror.New(verror.ErrBadProtocol, ctx, newErrBadRequest(ctx, err))
+		return nil, verror.New(verror.ErrBadProtocol, ctx,
+			fmt.Errorf("failed to decode request: %v", err))
 	}
 	return &req, nil
 }
@@ -807,14 +811,14 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		fs.drainDecoderArgs(numArgs) //nolint:errcheck
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
-		return ctx, nil, newErrBadNumInputArgs(ctx, fs.suffix, fs.method, called, want)
+		return ctx, nil, errBadNumInputArgs.Errorf(ctx, "wrong number of input arguments for %v.%v (called with {%v} args, want {%v})", fs.suffix, fs.method, called, want)
 	}
 	for ix, argptr := range argptrs {
 		if err := fs.dec.Decode(argptr); err != nil {
 			tr.LazyPrintf("%s\n", err)
 			tr.SetError()
 
-			return ctx, nil, newErrBadInputArg(ctx, fs.suffix, fs.method, uint64(ix), err)
+			return ctx, nil, errBadInputArg.Errorf(ctx, "method %v.%v has bad arg #%v: %v", fs.suffix, fs.method, uint64(ix), err)
 		}
 	}
 

@@ -221,15 +221,15 @@ func TestTypeCheckMethods(t *testing.T) {
 			"Delta":      "",
 			"Epsilon":    "",
 			"Error":      "",
-			"Describe__": verror.New(verror.ErrInternal, nil, verror.New(errReservedMethod, nil)).Error(),
+			"Describe__": verror.New(verror.ErrInternal, nil, errReservedMethod).Error(),
 		}},
 		{badcall{}, map[string]string{
-			"NonRPC1":    verror.New(errNonRPCMethod, nil).Error(),
-			"NonRPC2":    verror.New(errNonRPCMethod, nil).Error(),
-			"NonRPC3":    verror.New(errNonRPCMethod, nil).Error(),
-			"NonRPC4":    verror.New(errNonRPCMethod, nil).Error(),
-			"NonRPC5":    verror.New(errNonRPCMethod, nil).Error(),
-			"NonRPC6":    verror.New(errNonRPCMethod, nil).Error(),
+			"NonRPC1":    errNonRPCMethod("NonRPC1").Error(),
+			"NonRPC2":    errNonRPCMethod("NonRPC2").Error(),
+			"NonRPC3":    errNonRPCMethod("NonRPC3").Error(),
+			"NonRPC4":    errNonRPCMethod("NonRPC4").Error(),
+			"NonRPC5":    errNonRPCMethod("NonRPC5").Error(),
+			"NonRPC6":    errNonRPCMethod("NonRPC6").Error(),
 			"NoInit":     "must have Init method",
 			"BadInit1":   badInit,
 			"BadInit2":   badInit,
@@ -243,52 +243,52 @@ func TestTypeCheckMethods(t *testing.T) {
 			"BadRecv3":   badRecv,
 		}},
 		{badoutargs{}, map[string]string{
-			"NoFinalError1": verror.New(verror.ErrAborted, nil, verror.New(errNoFinalErrorOutArg, nil)).Error(),
-			"NoFinalError2": verror.New(verror.ErrAborted, nil, verror.New(errNoFinalErrorOutArg, nil)).Error(),
-			"NoFinalError3": verror.New(verror.ErrAborted, nil, verror.New(errNoFinalErrorOutArg, nil)).Error(),
-			"NoFinalError4": verror.New(verror.ErrAborted, nil, verror.New(errNoFinalErrorOutArg, nil)).Error(),
+			"NoFinalError1": verror.New(verror.ErrAborted, nil, errNoFinalErrorOutArg).Error(),
+			"NoFinalError2": verror.New(verror.ErrAborted, nil, errNoFinalErrorOutArg).Error(),
+			"NoFinalError3": verror.New(verror.ErrAborted, nil, errNoFinalErrorOutArg).Error(),
+			"NoFinalError4": verror.New(verror.ErrAborted, nil, errNoFinalErrorOutArg).Error(),
 		}},
 		{badGlobber{}, map[string]string{
-			"Globber": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobber, nil)).Error(),
+			"Globber": verror.New(verror.ErrAborted, nil, errBadGlobber).Error(),
 		}},
 		{badGlob1{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob2{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob3{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob4{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob5{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob6{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlob7{}, map[string]string{
-			"Glob__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlob, nil)).Error(),
+			"Glob__": verror.New(verror.ErrAborted, nil, errBadGlob).Error(),
 		}},
 		{badGlobChildren1{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 		{badGlobChildren2{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 		{badGlobChildren3{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 		{badGlobChildren4{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 		{badGlobChildren5{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 		{badGlobChildren6{}, map[string]string{
-			"GlobChildren__": verror.New(verror.ErrAborted, nil, verror.New(errBadGlobChildren, nil)).Error(),
+			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 	}
 	for _, test := range tests {

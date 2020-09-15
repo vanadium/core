@@ -43,6 +43,12 @@ var (
 	errResultDecoding            = verror.NewID("errResultDecoding")
 	errRemainingStreamResults    = verror.NewID("errRemaingStreamResults")
 	errPeerAuthorizeFailed       = verror.NewID("errPeerAuthorizedFailed")
+	errTypeFlowFailure           = verror.NewID("errTypeFlowFailure")
+
+	// These were originally defined in vdl and hence the same IDs that
+	// vdl would generate must be used here to ensure backwards compatibility.
+	errBadNumInputArgs = verror.NewID("rpc.badNumInputArgs")
+	errBadInputArg     = verror.NewID("rpc.badInputArg")
 )
 
 func isTimeout(err error) bool {
@@ -477,7 +483,7 @@ func (c *client) tryConnectToServer(
 
 	status.typeEnc, status.typeDec, err = c.typeCache.get(ctx, flw.Conn())
 	if err != nil {
-		status.serverErr = suberr(newErrTypeFlowFailure(ctx, err))
+		status.serverErr = suberr(errTypeFlowFailure.Errorf(ctx, "type flow could not be constructed: %v", err))
 		flw.Close()
 		return
 	}
@@ -657,7 +663,7 @@ func (fc *flowClient) close(err error) error {
 		}
 	}
 	switch verror.ErrorID(err) {
-	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID, errBadNumInputArgs.ID:
+	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID, errBadNumInputArgs.ID, errBadInputArg.ID:
 		return verror.New(verror.ErrBadProtocol, fc.ctx, err)
 	}
 	return err
