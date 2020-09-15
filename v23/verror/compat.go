@@ -59,35 +59,30 @@ func (se subErrChain) Unwrap() error {
 }
 
 // Unwrap implements the Unwrap method as expected by errors.Unwrap. It returns
-// both chained errors (ie. those passed as arguments to New or ExplicitNew)
-// and SubErr's added via AddSubErr.
+// verror.SubErrors followed by any error recorded with %w for Errorf or the
+// last argument to Message, New or ExplicitNew.
 func (e E) Unwrap() error {
-	size := 0
-	for i := range e.ParamList {
-		if subErrsParam, isSubErrs := e.ParamList[i].(SubErrs); isSubErrs {
-			size += len(subErrsParam)
-		}
-		if _, isChainedErr := e.ParamList[i].(error); isChainedErr {
-			size++
+	r := []error{}
+	for _, p := range e.ParamList {
+		switch se := p.(type) {
+		case SubErrs:
+			for _, s := range se {
+				r = append(r, s)
+			}
+		case SubErr:
+			r = append(r, se)
+		case *SubErr:
+			r = append(r, se)
 		}
 	}
-	if size != 0 {
-		r := make([]error, 0, size)
-		for i := range e.ParamList {
-			if subErrsParam, isSubErrs := e.ParamList[i].(SubErrs); isSubErrs {
-				for _, subErr := range subErrsParam {
-					r = append(r, subErr)
-				}
-			}
-			if chainedErr, isChainedErr := e.ParamList[i].(error); isChainedErr {
-				r = append(r, chainedErr)
-
-			}
-		}
-		return subErrChain{
-			err:  r[0],
-			rest: r[1:],
-		}
+	if e.unwrap != nil {
+		r = append(r, e.unwrap)
 	}
-	return nil
+	if len(r) == 0 {
+		return nil
+	}
+	return subErrChain{
+		err:  r[0],
+		rest: r[1:],
+	}
 }

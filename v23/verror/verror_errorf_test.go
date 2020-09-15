@@ -29,7 +29,7 @@ func TestErrorf(t *testing.T) {
 	ctx, _ = vtrace.WithNewSpan(ctx, "op")
 	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
 	err := myerr.Errorf(ctx, "my error %v", fmt.Errorf("oops"))
-	if got, want := err.Error(), "v.io/v23/verror.myerr: component:op: my error oops"; got != want {
+	if got, want := err.Error(), "component:op: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
@@ -48,7 +48,7 @@ func TestErrorf(t *testing.T) {
 	}
 
 	err = verror.Errorf(nil, "my error %v", fmt.Errorf("oops"))
-	if got, want := err.Error(), "v.io/v23/verror.Unknown: verror.test: my error oops"; got != want {
+	if got, want := err.Error(), "verror.test: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	nerr := verror.AddSubErrs(err, nil, verror.SubErr{
@@ -69,7 +69,7 @@ func TestMessage(t *testing.T) {
 	myerr := verror.NewIDAction("myerr", verror.RetryBackoff)
 	nerr := fmt.Errorf("oops")
 	err := myerr.Message(ctx, fmt.Sprintf("my error %v in some language", nerr), nerr)
-	if got, want := err.Error(), "v.io/v23/verror.myerr: component:op: my error oops in some language"; got != want {
+	if got, want := err.Error(), "component:op: my error oops in some language"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ID("v.io/v23/verror.myerr"); got != want {
@@ -80,7 +80,7 @@ func TestMessage(t *testing.T) {
 	}
 
 	err = verror.Message(nil, fmt.Sprintf("my error %v in some language", nerr), nerr)
-	if got, want := err.Error(), "v.io/v23/verror.Unknown: verror.test: my error oops in some language"; got != want {
+	if got, want := err.Error(), "verror.test: my error oops in some language"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := verror.ErrorID(err), verror.ErrUnknown.ID; got != want {
@@ -166,10 +166,9 @@ func TestUnwrap(t *testing.T) {
 	p2 := verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, "something", se2)
 	err = verror.AddSubErrs(p2, nil, s1, s2)
 	for i, tc := range []string{
-		se1.Error(),
-		se2.Error(),
 		s1.Error(),
 		s2.Error(),
+		se2.Error(),
 	} {
 		err = errors.Unwrap(err)
 		if got, want := err.Error(), tc; got != want {
@@ -180,9 +179,7 @@ func TestUnwrap(t *testing.T) {
 
 	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, s1, se2, s2)
 	for i, tc := range []string{
-		se1.Error(),
 		s1.Error(),
-		se2.Error(),
 		s2.Error(),
 	} {
 		err = errors.Unwrap(err)
@@ -192,19 +189,42 @@ func TestUnwrap(t *testing.T) {
 	}
 	assertUnwrapDone(err)
 
-	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", s1, se1, se2, s2)
+	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", s2, se1, se2, s1)
 	for i, tc := range []string{
-		s1.Error(),
-		se1.Error(),
-		se2.Error(),
 		s2.Error(),
+		s1.Error(),
 	} {
 		err = errors.Unwrap(err)
 		if got, want := err.Error(), tc; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 	}
+	assertUnwrapDone(err)
 
+	err = idActionA.Errorf(nil, "my errors: %w %v", os.ErrNotExist, os.ErrExist)
+	for i, tc := range []string{
+		os.ErrNotExist.Error(),
+	} {
+		err = errors.Unwrap(err)
+		if got, want := err.Error(), tc; got != want {
+			t.Errorf("%v: got %v, want %v", i, got, want)
+		}
+	}
+	assertUnwrapDone(err)
+
+	err = idActionA.Errorf(nil, "my errors: %w %v", os.ErrNotExist, os.ErrExist)
+	err = verror.WithSubErrors(err, s2, s1)
+	for i, tc := range []string{
+		s2.Error(),
+		s1.Error(),
+		os.ErrNotExist.Error(),
+	} {
+		err = errors.Unwrap(err)
+		if got, want := err.Error(), tc; got != want {
+			t.Errorf("%v: got %v, want %v", i, got, want)
+		}
+	}
+	assertUnwrapDone(err)
 }
 
 func TestRegister(t *testing.T) {
@@ -219,12 +239,34 @@ func TestRegister(t *testing.T) {
 	}
 
 	e1 = verror.NewIDAction(".err1", verror.NoRetry)
-	e2 = verror.NewIDAction("err1", verror.NoRetry)
+	e2 = verror.NewID("err1")
 	e3 = verror.NewIDAction("v.io/v23/verror.err1", verror.NoRetry)
 	if got, want := e1.ID, e2.ID; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := e1.ID, e3.ID; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestWithSubErrs(t *testing.T) {
+	tl := verror.NewIDAction(".errTL", verror.RetryBackoff)
+	s1 := fmt.Errorf("oops")
+	s2 := os.ErrExist
+	s3 := verror.SubErr{
+		Name:    "suberr",
+		Err:     fmt.Errorf("a network errror"),
+		Options: verror.Print,
+	}
+
+	err := verror.WithSubErrors(
+		tl.Errorf(nil, "on my an error: %v", os.ErrNotExist),
+		s1,
+		s2,
+		s3,
+	)
+
+	if got, want := err.Error(), "verror.test: on my an error: file does not exist oops file already exists [suberr: a network errror]"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }

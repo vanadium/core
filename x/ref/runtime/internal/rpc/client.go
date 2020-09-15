@@ -34,13 +34,6 @@ const (
 	reconnectDelay = 50 * time.Millisecond
 )
 
-func reg(id, msg string) verror.IDAction {
-	// Note: the error action is never used and is instead computed
-	// at a higher level. The errors here are purely for informational
-	// purposes.
-	return verror.Register(verror.ID(id), verror.NoRetry, msg)
-}
-
 var (
 	errClientCloseAlreadyCalled  = verror.NewID("errCloseAlreadyCalled")
 	errClientFinishAlreadyCalled = verror.NewID("errFinishAlreadyCalled")
@@ -664,7 +657,7 @@ func (fc *flowClient) close(err error) error {
 		}
 	}
 	switch verror.ErrorID(err) {
-	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID:
+	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID, errBadNumInputArgs.ID:
 		return verror.New(verror.ErrBadProtocol, fc.ctx, err)
 	}
 	return err
@@ -864,8 +857,7 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	// Incorporate any VTrace info that was returned.
 	vtrace.GetStore(fc.ctx).Merge(fc.response.TraceResponse)
 	if fc.response.Error != nil {
-		id := verror.ErrorID(fc.response.Error)
-		if id == verror.ErrNoAccess.ID {
+		if verror.ErrorID(fc.response.Error) == verror.ErrNoAccess.ID {
 			// In case the error was caused by a bad discharge, we do not want to get stuck
 			// with retrying again and again with this discharge. As there is no direct way
 			// to detect it, we conservatively flush all discharges we used from the cache.
@@ -878,10 +870,10 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 			fc.ctx.VI(3).Infof("Discarding %d discharges as RPC failed with %v", l, fc.response.Error)
 			v23.GetPrincipal(fc.ctx).BlessingStore().ClearDischarges(dis...)
 		}
-		if id == errBadNumInputArgs.ID || id == errBadInputArg.ID {
-			return fc.close(verror.New(verror.ErrBadProtocol, fc.ctx, fc.response.Error))
+		if verror.IsAny(fc.response.Error) {
+			return fc.close(fc.response.Error)
 		}
-		return fc.close(verror.Convert(verror.ErrInternal, fc.ctx, fc.response.Error))
+		return fc.close(verror.ErrInternal.Errorf(fc.ctx, "Internal error: %v", fc.response.Error))
 	}
 	if got, want := fc.response.NumPosResults, uint64(len(resultptrs)); got != want {
 		suberr := fmt.Errorf("got %v results, but want %v", got, want)

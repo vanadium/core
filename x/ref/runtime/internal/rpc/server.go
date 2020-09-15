@@ -34,20 +34,6 @@ import (
 	"v.io/x/ref/runtime/internal/flow/manager"
 )
 
-var (
-	// TODO(suharshs,mattr): Make these vdl errors.
-	// These errors are intended to be used as arguments to higher
-	// level errors and hence {1}{2} is omitted from their format
-	// strings to avoid repeating these n-times in the final error
-	// message visible to the user.
-	errResponseEncoding          = reg(".errResponseEncoding", "failed to encode RPC response {3} <-> {4}{:5}")
-	errResultEncoding            = reg(".errResultEncoding", "failed to encode result #{3} [{4}]{:5}")
-	errFailedToResolveToEndpoint = reg(".errFailedToResolveToEndpoint", "failed to resolve {3} to an endpoint")
-	errUnexpectedSuffix          = reg(".errUnexpectedSuffix", "suffix {3} was not expected because either server has the option IsLeaf set to true or it served an object and not a dispatcher")
-	errBlessingsNotBound         = reg(".errBlessingNotBound", "blessing granted not bound to this server({3} vs {4})")
-	errNilObject                 = reg(".errNilObject", "nil object can't be invoked")
-)
-
 const (
 	bidiProtocol     = "bidi"
 	relistenInterval = time.Second
@@ -363,7 +349,7 @@ func (s *server) resolveToEndpoint(ctx *context.T, address string) ([]naming.End
 	if len(eps) > 0 {
 		return eps, nil
 	}
-	return nil, verror.New(errFailedToResolveToEndpoint, s.ctx, address)
+	return nil, errNoCompatibleServers.Errorf(nil, "failed to resolve %v to an endpoint", address)
 }
 
 // createEndpoint adds server publishing information to the ep from the manager.
@@ -652,7 +638,8 @@ func authorize(ctx *context.T, call security.Call, auth security.Authorizer) err
 		auth = security.DefaultAuthorizer()
 	}
 	if err := auth.Authorize(ctx, call); err != nil {
-		return verror.New(verror.ErrNoAccess, ctx, newErrBadAuth(ctx, call.Suffix(), call.Method(), err))
+		nerr := verror.New(verror.ErrNoAccess, ctx, newErrBadAuth(ctx, call.Suffix(), call.Method(), err))
+		return nerr
 	}
 	return nil
 }
@@ -689,7 +676,7 @@ func (fs *flowServer) serve() error {
 		if err == io.EOF {
 			return err
 		}
-		return verror.New(errResponseEncoding, ctx, fs.LocalEndpoint().String(), fs.RemoteEndpoint().String(), err)
+		return fmt.Errorf("failed to encode RPC response %v <-> %v:%v", fs.LocalEndpoint().String(), fs.RemoteEndpoint().String(), err)
 	}
 	if response.Error != nil {
 		return response.Error
@@ -699,7 +686,7 @@ func (fs *flowServer) serve() error {
 			if err == io.EOF {
 				return err
 			}
-			return verror.New(errResultEncoding, ctx, ix, fmt.Sprintf("%T=%v", res, res), err)
+			return fmt.Errorf("failed to encode result #%v [%T=%v]:%v", ix, res, res, err)
 		}
 	}
 	// TODO(ashankar): Should unread data from the flow be drained?
@@ -727,6 +714,7 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	return &req, nil
 }
 
+// note that the error returned from processRequest will be sent to the client.
 func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	fs.starttime = time.Now()
 
@@ -884,8 +872,8 @@ func (fs *flowServer) lookup(ctx *context.T, suffix string, method string) (rpc.
 	if naming.IsReserved(suffix) {
 		disp = fs.server.dispReserved
 	} else if fs.server.isLeaf && suffix != "" {
-		innerErr := verror.New(errUnexpectedSuffix, ctx, suffix)
-		return nil, nil, verror.New(verror.ErrUnknownSuffix, ctx, suffix, innerErr)
+		innerErr := fmt.Errorf("suffix %v was not expected because either server has the option IsLeaf set to true or it served an object and not a dispatcher", suffix)
+		return nil, nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v: %v", suffix, innerErr)
 	}
 	if disp != nil {
 		obj, auth, err := disp.Lookup(ctx, suffix)
@@ -895,12 +883,12 @@ func (fs *flowServer) lookup(ctx *context.T, suffix string, method string) (rpc.
 		case obj != nil:
 			invoker, err := objectToInvoker(obj)
 			if err != nil {
-				return nil, nil, verror.New(verror.ErrInternal, ctx, "invalid received object", err)
+				return nil, nil, verror.ErrInternal.Errorf(ctx, "invalid received object: %v", err)
 			}
 			return invoker, auth, nil
 		}
 	}
-	return nil, nil, verror.New(verror.ErrUnknownSuffix, ctx, suffix)
+	return nil, nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v", suffix)
 }
 
 func (fs *flowServer) readGrantedBlessings(ctx *context.T, req *rpc.Request) error {
@@ -916,8 +904,7 @@ func (fs *flowServer) readGrantedBlessings(ctx *context.T, req *rpc.Request) err
 	// this - should servers be able to assume that a blessing is something that
 	// does not have the authorizations that the server's own identity has?
 	if got, want := req.GrantedBlessings.PublicKey(), fs.LocalPrincipal().PublicKey(); got != nil && !reflect.DeepEqual(got, want) {
-		return verror.New(verror.ErrNoAccess, ctx,
-			verror.New(errBlessingsNotBound, ctx, got.String(), want.String()))
+		return verror.ErrNoAccess.Errorf(ctx, "access denied: %v", fmt.Errorf("blessing granted not bound to this server: %v vs %v", got, want))
 	}
 	fs.grantedBlessings = req.GrantedBlessings
 	return nil
@@ -1025,7 +1012,7 @@ func (d leafDispatcher) Lookup(ctx *context.T, suffix string) (interface{}, secu
 
 func objectToInvoker(obj interface{}) (rpc.Invoker, error) {
 	if obj == nil {
-		return nil, verror.New(errNilObject, nil)
+		return nil, fmt.Errorf("nil object can't be invoked")
 	}
 	if invoker, ok := obj.(rpc.Invoker); ok {
 		return invoker, nil

@@ -118,6 +118,7 @@ package verror
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -191,35 +192,63 @@ func NewID(id ID) IDAction {
 	return IDAction{ensurePackagePath(id), NoRetry}
 }
 
-// Errorf creates a new verror.E that uses fmt.Errorf formatting and is not
-// intended for localization. Errorf prepends the component and
-// operation name if they can be extracted from the context.
+// Errorf creates a new verror.E that uses fmt.Errorf style formatting and is
+// not intended for localization. Errorf prepends the component and operation
+// name if they can be extracted from the context. It supports %w for errors.Unwrap.
 func (id IDAction) Errorf(ctx *context.T, format string, params ...interface{}) error {
-	return verrorf(ctx, id, fmt.Sprintf(format, params...), params)
+	// handle %w.
+	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	return verrorf(ctx, id, fmt.Sprintf(format, params...), unwrap, params)
 }
 
 // Message is intended for pre-internationalizated messages. The msg is assumed
-// to be have been preformated and the params are recorded in E.ParamList.
+// to be have been preformated and the params are recorded in E.ParamList. If
+// the last parameter is an error it will returned by Unwrap.
 func (id IDAction) Message(ctx *context.T, msg string, params ...interface{}) error {
-	return verrorf(ctx, id, msg, params)
+	return verrorf(ctx, id, msg, isLastParStandardError(params), params)
 }
 
 // Errorf is like ErrUnknown.Errorf.
 func Errorf(ctx *context.T, format string, params ...interface{}) error {
-	return verrorf(ctx, ErrUnknown, fmt.Sprintf(format, params...), params)
+	// handle %w.
+	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	return verrorf(ctx, ErrUnknown, fmt.Sprintf(format, params...), unwrap, params)
 }
 
 // Message is like ErrUnknown.Message.
 func Message(ctx *context.T, msg string, params ...interface{}) error {
-	return verrorf(ctx, ErrUnknown, msg, params)
+	return verrorf(ctx, ErrUnknown, msg, isLastParStandardError(params), params)
 }
 
-func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
+// IsAny returns true if err is any instance of a verror.E regardless of its
+// ID.
+func IsAny(err error) bool {
+	if _, ok := err.(E); ok {
+		return ok
+	}
+	_, ok := err.(*E)
+	return ok
+}
+
+func isLastParStandardError(params []interface{}) error {
+	if len(params) == 0 {
+		return nil
+	}
+	c := params[len(params)-1]
+	switch err := c.(type) {
+	case SubErr:
+		return nil
+	case *SubErr:
+		return nil
+	case error:
+		return err
+	}
+	return nil
+}
+
+func verrorf(ctx *context.T, id IDAction, msg string, unwrap error, v []interface{}) error {
 	_, componentName, opName := dataFromContext(ctx)
 	prefix := ""
-	if len(id.ID) > 0 {
-		prefix = string(id.ID) + ": "
-	}
 	if len(componentName) > 0 && len(opName) > 0 {
 		prefix += componentName + ":" + opName + ": "
 	} else {
@@ -231,29 +260,45 @@ func verrorf(ctx *context.T, id IDAction, msg string, v []interface{}) error {
 	}
 	stack := make([]uintptr, maxPCs)
 	stack = stack[:runtime.Callers(3, stack)]
-	chainedPCs := chainPCs(v)
+	chainedPCs := chainTrailingErrorPCs(v)
 	params := append([]interface{}{componentName, opName}, v...)
-	return E{id.ID, id.Action, prefix + msg, params, stack, chainedPCs}
+	return E{id.ID, id.Action, prefix + msg, params, stack, chainedPCs, unwrap}
 }
 
+func chainTrailingErrorPCs(v []interface{}) []uintptr {
+	if len(v) == 0 {
+		return nil
+	}
+	if err, ok := v[len(v)-1].(error); ok {
+		if _, ok := assertIsE(err); ok {
+			return Stack(err)
+		}
+	}
+	return nil
+}
+
+// WithSubErrors returns a new E with the supplied suberrors appended to
+// its parameter list. The results of their Error method are appended to that
+// of err.Error().
 func WithSubErrors(err error, errors ...error) error {
 	e, ok := assertIsE(err)
 	if !ok {
 		return err
 	}
-	e.ParamList = append(e.ParamList, errors)
-	for _, se := range errors {
-		switch v := se.(type) {
+	for _, err := range errors {
+		e.ParamList = append(e.ParamList, err)
+		switch v := err.(type) {
 		case SubErr:
-			if v.Options != Print {
-				continue
+			if v.Options == Print {
+				e.Msg += " " + err.Error()
 			}
 		case *SubErr:
-			if v.Options != Print {
-				continue
+			if v.Options == Print {
+				e.Msg += " " + err.Error()
 			}
+		case error:
+			e.Msg += " " + err.Error()
 		}
-		e.Msg += " " + se.Error()
 	}
 	return e
 }
@@ -269,6 +314,7 @@ type E struct {
 	ParamList  []interface{} // The variadic parameters given to ExplicitNew().
 	stackPCs   []uintptr     // PCs of creators of E
 	chainedPCs []uintptr     // PCs of a chained E
+	unwrap     error         // The error to be returned by calls to Unwrap.
 }
 
 // TypeOf(verror.E{}) should give vdl.WireError.
@@ -609,7 +655,7 @@ func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, o
 		}
 		msg = i18n.Cat().Format(langID, i18n.MsgID(id), params...)
 	}
-	return E{idAction.ID, idAction.Action, msg, params, stack, chainedPCs}
+	return E{idAction.ID, idAction.Action, msg, params, stack, chainedPCs, isLastParStandardError(v)}
 }
 
 // ExplicitNew returns an error with the given ID, with an error string in the chosen
@@ -724,7 +770,7 @@ func convertInternal(idAction IDAction, langID i18n.LangID, componentName string
 			msg = i18n.FormatParams(formatStr, newParams...)
 		}
 	}
-	return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil}
+	return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil, nil}
 }
 
 // ExplicitConvert converts a regular err into an E error, setting its IDAction to idAction.  If

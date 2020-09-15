@@ -202,7 +202,7 @@ func testRPC(t *testing.T, ctx *context.T, shouldCloseSend bool) {
 
 		// Calling Finish a second time should result in a useful error.
 		err = call.Finish(results...)
-		if !matchesErrorPattern(err, verror.ErrBadState, "FinishAlreadyCalled") {
+		if !matchesErrorPattern(err, verror.ErrBadState, "Finish has already been called") {
 			t.Fatalf(`got "%v", want "%v"`, err, verror.ErrBadState)
 		}
 	}
