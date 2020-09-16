@@ -120,7 +120,7 @@ func runProxyD(ctx *context.T, env *cmdline.Env, args []string) error {
 			fmt.Printf("STATS=%s\n", eps[0].Name())
 		}
 	}
-	fmt.Printf("Proxy stats listening on: %v", statsServer.Status().Endpoints)
+	fmt.Printf("Proxy stats listening on: %v\n", statsServer.Status().Endpoints)
 	return nil
 }
 

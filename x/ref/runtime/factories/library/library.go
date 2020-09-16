@@ -192,7 +192,7 @@ func configureLogging() error {
 		if !flag.Parsed() {
 			flag.Parse()
 		}
-		err = logger.Manager(logger.Global()).ConfigureFromFlags(LoggingOpts...)
+		err = logger.Global().ConfigureFromFlags(LoggingOpts...)
 	} else {
 		opts := []vlog.LoggingOpts{
 			LogToStderr,
@@ -205,7 +205,7 @@ func configureLogging() error {
 			TraceLocation,
 			MaxStackBufSize,
 		}
-		err = logger.Manager(logger.Global()).ConfigureFromArgs(
+		err = logger.Global().ConfigureFromArgs(
 			append(opts, LoggingOpts...)...)
 	}
 	if err != nil {
