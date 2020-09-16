@@ -139,7 +139,7 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 		return e, nil
 	}
 	if len(e.Servers) == 0 {
-		return nil, verror.New(naming.ErrNoSuchName, ctx, name)
+		return nil, naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 	}
 	client := v23.GetClient(ctx)
 	callOpts := getCallOpts(opts)
@@ -165,13 +165,13 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 				return curr, nil
 			}
 			if verror.ErrorID(err) == naming.ErrNoSuchNameRoot.ID {
-				err = verror.New(naming.ErrNoSuchName, ctx, name)
+				err = naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 			}
 			ctx.VI(1).Infof("Resolve(%s) -> (%s: %v)", err, name, curr)
 			return nil, err
 		}
 	}
-	return nil, verror.New(naming.ErrResolutionDepthExceeded, ctx)
+	return nil, naming.ErrResolutionDepthExceeded.Errorf(ctx, "resolution depth exceeded")
 }
 
 // ShallowResolve implements v.io/v23/naming.Namespace.
@@ -202,7 +202,7 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 		ctx.Infof("ResolveToMountTable(%s) -> rootNames %v", name, e)
 	}
 	if len(e.Servers) == 0 {
-		return nil, verror.New(naming.ErrNoMountTable, ctx)
+		return nil, naming.ErrNoMountTable.Errorf(ctx, "no mounttable")
 	}
 	callOpts := getCallOpts(opts)
 	client := v23.GetClient(ctx)
@@ -239,7 +239,7 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 		}
 		last = curr
 	}
-	return nil, verror.New(naming.ErrResolutionDepthExceeded, ctx)
+	return nil, naming.ErrResolutionDepthExceeded.Errorf(ctx, "resolution depth exceeded")
 }
 
 // FlushCache flushes the most specific entry found for name.  It returns true if anything was

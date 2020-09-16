@@ -439,9 +439,9 @@ func (ms *mountContext) ResolveStep(ctx *context.T, call rpc.ServerCall) (entry 
 	if n == nil {
 		entry.Name = ms.name
 		if len(ms.elems) == 0 {
-			err = verror.New(naming.ErrNoSuchNameRoot, ctx, ms.name)
+			err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ms.name)
 		} else {
-			err = verror.New(naming.ErrNoSuchName, ctx, ms.name)
+			err = naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 		}
 		return
 	}
@@ -510,7 +510,7 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 		return werr
 	}
 	if n == nil {
-		return verror.New(naming.ErrNoSuchNameRoot, ctx, ms.name)
+		return naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ms.name)
 	}
 	// We don't need the parent lock
 	n.parent.Unlock()
@@ -806,7 +806,7 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 	}
 	if n == nil {
 		// TODO(p): can this even happen?
-		return verror.New(naming.ErrNoSuchName, ctx, ms.name)
+		return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 	}
 	n.parent.Unlock()
 	defer n.Unlock()
@@ -850,7 +850,7 @@ func (ms *mountContext) GetPermissions(ctx *context.T, call rpc.ServerCall) (acc
 		return nil, "", err
 	}
 	if n == nil {
-		return nil, "", verror.New(naming.ErrNoSuchName, ctx, ms.name)
+		return nil, "", naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 	}
 	n.parent.Unlock()
 	defer n.Unlock()

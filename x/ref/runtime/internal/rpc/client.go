@@ -47,8 +47,8 @@ var (
 
 	// These were originally defined in vdl and hence the same IDs that
 	// vdl would generate must be used here to ensure backwards compatibility.
-	errBadNumInputArgs = verror.NewID("rpc.badNumInputArgs")
-	errBadInputArg     = verror.NewID("rpc.badInputArg")
+	errBadNumInputArgs = verror.NewID("badNumInputArgs")
+	errBadInputArg     = verror.NewID("badInputArg")
 )
 
 func isTimeout(err error) bool {
@@ -848,8 +848,6 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	// Decode the response header, if it hasn't already been decoded by Recv.
 	if fc.response.Error == nil && !fc.response.EndStreamResults {
 		if err := fc.dec.Decode(&fc.response); err != nil {
-			/*id, verr := decodeNetError(fc.ctx, err)
-			berr := verror.New(id, fc.ctx, verror.New(errResponseDecoding, fc.ctx, verr))*/
 			berr := decodingResponseError(fc.ctx, err, "finish")
 			return fc.close(berr)
 		}

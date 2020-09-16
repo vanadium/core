@@ -233,14 +233,14 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 	ctx.VI(2).Infof("ResolveStep %v\n", ns.elems)
 	if len(ns.elems) == 0 {
 		//nothing can be mounted at the root
-		err = verror.New(naming.ErrNoSuchNameRoot, ctx, ns.elems)
+		err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ns.elems)
 		return
 	}
 
 	// We can only resolve the first element and it always refers to a mount table (for now).
 	neighbor := nh.neighbor(ns.elems[0])
 	if neighbor == nil {
-		err = verror.New(naming.ErrNoSuchName, ctx, ns.elems)
+		err = naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems)
 		entry.Name = ns.name
 		return
 	}
@@ -286,13 +286,13 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 	case 1:
 		neighbor := nh.neighbor(ns.elems[0])
 		if neighbor == nil {
-			return verror.New(naming.ErrNoSuchName, ctx, ns.elems[0])
+			return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems[0])
 		}
 		//nolint:errcheck
 		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: neighbor, ServesMountTable: true}})
 		return nil
 	default:
-		return verror.New(naming.ErrNoSuchName, ctx, ns.elems)
+		return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems)
 	}
 }
 

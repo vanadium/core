@@ -376,7 +376,7 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 var (
 	ErrNoBlessings         = verror.Register("v.io/v23/services/groups.NoBlessings", verror.NoRetry, "{1:}{2:} No blessings recognized; cannot create group Permissions")
 	ErrExcessiveContention = verror.Register("v.io/v23/services/groups.ExcessiveContention", verror.RetryBackoff, "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	ErrCycleFound          = verror.Register("v.io/v23/services/groups.CycleFound", verror.NoRetry, "{1:}{2:} Found cycle in group definitions{:_}")
+	ErrCycleFound          = verror.Register("v.io/v23/services/groups.CycleFound", verror.NoRetry, "{1:}{2:} Found cycle in group definitions {3} visited {4}")
 )
 
 // NewErrNoBlessings returns an error with the ErrNoBlessings ID.
@@ -390,8 +390,8 @@ func NewErrExcessiveContention(ctx *context.T) error {
 }
 
 // NewErrCycleFound returns an error with the ErrCycleFound ID.
-func NewErrCycleFound(ctx *context.T) error {
-	return verror.New(ErrCycleFound, ctx)
+func NewErrCycleFound(ctx *context.T, name string, visited string) error {
+	return verror.New(ErrCycleFound, ctx, name, visited)
 }
 
 //////////////////////////////////////////////////
@@ -940,7 +940,7 @@ func initializeVDL() struct{} {
 	// Set error format strings.
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoBlessings.ID), "{1:}{2:} No blessings recognized; cannot create group Permissions")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExcessiveContention.ID), "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCycleFound.ID), "{1:}{2:} Found cycle in group definitions{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCycleFound.ID), "{1:}{2:} Found cycle in group definitions {3} visited {4}")
 
 	return struct{}{}
 }

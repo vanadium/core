@@ -193,7 +193,7 @@ func (m *manager) StopListening(ctx *context.T) {
 // Listen may be called multiple times.
 func (m *manager) Listen(ctx *context.T, protocol, address string) (<-chan struct{}, error) {
 	if m.ls == nil {
-		return nil, NewErrListeningWithNullRid(ctx)
+		return nil, errListeningWithNullRid.Errorf(ctx, "manager cannot listen when created with NullRoutingID")
 	}
 
 	ln, lnErr := listen(ctx, protocol, address)
@@ -203,7 +203,7 @@ func (m *manager) Listen(ctx *context.T, protocol, address string) (<-chan struc
 		if ln != nil {
 			ln.Close()
 		}
-		return nil, flow.NewErrBadState(ctx, NewErrManagerClosed(ctx))
+		return nil, flow.ErrBadState.Errorf(ctx, "%v", errManagerClosed.Errorf(ctx, "manager is already closed"))
 	}
 	errKey := struct{ Protocol, Address string }{Protocol: protocol, Address: address}
 	if lnErr != nil {
@@ -370,7 +370,7 @@ func (m *manager) updateEndpointBlessingsLocked(names []string) {
 // in ListenStatus.ProxyErrors.
 func (m *manager) ProxyListen(ctx *context.T, name string, ep naming.Endpoint) (<-chan struct{}, error) {
 	if m.ls == nil {
-		return nil, NewErrListeningWithNullRid(ctx)
+		return nil, errListeningWithNullRid.Errorf(ctx, "manager cannot listen when created with NullRoutingID")
 	}
 	f, err := m.internalDial(ctx, ep, proxyAuthorizer{}, m.acceptChannelTimeout, true, nil)
 	if err != nil {
@@ -482,10 +482,10 @@ func (m *manager) readProxyResponse(ctx *context.T, f flow.Flow) ([]naming.Endpo
 		return m.Endpoints, nil
 	case *message.ProxyErrorResponse:
 		f.Close()
-		return nil, NewErrProxyResponse(ctx, m.Error)
+		return nil, errProxyResponse.Errorf(ctx, "proxy returned: %v", m.Error)
 	default:
 		f.Close()
-		return nil, flow.NewErrBadArg(ctx, NewErrInvalidProxyResponse(ctx, fmt.Sprintf("%T", m)))
+		return nil, flow.ErrBadArg.Errorf(ctx, "%v", errInvalidProxyResponse.Errorf(ctx, "Invalid proxy response: %T", m))
 	}
 }
 
@@ -753,14 +753,14 @@ func (m *manager) Status() flow.ListenStatus {
 // can be used to accept Flows initiated by remote processes.
 func (m *manager) Accept(ctx *context.T) (flow.Flow, error) {
 	if m.ls == nil {
-		return nil, NewErrListeningWithNullRid(ctx)
+		return nil, errListeningWithNullRid.Errorf(ctx, "manager cannot listen when created with NullRoutingID")
 	}
 	item, err := m.ls.q.Get(ctx.Done())
 	switch {
 	case err == upcqueue.ErrQueueIsClosed:
-		return nil, flow.NewErrNetwork(ctx, NewErrManagerClosed(ctx))
+		return nil, flow.ErrNetwork.Errorf(ctx, "%v", errManagerClosed.Errorf(ctx, "manager is already closed"))
 	case err != nil:
-		return nil, flow.NewErrNetwork(ctx, NewErrAcceptFailed(ctx, err))
+		return nil, flow.ErrNetwork.Errorf(ctx, "%v", errAcceptFailed.Errorf(ctx, "accept failed: %v", err))
 	default:
 		return item.(flow.Flow), nil
 	}
@@ -807,7 +807,7 @@ func (m *manager) DialCached(ctx *context.T, remote naming.Endpoint, auth flow.P
 		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
 	}
 	if cached == nil {
-		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, NewErrConnNotInCache(ctx, remote.String()))
+		return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, errConnNotInCache.Errorf(ctx, "connection to %v not in cache", remote.String()))
 	}
 	c := cached.(*conn.Conn)
 	return dialFlow(ctx, c, remote, names, rejected, channelTimeout, auth, false)
@@ -1022,7 +1022,7 @@ func dialFlow(ctx *context.T, c *conn.Conn, remote naming.Endpoint, names []stri
 	// Find the proper blessings and dial the final flow.
 	blessings, discharges, err := auth.BlessingsForPeer(ctx, names)
 	if err != nil {
-		return nil, iflow.MaybeWrapError(flow.ErrDialFailed, ctx, NewErrNoBlessingsForPeer(ctx, names, rejected, err))
+		return nil, iflow.MaybeWrapError(flow.ErrDialFailed, ctx, errNoBlessingsForPeer.Errorf(ctx, "no blessings tagged for peer %v, rejected %v: %v}", names, rejected, err))
 	}
 	f, err := c.Dial(ctx, blessings, discharges, remote, channelTimeout, sideChannel)
 	if err != nil {
@@ -1065,7 +1065,7 @@ func dial(ctx *context.T, p flow.Protocol, protocol, address string) (flow.Conn,
 			return cae.c, cae.e
 		}
 	}
-	return nil, NewErrUnknownProtocol(ctx, protocol)
+	return nil, errUnknownProtocol.Errorf(ctx, "unknown protocol: %s", protocol)
 }
 
 func listen(ctx *context.T, protocol, address string) (flow.Listener, error) {
@@ -1076,7 +1076,7 @@ func listen(ctx *context.T, protocol, address string) (flow.Listener, error) {
 		}
 		return ln, nil
 	}
-	return nil, NewErrUnknownProtocol(ctx, protocol)
+	return nil, errUnknownProtocol.Errorf(ctx, "unknown protocol: %s", protocol)
 }
 
 func localEndpoint(conn flow.Conn, rid naming.RoutingID) naming.Endpoint {

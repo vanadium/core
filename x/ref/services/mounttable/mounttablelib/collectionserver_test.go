@@ -11,7 +11,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 )
 
 // collectionServer is a very simple collection server implementation for testing, with sufficient debugging to help
@@ -50,7 +49,7 @@ func (c *rpcContext) Export(ctx *context.T, _ rpc.ServerCall, val string, overwr
 		c.contents[c.name] = []byte(val)
 		return nil
 	}
-	return verror.New(naming.ErrNameExists, ctx, c.name)
+	return naming.ErrNameExists.Errorf(ctx, "name %s exists", c.name)
 }
 
 // Lookup implements CollectionServerMethods.Lookup.
@@ -60,5 +59,5 @@ func (c *rpcContext) Lookup(ctx *context.T, _ rpc.ServerCall) ([]byte, error) {
 	if val := c.contents[c.name]; val != nil {
 		return val, nil
 	}
-	return nil, verror.New(naming.ErrNoSuchName, ctx, c.name)
+	return nil, naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", c.name)
 }

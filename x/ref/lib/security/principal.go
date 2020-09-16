@@ -30,9 +30,9 @@ import (
 
 var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
-	ErrBadPassphrase = verror.Register("errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
+	ErrBadPassphrase = verror.NewID("errBadPassphrase")
 	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
-	ErrPassphraseRequired = verror.Register("errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
+	ErrPassphraseRequired = verror.NewID("errPassphraseRequired")
 )
 
 const (
@@ -199,9 +199,9 @@ func handleSignerError(signer security.Signer, err error) (security.Signer, erro
 	case err == nil:
 		return signer, nil
 	case errors.Is(err, internal.ErrBadPassphrase):
-		return nil, verror.New(ErrBadPassphrase, nil)
+		return nil, ErrBadPassphrase.Errorf(nil, "passphrase incorrect for decrypting private key")
 	case errors.Is(err, internal.ErrPassphraseRequired):
-		return nil, verror.New(ErrPassphraseRequired, nil)
+		return nil, ErrPassphraseRequired.Errorf(nil, "passphrase required for decrypting private key")
 	case os.IsNotExist(err):
 		return nil, err
 	default:
