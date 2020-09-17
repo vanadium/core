@@ -67,7 +67,7 @@ func Value(name string) (interface{}, error) {
 		return 0, err
 	}
 	if obj == nil {
-		return nil, verror.New(stats.ErrNoValue, nil, name)
+		return nil, stats.NewErrNoValue(nil, name)
 	}
 	return obj.Value(), nil
 }

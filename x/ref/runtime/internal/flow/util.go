@@ -26,7 +26,7 @@ func MaybeWrapError(idAction verror.IDAction, ctx *context.T, err error) error {
 	if !shouldWrap(err) {
 		return err
 	}
-	return verror.New(idAction, ctx, err)
+	return idAction.Errorf(ctx, "%v", err)
 }
 
 func shouldWrap(err error) bool {

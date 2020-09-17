@@ -771,7 +771,7 @@ func (r *raft) waitForApply(ctx *context.T, term Term, index Index) (error, erro
 			le := r.p.Lookup(index)
 			if le == nil || le.Term != term {
 				// There was an election and the log entry was lost.
-				return nil, verror.New(ErrNotLeader, ctx)
+				return nil, NewErrNotLeader(ctx)
 			}
 			return le.ApplyError, nil
 		}

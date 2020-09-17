@@ -881,13 +881,13 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	}
 	if got, want := fc.response.NumPosResults, uint64(len(resultptrs)); got != want {
 		suberr := fmt.Errorf("got %v results, but want %v", got, want)
-		berr := verror.ErrBadProtocol.Errorf(fc.ctx, "failed to decode results: %v", suberr)
+		berr := verror.ErrBadProtocol.Errorf(fc.ctx, "failed to decode number of results: %v", suberr)
 		return fc.close(berr)
 	}
 	for ix, r := range resultptrs {
 		if err := fc.dec.Decode(r); err != nil {
 			id, verr := decodeNetError(fc.ctx, err)
-			berr := verror.New(id, fc.ctx, verror.New(errResultDecoding, fc.ctx, ix, verr))
+			berr := id.Errorf(fc.ctx, "error decoding results: %v", verror.New(errResultDecoding, fc.ctx, ix, verr))
 			return fc.close(berr)
 		}
 	}

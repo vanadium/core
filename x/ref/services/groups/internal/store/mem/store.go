@@ -41,7 +41,7 @@ func (st *memstore) Get(k string, v interface{}) (version string, err error) {
 	}
 	e, ok := st.data[k]
 	if !ok {
-		return "", verror.New(store.ErrUnknownKey, nil, k)
+		return "", store.ErrUnknownKey.Errorf(nil, "unknown key %s", k)
 	}
 	if err := vdl.Convert(v, e.Value); err != nil {
 		return "", convertError(err)
@@ -56,7 +56,7 @@ func (st *memstore) Insert(k string, v interface{}) error {
 		return convertError(st.err)
 	}
 	if _, ok := st.data[k]; ok {
-		return verror.New(store.ErrKeyExists, nil, k)
+		return store.ErrKeyExists.Errorf(nil, "key exists %s", k)
 	}
 	st.data[k] = &entry{Value: v}
 	return nil
@@ -70,7 +70,7 @@ func (st *memstore) Update(k string, v interface{}, version string) error {
 	}
 	e, ok := st.data[k]
 	if !ok {
-		return verror.New(store.ErrUnknownKey, nil, k)
+		return store.ErrUnknownKey.Errorf(nil, "unknown key %s", k)
 	}
 	if err := e.checkVersion(version); err != nil {
 		return err
@@ -87,7 +87,7 @@ func (st *memstore) Delete(k string, version string) error {
 	}
 	e, ok := st.data[k]
 	if !ok {
-		return verror.New(store.ErrUnknownKey, nil, k)
+		return store.ErrUnknownKey.Errorf(nil, "unknown key %s", k)
 	}
 	if err := e.checkVersion(version); err != nil {
 		return err
@@ -118,5 +118,5 @@ func (e *entry) checkVersion(version string) error {
 }
 
 func convertError(err error) error {
-	return verror.Convert(verror.IDAction{}, nil, err)
+	return verror.ErrUnknown.Errorf(nil, "store.mem: %v", err)
 }

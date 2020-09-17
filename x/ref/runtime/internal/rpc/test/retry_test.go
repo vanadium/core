@@ -16,7 +16,7 @@ import (
 	"v.io/x/ref/test"
 )
 
-var errRetryThis = verror.Register("retry_test.retryThis", verror.RetryBackoff, "retryable error")
+var errRetryThis = verror.NewIDAction("retry_test.retryThis", verror.RetryBackoff)
 
 type retryServer struct {
 	called int // number of times TryAgain has been called
@@ -30,7 +30,7 @@ func (s *retryServer) TryAgain(ctx *context.T, _ rpc.ServerCall) error {
 	}
 	s.called++
 	// otherwise, return a verror with action code RetryBackoff.
-	return verror.New(errRetryThis, ctx)
+	return errRetryThis.Errorf(ctx, "retryable error")
 }
 
 func TestRetryCall(t *testing.T) {
