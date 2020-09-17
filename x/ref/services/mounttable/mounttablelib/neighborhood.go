@@ -252,17 +252,17 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 
 // Mount not implemented.
 func (ns *neighborhoodService) Mount(ctx *context.T, _ rpc.ServerCall, _ string, _ uint32, _ naming.MountFlag) error {
-	return verror.New(verror.ErrNotImplemented, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "Not implemented")
 }
 
 // Unmount not implemented.
 func (*neighborhoodService) Unmount(ctx *context.T, _ rpc.ServerCall, _ string) error {
-	return verror.New(verror.ErrNotImplemented, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "Not implemented")
 }
 
 // Delete not implemented.
 func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) error {
-	return verror.New(verror.ErrNotImplemented, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "Not implemented")
 }
 
 // Glob__ implements rpc.AllGlobber
@@ -297,7 +297,7 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 }
 
 func (*neighborhoodService) SetPermissions(ctx *context.T, _ rpc.ServerCall, _ access.Permissions, _ string) error {
-	return verror.New(verror.ErrNotImplemented, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "Not implemented")
 }
 
 func (*neighborhoodService) GetPermissions(*context.T, rpc.ServerCall) (access.Permissions, string, error) {

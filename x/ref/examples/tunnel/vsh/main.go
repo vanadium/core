@@ -337,7 +337,7 @@ func (a *authorizerGranterHack) Authorize(ctx *context.T, call security.Call) er
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	if a.auth == nil {
-		return verror.New(verror.ErrNoAccess, ctx)
+		return verror.ErrNoAccess.Errorf(ctx, "Access denied")
 	}
 	return a.auth.Authorize(ctx, call)
 }

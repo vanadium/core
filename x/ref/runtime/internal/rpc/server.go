@@ -136,18 +136,19 @@ func WithNewDispatchingServer(ctx *context.T,
 				s.cancel()
 				return origCtx, nil, verror.New(verror.ErrBadArg, ctx,
 					fmt.Errorf("no peers are authorized to communicate with the server"))
-				if len(name) != 0 {
-					// TODO(ataly, ashankar): Since the server's blessing names are revealed to the
-					// mounttable via the server's endpoint, we forbid servers created with the
-					// ServerPeers option from publishing themselves. We should relax this restriction
-					// and instead check: (1) the mounttable is in the set of peers authorized by the
-					// server, and (2) the mounttable reveals the server's endpoint to only the set
-					// of authorized peers. (2) can be enforced using Resolve ACLs.
-					s.cancel()
-					return origCtx, nil, verror.New(verror.ErrBadArg, ctx,
-						fmt.Errorf("serverPeers option is not supported for servers that publish their endpoint at a mounttable"))
-				}
 			}
+			if len(name) != 0 {
+				// TODO(ataly, ashankar): Since the server's blessing names are revealed to the
+				// mounttable via the server's endpoint, we forbid servers created with the
+				// ServerPeers option from publishing themselves. We should relax this restriction
+				// and instead check: (1) the mounttable is in the set of peers authorized by the
+				// server, and (2) the mounttable reveals the server's endpoint to only the set
+				// of authorized peers. (2) can be enforced using Resolve ACLs.
+				s.cancel()
+				return origCtx, nil, verror.New(verror.ErrBadArg, ctx,
+					fmt.Errorf("serverPeers option is not supported for servers that publish their endpoint at a mounttable"))
+			}
+
 		case IdleConnectionExpiry:
 			connIdleExpiry = time.Duration(opt)
 		}

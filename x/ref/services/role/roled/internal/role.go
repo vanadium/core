@@ -32,7 +32,7 @@ func (i *roleService) SeekBlessings(ctx *context.T, call rpc.ServerCall) (securi
 	members := i.filterNonMembers(remoteBlessingNames)
 	if len(members) == 0 {
 		// The Authorizer should already have caught that.
-		return security.Blessings{}, verror.New(verror.ErrNoAccess, ctx)
+		return security.Blessings{}, verror.ErrNoAccess.Errorf(ctx, "Access denied")
 	}
 
 	extensions := extensions(i.roleConfig, i.role, members)
@@ -83,6 +83,13 @@ func extensions(config *Config, roleStr string, blessingNames []string) []string
 	return extensions
 }
 
+func useOrWrapAsInternalErr(ctx *context.T, err error) error {
+	if verror.IsAny(err) {
+		return err
+	}
+	return verror.ErrInternal.Errorf(ctx, "Internal error: %v", err)
+}
+
 func caveats(ctx *context.T, config *Config) ([]security.Caveat, error) {
 	var caveats []security.Caveat
 	if config.Expiry != "" {
@@ -99,7 +106,7 @@ func caveats(ctx *context.T, config *Config) ([]security.Caveat, error) {
 	if len(config.Peers) != 0 {
 		peer, err := security.NewCaveat(security.PeerBlessingsCaveat, config.Peers)
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrWrapAsInternalErr(ctx, err)
 		}
 		caveats = append(caveats, peer)
 	}
@@ -136,7 +143,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 				ReportArguments: true,
 			}, loggingCaveat)
 			if err != nil {
-				return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+				return security.Blessings{}, useOrWrapAsInternalErr(ctx, err)
 			}
 			cav = append(cav, thirdParty)
 		}
@@ -157,7 +164,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 			return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
 		}
 		if ret, err = security.UnionOfBlessings(ret, b); err != nil {
-			verror.Convert(verror.ErrInternal, ctx, err) //nolint:errcheck
+			return ret, useOrWrapAsInternalErr(ctx, err)
 		}
 	}
 	return ret, nil

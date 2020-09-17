@@ -58,7 +58,7 @@ func (s *service) Authorize(ctx *context.T, call security.Call) error {
 	if l, r := call.LocalBlessings().PublicKey(), call.RemoteBlessings().PublicKey(); l != nil && reflect.DeepEqual(l, r) {
 		return nil
 	}
-	return verror.New(verror.ErrNoAccess, ctx)
+	return verror.ErrNoAccess.Errorf(ctx, "Access denied")
 }
 
 // Members implements raftProto.Members.

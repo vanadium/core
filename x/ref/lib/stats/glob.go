@@ -32,7 +32,7 @@ func Glob(root string, pattern string, updatedSince time.Time, includeValues boo
 	defer lock.RUnlock()
 	node := findNodeLocked(root, false)
 	if node == nil {
-		return &GlobIterator{err: verror.New(verror.ErrNoExist, nil, root)}
+		return &GlobIterator{err: verror.ErrNoExist.Errorf(nil, "Does not exist: %s", root)}
 	}
 	var out []KeyValue
 	globStepLocked("", g, node, updatedSince, includeValues, &out)

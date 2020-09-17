@@ -170,7 +170,7 @@ func ReflectInvokerOrDie(obj interface{}) Invoker {
 func (ri reflectInvoker) Prepare(ctx *context.T, method string, _ int) ([]interface{}, []*vdl.Value, error) {
 	info, ok := ri.methods[method]
 	if !ok {
-		return nil, nil, verror.New(verror.ErrUnknownMethod, nil, method)
+		return nil, nil, verror.ErrUnknownMethod.Errorf(nil, "Method does not exist: %v", method)
 	}
 	// Return the tags and new in-arg objects.
 	var argptrs []interface{}
@@ -188,7 +188,7 @@ func (ri reflectInvoker) Prepare(ctx *context.T, method string, _ int) ([]interf
 func (ri reflectInvoker) Invoke(ctx *context.T, call StreamServerCall, method string, argptrs []interface{}) ([]interface{}, error) {
 	info, ok := ri.methods[method]
 	if !ok {
-		return nil, verror.New(verror.ErrUnknownMethod, ctx, method)
+		return nil, verror.ErrUnknownMethod.Errorf(ctx, "Method does not exist: %v", method)
 	}
 	// Create the reflect.Value args for the invocation.  The receiver of the
 	// method is always first, followed by the required ctx and call args.
@@ -248,7 +248,7 @@ func (ri reflectInvoker) MethodSignature(ctx *context.T, call ServerCall, method
 			return signature.CopyMethod(msig), nil
 		}
 	}
-	return signature.Method{}, verror.New(verror.ErrUnknownMethod, ctx, method)
+	return signature.Method{}, verror.ErrUnknownMethod.Errorf(ctx, "Method does not exist: %v", method)
 }
 
 // Globber implements the rpc.Globber interface.
@@ -384,7 +384,7 @@ func makeMethodInfo(method reflect.Method) methodInfo {
 }
 
 func abortedf(err error) error {
-	return verror.New(verror.ErrAborted, nil, err)
+	return verror.ErrAborted.Errorf(nil, "Aborted: %v", err)
 }
 
 const (
@@ -429,13 +429,13 @@ func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 	}
 	// Unexported methods always have a non-empty pkg path.
 	if method.PkgPath != "" {
-		return verror.New(verror.ErrBadArg, nil, fmt.Errorf("Method %s not exported", method.Name))
+		return verror.ErrBadArg.Errorf(nil, "Bad argument: %v", fmt.Errorf("Method %s not exported", method.Name))
 	}
 	sig.Name = method.Name
 	mtype := method.Type
 	// Method must have at least 3 in args (receiver, ctx, call).
 	if in := mtype.NumIn(); in < 3 || mtype.In(1) != rtPtrToContext {
-		return verror.New(verror.ErrBadArg, nil, errNonRPCMethod(method.Name))
+		return verror.ErrBadArg.Errorf(nil, "Bad argument: %v", errNonRPCMethod(method.Name))
 	}
 	switch in2 := mtype.In(2); {
 	case in2 == rtStreamServerCall:
@@ -458,7 +458,7 @@ func typeCheckMethod(method reflect.Method, sig *signature.Method) error {
 			return err
 		}
 	default:
-		return verror.New(verror.ErrBadArg, nil, errNonRPCMethod(method.Name))
+		return verror.ErrBadArg.Errorf(nil, "Bad argument: %v", errNonRPCMethod(method.Name))
 	}
 	return typeCheckMethodArgs(mtype, sig)
 }
@@ -471,14 +471,14 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtSliceOfInterfaceDesc {
 			return abortedf(errBadDescribe)
 		}
-		return verror.New(verror.ErrInternal, nil, errReservedMethod)
+		return verror.ErrInternal.Errorf(nil, "Internal error: %v", errReservedMethod)
 	case "Globber":
 		// Globber() *GlobState
 		if t := method.Type; t.NumIn() != 1 || t.NumOut() != 1 ||
 			t.Out(0) != rtPtrToGlobState {
 			return abortedf(errBadGlobber)
 		}
-		return verror.New(verror.ErrInternal, nil, errReservedMethod)
+		return verror.ErrInternal.Errorf(nil, "Internal error: %v", errReservedMethod)
 	case "Glob__":
 		// Glob__(ctx *context.T, call GlobServerCall, g *glob.Glob) error
 		if t := method.Type; t.NumIn() != 4 || t.NumOut() != 1 ||
@@ -486,7 +486,7 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtError {
 			return abortedf(errBadGlob)
 		}
-		return verror.New(verror.ErrInternal, nil, errReservedMethod)
+		return verror.ErrInternal.Errorf(nil, "Internal error: %v", errReservedMethod)
 	case "GlobChildren__":
 		// GlobChildren__(ctx *context.T, call GlobChildrenServerCall, matcher *glob.Element) error
 		if t := method.Type; t.NumIn() != 4 || t.NumOut() != 1 ||
@@ -494,7 +494,7 @@ func typeCheckReservedMethod(method reflect.Method) error { //nolint:gocyclo
 			t.Out(0) != rtError {
 			return abortedf(errBadGlobChildren)
 		}
-		return verror.New(verror.ErrInternal, nil, errReservedMethod)
+		return verror.ErrInternal.Errorf(nil, "Internal error: %v", errReservedMethod)
 	}
 	return nil
 }

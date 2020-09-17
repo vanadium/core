@@ -221,8 +221,9 @@ func TestTypeCheckMethods(t *testing.T) {
 			"Delta":      "",
 			"Epsilon":    "",
 			"Error":      "",
-			"Describe__": verror.New(verror.ErrInternal, nil, errReservedMethod).Error(),
+			"Describe__": verror.ErrInternal.Errorf(nil, "Internal error: %v", errReservedMethod).Error(),
 		}},
+
 		{badcall{}, map[string]string{
 			"NonRPC1":    errNonRPCMethod("NonRPC1").Error(),
 			"NonRPC2":    errNonRPCMethod("NonRPC2").Error(),
@@ -241,6 +242,66 @@ func TestTypeCheckMethods(t *testing.T) {
 			"BadRecv1":   badRecv,
 			"BadRecv2":   badRecv,
 			"BadRecv3":   badRecv,
+		}},
+		{badoutargs{}, map[string]string{
+			"NoFinalError1": verror.ErrAborted.Errorf(nil, "Aborted: %v", errNoFinalErrorOutArg).Error(),
+			"NoFinalError2": verror.ErrAborted.Errorf(nil, "Aborted: %v", errNoFinalErrorOutArg).Error(),
+			"NoFinalError3": verror.ErrAborted.Errorf(nil, "Aborted: %v", errNoFinalErrorOutArg).Error(),
+			"NoFinalError4": verror.ErrAborted.Errorf(nil, "Aborted: %v", errNoFinalErrorOutArg).Error(),
+		}},
+
+		{badGlobber{}, map[string]string{
+			"Globber": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobber).Error(),
+		}},
+		{badGlob1{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob2{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob3{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob4{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob5{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob6{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlob7{}, map[string]string{
+			"Glob__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlob).Error(),
+		}},
+		{badGlobChildren1{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+		{badGlobChildren2{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+		{badGlobChildren3{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+		{badGlobChildren4{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+		{badGlobChildren5{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+		{badGlobChildren6{}, map[string]string{
+			"GlobChildren__": verror.ErrAborted.Errorf(nil, "Aborted: %v", errBadGlobChildren).Error(),
+		}},
+
+		// Test for backwards compatibility.
+		{&tags{}, map[string]string{
+			"Alpha":      "",
+			"Beta":       "",
+			"Gamma":      "",
+			"Delta":      "",
+			"Epsilon":    "",
+			"Error":      "",
+			"Describe__": verror.New(verror.ErrInternal, nil, errReservedMethod).Error(),
 		}},
 		{badoutargs{}, map[string]string{
 			"NoFinalError1": verror.New(verror.ErrAborted, nil, errNoFinalErrorOutArg).Error(),
@@ -291,6 +352,7 @@ func TestTypeCheckMethods(t *testing.T) {
 			"GlobChildren__": verror.New(verror.ErrAborted, nil, errBadGlobChildren).Error(),
 		}},
 	}
+
 	for _, test := range tests {
 		typecheck := TypeCheckMethods(test.obj)
 		if got, want := typecheck, test.want; (got == nil) != (want == nil) {
@@ -312,4 +374,5 @@ func TestTypeCheckMethods(t *testing.T) {
 			}
 		}
 	}
+
 }

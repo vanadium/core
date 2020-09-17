@@ -51,7 +51,7 @@ func (d *dispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.
 	if !strings.HasPrefix(fileName, d.config.root) {
 		// Guard against ".." in the suffix that could be used to read
 		// files outside of the config root.
-		return nil, nil, verror.New(verror.ErrNoExistOrNoAccess, nil)
+		return nil, nil, verror.ErrNoExistOrNoAccess.Errorf(nil, "Does not exist or access denied")
 	}
 	roleConfig, err := loadExpandedConfig(fileName, nil)
 	if err != nil && !os.IsNotExist(err) {
@@ -75,14 +75,14 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 		return nil
 	}
 	if a.config == nil {
-		return verror.New(verror.ErrNoExistOrNoAccess, ctx)
+		return verror.ErrNoExistOrNoAccess.Errorf(ctx, "Does not exist or access denied")
 	}
 	remoteBlessingNames, _ := security.RemoteBlessingNames(ctx, call)
 
 	if hasAccess(a.config, remoteBlessingNames) {
 		return nil
 	}
-	return verror.New(verror.ErrNoExistOrNoAccess, ctx)
+	return verror.ErrNoExistOrNoAccess.Errorf(ctx, "Does not exist or access denied")
 }
 
 func hasAccess(c *Config, blessingNames []string) bool {

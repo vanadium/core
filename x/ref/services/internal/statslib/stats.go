@@ -71,7 +71,7 @@ Loop:
 		}
 		if err := it.Err(); err != nil {
 			if verror.ErrorID(err) == verror.ErrNoExist.ID {
-				return verror.New(verror.ErrNoExist, ctx, i.suffix)
+				return verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", i.suffix)
 			}
 			return fmt.Errorf("operation failed for %v", i.suffix)
 		}
@@ -96,7 +96,7 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 	rv, err := libstats.Value(i.suffix)
 	switch {
 	case verror.ErrorID(err) == verror.ErrNoExist.ID:
-		return nil, verror.New(verror.ErrNoExist, ctx, i.suffix)
+		return nil, verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", i.suffix)
 	case verror.ErrorID(err) == stats.ErrNoValue.ID:
 		return nil, stats.NewErrNoValue(ctx, i.suffix)
 	case err != nil:
@@ -104,7 +104,7 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 	}
 	rb, err := vom.RawBytesFromValue(rv)
 	if err != nil {
-		return nil, verror.New(verror.ErrInternal, ctx, i.suffix, err)
+		return nil, verror.ErrInternal.Errorf(ctx, "Internal error: %v: %v", i.suffix, err)
 	}
 	return rb, nil
 }
