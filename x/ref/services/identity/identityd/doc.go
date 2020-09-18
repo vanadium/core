@@ -106,12 +106,31 @@ The global flags are:
  -v23.proxy.limit=0
    max number of proxies to connect to when the policy is to connect to all
    proxies; 0 implies all proxies
- -v23.proxy.policy=first
+ -v23.proxy.policy=
    policy for choosing from a set of available proxy instances
  -v23.tcp.address=
    address to listen on
  -v23.tcp.protocol=
    protocol to listen with
+ -v23.virtualized.advertise-private-addresses=
+   if set the process will also advertise its private addresses
+ -v23.virtualized.disallow-native-fallback=false
+   if set, a failure to detect the requested virtualization provider will result
+   in an error, otherwise, native mode is used
+ -v23.virtualized.dns.public-name=
+   if set the process will use the supplied dns name (and port) without
+   resolution for its entry in the mounttable
+ -v23.virtualized.docker=
+   set if the process is running in a docker container and needs to configure
+   itself differently therein
+ -v23.virtualized.provider=
+   the name of the virtualization/cloud provider hosting this process if the
+   process needs to configure itself differently therein
+ -v23.virtualized.tcp.public-address=
+   if set the process will use this address (resolving via dns if appropriate)
+   for its entry in the mounttable
+ -v23.virtualized.tcp.public-protocol=
+   if set the process will use this protocol for its entry in the mounttable
  -v23.vtrace.cache-size=1024
    The number of vtrace traces to store in memory
  -v23.vtrace.collect-regexp=

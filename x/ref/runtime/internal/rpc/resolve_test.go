@@ -26,7 +26,11 @@ import (
 var commonFlags *flags.Flags
 
 func init() {
-	commonFlags = flags.CreateAndRegister(flag.CommandLine, flags.Runtime)
+	var err error
+	commonFlags, err = flags.CreateAndRegister(flag.CommandLine, flags.Runtime)
+	if err != nil {
+		panic(err)
+	}
 	if err := commonFlags.Parse(os.Args[1:], nil); err != nil {
 		panic(err)
 	}

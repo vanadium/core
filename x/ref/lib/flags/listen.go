@@ -41,7 +41,6 @@ func (t *TCPProtocolFlag) Set(s string) error {
 	default:
 		return verror.New(errNotTCP, nil, s)
 	}
-
 }
 
 // String implements flag.Value.
@@ -118,6 +117,53 @@ func (ip IPHostPortFlag) String() string {
 	return net.JoinHostPort(host, ip.Port)
 }
 
+// HostPortFlag implements flag.Value to provide validation of the
+// command line value it is set to. The allowed format is <host>:<port>.
+// The host may be specified as a hostname or as an IP
+// address (v4 or v6). A DNS hostname is never resolved.
+type HostPortFlag struct {
+	Host string
+	Port string
+}
+
+// Get implements flag.Getter.
+func (ip HostPortFlag) Get() interface{} {
+	return ip.String()
+}
+
+// Set implements flag.Value.
+func (ip *HostPortFlag) Set(s string) error {
+	if len(s) == 0 {
+		ip.Port, ip.Host = "", ""
+		return nil
+	}
+	host, port, err := net.SplitHostPort(s)
+	if err != nil {
+		// no port number in s.
+		host = s
+		ip.Port = "0"
+	} else {
+		// have a port in s.
+		if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+			return verror.New(errCantParsePort, nil, s)
+		}
+		ip.Port = port
+	}
+	ip.Host = host
+	return nil
+}
+
+// Implements flag.Value.String
+func (ip HostPortFlag) String() string {
+	if len(ip.Host) == 0 && len(ip.Port) == 0 {
+		return ""
+	}
+	if len(ip.Port) == 0 || ip.Port == "0" {
+		return ip.Host
+	}
+	return net.JoinHostPort(ip.Host, ip.Port)
+}
+
 // IPFlag implements flag.Value in order to provide validation of
 // IP addresses in the flag package.
 type IPFlag struct{ net.IP }
@@ -152,41 +198,37 @@ type ListenAddrs []struct {
 type ListenFlags struct {
 	Addrs       ListenAddrs
 	Proxy       string             `cmdline:"v23.proxy,,object name of proxy service to use to export services across network boundaries"`
-	ProxyPolicy proxyPolicyFlagVar `cmdline:"v23.proxy.policy,,policy for choosing from a set of available proxy instances"`
-	ProxyLimit  int                `cmdline:"v23.proxy.limit,0,'max number of proxies to connect to when the policy is to connect to all proxies; 0 implies all proxies'"`
+	ProxyPolicy ProxyPolicyFlag    `cmdline:"v23.proxy.policy,,policy for choosing from a set of available proxy instances"`
+	ProxyLimit  int                `cmdline:"v23.proxy.limit,,'max number of proxies to connect to when the policy is to connect to all proxies; 0 implies all proxies'"`
 	Protocol    tcpProtocolFlagVar `cmdline:"v23.tcp.protocol,,protocol to listen with"`
 	Addresses   ipHostPortFlagVar  `cmdline:"v23.tcp.address,,address to listen on"`
 }
 
-type proxyPolicyFlagVar struct {
-	isSet  bool
-	policy rpc.ProxyPolicy
+type ProxyPolicyFlag rpc.ProxyPolicy
+
+func (policy ProxyPolicyFlag) Value() rpc.ProxyPolicy {
+	return rpc.ProxyPolicy(policy)
 }
 
-func (policy *proxyPolicyFlagVar) Value() rpc.ProxyPolicy {
-	return policy.policy
+func (policy ProxyPolicyFlag) Get() interface{} {
+	return policy
 }
 
-func (policy *proxyPolicyFlagVar) Get() interface{} {
-	return policy.policy
+func (policy ProxyPolicyFlag) String() string {
+	return rpc.ProxyPolicy(policy).String()
 }
 
-func (policy *proxyPolicyFlagVar) String() string {
-	return policy.policy.String()
-}
-
-func (policy *proxyPolicyFlagVar) Set(s string) error {
+func (policy *ProxyPolicyFlag) Set(s string) error {
 	switch s {
 	case "first":
-		policy.policy = rpc.UseFirstProxy
+		*policy = ProxyPolicyFlag(rpc.UseFirstProxy)
 	case "random":
-		policy.policy = rpc.UseRandomProxy
+		*policy = ProxyPolicyFlag(rpc.UseRandomProxy)
 	case "all":
-		policy.policy = rpc.UseAllProxies
+		*policy = ProxyPolicyFlag(rpc.UseAllProxies)
 	default:
 		return fmt.Errorf("unsupported proxy policy: %v, must be one of 'first', 'random' or 'all'", s)
 	}
-	policy.isSet = true
 	return nil
 }
 

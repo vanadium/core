@@ -9,7 +9,7 @@ import "fmt"
 // NamespaceRootFlag represents a flag.Value for --v23.namespace.root.
 type NamespaceRootFlag struct {
 	isSet bool // is true when a flag has been explicitly set.
-	// isDefault true when a flag has the default value and is needed in
+	// isDefault is true when a flag has the default value and is needed in
 	// addition to isSet to distinguish between using a default value
 	// as opposed to one from an environment variable.
 	isDefault bool
@@ -25,7 +25,8 @@ func (nsr *NamespaceRootFlag) String() string {
 func (nsr *NamespaceRootFlag) Set(v string) error {
 	nsr.isDefault = false
 	if !nsr.isSet {
-		// override the default value
+		// Override the default value otherwise the new values would be
+		// appended to the default ones rather than replacing them.
 		nsr.isSet = true
 		nsr.Roots = []string{}
 	}

@@ -23,6 +23,7 @@ package library
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"sync"
 	"time"
@@ -32,7 +33,6 @@ import (
 	"v.io/v23/flow"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
-
 	"v.io/x/lib/vlog"
 	"v.io/x/ref/internal/logger"
 	dfactory "v.io/x/ref/lib/discovery/factory"
@@ -78,8 +78,8 @@ var (
 	// Roam controls whether roaming is enabled.
 	Roam = false
 
-	// CloudVM controls whether cloud configuration is enabled.
-	CloudVM = true
+	// CloudVM controls whether virtualization/cloud configuration is enabled.
+	CloudVM = false
 
 	// ReservedNameDispatcher controls whether a dispatcher is created
 	// for the reserved names on an RPC dispatcher. If it is set then
@@ -112,6 +112,13 @@ var (
 
 	state factoryState
 )
+
+// VirtualizedFlags flags returns a copy of flags.VirtualizedFlags as
+// obtained from the command line and/or environment via the flags
+// package and an indication of whether the flag group was enabled.
+func VirtualizedFlags() (flags.VirtualizedFlags, bool) {
+	return flagSet.VirtualizedFlags(), flagSet.HasGroup(flags.Virtualized)
+}
 
 type factoryState struct {
 	sync.Mutex
@@ -155,14 +162,18 @@ func init() {
 }
 
 func configuredFlags() []flags.FlagGroup {
-	if !ConfigurePermissionsFromFlags {
-		return []flags.FlagGroup{flags.Runtime, flags.Listen}
+	configured := []flags.FlagGroup{}
+	if CloudVM {
+		configured = append(configured, flags.Virtualized)
 	}
-	return []flags.FlagGroup{
+	if !ConfigurePermissionsFromFlags {
+		return append(configured, flags.Runtime, flags.Listen)
+	}
+	return append(configured,
 		flags.Runtime,
 		flags.Listen,
 		flags.Permissions,
-	}
+	)
 }
 
 // EnableCommandlineFlags enables use of command line flags.
@@ -175,7 +186,11 @@ func EnableCommandlineFlags() {
 // parsing by the caller if need be. It will optionally parse the newly
 // created and registered flags.
 func EnableFlags(fs *flag.FlagSet, parse bool) error {
-	flagSet = flags.CreateAndRegister(fs, configuredFlags()...)
+	fset, err := flags.CreateAndRegister(fs, configuredFlags()...)
+	if err != nil {
+		return nil
+	}
+	flagSet = fset
 	if parse {
 		if err := flagSet.Parse(os.Args[1:], nil); err != nil {
 			return err
@@ -217,6 +232,12 @@ func configureLogging() error {
 	return err
 }
 
+type passthroughAddressChooser struct{}
+
+func (c *passthroughAddressChooser) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
+	return candidates, nil
+}
+
 // Init creates a new v23.Runtime.
 func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nolint:gocyclo
 	initialized, running := state.getState()
@@ -235,7 +256,11 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 	previousFlagSet := flagSet
 	if flagSet == nil {
 		dummy := &flag.FlagSet{}
-		flagSet = flags.CreateAndRegister(dummy, configuredFlags()...)
+		fset, err := flags.CreateAndRegister(dummy, configuredFlags()...)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("library.Init: flags: %w", err)
+		}
+		flagSet = fset
 	} else {
 		rtParsed := state.getParsingState()
 		if !rtParsed {
@@ -269,18 +294,17 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		}
 	}
 
-	var cancelCloud func()
+	var chooser rpc.AddressChooser = &passthroughAddressChooser{}
 	var err error
+
 	if CloudVM {
-		cancelCloud, err = internal.InitCloudVM()
-		if err != nil {
-			return nil, nil, nil, err
-		}
+		vf := flagSet.VirtualizedFlags()
+		chooser = internal.AsyncCloudAddressChoser(ctx, logger.Global(), &vf)
 	}
 
 	discoveryFactory, err := dfactory.New(ctx)
 	if err != nil {
-		ishutdown(cancelCloud)
+		ishutdown()
 		return nil, nil, nil, err
 	}
 
@@ -288,7 +312,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		Addrs:          rpc.ListenAddrs(listenFlags.Addrs),
 		Proxy:          listenFlags.Proxy,
 		ProxyPolicy:    listenFlags.ProxyPolicy.Value(),
-		AddressChooser: internal.NewAddressChooser(logger.Global()),
+		AddressChooser: chooser,
 	}
 
 	var reservedDispatcher rpc.Dispatcher
@@ -317,12 +341,12 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) { //nol
 		&PermissionsSpec,
 		ConnectionExpiryDuration)
 	if err != nil {
-		ishutdown(cancelCloud, discoveryFactory.Shutdown)
+		ishutdown(discoveryFactory.Shutdown)
 		return nil, nil, nil, err
 	}
 
 	runtimeFactoryShutdown := func() {
-		ishutdown(cancelCloud, discoveryFactory.Shutdown)
+		ishutdown(discoveryFactory.Shutdown)
 		shutdown()
 		flagSet = previousFlagSet
 		state.setRunning(false)
