@@ -118,19 +118,6 @@ func Init(
 	// Configure the context to use the global logger.
 	ctx = context.WithLogger(ctx, logger.Global())
 
-	// We want to print out metadata only into the log files, to avoid
-	// spamming stderr, see #1246.
-	//
-	// TODO(caprita): We should add it to the log file header information;
-	// since that requires changes to the llog and vlog packages, for now we
-	// condition printing of metadata on having specified an explicit
-	// log_dir for the program.  It's a hack, but it gets us the metadata
-	// to device manager-run apps and avoids it for command-lines, which is
-	// a good enough approximation.
-	if logger.Manager(ctx).LogDir() != os.TempDir() {
-		ctx.Infof(metadata.ToXML())
-	}
-
 	ctx.VI(1).Infof("RuntimeFlags: %v", flags)
 	ctx.VI(1).Infof("ListenSpec: %v", listenSpec)
 	ctx.VI(1).Infof("PermissionsSpec: %v", permissionsSpec)

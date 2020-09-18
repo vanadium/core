@@ -22,6 +22,16 @@ const (
 	// See v.io/x/ref/lib/security.CreatePersistentPrincipal.
 	EnvCredentials = "V23_CREDENTIALS"
 
+	// When set and non-empty, EnvCredentials is hosted on a read-only
+	// filesystem.
+	EnvCredentialsReadonlyFileSystem = "V23_CREDENTIALS_READONLY_FILESYSTEM"
+
+	// EnvCredentialsNoLockDeprecated and V23_CREDENTIALS_NO_LOCK will
+	// be removed in a subsequent release. This is essentially an alias
+	// for V23_CREDENTIALS_READONLY_FILESYSTEM which should be used
+	// instead.
+	EnvCredentialsNoLockDeprecated = "V23_CREDENTIALS_NO_LOCK"
+
 	// EnvCredentialsReloadInterval is the name of the environment variable
 	// that specifies the interval between credentials reloads.
 	EnvCredentialsReloadInterval = "V23_CREDENTIALS_RELOAD_INTERVAL"
@@ -42,7 +52,13 @@ const (
 
 	// When EnvExpectGoogleComputeEngine is set and non-empty, the runtime
 	// initialization will fail if the GCE metadata is inaccessible.
+	// DEPRECATED: use V23_VIRTUALIZATION_PROVIDER instead.
 	EnvExpectGoogleComputeEngine = "V23_EXPECT_GOOGLE_COMPUTE_ENGINE"
+
+	// EnvVirtualizationProvider is the name of the environment variable
+	// naming the virtualization/cloud provider that the process is
+	// expected to be run under. It replaces EnvExpectGoogleComputeEngine.
+	EnvVirtualizationProvider = "V23_VIRTUALIZATION_PROVIDER"
 
 	// A comma-separated list of path names to export disk stats for.
 	EnvSysStatsDiskPaths = "V23_SYS_STATS_DISK_PATHS"
@@ -78,10 +94,27 @@ func EnvNamespaceRoots() (map[string]string, []string) {
 func EnvClearCredentials() error {
 	for _, v := range []string{
 		EnvCredentials,
+		EnvCredentialsReadonlyFileSystem,
+		EnvCredentialsNoLockDeprecated,
 	} {
 		if err := os.Unsetenv(v); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// ReadonlyCredentialsDir returns true if the credentials directory is to be
+// treated as readonly, for example, because it exists on a read-only
+// filesystem. Any attempt to write to this directory should result in an
+// error. It also returns the reason that the directory is considered readonly,
+// for now, the name of the environment variable that is used to indicate this.
+func ReadonlyCredentialsDir() (reason string, readonly bool) {
+	switch {
+	case len(os.Getenv(EnvCredentialsReadonlyFileSystem)) > 0:
+		return EnvCredentialsReadonlyFileSystem, true
+	case len(os.Getenv(EnvCredentialsNoLockDeprecated)) > 0:
+		return EnvCredentialsNoLockDeprecated, true
+	}
+	return "", false
 }

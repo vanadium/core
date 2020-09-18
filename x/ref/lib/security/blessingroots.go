@@ -45,7 +45,7 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 	br.mu.Lock()
 	defer br.mu.Unlock()
 
-	unlock, err := br.lockAndLoad()
+	unlock, err := br.writeLockAndLoad()
 	if err != nil {
 		return err
 	}
@@ -150,17 +150,12 @@ func (br *blessingRoots) save() error {
 	return encodeAndStore(br.state, data, signature, br.signer)
 }
 
-func (br *blessingRoots) lockAndLoad() (func(), error) {
-	if br.flock == nil {
-		// in-memory store
-		return func() {}, br.load()
-	}
-	unlock, err := br.flock.Lock()
-	if err != nil {
-		return nil, err
-	}
-	err = br.load()
-	return unlock, err
+func (br *blessingRoots) readLockAndLoad() (func(), error) {
+	return readLockAndLoad(br.flock, br.load)
+}
+
+func (br *blessingRoots) writeLockAndLoad() (func(), error) {
+	return writeLockAndLoad(br.flock, br.load)
 }
 
 func (br *blessingRoots) load() error {
@@ -237,7 +232,7 @@ func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, reader
 		go reload(ctx, func() (func(), error) {
 			br.mu.Lock()
 			defer br.mu.Unlock()
-			return br.lockAndLoad()
+			return br.readLockAndLoad()
 		}, hupCh, update)
 	}
 	return br, nil

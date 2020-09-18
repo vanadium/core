@@ -21,9 +21,8 @@
 // the flags and environment variables it supports.
 //
 // Default values are provided for all flags that can be overridden either
-// by calling functions in this package, or globally, by providing a new
-// source code file, that provides an init function (see aaa.go)
-// that provides an additional set of default values to be merged with the
-// original ones. It should be placed in a file that is lexicographically
-// less than zzz.go, e.g. site.go.
+// by calling functions in this package, or globally, by providing an alternative
+// implementation of the ./flags/sitedefaults package. sitedefaults is sub-module
+// that can be overridden using a 'replace' statement in go.mod to provide
+// site specific defaults.
 package flags
