@@ -82,11 +82,11 @@ func TestErrInvalidMessage(t *testing.T) {
 	if got, want := errors.Unwrap(err).Error(), serr.Error(); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	typ, size, field, ok := ParseErrInvalidMessage(serr)
+	_, _, _, ok := ParseErrInvalidMessage(serr)
 	if got, want := ok, false; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	typ, size, field, ok = ParseErrInvalidMessage(err)
+	typ, size, field, ok := ParseErrInvalidMessage(err)
 	if got, want := ok, true; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}

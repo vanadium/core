@@ -519,6 +519,22 @@ func cleanupTryConnectToName(skip *serverStatus, responses []*serverStatus, ch c
 	}
 }
 
+func errorForAction(ctx *context.T, id verror.IDAction, name string) error {
+	switch id {
+	case verror.ErrBadProtocol:
+		return id.Errorf(ctx, "Bad protocol or type")
+	case verror.ErrCanceled:
+		return id.Errorf(ctx, "Canceled")
+	case verror.ErrTimeout:
+		return id.Errorf(ctx, "Timeout")
+	case verror.ErrNotTrusted:
+		return id.Errorf(ctx, "Client does not trust server: %s", name)
+	case verror.ErrNoServers:
+		return id.Errorf(ctx, "No usable servers found for %s", name)
+	}
+	return verror.Errorf(ctx, "Unclassified error")
+}
+
 // failedTryConnectToName performs asynchronous cleanup for connectToName, and returns an
 // appropriate error from the responses we've already received.  All parallel
 // calls in tryConnectToName failed or we timed out if we get here.
@@ -560,18 +576,7 @@ func (c *client) failedTryConnectToName(ctx *context.T, name, method string, res
 		topLevelAction = verror.NoRetry
 	default:
 	}
-
-	var topLevelError error
-	switch id := topLevelIDAction; id {
-	case verror.ErrCanceled:
-		topLevelError = id.Errorf(ctx, "Canceled")
-	case verror.ErrTimeout:
-		topLevelError = id.Errorf(ctx, "Timeout")
-	case verror.ErrNotTrusted:
-		topLevelError = id.Errorf(ctx, "Client does not trust server: %s", name)
-	case verror.ErrNoServers:
-		topLevelError = id.Errorf(ctx, "No usable servers found for %s", name)
-	}
+	topLevelError := errorForAction(ctx, topLevelIDAction, name)
 
 	// TODO(cnicolaou): we get system errors for things like dialing using
 	// the 'ws' protocol which can never succeed even if we retry the connection,

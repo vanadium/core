@@ -11,7 +11,6 @@ var (
 	errCacheClosed               = verror.NewID("CacheClosed")
 	errConnKilledToFreeResources = verror.NewID("ConnKilledToFreeResources")
 	errInvalidProxyResponse      = verror.NewID("InvalidProxyResponse")
-	errManagerDialingSelf        = verror.NewID("ManagerDialingSelf")
 	errListeningWithNullRid      = verror.NewID("ListeningWithNullRid")
 	errProxyResponse             = verror.NewID("ProxyResponse")
 	errNoBlessingsForPeer        = verror.NewID("NoBlessingsForPeer")

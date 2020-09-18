@@ -559,7 +559,7 @@ func (s *server) acceptLoop(ctx *context.T) error {
 
 func (s *server) AddName(name string) error {
 	if len(name) == 0 {
-		return verror.ErrBadArg.Errorf(s.ctx, "Bad arugment: name is empty")
+		return verror.ErrBadArg.Errorf(s.ctx, "Bad argument: name is empty")
 	}
 	s.Lock()
 	defer s.Unlock()
