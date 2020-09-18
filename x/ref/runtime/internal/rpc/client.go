@@ -525,19 +525,19 @@ func cleanupTryConnectToName(skip *serverStatus, responses []*serverStatus, ch c
 func (c *client) failedTryConnectToName(ctx *context.T, name, method string, responses []*serverStatus, ch chan *serverStatus) (*serverStatus, verror.ActionCode, bool, error) {
 	go cleanupTryConnectToName(nil, responses, ch)
 	v23.GetNamespace(ctx).FlushCacheEntry(ctx, name)
-	suberrs := []verror.SubErr{}
-	topLevelError := verror.ErrNoServers
+	suberrs := []error{}
+	topLevelIDAction := verror.ErrNoServers
 	topLevelAction := verror.RetryRefetch
 	onlyErrNetwork := true
 	for _, r := range responses {
 		if r != nil && r.serverErr != nil && r.serverErr.Err != nil {
 			switch verror.ErrorID(r.serverErr.Err) {
 			case verror.ErrNotTrusted.ID, errPeerAuthorizeFailed.ID:
-				topLevelError = verror.ErrNotTrusted
+				topLevelIDAction = verror.ErrNotTrusted
 				topLevelAction = verror.NoRetry
 				onlyErrNetwork = false
 			case verror.ErrTimeout.ID:
-				topLevelError = verror.ErrTimeout
+				topLevelIDAction = verror.ErrTimeout
 				onlyErrNetwork = false
 			default:
 				onlyErrNetwork = false
@@ -548,17 +548,29 @@ func (c *client) failedTryConnectToName(ctx *context.T, name, method string, res
 
 	if onlyErrNetwork {
 		// If we only encountered network errors, then report ErrBadProtocol.
-		topLevelError = verror.ErrBadProtocol
+		topLevelIDAction = verror.ErrBadProtocol
 	}
 
 	switch ctx.Err() {
 	case context.Canceled:
-		topLevelError = verror.ErrCanceled
+		topLevelIDAction = verror.ErrCanceled
 		topLevelAction = verror.NoRetry
 	case context.DeadlineExceeded:
-		topLevelError = verror.ErrTimeout
+		topLevelIDAction = verror.ErrTimeout
 		topLevelAction = verror.NoRetry
 	default:
+	}
+
+	var topLevelError error
+	switch id := topLevelIDAction; id {
+	case verror.ErrCanceled:
+		topLevelError = id.Errorf(ctx, "Canceled")
+	case verror.ErrTimeout:
+		topLevelError = id.Errorf(ctx, "Timeout")
+	case verror.ErrNotTrusted:
+		topLevelError = id.Errorf(ctx, "Client does not trust server: %s", name)
+	case verror.ErrNoServers:
+		topLevelError = id.Errorf(ctx, "No usable servers found for %s", name)
 	}
 
 	// TODO(cnicolaou): we get system errors for things like dialing using
@@ -569,7 +581,7 @@ func (c *client) failedTryConnectToName(ctx *context.T, name, method string, res
 	// will require thinking through all of the cases where the RPC can
 	// be retried by the client whilst it's actually being executed on the
 	// server.
-	return nil, topLevelAction, false, verror.AddSubErrs(verror.New(topLevelError, ctx), ctx, suberrs...)
+	return nil, topLevelAction, false, verror.WithSubErrors(topLevelError, suberrs...)
 }
 
 func (c *client) Close() {
@@ -647,18 +659,19 @@ func (fc *flowClient) close(err error) error {
 	case verror.ErrTimeout.ID:
 		// Canceled trumps timeout.
 		if fc.ctx.Err() == context.Canceled {
-			return verror.AddSubErrs(verror.New(verror.ErrCanceled, fc.ctx), fc.ctx, subErr)
+			canceled := verror.ErrCanceled.Errorf(fc.ctx, "Canceled")
+			return verror.WithSubErrors(canceled, subErr)
 		}
 		return err
 	default:
 		switch fc.ctx.Err() {
 		case context.DeadlineExceeded:
 			timeout := verror.ErrTimeout.Errorf(fc.ctx, "Timeout")
-			err := verror.AddSubErrs(timeout, fc.ctx, subErr)
+			err := verror.WithSubErrors(timeout, subErr)
 			return err
 		case context.Canceled:
 			canceled := verror.ErrCanceled.Errorf(fc.ctx, "Canceled")
-			err := verror.AddSubErrs(canceled, fc.ctx, subErr)
+			err := verror.WithSubErrors(canceled, subErr)
 			return err
 		}
 	}

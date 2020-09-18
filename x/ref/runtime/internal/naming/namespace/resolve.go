@@ -115,8 +115,11 @@ func (ns *namespace) Resolve(ctx *context.T, name string, opts ...naming.Namespa
 	// TODO(caprita): Consider doing this also for ResolveShallow and
 	// ResolveToMountTable.
 	if err != nil && hasEndpointPrefix(name) {
-		verrorE := verror.Convert(verror.IDAction{}, ctx, err)
-		err = verror.AddSubErrs(verrorE, nil, verror.SubErr{Name: "Did you mean", Err: verror.E{Msg: "/" + name}, Options: verror.Print})
+		verr := err
+		if !verror.IsAny(verr) {
+			verr = verror.ErrUnknown.Errorf(ctx, "%v", err)
+		}
+		err = verror.WithSubErrors(verr, verror.SubErr{Name: "Did you mean", Err: verror.E{Msg: "/" + name}, Options: verror.Print})
 	}
 	return e, err
 }
