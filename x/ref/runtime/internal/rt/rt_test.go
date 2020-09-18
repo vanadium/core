@@ -31,7 +31,11 @@ func TestInit(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	mgr := logger.Manager(ctx)
+	mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+	if !ok {
+		t.Fatalf("log manager not found")
+	}
+
 	fmt.Println(mgr)
 	args := fmt.Sprintf("%s", mgr)
 	expected := regexp.MustCompile(`name=vanadium logdirs=\[/tmp\] logtostderr=true|false alsologtostderr=false|true max_stack_buf_size=4292608 v=[0-9] stderrthreshold=2 vmodule= vfilepath= log_backtrace_at=:0`)
@@ -58,7 +62,10 @@ var child = gosh.RegisterFunc("child", func() {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	mgr := logger.Manager(ctx)
+	mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+	if !ok {
+		panic("log manager not found")
+	}
 	ctx.Infof("%s\n", mgr)
 	fmt.Printf("%s\n", mgr)
 	<-signals.ShutdownOnSignals(ctx)

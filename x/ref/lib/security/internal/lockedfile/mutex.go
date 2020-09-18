@@ -65,3 +65,20 @@ func (mu *Mutex) Lock() (unlock func(), err error) {
 		f.Close()
 	}, nil
 }
+
+// Lock attempts to lock the Mutex for read-only access.
+func (mu *Mutex) RLock() (unlock func(), err error) {
+	if mu.Path == "" {
+		panic("lockedfile.Mutex: missing Path during Lock")
+	}
+	f, err := OpenFile(mu.Path, os.O_RDONLY, 0000)
+	if err != nil {
+		return nil, err
+	}
+	mu.mu.Lock()
+
+	return func() {
+		mu.mu.Unlock()
+		f.Close()
+	}, nil
+}
