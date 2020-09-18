@@ -25,7 +25,7 @@ type leafDispatcher struct {
 
 func (d leafDispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.Authorizer, error) {
 	if suffix != "" {
-		return nil, nil, verror.New(verror.ErrUnknownSuffix, nil, suffix)
+		return nil, nil, verror.ErrUnknownSuffix.Errorf(nil, "Suffix does not exist: %v", suffix)
 	}
 	return d.invoker, d.auth, nil
 }

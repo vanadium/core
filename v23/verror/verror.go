@@ -194,10 +194,15 @@ func NewID(id ID) IDAction {
 
 // Errorf creates a new verror.E that uses fmt.Errorf style formatting and is
 // not intended for localization. Errorf prepends the component and operation
-// name if they can be extracted from the context. It supports %w for errors.Unwrap.
+// name if they can be extracted from the context. It supports %w for errors.Unwrap
+// which takes precedence over using the last parameter if it's an error as
+// the error to be returned by Unwrap.
 func (id IDAction) Errorf(ctx *context.T, format string, params ...interface{}) error {
 	// handle %w.
 	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	if unwrap == nil {
+		unwrap = isLastParStandardError(params)
+	}
 	return verrorf(ctx, id, fmt.Sprintf(format, params...), unwrap, params)
 }
 
@@ -212,6 +217,9 @@ func (id IDAction) Message(ctx *context.T, msg string, params ...interface{}) er
 func Errorf(ctx *context.T, format string, params ...interface{}) error {
 	// handle %w.
 	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	if unwrap == nil {
+		unwrap = isLastParStandardError(params)
+	}
 	return verrorf(ctx, ErrUnknown, fmt.Sprintf(format, params...), unwrap, params)
 }
 

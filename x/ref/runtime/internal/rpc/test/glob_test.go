@@ -49,7 +49,7 @@ func TestGlob(t *testing.T) {
 	ep := server.Status().Endpoints[0].String()
 
 	var (
-		noExist        = verror.New(verror.ErrNoExist, ctx, "")
+		noExist        = verror.ErrNoExist.Errorf(ctx, "Does not exist")
 		notImplemented = reserved.NewErrGlobNotImplemented(ctx)
 		maxRecursion   = reserved.NewErrGlobMaxRecursionReached(ctx)
 	)
@@ -272,7 +272,7 @@ func (d *disp) Lookup(ctx *context.T, suffix string) (interface{}, security.Auth
 	}
 	n := d.tree.find(elems, false)
 	if n == nil {
-		return nil, nil, verror.New(verror.ErrNoExist, ctx, suffix)
+		return nil, nil, verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", suffix)
 	}
 	if len(elems) < 2 || (elems[0] == "a" && elems[1] == "x") {
 		return &vChildrenObject{n}, auth, nil

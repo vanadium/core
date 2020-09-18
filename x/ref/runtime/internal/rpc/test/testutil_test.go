@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/test/testutil"
 )
 
-var errMethod = verror.New(verror.ErrAborted, nil)
+var errMethod = verror.ErrAborted.Errorf(nil, "Aborted")
 var fakeTimeCaveat = security.CaveatDescriptor{
 	Id:        uniqueid.Id{0x18, 0xba, 0x6f, 0x84, 0xd5, 0xec, 0xdb, 0x9b, 0xf2, 0x32, 0x19, 0x5b, 0x53, 0x92, 0x80, 0x0},
 	ParamType: vdl.TypeOf(int64(0)),

@@ -6,6 +6,8 @@ package message
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -71,5 +73,30 @@ func TestUninterpretedSetupOpts(t *testing.T) {
 	}
 	if !reflect.DeepEqual(mc, mb) {
 		t.Errorf("uninterpreted options were no decoded correctly, got %v, want %v", mc, mb)
+	}
+}
+
+func TestErrInvalidMessage(t *testing.T) {
+	serr := fmt.Errorf("my error")
+	err := NewErrInvalidMsg(nil, 0x11, 33, 64, serr)
+	if got, want := errors.Unwrap(err).Error(), serr.Error(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	typ, size, field, ok := ParseErrInvalidMessage(serr)
+	if got, want := ok, false; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	typ, size, field, ok = ParseErrInvalidMessage(err)
+	if got, want := ok, true; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := typ, byte(0x11); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := size, uint64(33); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := field, uint64(64); got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 }

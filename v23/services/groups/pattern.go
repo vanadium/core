@@ -75,7 +75,7 @@ func (g *grpClient) match(ctx *context.T, p security.BlessingPattern, blessings 
 	patTokens, err := splitPattern(p)
 	if err != nil {
 		// Approximate the result.
-		errTmp := verror.New(verror.ErrBadArg, ctx, "malformed pattern", p)
+		errTmp := verror.ErrBadArg.Errorf(ctx, "Bad argument: malformed pattern: %s", p)
 		g.apprxs = append(g.apprxs, Approximation{Reason: string(verror.ErrorID(errTmp)), Details: errTmp.Error()})
 		return approxRemainder(g.hint, blessings)
 	}

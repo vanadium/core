@@ -5,6 +5,7 @@
 package manager
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -594,21 +595,20 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				// This can be trigger using 'nmap -sT' to a tcp Vanadium endpoint.
 				skip := false
 				if verror.ErrorID(err) == conn.ErrRecv.ID {
-					verr := err.(verror.E)
-					if verr.ParamList[3] == io.EOF {
+					wrapped := errors.Unwrap(err)
+					if wrapped == io.EOF {
 						skip = true
 					}
-					switch p := verr.ParamList[3].(type) {
+					switch p := wrapped.(type) {
 					case *net.OpError:
 						sysErr, ok := p.Err.(*os.SyscallError)
 						if ok && sysErr.Err == syscall.ECONNRESET {
 							skip = true
 						}
 					case verror.E:
-						if p.ID == message.ErrInvalidMsg.ID {
-							if p.ParamList[2].(uint8) == 127 && p.ParamList[3].(uint64) == 0 && p.ParamList[4].(uint64) == 0 {
-								skip = true
-							}
+						typ, size, field, ok := message.ParseErrInvalidMessage(err)
+						if ok && typ == 127 && size == 0 && field == 0 {
+							skip = true
 						}
 					}
 					line := fmt.Sprintf("failed to accept flow.Conn on localEP %v failed: %v", local, err)

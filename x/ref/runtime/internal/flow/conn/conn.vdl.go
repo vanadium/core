@@ -11,11 +11,8 @@ package conn
 import (
 	"fmt"
 
-	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/security"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/bcrypter"
 )
 
@@ -716,150 +713,6 @@ func VDLReadBlessingsFlowMessage(dec vdl.Decoder, x *BlessingsFlowMessage) error
 	return dec.FinishValue()
 }
 
-//////////////////////////////////////////////////
-// Error definitions
-
-var (
-	ErrMissingSetupOption       = verror.Register("v.io/x/ref/runtime/internal/flow/conn.MissingSetupOption", verror.NoRetry, "{1:}{2:} missing required setup option{:3}.")
-	ErrUnexpectedMsg            = verror.Register("v.io/x/ref/runtime/internal/flow/conn.UnexpectedMsg", verror.NoRetry, "{1:}{2:} unexpected message type{:3}.")
-	ErrConnectionClosed         = verror.Register("v.io/x/ref/runtime/internal/flow/conn.ConnectionClosed", verror.NoRetry, "{1:}{2:} connection closed.")
-	ErrRemoteError              = verror.Register("v.io/x/ref/runtime/internal/flow/conn.RemoteError", verror.NoRetry, "{1:}{2:} remote end received err{:3}.")
-	ErrSend                     = verror.Register("v.io/x/ref/runtime/internal/flow/conn.Send", verror.NoRetry, "{1:}{2:} failure sending {3} message to {4}{:5}.")
-	ErrRecv                     = verror.Register("v.io/x/ref/runtime/internal/flow/conn.Recv", verror.NoRetry, "{1:}{2:} error reading from {3}{:4}")
-	ErrCounterOverflow          = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CounterOverflow", verror.NoRetry, "{1:}{2:} A remote process has sent more data than allowed.")
-	ErrBlessingsFlowClosed      = verror.Register("v.io/x/ref/runtime/internal/flow/conn.BlessingsFlowClosed", verror.NoRetry, "{1:}{2:} The blessings flow was closed with error{:3}.")
-	ErrInvalidChannelBinding    = verror.Register("v.io/x/ref/runtime/internal/flow/conn.InvalidChannelBinding", verror.NoRetry, "{1:}{2:} The channel binding was invalid.")
-	ErrNoPublicKey              = verror.Register("v.io/x/ref/runtime/internal/flow/conn.NoPublicKey", verror.NoRetry, "{1:}{2:} No public key was received by the remote end.")
-	ErrDialingNonServer         = verror.Register("v.io/x/ref/runtime/internal/flow/conn.DialingNonServer", verror.NoRetry, "{1:}{2:} You are attempting to dial on a connection with no remote server: {:3}.")
-	ErrAcceptorBlessingsMissing = verror.Register("v.io/x/ref/runtime/internal/flow/conn.AcceptorBlessingsMissing", verror.NoRetry, "{1:}{2:} The acceptor did not send blessings.")
-	ErrDialerBlessingsMissing   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.DialerBlessingsMissing", verror.NoRetry, "{1:}{2:} The dialer did not send blessings.")
-	ErrBlessingsNotBound        = verror.Register("v.io/x/ref/runtime/internal/flow/conn.BlessingsNotBound", verror.NoRetry, "{1:}{2:} blessings not bound to connection remote public key")
-	ErrInvalidPeerFlow          = verror.Register("v.io/x/ref/runtime/internal/flow/conn.InvalidPeerFlow", verror.NoRetry, "{1:}{2:} peer has chosen flow id from local domain.")
-	ErrChannelTimeout           = verror.Register("v.io/x/ref/runtime/internal/flow/conn.ChannelTimeout", verror.NoRetry, "{1:}{2:} the channel has become unresponsive.")
-	ErrCannotDecryptBlessings   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotDecryptBlessings", verror.NoRetry, "{1:}{2:} cannot decrypt the encrypted blessings sent by peer{:3}")
-	ErrCannotDecryptDischarges  = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotDecryptDischarges", verror.NoRetry, "{1:}{2:} cannot decrypt the encrypted discharges sent by peer{:3}")
-	ErrCannotEncryptBlessings   = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotEncryptBlessings", verror.NoRetry, "{1:}{2:} cannot encrypt blessings for peer {3}{:4}")
-	ErrCannotEncryptDischarges  = verror.Register("v.io/x/ref/runtime/internal/flow/conn.CannotEncryptDischarges", verror.NoRetry, "{1:}{2:} cannot encrypt discharges for peers {3}{:4}")
-	ErrNoCrypter                = verror.Register("v.io/x/ref/runtime/internal/flow/conn.NoCrypter", verror.NoRetry, "{1:}{2:} no blessings-based crypter available")
-	ErrNoPrivateKey             = verror.Register("v.io/x/ref/runtime/internal/flow/conn.NoPrivateKey", verror.NoRetry, "{1:}{2:} no blessings private key available for decryption")
-	ErrIdleConnKilled           = verror.Register("v.io/x/ref/runtime/internal/flow/conn.IdleConnKilled", verror.NoRetry, "{1:}{2:} Connection killed because idle expiry was reached.")
-)
-
-// NewErrMissingSetupOption returns an error with the ErrMissingSetupOption ID.
-func NewErrMissingSetupOption(ctx *context.T, option string) error {
-	return verror.New(ErrMissingSetupOption, ctx, option)
-}
-
-// NewErrUnexpectedMsg returns an error with the ErrUnexpectedMsg ID.
-func NewErrUnexpectedMsg(ctx *context.T, typ string) error {
-	return verror.New(ErrUnexpectedMsg, ctx, typ)
-}
-
-// NewErrConnectionClosed returns an error with the ErrConnectionClosed ID.
-func NewErrConnectionClosed(ctx *context.T) error {
-	return verror.New(ErrConnectionClosed, ctx)
-}
-
-// NewErrRemoteError returns an error with the ErrRemoteError ID.
-func NewErrRemoteError(ctx *context.T, msg string) error {
-	return verror.New(ErrRemoteError, ctx, msg)
-}
-
-// NewErrSend returns an error with the ErrSend ID.
-func NewErrSend(ctx *context.T, typ string, dest string, err error) error {
-	return verror.New(ErrSend, ctx, typ, dest, err)
-}
-
-// NewErrRecv returns an error with the ErrRecv ID.
-func NewErrRecv(ctx *context.T, src string, err error) error {
-	return verror.New(ErrRecv, ctx, src, err)
-}
-
-// NewErrCounterOverflow returns an error with the ErrCounterOverflow ID.
-func NewErrCounterOverflow(ctx *context.T) error {
-	return verror.New(ErrCounterOverflow, ctx)
-}
-
-// NewErrBlessingsFlowClosed returns an error with the ErrBlessingsFlowClosed ID.
-func NewErrBlessingsFlowClosed(ctx *context.T, err error) error {
-	return verror.New(ErrBlessingsFlowClosed, ctx, err)
-}
-
-// NewErrInvalidChannelBinding returns an error with the ErrInvalidChannelBinding ID.
-func NewErrInvalidChannelBinding(ctx *context.T) error {
-	return verror.New(ErrInvalidChannelBinding, ctx)
-}
-
-// NewErrNoPublicKey returns an error with the ErrNoPublicKey ID.
-func NewErrNoPublicKey(ctx *context.T) error {
-	return verror.New(ErrNoPublicKey, ctx)
-}
-
-// NewErrDialingNonServer returns an error with the ErrDialingNonServer ID.
-func NewErrDialingNonServer(ctx *context.T, ep string) error {
-	return verror.New(ErrDialingNonServer, ctx, ep)
-}
-
-// NewErrAcceptorBlessingsMissing returns an error with the ErrAcceptorBlessingsMissing ID.
-func NewErrAcceptorBlessingsMissing(ctx *context.T) error {
-	return verror.New(ErrAcceptorBlessingsMissing, ctx)
-}
-
-// NewErrDialerBlessingsMissing returns an error with the ErrDialerBlessingsMissing ID.
-func NewErrDialerBlessingsMissing(ctx *context.T) error {
-	return verror.New(ErrDialerBlessingsMissing, ctx)
-}
-
-// NewErrBlessingsNotBound returns an error with the ErrBlessingsNotBound ID.
-func NewErrBlessingsNotBound(ctx *context.T) error {
-	return verror.New(ErrBlessingsNotBound, ctx)
-}
-
-// NewErrInvalidPeerFlow returns an error with the ErrInvalidPeerFlow ID.
-func NewErrInvalidPeerFlow(ctx *context.T) error {
-	return verror.New(ErrInvalidPeerFlow, ctx)
-}
-
-// NewErrChannelTimeout returns an error with the ErrChannelTimeout ID.
-func NewErrChannelTimeout(ctx *context.T) error {
-	return verror.New(ErrChannelTimeout, ctx)
-}
-
-// NewErrCannotDecryptBlessings returns an error with the ErrCannotDecryptBlessings ID.
-func NewErrCannotDecryptBlessings(ctx *context.T, err error) error {
-	return verror.New(ErrCannotDecryptBlessings, ctx, err)
-}
-
-// NewErrCannotDecryptDischarges returns an error with the ErrCannotDecryptDischarges ID.
-func NewErrCannotDecryptDischarges(ctx *context.T, err error) error {
-	return verror.New(ErrCannotDecryptDischarges, ctx, err)
-}
-
-// NewErrCannotEncryptBlessings returns an error with the ErrCannotEncryptBlessings ID.
-func NewErrCannotEncryptBlessings(ctx *context.T, peers []security.BlessingPattern, err error) error {
-	return verror.New(ErrCannotEncryptBlessings, ctx, peers, err)
-}
-
-// NewErrCannotEncryptDischarges returns an error with the ErrCannotEncryptDischarges ID.
-func NewErrCannotEncryptDischarges(ctx *context.T, peers []security.BlessingPattern, err error) error {
-	return verror.New(ErrCannotEncryptDischarges, ctx, peers, err)
-}
-
-// NewErrNoCrypter returns an error with the ErrNoCrypter ID.
-func NewErrNoCrypter(ctx *context.T) error {
-	return verror.New(ErrNoCrypter, ctx)
-}
-
-// NewErrNoPrivateKey returns an error with the ErrNoPrivateKey ID.
-func NewErrNoPrivateKey(ctx *context.T) error {
-	return verror.New(ErrNoPrivateKey, ctx)
-}
-
-// NewErrIdleConnKilled returns an error with the ErrIdleConnKilled ID.
-func NewErrIdleConnKilled(ctx *context.T) error {
-	return verror.New(ErrIdleConnKilled, ctx)
-}
-
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
@@ -914,31 +767,6 @@ func initializeVDL() struct{} {
 	vdlTypeUnion8 = vdl.TypeOf((*security.WireDischarge)(nil))
 	vdlTypeStruct9 = vdl.TypeOf((*EncryptedDischarges)(nil)).Elem()
 	vdlTypeUnion10 = vdl.TypeOf((*BlessingsFlowMessage)(nil))
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMissingSetupOption.ID), "{1:}{2:} missing required setup option{:3}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnexpectedMsg.ID), "{1:}{2:} unexpected message type{:3}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrConnectionClosed.ID), "{1:}{2:} connection closed.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrRemoteError.ID), "{1:}{2:} remote end received err{:3}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrSend.ID), "{1:}{2:} failure sending {3} message to {4}{:5}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrRecv.ID), "{1:}{2:} error reading from {3}{:4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCounterOverflow.ID), "{1:}{2:} A remote process has sent more data than allowed.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBlessingsFlowClosed.ID), "{1:}{2:} The blessings flow was closed with error{:3}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidChannelBinding.ID), "{1:}{2:} The channel binding was invalid.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoPublicKey.ID), "{1:}{2:} No public key was received by the remote end.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDialingNonServer.ID), "{1:}{2:} You are attempting to dial on a connection with no remote server: {:3}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAcceptorBlessingsMissing.ID), "{1:}{2:} The acceptor did not send blessings.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDialerBlessingsMissing.ID), "{1:}{2:} The dialer did not send blessings.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBlessingsNotBound.ID), "{1:}{2:} blessings not bound to connection remote public key")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidPeerFlow.ID), "{1:}{2:} peer has chosen flow id from local domain.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrChannelTimeout.ID), "{1:}{2:} the channel has become unresponsive.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotDecryptBlessings.ID), "{1:}{2:} cannot decrypt the encrypted blessings sent by peer{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotDecryptDischarges.ID), "{1:}{2:} cannot decrypt the encrypted discharges sent by peer{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotEncryptBlessings.ID), "{1:}{2:} cannot encrypt blessings for peer {3}{:4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCannotEncryptDischarges.ID), "{1:}{2:} cannot encrypt discharges for peers {3}{:4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoCrypter.ID), "{1:}{2:} no blessings-based crypter available")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoPrivateKey.ID), "{1:}{2:} no blessings private key available for decryption")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIdleConnKilled.ID), "{1:}{2:} Connection killed because idle expiry was reached.")
 
 	return struct{}{}
 }

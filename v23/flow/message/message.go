@@ -60,7 +60,7 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	case healthCheckResponseType:
 		m = &HealthCheckResponse{}
 	default:
-		return nil, NewErrUnknownMsg(ctx, msgType)
+		return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 	}
 	return m, m.read(ctx, from)
 }
@@ -162,9 +162,9 @@ func appendSetupOption(option uint64, payload, buf []byte) []byte {
 func readSetupOption(ctx *context.T, orig []byte) (opt uint64, p, d []byte, err error) {
 	var valid bool
 	if opt, d, valid = readVarUint64(ctx, orig); !valid {
-		err = NewErrInvalidSetupOption(ctx, invalidOption, 0)
+		err = ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", invalidOption, 0)
 	} else if p, d, valid = readLenBytes(ctx, d); !valid {
-		err = NewErrInvalidSetupOption(ctx, opt, 1)
+		err = ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, 1)
 	}
 	return
 }
@@ -231,13 +231,13 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 			if mtu, _, valid := readVarUint64(ctx, payload); valid {
 				m.Mtu = mtu
 			} else {
-				return NewErrInvalidSetupOption(ctx, opt, field)
+				return ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, field)
 			}
 		case sharedTokensOption:
 			if t, _, valid := readVarUint64(ctx, payload); valid {
 				m.SharedTokens = t
 			} else {
-				return NewErrInvalidSetupOption(ctx, opt, field)
+				return ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, field)
 			}
 		default:
 			m.uninterpretedOptions = append(m.uninterpretedOptions, option{opt, payload})
@@ -319,7 +319,7 @@ func (m *Auth) read(ctx *context.T, orig []byte) error {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 0, nil)
 	}
 	if m.BlessingsKey == 0 {
-		return NewErrMissingBlessings(ctx, openFlowType)
+		return ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
 	}
 	if m.DischargeKey, data, valid = readVarUint64(ctx, data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 1, nil)
@@ -378,7 +378,7 @@ func (m *OpenFlow) read(ctx *context.T, orig []byte) error {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 2, nil)
 	}
 	if m.BlessingsKey == 0 {
-		return NewErrMissingBlessings(ctx, openFlowType)
+		return ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
 	}
 	if m.DischargeKey, data, valid = readVarUint64(ctx, data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)

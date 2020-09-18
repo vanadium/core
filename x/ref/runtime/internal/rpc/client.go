@@ -319,19 +319,19 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {
 	case verror.ErrorID(err) == naming.ErrNoSuchName.ID:
-		return nil, verror.RetryRefetch, false, verror.New(verror.ErrNoServers, ctx, name, err)
+		return nil, verror.RetryRefetch, false, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
 	case verror.ErrorID(err) == verror.ErrNoServers.ID:
 		return nil, verror.NoRetry, false, err // avoid unnecessary wrapping
 	case isTimeout(err):
 		return nil, verror.NoRetry, false, err // return timeout without wrapping
 	case err != nil:
-		return nil, verror.NoRetry, false, verror.New(verror.ErrNoServers, ctx, name, err)
+		return nil, verror.NoRetry, false, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
 	case len(resolved.Servers) == 0:
 		// This should never happen.
-		return nil, verror.NoRetry, true, verror.New(verror.ErrInternal, ctx, name)
+		return nil, verror.NoRetry, true, verror.ErrInternal.Errorf(ctx, "Internal error: %v", name)
 	}
 	if resolved.Servers, err = filterAndOrderServers(resolved.Servers, c.preferredProtocols); err != nil {
-		return nil, verror.RetryRefetch, true, verror.New(verror.ErrNoServers, ctx, name, err)
+		return nil, verror.RetryRefetch, true, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
 	}
 
 	// servers is now ordered by the priority heurestic implemented in
@@ -639,7 +639,7 @@ func (fc *flowClient) close(err error) error {
 	if cerr := fc.flow.Close(); cerr != nil && err == nil {
 		// TODO(mattr): The context is often already canceled here, in
 		// which case we'll get an error.  Not clear what to do.
-		//return verror.New(verror.ErrInternal, fc.ctx, subErr)
+		//return verror.ErrInternal.Errorf(fc.ctx, "Internal error: %v", subErr)
 	}
 	switch verror.ErrorID(err) {
 	case verror.ErrCanceled.ID:
@@ -653,18 +653,18 @@ func (fc *flowClient) close(err error) error {
 	default:
 		switch fc.ctx.Err() {
 		case context.DeadlineExceeded:
-			timeout := verror.New(verror.ErrTimeout, fc.ctx)
+			timeout := verror.ErrTimeout.Errorf(fc.ctx, "Timeout")
 			err := verror.AddSubErrs(timeout, fc.ctx, subErr)
 			return err
 		case context.Canceled:
-			canceled := verror.New(verror.ErrCanceled, fc.ctx)
+			canceled := verror.ErrCanceled.Errorf(fc.ctx, "Canceled")
 			err := verror.AddSubErrs(canceled, fc.ctx, subErr)
 			return err
 		}
 	}
 	switch verror.ErrorID(err) {
 	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID, errBadNumInputArgs.ID, errBadInputArg.ID:
-		return verror.New(verror.ErrBadProtocol, fc.ctx, err)
+		return verror.ErrBadProtocol.Errorf(fc.ctx, "Bad protocol or type: %v", err)
 	}
 	return err
 }
@@ -672,7 +672,7 @@ func (fc *flowClient) close(err error) error {
 func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rpc.CallOpt) error {
 	grantedB, err := fc.initSecurity(fc.ctx, method, suffix, opts)
 	if err != nil {
-		berr := verror.New(verror.ErrNotTrusted, fc.ctx, err)
+		berr := verror.ErrNotTrusted.Errorf(fc.ctx, "Client does not trust server: %v", err)
 		return fc.close(berr)
 	}
 	deadline, _ := fc.ctx.Deadline()
@@ -735,7 +735,7 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 
 func (fc *flowClient) Send(item interface{}) error {
 	if fc.sendClosed {
-		return verror.New(verror.ErrAborted, fc.ctx)
+		return verror.ErrAborted.Errorf(fc.ctx, "Aborted")
 	}
 	// The empty request header indicates what follows is a streaming arg.
 	if err := fc.enc.Encode(rpc.Request{}); err != nil {
@@ -752,7 +752,7 @@ func (fc *flowClient) Send(item interface{}) error {
 func (fc *flowClient) Recv(itemptr interface{}) error {
 	switch {
 	case fc.response.Error != nil:
-		return verror.New(verror.ErrBadProtocol, fc.ctx, fc.response.Error)
+		return verror.ErrBadProtocol.Errorf(fc.ctx, "Bad protocol or type: %v", fc.response.Error)
 	case fc.response.EndStreamResults:
 		return io.EOF
 	}
@@ -887,7 +887,7 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	for ix, r := range resultptrs {
 		if err := fc.dec.Decode(r); err != nil {
 			id, verr := decodeNetError(fc.ctx, err)
-			berr := id.Errorf(fc.ctx, "error decoding results: %v", verror.New(errResultDecoding, fc.ctx, ix, verr))
+			berr := id.Errorf(fc.ctx, "error decoding results: %v", errResultDecoding.Errorf(fc.ctx, "failed to decode result #%v:%v", ix, verr))
 			return fc.close(berr)
 		}
 	}
