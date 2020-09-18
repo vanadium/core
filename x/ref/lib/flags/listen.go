@@ -137,7 +137,7 @@ func (ip *HostPortFlag) Set(s string) error {
 	} else {
 		// have a port in s.
 		if _, err := strconv.ParseUint(port, 10, 16); err != nil {
-			return verror.New(errCantParsePort, nil, s)
+			return fmt.Errorf("failed to parse port number from: %s", s)
 		}
 		ip.Port = port
 	}
