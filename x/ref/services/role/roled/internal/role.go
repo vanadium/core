@@ -95,11 +95,11 @@ func caveats(ctx *context.T, config *Config) ([]security.Caveat, error) {
 	if config.Expiry != "" {
 		d, err := time.ParseDuration(config.Expiry)
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrCreateErrInternal(ctx, err)
 		}
 		expiry, err := security.NewExpiryCaveat(time.Now().Add(d))
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrCreateErrInternal(ctx, err)
 		}
 		caveats = append(caveats, expiry)
 	}
@@ -135,7 +135,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 			}
 			loggingCaveat, err := security.NewCaveat(LoggingCaveat, fullNames)
 			if err != nil {
-				return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+				return security.Blessings{}, useOrCreateErrInternal(ctx, err)
 			}
 			thirdParty, err := security.NewPublicKeyCaveat(principal.PublicKey(), dischargerLocation, security.ThirdPartyRequirements{
 				ReportServer:    true,
@@ -161,7 +161,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 		}
 		b, err := principal.Bless(publicKey, blessWith, ext, cav[0], cav[1:]...)
 		if err != nil {
-			return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+			return security.Blessings{}, useOrCreateErrInternal(ctx, err)
 		}
 		if ret, err = security.UnionOfBlessings(ret, b); err != nil {
 			return ret, useOrWrapAsInternalErr(ctx, err)

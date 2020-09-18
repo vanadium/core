@@ -21,6 +21,13 @@ import (
 	"v.io/x/ref/services/role"
 )
 
+func useOrCreateErrInternal(ctx *context.T, err error) error {
+	if verror.IsAny(err) {
+		return err
+	}
+	return verror.ErrInternal.Errorf(ctx, "Internal error: %v", err)
+}
+
 const requiredSuffix = security.ChainSeparator + role.RoleSuffix
 
 // NewDispatcher returns a dispatcher object for a role service and its
@@ -58,7 +65,7 @@ func (d *dispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.
 		// The config file exists, but we failed to read it for some
 		// reason. This is likely a server configuration error.
 		logger.Global().Errorf("loadConfig(%q, %q): %v", d.config.root, suffix, err)
-		return nil, nil, verror.Convert(verror.ErrInternal, nil, err)
+		return nil, nil, useOrCreateErrInternal(nil, err)
 	}
 	obj := &roleService{serverConfig: d.config, role: suffix, roleConfig: roleConfig}
 	return role.RoleServer(obj), &authorizer{roleConfig}, nil
