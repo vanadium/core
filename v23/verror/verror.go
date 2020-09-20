@@ -6,10 +6,14 @@
 // programming environments, and a set of common errors. It captures the location
 // and parameters of the error call site to aid debugging. Rudimentary i18n support
 // is provided, but now that more comprehensive i18n packages are available
-// its use deprecated. That is, Register and New are deprecated in favour of
-// NewIDAction, IDAction.Errorf and IDAction.Message. Errorf is not intended
-// or localization, whereas Message accepts a preformatted message to allow
-// for localization via an alternative package/framework.
+// its use is deprecated and it will be removed in the near future; that is,
+// Register and New are deprecated in favour of NewIDAction/NewID, IDAction.Errorf
+// and IDAction.Message. Errorf is not intended or localization, whereas
+// Message accepts a preformatted message to allow for localization via an
+// alternative package/framework. The Convert function is also deprecated
+// in favour of capturing non-verror error instances via Errorf, that is,
+// IDAction.Errorf(ctx, "%v", err) should be used to create verror.E's from
+// errors from other packages.
 //
 // NOTE that the deprecated i18n support will be removed in the near future.
 //
@@ -34,8 +38,8 @@
 //
 // Contemporary Example:
 //
-// To define a new error identifier, for example "someNewError", client code is
-// expected to declare a variable like this:
+// To define a new error identifier, for example "someNewError", the code that
+// originates the error is expected to declare a variable like this:
 //     var someNewError = verror.Register("someNewError", NoRetry)
 //     ...
 //     return someNewError.Errorf(ctx, "my error message: %v", err)
@@ -45,6 +49,12 @@
 //    msg := p.Sprintf("invalid name: %v: %v", name, err)
 //    return someNewError.Message(ctx, msg, name, err)
 //
+//
+// The verror implementation supports errors.Is and errors.Unwrap. Note
+// that errors.Unwrap provides access to 'sub-errors' as well as to chained
+// instances of error. verror.WithSubErrors can be used to add additional
+// 'sub-errors' to an existing error and these may be of type SubErr or any
+// other error.
 //
 // Deprecated Usage Example:
 //
@@ -110,10 +120,6 @@
 // any.  If the default context has not been set, the error generated has no
 // language, component and operation values; they will be filled in by the
 // first Convert() call that does have these values.
-//
-// The verror implementation supports errors.Is and errors.Unwrap. Note
-// that errors.Unwrap provides access to SubErr's as well as to chained
-// instances of error.
 package verror
 
 import (
