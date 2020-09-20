@@ -138,7 +138,6 @@ func TestUnwrap(t *testing.T) {
 		Err:     aFR0,
 		Options: verror.Print,
 	}
-	p1 := verror.AddSubErrs(p, nil, s1, s2)
 
 	assertUnwrapDone := func(err error) {
 		if errors.Unwrap(p) != nil {
@@ -147,83 +146,53 @@ func TestUnwrap(t *testing.T) {
 		}
 	}
 
+	testUnwrap := func(err error, expected ...error) error {
+		for i, tc := range expected {
+			err = errors.Unwrap(err)
+			_, _, line, _ := runtime.Caller(1)
+			if err == nil {
+				t.Errorf("line %v: %v: too few unwrapped errors", line, i)
+				return err
+			}
+			if got, want := err.Error(), tc.Error(); got != want {
+				t.Errorf("line %v: %v got %v, want %v", line, i, got, want)
+			}
+		}
+		return err
+	}
+
 	assertUnwrapDone(p)
 
-	err := p1
-	for i, tc := range []string{
-		s1.Error(),
-		s2.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v got %v, want %v", i, got, want)
-		}
-	}
+	p1 := verror.AddSubErrs(p, nil, s1, s2)
+	err := testUnwrap(p1, s1, s2)
 	assertUnwrapDone(err)
 
 	se1 := fmt.Errorf("an error")
 	se2 := os.ErrClosed
 	p2 := verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, "something", se2)
-	err = verror.AddSubErrs(p2, nil, s1, s2)
-	for i, tc := range []string{
-		s1.Error(),
-		s2.Error(),
-		se2.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v got %v, want %v", i, got, want)
-		}
-	}
+	p2 = verror.AddSubErrs(p2, nil, s1, s2)
+
+	err = testUnwrap(p2, s1, s2, se2)
 	assertUnwrapDone(err)
 
 	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, s1, se2, s2)
-	for i, tc := range []string{
-		s1.Error(),
-		s2.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v got %v, want %v", i, got, want)
-		}
-	}
+	err = testUnwrap(err, s1, s2)
 	assertUnwrapDone(err)
 
 	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", s2, se1, se2, s1)
-	for i, tc := range []string{
-		s2.Error(),
-		s1.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v: got %v, want %v", i, got, want)
-		}
-	}
+	err = testUnwrap(err, s2, s1)
 	assertUnwrapDone(err)
 
 	err = idActionA.Errorf(nil, "my errors: %w %v", os.ErrNotExist, os.ErrExist)
-	for i, tc := range []string{
-		os.ErrNotExist.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v: got %v, want %v", i, got, want)
-		}
-	}
+	err = testUnwrap(err, os.ErrNotExist)
+	assertUnwrapDone(err)
+	err = idActionA.Errorf(nil, "my errors: %v %v", os.ErrNotExist, os.ErrExist)
+	err = testUnwrap(err, os.ErrExist)
 	assertUnwrapDone(err)
 
 	err = idActionA.Errorf(nil, "my errors: %w %v", os.ErrNotExist, os.ErrExist)
 	err = verror.WithSubErrors(err, s2, s1)
-	for i, tc := range []string{
-		s2.Error(),
-		s1.Error(),
-		os.ErrNotExist.Error(),
-	} {
-		err = errors.Unwrap(err)
-		if got, want := err.Error(), tc; got != want {
-			t.Errorf("%v: got %v, want %v", i, got, want)
-		}
-	}
+	err = testUnwrap(err, s2, s1, os.ErrNotExist)
 	assertUnwrapDone(err)
 }
 
