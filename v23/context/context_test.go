@@ -8,6 +8,7 @@ import (
 	"bytes"
 	gocontext "context"
 	"fmt"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -346,7 +347,7 @@ type stringLogger struct {
 
 func (*stringLogger) Info(args ...interface{}) {}
 func (sl *stringLogger) InfoDepth(depth int, args ...interface{}) {
-	sl.WriteString(fmt.Sprint(args...))
+	sl.WriteString(fmt.Sprint(args...) + "\n")
 }
 func (sl *stringLogger) Infof(format string, args ...interface{}) {}
 func (*stringLogger) InfoStack(all bool)                          {}
@@ -413,6 +414,7 @@ func (cl *ctxLogger) FlushLog() {}
 
 func TestLogging(t *testing.T) {
 	root, rootcancel := context.RootContext()
+	defer rootcancel()
 
 	var _ logging.Logger = root
 	root.Infof("this message should be silently discarded")
@@ -425,7 +427,7 @@ func TestLogging(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
-	if got, want := logger.String(), "Oh, hello there"; got != want {
+	if got, want := logger.String(), "Oh, hello there\n"; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
@@ -433,7 +435,7 @@ func TestLogging(t *testing.T) {
 	ctx = context.WithContextLogger(root, (*ctxLogger)(clogger))
 	ctx.Infof("Oh, %s", "hello there")
 
-	if got, want := clogger.String(), "Oh, hello there"; got != want {
+	if got, want := clogger.String(), "Oh, hello there\n"; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
@@ -450,5 +452,42 @@ func TestLogging(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
-	rootcancel()
+	logger.Reset()
+	clogger.Reset()
+	ctx = context.WithLoggingPrefix(ctx, "my-prefix")
+	ctx.Info("1st", 1)
+	ctx.Infof("2nd: %v", 2)
+	if got, want := logger.String(), "my-prefix1st1\nmy-prefix: 2nd: 2\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	if got, want := clogger.String(), "my-prefix1st1\nmy-prefix: 2nd: 2\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	logger.Reset()
+	clogger.Reset()
+	ctx = context.WithLoggingPrefix(ctx, os.ErrNotExist)
+	ctx.Info("1st", 1)
+	if got, want := logger.String(), "file does not exist1st1\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	logger.Reset()
+	clogger.Reset()
+	ctx = context.WithLoggingPrefix(ctx, uuid("1234"))
+	ctx.Infof("1st: %v", 1)
+	if got, want := logger.String(), "uuid: 1234: 1st: 1\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	ctx.Infof("2nd: %v", 2)
+	if got, want := logger.String(), "uuid: 1234: 1st: 1\nuuid: 1234: 2nd: 2\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+type uuid string
+
+func (id uuid) String() string {
+	return "uuid: " + string(id)
 }

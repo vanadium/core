@@ -81,6 +81,7 @@ const (
 	rootKey = internalKey(iota)
 	loggerKey
 	ctxLoggerKey
+	prefixKey
 )
 
 // Logger is a logger that uses a passed in T to configure the logging behavior;
@@ -176,8 +177,8 @@ func WithLogger(parent *T, logger logging.Logger) *T {
 	return child
 }
 
-// WithContextLogger returns a child of the current context that embeds the supplied
-// context logger.
+// WithContextLogger returns a child of the current context that embeds the
+// supplied context logger.
 func WithContextLogger(parent *T, logger Logger) *T {
 	if !parent.Initialized() {
 		return nil
@@ -185,6 +186,16 @@ func WithContextLogger(parent *T, logger Logger) *T {
 	child := WithValue(parent, ctxLoggerKey, logger)
 	child.ctxLogger = logger
 	return child
+}
+
+// WithLoggingPrefix returns a child of the current context that embeds the
+// supplied prefix. The prefix will be prepended to all log output, both
+// formated and unformated.
+func WithLoggingPrefix(parent *T, prefix interface{}) *T {
+	if !parent.Initialized() {
+		return nil
+	}
+	return WithValue(parent, prefixKey, prefix)
 }
 
 // LoggerFromContext returns the implementation of the logger
