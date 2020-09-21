@@ -180,14 +180,14 @@ func (cvm *CloudVM) RefreshAddresses(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	cvm.logger.Infof("cloudvm.RefreshAddresses: using public addresses obtained from metadata, first one is: %v...", firstAddress(cvm.addrs))
+	cvm.logger.VI(1).Infof("cloudvm.RefreshAddresses: using public addresses obtained from metadata, first one is: %v...", firstAddress(cvm.addrs))
 	if cvm.includePrivateAddresses {
 		priv, err := cvm.getPrivateAddr(ctx, time.Second)
 		if err != nil {
 			return err
 		}
 		cvm.addrs = append(cvm.addrs, priv...)
-		cvm.logger.Infof("cloudvm.RefreshAddresses: also using private addresses obtained from metadata, first one is: %v...", firstAddress(priv))
+		cvm.logger.VI(1).Infof("cloudvm.RefreshAddresses: also using private addresses obtained from metadata, first one is: %v...", firstAddress(priv))
 	}
 	return nil
 }
