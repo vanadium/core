@@ -6,6 +6,7 @@ package main_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -484,7 +485,7 @@ func waitForNoMountedServer(t *testing.T, ctx *context.T, ns namespace.T, name s
 	t.Logf("waiting for %v to not exist in the mount table\n", name)
 	_, err := waitForFunc(t, ctx, ns, name, func(resolved *naming.MountEntry, err error) (bool, error) {
 		if err != nil {
-			if verror.ErrorID(err) == naming.ErrNoSuchName.ID {
+			if errors.Is(err, naming.ErrNoSuchName) {
 				t.Logf("%v does not exist in the mount table\n", name)
 				return true, nil
 			}
@@ -783,7 +784,7 @@ func gatherStats(ctx *context.T, proxies []naming.MountedServer, servers ...stri
 				var n int64
 				n, err = intStatForName(ctx, proxyName, statvar)
 				if err != nil {
-					if verror.ErrorID(err) == verror.ErrNoExist.ID {
+					if errors.Is(err, verror.ErrNoExist) {
 						// ignore non existent variables.
 						err = nil
 					} else {

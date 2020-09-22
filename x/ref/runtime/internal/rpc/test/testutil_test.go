@@ -5,6 +5,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -151,7 +152,7 @@ func matchesErrorPattern(err error, id verror.IDAction, pattern string) bool {
 	if err == nil && id.ID == "" {
 		return true
 	}
-	return verror.ErrorID(err) == id.ID
+	return errors.Is(err, id)
 }
 
 func waitForNames(t *testing.T, ctx *context.T, exist bool, names ...string) {

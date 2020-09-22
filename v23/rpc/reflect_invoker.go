@@ -315,7 +315,7 @@ func newReflectInfo(obj interface{}) (*reflectInfo, error) {
 	// provided by the user, there's no guarantee it's "correct", but if the same
 	// method is described by multiple interfaces, we check the tags are the same.
 	desc := describe(obj)
-	if err := attachMethodTags(methodInfos, desc); verror.ErrorID(err) == verror.ErrAborted.ID {
+	if err := attachMethodTags(methodInfos, desc); errors.Is(err, verror.ErrAborted) {
 		return nil, fmt.Errorf("rpc: type %v tag error: %v", rt, err)
 	}
 	// Finally create the signature.  This combines the desc provided by the user
@@ -351,7 +351,7 @@ func makeMethods(rt reflect.Type) (map[string]methodInfo, map[string]signature.M
 		// Silently skip incompatible methods, except for Aborted errors.
 		var sig signature.Method
 		if err := typeCheckMethod(method, &sig); err != nil {
-			if verror.ErrorID(err) == verror.ErrAborted.ID {
+			if errors.Is(err, verror.ErrAborted) {
 				if ue := errors.Unwrap(err); ue != nil {
 					// A much less noisy error message.
 					return nil, nil, ue

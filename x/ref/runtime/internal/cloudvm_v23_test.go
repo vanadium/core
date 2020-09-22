@@ -6,6 +6,7 @@ package internal_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -18,7 +19,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/namespace"
 	"v.io/v23/naming"
-	"v.io/v23/verror"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test"
@@ -175,7 +175,7 @@ func waitForNoMountedServers(t *testing.T, ctx *context.T, ns namespace.T, name 
 	defer cancel()
 	for {
 		if _, err := ns.Resolve(ctx, name); err != nil {
-			if verror.ErrorID(err) == naming.ErrNoSuchName.ID {
+			if errors.Is(err, naming.ErrNoSuchName) {
 				return nil
 			}
 			return err
@@ -195,7 +195,7 @@ func waitForMountedServersIncluding(t *testing.T, ctx *context.T, ns namespace.T
 		defer cancel()
 		resolved, err := ns.Resolve(cctx, name)
 		if err != nil {
-			if verror.ErrorID(err) == naming.ErrNoSuchName.ID {
+			if errors.Is(err, naming.ErrNoSuchName) {
 				time.Sleep(time.Millisecond * 200)
 				continue
 			}

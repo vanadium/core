@@ -7,6 +7,7 @@
 package statslib
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -70,7 +71,7 @@ Loop:
 			changes = append(changes, c)
 		}
 		if err := it.Err(); err != nil {
-			if verror.ErrorID(err) == verror.ErrNoExist.ID {
+			if errors.Is(err, verror.ErrNoExist) {
 				return verror.ErrNoExist.Errorf(ctx, "does not exist: %v", i.suffix)
 			}
 			return fmt.Errorf("operation failed for %v", i.suffix)
@@ -95,9 +96,9 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 
 	rv, err := libstats.Value(i.suffix)
 	switch {
-	case verror.ErrorID(err) == verror.ErrNoExist.ID:
+	case errors.Is(err, verror.ErrNoExist):
 		return nil, verror.ErrNoExist.Errorf(ctx, "does not exist: %v", i.suffix)
-	case verror.ErrorID(err) == stats.ErrNoValue.ID:
+	case errors.Is(err, stats.ErrNoValue):
 		return nil, stats.NewErrNoValue(ctx, i.suffix)
 	case err != nil:
 		return nil, fmt.Errorf("operation failed for %v", i.suffix)

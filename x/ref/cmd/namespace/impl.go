@@ -9,6 +9,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -344,7 +345,7 @@ func runPermissionsSet(ctx *context.T, env *cmdline.Env, args []string) error {
 		if err != nil && verror.ErrorID(err) != naming.ErrNoSuchName.ID {
 			return err
 		}
-		if err = ns.SetPermissions(ctx, name, perms, etag); verror.ErrorID(err) == verror.ErrBadVersion.ID {
+		if err = ns.SetPermissions(ctx, name, perms, etag); errors.Is(err, verror.ErrBadVersion) {
 			ctx.Infof("SetPermissions(%q, %q) failed: %v, retrying...", name, etag, err)
 			continue
 		}

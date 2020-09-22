@@ -5,6 +5,7 @@
 package namespace
 
 import (
+	"errors"
 	"runtime"
 	"strings"
 
@@ -166,7 +167,7 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 				ctx.VI(1).Infof("Resolve(%s) -> %v", name, curr)
 				return curr, nil
 			}
-			if verror.ErrorID(err) == naming.ErrNoSuchNameRoot.ID {
+			if errors.Is(err, naming.ErrNoSuchNameRoot) {
 				err = naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 			}
 			ctx.VI(1).Infof("Resolve(%s) -> (%s: %v)", err, name, curr)
@@ -219,11 +220,11 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 			return last, nil
 		}
 		if e, err = ns.resolveAgainstMountTable(ctx, client, e, callOpts...); err != nil {
-			if verror.ErrorID(err) == naming.ErrNoSuchNameRoot.ID {
+			if errors.Is(err, naming.ErrNoSuchNameRoot) {
 				ctx.VI(1).Infof("ResolveToMountTable(%s) -> %v (NoSuchRoot: %v)", name, last, curr)
 				return last, nil
 			}
-			if verror.ErrorID(err) == naming.ErrNoSuchName.ID {
+			if errors.Is(err, naming.ErrNoSuchName) {
 				ctx.VI(1).Infof("ResolveToMountTable(%s) -> %v (NoSuchName: %v)", name, curr, curr)
 				return curr, nil
 			}

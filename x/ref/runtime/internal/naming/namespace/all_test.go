@@ -5,6 +5,7 @@
 package namespace_test
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"runtime/debug"
@@ -364,7 +365,7 @@ func TestNamespaceDetails(t *testing.T) {
 	// /mt2 is not an endpoint. Thus, the example below will fail.
 	mt3Server := mts[mt3MP].name
 	mt2a := "/mt2/a"
-	if err := ns.Mount(c, mt2a, mt3Server, ttl); verror.ErrorID(err) == naming.ErrNoSuchName.ID {
+	if err := ns.Mount(c, mt2a, mt3Server, ttl); errors.Is(err, naming.ErrNoSuchName) {
 		boom(t, "Successfully mounted %s - expected an err %v, not %v", mt2a, naming.ErrNoSuchName, err)
 	}
 

@@ -6,6 +6,7 @@ package vom
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 
@@ -52,8 +53,7 @@ func (w dumpWriter) WriteAtom(atom DumpAtom) {
 }
 
 func (w dumpWriter) WriteStatus(status DumpStatus) {
-	id := verror.ErrorID(status.Err)
-	if status.MsgLen == 0 && status.MsgN == 0 && (id == errDumperFlushed.ID || id == errDumperClosed.ID) {
+	if status.MsgLen == 0 && status.MsgN == 0 && (errors.Is(status.Err, errDumperFlushed) || errors.Is(status.Err, errDumperClosed)) {
 		// Don't output status when we're waiting to decode the next message, and
 		// we're either flushed or closed, to avoid cluttering the output.
 		return
@@ -251,7 +251,7 @@ func (d *dumpWorker) decodeLoop() {
 		err := d.decodeNextValue()
 		d.writeStatus(err, true)
 		switch {
-		case verror.ErrorID(err) == errDumperClosed.ID:
+		case errors.Is(err, errDumperClosed):
 			d.lastWriteDone(err)
 			d.lastFlushDone(err)
 			close(d.closeChan)

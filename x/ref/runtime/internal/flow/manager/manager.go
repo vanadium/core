@@ -603,7 +603,7 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				//
 				// This can be trigger using 'nmap -sT' to a tcp Vanadium endpoint.
 				skip := false
-				if verror.ErrorID(err) == conn.ErrRecv.ID {
+				if errors.Is(err, conn.ErrRecv) {
 					wrapped := errors.Unwrap(err)
 					if wrapped == io.EOF {
 						skip = true
@@ -978,7 +978,7 @@ func (m *manager) dialConn(
 		0,
 		fh,
 	)
-	if verror.ErrorID(err) == verror.ErrCanceled.ID {
+	if errors.Is(err, verror.ErrCanceled) {
 		// If the connection was canceled, it may still be dialed, so
 		// allow it to be cached.
 		return c, fh, err
