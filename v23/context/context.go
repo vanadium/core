@@ -190,12 +190,18 @@ func WithContextLogger(parent *T, logger Logger) *T {
 
 // WithLoggingPrefix returns a child of the current context that embeds the
 // supplied prefix. The prefix will be prepended to all log output, both
-// formated and unformated.
+// formated and unformatted.
 func WithLoggingPrefix(parent *T, prefix interface{}) *T {
 	if !parent.Initialized() {
 		return nil
 	}
 	return WithValue(parent, prefixKey, prefix)
+}
+
+// LoggingPrefix returns the value set by the most recent call of
+// WithLoggingPrefix.
+func LoggingPrefix(ctx *T) interface{} {
+	return ctx.Value(prefixKey)
 }
 
 // LoggerFromContext returns the implementation of the logger

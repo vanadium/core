@@ -472,6 +472,7 @@ func TestLogging(t *testing.T) {
 	}
 	logger.Reset()
 	clogger.Reset()
+	prefix := uuid("1234")
 	ctx = context.WithLoggingPrefix(ctx, uuid("1234"))
 	ctx.Infof("1st: %v", 1)
 	if got, want := logger.String(), "uuid: 1234: 1st: 1\n"; got != want {
@@ -482,6 +483,10 @@ func TestLogging(t *testing.T) {
 	defer cancel()
 	ctx.Infof("2nd: %v", 2)
 	if got, want := logger.String(), "uuid: 1234: 1st: 1\nuuid: 1234: 2nd: 2\n"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	if got, want := context.LoggingPrefix(ctx).(uuid), prefix; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 }
