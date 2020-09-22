@@ -9,13 +9,6 @@ type contextKey int
 
 const requestIDKey = contextKey(iota)
 
-func WithNewRequestIDLoggingPrefix(ctx *context.T) *context.T {
-	requestID, err := uuid.NewUUID()
-	if err != nil {
-		panic(err)
-	}
-	return  context.WithLoggingPrefix(ctx, requestID)
-}
 func WithNewRequestID(ctx *context.T) *context.T {
 	requestID, err := uuid.NewUUID()
 	if err != nil {
