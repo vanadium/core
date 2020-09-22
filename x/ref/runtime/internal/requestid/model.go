@@ -10,6 +10,7 @@ type contextKey int
 const requestIDKey = contextKey(iota)
 
 func WithNewRequestID(ctx *context.T) *context.T {
+	// Version 1 UUID based on the current NodeID and clock sequence, and the current time.
 	requestID, err := uuid.NewUUID()
 	if err != nil {
 		panic(err)
