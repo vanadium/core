@@ -2,13 +2,15 @@ package context
 
 import (
 	"context"
+	"runtime"
 	"testing"
 )
 
 func hasKeys(ctx *T, t *testing.T, keys ...interface{}) {
 	for _, key := range keys {
 		if ctx.Value(key) == nil {
-			t.Errorf("key %T %v missing", key, key)
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line: %v: key %T %v missing", line, key, key)
 		}
 	}
 }
