@@ -23,24 +23,40 @@ func (ld *loggerDiscard) VIDepth(ctx *T, depth int, level int) Logger {
 
 func (ld *loggerDiscard) FlushLog() {}
 
+func (t *T) prefixedArgs(args []interface{}) []interface{} {
+	prefix := t.Value(prefixKey)
+	if prefix == nil {
+		return args
+	}
+	return append([]interface{}{prefix}, args...)
+}
+
+func (t *T) prefixedFormat(format string) string {
+	prefix := t.Value(prefixKey)
+	if prefix == nil {
+		return format
+	}
+	return "%v: " + format
+}
+
 // Info implements logging.InfoLog, it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) Info(args ...interface{}) {
-	t.logger.InfoDepth(1, args...)
-	t.ctxLogger.InfoDepth(t, 1, args...)
+	t.logger.InfoDepth(1, t.prefixedArgs(args)...)
+	t.ctxLogger.InfoDepth(t, 1, t.prefixedArgs(args)...)
 }
 
 // InfoDepth implements logging.InfoLog; it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) InfoDepth(depth int, args ...interface{}) {
-	t.logger.InfoDepth(depth+1, args...)
-	t.ctxLogger.InfoDepth(t, depth+1, args...)
+	t.logger.InfoDepth(depth+1, t.prefixedArgs(args)...)
+	t.ctxLogger.InfoDepth(t, depth+1, t.prefixedArgs(args)...)
 }
 
 // Infof implements logging.InfoLog; it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) Infof(format string, args ...interface{}) {
-	line := fmt.Sprintf(format, args...)
+	line := fmt.Sprintf(t.prefixedFormat(format), t.prefixedArgs(args)...)
 	t.logger.InfoDepth(1, line)
 	t.ctxLogger.InfoDepth(t, 1, line)
 }
@@ -55,21 +71,21 @@ func (t *T) InfoStack(all bool) {
 // Error immplements and calls logging.ErrorLog; it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) Error(args ...interface{}) {
-	t.logger.ErrorDepth(1, args...)
-	t.ctxLogger.InfoDepth(t, 1, args...)
+	t.logger.ErrorDepth(1, t.prefixedArgs(args)...)
+	t.ctxLogger.InfoDepth(t, 1, t.prefixedArgs(args)...)
 }
 
 // ErrorDepth immplements and calls logging.ErrorLog; it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) ErrorDepth(depth int, args ...interface{}) {
-	t.logger.ErrorDepth(depth+1, args...)
-	t.ctxLogger.InfoDepth(t, depth+1, args...)
+	t.logger.ErrorDepth(depth+1, t.prefixedArgs(args)...)
+	t.ctxLogger.InfoDepth(t, depth+1, t.prefixedArgs(args)...)
 }
 
 // Errorf immplements and calls logging.ErrorLog; it calls the registered Logger and then
 // the registered ContextLogger.
 func (t *T) Errorf(format string, args ...interface{}) {
-	line := fmt.Sprintf(format, args...)
+	line := fmt.Sprintf(t.prefixedFormat(format), t.prefixedArgs(args)...)
 	t.logger.ErrorDepth(1, line)
 	t.ctxLogger.InfoDepth(t, 1, line)
 }
@@ -77,37 +93,37 @@ func (t *T) Errorf(format string, args ...interface{}) {
 // Fatal implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Fatal(args ...interface{}) {
-	t.logger.FatalDepth(1, args...)
+	t.logger.FatalDepth(1, t.prefixedArgs(args)...)
 }
 
 // FatalDepth implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) FatalDepth(depth int, args ...interface{}) {
-	t.logger.FatalDepth(depth+1, args...)
+	t.logger.FatalDepth(depth+1, t.prefixedArgs(args)...)
 }
 
 // Fatalf implements logging.FatalLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Fatalf(format string, args ...interface{}) {
-	t.logger.FatalDepth(1, fmt.Sprintf(format, args...))
+	t.logger.FatalDepth(1, fmt.Sprintf(t.prefixedFormat(format), t.prefixedArgs(args)...))
 }
 
 // Panic implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Panic(args ...interface{}) {
-	t.logger.PanicDepth(1, args...)
+	t.logger.PanicDepth(1, t.prefixedArgs(args)...)
 }
 
 // PanicDepth implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) PanicDepth(depth int, args ...interface{}) {
-	t.logger.PanicDepth(depth+1, args...)
+	t.logger.PanicDepth(depth+1, t.prefixedArgs(args)...)
 }
 
 // Panicf implements logging.PanicLog; it calls the registered Logger but not
 // the ContextLogger.
 func (t *T) Panicf(format string, args ...interface{}) {
-	t.logger.PanicDepth(1, fmt.Sprintf(format, args...))
+	t.logger.PanicDepth(1, fmt.Sprintf(t.prefixedFormat(format), t.prefixedArgs(args)...))
 }
 
 // V implements logging.Verbosity; it returns the 'or' of the values
@@ -134,19 +150,19 @@ type viLogger struct {
 }
 
 func (v *viLogger) Info(args ...interface{}) {
-	v.logger.InfoDepth(1, args...)
-	v.ctxLogger.InfoDepth(v.ctx, 1, args...)
+	v.logger.InfoDepth(1, v.ctx.prefixedArgs(args)...)
+	v.ctxLogger.InfoDepth(v.ctx, 1, v.ctx.prefixedArgs(args)...)
 }
 
 func (v *viLogger) Infof(format string, args ...interface{}) {
-	line := fmt.Sprintf(format, args...)
+	line := fmt.Sprintf(v.ctx.prefixedFormat(format), v.ctx.prefixedArgs(args)...)
 	v.logger.InfoDepth(1, line)
 	v.ctxLogger.InfoDepth(v.ctx, 1, line)
 }
 
 func (v *viLogger) InfoDepth(depth int, args ...interface{}) {
-	v.logger.InfoDepth(depth+1, args...)
-	v.ctxLogger.InfoDepth(v.ctx, depth+1, args...)
+	v.logger.InfoDepth(depth+1, v.ctx.prefixedArgs(args)...)
+	v.ctxLogger.InfoDepth(v.ctx, depth+1, v.ctx.prefixedArgs(args)...)
 }
 
 func (v *viLogger) InfoStack(all bool) {
