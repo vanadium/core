@@ -617,7 +617,7 @@ var (
 )
 
 func newXFlowServer(flow flow.Flow, server *server) (*flowServer, error) {
-	ctx := requestid.WithNewRequestID(server.ctx)
+	ctx := requestid.WithNewRequestIDLoggingPrefix(server.ctx)
 	fs := &flowServer{
 		ctx:        ctx,
 		server:     server,
