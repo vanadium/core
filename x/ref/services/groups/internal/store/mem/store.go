@@ -102,7 +102,7 @@ func (st *memstore) Close() error {
 	if st.err != nil {
 		return convertError(st.err)
 	}
-	st.err = verror.ErrCanceled.Errorf(nil, "Canceled: closed store")
+	st.err = verror.ErrCanceled.Errorf(nil, "canceled: closed store")
 	return nil
 }
 
@@ -112,7 +112,7 @@ func (st *memstore) Close() error {
 func (e *entry) checkVersion(version string) error {
 	newVersion := strconv.FormatUint(e.Version, 10)
 	if version != newVersion {
-		return verror.ErrBadVersion.Errorf(nil, "Version is out of date")
+		return verror.ErrBadVersion.Errorf(nil, "version is out of date")
 	}
 	return nil
 }

@@ -319,19 +319,19 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {
 	case verror.ErrorID(err) == naming.ErrNoSuchName.ID:
-		return nil, verror.RetryRefetch, false, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
+		return nil, verror.RetryRefetch, false, verror.ErrNoServers.Errorf(ctx, "no usable servers found for: %v: %v", name, err)
 	case verror.ErrorID(err) == verror.ErrNoServers.ID:
 		return nil, verror.NoRetry, false, err // avoid unnecessary wrapping
 	case isTimeout(err):
 		return nil, verror.NoRetry, false, err // return timeout without wrapping
 	case err != nil:
-		return nil, verror.NoRetry, false, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
+		return nil, verror.NoRetry, false, verror.ErrNoServers.Errorf(ctx, "no usable servers found for: %v: %v", name, err)
 	case len(resolved.Servers) == 0:
 		// This should never happen.
-		return nil, verror.NoRetry, true, verror.ErrInternal.Errorf(ctx, "Internal error: %v", name)
+		return nil, verror.NoRetry, true, verror.ErrInternal.Errorf(ctx, "internal error: %v", name)
 	}
 	if resolved.Servers, err = filterAndOrderServers(resolved.Servers, c.preferredProtocols); err != nil {
-		return nil, verror.RetryRefetch, true, verror.ErrNoServers.Errorf(ctx, "No usable servers found for: %v: %v", name, err)
+		return nil, verror.RetryRefetch, true, verror.ErrNoServers.Errorf(ctx, "no usable servers found for: %v: %v", name, err)
 	}
 
 	// servers is now ordered by the priority heurestic implemented in
@@ -522,17 +522,17 @@ func cleanupTryConnectToName(skip *serverStatus, responses []*serverStatus, ch c
 func errorForAction(ctx *context.T, id verror.IDAction, name string) error {
 	switch id {
 	case verror.ErrBadProtocol:
-		return id.Errorf(ctx, "Bad protocol or type")
+		return id.Errorf(ctx, "bad protocol or type")
 	case verror.ErrCanceled:
-		return id.Errorf(ctx, "Canceled")
+		return id.Errorf(ctx, "canceled")
 	case verror.ErrTimeout:
-		return id.Errorf(ctx, "Timeout")
+		return id.Errorf(ctx, "timeout")
 	case verror.ErrNotTrusted:
-		return id.Errorf(ctx, "Client does not trust server: %s", name)
+		return id.Errorf(ctx, "client does not trust server: %s", name)
 	case verror.ErrNoServers:
-		return id.Errorf(ctx, "No usable servers found for %s", name)
+		return id.Errorf(ctx, "no usable servers found for %s", name)
 	}
-	return verror.Errorf(ctx, "Unclassified error")
+	return verror.Errorf(ctx, "unclassified error: %v", id)
 }
 
 // failedTryConnectToName performs asynchronous cleanup for connectToName, and returns an
@@ -656,7 +656,7 @@ func (fc *flowClient) close(err error) error {
 	if cerr := fc.flow.Close(); cerr != nil && err == nil {
 		// TODO(mattr): The context is often already canceled here, in
 		// which case we'll get an error.  Not clear what to do.
-		//return verror.ErrInternal.Errorf(fc.ctx, "Internal error: %v", subErr)
+		//return verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", subErr)
 	}
 	switch verror.ErrorID(err) {
 	case verror.ErrCanceled.ID:
@@ -664,25 +664,25 @@ func (fc *flowClient) close(err error) error {
 	case verror.ErrTimeout.ID:
 		// Canceled trumps timeout.
 		if fc.ctx.Err() == context.Canceled {
-			canceled := verror.ErrCanceled.Errorf(fc.ctx, "Canceled")
+			canceled := verror.ErrCanceled.Errorf(fc.ctx, "canceled")
 			return verror.WithSubErrors(canceled, subErr)
 		}
 		return err
 	default:
 		switch fc.ctx.Err() {
 		case context.DeadlineExceeded:
-			timeout := verror.ErrTimeout.Errorf(fc.ctx, "Timeout")
+			timeout := verror.ErrTimeout.Errorf(fc.ctx, "timeout")
 			err := verror.WithSubErrors(timeout, subErr)
 			return err
 		case context.Canceled:
-			canceled := verror.ErrCanceled.Errorf(fc.ctx, "Canceled")
+			canceled := verror.ErrCanceled.Errorf(fc.ctx, "canceled")
 			err := verror.WithSubErrors(canceled, subErr)
 			return err
 		}
 	}
 	switch verror.ErrorID(err) {
 	case errRequestEncoding.ID, errArgEncoding.ID, errResponseDecoding.ID, errResultDecoding.ID, errBadNumInputArgs.ID, errBadInputArg.ID:
-		return verror.ErrBadProtocol.Errorf(fc.ctx, "Bad protocol or type: %v", err)
+		return verror.ErrBadProtocol.Errorf(fc.ctx, "bad protocol or type: %v", err)
 	}
 	return err
 }
@@ -690,7 +690,7 @@ func (fc *flowClient) close(err error) error {
 func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rpc.CallOpt) error {
 	grantedB, err := fc.initSecurity(fc.ctx, method, suffix, opts)
 	if err != nil {
-		berr := verror.ErrNotTrusted.Errorf(fc.ctx, "Client does not trust server: %v", err)
+		berr := verror.ErrNotTrusted.Errorf(fc.ctx, "client does not trust server: %v", err)
 		return fc.close(berr)
 	}
 	deadline, _ := fc.ctx.Deadline()
@@ -753,7 +753,7 @@ func (fc *flowClient) initSecurity(ctx *context.T, method, suffix string, opts [
 
 func (fc *flowClient) Send(item interface{}) error {
 	if fc.sendClosed {
-		return verror.ErrAborted.Errorf(fc.ctx, "Aborted")
+		return verror.ErrAborted.Errorf(fc.ctx, "aborted")
 	}
 	// The empty request header indicates what follows is a streaming arg.
 	if err := fc.enc.Encode(rpc.Request{}); err != nil {
@@ -770,7 +770,7 @@ func (fc *flowClient) Send(item interface{}) error {
 func (fc *flowClient) Recv(itemptr interface{}) error {
 	switch {
 	case fc.response.Error != nil:
-		return verror.ErrBadProtocol.Errorf(fc.ctx, "Bad protocol or type: %v", fc.response.Error)
+		return verror.ErrBadProtocol.Errorf(fc.ctx, "bad protocol or type: %v", fc.response.Error)
 	case fc.response.EndStreamResults:
 		return io.EOF
 	}
@@ -895,7 +895,7 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 		if verror.IsAny(fc.response.Error) {
 			return fc.close(fc.response.Error)
 		}
-		return fc.close(verror.ErrInternal.Errorf(fc.ctx, "Internal error: %v", fc.response.Error))
+		return fc.close(verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", fc.response.Error))
 	}
 	if got, want := fc.response.NumPosResults, uint64(len(resultptrs)); got != want {
 		suberr := fmt.Errorf("got %v results, but want %v", got, want)

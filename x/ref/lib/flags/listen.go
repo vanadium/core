@@ -31,7 +31,7 @@ func (t *TCPProtocolFlag) Set(s string) error {
 		t.Protocol = s
 		return nil
 	default:
-		return fmt.Errorf("%v is not a tcp protocol", s)
+		return fmt.Errorf("%v: not a tcp protocol", s)
 	}
 }
 
@@ -82,7 +82,7 @@ func (ip *IPHostPortFlag) Set(s string) error {
 			// Could be a hostname.
 			addrs, err := net.LookupIP(host)
 			if err != nil || len(addrs) == 0 {
-				return fmt.Errorf("%v is neither an IP address nor a host name: %v", host, err)
+				return fmt.Errorf("%v: neither an IP address nor a host name: %v", host, err)
 			}
 			for _, a := range addrs {
 				ip.IP = append(ip.IP, &net.IPAddr{IP: a})

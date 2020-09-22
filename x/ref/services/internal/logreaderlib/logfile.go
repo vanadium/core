@@ -64,7 +64,7 @@ func (i *logfileService) Size(ctx *context.T, _ rpc.ServerCall) (int64, error) {
 	fi, err := os.Stat(fname)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return 0, verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", fname)
+			return 0, verror.ErrNoExist.Errorf(ctx, "does not exist: %v", fname)
 		}
 		ctx.Errorf("Stat(%v) failed: %v", fname, err)
 		return 0, fmt.Errorf("failed to stat %v: %v", fname, err)
@@ -85,7 +85,7 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 	f, err := os.Open(fname)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return 0, verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", fname)
+			return 0, verror.ErrNoExist.Errorf(ctx, "does not exist: %v", fname)
 		}
 		return 0, fmt.Errorf("failed to open: %v: %v", fname, err)
 	}
@@ -126,7 +126,7 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 	stat, err := os.Stat(dirName)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return verror.ErrNoExist.Errorf(ctx, "Does not exist: %v", dirName)
+			return verror.ErrNoExist.Errorf(ctx, "does not exist: %v", dirName)
 		}
 		return fmt.Errorf("failed to stat %v: %v", dirName, err)
 	}

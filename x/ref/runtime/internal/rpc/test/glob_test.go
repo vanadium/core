@@ -49,7 +49,7 @@ func TestGlob(t *testing.T) {
 	ep := server.Status().Endpoints[0].String()
 
 	var (
-		noExist        = verror.ErrNoExist.Errorf(ctx, "Does not exist")
+		noExist        = verror.ErrNoExist.Errorf(ctx, "does not exist")
 		notImplemented = reserved.NewErrGlobNotImplemented(ctx)
 		maxRecursion   = reserved.NewErrGlobMaxRecursionReached(ctx)
 	)

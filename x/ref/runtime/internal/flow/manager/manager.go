@@ -495,7 +495,7 @@ func (m *manager) readProxyResponse(ctx *context.T, f flow.Flow) ([]naming.Endpo
 		return nil, errProxyResponse.Errorf(ctx, "proxy returned: %v", m.Error)
 	default:
 		f.Close()
-		return nil, flow.ErrBadArg.Errorf(ctx, "%v", errInvalidProxyResponse.Errorf(ctx, "Invalid proxy response: %T", m))
+		return nil, flow.ErrBadArg.Errorf(ctx, "%v", errInvalidProxyResponse.Errorf(ctx, "invalid proxy response: %T", m))
 	}
 }
 

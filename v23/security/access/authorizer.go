@@ -12,6 +12,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/v23/vdl"
+	"v.io/v23/verror"
 )
 
 // PermissionsAuthorizer implements an authorization policy where access is
@@ -182,8 +183,8 @@ type fileAuthorizer struct {
 func (a *fileAuthorizer) Authorize(ctx *context.T, call security.Call) error {
 	perms, err := loadPermissionsFromFile(a.filename)
 	if err != nil {
-		// TODO(ashankar): Information leak?
-		return fmt.Errorf("failed to read Permissions from file: %v", err)
+		ctx.Infof("failed to read Permissions file: %v: %v", a.filename, err)
+		return verror.ErrInternal.Errorf(ctx, "internal error: failed to read Permissions from file")
 	}
 	return (&authorizer{perms, a.tagType}).Authorize(ctx, call)
 }

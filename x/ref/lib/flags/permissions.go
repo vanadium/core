@@ -30,7 +30,7 @@ func (permsf *PermissionsFlag) Set(v string) error {
 	}
 	parts := strings.SplitN(v, ":", 2)
 	if len(parts) != 2 {
-		return fmt.Errorf("%v is not in 'name:file' format", v)
+		return fmt.Errorf("%v: not in 'name:file' format", v)
 	}
 	name, file := parts[0], parts[1]
 	permsf.files[name] = file

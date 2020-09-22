@@ -11,11 +11,11 @@ const (
 )
 
 var (
-	ErrNameExists              = verror.NewID("nameExists")              //, verror.NoRetry, "{1} {2} Name exists {_}")
-	ErrNoSuchName              = verror.NewID("nameDoesntExist")         //, verror.NoRetry, "{1} {2} Name {3} doesn't exist {_}")
-	ErrNoSuchNameRoot          = verror.NewID("rootNameDoesntExist")     //, verror.NoRetry, "{1} {2} Namespace root name {3} doesn't exist {_}")
-	ErrResolutionDepthExceeded = verror.NewID("resolutionDepthExceeded") //", verror.NoRetry, "{1} {2} Resolution depth exceeded {_}")
-	ErrNoMountTable            = verror.NewID("noMounttable")            //, verror.NoRetry, "{1} {2} No mounttable {_}")
+	ErrNameExists              = verror.NewID("nameExists")
+	ErrNoSuchName              = verror.NewID("nameDoesntExist")
+	ErrNoSuchNameRoot          = verror.NewID("rootNameDoesntExist")
+	ErrResolutionDepthExceeded = verror.NewID("resolutionDepthExceeded")
+	ErrNoMountTable            = verror.NewID("noMounttable")
 )
 
 // Names returns the servers represented by MountEntry as names, including

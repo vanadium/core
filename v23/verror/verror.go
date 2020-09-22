@@ -6,7 +6,7 @@
 // programming environments, and a set of common errors. It captures the location
 // and parameters of the error call site to aid debugging. Rudimentary i18n support
 // is provided, but now that more comprehensive i18n packages are available
-// its use is deprecated and it will be removed in the near future; that is,
+// its use is deprecated and it will be removed in the near future; consequently
 // Register and New are deprecated in favour of NewIDAction/NewID, IDAction.Errorf
 // and IDAction.Message. Errorf is not intended or localization, whereas
 // Message accepts a preformatted message to allow for localization via an
@@ -21,6 +21,8 @@
 // E.g. a Javascript client can check if a Go server returned a NoExist error by
 // checking the string identifier.  Error identifier strings start with the VDL
 // package path to ensure uniqueness, e.g. "v.io/v23/verror.NoExist".
+// The NewID and NewIDAction functions automatically prepend the package path
+// of the caller to the specified ID if it is not already included.
 //
 // Each error contains an action, which is the suggested action for a typical
 // client to perform upon receiving the error.  E.g. some action codes represent
@@ -40,6 +42,7 @@
 //
 // To define a new error identifier, for example "someNewError", the code that
 // originates the error is expected to declare a variable like this:
+//
 //     var someNewError = verror.Register("someNewError", NoRetry)
 //     ...
 //     return someNewError.Errorf(ctx, "my error message: %v", err)

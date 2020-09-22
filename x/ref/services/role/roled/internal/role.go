@@ -32,7 +32,7 @@ func (i *roleService) SeekBlessings(ctx *context.T, call rpc.ServerCall) (securi
 	members := i.filterNonMembers(remoteBlessingNames)
 	if len(members) == 0 {
 		// The Authorizer should already have caught that.
-		return security.Blessings{}, verror.ErrNoAccess.Errorf(ctx, "Access denied")
+		return security.Blessings{}, verror.ErrNoAccess.Errorf(ctx, "access denied")
 	}
 
 	extensions := extensions(i.roleConfig, i.role, members)
@@ -87,7 +87,7 @@ func useOrWrapAsInternalErr(ctx *context.T, err error) error {
 	if verror.IsAny(err) {
 		return err
 	}
-	return verror.ErrInternal.Errorf(ctx, "Internal error: %v", err)
+	return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
 }
 
 func caveats(ctx *context.T, config *Config) ([]security.Caveat, error) {

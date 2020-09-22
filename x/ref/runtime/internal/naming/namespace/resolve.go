@@ -17,8 +17,7 @@ import (
 )
 
 var (
-	errNoServers = verror.NewIDAction(".errNoServers", verror.NoRetry)
-	///, "{1} {2} No servers found to resolve query {_}")
+	errNoServers = verror.NewIDAction("errNoServers", verror.NoRetry)
 )
 
 // resolveAgainstMountTable asks each server in e.Servers that might be a mounttable to resolve e.Name.  The requests

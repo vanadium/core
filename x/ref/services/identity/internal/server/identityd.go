@@ -264,7 +264,7 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	if invoker := d.m[suffix]; invoker != nil {
 		return invoker, security.AllowEveryone(), nil
 	}
-	return nil, nil, verror.ErrNoExist.Errorf(ctx, "Does not exist: %s", suffix)
+	return nil, nil, verror.ErrNoExist.Errorf(ctx, "does not exist: %s", suffix)
 }
 
 func runHTTPSServer(ctx *context.T, addr, tlsConfig string) {

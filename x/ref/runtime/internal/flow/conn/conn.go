@@ -685,7 +685,7 @@ func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.isIdleLocked(ctx, idleExpiry) {
-		c.internalCloseLocked(ctx, false, false, ErrIdleConnKilled.Errorf(ctx, "Connection killed because idle expiry was reached"))
+		c.internalCloseLocked(ctx, false, false, ErrIdleConnKilled.Errorf(ctx, "connection killed because idle expiry was reached"))
 		return true
 	}
 	return false

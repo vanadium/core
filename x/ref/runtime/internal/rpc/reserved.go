@@ -82,14 +82,14 @@ func (r *reservedMethods) Signature(ctx *context.T, call rpc.ServerCall) ([]sign
 		disp = r.dispReserved
 	}
 	if disp == nil {
-		return nil, verror.ErrUnknownSuffix.Errorf(ctx, "Suffix does not exist: %v", suffix)
+		return nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v", suffix)
 	}
 	obj, _, err := disp.Lookup(ctx, suffix)
 	switch {
 	case err != nil:
 		return nil, err
 	case obj == nil:
-		return nil, verror.ErrUnknownSuffix.Errorf(ctx, "Suffix does not exist: %v", suffix)
+		return nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v", suffix)
 	}
 	invoker, err := objectToInvoker(obj)
 	if err != nil {
@@ -125,14 +125,14 @@ func (r *reservedMethods) MethodSignature(ctx *context.T, call rpc.ServerCall, m
 		disp = r.dispReserved
 	}
 	if disp == nil {
-		return signature.Method{}, verror.ErrUnknownMethod.Errorf(ctx, "Method does not exist: %v", rpc.ReservedMethodSignature)
+		return signature.Method{}, verror.ErrUnknownMethod.Errorf(ctx, "method does not exist: %v", rpc.ReservedMethodSignature)
 	}
 	obj, _, err := disp.Lookup(ctx, suffix)
 	switch {
 	case err != nil:
 		return signature.Method{}, err
 	case obj == nil:
-		return signature.Method{}, verror.ErrUnknownMethod.Errorf(ctx, "Method does not exist: %v", rpc.ReservedMethodSignature)
+		return signature.Method{}, verror.ErrUnknownMethod.Errorf(ctx, "method does not exist: %v", rpc.ReservedMethodSignature)
 	}
 	invoker, err := objectToInvoker(obj)
 	if err != nil {
@@ -248,7 +248,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			subcall.Send(naming.GlobReplyError{
 				Value: naming.GlobError{
 					Name:  state.name,
-					Error: verror.ErrNoExist.Errorf(ctx, "Does not exist: nil object")},
+					Error: verror.ErrNoExist.Errorf(ctx, "does not exist: nil object")},
 			})
 			continue
 		}
@@ -293,7 +293,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			send := func(reply naming.GlobReply) error {
 				select {
 				case <-ctx.Done():
-					return verror.ErrAborted.Errorf(ctx, "Aborted")
+					return verror.ErrAborted.Errorf(ctx, "aborted")
 				default:
 				}
 				switch v := reply.(type) {
@@ -336,17 +336,17 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			send := func(reply naming.GlobChildrenReply) error {
 				select {
 				case <-ctx.Done():
-					return verror.ErrAborted.Errorf(ctx, "Aborted")
+					return verror.ErrAborted.Errorf(ctx, "aborted")
 				default:
 				}
 				switch v := reply.(type) {
 				case naming.GlobChildrenReplyName:
 					child := v.Value
 					if len(child) == 0 || strings.Contains(child, "/") {
-						return verror.ErrBadArg.Errorf(ctx, "Bad argument: invalid child name: %q", child)
+						return verror.ErrBadArg.Errorf(ctx, "bad argument: invalid child name: %q", child)
 					}
 					if !matcher.Match(child) {
-						return verror.ErrBadArg.Errorf(ctx, "Bad argument: child name does not match: %q", child)
+						return verror.ErrBadArg.Errorf(ctx, "bad argument: child name does not match: %q", child)
 					}
 					next := naming.Join(state.name, child)
 					queue = append(queue, gState{next, tail, depth})

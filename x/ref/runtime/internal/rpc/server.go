@@ -72,11 +72,11 @@ func WithNewServer(ctx *context.T,
 	settingsPublisher *pubsub.Publisher,
 	opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	if object == nil {
-		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "Bad argument: nil object")
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: nil object")
 	}
 	invoker, err := objectToInvoker(object)
 	if err != nil {
-		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "Bad argument: bad object: %v", err)
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: bad object: %v", err)
 	}
 	d := &leafDispatcher{invoker, authorizer}
 	opts = append([]rpc.ServerOpt{options.IsLeaf(true)}, opts...)
@@ -89,7 +89,7 @@ func WithNewDispatchingServer(ctx *context.T,
 	settingsPublisher *pubsub.Publisher,
 	opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	if dispatcher == nil {
-		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "Bad argument: nil dispatcher")
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: nil dispatcher")
 	}
 
 	rid, err := naming.NewRoutingID()
@@ -134,7 +134,7 @@ func WithNewDispatchingServer(ctx *context.T,
 			authorizedPeers = []security.BlessingPattern(opt)
 			if len(authorizedPeers) == 0 {
 				s.cancel()
-				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "Bad argument: %v",
+				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: %v",
 					fmt.Errorf("no peers are authorized to communicate with the server"))
 			}
 			if len(name) != 0 {
@@ -145,7 +145,7 @@ func WithNewDispatchingServer(ctx *context.T,
 				// server, and (2) the mounttable reveals the server's endpoint to only the set
 				// of authorized peers. (2) can be enforced using Resolve ACLs.
 				s.cancel()
-				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "Bad argument: %v",
+				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: %v",
 					fmt.Errorf("serverPeers option is not supported for servers that publish their endpoint at a mounttable"))
 			}
 
@@ -559,7 +559,7 @@ func (s *server) acceptLoop(ctx *context.T) error {
 
 func (s *server) AddName(name string) error {
 	if len(name) == 0 {
-		return verror.ErrBadArg.Errorf(s.ctx, "Bad argument: name is empty")
+		return verror.ErrBadArg.Errorf(s.ctx, "bad argument: name is empty")
 	}
 	s.Lock()
 	defer s.Unlock()
@@ -641,7 +641,7 @@ func authorize(ctx *context.T, call security.Call, auth security.Authorizer) err
 		auth = security.DefaultAuthorizer()
 	}
 	if err := auth.Authorize(ctx, call); err != nil {
-		nerr := verror.ErrNoAccess.Errorf(ctx, "Access denied: %v",
+		nerr := verror.ErrNoAccess.Errorf(ctx, "access denied: %v",
 			fmt.Errorf("not authorized to call %v.%v: %v", call.Suffix(), call.Method(), err))
 		return nerr
 	}
@@ -713,7 +713,7 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	// Decode the initial request.
 	var req rpc.Request
 	if err := fs.dec.Decode(&req); err != nil {
-		return nil, verror.ErrBadProtocol.Errorf(ctx, "Bad protocol or type: %v",
+		return nil, verror.ErrBadProtocol.Errorf(ctx, "bad protocol or type: %v",
 			fmt.Errorf("failed to decode request: %v", err))
 	}
 	return &req, nil

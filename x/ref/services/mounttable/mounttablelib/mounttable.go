@@ -226,9 +226,9 @@ func (n *node) satisfies(mt *mountTable, cc *callContext, tags []mounttable.Tag)
 		return nil
 	}
 	if len(cc.rejected) > 0 {
-		return verror.ErrNoAccess.Errorf(cc.ctx, "Access denied: %v: rejected blessings: %v", cc.rbn, cc.rejected)
+		return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v: rejected blessings: %v", cc.rbn, cc.rejected)
 	}
-	return verror.ErrNoAccess.Errorf(cc.ctx, "Access denied: %v", cc.rbn)
+	return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v", cc.rbn)
 }
 
 func expand(al access.AccessList, name string) *access.AccessList {
@@ -255,7 +255,7 @@ func (n *node) satisfiesTemplate(cc *callContext, tags []mounttable.Tag, name st
 			return nil
 		}
 	}
-	return verror.ErrNoAccess.Errorf(cc.ctx, "Access denined: %v: rejected blessings: %v", cc.rbn, cc.rejected)
+	return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v: rejected blessings: %v", cc.rbn, cc.rejected)
 }
 
 // CopyPermissions copies one node's permissions to another and adds the clients blessings as

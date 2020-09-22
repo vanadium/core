@@ -7,11 +7,9 @@ package logger_test
 import (
 	"testing"
 
-	"v.io/x/lib/vlog"
-
 	"v.io/v23/context"
 	"v.io/v23/logging"
-
+	"v.io/x/lib/vlog"
 	"v.io/x/ref/internal/logger"
 )
 

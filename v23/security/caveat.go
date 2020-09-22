@@ -76,7 +76,7 @@ func (r *caveatRegistry) register(d CaveatDescriptor, validator interface{}) err
 		return fmt.Errorf("invalid caveat validator: must be %v, not %v", want, got)
 	}
 	if got, want := fn.Type().NumOut(), 1; got != want {
-		return fmt.Errorf("nvalid caveat validator: expected %v outputs, not %v", want, got)
+		return fmt.Errorf("invalid caveat validator: expected %v outputs, not %v", want, got)
 	}
 	if got, want := fn.Type().Out(0), rtErr; got != want {
 		return fmt.Errorf("invalid caveat validator: output must be %v, not %v", want, got)
