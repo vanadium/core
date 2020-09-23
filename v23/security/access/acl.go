@@ -6,6 +6,7 @@ package access
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"sort"
 	"strings"
@@ -218,7 +219,7 @@ func (m Permissions) Normalize() Permissions {
 // ErrUnenforceablePatterns.ID, and if so returns the set of
 // unenforceable patterns encapsulated in it.  It returns nil otherwise.
 func IsUnenforceablePatterns(err error) []security.BlessingPattern {
-	if verror.ErrorID(err) != ErrUnenforceablePatterns.ID {
+	if !errors.Is(err, ErrUnenforceablePatterns) {
 		return nil
 	}
 	verr, ok := err.(verror.E)

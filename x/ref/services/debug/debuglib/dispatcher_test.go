@@ -5,6 +5,7 @@
 package debuglib_test
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -103,7 +104,7 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	{
 		lf := logreader.LogFileClient(naming.JoinAddressName(endpoint, "debug/logs/nosuchfile.INFO"))
 		_, err = lf.Size(tracedContext(ctx))
-		if expected := verror.ErrNoExist.ID; verror.ErrorID(err) != expected {
+		if expected := verror.ErrNoExist; !errors.Is(err, expected) {
 			t.Errorf("unexpected error value, got %v, want: %v", err, expected)
 		}
 	}
@@ -128,7 +129,7 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	{
 		st := stats.StatsClient(naming.JoinAddressName(endpoint, "debug/stats/testing/nobodyhome"))
 		_, err = st.Value(tracedContext(ctx))
-		if expected := verror.ErrNoExist.ID; verror.ErrorID(err) != expected {
+		if expected := verror.ErrNoExist; !errors.Is(err, expected) {
 			t.Errorf("unexpected error value, got %v, want: %v", err, expected)
 		}
 	}

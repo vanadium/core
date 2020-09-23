@@ -69,7 +69,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 func (g *group) Delete(ctx *context.T, call rpc.ServerCall, version string) error {
 	if err := g.readModifyWrite(ctx, call.Security(), version, func(gd *groupData, versionSt string) error {
 		return g.m.st.Delete(g.name, versionSt)
-	}); err != nil && verror.ErrorID(err) != verror.ErrNoExist.ID {
+	}); err != nil && !errors.Is(err, verror.ErrNoExist) {
 		return err
 	}
 	return nil

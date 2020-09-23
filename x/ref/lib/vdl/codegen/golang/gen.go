@@ -690,16 +690,33 @@ var (
 
 var (
 {{range $edef := $pkg.ErrorDefs}}
-	{{errorComment $edef}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
+	{{errorComment $edef}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
+
 )
 
 {{range $edef := $pkg.ErrorDefs}}
 {{$errName := errorName $edef}}
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
+{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 // {{$newErr}} returns an error with the {{$errName}} ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use {{$errorf}} or {{$message}} instead.
 func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
+	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID("{{$edef.ID}}"), "{{$edef.English}}")
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
 }
+
+// {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
+func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
+	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
+}
+
+// {{$message}} calls {{$errName}}.Message with the supplied arguments.
+func {{$message}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, message string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
+	return {{$errName}}.Message({{argNames "" "" "ctx" "message" "" $edef.Params}})
+}
+
 {{end}}
 {{end}}
 
@@ -1066,10 +1083,6 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
-{{if $pkg.ErrorDefs}}
-	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
-	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
-{{end}}
 	return struct{}{}
 }
 `

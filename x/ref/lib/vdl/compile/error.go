@@ -18,6 +18,7 @@ import (
 type ErrorDef struct {
 	NamePos                     // name, parse position and docs
 	Exported  bool              // is this error definition exported?
+	Name      string            // error name as defined in vdl
 	ID        string            // error ID
 	RetryCode vdl.WireRetryCode // retry action to be performed by client
 	Params    []*Field          // list of positional parameter names and types
@@ -56,7 +57,7 @@ func compileErrorDefs(pkg *Package, pfiles []*parse.File, env *Env) {
 			// The error id should not be changed; the whole point of error defs is
 			// that the id is stable.
 			id := pkg.Path + "." + name
-			ed := &ErrorDef{NamePos: NamePos(ped.NamePos), Exported: export, ID: id, File: file}
+			ed := &ErrorDef{NamePos: NamePos(ped.NamePos), Exported: export, Name: name, ID: id, File: file}
 			defineErrorActions(ed, name, ped.Actions, file, env)
 			ed.Params = defineErrorParams(name, ped.Params, export, file, env)
 			ed.Formats = defineErrorFormats(name, ped.Formats, ed.Params, file, env)

@@ -5,6 +5,7 @@
 package message_test
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -13,7 +14,6 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/rpc/version"
-	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/test"
 )
@@ -121,7 +121,7 @@ func TestMissingBlessings(t *testing.T) {
 			t.Errorf("unexpected error for %#v: %v", m, err)
 		}
 		_, err = message.Read(ctx, encoded)
-		if verror.ErrorID(err) != message.ErrMissingBlessings.ID {
+		if !errors.Is(err, message.ErrMissingBlessings) {
 			t.Errorf("unexpected error for %#v: got %v want MissingBlessings", m, err)
 		}
 	}

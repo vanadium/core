@@ -918,7 +918,7 @@ func (m *manager) dialReserved(
 		// this one invocation of internalDial.
 		c, fh, err = m.dialConn(res.Context(), remote, auth, proxy)
 		if err != nil {
-			if verror.ErrorID(err) != verror.ErrCanceled.ID {
+			if !errors.Is(err, verror.ErrCanceled) {
 				return
 			}
 			// Allow a canceled connection, whose handshake was completed

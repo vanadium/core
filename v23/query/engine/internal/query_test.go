@@ -20,7 +20,6 @@ import (
 	td "v.io/v23/query/engine/internal/testdata"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/test"
@@ -3488,7 +3487,7 @@ func TestExecErrors(t *testing.T) {
 	for _, test := range basic {
 		_, _, err := internal.Exec(db, test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}

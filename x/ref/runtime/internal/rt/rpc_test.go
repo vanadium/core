@@ -5,6 +5,7 @@
 package rt_test
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"sort"
@@ -300,7 +301,7 @@ func TestServerDischarges(t *testing.T) { //nolint:gocyclo
 		return nil
 	}
 
-	if err := makeCall(); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
+	if err := makeCall(); !errors.Is(err, verror.ErrNotTrusted) {
 		t.Fatalf("got error %v, expected %v", err, verror.ErrNotTrusted.ID)
 	}
 	ds.mu.Lock()

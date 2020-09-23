@@ -5,6 +5,7 @@
 package server_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -196,7 +197,7 @@ func testCreateHelper(t *testing.T, be backend) {
 
 	// Creating same group again should fail, since the group already exists.
 	g = groups.GroupClient(naming.JoinAddressName(serverName, "grpA"))
-	if err := g.Create(ctx, nil, nil); verror.ErrorID(err) != verror.ErrExist.ID {
+	if err := g.Create(ctx, nil, nil); !errors.Is(err, verror.ErrExist) {
 		t.Fatalf("Create should have failed: %v", err)
 	}
 
@@ -237,7 +238,7 @@ func testDeleteHelper(t *testing.T, be backend) {
 		t.Fatalf("Create failed: %v", err)
 	}
 	// Delete with bad version should fail.
-	if err := g.Delete(ctx, "20"); verror.ErrorID(err) != verror.ErrBadVersion.ID {
+	if err := g.Delete(ctx, "20"); !errors.Is(err, verror.ErrBadVersion) {
 		t.Fatalf("Delete should have failed with version error: %v", err)
 	}
 	// Delete with correct version should succeed.
@@ -246,7 +247,7 @@ func testDeleteHelper(t *testing.T, be backend) {
 		t.Fatalf("Delete failed: %v", err)
 	}
 	// Check that the group was actually deleted.
-	if _, _, err := g.Get(ctx, groups.GetRequest{}, ""); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, _, err := g.Get(ctx, groups.GetRequest{}, ""); !errors.Is(err, verror.ErrNoExist) {
 		t.Fatal("Group was not deleted")
 	}
 
@@ -260,7 +261,7 @@ func testDeleteHelper(t *testing.T, be backend) {
 		t.Fatalf("Delete failed: %v", err)
 	}
 	// Check that the group was actually deleted.
-	if _, _, err := g.Get(ctx, groups.GetRequest{}, ""); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, _, err := g.Get(ctx, groups.GetRequest{}, ""); !errors.Is(err, verror.ErrNoExist) {
 		t.Fatal("Group was not deleted")
 	}
 	// Check that Delete is idempotent.
@@ -281,7 +282,7 @@ func testDeleteHelper(t *testing.T, be backend) {
 		t.Fatalf("Create failed: %v", err)
 	}
 	// Delete should fail (no access).
-	if err := g.Delete(ctx, ""); verror.ErrorID(err) != verror.ErrNoAccess.ID {
+	if err := g.Delete(ctx, ""); !errors.Is(err, verror.ErrNoAccess) {
 		t.Fatalf("Delete should have failed with access error: %v", err)
 	}
 }
@@ -327,7 +328,7 @@ func testPermsHelper(t *testing.T, be backend) { //nolint:gocyclo
 
 	// SetPermissions with bad version should fail.
 	permsBefore, versionBefore = getPermsAndVersionOrDie()
-	if err := ac.SetPermissions(ctx, myperms, "20"); verror.ErrorID(err) != verror.ErrBadVersion.ID {
+	if err := ac.SetPermissions(ctx, myperms, "20"); !errors.Is(err, verror.ErrBadVersion) {
 		t.Fatalf("SetPermissions should have failed with version error: %v", err)
 	}
 	// Since SetPermissions failed, perms and version should not have changed.
@@ -387,10 +388,10 @@ func testPermsHelper(t *testing.T, be backend) { //nolint:gocyclo
 	if err := ac.SetPermissions(ctx, access.Permissions{}, ""); err != nil {
 		t.Fatalf("SetPermissions failed: %v", err)
 	}
-	if _, _, err := ac.GetPermissions(ctx); verror.ErrorID(err) != verror.ErrNoAccess.ID {
+	if _, _, err := ac.GetPermissions(ctx); !errors.Is(err, verror.ErrNoAccess) {
 		t.Fatalf("GetPermissions should have failed with access error: %v", err)
 	}
-	if err := ac.SetPermissions(ctx, myperms, ""); verror.ErrorID(err) != verror.ErrNoAccess.ID {
+	if err := ac.SetPermissions(ctx, myperms, ""); !errors.Is(err, verror.ErrNoAccess) {
 		t.Fatalf("SetPermissions should have failed with access error: %v", err)
 	}
 }
@@ -418,7 +419,7 @@ func testAddHelper(t *testing.T, be backend) { //nolint:gocyclo
 	var versionBefore, versionAfter string
 	versionBefore = getVersionOrDie(t, ctx, g)
 	// Add with bad version should fail.
-	if err := g.Add(ctx, bpc("foo"), "20"); verror.ErrorID(err) != verror.ErrBadVersion.ID {
+	if err := g.Add(ctx, bpc("foo"), "20"); !errors.Is(err, verror.ErrBadVersion) {
 		t.Fatalf("Add should have failed with version error: %v", err)
 	}
 	// Version should not have changed.
@@ -479,7 +480,7 @@ func testAddHelper(t *testing.T, be backend) { //nolint:gocyclo
 		t.Fatalf("Create failed: %v", err)
 	}
 	// Add should fail (no access).
-	if err := g.Add(ctx, bpc("foo"), ""); verror.ErrorID(err) != verror.ErrNoAccess.ID {
+	if err := g.Add(ctx, bpc("foo"), ""); !errors.Is(err, verror.ErrNoAccess) {
 		t.Fatalf("Add should have failed with access error: %v", err)
 	}
 }
@@ -507,7 +508,7 @@ func testRemoveHelper(t *testing.T, be backend) { //nolint:gocyclo
 	var versionBefore, versionAfter string
 	versionBefore = getVersionOrDie(t, ctx, g)
 	// Remove with bad version should fail.
-	if err := g.Remove(ctx, bpc("foo"), "20"); verror.ErrorID(err) != verror.ErrBadVersion.ID {
+	if err := g.Remove(ctx, bpc("foo"), "20"); !errors.Is(err, verror.ErrBadVersion) {
 		t.Fatalf("Remove should have failed with version error: %v", err)
 	}
 	// Version should not have changed.
@@ -568,7 +569,7 @@ func testRemoveHelper(t *testing.T, be backend) { //nolint:gocyclo
 		t.Fatalf("Create failed: %v", err)
 	}
 	// Remove should fail (no access).
-	if err := g.Remove(ctx, bpc("foo"), ""); verror.ErrorID(err) != verror.ErrNoAccess.ID {
+	if err := g.Remove(ctx, bpc("foo"), ""); !errors.Is(err, verror.ErrNoAccess) {
 		t.Fatalf("Remove should have failed with access error: %v", err)
 	}
 }

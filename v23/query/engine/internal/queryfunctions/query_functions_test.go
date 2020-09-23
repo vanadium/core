@@ -18,7 +18,6 @@ import (
 	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
 )
@@ -2292,7 +2291,7 @@ func TestErrorFunctions(t *testing.T) {
 
 	for _, test := range tests {
 		_, err := queryfunctions.ExecFunction(&db, test.f, test.args)
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("function: %v; got %v, want %v", test.f, err, test.err)
 		}
 	}

@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -14,7 +15,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/lib/ibe"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/bcrypter"
@@ -183,7 +183,7 @@ func TestUnidirectional(t *testing.T) {
 	// We should not be able to dial in the other direction, because that flow
 	// manager is not willing to accept flows.
 	_, err := ac.Dial(actx, ac.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
-	if verror.ErrorID(err) != ErrDialingNonServer.ID {
+	if !errors.Is(err, ErrDialingNonServer) {
 		t.Errorf("got %v, wanted ErrDialingNonServer", err)
 	}
 }

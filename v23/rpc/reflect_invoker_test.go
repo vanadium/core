@@ -636,6 +636,7 @@ func TestReflectInvokerPanic(t *testing.T) {
 		{nil, `ReflectInvoker\(nil\) is invalid`},
 		{struct{}{}, "no exported methods"},
 		{arbitraryCall{}, "no compatible methods"},
+
 		{badcall{}, "invalid streaming call"},
 		{badoutargs{}, "final out-arg must be error"},
 		{badGlobber{}, "Globber must have signature"},
@@ -676,12 +677,12 @@ func TestReflectInvokerErrors(t *testing.T) {
 		obj        interface{}
 		method     string
 		args       v
-		prepareErr verror.ID
-		invokeErr  verror.ID
+		prepareErr error
+		invokeErr  error
 	}
 	tests := []testcase{
-		{&notags{}, "UnknownMethod", v{}, verror.ErrUnknownMethod.ID, verror.ErrUnknownMethod.ID},
-		{&tags{}, "UnknownMethod", v{}, verror.ErrUnknownMethod.ID, verror.ErrUnknownMethod.ID},
+		{&notags{}, "UnknownMethod", v{}, verror.ErrUnknownMethod, verror.ErrUnknownMethod},
+		{&tags{}, "UnknownMethod", v{}, verror.ErrUnknownMethod, verror.ErrUnknownMethod},
 	}
 	name := func(test testcase) string {
 		return fmt.Sprintf("%T.%s()", test.obj, test.method)
@@ -689,12 +690,12 @@ func TestReflectInvokerErrors(t *testing.T) {
 	testInvoker := func(test testcase, invoker rpc.Invoker) {
 		// Call Invoker.Prepare and check error.
 		_, _, err := invoker.Prepare(ctx, test.method, len(test.args))
-		if verror.ErrorID(err) != test.prepareErr {
+		if !errors.Is(err, test.prepareErr) {
 			t.Errorf(`%s Prepare got error "%v", want id %v`, name(test), err, test.prepareErr)
 		}
 		// Call Invoker.Invoke and check error.
 		_, err = invoker.Invoke(ctx1, call1, test.method, test.args)
-		if verror.ErrorID(err) != test.invokeErr {
+		if !errors.Is(err, test.invokeErr) {
 			t.Errorf(`%s Invoke got error "%v", want id %v`, name(test), err, test.invokeErr)
 		}
 	}
