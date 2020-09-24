@@ -9,6 +9,7 @@ package raft
 // should use an encoding (e.g. json) into the strings.
 
 import (
+	"fmt"
 	"io"
 	"math/rand"
 	"sort"
@@ -22,15 +23,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/verror"
-)
-
-const pkgPath = "v.io/x/ref/lib.raft"
-
-var (
-	errAddAfterStart = verror.Register(pkgPath+".errAddAfterStart", verror.NoRetry, "{1:}{2:} adding member after start{:_}")
-	errNotLeader     = verror.Register(pkgPath+".errNotLeader", verror.NoRetry, "{1:}{2:} not the leader{:_}")
-	errTimedOut      = verror.Register(pkgPath+".errTimedOut", verror.NoRetry, "{1:}{2:} request timed out{:_}")
-	errBadTerm       = verror.Register(pkgPath+".errBadTerm", verror.NoRetry, "{1:}{2:} new term {3} < {4} {:_}")
 )
 
 // member keeps track of another member's state.
@@ -205,7 +197,7 @@ func (r *raft) AddMember(ctx *context.T, id string) error {
 		// TODO(p): Raft has a protocol for changing membership after
 		// start.  I'll add that after I get at least one client
 		// working.
-		return verror.New(errAddAfterStart, ctx)
+		return fmt.Errorf("adding member after start")
 	}
 	m := &member{id: id, stopped: make(chan struct{}), update: make(chan struct{}, 10)}
 	r.memberMap[id] = m
@@ -633,7 +625,7 @@ func (r *raft) updateFollower(m *member) {
 		}
 
 		if err != nil {
-			if verror.ErrorID(err) != errOutOfSequence.ID {
+			if verror.ErrorID(err) != ErrOutOfSequence.ID {
 				// A problem other than missing entries.  Retry later.
 				//vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
 				vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
@@ -779,7 +771,7 @@ func (r *raft) waitForApply(ctx *context.T, term Term, index Index) (error, erro
 			le := r.p.Lookup(index)
 			if le == nil || le.Term != term {
 				// There was an election and the log entry was lost.
-				return nil, verror.New(errNotLeader, ctx)
+				return nil, NewErrNotLeader(ctx)
 			}
 			return le.ApplyError, nil
 		}
@@ -787,7 +779,7 @@ func (r *raft) waitForApply(ctx *context.T, term Term, index Index) (error, erro
 		// Give up if the caller doesn't want to wait.
 		select {
 		case <-ctx.Done():
-			return nil, verror.New(errTimedOut, ctx)
+			return nil, ctx.Err()
 		default:
 		}
 
@@ -818,7 +810,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 	for {
 		leader, role, _, timedOut := r.waitForLeadership(ctx)
 		if timedOut {
-			return nil, verror.New(errTimedOut, ctx)
+			return nil, ctx.Err()
 		}
 		switch role {
 		case RoleLeader:
@@ -828,7 +820,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 				return r.waitForApply(ctx, term, index)
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != errNotLeader.ID {
+			if verror.ErrorID(err) != ErrNotLeader.ID {
 				return nil, err
 			}
 		case RoleFollower:
@@ -843,7 +835,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 				return r.waitForApply(ctx, term, index)
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != errNotLeader.ID {
+			if verror.ErrorID(err) != ErrNotLeader.ID {
 				return nil, err
 			}
 		}
@@ -851,8 +843,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 		// Give up if the caller doesn't want to wait.
 		select {
 		case <-ctx.Done():
-			err := verror.New(errTimedOut, ctx)
-			return nil, err
+			return nil, ctx.Err()
 		default:
 		}
 	}
@@ -873,7 +864,7 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 	for {
 		leader, role, commitIndex, timedOut := r.waitForLeadership(ctx)
 		if timedOut {
-			return verror.New(errTimedOut, ctx)
+			return ctx.Err()
 		}
 
 		switch role {
@@ -889,7 +880,7 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 				return nil
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != errNotLeader.ID {
+			if verror.ErrorID(err) != ErrNotLeader.ID {
 				return err
 			}
 		}
@@ -897,7 +888,7 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 		// Give up if the caller doesn't want to wait.
 		select {
 		case <-ctx.Done():
-			return verror.New(errTimedOut, ctx)
+			return ctx.Err()
 		default:
 		}
 	}
@@ -945,9 +936,9 @@ func (r *raft) Sync(ctx *context.T) error {
 	for requested > r.sync.done {
 		select {
 		case <-r.stop:
-			return verror.New(errTimedOut, ctx)
+			return ctx.Err()
 		case <-ctx.Done():
-			return verror.New(errTimedOut, ctx)
+			return ctx.Err()
 		default:
 		}
 		r.sync.donecv.Wait()

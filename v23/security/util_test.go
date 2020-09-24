@@ -8,7 +8,6 @@ package security
 
 import (
 	"v.io/v23/context"
-	"v.io/v23/verror"
 )
 
 // EnableSignatureCache exposes signatureCache.enable() to tests.
@@ -63,11 +62,6 @@ func ExposeClaimedName(chain []Certificate) string {
 	return claimedName(chain)
 }
 
-// IsInvalidUnion returns true if id is errInvalidUnion.ID
-func IsInvalidUnion(id verror.ID) bool {
-	return id == errInvalidUnion.ID
-}
-
 // ExposeChainedDigests exposes Certificate.chainedDigests tests.
 func ExposeChainedDigests(c Certificate, h Hash, chain []byte) (digest, contentDigest []byte) {
 	return c.chainedDigests(h, chain)
@@ -81,11 +75,6 @@ func ExposeChainCertificate(signer Signer, chain []Certificate, cert Certificate
 // ExposeValidateCertificateChain exposes validateCertificateChain to tests.
 func ExposeValidateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 	return validateCertificateChain(chain)
-}
-
-// ExposeBadSignatureID exposes errBadCertSignature.ID to tests.
-func ExposeBadSignatureID() verror.ID {
-	return errBadCertSignature.ID
 }
 
 // ExposeDigestsForCertificateChain exposes digestsForCertificateChain to tests.

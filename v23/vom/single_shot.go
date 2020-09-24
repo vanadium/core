@@ -8,8 +8,6 @@ import (
 	"bytes"
 	"io"
 	"sync"
-
-	"v.io/v23/verror"
 )
 
 // Encode writes the value v and returns the encoded bytes.  The semantics of
@@ -120,13 +118,13 @@ func computeTypeDecoderCacheKey(b *decbuf) (string, error) {
 		return "", io.EOF
 	}
 	if version := Version(b.buf[0]); !isAllowedVersion(version) {
-		return "", verror.New(errBadVersionByte, nil, version)
+		return "", errBadVersionByte(version)
 	}
 	b.beg++
 	// Walk through bytes until we get to a value message.
 	for {
 		if b.end < b.beg {
-			return "", verror.New(errIndexOutOfRange, nil)
+			return "", errIndexOutOfRange
 		}
 		// Handle incomplete types.
 		switch ok, err := binaryDecodeControlOnly(b, WireCtrlTypeIncomplete); {
@@ -156,7 +154,7 @@ func computeTypeDecoderCacheKey(b *decbuf) (string, error) {
 			}
 			b.beg += msgLen
 		default:
-			return "", verror.New(errDecodeZeroTypeID, nil)
+			return "", errDecodeZeroTypeID
 		}
 	}
 }

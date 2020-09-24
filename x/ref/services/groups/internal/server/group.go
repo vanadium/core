@@ -57,9 +57,9 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 		// client doesn't have access to this group, we should probably return an
 		// opaque error. (Reserving buckets for users will help.)
 		if verror.ErrorID(err) == store.ErrKeyExists.ID {
-			return verror.New(verror.ErrExist, ctx, g.name)
+			return verror.ErrExist.Errorf(ctx, "already exists: %s", g.name)
 		}
-		return verror.New(verror.ErrInternal, ctx, err)
+		return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func (g *group) authorize(ctx *context.T, call security.Call, perms access.Permi
 	//auth, _ := access.TypicalTagTypePermissionsAuthorizer(perms)
 	auth := access.TypicalTagTypePermissionsAuthorizer(perms)
 	if err := auth.Authorize(ctx, call); err != nil {
-		return verror.New(verror.ErrNoAccess, ctx, err)
+		return verror.ErrNoAccess.Errorf(ctx, "access denied: %v", err)
 	}
 	return nil
 }
@@ -158,9 +158,9 @@ func (g *group) getInternal(ctx *context.T, call security.Call) (gd groupData, v
 	version, err = g.m.st.Get(g.name, &gd)
 	if err != nil {
 		if verror.ErrorID(err) == store.ErrUnknownKey.ID {
-			return groupData{}, "", verror.New(verror.ErrNoExist, ctx, g.name)
+			return groupData{}, "", verror.ErrNoExist.Errorf(ctx, "does not exist: %v", g.name)
 		}
-		return groupData{}, "", verror.New(verror.ErrInternal, ctx, err)
+		return groupData{}, "", verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
 	}
 	if err := g.authorize(ctx, call, gd.Perms); err != nil {
 		return groupData{}, "", err
@@ -198,7 +198,7 @@ func (g *group) readModifyWrite(ctx *context.T, call security.Call, version stri
 				}
 			} else {
 				// Abort on non-version error.
-				return verror.New(verror.ErrInternal, ctx, err)
+				return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
 			}
 		} else {
 			return nil

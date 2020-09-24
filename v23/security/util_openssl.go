@@ -18,16 +18,14 @@ import "C"
 import (
 	"fmt"
 	"unsafe"
-
-	"v.io/v23/verror"
-)
-
-var (
-	errOpenSSL = verror.Register(pkgPath+".errOpenSSL", verror.NoRetry, "{1:}{2:} OpenSSL error ({3}): {4} in {5}:{6} ({7}:{8})")
 )
 
 func opensslMakeError(errno C.ulong) error {
-	return verror.New(errOpenSSL, nil, errno, C.GoString(C.ERR_func_error_string(errno)), C.GoString(C.ERR_lib_error_string(errno)), C.GoString(C.ERR_reason_error_string(errno)))
+	return fmt.Errorf("OpenSSL error (%v): %v in %v:%v",
+		errno,
+		C.GoString(C.ERR_func_error_string(errno)),
+		C.GoString(C.ERR_lib_error_string(errno)),
+		C.GoString(C.ERR_reason_error_string(errno)))
 }
 
 func uchar(b []byte) *C.uchar {
@@ -50,8 +48,7 @@ func opensslGetErrors() error {
 		if errno == 0 {
 			break
 		}
-		nerr := verror.New(errOpenSSL,
-			nil,
+		nerr := fmt.Errorf("OpenSSL error (%v): %v in %v:%v, %v:%v",
 			errno,
 			C.GoString(C.ERR_func_error_string(errno)),
 			C.GoString(C.ERR_lib_error_string(errno)),

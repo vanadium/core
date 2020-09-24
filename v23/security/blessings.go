@@ -14,16 +14,6 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/verror"
-)
-
-var (
-	errEmptyChain         = verror.Register(pkgPath+".errEmptyChain", verror.NoRetry, "empty certificate chain in blessings")
-	errMisconfiguredRoots = verror.Register(pkgPath+".errMisconfiguredRoots", verror.NoRetry, "recognized root certificates not configured")
-	errMultiplePublicKeys = verror.Register(pkgPath+".errMultiplePublicKeys", verror.NoRetry, "invalid blessings: two certificate chains that bind to different public keys")
-	errInvalidUnion       = verror.Register(pkgPath+".errInvalidUnion", verror.NoRetry, "cannot create union of blessings bound to different public keys")
-	errNeedRoots          = verror.Register(pkgPath+".errNeedRoots", verror.NoRetry, "{1:}{2:}principal does not have any BlessingRoots{:_}")
-	errCantAddRoot        = verror.Register(pkgPath+".errCantAddRoot", verror.NoRetry, "{1:}{2:}failed to Add root: {3} for pattern: {4} to this principal's roots: {5}{:_}")
 )
 
 // Blessings encapsulates all cryptographic operations required to
@@ -223,7 +213,7 @@ func WireBlessingsToNative(wire WireBlessings, native *Blessings) error {
 	}
 	certchains := wire.CertificateChains
 	if len(certchains) == 0 || len(certchains[0]) == 0 {
-		return verror.New(errEmptyChain, nil)
+		return fmt.Errorf("empty certificate chain in blessings")
 	}
 	// if this is a nameless blessing
 	if isNamelessChains(certchains) {
@@ -253,11 +243,11 @@ func WireBlessingsToNative(wire WireBlessings, native *Blessings) error {
 	for i := 1; i < len(certchains); i++ {
 		chain := certchains[i]
 		if len(chain) == 0 {
-			return verror.New(errEmptyChain, nil)
+			return fmt.Errorf("empty certificate chain in blessings")
 		}
 		cert := chain[len(chain)-1]
 		if !bytes.Equal(marshaledkey, cert.PublicKey) {
-			return verror.New(errMultiplePublicKeys, nil)
+			return fmt.Errorf("invalid blessings: two certificate chains that bind to different public keys")
 		}
 		if _, digests[i], err = validateCertificateChain(chain); err != nil {
 			return err
@@ -300,7 +290,7 @@ func UnionOfBlessings(blessings ...Blessings) (Blessings, error) {
 		}
 		onlyNameless = false
 		if idx > 0 && !bytes.Equal(key0, b.publicKeyDER()) {
-			return Blessings{}, verror.New(errInvalidUnion, nil)
+			return Blessings{}, fmt.Errorf("cannot create union of blessings bound to different public keys")
 		}
 		ret.chains = append(ret.chains, b.chains...)
 		ret.digests = append(ret.digests, b.digests...)
@@ -565,7 +555,7 @@ func RemoteBlessingNames(ctx *context.T, call Call) ([]string, []RejectedBlessin
 	if p := call.LocalPrincipal(); p == nil || p.Roots() == nil {
 		// These conditions should not be possible: Here only for
 		// unittests where the Call object is intentionally limited.
-		rootsErr = verror.New(errMisconfiguredRoots, ctx)
+		rootsErr = fmt.Errorf("recognized root certificates not configured")
 	}
 	for _, chain := range b.chains {
 		name := claimedName(chain)
@@ -698,7 +688,7 @@ func isNamelessChains(chains [][]Certificate) bool {
 // the roots of blessings and invoking p.Roots().Add(...).
 func AddToRoots(p Principal, blessings Blessings) error {
 	if p.Roots() == nil {
-		return verror.New(errNeedRoots, nil)
+		return fmt.Errorf("principal does not have any BlessingRoots")
 	}
 	if blessings.isNamelessBlessing() {
 		return nil
@@ -708,7 +698,7 @@ func AddToRoots(p Principal, blessings Blessings) error {
 		pattern := BlessingPattern(chain[0].Extension)
 		root := chain[0].PublicKey
 		if err := p.Roots().Add(root, pattern); err != nil {
-			return verror.New(errCantAddRoot, nil, root, pattern, err)
+			return fmt.Errorf("failed to Add root: %v for pattern: %v to this principal's roots: %v", root, pattern, err)
 		}
 	}
 	return nil

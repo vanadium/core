@@ -5,19 +5,11 @@
 package vom
 
 import (
+	"fmt"
 	"io"
 	"sync"
 
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
-)
-
-var (
-	errTypeInvalid        = verror.Register(pkgPath+".errTypeInvalid", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} invalid, the min user type id is {5}{:_}")
-	errAlreadyDefined     = verror.Register(pkgPath+".errAlreadyDefined", verror.NoRetry, "{1:}{2:} vom: type {3} id {4} already defined as {5}{:_}")
-	errUnknownType        = verror.Register(pkgPath+".errUnknownType", verror.NoRetry, "{1:}{2:} vom: unknown type id {3}{:_}")
-	errUnknownWireTypeDef = verror.Register(pkgPath+".errUnknownWireTypeDef", verror.NoRetry, "{1:}{2:} vom: unknown wire type definition {3}{:_}")
-	errStartNotCalled     = verror.Register(pkgPath+".errStartNotCalled", verror.NoRetry, "{1:}{2:} vom: Start has not been called")
 )
 
 // TypeDecoder manages the receipt and unmarshalling of types from the other
@@ -155,7 +147,7 @@ func (d *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
 		running := d.goroutineRunning
 		d.processingControlMu.Unlock()
 		if !running {
-			return nil, verror.New(errStartNotCalled, nil)
+			return nil, fmt.Errorf("vom: Start has not been called")
 		}
 		d.buildCond.Wait()
 	}
@@ -171,15 +163,15 @@ func (d *TypeDecoder) addWireType(tid TypeId, wt wireType) error {
 
 func (d *TypeDecoder) addWireTypeBuildLocked(tid TypeId, wt wireType) error {
 	if tid < WireIdFirstUserType {
-		return verror.New(errTypeInvalid, nil, wt, tid, WireIdFirstUserType)
+		return fmt.Errorf("vom: type %v id %v invalid, the min user type id is %v", wt, tid, WireIdFirstUserType)
 	}
 	// TODO(toddw): Allow duplicates according to some heuristic (e.g. only
 	// identical, or only if the later one is a "superset", etc).
 	if dup := d.lookupKnownType(tid); dup != nil {
-		return verror.New(errAlreadyDefined, nil, wt, tid, dup)
+		return fmt.Errorf("vom: type %v id %v already defined as %v", wt, tid, dup)
 	}
 	if dup := d.idToWire[tid]; dup != nil {
-		return verror.New(errAlreadyDefined, nil, wt, tid, dup)
+		return fmt.Errorf("vom: type %v id %v already defined as %v", wt, tid, dup)
 	}
 	d.idToWire[tid] = wt
 	return nil
@@ -226,7 +218,7 @@ func (d *TypeDecoder) buildType(tid TypeId) error {
 func (d *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) (vdl.PendingType, error) {
 	wt := d.idToWire[tid]
 	if wt == nil {
-		return nil, verror.New(errUnknownType, nil, tid)
+		return nil, fmt.Errorf("vom: unknown type id %v", tid)
 	}
 	// Make the type from its wireType representation.  Both named and unnamed
 	// types may be recursive, so we must populate pending before subsequent
@@ -286,7 +278,7 @@ func (d *TypeDecoder) startBaseType(wt wireType, builder *vdl.TypeBuilder) (vdl.
 	case wireTypeOptionalT:
 		return builder.Optional(), nil
 	default:
-		return nil, verror.New(errUnknownWireTypeDef, nil, wt)
+		return nil, fmt.Errorf("vom: unknown wire type definition %v", wt)
 	}
 }
 

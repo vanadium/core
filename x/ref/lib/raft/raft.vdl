@@ -76,3 +76,8 @@ type raftProto interface {
 	// snapshot.
 	InstallSnapshot(term Term, leaderId string, appliedTerm Term, appliedIndex Index) stream<[]byte> error
 }
+
+error (
+	NotLeader() {"en": "not the leader"}
+	OutOfSequence(prevTerm Term, prevIdx Index) {"en": "append {prevTerm}, {prevIdx} out of sequence"}
+)

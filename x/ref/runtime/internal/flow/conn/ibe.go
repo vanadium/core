@@ -68,7 +68,7 @@ func (c *encCache) ciphertext(pattern security.BlessingPattern, plaintext []byte
 func encrypt(ctx *context.T, patterns []security.BlessingPattern, v interface{}) ([]bcrypter.WireCiphertext, error) {
 	crypter := bcrypter.GetCrypter(ctx)
 	if crypter == nil {
-		return nil, NewErrNoCrypter(ctx)
+		return nil, ErrNoCrypter.Errorf(ctx, "no blessings-based crypter available")
 	}
 	b, err := vom.Encode(v)
 	if err != nil {
@@ -93,7 +93,7 @@ func encrypt(ctx *context.T, patterns []security.BlessingPattern, v interface{})
 func decrypt(ctx *context.T, ciphertexts []bcrypter.WireCiphertext, v interface{}) error {
 	crypter := bcrypter.GetCrypter(ctx)
 	if crypter == nil {
-		return NewErrNoCrypter(ctx)
+		return ErrNoCrypter.Errorf(ctx, "no blessings-based crypter available")
 	}
 	var ctxt bcrypter.Ciphertext
 
@@ -112,5 +112,5 @@ func decrypt(ctx *context.T, ciphertexts []bcrypter.WireCiphertext, v interface{
 			return nil
 		}
 	}
-	return NewErrNoPrivateKey(ctx)
+	return ErrNoPrivateKey.Errorf(ctx, "no blessings private key available for decryption")
 }

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"reflect"
 	"sync"
 	"time"
 
@@ -453,7 +452,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		requestDeadline: now.Add(c.acceptChannelTimeout / 2),
 
 		closeTimer: time.AfterFunc(c.acceptChannelTimeout, func() {
-			c.internalClose(ctx, false, false, NewErrChannelTimeout(ctx))
+			c.internalClose(ctx, false, false, ErrChannelTimeout.Errorf(ctx, "the channel has become unresponsive"))
 		}),
 		closeDeadline: now.Add(c.acceptChannelTimeout),
 		lastRTT:       firstRTT,
@@ -543,7 +542,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 	}
 	c.mu.Unlock()
 	if err != nil {
-		c.Close(ctx, NewErrSend(ctx, "release", c.remote.String(), err))
+		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 	}
 	return c.lameDucked
 }
@@ -552,7 +551,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map[string]security.Discharge,
 	remote naming.Endpoint, channelTimeout time.Duration, sideChannel bool) (flow.Flow, error) {
 	if c.remote.RoutingID == naming.NullRoutingID {
-		return nil, NewErrDialingNonServer(ctx, c.remote.String())
+		return nil, ErrDialingNonServer.Errorf(ctx, "attempting to dial on a connection with no remote server: %v", c.remote.String())
 	}
 	if blessings.IsZero() {
 		// its safe to ignore this error since c.lBlessings must be valid, so the
@@ -572,7 +571,7 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	}
 
 	if c.remoteLameDuck || c.status >= Closing {
-		return nil, NewErrConnectionClosed(ctx)
+		return nil, ErrConnectionClosed.Errorf(ctx, "connection closed")
 	}
 	id := c.nextFid
 	c.nextFid += 2
@@ -686,7 +685,7 @@ func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.isIdleLocked(ctx, idleExpiry) {
-		c.internalCloseLocked(ctx, false, false, NewErrIdleConnKilled(ctx))
+		c.internalCloseLocked(ctx, false, false, ErrIdleConnKilled.Errorf(ctx, "connection killed because idle expiry was reached"))
 		return true
 	}
 	return false
@@ -769,7 +768,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			}
 		}
 		if err == nil {
-			err = NewErrConnectionClosed(ctx)
+			err = ErrConnectionClosed.Errorf(ctx, "connection closed")
 		}
 		for _, f := range flows {
 			f.close(ctx, false, err)
@@ -820,7 +819,7 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	}
 	c.mu.Unlock()
 	if err != nil {
-		c.Close(ctx, NewErrSend(ctx, "release", c.remote.String(), err))
+		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 	}
 }
 
@@ -845,7 +844,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 	case *message.TearDown:
 		var err error
 		if msg.Message != "" {
-			err = NewErrRemoteError(ctx, msg.Message)
+			err = ErrRemoteError.Errorf(ctx, "remote end received err: %v", msg.Message)
 		}
 		c.internalClose(ctx, true, false, err)
 		return nil
@@ -862,7 +861,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 			err := c.sendMessageLocked(ctx, true, expressPriority, &message.AckLameDuck{})
 			c.mu.Unlock()
 			if err != nil {
-				c.Close(ctx, NewErrSend(ctx, "release", c.remote.String(), err))
+				c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 			}
 		}()
 
@@ -892,11 +891,11 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 		c.mu.Lock()
 		if c.nextFid%2 == msg.ID%2 {
 			c.mu.Unlock()
-			return NewErrInvalidPeerFlow(ctx)
+			return ErrInvalidPeerFlow.Errorf(ctx, "peer has chosen flow id from local domain")
 		}
 		if c.handler == nil {
 			c.mu.Unlock()
-			return NewErrUnexpectedMsg(ctx, "openFlow")
+			return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", msg)
 		} else if c.status == Closing {
 			c.mu.Unlock()
 			return nil // Conn is already being closed.
@@ -976,7 +975,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 		}
 		c.mu.Unlock()
 	default:
-		return NewErrUnexpectedMsg(ctx, reflect.TypeOf(msg).String())
+		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", m)
 	}
 	return nil
 }
@@ -987,7 +986,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 	for {
 		msg, rerr := c.mp.readMsg(ctx)
 		if rerr != nil {
-			err = NewErrRecv(ctx, c.remote.String(), rerr)
+			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
 		}
 		if err = c.handleMessage(ctx, msg); err != nil {

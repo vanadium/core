@@ -52,7 +52,7 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	}
 	newSize := l + r.size
 	if newSize > DefaultBytesBufferedPerFlow {
-		return NewErrCounterOverflow(ctx)
+		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed")
 	}
 	newBufs := r.nbufs + len(bufs)
 	r.reserveLocked(newBufs)

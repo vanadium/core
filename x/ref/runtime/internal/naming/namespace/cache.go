@@ -12,7 +12,6 @@ import (
 
 	"v.io/v23/context"
 	"v.io/v23/naming"
-	"v.io/v23/verror"
 )
 
 // maxCacheEntries is the max number of cache entries to keep.  It exists only so that we
@@ -135,7 +134,7 @@ func (c *ttlCache) lookup(ctx *context.T, name string) (naming.MountEntry, error
 			continue
 		}
 		if isStale(now, e) {
-			return e, verror.New(naming.ErrNoSuchName, nil, name)
+			return e, naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 		}
 		ctx.VI(2).Infof("namespace cache %s -> %v %s", name, e.Servers, e.Name)
 		e.Name = suffix
@@ -149,7 +148,7 @@ func (c *ttlCache) lookup(ctx *context.T, name string) (naming.MountEntry, error
 		}
 		return e, nil
 	}
-	return naming.MountEntry{}, verror.New(naming.ErrNoSuchName, nil, name)
+	return naming.MountEntry{}, naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 }
 
 // setNotMT caches the fact that a server as not a mounttable.
@@ -208,7 +207,7 @@ func newNullCache() cache                                                       
 func (nullCache) remember(ctx *context.T, prefix string, entry *naming.MountEntry) {}
 func (nullCache) forget(ctx *context.T, names []string)                            {}
 func (nullCache) lookup(ctx *context.T, name string) (e naming.MountEntry, err error) {
-	return e, verror.New(naming.ErrNoSuchName, nil, name)
+	return e, naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", name)
 }
 func (nullCache) isNotMT(s string) bool { return false }
 func (nullCache) setNotMT(s string)     {}

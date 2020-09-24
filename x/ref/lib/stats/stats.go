@@ -54,7 +54,7 @@ func GetStatsObject(name string) (StatsObject, error) {
 	defer lock.RUnlock()
 	node := findNodeLocked(name, false)
 	if node == nil || node.object == nil {
-		return nil, verror.New(verror.ErrNoExist, nil, name)
+		return nil, verror.ErrNoExist.Errorf(nil, "does not exist: %s", name)
 	}
 	return node.object, nil
 }
@@ -67,7 +67,7 @@ func Value(name string) (interface{}, error) {
 		return 0, err
 	}
 	if obj == nil {
-		return nil, verror.New(stats.ErrNoValue, nil, name)
+		return nil, stats.NewErrNoValue(nil, name)
 	}
 	return obj.Value(), nil
 }
@@ -75,7 +75,7 @@ func Value(name string) (interface{}, error) {
 // Delete deletes a StatsObject and all its children, if any.
 func Delete(name string) error {
 	if name == "" {
-		return verror.New(verror.ErrNoExist, nil, name)
+		return verror.ErrNoExist.Errorf(nil, "does not exist: %s", name)
 	}
 	elems := strings.Split(name, "/")
 	last := len(elems) - 1
@@ -84,7 +84,7 @@ func Delete(name string) error {
 	defer lock.Unlock()
 	parent := findNodeLocked(dirname, false)
 	if parent == nil {
-		return verror.New(verror.ErrNoExist, nil, name)
+		return verror.ErrNoExist.Errorf(nil, "does not exist: %s", name)
 	}
 	delete(parent.children, basename)
 	return nil

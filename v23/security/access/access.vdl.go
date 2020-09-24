@@ -440,6 +440,8 @@ var (
 	ErrUnenforceablePatterns     = verror.Register("v.io/v23/security/access.UnenforceablePatterns", verror.NoRetry, "{1:}{2:} AccessList contains the following invalid or unrecognized patterns in the In list: {3}")
 	ErrInvalidOpenAccessList     = verror.Register("v.io/v23/security/access.InvalidOpenAccessList", verror.NoRetry, "{1:}{2:} AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
 	ErrAccessTagCaveatValidation = verror.Register("v.io/v23/security/access.AccessTagCaveatValidation", verror.NoRetry, "{1:}{2:} access tags on method ({3}) do not include any of the ones in the caveat ({4}), or the method is using a different tag type")
+	ErrMultipleTags              = verror.Register("v.io/v23/security/access.MultipleTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} cannot handle multiple tags of type {5}; this is likely unintentional")
+	ErrNoTags                    = verror.Register("v.io/v23/security/access.NoTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} has no tags of type {5}; this is likely unintentional")
 )
 
 // NewErrTooBig returns an error with the ErrTooBig ID.
@@ -470,6 +472,16 @@ func NewErrInvalidOpenAccessList(ctx *context.T) error {
 // NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
 func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
 	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
+}
+
+// NewErrMultipleTags returns an error with the ErrMultipleTags ID.
+func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string) error {
+	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
+}
+
+// NewErrNoTags returns an error with the ErrNoTags ID.
+func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
+	return verror.New(ErrNoTags, ctx, suffix, method, tag)
 }
 
 // Hold type definitions in package-level variables, for better performance.
@@ -524,6 +536,8 @@ func initializeVDL() struct{} {
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnenforceablePatterns.ID), "{1:}{2:} AccessList contains the following invalid or unrecognized patterns in the In list: {3}")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidOpenAccessList.ID), "{1:}{2:} AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
 	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAccessTagCaveatValidation.ID), "{1:}{2:} access tags on method ({3}) do not include any of the ones in the caveat ({4}), or the method is using a different tag type")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMultipleTags.ID), "{1:}{2:} authorizer on {3}.{4} cannot handle multiple tags of type {5}; this is likely unintentional")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoTags.ID), "{1:}{2:} authorizer on {3}.{4} has no tags of type {5}; this is likely unintentional")
 
 	return struct{}{}
 }

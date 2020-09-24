@@ -43,8 +43,6 @@ import (
 	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 )
 
-const pkgPath = "v.io/x/ref/option/internal/rt"
-
 type contextKey int
 
 const (
@@ -63,11 +61,6 @@ const (
 func init() {
 	metadata.Insert("v23.RPCEndpointVersion", fmt.Sprint(naming.DefaultEndpointVersion))
 }
-
-var (
-	errDiscoveryNotInitialized = verror.Register(pkgPath+".errDiscoveryNotInitialized", verror.NoRetry, "{1:}{2:} discovery not initialized")
-	errContextNotInitialized   = verror.Register(pkgPath+".errContextNotInitialized", verror.NoRetry, "{1:}{2:} context not initialized")
-)
 
 var setPrincipalCounter int32 = -1
 
@@ -296,7 +289,7 @@ func getInitData(ctx *context.T) (*initData, error) {
 	if tmp := ctx.Value(initKey); tmp != nil {
 		return tmp.(*initData), nil
 	}
-	return nil, verror.New(errContextNotInitialized, ctx, fmt.Errorf("context not initialized by this runtime"))
+	return nil, fmt.Errorf("context not initialized by this runtime")
 }
 
 func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context.T, rpc.Client, error) {
@@ -318,7 +311,7 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 	if tmp := ctx.Value(principalKey); tmp != nil {
 		p = tmp.(security.Principal)
 	} else {
-		return nil, nil, verror.New(errContextNotInitialized, ctx, fmt.Errorf("principal not set in context"))
+		return nil, nil, fmt.Errorf("principal not set in context")
 	}
 
 	if !hasProtocol && id.protocols != nil {
@@ -430,7 +423,7 @@ func (*Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
 	if id.discoveryFactory != nil {
 		return id.discoveryFactory.New(ctx)
 	}
-	return nil, verror.New(errDiscoveryNotInitialized, ctx)
+	return nil, fmt.Errorf("discovery not initialized")
 }
 
 func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *context.T {

@@ -10,14 +10,6 @@ import (
 	"strconv"
 
 	"v.io/v23/rpc"
-	"v.io/v23/verror"
-)
-
-var (
-	errNotTCP           = verror.Register(pkgPath+".errNotTCP", verror.NoRetry, "{1:}{2:} {3} is not a tcp protocol{:_}")
-	errCantParsePort    = verror.Register(pkgPath+".errCantParsePort", verror.NoRetry, "{1:}{2:} failed to parse port number from {3}{:_}")
-	errNeedIPOrHostName = verror.Register(pkgPath+".errNeedIPOrHostName", verror.NoRetry, "{1:}{2:} {3} is neither an IP address nor a host name{:_}")
-	errBadIP            = verror.Register(pkgPath+".errBadIP", verror.NoRetry, "{1:}{2:} failed to parse {3} as an IP address{:_}")
 )
 
 // TCPProtocolFlag implements flag.Value to provide validation of the command
@@ -39,7 +31,7 @@ func (t *TCPProtocolFlag) Set(s string) error {
 		t.Protocol = s
 		return nil
 	default:
-		return verror.New(errNotTCP, nil, s)
+		return fmt.Errorf("%v: not a tcp protocol", s)
 	}
 }
 
@@ -80,7 +72,7 @@ func (ip *IPHostPortFlag) Set(s string) error {
 	} else {
 		// have a port in s.
 		if _, err := strconv.ParseUint(port, 10, 16); err != nil {
-			return verror.New(errCantParsePort, nil, s)
+			return fmt.Errorf("failed to parse port number from: %v", s)
 		}
 		ip.Port = port
 	}
@@ -90,7 +82,7 @@ func (ip *IPHostPortFlag) Set(s string) error {
 			// Could be a hostname.
 			addrs, err := net.LookupIP(host)
 			if err != nil || len(addrs) == 0 {
-				return verror.New(errNeedIPOrHostName, nil, host, err)
+				return fmt.Errorf("%v: neither an IP address nor a host name: %v", host, err)
 			}
 			for _, a := range addrs {
 				ip.IP = append(ip.IP, &net.IPAddr{IP: a})
@@ -145,7 +137,7 @@ func (ip *HostPortFlag) Set(s string) error {
 	} else {
 		// have a port in s.
 		if _, err := strconv.ParseUint(port, 10, 16); err != nil {
-			return verror.New(errCantParsePort, nil, s)
+			return fmt.Errorf("failed to parse port number from: %s", s)
 		}
 		ip.Port = port
 	}
@@ -177,7 +169,7 @@ func (ip IPFlag) Get() interface{} {
 func (ip *IPFlag) Set(s string) error {
 	t := net.ParseIP(s)
 	if t == nil {
-		return verror.New(errBadIP, nil, s)
+		return fmt.Errorf("failed to parse %v as an IP address", s)
 	}
 	ip.IP = t
 	return nil

@@ -12,7 +12,6 @@ import (
 	"v.io/v23/glob"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 
 	"v.io/x/ref/services/discharger"
 )
@@ -42,20 +41,20 @@ func (dischargerImpl) Discharge(ctx *context.T, call rpc.ServerCall, caveat secu
 
 	expiry, err := security.NewExpiryCaveat(time.Now().Add(5 * time.Minute))
 	if err != nil {
-		return security.Discharge{}, verror.Convert(verror.ErrInternal, ctx, err)
+		return security.Discharge{}, useOrCreateErrInternal(ctx, err)
 	}
 	// Bind the discharge to precisely the purpose the requestor claims it will be used.
 	method, err := security.NewMethodCaveat(impetus.Method)
 	if err != nil {
-		return security.Discharge{}, verror.Convert(verror.ErrInternal, ctx, err)
+		return security.Discharge{}, useOrCreateErrInternal(ctx, err)
 	}
 	peer, err := security.NewCaveat(security.PeerBlessingsCaveat, impetus.Server)
 	if err != nil {
-		return security.Discharge{}, verror.Convert(verror.ErrInternal, ctx, err)
+		return security.Discharge{}, useOrCreateErrInternal(ctx, err)
 	}
 	discharge, err := v23.GetPrincipal(ctx).MintDischarge(caveat, expiry, method, peer)
 	if err != nil {
-		return security.Discharge{}, verror.Convert(verror.ErrInternal, ctx, err)
+		return security.Discharge{}, useOrCreateErrInternal(ctx, err)
 	}
 	return discharge, nil
 }

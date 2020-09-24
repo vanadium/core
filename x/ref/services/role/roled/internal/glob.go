@@ -25,7 +25,7 @@ func globChildren(ctx *context.T, call rpc.GlobChildrenServerCall, serverConfig 
 		n = n.find(strings.Split(suffix, "/"), false)
 	}
 	if n == nil {
-		return verror.New(verror.ErrNoExistOrNoAccess, ctx)
+		return verror.ErrNoExistOrNoAccess.Errorf(ctx, "does not exist or access denied")
 	}
 	for c := range n.children {
 		if m.Match(c) {

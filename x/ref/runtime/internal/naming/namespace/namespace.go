@@ -5,7 +5,9 @@
 package namespace
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,18 +19,11 @@ import (
 	"v.io/v23/security"
 	vdltime "v.io/v23/vdlroot/time"
 	"v.io/v23/verror"
-
 	"v.io/x/ref"
 )
 
 const defaultMaxResolveDepth = 32
 const defaultMaxRecursiveGlobDepth = 10
-
-const pkgPath = "v.io/x/ref/runtime/internal/naming/namespace"
-
-var (
-	errNotRootedName = verror.Register(pkgPath+".errNotRootedName", verror.NoRetry, "{1:}{2:} At least one root is not a rooted name{:_}")
-)
 
 // namespace is an implementation of namespace.T.
 type namespace struct {
@@ -59,7 +54,7 @@ func rooted(names []string) bool {
 }
 
 func badRoots(roots []string) error {
-	return verror.New(errNotRootedName, nil, roots)
+	return fmt.Errorf("at least one root is not a rooted name: %v", strings.Join(roots, ", "))
 }
 
 // Create a new namespace.

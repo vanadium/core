@@ -11,6 +11,7 @@ package groups
 import (
 	"errors"
 	"regexp"
+	"sort"
 	"strings"
 
 	"v.io/v23/context"
@@ -74,7 +75,7 @@ func (g *grpClient) match(ctx *context.T, p security.BlessingPattern, blessings 
 	patTokens, err := splitPattern(p)
 	if err != nil {
 		// Approximate the result.
-		errTmp := verror.New(verror.ErrBadArg, ctx, "malformed pattern", p)
+		errTmp := verror.ErrBadArg.Errorf(ctx, "bad argument: malformed pattern: %s", p)
 		g.apprxs = append(g.apprxs, Approximation{Reason: string(verror.ErrorID(errTmp)), Details: errTmp.Error()})
 		return approxRemainder(g.hint, blessings)
 	}
@@ -133,13 +134,24 @@ func (g *grpClient) matchedByBlessing(ctx *context.T, patTokens []string, b stri
 	return remainder
 }
 
+func cycle(visited map[string]struct{}) string {
+	grps := make([]string, len(visited))
+	i := 0
+	for k := range visited {
+		grps[i] = k
+		i++
+	}
+	sort.Strings(grps)
+	return strings.Join(grps, " -> ")
+}
+
 func (g *grpClient) remainder(ctx *context.T, groupName string, blessingChunks map[string]struct{}) map[string]struct{} {
 	var err error
 	var apprxs []Approximation
 	var remainder map[string]struct{}
 
 	if _, ok := g.visited[groupName]; ok {
-		err = verror.New(ErrCycleFound, ctx, groupName, g.visited)
+		err = NewErrCycleFound(ctx, groupName, cycle(g.visited))
 	} else {
 		visited := copyMap(g.visited)
 		visited[groupName] = struct{}{}

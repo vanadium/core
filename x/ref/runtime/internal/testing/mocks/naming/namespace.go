@@ -15,7 +15,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
-	"v.io/v23/verror"
 
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
 )
@@ -127,7 +126,7 @@ func (ns *namespaceMock) Resolve(ctx *context.T, name string, opts ...naming.Nam
 			return &ret, nil
 		}
 	}
-	return nil, verror.New(naming.ErrNoSuchName, ctx, fmt.Sprintf("Resolve name %q not found in %v", name, ns.mounts))
+	return nil, naming.ErrNoSuchName.Errorf(ctx, "Resolve name %q not found in %v", name, ns.mounts)
 }
 
 func (ns *namespaceMock) ShallowResolve(ctx *context.T, name string, opts ...naming.NamespaceOpt) (*naming.MountEntry, error) {

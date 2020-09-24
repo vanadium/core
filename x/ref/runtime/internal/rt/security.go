@@ -13,13 +13,8 @@ import (
 
 	"v.io/v23/context"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/ref"
 	vsecurity "v.io/x/ref/lib/security"
-)
-
-var (
-	errCredentialsInit = verror.Register(pkgPath+".errCredentialsInit", verror.NoRetry, "failed to initialize credentials, perhaps you need to create them with 'principal create {3}' (error: {4})")
 )
 
 func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Principal, func(), error) {
@@ -46,9 +41,8 @@ func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Pr
 			reloadPeriod,
 		)
 		if err != nil {
-
 			cancel()
-			return nil, nil, verror.New(errCredentialsInit, ctx, credentials, err)
+			return nil, nil, fmt.Errorf("failed to initialize credentials, perhaps you need to create them with 'principal create %v: %v", credentials, err)
 		}
 		return principal, func() { cancel() }, nil
 	}

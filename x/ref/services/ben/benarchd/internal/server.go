@@ -69,5 +69,5 @@ func (authorizer) Authorize(ctx *context.T, call security.Call) error {
 	if len(got) > 0 {
 		return nil
 	}
-	return verror.New(verror.ErrNoAccess, ctx, fmt.Errorf("refuse to store data for clients with no recognizable names (rejected names: %v)", rejected))
+	return verror.ErrNoAccess.Errorf(ctx, "access denied: %v", fmt.Errorf("refuse to store data for clients with no recognizable names (rejected names: %v)", rejected))
 }

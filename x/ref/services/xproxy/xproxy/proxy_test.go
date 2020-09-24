@@ -6,6 +6,7 @@ package xproxy_test
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -31,6 +32,7 @@ import (
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
+	"v.io/v23/verror"
 )
 
 var randData []byte
@@ -253,7 +255,7 @@ func testServerRestart(t *testing.T, lspec rpc.ListenSpec) { //nolint:gocyclo
 	// Ensure a fast timeout for the first call that we expect to fail.
 	fctx, _ := context.WithTimeout(ctx, 10*time.Second)
 	start := time.Now()
-	if err := callClient(fctx, "restarted:"); err == nil || !strings.Contains(err.Error(), "Timeout") {
+	if err := callClient(fctx, "restarted:"); !errors.Is(err, verror.ErrTimeout) {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
 

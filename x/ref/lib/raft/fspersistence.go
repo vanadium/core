@@ -26,7 +26,6 @@ import (
 	"sync"
 
 	"v.io/v23/context"
-	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
 )
 
@@ -155,9 +154,9 @@ func (p *fsPersist) AppendToLog(ctx *context.T, prevTerm Term, prevIndex Index, 
 		// We will not log if the previous entry either doesn't exist or has the wrong term.
 		le := p.lookup(prevIndex)
 		if le == nil {
-			return verror.New(errOutOfSequence, ctx, prevTerm, prevIndex)
+			return NewErrOutOfSequence(ctx, prevTerm, prevIndex)
 		} else if le.Term != prevTerm {
-			return verror.New(errOutOfSequence, ctx, prevTerm, prevIndex)
+			return NewErrOutOfSequence(ctx, prevTerm, prevIndex)
 		}
 	}
 	for i, e := range entries {
@@ -214,7 +213,7 @@ func (p *fsPersist) trimLog(ctx *context.T, prevTerm Term, prevIndex Index) erro
 	le := p.lookup(prevIndex)
 	p.Unlock()
 	if le == nil {
-		return verror.New(errOutOfSequence, ctx, 0, prevIndex)
+		return NewErrOutOfSequence(ctx, 0, prevIndex)
 	}
 
 	// Create a new log file.

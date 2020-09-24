@@ -7,7 +7,6 @@ package pattern
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 
 	"v.io/v23/verror"
@@ -114,7 +113,7 @@ func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) { //nol
 	compRegex, err := regexp.Compile(regex)
 	if err != nil {
 		// TODO(ivanpi): Should never happen. Panic here?
-		return nil, verror.New(verror.ErrInternal, nil, fmt.Sprintf("failed to compile pattern %q (regular expression %q): %v", pattern, regex, err))
+		return nil, verror.ErrInternal.Errorf(nil, "Internal error: failed to compile pattern %q (regular expression %q): %v", pattern, regex, err)
 	}
 	return &Pattern{
 		regex:       compRegex,
@@ -145,7 +144,7 @@ func Escape(s string) string {
 // pattern. It inserts escChar before each '_', '%', and escChar in the string.
 func EscapeWithEscapeChar(s string, escChar rune) string {
 	if escChar == '\x00' {
-		panic(verror.New(verror.ErrBadArg, nil, "'\x00' disables escaping, cannot be used in EscapeWithEscapeChar"))
+		panic(verror.ErrBadArg.Errorf(nil, "'\x00' disables escaping, cannot be used in EscapeWithEscapeChar"))
 	}
 	if escChar == '%' || escChar == '_' {
 		panic(NewErrIllegalEscapeChar(nil))

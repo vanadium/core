@@ -12,19 +12,7 @@ import (
 	"io"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
-)
-
-const pkgPath = "v.io/x/ref/lib/security/serialization"
-
-var (
-	errCantBeNilVerifier      = verror.Register(pkgPath+".errCantBeNilVerifier", verror.NoRetry, "{1:}{2:} data:{3} signature:{4} key:{5} cannot be nil{:_}")
-	errModifiedSinceWritten   = verror.Register(pkgPath+".errModifiedSinceWritten", verror.NoRetry, "{1:}{2:} data has been modified since being written{:_}")
-	errCantDecodeHeader       = verror.Register(pkgPath+".errCantDecodeHeader", verror.NoRetry, "{1:}{2:} failed to decode header{:_}")
-	errCantVerifySig          = verror.Register(pkgPath+".errCantVerifySig", verror.NoRetry, "{1:}{2:} signature verification failed{:_}")
-	errBadTypeFromSigReader   = verror.Register(pkgPath+".errBadTypeFromSigReader", verror.NoRetry, "{1:}{2:} invalid data of type: {3} read from signature Reader{:_}")
-	errUnexpectedDataAfterSig = verror.Register(pkgPath+".errUnexpectedDataAfterSig", verror.NoRetry, "{1:}{2:} unexpected data found after signature{:_}")
 )
 
 // verifyingReader implements io.Reader.
@@ -60,7 +48,7 @@ func (r *verifyingReader) Read(p []byte) (int, error) {
 // since (ensuring integrity and authenticity of data).
 func NewVerifyingReader(data, signature io.Reader, key security.PublicKey) (io.Reader, error) {
 	if (data == nil) || (signature == nil) || (key == nil) {
-		return nil, verror.New(errCantBeNilVerifier, nil, data, signature, key)
+		return nil, fmt.Errorf("data:%v signature:%v key:%v cannot be nil", data, signature, key)
 	}
 	r := &verifyingReader{data: data}
 	if err := r.verifySignature(signature, key); err != nil {
@@ -85,7 +73,7 @@ func (r *verifyingReader) readChunk() error {
 	}
 
 	if wantHash := sha256.Sum256(r.curChunk.Bytes()); !bytes.Equal(hash, wantHash[:]) {
-		return verror.New(errModifiedSinceWritten, nil)
+		return fmt.Errorf("data has been modified since being written")
 	}
 	return nil
 }
@@ -95,7 +83,7 @@ func (r *verifyingReader) verifySignature(signature io.Reader, key security.Publ
 	dec := vom.NewDecoder(signature)
 	var h SignedHeader
 	if err := dec.Decode(&h); err != nil {
-		return verror.New(errCantDecodeHeader, nil, err)
+		return fmt.Errorf("failed to decode header: %v", err)
 	}
 	r.chunkSizeBytes = h.ChunkSizeBytes
 	if err := binary.Write(signatureHash, binary.LittleEndian, r.chunkSizeBytes); err != nil {
@@ -119,15 +107,15 @@ func (r *verifyingReader) verifySignature(signature io.Reader, key security.Publ
 		case SignedDataSignature:
 			signatureFound = true
 			if !v.Value.Verify(key, signatureHash.Sum(nil)) {
-				return verror.New(errCantVerifySig, nil)
+				return fmt.Errorf("signature verification failed")
 			}
 		default:
-			return verror.New(errBadTypeFromSigReader, nil, fmt.Sprintf("%T", i))
+			return fmt.Errorf("invalid data of type: %T read from signature Reader", i)
 		}
 	}
 	// Verify that no more data can be read from the signature Reader.
 	if _, err := signature.Read(make([]byte, 1)); err != io.EOF {
-		return verror.New(errUnexpectedDataAfterSig, nil)
+		return fmt.Errorf("unexpected data found after signature")
 	}
 	return nil
 }

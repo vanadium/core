@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	errNoServers = verror.Register(pkgPath+".errNoServers", verror.NoRetry, "{1} {2} No servers found to resolve query {_}")
+	errNoServers = verror.NewIDAction("errNoServers", verror.NoRetry)
 )
 
 // resolveAgainstMountTable asks each server in e.Servers that might be a mounttable to resolve e.Name.  The requests
@@ -56,7 +56,7 @@ func (ns *namespace) resolveAgainstMountTable(ctx *context.T, client rpc.Client,
 	// If we have no servers to query, give up.
 	if len(e.Servers) == 0 {
 		ctx.VI(2).Infof("resolveAMT %s -> No servers", e.Name)
-		return nil, verror.New(errNoServers, ctx)
+		return nil, errNoServers.Errorf(ctx, "no servers found to resolve query")
 	}
 	// We have preresolved the servers.  Pass the mount entry to the call.
 	opts = append(opts, options.Preresolved{Resolution: e})
@@ -114,8 +114,11 @@ func (ns *namespace) Resolve(ctx *context.T, name string, opts ...naming.Namespa
 	// TODO(caprita): Consider doing this also for ResolveShallow and
 	// ResolveToMountTable.
 	if err != nil && hasEndpointPrefix(name) {
-		verrorE := verror.Convert(verror.IDAction{}, ctx, err)
-		err = verror.AddSubErrs(verrorE, nil, verror.SubErr{Name: "Did you mean", Err: verror.E{Msg: "/" + name}, Options: verror.Print})
+		verr := err
+		if !verror.IsAny(verr) {
+			verr = verror.ErrUnknown.Errorf(ctx, "%v", err)
+		}
+		err = verror.WithSubErrors(verr, verror.SubErr{Name: "Did you mean", Err: verror.E{Msg: "/" + name}, Options: verror.Print})
 	}
 	return e, err
 }
@@ -138,7 +141,7 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 		return e, nil
 	}
 	if len(e.Servers) == 0 {
-		return nil, verror.New(naming.ErrNoSuchName, ctx, name)
+		return nil, naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 	}
 	client := v23.GetClient(ctx)
 	callOpts := getCallOpts(opts)
@@ -164,13 +167,13 @@ func (ns *namespace) resolveInternal(ctx *context.T, name string, opts ...naming
 				return curr, nil
 			}
 			if verror.ErrorID(err) == naming.ErrNoSuchNameRoot.ID {
-				err = verror.New(naming.ErrNoSuchName, ctx, name)
+				err = naming.ErrNoSuchName.Errorf(ctx, "name %v doesn't exist", name)
 			}
 			ctx.VI(1).Infof("Resolve(%s) -> (%s: %v)", err, name, curr)
 			return nil, err
 		}
 	}
-	return nil, verror.New(naming.ErrResolutionDepthExceeded, ctx)
+	return nil, naming.ErrResolutionDepthExceeded.Errorf(ctx, "resolution depth exceeded")
 }
 
 // ShallowResolve implements v.io/v23/naming.Namespace.
@@ -201,7 +204,7 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 		ctx.Infof("ResolveToMountTable(%s) -> rootNames %v", name, e)
 	}
 	if len(e.Servers) == 0 {
-		return nil, verror.New(naming.ErrNoMountTable, ctx)
+		return nil, naming.ErrNoMountTable.Errorf(ctx, "no mounttable")
 	}
 	callOpts := getCallOpts(opts)
 	client := v23.GetClient(ctx)
@@ -238,7 +241,7 @@ func (ns *namespace) ResolveToMountTable(ctx *context.T, name string, opts ...na
 		}
 		last = curr
 	}
-	return nil, verror.New(naming.ErrResolutionDepthExceeded, ctx)
+	return nil, naming.ErrResolutionDepthExceeded.Errorf(ctx, "resolution depth exceeded")
 }
 
 // FlushCache flushes the most specific entry found for name.  It returns true if anything was

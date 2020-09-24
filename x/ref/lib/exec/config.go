@@ -68,7 +68,7 @@ func (c *cfg) Get(key string) (string, error) {
 	defer c.RUnlock()
 	v, ok := c.m[key]
 	if !ok {
-		return "", verror.New(verror.ErrNoExist, nil, "config.Get", key)
+		return "", verror.ErrNoExist.Errorf(nil, "does not exist: config.Get: %s", key)
 	}
 	return v, nil
 }

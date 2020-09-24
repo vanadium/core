@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	errDumperClosed  = verror.Register(pkgPath+".errDumperClosed", verror.NoRetry, "{1:}{2:} vom: Dumper closed{:_}")
-	errDumperFlushed = verror.Register(pkgPath+".errDumperFlushed", verror.NoRetry, "{1:}{2:} vom: Dumper flushed{:_}")
+	errDumperClosed  = verror.NewID("errDumperClosed")
+	errDumperFlushed = verror.NewID("errDumperFlushed")
 )
 
 // Dump returns a human-readable dump of the given vom data, in the default
@@ -215,14 +215,14 @@ func (d *dumpWorker) Read(data []byte) (int, error) {
 		case cmd, ok := <-d.cmdChan:
 			if !ok {
 				// Close called, return our special closed error.
-				return 0, verror.New(errDumperClosed, nil)
+				return 0, errDumperClosed.Errorf(nil, "vom: Dumper closed")
 			}
 			switch {
 			case cmd.data == nil:
 				// Flush called, return our special flushed error.  The Flush is done
 				// when the decoderLoop starts with a new message.
 				d.lastFlush = cmd.done
-				return 0, verror.New(errDumperFlushed, nil)
+				return 0, errDumperFlushed.Errorf(nil, "vom: Dumper flushed")
 			case len(cmd.data) == 0:
 				// Status called.
 				d.writeStatus(nil, false)
@@ -447,7 +447,7 @@ func (d *dumpWorker) decodeValueType() (*vdl.Type, error) { //nolint:gocyclo
 		d.status.MsgId = id
 		switch {
 		case id == 0:
-			return nil, verror.New(errDecodeZeroTypeID, nil)
+			return nil, errDecodeZeroTypeID
 		case id > 0:
 			// This is a value message, the typeID is +id.
 			tid := TypeId(+id)
@@ -543,7 +543,7 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	case leftover > 0:
-		return verror.New(errLeftOverBytes, nil, leftover)
+		return fmt.Errorf("vom: %v leftover bytes", leftover)
 	}
 	return nil
 }
@@ -652,7 +652,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		}
 		if index >= uint64(tt.NumEnumLabel()) {
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-			return verror.New(errIndexOutOfRange, nil)
+			return errIndexOutOfRange
 		}
 		label := tt.EnumLabel(int(index))
 		d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), label)
@@ -738,7 +738,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 				return err
 			case index >= uint64(tt.NumField()):
 				d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-				return verror.New(errIndexOutOfRange, nil)
+				return errIndexOutOfRange
 			}
 			ttfield := tt.Field(int(index))
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), ttfield.Name)
@@ -754,7 +754,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 			return err
 		case index >= uint64(tt.NumField()):
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-			return verror.New(errIndexOutOfRange, nil)
+			return errIndexOutOfRange
 		}
 		ttfield := tt.Field(int(index))
 		if tt == wireTypeType {
@@ -812,7 +812,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 			return d.decodeValue(elemType)
 		}
 	default:
-		panic(verror.New(errDecodeValueUnhandledType, nil, tt))
+		panic(fmt.Errorf("vom: decodeValue unhandled type %v", tt))
 	}
 }
 

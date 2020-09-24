@@ -31,7 +31,7 @@ type span struct {
 func newSpan(parent uniqueid.Id, name string, trace uniqueid.Id, store *Store) (*span, error) {
 	id, err := uniqueid.Random()
 	if err != nil {
-		return nil, fmt.Errorf("vtrace: Couldn't generate Span ID, debug data may be lost: %v", err)
+		return nil, fmt.Errorf("vtrace: couldn't generate Span ID, debug data may be lost: %v", err)
 	}
 	s := &span{
 		id:     id,
@@ -96,7 +96,7 @@ func (m manager) WithNewTrace(ctx *context.T) (*context.T, vtrace.Span) {
 	// nologcall
 	id, err := uniqueid.Random()
 	if err != nil {
-		ctx.Errorf("vtrace: Couldn't generate Trace Id, debug data may be lost: %v", err)
+		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
 	}
 	s, err := newSpan(id, "", id, getStore(ctx))
 	if err != nil {
@@ -138,7 +138,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 		return context.WithValue(ctx, spanKey, s), s
 	}
 
-	ctx.Error("vtrace: Creating a new child span from context with no existing span.")
+	ctx.Error("vtrace: creating a new child span from context with no existing span.")
 	return m.WithNewTrace(ctx)
 }
 

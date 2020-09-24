@@ -3,29 +3,71 @@
 // license that can be found in the LICENSE file.
 
 // Package verror implements an error reporting mechanism that works across
-// programming environments, and a set of common errors.
+// programming environments, and a set of common errors. It captures the location
+// and parameters of the error call site to aid debugging. Rudimentary i18n support
+// is provided, but now that more comprehensive i18n packages are available
+// its use is deprecated and it will be removed in the near future; consequently
+// Register and New are deprecated in favour of NewIDAction/NewID, IDAction.Errorf
+// and IDAction.Message. Errorf is not intended or localization, whereas
+// Message accepts a preformatted message to allow for localization via an
+// alternative package/framework. The Convert function is also deprecated
+// in favour of capturing non-verror error instances via Errorf, that is,
+// IDAction.Errorf(ctx, "%v", err) should be used to create verror.E's from
+// errors from other packages.
+//
+// NOTE that the deprecated i18n support will be removed in the near future.
 //
 // Each error has an identifier string, which is used for equality checks.
 // E.g. a Javascript client can check if a Go server returned a NoExist error by
 // checking the string identifier.  Error identifier strings start with the VDL
 // package path to ensure uniqueness, e.g. "v.io/v23/verror.NoExist".
+// The NewID and NewIDAction functions automatically prepend the package path
+// of the caller to the specified ID if it is not already included.
 //
 // Each error contains an action, which is the suggested action for a typical
 // client to perform upon receiving the error.  E.g. some action codes represent
 // whether to retry the operation after receiving the error.
 //
 // Each error also contains a list of typed parameters, and an error message.
-// The error message is created by looking up a format string keyed on the error
-// identifier, and applying the parameters to the format string.  This enables
-// error messages to be generated in different languages.
+// The error message may be created in three ways:
+//   1. Via the Errorf method using fmt.Sprintf formatting.
+//   2. Via the Message method where the error message is preformatted and the
+//      parameter list is recorded.
+//   3. The error message is created by looking up a format string keyed on the error
+//      identifier, and applying the parameters to the format string.  This enables
+//      error messages to be generated in different languages. Note that this
+//      method is now deprecated.
 //
-// Examples
+// Contemporary Example:
+//
+// To define a new error identifier, for example "someNewError", the code that
+// originates the error is expected to declare a variable like this:
+//
+//     var someNewError = verror.Register("someNewError", NoRetry)
+//     ...
+//     return someNewError.Errorf(ctx, "my error message: %v", err)
+//
+// Alternatively, to use golang.org/x/text/messsage for localization:
+//    p := message.NewPrinter(language.BritishEnglish)
+//    msg := p.Sprintf("invalid name: %v: %v", name, err)
+//    return someNewError.Message(ctx, msg, name, err)
+//
+//
+// The verror implementation supports errors.Is and errors.Unwrap. Note
+// that errors.Unwrap provides access to 'sub-errors' as well as to chained
+// instances of error. verror.WithSubErrors can be used to add additional
+// 'sub-errors' to an existing error and these may be of type SubErr or any
+// other error.
+//
+// Deprecated Usage Example:
 //
 // To define a new error identifier, for example "someNewError", client code is
 // expected to declare a variable like this:
-//      var someNewError = verror.Register("my/package/name.someNewError", NoRetry,
+//      var someNewError = verror.Register("someNewError", NoRetry,
 //                                         "{1} {2} English text for new error")
 // Text for other languages can be added to the default i18n Catalogue.
+// Note that verror.Register will determine the name of the calling package
+// and prepend it to 'someNewError'.
 //
 // If the error should cause a client to retry, consider replacing "NoRetry" with
 // one of the other Action codes below.
@@ -85,6 +127,7 @@ package verror
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -127,6 +170,7 @@ func (ac ActionCode) RetryAction() ActionCode {
 // "PKGPATH.NAME" - e.g. ErrIDFoo defined in the "v23/verror" package has id
 // "v23/verror.ErrIDFoo".  It is unwise ever to create two IDActions that
 // associate different ActionCodes with the same ID.
+// IDAction implements error so that it may be used with errors.Is.
 type IDAction struct {
 	ID     ID
 	Action ActionCode
@@ -134,10 +178,146 @@ type IDAction struct {
 
 // Register returns a IDAction with the given ID and Action fields, and
 // inserts a message into the default i18n Catalogue in US English.
-// Other languages can be added by adding to the Catalogue.
+// Other languages can be added by adding to the Catalogue. Register
+// will internally prepend the caller's package path to id if it's not
+// already present.
 func Register(id ID, action ActionCode, englishText string) IDAction {
+	id = ensurePackagePath(id)
 	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID(id), englishText)
 	return IDAction{id, action}
+}
+
+// NewIDAction creates a new instance of IDAction with the given ID and Action
+// field. It should be used when localization support is not required instead
+// of Register.  NewIDAction will internally prepend the caller's package path
+// to id if it's not already present.
+func NewIDAction(id ID, action ActionCode) IDAction {
+	return IDAction{ensurePackagePath(id), action}
+}
+
+// NewID creates a new instance of IDAction with the given ID and a NoRetry
+// Action.
+func NewID(id ID) IDAction {
+	return IDAction{ensurePackagePath(id), NoRetry}
+}
+
+// Errorf creates a new verror.E that uses fmt.Errorf style formatting and is
+// not intended for localization. Errorf prepends the component and operation
+// name if they can be extracted from the context. It supports %w for errors.Unwrap
+// which takes precedence over using the last parameter if it's an error as
+// the error to be returned by Unwrap.
+func (id IDAction) Errorf(ctx *context.T, format string, params ...interface{}) error {
+	// handle %w.
+	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	if unwrap == nil {
+		unwrap = isLastParStandardError(params)
+	}
+	return verrorf(ctx, id, fmt.Sprintf(format, params...), unwrap, params)
+}
+
+// Message is intended for pre-internationalizated messages. The msg is assumed
+// to be have been preformated and the params are recorded in E.ParamList. If
+// the last parameter is an error it will returned by Unwrap.
+func (id IDAction) Message(ctx *context.T, msg string, params ...interface{}) error {
+	return verrorf(ctx, id, msg, isLastParStandardError(params), params)
+}
+
+// Errorf is like ErrUnknown.Errorf.
+func Errorf(ctx *context.T, format string, params ...interface{}) error {
+	// handle %w.
+	unwrap := errors.Unwrap(fmt.Errorf(format, params...))
+	if unwrap == nil {
+		unwrap = isLastParStandardError(params)
+	}
+	return verrorf(ctx, ErrUnknown, fmt.Sprintf(format, params...), unwrap, params)
+}
+
+// Message is like ErrUnknown.Message.
+func Message(ctx *context.T, msg string, params ...interface{}) error {
+	return verrorf(ctx, ErrUnknown, msg, isLastParStandardError(params), params)
+}
+
+// IsAny returns true if err is any instance of a verror.E regardless of its
+// ID.
+func IsAny(err error) bool {
+	if _, ok := err.(E); ok {
+		return ok
+	}
+	_, ok := err.(*E)
+	return ok
+}
+
+func isLastParStandardError(params []interface{}) error {
+	if len(params) == 0 {
+		return nil
+	}
+	c := params[len(params)-1]
+	switch err := c.(type) {
+	case SubErr:
+		return nil
+	case *SubErr:
+		return nil
+	case error:
+		return err
+	}
+	return nil
+}
+
+func verrorf(ctx *context.T, id IDAction, msg string, unwrap error, v []interface{}) error {
+	_, componentName, opName := dataFromContext(ctx)
+	prefix := ""
+	if len(componentName) > 0 && len(opName) > 0 {
+		prefix += componentName + ":" + opName + ": "
+	} else {
+		if len(componentName) > 0 {
+			prefix += componentName + ": "
+		} else {
+			prefix += opName + ": "
+		}
+	}
+	stack := make([]uintptr, maxPCs)
+	stack = stack[:runtime.Callers(3, stack)]
+	chainedPCs := chainTrailingErrorPCs(v)
+	params := append([]interface{}{componentName, opName}, v...)
+	return E{id.ID, id.Action, prefix + msg, params, stack, chainedPCs, unwrap}
+}
+
+func chainTrailingErrorPCs(v []interface{}) []uintptr {
+	if len(v) == 0 {
+		return nil
+	}
+	if err, ok := v[len(v)-1].(error); ok {
+		if _, ok := assertIsE(err); ok {
+			return Stack(err)
+		}
+	}
+	return nil
+}
+
+// WithSubErrors returns a new E with the supplied suberrors appended to
+// its parameter list. The results of their Error method are appended to that
+// of err.Error().
+func WithSubErrors(err error, errors ...error) error {
+	e, ok := assertIsE(err)
+	if !ok {
+		return err
+	}
+	for _, err := range errors {
+		e.ParamList = append(e.ParamList, err)
+		switch v := err.(type) {
+		case SubErr:
+			if v.Options == Print {
+				e.Msg += " " + err.Error()
+			}
+		case *SubErr:
+			if v.Options == Print {
+				e.Msg += " " + err.Error()
+			}
+		case error:
+			e.Msg += " " + err.Error()
+		}
+	}
+	return e
 }
 
 // E is the in-memory representation of a verror error.
@@ -151,6 +331,7 @@ type E struct {
 	ParamList  []interface{} // The variadic parameters given to ExplicitNew().
 	stackPCs   []uintptr     // PCs of creators of E
 	chainedPCs []uintptr     // PCs of a chained E
+	unwrap     error         // The error to be returned by calls to Unwrap.
 }
 
 // TypeOf(verror.E{}) should give vdl.WireError.
@@ -345,7 +526,7 @@ const maxPCs = 40 // Maximum number of PC values we'll include in a stack trace.
 
 // A SubErrs is a special type that allows clients to include a list of
 // subordinate errors to an error's parameter list.  Clients can add a SubErrs
-// to the parameter list directly, via New() of include one in an existing
+// to the parameter list directly, via New() or include one in an existing
 // error using AddSubErrs().  Each element of the slice has a name, an error,
 // and an integer that encodes options such as verror.Print as bits set within
 // it.  By convention, clients are expected to use name of the form "X=Y" to
@@ -465,10 +646,7 @@ func isDefaultIDAction(id ID, action ActionCode) bool {
 	return id == "" && action == 0
 }
 
-// makeInternal is like ExplicitNew(), but takes a slice of PC values as an argument,
-// rather than constructing one from the caller's PC.
-func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, v ...interface{}) E {
-	msg := ""
+func chainPCs(v []interface{}) []uintptr {
 	var chainedPCs []uintptr
 	for _, par := range v {
 		if err, ok := par.(error); ok {
@@ -478,6 +656,14 @@ func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, o
 			}
 		}
 	}
+	return chainedPCs
+}
+
+// makeInternal is like ExplicitNew(), but takes a slice of PC values as an argument,
+// rather than constructing one from the caller's PC.
+func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, opName string, stack []uintptr, v ...interface{}) E {
+	msg := ""
+	chainedPCs := chainPCs(v)
 	params := append([]interface{}{componentName, opName}, v...)
 	if langID != i18n.NoLangID {
 		id := idAction.ID
@@ -486,7 +672,7 @@ func makeInternal(idAction IDAction, langID i18n.LangID, componentName string, o
 		}
 		msg = i18n.Cat().Format(langID, i18n.MsgID(id), params...)
 	}
-	return E{idAction.ID, idAction.Action, msg, params, stack, chainedPCs}
+	return E{idAction.ID, idAction.Action, msg, params, stack, chainedPCs, isLastParStandardError(v)}
 }
 
 // ExplicitNew returns an error with the given ID, with an error string in the chosen
@@ -601,7 +787,7 @@ func convertInternal(idAction IDAction, langID i18n.LangID, componentName string
 			msg = i18n.FormatParams(formatStr, newParams...)
 		}
 	}
-	return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil}
+	return E{e.ID, e.Action, msg, newParams, e.stackPCs, nil, nil}
 }
 
 // ExplicitConvert converts a regular err into an E error, setting its IDAction to idAction.  If
@@ -687,13 +873,17 @@ func (e E) Error() string {
 	return msg
 }
 
+func (subErr SubErr) String() string {
+	return fmt.Sprintf("[%s: %s]", subErr.Name, subErr.Err.Error())
+}
+
 // String is the default printing function for SubErrs.
 func (subErrs SubErrs) String() (result string) {
 	if len(subErrs) > 0 {
 		sep := ""
 		for _, s := range subErrs {
 			if (s.Options & Print) != 0 {
-				result += fmt.Sprintf("%s[%s: %s]", sep, s.Name, s.Err.Error())
+				result += fmt.Sprintf("%s%s", sep, s.String())
 				sep = ", "
 			}
 		}
@@ -742,7 +932,7 @@ func subErrors(err error) (r SubErrs) {
 			}
 		}
 	}
-	return r
+	return
 }
 
 // addSubErrsInternal returns a copy of err with supplied errors appended as

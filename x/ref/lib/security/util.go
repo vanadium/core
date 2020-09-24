@@ -37,7 +37,7 @@ func NewPrivateKey(keyType string) (interface{}, error) {
 		_, privateKey, err := ed25519.GenerateKey(rand.Reader)
 		return privateKey, err
 	default:
-		return nil, fmt.Errorf("unsupported key type: %v", keyType)
+		return nil, fmt.Errorf("unsupported key type: %T", keyType)
 	}
 }
 

@@ -7,6 +7,7 @@
 package statslib
 
 import (
+	"fmt"
 	"time"
 
 	"v.io/v23/context"
@@ -24,12 +25,6 @@ type statsService struct {
 	suffix    string
 	watchFreq time.Duration
 }
-
-const pkgPath = "v.io/x/ref/services/internal/statslib"
-
-var (
-	errOperationFailed = verror.Register(pkgPath+".errOperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
-)
 
 // NewStatsService returns a stats server implementation. The value of watchFreq
 // is used to specify the time between WatchGlob updates.
@@ -76,9 +71,9 @@ Loop:
 		}
 		if err := it.Err(); err != nil {
 			if verror.ErrorID(err) == verror.ErrNoExist.ID {
-				return verror.New(verror.ErrNoExist, ctx, i.suffix)
+				return verror.ErrNoExist.Errorf(ctx, "does not exist: %v", i.suffix)
 			}
-			return verror.New(errOperationFailed, ctx, i.suffix)
+			return fmt.Errorf("operation failed for %v", i.suffix)
 		}
 		for _, change := range changes {
 			if err := call.SendStream().Send(change); err != nil {
@@ -101,15 +96,15 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 	rv, err := libstats.Value(i.suffix)
 	switch {
 	case verror.ErrorID(err) == verror.ErrNoExist.ID:
-		return nil, verror.New(verror.ErrNoExist, ctx, i.suffix)
+		return nil, verror.ErrNoExist.Errorf(ctx, "does not exist: %v", i.suffix)
 	case verror.ErrorID(err) == stats.ErrNoValue.ID:
 		return nil, stats.NewErrNoValue(ctx, i.suffix)
 	case err != nil:
-		return nil, verror.New(errOperationFailed, ctx, i.suffix)
+		return nil, fmt.Errorf("operation failed for %v", i.suffix)
 	}
 	rb, err := vom.RawBytesFromValue(rv)
 	if err != nil {
-		return nil, verror.New(verror.ErrInternal, ctx, i.suffix, err)
+		return nil, verror.ErrInternal.Errorf(ctx, "internal error: %v: %v", i.suffix, err)
 	}
 	return rb, nil
 }

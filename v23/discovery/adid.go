@@ -7,15 +7,10 @@ package discovery
 import (
 	"crypto/rand"
 	"encoding/hex"
-
-	"v.io/v23/verror"
+	"fmt"
 )
 
-var (
-	errAdIDSizeMismatch = verror.Register("v.io/v23/discovery.errAdIDSizeMismatch", verror.NoRetry, "id string size mismatch")
-
-	zeroID = AdId{}
-)
+var zeroID = AdId{}
 
 // IsValid reports whether the id is valid.
 func (id AdId) IsValid() bool {
@@ -47,7 +42,7 @@ func ParseAdId(s string) (AdId, error) {
 
 	var id AdId
 	if len(decoded) != len(id) {
-		return zeroID, verror.New(errAdIDSizeMismatch, nil)
+		return zeroID, fmt.Errorf("id string size mismatch")
 	}
 	copy(id[:], decoded)
 	return id, nil

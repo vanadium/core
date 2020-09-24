@@ -23,17 +23,9 @@ import (
 	"time"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
-)
-
-var (
-	errStoreAddMismatch        = verror.Register(pkgPath+".errStoreAddMismatch", verror.NoRetry, "{1:}{2:} blessing's public key does not match store's public key{:_}")
-	errBadBlessingPattern      = verror.Register(pkgPath+".errBadBlessingPattern", verror.NoRetry, "{1:}{2:} {3} is an invalid BlessingPattern{:_}")
-	errBlessingsNotForKey      = verror.Register(pkgPath+".errBlessingsNotForKey", verror.NoRetry, "{1:}{2:} read Blessings: {3} that are not for provided PublicKey{:_}")
-	errDataOrSignerUnspecified = verror.Register(pkgPath+".errDataOrSignerUnspecified", verror.NoRetry, "{1:}{2:} persisted data or signer is not specified{:_}")
 )
 
 const cacheKeyFormat = uint32(1)
@@ -52,10 +44,10 @@ type blessingStore struct {
 
 func (bs *blessingStore) Set(blessings security.Blessings, forPeers security.BlessingPattern) (security.Blessings, error) {
 	if !forPeers.IsValid() {
-		return security.Blessings{}, verror.New(errBadBlessingPattern, nil, forPeers)
+		return security.Blessings{}, fmt.Errorf("%v is an invalid BlessingPattern", forPeers)
 	}
 	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
-		return security.Blessings{}, verror.New(errStoreAddMismatch, nil)
+		return security.Blessings{}, fmt.Errorf("blessing's public key does not match store's public key")
 	}
 	bs.mu.Lock()
 	defer bs.mu.Unlock()
@@ -117,7 +109,7 @@ func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 	defer unlock()
 
 	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
-		return verror.New(errStoreAddMismatch, nil)
+		return fmt.Errorf("blessing's public key does not match store's public key")
 	}
 	oldDefault := bs.state.DefaultBlessings
 	bs.state.DefaultBlessings = blessings
@@ -315,11 +307,11 @@ func NewBlessingStore(publicKey security.PublicKey) security.BlessingStore {
 func verifyState(publicKey security.PublicKey, state blessingStoreState) error {
 	for _, b := range state.PeerBlessings {
 		if !reflect.DeepEqual(b.PublicKey(), publicKey) {
-			return verror.New(errBlessingsNotForKey, nil, b, publicKey)
+			return fmt.Errorf("read Blessings: %v that are not for provided PublicKey: %v", b, publicKey)
 		}
 	}
 	if !state.DefaultBlessings.IsZero() && !reflect.DeepEqual(state.DefaultBlessings.PublicKey(), publicKey) {
-		return verror.New(errBlessingsNotForKey, nil, state.DefaultBlessings, publicKey)
+		return fmt.Errorf("read Blessings: %v that are not for provided PublicKey: %v", state.DefaultBlessings, publicKey)
 	}
 	return nil
 }
@@ -374,7 +366,7 @@ func (bs *blessingStore) load() error {
 	}
 	state, err := loadState(data, signature, bs.publicKey, bs.publicKey)
 	if err != nil {
-		return verror.New(errCantLoadBlessingStore, nil, err)
+		return fmt.Errorf("failed to load BlessingStore: %v", err)
 	}
 	if !state.DefaultBlessings.Equivalent(bs.state.DefaultBlessings) {
 		close(bs.defCh)
@@ -390,7 +382,7 @@ func (bs *blessingStore) load() error {
 // is specified.
 func NewPersistentBlessingStore(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingStore, error) {
 	if readers == nil || (writers != nil && signer == nil) {
-		return nil, verror.New(errDataOrSignerUnspecified, nil)
+		return nil, fmt.Errorf("persisted data or signer is not specified")
 	}
 	bs := &blessingStore{
 		flock:   lockedfile.MutexAt(lockFilePath),

@@ -26,11 +26,11 @@ func MaybeWrapError(idAction verror.IDAction, ctx *context.T, err error) error {
 	if !shouldWrap(err) {
 		return err
 	}
-	return verror.New(idAction, ctx, err)
+	return idAction.Errorf(ctx, "%v", err)
 }
 
 func shouldWrap(err error) bool {
-	if !isVError(err) {
+	if err == nil || !verror.IsAny(err) {
 		return true
 	}
 	id := verror.ErrorID(err)
@@ -40,14 +40,4 @@ func shouldWrap(err error) bool {
 		}
 	}
 	return true
-}
-
-func isVError(err error) bool {
-	if _, ok := err.(verror.E); ok {
-		return true
-	}
-	if e, ok := err.(*verror.E); ok && e != nil {
-		return true
-	}
-	return false
 }

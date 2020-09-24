@@ -8,12 +8,6 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
-
-	"v.io/v23/verror"
-)
-
-var (
-	errSignCantHash = verror.Register(pkgPath+".errSignCantHash", verror.NoRetry, "{1:}{2:}unable to create bytes to sign from message with hashing function {3}{:_}")
 )
 
 // Verify returns true iff sig is a valid signature for a message.

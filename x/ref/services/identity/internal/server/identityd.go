@@ -204,10 +204,10 @@ func (s *IdentityServer) setupBlessingServices(ctx, oauthCtx *context.T) (rpc.Se
 	b, _ := p.BlessingStore().Default()
 	blessingNames := security.BlessingNames(p, b)
 	if len(blessingNames) == 0 {
-		return nil, nil, verror.New(verror.ErrInternal, ctx, "identity server has no blessings?")
+		return nil, nil, verror.ErrInternal.Errorf(ctx, "identity server has no blessings?")
 	}
 	if len(blessingNames) > 1 {
-		return nil, nil, verror.New(verror.ErrInternal, ctx, fmt.Sprintf("cannot configure identity server with >1 (%d = %v) blessings - not quite sure what names to select for the discharger service etc.", len(blessingNames), blessingNames))
+		return nil, nil, verror.ErrInternal.Errorf(ctx, "cannot configure identity server with >1 (%d = %v) blessings - not quite sure what names to select for the discharger service etc.", len(blessingNames), blessingNames)
 	}
 	objectAddr := naming.Join(s.mountNamePrefix, naming.EncodeAsNameElement(blessingNames[0]))
 	ctx, server, err := v23.WithNewDispatchingServer(ctx, objectAddr, disp)
@@ -264,7 +264,7 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	if invoker := d.m[suffix]; invoker != nil {
 		return invoker, security.AllowEveryone(), nil
 	}
-	return nil, nil, verror.New(verror.ErrNoExist, ctx, suffix)
+	return nil, nil, verror.ErrNoExist.Errorf(ctx, "does not exist: %s", suffix)
 }
 
 func runHTTPSServer(ctx *context.T, addr, tlsConfig string) {

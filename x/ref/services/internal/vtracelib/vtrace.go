@@ -19,7 +19,7 @@ func (v *vtraceService) Trace(ctx *context.T, _ rpc.ServerCall, id uniqueid.Id) 
 	store := vtrace.GetStore(ctx)
 	tr := store.TraceRecord(id)
 	if tr == nil {
-		return vtrace.TraceRecord{}, verror.New(verror.ErrNoExist, ctx, "No trace with id %x", id)
+		return vtrace.TraceRecord{}, verror.ErrNoExist.Errorf(ctx, "no trace with id %x", id)
 	}
 	return *tr, nil
 }

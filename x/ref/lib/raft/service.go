@@ -5,6 +5,7 @@
 package raft
 
 import (
+	"fmt"
 	"reflect"
 
 	"v.io/x/lib/vlog"
@@ -57,7 +58,7 @@ func (s *service) Authorize(ctx *context.T, call security.Call) error {
 	if l, r := call.LocalBlessings().PublicKey(), call.RemoteBlessings().PublicKey(); l != nil && reflect.DeepEqual(l, r) {
 		return nil
 	}
-	return verror.New(verror.ErrNoAccess, ctx)
+	return verror.ErrNoAccess.Errorf(ctx, "access denied")
 }
 
 // Members implements raftProto.Members.
@@ -130,7 +131,7 @@ func (s *service) AppendToLog(ctx *context.T, call rpc.ServerCall, term Term, le
 	// The leader has to be at least as up to date as we are.
 	if term < r.p.CurrentTerm() {
 		r.Unlock()
-		return verror.New(errBadTerm, ctx, term, r.p.CurrentTerm())
+		return fmt.Errorf("new term %v < %v", term, r.p.CurrentTerm())
 	}
 
 	// At this point we  accept the sender as leader and become a follower.
@@ -166,7 +167,7 @@ func (s *service) Append(ctx *context.T, call rpc.ServerCall, cmd []byte) (Term,
 
 	if r.role != RoleLeader {
 		r.Unlock()
-		return 0, 0, verror.New(errNotLeader, ctx)
+		return 0, 0, NewErrNotLeader(ctx)
 	}
 
 	// Assign an index and term to the log entry.
@@ -200,7 +201,7 @@ func (s *service) InstallSnapshot(ctx *context.T, call raftProtoInstallSnapshotS
 
 	// The leader has to be at least as up to date as we are.
 	if term < r.p.CurrentTerm() {
-		return verror.New(errBadTerm, ctx, term, r.p.CurrentTerm())
+		return fmt.Errorf("new term %v < %v", term, r.p.CurrentTerm())
 	}
 
 	// At this point we  accept the sender as leader and become a follower.
@@ -227,7 +228,7 @@ func (s *service) Committed(ctx *context.T, call rpc.ServerCall) (Index, error) 
 	r.Lock()
 	defer r.Unlock()
 	if r.role != RoleLeader {
-		return 0, verror.New(errNotLeader, ctx)
+		return 0, NewErrNotLeader(ctx)
 	}
 	return r.commitIndex, nil
 }

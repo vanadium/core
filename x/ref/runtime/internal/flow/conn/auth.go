@@ -60,7 +60,7 @@ func (c *Conn) dialHandshake(
 	}
 	rtt = rttend.Sub(rttstart)
 	if rBlessings.IsZero() {
-		err = NewErrAcceptorBlessingsMissing(ctx)
+		err = ErrAcceptorBlessingsMissing.Errorf(ctx, "acceptor did not send blessings")
 		return nil, nil, rtt, err
 	}
 	if c.MatchesRID(dialedEP) {
@@ -172,19 +172,19 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	msg, err := c.mp.readMsg(ctx)
 	if err != nil {
 		<-ch
-		return nil, naming.Endpoint{}, rttstart, NewErrRecv(ctx, "unknown", err)
+		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "recv: %v", err)
 	}
 	rSetup, valid := msg.(*message.Setup)
 	if !valid {
 		<-ch
-		return nil, naming.Endpoint{}, rttstart, NewErrUnexpectedMsg(ctx, reflect.TypeOf(msg).String())
+		return nil, naming.Endpoint{}, rttstart, ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", msg)
 	}
 	if err := <-ch; err != nil {
 		remoteStr := ""
 		if !c.remote.IsZero() {
 			remoteStr = c.remote.String()
 		}
-		return nil, naming.Endpoint{}, rttstart, NewErrSend(ctx, "setup", remoteStr, err)
+		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "send: setup: remote %v: %v", remoteStr, err)
 	}
 	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
@@ -202,7 +202,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		c.lshared = rSetup.SharedTokens
 	}
 	if rSetup.PeerNaClPublicKey == nil {
-		return nil, naming.Endpoint{}, rttstart, NewErrMissingSetupOption(ctx, "peerNaClPublicKey")
+		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "missing required setup option: peerNaClPublicKey")
 	}
 	c.mu.Lock()
 	binding := c.mp.setupEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey)
@@ -256,7 +256,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			if !c.remote.IsZero() {
 				remote = c.remote.String()
 			}
-			return security.Blessings{}, nil, rttend, NewErrRecv(ctx, remote, err)
+			return security.Blessings{}, nil, rttend, ErrRecv.Errorf(ctx, "error reading from %v: %v", remote, err)
 		}
 		if rauth, _ = msg.(*message.Auth); rauth != nil {
 			rttend = time.Now()
@@ -271,7 +271,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			if err := c.handleMessage(ctx, msg); err != nil {
 				vlog.Infof("readRemoteAuth: handleMessage teardown: failed: %v", err)
 			}
-			return security.Blessings{}, nil, rttend, verror.New(ErrConnectionClosed, ctx)
+			return security.Blessings{}, nil, rttend, ErrConnectionClosed.Errorf(ctx, "connection closed")
 		case *message.OpenFlow:
 			// If we get an OpenFlow message here it needs to be handled
 			// asynchronously since it will call the flow handler
@@ -305,10 +305,10 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		c.mu.Unlock()
 	}
 	if c.rPublicKey == nil {
-		return security.Blessings{}, nil, rttend, NewErrNoPublicKey(ctx)
+		return security.Blessings{}, nil, rttend, ErrNoPublicKey.Errorf(ctx, "No public key  received")
 	}
 	if !rauth.ChannelBinding.Verify(c.rPublicKey, append(tag, binding...)) {
-		return security.Blessings{}, nil, rttend, NewErrInvalidChannelBinding(ctx)
+		return security.Blessings{}, nil, rttend, ErrInvalidChannelBinding.Errorf(ctx, "The channel binding was invalid")
 	}
 	return rBlessings, rDischarges, rttend, nil
 }
@@ -368,7 +368,7 @@ func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, bles
 	b.f.conn.mu.Lock()
 	if pk := b.f.conn.rPublicKey; pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
 		b.f.conn.mu.Unlock()
-		return NewErrBlessingsNotBound(ctx)
+		return ErrBlessingsNotBound.Errorf(ctx, "Blessings not bound to connection remote public key")
 	}
 	b.f.conn.mu.Unlock()
 	b.incoming.blessings[bkey] = blessings
@@ -397,7 +397,7 @@ func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) e
 			// In that case, the client does not care whether the server's
 			// blessings can be decrypted or not. Ideally we should just
 			// pass this error to the peer authorizer and handle it there.
-			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, NewErrCannotDecryptBlessings(ctx, err))
+			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, ErrCannotDecryptBlessings.Errorf(ctx, "cannot decrypt the encrypted blessings sent by peer: %v", err))
 		}
 		if err := b.receiveBlessingsLocked(ctx, bkey, blessings); err != nil {
 			return err
@@ -409,7 +409,7 @@ func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) e
 		bkey, dkey, ciphertexts := bd.Value.BKey, bd.Value.DKey, bd.Value.Ciphertexts
 		var discharges []security.Discharge
 		if err := decrypt(ctx, ciphertexts, &discharges); err != nil {
-			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, NewErrCannotDecryptDischarges(ctx, err))
+			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, ErrCannotDecryptDischarges.Errorf(ctx, "cannot decrypt the encrypted discharges sent by peer: %v", err))
 		}
 		b.receiveDischargesLocked(ctx, bkey, dkey, discharges)
 	}
@@ -462,7 +462,7 @@ func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security
 	}
 	ciphertexts, err := encrypt(ctx, peers, blessings)
 	if err != nil {
-		return NewErrCannotEncryptBlessings(ctx, peers, err)
+		return ErrCannotEncryptBlessings.Errorf(ctx, "cannot encrypt blessings for peer: %v: %v", peers, err)
 	}
 	return b.enc.Encode(BlessingsFlowMessageEncryptedBlessings{EncryptedBlessings{
 		BKey:        bkey,
@@ -482,7 +482,7 @@ func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []secu
 	}
 	ciphertexts, err := encrypt(ctx, peers, discharges)
 	if err != nil {
-		return NewErrCannotEncryptDischarges(ctx, peers, err)
+		return ErrCannotEncryptDischarges.Errorf(ctx, "cannot encrypt discharges for peers: %v: %v", peers, err)
 	}
 	return b.enc.Encode(BlessingsFlowMessageEncryptedDischarges{EncryptedDischarges{
 		DKey:        dkey,

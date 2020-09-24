@@ -5,11 +5,13 @@
 package mounttablelib
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
+	mdns "github.com/vanadium/go-mdns-sd"
 	"v.io/v23/context"
 	"v.io/v23/glob"
 	"v.io/v23/naming"
@@ -20,20 +22,7 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 	"v.io/v23/verror"
 	"v.io/x/lib/netconfig"
-
 	"v.io/x/ref/internal/logger"
-
-	mdns "github.com/vanadium/go-mdns-sd"
-)
-
-var (
-	errNoUsefulAddresses             = verror.Register(pkgPath+".errNoUsefulAddresses", verror.NoRetry, "{1:}{2:} neighborhood passed no useful addresses{:_}")
-	errCantFindPort                  = verror.Register(pkgPath+".errCantFindPort", verror.NoRetry, "{1:}{2:} neighborhood couldn't determine a port to use{:_}")
-	errDoesntImplementMount          = verror.Register(pkgPath+".errDoesntImplementMount", verror.NoRetry, "{1:}{2:} this server does not implement Mount{:_}")
-	errDoesntImplementUnmount        = verror.Register(pkgPath+".errDoesntImplementUnmount", verror.NoRetry, "{1:}{2:} this server does not implement Unmount{:_}")
-	errDoesntImplementDelete         = verror.Register(pkgPath+".errDoesntImplementDelete", verror.NoRetry, "{1:}{2:} this server does not implement Delete{:_}")
-	errDoesntImplementSetPermissions = verror.Register(pkgPath+".errDoesntImplementSetPermissions", verror.NoRetry, "{1:}{2:} this server does not implement SetPermissions{:_}")
-	errSlashInHostName               = verror.Register(pkgPath+".errSlashInHostName", verror.NoRetry, "{1:}{2:} hostname may not contain '/'{:_}")
 )
 
 const addressPrefix = "address:"
@@ -83,7 +72,7 @@ func getPort(address string) uint16 {
 
 func newNeighborhood(host string, addresses []string, loopback bool) (*neighborhood, error) {
 	if strings.Contains(host, "/") {
-		return nil, verror.New(errSlashInHostName, nil)
+		return nil, fmt.Errorf("hostname may not contain '/': %v", host)
 	}
 
 	// Create the TXT contents with addresses to announce. Also pick up a port number.
@@ -96,10 +85,10 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 		}
 	}
 	if txt == nil {
-		return nil, verror.New(errNoUsefulAddresses, nil)
+		return nil, fmt.Errorf("neighborhood passed no useful addresses")
 	}
 	if port == 0 {
-		return nil, verror.New(errCantFindPort, nil)
+		return nil, fmt.Errorf("neighborhood couldn't determine a port to use{")
 	}
 
 	// Start up MDNS, subscribe to the vanadium service, and add us as a vanadium service provider.
@@ -244,14 +233,14 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 	ctx.VI(2).Infof("ResolveStep %v\n", ns.elems)
 	if len(ns.elems) == 0 {
 		//nothing can be mounted at the root
-		err = verror.New(naming.ErrNoSuchNameRoot, ctx, ns.elems)
+		err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ns.elems)
 		return
 	}
 
 	// We can only resolve the first element and it always refers to a mount table (for now).
 	neighbor := nh.neighbor(ns.elems[0])
 	if neighbor == nil {
-		err = verror.New(naming.ErrNoSuchName, ctx, ns.elems)
+		err = naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems)
 		entry.Name = ns.name
 		return
 	}
@@ -263,17 +252,17 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 
 // Mount not implemented.
 func (ns *neighborhoodService) Mount(ctx *context.T, _ rpc.ServerCall, _ string, _ uint32, _ naming.MountFlag) error {
-	return verror.New(errDoesntImplementMount, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "not implemented")
 }
 
 // Unmount not implemented.
 func (*neighborhoodService) Unmount(ctx *context.T, _ rpc.ServerCall, _ string) error {
-	return verror.New(errDoesntImplementUnmount, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "not implemented")
 }
 
 // Delete not implemented.
 func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) error {
-	return verror.New(errDoesntImplementDelete, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "not implemented")
 }
 
 // Glob__ implements rpc.AllGlobber
@@ -297,18 +286,18 @@ func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g
 	case 1:
 		neighbor := nh.neighbor(ns.elems[0])
 		if neighbor == nil {
-			return verror.New(naming.ErrNoSuchName, ctx, ns.elems[0])
+			return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems[0])
 		}
 		//nolint:errcheck
 		sender.Send(naming.GlobReplyEntry{Value: naming.MountEntry{Name: "", Servers: neighbor, ServesMountTable: true}})
 		return nil
 	default:
-		return verror.New(naming.ErrNoSuchName, ctx, ns.elems)
+		return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ns.elems)
 	}
 }
 
 func (*neighborhoodService) SetPermissions(ctx *context.T, _ rpc.ServerCall, _ access.Permissions, _ string) error {
-	return verror.New(errDoesntImplementSetPermissions, ctx)
+	return verror.ErrNotImplemented.Errorf(ctx, "not implemented")
 }
 
 func (*neighborhoodService) GetPermissions(*context.T, rpc.ServerCall) (access.Permissions, string, error) {

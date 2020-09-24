@@ -34,20 +34,6 @@ import (
 	"v.io/x/ref/runtime/internal/flow/manager"
 )
 
-var (
-	// TODO(suharshs,mattr): Make these vdl errors.
-	// These errors are intended to be used as arguments to higher
-	// level errors and hence {1}{2} is omitted from their format
-	// strings to avoid repeating these n-times in the final error
-	// message visible to the user.
-	errResponseEncoding          = reg(".errResponseEncoding", "failed to encode RPC response {3} <-> {4}{:5}")
-	errResultEncoding            = reg(".errResultEncoding", "failed to encode result #{3} [{4}]{:5}")
-	errFailedToResolveToEndpoint = reg(".errFailedToResolveToEndpoint", "failed to resolve {3} to an endpoint")
-	errUnexpectedSuffix          = reg(".errUnexpectedSuffix", "suffix {3} was not expected because either server has the option IsLeaf set to true or it served an object and not a dispatcher")
-	errBlessingsNotBound         = reg(".errBlessingNotBound", "blessing granted not bound to this server({3} vs {4})")
-	errNilObject                 = reg(".errNilObject", "nil object can't be invoked")
-)
-
 const (
 	bidiProtocol     = "bidi"
 	relistenInterval = time.Second
@@ -86,11 +72,11 @@ func WithNewServer(ctx *context.T,
 	settingsPublisher *pubsub.Publisher,
 	opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	if object == nil {
-		return ctx, nil, verror.New(verror.ErrBadArg, ctx, "nil object")
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: nil object")
 	}
 	invoker, err := objectToInvoker(object)
 	if err != nil {
-		return ctx, nil, verror.New(verror.ErrBadArg, ctx, fmt.Sprintf("bad object: %v", err))
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: bad object: %v", err)
 	}
 	d := &leafDispatcher{invoker, authorizer}
 	opts = append([]rpc.ServerOpt{options.IsLeaf(true)}, opts...)
@@ -103,7 +89,7 @@ func WithNewDispatchingServer(ctx *context.T,
 	settingsPublisher *pubsub.Publisher,
 	opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	if dispatcher == nil {
-		return ctx, nil, verror.New(verror.ErrBadArg, ctx, "nil dispatcher")
+		return ctx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: nil dispatcher")
 	}
 
 	rid, err := naming.NewRoutingID()
@@ -148,7 +134,8 @@ func WithNewDispatchingServer(ctx *context.T,
 			authorizedPeers = []security.BlessingPattern(opt)
 			if len(authorizedPeers) == 0 {
 				s.cancel()
-				return origCtx, nil, verror.New(verror.ErrBadArg, ctx, newErrServerPeersEmpty(ctx))
+				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: %v",
+					fmt.Errorf("no peers are authorized to communicate with the server"))
 			}
 			if len(name) != 0 {
 				// TODO(ataly, ashankar): Since the server's blessing names are revealed to the
@@ -158,8 +145,10 @@ func WithNewDispatchingServer(ctx *context.T,
 				// server, and (2) the mounttable reveals the server's endpoint to only the set
 				// of authorized peers. (2) can be enforced using Resolve ACLs.
 				s.cancel()
-				return origCtx, nil, verror.New(verror.ErrBadArg, ctx, newErrServerPeersWithPublishing(ctx))
+				return origCtx, nil, verror.ErrBadArg.Errorf(ctx, "bad argument: %v",
+					fmt.Errorf("serverPeers option is not supported for servers that publish their endpoint at a mounttable"))
 			}
+
 		case IdleConnectionExpiry:
 			connIdleExpiry = time.Duration(opt)
 		}
@@ -363,7 +352,7 @@ func (s *server) resolveToEndpoint(ctx *context.T, address string) ([]naming.End
 	if len(eps) > 0 {
 		return eps, nil
 	}
-	return nil, verror.New(errFailedToResolveToEndpoint, s.ctx, address)
+	return nil, errNoCompatibleServers.Errorf(nil, "failed to resolve %v to an endpoint", address)
 }
 
 // createEndpoint adds server publishing information to the ep from the manager.
@@ -570,7 +559,7 @@ func (s *server) acceptLoop(ctx *context.T) error {
 
 func (s *server) AddName(name string) error {
 	if len(name) == 0 {
-		return verror.New(verror.ErrBadArg, s.ctx, "name is empty")
+		return verror.ErrBadArg.Errorf(s.ctx, "bad argument: name is empty")
 	}
 	s.Lock()
 	defer s.Unlock()
@@ -652,7 +641,9 @@ func authorize(ctx *context.T, call security.Call, auth security.Authorizer) err
 		auth = security.DefaultAuthorizer()
 	}
 	if err := auth.Authorize(ctx, call); err != nil {
-		return verror.New(verror.ErrNoAccess, ctx, newErrBadAuth(ctx, call.Suffix(), call.Method(), err))
+		nerr := verror.ErrNoAccess.Errorf(ctx, "access denied: %v",
+			fmt.Errorf("not authorized to call %v.%v: %v", call.Suffix(), call.Method(), err))
+		return nerr
 	}
 	return nil
 }
@@ -689,7 +680,7 @@ func (fs *flowServer) serve() error {
 		if err == io.EOF {
 			return err
 		}
-		return verror.New(errResponseEncoding, ctx, fs.LocalEndpoint().String(), fs.RemoteEndpoint().String(), err)
+		return fmt.Errorf("failed to encode RPC response %v <-> %v:%v", fs.LocalEndpoint().String(), fs.RemoteEndpoint().String(), err)
 	}
 	if response.Error != nil {
 		return response.Error
@@ -699,7 +690,7 @@ func (fs *flowServer) serve() error {
 			if err == io.EOF {
 				return err
 			}
-			return verror.New(errResultEncoding, ctx, ix, fmt.Sprintf("%T=%v", res, res), err)
+			return fmt.Errorf("failed to encode result #%v [%T=%v]:%v", ix, res, res, err)
 		}
 	}
 	// TODO(ashankar): Should unread data from the flow be drained?
@@ -722,11 +713,13 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	// Decode the initial request.
 	var req rpc.Request
 	if err := fs.dec.Decode(&req); err != nil {
-		return nil, verror.New(verror.ErrBadProtocol, ctx, newErrBadRequest(ctx, err))
+		return nil, verror.ErrBadProtocol.Errorf(ctx, "bad protocol or type: %v",
+			fmt.Errorf("failed to decode request: %v", err))
 	}
 	return &req, nil
 }
 
+// note that the error returned from processRequest will be sent to the client.
 func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	fs.starttime = time.Now()
 
@@ -819,14 +812,14 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		fs.drainDecoderArgs(numArgs) //nolint:errcheck
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
-		return ctx, nil, newErrBadNumInputArgs(ctx, fs.suffix, fs.method, called, want)
+		return ctx, nil, errBadNumInputArgs.Errorf(ctx, "wrong number of input arguments for %v.%v (called with {%v} args, want {%v})", fs.suffix, fs.method, called, want)
 	}
 	for ix, argptr := range argptrs {
 		if err := fs.dec.Decode(argptr); err != nil {
 			tr.LazyPrintf("%s\n", err)
 			tr.SetError()
 
-			return ctx, nil, newErrBadInputArg(ctx, fs.suffix, fs.method, uint64(ix), err)
+			return ctx, nil, errBadInputArg.Errorf(ctx, "method %v.%v has bad arg #%v: %v", fs.suffix, fs.method, uint64(ix), err)
 		}
 	}
 
@@ -884,8 +877,8 @@ func (fs *flowServer) lookup(ctx *context.T, suffix string, method string) (rpc.
 	if naming.IsReserved(suffix) {
 		disp = fs.server.dispReserved
 	} else if fs.server.isLeaf && suffix != "" {
-		innerErr := verror.New(errUnexpectedSuffix, ctx, suffix)
-		return nil, nil, verror.New(verror.ErrUnknownSuffix, ctx, suffix, innerErr)
+		innerErr := fmt.Errorf("suffix %v was not expected because either server has the option IsLeaf set to true or it served an object and not a dispatcher", suffix)
+		return nil, nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v: %v", suffix, innerErr)
 	}
 	if disp != nil {
 		obj, auth, err := disp.Lookup(ctx, suffix)
@@ -895,12 +888,12 @@ func (fs *flowServer) lookup(ctx *context.T, suffix string, method string) (rpc.
 		case obj != nil:
 			invoker, err := objectToInvoker(obj)
 			if err != nil {
-				return nil, nil, verror.New(verror.ErrInternal, ctx, "invalid received object", err)
+				return nil, nil, verror.ErrInternal.Errorf(ctx, "invalid received object: %v", err)
 			}
 			return invoker, auth, nil
 		}
 	}
-	return nil, nil, verror.New(verror.ErrUnknownSuffix, ctx, suffix)
+	return nil, nil, verror.ErrUnknownSuffix.Errorf(ctx, "suffix does not exist: %v", suffix)
 }
 
 func (fs *flowServer) readGrantedBlessings(ctx *context.T, req *rpc.Request) error {
@@ -916,8 +909,7 @@ func (fs *flowServer) readGrantedBlessings(ctx *context.T, req *rpc.Request) err
 	// this - should servers be able to assume that a blessing is something that
 	// does not have the authorizations that the server's own identity has?
 	if got, want := req.GrantedBlessings.PublicKey(), fs.LocalPrincipal().PublicKey(); got != nil && !reflect.DeepEqual(got, want) {
-		return verror.New(verror.ErrNoAccess, ctx,
-			verror.New(errBlessingsNotBound, ctx, got.String(), want.String()))
+		return verror.ErrNoAccess.Errorf(ctx, "access denied: %v", fmt.Errorf("blessing granted not bound to this server: %v vs %v", got, want))
 	}
 	fs.grantedBlessings = req.GrantedBlessings
 	return nil
@@ -1018,14 +1010,14 @@ type leafDispatcher struct {
 
 func (d leafDispatcher) Lookup(ctx *context.T, suffix string) (interface{}, security.Authorizer, error) {
 	if suffix != "" {
-		return nil, nil, verror.New(verror.ErrUnknownSuffix, nil, suffix)
+		return nil, nil, verror.ErrUnknownSuffix.Errorf(nil, "Suffix does not exist: %v", suffix)
 	}
 	return d.invoker, d.auth, nil
 }
 
 func objectToInvoker(obj interface{}) (rpc.Invoker, error) {
 	if obj == nil {
-		return nil, verror.New(errNilObject, nil)
+		return nil, fmt.Errorf("nil object can't be invoked")
 	}
 	if invoker, ok := obj.(rpc.Invoker); ok {
 		return invoker, nil

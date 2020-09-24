@@ -76,7 +76,7 @@ func (tc *typeCache) get(ctx *context.T, c flow.ManagedConn) (*vom.TypeEncoder, 
 	tc.mu.Unlock()
 	select {
 	case <-c.Closed():
-		return nil, nil, newErrTypeFlowFailure(ctx, fmt.Errorf("closed"))
+		return nil, nil, errTypeFlowFailure.Errorf(ctx, "type flow could not be constructed: %v", fmt.Errorf("closed"))
 	case <-ctx.Done():
 		return nil, nil, ctx.Err()
 	case <-tce.ready:
@@ -91,7 +91,7 @@ func (tc *typeCache) get(ctx *context.T, c flow.ManagedConn) (*vom.TypeEncoder, 
 			if tce.enc == nil && tce.dec == nil {
 				err = fmt.Errorf("nil encoder & decoder")
 			}
-			return nil, nil, newErrTypeFlowFailure(ctx, err)
+			return nil, nil, errTypeFlowFailure.Errorf(ctx, "type flow could not be constructed: %v", err)
 		}
 	}
 	return tce.enc, tce.dec, nil

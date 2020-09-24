@@ -9,6 +9,7 @@
 package pathperms
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -23,13 +24,12 @@ import (
 )
 
 const (
-	pkgPath   = "v.io/x/ref/services/internal/pathperms"
 	sigName   = "signature"
 	permsName = "data"
 )
 
 var (
-	ErrOperationFailed = verror.Register(pkgPath+".OperationFailed", verror.NoRetry, "{1:}{2:} operation failed{:_}")
+	errOperationFailed = errors.New("operation failed")
 )
 
 type pathEntry struct {
@@ -97,7 +97,7 @@ func getCore(ctx *context.T, permspath, sigpath string) (access.Permissions, str
 	s, err := os.Open(sigpath)
 	if err != nil {
 		ctx.Errorf("Signatures for Permissions are required: %s unavailable: %v", permspath, err)
-		return nil, "", verror.New(ErrOperationFailed, nil)
+		return nil, "", errOperationFailed
 	}
 	defer s.Close()
 
@@ -105,7 +105,7 @@ func getCore(ctx *context.T, permspath, sigpath string) (access.Permissions, str
 	vf, err := serialization.NewVerifyingReader(f, s, principal.PublicKey())
 	if err != nil {
 		ctx.Errorf("NewVerifyingReader() failed: %v (perms=%s, sig=%s)", err, permspath, sigpath)
-		return nil, "", verror.New(ErrOperationFailed, nil)
+		return nil, "", errOperationFailed
 	}
 
 	perms, err := access.ReadPermissions(vf)
@@ -145,7 +145,7 @@ func (store *PathStore) SetShareable(dir string, perms access.Permissions, versi
 	defer store.lockPath(dir)()
 	_, oversion, err := getCore(store.ctx, permspath, sigpath)
 	if err != nil && !os.IsNotExist(err) {
-		return false, verror.New(ErrOperationFailed, nil)
+		return false, errOperationFailed
 	}
 	if !overwrite && err == nil {
 		// If overwrite is not set, we need the perms to not already
@@ -194,50 +194,50 @@ func write(ctx *context.T, permsFile, sigFile, dir string, perms access.Permissi
 	// Create dir directory if it does not exist
 	if err := os.MkdirAll(dir, dirmode); err != nil {
 		ctx.Errorf("Failed to create directory tree %v data:%v", dir, err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	// Save the object to temporary data and signature files, and then move
 	// those files to the actual data and signature file.
 	data, err := ioutil.TempFile(dir, permsName)
 	if err != nil {
 		ctx.Errorf("Failed to open tmpfile data:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	defer os.Remove(data.Name())
 	sig, err := ioutil.TempFile(dir, sigName)
 	if err != nil {
 		ctx.Errorf("Failed to open tmpfile sig:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	defer os.Remove(sig.Name())
 	writer, err := serialization.NewSigningWriteCloser(data, sig, principal, nil)
 	if err != nil {
 		ctx.Errorf("Failed to create NewSigningWriteCloser:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err = access.WritePermissions(writer, perms); err != nil {
 		ctx.Errorf("Failed to SavePermissions:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err = writer.Close(); err != nil {
 		ctx.Errorf("Failed to Close() SigningWriteCloser:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err := os.Rename(data.Name(), permsFile); err != nil {
 		ctx.Errorf("os.Rename() failed:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err := os.Chmod(permsFile, filemode); err != nil {
 		ctx.Errorf("os.Chmod() failed:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err := os.Rename(sig.Name(), sigFile); err != nil {
 		ctx.Errorf("os.Rename() failed:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	if err := os.Chmod(sigFile, filemode); err != nil {
 		ctx.Errorf("os.Chmod() failed:%v", err)
-		return verror.New(ErrOperationFailed, nil)
+		return errOperationFailed
 	}
 	return nil
 }

@@ -15,7 +15,6 @@ import (
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
-	"v.io/v23/verror"
 )
 
 type tracks struct {
@@ -236,7 +235,7 @@ func (ns *namespace) Glob(ctx *context.T, pattern string, opts ...naming.Namespa
 	// Root the pattern.  If we have no servers to query, give up.
 	e, patternWasRooted := ns.rootMountEntry(pattern)
 	if len(e.Servers) == 0 {
-		return nil, verror.New(naming.ErrNoMountTable, ctx)
+		return nil, naming.ErrNoMountTable.Errorf(ctx, "no mounttable")
 	}
 
 	// If the name doesn't parse, give up.

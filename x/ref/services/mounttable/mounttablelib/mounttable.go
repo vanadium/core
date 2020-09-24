@@ -6,6 +6,7 @@
 package mounttablelib
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"runtime"
@@ -25,21 +26,8 @@ import (
 	"v.io/x/ref/lib/timekeeper"
 )
 
-const pkgPath = "v.io/x/ref/services/mounttable/mounttablelib"
-
 const defaultMaxNodesPerUser = 1000
 const maxNameElementLen = 512
-
-var (
-	errMalformedAddress   = verror.Register(pkgPath+".errMalformedAddress", verror.NoRetry, "{1:}{2:} malformed address {3} for mounted server {4}{:_}")
-	errMTDoesntMatch      = verror.Register(pkgPath+".errMTDoesntMatch", verror.NoRetry, "{1:}{2:} MT doesn't match{:_}")
-	errLeafDoesntMatch    = verror.Register(pkgPath+".errLeafDoesntMatch", verror.NoRetry, "{1:}{2:} Leaf doesn't match{:_}")
-	errCantDeleteRoot     = verror.Register(pkgPath+".errCantDeleteRoot", verror.NoRetry, "{1:}{2:} cannot delete root node{:_}")
-	errNotEmpty           = verror.Register(pkgPath+".errNotEmpty", verror.NoRetry, "{1:}{2:} cannot delete {3}: has children{:_}")
-	errTooManyNodes       = verror.Register(pkgPath+".errTooManyNodes", verror.NoRetry, "{1:}{2:} User has exceeded his node limit {:_}")
-	errNameElementTooLong = verror.Register(pkgPath+".errNameElementTooLong", verror.NoRetry, "{1:}{2:} path element {3}: too long {:_}")
-	errInvalidPermsFile   = verror.Register(pkgPath+".errInvalidPermsFile", verror.NoRetry, "{1:}{2:} perms file {3} invalid {:_}")
-)
 
 var (
 	traverseTags = []mounttable.Tag{mounttable.Read, mounttable.Resolve, mounttable.Create, mounttable.Admin}
@@ -149,8 +137,7 @@ func NewMountTableDispatcherWithClock(ctx *context.T, permsFile, persistDir, sta
 		mt.persisting = mt.persist != nil
 	}
 	if err := mt.parsePermFile(ctx, permsFile); err != nil && !os.IsNotExist(err) {
-		return nil, verror.New(errInvalidPermsFile, ctx, permsFile, err)
-
+		return nil, fmt.Errorf("perms file %v invalid: %v", permsFile, err)
 	}
 	return mt, nil
 }
@@ -239,9 +226,9 @@ func (n *node) satisfies(mt *mountTable, cc *callContext, tags []mounttable.Tag)
 		return nil
 	}
 	if len(cc.rejected) > 0 {
-		return verror.New(verror.ErrNoAccess, cc.ctx, cc.rbn, cc.rejected)
+		return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v: rejected blessings: %v", cc.rbn, cc.rejected)
 	}
-	return verror.New(verror.ErrNoAccess, cc.ctx, cc.rbn)
+	return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v", cc.rbn)
 }
 
 func expand(al access.AccessList, name string) *access.AccessList {
@@ -268,7 +255,7 @@ func (n *node) satisfiesTemplate(cc *callContext, tags []mounttable.Tag, name st
 			return nil
 		}
 	}
-	return verror.New(verror.ErrNoAccess, cc.ctx, cc.rbn, cc.rejected)
+	return verror.ErrNoAccess.Errorf(cc.ctx, "access denied: %v: rejected blessings: %v", cc.rbn, cc.rejected)
 }
 
 // CopyPermissions copies one node's permissions to another and adds the clients blessings as
@@ -452,9 +439,9 @@ func (ms *mountContext) ResolveStep(ctx *context.T, call rpc.ServerCall) (entry 
 	if n == nil {
 		entry.Name = ms.name
 		if len(ms.elems) == 0 {
-			err = verror.New(naming.ErrNoSuchNameRoot, ctx, ms.name)
+			err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ms.name)
 		} else {
-			err = verror.New(naming.ErrNoSuchName, ctx, ms.name)
+			err = naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 		}
 		return
 	}
@@ -490,7 +477,7 @@ func numServers(n *node) int64 {
 func checkElementLengths(ctx *context.T, elems []string) error {
 	for _, e := range elems {
 		if len(e) > maxNameElementLen {
-			return verror.New(errNameElementTooLong, ctx, e)
+			return fmt.Errorf("path element %v...: too long (max len is %v)", e[:32], maxNameElementLen)
 		}
 	}
 	return nil
@@ -514,7 +501,7 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 	}
 	_, err := naming.ParseEndpoint(epString)
 	if err != nil {
-		return verror.New(errMalformedAddress, ctx, epString, server)
+		return fmt.Errorf("malformed address %v for mounted server %v", epString, server)
 	}
 
 	// Find/create node in namespace and add the mount.
@@ -523,7 +510,7 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 		return werr
 	}
 	if n == nil {
-		return verror.New(naming.ErrNoSuchNameRoot, ctx, ms.name)
+		return naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ms.name)
 	}
 	// We don't need the parent lock
 	n.parent.Unlock()
@@ -533,10 +520,10 @@ func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string
 	wantLeaf := hasLeafFlag(flags)
 	if n.mount != nil {
 		if wantMT != n.mount.mt {
-			return verror.New(errMTDoesntMatch, ctx)
+			return fmt.Errorf("mount table doesn't match")
 		}
 		if wantLeaf != n.mount.leaf {
-			return verror.New(errLeafDoesntMatch, ctx)
+			return fmt.Errorf("leaf doesn't match")
 		}
 	}
 	// Remove any existing children.
@@ -629,7 +616,7 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 	if len(ms.elems) == 0 {
 		// We can't delete the root.
-		return verror.New(errCantDeleteRoot, ctx)
+		return fmt.Errorf("cannot delete root node")
 	}
 	// Find and lock the parent node and parent node.  Either the node or its parent has
 	// to satisfy removeTags.
@@ -643,7 +630,7 @@ func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTre
 	defer n.parent.Unlock()
 	defer n.Unlock()
 	if !deleteSubTree && len(n.children) > 0 {
-		return verror.New(errNotEmpty, ctx, ms.name)
+		return fmt.Errorf("cannot delete %v: has children", ms.name)
 	}
 	mt.deleteNode(n.parent, ms.elems[len(ms.elems)-1])
 	if mt.persisting {
@@ -819,7 +806,7 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 	}
 	if n == nil {
 		// TODO(p): can this even happen?
-		return verror.New(naming.ErrNoSuchName, ctx, ms.name)
+		return naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 	}
 	n.parent.Unlock()
 	defer n.Unlock()
@@ -863,7 +850,7 @@ func (ms *mountContext) GetPermissions(ctx *context.T, call rpc.ServerCall) (acc
 		return nil, "", err
 	}
 	if n == nil {
-		return nil, "", verror.New(naming.ErrNoSuchName, ctx, ms.name)
+		return nil, "", naming.ErrNoSuchName.Errorf(ctx, "name %s doesn't exist", ms.name)
 	}
 	n.parent.Unlock()
 	defer n.Unlock()
@@ -880,11 +867,11 @@ func (mt *mountTable) credit(n *node) {
 func (mt *mountTable) debit(cc *callContext) error {
 	count, ok := mt.perUserNodeCounter.Incr(cc.creator, 1).(int64)
 	if !ok {
-		return verror.New(errTooManyNodes, cc.ctx)
+		return fmt.Errorf("user has exceeded their node limit")
 	}
 	if count > mt.maxNodesPerUser && !cc.ignoreLimits {
 		mt.perUserNodeCounter.Incr(cc.creator, -1)
-		return verror.New(errTooManyNodes, cc.ctx)
+		return fmt.Errorf("user has exceeded their node limit")
 	}
 	return nil
 }

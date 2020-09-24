@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
@@ -28,7 +27,7 @@ import (
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, verror.New(errCantGenerateKey, nil, err)
+		return nil, fmt.Errorf("failed to generate private key: %v", err)
 	}
 	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
 }
@@ -110,10 +109,10 @@ func createPrincipalUsingSigner(ctx context.Context, signer security.Signer, dir
 func mkDir(dir string) error {
 	if finfo, err := os.Stat(dir); err == nil {
 		if !finfo.IsDir() {
-			return verror.New(errNotADirectory, nil, dir)
+			return fmt.Errorf("%v is not a directory", dir)
 		}
 	} else if err := os.MkdirAll(dir, 0700); err != nil {
-		return verror.New(errCantCreate, nil, dir, err)
+		return fmt.Errorf("failed to create: %v: %v", dir, err)
 	}
 	return nil
 }

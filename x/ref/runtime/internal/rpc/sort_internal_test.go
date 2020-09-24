@@ -22,7 +22,7 @@ func TestIncompatible(t *testing.T) {
 	servers := []naming.MountedServer{}
 
 	_, err := filterAndOrderServers(servers, []string{"tcp"})
-	if err == nil || err.Error() != "failed to find any compatible servers" {
+	if err == nil || !strings.Contains(err.Error(), "failed to find any compatible servers") {
 		t.Errorf("expected a different error: %v", err)
 	}
 

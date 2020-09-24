@@ -5,6 +5,7 @@
 package internal
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -16,10 +17,6 @@ import (
 	"v.io/v23/verror"
 
 	"v.io/x/ref/services/role"
-)
-
-var (
-	errNoLocalBlessings = verror.Register("v.io/x/ref/services/role/roled/internal/noLocalBlessings", verror.NoRetry, "{1:}{2:} no local blessings")
 )
 
 type roleService struct {
@@ -35,7 +32,7 @@ func (i *roleService) SeekBlessings(ctx *context.T, call rpc.ServerCall) (securi
 	members := i.filterNonMembers(remoteBlessingNames)
 	if len(members) == 0 {
 		// The Authorizer should already have caught that.
-		return security.Blessings{}, verror.New(verror.ErrNoAccess, ctx)
+		return security.Blessings{}, verror.ErrNoAccess.Errorf(ctx, "access denied")
 	}
 
 	extensions := extensions(i.roleConfig, i.role, members)
@@ -86,23 +83,30 @@ func extensions(config *Config, roleStr string, blessingNames []string) []string
 	return extensions
 }
 
+func useOrWrapAsInternalErr(ctx *context.T, err error) error {
+	if verror.IsAny(err) {
+		return err
+	}
+	return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
+}
+
 func caveats(ctx *context.T, config *Config) ([]security.Caveat, error) {
 	var caveats []security.Caveat
 	if config.Expiry != "" {
 		d, err := time.ParseDuration(config.Expiry)
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrCreateErrInternal(ctx, err)
 		}
 		expiry, err := security.NewExpiryCaveat(time.Now().Add(d))
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrCreateErrInternal(ctx, err)
 		}
 		caveats = append(caveats, expiry)
 	}
 	if len(config.Peers) != 0 {
 		peer, err := security.NewCaveat(security.PeerBlessingsCaveat, config.Peers)
 		if err != nil {
-			return nil, verror.Convert(verror.ErrInternal, ctx, err)
+			return nil, useOrWrapAsInternalErr(ctx, err)
 		}
 		caveats = append(caveats, peer)
 	}
@@ -114,7 +118,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 	blessWithNames := security.LocalBlessingNames(ctx, call)
 	publicKey := call.RemoteBlessings().PublicKey()
 	if len(blessWithNames) == 0 {
-		return security.Blessings{}, verror.New(errNoLocalBlessings, ctx)
+		return security.Blessings{}, fmt.Errorf("no local blessings")
 	}
 
 	var ret security.Blessings
@@ -131,7 +135,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 			}
 			loggingCaveat, err := security.NewCaveat(LoggingCaveat, fullNames)
 			if err != nil {
-				return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+				return security.Blessings{}, useOrCreateErrInternal(ctx, err)
 			}
 			thirdParty, err := security.NewPublicKeyCaveat(principal.PublicKey(), dischargerLocation, security.ThirdPartyRequirements{
 				ReportServer:    true,
@@ -139,7 +143,7 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 				ReportArguments: true,
 			}, loggingCaveat)
 			if err != nil {
-				return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+				return security.Blessings{}, useOrWrapAsInternalErr(ctx, err)
 			}
 			cav = append(cav, thirdParty)
 		}
@@ -157,10 +161,10 @@ func createBlessings(ctx *context.T, call security.Call, config *Config, princip
 		}
 		b, err := principal.Bless(publicKey, blessWith, ext, cav[0], cav[1:]...)
 		if err != nil {
-			return security.Blessings{}, verror.Convert(verror.ErrInternal, ctx, err)
+			return security.Blessings{}, useOrCreateErrInternal(ctx, err)
 		}
 		if ret, err = security.UnionOfBlessings(ret, b); err != nil {
-			verror.Convert(verror.ErrInternal, ctx, err) //nolint:errcheck
+			return ret, useOrWrapAsInternalErr(ctx, err)
 		}
 	}
 	return ret, nil

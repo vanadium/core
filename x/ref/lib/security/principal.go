@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -27,22 +28,11 @@ import (
 	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
-const (
-	pkgPath = "v.io/x/ref/lib/security"
-)
-
 var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
-	ErrBadPassphrase = verror.Register(pkgPath+".errBadPassphrase", verror.NoRetry, "{1:}{2:} passphrase incorrect for decrypting private key{:_}")
+	ErrBadPassphrase = verror.NewID("errBadPassphrase")
 	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
-	ErrPassphraseRequired    = verror.Register(pkgPath+".errPassphraseRequired", verror.NoRetry, "{1:}{2:} passphrase required for decrypting private key{:_}")
-	errCantCreateSigner      = verror.Register(pkgPath+".errCantCreateSigner", verror.NoRetry, "{1:}{2:} failed to create serialization.Signer{:_}")
-	errCantLoadBlessingRoots = verror.Register(pkgPath+".errCantLoadBlessingRoots", verror.NoRetry, "{1:}{2:} failed to load BlessingRoots{:_}")
-	errCantLoadBlessingStore = verror.Register(pkgPath+".errCantLoadBlessingStore", verror.NoRetry, "{1:}{2:} failed to load BlessingStore{:_}")
-	errNotADirectory         = verror.Register(pkgPath+".errNotADirectory", verror.NoRetry, "{1:}{2:} {3} is not a directory{:_}")
-	errCantCreate            = verror.Register(pkgPath+".errCantCreate", verror.NoRetry, "{1:}{2:} failed to create {3}{:_}")
-	errCantGenerateKey       = verror.Register(pkgPath+".errCantGenerateKey", verror.NoRetry, "{1:}{2:} failed to generate private key{:_}")
-	errUnsupportedKeyType    = verror.Register(pkgPath+".errUnsupportedKeyType", verror.NoRetry, "{1:}{2:} unsupported key type{:_}")
+	ErrPassphraseRequired = verror.NewID("errPassphraseRequired")
 )
 
 const (
@@ -64,7 +54,7 @@ const (
 func NewPrincipal() (security.Principal, error) {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, verror.New(errCantGenerateKey, nil, err)
+		return nil, fmt.Errorf("failed to generate private key: %v", err)
 	}
 	signer, err := security.NewInMemoryECDSASigner(priv)
 	if err != nil {
@@ -201,21 +191,21 @@ func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (sec
 	case len(publicSSH) > 0:
 		return newSSHAgentSigner(ctx, filepath.Join(dir, publicSSH), passphrase)
 	}
-	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %s", dir)
+	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %v", dir)
 }
 
 func handleSignerError(signer security.Signer, err error) (security.Signer, error) {
 	switch {
 	case err == nil:
 		return signer, nil
-	case verror.ErrorID(err) == internal.ErrBadPassphrase.ID:
-		return nil, verror.New(ErrBadPassphrase, nil)
-	case verror.ErrorID(err) == internal.ErrPassphraseRequired.ID:
-		return nil, verror.New(ErrPassphraseRequired, nil)
+	case errors.Is(err, internal.ErrBadPassphrase):
+		return nil, ErrBadPassphrase.Errorf(nil, "passphrase incorrect for decrypting private key")
+	case errors.Is(err, internal.ErrPassphraseRequired):
+		return nil, ErrPassphraseRequired.Errorf(nil, "passphrase required for decrypting private key")
 	case os.IsNotExist(err):
 		return nil, err
 	default:
-		return nil, verror.New(errCantCreateSigner, nil, err)
+		return nil, fmt.Errorf("failed to create serialization.Signer: %v", err)
 	}
 }
 
@@ -285,7 +275,7 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 	case ed25519.PublicKey:
 		return security.NewED25519PublicKey(k), nil
 	}
-	return nil, verror.New(errUnsupportedKeyType, nil, fmt.Sprintf("%T", key))
+	return nil, fmt.Errorf("unsupported key type %T", key)
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with

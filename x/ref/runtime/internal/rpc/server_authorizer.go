@@ -5,20 +5,12 @@
 package rpc
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/v23/verror"
-)
-
-var (
-	// These errors are intended to be used as arguments to higher
-	// level errors and hence {1}{2} is omitted from their format
-	// strings to avoid repeating these n-times in the final error
-	// message visible to the user.
-	errAuthServerNotAllowed = reg(".errAuthServerNotAllowed",
-		"server blessings {3} do not match any allowed server patterns {4}{:5}")
 )
 
 type serverAuthorizer struct {
@@ -63,7 +55,7 @@ func (a *serverAuthorizer) Authorize(ctx *context.T, call security.Call) error {
 	}
 	names, rejected := security.RemoteBlessingNames(ctx, call)
 	if !a.extraPattern.MatchedBy(names...) {
-		return verror.New(errAuthServerNotAllowed, ctx, names, a.extraPattern, rejected)
+		return fmt.Errorf("server blessings %v do not match any allowed server patterns %v:%v", names, a.extraPattern, rejected)
 	}
 	return nil
 }

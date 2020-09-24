@@ -9,13 +9,8 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"io"
-
-	"v.io/v23/verror"
-)
-
-var (
-	errInvalidString = verror.Register(pkgPath+".errInvalidString", verror.NoRetry, "{1:}{2:} string is of the wrong format and/or size{:_}")
 )
 
 // RoutingIDs have one essential property, namely that they are, to a very
@@ -79,7 +74,7 @@ func (rid *RoutingID) FromString(s string) error {
 		return err
 	}
 	if len(b) != routingIDLength {
-		return verror.New(errInvalidString, nil)
+		return fmt.Errorf("string is of the wrong format and/or size")
 	}
 	copy(rid.value[:], b)
 	return nil

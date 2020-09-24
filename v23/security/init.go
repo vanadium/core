@@ -9,16 +9,6 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/verror"
-)
-
-// Prefix for error codes.
-const pkgPath = "v.io/v23/security"
-
-var (
-	errMissingDischarge = verror.Register(pkgPath+".errMissingDischarge", verror.NoRetry, "{1:}{2:}missing discharge for third party caveat(id={3}){:_}")
-	errInvalidDischarge = verror.Register(pkgPath+".errInvalidDischarge", verror.NoRetry, "{1:}{2:}invalid discharge({3}) for caveat({4}){:_}")
-	errFailedDischarge  = verror.Register(pkgPath+".errFailedDischarge", verror.NoRetry, "{1:}{2:}a caveat({3}) on the discharge failed to validate{:_}")
 )
 
 func init() {
@@ -60,7 +50,7 @@ func init() {
 	RegisterCaveatValidator(PublicKeyThirdPartyCaveat, func(ctx *context.T, call Call, params publicKeyThirdPartyCaveatParam) error {
 		discharge, ok := call.RemoteDischarges()[params.ID()]
 		if !ok {
-			return verror.New(errMissingDischarge, ctx, params.ID())
+			return fmt.Errorf("missing discharge for third party caveat(id=%v)", params.ID())
 		}
 		// Must be of the valid type.
 		var d *PublicKeyDischarge
@@ -68,7 +58,7 @@ func init() {
 		case WireDischargePublicKey:
 			d = &v.Value
 		default:
-			return verror.New(errInvalidDischarge, ctx, fmt.Sprintf("%T", v), fmt.Sprintf("%T", params))
+			return fmt.Errorf("invalid discharge(%T) for caveat(%T)", v, params)
 		}
 		// Must be signed by the principal designated by c.DischargerKey
 		key, err := params.discharger(ctx)
@@ -81,7 +71,7 @@ func init() {
 		// And all caveats on the discharge must be met.
 		for _, cav := range d.Caveats {
 			if err := cav.Validate(ctx, call); err != nil {
-				return verror.New(errFailedDischarge, ctx, cav, err)
+				return fmt.Errorf("a caveat(%v) on the discharge failed to validate: %v", cav, err)
 			}
 		}
 		return nil

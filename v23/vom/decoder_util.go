@@ -5,18 +5,15 @@
 package vom
 
 import (
+	"errors"
+	"fmt"
+
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 )
 
 var (
-	errDecodeZeroTypeID         = verror.Register(pkgPath+".errDecodeZeroTypeID", verror.NoRetry, "{1:}{2:} vom: zero type id{:_}")
-	errIndexOutOfRange          = verror.Register(pkgPath+".errIndexOutOfRange", verror.NoRetry, "{1:}{2:} vom: index out of range{:_}")
-	errLeftOverBytes            = verror.Register(pkgPath+".errLeftOverBytes", verror.NoRetry, "{1:}{2:} vom: {3} leftover bytes{:_}")
-	errDecodeValueUnhandledType = verror.Register(pkgPath+".errDecodeValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: decodeValue unhandled type {3}{:_}")
-	errIgnoreValueUnhandledType = verror.Register(pkgPath+".errIgnoreValueUnhandledType", verror.NoRetry, "{1:}{2:} vom: ignoreValue unhandled type {3}{:_}")
-	errInvalidTypeIDIndex       = verror.Register(pkgPath+".errInvalidTypeIDIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into type id table {:_}")
-	errInvalidAnyIndex          = verror.Register(pkgPath+".errInvalidAnyIndex", verror.NoRetry, "{1:}{2:} vom: value referenced invalid index into anyLen table {:_}")
+	errIndexOutOfRange  = errors.New("vom: index out of range")
+	errDecodeZeroTypeID = errors.New("vom: zero type id")
 )
 
 func (d *decoder81) decodeTypeDefs() error {
@@ -52,7 +49,7 @@ func (d *decoder81) peekValueByteLen(tt *vdl.Type) (int, error) {
 		case err != nil:
 			return 0, err
 		case strlen > maxBinaryMsgLen:
-			return 0, verror.New(errMsgLen, nil, maxBinaryMsgLen)
+			return 0, errMsgLen(maxBinaryMsgLen)
 		}
 		return int(strlen) + bytelen, nil
 	default:
@@ -170,7 +167,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			case index >= uint64(tt.NumField()):
-				return verror.New(errIndexOutOfRange, nil)
+				return errIndexOutOfRange
 			default:
 				ttfield := tt.Field(int(index))
 				if err := d.skipValue(ttfield.Type); err != nil {
@@ -183,7 +180,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 		case err != nil:
 			return err
 		case index >= uint64(tt.NumField()):
-			return verror.New(errIndexOutOfRange, nil)
+			return errIndexOutOfRange
 		default:
 			ttfield := tt.Field(int(index))
 			return d.skipValue(ttfield.Type)
@@ -223,23 +220,23 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 			return d.skipValue(ttElem)
 		}
 	default:
-		return verror.New(errIgnoreValueUnhandledType, nil, tt)
+		return fmt.Errorf("vom: ignoreValue unhandled type %v", tt)
 	}
 }
 
 func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	if leftover := d.buf.RemoveLimit(); leftover > 0 {
-		return 0, verror.New(errLeftOverBytes, nil, leftover)
+		return 0, fmt.Errorf("vom: %v leftover bytes", leftover)
 	}
 	// Decode version byte, if not already decoded.
 	if d.buf.version == 0 {
 		version, err := d.buf.ReadByte()
 		if err != nil {
-			return 0, verror.New(errEndedBeforeVersionByte, nil, err)
+			return 0, errEndedBeforeVersionByte(err)
 		}
 		d.buf.version = Version(version)
 		if !isAllowedVersion(d.buf.version) {
-			return 0, verror.New(errBadVersionByte, nil, d.buf.version)
+			return 0, errBadVersionByte(d.buf.version)
 		}
 	}
 	// Decode the next message id.
@@ -254,7 +251,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	if incomplete {
 		if mid >= 0 {
 			// TypeIncomplete must be followed with a type message.
-			return 0, verror.New(errInvalid, nil)
+			return 0, errInvalid
 		}
 		d.flag = d.flag.Set(decFlagTypeIncomplete)
 	} else if mid < 0 {
@@ -279,7 +276,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 		hasAny = containsAny(t)
 		hasTypeObject = containsTypeObject(t)
 	default:
-		return 0, verror.New(errDecodeZeroTypeID, nil)
+		return 0, errDecodeZeroTypeID
 	}
 
 	if (hasAny || hasTypeObject) && d.buf.version != Version80 {
@@ -324,11 +321,11 @@ func (d *decoder81) typeIsNext() (bool, error) {
 	if d.buf.version == 0 {
 		version, err := d.buf.ReadByte()
 		if err != nil {
-			return false, verror.New(errEndedBeforeVersionByte, nil, err)
+			return false, errEndedBeforeVersionByte(err)
 		}
 		d.buf.version = Version(version)
 		if !isAllowedVersion(d.buf.version) {
-			return false, verror.New(errBadVersionByte, nil, d.buf.version)
+			return false, errBadVersionByte(d.buf.version)
 		}
 	}
 	switch ctrl, err := binaryPeekControl(d.buf); {
@@ -337,7 +334,7 @@ func (d *decoder81) typeIsNext() (bool, error) {
 	case ctrl == WireCtrlTypeIncomplete:
 		return true, nil
 	case ctrl != 0:
-		return false, verror.New(errBadControlCode, nil, ctrl)
+		return false, errBadControlCode(ctrl)
 	}
 	mid, _, err := binaryPeekInt(d.buf)
 	if err != nil {
@@ -348,7 +345,7 @@ func (d *decoder81) typeIsNext() (bool, error) {
 
 func (d *decoder81) endMessage() error {
 	if leftover := d.buf.RemoveLimit(); leftover > 0 {
-		return verror.New(errLeftOverBytes, nil, leftover)
+		return fmt.Errorf("vom: %v leftover bytes", leftover)
 	}
 	if err := d.refTypes.Reset(); err != nil {
 		return err
@@ -376,7 +373,7 @@ func (refTypes *referencedTypes) AddTypeID(tid TypeId) {
 
 func (refTypes *referencedTypes) ReferencedTypeID(index uint64) (TypeId, error) {
 	if index >= uint64(len(refTypes.tids)) {
-		return 0, verror.New(errInvalidTypeIDIndex, nil)
+		return 0, fmt.Errorf("vom: value referenced invalid index into type id table")
 	}
 	return refTypes.tids[index], nil
 }
@@ -401,7 +398,7 @@ func (refAnys *referencedAnyLens) AddAnyLen(len int) {
 
 func (refAnys *referencedAnyLens) ReferencedAnyLen(index uint64) (int, error) {
 	if index >= uint64(len(refAnys.lens)) {
-		return 0, verror.New(errInvalidAnyIndex, nil)
+		return 0, fmt.Errorf("vom: value referenced invalid index into anyLen table")
 	}
 	return refAnys.lens[index], nil
 }

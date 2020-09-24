@@ -94,7 +94,7 @@ func (r *Reservation) Unreserve(conn, proxyConn CachedConn, err error) error {
 
 	if c.conns == nil {
 		r.cancel()
-		return NewErrCacheClosed(r.ctx)
+		return errCacheClosed.Errorf(r.ctx, "cache is closed")
 	}
 
 	for _, k := range r.keys {
@@ -164,7 +164,7 @@ func (c *ConnCache) Insert(conn CachedConn, proxy bool) error {
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.conns == nil {
-		return NewErrCacheClosed(nil)
+		return errCacheClosed.Errorf(nil, "cache is closed")
 	}
 	c.insertConnLocked(conn.RemoteEndpoint(), conn, proxy, true, nil)
 	return nil
@@ -175,7 +175,7 @@ func (c *ConnCache) InsertWithRoutingID(conn CachedConn, proxy bool) error {
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.conns == nil {
-		return NewErrCacheClosed(nil)
+		return errCacheClosed.Errorf(nil, "cache is closed")
 	}
 	c.insertConnLocked(conn.RemoteEndpoint(), conn, proxy, false, nil)
 	return nil
@@ -231,7 +231,7 @@ func (c *ConnCache) internalFind(
 	for {
 		if c.conns == nil {
 			c.mu.Unlock()
-			return nil, nil, nil, NewErrCacheClosed(ctx)
+			return nil, nil, nil, errCacheClosed.Errorf(ctx, "cache is closed")
 		}
 		entries, err = c.rttEntriesLocked(ctx, keys)
 		if len(entries) > 0 || !wait || !c.hasReservationsLocked(keys) {
@@ -251,7 +251,7 @@ func (c *ConnCache) internalFind(
 
 	if len(entries) == 0 {
 		if err == nil {
-			err = NewErrConnNotInCache(ctx, remote.String())
+			err = errConnNotInCache.Errorf(ctx, "connection to %s not in cache", remote.String())
 		}
 		return nil, nil, nil, err
 	}
@@ -435,7 +435,7 @@ func (c *ConnCache) KillConnections(ctx *context.T, num int) error { //nolint:go
 	defer c.mu.Unlock()
 	c.mu.Lock()
 	if c.conns == nil {
-		return NewErrCacheClosed(ctx)
+		return errCacheClosed.Errorf(ctx, "cache is closed")
 	}
 
 	// kill old error records.  We keep them for a while to allow new finds
@@ -503,7 +503,7 @@ func (c *ConnCache) KillConnections(ctx *context.T, num int) error { //nolint:go
 	}
 	// Otherwise we need to kill the LRU conns.
 	sort.Sort(entries)
-	err := NewErrConnKilledToFreeResources(ctx)
+	err := errConnKilledToFreeResources.Errorf(ctx, "connection killed to free resources")
 	for i := 0; i < num && i < len(entries); i++ {
 		e := entries[i]
 		e.conn.Close(ctx, err)
@@ -530,7 +530,7 @@ func (c *ConnCache) EnterLameDuckMode(ctx *context.T) {
 func (c *ConnCache) Close(ctx *context.T) {
 	defer c.mu.Unlock()
 	c.mu.Lock()
-	err := NewErrCacheClosed(ctx)
+	err := errCacheClosed.Errorf(ctx, "cache is closed")
 	for _, e := range c.conns {
 		e.conn.Close(ctx, err)
 		if e.cancel != nil {
@@ -792,5 +792,5 @@ func resolve(ctx *context.T, p flow.Protocol, protocol, address string) (string,
 			return net, addrs, nil
 		}
 	}
-	return "", nil, NewErrUnknownProtocol(ctx, protocol)
+	return "", nil, errUnknownProtocol.Errorf(ctx, "unknown protocol: %s", protocol)
 }

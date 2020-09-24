@@ -21,6 +21,13 @@ import (
 	"v.io/x/ref/services/role"
 )
 
+func useOrCreateErrInternal(ctx *context.T, err error) error {
+	if verror.IsAny(err) {
+		return err
+	}
+	return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
+}
+
 const requiredSuffix = security.ChainSeparator + role.RoleSuffix
 
 // NewDispatcher returns a dispatcher object for a role service and its
@@ -51,14 +58,14 @@ func (d *dispatcher) Lookup(_ *context.T, suffix string) (interface{}, security.
 	if !strings.HasPrefix(fileName, d.config.root) {
 		// Guard against ".." in the suffix that could be used to read
 		// files outside of the config root.
-		return nil, nil, verror.New(verror.ErrNoExistOrNoAccess, nil)
+		return nil, nil, verror.ErrNoExistOrNoAccess.Errorf(nil, "does not exist or access denied")
 	}
 	roleConfig, err := loadExpandedConfig(fileName, nil)
 	if err != nil && !os.IsNotExist(err) {
 		// The config file exists, but we failed to read it for some
 		// reason. This is likely a server configuration error.
 		logger.Global().Errorf("loadConfig(%q, %q): %v", d.config.root, suffix, err)
-		return nil, nil, verror.Convert(verror.ErrInternal, nil, err)
+		return nil, nil, useOrCreateErrInternal(nil, err)
 	}
 	obj := &roleService{serverConfig: d.config, role: suffix, roleConfig: roleConfig}
 	return role.RoleServer(obj), &authorizer{roleConfig}, nil
@@ -75,14 +82,14 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 		return nil
 	}
 	if a.config == nil {
-		return verror.New(verror.ErrNoExistOrNoAccess, ctx)
+		return verror.ErrNoExistOrNoAccess.Errorf(ctx, "does not exist or access denied")
 	}
 	remoteBlessingNames, _ := security.RemoteBlessingNames(ctx, call)
 
 	if hasAccess(a.config, remoteBlessingNames) {
 		return nil
 	}
-	return verror.New(verror.ErrNoExistOrNoAccess, ctx)
+	return verror.ErrNoExistOrNoAccess.Errorf(ctx, "does not exist or access denied")
 }
 
 func hasAccess(c *Config, blessingNames []string) bool {
