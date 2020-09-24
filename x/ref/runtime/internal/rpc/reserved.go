@@ -283,7 +283,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 				subcall.Send(naming.GlobReplyError{
 					Value: naming.GlobError{
 						Name:  state.name,
-						Error: reserved.ErrorfGlobNotImplemented(ctx, " Glob not implemented")},
+						Error: reserved.ErrorfGlobNotImplemented(ctx, "Glob not implemented")},
 				})
 			}
 			continue
