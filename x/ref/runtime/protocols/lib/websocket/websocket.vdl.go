@@ -9,6 +9,8 @@
 package websocket
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -41,6 +43,22 @@ func MessageListenerClosed(ctx *context.T, message string) error {
 	return ErrListenerClosed.Message(ctx, message)
 }
 
+// ParamsListenerClosed extracts the expected parameters from the error's ParameterList.
+func ParamsListenerClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
@@ -56,6 +74,58 @@ func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
 // MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
 func MessageListenCalledInNaCl(ctx *context.T, message string) error {
 	return ErrListenCalledInNaCl.Message(ctx, message)
+}
+
+// ParamsListenCalledInNaCl extracts the expected parameters from the error's ParameterList.
+func ParamsListenCalledInNaCl(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool

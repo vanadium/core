@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/websocket v1.4.1
 	github.com/kr/pty v1.1.8
 	github.com/mattn/go-sqlite3 v1.11.0
+	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/pborman/uuid v1.2.0
 	github.com/shirou/gopsutil v2.19.9+incompatible
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e

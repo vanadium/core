@@ -9,6 +9,8 @@
 package reserved
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -49,6 +51,22 @@ func MessageGlobMaxRecursionReached(ctx *context.T, message string) error {
 	return ErrGlobMaxRecursionReached.Message(ctx, message)
 }
 
+// ParamsGlobMaxRecursionReached extracts the expected parameters from the error's ParameterList.
+func ParamsGlobMaxRecursionReached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfGlobMatchesOmitted or MessageGlobMatchesOmitted instead.
@@ -66,6 +84,22 @@ func MessageGlobMatchesOmitted(ctx *context.T, message string) error {
 	return ErrGlobMatchesOmitted.Message(ctx, message)
 }
 
+// ParamsGlobMatchesOmitted extracts the expected parameters from the error's ParameterList.
+func ParamsGlobMatchesOmitted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfGlobNotImplemented or MessageGlobNotImplemented instead.
@@ -81,6 +115,58 @@ func ErrorfGlobNotImplemented(ctx *context.T, format string) error {
 // MessageGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
 func MessageGlobNotImplemented(ctx *context.T, message string) error {
 	return ErrGlobNotImplemented.Message(ctx, message)
+}
+
+// ParamsGlobNotImplemented extracts the expected parameters from the error's ParameterList.
+func ParamsGlobNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool

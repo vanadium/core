@@ -9,6 +9,8 @@
 package verror
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 )
@@ -95,6 +97,22 @@ func MessageUnknown(ctx *context.T, message string) error {
 	return ErrUnknown.Message(ctx, message)
 }
 
+// ParamsUnknown extracts the expected parameters from the error's ParameterList.
+func ParamsUnknown(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrInternal returns an error with the ErrInternal ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfInternal or MessageInternal instead.
@@ -110,6 +128,22 @@ func ErrorfInternal(ctx *context.T, format string) error {
 // MessageInternal calls ErrInternal.Message with the supplied arguments.
 func MessageInternal(ctx *context.T, message string) error {
 	return ErrInternal.Message(ctx, message)
+}
+
+// ParamsInternal extracts the expected parameters from the error's ParameterList.
+func ParamsInternal(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrNotImplemented returns an error with the ErrNotImplemented ID.
@@ -129,6 +163,22 @@ func MessageNotImplemented(ctx *context.T, message string) error {
 	return ErrNotImplemented.Message(ctx, message)
 }
 
+// ParamsNotImplemented extracts the expected parameters from the error's ParameterList.
+func ParamsNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrEndOfFile returns an error with the ErrEndOfFile ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfEndOfFile or MessageEndOfFile instead.
@@ -144,6 +194,22 @@ func ErrorfEndOfFile(ctx *context.T, format string) error {
 // MessageEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
 func MessageEndOfFile(ctx *context.T, message string) error {
 	return ErrEndOfFile.Message(ctx, message)
+}
+
+// ParamsEndOfFile extracts the expected parameters from the error's ParameterList.
+func ParamsEndOfFile(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrBadArg returns an error with the ErrBadArg ID.
@@ -163,6 +229,22 @@ func MessageBadArg(ctx *context.T, message string) error {
 	return ErrBadArg.Message(ctx, message)
 }
 
+// ParamsBadArg extracts the expected parameters from the error's ParameterList.
+func ParamsBadArg(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrBadState returns an error with the ErrBadState ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfBadState or MessageBadState instead.
@@ -178,6 +260,22 @@ func ErrorfBadState(ctx *context.T, format string) error {
 // MessageBadState calls ErrBadState.Message with the supplied arguments.
 func MessageBadState(ctx *context.T, message string) error {
 	return ErrBadState.Message(ctx, message)
+}
+
+// ParamsBadState extracts the expected parameters from the error's ParameterList.
+func ParamsBadState(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrBadVersion returns an error with the ErrBadVersion ID.
@@ -197,6 +295,22 @@ func MessageBadVersion(ctx *context.T, message string) error {
 	return ErrBadVersion.Message(ctx, message)
 }
 
+// ParamsBadVersion extracts the expected parameters from the error's ParameterList.
+func ParamsBadVersion(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrExist returns an error with the ErrExist ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfExist or MessageExist instead.
@@ -212,6 +326,22 @@ func ErrorfExist(ctx *context.T, format string) error {
 // MessageExist calls ErrExist.Message with the supplied arguments.
 func MessageExist(ctx *context.T, message string) error {
 	return ErrExist.Message(ctx, message)
+}
+
+// ParamsExist extracts the expected parameters from the error's ParameterList.
+func ParamsExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrNoExist returns an error with the ErrNoExist ID.
@@ -231,6 +361,22 @@ func MessageNoExist(ctx *context.T, message string) error {
 	return ErrNoExist.Message(ctx, message)
 }
 
+// ParamsNoExist extracts the expected parameters from the error's ParameterList.
+func ParamsNoExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfUnknownMethod or MessageUnknownMethod instead.
@@ -246,6 +392,22 @@ func ErrorfUnknownMethod(ctx *context.T, format string) error {
 // MessageUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
 func MessageUnknownMethod(ctx *context.T, message string) error {
 	return ErrUnknownMethod.Message(ctx, message)
+}
+
+// ParamsUnknownMethod extracts the expected parameters from the error's ParameterList.
+func ParamsUnknownMethod(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
@@ -265,6 +427,22 @@ func MessageUnknownSuffix(ctx *context.T, message string) error {
 	return ErrUnknownSuffix.Message(ctx, message)
 }
 
+// ParamsUnknownSuffix extracts the expected parameters from the error's ParameterList.
+func ParamsUnknownSuffix(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfNoExistOrNoAccess or MessageNoExistOrNoAccess instead.
@@ -280,6 +458,22 @@ func ErrorfNoExistOrNoAccess(ctx *context.T, format string) error {
 // MessageNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
 func MessageNoExistOrNoAccess(ctx *context.T, message string) error {
 	return ErrNoExistOrNoAccess.Message(ctx, message)
+}
+
+// ParamsNoExistOrNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsNoExistOrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrNoServers returns an error with the ErrNoServers ID.
@@ -299,6 +493,22 @@ func MessageNoServers(ctx *context.T, message string) error {
 	return ErrNoServers.Message(ctx, message)
 }
 
+// ParamsNoServers extracts the expected parameters from the error's ParameterList.
+func ParamsNoServers(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrNoAccess returns an error with the ErrNoAccess ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfNoAccess or MessageNoAccess instead.
@@ -314,6 +524,22 @@ func ErrorfNoAccess(ctx *context.T, format string) error {
 // MessageNoAccess calls ErrNoAccess.Message with the supplied arguments.
 func MessageNoAccess(ctx *context.T, message string) error {
 	return ErrNoAccess.Message(ctx, message)
+}
+
+// ParamsNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrNotTrusted returns an error with the ErrNotTrusted ID.
@@ -333,6 +559,22 @@ func MessageNotTrusted(ctx *context.T, message string) error {
 	return ErrNotTrusted.Message(ctx, message)
 }
 
+// ParamsNotTrusted extracts the expected parameters from the error's ParameterList.
+func ParamsNotTrusted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrAborted returns an error with the ErrAborted ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfAborted or MessageAborted instead.
@@ -348,6 +590,22 @@ func ErrorfAborted(ctx *context.T, format string) error {
 // MessageAborted calls ErrAborted.Message with the supplied arguments.
 func MessageAborted(ctx *context.T, message string) error {
 	return ErrAborted.Message(ctx, message)
+}
+
+// ParamsAborted extracts the expected parameters from the error's ParameterList.
+func ParamsAborted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
 // NewErrBadProtocol returns an error with the ErrBadProtocol ID.
@@ -367,6 +625,22 @@ func MessageBadProtocol(ctx *context.T, message string) error {
 	return ErrBadProtocol.Message(ctx, message)
 }
 
+// ParamsBadProtocol extracts the expected parameters from the error's ParameterList.
+func ParamsBadProtocol(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrCanceled returns an error with the ErrCanceled ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfCanceled or MessageCanceled instead.
@@ -384,6 +658,22 @@ func MessageCanceled(ctx *context.T, message string) error {
 	return ErrCanceled.Message(ctx, message)
 }
 
+// ParamsCanceled extracts the expected parameters from the error's ParameterList.
+func ParamsCanceled(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrTimeout returns an error with the ErrTimeout ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfTimeout or MessageTimeout instead.
@@ -399,6 +689,58 @@ func ErrorfTimeout(ctx *context.T, format string) error {
 // MessageTimeout calls ErrTimeout.Message with the supplied arguments.
 func MessageTimeout(ctx *context.T, message string) error {
 	return ErrTimeout.Message(ctx, message)
+}
+
+// ParamsTimeout extracts the expected parameters from the error's ParameterList.
+func ParamsTimeout(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool

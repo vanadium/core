@@ -11,6 +11,8 @@
 package stats
 
 import (
+	"fmt"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
@@ -46,6 +48,71 @@ func ErrorfNoValue(ctx *context.T, format string, suffix string) error {
 // MessageNoValue calls ErrNoValue.Message with the supplied arguments.
 func MessageNoValue(ctx *context.T, message string, suffix string) error {
 	return ErrNoValue.Message(ctx, message, suffix)
+}
+
+// ParamsNoValue extracts the expected parameters from the error's ParameterList.
+func ParamsNoValue(argumentError error) (verrorComponent string, verrorOperation string, suffix string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if suffix, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value suffix, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////

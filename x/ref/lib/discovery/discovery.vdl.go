@@ -9,6 +9,8 @@
 package discovery
 
 import (
+	"fmt"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
@@ -473,6 +475,35 @@ func MessageAdvertisementNotFound(ctx *context.T, message string, id discovery.A
 	return ErrAdvertisementNotFound.Message(ctx, message, id)
 }
 
+// ParamsAdvertisementNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsAdvertisementNotFound(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(discovery.AdId); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not discovery.AdId", tmp)
+		return
+	}
+
+	return
+}
+
 // NewErrAlreadyBeingAdvertised returns an error with the ErrAlreadyBeingAdvertised ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfAlreadyBeingAdvertised or MessageAlreadyBeingAdvertised instead.
@@ -488,6 +519,35 @@ func ErrorfAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.Ad
 // MessageAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
 func MessageAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
 	return ErrAlreadyBeingAdvertised.Message(ctx, message, id)
+}
+
+// ParamsAlreadyBeingAdvertised extracts the expected parameters from the error's ParameterList.
+func ParamsAlreadyBeingAdvertised(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(discovery.AdId); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not discovery.AdId", tmp)
+		return
+	}
+
+	return
 }
 
 // NewErrBadAdvertisement returns an error with the ErrBadAdvertisement ID.
@@ -507,6 +567,35 @@ func MessageBadAdvertisement(ctx *context.T, message string, err error) error {
 	return ErrBadAdvertisement.Message(ctx, message, err)
 }
 
+// ParamsBadAdvertisement extracts the expected parameters from the error's ParameterList.
+func ParamsBadAdvertisement(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
 // NewErrBadQuery returns an error with the ErrBadQuery ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfBadQuery or MessageBadQuery instead.
@@ -522,6 +611,35 @@ func ErrorfBadQuery(ctx *context.T, format string, err error) error {
 // MessageBadQuery calls ErrBadQuery.Message with the supplied arguments.
 func MessageBadQuery(ctx *context.T, message string, err error) error {
 	return ErrBadQuery.Message(ctx, message, err)
+}
+
+// ParamsBadQuery extracts the expected parameters from the error's ParameterList.
+func ParamsBadQuery(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
 }
 
 // NewErrDiscoveryClosed returns an error with the ErrDiscoveryClosed ID.
@@ -541,6 +659,22 @@ func MessageDiscoveryClosed(ctx *context.T, message string) error {
 	return ErrDiscoveryClosed.Message(ctx, message)
 }
 
+// ParamsDiscoveryClosed extracts the expected parameters from the error's ParameterList.
+func ParamsDiscoveryClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrNoDiscoveryPlugin returns an error with the ErrNoDiscoveryPlugin ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfNoDiscoveryPlugin or MessageNoDiscoveryPlugin instead.
@@ -558,6 +692,22 @@ func MessageNoDiscoveryPlugin(ctx *context.T, message string) error {
 	return ErrNoDiscoveryPlugin.Message(ctx, message)
 }
 
+// ParamsNoDiscoveryPlugin extracts the expected parameters from the error's ParameterList.
+func ParamsNoDiscoveryPlugin(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrTooManyPlugins returns an error with the ErrTooManyPlugins ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfTooManyPlugins or MessageTooManyPlugins instead.
@@ -573,6 +723,79 @@ func ErrorfTooManyPlugins(ctx *context.T, format string, actual int32, limit int
 // MessageTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
 func MessageTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
 	return ErrTooManyPlugins.Message(ctx, message, actual, limit)
+}
+
+// ParamsTooManyPlugins extracts the expected parameters from the error's ParameterList.
+func ParamsTooManyPlugins(argumentError error) (verrorComponent string, verrorOperation string, actual int32, limit int32, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if actual, ok = tmp.(int32); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value actual, has %T and not int32", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if limit, ok = tmp.(int32); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value limit, has %T and not int32", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////

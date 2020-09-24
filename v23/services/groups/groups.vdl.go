@@ -396,6 +396,22 @@ func MessageNoBlessings(ctx *context.T, message string) error {
 	return ErrNoBlessings.Message(ctx, message)
 }
 
+// ParamsNoBlessings extracts the expected parameters from the error's ParameterList.
+func ParamsNoBlessings(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfExcessiveContention or MessageExcessiveContention instead.
@@ -413,6 +429,22 @@ func MessageExcessiveContention(ctx *context.T, message string) error {
 	return ErrExcessiveContention.Message(ctx, message)
 }
 
+// ParamsExcessiveContention extracts the expected parameters from the error's ParameterList.
+func ParamsExcessiveContention(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrCycleFound returns an error with the ErrCycleFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfCycleFound or MessageCycleFound instead.
@@ -428,6 +460,79 @@ func ErrorfCycleFound(ctx *context.T, format string, name string, visited string
 // MessageCycleFound calls ErrCycleFound.Message with the supplied arguments.
 func MessageCycleFound(ctx *context.T, message string, name string, visited string) error {
 	return ErrCycleFound.Message(ctx, message, name, visited)
+}
+
+// ParamsCycleFound extracts the expected parameters from the error's ParameterList.
+func ParamsCycleFound(argumentError error) (verrorComponent string, verrorOperation string, name string, visited string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if name, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if visited, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value visited, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////

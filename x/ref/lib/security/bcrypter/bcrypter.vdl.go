@@ -9,6 +9,8 @@
 package bcrypter
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/security"
@@ -435,6 +437,35 @@ func MessageInternal(ctx *context.T, message string, err error) error {
 	return ErrInternal.Message(ctx, message, err)
 }
 
+// ParamsInternal extracts the expected parameters from the error's ParameterList.
+func ParamsInternal(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
 // NewErrNoParams returns an error with the ErrNoParams ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfNoParams or MessageNoParams instead.
@@ -450,6 +481,35 @@ func ErrorfNoParams(ctx *context.T, format string, pattern security.BlessingPatt
 // MessageNoParams calls ErrNoParams.Message with the supplied arguments.
 func MessageNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
 	return ErrNoParams.Message(ctx, message, pattern)
+}
+
+// ParamsNoParams extracts the expected parameters from the error's ParameterList.
+func ParamsNoParams(argumentError error) (verrorComponent string, verrorOperation string, pattern security.BlessingPattern, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if pattern, ok = tmp.(security.BlessingPattern); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value pattern, has %T and not security.BlessingPattern", tmp)
+		return
+	}
+
+	return
 }
 
 // NewErrPrivateKeyNotFound returns an error with the ErrPrivateKeyNotFound ID.
@@ -469,6 +529,22 @@ func MessagePrivateKeyNotFound(ctx *context.T, message string) error {
 	return ErrPrivateKeyNotFound.Message(ctx, message)
 }
 
+// ParamsPrivateKeyNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsPrivateKeyNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrInvalidPrivateKey returns an error with the ErrInvalidPrivateKey ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfInvalidPrivateKey or MessageInvalidPrivateKey instead.
@@ -484,6 +560,71 @@ func ErrorfInvalidPrivateKey(ctx *context.T, format string, err error) error {
 // MessageInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
 func MessageInvalidPrivateKey(ctx *context.T, message string, err error) error {
 	return ErrInvalidPrivateKey.Message(ctx, message, err)
+}
+
+// ParamsInvalidPrivateKey extracts the expected parameters from the error's ParameterList.
+func ParamsInvalidPrivateKey(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 // Hold type definitions in package-level variables, for better performance.

@@ -401,6 +401,7 @@ func init() {
 		"serverStubImpl":        serverStubImpl,
 		"reInitStreamValue":     reInitStreamValue,
 		"callVerror":            callVerror,
+		"paramNamedResults":     paramNamedResults,
 	}
 	goTemplate = template.Must(template.New("genGo").Funcs(funcMap).Parse(genGo))
 }
@@ -533,6 +534,25 @@ func maybeStripArgName(arg string, strip bool) string {
 		return arg[index+1:]
 	}
 	return arg
+}
+
+// paramNamedResults returns a comma-separated list of "name type" from args
+// in the order (first, second, args*, last)
+func paramNamedResults(first, second, last string, data *goData, args []*compile.Field) string {
+	var result []string
+	if first != "" {
+		result = append(result, first)
+	}
+	if second != "" {
+		result = append(result, second)
+	}
+	for _, arg := range args {
+		result = append(result, arg.Name+" "+typeGo(data, arg.Type))
+	}
+	if last != "" {
+		result = append(result, last)
+	}
+	return strings.Join(result, ", ")
 }
 
 // argParens takes a list of 0 or more arguments, and adds parens only when
@@ -726,17 +746,30 @@ func {{$message}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, messag
 
 {{$params := print (firstRuneToExport "Params" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 // {{$params}} extracts the expected parameters from the error's ParameterList.
-func {{$params}}(err error) ({{argNameTypes "" "verrorComponent string" "verrorOperation string"  "returnErr error" $data $edef.Params}}) {
-	params := {{callVerror $data "Params(err)"}}
+func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent string" "verrorOperation string"  "returnErr error" $data $edef.Params}}) {
+	params := {{callVerror $data "Params(argumentError)"}}
 	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in %v", err)
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
 		return
 	}
 	iter := &paramListIterator{params: params, max: len(params)}
 
-	verrorComponent, returnErr = iter.next().(string)
-	verrorOperation, returnErr = iter.next().(string){{if $edef.Params}}
-	{{range $edef.Params}}{{.Name}}, returnErr = iter.next().({{typeGo $data .Type}})
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+	{{if $edef.Params}}
+	var (
+		tmp interface{}
+		ok bool
+	)
+	{{range $edef.Params}}tmp, returnErr = iter.next()
+	if {{.Name}}, ok = tmp.({{typeGo $data .Type}}); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value {{.Name}}, has %T and not {{typeGo $data .Type}}", tmp)
+		return
+	}
 	{{end}}{{end}}
 	return
 }
@@ -759,7 +792,25 @@ func (pl *paramListIterator) next() (interface{}, error) {
 		return nil, pl.err
 	}
 	pl.idx++
-	return pl.params[pl.idx-1], nil
+	return  pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 {{if $pkg.Interfaces}}

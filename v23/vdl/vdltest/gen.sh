@@ -5,6 +5,10 @@
 
 # Runs vdltestgen to re-generate vdltest data files.
 
+# Clean up temporary files
+dummy_file="./dummy_gen.go"
+trap "rm -f ${dummy_file}" EXIT
+
 # Don't set -f, since we need wildcard expansion.
 set -eu -o pipefail
 
@@ -17,7 +21,6 @@ rm -f *_gen.vdl *_gen.go
 
 # Since we removed the generated files above, we need to write a dummy file that
 # contains the variables necessary for the vdltest package to compile.
-dummy_file="./dummy_gen.go"
 cat - > ${dummy_file} <<EOF
 package vdltest
 
@@ -34,6 +37,3 @@ go run "v.io/v23/vdl/vdltest/internal/vdltestgen"
 
 # Re-generate the vdltest package, now with the new vdl files.
 go run "v.io/x/ref/cmd/vdl" generate "v.io/v23/vdl/vdltest"
-
-# Clean up temporary files
-rm -f ${dummy_file}
