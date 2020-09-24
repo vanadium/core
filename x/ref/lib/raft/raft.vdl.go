@@ -217,23 +217,23 @@ var (
 
 // NewErrNotLeader returns an error with the ErrNotLeader ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotLeader or MessageNotLeader instead.
+// use ErrorfErrNotLeader or MessageErrNotLeader instead.
 func NewErrNotLeader(ctx *context.T) error {
 	return verror.New(ErrNotLeader, ctx)
 }
 
-// ErrorfNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
-func ErrorfNotLeader(ctx *context.T, format string) error {
+// ErrorfErrNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
+func ErrorfErrNotLeader(ctx *context.T, format string) error {
 	return ErrNotLeader.Errorf(ctx, format)
 }
 
-// MessageNotLeader calls ErrNotLeader.Message with the supplied arguments.
-func MessageNotLeader(ctx *context.T, message string) error {
+// MessageErrNotLeader calls ErrNotLeader.Message with the supplied arguments.
+func MessageErrNotLeader(ctx *context.T, message string) error {
 	return ErrNotLeader.Message(ctx, message)
 }
 
-// ParamsNotLeader extracts the expected parameters from the error's ParameterList.
-func ParamsNotLeader(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNotLeader extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotLeader(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -250,23 +250,23 @@ func ParamsNotLeader(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrOutOfSequence returns an error with the ErrOutOfSequence ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfOutOfSequence or MessageOutOfSequence instead.
+// use ErrorfErrOutOfSequence or MessageErrOutOfSequence instead.
 func NewErrOutOfSequence(ctx *context.T, prevTerm Term, prevIdx Index) error {
 	return verror.New(ErrOutOfSequence, ctx, prevTerm, prevIdx)
 }
 
-// ErrorfOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
-func ErrorfOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
+// ErrorfErrOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
+func ErrorfErrOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
 	return ErrOutOfSequence.Errorf(ctx, format, prevTerm, prevIdx)
 }
 
-// MessageOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
-func MessageOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
+// MessageErrOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
+func MessageErrOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
 	return ErrOutOfSequence.Message(ctx, message, prevTerm, prevIdx)
 }
 
-// ParamsOutOfSequence extracts the expected parameters from the error's ParameterList.
-func ParamsOutOfSequence(argumentError error) (verrorComponent string, verrorOperation string, prevTerm Term, prevIdx Index, returnErr error) {
+// ParamsErrOutOfSequence extracts the expected parameters from the error's ParameterList.
+func ParamsErrOutOfSequence(argumentError error) (verrorComponent string, verrorOperation string, prevTerm Term, prevIdx Index, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

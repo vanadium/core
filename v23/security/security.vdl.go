@@ -1716,23 +1716,23 @@ var (
 
 // NewErrCaveatNotRegistered returns an error with the ErrCaveatNotRegistered ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCaveatNotRegistered or MessageCaveatNotRegistered instead.
+// use ErrorfErrCaveatNotRegistered or MessageErrCaveatNotRegistered instead.
 func NewErrCaveatNotRegistered(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrCaveatNotRegistered, ctx, id)
 }
 
-// ErrorfCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
-func ErrorfCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfErrCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
+func ErrorfErrCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatNotRegistered.Errorf(ctx, format, id)
 }
 
-// MessageCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
-func MessageCaveatNotRegistered(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageErrCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
+func MessageErrCaveatNotRegistered(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrCaveatNotRegistered.Message(ctx, message, id)
 }
 
-// ParamsCaveatNotRegistered extracts the expected parameters from the error's ParameterList.
-func ParamsCaveatNotRegistered(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+// ParamsErrCaveatNotRegistered extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1762,23 +1762,23 @@ func ParamsCaveatNotRegistered(argumentError error) (verrorComponent string, ver
 
 // NewErrCaveatParamAny returns an error with the ErrCaveatParamAny ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCaveatParamAny or MessageCaveatParamAny instead.
+// use ErrorfErrCaveatParamAny or MessageErrCaveatParamAny instead.
 func NewErrCaveatParamAny(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrCaveatParamAny, ctx, id)
 }
 
-// ErrorfCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
-func ErrorfCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfErrCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatParamAny.Errorf(ctx, format, id)
 }
 
-// MessageCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
-func MessageCaveatParamAny(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageErrCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
+func MessageErrCaveatParamAny(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrCaveatParamAny.Message(ctx, message, id)
 }
 
-// ParamsCaveatParamAny extracts the expected parameters from the error's ParameterList.
-func ParamsCaveatParamAny(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+// ParamsErrCaveatParamAny extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1808,23 +1808,23 @@ func ParamsCaveatParamAny(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrCaveatParamTypeMismatch returns an error with the ErrCaveatParamTypeMismatch ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCaveatParamTypeMismatch or MessageCaveatParamTypeMismatch instead.
+// use ErrorfErrCaveatParamTypeMismatch or MessageErrCaveatParamTypeMismatch instead.
 func NewErrCaveatParamTypeMismatch(ctx *context.T, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return verror.New(ErrCaveatParamTypeMismatch, ctx, id, got, want)
 }
 
-// ErrorfCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
-func ErrorfCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+// ErrorfErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return ErrCaveatParamTypeMismatch.Errorf(ctx, format, id, got, want)
 }
 
-// MessageCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
-func MessageCaveatParamTypeMismatch(ctx *context.T, message string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+// MessageErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
+func MessageErrCaveatParamTypeMismatch(ctx *context.T, message string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return ErrCaveatParamTypeMismatch.Message(ctx, message, id, got, want)
 }
 
-// ParamsCaveatParamTypeMismatch extracts the expected parameters from the error's ParameterList.
-func ParamsCaveatParamTypeMismatch(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, got *vdl.Type, want *vdl.Type, returnErr error) {
+// ParamsErrCaveatParamTypeMismatch extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, got *vdl.Type, want *vdl.Type, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1870,23 +1870,23 @@ func ParamsCaveatParamTypeMismatch(argumentError error) (verrorComponent string,
 
 // NewErrCaveatParamCoding returns an error with the ErrCaveatParamCoding ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCaveatParamCoding or MessageCaveatParamCoding instead.
+// use ErrorfErrCaveatParamCoding or MessageErrCaveatParamCoding instead.
 func NewErrCaveatParamCoding(ctx *context.T, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return verror.New(ErrCaveatParamCoding, ctx, id, typ, err)
 }
 
-// ErrorfCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
-func ErrorfCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
+// ErrorfErrCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err)
 }
 
-// MessageCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
-func MessageCaveatParamCoding(ctx *context.T, message string, id uniqueid.Id, typ *vdl.Type, err error) error {
+// MessageErrCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
+func MessageErrCaveatParamCoding(ctx *context.T, message string, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return ErrCaveatParamCoding.Message(ctx, message, id, typ, err)
 }
 
-// ParamsCaveatParamCoding extracts the expected parameters from the error's ParameterList.
-func ParamsCaveatParamCoding(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, typ *vdl.Type, err error, returnErr error) {
+// ParamsErrCaveatParamCoding extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, typ *vdl.Type, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1932,23 +1932,23 @@ func ParamsCaveatParamCoding(argumentError error) (verrorComponent string, verro
 
 // NewErrCaveatValidation returns an error with the ErrCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCaveatValidation or MessageCaveatValidation instead.
+// use ErrorfErrCaveatValidation or MessageErrCaveatValidation instead.
 func NewErrCaveatValidation(ctx *context.T, err error) error {
 	return verror.New(ErrCaveatValidation, ctx, err)
 }
 
-// ErrorfCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
-func ErrorfCaveatValidation(ctx *context.T, format string, err error) error {
+// ErrorfErrCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrCaveatValidation(ctx *context.T, format string, err error) error {
 	return ErrCaveatValidation.Errorf(ctx, format, err)
 }
 
-// MessageCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
-func MessageCaveatValidation(ctx *context.T, message string, err error) error {
+// MessageErrCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
+func MessageErrCaveatValidation(ctx *context.T, message string, err error) error {
 	return ErrCaveatValidation.Message(ctx, message, err)
 }
 
-// ParamsCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+// ParamsErrCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1978,23 +1978,23 @@ func ParamsCaveatValidation(argumentError error) (verrorComponent string, verror
 
 // NewErrConstCaveatValidation returns an error with the ErrConstCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfConstCaveatValidation or MessageConstCaveatValidation instead.
+// use ErrorfErrConstCaveatValidation or MessageErrConstCaveatValidation instead.
 func NewErrConstCaveatValidation(ctx *context.T) error {
 	return verror.New(ErrConstCaveatValidation, ctx)
 }
 
-// ErrorfConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
-func ErrorfConstCaveatValidation(ctx *context.T, format string) error {
+// ErrorfErrConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrConstCaveatValidation(ctx *context.T, format string) error {
 	return ErrConstCaveatValidation.Errorf(ctx, format)
 }
 
-// MessageConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
-func MessageConstCaveatValidation(ctx *context.T, message string) error {
+// MessageErrConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
+func MessageErrConstCaveatValidation(ctx *context.T, message string) error {
 	return ErrConstCaveatValidation.Message(ctx, message)
 }
 
-// ParamsConstCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsConstCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrConstCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2011,23 +2011,23 @@ func ParamsConstCaveatValidation(argumentError error) (verrorComponent string, v
 
 // NewErrExpiryCaveatValidation returns an error with the ErrExpiryCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpiryCaveatValidation or MessageExpiryCaveatValidation instead.
+// use ErrorfErrExpiryCaveatValidation or MessageErrExpiryCaveatValidation instead.
 func NewErrExpiryCaveatValidation(ctx *context.T, currentTime time.Time, expiryTime time.Time) error {
 	return verror.New(ErrExpiryCaveatValidation, ctx, currentTime, expiryTime)
 }
 
-// ErrorfExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
-func ErrorfExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
+// ErrorfErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
 	return ErrExpiryCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
 }
 
-// MessageExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
-func MessageExpiryCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
+// MessageErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
+func MessageErrExpiryCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
 	return ErrExpiryCaveatValidation.Message(ctx, message, currentTime, expiryTime)
 }
 
-// ParamsExpiryCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsExpiryCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
+// ParamsErrExpiryCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2065,23 +2065,23 @@ func ParamsExpiryCaveatValidation(argumentError error) (verrorComponent string, 
 
 // NewErrMethodCaveatValidation returns an error with the ErrMethodCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfMethodCaveatValidation or MessageMethodCaveatValidation instead.
+// use ErrorfErrMethodCaveatValidation or MessageErrMethodCaveatValidation instead.
 func NewErrMethodCaveatValidation(ctx *context.T, invokedMethod string, permittedMethods []string) error {
 	return verror.New(ErrMethodCaveatValidation, ctx, invokedMethod, permittedMethods)
 }
 
-// ErrorfMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
-func ErrorfMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
+// ErrorfErrMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
 	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods)
 }
 
-// MessageMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
-func MessageMethodCaveatValidation(ctx *context.T, message string, invokedMethod string, permittedMethods []string) error {
+// MessageErrMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
+func MessageErrMethodCaveatValidation(ctx *context.T, message string, invokedMethod string, permittedMethods []string) error {
 	return ErrMethodCaveatValidation.Message(ctx, message, invokedMethod, permittedMethods)
 }
 
-// ParamsMethodCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsMethodCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, invokedMethod string, permittedMethods []string, returnErr error) {
+// ParamsErrMethodCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, invokedMethod string, permittedMethods []string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2119,23 +2119,23 @@ func ParamsMethodCaveatValidation(argumentError error) (verrorComponent string, 
 
 // NewErrPeerBlessingsCaveatValidation returns an error with the ErrPeerBlessingsCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfPeerBlessingsCaveatValidation or MessagePeerBlessingsCaveatValidation instead.
+// use ErrorfErrPeerBlessingsCaveatValidation or MessageErrPeerBlessingsCaveatValidation instead.
 func NewErrPeerBlessingsCaveatValidation(ctx *context.T, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return verror.New(ErrPeerBlessingsCaveatValidation, ctx, peerBlessings, permittedPatterns)
 }
 
-// ErrorfPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
-func ErrorfPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+// ErrorfErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return ErrPeerBlessingsCaveatValidation.Errorf(ctx, format, peerBlessings, permittedPatterns)
 }
 
-// MessagePeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
-func MessagePeerBlessingsCaveatValidation(ctx *context.T, message string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+// MessageErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
+func MessageErrPeerBlessingsCaveatValidation(ctx *context.T, message string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return ErrPeerBlessingsCaveatValidation.Message(ctx, message, peerBlessings, permittedPatterns)
 }
 
-// ParamsPeerBlessingsCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsPeerBlessingsCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, peerBlessings []string, permittedPatterns []BlessingPattern, returnErr error) {
+// ParamsErrPeerBlessingsCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, peerBlessings []string, permittedPatterns []BlessingPattern, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2173,23 +2173,23 @@ func ParamsPeerBlessingsCaveatValidation(argumentError error) (verrorComponent s
 
 // NewErrUnrecognizedRoot returns an error with the ErrUnrecognizedRoot ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnrecognizedRoot or MessageUnrecognizedRoot instead.
+// use ErrorfErrUnrecognizedRoot or MessageErrUnrecognizedRoot instead.
 func NewErrUnrecognizedRoot(ctx *context.T, rootKey string, details error) error {
 	return verror.New(ErrUnrecognizedRoot, ctx, rootKey, details)
 }
 
-// ErrorfUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
-func ErrorfUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
+// ErrorfErrUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
+func ErrorfErrUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
 	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details)
 }
 
-// MessageUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
-func MessageUnrecognizedRoot(ctx *context.T, message string, rootKey string, details error) error {
+// MessageErrUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
+func MessageErrUnrecognizedRoot(ctx *context.T, message string, rootKey string, details error) error {
 	return ErrUnrecognizedRoot.Message(ctx, message, rootKey, details)
 }
 
-// ParamsUnrecognizedRoot extracts the expected parameters from the error's ParameterList.
-func ParamsUnrecognizedRoot(argumentError error) (verrorComponent string, verrorOperation string, rootKey string, details error, returnErr error) {
+// ParamsErrUnrecognizedRoot extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, verrorOperation string, rootKey string, details error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2227,23 +2227,23 @@ func ParamsUnrecognizedRoot(argumentError error) (verrorComponent string, verror
 
 // NewErrAuthorizationFailed returns an error with the ErrAuthorizationFailed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAuthorizationFailed or MessageAuthorizationFailed instead.
+// use ErrorfErrAuthorizationFailed or MessageErrAuthorizationFailed instead.
 func NewErrAuthorizationFailed(ctx *context.T, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return verror.New(ErrAuthorizationFailed, ctx, remote, remoteErr, local)
 }
 
-// ErrorfAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
-func ErrorfAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+// ErrorfErrAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfErrAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return ErrAuthorizationFailed.Errorf(ctx, format, remote, remoteErr, local)
 }
 
-// MessageAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
-func MessageAuthorizationFailed(ctx *context.T, message string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+// MessageErrAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
+func MessageErrAuthorizationFailed(ctx *context.T, message string, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return ErrAuthorizationFailed.Message(ctx, message, remote, remoteErr, local)
 }
 
-// ParamsAuthorizationFailed extracts the expected parameters from the error's ParameterList.
-func ParamsAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, remote []string, remoteErr []RejectedBlessing, local []string, returnErr error) {
+// ParamsErrAuthorizationFailed extracts the expected parameters from the error's ParameterList.
+func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, remote []string, remoteErr []RejectedBlessing, local []string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2289,23 +2289,23 @@ func ParamsAuthorizationFailed(argumentError error) (verrorComponent string, ver
 
 // NewErrInvalidSigningBlessingCaveat returns an error with the ErrInvalidSigningBlessingCaveat ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidSigningBlessingCaveat or MessageInvalidSigningBlessingCaveat instead.
+// use ErrorfErrInvalidSigningBlessingCaveat or MessageErrInvalidSigningBlessingCaveat instead.
 func NewErrInvalidSigningBlessingCaveat(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrInvalidSigningBlessingCaveat, ctx, id)
 }
 
-// ErrorfInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
-func ErrorfInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
+func ErrorfErrInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id)
 }
 
-// MessageInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
-func MessageInvalidSigningBlessingCaveat(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
+func MessageErrInvalidSigningBlessingCaveat(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrInvalidSigningBlessingCaveat.Message(ctx, message, id)
 }
 
-// ParamsInvalidSigningBlessingCaveat extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidSigningBlessingCaveat(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+// ParamsErrInvalidSigningBlessingCaveat extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2335,23 +2335,23 @@ func ParamsInvalidSigningBlessingCaveat(argumentError error) (verrorComponent st
 
 // NewErrPublicKeyNotAllowed returns an error with the ErrPublicKeyNotAllowed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfPublicKeyNotAllowed or MessagePublicKeyNotAllowed instead.
+// use ErrorfErrPublicKeyNotAllowed or MessageErrPublicKeyNotAllowed instead.
 func NewErrPublicKeyNotAllowed(ctx *context.T, got string, want string) error {
 	return verror.New(ErrPublicKeyNotAllowed, ctx, got, want)
 }
 
-// ErrorfPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
-func ErrorfPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
+// ErrorfErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
+func ErrorfErrPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
 	return ErrPublicKeyNotAllowed.Errorf(ctx, format, got, want)
 }
 
-// MessagePublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
-func MessagePublicKeyNotAllowed(ctx *context.T, message string, got string, want string) error {
+// MessageErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
+func MessageErrPublicKeyNotAllowed(ctx *context.T, message string, got string, want string) error {
 	return ErrPublicKeyNotAllowed.Message(ctx, message, got, want)
 }
 
-// ParamsPublicKeyNotAllowed extracts the expected parameters from the error's ParameterList.
-func ParamsPublicKeyNotAllowed(argumentError error) (verrorComponent string, verrorOperation string, got string, want string, returnErr error) {
+// ParamsErrPublicKeyNotAllowed extracts the expected parameters from the error's ParameterList.
+func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, verrorOperation string, got string, want string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2389,23 +2389,23 @@ func ParamsPublicKeyNotAllowed(argumentError error) (verrorComponent string, ver
 
 // NewErrEndpointAuthorizationFailed returns an error with the ErrEndpointAuthorizationFailed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfEndpointAuthorizationFailed or MessageEndpointAuthorizationFailed instead.
+// use ErrorfErrEndpointAuthorizationFailed or MessageErrEndpointAuthorizationFailed instead.
 func NewErrEndpointAuthorizationFailed(ctx *context.T, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return verror.New(ErrEndpointAuthorizationFailed, ctx, endpoint, remote, rejected)
 }
 
-// ErrorfEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
-func ErrorfEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+// ErrorfErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfErrEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return ErrEndpointAuthorizationFailed.Errorf(ctx, format, endpoint, remote, rejected)
 }
 
-// MessageEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.
-func MessageEndpointAuthorizationFailed(ctx *context.T, message string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+// MessageErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.
+func MessageErrEndpointAuthorizationFailed(ctx *context.T, message string, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return ErrEndpointAuthorizationFailed.Message(ctx, message, endpoint, remote, rejected)
 }
 
-// ParamsEndpointAuthorizationFailed extracts the expected parameters from the error's ParameterList.
-func ParamsEndpointAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, endpoint string, remote []string, rejected []RejectedBlessing, returnErr error) {
+// ParamsErrEndpointAuthorizationFailed extracts the expected parameters from the error's ParameterList.
+func ParamsErrEndpointAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, endpoint string, remote []string, rejected []RejectedBlessing, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

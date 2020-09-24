@@ -441,23 +441,23 @@ var (
 
 // NewErrUnknownResumeMarker returns an error with the ErrUnknownResumeMarker ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknownResumeMarker or MessageUnknownResumeMarker instead.
+// use ErrorfErrUnknownResumeMarker or MessageErrUnknownResumeMarker instead.
 func NewErrUnknownResumeMarker(ctx *context.T) error {
 	return verror.New(ErrUnknownResumeMarker, ctx)
 }
 
-// ErrorfUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
-func ErrorfUnknownResumeMarker(ctx *context.T, format string) error {
+// ErrorfErrUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
+func ErrorfErrUnknownResumeMarker(ctx *context.T, format string) error {
 	return ErrUnknownResumeMarker.Errorf(ctx, format)
 }
 
-// MessageUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
-func MessageUnknownResumeMarker(ctx *context.T, message string) error {
+// MessageErrUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
+func MessageErrUnknownResumeMarker(ctx *context.T, message string) error {
 	return ErrUnknownResumeMarker.Message(ctx, message)
 }
 
-// ParamsUnknownResumeMarker extracts the expected parameters from the error's ParameterList.
-func ParamsUnknownResumeMarker(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrUnknownResumeMarker extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownResumeMarker(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

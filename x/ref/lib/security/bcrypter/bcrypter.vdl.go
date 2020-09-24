@@ -422,23 +422,23 @@ var (
 
 // NewErrInternal returns an error with the ErrInternal ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInternal or MessageInternal instead.
+// use ErrorfErrInternal or MessageErrInternal instead.
 func NewErrInternal(ctx *context.T, err error) error {
 	return verror.New(ErrInternal, ctx, err)
 }
 
-// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
-func ErrorfInternal(ctx *context.T, format string, err error) error {
+// ErrorfErrInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfErrInternal(ctx *context.T, format string, err error) error {
 	return ErrInternal.Errorf(ctx, format, err)
 }
 
-// MessageInternal calls ErrInternal.Message with the supplied arguments.
-func MessageInternal(ctx *context.T, message string, err error) error {
+// MessageErrInternal calls ErrInternal.Message with the supplied arguments.
+func MessageErrInternal(ctx *context.T, message string, err error) error {
 	return ErrInternal.Message(ctx, message, err)
 }
 
-// ParamsInternal extracts the expected parameters from the error's ParameterList.
-func ParamsInternal(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+// ParamsErrInternal extracts the expected parameters from the error's ParameterList.
+func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -468,23 +468,23 @@ func ParamsInternal(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrNoParams returns an error with the ErrNoParams ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams or MessageNoParams instead.
+// use ErrorfErrNoParams or MessageErrNoParams instead.
 func NewErrNoParams(ctx *context.T, pattern security.BlessingPattern) error {
 	return verror.New(ErrNoParams, ctx, pattern)
 }
 
-// ErrorfNoParams calls ErrNoParams.Errorf with the supplied arguments.
-func ErrorfNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
+// ErrorfErrNoParams calls ErrNoParams.Errorf with the supplied arguments.
+func ErrorfErrNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
 	return ErrNoParams.Errorf(ctx, format, pattern)
 }
 
-// MessageNoParams calls ErrNoParams.Message with the supplied arguments.
-func MessageNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
+// MessageErrNoParams calls ErrNoParams.Message with the supplied arguments.
+func MessageErrNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
 	return ErrNoParams.Message(ctx, message, pattern)
 }
 
-// ParamsNoParams extracts the expected parameters from the error's ParameterList.
-func ParamsNoParams(argumentError error) (verrorComponent string, verrorOperation string, pattern security.BlessingPattern, returnErr error) {
+// ParamsErrNoParams extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoParams(argumentError error) (verrorComponent string, verrorOperation string, pattern security.BlessingPattern, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -514,23 +514,23 @@ func ParamsNoParams(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrPrivateKeyNotFound returns an error with the ErrPrivateKeyNotFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfPrivateKeyNotFound or MessagePrivateKeyNotFound instead.
+// use ErrorfErrPrivateKeyNotFound or MessageErrPrivateKeyNotFound instead.
 func NewErrPrivateKeyNotFound(ctx *context.T) error {
 	return verror.New(ErrPrivateKeyNotFound, ctx)
 }
 
-// ErrorfPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
-func ErrorfPrivateKeyNotFound(ctx *context.T, format string) error {
+// ErrorfErrPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
+func ErrorfErrPrivateKeyNotFound(ctx *context.T, format string) error {
 	return ErrPrivateKeyNotFound.Errorf(ctx, format)
 }
 
-// MessagePrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
-func MessagePrivateKeyNotFound(ctx *context.T, message string) error {
+// MessageErrPrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
+func MessageErrPrivateKeyNotFound(ctx *context.T, message string) error {
 	return ErrPrivateKeyNotFound.Message(ctx, message)
 }
 
-// ParamsPrivateKeyNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsPrivateKeyNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrPrivateKeyNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrPrivateKeyNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -547,23 +547,23 @@ func ParamsPrivateKeyNotFound(argumentError error) (verrorComponent string, verr
 
 // NewErrInvalidPrivateKey returns an error with the ErrInvalidPrivateKey ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidPrivateKey or MessageInvalidPrivateKey instead.
+// use ErrorfErrInvalidPrivateKey or MessageErrInvalidPrivateKey instead.
 func NewErrInvalidPrivateKey(ctx *context.T, err error) error {
 	return verror.New(ErrInvalidPrivateKey, ctx, err)
 }
 
-// ErrorfInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
-func ErrorfInvalidPrivateKey(ctx *context.T, format string, err error) error {
+// ErrorfErrInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
+func ErrorfErrInvalidPrivateKey(ctx *context.T, format string, err error) error {
 	return ErrInvalidPrivateKey.Errorf(ctx, format, err)
 }
 
-// MessageInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
-func MessageInvalidPrivateKey(ctx *context.T, message string, err error) error {
+// MessageErrInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
+func MessageErrInvalidPrivateKey(ctx *context.T, message string, err error) error {
 	return ErrInvalidPrivateKey.Message(ctx, message, err)
 }
 
-// ParamsInvalidPrivateKey extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidPrivateKey(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+// ParamsErrInvalidPrivateKey extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidPrivateKey(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

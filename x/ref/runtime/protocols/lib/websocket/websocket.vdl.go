@@ -28,23 +28,23 @@ var (
 
 // NewErrListenerClosed returns an error with the ErrListenerClosed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfListenerClosed or MessageListenerClosed instead.
+// use ErrorfErrListenerClosed or MessageErrListenerClosed instead.
 func NewErrListenerClosed(ctx *context.T) error {
 	return verror.New(ErrListenerClosed, ctx)
 }
 
-// ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
-func ErrorfListenerClosed(ctx *context.T, format string) error {
+// ErrorfErrListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
+func ErrorfErrListenerClosed(ctx *context.T, format string) error {
 	return ErrListenerClosed.Errorf(ctx, format)
 }
 
-// MessageListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
-func MessageListenerClosed(ctx *context.T, message string) error {
+// MessageErrListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
+func MessageErrListenerClosed(ctx *context.T, message string) error {
 	return ErrListenerClosed.Message(ctx, message)
 }
 
-// ParamsListenerClosed extracts the expected parameters from the error's ParameterList.
-func ParamsListenerClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrListenerClosed extracts the expected parameters from the error's ParameterList.
+func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -61,23 +61,23 @@ func ParamsListenerClosed(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
+// use ErrorfErrListenCalledInNaCl or MessageErrListenCalledInNaCl instead.
 func NewErrListenCalledInNaCl(ctx *context.T) error {
 	return verror.New(ErrListenCalledInNaCl, ctx)
 }
 
-// ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
-func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
+// ErrorfErrListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
+func ErrorfErrListenCalledInNaCl(ctx *context.T, format string) error {
 	return ErrListenCalledInNaCl.Errorf(ctx, format)
 }
 
-// MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
-func MessageListenCalledInNaCl(ctx *context.T, message string) error {
+// MessageErrListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
+func MessageErrListenCalledInNaCl(ctx *context.T, message string) error {
 	return ErrListenCalledInNaCl.Message(ctx, message)
 }
 
-// ParamsListenCalledInNaCl extracts the expected parameters from the error's ParameterList.
-func ParamsListenCalledInNaCl(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrListenCalledInNaCl extracts the expected parameters from the error's ParameterList.
+func ParamsErrListenCalledInNaCl(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

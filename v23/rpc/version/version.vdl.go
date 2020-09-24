@@ -27,23 +27,23 @@ var (
 
 // NewErrNoCompatibleVersion returns an error with the ErrNoCompatibleVersion ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoCompatibleVersion or MessageNoCompatibleVersion instead.
+// use ErrorfErrNoCompatibleVersion or MessageErrNoCompatibleVersion instead.
 func NewErrNoCompatibleVersion(ctx *context.T, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return verror.New(ErrNoCompatibleVersion, ctx, lmin, lmax, rmin, rmax)
 }
 
-// ErrorfNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
-func ErrorfNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+// ErrorfErrNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
+func ErrorfErrNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return ErrNoCompatibleVersion.Errorf(ctx, format, lmin, lmax, rmin, rmax)
 }
 
-// MessageNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.
-func MessageNoCompatibleVersion(ctx *context.T, message string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+// MessageErrNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.
+func MessageErrNoCompatibleVersion(ctx *context.T, message string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return ErrNoCompatibleVersion.Message(ctx, message, lmin, lmax, rmin, rmax)
 }
 
-// ParamsNoCompatibleVersion extracts the expected parameters from the error's ParameterList.
-func ParamsNoCompatibleVersion(argumentError error) (verrorComponent string, verrorOperation string, lmin uint64, lmax uint64, rmin uint64, rmax uint64, returnErr error) {
+// ParamsErrNoCompatibleVersion extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoCompatibleVersion(argumentError error) (verrorComponent string, verrorOperation string, lmin uint64, lmax uint64, rmin uint64, rmax uint64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

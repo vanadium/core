@@ -82,23 +82,23 @@ var (
 
 // NewErrUnknown returns an error with the ErrUnknown ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknown or MessageUnknown instead.
+// use ErrorfErrUnknown or MessageErrUnknown instead.
 func NewErrUnknown(ctx *context.T) error {
 	return New(ErrUnknown, ctx)
 }
 
-// ErrorfUnknown calls ErrUnknown.Errorf with the supplied arguments.
-func ErrorfUnknown(ctx *context.T, format string) error {
+// ErrorfErrUnknown calls ErrUnknown.Errorf with the supplied arguments.
+func ErrorfErrUnknown(ctx *context.T, format string) error {
 	return ErrUnknown.Errorf(ctx, format)
 }
 
-// MessageUnknown calls ErrUnknown.Message with the supplied arguments.
-func MessageUnknown(ctx *context.T, message string) error {
+// MessageErrUnknown calls ErrUnknown.Message with the supplied arguments.
+func MessageErrUnknown(ctx *context.T, message string) error {
 	return ErrUnknown.Message(ctx, message)
 }
 
-// ParamsUnknown extracts the expected parameters from the error's ParameterList.
-func ParamsUnknown(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrUnknown extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -115,23 +115,23 @@ func ParamsUnknown(argumentError error) (verrorComponent string, verrorOperation
 
 // NewErrInternal returns an error with the ErrInternal ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInternal or MessageInternal instead.
+// use ErrorfErrInternal or MessageErrInternal instead.
 func NewErrInternal(ctx *context.T) error {
 	return New(ErrInternal, ctx)
 }
 
-// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
-func ErrorfInternal(ctx *context.T, format string) error {
+// ErrorfErrInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfErrInternal(ctx *context.T, format string) error {
 	return ErrInternal.Errorf(ctx, format)
 }
 
-// MessageInternal calls ErrInternal.Message with the supplied arguments.
-func MessageInternal(ctx *context.T, message string) error {
+// MessageErrInternal calls ErrInternal.Message with the supplied arguments.
+func MessageErrInternal(ctx *context.T, message string) error {
 	return ErrInternal.Message(ctx, message)
 }
 
-// ParamsInternal extracts the expected parameters from the error's ParameterList.
-func ParamsInternal(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrInternal extracts the expected parameters from the error's ParameterList.
+func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -148,23 +148,23 @@ func ParamsInternal(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrNotImplemented returns an error with the ErrNotImplemented ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotImplemented or MessageNotImplemented instead.
+// use ErrorfErrNotImplemented or MessageErrNotImplemented instead.
 func NewErrNotImplemented(ctx *context.T) error {
 	return New(ErrNotImplemented, ctx)
 }
 
-// ErrorfNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
-func ErrorfNotImplemented(ctx *context.T, format string) error {
+// ErrorfErrNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
+func ErrorfErrNotImplemented(ctx *context.T, format string) error {
 	return ErrNotImplemented.Errorf(ctx, format)
 }
 
-// MessageNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
-func MessageNotImplemented(ctx *context.T, message string) error {
+// MessageErrNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
+func MessageErrNotImplemented(ctx *context.T, message string) error {
 	return ErrNotImplemented.Message(ctx, message)
 }
 
-// ParamsNotImplemented extracts the expected parameters from the error's ParameterList.
-func ParamsNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNotImplemented extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -181,23 +181,23 @@ func ParamsNotImplemented(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrEndOfFile returns an error with the ErrEndOfFile ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfEndOfFile or MessageEndOfFile instead.
+// use ErrorfErrEndOfFile or MessageErrEndOfFile instead.
 func NewErrEndOfFile(ctx *context.T) error {
 	return New(ErrEndOfFile, ctx)
 }
 
-// ErrorfEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
-func ErrorfEndOfFile(ctx *context.T, format string) error {
+// ErrorfErrEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
+func ErrorfErrEndOfFile(ctx *context.T, format string) error {
 	return ErrEndOfFile.Errorf(ctx, format)
 }
 
-// MessageEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
-func MessageEndOfFile(ctx *context.T, message string) error {
+// MessageErrEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
+func MessageErrEndOfFile(ctx *context.T, message string) error {
 	return ErrEndOfFile.Message(ctx, message)
 }
 
-// ParamsEndOfFile extracts the expected parameters from the error's ParameterList.
-func ParamsEndOfFile(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrEndOfFile extracts the expected parameters from the error's ParameterList.
+func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -214,23 +214,23 @@ func ParamsEndOfFile(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrBadArg returns an error with the ErrBadArg ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadArg or MessageBadArg instead.
+// use ErrorfErrBadArg or MessageErrBadArg instead.
 func NewErrBadArg(ctx *context.T) error {
 	return New(ErrBadArg, ctx)
 }
 
-// ErrorfBadArg calls ErrBadArg.Errorf with the supplied arguments.
-func ErrorfBadArg(ctx *context.T, format string) error {
+// ErrorfErrBadArg calls ErrBadArg.Errorf with the supplied arguments.
+func ErrorfErrBadArg(ctx *context.T, format string) error {
 	return ErrBadArg.Errorf(ctx, format)
 }
 
-// MessageBadArg calls ErrBadArg.Message with the supplied arguments.
-func MessageBadArg(ctx *context.T, message string) error {
+// MessageErrBadArg calls ErrBadArg.Message with the supplied arguments.
+func MessageErrBadArg(ctx *context.T, message string) error {
 	return ErrBadArg.Message(ctx, message)
 }
 
-// ParamsBadArg extracts the expected parameters from the error's ParameterList.
-func ParamsBadArg(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrBadArg extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -247,23 +247,23 @@ func ParamsBadArg(argumentError error) (verrorComponent string, verrorOperation 
 
 // NewErrBadState returns an error with the ErrBadState ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadState or MessageBadState instead.
+// use ErrorfErrBadState or MessageErrBadState instead.
 func NewErrBadState(ctx *context.T) error {
 	return New(ErrBadState, ctx)
 }
 
-// ErrorfBadState calls ErrBadState.Errorf with the supplied arguments.
-func ErrorfBadState(ctx *context.T, format string) error {
+// ErrorfErrBadState calls ErrBadState.Errorf with the supplied arguments.
+func ErrorfErrBadState(ctx *context.T, format string) error {
 	return ErrBadState.Errorf(ctx, format)
 }
 
-// MessageBadState calls ErrBadState.Message with the supplied arguments.
-func MessageBadState(ctx *context.T, message string) error {
+// MessageErrBadState calls ErrBadState.Message with the supplied arguments.
+func MessageErrBadState(ctx *context.T, message string) error {
 	return ErrBadState.Message(ctx, message)
 }
 
-// ParamsBadState extracts the expected parameters from the error's ParameterList.
-func ParamsBadState(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrBadState extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -280,23 +280,23 @@ func ParamsBadState(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrBadVersion returns an error with the ErrBadVersion ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadVersion or MessageBadVersion instead.
+// use ErrorfErrBadVersion or MessageErrBadVersion instead.
 func NewErrBadVersion(ctx *context.T) error {
 	return New(ErrBadVersion, ctx)
 }
 
-// ErrorfBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
-func ErrorfBadVersion(ctx *context.T, format string) error {
+// ErrorfErrBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
+func ErrorfErrBadVersion(ctx *context.T, format string) error {
 	return ErrBadVersion.Errorf(ctx, format)
 }
 
-// MessageBadVersion calls ErrBadVersion.Message with the supplied arguments.
-func MessageBadVersion(ctx *context.T, message string) error {
+// MessageErrBadVersion calls ErrBadVersion.Message with the supplied arguments.
+func MessageErrBadVersion(ctx *context.T, message string) error {
 	return ErrBadVersion.Message(ctx, message)
 }
 
-// ParamsBadVersion extracts the expected parameters from the error's ParameterList.
-func ParamsBadVersion(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrBadVersion extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -313,23 +313,23 @@ func ParamsBadVersion(argumentError error) (verrorComponent string, verrorOperat
 
 // NewErrExist returns an error with the ErrExist ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExist or MessageExist instead.
+// use ErrorfErrExist or MessageErrExist instead.
 func NewErrExist(ctx *context.T) error {
 	return New(ErrExist, ctx)
 }
 
-// ErrorfExist calls ErrExist.Errorf with the supplied arguments.
-func ErrorfExist(ctx *context.T, format string) error {
+// ErrorfErrExist calls ErrExist.Errorf with the supplied arguments.
+func ErrorfErrExist(ctx *context.T, format string) error {
 	return ErrExist.Errorf(ctx, format)
 }
 
-// MessageExist calls ErrExist.Message with the supplied arguments.
-func MessageExist(ctx *context.T, message string) error {
+// MessageErrExist calls ErrExist.Message with the supplied arguments.
+func MessageErrExist(ctx *context.T, message string) error {
 	return ErrExist.Message(ctx, message)
 }
 
-// ParamsExist extracts the expected parameters from the error's ParameterList.
-func ParamsExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrExist extracts the expected parameters from the error's ParameterList.
+func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -346,23 +346,23 @@ func ParamsExist(argumentError error) (verrorComponent string, verrorOperation s
 
 // NewErrNoExist returns an error with the ErrNoExist ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoExist or MessageNoExist instead.
+// use ErrorfErrNoExist or MessageErrNoExist instead.
 func NewErrNoExist(ctx *context.T) error {
 	return New(ErrNoExist, ctx)
 }
 
-// ErrorfNoExist calls ErrNoExist.Errorf with the supplied arguments.
-func ErrorfNoExist(ctx *context.T, format string) error {
+// ErrorfErrNoExist calls ErrNoExist.Errorf with the supplied arguments.
+func ErrorfErrNoExist(ctx *context.T, format string) error {
 	return ErrNoExist.Errorf(ctx, format)
 }
 
-// MessageNoExist calls ErrNoExist.Message with the supplied arguments.
-func MessageNoExist(ctx *context.T, message string) error {
+// MessageErrNoExist calls ErrNoExist.Message with the supplied arguments.
+func MessageErrNoExist(ctx *context.T, message string) error {
 	return ErrNoExist.Message(ctx, message)
 }
 
-// ParamsNoExist extracts the expected parameters from the error's ParameterList.
-func ParamsNoExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoExist extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -379,23 +379,23 @@ func ParamsNoExist(argumentError error) (verrorComponent string, verrorOperation
 
 // NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknownMethod or MessageUnknownMethod instead.
+// use ErrorfErrUnknownMethod or MessageErrUnknownMethod instead.
 func NewErrUnknownMethod(ctx *context.T) error {
 	return New(ErrUnknownMethod, ctx)
 }
 
-// ErrorfUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
-func ErrorfUnknownMethod(ctx *context.T, format string) error {
+// ErrorfErrUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
+func ErrorfErrUnknownMethod(ctx *context.T, format string) error {
 	return ErrUnknownMethod.Errorf(ctx, format)
 }
 
-// MessageUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
-func MessageUnknownMethod(ctx *context.T, message string) error {
+// MessageErrUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
+func MessageErrUnknownMethod(ctx *context.T, message string) error {
 	return ErrUnknownMethod.Message(ctx, message)
 }
 
-// ParamsUnknownMethod extracts the expected parameters from the error's ParameterList.
-func ParamsUnknownMethod(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrUnknownMethod extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -412,23 +412,23 @@ func ParamsUnknownMethod(argumentError error) (verrorComponent string, verrorOpe
 
 // NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknownSuffix or MessageUnknownSuffix instead.
+// use ErrorfErrUnknownSuffix or MessageErrUnknownSuffix instead.
 func NewErrUnknownSuffix(ctx *context.T) error {
 	return New(ErrUnknownSuffix, ctx)
 }
 
-// ErrorfUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
-func ErrorfUnknownSuffix(ctx *context.T, format string) error {
+// ErrorfErrUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
+func ErrorfErrUnknownSuffix(ctx *context.T, format string) error {
 	return ErrUnknownSuffix.Errorf(ctx, format)
 }
 
-// MessageUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
-func MessageUnknownSuffix(ctx *context.T, message string) error {
+// MessageErrUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
+func MessageErrUnknownSuffix(ctx *context.T, message string) error {
 	return ErrUnknownSuffix.Message(ctx, message)
 }
 
-// ParamsUnknownSuffix extracts the expected parameters from the error's ParameterList.
-func ParamsUnknownSuffix(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrUnknownSuffix extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -445,23 +445,23 @@ func ParamsUnknownSuffix(argumentError error) (verrorComponent string, verrorOpe
 
 // NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoExistOrNoAccess or MessageNoExistOrNoAccess instead.
+// use ErrorfErrNoExistOrNoAccess or MessageErrNoExistOrNoAccess instead.
 func NewErrNoExistOrNoAccess(ctx *context.T) error {
 	return New(ErrNoExistOrNoAccess, ctx)
 }
 
-// ErrorfNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
-func ErrorfNoExistOrNoAccess(ctx *context.T, format string) error {
+// ErrorfErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
+func ErrorfErrNoExistOrNoAccess(ctx *context.T, format string) error {
 	return ErrNoExistOrNoAccess.Errorf(ctx, format)
 }
 
-// MessageNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
-func MessageNoExistOrNoAccess(ctx *context.T, message string) error {
+// MessageErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
+func MessageErrNoExistOrNoAccess(ctx *context.T, message string) error {
 	return ErrNoExistOrNoAccess.Message(ctx, message)
 }
 
-// ParamsNoExistOrNoAccess extracts the expected parameters from the error's ParameterList.
-func ParamsNoExistOrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoExistOrNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -478,23 +478,23 @@ func ParamsNoExistOrNoAccess(argumentError error) (verrorComponent string, verro
 
 // NewErrNoServers returns an error with the ErrNoServers ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoServers or MessageNoServers instead.
+// use ErrorfErrNoServers or MessageErrNoServers instead.
 func NewErrNoServers(ctx *context.T) error {
 	return New(ErrNoServers, ctx)
 }
 
-// ErrorfNoServers calls ErrNoServers.Errorf with the supplied arguments.
-func ErrorfNoServers(ctx *context.T, format string) error {
+// ErrorfErrNoServers calls ErrNoServers.Errorf with the supplied arguments.
+func ErrorfErrNoServers(ctx *context.T, format string) error {
 	return ErrNoServers.Errorf(ctx, format)
 }
 
-// MessageNoServers calls ErrNoServers.Message with the supplied arguments.
-func MessageNoServers(ctx *context.T, message string) error {
+// MessageErrNoServers calls ErrNoServers.Message with the supplied arguments.
+func MessageErrNoServers(ctx *context.T, message string) error {
 	return ErrNoServers.Message(ctx, message)
 }
 
-// ParamsNoServers extracts the expected parameters from the error's ParameterList.
-func ParamsNoServers(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoServers extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -511,23 +511,23 @@ func ParamsNoServers(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrNoAccess returns an error with the ErrNoAccess ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoAccess or MessageNoAccess instead.
+// use ErrorfErrNoAccess or MessageErrNoAccess instead.
 func NewErrNoAccess(ctx *context.T) error {
 	return New(ErrNoAccess, ctx)
 }
 
-// ErrorfNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
-func ErrorfNoAccess(ctx *context.T, format string) error {
+// ErrorfErrNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
+func ErrorfErrNoAccess(ctx *context.T, format string) error {
 	return ErrNoAccess.Errorf(ctx, format)
 }
 
-// MessageNoAccess calls ErrNoAccess.Message with the supplied arguments.
-func MessageNoAccess(ctx *context.T, message string) error {
+// MessageErrNoAccess calls ErrNoAccess.Message with the supplied arguments.
+func MessageErrNoAccess(ctx *context.T, message string) error {
 	return ErrNoAccess.Message(ctx, message)
 }
 
-// ParamsNoAccess extracts the expected parameters from the error's ParameterList.
-func ParamsNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -544,23 +544,23 @@ func ParamsNoAccess(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrNotTrusted returns an error with the ErrNotTrusted ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotTrusted or MessageNotTrusted instead.
+// use ErrorfErrNotTrusted or MessageErrNotTrusted instead.
 func NewErrNotTrusted(ctx *context.T) error {
 	return New(ErrNotTrusted, ctx)
 }
 
-// ErrorfNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
-func ErrorfNotTrusted(ctx *context.T, format string) error {
+// ErrorfErrNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
+func ErrorfErrNotTrusted(ctx *context.T, format string) error {
 	return ErrNotTrusted.Errorf(ctx, format)
 }
 
-// MessageNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
-func MessageNotTrusted(ctx *context.T, message string) error {
+// MessageErrNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
+func MessageErrNotTrusted(ctx *context.T, message string) error {
 	return ErrNotTrusted.Message(ctx, message)
 }
 
-// ParamsNotTrusted extracts the expected parameters from the error's ParameterList.
-func ParamsNotTrusted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNotTrusted extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -577,23 +577,23 @@ func ParamsNotTrusted(argumentError error) (verrorComponent string, verrorOperat
 
 // NewErrAborted returns an error with the ErrAborted ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAborted or MessageAborted instead.
+// use ErrorfErrAborted or MessageErrAborted instead.
 func NewErrAborted(ctx *context.T) error {
 	return New(ErrAborted, ctx)
 }
 
-// ErrorfAborted calls ErrAborted.Errorf with the supplied arguments.
-func ErrorfAborted(ctx *context.T, format string) error {
+// ErrorfErrAborted calls ErrAborted.Errorf with the supplied arguments.
+func ErrorfErrAborted(ctx *context.T, format string) error {
 	return ErrAborted.Errorf(ctx, format)
 }
 
-// MessageAborted calls ErrAborted.Message with the supplied arguments.
-func MessageAborted(ctx *context.T, message string) error {
+// MessageErrAborted calls ErrAborted.Message with the supplied arguments.
+func MessageErrAborted(ctx *context.T, message string) error {
 	return ErrAborted.Message(ctx, message)
 }
 
-// ParamsAborted extracts the expected parameters from the error's ParameterList.
-func ParamsAborted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrAborted extracts the expected parameters from the error's ParameterList.
+func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -610,23 +610,23 @@ func ParamsAborted(argumentError error) (verrorComponent string, verrorOperation
 
 // NewErrBadProtocol returns an error with the ErrBadProtocol ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadProtocol or MessageBadProtocol instead.
+// use ErrorfErrBadProtocol or MessageErrBadProtocol instead.
 func NewErrBadProtocol(ctx *context.T) error {
 	return New(ErrBadProtocol, ctx)
 }
 
-// ErrorfBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
-func ErrorfBadProtocol(ctx *context.T, format string) error {
+// ErrorfErrBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
+func ErrorfErrBadProtocol(ctx *context.T, format string) error {
 	return ErrBadProtocol.Errorf(ctx, format)
 }
 
-// MessageBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
-func MessageBadProtocol(ctx *context.T, message string) error {
+// MessageErrBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
+func MessageErrBadProtocol(ctx *context.T, message string) error {
 	return ErrBadProtocol.Message(ctx, message)
 }
 
-// ParamsBadProtocol extracts the expected parameters from the error's ParameterList.
-func ParamsBadProtocol(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrBadProtocol extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -643,23 +643,23 @@ func ParamsBadProtocol(argumentError error) (verrorComponent string, verrorOpera
 
 // NewErrCanceled returns an error with the ErrCanceled ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCanceled or MessageCanceled instead.
+// use ErrorfErrCanceled or MessageErrCanceled instead.
 func NewErrCanceled(ctx *context.T) error {
 	return New(ErrCanceled, ctx)
 }
 
-// ErrorfCanceled calls ErrCanceled.Errorf with the supplied arguments.
-func ErrorfCanceled(ctx *context.T, format string) error {
+// ErrorfErrCanceled calls ErrCanceled.Errorf with the supplied arguments.
+func ErrorfErrCanceled(ctx *context.T, format string) error {
 	return ErrCanceled.Errorf(ctx, format)
 }
 
-// MessageCanceled calls ErrCanceled.Message with the supplied arguments.
-func MessageCanceled(ctx *context.T, message string) error {
+// MessageErrCanceled calls ErrCanceled.Message with the supplied arguments.
+func MessageErrCanceled(ctx *context.T, message string) error {
 	return ErrCanceled.Message(ctx, message)
 }
 
-// ParamsCanceled extracts the expected parameters from the error's ParameterList.
-func ParamsCanceled(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrCanceled extracts the expected parameters from the error's ParameterList.
+func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -676,23 +676,23 @@ func ParamsCanceled(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrTimeout returns an error with the ErrTimeout ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTimeout or MessageTimeout instead.
+// use ErrorfErrTimeout or MessageErrTimeout instead.
 func NewErrTimeout(ctx *context.T) error {
 	return New(ErrTimeout, ctx)
 }
 
-// ErrorfTimeout calls ErrTimeout.Errorf with the supplied arguments.
-func ErrorfTimeout(ctx *context.T, format string) error {
+// ErrorfErrTimeout calls ErrTimeout.Errorf with the supplied arguments.
+func ErrorfErrTimeout(ctx *context.T, format string) error {
 	return ErrTimeout.Errorf(ctx, format)
 }
 
-// MessageTimeout calls ErrTimeout.Message with the supplied arguments.
-func MessageTimeout(ctx *context.T, message string) error {
+// MessageErrTimeout calls ErrTimeout.Message with the supplied arguments.
+func MessageErrTimeout(ctx *context.T, message string) error {
 	return ErrTimeout.Message(ctx, message)
 }
 
-// ParamsTimeout extracts the expected parameters from the error's ParameterList.
-func ParamsTimeout(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrTimeout extracts the expected parameters from the error's ParameterList.
+func ParamsErrTimeout(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

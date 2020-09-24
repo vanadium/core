@@ -31,23 +31,23 @@ var (
 
 // NewErrNotListening returns an error with the ErrNotListening ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotListening or MessageNotListening instead.
+// use ErrorfErrNotListening or MessageErrNotListening instead.
 func NewErrNotListening(ctx *context.T) error {
 	return verror.New(ErrNotListening, ctx)
 }
 
-// ErrorfNotListening calls ErrNotListening.Errorf with the supplied arguments.
-func ErrorfNotListening(ctx *context.T, format string) error {
+// ErrorfErrNotListening calls ErrNotListening.Errorf with the supplied arguments.
+func ErrorfErrNotListening(ctx *context.T, format string) error {
 	return ErrNotListening.Errorf(ctx, format)
 }
 
-// MessageNotListening calls ErrNotListening.Message with the supplied arguments.
-func MessageNotListening(ctx *context.T, message string) error {
+// MessageErrNotListening calls ErrNotListening.Message with the supplied arguments.
+func MessageErrNotListening(ctx *context.T, message string) error {
 	return ErrNotListening.Message(ctx, message)
 }
 
-// ParamsNotListening extracts the expected parameters from the error's ParameterList.
-func ParamsNotListening(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNotListening extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -64,23 +64,23 @@ func ParamsNotListening(argumentError error) (verrorComponent string, verrorOper
 
 // NewErrUnexpectedMessage returns an error with the ErrUnexpectedMessage ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnexpectedMessage or MessageUnexpectedMessage instead.
+// use ErrorfErrUnexpectedMessage or MessageErrUnexpectedMessage instead.
 func NewErrUnexpectedMessage(ctx *context.T, msgType string) error {
 	return verror.New(ErrUnexpectedMessage, ctx, msgType)
 }
 
-// ErrorfUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
-func ErrorfUnexpectedMessage(ctx *context.T, format string, msgType string) error {
+// ErrorfErrUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
+func ErrorfErrUnexpectedMessage(ctx *context.T, format string, msgType string) error {
 	return ErrUnexpectedMessage.Errorf(ctx, format, msgType)
 }
 
-// MessageUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
-func MessageUnexpectedMessage(ctx *context.T, message string, msgType string) error {
+// MessageErrUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
+func MessageErrUnexpectedMessage(ctx *context.T, message string, msgType string) error {
 	return ErrUnexpectedMessage.Message(ctx, message, msgType)
 }
 
-// ParamsUnexpectedMessage extracts the expected parameters from the error's ParameterList.
-func ParamsUnexpectedMessage(argumentError error) (verrorComponent string, verrorOperation string, msgType string, returnErr error) {
+// ParamsErrUnexpectedMessage extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, verrorOperation string, msgType string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -110,23 +110,23 @@ func ParamsUnexpectedMessage(argumentError error) (verrorComponent string, verro
 
 // NewErrFailedToResolveToEndpoint returns an error with the ErrFailedToResolveToEndpoint ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFailedToResolveToEndpoint or MessageFailedToResolveToEndpoint instead.
+// use ErrorfErrFailedToResolveToEndpoint or MessageErrFailedToResolveToEndpoint instead.
 func NewErrFailedToResolveToEndpoint(ctx *context.T, name string) error {
 	return verror.New(ErrFailedToResolveToEndpoint, ctx, name)
 }
 
-// ErrorfFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
-func ErrorfFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
+// ErrorfErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
+func ErrorfErrFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
 	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
 }
 
-// MessageFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
-func MessageFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
+// MessageErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
+func MessageErrFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
 	return ErrFailedToResolveToEndpoint.Message(ctx, message, name)
 }
 
-// ParamsFailedToResolveToEndpoint extracts the expected parameters from the error's ParameterList.
-func ParamsFailedToResolveToEndpoint(argumentError error) (verrorComponent string, verrorOperation string, name string, returnErr error) {
+// ParamsErrFailedToResolveToEndpoint extracts the expected parameters from the error's ParameterList.
+func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent string, verrorOperation string, name string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -156,23 +156,23 @@ func ParamsFailedToResolveToEndpoint(argumentError error) (verrorComponent strin
 
 // NewErrProxyAlreadyClosed returns an error with the ErrProxyAlreadyClosed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfProxyAlreadyClosed or MessageProxyAlreadyClosed instead.
+// use ErrorfErrProxyAlreadyClosed or MessageErrProxyAlreadyClosed instead.
 func NewErrProxyAlreadyClosed(ctx *context.T) error {
 	return verror.New(ErrProxyAlreadyClosed, ctx)
 }
 
-// ErrorfProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
-func ErrorfProxyAlreadyClosed(ctx *context.T, format string) error {
+// ErrorfErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
+func ErrorfErrProxyAlreadyClosed(ctx *context.T, format string) error {
 	return ErrProxyAlreadyClosed.Errorf(ctx, format)
 }
 
-// MessageProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
-func MessageProxyAlreadyClosed(ctx *context.T, message string) error {
+// MessageErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
+func MessageErrProxyAlreadyClosed(ctx *context.T, message string) error {
 	return ErrProxyAlreadyClosed.Message(ctx, message)
 }
 
-// ParamsProxyAlreadyClosed extracts the expected parameters from the error's ParameterList.
-func ParamsProxyAlreadyClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrProxyAlreadyClosed extracts the expected parameters from the error's ParameterList.
+func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -189,23 +189,23 @@ func ParamsProxyAlreadyClosed(argumentError error) (verrorComponent string, verr
 
 // NewErrProxyResponse returns an error with the ErrProxyResponse ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfProxyResponse or MessageProxyResponse instead.
+// use ErrorfErrProxyResponse or MessageErrProxyResponse instead.
 func NewErrProxyResponse(ctx *context.T, msg string) error {
 	return verror.New(ErrProxyResponse, ctx, msg)
 }
 
-// ErrorfProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
-func ErrorfProxyResponse(ctx *context.T, format string, msg string) error {
+// ErrorfErrProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
+func ErrorfErrProxyResponse(ctx *context.T, format string, msg string) error {
 	return ErrProxyResponse.Errorf(ctx, format, msg)
 }
 
-// MessageProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
-func MessageProxyResponse(ctx *context.T, message string, msg string) error {
+// MessageErrProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
+func MessageErrProxyResponse(ctx *context.T, message string, msg string) error {
 	return ErrProxyResponse.Message(ctx, message, msg)
 }
 
-// ParamsProxyResponse extracts the expected parameters from the error's ParameterList.
-func ParamsProxyResponse(argumentError error) (verrorComponent string, verrorOperation string, msg string, returnErr error) {
+// ParamsErrProxyResponse extracts the expected parameters from the error's ParameterList.
+func ParamsErrProxyResponse(argumentError error) (verrorComponent string, verrorOperation string, msg string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

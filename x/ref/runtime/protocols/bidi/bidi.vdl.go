@@ -28,23 +28,23 @@ var (
 
 // NewErrCannotListenOnBidi returns an error with the ErrCannotListenOnBidi ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCannotListenOnBidi or MessageCannotListenOnBidi instead.
+// use ErrorfErrCannotListenOnBidi or MessageErrCannotListenOnBidi instead.
 func NewErrCannotListenOnBidi(ctx *context.T) error {
 	return verror.New(ErrCannotListenOnBidi, ctx)
 }
 
-// ErrorfCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
-func ErrorfCannotListenOnBidi(ctx *context.T, format string) error {
+// ErrorfErrCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
+func ErrorfErrCannotListenOnBidi(ctx *context.T, format string) error {
 	return ErrCannotListenOnBidi.Errorf(ctx, format)
 }
 
-// MessageCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
-func MessageCannotListenOnBidi(ctx *context.T, message string) error {
+// MessageErrCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
+func MessageErrCannotListenOnBidi(ctx *context.T, message string) error {
 	return ErrCannotListenOnBidi.Message(ctx, message)
 }
 
-// ParamsCannotListenOnBidi extracts the expected parameters from the error's ParameterList.
-func ParamsCannotListenOnBidi(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrCannotListenOnBidi extracts the expected parameters from the error's ParameterList.
+func ParamsErrCannotListenOnBidi(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -61,23 +61,23 @@ func ParamsCannotListenOnBidi(argumentError error) (verrorComponent string, verr
 
 // NewErrBidiRoutingIdNotCached returns an error with the ErrBidiRoutingIdNotCached ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBidiRoutingIdNotCached or MessageBidiRoutingIdNotCached instead.
+// use ErrorfErrBidiRoutingIdNotCached or MessageErrBidiRoutingIdNotCached instead.
 func NewErrBidiRoutingIdNotCached(ctx *context.T) error {
 	return verror.New(ErrBidiRoutingIdNotCached, ctx)
 }
 
-// ErrorfBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
-func ErrorfBidiRoutingIdNotCached(ctx *context.T, format string) error {
+// ErrorfErrBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
+func ErrorfErrBidiRoutingIdNotCached(ctx *context.T, format string) error {
 	return ErrBidiRoutingIdNotCached.Errorf(ctx, format)
 }
 
-// MessageBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
-func MessageBidiRoutingIdNotCached(ctx *context.T, message string) error {
+// MessageErrBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
+func MessageErrBidiRoutingIdNotCached(ctx *context.T, message string) error {
 	return ErrBidiRoutingIdNotCached.Message(ctx, message)
 }
 
-// ParamsBidiRoutingIdNotCached extracts the expected parameters from the error's ParameterList.
-func ParamsBidiRoutingIdNotCached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrBidiRoutingIdNotCached extracts the expected parameters from the error's ParameterList.
+func ParamsErrBidiRoutingIdNotCached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

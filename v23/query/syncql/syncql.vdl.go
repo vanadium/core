@@ -81,23 +81,23 @@ var (
 
 // NewErrBadFieldInWhere returns an error with the ErrBadFieldInWhere ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadFieldInWhere or MessageBadFieldInWhere instead.
+// use ErrorfErrBadFieldInWhere or MessageErrBadFieldInWhere instead.
 func NewErrBadFieldInWhere(ctx *context.T, off int64) error {
 	return verror.New(ErrBadFieldInWhere, ctx, off)
 }
 
-// ErrorfBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
-func ErrorfBadFieldInWhere(ctx *context.T, format string, off int64) error {
+// ErrorfErrBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
+func ErrorfErrBadFieldInWhere(ctx *context.T, format string, off int64) error {
 	return ErrBadFieldInWhere.Errorf(ctx, format, off)
 }
 
-// MessageBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
-func MessageBadFieldInWhere(ctx *context.T, message string, off int64) error {
+// MessageErrBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
+func MessageErrBadFieldInWhere(ctx *context.T, message string, off int64) error {
 	return ErrBadFieldInWhere.Message(ctx, message, off)
 }
 
-// ParamsBadFieldInWhere extracts the expected parameters from the error's ParameterList.
-func ParamsBadFieldInWhere(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrBadFieldInWhere extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadFieldInWhere(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -127,23 +127,23 @@ func ParamsBadFieldInWhere(argumentError error) (verrorComponent string, verrorO
 
 // NewErrBoolInvalidExpression returns an error with the ErrBoolInvalidExpression ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBoolInvalidExpression or MessageBoolInvalidExpression instead.
+// use ErrorfErrBoolInvalidExpression or MessageErrBoolInvalidExpression instead.
 func NewErrBoolInvalidExpression(ctx *context.T, off int64) error {
 	return verror.New(ErrBoolInvalidExpression, ctx, off)
 }
 
-// ErrorfBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
-func ErrorfBoolInvalidExpression(ctx *context.T, format string, off int64) error {
+// ErrorfErrBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
+func ErrorfErrBoolInvalidExpression(ctx *context.T, format string, off int64) error {
 	return ErrBoolInvalidExpression.Errorf(ctx, format, off)
 }
 
-// MessageBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
-func MessageBoolInvalidExpression(ctx *context.T, message string, off int64) error {
+// MessageErrBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
+func MessageErrBoolInvalidExpression(ctx *context.T, message string, off int64) error {
 	return ErrBoolInvalidExpression.Message(ctx, message, off)
 }
 
-// ParamsBoolInvalidExpression extracts the expected parameters from the error's ParameterList.
-func ParamsBoolInvalidExpression(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrBoolInvalidExpression extracts the expected parameters from the error's ParameterList.
+func ParamsErrBoolInvalidExpression(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -173,23 +173,23 @@ func ParamsBoolInvalidExpression(argumentError error) (verrorComponent string, v
 
 // NewErrCheckOfUnknownStatementType returns an error with the ErrCheckOfUnknownStatementType ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCheckOfUnknownStatementType or MessageCheckOfUnknownStatementType instead.
+// use ErrorfErrCheckOfUnknownStatementType or MessageErrCheckOfUnknownStatementType instead.
 func NewErrCheckOfUnknownStatementType(ctx *context.T, off int64) error {
 	return verror.New(ErrCheckOfUnknownStatementType, ctx, off)
 }
 
-// ErrorfCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
+// ErrorfErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
+func ErrorfErrCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
 	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off)
 }
 
-// MessageCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
-func MessageCheckOfUnknownStatementType(ctx *context.T, message string, off int64) error {
+// MessageErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
+func MessageErrCheckOfUnknownStatementType(ctx *context.T, message string, off int64) error {
 	return ErrCheckOfUnknownStatementType.Message(ctx, message, off)
 }
 
-// ParamsCheckOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
-func ParamsCheckOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrCheckOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
+func ParamsErrCheckOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -219,23 +219,23 @@ func ParamsCheckOfUnknownStatementType(argumentError error) (verrorComponent str
 
 // NewErrCouldNotConvert returns an error with the ErrCouldNotConvert ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCouldNotConvert or MessageCouldNotConvert instead.
+// use ErrorfErrCouldNotConvert or MessageErrCouldNotConvert instead.
 func NewErrCouldNotConvert(ctx *context.T, off int64, from string, to string) error {
 	return verror.New(ErrCouldNotConvert, ctx, off, from, to)
 }
 
-// ErrorfCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
-func ErrorfCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
+// ErrorfErrCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
+func ErrorfErrCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
 	return ErrCouldNotConvert.Errorf(ctx, format, off, from, to)
 }
 
-// MessageCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
-func MessageCouldNotConvert(ctx *context.T, message string, off int64, from string, to string) error {
+// MessageErrCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
+func MessageErrCouldNotConvert(ctx *context.T, message string, off int64, from string, to string) error {
 	return ErrCouldNotConvert.Message(ctx, message, off, from, to)
 }
 
-// ParamsCouldNotConvert extracts the expected parameters from the error's ParameterList.
-func ParamsCouldNotConvert(argumentError error) (verrorComponent string, verrorOperation string, off int64, from string, to string, returnErr error) {
+// ParamsErrCouldNotConvert extracts the expected parameters from the error's ParameterList.
+func ParamsErrCouldNotConvert(argumentError error) (verrorComponent string, verrorOperation string, off int64, from string, to string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -281,23 +281,23 @@ func ParamsCouldNotConvert(argumentError error) (verrorComponent string, verrorO
 
 // NewErrDotNotationDisallowedForKey returns an error with the ErrDotNotationDisallowedForKey ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDotNotationDisallowedForKey or MessageDotNotationDisallowedForKey instead.
+// use ErrorfErrDotNotationDisallowedForKey or MessageErrDotNotationDisallowedForKey instead.
 func NewErrDotNotationDisallowedForKey(ctx *context.T, off int64) error {
 	return verror.New(ErrDotNotationDisallowedForKey, ctx, off)
 }
 
-// ErrorfDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
-func ErrorfDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
+// ErrorfErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
+func ErrorfErrDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
 	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off)
 }
 
-// MessageDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
-func MessageDotNotationDisallowedForKey(ctx *context.T, message string, off int64) error {
+// MessageErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
+func MessageErrDotNotationDisallowedForKey(ctx *context.T, message string, off int64) error {
 	return ErrDotNotationDisallowedForKey.Message(ctx, message, off)
 }
 
-// ParamsDotNotationDisallowedForKey extracts the expected parameters from the error's ParameterList.
-func ParamsDotNotationDisallowedForKey(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrDotNotationDisallowedForKey extracts the expected parameters from the error's ParameterList.
+func ParamsErrDotNotationDisallowedForKey(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -327,23 +327,23 @@ func ParamsDotNotationDisallowedForKey(argumentError error) (verrorComponent str
 
 // NewErrExecOfUnknownStatementType returns an error with the ErrExecOfUnknownStatementType ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExecOfUnknownStatementType or MessageExecOfUnknownStatementType instead.
+// use ErrorfErrExecOfUnknownStatementType or MessageErrExecOfUnknownStatementType instead.
 func NewErrExecOfUnknownStatementType(ctx *context.T, off int64, statementType string) error {
 	return verror.New(ErrExecOfUnknownStatementType, ctx, off, statementType)
 }
 
-// ErrorfExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
+// ErrorfErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
+func ErrorfErrExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
 	return ErrExecOfUnknownStatementType.Errorf(ctx, format, off, statementType)
 }
 
-// MessageExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
-func MessageExecOfUnknownStatementType(ctx *context.T, message string, off int64, statementType string) error {
+// MessageErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
+func MessageErrExecOfUnknownStatementType(ctx *context.T, message string, off int64, statementType string) error {
 	return ErrExecOfUnknownStatementType.Message(ctx, message, off, statementType)
 }
 
-// ParamsExecOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
-func ParamsExecOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, statementType string, returnErr error) {
+// ParamsErrExecOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
+func ParamsErrExecOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, statementType string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -381,23 +381,23 @@ func ParamsExecOfUnknownStatementType(argumentError error) (verrorComponent stri
 
 // NewErrExpected returns an error with the ErrExpected ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpected or MessageExpected instead.
+// use ErrorfErrExpected or MessageErrExpected instead.
 func NewErrExpected(ctx *context.T, off int64, expected string) error {
 	return verror.New(ErrExpected, ctx, off, expected)
 }
 
-// ErrorfExpected calls ErrExpected.Errorf with the supplied arguments.
-func ErrorfExpected(ctx *context.T, format string, off int64, expected string) error {
+// ErrorfErrExpected calls ErrExpected.Errorf with the supplied arguments.
+func ErrorfErrExpected(ctx *context.T, format string, off int64, expected string) error {
 	return ErrExpected.Errorf(ctx, format, off, expected)
 }
 
-// MessageExpected calls ErrExpected.Message with the supplied arguments.
-func MessageExpected(ctx *context.T, message string, off int64, expected string) error {
+// MessageErrExpected calls ErrExpected.Message with the supplied arguments.
+func MessageErrExpected(ctx *context.T, message string, off int64, expected string) error {
 	return ErrExpected.Message(ctx, message, off, expected)
 }
 
-// ParamsExpected extracts the expected parameters from the error's ParameterList.
-func ParamsExpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, expected string, returnErr error) {
+// ParamsErrExpected extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, expected string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -435,23 +435,23 @@ func ParamsExpected(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrExpectedFrom returns an error with the ErrExpectedFrom ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpectedFrom or MessageExpectedFrom instead.
+// use ErrorfErrExpectedFrom or MessageErrExpectedFrom instead.
 func NewErrExpectedFrom(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedFrom, ctx, off, found)
 }
 
-// ErrorfExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
-func ErrorfExpectedFrom(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
+func ErrorfErrExpectedFrom(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedFrom.Errorf(ctx, format, off, found)
 }
 
-// MessageExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
-func MessageExpectedFrom(ctx *context.T, message string, off int64, found string) error {
+// MessageErrExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
+func MessageErrExpectedFrom(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedFrom.Message(ctx, message, off, found)
 }
 
-// ParamsExpectedFrom extracts the expected parameters from the error's ParameterList.
-func ParamsExpectedFrom(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrExpectedFrom extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpectedFrom(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -489,23 +489,23 @@ func ParamsExpectedFrom(argumentError error) (verrorComponent string, verrorOper
 
 // NewErrExpectedIdentifier returns an error with the ErrExpectedIdentifier ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpectedIdentifier or MessageExpectedIdentifier instead.
+// use ErrorfErrExpectedIdentifier or MessageErrExpectedIdentifier instead.
 func NewErrExpectedIdentifier(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedIdentifier, ctx, off, found)
 }
 
-// ErrorfExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
-func ErrorfExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
+func ErrorfErrExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedIdentifier.Errorf(ctx, format, off, found)
 }
 
-// MessageExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
-func MessageExpectedIdentifier(ctx *context.T, message string, off int64, found string) error {
+// MessageErrExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
+func MessageErrExpectedIdentifier(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedIdentifier.Message(ctx, message, off, found)
 }
 
-// ParamsExpectedIdentifier extracts the expected parameters from the error's ParameterList.
-func ParamsExpectedIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrExpectedIdentifier extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpectedIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -543,23 +543,23 @@ func ParamsExpectedIdentifier(argumentError error) (verrorComponent string, verr
 
 // NewErrExpectedOperand returns an error with the ErrExpectedOperand ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpectedOperand or MessageExpectedOperand instead.
+// use ErrorfErrExpectedOperand or MessageErrExpectedOperand instead.
 func NewErrExpectedOperand(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedOperand, ctx, off, found)
 }
 
-// ErrorfExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
-func ErrorfExpectedOperand(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
+func ErrorfErrExpectedOperand(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedOperand.Errorf(ctx, format, off, found)
 }
 
-// MessageExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
-func MessageExpectedOperand(ctx *context.T, message string, off int64, found string) error {
+// MessageErrExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
+func MessageErrExpectedOperand(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedOperand.Message(ctx, message, off, found)
 }
 
-// ParamsExpectedOperand extracts the expected parameters from the error's ParameterList.
-func ParamsExpectedOperand(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrExpectedOperand extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpectedOperand(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -597,23 +597,23 @@ func ParamsExpectedOperand(argumentError error) (verrorComponent string, verrorO
 
 // NewErrExpectedOperator returns an error with the ErrExpectedOperator ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExpectedOperator or MessageExpectedOperator instead.
+// use ErrorfErrExpectedOperator or MessageErrExpectedOperator instead.
 func NewErrExpectedOperator(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedOperator, ctx, off, found)
 }
 
-// ErrorfExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
-func ErrorfExpectedOperator(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
+func ErrorfErrExpectedOperator(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedOperator.Errorf(ctx, format, off, found)
 }
 
-// MessageExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
-func MessageExpectedOperator(ctx *context.T, message string, off int64, found string) error {
+// MessageErrExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
+func MessageErrExpectedOperator(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedOperator.Message(ctx, message, off, found)
 }
 
-// ParamsExpectedOperator extracts the expected parameters from the error's ParameterList.
-func ParamsExpectedOperator(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrExpectedOperator extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpectedOperator(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -651,23 +651,23 @@ func ParamsExpectedOperator(argumentError error) (verrorComponent string, verror
 
 // NewErrFunctionArgCount returns an error with the ErrFunctionArgCount ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionArgCount or MessageFunctionArgCount instead.
+// use ErrorfErrFunctionArgCount or MessageErrFunctionArgCount instead.
 func NewErrFunctionArgCount(ctx *context.T, off int64, name string, expected int64, found int64) error {
 	return verror.New(ErrFunctionArgCount, ctx, off, name, expected, found)
 }
 
-// ErrorfFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
-func ErrorfFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
+// ErrorfErrFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
+func ErrorfErrFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionArgCount.Errorf(ctx, format, off, name, expected, found)
 }
 
-// MessageFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
-func MessageFunctionArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
+// MessageErrFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
+func MessageErrFunctionArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionArgCount.Message(ctx, message, off, name, expected, found)
 }
 
-// ParamsFunctionArgCount extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
+// ParamsErrFunctionArgCount extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -721,23 +721,23 @@ func ParamsFunctionArgCount(argumentError error) (verrorComponent string, verror
 
 // NewErrFunctionAtLeastArgCount returns an error with the ErrFunctionAtLeastArgCount ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionAtLeastArgCount or MessageFunctionAtLeastArgCount instead.
+// use ErrorfErrFunctionAtLeastArgCount or MessageErrFunctionAtLeastArgCount instead.
 func NewErrFunctionAtLeastArgCount(ctx *context.T, off int64, name string, expected int64, found int64) error {
 	return verror.New(ErrFunctionAtLeastArgCount, ctx, off, name, expected, found)
 }
 
-// ErrorfFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
-func ErrorfFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
+// ErrorfErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
+func ErrorfErrFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found)
 }
 
-// MessageFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
-func MessageFunctionAtLeastArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
+// MessageErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
+func MessageErrFunctionAtLeastArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionAtLeastArgCount.Message(ctx, message, off, name, expected, found)
 }
 
-// ParamsFunctionAtLeastArgCount extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionAtLeastArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
+// ParamsErrFunctionAtLeastArgCount extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionAtLeastArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -791,23 +791,23 @@ func ParamsFunctionAtLeastArgCount(argumentError error) (verrorComponent string,
 
 // NewErrFunctionTypeInvalidArg returns an error with the ErrFunctionTypeInvalidArg ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionTypeInvalidArg or MessageFunctionTypeInvalidArg instead.
+// use ErrorfErrFunctionTypeInvalidArg or MessageErrFunctionTypeInvalidArg instead.
 func NewErrFunctionTypeInvalidArg(ctx *context.T, off int64) error {
 	return verror.New(ErrFunctionTypeInvalidArg, ctx, off)
 }
 
-// ErrorfFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
-func ErrorfFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
+// ErrorfErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
+func ErrorfErrFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off)
 }
 
-// MessageFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
-func MessageFunctionTypeInvalidArg(ctx *context.T, message string, off int64) error {
+// MessageErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
+func MessageErrFunctionTypeInvalidArg(ctx *context.T, message string, off int64) error {
 	return ErrFunctionTypeInvalidArg.Message(ctx, message, off)
 }
 
-// ParamsFunctionTypeInvalidArg extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionTypeInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrFunctionTypeInvalidArg extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionTypeInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -837,23 +837,23 @@ func ParamsFunctionTypeInvalidArg(argumentError error) (verrorComponent string, 
 
 // NewErrFunctionLenInvalidArg returns an error with the ErrFunctionLenInvalidArg ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionLenInvalidArg or MessageFunctionLenInvalidArg instead.
+// use ErrorfErrFunctionLenInvalidArg or MessageErrFunctionLenInvalidArg instead.
 func NewErrFunctionLenInvalidArg(ctx *context.T, off int64) error {
 	return verror.New(ErrFunctionLenInvalidArg, ctx, off)
 }
 
-// ErrorfFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
-func ErrorfFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
+// ErrorfErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
+func ErrorfErrFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off)
 }
 
-// MessageFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
-func MessageFunctionLenInvalidArg(ctx *context.T, message string, off int64) error {
+// MessageErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
+func MessageErrFunctionLenInvalidArg(ctx *context.T, message string, off int64) error {
 	return ErrFunctionLenInvalidArg.Message(ctx, message, off)
 }
 
-// ParamsFunctionLenInvalidArg extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionLenInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrFunctionLenInvalidArg extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionLenInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -883,23 +883,23 @@ func ParamsFunctionLenInvalidArg(argumentError error) (verrorComponent string, v
 
 // NewErrFunctionArgBad returns an error with the ErrFunctionArgBad ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionArgBad or MessageFunctionArgBad instead.
+// use ErrorfErrFunctionArgBad or MessageErrFunctionArgBad instead.
 func NewErrFunctionArgBad(ctx *context.T, off int64, funcName string, argName string) error {
 	return verror.New(ErrFunctionArgBad, ctx, off, funcName, argName)
 }
 
-// ErrorfFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
-func ErrorfFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
+// ErrorfErrFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
+func ErrorfErrFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
 	return ErrFunctionArgBad.Errorf(ctx, format, off, funcName, argName)
 }
 
-// MessageFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
-func MessageFunctionArgBad(ctx *context.T, message string, off int64, funcName string, argName string) error {
+// MessageErrFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
+func MessageErrFunctionArgBad(ctx *context.T, message string, off int64, funcName string, argName string) error {
 	return ErrFunctionArgBad.Message(ctx, message, off, funcName, argName)
 }
 
-// ParamsFunctionArgBad extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionArgBad(argumentError error) (verrorComponent string, verrorOperation string, off int64, funcName string, argName string, returnErr error) {
+// ParamsErrFunctionArgBad extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionArgBad(argumentError error) (verrorComponent string, verrorOperation string, off int64, funcName string, argName string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -945,23 +945,23 @@ func ParamsFunctionArgBad(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrFunctionNotFound returns an error with the ErrFunctionNotFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFunctionNotFound or MessageFunctionNotFound instead.
+// use ErrorfErrFunctionNotFound or MessageErrFunctionNotFound instead.
 func NewErrFunctionNotFound(ctx *context.T, off int64, name string) error {
 	return verror.New(ErrFunctionNotFound, ctx, off, name)
 }
 
-// ErrorfFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
-func ErrorfFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
+// ErrorfErrFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
+func ErrorfErrFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
 	return ErrFunctionNotFound.Errorf(ctx, format, off, name)
 }
 
-// MessageFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
-func MessageFunctionNotFound(ctx *context.T, message string, off int64, name string) error {
+// MessageErrFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
+func MessageErrFunctionNotFound(ctx *context.T, message string, off int64, name string) error {
 	return ErrFunctionNotFound.Message(ctx, message, off, name)
 }
 
-// ParamsFunctionNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsFunctionNotFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, returnErr error) {
+// ParamsErrFunctionNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrFunctionNotFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -999,23 +999,23 @@ func ParamsFunctionNotFound(argumentError error) (verrorComponent string, verror
 
 // NewErrArgMustBeField returns an error with the ErrArgMustBeField ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfArgMustBeField or MessageArgMustBeField instead.
+// use ErrorfErrArgMustBeField or MessageErrArgMustBeField instead.
 func NewErrArgMustBeField(ctx *context.T, off int64) error {
 	return verror.New(ErrArgMustBeField, ctx, off)
 }
 
-// ErrorfArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
-func ErrorfArgMustBeField(ctx *context.T, format string, off int64) error {
+// ErrorfErrArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
+func ErrorfErrArgMustBeField(ctx *context.T, format string, off int64) error {
 	return ErrArgMustBeField.Errorf(ctx, format, off)
 }
 
-// MessageArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
-func MessageArgMustBeField(ctx *context.T, message string, off int64) error {
+// MessageErrArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
+func MessageErrArgMustBeField(ctx *context.T, message string, off int64) error {
 	return ErrArgMustBeField.Message(ctx, message, off)
 }
 
-// ParamsArgMustBeField extracts the expected parameters from the error's ParameterList.
-func ParamsArgMustBeField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrArgMustBeField extracts the expected parameters from the error's ParameterList.
+func ParamsErrArgMustBeField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1045,23 +1045,23 @@ func ParamsArgMustBeField(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrBigIntConversionError returns an error with the ErrBigIntConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBigIntConversionError or MessageBigIntConversionError instead.
+// use ErrorfErrBigIntConversionError or MessageErrBigIntConversionError instead.
 func NewErrBigIntConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBigIntConversionError, ctx, off, err)
 }
 
-// ErrorfBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
-func ErrorfBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
+func ErrorfErrBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBigIntConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
-func MessageBigIntConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
+func MessageErrBigIntConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBigIntConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsBigIntConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsBigIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrBigIntConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrBigIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1099,23 +1099,23 @@ func ParamsBigIntConversionError(argumentError error) (verrorComponent string, v
 
 // NewErrBigRatConversionError returns an error with the ErrBigRatConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBigRatConversionError or MessageBigRatConversionError instead.
+// use ErrorfErrBigRatConversionError or MessageErrBigRatConversionError instead.
 func NewErrBigRatConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBigRatConversionError, ctx, off, err)
 }
 
-// ErrorfBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
-func ErrorfBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
+func ErrorfErrBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBigRatConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
-func MessageBigRatConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
+func MessageErrBigRatConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBigRatConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsBigRatConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsBigRatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrBigRatConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrBigRatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1153,23 +1153,23 @@ func ParamsBigRatConversionError(argumentError error) (verrorComponent string, v
 
 // NewErrBoolConversionError returns an error with the ErrBoolConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBoolConversionError or MessageBoolConversionError instead.
+// use ErrorfErrBoolConversionError or MessageErrBoolConversionError instead.
 func NewErrBoolConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBoolConversionError, ctx, off, err)
 }
 
-// ErrorfBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
-func ErrorfBoolConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
+func ErrorfErrBoolConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBoolConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
-func MessageBoolConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
+func MessageErrBoolConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBoolConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsBoolConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsBoolConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrBoolConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrBoolConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1207,23 +1207,23 @@ func ParamsBoolConversionError(argumentError error) (verrorComponent string, ver
 
 // NewErrComplexConversionError returns an error with the ErrComplexConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfComplexConversionError or MessageComplexConversionError instead.
+// use ErrorfErrComplexConversionError or MessageErrComplexConversionError instead.
 func NewErrComplexConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrComplexConversionError, ctx, off, err)
 }
 
-// ErrorfComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
-func ErrorfComplexConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
+func ErrorfErrComplexConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrComplexConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
-func MessageComplexConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
+func MessageErrComplexConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrComplexConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsComplexConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsComplexConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrComplexConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrComplexConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1261,23 +1261,23 @@ func ParamsComplexConversionError(argumentError error) (verrorComponent string, 
 
 // NewErrUintConversionError returns an error with the ErrUintConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUintConversionError or MessageUintConversionError instead.
+// use ErrorfErrUintConversionError or MessageErrUintConversionError instead.
 func NewErrUintConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrUintConversionError, ctx, off, err)
 }
 
-// ErrorfUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
-func ErrorfUintConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
+func ErrorfErrUintConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrUintConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
-func MessageUintConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
+func MessageErrUintConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrUintConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsUintConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsUintConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrUintConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrUintConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1315,23 +1315,23 @@ func ParamsUintConversionError(argumentError error) (verrorComponent string, ver
 
 // NewErrTimeConversionError returns an error with the ErrTimeConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTimeConversionError or MessageTimeConversionError instead.
+// use ErrorfErrTimeConversionError or MessageErrTimeConversionError instead.
 func NewErrTimeConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrTimeConversionError, ctx, off, err)
 }
 
-// ErrorfTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
-func ErrorfTimeConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
+func ErrorfErrTimeConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrTimeConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
-func MessageTimeConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
+func MessageErrTimeConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrTimeConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsTimeConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsTimeConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrTimeConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrTimeConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1369,23 +1369,23 @@ func ParamsTimeConversionError(argumentError error) (verrorComponent string, ver
 
 // NewErrLocationConversionError returns an error with the ErrLocationConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfLocationConversionError or MessageLocationConversionError instead.
+// use ErrorfErrLocationConversionError or MessageErrLocationConversionError instead.
 func NewErrLocationConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrLocationConversionError, ctx, off, err)
 }
 
-// ErrorfLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
-func ErrorfLocationConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
+func ErrorfErrLocationConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrLocationConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
-func MessageLocationConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
+func MessageErrLocationConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrLocationConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsLocationConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsLocationConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrLocationConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrLocationConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1423,23 +1423,23 @@ func ParamsLocationConversionError(argumentError error) (verrorComponent string,
 
 // NewErrStringConversionError returns an error with the ErrStringConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfStringConversionError or MessageStringConversionError instead.
+// use ErrorfErrStringConversionError or MessageErrStringConversionError instead.
 func NewErrStringConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrStringConversionError, ctx, off, err)
 }
 
-// ErrorfStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
-func ErrorfStringConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
+func ErrorfErrStringConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrStringConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
-func MessageStringConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
+func MessageErrStringConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrStringConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsStringConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsStringConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrStringConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrStringConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1477,23 +1477,23 @@ func ParamsStringConversionError(argumentError error) (verrorComponent string, v
 
 // NewErrFloatConversionError returns an error with the ErrFloatConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFloatConversionError or MessageFloatConversionError instead.
+// use ErrorfErrFloatConversionError or MessageErrFloatConversionError instead.
 func NewErrFloatConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrFloatConversionError, ctx, off, err)
 }
 
-// ErrorfFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
-func ErrorfFloatConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
+func ErrorfErrFloatConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrFloatConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
-func MessageFloatConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
+func MessageErrFloatConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrFloatConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsFloatConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsFloatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrFloatConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrFloatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1531,23 +1531,23 @@ func ParamsFloatConversionError(argumentError error) (verrorComponent string, ve
 
 // NewErrIntConversionError returns an error with the ErrIntConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIntConversionError or MessageIntConversionError instead.
+// use ErrorfErrIntConversionError or MessageErrIntConversionError instead.
 func NewErrIntConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrIntConversionError, ctx, off, err)
 }
 
-// ErrorfIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
-func ErrorfIntConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
+func ErrorfErrIntConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrIntConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
-func MessageIntConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
+func MessageErrIntConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrIntConversionError.Message(ctx, message, off, err)
 }
 
-// ParamsIntConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrIntConversionError extracts the expected parameters from the error's ParameterList.
+func ParamsErrIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1585,23 +1585,23 @@ func ParamsIntConversionError(argumentError error) (verrorComponent string, verr
 
 // NewErrIsIsNotRequireLhsValue returns an error with the ErrIsIsNotRequireLhsValue ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIsIsNotRequireLhsValue or MessageIsIsNotRequireLhsValue instead.
+// use ErrorfErrIsIsNotRequireLhsValue or MessageErrIsIsNotRequireLhsValue instead.
 func NewErrIsIsNotRequireLhsValue(ctx *context.T, off int64) error {
 	return verror.New(ErrIsIsNotRequireLhsValue, ctx, off)
 }
 
-// ErrorfIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
-func ErrorfIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
+// ErrorfErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
+func ErrorfErrIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off)
 }
 
-// MessageIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
-func MessageIsIsNotRequireLhsValue(ctx *context.T, message string, off int64) error {
+// MessageErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
+func MessageErrIsIsNotRequireLhsValue(ctx *context.T, message string, off int64) error {
 	return ErrIsIsNotRequireLhsValue.Message(ctx, message, off)
 }
 
-// ParamsIsIsNotRequireLhsValue extracts the expected parameters from the error's ParameterList.
-func ParamsIsIsNotRequireLhsValue(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrIsIsNotRequireLhsValue extracts the expected parameters from the error's ParameterList.
+func ParamsErrIsIsNotRequireLhsValue(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1631,23 +1631,23 @@ func ParamsIsIsNotRequireLhsValue(argumentError error) (verrorComponent string, 
 
 // NewErrIsIsNotRequireRhsNil returns an error with the ErrIsIsNotRequireRhsNil ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIsIsNotRequireRhsNil or MessageIsIsNotRequireRhsNil instead.
+// use ErrorfErrIsIsNotRequireRhsNil or MessageErrIsIsNotRequireRhsNil instead.
 func NewErrIsIsNotRequireRhsNil(ctx *context.T, off int64) error {
 	return verror.New(ErrIsIsNotRequireRhsNil, ctx, off)
 }
 
-// ErrorfIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
-func ErrorfIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
+// ErrorfErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
+func ErrorfErrIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off)
 }
 
-// MessageIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
-func MessageIsIsNotRequireRhsNil(ctx *context.T, message string, off int64) error {
+// MessageErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
+func MessageErrIsIsNotRequireRhsNil(ctx *context.T, message string, off int64) error {
 	return ErrIsIsNotRequireRhsNil.Message(ctx, message, off)
 }
 
-// ParamsIsIsNotRequireRhsNil extracts the expected parameters from the error's ParameterList.
-func ParamsIsIsNotRequireRhsNil(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrIsIsNotRequireRhsNil extracts the expected parameters from the error's ParameterList.
+func ParamsErrIsIsNotRequireRhsNil(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1677,23 +1677,23 @@ func ParamsIsIsNotRequireRhsNil(argumentError error) (verrorComponent string, ve
 
 // NewErrInvalidLikePattern returns an error with the ErrInvalidLikePattern ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidLikePattern or MessageInvalidLikePattern instead.
+// use ErrorfErrInvalidLikePattern or MessageErrInvalidLikePattern instead.
 func NewErrInvalidLikePattern(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrInvalidLikePattern, ctx, off, err)
 }
 
-// ErrorfInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
-func ErrorfInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
+func ErrorfErrInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
 	return ErrInvalidLikePattern.Errorf(ctx, format, off, err)
 }
 
-// MessageInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
-func MessageInvalidLikePattern(ctx *context.T, message string, off int64, err error) error {
+// MessageErrInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
+func MessageErrInvalidLikePattern(ctx *context.T, message string, off int64, err error) error {
 	return ErrInvalidLikePattern.Message(ctx, message, off, err)
 }
 
-// ParamsInvalidLikePattern extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidLikePattern(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrInvalidLikePattern extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidLikePattern(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1731,23 +1731,23 @@ func ParamsInvalidLikePattern(argumentError error) (verrorComponent string, verr
 
 // NewErrInvalidSelectField returns an error with the ErrInvalidSelectField ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidSelectField or MessageInvalidSelectField instead.
+// use ErrorfErrInvalidSelectField or MessageErrInvalidSelectField instead.
 func NewErrInvalidSelectField(ctx *context.T, off int64) error {
 	return verror.New(ErrInvalidSelectField, ctx, off)
 }
 
-// ErrorfInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
-func ErrorfInvalidSelectField(ctx *context.T, format string, off int64) error {
+// ErrorfErrInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
+func ErrorfErrInvalidSelectField(ctx *context.T, format string, off int64) error {
 	return ErrInvalidSelectField.Errorf(ctx, format, off)
 }
 
-// MessageInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
-func MessageInvalidSelectField(ctx *context.T, message string, off int64) error {
+// MessageErrInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
+func MessageErrInvalidSelectField(ctx *context.T, message string, off int64) error {
 	return ErrInvalidSelectField.Message(ctx, message, off)
 }
 
-// ParamsInvalidSelectField extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidSelectField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrInvalidSelectField extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidSelectField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1777,23 +1777,23 @@ func ParamsInvalidSelectField(argumentError error) (verrorComponent string, verr
 
 // NewErrKeyExpressionLiteral returns an error with the ErrKeyExpressionLiteral ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfKeyExpressionLiteral or MessageKeyExpressionLiteral instead.
+// use ErrorfErrKeyExpressionLiteral or MessageErrKeyExpressionLiteral instead.
 func NewErrKeyExpressionLiteral(ctx *context.T, off int64) error {
 	return verror.New(ErrKeyExpressionLiteral, ctx, off)
 }
 
-// ErrorfKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
-func ErrorfKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
+// ErrorfErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
+func ErrorfErrKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
 	return ErrKeyExpressionLiteral.Errorf(ctx, format, off)
 }
 
-// MessageKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
-func MessageKeyExpressionLiteral(ctx *context.T, message string, off int64) error {
+// MessageErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
+func MessageErrKeyExpressionLiteral(ctx *context.T, message string, off int64) error {
 	return ErrKeyExpressionLiteral.Message(ctx, message, off)
 }
 
-// ParamsKeyExpressionLiteral extracts the expected parameters from the error's ParameterList.
-func ParamsKeyExpressionLiteral(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrKeyExpressionLiteral extracts the expected parameters from the error's ParameterList.
+func ParamsErrKeyExpressionLiteral(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1823,23 +1823,23 @@ func ParamsKeyExpressionLiteral(argumentError error) (verrorComponent string, ve
 
 // NewErrKeyValueStreamError returns an error with the ErrKeyValueStreamError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfKeyValueStreamError or MessageKeyValueStreamError instead.
+// use ErrorfErrKeyValueStreamError or MessageErrKeyValueStreamError instead.
 func NewErrKeyValueStreamError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrKeyValueStreamError, ctx, off, err)
 }
 
-// ErrorfKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
-func ErrorfKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
+func ErrorfErrKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
 	return ErrKeyValueStreamError.Errorf(ctx, format, off, err)
 }
 
-// MessageKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
-func MessageKeyValueStreamError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
+func MessageErrKeyValueStreamError(ctx *context.T, message string, off int64, err error) error {
 	return ErrKeyValueStreamError.Message(ctx, message, off, err)
 }
 
-// ParamsKeyValueStreamError extracts the expected parameters from the error's ParameterList.
-func ParamsKeyValueStreamError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrKeyValueStreamError extracts the expected parameters from the error's ParameterList.
+func ParamsErrKeyValueStreamError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1877,23 +1877,23 @@ func ParamsKeyValueStreamError(argumentError error) (verrorComponent string, ver
 
 // NewErrLikeExpressionsRequireRhsString returns an error with the ErrLikeExpressionsRequireRhsString ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfLikeExpressionsRequireRhsString or MessageLikeExpressionsRequireRhsString instead.
+// use ErrorfErrLikeExpressionsRequireRhsString or MessageErrLikeExpressionsRequireRhsString instead.
 func NewErrLikeExpressionsRequireRhsString(ctx *context.T, off int64) error {
 	return verror.New(ErrLikeExpressionsRequireRhsString, ctx, off)
 }
 
-// ErrorfLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
-func ErrorfLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
+// ErrorfErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
+func ErrorfErrLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
 	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off)
 }
 
-// MessageLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
-func MessageLikeExpressionsRequireRhsString(ctx *context.T, message string, off int64) error {
+// MessageErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
+func MessageErrLikeExpressionsRequireRhsString(ctx *context.T, message string, off int64) error {
 	return ErrLikeExpressionsRequireRhsString.Message(ctx, message, off)
 }
 
-// ParamsLikeExpressionsRequireRhsString extracts the expected parameters from the error's ParameterList.
-func ParamsLikeExpressionsRequireRhsString(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrLikeExpressionsRequireRhsString extracts the expected parameters from the error's ParameterList.
+func ParamsErrLikeExpressionsRequireRhsString(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1923,23 +1923,23 @@ func ParamsLikeExpressionsRequireRhsString(argumentError error) (verrorComponent
 
 // NewErrLimitMustBeGt0 returns an error with the ErrLimitMustBeGt0 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfLimitMustBeGt0 or MessageLimitMustBeGt0 instead.
+// use ErrorfErrLimitMustBeGt0 or MessageErrLimitMustBeGt0 instead.
 func NewErrLimitMustBeGt0(ctx *context.T, off int64) error {
 	return verror.New(ErrLimitMustBeGt0, ctx, off)
 }
 
-// ErrorfLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
-func ErrorfLimitMustBeGt0(ctx *context.T, format string, off int64) error {
+// ErrorfErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
+func ErrorfErrLimitMustBeGt0(ctx *context.T, format string, off int64) error {
 	return ErrLimitMustBeGt0.Errorf(ctx, format, off)
 }
 
-// MessageLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
-func MessageLimitMustBeGt0(ctx *context.T, message string, off int64) error {
+// MessageErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
+func MessageErrLimitMustBeGt0(ctx *context.T, message string, off int64) error {
 	return ErrLimitMustBeGt0.Message(ctx, message, off)
 }
 
-// ParamsLimitMustBeGt0 extracts the expected parameters from the error's ParameterList.
-func ParamsLimitMustBeGt0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrLimitMustBeGt0 extracts the expected parameters from the error's ParameterList.
+func ParamsErrLimitMustBeGt0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -1969,23 +1969,23 @@ func ParamsLimitMustBeGt0(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrMaxStatementLenExceeded returns an error with the ErrMaxStatementLenExceeded ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfMaxStatementLenExceeded or MessageMaxStatementLenExceeded instead.
+// use ErrorfErrMaxStatementLenExceeded or MessageErrMaxStatementLenExceeded instead.
 func NewErrMaxStatementLenExceeded(ctx *context.T, off int64, max int64, found int64) error {
 	return verror.New(ErrMaxStatementLenExceeded, ctx, off, max, found)
 }
 
-// ErrorfMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
-func ErrorfMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
+// ErrorfErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
+func ErrorfErrMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
 	return ErrMaxStatementLenExceeded.Errorf(ctx, format, off, max, found)
 }
 
-// MessageMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
-func MessageMaxStatementLenExceeded(ctx *context.T, message string, off int64, max int64, found int64) error {
+// MessageErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
+func MessageErrMaxStatementLenExceeded(ctx *context.T, message string, off int64, max int64, found int64) error {
 	return ErrMaxStatementLenExceeded.Message(ctx, message, off, max, found)
 }
 
-// ParamsMaxStatementLenExceeded extracts the expected parameters from the error's ParameterList.
-func ParamsMaxStatementLenExceeded(argumentError error) (verrorComponent string, verrorOperation string, off int64, max int64, found int64, returnErr error) {
+// ParamsErrMaxStatementLenExceeded extracts the expected parameters from the error's ParameterList.
+func ParamsErrMaxStatementLenExceeded(argumentError error) (verrorComponent string, verrorOperation string, off int64, max int64, found int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2031,23 +2031,23 @@ func ParamsMaxStatementLenExceeded(argumentError error) (verrorComponent string,
 
 // NewErrNoStatementFound returns an error with the ErrNoStatementFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoStatementFound or MessageNoStatementFound instead.
+// use ErrorfErrNoStatementFound or MessageErrNoStatementFound instead.
 func NewErrNoStatementFound(ctx *context.T, off int64) error {
 	return verror.New(ErrNoStatementFound, ctx, off)
 }
 
-// ErrorfNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
-func ErrorfNoStatementFound(ctx *context.T, format string, off int64) error {
+// ErrorfErrNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
+func ErrorfErrNoStatementFound(ctx *context.T, format string, off int64) error {
 	return ErrNoStatementFound.Errorf(ctx, format, off)
 }
 
-// MessageNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
-func MessageNoStatementFound(ctx *context.T, message string, off int64) error {
+// MessageErrNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
+func MessageErrNoStatementFound(ctx *context.T, message string, off int64) error {
 	return ErrNoStatementFound.Message(ctx, message, off)
 }
 
-// ParamsNoStatementFound extracts the expected parameters from the error's ParameterList.
-func ParamsNoStatementFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrNoStatementFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoStatementFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2077,23 +2077,23 @@ func ParamsNoStatementFound(argumentError error) (verrorComponent string, verror
 
 // NewErrOffsetMustBeGe0 returns an error with the ErrOffsetMustBeGe0 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfOffsetMustBeGe0 or MessageOffsetMustBeGe0 instead.
+// use ErrorfErrOffsetMustBeGe0 or MessageErrOffsetMustBeGe0 instead.
 func NewErrOffsetMustBeGe0(ctx *context.T, off int64) error {
 	return verror.New(ErrOffsetMustBeGe0, ctx, off)
 }
 
-// ErrorfOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
-func ErrorfOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
+// ErrorfErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
+func ErrorfErrOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
 	return ErrOffsetMustBeGe0.Errorf(ctx, format, off)
 }
 
-// MessageOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
-func MessageOffsetMustBeGe0(ctx *context.T, message string, off int64) error {
+// MessageErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
+func MessageErrOffsetMustBeGe0(ctx *context.T, message string, off int64) error {
 	return ErrOffsetMustBeGe0.Message(ctx, message, off)
 }
 
-// ParamsOffsetMustBeGe0 extracts the expected parameters from the error's ParameterList.
-func ParamsOffsetMustBeGe0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrOffsetMustBeGe0 extracts the expected parameters from the error's ParameterList.
+func ParamsErrOffsetMustBeGe0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2123,23 +2123,23 @@ func ParamsOffsetMustBeGe0(argumentError error) (verrorComponent string, verrorO
 
 // NewErrScanError returns an error with the ErrScanError ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfScanError or MessageScanError instead.
+// use ErrorfErrScanError or MessageErrScanError instead.
 func NewErrScanError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrScanError, ctx, off, err)
 }
 
-// ErrorfScanError calls ErrScanError.Errorf with the supplied arguments.
-func ErrorfScanError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfErrScanError calls ErrScanError.Errorf with the supplied arguments.
+func ErrorfErrScanError(ctx *context.T, format string, off int64, err error) error {
 	return ErrScanError.Errorf(ctx, format, off, err)
 }
 
-// MessageScanError calls ErrScanError.Message with the supplied arguments.
-func MessageScanError(ctx *context.T, message string, off int64, err error) error {
+// MessageErrScanError calls ErrScanError.Message with the supplied arguments.
+func MessageErrScanError(ctx *context.T, message string, off int64, err error) error {
 	return ErrScanError.Message(ctx, message, off, err)
 }
 
-// ParamsScanError extracts the expected parameters from the error's ParameterList.
-func ParamsScanError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
+// ParamsErrScanError extracts the expected parameters from the error's ParameterList.
+func ParamsErrScanError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2177,23 +2177,23 @@ func ParamsScanError(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrTableCantAccess returns an error with the ErrTableCantAccess ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTableCantAccess or MessageTableCantAccess instead.
+// use ErrorfErrTableCantAccess or MessageErrTableCantAccess instead.
 func NewErrTableCantAccess(ctx *context.T, off int64, table string, err error) error {
 	return verror.New(ErrTableCantAccess, ctx, off, table, err)
 }
 
-// ErrorfTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
-func ErrorfTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
+// ErrorfErrTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
+func ErrorfErrTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
 	return ErrTableCantAccess.Errorf(ctx, format, off, table, err)
 }
 
-// MessageTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
-func MessageTableCantAccess(ctx *context.T, message string, off int64, table string, err error) error {
+// MessageErrTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
+func MessageErrTableCantAccess(ctx *context.T, message string, off int64, table string, err error) error {
 	return ErrTableCantAccess.Message(ctx, message, off, table, err)
 }
 
-// ParamsTableCantAccess extracts the expected parameters from the error's ParameterList.
-func ParamsTableCantAccess(argumentError error) (verrorComponent string, verrorOperation string, off int64, table string, err error, returnErr error) {
+// ParamsErrTableCantAccess extracts the expected parameters from the error's ParameterList.
+func ParamsErrTableCantAccess(argumentError error) (verrorComponent string, verrorOperation string, off int64, table string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2239,23 +2239,23 @@ func ParamsTableCantAccess(argumentError error) (verrorComponent string, verrorO
 
 // NewErrUnexpected returns an error with the ErrUnexpected ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnexpected or MessageUnexpected instead.
+// use ErrorfErrUnexpected or MessageErrUnexpected instead.
 func NewErrUnexpected(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrUnexpected, ctx, off, found)
 }
 
-// ErrorfUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
-func ErrorfUnexpected(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
+func ErrorfErrUnexpected(ctx *context.T, format string, off int64, found string) error {
 	return ErrUnexpected.Errorf(ctx, format, off, found)
 }
 
-// MessageUnexpected calls ErrUnexpected.Message with the supplied arguments.
-func MessageUnexpected(ctx *context.T, message string, off int64, found string) error {
+// MessageErrUnexpected calls ErrUnexpected.Message with the supplied arguments.
+func MessageErrUnexpected(ctx *context.T, message string, off int64, found string) error {
 	return ErrUnexpected.Message(ctx, message, off, found)
 }
 
-// ParamsUnexpected extracts the expected parameters from the error's ParameterList.
-func ParamsUnexpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrUnexpected extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnexpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2293,23 +2293,23 @@ func ParamsUnexpected(argumentError error) (verrorComponent string, verrorOperat
 
 // NewErrUnexpectedEndOfStatement returns an error with the ErrUnexpectedEndOfStatement ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnexpectedEndOfStatement or MessageUnexpectedEndOfStatement instead.
+// use ErrorfErrUnexpectedEndOfStatement or MessageErrUnexpectedEndOfStatement instead.
 func NewErrUnexpectedEndOfStatement(ctx *context.T, off int64) error {
 	return verror.New(ErrUnexpectedEndOfStatement, ctx, off)
 }
 
-// ErrorfUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
-func ErrorfUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
+// ErrorfErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
+func ErrorfErrUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
 	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off)
 }
 
-// MessageUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
-func MessageUnexpectedEndOfStatement(ctx *context.T, message string, off int64) error {
+// MessageErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
+func MessageErrUnexpectedEndOfStatement(ctx *context.T, message string, off int64) error {
 	return ErrUnexpectedEndOfStatement.Message(ctx, message, off)
 }
 
-// ParamsUnexpectedEndOfStatement extracts the expected parameters from the error's ParameterList.
-func ParamsUnexpectedEndOfStatement(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrUnexpectedEndOfStatement extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnexpectedEndOfStatement(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2339,23 +2339,23 @@ func ParamsUnexpectedEndOfStatement(argumentError error) (verrorComponent string
 
 // NewErrUnknownIdentifier returns an error with the ErrUnknownIdentifier ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknownIdentifier or MessageUnknownIdentifier instead.
+// use ErrorfErrUnknownIdentifier or MessageErrUnknownIdentifier instead.
 func NewErrUnknownIdentifier(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrUnknownIdentifier, ctx, off, found)
 }
 
-// ErrorfUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
-func ErrorfUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
+// ErrorfErrUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
+func ErrorfErrUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
 	return ErrUnknownIdentifier.Errorf(ctx, format, off, found)
 }
 
-// MessageUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
-func MessageUnknownIdentifier(ctx *context.T, message string, off int64, found string) error {
+// MessageErrUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
+func MessageErrUnknownIdentifier(ctx *context.T, message string, off int64, found string) error {
 	return ErrUnknownIdentifier.Message(ctx, message, off, found)
 }
 
-// ParamsUnknownIdentifier extracts the expected parameters from the error's ParameterList.
-func ParamsUnknownIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
+// ParamsErrUnknownIdentifier extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2393,23 +2393,23 @@ func ParamsUnknownIdentifier(argumentError error) (verrorComponent string, verro
 
 // NewErrInvalidEscapeChar returns an error with the ErrInvalidEscapeChar ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidEscapeChar or MessageInvalidEscapeChar instead.
+// use ErrorfErrInvalidEscapeChar or MessageErrInvalidEscapeChar instead.
 func NewErrInvalidEscapeChar(ctx *context.T, off int64, escChar string) error {
 	return verror.New(ErrInvalidEscapeChar, ctx, off, escChar)
 }
 
-// ErrorfInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
-func ErrorfInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
+// ErrorfErrInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
+func ErrorfErrInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
 	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar)
 }
 
-// MessageInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
-func MessageInvalidEscapeChar(ctx *context.T, message string, off int64, escChar string) error {
+// MessageErrInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
+func MessageErrInvalidEscapeChar(ctx *context.T, message string, off int64, escChar string) error {
 	return ErrInvalidEscapeChar.Message(ctx, message, off, escChar)
 }
 
-// ParamsInvalidEscapeChar extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, off int64, escChar string, returnErr error) {
+// ParamsErrInvalidEscapeChar extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, off int64, escChar string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2447,23 +2447,23 @@ func ParamsInvalidEscapeChar(argumentError error) (verrorComponent string, verro
 
 // NewErrDidYouMeanLowercaseK returns an error with the ErrDidYouMeanLowercaseK ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDidYouMeanLowercaseK or MessageDidYouMeanLowercaseK instead.
+// use ErrorfErrDidYouMeanLowercaseK or MessageErrDidYouMeanLowercaseK instead.
 func NewErrDidYouMeanLowercaseK(ctx *context.T, off int64) error {
 	return verror.New(ErrDidYouMeanLowercaseK, ctx, off)
 }
 
-// ErrorfDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
-func ErrorfDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
+// ErrorfErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
+func ErrorfErrDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off)
 }
 
-// MessageDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
-func MessageDidYouMeanLowercaseK(ctx *context.T, message string, off int64) error {
+// MessageErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
+func MessageErrDidYouMeanLowercaseK(ctx *context.T, message string, off int64) error {
 	return ErrDidYouMeanLowercaseK.Message(ctx, message, off)
 }
 
-// ParamsDidYouMeanLowercaseK extracts the expected parameters from the error's ParameterList.
-func ParamsDidYouMeanLowercaseK(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrDidYouMeanLowercaseK extracts the expected parameters from the error's ParameterList.
+func ParamsErrDidYouMeanLowercaseK(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2493,23 +2493,23 @@ func ParamsDidYouMeanLowercaseK(argumentError error) (verrorComponent string, ve
 
 // NewErrDidYouMeanLowercaseV returns an error with the ErrDidYouMeanLowercaseV ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDidYouMeanLowercaseV or MessageDidYouMeanLowercaseV instead.
+// use ErrorfErrDidYouMeanLowercaseV or MessageErrDidYouMeanLowercaseV instead.
 func NewErrDidYouMeanLowercaseV(ctx *context.T, off int64) error {
 	return verror.New(ErrDidYouMeanLowercaseV, ctx, off)
 }
 
-// ErrorfDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
-func ErrorfDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
+// ErrorfErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
+func ErrorfErrDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off)
 }
 
-// MessageDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
-func MessageDidYouMeanLowercaseV(ctx *context.T, message string, off int64) error {
+// MessageErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
+func MessageErrDidYouMeanLowercaseV(ctx *context.T, message string, off int64) error {
 	return ErrDidYouMeanLowercaseV.Message(ctx, message, off)
 }
 
-// ParamsDidYouMeanLowercaseV extracts the expected parameters from the error's ParameterList.
-func ParamsDidYouMeanLowercaseV(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrDidYouMeanLowercaseV extracts the expected parameters from the error's ParameterList.
+func ParamsErrDidYouMeanLowercaseV(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2539,23 +2539,23 @@ func ParamsDidYouMeanLowercaseV(argumentError error) (verrorComponent string, ve
 
 // NewErrDidYouMeanFunction returns an error with the ErrDidYouMeanFunction ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDidYouMeanFunction or MessageDidYouMeanFunction instead.
+// use ErrorfErrDidYouMeanFunction or MessageErrDidYouMeanFunction instead.
 func NewErrDidYouMeanFunction(ctx *context.T, off int64, correctName string) error {
 	return verror.New(ErrDidYouMeanFunction, ctx, off, correctName)
 }
 
-// ErrorfDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
-func ErrorfDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
+// ErrorfErrDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
+func ErrorfErrDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
 	return ErrDidYouMeanFunction.Errorf(ctx, format, off, correctName)
 }
 
-// MessageDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
-func MessageDidYouMeanFunction(ctx *context.T, message string, off int64, correctName string) error {
+// MessageErrDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
+func MessageErrDidYouMeanFunction(ctx *context.T, message string, off int64, correctName string) error {
 	return ErrDidYouMeanFunction.Message(ctx, message, off, correctName)
 }
 
-// ParamsDidYouMeanFunction extracts the expected parameters from the error's ParameterList.
-func ParamsDidYouMeanFunction(argumentError error) (verrorComponent string, verrorOperation string, off int64, correctName string, returnErr error) {
+// ParamsErrDidYouMeanFunction extracts the expected parameters from the error's ParameterList.
+func ParamsErrDidYouMeanFunction(argumentError error) (verrorComponent string, verrorOperation string, off int64, correctName string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2593,23 +2593,23 @@ func ParamsDidYouMeanFunction(argumentError error) (verrorComponent string, verr
 
 // NewErrNotEnoughParamValuesSpecified returns an error with the ErrNotEnoughParamValuesSpecified ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotEnoughParamValuesSpecified or MessageNotEnoughParamValuesSpecified instead.
+// use ErrorfErrNotEnoughParamValuesSpecified or MessageErrNotEnoughParamValuesSpecified instead.
 func NewErrNotEnoughParamValuesSpecified(ctx *context.T, off int64) error {
 	return verror.New(ErrNotEnoughParamValuesSpecified, ctx, off)
 }
 
-// ErrorfNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
+// ErrorfErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
+func ErrorfErrNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
 	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off)
 }
 
-// MessageNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
-func MessageNotEnoughParamValuesSpecified(ctx *context.T, message string, off int64) error {
+// MessageErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
+func MessageErrNotEnoughParamValuesSpecified(ctx *context.T, message string, off int64) error {
 	return ErrNotEnoughParamValuesSpecified.Message(ctx, message, off)
 }
 
-// ParamsNotEnoughParamValuesSpecified extracts the expected parameters from the error's ParameterList.
-func ParamsNotEnoughParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrNotEnoughParamValuesSpecified extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotEnoughParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2639,23 +2639,23 @@ func ParamsNotEnoughParamValuesSpecified(argumentError error) (verrorComponent s
 
 // NewErrTooManyParamValuesSpecified returns an error with the ErrTooManyParamValuesSpecified ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTooManyParamValuesSpecified or MessageTooManyParamValuesSpecified instead.
+// use ErrorfErrTooManyParamValuesSpecified or MessageErrTooManyParamValuesSpecified instead.
 func NewErrTooManyParamValuesSpecified(ctx *context.T, off int64) error {
 	return verror.New(ErrTooManyParamValuesSpecified, ctx, off)
 }
 
-// ErrorfTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
+// ErrorfErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
+func ErrorfErrTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
 	return ErrTooManyParamValuesSpecified.Errorf(ctx, format, off)
 }
 
-// MessageTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
-func MessageTooManyParamValuesSpecified(ctx *context.T, message string, off int64) error {
+// MessageErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
+func MessageErrTooManyParamValuesSpecified(ctx *context.T, message string, off int64) error {
 	return ErrTooManyParamValuesSpecified.Message(ctx, message, off)
 }
 
-// ParamsTooManyParamValuesSpecified extracts the expected parameters from the error's ParameterList.
-func ParamsTooManyParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
+// ParamsErrTooManyParamValuesSpecified extracts the expected parameters from the error's ParameterList.
+func ParamsErrTooManyParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2685,23 +2685,23 @@ func ParamsTooManyParamValuesSpecified(argumentError error) (verrorComponent str
 
 // NewErrPreparedStatementNotFound returns an error with the ErrPreparedStatementNotFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfPreparedStatementNotFound or MessagePreparedStatementNotFound instead.
+// use ErrorfErrPreparedStatementNotFound or MessageErrPreparedStatementNotFound instead.
 func NewErrPreparedStatementNotFound(ctx *context.T) error {
 	return verror.New(ErrPreparedStatementNotFound, ctx)
 }
 
-// ErrorfPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
-func ErrorfPreparedStatementNotFound(ctx *context.T, format string) error {
+// ErrorfErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
+func ErrorfErrPreparedStatementNotFound(ctx *context.T, format string) error {
 	return ErrPreparedStatementNotFound.Errorf(ctx, format)
 }
 
-// MessagePreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
-func MessagePreparedStatementNotFound(ctx *context.T, message string) error {
+// MessageErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
+func MessageErrPreparedStatementNotFound(ctx *context.T, message string) error {
 	return ErrPreparedStatementNotFound.Message(ctx, message)
 }
 
-// ParamsPreparedStatementNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsPreparedStatementNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrPreparedStatementNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrPreparedStatementNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2718,23 +2718,23 @@ func ParamsPreparedStatementNotFound(argumentError error) (verrorComponent strin
 
 // NewErrIndexKindNotSupported returns an error with the ErrIndexKindNotSupported ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIndexKindNotSupported or MessageIndexKindNotSupported instead.
+// use ErrorfErrIndexKindNotSupported or MessageErrIndexKindNotSupported instead.
 func NewErrIndexKindNotSupported(ctx *context.T, off int64, kind string, fieldName string, table string) error {
 	return verror.New(ErrIndexKindNotSupported, ctx, off, kind, fieldName, table)
 }
 
-// ErrorfIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
-func ErrorfIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
+// ErrorfErrIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
+func ErrorfErrIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
 	return ErrIndexKindNotSupported.Errorf(ctx, format, off, kind, fieldName, table)
 }
 
-// MessageIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
-func MessageIndexKindNotSupported(ctx *context.T, message string, off int64, kind string, fieldName string, table string) error {
+// MessageErrIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
+func MessageErrIndexKindNotSupported(ctx *context.T, message string, off int64, kind string, fieldName string, table string) error {
 	return ErrIndexKindNotSupported.Message(ctx, message, off, kind, fieldName, table)
 }
 
-// ParamsIndexKindNotSupported extracts the expected parameters from the error's ParameterList.
-func ParamsIndexKindNotSupported(argumentError error) (verrorComponent string, verrorOperation string, off int64, kind string, fieldName string, table string, returnErr error) {
+// ParamsErrIndexKindNotSupported extracts the expected parameters from the error's ParameterList.
+func ParamsErrIndexKindNotSupported(argumentError error) (verrorComponent string, verrorOperation string, off int64, kind string, fieldName string, table string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2788,23 +2788,23 @@ func ParamsIndexKindNotSupported(argumentError error) (verrorComponent string, v
 
 // NewErrInvalidIndexField returns an error with the ErrInvalidIndexField ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidIndexField or MessageInvalidIndexField instead.
+// use ErrorfErrInvalidIndexField or MessageErrInvalidIndexField instead.
 func NewErrInvalidIndexField(ctx *context.T, off int64, fieldName string, table string) error {
 	return verror.New(ErrInvalidIndexField, ctx, off, fieldName, table)
 }
 
-// ErrorfInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
-func ErrorfInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
+// ErrorfErrInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
+func ErrorfErrInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
 	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table)
 }
 
-// MessageInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
-func MessageInvalidIndexField(ctx *context.T, message string, off int64, fieldName string, table string) error {
+// MessageErrInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
+func MessageErrInvalidIndexField(ctx *context.T, message string, off int64, fieldName string, table string) error {
 	return ErrInvalidIndexField.Message(ctx, message, off, fieldName, table)
 }
 
-// ParamsInvalidIndexField extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidIndexField(argumentError error) (verrorComponent string, verrorOperation string, off int64, fieldName string, table string, returnErr error) {
+// ParamsErrInvalidIndexField extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidIndexField(argumentError error) (verrorComponent string, verrorOperation string, off int64, fieldName string, table string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2850,23 +2850,23 @@ func ParamsInvalidIndexField(argumentError error) (verrorComponent string, verro
 
 // NewErrNotWritable returns an error with the ErrNotWritable ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotWritable or MessageNotWritable instead.
+// use ErrorfErrNotWritable or MessageErrNotWritable instead.
 func NewErrNotWritable(ctx *context.T, table string) error {
 	return verror.New(ErrNotWritable, ctx, table)
 }
 
-// ErrorfNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
-func ErrorfNotWritable(ctx *context.T, format string, table string) error {
+// ErrorfErrNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
+func ErrorfErrNotWritable(ctx *context.T, format string, table string) error {
 	return ErrNotWritable.Errorf(ctx, format, table)
 }
 
-// MessageNotWritable calls ErrNotWritable.Message with the supplied arguments.
-func MessageNotWritable(ctx *context.T, message string, table string) error {
+// MessageErrNotWritable calls ErrNotWritable.Message with the supplied arguments.
+func MessageErrNotWritable(ctx *context.T, message string, table string) error {
 	return ErrNotWritable.Message(ctx, message, table)
 }
 
-// ParamsNotWritable extracts the expected parameters from the error's ParameterList.
-func ParamsNotWritable(argumentError error) (verrorComponent string, verrorOperation string, table string, returnErr error) {
+// ParamsErrNotWritable extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotWritable(argumentError error) (verrorComponent string, verrorOperation string, table string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2896,23 +2896,23 @@ func ParamsNotWritable(argumentError error) (verrorComponent string, verrorOpera
 
 // NewErrOperationNotSupported returns an error with the ErrOperationNotSupported ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfOperationNotSupported or MessageOperationNotSupported instead.
+// use ErrorfErrOperationNotSupported or MessageErrOperationNotSupported instead.
 func NewErrOperationNotSupported(ctx *context.T, operation string) error {
 	return verror.New(ErrOperationNotSupported, ctx, operation)
 }
 
-// ErrorfOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
-func ErrorfOperationNotSupported(ctx *context.T, format string, operation string) error {
+// ErrorfErrOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
+func ErrorfErrOperationNotSupported(ctx *context.T, format string, operation string) error {
 	return ErrOperationNotSupported.Errorf(ctx, format, operation)
 }
 
-// MessageOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.
-func MessageOperationNotSupported(ctx *context.T, message string, operation string) error {
+// MessageErrOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.
+func MessageErrOperationNotSupported(ctx *context.T, message string, operation string) error {
 	return ErrOperationNotSupported.Message(ctx, message, operation)
 }
 
-// ParamsOperationNotSupported extracts the expected parameters from the error's ParameterList.
-func ParamsOperationNotSupported(argumentError error) (verrorComponent string, verrorOperation string, operation string, returnErr error) {
+// ParamsErrOperationNotSupported extracts the expected parameters from the error's ParameterList.
+func ParamsErrOperationNotSupported(argumentError error) (verrorComponent string, verrorOperation string, operation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

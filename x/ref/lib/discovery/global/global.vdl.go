@@ -28,23 +28,23 @@ var (
 
 // NewErrNoNamespace returns an error with the ErrNoNamespace ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoNamespace or MessageNoNamespace instead.
+// use ErrorfErrNoNamespace or MessageErrNoNamespace instead.
 func NewErrNoNamespace(ctx *context.T) error {
 	return verror.New(ErrNoNamespace, ctx)
 }
 
-// ErrorfNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
-func ErrorfNoNamespace(ctx *context.T, format string) error {
+// ErrorfErrNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
+func ErrorfErrNoNamespace(ctx *context.T, format string) error {
 	return ErrNoNamespace.Errorf(ctx, format)
 }
 
-// MessageNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
-func MessageNoNamespace(ctx *context.T, message string) error {
+// MessageErrNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
+func MessageErrNoNamespace(ctx *context.T, message string) error {
 	return ErrNoNamespace.Message(ctx, message)
 }
 
-// ParamsNoNamespace extracts the expected parameters from the error's ParameterList.
-func ParamsNoNamespace(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoNamespace extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoNamespace(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -61,23 +61,23 @@ func ParamsNoNamespace(argumentError error) (verrorComponent string, verrorOpera
 
 // NewErrAdInvalidEncoding returns an error with the ErrAdInvalidEncoding ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAdInvalidEncoding or MessageAdInvalidEncoding instead.
+// use ErrorfErrAdInvalidEncoding or MessageErrAdInvalidEncoding instead.
 func NewErrAdInvalidEncoding(ctx *context.T, ad string) error {
 	return verror.New(ErrAdInvalidEncoding, ctx, ad)
 }
 
-// ErrorfAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
-func ErrorfAdInvalidEncoding(ctx *context.T, format string, ad string) error {
+// ErrorfErrAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
+func ErrorfErrAdInvalidEncoding(ctx *context.T, format string, ad string) error {
 	return ErrAdInvalidEncoding.Errorf(ctx, format, ad)
 }
 
-// MessageAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.
-func MessageAdInvalidEncoding(ctx *context.T, message string, ad string) error {
+// MessageErrAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.
+func MessageErrAdInvalidEncoding(ctx *context.T, message string, ad string) error {
 	return ErrAdInvalidEncoding.Message(ctx, message, ad)
 }
 
-// ParamsAdInvalidEncoding extracts the expected parameters from the error's ParameterList.
-func ParamsAdInvalidEncoding(argumentError error) (verrorComponent string, verrorOperation string, ad string, returnErr error) {
+// ParamsErrAdInvalidEncoding extracts the expected parameters from the error's ParameterList.
+func ParamsErrAdInvalidEncoding(argumentError error) (verrorComponent string, verrorOperation string, ad string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

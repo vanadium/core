@@ -34,23 +34,23 @@ var (
 
 // NewErrNotAThirdPartyCaveat returns an error with the ErrNotAThirdPartyCaveat ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotAThirdPartyCaveat or MessageNotAThirdPartyCaveat instead.
+// use ErrorfErrNotAThirdPartyCaveat or MessageErrNotAThirdPartyCaveat instead.
 func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 	return verror.New(ErrNotAThirdPartyCaveat, ctx, c)
 }
 
-// ErrorfNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
-func ErrorfNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
+// ErrorfErrNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
+func ErrorfErrNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
 	return ErrNotAThirdPartyCaveat.Errorf(ctx, format, c)
 }
 
-// MessageNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
-func MessageNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
+// MessageErrNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
+func MessageErrNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
 	return ErrNotAThirdPartyCaveat.Message(ctx, message, c)
 }
 
-// ParamsNotAThirdPartyCaveat extracts the expected parameters from the error's ParameterList.
-func ParamsNotAThirdPartyCaveat(argumentError error) (verrorComponent string, verrorOperation string, c security.Caveat, returnErr error) {
+// ParamsErrNotAThirdPartyCaveat extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotAThirdPartyCaveat(argumentError error) (verrorComponent string, verrorOperation string, c security.Caveat, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

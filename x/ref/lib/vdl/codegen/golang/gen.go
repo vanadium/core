@@ -725,8 +725,8 @@ var (
 {{range $edef := $pkg.ErrorDefs}}
 {{$errName := errorName $edef}}
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
-{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
-{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $errName)}}
+{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $errName)}}
 // {{$newErr}} returns an error with the {{$errName}} ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use {{$errorf}} or {{$message}} instead.
@@ -744,7 +744,7 @@ func {{$message}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, messag
 	return {{$errName}}.Message({{argNames "" "" "ctx" "message" "" $edef.Params}})
 }
 
-{{$params := print (firstRuneToExport "Params" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{$params := print (firstRuneToExport "Params" $edef.Exported) (firstRuneToUpper  $errName)}}
 // {{$params}} extracts the expected parameters from the error's ParameterList.
 func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent string" "verrorOperation string"  "returnErr error" $data $edef.Params}}) {
 	params := {{callVerror $data "Params(argumentError)"}}

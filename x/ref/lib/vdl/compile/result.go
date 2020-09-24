@@ -27,6 +27,7 @@ import (
 // Always create a new Env via NewEnv; the zero Env is invalid.
 type Env struct {
 	Errors   *vdlutil.Errors
+	Warnings *vdlutil.Errors
 	pkgs     map[string]*Package
 	typeMap  map[*vdl.Type]*TypeDef
 	constMap map[*vdl.Value]*ConstDef
@@ -36,13 +37,17 @@ type Env struct {
 
 // NewEnv creates a new Env, allowing up to maxErrors errors before we stop.
 func NewEnv(maxErrors int) *Env {
-	return NewEnvWithErrors(vdlutil.NewErrors(maxErrors))
+	return NewEnvWithErrors(
+		vdlutil.NewErrors(maxErrors),
+		vdlutil.NewErrors(maxErrors),
+	)
 }
 
 // NewEnvWithErrors creates a new Env, using the given errs to collect errors.
-func NewEnvWithErrors(errs *vdlutil.Errors) *Env {
+func NewEnvWithErrors(errs, warnings *vdlutil.Errors) *Env {
 	env := &Env{
 		Errors:   errs,
+		Warnings: warnings,
 		pkgs:     make(map[string]*Package),
 		typeMap:  make(map[*vdl.Type]*TypeDef),
 		constMap: make(map[*vdl.Value]*ConstDef),
@@ -230,6 +235,12 @@ func (e *Env) EvalConst(name string, file *File) (opconst.Const, error) {
 // position of the error when possible.
 func (e *Env) Errorf(file *File, pos parse.Pos, format string, v ...interface{}) {
 	e.Errors.Error(fpStringf(file, pos, format, v...))
+}
+
+// Warningf is like errorf but for warning messages that will not cause the
+// compilation to fail.
+func (e *Env) Warningf(file *File, pos parse.Pos, format string, v ...interface{}) {
+	e.Warnings.Error(fpStringf(file, pos, "Warning: "+format, v...))
 }
 
 func (e *Env) prefixErrorf(file *File, pos parse.Pos, err error, format string, v ...interface{}) {

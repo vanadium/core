@@ -197,23 +197,23 @@ var (
 
 // NewErrInvalidAddress returns an error with the ErrInvalidAddress ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidAddress or MessageInvalidAddress instead.
+// use ErrorfErrInvalidAddress or MessageErrInvalidAddress instead.
 func NewErrInvalidAddress(ctx *context.T, address string) error {
 	return verror.New(ErrInvalidAddress, ctx, address)
 }
 
-// ErrorfInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
-func ErrorfInvalidAddress(ctx *context.T, format string, address string) error {
+// ErrorfErrInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
+func ErrorfErrInvalidAddress(ctx *context.T, format string, address string) error {
 	return ErrInvalidAddress.Errorf(ctx, format, address)
 }
 
-// MessageInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
-func MessageInvalidAddress(ctx *context.T, message string, address string) error {
+// MessageErrInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
+func MessageErrInvalidAddress(ctx *context.T, message string, address string) error {
 	return ErrInvalidAddress.Message(ctx, message, address)
 }
 
-// ParamsInvalidAddress extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidAddress(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
+// ParamsErrInvalidAddress extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -243,23 +243,23 @@ func ParamsInvalidAddress(argumentError error) (verrorComponent string, verrorOp
 
 // NewErrAddressNotReachable returns an error with the ErrAddressNotReachable ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAddressNotReachable or MessageAddressNotReachable instead.
+// use ErrorfErrAddressNotReachable or MessageErrAddressNotReachable instead.
 func NewErrAddressNotReachable(ctx *context.T, address string) error {
 	return verror.New(ErrAddressNotReachable, ctx, address)
 }
 
-// ErrorfAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
-func ErrorfAddressNotReachable(ctx *context.T, format string, address string) error {
+// ErrorfErrAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
+func ErrorfErrAddressNotReachable(ctx *context.T, format string, address string) error {
 	return ErrAddressNotReachable.Errorf(ctx, format, address)
 }
 
-// MessageAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
-func MessageAddressNotReachable(ctx *context.T, message string, address string) error {
+// MessageErrAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
+func MessageErrAddressNotReachable(ctx *context.T, message string, address string) error {
 	return ErrAddressNotReachable.Message(ctx, message, address)
 }
 
-// ParamsAddressNotReachable extracts the expected parameters from the error's ParameterList.
-func ParamsAddressNotReachable(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
+// ParamsErrAddressNotReachable extracts the expected parameters from the error's ParameterList.
+func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -289,23 +289,23 @@ func ParamsAddressNotReachable(argumentError error) (verrorComponent string, ver
 
 // NewErrNoRegisteredProtocol returns an error with the ErrNoRegisteredProtocol ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoRegisteredProtocol or MessageNoRegisteredProtocol instead.
+// use ErrorfErrNoRegisteredProtocol or MessageErrNoRegisteredProtocol instead.
 func NewErrNoRegisteredProtocol(ctx *context.T, protocol string) error {
 	return verror.New(ErrNoRegisteredProtocol, ctx, protocol)
 }
 
-// ErrorfNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
-func ErrorfNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
+// ErrorfErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
+func ErrorfErrNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
 	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
 }
 
-// MessageNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
-func MessageNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
+// MessageErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
+func MessageErrNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
 	return ErrNoRegisteredProtocol.Message(ctx, message, protocol)
 }
 
-// ParamsNoRegisteredProtocol extracts the expected parameters from the error's ParameterList.
-func ParamsNoRegisteredProtocol(argumentError error) (verrorComponent string, verrorOperation string, protocol string, returnErr error) {
+// ParamsErrNoRegisteredProtocol extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string, verrorOperation string, protocol string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -335,23 +335,23 @@ func ParamsNoRegisteredProtocol(argumentError error) (verrorComponent string, ve
 
 // NewErrCantAcceptFromTag returns an error with the ErrCantAcceptFromTag ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCantAcceptFromTag or MessageCantAcceptFromTag instead.
+// use ErrorfErrCantAcceptFromTag or MessageErrCantAcceptFromTag instead.
 func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
 	return verror.New(ErrCantAcceptFromTag, ctx, tag)
 }
 
-// ErrorfCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
-func ErrorfCantAcceptFromTag(ctx *context.T, format string, tag string) error {
+// ErrorfErrCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
+func ErrorfErrCantAcceptFromTag(ctx *context.T, format string, tag string) error {
 	return ErrCantAcceptFromTag.Errorf(ctx, format, tag)
 }
 
-// MessageCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
-func MessageCantAcceptFromTag(ctx *context.T, message string, tag string) error {
+// MessageErrCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
+func MessageErrCantAcceptFromTag(ctx *context.T, message string, tag string) error {
 	return ErrCantAcceptFromTag.Message(ctx, message, tag)
 }
 
-// ParamsCantAcceptFromTag extracts the expected parameters from the error's ParameterList.
-func ParamsCantAcceptFromTag(argumentError error) (verrorComponent string, verrorOperation string, tag string, returnErr error) {
+// ParamsErrCantAcceptFromTag extracts the expected parameters from the error's ParameterList.
+func ParamsErrCantAcceptFromTag(argumentError error) (verrorComponent string, verrorOperation string, tag string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

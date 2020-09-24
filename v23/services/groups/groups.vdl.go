@@ -381,23 +381,23 @@ var (
 
 // NewErrNoBlessings returns an error with the ErrNoBlessings ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoBlessings or MessageNoBlessings instead.
+// use ErrorfErrNoBlessings or MessageErrNoBlessings instead.
 func NewErrNoBlessings(ctx *context.T) error {
 	return verror.New(ErrNoBlessings, ctx)
 }
 
-// ErrorfNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
-func ErrorfNoBlessings(ctx *context.T, format string) error {
+// ErrorfErrNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
+func ErrorfErrNoBlessings(ctx *context.T, format string) error {
 	return ErrNoBlessings.Errorf(ctx, format)
 }
 
-// MessageNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
-func MessageNoBlessings(ctx *context.T, message string) error {
+// MessageErrNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
+func MessageErrNoBlessings(ctx *context.T, message string) error {
 	return ErrNoBlessings.Message(ctx, message)
 }
 
-// ParamsNoBlessings extracts the expected parameters from the error's ParameterList.
-func ParamsNoBlessings(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoBlessings extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -414,23 +414,23 @@ func ParamsNoBlessings(argumentError error) (verrorComponent string, verrorOpera
 
 // NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExcessiveContention or MessageExcessiveContention instead.
+// use ErrorfErrExcessiveContention or MessageErrExcessiveContention instead.
 func NewErrExcessiveContention(ctx *context.T) error {
 	return verror.New(ErrExcessiveContention, ctx)
 }
 
-// ErrorfExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
-func ErrorfExcessiveContention(ctx *context.T, format string) error {
+// ErrorfErrExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
+func ErrorfErrExcessiveContention(ctx *context.T, format string) error {
 	return ErrExcessiveContention.Errorf(ctx, format)
 }
 
-// MessageExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
-func MessageExcessiveContention(ctx *context.T, message string) error {
+// MessageErrExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
+func MessageErrExcessiveContention(ctx *context.T, message string) error {
 	return ErrExcessiveContention.Message(ctx, message)
 }
 
-// ParamsExcessiveContention extracts the expected parameters from the error's ParameterList.
-func ParamsExcessiveContention(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrExcessiveContention extracts the expected parameters from the error's ParameterList.
+func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -447,23 +447,23 @@ func ParamsExcessiveContention(argumentError error) (verrorComponent string, ver
 
 // NewErrCycleFound returns an error with the ErrCycleFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCycleFound or MessageCycleFound instead.
+// use ErrorfErrCycleFound or MessageErrCycleFound instead.
 func NewErrCycleFound(ctx *context.T, name string, visited string) error {
 	return verror.New(ErrCycleFound, ctx, name, visited)
 }
 
-// ErrorfCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
-func ErrorfCycleFound(ctx *context.T, format string, name string, visited string) error {
+// ErrorfErrCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
+func ErrorfErrCycleFound(ctx *context.T, format string, name string, visited string) error {
 	return ErrCycleFound.Errorf(ctx, format, name, visited)
 }
 
-// MessageCycleFound calls ErrCycleFound.Message with the supplied arguments.
-func MessageCycleFound(ctx *context.T, message string, name string, visited string) error {
+// MessageErrCycleFound calls ErrCycleFound.Message with the supplied arguments.
+func MessageErrCycleFound(ctx *context.T, message string, name string, visited string) error {
 	return ErrCycleFound.Message(ctx, message, name, visited)
 }
 
-// ParamsCycleFound extracts the expected parameters from the error's ParameterList.
-func ParamsCycleFound(argumentError error) (verrorComponent string, verrorOperation string, name string, visited string, returnErr error) {
+// ParamsErrCycleFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrCycleFound(argumentError error) (verrorComponent string, verrorOperation string, name string, visited string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

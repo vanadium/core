@@ -79,7 +79,7 @@ func runGen(_ *cmdline.Env, _ []string) error {
 
 func buildVDLTestPackage() (*compile.Package, error) {
 	env := compile.NewEnv(-1)
-	pkgs := build.TransitivePackages([]string{vdltestPkgName}, build.UnknownPathIsError, build.Opts{}, env.Errors)
+	pkgs := build.TransitivePackages([]string{vdltestPkgName}, build.UnknownPathIsError, build.Opts{}, env.Errors, env.Warnings)
 	if !env.Errors.IsEmpty() {
 		return nil, env.Errors.ToError()
 	}

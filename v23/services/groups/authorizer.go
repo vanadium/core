@@ -35,16 +35,16 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 	for _, tag := range call.MethodTags() {
 		if tag.Type() == a.tagType {
 			if hasTag {
-				return access.ErrorfMultipleTags(ctx, "authorizer on %v.%v cannot handle multiple tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
+				return access.ErrorfErrMultipleTags(ctx, "authorizer on %v.%v cannot handle multiple tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
 			}
 			hasTag = true
 			if acl, exists := a.perms[tag.RawString()]; !exists || !includes(ctx, acl, convertToSet(blessings...)) {
-				return access.ErrorfNoPermissions(ctx, "%v does not have %v access (rejected blessings: %v)", blessings, invalid, tag.RawString())
+				return access.ErrorfErrNoPermissions(ctx, "%v does not have %v access (rejected blessings: %v)", blessings, invalid, tag.RawString())
 			}
 		}
 	}
 	if !hasTag {
-		return access.ErrorfNoTags(ctx, "authorizer on %v.%v has no tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
+		return access.ErrorfErrNoTags(ctx, "authorizer on %v.%v has no tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
 	}
 	return nil
 }

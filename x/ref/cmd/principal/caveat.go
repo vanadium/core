@@ -80,7 +80,7 @@ func buildPackages(caveatInfos []caveatInfo, env *compile.Env) error {
 	if !env.Errors.IsEmpty() {
 		return fmt.Errorf("can't build expressions %v:\n%v", exprs, env.Errors)
 	}
-	pkgs := build.TransitivePackages(pkgNames, build.UnknownPathIsError, build.Opts{}, env.Errors)
+	pkgs := build.TransitivePackages(pkgNames, build.UnknownPathIsError, build.Opts{}, env.Errors, env.Warnings)
 	if !env.Errors.IsEmpty() {
 		return fmt.Errorf("failed to get transitive packages %v: %s", pkgNames, env.Errors)
 	}

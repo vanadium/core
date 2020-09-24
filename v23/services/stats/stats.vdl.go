@@ -35,23 +35,23 @@ var (
 
 // NewErrNoValue returns an error with the ErrNoValue ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoValue or MessageNoValue instead.
+// use ErrorfErrNoValue or MessageErrNoValue instead.
 func NewErrNoValue(ctx *context.T, suffix string) error {
 	return verror.New(ErrNoValue, ctx, suffix)
 }
 
-// ErrorfNoValue calls ErrNoValue.Errorf with the supplied arguments.
-func ErrorfNoValue(ctx *context.T, format string, suffix string) error {
+// ErrorfErrNoValue calls ErrNoValue.Errorf with the supplied arguments.
+func ErrorfErrNoValue(ctx *context.T, format string, suffix string) error {
 	return ErrNoValue.Errorf(ctx, format, suffix)
 }
 
-// MessageNoValue calls ErrNoValue.Message with the supplied arguments.
-func MessageNoValue(ctx *context.T, message string, suffix string) error {
+// MessageErrNoValue calls ErrNoValue.Message with the supplied arguments.
+func MessageErrNoValue(ctx *context.T, message string, suffix string) error {
 	return ErrNoValue.Message(ctx, message, suffix)
 }
 
-// ParamsNoValue extracts the expected parameters from the error's ParameterList.
-func ParamsNoValue(argumentError error) (verrorComponent string, verrorOperation string, suffix string, returnErr error) {
+// ParamsErrNoValue extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoValue(argumentError error) (verrorComponent string, verrorOperation string, suffix string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

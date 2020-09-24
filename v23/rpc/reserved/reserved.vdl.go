@@ -36,23 +36,23 @@ var (
 
 // NewErrGlobMaxRecursionReached returns an error with the ErrGlobMaxRecursionReached ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfGlobMaxRecursionReached or MessageGlobMaxRecursionReached instead.
+// use ErrorfErrGlobMaxRecursionReached or MessageErrGlobMaxRecursionReached instead.
 func NewErrGlobMaxRecursionReached(ctx *context.T) error {
 	return verror.New(ErrGlobMaxRecursionReached, ctx)
 }
 
-// ErrorfGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
-func ErrorfGlobMaxRecursionReached(ctx *context.T, format string) error {
+// ErrorfErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
+func ErrorfErrGlobMaxRecursionReached(ctx *context.T, format string) error {
 	return ErrGlobMaxRecursionReached.Errorf(ctx, format)
 }
 
-// MessageGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
-func MessageGlobMaxRecursionReached(ctx *context.T, message string) error {
+// MessageErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
+func MessageErrGlobMaxRecursionReached(ctx *context.T, message string) error {
 	return ErrGlobMaxRecursionReached.Message(ctx, message)
 }
 
-// ParamsGlobMaxRecursionReached extracts the expected parameters from the error's ParameterList.
-func ParamsGlobMaxRecursionReached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrGlobMaxRecursionReached extracts the expected parameters from the error's ParameterList.
+func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -69,23 +69,23 @@ func ParamsGlobMaxRecursionReached(argumentError error) (verrorComponent string,
 
 // NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfGlobMatchesOmitted or MessageGlobMatchesOmitted instead.
+// use ErrorfErrGlobMatchesOmitted or MessageErrGlobMatchesOmitted instead.
 func NewErrGlobMatchesOmitted(ctx *context.T) error {
 	return verror.New(ErrGlobMatchesOmitted, ctx)
 }
 
-// ErrorfGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
-func ErrorfGlobMatchesOmitted(ctx *context.T, format string) error {
+// ErrorfErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
+func ErrorfErrGlobMatchesOmitted(ctx *context.T, format string) error {
 	return ErrGlobMatchesOmitted.Errorf(ctx, format)
 }
 
-// MessageGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
-func MessageGlobMatchesOmitted(ctx *context.T, message string) error {
+// MessageErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
+func MessageErrGlobMatchesOmitted(ctx *context.T, message string) error {
 	return ErrGlobMatchesOmitted.Message(ctx, message)
 }
 
-// ParamsGlobMatchesOmitted extracts the expected parameters from the error's ParameterList.
-func ParamsGlobMatchesOmitted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrGlobMatchesOmitted extracts the expected parameters from the error's ParameterList.
+func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -102,23 +102,23 @@ func ParamsGlobMatchesOmitted(argumentError error) (verrorComponent string, verr
 
 // NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfGlobNotImplemented or MessageGlobNotImplemented instead.
+// use ErrorfErrGlobNotImplemented or MessageErrGlobNotImplemented instead.
 func NewErrGlobNotImplemented(ctx *context.T) error {
 	return verror.New(ErrGlobNotImplemented, ctx)
 }
 
-// ErrorfGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
-func ErrorfGlobNotImplemented(ctx *context.T, format string) error {
+// ErrorfErrGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
+func ErrorfErrGlobNotImplemented(ctx *context.T, format string) error {
 	return ErrGlobNotImplemented.Errorf(ctx, format)
 }
 
-// MessageGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
-func MessageGlobNotImplemented(ctx *context.T, message string) error {
+// MessageErrGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
+func MessageErrGlobNotImplemented(ctx *context.T, message string) error {
 	return ErrGlobNotImplemented.Message(ctx, message)
 }
 
-// ParamsGlobNotImplemented extracts the expected parameters from the error's ParameterList.
-func ParamsGlobNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrGlobNotImplemented extracts the expected parameters from the error's ParameterList.
+func ParamsErrGlobNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

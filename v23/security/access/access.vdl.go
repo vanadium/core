@@ -448,23 +448,23 @@ var (
 
 // NewErrTooBig returns an error with the ErrTooBig ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTooBig or MessageTooBig instead.
+// use ErrorfErrTooBig or MessageErrTooBig instead.
 func NewErrTooBig(ctx *context.T) error {
 	return verror.New(ErrTooBig, ctx)
 }
 
-// ErrorfTooBig calls ErrTooBig.Errorf with the supplied arguments.
-func ErrorfTooBig(ctx *context.T, format string) error {
+// ErrorfErrTooBig calls ErrTooBig.Errorf with the supplied arguments.
+func ErrorfErrTooBig(ctx *context.T, format string) error {
 	return ErrTooBig.Errorf(ctx, format)
 }
 
-// MessageTooBig calls ErrTooBig.Message with the supplied arguments.
-func MessageTooBig(ctx *context.T, message string) error {
+// MessageErrTooBig calls ErrTooBig.Message with the supplied arguments.
+func MessageErrTooBig(ctx *context.T, message string) error {
 	return ErrTooBig.Message(ctx, message)
 }
 
-// ParamsTooBig extracts the expected parameters from the error's ParameterList.
-func ParamsTooBig(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrTooBig extracts the expected parameters from the error's ParameterList.
+func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -481,23 +481,23 @@ func ParamsTooBig(argumentError error) (verrorComponent string, verrorOperation 
 
 // NewErrNoPermissions returns an error with the ErrNoPermissions ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoPermissions or MessageNoPermissions instead.
+// use ErrorfErrNoPermissions or MessageErrNoPermissions instead.
 func NewErrNoPermissions(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return verror.New(ErrNoPermissions, ctx, validBlessings, rejectedBlessings, tag)
 }
 
-// ErrorfNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
-func ErrorfNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+// ErrorfErrNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
+func ErrorfErrNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag)
 }
 
-// MessageNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
-func MessageNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+// MessageErrNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
+func MessageErrNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return ErrNoPermissions.Message(ctx, message, validBlessings, rejectedBlessings, tag)
 }
 
-// ParamsNoPermissions extracts the expected parameters from the error's ParameterList.
-func ParamsNoPermissions(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string, returnErr error) {
+// ParamsErrNoPermissions extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -543,23 +543,23 @@ func ParamsNoPermissions(argumentError error) (verrorComponent string, verrorOpe
 
 // NewErrAccessListMatch returns an error with the ErrAccessListMatch ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAccessListMatch or MessageAccessListMatch instead.
+// use ErrorfErrAccessListMatch or MessageErrAccessListMatch instead.
 func NewErrAccessListMatch(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return verror.New(ErrAccessListMatch, ctx, validBlessings, rejectedBlessings)
 }
 
-// ErrorfAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
-func ErrorfAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+// ErrorfErrAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
+func ErrorfErrAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
 }
 
-// MessageAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
-func MessageAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+// MessageErrAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
+func MessageErrAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return ErrAccessListMatch.Message(ctx, message, validBlessings, rejectedBlessings)
 }
 
-// ParamsAccessListMatch extracts the expected parameters from the error's ParameterList.
-func ParamsAccessListMatch(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, returnErr error) {
+// ParamsErrAccessListMatch extracts the expected parameters from the error's ParameterList.
+func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -597,23 +597,23 @@ func ParamsAccessListMatch(argumentError error) (verrorComponent string, verrorO
 
 // NewErrUnenforceablePatterns returns an error with the ErrUnenforceablePatterns ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnenforceablePatterns or MessageUnenforceablePatterns instead.
+// use ErrorfErrUnenforceablePatterns or MessageErrUnenforceablePatterns instead.
 func NewErrUnenforceablePatterns(ctx *context.T, rejectedPatterns []security.BlessingPattern) error {
 	return verror.New(ErrUnenforceablePatterns, ctx, rejectedPatterns)
 }
 
-// ErrorfUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
-func ErrorfUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
+// ErrorfErrUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
+func ErrorfErrUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
 	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
 }
 
-// MessageUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
-func MessageUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
+// MessageErrUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
+func MessageErrUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
 	return ErrUnenforceablePatterns.Message(ctx, message, rejectedPatterns)
 }
 
-// ParamsUnenforceablePatterns extracts the expected parameters from the error's ParameterList.
-func ParamsUnenforceablePatterns(argumentError error) (verrorComponent string, verrorOperation string, rejectedPatterns []security.BlessingPattern, returnErr error) {
+// ParamsErrUnenforceablePatterns extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string, verrorOperation string, rejectedPatterns []security.BlessingPattern, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -643,23 +643,23 @@ func ParamsUnenforceablePatterns(argumentError error) (verrorComponent string, v
 
 // NewErrInvalidOpenAccessList returns an error with the ErrInvalidOpenAccessList ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidOpenAccessList or MessageInvalidOpenAccessList instead.
+// use ErrorfErrInvalidOpenAccessList or MessageErrInvalidOpenAccessList instead.
 func NewErrInvalidOpenAccessList(ctx *context.T) error {
 	return verror.New(ErrInvalidOpenAccessList, ctx)
 }
 
-// ErrorfInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
-func ErrorfInvalidOpenAccessList(ctx *context.T, format string) error {
+// ErrorfErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
+func ErrorfErrInvalidOpenAccessList(ctx *context.T, format string) error {
 	return ErrInvalidOpenAccessList.Errorf(ctx, format)
 }
 
-// MessageInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
-func MessageInvalidOpenAccessList(ctx *context.T, message string) error {
+// MessageErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
+func MessageErrInvalidOpenAccessList(ctx *context.T, message string) error {
 	return ErrInvalidOpenAccessList.Message(ctx, message)
 }
 
-// ParamsInvalidOpenAccessList extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidOpenAccessList(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrInvalidOpenAccessList extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -676,23 +676,23 @@ func ParamsInvalidOpenAccessList(argumentError error) (verrorComponent string, v
 
 // NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAccessTagCaveatValidation or MessageAccessTagCaveatValidation instead.
+// use ErrorfErrAccessTagCaveatValidation or MessageErrAccessTagCaveatValidation instead.
 func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
 	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
 }
 
-// ErrorfAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
-func ErrorfAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
+// ErrorfErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
 	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags)
 }
 
-// MessageAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
-func MessageAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
+// MessageErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
+func MessageErrAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
 	return ErrAccessTagCaveatValidation.Message(ctx, message, methodTags, caveatTags)
 }
 
-// ParamsAccessTagCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsAccessTagCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, methodTags []string, caveatTags []Tag, returnErr error) {
+// ParamsErrAccessTagCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, methodTags []string, caveatTags []Tag, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -730,23 +730,23 @@ func ParamsAccessTagCaveatValidation(argumentError error) (verrorComponent strin
 
 // NewErrMultipleTags returns an error with the ErrMultipleTags ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfMultipleTags or MessageMultipleTags instead.
+// use ErrorfErrMultipleTags or MessageErrMultipleTags instead.
 func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
 }
 
-// ErrorfMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
-func ErrorfMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+// ErrorfErrMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
+func ErrorfErrMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
 	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag)
 }
 
-// MessageMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
-func MessageMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+// MessageErrMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
+func MessageErrMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
 	return ErrMultipleTags.Message(ctx, message, suffix, method, tag)
 }
 
-// ParamsMultipleTags extracts the expected parameters from the error's ParameterList.
-func ParamsMultipleTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
+// ParamsErrMultipleTags extracts the expected parameters from the error's ParameterList.
+func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -792,23 +792,23 @@ func ParamsMultipleTags(argumentError error) (verrorComponent string, verrorOper
 
 // NewErrNoTags returns an error with the ErrNoTags ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoTags or MessageNoTags instead.
+// use ErrorfErrNoTags or MessageErrNoTags instead.
 func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrNoTags, ctx, suffix, method, tag)
 }
 
-// ErrorfNoTags calls ErrNoTags.Errorf with the supplied arguments.
-func ErrorfNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+// ErrorfErrNoTags calls ErrNoTags.Errorf with the supplied arguments.
+func ErrorfErrNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
 	return ErrNoTags.Errorf(ctx, format, suffix, method, tag)
 }
 
-// MessageNoTags calls ErrNoTags.Message with the supplied arguments.
-func MessageNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+// MessageErrNoTags calls ErrNoTags.Message with the supplied arguments.
+func MessageErrNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
 	return ErrNoTags.Message(ctx, message, suffix, method, tag)
 }
 
-// ParamsNoTags extracts the expected parameters from the error's ParameterList.
-func ParamsNoTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
+// ParamsErrNoTags extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

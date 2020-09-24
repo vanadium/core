@@ -383,7 +383,8 @@ func testTransitivePackages(t *testing.T) {
 		for _, mode := range allModes {
 			name := fmt.Sprintf("%v %v", mode, test.InPaths)
 			errs := vdlutil.NewErrors(-1)
-			pkgs := build.TransitivePackages(test.InPaths, mode, build.Opts{}, errs)
+			warnings := vdlutil.NewErrors(-1)
+			pkgs := build.TransitivePackages(test.InPaths, mode, build.Opts{}, errs, warnings)
 			vdltestutil.ExpectResult(t, errs, name, "")
 			var paths []string
 			for _, pkg := range pkgs {
@@ -479,7 +480,8 @@ func testTransitivePackagesUnknownPathError(t *testing.T) {
 		for _, mode := range allModes {
 			name := fmt.Sprintf("%v %v", mode, test.InPaths)
 			errs := vdlutil.NewErrors(-1)
-			pkgs := build.TransitivePackages(test.InPaths, mode, build.Opts{}, errs)
+			warnings := vdlutil.NewErrors(-1)
+			pkgs := build.TransitivePackages(test.InPaths, mode, build.Opts{}, errs, warnings)
 			errRE := test.ErrRE
 			if mode == build.UnknownPathIsIgnored {
 				// Ignore mode returns success, while error mode returns error.
@@ -512,7 +514,7 @@ func TestPackageConfig(t *testing.T) {
 	for _, test := range tests {
 		name := path.Base(test.Path)
 		env := compile.NewEnv(-1)
-		deps := build.TransitivePackages([]string{test.Path}, build.UnknownPathIsError, build.Opts{}, env.Errors)
+		deps := build.TransitivePackages([]string{test.Path}, build.UnknownPathIsError, build.Opts{}, env.Errors, env.Warnings)
 		vdltestutil.ExpectResult(t, env.Errors, name, "")
 		if len(deps) != 1 {
 			t.Fatalf("TransitivePackages(%q) got %v, want 1 dep", name, deps)
@@ -552,7 +554,7 @@ func TestBuildConfig(t *testing.T) {
 	for _, test := range tests {
 		// Build import package dependencies.
 		env := compile.NewEnv(-1)
-		deps := build.TransitivePackagesForConfig("file", strings.NewReader(test.Src), build.Opts{}, env.Errors)
+		deps := build.TransitivePackagesForConfig("file", strings.NewReader(test.Src), build.Opts{}, env.Errors, env.Warnings)
 		for _, dep := range deps {
 			build.BuildPackage(dep, env)
 		}

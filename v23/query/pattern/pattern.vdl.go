@@ -28,23 +28,23 @@ var (
 
 // NewErrIllegalEscapeChar returns an error with the ErrIllegalEscapeChar ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIllegalEscapeChar or MessageIllegalEscapeChar instead.
+// use ErrorfErrIllegalEscapeChar or MessageErrIllegalEscapeChar instead.
 func NewErrIllegalEscapeChar(ctx *context.T) error {
 	return verror.New(ErrIllegalEscapeChar, ctx)
 }
 
-// ErrorfIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
-func ErrorfIllegalEscapeChar(ctx *context.T, format string) error {
+// ErrorfErrIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
+func ErrorfErrIllegalEscapeChar(ctx *context.T, format string) error {
 	return ErrIllegalEscapeChar.Errorf(ctx, format)
 }
 
-// MessageIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
-func MessageIllegalEscapeChar(ctx *context.T, message string) error {
+// MessageErrIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
+func MessageErrIllegalEscapeChar(ctx *context.T, message string) error {
 	return ErrIllegalEscapeChar.Message(ctx, message)
 }
 
-// ParamsIllegalEscapeChar extracts the expected parameters from the error's ParameterList.
-func ParamsIllegalEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrIllegalEscapeChar extracts the expected parameters from the error's ParameterList.
+func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -61,23 +61,23 @@ func ParamsIllegalEscapeChar(argumentError error) (verrorComponent string, verro
 
 // NewErrInvalidEscape returns an error with the ErrInvalidEscape ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidEscape or MessageInvalidEscape instead.
+// use ErrorfErrInvalidEscape or MessageErrInvalidEscape instead.
 func NewErrInvalidEscape(ctx *context.T, escaped string) error {
 	return verror.New(ErrInvalidEscape, ctx, escaped)
 }
 
-// ErrorfInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
-func ErrorfInvalidEscape(ctx *context.T, format string, escaped string) error {
+// ErrorfErrInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
+func ErrorfErrInvalidEscape(ctx *context.T, format string, escaped string) error {
 	return ErrInvalidEscape.Errorf(ctx, format, escaped)
 }
 
-// MessageInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
-func MessageInvalidEscape(ctx *context.T, message string, escaped string) error {
+// MessageErrInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
+func MessageErrInvalidEscape(ctx *context.T, message string, escaped string) error {
 	return ErrInvalidEscape.Message(ctx, message, escaped)
 }
 
-// ParamsInvalidEscape extracts the expected parameters from the error's ParameterList.
-func ParamsInvalidEscape(argumentError error) (verrorComponent string, verrorOperation string, escaped string, returnErr error) {
+// ParamsErrInvalidEscape extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidEscape(argumentError error) (verrorComponent string, verrorOperation string, escaped string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

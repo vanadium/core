@@ -2837,23 +2837,23 @@ var (
 
 // NewErrNoParams1 returns an error with the ErrNoParams1 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams1 or MessageNoParams1 instead.
+// use ErrorfErrNoParams1 or MessageErrNoParams1 instead.
 func NewErrNoParams1(ctx *context.T) error {
 	return verror.New(ErrNoParams1, ctx)
 }
 
-// ErrorfNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
-func ErrorfNoParams1(ctx *context.T, format string) error {
+// ErrorfErrNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
+func ErrorfErrNoParams1(ctx *context.T, format string) error {
 	return ErrNoParams1.Errorf(ctx, format)
 }
 
-// MessageNoParams1 calls ErrNoParams1.Message with the supplied arguments.
-func MessageNoParams1(ctx *context.T, message string) error {
+// MessageErrNoParams1 calls ErrNoParams1.Message with the supplied arguments.
+func MessageErrNoParams1(ctx *context.T, message string) error {
 	return ErrNoParams1.Message(ctx, message)
 }
 
-// ParamsNoParams1 extracts the expected parameters from the error's ParameterList.
-func ParamsNoParams1(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoParams1 extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoParams1(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2870,23 +2870,23 @@ func ParamsNoParams1(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrNoParams2 returns an error with the ErrNoParams2 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams2 or MessageNoParams2 instead.
+// use ErrorfErrNoParams2 or MessageErrNoParams2 instead.
 func NewErrNoParams2(ctx *context.T) error {
 	return verror.New(ErrNoParams2, ctx)
 }
 
-// ErrorfNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
-func ErrorfNoParams2(ctx *context.T, format string) error {
+// ErrorfErrNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
+func ErrorfErrNoParams2(ctx *context.T, format string) error {
 	return ErrNoParams2.Errorf(ctx, format)
 }
 
-// MessageNoParams2 calls ErrNoParams2.Message with the supplied arguments.
-func MessageNoParams2(ctx *context.T, message string) error {
+// MessageErrNoParams2 calls ErrNoParams2.Message with the supplied arguments.
+func MessageErrNoParams2(ctx *context.T, message string) error {
 	return ErrNoParams2.Message(ctx, message)
 }
 
-// ParamsNoParams2 extracts the expected parameters from the error's ParameterList.
-func ParamsNoParams2(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoParams2 extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoParams2(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2903,23 +2903,23 @@ func ParamsNoParams2(argumentError error) (verrorComponent string, verrorOperati
 
 // NewErrWithParams1 returns an error with the ErrWithParams1 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfWithParams1 or MessageWithParams1 instead.
+// use ErrorfErrWithParams1 or MessageErrWithParams1 instead.
 func NewErrWithParams1(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams1, ctx, x, y)
 }
 
-// ErrorfWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
-func ErrorfWithParams1(ctx *context.T, format string, x string, y int32) error {
+// ErrorfErrWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
+func ErrorfErrWithParams1(ctx *context.T, format string, x string, y int32) error {
 	return ErrWithParams1.Errorf(ctx, format, x, y)
 }
 
-// MessageWithParams1 calls ErrWithParams1.Message with the supplied arguments.
-func MessageWithParams1(ctx *context.T, message string, x string, y int32) error {
+// MessageErrWithParams1 calls ErrWithParams1.Message with the supplied arguments.
+func MessageErrWithParams1(ctx *context.T, message string, x string, y int32) error {
 	return ErrWithParams1.Message(ctx, message, x, y)
 }
 
-// ParamsWithParams1 extracts the expected parameters from the error's ParameterList.
-func ParamsWithParams1(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
+// ParamsErrWithParams1 extracts the expected parameters from the error's ParameterList.
+func ParamsErrWithParams1(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -2957,23 +2957,23 @@ func ParamsWithParams1(argumentError error) (verrorComponent string, verrorOpera
 
 // NewErrWithParams2 returns an error with the ErrWithParams2 ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfWithParams2 or MessageWithParams2 instead.
+// use ErrorfErrWithParams2 or MessageErrWithParams2 instead.
 func NewErrWithParams2(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams2, ctx, x, y)
 }
 
-// ErrorfWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
-func ErrorfWithParams2(ctx *context.T, format string, x string, y int32) error {
+// ErrorfErrWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
+func ErrorfErrWithParams2(ctx *context.T, format string, x string, y int32) error {
 	return ErrWithParams2.Errorf(ctx, format, x, y)
 }
 
-// MessageWithParams2 calls ErrWithParams2.Message with the supplied arguments.
-func MessageWithParams2(ctx *context.T, message string, x string, y int32) error {
+// MessageErrWithParams2 calls ErrWithParams2.Message with the supplied arguments.
+func MessageErrWithParams2(ctx *context.T, message string, x string, y int32) error {
 	return ErrWithParams2.Message(ctx, message, x, y)
 }
 
-// ParamsWithParams2 extracts the expected parameters from the error's ParameterList.
-func ParamsWithParams2(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
+// ParamsErrWithParams2 extracts the expected parameters from the error's ParameterList.
+func ParamsErrWithParams2(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -3011,23 +3011,23 @@ func ParamsWithParams2(argumentError error) (verrorComponent string, verrorOpera
 
 // newErrNotExported returns an error with the errNotExported ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use errorfNotExported or messageNotExported instead.
+// use errorfErrNotExported or messageErrNotExported instead.
 func newErrNotExported(ctx *context.T, x string, y int32) error {
 	return verror.New(errNotExported, ctx, x, y)
 }
 
-// errorfNotExported calls errNotExported.Errorf with the supplied arguments.
-func errorfNotExported(ctx *context.T, format string, x string, y int32) error {
+// errorfErrNotExported calls errNotExported.Errorf with the supplied arguments.
+func errorfErrNotExported(ctx *context.T, format string, x string, y int32) error {
 	return errNotExported.Errorf(ctx, format, x, y)
 }
 
-// messageNotExported calls errNotExported.Message with the supplied arguments.
-func messageNotExported(ctx *context.T, message string, x string, y int32) error {
+// messageErrNotExported calls errNotExported.Message with the supplied arguments.
+func messageErrNotExported(ctx *context.T, message string, x string, y int32) error {
 	return errNotExported.Message(ctx, message, x, y)
 }
 
-// paramsNotExported extracts the expected parameters from the error's ParameterList.
-func paramsNotExported(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
+// paramsErrNotExported extracts the expected parameters from the error's ParameterList.
+func paramsErrNotExported(argumentError error) (verrorComponent string, verrorOperation string, x string, y int32, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

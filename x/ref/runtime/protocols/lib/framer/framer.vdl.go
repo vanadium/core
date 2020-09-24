@@ -27,23 +27,23 @@ var (
 
 // NewErrLargerThan3ByteUInt returns an error with the ErrLargerThan3ByteUInt ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfLargerThan3ByteUInt or MessageLargerThan3ByteUInt instead.
+// use ErrorfErrLargerThan3ByteUInt or MessageErrLargerThan3ByteUInt instead.
 func NewErrLargerThan3ByteUInt(ctx *context.T) error {
 	return verror.New(ErrLargerThan3ByteUInt, ctx)
 }
 
-// ErrorfLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
-func ErrorfLargerThan3ByteUInt(ctx *context.T, format string) error {
+// ErrorfErrLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
+func ErrorfErrLargerThan3ByteUInt(ctx *context.T, format string) error {
 	return ErrLargerThan3ByteUInt.Errorf(ctx, format)
 }
 
-// MessageLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.
-func MessageLargerThan3ByteUInt(ctx *context.T, message string) error {
+// MessageErrLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.
+func MessageErrLargerThan3ByteUInt(ctx *context.T, message string) error {
 	return ErrLargerThan3ByteUInt.Message(ctx, message)
 }
 
-// ParamsLargerThan3ByteUInt extracts the expected parameters from the error's ParameterList.
-func ParamsLargerThan3ByteUInt(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrLargerThan3ByteUInt extracts the expected parameters from the error's ParameterList.
+func ParamsErrLargerThan3ByteUInt(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)

@@ -460,23 +460,23 @@ var (
 
 // NewErrAdvertisementNotFound returns an error with the ErrAdvertisementNotFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAdvertisementNotFound or MessageAdvertisementNotFound instead.
+// use ErrorfErrAdvertisementNotFound or MessageErrAdvertisementNotFound instead.
 func NewErrAdvertisementNotFound(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAdvertisementNotFound, ctx, id)
 }
 
-// ErrorfAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
-func ErrorfAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
+// ErrorfErrAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
+func ErrorfErrAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
 	return ErrAdvertisementNotFound.Errorf(ctx, format, id)
 }
 
-// MessageAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
-func MessageAdvertisementNotFound(ctx *context.T, message string, id discovery.AdId) error {
+// MessageErrAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
+func MessageErrAdvertisementNotFound(ctx *context.T, message string, id discovery.AdId) error {
 	return ErrAdvertisementNotFound.Message(ctx, message, id)
 }
 
-// ParamsAdvertisementNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsAdvertisementNotFound(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
+// ParamsErrAdvertisementNotFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrAdvertisementNotFound(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -506,23 +506,23 @@ func ParamsAdvertisementNotFound(argumentError error) (verrorComponent string, v
 
 // NewErrAlreadyBeingAdvertised returns an error with the ErrAlreadyBeingAdvertised ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAlreadyBeingAdvertised or MessageAlreadyBeingAdvertised instead.
+// use ErrorfErrAlreadyBeingAdvertised or MessageErrAlreadyBeingAdvertised instead.
 func NewErrAlreadyBeingAdvertised(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAlreadyBeingAdvertised, ctx, id)
 }
 
-// ErrorfAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
-func ErrorfAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
+// ErrorfErrAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
+func ErrorfErrAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
 	return ErrAlreadyBeingAdvertised.Errorf(ctx, format, id)
 }
 
-// MessageAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
-func MessageAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
+// MessageErrAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
+func MessageErrAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
 	return ErrAlreadyBeingAdvertised.Message(ctx, message, id)
 }
 
-// ParamsAlreadyBeingAdvertised extracts the expected parameters from the error's ParameterList.
-func ParamsAlreadyBeingAdvertised(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
+// ParamsErrAlreadyBeingAdvertised extracts the expected parameters from the error's ParameterList.
+func ParamsErrAlreadyBeingAdvertised(argumentError error) (verrorComponent string, verrorOperation string, id discovery.AdId, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -552,23 +552,23 @@ func ParamsAlreadyBeingAdvertised(argumentError error) (verrorComponent string, 
 
 // NewErrBadAdvertisement returns an error with the ErrBadAdvertisement ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadAdvertisement or MessageBadAdvertisement instead.
+// use ErrorfErrBadAdvertisement or MessageErrBadAdvertisement instead.
 func NewErrBadAdvertisement(ctx *context.T, err error) error {
 	return verror.New(ErrBadAdvertisement, ctx, err)
 }
 
-// ErrorfBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
-func ErrorfBadAdvertisement(ctx *context.T, format string, err error) error {
+// ErrorfErrBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
+func ErrorfErrBadAdvertisement(ctx *context.T, format string, err error) error {
 	return ErrBadAdvertisement.Errorf(ctx, format, err)
 }
 
-// MessageBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
-func MessageBadAdvertisement(ctx *context.T, message string, err error) error {
+// MessageErrBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
+func MessageErrBadAdvertisement(ctx *context.T, message string, err error) error {
 	return ErrBadAdvertisement.Message(ctx, message, err)
 }
 
-// ParamsBadAdvertisement extracts the expected parameters from the error's ParameterList.
-func ParamsBadAdvertisement(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+// ParamsErrBadAdvertisement extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadAdvertisement(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -598,23 +598,23 @@ func ParamsBadAdvertisement(argumentError error) (verrorComponent string, verror
 
 // NewErrBadQuery returns an error with the ErrBadQuery ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadQuery or MessageBadQuery instead.
+// use ErrorfErrBadQuery or MessageErrBadQuery instead.
 func NewErrBadQuery(ctx *context.T, err error) error {
 	return verror.New(ErrBadQuery, ctx, err)
 }
 
-// ErrorfBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
-func ErrorfBadQuery(ctx *context.T, format string, err error) error {
+// ErrorfErrBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
+func ErrorfErrBadQuery(ctx *context.T, format string, err error) error {
 	return ErrBadQuery.Errorf(ctx, format, err)
 }
 
-// MessageBadQuery calls ErrBadQuery.Message with the supplied arguments.
-func MessageBadQuery(ctx *context.T, message string, err error) error {
+// MessageErrBadQuery calls ErrBadQuery.Message with the supplied arguments.
+func MessageErrBadQuery(ctx *context.T, message string, err error) error {
 	return ErrBadQuery.Message(ctx, message, err)
 }
 
-// ParamsBadQuery extracts the expected parameters from the error's ParameterList.
-func ParamsBadQuery(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+// ParamsErrBadQuery extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadQuery(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -644,23 +644,23 @@ func ParamsBadQuery(argumentError error) (verrorComponent string, verrorOperatio
 
 // NewErrDiscoveryClosed returns an error with the ErrDiscoveryClosed ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDiscoveryClosed or MessageDiscoveryClosed instead.
+// use ErrorfErrDiscoveryClosed or MessageErrDiscoveryClosed instead.
 func NewErrDiscoveryClosed(ctx *context.T) error {
 	return verror.New(ErrDiscoveryClosed, ctx)
 }
 
-// ErrorfDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
-func ErrorfDiscoveryClosed(ctx *context.T, format string) error {
+// ErrorfErrDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
+func ErrorfErrDiscoveryClosed(ctx *context.T, format string) error {
 	return ErrDiscoveryClosed.Errorf(ctx, format)
 }
 
-// MessageDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
-func MessageDiscoveryClosed(ctx *context.T, message string) error {
+// MessageErrDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
+func MessageErrDiscoveryClosed(ctx *context.T, message string) error {
 	return ErrDiscoveryClosed.Message(ctx, message)
 }
 
-// ParamsDiscoveryClosed extracts the expected parameters from the error's ParameterList.
-func ParamsDiscoveryClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrDiscoveryClosed extracts the expected parameters from the error's ParameterList.
+func ParamsErrDiscoveryClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -677,23 +677,23 @@ func ParamsDiscoveryClosed(argumentError error) (verrorComponent string, verrorO
 
 // NewErrNoDiscoveryPlugin returns an error with the ErrNoDiscoveryPlugin ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoDiscoveryPlugin or MessageNoDiscoveryPlugin instead.
+// use ErrorfErrNoDiscoveryPlugin or MessageErrNoDiscoveryPlugin instead.
 func NewErrNoDiscoveryPlugin(ctx *context.T) error {
 	return verror.New(ErrNoDiscoveryPlugin, ctx)
 }
 
-// ErrorfNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
-func ErrorfNoDiscoveryPlugin(ctx *context.T, format string) error {
+// ErrorfErrNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
+func ErrorfErrNoDiscoveryPlugin(ctx *context.T, format string) error {
 	return ErrNoDiscoveryPlugin.Errorf(ctx, format)
 }
 
-// MessageNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
-func MessageNoDiscoveryPlugin(ctx *context.T, message string) error {
+// MessageErrNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
+func MessageErrNoDiscoveryPlugin(ctx *context.T, message string) error {
 	return ErrNoDiscoveryPlugin.Message(ctx, message)
 }
 
-// ParamsNoDiscoveryPlugin extracts the expected parameters from the error's ParameterList.
-func ParamsNoDiscoveryPlugin(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+// ParamsErrNoDiscoveryPlugin extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoDiscoveryPlugin(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
@@ -710,23 +710,23 @@ func ParamsNoDiscoveryPlugin(argumentError error) (verrorComponent string, verro
 
 // NewErrTooManyPlugins returns an error with the ErrTooManyPlugins ID.
 // WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTooManyPlugins or MessageTooManyPlugins instead.
+// use ErrorfErrTooManyPlugins or MessageErrTooManyPlugins instead.
 func NewErrTooManyPlugins(ctx *context.T, actual int32, limit int32) error {
 	return verror.New(ErrTooManyPlugins, ctx, actual, limit)
 }
 
-// ErrorfTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
-func ErrorfTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
+// ErrorfErrTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
+func ErrorfErrTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
 	return ErrTooManyPlugins.Errorf(ctx, format, actual, limit)
 }
 
-// MessageTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
-func MessageTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
+// MessageErrTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
+func MessageErrTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
 	return ErrTooManyPlugins.Message(ctx, message, actual, limit)
 }
 
-// ParamsTooManyPlugins extracts the expected parameters from the error's ParameterList.
-func ParamsTooManyPlugins(argumentError error) (verrorComponent string, verrorOperation string, actual int32, limit int32, returnErr error) {
+// ParamsErrTooManyPlugins extracts the expected parameters from the error's ParameterList.
+func ParamsErrTooManyPlugins(argumentError error) (verrorComponent string, verrorOperation string, actual int32, limit int32, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
