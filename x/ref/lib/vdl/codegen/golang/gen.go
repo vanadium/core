@@ -400,6 +400,7 @@ func init() {
 		"clientFinishImpl":      clientFinishImpl,
 		"serverStubImpl":        serverStubImpl,
 		"reInitStreamValue":     reInitStreamValue,
+		"callVerror":            callVerror,
 	}
 	goTemplate = template.Must(template.New("genGo").Funcs(funcMap).Parse(genGo))
 }
@@ -629,6 +630,13 @@ func reInitStreamValue(data *goData, t *vdl.Type, name string) string {
 	return ""
 }
 
+func callVerror(data *goData, call string) string {
+	if data.Package.Name == "verror" {
+		return call
+	}
+	return "verror." + call
+}
+
 // The template that we execute against a goData instance to generate our
 // code.  Most of this is fairly straightforward substitution and ranges; more
 // complicated logic is delegated to the helper functions above.
@@ -716,8 +724,43 @@ func {{$message}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, messag
 	return {{$errName}}.Message({{argNames "" "" "ctx" "message" "" $edef.Params}})
 }
 
+{{$params := print (firstRuneToExport "Params" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+// {{$params}} extracts the expected parameters from the error's ParameterList.
+func {{$params}}(err error) ({{argNameTypes "" "verrorComponent string" "verrorOperation string"  "returnErr error" $data $edef.Params}}) {
+	params := {{callVerror $data "Params(err)"}}
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in %v", err)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	verrorComponent, returnErr = iter.next().(string)
+	verrorOperation, returnErr = iter.next().(string){{if $edef.Params}}
+	{{range $edef.Params}}{{.Name}}, returnErr = iter.next().({{typeGo $data .Type}})
+	{{end}}{{end}}
+	return
+}
+
 {{end}}
 {{end}}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
 
 {{if $pkg.Interfaces}}
 //////////////////////////////////////////////////
