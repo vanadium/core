@@ -10,6 +10,7 @@ import (
 	"bytes"
 	gocontext "context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"html/template"
@@ -293,7 +294,7 @@ func (h *statsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	timeoutCtx, cancel := h.withTimeout(ctx)
 	defer cancel()
 	v, err := stats.StatsClient(name).Value(timeoutCtx)
-	if verror.ErrorID(err) == verror.ErrNoExist.ID {
+	if errors.Is(err, verror.ErrNoExist) {
 		// Stat does not exist as a value, that's okay.
 		err = nil
 		hasValue = false
@@ -374,7 +375,7 @@ func (h *statsHandler) GetTimeSeriesData(server string, children []string, ctx *
 		if strings.Contains(child, "/timeseries") {
 			n := fmt.Sprintf("%s%s", naming.Join(server, "__debug", "stats"), child)
 			v, err := stats.StatsClient(n).Value(ctx)
-			if err != nil && verror.ErrorID(err) != verror.ErrNoExist.ID {
+			if err != nil && !errors.Is(err, verror.ErrNoExist) {
 				return "", err
 			}
 			var value interface{}

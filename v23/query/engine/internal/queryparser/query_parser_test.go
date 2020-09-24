@@ -5,6 +5,7 @@
 package queryparser_test
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -16,7 +17,6 @@ import (
 	"v.io/v23/query/engine/internal/queryparser"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
 )
@@ -4783,7 +4783,7 @@ func TestQueryParserErrors(t *testing.T) {
 	for _, test := range basic {
 		_, err := queryparser.Parse(&db, test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}
@@ -5524,7 +5524,7 @@ func TestCopyAndSubstituteError(t *testing.T) {
 		}
 		_, err = (*st).CopyAndSubstitute(&db, test.subValues)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}
@@ -5534,7 +5534,7 @@ func TestStatementSizeExceeded(t *testing.T) {
 	q := fmt.Sprintf("select a from b where c = \"%s\"", strings.Repeat("x", 12000))
 	_, err := queryparser.Parse(&db, q)
 	expectedErr := syncql.NewErrMaxStatementLenExceeded(db.GetContext(), int64(0), queryparser.MaxStatementLen, int64(len(q)))
-	if verror.ErrorID(err) != verror.ErrorID(expectedErr) || err.Error() != expectedErr.Error() {
+	if !errors.Is(err, expectedErr) || err.Error() != expectedErr.Error() {
 		t.Errorf("query: %s; got %v, want %v", q, err, expectedErr)
 	}
 }

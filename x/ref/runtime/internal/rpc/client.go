@@ -5,6 +5,7 @@
 package rpc
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -51,12 +52,8 @@ var (
 	errBadInputArg     = verror.NewID("badInputArg")
 )
 
-func isTimeout(err error) bool {
-	return verror.ErrorID(err) == verror.ErrTimeout.ID
-}
-
 func preferNonTimeout(curr, prev error) error {
-	if prev != nil && isTimeout(curr) {
+	if prev != nil && errors.Is(curr, verror.ErrTimeout) {
 		return prev
 	}
 	return curr
@@ -318,11 +315,11 @@ func (c *client) tryConnectToName(ctx *context.T, name, method string, args []in
 	blessingPattern, name := security.SplitPatternName(name)
 	resolved, err := v23.GetNamespace(ctx).Resolve(ctx, name, getNamespaceOpts(opts)...)
 	switch {
-	case verror.ErrorID(err) == naming.ErrNoSuchName.ID:
+	case errors.Is(err, naming.ErrNoSuchName):
 		return nil, verror.RetryRefetch, false, verror.ErrNoServers.Errorf(ctx, "no usable servers found for: %v: %v", name, err)
-	case verror.ErrorID(err) == verror.ErrNoServers.ID:
+	case errors.Is(err, verror.ErrNoServers):
 		return nil, verror.NoRetry, false, err // avoid unnecessary wrapping
-	case isTimeout(err):
+	case errors.Is(err, verror.ErrTimeout):
 		return nil, verror.NoRetry, false, err // return timeout without wrapping
 	case err != nil:
 		return nil, verror.NoRetry, false, verror.ErrNoServers.Errorf(ctx, "no usable servers found for: %v: %v", name, err)
@@ -879,7 +876,7 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	// Incorporate any VTrace info that was returned.
 	vtrace.GetStore(fc.ctx).Merge(fc.response.TraceResponse)
 	if fc.response.Error != nil {
-		if verror.ErrorID(fc.response.Error) == verror.ErrNoAccess.ID {
+		if errors.Is(fc.response.Error, verror.ErrNoAccess) {
 			// In case the error was caused by a bad discharge, we do not want to get stuck
 			// with retrying again and again with this discharge. As there is no direct way
 			// to detect it, we conservatively flush all discharges we used from the cache.

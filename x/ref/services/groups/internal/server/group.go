@@ -9,6 +9,8 @@ package server
 // preserve privacy.
 
 import (
+	"errors"
+
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -56,7 +58,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 		// TODO(sadovsky): We are leaking the fact that this group exists. If the
 		// client doesn't have access to this group, we should probably return an
 		// opaque error. (Reserving buckets for users will help.)
-		if verror.ErrorID(err) == store.ErrKeyExists.ID {
+		if errors.Is(err, store.ErrKeyExists) {
 			return verror.ErrExist.Errorf(ctx, "already exists: %s", g.name)
 		}
 		return verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
@@ -67,7 +69,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 func (g *group) Delete(ctx *context.T, call rpc.ServerCall, version string) error {
 	if err := g.readModifyWrite(ctx, call.Security(), version, func(gd *groupData, versionSt string) error {
 		return g.m.st.Delete(g.name, versionSt)
-	}); err != nil && verror.ErrorID(err) != verror.ErrNoExist.ID {
+	}); err != nil && !errors.Is(err, verror.ErrNoExist) {
 		return err
 	}
 	return nil
@@ -157,7 +159,7 @@ func (g *group) authorize(ctx *context.T, call security.Call, perms access.Permi
 func (g *group) getInternal(ctx *context.T, call security.Call) (gd groupData, version string, err error) {
 	version, err = g.m.st.Get(g.name, &gd)
 	if err != nil {
-		if verror.ErrorID(err) == store.ErrUnknownKey.ID {
+		if errors.Is(err, store.ErrUnknownKey) {
 			return groupData{}, "", verror.ErrNoExist.Errorf(ctx, "does not exist: %v", g.name)
 		}
 		return groupData{}, "", verror.ErrInternal.Errorf(ctx, "internal error: %v", err)
@@ -191,7 +193,7 @@ func (g *group) readModifyWrite(ctx *context.T, call security.Call, version stri
 			return verror.NewErrBadVersion(ctx)
 		}
 		if err := fn(&gd, versionSt); err != nil {
-			if verror.ErrorID(err) == verror.ErrBadVersion.ID {
+			if errors.Is(err, verror.ErrBadVersion) {
 				// Retry on version error if the original version was empty.
 				if version != "" {
 					return err

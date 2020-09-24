@@ -6,13 +6,13 @@ package bcrypter
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"v.io/v23/context"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 
 	"v.io/x/lib/ibe"
 )
@@ -75,7 +75,7 @@ func TestEncrypt(t *testing.T) {
 	)
 
 	// empty encrypter should not be able to encrypt for any pattern.
-	if _, err := encrypter.Encrypt(ctx, "google:youtube:alice", ptxt); verror.ErrorID(err) != ErrNoParams.ID {
+	if _, err := encrypter.Encrypt(ctx, "google:youtube:alice", ptxt); !errors.Is(err, ErrNoParams) {
 		t.Fatalf("Got error %v, wanted error with ID %v", err, ErrNoParams.ID)
 	}
 
@@ -92,7 +92,7 @@ func TestEncrypt(t *testing.T) {
 	// does not have params that are authoritative on all blessings matching
 	// the pattern "google" (the googleYoutube params are authoritative on
 	// blessings matching "google:youtube").
-	if _, err := encrypter.Encrypt(ctx, "google", ptxt); verror.ErrorID(err) != ErrNoParams.ID {
+	if _, err := encrypter.Encrypt(ctx, "google", ptxt); !errors.Is(err, ErrNoParams) {
 		t.Fatalf("Got error %v, wanted error with ID %v", err, ErrNoParams.ID)
 	}
 	// add google's params to the encrypter.
@@ -160,7 +160,7 @@ func TestDecrypt(t *testing.T) { //nolint:gocyclo
 	// A decrypter without any private key should not be able
 	// to decrypt this ciphertext.
 	decrypter := NewCrypter()
-	if _, err := decrypter.Decrypt(ctx, ctxt); verror.ErrorID(err) != ErrPrivateKeyNotFound.ID {
+	if _, err := decrypter.Decrypt(ctx, ctxt); !errors.Is(err, ErrPrivateKeyNotFound) {
 		t.Fatalf("Got error %v, wanted error with ID %v", err, ErrPrivateKeyNotFound.ID)
 	}
 
@@ -196,7 +196,7 @@ func TestDecrypt(t *testing.T) { //nolint:gocyclo
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := decrypter.Decrypt(ctx, ctxt); verror.ErrorID(err) != ErrPrivateKeyNotFound.ID {
+		if _, err := decrypter.Decrypt(ctx, ctxt); !errors.Is(err, ErrPrivateKeyNotFound) {
 			t.Fatalf("Got error %v, wanted error with ID %v", err, ErrPrivateKeyNotFound.ID)
 		}
 	}
@@ -213,7 +213,7 @@ func TestDecrypt(t *testing.T) { //nolint:gocyclo
 	// But encrypting for the following patterns should fail.
 	patterns = []security.BlessingPattern{"youtube", "youtube:$", "youtube:alice"}
 	for _, p := range patterns {
-		if _, err := decrypter.Encrypt(ctx, p, ptxt); verror.ErrorID(err) != ErrNoParams.ID {
+		if _, err := decrypter.Encrypt(ctx, p, ptxt); !errors.Is(err, ErrNoParams) {
 			t.Fatalf("Got error %v, wanted error with ID %v", err, ErrNoParams.ID)
 		}
 	}

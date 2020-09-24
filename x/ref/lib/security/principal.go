@@ -102,7 +102,7 @@ func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal
 	if err == nil {
 		return p, nil
 	}
-	if verror.ErrorID(err) != ErrPassphraseRequired.ID {
+	if !errors.Is(err, ErrPassphraseRequired) {
 		return nil, err
 	}
 	pass, err := passphrase.Get(fmt.Sprintf("Passphrase required to decrypt encrypted private key file for credentials in %v.\nEnter passphrase: ", dir))

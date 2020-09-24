@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -96,7 +97,7 @@ func (t *rootsTester) testRecognized(br security.BlessingRoots) error {
 			}
 		}
 		for _, b := range d.notRecognized {
-			if err, want := br.Recognized(d.root, b), security.ErrUnrecognizedRoot.ID; verror.ErrorID(err) != want {
+			if err, want := br.Recognized(d.root, b), security.ErrUnrecognizedRoot; !errors.Is(err, want) {
 				return fmt.Errorf("Recognized(%v, %q): got %v(errorid=%v), want errorid=%v", d.root, b, err, verror.ErrorID(err), want)
 			}
 		}

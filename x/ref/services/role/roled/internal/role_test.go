@@ -5,6 +5,7 @@
 package internal_test
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -85,30 +86,30 @@ func TestSeekBlessings(t *testing.T) {
 		t.Fatalf("NewDispatchingServer failed: %v", err)
 	}
 
-	const noErr = ""
+	var noErr error
 	testcases := []struct {
 		ctx       *context.T
 		role      string
-		errID     verror.ID
+		errID     error
 		blessings []string
 	}{
-		{user1, "", verror.ErrUnknownMethod.ID, nil},
-		{user1, "unknown", verror.ErrNoAccess.ID, nil},
-		{user2, "unknown", verror.ErrNoAccess.ID, nil},
-		{user3, "unknown", verror.ErrNoAccess.ID, nil},
+		{user1, "", verror.ErrUnknownMethod, nil},
+		{user1, "unknown", verror.ErrNoAccess, nil},
+		{user2, "unknown", verror.ErrNoAccess, nil},
+		{user3, "unknown", verror.ErrNoAccess, nil},
 
-		{user1, "A", verror.ErrNoAccess.ID, nil},
+		{user1, "A", verror.ErrNoAccess, nil},
 		{user1R, "A", noErr, []string{"test-blessing:roles:A:test-blessing:users:user1"}},
-		{user2, "A", verror.ErrNoAccess.ID, nil},
+		{user2, "A", verror.ErrNoAccess, nil},
 		{user2R, "A", noErr, []string{"test-blessing:roles:A:test-blessing:users:user2"}},
-		{user3, "A", verror.ErrNoAccess.ID, nil},
+		{user3, "A", verror.ErrNoAccess, nil},
 		{user3R, "A", noErr, []string{"test-blessing:roles:A:test-blessing:users:user3:_role:bar", "test-blessing:roles:A:test-blessing:users:user3:_role:foo"}},
 
-		{user1, "B", verror.ErrNoAccess.ID, nil},
+		{user1, "B", verror.ErrNoAccess, nil},
 		{user1R, "B", noErr, []string{"test-blessing:roles:B"}},
-		{user2, "B", verror.ErrNoAccess.ID, nil},
-		{user2R, "B", verror.ErrNoAccess.ID, nil},
-		{user3, "B", verror.ErrNoAccess.ID, nil},
+		{user2, "B", verror.ErrNoAccess, nil},
+		{user2R, "B", verror.ErrNoAccess, nil},
+		{user3, "B", verror.ErrNoAccess, nil},
 		{user3R, "B", noErr, []string{"test-blessing:roles:B"}},
 
 		{user1R, "C/D", noErr, []string{"test-blessing:roles:C:D:test-blessing:users:user1"}},
@@ -118,7 +119,7 @@ func TestSeekBlessings(t *testing.T) {
 		user, _ := v23.GetPrincipal(tc.ctx).BlessingStore().Default()
 		c := role.RoleClient(naming.Join(addr, tc.role))
 		blessings, err := c.SeekBlessings(tc.ctx)
-		if verror.ErrorID(err) != tc.errID {
+		if !errors.Is(err, tc.errID) {
 			t.Errorf("unexpected error ID for (%q, %q). Got %#v, expected %#v", user, tc.role, verror.ErrorID(err), tc.errID)
 		}
 		if err != nil {

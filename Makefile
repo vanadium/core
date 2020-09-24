@@ -7,7 +7,7 @@ vdlgen:
 
 .PHONY: test-integration
 test-integration:
-	@echo "VDLPATH" ${VDLPATH}
+	@echo "VDLPATH" "${VDLPATH}"
 	go test \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/runtime/internal \

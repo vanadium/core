@@ -89,7 +89,7 @@
 //     // Use the same version with the modified perms to ensure that no other
 //     // client has modified the perms since GetPermissions returned.
 //     if err := client.SetPermissions(perms, version); err != nil {
-//       if verror.ErrorID(err) == verror.ErrBadVersion.Id {
+//       if errors.Is(err, verror.ErrBadVersion) {
 //         // Another client replaced the Permissions after our GetPermissions
 //         // returned. Try again.
 //         continue

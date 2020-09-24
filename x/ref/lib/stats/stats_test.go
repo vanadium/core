@@ -5,6 +5,7 @@
 package stats_test
 
 import (
+	"errors"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -53,10 +54,10 @@ func TestStats(t *testing.T) { //nolint:gocyclo
 		t.Errorf("unexpected result. Got %v, want %v", got, expected)
 	}
 
-	if _, err := libstats.Value(""); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, err := libstats.Value(""); !errors.Is(err, verror.ErrNoExist) {
 		t.Errorf("expected error %s, got err=%s", verror.ErrNoExist.ID, verror.ErrorID(err))
 	}
-	if _, err := libstats.Value("does/not/exist"); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, err := libstats.Value("does/not/exist"); !errors.Is(err, verror.ErrNoExist) {
 		t.Errorf("expected error %s, got err=%s", verror.ErrNoExist.ID, verror.ErrorID(err))
 	}
 
@@ -471,16 +472,16 @@ func TestDelete(t *testing.T) {
 	if err := libstats.Delete("a/b/c/d"); err != nil {
 		t.Errorf("unexpected error value: %v", err)
 	}
-	if _, err := libstats.GetStatsObject("a/b/c/d"); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, err := libstats.GetStatsObject("a/b/c/d"); !errors.Is(err, verror.ErrNoExist) {
 		t.Errorf("unexpected error value: Got %v, want %v", verror.ErrorID(err), verror.ErrNoExist.ID)
 	}
 	if err := libstats.Delete("a/b"); err != nil {
 		t.Errorf("unexpected error value: %v", err)
 	}
-	if _, err := libstats.GetStatsObject("a/b"); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, err := libstats.GetStatsObject("a/b"); !errors.Is(err, verror.ErrNoExist) {
 		t.Errorf("unexpected error value: Got %v, want %v", verror.ErrorID(err), verror.ErrNoExist.ID)
 	}
-	if _, err := libstats.GetStatsObject("a/b/c"); verror.ErrorID(err) != verror.ErrNoExist.ID {
+	if _, err := libstats.GetStatsObject("a/b/c"); !errors.Is(err, verror.ErrNoExist) {
 		t.Errorf("unexpected error value: Got %v, want %v", verror.ErrorID(err), verror.ErrNoExist.ID)
 	}
 }

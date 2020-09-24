@@ -70,7 +70,7 @@ func TestCallWithNilContext(t *testing.T) {
 	if call != nil {
 		t.Errorf("Expected nil interface got: %#v", call)
 	}
-	if verror.ErrorID(err) != verror.ErrBadArg.ID {
+	if !errors.Is(err, verror.ErrBadArg) {
 		t.Errorf("Expected a BadArg error, got: %s", err.Error())
 	}
 }
@@ -515,7 +515,7 @@ func TestRPCClientAuthorization(t *testing.T) {
 			t.Errorf(`%s client.Call got error: "%v", wanted the RPC to succeed`, name, err)
 		case err == nil && !test.authorized:
 			t.Errorf("%s call.Finish succeeded, expected authorization failure", name)
-		case !test.authorized && verror.ErrorID(err) != verror.ErrNoAccess.ID:
+		case !test.authorized && !errors.Is(err, verror.ErrNoAccess):
 			t.Errorf("%s. call.Finish returned error %v(%v), wanted %v", name, verror.ErrorID(verror.Convert(verror.ErrNoAccess, nil, err)), err, verror.ErrNoAccess)
 		}
 	}
@@ -692,7 +692,7 @@ func TestServerManInTheMiddleAttack(t *testing.T) {
 	// The RPC call should fail because the blessings presented by the
 	// (attacker's) server are not consistent with the ones registered in
 	// the mounttable trusted by the client.
-	if _, err := v23.GetClient(cctx).StartCall(cctx, "mountpoint/server", "Closure", nil); verror.ErrorID(err) != verror.ErrNotTrusted.ID {
+	if _, err := v23.GetClient(cctx).StartCall(cctx, "mountpoint/server", "Closure", nil); !errors.Is(err, verror.ErrNotTrusted) {
 		t.Errorf("Got error %v (errorid=%v), want errorid=%v", err, verror.ErrorID(err), verror.ErrNotTrusted.ID)
 	}
 	// But the RPC should succeed if the client explicitly
