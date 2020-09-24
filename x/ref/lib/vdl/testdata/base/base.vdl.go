@@ -2828,36 +2828,96 @@ var CTypeObject_Any = vdl.AnyType
 // Error definitions
 
 var (
-	ErrNoParams1   = verror.Register("v.io/x/ref/lib/vdl/testdata/base.NoParams1", verror.NoRetry, "{1:}{2:} en msg")
-	ErrNoParams2   = verror.Register("v.io/x/ref/lib/vdl/testdata/base.NoParams2", verror.RetryRefetch, "{1:}{2:} en msg")
-	ErrWithParams1 = verror.Register("v.io/x/ref/lib/vdl/testdata/base.WithParams1", verror.NoRetry, "{1:}{2:} en x={3} y={4}")
-	ErrWithParams2 = verror.Register("v.io/x/ref/lib/vdl/testdata/base.WithParams2", verror.RetryRefetch, "{1:}{2:} en x={3} y={4}")
-	errNotExported = verror.Register("v.io/x/ref/lib/vdl/testdata/base.notExported", verror.NoRetry, "{1:}{2:} en x={3} y={4}")
+	ErrNoParams1   = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.NoParams1", verror.NoRetry)
+	ErrNoParams2   = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.NoParams2", verror.RetryRefetch)
+	ErrWithParams1 = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.WithParams1", verror.NoRetry)
+	ErrWithParams2 = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.WithParams2", verror.RetryRefetch)
+	errNotExported = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.notExported", verror.NoRetry)
 )
 
 // NewErrNoParams1 returns an error with the ErrNoParams1 ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoParams1 or MessageNoParams1 instead.
 func NewErrNoParams1(ctx *context.T) error {
 	return verror.New(ErrNoParams1, ctx)
 }
 
+// ErrorfNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
+func ErrorfNoParams1(ctx *context.T, format string) error {
+	return ErrNoParams1.Errorf(ctx, format)
+}
+
+// MessageNoParams1 calls ErrNoParams1.Message with the supplied arguments.
+func MessageNoParams1(ctx *context.T, message string) error {
+	return ErrNoParams1.Message(ctx, message)
+}
+
 // NewErrNoParams2 returns an error with the ErrNoParams2 ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoParams2 or MessageNoParams2 instead.
 func NewErrNoParams2(ctx *context.T) error {
 	return verror.New(ErrNoParams2, ctx)
 }
 
+// ErrorfNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
+func ErrorfNoParams2(ctx *context.T, format string) error {
+	return ErrNoParams2.Errorf(ctx, format)
+}
+
+// MessageNoParams2 calls ErrNoParams2.Message with the supplied arguments.
+func MessageNoParams2(ctx *context.T, message string) error {
+	return ErrNoParams2.Message(ctx, message)
+}
+
 // NewErrWithParams1 returns an error with the ErrWithParams1 ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfWithParams1 or MessageWithParams1 instead.
 func NewErrWithParams1(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams1, ctx, x, y)
 }
 
+// ErrorfWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
+func ErrorfWithParams1(ctx *context.T, format string, x string, y int32) error {
+	return ErrWithParams1.Errorf(ctx, format, x, y)
+}
+
+// MessageWithParams1 calls ErrWithParams1.Message with the supplied arguments.
+func MessageWithParams1(ctx *context.T, message string, x string, y int32) error {
+	return ErrWithParams1.Message(ctx, message, x, y)
+}
+
 // NewErrWithParams2 returns an error with the ErrWithParams2 ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfWithParams2 or MessageWithParams2 instead.
 func NewErrWithParams2(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams2, ctx, x, y)
 }
 
+// ErrorfWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
+func ErrorfWithParams2(ctx *context.T, format string, x string, y int32) error {
+	return ErrWithParams2.Errorf(ctx, format, x, y)
+}
+
+// MessageWithParams2 calls ErrWithParams2.Message with the supplied arguments.
+func MessageWithParams2(ctx *context.T, message string, x string, y int32) error {
+	return ErrWithParams2.Message(ctx, message, x, y)
+}
+
 // newErrNotExported returns an error with the errNotExported ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use errorfNotExported or messageNotExported instead.
 func newErrNotExported(ctx *context.T, x string, y int32) error {
 	return verror.New(errNotExported, ctx, x, y)
+}
+
+// errorfNotExported calls errNotExported.Errorf with the supplied arguments.
+func errorfNotExported(ctx *context.T, format string, x string, y int32) error {
+	return errNotExported.Errorf(ctx, format, x, y)
+}
+
+// messageNotExported calls errNotExported.Message with the supplied arguments.
+func messageNotExported(ctx *context.T, message string, x string, y int32) error {
+	return errNotExported.Message(ctx, message, x, y)
 }
 
 //////////////////////////////////////////////////

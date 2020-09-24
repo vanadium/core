@@ -23,28 +23,64 @@ var (
 
 	// ErrGlobMaxRecursionReached indicates that the Glob request exceeded the
 	// max recursion level.
-	ErrGlobMaxRecursionReached = verror.Register("v.io/v23/rpc/reserved.GlobMaxRecursionReached", verror.NoRetry, "{1:}{2:} max recursion level reached{:_}")
+	ErrGlobMaxRecursionReached = verror.NewIDAction("v.io/v23/rpc/reserved.GlobMaxRecursionReached", verror.NoRetry)
 	// ErrGlobMatchesOmitted indicates that some of the Glob results might
 	// have been omitted due to access restrictions.
-	ErrGlobMatchesOmitted = verror.Register("v.io/v23/rpc/reserved.GlobMatchesOmitted", verror.NoRetry, "{1:}{2:} some matches might have been omitted")
+	ErrGlobMatchesOmitted = verror.NewIDAction("v.io/v23/rpc/reserved.GlobMatchesOmitted", verror.NoRetry)
 	// ErrGlobNotImplemented indicates that Glob is not implemented by the
 	// object.
-	ErrGlobNotImplemented = verror.Register("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry, "{1:}{2:} Glob not implemented")
+	ErrGlobNotImplemented = verror.NewIDAction("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry)
 )
 
 // NewErrGlobMaxRecursionReached returns an error with the ErrGlobMaxRecursionReached ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobMaxRecursionReached or MessageGlobMaxRecursionReached instead.
 func NewErrGlobMaxRecursionReached(ctx *context.T) error {
 	return verror.New(ErrGlobMaxRecursionReached, ctx)
 }
 
+// ErrorfGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
+func ErrorfGlobMaxRecursionReached(ctx *context.T, format string) error {
+	return ErrGlobMaxRecursionReached.Errorf(ctx, format)
+}
+
+// MessageGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
+func MessageGlobMaxRecursionReached(ctx *context.T, message string) error {
+	return ErrGlobMaxRecursionReached.Message(ctx, message)
+}
+
 // NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobMatchesOmitted or MessageGlobMatchesOmitted instead.
 func NewErrGlobMatchesOmitted(ctx *context.T) error {
 	return verror.New(ErrGlobMatchesOmitted, ctx)
 }
 
+// ErrorfGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
+func ErrorfGlobMatchesOmitted(ctx *context.T, format string) error {
+	return ErrGlobMatchesOmitted.Errorf(ctx, format)
+}
+
+// MessageGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
+func MessageGlobMatchesOmitted(ctx *context.T, message string) error {
+	return ErrGlobMatchesOmitted.Message(ctx, message)
+}
+
 // NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobNotImplemented or MessageGlobNotImplemented instead.
 func NewErrGlobNotImplemented(ctx *context.T) error {
 	return verror.New(ErrGlobNotImplemented, ctx)
+}
+
+// ErrorfGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
+func ErrorfGlobNotImplemented(ctx *context.T, format string) error {
+	return ErrGlobNotImplemented.Errorf(ctx, format)
+}
+
+// MessageGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
+func MessageGlobNotImplemented(ctx *context.T, message string) error {
+	return ErrGlobNotImplemented.Message(ctx, message)
 }
 
 var initializeVDLCalled bool

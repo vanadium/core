@@ -23,154 +23,382 @@ var (
 	// ErrUnknown means the error has no known Id.  A more specific error should
 	// always be used, if possible.  Unknown is typically only used when
 	// automatically converting errors that do not contain an Id.
-	ErrUnknown = Register("v.io/v23/verror.Unknown", NoRetry, "{1:}{2:} Error{:_}")
+	ErrUnknown = NewIDAction("v.io/v23/verror.Unknown", NoRetry)
 	// ErrInternal means an internal error has occurred.  A more specific error
 	// should always be used, if possible.
-	ErrInternal = Register("v.io/v23/verror.Internal", NoRetry, "{1:}{2:} Internal error{:_}")
+	ErrInternal = NewIDAction("v.io/v23/verror.Internal", NoRetry)
 	// ErrNotImplemented means that the request type is valid but that the method to
 	// handle the request has not been implemented.
-	ErrNotImplemented = Register("v.io/v23/verror.NotImplemented", NoRetry, "{1:}{2:} Not implemented{:_}")
+	ErrNotImplemented = NewIDAction("v.io/v23/verror.NotImplemented", NoRetry)
 	// ErrEndOfFile means the end-of-file has been reached; more generally, no more
 	// input data is available.
-	ErrEndOfFile = Register("v.io/v23/verror.EndOfFile", NoRetry, "{1:}{2:} End of file{:_}")
+	ErrEndOfFile = NewIDAction("v.io/v23/verror.EndOfFile", NoRetry)
 	// ErrBadArg means the arguments to an operation are invalid or incorrectly
 	// formatted.
-	ErrBadArg = Register("v.io/v23/verror.BadArg", NoRetry, "{1:}{2:} Bad argument{:_}")
+	ErrBadArg = NewIDAction("v.io/v23/verror.BadArg", NoRetry)
 	// ErrBadState means an operation was attempted on an object while the object was
 	// in an incompatible state.
-	ErrBadState = Register("v.io/v23/verror.BadState", NoRetry, "{1:}{2:} Invalid state{:_}")
+	ErrBadState = NewIDAction("v.io/v23/verror.BadState", NoRetry)
 	// ErrBadVersion means the version presented by the client (e.g. to a service
 	// that supports content-hash-based caching or atomic read-modify-write) was
 	// out of date or otherwise invalid, likely because some other request caused
 	// the version at the server to change. The client should get a fresh version
 	// and try again.
-	ErrBadVersion = Register("v.io/v23/verror.BadVersion", NoRetry, "{1:}{2:} Version is out of date")
+	ErrBadVersion = NewIDAction("v.io/v23/verror.BadVersion", NoRetry)
 	// ErrExist means that the requested item already exists; typically returned when
 	// an attempt to create an item fails because it already exists.
-	ErrExist = Register("v.io/v23/verror.Exist", NoRetry, "{1:}{2:} Already exists{:_}")
+	ErrExist = NewIDAction("v.io/v23/verror.Exist", NoRetry)
 	// ErrNoExist means that the requested item does not exist; typically returned
 	// when an attempt to lookup an item fails because it does not exist.
-	ErrNoExist       = Register("v.io/v23/verror.NoExist", NoRetry, "{1:}{2:} Does not exist{:_}")
-	ErrUnknownMethod = Register("v.io/v23/verror.UnknownMethod", NoRetry, "{1:}{2:} Method does not exist{:_}")
-	ErrUnknownSuffix = Register("v.io/v23/verror.UnknownSuffix", NoRetry, "{1:}{2:} Suffix does not exist{:_}")
+	ErrNoExist       = NewIDAction("v.io/v23/verror.NoExist", NoRetry)
+	ErrUnknownMethod = NewIDAction("v.io/v23/verror.UnknownMethod", NoRetry)
+	ErrUnknownSuffix = NewIDAction("v.io/v23/verror.UnknownSuffix", NoRetry)
 	// ErrNoExistOrNoAccess means that either the requested item does not exist, or
 	// is inaccessible.  Typically returned when the distinction between existence
 	// and inaccessiblity should be hidden to preserve privacy.
-	ErrNoExistOrNoAccess = Register("v.io/v23/verror.NoExistOrNoAccess", NoRetry, "{1:}{2:} Does not exist or access denied{:_}")
+	ErrNoExistOrNoAccess = NewIDAction("v.io/v23/verror.NoExistOrNoAccess", NoRetry)
 	// ErrNoServers means a name was resolved to unusable or inaccessible servers.
-	ErrNoServers = Register("v.io/v23/verror.NoServers", RetryRefetch, "{1:}{2:} No usable servers found{:_}")
+	ErrNoServers = NewIDAction("v.io/v23/verror.NoServers", RetryRefetch)
 	// ErrNoAccess means the server does not authorize the client for access.
-	ErrNoAccess = Register("v.io/v23/verror.NoAccess", RetryRefetch, "{1:}{2:} Access denied{:_}")
+	ErrNoAccess = NewIDAction("v.io/v23/verror.NoAccess", RetryRefetch)
 	// ErrNotTrusted means the client does not trust the server.
-	ErrNotTrusted = Register("v.io/v23/verror.NotTrusted", RetryRefetch, "{1:}{2:} Client does not trust server{:_}")
+	ErrNotTrusted = NewIDAction("v.io/v23/verror.NotTrusted", RetryRefetch)
 	// ErrAborted means that an operation was not completed because it was aborted by
 	// the receiver.  A more specific error should be used if it would help the
 	// caller decide how to proceed.
-	ErrAborted = Register("v.io/v23/verror.Aborted", NoRetry, "{1:}{2:} Aborted{:_}")
+	ErrAborted = NewIDAction("v.io/v23/verror.Aborted", NoRetry)
 	// ErrBadProtocol means that an operation was not completed because of a protocol
 	// or codec error.
-	ErrBadProtocol = Register("v.io/v23/verror.BadProtocol", NoRetry, "{1:}{2:} Bad protocol or type{:_}")
+	ErrBadProtocol = NewIDAction("v.io/v23/verror.BadProtocol", NoRetry)
 	// ErrCanceled means that an operation was not completed because it was
 	// explicitly cancelled by the caller.
-	ErrCanceled = Register("v.io/v23/verror.Canceled", NoRetry, "{1:}{2:} Canceled{:_}")
+	ErrCanceled = NewIDAction("v.io/v23/verror.Canceled", NoRetry)
 	// ErrTimeout means that an operation was not completed before the time deadline
 	// for the operation.
-	ErrTimeout = Register("v.io/v23/verror.Timeout", NoRetry, "{1:}{2:} Timeout{:_}")
+	ErrTimeout = NewIDAction("v.io/v23/verror.Timeout", NoRetry)
 )
 
 // NewErrUnknown returns an error with the ErrUnknown ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknown or MessageUnknown instead.
 func NewErrUnknown(ctx *context.T) error {
 	return New(ErrUnknown, ctx)
 }
 
+// ErrorfUnknown calls ErrUnknown.Errorf with the supplied arguments.
+func ErrorfUnknown(ctx *context.T, format string) error {
+	return ErrUnknown.Errorf(ctx, format)
+}
+
+// MessageUnknown calls ErrUnknown.Message with the supplied arguments.
+func MessageUnknown(ctx *context.T, message string) error {
+	return ErrUnknown.Message(ctx, message)
+}
+
 // NewErrInternal returns an error with the ErrInternal ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInternal or MessageInternal instead.
 func NewErrInternal(ctx *context.T) error {
 	return New(ErrInternal, ctx)
 }
 
+// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfInternal(ctx *context.T, format string) error {
+	return ErrInternal.Errorf(ctx, format)
+}
+
+// MessageInternal calls ErrInternal.Message with the supplied arguments.
+func MessageInternal(ctx *context.T, message string) error {
+	return ErrInternal.Message(ctx, message)
+}
+
 // NewErrNotImplemented returns an error with the ErrNotImplemented ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotImplemented or MessageNotImplemented instead.
 func NewErrNotImplemented(ctx *context.T) error {
 	return New(ErrNotImplemented, ctx)
 }
 
+// ErrorfNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
+func ErrorfNotImplemented(ctx *context.T, format string) error {
+	return ErrNotImplemented.Errorf(ctx, format)
+}
+
+// MessageNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
+func MessageNotImplemented(ctx *context.T, message string) error {
+	return ErrNotImplemented.Message(ctx, message)
+}
+
 // NewErrEndOfFile returns an error with the ErrEndOfFile ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfEndOfFile or MessageEndOfFile instead.
 func NewErrEndOfFile(ctx *context.T) error {
 	return New(ErrEndOfFile, ctx)
 }
 
+// ErrorfEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
+func ErrorfEndOfFile(ctx *context.T, format string) error {
+	return ErrEndOfFile.Errorf(ctx, format)
+}
+
+// MessageEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
+func MessageEndOfFile(ctx *context.T, message string) error {
+	return ErrEndOfFile.Message(ctx, message)
+}
+
 // NewErrBadArg returns an error with the ErrBadArg ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadArg or MessageBadArg instead.
 func NewErrBadArg(ctx *context.T) error {
 	return New(ErrBadArg, ctx)
 }
 
+// ErrorfBadArg calls ErrBadArg.Errorf with the supplied arguments.
+func ErrorfBadArg(ctx *context.T, format string) error {
+	return ErrBadArg.Errorf(ctx, format)
+}
+
+// MessageBadArg calls ErrBadArg.Message with the supplied arguments.
+func MessageBadArg(ctx *context.T, message string) error {
+	return ErrBadArg.Message(ctx, message)
+}
+
 // NewErrBadState returns an error with the ErrBadState ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadState or MessageBadState instead.
 func NewErrBadState(ctx *context.T) error {
 	return New(ErrBadState, ctx)
 }
 
+// ErrorfBadState calls ErrBadState.Errorf with the supplied arguments.
+func ErrorfBadState(ctx *context.T, format string) error {
+	return ErrBadState.Errorf(ctx, format)
+}
+
+// MessageBadState calls ErrBadState.Message with the supplied arguments.
+func MessageBadState(ctx *context.T, message string) error {
+	return ErrBadState.Message(ctx, message)
+}
+
 // NewErrBadVersion returns an error with the ErrBadVersion ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadVersion or MessageBadVersion instead.
 func NewErrBadVersion(ctx *context.T) error {
 	return New(ErrBadVersion, ctx)
 }
 
+// ErrorfBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
+func ErrorfBadVersion(ctx *context.T, format string) error {
+	return ErrBadVersion.Errorf(ctx, format)
+}
+
+// MessageBadVersion calls ErrBadVersion.Message with the supplied arguments.
+func MessageBadVersion(ctx *context.T, message string) error {
+	return ErrBadVersion.Message(ctx, message)
+}
+
 // NewErrExist returns an error with the ErrExist ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfExist or MessageExist instead.
 func NewErrExist(ctx *context.T) error {
 	return New(ErrExist, ctx)
 }
 
+// ErrorfExist calls ErrExist.Errorf with the supplied arguments.
+func ErrorfExist(ctx *context.T, format string) error {
+	return ErrExist.Errorf(ctx, format)
+}
+
+// MessageExist calls ErrExist.Message with the supplied arguments.
+func MessageExist(ctx *context.T, message string) error {
+	return ErrExist.Message(ctx, message)
+}
+
 // NewErrNoExist returns an error with the ErrNoExist ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoExist or MessageNoExist instead.
 func NewErrNoExist(ctx *context.T) error {
 	return New(ErrNoExist, ctx)
 }
 
+// ErrorfNoExist calls ErrNoExist.Errorf with the supplied arguments.
+func ErrorfNoExist(ctx *context.T, format string) error {
+	return ErrNoExist.Errorf(ctx, format)
+}
+
+// MessageNoExist calls ErrNoExist.Message with the supplied arguments.
+func MessageNoExist(ctx *context.T, message string) error {
+	return ErrNoExist.Message(ctx, message)
+}
+
 // NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknownMethod or MessageUnknownMethod instead.
 func NewErrUnknownMethod(ctx *context.T) error {
 	return New(ErrUnknownMethod, ctx)
 }
 
+// ErrorfUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
+func ErrorfUnknownMethod(ctx *context.T, format string) error {
+	return ErrUnknownMethod.Errorf(ctx, format)
+}
+
+// MessageUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
+func MessageUnknownMethod(ctx *context.T, message string) error {
+	return ErrUnknownMethod.Message(ctx, message)
+}
+
 // NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknownSuffix or MessageUnknownSuffix instead.
 func NewErrUnknownSuffix(ctx *context.T) error {
 	return New(ErrUnknownSuffix, ctx)
 }
 
+// ErrorfUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
+func ErrorfUnknownSuffix(ctx *context.T, format string) error {
+	return ErrUnknownSuffix.Errorf(ctx, format)
+}
+
+// MessageUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
+func MessageUnknownSuffix(ctx *context.T, message string) error {
+	return ErrUnknownSuffix.Message(ctx, message)
+}
+
 // NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoExistOrNoAccess or MessageNoExistOrNoAccess instead.
 func NewErrNoExistOrNoAccess(ctx *context.T) error {
 	return New(ErrNoExistOrNoAccess, ctx)
 }
 
+// ErrorfNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
+func ErrorfNoExistOrNoAccess(ctx *context.T, format string) error {
+	return ErrNoExistOrNoAccess.Errorf(ctx, format)
+}
+
+// MessageNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
+func MessageNoExistOrNoAccess(ctx *context.T, message string) error {
+	return ErrNoExistOrNoAccess.Message(ctx, message)
+}
+
 // NewErrNoServers returns an error with the ErrNoServers ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoServers or MessageNoServers instead.
 func NewErrNoServers(ctx *context.T) error {
 	return New(ErrNoServers, ctx)
 }
 
+// ErrorfNoServers calls ErrNoServers.Errorf with the supplied arguments.
+func ErrorfNoServers(ctx *context.T, format string) error {
+	return ErrNoServers.Errorf(ctx, format)
+}
+
+// MessageNoServers calls ErrNoServers.Message with the supplied arguments.
+func MessageNoServers(ctx *context.T, message string) error {
+	return ErrNoServers.Message(ctx, message)
+}
+
 // NewErrNoAccess returns an error with the ErrNoAccess ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoAccess or MessageNoAccess instead.
 func NewErrNoAccess(ctx *context.T) error {
 	return New(ErrNoAccess, ctx)
 }
 
+// ErrorfNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
+func ErrorfNoAccess(ctx *context.T, format string) error {
+	return ErrNoAccess.Errorf(ctx, format)
+}
+
+// MessageNoAccess calls ErrNoAccess.Message with the supplied arguments.
+func MessageNoAccess(ctx *context.T, message string) error {
+	return ErrNoAccess.Message(ctx, message)
+}
+
 // NewErrNotTrusted returns an error with the ErrNotTrusted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotTrusted or MessageNotTrusted instead.
 func NewErrNotTrusted(ctx *context.T) error {
 	return New(ErrNotTrusted, ctx)
 }
 
+// ErrorfNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
+func ErrorfNotTrusted(ctx *context.T, format string) error {
+	return ErrNotTrusted.Errorf(ctx, format)
+}
+
+// MessageNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
+func MessageNotTrusted(ctx *context.T, message string) error {
+	return ErrNotTrusted.Message(ctx, message)
+}
+
 // NewErrAborted returns an error with the ErrAborted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAborted or MessageAborted instead.
 func NewErrAborted(ctx *context.T) error {
 	return New(ErrAborted, ctx)
 }
 
+// ErrorfAborted calls ErrAborted.Errorf with the supplied arguments.
+func ErrorfAborted(ctx *context.T, format string) error {
+	return ErrAborted.Errorf(ctx, format)
+}
+
+// MessageAborted calls ErrAborted.Message with the supplied arguments.
+func MessageAborted(ctx *context.T, message string) error {
+	return ErrAborted.Message(ctx, message)
+}
+
 // NewErrBadProtocol returns an error with the ErrBadProtocol ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadProtocol or MessageBadProtocol instead.
 func NewErrBadProtocol(ctx *context.T) error {
 	return New(ErrBadProtocol, ctx)
 }
 
+// ErrorfBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
+func ErrorfBadProtocol(ctx *context.T, format string) error {
+	return ErrBadProtocol.Errorf(ctx, format)
+}
+
+// MessageBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
+func MessageBadProtocol(ctx *context.T, message string) error {
+	return ErrBadProtocol.Message(ctx, message)
+}
+
 // NewErrCanceled returns an error with the ErrCanceled ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCanceled or MessageCanceled instead.
 func NewErrCanceled(ctx *context.T) error {
 	return New(ErrCanceled, ctx)
 }
 
+// ErrorfCanceled calls ErrCanceled.Errorf with the supplied arguments.
+func ErrorfCanceled(ctx *context.T, format string) error {
+	return ErrCanceled.Errorf(ctx, format)
+}
+
+// MessageCanceled calls ErrCanceled.Message with the supplied arguments.
+func MessageCanceled(ctx *context.T, message string) error {
+	return ErrCanceled.Message(ctx, message)
+}
+
 // NewErrTimeout returns an error with the ErrTimeout ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTimeout or MessageTimeout instead.
 func NewErrTimeout(ctx *context.T) error {
 	return New(ErrTimeout, ctx)
+}
+
+// ErrorfTimeout calls ErrTimeout.Errorf with the supplied arguments.
+func ErrorfTimeout(ctx *context.T, format string) error {
+	return ErrTimeout.Errorf(ctx, format)
+}
+
+// MessageTimeout calls ErrTimeout.Message with the supplied arguments.
+func MessageTimeout(ctx *context.T, message string) error {
+	return ErrTimeout.Message(ctx, message)
 }
 
 var initializeVDLCalled bool

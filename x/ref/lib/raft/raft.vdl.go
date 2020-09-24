@@ -210,18 +210,42 @@ const RaftEntry = byte(1)
 // Error definitions
 
 var (
-	ErrNotLeader     = verror.Register("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry, "{1:}{2:} not the leader")
-	ErrOutOfSequence = verror.Register("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry, "{1:}{2:} append {3}, {4} out of sequence")
+	ErrNotLeader     = verror.NewIDAction("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry)
+	ErrOutOfSequence = verror.NewIDAction("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry)
 )
 
 // NewErrNotLeader returns an error with the ErrNotLeader ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotLeader or MessageNotLeader instead.
 func NewErrNotLeader(ctx *context.T) error {
 	return verror.New(ErrNotLeader, ctx)
 }
 
+// ErrorfNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
+func ErrorfNotLeader(ctx *context.T, format string) error {
+	return ErrNotLeader.Errorf(ctx, format)
+}
+
+// MessageNotLeader calls ErrNotLeader.Message with the supplied arguments.
+func MessageNotLeader(ctx *context.T, message string) error {
+	return ErrNotLeader.Message(ctx, message)
+}
+
 // NewErrOutOfSequence returns an error with the ErrOutOfSequence ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfOutOfSequence or MessageOutOfSequence instead.
 func NewErrOutOfSequence(ctx *context.T, prevTerm Term, prevIdx Index) error {
 	return verror.New(ErrOutOfSequence, ctx, prevTerm, prevIdx)
+}
+
+// ErrorfOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
+func ErrorfOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
+	return ErrOutOfSequence.Errorf(ctx, format, prevTerm, prevIdx)
+}
+
+// MessageOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
+func MessageOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
+	return ErrOutOfSequence.Message(ctx, message, prevTerm, prevIdx)
 }
 
 //////////////////////////////////////////////////

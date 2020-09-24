@@ -703,7 +703,6 @@ var (
 // WARNING: this function is deprecated and will be removed in the future,
 // use {{$errorf}} or {{$message}} instead.
 func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
-	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID("{{$edef.ID}}"), "{{$edef.English}}")
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
 }
 
@@ -1083,6 +1082,10 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
+{{if $pkg.ErrorDefs}}
+       // Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
+       {{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
+{{end}}
 	return struct{}{}
 }
 `

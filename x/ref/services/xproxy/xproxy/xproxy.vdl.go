@@ -20,36 +20,96 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrNotListening              = verror.Register("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry, "{1:}{2:} Proxy is not listening on any endpoints.")
-	ErrUnexpectedMessage         = verror.Register("v.io/x/ref/services/xproxy/xproxy.UnexpectedMessage", verror.NoRetry, "{1:}{2:} Unexpected message of type{:3}")
-	ErrFailedToResolveToEndpoint = verror.Register("v.io/x/ref/services/xproxy/xproxy.FailedToResolveToEndpoint", verror.NoRetry, "{1:}{2:} Failed to resolve '{3}' to endpoint")
-	ErrProxyAlreadyClosed        = verror.Register("v.io/x/ref/services/xproxy/xproxy.ProxyAlreadyClosed", verror.NoRetry, "{1:}{2:} Proxy has already been closed")
-	ErrProxyResponse             = verror.Register("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry, "{1:}{2:} proxy returned{:3}")
+	ErrNotListening              = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry)
+	ErrUnexpectedMessage         = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.UnexpectedMessage", verror.NoRetry)
+	ErrFailedToResolveToEndpoint = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.FailedToResolveToEndpoint", verror.NoRetry)
+	ErrProxyAlreadyClosed        = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyAlreadyClosed", verror.NoRetry)
+	ErrProxyResponse             = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry)
 )
 
 // NewErrNotListening returns an error with the ErrNotListening ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotListening or MessageNotListening instead.
 func NewErrNotListening(ctx *context.T) error {
 	return verror.New(ErrNotListening, ctx)
 }
 
+// ErrorfNotListening calls ErrNotListening.Errorf with the supplied arguments.
+func ErrorfNotListening(ctx *context.T, format string) error {
+	return ErrNotListening.Errorf(ctx, format)
+}
+
+// MessageNotListening calls ErrNotListening.Message with the supplied arguments.
+func MessageNotListening(ctx *context.T, message string) error {
+	return ErrNotListening.Message(ctx, message)
+}
+
 // NewErrUnexpectedMessage returns an error with the ErrUnexpectedMessage ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnexpectedMessage or MessageUnexpectedMessage instead.
 func NewErrUnexpectedMessage(ctx *context.T, msgType string) error {
 	return verror.New(ErrUnexpectedMessage, ctx, msgType)
 }
 
+// ErrorfUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
+func ErrorfUnexpectedMessage(ctx *context.T, format string, msgType string) error {
+	return ErrUnexpectedMessage.Errorf(ctx, format, msgType)
+}
+
+// MessageUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
+func MessageUnexpectedMessage(ctx *context.T, message string, msgType string) error {
+	return ErrUnexpectedMessage.Message(ctx, message, msgType)
+}
+
 // NewErrFailedToResolveToEndpoint returns an error with the ErrFailedToResolveToEndpoint ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfFailedToResolveToEndpoint or MessageFailedToResolveToEndpoint instead.
 func NewErrFailedToResolveToEndpoint(ctx *context.T, name string) error {
 	return verror.New(ErrFailedToResolveToEndpoint, ctx, name)
 }
 
+// ErrorfFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
+func ErrorfFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
+	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
+}
+
+// MessageFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
+func MessageFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
+	return ErrFailedToResolveToEndpoint.Message(ctx, message, name)
+}
+
 // NewErrProxyAlreadyClosed returns an error with the ErrProxyAlreadyClosed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfProxyAlreadyClosed or MessageProxyAlreadyClosed instead.
 func NewErrProxyAlreadyClosed(ctx *context.T) error {
 	return verror.New(ErrProxyAlreadyClosed, ctx)
 }
 
+// ErrorfProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
+func ErrorfProxyAlreadyClosed(ctx *context.T, format string) error {
+	return ErrProxyAlreadyClosed.Errorf(ctx, format)
+}
+
+// MessageProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
+func MessageProxyAlreadyClosed(ctx *context.T, message string) error {
+	return ErrProxyAlreadyClosed.Message(ctx, message)
+}
+
 // NewErrProxyResponse returns an error with the ErrProxyResponse ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfProxyResponse or MessageProxyResponse instead.
 func NewErrProxyResponse(ctx *context.T, msg string) error {
 	return verror.New(ErrProxyResponse, ctx, msg)
+}
+
+// ErrorfProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
+func ErrorfProxyResponse(ctx *context.T, format string, msg string) error {
+	return ErrProxyResponse.Errorf(ctx, format, msg)
+}
+
+// MessageProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
+func MessageProxyResponse(ctx *context.T, message string, msg string) error {
+	return ErrProxyResponse.Message(ctx, message, msg)
 }
 
 var initializeVDLCalled bool

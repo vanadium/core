@@ -447,48 +447,132 @@ const AdPartiallyReady = AdStatus(2) // All information except attachments is av
 // Error definitions
 
 var (
-	ErrAdvertisementNotFound  = verror.Register("v.io/x/ref/lib/discovery.AdvertisementNotFound", verror.NoRetry, "{1:}{2:} advertisement not found: {3}")
-	ErrAlreadyBeingAdvertised = verror.Register("v.io/x/ref/lib/discovery.AlreadyBeingAdvertised", verror.NoRetry, "{1:}{2:} already being advertised: {3}")
-	ErrBadAdvertisement       = verror.Register("v.io/x/ref/lib/discovery.BadAdvertisement", verror.NoRetry, "{1:}{2:} invalid advertisement: {3}")
-	ErrBadQuery               = verror.Register("v.io/x/ref/lib/discovery.BadQuery", verror.NoRetry, "{1:}{2:} invalid query: {3}")
-	ErrDiscoveryClosed        = verror.Register("v.io/x/ref/lib/discovery.DiscoveryClosed", verror.NoRetry, "{1:}{2:} discovery closed")
-	ErrNoDiscoveryPlugin      = verror.Register("v.io/x/ref/lib/discovery.NoDiscoveryPlugin", verror.NoRetry, "{1:}{2:} no discovery plugin")
-	ErrTooManyPlugins         = verror.Register("v.io/x/ref/lib/discovery.TooManyPlugins", verror.NoRetry, "{1:}{2:} too many plugins ({3}), support at most {4}")
+	ErrAdvertisementNotFound  = verror.NewIDAction("v.io/x/ref/lib/discovery.AdvertisementNotFound", verror.NoRetry)
+	ErrAlreadyBeingAdvertised = verror.NewIDAction("v.io/x/ref/lib/discovery.AlreadyBeingAdvertised", verror.NoRetry)
+	ErrBadAdvertisement       = verror.NewIDAction("v.io/x/ref/lib/discovery.BadAdvertisement", verror.NoRetry)
+	ErrBadQuery               = verror.NewIDAction("v.io/x/ref/lib/discovery.BadQuery", verror.NoRetry)
+	ErrDiscoveryClosed        = verror.NewIDAction("v.io/x/ref/lib/discovery.DiscoveryClosed", verror.NoRetry)
+	ErrNoDiscoveryPlugin      = verror.NewIDAction("v.io/x/ref/lib/discovery.NoDiscoveryPlugin", verror.NoRetry)
+	ErrTooManyPlugins         = verror.NewIDAction("v.io/x/ref/lib/discovery.TooManyPlugins", verror.NoRetry)
 )
 
 // NewErrAdvertisementNotFound returns an error with the ErrAdvertisementNotFound ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAdvertisementNotFound or MessageAdvertisementNotFound instead.
 func NewErrAdvertisementNotFound(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAdvertisementNotFound, ctx, id)
 }
 
+// ErrorfAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
+func ErrorfAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
+	return ErrAdvertisementNotFound.Errorf(ctx, format, id)
+}
+
+// MessageAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
+func MessageAdvertisementNotFound(ctx *context.T, message string, id discovery.AdId) error {
+	return ErrAdvertisementNotFound.Message(ctx, message, id)
+}
+
 // NewErrAlreadyBeingAdvertised returns an error with the ErrAlreadyBeingAdvertised ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAlreadyBeingAdvertised or MessageAlreadyBeingAdvertised instead.
 func NewErrAlreadyBeingAdvertised(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAlreadyBeingAdvertised, ctx, id)
 }
 
+// ErrorfAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
+func ErrorfAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
+	return ErrAlreadyBeingAdvertised.Errorf(ctx, format, id)
+}
+
+// MessageAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
+func MessageAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
+	return ErrAlreadyBeingAdvertised.Message(ctx, message, id)
+}
+
 // NewErrBadAdvertisement returns an error with the ErrBadAdvertisement ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadAdvertisement or MessageBadAdvertisement instead.
 func NewErrBadAdvertisement(ctx *context.T, err error) error {
 	return verror.New(ErrBadAdvertisement, ctx, err)
 }
 
+// ErrorfBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
+func ErrorfBadAdvertisement(ctx *context.T, format string, err error) error {
+	return ErrBadAdvertisement.Errorf(ctx, format, err)
+}
+
+// MessageBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
+func MessageBadAdvertisement(ctx *context.T, message string, err error) error {
+	return ErrBadAdvertisement.Message(ctx, message, err)
+}
+
 // NewErrBadQuery returns an error with the ErrBadQuery ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadQuery or MessageBadQuery instead.
 func NewErrBadQuery(ctx *context.T, err error) error {
 	return verror.New(ErrBadQuery, ctx, err)
 }
 
+// ErrorfBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
+func ErrorfBadQuery(ctx *context.T, format string, err error) error {
+	return ErrBadQuery.Errorf(ctx, format, err)
+}
+
+// MessageBadQuery calls ErrBadQuery.Message with the supplied arguments.
+func MessageBadQuery(ctx *context.T, message string, err error) error {
+	return ErrBadQuery.Message(ctx, message, err)
+}
+
 // NewErrDiscoveryClosed returns an error with the ErrDiscoveryClosed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfDiscoveryClosed or MessageDiscoveryClosed instead.
 func NewErrDiscoveryClosed(ctx *context.T) error {
 	return verror.New(ErrDiscoveryClosed, ctx)
 }
 
+// ErrorfDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
+func ErrorfDiscoveryClosed(ctx *context.T, format string) error {
+	return ErrDiscoveryClosed.Errorf(ctx, format)
+}
+
+// MessageDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
+func MessageDiscoveryClosed(ctx *context.T, message string) error {
+	return ErrDiscoveryClosed.Message(ctx, message)
+}
+
 // NewErrNoDiscoveryPlugin returns an error with the ErrNoDiscoveryPlugin ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoDiscoveryPlugin or MessageNoDiscoveryPlugin instead.
 func NewErrNoDiscoveryPlugin(ctx *context.T) error {
 	return verror.New(ErrNoDiscoveryPlugin, ctx)
 }
 
+// ErrorfNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
+func ErrorfNoDiscoveryPlugin(ctx *context.T, format string) error {
+	return ErrNoDiscoveryPlugin.Errorf(ctx, format)
+}
+
+// MessageNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
+func MessageNoDiscoveryPlugin(ctx *context.T, message string) error {
+	return ErrNoDiscoveryPlugin.Message(ctx, message)
+}
+
 // NewErrTooManyPlugins returns an error with the ErrTooManyPlugins ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTooManyPlugins or MessageTooManyPlugins instead.
 func NewErrTooManyPlugins(ctx *context.T, actual int32, limit int32) error {
 	return verror.New(ErrTooManyPlugins, ctx, actual, limit)
+}
+
+// ErrorfTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
+func ErrorfTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
+	return ErrTooManyPlugins.Errorf(ctx, format, actual, limit)
+}
+
+// MessageTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
+func MessageTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
+	return ErrTooManyPlugins.Message(ctx, message, actual, limit)
 }
 
 //////////////////////////////////////////////////

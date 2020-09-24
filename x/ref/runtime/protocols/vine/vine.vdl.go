@@ -187,30 +187,78 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Error definitions
 
 var (
-	ErrInvalidAddress       = verror.Register("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry, "{1:}{2:} invalid vine address {3}, address must be of the form 'network/address/tag'")
-	ErrAddressNotReachable  = verror.Register("v.io/x/ref/runtime/protocols/vine.AddressNotReachable", verror.NoRetry, "{1:}{2:} address {3} not reachable")
-	ErrNoRegisteredProtocol = verror.Register("v.io/x/ref/runtime/protocols/vine.NoRegisteredProtocol", verror.NoRetry, "{1:}{2:} no registered protocol {3}")
-	ErrCantAcceptFromTag    = verror.Register("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry, "{1:}{2:} can't accept connection from tag {3}")
+	ErrInvalidAddress       = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry)
+	ErrAddressNotReachable  = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.AddressNotReachable", verror.NoRetry)
+	ErrNoRegisteredProtocol = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.NoRegisteredProtocol", verror.NoRetry)
+	ErrCantAcceptFromTag    = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry)
 )
 
 // NewErrInvalidAddress returns an error with the ErrInvalidAddress ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidAddress or MessageInvalidAddress instead.
 func NewErrInvalidAddress(ctx *context.T, address string) error {
 	return verror.New(ErrInvalidAddress, ctx, address)
 }
 
+// ErrorfInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
+func ErrorfInvalidAddress(ctx *context.T, format string, address string) error {
+	return ErrInvalidAddress.Errorf(ctx, format, address)
+}
+
+// MessageInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
+func MessageInvalidAddress(ctx *context.T, message string, address string) error {
+	return ErrInvalidAddress.Message(ctx, message, address)
+}
+
 // NewErrAddressNotReachable returns an error with the ErrAddressNotReachable ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAddressNotReachable or MessageAddressNotReachable instead.
 func NewErrAddressNotReachable(ctx *context.T, address string) error {
 	return verror.New(ErrAddressNotReachable, ctx, address)
 }
 
+// ErrorfAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
+func ErrorfAddressNotReachable(ctx *context.T, format string, address string) error {
+	return ErrAddressNotReachable.Errorf(ctx, format, address)
+}
+
+// MessageAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
+func MessageAddressNotReachable(ctx *context.T, message string, address string) error {
+	return ErrAddressNotReachable.Message(ctx, message, address)
+}
+
 // NewErrNoRegisteredProtocol returns an error with the ErrNoRegisteredProtocol ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoRegisteredProtocol or MessageNoRegisteredProtocol instead.
 func NewErrNoRegisteredProtocol(ctx *context.T, protocol string) error {
 	return verror.New(ErrNoRegisteredProtocol, ctx, protocol)
 }
 
+// ErrorfNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
+func ErrorfNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
+	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
+}
+
+// MessageNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
+func MessageNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
+	return ErrNoRegisteredProtocol.Message(ctx, message, protocol)
+}
+
 // NewErrCantAcceptFromTag returns an error with the ErrCantAcceptFromTag ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCantAcceptFromTag or MessageCantAcceptFromTag instead.
 func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
 	return verror.New(ErrCantAcceptFromTag, ctx, tag)
+}
+
+// ErrorfCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
+func ErrorfCantAcceptFromTag(ctx *context.T, format string, tag string) error {
+	return ErrCantAcceptFromTag.Errorf(ctx, format, tag)
+}
+
+// MessageCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
+func MessageCantAcceptFromTag(ctx *context.T, message string, tag string) error {
+	return ErrCantAcceptFromTag.Message(ctx, message, tag)
 }
 
 //////////////////////////////////////////////////

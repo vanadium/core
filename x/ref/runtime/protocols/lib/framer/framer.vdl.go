@@ -20,12 +20,24 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrLargerThan3ByteUInt = verror.Register("v.io/x/ref/runtime/protocols/lib/framer.LargerThan3ByteUInt", verror.NoRetry, "{1:}{2:} integer too large to represent in 3 bytes")
+	ErrLargerThan3ByteUInt = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/framer.LargerThan3ByteUInt", verror.NoRetry)
 )
 
 // NewErrLargerThan3ByteUInt returns an error with the ErrLargerThan3ByteUInt ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfLargerThan3ByteUInt or MessageLargerThan3ByteUInt instead.
 func NewErrLargerThan3ByteUInt(ctx *context.T) error {
 	return verror.New(ErrLargerThan3ByteUInt, ctx)
+}
+
+// ErrorfLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
+func ErrorfLargerThan3ByteUInt(ctx *context.T, format string) error {
+	return ErrLargerThan3ByteUInt.Errorf(ctx, format)
+}
+
+// MessageLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.
+func MessageLargerThan3ByteUInt(ctx *context.T, message string) error {
+	return ErrLargerThan3ByteUInt.Message(ctx, message)
 }
 
 var initializeVDLCalled bool

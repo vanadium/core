@@ -20,12 +20,24 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrNoCompatibleVersion = verror.Register("v.io/v23/rpc/version.NoCompatibleVersion", verror.NoRetry, "{1:}{2:} There were no compatible versions between ({3},{4}) and ({5},{6}).")
+	ErrNoCompatibleVersion = verror.NewIDAction("v.io/v23/rpc/version.NoCompatibleVersion", verror.NoRetry)
 )
 
 // NewErrNoCompatibleVersion returns an error with the ErrNoCompatibleVersion ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoCompatibleVersion or MessageNoCompatibleVersion instead.
 func NewErrNoCompatibleVersion(ctx *context.T, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return verror.New(ErrNoCompatibleVersion, ctx, lmin, lmax, rmin, rmax)
+}
+
+// ErrorfNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
+func ErrorfNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+	return ErrNoCompatibleVersion.Errorf(ctx, format, lmin, lmax, rmin, rmax)
+}
+
+// MessageNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.
+func MessageNoCompatibleVersion(ctx *context.T, message string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+	return ErrNoCompatibleVersion.Message(ctx, message, lmin, lmax, rmin, rmax)
 }
 
 var initializeVDLCalled bool

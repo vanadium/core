@@ -31,7 +31,7 @@ type dischargerImpl struct {
 func (dischargerImpl) Discharge(ctx *context.T, call rpc.ServerCall, caveat security.Caveat, impetus security.DischargeImpetus) (security.Discharge, error) {
 	details := caveat.ThirdPartyDetails()
 	if details == nil {
-		return security.Discharge{}, discharger.NewErrNotAThirdPartyCaveat(ctx, caveat)
+		return security.Discharge{}, discharger.ErrorfNotAThirdPartyCaveat(ctx, "discharges are not required for non-third-party caveats (id: %v)", caveat)
 	}
 	if err := details.Dischargeable(ctx, call.Security()); err != nil {
 		return security.Discharge{}, err

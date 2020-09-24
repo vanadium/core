@@ -27,12 +27,24 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 var (
 
 	// Indicates that the Caveat does not require a discharge
-	ErrNotAThirdPartyCaveat = verror.Register("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry, "{1:}{2:} discharges are not required for non-third-party caveats (id: {c.id})")
+	ErrNotAThirdPartyCaveat = verror.NewIDAction("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry)
 )
 
 // NewErrNotAThirdPartyCaveat returns an error with the ErrNotAThirdPartyCaveat ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotAThirdPartyCaveat or MessageNotAThirdPartyCaveat instead.
 func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 	return verror.New(ErrNotAThirdPartyCaveat, ctx, c)
+}
+
+// ErrorfNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
+func ErrorfNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
+	return ErrNotAThirdPartyCaveat.Errorf(ctx, format, c)
+}
+
+// MessageNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
+func MessageNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
+	return ErrNotAThirdPartyCaveat.Message(ctx, message, c)
 }
 
 //////////////////////////////////////////////////

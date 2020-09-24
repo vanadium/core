@@ -59,6 +59,7 @@ func cleanErrorDef(ed compile.ErrorDef) compile.ErrorDef {
 	ed.NamePos = compile.NamePos{}
 	ed.Exported = false
 	ed.ID = ""
+	ed.Name = ""
 	for _, param := range ed.Params {
 		param.Pos = parse.Pos{}
 	}

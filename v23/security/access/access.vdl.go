@@ -434,54 +434,150 @@ var AccessTagCaveat = security.CaveatDescriptor{
 var (
 
 	// The AccessList is too big.  Use groups to represent large sets of principals.
-	ErrTooBig                    = verror.Register("v.io/v23/security/access.TooBig", verror.NoRetry, "{1:}{2:} AccessList is too big")
-	ErrNoPermissions             = verror.Register("v.io/v23/security/access.NoPermissions", verror.NoRetry, "{1:}{2:} {3} does not have {5} access (rejected blessings: {4})")
-	ErrAccessListMatch           = verror.Register("v.io/v23/security/access.AccessListMatch", verror.NoRetry, "{1:}{2:} {3} does not match the access list (rejected blessings: {4})")
-	ErrUnenforceablePatterns     = verror.Register("v.io/v23/security/access.UnenforceablePatterns", verror.NoRetry, "{1:}{2:} AccessList contains the following invalid or unrecognized patterns in the In list: {3}")
-	ErrInvalidOpenAccessList     = verror.Register("v.io/v23/security/access.InvalidOpenAccessList", verror.NoRetry, "{1:}{2:} AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
-	ErrAccessTagCaveatValidation = verror.Register("v.io/v23/security/access.AccessTagCaveatValidation", verror.NoRetry, "{1:}{2:} access tags on method ({3}) do not include any of the ones in the caveat ({4}), or the method is using a different tag type")
-	ErrMultipleTags              = verror.Register("v.io/v23/security/access.MultipleTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} cannot handle multiple tags of type {5}; this is likely unintentional")
-	ErrNoTags                    = verror.Register("v.io/v23/security/access.NoTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} has no tags of type {5}; this is likely unintentional")
+	ErrTooBig                    = verror.NewIDAction("v.io/v23/security/access.TooBig", verror.NoRetry)
+	ErrNoPermissions             = verror.NewIDAction("v.io/v23/security/access.NoPermissions", verror.NoRetry)
+	ErrAccessListMatch           = verror.NewIDAction("v.io/v23/security/access.AccessListMatch", verror.NoRetry)
+	ErrUnenforceablePatterns     = verror.NewIDAction("v.io/v23/security/access.UnenforceablePatterns", verror.NoRetry)
+	ErrInvalidOpenAccessList     = verror.NewIDAction("v.io/v23/security/access.InvalidOpenAccessList", verror.NoRetry)
+	ErrAccessTagCaveatValidation = verror.NewIDAction("v.io/v23/security/access.AccessTagCaveatValidation", verror.NoRetry)
+	ErrMultipleTags              = verror.NewIDAction("v.io/v23/security/access.MultipleTags", verror.NoRetry)
+	ErrNoTags                    = verror.NewIDAction("v.io/v23/security/access.NoTags", verror.NoRetry)
 )
 
 // NewErrTooBig returns an error with the ErrTooBig ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTooBig or MessageTooBig instead.
 func NewErrTooBig(ctx *context.T) error {
 	return verror.New(ErrTooBig, ctx)
 }
 
+// ErrorfTooBig calls ErrTooBig.Errorf with the supplied arguments.
+func ErrorfTooBig(ctx *context.T, format string) error {
+	return ErrTooBig.Errorf(ctx, format)
+}
+
+// MessageTooBig calls ErrTooBig.Message with the supplied arguments.
+func MessageTooBig(ctx *context.T, message string) error {
+	return ErrTooBig.Message(ctx, message)
+}
+
 // NewErrNoPermissions returns an error with the ErrNoPermissions ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoPermissions or MessageNoPermissions instead.
 func NewErrNoPermissions(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return verror.New(ErrNoPermissions, ctx, validBlessings, rejectedBlessings, tag)
 }
 
+// ErrorfNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
+func ErrorfNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag)
+}
+
+// MessageNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
+func MessageNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+	return ErrNoPermissions.Message(ctx, message, validBlessings, rejectedBlessings, tag)
+}
+
 // NewErrAccessListMatch returns an error with the ErrAccessListMatch ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAccessListMatch or MessageAccessListMatch instead.
 func NewErrAccessListMatch(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return verror.New(ErrAccessListMatch, ctx, validBlessings, rejectedBlessings)
 }
 
+// ErrorfAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
+func ErrorfAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
+}
+
+// MessageAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
+func MessageAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+	return ErrAccessListMatch.Message(ctx, message, validBlessings, rejectedBlessings)
+}
+
 // NewErrUnenforceablePatterns returns an error with the ErrUnenforceablePatterns ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnenforceablePatterns or MessageUnenforceablePatterns instead.
 func NewErrUnenforceablePatterns(ctx *context.T, rejectedPatterns []security.BlessingPattern) error {
 	return verror.New(ErrUnenforceablePatterns, ctx, rejectedPatterns)
 }
 
+// ErrorfUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
+func ErrorfUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
+	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
+}
+
+// MessageUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
+func MessageUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
+	return ErrUnenforceablePatterns.Message(ctx, message, rejectedPatterns)
+}
+
 // NewErrInvalidOpenAccessList returns an error with the ErrInvalidOpenAccessList ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidOpenAccessList or MessageInvalidOpenAccessList instead.
 func NewErrInvalidOpenAccessList(ctx *context.T) error {
 	return verror.New(ErrInvalidOpenAccessList, ctx)
 }
 
+// ErrorfInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
+func ErrorfInvalidOpenAccessList(ctx *context.T, format string) error {
+	return ErrInvalidOpenAccessList.Errorf(ctx, format)
+}
+
+// MessageInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
+func MessageInvalidOpenAccessList(ctx *context.T, message string) error {
+	return ErrInvalidOpenAccessList.Message(ctx, message)
+}
+
 // NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAccessTagCaveatValidation or MessageAccessTagCaveatValidation instead.
 func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
 	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
 }
 
+// ErrorfAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
+func ErrorfAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
+	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags)
+}
+
+// MessageAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
+func MessageAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
+	return ErrAccessTagCaveatValidation.Message(ctx, message, methodTags, caveatTags)
+}
+
 // NewErrMultipleTags returns an error with the ErrMultipleTags ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfMultipleTags or MessageMultipleTags instead.
 func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
 }
 
+// ErrorfMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
+func ErrorfMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag)
+}
+
+// MessageMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
+func MessageMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+	return ErrMultipleTags.Message(ctx, message, suffix, method, tag)
+}
+
 // NewErrNoTags returns an error with the ErrNoTags ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoTags or MessageNoTags instead.
 func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrNoTags, ctx, suffix, method, tag)
+}
+
+// ErrorfNoTags calls ErrNoTags.Errorf with the supplied arguments.
+func ErrorfNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+	return ErrNoTags.Errorf(ctx, format, suffix, method, tag)
+}
+
+// MessageNoTags calls ErrNoTags.Message with the supplied arguments.
+func MessageNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+	return ErrNoTags.Message(ctx, message, suffix, method, tag)
 }
 
 // Hold type definitions in package-level variables, for better performance.

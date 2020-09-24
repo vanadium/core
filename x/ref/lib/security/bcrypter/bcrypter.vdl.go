@@ -412,30 +412,78 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[][]byte) error {
 // Error definitions
 
 var (
-	ErrInternal           = verror.Register("v.io/x/ref/lib/security/bcrypter.Internal", verror.NoRetry, "{1:}{2:} internal error: {3}")
-	ErrNoParams           = verror.Register("v.io/x/ref/lib/security/bcrypter.NoParams", verror.NoRetry, "{1:}{2:} no public parameters available for encrypting for pattern: {3}")
-	ErrPrivateKeyNotFound = verror.Register("v.io/x/ref/lib/security/bcrypter.PrivateKeyNotFound", verror.NoRetry, "{1:}{2:} no private key found for decrypting ciphertext")
-	ErrInvalidPrivateKey  = verror.Register("v.io/x/ref/lib/security/bcrypter.InvalidPrivateKey", verror.NoRetry, "{1:}{2:} private key is invalid: {3}")
+	ErrInternal           = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.Internal", verror.NoRetry)
+	ErrNoParams           = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.NoParams", verror.NoRetry)
+	ErrPrivateKeyNotFound = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.PrivateKeyNotFound", verror.NoRetry)
+	ErrInvalidPrivateKey  = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.InvalidPrivateKey", verror.NoRetry)
 )
 
 // NewErrInternal returns an error with the ErrInternal ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInternal or MessageInternal instead.
 func NewErrInternal(ctx *context.T, err error) error {
 	return verror.New(ErrInternal, ctx, err)
 }
 
+// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfInternal(ctx *context.T, format string, err error) error {
+	return ErrInternal.Errorf(ctx, format, err)
+}
+
+// MessageInternal calls ErrInternal.Message with the supplied arguments.
+func MessageInternal(ctx *context.T, message string, err error) error {
+	return ErrInternal.Message(ctx, message, err)
+}
+
 // NewErrNoParams returns an error with the ErrNoParams ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoParams or MessageNoParams instead.
 func NewErrNoParams(ctx *context.T, pattern security.BlessingPattern) error {
 	return verror.New(ErrNoParams, ctx, pattern)
 }
 
+// ErrorfNoParams calls ErrNoParams.Errorf with the supplied arguments.
+func ErrorfNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
+	return ErrNoParams.Errorf(ctx, format, pattern)
+}
+
+// MessageNoParams calls ErrNoParams.Message with the supplied arguments.
+func MessageNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
+	return ErrNoParams.Message(ctx, message, pattern)
+}
+
 // NewErrPrivateKeyNotFound returns an error with the ErrPrivateKeyNotFound ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfPrivateKeyNotFound or MessagePrivateKeyNotFound instead.
 func NewErrPrivateKeyNotFound(ctx *context.T) error {
 	return verror.New(ErrPrivateKeyNotFound, ctx)
 }
 
+// ErrorfPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
+func ErrorfPrivateKeyNotFound(ctx *context.T, format string) error {
+	return ErrPrivateKeyNotFound.Errorf(ctx, format)
+}
+
+// MessagePrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
+func MessagePrivateKeyNotFound(ctx *context.T, message string) error {
+	return ErrPrivateKeyNotFound.Message(ctx, message)
+}
+
 // NewErrInvalidPrivateKey returns an error with the ErrInvalidPrivateKey ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidPrivateKey or MessageInvalidPrivateKey instead.
 func NewErrInvalidPrivateKey(ctx *context.T, err error) error {
 	return verror.New(ErrInvalidPrivateKey, ctx, err)
+}
+
+// ErrorfInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
+func ErrorfInvalidPrivateKey(ctx *context.T, format string, err error) error {
+	return ErrInvalidPrivateKey.Errorf(ctx, format, err)
+}
+
+// MessageInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
+func MessageInvalidPrivateKey(ctx *context.T, message string, err error) error {
+	return ErrInvalidPrivateKey.Message(ctx, message, err)
 }
 
 // Hold type definitions in package-level variables, for better performance.

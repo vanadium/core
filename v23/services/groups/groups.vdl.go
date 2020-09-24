@@ -374,24 +374,60 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Error definitions
 
 var (
-	ErrNoBlessings         = verror.Register("v.io/v23/services/groups.NoBlessings", verror.NoRetry, "{1:}{2:} No blessings recognized; cannot create group Permissions")
-	ErrExcessiveContention = verror.Register("v.io/v23/services/groups.ExcessiveContention", verror.RetryBackoff, "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	ErrCycleFound          = verror.Register("v.io/v23/services/groups.CycleFound", verror.NoRetry, "{1:}{2:} Found cycle in group definitions {3} visited {4}")
+	ErrNoBlessings         = verror.NewIDAction("v.io/v23/services/groups.NoBlessings", verror.NoRetry)
+	ErrExcessiveContention = verror.NewIDAction("v.io/v23/services/groups.ExcessiveContention", verror.RetryBackoff)
+	ErrCycleFound          = verror.NewIDAction("v.io/v23/services/groups.CycleFound", verror.NoRetry)
 )
 
 // NewErrNoBlessings returns an error with the ErrNoBlessings ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoBlessings or MessageNoBlessings instead.
 func NewErrNoBlessings(ctx *context.T) error {
 	return verror.New(ErrNoBlessings, ctx)
 }
 
+// ErrorfNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
+func ErrorfNoBlessings(ctx *context.T, format string) error {
+	return ErrNoBlessings.Errorf(ctx, format)
+}
+
+// MessageNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
+func MessageNoBlessings(ctx *context.T, message string) error {
+	return ErrNoBlessings.Message(ctx, message)
+}
+
 // NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfExcessiveContention or MessageExcessiveContention instead.
 func NewErrExcessiveContention(ctx *context.T) error {
 	return verror.New(ErrExcessiveContention, ctx)
 }
 
+// ErrorfExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
+func ErrorfExcessiveContention(ctx *context.T, format string) error {
+	return ErrExcessiveContention.Errorf(ctx, format)
+}
+
+// MessageExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
+func MessageExcessiveContention(ctx *context.T, message string) error {
+	return ErrExcessiveContention.Message(ctx, message)
+}
+
 // NewErrCycleFound returns an error with the ErrCycleFound ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCycleFound or MessageCycleFound instead.
 func NewErrCycleFound(ctx *context.T, name string, visited string) error {
 	return verror.New(ErrCycleFound, ctx, name, visited)
+}
+
+// ErrorfCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
+func ErrorfCycleFound(ctx *context.T, format string, name string, visited string) error {
+	return ErrCycleFound.Errorf(ctx, format, name, visited)
+}
+
+// MessageCycleFound calls ErrCycleFound.Message with the supplied arguments.
+func MessageCycleFound(ctx *context.T, message string, name string, visited string) error {
+	return ErrCycleFound.Message(ctx, message, name, visited)
 }
 
 //////////////////////////////////////////////////

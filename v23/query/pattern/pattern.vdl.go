@@ -20,18 +20,42 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrIllegalEscapeChar = verror.Register("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry, "{1:}{2:} '%' and '_' cannot be used as escape characters")
-	ErrInvalidEscape     = verror.Register("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry, "{1:}{2:} only '%', '_', and the escape character are allowed to be escaped, found '\\{3}'")
+	ErrIllegalEscapeChar = verror.NewIDAction("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry)
+	ErrInvalidEscape     = verror.NewIDAction("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry)
 )
 
 // NewErrIllegalEscapeChar returns an error with the ErrIllegalEscapeChar ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfIllegalEscapeChar or MessageIllegalEscapeChar instead.
 func NewErrIllegalEscapeChar(ctx *context.T) error {
 	return verror.New(ErrIllegalEscapeChar, ctx)
 }
 
+// ErrorfIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
+func ErrorfIllegalEscapeChar(ctx *context.T, format string) error {
+	return ErrIllegalEscapeChar.Errorf(ctx, format)
+}
+
+// MessageIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
+func MessageIllegalEscapeChar(ctx *context.T, message string) error {
+	return ErrIllegalEscapeChar.Message(ctx, message)
+}
+
 // NewErrInvalidEscape returns an error with the ErrInvalidEscape ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidEscape or MessageInvalidEscape instead.
 func NewErrInvalidEscape(ctx *context.T, escaped string) error {
 	return verror.New(ErrInvalidEscape, ctx, escaped)
+}
+
+// ErrorfInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
+func ErrorfInvalidEscape(ctx *context.T, format string, escaped string) error {
+	return ErrInvalidEscape.Errorf(ctx, format, escaped)
+}
+
+// MessageInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
+func MessageInvalidEscape(ctx *context.T, message string, escaped string) error {
+	return ErrInvalidEscape.Message(ctx, message, escaped)
 }
 
 var initializeVDLCalled bool

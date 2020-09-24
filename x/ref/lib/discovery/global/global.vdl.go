@@ -20,18 +20,42 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrNoNamespace       = verror.Register("v.io/x/ref/lib/discovery/global.NoNamespace", verror.NoRetry, "{1:}{2:} namespace not found")
-	ErrAdInvalidEncoding = verror.Register("v.io/x/ref/lib/discovery/global.AdInvalidEncoding", verror.NoRetry, "{1:}{2:} ad ({3}) has invalid encoding")
+	ErrNoNamespace       = verror.NewIDAction("v.io/x/ref/lib/discovery/global.NoNamespace", verror.NoRetry)
+	ErrAdInvalidEncoding = verror.NewIDAction("v.io/x/ref/lib/discovery/global.AdInvalidEncoding", verror.NoRetry)
 )
 
 // NewErrNoNamespace returns an error with the ErrNoNamespace ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoNamespace or MessageNoNamespace instead.
 func NewErrNoNamespace(ctx *context.T) error {
 	return verror.New(ErrNoNamespace, ctx)
 }
 
+// ErrorfNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
+func ErrorfNoNamespace(ctx *context.T, format string) error {
+	return ErrNoNamespace.Errorf(ctx, format)
+}
+
+// MessageNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
+func MessageNoNamespace(ctx *context.T, message string) error {
+	return ErrNoNamespace.Message(ctx, message)
+}
+
 // NewErrAdInvalidEncoding returns an error with the ErrAdInvalidEncoding ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAdInvalidEncoding or MessageAdInvalidEncoding instead.
 func NewErrAdInvalidEncoding(ctx *context.T, ad string) error {
 	return verror.New(ErrAdInvalidEncoding, ctx, ad)
+}
+
+// ErrorfAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
+func ErrorfAdInvalidEncoding(ctx *context.T, format string, ad string) error {
+	return ErrAdInvalidEncoding.Errorf(ctx, format, ad)
+}
+
+// MessageAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.
+func MessageAdInvalidEncoding(ctx *context.T, message string, ad string) error {
+	return ErrAdInvalidEncoding.Message(ctx, message, ad)
 }
 
 var initializeVDLCalled bool

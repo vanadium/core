@@ -435,12 +435,24 @@ const InitialStateSkipped = int32(2)
 // Error definitions
 
 var (
-	ErrUnknownResumeMarker = verror.Register("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry, "{1:}{2:} unknown resume marker {_}")
+	ErrUnknownResumeMarker = verror.NewIDAction("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry)
 )
 
 // NewErrUnknownResumeMarker returns an error with the ErrUnknownResumeMarker ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknownResumeMarker or MessageUnknownResumeMarker instead.
 func NewErrUnknownResumeMarker(ctx *context.T) error {
 	return verror.New(ErrUnknownResumeMarker, ctx)
+}
+
+// ErrorfUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
+func ErrorfUnknownResumeMarker(ctx *context.T, format string) error {
+	return ErrUnknownResumeMarker.Errorf(ctx, format)
+}
+
+// MessageUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
+func MessageUnknownResumeMarker(ctx *context.T, message string) error {
+	return ErrUnknownResumeMarker.Message(ctx, message)
 }
 
 //////////////////////////////////////////////////

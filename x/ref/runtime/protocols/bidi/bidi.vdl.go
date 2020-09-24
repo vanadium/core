@@ -20,18 +20,42 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrCannotListenOnBidi     = verror.Register("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry, "{1:}{2:} cannot listen on bidi protocol")
-	ErrBidiRoutingIdNotCached = verror.Register("v.io/x/ref/runtime/protocols/bidi.BidiRoutingIdNotCached", verror.NoRetry, "{1:}{2:} bidi routing id not in cache")
+	ErrCannotListenOnBidi     = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry)
+	ErrBidiRoutingIdNotCached = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.BidiRoutingIdNotCached", verror.NoRetry)
 )
 
 // NewErrCannotListenOnBidi returns an error with the ErrCannotListenOnBidi ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCannotListenOnBidi or MessageCannotListenOnBidi instead.
 func NewErrCannotListenOnBidi(ctx *context.T) error {
 	return verror.New(ErrCannotListenOnBidi, ctx)
 }
 
+// ErrorfCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
+func ErrorfCannotListenOnBidi(ctx *context.T, format string) error {
+	return ErrCannotListenOnBidi.Errorf(ctx, format)
+}
+
+// MessageCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
+func MessageCannotListenOnBidi(ctx *context.T, message string) error {
+	return ErrCannotListenOnBidi.Message(ctx, message)
+}
+
 // NewErrBidiRoutingIdNotCached returns an error with the ErrBidiRoutingIdNotCached ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBidiRoutingIdNotCached or MessageBidiRoutingIdNotCached instead.
 func NewErrBidiRoutingIdNotCached(ctx *context.T) error {
 	return verror.New(ErrBidiRoutingIdNotCached, ctx)
+}
+
+// ErrorfBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
+func ErrorfBidiRoutingIdNotCached(ctx *context.T, format string) error {
+	return ErrBidiRoutingIdNotCached.Errorf(ctx, format)
+}
+
+// MessageBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
+func MessageBidiRoutingIdNotCached(ctx *context.T, message string) error {
+	return ErrBidiRoutingIdNotCached.Message(ctx, message)
 }
 
 var initializeVDLCalled bool

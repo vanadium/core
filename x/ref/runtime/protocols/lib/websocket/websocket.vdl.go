@@ -20,18 +20,42 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrListenerClosed     = verror.Register("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry, "{1:}{2:} listener is already closed.")
-	ErrListenCalledInNaCl = verror.Register("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry, "{1:}{2:} Listen cannot be called in NaCl code.")
+	ErrListenerClosed     = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry)
+	ErrListenCalledInNaCl = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry)
 )
 
 // NewErrListenerClosed returns an error with the ErrListenerClosed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenerClosed or MessageListenerClosed instead.
 func NewErrListenerClosed(ctx *context.T) error {
 	return verror.New(ErrListenerClosed, ctx)
 }
 
+// ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
+func ErrorfListenerClosed(ctx *context.T, format string) error {
+	return ErrListenerClosed.Errorf(ctx, format)
+}
+
+// MessageListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
+func MessageListenerClosed(ctx *context.T, message string) error {
+	return ErrListenerClosed.Message(ctx, message)
+}
+
 // NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
 func NewErrListenCalledInNaCl(ctx *context.T) error {
 	return verror.New(ErrListenCalledInNaCl, ctx)
+}
+
+// ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
+func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
+	return ErrListenCalledInNaCl.Errorf(ctx, format)
+}
+
+// MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
+func MessageListenCalledInNaCl(ctx *context.T, message string) error {
+	return ErrListenCalledInNaCl.Message(ctx, message)
 }
 
 var initializeVDLCalled bool
