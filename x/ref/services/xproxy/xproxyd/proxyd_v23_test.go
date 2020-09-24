@@ -474,7 +474,7 @@ func waitForNMountedServers(t *testing.T, ctx *context.T, ns namespace.T, name s
 			}
 			return len(resolved.Servers) == expected, nil
 		}
-		if err != nil && verror.ErrorID(err) != naming.ErrNoSuchName.ID {
+		if err != nil && !errors.Is(err, naming.ErrNoSuchName) {
 			return false, fmt.Errorf("unexpected error waiting for %v: %v", name, err)
 		}
 		return false, nil

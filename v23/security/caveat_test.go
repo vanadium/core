@@ -5,6 +5,7 @@
 package security_test
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -84,7 +85,7 @@ func testStandardCaveatFactories(t *testing.T, self security.Principal) {
 		err := test.cav.Validate(ctx, call)
 		if test.ok && err != nil {
 			t.Errorf("#%d: %v.Validate(...) failed validation: %v", idx, test.cav, err)
-		} else if !test.ok && verror.ErrorID(err) != security.ErrCaveatValidation.ID {
+		} else if !test.ok && !errors.Is(err, security.ErrCaveatValidation) {
 			t.Errorf("#%d: %v.Validate(...) returned error='%v' (errorid=%v), want errorid=%v", idx, test.cav, err, verror.ErrorID(err), security.ErrCaveatValidation.ID)
 		}
 	}
@@ -196,14 +197,14 @@ func TestCaveat(t *testing.T) {
 		Id:        uid,
 		ParamType: vdl.AnyType,
 	}
-	if _, err := security.NewCaveat(anyCd, 9); verror.ErrorID(err) != security.ErrCaveatParamAny.ID {
+	if _, err := security.NewCaveat(anyCd, 9); !errors.Is(err, security.ErrCaveatParamAny) {
 		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamAny.ID)
 	}
 	cd := security.CaveatDescriptor{
 		Id:        uid,
 		ParamType: vdl.TypeOf(string("")),
 	}
-	if _, err := security.NewCaveat(cd, nil); verror.ErrorID(err) != security.ErrCaveatParamTypeMismatch.ID {
+	if _, err := security.NewCaveat(cd, nil); !errors.Is(err, security.ErrCaveatParamTypeMismatch) {
 		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamTypeMismatch.ID)
 	}
 	// A param of type *vdl.Value with underlying type string should succeed.
@@ -224,7 +225,7 @@ func TestCaveat(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Validation will fail when the validation function isn't registered.
-	if err := c1.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatNotRegistered.ID {
+	if err := c1.Validate(ctx, call); !errors.Is(err, security.ErrCaveatNotRegistered) {
 		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatNotRegistered.ID)
 	}
 	// Once registered, then it should be invoked
@@ -237,12 +238,12 @@ func TestCaveat(t *testing.T) {
 	if err := c1.Validate(ctx, call); err != nil {
 		t.Error(err)
 	}
-	if err := c2.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatValidation.ID {
+	if err := c2.Validate(ctx, call); !errors.Is(err, security.ErrCaveatValidation) {
 		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatValidation.ID)
 	}
 	// If a malformed caveat was received, then validation should fail
 	c3 := security.Caveat{Id: cd.Id, ParamVom: nil}
-	if err := c3.Validate(ctx, call); verror.ErrorID(err) != security.ErrCaveatParamCoding.ID {
+	if err := c3.Validate(ctx, call); !errors.Is(err, security.ErrCaveatParamCoding) {
 		t.Errorf("Got '%v' (errorid=%v), want errorid=%v", err, verror.ErrorID(err), security.ErrCaveatParamCoding.ID)
 	}
 }

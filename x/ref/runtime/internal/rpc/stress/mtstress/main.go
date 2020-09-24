@@ -8,6 +8,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"net"
 	"regexp"
@@ -17,7 +18,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
-	"v.io/v23/verror"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/generic"
@@ -93,7 +93,7 @@ Repeatedly issues a Resolve request (at --rate) to a name and measures latency
 			resolve := func(ctx *context.T) (time.Duration, error) {
 				var entry naming.MountEntry
 				start := time.Now()
-				if err := v23.GetClient(ctx).Call(ctx, name, "ResolveStep", nil, []interface{}{&entry}, options.Preresolved{}); err != nil && verror.ErrorID(err) != naming.ErrNoSuchName.ID {
+				if err := v23.GetClient(ctx).Call(ctx, name, "ResolveStep", nil, []interface{}{&entry}, options.Preresolved{}); err != nil && !errors.Is(err, naming.ErrNoSuchName) {
 					// ErrNoSuchName is fine, it just means
 					// that the mounttable server did not
 					// find an entry in its tables.

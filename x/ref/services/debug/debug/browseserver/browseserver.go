@@ -375,7 +375,7 @@ func (h *statsHandler) GetTimeSeriesData(server string, children []string, ctx *
 		if strings.Contains(child, "/timeseries") {
 			n := fmt.Sprintf("%s%s", naming.Join(server, "__debug", "stats"), child)
 			v, err := stats.StatsClient(n).Value(ctx)
-			if err != nil && verror.ErrorID(err) != verror.ErrNoExist.ID {
+			if err != nil && !errors.Is(err, verror.ErrNoExist) {
 				return "", err
 			}
 			var value interface{}

@@ -9,6 +9,7 @@ package raft
 // should use an encoding (e.g. json) into the strings.
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -22,7 +23,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/options"
-	"v.io/v23/verror"
 )
 
 // member keeps track of another member's state.
@@ -625,7 +625,7 @@ func (r *raft) updateFollower(m *member) {
 		}
 
 		if err != nil {
-			if verror.ErrorID(err) != ErrOutOfSequence.ID {
+			if !errors.Is(err, ErrOutOfSequence) {
 				// A problem other than missing entries.  Retry later.
 				//vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
 				vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
@@ -820,7 +820,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 				return r.waitForApply(ctx, term, index)
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != ErrNotLeader.ID {
+			if !errors.Is(err, ErrNotLeader) {
 				return nil, err
 			}
 		case RoleFollower:
@@ -835,7 +835,7 @@ func (r *raft) Append(ctx *context.T, cmd []byte) (error, error) {
 				return r.waitForApply(ctx, term, index)
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != ErrNotLeader.ID {
+			if !errors.Is(err, ErrNotLeader) {
 				return nil, err
 			}
 		}
@@ -880,7 +880,7 @@ func (r *raft) syncWithLeader(ctx *context.T) error {
 				return nil
 			}
 			// If the leader can't do it, give up.
-			if verror.ErrorID(err) != ErrNotLeader.ID {
+			if !errors.Is(err, ErrNotLeader) {
 				return err
 			}
 		}

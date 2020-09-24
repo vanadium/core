@@ -264,8 +264,8 @@ func TestTimeout(t *testing.T) {
 	name := naming.JoinAddressName(naming.FormatEndpoint("tcp", "203.0.113.10:443"), "")
 	_, err := client.StartCall(ctx, name, "echo", []interface{}{"args don't matter"})
 	t.Log(err)
-	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
-		verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrTimeout) &&
+		!errors.Is(err, verror.ErrNoServers) {
 		t.Fatalf("wrong error: %s", err)
 	}
 }
@@ -281,7 +281,7 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	emptyCtx := &context.T{}
 	emptyCtx = context.WithLogger(emptyCtx, logger.Global())
 	_, err := client.StartCall(emptyCtx, "noname", "nomethod", nil)
-	if verror.ErrorID(err) != verror.ErrBadArg.ID {
+	if !errors.Is(err, verror.ErrBadArg) {
 		t.Errorf("wrong error: %s", err)
 	}
 
@@ -292,7 +292,7 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 		t.Fatal(err)
 	}
 	_, err = client.StartCall(ctx, "noname", "nomethod", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", err)
 	}
 	if want := "connection refused"; !strings.Contains(verror.DebugString(err), want) {
@@ -303,7 +303,7 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	// name registered with the mount table.
 	startRootMT(t, sh, false)
 	_, err = client.StartCall(ctx, "noname", "nomethod", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", err)
 	}
 	if unwanted := "connection refused"; strings.Contains(err.Error(), unwanted) {
@@ -323,7 +323,7 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	// This will fail in its attempt to call ResolveStep to the mount table
 	// because we are using both the new context and the new client.
 	_, err = nclient.StartCall(nctx, "name", "nomethod", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrNoServers) {
 		t.Fatalf("wrong error: %s", err)
 	}
 	if want := "ResolveStep"; !strings.Contains(err.Error(), want) {
@@ -333,7 +333,7 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	// we are using the old context (which supplies the context for the calls
 	// to ResolveStep) and the new client.
 	_, err = nclient.StartCall(ctx, "name", "nomethod", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrNoServers) {
 		t.Fatalf("wrong error: %s", err)
 	}
 	if want := "nope"; !strings.Contains(err.Error(), want) {
@@ -352,8 +352,8 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	// This call will either timeout talking to the mount table or indicate
 	// that there are no servers.
 	call, err := client.StartCall(nctx, "name", "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
-		verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrTimeout) &&
+		!errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", err)
 	}
 	if call != nil {
@@ -368,8 +368,8 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	nctx, cancel = context.WithTimeout(ctx, 100*time.Millisecond)
 	newName := naming.JoinAddressName(addr, "")
 	call, err = client.StartCall(nctx, newName, "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrTimeout.ID &&
-		verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrTimeout) &&
+		!errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", err)
 	}
 	if call != nil {
@@ -412,7 +412,7 @@ func TestStartCallBadProtocol(t *testing.T) {
 		return &closeConn{ctx: ctx, Conn: c, wg: wg}
 	})
 	call, err := client.StartCall(nctx, "name", "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNoServers.ID {
+	if !errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", verror.DebugString(err))
 	}
 	if call != nil {
@@ -437,7 +437,7 @@ func TestStartCallSecurity(t *testing.T) {
 		t.Fatal(err)
 	}
 	call, err := client.StartCall(ctx1, name, "noname", nil, options.NoRetry{})
-	if verror.ErrorID(err) != verror.ErrNotTrusted.ID {
+	if !errors.Is(err, verror.ErrNotTrusted) {
 		t.Fatalf("wrong error: %s", err)
 	}
 	if call != nil {
@@ -606,7 +606,7 @@ func TestStreamTimeout(t *testing.T) {
 	defer cancel()
 	call, err := v23.GetClient(ctx).StartCall(ctx, name, "Source", []interface{}{want})
 	if err != nil {
-		if verror.ErrorID(err) != verror.ErrTimeout.ID {
+		if !errors.Is(err, verror.ErrTimeout) {
 			t.Fatalf("verror should be a timeout not %s: stack %s",
 				err, verror.Stack(err))
 		}

@@ -19,7 +19,6 @@ import (
 	"v.io/v23/query/engine/public"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
-	"v.io/v23/verror"
 	"v.io/v23/vom"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
@@ -3313,7 +3312,7 @@ func TestExecErrors(t *testing.T) {
 	for _, test := range basic {
 		_, _, err := qe.Exec(test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}
@@ -3337,7 +3336,7 @@ func TestErrorOnPrepare(t *testing.T) {
 	for _, test := range basic {
 		_, err := qe.PrepareStatement(test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}
@@ -3407,7 +3406,7 @@ func TestErrorOnPrepareExec(t *testing.T) {
 		}
 		_, _, err = ps.Exec(test.paramValues...)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
-		if verror.ErrorID(err) != verror.ErrorID(test.err) || err.Error() != test.err.Error() {
+		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}

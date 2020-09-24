@@ -41,7 +41,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 			// The blessings presented by the caller do not give it a name for this
 			// operation. We could create a world-accessible group, but it seems safer
 			// to return an error.
-			return groups.NewErrNoBlessings(ctx)
+			return groups.ErrorfNoBlessings(ctx, "no blessings recognized; cannot create group Permissions")
 		}
 		for _, tag := range access.AllTypicalTags() {
 			for _, b := range blessings {
@@ -69,7 +69,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 func (g *group) Delete(ctx *context.T, call rpc.ServerCall, version string) error {
 	if err := g.readModifyWrite(ctx, call.Security(), version, func(gd *groupData, versionSt string) error {
 		return g.m.st.Delete(g.name, versionSt)
-	}); err != nil && verror.ErrorID(err) != verror.ErrNoExist.ID {
+	}); err != nil && !errors.Is(err, verror.ErrNoExist) {
 		return err
 	}
 	return nil
@@ -206,5 +206,5 @@ func (g *group) readModifyWrite(ctx *context.T, call security.Call, version stri
 			return nil
 		}
 	}
-	return groups.NewErrExcessiveContention(ctx)
+	return groups.ErrorfExcessiveContention(ctx, "gave up after encountering excessive contention; try again later")
 }

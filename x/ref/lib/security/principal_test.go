@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -22,7 +23,6 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/test/testutil/testsshagent"
@@ -75,7 +75,7 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 		t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
 	}
 	// and return ErrPassphraseRequired if the passphrase is nil.
-	if _, err := LoadPersistentPrincipal(dir, nil); verror.ErrorID(err) != ErrPassphraseRequired.ID {
+	if _, err := LoadPersistentPrincipal(dir, nil); !errors.Is(err, ErrPassphraseRequired) {
 		t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
 	}
 

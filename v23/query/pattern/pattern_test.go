@@ -5,9 +5,8 @@
 package pattern
 
 import (
+	"errors"
 	"testing"
-
-	"v.io/v23/verror"
 )
 
 type patternTest struct {
@@ -144,7 +143,7 @@ func TestPatternParseError(t *testing.T) {
 	}
 
 	for _, p := range errorPatterns {
-		if _, err := ParseWithEscapeChar(p, escChar); verror.ErrorID(err) != ErrInvalidEscape.ID {
+		if _, err := ParseWithEscapeChar(p, escChar); !errors.Is(err, ErrInvalidEscape) {
 			t.Errorf("pattern %q: expected ErrInvalidEscape, got %v", p, err)
 		}
 	}

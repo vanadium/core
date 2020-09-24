@@ -7,6 +7,7 @@
 package logreaderlib_test
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -75,7 +76,7 @@ func TestReadLogImplNoFollow(t *testing.T) { //nolint:gocyclo
 	// Try to access a file that doesn't exist.
 	lf := logreader.LogFileClient(naming.JoinAddressName(endpoint, "doesntexist"))
 	_, err = lf.Size(ctx)
-	if expected := verror.ErrNoExist.ID; verror.ErrorID(err) != expected {
+	if expected := verror.ErrNoExist; !errors.Is(err, expected) {
 		t.Errorf("unexpected error value, got %v, want: %v", err, expected)
 	}
 
@@ -121,7 +122,7 @@ func TestReadLogImplNoFollow(t *testing.T) { //nolint:gocyclo
 		t.Errorf("ReadLog failed: %v", err)
 	}
 	_, err = stream.Finish()
-	if verror.ErrorID(err) != verror.ErrEndOfFile.ID {
+	if !errors.Is(err, verror.ErrEndOfFile) {
 		t.Errorf("unexpected error, got %#v, want EOF", err)
 	}
 }
