@@ -206,7 +206,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 		tags = []*vdl.Value{vdl.ValueOf(access.Debug)}
 	}
 	if disp == nil {
-		return reserved.ErrorfErrGlobNotImplemented(ctx, "Glob not implemented")
+		return reserved.NewErrGlobNotImplemented(ctx)
 	}
 	call = callWithMethodTags(ctx, call, tags)
 
@@ -229,7 +229,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			ctx.Errorf("rpc Glob: exceeded recursion limit (%d): %q", maxRecursiveGlobDepth, suffix)
 			//nolint:errcheck
 			subcall.Send(naming.GlobReplyError{
-				Value: naming.GlobError{Name: state.name, Error: reserved.ErrorfErrGlobMaxRecursionReached(ctx, "max recursion level reached")},
+				Value: naming.GlobError{Name: state.name, Error: reserved.NewErrGlobMaxRecursionReached(ctx)},
 			})
 			continue
 		}
@@ -283,7 +283,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 				subcall.Send(naming.GlobReplyError{
 					Value: naming.GlobError{
 						Name:  state.name,
-						Error: reserved.ErrorfErrGlobNotImplemented(ctx, "Glob not implemented")},
+						Error: reserved.NewErrGlobNotImplemented(ctx)},
 				})
 			}
 			continue
@@ -369,7 +369,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 	if someMatchesOmitted {
 		//nolint:errcheck
 		call.Send(naming.GlobReplyError{
-			Value: naming.GlobError{Error: reserved.ErrorfErrGlobMatchesOmitted(ctx, "some matches might have been omitted")},
+			Value: naming.GlobError{Error: reserved.NewErrGlobMatchesOmitted(ctx)},
 		})
 	}
 	return nil

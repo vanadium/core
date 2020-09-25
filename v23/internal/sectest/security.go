@@ -84,7 +84,7 @@ func (r *Roots) Recognized(root []byte, blessing string) error {
 	if err != nil {
 		return err
 	}
-	return security.ErrorfErrUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", key.String(), nil)
+	return security.NewErrUnrecognizedRoot(nil, key.String(), nil)
 }
 
 func (r *Roots) Dump() map[security.BlessingPattern][]security.PublicKey {
