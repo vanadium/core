@@ -37,7 +37,7 @@ func encodeAdToSuffix(ad *discovery.Advertisement, timestampNs int64) (string, e
 func decodeAdFromSuffix(in string) (*discovery.Advertisement, int64, error) {
 	parts := strings.SplitN(in, "/", 4)
 	if len(parts) != 4 {
-		return nil, 0, NewErrAdInvalidEncoding(nil, in)
+		return nil, 0, ErrorfAdInvalidEncoding(nil, "ad (%v}) has invalid encoding", in)
 	}
 	var err error
 	var ok bool
@@ -46,7 +46,7 @@ func decodeAdFromSuffix(in string) (*discovery.Advertisement, int64, error) {
 		return nil, 0, err
 	}
 	if ad.InterfaceName, ok = naming.DecodeFromNameElement(parts[1]); !ok {
-		return nil, 0, NewErrAdInvalidEncoding(nil, in)
+		return nil, 0, ErrorfAdInvalidEncoding(nil, "ad (%v}) has invalid encoding", in)
 	}
 	timestampNs, err := strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {
@@ -54,7 +54,7 @@ func decodeAdFromSuffix(in string) (*discovery.Advertisement, int64, error) {
 	}
 	attrs, ok := naming.DecodeFromNameElement(parts[3])
 	if !ok {
-		return nil, 0, NewErrAdInvalidEncoding(nil, in)
+		return nil, 0, ErrorfAdInvalidEncoding(nil, "ad (%v}) has invalid encoding", in)
 	}
 	if err = vom.Decode([]byte(attrs), &ad.Attributes); err != nil {
 		return nil, 0, err

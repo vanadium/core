@@ -25,13 +25,13 @@ var (
 	ErrInvalidEscape     = verror.NewIDAction("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry)
 )
 
-// ErrorfErrIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
-func ErrorfErrIllegalEscapeChar(ctx *context.T, format string) error {
+// ErrorfIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
+func ErrorfIllegalEscapeChar(ctx *context.T, format string) error {
 	return ErrIllegalEscapeChar.Errorf(ctx, format)
 }
 
-// MessageErrIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
-func MessageErrIllegalEscapeChar(ctx *context.T, message string) error {
+// MessageIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
+func MessageIllegalEscapeChar(ctx *context.T, message string) error {
 	return ErrIllegalEscapeChar.Message(ctx, message)
 }
 
@@ -51,13 +51,13 @@ func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
-func ErrorfErrInvalidEscape(ctx *context.T, format string, escaped string) error {
+// ErrorfInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
+func ErrorfInvalidEscape(ctx *context.T, format string, escaped string) error {
 	return ErrInvalidEscape.Errorf(ctx, format, escaped)
 }
 
-// MessageErrInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
-func MessageErrInvalidEscape(ctx *context.T, message string, escaped string) error {
+// MessageInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
+func MessageInvalidEscape(ctx *context.T, message string, escaped string) error {
 	return ErrInvalidEscape.Message(ctx, message, escaped)
 }
 

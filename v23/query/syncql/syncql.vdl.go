@@ -78,13 +78,13 @@ var (
 	ErrOperationNotSupported           = verror.NewIDAction("v.io/v23/query/syncql.OperationNotSupported", verror.NoRetry)
 )
 
-// ErrorfErrBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
-func ErrorfErrBadFieldInWhere(ctx *context.T, format string, off int64) error {
+// ErrorfBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
+func ErrorfBadFieldInWhere(ctx *context.T, format string, off int64) error {
 	return ErrBadFieldInWhere.Errorf(ctx, format, off)
 }
 
-// MessageErrBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
-func MessageErrBadFieldInWhere(ctx *context.T, message string, off int64) error {
+// MessageBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
+func MessageBadFieldInWhere(ctx *context.T, message string, off int64) error {
 	return ErrBadFieldInWhere.Message(ctx, message, off)
 }
 
@@ -117,13 +117,13 @@ func ParamsErrBadFieldInWhere(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
-func ErrorfErrBoolInvalidExpression(ctx *context.T, format string, off int64) error {
+// ErrorfBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
+func ErrorfBoolInvalidExpression(ctx *context.T, format string, off int64) error {
 	return ErrBoolInvalidExpression.Errorf(ctx, format, off)
 }
 
-// MessageErrBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
-func MessageErrBoolInvalidExpression(ctx *context.T, message string, off int64) error {
+// MessageBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
+func MessageBoolInvalidExpression(ctx *context.T, message string, off int64) error {
 	return ErrBoolInvalidExpression.Message(ctx, message, off)
 }
 
@@ -156,13 +156,13 @@ func ParamsErrBoolInvalidExpression(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfErrCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
+// ErrorfCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
+func ErrorfCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
 	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off)
 }
 
-// MessageErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
-func MessageErrCheckOfUnknownStatementType(ctx *context.T, message string, off int64) error {
+// MessageCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
+func MessageCheckOfUnknownStatementType(ctx *context.T, message string, off int64) error {
 	return ErrCheckOfUnknownStatementType.Message(ctx, message, off)
 }
 
@@ -195,13 +195,13 @@ func ParamsErrCheckOfUnknownStatementType(argumentError error) (verrorComponent 
 	return
 }
 
-// ErrorfErrCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
-func ErrorfErrCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
+// ErrorfCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
+func ErrorfCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
 	return ErrCouldNotConvert.Errorf(ctx, format, off, from, to)
 }
 
-// MessageErrCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
-func MessageErrCouldNotConvert(ctx *context.T, message string, off int64, from string, to string) error {
+// MessageCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
+func MessageCouldNotConvert(ctx *context.T, message string, off int64, from string, to string) error {
 	return ErrCouldNotConvert.Message(ctx, message, off, from, to)
 }
 
@@ -250,13 +250,13 @@ func ParamsErrCouldNotConvert(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
-func ErrorfErrDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
+// ErrorfDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
+func ErrorfDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
 	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off)
 }
 
-// MessageErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
-func MessageErrDotNotationDisallowedForKey(ctx *context.T, message string, off int64) error {
+// MessageDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
+func MessageDotNotationDisallowedForKey(ctx *context.T, message string, off int64) error {
 	return ErrDotNotationDisallowedForKey.Message(ctx, message, off)
 }
 
@@ -289,13 +289,13 @@ func ParamsErrDotNotationDisallowedForKey(argumentError error) (verrorComponent 
 	return
 }
 
-// ErrorfErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfErrExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
+// ErrorfExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
+func ErrorfExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
 	return ErrExecOfUnknownStatementType.Errorf(ctx, format, off, statementType)
 }
 
-// MessageErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
-func MessageErrExecOfUnknownStatementType(ctx *context.T, message string, off int64, statementType string) error {
+// MessageExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
+func MessageExecOfUnknownStatementType(ctx *context.T, message string, off int64, statementType string) error {
 	return ErrExecOfUnknownStatementType.Message(ctx, message, off, statementType)
 }
 
@@ -336,13 +336,13 @@ func ParamsErrExecOfUnknownStatementType(argumentError error) (verrorComponent s
 	return
 }
 
-// ErrorfErrExpected calls ErrExpected.Errorf with the supplied arguments.
-func ErrorfErrExpected(ctx *context.T, format string, off int64, expected string) error {
+// ErrorfExpected calls ErrExpected.Errorf with the supplied arguments.
+func ErrorfExpected(ctx *context.T, format string, off int64, expected string) error {
 	return ErrExpected.Errorf(ctx, format, off, expected)
 }
 
-// MessageErrExpected calls ErrExpected.Message with the supplied arguments.
-func MessageErrExpected(ctx *context.T, message string, off int64, expected string) error {
+// MessageExpected calls ErrExpected.Message with the supplied arguments.
+func MessageExpected(ctx *context.T, message string, off int64, expected string) error {
 	return ErrExpected.Message(ctx, message, off, expected)
 }
 
@@ -383,13 +383,13 @@ func ParamsErrExpected(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
-func ErrorfErrExpectedFrom(ctx *context.T, format string, off int64, found string) error {
+// ErrorfExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
+func ErrorfExpectedFrom(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedFrom.Errorf(ctx, format, off, found)
 }
 
-// MessageErrExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
-func MessageErrExpectedFrom(ctx *context.T, message string, off int64, found string) error {
+// MessageExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
+func MessageExpectedFrom(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedFrom.Message(ctx, message, off, found)
 }
 
@@ -430,13 +430,13 @@ func ParamsErrExpectedFrom(argumentError error) (verrorComponent string, verrorO
 	return
 }
 
-// ErrorfErrExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
-func ErrorfErrExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
+// ErrorfExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
+func ErrorfExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedIdentifier.Errorf(ctx, format, off, found)
 }
 
-// MessageErrExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
-func MessageErrExpectedIdentifier(ctx *context.T, message string, off int64, found string) error {
+// MessageExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
+func MessageExpectedIdentifier(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedIdentifier.Message(ctx, message, off, found)
 }
 
@@ -477,13 +477,13 @@ func ParamsErrExpectedIdentifier(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
-func ErrorfErrExpectedOperand(ctx *context.T, format string, off int64, found string) error {
+// ErrorfExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
+func ErrorfExpectedOperand(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedOperand.Errorf(ctx, format, off, found)
 }
 
-// MessageErrExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
-func MessageErrExpectedOperand(ctx *context.T, message string, off int64, found string) error {
+// MessageExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
+func MessageExpectedOperand(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedOperand.Message(ctx, message, off, found)
 }
 
@@ -524,13 +524,13 @@ func ParamsErrExpectedOperand(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
-func ErrorfErrExpectedOperator(ctx *context.T, format string, off int64, found string) error {
+// ErrorfExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
+func ErrorfExpectedOperator(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedOperator.Errorf(ctx, format, off, found)
 }
 
-// MessageErrExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
-func MessageErrExpectedOperator(ctx *context.T, message string, off int64, found string) error {
+// MessageExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
+func MessageExpectedOperator(ctx *context.T, message string, off int64, found string) error {
 	return ErrExpectedOperator.Message(ctx, message, off, found)
 }
 
@@ -571,13 +571,13 @@ func ParamsErrExpectedOperator(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
-func ErrorfErrFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
+// ErrorfFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
+func ErrorfFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionArgCount.Errorf(ctx, format, off, name, expected, found)
 }
 
-// MessageErrFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
-func MessageErrFunctionArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
+// MessageFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
+func MessageFunctionArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionArgCount.Message(ctx, message, off, name, expected, found)
 }
 
@@ -634,13 +634,13 @@ func ParamsErrFunctionArgCount(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
-func ErrorfErrFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
+// ErrorfFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
+func ErrorfFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found)
 }
 
-// MessageErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
-func MessageErrFunctionAtLeastArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
+// MessageFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
+func MessageFunctionAtLeastArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionAtLeastArgCount.Message(ctx, message, off, name, expected, found)
 }
 
@@ -697,13 +697,13 @@ func ParamsErrFunctionAtLeastArgCount(argumentError error) (verrorComponent stri
 	return
 }
 
-// ErrorfErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
-func ErrorfErrFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
+// ErrorfFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
+func ErrorfFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off)
 }
 
-// MessageErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
-func MessageErrFunctionTypeInvalidArg(ctx *context.T, message string, off int64) error {
+// MessageFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
+func MessageFunctionTypeInvalidArg(ctx *context.T, message string, off int64) error {
 	return ErrFunctionTypeInvalidArg.Message(ctx, message, off)
 }
 
@@ -736,13 +736,13 @@ func ParamsErrFunctionTypeInvalidArg(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
-func ErrorfErrFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
+// ErrorfFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
+func ErrorfFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off)
 }
 
-// MessageErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
-func MessageErrFunctionLenInvalidArg(ctx *context.T, message string, off int64) error {
+// MessageFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
+func MessageFunctionLenInvalidArg(ctx *context.T, message string, off int64) error {
 	return ErrFunctionLenInvalidArg.Message(ctx, message, off)
 }
 
@@ -775,13 +775,13 @@ func ParamsErrFunctionLenInvalidArg(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
-func ErrorfErrFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
+// ErrorfFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
+func ErrorfFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
 	return ErrFunctionArgBad.Errorf(ctx, format, off, funcName, argName)
 }
 
-// MessageErrFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
-func MessageErrFunctionArgBad(ctx *context.T, message string, off int64, funcName string, argName string) error {
+// MessageFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
+func MessageFunctionArgBad(ctx *context.T, message string, off int64, funcName string, argName string) error {
 	return ErrFunctionArgBad.Message(ctx, message, off, funcName, argName)
 }
 
@@ -830,13 +830,13 @@ func ParamsErrFunctionArgBad(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
-func ErrorfErrFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
+// ErrorfFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
+func ErrorfFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
 	return ErrFunctionNotFound.Errorf(ctx, format, off, name)
 }
 
-// MessageErrFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
-func MessageErrFunctionNotFound(ctx *context.T, message string, off int64, name string) error {
+// MessageFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
+func MessageFunctionNotFound(ctx *context.T, message string, off int64, name string) error {
 	return ErrFunctionNotFound.Message(ctx, message, off, name)
 }
 
@@ -877,13 +877,13 @@ func ParamsErrFunctionNotFound(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
-func ErrorfErrArgMustBeField(ctx *context.T, format string, off int64) error {
+// ErrorfArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
+func ErrorfArgMustBeField(ctx *context.T, format string, off int64) error {
 	return ErrArgMustBeField.Errorf(ctx, format, off)
 }
 
-// MessageErrArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
-func MessageErrArgMustBeField(ctx *context.T, message string, off int64) error {
+// MessageArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
+func MessageArgMustBeField(ctx *context.T, message string, off int64) error {
 	return ErrArgMustBeField.Message(ctx, message, off)
 }
 
@@ -916,13 +916,13 @@ func ParamsErrArgMustBeField(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
-func ErrorfErrBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
+func ErrorfBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBigIntConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
-func MessageErrBigIntConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
+func MessageBigIntConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBigIntConversionError.Message(ctx, message, off, err)
 }
 
@@ -963,13 +963,13 @@ func ParamsErrBigIntConversionError(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
-func ErrorfErrBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
+func ErrorfBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBigRatConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
-func MessageErrBigRatConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
+func MessageBigRatConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBigRatConversionError.Message(ctx, message, off, err)
 }
 
@@ -1010,13 +1010,13 @@ func ParamsErrBigRatConversionError(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
-func ErrorfErrBoolConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
+func ErrorfBoolConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBoolConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
-func MessageErrBoolConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
+func MessageBoolConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrBoolConversionError.Message(ctx, message, off, err)
 }
 
@@ -1057,13 +1057,13 @@ func ParamsErrBoolConversionError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
-func ErrorfErrComplexConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
+func ErrorfComplexConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrComplexConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
-func MessageErrComplexConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
+func MessageComplexConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrComplexConversionError.Message(ctx, message, off, err)
 }
 
@@ -1104,13 +1104,13 @@ func ParamsErrComplexConversionError(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
-func ErrorfErrUintConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
+func ErrorfUintConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrUintConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
-func MessageErrUintConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
+func MessageUintConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrUintConversionError.Message(ctx, message, off, err)
 }
 
@@ -1151,13 +1151,13 @@ func ParamsErrUintConversionError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
-func ErrorfErrTimeConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
+func ErrorfTimeConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrTimeConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
-func MessageErrTimeConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
+func MessageTimeConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrTimeConversionError.Message(ctx, message, off, err)
 }
 
@@ -1198,13 +1198,13 @@ func ParamsErrTimeConversionError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
-func ErrorfErrLocationConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
+func ErrorfLocationConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrLocationConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
-func MessageErrLocationConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
+func MessageLocationConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrLocationConversionError.Message(ctx, message, off, err)
 }
 
@@ -1245,13 +1245,13 @@ func ParamsErrLocationConversionError(argumentError error) (verrorComponent stri
 	return
 }
 
-// ErrorfErrStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
-func ErrorfErrStringConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
+func ErrorfStringConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrStringConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
-func MessageErrStringConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
+func MessageStringConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrStringConversionError.Message(ctx, message, off, err)
 }
 
@@ -1292,13 +1292,13 @@ func ParamsErrStringConversionError(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
-func ErrorfErrFloatConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
+func ErrorfFloatConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrFloatConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
-func MessageErrFloatConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
+func MessageFloatConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrFloatConversionError.Message(ctx, message, off, err)
 }
 
@@ -1339,13 +1339,13 @@ func ParamsErrFloatConversionError(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
-func ErrorfErrIntConversionError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
+func ErrorfIntConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrIntConversionError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
-func MessageErrIntConversionError(ctx *context.T, message string, off int64, err error) error {
+// MessageIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
+func MessageIntConversionError(ctx *context.T, message string, off int64, err error) error {
 	return ErrIntConversionError.Message(ctx, message, off, err)
 }
 
@@ -1386,13 +1386,13 @@ func ParamsErrIntConversionError(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
-func ErrorfErrIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
+// ErrorfIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
+func ErrorfIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off)
 }
 
-// MessageErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
-func MessageErrIsIsNotRequireLhsValue(ctx *context.T, message string, off int64) error {
+// MessageIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
+func MessageIsIsNotRequireLhsValue(ctx *context.T, message string, off int64) error {
 	return ErrIsIsNotRequireLhsValue.Message(ctx, message, off)
 }
 
@@ -1425,13 +1425,13 @@ func ParamsErrIsIsNotRequireLhsValue(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
-func ErrorfErrIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
+// ErrorfIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
+func ErrorfIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off)
 }
 
-// MessageErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
-func MessageErrIsIsNotRequireRhsNil(ctx *context.T, message string, off int64) error {
+// MessageIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
+func MessageIsIsNotRequireRhsNil(ctx *context.T, message string, off int64) error {
 	return ErrIsIsNotRequireRhsNil.Message(ctx, message, off)
 }
 
@@ -1464,13 +1464,13 @@ func ParamsErrIsIsNotRequireRhsNil(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
-func ErrorfErrInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
+// ErrorfInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
+func ErrorfInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
 	return ErrInvalidLikePattern.Errorf(ctx, format, off, err)
 }
 
-// MessageErrInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
-func MessageErrInvalidLikePattern(ctx *context.T, message string, off int64, err error) error {
+// MessageInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
+func MessageInvalidLikePattern(ctx *context.T, message string, off int64, err error) error {
 	return ErrInvalidLikePattern.Message(ctx, message, off, err)
 }
 
@@ -1511,13 +1511,13 @@ func ParamsErrInvalidLikePattern(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
-func ErrorfErrInvalidSelectField(ctx *context.T, format string, off int64) error {
+// ErrorfInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
+func ErrorfInvalidSelectField(ctx *context.T, format string, off int64) error {
 	return ErrInvalidSelectField.Errorf(ctx, format, off)
 }
 
-// MessageErrInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
-func MessageErrInvalidSelectField(ctx *context.T, message string, off int64) error {
+// MessageInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
+func MessageInvalidSelectField(ctx *context.T, message string, off int64) error {
 	return ErrInvalidSelectField.Message(ctx, message, off)
 }
 
@@ -1550,13 +1550,13 @@ func ParamsErrInvalidSelectField(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
-func ErrorfErrKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
+// ErrorfKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
+func ErrorfKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
 	return ErrKeyExpressionLiteral.Errorf(ctx, format, off)
 }
 
-// MessageErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
-func MessageErrKeyExpressionLiteral(ctx *context.T, message string, off int64) error {
+// MessageKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
+func MessageKeyExpressionLiteral(ctx *context.T, message string, off int64) error {
 	return ErrKeyExpressionLiteral.Message(ctx, message, off)
 }
 
@@ -1589,13 +1589,13 @@ func ParamsErrKeyExpressionLiteral(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
-func ErrorfErrKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
+func ErrorfKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
 	return ErrKeyValueStreamError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
-func MessageErrKeyValueStreamError(ctx *context.T, message string, off int64, err error) error {
+// MessageKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
+func MessageKeyValueStreamError(ctx *context.T, message string, off int64, err error) error {
 	return ErrKeyValueStreamError.Message(ctx, message, off, err)
 }
 
@@ -1636,13 +1636,13 @@ func ParamsErrKeyValueStreamError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
-func ErrorfErrLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
+// ErrorfLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
+func ErrorfLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
 	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off)
 }
 
-// MessageErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
-func MessageErrLikeExpressionsRequireRhsString(ctx *context.T, message string, off int64) error {
+// MessageLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
+func MessageLikeExpressionsRequireRhsString(ctx *context.T, message string, off int64) error {
 	return ErrLikeExpressionsRequireRhsString.Message(ctx, message, off)
 }
 
@@ -1675,13 +1675,13 @@ func ParamsErrLikeExpressionsRequireRhsString(argumentError error) (verrorCompon
 	return
 }
 
-// ErrorfErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
-func ErrorfErrLimitMustBeGt0(ctx *context.T, format string, off int64) error {
+// ErrorfLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
+func ErrorfLimitMustBeGt0(ctx *context.T, format string, off int64) error {
 	return ErrLimitMustBeGt0.Errorf(ctx, format, off)
 }
 
-// MessageErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
-func MessageErrLimitMustBeGt0(ctx *context.T, message string, off int64) error {
+// MessageLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
+func MessageLimitMustBeGt0(ctx *context.T, message string, off int64) error {
 	return ErrLimitMustBeGt0.Message(ctx, message, off)
 }
 
@@ -1714,13 +1714,13 @@ func ParamsErrLimitMustBeGt0(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
-func ErrorfErrMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
+// ErrorfMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
+func ErrorfMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
 	return ErrMaxStatementLenExceeded.Errorf(ctx, format, off, max, found)
 }
 
-// MessageErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
-func MessageErrMaxStatementLenExceeded(ctx *context.T, message string, off int64, max int64, found int64) error {
+// MessageMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
+func MessageMaxStatementLenExceeded(ctx *context.T, message string, off int64, max int64, found int64) error {
 	return ErrMaxStatementLenExceeded.Message(ctx, message, off, max, found)
 }
 
@@ -1769,13 +1769,13 @@ func ParamsErrMaxStatementLenExceeded(argumentError error) (verrorComponent stri
 	return
 }
 
-// ErrorfErrNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
-func ErrorfErrNoStatementFound(ctx *context.T, format string, off int64) error {
+// ErrorfNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
+func ErrorfNoStatementFound(ctx *context.T, format string, off int64) error {
 	return ErrNoStatementFound.Errorf(ctx, format, off)
 }
 
-// MessageErrNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
-func MessageErrNoStatementFound(ctx *context.T, message string, off int64) error {
+// MessageNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
+func MessageNoStatementFound(ctx *context.T, message string, off int64) error {
 	return ErrNoStatementFound.Message(ctx, message, off)
 }
 
@@ -1808,13 +1808,13 @@ func ParamsErrNoStatementFound(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
-func ErrorfErrOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
+// ErrorfOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
+func ErrorfOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
 	return ErrOffsetMustBeGe0.Errorf(ctx, format, off)
 }
 
-// MessageErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
-func MessageErrOffsetMustBeGe0(ctx *context.T, message string, off int64) error {
+// MessageOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
+func MessageOffsetMustBeGe0(ctx *context.T, message string, off int64) error {
 	return ErrOffsetMustBeGe0.Message(ctx, message, off)
 }
 
@@ -1847,13 +1847,13 @@ func ParamsErrOffsetMustBeGe0(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrScanError calls ErrScanError.Errorf with the supplied arguments.
-func ErrorfErrScanError(ctx *context.T, format string, off int64, err error) error {
+// ErrorfScanError calls ErrScanError.Errorf with the supplied arguments.
+func ErrorfScanError(ctx *context.T, format string, off int64, err error) error {
 	return ErrScanError.Errorf(ctx, format, off, err)
 }
 
-// MessageErrScanError calls ErrScanError.Message with the supplied arguments.
-func MessageErrScanError(ctx *context.T, message string, off int64, err error) error {
+// MessageScanError calls ErrScanError.Message with the supplied arguments.
+func MessageScanError(ctx *context.T, message string, off int64, err error) error {
 	return ErrScanError.Message(ctx, message, off, err)
 }
 
@@ -1894,13 +1894,13 @@ func ParamsErrScanError(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
-func ErrorfErrTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
+// ErrorfTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
+func ErrorfTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
 	return ErrTableCantAccess.Errorf(ctx, format, off, table, err)
 }
 
-// MessageErrTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
-func MessageErrTableCantAccess(ctx *context.T, message string, off int64, table string, err error) error {
+// MessageTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
+func MessageTableCantAccess(ctx *context.T, message string, off int64, table string, err error) error {
 	return ErrTableCantAccess.Message(ctx, message, off, table, err)
 }
 
@@ -1949,13 +1949,13 @@ func ParamsErrTableCantAccess(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
-func ErrorfErrUnexpected(ctx *context.T, format string, off int64, found string) error {
+// ErrorfUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
+func ErrorfUnexpected(ctx *context.T, format string, off int64, found string) error {
 	return ErrUnexpected.Errorf(ctx, format, off, found)
 }
 
-// MessageErrUnexpected calls ErrUnexpected.Message with the supplied arguments.
-func MessageErrUnexpected(ctx *context.T, message string, off int64, found string) error {
+// MessageUnexpected calls ErrUnexpected.Message with the supplied arguments.
+func MessageUnexpected(ctx *context.T, message string, off int64, found string) error {
 	return ErrUnexpected.Message(ctx, message, off, found)
 }
 
@@ -1996,13 +1996,13 @@ func ParamsErrUnexpected(argumentError error) (verrorComponent string, verrorOpe
 	return
 }
 
-// ErrorfErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
-func ErrorfErrUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
+// ErrorfUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
+func ErrorfUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
 	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off)
 }
 
-// MessageErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
-func MessageErrUnexpectedEndOfStatement(ctx *context.T, message string, off int64) error {
+// MessageUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
+func MessageUnexpectedEndOfStatement(ctx *context.T, message string, off int64) error {
 	return ErrUnexpectedEndOfStatement.Message(ctx, message, off)
 }
 
@@ -2035,13 +2035,13 @@ func ParamsErrUnexpectedEndOfStatement(argumentError error) (verrorComponent str
 	return
 }
 
-// ErrorfErrUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
-func ErrorfErrUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
+// ErrorfUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
+func ErrorfUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
 	return ErrUnknownIdentifier.Errorf(ctx, format, off, found)
 }
 
-// MessageErrUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
-func MessageErrUnknownIdentifier(ctx *context.T, message string, off int64, found string) error {
+// MessageUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
+func MessageUnknownIdentifier(ctx *context.T, message string, off int64, found string) error {
 	return ErrUnknownIdentifier.Message(ctx, message, off, found)
 }
 
@@ -2082,13 +2082,13 @@ func ParamsErrUnknownIdentifier(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
-func ErrorfErrInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
+// ErrorfInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
+func ErrorfInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
 	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar)
 }
 
-// MessageErrInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
-func MessageErrInvalidEscapeChar(ctx *context.T, message string, off int64, escChar string) error {
+// MessageInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
+func MessageInvalidEscapeChar(ctx *context.T, message string, off int64, escChar string) error {
 	return ErrInvalidEscapeChar.Message(ctx, message, off, escChar)
 }
 
@@ -2129,13 +2129,13 @@ func ParamsErrInvalidEscapeChar(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
+// ErrorfDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
+func ErrorfDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off)
 }
 
-// MessageErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
-func MessageErrDidYouMeanLowercaseK(ctx *context.T, message string, off int64) error {
+// MessageDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
+func MessageDidYouMeanLowercaseK(ctx *context.T, message string, off int64) error {
 	return ErrDidYouMeanLowercaseK.Message(ctx, message, off)
 }
 
@@ -2168,13 +2168,13 @@ func ParamsErrDidYouMeanLowercaseK(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
+// ErrorfDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
+func ErrorfDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off)
 }
 
-// MessageErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
-func MessageErrDidYouMeanLowercaseV(ctx *context.T, message string, off int64) error {
+// MessageDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
+func MessageDidYouMeanLowercaseV(ctx *context.T, message string, off int64) error {
 	return ErrDidYouMeanLowercaseV.Message(ctx, message, off)
 }
 
@@ -2207,13 +2207,13 @@ func ParamsErrDidYouMeanLowercaseV(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
+// ErrorfDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
+func ErrorfDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
 	return ErrDidYouMeanFunction.Errorf(ctx, format, off, correctName)
 }
 
-// MessageErrDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
-func MessageErrDidYouMeanFunction(ctx *context.T, message string, off int64, correctName string) error {
+// MessageDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
+func MessageDidYouMeanFunction(ctx *context.T, message string, off int64, correctName string) error {
 	return ErrDidYouMeanFunction.Message(ctx, message, off, correctName)
 }
 
@@ -2254,13 +2254,13 @@ func ParamsErrDidYouMeanFunction(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfErrNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
+// ErrorfNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
+func ErrorfNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
 	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off)
 }
 
-// MessageErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
-func MessageErrNotEnoughParamValuesSpecified(ctx *context.T, message string, off int64) error {
+// MessageNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
+func MessageNotEnoughParamValuesSpecified(ctx *context.T, message string, off int64) error {
 	return ErrNotEnoughParamValuesSpecified.Message(ctx, message, off)
 }
 
@@ -2293,13 +2293,13 @@ func ParamsErrNotEnoughParamValuesSpecified(argumentError error) (verrorComponen
 	return
 }
 
-// ErrorfErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfErrTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
+// ErrorfTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
+func ErrorfTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
 	return ErrTooManyParamValuesSpecified.Errorf(ctx, format, off)
 }
 
-// MessageErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
-func MessageErrTooManyParamValuesSpecified(ctx *context.T, message string, off int64) error {
+// MessageTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
+func MessageTooManyParamValuesSpecified(ctx *context.T, message string, off int64) error {
 	return ErrTooManyParamValuesSpecified.Message(ctx, message, off)
 }
 
@@ -2332,13 +2332,13 @@ func ParamsErrTooManyParamValuesSpecified(argumentError error) (verrorComponent 
 	return
 }
 
-// ErrorfErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
-func ErrorfErrPreparedStatementNotFound(ctx *context.T, format string) error {
+// ErrorfPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
+func ErrorfPreparedStatementNotFound(ctx *context.T, format string) error {
 	return ErrPreparedStatementNotFound.Errorf(ctx, format)
 }
 
-// MessageErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
-func MessageErrPreparedStatementNotFound(ctx *context.T, message string) error {
+// MessagePreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
+func MessagePreparedStatementNotFound(ctx *context.T, message string) error {
 	return ErrPreparedStatementNotFound.Message(ctx, message)
 }
 
@@ -2358,13 +2358,13 @@ func ParamsErrPreparedStatementNotFound(argumentError error) (verrorComponent st
 	return
 }
 
-// ErrorfErrIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
-func ErrorfErrIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
+// ErrorfIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
+func ErrorfIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
 	return ErrIndexKindNotSupported.Errorf(ctx, format, off, kind, fieldName, table)
 }
 
-// MessageErrIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
-func MessageErrIndexKindNotSupported(ctx *context.T, message string, off int64, kind string, fieldName string, table string) error {
+// MessageIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
+func MessageIndexKindNotSupported(ctx *context.T, message string, off int64, kind string, fieldName string, table string) error {
 	return ErrIndexKindNotSupported.Message(ctx, message, off, kind, fieldName, table)
 }
 
@@ -2421,13 +2421,13 @@ func ParamsErrIndexKindNotSupported(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
-func ErrorfErrInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
+// ErrorfInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
+func ErrorfInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
 	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table)
 }
 
-// MessageErrInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
-func MessageErrInvalidIndexField(ctx *context.T, message string, off int64, fieldName string, table string) error {
+// MessageInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
+func MessageInvalidIndexField(ctx *context.T, message string, off int64, fieldName string, table string) error {
 	return ErrInvalidIndexField.Message(ctx, message, off, fieldName, table)
 }
 
@@ -2476,13 +2476,13 @@ func ParamsErrInvalidIndexField(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
-func ErrorfErrNotWritable(ctx *context.T, format string, table string) error {
+// ErrorfNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
+func ErrorfNotWritable(ctx *context.T, format string, table string) error {
 	return ErrNotWritable.Errorf(ctx, format, table)
 }
 
-// MessageErrNotWritable calls ErrNotWritable.Message with the supplied arguments.
-func MessageErrNotWritable(ctx *context.T, message string, table string) error {
+// MessageNotWritable calls ErrNotWritable.Message with the supplied arguments.
+func MessageNotWritable(ctx *context.T, message string, table string) error {
 	return ErrNotWritable.Message(ctx, message, table)
 }
 
@@ -2515,13 +2515,13 @@ func ParamsErrNotWritable(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// ErrorfErrOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
-func ErrorfErrOperationNotSupported(ctx *context.T, format string, operation string) error {
+// ErrorfOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
+func ErrorfOperationNotSupported(ctx *context.T, format string, operation string) error {
 	return ErrOperationNotSupported.Errorf(ctx, format, operation)
 }
 
-// MessageErrOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.
-func MessageErrOperationNotSupported(ctx *context.T, message string, operation string) error {
+// MessageOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.
+func MessageOperationNotSupported(ctx *context.T, message string, operation string) error {
 	return ErrOperationNotSupported.Message(ctx, message, operation)
 }
 

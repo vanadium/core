@@ -56,7 +56,7 @@ func (rs *selectResultStreamImpl) Advance() bool {
 		}
 	}
 	if err := rs.keyValueStream.Err(); err != nil {
-		rs.err = syncql.NewErrKeyValueStreamError(rs.db.GetContext(), rs.selectStatement.Off, err)
+		rs.err = syncql.ErrorfKeyValueStreamError(rs.db.GetContext(), "[%v]KeyValueStream error: %v", rs.selectStatement.Off, err)
 	}
 	return false
 }

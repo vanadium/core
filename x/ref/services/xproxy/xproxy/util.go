@@ -61,9 +61,9 @@ func readProxyResponse(ctx *context.T, f flow.Flow) ([]naming.Endpoint, error) {
 		return m.Endpoints, nil
 	case *message.ProxyErrorResponse:
 		f.Close()
-		return nil, NewErrProxyResponse(ctx, m.Error)
+		return nil, ErrorfProxyResponse(ctx, "proxy returned: %v", m.Error)
 	default:
 		f.Close()
-		return nil, NewErrUnexpectedMessage(ctx, fmt.Sprintf("%t", m))
+		return nil, ErrorfUnexpectedMessage(ctx, "Unexpected message of type: %s", fmt.Sprintf("%T", m))
 	}
 }

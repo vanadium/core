@@ -156,7 +156,7 @@ func NewMatcher(ctx *context.T, query string) (Matcher, error) {
 		return nil, err
 	}
 	if dummy.hasTargetAttachments {
-		return nil, NewErrBadQuery(ctx, errors.New("v.Attachments cannot be queried"))
+		return nil, ErrorfBadQuery(ctx, "invalid query: %v", errors.New("v.Attachments cannot be queried"))
 	}
 
 	// Prepare the query engine.

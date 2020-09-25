@@ -1713,13 +1713,13 @@ var (
 	ErrEndpointAuthorizationFailed   = verror.NewIDAction("v.io/v23/security.EndpointAuthorizationFailed", verror.NoRetry)
 )
 
-// ErrorfErrCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
-func ErrorfErrCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
+func ErrorfCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatNotRegistered.Errorf(ctx, format, id)
 }
 
-// MessageErrCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
-func MessageErrCaveatNotRegistered(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
+func MessageCaveatNotRegistered(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrCaveatNotRegistered.Message(ctx, message, id)
 }
 
@@ -1752,13 +1752,13 @@ func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
-func ErrorfErrCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
+func ErrorfCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatParamAny.Errorf(ctx, format, id)
 }
 
-// MessageErrCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
-func MessageErrCaveatParamAny(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
+func MessageCaveatParamAny(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrCaveatParamAny.Message(ctx, message, id)
 }
 
@@ -1791,13 +1791,13 @@ func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
-func ErrorfErrCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+// ErrorfCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
+func ErrorfCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return ErrCaveatParamTypeMismatch.Errorf(ctx, format, id, got, want)
 }
 
-// MessageErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
-func MessageErrCaveatParamTypeMismatch(ctx *context.T, message string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+// MessageCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
+func MessageCaveatParamTypeMismatch(ctx *context.T, message string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return ErrCaveatParamTypeMismatch.Message(ctx, message, id, got, want)
 }
 
@@ -1846,13 +1846,13 @@ func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent stri
 	return
 }
 
-// ErrorfErrCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
-func ErrorfErrCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
+// ErrorfCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
+func ErrorfCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err)
 }
 
-// MessageErrCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
-func MessageErrCaveatParamCoding(ctx *context.T, message string, id uniqueid.Id, typ *vdl.Type, err error) error {
+// MessageCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
+func MessageCaveatParamCoding(ctx *context.T, message string, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return ErrCaveatParamCoding.Message(ctx, message, id, typ, err)
 }
 
@@ -1901,13 +1901,13 @@ func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrCaveatValidation(ctx *context.T, format string, err error) error {
+// ErrorfCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
+func ErrorfCaveatValidation(ctx *context.T, format string, err error) error {
 	return ErrCaveatValidation.Errorf(ctx, format, err)
 }
 
-// MessageErrCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
-func MessageErrCaveatValidation(ctx *context.T, message string, err error) error {
+// MessageCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
+func MessageCaveatValidation(ctx *context.T, message string, err error) error {
 	return ErrCaveatValidation.Message(ctx, message, err)
 }
 
@@ -1940,13 +1940,13 @@ func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrConstCaveatValidation(ctx *context.T, format string) error {
+// ErrorfConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
+func ErrorfConstCaveatValidation(ctx *context.T, format string) error {
 	return ErrConstCaveatValidation.Errorf(ctx, format)
 }
 
-// MessageErrConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
-func MessageErrConstCaveatValidation(ctx *context.T, message string) error {
+// MessageConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
+func MessageConstCaveatValidation(ctx *context.T, message string) error {
 	return ErrConstCaveatValidation.Message(ctx, message)
 }
 
@@ -1966,13 +1966,13 @@ func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
+// ErrorfExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
+func ErrorfExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
 	return ErrExpiryCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
 }
 
-// MessageErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
-func MessageErrExpiryCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
+// MessageExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
+func MessageExpiryCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
 	return ErrExpiryCaveatValidation.Message(ctx, message, currentTime, expiryTime)
 }
 
@@ -2013,13 +2013,13 @@ func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
+// ErrorfMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
+func ErrorfMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
 	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods)
 }
 
-// MessageErrMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
-func MessageErrMethodCaveatValidation(ctx *context.T, message string, invokedMethod string, permittedMethods []string) error {
+// MessageMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
+func MessageMethodCaveatValidation(ctx *context.T, message string, invokedMethod string, permittedMethods []string) error {
 	return ErrMethodCaveatValidation.Message(ctx, message, invokedMethod, permittedMethods)
 }
 
@@ -2060,13 +2060,13 @@ func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+// ErrorfPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
+func ErrorfPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return ErrPeerBlessingsCaveatValidation.Errorf(ctx, format, peerBlessings, permittedPatterns)
 }
 
-// MessageErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
-func MessageErrPeerBlessingsCaveatValidation(ctx *context.T, message string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+// MessagePeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
+func MessagePeerBlessingsCaveatValidation(ctx *context.T, message string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return ErrPeerBlessingsCaveatValidation.Message(ctx, message, peerBlessings, permittedPatterns)
 }
 
@@ -2107,13 +2107,13 @@ func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponen
 	return
 }
 
-// ErrorfErrUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
-func ErrorfErrUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
+// ErrorfUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
+func ErrorfUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
 	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details)
 }
 
-// MessageErrUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
-func MessageErrUnrecognizedRoot(ctx *context.T, message string, rootKey string, details error) error {
+// MessageUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
+func MessageUnrecognizedRoot(ctx *context.T, message string, rootKey string, details error) error {
 	return ErrUnrecognizedRoot.Message(ctx, message, rootKey, details)
 }
 
@@ -2154,13 +2154,13 @@ func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
-func ErrorfErrAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+// ErrorfAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return ErrAuthorizationFailed.Errorf(ctx, format, remote, remoteErr, local)
 }
 
-// MessageErrAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
-func MessageErrAuthorizationFailed(ctx *context.T, message string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+// MessageAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
+func MessageAuthorizationFailed(ctx *context.T, message string, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return ErrAuthorizationFailed.Message(ctx, message, remote, remoteErr, local)
 }
 
@@ -2209,13 +2209,13 @@ func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
-func ErrorfErrInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
+// ErrorfInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
+func ErrorfInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id)
 }
 
-// MessageErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
-func MessageErrInvalidSigningBlessingCaveat(ctx *context.T, message string, id uniqueid.Id) error {
+// MessageInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
+func MessageInvalidSigningBlessingCaveat(ctx *context.T, message string, id uniqueid.Id) error {
 	return ErrInvalidSigningBlessingCaveat.Message(ctx, message, id)
 }
 
@@ -2248,13 +2248,13 @@ func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent
 	return
 }
 
-// ErrorfErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
-func ErrorfErrPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
+// ErrorfPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
+func ErrorfPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
 	return ErrPublicKeyNotAllowed.Errorf(ctx, format, got, want)
 }
 
-// MessageErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
-func MessageErrPublicKeyNotAllowed(ctx *context.T, message string, got string, want string) error {
+// MessagePublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
+func MessagePublicKeyNotAllowed(ctx *context.T, message string, got string, want string) error {
 	return ErrPublicKeyNotAllowed.Message(ctx, message, got, want)
 }
 
@@ -2295,13 +2295,13 @@ func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
-func ErrorfErrEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+// ErrorfEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return ErrEndpointAuthorizationFailed.Errorf(ctx, format, endpoint, remote, rejected)
 }
 
-// MessageErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.
-func MessageErrEndpointAuthorizationFailed(ctx *context.T, message string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+// MessageEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.
+func MessageEndpointAuthorizationFailed(ctx *context.T, message string, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return ErrEndpointAuthorizationFailed.Message(ctx, message, endpoint, remote, rejected)
 }
 

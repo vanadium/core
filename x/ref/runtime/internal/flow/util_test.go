@@ -21,7 +21,7 @@ func TestMaybeWrapError(t *testing.T) {
 	}{
 		{nil, true},
 		{errors.New("wrap this error"), true},
-		{verror.NewErrUnknown(ctx), false},
+		{verror.ErrUnknown.Errorf(ctx, "some random thing"), false},
 		{flow.ErrAuth.Errorf(ctx, ""), false},
 	}
 	for _, test := range tests {

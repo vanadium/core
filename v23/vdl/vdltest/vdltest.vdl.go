@@ -93079,13 +93079,13 @@ var (
 	ErrThree = verror.NewIDAction("v.io/v23/vdl/vdltest.Three", verror.NoRetry)
 )
 
-// ErrorfErrNone calls ErrNone.Errorf with the supplied arguments.
-func ErrorfErrNone(ctx *context.T, format string) error {
+// ErrorfNone calls ErrNone.Errorf with the supplied arguments.
+func ErrorfNone(ctx *context.T, format string) error {
 	return ErrNone.Errorf(ctx, format)
 }
 
-// MessageErrNone calls ErrNone.Message with the supplied arguments.
-func MessageErrNone(ctx *context.T, message string) error {
+// MessageNone calls ErrNone.Message with the supplied arguments.
+func MessageNone(ctx *context.T, message string) error {
 	return ErrNone.Message(ctx, message)
 }
 
@@ -93105,13 +93105,13 @@ func ParamsErrNone(argumentError error) (verrorComponent string, verrorOperation
 	return
 }
 
-// ErrorfErrOne calls ErrOne.Errorf with the supplied arguments.
-func ErrorfErrOne(ctx *context.T, format string, i int64) error {
+// ErrorfOne calls ErrOne.Errorf with the supplied arguments.
+func ErrorfOne(ctx *context.T, format string, i int64) error {
 	return ErrOne.Errorf(ctx, format, i)
 }
 
-// MessageErrOne calls ErrOne.Message with the supplied arguments.
-func MessageErrOne(ctx *context.T, message string, i int64) error {
+// MessageOne calls ErrOne.Message with the supplied arguments.
+func MessageOne(ctx *context.T, message string, i int64) error {
 	return ErrOne.Message(ctx, message, i)
 }
 
@@ -93144,13 +93144,13 @@ func ParamsErrOne(argumentError error) (verrorComponent string, verrorOperation 
 	return
 }
 
-// ErrorfErrTwo calls ErrTwo.Errorf with the supplied arguments.
-func ErrorfErrTwo(ctx *context.T, format string, a string, err error) error {
+// ErrorfTwo calls ErrTwo.Errorf with the supplied arguments.
+func ErrorfTwo(ctx *context.T, format string, a string, err error) error {
 	return ErrTwo.Errorf(ctx, format, a, err)
 }
 
-// MessageErrTwo calls ErrTwo.Message with the supplied arguments.
-func MessageErrTwo(ctx *context.T, message string, a string, err error) error {
+// MessageTwo calls ErrTwo.Message with the supplied arguments.
+func MessageTwo(ctx *context.T, message string, a string, err error) error {
 	return ErrTwo.Message(ctx, message, a, err)
 }
 
@@ -93191,13 +93191,13 @@ func ParamsErrTwo(argumentError error) (verrorComponent string, verrorOperation 
 	return
 }
 
-// ErrorfErrThree calls ErrThree.Errorf with the supplied arguments.
-func ErrorfErrThree(ctx *context.T, format string, a string, b int64, c float32) error {
+// ErrorfThree calls ErrThree.Errorf with the supplied arguments.
+func ErrorfThree(ctx *context.T, format string, a string, b int64, c float32) error {
 	return ErrThree.Errorf(ctx, format, a, b, c)
 }
 
-// MessageErrThree calls ErrThree.Message with the supplied arguments.
-func MessageErrThree(ctx *context.T, message string, a string, b int64, c float32) error {
+// MessageThree calls ErrThree.Message with the supplied arguments.
+func MessageThree(ctx *context.T, message string, a string, b int64, c float32) error {
 	return ErrThree.Message(ctx, message, a, b, c)
 }
 

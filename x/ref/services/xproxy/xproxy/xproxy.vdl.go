@@ -28,13 +28,13 @@ var (
 	ErrProxyResponse             = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry)
 )
 
-// ErrorfErrNotListening calls ErrNotListening.Errorf with the supplied arguments.
-func ErrorfErrNotListening(ctx *context.T, format string) error {
+// ErrorfNotListening calls ErrNotListening.Errorf with the supplied arguments.
+func ErrorfNotListening(ctx *context.T, format string) error {
 	return ErrNotListening.Errorf(ctx, format)
 }
 
-// MessageErrNotListening calls ErrNotListening.Message with the supplied arguments.
-func MessageErrNotListening(ctx *context.T, message string) error {
+// MessageNotListening calls ErrNotListening.Message with the supplied arguments.
+func MessageNotListening(ctx *context.T, message string) error {
 	return ErrNotListening.Message(ctx, message)
 }
 
@@ -54,13 +54,13 @@ func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorO
 	return
 }
 
-// ErrorfErrUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
-func ErrorfErrUnexpectedMessage(ctx *context.T, format string, msgType string) error {
+// ErrorfUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
+func ErrorfUnexpectedMessage(ctx *context.T, format string, msgType string) error {
 	return ErrUnexpectedMessage.Errorf(ctx, format, msgType)
 }
 
-// MessageErrUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
-func MessageErrUnexpectedMessage(ctx *context.T, message string, msgType string) error {
+// MessageUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
+func MessageUnexpectedMessage(ctx *context.T, message string, msgType string) error {
 	return ErrUnexpectedMessage.Message(ctx, message, msgType)
 }
 
@@ -93,13 +93,13 @@ func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
-func ErrorfErrFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
+// ErrorfFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
+func ErrorfFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
 	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
 }
 
-// MessageErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
-func MessageErrFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
+// MessageFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
+func MessageFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
 	return ErrFailedToResolveToEndpoint.Message(ctx, message, name)
 }
 
@@ -132,13 +132,13 @@ func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent st
 	return
 }
 
-// ErrorfErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
-func ErrorfErrProxyAlreadyClosed(ctx *context.T, format string) error {
+// ErrorfProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
+func ErrorfProxyAlreadyClosed(ctx *context.T, format string) error {
 	return ErrProxyAlreadyClosed.Errorf(ctx, format)
 }
 
-// MessageErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
-func MessageErrProxyAlreadyClosed(ctx *context.T, message string) error {
+// MessageProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
+func MessageProxyAlreadyClosed(ctx *context.T, message string) error {
 	return ErrProxyAlreadyClosed.Message(ctx, message)
 }
 
@@ -158,13 +158,13 @@ func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
-func ErrorfErrProxyResponse(ctx *context.T, format string, msg string) error {
+// ErrorfProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
+func ErrorfProxyResponse(ctx *context.T, format string, msg string) error {
 	return ErrProxyResponse.Errorf(ctx, format, msg)
 }
 
-// MessageErrProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
-func MessageErrProxyResponse(ctx *context.T, message string, msg string) error {
+// MessageProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
+func MessageProxyResponse(ctx *context.T, message string, msg string) error {
 	return ErrProxyResponse.Message(ctx, message, msg)
 }
 

@@ -31,5 +31,5 @@ func lenFunc(db ds.Database, off int64, args []*queryparser.Operand) (*querypars
 		// If string, call go's built-in len().
 		return makeIntOp(args[0].Off, int64(len(args[0].Str))), nil
 	}
-	return nil, syncql.NewErrFunctionLenInvalidArg(db.GetContext(), args[0].Off)
+	return nil, syncql.ErrorfFunctionLenInvalidArg(db.GetContext(), "[%v]function 'Len()' expects array, list, set, map, string or nil", args[0].Off)
 }

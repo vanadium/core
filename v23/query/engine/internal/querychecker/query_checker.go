@@ -16,7 +16,9 @@ import (
 )
 
 const (
-	MaxRangeLimit = ""
+	MaxRangeLimit    = ""
+	lowercaseKFormat = "[%v]did you mean: 'k'?"
+	lowercaseVFormat = "[%v]did you mean: 'v'?"
 )
 
 var (
@@ -30,7 +32,7 @@ func Check(db ds.Database, s *queryparser.Statement) error {
 	case queryparser.DeleteStatement:
 		return checkDeleteStatement(db, &sel)
 	default:
-		return syncql.NewErrCheckOfUnknownStatementType(db.GetContext(), (*s).Offset())
+		return syncql.ErrorfCheckOfUnknownStatementType(db.GetContext(), "[%v]Cannot semantically check unknown statement type.", (*s).Offset())
 	}
 }
 
@@ -80,18 +82,18 @@ func checkSelectClause(db ds.Database, s *queryparser.SelectClause) error {
 			switch selector.Field.Segments[0].Value {
 			case "k":
 				if len(selector.Field.Segments) > 1 {
-					return syncql.NewErrDotNotationDisallowedForKey(db.GetContext(), selector.Field.Segments[1].Off)
+					return syncql.ErrorfDotNotationDisallowedForKey(db.GetContext(), "[%v]dot notation may not be used on a key field.", selector.Field.Segments[1].Off)
 				}
 			case "v":
 				// Nothing to check.
 			case "K":
 				// Be nice and warn of mistakenly capped 'K'.
-				return syncql.NewErrDidYouMeanLowercaseK(db.GetContext(), selector.Field.Segments[0].Off)
+				return syncql.ErrorfDidYouMeanLowercaseK(db.GetContext(), lowercaseKFormat, selector.Field.Segments[0].Off)
 			case "V":
 				// Be nice and warn of mistakenly capped 'V'.
-				return syncql.NewErrDidYouMeanLowercaseV(db.GetContext(), selector.Field.Segments[0].Off)
+				return syncql.ErrorfDidYouMeanLowercaseV(db.GetContext(), lowercaseVFormat, selector.Field.Segments[0].Off)
 			default:
-				return syncql.NewErrInvalidSelectField(db.GetContext(), selector.Field.Segments[0].Off)
+				return syncql.ErrorfInvalidSelectField(db.GetContext(), "[%v]select field must be 'k' or 'v[{.<ident>}...]'", selector.Field.Segments[0].Off)
 			}
 		case queryparser.TypSelFunc:
 			err := queryfunctions.CheckFunction(db, selector.Function)
@@ -108,7 +110,7 @@ func checkFromClause(db ds.Database, f *queryparser.FromClause, writeAccessReq b
 	var err error
 	f.Table.DBTable, err = db.GetTable(f.Table.Name, writeAccessReq)
 	if err != nil {
-		return syncql.NewErrTableCantAccess(db.GetContext(), f.Table.Off, f.Table.Name, err)
+		return syncql.ErrorfTableCantAccess(db.GetContext(), "[%v]table %v does not exist (or cannot be accessed): %v", f.Table.Off, f.Table.Name, err)
 	}
 	return nil
 }
@@ -132,7 +134,7 @@ func checkExpression(db ds.Database, e *queryparser.Expression, ec *queryparser.
 	// Like expressions require operand2 to be a string literal that must be validated.
 	if e.Operator.Type == queryparser.Like || e.Operator.Type == queryparser.NotLike {
 		if e.Operand2.Type != queryparser.TypStr {
-			return syncql.NewErrLikeExpressionsRequireRhsString(db.GetContext(), e.Operand2.Off)
+			return syncql.ErrorfLikeExpressionsRequireRhsString(db.GetContext(), "[%v]like expressions require right operand of type <string-literal>.", e.Operand2.Off)
 		}
 		// Compile the like pattern now to to check for errors.
 		p, err := parseLikePattern(db, e.Operand2.Off, e.Operand2.Str, ec)
@@ -159,10 +161,10 @@ func checkExpression(db ds.Database, e *queryparser.Expression, ec *queryparser.
 	// Is/IsNot expressions require operand1 to be a (value or function) and operand2 to be nil.
 	if e.Operator.Type == queryparser.Is || e.Operator.Type == queryparser.IsNot {
 		if !IsField(e.Operand1) && !IsFunction(e.Operand1) {
-			return syncql.NewErrIsIsNotRequireLhsValue(db.GetContext(), e.Operand1.Off)
+			return syncql.ErrorfIsIsNotRequireLhsValue(db.GetContext(), "[%v]'is/is not' expressions require left operand to be a value operand", e.Operand1.Off)
 		}
 		if e.Operand2.Type != queryparser.TypNil {
-			return syncql.NewErrIsIsNotRequireRhsNil(db.GetContext(), e.Operand2.Off)
+			return syncql.ErrorfIsIsNotRequireRhsNil(db.GetContext(), "[%v]'is/is not' expressions require right operand to be nil", e.Operand2.Off)
 		}
 	}
 
@@ -174,12 +176,12 @@ func checkExpression(db ds.Database, e *queryparser.Expression, ec *queryparser.
 		if isLiteral(e.Operand2) {
 			off = e.Operand2.Off
 		}
-		return syncql.NewErrKeyExpressionLiteral(db.GetContext(), off)
+		return syncql.ErrorfKeyExpressionLiteral(db.GetContext(), "[%v]key (i.e., 'k') compares against literals must be string literal", off)
 	}
 
 	// If either operand is a bool, only = and <> operators are allowed.
 	if (e.Operand1.Type == queryparser.TypBool || e.Operand2.Type == queryparser.TypBool) && e.Operator.Type != queryparser.Equal && e.Operator.Type != queryparser.NotEqual {
-		return syncql.NewErrBoolInvalidExpression(db.GetContext(), e.Operator.Off)
+		return syncql.ErrorfBoolInvalidExpression(db.GetContext(), "[%v]boolean operands may only be used in equals and not equals expressions", e.Operator.Off)
 	}
 
 	return nil
@@ -193,18 +195,18 @@ func checkOperand(db ds.Database, o *queryparser.Operand, ec *queryparser.Escape
 		switch o.Column.Segments[0].Value {
 		case "k":
 			if len(o.Column.Segments) > 1 {
-				return syncql.NewErrDotNotationDisallowedForKey(db.GetContext(), o.Column.Segments[1].Off)
+				return syncql.ErrorfDotNotationDisallowedForKey(db.GetContext(), "[%v]dot notation may not be used on a key field", o.Column.Segments[1].Off)
 			}
 		case "v":
 			// Nothing to do.
 		case "K":
 			// Be nice and warn of mistakenly capped 'K'.
-			return syncql.NewErrDidYouMeanLowercaseK(db.GetContext(), o.Column.Segments[0].Off)
+			return syncql.ErrorfDidYouMeanLowercaseK(db.GetContext(), lowercaseKFormat, o.Column.Segments[0].Off)
 		case "V":
 			// Be nice and warn of mistakenly capped 'V'.
-			return syncql.NewErrDidYouMeanLowercaseV(db.GetContext(), o.Column.Segments[0].Off)
+			return syncql.ErrorfDidYouMeanLowercaseV(db.GetContext(), lowercaseVFormat, o.Column.Segments[0].Off)
 		default:
-			return syncql.NewErrBadFieldInWhere(db.GetContext(), o.Column.Segments[0].Off)
+			return syncql.ErrorfBadFieldInWhere(db.GetContext(), "[%v]Where field must be 'k' or 'v[{.<ident>}...]'", o.Column.Segments[0].Off)
 		}
 		return nil
 	case queryparser.TypFunction:
@@ -240,7 +242,7 @@ func parseLikePattern(db ds.Database, off int64, s string, ec *queryparser.Escap
 	}
 	p, err := pattern.ParseWithEscapeChar(s, escChar)
 	if err != nil {
-		return nil, syncql.NewErrInvalidLikePattern(db.GetContext(), off, err)
+		return nil, syncql.ErrorfInvalidLikePattern(db.GetContext(), "[%v]invalid like pattern: %v", off, err)
 	}
 	return p, nil
 }
@@ -632,7 +634,7 @@ func checkEscapeClause(db ds.Database, e *queryparser.EscapeClause) error {
 	}
 	switch ec := e.EscapeChar.Value; ec {
 	case '\x00', '_', '%', ' ', '\\':
-		return syncql.NewErrInvalidEscapeChar(db.GetContext(), e.EscapeChar.Off, string(ec))
+		return syncql.ErrorfInvalidEscapeChar(db.GetContext(), "[%v]'%v' is not a valid escape character", e.EscapeChar.Off, string(ec))
 	default:
 		return nil
 	}
@@ -645,7 +647,7 @@ func checkLimitClause(db ds.Database, l *queryparser.LimitClause) error {
 		return nil
 	}
 	if l.Limit.Value < 1 {
-		return syncql.NewErrLimitMustBeGt0(db.GetContext(), l.Limit.Off)
+		return syncql.ErrorfLimitMustBeGt0(db.GetContext(), "[%v]limit must be > 0.", l.Limit.Off)
 	}
 	return nil
 }
@@ -657,7 +659,7 @@ func checkResultsOffsetClause(db ds.Database, o *queryparser.ResultsOffsetClause
 		return nil
 	}
 	if o.ResultsOffset.Value < 0 {
-		return syncql.NewErrOffsetMustBeGe0(db.GetContext(), o.ResultsOffset.Off)
+		return syncql.ErrorfOffsetMustBeGe0(db.GetContext(), "[%v]offset must be > 0.", o.ResultsOffset.Off)
 	}
 	return nil
 }

@@ -67,7 +67,7 @@ func Value(name string) (interface{}, error) {
 		return 0, err
 	}
 	if obj == nil {
-		return nil, stats.NewErrNoValue(nil, name)
+		return nil, stats.ErrorfNoValue(nil, "object has no value, suffix: %v", name)
 	}
 	return obj.Value(), nil
 }

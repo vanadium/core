@@ -25,13 +25,13 @@ var (
 	ErrAdInvalidEncoding = verror.NewIDAction("v.io/x/ref/lib/discovery/global.AdInvalidEncoding", verror.NoRetry)
 )
 
-// ErrorfErrNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
-func ErrorfErrNoNamespace(ctx *context.T, format string) error {
+// ErrorfNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
+func ErrorfNoNamespace(ctx *context.T, format string) error {
 	return ErrNoNamespace.Errorf(ctx, format)
 }
 
-// MessageErrNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
-func MessageErrNoNamespace(ctx *context.T, message string) error {
+// MessageNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
+func MessageNoNamespace(ctx *context.T, message string) error {
 	return ErrNoNamespace.Message(ctx, message)
 }
 
@@ -51,13 +51,13 @@ func ParamsErrNoNamespace(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// ErrorfErrAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
-func ErrorfErrAdInvalidEncoding(ctx *context.T, format string, ad string) error {
+// ErrorfAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
+func ErrorfAdInvalidEncoding(ctx *context.T, format string, ad string) error {
 	return ErrAdInvalidEncoding.Errorf(ctx, format, ad)
 }
 
-// MessageErrAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.
-func MessageErrAdInvalidEncoding(ctx *context.T, message string, ad string) error {
+// MessageAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.
+func MessageAdInvalidEncoding(ctx *context.T, message string, ad string) error {
 	return ErrAdInvalidEncoding.Message(ctx, message, ad)
 }
 

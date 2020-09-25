@@ -107,18 +107,18 @@ func (r *caveatRegistry) lookup(uid uniqueid.Id) (registryEntry, bool) {
 func (r *caveatRegistry) validate(uid uniqueid.Id, ctx *context.T, call Call, paramvom []byte) error {
 	entry, exists := r.lookup(uid)
 	if !exists {
-		return NewErrCaveatNotRegistered(ctx, uid)
+		return ErrorfCaveatNotRegistered(ctx, "no validation function registered for caveat id: %v", uid)
 	}
 	param := reflect.New(entry.paramType).Interface()
 	if err := vom.Decode(paramvom, param); err != nil {
 		t, _ := vdl.TypeFromReflect(entry.paramType)
-		return NewErrCaveatParamCoding(ctx, uid, t, err)
+		return ErrorfCaveatParamCoding(ctx, "unable to encode/decode caveat param(type=%v) for caveat %v: %v", uid, t, err)
 	}
 	err := entry.validatorFn.Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(call), reflect.ValueOf(param).Elem()})[0].Interface()
 	if err == nil {
 		return nil
 	}
-	return NewErrCaveatValidation(ctx, err.(error))
+	return ErrorfCaveatValidation(ctx, "caveat validation failed: %v", err.(error))
 }
 
 // RegisterCaveatValidator associates a CaveatDescriptor with the
@@ -148,14 +148,14 @@ func NewCaveat(c CaveatDescriptor, param interface{}) (Caveat, error) {
 		return t.Kind() != vdl.Any
 	})
 	if !noAnyInParam {
-		return Caveat{}, NewErrCaveatParamAny(nil, c.Id)
+		return Caveat{}, ErrorfCaveatParamAny(nil, "caveat %v uses illegal param type any", c.Id)
 	}
 	if want := c.ParamType; got != want {
-		return Caveat{}, NewErrCaveatParamTypeMismatch(nil, c.Id, got, want)
+		return Caveat{}, ErrorfCaveatParamTypeMismatch(nil, "bad param type: caveat %v got %v, want %v", c.Id, got, want)
 	}
 	bytes, err := vom.Encode(param)
 	if err != nil {
-		return Caveat{}, NewErrCaveatParamCoding(nil, c.Id, c.ParamType, err)
+		return Caveat{}, ErrorfCaveatParamCoding(nil, "unable to encode/decode caveat param(type=%v) for caveat %v: %v", c.Id, c.ParamType, err)
 	}
 	return Caveat{c.Id, bytes}, nil
 }

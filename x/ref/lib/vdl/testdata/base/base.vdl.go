@@ -2834,13 +2834,13 @@ var (
 	errNotExported = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.notExported", verror.NoRetry)
 )
 
-// ErrorfErrNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
-func ErrorfErrNoParams1(ctx *context.T, format string) error {
+// ErrorfNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
+func ErrorfNoParams1(ctx *context.T, format string) error {
 	return ErrNoParams1.Errorf(ctx, format)
 }
 
-// MessageErrNoParams1 calls ErrNoParams1.Message with the supplied arguments.
-func MessageErrNoParams1(ctx *context.T, message string) error {
+// MessageNoParams1 calls ErrNoParams1.Message with the supplied arguments.
+func MessageNoParams1(ctx *context.T, message string) error {
 	return ErrNoParams1.Message(ctx, message)
 }
 
@@ -2860,13 +2860,13 @@ func ParamsErrNoParams1(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
-func ErrorfErrNoParams2(ctx *context.T, format string) error {
+// ErrorfNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
+func ErrorfNoParams2(ctx *context.T, format string) error {
 	return ErrNoParams2.Errorf(ctx, format)
 }
 
-// MessageErrNoParams2 calls ErrNoParams2.Message with the supplied arguments.
-func MessageErrNoParams2(ctx *context.T, message string) error {
+// MessageNoParams2 calls ErrNoParams2.Message with the supplied arguments.
+func MessageNoParams2(ctx *context.T, message string) error {
 	return ErrNoParams2.Message(ctx, message)
 }
 
@@ -2886,13 +2886,13 @@ func ParamsErrNoParams2(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
-func ErrorfErrWithParams1(ctx *context.T, format string, x string, y int32) error {
+// ErrorfWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
+func ErrorfWithParams1(ctx *context.T, format string, x string, y int32) error {
 	return ErrWithParams1.Errorf(ctx, format, x, y)
 }
 
-// MessageErrWithParams1 calls ErrWithParams1.Message with the supplied arguments.
-func MessageErrWithParams1(ctx *context.T, message string, x string, y int32) error {
+// MessageWithParams1 calls ErrWithParams1.Message with the supplied arguments.
+func MessageWithParams1(ctx *context.T, message string, x string, y int32) error {
 	return ErrWithParams1.Message(ctx, message, x, y)
 }
 
@@ -2933,13 +2933,13 @@ func ParamsErrWithParams1(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// ErrorfErrWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
-func ErrorfErrWithParams2(ctx *context.T, format string, x string, y int32) error {
+// ErrorfWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
+func ErrorfWithParams2(ctx *context.T, format string, x string, y int32) error {
 	return ErrWithParams2.Errorf(ctx, format, x, y)
 }
 
-// MessageErrWithParams2 calls ErrWithParams2.Message with the supplied arguments.
-func MessageErrWithParams2(ctx *context.T, message string, x string, y int32) error {
+// MessageWithParams2 calls ErrWithParams2.Message with the supplied arguments.
+func MessageWithParams2(ctx *context.T, message string, x string, y int32) error {
 	return ErrWithParams2.Message(ctx, message, x, y)
 }
 
@@ -2980,13 +2980,13 @@ func ParamsErrWithParams2(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// errorfErrNotExported calls errNotExported.Errorf with the supplied arguments.
-func errorfErrNotExported(ctx *context.T, format string, x string, y int32) error {
+// errorfNotExported calls errNotExported.Errorf with the supplied arguments.
+func errorfNotExported(ctx *context.T, format string, x string, y int32) error {
 	return errNotExported.Errorf(ctx, format, x, y)
 }
 
-// messageErrNotExported calls errNotExported.Message with the supplied arguments.
-func messageErrNotExported(ctx *context.T, message string, x string, y int32) error {
+// messageNotExported calls errNotExported.Message with the supplied arguments.
+func messageNotExported(ctx *context.T, message string, x string, y int32) error {
 	return errNotExported.Message(ctx, message, x, y)
 }
 

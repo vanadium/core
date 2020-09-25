@@ -2285,7 +2285,7 @@ func TestErrorFunctions(t *testing.T) {
 					Str:  "2015-06-21 PDT",
 				},
 			},
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), int64(42), "Time"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", int64(42), "Time"),
 		},
 	}
 

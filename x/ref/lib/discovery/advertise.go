@@ -24,7 +24,7 @@ func (d *idiscovery) advertise(ctx *context.T, session sessionID, ad *discovery.
 		}
 	}
 	if err := validateAd(ad); err != nil {
-		return nil, NewErrBadAdvertisement(ctx, err)
+		return nil, ErrorfBadAdvertisement(ctx, "invalid advertisement: %v", err)
 	}
 
 	adinfo := &AdInfo{Ad: *ad}
@@ -43,7 +43,7 @@ func (d *idiscovery) advertise(ctx *context.T, session sessionID, ad *discovery.
 	if !d.addAd(id, session) {
 		cancel()
 		d.removeTask(ctx)
-		return nil, NewErrAlreadyBeingAdvertised(ctx, id)
+		return nil, ErrorfAlreadyBeingAdvertised(ctx, "already being advertised: %v", id)
 	}
 
 	subtask := &adSubtask{parent: ctx}

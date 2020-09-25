@@ -57,7 +57,7 @@ func (ln *wsTCPListener) Accept(ctx *context.T) (flow.Conn, error) {
 	for {
 		item, ok := <-ln.acceptQ
 		if !ok {
-			return nil, NewErrListenerClosed(ctx)
+			return nil, ErrListenerClosed.Errorf(ctx, "listener is already closed")
 		}
 		switch v := item.(type) {
 		case flow.Conn:
@@ -82,7 +82,7 @@ func (ln *wsTCPListener) Close() error {
 	ln.mu.Lock()
 	if ln.closed {
 		ln.mu.Unlock()
-		return NewErrListenerClosed(nil)
+		return ErrListenerClosed.Errorf(nil, "listener is already closed")
 	}
 	ln.closed = true
 	ln.mu.Unlock()
@@ -197,7 +197,7 @@ type chanListener struct {
 func (ln *chanListener) Accept() (net.Conn, error) {
 	conn, ok := <-ln.c
 	if !ok {
-		return nil, NewErrListenerClosed(nil)
+		return nil, ErrListenerClosed.Errorf(nil, "listener is already closed")
 	}
 	return conn, nil
 }

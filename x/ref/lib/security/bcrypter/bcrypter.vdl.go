@@ -419,13 +419,13 @@ var (
 	ErrInvalidPrivateKey  = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.InvalidPrivateKey", verror.NoRetry)
 )
 
-// ErrorfErrInternal calls ErrInternal.Errorf with the supplied arguments.
-func ErrorfErrInternal(ctx *context.T, format string, err error) error {
+// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfInternal(ctx *context.T, format string, err error) error {
 	return ErrInternal.Errorf(ctx, format, err)
 }
 
-// MessageErrInternal calls ErrInternal.Message with the supplied arguments.
-func MessageErrInternal(ctx *context.T, message string, err error) error {
+// MessageInternal calls ErrInternal.Message with the supplied arguments.
+func MessageInternal(ctx *context.T, message string, err error) error {
 	return ErrInternal.Message(ctx, message, err)
 }
 
@@ -458,13 +458,13 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrNoParams calls ErrNoParams.Errorf with the supplied arguments.
-func ErrorfErrNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
+// ErrorfNoParams calls ErrNoParams.Errorf with the supplied arguments.
+func ErrorfNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
 	return ErrNoParams.Errorf(ctx, format, pattern)
 }
 
-// MessageErrNoParams calls ErrNoParams.Message with the supplied arguments.
-func MessageErrNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
+// MessageNoParams calls ErrNoParams.Message with the supplied arguments.
+func MessageNoParams(ctx *context.T, message string, pattern security.BlessingPattern) error {
 	return ErrNoParams.Message(ctx, message, pattern)
 }
 
@@ -497,13 +497,13 @@ func ParamsErrNoParams(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
-func ErrorfErrPrivateKeyNotFound(ctx *context.T, format string) error {
+// ErrorfPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
+func ErrorfPrivateKeyNotFound(ctx *context.T, format string) error {
 	return ErrPrivateKeyNotFound.Errorf(ctx, format)
 }
 
-// MessageErrPrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
-func MessageErrPrivateKeyNotFound(ctx *context.T, message string) error {
+// MessagePrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
+func MessagePrivateKeyNotFound(ctx *context.T, message string) error {
 	return ErrPrivateKeyNotFound.Message(ctx, message)
 }
 
@@ -523,13 +523,13 @@ func ParamsErrPrivateKeyNotFound(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
-func ErrorfErrInvalidPrivateKey(ctx *context.T, format string, err error) error {
+// ErrorfInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
+func ErrorfInvalidPrivateKey(ctx *context.T, format string, err error) error {
 	return ErrInvalidPrivateKey.Errorf(ctx, format, err)
 }
 
-// MessageErrInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
-func MessageErrInvalidPrivateKey(ctx *context.T, message string, err error) error {
+// MessageInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.
+func MessageInvalidPrivateKey(ctx *context.T, message string, err error) error {
 	return ErrInvalidPrivateKey.Message(ctx, message, err)
 }
 

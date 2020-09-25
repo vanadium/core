@@ -24,13 +24,13 @@ var (
 	ErrNoCompatibleVersion = verror.NewIDAction("v.io/v23/rpc/version.NoCompatibleVersion", verror.NoRetry)
 )
 
-// ErrorfErrNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
-func ErrorfErrNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+// ErrorfNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
+func ErrorfNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return ErrNoCompatibleVersion.Errorf(ctx, format, lmin, lmax, rmin, rmax)
 }
 
-// MessageErrNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.
-func MessageErrNoCompatibleVersion(ctx *context.T, message string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
+// MessageNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.
+func MessageNoCompatibleVersion(ctx *context.T, message string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return ErrNoCompatibleVersion.Message(ctx, message, lmin, lmax, rmin, rmax)
 }
 

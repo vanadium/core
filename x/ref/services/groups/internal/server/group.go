@@ -41,7 +41,7 @@ func (g *group) Create(ctx *context.T, call rpc.ServerCall, perms access.Permiss
 			// The blessings presented by the caller do not give it a name for this
 			// operation. We could create a world-accessible group, but it seems safer
 			// to return an error.
-			return groups.NewErrNoBlessings(ctx)
+			return groups.ErrNoBlessings.Errorf(ctx, "no blessings recognized; cannot create group Permissions")
 		}
 		for _, tag := range access.AllTypicalTags() {
 			for _, b := range blessings {
@@ -190,7 +190,7 @@ func (g *group) readModifyWrite(ctx *context.T, call security.Call, version stri
 		}
 		// Fail early if possible.
 		if version != "" && version != versionSt {
-			return verror.NewErrBadVersion(ctx)
+			return verror.ErrBadVersion.Errorf(ctx, "version is out of date")
 		}
 		if err := fn(&gd, versionSt); err != nil {
 			if errors.Is(err, verror.ErrBadVersion) {
@@ -206,5 +206,5 @@ func (g *group) readModifyWrite(ctx *context.T, call security.Call, version stri
 			return nil
 		}
 	}
-	return groups.NewErrExcessiveContention(ctx)
+	return groups.ErrExcessiveContention.Errorf(ctx, "gave up after encountering excessive contention; try again later")
 }

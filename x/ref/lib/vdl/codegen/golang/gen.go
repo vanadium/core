@@ -662,6 +662,14 @@ func callVerror(data *goData, call string) string {
 	return "verror." + call
 }
 
+// 
+{_}, which is replaced by all otherwise unused
+// parameters.  If a substring is of the form {:<number>}, {<number>:},
+// {:<number>:}, {:_}, {_:}, or {:_:}, and the corresponding parameters are not
+// the empty string, the parameter is preceded by ": " or followed by ":" or
+// both, respectively.  For example, if the format:
+//   {3:} foo {2} bar{:_} ({3})
+
 // The template that we execute against a goData instance to generate our
 // code.  Most of this is fairly straightforward substitution and ranges; more
 // complicated logic is delegated to the helper functions above.
@@ -725,17 +733,16 @@ var (
 {{if errorsI18n $data}}
 {{range $edef := $pkg.ErrorDefs}}
 	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
-{{else}}
+{{end}}
 {{range $edef := $pkg.ErrorDefs}}
 	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
-{{end}}
 )
 
 {{range $edef := $pkg.ErrorDefs}}
 {{$errName := errorName $edef}}
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
-{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $errName)}}
-{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $errName)}}
+{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 {{if errorsI18n $data}}
 // {{$newErr}} returns an error with the {{$errName}} ID.
 // WARNING: this function is deprecated and will be removed in the future,
@@ -744,7 +751,6 @@ func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context")
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
 }
 {{end}}
-{{if not (errorsI18n $data)}}
 // {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
 func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
 	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
@@ -786,10 +792,8 @@ func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent stri
 }
 {{end}}
 {{end}}
-{{end}}
 
 {{if $pkg.ErrorDefs}}
-{{if not (errorsI18n $data)}}
 type paramListIterator struct {
 	err      error
 	idx, max int
@@ -825,7 +829,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-{{end}}
 {{end}}
 
 {{if $pkg.Interfaces}}

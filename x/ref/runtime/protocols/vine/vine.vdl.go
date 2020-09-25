@@ -194,13 +194,13 @@ var (
 	ErrCantAcceptFromTag    = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry)
 )
 
-// ErrorfErrInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
-func ErrorfErrInvalidAddress(ctx *context.T, format string, address string) error {
+// ErrorfInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
+func ErrorfInvalidAddress(ctx *context.T, format string, address string) error {
 	return ErrInvalidAddress.Errorf(ctx, format, address)
 }
 
-// MessageErrInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
-func MessageErrInvalidAddress(ctx *context.T, message string, address string) error {
+// MessageInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
+func MessageInvalidAddress(ctx *context.T, message string, address string) error {
 	return ErrInvalidAddress.Message(ctx, message, address)
 }
 
@@ -233,13 +233,13 @@ func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
-func ErrorfErrAddressNotReachable(ctx *context.T, format string, address string) error {
+// ErrorfAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
+func ErrorfAddressNotReachable(ctx *context.T, format string, address string) error {
 	return ErrAddressNotReachable.Errorf(ctx, format, address)
 }
 
-// MessageErrAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
-func MessageErrAddressNotReachable(ctx *context.T, message string, address string) error {
+// MessageAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
+func MessageAddressNotReachable(ctx *context.T, message string, address string) error {
 	return ErrAddressNotReachable.Message(ctx, message, address)
 }
 
@@ -272,13 +272,13 @@ func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
-func ErrorfErrNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
+// ErrorfNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
+func ErrorfNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
 	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
 }
 
-// MessageErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
-func MessageErrNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
+// MessageNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
+func MessageNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
 	return ErrNoRegisteredProtocol.Message(ctx, message, protocol)
 }
 
@@ -311,13 +311,13 @@ func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string,
 	return
 }
 
-// ErrorfErrCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
-func ErrorfErrCantAcceptFromTag(ctx *context.T, format string, tag string) error {
+// ErrorfCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
+func ErrorfCantAcceptFromTag(ctx *context.T, format string, tag string) error {
 	return ErrCantAcceptFromTag.Errorf(ctx, format, tag)
 }
 
-// MessageErrCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
-func MessageErrCantAcceptFromTag(ctx *context.T, message string, tag string) error {
+// MessageCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
+func MessageCantAcceptFromTag(ctx *context.T, message string, tag string) error {
 	return ErrCantAcceptFromTag.Message(ctx, message, tag)
 }
 

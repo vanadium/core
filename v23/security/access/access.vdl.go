@@ -445,13 +445,13 @@ var (
 	ErrNoTags                    = verror.NewIDAction("v.io/v23/security/access.NoTags", verror.NoRetry)
 )
 
-// ErrorfErrTooBig calls ErrTooBig.Errorf with the supplied arguments.
-func ErrorfErrTooBig(ctx *context.T, format string) error {
+// ErrorfTooBig calls ErrTooBig.Errorf with the supplied arguments.
+func ErrorfTooBig(ctx *context.T, format string) error {
 	return ErrTooBig.Errorf(ctx, format)
 }
 
-// MessageErrTooBig calls ErrTooBig.Message with the supplied arguments.
-func MessageErrTooBig(ctx *context.T, message string) error {
+// MessageTooBig calls ErrTooBig.Message with the supplied arguments.
+func MessageTooBig(ctx *context.T, message string) error {
 	return ErrTooBig.Message(ctx, message)
 }
 
@@ -471,13 +471,13 @@ func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperati
 	return
 }
 
-// ErrorfErrNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
-func ErrorfErrNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+// ErrorfNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
+func ErrorfNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag)
 }
 
-// MessageErrNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
-func MessageErrNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+// MessageNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
+func MessageNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return ErrNoPermissions.Message(ctx, message, validBlessings, rejectedBlessings, tag)
 }
 
@@ -526,13 +526,13 @@ func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verror
 	return
 }
 
-// ErrorfErrAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
-func ErrorfErrAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+// ErrorfAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
+func ErrorfAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
 }
 
-// MessageErrAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
-func MessageErrAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+// MessageAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
+func MessageAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return ErrAccessListMatch.Message(ctx, message, validBlessings, rejectedBlessings)
 }
 
@@ -573,13 +573,13 @@ func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
-func ErrorfErrUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
+// ErrorfUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
+func ErrorfUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
 	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
 }
 
-// MessageErrUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
-func MessageErrUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
+// MessageUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
+func MessageUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
 	return ErrUnenforceablePatterns.Message(ctx, message, rejectedPatterns)
 }
 
@@ -612,13 +612,13 @@ func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
-func ErrorfErrInvalidOpenAccessList(ctx *context.T, format string) error {
+// ErrorfInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
+func ErrorfInvalidOpenAccessList(ctx *context.T, format string) error {
 	return ErrInvalidOpenAccessList.Errorf(ctx, format)
 }
 
-// MessageErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
-func MessageErrInvalidOpenAccessList(ctx *context.T, message string) error {
+// MessageInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
+func MessageInvalidOpenAccessList(ctx *context.T, message string) error {
 	return ErrInvalidOpenAccessList.Message(ctx, message)
 }
 
@@ -638,13 +638,13 @@ func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
+// ErrorfAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
+func ErrorfAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
 	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags)
 }
 
-// MessageErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
-func MessageErrAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
+// MessageAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
+func MessageAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
 	return ErrAccessTagCaveatValidation.Message(ctx, message, methodTags, caveatTags)
 }
 
@@ -685,13 +685,13 @@ func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent st
 	return
 }
 
-// ErrorfErrMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
-func ErrorfErrMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+// ErrorfMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
+func ErrorfMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
 	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag)
 }
 
-// MessageErrMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
-func MessageErrMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+// MessageMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
+func MessageMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
 	return ErrMultipleTags.Message(ctx, message, suffix, method, tag)
 }
 
@@ -740,13 +740,13 @@ func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorO
 	return
 }
 
-// ErrorfErrNoTags calls ErrNoTags.Errorf with the supplied arguments.
-func ErrorfErrNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
+// ErrorfNoTags calls ErrNoTags.Errorf with the supplied arguments.
+func ErrorfNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
 	return ErrNoTags.Errorf(ctx, format, suffix, method, tag)
 }
 
-// MessageErrNoTags calls ErrNoTags.Message with the supplied arguments.
-func MessageErrNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
+// MessageNoTags calls ErrNoTags.Message with the supplied arguments.
+func MessageNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
 	return ErrNoTags.Message(ctx, message, suffix, method, tag)
 }
 

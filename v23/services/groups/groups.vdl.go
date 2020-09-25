@@ -378,13 +378,13 @@ var (
 	ErrCycleFound          = verror.NewIDAction("v.io/v23/services/groups.CycleFound", verror.NoRetry)
 )
 
-// ErrorfErrNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
-func ErrorfErrNoBlessings(ctx *context.T, format string) error {
+// ErrorfNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
+func ErrorfNoBlessings(ctx *context.T, format string) error {
 	return ErrNoBlessings.Errorf(ctx, format)
 }
 
-// MessageErrNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
-func MessageErrNoBlessings(ctx *context.T, message string) error {
+// MessageNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
+func MessageNoBlessings(ctx *context.T, message string) error {
 	return ErrNoBlessings.Message(ctx, message)
 }
 
@@ -404,13 +404,13 @@ func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// ErrorfErrExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
-func ErrorfErrExcessiveContention(ctx *context.T, format string) error {
+// ErrorfExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
+func ErrorfExcessiveContention(ctx *context.T, format string) error {
 	return ErrExcessiveContention.Errorf(ctx, format)
 }
 
-// MessageErrExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
-func MessageErrExcessiveContention(ctx *context.T, message string) error {
+// MessageExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
+func MessageExcessiveContention(ctx *context.T, message string) error {
 	return ErrExcessiveContention.Message(ctx, message)
 }
 
@@ -430,13 +430,13 @@ func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, 
 	return
 }
 
-// ErrorfErrCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
-func ErrorfErrCycleFound(ctx *context.T, format string, name string, visited string) error {
+// ErrorfCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
+func ErrorfCycleFound(ctx *context.T, format string, name string, visited string) error {
 	return ErrCycleFound.Errorf(ctx, format, name, visited)
 }
 
-// MessageErrCycleFound calls ErrCycleFound.Message with the supplied arguments.
-func MessageErrCycleFound(ctx *context.T, message string, name string, visited string) error {
+// MessageCycleFound calls ErrCycleFound.Message with the supplied arguments.
+func MessageCycleFound(ctx *context.T, message string, name string, visited string) error {
 	return ErrCycleFound.Message(ctx, message, name, visited)
 }
 

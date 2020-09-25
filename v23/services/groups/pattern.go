@@ -151,7 +151,7 @@ func (g *grpClient) remainder(ctx *context.T, groupName string, blessingChunks m
 	var remainder map[string]struct{}
 
 	if _, ok := g.visited[groupName]; ok {
-		err = NewErrCycleFound(ctx, groupName, cycle(g.visited))
+		err = ErrorfCycleFound(ctx, "Found cycle in group definitions %v visited %v", groupName, cycle(g.visited))
 	} else {
 		visited := copyMap(g.visited)
 		visited[groupName] = struct{}{}

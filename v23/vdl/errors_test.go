@@ -43,13 +43,13 @@ func TestErrorParams(t *testing.T) {
 		}
 	}
 
-	err := vdltest.ErrorfErrNone(ctx, "an error")
+	err := vdltest.ErrorfNone(ctx, "an error")
 	component, operation, returnErr = vdltest.ParamsErrNone(err)
 	assert()
-	err = vdltest.ErrorfErrOne(ctx, "an error", 33)
+	err = vdltest.ErrorfOne(ctx, "an error", 33)
 	component, operation, oneI, returnErr = vdltest.ParamsErrOne(err)
 	assert()
-	err = vdltest.ErrorfErrTwo(ctx, "an error", "oops", os.ErrNotExist)
+	err = vdltest.ErrorfTwo(ctx, "an error", "oops", os.ErrNotExist)
 	component, operation, twoA, twoErr, returnErr = vdltest.ParamsErrTwo(err)
 	assert()
 
@@ -63,7 +63,7 @@ func TestErrorParams(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	err = vdltest.ErrorfErrOne(ctx, "an error", 66)
+	err = vdltest.ErrorfOne(ctx, "an error", 66)
 	err = verror.WithSubErrors(err, verror.SubErr{Name: "test", Err: os.ErrExist})
 	component, operation, oneI, returnErr = vdltest.ParamsErrOne(err)
 	assert()
@@ -71,7 +71,7 @@ func TestErrorParams(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	wrongErr := vdltest.ErrorfErrNone(ctx, "an error")
+	wrongErr := vdltest.ErrorfNone(ctx, "an error")
 	_, _, _, _, returnErr = vdltest.ParamsErrTwo(wrongErr)
 	expectError("too few parameters: have 2")
 

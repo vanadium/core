@@ -438,13 +438,13 @@ var (
 	ErrUnknownResumeMarker = verror.NewIDAction("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry)
 )
 
-// ErrorfErrUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
-func ErrorfErrUnknownResumeMarker(ctx *context.T, format string) error {
+// ErrorfUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
+func ErrorfUnknownResumeMarker(ctx *context.T, format string) error {
 	return ErrUnknownResumeMarker.Errorf(ctx, format)
 }
 
-// MessageErrUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
-func MessageErrUnknownResumeMarker(ctx *context.T, message string) error {
+// MessageUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
+func MessageUnknownResumeMarker(ctx *context.T, message string) error {
 	return ErrUnknownResumeMarker.Message(ctx, message)
 }
 

@@ -61,7 +61,7 @@ func CommonVersion(ctx *context.T, l, r RPCVersionRange) (RPCVersion, error) {
 		minMax = r.Max
 	}
 	if l.Min > minMax || r.Min > minMax {
-		return 0, NewErrNoCompatibleVersion(ctx,
+		return 0, ErrorfNoCompatibleVersion(ctx, "there were no compatible versions between (%v,%v) and (%v,%v)",
 			uint64(l.Min), uint64(l.Max), uint64(r.Min), uint64(r.Max))
 	}
 	return minMax, nil

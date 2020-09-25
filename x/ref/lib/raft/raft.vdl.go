@@ -214,13 +214,13 @@ var (
 	ErrOutOfSequence = verror.NewIDAction("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry)
 )
 
-// ErrorfErrNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
-func ErrorfErrNotLeader(ctx *context.T, format string) error {
+// ErrorfNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
+func ErrorfNotLeader(ctx *context.T, format string) error {
 	return ErrNotLeader.Errorf(ctx, format)
 }
 
-// MessageErrNotLeader calls ErrNotLeader.Message with the supplied arguments.
-func MessageErrNotLeader(ctx *context.T, message string) error {
+// MessageNotLeader calls ErrNotLeader.Message with the supplied arguments.
+func MessageNotLeader(ctx *context.T, message string) error {
 	return ErrNotLeader.Message(ctx, message)
 }
 
@@ -240,13 +240,13 @@ func ParamsErrNotLeader(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
-func ErrorfErrOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
+// ErrorfOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
+func ErrorfOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
 	return ErrOutOfSequence.Errorf(ctx, format, prevTerm, prevIdx)
 }
 
-// MessageErrOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
-func MessageErrOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
+// MessageOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
+func MessageOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
 	return ErrOutOfSequence.Message(ctx, message, prevTerm, prevIdx)
 }
 

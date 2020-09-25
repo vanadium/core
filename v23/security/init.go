@@ -16,13 +16,13 @@ func init() {
 		if isValid {
 			return nil
 		}
-		return NewErrConstCaveatValidation(ctx)
+		return ErrorfConstCaveatValidation(ctx, "false const caveat always fails validation")
 	})
 
 	RegisterCaveatValidator(ExpiryCaveat, func(ctx *context.T, call Call, expiry time.Time) error {
 		now := call.Timestamp()
 		if now.After(expiry) {
-			return NewErrExpiryCaveatValidation(ctx, now, expiry)
+			return ErrorfExpiryCaveatValidation(ctx, "now(%v) is after expiry(%v)", now, expiry)
 		}
 		return nil
 	})
@@ -33,7 +33,7 @@ func init() {
 				return nil
 			}
 		}
-		return NewErrMethodCaveatValidation(ctx, call.Method(), methods)
+		return ErrorfMethodCaveatValidation(ctx, "method %v not in list %v", call.Method(), methods)
 	})
 
 	RegisterCaveatValidator(PeerBlessingsCaveat, func(ctx *context.T, call Call, patterns []BlessingPattern) error {
@@ -44,7 +44,7 @@ func init() {
 
 			}
 		}
-		return NewErrPeerBlessingsCaveatValidation(ctx, lnames, patterns)
+		return ErrorfPeerBlessingsCaveatValidation(ctx, "patterns in peer blessings caveat %v not matched by the peer %v", lnames, patterns)
 	})
 
 	RegisterCaveatValidator(PublicKeyThirdPartyCaveat, func(ctx *context.T, call Call, params publicKeyThirdPartyCaveatParam) error {

@@ -33,13 +33,13 @@ var (
 	ErrGlobNotImplemented = verror.NewIDAction("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry)
 )
 
-// ErrorfErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
-func ErrorfErrGlobMaxRecursionReached(ctx *context.T, format string) error {
+// ErrorfGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
+func ErrorfGlobMaxRecursionReached(ctx *context.T, format string) error {
 	return ErrGlobMaxRecursionReached.Errorf(ctx, format)
 }
 
-// MessageErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
-func MessageErrGlobMaxRecursionReached(ctx *context.T, message string) error {
+// MessageGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
+func MessageGlobMaxRecursionReached(ctx *context.T, message string) error {
 	return ErrGlobMaxRecursionReached.Message(ctx, message)
 }
 
@@ -59,13 +59,13 @@ func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent stri
 	return
 }
 
-// ErrorfErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
-func ErrorfErrGlobMatchesOmitted(ctx *context.T, format string) error {
+// ErrorfGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
+func ErrorfGlobMatchesOmitted(ctx *context.T, format string) error {
 	return ErrGlobMatchesOmitted.Errorf(ctx, format)
 }
 
-// MessageErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
-func MessageErrGlobMatchesOmitted(ctx *context.T, message string) error {
+// MessageGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
+func MessageGlobMatchesOmitted(ctx *context.T, message string) error {
 	return ErrGlobMatchesOmitted.Message(ctx, message)
 }
 
@@ -85,13 +85,13 @@ func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
-func ErrorfErrGlobNotImplemented(ctx *context.T, format string) error {
+// ErrorfGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
+func ErrorfGlobNotImplemented(ctx *context.T, format string) error {
 	return ErrGlobNotImplemented.Errorf(ctx, format)
 }
 
-// MessageErrGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
-func MessageErrGlobNotImplemented(ctx *context.T, message string) error {
+// MessageGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
+func MessageGlobNotImplemented(ctx *context.T, message string) error {
 	return ErrGlobNotImplemented.Message(ctx, message)
 }
 

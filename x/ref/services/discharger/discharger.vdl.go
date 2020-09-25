@@ -31,13 +31,13 @@ var (
 	ErrNotAThirdPartyCaveat = verror.NewIDAction("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry)
 )
 
-// ErrorfErrNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
-func ErrorfErrNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
+// ErrorfNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
+func ErrorfNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
 	return ErrNotAThirdPartyCaveat.Errorf(ctx, format, c)
 }
 
-// MessageErrNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
-func MessageErrNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
+// MessageNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
+func MessageNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
 	return ErrNotAThirdPartyCaveat.Message(ctx, message, c)
 }
 

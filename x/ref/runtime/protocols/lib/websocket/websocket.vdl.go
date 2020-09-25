@@ -25,13 +25,13 @@ var (
 	ErrListenCalledInNaCl = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry)
 )
 
-// ErrorfErrListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
-func ErrorfErrListenerClosed(ctx *context.T, format string) error {
+// ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
+func ErrorfListenerClosed(ctx *context.T, format string) error {
 	return ErrListenerClosed.Errorf(ctx, format)
 }
 
-// MessageErrListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
-func MessageErrListenerClosed(ctx *context.T, message string) error {
+// MessageListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
+func MessageListenerClosed(ctx *context.T, message string) error {
 	return ErrListenerClosed.Message(ctx, message)
 }
 
@@ -51,13 +51,13 @@ func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
-func ErrorfErrListenCalledInNaCl(ctx *context.T, format string) error {
+// ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
+func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
 	return ErrListenCalledInNaCl.Errorf(ctx, format)
 }
 
-// MessageErrListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
-func MessageErrListenCalledInNaCl(ctx *context.T, message string) error {
+// MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
+func MessageListenCalledInNaCl(ctx *context.T, message string) error {
 	return ErrListenCalledInNaCl.Message(ctx, message)
 }
 

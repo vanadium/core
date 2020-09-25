@@ -457,13 +457,13 @@ var (
 	ErrTooManyPlugins         = verror.NewIDAction("v.io/x/ref/lib/discovery.TooManyPlugins", verror.NoRetry)
 )
 
-// ErrorfErrAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
-func ErrorfErrAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
+// ErrorfAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
+func ErrorfAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
 	return ErrAdvertisementNotFound.Errorf(ctx, format, id)
 }
 
-// MessageErrAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
-func MessageErrAdvertisementNotFound(ctx *context.T, message string, id discovery.AdId) error {
+// MessageAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
+func MessageAdvertisementNotFound(ctx *context.T, message string, id discovery.AdId) error {
 	return ErrAdvertisementNotFound.Message(ctx, message, id)
 }
 
@@ -496,13 +496,13 @@ func ParamsErrAdvertisementNotFound(argumentError error) (verrorComponent string
 	return
 }
 
-// ErrorfErrAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
-func ErrorfErrAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
+// ErrorfAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
+func ErrorfAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
 	return ErrAlreadyBeingAdvertised.Errorf(ctx, format, id)
 }
 
-// MessageErrAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
-func MessageErrAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
+// MessageAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
+func MessageAlreadyBeingAdvertised(ctx *context.T, message string, id discovery.AdId) error {
 	return ErrAlreadyBeingAdvertised.Message(ctx, message, id)
 }
 
@@ -535,13 +535,13 @@ func ParamsErrAlreadyBeingAdvertised(argumentError error) (verrorComponent strin
 	return
 }
 
-// ErrorfErrBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
-func ErrorfErrBadAdvertisement(ctx *context.T, format string, err error) error {
+// ErrorfBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
+func ErrorfBadAdvertisement(ctx *context.T, format string, err error) error {
 	return ErrBadAdvertisement.Errorf(ctx, format, err)
 }
 
-// MessageErrBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
-func MessageErrBadAdvertisement(ctx *context.T, message string, err error) error {
+// MessageBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
+func MessageBadAdvertisement(ctx *context.T, message string, err error) error {
 	return ErrBadAdvertisement.Message(ctx, message, err)
 }
 
@@ -574,13 +574,13 @@ func ParamsErrBadAdvertisement(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// ErrorfErrBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
-func ErrorfErrBadQuery(ctx *context.T, format string, err error) error {
+// ErrorfBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
+func ErrorfBadQuery(ctx *context.T, format string, err error) error {
 	return ErrBadQuery.Errorf(ctx, format, err)
 }
 
-// MessageErrBadQuery calls ErrBadQuery.Message with the supplied arguments.
-func MessageErrBadQuery(ctx *context.T, message string, err error) error {
+// MessageBadQuery calls ErrBadQuery.Message with the supplied arguments.
+func MessageBadQuery(ctx *context.T, message string, err error) error {
 	return ErrBadQuery.Message(ctx, message, err)
 }
 
@@ -613,13 +613,13 @@ func ParamsErrBadQuery(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
-func ErrorfErrDiscoveryClosed(ctx *context.T, format string) error {
+// ErrorfDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
+func ErrorfDiscoveryClosed(ctx *context.T, format string) error {
 	return ErrDiscoveryClosed.Errorf(ctx, format)
 }
 
-// MessageErrDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
-func MessageErrDiscoveryClosed(ctx *context.T, message string) error {
+// MessageDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
+func MessageDiscoveryClosed(ctx *context.T, message string) error {
 	return ErrDiscoveryClosed.Message(ctx, message)
 }
 
@@ -639,13 +639,13 @@ func ParamsErrDiscoveryClosed(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// ErrorfErrNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
-func ErrorfErrNoDiscoveryPlugin(ctx *context.T, format string) error {
+// ErrorfNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
+func ErrorfNoDiscoveryPlugin(ctx *context.T, format string) error {
 	return ErrNoDiscoveryPlugin.Errorf(ctx, format)
 }
 
-// MessageErrNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
-func MessageErrNoDiscoveryPlugin(ctx *context.T, message string) error {
+// MessageNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
+func MessageNoDiscoveryPlugin(ctx *context.T, message string) error {
 	return ErrNoDiscoveryPlugin.Message(ctx, message)
 }
 
@@ -665,13 +665,13 @@ func ParamsErrNoDiscoveryPlugin(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
-func ErrorfErrTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
+// ErrorfTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
+func ErrorfTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
 	return ErrTooManyPlugins.Errorf(ctx, format, actual, limit)
 }
 
-// MessageErrTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
-func MessageErrTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
+// MessageTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.
+func MessageTooManyPlugins(ctx *context.T, message string, actual int32, limit int32) error {
 	return ErrTooManyPlugins.Message(ctx, message, actual, limit)
 }
 

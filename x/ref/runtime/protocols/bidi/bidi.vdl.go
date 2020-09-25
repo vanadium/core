@@ -25,13 +25,13 @@ var (
 	ErrBidiRoutingIdNotCached = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.BidiRoutingIdNotCached", verror.NoRetry)
 )
 
-// ErrorfErrCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
-func ErrorfErrCannotListenOnBidi(ctx *context.T, format string) error {
+// ErrorfCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
+func ErrorfCannotListenOnBidi(ctx *context.T, format string) error {
 	return ErrCannotListenOnBidi.Errorf(ctx, format)
 }
 
-// MessageErrCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
-func MessageErrCannotListenOnBidi(ctx *context.T, message string) error {
+// MessageCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
+func MessageCannotListenOnBidi(ctx *context.T, message string) error {
 	return ErrCannotListenOnBidi.Message(ctx, message)
 }
 
@@ -51,13 +51,13 @@ func ParamsErrCannotListenOnBidi(argumentError error) (verrorComponent string, v
 	return
 }
 
-// ErrorfErrBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
-func ErrorfErrBidiRoutingIdNotCached(ctx *context.T, format string) error {
+// ErrorfBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
+func ErrorfBidiRoutingIdNotCached(ctx *context.T, format string) error {
 	return ErrBidiRoutingIdNotCached.Errorf(ctx, format)
 }
 
-// MessageErrBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
-func MessageErrBidiRoutingIdNotCached(ctx *context.T, message string) error {
+// MessageBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
+func MessageBidiRoutingIdNotCached(ctx *context.T, message string) error {
 	return ErrBidiRoutingIdNotCached.Message(ctx, message)
 }
 

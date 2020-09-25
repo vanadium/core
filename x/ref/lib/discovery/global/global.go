@@ -56,7 +56,7 @@ func NewWithTTL(ctx *context.T, path string, mountTTL, scanInterval time.Duratio
 func newWithClock(ctx *context.T, path string, mountTTL, scanInterval time.Duration, clock timekeeper.TimeKeeper) (discovery.T, error) {
 	ns := v23.GetNamespace(ctx)
 	if ns == nil {
-		return nil, NewErrNoNamespace(ctx)
+		return nil, ErrorfNoNamespace(ctx, "namespace not found")
 	}
 
 	var roots []string

@@ -48,10 +48,10 @@ func (b *VersionedPermissions) Set(ctx *context.T, verstr string, perm access.Pe
 	if len(verstr) > 0 {
 		gen, err := strconv.ParseInt(verstr, 10, 32)
 		if err != nil {
-			return b, verror.NewErrBadVersion(ctx)
+			return b, verror.ErrBadVersion.Errorf(ctx, "version is out of date")
 		}
 		if gen >= 0 && int32(gen) != b.V {
-			return b, verror.NewErrBadVersion(ctx)
+			return b, verror.ErrBadVersion.Errorf(ctx, "version is out of date")
 		}
 	}
 	b.P = perm

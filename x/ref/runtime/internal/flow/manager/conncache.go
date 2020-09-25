@@ -241,9 +241,9 @@ func (c *ConnCache) internalFind(
 			c.mu.Unlock()
 			switch ctx.Err() {
 			case context.Canceled:
-				return nil, nil, nil, verror.NewErrCanceled(ctx)
+				return nil, nil, nil, verror.ErrCanceled.Errorf(ctx, "canceled")
 			default:
-				return nil, nil, nil, verror.NewErrTimeout(ctx)
+				return nil, nil, nil, verror.ErrTimeout.Errorf(ctx, "timeout")
 			}
 		}
 	}

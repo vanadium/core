@@ -332,7 +332,7 @@ func resolveArgsAndExecFunction(db ds.Database, k string, v *vdl.Value, f *query
 	for _, arg := range f.Args {
 		resolvedArg := resolveOperand(db, k, v, arg)
 		if resolvedArg == nil {
-			return nil, syncql.NewErrFunctionArgBad(db.GetContext(), arg.Off, f.Name, arg.String())
+			return nil, syncql.ErrorfFunctionArgBad(db.GetContext(), "[%v]Function '%v' arg '%v' could not be resolved.", arg.Off, f.Name, arg.String())
 		}
 		callingArgs = append(callingArgs, resolvedArg)
 	}

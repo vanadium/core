@@ -79,13 +79,13 @@ var (
 	ErrTimeout = NewIDAction("v.io/v23/verror.Timeout", NoRetry)
 )
 
-// ErrorfErrUnknown calls ErrUnknown.Errorf with the supplied arguments.
-func ErrorfErrUnknown(ctx *context.T, format string) error {
+// ErrorfUnknown calls ErrUnknown.Errorf with the supplied arguments.
+func ErrorfUnknown(ctx *context.T, format string) error {
 	return ErrUnknown.Errorf(ctx, format)
 }
 
-// MessageErrUnknown calls ErrUnknown.Message with the supplied arguments.
-func MessageErrUnknown(ctx *context.T, message string) error {
+// MessageUnknown calls ErrUnknown.Message with the supplied arguments.
+func MessageUnknown(ctx *context.T, message string) error {
 	return ErrUnknown.Message(ctx, message)
 }
 
@@ -105,13 +105,13 @@ func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperat
 	return
 }
 
-// ErrorfErrInternal calls ErrInternal.Errorf with the supplied arguments.
-func ErrorfErrInternal(ctx *context.T, format string) error {
+// ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfInternal(ctx *context.T, format string) error {
 	return ErrInternal.Errorf(ctx, format)
 }
 
-// MessageErrInternal calls ErrInternal.Message with the supplied arguments.
-func MessageErrInternal(ctx *context.T, message string) error {
+// MessageInternal calls ErrInternal.Message with the supplied arguments.
+func MessageInternal(ctx *context.T, message string) error {
 	return ErrInternal.Message(ctx, message)
 }
 
@@ -131,13 +131,13 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
-func ErrorfErrNotImplemented(ctx *context.T, format string) error {
+// ErrorfNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
+func ErrorfNotImplemented(ctx *context.T, format string) error {
 	return ErrNotImplemented.Errorf(ctx, format)
 }
 
-// MessageErrNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
-func MessageErrNotImplemented(ctx *context.T, message string) error {
+// MessageNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
+func MessageNotImplemented(ctx *context.T, message string) error {
 	return ErrNotImplemented.Message(ctx, message)
 }
 
@@ -157,13 +157,13 @@ func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// ErrorfErrEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
-func ErrorfErrEndOfFile(ctx *context.T, format string) error {
+// ErrorfEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
+func ErrorfEndOfFile(ctx *context.T, format string) error {
 	return ErrEndOfFile.Errorf(ctx, format)
 }
 
-// MessageErrEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
-func MessageErrEndOfFile(ctx *context.T, message string) error {
+// MessageEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
+func MessageEndOfFile(ctx *context.T, message string) error {
 	return ErrEndOfFile.Message(ctx, message)
 }
 
@@ -183,13 +183,13 @@ func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrBadArg calls ErrBadArg.Errorf with the supplied arguments.
-func ErrorfErrBadArg(ctx *context.T, format string) error {
+// ErrorfBadArg calls ErrBadArg.Errorf with the supplied arguments.
+func ErrorfBadArg(ctx *context.T, format string) error {
 	return ErrBadArg.Errorf(ctx, format)
 }
 
-// MessageErrBadArg calls ErrBadArg.Message with the supplied arguments.
-func MessageErrBadArg(ctx *context.T, message string) error {
+// MessageBadArg calls ErrBadArg.Message with the supplied arguments.
+func MessageBadArg(ctx *context.T, message string) error {
 	return ErrBadArg.Message(ctx, message)
 }
 
@@ -209,13 +209,13 @@ func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperati
 	return
 }
 
-// ErrorfErrBadState calls ErrBadState.Errorf with the supplied arguments.
-func ErrorfErrBadState(ctx *context.T, format string) error {
+// ErrorfBadState calls ErrBadState.Errorf with the supplied arguments.
+func ErrorfBadState(ctx *context.T, format string) error {
 	return ErrBadState.Errorf(ctx, format)
 }
 
-// MessageErrBadState calls ErrBadState.Message with the supplied arguments.
-func MessageErrBadState(ctx *context.T, message string) error {
+// MessageBadState calls ErrBadState.Message with the supplied arguments.
+func MessageBadState(ctx *context.T, message string) error {
 	return ErrBadState.Message(ctx, message)
 }
 
@@ -235,13 +235,13 @@ func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
-func ErrorfErrBadVersion(ctx *context.T, format string) error {
+// ErrorfBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
+func ErrorfBadVersion(ctx *context.T, format string) error {
 	return ErrBadVersion.Errorf(ctx, format)
 }
 
-// MessageErrBadVersion calls ErrBadVersion.Message with the supplied arguments.
-func MessageErrBadVersion(ctx *context.T, message string) error {
+// MessageBadVersion calls ErrBadVersion.Message with the supplied arguments.
+func MessageBadVersion(ctx *context.T, message string) error {
 	return ErrBadVersion.Message(ctx, message)
 }
 
@@ -261,13 +261,13 @@ func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOpe
 	return
 }
 
-// ErrorfErrExist calls ErrExist.Errorf with the supplied arguments.
-func ErrorfErrExist(ctx *context.T, format string) error {
+// ErrorfExist calls ErrExist.Errorf with the supplied arguments.
+func ErrorfExist(ctx *context.T, format string) error {
 	return ErrExist.Errorf(ctx, format)
 }
 
-// MessageErrExist calls ErrExist.Message with the supplied arguments.
-func MessageErrExist(ctx *context.T, message string) error {
+// MessageExist calls ErrExist.Message with the supplied arguments.
+func MessageExist(ctx *context.T, message string) error {
 	return ErrExist.Message(ctx, message)
 }
 
@@ -287,13 +287,13 @@ func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperatio
 	return
 }
 
-// ErrorfErrNoExist calls ErrNoExist.Errorf with the supplied arguments.
-func ErrorfErrNoExist(ctx *context.T, format string) error {
+// ErrorfNoExist calls ErrNoExist.Errorf with the supplied arguments.
+func ErrorfNoExist(ctx *context.T, format string) error {
 	return ErrNoExist.Errorf(ctx, format)
 }
 
-// MessageErrNoExist calls ErrNoExist.Message with the supplied arguments.
-func MessageErrNoExist(ctx *context.T, message string) error {
+// MessageNoExist calls ErrNoExist.Message with the supplied arguments.
+func MessageNoExist(ctx *context.T, message string) error {
 	return ErrNoExist.Message(ctx, message)
 }
 
@@ -313,13 +313,13 @@ func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperat
 	return
 }
 
-// ErrorfErrUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
-func ErrorfErrUnknownMethod(ctx *context.T, format string) error {
+// ErrorfUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
+func ErrorfUnknownMethod(ctx *context.T, format string) error {
 	return ErrUnknownMethod.Errorf(ctx, format)
 }
 
-// MessageErrUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
-func MessageErrUnknownMethod(ctx *context.T, message string) error {
+// MessageUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
+func MessageUnknownMethod(ctx *context.T, message string) error {
 	return ErrUnknownMethod.Message(ctx, message)
 }
 
@@ -339,13 +339,13 @@ func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verror
 	return
 }
 
-// ErrorfErrUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
-func ErrorfErrUnknownSuffix(ctx *context.T, format string) error {
+// ErrorfUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
+func ErrorfUnknownSuffix(ctx *context.T, format string) error {
 	return ErrUnknownSuffix.Errorf(ctx, format)
 }
 
-// MessageErrUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
-func MessageErrUnknownSuffix(ctx *context.T, message string) error {
+// MessageUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
+func MessageUnknownSuffix(ctx *context.T, message string) error {
 	return ErrUnknownSuffix.Message(ctx, message)
 }
 
@@ -365,13 +365,13 @@ func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verror
 	return
 }
 
-// ErrorfErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
-func ErrorfErrNoExistOrNoAccess(ctx *context.T, format string) error {
+// ErrorfNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
+func ErrorfNoExistOrNoAccess(ctx *context.T, format string) error {
 	return ErrNoExistOrNoAccess.Errorf(ctx, format)
 }
 
-// MessageErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
-func MessageErrNoExistOrNoAccess(ctx *context.T, message string) error {
+// MessageNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
+func MessageNoExistOrNoAccess(ctx *context.T, message string) error {
 	return ErrNoExistOrNoAccess.Message(ctx, message)
 }
 
@@ -391,13 +391,13 @@ func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// ErrorfErrNoServers calls ErrNoServers.Errorf with the supplied arguments.
-func ErrorfErrNoServers(ctx *context.T, format string) error {
+// ErrorfNoServers calls ErrNoServers.Errorf with the supplied arguments.
+func ErrorfNoServers(ctx *context.T, format string) error {
 	return ErrNoServers.Errorf(ctx, format)
 }
 
-// MessageErrNoServers calls ErrNoServers.Message with the supplied arguments.
-func MessageErrNoServers(ctx *context.T, message string) error {
+// MessageNoServers calls ErrNoServers.Message with the supplied arguments.
+func MessageNoServers(ctx *context.T, message string) error {
 	return ErrNoServers.Message(ctx, message)
 }
 
@@ -417,13 +417,13 @@ func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// ErrorfErrNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
-func ErrorfErrNoAccess(ctx *context.T, format string) error {
+// ErrorfNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
+func ErrorfNoAccess(ctx *context.T, format string) error {
 	return ErrNoAccess.Errorf(ctx, format)
 }
 
-// MessageErrNoAccess calls ErrNoAccess.Message with the supplied arguments.
-func MessageErrNoAccess(ctx *context.T, message string) error {
+// MessageNoAccess calls ErrNoAccess.Message with the supplied arguments.
+func MessageNoAccess(ctx *context.T, message string) error {
 	return ErrNoAccess.Message(ctx, message)
 }
 
@@ -443,13 +443,13 @@ func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
-func ErrorfErrNotTrusted(ctx *context.T, format string) error {
+// ErrorfNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
+func ErrorfNotTrusted(ctx *context.T, format string) error {
 	return ErrNotTrusted.Errorf(ctx, format)
 }
 
-// MessageErrNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
-func MessageErrNotTrusted(ctx *context.T, message string) error {
+// MessageNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
+func MessageNotTrusted(ctx *context.T, message string) error {
 	return ErrNotTrusted.Message(ctx, message)
 }
 
@@ -469,13 +469,13 @@ func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOpe
 	return
 }
 
-// ErrorfErrAborted calls ErrAborted.Errorf with the supplied arguments.
-func ErrorfErrAborted(ctx *context.T, format string) error {
+// ErrorfAborted calls ErrAborted.Errorf with the supplied arguments.
+func ErrorfAborted(ctx *context.T, format string) error {
 	return ErrAborted.Errorf(ctx, format)
 }
 
-// MessageErrAborted calls ErrAborted.Message with the supplied arguments.
-func MessageErrAborted(ctx *context.T, message string) error {
+// MessageAborted calls ErrAborted.Message with the supplied arguments.
+func MessageAborted(ctx *context.T, message string) error {
 	return ErrAborted.Message(ctx, message)
 }
 
@@ -495,13 +495,13 @@ func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperat
 	return
 }
 
-// ErrorfErrBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
-func ErrorfErrBadProtocol(ctx *context.T, format string) error {
+// ErrorfBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
+func ErrorfBadProtocol(ctx *context.T, format string) error {
 	return ErrBadProtocol.Errorf(ctx, format)
 }
 
-// MessageErrBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
-func MessageErrBadProtocol(ctx *context.T, message string) error {
+// MessageBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
+func MessageBadProtocol(ctx *context.T, message string) error {
 	return ErrBadProtocol.Message(ctx, message)
 }
 
@@ -521,13 +521,13 @@ func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// ErrorfErrCanceled calls ErrCanceled.Errorf with the supplied arguments.
-func ErrorfErrCanceled(ctx *context.T, format string) error {
+// ErrorfCanceled calls ErrCanceled.Errorf with the supplied arguments.
+func ErrorfCanceled(ctx *context.T, format string) error {
 	return ErrCanceled.Errorf(ctx, format)
 }
 
-// MessageErrCanceled calls ErrCanceled.Message with the supplied arguments.
-func MessageErrCanceled(ctx *context.T, message string) error {
+// MessageCanceled calls ErrCanceled.Message with the supplied arguments.
+func MessageCanceled(ctx *context.T, message string) error {
 	return ErrCanceled.Message(ctx, message)
 }
 
@@ -547,13 +547,13 @@ func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// ErrorfErrTimeout calls ErrTimeout.Errorf with the supplied arguments.
-func ErrorfErrTimeout(ctx *context.T, format string) error {
+// ErrorfTimeout calls ErrTimeout.Errorf with the supplied arguments.
+func ErrorfTimeout(ctx *context.T, format string) error {
 	return ErrTimeout.Errorf(ctx, format)
 }
 
-// MessageErrTimeout calls ErrTimeout.Message with the supplied arguments.
-func MessageErrTimeout(ctx *context.T, message string) error {
+// MessageTimeout calls ErrTimeout.Message with the supplied arguments.
+func MessageTimeout(ctx *context.T, message string) error {
 	return ErrTimeout.Message(ctx, message)
 }
 

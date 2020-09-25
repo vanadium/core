@@ -41,7 +41,7 @@ func (defaultAuthorizer) Authorize(ctx *context.T, call Call) error {
 		}
 	}
 
-	return NewErrAuthorizationFailed(ctx, remoteNames, remoteErr, localNames)
+	return ErrorfAuthorizationFailed(ctx, "principal with blessings %v (rejected %v) is not authorized by principal with blessings %v", remoteNames, remoteErr, localNames)
 }
 
 // AllowEveryone returns an Authorizer which implements a policy of always
@@ -71,10 +71,10 @@ type publicKeyAuthorizer struct{ key PublicKey }
 func (a publicKeyAuthorizer) Authorize(ctx *context.T, call Call) error {
 	remote := call.RemoteBlessings().PublicKey()
 	if remote == nil {
-		return NewErrPublicKeyNotAllowed(ctx, "", a.key.String())
+		return ErrorfPublicKeyNotAllowed(ctx, "peer has no public key (%v), the authorized public key %v", "", a.key.String())
 	}
 	if !reflect.DeepEqual(remote, a.key) {
-		return NewErrPublicKeyNotAllowed(ctx, remote.String(), a.key.String())
+		return ErrorfPublicKeyNotAllowed(ctx, "peer has public key %v, not the authorized public key %v", remote.String(), a.key.String())
 	}
 	return nil
 }
@@ -98,5 +98,5 @@ func (endpointAuthorizer) Authorize(ctx *context.T, call Call) error {
 			return nil
 		}
 	}
-	return NewErrEndpointAuthorizationFailed(ctx, call.RemoteEndpoint().String(), names, rejected)
+	return ErrorfEndpointAuthorizationFailed(ctx, "blessings in endpoint %v not matched by blessings presented: %v (rejected %v)", call.RemoteEndpoint().String(), names, rejected)
 }

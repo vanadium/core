@@ -24,13 +24,13 @@ var (
 	ErrLargerThan3ByteUInt = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/framer.LargerThan3ByteUInt", verror.NoRetry)
 )
 
-// ErrorfErrLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
-func ErrorfErrLargerThan3ByteUInt(ctx *context.T, format string) error {
+// ErrorfLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
+func ErrorfLargerThan3ByteUInt(ctx *context.T, format string) error {
 	return ErrLargerThan3ByteUInt.Errorf(ctx, format)
 }
 
-// MessageErrLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.
-func MessageErrLargerThan3ByteUInt(ctx *context.T, message string) error {
+// MessageLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.
+func MessageLargerThan3ByteUInt(ctx *context.T, message string) error {
 	return ErrLargerThan3ByteUInt.Message(ctx, message)
 }
 

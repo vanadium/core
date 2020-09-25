@@ -34,7 +34,7 @@ func (s *dirServer) Lookup(ctx *context.T, _ rpc.ServerCall, id discovery.AdId) 
 
 	adinfo := s.adMap[id]
 	if adinfo == nil {
-		return AdInfo{}, NewErrAdvertisementNotFound(ctx, id)
+		return AdInfo{}, ErrorfAdvertisementNotFound(ctx, "advertisement not found: %v", id)
 	}
 
 	copied := *adinfo
@@ -58,7 +58,7 @@ func (s *dirServer) GetAttachment(ctx *context.T, _ rpc.ServerCall, id discovery
 
 	adinfo := s.adMap[id]
 	if adinfo == nil {
-		return nil, NewErrAdvertisementNotFound(ctx, id)
+		return nil, ErrorfAdvertisementNotFound(ctx, "advertisement not found: %v", id)
 	}
 	return adinfo.Ad.Attachments[name], nil
 }

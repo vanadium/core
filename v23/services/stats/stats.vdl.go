@@ -32,13 +32,13 @@ var (
 	ErrNoValue = verror.NewIDAction("v.io/v23/services/stats.NoValue", verror.NoRetry)
 )
 
-// ErrorfErrNoValue calls ErrNoValue.Errorf with the supplied arguments.
-func ErrorfErrNoValue(ctx *context.T, format string, suffix string) error {
+// ErrorfNoValue calls ErrNoValue.Errorf with the supplied arguments.
+func ErrorfNoValue(ctx *context.T, format string, suffix string) error {
 	return ErrNoValue.Errorf(ctx, format, suffix)
 }
 
-// MessageErrNoValue calls ErrNoValue.Message with the supplied arguments.
-func MessageErrNoValue(ctx *context.T, message string, suffix string) error {
+// MessageNoValue calls ErrNoValue.Message with the supplied arguments.
+func MessageNoValue(ctx *context.T, message string, suffix string) error {
 	return ErrNoValue.Message(ctx, message, suffix)
 }
 
