@@ -109,11 +109,11 @@
 package watch
 
 import (
+	"fmt"
 	"io"
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
@@ -435,14 +435,69 @@ const InitialStateSkipped = int32(2)
 // Error definitions
 
 var (
-	ErrUnknownResumeMarker = verror.Register("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry, "{1:}{2:} unknown resume marker {_}")
+	ErrUnknownResumeMarker = verror.NewIDAction("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry)
 )
 
-// NewErrUnknownResumeMarker returns an error with the ErrUnknownResumeMarker ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnknownResumeMarker or MessageErrUnknownResumeMarker instead.
-func NewErrUnknownResumeMarker(ctx *context.T) error {
-	return verror.New(ErrUnknownResumeMarker, ctx)
+// ErrorfErrUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
+func ErrorfErrUnknownResumeMarker(ctx *context.T, format string) error {
+	return ErrUnknownResumeMarker.Errorf(ctx, format)
+}
+
+// MessageErrUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.
+func MessageErrUnknownResumeMarker(ctx *context.T, message string) error {
+	return ErrUnknownResumeMarker.Message(ctx, message)
+}
+
+// ParamsErrUnknownResumeMarker extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownResumeMarker(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////
@@ -712,9 +767,6 @@ func initializeVDL() struct{} {
 	vdlTypeList1 = vdl.TypeOf((*ResumeMarker)(nil))
 	vdlTypeStruct2 = vdl.TypeOf((*GlobRequest)(nil)).Elem()
 	vdlTypeStruct3 = vdl.TypeOf((*Change)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownResumeMarker.ID), "{1:}{2:} unknown resume marker {_}")
 
 	return struct{}{}
 }

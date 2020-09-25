@@ -9,8 +9,9 @@
 package verror
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 )
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
@@ -23,192 +24,589 @@ var (
 	// ErrUnknown means the error has no known Id.  A more specific error should
 	// always be used, if possible.  Unknown is typically only used when
 	// automatically converting errors that do not contain an Id.
-	ErrUnknown = Register("v.io/v23/verror.Unknown", NoRetry, "{1:}{2:} Error{:_}")
+	ErrUnknown = NewIDAction("v.io/v23/verror.Unknown", NoRetry)
 	// ErrInternal means an internal error has occurred.  A more specific error
 	// should always be used, if possible.
-	ErrInternal = Register("v.io/v23/verror.Internal", NoRetry, "{1:}{2:} Internal error{:_}")
+	ErrInternal = NewIDAction("v.io/v23/verror.Internal", NoRetry)
 	// ErrNotImplemented means that the request type is valid but that the method to
 	// handle the request has not been implemented.
-	ErrNotImplemented = Register("v.io/v23/verror.NotImplemented", NoRetry, "{1:}{2:} Not implemented{:_}")
+	ErrNotImplemented = NewIDAction("v.io/v23/verror.NotImplemented", NoRetry)
 	// ErrEndOfFile means the end-of-file has been reached; more generally, no more
 	// input data is available.
-	ErrEndOfFile = Register("v.io/v23/verror.EndOfFile", NoRetry, "{1:}{2:} End of file{:_}")
+	ErrEndOfFile = NewIDAction("v.io/v23/verror.EndOfFile", NoRetry)
 	// ErrBadArg means the arguments to an operation are invalid or incorrectly
 	// formatted.
-	ErrBadArg = Register("v.io/v23/verror.BadArg", NoRetry, "{1:}{2:} Bad argument{:_}")
+	ErrBadArg = NewIDAction("v.io/v23/verror.BadArg", NoRetry)
 	// ErrBadState means an operation was attempted on an object while the object was
 	// in an incompatible state.
-	ErrBadState = Register("v.io/v23/verror.BadState", NoRetry, "{1:}{2:} Invalid state{:_}")
+	ErrBadState = NewIDAction("v.io/v23/verror.BadState", NoRetry)
 	// ErrBadVersion means the version presented by the client (e.g. to a service
 	// that supports content-hash-based caching or atomic read-modify-write) was
 	// out of date or otherwise invalid, likely because some other request caused
 	// the version at the server to change. The client should get a fresh version
 	// and try again.
-	ErrBadVersion = Register("v.io/v23/verror.BadVersion", NoRetry, "{1:}{2:} Version is out of date")
+	ErrBadVersion = NewIDAction("v.io/v23/verror.BadVersion", NoRetry)
 	// ErrExist means that the requested item already exists; typically returned when
 	// an attempt to create an item fails because it already exists.
-	ErrExist = Register("v.io/v23/verror.Exist", NoRetry, "{1:}{2:} Already exists{:_}")
+	ErrExist = NewIDAction("v.io/v23/verror.Exist", NoRetry)
 	// ErrNoExist means that the requested item does not exist; typically returned
 	// when an attempt to lookup an item fails because it does not exist.
-	ErrNoExist       = Register("v.io/v23/verror.NoExist", NoRetry, "{1:}{2:} Does not exist{:_}")
-	ErrUnknownMethod = Register("v.io/v23/verror.UnknownMethod", NoRetry, "{1:}{2:} Method does not exist{:_}")
-	ErrUnknownSuffix = Register("v.io/v23/verror.UnknownSuffix", NoRetry, "{1:}{2:} Suffix does not exist{:_}")
+	ErrNoExist       = NewIDAction("v.io/v23/verror.NoExist", NoRetry)
+	ErrUnknownMethod = NewIDAction("v.io/v23/verror.UnknownMethod", NoRetry)
+	ErrUnknownSuffix = NewIDAction("v.io/v23/verror.UnknownSuffix", NoRetry)
 	// ErrNoExistOrNoAccess means that either the requested item does not exist, or
 	// is inaccessible.  Typically returned when the distinction between existence
 	// and inaccessiblity should be hidden to preserve privacy.
-	ErrNoExistOrNoAccess = Register("v.io/v23/verror.NoExistOrNoAccess", NoRetry, "{1:}{2:} Does not exist or access denied{:_}")
+	ErrNoExistOrNoAccess = NewIDAction("v.io/v23/verror.NoExistOrNoAccess", NoRetry)
 	// ErrNoServers means a name was resolved to unusable or inaccessible servers.
-	ErrNoServers = Register("v.io/v23/verror.NoServers", RetryRefetch, "{1:}{2:} No usable servers found{:_}")
+	ErrNoServers = NewIDAction("v.io/v23/verror.NoServers", RetryRefetch)
 	// ErrNoAccess means the server does not authorize the client for access.
-	ErrNoAccess = Register("v.io/v23/verror.NoAccess", RetryRefetch, "{1:}{2:} Access denied{:_}")
+	ErrNoAccess = NewIDAction("v.io/v23/verror.NoAccess", RetryRefetch)
 	// ErrNotTrusted means the client does not trust the server.
-	ErrNotTrusted = Register("v.io/v23/verror.NotTrusted", RetryRefetch, "{1:}{2:} Client does not trust server{:_}")
+	ErrNotTrusted = NewIDAction("v.io/v23/verror.NotTrusted", RetryRefetch)
 	// ErrAborted means that an operation was not completed because it was aborted by
 	// the receiver.  A more specific error should be used if it would help the
 	// caller decide how to proceed.
-	ErrAborted = Register("v.io/v23/verror.Aborted", NoRetry, "{1:}{2:} Aborted{:_}")
+	ErrAborted = NewIDAction("v.io/v23/verror.Aborted", NoRetry)
 	// ErrBadProtocol means that an operation was not completed because of a protocol
 	// or codec error.
-	ErrBadProtocol = Register("v.io/v23/verror.BadProtocol", NoRetry, "{1:}{2:} Bad protocol or type{:_}")
+	ErrBadProtocol = NewIDAction("v.io/v23/verror.BadProtocol", NoRetry)
 	// ErrCanceled means that an operation was not completed because it was
 	// explicitly cancelled by the caller.
-	ErrCanceled = Register("v.io/v23/verror.Canceled", NoRetry, "{1:}{2:} Canceled{:_}")
+	ErrCanceled = NewIDAction("v.io/v23/verror.Canceled", NoRetry)
 	// ErrTimeout means that an operation was not completed before the time deadline
 	// for the operation.
-	ErrTimeout = Register("v.io/v23/verror.Timeout", NoRetry, "{1:}{2:} Timeout{:_}")
+	ErrTimeout = NewIDAction("v.io/v23/verror.Timeout", NoRetry)
 )
 
-// NewErrUnknown returns an error with the ErrUnknown ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnknown or MessageErrUnknown instead.
-func NewErrUnknown(ctx *context.T) error {
-	return New(ErrUnknown, ctx)
+// ErrorfErrUnknown calls ErrUnknown.Errorf with the supplied arguments.
+func ErrorfErrUnknown(ctx *context.T, format string) error {
+	return ErrUnknown.Errorf(ctx, format)
 }
 
-// NewErrInternal returns an error with the ErrInternal ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrInternal or MessageErrInternal instead.
-func NewErrInternal(ctx *context.T) error {
-	return New(ErrInternal, ctx)
+// MessageErrUnknown calls ErrUnknown.Message with the supplied arguments.
+func MessageErrUnknown(ctx *context.T, message string) error {
+	return ErrUnknown.Message(ctx, message)
 }
 
-// NewErrNotImplemented returns an error with the ErrNotImplemented ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNotImplemented or MessageErrNotImplemented instead.
-func NewErrNotImplemented(ctx *context.T) error {
-	return New(ErrNotImplemented, ctx)
+// ParamsErrUnknown extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrEndOfFile returns an error with the ErrEndOfFile ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrEndOfFile or MessageErrEndOfFile instead.
-func NewErrEndOfFile(ctx *context.T) error {
-	return New(ErrEndOfFile, ctx)
+// ErrorfErrInternal calls ErrInternal.Errorf with the supplied arguments.
+func ErrorfErrInternal(ctx *context.T, format string) error {
+	return ErrInternal.Errorf(ctx, format)
 }
 
-// NewErrBadArg returns an error with the ErrBadArg ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrBadArg or MessageErrBadArg instead.
-func NewErrBadArg(ctx *context.T) error {
-	return New(ErrBadArg, ctx)
+// MessageErrInternal calls ErrInternal.Message with the supplied arguments.
+func MessageErrInternal(ctx *context.T, message string) error {
+	return ErrInternal.Message(ctx, message)
 }
 
-// NewErrBadState returns an error with the ErrBadState ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrBadState or MessageErrBadState instead.
-func NewErrBadState(ctx *context.T) error {
-	return New(ErrBadState, ctx)
+// ParamsErrInternal extracts the expected parameters from the error's ParameterList.
+func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrBadVersion returns an error with the ErrBadVersion ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrBadVersion or MessageErrBadVersion instead.
-func NewErrBadVersion(ctx *context.T) error {
-	return New(ErrBadVersion, ctx)
+// ErrorfErrNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
+func ErrorfErrNotImplemented(ctx *context.T, format string) error {
+	return ErrNotImplemented.Errorf(ctx, format)
 }
 
-// NewErrExist returns an error with the ErrExist ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrExist or MessageErrExist instead.
-func NewErrExist(ctx *context.T) error {
-	return New(ErrExist, ctx)
+// MessageErrNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
+func MessageErrNotImplemented(ctx *context.T, message string) error {
+	return ErrNotImplemented.Message(ctx, message)
 }
 
-// NewErrNoExist returns an error with the ErrNoExist ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoExist or MessageErrNoExist instead.
-func NewErrNoExist(ctx *context.T) error {
-	return New(ErrNoExist, ctx)
+// ParamsErrNotImplemented extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnknownMethod or MessageErrUnknownMethod instead.
-func NewErrUnknownMethod(ctx *context.T) error {
-	return New(ErrUnknownMethod, ctx)
+// ErrorfErrEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
+func ErrorfErrEndOfFile(ctx *context.T, format string) error {
+	return ErrEndOfFile.Errorf(ctx, format)
 }
 
-// NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnknownSuffix or MessageErrUnknownSuffix instead.
-func NewErrUnknownSuffix(ctx *context.T) error {
-	return New(ErrUnknownSuffix, ctx)
+// MessageErrEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
+func MessageErrEndOfFile(ctx *context.T, message string) error {
+	return ErrEndOfFile.Message(ctx, message)
 }
 
-// NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoExistOrNoAccess or MessageErrNoExistOrNoAccess instead.
-func NewErrNoExistOrNoAccess(ctx *context.T) error {
-	return New(ErrNoExistOrNoAccess, ctx)
+// ParamsErrEndOfFile extracts the expected parameters from the error's ParameterList.
+func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrNoServers returns an error with the ErrNoServers ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoServers or MessageErrNoServers instead.
-func NewErrNoServers(ctx *context.T) error {
-	return New(ErrNoServers, ctx)
+// ErrorfErrBadArg calls ErrBadArg.Errorf with the supplied arguments.
+func ErrorfErrBadArg(ctx *context.T, format string) error {
+	return ErrBadArg.Errorf(ctx, format)
 }
 
-// NewErrNoAccess returns an error with the ErrNoAccess ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoAccess or MessageErrNoAccess instead.
-func NewErrNoAccess(ctx *context.T) error {
-	return New(ErrNoAccess, ctx)
+// MessageErrBadArg calls ErrBadArg.Message with the supplied arguments.
+func MessageErrBadArg(ctx *context.T, message string) error {
+	return ErrBadArg.Message(ctx, message)
 }
 
-// NewErrNotTrusted returns an error with the ErrNotTrusted ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNotTrusted or MessageErrNotTrusted instead.
-func NewErrNotTrusted(ctx *context.T) error {
-	return New(ErrNotTrusted, ctx)
+// ParamsErrBadArg extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrAborted returns an error with the ErrAborted ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrAborted or MessageErrAborted instead.
-func NewErrAborted(ctx *context.T) error {
-	return New(ErrAborted, ctx)
+// ErrorfErrBadState calls ErrBadState.Errorf with the supplied arguments.
+func ErrorfErrBadState(ctx *context.T, format string) error {
+	return ErrBadState.Errorf(ctx, format)
 }
 
-// NewErrBadProtocol returns an error with the ErrBadProtocol ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrBadProtocol or MessageErrBadProtocol instead.
-func NewErrBadProtocol(ctx *context.T) error {
-	return New(ErrBadProtocol, ctx)
+// MessageErrBadState calls ErrBadState.Message with the supplied arguments.
+func MessageErrBadState(ctx *context.T, message string) error {
+	return ErrBadState.Message(ctx, message)
 }
 
-// NewErrCanceled returns an error with the ErrCanceled ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCanceled or MessageErrCanceled instead.
-func NewErrCanceled(ctx *context.T) error {
-	return New(ErrCanceled, ctx)
+// ParamsErrBadState extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrTimeout returns an error with the ErrTimeout ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrTimeout or MessageErrTimeout instead.
-func NewErrTimeout(ctx *context.T) error {
-	return New(ErrTimeout, ctx)
+// ErrorfErrBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
+func ErrorfErrBadVersion(ctx *context.T, format string) error {
+	return ErrBadVersion.Errorf(ctx, format)
+}
+
+// MessageErrBadVersion calls ErrBadVersion.Message with the supplied arguments.
+func MessageErrBadVersion(ctx *context.T, message string) error {
+	return ErrBadVersion.Message(ctx, message)
+}
+
+// ParamsErrBadVersion extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrExist calls ErrExist.Errorf with the supplied arguments.
+func ErrorfErrExist(ctx *context.T, format string) error {
+	return ErrExist.Errorf(ctx, format)
+}
+
+// MessageErrExist calls ErrExist.Message with the supplied arguments.
+func MessageErrExist(ctx *context.T, message string) error {
+	return ErrExist.Message(ctx, message)
+}
+
+// ParamsErrExist extracts the expected parameters from the error's ParameterList.
+func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNoExist calls ErrNoExist.Errorf with the supplied arguments.
+func ErrorfErrNoExist(ctx *context.T, format string) error {
+	return ErrNoExist.Errorf(ctx, format)
+}
+
+// MessageErrNoExist calls ErrNoExist.Message with the supplied arguments.
+func MessageErrNoExist(ctx *context.T, message string) error {
+	return ErrNoExist.Message(ctx, message)
+}
+
+// ParamsErrNoExist extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
+func ErrorfErrUnknownMethod(ctx *context.T, format string) error {
+	return ErrUnknownMethod.Errorf(ctx, format)
+}
+
+// MessageErrUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
+func MessageErrUnknownMethod(ctx *context.T, message string) error {
+	return ErrUnknownMethod.Message(ctx, message)
+}
+
+// ParamsErrUnknownMethod extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
+func ErrorfErrUnknownSuffix(ctx *context.T, format string) error {
+	return ErrUnknownSuffix.Errorf(ctx, format)
+}
+
+// MessageErrUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
+func MessageErrUnknownSuffix(ctx *context.T, message string) error {
+	return ErrUnknownSuffix.Message(ctx, message)
+}
+
+// ParamsErrUnknownSuffix extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
+func ErrorfErrNoExistOrNoAccess(ctx *context.T, format string) error {
+	return ErrNoExistOrNoAccess.Errorf(ctx, format)
+}
+
+// MessageErrNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
+func MessageErrNoExistOrNoAccess(ctx *context.T, message string) error {
+	return ErrNoExistOrNoAccess.Message(ctx, message)
+}
+
+// ParamsErrNoExistOrNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNoServers calls ErrNoServers.Errorf with the supplied arguments.
+func ErrorfErrNoServers(ctx *context.T, format string) error {
+	return ErrNoServers.Errorf(ctx, format)
+}
+
+// MessageErrNoServers calls ErrNoServers.Message with the supplied arguments.
+func MessageErrNoServers(ctx *context.T, message string) error {
+	return ErrNoServers.Message(ctx, message)
+}
+
+// ParamsErrNoServers extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
+func ErrorfErrNoAccess(ctx *context.T, format string) error {
+	return ErrNoAccess.Errorf(ctx, format)
+}
+
+// MessageErrNoAccess calls ErrNoAccess.Message with the supplied arguments.
+func MessageErrNoAccess(ctx *context.T, message string) error {
+	return ErrNoAccess.Message(ctx, message)
+}
+
+// ParamsErrNoAccess extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
+func ErrorfErrNotTrusted(ctx *context.T, format string) error {
+	return ErrNotTrusted.Errorf(ctx, format)
+}
+
+// MessageErrNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
+func MessageErrNotTrusted(ctx *context.T, message string) error {
+	return ErrNotTrusted.Message(ctx, message)
+}
+
+// ParamsErrNotTrusted extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrAborted calls ErrAborted.Errorf with the supplied arguments.
+func ErrorfErrAborted(ctx *context.T, format string) error {
+	return ErrAborted.Errorf(ctx, format)
+}
+
+// MessageErrAborted calls ErrAborted.Message with the supplied arguments.
+func MessageErrAborted(ctx *context.T, message string) error {
+	return ErrAborted.Message(ctx, message)
+}
+
+// ParamsErrAborted extracts the expected parameters from the error's ParameterList.
+func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
+func ErrorfErrBadProtocol(ctx *context.T, format string) error {
+	return ErrBadProtocol.Errorf(ctx, format)
+}
+
+// MessageErrBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
+func MessageErrBadProtocol(ctx *context.T, message string) error {
+	return ErrBadProtocol.Message(ctx, message)
+}
+
+// ParamsErrBadProtocol extracts the expected parameters from the error's ParameterList.
+func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrCanceled calls ErrCanceled.Errorf with the supplied arguments.
+func ErrorfErrCanceled(ctx *context.T, format string) error {
+	return ErrCanceled.Errorf(ctx, format)
+}
+
+// MessageErrCanceled calls ErrCanceled.Message with the supplied arguments.
+func MessageErrCanceled(ctx *context.T, message string) error {
+	return ErrCanceled.Message(ctx, message)
+}
+
+// ParamsErrCanceled extracts the expected parameters from the error's ParameterList.
+func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrTimeout calls ErrTimeout.Errorf with the supplied arguments.
+func ErrorfErrTimeout(ctx *context.T, format string) error {
+	return ErrTimeout.Errorf(ctx, format)
+}
+
+// MessageErrTimeout calls ErrTimeout.Message with the supplied arguments.
+func MessageErrTimeout(ctx *context.T, message string) error {
+	return ErrTimeout.Message(ctx, message)
+}
+
+// ParamsErrTimeout extracts the expected parameters from the error's ParameterList.
+func ParamsErrTimeout(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool
@@ -231,27 +629,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknown.ID), "{1:}{2:} Error{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInternal.ID), "{1:}{2:} Internal error{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotImplemented.ID), "{1:}{2:} Not implemented{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrEndOfFile.ID), "{1:}{2:} End of file{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadArg.ID), "{1:}{2:} Bad argument{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadState.ID), "{1:}{2:} Invalid state{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadVersion.ID), "{1:}{2:} Version is out of date")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExist.ID), "{1:}{2:} Already exists{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoExist.ID), "{1:}{2:} Does not exist{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownMethod.ID), "{1:}{2:} Method does not exist{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownSuffix.ID), "{1:}{2:} Suffix does not exist{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoExistOrNoAccess.ID), "{1:}{2:} Does not exist or access denied{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoServers.ID), "{1:}{2:} No usable servers found{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoAccess.ID), "{1:}{2:} Access denied{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotTrusted.ID), "{1:}{2:} Client does not trust server{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAborted.ID), "{1:}{2:} Aborted{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadProtocol.ID), "{1:}{2:} Bad protocol or type{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCanceled.ID), "{1:}{2:} Canceled{:_}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTimeout.ID), "{1:}{2:} Timeout{:_}")
 
 	return struct{}{}
 }

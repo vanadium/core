@@ -15,7 +15,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/services/permissions"
@@ -374,30 +373,144 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Error definitions
 
 var (
-	ErrNoBlessings         = verror.Register("v.io/v23/services/groups.NoBlessings", verror.NoRetry, "{1:}{2:} No blessings recognized; cannot create group Permissions")
-	ErrExcessiveContention = verror.Register("v.io/v23/services/groups.ExcessiveContention", verror.RetryBackoff, "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	ErrCycleFound          = verror.Register("v.io/v23/services/groups.CycleFound", verror.NoRetry, "{1:}{2:} Found cycle in group definitions {3} visited {4}")
+	ErrNoBlessings         = verror.NewIDAction("v.io/v23/services/groups.NoBlessings", verror.NoRetry)
+	ErrExcessiveContention = verror.NewIDAction("v.io/v23/services/groups.ExcessiveContention", verror.RetryBackoff)
+	ErrCycleFound          = verror.NewIDAction("v.io/v23/services/groups.CycleFound", verror.NoRetry)
 )
 
-// NewErrNoBlessings returns an error with the ErrNoBlessings ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoBlessings or MessageErrNoBlessings instead.
-func NewErrNoBlessings(ctx *context.T) error {
-	return verror.New(ErrNoBlessings, ctx)
+// ErrorfErrNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
+func ErrorfErrNoBlessings(ctx *context.T, format string) error {
+	return ErrNoBlessings.Errorf(ctx, format)
 }
 
-// NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrExcessiveContention or MessageErrExcessiveContention instead.
-func NewErrExcessiveContention(ctx *context.T) error {
-	return verror.New(ErrExcessiveContention, ctx)
+// MessageErrNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
+func MessageErrNoBlessings(ctx *context.T, message string) error {
+	return ErrNoBlessings.Message(ctx, message)
 }
 
-// NewErrCycleFound returns an error with the ErrCycleFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCycleFound or MessageErrCycleFound instead.
-func NewErrCycleFound(ctx *context.T, name string, visited string) error {
-	return verror.New(ErrCycleFound, ctx, name, visited)
+// ParamsErrNoBlessings extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
+func ErrorfErrExcessiveContention(ctx *context.T, format string) error {
+	return ErrExcessiveContention.Errorf(ctx, format)
+}
+
+// MessageErrExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
+func MessageErrExcessiveContention(ctx *context.T, message string) error {
+	return ErrExcessiveContention.Message(ctx, message)
+}
+
+// ParamsErrExcessiveContention extracts the expected parameters from the error's ParameterList.
+func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
+func ErrorfErrCycleFound(ctx *context.T, format string, name string, visited string) error {
+	return ErrCycleFound.Errorf(ctx, format, name, visited)
+}
+
+// MessageErrCycleFound calls ErrCycleFound.Message with the supplied arguments.
+func MessageErrCycleFound(ctx *context.T, message string, name string, visited string) error {
+	return ErrCycleFound.Message(ctx, message, name, visited)
+}
+
+// ParamsErrCycleFound extracts the expected parameters from the error's ParameterList.
+func ParamsErrCycleFound(argumentError error) (verrorComponent string, verrorOperation string, name string, visited string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if name, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if visited, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value visited, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////
@@ -942,11 +1055,6 @@ func initializeVDL() struct{} {
 	vdlTypeSet4 = vdl.TypeOf((*map[BlessingPatternChunk]struct{})(nil))
 	vdlTypeEnum5 = vdl.TypeOf((*ApproximationType)(nil))
 	vdlTypeStruct6 = vdl.TypeOf((*Approximation)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoBlessings.ID), "{1:}{2:} No blessings recognized; cannot create group Permissions")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExcessiveContention.ID), "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCycleFound.ID), "{1:}{2:} Found cycle in group definitions {3} visited {4}")
 
 	return struct{}{}
 }

@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
 	vdltime "v.io/v23/vdlroot/time"
@@ -1698,118 +1697,693 @@ const SignatureForDischarge = "D1"            // Signature.Purpose used by a Pri
 // Error definitions
 
 var (
-	ErrCaveatNotRegistered           = verror.Register("v.io/v23/security.CaveatNotRegistered", verror.NoRetry, "{1:}{2:} no validation function registered for caveat id {3}")
-	ErrCaveatParamAny                = verror.Register("v.io/v23/security.CaveatParamAny", verror.NoRetry, "{1:}{2:} caveat {3} uses illegal param type any")
-	ErrCaveatParamTypeMismatch       = verror.Register("v.io/v23/security.CaveatParamTypeMismatch", verror.NoRetry, "{1:}{2:} bad param type: caveat {3} got {4}, want {5}")
-	ErrCaveatParamCoding             = verror.Register("v.io/v23/security.CaveatParamCoding", verror.NoRetry, "{1:}{2:} unable to encode/decode caveat param(type={4}) for caveat {3}: {5}")
-	ErrCaveatValidation              = verror.Register("v.io/v23/security.CaveatValidation", verror.NoRetry, "{1:}{2:} caveat validation failed: {3}")
-	ErrConstCaveatValidation         = verror.Register("v.io/v23/security.ConstCaveatValidation", verror.NoRetry, "{1:}{2:} false const caveat always fails validation")
-	ErrExpiryCaveatValidation        = verror.Register("v.io/v23/security.ExpiryCaveatValidation", verror.NoRetry, "{1:}{2:} now({3}) is after expiry({4})")
-	ErrMethodCaveatValidation        = verror.Register("v.io/v23/security.MethodCaveatValidation", verror.NoRetry, "{1:}{2:} method {3} not in list {4}")
-	ErrPeerBlessingsCaveatValidation = verror.Register("v.io/v23/security.PeerBlessingsCaveatValidation", verror.NoRetry, "{1:}{2:} patterns in peer blessings caveat {4} not matched by the peer {3}")
-	ErrUnrecognizedRoot              = verror.Register("v.io/v23/security.UnrecognizedRoot", verror.NoRetry, "{1:}{2:} unrecognized public key {3} in root certificate{:4}")
-	ErrAuthorizationFailed           = verror.Register("v.io/v23/security.AuthorizationFailed", verror.NoRetry, "{1:}{2:} principal with blessings {3} (rejected {4}) is not authorized by principal with blessings {5}")
-	ErrInvalidSigningBlessingCaveat  = verror.Register("v.io/v23/security.InvalidSigningBlessingCaveat", verror.NoRetry, "{1:}{2:} blessing has caveat with UUID {3} which makes it unsuitable for signing -- please use blessings with just Expiry caveats")
-	ErrPublicKeyNotAllowed           = verror.Register("v.io/v23/security.PublicKeyNotAllowed", verror.NoRetry, "{1:}{2:} peer has public key {3}, not the authorized public key {4}")
-	ErrEndpointAuthorizationFailed   = verror.Register("v.io/v23/security.EndpointAuthorizationFailed", verror.NoRetry, "{1:}{2:} blessings in endpoint {3} not matched by blessings presented: {4} (rejected {5})")
+	ErrCaveatNotRegistered           = verror.NewIDAction("v.io/v23/security.CaveatNotRegistered", verror.NoRetry)
+	ErrCaveatParamAny                = verror.NewIDAction("v.io/v23/security.CaveatParamAny", verror.NoRetry)
+	ErrCaveatParamTypeMismatch       = verror.NewIDAction("v.io/v23/security.CaveatParamTypeMismatch", verror.NoRetry)
+	ErrCaveatParamCoding             = verror.NewIDAction("v.io/v23/security.CaveatParamCoding", verror.NoRetry)
+	ErrCaveatValidation              = verror.NewIDAction("v.io/v23/security.CaveatValidation", verror.NoRetry)
+	ErrConstCaveatValidation         = verror.NewIDAction("v.io/v23/security.ConstCaveatValidation", verror.NoRetry)
+	ErrExpiryCaveatValidation        = verror.NewIDAction("v.io/v23/security.ExpiryCaveatValidation", verror.NoRetry)
+	ErrMethodCaveatValidation        = verror.NewIDAction("v.io/v23/security.MethodCaveatValidation", verror.NoRetry)
+	ErrPeerBlessingsCaveatValidation = verror.NewIDAction("v.io/v23/security.PeerBlessingsCaveatValidation", verror.NoRetry)
+	ErrUnrecognizedRoot              = verror.NewIDAction("v.io/v23/security.UnrecognizedRoot", verror.NoRetry)
+	ErrAuthorizationFailed           = verror.NewIDAction("v.io/v23/security.AuthorizationFailed", verror.NoRetry)
+	ErrInvalidSigningBlessingCaveat  = verror.NewIDAction("v.io/v23/security.InvalidSigningBlessingCaveat", verror.NoRetry)
+	ErrPublicKeyNotAllowed           = verror.NewIDAction("v.io/v23/security.PublicKeyNotAllowed", verror.NoRetry)
+	ErrEndpointAuthorizationFailed   = verror.NewIDAction("v.io/v23/security.EndpointAuthorizationFailed", verror.NoRetry)
 )
 
-// NewErrCaveatNotRegistered returns an error with the ErrCaveatNotRegistered ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCaveatNotRegistered or MessageErrCaveatNotRegistered instead.
-func NewErrCaveatNotRegistered(ctx *context.T, id uniqueid.Id) error {
-	return verror.New(ErrCaveatNotRegistered, ctx, id)
+// ErrorfErrCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
+func ErrorfErrCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
+	return ErrCaveatNotRegistered.Errorf(ctx, format, id)
 }
 
-// NewErrCaveatParamAny returns an error with the ErrCaveatParamAny ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCaveatParamAny or MessageErrCaveatParamAny instead.
-func NewErrCaveatParamAny(ctx *context.T, id uniqueid.Id) error {
-	return verror.New(ErrCaveatParamAny, ctx, id)
+// MessageErrCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
+func MessageErrCaveatNotRegistered(ctx *context.T, message string, id uniqueid.Id) error {
+	return ErrCaveatNotRegistered.Message(ctx, message, id)
 }
 
-// NewErrCaveatParamTypeMismatch returns an error with the ErrCaveatParamTypeMismatch ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCaveatParamTypeMismatch or MessageErrCaveatParamTypeMismatch instead.
-func NewErrCaveatParamTypeMismatch(ctx *context.T, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
-	return verror.New(ErrCaveatParamTypeMismatch, ctx, id, got, want)
+// ParamsErrCaveatNotRegistered extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(uniqueid.Id); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not uniqueid.Id", tmp)
+		return
+	}
+
+	return
 }
 
-// NewErrCaveatParamCoding returns an error with the ErrCaveatParamCoding ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCaveatParamCoding or MessageErrCaveatParamCoding instead.
-func NewErrCaveatParamCoding(ctx *context.T, id uniqueid.Id, typ *vdl.Type, err error) error {
-	return verror.New(ErrCaveatParamCoding, ctx, id, typ, err)
+// ErrorfErrCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
+	return ErrCaveatParamAny.Errorf(ctx, format, id)
 }
 
-// NewErrCaveatValidation returns an error with the ErrCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCaveatValidation or MessageErrCaveatValidation instead.
-func NewErrCaveatValidation(ctx *context.T, err error) error {
-	return verror.New(ErrCaveatValidation, ctx, err)
+// MessageErrCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
+func MessageErrCaveatParamAny(ctx *context.T, message string, id uniqueid.Id) error {
+	return ErrCaveatParamAny.Message(ctx, message, id)
 }
 
-// NewErrConstCaveatValidation returns an error with the ErrConstCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrConstCaveatValidation or MessageErrConstCaveatValidation instead.
-func NewErrConstCaveatValidation(ctx *context.T) error {
-	return verror.New(ErrConstCaveatValidation, ctx)
+// ParamsErrCaveatParamAny extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(uniqueid.Id); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not uniqueid.Id", tmp)
+		return
+	}
+
+	return
 }
 
-// NewErrExpiryCaveatValidation returns an error with the ErrExpiryCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrExpiryCaveatValidation or MessageErrExpiryCaveatValidation instead.
-func NewErrExpiryCaveatValidation(ctx *context.T, currentTime time.Time, expiryTime time.Time) error {
-	return verror.New(ErrExpiryCaveatValidation, ctx, currentTime, expiryTime)
+// ErrorfErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+	return ErrCaveatParamTypeMismatch.Errorf(ctx, format, id, got, want)
 }
 
-// NewErrMethodCaveatValidation returns an error with the ErrMethodCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrMethodCaveatValidation or MessageErrMethodCaveatValidation instead.
-func NewErrMethodCaveatValidation(ctx *context.T, invokedMethod string, permittedMethods []string) error {
-	return verror.New(ErrMethodCaveatValidation, ctx, invokedMethod, permittedMethods)
+// MessageErrCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
+func MessageErrCaveatParamTypeMismatch(ctx *context.T, message string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+	return ErrCaveatParamTypeMismatch.Message(ctx, message, id, got, want)
 }
 
-// NewErrPeerBlessingsCaveatValidation returns an error with the ErrPeerBlessingsCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrPeerBlessingsCaveatValidation or MessageErrPeerBlessingsCaveatValidation instead.
-func NewErrPeerBlessingsCaveatValidation(ctx *context.T, peerBlessings []string, permittedPatterns []BlessingPattern) error {
-	return verror.New(ErrPeerBlessingsCaveatValidation, ctx, peerBlessings, permittedPatterns)
+// ParamsErrCaveatParamTypeMismatch extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, got *vdl.Type, want *vdl.Type, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(uniqueid.Id); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not uniqueid.Id", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if got, ok = tmp.(*vdl.Type); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value got, has %T and not *vdl.Type", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if want, ok = tmp.(*vdl.Type); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value want, has %T and not *vdl.Type", tmp)
+		return
+	}
+
+	return
 }
 
-// NewErrUnrecognizedRoot returns an error with the ErrUnrecognizedRoot ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnrecognizedRoot or MessageErrUnrecognizedRoot instead.
-func NewErrUnrecognizedRoot(ctx *context.T, rootKey string, details error) error {
-	return verror.New(ErrUnrecognizedRoot, ctx, rootKey, details)
+// ErrorfErrCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
+func ErrorfErrCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
+	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err)
 }
 
-// NewErrAuthorizationFailed returns an error with the ErrAuthorizationFailed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrAuthorizationFailed or MessageErrAuthorizationFailed instead.
-func NewErrAuthorizationFailed(ctx *context.T, remote []string, remoteErr []RejectedBlessing, local []string) error {
-	return verror.New(ErrAuthorizationFailed, ctx, remote, remoteErr, local)
+// MessageErrCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
+func MessageErrCaveatParamCoding(ctx *context.T, message string, id uniqueid.Id, typ *vdl.Type, err error) error {
+	return ErrCaveatParamCoding.Message(ctx, message, id, typ, err)
 }
 
-// NewErrInvalidSigningBlessingCaveat returns an error with the ErrInvalidSigningBlessingCaveat ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrInvalidSigningBlessingCaveat or MessageErrInvalidSigningBlessingCaveat instead.
-func NewErrInvalidSigningBlessingCaveat(ctx *context.T, id uniqueid.Id) error {
-	return verror.New(ErrInvalidSigningBlessingCaveat, ctx, id)
+// ParamsErrCaveatParamCoding extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, typ *vdl.Type, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(uniqueid.Id); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not uniqueid.Id", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if typ, ok = tmp.(*vdl.Type); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value typ, has %T and not *vdl.Type", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
 }
 
-// NewErrPublicKeyNotAllowed returns an error with the ErrPublicKeyNotAllowed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrPublicKeyNotAllowed or MessageErrPublicKeyNotAllowed instead.
-func NewErrPublicKeyNotAllowed(ctx *context.T, got string, want string) error {
-	return verror.New(ErrPublicKeyNotAllowed, ctx, got, want)
+// ErrorfErrCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrCaveatValidation(ctx *context.T, format string, err error) error {
+	return ErrCaveatValidation.Errorf(ctx, format, err)
 }
 
-// NewErrEndpointAuthorizationFailed returns an error with the ErrEndpointAuthorizationFailed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrEndpointAuthorizationFailed or MessageErrEndpointAuthorizationFailed instead.
-func NewErrEndpointAuthorizationFailed(ctx *context.T, endpoint string, remote []string, rejected []RejectedBlessing) error {
-	return verror.New(ErrEndpointAuthorizationFailed, ctx, endpoint, remote, rejected)
+// MessageErrCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
+func MessageErrCaveatValidation(ctx *context.T, message string, err error) error {
+	return ErrCaveatValidation.Message(ctx, message, err)
+}
+
+// ParamsErrCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrConstCaveatValidation(ctx *context.T, format string) error {
+	return ErrConstCaveatValidation.Errorf(ctx, format)
+}
+
+// MessageErrConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
+func MessageErrConstCaveatValidation(ctx *context.T, message string) error {
+	return ErrConstCaveatValidation.Message(ctx, message)
+}
+
+// ParamsErrConstCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrExpiryCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
+}
+
+// MessageErrExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
+func MessageErrExpiryCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrExpiryCaveatValidation.Message(ctx, message, currentTime, expiryTime)
+}
+
+// ParamsErrExpiryCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if currentTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value currentTime, has %T and not time.Time", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if expiryTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expiryTime, has %T and not time.Time", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
+	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods)
+}
+
+// MessageErrMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
+func MessageErrMethodCaveatValidation(ctx *context.T, message string, invokedMethod string, permittedMethods []string) error {
+	return ErrMethodCaveatValidation.Message(ctx, message, invokedMethod, permittedMethods)
+}
+
+// ParamsErrMethodCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, invokedMethod string, permittedMethods []string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if invokedMethod, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value invokedMethod, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if permittedMethods, ok = tmp.([]string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value permittedMethods, has %T and not []string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
+func ErrorfErrPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+	return ErrPeerBlessingsCaveatValidation.Errorf(ctx, format, peerBlessings, permittedPatterns)
+}
+
+// MessageErrPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
+func MessageErrPeerBlessingsCaveatValidation(ctx *context.T, message string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+	return ErrPeerBlessingsCaveatValidation.Message(ctx, message, peerBlessings, permittedPatterns)
+}
+
+// ParamsErrPeerBlessingsCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, peerBlessings []string, permittedPatterns []BlessingPattern, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if peerBlessings, ok = tmp.([]string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value peerBlessings, has %T and not []string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if permittedPatterns, ok = tmp.([]BlessingPattern); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value permittedPatterns, has %T and not []BlessingPattern", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
+func ErrorfErrUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
+	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details)
+}
+
+// MessageErrUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
+func MessageErrUnrecognizedRoot(ctx *context.T, message string, rootKey string, details error) error {
+	return ErrUnrecognizedRoot.Message(ctx, message, rootKey, details)
+}
+
+// ParamsErrUnrecognizedRoot extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, verrorOperation string, rootKey string, details error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if rootKey, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value rootKey, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if details, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value details, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfErrAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+	return ErrAuthorizationFailed.Errorf(ctx, format, remote, remoteErr, local)
+}
+
+// MessageErrAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
+func MessageErrAuthorizationFailed(ctx *context.T, message string, remote []string, remoteErr []RejectedBlessing, local []string) error {
+	return ErrAuthorizationFailed.Message(ctx, message, remote, remoteErr, local)
+}
+
+// ParamsErrAuthorizationFailed extracts the expected parameters from the error's ParameterList.
+func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, remote []string, remoteErr []RejectedBlessing, local []string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if remote, ok = tmp.([]string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value remote, has %T and not []string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if remoteErr, ok = tmp.([]RejectedBlessing); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value remoteErr, has %T and not []RejectedBlessing", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if local, ok = tmp.([]string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value local, has %T and not []string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
+func ErrorfErrInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
+	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id)
+}
+
+// MessageErrInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
+func MessageErrInvalidSigningBlessingCaveat(ctx *context.T, message string, id uniqueid.Id) error {
+	return ErrInvalidSigningBlessingCaveat.Message(ctx, message, id)
+}
+
+// ParamsErrInvalidSigningBlessingCaveat extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent string, verrorOperation string, id uniqueid.Id, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if id, ok = tmp.(uniqueid.Id); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value id, has %T and not uniqueid.Id", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
+func ErrorfErrPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
+	return ErrPublicKeyNotAllowed.Errorf(ctx, format, got, want)
+}
+
+// MessageErrPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
+func MessageErrPublicKeyNotAllowed(ctx *context.T, message string, got string, want string) error {
+	return ErrPublicKeyNotAllowed.Message(ctx, message, got, want)
+}
+
+// ParamsErrPublicKeyNotAllowed extracts the expected parameters from the error's ParameterList.
+func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, verrorOperation string, got string, want string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if got, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value got, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if want, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value want, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
+func ErrorfErrEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+	return ErrEndpointAuthorizationFailed.Errorf(ctx, format, endpoint, remote, rejected)
+}
+
+// MessageErrEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.
+func MessageErrEndpointAuthorizationFailed(ctx *context.T, message string, endpoint string, remote []string, rejected []RejectedBlessing) error {
+	return ErrEndpointAuthorizationFailed.Message(ctx, message, endpoint, remote, rejected)
+}
+
+// ParamsErrEndpointAuthorizationFailed extracts the expected parameters from the error's ParameterList.
+func ParamsErrEndpointAuthorizationFailed(argumentError error) (verrorComponent string, verrorOperation string, endpoint string, remote []string, rejected []RejectedBlessing, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if endpoint, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value endpoint, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if remote, ok = tmp.([]string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value remote, has %T and not []string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if rejected, ok = tmp.([]RejectedBlessing); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value rejected, has %T and not []RejectedBlessing", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 // Hold type definitions in package-level variables, for better performance.
@@ -1904,22 +2478,6 @@ func initializeVDL() struct{} {
 	vdlTypeList20 = vdl.TypeOf((*[]Certificate)(nil))
 	vdlTypeUnion21 = vdl.TypeOf((*WireDischarge)(nil))
 	vdlTypeStruct22 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatNotRegistered.ID), "{1:}{2:} no validation function registered for caveat id {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamAny.ID), "{1:}{2:} caveat {3} uses illegal param type any")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamTypeMismatch.ID), "{1:}{2:} bad param type: caveat {3} got {4}, want {5}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamCoding.ID), "{1:}{2:} unable to encode/decode caveat param(type={4}) for caveat {3}: {5}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatValidation.ID), "{1:}{2:} caveat validation failed: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrConstCaveatValidation.ID), "{1:}{2:} false const caveat always fails validation")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpiryCaveatValidation.ID), "{1:}{2:} now({3}) is after expiry({4})")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMethodCaveatValidation.ID), "{1:}{2:} method {3} not in list {4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPeerBlessingsCaveatValidation.ID), "{1:}{2:} patterns in peer blessings caveat {4} not matched by the peer {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnrecognizedRoot.ID), "{1:}{2:} unrecognized public key {3} in root certificate{:4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAuthorizationFailed.ID), "{1:}{2:} principal with blessings {3} (rejected {4}) is not authorized by principal with blessings {5}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidSigningBlessingCaveat.ID), "{1:}{2:} blessing has caveat with UUID {3} which makes it unsuitable for signing -- please use blessings with just Expiry caveats")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPublicKeyNotAllowed.ID), "{1:}{2:} peer has public key {3}, not the authorized public key {4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrEndpointAuthorizationFailed.ID), "{1:}{2:} blessings in endpoint {3} not matched by blessings presented: {4} (rejected {5})")
 
 	return struct{}{}
 }

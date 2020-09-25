@@ -9,8 +9,9 @@
 package pattern
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -20,22 +21,109 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrIllegalEscapeChar = verror.Register("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry, "{1:}{2:} '%' and '_' cannot be used as escape characters")
-	ErrInvalidEscape     = verror.Register("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry, "{1:}{2:} only '%', '_', and the escape character are allowed to be escaped, found '\\{3}'")
+	ErrIllegalEscapeChar = verror.NewIDAction("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry)
+	ErrInvalidEscape     = verror.NewIDAction("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry)
 )
 
-// NewErrIllegalEscapeChar returns an error with the ErrIllegalEscapeChar ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrIllegalEscapeChar or MessageErrIllegalEscapeChar instead.
-func NewErrIllegalEscapeChar(ctx *context.T) error {
-	return verror.New(ErrIllegalEscapeChar, ctx)
+// ErrorfErrIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
+func ErrorfErrIllegalEscapeChar(ctx *context.T, format string) error {
+	return ErrIllegalEscapeChar.Errorf(ctx, format)
 }
 
-// NewErrInvalidEscape returns an error with the ErrInvalidEscape ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrInvalidEscape or MessageErrInvalidEscape instead.
-func NewErrInvalidEscape(ctx *context.T, escaped string) error {
-	return verror.New(ErrInvalidEscape, ctx, escaped)
+// MessageErrIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
+func MessageErrIllegalEscapeChar(ctx *context.T, message string) error {
+	return ErrIllegalEscapeChar.Message(ctx, message)
+}
+
+// ParamsErrIllegalEscapeChar extracts the expected parameters from the error's ParameterList.
+func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
+func ErrorfErrInvalidEscape(ctx *context.T, format string, escaped string) error {
+	return ErrInvalidEscape.Errorf(ctx, format, escaped)
+}
+
+// MessageErrInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.
+func MessageErrInvalidEscape(ctx *context.T, message string, escaped string) error {
+	return ErrInvalidEscape.Message(ctx, message, escaped)
+}
+
+// ParamsErrInvalidEscape extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidEscape(argumentError error) (verrorComponent string, verrorOperation string, escaped string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if escaped, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value escaped, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool
@@ -58,10 +146,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIllegalEscapeChar.ID), "{1:}{2:} '%' and '_' cannot be used as escape characters")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidEscape.ID), "{1:}{2:} only '%', '_', and the escape character are allowed to be escaped, found '\\{3}'")
 
 	return struct{}{}
 }

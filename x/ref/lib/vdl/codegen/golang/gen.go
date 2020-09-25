@@ -788,6 +788,7 @@ func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent stri
 {{end}}
 {{end}}
 
+{{if $pkg.ErrorDefs}}
 {{if not (errorsI18n $data)}}
 type paramListIterator struct {
 	err      error
@@ -824,6 +825,7 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
+{{end}}
 {{end}}
 
 {{if $pkg.Interfaces}}
@@ -1189,8 +1191,8 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
-{{if errorsI18n $data}}
 {{if $pkg.ErrorDefs}}
+{{if errorsI18n $data}}
 	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
 	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
 {{end}}

@@ -9,9 +9,10 @@
 package vine
 
 import (
+	"fmt"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -187,38 +188,202 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Error definitions
 
 var (
-	ErrInvalidAddress       = verror.Register("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry, "{1:}{2:} invalid vine address {3}, address must be of the form 'network/address/tag'")
-	ErrAddressNotReachable  = verror.Register("v.io/x/ref/runtime/protocols/vine.AddressNotReachable", verror.NoRetry, "{1:}{2:} address {3} not reachable")
-	ErrNoRegisteredProtocol = verror.Register("v.io/x/ref/runtime/protocols/vine.NoRegisteredProtocol", verror.NoRetry, "{1:}{2:} no registered protocol {3}")
-	ErrCantAcceptFromTag    = verror.Register("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry, "{1:}{2:} can't accept connection from tag {3}")
+	ErrInvalidAddress       = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry)
+	ErrAddressNotReachable  = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.AddressNotReachable", verror.NoRetry)
+	ErrNoRegisteredProtocol = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.NoRegisteredProtocol", verror.NoRetry)
+	ErrCantAcceptFromTag    = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry)
 )
 
-// NewErrInvalidAddress returns an error with the ErrInvalidAddress ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrInvalidAddress or MessageErrInvalidAddress instead.
-func NewErrInvalidAddress(ctx *context.T, address string) error {
-	return verror.New(ErrInvalidAddress, ctx, address)
+// ErrorfErrInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
+func ErrorfErrInvalidAddress(ctx *context.T, format string, address string) error {
+	return ErrInvalidAddress.Errorf(ctx, format, address)
 }
 
-// NewErrAddressNotReachable returns an error with the ErrAddressNotReachable ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrAddressNotReachable or MessageErrAddressNotReachable instead.
-func NewErrAddressNotReachable(ctx *context.T, address string) error {
-	return verror.New(ErrAddressNotReachable, ctx, address)
+// MessageErrInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
+func MessageErrInvalidAddress(ctx *context.T, message string, address string) error {
+	return ErrInvalidAddress.Message(ctx, message, address)
 }
 
-// NewErrNoRegisteredProtocol returns an error with the ErrNoRegisteredProtocol ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNoRegisteredProtocol or MessageErrNoRegisteredProtocol instead.
-func NewErrNoRegisteredProtocol(ctx *context.T, protocol string) error {
-	return verror.New(ErrNoRegisteredProtocol, ctx, protocol)
+// ParamsErrInvalidAddress extracts the expected parameters from the error's ParameterList.
+func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if address, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value address, has %T and not string", tmp)
+		return
+	}
+
+	return
 }
 
-// NewErrCantAcceptFromTag returns an error with the ErrCantAcceptFromTag ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrCantAcceptFromTag or MessageErrCantAcceptFromTag instead.
-func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
-	return verror.New(ErrCantAcceptFromTag, ctx, tag)
+// ErrorfErrAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
+func ErrorfErrAddressNotReachable(ctx *context.T, format string, address string) error {
+	return ErrAddressNotReachable.Errorf(ctx, format, address)
+}
+
+// MessageErrAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
+func MessageErrAddressNotReachable(ctx *context.T, message string, address string) error {
+	return ErrAddressNotReachable.Message(ctx, message, address)
+}
+
+// ParamsErrAddressNotReachable extracts the expected parameters from the error's ParameterList.
+func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, verrorOperation string, address string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if address, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value address, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
+func ErrorfErrNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
+	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
+}
+
+// MessageErrNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
+func MessageErrNoRegisteredProtocol(ctx *context.T, message string, protocol string) error {
+	return ErrNoRegisteredProtocol.Message(ctx, message, protocol)
+}
+
+// ParamsErrNoRegisteredProtocol extracts the expected parameters from the error's ParameterList.
+func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string, verrorOperation string, protocol string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if protocol, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value protocol, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
+func ErrorfErrCantAcceptFromTag(ctx *context.T, format string, tag string) error {
+	return ErrCantAcceptFromTag.Errorf(ctx, format, tag)
+}
+
+// MessageErrCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.
+func MessageErrCantAcceptFromTag(ctx *context.T, message string, tag string) error {
+	return ErrCantAcceptFromTag.Message(ctx, message, tag)
+}
+
+// ParamsErrCantAcceptFromTag extracts the expected parameters from the error's ParameterList.
+func ParamsErrCantAcceptFromTag(argumentError error) (verrorComponent string, verrorOperation string, tag string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if tag, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value tag, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////
@@ -375,12 +540,6 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*PeerKey)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*PeerBehavior)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidAddress.ID), "{1:}{2:} invalid vine address {3}, address must be of the form 'network/address/tag'")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAddressNotReachable.ID), "{1:}{2:} address {3} not reachable")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoRegisteredProtocol.ID), "{1:}{2:} no registered protocol {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCantAcceptFromTag.ID), "{1:}{2:} can't accept connection from tag {3}")
 
 	return struct{}{}
 }

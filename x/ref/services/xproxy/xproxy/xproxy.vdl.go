@@ -9,8 +9,9 @@
 package xproxy
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -20,46 +21,216 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrNotListening              = verror.Register("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry, "{1:}{2:} Proxy is not listening on any endpoints.")
-	ErrUnexpectedMessage         = verror.Register("v.io/x/ref/services/xproxy/xproxy.UnexpectedMessage", verror.NoRetry, "{1:}{2:} Unexpected message of type{:3}")
-	ErrFailedToResolveToEndpoint = verror.Register("v.io/x/ref/services/xproxy/xproxy.FailedToResolveToEndpoint", verror.NoRetry, "{1:}{2:} Failed to resolve '{3}' to endpoint")
-	ErrProxyAlreadyClosed        = verror.Register("v.io/x/ref/services/xproxy/xproxy.ProxyAlreadyClosed", verror.NoRetry, "{1:}{2:} Proxy has already been closed")
-	ErrProxyResponse             = verror.Register("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry, "{1:}{2:} proxy returned{:3}")
+	ErrNotListening              = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry)
+	ErrUnexpectedMessage         = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.UnexpectedMessage", verror.NoRetry)
+	ErrFailedToResolveToEndpoint = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.FailedToResolveToEndpoint", verror.NoRetry)
+	ErrProxyAlreadyClosed        = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyAlreadyClosed", verror.NoRetry)
+	ErrProxyResponse             = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry)
 )
 
-// NewErrNotListening returns an error with the ErrNotListening ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNotListening or MessageErrNotListening instead.
-func NewErrNotListening(ctx *context.T) error {
-	return verror.New(ErrNotListening, ctx)
+// ErrorfErrNotListening calls ErrNotListening.Errorf with the supplied arguments.
+func ErrorfErrNotListening(ctx *context.T, format string) error {
+	return ErrNotListening.Errorf(ctx, format)
 }
 
-// NewErrUnexpectedMessage returns an error with the ErrUnexpectedMessage ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrUnexpectedMessage or MessageErrUnexpectedMessage instead.
-func NewErrUnexpectedMessage(ctx *context.T, msgType string) error {
-	return verror.New(ErrUnexpectedMessage, ctx, msgType)
+// MessageErrNotListening calls ErrNotListening.Message with the supplied arguments.
+func MessageErrNotListening(ctx *context.T, message string) error {
+	return ErrNotListening.Message(ctx, message)
 }
 
-// NewErrFailedToResolveToEndpoint returns an error with the ErrFailedToResolveToEndpoint ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrFailedToResolveToEndpoint or MessageErrFailedToResolveToEndpoint instead.
-func NewErrFailedToResolveToEndpoint(ctx *context.T, name string) error {
-	return verror.New(ErrFailedToResolveToEndpoint, ctx, name)
+// ParamsErrNotListening extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
 }
 
-// NewErrProxyAlreadyClosed returns an error with the ErrProxyAlreadyClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrProxyAlreadyClosed or MessageErrProxyAlreadyClosed instead.
-func NewErrProxyAlreadyClosed(ctx *context.T) error {
-	return verror.New(ErrProxyAlreadyClosed, ctx)
+// ErrorfErrUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
+func ErrorfErrUnexpectedMessage(ctx *context.T, format string, msgType string) error {
+	return ErrUnexpectedMessage.Errorf(ctx, format, msgType)
 }
 
-// NewErrProxyResponse returns an error with the ErrProxyResponse ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrProxyResponse or MessageErrProxyResponse instead.
-func NewErrProxyResponse(ctx *context.T, msg string) error {
-	return verror.New(ErrProxyResponse, ctx, msg)
+// MessageErrUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
+func MessageErrUnexpectedMessage(ctx *context.T, message string, msgType string) error {
+	return ErrUnexpectedMessage.Message(ctx, message, msgType)
+}
+
+// ParamsErrUnexpectedMessage extracts the expected parameters from the error's ParameterList.
+func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, verrorOperation string, msgType string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if msgType, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value msgType, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
+func ErrorfErrFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
+	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
+}
+
+// MessageErrFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
+func MessageErrFailedToResolveToEndpoint(ctx *context.T, message string, name string) error {
+	return ErrFailedToResolveToEndpoint.Message(ctx, message, name)
+}
+
+// ParamsErrFailedToResolveToEndpoint extracts the expected parameters from the error's ParameterList.
+func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent string, verrorOperation string, name string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if name, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
+func ErrorfErrProxyAlreadyClosed(ctx *context.T, format string) error {
+	return ErrProxyAlreadyClosed.Errorf(ctx, format)
+}
+
+// MessageErrProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
+func MessageErrProxyAlreadyClosed(ctx *context.T, message string) error {
+	return ErrProxyAlreadyClosed.Message(ctx, message)
+}
+
+// ParamsErrProxyAlreadyClosed extracts the expected parameters from the error's ParameterList.
+func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfErrProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
+func ErrorfErrProxyResponse(ctx *context.T, format string, msg string) error {
+	return ErrProxyResponse.Errorf(ctx, format, msg)
+}
+
+// MessageErrProxyResponse calls ErrProxyResponse.Message with the supplied arguments.
+func MessageErrProxyResponse(ctx *context.T, message string, msg string) error {
+	return ErrProxyResponse.Message(ctx, message, msg)
+}
+
+// ParamsErrProxyResponse extracts the expected parameters from the error's ParameterList.
+func ParamsErrProxyResponse(argumentError error) (verrorComponent string, verrorOperation string, msg string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if msg, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value msg, has %T and not string", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool
@@ -82,13 +253,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotListening.ID), "{1:}{2:} Proxy is not listening on any endpoints.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnexpectedMessage.ID), "{1:}{2:} Unexpected message of type{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFailedToResolveToEndpoint.ID), "{1:}{2:} Failed to resolve '{3}' to endpoint")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrProxyAlreadyClosed.ID), "{1:}{2:} Proxy has already been closed")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrProxyResponse.ID), "{1:}{2:} proxy returned{:3}")
 
 	return struct{}{}
 }
