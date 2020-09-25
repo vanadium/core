@@ -104,8 +104,6 @@
 package access
 
 import (
-	"fmt"
-
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/security"
@@ -436,14 +434,14 @@ var AccessTagCaveat = security.CaveatDescriptor{
 var (
 
 	// The AccessList is too big.  Use groups to represent large sets of principals.
-	ErrTooBig                    = verror.NewIDAction("v.io/v23/security/access.TooBig", verror.NoRetry)
-	ErrNoPermissions             = verror.NewIDAction("v.io/v23/security/access.NoPermissions", verror.NoRetry)
-	ErrAccessListMatch           = verror.NewIDAction("v.io/v23/security/access.AccessListMatch", verror.NoRetry)
-	ErrUnenforceablePatterns     = verror.NewIDAction("v.io/v23/security/access.UnenforceablePatterns", verror.NoRetry)
-	ErrInvalidOpenAccessList     = verror.NewIDAction("v.io/v23/security/access.InvalidOpenAccessList", verror.NoRetry)
-	ErrAccessTagCaveatValidation = verror.NewIDAction("v.io/v23/security/access.AccessTagCaveatValidation", verror.NoRetry)
-	ErrMultipleTags              = verror.NewIDAction("v.io/v23/security/access.MultipleTags", verror.NoRetry)
-	ErrNoTags                    = verror.NewIDAction("v.io/v23/security/access.NoTags", verror.NoRetry)
+	ErrTooBig                    = verror.Register("v.io/v23/security/access.TooBig", verror.NoRetry, "{1:}{2:} AccessList is too big")
+	ErrNoPermissions             = verror.Register("v.io/v23/security/access.NoPermissions", verror.NoRetry, "{1:}{2:} {3} does not have {5} access (rejected blessings: {4})")
+	ErrAccessListMatch           = verror.Register("v.io/v23/security/access.AccessListMatch", verror.NoRetry, "{1:}{2:} {3} does not match the access list (rejected blessings: {4})")
+	ErrUnenforceablePatterns     = verror.Register("v.io/v23/security/access.UnenforceablePatterns", verror.NoRetry, "{1:}{2:} AccessList contains the following invalid or unrecognized patterns in the In list: {3}")
+	ErrInvalidOpenAccessList     = verror.Register("v.io/v23/security/access.InvalidOpenAccessList", verror.NoRetry, "{1:}{2:} AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
+	ErrAccessTagCaveatValidation = verror.Register("v.io/v23/security/access.AccessTagCaveatValidation", verror.NoRetry, "{1:}{2:} access tags on method ({3}) do not include any of the ones in the caveat ({4}), or the method is using a different tag type")
+	ErrMultipleTags              = verror.Register("v.io/v23/security/access.MultipleTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} cannot handle multiple tags of type {5}; this is likely unintentional")
+	ErrNoTags                    = verror.Register("v.io/v23/security/access.NoTags", verror.NoRetry, "{1:}{2:} authorizer on {3}.{4} has no tags of type {5}; this is likely unintentional")
 )
 
 // NewErrTooBig returns an error with the ErrTooBig ID.
@@ -453,92 +451,11 @@ func NewErrTooBig(ctx *context.T) error {
 	return verror.New(ErrTooBig, ctx)
 }
 
-// ErrorfErrTooBig calls ErrTooBig.Errorf with the supplied arguments.
-func ErrorfErrTooBig(ctx *context.T, format string) error {
-	return ErrTooBig.Errorf(ctx, format)
-}
-
-// MessageErrTooBig calls ErrTooBig.Message with the supplied arguments.
-func MessageErrTooBig(ctx *context.T, message string) error {
-	return ErrTooBig.Message(ctx, message)
-}
-
-// ParamsErrTooBig extracts the expected parameters from the error's ParameterList.
-func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
 // NewErrNoPermissions returns an error with the ErrNoPermissions ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrNoPermissions or MessageErrNoPermissions instead.
 func NewErrNoPermissions(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return verror.New(ErrNoPermissions, ctx, validBlessings, rejectedBlessings, tag)
-}
-
-// ErrorfErrNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
-func ErrorfErrNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
-	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag)
-}
-
-// MessageErrNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
-func MessageErrNoPermissions(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
-	return ErrNoPermissions.Message(ctx, message, validBlessings, rejectedBlessings, tag)
-}
-
-// ParamsErrNoPermissions extracts the expected parameters from the error's ParameterList.
-func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if validBlessings, ok = tmp.([]string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value validBlessings, has %T and not []string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if rejectedBlessings, ok = tmp.([]security.RejectedBlessing); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value rejectedBlessings, has %T and not []security.RejectedBlessing", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if tag, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value tag, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrAccessListMatch returns an error with the ErrAccessListMatch ID.
@@ -548,97 +465,11 @@ func NewErrAccessListMatch(ctx *context.T, validBlessings []string, rejectedBles
 	return verror.New(ErrAccessListMatch, ctx, validBlessings, rejectedBlessings)
 }
 
-// ErrorfErrAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
-func ErrorfErrAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
-	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
-}
-
-// MessageErrAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
-func MessageErrAccessListMatch(ctx *context.T, message string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
-	return ErrAccessListMatch.Message(ctx, message, validBlessings, rejectedBlessings)
-}
-
-// ParamsErrAccessListMatch extracts the expected parameters from the error's ParameterList.
-func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verrorOperation string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if validBlessings, ok = tmp.([]string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value validBlessings, has %T and not []string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if rejectedBlessings, ok = tmp.([]security.RejectedBlessing); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value rejectedBlessings, has %T and not []security.RejectedBlessing", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrUnenforceablePatterns returns an error with the ErrUnenforceablePatterns ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrUnenforceablePatterns or MessageErrUnenforceablePatterns instead.
 func NewErrUnenforceablePatterns(ctx *context.T, rejectedPatterns []security.BlessingPattern) error {
 	return verror.New(ErrUnenforceablePatterns, ctx, rejectedPatterns)
-}
-
-// ErrorfErrUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
-func ErrorfErrUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
-	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
-}
-
-// MessageErrUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
-func MessageErrUnenforceablePatterns(ctx *context.T, message string, rejectedPatterns []security.BlessingPattern) error {
-	return ErrUnenforceablePatterns.Message(ctx, message, rejectedPatterns)
-}
-
-// ParamsErrUnenforceablePatterns extracts the expected parameters from the error's ParameterList.
-func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string, verrorOperation string, rejectedPatterns []security.BlessingPattern, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if rejectedPatterns, ok = tmp.([]security.BlessingPattern); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value rejectedPatterns, has %T and not []security.BlessingPattern", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrInvalidOpenAccessList returns an error with the ErrInvalidOpenAccessList ID.
@@ -648,84 +479,11 @@ func NewErrInvalidOpenAccessList(ctx *context.T) error {
 	return verror.New(ErrInvalidOpenAccessList, ctx)
 }
 
-// ErrorfErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
-func ErrorfErrInvalidOpenAccessList(ctx *context.T, format string) error {
-	return ErrInvalidOpenAccessList.Errorf(ctx, format)
-}
-
-// MessageErrInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
-func MessageErrInvalidOpenAccessList(ctx *context.T, message string) error {
-	return ErrInvalidOpenAccessList.Message(ctx, message)
-}
-
-// ParamsErrInvalidOpenAccessList extracts the expected parameters from the error's ParameterList.
-func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
 // NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrAccessTagCaveatValidation or MessageErrAccessTagCaveatValidation instead.
 func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
 	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
-}
-
-// ErrorfErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
-func ErrorfErrAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
-	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags)
-}
-
-// MessageErrAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
-func MessageErrAccessTagCaveatValidation(ctx *context.T, message string, methodTags []string, caveatTags []Tag) error {
-	return ErrAccessTagCaveatValidation.Message(ctx, message, methodTags, caveatTags)
-}
-
-// ParamsErrAccessTagCaveatValidation extracts the expected parameters from the error's ParameterList.
-func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, methodTags []string, caveatTags []Tag, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if methodTags, ok = tmp.([]string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value methodTags, has %T and not []string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if caveatTags, ok = tmp.([]Tag); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value caveatTags, has %T and not []Tag", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrMultipleTags returns an error with the ErrMultipleTags ID.
@@ -735,157 +493,11 @@ func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string
 	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
 }
 
-// ErrorfErrMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
-func ErrorfErrMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
-	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag)
-}
-
-// MessageErrMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
-func MessageErrMultipleTags(ctx *context.T, message string, suffix string, method string, tag string) error {
-	return ErrMultipleTags.Message(ctx, message, suffix, method, tag)
-}
-
-// ParamsErrMultipleTags extracts the expected parameters from the error's ParameterList.
-func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if suffix, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value suffix, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if method, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value method, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if tag, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value tag, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrNoTags returns an error with the ErrNoTags ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrNoTags or MessageErrNoTags instead.
 func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrNoTags, ctx, suffix, method, tag)
-}
-
-// ErrorfErrNoTags calls ErrNoTags.Errorf with the supplied arguments.
-func ErrorfErrNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
-	return ErrNoTags.Errorf(ctx, format, suffix, method, tag)
-}
-
-// MessageErrNoTags calls ErrNoTags.Message with the supplied arguments.
-func MessageErrNoTags(ctx *context.T, message string, suffix string, method string, tag string) error {
-	return ErrNoTags.Message(ctx, message, suffix, method, tag)
-}
-
-// ParamsErrNoTags extracts the expected parameters from the error's ParameterList.
-func ParamsErrNoTags(argumentError error) (verrorComponent string, verrorOperation string, suffix string, method string, tag string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if suffix, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value suffix, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if method, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value method, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if tag, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value tag, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
-type paramListIterator struct {
-	err      error
-	idx, max int
-	params   []interface{}
-}
-
-func (pl *paramListIterator) next() (interface{}, error) {
-	if pl.err != nil {
-		return nil, pl.err
-	}
-	if pl.idx+1 > pl.max {
-		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
-		return nil, pl.err
-	}
-	pl.idx++
-	return pl.params[pl.idx-1], nil
-}
-
-func (pl *paramListIterator) preamble() (component, operation string, err error) {
-	var tmp interface{}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	var ok bool
-	if component, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
-	}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	if operation, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
-	}
-	return
 }
 
 // Hold type definitions in package-level variables, for better performance.

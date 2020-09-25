@@ -9,8 +9,6 @@
 package syncql
 
 import (
-	"fmt"
-
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -22,61 +20,61 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrBadFieldInWhere                 = verror.NewIDAction("v.io/v23/query/syncql.BadFieldInWhere", verror.NoRetry)
-	ErrBoolInvalidExpression           = verror.NewIDAction("v.io/v23/query/syncql.BoolInvalidExpression", verror.NoRetry)
-	ErrCheckOfUnknownStatementType     = verror.NewIDAction("v.io/v23/query/syncql.CheckOfUnknownStatementType", verror.NoRetry)
-	ErrCouldNotConvert                 = verror.NewIDAction("v.io/v23/query/syncql.CouldNotConvert", verror.NoRetry)
-	ErrDotNotationDisallowedForKey     = verror.NewIDAction("v.io/v23/query/syncql.DotNotationDisallowedForKey", verror.NoRetry)
-	ErrExecOfUnknownStatementType      = verror.NewIDAction("v.io/v23/query/syncql.ExecOfUnknownStatementType", verror.NoRetry)
-	ErrExpected                        = verror.NewIDAction("v.io/v23/query/syncql.Expected", verror.NoRetry)
-	ErrExpectedFrom                    = verror.NewIDAction("v.io/v23/query/syncql.ExpectedFrom", verror.NoRetry)
-	ErrExpectedIdentifier              = verror.NewIDAction("v.io/v23/query/syncql.ExpectedIdentifier", verror.NoRetry)
-	ErrExpectedOperand                 = verror.NewIDAction("v.io/v23/query/syncql.ExpectedOperand", verror.NoRetry)
-	ErrExpectedOperator                = verror.NewIDAction("v.io/v23/query/syncql.ExpectedOperator", verror.NoRetry)
-	ErrFunctionArgCount                = verror.NewIDAction("v.io/v23/query/syncql.FunctionArgCount", verror.NoRetry)
-	ErrFunctionAtLeastArgCount         = verror.NewIDAction("v.io/v23/query/syncql.FunctionAtLeastArgCount", verror.NoRetry)
-	ErrFunctionTypeInvalidArg          = verror.NewIDAction("v.io/v23/query/syncql.FunctionTypeInvalidArg", verror.NoRetry)
-	ErrFunctionLenInvalidArg           = verror.NewIDAction("v.io/v23/query/syncql.FunctionLenInvalidArg", verror.NoRetry)
-	ErrFunctionArgBad                  = verror.NewIDAction("v.io/v23/query/syncql.FunctionArgBad", verror.NoRetry)
-	ErrFunctionNotFound                = verror.NewIDAction("v.io/v23/query/syncql.FunctionNotFound", verror.NoRetry)
-	ErrArgMustBeField                  = verror.NewIDAction("v.io/v23/query/syncql.ArgMustBeField", verror.NoRetry)
-	ErrBigIntConversionError           = verror.NewIDAction("v.io/v23/query/syncql.BigIntConversionError", verror.NoRetry)
-	ErrBigRatConversionError           = verror.NewIDAction("v.io/v23/query/syncql.BigRatConversionError", verror.NoRetry)
-	ErrBoolConversionError             = verror.NewIDAction("v.io/v23/query/syncql.BoolConversionError", verror.NoRetry)
-	ErrComplexConversionError          = verror.NewIDAction("v.io/v23/query/syncql.ComplexConversionError", verror.NoRetry)
-	ErrUintConversionError             = verror.NewIDAction("v.io/v23/query/syncql.UintConversionError", verror.NoRetry)
-	ErrTimeConversionError             = verror.NewIDAction("v.io/v23/query/syncql.TimeConversionError", verror.NoRetry)
-	ErrLocationConversionError         = verror.NewIDAction("v.io/v23/query/syncql.LocationConversionError", verror.NoRetry)
-	ErrStringConversionError           = verror.NewIDAction("v.io/v23/query/syncql.StringConversionError", verror.NoRetry)
-	ErrFloatConversionError            = verror.NewIDAction("v.io/v23/query/syncql.FloatConversionError", verror.NoRetry)
-	ErrIntConversionError              = verror.NewIDAction("v.io/v23/query/syncql.IntConversionError", verror.NoRetry)
-	ErrIsIsNotRequireLhsValue          = verror.NewIDAction("v.io/v23/query/syncql.IsIsNotRequireLhsValue", verror.NoRetry)
-	ErrIsIsNotRequireRhsNil            = verror.NewIDAction("v.io/v23/query/syncql.IsIsNotRequireRhsNil", verror.NoRetry)
-	ErrInvalidLikePattern              = verror.NewIDAction("v.io/v23/query/syncql.InvalidLikePattern", verror.NoRetry)
-	ErrInvalidSelectField              = verror.NewIDAction("v.io/v23/query/syncql.InvalidSelectField", verror.NoRetry)
-	ErrKeyExpressionLiteral            = verror.NewIDAction("v.io/v23/query/syncql.KeyExpressionLiteral", verror.NoRetry)
-	ErrKeyValueStreamError             = verror.NewIDAction("v.io/v23/query/syncql.KeyValueStreamError", verror.NoRetry)
-	ErrLikeExpressionsRequireRhsString = verror.NewIDAction("v.io/v23/query/syncql.LikeExpressionsRequireRhsString", verror.NoRetry)
-	ErrLimitMustBeGt0                  = verror.NewIDAction("v.io/v23/query/syncql.LimitMustBeGt0", verror.NoRetry)
-	ErrMaxStatementLenExceeded         = verror.NewIDAction("v.io/v23/query/syncql.MaxStatementLenExceeded", verror.NoRetry)
-	ErrNoStatementFound                = verror.NewIDAction("v.io/v23/query/syncql.NoStatementFound", verror.NoRetry)
-	ErrOffsetMustBeGe0                 = verror.NewIDAction("v.io/v23/query/syncql.OffsetMustBeGe0", verror.NoRetry)
-	ErrScanError                       = verror.NewIDAction("v.io/v23/query/syncql.ScanError", verror.NoRetry)
-	ErrTableCantAccess                 = verror.NewIDAction("v.io/v23/query/syncql.TableCantAccess", verror.NoRetry)
-	ErrUnexpected                      = verror.NewIDAction("v.io/v23/query/syncql.Unexpected", verror.NoRetry)
-	ErrUnexpectedEndOfStatement        = verror.NewIDAction("v.io/v23/query/syncql.UnexpectedEndOfStatement", verror.NoRetry)
-	ErrUnknownIdentifier               = verror.NewIDAction("v.io/v23/query/syncql.UnknownIdentifier", verror.NoRetry)
-	ErrInvalidEscapeChar               = verror.NewIDAction("v.io/v23/query/syncql.InvalidEscapeChar", verror.NoRetry)
-	ErrDidYouMeanLowercaseK            = verror.NewIDAction("v.io/v23/query/syncql.DidYouMeanLowercaseK", verror.NoRetry)
-	ErrDidYouMeanLowercaseV            = verror.NewIDAction("v.io/v23/query/syncql.DidYouMeanLowercaseV", verror.NoRetry)
-	ErrDidYouMeanFunction              = verror.NewIDAction("v.io/v23/query/syncql.DidYouMeanFunction", verror.NoRetry)
-	ErrNotEnoughParamValuesSpecified   = verror.NewIDAction("v.io/v23/query/syncql.NotEnoughParamValuesSpecified", verror.NoRetry)
-	ErrTooManyParamValuesSpecified     = verror.NewIDAction("v.io/v23/query/syncql.TooManyParamValuesSpecified", verror.NoRetry)
-	ErrPreparedStatementNotFound       = verror.NewIDAction("v.io/v23/query/syncql.PreparedStatementNotFound", verror.NoRetry)
-	ErrIndexKindNotSupported           = verror.NewIDAction("v.io/v23/query/syncql.IndexKindNotSupported", verror.NoRetry)
-	ErrInvalidIndexField               = verror.NewIDAction("v.io/v23/query/syncql.InvalidIndexField", verror.NoRetry)
-	ErrNotWritable                     = verror.NewIDAction("v.io/v23/query/syncql.NotWritable", verror.NoRetry)
-	ErrOperationNotSupported           = verror.NewIDAction("v.io/v23/query/syncql.OperationNotSupported", verror.NoRetry)
+	ErrBadFieldInWhere                 = verror.Register("v.io/v23/query/syncql.BadFieldInWhere", verror.NoRetry, "{1:}{2:} [{3}]Where field must be 'k' or 'v[{.<ident>}...]'.")
+	ErrBoolInvalidExpression           = verror.Register("v.io/v23/query/syncql.BoolInvalidExpression", verror.NoRetry, "{1:}{2:} [{3}]Boolean operands may only be used in equals and not equals expressions.")
+	ErrCheckOfUnknownStatementType     = verror.Register("v.io/v23/query/syncql.CheckOfUnknownStatementType", verror.NoRetry, "{1:}{2:} [{3}]Cannot semantically check unknown statement type.")
+	ErrCouldNotConvert                 = verror.Register("v.io/v23/query/syncql.CouldNotConvert", verror.NoRetry, "{1:}{2:} [{3}]Could not convert {4} to {5}.")
+	ErrDotNotationDisallowedForKey     = verror.Register("v.io/v23/query/syncql.DotNotationDisallowedForKey", verror.NoRetry, "{1:}{2:} [{3}]Dot notation may not be used on a key field.")
+	ErrExecOfUnknownStatementType      = verror.Register("v.io/v23/query/syncql.ExecOfUnknownStatementType", verror.NoRetry, "{1:}{2:} [{3}]Cannot execute unknown statement type: {4}.")
+	ErrExpected                        = verror.Register("v.io/v23/query/syncql.Expected", verror.NoRetry, "{1:}{2:} [{3}]Expected '{4}'.")
+	ErrExpectedFrom                    = verror.Register("v.io/v23/query/syncql.ExpectedFrom", verror.NoRetry, "{1:}{2:} [{3}]Expected 'from', found {4}.")
+	ErrExpectedIdentifier              = verror.Register("v.io/v23/query/syncql.ExpectedIdentifier", verror.NoRetry, "{1:}{2:} [{3}]Expected identifier, found {4}.")
+	ErrExpectedOperand                 = verror.Register("v.io/v23/query/syncql.ExpectedOperand", verror.NoRetry, "{1:}{2:} [{3}]Expected operand, found {4}.")
+	ErrExpectedOperator                = verror.Register("v.io/v23/query/syncql.ExpectedOperator", verror.NoRetry, "{1:}{2:} [{3}]Expected operator, found {4}.")
+	ErrFunctionArgCount                = verror.Register("v.io/v23/query/syncql.FunctionArgCount", verror.NoRetry, "{1:}{2:} [{3}]Function '{4}' expects {5} args, found: {6}.")
+	ErrFunctionAtLeastArgCount         = verror.Register("v.io/v23/query/syncql.FunctionAtLeastArgCount", verror.NoRetry, "{1:}{2:} [{3}]Function '{4}' expects at least {5} args, found: {6}.")
+	ErrFunctionTypeInvalidArg          = verror.Register("v.io/v23/query/syncql.FunctionTypeInvalidArg", verror.NoRetry, "{1:}{2:} [{3}]Function 'Type()' cannot get type of argument -- expecting object.")
+	ErrFunctionLenInvalidArg           = verror.Register("v.io/v23/query/syncql.FunctionLenInvalidArg", verror.NoRetry, "{1:}{2:} [{3}]Function 'Len()' expects array, list, set, map, string or nil.")
+	ErrFunctionArgBad                  = verror.Register("v.io/v23/query/syncql.FunctionArgBad", verror.NoRetry, "{1:}{2:} [{3}]Function '{4}' arg '{5}' could not be resolved.")
+	ErrFunctionNotFound                = verror.Register("v.io/v23/query/syncql.FunctionNotFound", verror.NoRetry, "{1:}{2:} [{3}]Function '{4}' not found.")
+	ErrArgMustBeField                  = verror.Register("v.io/v23/query/syncql.ArgMustBeField", verror.NoRetry, "{1:}{2:} [{3}]Argument must be a value field (i.e., must begin with 'v').")
+	ErrBigIntConversionError           = verror.Register("v.io/v23/query/syncql.BigIntConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to BigInt: {4}.")
+	ErrBigRatConversionError           = verror.Register("v.io/v23/query/syncql.BigRatConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to BigRat: {4}.")
+	ErrBoolConversionError             = verror.Register("v.io/v23/query/syncql.BoolConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to Bool: {4}.")
+	ErrComplexConversionError          = verror.Register("v.io/v23/query/syncql.ComplexConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to Complex: {4}.")
+	ErrUintConversionError             = verror.Register("v.io/v23/query/syncql.UintConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to Uint: {4}.")
+	ErrTimeConversionError             = verror.Register("v.io/v23/query/syncql.TimeConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to time: {4}.")
+	ErrLocationConversionError         = verror.Register("v.io/v23/query/syncql.LocationConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to location: {4}.")
+	ErrStringConversionError           = verror.Register("v.io/v23/query/syncql.StringConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to string: {4}.")
+	ErrFloatConversionError            = verror.Register("v.io/v23/query/syncql.FloatConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to float: {4}.")
+	ErrIntConversionError              = verror.Register("v.io/v23/query/syncql.IntConversionError", verror.NoRetry, "{1:}{2:} [{3}]Can't convert to int: {4}.")
+	ErrIsIsNotRequireLhsValue          = verror.Register("v.io/v23/query/syncql.IsIsNotRequireLhsValue", verror.NoRetry, "{1:}{2:} [{3}]'Is/is not' expressions require left operand to be a value operand.")
+	ErrIsIsNotRequireRhsNil            = verror.Register("v.io/v23/query/syncql.IsIsNotRequireRhsNil", verror.NoRetry, "{1:}{2:} [{3}]'Is/is not' expressions require right operand to be nil.")
+	ErrInvalidLikePattern              = verror.Register("v.io/v23/query/syncql.InvalidLikePattern", verror.NoRetry, "{1:}{2:} [{3}]Invalid like pattern: {4}.")
+	ErrInvalidSelectField              = verror.Register("v.io/v23/query/syncql.InvalidSelectField", verror.NoRetry, "{1:}{2:} [{3}]Select field must be 'k' or 'v[{.<ident>}...]'.")
+	ErrKeyExpressionLiteral            = verror.Register("v.io/v23/query/syncql.KeyExpressionLiteral", verror.NoRetry, "{1:}{2:} [{3}]Key (i.e., 'k') compares against literals must be string literal.")
+	ErrKeyValueStreamError             = verror.Register("v.io/v23/query/syncql.KeyValueStreamError", verror.NoRetry, "{1:}{2:} [{3}]KeyValueStream error: {4}.")
+	ErrLikeExpressionsRequireRhsString = verror.Register("v.io/v23/query/syncql.LikeExpressionsRequireRhsString", verror.NoRetry, "{1:}{2:} [{3}]Like expressions require right operand of type <string-literal>.")
+	ErrLimitMustBeGt0                  = verror.Register("v.io/v23/query/syncql.LimitMustBeGt0", verror.NoRetry, "{1:}{2:} [{3}]Limit must be > 0.")
+	ErrMaxStatementLenExceeded         = verror.Register("v.io/v23/query/syncql.MaxStatementLenExceeded", verror.NoRetry, "{1:}{2:} [{3}]Maximum length of statements is {4}; found {5}.")
+	ErrNoStatementFound                = verror.Register("v.io/v23/query/syncql.NoStatementFound", verror.NoRetry, "{1:}{2:} [{3}]No statement found.")
+	ErrOffsetMustBeGe0                 = verror.Register("v.io/v23/query/syncql.OffsetMustBeGe0", verror.NoRetry, "{1:}{2:} [{3}]Offset must be > 0.")
+	ErrScanError                       = verror.Register("v.io/v23/query/syncql.ScanError", verror.NoRetry, "{1:}{2:} [{3}]Scan error: {4}.")
+	ErrTableCantAccess                 = verror.Register("v.io/v23/query/syncql.TableCantAccess", verror.NoRetry, "{1:}{2:} [{3}]Table {4} does not exist (or cannot be accessed): {5}.")
+	ErrUnexpected                      = verror.Register("v.io/v23/query/syncql.Unexpected", verror.NoRetry, "{1:}{2:} [{3}]Unexpected: {4}.")
+	ErrUnexpectedEndOfStatement        = verror.Register("v.io/v23/query/syncql.UnexpectedEndOfStatement", verror.NoRetry, "{1:}{2:} [{3}]Unexpected end of statement.")
+	ErrUnknownIdentifier               = verror.Register("v.io/v23/query/syncql.UnknownIdentifier", verror.NoRetry, "{1:}{2:} [{3}]Unknown identifier: {4}.")
+	ErrInvalidEscapeChar               = verror.Register("v.io/v23/query/syncql.InvalidEscapeChar", verror.NoRetry, "{1:}{2:} [{3}]'{4}' is not a valid escape character.")
+	ErrDidYouMeanLowercaseK            = verror.Register("v.io/v23/query/syncql.DidYouMeanLowercaseK", verror.NoRetry, "{1:}{2:} [{3}]Did you mean: 'k'?")
+	ErrDidYouMeanLowercaseV            = verror.Register("v.io/v23/query/syncql.DidYouMeanLowercaseV", verror.NoRetry, "{1:}{2:} [{3}]Did you mean: 'v'?")
+	ErrDidYouMeanFunction              = verror.Register("v.io/v23/query/syncql.DidYouMeanFunction", verror.NoRetry, "{1:}{2:} [{3}]Did you mean: '{4}'?")
+	ErrNotEnoughParamValuesSpecified   = verror.Register("v.io/v23/query/syncql.NotEnoughParamValuesSpecified", verror.NoRetry, "{1:}{2:} [{3}]Not enough parameter values specified.")
+	ErrTooManyParamValuesSpecified     = verror.Register("v.io/v23/query/syncql.TooManyParamValuesSpecified", verror.NoRetry, "{1:}{2:} [{3}]Too many parameter values specified.")
+	ErrPreparedStatementNotFound       = verror.Register("v.io/v23/query/syncql.PreparedStatementNotFound", verror.NoRetry, "{1:}{2:} [0]Prepared statement not found.")
+	ErrIndexKindNotSupported           = verror.Register("v.io/v23/query/syncql.IndexKindNotSupported", verror.NoRetry, "{1:}{2:} [{3}]Index kind {4} of field {5} on table {6} not supported.")
+	ErrInvalidIndexField               = verror.Register("v.io/v23/query/syncql.InvalidIndexField", verror.NoRetry, "{1:}{2:} [{3}]Invalid index field {4} returned by table {5}.")
+	ErrNotWritable                     = verror.Register("v.io/v23/query/syncql.NotWritable", verror.NoRetry, "{1:}{2:} [0]Can't write to table {3} (not supported on batch/connection).")
+	ErrOperationNotSupported           = verror.Register("v.io/v23/query/syncql.OperationNotSupported", verror.NoRetry, "{1:}{2:} [0]{3} not supported.")
 )
 
 // NewErrBadFieldInWhere returns an error with the ErrBadFieldInWhere ID.
@@ -86,89 +84,11 @@ func NewErrBadFieldInWhere(ctx *context.T, off int64) error {
 	return verror.New(ErrBadFieldInWhere, ctx, off)
 }
 
-// ErrorfErrBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
-func ErrorfErrBadFieldInWhere(ctx *context.T, format string, off int64) error {
-	return ErrBadFieldInWhere.Errorf(ctx, format, off)
-}
-
-// MessageErrBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
-func MessageErrBadFieldInWhere(ctx *context.T, message string, off int64) error {
-	return ErrBadFieldInWhere.Message(ctx, message, off)
-}
-
-// ParamsErrBadFieldInWhere extracts the expected parameters from the error's ParameterList.
-func ParamsErrBadFieldInWhere(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrBoolInvalidExpression returns an error with the ErrBoolInvalidExpression ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrBoolInvalidExpression or MessageErrBoolInvalidExpression instead.
 func NewErrBoolInvalidExpression(ctx *context.T, off int64) error {
 	return verror.New(ErrBoolInvalidExpression, ctx, off)
-}
-
-// ErrorfErrBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
-func ErrorfErrBoolInvalidExpression(ctx *context.T, format string, off int64) error {
-	return ErrBoolInvalidExpression.Errorf(ctx, format, off)
-}
-
-// MessageErrBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
-func MessageErrBoolInvalidExpression(ctx *context.T, message string, off int64) error {
-	return ErrBoolInvalidExpression.Message(ctx, message, off)
-}
-
-// ParamsErrBoolInvalidExpression extracts the expected parameters from the error's ParameterList.
-func ParamsErrBoolInvalidExpression(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrCheckOfUnknownStatementType returns an error with the ErrCheckOfUnknownStatementType ID.
@@ -178,105 +98,11 @@ func NewErrCheckOfUnknownStatementType(ctx *context.T, off int64) error {
 	return verror.New(ErrCheckOfUnknownStatementType, ctx, off)
 }
 
-// ErrorfErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfErrCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
-	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off)
-}
-
-// MessageErrCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
-func MessageErrCheckOfUnknownStatementType(ctx *context.T, message string, off int64) error {
-	return ErrCheckOfUnknownStatementType.Message(ctx, message, off)
-}
-
-// ParamsErrCheckOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
-func ParamsErrCheckOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrCouldNotConvert returns an error with the ErrCouldNotConvert ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrCouldNotConvert or MessageErrCouldNotConvert instead.
 func NewErrCouldNotConvert(ctx *context.T, off int64, from string, to string) error {
 	return verror.New(ErrCouldNotConvert, ctx, off, from, to)
-}
-
-// ErrorfErrCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
-func ErrorfErrCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
-	return ErrCouldNotConvert.Errorf(ctx, format, off, from, to)
-}
-
-// MessageErrCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
-func MessageErrCouldNotConvert(ctx *context.T, message string, off int64, from string, to string) error {
-	return ErrCouldNotConvert.Message(ctx, message, off, from, to)
-}
-
-// ParamsErrCouldNotConvert extracts the expected parameters from the error's ParameterList.
-func ParamsErrCouldNotConvert(argumentError error) (verrorComponent string, verrorOperation string, off int64, from string, to string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if from, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value from, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if to, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value to, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrDotNotationDisallowedForKey returns an error with the ErrDotNotationDisallowedForKey ID.
@@ -286,97 +112,11 @@ func NewErrDotNotationDisallowedForKey(ctx *context.T, off int64) error {
 	return verror.New(ErrDotNotationDisallowedForKey, ctx, off)
 }
 
-// ErrorfErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
-func ErrorfErrDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
-	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off)
-}
-
-// MessageErrDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
-func MessageErrDotNotationDisallowedForKey(ctx *context.T, message string, off int64) error {
-	return ErrDotNotationDisallowedForKey.Message(ctx, message, off)
-}
-
-// ParamsErrDotNotationDisallowedForKey extracts the expected parameters from the error's ParameterList.
-func ParamsErrDotNotationDisallowedForKey(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrExecOfUnknownStatementType returns an error with the ErrExecOfUnknownStatementType ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrExecOfUnknownStatementType or MessageErrExecOfUnknownStatementType instead.
 func NewErrExecOfUnknownStatementType(ctx *context.T, off int64, statementType string) error {
 	return verror.New(ErrExecOfUnknownStatementType, ctx, off, statementType)
-}
-
-// ErrorfErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
-func ErrorfErrExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
-	return ErrExecOfUnknownStatementType.Errorf(ctx, format, off, statementType)
-}
-
-// MessageErrExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
-func MessageErrExecOfUnknownStatementType(ctx *context.T, message string, off int64, statementType string) error {
-	return ErrExecOfUnknownStatementType.Message(ctx, message, off, statementType)
-}
-
-// ParamsErrExecOfUnknownStatementType extracts the expected parameters from the error's ParameterList.
-func ParamsErrExecOfUnknownStatementType(argumentError error) (verrorComponent string, verrorOperation string, off int64, statementType string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if statementType, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value statementType, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrExpected returns an error with the ErrExpected ID.
@@ -386,105 +126,11 @@ func NewErrExpected(ctx *context.T, off int64, expected string) error {
 	return verror.New(ErrExpected, ctx, off, expected)
 }
 
-// ErrorfErrExpected calls ErrExpected.Errorf with the supplied arguments.
-func ErrorfErrExpected(ctx *context.T, format string, off int64, expected string) error {
-	return ErrExpected.Errorf(ctx, format, off, expected)
-}
-
-// MessageErrExpected calls ErrExpected.Message with the supplied arguments.
-func MessageErrExpected(ctx *context.T, message string, off int64, expected string) error {
-	return ErrExpected.Message(ctx, message, off, expected)
-}
-
-// ParamsErrExpected extracts the expected parameters from the error's ParameterList.
-func ParamsErrExpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, expected string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if expected, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expected, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrExpectedFrom returns an error with the ErrExpectedFrom ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrExpectedFrom or MessageErrExpectedFrom instead.
 func NewErrExpectedFrom(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedFrom, ctx, off, found)
-}
-
-// ErrorfErrExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
-func ErrorfErrExpectedFrom(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedFrom.Errorf(ctx, format, off, found)
-}
-
-// MessageErrExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
-func MessageErrExpectedFrom(ctx *context.T, message string, off int64, found string) error {
-	return ErrExpectedFrom.Message(ctx, message, off, found)
-}
-
-// ParamsErrExpectedFrom extracts the expected parameters from the error's ParameterList.
-func ParamsErrExpectedFrom(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrExpectedIdentifier returns an error with the ErrExpectedIdentifier ID.
@@ -494,105 +140,11 @@ func NewErrExpectedIdentifier(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedIdentifier, ctx, off, found)
 }
 
-// ErrorfErrExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
-func ErrorfErrExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedIdentifier.Errorf(ctx, format, off, found)
-}
-
-// MessageErrExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
-func MessageErrExpectedIdentifier(ctx *context.T, message string, off int64, found string) error {
-	return ErrExpectedIdentifier.Message(ctx, message, off, found)
-}
-
-// ParamsErrExpectedIdentifier extracts the expected parameters from the error's ParameterList.
-func ParamsErrExpectedIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrExpectedOperand returns an error with the ErrExpectedOperand ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrExpectedOperand or MessageErrExpectedOperand instead.
 func NewErrExpectedOperand(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedOperand, ctx, off, found)
-}
-
-// ErrorfErrExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
-func ErrorfErrExpectedOperand(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedOperand.Errorf(ctx, format, off, found)
-}
-
-// MessageErrExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
-func MessageErrExpectedOperand(ctx *context.T, message string, off int64, found string) error {
-	return ErrExpectedOperand.Message(ctx, message, off, found)
-}
-
-// ParamsErrExpectedOperand extracts the expected parameters from the error's ParameterList.
-func ParamsErrExpectedOperand(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrExpectedOperator returns an error with the ErrExpectedOperator ID.
@@ -602,121 +154,11 @@ func NewErrExpectedOperator(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrExpectedOperator, ctx, off, found)
 }
 
-// ErrorfErrExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
-func ErrorfErrExpectedOperator(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedOperator.Errorf(ctx, format, off, found)
-}
-
-// MessageErrExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
-func MessageErrExpectedOperator(ctx *context.T, message string, off int64, found string) error {
-	return ErrExpectedOperator.Message(ctx, message, off, found)
-}
-
-// ParamsErrExpectedOperator extracts the expected parameters from the error's ParameterList.
-func ParamsErrExpectedOperator(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrFunctionArgCount returns an error with the ErrFunctionArgCount ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrFunctionArgCount or MessageErrFunctionArgCount instead.
 func NewErrFunctionArgCount(ctx *context.T, off int64, name string, expected int64, found int64) error {
 	return verror.New(ErrFunctionArgCount, ctx, off, name, expected, found)
-}
-
-// ErrorfErrFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
-func ErrorfErrFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionArgCount.Errorf(ctx, format, off, name, expected, found)
-}
-
-// MessageErrFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
-func MessageErrFunctionArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionArgCount.Message(ctx, message, off, name, expected, found)
-}
-
-// ParamsErrFunctionArgCount extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if name, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if expected, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expected, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrFunctionAtLeastArgCount returns an error with the ErrFunctionAtLeastArgCount ID.
@@ -726,113 +168,11 @@ func NewErrFunctionAtLeastArgCount(ctx *context.T, off int64, name string, expec
 	return verror.New(ErrFunctionAtLeastArgCount, ctx, off, name, expected, found)
 }
 
-// ErrorfErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
-func ErrorfErrFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found)
-}
-
-// MessageErrFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
-func MessageErrFunctionAtLeastArgCount(ctx *context.T, message string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionAtLeastArgCount.Message(ctx, message, off, name, expected, found)
-}
-
-// ParamsErrFunctionAtLeastArgCount extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionAtLeastArgCount(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, expected int64, found int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if name, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if expected, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expected, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrFunctionTypeInvalidArg returns an error with the ErrFunctionTypeInvalidArg ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrFunctionTypeInvalidArg or MessageErrFunctionTypeInvalidArg instead.
 func NewErrFunctionTypeInvalidArg(ctx *context.T, off int64) error {
 	return verror.New(ErrFunctionTypeInvalidArg, ctx, off)
-}
-
-// ErrorfErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
-func ErrorfErrFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
-	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off)
-}
-
-// MessageErrFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
-func MessageErrFunctionTypeInvalidArg(ctx *context.T, message string, off int64) error {
-	return ErrFunctionTypeInvalidArg.Message(ctx, message, off)
-}
-
-// ParamsErrFunctionTypeInvalidArg extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionTypeInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrFunctionLenInvalidArg returns an error with the ErrFunctionLenInvalidArg ID.
@@ -842,105 +182,11 @@ func NewErrFunctionLenInvalidArg(ctx *context.T, off int64) error {
 	return verror.New(ErrFunctionLenInvalidArg, ctx, off)
 }
 
-// ErrorfErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
-func ErrorfErrFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
-	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off)
-}
-
-// MessageErrFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
-func MessageErrFunctionLenInvalidArg(ctx *context.T, message string, off int64) error {
-	return ErrFunctionLenInvalidArg.Message(ctx, message, off)
-}
-
-// ParamsErrFunctionLenInvalidArg extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionLenInvalidArg(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrFunctionArgBad returns an error with the ErrFunctionArgBad ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrFunctionArgBad or MessageErrFunctionArgBad instead.
 func NewErrFunctionArgBad(ctx *context.T, off int64, funcName string, argName string) error {
 	return verror.New(ErrFunctionArgBad, ctx, off, funcName, argName)
-}
-
-// ErrorfErrFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
-func ErrorfErrFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
-	return ErrFunctionArgBad.Errorf(ctx, format, off, funcName, argName)
-}
-
-// MessageErrFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
-func MessageErrFunctionArgBad(ctx *context.T, message string, off int64, funcName string, argName string) error {
-	return ErrFunctionArgBad.Message(ctx, message, off, funcName, argName)
-}
-
-// ParamsErrFunctionArgBad extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionArgBad(argumentError error) (verrorComponent string, verrorOperation string, off int64, funcName string, argName string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if funcName, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value funcName, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if argName, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value argName, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrFunctionNotFound returns an error with the ErrFunctionNotFound ID.
@@ -950,97 +196,11 @@ func NewErrFunctionNotFound(ctx *context.T, off int64, name string) error {
 	return verror.New(ErrFunctionNotFound, ctx, off, name)
 }
 
-// ErrorfErrFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
-func ErrorfErrFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
-	return ErrFunctionNotFound.Errorf(ctx, format, off, name)
-}
-
-// MessageErrFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
-func MessageErrFunctionNotFound(ctx *context.T, message string, off int64, name string) error {
-	return ErrFunctionNotFound.Message(ctx, message, off, name)
-}
-
-// ParamsErrFunctionNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsErrFunctionNotFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, name string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if name, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value name, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrArgMustBeField returns an error with the ErrArgMustBeField ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrArgMustBeField or MessageErrArgMustBeField instead.
 func NewErrArgMustBeField(ctx *context.T, off int64) error {
 	return verror.New(ErrArgMustBeField, ctx, off)
-}
-
-// ErrorfErrArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
-func ErrorfErrArgMustBeField(ctx *context.T, format string, off int64) error {
-	return ErrArgMustBeField.Errorf(ctx, format, off)
-}
-
-// MessageErrArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
-func MessageErrArgMustBeField(ctx *context.T, message string, off int64) error {
-	return ErrArgMustBeField.Message(ctx, message, off)
-}
-
-// ParamsErrArgMustBeField extracts the expected parameters from the error's ParameterList.
-func ParamsErrArgMustBeField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrBigIntConversionError returns an error with the ErrBigIntConversionError ID.
@@ -1050,105 +210,11 @@ func NewErrBigIntConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBigIntConversionError, ctx, off, err)
 }
 
-// ErrorfErrBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
-func ErrorfErrBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBigIntConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
-func MessageErrBigIntConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrBigIntConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrBigIntConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrBigIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrBigRatConversionError returns an error with the ErrBigRatConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrBigRatConversionError or MessageErrBigRatConversionError instead.
 func NewErrBigRatConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBigRatConversionError, ctx, off, err)
-}
-
-// ErrorfErrBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
-func ErrorfErrBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBigRatConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
-func MessageErrBigRatConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrBigRatConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrBigRatConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrBigRatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrBoolConversionError returns an error with the ErrBoolConversionError ID.
@@ -1158,105 +224,11 @@ func NewErrBoolConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrBoolConversionError, ctx, off, err)
 }
 
-// ErrorfErrBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
-func ErrorfErrBoolConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBoolConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
-func MessageErrBoolConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrBoolConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrBoolConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrBoolConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrComplexConversionError returns an error with the ErrComplexConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrComplexConversionError or MessageErrComplexConversionError instead.
 func NewErrComplexConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrComplexConversionError, ctx, off, err)
-}
-
-// ErrorfErrComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
-func ErrorfErrComplexConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrComplexConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
-func MessageErrComplexConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrComplexConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrComplexConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrComplexConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrUintConversionError returns an error with the ErrUintConversionError ID.
@@ -1266,105 +238,11 @@ func NewErrUintConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrUintConversionError, ctx, off, err)
 }
 
-// ErrorfErrUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
-func ErrorfErrUintConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrUintConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
-func MessageErrUintConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrUintConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrUintConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrUintConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrTimeConversionError returns an error with the ErrTimeConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrTimeConversionError or MessageErrTimeConversionError instead.
 func NewErrTimeConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrTimeConversionError, ctx, off, err)
-}
-
-// ErrorfErrTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
-func ErrorfErrTimeConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrTimeConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
-func MessageErrTimeConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrTimeConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrTimeConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrTimeConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrLocationConversionError returns an error with the ErrLocationConversionError ID.
@@ -1374,105 +252,11 @@ func NewErrLocationConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrLocationConversionError, ctx, off, err)
 }
 
-// ErrorfErrLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
-func ErrorfErrLocationConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrLocationConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
-func MessageErrLocationConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrLocationConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrLocationConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrLocationConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrStringConversionError returns an error with the ErrStringConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrStringConversionError or MessageErrStringConversionError instead.
 func NewErrStringConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrStringConversionError, ctx, off, err)
-}
-
-// ErrorfErrStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
-func ErrorfErrStringConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrStringConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
-func MessageErrStringConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrStringConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrStringConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrStringConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrFloatConversionError returns an error with the ErrFloatConversionError ID.
@@ -1482,105 +266,11 @@ func NewErrFloatConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrFloatConversionError, ctx, off, err)
 }
 
-// ErrorfErrFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
-func ErrorfErrFloatConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrFloatConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
-func MessageErrFloatConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrFloatConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrFloatConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrFloatConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrIntConversionError returns an error with the ErrIntConversionError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrIntConversionError or MessageErrIntConversionError instead.
 func NewErrIntConversionError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrIntConversionError, ctx, off, err)
-}
-
-// ErrorfErrIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
-func ErrorfErrIntConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrIntConversionError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
-func MessageErrIntConversionError(ctx *context.T, message string, off int64, err error) error {
-	return ErrIntConversionError.Message(ctx, message, off, err)
-}
-
-// ParamsErrIntConversionError extracts the expected parameters from the error's ParameterList.
-func ParamsErrIntConversionError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrIsIsNotRequireLhsValue returns an error with the ErrIsIsNotRequireLhsValue ID.
@@ -1590,89 +280,11 @@ func NewErrIsIsNotRequireLhsValue(ctx *context.T, off int64) error {
 	return verror.New(ErrIsIsNotRequireLhsValue, ctx, off)
 }
 
-// ErrorfErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
-func ErrorfErrIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
-	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off)
-}
-
-// MessageErrIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
-func MessageErrIsIsNotRequireLhsValue(ctx *context.T, message string, off int64) error {
-	return ErrIsIsNotRequireLhsValue.Message(ctx, message, off)
-}
-
-// ParamsErrIsIsNotRequireLhsValue extracts the expected parameters from the error's ParameterList.
-func ParamsErrIsIsNotRequireLhsValue(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrIsIsNotRequireRhsNil returns an error with the ErrIsIsNotRequireRhsNil ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrIsIsNotRequireRhsNil or MessageErrIsIsNotRequireRhsNil instead.
 func NewErrIsIsNotRequireRhsNil(ctx *context.T, off int64) error {
 	return verror.New(ErrIsIsNotRequireRhsNil, ctx, off)
-}
-
-// ErrorfErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
-func ErrorfErrIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
-	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off)
-}
-
-// MessageErrIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
-func MessageErrIsIsNotRequireRhsNil(ctx *context.T, message string, off int64) error {
-	return ErrIsIsNotRequireRhsNil.Message(ctx, message, off)
-}
-
-// ParamsErrIsIsNotRequireRhsNil extracts the expected parameters from the error's ParameterList.
-func ParamsErrIsIsNotRequireRhsNil(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrInvalidLikePattern returns an error with the ErrInvalidLikePattern ID.
@@ -1682,97 +294,11 @@ func NewErrInvalidLikePattern(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrInvalidLikePattern, ctx, off, err)
 }
 
-// ErrorfErrInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
-func ErrorfErrInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
-	return ErrInvalidLikePattern.Errorf(ctx, format, off, err)
-}
-
-// MessageErrInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
-func MessageErrInvalidLikePattern(ctx *context.T, message string, off int64, err error) error {
-	return ErrInvalidLikePattern.Message(ctx, message, off, err)
-}
-
-// ParamsErrInvalidLikePattern extracts the expected parameters from the error's ParameterList.
-func ParamsErrInvalidLikePattern(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrInvalidSelectField returns an error with the ErrInvalidSelectField ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrInvalidSelectField or MessageErrInvalidSelectField instead.
 func NewErrInvalidSelectField(ctx *context.T, off int64) error {
 	return verror.New(ErrInvalidSelectField, ctx, off)
-}
-
-// ErrorfErrInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
-func ErrorfErrInvalidSelectField(ctx *context.T, format string, off int64) error {
-	return ErrInvalidSelectField.Errorf(ctx, format, off)
-}
-
-// MessageErrInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
-func MessageErrInvalidSelectField(ctx *context.T, message string, off int64) error {
-	return ErrInvalidSelectField.Message(ctx, message, off)
-}
-
-// ParamsErrInvalidSelectField extracts the expected parameters from the error's ParameterList.
-func ParamsErrInvalidSelectField(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrKeyExpressionLiteral returns an error with the ErrKeyExpressionLiteral ID.
@@ -1782,97 +308,11 @@ func NewErrKeyExpressionLiteral(ctx *context.T, off int64) error {
 	return verror.New(ErrKeyExpressionLiteral, ctx, off)
 }
 
-// ErrorfErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
-func ErrorfErrKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
-	return ErrKeyExpressionLiteral.Errorf(ctx, format, off)
-}
-
-// MessageErrKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
-func MessageErrKeyExpressionLiteral(ctx *context.T, message string, off int64) error {
-	return ErrKeyExpressionLiteral.Message(ctx, message, off)
-}
-
-// ParamsErrKeyExpressionLiteral extracts the expected parameters from the error's ParameterList.
-func ParamsErrKeyExpressionLiteral(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrKeyValueStreamError returns an error with the ErrKeyValueStreamError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrKeyValueStreamError or MessageErrKeyValueStreamError instead.
 func NewErrKeyValueStreamError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrKeyValueStreamError, ctx, off, err)
-}
-
-// ErrorfErrKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
-func ErrorfErrKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
-	return ErrKeyValueStreamError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
-func MessageErrKeyValueStreamError(ctx *context.T, message string, off int64, err error) error {
-	return ErrKeyValueStreamError.Message(ctx, message, off, err)
-}
-
-// ParamsErrKeyValueStreamError extracts the expected parameters from the error's ParameterList.
-func ParamsErrKeyValueStreamError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrLikeExpressionsRequireRhsString returns an error with the ErrLikeExpressionsRequireRhsString ID.
@@ -1882,89 +322,11 @@ func NewErrLikeExpressionsRequireRhsString(ctx *context.T, off int64) error {
 	return verror.New(ErrLikeExpressionsRequireRhsString, ctx, off)
 }
 
-// ErrorfErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
-func ErrorfErrLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
-	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off)
-}
-
-// MessageErrLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
-func MessageErrLikeExpressionsRequireRhsString(ctx *context.T, message string, off int64) error {
-	return ErrLikeExpressionsRequireRhsString.Message(ctx, message, off)
-}
-
-// ParamsErrLikeExpressionsRequireRhsString extracts the expected parameters from the error's ParameterList.
-func ParamsErrLikeExpressionsRequireRhsString(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrLimitMustBeGt0 returns an error with the ErrLimitMustBeGt0 ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrLimitMustBeGt0 or MessageErrLimitMustBeGt0 instead.
 func NewErrLimitMustBeGt0(ctx *context.T, off int64) error {
 	return verror.New(ErrLimitMustBeGt0, ctx, off)
-}
-
-// ErrorfErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
-func ErrorfErrLimitMustBeGt0(ctx *context.T, format string, off int64) error {
-	return ErrLimitMustBeGt0.Errorf(ctx, format, off)
-}
-
-// MessageErrLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
-func MessageErrLimitMustBeGt0(ctx *context.T, message string, off int64) error {
-	return ErrLimitMustBeGt0.Message(ctx, message, off)
-}
-
-// ParamsErrLimitMustBeGt0 extracts the expected parameters from the error's ParameterList.
-func ParamsErrLimitMustBeGt0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrMaxStatementLenExceeded returns an error with the ErrMaxStatementLenExceeded ID.
@@ -1974,105 +336,11 @@ func NewErrMaxStatementLenExceeded(ctx *context.T, off int64, max int64, found i
 	return verror.New(ErrMaxStatementLenExceeded, ctx, off, max, found)
 }
 
-// ErrorfErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
-func ErrorfErrMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
-	return ErrMaxStatementLenExceeded.Errorf(ctx, format, off, max, found)
-}
-
-// MessageErrMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
-func MessageErrMaxStatementLenExceeded(ctx *context.T, message string, off int64, max int64, found int64) error {
-	return ErrMaxStatementLenExceeded.Message(ctx, message, off, max, found)
-}
-
-// ParamsErrMaxStatementLenExceeded extracts the expected parameters from the error's ParameterList.
-func ParamsErrMaxStatementLenExceeded(argumentError error) (verrorComponent string, verrorOperation string, off int64, max int64, found int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if max, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value max, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrNoStatementFound returns an error with the ErrNoStatementFound ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrNoStatementFound or MessageErrNoStatementFound instead.
 func NewErrNoStatementFound(ctx *context.T, off int64) error {
 	return verror.New(ErrNoStatementFound, ctx, off)
-}
-
-// ErrorfErrNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
-func ErrorfErrNoStatementFound(ctx *context.T, format string, off int64) error {
-	return ErrNoStatementFound.Errorf(ctx, format, off)
-}
-
-// MessageErrNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
-func MessageErrNoStatementFound(ctx *context.T, message string, off int64) error {
-	return ErrNoStatementFound.Message(ctx, message, off)
-}
-
-// ParamsErrNoStatementFound extracts the expected parameters from the error's ParameterList.
-func ParamsErrNoStatementFound(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrOffsetMustBeGe0 returns an error with the ErrOffsetMustBeGe0 ID.
@@ -2082,97 +350,11 @@ func NewErrOffsetMustBeGe0(ctx *context.T, off int64) error {
 	return verror.New(ErrOffsetMustBeGe0, ctx, off)
 }
 
-// ErrorfErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
-func ErrorfErrOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
-	return ErrOffsetMustBeGe0.Errorf(ctx, format, off)
-}
-
-// MessageErrOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
-func MessageErrOffsetMustBeGe0(ctx *context.T, message string, off int64) error {
-	return ErrOffsetMustBeGe0.Message(ctx, message, off)
-}
-
-// ParamsErrOffsetMustBeGe0 extracts the expected parameters from the error's ParameterList.
-func ParamsErrOffsetMustBeGe0(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrScanError returns an error with the ErrScanError ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrScanError or MessageErrScanError instead.
 func NewErrScanError(ctx *context.T, off int64, err error) error {
 	return verror.New(ErrScanError, ctx, off, err)
-}
-
-// ErrorfErrScanError calls ErrScanError.Errorf with the supplied arguments.
-func ErrorfErrScanError(ctx *context.T, format string, off int64, err error) error {
-	return ErrScanError.Errorf(ctx, format, off, err)
-}
-
-// MessageErrScanError calls ErrScanError.Message with the supplied arguments.
-func MessageErrScanError(ctx *context.T, message string, off int64, err error) error {
-	return ErrScanError.Message(ctx, message, off, err)
-}
-
-// ParamsErrScanError extracts the expected parameters from the error's ParameterList.
-func ParamsErrScanError(argumentError error) (verrorComponent string, verrorOperation string, off int64, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrTableCantAccess returns an error with the ErrTableCantAccess ID.
@@ -2182,113 +364,11 @@ func NewErrTableCantAccess(ctx *context.T, off int64, table string, err error) e
 	return verror.New(ErrTableCantAccess, ctx, off, table, err)
 }
 
-// ErrorfErrTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
-func ErrorfErrTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
-	return ErrTableCantAccess.Errorf(ctx, format, off, table, err)
-}
-
-// MessageErrTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
-func MessageErrTableCantAccess(ctx *context.T, message string, off int64, table string, err error) error {
-	return ErrTableCantAccess.Message(ctx, message, off, table, err)
-}
-
-// ParamsErrTableCantAccess extracts the expected parameters from the error's ParameterList.
-func ParamsErrTableCantAccess(argumentError error) (verrorComponent string, verrorOperation string, off int64, table string, err error, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if table, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value table, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if err, ok = tmp.(error); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrUnexpected returns an error with the ErrUnexpected ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrUnexpected or MessageErrUnexpected instead.
 func NewErrUnexpected(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrUnexpected, ctx, off, found)
-}
-
-// ErrorfErrUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
-func ErrorfErrUnexpected(ctx *context.T, format string, off int64, found string) error {
-	return ErrUnexpected.Errorf(ctx, format, off, found)
-}
-
-// MessageErrUnexpected calls ErrUnexpected.Message with the supplied arguments.
-func MessageErrUnexpected(ctx *context.T, message string, off int64, found string) error {
-	return ErrUnexpected.Message(ctx, message, off, found)
-}
-
-// ParamsErrUnexpected extracts the expected parameters from the error's ParameterList.
-func ParamsErrUnexpected(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrUnexpectedEndOfStatement returns an error with the ErrUnexpectedEndOfStatement ID.
@@ -2298,97 +378,11 @@ func NewErrUnexpectedEndOfStatement(ctx *context.T, off int64) error {
 	return verror.New(ErrUnexpectedEndOfStatement, ctx, off)
 }
 
-// ErrorfErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
-func ErrorfErrUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
-	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off)
-}
-
-// MessageErrUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
-func MessageErrUnexpectedEndOfStatement(ctx *context.T, message string, off int64) error {
-	return ErrUnexpectedEndOfStatement.Message(ctx, message, off)
-}
-
-// ParamsErrUnexpectedEndOfStatement extracts the expected parameters from the error's ParameterList.
-func ParamsErrUnexpectedEndOfStatement(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrUnknownIdentifier returns an error with the ErrUnknownIdentifier ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrUnknownIdentifier or MessageErrUnknownIdentifier instead.
 func NewErrUnknownIdentifier(ctx *context.T, off int64, found string) error {
 	return verror.New(ErrUnknownIdentifier, ctx, off, found)
-}
-
-// ErrorfErrUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
-func ErrorfErrUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
-	return ErrUnknownIdentifier.Errorf(ctx, format, off, found)
-}
-
-// MessageErrUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
-func MessageErrUnknownIdentifier(ctx *context.T, message string, off int64, found string) error {
-	return ErrUnknownIdentifier.Message(ctx, message, off, found)
-}
-
-// ParamsErrUnknownIdentifier extracts the expected parameters from the error's ParameterList.
-func ParamsErrUnknownIdentifier(argumentError error) (verrorComponent string, verrorOperation string, off int64, found string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if found, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value found, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrInvalidEscapeChar returns an error with the ErrInvalidEscapeChar ID.
@@ -2398,97 +392,11 @@ func NewErrInvalidEscapeChar(ctx *context.T, off int64, escChar string) error {
 	return verror.New(ErrInvalidEscapeChar, ctx, off, escChar)
 }
 
-// ErrorfErrInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
-func ErrorfErrInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
-	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar)
-}
-
-// MessageErrInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
-func MessageErrInvalidEscapeChar(ctx *context.T, message string, off int64, escChar string) error {
-	return ErrInvalidEscapeChar.Message(ctx, message, off, escChar)
-}
-
-// ParamsErrInvalidEscapeChar extracts the expected parameters from the error's ParameterList.
-func ParamsErrInvalidEscapeChar(argumentError error) (verrorComponent string, verrorOperation string, off int64, escChar string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if escChar, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value escChar, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrDidYouMeanLowercaseK returns an error with the ErrDidYouMeanLowercaseK ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrDidYouMeanLowercaseK or MessageErrDidYouMeanLowercaseK instead.
 func NewErrDidYouMeanLowercaseK(ctx *context.T, off int64) error {
 	return verror.New(ErrDidYouMeanLowercaseK, ctx, off)
-}
-
-// ErrorfErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
-	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off)
-}
-
-// MessageErrDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
-func MessageErrDidYouMeanLowercaseK(ctx *context.T, message string, off int64) error {
-	return ErrDidYouMeanLowercaseK.Message(ctx, message, off)
-}
-
-// ParamsErrDidYouMeanLowercaseK extracts the expected parameters from the error's ParameterList.
-func ParamsErrDidYouMeanLowercaseK(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrDidYouMeanLowercaseV returns an error with the ErrDidYouMeanLowercaseV ID.
@@ -2498,97 +406,11 @@ func NewErrDidYouMeanLowercaseV(ctx *context.T, off int64) error {
 	return verror.New(ErrDidYouMeanLowercaseV, ctx, off)
 }
 
-// ErrorfErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
-	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off)
-}
-
-// MessageErrDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
-func MessageErrDidYouMeanLowercaseV(ctx *context.T, message string, off int64) error {
-	return ErrDidYouMeanLowercaseV.Message(ctx, message, off)
-}
-
-// ParamsErrDidYouMeanLowercaseV extracts the expected parameters from the error's ParameterList.
-func ParamsErrDidYouMeanLowercaseV(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrDidYouMeanFunction returns an error with the ErrDidYouMeanFunction ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrDidYouMeanFunction or MessageErrDidYouMeanFunction instead.
 func NewErrDidYouMeanFunction(ctx *context.T, off int64, correctName string) error {
 	return verror.New(ErrDidYouMeanFunction, ctx, off, correctName)
-}
-
-// ErrorfErrDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
-func ErrorfErrDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
-	return ErrDidYouMeanFunction.Errorf(ctx, format, off, correctName)
-}
-
-// MessageErrDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
-func MessageErrDidYouMeanFunction(ctx *context.T, message string, off int64, correctName string) error {
-	return ErrDidYouMeanFunction.Message(ctx, message, off, correctName)
-}
-
-// ParamsErrDidYouMeanFunction extracts the expected parameters from the error's ParameterList.
-func ParamsErrDidYouMeanFunction(argumentError error) (verrorComponent string, verrorOperation string, off int64, correctName string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if correctName, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value correctName, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrNotEnoughParamValuesSpecified returns an error with the ErrNotEnoughParamValuesSpecified ID.
@@ -2598,89 +420,11 @@ func NewErrNotEnoughParamValuesSpecified(ctx *context.T, off int64) error {
 	return verror.New(ErrNotEnoughParamValuesSpecified, ctx, off)
 }
 
-// ErrorfErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfErrNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
-	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off)
-}
-
-// MessageErrNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
-func MessageErrNotEnoughParamValuesSpecified(ctx *context.T, message string, off int64) error {
-	return ErrNotEnoughParamValuesSpecified.Message(ctx, message, off)
-}
-
-// ParamsErrNotEnoughParamValuesSpecified extracts the expected parameters from the error's ParameterList.
-func ParamsErrNotEnoughParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrTooManyParamValuesSpecified returns an error with the ErrTooManyParamValuesSpecified ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrTooManyParamValuesSpecified or MessageErrTooManyParamValuesSpecified instead.
 func NewErrTooManyParamValuesSpecified(ctx *context.T, off int64) error {
 	return verror.New(ErrTooManyParamValuesSpecified, ctx, off)
-}
-
-// ErrorfErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
-func ErrorfErrTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
-	return ErrTooManyParamValuesSpecified.Errorf(ctx, format, off)
-}
-
-// MessageErrTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
-func MessageErrTooManyParamValuesSpecified(ctx *context.T, message string, off int64) error {
-	return ErrTooManyParamValuesSpecified.Message(ctx, message, off)
-}
-
-// ParamsErrTooManyParamValuesSpecified extracts the expected parameters from the error's ParameterList.
-func ParamsErrTooManyParamValuesSpecified(argumentError error) (verrorComponent string, verrorOperation string, off int64, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrPreparedStatementNotFound returns an error with the ErrPreparedStatementNotFound ID.
@@ -2690,100 +434,11 @@ func NewErrPreparedStatementNotFound(ctx *context.T) error {
 	return verror.New(ErrPreparedStatementNotFound, ctx)
 }
 
-// ErrorfErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
-func ErrorfErrPreparedStatementNotFound(ctx *context.T, format string) error {
-	return ErrPreparedStatementNotFound.Errorf(ctx, format)
-}
-
-// MessageErrPreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
-func MessageErrPreparedStatementNotFound(ctx *context.T, message string) error {
-	return ErrPreparedStatementNotFound.Message(ctx, message)
-}
-
-// ParamsErrPreparedStatementNotFound extracts the expected parameters from the error's ParameterList.
-func ParamsErrPreparedStatementNotFound(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
 // NewErrIndexKindNotSupported returns an error with the ErrIndexKindNotSupported ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrIndexKindNotSupported or MessageErrIndexKindNotSupported instead.
 func NewErrIndexKindNotSupported(ctx *context.T, off int64, kind string, fieldName string, table string) error {
 	return verror.New(ErrIndexKindNotSupported, ctx, off, kind, fieldName, table)
-}
-
-// ErrorfErrIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
-func ErrorfErrIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
-	return ErrIndexKindNotSupported.Errorf(ctx, format, off, kind, fieldName, table)
-}
-
-// MessageErrIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
-func MessageErrIndexKindNotSupported(ctx *context.T, message string, off int64, kind string, fieldName string, table string) error {
-	return ErrIndexKindNotSupported.Message(ctx, message, off, kind, fieldName, table)
-}
-
-// ParamsErrIndexKindNotSupported extracts the expected parameters from the error's ParameterList.
-func ParamsErrIndexKindNotSupported(argumentError error) (verrorComponent string, verrorOperation string, off int64, kind string, fieldName string, table string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if kind, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value kind, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if fieldName, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value fieldName, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if table, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value table, has %T and not string", tmp)
-		return
-	}
-
-	return
 }
 
 // NewErrInvalidIndexField returns an error with the ErrInvalidIndexField ID.
@@ -2793,61 +448,6 @@ func NewErrInvalidIndexField(ctx *context.T, off int64, fieldName string, table 
 	return verror.New(ErrInvalidIndexField, ctx, off, fieldName, table)
 }
 
-// ErrorfErrInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
-func ErrorfErrInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
-	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table)
-}
-
-// MessageErrInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
-func MessageErrInvalidIndexField(ctx *context.T, message string, off int64, fieldName string, table string) error {
-	return ErrInvalidIndexField.Message(ctx, message, off, fieldName, table)
-}
-
-// ParamsErrInvalidIndexField extracts the expected parameters from the error's ParameterList.
-func ParamsErrInvalidIndexField(argumentError error) (verrorComponent string, verrorOperation string, off int64, fieldName string, table string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if off, ok = tmp.(int64); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value off, has %T and not int64", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if fieldName, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value fieldName, has %T and not string", tmp)
-		return
-	}
-	tmp, returnErr = iter.next()
-	if table, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value table, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrNotWritable returns an error with the ErrNotWritable ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrNotWritable or MessageErrNotWritable instead.
@@ -2855,125 +455,11 @@ func NewErrNotWritable(ctx *context.T, table string) error {
 	return verror.New(ErrNotWritable, ctx, table)
 }
 
-// ErrorfErrNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
-func ErrorfErrNotWritable(ctx *context.T, format string, table string) error {
-	return ErrNotWritable.Errorf(ctx, format, table)
-}
-
-// MessageErrNotWritable calls ErrNotWritable.Message with the supplied arguments.
-func MessageErrNotWritable(ctx *context.T, message string, table string) error {
-	return ErrNotWritable.Message(ctx, message, table)
-}
-
-// ParamsErrNotWritable extracts the expected parameters from the error's ParameterList.
-func ParamsErrNotWritable(argumentError error) (verrorComponent string, verrorOperation string, table string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if table, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value table, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
 // NewErrOperationNotSupported returns an error with the ErrOperationNotSupported ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrOperationNotSupported or MessageErrOperationNotSupported instead.
 func NewErrOperationNotSupported(ctx *context.T, operation string) error {
 	return verror.New(ErrOperationNotSupported, ctx, operation)
-}
-
-// ErrorfErrOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
-func ErrorfErrOperationNotSupported(ctx *context.T, format string, operation string) error {
-	return ErrOperationNotSupported.Errorf(ctx, format, operation)
-}
-
-// MessageErrOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.
-func MessageErrOperationNotSupported(ctx *context.T, message string, operation string) error {
-	return ErrOperationNotSupported.Message(ctx, message, operation)
-}
-
-// ParamsErrOperationNotSupported extracts the expected parameters from the error's ParameterList.
-func ParamsErrOperationNotSupported(argumentError error) (verrorComponent string, verrorOperation string, operation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	var (
-		tmp interface{}
-		ok  bool
-	)
-	tmp, returnErr = iter.next()
-	if operation, ok = tmp.(string); !ok {
-		if returnErr != nil {
-			return
-		}
-		returnErr = fmt.Errorf("parameter list contains the wrong type for return value operation, has %T and not string", tmp)
-		return
-	}
-
-	return
-}
-
-type paramListIterator struct {
-	err      error
-	idx, max int
-	params   []interface{}
-}
-
-func (pl *paramListIterator) next() (interface{}, error) {
-	if pl.err != nil {
-		return nil, pl.err
-	}
-	if pl.idx+1 > pl.max {
-		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
-		return nil, pl.err
-	}
-	pl.idx++
-	return pl.params[pl.idx-1], nil
-}
-
-func (pl *paramListIterator) preamble() (component, operation string, err error) {
-	var tmp interface{}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	var ok bool
-	if component, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
-	}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	if operation, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
-	}
-	return
 }
 
 var initializeVDLCalled bool

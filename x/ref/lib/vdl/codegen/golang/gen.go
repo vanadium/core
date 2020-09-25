@@ -722,9 +722,13 @@ var (
 // Error definitions
 
 var (
+{{if errorsI18n $data}}
 {{range $edef := $pkg.ErrorDefs}}
-	{{errorComment $edef}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
-
+	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
+{{else}}
+{{range $edef := $pkg.ErrorDefs}}
+	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
+{{end}}
 )
 
 {{range $edef := $pkg.ErrorDefs}}
@@ -740,7 +744,7 @@ func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context")
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
 }
 {{end}}
-
+{{if not (errorsI18n $data)}}
 // {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
 func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
 	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
@@ -780,10 +784,11 @@ func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent stri
 	{{end}}{{end}}
 	return
 }
-
 {{end}}
 {{end}}
+{{end}}
 
+{{if not (errorsI18n $data)}}
 type paramListIterator struct {
 	err      error
 	idx, max int
@@ -819,6 +824,7 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
+{{end}}
 
 {{if $pkg.Interfaces}}
 //////////////////////////////////////////////////
@@ -1185,8 +1191,8 @@ func initializeVDL() struct{} {
 {{$data.DefineTypeOfVars}}
 {{if errorsI18n $data}}
 {{if $pkg.ErrorDefs}}
-       // Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
-       {{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
+	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
+	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
 {{end}}
 {{end}}
 	return struct{}{}

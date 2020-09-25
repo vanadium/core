@@ -9,8 +9,6 @@
 package testdata
 
 import (
-	"fmt"
-
 	"v.io/v23/vdl"
 	"v.io/x/ref/lib/discovery"
 )
@@ -446,42 +444,6 @@ var AttributeUuidTest = []UuidTestData{
 		In:   "xyz",
 		Want: "c10b25a2-2d4d-5a19-bb7c-1ee1c4972b4c",
 	},
-}
-
-type paramListIterator struct {
-	err      error
-	idx, max int
-	params   []interface{}
-}
-
-func (pl *paramListIterator) next() (interface{}, error) {
-	if pl.err != nil {
-		return nil, pl.err
-	}
-	if pl.idx+1 > pl.max {
-		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
-		return nil, pl.err
-	}
-	pl.idx++
-	return pl.params[pl.idx-1], nil
-}
-
-func (pl *paramListIterator) preamble() (component, operation string, err error) {
-	var tmp interface{}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	var ok bool
-	if component, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
-	}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	if operation, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
-	}
-	return
 }
 
 // Hold type definitions in package-level variables, for better performance.

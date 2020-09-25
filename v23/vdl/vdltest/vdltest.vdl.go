@@ -14,7 +14,6 @@ import (
 	"reflect"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 )
@@ -93080,13 +93079,6 @@ var (
 	ErrThree = verror.NewIDAction("v.io/v23/vdl/vdltest.Three", verror.NoRetry)
 )
 
-// NewErrNone returns an error with the ErrNone ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrNone or MessageErrNone instead.
-func NewErrNone(ctx *context.T) error {
-	return verror.New(ErrNone, ctx)
-}
-
 // ErrorfErrNone calls ErrNone.Errorf with the supplied arguments.
 func ErrorfErrNone(ctx *context.T, format string) error {
 	return ErrNone.Errorf(ctx, format)
@@ -93111,13 +93103,6 @@ func ParamsErrNone(argumentError error) (verrorComponent string, verrorOperation
 	}
 
 	return
-}
-
-// NewErrOne returns an error with the ErrOne ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrOne or MessageErrOne instead.
-func NewErrOne(ctx *context.T, i int64) error {
-	return verror.New(ErrOne, ctx, i)
 }
 
 // ErrorfErrOne calls ErrOne.Errorf with the supplied arguments.
@@ -93157,13 +93142,6 @@ func ParamsErrOne(argumentError error) (verrorComponent string, verrorOperation 
 	}
 
 	return
-}
-
-// NewErrTwo returns an error with the ErrTwo ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrTwo or MessageErrTwo instead.
-func NewErrTwo(ctx *context.T, a string, err error) error {
-	return verror.New(ErrTwo, ctx, a, err)
 }
 
 // ErrorfErrTwo calls ErrTwo.Errorf with the supplied arguments.
@@ -93211,13 +93189,6 @@ func ParamsErrTwo(argumentError error) (verrorComponent string, verrorOperation 
 	}
 
 	return
-}
-
-// NewErrThree returns an error with the ErrThree ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfErrThree or MessageErrThree instead.
-func NewErrThree(ctx *context.T, a string, b int64, c float32) error {
-	return verror.New(ErrThree, ctx, a, b, c)
 }
 
 // ErrorfErrThree calls ErrThree.Errorf with the supplied arguments.
@@ -94426,12 +94397,6 @@ func initializeVDL() struct{} {
 	vdlTypeUnion282 = vdl.TypeOf((*VWireUnionNPointer)(nil))
 	vdlTypeUnion283 = vdl.TypeOf((*VWireUnionNIface)(nil))
 	vdlTypeStruct284 = vdl.TypeOf((*VWireAll)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNone.ID), "{1:}{2:} dummy")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrOne.ID), "{1:}{2:} dummy")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTwo.ID), "{1:}{2:} dummy")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrThree.ID), "{1:}{2:} dummy")
 
 	return struct{}{}
 }

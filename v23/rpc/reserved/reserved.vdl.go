@@ -9,8 +9,6 @@
 package reserved
 
 import (
-	"fmt"
-
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -25,13 +23,13 @@ var (
 
 	// ErrGlobMaxRecursionReached indicates that the Glob request exceeded the
 	// max recursion level.
-	ErrGlobMaxRecursionReached = verror.NewIDAction("v.io/v23/rpc/reserved.GlobMaxRecursionReached", verror.NoRetry)
+	ErrGlobMaxRecursionReached = verror.Register("v.io/v23/rpc/reserved.GlobMaxRecursionReached", verror.NoRetry, "{1:}{2:} max recursion level reached{:_}")
 	// ErrGlobMatchesOmitted indicates that some of the Glob results might
 	// have been omitted due to access restrictions.
-	ErrGlobMatchesOmitted = verror.NewIDAction("v.io/v23/rpc/reserved.GlobMatchesOmitted", verror.NoRetry)
+	ErrGlobMatchesOmitted = verror.Register("v.io/v23/rpc/reserved.GlobMatchesOmitted", verror.NoRetry, "{1:}{2:} some matches might have been omitted")
 	// ErrGlobNotImplemented indicates that Glob is not implemented by the
 	// object.
-	ErrGlobNotImplemented = verror.NewIDAction("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry)
+	ErrGlobNotImplemented = verror.Register("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry, "{1:}{2:} Glob not implemented")
 )
 
 // NewErrGlobMaxRecursionReached returns an error with the ErrGlobMaxRecursionReached ID.
@@ -41,32 +39,6 @@ func NewErrGlobMaxRecursionReached(ctx *context.T) error {
 	return verror.New(ErrGlobMaxRecursionReached, ctx)
 }
 
-// ErrorfErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
-func ErrorfErrGlobMaxRecursionReached(ctx *context.T, format string) error {
-	return ErrGlobMaxRecursionReached.Errorf(ctx, format)
-}
-
-// MessageErrGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
-func MessageErrGlobMaxRecursionReached(ctx *context.T, message string) error {
-	return ErrGlobMaxRecursionReached.Message(ctx, message)
-}
-
-// ParamsErrGlobMaxRecursionReached extracts the expected parameters from the error's ParameterList.
-func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
 // NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrGlobMatchesOmitted or MessageErrGlobMatchesOmitted instead.
@@ -74,99 +46,11 @@ func NewErrGlobMatchesOmitted(ctx *context.T) error {
 	return verror.New(ErrGlobMatchesOmitted, ctx)
 }
 
-// ErrorfErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
-func ErrorfErrGlobMatchesOmitted(ctx *context.T, format string) error {
-	return ErrGlobMatchesOmitted.Errorf(ctx, format)
-}
-
-// MessageErrGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
-func MessageErrGlobMatchesOmitted(ctx *context.T, message string) error {
-	return ErrGlobMatchesOmitted.Message(ctx, message)
-}
-
-// ParamsErrGlobMatchesOmitted extracts the expected parameters from the error's ParameterList.
-func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
 // NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
 // WARNING: this function is deprecated and will be removed in the future,
 // use ErrorfErrGlobNotImplemented or MessageErrGlobNotImplemented instead.
 func NewErrGlobNotImplemented(ctx *context.T) error {
 	return verror.New(ErrGlobNotImplemented, ctx)
-}
-
-// ErrorfErrGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
-func ErrorfErrGlobNotImplemented(ctx *context.T, format string) error {
-	return ErrGlobNotImplemented.Errorf(ctx, format)
-}
-
-// MessageErrGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.
-func MessageErrGlobNotImplemented(ctx *context.T, message string) error {
-	return ErrGlobNotImplemented.Message(ctx, message)
-}
-
-// ParamsErrGlobNotImplemented extracts the expected parameters from the error's ParameterList.
-func ParamsErrGlobNotImplemented(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
-	params := verror.Params(argumentError)
-	if params == nil {
-		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
-		return
-	}
-	iter := &paramListIterator{params: params, max: len(params)}
-
-	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
-		return
-	}
-
-	return
-}
-
-type paramListIterator struct {
-	err      error
-	idx, max int
-	params   []interface{}
-}
-
-func (pl *paramListIterator) next() (interface{}, error) {
-	if pl.err != nil {
-		return nil, pl.err
-	}
-	if pl.idx+1 > pl.max {
-		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
-		return nil, pl.err
-	}
-	pl.idx++
-	return pl.params[pl.idx-1], nil
-}
-
-func (pl *paramListIterator) preamble() (component, operation string, err error) {
-	var tmp interface{}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	var ok bool
-	if component, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
-	}
-	if tmp, err = pl.next(); err != nil {
-		return
-	}
-	if operation, ok = tmp.(string); !ok {
-		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
-	}
-	return
 }
 
 var initializeVDLCalled bool
