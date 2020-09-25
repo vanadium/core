@@ -46,7 +46,7 @@ func checkErrors(errs *vdlutil.Errors) error {
 }
 
 func printWarnings(warnings *vdlutil.Errors) {
-	if warnings.IsEmpty() {
+	if !optShowWarnings || warnings.IsEmpty() {
 		return
 	}
 	fmt.Println(warnings.String())
@@ -61,6 +61,9 @@ func (f runnerFunc) Run(_ *cmdline.Env, args []string) (e error) {
 		vdlutil.SetVerbose()
 	}
 	env := compile.NewEnv(flagMaxErrors)
+	if optErrorsNoI18n {
+		env.DisallowI18nErrorSupport()
+	}
 	env.DisallowPathQualifiers()
 	if len(args) == 0 {
 		// If the user doesn't specify any targets, the cwd is implied.
@@ -348,6 +351,8 @@ var (
 
 	// Options for each command.
 	optCompileStatus bool
+	optErrorsNoI18n  bool
+	optShowWarnings  bool
 	optGenStatus     bool
 	optGenGoOutDir   = genOutDir{
 		supportGoModules: true,
@@ -409,6 +414,12 @@ func init() {
 
 	// Options for compile.
 	cmdCompile.Flags.BoolVar(&optCompileStatus, "status", true, "Show package names while we compile")
+
+	// Options for compile and for generate
+	cmdCompile.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
+	cmdGenerate.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
+	cmdCompile.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
+	cmdGenerate.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
 
 	// Options for generate.
 	cmdGenerate.Flags.Var(&optGenLangs, "lang", "Comma-separated list of languages to generate, currently supporting "+genLangAll.String())
