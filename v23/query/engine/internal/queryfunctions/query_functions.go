@@ -14,8 +14,6 @@ import (
 	"v.io/v23/vom"
 )
 
-const ()
-
 type queryFunc func(ds.Database, int64, []*queryparser.Operand) (*queryparser.Operand, error)
 type checkArgsFunc func(ds.Database, int64, []*queryparser.Operand) error
 
