@@ -13,6 +13,7 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -194,6 +195,13 @@ var (
 	ErrCantAcceptFromTag    = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.CantAcceptFromTag", verror.NoRetry)
 )
 
+// NewErrInvalidAddress returns an error with the ErrInvalidAddress ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidAddress or MessageInvalidAddress instead.
+func NewErrInvalidAddress(ctx *context.T, address string) error {
+	return verror.New(ErrInvalidAddress, ctx, address)
+}
+
 // ErrorfInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
 func ErrorfInvalidAddress(ctx *context.T, format string, address string) error {
 	return ErrInvalidAddress.Errorf(ctx, format, address)
@@ -231,6 +239,13 @@ func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verro
 	}
 
 	return
+}
+
+// NewErrAddressNotReachable returns an error with the ErrAddressNotReachable ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAddressNotReachable or MessageAddressNotReachable instead.
+func NewErrAddressNotReachable(ctx *context.T, address string) error {
+	return verror.New(ErrAddressNotReachable, ctx, address)
 }
 
 // ErrorfAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
@@ -272,6 +287,13 @@ func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, 
 	return
 }
 
+// NewErrNoRegisteredProtocol returns an error with the ErrNoRegisteredProtocol ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoRegisteredProtocol or MessageNoRegisteredProtocol instead.
+func NewErrNoRegisteredProtocol(ctx *context.T, protocol string) error {
+	return verror.New(ErrNoRegisteredProtocol, ctx, protocol)
+}
+
 // ErrorfNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
 func ErrorfNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
 	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
@@ -309,6 +331,13 @@ func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string,
 	}
 
 	return
+}
+
+// NewErrCantAcceptFromTag returns an error with the ErrCantAcceptFromTag ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCantAcceptFromTag or MessageCantAcceptFromTag instead.
+func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
+	return verror.New(ErrCantAcceptFromTag, ctx, tag)
 }
 
 // ErrorfCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
@@ -540,6 +569,12 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*PeerKey)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*PeerBehavior)(nil)).Elem()
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidAddress.ID), "{1:}{2:} invalid vine address {3}, address must be of the form 'network/address/tag'")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAddressNotReachable.ID), "{1:}{2:} address {3} not reachable")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoRegisteredProtocol.ID), "{1:}{2:} no registered protocol {3}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCantAcceptFromTag.ID), "{1:}{2:} can't accept connection from tag {3}")
 
 	return struct{}{}
 }

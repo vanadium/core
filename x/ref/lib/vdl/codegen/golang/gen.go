@@ -662,14 +662,6 @@ func callVerror(data *goData, call string) string {
 	return "verror." + call
 }
 
-// 
-{_}, which is replaced by all otherwise unused
-// parameters.  If a substring is of the form {:<number>}, {<number>:},
-// {:<number>:}, {:_}, {_:}, or {:_:}, and the corresponding parameters are not
-// the empty string, the parameter is preceded by ": " or followed by ":" or
-// both, respectively.  For example, if the format:
-//   {3:} foo {2} bar{:_} ({3})
-
 // The template that we execute against a goData instance to generate our
 // code.  Most of this is fairly straightforward substitution and ranges; more
 // complicated logic is delegated to the helper functions above.
@@ -730,10 +722,6 @@ var (
 // Error definitions
 
 var (
-{{if errorsI18n $data}}
-{{range $edef := $pkg.ErrorDefs}}
-	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
-{{end}}
 {{range $edef := $pkg.ErrorDefs}}
 	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
 )

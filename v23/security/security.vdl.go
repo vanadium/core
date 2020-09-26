@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
 	vdltime "v.io/v23/vdlroot/time"
@@ -1713,6 +1714,13 @@ var (
 	ErrEndpointAuthorizationFailed   = verror.NewIDAction("v.io/v23/security.EndpointAuthorizationFailed", verror.NoRetry)
 )
 
+// NewErrCaveatNotRegistered returns an error with the ErrCaveatNotRegistered ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCaveatNotRegistered or MessageCaveatNotRegistered instead.
+func NewErrCaveatNotRegistered(ctx *context.T, id uniqueid.Id) error {
+	return verror.New(ErrCaveatNotRegistered, ctx, id)
+}
+
 // ErrorfCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
 func ErrorfCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatNotRegistered.Errorf(ctx, format, id)
@@ -1752,6 +1760,13 @@ func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, 
 	return
 }
 
+// NewErrCaveatParamAny returns an error with the ErrCaveatParamAny ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCaveatParamAny or MessageCaveatParamAny instead.
+func NewErrCaveatParamAny(ctx *context.T, id uniqueid.Id) error {
+	return verror.New(ErrCaveatParamAny, ctx, id)
+}
+
 // ErrorfCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
 func ErrorfCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrCaveatParamAny.Errorf(ctx, format, id)
@@ -1789,6 +1804,13 @@ func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verro
 	}
 
 	return
+}
+
+// NewErrCaveatParamTypeMismatch returns an error with the ErrCaveatParamTypeMismatch ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCaveatParamTypeMismatch or MessageCaveatParamTypeMismatch instead.
+func NewErrCaveatParamTypeMismatch(ctx *context.T, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
+	return verror.New(ErrCaveatParamTypeMismatch, ctx, id, got, want)
 }
 
 // ErrorfCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
@@ -1846,6 +1868,13 @@ func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent stri
 	return
 }
 
+// NewErrCaveatParamCoding returns an error with the ErrCaveatParamCoding ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCaveatParamCoding or MessageCaveatParamCoding instead.
+func NewErrCaveatParamCoding(ctx *context.T, id uniqueid.Id, typ *vdl.Type, err error) error {
+	return verror.New(ErrCaveatParamCoding, ctx, id, typ, err)
+}
+
 // ErrorfCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
 func ErrorfCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err)
@@ -1901,6 +1930,13 @@ func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, ve
 	return
 }
 
+// NewErrCaveatValidation returns an error with the ErrCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCaveatValidation or MessageCaveatValidation instead.
+func NewErrCaveatValidation(ctx *context.T, err error) error {
+	return verror.New(ErrCaveatValidation, ctx, err)
+}
+
 // ErrorfCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
 func ErrorfCaveatValidation(ctx *context.T, format string, err error) error {
 	return ErrCaveatValidation.Errorf(ctx, format, err)
@@ -1940,6 +1976,13 @@ func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, ver
 	return
 }
 
+// NewErrConstCaveatValidation returns an error with the ErrConstCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfConstCaveatValidation or MessageConstCaveatValidation instead.
+func NewErrConstCaveatValidation(ctx *context.T) error {
+	return verror.New(ErrConstCaveatValidation, ctx)
+}
+
 // ErrorfConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
 func ErrorfConstCaveatValidation(ctx *context.T, format string) error {
 	return ErrConstCaveatValidation.Errorf(ctx, format)
@@ -1964,6 +2007,13 @@ func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string
 	}
 
 	return
+}
+
+// NewErrExpiryCaveatValidation returns an error with the ErrExpiryCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfExpiryCaveatValidation or MessageExpiryCaveatValidation instead.
+func NewErrExpiryCaveatValidation(ctx *context.T, currentTime time.Time, expiryTime time.Time) error {
+	return verror.New(ErrExpiryCaveatValidation, ctx, currentTime, expiryTime)
 }
 
 // ErrorfExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
@@ -2013,6 +2063,13 @@ func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent strin
 	return
 }
 
+// NewErrMethodCaveatValidation returns an error with the ErrMethodCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfMethodCaveatValidation or MessageMethodCaveatValidation instead.
+func NewErrMethodCaveatValidation(ctx *context.T, invokedMethod string, permittedMethods []string) error {
+	return verror.New(ErrMethodCaveatValidation, ctx, invokedMethod, permittedMethods)
+}
+
 // ErrorfMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
 func ErrorfMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
 	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods)
@@ -2058,6 +2115,13 @@ func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent strin
 	}
 
 	return
+}
+
+// NewErrPeerBlessingsCaveatValidation returns an error with the ErrPeerBlessingsCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfPeerBlessingsCaveatValidation or MessagePeerBlessingsCaveatValidation instead.
+func NewErrPeerBlessingsCaveatValidation(ctx *context.T, peerBlessings []string, permittedPatterns []BlessingPattern) error {
+	return verror.New(ErrPeerBlessingsCaveatValidation, ctx, peerBlessings, permittedPatterns)
 }
 
 // ErrorfPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
@@ -2107,6 +2171,13 @@ func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponen
 	return
 }
 
+// NewErrUnrecognizedRoot returns an error with the ErrUnrecognizedRoot ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnrecognizedRoot or MessageUnrecognizedRoot instead.
+func NewErrUnrecognizedRoot(ctx *context.T, rootKey string, details error) error {
+	return verror.New(ErrUnrecognizedRoot, ctx, rootKey, details)
+}
+
 // ErrorfUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
 func ErrorfUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
 	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details)
@@ -2152,6 +2223,13 @@ func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, ver
 	}
 
 	return
+}
+
+// NewErrAuthorizationFailed returns an error with the ErrAuthorizationFailed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAuthorizationFailed or MessageAuthorizationFailed instead.
+func NewErrAuthorizationFailed(ctx *context.T, remote []string, remoteErr []RejectedBlessing, local []string) error {
+	return verror.New(ErrAuthorizationFailed, ctx, remote, remoteErr, local)
 }
 
 // ErrorfAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
@@ -2209,6 +2287,13 @@ func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, 
 	return
 }
 
+// NewErrInvalidSigningBlessingCaveat returns an error with the ErrInvalidSigningBlessingCaveat ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidSigningBlessingCaveat or MessageInvalidSigningBlessingCaveat instead.
+func NewErrInvalidSigningBlessingCaveat(ctx *context.T, id uniqueid.Id) error {
+	return verror.New(ErrInvalidSigningBlessingCaveat, ctx, id)
+}
+
 // ErrorfInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
 func ErrorfInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
 	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id)
@@ -2246,6 +2331,13 @@ func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent
 	}
 
 	return
+}
+
+// NewErrPublicKeyNotAllowed returns an error with the ErrPublicKeyNotAllowed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfPublicKeyNotAllowed or MessagePublicKeyNotAllowed instead.
+func NewErrPublicKeyNotAllowed(ctx *context.T, got string, want string) error {
+	return verror.New(ErrPublicKeyNotAllowed, ctx, got, want)
 }
 
 // ErrorfPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
@@ -2293,6 +2385,13 @@ func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, 
 	}
 
 	return
+}
+
+// NewErrEndpointAuthorizationFailed returns an error with the ErrEndpointAuthorizationFailed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfEndpointAuthorizationFailed or MessageEndpointAuthorizationFailed instead.
+func NewErrEndpointAuthorizationFailed(ctx *context.T, endpoint string, remote []string, rejected []RejectedBlessing) error {
+	return verror.New(ErrEndpointAuthorizationFailed, ctx, endpoint, remote, rejected)
 }
 
 // ErrorfEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
@@ -2478,6 +2577,22 @@ func initializeVDL() struct{} {
 	vdlTypeList20 = vdl.TypeOf((*[]Certificate)(nil))
 	vdlTypeUnion21 = vdl.TypeOf((*WireDischarge)(nil))
 	vdlTypeStruct22 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatNotRegistered.ID), "{1:}{2:} no validation function registered for caveat id {3}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamAny.ID), "{1:}{2:} caveat {3} uses illegal param type any")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamTypeMismatch.ID), "{1:}{2:} bad param type: caveat {3} got {4}, want {5}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatParamCoding.ID), "{1:}{2:} unable to encode/decode caveat param(type={4}) for caveat {3}: {5}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCaveatValidation.ID), "{1:}{2:} caveat validation failed: {3}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrConstCaveatValidation.ID), "{1:}{2:} false const caveat always fails validation")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpiryCaveatValidation.ID), "{1:}{2:} now({3}) is after expiry({4})")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMethodCaveatValidation.ID), "{1:}{2:} method {3} not in list {4}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPeerBlessingsCaveatValidation.ID), "{1:}{2:} patterns in peer blessings caveat {4} not matched by the peer {3}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnrecognizedRoot.ID), "{1:}{2:} unrecognized public key {3} in root certificate{:4}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAuthorizationFailed.ID), "{1:}{2:} principal with blessings {3} (rejected {4}) is not authorized by principal with blessings {5}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidSigningBlessingCaveat.ID), "{1:}{2:} blessing has caveat with UUID {3} which makes it unsuitable for signing -- please use blessings with just Expiry caveats")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPublicKeyNotAllowed.ID), "{1:}{2:} peer has public key {3}, not the authorized public key {4}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrEndpointAuthorizationFailed.ID), "{1:}{2:} blessings in endpoint {3} not matched by blessings presented: {4} (rejected {5})")
 
 	return struct{}{}
 }

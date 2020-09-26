@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -32,6 +33,13 @@ var (
 	// object.
 	ErrGlobNotImplemented = verror.NewIDAction("v.io/v23/rpc/reserved.GlobNotImplemented", verror.NoRetry)
 )
+
+// NewErrGlobMaxRecursionReached returns an error with the ErrGlobMaxRecursionReached ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobMaxRecursionReached or MessageGlobMaxRecursionReached instead.
+func NewErrGlobMaxRecursionReached(ctx *context.T) error {
+	return verror.New(ErrGlobMaxRecursionReached, ctx)
+}
 
 // ErrorfGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
 func ErrorfGlobMaxRecursionReached(ctx *context.T, format string) error {
@@ -59,6 +67,13 @@ func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent stri
 	return
 }
 
+// NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobMatchesOmitted or MessageGlobMatchesOmitted instead.
+func NewErrGlobMatchesOmitted(ctx *context.T) error {
+	return verror.New(ErrGlobMatchesOmitted, ctx)
+}
+
 // ErrorfGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
 func ErrorfGlobMatchesOmitted(ctx *context.T, format string) error {
 	return ErrGlobMatchesOmitted.Errorf(ctx, format)
@@ -83,6 +98,13 @@ func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, v
 	}
 
 	return
+}
+
+// NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfGlobNotImplemented or MessageGlobNotImplemented instead.
+func NewErrGlobNotImplemented(ctx *context.T) error {
+	return verror.New(ErrGlobNotImplemented, ctx)
 }
 
 // ErrorfGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
@@ -167,6 +189,11 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrGlobMaxRecursionReached.ID), "{1:}{2:} max recursion level reached{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrGlobMatchesOmitted.ID), "{1:}{2:} some matches might have been omitted")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrGlobNotImplemented.ID), "{1:}{2:} Glob not implemented")
 
 	return struct{}{}
 }

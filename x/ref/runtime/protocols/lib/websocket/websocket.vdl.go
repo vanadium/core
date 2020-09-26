@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -24,6 +25,13 @@ var (
 	ErrListenerClosed     = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry)
 	ErrListenCalledInNaCl = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry)
 )
+
+// NewErrListenerClosed returns an error with the ErrListenerClosed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenerClosed or MessageListenerClosed instead.
+func NewErrListenerClosed(ctx *context.T) error {
+	return verror.New(ErrListenerClosed, ctx)
+}
 
 // ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
 func ErrorfListenerClosed(ctx *context.T, format string) error {
@@ -49,6 +57,13 @@ func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verro
 	}
 
 	return
+}
+
+// NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
+func NewErrListenCalledInNaCl(ctx *context.T) error {
+	return verror.New(ErrListenCalledInNaCl, ctx)
 }
 
 // ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
@@ -133,6 +148,10 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrListenerClosed.ID), "{1:}{2:} listener is already closed.")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrListenCalledInNaCl.ID), "{1:}{2:} Listen cannot be called in NaCl code.")
 
 	return struct{}{}
 }

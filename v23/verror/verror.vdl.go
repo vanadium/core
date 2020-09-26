@@ -12,6 +12,7 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 )
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
@@ -79,6 +80,13 @@ var (
 	ErrTimeout = NewIDAction("v.io/v23/verror.Timeout", NoRetry)
 )
 
+// NewErrUnknown returns an error with the ErrUnknown ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknown or MessageUnknown instead.
+func NewErrUnknown(ctx *context.T) error {
+	return New(ErrUnknown, ctx)
+}
+
 // ErrorfUnknown calls ErrUnknown.Errorf with the supplied arguments.
 func ErrorfUnknown(ctx *context.T, format string) error {
 	return ErrUnknown.Errorf(ctx, format)
@@ -103,6 +111,13 @@ func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperat
 	}
 
 	return
+}
+
+// NewErrInternal returns an error with the ErrInternal ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInternal or MessageInternal instead.
+func NewErrInternal(ctx *context.T) error {
+	return New(ErrInternal, ctx)
 }
 
 // ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
@@ -131,6 +146,13 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
+// NewErrNotImplemented returns an error with the ErrNotImplemented ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotImplemented or MessageNotImplemented instead.
+func NewErrNotImplemented(ctx *context.T) error {
+	return New(ErrNotImplemented, ctx)
+}
+
 // ErrorfNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
 func ErrorfNotImplemented(ctx *context.T, format string) error {
 	return ErrNotImplemented.Errorf(ctx, format)
@@ -155,6 +177,13 @@ func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verro
 	}
 
 	return
+}
+
+// NewErrEndOfFile returns an error with the ErrEndOfFile ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfEndOfFile or MessageEndOfFile instead.
+func NewErrEndOfFile(ctx *context.T) error {
+	return New(ErrEndOfFile, ctx)
 }
 
 // ErrorfEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
@@ -183,6 +212,13 @@ func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
+// NewErrBadArg returns an error with the ErrBadArg ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadArg or MessageBadArg instead.
+func NewErrBadArg(ctx *context.T) error {
+	return New(ErrBadArg, ctx)
+}
+
 // ErrorfBadArg calls ErrBadArg.Errorf with the supplied arguments.
 func ErrorfBadArg(ctx *context.T, format string) error {
 	return ErrBadArg.Errorf(ctx, format)
@@ -207,6 +243,13 @@ func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperati
 	}
 
 	return
+}
+
+// NewErrBadState returns an error with the ErrBadState ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadState or MessageBadState instead.
+func NewErrBadState(ctx *context.T) error {
+	return New(ErrBadState, ctx)
 }
 
 // ErrorfBadState calls ErrBadState.Errorf with the supplied arguments.
@@ -235,6 +278,13 @@ func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
+// NewErrBadVersion returns an error with the ErrBadVersion ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadVersion or MessageBadVersion instead.
+func NewErrBadVersion(ctx *context.T) error {
+	return New(ErrBadVersion, ctx)
+}
+
 // ErrorfBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
 func ErrorfBadVersion(ctx *context.T, format string) error {
 	return ErrBadVersion.Errorf(ctx, format)
@@ -259,6 +309,13 @@ func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOpe
 	}
 
 	return
+}
+
+// NewErrExist returns an error with the ErrExist ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfExist or MessageExist instead.
+func NewErrExist(ctx *context.T) error {
+	return New(ErrExist, ctx)
 }
 
 // ErrorfExist calls ErrExist.Errorf with the supplied arguments.
@@ -287,6 +344,13 @@ func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperatio
 	return
 }
 
+// NewErrNoExist returns an error with the ErrNoExist ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoExist or MessageNoExist instead.
+func NewErrNoExist(ctx *context.T) error {
+	return New(ErrNoExist, ctx)
+}
+
 // ErrorfNoExist calls ErrNoExist.Errorf with the supplied arguments.
 func ErrorfNoExist(ctx *context.T, format string) error {
 	return ErrNoExist.Errorf(ctx, format)
@@ -311,6 +375,13 @@ func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperat
 	}
 
 	return
+}
+
+// NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknownMethod or MessageUnknownMethod instead.
+func NewErrUnknownMethod(ctx *context.T) error {
+	return New(ErrUnknownMethod, ctx)
 }
 
 // ErrorfUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
@@ -339,6 +410,13 @@ func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verror
 	return
 }
 
+// NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnknownSuffix or MessageUnknownSuffix instead.
+func NewErrUnknownSuffix(ctx *context.T) error {
+	return New(ErrUnknownSuffix, ctx)
+}
+
 // ErrorfUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
 func ErrorfUnknownSuffix(ctx *context.T, format string) error {
 	return ErrUnknownSuffix.Errorf(ctx, format)
@@ -363,6 +441,13 @@ func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verror
 	}
 
 	return
+}
+
+// NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoExistOrNoAccess or MessageNoExistOrNoAccess instead.
+func NewErrNoExistOrNoAccess(ctx *context.T) error {
+	return New(ErrNoExistOrNoAccess, ctx)
 }
 
 // ErrorfNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
@@ -391,6 +476,13 @@ func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, ve
 	return
 }
 
+// NewErrNoServers returns an error with the ErrNoServers ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoServers or MessageNoServers instead.
+func NewErrNoServers(ctx *context.T) error {
+	return New(ErrNoServers, ctx)
+}
+
 // ErrorfNoServers calls ErrNoServers.Errorf with the supplied arguments.
 func ErrorfNoServers(ctx *context.T, format string) error {
 	return ErrNoServers.Errorf(ctx, format)
@@ -415,6 +507,13 @@ func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOper
 	}
 
 	return
+}
+
+// NewErrNoAccess returns an error with the ErrNoAccess ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoAccess or MessageNoAccess instead.
+func NewErrNoAccess(ctx *context.T) error {
+	return New(ErrNoAccess, ctx)
 }
 
 // ErrorfNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
@@ -443,6 +542,13 @@ func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
+// NewErrNotTrusted returns an error with the ErrNotTrusted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotTrusted or MessageNotTrusted instead.
+func NewErrNotTrusted(ctx *context.T) error {
+	return New(ErrNotTrusted, ctx)
+}
+
 // ErrorfNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
 func ErrorfNotTrusted(ctx *context.T, format string) error {
 	return ErrNotTrusted.Errorf(ctx, format)
@@ -467,6 +573,13 @@ func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOpe
 	}
 
 	return
+}
+
+// NewErrAborted returns an error with the ErrAborted ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAborted or MessageAborted instead.
+func NewErrAborted(ctx *context.T) error {
+	return New(ErrAborted, ctx)
 }
 
 // ErrorfAborted calls ErrAborted.Errorf with the supplied arguments.
@@ -495,6 +608,13 @@ func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperat
 	return
 }
 
+// NewErrBadProtocol returns an error with the ErrBadProtocol ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBadProtocol or MessageBadProtocol instead.
+func NewErrBadProtocol(ctx *context.T) error {
+	return New(ErrBadProtocol, ctx)
+}
+
 // ErrorfBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
 func ErrorfBadProtocol(ctx *context.T, format string) error {
 	return ErrBadProtocol.Errorf(ctx, format)
@@ -521,6 +641,13 @@ func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
+// NewErrCanceled returns an error with the ErrCanceled ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCanceled or MessageCanceled instead.
+func NewErrCanceled(ctx *context.T) error {
+	return New(ErrCanceled, ctx)
+}
+
 // ErrorfCanceled calls ErrCanceled.Errorf with the supplied arguments.
 func ErrorfCanceled(ctx *context.T, format string) error {
 	return ErrCanceled.Errorf(ctx, format)
@@ -545,6 +672,13 @@ func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOpera
 	}
 
 	return
+}
+
+// NewErrTimeout returns an error with the ErrTimeout ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTimeout or MessageTimeout instead.
+func NewErrTimeout(ctx *context.T) error {
+	return New(ErrTimeout, ctx)
 }
 
 // ErrorfTimeout calls ErrTimeout.Errorf with the supplied arguments.
@@ -629,6 +763,27 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknown.ID), "{1:}{2:} Error{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInternal.ID), "{1:}{2:} Internal error{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotImplemented.ID), "{1:}{2:} Not implemented{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrEndOfFile.ID), "{1:}{2:} End of file{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadArg.ID), "{1:}{2:} Bad argument{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadState.ID), "{1:}{2:} Invalid state{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadVersion.ID), "{1:}{2:} Version is out of date")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExist.ID), "{1:}{2:} Already exists{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoExist.ID), "{1:}{2:} Does not exist{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownMethod.ID), "{1:}{2:} Method does not exist{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownSuffix.ID), "{1:}{2:} Suffix does not exist{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoExistOrNoAccess.ID), "{1:}{2:} Does not exist or access denied{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoServers.ID), "{1:}{2:} No usable servers found{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoAccess.ID), "{1:}{2:} Access denied{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotTrusted.ID), "{1:}{2:} Client does not trust server{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAborted.ID), "{1:}{2:} Aborted{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadProtocol.ID), "{1:}{2:} Bad protocol or type{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCanceled.ID), "{1:}{2:} Canceled{:_}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTimeout.ID), "{1:}{2:} Timeout{:_}")
 
 	return struct{}{}
 }

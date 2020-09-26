@@ -107,6 +107,7 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
+	"v.io/v23/i18n"
 	"v.io/v23/security"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
@@ -445,6 +446,13 @@ var (
 	ErrNoTags                    = verror.NewIDAction("v.io/v23/security/access.NoTags", verror.NoRetry)
 )
 
+// NewErrTooBig returns an error with the ErrTooBig ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTooBig or MessageTooBig instead.
+func NewErrTooBig(ctx *context.T) error {
+	return verror.New(ErrTooBig, ctx)
+}
+
 // ErrorfTooBig calls ErrTooBig.Errorf with the supplied arguments.
 func ErrorfTooBig(ctx *context.T, format string) error {
 	return ErrTooBig.Errorf(ctx, format)
@@ -469,6 +477,13 @@ func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperati
 	}
 
 	return
+}
+
+// NewErrNoPermissions returns an error with the ErrNoPermissions ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoPermissions or MessageNoPermissions instead.
+func NewErrNoPermissions(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
+	return verror.New(ErrNoPermissions, ctx, validBlessings, rejectedBlessings, tag)
 }
 
 // ErrorfNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
@@ -526,6 +541,13 @@ func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verror
 	return
 }
 
+// NewErrAccessListMatch returns an error with the ErrAccessListMatch ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAccessListMatch or MessageAccessListMatch instead.
+func NewErrAccessListMatch(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
+	return verror.New(ErrAccessListMatch, ctx, validBlessings, rejectedBlessings)
+}
+
 // ErrorfAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
 func ErrorfAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
@@ -573,6 +595,13 @@ func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verr
 	return
 }
 
+// NewErrUnenforceablePatterns returns an error with the ErrUnenforceablePatterns ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfUnenforceablePatterns or MessageUnenforceablePatterns instead.
+func NewErrUnenforceablePatterns(ctx *context.T, rejectedPatterns []security.BlessingPattern) error {
+	return verror.New(ErrUnenforceablePatterns, ctx, rejectedPatterns)
+}
+
 // ErrorfUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
 func ErrorfUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
 	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
@@ -612,6 +641,13 @@ func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string
 	return
 }
 
+// NewErrInvalidOpenAccessList returns an error with the ErrInvalidOpenAccessList ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfInvalidOpenAccessList or MessageInvalidOpenAccessList instead.
+func NewErrInvalidOpenAccessList(ctx *context.T) error {
+	return verror.New(ErrInvalidOpenAccessList, ctx)
+}
+
 // ErrorfInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
 func ErrorfInvalidOpenAccessList(ctx *context.T, format string) error {
 	return ErrInvalidOpenAccessList.Errorf(ctx, format)
@@ -636,6 +672,13 @@ func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string
 	}
 
 	return
+}
+
+// NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfAccessTagCaveatValidation or MessageAccessTagCaveatValidation instead.
+func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
+	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
 }
 
 // ErrorfAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
@@ -683,6 +726,13 @@ func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent st
 	}
 
 	return
+}
+
+// NewErrMultipleTags returns an error with the ErrMultipleTags ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfMultipleTags or MessageMultipleTags instead.
+func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string) error {
+	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
 }
 
 // ErrorfMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
@@ -738,6 +788,13 @@ func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorO
 	}
 
 	return
+}
+
+// NewErrNoTags returns an error with the ErrNoTags ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNoTags or MessageNoTags instead.
+func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
+	return verror.New(ErrNoTags, ctx, suffix, method, tag)
 }
 
 // ErrorfNoTags calls ErrNoTags.Errorf with the supplied arguments.
@@ -875,6 +932,16 @@ func initializeVDL() struct{} {
 	vdlTypeString4 = vdl.TypeOf((*security.BlessingPattern)(nil))
 	vdlTypeMap5 = vdl.TypeOf((*Permissions)(nil))
 	vdlTypeString6 = vdl.TypeOf((*Tag)(nil))
+
+	// Set error format strings.
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTooBig.ID), "{1:}{2:} AccessList is too big")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoPermissions.ID), "{1:}{2:} {3} does not have {5} access (rejected blessings: {4})")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAccessListMatch.ID), "{1:}{2:} {3} does not match the access list (rejected blessings: {4})")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnenforceablePatterns.ID), "{1:}{2:} AccessList contains the following invalid or unrecognized patterns in the In list: {3}")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidOpenAccessList.ID), "{1:}{2:} AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAccessTagCaveatValidation.ID), "{1:}{2:} access tags on method ({3}) do not include any of the ones in the caveat ({4}), or the method is using a different tag type")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMultipleTags.ID), "{1:}{2:} authorizer on {3}.{4} cannot handle multiple tags of type {5}; this is likely unintentional")
+	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoTags.ID), "{1:}{2:} authorizer on {3}.{4} has no tags of type {5}; this is likely unintentional")
 
 	return struct{}{}
 }
