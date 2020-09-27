@@ -23,7 +23,6 @@ type TokenType int
 
 const (
 	unexpectedFormat               = "[%v]unexpected: %v"
-	unexpectedIdentifierFormat     = "[%v]unknown identifier: %v"
 	unexpectedEndOfStatementFormat = "[%v]unexpected end of statement"
 	expectedFormat                 = "[%v]expected '%v'"
 	expectedIdentifierFormat       = "[%v]expected identifier, found %v"
