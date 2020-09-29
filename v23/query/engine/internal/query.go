@@ -47,7 +47,7 @@ func (qe *queryEngineImpl) GetPreparedStatement(handle int64) (public.PreparedSt
 	if ok {
 		return &preparedStatementImpl{qe, handle}, nil
 	}
-	return nil, syncql.ErrorfPreparedStatementNotFound(qe.db.GetContext(), "[0];;prepared statement not found")
+	return nil, syncql.ErrorfPreparedStatementNotFound(qe.db.GetContext(), "[0]prepared statement not found")
 }
 
 func (qe *queryEngineImpl) PrepareStatement(q string) (public.PreparedStatement, error) {
@@ -115,7 +115,7 @@ func checkAndExec(db ds.Database, s *queryparser.Statement) ([]string, syncql.Re
 	case queryparser.SelectStatement, queryparser.DeleteStatement:
 		return execStatement(db, s)
 	default:
-		return nil, nil, syncql.ErrorfExecOfUnknownStatementType(db.GetContext(), "[%v]Cannot execute unknown statement type:%v", (*s).Offset(), reflect.TypeOf(*s).Name())
+		return nil, nil, syncql.ErrorfExecOfUnknownStatementType(db.GetContext(), "[%v]cannot execute unknown statement type: %v", (*s).Offset(), reflect.TypeOf(*s).Name())
 	}
 }
 
@@ -326,5 +326,5 @@ func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.R
 		resultStream.deleteCount = deleteCount
 		return []string{"Count"}, &resultStream, nil
 	}
-	return nil, nil, syncql.ErrorfOperationNotSupported(db.GetContext(), "[0]{operation} not supported.", "uknown")
+	return nil, nil, syncql.ErrorfOperationNotSupported(db.GetContext(), "[0]%v not supported.", "uknown")
 }

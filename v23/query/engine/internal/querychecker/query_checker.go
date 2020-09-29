@@ -32,7 +32,7 @@ func Check(db ds.Database, s *queryparser.Statement) error {
 	case queryparser.DeleteStatement:
 		return checkDeleteStatement(db, &sel)
 	default:
-		return syncql.ErrorfCheckOfUnknownStatementType(db.GetContext(), "[%v]Cannot semantically check unknown statement type.", (*s).Offset())
+		return syncql.ErrorfCheckOfUnknownStatementType(db.GetContext(), "[%v]cannot semantically check unknown statement type.", (*s).Offset())
 	}
 }
 

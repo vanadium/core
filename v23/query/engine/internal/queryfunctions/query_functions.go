@@ -157,7 +157,7 @@ func lookupFuncName(db ds.Database, f *queryparser.Function) (*function, error) 
 		// No such function, is the case wrong?
 		correctCase, ok := lowercaseFunctions[strings.ToLower(f.Name)]
 		if !ok {
-			return nil, syncql.ErrorfFunctionNotFound(db.GetContext(), "[%v]function '%v' not found.", f.Off, f.Name)
+			return nil, syncql.ErrorfFunctionNotFound(db.GetContext(), "[%v]function '%v' not found", f.Off, f.Name)
 		}
 		// the case is wrong
 		return nil, syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", f.Off, correctCase)

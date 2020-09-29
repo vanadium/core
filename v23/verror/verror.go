@@ -571,8 +571,8 @@ func ErrorID(err error) ID {
 	return ErrUnknown.ID
 }
 
-// Params returns the ParamterList stored in err if it's an instance
-// of verror.E or nil otherwise.
+// Params returns the ParameterList stored in err if it's an instance
+// of verror.E, nil otherwise.
 func Params(err error) []interface{} {
 	verr, ok := assertIsE(err)
 	if !ok {
