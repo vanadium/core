@@ -14,7 +14,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
@@ -458,13 +457,6 @@ var (
 	ErrTooManyPlugins         = verror.NewIDAction("v.io/x/ref/lib/discovery.TooManyPlugins", verror.NoRetry)
 )
 
-// NewErrAdvertisementNotFound returns an error with the ErrAdvertisementNotFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAdvertisementNotFound or MessageAdvertisementNotFound instead.
-func NewErrAdvertisementNotFound(ctx *context.T, id discovery.AdId) error {
-	return verror.New(ErrAdvertisementNotFound, ctx, id)
-}
-
 // ErrorfAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
 func ErrorfAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
 	return ErrAdvertisementNotFound.Errorf(ctx, format, id)
@@ -502,13 +494,6 @@ func ParamsErrAdvertisementNotFound(argumentError error) (verrorComponent string
 	}
 
 	return
-}
-
-// NewErrAlreadyBeingAdvertised returns an error with the ErrAlreadyBeingAdvertised ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAlreadyBeingAdvertised or MessageAlreadyBeingAdvertised instead.
-func NewErrAlreadyBeingAdvertised(ctx *context.T, id discovery.AdId) error {
-	return verror.New(ErrAlreadyBeingAdvertised, ctx, id)
 }
 
 // ErrorfAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
@@ -550,13 +535,6 @@ func ParamsErrAlreadyBeingAdvertised(argumentError error) (verrorComponent strin
 	return
 }
 
-// NewErrBadAdvertisement returns an error with the ErrBadAdvertisement ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadAdvertisement or MessageBadAdvertisement instead.
-func NewErrBadAdvertisement(ctx *context.T, err error) error {
-	return verror.New(ErrBadAdvertisement, ctx, err)
-}
-
 // ErrorfBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
 func ErrorfBadAdvertisement(ctx *context.T, format string, err error) error {
 	return ErrBadAdvertisement.Errorf(ctx, format, err)
@@ -594,13 +572,6 @@ func ParamsErrBadAdvertisement(argumentError error) (verrorComponent string, ver
 	}
 
 	return
-}
-
-// NewErrBadQuery returns an error with the ErrBadQuery ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfBadQuery or MessageBadQuery instead.
-func NewErrBadQuery(ctx *context.T, err error) error {
-	return verror.New(ErrBadQuery, ctx, err)
 }
 
 // ErrorfBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
@@ -642,13 +613,6 @@ func ParamsErrBadQuery(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// NewErrDiscoveryClosed returns an error with the ErrDiscoveryClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfDiscoveryClosed or MessageDiscoveryClosed instead.
-func NewErrDiscoveryClosed(ctx *context.T) error {
-	return verror.New(ErrDiscoveryClosed, ctx)
-}
-
 // ErrorfDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
 func ErrorfDiscoveryClosed(ctx *context.T, format string) error {
 	return ErrDiscoveryClosed.Errorf(ctx, format)
@@ -675,13 +639,6 @@ func ParamsErrDiscoveryClosed(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// NewErrNoDiscoveryPlugin returns an error with the ErrNoDiscoveryPlugin ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoDiscoveryPlugin or MessageNoDiscoveryPlugin instead.
-func NewErrNoDiscoveryPlugin(ctx *context.T) error {
-	return verror.New(ErrNoDiscoveryPlugin, ctx)
-}
-
 // ErrorfNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
 func ErrorfNoDiscoveryPlugin(ctx *context.T, format string) error {
 	return ErrNoDiscoveryPlugin.Errorf(ctx, format)
@@ -706,13 +663,6 @@ func ParamsErrNoDiscoveryPlugin(argumentError error) (verrorComponent string, ve
 	}
 
 	return
-}
-
-// NewErrTooManyPlugins returns an error with the ErrTooManyPlugins ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfTooManyPlugins or MessageTooManyPlugins instead.
-func NewErrTooManyPlugins(ctx *context.T, actual int32, limit int32) error {
-	return verror.New(ErrTooManyPlugins, ctx, actual, limit)
 }
 
 // ErrorfTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
@@ -997,15 +947,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct7 = vdl.TypeOf((*discovery.Advertisement)(nil)).Elem()
 	vdlTypeList8 = vdl.TypeOf((*[]EncryptionKey)(nil))
 	vdlTypeList9 = vdl.TypeOf((*[]string)(nil))
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAdvertisementNotFound.ID), "{1:}{2:} advertisement not found: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAlreadyBeingAdvertised.ID), "{1:}{2:} already being advertised: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadAdvertisement.ID), "{1:}{2:} invalid advertisement: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadQuery.ID), "{1:}{2:} invalid query: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDiscoveryClosed.ID), "{1:}{2:} discovery closed")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoDiscoveryPlugin.ID), "{1:}{2:} no discovery plugin")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTooManyPlugins.ID), "{1:}{2:} too many plugins ({3}), support at most {4}")
 
 	return struct{}{}
 }

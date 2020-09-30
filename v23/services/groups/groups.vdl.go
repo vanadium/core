@@ -15,7 +15,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/services/permissions"
@@ -379,13 +378,6 @@ var (
 	ErrCycleFound          = verror.NewIDAction("v.io/v23/services/groups.CycleFound", verror.NoRetry)
 )
 
-// NewErrNoBlessings returns an error with the ErrNoBlessings ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoBlessings or MessageNoBlessings instead.
-func NewErrNoBlessings(ctx *context.T) error {
-	return verror.New(ErrNoBlessings, ctx)
-}
-
 // ErrorfNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
 func ErrorfNoBlessings(ctx *context.T, format string) error {
 	return ErrNoBlessings.Errorf(ctx, format)
@@ -412,13 +404,6 @@ func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfExcessiveContention or MessageExcessiveContention instead.
-func NewErrExcessiveContention(ctx *context.T) error {
-	return verror.New(ErrExcessiveContention, ctx)
-}
-
 // ErrorfExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
 func ErrorfExcessiveContention(ctx *context.T, format string) error {
 	return ErrExcessiveContention.Errorf(ctx, format)
@@ -443,13 +428,6 @@ func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, 
 	}
 
 	return
-}
-
-// NewErrCycleFound returns an error with the ErrCycleFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfCycleFound or MessageCycleFound instead.
-func NewErrCycleFound(ctx *context.T, name string, visited string) error {
-	return verror.New(ErrCycleFound, ctx, name, visited)
 }
 
 // ErrorfCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
@@ -1077,11 +1055,6 @@ func initializeVDL() struct{} {
 	vdlTypeSet4 = vdl.TypeOf((*map[BlessingPatternChunk]struct{})(nil))
 	vdlTypeEnum5 = vdl.TypeOf((*ApproximationType)(nil))
 	vdlTypeStruct6 = vdl.TypeOf((*Approximation)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoBlessings.ID), "{1:}{2:} No blessings recognized; cannot create group Permissions")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExcessiveContention.ID), "{1:}{2:} Gave up after encountering excessive contention; try again later")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCycleFound.ID), "{1:}{2:} Found cycle in group definitions {3} visited {4}")
 
 	return struct{}{}
 }

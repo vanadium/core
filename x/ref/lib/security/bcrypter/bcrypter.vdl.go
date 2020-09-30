@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/security"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -420,13 +419,6 @@ var (
 	ErrInvalidPrivateKey  = verror.NewIDAction("v.io/x/ref/lib/security/bcrypter.InvalidPrivateKey", verror.NoRetry)
 )
 
-// NewErrInternal returns an error with the ErrInternal ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInternal or MessageInternal instead.
-func NewErrInternal(ctx *context.T, err error) error {
-	return verror.New(ErrInternal, ctx, err)
-}
-
 // ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
 func ErrorfInternal(ctx *context.T, format string, err error) error {
 	return ErrInternal.Errorf(ctx, format, err)
@@ -464,13 +456,6 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 	}
 
 	return
-}
-
-// NewErrNoParams returns an error with the ErrNoParams ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams or MessageNoParams instead.
-func NewErrNoParams(ctx *context.T, pattern security.BlessingPattern) error {
-	return verror.New(ErrNoParams, ctx, pattern)
 }
 
 // ErrorfNoParams calls ErrNoParams.Errorf with the supplied arguments.
@@ -512,13 +497,6 @@ func ParamsErrNoParams(argumentError error) (verrorComponent string, verrorOpera
 	return
 }
 
-// NewErrPrivateKeyNotFound returns an error with the ErrPrivateKeyNotFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfPrivateKeyNotFound or MessagePrivateKeyNotFound instead.
-func NewErrPrivateKeyNotFound(ctx *context.T) error {
-	return verror.New(ErrPrivateKeyNotFound, ctx)
-}
-
 // ErrorfPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
 func ErrorfPrivateKeyNotFound(ctx *context.T, format string) error {
 	return ErrPrivateKeyNotFound.Errorf(ctx, format)
@@ -543,13 +521,6 @@ func ParamsErrPrivateKeyNotFound(argumentError error) (verrorComponent string, v
 	}
 
 	return
-}
-
-// NewErrInvalidPrivateKey returns an error with the ErrInvalidPrivateKey ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidPrivateKey or MessageInvalidPrivateKey instead.
-func NewErrInvalidPrivateKey(ctx *context.T, err error) error {
-	return verror.New(ErrInvalidPrivateKey, ctx, err)
 }
 
 // ErrorfInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
@@ -671,12 +642,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct4 = vdl.TypeOf((*WireParams)(nil)).Elem()
 	vdlTypeStruct5 = vdl.TypeOf((*WirePrivateKey)(nil)).Elem()
 	vdlTypeList6 = vdl.TypeOf((*[][]byte)(nil))
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInternal.ID), "{1:}{2:} internal error: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoParams.ID), "{1:}{2:} no public parameters available for encrypting for pattern: {3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPrivateKeyNotFound.ID), "{1:}{2:} no private key found for decrypting ciphertext")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidPrivateKey.ID), "{1:}{2:} private key is invalid: {3}")
 
 	return struct{}{}
 }

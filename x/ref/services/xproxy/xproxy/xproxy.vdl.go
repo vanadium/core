@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -28,13 +27,6 @@ var (
 	ErrProxyAlreadyClosed        = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyAlreadyClosed", verror.NoRetry)
 	ErrProxyResponse             = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.ProxyResponse", verror.NoRetry)
 )
-
-// NewErrNotListening returns an error with the ErrNotListening ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNotListening or MessageNotListening instead.
-func NewErrNotListening(ctx *context.T) error {
-	return verror.New(ErrNotListening, ctx)
-}
 
 // ErrorfNotListening calls ErrNotListening.Errorf with the supplied arguments.
 func ErrorfNotListening(ctx *context.T, format string) error {
@@ -60,13 +52,6 @@ func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorO
 	}
 
 	return
-}
-
-// NewErrUnexpectedMessage returns an error with the ErrUnexpectedMessage ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnexpectedMessage or MessageUnexpectedMessage instead.
-func NewErrUnexpectedMessage(ctx *context.T, msgType string) error {
-	return verror.New(ErrUnexpectedMessage, ctx, msgType)
 }
 
 // ErrorfUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
@@ -108,13 +93,6 @@ func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// NewErrFailedToResolveToEndpoint returns an error with the ErrFailedToResolveToEndpoint ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfFailedToResolveToEndpoint or MessageFailedToResolveToEndpoint instead.
-func NewErrFailedToResolveToEndpoint(ctx *context.T, name string) error {
-	return verror.New(ErrFailedToResolveToEndpoint, ctx, name)
-}
-
 // ErrorfFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
 func ErrorfFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
 	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
@@ -154,13 +132,6 @@ func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent st
 	return
 }
 
-// NewErrProxyAlreadyClosed returns an error with the ErrProxyAlreadyClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfProxyAlreadyClosed or MessageProxyAlreadyClosed instead.
-func NewErrProxyAlreadyClosed(ctx *context.T) error {
-	return verror.New(ErrProxyAlreadyClosed, ctx)
-}
-
 // ErrorfProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
 func ErrorfProxyAlreadyClosed(ctx *context.T, format string) error {
 	return ErrProxyAlreadyClosed.Errorf(ctx, format)
@@ -185,13 +156,6 @@ func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, v
 	}
 
 	return
-}
-
-// NewErrProxyResponse returns an error with the ErrProxyResponse ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfProxyResponse or MessageProxyResponse instead.
-func NewErrProxyResponse(ctx *context.T, msg string) error {
-	return verror.New(ErrProxyResponse, ctx, msg)
 }
 
 // ErrorfProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
@@ -289,13 +253,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotListening.ID), "{1:}{2:} Proxy is not listening on any endpoints.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnexpectedMessage.ID), "{1:}{2:} Unexpected message of type{:3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFailedToResolveToEndpoint.ID), "{1:}{2:} Failed to resolve '{3}' to endpoint")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrProxyAlreadyClosed.ID), "{1:}{2:} Proxy has already been closed")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrProxyResponse.ID), "{1:}{2:} proxy returned{:3}")
 
 	return struct{}{}
 }

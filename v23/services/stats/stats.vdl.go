@@ -15,7 +15,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/services/watch"
@@ -32,13 +31,6 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 var (
 	ErrNoValue = verror.NewIDAction("v.io/v23/services/stats.NoValue", verror.NoRetry)
 )
-
-// NewErrNoValue returns an error with the ErrNoValue ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoValue or MessageNoValue instead.
-func NewErrNoValue(ctx *context.T, suffix string) error {
-	return verror.New(ErrNoValue, ctx, suffix)
-}
 
 // ErrorfNoValue calls ErrNoValue.Errorf with the supplied arguments.
 func ErrorfNoValue(ctx *context.T, format string, suffix string) error {
@@ -283,9 +275,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoValue.ID), "{1:}{2:} object has no value, suffix: {3}")
 
 	return struct{}{}
 }

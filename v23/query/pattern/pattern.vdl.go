@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -25,13 +24,6 @@ var (
 	ErrIllegalEscapeChar = verror.NewIDAction("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry)
 	ErrInvalidEscape     = verror.NewIDAction("v.io/v23/query/pattern.InvalidEscape", verror.NoRetry)
 )
-
-// NewErrIllegalEscapeChar returns an error with the ErrIllegalEscapeChar ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfIllegalEscapeChar or MessageIllegalEscapeChar instead.
-func NewErrIllegalEscapeChar(ctx *context.T) error {
-	return verror.New(ErrIllegalEscapeChar, ctx)
-}
 
 // ErrorfIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
 func ErrorfIllegalEscapeChar(ctx *context.T, format string) error {
@@ -57,13 +49,6 @@ func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, ve
 	}
 
 	return
-}
-
-// NewErrInvalidEscape returns an error with the ErrInvalidEscape ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfInvalidEscape or MessageInvalidEscape instead.
-func NewErrInvalidEscape(ctx *context.T, escaped string) error {
-	return verror.New(ErrInvalidEscape, ctx, escaped)
 }
 
 // ErrorfInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
@@ -161,10 +146,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIllegalEscapeChar.ID), "{1:}{2:} '%' and '_' cannot be used as escape characters")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidEscape.ID), "{1:}{2:} only '%', '_', and the escape character are allowed to be escaped, found '\\{3}'")
 
 	return struct{}{}
 }

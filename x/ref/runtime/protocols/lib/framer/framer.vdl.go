@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -24,13 +23,6 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 var (
 	ErrLargerThan3ByteUInt = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/framer.LargerThan3ByteUInt", verror.NoRetry)
 )
-
-// NewErrLargerThan3ByteUInt returns an error with the ErrLargerThan3ByteUInt ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfLargerThan3ByteUInt or MessageLargerThan3ByteUInt instead.
-func NewErrLargerThan3ByteUInt(ctx *context.T) error {
-	return verror.New(ErrLargerThan3ByteUInt, ctx)
-}
 
 // ErrorfLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
 func ErrorfLargerThan3ByteUInt(ctx *context.T, format string) error {
@@ -114,9 +106,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrLargerThan3ByteUInt.ID), "{1:}{2:} integer too large to represent in 3 bytes")
 
 	return struct{}{}
 }

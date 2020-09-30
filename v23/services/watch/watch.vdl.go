@@ -114,7 +114,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
@@ -438,13 +437,6 @@ const InitialStateSkipped = int32(2)
 var (
 	ErrUnknownResumeMarker = verror.NewIDAction("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry)
 )
-
-// NewErrUnknownResumeMarker returns an error with the ErrUnknownResumeMarker ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfUnknownResumeMarker or MessageUnknownResumeMarker instead.
-func NewErrUnknownResumeMarker(ctx *context.T) error {
-	return verror.New(ErrUnknownResumeMarker, ctx)
-}
 
 // ErrorfUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
 func ErrorfUnknownResumeMarker(ctx *context.T, format string) error {
@@ -775,9 +767,6 @@ func initializeVDL() struct{} {
 	vdlTypeList1 = vdl.TypeOf((*ResumeMarker)(nil))
 	vdlTypeStruct2 = vdl.TypeOf((*GlobRequest)(nil)).Elem()
 	vdlTypeStruct3 = vdl.TypeOf((*Change)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownResumeMarker.ID), "{1:}{2:} unknown resume marker {_}")
 
 	return struct{}{}
 }

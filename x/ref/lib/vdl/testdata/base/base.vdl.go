@@ -15,7 +15,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -2835,13 +2834,6 @@ var (
 	errNotExported = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.notExported", verror.NoRetry)
 )
 
-// NewErrNoParams1 returns an error with the ErrNoParams1 ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams1 or MessageNoParams1 instead.
-func NewErrNoParams1(ctx *context.T) error {
-	return verror.New(ErrNoParams1, ctx)
-}
-
 // ErrorfNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
 func ErrorfNoParams1(ctx *context.T, format string) error {
 	return ErrNoParams1.Errorf(ctx, format)
@@ -2868,13 +2860,6 @@ func ParamsErrNoParams1(argumentError error) (verrorComponent string, verrorOper
 	return
 }
 
-// NewErrNoParams2 returns an error with the ErrNoParams2 ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoParams2 or MessageNoParams2 instead.
-func NewErrNoParams2(ctx *context.T) error {
-	return verror.New(ErrNoParams2, ctx)
-}
-
 // ErrorfNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
 func ErrorfNoParams2(ctx *context.T, format string) error {
 	return ErrNoParams2.Errorf(ctx, format)
@@ -2899,13 +2884,6 @@ func ParamsErrNoParams2(argumentError error) (verrorComponent string, verrorOper
 	}
 
 	return
-}
-
-// NewErrWithParams1 returns an error with the ErrWithParams1 ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfWithParams1 or MessageWithParams1 instead.
-func NewErrWithParams1(ctx *context.T, x string, y int32) error {
-	return verror.New(ErrWithParams1, ctx, x, y)
 }
 
 // ErrorfWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
@@ -2955,13 +2933,6 @@ func ParamsErrWithParams1(argumentError error) (verrorComponent string, verrorOp
 	return
 }
 
-// NewErrWithParams2 returns an error with the ErrWithParams2 ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfWithParams2 or MessageWithParams2 instead.
-func NewErrWithParams2(ctx *context.T, x string, y int32) error {
-	return verror.New(ErrWithParams2, ctx, x, y)
-}
-
 // ErrorfWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
 func ErrorfWithParams2(ctx *context.T, format string, x string, y int32) error {
 	return ErrWithParams2.Errorf(ctx, format, x, y)
@@ -3007,13 +2978,6 @@ func ParamsErrWithParams2(argumentError error) (verrorComponent string, verrorOp
 	}
 
 	return
-}
-
-// newErrNotExported returns an error with the errNotExported ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use errorfNotExported or messageNotExported instead.
-func newErrNotExported(ctx *context.T, x string, y int32) error {
-	return verror.New(errNotExported, ctx, x, y)
 }
 
 // errorfNotExported calls errNotExported.Errorf with the supplied arguments.
@@ -3801,15 +3765,6 @@ func initializeVDL() struct{} {
 	vdlTypeList32 = vdl.TypeOf((*[]map[string]Composites)(nil))
 	vdlTypeStruct33 = vdl.TypeOf((*Args)(nil)).Elem()
 	vdlTypeStruct34 = vdl.TypeOf((*NestedArgs)(nil)).Elem()
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoParams1.ID), "{1:}{2:} en msg")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoParams2.ID), "{1:}{2:} en msg")
-	i18n.Cat().SetWithBase(i18n.LangID("fr"), i18n.MsgID(ErrNoParams2.ID), "{1:}{2:} fr msg")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrWithParams1.ID), "{1:}{2:} en x={3} y={4}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrWithParams2.ID), "{1:}{2:} en x={3} y={4}")
-	i18n.Cat().SetWithBase(i18n.LangID("fr"), i18n.MsgID(ErrWithParams2.ID), "{1:}{2:} fr y={4} x={3}")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(errNotExported.ID), "{1:}{2:} en x={3} y={4}")
 
 	return struct{}{}
 }

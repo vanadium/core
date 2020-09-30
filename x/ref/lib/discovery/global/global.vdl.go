@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -25,13 +24,6 @@ var (
 	ErrNoNamespace       = verror.NewIDAction("v.io/x/ref/lib/discovery/global.NoNamespace", verror.NoRetry)
 	ErrAdInvalidEncoding = verror.NewIDAction("v.io/x/ref/lib/discovery/global.AdInvalidEncoding", verror.NoRetry)
 )
-
-// NewErrNoNamespace returns an error with the ErrNoNamespace ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfNoNamespace or MessageNoNamespace instead.
-func NewErrNoNamespace(ctx *context.T) error {
-	return verror.New(ErrNoNamespace, ctx)
-}
 
 // ErrorfNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
 func ErrorfNoNamespace(ctx *context.T, format string) error {
@@ -57,13 +49,6 @@ func ParamsErrNoNamespace(argumentError error) (verrorComponent string, verrorOp
 	}
 
 	return
-}
-
-// NewErrAdInvalidEncoding returns an error with the ErrAdInvalidEncoding ID.
-// WARNING: this function is deprecated and will be removed in the future,
-// use ErrorfAdInvalidEncoding or MessageAdInvalidEncoding instead.
-func NewErrAdInvalidEncoding(ctx *context.T, ad string) error {
-	return verror.New(ErrAdInvalidEncoding, ctx, ad)
 }
 
 // ErrorfAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
@@ -161,10 +146,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoNamespace.ID), "{1:}{2:} namespace not found")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrAdInvalidEncoding.ID), "{1:}{2:} ad ({3}) has invalid encoding")
 
 	return struct{}{}
 }

@@ -24,7 +24,6 @@ import (
 	"v.io/x/ref/test"
 
 	"v.io/v23/vom"
-	_ "v.io/x/ref/runtime/factories/generic"
 )
 
 var errGenerated = errors.New("generated error")
