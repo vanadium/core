@@ -5,6 +5,7 @@
 package vtrace_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -113,7 +114,6 @@ func TestVIRPCWithLogging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("logging call failed: %v", err)
 	}
-	expectSequence(t, *record, []string{
-		"\"\".Log: vtrace_logging_test.go:19] logging",
-	})
+	expectedSpan := fmt.Sprintf("\"\".Log: vtrace_logging_test.go:19] %slogging", context.LoggingPrefix(ctx))
+	expectSequence(t, *record, []string{expectedSpan})
 }
