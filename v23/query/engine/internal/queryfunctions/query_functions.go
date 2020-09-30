@@ -105,10 +105,10 @@ func CheckFunction(db ds.Database, f *queryparser.Function) error {
 	f.ArgTypes = entry.argTypes
 	f.RetType = entry.returnType
 	if !entry.hasVarArgs && len(f.Args) != len(entry.argTypes) {
-		return syncql.NewErrFunctionArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
+		return syncql.ErrorfFunctionArgCount(db.GetContext(), "[%v]function '%v' expects %vargs, found: %v", f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
 	}
 	if entry.hasVarArgs && len(f.Args) < len(entry.argTypes) {
-		return syncql.NewErrFunctionAtLeastArgCount(db.GetContext(), f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
+		return syncql.ErrorfFunctionAtLeastArgCount(db.GetContext(), "[%v]function '%v' expects at least %vargs, found: %v", f.Off, f.Name, int64(len(f.ArgTypes)), int64(len(f.Args)))
 	}
 	// Standard check for types of fixed and var args
 	if err = argsStandardCheck(db, f.Off, entry, f.Args); err != nil {
@@ -157,10 +157,10 @@ func lookupFuncName(db ds.Database, f *queryparser.Function) (*function, error) 
 		// No such function, is the case wrong?
 		correctCase, ok := lowercaseFunctions[strings.ToLower(f.Name)]
 		if !ok {
-			return nil, syncql.NewErrFunctionNotFound(db.GetContext(), f.Off, f.Name)
+			return nil, syncql.ErrorfFunctionNotFound(db.GetContext(), "[%v]function '%v' not found", f.Off, f.Name)
 		}
 		// the case is wrong
-		return nil, syncql.NewErrDidYouMeanFunction(db.GetContext(), f.Off, correctCase)
+		return nil, syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", f.Off, correctCase)
 	}
 	return &entry, nil
 }
@@ -268,42 +268,42 @@ func checkArg(db ds.Database, off int64, argType queryparser.OperandType, arg *q
 	case queryparser.TypBigInt:
 		_, err = conversions.ConvertValueToBigInt(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrBigIntConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfBigIntConversionError(db.GetContext(), "[%v]Can't convert to BigInt: %v", arg.Off, err)
 		}
 	case queryparser.TypBigRat:
 		_, err = conversions.ConvertValueToBigRat(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrBigRatConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfBigRatConversionError(db.GetContext(), "[%v]can't convert to BigRat: %v", arg.Off, err)
 		}
 	case queryparser.TypBool:
 		_, err = conversions.ConvertValueToBool(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrBoolConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfBoolConversionError(db.GetContext(), "[%v]can't convert to Bool: %v", arg.Off, err)
 		}
 	case queryparser.TypFloat:
 		_, err = conversions.ConvertValueToFloat(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrFloatConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfFloatConversionError(db.GetContext(), "[%v]can't convert to float: %v", arg.Off, err)
 		}
 	case queryparser.TypInt:
 		_, err = conversions.ConvertValueToInt(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrIntConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfIntConversionError(db.GetContext(), "[%v]can't convert to int: %v", arg.Off, err)
 		}
 	case queryparser.TypStr:
 		_, err = conversions.ConvertValueToString(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrStringConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfStringConversionError(db.GetContext(), "[%v]can't convert to string: %v", arg.Off, err)
 		}
 	case queryparser.TypTime:
 		_, err = conversions.ConvertValueToTime(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrTimeConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfTimeConversionError(db.GetContext(), "[%v]can't convert to time: %v", arg.Off, err)
 		}
 	case queryparser.TypUint:
 		_, err = conversions.ConvertValueToUint(operandToConvert)
 		if err != nil {
-			err = syncql.NewErrUintConversionError(db.GetContext(), arg.Off, err)
+			err = syncql.ErrorfUintConversionError(db.GetContext(), "[%v]can't convert to Uint: %v", arg.Off, err)
 		}
 	}
 	return err

@@ -166,7 +166,7 @@ func (v *vine) Dial(ctx *context.T, protocol, address string, timeout time.Durat
 	v.mu.Unlock()
 	// If the tag has been marked as not reachable, we can't create the connection.
 	if !behavior.Reachable {
-		return nil, NewErrAddressNotReachable(ctx, a)
+		return nil, ErrorfAddressNotReachable(ctx, "address %v not reachable", a)
 	}
 	c, err := baseProtocol.Dial(ctx, n, a, timeout)
 	if err != nil {
@@ -303,7 +303,7 @@ func (l *listener) Accept(ctx *context.T) (flow.Conn, error) {
 	behavior, ok := l.vine.behaviors[key]
 	l.vine.mu.Unlock()
 	if ok && !behavior.Reachable {
-		return nil, NewErrCantAcceptFromTag(ctx, remoteTag)
+		return nil, ErrorfCantAcceptFromTag(ctx, "can't accept connection from tag %v", remoteTag)
 	}
 	conn := &conn{
 		base: c,
@@ -358,11 +358,11 @@ func createListeningAddress(network, address string) string {
 func parseDialingAddress(ctx *context.T, vaddress string) (network string, address string, tag string, p flow.Protocol, err error) {
 	parts := strings.SplitN(vaddress, "/", 3)
 	if len(parts) != 3 {
-		return "", "", "", nil, NewErrInvalidAddress(ctx, vaddress)
+		return "", "", "", nil, ErrorfInvalidAddress(ctx, "invalid vine address %v, address must be of the form 'network/address/tag'", vaddress)
 	}
 	p, _ = flow.RegisteredProtocol(parts[0])
 	if p == nil {
-		return "", "", "", nil, NewErrNoRegisteredProtocol(ctx, parts[0])
+		return "", "", "", nil, ErrorfNoRegisteredProtocol(ctx, "no registered protocol: %v", parts[0])
 	}
 	return parts[0], parts[1], parts[2], p, nil
 }
@@ -373,11 +373,11 @@ func parseDialingAddress(ctx *context.T, vaddress string) (network string, addre
 func parseListeningAddress(ctx *context.T, laddress string) (network string, address string, p flow.Protocol, err error) {
 	parts := strings.SplitN(laddress, "/", 2)
 	if len(parts) != 2 {
-		return "", "", nil, NewErrInvalidAddress(ctx, laddress)
+		return "", "", nil, ErrorfInvalidAddress(ctx, "invalid vine address %v, address must be of the form 'network/address/tag'", laddress)
 	}
 	p, _ = flow.RegisteredProtocol(parts[0])
 	if p == nil {
-		return "", "", nil, NewErrNoRegisteredProtocol(ctx, parts[0])
+		return "", "", nil, ErrorfNoRegisteredProtocol(ctx, "no registered protocol: %v", parts[0])
 	}
 	return parts[0], parts[1], p, nil
 }

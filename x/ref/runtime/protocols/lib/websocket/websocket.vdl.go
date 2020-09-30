@@ -9,6 +9,8 @@
 package websocket
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -20,18 +22,110 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrListenerClosed     = verror.Register("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry, "{1:}{2:} listener is already closed.")
-	ErrListenCalledInNaCl = verror.Register("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry, "{1:}{2:} Listen cannot be called in NaCl code.")
+	ErrListenerClosed     = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry)
+	ErrListenCalledInNaCl = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenCalledInNaCl", verror.NoRetry)
 )
 
 // NewErrListenerClosed returns an error with the ErrListenerClosed ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenerClosed or MessageListenerClosed instead.
 func NewErrListenerClosed(ctx *context.T) error {
 	return verror.New(ErrListenerClosed, ctx)
 }
 
+// ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
+func ErrorfListenerClosed(ctx *context.T, format string) error {
+	return ErrListenerClosed.Errorf(ctx, format)
+}
+
+// MessageListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
+func MessageListenerClosed(ctx *context.T, message string) error {
+	return ErrListenerClosed.Message(ctx, message)
+}
+
+// ParamsErrListenerClosed extracts the expected parameters from the error's ParameterList.
+func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
 func NewErrListenCalledInNaCl(ctx *context.T) error {
 	return verror.New(ErrListenCalledInNaCl, ctx)
+}
+
+// ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
+func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
+	return ErrListenCalledInNaCl.Errorf(ctx, format)
+}
+
+// MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.
+func MessageListenCalledInNaCl(ctx *context.T, message string) error {
+	return ErrListenCalledInNaCl.Message(ctx, message)
+}
+
+// ParamsErrListenCalledInNaCl extracts the expected parameters from the error's ParameterList.
+func ParamsErrListenCalledInNaCl(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool

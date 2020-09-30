@@ -56,7 +56,7 @@ func (acl AccessList) Authorize(ctx *context.T, call security.Call) error {
 	if acl.Includes(blessingsForCall...) {
 		return nil
 	}
-	return NewErrAccessListMatch(ctx, blessingsForCall, invalid)
+	return ErrorfAccessListMatch(ctx, "%v does not match the access list (rejected blessings: %v)", blessingsForCall, invalid)
 }
 
 // Enforceable checks if the AccessList is enforceable by the provided
@@ -85,7 +85,7 @@ func (acl AccessList) Enforceable(ctx *context.T, p security.Principal) error {
 
 	for _, p := range acl.In {
 		if p == security.AllPrincipals {
-			return NewErrInvalidOpenAccessList(ctx)
+			return ErrorfInvalidOpenAccessList(ctx, "AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists")
 		}
 		if !p.IsValid() {
 			rejected = append(rejected, p)
@@ -98,7 +98,7 @@ func (acl AccessList) Enforceable(ctx *context.T, p security.Principal) error {
 	if len(rejected) == 0 {
 		return nil
 	}
-	return NewErrUnenforceablePatterns(ctx, rejected)
+	return ErrorfUnenforceablePatterns(ctx, "AccessList contains the following invalid or unrecognized patterns in the In list: %v", rejected)
 }
 
 func (acl AccessList) isOpen() bool {

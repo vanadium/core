@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"v.io/v23/context"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 )
@@ -93066,6 +93067,219 @@ var xAllPass = []vdlEntry{
 			B:    &XMutualCycleB{},
 		},
 	},
+}
+
+//////////////////////////////////////////////////
+// Error definitions
+
+var (
+	ErrNone  = verror.NewIDAction("v.io/v23/vdl/vdltest.None", verror.NoRetry)
+	ErrOne   = verror.NewIDAction("v.io/v23/vdl/vdltest.One", verror.NoRetry)
+	ErrTwo   = verror.NewIDAction("v.io/v23/vdl/vdltest.Two", verror.NoRetry)
+	ErrThree = verror.NewIDAction("v.io/v23/vdl/vdltest.Three", verror.NoRetry)
+)
+
+// ErrorfNone calls ErrNone.Errorf with the supplied arguments.
+func ErrorfNone(ctx *context.T, format string) error {
+	return ErrNone.Errorf(ctx, format)
+}
+
+// MessageNone calls ErrNone.Message with the supplied arguments.
+func MessageNone(ctx *context.T, message string) error {
+	return ErrNone.Message(ctx, message)
+}
+
+// ParamsErrNone extracts the expected parameters from the error's ParameterList.
+func ParamsErrNone(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+// ErrorfOne calls ErrOne.Errorf with the supplied arguments.
+func ErrorfOne(ctx *context.T, format string, i int64) error {
+	return ErrOne.Errorf(ctx, format, i)
+}
+
+// MessageOne calls ErrOne.Message with the supplied arguments.
+func MessageOne(ctx *context.T, message string, i int64) error {
+	return ErrOne.Message(ctx, message, i)
+}
+
+// ParamsErrOne extracts the expected parameters from the error's ParameterList.
+func ParamsErrOne(argumentError error) (verrorComponent string, verrorOperation string, i int64, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if i, ok = tmp.(int64); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value i, has %T and not int64", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfTwo calls ErrTwo.Errorf with the supplied arguments.
+func ErrorfTwo(ctx *context.T, format string, a string, err error) error {
+	return ErrTwo.Errorf(ctx, format, a, err)
+}
+
+// MessageTwo calls ErrTwo.Message with the supplied arguments.
+func MessageTwo(ctx *context.T, message string, a string, err error) error {
+	return ErrTwo.Message(ctx, message, a, err)
+}
+
+// ParamsErrTwo extracts the expected parameters from the error's ParameterList.
+func ParamsErrTwo(argumentError error) (verrorComponent string, verrorOperation string, a string, err error, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if a, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value a, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if err, ok = tmp.(error); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value err, has %T and not error", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfThree calls ErrThree.Errorf with the supplied arguments.
+func ErrorfThree(ctx *context.T, format string, a string, b int64, c float32) error {
+	return ErrThree.Errorf(ctx, format, a, b, c)
+}
+
+// MessageThree calls ErrThree.Message with the supplied arguments.
+func MessageThree(ctx *context.T, message string, a string, b int64, c float32) error {
+	return ErrThree.Message(ctx, message, a, b, c)
+}
+
+// ParamsErrThree extracts the expected parameters from the error's ParameterList.
+func ParamsErrThree(argumentError error) (verrorComponent string, verrorOperation string, a string, b int64, c float32, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if a, ok = tmp.(string); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value a, has %T and not string", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if b, ok = tmp.(int64); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value b, has %T and not int64", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if c, ok = tmp.(float32); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value c, has %T and not float32", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 // Hold type definitions in package-level variables, for better performance.

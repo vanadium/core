@@ -45,6 +45,13 @@ func checkErrors(errs *vdlutil.Errors) error {
 %s   (run with "vdl -v" for verbose logging or "vdl help" for help)`, errs)
 }
 
+func printWarnings(warnings *vdlutil.Errors) {
+	if !optShowWarnings || warnings.IsEmpty() {
+		return
+	}
+	fmt.Println(warnings.String())
+}
+
 // runnerFunc is an adapter that implements cmdline.Runner.  It generates a
 // sorted list of transitive targets, and calls the underlying function.
 type runnerFunc func([]*build.Package, *compile.Env)
@@ -54,6 +61,9 @@ func (f runnerFunc) Run(_ *cmdline.Env, args []string) (e error) {
 		vdlutil.SetVerbose()
 	}
 	env := compile.NewEnv(flagMaxErrors)
+	if optErrorsNoI18n {
+		env.DisallowI18nErrorSupport()
+	}
 	env.DisallowPathQualifiers()
 	if len(args) == 0 {
 		// If the user doesn't specify any targets, the cwd is implied.
@@ -65,11 +75,12 @@ func (f runnerFunc) Run(_ *cmdline.Env, args []string) (e error) {
 	}
 	var opts build.Opts
 	opts.VDLConfigName = flagVDLConfig
-	targets := build.TransitivePackages(args, mode, opts, env.Errors)
+	targets := build.TransitivePackages(args, mode, opts, env.Errors, env.Warnings)
 	if err := checkErrors(env.Errors); err != nil {
 		return err
 	}
 	f(targets, env)
+	printWarnings(env.Warnings)
 	return checkErrors(env.Errors)
 }
 
@@ -340,6 +351,8 @@ var (
 
 	// Options for each command.
 	optCompileStatus bool
+	optErrorsNoI18n  bool
+	optShowWarnings  bool
 	optGenStatus     bool
 	optGenGoOutDir   = genOutDir{
 		supportGoModules: true,
@@ -401,6 +414,12 @@ func init() {
 
 	// Options for compile.
 	cmdCompile.Flags.BoolVar(&optCompileStatus, "status", true, "Show package names while we compile")
+
+	// Options for compile and for generate
+	cmdCompile.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
+	cmdGenerate.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
+	cmdCompile.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
+	cmdGenerate.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
 
 	// Options for generate.
 	cmdGenerate.Flags.Var(&optGenLangs, "lang", "Comma-separated list of languages to generate, currently supporting "+genLangAll.String())

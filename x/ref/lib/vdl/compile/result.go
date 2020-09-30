@@ -27,22 +27,28 @@ import (
 // Always create a new Env via NewEnv; the zero Env is invalid.
 type Env struct {
 	Errors   *vdlutil.Errors
+	Warnings *vdlutil.Errors
 	pkgs     map[string]*Package
 	typeMap  map[*vdl.Type]*TypeDef
 	constMap map[*vdl.Value]*ConstDef
 
 	disallowPathQualifiers bool // Disallow syntax like "a/b/c".Type
+	noI18nErrorSupport     bool
 }
 
 // NewEnv creates a new Env, allowing up to maxErrors errors before we stop.
 func NewEnv(maxErrors int) *Env {
-	return NewEnvWithErrors(vdlutil.NewErrors(maxErrors))
+	return NewEnvWithErrors(
+		vdlutil.NewErrors(maxErrors),
+		vdlutil.NewErrors(maxErrors),
+	)
 }
 
 // NewEnvWithErrors creates a new Env, using the given errs to collect errors.
-func NewEnvWithErrors(errs *vdlutil.Errors) *Env {
+func NewEnvWithErrors(errs, warnings *vdlutil.Errors) *Env {
 	env := &Env{
 		Errors:   errs,
+		Warnings: warnings,
 		pkgs:     make(map[string]*Package),
 		typeMap:  make(map[*vdl.Type]*TypeDef),
 		constMap: make(map[*vdl.Value]*ConstDef),
@@ -232,6 +238,12 @@ func (e *Env) Errorf(file *File, pos parse.Pos, format string, v ...interface{})
 	e.Errors.Error(fpStringf(file, pos, format, v...))
 }
 
+// Warningf is like errorf but for warning messages that will not cause the
+// compilation to fail.
+func (e *Env) Warningf(file *File, pos parse.Pos, format string, v ...interface{}) {
+	e.Warnings.Error(fpStringf(file, pos, "Warning: "+format, v...))
+}
+
 func (e *Env) prefixErrorf(file *File, pos parse.Pos, err error, format string, v ...interface{}) {
 	e.Errors.Error(fpStringf(file, pos, format, v...) + " (" + err.Error() + ")")
 }
@@ -248,6 +260,17 @@ func fpStringf(file *File, pos parse.Pos, format string, v ...interface{}) strin
 func (e *Env) DisallowPathQualifiers() *Env {
 	e.disallowPathQualifiers = true
 	return e
+}
+
+// DisallowI18nErrorSupport disables i18n formats for errors.
+func (e *Env) DisallowI18nErrorSupport() *Env {
+	e.noI18nErrorSupport = true
+	return e
+}
+
+// ErrorI18nSupport returns true if i18n support is enabled for errors.
+func (e *Env) ErrorI18nSupport() bool {
+	return !e.noI18nErrorSupport
 }
 
 // Representation of the components of an vdl file.  These data types represent

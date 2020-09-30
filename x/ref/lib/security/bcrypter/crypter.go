@@ -113,18 +113,18 @@ func (c *Crypter) Encrypt(ctx *context.T, forPattern security.BlessingPattern, p
 		for _, ibeParams := range ibeParamsList {
 			ctxt := make([]byte, len(plaintext)+ibeParams.CiphertextOverhead())
 			if err := ibeParams.Encrypt(string(forPattern), plaintext, ctxt); err != nil {
-				return nil, NewErrInternal(ctx, err)
+				return nil, ErrorfInternal(ctx, "internal error: %v", err)
 			}
 			paramsID, err := idParams(ibeParams)
 			if err != nil {
-				return nil, NewErrInternal(ctx, err)
+				return nil, ErrorfInternal(ctx, "internal error: %v", err)
 			}
 			paramsFound = true
 			ciphertext.wire.Bytes[paramsID] = ctxt
 		}
 	}
 	if !paramsFound {
-		return nil, NewErrNoParams(ctx, forPattern)
+		return nil, ErrorfNoParams(ctx, "no public parameters available for encrypting for pattern: %v", forPattern)
 	}
 	return ciphertext, nil
 }
@@ -160,7 +160,7 @@ func (c *Crypter) Decrypt(ctx *context.T, ciphertext *Ciphertext) ([]byte, error
 			return ptxt, nil
 		}
 	}
-	return nil, NewErrPrivateKeyNotFound(ctx)
+	return nil, ErrorfPrivateKeyNotFound(ctx, "no private key found for decrypting ciphertext")
 }
 
 // AddKey adds the provided private key 'key' and the associated public
@@ -168,12 +168,12 @@ func (c *Crypter) Decrypt(ctx *context.T, ciphertext *Ciphertext) ([]byte, error
 func (c *Crypter) AddKey(ctx *context.T, key *PrivateKey) error {
 	patterns := matchedBy(key.blessing, key.params.blessing)
 	if got, want := len(key.keys), len(patterns); got != want {
-		return NewErrInvalidPrivateKey(ctx, fmt.Errorf("got %d IBE private keys for blessing %v (and root blessing %v), expected %d", got, key.blessing, key.params.blessing, want))
+		return ErrorfInvalidPrivateKey(ctx, "private key is invalid: %v", fmt.Errorf("got %d IBE private keys for blessing %v (and root blessing %v), expected %d", got, key.blessing, key.params.blessing, want))
 	}
 
 	paramsID, err := idParams(key.params.params)
 	if err != nil {
-		return NewErrInternal(ctx, err)
+		return ErrorfInternal(ctx, "internal error: %v", err)
 	}
 
 	c.mu.Lock()
@@ -235,7 +235,7 @@ func (r *Root) Extract(ctx *context.T, blessing string) (*PrivateKey, error) {
 	for i, p := range patterns {
 		ibeKey, err := r.master.Extract(string(p))
 		if err != nil {
-			return nil, NewErrInternal(ctx, err)
+			return nil, ErrorfInternal(ctx, "internal error: %v", err)
 		}
 		key.keys[i] = ibeKey
 	}

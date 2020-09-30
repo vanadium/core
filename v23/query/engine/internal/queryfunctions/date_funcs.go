@@ -18,13 +18,14 @@ import (
 // If possible, check if arg is convertible to a location.  Fields and not yet computed
 // functions cannot be checked and will just return nil.
 func checkIfPossibleThatArgIsConvertibleToLocation(db ds.Database, arg *queryparser.Operand) error {
+	const locationConversionFormat = "[%v]can't convert to location: %v"
 	var locStr *queryparser.Operand
 	var err error
 	switch arg.Type {
 	case queryparser.TypBigInt, queryparser.TypBigRat, queryparser.TypBool, queryparser.TypFloat, queryparser.TypInt, queryparser.TypStr, queryparser.TypTime, queryparser.TypUint:
 		if locStr, err = conversions.ConvertValueToString(arg); err != nil {
 			if err != nil {
-				return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
+				return syncql.ErrorfLocationConversionError(db.GetContext(), locationConversionFormat, arg.Off, err)
 			}
 			return nil
 		}
@@ -32,7 +33,7 @@ func checkIfPossibleThatArgIsConvertibleToLocation(db ds.Database, arg *querypar
 		if arg.Function.Computed {
 			if locStr, err = conversions.ConvertValueToString(arg.Function.RetValue); err != nil {
 				if err != nil {
-					return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
+					return syncql.ErrorfLocationConversionError(db.GetContext(), locationConversionFormat, arg.Off, err)
 				}
 				return nil
 			}
@@ -46,7 +47,7 @@ func checkIfPossibleThatArgIsConvertibleToLocation(db ds.Database, arg *querypar
 	}
 	_, err = time.LoadLocation(locStr.Str)
 	if err != nil {
-		return syncql.NewErrLocationConversionError(db.GetContext(), arg.Off, err)
+		return syncql.ErrorfLocationConversionError(db.GetContext(), locationConversionFormat, arg.Off, err)
 	}
 	return nil
 }

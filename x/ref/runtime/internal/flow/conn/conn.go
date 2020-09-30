@@ -235,10 +235,10 @@ func NewDialed(
 	case <-done:
 		ferr = err
 	case <-timer.C:
-		ferr = verror.NewErrTimeout(ctx)
+		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-dctx.Done():
 		if proxy {
-			ferr = verror.NewErrCanceled(ctx)
+			ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
 		} else {
 			// The context has been canceled, but let's give this connection
 			// an opportunity to run to completion just in case this connection
@@ -255,7 +255,7 @@ func NewDialed(
 			case <-timer.C:
 				// Report the timeout not the cancelation, hence
 				// leave canceled as false.
-				ferr = verror.NewErrTimeout(ctx)
+				ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
 			}
 		}
 	}
@@ -284,7 +284,7 @@ func NewDialed(
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
 	if canceled {
-		ferr = verror.NewErrCanceled(ctx)
+		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
 	return c, names, rejected, ferr
 }
@@ -353,9 +353,9 @@ func NewAccepted(
 	case <-done:
 		ferr = err
 	case <-timer.C:
-		ferr = verror.NewErrTimeout(ctx)
+		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-ctx.Done():
-		ferr = verror.NewErrCanceled(ctx)
+		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
 	timer.Stop()
 	if ferr != nil {

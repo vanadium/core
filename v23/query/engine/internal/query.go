@@ -47,7 +47,7 @@ func (qe *queryEngineImpl) GetPreparedStatement(handle int64) (public.PreparedSt
 	if ok {
 		return &preparedStatementImpl{qe, handle}, nil
 	}
-	return nil, syncql.NewErrPreparedStatementNotFound(qe.db.GetContext())
+	return nil, syncql.ErrorfPreparedStatementNotFound(qe.db.GetContext(), "[0]prepared statement not found")
 }
 
 func (qe *queryEngineImpl) PrepareStatement(q string) (public.PreparedStatement, error) {
@@ -115,7 +115,7 @@ func checkAndExec(db ds.Database, s *queryparser.Statement) ([]string, syncql.Re
 	case queryparser.SelectStatement, queryparser.DeleteStatement:
 		return execStatement(db, s)
 	default:
-		return nil, nil, syncql.NewErrExecOfUnknownStatementType(db.GetContext(), (*s).Offset(), reflect.TypeOf(*s).Name())
+		return nil, nil, syncql.ErrorfExecOfUnknownStatementType(db.GetContext(), "[%v]cannot execute unknown statement type: %v", (*s).Offset(), reflect.TypeOf(*s).Name())
 	}
 }
 
@@ -239,7 +239,7 @@ func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexField
 	// Get IndexRanges for secondary indexes.
 	for _, idx := range indexFields {
 		if idx.Kind != vdl.String {
-			return nil, syncql.NewErrIndexKindNotSupported(db.GetContext(), tableOff, idx.Kind.String(), idx.FieldName, tableName)
+			return nil, syncql.ErrorfIndexKindNotSupported(db.GetContext(), "[%v]Index kind %v of field %v on table %v not supported.", tableOff, idx.Kind.String(), idx.FieldName, tableName)
 		}
 		var err error
 		var idxField *queryparser.Field
@@ -265,7 +265,7 @@ func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.R
 
 		keyValueStream, err := st.From.Table.DBTable.Scan(indexes...)
 		if err != nil {
-			return nil, nil, syncql.NewErrScanError(db.GetContext(), st.Off, err)
+			return nil, nil, syncql.ErrorfScanError(db.GetContext(), "[%v]scan error: %v", st.Off, err)
 		}
 		var resultStream selectResultStreamImpl
 		resultStream.db = db
@@ -282,7 +282,7 @@ func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.R
 
 		keyValueStream, err := st.From.Table.DBTable.Scan(indexes...)
 		if err != nil {
-			return nil, nil, syncql.NewErrScanError(db.GetContext(), st.Off, err)
+			return nil, nil, syncql.ErrorfScanError(db.GetContext(), "[%v]scan error: %v", st.Off, err)
 		}
 
 		deleteCount := int64(0)
@@ -316,7 +316,7 @@ func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.R
 			}
 		}
 		if err := keyValueStream.Err(); err != nil {
-			return nil, nil, syncql.NewErrKeyValueStreamError(db.GetContext(), st.Off, err)
+			return nil, nil, syncql.ErrorfKeyValueStreamError(db.GetContext(), "[%v]KeyValueStream error: %v", st.Off, err)
 		}
 
 		var resultStream deleteResultStreamImpl
@@ -326,5 +326,5 @@ func execStatement(db ds.Database, s *queryparser.Statement) ([]string, syncql.R
 		resultStream.deleteCount = deleteCount
 		return []string{"Count"}, &resultStream, nil
 	}
-	return nil, nil, syncql.NewErrOperationNotSupported(db.GetContext(), "")
+	return nil, nil, syncql.ErrorfOperationNotSupported(db.GetContext(), "[0]%v not supported.", "uknown")
 }

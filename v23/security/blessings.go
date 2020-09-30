@@ -409,7 +409,7 @@ func isSigningBlessingCaveat(cav Caveat) bool {
 func validateCaveatsForSigning(ctx *context.T, call Call, chain []Certificate) error {
 	for _, cav := range chainCaveats(chain) {
 		if !isSigningBlessingCaveat(cav) {
-			return NewErrInvalidSigningBlessingCaveat(nil, cav.Id)
+			return ErrorfInvalidSigningBlessingCaveat(nil, "blessing has caveat with UUID %v which makes it unsuitable for signing -- please use blessings with just Expiry caveats", cav.Id)
 		}
 		if err := cav.Validate(ctx, call); err != nil {
 			return err

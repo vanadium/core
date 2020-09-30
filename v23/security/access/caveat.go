@@ -27,7 +27,7 @@ func init() {
 		for i, mt := range methodTags {
 			strs[i] = mt.RawString()
 		}
-		return NewErrAccessTagCaveatValidation(ctx, strs, params)
+		return ErrorfAccessTagCaveatValidation(ctx, "access tags on method (%v) do not include any of the ones in the caveat (%v), or the method is using a different tag type", strs, params)
 	})
 }
 

@@ -319,7 +319,7 @@ func (p *Proxy) startRouting(ctx *context.T, f flow.Flow, m *message.Setup) erro
 	p.mu.Lock()
 	if p.closing {
 		p.mu.Unlock()
-		return NewErrProxyAlreadyClosed(ctx)
+		return ErrProxyAlreadyClosed.Errorf(ctx, "proxy has already been closed")
 	}
 	// Configure stats.
 	stats := p.statsForLocked(m.PeerRemoteEndpoint)
@@ -447,7 +447,7 @@ func (p *Proxy) returnEndpointsLocked(ctx *context.T, rid naming.RoutingID, rout
 		eps = append(eps, peps...)
 	}
 	if len(eps) == 0 {
-		return nil, NewErrNotListening(ctx)
+		return nil, ErrNotListening.Errorf(ctx, "proxy has already been closed")
 	}
 	for idx, ep := range eps {
 		if rid != naming.NullRoutingID {
@@ -588,5 +588,5 @@ func resolveToEndpoint(ctx *context.T, name string) ([]naming.Endpoint, error) {
 	if len(eps) > 0 {
 		return eps, nil
 	}
-	return nil, NewErrFailedToResolveToEndpoint(ctx, name)
+	return nil, ErrorfFailedToResolveToEndpoint(ctx, "failed to resolve '%v' to endpoint", name)
 }

@@ -99,7 +99,7 @@ func (i *statsService) Value(ctx *context.T, _ rpc.ServerCall) (*vom.RawBytes, e
 	case errors.Is(err, verror.ErrNoExist):
 		return nil, verror.ErrNoExist.Errorf(ctx, "does not exist: %v", i.suffix)
 	case errors.Is(err, stats.ErrNoValue):
-		return nil, stats.NewErrNoValue(ctx, i.suffix)
+		return nil, stats.ErrorfNoValue(ctx, "object has no value, suffix: %v", i.suffix)
 	case err != nil:
 		return nil, fmt.Errorf("operation failed for %v", i.suffix)
 	}

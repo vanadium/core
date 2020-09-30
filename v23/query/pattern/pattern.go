@@ -40,7 +40,7 @@ func Parse(pattern string) (*Pattern, error) {
 // escaping.
 func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) { //nolint:gocyclo
 	if escChar == '%' || escChar == '_' {
-		return nil, NewErrIllegalEscapeChar(nil)
+		return nil, ErrorfIllegalEscapeChar(nil, "'%' and '_' cannot be used as escape characters")
 	}
 
 	// The LIKE-style pattern is converted to a regex, converting:
@@ -67,7 +67,7 @@ func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) { //nol
 			case '%', '_', escChar:
 				toBeEscapedBuf.WriteRune(c)
 			default:
-				return nil, NewErrInvalidEscape(nil, string(c))
+				return nil, ErrorfInvalidEscape(nil, "only '%', '_', and the escape character are allowed to be escaped, found '%v'", string(c))
 			}
 			escapedMode = false
 		} else {
@@ -99,7 +99,7 @@ func ParseWithEscapeChar(pattern string, escChar rune) (*Pattern, error) { //nol
 		}
 	}
 	if escapedMode {
-		return nil, NewErrInvalidEscape(nil, "<end>")
+		return nil, ErrorfInvalidEscape(nil, "only '%', '_', and the escape character are allowed to be escaped, found '%v'", "<end>")
 	}
 	// Write any remaining chars in toBeEscapedBuf.
 	buf.WriteString(regexp.QuoteMeta(toBeEscapedBuf.String()))
@@ -147,7 +147,7 @@ func EscapeWithEscapeChar(s string, escChar rune) string {
 		panic(verror.ErrBadArg.Errorf(nil, "'\x00' disables escaping, cannot be used in EscapeWithEscapeChar"))
 	}
 	if escChar == '%' || escChar == '_' {
-		panic(NewErrIllegalEscapeChar(nil))
+		panic(ErrorfIllegalEscapeChar(nil, "'%' and '_' cannot be used as escape characters"))
 	}
 	var buf bytes.Buffer
 	for _, c := range s {

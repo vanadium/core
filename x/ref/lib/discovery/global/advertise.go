@@ -24,7 +24,7 @@ func (d *gdiscovery) Advertise(ctx *context.T, ad *discovery.Advertisement, visi
 		}
 	}
 	if err := validateAd(ad); err != nil {
-		return nil, idiscovery.NewErrBadAdvertisement(ctx, err)
+		return nil, idiscovery.ErrorfBadAdvertisement(ctx, "invalid advertisement: %v", err)
 	}
 	if len(visibility) == 0 {
 		visibility = []security.BlessingPattern{security.AllPrincipals}
@@ -38,7 +38,7 @@ func (d *gdiscovery) Advertise(ctx *context.T, ad *discovery.Advertisement, visi
 	}
 
 	if !d.addAd(ad) {
-		return nil, idiscovery.NewErrAlreadyBeingAdvertised(ctx, ad.Id)
+		return nil, idiscovery.ErrorfAlreadyBeingAdvertised(ctx, "already being advertised: %v", ad.Id)
 	}
 
 	// TODO(jhahn): There is no atomic way to check and reserve the name under mounttable.

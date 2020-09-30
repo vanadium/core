@@ -32,14 +32,14 @@ type splitErrorTest struct {
 func TestSplitError(t *testing.T) {
 	basic := []splitErrorTest{
 		{
-			syncql.NewErrInvalidSelectField(ctx, 7),
+			syncql.ErrorfInvalidSelectField(ctx, "[%v]select field must be 'k' or 'v[{.<ident>}...]'", 7),
 			7,
-			"Select field must be 'k' or 'v[{.<ident>}...]'.",
+			"select field must be 'k' or 'v[{.<ident>}...]'",
 		},
 		{
-			syncql.NewErrTableCantAccess(ctx, 14, "Bob", errors.New("No such table: Bob")),
+			syncql.ErrorfTableCantAccess(ctx, "[%v]table %v does not exist (or cannot be accessed): %v", 14, "Bob", errors.New("No such table: Bob")),
 			14,
-			"Table Bob does not exist (or cannot be accessed): No such table: Bob.",
+			"table Bob does not exist (or cannot be accessed): No such table: Bob",
 		},
 	}
 

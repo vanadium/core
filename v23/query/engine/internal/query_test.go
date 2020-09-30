@@ -20,6 +20,7 @@ import (
 	td "v.io/v23/query/engine/internal/testdata"
 	"v.io/v23/query/syncql"
 	"v.io/v23/vdl"
+	"v.io/v23/verror"
 	"v.io/v23/vom"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/test"
@@ -3362,125 +3363,125 @@ func TestExecErrors(t *testing.T) {
 	basic := []execSelectErrorTest{
 		{
 			"select a from Customer",
-			syncql.NewErrInvalidSelectField(db.GetContext(), 7),
+			syncql.ErrorfInvalidSelectField(db.GetContext(), "[%v]select field must be 'k' or 'v[{.<ident>}...]'", 7),
 		},
 		{
 			"select v from Unknown",
 			// The following error text is dependent on implementation of Database.
-			syncql.NewErrTableCantAccess(db.GetContext(), 14, "Unknown", errors.New("no such table: Unknown")),
+			syncql.ErrorfTableCantAccess(db.GetContext(), "[%v]table %v does not exist (or cannot be accessed): %v", 14, "Unknown", errors.New("no such table: Unknown")),
 		},
 		{
 			"select v from Customer offset -1",
 			// The following error text is dependent on implementation of Database.
-			syncql.NewErrExpected(db.GetContext(), 30, "positive integer literal"),
+			syncql.ErrorfExpected(db.GetContext(), "[%v]expected '%v'", 30, "positive integer literal"),
 		},
 		{
 			"select k, v.Key from BigTable where 110 <= k and 205 >= k",
-			syncql.NewErrKeyExpressionLiteral(db.GetContext(), 36),
+			syncql.ErrorfKeyExpressionLiteral(db.GetContext(), "[%v]key (i.e., 'k') compares against literals must be string literal", 36),
 		},
 		{
 			"select k, v.Key from BigTable where Type(k) = \"BigData\"",
-			syncql.NewErrArgMustBeField(db.GetContext(), 41),
+			syncql.ErrorfArgMustBeField(db.GetContext(), "[%v]argument must be a value field (i.e., must begin with 'v')", 41),
 		},
 		{
 			"select v from Customer where Len(10) = 3",
-			syncql.NewErrFunctionLenInvalidArg(db.GetContext(), 33),
+			syncql.ErrorfFunctionLenInvalidArg(db.GetContext(), "[%v]function 'Len()' expects array, list, set, map, string or nil", 33),
 		},
 		{
 			"select K from Customer where Type(v) = \"Invoice\"",
-			syncql.NewErrDidYouMeanLowercaseK(db.GetContext(), 7),
+			syncql.ErrorfDidYouMeanLowercaseK(db.GetContext(), "[%v]did you mean: 'k'?", 7),
 		},
 		{
 			"select V from Customer where Type(v) = \"Invoice\"",
-			syncql.NewErrDidYouMeanLowercaseV(db.GetContext(), 7),
+			syncql.ErrorfDidYouMeanLowercaseV(db.GetContext(), "[%v]did you mean: 'v'?", 7),
 		},
 		{
 			"select k from Customer where K = \"001\"",
-			syncql.NewErrDidYouMeanLowercaseK(db.GetContext(), 29),
+			syncql.ErrorfDidYouMeanLowercaseK(db.GetContext(), "[%v]did you mean: 'k'?", 29),
 		},
 		{
 			"select v from Customer where Type(V) = \"Invoice\"",
-			syncql.NewErrDidYouMeanLowercaseV(db.GetContext(), 34),
+			syncql.ErrorfDidYouMeanLowercaseV(db.GetContext(), "[%v]did you mean: 'v'?", 34),
 		},
 		{
 			"select K, V from Customer where Type(V) = \"Invoice\" and K = \"001\"",
-			syncql.NewErrDidYouMeanLowercaseK(db.GetContext(), 7),
+			syncql.ErrorfDidYouMeanLowercaseK(db.GetContext(), "[%v]did you mean: 'k'?", 7),
 		},
 		{
 			"select type(v) from Customer where Type(v) = \"Invoice\"",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Type"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Type"),
 		},
 		{
 			"select Type(v) from Customer where type(v) = \"Invoice\"",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 35, "Type"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 35, "Type"),
 		},
 		{
 			"select type(v) from Customer where type(v) = \"Invoice\"",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Type"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Type"),
 		},
 		{
 			"select time(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Time"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Time"),
 		},
 		{
 			"select TimE(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Time"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Time"),
 		},
 		{
 			"select year(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Year"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Year"),
 		},
 		{
 			"select month(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Month"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Month"),
 		},
 		{
 			"select day(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Day"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Day"),
 		},
 		{
 			"select hour(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Hour"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Hour"),
 		},
 		{
 			"select minute(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Minute"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Minute"),
 		},
 		{
 			"select second(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Second"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Second"),
 		},
 		{
 			"select now() from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Now"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Now"),
 		},
 		{
 			"select LowerCase(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Lowercase"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Lowercase"),
 		},
 		{
 			"select UPPERCASE(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Uppercase"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Uppercase"),
 		},
 		{
 			"select spliT(\"foo:bar\", \":\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Split"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Split"),
 		},
 		{
 			"select len(\"foo\") from Customer",
-			syncql.NewErrDidYouMeanFunction(db.GetContext(), 7, "Len"),
+			syncql.ErrorfDidYouMeanFunction(db.GetContext(), "[%v]did you mean: '%v'?", 7, "Len"),
 		},
 		{
 			"select StrRepeat(\"foo\", \"x\") from Customer",
-			syncql.NewErrIntConversionError(db.GetContext(), 24, errors.New("cannot convert operand to int64")),
+			syncql.ErrorfIntConversionError(db.GetContext(), "[%v]can't convert to int: %v", 24, errors.New("cannot convert operand to int64")),
 		},
 		{
 			"select StrCat(v.Address.City, 42) from Customer",
-			syncql.NewErrStringConversionError(db.GetContext(), 30, errors.New("cannot convert operand to string")),
+			syncql.ErrorfStringConversionError(db.GetContext(), "[%v]can't convert to string: %v", 30, errors.New("cannot convert operand to string")),
 		},
 		{
 			"select v from Customer where k like \"abc %\" escape ' '",
-			syncql.NewErrInvalidEscapeChar(db.GetContext(), 51, string(' ')),
+			syncql.ErrorfInvalidEscapeChar(db.GetContext(), "[%v]'%v' is not a valid escape character", 51, string(' ')),
 		},
 	}
 
@@ -3488,6 +3489,7 @@ func TestExecErrors(t *testing.T) {
 		_, _, err := internal.Exec(db, test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
 		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
+			t.Log(verror.DebugString(err))
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}

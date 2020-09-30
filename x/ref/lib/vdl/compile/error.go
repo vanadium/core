@@ -12,6 +12,7 @@ import (
 	"v.io/v23/i18n"
 	"v.io/v23/vdl"
 	"v.io/x/ref/lib/vdl/parse"
+	"v.io/x/ref/lib/vdl/vdlutil"
 )
 
 // ErrorDef represents a user-defined error definition in the compiled results.
@@ -72,9 +73,23 @@ func compileErrorDefs(pkg *Package, pfiles []*parse.File, env *Env) {
 					ed.English = lf.Fmt
 				}
 			}
+			upperName := vdlutil.FirstRuneToUpper(ed.Name)
+			errName := "Err" + upperName
+			newName := "NewErr" + upperName
+			errorfName := "ErrorfErr" + upperName
+			errorID := pkg.Path + "." + errName
+			if !ed.Exported {
+				errName = "err" + upperName
+				newName = "newErr" + upperName
+				errorfName = "errorfErr" + upperName
+				errorID = errName
+			}
 			if ed.English == "" {
-				env.Errorf(file, ed.Pos, "error %s invalid (must define at least one English format)", name)
-				continue
+				if !env.noI18nErrorSupport {
+					env.Warningf(file, ed.Pos, "error %s does not include an i18n message, make sure that %s is being used to create errors with ID %s and not %s", errName, errorfName, errorID, newName)
+				}
+			} else {
+				env.Warningf(file, ed.Pos, "error %s includes an i18n format which is now deprecated, remove this and use %s to create errors with ID %s", errName, errorfName, errorID)
 			}
 			addErrorDef(ed, env)
 		}

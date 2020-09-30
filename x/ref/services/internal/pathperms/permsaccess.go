@@ -154,7 +154,7 @@ func (store *PathStore) SetShareable(dir string, perms access.Permissions, versi
 		return false, nil
 	}
 	if len(version) > 0 && version != oversion {
-		return false, verror.NewErrBadVersion(nil)
+		return false, verror.ErrorfBadVersion(nil, "version is out of date")
 	}
 	if err := write(store.ctx, permspath, sigpath, dir, perms, shareable); err != nil {
 		return false, err

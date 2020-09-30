@@ -161,16 +161,16 @@ func (a *authorizer) Authorize(ctx *context.T, call security.Call) error {
 	for _, tag := range call.MethodTags() {
 		if tag.Type() == a.tagType {
 			if hastag {
-				return NewErrMultipleTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
+				return ErrorfMultipleTags(ctx, "authorizer on %v.%v cannot handle multiple tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
 			}
 			hastag = true
 			if acl, exists := a.perms[tag.RawString()]; !exists || !acl.Includes(blessings...) {
-				return NewErrNoPermissions(ctx, blessings, invalid, tag.RawString())
+				return ErrorfNoPermissions(ctx, "%v does not have %[3]v access (rejected blessings: %[2]v)", blessings, invalid, tag.RawString())
 			}
 		}
 	}
 	if !hastag {
-		return NewErrNoTags(ctx, call.Suffix(), call.Method(), a.tagType.String())
+		return ErrorfNoTags(ctx, "authorizer on %v.%v has no tags of type %v; this is likely unintentional", call.Suffix(), call.Method(), a.tagType.String())
 	}
 	return nil
 }

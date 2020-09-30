@@ -71,7 +71,7 @@ const maxPacketSize = 0xffffff
 
 func write3ByteUint(dst []byte, n int) error {
 	if n > maxPacketSize || n < 0 {
-		return NewErrLargerThan3ByteUInt(nil)
+		return ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
 	}
 	n = maxPacketSize - n
 	dst[0] = byte((n & 0xff0000) >> 16)

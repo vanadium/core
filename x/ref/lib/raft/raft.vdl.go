@@ -9,6 +9,7 @@
 package raft
 
 import (
+	"fmt"
 	"io"
 
 	v23 "v.io/v23"
@@ -210,18 +211,131 @@ const RaftEntry = byte(1)
 // Error definitions
 
 var (
-	ErrNotLeader     = verror.Register("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry, "{1:}{2:} not the leader")
-	ErrOutOfSequence = verror.Register("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry, "{1:}{2:} append {3}, {4} out of sequence")
+	ErrNotLeader     = verror.NewIDAction("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry)
+	ErrOutOfSequence = verror.NewIDAction("v.io/x/ref/lib/raft.OutOfSequence", verror.NoRetry)
 )
 
 // NewErrNotLeader returns an error with the ErrNotLeader ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotLeader or MessageNotLeader instead.
 func NewErrNotLeader(ctx *context.T) error {
 	return verror.New(ErrNotLeader, ctx)
 }
 
+// ErrorfNotLeader calls ErrNotLeader.Errorf with the supplied arguments.
+func ErrorfNotLeader(ctx *context.T, format string) error {
+	return ErrNotLeader.Errorf(ctx, format)
+}
+
+// MessageNotLeader calls ErrNotLeader.Message with the supplied arguments.
+func MessageNotLeader(ctx *context.T, message string) error {
+	return ErrNotLeader.Message(ctx, message)
+}
+
+// ParamsErrNotLeader extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotLeader(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrOutOfSequence returns an error with the ErrOutOfSequence ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfOutOfSequence or MessageOutOfSequence instead.
 func NewErrOutOfSequence(ctx *context.T, prevTerm Term, prevIdx Index) error {
 	return verror.New(ErrOutOfSequence, ctx, prevTerm, prevIdx)
+}
+
+// ErrorfOutOfSequence calls ErrOutOfSequence.Errorf with the supplied arguments.
+func ErrorfOutOfSequence(ctx *context.T, format string, prevTerm Term, prevIdx Index) error {
+	return ErrOutOfSequence.Errorf(ctx, format, prevTerm, prevIdx)
+}
+
+// MessageOutOfSequence calls ErrOutOfSequence.Message with the supplied arguments.
+func MessageOutOfSequence(ctx *context.T, message string, prevTerm Term, prevIdx Index) error {
+	return ErrOutOfSequence.Message(ctx, message, prevTerm, prevIdx)
+}
+
+// ParamsErrOutOfSequence extracts the expected parameters from the error's ParameterList.
+func ParamsErrOutOfSequence(argumentError error) (verrorComponent string, verrorOperation string, prevTerm Term, prevIdx Index, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if prevTerm, ok = tmp.(Term); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value prevTerm, has %T and not Term", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if prevIdx, ok = tmp.(Index); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value prevIdx, has %T and not Index", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////

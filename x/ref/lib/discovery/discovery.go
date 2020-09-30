@@ -69,7 +69,7 @@ func (d *idiscovery) addTask(ctx *context.T) (*context.T, func(), error) {
 	d.mu.Lock()
 	if d.closed {
 		d.mu.Unlock()
-		return nil, nil, NewErrDiscoveryClosed(ctx)
+		return nil, nil, ErrorfDiscoveryClosed(ctx, "discovery closed")
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	d.tasks[ctx] = cancel
@@ -99,12 +99,12 @@ func (d *idiscovery) cancelTask(ctx *context.T) {
 
 func newDiscovery(ctx *context.T, plugins []Plugin) (*idiscovery, error) {
 	if len(plugins) == 0 {
-		return nil, NewErrNoDiscoveryPlugin(ctx)
+		return nil, ErrorfNoDiscoveryPlugin(ctx, "no discovery plugin")
 	}
 	if actual, limit := int32(len(plugins)), int32(32); actual > limit {
 		// Because adref used in scan.go uses a 32-bit bitmap to
 		// associate ads with the plugin that found them.
-		return nil, NewErrTooManyPlugins(ctx, actual, limit)
+		return nil, ErrorfTooManyPlugins(ctx, "too many plugins (%v), support at most %v", actual, limit)
 	}
 	statsMu.Lock()
 	statsPrefix := naming.Join("discovery", fmt.Sprint(statsIdx))

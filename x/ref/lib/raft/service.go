@@ -167,7 +167,7 @@ func (s *service) Append(ctx *context.T, call rpc.ServerCall, cmd []byte) (Term,
 
 	if r.role != RoleLeader {
 		r.Unlock()
-		return 0, 0, NewErrNotLeader(ctx)
+		return 0, 0, ErrorfNotLeader(ctx, "not the leader")
 	}
 
 	// Assign an index and term to the log entry.
@@ -228,7 +228,7 @@ func (s *service) Committed(ctx *context.T, call rpc.ServerCall) (Index, error) 
 	r.Lock()
 	defer r.Unlock()
 	if r.role != RoleLeader {
-		return 0, NewErrNotLeader(ctx)
+		return 0, ErrorfNotLeader(ctx, "not the leader")
 	}
 	return r.commitIndex, nil
 }

@@ -3,7 +3,8 @@ SHELL := /bin/bash -euo pipefail
 VDLPATH ?= $(shell pwd)
 export VDLPATH
 vdlgen:
-	go run v.io/x/ref/cmd/vdl generate --lang=go v.io/...	
+	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go v.io/...	
+	go generate ./v23/vdl/vdltest
 
 .PHONY: test-integration
 test-integration:

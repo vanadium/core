@@ -50,8 +50,8 @@ func TestGlob(t *testing.T) {
 
 	var (
 		noExist        = verror.ErrNoExist.Errorf(ctx, "does not exist")
-		notImplemented = reserved.NewErrGlobNotImplemented(ctx)
-		maxRecursion   = reserved.NewErrGlobMaxRecursionReached(ctx)
+		notImplemented = reserved.ErrorfGlobNotImplemented(ctx, "glob not implemented")
+		maxRecursion   = reserved.ErrorfGlobMaxRecursionReached(ctx, "max recursion level reached")
 	)
 
 	testcases := []struct {

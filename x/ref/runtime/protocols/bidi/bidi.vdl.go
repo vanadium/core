@@ -9,6 +9,8 @@
 package bidi
 
 import (
+	"fmt"
+
 	"v.io/v23/context"
 	"v.io/v23/i18n"
 	"v.io/v23/verror"
@@ -20,18 +22,110 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Error definitions
 
 var (
-	ErrCannotListenOnBidi     = verror.Register("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry, "{1:}{2:} cannot listen on bidi protocol")
-	ErrBidiRoutingIdNotCached = verror.Register("v.io/x/ref/runtime/protocols/bidi.BidiRoutingIdNotCached", verror.NoRetry, "{1:}{2:} bidi routing id not in cache")
+	ErrCannotListenOnBidi     = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry)
+	ErrBidiRoutingIdNotCached = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.BidiRoutingIdNotCached", verror.NoRetry)
 )
 
 // NewErrCannotListenOnBidi returns an error with the ErrCannotListenOnBidi ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfCannotListenOnBidi or MessageCannotListenOnBidi instead.
 func NewErrCannotListenOnBidi(ctx *context.T) error {
 	return verror.New(ErrCannotListenOnBidi, ctx)
 }
 
+// ErrorfCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
+func ErrorfCannotListenOnBidi(ctx *context.T, format string) error {
+	return ErrCannotListenOnBidi.Errorf(ctx, format)
+}
+
+// MessageCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
+func MessageCannotListenOnBidi(ctx *context.T, message string) error {
+	return ErrCannotListenOnBidi.Message(ctx, message)
+}
+
+// ParamsErrCannotListenOnBidi extracts the expected parameters from the error's ParameterList.
+func ParamsErrCannotListenOnBidi(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
 // NewErrBidiRoutingIdNotCached returns an error with the ErrBidiRoutingIdNotCached ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfBidiRoutingIdNotCached or MessageBidiRoutingIdNotCached instead.
 func NewErrBidiRoutingIdNotCached(ctx *context.T) error {
 	return verror.New(ErrBidiRoutingIdNotCached, ctx)
+}
+
+// ErrorfBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
+func ErrorfBidiRoutingIdNotCached(ctx *context.T, format string) error {
+	return ErrBidiRoutingIdNotCached.Errorf(ctx, format)
+}
+
+// MessageBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.
+func MessageBidiRoutingIdNotCached(ctx *context.T, message string) error {
+	return ErrBidiRoutingIdNotCached.Message(ctx, message)
+}
+
+// ParamsErrBidiRoutingIdNotCached extracts the expected parameters from the error's ParameterList.
+func ParamsErrBidiRoutingIdNotCached(argumentError error) (verrorComponent string, verrorOperation string, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 var initializeVDLCalled bool

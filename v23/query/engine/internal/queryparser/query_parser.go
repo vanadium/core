@@ -22,6 +22,18 @@ import (
 type TokenType int
 
 const (
+	unexpectedFormat               = "[%v]unexpected: %v"
+	unexpectedEndOfStatementFormat = "[%v]unexpected end of statement"
+	expectedFormat                 = "[%v]expected '%v'"
+	expectedIdentifierFormat       = "[%v]expected identifier, found %v"
+	couldNotConvertFormat          = "[%v]could not convert %v to %v"
+	expectedOperandFormat          = "[%v]expected operand, found %v"
+	expectedOperatorFormat         = "[%v]expected operator, found %v"
+	tooManyParamValuesFormat       = "[%v]too many parameter values specified"
+	invalidIndexFieldFormat        = "[%v]invalid index field %v returned by table %v"
+)
+
+const (
 	TokCHAR TokenType = 1 + iota
 	TokCOMMA
 	TokEOF
@@ -311,7 +323,7 @@ func scannerError(s *scanner.Scanner, msg string) {
 // Parse a statement.  Return it or an error.
 func Parse(db ds.Database, src string) (*Statement, error) {
 	if len(src) > MaxStatementLen {
-		return nil, syncql.NewErrMaxStatementLenExceeded(db.GetContext(), int64(0), MaxStatementLen, int64(len(src)))
+		return nil, syncql.ErrorfMaxStatementLenExceeded(db.GetContext(), "[%v]maximum length of statements is %v; found %v", int64(0), MaxStatementLen, int64(len(src)))
 	}
 	r := strings.NewReader(src)
 	var s scanner.Scanner
@@ -320,10 +332,10 @@ func Parse(db ds.Database, src string) (*Statement, error) {
 
 	token := scanToken(&s) // eat the select
 	if token.Tok == TokEOF {
-		return nil, syncql.NewErrNoStatementFound(db.GetContext(), token.Off)
+		return nil, syncql.ErrorfNoStatementFound(db.GetContext(), "[%v]no statement found", token.Off)
 	}
 	if token.Tok != TokIDENT {
-		return nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+		return nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 	}
 	switch strings.ToLower(token.Value) {
 	case "select":
@@ -337,7 +349,7 @@ func Parse(db ds.Database, src string) (*Statement, error) {
 		st, _, err = deleteStatement(db, &s, token)
 		return &st, err
 	default:
-		return nil, syncql.NewErrUnknownIdentifier(db.GetContext(), token.Off, token.Value)
+		return nil, syncql.ErrorfUnknownIdentifier(db.GetContext(), "[%v]unknown identifier: %v", token.Off, token.Value)
 	}
 }
 
@@ -370,7 +382,7 @@ func selectStatement(db ds.Database, s *scanner.Scanner, token *Token) (Statemen
 
 	// There can be nothing remaining for the current statement
 	if token.Tok != TokEOF {
-		return nil, nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfUnexpected(db.GetContext(), unexpectedFormat, token.Off, token.Value)
 	}
 
 	return st, token, nil
@@ -383,7 +395,7 @@ func deleteStatement(db ds.Database, s *scanner.Scanner, token *Token) (Statemen
 
 	token = scanToken(s) // eat the delete
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 
 	// parse FromClause
@@ -406,7 +418,7 @@ func deleteStatement(db ds.Database, s *scanner.Scanner, token *Token) (Statemen
 
 	// There can be nothing remaining for the current statement
 	if token.Tok != TokEOF {
-		return nil, nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfUnexpected(db.GetContext(), unexpectedFormat, token.Off, token.Value)
 	}
 
 	return st, token, nil
@@ -421,7 +433,7 @@ func parseSelectClause(db ds.Database, s *scanner.Scanner, token *Token) (*Selec
 	selectClause.Off = token.Off
 	token = scanToken(s) // eat the select
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	var err error
 	// scan first selector
@@ -443,7 +455,7 @@ func parseSelectClause(db ds.Database, s *scanner.Scanner, token *Token) (*Selec
 // Parse a selector. Return next token (or error).
 func parseSelector(db ds.Database, s *scanner.Scanner, selectClause *SelectClause, token *Token) (*Token, error) {
 	if token.Tok != TokIDENT {
-		return nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+		return nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 	}
 
 	var selector Selector
@@ -465,7 +477,7 @@ func parseSelector(db ds.Database, s *scanner.Scanner, selectClause *SelectClaus
 	if token.Tok == TokLEFTPAREN {
 		// Segments with a key(s) specified cannot be function calls.
 		if len(segment.Keys) != 0 {
-			return nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
+			return nil, syncql.ErrorfUnexpected(db.GetContext(), unexpectedFormat, token.Off, token.Value)
 		}
 		// switch selector to a function
 		selector.Type = TypSelFunc
@@ -479,7 +491,7 @@ func parseSelector(db ds.Database, s *scanner.Scanner, selectClause *SelectClaus
 		for token.Tok != TokEOF && token.Tok == TokPERIOD {
 			token = scanToken(s)
 			if token.Tok != TokIDENT {
-				return nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+				return nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 			}
 			if segment, token, err = parseSegment(db, s, token); err != nil {
 				return nil, err
@@ -494,7 +506,7 @@ func parseSelector(db ds.Database, s *scanner.Scanner, selectClause *SelectClaus
 		asClause.Off = token.Off
 		token = scanToken(s)
 		if token.Tok != TokIDENT {
-			return nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+			return nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 		}
 		asClause.AltName.Value = token.Value
 		asClause.AltName.Off = token.Off
@@ -525,7 +537,7 @@ func parseSegment(db ds.Database, s *scanner.Scanner, token *Token) (*Segment, *
 		}
 		segment.Keys = append(segment.Keys, key)
 		if token.Tok != TokRIGHTBRACKET {
-			return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, "]")
+			return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, "]")
 		}
 		token = scanToken(s)
 	}
@@ -535,17 +547,17 @@ func parseSegment(db ds.Database, s *scanner.Scanner, token *Token) (*Segment, *
 // Parse the from clause, Return FromClause and next Token or error.
 func parseFromClause(db ds.Database, s *scanner.Scanner, token *Token) (*FromClause, *Token, error) {
 	if strings.ToLower(token.Value) != "from" {
-		return nil, nil, syncql.NewErrExpectedFrom(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfExpectedFrom(db.GetContext(), "[%v]expected 'from', found %v", token.Off, token.Value)
 	}
 	var fromClause FromClause
 	fromClause.Off = token.Off
 	token = scanToken(s) // eat from
 	// must be a table specified
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	if token.Tok != TokIDENT {
-		return nil, nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 	}
 	fromClause.Table.Off = token.Off
 	fromClause.Table.Name = token.Value
@@ -586,10 +598,10 @@ func parseParenthesizedExpression(db ds.Database, s *scanner.Scanner, _ *Token) 
 	}
 	// Expect right paren
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	if token.Tok != TokRIGHTPAREN {
-		return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, ")")
+		return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, ")")
 	}
 	token = scanToken(s) // eat ')'
 	return expr, token, nil
@@ -598,7 +610,7 @@ func parseParenthesizedExpression(db ds.Database, s *scanner.Scanner, _ *Token) 
 // Parse an expression.  Return expression and next token (or error)
 func parseExpression(db ds.Database, s *scanner.Scanner, token *Token) (*Expression, *Token, error) {
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 
 	var err error
@@ -675,7 +687,7 @@ func parseLikeEqualExpression(db ds.Database, s *scanner.Scanner, token *Token) 
 	// operand 2
 	var operand2 *Operand
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	operand2, token, err = parseOperand(db, s, token)
 	if err != nil {
@@ -696,7 +708,7 @@ func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffs
 	token := scanToken(s) // eat left paren
 	for token.Tok != TokRIGHTPAREN {
 		if token.Tok == TokEOF {
-			return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, ")")
+			return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, ")")
 		}
 		var arg *Operand
 		var err error
@@ -710,10 +722,10 @@ func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffs
 			token = scanToken(s)
 			if token.Tok == TokRIGHTPAREN {
 				// right paren cannot come after a comma
-				return nil, nil, syncql.NewErrExpectedOperand(db.GetContext(), token.Off, token.Value)
+				return nil, nil, syncql.ErrorfExpectedOperand(db.GetContext(), expectedOperandFormat, token.Off, token.Value)
 			}
 		} else if token.Tok != TokRIGHTPAREN {
-			return nil, nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
+			return nil, nil, syncql.ErrorfUnexpected(db.GetContext(), unexpectedFormat, token.Off, token.Value)
 		}
 	}
 	token = scanToken(s) // eat right paren
@@ -723,7 +735,7 @@ func parseFunction(db ds.Database, s *scanner.Scanner, funcName string, funcOffs
 // Parse an operand (field or literal) and return it and the next Token (or error)
 func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *Token, error) { //nolint:gocyclo
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	var operand Operand
 	operand.Off = token.Off
@@ -751,7 +763,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 		case token.Tok == TokLEFTPAREN:
 			// Segments with a key specified cannot be function calls.
 			if len(segment.Keys) != 0 {
-				return nil, nil, syncql.NewErrUnexpected(db.GetContext(), token.Off, token.Value)
+				return nil, nil, syncql.ErrorfUnexpected(db.GetContext(), unexpectedFormat, token.Off, token.Value)
 			}
 			operand.Type = TypFunction
 			var err error
@@ -763,7 +775,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 			for token.Tok != TokEOF && token.Tok == TokPERIOD {
 				token = scanToken(s)
 				if token.Tok != TokIDENT {
-					return nil, nil, syncql.NewErrExpectedIdentifier(db.GetContext(), token.Off, token.Value)
+					return nil, nil, syncql.ErrorfExpectedIdentifier(db.GetContext(), expectedIdentifierFormat, token.Off, token.Value)
 				}
 				if segment, token, err = parseSegment(db, s, token); err != nil {
 					return nil, nil, err
@@ -776,7 +788,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 		operand.Type = TypInt
 		i, err := strconv.ParseInt(token.Value, 0, 64)
 		if err != nil {
-			return nil, nil, syncql.NewErrCouldNotConvert(db.GetContext(), token.Off, token.Value, "int64")
+			return nil, nil, syncql.ErrorfCouldNotConvert(db.GetContext(), couldNotConvertFormat, token.Off, token.Value, "int64")
 		}
 		operand.Int = i
 		token = scanToken(s)
@@ -784,7 +796,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 		operand.Type = TypFloat
 		f, err := strconv.ParseFloat(token.Value, 64)
 		if err != nil {
-			return nil, nil, syncql.NewErrCouldNotConvert(db.GetContext(), token.Off, token.Value, "float64")
+			return nil, nil, syncql.ErrorfCouldNotConvert(db.GetContext(), couldNotConvertFormat, token.Off, token.Value, "float64")
 		}
 		operand.Float = f
 		token = scanToken(s)
@@ -806,25 +818,25 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 			operand.Type = TypInt
 			i, err := strconv.ParseInt("-"+token.Value, 0, 64)
 			if err != nil {
-				return nil, nil, syncql.NewErrCouldNotConvert(db.GetContext(), off, "-"+token.Value, "int64")
+				return nil, nil, syncql.ErrorfCouldNotConvert(db.GetContext(), couldNotConvertFormat, off, "-"+token.Value, "int64")
 			}
 			operand.Int = i
 		case TokFLOAT:
 			operand.Type = TypFloat
 			f, err := strconv.ParseFloat("-"+token.Value, 64)
 			if err != nil {
-				return nil, nil, syncql.NewErrCouldNotConvert(db.GetContext(), off, "-"+token.Value, "float64")
+				return nil, nil, syncql.ErrorfCouldNotConvert(db.GetContext(), couldNotConvertFormat, off, "-"+token.Value, "float64")
 			}
 			operand.Float = f
 		default:
-			return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, "int or float")
+			return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, "int or float")
 		}
 		token = scanToken(s)
 	case TokParameter:
 		operand.Type = TypParameter
 		token = scanToken(s)
 	default:
-		return nil, nil, syncql.NewErrExpectedOperand(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfExpectedOperand(db.GetContext(), expectedOperandFormat, token.Off, token.Value)
 	}
 	return &operand, token, nil
 }
@@ -832,7 +844,7 @@ func parseOperand(db ds.Database, s *scanner.Scanner, token *Token) (*Operand, *
 // Parse binary operator and return it and the next Token (or error)
 func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*BinaryOperator, *Token, error) { //nolint:gocyclo
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	var operator BinaryOperator
 	operator.Off = token.Off
@@ -855,7 +867,7 @@ func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bin
 		case "not":
 			token = scanToken(s)
 			if token.Tok == TokEOF || (strings.ToLower(token.Value) != "equal" && strings.ToLower(token.Value) != "like") {
-				return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, "'equal' or 'like'")
+				return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, "'equal' or 'like'")
 			}
 			switch strings.ToLower(token.Value) {
 			case "equal":
@@ -865,7 +877,7 @@ func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bin
 			}
 			token = scanToken(s)
 		default:
-			return nil, nil, syncql.NewErrExpectedOperator(db.GetContext(), token.Off, token.Value)
+			return nil, nil, syncql.ErrorfExpectedOperator(db.GetContext(), expectedOperatorFormat, token.Off, token.Value)
 		}
 	} else {
 		switch token.Tok {
@@ -896,7 +908,7 @@ func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bin
 				operator.Type = GreaterThan
 			}
 		default:
-			return nil, nil, syncql.NewErrExpectedOperator(db.GetContext(), token.Off, token.Value)
+			return nil, nil, syncql.ErrorfExpectedOperator(db.GetContext(), expectedOperatorFormat, token.Off, token.Value)
 		}
 	}
 
@@ -906,7 +918,7 @@ func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bin
 // Parse logical operator and return it and the next Token (or error)
 func parseLogicalOperator(db ds.Database, s *scanner.Scanner, token *Token) (*BinaryOperator, *Token, error) {
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	var operator BinaryOperator
 	operator.Off = token.Off
@@ -916,7 +928,7 @@ func parseLogicalOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bi
 	case "or":
 		operator.Type = Or
 	default:
-		return nil, nil, syncql.NewErrExpectedOperator(db.GetContext(), token.Off, token.Value)
+		return nil, nil, syncql.ErrorfExpectedOperator(db.GetContext(), expectedOperatorFormat, token.Off, token.Value)
 	}
 
 	token = scanToken(s)
@@ -976,10 +988,10 @@ func parseEscapeClause(db ds.Database, s *scanner.Scanner, token *Token) (*Escap
 	ec.Off = token.Off
 	token = scanToken(s)
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	if token.Tok != TokCHAR {
-		return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, "char literal")
+		return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, "char literal")
 	}
 	var v CharValue
 	v.Off = token.Off
@@ -1022,10 +1034,10 @@ func parseNonNegInt64(db ds.Database, s *scanner.Scanner, token *Token) (*Int64V
 	// We expect an integer literal
 	// Since we're looking for integers >= 0, don't allow TokMINUS.
 	if token.Tok == TokEOF {
-		return nil, nil, syncql.NewErrUnexpectedEndOfStatement(db.GetContext(), token.Off)
+		return nil, nil, syncql.ErrorfUnexpectedEndOfStatement(db.GetContext(), unexpectedEndOfStatementFormat, token.Off)
 	}
 	if token.Tok != TokINT {
-		return nil, nil, syncql.NewErrExpected(db.GetContext(), token.Off, "positive integer literal")
+		return nil, nil, syncql.ErrorfExpected(db.GetContext(), expectedFormat, token.Off, "positive integer literal")
 	}
 	var v Int64Value
 	v.Off = token.Off
@@ -1033,7 +1045,7 @@ func parseNonNegInt64(db ds.Database, s *scanner.Scanner, token *Token) (*Int64V
 	v.Value, err = strconv.ParseInt(token.Value, 0, 64)
 	if err != nil {
 		// The token value has already been checked, so this can't happen.
-		return nil, nil, syncql.NewErrCouldNotConvert(db.GetContext(), token.Off, token.Value, "int64")
+		return nil, nil, syncql.ErrorfCouldNotConvert(db.GetContext(), couldNotConvertFormat, token.Off, token.Value, "int64")
 	}
 	token = scanToken(s)
 	return &v, token, nil
@@ -1102,7 +1114,7 @@ func (st SelectStatement) CopyAndSubstitute(db ds.Database, paramValues []*vdl.V
 		}
 	} else if len(paramValues) > 0 {
 		// There is no where clause.  If any paramValues suppied, we have too many.
-		return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
+		return nil, syncql.ErrorfTooManyParamValuesSpecified(db.GetContext(), tooManyParamValuesFormat, copy.Off)
 	}
 	copy.Escape = st.Escape
 	copy.Limit = st.Limit
@@ -1121,7 +1133,7 @@ func (st DeleteStatement) CopyAndSubstitute(db ds.Database, paramValues []*vdl.V
 		}
 	} else if len(paramValues) > 0 {
 		// There is no where clause.  If any paramValues suppied, we have too many.
-		return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), copy.Off)
+		return nil, syncql.ErrorfTooManyParamValuesSpecified(db.GetContext(), tooManyParamValuesFormat, copy.Off)
 	}
 	copy.Escape = st.Escape
 	copy.Limit = st.Limit
@@ -1331,7 +1343,7 @@ func (w WhereClause) CopyAndSubstitute(db ds.Database, paramValues []*vdl.Value)
 
 	// Did any of the supplied values go unused?
 	if pi.cursor < len(paramValues) {
-		return nil, syncql.NewErrTooManyParamValuesSpecified(db.GetContext(), w.Off)
+		return nil, syncql.ErrorfTooManyParamValuesSpecified(db.GetContext(), tooManyParamValuesFormat, w.Off)
 	}
 
 	return &copy, nil
@@ -1374,7 +1386,7 @@ func (o Operand) CopyAndSubstitute(db ds.Database, pi *paramInfo) (*Operand, err
 	case TypParameter:
 		if pi.cursor >= len(pi.paramValues) {
 			// not enough paramater values specified
-			return nil, syncql.NewErrNotEnoughParamValuesSpecified(db.GetContext(), o.Off)
+			return nil, syncql.ErrorfNotEnoughParamValuesSpecified(db.GetContext(), "[%v]not enough parameter values specified", o.Off)
 		}
 		cpOp, err := ConvertValueToAnOperand(pi.paramValues[pi.cursor], o.Off)
 		if err == nil {
@@ -1464,23 +1476,23 @@ func ParseIndexField(db ds.Database, fieldName, tableName string) (*Field, error
 
 	token := scanToken(&s)
 	if token.Tok == TokEOF {
-		return nil, syncql.NewErrInvalidIndexField(db.GetContext(), 0, fieldName, tableName)
+		return nil, syncql.ErrorfInvalidIndexField(db.GetContext(), invalidIndexFieldFormat, 0, fieldName, tableName)
 	}
 	var op *Operand
 	var err error
 	op, token, err = parseOperand(db, &s, token)
 	if err != nil {
-		return nil, syncql.NewErrInvalidIndexField(db.GetContext(), 0, fieldName, tableName)
+		return nil, syncql.ErrorfInvalidIndexField(db.GetContext(), invalidIndexFieldFormat, 0, fieldName, tableName)
 	}
 	if op.Type != TypField {
-		return nil, syncql.NewErrInvalidIndexField(db.GetContext(), 0, fieldName, tableName)
+		return nil, syncql.ErrorfInvalidIndexField(db.GetContext(), invalidIndexFieldFormat, 0, fieldName, tableName)
 	}
 	if token.Tok != TokEOF {
-		return nil, syncql.NewErrInvalidIndexField(db.GetContext(), 0, fieldName, tableName)
+		return nil, syncql.ErrorfInvalidIndexField(db.GetContext(), invalidIndexFieldFormat, 0, fieldName, tableName)
 	}
 	// Look at last segment.  If a key or index is supplied, it can't be used as an index.
 	if len(op.Column.Segments[len(op.Column.Segments)-1].Keys) != 0 {
-		return nil, syncql.NewErrInvalidIndexField(db.GetContext(), 0, fieldName, tableName)
+		return nil, syncql.ErrorfInvalidIndexField(db.GetContext(), invalidIndexFieldFormat, 0, fieldName, tableName)
 	}
 
 	return op.Column, nil

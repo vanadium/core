@@ -102,7 +102,7 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 			return reader.tell(), nil
 		}
 		if err == io.EOF {
-			return reader.tell(), verror.NewErrEndOfFile(ctx)
+			return reader.tell(), verror.ErrorfEndOfFile(ctx, "end of file")
 		}
 		if err != nil {
 			return reader.tell(), fmt.Errorf("failed to read line: %v: %v", fname, err)

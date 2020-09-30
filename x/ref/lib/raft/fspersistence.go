@@ -154,9 +154,9 @@ func (p *fsPersist) AppendToLog(ctx *context.T, prevTerm Term, prevIndex Index, 
 		// We will not log if the previous entry either doesn't exist or has the wrong term.
 		le := p.lookup(prevIndex)
 		if le == nil {
-			return NewErrOutOfSequence(ctx, prevTerm, prevIndex)
+			return ErrorfOutOfSequence(ctx, "append %v, %v out of sequence", prevTerm, prevIndex)
 		} else if le.Term != prevTerm {
-			return NewErrOutOfSequence(ctx, prevTerm, prevIndex)
+			return ErrorfOutOfSequence(ctx, "append %v, %v out of sequence", prevTerm, prevIndex)
 		}
 	}
 	for i, e := range entries {
@@ -213,7 +213,7 @@ func (p *fsPersist) trimLog(ctx *context.T, prevTerm Term, prevIndex Index) erro
 	le := p.lookup(prevIndex)
 	p.Unlock()
 	if le == nil {
-		return NewErrOutOfSequence(ctx, 0, prevIndex)
+		return ErrorfOutOfSequence(ctx, "append %v, %v out of sequence", 0, prevIndex)
 	}
 
 	// Create a new log file.

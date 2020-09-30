@@ -400,6 +400,9 @@ func init() {
 		"clientFinishImpl":      clientFinishImpl,
 		"serverStubImpl":        serverStubImpl,
 		"reInitStreamValue":     reInitStreamValue,
+		"callVerror":            callVerror,
+		"paramNamedResults":     paramNamedResults,
+		"errorsI18n":            errorsI18n,
 	}
 	goTemplate = template.Must(template.New("genGo").Funcs(funcMap).Parse(genGo))
 }
@@ -421,6 +424,10 @@ func errorComment(def *compile.ErrorDef) string {
 		return strings.Replace(def.Doc, parts[1], "Err"+parts[1], 1)
 	}
 	return def.Doc
+}
+
+func errorsI18n(data *goData) bool {
+	return data.Env.ErrorI18nSupport()
 }
 
 func isStreamingMethod(method *compile.Method) bool {
@@ -534,6 +541,25 @@ func maybeStripArgName(arg string, strip bool) string {
 	return arg
 }
 
+// paramNamedResults returns a comma-separated list of "name type" from args
+// in the order (first, second, args*, last)
+func paramNamedResults(first, second, last string, data *goData, args []*compile.Field) string {
+	var result []string
+	if first != "" {
+		result = append(result, first)
+	}
+	if second != "" {
+		result = append(result, second)
+	}
+	for _, arg := range args {
+		result = append(result, arg.Name+" "+typeGo(data, arg.Type))
+	}
+	if last != "" {
+		result = append(result, last)
+	}
+	return strings.Join(result, ", ")
+}
+
 // argParens takes a list of 0 or more arguments, and adds parens only when
 // necessary; if args contains any commas or spaces, we must add parens.
 func argParens(argList string) string {
@@ -629,6 +655,13 @@ func reInitStreamValue(data *goData, t *vdl.Type, name string) string {
 	return ""
 }
 
+func callVerror(data *goData, call string) string {
+	if data.Package.Name == "verror" {
+		return call
+	}
+	return "verror." + call
+}
+
 // The template that we execute against a goData instance to generate our
 // code.  Most of this is fairly straightforward substitution and ranges; more
 // complicated logic is delegated to the helper functions above.
@@ -690,17 +723,100 @@ var (
 
 var (
 {{range $edef := $pkg.ErrorDefs}}
-	{{errorComment $edef}}{{errorName $edef}} = {{$data.Pkg "v.io/v23/verror"}}Register("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}, "{{$edef.English}}"){{end}}
+	{{errorComment $edef}}{{errorName $edef}}	= {{$data.Pkg "v.io/v23/verror"}}NewIDAction("{{$edef.ID}}", {{$data.Pkg "v.io/v23/verror"}}{{$edef.RetryCode}}){{end}}
 )
 
 {{range $edef := $pkg.ErrorDefs}}
 {{$errName := errorName $edef}}
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
+{{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
+{{if errorsI18n $data}}
 // {{$newErr}} returns an error with the {{$errName}} ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use {{$errorf}} or {{$message}} instead.
 func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
 }
 {{end}}
+// {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
+func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
+	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
+}
+
+// {{$message}} calls {{$errName}}.Message with the supplied arguments.
+func {{$message}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, message string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
+	return {{$errName}}.Message({{argNames "" "" "ctx" "message" "" $edef.Params}})
+}
+
+{{$params := print (firstRuneToExport "Params" $edef.Exported) (firstRuneToUpper  $errName)}}
+// {{$params}} extracts the expected parameters from the error's ParameterList.
+func {{$params}}(argumentError error) ({{paramNamedResults "verrorComponent string" "verrorOperation string"  "returnErr error" $data $edef.Params}}) {
+	params := {{callVerror $data "Params(argumentError)"}}
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+	{{if $edef.Params}}
+	var (
+		tmp interface{}
+		ok bool
+	)
+	{{range $edef.Params}}tmp, returnErr = iter.next()
+	if {{.Name}}, ok = tmp.({{typeGo $data .Type}}); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value {{.Name}}, has %T and not {{typeGo $data .Type}}", tmp)
+		return
+	}
+	{{end}}{{end}}
+	return
+}
+{{end}}
+{{end}}
+
+{{if $pkg.ErrorDefs}}
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return  pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
+}
 {{end}}
 
 {{if $pkg.Interfaces}}
@@ -1067,8 +1183,10 @@ func initializeVDL() struct{} {
 {{end}}
 {{$data.DefineTypeOfVars}}
 {{if $pkg.ErrorDefs}}
+{{if errorsI18n $data}}
 	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
 	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
+{{end}}
 {{end}}
 	return struct{}{}
 }

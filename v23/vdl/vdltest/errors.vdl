@@ -1,0 +1,12 @@
+// Copyright 2016 The Vanadium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package vdltest
+
+error (
+        None() { "en": "dummy" }
+        One(i int64) { "en": "dummy" }
+        Two(a string, err error) { "en": "dummy" }
+        Three(a string, b int64, c float32) { "en": "dummy" }
+)

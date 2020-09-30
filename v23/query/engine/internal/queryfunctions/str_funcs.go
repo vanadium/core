@@ -118,7 +118,7 @@ func upperCase(db ds.Database, off int64, args []*queryparser.Operand) (*querypa
 func typeFunc(db ds.Database, off int64, args []*queryparser.Operand) (*queryparser.Operand, error) {
 	// If operand is not an object, we can't get a type
 	if args[0].Type != queryparser.TypObject {
-		return nil, syncql.NewErrFunctionTypeInvalidArg(db.GetContext(), args[0].Off)
+		return nil, syncql.ErrorfFunctionTypeInvalidArg(db.GetContext(), "[%v]function 'Type()' cannot get type of argument -- expecting object", args[0].Off)
 	}
 	if args[0].Object.Kind() == vdl.TypeObject {
 		// Believe it or not, Name() doesn't return the name of the type if the type is TypeObject.
@@ -131,7 +131,7 @@ func typeFuncFieldCheck(db ds.Database, off int64, args []*queryparser.Operand) 
 	// At this point, it is known that there is one arg. Make sure it is of type field
 	// and is a value field (i.e., it must begin with a v segment).
 	if args[0].Type != queryparser.TypField || len(args[0].Column.Segments) < 1 || args[0].Column.Segments[0].Value != "v" {
-		return syncql.NewErrArgMustBeField(db.GetContext(), args[0].Off)
+		return syncql.ErrorfArgMustBeField(db.GetContext(), "[%v]argument must be a value field (i.e., must begin with 'v')", args[0].Off)
 	}
 	return nil
 }

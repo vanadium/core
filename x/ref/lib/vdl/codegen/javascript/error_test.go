@@ -55,6 +55,6 @@ func TestError(t *testing.T) {
 ]);
 `
 	if result != expected {
-		t.Errorf("got %s, expected %s", result, expected)
+		t.Errorf("got %s, want %s", result, expected)
 	}
 }

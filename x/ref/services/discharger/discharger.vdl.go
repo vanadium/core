@@ -11,6 +11,8 @@
 package discharger
 
 import (
+	"fmt"
+
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/i18n"
@@ -27,12 +29,89 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 var (
 
 	// Indicates that the Caveat does not require a discharge
-	ErrNotAThirdPartyCaveat = verror.Register("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry, "{1:}{2:} discharges are not required for non-third-party caveats (id: {c.id})")
+	ErrNotAThirdPartyCaveat = verror.NewIDAction("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry)
 )
 
 // NewErrNotAThirdPartyCaveat returns an error with the ErrNotAThirdPartyCaveat ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNotAThirdPartyCaveat or MessageNotAThirdPartyCaveat instead.
 func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 	return verror.New(ErrNotAThirdPartyCaveat, ctx, c)
+}
+
+// ErrorfNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
+func ErrorfNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
+	return ErrNotAThirdPartyCaveat.Errorf(ctx, format, c)
+}
+
+// MessageNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Message with the supplied arguments.
+func MessageNotAThirdPartyCaveat(ctx *context.T, message string, c security.Caveat) error {
+	return ErrNotAThirdPartyCaveat.Message(ctx, message, c)
+}
+
+// ParamsErrNotAThirdPartyCaveat extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotAThirdPartyCaveat(argumentError error) (verrorComponent string, verrorOperation string, c security.Caveat, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if c, ok = tmp.(security.Caveat); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value c, has %T and not security.Caveat", tmp)
+		return
+	}
+
+	return
+}
+
+type paramListIterator struct {
+	err      error
+	idx, max int
+	params   []interface{}
+}
+
+func (pl *paramListIterator) next() (interface{}, error) {
+	if pl.err != nil {
+		return nil, pl.err
+	}
+	if pl.idx+1 > pl.max {
+		pl.err = fmt.Errorf("too few parameters: have %v", pl.max)
+		return nil, pl.err
+	}
+	pl.idx++
+	return pl.params[pl.idx-1], nil
+}
+
+func (pl *paramListIterator) preamble() (component, operation string, err error) {
+	var tmp interface{}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	var ok bool
+	if component, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[0]: component name is not a string: %T", tmp)
+	}
+	if tmp, err = pl.next(); err != nil {
+		return
+	}
+	if operation, ok = tmp.(string); !ok {
+		return "", "", fmt.Errorf("ParamList[1]: operation name is not a string: %T", tmp)
+	}
+	return
 }
 
 //////////////////////////////////////////////////

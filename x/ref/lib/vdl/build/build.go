@@ -476,14 +476,14 @@ type depSorter struct {
 	vdlenv      *compile.Env
 }
 
-func newDepSorter(opts Opts, errs *vdlutil.Errors) *depSorter {
+func newDepSorter(opts Opts, errs, warnings *vdlutil.Errors) *depSorter {
 	ds := &depSorter{
 		opts:      opts,
 		rootDir:   RootDir(errs),
 		srcDirs:   SrcDirs(errs),
 		goModules: goModules(errs),
 		errs:      errs,
-		vdlenv:    compile.NewEnvWithErrors(errs),
+		vdlenv:    compile.NewEnvWithErrors(errs, warnings),
 	}
 	ds.reset()
 	// If VDLROOT isn't set, we must initialize the builtInRoot, to allow
@@ -970,8 +970,8 @@ func (o Opts) vdlConfigName() string {
 //
 // The mode specifies whether we should ignore or produce errors for paths that
 // don't resolve to any packages.  The opts arg specifies additional options.
-func TransitivePackages(paths []string, mode UnknownPathMode, opts Opts, errs *vdlutil.Errors) []*Package {
-	ds := newDepSorter(opts, errs)
+func TransitivePackages(paths []string, mode UnknownPathMode, opts Opts, errs, warnings *vdlutil.Errors) []*Package {
+	ds := newDepSorter(opts, errs, warnings)
 	for _, path := range paths {
 		if !ds.ResolvePath(path, mode) {
 			mode.logOrErrorf(errs, "can't resolve %q to any packages", path)
@@ -984,8 +984,8 @@ func TransitivePackages(paths []string, mode UnknownPathMode, opts Opts, errs *v
 // and src data, and returns all package dependencies in transitive order.
 //
 // The opts arg specifies additional options.
-func TransitivePackagesForConfig(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) []*Package {
-	ds := newDepSorter(opts, errs)
+func TransitivePackagesForConfig(fileName string, src io.Reader, opts Opts, errs, warnings *vdlutil.Errors) []*Package {
+	ds := newDepSorter(opts, errs, warnings)
 	ds.AddConfigDeps(fileName, src)
 	return ds.Sort()
 }

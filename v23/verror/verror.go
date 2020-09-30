@@ -571,6 +571,18 @@ func ErrorID(err error) ID {
 	return ErrUnknown.ID
 }
 
+// Params returns the ParameterList stored in err if it's an instance
+// of verror.E, nil otherwise.
+func Params(err error) []interface{} {
+	verr, ok := assertIsE(err)
+	if !ok {
+		return nil
+	}
+	cp := make([]interface{}, len(verr.ParamList))
+	copy(cp, verr.ParamList)
+	return cp
+}
+
 // Action returns the action of the given err, or NoRetry if the err has no Action.
 func Action(err error) ActionCode {
 	if err == nil {
