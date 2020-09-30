@@ -197,8 +197,7 @@ func (s spanSet) hasAncestor(span *vtrace.SpanRecord, ancestor *vtrace.SpanRecor
 	return false
 }
 
-func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []string) {
-	s := newSpanSet(trace)
+func findSpans(trace vtrace.TraceRecord, expectedSpans []string) map[string]*vtrace.SpanRecord {
 	found, foundRegexp := make(map[string]*vtrace.SpanRecord), make(map[string]*vtrace.SpanRecord)
 	for _, es := range expectedSpans {
 		found[es] = nil
@@ -207,7 +206,6 @@ func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []stri
 			foundRegexp[es] = nil
 		}
 	}
-
 	for i := range trace.Spans {
 		span := &trace.Spans[i]
 		smry := summary(span)
@@ -221,7 +219,12 @@ func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []stri
 			}
 		}
 	}
+	return found
+}
 
+func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []string) {
+	s := newSpanSet(trace)
+	found := findSpans(trace, expectedSpans)
 	for i, es := range expectedSpans {
 		span := found[es]
 		if span == nil {
