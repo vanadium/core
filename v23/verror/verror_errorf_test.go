@@ -51,12 +51,13 @@ func TestErrorf(t *testing.T) {
 	if got, want := err.Error(), "verror.test: my error oops"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	nerr := verror.AddSubErrs(err, nil, verror.SubErr{
+	nerr := verror.WithSubErrors(err, nil, verror.SubErr{
 		Name:    "a=1",
 		Err:     aEN1,
 		Options: verror.Print,
 	})
 	if got, want := strings.Count(verror.DebugString(nerr), "runtime.goexit"), 2; got != want {
+		t.Log(verror.DebugString(nerr))
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
@@ -89,12 +90,13 @@ func TestMessage(t *testing.T) {
 	if got, want := verror.Action(err), verror.NoRetry; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	nerr = verror.AddSubErrs(err, nil, verror.SubErr{
+	nerr = verror.WithSubErrors(err, nil, verror.SubErr{
 		Name:    "a=1",
 		Err:     aEN1,
 		Options: verror.Print,
 	})
 	if got, want := strings.Count(verror.DebugString(nerr), "runtime.goexit"), 2; got != want {
+		t.Log(verror.DebugString(nerr))
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
@@ -127,7 +129,8 @@ func TestCompatibility(t *testing.T) {
 }
 
 func TestUnwrap(t *testing.T) {
-	p := verror.ExplicitNew(idActionA, en, "server", "aEN0", 0)
+
+	p := idActionA.Errorf(nil, "error A: %v", 0)
 	s1 := verror.SubErr{
 		Name:    "a=1",
 		Err:     aEN1,
@@ -135,7 +138,7 @@ func TestUnwrap(t *testing.T) {
 	}
 	s2 := verror.SubErr{
 		Name:    "a=2",
-		Err:     aFR0,
+		Err:     bEN1,
 		Options: verror.Print,
 	}
 
@@ -163,23 +166,23 @@ func TestUnwrap(t *testing.T) {
 
 	assertUnwrapDone(p)
 
-	p1 := verror.AddSubErrs(p, nil, s1, s2)
+	p1 := verror.WithSubErrors(p, nil, s1, s2)
 	err := testUnwrap(p1, s1, s2)
 	assertUnwrapDone(err)
 
 	se1 := fmt.Errorf("an error")
 	se2 := os.ErrClosed
-	p2 := verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, "something", se2)
-	p2 = verror.AddSubErrs(p2, nil, s1, s2)
+	p2 := idActionA.Errorf(nil, "%v %v %v", se1, "something", se2)
+	p2 = verror.WithSubErrors(p2, nil, s1, s2)
 
 	err = testUnwrap(p2, s1, s2, se2)
 	assertUnwrapDone(err)
 
-	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", se1, s1, se2, s2)
+	err = idActionA.Errorf(nil, "%v %v %v %v", se1, s1, se2, s2)
 	err = testUnwrap(err, s1, s2)
 	assertUnwrapDone(err)
 
-	err = verror.ExplicitNew(idActionA, en, "server", "aEN0", s2, se1, se2, s1)
+	err = idActionA.Errorf(nil, "%v %v %v %v", s2, se1, se2, s1)
 	err = testUnwrap(err, s2, s1)
 	assertUnwrapDone(err)
 
@@ -197,19 +200,9 @@ func TestUnwrap(t *testing.T) {
 }
 
 func TestRegister(t *testing.T) {
-	e1 := verror.Register(".err1", verror.NoRetry, "{1}{:2} a message")
-	e2 := verror.Register("err1", verror.NoRetry, "{1}{:2} a message")
-	e3 := verror.Register("v.io/v23/verror.err1", verror.NoRetry, "{1}{:2} a message")
-	if got, want := e1.ID, e2.ID; got != want {
-		t.Errorf("got %v, want %v", got, want)
-	}
-	if got, want := e1.ID, e3.ID; got != want {
-		t.Errorf("got %v, want %v", got, want)
-	}
-
-	e1 = verror.NewIDAction(".err1", verror.NoRetry)
-	e2 = verror.NewID("err1")
-	e3 = verror.NewIDAction("v.io/v23/verror.err1", verror.NoRetry)
+	e1 := verror.NewIDAction(".err1", verror.NoRetry)
+	e2 := verror.NewID("err1")
+	e3 := verror.NewIDAction("v.io/v23/verror.err1", verror.NoRetry)
 	if got, want := e1.ID, e2.ID; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
@@ -218,7 +211,7 @@ func TestRegister(t *testing.T) {
 	}
 }
 
-func TestWithSubErrs(t *testing.T) {
+func TestWithSubErrorsSimple(t *testing.T) {
 	tl := verror.NewIDAction(".errTL", verror.RetryBackoff)
 	s1 := fmt.Errorf("oops")
 	s2 := os.ErrExist
@@ -227,15 +220,14 @@ func TestWithSubErrs(t *testing.T) {
 		Err:     fmt.Errorf("a network errror"),
 		Options: verror.Print,
 	}
-
 	err := verror.WithSubErrors(
 		tl.Errorf(nil, "on my an error: %v", os.ErrNotExist),
 		s1,
 		s2,
 		s3,
 	)
-
 	if got, want := err.Error(), "verror.test: on my an error: file does not exist oops file already exists [suberr: a network errror]"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
 }

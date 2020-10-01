@@ -135,7 +135,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 
 func (c *client) StartCall(ctx *context.T, name, method string, args []interface{}, opts ...rpc.CallOpt) (rpc.ClientCall, error) {
 	if !ctx.Initialized() {
-		return nil, verror.ExplicitNew(verror.ErrBadArg, i18n.LangID("en-us"), "<rpc.Client>", "StartCall", "context not initialized")
+		return nil, verror.ErrBadArg.Errorf(ctx, "context not initialized")
 	}
 	connOpts := getConnectionOptions(ctx, opts)
 	return c.startCall(ctx, name, method, args, connOpts, opts)

@@ -516,7 +516,7 @@ func TestRPCClientAuthorization(t *testing.T) {
 		case err == nil && !test.authorized:
 			t.Errorf("%s call.Finish succeeded, expected authorization failure", name)
 		case !test.authorized && !errors.Is(err, verror.ErrNoAccess):
-			t.Errorf("%s. call.Finish returned error %v(%v), wanted %v", name, verror.ErrorID(verror.Convert(verror.ErrNoAccess, nil, err)), err, verror.ErrNoAccess)
+			t.Errorf("%s. call.Finish returned error %v(%v), wanted %v", name, verror.ErrorID(err), err, verror.ErrNoAccess)
 		}
 	}
 }
@@ -935,7 +935,7 @@ func TestDischargePurgeFromCache(t *testing.T) {
 			return err
 		}
 		if want := `method:"Echo",suffix:"aclAuth",arg:"batman"`; got != want {
-			return verror.Convert(verror.ErrBadArg, nil, fmt.Errorf("Got [%v] want [%v]", got, want))
+			return verror.ErrBadArg.Errorf(nil, "%v", fmt.Errorf("Got [%v] want [%v]", got, want))
 		}
 		return nil
 	}
