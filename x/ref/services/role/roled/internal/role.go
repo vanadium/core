@@ -71,7 +71,7 @@ func (i *roleService) filterNonMembers(blessingNames []string) []string {
 func extensions(config *Config, roleStr string, blessingNames []string) []string {
 	// roleStr is the suffix of a veyron object name, but extensions are for
 	// blessings, so do the conversion.
-	roleStr = strings.Replace(roleStr, "/", security.ChainSeparator, -1)
+	roleStr = strings.ReplaceAll(roleStr, "/", security.ChainSeparator)
 	if !config.Extend {
 		return []string{roleStr}
 	}

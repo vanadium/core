@@ -20,8 +20,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // vdlEntry represents a test entry, which contains a target and source value.
 // Each test converts the source value to the type of the target value, and
@@ -24367,8 +24367,8 @@ var (
 	_ func(*VWireUnionNStruct, VNativeWireUnionNStruct) error   = VWireUnionNStructFromNative
 )
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 var vAllFail = []vdlEntry(nil)
 var vAllPass = []vdlEntry{
@@ -93069,8 +93069,8 @@ var xAllPass = []vdlEntry{
 	},
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNone  = verror.NewIDAction("v.io/v23/vdl/vdltest.None", verror.NoRetry)

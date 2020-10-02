@@ -149,7 +149,7 @@ func (a *accessTokenBlesser) blessingExtension(r *http.Request) (string, error) 
 		return "", err
 	}
 	if entry, ok := a.apps[clientID]; ok {
-		return strings.Replace(entry.Extension, "{email}", email, -1), nil
+		return strings.ReplaceAll(entry.Extension, "{email}", email), nil
 	}
 
 	// We use <clientID>/<email> as the extension in order to namespace the blessing under

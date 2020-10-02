@@ -26,15 +26,15 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoValue = verror.NewIDAction("v.io/v23/services/stats.NoValue", verror.NoRetry)
 )
 
 // NewErrNoValue returns an error with the ErrNoValue ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoValue or MessageNoValue instead.
 func NewErrNoValue(ctx *context.T, suffix string) error {
 	return verror.New(ErrNoValue, ctx, suffix)
@@ -115,8 +115,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // StatsClientMethods is the client interface
 // containing Stats methods.

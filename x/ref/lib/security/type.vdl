@@ -21,7 +21,7 @@ type blessingStoreState struct {
 	// no other information is available to select blessings.
 	DefaultBlessings security.WireBlessings
 	// DischargeCache is the cache of discharges.
-	// TODO(mattr): This map is deprecated in favor of the Discharges map below.
+	// Deprecated: TODO(mattr): this map is deprecated in favor of the Discharges map below.
 	DischargeCache map[dischargeCacheKey]security.WireDischarge
 	// DischargeCache is the cache of discharges.
 	Discharges map[dischargeCacheKey]CachedDischarge

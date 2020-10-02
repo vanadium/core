@@ -872,7 +872,7 @@ func parseBinaryOperator(db ds.Database, s *scanner.Scanner, token *Token) (*Bin
 			switch strings.ToLower(token.Value) {
 			case "equal":
 				operator.Type = NotEqual
-			default: //case "like":
+			default:
 				operator.Type = NotLike
 			}
 			token = scanToken(s)

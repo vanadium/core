@@ -17,8 +17,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 
@@ -81,7 +81,7 @@ var (
 )
 
 // NewErrUnknown returns an error with the ErrUnknown ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnknown or MessageUnknown instead.
 func NewErrUnknown(ctx *context.T) error {
 	return New(ErrUnknown, ctx)
@@ -114,7 +114,7 @@ func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperat
 }
 
 // NewErrInternal returns an error with the ErrInternal ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfInternal or MessageInternal instead.
 func NewErrInternal(ctx *context.T) error {
 	return New(ErrInternal, ctx)
@@ -147,7 +147,7 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 }
 
 // NewErrNotImplemented returns an error with the ErrNotImplemented ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNotImplemented or MessageNotImplemented instead.
 func NewErrNotImplemented(ctx *context.T) error {
 	return New(ErrNotImplemented, ctx)
@@ -180,7 +180,7 @@ func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verro
 }
 
 // NewErrEndOfFile returns an error with the ErrEndOfFile ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfEndOfFile or MessageEndOfFile instead.
 func NewErrEndOfFile(ctx *context.T) error {
 	return New(ErrEndOfFile, ctx)
@@ -213,7 +213,7 @@ func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOper
 }
 
 // NewErrBadArg returns an error with the ErrBadArg ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadArg or MessageBadArg instead.
 func NewErrBadArg(ctx *context.T) error {
 	return New(ErrBadArg, ctx)
@@ -246,7 +246,7 @@ func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperati
 }
 
 // NewErrBadState returns an error with the ErrBadState ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadState or MessageBadState instead.
 func NewErrBadState(ctx *context.T) error {
 	return New(ErrBadState, ctx)
@@ -279,7 +279,7 @@ func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOpera
 }
 
 // NewErrBadVersion returns an error with the ErrBadVersion ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadVersion or MessageBadVersion instead.
 func NewErrBadVersion(ctx *context.T) error {
 	return New(ErrBadVersion, ctx)
@@ -312,7 +312,7 @@ func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOpe
 }
 
 // NewErrExist returns an error with the ErrExist ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfExist or MessageExist instead.
 func NewErrExist(ctx *context.T) error {
 	return New(ErrExist, ctx)
@@ -345,7 +345,7 @@ func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperatio
 }
 
 // NewErrNoExist returns an error with the ErrNoExist ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoExist or MessageNoExist instead.
 func NewErrNoExist(ctx *context.T) error {
 	return New(ErrNoExist, ctx)
@@ -378,7 +378,7 @@ func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperat
 }
 
 // NewErrUnknownMethod returns an error with the ErrUnknownMethod ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnknownMethod or MessageUnknownMethod instead.
 func NewErrUnknownMethod(ctx *context.T) error {
 	return New(ErrUnknownMethod, ctx)
@@ -411,7 +411,7 @@ func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verror
 }
 
 // NewErrUnknownSuffix returns an error with the ErrUnknownSuffix ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnknownSuffix or MessageUnknownSuffix instead.
 func NewErrUnknownSuffix(ctx *context.T) error {
 	return New(ErrUnknownSuffix, ctx)
@@ -444,7 +444,7 @@ func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verror
 }
 
 // NewErrNoExistOrNoAccess returns an error with the ErrNoExistOrNoAccess ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoExistOrNoAccess or MessageNoExistOrNoAccess instead.
 func NewErrNoExistOrNoAccess(ctx *context.T) error {
 	return New(ErrNoExistOrNoAccess, ctx)
@@ -477,7 +477,7 @@ func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, ve
 }
 
 // NewErrNoServers returns an error with the ErrNoServers ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoServers or MessageNoServers instead.
 func NewErrNoServers(ctx *context.T) error {
 	return New(ErrNoServers, ctx)
@@ -510,7 +510,7 @@ func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOper
 }
 
 // NewErrNoAccess returns an error with the ErrNoAccess ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoAccess or MessageNoAccess instead.
 func NewErrNoAccess(ctx *context.T) error {
 	return New(ErrNoAccess, ctx)
@@ -543,7 +543,7 @@ func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOpera
 }
 
 // NewErrNotTrusted returns an error with the ErrNotTrusted ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNotTrusted or MessageNotTrusted instead.
 func NewErrNotTrusted(ctx *context.T) error {
 	return New(ErrNotTrusted, ctx)
@@ -576,7 +576,7 @@ func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOpe
 }
 
 // NewErrAborted returns an error with the ErrAborted ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAborted or MessageAborted instead.
 func NewErrAborted(ctx *context.T) error {
 	return New(ErrAborted, ctx)
@@ -609,7 +609,7 @@ func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperat
 }
 
 // NewErrBadProtocol returns an error with the ErrBadProtocol ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadProtocol or MessageBadProtocol instead.
 func NewErrBadProtocol(ctx *context.T) error {
 	return New(ErrBadProtocol, ctx)
@@ -642,7 +642,7 @@ func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOp
 }
 
 // NewErrCanceled returns an error with the ErrCanceled ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCanceled or MessageCanceled instead.
 func NewErrCanceled(ctx *context.T) error {
 	return New(ErrCanceled, ctx)
@@ -675,7 +675,7 @@ func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOpera
 }
 
 // NewErrTimeout returns an error with the ErrTimeout ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfTimeout or MessageTimeout instead.
 func NewErrTimeout(ctx *context.T) error {
 	return New(ErrTimeout, ctx)

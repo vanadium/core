@@ -20,8 +20,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // TidyableClientMethods is the client interface
 // containing Tidyable methods.

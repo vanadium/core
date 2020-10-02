@@ -124,8 +124,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // ResumeMarker specifies how much of the existing underlying state
 // is delivered to the client when the watch request is received by
@@ -417,8 +417,8 @@ func (x *Change) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // The entity exists and its full value is included in Value.
 const Exists = int32(0)
@@ -432,15 +432,15 @@ const DoesNotExist = int32(1)
 // above.
 const InitialStateSkipped = int32(2)
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrUnknownResumeMarker = verror.NewIDAction("v.io/v23/services/watch.UnknownResumeMarker", verror.NoRetry)
 )
 
 // NewErrUnknownResumeMarker returns an error with the ErrUnknownResumeMarker ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnknownResumeMarker or MessageUnknownResumeMarker instead.
 func NewErrUnknownResumeMarker(ctx *context.T) error {
 	return verror.New(ErrUnknownResumeMarker, ctx)
@@ -508,8 +508,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // GlobWatcherClientMethods is the client interface
 // containing GlobWatcher methods.

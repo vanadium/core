@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // MountFlag is a bit mask of options to the mount call.
 type MountFlag uint32
@@ -634,8 +634,8 @@ func VDLReadGlobChildrenReply(dec vdl.Decoder, x *GlobChildrenReply) error { //n
 	return dec.FinishValue()
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Replace = MountFlag(1) // Replace means the mount should replace what is currently at the mount point
 const MT = MountFlag(2)      // MT means that the target server is a mount table.

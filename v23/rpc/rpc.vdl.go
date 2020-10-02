@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Request describes the request header sent by the client to the server.  A
 // non-zero request header is sent at the beginning of the RPC call, followed by
@@ -386,8 +386,8 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // TODO(toddw): Rename GlobMethod to ReservedGlob.
 const GlobMethod = "__Glob"

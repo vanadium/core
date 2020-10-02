@@ -389,7 +389,7 @@ func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) { //nol
 					return nil, err
 				}
 			case attrHash:
-				copy(adinfo.Hash[:], []byte(v))
+				copy(adinfo.Hash[:], v)
 			case attrTimestamp:
 				if adinfo.TimestampNs, err = idiscovery.DecodeTimestamp([]byte(v)); err != nil {
 					return nil, err

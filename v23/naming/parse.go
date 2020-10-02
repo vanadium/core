@@ -123,7 +123,7 @@ func Clean(name string) string {
 	// Eradicate duplicate slashes and trailing slashes.  We
 	// could use path.Clean but it has other side effects.
 	for strings.Contains(name, "//") {
-		name = strings.Replace(name, "//", "/", -1)
+		name = strings.ReplaceAll(name, "//", "/")
 	}
 	if name == "/" {
 		return name

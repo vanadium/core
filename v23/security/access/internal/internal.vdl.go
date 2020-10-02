@@ -19,8 +19,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Any package can define tags (of arbitrary types) to be attached to methods.
 // This type can be used to index into a Permissions.
@@ -52,8 +52,8 @@ func (x *MyTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // For this example/unittest, there are three possible values of MyTag, each
 // represented by a single-character string.
@@ -61,8 +61,8 @@ const Read = MyTag("R")
 const Write = MyTag("W")
 const Execute = MyTag("X")
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // MyObjectClientMethods is the client interface
 // containing MyObject methods.

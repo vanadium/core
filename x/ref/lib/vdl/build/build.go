@@ -350,7 +350,7 @@ func GoModuleName(path string) (string, error) {
 // PackagePathSplit(`a\b\c`, "m/b/c") yields "a", "m", "b/c"
 func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix string) {
 	// Normalize dir path to use / instead of possibly using.
-	ndir := strings.Replace(dir, filePathSeparator, packagePathSeparator, -1)
+	ndir := strings.ReplaceAll(dir, filePathSeparator, packagePathSeparator)
 	suffix = pkgPath
 	for {
 		idx := strings.Index(suffix, packagePathSeparator)
@@ -364,7 +364,7 @@ func PackagePathSplit(dir, pkgPath string) (prefix string, body string, suffix s
 	}
 	prefix = strings.TrimSuffix(ndir, suffix)
 	body = strings.TrimSuffix(strings.TrimSuffix(pkgPath, suffix), packagePathSeparator)
-	prefix = strings.Replace(prefix, packagePathSeparator, filePathSeparator, -1)
+	prefix = strings.ReplaceAll(prefix, packagePathSeparator, filePathSeparator)
 	prefix = strings.TrimSuffix(prefix, filePathSeparator)
 	return
 }
@@ -735,7 +735,7 @@ const packagePathSeparator = "/"
 // createMatcher creates a regexp matcher out of the file pattern.
 func createMatcher(pattern string) (*regexp.Regexp, error) {
 	rePat := regexp.QuoteMeta(pattern)
-	rePat = strings.Replace(rePat, `\.\.\.`, `.*`, -1)
+	rePat = strings.ReplaceAll(rePat, `\.\.\.`, `.*`)
 	// Add special-case so that x/... also matches x.
 	slashDotStar := regexp.QuoteMeta(filePathSeparator) + ".*"
 	if strings.HasSuffix(rePat, slashDotStar) {

@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoNamespace       = verror.NewIDAction("v.io/x/ref/lib/discovery/global.NoNamespace", verror.NoRetry)
@@ -27,7 +27,7 @@ var (
 )
 
 // NewErrNoNamespace returns an error with the ErrNoNamespace ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoNamespace or MessageNoNamespace instead.
 func NewErrNoNamespace(ctx *context.T) error {
 	return verror.New(ErrNoNamespace, ctx)
@@ -60,7 +60,7 @@ func ParamsErrNoNamespace(argumentError error) (verrorComponent string, verrorOp
 }
 
 // NewErrAdInvalidEncoding returns an error with the ErrAdInvalidEncoding ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAdInvalidEncoding or MessageAdInvalidEncoding instead.
 func NewErrAdInvalidEncoding(ctx *context.T, ad string) error {
 	return verror.New(ErrAdInvalidEncoding, ctx, ad)

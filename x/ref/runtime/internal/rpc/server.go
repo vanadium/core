@@ -948,63 +948,48 @@ func (fs *flowServer) Recv(itemptr interface{}) error {
 // Implementations of rpc.ServerCall and security.Call methods.
 
 func (fs *flowServer) Security() security.Call {
-	//nologcall
 	return fs
 }
 func (fs *flowServer) LocalDischarges() map[string]security.Discharge {
-	//nologcall
 	return fs.flow.LocalDischarges()
 }
 func (fs *flowServer) RemoteDischarges() map[string]security.Discharge {
-	//nologcall
 	return fs.flow.RemoteDischarges()
 }
 func (fs *flowServer) Server() rpc.Server {
-	//nologcall
 	return fs.server
 }
 func (fs *flowServer) Timestamp() time.Time {
-	//nologcall
 	return fs.starttime
 }
 func (fs *flowServer) Method() string {
-	//nologcall
 	return fs.method
 }
 func (fs *flowServer) MethodTags() []*vdl.Value {
-	//nologcall
 	return fs.tags
 }
 func (fs *flowServer) Suffix() string {
-	//nologcall
 	return fs.suffix
 }
 func (fs *flowServer) LocalPrincipal() security.Principal {
-	//nologcall
 	return v23.GetPrincipal(fs.server.ctx)
 }
 func (fs *flowServer) LocalBlessings() security.Blessings {
-	//nologcall
 	return fs.flow.LocalBlessings()
 }
 func (fs *flowServer) RemoteBlessings() security.Blessings {
-	//nologcall
 	return fs.flow.RemoteBlessings()
 }
 func (fs *flowServer) GrantedBlessings() security.Blessings {
-	//nologcall
 	return fs.grantedBlessings
 }
 func (fs *flowServer) LocalEndpoint() naming.Endpoint {
-	//nologcall
 	return fs.flow.LocalEndpoint()
 }
 func (fs *flowServer) RemoteEndpoint() naming.Endpoint {
-	//nologcall
 	return fs.flow.RemoteEndpoint()
 }
 func (fs *flowServer) RemoteAddr() net.Addr {
-	//nologcall
 	return fs.flow.RemoteAddr()
 }
 

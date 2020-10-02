@@ -64,7 +64,6 @@ func addDefaultBlessings(self, other security.Principal, extensions ...string) e
 	return nil
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // principalManager interface and implementations
 
 // principalManager manages principals.
@@ -76,7 +75,6 @@ type principalManager interface {
 	Principal(handle string) (security.Principal, error)
 }
 
-////////////////////////////////////////
 // filesystemPrincipalManager
 
 type filesystemPrincipalManager struct {

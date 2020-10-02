@@ -39,7 +39,7 @@ func setup(t *testing.T, workdir, username string) (tmpdir string) {
 		{"bar.txt", "", 1 * time.Hour},
 	}
 	for _, l := range logfiles {
-		l.name = strings.Replace(l.name, "%USER%", username, -1)
+		l.name = strings.ReplaceAll(l.name, "%USER%", username)
 		filename := filepath.Join(tmpdir, l.name)
 		if err := ioutil.WriteFile(filename, []byte{}, 0644); err != nil {
 			t.Fatalf("ioutil.WriteFile failed: %v", err)
@@ -171,8 +171,8 @@ func TestGCLogs(t *testing.T) {
 		}
 		got := strings.Join(gotsl, "\n")
 		expected := strings.Join(tc.expected, "\n") + "\n"
-		expected = strings.Replace(expected, "%TESTDIR%", testdir, -1)
-		expected = strings.Replace(expected, "%USER%", u.Username, -1)
+		expected = strings.ReplaceAll(expected, "%TESTDIR%", testdir)
+		expected = strings.ReplaceAll(expected, "%USER%", u.Username)
 		if got != expected {
 			t.Errorf("Unexpected result for (%v, %v): got %q, expected %q", tc.cutoff, tc.verbose, got, expected)
 		}

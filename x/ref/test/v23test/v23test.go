@@ -262,8 +262,8 @@ func SkipUnlessRunningIntegrationTests(tb testing.TB) {
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // Methods for starting subprocesses
+// =================================
 
 func initSession(tb testing.TB, c *Cmd) {
 	c.S = expect.NewSession(tb, c.StdoutPipe(), time.Minute)
@@ -305,8 +305,8 @@ func (sh *Shell) FuncCmd(f *gosh.Func, args ...interface{}) *Cmd {
 	return newCmd(sh, c)
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // DebugSystemShell
+// ================
 
 // DebugSystemShell drops the user into a debug system shell (e.g. bash) that
 // includes all environment variables from sh. If there is no controlling TTY,
@@ -366,8 +366,8 @@ func (sh *Shell) DebugSystemShell() {
 	write(fmt.Sprintf(">> Exited shell: %s\n", state.String()))
 }
 
-////////////////////////////////////////////////////////////////////////////////
 // Internals
+// =========
 
 // handleError is intended for use by public Shell method implementations.
 func (sh *Shell) handleError(err error) {

@@ -16,8 +16,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Config contains the attributes of the role, and the list of members who have
 // access to it.
@@ -262,8 +262,8 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]security.BlessingPattern) error {
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // LoggingCaveat is a caveat that will always validate but it logs the parameter on every attempt to validate it.
 var LoggingCaveat = security.CaveatDescriptor{

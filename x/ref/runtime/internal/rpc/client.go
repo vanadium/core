@@ -653,7 +653,7 @@ func (fc *flowClient) close(err error) error {
 	if cerr := fc.flow.Close(); cerr != nil && err == nil {
 		// TODO(mattr): The context is often already canceled here, in
 		// which case we'll get an error.  Not clear what to do.
-		//return verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", subErr)
+		// return verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", subErr)
 	}
 	switch verror.ErrorID(err) {
 	case verror.ErrCanceled.ID:

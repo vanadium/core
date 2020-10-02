@@ -106,7 +106,7 @@ func iobufThrasher(t *testing.T, pool *Pool) {
 			}
 			slice := iobuf.slice(base, base, base+uint(len(message)))
 			base += uint(len(message))
-			copy(slice.Contents, []byte(message))
+			copy(slice.Contents, message)
 			slices = append(slices, slice)
 		}
 		iobuf.release()

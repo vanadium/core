@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type nonce [16]byte
 
@@ -1573,8 +1573,8 @@ var (
 	_ func(*WireDischarge, Discharge) error = WireDischargeFromNative
 )
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // ConstCaveat represents a caveat that either always validates or never validates.
 var ConstCaveat = CaveatDescriptor{
@@ -1694,8 +1694,8 @@ const SignatureForMessageSigning = "S1"       // Signature.Purpose used by a Pri
 const SignatureForBlessingCertificates = "B1" // Signature.Purpose used by a Principal when signing Certificates for creating blessings.
 const SignatureForDischarge = "D1"            // Signature.Purpose used by a Principal when signing discharges for public-key based third-party caveats.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrCaveatNotRegistered           = verror.NewIDAction("v.io/v23/security.CaveatNotRegistered", verror.NoRetry)
@@ -1715,7 +1715,7 @@ var (
 )
 
 // NewErrCaveatNotRegistered returns an error with the ErrCaveatNotRegistered ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCaveatNotRegistered or MessageCaveatNotRegistered instead.
 func NewErrCaveatNotRegistered(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrCaveatNotRegistered, ctx, id)
@@ -1761,7 +1761,7 @@ func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, 
 }
 
 // NewErrCaveatParamAny returns an error with the ErrCaveatParamAny ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCaveatParamAny or MessageCaveatParamAny instead.
 func NewErrCaveatParamAny(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrCaveatParamAny, ctx, id)
@@ -1807,7 +1807,7 @@ func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verro
 }
 
 // NewErrCaveatParamTypeMismatch returns an error with the ErrCaveatParamTypeMismatch ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCaveatParamTypeMismatch or MessageCaveatParamTypeMismatch instead.
 func NewErrCaveatParamTypeMismatch(ctx *context.T, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
 	return verror.New(ErrCaveatParamTypeMismatch, ctx, id, got, want)
@@ -1869,7 +1869,7 @@ func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent stri
 }
 
 // NewErrCaveatParamCoding returns an error with the ErrCaveatParamCoding ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCaveatParamCoding or MessageCaveatParamCoding instead.
 func NewErrCaveatParamCoding(ctx *context.T, id uniqueid.Id, typ *vdl.Type, err error) error {
 	return verror.New(ErrCaveatParamCoding, ctx, id, typ, err)
@@ -1931,7 +1931,7 @@ func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, ve
 }
 
 // NewErrCaveatValidation returns an error with the ErrCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCaveatValidation or MessageCaveatValidation instead.
 func NewErrCaveatValidation(ctx *context.T, err error) error {
 	return verror.New(ErrCaveatValidation, ctx, err)
@@ -1977,7 +1977,7 @@ func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, ver
 }
 
 // NewErrConstCaveatValidation returns an error with the ErrConstCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfConstCaveatValidation or MessageConstCaveatValidation instead.
 func NewErrConstCaveatValidation(ctx *context.T) error {
 	return verror.New(ErrConstCaveatValidation, ctx)
@@ -2010,7 +2010,7 @@ func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string
 }
 
 // NewErrExpiryCaveatValidation returns an error with the ErrExpiryCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfExpiryCaveatValidation or MessageExpiryCaveatValidation instead.
 func NewErrExpiryCaveatValidation(ctx *context.T, currentTime time.Time, expiryTime time.Time) error {
 	return verror.New(ErrExpiryCaveatValidation, ctx, currentTime, expiryTime)
@@ -2064,7 +2064,7 @@ func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent strin
 }
 
 // NewErrMethodCaveatValidation returns an error with the ErrMethodCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfMethodCaveatValidation or MessageMethodCaveatValidation instead.
 func NewErrMethodCaveatValidation(ctx *context.T, invokedMethod string, permittedMethods []string) error {
 	return verror.New(ErrMethodCaveatValidation, ctx, invokedMethod, permittedMethods)
@@ -2118,7 +2118,7 @@ func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent strin
 }
 
 // NewErrPeerBlessingsCaveatValidation returns an error with the ErrPeerBlessingsCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfPeerBlessingsCaveatValidation or MessagePeerBlessingsCaveatValidation instead.
 func NewErrPeerBlessingsCaveatValidation(ctx *context.T, peerBlessings []string, permittedPatterns []BlessingPattern) error {
 	return verror.New(ErrPeerBlessingsCaveatValidation, ctx, peerBlessings, permittedPatterns)
@@ -2172,7 +2172,7 @@ func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponen
 }
 
 // NewErrUnrecognizedRoot returns an error with the ErrUnrecognizedRoot ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnrecognizedRoot or MessageUnrecognizedRoot instead.
 func NewErrUnrecognizedRoot(ctx *context.T, rootKey string, details error) error {
 	return verror.New(ErrUnrecognizedRoot, ctx, rootKey, details)
@@ -2226,7 +2226,7 @@ func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, ver
 }
 
 // NewErrAuthorizationFailed returns an error with the ErrAuthorizationFailed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAuthorizationFailed or MessageAuthorizationFailed instead.
 func NewErrAuthorizationFailed(ctx *context.T, remote []string, remoteErr []RejectedBlessing, local []string) error {
 	return verror.New(ErrAuthorizationFailed, ctx, remote, remoteErr, local)
@@ -2288,7 +2288,7 @@ func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, 
 }
 
 // NewErrInvalidSigningBlessingCaveat returns an error with the ErrInvalidSigningBlessingCaveat ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfInvalidSigningBlessingCaveat or MessageInvalidSigningBlessingCaveat instead.
 func NewErrInvalidSigningBlessingCaveat(ctx *context.T, id uniqueid.Id) error {
 	return verror.New(ErrInvalidSigningBlessingCaveat, ctx, id)
@@ -2334,7 +2334,7 @@ func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent
 }
 
 // NewErrPublicKeyNotAllowed returns an error with the ErrPublicKeyNotAllowed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfPublicKeyNotAllowed or MessagePublicKeyNotAllowed instead.
 func NewErrPublicKeyNotAllowed(ctx *context.T, got string, want string) error {
 	return verror.New(ErrPublicKeyNotAllowed, ctx, got, want)
@@ -2388,7 +2388,7 @@ func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, 
 }
 
 // NewErrEndpointAuthorizationFailed returns an error with the ErrEndpointAuthorizationFailed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfEndpointAuthorizationFailed or MessageEndpointAuthorizationFailed instead.
 func NewErrEndpointAuthorizationFailed(ctx *context.T, endpoint string, remote []string, rejected []RejectedBlessing) error {
 	return verror.New(ErrEndpointAuthorizationFailed, ctx, endpoint, remote, rejected)

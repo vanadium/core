@@ -6,6 +6,11 @@ vdlgen:
 	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go v.io/...	
 	go generate ./v23/vdl/vdltest
 
+VDLROOT = v.io/v23/vdlroot
+export VDLROOT
+vdlroot:
+	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go v.io/v23/vdlroot
+
 .PHONY: test-integration
 test-integration:
 	@echo "VDLPATH" "${VDLPATH}"

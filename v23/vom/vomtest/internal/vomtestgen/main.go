@@ -140,7 +140,7 @@ func toVomHex(version vom.Version, value *vdl.Value) (_, _, _ string) {
 	dump, err := vom.Dump(vomBytes)
 	panicOnError(err)
 	const pre = "\t// "
-	vomDump := pre + strings.Replace(dump, "\n", "\n"+pre, -1)
+	vomDump := pre + strings.ReplaceAll(dump, "\n", "\n"+pre)
 	if strings.HasSuffix(vomDump, "\n"+pre) {
 		vomDump = vomDump[:len(vomDump)-len("\n"+pre)]
 	}

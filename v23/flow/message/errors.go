@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	ErrInvalidMsg         = verror.NewID("InvalidMsg")         //, verror.NoRetry, "{1:}{2:} message of type {3} and size {4} failed decoding at field {5}{:6}.")
-	ErrInvalidSetupOption = verror.NewID("InvalidSetupOption") //, verror.NoRetry, "{1:}{2:} setup option{:3} failed decoding at field{:4}.")
-	ErrUnknownMsg         = verror.NewID("UnknownMsg")         //, verror.NoRetry, "{1:}{2:} unknown message type{:3}.")
-	ErrMissingBlessings   = verror.NewID("MissingBlessings")   //, verror.NoRetry, "{1:}{2:} {3} message received with no blessings.")
+	ErrInvalidMsg         = verror.NewID("InvalidMsg")
+	ErrInvalidSetupOption = verror.NewID("InvalidSetupOption")
+	ErrUnknownMsg         = verror.NewID("UnknownMsg")
+	ErrMissingBlessings   = verror.NewID("MissingBlessings")
 )
 
 // NewErrInvalidMsg creates an instance ErrInvalidMsg with the specified parameters which can be

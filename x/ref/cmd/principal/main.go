@@ -1267,7 +1267,7 @@ func printBlessingsInfo(names bool, rootKey, caveats string, blessings security.
 	}
 	switch {
 	case names:
-		fmt.Println(strings.Replace(fmt.Sprint(blessings), ",", "\n", -1))
+		fmt.Println(strings.ReplaceAll(fmt.Sprint(blessings), ",", "\n"))
 		return nil
 	case len(rootKey) > 0:
 		chain, err := getChainByName(blessings, rootKey)

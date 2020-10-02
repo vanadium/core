@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // BenchmarkArchiverClientMethods is the client interface
 // containing BenchmarkArchiver methods.

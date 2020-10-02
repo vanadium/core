@@ -689,8 +689,9 @@ import (
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 {{if $pkg.TypeDefs}}
-//////////////////////////////////////////////////
 // Type definitions
+// ================
+
 {{range $tdef := $pkg.TypeDefs}}
 {{defineType $data $tdef}}
 {{if not ($data.SkipGenZeroReadWrite $tdef)}}
@@ -711,15 +712,16 @@ var (
 {{end}}
 
 {{if $pkg.ConstDefs}}
-//////////////////////////////////////////////////
 // Const definitions
+// =================
+
 {{range $cdef := $pkg.ConstDefs}}
 {{defineConst $data $cdef}}{{end}}
 {{end}}
 
 {{if $pkg.ErrorDefs}}
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 {{range $edef := $pkg.ErrorDefs}}
@@ -733,7 +735,7 @@ var (
 {{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 {{if errorsI18n $data}}
 // {{$newErr}} returns an error with the {{$errName}} ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use {{$errorf}} or {{$message}} instead.
 func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
 	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
@@ -820,8 +822,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 {{end}}
 
 {{if $pkg.Interfaces}}
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 {{range $iface := $pkg.Interfaces}}
 {{$ifaceStreaming := hasStreamingMethods $iface.AllMethods}}
 {{$rpc_ := $data.Pkg "v.io/v23/rpc"}}

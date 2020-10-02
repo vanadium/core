@@ -14,8 +14,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // An Id is a likely globally unique identifier.
 type Id [16]byte

@@ -558,8 +558,8 @@ func TestMatchWithCyclicGroups(t *testing.T) {
 	}
 }
 
-////////////////////
-// Helpers.
+// Helpers
+// =======
 
 type groupClientRPCTest map[string][]string
 

@@ -14,8 +14,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // WireRetryCode is the suggested retry behavior for the receiver of an error.
 // If the receiver doesn't know how to handle the specific error, it should

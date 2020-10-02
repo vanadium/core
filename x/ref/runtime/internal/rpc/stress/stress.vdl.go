@@ -20,8 +20,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type SumArg struct {
 	ABool        bool
@@ -220,8 +220,8 @@ func (x *SumStats) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // StressClientMethods is the client interface
 // containing Stress methods.

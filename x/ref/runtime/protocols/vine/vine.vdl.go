@@ -21,8 +21,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // PeerKey is a key that represents a connection from a Dialer tag to an Acceptor tag.
 type PeerKey struct {
@@ -185,8 +185,8 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrInvalidAddress       = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry)
@@ -196,7 +196,7 @@ var (
 )
 
 // NewErrInvalidAddress returns an error with the ErrInvalidAddress ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfInvalidAddress or MessageInvalidAddress instead.
 func NewErrInvalidAddress(ctx *context.T, address string) error {
 	return verror.New(ErrInvalidAddress, ctx, address)
@@ -242,7 +242,7 @@ func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verro
 }
 
 // NewErrAddressNotReachable returns an error with the ErrAddressNotReachable ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAddressNotReachable or MessageAddressNotReachable instead.
 func NewErrAddressNotReachable(ctx *context.T, address string) error {
 	return verror.New(ErrAddressNotReachable, ctx, address)
@@ -288,7 +288,7 @@ func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, 
 }
 
 // NewErrNoRegisteredProtocol returns an error with the ErrNoRegisteredProtocol ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoRegisteredProtocol or MessageNoRegisteredProtocol instead.
 func NewErrNoRegisteredProtocol(ctx *context.T, protocol string) error {
 	return verror.New(ErrNoRegisteredProtocol, ctx, protocol)
@@ -334,7 +334,7 @@ func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string,
 }
 
 // NewErrCantAcceptFromTag returns an error with the ErrCantAcceptFromTag ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCantAcceptFromTag or MessageCantAcceptFromTag instead.
 func NewErrCantAcceptFromTag(ctx *context.T, tag string) error {
 	return verror.New(ErrCantAcceptFromTag, ctx, tag)
@@ -415,8 +415,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // VineClientMethods is the client interface
 // containing Vine methods.

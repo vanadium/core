@@ -200,7 +200,6 @@ func TestCertificateDigest(t *testing.T) {
 
 func TestChainSignatureUsesDigestWithStrengthComparableToSigningKey(t *testing.T) {
 	tests := []struct {
-		//curve  elliptic.Curve
 		signer security.Signer
 		hash   security.Hash
 		nBytes int

@@ -19,7 +19,7 @@ func testAllocatorAlloc(t *testing.T, bytes, reserve uint) {
 	var slices [count]*Slice
 	for i := 0; i != count; i++ {
 		slices[i] = alloc.Alloc(bytes)
-		copy(slices[i].Contents, []byte(fmt.Sprintf("slice[%d]", i)))
+		copy(slices[i].Contents, fmt.Sprintf("slice[%d]", i))
 	}
 	for i := 0; i != count; i++ {
 		expected := fmt.Sprintf("slice[%d]", i)

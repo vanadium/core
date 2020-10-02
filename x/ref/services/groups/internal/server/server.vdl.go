@@ -16,8 +16,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // groupData represents the persistent state of a group. (The group name is
 // persisted as the store entry key.)

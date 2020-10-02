@@ -24,8 +24,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type NamedBool bool
 
@@ -2723,8 +2723,8 @@ func (x *NestedArgs) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Cbool = true
 const Cbyte = byte(1)
@@ -2824,8 +2824,8 @@ var CTypeObject_Union = vdl.TypeOf((*NamedUnion)(nil))
 var CTypeObject_TypeObject = vdl.TypeObjectType
 var CTypeObject_Any = vdl.AnyType
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoParams1   = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.NoParams1", verror.NoRetry)
@@ -2836,7 +2836,7 @@ var (
 )
 
 // NewErrNoParams1 returns an error with the ErrNoParams1 ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoParams1 or MessageNoParams1 instead.
 func NewErrNoParams1(ctx *context.T) error {
 	return verror.New(ErrNoParams1, ctx)
@@ -2869,7 +2869,7 @@ func ParamsErrNoParams1(argumentError error) (verrorComponent string, verrorOper
 }
 
 // NewErrNoParams2 returns an error with the ErrNoParams2 ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoParams2 or MessageNoParams2 instead.
 func NewErrNoParams2(ctx *context.T) error {
 	return verror.New(ErrNoParams2, ctx)
@@ -2902,7 +2902,7 @@ func ParamsErrNoParams2(argumentError error) (verrorComponent string, verrorOper
 }
 
 // NewErrWithParams1 returns an error with the ErrWithParams1 ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfWithParams1 or MessageWithParams1 instead.
 func NewErrWithParams1(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams1, ctx, x, y)
@@ -2956,7 +2956,7 @@ func ParamsErrWithParams1(argumentError error) (verrorComponent string, verrorOp
 }
 
 // NewErrWithParams2 returns an error with the ErrWithParams2 ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfWithParams2 or MessageWithParams2 instead.
 func NewErrWithParams2(ctx *context.T, x string, y int32) error {
 	return verror.New(ErrWithParams2, ctx, x, y)
@@ -3010,7 +3010,7 @@ func ParamsErrWithParams2(argumentError error) (verrorComponent string, verrorOp
 }
 
 // newErrNotExported returns an error with the errNotExported ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use errorfNotExported or messageNotExported instead.
 func newErrNotExported(ctx *context.T, x string, y int32) error {
 	return verror.New(errNotExported, ctx, x, y)
@@ -3099,8 +3099,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // ServiceAClientMethods is the client interface
 // containing ServiceA methods.

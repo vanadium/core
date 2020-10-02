@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 
@@ -35,7 +35,7 @@ var (
 )
 
 // NewErrGlobMaxRecursionReached returns an error with the ErrGlobMaxRecursionReached ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfGlobMaxRecursionReached or MessageGlobMaxRecursionReached instead.
 func NewErrGlobMaxRecursionReached(ctx *context.T) error {
 	return verror.New(ErrGlobMaxRecursionReached, ctx)
@@ -68,7 +68,7 @@ func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent stri
 }
 
 // NewErrGlobMatchesOmitted returns an error with the ErrGlobMatchesOmitted ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfGlobMatchesOmitted or MessageGlobMatchesOmitted instead.
 func NewErrGlobMatchesOmitted(ctx *context.T) error {
 	return verror.New(ErrGlobMatchesOmitted, ctx)
@@ -101,7 +101,7 @@ func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, v
 }
 
 // NewErrGlobNotImplemented returns an error with the ErrGlobNotImplemented ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfGlobNotImplemented or MessageGlobNotImplemented instead.
 func NewErrGlobNotImplemented(ctx *context.T) error {
 	return verror.New(ErrGlobNotImplemented, ctx)

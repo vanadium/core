@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // Yes shows that bools may be untyped.
 const Yes = true // yes trailing doc
@@ -45,8 +45,8 @@ const FloatConst = float64(2)
 // Mask shows bitwise operations.
 const Mask = uint64(256)
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // TrigonometryClientMethods is the client interface
 // containing Trigonometry methods.

@@ -30,7 +30,7 @@ func TestDumpDir(t *testing.T) {
 	}
 	sh := gosh.NewShell(t)
 	sh.Cmd("cp", "-r", filepath.Join("testdata", "todump"), filepath.Join(tmpdir, "testdata")).Run()
-	//defer os.RemoveAll(tmpdir)
+	defer os.RemoveAll(tmpdir)
 
 	// An empty directory, dir.2.
 	dirPath := filepath.Join(tmpdir, "testdata", "todump", "dir.2")
