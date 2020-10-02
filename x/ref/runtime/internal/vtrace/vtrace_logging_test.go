@@ -113,7 +113,6 @@ func TestVIRPCWithLogging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("logging call failed: %v", err)
 	}
-	expectSequence(t, *record, []string{
-		"\"\".Log: vtrace_logging_test.go:19] logging",
-	})
+	expectedSpanRegex := "\"\".Log: vtrace_logging_test.go:19] [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}logging"
+	expectSequence(t, *record, []string{expectedSpanRegex})
 }

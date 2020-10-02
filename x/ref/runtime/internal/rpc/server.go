@@ -32,6 +32,7 @@ import (
 	"v.io/x/ref/lib/stats"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/manager"
+	"v.io/x/ref/runtime/internal/requestid"
 )
 
 const (
@@ -582,6 +583,7 @@ func (s *server) Closed() <-chan struct{} {
 // flowServer implements the RPC server-side protocol for a single RPC, over a
 // flow that's already connected to the client.
 type flowServer struct {
+	ctx    *context.T
 	server *server             // rpc.Server that this flow server belongs to
 	disp   rpc.Dispatcher      // rpc.Dispatcher that will serve RPCs on this flow
 	flow   *conn.BufferingFlow // underlying flow
@@ -604,10 +606,13 @@ var (
 )
 
 func newXFlowServer(flow flow.Flow, server *server) (*flowServer, error) {
+	ctx := requestid.WithNewRequestID(server.ctx)
+	ctx = context.WithLoggingPrefix(ctx, requestid.RequestID(ctx))
 	fs := &flowServer{
+		ctx:        ctx,
 		server:     server,
 		disp:       server.disp,
-		flow:       conn.NewBufferingFlow(server.ctx, flow),
+		flow:       conn.NewBufferingFlow(ctx, flow),
 		discharges: make(map[string]security.Discharge),
 	}
 	return fs, nil
@@ -760,7 +765,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 
 	// Start building up a new context for the request now that we know
 	// the header information.
-	ctx = fs.server.ctx
+	ctx = fs.ctx
 
 	// We must call fs.drainDecoderArgs for any error that occurs
 	// after this point, and before we actually decode the arguments.
