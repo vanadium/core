@@ -569,10 +569,6 @@ func StackToText(w io.Writer, stack []uintptr) error {
 	return stackToTextIndent(w, stack, "")
 }
 
-func isDefaultIDAction(id ID, action ActionCode) bool {
-	return id == "" && action == 0
-}
-
 // A componentKey is used as a key for context.T's Value() map.
 type componentKey struct{}
 
