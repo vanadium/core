@@ -71,7 +71,6 @@ import (
 	"sync"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/vdl"
 	"v.io/v23/vtrace"
 )
@@ -188,7 +187,7 @@ func isLastParStandardError(params []interface{}) error {
 }
 
 func verrorf(ctx *context.T, id IDAction, msg string, unwrap error, v []interface{}) error {
-	_, componentName, opName := dataFromContext(ctx)
+	componentName, opName := dataFromContext(ctx)
 	prefix := ""
 	if len(componentName) > 0 && len(opName) > 0 {
 		prefix += componentName + ":" + opName + ": "
@@ -570,15 +569,6 @@ func StackToText(w io.Writer, stack []uintptr) error {
 	return stackToTextIndent(w, stack, "")
 }
 
-// defaultLangID returns langID is it is not i18n.NoLangID, and the default
-// value of US English otherwise.
-func defaultLangID(langID i18n.LangID) i18n.LangID {
-	if langID == i18n.NoLangID {
-		langID = "en-US"
-	}
-	return langID
-}
-
 func isDefaultIDAction(id ID, action ActionCode) bool {
 	return id == "" && action == 0
 }
@@ -610,7 +600,7 @@ func SetDefaultContext(ctx *context.T) {
 
 // dataFromContext reads the languageID, component name, and operation name
 // from the context, using defaults as appropriate.
-func dataFromContext(ctx *context.T) (langID i18n.LangID, componentName string, opName string) {
+func dataFromContext(ctx *context.T) (componentName string, opName string) {
 	// Use a default context if ctx is nil.  defaultCtx may also be nil, so
 	// further nil checks are required below.
 	if ctx == nil {
@@ -619,7 +609,6 @@ func dataFromContext(ctx *context.T) (langID i18n.LangID, componentName string, 
 		defaultCtxLock.RUnlock()
 	}
 	if ctx != nil {
-		langID = i18n.GetLangID(ctx)
 		value := ctx.Value(componentKey{})
 		componentName, _ = value.(string)
 		opName = vtrace.GetSpan(ctx).Name()
@@ -627,7 +616,7 @@ func dataFromContext(ctx *context.T) (langID i18n.LangID, componentName string, 
 	if componentName == "" {
 		componentName = filepath.Base(os.Args[0])
 	}
-	return defaultLangID(langID), componentName, opName
+	return componentName, opName
 }
 
 // Error returns the error message; if it has not been formatted for a specific
