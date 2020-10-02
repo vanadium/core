@@ -234,10 +234,10 @@ func (n *node) satisfies(mt *mountTable, cc *callContext, tags []mounttable.Tag)
 func expand(al access.AccessList, name string) *access.AccessList {
 	newAccessList := new(access.AccessList)
 	for _, bp := range al.In {
-		newAccessList.In = append(newAccessList.In, security.BlessingPattern(strings.Replace(string(bp), templateVar, name, -1)))
+		newAccessList.In = append(newAccessList.In, security.BlessingPattern(strings.ReplaceAll(string(bp), templateVar, name)))
 	}
 	for _, bp := range al.NotIn {
-		newAccessList.NotIn = append(newAccessList.NotIn, strings.Replace(bp, templateVar, name, -1))
+		newAccessList.NotIn = append(newAccessList.NotIn, strings.ReplaceAll(bp, templateVar, name))
 	}
 	return newAccessList
 }

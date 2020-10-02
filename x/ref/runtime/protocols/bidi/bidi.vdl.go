@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrCannotListenOnBidi     = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry)
@@ -27,7 +27,7 @@ var (
 )
 
 // NewErrCannotListenOnBidi returns an error with the ErrCannotListenOnBidi ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCannotListenOnBidi or MessageCannotListenOnBidi instead.
 func NewErrCannotListenOnBidi(ctx *context.T) error {
 	return verror.New(ErrCannotListenOnBidi, ctx)
@@ -60,7 +60,7 @@ func ParamsErrCannotListenOnBidi(argumentError error) (verrorComponent string, v
 }
 
 // NewErrBidiRoutingIdNotCached returns an error with the ErrBidiRoutingIdNotCached ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBidiRoutingIdNotCached or MessageBidiRoutingIdNotCached instead.
 func NewErrBidiRoutingIdNotCached(ctx *context.T) error {
 	return verror.New(ErrBidiRoutingIdNotCached, ctx)

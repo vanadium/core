@@ -204,7 +204,7 @@ func writeTypeFile(filename string, types []*vdl.Type, vv *vdl.Value) {
 	for _, tt := range types {
 		if tt.Name() != "" {
 			base := vdlgen.BaseType(tt, vdlPackageName, nil)
-			base = strings.Replace(base, "\n", "\n\t", -1)
+			base = strings.ReplaceAll(base, "\n", "\n\t")
 			writef(file, "\t%[1]s %[2]s\n", tt.Name(), base)
 		}
 	}
@@ -212,11 +212,11 @@ func writeTypeFile(filename string, types []*vdl.Type, vv *vdl.Value) {
 	case vdl.Any, vdl.TypeObject:
 	case vdl.Optional:
 		base := vdlgen.BaseType(vv.Type(), vdlPackageName, nil)
-		base = strings.Replace(base, "\n", "\n\t", -1)
+		base = strings.ReplaceAll(base, "\n", "\n\t")
 		writef(file, "\tXType struct{\n\t\tValue %[1]s\n\t}\n", base)
 	default:
 		base := vdlgen.BaseType(vv.Type(), vdlPackageName, nil)
-		base = strings.Replace(base, "\n", "\n\t", -1)
+		base = strings.ReplaceAll(base, "\n", "\n\t")
 		writef(file, "\tXType %[1]s\n", base)
 	}
 	writef(file, ")\n")

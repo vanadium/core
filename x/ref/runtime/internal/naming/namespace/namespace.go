@@ -97,7 +97,6 @@ func (ns *namespace) SetDepthLimits(resolve, glob int) {
 
 // Roots implements namespace.T.Roots
 func (ns *namespace) Roots() []string {
-	//nologcall
 	ns.RLock()
 	defer ns.RUnlock()
 	roots := make([]string, len(ns.roots))

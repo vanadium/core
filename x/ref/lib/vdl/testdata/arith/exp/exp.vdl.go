@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // ExpClientMethods is the client interface
 // containing Exp methods.

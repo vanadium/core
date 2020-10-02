@@ -19,15 +19,15 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // Role.SeekBlessings will return an error if the requestor does not present
 // blessings that end in this suffix.
 const RoleSuffix = "_role"
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // RoleClientMethods is the client interface
 // containing Role methods.

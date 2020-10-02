@@ -645,7 +645,7 @@ func TestGoroutineLeaks(t *testing.T) {
 	defer func() {
 		sc.Infof("%d goroutines:", runtime.NumGoroutine())
 	}()
-	//panic("this will show up lots of goroutine+channel leaks!!!!")
+	// panic("this will show up lots of goroutine+channel leaks!!!!")
 }
 
 func TestBadRoots(t *testing.T) {

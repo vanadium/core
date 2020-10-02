@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Cpu describes the CPU of the machine on which the microbenchmarks were run.
 type Cpu struct {

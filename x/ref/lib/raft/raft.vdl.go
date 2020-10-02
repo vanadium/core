@@ -22,8 +22,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Term is a counter incremented each time a member starts an election.  The log will
 // show gaps in Term numbers because all elections need not be successful.
@@ -201,14 +201,14 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const ClientEntry = byte(0)
 const RaftEntry = byte(1)
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNotLeader     = verror.NewIDAction("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry)
@@ -216,7 +216,7 @@ var (
 )
 
 // NewErrNotLeader returns an error with the ErrNotLeader ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNotLeader or MessageNotLeader instead.
 func NewErrNotLeader(ctx *context.T) error {
 	return verror.New(ErrNotLeader, ctx)
@@ -249,7 +249,7 @@ func ParamsErrNotLeader(argumentError error) (verrorComponent string, verrorOper
 }
 
 // NewErrOutOfSequence returns an error with the ErrOutOfSequence ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfOutOfSequence or MessageOutOfSequence instead.
 func NewErrOutOfSequence(ctx *context.T, prevTerm Term, prevIdx Index) error {
 	return verror.New(ErrOutOfSequence, ctx, prevTerm, prevIdx)
@@ -338,8 +338,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // raftProtoClientMethods is the client interface
 // containing raftProto methods.

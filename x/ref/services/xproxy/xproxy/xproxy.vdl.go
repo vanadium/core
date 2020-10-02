@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNotListening              = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry)
@@ -30,7 +30,7 @@ var (
 )
 
 // NewErrNotListening returns an error with the ErrNotListening ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNotListening or MessageNotListening instead.
 func NewErrNotListening(ctx *context.T) error {
 	return verror.New(ErrNotListening, ctx)
@@ -63,7 +63,7 @@ func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorO
 }
 
 // NewErrUnexpectedMessage returns an error with the ErrUnexpectedMessage ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnexpectedMessage or MessageUnexpectedMessage instead.
 func NewErrUnexpectedMessage(ctx *context.T, msgType string) error {
 	return verror.New(ErrUnexpectedMessage, ctx, msgType)
@@ -109,7 +109,7 @@ func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, ve
 }
 
 // NewErrFailedToResolveToEndpoint returns an error with the ErrFailedToResolveToEndpoint ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfFailedToResolveToEndpoint or MessageFailedToResolveToEndpoint instead.
 func NewErrFailedToResolveToEndpoint(ctx *context.T, name string) error {
 	return verror.New(ErrFailedToResolveToEndpoint, ctx, name)
@@ -155,7 +155,7 @@ func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent st
 }
 
 // NewErrProxyAlreadyClosed returns an error with the ErrProxyAlreadyClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfProxyAlreadyClosed or MessageProxyAlreadyClosed instead.
 func NewErrProxyAlreadyClosed(ctx *context.T) error {
 	return verror.New(ErrProxyAlreadyClosed, ctx)
@@ -188,7 +188,7 @@ func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, v
 }
 
 // NewErrProxyResponse returns an error with the ErrProxyResponse ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfProxyResponse or MessageProxyResponse instead.
 func NewErrProxyResponse(ctx *context.T, msg string) error {
 	return verror.New(ErrProxyResponse, ctx, msg)

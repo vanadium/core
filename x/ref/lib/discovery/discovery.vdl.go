@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type Uuid []byte
 
@@ -435,8 +435,8 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const NoEncryption = EncryptionAlgorithm(0)
 const TestEncryption = EncryptionAlgorithm(1)
@@ -445,8 +445,8 @@ const AdReady = AdStatus(0)          // All information is available
 const AdNotReady = AdStatus(1)       // Not all information is available for querying against it
 const AdPartiallyReady = AdStatus(2) // All information except attachments is available
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrAdvertisementNotFound  = verror.NewIDAction("v.io/x/ref/lib/discovery.AdvertisementNotFound", verror.NoRetry)
@@ -459,7 +459,7 @@ var (
 )
 
 // NewErrAdvertisementNotFound returns an error with the ErrAdvertisementNotFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAdvertisementNotFound or MessageAdvertisementNotFound instead.
 func NewErrAdvertisementNotFound(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAdvertisementNotFound, ctx, id)
@@ -505,7 +505,7 @@ func ParamsErrAdvertisementNotFound(argumentError error) (verrorComponent string
 }
 
 // NewErrAlreadyBeingAdvertised returns an error with the ErrAlreadyBeingAdvertised ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAlreadyBeingAdvertised or MessageAlreadyBeingAdvertised instead.
 func NewErrAlreadyBeingAdvertised(ctx *context.T, id discovery.AdId) error {
 	return verror.New(ErrAlreadyBeingAdvertised, ctx, id)
@@ -551,7 +551,7 @@ func ParamsErrAlreadyBeingAdvertised(argumentError error) (verrorComponent strin
 }
 
 // NewErrBadAdvertisement returns an error with the ErrBadAdvertisement ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadAdvertisement or MessageBadAdvertisement instead.
 func NewErrBadAdvertisement(ctx *context.T, err error) error {
 	return verror.New(ErrBadAdvertisement, ctx, err)
@@ -597,7 +597,7 @@ func ParamsErrBadAdvertisement(argumentError error) (verrorComponent string, ver
 }
 
 // NewErrBadQuery returns an error with the ErrBadQuery ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfBadQuery or MessageBadQuery instead.
 func NewErrBadQuery(ctx *context.T, err error) error {
 	return verror.New(ErrBadQuery, ctx, err)
@@ -643,7 +643,7 @@ func ParamsErrBadQuery(argumentError error) (verrorComponent string, verrorOpera
 }
 
 // NewErrDiscoveryClosed returns an error with the ErrDiscoveryClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfDiscoveryClosed or MessageDiscoveryClosed instead.
 func NewErrDiscoveryClosed(ctx *context.T) error {
 	return verror.New(ErrDiscoveryClosed, ctx)
@@ -676,7 +676,7 @@ func ParamsErrDiscoveryClosed(argumentError error) (verrorComponent string, verr
 }
 
 // NewErrNoDiscoveryPlugin returns an error with the ErrNoDiscoveryPlugin ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoDiscoveryPlugin or MessageNoDiscoveryPlugin instead.
 func NewErrNoDiscoveryPlugin(ctx *context.T) error {
 	return verror.New(ErrNoDiscoveryPlugin, ctx)
@@ -709,7 +709,7 @@ func ParamsErrNoDiscoveryPlugin(argumentError error) (verrorComponent string, ve
 }
 
 // NewErrTooManyPlugins returns an error with the ErrTooManyPlugins ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfTooManyPlugins or MessageTooManyPlugins instead.
 func NewErrTooManyPlugins(ctx *context.T, actual int32, limit int32) error {
 	return verror.New(ErrTooManyPlugins, ctx, actual, limit)
@@ -798,8 +798,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // DirectoryClientMethods is the client interface
 // containing Directory methods.

@@ -232,7 +232,7 @@ func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (en
 	nh := ns.nh
 	ctx.VI(2).Infof("ResolveStep %v\n", ns.elems)
 	if len(ns.elems) == 0 {
-		//nothing can be mounted at the root
+		// Nothing can be mounted at the root.
 		err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ns.elems)
 		return
 	}

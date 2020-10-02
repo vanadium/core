@@ -159,8 +159,8 @@ func setupOrDie(be backend) (clientCtx *context.T, serverName string, cleanup fu
 	return
 }
 
-////////////////////////////////////////
 // Test cases
+// ==========
 
 func TestCreateMemStore(t *testing.T) {
 	testCreateHelper(t, memstore)

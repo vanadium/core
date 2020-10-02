@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrIllegalEscapeChar = verror.NewIDAction("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry)
@@ -27,7 +27,7 @@ var (
 )
 
 // NewErrIllegalEscapeChar returns an error with the ErrIllegalEscapeChar ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfIllegalEscapeChar or MessageIllegalEscapeChar instead.
 func NewErrIllegalEscapeChar(ctx *context.T) error {
 	return verror.New(ErrIllegalEscapeChar, ctx)
@@ -60,7 +60,7 @@ func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, ve
 }
 
 // NewErrInvalidEscape returns an error with the ErrInvalidEscape ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfInvalidEscape or MessageInvalidEscape instead.
 func NewErrInvalidEscape(ctx *context.T, escaped string) error {
 	return verror.New(ErrInvalidEscape, ctx, escaped)

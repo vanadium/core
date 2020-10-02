@@ -116,8 +116,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // AccessList represents a set of blessings that should be granted access.
 //
@@ -398,8 +398,8 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Admin = Tag("Admin")     // Operations that require privileged access for object administration.
 const Debug = Tag("Debug")     // Operations that return debugging information (e.g., logs, statistics etc.) about the object.
@@ -430,8 +430,8 @@ var AccessTagCaveat = security.CaveatDescriptor{
 	ParamType: vdl.TypeOf((*[]Tag)(nil)),
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 
@@ -447,7 +447,7 @@ var (
 )
 
 // NewErrTooBig returns an error with the ErrTooBig ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfTooBig or MessageTooBig instead.
 func NewErrTooBig(ctx *context.T) error {
 	return verror.New(ErrTooBig, ctx)
@@ -480,7 +480,7 @@ func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperati
 }
 
 // NewErrNoPermissions returns an error with the ErrNoPermissions ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoPermissions or MessageNoPermissions instead.
 func NewErrNoPermissions(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
 	return verror.New(ErrNoPermissions, ctx, validBlessings, rejectedBlessings, tag)
@@ -542,7 +542,7 @@ func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verror
 }
 
 // NewErrAccessListMatch returns an error with the ErrAccessListMatch ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAccessListMatch or MessageAccessListMatch instead.
 func NewErrAccessListMatch(ctx *context.T, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
 	return verror.New(ErrAccessListMatch, ctx, validBlessings, rejectedBlessings)
@@ -596,7 +596,7 @@ func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verr
 }
 
 // NewErrUnenforceablePatterns returns an error with the ErrUnenforceablePatterns ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfUnenforceablePatterns or MessageUnenforceablePatterns instead.
 func NewErrUnenforceablePatterns(ctx *context.T, rejectedPatterns []security.BlessingPattern) error {
 	return verror.New(ErrUnenforceablePatterns, ctx, rejectedPatterns)
@@ -642,7 +642,7 @@ func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string
 }
 
 // NewErrInvalidOpenAccessList returns an error with the ErrInvalidOpenAccessList ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfInvalidOpenAccessList or MessageInvalidOpenAccessList instead.
 func NewErrInvalidOpenAccessList(ctx *context.T) error {
 	return verror.New(ErrInvalidOpenAccessList, ctx)
@@ -675,7 +675,7 @@ func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string
 }
 
 // NewErrAccessTagCaveatValidation returns an error with the ErrAccessTagCaveatValidation ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfAccessTagCaveatValidation or MessageAccessTagCaveatValidation instead.
 func NewErrAccessTagCaveatValidation(ctx *context.T, methodTags []string, caveatTags []Tag) error {
 	return verror.New(ErrAccessTagCaveatValidation, ctx, methodTags, caveatTags)
@@ -729,7 +729,7 @@ func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent st
 }
 
 // NewErrMultipleTags returns an error with the ErrMultipleTags ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfMultipleTags or MessageMultipleTags instead.
 func NewErrMultipleTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrMultipleTags, ctx, suffix, method, tag)
@@ -791,7 +791,7 @@ func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorO
 }
 
 // NewErrNoTags returns an error with the ErrNoTags ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoTags or MessageNoTags instead.
 func NewErrNoTags(ctx *context.T, suffix string, method string, tag string) error {
 	return verror.New(ErrNoTags, ctx, suffix, method, tag)

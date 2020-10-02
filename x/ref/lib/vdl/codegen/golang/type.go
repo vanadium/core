@@ -31,7 +31,7 @@ func nativeType(data *goData, native vdltool.GoType, wirePkg *compile.Package) s
 		if strings.Contains(result, imp.Name+".") {
 			// Add the import dependency if there is a match.
 			pkg := data.Pkg(imp.Path)
-			result = strings.Replace(result, imp.Name+".", pkg, -1)
+			result = strings.ReplaceAll(result, imp.Name+".", pkg)
 		}
 	}
 	data.AddForcedPkg(wirePkg.GenPath)
@@ -49,7 +49,7 @@ func toNative(data *goData, native vdltool.GoType, ttWire *vdl.Type) string {
 			if strings.Contains(result, imp.Name+".") {
 				// Add the import dependency if there is a match.
 				pkg := data.Pkg(imp.Path)
-				result = strings.Replace(result, imp.Name+".", pkg, -1)
+				result = strings.ReplaceAll(result, imp.Name+".", pkg)
 			}
 		}
 		return result

@@ -15,8 +15,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // PackAddressTest represents a test case for PackAddress.
 type PackAddressTest struct {
@@ -364,8 +364,8 @@ func (x *UuidTestData) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 var PackAddressTestData = []PackAddressTest{
 	{

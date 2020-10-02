@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrListenerClosed     = verror.NewIDAction("v.io/x/ref/runtime/protocols/lib/websocket.ListenerClosed", verror.NoRetry)
@@ -27,7 +27,7 @@ var (
 )
 
 // NewErrListenerClosed returns an error with the ErrListenerClosed ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfListenerClosed or MessageListenerClosed instead.
 func NewErrListenerClosed(ctx *context.T) error {
 	return verror.New(ErrListenerClosed, ctx)
@@ -60,7 +60,7 @@ func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verro
 }
 
 // NewErrListenCalledInNaCl returns an error with the ErrListenCalledInNaCl ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfListenCalledInNaCl or MessageListenCalledInNaCl instead.
 func NewErrListenCalledInNaCl(ctx *context.T) error {
 	return verror.New(ErrListenCalledInNaCl, ctx)

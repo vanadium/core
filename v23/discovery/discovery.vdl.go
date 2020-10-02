@@ -14,8 +14,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // An AdId is a globally unique identifier of an advertisement.
 type AdId [16]byte

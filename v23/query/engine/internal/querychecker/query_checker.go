@@ -446,7 +446,7 @@ func collectStringFieldRanges(idxField *queryparser.Field, expr *queryparser.Exp
 	case ContainsFieldOperand(idxField, expr): // true if either operand is idxField
 		switch {
 		case IsField(expr.Operand1) && IsField(expr.Operand2):
-			//<idx_field> <op> <idx_field>
+			// <idx_field> <op> <idx_field>
 			switch expr.Operator.Type {
 			case queryparser.Equal, queryparser.GreaterThanOrEqual, queryparser.LessThanOrEqual:
 				// True for all values of indexField
@@ -489,7 +489,7 @@ func collectStringFieldRanges(idxField *queryparser.Field, expr *queryparser.Exp
 				}
 			}
 		case isStringLiteral(expr.Operand1):
-			//<string-literal> <op> k
+			// <string-literal> <op> k
 			switch expr.Operator.Type {
 			case queryparser.Equal:
 				return &ds.StringFieldRanges{computeStringFieldRangeForSingleValue(expr.Operand1.Str)}

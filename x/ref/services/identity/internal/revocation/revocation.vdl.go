@@ -16,8 +16,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // NotRevokedCaveat is used to implement revocation.
 // It validates iff the parameter is not included in a list of blacklisted

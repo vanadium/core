@@ -25,8 +25,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // BlessingPatternChunk is a substring of a BlessingPattern. As with
 // BlessingPatterns, BlessingPatternChunks may contain references to groups.
@@ -370,8 +370,8 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoBlessings         = verror.NewIDAction("v.io/v23/services/groups.NoBlessings", verror.NoRetry)
@@ -380,7 +380,7 @@ var (
 )
 
 // NewErrNoBlessings returns an error with the ErrNoBlessings ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoBlessings or MessageNoBlessings instead.
 func NewErrNoBlessings(ctx *context.T) error {
 	return verror.New(ErrNoBlessings, ctx)
@@ -413,7 +413,7 @@ func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOp
 }
 
 // NewErrExcessiveContention returns an error with the ErrExcessiveContention ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfExcessiveContention or MessageExcessiveContention instead.
 func NewErrExcessiveContention(ctx *context.T) error {
 	return verror.New(ErrExcessiveContention, ctx)
@@ -446,7 +446,7 @@ func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, 
 }
 
 // NewErrCycleFound returns an error with the ErrCycleFound ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfCycleFound or MessageCycleFound instead.
 func NewErrCycleFound(ctx *context.T, name string, visited string) error {
 	return verror.New(ErrCycleFound, ctx, name, visited)
@@ -535,8 +535,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // GroupReaderClientMethods is the client interface
 // containing GroupReader methods.

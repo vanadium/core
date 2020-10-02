@@ -18,15 +18,15 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoCompatibleVersion = verror.NewIDAction("v.io/v23/rpc/version.NoCompatibleVersion", verror.NoRetry)
 )
 
 // NewErrNoCompatibleVersion returns an error with the ErrNoCompatibleVersion ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNoCompatibleVersion or MessageNoCompatibleVersion instead.
 func NewErrNoCompatibleVersion(ctx *context.T, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
 	return verror.New(ErrNoCompatibleVersion, ctx, lmin, lmax, rmin, rmax)

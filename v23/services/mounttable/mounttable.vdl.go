@@ -30,8 +30,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type Tag string
 
@@ -61,8 +61,8 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // Admin allow the client to SetPermissions or Delete the receiver.  It also subsumes
 // all the other tags.
@@ -86,8 +86,8 @@ const Create = Tag("Create")
 // and a/b/c.
 const Resolve = Tag("Resolve")
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // MountTableClientMethods is the client interface
 // containing MountTable methods.

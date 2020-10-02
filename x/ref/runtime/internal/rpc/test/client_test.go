@@ -60,8 +60,8 @@ func testInit(t *testing.T, startServer bool) (sh *v23test.Shell, ctx *context.T
 	return
 }
 
-////////////////////////////////////////
 // Root mount table
+// ================
 
 // TODO(sadovsky): Switch to using v23test.Shell.StartRootMountTable.
 var rootMT = gosh.RegisterFunc("rootMT", func(deb bool) error {
@@ -105,8 +105,8 @@ func startRootMT(t *testing.T, sh *v23test.Shell, deb bool) {
 	}
 }
 
-////////////////////////////////////////
 // Echo server
+// ===========
 
 type treeDispatcher struct{ id string }
 
@@ -165,8 +165,8 @@ func startEchoServer(t *testing.T, sh *v23test.Shell, id, mp, addr string) (*v23
 	return cmd, name
 }
 
-////////////////////////////////////////
 // Echo client
+// ===========
 
 var echoClient = gosh.RegisterFunc("echoClient", func(name string, args ...string) error {
 	ctx, shutdown := test.V23Init()
@@ -190,8 +190,8 @@ func runEchoClient(t *testing.T, sh *v23test.Shell) {
 	cmd.Wait()
 }
 
-////////////////////////////////////////
 // Misc helpers
+// ============
 
 func numServers(t *testing.T, ctx *context.T, name string, expected int) int {
 	for {
@@ -203,8 +203,8 @@ func numServers(t *testing.T, ctx *context.T, name string, expected int) int {
 	}
 }
 
-////////////////////////////////////////
 // Tests
+// =====
 
 // TODO(cnicolaou): figure out how to test and see what the internals
 // of tryCall are doing - e.g. using stats counters.

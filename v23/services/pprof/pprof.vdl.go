@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // PProfClientMethods is the client interface
 // containing PProf methods.

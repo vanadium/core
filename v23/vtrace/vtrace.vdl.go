@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // An Annotation represents data that is relevant at a specific moment.
 // They can be attached to spans to add useful debugging information.
@@ -661,8 +661,8 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)

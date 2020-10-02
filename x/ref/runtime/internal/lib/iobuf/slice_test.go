@@ -18,7 +18,7 @@ func TestExpandFront(t *testing.T) {
 	if slice.Size() != 10 {
 		t.Errorf("Expected length 10, got %d", slice.Size())
 	}
-	copy(slice.Contents, []byte("0123456789"))
+	copy(slice.Contents, "0123456789")
 	ok := slice.ExpandFront(8)
 	if !ok {
 		t.Errorf("Expected ExpandFront to succeed")

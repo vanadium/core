@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 
@@ -33,7 +33,7 @@ var (
 )
 
 // NewErrNotAThirdPartyCaveat returns an error with the ErrNotAThirdPartyCaveat ID.
-// WARNING: this function is deprecated and will be removed in the future,
+// Deprecated: this function will be removed in the future,
 // use ErrorfNotAThirdPartyCaveat or MessageNotAThirdPartyCaveat instead.
 func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
 	return verror.New(ErrNotAThirdPartyCaveat, ctx, c)
@@ -114,8 +114,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // DischargerClientMethods is the client interface
 // containing Discharger methods.

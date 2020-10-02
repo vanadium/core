@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type WindowSize struct {
 	Rows uint16
@@ -568,8 +568,8 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error { //n
 	return dec.FinishValue()
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // TunnelClientMethods is the client interface
 // containing Tunnel methods.
