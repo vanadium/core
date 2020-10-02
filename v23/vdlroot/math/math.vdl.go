@@ -14,8 +14,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Complex64 is a complex number composed of 32-bit real and imaginary parts.
 type Complex64 struct {

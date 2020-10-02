@@ -15,8 +15,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Embed describes the signature of an embedded interface.
 type Embed struct {

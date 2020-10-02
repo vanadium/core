@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // GenLanguage enumerates the known code generation languages.
 type GenLanguage int
