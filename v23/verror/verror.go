@@ -67,6 +67,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"v.io/v23/context"
@@ -435,20 +436,15 @@ func (e *E) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 const maxPCs = 40 // Maximum number of PC values we'll include in a stack trace.
 
-// A SubErrs is a special type that allows clients to include a list of
-// subordinate errors to an error's parameter list.  Clients can add a SubErrs
-// to the parameter list directly, via New() or include one in an existing
-// error using AddSubErrs().  Each element of the slice has a name, an error,
-// and an integer that encodes options such as verror.Print as bits set within
-// it.  By convention, clients are expected to use name of the form "X=Y" to
-// distinguish their subordinate errors from those of other abstraction layers.
-// For example, a layer reporting on errors in individual blessings in an RPC
-// might use strings like "blessing=<blessing_name>".
-type SubErrs []SubErr
-
 type SubErrOpts uint32
 
-// A SubErr represents a (string, error, int32) triple,  It is the element type for SubErrs.
+// A SubErr represents a (string, error, int32) triple that allows clients to
+// include subordinate errors to an error's parameter list.  Clients can add a
+// SubErr to the parameter list directly, via WithSubErrors. By convention,
+// clients are expected to use name of the form "X=Y" to distinguish their
+// subordinate errors from those of other abstraction layers.
+// For example, a layer reporting on errors in individual blessings in an RPC
+// might use strings like "blessing=<blessing_name>".
 type SubErr struct {
 	Name    string
 	Err     error
@@ -514,18 +510,34 @@ type PCs []uintptr
 // first generated within this address space, or an empty list if err is not an
 // E.
 func Stack(err error) PCs {
-	if err != nil {
-		if e, ok := assertIsE(err); ok {
-			stackIntPtr := make([]uintptr, len(e.stackPCs))
-			copy(stackIntPtr, e.stackPCs)
-			if e.chainedPCs != nil {
-				stackIntPtr = append(stackIntPtr, uintptr(0))
-				stackIntPtr = append(stackIntPtr, e.chainedPCs...)
-			}
-			return stackIntPtr
-		}
+	if err == nil {
+		return nil
+	}
+	switch e := err.(type) {
+	case E:
+		return stack(e.stackPCs, e.chainedPCs)
+	case SubErr:
+		return Stack(e.Err)
+	case subErrChain:
+		return Stack(e.err)
+	case *E:
+		return stack(e.stackPCs, e.chainedPCs)
+	case *SubErr:
+		return Stack(e.Err)
+	case *subErrChain:
+		return Stack(e.err)
 	}
 	return nil
+}
+
+func stack(stackPCs, chainedPCs []uintptr) []uintptr {
+	stackIntPtr := make([]uintptr, len(stackPCs))
+	copy(stackIntPtr, stackPCs)
+	if chainedPCs != nil {
+		stackIntPtr = append(stackIntPtr, uintptr(0))
+		stackIntPtr = append(stackIntPtr, chainedPCs...)
+	}
+	return stackIntPtr
 }
 
 func (st PCs) String() string {
@@ -629,67 +641,50 @@ func (subErr SubErr) String() string {
 	return fmt.Sprintf("[%s: %s]", subErr.Name, subErr.Err.Error())
 }
 
-// String is the default printing function for SubErrs.
-func (subErrs SubErrs) String() (result string) {
-	if len(subErrs) > 0 {
-		sep := ""
-		for _, s := range subErrs {
-			if (s.Options & Print) != 0 {
-				result += fmt.Sprintf("%s%s", sep, s.String())
-				sep = ", "
-			}
-		}
-	}
-	return result
-}
-
-// subErrorIndex returns index of the first SubErrs in e.ParamList
-// or len(e.ParamList) if there is no such parameter.
-func (e E) subErrorIndex() (i int) {
-	for i = range e.ParamList {
-		if _, isSubErrs := e.ParamList[i].(SubErrs); isSubErrs {
-			return i
-		}
-	}
-	return len(e.ParamList)
-}
-
 // debugStringInternal returns a more verbose string representation of an
 // error, perhaps more thorough than one might present to an end user, but
 // useful for debugging by a developer.  It prefixes all lines output with
 // "prefix" and "name" (if non-empty) and adds intent to prefix wen recursing.
-func debugStringInternal(err error, prefix string, name string) string {
-	str := prefix
+func debugStringInternal(out *strings.Builder, err error, prefix string, name string) {
+	out.WriteString(prefix)
 	if len(name) > 0 {
-		str += name + " "
+		out.WriteString(name + " ")
 	}
-	str += err.Error()
+	out.WriteString(err.Error())
+	out.WriteString("\n")
 	// Append err's stack, indented a little.
 	prefix += "  "
-	buf := bytes.NewBufferString("")
-	stackToTextIndent(buf, Stack(err), prefix) //nolint:errcheck
-	str += "\n" + buf.String()
+	stackToTextIndent(out, Stack(err), prefix) //nolint:errcheck
 	// Print all the subordinate errors, even the ones that were not
 	// printed by Error(), indented a bit further.
 	prefix += "  "
+	i := 1
 	for subErr := errors.Unwrap(err); subErr != nil; subErr = errors.Unwrap(subErr) {
+		fmt.Fprintf(out, "%sUnwrapped error #%v\n", prefix, i)
+		i++
 		switch v := subErr.(type) {
+		case subErrChain:
+			debugStringInternal(out, v.err, prefix, string(ErrorID(v.err)))
 		case SubErr:
-			str += debugStringInternal(v.Err, prefix, v.Name)
+			debugStringInternal(out, v.Err, prefix, v.Name)
 		case *SubErr:
-			str += debugStringInternal(v.Err, prefix, v.Name)
+			debugStringInternal(out, v.Err, prefix, v.Name)
 		case E:
-			str += debugStringInternal(v, prefix, string(v.ID))
+			debugStringInternal(out, v, prefix, string(v.ID))
 		case *E:
-			str += debugStringInternal(v, prefix, string(v.ID))
+			debugStringInternal(out, v, prefix, string(v.ID))
 		}
 	}
-	return str
 }
 
 // DebugString returns a more verbose string representation of an error,
 // perhaps more thorough than one might present to an end user, but useful for
 // debugging by a developer.
 func DebugString(err error) string {
-	return debugStringInternal(err, "", "")
+	if err == nil {
+		return ""
+	}
+	out := &strings.Builder{}
+	debugStringInternal(out, err, "", "")
+	return out.String()
 }

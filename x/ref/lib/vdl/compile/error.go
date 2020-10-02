@@ -89,7 +89,11 @@ func compileErrorDefs(pkg *Package, pfiles []*parse.File, env *Env) {
 					env.Warningf(file, ed.Pos, "error %s does not include an i18n message, make sure that %s is being used to create errors with ID %s and not %s", errName, errorfName, errorID, newName)
 				}
 			} else {
-				env.Warningf(file, ed.Pos, "error %s includes an i18n format which is now deprecated, remove this and use %s to create errors with ID %s", errName, errorfName, errorID)
+				if env.noI18nErrorSupport {
+					env.Errorf(file, ed.Pos, "error %s includes an i18n format which is no supported", errName)
+				} else {
+					env.Warningf(file, ed.Pos, "error %s includes an i18n format which is now deprecated, remove this and use %s to create errors with ID %s", errName, errorfName, errorID)
+				}
 			}
 			addErrorDef(ed, env)
 		}

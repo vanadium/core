@@ -56,6 +56,7 @@ func TestErrorf(t *testing.T) {
 		Err:     aEN1,
 		Options: verror.Print,
 	})
+
 	if got, want := strings.Count(verror.DebugString(nerr), "runtime.goexit"), 2; got != want {
 		t.Log(verror.DebugString(nerr))
 		t.Errorf("got %v, want %v", got, want)
@@ -129,7 +130,6 @@ func TestCompatibility(t *testing.T) {
 }
 
 func TestUnwrap(t *testing.T) {
-
 	p := idActionA.Errorf(nil, "error A: %v", 0)
 	s1 := verror.SubErr{
 		Name:    "a=1",
@@ -197,6 +197,27 @@ func TestUnwrap(t *testing.T) {
 	err = verror.WithSubErrors(err, s2, s1)
 	err = testUnwrap(err, s2, s1, os.ErrNotExist)
 	assertUnwrapDone(err)
+
+	p3 := idActionA.Errorf(nil, "error: %v", p)
+
+	if got, want := strings.Count(verror.DebugString(p3), "Unwrapped error"), 1; got != want {
+		t.Log(verror.DebugString(p3))
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	err = errors.Unwrap(p3)
+	if got, want := verror.DebugString(err), verror.DebugString(p); got != want {
+		t.Log(verror.DebugString(err))
+		t.Log(verror.DebugString(p))
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	p4 := verror.WithSubErrors(p3, s1, s2)
+	if got, want := strings.Count(verror.DebugString(p4), "Unwrapped error"), 3; got != want {
+		t.Log(verror.DebugString(p4))
+		t.Errorf("got %v, want %v", got, want)
+	}
+
 }
 
 func TestRegister(t *testing.T) {
