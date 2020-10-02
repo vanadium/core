@@ -192,7 +192,7 @@ func writeTypeFile(fileName string, types []*vdl.Type) {
 	for _, tt := range types {
 		if tt.Name() != "" {
 			base := vdlgen.BaseType(tt, vdltestPkgName, nil)
-			base = strings.Replace(base, "\n", "\n\t", -1)
+			base = strings.ReplaceAll(base, "\n", "\n\t")
 			writef(file, "\t%[1]s %[2]s\n", tt.Name(), base)
 		}
 	}

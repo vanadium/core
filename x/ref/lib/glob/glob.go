@@ -28,33 +28,33 @@ import (
 )
 
 // Glob represents a slash separated path glob pattern.
-// This type is DEPRECATED. Use v.io/v23/glob.Glob instead.
+// Deprecated: use v.io/v23/glob.Glob instead.
 type Glob struct {
 	*glob.Glob
 }
 
 // Parse returns a new Glob.
-// This function is DEPRECATED.
+// Deprecated: use v.io/v23/glob.Parse instead.
 func Parse(pattern string) (*Glob, error) {
 	g, err := glob.Parse(pattern)
 	return &Glob{g}, err
 }
 
 // Tail returns the suffix of g starting at the second element.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.Tail instead.
 func (g *Glob) Tail() *Glob {
 	return &Glob{g.Glob.Tail()}
 }
 
 // Finished returns true if the pattern cannot match anything.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.Finished instead.
 func (g *Glob) Finished() bool {
 	return g.Empty()
 }
 
 // Split returns the suffix of g starting at the path element corresponding to
 // start.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.Split instead.
 func (g *Glob) Split(start int) *Glob {
 	suffix := g
 	for i := start - 1; i >= 0; i-- {
@@ -68,7 +68,7 @@ func (g *Glob) Split(start int) *Glob {
 // matched, a boolean indicating whether the match was successful;
 // exact, a boolean indicating whether segment matched a fixed string pattern;
 // remainder, a Glob representing the unmatched remainder of g.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.MatchInitialSegment instead.
 func (g *Glob) MatchInitialSegment(segment string) (matched bool, exact bool, remainder *Glob) {
 	m := g.Head()
 	matched = m.Match(segment)
@@ -88,7 +88,7 @@ func (g *Glob) MatchInitialSegment(segment string) (matched bool, exact bool, re
 //
 // Note that if the glob is recursive elems can have more elements then
 // the glob pattern and still get a true result.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.PartialMatch instead.
 func (g *Glob) PartialMatch(start int, elems []string) (matched bool, exact bool, remainder *Glob) {
 	g = g.Split(start)
 	allExact := true
@@ -105,7 +105,7 @@ func (g *Glob) PartialMatch(start int, elems []string) (matched bool, exact bool
 
 // SplitFixedElements returns the part of the glob pattern that contains only
 // fixed elements, and the glob that follows it.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.SplitFixedElements instead.
 func (g *Glob) SplitFixedElements() ([]string, *Glob) {
 	prefix, left := g.Glob.SplitFixedElements()
 	return prefix, &Glob{left}
@@ -113,7 +113,7 @@ func (g *Glob) SplitFixedElements() ([]string, *Glob) {
 
 // SplitFixedPrefix returns the part of the glob pattern that contains only
 // fixed elements, and the glob that follows it.
-// This method is DEPRECATED.
+// Deprecated: use v.io/v23/glob.SplitFixedPrefix instead.
 func (g *Glob) SplitFixedPrefix() ([]string, *Glob) {
 	return g.SplitFixedElements()
 }

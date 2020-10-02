@@ -17,8 +17,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrCannotListenOnBidi     = verror.NewIDAction("v.io/x/ref/runtime/protocols/bidi.CannotListenOnBidi", verror.NoRetry)

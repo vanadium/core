@@ -21,8 +21,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Url represents a url.URL struct.
 // The User field is skipped since it is a struct with only unexported fields.
@@ -561,8 +561,8 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // HttpClientMethods is the client interface
 // containing Http methods.

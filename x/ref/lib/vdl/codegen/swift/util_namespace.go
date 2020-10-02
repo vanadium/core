@@ -126,7 +126,7 @@ func (ctx *swiftContext) swiftPackageName(pkg *compile.Package) string {
 	name := ""
 	for _, pkg := range strings.Split(modulePkgPath, "/") {
 		// Remove any periods (e.g. v.io/ -> Vio)
-		pkg = strings.Replace(pkg, ".", "", -1)
+		pkg = strings.ReplaceAll(pkg, ".", "")
 		name += vdlutil.FirstRuneToUpper(pkg)
 	}
 	memoizedPackageName[pkg] = name

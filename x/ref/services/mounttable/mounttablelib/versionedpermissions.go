@@ -179,7 +179,7 @@ func (mt *mountTable) pickCreator(ctx *context.T, call security.Call) string {
 	ids := conventions.GetClientUserIds(ctx, call)
 	if len(ids) > 0 {
 		// Replace the slashes with something else or we'll confuse the stats package.
-		return strings.Replace(ids[0], "/", "\\", -1)
+		return strings.ReplaceAll(ids[0], "/", "\\")
 	}
 	return ""
 }

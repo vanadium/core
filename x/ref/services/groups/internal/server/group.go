@@ -142,12 +142,10 @@ func (g *group) GetPermissions(ctx *context.T, call rpc.ServerCall) (perms acces
 	return gd.Perms, version, nil
 }
 
-////////////////////////////////////////
 // Internal helpers
 
 // Returns a VDL-compatible error.
 func (g *group) authorize(ctx *context.T, call security.Call, perms access.Permissions) error {
-	//auth, _ := access.TypicalTagTypePermissionsAuthorizer(perms)
 	auth := access.TypicalTagTypePermissionsAuthorizer(perms)
 	if err := auth.Authorize(ctx, call); err != nil {
 		return verror.ErrNoAccess.Errorf(ctx, "access denied: %v", err)

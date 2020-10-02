@@ -214,14 +214,12 @@ func (e Endpoint) VersionedString(version int) string {
 }
 
 func (e Endpoint) String() string {
-	//nologcall
 	return e.VersionedString(DefaultEndpointVersion)
 }
 
 // Name returns a string reprsentation of this Endpoint that can
 // be used as a name with rpc.StartCall.
 func (e Endpoint) Name() string {
-	//nologcall
 	return JoinAddressName(e.String(), "")
 }
 
@@ -232,7 +230,6 @@ func (e Endpoint) Name() string {
 // whose network is "tcp" and string representation is <host>:<port>,
 // than the full Vanadium endpoint as per the String method above.
 func (e Endpoint) Addr() net.Addr {
-	//nologcall
 	return addr{network: e.Protocol, address: e.Address}
 }
 

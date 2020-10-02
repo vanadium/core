@@ -23,8 +23,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type NamedBool bool
 
@@ -2722,8 +2722,8 @@ func (x *NestedArgs) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Cbool = true
 const Cbyte = byte(1)
@@ -2823,8 +2823,8 @@ var CTypeObject_Union = vdl.TypeOf((*NamedUnion)(nil))
 var CTypeObject_TypeObject = vdl.TypeObjectType
 var CTypeObject_Any = vdl.AnyType
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoParams1   = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.NoParams1", verror.NoRetry)
@@ -3066,8 +3066,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // ServiceAClientMethods is the client interface
 // containing ServiceA methods.

@@ -18,8 +18,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Blessings is used to transport blessings between the two ends of a Conn.
 // Since blessings can be large, we try not to send them more than once by

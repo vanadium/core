@@ -22,8 +22,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 
@@ -106,8 +106,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // DischargerClientMethods is the client interface
 // containing Discharger methods.

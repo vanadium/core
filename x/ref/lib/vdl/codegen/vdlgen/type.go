@@ -72,7 +72,7 @@ func BaseType(t *vdl.Type, pkgPath string, imports codegen.Imports) string {
 		for i := 0; i < t.NumField(); i++ {
 			f := t.Field(i)
 			ftype := Type(f.Type, pkgPath, imports)
-			ftype = strings.Replace(ftype, "\n", "\n\t", -1)
+			ftype = strings.ReplaceAll(ftype, "\n", "\n\t")
 			ret += fmt.Sprintf("\t%s %s\n", f.Name, ftype)
 		}
 		return ret + "}"

@@ -186,8 +186,8 @@ type methodTag struct {
 
 // TODO(sjr): move this to somewhere in util_*.
 func toJavaString(goString string) string {
-	result := strings.Replace(goString, "\"", "\\\"", -1)
-	result = strings.Replace(result, "\n", "\" + \n\"", -1)
+	result := strings.ReplaceAll(goString, "\"", "\\\"")
+	result = strings.ReplaceAll(result, "\n", "\" + \n\"")
 	return result
 }
 

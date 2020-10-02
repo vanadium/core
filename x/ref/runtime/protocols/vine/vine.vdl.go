@@ -20,8 +20,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // PeerKey is a key that represents a connection from a Dialer tag to an Acceptor tag.
 type PeerKey struct {
@@ -184,8 +184,8 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrInvalidAddress       = verror.NewIDAction("v.io/x/ref/runtime/protocols/vine.InvalidAddress", verror.NoRetry)
@@ -386,8 +386,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // VineClientMethods is the client interface
 // containing Vine methods.

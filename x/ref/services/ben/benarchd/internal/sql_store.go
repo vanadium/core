@@ -52,10 +52,10 @@ type sqlStore struct {
 // given a SQL string appropriate for MySQL.
 func (s *sqlStore) tweakSQL(mysql string) string {
 	if s.driver == driverSqlite3 {
-		stmt := strings.Replace(mysql, "AUTO_INCREMENT", "AUTOINCREMENT", -1)
-		stmt = strings.Replace(stmt, "INSERT IGNORE", "INSERT OR IGNORE", 1)
-		stmt = strings.Replace(stmt, "CONCAT('%',?,'%')", "'%'||?||'%'", -1)
-		stmt = strings.Replace(stmt, "CONCAT('%',LOWER(?),'%')", "'%'||LOWER(?)||'%'", -1)
+		stmt := strings.ReplaceAll(mysql, "AUTO_INCREMENT", "AUTOINCREMENT")
+		stmt = strings.ReplaceAll(stmt, "INSERT IGNORE", "INSERT OR IGNORE")
+		stmt = strings.ReplaceAll(stmt, "CONCAT('%',?,'%')", "'%'||?||'%'")
+		stmt = strings.ReplaceAll(stmt, "CONCAT('%',LOWER(?),'%')", "'%'||LOWER(?)||'%'")
 		return stmt
 	}
 	return mysql

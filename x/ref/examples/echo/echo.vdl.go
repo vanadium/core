@@ -14,8 +14,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // EchoServiceClientMethods is the client interface
 // containing EchoService methods.

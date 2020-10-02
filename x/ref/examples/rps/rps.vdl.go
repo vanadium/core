@@ -39,8 +39,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // A GameId is used to uniquely identify a game within one Judge.
 type GameId struct {
@@ -1159,8 +1159,8 @@ func (x *PlayResult) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Classic = GameTypeTag(0)     // Rock-Paper-Scissors
 const LizardSpock = GameTypeTag(1) // Rock-Paper-Scissors-Lizard-Spock
@@ -1168,8 +1168,8 @@ const Draw = WinnerTag(0)
 const Player1 = WinnerTag(1)
 const Player2 = WinnerTag(2)
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // JudgeClientMethods is the client interface
 // containing Judge methods.

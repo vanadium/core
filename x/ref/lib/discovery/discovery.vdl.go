@@ -22,8 +22,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type Uuid []byte
 
@@ -434,8 +434,8 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const NoEncryption = EncryptionAlgorithm(0)
 const TestEncryption = EncryptionAlgorithm(1)
@@ -444,8 +444,8 @@ const AdReady = AdStatus(0)          // All information is available
 const AdNotReady = AdStatus(1)       // Not all information is available for querying against it
 const AdPartiallyReady = AdStatus(2) // All information except attachments is available
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrAdvertisementNotFound  = verror.NewIDAction("v.io/x/ref/lib/discovery.AdvertisementNotFound", verror.NoRetry)
@@ -748,8 +748,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // DirectoryClientMethods is the client interface
 // containing Directory methods.

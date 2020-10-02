@@ -25,8 +25,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoValue = verror.NewIDAction("v.io/v23/services/stats.NoValue", verror.NoRetry)
@@ -107,8 +107,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // StatsClientMethods is the client interface
 // containing Stats methods.

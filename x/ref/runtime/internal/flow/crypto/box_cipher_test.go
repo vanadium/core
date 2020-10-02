@@ -18,7 +18,7 @@ import (
 // Add space for a MAC.
 func newMessage(s string) []byte {
 	b := make([]byte, len(s)+box.Overhead)
-	copy(b, []byte(s))
+	copy(b, s)
 	return b
 }
 

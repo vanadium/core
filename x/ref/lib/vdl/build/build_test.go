@@ -26,7 +26,7 @@ import (
 
 func init() {
 	// Uncomment this to enable verbose logs for debugging.
-	//vdlutil.SetVerbose()
+	// vdlutil.SetVerbose()
 }
 
 // The cwd is set to the directory containing this file.  Currently we have the

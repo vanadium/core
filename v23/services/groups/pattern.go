@@ -168,8 +168,8 @@ func (g *grpClient) remainder(ctx *context.T, groupName string, blessingChunks m
 	return remainder
 }
 
-///////////////////////////////
 // Helper functions
+// ================
 
 // splitPattern splits a pattern into valid tokens separated by ":"
 // (security.ChainSeparator). If any token in a pattern is invalid, it returns

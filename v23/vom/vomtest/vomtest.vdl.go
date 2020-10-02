@@ -17,8 +17,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // vdlEntry represents a test entry, which contains a value and hex bytes.  The
 // hex bytes represent the golden vom encoding of the value.  Encoding tests
@@ -154,8 +154,8 @@ func (x *vdlEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 var pass81 = []vdlEntry{
 	{

@@ -16,8 +16,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // ControlKind enumerates the different kinds of control bytes.
 type ControlKind int
@@ -1984,8 +1984,8 @@ func vdlReadwireType(dec vdl.Decoder, x *wireType) error { //nolint:gocyclo
 	return dec.FinishValue()
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Version80 = Version(128)
 const Version81 = Version(129)

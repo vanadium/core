@@ -19,8 +19,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // BlessingRootResponse is the struct representing the JSON response provided
 // by the "blessing-root" route of the identity service.
@@ -147,8 +147,8 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // MacaroonBlesserClientMethods is the client interface
 // containing MacaroonBlesser methods.

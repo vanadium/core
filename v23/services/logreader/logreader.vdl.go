@@ -21,8 +21,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // LogEntry is a log entry from a log file.
 type LogEntry struct {
@@ -103,15 +103,15 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // A special NumEntries value that indicates that all entries should be
 // returned by ReadLog.
 const AllEntries = int32(-1)
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // LogFileClientMethods is the client interface
 // containing LogFile methods.

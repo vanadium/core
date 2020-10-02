@@ -16,8 +16,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // TestCase represents an individual testcase for vom encoding and decoding.
 type TestCase struct {

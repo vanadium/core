@@ -24,8 +24,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // BlessingPatternChunk is a substring of a BlessingPattern. As with
 // BlessingPatterns, BlessingPatternChunks may contain references to groups.
@@ -369,8 +369,8 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNoBlessings         = verror.NewIDAction("v.io/v23/services/groups.NoBlessings", verror.NoRetry)
@@ -513,8 +513,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // GroupReaderClientMethods is the client interface
 // containing GroupReader methods.

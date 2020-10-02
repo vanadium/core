@@ -42,8 +42,8 @@ func (db *mockDB) GetTable(table string, writeAccessReq bool) (ds.Table, error) 
 
 var db mockDB
 
-//type queryFunc func(int64, []*queryparser.Operand) (*queryparser.Operand, error)
-//type checkArgsFunc func(int64, []*queryparser.Operand) (*queryparser.Operand, error)
+// type queryFunc func(int64, []*queryparser.Operand) (*queryparser.Operand, error)
+// type checkArgsFunc func(int64, []*queryparser.Operand) (*queryparser.Operand, error)
 
 type functionsTest struct {
 	f      *queryparser.Function

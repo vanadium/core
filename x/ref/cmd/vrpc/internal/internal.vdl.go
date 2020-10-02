@@ -20,8 +20,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type Struct struct {
 	X int32
@@ -148,8 +148,8 @@ func (x *Array2Int) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return dec.FinishValue()
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // TypeTesterClientMethods is the client interface
 // containing TypeTester methods.

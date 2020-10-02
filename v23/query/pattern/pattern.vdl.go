@@ -17,8 +17,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrIllegalEscapeChar = verror.NewIDAction("v.io/v23/query/pattern.IllegalEscapeChar", verror.NoRetry)

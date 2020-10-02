@@ -627,7 +627,6 @@ func (r *raft) updateFollower(m *member) {
 		if err != nil {
 			if !errors.Is(err, ErrOutOfSequence) {
 				// A problem other than missing entries.  Retry later.
-				//vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
 				vlog.Errorf("@%s updating %s: %s", r.me.id, m.id, err)
 				return
 			}

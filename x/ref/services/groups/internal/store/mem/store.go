@@ -106,7 +106,6 @@ func (st *memstore) Close() error {
 	return nil
 }
 
-////////////////////////////////////////
 // Internal helpers
 
 func (e *entry) checkVersion(version string) error {

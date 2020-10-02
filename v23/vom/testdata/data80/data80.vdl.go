@@ -15,8 +15,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // Tests contains the testcases to use to test vom encoding and decoding.
 var Tests = []types.TestCase{

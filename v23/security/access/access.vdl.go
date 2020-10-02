@@ -115,8 +115,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // AccessList represents a set of blessings that should be granted access.
 //
@@ -397,8 +397,8 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const Admin = Tag("Admin")     // Operations that require privileged access for object administration.
 const Debug = Tag("Debug")     // Operations that return debugging information (e.g., logs, statistics etc.) about the object.
@@ -429,8 +429,8 @@ var AccessTagCaveat = security.CaveatDescriptor{
 	ParamType: vdl.TypeOf((*[]Tag)(nil)),
 }
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 

@@ -22,8 +22,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 type nonce [16]byte
 
@@ -1572,8 +1572,8 @@ var (
 	_ func(*WireDischarge, Discharge) error = WireDischargeFromNative
 )
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 // ConstCaveat represents a caveat that either always validates or never validates.
 var ConstCaveat = CaveatDescriptor{
@@ -1693,8 +1693,8 @@ const SignatureForMessageSigning = "S1"       // Signature.Purpose used by a Pri
 const SignatureForBlessingCertificates = "B1" // Signature.Purpose used by a Principal when signing Certificates for creating blessings.
 const SignatureForDischarge = "D1"            // Signature.Purpose used by a Principal when signing discharges for public-key based third-party caveats.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrCaveatNotRegistered           = verror.NewIDAction("v.io/v23/security.CaveatNotRegistered", verror.NoRetry)

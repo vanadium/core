@@ -17,8 +17,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNotListening              = verror.NewIDAction("v.io/x/ref/services/xproxy/xproxy.NotListening", verror.NoRetry)

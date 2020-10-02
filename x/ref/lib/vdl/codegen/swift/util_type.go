@@ -157,7 +157,7 @@ func swiftCaseName(tdef *compile.TypeDef, fld vdl.Field) string {
 
 func (ctx *swiftContext) swiftType(t *vdl.Type) string {
 	if t == nil {
-		return ctx.swiftBuiltInType(nil) //, forceClass)
+		return ctx.swiftBuiltInType(nil)
 	}
 
 	if native, ok := swiftNativeType(t, ctx.env); ok {

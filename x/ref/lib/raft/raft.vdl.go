@@ -21,8 +21,8 @@ import (
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
-//////////////////////////////////////////////////
 // Type definitions
+// ================
 
 // Term is a counter incremented each time a member starts an election.  The log will
 // show gaps in Term numbers because all elections need not be successful.
@@ -200,14 +200,14 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-//////////////////////////////////////////////////
 // Const definitions
+// =================
 
 const ClientEntry = byte(0)
 const RaftEntry = byte(1)
 
-//////////////////////////////////////////////////
 // Error definitions
+// =================
 
 var (
 	ErrNotLeader     = verror.NewIDAction("v.io/x/ref/lib/raft.NotLeader", verror.NoRetry)
@@ -323,8 +323,8 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	return
 }
 
-//////////////////////////////////////////////////
 // Interface definitions
+// =====================
 
 // raftProtoClientMethods is the client interface
 // containing raftProto methods.

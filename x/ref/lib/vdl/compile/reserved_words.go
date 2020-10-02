@@ -132,14 +132,14 @@ var javascriptReservedWords = map[string]bool{
 	"continue": true,
 	"debugger": true,
 	"default":  true,
-	//"delete":     true, // TODO(bprosnitz) Look into adding this back. This conflicts with Delete() on Content in repository.vdlutil.
+	// "delete":     true, // TODO(bprosnitz) Look into adding this back. This conflicts with Delete() on Content in repository.vdlutil.
 	"do":       true,
 	"else":     true,
 	"finally":  true,
 	"for":      true,
 	"function": true,
 	"if":       true,
-	//"in":         true, // TODO(bprosnitz) Look into addint this back. It conflicts with In in access/service.vdlutil.
+	// "in":         true, // TODO(bprosnitz) Look into addint this back. It conflicts with In in access/service.vdlutil.
 	"instanceof": true,
 	"new":        true,
 	"return":     true,
