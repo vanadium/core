@@ -164,13 +164,13 @@ type RejectedBlessing struct {
 }
 
 error (
-	UnrecognizedRoot(rootKey string, details error) {"en": "unrecognized public key {rootKey} in root certificate{:details}"}
+	UnrecognizedRoot(rootKey string, details error) {}
 
-	AuthorizationFailed(remote []string, remoteErr []RejectedBlessing, local []string) { "en": "principal with blessings {remote} (rejected {remoteErr}) is not authorized by principal with blessings {local}"}
+	AuthorizationFailed(remote []string, remoteErr []RejectedBlessing, local []string) {}
 
-	InvalidSigningBlessingCaveat(id uniqueid.Id) {"en": "blessing has caveat with UUID {id} which makes it unsuitable for signing -- please use blessings with just Expiry caveats"}
+	InvalidSigningBlessingCaveat(id uniqueid.Id) 
 
-	PublicKeyNotAllowed(got, want string) { "en": "peer has public key {got}, not the authorized public key {want}" }
+	PublicKeyNotAllowed(got, want string)
 
-	EndpointAuthorizationFailed(endpoint string, remote []string, rejected []RejectedBlessing,) { "en": "blessings in endpoint {endpoint} not matched by blessings presented: {remote} (rejected {rejected})"}
+	EndpointAuthorizationFailed(endpoint string, remote []string, rejected []RejectedBlessing,) {}
 )

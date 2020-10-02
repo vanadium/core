@@ -93079,6 +93079,13 @@ var (
 	ErrThree = verror.NewIDAction("v.io/v23/vdl/vdltest.Three", verror.NoRetry)
 )
 
+// NewErrNone returns an error with the ErrNone ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfNone or MessageNone instead.
+func NewErrNone(ctx *context.T) error {
+	return verror.New(ErrNone, ctx)
+}
+
 // ErrorfNone calls ErrNone.Errorf with the supplied arguments.
 func ErrorfNone(ctx *context.T, format string) error {
 	return ErrNone.Errorf(ctx, format)
@@ -93103,6 +93110,13 @@ func ParamsErrNone(argumentError error) (verrorComponent string, verrorOperation
 	}
 
 	return
+}
+
+// NewErrOne returns an error with the ErrOne ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfOne or MessageOne instead.
+func NewErrOne(ctx *context.T, i int64) error {
+	return verror.New(ErrOne, ctx, i)
 }
 
 // ErrorfOne calls ErrOne.Errorf with the supplied arguments.
@@ -93142,6 +93156,13 @@ func ParamsErrOne(argumentError error) (verrorComponent string, verrorOperation 
 	}
 
 	return
+}
+
+// NewErrTwo returns an error with the ErrTwo ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfTwo or MessageTwo instead.
+func NewErrTwo(ctx *context.T, a string, err error) error {
+	return verror.New(ErrTwo, ctx, a, err)
 }
 
 // ErrorfTwo calls ErrTwo.Errorf with the supplied arguments.
@@ -93189,6 +93210,13 @@ func ParamsErrTwo(argumentError error) (verrorComponent string, verrorOperation 
 	}
 
 	return
+}
+
+// NewErrThree returns an error with the ErrThree ID.
+// WARNING: this function is deprecated and will be removed in the future,
+// use ErrorfThree or MessageThree instead.
+func NewErrThree(ctx *context.T, a string, b int64, c float32) error {
+	return verror.New(ErrThree, ctx, a, b, c)
 }
 
 // ErrorfThree calls ErrThree.Errorf with the supplied arguments.
@@ -94397,6 +94425,8 @@ func initializeVDL() struct{} {
 	vdlTypeUnion282 = vdl.TypeOf((*VWireUnionNPointer)(nil))
 	vdlTypeUnion283 = vdl.TypeOf((*VWireUnionNIface)(nil))
 	vdlTypeStruct284 = vdl.TypeOf((*VWireAll)(nil)).Elem()
+
+	// Set error format strings.
 
 	return struct{}{}
 }

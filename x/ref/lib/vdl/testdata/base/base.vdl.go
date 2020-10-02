@@ -2831,6 +2831,9 @@ var (
 	ErrNoParams2   = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.NoParams2", verror.RetryRefetch)
 	ErrWithParams1 = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.WithParams1", verror.NoRetry)
 	ErrWithParams2 = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.WithParams2", verror.RetryRefetch)
+	//TODO(bprosnitz) Adding WithParams3 breaks the java test - fix this.
+	//WithParams3(x error) {
+	//}
 	errNotExported = verror.NewIDAction("v.io/x/ref/lib/vdl/testdata/base.notExported", verror.NoRetry)
 )
 

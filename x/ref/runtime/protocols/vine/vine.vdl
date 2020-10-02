@@ -5,10 +5,10 @@
 package vine
 
 error (
-  InvalidAddress(address string) {"en": "invalid vine address {address}, address must be of the form 'network/address/tag'"}
-  AddressNotReachable(address string) {"en": "address {address} not reachable"}
-  NoRegisteredProtocol(protocol string) {"en": "no registered protocol {protocol}"}
-  CantAcceptFromTag(tag string) {"en": "can't accept connection from tag {tag}"}
+  InvalidAddress(address string) {}
+  AddressNotReachable(address string) {}
+  NoRegisteredProtocol(protocol string) {}
+  CantAcceptFromTag(tag string) {}
 )
 
 // Vine is the interface to a vine service that can dynamically change the network

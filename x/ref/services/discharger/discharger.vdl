@@ -18,5 +18,5 @@ type Discharger interface {
 
 error (
 	// Indicates that the Caveat does not require a discharge
-	NotAThirdPartyCaveat(c security.Caveat) { "en": "discharges are not required for non-third-party caveats (id: {c.id})" }
+	NotAThirdPartyCaveat(c security.Caveat) {}
 )

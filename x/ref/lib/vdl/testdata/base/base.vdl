@@ -217,19 +217,12 @@ type ServiceB interface {
 // Error definitions, which allow stable error-checking across different address
 // spaces.
 error (
-	NoParams1() {"en":"en msg"}
-	NoParams2() {RetryRefetch, "en":"en msg", "fr":"fr msg"}
-
-	WithParams1(x string, y int32) {"en":"en x={x} y={y}"}
-	WithParams2(x string, y int32) {
-		RetryRefetch,
-		"en":"en x={x} y={y}",
-		"fr":"fr y={y} x={x}",
-	}
+	NoParams1() {}
+	NoParams2() {RetryRefetch, }
+	WithParams1(x string, y int32) {}
+	WithParams2(x string, y int32) {RetryRefetch}
 	//TODO(bprosnitz) Adding WithParams3 breaks the java test - fix this.
 	//WithParams3(x error) {
-	//    "en":"en x={x}",
 	//}
-
-	notExported(x string, y int32) {"en":"en x={x} y={y}"}
+	notExported(x string, y int32) {}
 )

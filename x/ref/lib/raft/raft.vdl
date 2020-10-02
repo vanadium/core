@@ -78,6 +78,6 @@ type raftProto interface {
 }
 
 error (
-	NotLeader() {"en": "not the leader"}
-	OutOfSequence(prevTerm Term, prevIdx Index) {"en": "append {prevTerm}, {prevIdx} out of sequence"}
+	NotLeader() {}
+	OutOfSequence(prevTerm Term, prevIdx Index) {}
 )

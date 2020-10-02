@@ -5,5 +5,5 @@
 package version
 
 error (
-  NoCompatibleVersion(lmin, lmax, rmin, rmax uint64) {"en": "There were no compatible versions between ({3},{4}) and ({5},{6})."}
+  NoCompatibleVersion(lmin, lmax, rmin, rmax uint64) {}
 )

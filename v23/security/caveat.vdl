@@ -43,33 +43,15 @@ const (
 
 // Error definitions to allow for stable error checking across address spaces.
 error (
-  CaveatNotRegistered(id uniqueid.Id) {
-    "en": "no validation function registered for caveat id {id}",
-  }
-  CaveatParamAny(id uniqueid.Id) {
-    "en": "caveat {id} uses illegal param type any",
-  }
-  CaveatParamTypeMismatch(id uniqueid.Id, got, want typeobject) {
-    "en": "bad param type: caveat {id} got {got}, want {want}",
-  }
-  CaveatParamCoding(id uniqueid.Id, typ typeobject, err error) {
-    "en": "unable to encode/decode caveat param(type={typ}) for caveat {id}: {err}",
-  }
-  CaveatValidation(err error) {
-    "en": "caveat validation failed: {err}",
-  }
-  ConstCaveatValidation() {
-    "en": "false const caveat always fails validation",
-  }
-  ExpiryCaveatValidation(currentTime, expiryTime time.Time) {
-    "en": "now({currentTime}) is after expiry({expiryTime})",
-  }
-  MethodCaveatValidation(invokedMethod string, permittedMethods []string) {
-    "en": "method {invokedMethod} not in list {permittedMethods}",
-  }
-  PeerBlessingsCaveatValidation(peerBlessings []string, permittedPatterns []BlessingPattern) {
-    "en": "patterns in peer blessings caveat {permittedPatterns} not matched by the peer {peerBlessings}",
-  }
+  CaveatNotRegistered(id uniqueid.Id) {}
+  CaveatParamAny(id uniqueid.Id) {}
+  CaveatParamTypeMismatch(id uniqueid.Id, got, want typeobject) {}
+  CaveatParamCoding(id uniqueid.Id, typ typeobject, err error) {}
+  CaveatValidation(err error) {}
+  ConstCaveatValidation() {}
+  ExpiryCaveatValidation(currentTime, expiryTime time.Time) {}
+  MethodCaveatValidation(invokedMethod string, permittedMethods []string) {}
+  PeerBlessingsCaveatValidation(peerBlessings []string, permittedPatterns []BlessingPattern) {}
 )
 
 
