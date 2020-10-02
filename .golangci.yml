@@ -4,7 +4,7 @@ run:
   tests: true
   build-tags:
   skip-dirs:
-    - x/ref/services/internal/restsigner/signer/v1
+    - x/ref/services/internal/restsigner/signer
 
 linters-settings:
   gocyclo:
