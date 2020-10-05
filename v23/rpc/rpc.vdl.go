@@ -437,6 +437,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct4 = vdl.TypeOf((*vtrace.Request)(nil)).Elem()
 	vdlTypeStruct5 = vdl.TypeOf((*Response)(nil)).Elem()
 	vdlTypeStruct6 = vdl.TypeOf((*vtrace.Response)(nil)).Elem()
-
 	return struct{}{}
 }

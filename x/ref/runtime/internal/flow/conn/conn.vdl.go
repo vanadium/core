@@ -767,6 +767,5 @@ func initializeVDL() struct{} {
 	vdlTypeUnion8 = vdl.TypeOf((*security.WireDischarge)(nil))
 	vdlTypeStruct9 = vdl.TypeOf((*EncryptedDischarges)(nil)).Elem()
 	vdlTypeUnion10 = vdl.TypeOf((*BlessingsFlowMessage)(nil))
-
 	return struct{}{}
 }

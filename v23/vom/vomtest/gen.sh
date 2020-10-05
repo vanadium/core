@@ -15,5 +15,5 @@ go generate "v.io/v23/vdl/vdltest"
 go run "v.io/v23/vom/vomtest/internal/vomtestgen"
 
 # Re-generate the vomtest package, now with the new vdl files.
-go run "v.io/x/ref/cmd/vdl" generate --errors-no-i18n=true "v.io/v23/vom/vomtest"
+go run "v.io/x/ref/cmd/vdl" generate "v.io/v23/vom/vomtest"
 

@@ -633,6 +633,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct10 = vdl.TypeOf((*security.WireBlessings)(nil)).Elem()
 	vdlTypeMap11 = vdl.TypeOf((*map[dischargeCacheKey]security.Discharge)(nil))
 	vdlTypeMap12 = vdl.TypeOf((*map[dischargeCacheKey]CachedDischarge)(nil))
-
 	return struct{}{}
 }

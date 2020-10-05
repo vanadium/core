@@ -1388,6 +1388,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct13 = vdl.TypeOf((*SwiftConfig)(nil)).Elem()
 	vdlTypeStruct14 = vdl.TypeOf((*Config)(nil)).Elem()
 	vdlTypeSet15 = vdl.TypeOf((*map[GenLanguage]struct{})(nil))
-
 	return struct{}{}
 }

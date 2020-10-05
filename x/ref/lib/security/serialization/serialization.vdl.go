@@ -270,6 +270,5 @@ func initializeVDL() struct{} {
 	vdlTypeArray2 = vdl.TypeOf((*HashCode)(nil))
 	vdlTypeStruct3 = vdl.TypeOf((*security.Signature)(nil)).Elem()
 	vdlTypeUnion4 = vdl.TypeOf((*SignedData)(nil))
-
 	return struct{}{}
 }

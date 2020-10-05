@@ -293,6 +293,5 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*BlessingRootResponse)(nil)).Elem()
 	vdlTypeList2 = vdl.TypeOf((*[]string)(nil))
-
 	return struct{}{}
 }

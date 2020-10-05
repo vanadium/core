@@ -16,7 +16,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -698,7 +697,6 @@ func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rp
 		Deadline:         vtime.Deadline{Time: deadline},
 		GrantedBlessings: grantedB,
 		TraceRequest:     vtrace.GetRequest(fc.ctx),
-		Language:         string(i18n.GetLangID(fc.ctx)),
 	}
 	if err := fc.enc.Encode(req); err != nil {
 		berr := errRequestEncoding.Errorf(fc.ctx, "failed to encode request %#v: %v", req, err)

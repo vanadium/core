@@ -402,7 +402,6 @@ func init() {
 		"reInitStreamValue":     reInitStreamValue,
 		"callVerror":            callVerror,
 		"paramNamedResults":     paramNamedResults,
-		"errorsI18n":            errorsI18n,
 	}
 	goTemplate = template.Must(template.New("genGo").Funcs(funcMap).Parse(genGo))
 }
@@ -424,10 +423,6 @@ func errorComment(def *compile.ErrorDef) string {
 		return strings.Replace(def.Doc, parts[1], "Err"+parts[1], 1)
 	}
 	return def.Doc
-}
-
-func errorsI18n(data *goData) bool {
-	return data.Env.ErrorI18nSupport()
 }
 
 func isStreamingMethod(method *compile.Method) bool {
@@ -733,14 +728,6 @@ var (
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
 {{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 {{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
-{{if errorsI18n $data}}
-// {{$newErr}} returns an error with the {{$errName}} ID.
-// Deprecated: this function will be removed in the future,
-// use {{$errorf}} or {{$message}} instead.
-func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
-	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
-}
-{{end}}
 // {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
 func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
 	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
@@ -1184,12 +1171,6 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
-{{if $pkg.ErrorDefs}}
-{{if errorsI18n $data}}
-	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
-	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
-{{end}}
-{{end}}
 	return struct{}{}
 }
 `

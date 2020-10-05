@@ -22,7 +22,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
@@ -114,7 +113,6 @@ func TestRPCCloseSendOnFinishWithWebsocket(t *testing.T) {
 }
 
 func testRPC(t *testing.T, ctx *context.T, shouldCloseSend bool) {
-	ctx = i18n.WithLangID(ctx, "foolang")
 	type v []interface{}
 	type testcase struct {
 		name       string
@@ -140,7 +138,6 @@ func testRPC(t *testing.T, ctx *context.T, shouldCloseSend bool) {
 			{"mountpoint/server/suffix", "EchoBlessings", nil, nil, nil, v{"[test-blessing:server]", "[test-blessing:client]"}, nil},
 			{"mountpoint/server/suffix", "EchoAndError", v{"bugs bunny"}, nil, nil, v{`method:"EchoAndError",suffix:"suffix",arg:"bugs bunny"`}, nil},
 			{"mountpoint/server/suffix", "EchoAndError", v{"error"}, nil, nil, nil, errMethod},
-			{"mountpoint/server/suffix", "EchoLang", nil, nil, nil, v{"foolang"}, nil},
 		}
 		name = func(t testcase) string {
 			return fmt.Sprintf("%s.%s(%v)", t.name, t.method, t.args)

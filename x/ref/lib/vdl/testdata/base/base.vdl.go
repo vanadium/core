@@ -3768,6 +3768,5 @@ func initializeVDL() struct{} {
 	vdlTypeList32 = vdl.TypeOf((*[]map[string]Composites)(nil))
 	vdlTypeStruct33 = vdl.TypeOf((*Args)(nil)).Elem()
 	vdlTypeStruct34 = vdl.TypeOf((*NestedArgs)(nil)).Elem()
-
 	return struct{}{}
 }

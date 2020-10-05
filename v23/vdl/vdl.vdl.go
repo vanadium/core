@@ -318,6 +318,5 @@ func initializeVDL() struct{} {
 	vdlTypeEnum1 = TypeOf((*WireRetryCode)(nil))
 	vdlTypeStruct2 = TypeOf((*WireError)(nil)).Elem()
 	vdlTypeList3 = TypeOf((*[]*Value)(nil))
-
 	return struct{}{}
 }

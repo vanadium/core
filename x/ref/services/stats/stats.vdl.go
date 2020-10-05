@@ -485,6 +485,5 @@ func initializeVDL() struct{} {
 	vdlTypeList5 = vdl.TypeOf((*[]int64)(nil))
 	vdlTypeStruct6 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
 	vdlTypeStruct7 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
-
 	return struct{}{}
 }

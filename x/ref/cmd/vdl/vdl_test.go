@@ -66,7 +66,7 @@ func TestVDLGenerator(t *testing.T) {
 	outDir := sh.MakeTempDir()
 	// TODO(toddw): test the generated java and javascript files too.
 	outOpt := fmt.Sprintf("--go-out-dir=%s", outDir)
-	sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "--errors-no-i18n=true", "--lang=go", outOpt, testDir).Run()
+	sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "--lang=go", outOpt, testDir).Run()
 	// Check that each *.vdl.go file in the testDir matches the generated output.
 	verifyOutput(t, outDir)
 }
@@ -80,7 +80,7 @@ func TestVDLGeneratorBuiltInVDLRoot(t *testing.T) {
 	outOpt := fmt.Sprintf("--go-out-dir=%s", outDir)
 	env := envvar.SliceToMap(os.Environ())
 	delete(env, "VDLROOT")
-	cmd := sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "-v", "--errors-no-i18n=true", "--lang=go", outOpt, testDir)
+	cmd := sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "-v", "--lang=go", outOpt, testDir)
 	cmd.Vars = env
 	cmd.Run()
 	verifyOutput(t, outDir)

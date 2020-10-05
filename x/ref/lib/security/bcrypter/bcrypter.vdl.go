@@ -642,6 +642,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct4 = vdl.TypeOf((*WireParams)(nil)).Elem()
 	vdlTypeStruct5 = vdl.TypeOf((*WirePrivateKey)(nil)).Elem()
 	vdlTypeList6 = vdl.TypeOf((*[][]byte)(nil))
-
 	return struct{}{}
 }

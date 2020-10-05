@@ -2105,6 +2105,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct18 = vdl.TypeOf((*wireUnion)(nil)).Elem()
 	vdlTypeStruct19 = vdl.TypeOf((*wireOptional)(nil)).Elem()
 	vdlTypeUnion20 = vdl.TypeOf((*wireType)(nil))
-
 	return struct{}{}
 }

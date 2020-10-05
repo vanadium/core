@@ -494,6 +494,5 @@ func initializeVDL() struct{} {
 	vdlTypeList6 = vdl.TypeOf((*[]discovery.EncryptionKey)(nil))
 	vdlTypeList7 = vdl.TypeOf((*discovery.EncryptionKey)(nil))
 	vdlTypeStruct8 = vdl.TypeOf((*UuidTestData)(nil)).Elem()
-
 	return struct{}{}
 }

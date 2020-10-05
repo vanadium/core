@@ -351,6 +351,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct1 = vdl.TypeOf((*Duration)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*Time)(nil)).Elem()
 	vdlTypeStruct3 = vdl.TypeOf((*WireDeadline)(nil)).Elem()
-
 	return struct{}{}
 }

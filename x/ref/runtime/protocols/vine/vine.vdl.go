@@ -540,6 +540,5 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*PeerKey)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*PeerBehavior)(nil)).Elem()
-
 	return struct{}{}
 }

@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"testing"
 
-	"v.io/v23/i18n"
 	"v.io/v23/vdl"
 	"v.io/x/ref/lib/vdl/build"
 	"v.io/x/ref/lib/vdl/compile"
@@ -86,11 +85,6 @@ type errorTest struct {
 	Pkgs ep
 }
 
-const (
-	en i18n.LangID = "en"
-	zh i18n.LangID = "zh"
-)
-
 func arg(name string, t *vdl.Type) *compile.Field {
 	arg := new(compile.Field)
 	arg.Name = name
@@ -101,242 +95,149 @@ func arg(name string, t *vdl.Type) *compile.Field {
 const pre = "{1:}{2:} "
 
 var errorTests = []errorTest{
-	{"NoParams1", ep{{"a", `error Res() {"en":"msg1"}`,
-		compile.ErrorDef{
-			Formats: []compile.LangFmt{{en, pre + "msg1"}},
-			English: pre + "msg1",
-		},
+	{"NoParams1", ep{{"a", `error Res() {}`,
+		compile.ErrorDef{},
 		"",
-		i18nDeprecationWarning,
-	}}},
-	{"NoParams2", ep{{"a", `error Res() {"en":"msg1","zh":"msg2"}`,
-		compile.ErrorDef{
-			Formats: []compile.LangFmt{{en, pre + "msg1"}, {zh, pre + "msg2"}},
-			English: pre + "msg1",
-		},
 		"",
-		i18nDeprecationWarning,
 	}}},
-	{"NoParamsNoRetry", ep{{"a", `error Res() {NoRetry,"en":"msg1"}`,
-		compile.ErrorDef{
-			RetryCode: vdl.WireRetryCodeNoRetry,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
-		},
-		"",
-		i18nDeprecationWarning,
-	}}},
-	{"NoParamsRetryConnection", ep{{"a", `error Res() {RetryConnection,"en":"msg1"}`,
+	{"NoParamsRetryConnection", ep{{"a", `error Res() {RetryConnection}`,
 		compile.ErrorDef{
 			RetryCode: vdl.WireRetryCodeRetryConnection,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"NoParamsRetryRefetch", ep{{"a", `error Res() {RetryRefetch,"en":"msg1"}`,
+	{"NoParamsRetryRefetch", ep{{"a", `error Res() {RetryRefetch}`,
 		compile.ErrorDef{
 			RetryCode: vdl.WireRetryCodeRetryRefetch,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"NoParamsRetryBackoff", ep{{"a", `error Res() {RetryBackoff,"en":"msg1"}`,
+	{"NoParamsRetryBackoff", ep{{"a", `error Res() {RetryBackoff}`,
 		compile.ErrorDef{
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"NoParamsMulti", ep{{"a", `error Res() {RetryRefetch,"en":"msg1","zh":"msg2"}`,
+	{"NoParamsMulti", ep{{"a", `error Res() {RetryRefetch}`,
 		compile.ErrorDef{
 			RetryCode: vdl.WireRetryCodeRetryRefetch,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}, {zh, pre + "msg2"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
 
-	{"WithParams1", ep{{"a", `error Res(x string, y int32) {"en":"msg1"}`,
+	{"WithParams1", ep{{"a", `error Res(x string, y int32) {}`,
 		compile.ErrorDef{
-			Params:  []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-			Formats: []compile.LangFmt{{en, pre + "msg1"}},
-			English: pre + "msg1",
+			Params: []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
 		},
 		"",
-		i18nDeprecationWarning,
-	}}},
-	{"WithParams2", ep{{"a", `error Res(x string, y int32) {"en":"msg1","zh":"msg2"}`,
-		compile.ErrorDef{
-			Params:  []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-			Formats: []compile.LangFmt{{en, pre + "msg1"}, {zh, pre + "msg2"}},
-			English: pre + "msg1",
-		},
 		"",
-		i18nDeprecationWarning,
 	}}},
-	{"WithParamsNoRetry", ep{{"a", `error Res(x string, y int32) {NoRetry,"en":"msg1"}`,
+	{"WithParamsNoRetry", ep{{"a", `error Res(x string, y int32) {NoRetry}`,
 		compile.ErrorDef{
 			Params:    []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
 			RetryCode: vdl.WireRetryCodeNoRetry,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"WithParamsRetryConnection", ep{{"a", `error Res(x string, y int32) {RetryConnection,"en":"msg1"}`,
+	{"WithParamsRetryConnection", ep{{"a", `error Res(x string, y int32) {RetryConnection}`,
 		compile.ErrorDef{
 			Params:    []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
 			RetryCode: vdl.WireRetryCodeRetryConnection,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"WithParamsRetryRefetch", ep{{"a", `error Res(x string, y int32) {RetryRefetch,"en":"msg1"}`,
+	{"WithParamsRetryRefetch", ep{{"a", `error Res(x string, y int32) {RetryRefetch}`,
 		compile.ErrorDef{
 			Params:    []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
 			RetryCode: vdl.WireRetryCodeRetryRefetch,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"WithParamsRetryBackoff", ep{{"a", `error Res(x string, y int32) {RetryBackoff,"en":"msg1"}`,
+	{"WithParamsRetryBackoff", ep{{"a", `error Res(x string, y int32) {RetryBackoff}`,
 		compile.ErrorDef{
 			Params:    []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
 			RetryCode: vdl.WireRetryCodeRetryBackoff,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}},
-			English:   pre + "msg1",
 		},
 		"",
-		i18nDeprecationWarning,
+		"",
 	}}},
-	{"WithParamsMulti", ep{{"a", `error Res(x string, y int32) {RetryRefetch,"en":"msg1","zh":"msg2"}`,
+	{"WithSamePackageParam", ep{{"a", `error Res(x Bool) {};type Bool bool`,
 		compile.ErrorDef{
-			Params:    []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-			RetryCode: vdl.WireRetryCodeRetryRefetch,
-			Formats:   []compile.LangFmt{{en, pre + "msg1"}, {zh, pre + "msg2"}},
-			English:   pre + "msg1",
+			Params: []*compile.Field{arg("x", vdl.NamedType("a.Bool", vdl.BoolType))},
 		},
 		"",
-		i18nDeprecationWarning,
-	}}},
-	{"WithParamsFormat", ep{{"a", `error Res(x string, y int32) {"en":"en {x} {y}","zh":"zh {y} {x}"}`,
-		compile.ErrorDef{
-			Params:  []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-			Formats: []compile.LangFmt{{en, pre + "en {3} {4}"}, {zh, pre + "zh {4} {3}"}},
-			English: pre + "en {3} {4}",
-		},
 		"",
-		i18nDeprecationWarning,
-	}}},
-	{"WithSamePackageParam", ep{{"a", `error Res(x Bool) {"en":"en {x}"};type Bool bool`,
-		compile.ErrorDef{
-			Params:  []*compile.Field{arg("x", vdl.NamedType("a.Bool", vdl.BoolType))},
-			Formats: []compile.LangFmt{{en, pre + "en {3}"}},
-			English: pre + "en {3}",
-		},
-		"",
-		i18nDeprecationWarning,
 	}}},
 
 	// Test multi-package errors.
 	{"MultiPkgSameErrorName", ep{
 		{
-			"a", `error Res() {"en":"msg1"}`,
-			compile.ErrorDef{
-				Formats: []compile.LangFmt{{en, pre + "msg1"}},
-				English: pre + "msg1",
-			},
+			"a", `error Res() {}`,
+			compile.ErrorDef{},
 			"",
-			i18nDeprecationWarning,
-		},
-		{
-			"b", `error Res() {"en":"msg2"}`,
-			compile.ErrorDef{
-				Formats: []compile.LangFmt{{en, pre + "msg2"}},
-				English: pre + "msg2",
-			},
 			"",
-			i18nDeprecationWarning,
 		},
 	}},
 	{"MultiPkgTypeDep", ep{
 		{
-			"a", `error Res() {"en":"msg1"};type Bool bool`,
-			compile.ErrorDef{
-				Formats: []compile.LangFmt{{en, pre + "msg1"}},
-				English: pre + "msg1",
-			},
+			"a", `error Res();type Bool bool`,
+			compile.ErrorDef{},
 			"",
-			i18nDeprecationWarning,
+			"",
 		},
 		{
-			"b", `import "a";error Res(x a.Bool) {"en":"en {x}"}`,
+			"b", `import "a";error Res(x a.Bool) {}`,
 			compile.ErrorDef{
-				Params:  []*compile.Field{arg("x", vdl.NamedType("a.Bool", vdl.BoolType))},
-				Formats: []compile.LangFmt{{en, pre + "en {3}"}},
-				English: pre + "en {3}",
+				Params: []*compile.Field{arg("x", vdl.NamedType("a.Bool", vdl.BoolType))},
 			},
 			"",
-			i18nDeprecationWarning,
+			"",
 		},
 	}},
 	{"RedefinitionOfImportName", ep{
 		{
-			"a", `error Res() {"en":"msg1"}`,
-			compile.ErrorDef{
-				Formats: []compile.LangFmt{{en, pre + "msg1"}},
-				English: pre + "msg1",
-			},
+			"a", `error Res() {}`,
+			compile.ErrorDef{},
 			"",
-			i18nDeprecationWarning,
+			"",
 		},
 		{
-			"b", `import "a";error a() {"en":"en {}"}`, compile.ErrorDef{},
+			"b", `import "a";error a() {}`, compile.ErrorDef{},
 			"error a name conflict",
-			i18nDeprecationWarning,
+			"",
 		},
 	}},
 
 	// Test errors.
-	{"NoParamsNoLangFmt1", ep{{"a", `error Res()`, compile.ErrorDef{}, "", useErrorfWarning}}},
-	{"NoParamsNoLangFmt2", ep{{"a", `error Res() {}`, compile.ErrorDef{}, "", useErrorfWarning}}},
-	{"NoParamsNoLangFmt3", ep{{"a", `error Res() {NoRetry}`, compile.ErrorDef{}, "", useErrorfWarning}}},
+	{"NoParamsNoLangFmt1", ep{{"a", `error Res()`, compile.ErrorDef{}, "", ""}}},
+	{"NoParamsNoLangFmt2", ep{{"a", `error Res() {}`, compile.ErrorDef{}, "", ""}}},
+	{"NoParamsNoLangFmt3", ep{{"a", `error Res() {NoRetry}`, compile.ErrorDef{}, "", ""}}},
 
 	{"WithParamsNoLangFmt1", ep{{"a", `error Res(x string, y int32)`, compile.ErrorDef{
 		Params: []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-	}, "", useErrorfWarning}}},
+	}, "", ""}}},
 	{"WithParamsNoLangFmt2", ep{{"a", `error Res(x string, y int32) {}`, compile.ErrorDef{
 		Params: []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-	}, "", useErrorfWarning}}},
+	}, "", ""}}},
 	{"WithParamsNoLangFmt3", ep{{"a", `error Res(x string, y int32) {NoRetry}`, compile.ErrorDef{
 		Params: []*compile.Field{arg("x", vdl.StringType), arg("y", vdl.Int32Type)},
-	}, "", useErrorfWarning}}},
+	}, "", ""}}},
 
 	{"MissingParamName1", ep{{"a", `error Res(bool) {"en":"msg1"}`, compile.ErrorDef{}, "parameters must be named", ""}}},
 	{"MissingParamName2", ep{{"a", `error Res(bool, int32) {"en":"msg1"}`, compile.ErrorDef{}, "parameters must be named", ""}}},
 
-	{"UnknownType", ep{{"a", `error Res(x foo) {"en":"msg1"}`, compile.ErrorDef{}, "type foo undefined", ""}}},
-	{"NoTransitiveExportArg", ep{{"a", `type foo bool; error Res(x foo) {"en":"msg1"}`, compile.ErrorDef{}, "transitively exported", ""}}},
-	{"InvalidParam", ep{{"a", `error Res(_x foo) {"en":"msg1"}`, compile.ErrorDef{}, "param _x invalid", ""}}},
-	{"DupParam", ep{{"a", `error Res(x bool, x int32) {"en":"msg1"}`, compile.ErrorDef{}, "param x duplicate name", ""}}},
-	{"UnknownAction", ep{{"a", `error Res() {Foo,"en":"msg1"}`, compile.ErrorDef{}, "unknown action", ""}}},
-	{"EmptyLanguage", ep{{"a", `error Res() {"":"msg"}`, compile.ErrorDef{}, "empty language", ""}}},
-	{"DupLanguage", ep{{"a", `error Res() {"en":"msg1","en":"msg2"}`, compile.ErrorDef{}, "duplicate language en", ""}}},
-	{"UnknownParam", ep{{"a", `error Res() {"en":"{foo}"}`, compile.ErrorDef{}, `unknown param "foo"`, ""}}},
-	{"DupError", ep{{"a", `error Res() {"en":"msg1"};error Res() {"en":"msg1"}`, compile.ErrorDef{}, "error Res name conflict", ""}}},
-}
+	{"UnknownType", ep{{"a", `error Res(x foo) {}`, compile.ErrorDef{}, "type foo undefined", ""}}},
+	{"NoTransitiveExportArg", ep{{"a", `type foo bool; error Res(x foo) {}`, compile.ErrorDef{}, "transitively exported", ""}}},
+	{"InvalidParam", ep{{"a", `error Res(_x foo) {}`, compile.ErrorDef{}, "param _x invalid", ""}}},
+	{"DupParam", ep{{"a", `error Res(x bool, x int32) {}`, compile.ErrorDef{}, "param x duplicate name", ""}}},
+	{"UnknownAction", ep{{"a", `error Res() {Foo}`, compile.ErrorDef{}, "unknown action", ""}}},
 
-const useErrorfWarning = "Warning: error ErrRes does not include an i18n message, make sure that ErrorfErrRes is being used to create errors with ID .* and not New.*"
-const i18nDeprecationWarning = "Warning: error ErrRes includes an i18n format which is now deprecated, remove this and use ErrorfErrRes to create errors with ID"
+	{"DupError", ep{{"a", `error Res() {};error Res() {}`, compile.ErrorDef{}, "error Res name conflict", ""}}},
+}

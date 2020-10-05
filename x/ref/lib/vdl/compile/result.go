@@ -262,17 +262,6 @@ func (e *Env) DisallowPathQualifiers() *Env {
 	return e
 }
 
-// DisallowI18nErrorSupport disables i18n formats for errors.
-func (e *Env) DisallowI18nErrorSupport() *Env {
-	e.noI18nErrorSupport = true
-	return e
-}
-
-// ErrorI18nSupport returns true if i18n support is enabled for errors.
-func (e *Env) ErrorI18nSupport() bool {
-	return !e.noI18nErrorSupport
-}
-
 // Representation of the components of an vdl file.  These data types represent
 // the results of the compilation, used by generators for different languages.
 

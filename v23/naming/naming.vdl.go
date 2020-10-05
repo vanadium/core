@@ -692,6 +692,5 @@ func initializeVDL() struct{} {
 	vdlTypeStruct6 = vdl.TypeOf((*GlobError)(nil)).Elem()
 	vdlTypeUnion7 = vdl.TypeOf((*GlobReply)(nil))
 	vdlTypeUnion8 = vdl.TypeOf((*GlobChildrenReply)(nil))
-
 	return struct{}{}
 }

@@ -1055,6 +1055,5 @@ func initializeVDL() struct{} {
 	vdlTypeSet4 = vdl.TypeOf((*map[BlessingPatternChunk]struct{})(nil))
 	vdlTypeEnum5 = vdl.TypeOf((*ApproximationType)(nil))
 	vdlTypeStruct6 = vdl.TypeOf((*Approximation)(nil)).Elem()
-
 	return struct{}{}
 }

@@ -195,6 +195,5 @@ func initializeVDL() struct{} {
 	vdlTypeInt323 = vdl.TypeOf((*nativetest_2.WireTime)(nil))
 	vdlTypeInt324 = vdl.TypeOf((*nativetest_2.WireSamePkg)(nil))
 	vdlTypeInt325 = vdl.TypeOf((*nativetest_2.WireMultiImport)(nil))
-
 	return struct{}{}
 }

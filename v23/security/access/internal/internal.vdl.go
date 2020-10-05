@@ -239,6 +239,5 @@ func initializeVDL() struct{} {
 
 	// Initialize type definitions.
 	vdlTypeString1 = vdl.TypeOf((*MyTag)(nil))
-
 	return struct{}{}
 }

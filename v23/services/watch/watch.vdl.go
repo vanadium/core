@@ -767,6 +767,5 @@ func initializeVDL() struct{} {
 	vdlTypeList1 = vdl.TypeOf((*ResumeMarker)(nil))
 	vdlTypeStruct2 = vdl.TypeOf((*GlobRequest)(nil)).Elem()
 	vdlTypeStruct3 = vdl.TypeOf((*Change)(nil)).Elem()
-
 	return struct{}{}
 }

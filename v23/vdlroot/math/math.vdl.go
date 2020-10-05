@@ -218,6 +218,5 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*Complex64)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*Complex128)(nil)).Elem()
-
 	return struct{}{}
 }

@@ -708,6 +708,5 @@ func initializeVDL() struct{} {
 	vdlTypeMap3 = vdl.TypeOf((*map[string][]string)(nil))
 	vdlTypeList4 = vdl.TypeOf((*[]byte)(nil))
 	vdlTypeList5 = vdl.TypeOf((*[]string)(nil))
-
 	return struct{}{}
 }
