@@ -8,7 +8,6 @@
 package logger
 
 import (
-	"v.io/v23/logging"
 	"v.io/x/lib/vlog"
 )
 
@@ -38,7 +37,33 @@ type ManageLog interface {
 }
 
 type ManagedLogger interface {
-	logging.Logger
+	Info(args ...interface{})
+	Infof(format string, args ...interface{})
+	InfoDepth(depth int, args ...interface{})
+	InfoStack(all bool)
+	Error(args ...interface{})
+	ErrorDepth(depth int, args ...interface{})
+	Errorf(format string, args ...interface{})
+	Fatal(args ...interface{})
+	FatalDepth(depth int, args ...interface{})
+	Fatalf(format string, args ...interface{})
+	Panic(args ...interface{})
+	PanicDepth(depth int, args ...interface{})
+	Panicf(format string, args ...interface{})
+	V(level int) bool
+	VI(level int) interface {
+		Info(args ...interface{})
+		Infof(format string, args ...interface{})
+		InfoDepth(depth int, args ...interface{})
+		InfoStack(all bool)
+	}
+	VIDepth(depth int, level int) interface {
+		Info(args ...interface{})
+		Infof(format string, args ...interface{})
+		InfoDepth(depth int, args ...interface{})
+		InfoStack(all bool)
+	}
+	FlushLog()
 	ManageLog
 }
 
