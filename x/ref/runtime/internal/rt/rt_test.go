@@ -17,7 +17,7 @@ import (
 	"v.io/x/lib/envvar"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref"
-	"v.io/x/ref/internal/logger"
+	"v.io/x/ref/internal"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/signals"
 	"v.io/x/ref/test"
@@ -31,7 +31,7 @@ func TestInit(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+	mgr, ok := context.LoggerFromContext(ctx).(internal.ManageLog)
 	if !ok {
 		t.Fatalf("log manager not found")
 	}
@@ -62,7 +62,7 @@ var child = gosh.RegisterFunc("child", func() {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+	mgr, ok := context.LoggerFromContext(ctx).(internal.ManageLog)
 	if !ok {
 		panic("log manager not found")
 	}
