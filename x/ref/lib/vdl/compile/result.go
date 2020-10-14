@@ -33,7 +33,6 @@ type Env struct {
 	constMap map[*vdl.Value]*ConstDef
 
 	disallowPathQualifiers bool // Disallow syntax like "a/b/c".Type
-	noI18nErrorSupport     bool
 }
 
 // NewEnv creates a new Env, allowing up to maxErrors errors before we stop.

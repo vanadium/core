@@ -92,8 +92,6 @@ func arg(name string, t *vdl.Type) *compile.Field {
 	return arg
 }
 
-const pre = "{1:}{2:} "
-
 var errorTests = []errorTest{
 	{"NoParams1", ep{{"a", `error Res() {}`,
 		compile.ErrorDef{},

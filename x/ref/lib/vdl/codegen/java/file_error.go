@@ -34,11 +34,6 @@ package {{ .PackagePath }};
 }
 `
 
-type errorFormat struct {
-	Lang string
-	Fmt  string
-}
-
 // genJavaErrorFile generates the Java file for the provided error type.
 func genJavaErrorFile(file *compile.File, err *compile.ErrorDef, env *compile.Env) JavaFileInfo {
 	className := vdlutil.FirstRuneToUpper(err.Name) + "Exception"
