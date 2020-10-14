@@ -27,6 +27,7 @@ type ManagedLogger interface {
 	PanicDepth(depth int, args ...interface{})
 	Panicf(format string, args ...interface{})
 	V(level int) bool
+	VDepth(depth int, level int) bool
 	VI(level int) interface {
 		Info(args ...interface{})
 		Infof(format string, args ...interface{})

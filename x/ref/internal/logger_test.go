@@ -19,7 +19,9 @@ func TestManager(t *testing.T) {
 	if _, ok := global.(internal.ManagedLogger); !ok {
 		t.Fatalf("global logger does not implement logging")
 	}
-	// Make sure context.T implements logging.T
 	ctx, _ := context.RootContext()
+	ctx = context.WithLogger(ctx, logger.Global())
+
+	// Make sure context.T implements logging.T
 	var _ logging.Logger = ctx
 }
