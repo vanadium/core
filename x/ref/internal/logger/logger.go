@@ -11,32 +11,8 @@ import (
 	"v.io/x/lib/vlog"
 )
 
-// ManageLog defines the methods for managing and configuring a logger.
-type ManageLog interface {
-
-	// LogDir returns the directory where the log files are written.
-	LogDir() string
-
-	// Stats returns stats on how many lines/bytes haven been written to
-	// this set of logs.
-	Stats() (Info, Error struct{ Lines, Bytes int64 })
-
-	// ConfigureLoggerFromFlags will configure the supplied logger using
-	// command line flags.
-	ConfigureFromFlags(opts ...vlog.LoggingOpts) error
-
-	// ConfigureFromArgs will configure the supplied logger using the supplied
-	// arguments.
-	ConfigureFromArgs(opts ...vlog.LoggingOpts) error
-
-	// ExplicitlySetFlags returns a map of the logging command line flags and their
-	// values formatted as strings.  Only the flags that were explicitly set are
-	// returned. This is intended for use when an application needs to know what
-	// value the flags were set to, for example when creating subprocesses.
-	ExplicitlySetFlags() map[string]string
-}
-
 type ManagedLogger interface {
+	// Implement logging.Logging without referring to it.
 	Info(args ...interface{})
 	Infof(format string, args ...interface{})
 	InfoDepth(depth int, args ...interface{})
@@ -64,7 +40,13 @@ type ManagedLogger interface {
 		InfoStack(all bool)
 	}
 	FlushLog()
-	ManageLog
+
+	// Implement x/ref/internal.ManagedLog without referring to it.
+	LogDir() string
+	Stats() (Info, Error struct{ Lines, Bytes int64 })
+	ConfigureFromFlags(opts ...vlog.LoggingOpts) error
+	ConfigureFromArgs(opts ...vlog.LoggingOpts) error
+	ExplicitlySetFlags() map[string]string
 }
 
 // Global returns the global logger.
