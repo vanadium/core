@@ -6,15 +6,13 @@ package verror
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
-
-	"golang.org/x/mod/modfile"
 )
 
 type pathCache struct {
@@ -53,40 +51,63 @@ func (pc *pathCache) set(dir, pkg string) {
 	pc.paths[dir] = pkg
 }
 
-func (pc *pathCache) pkgPath(file string) (string, error) {
-	dir := filepath.Clean(filepath.Dir(file))
-	if p, ok := pc.has(dir); ok {
-		return p, nil
-	}
-	root, err := enclosingGoMod(dir)
-	if err != nil {
-		return "", err
-	}
-	gomodfile := filepath.Join(root, "go.mod")
-	gomod, err := ioutil.ReadFile(gomodfile)
-	if err != nil {
-		return "", err
-	}
-	module := modfile.ModulePath(gomod)
-	if len(module) == 0 {
-		return "", fmt.Errorf("failed to read module path from %v", gomodfile)
-	}
+// IDPath returns a string of the form <package-path>.<name>
+// where <package-path> is derived from the type of the supplied
+// value. Typical usage would be except that dummy can be replaced
+// by an existing type defined in the package.
+//
+//  type dummy int
+//  verror.ID(verror.IDPath(dummy(0), "MyError"))
+//
+func IDPath(val interface{}, id string) ID {
+	return ID(reflect.TypeOf(val).PkgPath() + "." + id)
+}
 
-	pkgPath := strings.TrimPrefix(dir, root)
-	if !strings.HasPrefix(pkgPath, module) {
-		pkgPath = path.Join(module, pkgPath)
+func longestCommonSuffix(pkgPath, filename string) string {
+	longest := ""
+	for {
+		fl := filepath.Base(filename)
+		pl := path.Base(pkgPath)
+		if fl == pl {
+			longest = path.Join(fl, longest)
+			filename = filepath.Dir(filename)
+			pkgPath = path.Dir(pkgPath)
+			continue
+		}
+		break
 	}
-	pc.set(dir, pkgPath)
-	return pkgPath, nil
+	return longest
+}
+
+var thisPkg string
+var thisPkgOnce sync.Once
+
+func initThisPkg() {
+	type dummy int
+	thisPkg = reflect.TypeOf(dummy(0)).PkgPath()
+}
+
+func (pc *pathCache) pkgPath(file string) string {
+	thisPkgOnce.Do(initThisPkg)
+	pkgPath := longestCommonSuffix(thisPkg, filepath.Dir(file))
+	if len(pkgPath) == 0 {
+		return ""
+	}
+	pkgPath = path.Join(strings.TrimSuffix(thisPkg, pkgPath), pkgPath)
+	pc.set(filepath.Dir(file), pkgPath)
+	return pkgPath
 }
 
 func ensurePackagePath(id ID) ID {
-	_, file, _, _ := runtime.Caller(2)
-	pkg, err := pkgPathCache.pkgPath(file)
-	if err != nil {
-		panic(fmt.Sprintf("failed to determine package name for %v: %v", file, err))
-	}
 	sid := string(id)
+	if strings.Contains(sid, ".") && sid[0] != '.' {
+		return id
+	}
+	_, file, _, _ := runtime.Caller(2)
+	pkg := pkgPathCache.pkgPath(file)
+	if len(pkg) == 0 {
+		return id
+	}
 	if strings.HasPrefix(sid, pkg) {
 		return id
 	}

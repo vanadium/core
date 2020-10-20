@@ -178,9 +178,8 @@ type IDAction struct {
 
 // Register returns a IDAction with the given ID and Action fields, and
 // inserts a message into the default i18n Catalogue in US English.
-// Other languages can be added by adding to the Catalogue. Register
-// will internally prepend the caller's package path to id if it's not
-// already present.
+// Other languages can be added by adding to the Catalogue.
+// IDPath can be used to generate an appropriate ID.
 func Register(id ID, action ActionCode, englishText string) IDAction {
 	id = ensurePackagePath(id)
 	i18n.Cat().SetWithBase(defaultLangID(i18n.NoLangID), i18n.MsgID(id), englishText)
@@ -189,8 +188,7 @@ func Register(id ID, action ActionCode, englishText string) IDAction {
 
 // NewIDAction creates a new instance of IDAction with the given ID and Action
 // field. It should be used when localization support is not required instead
-// of Register.  NewIDAction will internally prepend the caller's package path
-// to id if it's not already present.
+// of Register. IDPath can be used to
 func NewIDAction(id ID, action ActionCode) IDAction {
 	return IDAction{ensurePackagePath(id), action}
 }
