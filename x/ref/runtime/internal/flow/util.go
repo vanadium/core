@@ -5,6 +5,7 @@
 package flow
 
 import (
+	"fmt"
 	"strings"
 
 	"v.io/v23/context"
@@ -35,6 +36,7 @@ func shouldWrap(err error) bool {
 	}
 	id := verror.ErrorID(err)
 	for _, pkg := range noWrapPackages {
+		fmt.Printf("COMPARE: %v %v %v\n", err, id, pkg)
 		if strings.HasPrefix(string(id), pkg) {
 			return false
 		}

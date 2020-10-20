@@ -63,6 +63,7 @@ func IDPath(val interface{}, id string) ID {
 	return ID(reflect.TypeOf(val).PkgPath() + "." + id)
 }
 
+/*
 func longestCommonSuffix(pkgPath, filename string) string {
 	longest := ""
 	for {
@@ -86,6 +87,14 @@ func initThisPkg() {
 	type dummy int
 	thisPkg = reflect.TypeOf(dummy(0)).PkgPath()
 }
+*/
+
+var thisDir string
+
+func init() {
+	_, file, _, _ := runtime.Caller(0)
+	thisDir := filepath.Dir(file)
+}
 
 func (pc *pathCache) pkgPath(file string) string {
 	thisPkgOnce.Do(initThisPkg)
@@ -99,20 +108,29 @@ func (pc *pathCache) pkgPath(file string) string {
 }
 
 func ensurePackagePath(id ID) ID {
+	fmt.Printf("EP: %v\n", id)
 	sid := string(id)
 	if strings.Contains(sid, ".") && sid[0] != '.' {
+		fmt.Printf("EP: 1 %v\n", id)
+
 		return id
 	}
 	_, file, _, _ := runtime.Caller(2)
 	pkg := pkgPathCache.pkgPath(file)
 	if len(pkg) == 0 {
+		fmt.Printf("EP: 2 %v ... %v\n", file, id)
 		return id
 	}
 	if strings.HasPrefix(sid, pkg) {
+		fmt.Printf("EP: 3 %v\n", id)
+
 		return id
 	}
 	if strings.HasPrefix(sid, ".") {
+		fmt.Printf("EP: 4 %v\n", id)
+
 		return ID(pkg + sid)
 	}
+	fmt.Printf("SEP: %v -> %v\n", id, ID(pkg+"."+sid))
 	return ID(pkg + "." + sid)
 }
