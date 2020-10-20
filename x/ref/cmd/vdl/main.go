@@ -691,25 +691,44 @@ func handleErrorOrSkip(prefix string, err error, env *compile.Env) bool {
 
 var errSkip = fmt.Errorf("SKIP")
 
+// returns the dir componets in suffix descending order, ie.
+// for /a/b/c return [a, b, c].
+func dirsFromPath(suffix string, dirs []string) []string {
+	if suffix == "." {
+		return dirs
+	}
+	return append(dirsFromPath(filepath.Dir(suffix), dirs), filepath.Base(suffix))
+}
+
 // Handle the case where go modules are used and the directory structure
 // on the local filesystem omits the portion of the package path represented
 // by the module definition in the go.mod file. For vanadium, the code is
 // hosted as github.com/vanadium/core/... but the go.mod defines the packages
 // as v.io/... with the v.io portion not appearing in the local filesystem.
+// It's also possible for the 'missing portion' to be overlap with package
+// paths. For example, github.com/grailbio/base can be cloned into a directory
+// /some/path/base, and hence the path to write vdl output for package /a/b
+// would be: /some/path/base/a/b.
 func goModulePath(dir, path, outPkgPath string) (string, error) {
 	prefix, module, suffix := build.PackagePathSplit(dir, path)
 	if len(suffix) == 0 {
 		return "", fmt.Errorf("package dir %q doesn't share a common suffix with package path %q", dir, path)
 	}
-	gomod, err := build.GoModuleName(prefix)
-	if err != nil {
-		return "", err
-	}
-	if len(gomod) > 0 {
-		if gomod != module {
-			return "", fmt.Errorf("package dir %q and package %q do not match go module path %q != %q", dir, path, gomod, module)
+	goModRelative := ""
+	// Look for go.mod file anywhere on <prefix><suffix> starting at <prefix>.
+	for _, dir := range dirsFromPath(suffix, nil) {
+		goModDir := filepath.Join(prefix, goModRelative)
+		gomod, err := build.GoModuleName(goModDir)
+		if err != nil {
+			return "", err
 		}
-		return filepath.Join(prefix, strings.TrimPrefix(outPkgPath, gomod)), nil
+		if len(gomod) > 0 {
+			if got, want := filepath.Join(module, goModRelative), gomod; got != want {
+				return "", fmt.Errorf("package dir %q and package %q do not match go module path %q != %q", dir, path, got, want)
+			}
+			return filepath.Join(prefix, filepath.Join(goModRelative, strings.TrimPrefix(outPkgPath, gomod))), nil
+		}
+		goModRelative = filepath.Join(goModRelative, dir)
 	}
 	return filepath.Join(dir, outPkgPath), nil
 }
