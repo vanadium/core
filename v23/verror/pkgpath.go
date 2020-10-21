@@ -5,8 +5,6 @@
 package verror
 
 import (
-	"fmt"
-	"os"
 	"path"
 	"path/filepath"
 	"reflect"
@@ -18,20 +16,6 @@ import (
 type pathCache struct {
 	sync.Mutex
 	paths map[string]string
-}
-
-func enclosingGoMod(dir string) (string, error) {
-	for {
-		gomodfile := filepath.Join(dir, "go.mod")
-		if fi, err := os.Stat(gomodfile); err == nil && !fi.IsDir() {
-			return dir, nil
-		}
-		d := filepath.Dir(dir)
-		if d == dir {
-			return "", fmt.Errorf("failed to find enclosing go.mod for dir %v", dir)
-		}
-		dir = d
-	}
 }
 
 var pkgPathCache = pathCache{
@@ -63,74 +47,87 @@ func IDPath(val interface{}, id string) ID {
 	return ID(reflect.TypeOf(val).PkgPath() + "." + id)
 }
 
-/*
-func longestCommonSuffix(pkgPath, filename string) string {
-	longest := ""
+// longestCommonSuffix for a package path and filename.
+func longestCommonSuffix(pkgPath, filename string) (string, string) {
+	longestPkg, longestFilePath := "", ""
 	for {
 		fl := filepath.Base(filename)
 		pl := path.Base(pkgPath)
 		if fl == pl {
-			longest = path.Join(fl, longest)
+			longestPkg = path.Join(fl, longestPkg)
+			longestFilePath = filepath.Join(fl, longestFilePath)
 			filename = filepath.Dir(filename)
 			pkgPath = path.Dir(pkgPath)
+			if fl == "/" {
+				break
+			}
 			continue
 		}
 		break
 	}
-	return longest
+	return longestPkg, longestFilePath
 }
 
-var thisPkg string
-var thisPkgOnce sync.Once
-
-func initThisPkg() {
-	type dummy int
-	thisPkg = reflect.TypeOf(dummy(0)).PkgPath()
+type pathState struct {
+	pkg string // pkg path for the value passed to init
+	dir string // the directory component for the file passed to init
+	// The portion of the local file path that is outside of the go module,
+	// e.g. for /a/b/c/core/v23/verror it would be /a/b/c/core.
+	filePrefix string
+	// the portion of the package path that does not appear in the file name,
+	// e.g. for /a/b/c/core/v23/verror and v.io/v23/verror it would be v.io.
+	pkgPrefix string
 }
-*/
 
-var thisDir string
+func (ps *pathState) init(pkgPath string, file string) {
+	ps.pkg = pkgPath
+	ps.dir = filepath.Dir(file)
+	pkgLCS, fileLCS := longestCommonSuffix(ps.pkg, ps.dir)
+	ps.filePrefix = filepath.Clean(strings.TrimSuffix(ps.dir, fileLCS))
+	ps.pkgPrefix = path.Clean(strings.TrimSuffix(ps.pkg, pkgLCS))
+}
 
-func init() {
-	_, file, _, _ := runtime.Caller(0)
-	thisDir := filepath.Dir(file)
+var (
+	ps       = &pathState{}
+	initOnce sync.Once
+)
+
+func convertFileToPkgName(filename string) string {
+	return path.Clean(strings.ReplaceAll(filename, string(filepath.Separator), "/"))
 }
 
 func (pc *pathCache) pkgPath(file string) string {
-	thisPkgOnce.Do(initThisPkg)
-	pkgPath := longestCommonSuffix(thisPkg, filepath.Dir(file))
-	if len(pkgPath) == 0 {
+	initOnce.Do(func() {
+		type dummy int
+		_, file, _, _ := runtime.Caller(0)
+		ps.init(reflect.TypeOf(dummy(0)).PkgPath(), file)
+	})
+	pdir := filepath.Dir(file)
+	rel := strings.TrimPrefix(pdir, ps.filePrefix)
+	if rel == pdir {
 		return ""
 	}
-	pkgPath = path.Join(strings.TrimSuffix(thisPkg, pkgPath), pkgPath)
+	relPkg := convertFileToPkgName(rel)
+	pkgPath := path.Join(ps.pkgPrefix, relPkg)
 	pc.set(filepath.Dir(file), pkgPath)
 	return pkgPath
 }
 
 func ensurePackagePath(id ID) ID {
-	fmt.Printf("EP: %v\n", id)
 	sid := string(id)
 	if strings.Contains(sid, ".") && sid[0] != '.' {
-		fmt.Printf("EP: 1 %v\n", id)
-
 		return id
 	}
 	_, file, _, _ := runtime.Caller(2)
 	pkg := pkgPathCache.pkgPath(file)
 	if len(pkg) == 0 {
-		fmt.Printf("EP: 2 %v ... %v\n", file, id)
 		return id
 	}
 	if strings.HasPrefix(sid, pkg) {
-		fmt.Printf("EP: 3 %v\n", id)
-
 		return id
 	}
 	if strings.HasPrefix(sid, ".") {
-		fmt.Printf("EP: 4 %v\n", id)
-
 		return ID(pkg + sid)
 	}
-	fmt.Printf("SEP: %v -> %v\n", id, ID(pkg+"."+sid))
 	return ID(pkg + "." + sid)
 }
