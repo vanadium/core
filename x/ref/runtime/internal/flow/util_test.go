@@ -24,7 +24,7 @@ func TestMaybeWrapError(t *testing.T) {
 		{verror.ErrUnknown.Errorf(ctx, "some random thing"), false},
 		{flow.ErrAuth.Errorf(ctx, ""), false},
 	}
-	for _, test := range tests {
+	for i, test := range tests {
 		werr := MaybeWrapError(flow.ErrAuth, ctx, test.err)
 		// If the returned error is not equal to the original error it was wrapped.
 		msg := ""
@@ -33,9 +33,9 @@ func TestMaybeWrapError(t *testing.T) {
 		}
 		if wasWrapped := werr.Error() != msg; wasWrapped != test.wrap {
 			if test.wrap {
-				t.Errorf("wanted %v to be wrapped", test.err)
+				t.Errorf("%v: wanted %v to be wrapped", i, test.err)
 			} else {
-				t.Errorf("did not want %v to be wrapped", test.err)
+				t.Errorf("%v: did not want %v to be wrapped", i, test.err)
 			}
 		}
 	}
