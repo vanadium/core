@@ -112,8 +112,7 @@ type IDAction struct {
 
 // NewIDAction creates a new instance of IDAction with the given ID and Action
 // field. It should be used when localization support is not required instead
-// of Register.  NewIDAction will internally prepend the caller's package path
-// to id if it's not already present.
+// of Register. IDPath can be used to
 func NewIDAction(id ID, action ActionCode) IDAction {
 	return IDAction{ensurePackagePath(id), action}
 }
