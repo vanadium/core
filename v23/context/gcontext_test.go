@@ -80,7 +80,7 @@ func TestFromGoContextPrincipal(t *testing.T) {
 	assertPrincipal(wrc)
 
 	gctx = gocontext.Background()
-	gctx = gocontext.WithValue(ctx, ctxKey("c"), "c")
+	gctx = gocontext.WithValue(gctx, ctxKey("c"), "c")
 	gctx = gocontext.WithValue(gctx, ctxKey("d"), "d")
 	vctx = vcontext.FromGoContext(gctx)
 	assertValues(gctx, "c", "d")

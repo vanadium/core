@@ -133,15 +133,15 @@ type T struct {
 }
 
 // Value implements context.Value.
-func (ctx *T) Value(key interface{}) interface{} {
-	if val := ctx.Context.Value(key); val != nil {
+func (t *T) Value(key interface{}) interface{} {
+	if val := t.Context.Value(key); val != nil {
 		return val
 	}
 	// Make sure to chain the call to Value to any parent
 	// that was set to handle the case where the vanadium
 	// context was (re)created from a go context.
-	if ctx.parent != nil {
-		return ctx.parent.Value(key)
+	if t.parent != nil {
+		return t.parent.Value(key)
 	}
 	return nil
 }
