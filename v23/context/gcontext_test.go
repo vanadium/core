@@ -5,12 +5,15 @@
 package context_test
 
 import (
-	"context"
 	gocontext "context"
 	"testing"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+	v23 "v.io/v23"
 	vcontext "v.io/v23/context"
+	_ "v.io/x/ref/runtime/factories/library"
+	"v.io/x/ref/test"
 )
 
 func TestNoopConversion(t *testing.T) {
@@ -35,6 +38,56 @@ func TestFromGoContext(t *testing.T) {
 	}
 	cancel()
 	<-c.Done()
+}
+
+func TestFromGoContextPrincipal(t *testing.T) {
+	root, shutdown := test.V23Init()
+	defer shutdown()
+	principal := v23.GetPrincipal(root)
+
+	assertValues := func(ctx gocontext.Context, values ...string) {
+		for _, v := range values {
+			if ctx.Value(ctxKey(v)) == nil {
+				t.Errorf("missing key: %v", v)
+				return
+			}
+			if got, want := ctx.Value(ctxKey(v)).(string), v; got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
+		}
+	}
+	assertPrincipal := func(ctx *vcontext.T) {
+		if got, want := v23.GetPrincipal(ctx), principal; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+
+	ctx := vcontext.WithValue(root, ctxKey("a"), "a")
+	assertValues(ctx, "a")
+	gctx := gocontext.WithValue(ctx, ctxKey("b"), "b")
+	assertValues(gctx, "a", "b")
+	_, egctx := errgroup.WithContext(gctx)
+	assertValues(egctx, "a", "b")
+
+	vctx := vcontext.FromGoContext(egctx)
+	assertValues(vctx, "a", "b")
+	assertPrincipal(root)
+	assertPrincipal(vctx)
+
+	wrc, cancel := vcontext.WithRootCancel(vctx)
+	defer cancel()
+	assertValues(wrc, "a", "b")
+	assertPrincipal(wrc)
+
+	gctx = gocontext.Background()
+	gctx = gocontext.WithValue(ctx, ctxKey("c"), "c")
+	gctx = gocontext.WithValue(gctx, ctxKey("d"), "d")
+	vctx = vcontext.FromGoContext(gctx)
+	assertValues(gctx, "c", "d")
+	assertValues(vctx, "c", "d")
+	wrc, cancel = vcontext.WithRootCancel(vctx)
+	defer cancel()
+	assertValues(wrc, "c", "d")
 }
 
 func TestDeadline(t *testing.T) {
@@ -75,7 +128,7 @@ func TestValueCopy(t *testing.T) {
 	root = vcontext.WithValue(root, ts("foo"), ts("bar"))
 	defer rootcancel()
 	gctx := gocontext.Background()
-	gctx = context.WithValue(gctx, ts("foo1"), ts("bar1"))
+	gctx = gocontext.WithValue(gctx, ts("foo1"), ts("bar1"))
 	ctx := vcontext.FromGoContextWithValues(gctx, root)
 	if got, want := ctx.Value(ts("foo")).(ts), ts("bar"); got != want {
 		t.Errorf("got %v, want %v", got, want)
