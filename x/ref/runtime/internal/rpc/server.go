@@ -28,7 +28,6 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
-	"v.io/v23/requestid"
 	"v.io/x/ref/lib/publisher"
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/stats"
