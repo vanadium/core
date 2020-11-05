@@ -20,6 +20,7 @@ import (
 	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/options"
+	"v.io/v23/requestid"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -32,7 +33,6 @@ import (
 	"v.io/x/ref/lib/stats"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/manager"
-	"v.io/x/ref/runtime/internal/requestid"
 )
 
 const (
