@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/flow"
@@ -42,6 +43,9 @@ func (*mockRuntime) GetListenSpec(ctx *context.T) rpc.ListenSpec { return rpc.Li
 
 func (*mockRuntime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 	return access.PermissionsSpec{}
+}
+func (*mockRuntime) GetRequestID(ctx *context.T) uuid.UUID {
+	return uuid.UUID{}
 }
 func (*mockRuntime) WithBackgroundContext(ctx *context.T) *context.T { return nil }
 func (*mockRuntime) GetBackgroundContext(ctx *context.T) *context.T  { return nil }
