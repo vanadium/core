@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/net/trace"
 	v23 "v.io/v23"
 	"v.io/v23/context"
@@ -31,7 +32,6 @@ import (
 	"v.io/x/ref/lib/stats"
 	"v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/manager"
-	"v.io/x/ref/runtime/internal/requestid"
 )
 
 const (
@@ -605,8 +605,12 @@ var (
 )
 
 func newXFlowServer(flow flow.Flow, server *server) (*flowServer, error) {
-	ctx := requestid.WithNewRequestID(server.ctx)
-	ctx = context.WithLoggingPrefix(ctx, requestid.RequestID(ctx))
+	requestID, err := uuid.NewUUID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to allocate requestid: %v", err)
+	}
+	ctx := WithRequestID(server.ctx, requestID)
+	ctx = context.WithLoggingPrefix(ctx, requestID)
 	fs := &flowServer{
 		ctx:        ctx,
 		server:     server,

@@ -25,6 +25,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/flow"
@@ -134,6 +135,9 @@ type Runtime interface {
 	// Dispatcher's Lookup method which will returns the object and
 	// security.Authorizer used to serve the actual RPC call.
 	WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error)
+
+	// GetRequestID returns the RequestID in 'ctx'.
+	GetRequestID(ctx *context.T) uuid.UUID
 }
 
 // WithPrincipal attaches 'principal' to the returned context.
@@ -205,6 +209,13 @@ func WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *context.T {
 // reserved names.
 func GetReservedNameDispatcher(ctx *context.T) rpc.Dispatcher {
 	return initState.currentRuntime().GetReservedNameDispatcher(ctx)
+}
+
+// GetRequestID returns the RequestID in 'ctx'. The underlying runtime should
+// set a new request ID for each new request that it receives and is prepared
+// to process.
+func GetRequestID(ctx *context.T) uuid.UUID {
+	return initState.currentRuntime().GetRequestID(ctx)
 }
 
 // NewFlowManager creates a new flow.Manager instance.

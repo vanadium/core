@@ -14,8 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"v.io/x/lib/metadata"
-
+	"github.com/google/uuid"
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
@@ -27,7 +26,7 @@ import (
 	"v.io/v23/security/access"
 	"v.io/v23/verror"
 	"v.io/v23/vtrace"
-
+	"v.io/x/lib/metadata"
 	"v.io/x/ref/internal/logger"
 	idiscovery "v.io/x/ref/lib/discovery"
 	"v.io/x/ref/lib/flags"
@@ -377,6 +376,10 @@ func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
 func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 	ps, _ := ctx.Value(permissionSpecKey).(access.PermissionsSpec)
 	return ps
+}
+
+func (*Runtime) GetRequestID(ctx *context.T) uuid.UUID {
+	return irpc.RequestID(ctx)
 }
 
 func (*Runtime) WithBackgroundContext(ctx *context.T) *context.T {

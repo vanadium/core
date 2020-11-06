@@ -23,6 +23,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
+	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/test/testutil/testsshagent"
@@ -49,38 +50,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestLoadPersistentPEMPrincipal(t *testing.T) {
-	// If the directory does not exist want os.IsNotExists.
-	if _, err := LoadPersistentPrincipal("/cantexist/fake/path/", nil); !os.IsNotExist(err) {
-		t.Errorf("invalid path should return does not exist error, instead got %v", err)
-	}
-	// If the key file exists and is unencrypted we should succeed.
-	dir := generatePEMPrincipal(nil)
-	if _, err := LoadPersistentPrincipal(dir, nil); err != nil {
-		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
-	}
-	os.RemoveAll(dir)
-
-	// If the private key file exists and is encrypted we should succeed with correct passphrase.
-	passphrase := []byte("passphrase")
-	incorrectPassphrase := []byte("incorrectPassphrase")
-	dir = generatePEMPrincipal(passphrase)
-	p, err := LoadPersistentPrincipal(dir, passphrase)
-	if err != nil {
-		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
-	}
-
-	// and fail with an incorrect passphrase.
-	if _, err := LoadPersistentPrincipal(dir, incorrectPassphrase); err == nil {
-		t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
-	}
-	// and return ErrPassphraseRequired if the passphrase is nil.
-	if _, err := LoadPersistentPrincipal(dir, nil); !errors.Is(err, ErrPassphraseRequired) {
-		t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
-	}
-
-	// Test read-only access.
-	err = filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
+func setReadonly(t *testing.T, dir string) {
+	err := filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -98,15 +69,98 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to set creds to readonly: %v", err)
 	}
+}
 
-	rp, err := LoadPersistentPrincipal(dir, passphrase)
+func TestLoadPersistentPEMPrincipal(t *testing.T) {
+	// If the directory does not exist want os.IsNotExists.
+	if _, err := LoadPersistentPrincipal("/cantexist/fake/path/", nil); !os.IsNotExist(err) {
+		t.Errorf("invalid path should return does not exist error, instead got %v", err)
+	}
+	// If the key file exists and is unencrypted we should succeed.
+	dir := generatePEMPrincipal(nil)
+	defer os.RemoveAll(dir)
+	if _, err := LoadPersistentPrincipal(dir, nil); err != nil {
+		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
+	}
+
+	// If the private key file exists and is encrypted we should succeed with correct passphrase.
+	passphrase := []byte("passphrase")
+	incorrectPassphrase := []byte("incorrectPassphrase")
+	dir = generatePEMPrincipal(passphrase)
+	defer os.RemoveAll(dir)
+	if _, err := LoadPersistentPrincipal(dir, passphrase); err != nil {
+		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
+	}
+
+	// and fail with an incorrect passphrase.
+	if _, err := LoadPersistentPrincipal(dir, incorrectPassphrase); err == nil {
+		t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
+	}
+	// and return ErrPassphraseRequired if the passphrase is nil.
+	if _, err := LoadPersistentPrincipal(dir, nil); !errors.Is(err, ErrPassphraseRequired) {
+		t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
+	}
+}
+
+func TestReadonlyAccess(t *testing.T) {
+	dir := generatePEMPrincipal(nil)
+	defer os.RemoveAll(dir)
+	p, err := LoadPersistentPrincipal(dir, nil)
 	if err != nil {
-		t.Errorf("encrypted LoadPersistentPrincipal from readonly directgory should have succeeded: %v", err)
+		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
+	}
+
+	// Test read-only access, should fail for LoadPersistentPrincipal.
+	setReadonly(t, dir)
+	_, err = LoadPersistentPrincipal(dir, nil)
+	if err == nil || !strings.Contains(err.Error(), "dir.lock: permission denied") {
+		t.Fatalf("missing or incorrect error: %v", err)
+	}
+	// Test read-only access, should not fail for LoadPersistentPrincipalDaemon
+	// in read-only mode.
+	rp, err := LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	if err != nil {
+		t.Fatal(err)
 	}
 	if got, want := rp.PublicKey().String(), p.PublicKey().String(); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	os.RemoveAll(dir)
+
+	// Test read-only access, making sure that dir.lock is removed first also.
+	if err := os.Chmod(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(filepath.Join(dir, "dir.lock")); err != nil {
+		t.Error(err)
+	}
+	if err := os.Chmod(dir, 0500); err != nil {
+		t.Fatal(err)
+	}
+
+	// Read-only access without a dir.lock file should succeed for a read-only
+	// filesystem, but not otherwise.
+	_, err = LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	if err == nil || !strings.Contains(err.Error(), "dir.lock: no such file or directory") {
+		t.Fatalf("missing or incorrect error: %v", err)
+	}
+
+	os.Setenv(ref.EnvCredentialsReadonlyFileSystem, "1")
+	defer os.Setenv(ref.EnvCredentialsReadonlyFileSystem, "")
+	envvar, ok := ref.ReadonlyCredentialsDir()
+	if got, want := envvar, ref.EnvCredentialsReadonlyFileSystem; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := ok, true; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	rp, err = LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	if err != nil {
+		t.Fatalf("encrypted LoadPersistentPrincipal from readonly directory should have succeeded: %v", err)
+	}
+	if got, want := rp.PublicKey().String(), p.PublicKey().String(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }
 
 func TestLoadPersistentSSHPrincipal(t *testing.T) {
