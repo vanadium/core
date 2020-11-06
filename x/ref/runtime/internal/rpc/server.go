@@ -608,7 +608,7 @@ var (
 func newXFlowServer(flow flow.Flow, server *server) (*flowServer, error) {
 	requestID, err := uuid.NewUUID()
 	if err != nil {
-		return nil, fmt.Errorf("failed to allocated requestid: %v", err)
+		return nil, fmt.Errorf("failed to allocate requestid: %v", err)
 	}
 	ctx := WithRequestID(server.ctx, requestID)
 	ctx = context.WithLoggingPrefix(ctx, requestID)
