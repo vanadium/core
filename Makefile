@@ -10,7 +10,7 @@ VDLROOT ?= $(shell pwd)/v23/vdlroot
 export VDLROOT
 vdlroot:
 	cd v23/vdlroot && \
-	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go \
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=false --lang=go \
 		./vdltool \
 		./math \
 		./time \
