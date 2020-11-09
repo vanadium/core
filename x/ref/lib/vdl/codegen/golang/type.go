@@ -239,11 +239,25 @@ func defineType(data *goData, def *compile.TypeDef) string {
 			"\n}",
 			def.Name, commaEnumLabels("", t), qualifiedIdent(def.File, def.Name))
 	case vdl.Struct:
+		var structTags map[string][]vdltool.GoStructTag
+		if data.Package != nil && data.Package.Config.Go.StructTags != nil {
+			structTags = data.Package.Config.Go.StructTags
+		}
+		if structTags == nil {
+			structTags = map[string][]vdltool.GoStructTag{}
+		}
 		s += "struct {"
 		for ix := 0; ix < t.NumField(); ix++ {
 			f := t.Field(ix)
 			s += "\n\t" + def.FieldDoc[ix] + f.Name + " "
 			s += typeGo(data, f.Type) + def.FieldDocSuffix[ix]
+			if tags, ok := structTags[def.Name]; ok {
+				for _, tag := range tags {
+					if tag.Field == f.Name {
+						s += " `" + tag.Tag + "`"
+					}
+				}
+			}
 		}
 		s += "\n}" + def.DocSuffix
 		s += fmt.Sprintf("\n"+

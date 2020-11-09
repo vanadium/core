@@ -285,7 +285,7 @@ func vtraceHtml() (*asset, error) {
 // It returns an error if the asset could not be found or
 // could not be loaded.
 func Asset(name string) ([]byte, error) {
-	cannonicalName := strings.ReplaceAll(name, "\\", "/")
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	if f, ok := _bindata[cannonicalName]; ok {
 		a, err := f()
 		if err != nil {
@@ -311,7 +311,7 @@ func MustAsset(name string) []byte {
 // It returns an error if the asset could not be found or
 // could not be loaded.
 func AssetInfo(name string) (os.FileInfo, error) {
-	cannonicalName := strings.ReplaceAll(name, "\\", "/")
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	if f, ok := _bindata[cannonicalName]; ok {
 		a, err := f()
 		if err != nil {
@@ -361,7 +361,7 @@ var _bindata = map[string]func() (*asset, error){
 func AssetDir(name string) ([]string, error) {
 	node := _bintree
 	if len(name) != 0 {
-		cannonicalName := strings.ReplaceAll(name, "\\", "/")
+		cannonicalName := strings.Replace(name, "\\", "/", -1)
 		pathList := strings.Split(cannonicalName, "/")
 		for _, p := range pathList {
 			node = node.Children[p]
@@ -386,16 +386,16 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"alltrace.html":   {alltraceHtml, map[string]*bintree{}},
-	"blessings.html":  {blessingsHtml, map[string]*bintree{}},
-	"chrome.html":     {chromeHtml, map[string]*bintree{}},
-	"collection.html": {collectionHtml, map[string]*bintree{}},
-	"glob.html":       {globHtml, map[string]*bintree{}},
-	"logs.html":       {logsHtml, map[string]*bintree{}},
-	"profiles.html":   {profilesHtml, map[string]*bintree{}},
-	"resolve.html":    {resolveHtml, map[string]*bintree{}},
-	"stats.html":      {statsHtml, map[string]*bintree{}},
-	"vtrace.html":     {vtraceHtml, map[string]*bintree{}},
+	"alltrace.html":   &bintree{alltraceHtml, map[string]*bintree{}},
+	"blessings.html":  &bintree{blessingsHtml, map[string]*bintree{}},
+	"chrome.html":     &bintree{chromeHtml, map[string]*bintree{}},
+	"collection.html": &bintree{collectionHtml, map[string]*bintree{}},
+	"glob.html":       &bintree{globHtml, map[string]*bintree{}},
+	"logs.html":       &bintree{logsHtml, map[string]*bintree{}},
+	"profiles.html":   &bintree{profilesHtml, map[string]*bintree{}},
+	"resolve.html":    &bintree{resolveHtml, map[string]*bintree{}},
+	"stats.html":      &bintree{statsHtml, map[string]*bintree{}},
+	"vtrace.html":     &bintree{vtraceHtml, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory
@@ -441,6 +441,6 @@ func RestoreAssets(dir, name string) error {
 }
 
 func _filePath(dir, name string) string {
-	cannonicalName := strings.ReplaceAll(name, "\\", "/")
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }

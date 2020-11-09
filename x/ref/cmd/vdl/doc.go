@@ -77,6 +77,8 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl generate flags are:
+ -errors-no-i18n=false
+   No longer support i18n formats for errors
  -go-out-dir=
    Go output directory.  There are three modes:
       ""                     : Generate output in-place in the source tree
@@ -118,6 +120,8 @@ The vdl generate flags are:
  -lang=Go
    Comma-separated list of languages to generate, currently supporting
    Go,Java,Javascript,Swift
+ -show-warnings=true
+   show warning messages
  -status=true
    Show package names as they are updated
  -swift-out-dir=release/go/src->release/swift/lib/generated-src/vdl,roadmap/go/src->release/swift/lib/generated-src/vdl
@@ -153,6 +157,10 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl compile flags are:
+ -errors-no-i18n=false
+   No longer support i18n formats for errors
+ -show-warnings=true
+   show warning messages
  -status=true
    Show package names while we compile
 
@@ -178,6 +186,8 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl audit flags are:
+ -errors-no-i18n=false
+   No longer support i18n formats for errors
  -go-out-dir=
    Go output directory.  There are three modes:
       ""                     : Generate output in-place in the source tree
@@ -219,6 +229,8 @@ The vdl audit flags are:
  -lang=Go
    Comma-separated list of languages to generate, currently supporting
    Go,Java,Javascript,Swift
+ -show-warnings=true
+   show warning messages
  -status=true
    Show package names as they are updated
  -swift-out-dir=release/go/src->release/swift/lib/generated-src/vdl,roadmap/go/src->release/swift/lib/generated-src/vdl
