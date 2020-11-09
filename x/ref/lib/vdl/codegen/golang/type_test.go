@@ -5,11 +5,15 @@
 package golang
 
 import (
+	"bufio"
+	"fmt"
+	"strings"
 	"testing"
 	"unicode"
 	"unicode/utf8"
 
 	"v.io/v23/vdl"
+	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/ref/lib/vdl/compile"
 )
 
@@ -47,9 +51,7 @@ func TestType(t *testing.T) {
 	}
 }
 
-// TODO(bprosnitz) Disabled because frustrating while making changes. Either re-enable and fix output or re-write this test.
-//nolint:deadcode,unused
-func disabledTestTypeDef(t *testing.T) {
+func TestTypeDef(t *testing.T) {
 	testingMode = true
 	tests := []struct {
 		T    *vdl.Type
@@ -66,6 +68,7 @@ const (
 var TestEnumAll = [...]TestEnum{TestEnumA, TestEnumB, TestEnumC}
 
 // TestEnumFromString creates a TestEnum from a string label.
+//nolint:deadcode,unused
 func TestEnumFromString(label string) (x TestEnum, err error) {
 	err = x.Set(label)
 	return
@@ -105,17 +108,6 @@ func (TestEnum) VDLReflect(struct{
 	Name string ` + "`" + `vdl:"TestEnum"` + "`" + `
 	Enum struct{ A, B, C string }
 }) {
-}
-
-func (m TestEnum) FillVDLTarget(t vdl.Target, tt *vdl.Type) error {
-	if err := t.FromEnumLabel(m.String(), __VDLType__TestEnum); err != nil {
-	return err
-	}
-	return nil
-}
-
-func (m TestEnum) MakeVDLTarget() vdl.Target {
-	return nil
 }`},
 		{tUnion, `type (
 	// TestUnion represents any single field of the TestUnion union type.
@@ -127,15 +119,16 @@ func (m TestEnum) MakeVDLTarget() vdl.Target {
 		// Name returns the field name.
 		Name() string
 		// VDLReflect describes the TestUnion union type.
-		VDLReflect(__TestUnionReflect)
-		FillVDLTarget(vdl.Target, *vdl.Type) error
+		VDLReflect(vdlTestUnionReflect)
+		VDLIsZero() bool
+		VDLWrite(vdl.Encoder) error
 	}
 	// TestUnionA represents field A of the TestUnion union type.
 	TestUnionA struct{ Value string }
 	// TestUnionB represents field B of the TestUnion union type.
 	TestUnionB struct{ Value int64 }
-	// __TestUnionReflect describes the TestUnion union type.
-	__TestUnionReflect struct {
+	// vdlTestUnionReflect describes the TestUnion union type.
+	vdlTestUnionReflect struct {
 		Name string ` + "`" + `vdl:"TestUnion"` + "`" + `
 		Type TestUnion
 		Union struct {
@@ -148,65 +141,21 @@ func (m TestEnum) MakeVDLTarget() vdl.Target {
 func (x TestUnionA) Index() int { return 0 }
 func (x TestUnionA) Interface() interface{} { return x.Value }
 func (x TestUnionA) Name() string { return "A" }
-func (x TestUnionA) VDLReflect(__TestUnionReflect) {}
-
-func (m TestUnionA) FillVDLTarget(t vdl.Target, tt *vdl.Type) error {
-` + "\t" + `
-	fieldsTarget1, err := t.StartFields(__VDLType__TestUnion)
-	if err != nil {
-		return err
-	}
-	keyTarget2, fieldTarget3, err := fieldsTarget1.StartField("A")
-	if err != nil {
-		return err
-	}
-	if err := fieldTarget3.FromString(string(m.Value), vdl.StringType); err != nil {
-	return err
-}
-	if err := fieldsTarget1.FinishField(keyTarget2, fieldTarget3); err != nil {
-		return err
-	}
-	if err := t.FinishFields(fieldsTarget1); err != nil {
-		return err
-	}
-` + "\t" + `
-	return nil
-}
-
-func (m TestUnionA) MakeVDLTarget() vdl.Target {
-	return nil
-}
+func (x TestUnionA) VDLReflect(vdlTestUnionReflect) {}
 
 func (x TestUnionB) Index() int { return 1 }
 func (x TestUnionB) Interface() interface{} { return x.Value }
 func (x TestUnionB) Name() string { return "B" }
-func (x TestUnionB) VDLReflect(__TestUnionReflect) {}
-
-func (m TestUnionB) FillVDLTarget(t vdl.Target, tt *vdl.Type) error {
-` + "\t" + `
-	fieldsTarget1, err := t.StartFields(__VDLType__TestUnion)
-	if err != nil {
-		return err
-	}
-	keyTarget2, fieldTarget3, err := fieldsTarget1.StartField("B")
-	if err != nil {
-		return err
-	}
-	if err := fieldTarget3.FromInt(int64(m.Value), vdl.Int64Type); err != nil {
-	return err
-}
-	if err := fieldsTarget1.FinishField(keyTarget2, fieldTarget3); err != nil {
-		return err
-	}
-	if err := t.FinishFields(fieldsTarget1); err != nil {
-		return err
-	}
-` + "\t" + `
-	return nil
+func (x TestUnionB) VDLReflect(vdlTestUnionReflect) {}`},
+		{tStruct, `type TestStruct struct {
+	A string
+	B int64
+	C int64
 }
 
-func (m TestUnionB) MakeVDLTarget() vdl.Target {
-	return nil
+func (TestStruct) VDLReflect(struct{
+	Name string ` + "`" + `vdl:"TestStruct"` + "`" + `
+}) {
 }`},
 	}
 	data := &goData{
@@ -215,24 +164,55 @@ func (m TestUnionB) MakeVDLTarget() vdl.Target {
 		createdTargets: make(map[*vdl.Type]bool),
 	}
 	for _, test := range tests {
-		firstLetter, _ := utf8.DecodeRuneInString(test.T.Name())
-		def := &compile.TypeDef{
-			NamePos:  compile.NamePos{Name: test.T.Name()},
-			Type:     test.T,
-			Exported: unicode.IsUpper(firstLetter),
-		}
-		switch test.T.Kind() {
-		case vdl.Enum:
-			def.LabelDoc = make([]string, test.T.NumEnumLabel())
-			def.LabelDocSuffix = make([]string, test.T.NumEnumLabel())
-		case vdl.Struct, vdl.Union:
-			def.FieldDoc = make([]string, test.T.NumField())
-			def.FieldDocSuffix = make([]string, test.T.NumField())
-		}
-		if got, want := defineType(data, def), test.Want; got != want {
-			// TIP: Try https://gist.github.com/bprosnitz/60d93bdcc53d8148b8f9 for debugging
-			// invisible differences.
+		if got, want := defineTypeForTest(data, test.T), test.Want; got != want {
+			diffLines(got, want)
 			t.Errorf("%s\n GOT %s\nWANT %s", test.T, got, want)
+		}
+	}
+}
+
+func defineTypeForTest(data *goData, vdlType *vdl.Type) string {
+	firstLetter, _ := utf8.DecodeRuneInString(vdlType.Name())
+	def := &compile.TypeDef{
+		NamePos:  compile.NamePos{Name: vdlType.Name()},
+		Type:     vdlType,
+		Exported: unicode.IsUpper(firstLetter),
+	}
+	switch vdlType.Kind() {
+	case vdl.Enum:
+		def.LabelDoc = make([]string, vdlType.NumEnumLabel())
+		def.LabelDocSuffix = make([]string, vdlType.NumEnumLabel())
+	case vdl.Struct, vdl.Union:
+		def.FieldDoc = make([]string, vdlType.NumField())
+		def.FieldDocSuffix = make([]string, vdlType.NumField())
+	}
+	return defineType(data, def)
+}
+
+func diffLines(a, b string) {
+	fmt.Printf("len(a) %d len(b) %d\n", len(a), len(b))
+	sa := bufio.NewScanner(strings.NewReader(a))
+	sb := bufio.NewScanner(strings.NewReader(b))
+
+	index := 0
+	for {
+		index++
+		var readSomething bool
+		var aline string
+		var bline string
+		if sa.Scan() {
+			aline = sa.Text()
+			readSomething = true
+		}
+		if sb.Scan() {
+			bline = sb.Text()
+			readSomething = true
+		}
+		if !readSomething {
+			break
+		}
+		if aline != bline {
+			fmt.Printf("%4d:\ngot:\n%s\nwant:\n%s\n", index, aline, bline)
 		}
 	}
 }
@@ -253,6 +233,10 @@ var (
 			Name: "B",
 			Type: vdl.Int64Type,
 		},
+		vdl.Field{
+			Name: "C",
+			Type: vdl.Int64Type,
+		},
 	))
 	tUnion = vdl.NamedType("TestUnion", vdl.UnionType(
 		vdl.Field{
@@ -265,3 +249,46 @@ var (
 		},
 	))
 )
+
+func TestStructTags(t *testing.T) {
+	testingMode = true
+
+	tagA := `json:"a,omitempty" other:"a,,'a quoted'"`
+	tagB := `json:"b" other:"b,,'b quoted'"`
+
+	withTags := &goData{
+		Env: compile.NewEnv(-1),
+		Package: &compile.Package{
+			Config: vdltool.Config{
+				Go: vdltool.GoConfig{
+					StructTags: map[string][]vdltool.GoStructTag{
+						"TestStruct": {
+							{Field: "A", Tag: tagA},
+							{Field: "B", Tag: tagB},
+						},
+					},
+				},
+			},
+		},
+	}
+	noTags := &goData{Env: compile.NewEnv(-1)}
+
+	typeDefWithTags := defineTypeForTest(withTags, tStruct)
+	typeDefNoTags := defineTypeForTest(noTags, tStruct)
+	for _, tag := range []string{
+		"A string `" + tagA + "`\n",
+		"B int64 `" + tagB + "`\n",
+	} {
+		if !strings.Contains(typeDefWithTags, tag) {
+			t.Errorf("missing tag: %v", tag)
+		}
+		if strings.Contains(typeDefNoTags, tag) {
+			t.Errorf("contains tag: %v", tag)
+		}
+	}
+	for _, def := range []string{typeDefWithTags, typeDefNoTags} {
+		if !strings.Contains(def, "C int64\n") {
+			t.Errorf("missing field")
+		}
+	}
+}
