@@ -39,6 +39,11 @@ func TestLoadingVdlConfig(t *testing.T) {
 					},
 				},
 			},
+			StructTags: map[string][]GoStructTag{
+				"StructTypeName": {
+					{Field: "NameOfField", Tag: `json:"name,omitempty" other:"name,,'quoted'"`},
+				},
+			},
 		},
 		Java: JavaConfig{
 			WireTypeRenames: map[string]string{

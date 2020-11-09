@@ -1,0 +1,11 @@
+package gotagtest
+
+type TestStructA struct {
+	A string
+	B int64
+}
+
+type TestStructB struct {
+	A int64
+	B string
+}

@@ -180,129 +180,163 @@ func goAnyRepMode(pkg *compile.Package) goAnyRep {
 	return goAnyRepRawBytes
 }
 
+func genEnumType(data *goData, def *compile.TypeDef) string {
+	t := def.Type
+	s := &strings.Builder{}
+	fmt.Fprintf(s, "%stype %s int%s\nconst (", def.Doc, def.Name, def.DocSuffix)
+	for ix := 0; ix < t.NumEnumLabel(); ix++ {
+		fmt.Fprintf(s, "\n\t%s%s%s", def.LabelDoc[ix], def.Name, t.EnumLabel(ix))
+		if ix == 0 {
+			fmt.Fprintf(s, " %s = iota", def.Name)
+		}
+		s.WriteString(def.LabelDocSuffix[ix])
+	}
+	disableGoCycloLint := ""
+	if t.NumEnumLabel() > 10 {
+		disableGoCycloLint = "//nolint:gocyclo"
+	}
+	fmt.Fprintf(s, "\n)"+
+		"\n\n// %[1]sAll holds all labels for %[1]s."+
+		"\nvar %[1]sAll = [...]%[1]s{%[2]s}"+
+		"\n\n// %[1]sFromString creates a %[1]s from a string label."+
+		"\n//nolint:deadcode,unused"+
+		"\nfunc %[1]sFromString(label string) (x %[1]s, err error) {"+
+		"\n\terr = x.Set(label)"+
+		"\n\treturn"+
+		"\n}"+
+		"\n\n// Set assigns label to x."+
+		"\nfunc (x *%[1]s) Set(label string) error {"+
+		disableGoCycloLint+
+		"\n\tswitch label {",
+		def.Name,
+		commaEnumLabels(def.Name, t))
+	for ix := 0; ix < t.NumEnumLabel(); ix++ {
+		fmt.Fprintf(s, "\n\tcase %[2]q, %[3]q:"+
+			"\n\t\t*x = %[1]s%[2]s"+
+			"\n\t\treturn nil", def.Name, t.EnumLabel(ix), strings.ToLower(t.EnumLabel(ix)))
+	}
+	fmt.Fprintf(s, "\n\t}"+
+		"\n\t*x = -1"+
+		"\n\treturn "+data.Pkg("fmt")+"Errorf(\"unknown label %%q in %[2]s\", label)"+
+		"\n}"+
+		"\n\n// String returns the string label of x."+
+		"\nfunc (x %[1]s) String() string {"+
+		disableGoCycloLint+
+		"\n\tswitch x {", def.Name, packageIdent(def.File, def.Name))
+	for ix := 0; ix < t.NumEnumLabel(); ix++ {
+		fmt.Fprintf(s, "\n\tcase %[1]s%[2]s:"+
+			"\n\t\treturn %[2]q", def.Name, t.EnumLabel(ix))
+	}
+	fmt.Fprintf(s, "\n\t}"+
+		"\n\treturn \"\""+
+		"\n}"+
+		"\n\nfunc (%[1]s) VDLReflect(struct{"+
+		"\n\tName string `vdl:%[3]q`"+
+		"\n\tEnum struct{ %[2]s string }"+
+		"\n}) {"+
+		"\n}",
+		def.Name, commaEnumLabels("", t), qualifiedIdent(def.File, def.Name))
+	return s.String()
+}
+
+func genStructType(data *goData, def *compile.TypeDef) string {
+	t := def.Type
+	var structTags map[string][]vdltool.GoStructTag
+	if data.Package != nil && data.Package.Config.Go.StructTags != nil {
+		structTags = data.Package.Config.Go.StructTags
+	}
+	if structTags == nil {
+		structTags = map[string][]vdltool.GoStructTag{}
+	}
+	s := &strings.Builder{}
+	fmt.Fprintf(s, "%stype %s struct {", def.Doc, def.Name)
+	for ix := 0; ix < t.NumField(); ix++ {
+		f := t.Field(ix)
+		fmt.Fprintf(s, "\n\t%s %s", def.FieldDoc[ix]+f.Name, typeGo(data, f.Type)+def.FieldDocSuffix[ix])
+		if tags, ok := structTags[def.Name]; ok {
+			for _, tag := range tags {
+				if tag.Field == f.Name {
+					s.WriteString(" `" + tag.Tag + "`")
+				}
+			}
+		}
+	}
+	fmt.Fprintf(s, "\n}%s", def.DocSuffix)
+	fmt.Fprintf(s, "\n"+
+		"\nfunc (%[1]s) VDLReflect(struct{"+
+		"\n\tName string `vdl:%[2]q`"+
+		"\n}) {"+
+		"\n}",
+		def.Name, qualifiedIdent(def.File, def.Name))
+	return s.String()
+}
+
+func genUnionType(data *goData, def *compile.TypeDef) string {
+	t := def.Type
+	s := &strings.Builder{}
+	fmt.Fprintf(s, "type ("+
+		"\n\t// %[1]s represents any single field of the %[1]s union type."+
+		"\n\t%[2]s%[1]s interface {"+
+		"\n\t\t// Index returns the field index."+
+		"\n\t\tIndex() int"+
+		"\n\t\t// Interface returns the field value as an interface."+
+		"\n\t\tInterface() interface{}"+
+		"\n\t\t// Name returns the field name."+
+		"\n\t\tName() string"+
+		"\n\t\t// VDLReflect describes the %[1]s union type."+
+		"\n\t\tVDLReflect(vdl%[1]sReflect)", def.Name, docBreak(def.Doc))
+	if !data.SkipGenZeroReadWrite(def) {
+		fmt.Fprintf(s, "\n\t\tVDLIsZero() bool"+
+			"\n\t\tVDLWrite(%[1]sEncoder) error", data.Pkg("v.io/v23/vdl"))
+	}
+	fmt.Fprintf(s, "\n\t}%[1]s", def.DocSuffix)
+	for ix := 0; ix < t.NumField(); ix++ {
+		f := t.Field(ix)
+		fmt.Fprintf(s, "\n\t// %[1]s%[2]s represents field %[2]s of the %[1]s union type."+
+			"\n\t%[4]s%[1]s%[2]s struct{ Value %[3]s }%[5]s",
+			def.Name, f.Name, typeGo(data, f.Type),
+			docBreak(def.FieldDoc[ix]), def.FieldDocSuffix[ix])
+	}
+	fmt.Fprintf(s, "\n\t// vdl%[1]sReflect describes the %[1]s union type."+
+		"\n\tvdl%[1]sReflect struct {"+
+		"\n\t\tName string `vdl:%[2]q`"+
+		"\n\t\tType %[1]s", def.Name, qualifiedIdent(def.File, def.Name))
+	s.WriteString("\n\t\tUnion struct {")
+	for ix := 0; ix < t.NumField(); ix++ {
+		fmt.Fprintf(s, "\n\t\t\t%[2]s %[1]s%[2]s", def.Name, t.Field(ix).Name)
+	}
+	s.WriteString("\n\t\t}\n\t}\n)")
+	for ix := 0; ix < t.NumField(); ix++ {
+		f := t.Field(ix)
+		fmt.Fprintf(s, "\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+
+			"\nfunc (x %[1]s%[2]s) Interface() interface{} { return x.Value }"+
+			"\nfunc (x %[1]s%[2]s) Name() string { return \"%[2]s\" }"+
+			"\nfunc (x %[1]s%[2]s) VDLReflect(vdl%[1]sReflect) {}",
+			def.Name, f.Name, ix)
+	}
+	return s.String()
+}
+
 // defineType returns the type definition for def.
 func defineType(data *goData, def *compile.TypeDef) string {
-	s := fmt.Sprintf("%stype %s ", def.Doc, def.Name)
 	switch t := def.Type; t.Kind() {
 	case vdl.Enum:
-		s += fmt.Sprintf("int%s\nconst (", def.DocSuffix)
-		for ix := 0; ix < t.NumEnumLabel(); ix++ {
-			s += fmt.Sprintf("\n\t%s%s%s", def.LabelDoc[ix], def.Name, t.EnumLabel(ix))
-			if ix == 0 {
-				s += fmt.Sprintf(" %s = iota", def.Name)
-			}
-			s += def.LabelDocSuffix[ix]
-		}
-		disableGoCycloLint := ""
-		if t.NumEnumLabel() > 10 {
-			disableGoCycloLint = "//nolint:gocyclo"
-		}
-		s += fmt.Sprintf("\n)"+
-			"\n\n// %[1]sAll holds all labels for %[1]s."+
-			"\nvar %[1]sAll = [...]%[1]s{%[2]s}"+
-			"\n\n// %[1]sFromString creates a %[1]s from a string label."+
-			"\n//nolint:deadcode,unused"+
-			"\nfunc %[1]sFromString(label string) (x %[1]s, err error) {"+
-			"\n\terr = x.Set(label)"+
-			"\n\treturn"+
-			"\n}"+
-			"\n\n// Set assigns label to x."+
-			"\nfunc (x *%[1]s) Set(label string) error {"+
-			disableGoCycloLint+
-			"\n\tswitch label {",
-			def.Name,
-			commaEnumLabels(def.Name, t))
-		for ix := 0; ix < t.NumEnumLabel(); ix++ {
-			s += fmt.Sprintf("\n\tcase %[2]q, %[3]q:"+
-				"\n\t\t*x = %[1]s%[2]s"+
-				"\n\t\treturn nil", def.Name, t.EnumLabel(ix), strings.ToLower(t.EnumLabel(ix)))
-		}
-		s += fmt.Sprintf("\n\t}"+
-			"\n\t*x = -1"+
-			"\n\treturn "+data.Pkg("fmt")+"Errorf(\"unknown label %%q in %[2]s\", label)"+
-			"\n}"+
-			"\n\n// String returns the string label of x."+
-			"\nfunc (x %[1]s) String() string {"+
-			disableGoCycloLint+
-			"\n\tswitch x {", def.Name, packageIdent(def.File, def.Name))
-		for ix := 0; ix < t.NumEnumLabel(); ix++ {
-			s += fmt.Sprintf("\n\tcase %[1]s%[2]s:"+
-				"\n\t\treturn %[2]q", def.Name, t.EnumLabel(ix))
-		}
-		s += fmt.Sprintf("\n\t}"+
-			"\n\treturn \"\""+
-			"\n}"+
-			"\n\nfunc (%[1]s) VDLReflect(struct{"+
-			"\n\tName string `vdl:%[3]q`"+
-			"\n\tEnum struct{ %[2]s string }"+
-			"\n}) {"+
-			"\n}",
-			def.Name, commaEnumLabels("", t), qualifiedIdent(def.File, def.Name))
+		return genEnumType(data, def)
 	case vdl.Struct:
-		s += "struct {"
-		for ix := 0; ix < t.NumField(); ix++ {
-			f := t.Field(ix)
-			s += "\n\t" + def.FieldDoc[ix] + f.Name + " "
-			s += typeGo(data, f.Type) + def.FieldDocSuffix[ix]
-		}
-		s += "\n}" + def.DocSuffix
-		s += fmt.Sprintf("\n"+
-			"\nfunc (%[1]s) VDLReflect(struct{"+
-			"\n\tName string `vdl:%[2]q`"+
-			"\n}) {"+
-			"\n}",
-			def.Name, qualifiedIdent(def.File, def.Name))
+		return genStructType(data, def)
 	case vdl.Union:
-		s = fmt.Sprintf("type ("+
-			"\n\t// %[1]s represents any single field of the %[1]s union type."+
-			"\n\t%[2]s%[1]s interface {"+
-			"\n\t\t// Index returns the field index."+
-			"\n\t\tIndex() int"+
-			"\n\t\t// Interface returns the field value as an interface."+
-			"\n\t\tInterface() interface{}"+
-			"\n\t\t// Name returns the field name."+
-			"\n\t\tName() string"+
-			"\n\t\t// VDLReflect describes the %[1]s union type."+
-			"\n\t\tVDLReflect(vdl%[1]sReflect)", def.Name, docBreak(def.Doc))
-		if !data.SkipGenZeroReadWrite(def) {
-			s += fmt.Sprintf("\n\t\tVDLIsZero() bool"+
-				"\n\t\tVDLWrite(%[1]sEncoder) error", data.Pkg("v.io/v23/vdl"))
-		}
-		s += fmt.Sprintf("\n\t}%[1]s", def.DocSuffix)
-		for ix := 0; ix < t.NumField(); ix++ {
-			f := t.Field(ix)
-			s += fmt.Sprintf("\n\t// %[1]s%[2]s represents field %[2]s of the %[1]s union type."+
-				"\n\t%[4]s%[1]s%[2]s struct{ Value %[3]s }%[5]s",
-				def.Name, f.Name, typeGo(data, f.Type),
-				docBreak(def.FieldDoc[ix]), def.FieldDocSuffix[ix])
-		}
-		s += fmt.Sprintf("\n\t// vdl%[1]sReflect describes the %[1]s union type."+
-			"\n\tvdl%[1]sReflect struct {"+
-			"\n\t\tName string `vdl:%[2]q`"+
-			"\n\t\tType %[1]s", def.Name, qualifiedIdent(def.File, def.Name))
-		s += "\n\t\tUnion struct {"
-		for ix := 0; ix < t.NumField(); ix++ {
-			s += fmt.Sprintf("\n\t\t\t%[2]s %[1]s%[2]s", def.Name, t.Field(ix).Name)
-		}
-		s += "\n\t\t}\n\t}\n)"
-		for ix := 0; ix < t.NumField(); ix++ {
-			f := t.Field(ix)
-			s += fmt.Sprintf("\n\nfunc (x %[1]s%[2]s) Index() int { return %[3]d }"+
-				"\nfunc (x %[1]s%[2]s) Interface() interface{} { return x.Value }"+
-				"\nfunc (x %[1]s%[2]s) Name() string { return \"%[2]s\" }"+
-				"\nfunc (x %[1]s%[2]s) VDLReflect(vdl%[1]sReflect) {}",
-				def.Name, f.Name, ix)
-		}
+		return genUnionType(data, def)
 	default:
-		s += typeGo(data, def.BaseType) + def.DocSuffix
-		s += fmt.Sprintf("\n"+
+		s := &strings.Builder{}
+		fmt.Fprintf(s, "%stype %s %s", def.Doc, def.Name, typeGo(data, def.BaseType)+def.DocSuffix)
+		fmt.Fprintf(s, "\n"+
 			"\nfunc (%[1]s) VDLReflect(struct{"+
 			"\n\tName string `vdl:%[2]q`"+
 			"\n}) {"+
 			"\n}",
 			def.Name, qualifiedIdent(def.File, def.Name))
+		return s.String()
 	}
-	return s
 }
 
 func commaEnumLabels(prefix string, t *vdl.Type) (s string) {
