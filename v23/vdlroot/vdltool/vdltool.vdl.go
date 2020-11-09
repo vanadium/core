@@ -685,6 +685,8 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]GoImport) error {
 	}
 }
 
+// GoStructTag specifies a single go struct tag and the field to which it
+// should be applied.
 type GoStructTag struct {
 	Field string
 	Tag   string
@@ -785,7 +787,9 @@ type GoConfig struct {
 	//   func fooToNative(x Foo, n *Native) error
 	//   func fooFromNative(x *Foo, n Native) error
 	WireToNativeTypes map[string]GoType
-	StructTags        map[string][]GoStructTag
+	// StructTags specifies any go struct tags to be include with the generated
+	// go code. The StructTags map is keyed by the struct type's name.
+	StructTags map[string][]GoStructTag
 }
 
 func (GoConfig) VDLReflect(struct {

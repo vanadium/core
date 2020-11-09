@@ -262,7 +262,7 @@ func TestStructTags(t *testing.T) {
 			Config: vdltool.Config{
 				Go: vdltool.GoConfig{
 					StructTags: map[string][]vdltool.GoStructTag{
-						"TestStruct": []vdltool.GoStructTag{
+						"TestStruct": {
 							{Field: "A", Tag: tagA},
 							{Field: "B", Tag: tagB},
 						},

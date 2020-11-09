@@ -40,7 +40,7 @@ func TestLoadingVdlConfig(t *testing.T) {
 				},
 			},
 			StructTags: map[string][]GoStructTag{
-				"StructTypeName": []GoStructTag{
+				"StructTypeName": {
 					{Field: "NameOfField", Tag: `json:"name,omitempty" other:"name,,'quoted'"`},
 				},
 			},
