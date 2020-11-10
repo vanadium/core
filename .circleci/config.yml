@@ -46,7 +46,7 @@ jobs:
   integration-tests:
     executor:
       name: go/default
-      tag: "1.15.2"
+      tag: "1.15"
     steps:
       - checkout
       - go/load-cache
