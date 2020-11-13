@@ -21,16 +21,6 @@ type rtCacheT struct {
 	rtmap map[reflect.Type]*Type
 }
 
-var (
-	rtCache = &rtCacheT{
-		rtmap: map[reflect.Type]*Type{
-			// Ensure TypeOf(WireError{}) returns the built-in VDL error type.
-			reflect.TypeOf(WireError{}): ErrorType.Elem(),
-		},
-	}
-	rtCacheEnabled = true
-)
-
 func (reg *rtCacheT) lookup(rt reflect.Type) *Type {
 	if !rtCacheEnabled {
 		return nil
@@ -439,7 +429,6 @@ var (
 	rtFloat64            = reflect.TypeOf(float64(0))
 	rtString             = reflect.TypeOf("")
 	rtError              = reflect.TypeOf((*error)(nil)).Elem()
-	rtWireError          = reflect.TypeOf(WireError{})
 	rtType               = reflect.TypeOf(Type{})
 	rtValue              = reflect.TypeOf(Value{})
 	rtPtrToType          = reflect.TypeOf((*Type)(nil))

@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"v.io/v23/vdl"
-	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/ref/lib/vdl/compile"
 )
 
@@ -236,10 +235,9 @@ func untypedConstWire(data *goData, v *vdl.Value) string { //nolint:gocyclo
 // ensures typedConst is only called when the field itself will result in
 // another Go composite literal.
 func fieldConst(data *goData, v *vdl.Value) string {
-	if native, _, ok := findNativeType(data.Env, v.Type()); ok {
-		switch native.Kind {
-		case vdltool.GoKindArray, vdltool.GoKindSlice, vdltool.GoKindMap, vdltool.GoKindStruct:
-			return typedConst(data, v)
+	if native, ok := asNativeType(data.Env, v.Type()); ok {
+		if ft, ok := native.fieldConst(data, v); ok {
+			return ft
 		}
 	}
 	switch v.Kind() {
@@ -282,18 +280,8 @@ func constNative(data *goData, v *vdl.Value, typed bool) string {
 	if v.Type() == vdl.ErrorType {
 		return constNativeError(data, v)
 	}
-	if native, wirePkg, ok := findNativeType(data.Env, v.Type()); ok {
-		nType := nativeType(data, native, wirePkg)
-		if native.Zero.Mode != vdltool.GoZeroModeUnknown && v.IsZero() {
-			// This is the case where the value is zero, and the zero mode is either
-			// Canonical or Unique, which means that the Go zero value of the native
-			// type is sufficient to represent the value.
-			if typed {
-				return typedConstNativeZero(native.Kind, nType)
-			}
-			return untypedConstNativeZero(native.Kind, nType)
-		}
-		return constNativeConversion(data, v, nType, toNative(data, native, v.Type()))
+	if native, ok := asNativeType(data.Env, v.Type()); ok {
+		return native.constNative(data, v, typed)
 	}
 	return ""
 }
@@ -318,29 +306,4 @@ func constNativeConversion(data *goData, v *vdl.Value, nType, toNative string) s
 	}
 	return native
 }()`, nType, typedConstWire(data, v), toNative)
-}
-
-func typedConstNativeZero(kind vdltool.GoKind, nType string) string {
-	zero := untypedConstNativeZero(kind, nType)
-	switch kind {
-	case vdltool.GoKindStruct, vdltool.GoKindArray:
-		return zero // untyped const is already typed, e.g. NativeType{}
-	default:
-		return nType + "(" + zero + ")" // e.g. NativeType(0)
-	}
-}
-
-func untypedConstNativeZero(kind vdltool.GoKind, nType string) string {
-	switch kind {
-	case vdltool.GoKindStruct, vdltool.GoKindArray:
-		return nType + "{}" // No way to create an untyped zero struct or array.
-	case vdltool.GoKindBool:
-		return "false"
-	case vdltool.GoKindNumber:
-		return "0"
-	case vdltool.GoKindString:
-		return `""`
-	default:
-		return "nil"
-	}
 }

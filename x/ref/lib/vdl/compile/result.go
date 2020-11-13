@@ -286,6 +286,10 @@ type Package struct {
 	// during compilation and code generation.
 	Config vdltool.Config
 
+	// ConfigName is the name of the file from the vdl.config was read
+	// since it may be configured as something other than 'vdl.config'.
+	ConfigName string
+
 	// We hold some internal maps to make local name resolution cheap and easy.
 	typeMap  map[string]*TypeDef
 	constMap map[string]*ConstDef
@@ -302,12 +306,13 @@ type Package struct {
 	lowercaseIdents map[string]string
 }
 
-func newPackage(name, pkgPath, genPath string, config vdltool.Config) *Package {
+func newPackage(name, pkgPath, genPath string, config vdltool.Config, configName string) *Package {
 	return &Package{
 		Name:            name,
 		Path:            pkgPath,
 		GenPath:         genPath,
 		Config:          config,
+		ConfigName:      configName,
 		typeMap:         make(map[string]*TypeDef),
 		constMap:        make(map[string]*ConstDef),
 		ifaceMap:        make(map[string]*Interface),

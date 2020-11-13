@@ -7,10 +7,8 @@ package golang
 import (
 	"fmt"
 	"path"
-	"strings"
 
 	"v.io/v23/vdl"
-	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/ref/lib/vdl/compile"
 )
 
@@ -160,38 +158,22 @@ func (ze zeroExpr) GenReturnStmt() bool {
 // not-equal to zero.  The kind of statement affects the expression because of
 // Go's parsing and type safety rules.
 func (g *genIsZero) Expr(ze zeroExpr, tt *vdl.Type, arg namedArg, tmp string) string {
-	if native, wirePkg, ok := findNativeType(g.Env, tt); ok {
+	if native, ok := asNativeType(g.Env, tt); ok {
 		opNot, eq, ref := "", "==", arg.Ref()
 		if ze.GenNotEqual() {
 			opNot, eq = "!", "!="
 		}
 		switch {
-		case native.Kind == vdltool.GoKindBool:
+		case native.isBool():
 			return ref
-		case native.Zero.Mode == vdltool.GoZeroModeUnique:
-			// We use an untyped const as the zero value, because Go only allows
-			// comparison of slices with nil.  E.g.
-			//   type MySlice []string
-			//   pass := MySlice(nil) == nil          // valid
-			//   fail := MySlice(nil) == MySlice(nil) // invalid
-			nType := nativeType(g.goData, native, wirePkg)
-			zeroValue := untypedConstNativeZero(native.Kind, nType)
-			if ze.GenIfStmt() {
-				if k := native.Kind; k == vdltool.GoKindStruct || k == vdltool.GoKindArray {
-					// Without a special-case, we'll get a statement like:
-					//   if x == Foo{} {
-					// But that isn't valid Go code, so we change it to:
-					//   if x == (Foo{}) {
-					zeroValue = "(" + zeroValue + ")"
-				}
-			}
-			return ref + eq + zeroValue
-		case strings.HasPrefix(native.Zero.IsZero, "."):
-			return opNot + arg.Name + native.Zero.IsZero
-		case native.Zero.IsZero != "":
+		case native.isZeroModeUnique():
+			return ref + eq + native.zeroUniqueModeValue(g.goData, ze.GenIfStmt())
+		case native.isDotZero():
+			return opNot + arg.Name + native.isZeroValue()
+		case native.isZeroValue() != "":
 			// TODO(toddw): Handle the function form of IsZero, including IsZeroImports.
-			vdlconfig := path.Join(wirePkg.GenPath, "vdl.config")
-			g.Env.Errors.Errorf("%s: native type %s uses function form of IsZero, which isn't implemented", vdlconfig, native.Type)
+			vdlconfig := path.Join(native.pkg().GenPath, native.pkg().ConfigName)
+			g.Env.Errors.Errorf("%s: native type %s uses function form of IsZero, which isn't implemented", vdlconfig, native.String())
 			return ""
 		}
 	}
@@ -307,8 +289,8 @@ func isGoZeroValueCanonical(data *goData, tt *vdl.Type) bool {
 	// If tt is a native type in either Canonical or Unique zero mode, the Go zero
 	// value is canonical.  Note that Unique zero mode is stronger than Canonical;
 	// not only is the Go zero value canonical, it's the only representation.
-	if native, _, ok := findNativeType(data.Env, tt); ok {
-		if native.Zero.Mode != vdltool.GoZeroModeUnknown {
+	if native, ok := asNativeType(data.Env, tt); ok {
+		if native.isZeroModeKnown() {
 			return true
 		}
 	}
@@ -343,8 +325,8 @@ func containsInlineNativeNonUniqueSubTypes(data *goData, tt *vdl.Type, wireOnly 
 			// when we visit tt, meaning we haven't detected a native type yet.
 			return true
 		}
-		if native, _, ok := findNativeType(data.Env, visit); ok {
-			return native.Zero.Mode == vdltool.GoZeroModeUnique
+		if native, ok := asNativeType(data.Env, visit); ok {
+			return native.isZeroModeUnique()
 		}
 		return true
 	})
@@ -360,35 +342,9 @@ func containsInlineNativeUnknownSubTypes(data *goData, tt *vdl.Type, wireOnly bo
 			// when we visit tt, meaning we haven't detected a native type yet.
 			return true
 		}
-		if native, _, ok := findNativeType(data.Env, visit); ok {
-			return native.Zero.Mode != vdltool.GoZeroModeUnknown
+		if native, ok := asNativeType(data.Env, visit); ok {
+			return native.isZeroModeKnown()
 		}
 		return true
 	})
-}
-
-func findNativeType(env *compile.Env, tt *vdl.Type) (vdltool.GoType, *compile.Package, bool) {
-	if def := env.FindTypeDef(tt); def != nil {
-		pkg := def.File.Package
-		key := def.Name
-		if tt.Kind() == vdl.Optional {
-			key = "*" + key
-		}
-		native, ok := pkg.Config.Go.WireToNativeTypes[key]
-		return native, pkg, ok
-	}
-	return vdltool.GoType{}, nil, false
-}
-
-// isNativeType returns true iff t is a native type.
-func isNativeType(env *compile.Env, t *vdl.Type) bool {
-	if def := env.FindTypeDef(t); def != nil {
-		key := def.Name
-		if t.Kind() == vdl.Optional {
-			key = "*" + key
-		}
-		_, ok := def.File.Package.Config.Go.WireToNativeTypes[key]
-		return ok
-	}
-	return false
 }
