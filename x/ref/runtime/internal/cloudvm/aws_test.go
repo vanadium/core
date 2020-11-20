@@ -27,7 +27,7 @@ func TestAWS(t *testing.T) {
 
 func testAWSIDMSVersion(t *testing.T, imdsv2Only bool) {
 	ctx := context.Background()
-	host, stop := startAWSMetadataServer(t, false)
+	host, stop := startAWSMetadataServer(t, imdsv2Only)
 	defer stop()
 
 	logger := logger.NewLogger("test")
@@ -55,7 +55,7 @@ func testAWSIDMSVersion(t *testing.T, imdsv2Only bool) {
 	}
 
 	externalURL := host + cloudpaths.AWSPublicIPPath + "/noip"
-	noip, err := awsGetAddr(ctx, false, externalURL, time.Second)
+	noip, err := awsGetAddr(ctx, imdsv2Only, externalURL, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}

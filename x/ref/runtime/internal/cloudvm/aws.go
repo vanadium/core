@@ -57,9 +57,9 @@ const (
 )
 
 var (
-	onceAWS sync.Once
-	onAWS   bool
-	imdsv2  bool
+	onceAWS  sync.Once
+	onAWS    bool
+	onIMDSv2 bool
 )
 
 // OnAWS returns true if this process is running on Amazon Web Services.
@@ -67,8 +67,8 @@ var (
 // are set.
 func OnAWS(ctx context.Context, logger logging.Logger, timeout time.Duration) bool {
 	onceAWS.Do(func() {
-		onAWS, imdsv2 = awsInit(ctx, logger, timeout)
-		logger.VI(1).Infof("OnAWS: onAWS: %v, imdsv2: %v", onAWS, imdsv2)
+		onAWS, onIMDSv2 = awsInit(ctx, logger, timeout)
+		logger.VI(1).Infof("OnAWS: onAWS: %v, onIMDSv2: %v", onAWS, onIMDSv2)
 	})
 	return onAWS
 }
@@ -76,13 +76,13 @@ func OnAWS(ctx context.Context, logger logging.Logger, timeout time.Duration) bo
 // AWSPublicAddrs returns the current public IP of this AWS instance.
 // Must be called after OnAWS.
 func AWSPublicAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, imdsv2, awsExternalURL(), timeout)
+	return awsGetAddr(ctx, onIMDSv2, awsExternalURL(), timeout)
 }
 
 // AWSPrivateAddrs returns the current private Addrs of this AWS instance.
 // Must be called after OnAWS.
 func AWSPrivateAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, imdsv2, awsInternalURL(), timeout)
+	return awsGetAddr(ctx, onIMDSv2, awsInternalURL(), timeout)
 }
 
 func awsGet(ctx context.Context, imdsv2 bool, url string, timeout time.Duration) ([]byte, error) {
