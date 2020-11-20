@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"v.io/v23/logging"
 	"v.io/x/ref/lib/stats"
 	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 )
@@ -56,40 +57,50 @@ const (
 )
 
 var (
-	onceAWS sync.Once
-	onAWS   bool
+	onceAWS  sync.Once
+	onAWS    bool
+	onIMDSv2 bool
 )
 
 // OnAWS returns true if this process is running on Amazon Web Services.
 // If true, the the stats variables AWSAccountIDStatName and GCPRegionStatName
 // are set.
-func OnAWS(ctx context.Context, timeout time.Duration) bool {
+func OnAWS(ctx context.Context, logger logging.Logger, timeout time.Duration) bool {
 	onceAWS.Do(func() {
-		onAWS = awsInit(ctx, timeout)
+		onAWS, onIMDSv2 = awsInit(ctx, logger, timeout)
+		logger.VI(1).Infof("OnAWS: onAWS: %v, onIMDSv2: %v", onAWS, onIMDSv2)
 	})
 	return onAWS
 }
 
 // AWSPublicAddrs returns the current public IP of this AWS instance.
+// Must be called after OnAWS.
 func AWSPublicAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, awsExternalURL(), timeout)
+	return awsGetAddr(ctx, onIMDSv2, awsExternalURL(), timeout)
 }
 
 // AWSPrivateAddrs returns the current private Addrs of this AWS instance.
+// Must be called after OnAWS.
 func AWSPrivateAddrs(ctx context.Context, timeout time.Duration) ([]net.Addr, error) {
-	return awsGetAddr(ctx, awsInternalURL(), timeout)
+	return awsGetAddr(ctx, onIMDSv2, awsInternalURL(), timeout)
 }
 
-func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, error) {
+func awsGet(ctx context.Context, imdsv2 bool, url string, timeout time.Duration) ([]byte, error) {
 	client := &http.Client{Timeout: timeout}
-	token, err := awsSetIMDSv2Token(ctx, awsTokenURL(), timeout)
+	var token string
+	var err error
+	if imdsv2 {
+		token, err = awsSetIMDSv2Token(ctx, awsTokenURL(), timeout)
+		if err != nil {
+			return nil, err
+		}
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	req.Header.Add("X-aws-ec2-metadata-token", token)
-	if err != nil {
-		return nil, err
+	if len(token) > 0 {
+		req.Header.Add("X-aws-ec2-metadata-token", token)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -97,7 +108,7 @@ func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, err
+		return nil, fmt.Errorf("HTTP Error: %v %v", url, resp.StatusCode)
 	}
 	if server := resp.Header["Server"]; len(server) != 1 || server[0] != "EC2ws" {
 		return nil, fmt.Errorf("wrong headers")
@@ -105,16 +116,29 @@ func awsGet(ctx context.Context, url string, timeout time.Duration) ([]byte, err
 	return ioutil.ReadAll(resp.Body)
 }
 
-// awsInit returns true if it can access AWS project metadata. It also
+// awsInit returns true if it can access AWS project metadata and the version
+// of the metadata service it was able to access. It also
 // creates two stats variables with the account ID and zone.
-func awsInit(ctx context.Context, timeout time.Duration) bool {
-	body, err := awsGet(ctx, awsIdentityDocURL(), timeout)
+func awsInit(ctx context.Context, logger logging.Logger, timeout time.Duration) (bool, bool) {
+	v2 := false
+	// Try the v1 service first since it should always work unless v2
+	// is specifically configured (and hence v1 is disabled), in which
+	// case the expectation is that it fails fast with a 4xx HTTP error.
+	body, err := awsGet(ctx, false, awsIdentityDocURL(), timeout)
 	if err != nil {
-		return false
+		logger.VI(1).Infof("failed to access v1 metadata service: %v", err)
+		// can't access v1, try v2.
+		body, err = awsGet(ctx, true, awsIdentityDocURL(), timeout)
+		if err != nil {
+			logger.VI(1).Infof("failed to access v2 metadata service: %v", err)
+			return false, false
+		}
+		v2 = true
 	}
 	doc := map[string]interface{}{}
 	if err := json.Unmarshal(body, &doc); err != nil {
-		return false
+		logger.VI(1).Infof("failed to unmarshal metadata service response: %s: %v", body, err)
+		return false, false
 	}
 	found := 0
 	for _, v := range []struct {
@@ -130,11 +154,11 @@ func awsInit(ctx context.Context, timeout time.Duration) bool {
 			}
 		}
 	}
-	return found == 2
+	return found == 2, v2
 }
 
-func awsGetAddr(ctx context.Context, url string, timeout time.Duration) ([]net.Addr, error) {
-	body, err := awsGet(ctx, url, timeout)
+func awsGetAddr(ctx context.Context, imdsv2 bool, url string, timeout time.Duration) ([]net.Addr, error) {
+	body, err := awsGet(ctx, imdsv2, url, timeout)
 	if err != nil {
 		return nil, err
 	}

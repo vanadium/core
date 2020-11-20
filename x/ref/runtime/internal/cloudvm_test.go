@@ -40,7 +40,7 @@ func hasAddr(addrs []net.Addr, host string) bool {
 }
 
 func TestCloudVMProviders(t *testing.T) {
-	awsHost, awsClose := cloudvmtest.StartAWSMetadataServer(t)
+	awsHost, awsClose := cloudvmtest.StartAWSMetadataServer(t, true)
 	defer awsClose()
 	cloudvm.SetAWSMetadataHost(awsHost)
 
