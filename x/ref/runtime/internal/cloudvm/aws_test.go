@@ -9,22 +9,30 @@ import (
 	"testing"
 	"time"
 
+	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 	"v.io/x/ref/runtime/internal/cloudvm/cloudvmtest"
 )
 
-func startAWSMetadataServer(t *testing.T) (string, func()) {
-	host, close := cloudvmtest.StartAWSMetadataServer(t)
+func startAWSMetadataServer(t *testing.T, imdsv2Only bool) (string, func()) {
+	host, close := cloudvmtest.StartAWSMetadataServer(t, imdsv2Only)
 	SetAWSMetadataHost(host)
 	return host, close
 }
 
 func TestAWS(t *testing.T) {
+	testAWSIDMSVersion(t, false)
+	testAWSIDMSVersion(t, true)
+}
+
+func testAWSIDMSVersion(t *testing.T, imdsv2Only bool) {
 	ctx := context.Background()
-	host, stop := startAWSMetadataServer(t)
+	host, stop := startAWSMetadataServer(t, false)
 	defer stop()
 
-	if got, want := OnAWS(ctx, time.Second), true; got != want {
+	logger := logger.NewLogger("test")
+
+	if got, want := OnAWS(ctx, logger, time.Second), true; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
@@ -45,8 +53,9 @@ func TestAWS(t *testing.T) {
 	if got, want := pub[0].String(), cloudvmtest.WellKnownPublicIP; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
 	externalURL := host + cloudpaths.AWSPublicIPPath + "/noip"
-	noip, err := awsGetAddr(ctx, externalURL, time.Second)
+	noip, err := awsGetAddr(ctx, false, externalURL, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
