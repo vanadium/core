@@ -60,6 +60,9 @@ type asyncChooser struct {
 func (ac *asyncChooser) ChooseAddresses(protocol string, candidates []net.Addr) ([]net.Addr, error) {
 	select {
 	case <-ac.ch:
+		if cvmErr != nil {
+			return nil, cvmErr
+		}
 		return cvm.ChooseAddresses(protocol, candidates)
 	case <-ac.ctx.Done():
 		return nil, ac.ctx.Err()
@@ -115,7 +118,7 @@ func newCloudVM(ctx context.Context, logger logging.Logger, fl *flags.Virtualize
 
 	switch fl.VirtualizationProvider.Get().(flags.VirtualizationProvider) {
 	case flags.AWS:
-		if !cloudvm.OnAWS(ctx, time.Second) {
+		if !cloudvm.OnAWS(ctx, cvm.logger, time.Second) {
 			if fl.DissallowNativeFallback {
 				return nil, fmt.Errorf("this process is not running on AWS even though its command line says it is")
 			}
