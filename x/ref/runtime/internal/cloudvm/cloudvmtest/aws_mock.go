@@ -15,13 +15,14 @@ import (
 	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 )
 
-func StartAWSMetadataServer(t *testing.T) (string, func()) {
+func StartAWSMetadataServer(t *testing.T, imdsv2Only bool) (string, func()) {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var token string
-	http.HandleFunc(cloudpaths.AWSTokenPath, func(w http.ResponseWriter, req *http.Request) {
+	mux := &http.ServeMux{}
+	mux.HandleFunc(cloudpaths.AWSTokenPath, func(w http.ResponseWriter, req *http.Request) {
 		token = time.Now().String()
 		w.Header().Add("Server", "EC2ws")
 		fmt.Fprint(w, token)
@@ -32,7 +33,13 @@ func StartAWSMetadataServer(t *testing.T) (string, func()) {
 		return requestToken == token
 	}
 
-	http.HandleFunc(cloudpaths.AWSIdentityDocPath, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(cloudpaths.AWSIdentityDocPath, func(w http.ResponseWriter, r *http.Request) {
+		if imdsv2Only {
+			if len(r.Header.Get("X-aws-ec2-metadata-token")) == 0 {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+		}
 		if !validSession(r) {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -58,19 +65,22 @@ func StartAWSMetadataServer(t *testing.T) (string, func()) {
 		fmt.Fprintf(w, format, args...)
 	}
 
-	http.HandleFunc(cloudpaths.AWSPrivateIPPath,
+	mux.HandleFunc(cloudpaths.AWSPrivateIPPath,
 		func(w http.ResponseWriter, r *http.Request) {
 			respond(w, r, WellKnownPrivateIP)
 		})
-	http.HandleFunc(cloudpaths.AWSPublicIPPath,
+	mux.HandleFunc(cloudpaths.AWSPublicIPPath,
 		func(w http.ResponseWriter, r *http.Request) {
 			respond(w, r, WellKnownPublicIP)
 		})
-	http.HandleFunc(cloudpaths.AWSPublicIPPath+"/noip",
+	mux.HandleFunc(cloudpaths.AWSPublicIPPath+"/noip",
 		func(w http.ResponseWriter, r *http.Request) {
 			respond(w, r, "")
 		})
 
-	go http.Serve(l, nil)
+	srv := http.Server{
+		Handler: mux,
+	}
+	go srv.Serve(l)
 	return "http://" + l.Addr().String(), func() { l.Close() }
 }
