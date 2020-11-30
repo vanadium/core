@@ -615,7 +615,7 @@ func Stack(err error) PCs {
 
 func (st PCs) String() string {
 	buf := bytes.NewBufferString("")
-	StackToText(buf, st) //nolint:errcheck
+	StackToText(buf, st)
 	return buf.String()
 }
 
