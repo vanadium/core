@@ -646,7 +646,6 @@ func stackToTextIndent(w io.Writer, stack []uintptr, indent string) {
 	if prev < len(stack) {
 		writeFrames(w, indent, stack[prev:])
 	}
-	return
 }
 
 // StackToText emits on w a text representation of stack, which is typically
