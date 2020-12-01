@@ -11,6 +11,7 @@
 package logreaderlib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -139,6 +140,7 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 		return err
 	}
 	defer f.Close()
+	var lastErr error
 	for {
 		fi, err := f.Readdir(100)
 		if err == io.EOF {
@@ -156,8 +158,15 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 			}
 		}
 		if err != nil {
+			// Continue to scan the directory even after encountering
+			// a permission error to ensure that all accessible entries
+			// are found.
+			if errors.Is(err, os.ErrPermission) {
+				lastErr = err
+				continue
+			}
 			return err
 		}
 	}
-	return nil
+	return lastErr
 }
