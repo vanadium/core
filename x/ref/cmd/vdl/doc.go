@@ -36,34 +36,12 @@ The vdl flags are:
    Basename of the optional per-package config file.
 
 The global flags are:
- -alsologtostderr=true
-   log to standard error as well as files
- -log_backtrace_at=:0
-   when logging hits line file:N, emit a stack trace
- -log_dir=
-   if non-empty, write log files to this directory
- -logtostderr=false
-   log to standard error instead of files
- -max_stack_buf_size=4292608
-   max size in bytes of the buffer to use for logging stack traces
  -metadata=<just specify -metadata to activate>
    Displays metadata for the program and exits.
  -skip-go-methods=false
    Skip go generation of VDL{Read,Write,Zero} methods.
- -stderrthreshold=2
-   logs at or above this threshold go to stderr
  -time=false
    Dump timing information to stderr before exiting the program.
- -v=0
-   log level for V logs
- -vmodule=
-   comma-separated list of globpattern=N settings for filename-filtered logging
-   (without the .go suffix).  E.g. foo/bar/baz.go is matched by patterns baz or
-   *az or b* but not by bar/baz or baz.go or az or b.*
- -vpath=
-   comma-separated list of regexppattern=N settings for file pathname-filtered
-   logging (without the .go suffix).  E.g. foo/bar/baz.go is matched by patterns
-   foo/bar/baz or fo.*az or oo/ba or b.z but not by foo/bar/baz.go or fo*az
 
 Vdl generate - Compile packages and dependencies, and generate code
 

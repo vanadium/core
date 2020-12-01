@@ -5,10 +5,6 @@
 package pattern
 
 error (
-  IllegalEscapeChar() {
-    "en": "'%' and '_' cannot be used as escape characters",
-  }
-  InvalidEscape(escaped string) {
-    "en": "only '%', '_', and the escape character are allowed to be escaped, found '\\\\{escaped}'",
-  }
+  IllegalEscapeChar() {}
+  InvalidEscape(escaped string) {}
 )

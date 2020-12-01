@@ -5,8 +5,8 @@
 package vdltest
 
 error (
-        None() { "en": "dummy" }
-        One(i int64) { "en": "dummy" }
-        Two(a string, err error) { "en": "dummy" }
-        Three(a string, b int64, c float32) { "en": "dummy" }
+        None() {}
+        One(i int64) {}
+        Two(a string, err error) {}
+        Three(a string, b int64, c float32) {}
 )

@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -79,13 +78,6 @@ var (
 	ErrOperationNotSupported           = verror.NewIDAction("v.io/v23/query/syncql.OperationNotSupported", verror.NoRetry)
 )
 
-// NewErrBadFieldInWhere returns an error with the ErrBadFieldInWhere ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfBadFieldInWhere or MessageBadFieldInWhere instead.
-func NewErrBadFieldInWhere(ctx *context.T, off int64) error {
-	return verror.New(ErrBadFieldInWhere, ctx, off)
-}
-
 // ErrorfBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
 func ErrorfBadFieldInWhere(ctx *context.T, format string, off int64) error {
 	return ErrBadFieldInWhere.Errorf(ctx, format, off)
@@ -123,13 +115,6 @@ func ParamsErrBadFieldInWhere(argumentError error) (verrorComponent string, verr
 	}
 
 	return
-}
-
-// NewErrBoolInvalidExpression returns an error with the ErrBoolInvalidExpression ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfBoolInvalidExpression or MessageBoolInvalidExpression instead.
-func NewErrBoolInvalidExpression(ctx *context.T, off int64) error {
-	return verror.New(ErrBoolInvalidExpression, ctx, off)
 }
 
 // ErrorfBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
@@ -171,13 +156,6 @@ func ParamsErrBoolInvalidExpression(argumentError error) (verrorComponent string
 	return
 }
 
-// NewErrCheckOfUnknownStatementType returns an error with the ErrCheckOfUnknownStatementType ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfCheckOfUnknownStatementType or MessageCheckOfUnknownStatementType instead.
-func NewErrCheckOfUnknownStatementType(ctx *context.T, off int64) error {
-	return verror.New(ErrCheckOfUnknownStatementType, ctx, off)
-}
-
 // ErrorfCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
 func ErrorfCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
 	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off)
@@ -215,13 +193,6 @@ func ParamsErrCheckOfUnknownStatementType(argumentError error) (verrorComponent 
 	}
 
 	return
-}
-
-// NewErrCouldNotConvert returns an error with the ErrCouldNotConvert ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfCouldNotConvert or MessageCouldNotConvert instead.
-func NewErrCouldNotConvert(ctx *context.T, off int64, from string, to string) error {
-	return verror.New(ErrCouldNotConvert, ctx, off, from, to)
 }
 
 // ErrorfCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
@@ -279,13 +250,6 @@ func ParamsErrCouldNotConvert(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// NewErrDotNotationDisallowedForKey returns an error with the ErrDotNotationDisallowedForKey ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfDotNotationDisallowedForKey or MessageDotNotationDisallowedForKey instead.
-func NewErrDotNotationDisallowedForKey(ctx *context.T, off int64) error {
-	return verror.New(ErrDotNotationDisallowedForKey, ctx, off)
-}
-
 // ErrorfDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
 func ErrorfDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
 	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off)
@@ -323,13 +287,6 @@ func ParamsErrDotNotationDisallowedForKey(argumentError error) (verrorComponent 
 	}
 
 	return
-}
-
-// NewErrExecOfUnknownStatementType returns an error with the ErrExecOfUnknownStatementType ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExecOfUnknownStatementType or MessageExecOfUnknownStatementType instead.
-func NewErrExecOfUnknownStatementType(ctx *context.T, off int64, statementType string) error {
-	return verror.New(ErrExecOfUnknownStatementType, ctx, off, statementType)
 }
 
 // ErrorfExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
@@ -379,13 +336,6 @@ func ParamsErrExecOfUnknownStatementType(argumentError error) (verrorComponent s
 	return
 }
 
-// NewErrExpected returns an error with the ErrExpected ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExpected or MessageExpected instead.
-func NewErrExpected(ctx *context.T, off int64, expected string) error {
-	return verror.New(ErrExpected, ctx, off, expected)
-}
-
 // ErrorfExpected calls ErrExpected.Errorf with the supplied arguments.
 func ErrorfExpected(ctx *context.T, format string, off int64, expected string) error {
 	return ErrExpected.Errorf(ctx, format, off, expected)
@@ -431,13 +381,6 @@ func ParamsErrExpected(argumentError error) (verrorComponent string, verrorOpera
 	}
 
 	return
-}
-
-// NewErrExpectedFrom returns an error with the ErrExpectedFrom ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExpectedFrom or MessageExpectedFrom instead.
-func NewErrExpectedFrom(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrExpectedFrom, ctx, off, found)
 }
 
 // ErrorfExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
@@ -487,13 +430,6 @@ func ParamsErrExpectedFrom(argumentError error) (verrorComponent string, verrorO
 	return
 }
 
-// NewErrExpectedIdentifier returns an error with the ErrExpectedIdentifier ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExpectedIdentifier or MessageExpectedIdentifier instead.
-func NewErrExpectedIdentifier(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrExpectedIdentifier, ctx, off, found)
-}
-
 // ErrorfExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
 func ErrorfExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedIdentifier.Errorf(ctx, format, off, found)
@@ -539,13 +475,6 @@ func ParamsErrExpectedIdentifier(argumentError error) (verrorComponent string, v
 	}
 
 	return
-}
-
-// NewErrExpectedOperand returns an error with the ErrExpectedOperand ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExpectedOperand or MessageExpectedOperand instead.
-func NewErrExpectedOperand(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrExpectedOperand, ctx, off, found)
 }
 
 // ErrorfExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
@@ -595,13 +524,6 @@ func ParamsErrExpectedOperand(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// NewErrExpectedOperator returns an error with the ErrExpectedOperator ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfExpectedOperator or MessageExpectedOperator instead.
-func NewErrExpectedOperator(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrExpectedOperator, ctx, off, found)
-}
-
 // ErrorfExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
 func ErrorfExpectedOperator(ctx *context.T, format string, off int64, found string) error {
 	return ErrExpectedOperator.Errorf(ctx, format, off, found)
@@ -647,13 +569,6 @@ func ParamsErrExpectedOperator(argumentError error) (verrorComponent string, ver
 	}
 
 	return
-}
-
-// NewErrFunctionArgCount returns an error with the ErrFunctionArgCount ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionArgCount or MessageFunctionArgCount instead.
-func NewErrFunctionArgCount(ctx *context.T, off int64, name string, expected int64, found int64) error {
-	return verror.New(ErrFunctionArgCount, ctx, off, name, expected, found)
 }
 
 // ErrorfFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
@@ -719,13 +634,6 @@ func ParamsErrFunctionArgCount(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// NewErrFunctionAtLeastArgCount returns an error with the ErrFunctionAtLeastArgCount ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionAtLeastArgCount or MessageFunctionAtLeastArgCount instead.
-func NewErrFunctionAtLeastArgCount(ctx *context.T, off int64, name string, expected int64, found int64) error {
-	return verror.New(ErrFunctionAtLeastArgCount, ctx, off, name, expected, found)
-}
-
 // ErrorfFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
 func ErrorfFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
 	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found)
@@ -789,13 +697,6 @@ func ParamsErrFunctionAtLeastArgCount(argumentError error) (verrorComponent stri
 	return
 }
 
-// NewErrFunctionTypeInvalidArg returns an error with the ErrFunctionTypeInvalidArg ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionTypeInvalidArg or MessageFunctionTypeInvalidArg instead.
-func NewErrFunctionTypeInvalidArg(ctx *context.T, off int64) error {
-	return verror.New(ErrFunctionTypeInvalidArg, ctx, off)
-}
-
 // ErrorfFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
 func ErrorfFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off)
@@ -835,13 +736,6 @@ func ParamsErrFunctionTypeInvalidArg(argumentError error) (verrorComponent strin
 	return
 }
 
-// NewErrFunctionLenInvalidArg returns an error with the ErrFunctionLenInvalidArg ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionLenInvalidArg or MessageFunctionLenInvalidArg instead.
-func NewErrFunctionLenInvalidArg(ctx *context.T, off int64) error {
-	return verror.New(ErrFunctionLenInvalidArg, ctx, off)
-}
-
 // ErrorfFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
 func ErrorfFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
 	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off)
@@ -879,13 +773,6 @@ func ParamsErrFunctionLenInvalidArg(argumentError error) (verrorComponent string
 	}
 
 	return
-}
-
-// NewErrFunctionArgBad returns an error with the ErrFunctionArgBad ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionArgBad or MessageFunctionArgBad instead.
-func NewErrFunctionArgBad(ctx *context.T, off int64, funcName string, argName string) error {
-	return verror.New(ErrFunctionArgBad, ctx, off, funcName, argName)
 }
 
 // ErrorfFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
@@ -943,13 +830,6 @@ func ParamsErrFunctionArgBad(argumentError error) (verrorComponent string, verro
 	return
 }
 
-// NewErrFunctionNotFound returns an error with the ErrFunctionNotFound ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFunctionNotFound or MessageFunctionNotFound instead.
-func NewErrFunctionNotFound(ctx *context.T, off int64, name string) error {
-	return verror.New(ErrFunctionNotFound, ctx, off, name)
-}
-
 // ErrorfFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
 func ErrorfFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
 	return ErrFunctionNotFound.Errorf(ctx, format, off, name)
@@ -997,13 +877,6 @@ func ParamsErrFunctionNotFound(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// NewErrArgMustBeField returns an error with the ErrArgMustBeField ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfArgMustBeField or MessageArgMustBeField instead.
-func NewErrArgMustBeField(ctx *context.T, off int64) error {
-	return verror.New(ErrArgMustBeField, ctx, off)
-}
-
 // ErrorfArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
 func ErrorfArgMustBeField(ctx *context.T, format string, off int64) error {
 	return ErrArgMustBeField.Errorf(ctx, format, off)
@@ -1041,13 +914,6 @@ func ParamsErrArgMustBeField(argumentError error) (verrorComponent string, verro
 	}
 
 	return
-}
-
-// NewErrBigIntConversionError returns an error with the ErrBigIntConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfBigIntConversionError or MessageBigIntConversionError instead.
-func NewErrBigIntConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrBigIntConversionError, ctx, off, err)
 }
 
 // ErrorfBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
@@ -1097,13 +963,6 @@ func ParamsErrBigIntConversionError(argumentError error) (verrorComponent string
 	return
 }
 
-// NewErrBigRatConversionError returns an error with the ErrBigRatConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfBigRatConversionError or MessageBigRatConversionError instead.
-func NewErrBigRatConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrBigRatConversionError, ctx, off, err)
-}
-
 // ErrorfBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
 func ErrorfBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrBigRatConversionError.Errorf(ctx, format, off, err)
@@ -1149,13 +1008,6 @@ func ParamsErrBigRatConversionError(argumentError error) (verrorComponent string
 	}
 
 	return
-}
-
-// NewErrBoolConversionError returns an error with the ErrBoolConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfBoolConversionError or MessageBoolConversionError instead.
-func NewErrBoolConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrBoolConversionError, ctx, off, err)
 }
 
 // ErrorfBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
@@ -1205,13 +1057,6 @@ func ParamsErrBoolConversionError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// NewErrComplexConversionError returns an error with the ErrComplexConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfComplexConversionError or MessageComplexConversionError instead.
-func NewErrComplexConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrComplexConversionError, ctx, off, err)
-}
-
 // ErrorfComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
 func ErrorfComplexConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrComplexConversionError.Errorf(ctx, format, off, err)
@@ -1257,13 +1102,6 @@ func ParamsErrComplexConversionError(argumentError error) (verrorComponent strin
 	}
 
 	return
-}
-
-// NewErrUintConversionError returns an error with the ErrUintConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfUintConversionError or MessageUintConversionError instead.
-func NewErrUintConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrUintConversionError, ctx, off, err)
 }
 
 // ErrorfUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
@@ -1313,13 +1151,6 @@ func ParamsErrUintConversionError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// NewErrTimeConversionError returns an error with the ErrTimeConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfTimeConversionError or MessageTimeConversionError instead.
-func NewErrTimeConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrTimeConversionError, ctx, off, err)
-}
-
 // ErrorfTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
 func ErrorfTimeConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrTimeConversionError.Errorf(ctx, format, off, err)
@@ -1365,13 +1196,6 @@ func ParamsErrTimeConversionError(argumentError error) (verrorComponent string, 
 	}
 
 	return
-}
-
-// NewErrLocationConversionError returns an error with the ErrLocationConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfLocationConversionError or MessageLocationConversionError instead.
-func NewErrLocationConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrLocationConversionError, ctx, off, err)
 }
 
 // ErrorfLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
@@ -1421,13 +1245,6 @@ func ParamsErrLocationConversionError(argumentError error) (verrorComponent stri
 	return
 }
 
-// NewErrStringConversionError returns an error with the ErrStringConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfStringConversionError or MessageStringConversionError instead.
-func NewErrStringConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrStringConversionError, ctx, off, err)
-}
-
 // ErrorfStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
 func ErrorfStringConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrStringConversionError.Errorf(ctx, format, off, err)
@@ -1473,13 +1290,6 @@ func ParamsErrStringConversionError(argumentError error) (verrorComponent string
 	}
 
 	return
-}
-
-// NewErrFloatConversionError returns an error with the ErrFloatConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfFloatConversionError or MessageFloatConversionError instead.
-func NewErrFloatConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrFloatConversionError, ctx, off, err)
 }
 
 // ErrorfFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
@@ -1529,13 +1339,6 @@ func ParamsErrFloatConversionError(argumentError error) (verrorComponent string,
 	return
 }
 
-// NewErrIntConversionError returns an error with the ErrIntConversionError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfIntConversionError or MessageIntConversionError instead.
-func NewErrIntConversionError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrIntConversionError, ctx, off, err)
-}
-
 // ErrorfIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
 func ErrorfIntConversionError(ctx *context.T, format string, off int64, err error) error {
 	return ErrIntConversionError.Errorf(ctx, format, off, err)
@@ -1583,13 +1386,6 @@ func ParamsErrIntConversionError(argumentError error) (verrorComponent string, v
 	return
 }
 
-// NewErrIsIsNotRequireLhsValue returns an error with the ErrIsIsNotRequireLhsValue ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfIsIsNotRequireLhsValue or MessageIsIsNotRequireLhsValue instead.
-func NewErrIsIsNotRequireLhsValue(ctx *context.T, off int64) error {
-	return verror.New(ErrIsIsNotRequireLhsValue, ctx, off)
-}
-
 // ErrorfIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
 func ErrorfIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off)
@@ -1629,13 +1425,6 @@ func ParamsErrIsIsNotRequireLhsValue(argumentError error) (verrorComponent strin
 	return
 }
 
-// NewErrIsIsNotRequireRhsNil returns an error with the ErrIsIsNotRequireRhsNil ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfIsIsNotRequireRhsNil or MessageIsIsNotRequireRhsNil instead.
-func NewErrIsIsNotRequireRhsNil(ctx *context.T, off int64) error {
-	return verror.New(ErrIsIsNotRequireRhsNil, ctx, off)
-}
-
 // ErrorfIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
 func ErrorfIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
 	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off)
@@ -1673,13 +1462,6 @@ func ParamsErrIsIsNotRequireRhsNil(argumentError error) (verrorComponent string,
 	}
 
 	return
-}
-
-// NewErrInvalidLikePattern returns an error with the ErrInvalidLikePattern ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfInvalidLikePattern or MessageInvalidLikePattern instead.
-func NewErrInvalidLikePattern(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrInvalidLikePattern, ctx, off, err)
 }
 
 // ErrorfInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
@@ -1729,13 +1511,6 @@ func ParamsErrInvalidLikePattern(argumentError error) (verrorComponent string, v
 	return
 }
 
-// NewErrInvalidSelectField returns an error with the ErrInvalidSelectField ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfInvalidSelectField or MessageInvalidSelectField instead.
-func NewErrInvalidSelectField(ctx *context.T, off int64) error {
-	return verror.New(ErrInvalidSelectField, ctx, off)
-}
-
 // ErrorfInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
 func ErrorfInvalidSelectField(ctx *context.T, format string, off int64) error {
 	return ErrInvalidSelectField.Errorf(ctx, format, off)
@@ -1775,13 +1550,6 @@ func ParamsErrInvalidSelectField(argumentError error) (verrorComponent string, v
 	return
 }
 
-// NewErrKeyExpressionLiteral returns an error with the ErrKeyExpressionLiteral ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfKeyExpressionLiteral or MessageKeyExpressionLiteral instead.
-func NewErrKeyExpressionLiteral(ctx *context.T, off int64) error {
-	return verror.New(ErrKeyExpressionLiteral, ctx, off)
-}
-
 // ErrorfKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
 func ErrorfKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
 	return ErrKeyExpressionLiteral.Errorf(ctx, format, off)
@@ -1819,13 +1587,6 @@ func ParamsErrKeyExpressionLiteral(argumentError error) (verrorComponent string,
 	}
 
 	return
-}
-
-// NewErrKeyValueStreamError returns an error with the ErrKeyValueStreamError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfKeyValueStreamError or MessageKeyValueStreamError instead.
-func NewErrKeyValueStreamError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrKeyValueStreamError, ctx, off, err)
 }
 
 // ErrorfKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
@@ -1875,13 +1636,6 @@ func ParamsErrKeyValueStreamError(argumentError error) (verrorComponent string, 
 	return
 }
 
-// NewErrLikeExpressionsRequireRhsString returns an error with the ErrLikeExpressionsRequireRhsString ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfLikeExpressionsRequireRhsString or MessageLikeExpressionsRequireRhsString instead.
-func NewErrLikeExpressionsRequireRhsString(ctx *context.T, off int64) error {
-	return verror.New(ErrLikeExpressionsRequireRhsString, ctx, off)
-}
-
 // ErrorfLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
 func ErrorfLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
 	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off)
@@ -1921,13 +1675,6 @@ func ParamsErrLikeExpressionsRequireRhsString(argumentError error) (verrorCompon
 	return
 }
 
-// NewErrLimitMustBeGt0 returns an error with the ErrLimitMustBeGt0 ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfLimitMustBeGt0 or MessageLimitMustBeGt0 instead.
-func NewErrLimitMustBeGt0(ctx *context.T, off int64) error {
-	return verror.New(ErrLimitMustBeGt0, ctx, off)
-}
-
 // ErrorfLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
 func ErrorfLimitMustBeGt0(ctx *context.T, format string, off int64) error {
 	return ErrLimitMustBeGt0.Errorf(ctx, format, off)
@@ -1965,13 +1712,6 @@ func ParamsErrLimitMustBeGt0(argumentError error) (verrorComponent string, verro
 	}
 
 	return
-}
-
-// NewErrMaxStatementLenExceeded returns an error with the ErrMaxStatementLenExceeded ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfMaxStatementLenExceeded or MessageMaxStatementLenExceeded instead.
-func NewErrMaxStatementLenExceeded(ctx *context.T, off int64, max int64, found int64) error {
-	return verror.New(ErrMaxStatementLenExceeded, ctx, off, max, found)
 }
 
 // ErrorfMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
@@ -2029,13 +1769,6 @@ func ParamsErrMaxStatementLenExceeded(argumentError error) (verrorComponent stri
 	return
 }
 
-// NewErrNoStatementFound returns an error with the ErrNoStatementFound ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfNoStatementFound or MessageNoStatementFound instead.
-func NewErrNoStatementFound(ctx *context.T, off int64) error {
-	return verror.New(ErrNoStatementFound, ctx, off)
-}
-
 // ErrorfNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
 func ErrorfNoStatementFound(ctx *context.T, format string, off int64) error {
 	return ErrNoStatementFound.Errorf(ctx, format, off)
@@ -2075,13 +1808,6 @@ func ParamsErrNoStatementFound(argumentError error) (verrorComponent string, ver
 	return
 }
 
-// NewErrOffsetMustBeGe0 returns an error with the ErrOffsetMustBeGe0 ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfOffsetMustBeGe0 or MessageOffsetMustBeGe0 instead.
-func NewErrOffsetMustBeGe0(ctx *context.T, off int64) error {
-	return verror.New(ErrOffsetMustBeGe0, ctx, off)
-}
-
 // ErrorfOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
 func ErrorfOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
 	return ErrOffsetMustBeGe0.Errorf(ctx, format, off)
@@ -2119,13 +1845,6 @@ func ParamsErrOffsetMustBeGe0(argumentError error) (verrorComponent string, verr
 	}
 
 	return
-}
-
-// NewErrScanError returns an error with the ErrScanError ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfScanError or MessageScanError instead.
-func NewErrScanError(ctx *context.T, off int64, err error) error {
-	return verror.New(ErrScanError, ctx, off, err)
 }
 
 // ErrorfScanError calls ErrScanError.Errorf with the supplied arguments.
@@ -2173,13 +1892,6 @@ func ParamsErrScanError(argumentError error) (verrorComponent string, verrorOper
 	}
 
 	return
-}
-
-// NewErrTableCantAccess returns an error with the ErrTableCantAccess ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfTableCantAccess or MessageTableCantAccess instead.
-func NewErrTableCantAccess(ctx *context.T, off int64, table string, err error) error {
-	return verror.New(ErrTableCantAccess, ctx, off, table, err)
 }
 
 // ErrorfTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
@@ -2237,13 +1949,6 @@ func ParamsErrTableCantAccess(argumentError error) (verrorComponent string, verr
 	return
 }
 
-// NewErrUnexpected returns an error with the ErrUnexpected ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfUnexpected or MessageUnexpected instead.
-func NewErrUnexpected(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrUnexpected, ctx, off, found)
-}
-
 // ErrorfUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
 func ErrorfUnexpected(ctx *context.T, format string, off int64, found string) error {
 	return ErrUnexpected.Errorf(ctx, format, off, found)
@@ -2291,13 +1996,6 @@ func ParamsErrUnexpected(argumentError error) (verrorComponent string, verrorOpe
 	return
 }
 
-// NewErrUnexpectedEndOfStatement returns an error with the ErrUnexpectedEndOfStatement ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfUnexpectedEndOfStatement or MessageUnexpectedEndOfStatement instead.
-func NewErrUnexpectedEndOfStatement(ctx *context.T, off int64) error {
-	return verror.New(ErrUnexpectedEndOfStatement, ctx, off)
-}
-
 // ErrorfUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
 func ErrorfUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
 	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off)
@@ -2335,13 +2033,6 @@ func ParamsErrUnexpectedEndOfStatement(argumentError error) (verrorComponent str
 	}
 
 	return
-}
-
-// NewErrUnknownIdentifier returns an error with the ErrUnknownIdentifier ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfUnknownIdentifier or MessageUnknownIdentifier instead.
-func NewErrUnknownIdentifier(ctx *context.T, off int64, found string) error {
-	return verror.New(ErrUnknownIdentifier, ctx, off, found)
 }
 
 // ErrorfUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
@@ -2391,13 +2082,6 @@ func ParamsErrUnknownIdentifier(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// NewErrInvalidEscapeChar returns an error with the ErrInvalidEscapeChar ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfInvalidEscapeChar or MessageInvalidEscapeChar instead.
-func NewErrInvalidEscapeChar(ctx *context.T, off int64, escChar string) error {
-	return verror.New(ErrInvalidEscapeChar, ctx, off, escChar)
-}
-
 // ErrorfInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
 func ErrorfInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
 	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar)
@@ -2445,13 +2129,6 @@ func ParamsErrInvalidEscapeChar(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// NewErrDidYouMeanLowercaseK returns an error with the ErrDidYouMeanLowercaseK ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfDidYouMeanLowercaseK or MessageDidYouMeanLowercaseK instead.
-func NewErrDidYouMeanLowercaseK(ctx *context.T, off int64) error {
-	return verror.New(ErrDidYouMeanLowercaseK, ctx, off)
-}
-
 // ErrorfDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
 func ErrorfDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off)
@@ -2491,13 +2168,6 @@ func ParamsErrDidYouMeanLowercaseK(argumentError error) (verrorComponent string,
 	return
 }
 
-// NewErrDidYouMeanLowercaseV returns an error with the ErrDidYouMeanLowercaseV ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfDidYouMeanLowercaseV or MessageDidYouMeanLowercaseV instead.
-func NewErrDidYouMeanLowercaseV(ctx *context.T, off int64) error {
-	return verror.New(ErrDidYouMeanLowercaseV, ctx, off)
-}
-
 // ErrorfDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
 func ErrorfDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
 	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off)
@@ -2535,13 +2205,6 @@ func ParamsErrDidYouMeanLowercaseV(argumentError error) (verrorComponent string,
 	}
 
 	return
-}
-
-// NewErrDidYouMeanFunction returns an error with the ErrDidYouMeanFunction ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfDidYouMeanFunction or MessageDidYouMeanFunction instead.
-func NewErrDidYouMeanFunction(ctx *context.T, off int64, correctName string) error {
-	return verror.New(ErrDidYouMeanFunction, ctx, off, correctName)
 }
 
 // ErrorfDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
@@ -2591,13 +2254,6 @@ func ParamsErrDidYouMeanFunction(argumentError error) (verrorComponent string, v
 	return
 }
 
-// NewErrNotEnoughParamValuesSpecified returns an error with the ErrNotEnoughParamValuesSpecified ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfNotEnoughParamValuesSpecified or MessageNotEnoughParamValuesSpecified instead.
-func NewErrNotEnoughParamValuesSpecified(ctx *context.T, off int64) error {
-	return verror.New(ErrNotEnoughParamValuesSpecified, ctx, off)
-}
-
 // ErrorfNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
 func ErrorfNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
 	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off)
@@ -2635,13 +2291,6 @@ func ParamsErrNotEnoughParamValuesSpecified(argumentError error) (verrorComponen
 	}
 
 	return
-}
-
-// NewErrTooManyParamValuesSpecified returns an error with the ErrTooManyParamValuesSpecified ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfTooManyParamValuesSpecified or MessageTooManyParamValuesSpecified instead.
-func NewErrTooManyParamValuesSpecified(ctx *context.T, off int64) error {
-	return verror.New(ErrTooManyParamValuesSpecified, ctx, off)
 }
 
 // ErrorfTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
@@ -2683,13 +2332,6 @@ func ParamsErrTooManyParamValuesSpecified(argumentError error) (verrorComponent 
 	return
 }
 
-// NewErrPreparedStatementNotFound returns an error with the ErrPreparedStatementNotFound ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfPreparedStatementNotFound or MessagePreparedStatementNotFound instead.
-func NewErrPreparedStatementNotFound(ctx *context.T) error {
-	return verror.New(ErrPreparedStatementNotFound, ctx)
-}
-
 // ErrorfPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
 func ErrorfPreparedStatementNotFound(ctx *context.T, format string) error {
 	return ErrPreparedStatementNotFound.Errorf(ctx, format)
@@ -2714,13 +2356,6 @@ func ParamsErrPreparedStatementNotFound(argumentError error) (verrorComponent st
 	}
 
 	return
-}
-
-// NewErrIndexKindNotSupported returns an error with the ErrIndexKindNotSupported ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfIndexKindNotSupported or MessageIndexKindNotSupported instead.
-func NewErrIndexKindNotSupported(ctx *context.T, off int64, kind string, fieldName string, table string) error {
-	return verror.New(ErrIndexKindNotSupported, ctx, off, kind, fieldName, table)
 }
 
 // ErrorfIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
@@ -2786,13 +2421,6 @@ func ParamsErrIndexKindNotSupported(argumentError error) (verrorComponent string
 	return
 }
 
-// NewErrInvalidIndexField returns an error with the ErrInvalidIndexField ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfInvalidIndexField or MessageInvalidIndexField instead.
-func NewErrInvalidIndexField(ctx *context.T, off int64, fieldName string, table string) error {
-	return verror.New(ErrInvalidIndexField, ctx, off, fieldName, table)
-}
-
 // ErrorfInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
 func ErrorfInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
 	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table)
@@ -2848,13 +2476,6 @@ func ParamsErrInvalidIndexField(argumentError error) (verrorComponent string, ve
 	return
 }
 
-// NewErrNotWritable returns an error with the ErrNotWritable ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfNotWritable or MessageNotWritable instead.
-func NewErrNotWritable(ctx *context.T, table string) error {
-	return verror.New(ErrNotWritable, ctx, table)
-}
-
 // ErrorfNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
 func ErrorfNotWritable(ctx *context.T, format string, table string) error {
 	return ErrNotWritable.Errorf(ctx, format, table)
@@ -2892,13 +2513,6 @@ func ParamsErrNotWritable(argumentError error) (verrorComponent string, verrorOp
 	}
 
 	return
-}
-
-// NewErrOperationNotSupported returns an error with the ErrOperationNotSupported ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfOperationNotSupported or MessageOperationNotSupported instead.
-func NewErrOperationNotSupported(ctx *context.T, operation string) error {
-	return verror.New(ErrOperationNotSupported, ctx, operation)
 }
 
 // ErrorfOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
@@ -2996,63 +2610,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBadFieldInWhere.ID), "{1:}{2:} [{3}]Where field must be 'k' or 'v[{.<ident>}...]'.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBoolInvalidExpression.ID), "{1:}{2:} [{3}]Boolean operands may only be used in equals and not equals expressions.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCheckOfUnknownStatementType.ID), "{1:}{2:} [{3}]Cannot semantically check unknown statement type.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrCouldNotConvert.ID), "{1:}{2:} [{3}]Could not convert {4} to {5}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDotNotationDisallowedForKey.ID), "{1:}{2:} [{3}]Dot notation may not be used on a key field.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExecOfUnknownStatementType.ID), "{1:}{2:} [{3}]Cannot execute unknown statement type: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpected.ID), "{1:}{2:} [{3}]Expected '{4}'.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpectedFrom.ID), "{1:}{2:} [{3}]Expected 'from', found {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpectedIdentifier.ID), "{1:}{2:} [{3}]Expected identifier, found {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpectedOperand.ID), "{1:}{2:} [{3}]Expected operand, found {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrExpectedOperator.ID), "{1:}{2:} [{3}]Expected operator, found {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionArgCount.ID), "{1:}{2:} [{3}]Function '{4}' expects {5} args, found: {6}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionAtLeastArgCount.ID), "{1:}{2:} [{3}]Function '{4}' expects at least {5} args, found: {6}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionTypeInvalidArg.ID), "{1:}{2:} [{3}]Function 'Type()' cannot get type of argument -- expecting object.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionLenInvalidArg.ID), "{1:}{2:} [{3}]Function 'Len()' expects array, list, set, map, string or nil.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionArgBad.ID), "{1:}{2:} [{3}]Function '{4}' arg '{5}' could not be resolved.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFunctionNotFound.ID), "{1:}{2:} [{3}]Function '{4}' not found.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrArgMustBeField.ID), "{1:}{2:} [{3}]Argument must be a value field (i.e., must begin with 'v').")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBigIntConversionError.ID), "{1:}{2:} [{3}]Can't convert to BigInt: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBigRatConversionError.ID), "{1:}{2:} [{3}]Can't convert to BigRat: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrBoolConversionError.ID), "{1:}{2:} [{3}]Can't convert to Bool: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrComplexConversionError.ID), "{1:}{2:} [{3}]Can't convert to Complex: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUintConversionError.ID), "{1:}{2:} [{3}]Can't convert to Uint: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTimeConversionError.ID), "{1:}{2:} [{3}]Can't convert to time: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrLocationConversionError.ID), "{1:}{2:} [{3}]Can't convert to location: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrStringConversionError.ID), "{1:}{2:} [{3}]Can't convert to string: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrFloatConversionError.ID), "{1:}{2:} [{3}]Can't convert to float: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIntConversionError.ID), "{1:}{2:} [{3}]Can't convert to int: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIsIsNotRequireLhsValue.ID), "{1:}{2:} [{3}]'Is/is not' expressions require left operand to be a value operand.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIsIsNotRequireRhsNil.ID), "{1:}{2:} [{3}]'Is/is not' expressions require right operand to be nil.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidLikePattern.ID), "{1:}{2:} [{3}]Invalid like pattern: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidSelectField.ID), "{1:}{2:} [{3}]Select field must be 'k' or 'v[{.<ident>}...]'.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrKeyExpressionLiteral.ID), "{1:}{2:} [{3}]Key (i.e., 'k') compares against literals must be string literal.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrKeyValueStreamError.ID), "{1:}{2:} [{3}]KeyValueStream error: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrLikeExpressionsRequireRhsString.ID), "{1:}{2:} [{3}]Like expressions require right operand of type <string-literal>.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrLimitMustBeGt0.ID), "{1:}{2:} [{3}]Limit must be > 0.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrMaxStatementLenExceeded.ID), "{1:}{2:} [{3}]Maximum length of statements is {4}; found {5}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoStatementFound.ID), "{1:}{2:} [{3}]No statement found.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrOffsetMustBeGe0.ID), "{1:}{2:} [{3}]Offset must be > 0.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrScanError.ID), "{1:}{2:} [{3}]Scan error: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTableCantAccess.ID), "{1:}{2:} [{3}]Table {4} does not exist (or cannot be accessed): {5}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnexpected.ID), "{1:}{2:} [{3}]Unexpected: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnexpectedEndOfStatement.ID), "{1:}{2:} [{3}]Unexpected end of statement.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrUnknownIdentifier.ID), "{1:}{2:} [{3}]Unknown identifier: {4}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidEscapeChar.ID), "{1:}{2:} [{3}]'{4}' is not a valid escape character.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDidYouMeanLowercaseK.ID), "{1:}{2:} [{3}]Did you mean: 'k'?")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDidYouMeanLowercaseV.ID), "{1:}{2:} [{3}]Did you mean: 'v'?")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrDidYouMeanFunction.ID), "{1:}{2:} [{3}]Did you mean: '{4}'?")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotEnoughParamValuesSpecified.ID), "{1:}{2:} [{3}]Not enough parameter values specified.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrTooManyParamValuesSpecified.ID), "{1:}{2:} [{3}]Too many parameter values specified.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrPreparedStatementNotFound.ID), "{1:}{2:} [0]Prepared statement not found.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrIndexKindNotSupported.ID), "{1:}{2:} [{3}]Index kind {4} of field {5} on table {6} not supported.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrInvalidIndexField.ID), "{1:}{2:} [{3}]Invalid index field {4} returned by table {5}.")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotWritable.ID), "{1:}{2:} [0]Can't write to table {3} (not supported on batch/connection).")
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrOperationNotSupported.ID), "{1:}{2:} [0]{3} not supported.")
 
 	return struct{}{}
 }

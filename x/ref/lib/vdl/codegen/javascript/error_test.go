@@ -7,7 +7,6 @@ package javascript
 import (
 	"testing"
 
-	"v.io/v23/i18n"
 	"v.io/v23/vdl"
 	"v.io/x/ref/lib/vdl/compile"
 )
@@ -33,23 +32,10 @@ func TestError(t *testing.T) {
 				Type: vdl.Int32Type,
 			},
 		},
-		Formats: []compile.LangFmt{
-			{
-				Lang: i18n.LangID("en-US"),
-				Fmt:  "english string",
-			},
-			{
-				Lang: i18n.LangID("fr"),
-				Fmt:  "french string",
-			},
-		},
 	}
 	var names typeNames
 	result := generateErrorConstructor(names, e)
-	expected := `module.exports.TestError = makeError('v.io/x/ref/lib/vdl/codegen/javascript.Test', actions.NO_RETRY, {
-  'en-US': 'english string',
-  'fr': 'french string',
-}, [
+	expected := `module.exports.TestError = makeError('v.io/x/ref/lib/vdl/codegen/javascript.Test', actions.NO_RETRY, [
   vdl.types.BOOL,
   vdl.types.INT32,
 ]);

@@ -14,7 +14,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/glob"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/rpc/reserved"
@@ -216,9 +215,6 @@ func TestGlobDeny(t *testing.T) {
 		{"a/deny/x", "*", []string{}, 1},
 		{"a/deny/y", "*", []string{}, 1},
 	}
-
-	// Ensure that we're getting the english error message.
-	ctx = i18n.WithLangID(ctx, i18n.LangID("en-US"))
 
 	for _, tc := range testcases {
 		name := naming.JoinAddressName(ep, tc.name)

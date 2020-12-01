@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -20,7 +19,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/discovery"
 	"v.io/v23/flow"
-	"v.io/v23/i18n"
 	"v.io/v23/namespace"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
@@ -135,18 +133,6 @@ func Init(
 	}
 
 	ctx = context.WithContextLogger(ctx, &ivtrace.Logger{})
-
-	// Setup i18n.
-	ctx = i18n.WithLangID(ctx, i18n.LangIDFromEnv())
-	if len(flags.I18nCatalogue) != 0 {
-		cat := i18n.Cat()
-		for _, filename := range strings.Split(flags.I18nCatalogue, ",") {
-			err := cat.MergeFromFile(filename)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "%s: i18n: error reading i18n catalogue file %q: %s\n", os.Args[0], filename, err)
-			}
-		}
-	}
 
 	// Setup the program name.
 	ctx = verror.WithComponentName(ctx, filepath.Base(os.Args[0]))

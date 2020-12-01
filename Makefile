@@ -3,14 +3,14 @@ SHELL := /bin/bash -euo pipefail
 VDLPATH ?= $(shell pwd)
 export VDLPATH
 vdlgen:
-	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go v.io/...	
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
 	go generate ./v23/vdl/vdltest
 
 VDLROOT ?= $(shell pwd)/v23/vdlroot
 export VDLROOT
 vdlroot:
 	cd v23/vdlroot && \
-	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go \
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=false --lang=go \
 		./vdltool \
 		./math \
 		./time \

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
@@ -39,10 +38,6 @@ func (*testServer) Echo(_ *context.T, call rpc.ServerCall, arg string) (string, 
 
 func (*testServer) EchoUser(_ *context.T, call rpc.ServerCall, arg string, u userType) (string, userType, error) {
 	return fmt.Sprintf("method:%q,suffix:%q,arg:%q", "EchoUser", call.Suffix(), arg), u, nil
-}
-
-func (*testServer) EchoLang(ctx *context.T, call rpc.ServerCall) (string, error) {
-	return string(i18n.GetLangID(ctx)), nil
 }
 
 func (*testServer) EchoBlessings(ctx *context.T, call rpc.ServerCall) (server, client string, _ error) {

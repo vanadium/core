@@ -10,6 +10,6 @@ package bidi
 // since all of their errors are intended to be used as arguments to higher level errors.
 // TODO(suharshs,toddw): Allow skipping of {1}{2} in vdl generated errors.
 error (
-	CannotListenOnBidi() {"en": "cannot listen on bidi protocol"}
-	BidiRoutingIdNotCached() {"en": "bidi routing id not in cache"}
+	CannotListenOnBidi() {}
+	BidiRoutingIdNotCached() {}
 )

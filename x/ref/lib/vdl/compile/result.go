@@ -33,7 +33,6 @@ type Env struct {
 	constMap map[*vdl.Value]*ConstDef
 
 	disallowPathQualifiers bool // Disallow syntax like "a/b/c".Type
-	noI18nErrorSupport     bool
 }
 
 // NewEnv creates a new Env, allowing up to maxErrors errors before we stop.
@@ -260,17 +259,6 @@ func fpStringf(file *File, pos parse.Pos, format string, v ...interface{}) strin
 func (e *Env) DisallowPathQualifiers() *Env {
 	e.disallowPathQualifiers = true
 	return e
-}
-
-// DisallowI18nErrorSupport disables i18n formats for errors.
-func (e *Env) DisallowI18nErrorSupport() *Env {
-	e.noI18nErrorSupport = true
-	return e
-}
-
-// ErrorI18nSupport returns true if i18n support is enabled for errors.
-func (e *Env) ErrorI18nSupport() bool {
-	return !e.noI18nErrorSupport
 }
 
 // Representation of the components of an vdl file.  These data types represent

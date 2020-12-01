@@ -15,7 +15,6 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/verror"
@@ -31,13 +30,6 @@ var (
 	// Indicates that the Caveat does not require a discharge
 	ErrNotAThirdPartyCaveat = verror.NewIDAction("v.io/x/ref/services/discharger.NotAThirdPartyCaveat", verror.NoRetry)
 )
-
-// NewErrNotAThirdPartyCaveat returns an error with the ErrNotAThirdPartyCaveat ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfNotAThirdPartyCaveat or MessageNotAThirdPartyCaveat instead.
-func NewErrNotAThirdPartyCaveat(ctx *context.T, c security.Caveat) error {
-	return verror.New(ErrNotAThirdPartyCaveat, ctx, c)
-}
 
 // ErrorfNotAThirdPartyCaveat calls ErrNotAThirdPartyCaveat.Errorf with the supplied arguments.
 func ErrorfNotAThirdPartyCaveat(ctx *context.T, format string, c security.Caveat) error {
@@ -249,9 +241,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNotAThirdPartyCaveat.ID), "{1:}{2:} discharges are not required for non-third-party caveats (id: {c.id})")
 
 	return struct{}{}
 }

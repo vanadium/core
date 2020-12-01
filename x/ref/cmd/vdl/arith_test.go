@@ -19,12 +19,10 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/vdl"
+	"v.io/v23/vom"
 	"v.io/x/ref/lib/vdl/testdata/arith"
 	"v.io/x/ref/lib/vdl/testdata/base"
 	"v.io/x/ref/test"
-
-	"v.io/v23/vom"
-	_ "v.io/x/ref/runtime/factories/generic"
 )
 
 var errGenerated = errors.New("generated error")

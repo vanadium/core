@@ -49,6 +49,8 @@ annotations:
     name: copyright
     packages:
       - "./..."
+    exclusions:
+      - ".vdl.go"
     copyright: "// Copyright 2020 The Vanadium Authors. All rights reserved."
     license: |
       // Use of this source code is governed by a BSD-style

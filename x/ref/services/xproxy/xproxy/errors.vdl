@@ -5,9 +5,9 @@
 package xproxy
 
 error (
-  NotListening() {"en": "Proxy is not listening on any endpoints."}
-  UnexpectedMessage(msgType string) {"en": "Unexpected message of type{:msgType}"}
-  FailedToResolveToEndpoint(name string) {"en": "Failed to resolve '{name}' to endpoint"}
-  ProxyAlreadyClosed() {"en": "Proxy has already been closed"}
-  ProxyResponse(msg string) {"en": "proxy returned{:msg}"}
+  NotListening() {}
+  UnexpectedMessage(msgType string) {}
+  FailedToResolveToEndpoint(name string) {}
+  ProxyAlreadyClosed() {}
+  ProxyResponse(msg string) {}
 )

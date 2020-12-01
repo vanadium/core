@@ -48,8 +48,6 @@ The global flags are:
    log level for V logs
  -v23.credentials=
    directory to use for storing security credentials
- -v23.i18n-catalogue=
-   18n catalogue files to load, comma separated
  -v23.permissions.file=
    specify a perms file as <name>:<permsfile>
  -v23.permissions.literal=

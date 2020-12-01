@@ -16,7 +16,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -135,7 +134,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 
 func (c *client) StartCall(ctx *context.T, name, method string, args []interface{}, opts ...rpc.CallOpt) (rpc.ClientCall, error) {
 	if !ctx.Initialized() {
-		return nil, verror.ExplicitNew(verror.ErrBadArg, i18n.LangID("en-us"), "<rpc.Client>", "StartCall", "context not initialized")
+		return nil, verror.ErrBadArg.Errorf(ctx, "context not initialized")
 	}
 	connOpts := getConnectionOptions(ctx, opts)
 	return c.startCall(ctx, name, method, args, connOpts, opts)
@@ -698,7 +697,6 @@ func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rp
 		Deadline:         vtime.Deadline{Time: deadline},
 		GrantedBlessings: grantedB,
 		TraceRequest:     vtrace.GetRequest(fc.ctx),
-		Language:         string(i18n.GetLangID(fc.ctx)),
 	}
 	if err := fc.enc.Encode(req); err != nil {
 		berr := errRequestEncoding.Errorf(fc.ctx, "failed to encode request %#v: %v", req, err)

@@ -4,7 +4,9 @@
 
 package verror
 
-import "v.io/v23/vdl"
+import (
+	"v.io/v23/vdl"
+)
 
 func init() {
 	// TODO(bprosnitz) Remove this old-style registration.
@@ -89,13 +91,25 @@ func WireToNative(wire vdl.WireError, native *E) error {
 // TODO(toddw): Remove this function after the switch to the new vdl
 // Encoder/Decoder is complete.
 func WireFromNative(wire *vdl.WireError, native error) error {
-	e := ExplicitConvert(ErrUnknown, "", "", "", native)
+	var e E
+	switch v := native.(type) {
+	case E:
+		e = v
+	case *E:
+		e = *v
+	default:
+		e = E{
+			ID:        ErrUnknown.ID,
+			Action:    NoRetry,
+			Msg:       native.Error(),
+			ParamList: []interface{}{"", "", native.Error()}}
+	}
 	*wire = vdl.WireError{
-		Id:        string(ErrorID(e)),
-		RetryCode: retryFromAction(Action(e)),
+		Id:        string(e.ID),
+		RetryCode: retryFromAction(e.Action),
 		Msg:       e.Error(),
 	}
-	for _, pNative := range params(e) {
+	for _, pNative := range e.ParamList {
 		var pWire *vdl.Value
 		if err := vdl.Convert(&pWire, pNative); err != nil {
 			// It's questionable what to do here if the conversion fails, similarly to
