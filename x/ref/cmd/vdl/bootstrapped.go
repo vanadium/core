@@ -61,7 +61,7 @@ func init() {
 		"Same semantics as --go-out-dir but applies to java code generation.")
 	cmdGenerate.Flags.Var(&optGenJavaOutPkg, "java-out-pkg", `
 Java output package translation rules.  Must be of the form:
-"src->dst[,s2->d2...]"
+   "src->dst[,s2->d2...]"
 If a VDL package has a prefix src, the prefix will be replaced with dst.  Use
 commas to separate multiple rules; the first rule matching src is used, and if
 there are no matching rules, the package remains unchanged.  The special dst
@@ -75,7 +75,7 @@ behavior is slightly different than the -out-dir semantics which is prefix-based
 		"Same semantics as --go-out-dir but applies to Swift code generation.")
 	cmdGenerate.Flags.Var(&optGenSwiftOutPkg, "swift-out-pkg", `
 Swift output package translation rules.  Must be of the form:
-"src->dst[,s2->d2...]"
+   "src->dst[,s2->d2...]"
 If a VDL package has a prefix src, the prefix will be replaced with dst.  Use
 commas to separate multiple rules; the first rule matching src is used, and if
 there are no matching rules, the package remains unchanged.  The special dst
