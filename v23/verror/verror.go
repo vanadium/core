@@ -60,7 +60,6 @@
 package verror
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -539,7 +538,7 @@ func stack(stackPCs, chainedPCs []uintptr) []uintptr {
 }
 
 func (st PCs) String() string {
-	buf := bytes.NewBufferString("")
+	buf := &strings.Builder{}
 	StackToText(buf, st)
 	return buf.String()
 }
@@ -650,7 +649,7 @@ func debugStringInternal(out *strings.Builder, err error, prefix string, name st
 	out.WriteString("\n")
 	// Append err's stack, indented a little.
 	prefix += "  "
-	stackToTextIndent(out, Stack(err), prefix) //nolint:errcheck
+	stackToTextIndent(out, Stack(err), prefix)
 	// Print all the subordinate errors, even the ones that were not
 	// printed by Error(), indented a bit further.
 	prefix += "  "
