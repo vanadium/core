@@ -11,6 +11,7 @@
 package logreaderlib
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -139,14 +140,16 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 		return err
 	}
 	defer f.Close()
+	var lastErr error
 	for {
 		fi, err := f.Readdir(100)
 		if err == io.EOF {
 			break
 		}
-		if err != nil {
-			return err
-		}
+		// Ensure that any entries processed before encountering an error
+		// are returned before return the error indication itself. For example
+		// Readdir will return files/directories processed before encountering
+		// a permissions error.
 		for _, file := range fi {
 			name := file.Name()
 			if m.Match(name) {
@@ -154,6 +157,16 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 				call.SendStream().Send(naming.GlobChildrenReplyName{Value: name})
 			}
 		}
+		if err != nil {
+			// Continue to scan the directory even after encountering
+			// a permission error to ensure that all accessible entries
+			// are found.
+			if errors.Is(err, os.ErrPermission) {
+				lastErr = err
+				continue
+			}
+			return err
+		}
 	}
-	return nil
+	return lastErr
 }
