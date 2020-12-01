@@ -144,15 +144,19 @@ func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenSer
 		if err == io.EOF {
 			break
 		}
-		if err != nil {
-			return err
-		}
+		// Ensure that any entries processed before encountering an error
+		// are returned before return the error indication itself. For example
+		// Readdir will return files/directories processed before encountering
+		// a permissions error.
 		for _, file := range fi {
 			name := file.Name()
 			if m.Match(name) {
 				//nolint:errcheck
 				call.SendStream().Send(naming.GlobChildrenReplyName{Value: name})
 			}
+		}
+		if err != nil {
+			return err
 		}
 	}
 	return nil
