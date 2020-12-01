@@ -188,5 +188,6 @@ func initializeVDL() struct{} {
 	vdlTypeString1 = vdl.TypeOf((*Hash)(nil))
 	vdlTypeStruct2 = vdl.TypeOf((*Signature)(nil)).Elem()
 	vdlTypeList3 = vdl.TypeOf((*[]byte)(nil))
+
 	return struct{}{}
 }

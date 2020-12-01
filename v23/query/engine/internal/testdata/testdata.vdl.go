@@ -4259,5 +4259,6 @@ func initializeVDL() struct{} {
 	vdlTypeSet54 = vdl.TypeOf((*map[float64]struct{})(nil))
 	vdlTypeSet55 = vdl.TypeOf((*map[time.Time]struct{})(nil))
 	vdlTypeStruct56 = vdl.TypeOf((*BigData)(nil)).Elem()
+
 	return struct{}{}
 }

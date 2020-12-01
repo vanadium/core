@@ -407,5 +407,6 @@ func initializeVDL() struct{} {
 	vdlTypeInt325 = vdl.TypeOf((*WireRenameMe)(nil))
 	vdlTypeStruct6 = vdl.TypeOf((*WireAll)(nil)).Elem()
 	vdlTypeString7 = vdl.TypeOf((*ignoreme)(nil))
+
 	return struct{}{}
 }

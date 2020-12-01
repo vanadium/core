@@ -722,5 +722,6 @@ func initializeVDL() struct{} {
 	vdlTypeInt328 = vdl.TypeOf((*TraceFlags)(nil))
 	vdlTypeStruct9 = vdl.TypeOf((*Request)(nil)).Elem()
 	vdlTypeStruct10 = vdl.TypeOf((*Response)(nil)).Elem()
+
 	return struct{}{}
 }

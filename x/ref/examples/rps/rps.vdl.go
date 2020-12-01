@@ -1883,5 +1883,6 @@ func initializeVDL() struct{} {
 	vdlTypeList12 = vdl.TypeOf((*[]Round)(nil))
 	vdlTypeUnion13 = vdl.TypeOf((*JudgeAction)(nil))
 	vdlTypeStruct14 = vdl.TypeOf((*PlayResult)(nil)).Elem()
+
 	return struct{}{}
 }

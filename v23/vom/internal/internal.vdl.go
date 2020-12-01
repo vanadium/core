@@ -1497,5 +1497,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct11 = vdl.TypeOf((*VSmallStruct)(nil)).Elem()
 	vdlTypeStruct12 = vdl.TypeOf((*VLargeStruct)(nil)).Elem()
 	vdlTypeUnion13 = vdl.TypeOf((*VSmallUnion)(nil))
+
 	return struct{}{}
 }

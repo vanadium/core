@@ -326,5 +326,6 @@ func initializeVDL() struct{} {
 	vdlTypeList2 = vdl.TypeOf((*[]string)(nil))
 	vdlTypeList3 = vdl.TypeOf((*[]security.BlessingPattern)(nil))
 	vdlTypeString4 = vdl.TypeOf((*security.BlessingPattern)(nil))
+
 	return struct{}{}
 }

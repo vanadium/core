@@ -498,5 +498,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct3 = vdl.TypeOf((*Scenario)(nil)).Elem()
 	vdlTypeString4 = vdl.TypeOf((*SourceCode)(nil))
 	vdlTypeStruct5 = vdl.TypeOf((*Run)(nil)).Elem()
+
 	return struct{}{}
 }

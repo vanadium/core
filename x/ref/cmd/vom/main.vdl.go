@@ -122,5 +122,6 @@ func initializeVDL() struct{} {
 
 	// Initialize type definitions.
 	vdlTypeEnum1 = vdl.TypeOf((*dataRep)(nil))
+
 	return struct{}{}
 }

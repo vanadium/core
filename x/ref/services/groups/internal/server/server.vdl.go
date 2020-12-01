@@ -183,5 +183,6 @@ func initializeVDL() struct{} {
 	vdlTypeMap2 = vdl.TypeOf((*access.Permissions)(nil))
 	vdlTypeSet3 = vdl.TypeOf((*map[groups.BlessingPatternChunk]struct{})(nil))
 	vdlTypeString4 = vdl.TypeOf((*groups.BlessingPatternChunk)(nil))
+
 	return struct{}{}
 }

@@ -200,5 +200,6 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*TestStructA)(nil)).Elem()
 	vdlTypeStruct2 = vdl.TypeOf((*TestStructB)(nil)).Elem()
+
 	return struct{}{}
 }

@@ -1484,5 +1484,6 @@ func initializeVDL() struct{} {
 	vdlTypeList5 = vdl.TypeOf((*[]byte)(nil))
 	vdlTypeUnion6 = vdl.TypeOf((*ClientShellPacket)(nil))
 	vdlTypeUnion7 = vdl.TypeOf((*ServerShellPacket)(nil))
+
 	return struct{}{}
 }

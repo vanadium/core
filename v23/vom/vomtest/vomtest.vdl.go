@@ -15876,5 +15876,6 @@ func initializeVDL() struct{} {
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*vdlEntry)(nil)).Elem()
 	vdlTypeByte2 = vdl.TypeOf((*vom.Version)(nil))
+
 	return struct{}{}
 }
