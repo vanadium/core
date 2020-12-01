@@ -13,7 +13,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
-	"v.io/x/ref/internal/logger"
+	"v.io/x/ref/internal"
 	"v.io/x/ref/services/internal/httplib"
 	"v.io/x/ref/services/internal/logreaderlib"
 	"v.io/x/ref/services/internal/pproflib"
@@ -56,7 +56,7 @@ func (d *dispatcher) Lookup(ctx *context.T, suffix string) (interface{}, securit
 	}
 	switch parts[0] {
 	case "logs":
-		mgr, ok := context.LoggerFromContext(ctx).(logger.ManageLog)
+		mgr, ok := context.LoggerFromContext(ctx).(internal.ManageLog)
 		if ok {
 			return logreaderlib.NewLogFileService(mgr.LogDir(), suffix), d.auth, nil
 		}

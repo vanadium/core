@@ -112,8 +112,7 @@ type IDAction struct {
 
 // NewIDAction creates a new instance of IDAction with the given ID and Action
 // field. It should be used when localization support is not required instead
-// of Register.  NewIDAction will internally prepend the caller's package path
-// to id if it's not already present.
+// of Register. IDPath can be used to
 func NewIDAction(id ID, action ActionCode) IDAction {
 	return IDAction{ensurePackagePath(id), action}
 }
@@ -541,32 +540,44 @@ func stack(stackPCs, chainedPCs []uintptr) []uintptr {
 
 func (st PCs) String() string {
 	buf := bytes.NewBufferString("")
-	StackToText(buf, st) //nolint:errcheck
+	StackToText(buf, st)
 	return buf.String()
+}
+
+func writeFrames(w io.Writer, indent string, stack []uintptr) {
+	frames := runtime.CallersFrames(stack)
+	for {
+		frame, more := frames.Next()
+		fmt.Fprintf(w, "%s%s:%d: %s\n", indent, frame.File, frame.Line, frame.Function)
+		if !more {
+			return
+		}
+	}
 }
 
 // stackToTextIndent emits on w a text representation of stack, which is typically
 // obtained from Stack() and represents the source location(s) where an
 // error was generated or passed through in the local address space.
 // indent is added to a prefix of each line printed.
-func stackToTextIndent(w io.Writer, stack []uintptr, indent string) (err error) {
-	for i := 0; i != len(stack) && err == nil; i++ {
+func stackToTextIndent(w io.Writer, stack []uintptr, indent string) {
+	prev := 0
+	for i := 0; i < len(stack); i++ {
 		if stack[i] == 0 {
-			_, err = fmt.Fprintf(w, "%s----- chained verror -----\n", indent)
-		} else {
-			fnc := runtime.FuncForPC(stack[i])
-			file, line := fnc.FileLine(stack[i])
-			_, err = fmt.Fprintf(w, "%s%s:%d: %s\n", indent, file, line, fnc.Name())
+			writeFrames(w, indent, stack[prev:i])
+			fmt.Fprintf(w, "%s----- chained verror -----\n", indent)
+			prev = i + 1
 		}
 	}
-	return err
+	if prev < len(stack) {
+		writeFrames(w, indent, stack[prev:])
+	}
 }
 
 // StackToText emits on w a text representation of stack, which is typically
 // obtained from Stack() and represents the source location(s) where an
 // error was generated or passed through in the local address space.
-func StackToText(w io.Writer, stack []uintptr) error {
-	return stackToTextIndent(w, stack, "")
+func StackToText(w io.Writer, stack []uintptr) {
+	stackToTextIndent(w, stack, "")
 }
 
 // A componentKey is used as a key for context.T's Value() map.

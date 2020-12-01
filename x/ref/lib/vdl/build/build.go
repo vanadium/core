@@ -41,7 +41,6 @@
 package build
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -54,6 +53,7 @@ import (
 	"sort"
 	"strings"
 
+	"golang.org/x/mod/modfile"
 	"v.io/v23/vdl"
 	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/lib/toposort"
@@ -323,17 +323,11 @@ func GoModuleName(path string) (string, error) {
 		}
 		return "", err
 	}
-	sc := bufio.NewScanner(bytes.NewBuffer(buf))
-	for sc.Scan() {
-		parts := strings.Fields(sc.Text())
-		if len(parts) != 2 {
-			continue
-		}
-		if parts[0] == "module" {
-			return parts[1], nil
-		}
+	module := modfile.ModulePath(buf)
+	if len(module) == 0 {
+		return "", fmt.Errorf("failed to find module statement in %v", gomod)
 	}
-	return "", fmt.Errorf("failed to find module statement in %v", gomod)
+	return module, nil
 }
 
 // PackagePathSplit returns the longest common suffix in dir and path,
@@ -838,7 +832,6 @@ func (ds *depSorter) resolveImportPath(pkgPath string, mode UnknownPathMode, pre
 				vdlutil.Vlog.Printf("%s: resolved import path %q using go.mod to %v", pkg.Dir, pkgPath, dir)
 				return pkg
 			}
-			return nil
 		}
 	}
 	// We can't find a valid dir corresponding to this import path.

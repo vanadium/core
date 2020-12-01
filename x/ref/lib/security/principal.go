@@ -137,7 +137,14 @@ func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase [
 
 func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	unlock, err := flock.RLock()
+	loader := func() error { return nil }
+	var unlock func()
+	var err error
+	if readonly {
+		unlock, err = readLockAndLoad(flock, loader)
+	} else {
+		unlock, err = writeLockAndLoad(flock, loader)
+	}
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, err

@@ -5,6 +5,7 @@
 package fake
 
 import (
+	"github.com/google/uuid"
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/discovery"
@@ -77,6 +78,10 @@ func (r *Runtime) GetBackgroundContext(ctx *context.T) *context.T {
 
 func (r *Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
 	return access.PermissionsSpec{}
+}
+
+func (r *Runtime) GetRequestID(ctx *context.T) uuid.UUID {
+	return uuid.UUID{}
 }
 
 func (r *Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
