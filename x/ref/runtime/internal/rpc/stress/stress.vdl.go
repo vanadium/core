@@ -646,5 +646,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct1 = vdl.TypeOf((*SumArg)(nil)).Elem()
 	vdlTypeList2 = vdl.TypeOf((*[]byte)(nil))
 	vdlTypeStruct3 = vdl.TypeOf((*SumStats)(nil)).Elem()
+
 	return struct{}{}
 }

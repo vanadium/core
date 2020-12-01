@@ -6023,5 +6023,6 @@ func initializeVDL() struct{} {
 	vdlTypeOptional89 = vdl.TypeOf((*LargeMessageType)(nil))
 	vdlTypeStruct90 = vdl.TypeOf((*LargeAnyMessageType)(nil)).Elem()
 	vdlTypeOptional91 = vdl.TypeOf((*LargeAnyMessageType)(nil))
+
 	return struct{}{}
 }

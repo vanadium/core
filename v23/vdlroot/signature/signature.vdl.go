@@ -771,5 +771,6 @@ func initializeVDL() struct{} {
 	vdlTypeStruct7 = vdl.TypeOf((*Interface)(nil)).Elem()
 	vdlTypeList8 = vdl.TypeOf((*[]Embed)(nil))
 	vdlTypeList9 = vdl.TypeOf((*[]Method)(nil))
+
 	return struct{}{}
 }

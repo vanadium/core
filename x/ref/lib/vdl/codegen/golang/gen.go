@@ -1098,6 +1098,7 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
+
 	return struct{}{}
 }
 `

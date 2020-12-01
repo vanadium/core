@@ -2478,5 +2478,6 @@ func initializeVDL() struct{} {
 	vdlTypeList20 = vdl.TypeOf((*[]Certificate)(nil))
 	vdlTypeUnion21 = vdl.TypeOf((*WireDischarge)(nil))
 	vdlTypeStruct22 = vdl.TypeOf((*RejectedBlessing)(nil)).Elem()
+
 	return struct{}{}
 }

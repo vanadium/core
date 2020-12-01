@@ -76,5 +76,6 @@ func initializeVDL() struct{} {
 
 	// Initialize type definitions.
 	vdlTypeArray1 = vdl.TypeOf((*Id)(nil))
+
 	return struct{}{}
 }

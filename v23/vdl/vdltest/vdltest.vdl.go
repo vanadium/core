@@ -94397,5 +94397,6 @@ func initializeVDL() struct{} {
 	vdlTypeUnion282 = vdl.TypeOf((*VWireUnionNPointer)(nil))
 	vdlTypeUnion283 = vdl.TypeOf((*VWireUnionNIface)(nil))
 	vdlTypeStruct284 = vdl.TypeOf((*VWireAll)(nil)).Elem()
+
 	return struct{}{}
 }

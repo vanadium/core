@@ -433,5 +433,6 @@ func initializeVDL() struct{} {
 
 	// Initialize type definitions.
 	vdlTypeStruct1 = vdl.TypeOf((*LogEntry)(nil)).Elem()
+
 	return struct{}{}
 }

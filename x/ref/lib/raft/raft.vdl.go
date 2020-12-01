@@ -810,5 +810,6 @@ func initializeVDL() struct{} {
 	vdlTypeUint642 = vdl.TypeOf((*Index)(nil))
 	vdlTypeStruct3 = vdl.TypeOf((*LogEntry)(nil)).Elem()
 	vdlTypeList4 = vdl.TypeOf((*[]byte)(nil))
+
 	return struct{}{}
 }

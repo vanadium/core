@@ -80,5 +80,6 @@ func initializeVDL() struct{} {
 
 	// Initialize type definitions.
 	vdlTypeInt321 = vdl.TypeOf((*MyTime)(nil))
+
 	return struct{}{}
 }
