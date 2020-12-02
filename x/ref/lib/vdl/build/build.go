@@ -93,6 +93,10 @@ type Package struct {
 	// exists, the zero value of Config is used.
 	Config vdltool.Config
 
+	// ConfigName is the name of the file from the vdl.config was read
+	// since it may be configured as something other than 'vdl.config'.
+	ConfigName string
+
 	// OpenFilesFunc is a function that opens the files with the given fileNames,
 	// and returns a map from base file name to file contents.
 	OpenFilesFunc func(fileNames []string) (map[string]io.ReadCloser, error)
@@ -219,6 +223,7 @@ func (p *Package) findAndInitVDLConfig(opts Opts, vdlenv *compile.Env) {
 	if err := data.Close(); err != nil {
 		vdlenv.Errors.Errorf("%s: couldn't close (%v)", name, err)
 	}
+	p.ConfigName = name
 }
 
 func (p *Package) initVDLConfig(name string, r io.Reader, vdlenv *compile.Env) {
@@ -1019,7 +1024,7 @@ func (b byBaseName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 //nolint:golint // API change required.
 func BuildPackage(pkg *Package, env *compile.Env) *compile.Package {
 	pfiles := ParsePackage(pkg, parse.Opts{}, env.Errors)
-	return compile.CompilePackage(pkg.Path, pkg.GenPath, pfiles, pkg.Config, env)
+	return compile.CompilePackage(pkg.Path, pkg.GenPath, pfiles, pkg.Config, pkg.ConfigName, env)
 }
 
 // BuildConfig parses and compiles the given config src and returns it.  Errors

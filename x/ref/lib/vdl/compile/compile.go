@@ -35,7 +35,7 @@ import (
 // guarantees !env.Errors.IsEmpty().  All imports that the parsed package depend
 // on must already have been compiled and populated into env.
 //nolint:golint // API change required.
-func CompilePackage(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Config, env *Env) *Package {
+func CompilePackage(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Config, configName string, env *Env) *Package {
 	if pkgpath == "" {
 		env.Errors.Errorf("Compile called with empty pkgpath")
 		return nil
@@ -44,7 +44,7 @@ func CompilePackage(pkgpath, genpath string, pfiles []*parse.File, config vdltoo
 		env.Errors.Errorf("%q invalid recompile (already exists in env)", pkgpath)
 		return nil
 	}
-	pkg := compile(pkgpath, genpath, pfiles, config, env)
+	pkg := compile(pkgpath, genpath, pfiles, config, configName, env)
 	if pkg == nil {
 		return nil
 	}
@@ -76,7 +76,7 @@ func CompileConfig(t *vdl.Type, pconfig *parse.Config, env *Env) *vdl.Value {
 		ConstDefs:  pconfig.ConstDefs,
 	}
 	pkgpath := filepath.ToSlash(filepath.Dir(pconfig.FileName))
-	pkg := compile(pkgpath, pkgpath, []*parse.File{pfile}, vdltool.Config{}, env)
+	pkg := compile(pkgpath, pkgpath, []*parse.File{pfile}, vdltool.Config{}, "", env)
 	if pkg == nil {
 		return nil
 	}
@@ -97,7 +97,7 @@ func CompileConfig(t *vdl.Type, pconfig *parse.Config, env *Env) *vdl.Value {
 func CompileExpr(t *vdl.Type, expr parse.ConstExpr, env *Env) *vdl.Value {
 	file := &File{
 		BaseName: "_expr.vdl",
-		Package:  newPackage("_expr", "_expr", "_expr", vdltool.Config{}),
+		Package:  newPackage("_expr", "_expr", "_expr", vdltool.Config{}, ""),
 		imports:  make(map[string]*importPath),
 	}
 	// Add imports to the "File" if the are in env and used in the Expression.
@@ -109,7 +109,7 @@ func CompileExpr(t *vdl.Type, expr parse.ConstExpr, env *Env) *vdl.Value {
 	return compileConst("expression", t, expr, file, env)
 }
 
-func compile(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Config, env *Env) *Package {
+func compile(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Config, configName string, env *Env) *Package {
 	if len(pfiles) == 0 {
 		env.Errors.Errorf("%q compile called with no files", pkgpath)
 		return nil
@@ -120,7 +120,7 @@ func compile(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Confi
 		env.Errors.Errorf("package %s invalid name (%s)", pkgName, err.Error())
 		return nil
 	}
-	pkg := newPackage(pkgName, pkgpath, genpath, config)
+	pkg := newPackage(pkgName, pkgpath, genpath, config, configName)
 	for _, pfile := range pfiles {
 		pkg.Files = append(pkg.Files, &File{
 			BaseName:   pfile.BaseName,

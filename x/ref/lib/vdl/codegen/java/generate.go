@@ -111,7 +111,7 @@ var nativeTypePackageWhitelist = map[string]bool{
 }
 
 func validateJavaConfig(pkg *compile.Package, env *compile.Env) {
-	vdlconfig := path.Join(pkg.GenPath, "vdl.config")
+	vdlconfig := path.Join(pkg.GenPath, pkg.ConfigName)
 	// Validate native type configuration.  Since native types are hard to use, we
 	// restrict them to a built-in whitelist of packages for now.
 	if len(pkg.Config.Java.WireToNativeTypes) > 0 && !nativeTypePackageWhitelist[pkg.Path] {
