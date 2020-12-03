@@ -6,7 +6,8 @@
 // Package: vdltool
 
 // Package vdltool defines types used by the vdl tool itself, including the
-// format of vdl.config files.
+// format of vdl.config files. No packages other than the vdltool command
+// line tool and v.io/x/ref/lib/vdl/... packages should use it.
 //nolint:golint
 package vdltool
 

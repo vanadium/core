@@ -55,8 +55,6 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl generate flags are:
- -errors-no-i18n=false
-   No longer support i18n formats for errors
  -go-out-dir=
    Go output directory.  There are three modes:
       ""                     : Generate output in-place in the source tree
@@ -135,8 +133,6 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl compile flags are:
- -errors-no-i18n=false
-   No longer support i18n formats for errors
  -show-warnings=true
    show warning messages
  -status=true
@@ -164,8 +160,6 @@ Usage:
 For more information, run "vdl help packages".
 
 The vdl audit flags are:
- -errors-no-i18n=false
-   No longer support i18n formats for errors
  -go-out-dir=
    Go output directory.  There are three modes:
       ""                     : Generate output in-place in the source tree

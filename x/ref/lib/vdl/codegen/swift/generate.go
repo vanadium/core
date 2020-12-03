@@ -165,7 +165,7 @@ var nativeTypePackageWhitelist = map[string]bool{
 }
 
 func validateSwiftConfig(ctx *swiftContext) {
-	vdlconfig := path.Join(ctx.pkg.GenPath, "vdl.config")
+	vdlconfig := path.Join(ctx.pkg.GenPath, ctx.pkg.ConfigName)
 	// Validate native type configuration.  Since native types are hard to use, we
 	// restrict them to a built-in whitelist of packages for now.
 	if len(ctx.pkg.Config.Swift.WireToNativeTypes) > 0 && !nativeTypePackageWhitelist[ctx.pkg.Path] {

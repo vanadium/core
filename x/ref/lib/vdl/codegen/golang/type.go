@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"v.io/v23/vdl"
-	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/ref/lib/vdl/compile"
 )
 
@@ -19,53 +18,6 @@ func localIdent(data *goData, file *compile.File, ident string) string {
 		return ident
 	}
 	return data.Pkg(file.Package.GenPath) + ident
-}
-
-func nativeType(data *goData, native vdltool.GoType, wirePkg *compile.Package) string {
-	result := native.Type
-	for _, imp := range native.Imports {
-		// Translate the packages specified in the native type into local package
-		// identifiers.  E.g. if the native type is "foo.Type" with import
-		// "path/to/foo", we need to replace "foo." in the native type with the
-		// local package identifier for "path/to/foo".
-		if strings.Contains(result, imp.Name+".") {
-			// Add the import dependency if there is a match.
-			pkg := data.Pkg(imp.Path)
-			result = strings.ReplaceAll(result, imp.Name+".", pkg)
-		}
-	}
-	data.AddForcedPkg(wirePkg.GenPath)
-	return result
-}
-
-func toNative(data *goData, native vdltool.GoType, ttWire *vdl.Type) string {
-	if native.ToNative != "" {
-		result := native.ToNative
-		for _, imp := range native.Imports {
-			// Translate the packages specified in the native type into local package
-			// identifiers.  E.g. if the native type is "foo.Type" with import
-			// "path/to/foo", we need to replace "foo." in the native type with the
-			// local package identifier for "path/to/foo".
-			if strings.Contains(result, imp.Name+".") {
-				// Add the import dependency if there is a match.
-				pkg := data.Pkg(imp.Path)
-				result = strings.ReplaceAll(result, imp.Name+".", pkg)
-			}
-		}
-		return result
-	}
-	return typeGoWire(data, ttWire) + "ToNative"
-}
-
-func noCustomNative(native vdltool.GoType) bool {
-	return native.ToNative == "" && native.FromNative == ""
-}
-
-func typeHasNoCustomNative(data *goData, def *compile.TypeDef) bool {
-	if native, _, ok := findNativeType(data.Env, def.Type); ok {
-		return noCustomNative(native)
-	}
-	return true
 }
 
 func packageIdent(file *compile.File, ident string) string {
@@ -84,8 +36,8 @@ func qualifiedIdent(file *compile.File, ident string) string {
 
 // typeGo translates vdl.Type into a Go type.
 func typeGo(data *goData, t *vdl.Type) string {
-	if native, pkg, ok := findNativeType(data.Env, t); ok {
-		return nativeType(data, native, pkg)
+	if native, ok := asNativeType(data.Env, t); ok {
+		return native.nativeType(data)
 	}
 	return typeGoWire(data, t)
 }
@@ -241,24 +193,13 @@ func genEnumType(data *goData, def *compile.TypeDef) string {
 
 func genStructType(data *goData, def *compile.TypeDef) string {
 	t := def.Type
-	var structTags map[string][]vdltool.GoStructTag
-	if data.Package != nil && data.Package.Config.Go.StructTags != nil {
-		structTags = data.Package.Config.Go.StructTags
-	}
-	if structTags == nil {
-		structTags = map[string][]vdltool.GoStructTag{}
-	}
 	s := &strings.Builder{}
 	fmt.Fprintf(s, "%stype %s struct {", def.Doc, def.Name)
 	for ix := 0; ix < t.NumField(); ix++ {
 		f := t.Field(ix)
 		fmt.Fprintf(s, "\n\t%s %s", def.FieldDoc[ix]+f.Name, typeGo(data, f.Type)+def.FieldDocSuffix[ix])
-		if tags, ok := structTags[def.Name]; ok {
-			for _, tag := range tags {
-				if tag.Field == f.Name {
-					s.WriteString(" `" + tag.Tag + "`")
-				}
-			}
+		if tag, ok := structTagFor(data, def.Name, f.Name); ok {
+			s.WriteString(" `" + tag + "`")
 		}
 	}
 	fmt.Fprintf(s, "\n}%s", def.DocSuffix)
