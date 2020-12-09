@@ -192,8 +192,10 @@ func TypeFromReflect(rt reflect.Type) (*Type, error) {
 	// the entire type-building operation.  But note that TypeBuilder only returns
 	// PendingType as types are being built, and only returns the final Type when
 	// Build is called at the very end, in order to support cyclic types.
+
 	rtCache.Lock()
 	defer rtCache.Unlock()
+
 	// The strategy is to recursively populate the builder with the type and
 	// subtypes, keeping track of new types in pending.  After all types have been
 	// populated, we build the types and update rtCache with all pending types.

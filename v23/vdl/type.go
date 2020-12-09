@@ -242,9 +242,6 @@ func (t *Type) String() string {
 //
 // A typical use case is to hash the unique representation to produce
 // globally-unique type ids.
-//
-// TODO(toddw): Make sure we're comfortable with the format we produce; if it
-// needs to change, it needs to happen soon.
 func (t *Type) Unique() string {
 	if t.unique != "" {
 		return t.unique
@@ -252,7 +249,9 @@ func (t *Type) Unique() string {
 	// The only time that t.unique isn't set is while we're in the process of
 	// building the type, and we're printing the type for errors.  The type might
 	// have unnamed cycles, so we need to use short cycle names.
-	return uniqueTypeStr(t, make(map[*Type]bool), true)
+	buf := make([]byte, 0, 256)
+	buf = uniqueTypeStr(buf, t, make(map[*Type]bool), true, -1)
+	return string(buf)
 }
 
 // CanBeNil returns true iff values of t can be nil.

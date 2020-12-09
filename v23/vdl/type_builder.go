@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"unsafe"
 )
 
 var (
@@ -525,7 +526,7 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 	return nil
 }
 
-// uniqueTypeStr returns a unique string representing t, which is also its
+// uniqueTypeStr generates a unique string representing t, which is also its
 // human-readable representation.  Invariant: two types A and B have the same
 // unique string iff they are equal, even if they haven't been hash-consed yet.
 //
@@ -546,63 +547,97 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 //
 // Both of these representations must return the same unique string.  To
 // accomplish this, we recursively traverse the graph and dump the semantic
-// contents of each type node.  The seen map breaks infinite loops from
+// contents of each type node.  The seen (inCycle) map breaks infinite loops from
 // recursive types.  Since type cycles may only be created via named types, we
-// keep track of seen types and only dump their names.
-func uniqueTypeStr(t *Type, inCycle map[*Type]bool, shortCycleName bool) string { //nolint:gocyclo
+// keep track of seen types and only dump their names. However, cycles in
+// unnamed types can still occur and depth is used as a guard against them
+// so that uniqueTypeStr can be called before fully validating the type.
+// This is important since full validation is very expensive and hence it is
+// important to cache the validity of previously seen types, but such caching
+// needs the hash-consed name of the type. The depth test can be disabled by
+// specifying -1 and hence if the test fails, the full validation can proceed
+// and if it is successful arbitrary depth types are supported.
+func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+	if depth >= 0 {
+		depth++
+	}
+	const maxDepth = 50
+	if depth > maxDepth {
+		panic(fmt.Sprintf("recursive type has too many levels: %v > %v", depth, maxDepth))
+	}
+
 	if c, ok := inCycle[t]; ok {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
 			// whether it's in a cycle, always return the name for brevity.  If the
 			// type happens to be in a cycle, this is also necessary to break an
 			// infinite loop.
-			return t.name
+			return append(out, t.name...)
 		}
 		if c && shortCycleName {
 			// If we're in a cycle and we want short cycle names, we're only dumping
 			// the type to help debug errors.  Note that the "..." means that the
 			// returned string is no longer unique, but breaks an infinite loop for
 			// unnamed cyclic types.
-			return "..."
+			return append(out, "..."...)
 		}
 	}
 	inCycle[t] = true
 	defer func() {
 		inCycle[t] = false
 	}()
-	s := t.name
-	if s != "" {
-		s += " "
+	out = append(out, t.name...)
+	if t.name != "" {
+		out = append(out, ' ')
 	}
 	switch t.kind {
 	case Optional:
-		return s + "?" + uniqueTypeStr(t.elem, inCycle, shortCycleName)
+		out = append(out, '?')
+		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Enum:
-		return s + "enum{" + strings.Join(t.labels, ";") + "}"
+		out = append(out, "enum{"...)
+		out = append(out, strings.Join(t.labels, ";")...)
+		out = append(out, '}')
 	case Array:
-		return s + "[" + strconv.Itoa(t.len) + "]" + uniqueTypeStr(t.elem, inCycle, shortCycleName)
+		out = append(out, '[')
+		out = append(out, strconv.Itoa(t.len)...)
+		out = append(out, ']')
+		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case List:
-		return s + "[]" + uniqueTypeStr(t.elem, inCycle, shortCycleName)
+		out = append(out, "[]"...)
+		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Set:
-		return s + "set[" + uniqueTypeStr(t.key, inCycle, shortCycleName) + "]"
+		out = append(out, "set["...)
+		out = uniqueTypeStr(out, t.key, inCycle, shortCycleName, depth)
+		out = append(out, ']')
 	case Map:
-		return s + "map[" + uniqueTypeStr(t.key, inCycle, shortCycleName) + "]" + uniqueTypeStr(t.elem, inCycle, shortCycleName)
+		out = append(out, "map["...)
+		out = uniqueTypeStr(out, t.key, inCycle, shortCycleName, depth)
+		out = append(out, ']')
+		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Struct, Union:
-		if t.kind == Struct {
-			s += "struct{"
-		} else {
-			s += "union{"
-		}
-		for index, f := range t.fields {
-			if index > 0 {
-				s += ";"
-			}
-			s += f.Name + " " + uniqueTypeStr(f.Type, inCycle, shortCycleName)
-		}
-		return s + "}"
+		out = writeStructOrUnion(out, t, inCycle, shortCycleName, depth)
 	default:
-		return s + t.kind.String()
+		out = append(out, t.kind.String()...)
 	}
+	return out
+}
+
+func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+	if t.kind == Struct {
+		out = append(out, "struct{"...)
+	} else {
+		out = append(out, "union{"...)
+	}
+	for index, f := range t.fields {
+		if index > 0 {
+			out = append(out, ';')
+		}
+		out = append(out, f.Name...)
+		out = append(out, ' ')
+		out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
+	}
+	return append(out, '}')
 }
 
 var (
@@ -613,7 +648,7 @@ var (
 	typeRegMu sync.Mutex
 )
 
-// typeCons returns the hash-consed Type for a given Type t.
+// typeCons returns the hash-consed Type for a given Type t
 func typeCons(t *Type) (*Type, error) {
 	if err := validType(t); err != nil {
 		return nil, err
@@ -628,15 +663,24 @@ func typeConsLocked(t *Type) *Type {
 	if t == nil {
 		return nil
 	}
+	var ub [256]byte
+	us := ub[:0]
+	unique := t.unique
 	// Look for the type in our registry, based on its unique string.
-	if t.unique == "" {
+	if unique == "" {
 		// Never use short cycle names; at this point the type is valid, and we need
 		// a fully unique string.
-		t.unique = uniqueTypeStr(t, make(map[*Type]bool), false)
+		inCycle := map[*Type]bool{}
+		us = uniqueTypeStr(us, t, inCycle, false, -1)
+		// Avoid a string conversion/copy for the common case where the
+		// type is already cached.
+		unique = *(*string)(unsafe.Pointer(&us))
 	}
-	if found := typeReg[t.unique]; found != nil {
+	if found := typeReg[unique]; found != nil {
 		return found
 	}
+	// This type is new, so convert to a string.
+	t.unique = string(us)
 	// Not found in the registry, add it and recursively cons subtypes.  We cons
 	// the outer type first to deal with recursive types; otherwise we'd have an
 	// infinite loop.
@@ -668,24 +712,24 @@ func validType(t *Type) error {
 	if err := verifyAndCollectAllTypes(t, allTypes); err != nil {
 		return err
 	}
-	if err := existsUnnamedCycle(allTypes); err != nil {
-		return err
-	}
-	if err := existsStrictCycle(allTypes); err != nil {
-		return err
-	}
-	if err := existsInvalidKey(allTypes); err != nil {
-		return err
-	}
-	return nil
-}
-
-// existsInvalidKey returns a nil error iff the given Types all have valid set
-// and map keys.
-func existsInvalidKey(allTypes map[*Type]bool) error {
 	for t := range allTypes {
+		// existsInvalid Key.
 		if (t.kind == Map || t.kind == Set) && !t.key.CanBeKey() {
 			return fmt.Errorf("invalid key %q in %q", t.key, t)
+		}
+		// existsUnnamedCycle returns a nil error iff the given type set has no unnamed
+		// cycles; a cycle where no type is named.  E.g. a PendingList with itself as
+		// the elem type.  This can't occur in the VDL language, but can occur with
+		// invalid VOM encodings.
+		inCycle := map[*Type]bool{}
+		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
+			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
+		}
+		// existsStrictCycle returns a nil error iff the given type set has no strict
+		// cycles (e.g. type A struct{Elem: A})
+		inCycle = map[*Type]bool{}
+		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
+			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
 		}
 	}
 	return nil
@@ -717,18 +761,6 @@ func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
 	return nil
 }
 
-// existsStrictCycle returns a nil error iff the given type set has no strict
-// cycles (e.g. type A struct{Elem: A})
-func existsStrictCycle(allTypes map[*Type]bool) error {
-	inCycle := make(map[*Type]bool)
-	for t := range allTypes {
-		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
-			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
-		}
-	}
-	return nil
-}
-
 func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
 	if t == nil || t.name != "" {
 		return nil
@@ -752,20 +784,6 @@ func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
 		}
 	}
 	inCycle[t] = false
-	return nil
-}
-
-// existsUnnamedCycle returns a nil error iff the given type set has no unnamed
-// cycles; a cycle where no type is named.  E.g. a PendingList with itself as
-// the elem type.  This can't occur in the VDL language, but can occur with
-// invalid VOM encodings.
-func existsUnnamedCycle(allTypes map[*Type]bool) error {
-	inCycle := make(map[*Type]bool)
-	for t := range allTypes {
-		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
-			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
-		}
-	}
 	return nil
 }
 
@@ -848,18 +866,22 @@ func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint
 	// Check fields
 	switch t.kind {
 	case Struct, Union:
-		seenFields := make(map[string]bool, len(t.fields))
-		for _, f := range t.fields {
+		// A small stack-allocated array is much faster than a map.
+		alloc := [32]string{}
+		seenFields := alloc[:0]
+		for i, f := range t.fields {
 			if f.Type == nil {
 				return errFieldTypeNil
 			}
 			if f.Name == "" {
 				return errFieldNameEmpty
 			}
-			if seenFields[f.Name] {
-				return fmt.Errorf("%q has duplicate field name %q", t.name, f.Name)
+			for p := 0; p < i; p++ {
+				if seenFields[p] == f.Name {
+					return fmt.Errorf("%q has duplicate field name %q", t.name, f.Name)
+				}
 			}
-			seenFields[f.Name] = true
+			seenFields = append(seenFields, f.Name)
 		}
 		// We allow struct{} but not union{}; we rely on union having at least one
 		// field, and we special-case field 0.  E.g. the zero value of union is the

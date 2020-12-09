@@ -101,11 +101,13 @@ func registerRecursive(rt reflect.Type) error {
 // rtCache), this information cannot be regenerated at will.  We expect a
 // limited number of types to be used within a single address space.
 type riRegistry struct {
+	// TODO(cnicolaou): convert to sync.Map.
 	sync.RWMutex
 	fromName map[string]*reflectInfo
 	fromType map[reflect.Type]*reflectInfo
 }
 
+// TODO(cnicolaou): look at merging/sharing with other registries.
 var riReg = &riRegistry{
 	fromName: make(map[string]*reflectInfo),
 	fromType: make(map[reflect.Type]*reflectInfo),

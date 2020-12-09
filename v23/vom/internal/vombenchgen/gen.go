@@ -308,9 +308,11 @@ var benchmarks []GeneratorEntry = []GeneratorEntry{
 func genVomEncode(name, value string) string {
 	return fmt.Sprintf(`
 func BenchmarkVom___Encode_____%[1]s(b *testing.B) {
+	 b.ReportAllocs()
 	 vomEncode(b, %[2]s)
 }
 func BenchmarkVom___EncodeMany_%[1]s(b *testing.B) {
+	b.ReportAllocs()
 	vomEncodeMany(b, %[2]s)
 }`, name, value)
 }
@@ -318,9 +320,11 @@ func BenchmarkVom___EncodeMany_%[1]s(b *testing.B) {
 func genVomDecode(name, value, typ string) string {
 	return fmt.Sprintf(`
 func BenchmarkVom___Decode_____%[1]s(b *testing.B) {
+	b.ReportAllocs()
 	vomDecode(b, %[2]s, func() interface{} { return new(%[3]s) })
 }
 func BenchmarkVom___DecodeMany_%[1]s(b *testing.B) {
+	b.ReportAllocs()
 	vomDecodeMany(b, %[2]s, func() interface{} { return new(%[3]s) })
 }`, name, value, typ)
 }
@@ -328,19 +332,23 @@ func BenchmarkVom___DecodeMany_%[1]s(b *testing.B) {
 func genGobEncode(name, value string) string {
 	return fmt.Sprintf(`
 func BenchmarkGob___Encode_____%[1]s(b *testing.B) {
-	 gobEncode(b, %[2]s)
+	b.ReportAllocs()
+	gobEncode(b, %[2]s)
 }
 func BenchmarkGob___EncodeMany_%[1]s(b *testing.B) {
-	 gobEncodeMany(b, %[2]s)
+	b.ReportAllocs()
+	gobEncodeMany(b, %[2]s)
 }`, name, value)
 }
 
 func genGobDecode(name, value, typ string) string {
 	return fmt.Sprintf(`
 func BenchmarkGob___Decode_____%[1]s(b *testing.B) {
+	b.ReportAllocs()
 	gobDecode(b, %[2]s, func() interface{} { return new(%[3]s) })
 }
 func BenchmarkGob___DecodeMany_%[1]s(b *testing.B) {
+	b.ReportAllocs()
 	gobDecodeMany(b, %[2]s, func() interface{} { return new(%[3]s) })
 }`, name, value, typ)
 }
