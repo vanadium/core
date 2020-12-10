@@ -44,7 +44,7 @@ func NewPrivateKey(keyType string) (interface{}, error) {
 // createReadLockfile ensures that a lockfile for read-only access
 // exists by first creating a lockfile for writes, unlocking it
 // and then relocking for reads only.
-func ensureReadLockExists(flock *lockedfile.Mutex) (func(), error) {
+func createReadLockfile(flock *lockedfile.Mutex) (func(), error) {
 	unlock, err := flock.Lock()
 	if err != nil {
 		return func() {}, err
