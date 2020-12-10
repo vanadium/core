@@ -41,6 +41,19 @@ func NewPrivateKey(keyType string) (interface{}, error) {
 	}
 }
 
+// createReadLockfile ensures that a lockfile for read-only access
+// exists by first creating a lockfile for writes, unlocking it
+// and then relocking for reads only.
+func ensureReadLockExists(flock *lockedfile.Mutex) (func(), error) {
+	unlock, err := flock.Lock()
+	if err != nil {
+		return func() {}, err
+	}
+	unlock()
+	unlock, err = flock.RLock()
+	return unlock, err
+}
+
 // lockAndLoad only needs to read the credentials information.
 func readLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), error) {
 	if flock == nil {
@@ -53,7 +66,13 @@ func readLockAndLoad(flock *lockedfile.Mutex, loader func() error) (func(), erro
 	}
 	unlock, err := flock.RLock()
 	if err != nil {
-		return nil, err
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+		unlock, err = createReadLockfile(flock)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create new read lock: %v", err)
+		}
 	}
 	return unlock, loader()
 }
