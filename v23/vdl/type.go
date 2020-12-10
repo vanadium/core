@@ -43,104 +43,64 @@ const (
 	internalNamed // placeholder for named types while they're being built.
 )
 
-func (k Kind) String() string { //nolint:gocyclo
-	switch k {
-	case Any:
-		return "any"
-	case Optional:
-		return "optional"
-	case Bool:
-		return "bool"
-	case Byte:
-		return "byte"
-	case Uint16:
-		return "uint16"
-	case Uint32:
-		return "uint32"
-	case Uint64:
-		return "uint64"
-	case Int8:
-		return "int8"
-	case Int16:
-		return "int16"
-	case Int32:
-		return "int32"
-	case Int64:
-		return "int64"
-	case Float32:
-		return "float32"
-	case Float64:
-		return "float64"
-	case String:
-		return "string"
-	case Enum:
-		return "enum"
-	case TypeObject:
-		return "typeobject"
-	case Array:
-		return "array"
-	case List:
-		return "list"
-	case Set:
-		return "set"
-	case Map:
-		return "map"
-	case Struct:
-		return "struct"
-	case Union:
-		return "union"
+var (
+	kindNames = [internalNamed]string{
+		"any",
+		"optional",
+		"bool",
+		"byte",
+		"uint16",
+		"uint32",
+		"uint64",
+		"int8",
+		"int16",
+		"int32",
+		"int64",
+		"float32",
+		"float64",
+		"string",
+		"enum",
+		"typeobject",
+		"array",
+		"list",
+		"set",
+		"map",
+		"struct",
+		"union",
 	}
-	panic(fmt.Errorf("vdl: unhandled kind: %d", k))
+
+	camelCaseKindNames = [internalNamed]string{
+		"Any",
+		"Optional",
+		"Bool",
+		"Byte",
+		"Uint16",
+		"Uint32",
+		"Uint64",
+		"Int8",
+		"Int16",
+		"Int32",
+		"Int64",
+		"Float32",
+		"Float64",
+		"String",
+		"Enum",
+		"TypeObject",
+		"Array",
+		"List",
+		"Set",
+		"Map",
+		"Struct",
+		"Union",
+	}
+)
+
+func (k Kind) String() string {
+	return kindNames[k]
 }
 
-func (k Kind) CamelCase() string { //nolint:gocyclo
-	switch k {
-	case Any:
-		return "Any"
-	case Optional:
-		return "Optional"
-	case Bool:
-		return "Bool"
-	case Byte:
-		return "Byte"
-	case Uint16:
-		return "Uint16"
-	case Uint32:
-		return "Uint32"
-	case Uint64:
-		return "Uint64"
-	case Int8:
-		return "Int8"
-	case Int16:
-		return "Int16"
-	case Int32:
-		return "Int32"
-	case Int64:
-		return "Int64"
-	case Float32:
-		return "Float32"
-	case Float64:
-		return "Float64"
-	case String:
-		return "String"
-	case Enum:
-		return "Enum"
-	case TypeObject:
-		return "TypeObject"
-	case Array:
-		return "Array"
-	case List:
-		return "List"
-	case Set:
-		return "Set"
-	case Map:
-		return "Map"
-	case Struct:
-		return "Struct"
-	case Union:
-		return "Union"
-	}
-	panic(fmt.Errorf("vdl: unhandled kind: %d", k))
+func (k Kind) CamelCase() string {
+	return camelCaseKindNames[k]
 }
 
 // IsNumber returns true iff the kind is a number.
@@ -297,21 +257,17 @@ func (t *Type) IsBytes() bool {
 	return (t.kind == List || t.kind == Array) && t.elem.kind == Byte
 }
 
-var enumLabelAllowed = []Kind{Enum}
-
 // EnumLabel returns the Enum label at the given index.  It panics if the index
 // is out of range.
 func (t *Type) EnumLabel(index int) string {
-	t.checkKind("EnumLabel", enumLabelAllowed...)
+	t.checkOneKind("EnumLabel", Enum)
 	return t.labels[index]
 }
-
-var enumIndexAllowed = []Kind{Enum}
 
 // EnumIndex returns the Enum index for the given label.  Returns -1 if the
 // label doesn't exist.
 func (t *Type) EnumIndex(label string) int {
-	t.checkKind("EnumIndex", enumIndexAllowed...)
+	t.checkOneKind("EnumIndex", Enum)
 	// We typically have a small number of labels, so linear search is fine.
 	for index, l := range t.labels {
 		if l == label {
@@ -321,27 +277,21 @@ func (t *Type) EnumIndex(label string) int {
 	return -1
 }
 
-var numEnumLabelAllowed = []Kind{Enum}
-
 // NumEnumLabel returns the number of labels in an Enum.
 func (t *Type) NumEnumLabel() int {
-	t.checkKind("NumEnumLabel", numEnumLabelAllowed...)
+	t.checkOneKind("NumEnumLabel", Enum)
 	return len(t.labels)
 }
 
-var lenAllowed = []Kind{Array}
-
 // Len returns the length of an Array.
 func (t *Type) Len() int {
-	t.checkKind("Len", lenAllowed...)
+	t.checkOneKind("Len", Array)
 	return t.len
 }
 
-var elemAllowed = []Kind{Optional, Array, List, Map}
-
 // Elem returns the element type of an Optional, Array, List or Map.
 func (t *Type) Elem() *Type {
-	t.checkKind("Elem", elemAllowed...)
+	t.checkFourKind("Elem", Optional, Array, List, Map)
 	return t.elem
 }
 
@@ -353,28 +303,22 @@ func (t *Type) NonOptional() *Type {
 	return t
 }
 
-var keyAllowed = []Kind{Set, Map}
-
 // Key returns the key type of a Set or Map.
 func (t *Type) Key() *Type {
-	t.checkKind("Key", keyAllowed...)
+	t.checkTwoKind("Key", Set, Map)
 	return t.key
 }
 
-var fieldAllowed = []Kind{Struct, Union}
-
 // Field returns a description of the Struct or Union field at the given index.
 func (t *Type) Field(index int) Field {
-	t.checkKind("Field", fieldAllowed...)
+	t.checkTwoKind("Field", Struct, Union)
 	return t.fields[index]
 }
-
-var fieldByNameAllowed = []Kind{Struct, Union}
 
 // FieldByName returns a description of the Struct or Union field with the given
 // name, and its index.  Returns -1 if the name doesn't exist.
 func (t *Type) FieldByName(name string) (Field, int) {
-	t.checkKind("FieldByName", fieldByNameAllowed...)
+	t.checkTwoKind("FieldByName", Struct, Union)
 	if index, ok := t.fieldIndices[name]; ok {
 		return t.fields[index], index
 	}
@@ -384,18 +328,16 @@ func (t *Type) FieldByName(name string) (Field, int) {
 // FieldIndexByName returns the index of the Struct or Union field with
 // the given name.  Returns -1 if the name doesn't exist.
 func (t *Type) FieldIndexByName(name string) int {
-	t.checkKind("FieldIndexByName", fieldByNameAllowed...)
+	t.checkTwoKind("FieldIndexByName", Struct, Union)
 	if index, ok := t.fieldIndices[name]; ok {
 		return index
 	}
 	return -1
 }
 
-var numFieldAllowed = []Kind{Struct, Union}
-
 // NumField returns the number of fields in a Struct or Union.
 func (t *Type) NumField() int {
-	t.checkKind("NumField", numFieldAllowed...)
+	t.checkTwoKind("NumField", Struct, Union)
 	return len(t.fields)
 }
 
@@ -438,15 +380,28 @@ func (t *Type) errBytes(method string) error {
 	return fmt.Errorf("vdl: %s mismatched type; got: %v, want: bytes", method, t)
 }
 
-func (t *Type) checkKind(method string, allowed ...Kind) {
-	if t != nil {
-		for _, k := range allowed {
-			if k == t.kind {
-				return
-			}
-		}
+func (t *Type) checkFourKind(method string, a, b, c, d Kind) {
+	// t == nil leads to an easy to understand panic.
+	if t.kind == a || t.kind == b || t.kind == c || t.kind == d {
+		return
 	}
-	panic(t.errKind(method, allowed...))
+	panic(t.errKind(method, a, b, c, d))
+}
+
+func (t *Type) checkTwoKind(method string, a, b Kind) {
+	// t == nil leads to an easy to understand panic.
+	if t.kind == a || t.kind == b {
+		return
+	}
+	panic(t.errKind(method, a, b))
+}
+
+func (t *Type) checkOneKind(method string, a Kind) {
+	// t == nil leads to an easy to understand panic.
+	if t.kind == a {
+		return
+	}
+	panic(t.errKind(method, a))
 }
 
 func (t *Type) checkIsBytes(method string) {

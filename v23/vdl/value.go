@@ -422,13 +422,13 @@ func (v *Value) VDLEqual(x interface{}) bool {
 
 // Bool returns the underlying value of a Bool.
 func (v *Value) Bool() bool {
-	v.t.checkKind("Bool", Bool)
+	v.t.checkOneKind("Bool", Bool)
 	return v.rep.(bool)
 }
 
 // Uint returns the underlying value of a Byte or Uint{16,32,64}.
 func (v *Value) Uint() uint64 {
-	v.t.checkKind("Uint", Byte, Uint16, Uint32, Uint64)
+	v.t.checkFourKind("Uint", Byte, Uint16, Uint32, Uint64)
 	switch trep := v.rep.(type) {
 	case uint64:
 		return trep
@@ -440,19 +440,19 @@ func (v *Value) Uint() uint64 {
 
 // Int returns the underlying value of an Int{8,16,32,64}.
 func (v *Value) Int() int64 {
-	v.t.checkKind("Int", Int8, Int16, Int32, Int64)
+	v.t.checkFourKind("Int", Int8, Int16, Int32, Int64)
 	return v.rep.(int64)
 }
 
 // Float returns the underlying value of a Float{32,64}.
 func (v *Value) Float() float64 {
-	v.t.checkKind("Float", Float32, Float64)
+	v.t.checkTwoKind("Float", Float32, Float64)
 	return v.rep.(float64)
 }
 
 // RawString returns the underlying value of a String.
 func (v *Value) RawString() string {
-	v.t.checkKind("RawString", String)
+	v.t.checkOneKind("RawString", String)
 	return v.rep.(string)
 }
 
@@ -487,19 +487,19 @@ func (v *Value) Bytes() []byte {
 
 // EnumIndex returns the index of the underlying Enum.
 func (v *Value) EnumIndex() int {
-	v.t.checkKind("EnumIndex", Enum)
+	v.t.checkOneKind("EnumIndex", Enum)
 	return int(v.rep.(enumIndex))
 }
 
 // EnumLabel returns the label of the underlying Enum.
 func (v *Value) EnumLabel() string {
-	v.t.checkKind("EnumLabel", Enum)
+	v.t.checkOneKind("EnumLabel", Enum)
 	return v.t.labels[int(v.rep.(enumIndex))]
 }
 
 // TypeObject returns the underlying value of a TypeObject.
 func (v *Value) TypeObject() *Type {
-	v.t.checkKind("TypeObject", TypeObject)
+	v.t.checkOneKind("TypeObject", TypeObject)
 	return v.rep.(*Type)
 }
 
@@ -539,13 +539,13 @@ func (v *Value) Index(index int) *Value {
 // Keys returns all keys present in the underlying Set or Map.  The returned
 // keys are in an arbitrary order; do not rely on the ordering.
 func (v *Value) Keys() []*Value {
-	v.t.checkKind("Keys", Set, Map)
+	v.t.checkTwoKind("Keys", Set, Map)
 	return v.rep.(*repMap).Keys()
 }
 
 // ContainsKey returns true iff key is present in the underlying Set or Map.
 func (v *Value) ContainsKey(key *Value) bool {
-	v.t.checkKind("ContainsKey", Set, Map)
+	v.t.checkTwoKind("ContainsKey", Set, Map)
 	_, ok := v.rep.(*repMap).Index(typedCopy(v.t.key, key))
 	return ok
 }
@@ -554,7 +554,7 @@ func (v *Value) ContainsKey(key *Value) bool {
 // nil if the key is not found in the map.  Panics if the key isn't assignable
 // to the map's key type.
 func (v *Value) MapIndex(key *Value) *Value {
-	v.t.checkKind("MapIndex", Map)
+	v.t.checkOneKind("MapIndex", Map)
 	val, _ := v.rep.(*repMap).Index(typedCopy(v.t.key, key))
 	return val
 }
@@ -562,14 +562,14 @@ func (v *Value) MapIndex(key *Value) *Value {
 // StructField returns the Struct field at the given index.  Panics if the index
 // is out of range.
 func (v *Value) StructField(index int) *Value {
-	v.t.checkKind("StructField", Struct)
+	v.t.checkOneKind("StructField", Struct)
 	return v.rep.(*repSequence).Index(v.t.fields[index].Type, index)
 }
 
 // StructFieldByName returns the Struct field for the given name.  Returns nil
 // if the name given is not one of the struct's fields.
 func (v *Value) StructFieldByName(name string) *Value {
-	v.t.checkKind("StructFieldByName", Struct)
+	v.t.checkOneKind("StructFieldByName", Struct)
 	_, index := v.t.FieldByName(name)
 	if index == -1 {
 		return nil
@@ -579,7 +579,7 @@ func (v *Value) StructFieldByName(name string) *Value {
 
 // UnionField returns the field index and value from the underlying Union.
 func (v *Value) UnionField() (int, *Value) {
-	v.t.checkKind("UnionField", Union)
+	v.t.checkOneKind("UnionField", Union)
 	union := v.rep.(*repUnion)
 	return union.index, union.value
 }
@@ -587,7 +587,7 @@ func (v *Value) UnionField() (int, *Value) {
 // Elem returns the element value contained in the underlying Any or Optional.
 // Returns nil if v.IsNil() == true.
 func (v *Value) Elem() *Value {
-	v.t.checkKind("Elem", Any, Optional)
+	v.t.checkTwoKind("Elem", Any, Optional)
 	return v.rep.(*Value)
 }
 
@@ -643,13 +643,13 @@ func typedCopy(t *Type, v *Value) *Value {
 
 // AssignBool assigns the underlying Bool to x.
 func (v *Value) AssignBool(x bool) {
-	v.t.checkKind("AssignBool", Bool)
+	v.t.checkOneKind("AssignBool", Bool)
 	v.rep = x
 }
 
 // AssignUint assigns the underlying Uint{16,32,64} or Byte to x.
 func (v *Value) AssignUint(x uint64) {
-	v.t.checkKind("AssignUint", Byte, Uint16, Uint32, Uint64)
+	v.t.checkFourKind("AssignUint", Byte, Uint16, Uint32, Uint64)
 	switch trep := v.rep.(type) {
 	case uint64, nil:
 		// Handle cases where v.rep is a standalone number, or where v.rep == nil.
@@ -665,19 +665,19 @@ func (v *Value) AssignUint(x uint64) {
 
 // AssignInt assigns the underlying Int{8,16,32,64} to x.
 func (v *Value) AssignInt(x int64) {
-	v.t.checkKind("AssignInt", Int8, Int16, Int32, Int64)
+	v.t.checkFourKind("AssignInt", Int8, Int16, Int32, Int64)
 	v.rep = x
 }
 
 // AssignFloat assigns the underlying Float{32,64} to x.
 func (v *Value) AssignFloat(x float64) {
-	v.t.checkKind("AssignFloat", Float32, Float64)
+	v.t.checkTwoKind("AssignFloat", Float32, Float64)
 	v.rep = x
 }
 
 // AssignString assigns the underlying String to x.
 func (v *Value) AssignString(x string) {
-	v.t.checkKind("AssignString", String)
+	v.t.checkOneKind("AssignString", String)
 	v.rep = x
 }
 
@@ -700,7 +700,7 @@ func (v *Value) AssignBytes(x []byte) {
 // AssignEnumIndex assigns the underlying Enum to the label corresponding to
 // index.  Panics if the index is out of range.
 func (v *Value) AssignEnumIndex(index int) {
-	v.t.checkKind("AssignEnumIndex", Enum)
+	v.t.checkOneKind("AssignEnumIndex", Enum)
 	if index < 0 || index >= len(v.t.labels) {
 		panic(fmt.Errorf("vdl: enum %q index %d out of range", v.t.name, index))
 	}
@@ -710,7 +710,7 @@ func (v *Value) AssignEnumIndex(index int) {
 // AssignEnumLabel assigns the underlying Enum to the label.  Panics if the
 // label doesn't exist in the Enum.
 func (v *Value) AssignEnumLabel(label string) {
-	v.t.checkKind("AssignEnumLabel", Enum)
+	v.t.checkOneKind("AssignEnumLabel", Enum)
 	index := v.t.EnumIndex(label)
 	if index == -1 {
 		panic(fmt.Errorf("vdl: enum %q doesn't have label %q", v.t.name, label))
@@ -721,7 +721,7 @@ func (v *Value) AssignEnumLabel(label string) {
 // AssignTypeObject assigns the underlying TypeObject to x.  If x == nil we
 // assign the zero TypeObject.
 func (v *Value) AssignTypeObject(x *Type) {
-	v.t.checkKind("AssignTypeObject", TypeObject)
+	v.t.checkOneKind("AssignTypeObject", TypeObject)
 	if x == nil {
 		x = zeroTypeObject
 	}
@@ -731,7 +731,7 @@ func (v *Value) AssignTypeObject(x *Type) {
 // AssignLen assigns the length of the underlying List to n.  Unlike Go slices,
 // Lists do not have a separate notion of capacity.
 func (v *Value) AssignLen(n int) {
-	v.t.checkKind("AssignLen", List)
+	v.t.checkOneKind("AssignLen", List)
 	switch rep := v.rep.(type) {
 	case *repBytes:
 		rep.AssignLen(n)
@@ -744,7 +744,7 @@ func (v *Value) AssignLen(n int) {
 // elem.  Panics if the index is out of range, or if elem isn't assignable to
 // the Array or List element type.
 func (v *Value) AssignIndex(index int, elem *Value) {
-	v.t.checkKind("AssignIndex", Array, List)
+	v.t.checkTwoKind("AssignIndex", Array, List)
 	if index >= v.Len() {
 		panic(fmt.Errorf("vdl: index %d out of range for %v", index, v.t))
 	}
@@ -759,14 +759,14 @@ func (v *Value) AssignIndex(index int, elem *Value) {
 // AssignSetKey assigns key to the underlying Set.  Panics if key isn't
 // assignable to the Set key type.
 func (v *Value) AssignSetKey(key *Value) {
-	v.t.checkKind("AssignSetKey", Set)
+	v.t.checkOneKind("AssignSetKey", Set)
 	v.rep.(*repMap).Assign(typedCopy(v.t.key, key), nil)
 }
 
 // DeleteSetKey deletes key from the underlying Set.  Panics if key isn't
 // assignable to the Set key type.
 func (v *Value) DeleteSetKey(key *Value) {
-	v.t.checkKind("DeleteSetKey", Set)
+	v.t.checkOneKind("DeleteSetKey", Set)
 	v.rep.(*repMap).Delete(typedCopy(v.t.key, key))
 }
 
@@ -774,14 +774,14 @@ func (v *Value) DeleteSetKey(key *Value) {
 // underlying Map.  Panics if key isn't assignable to the Map key type, or if
 // elem isn't assignable to the Map elem type.
 func (v *Value) AssignMapIndex(key, elem *Value) {
-	v.t.checkKind("AssignMapIndex", Map)
+	v.t.checkOneKind("AssignMapIndex", Map)
 	v.rep.(*repMap).Assign(typedCopy(v.t.key, key), typedCopy(v.t.elem, elem))
 }
 
 // DeleteMapIndex deletes key from the underlying Map.  Panics if the key isn't
 // assignable to the Map key type.
 func (v *Value) DeleteMapIndex(key *Value) {
-	v.t.checkKind("DeleteMapIndex", Map)
+	v.t.checkOneKind("DeleteMapIndex", Map)
 	v.rep.(*repMap).Delete(typedCopy(v.t.key, key))
 }
 
@@ -792,7 +792,7 @@ func (v *Value) DeleteMapIndex(key *Value) {
 // the index is out of range, or if value isn't assignable to the Struct or
 // Union field type.
 func (v *Value) AssignField(index int, value *Value) {
-	v.t.checkKind("AssignField", Struct, Union)
+	v.t.checkTwoKind("AssignField", Struct, Union)
 	if index >= len(v.t.fields) {
 		panic(fmt.Errorf("vdl: field index %d out of range for %v", index, v.t))
 	}

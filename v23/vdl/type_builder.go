@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 	"unsafe"
 )
@@ -350,7 +349,7 @@ func (b *TypeBuilder) Build() {
 	// Now enforce the rule that type names are unique.  This must occur before we
 	// hash cons anything, to catch tricky cases where hash consing is difficult.
 	// See uniqueTypeStr for more info.
-	names := make(map[string]*Type)
+	names := map[string]*Type{}
 	for _, p := range b.ptypes {
 		if err := enforceUniqueNames(p.Type, names); err != nil && p.err == nil {
 			p.err = err
@@ -426,6 +425,9 @@ func checkedBuild(b TypeBuilder, p PendingType) *Type {
 // OptionalType is a helper using TypeBuilder to create a single Optional type.
 // Panics on all errors.
 func OptionalType(elem *Type) *Type {
+	if t := reuseDerivedType(elem, Optional, 0); t != nil {
+		return t
+	}
 	var b TypeBuilder
 	return checkedBuild(b, b.Optional().AssignElem(elem))
 }
@@ -443,14 +445,20 @@ func EnumType(labels ...string) *Type {
 
 // ArrayType is a helper using TypeBuilder to create a single Array type.
 // Panics on all errors.
-func ArrayType(len int, elem *Type) *Type {
+func ArrayType(arrayLen int, elem *Type) *Type {
+	if t := reuseDerivedType(elem, Array, arrayLen); t != nil {
+		return t
+	}
 	var b TypeBuilder
-	return checkedBuild(b, b.Array().AssignLen(len).AssignElem(elem))
+	return checkedBuild(b, b.Array().AssignLen(arrayLen).AssignElem(elem))
 }
 
 // ListType is a helper using TypeBuilder to create a single List type.  Panics
 // on all errors.
 func ListType(elem *Type) *Type {
+	if t := reuseDerivedType(elem, List, 0); t != nil {
+		return t
+	}
 	var b TypeBuilder
 	return checkedBuild(b, b.List().AssignElem(elem))
 }
@@ -458,6 +466,9 @@ func ListType(elem *Type) *Type {
 // SetType is a helper using TypeBuilder to create a single Set type.  Panics on
 // all errors.
 func SetType(key *Type) *Type {
+	if t := reuseKeyedType(key, nil, Set, 0); t != nil {
+		return t
+	}
 	var b TypeBuilder
 	return checkedBuild(b, b.Set().AssignKey(key))
 }
@@ -465,6 +476,9 @@ func SetType(key *Type) *Type {
 // MapType is a helper using TypeBuilder to create a single Map type.  Panics
 // on all errors.
 func MapType(key, elem *Type) *Type {
+	if t := reuseKeyedType(key, elem, Map, 0); t != nil {
+		return t
+	}
 	var b TypeBuilder
 	return checkedBuild(b, b.Map().AssignKey(key).AssignElem(elem))
 }
@@ -596,7 +610,13 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Enum:
 		out = append(out, "enum{"...)
-		out = append(out, strings.Join(t.labels, ";")...)
+		last := len(t.labels) - 1
+		for i, l := range t.labels {
+			out = append(out, l...)
+			if i < last {
+				out = append(out, ';')
+			}
+		}
 		out = append(out, '}')
 	case Array:
 		out = append(out, '[')
@@ -604,7 +624,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 		out = append(out, ']')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case List:
-		out = append(out, "[]"...)
+		out = append(out, '[', ']')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Set:
 		out = append(out, "set["...)
@@ -621,6 +641,59 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 		out = append(out, t.kind.String()...)
 	}
 	return out
+}
+
+// reuseDerivedType checks to see if the type derived from the base
+// type's elem (ie. an optional, list or array) already exists. This is
+// an important optimisation, especially for optionals, since anything
+// passed in as a pointer to vom.Encode is treated as an optional.
+func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
+	if elem == nil || len(elem.unique) == 0 {
+		return nil
+	}
+	buf := [256]byte{}
+	cons := buf[:0]
+	switch kind {
+	case Optional:
+		cons = append(cons, '?')
+		cons = append(cons, elem.unique...)
+	case Array:
+		cons = append(cons, '[')
+		cons = append(cons, strconv.Itoa(arrayLen)...)
+		cons = append(cons, ']')
+		cons = append(cons, elem.unique...)
+	case List:
+		cons = append(cons, '[', ']')
+		cons = append(cons, elem.unique...)
+	default:
+		return nil
+	}
+	return lookupType(*(*string)(unsafe.Pointer(&cons)))
+}
+
+func reuseKeyedType(key, elem *Type, kind Kind, arrayLen int) *Type {
+	if key == nil || len(key.unique) == 0 {
+		return nil
+	}
+	buf := [256]byte{}
+	cons := buf[:0]
+	switch kind {
+	case Set:
+		cons = append(cons, "set["...)
+		cons = append(cons, key.unique...)
+		cons = append(cons, ']')
+	case Map:
+		if elem == nil || len(elem.unique) == 0 {
+			return nil
+		}
+		cons = append(cons, "map["...)
+		cons = append(cons, key.unique...)
+		cons = append(cons, ']')
+		cons = append(cons, elem.unique...)
+	default:
+		return nil
+	}
+	return lookupType(*(*string)(unsafe.Pointer(&cons)))
 }
 
 func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
@@ -644,9 +717,16 @@ var (
 	// typeReg holds a global set of hash-consed types.  Hash-consing is based on
 	// the string representation of the type.  See comments in uniqueType for an
 	// explanation of subtleties.
-	typeReg   = map[string]*Type{}
-	typeRegMu sync.Mutex
+	typeReg   = make(map[string]*Type, 256)
+	typeRegMu sync.RWMutex
 )
+
+func lookupType(cons string) *Type {
+	typeRegMu.RLock()
+	t := typeReg[cons]
+	typeRegMu.RUnlock()
+	return t
+}
 
 // typeCons returns the hash-consed Type for a given Type t
 func typeCons(t *Type) (*Type, error) {
@@ -679,12 +759,14 @@ func typeConsLocked(t *Type) *Type {
 	if found := typeReg[unique]; found != nil {
 		return found
 	}
-	// This type is new, so convert to a string.
+	// This type is new, so convert the unique name to a string.
 	t.unique = string(us)
+
 	// Not found in the registry, add it and recursively cons subtypes.  We cons
 	// the outer type first to deal with recursive types; otherwise we'd have an
 	// infinite loop.
 	typeReg[t.unique] = t
+
 	t.containsKind.Set(t.kind)
 	t.elem = typeConsLocked(t.elem)
 	if t.elem != nil {
