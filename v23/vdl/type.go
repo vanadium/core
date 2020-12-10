@@ -260,8 +260,11 @@ func (t *Type) IsBytes() bool {
 // EnumLabel returns the Enum label at the given index.  It panics if the index
 // is out of range.
 func (t *Type) EnumLabel(index int) string {
-	t.checkOneKind("EnumLabel", Enum)
-	return t.labels[index]
+	if t.kind == Enum {
+		return t.labels[index]
+	}
+	//t.checkOneKind("EnumLabel", Enum)
+	panic(t.errKind("EnumLabel", Enum))
 }
 
 // EnumIndex returns the Enum index for the given label.  Returns -1 if the
@@ -311,8 +314,12 @@ func (t *Type) Key() *Type {
 
 // Field returns a description of the Struct or Union field at the given index.
 func (t *Type) Field(index int) Field {
-	t.checkTwoKind("Field", Struct, Union)
-	return t.fields[index]
+	if t.kind == Struct || t.kind == Union {
+		return t.fields[index]
+	}
+	//	t.checkTwoKind("Field", Struct, Union)
+	//	return t.fields[index]
+	panic(t.errKind("Field", Struct, Union))
 }
 
 // FieldByName returns a description of the Struct or Union field with the given
@@ -337,8 +344,12 @@ func (t *Type) FieldIndexByName(name string) int {
 
 // NumField returns the number of fields in a Struct or Union.
 func (t *Type) NumField() int {
-	t.checkTwoKind("NumField", Struct, Union)
-	return len(t.fields)
+	if t.kind == Struct || t.kind == Union {
+		return len(t.fields)
+	}
+	panic(t.errKind("NumField", Struct, Union))
+	//	t.checkTwoKind("NumField", Struct, Union)
+	//	return len(t.fields)
 }
 
 // AssignableFrom returns true iff values of t may be assigned from f:
