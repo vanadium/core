@@ -206,6 +206,11 @@ func (t *Type) Unique() string {
 	if t.unique != "" {
 		return t.unique
 	}
+	return t.uniqueSlow()
+}
+
+//go:noinline
+func (t *Type) uniqueSlow() string {
 	// The only time that t.unique isn't set is while we're in the process of
 	// building the type, and we're printing the type for errors.  The type might
 	// have unnamed cycles, so we need to use short cycle names.
@@ -260,17 +265,18 @@ func (t *Type) IsBytes() bool {
 // EnumLabel returns the Enum label at the given index.  It panics if the index
 // is out of range.
 func (t *Type) EnumLabel(index int) string {
-	if t.kind == Enum {
-		return t.labels[index]
+	if t.kind != Enum {
+		t.panicErrKind("EnumLabel", Enum)
 	}
-	//t.checkOneKind("EnumLabel", Enum)
-	panic(t.errKind("EnumLabel", Enum))
+	return t.labels[index]
 }
 
 // EnumIndex returns the Enum index for the given label.  Returns -1 if the
 // label doesn't exist.
 func (t *Type) EnumIndex(label string) int {
-	t.checkOneKind("EnumIndex", Enum)
+	if t.kind != Enum {
+		t.panicErrKind("EnumIndex", Enum)
+	}
 	// We typically have a small number of labels, so linear search is fine.
 	for index, l := range t.labels {
 		if l == label {
@@ -282,19 +288,27 @@ func (t *Type) EnumIndex(label string) int {
 
 // NumEnumLabel returns the number of labels in an Enum.
 func (t *Type) NumEnumLabel() int {
-	t.checkOneKind("NumEnumLabel", Enum)
+	if t.kind != Enum {
+		t.panicErrKind("NumEnumLabel", Enum)
+	}
 	return len(t.labels)
 }
 
 // Len returns the length of an Array.
 func (t *Type) Len() int {
-	t.checkOneKind("Len", Array)
+	if t.kind != Array {
+		t.panicErrKind("Len", Array)
+	}
 	return t.len
 }
 
 // Elem returns the element type of an Optional, Array, List or Map.
 func (t *Type) Elem() *Type {
-	t.checkFourKind("Elem", Optional, Array, List, Map)
+	switch t.kind {
+	case Optional, Array, List, Map:
+	default:
+		t.panicErrKind("Elem", Optional, Array, List, Map)
+	}
 	return t.elem
 }
 
@@ -308,24 +322,33 @@ func (t *Type) NonOptional() *Type {
 
 // Key returns the key type of a Set or Map.
 func (t *Type) Key() *Type {
-	t.checkTwoKind("Key", Set, Map)
+	switch t.kind {
+	case Set, Map:
+	default:
+		t.panicErrKind("Key", Set, Map)
+	}
 	return t.key
 }
 
 // Field returns a description of the Struct or Union field at the given index.
 func (t *Type) Field(index int) Field {
-	if t.kind == Struct || t.kind == Union {
-		return t.fields[index]
+	switch t.kind {
+	case Struct, Union:
+	default:
+		t.panicErrKind("Field", Struct, Union)
 	}
-	//	t.checkTwoKind("Field", Struct, Union)
-	//	return t.fields[index]
-	panic(t.errKind("Field", Struct, Union))
+	return t.fields[index]
 }
 
 // FieldByName returns a description of the Struct or Union field with the given
 // name, and its index.  Returns -1 if the name doesn't exist.
 func (t *Type) FieldByName(name string) (Field, int) {
-	t.checkTwoKind("FieldByName", Struct, Union)
+	switch t.kind {
+	case Struct, Union:
+	default:
+		// Call panic directly to reduce the inlining cost of this method.
+		panic("vdl: FieldByName mismatched kind; got: " + t.kindString() + "want: struct union")
+	}
 	if index, ok := t.fieldIndices[name]; ok {
 		return t.fields[index], index
 	}
@@ -335,7 +358,12 @@ func (t *Type) FieldByName(name string) (Field, int) {
 // FieldIndexByName returns the index of the Struct or Union field with
 // the given name.  Returns -1 if the name doesn't exist.
 func (t *Type) FieldIndexByName(name string) int {
-	t.checkTwoKind("FieldIndexByName", Struct, Union)
+	switch t.kind {
+	case Struct, Union:
+	default:
+		// Call panic directly to reduce the inlining cost of this method.
+		panic("vdl: FieldIndexByName mismatched kind; got: " + t.kindString() + "want: struct union")
+	}
 	if index, ok := t.fieldIndices[name]; ok {
 		return index
 	}
@@ -344,12 +372,12 @@ func (t *Type) FieldIndexByName(name string) int {
 
 // NumField returns the number of fields in a Struct or Union.
 func (t *Type) NumField() int {
-	if t.kind == Struct || t.kind == Union {
-		return len(t.fields)
+	switch t.kind {
+	case Struct, Union:
+	default:
+		t.panicErrKind("NumField", Struct, Union)
 	}
-	panic(t.errKind("NumField", Struct, Union))
-	//	t.checkTwoKind("NumField", Struct, Union)
-	//	return len(t.fields)
+	return len(t.fields)
 }
 
 // AssignableFrom returns true iff values of t may be assigned from f:
@@ -383,42 +411,32 @@ func (t *Type) VDLWrite(enc Encoder) error {
 // ptype implements the TypeOrPending interface.
 func (t *Type) ptype() *Type { return t }
 
+// Prevent these error and panic related functions from being inlined
+// so that they don't count toward the cost of inlining their callers.
+
+//go:noinline
 func (t *Type) errKind(method string, allowed ...Kind) error {
-	return fmt.Errorf("vdl: %s mismatched kind; got: %v, want: %v", method, t, allowed)
+	return fmt.Errorf("vdl: %s mismatched kind; got: %v, want: %v", method, t.kind, allowed)
 }
 
+//go:noinline
 func (t *Type) errBytes(method string) error {
-	return fmt.Errorf("vdl: %s mismatched type; got: %v, want: bytes", method, t)
+	return fmt.Errorf("vdl: %s mismatched type; got: %v, want: bytes", method, t.kind)
 }
 
-func (t *Type) checkFourKind(method string, a, b, c, d Kind) {
-	// t == nil leads to an easy to understand panic.
-	if t.kind == a || t.kind == b || t.kind == c || t.kind == d {
-		return
-	}
-	panic(t.errKind(method, a, b, c, d))
+//go:noinline
+func (t *Type) panicErrKind(method string, allowed ...Kind) {
+	panic(t.errKind(method, allowed...))
 }
 
-func (t *Type) checkTwoKind(method string, a, b Kind) {
-	// t == nil leads to an easy to understand panic.
-	if t.kind == a || t.kind == b {
-		return
-	}
-	panic(t.errKind(method, a, b))
+//go:noinline
+func (t *Type) panicErrBytes(method string) {
+	panic(t.errBytes(method))
 }
 
-func (t *Type) checkOneKind(method string, a Kind) {
-	// t == nil leads to an easy to understand panic.
-	if t.kind == a {
-		return
-	}
-	panic(t.errKind(method, a))
-}
-
-func (t *Type) checkIsBytes(method string) {
-	if !t.IsBytes() {
-		panic(t.errBytes(method))
-	}
+//go:noline
+func (t *Type) kindString() string {
+	return t.kind.String()
 }
 
 // ContainsKind returns true iff t or subtypes of t match any of the kinds.
