@@ -572,14 +572,6 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // specifying -1 and hence if the test fails, the full validation can proceed
 // and if it is successful arbitrary depth types are supported.
 func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
-	if depth >= 0 {
-		depth++
-	}
-	const maxDepth = 50
-	if depth > maxDepth {
-		panic(fmt.Sprintf("recursive type has too many levels: %v > %v", depth, maxDepth))
-	}
-
 	if c, ok := inCycle[t]; ok {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
@@ -596,28 +588,20 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 			return append(out, "..."...)
 		}
 	}
-	inCycle[t] = true
-	defer func() {
-		inCycle[t] = false
-	}()
+	if depth >= 0 {
+		depth = checkDepth(depth)
+	}
 	out = append(out, t.name...)
 	if t.name != "" {
 		out = append(out, ' ')
 	}
+	inCycle[t] = true
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Enum:
-		out = append(out, "enum{"...)
-		last := len(t.labels) - 1
-		for i, l := range t.labels {
-			out = append(out, l...)
-			if i < last {
-				out = append(out, ';')
-			}
-		}
-		out = append(out, '}')
+		out = writeEnum(out, t, inCycle, shortCycleName, depth)
 	case Array:
 		out = append(out, '[')
 		out = append(out, strconv.Itoa(t.len)...)
@@ -640,13 +624,53 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	default:
 		out = append(out, t.kind.String()...)
 	}
+	inCycle[t] = false
 	return out
+}
+
+func checkDepth(depth int) int {
+	depth++
+	const maxDepth = 50
+	if depth > maxDepth {
+		panic(fmt.Sprintf("recursive type has too many levels: %v > %v", depth, maxDepth))
+	}
+	return depth
+}
+
+func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+	if t.kind == Struct {
+		out = append(out, "struct{"...)
+	} else {
+		out = append(out, "union{"...)
+	}
+	for index, f := range t.fields {
+		if index > 0 {
+			out = append(out, ';')
+		}
+		out = append(out, f.Name...)
+		out = append(out, ' ')
+		out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
+	}
+	return append(out, '}')
+}
+
+func writeEnum(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+	out = append(out, "enum{"...)
+	last := len(t.labels) - 1
+	for i, l := range t.labels {
+		out = append(out, l...)
+		if i < last {
+			out = append(out, ';')
+		}
+	}
+	return append(out, '}')
 }
 
 // reuseDerivedType checks to see if the type derived from the base
 // type's elem (ie. an optional, list or array) already exists. This is
-// an important optimisation, especially for optionals, since anything
-// passed in as a pointer to vom.Encode is treated as an optional.
+// an important optimisation since anything passed in as a pointer to
+// vom.Encode is treated as an optional and would otherwise resulting
+// a new type being built on every use of that optional.
 func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
 	if elem == nil || len(elem.unique) == 0 {
 		return nil
@@ -694,23 +718,6 @@ func reuseKeyedType(key, elem *Type, kind Kind, arrayLen int) *Type {
 		return nil
 	}
 	return lookupType(*(*string)(unsafe.Pointer(&cons)))
-}
-
-func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
-	if t.kind == Struct {
-		out = append(out, "struct{"...)
-	} else {
-		out = append(out, "union{"...)
-	}
-	for index, f := range t.fields {
-		if index > 0 {
-			out = append(out, ';')
-		}
-		out = append(out, f.Name...)
-		out = append(out, ' ')
-		out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
-	}
-	return append(out, '}')
 }
 
 var (

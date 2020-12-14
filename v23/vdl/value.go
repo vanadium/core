@@ -742,7 +742,6 @@ func (v *Value) AssignString(x string) {
 		v.t.panicErrKind("AssignString", String)
 	}
 	v.rep = x
-	return
 }
 
 //go:noinline
@@ -815,7 +814,6 @@ func (v *Value) AssignTypeObject(x *Type) {
 		x = zeroTypeObject
 	}
 	v.rep = x
-	return
 }
 
 // AssignLen assigns the length of the underlying List to n.  Unlike Go slices,

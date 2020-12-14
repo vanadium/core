@@ -45,7 +45,6 @@ func Decode(data []byte, v interface{}) error {
 
 	bufs := reusableBuffersPool.Get().(*reusableBuffers)
 	defer reusableBuffersPool.Put(bufs)
-	//buf := newDecbufFromBytes(data)
 	bufs.dec.buf.SetBytes(data)
 	buf := bufs.dec.buf
 
