@@ -198,25 +198,22 @@ func (e *TypeEncoder) lookupTypeID(tt *vdl.Type) TypeId {
 }
 
 func (e *TypeEncoder) lookupOrAssignTypeID(tt *vdl.Type) (TypeId, bool, error) {
+	e.typeMu.Lock()
+	defer e.typeMu.Unlock()
+	tid := e.typeToID[tt]
+	if tid > 0 {
+		return tid, false, nil
+	}
 	if tid := bootstrapTypeToID[tt]; tid != 0 {
 		return tid, false, nil
 	}
-	e.typeMu.Lock()
-	tid := e.typeToID[tt]
-	if tid > 0 {
-		e.typeMu.Unlock()
-		return tid, false, nil
-	}
-
 	// Assign a new id.
 	newID := e.nextID
 	if newID > math.MaxInt64 {
-		e.typeMu.Unlock()
 		return 0, false, fmt.Errorf("vom: encoder type id overflow")
 	}
 	e.nextID++
 	e.typeToID[tt] = newID
-	e.typeMu.Unlock()
 	return newID, true, nil
 }
 
