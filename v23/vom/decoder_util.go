@@ -334,6 +334,7 @@ func (d *decoder81) typeIsNext() (bool, error) {
 	case ctrl == WireCtrlTypeIncomplete:
 		return true, nil
 	case ctrl != 0:
+		fmt.Printf("DEC: %p\n", d)
 		return false, errBadControlCode(ctrl)
 	}
 	mid, _, err := binaryPeekInt(d.buf)
@@ -357,8 +358,9 @@ func (d *decoder81) endMessage() error {
 }
 
 type referencedTypes struct {
-	tids   []TypeId
-	marker int
+	tidStorage [4]TypeId
+	tids       []TypeId
+	marker     int
 }
 
 func (refTypes *referencedTypes) Reset() (err error) {
@@ -368,6 +370,9 @@ func (refTypes *referencedTypes) Reset() (err error) {
 }
 
 func (refTypes *referencedTypes) AddTypeID(tid TypeId) {
+	if refTypes.tids == nil {
+		refTypes.tids = refTypes.tidStorage[:0]
+	}
 	refTypes.tids = append(refTypes.tids, tid)
 }
 
@@ -383,8 +388,9 @@ func (refTypes *referencedTypes) Mark() {
 }
 
 type referencedAnyLens struct {
-	lens   []int
-	marker int
+	lenStorage [4]int
+	lens       []int
+	marker     int
 }
 
 func (refAnys *referencedAnyLens) Reset() (err error) {
@@ -393,6 +399,9 @@ func (refAnys *referencedAnyLens) Reset() (err error) {
 }
 
 func (refAnys *referencedAnyLens) AddAnyLen(len int) {
+	if refAnys.lens == nil {
+		refAnys.lens = refAnys.lenStorage[:0]
+	}
 	refAnys.lens = append(refAnys.lens, len)
 }
 

@@ -807,9 +807,13 @@ func validType(t *Type) error {
 		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
 		}
+		// The compiler will optimise this to zero out the buckets but
+		// keep the storage.
+		for k := range inCycle {
+			delete(inCycle, k)
+		}
 		// existsStrictCycle returns a nil error iff the given type set has no strict
 		// cycles (e.g. type A struct{Elem: A})
-		inCycle = map[*Type]bool{}
 		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
 		}

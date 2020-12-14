@@ -34,21 +34,23 @@ func NewTypeEncoder(w io.Writer) *TypeEncoder {
 // NewTypeEncoderVersion returns a new TypeEncoder that writes types to the given
 // writer in the specified VOM version.
 func NewVersionedTypeEncoder(version Version, w io.Writer) *TypeEncoder {
-	return &TypeEncoder{
+	tc := &TypeEncoder{
 		typeToID:        make(map[*vdl.Type]TypeId),
 		nextID:          WireIdFirstUserType,
 		enc:             newEncoderForTypes(version, w),
 		sentVersionByte: false,
 	}
+	return tc
 }
 
 func newTypeEncoderInternal(version Version, enc *encoder81) *TypeEncoder {
-	return &TypeEncoder{
+	tc := &TypeEncoder{
 		typeToID:        make(map[*vdl.Type]TypeId),
 		nextID:          WireIdFirstUserType,
 		enc:             enc,
 		sentVersionByte: true,
 	}
+	return tc
 }
 
 // encode encodes the wire type tt recursively in depth-first order, encoding
@@ -185,13 +187,14 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 // lookupTypeID returns the id for the type tt if it is already encoded;
 // otherwise zero id is returned.
 func (e *TypeEncoder) lookupTypeID(tt *vdl.Type) TypeId {
-	if tid := bootstrapTypeToID[tt]; tid != 0 {
-		return tid
-	}
+	// Non-bootstrap types are the common case so look them up first.
 	e.typeMu.RLock()
 	tid := e.typeToID[tt]
 	e.typeMu.RUnlock()
-	return tid
+	if tid != 0 {
+		return tid
+	}
+	return bootstrapTypeToID[tt]
 }
 
 func (e *TypeEncoder) lookupOrAssignTypeID(tt *vdl.Type) (TypeId, bool, error) {

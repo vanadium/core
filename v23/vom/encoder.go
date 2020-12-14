@@ -128,7 +128,8 @@ const (
 )
 
 type encoder81 struct {
-	stack []encoderStackEntry
+	stackStorage [2]encoderStackEntry
+	stack        []encoderStackEntry
 	// We use buf to buffer up the encoded value. The buffering is necessary so
 	// that we can compute the total message length.
 	buf *encbuf
@@ -191,6 +192,13 @@ func (e *encoder81) top() *encoderStackEntry {
 		return nil
 	}
 	return &e.stack[len(e.stack)-1]
+}
+
+func (e *encoder81) appendStack(entry encoderStackEntry) {
+	if e.stack == nil {
+		e.stack = e.stackStorage[:0]
+	}
+	e.stack = append(e.stack, entry)
 }
 
 func (e *encoder81) encodeWireType(tid TypeId, wt wireType, typeIncomplete bool) error {
@@ -290,7 +298,7 @@ func (e *encoder81) StartValue(tt *vdl.Type) error {
 		}
 	}
 	// Add entry to the stack.
-	e.stack = append(e.stack, encoderStackEntry{
+	e.appendStack(encoderStackEntry{
 		Type:    tt,
 		Index:   -1,
 		LenHint: -1,
@@ -318,9 +326,14 @@ func (e *encoder81) startMessage(tt *vdl.Type) error {
 	if err != nil {
 		return err
 	}
-	e.hasLen = hasChunkLen(tt)
-	e.hasAny = containsAny(tt)
-	e.hasTypeObject = containsTypeObject(tt)
+	ttKind := tt.Kind()
+	if ttKind.IsNumber() || (ttKind == vdl.String) || (ttKind == vdl.Enum) {
+		e.hasLen, e.hasAny, e.hasTypeObject = false, false, false
+	} else {
+		e.hasLen = hasChunkLen(tt)
+		e.hasAny = containsAny(tt)
+		e.hasTypeObject = containsTypeObject(tt)
+	}
 	e.typeIncomplete = false
 	e.mid = int64(tid)
 	if e.hasAny || e.hasTypeObject {
@@ -569,14 +582,15 @@ func (e *encoder81) writeRawBytes(rb *RawBytes) error {
 }
 
 func newTypeIDList() *typeIDList {
-	return &typeIDList{
-		tids: make([]TypeId, 0, typeIDListInitialSize),
-	}
+	tids := &typeIDList{}
+	tids.tids = tids.tidStorage[:0]
+	return tids
 }
 
 type typeIDList struct {
-	tids      []TypeId
-	totalSent int
+	tidStorage [typeIDListInitialSize]TypeId
+	tids       []TypeId
+	totalSent  int
 }
 
 func (l *typeIDList) ReferenceTypeID(tid TypeId) uint64 {
