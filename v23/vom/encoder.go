@@ -48,7 +48,7 @@ func NewEncoder(w io.Writer) *Encoder {
 // NewVersionedEncoder returns a new Encoder that writes to the given writer with
 // the specified version.
 func NewVersionedEncoder(version Version, w io.Writer) *Encoder {
-	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, w))
+	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, w, newEncbuf()))
 	return NewVersionedEncoderWithTypeEncoder(version, w, typeEnc)
 }
 
@@ -62,6 +62,10 @@ func NewEncoderWithTypeEncoder(w io.Writer, typeEnc *TypeEncoder) *Encoder {
 // given writer with the specified version, where types are encoded separately
 // through the typeEnc.
 func NewVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder) *Encoder {
+	return newVersionedEncoderWithTypeEncoder(version, w, typeEnc, newEncbuf())
+}
+
+func newVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder, buf *encbuf) *Encoder {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
@@ -74,11 +78,10 @@ func NewVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *T
 	}}
 }
 
-func newEncoderForTypes(version Version, w io.Writer) *encoder81 {
+func newEncoderForTypes(version Version, w io.Writer, buf *encbuf) *encoder81 {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
-	buf := newEncbuf()
 	e := &encoder81{
 		writer:          w,
 		buf:             buf,
@@ -128,7 +131,7 @@ const (
 )
 
 type encoder81 struct {
-	stackStorage [2]encoderStackEntry
+	stackStorage [reservedCodec81StackSize]encoderStackEntry
 	stack        []encoderStackEntry
 	// We use buf to buffer up the encoded value. The buffering is necessary so
 	// that we can compute the total message length.
@@ -195,6 +198,9 @@ func (e *encoder81) top() *encoderStackEntry {
 }
 
 func (e *encoder81) appendStack(entry encoderStackEntry) {
+	// TODO(cnicolaou): get rid of this test by ensuring that the
+	//      stack is properly initialized when an encoder81 is
+	//      created.
 	if e.stack == nil {
 		e.stack = e.stackStorage[:0]
 	}
@@ -327,6 +333,8 @@ func (e *encoder81) startMessage(tt *vdl.Type) error {
 		return err
 	}
 	ttKind := tt.Kind()
+	// Avoid the expensive operations (hasChunkLen etc) when
+	// they can't possibly be required.
 	if ttKind.IsNumber() || (ttKind == vdl.String) || (ttKind == vdl.Enum) {
 		e.hasLen, e.hasAny, e.hasTypeObject = false, false, false
 	} else {

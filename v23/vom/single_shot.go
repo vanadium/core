@@ -25,10 +25,30 @@ func Encode(v interface{}) ([]byte, error) {
 // VersionedEncode performs single-shot encoding to a specific version of VOM
 func VersionedEncode(version Version, v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := NewVersionedEncoder(version, &buf).Encode(v); err != nil {
+	encBufs := reusableEncoderBuffersPool.Get().(*reusableEncoderBuffers)
+	defer reusableEncoderBuffersPool.Put(encBufs)
+	encBufs.typeEncBuf.Reset()
+	encBufs.valueEncBuf.Reset()
+	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, &buf,
+		encBufs.typeEncBuf))
+	enc := newVersionedEncoderWithTypeEncoder(version, &buf, typeEnc, encBufs.valueEncBuf)
+	if err := enc.Encode(v); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+type reusableEncoderBuffers struct {
+	typeEncBuf, valueEncBuf *encbuf
+}
+
+var reusableEncoderBuffersPool = sync.Pool{
+	New: func() interface{} {
+		return &reusableEncoderBuffers{
+			typeEncBuf:  newEncbuf(),
+			valueEncBuf: newEncbuf(),
+		}
+	},
 }
 
 // Decode reads the value from the given data, and stores it in value v.  The
@@ -43,8 +63,8 @@ func Decode(data []byte, v interface{}) error {
 	// However decoding type messages is expensive, so we cache the
 	// results of typeDecoders to skip the decoding in the common case.
 
-	bufs := reusableBuffersPool.Get().(*reusableBuffers)
-	defer reusableBuffersPool.Put(bufs)
+	bufs := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
+	defer reusableDecoderBuffersPool.Put(bufs)
 	bufs.dec.buf.SetBytes(data)
 	buf := bufs.dec.buf
 
@@ -86,6 +106,20 @@ func Decode(data []byte, v interface{}) error {
 		singleShotTypeDecoderCache.insert(key, typeDec.idToType, typeDec.idToWire)
 	}
 	return nil
+}
+
+type reusableDecoderBuffers struct {
+	rd  *bytes.Reader
+	dec *decoder81
+}
+
+var reusableDecoderBuffersPool = sync.Pool{
+	New: func() interface{} {
+		return &reusableDecoderBuffers{
+			rd:  bytes.NewReader(nil),
+			dec: &decoder81{buf: newDecbuf(nil)},
+		}
+	},
 }
 
 // singleShotTypeDecoderCache is a global cache of TypeDecoders keyed by the

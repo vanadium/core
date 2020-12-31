@@ -47,10 +47,12 @@ type Decoder struct {
 	dec decoder81
 }
 
+const reservedCodec81StackSize = 2
+
 type decoder81 struct {
 	buf          *decbuf
 	flag         decFlag
-	stackStorage [2]decStackEntry
+	stackStorage [reservedDecoderStackSize]decStackEntry
 	stack        []decStackEntry
 	refTypes     referencedTypes
 	refAnyLens   referencedAnyLens
@@ -147,6 +149,9 @@ func (d *decoder81) reset(buf *decbuf) {
 }
 
 func (d *decoder81) appendStack(entry decStackEntry) {
+	// TODO(cnicolaou): get rid of this test by ensuring that the
+	//      stack is properly initialized when a decoder81 is
+	//      created.
 	if d.stack == nil {
 		d.stack = d.stackStorage[:0]
 	}

@@ -5,7 +5,6 @@
 package vom
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -242,9 +241,6 @@ func (b *decbuf) ReadAvailableByte() byte {
 // PeekAvailableByte is like ReadAvailableByte, but doesn't increment the read
 // position.
 func (b *decbuf) PeekAvailableByte() byte {
-	if b.beg > len(b.buf) {
-		fmt.Printf(">>>> %p %v %v %v\n", b, b.beg, len(b.buf), b.end)
-	}
 	return b.buf[b.beg]
 }
 

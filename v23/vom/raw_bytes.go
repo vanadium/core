@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"sync"
 
 	"v.io/v23/vdl"
 )
@@ -186,20 +185,6 @@ func (rb *RawBytes) VDLRead(dec vdl.Decoder) error {
 	return nil
 }
 
-type reusableBuffers struct {
-	rd  *bytes.Reader
-	dec *decoder81
-}
-
-var reusableBuffersPool = sync.Pool{
-	New: func() interface{} {
-		return &reusableBuffers{
-			rd:  bytes.NewReader(nil),
-			dec: &decoder81{buf: newDecbuf(nil)},
-		}
-	},
-}
-
 func (rb *RawBytes) VDLWrite(enc vdl.Encoder) error {
 	// Fastpath: we're trying to encode into an encoder81.  We can only write
 	// directly if the versions are the same and if the encoder hasn't written any
@@ -211,13 +196,13 @@ func (rb *RawBytes) VDLWrite(enc vdl.Encoder) error {
 		return e.writeRawBytes(rb)
 	}
 	// Slowpath: decodes bytes from rb and fill in enc.
-	bufs := reusableBuffersPool.Get().(*reusableBuffers)
+	bufs := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
 	bufs.rd.Reset(rb.Data)
 	bufs.dec.buf.Reset()
 	bufs.dec.buf.reader = bufs.rd
 	bufs.dec.reset(bufs.dec.buf)
 	dec := rb.newDecoder(bufs.rd, bufs.dec)
 	err := vdl.Transcode(enc, dec)
-	reusableBuffersPool.Put(bufs)
+	reusableDecoderBuffersPool.Put(bufs)
 	return err
 }

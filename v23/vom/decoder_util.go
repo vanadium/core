@@ -334,7 +334,6 @@ func (d *decoder81) typeIsNext() (bool, error) {
 	case ctrl == WireCtrlTypeIncomplete:
 		return true, nil
 	case ctrl != 0:
-		fmt.Printf("DEC: %p\n", d)
 		return false, errBadControlCode(ctrl)
 	}
 	mid, _, err := binaryPeekInt(d.buf)
@@ -357,8 +356,10 @@ func (d *decoder81) endMessage() error {
 	return nil
 }
 
+const reservedTypesAndLens = 4
+
 type referencedTypes struct {
-	tidStorage [4]TypeId
+	tidStorage [reservedTypesAndLens]TypeId
 	tids       []TypeId
 	marker     int
 }
@@ -370,6 +371,9 @@ func (refTypes *referencedTypes) Reset() (err error) {
 }
 
 func (refTypes *referencedTypes) AddTypeID(tid TypeId) {
+	// TODO(cnicolaou): get rid of this test by ensuring
+	//     that the reserved storage is correctly initialized
+	//     when this type is created.
 	if refTypes.tids == nil {
 		refTypes.tids = refTypes.tidStorage[:0]
 	}
@@ -388,7 +392,7 @@ func (refTypes *referencedTypes) Mark() {
 }
 
 type referencedAnyLens struct {
-	lenStorage [4]int
+	lenStorage [reservedTypesAndLens]int
 	lens       []int
 	marker     int
 }
@@ -399,6 +403,9 @@ func (refAnys *referencedAnyLens) Reset() (err error) {
 }
 
 func (refAnys *referencedAnyLens) AddAnyLen(len int) {
+	// TODO(cnicolaou): get rid of this test by ensuring
+	//     that the reserved storage is correctly initialized
+	//     when this type is created.
 	if refAnys.lens == nil {
 		refAnys.lens = refAnys.lenStorage[:0]
 	}

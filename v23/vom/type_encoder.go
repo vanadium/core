@@ -37,7 +37,7 @@ func NewVersionedTypeEncoder(version Version, w io.Writer) *TypeEncoder {
 	tc := &TypeEncoder{
 		typeToID:        make(map[*vdl.Type]TypeId),
 		nextID:          WireIdFirstUserType,
-		enc:             newEncoderForTypes(version, w),
+		enc:             newEncoderForTypes(version, w, newEncbuf()),
 		sentVersionByte: false,
 	}
 	return tc
