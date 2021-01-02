@@ -52,7 +52,7 @@ const reservedCodec81StackSize = 2
 type decoder81 struct {
 	buf          *decbuf
 	flag         decFlag
-	stackStorage [reservedDecoderStackSize]decStackEntry
+	stackStorage [reservedCodec81StackSize]decStackEntry
 	stack        []decStackEntry
 	refTypes     referencedTypes
 	refAnyLens   referencedAnyLens
