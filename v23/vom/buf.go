@@ -4,7 +4,9 @@
 
 package vom
 
-import "io"
+import (
+	"io"
+)
 
 const minBufFree = 1024 // buffers always have at least 1K free after growth
 
@@ -14,14 +16,15 @@ const minBufFree = 1024 // buffers always have at least 1K free after growth
 type encbuf struct {
 	// It's faster to hold end than to use the len and cap properties of buf,
 	// since end is cheaper to update than buf.
-	buf []byte
-	end int // [0, end) is data that's already written
+	bufStorage [minBufFree]byte
+	buf        []byte
+	end        int // [0, end) is data that's already written
 }
 
 func newEncbuf() *encbuf {
-	return &encbuf{
-		buf: make([]byte, minBufFree),
-	}
+	eb := &encbuf{}
+	eb.buf = eb.bufStorage[:]
+	return eb
 }
 
 // Bytes returns a slice of the bytes written so far.
@@ -80,8 +83,9 @@ func (b *encbuf) WriteString(x string) {
 type decbuf struct {
 	// It's faster to hold end than to use the len and cap properties of buf,
 	// since end is cheaper to update than buf.
-	buf      []byte
-	beg, end int // [beg, end) is data read from reader but unread by the user
+	bufStorage [minBufFree]byte
+	buf        []byte
+	beg, end   int // [beg, end) is data read from reader but unread by the user
 
 	// lim holds the number of bytes left in the limit, or if it is any negative
 	// number, there is no limit.  By allowing any negative number to convey "no
@@ -96,21 +100,19 @@ type decbuf struct {
 
 // newDecbuf returns a new decbuf that fills its internal buffer by reading r.
 func newDecbuf(r io.Reader) *decbuf {
-	return &decbuf{
-		buf:    make([]byte, minBufFree),
+	db := &decbuf{
 		lim:    -1,
 		reader: r,
 	}
+	db.buf = db.bufStorage[:]
+	return db
 }
 
 // newDecbufFromBytes returns a new decbuf that reads directly from b.
 func newDecbufFromBytes(b []byte) *decbuf {
-	return &decbuf{
-		buf:    b,
-		end:    len(b),
-		lim:    -1,
-		reader: alwaysEOFReader{},
-	}
+	db := &decbuf{}
+	db.SetBytes(b)
+	return db
 }
 
 type alwaysEOFReader struct{}
@@ -122,6 +124,16 @@ func (b *decbuf) Reset() {
 	b.beg = 0
 	b.end = 0
 	b.lim = -1
+}
+
+// SetBytes sets the buffer so it has the supplied data.
+func (b *decbuf) SetBytes(data []byte) {
+	b.version = 0
+	b.beg = 0
+	b.end = len(data)
+	b.lim = -1
+	b.reader = alwaysEOFReader{}
+	b.buf = data
 }
 
 // SetLimit sets a limit to the bytes that are returned by decbuf; after a limit

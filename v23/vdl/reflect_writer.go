@@ -68,30 +68,31 @@ func WriteReflect(enc Encoder, rv reflect.Value) error {
 }
 
 func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocyclo
+	ttKind, rvKind := tt.Kind(), rv.Kind()
 	// Fastpath check for non-reflect support.  Optional types are tricky, since
 	// they may be nil, and need SetNextStartValueIsOptional() to be set, so they
 	// can't use this fastpath.  This handles the non-nil *vom.RawBytes and
 	// *vdl.Value cases, and avoids an expensive copy of all their fields.
-	if tt.Kind() != Optional && (rv.Kind() != reflect.Ptr || !rv.IsNil()) {
+	if ttKind != Optional && (rvKind != reflect.Ptr || !rv.IsNil()) {
 		if err := writeNonReflect(enc, rv.Interface()); err != errWriteMustReflect {
 			return err
 		}
 	}
 	// Walk pointers and interfaces in rv, and handle nil values.
 	for {
-		isPtr, isIface := rv.Kind() == reflect.Ptr, rv.Kind() == reflect.Interface
+		isPtr, isIface := rvKind == reflect.Ptr, rvKind == reflect.Interface
 		if !isPtr && !isIface {
 			break
 		}
 		if rv.IsNil() {
 			switch {
-			case tt.Kind() == TypeObject:
+			case ttKind == TypeObject:
 				// Treat nil *Type as AnyType.
 				return AnyType.VDLWrite(enc)
-			case tt.Kind() == Union && isIface:
+			case ttKind == Union && isIface:
 				// Treat nil Union interface as the zero value of the type at index 0.
 				return ZeroValue(tt).VDLWrite(enc)
-			case tt.Kind() == Optional:
+			case ttKind == Optional:
 				enc.SetNextStartValueIsOptional()
 				return enc.NilValue(tt)
 			case tt == AnyType:
@@ -100,6 +101,7 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 			return fmt.Errorf("vdl: can't encode nil from non-any non-optional %v", tt)
 		}
 		rv = rv.Elem()
+		rvKind = rv.Kind()
 		// Recompute tt as we pass interface boundaries.  There's no need to
 		// recompute as we traverse pointers, since tt won't change.
 		if isIface {
@@ -109,7 +111,7 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 			}
 		}
 	}
-	if tt.Kind() == Optional {
+	if ttKind == Optional {
 		enc.SetNextStartValueIsOptional()
 	}
 	// Check for faster non-reflect support, which also handles vdl.Value and
