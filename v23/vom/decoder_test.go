@@ -244,6 +244,15 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 			dec := vom.NewDecoderWithTypeDecoder(reader, decT)
 			err := dec.Decode(rvGot.Interface())
 			decT.Stop()
+			// TODO(cnicolaou): this test is racy, since decT.Stop() will
+			// not cause the internal goroutine used by the type decoder
+			// decT to actually finish, in fact, it's still blocked
+			// reading from readerT, which is subsequently accessed below
+			// which the race detector will correctly identify as a race.
+			// Ideally, we should remove the use of a goroutine within the
+			// type decoder to both avoid the race and hopefully simply
+			// that code. It will also make it possible to more easily
+			// reuse type decoders which will be performance improvement.
 			if err != nil {
 				t.Errorf("%s: Decode failed: %v", name, err)
 				return
