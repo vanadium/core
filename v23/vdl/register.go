@@ -375,61 +375,6 @@ func describeUnion(unionReflect, rt reflect.Type, ri *reflectInfo) error {
 	return nil
 }
 
-// TypeToReflect returns the reflect.Type corresponding to t.  We look up
-// named types in our registry, and build the unnamed types that we can via the
-// Go reflect package.  Returns nil for types that can't be manufactured.
-func TypeToReflect(t *Type) reflect.Type { //nolint:gocyclo
-	if t.Name() != "" {
-		// Named types cannot be manufactured via Go reflect, so we lookup in our
-		// registry instead.
-		if ri := reflectInfoFromName(t.Name()); ri != nil {
-			if ni := nativeInfoFromWire(ri.Type); ni != nil {
-				return ni.NativeType
-			}
-			return ri.Type
-		}
-		return nil
-	}
-	// We can make some unnamed types via Go reflect.  Return nil otherwise.
-	switch t.Kind() {
-	case Any, Enum, Union:
-		// We can't make unnamed versions of any of these types.
-		return nil
-	case Optional:
-		if elem := TypeToReflect(t.Elem()); elem != nil {
-			return reflect.PtrTo(elem)
-		}
-		return nil
-	case Array:
-		if elem := TypeToReflect(t.Elem()); elem != nil {
-			return reflect.ArrayOf(t.Len(), elem)
-		}
-		return nil
-	case List:
-		if elem := TypeToReflect(t.Elem()); elem != nil {
-			return reflect.SliceOf(elem)
-		}
-		return nil
-	case Set:
-		if key := TypeToReflect(t.Key()); key != nil {
-			return reflect.MapOf(key, rtUnnamedEmptyStruct)
-		}
-		return nil
-	case Map:
-		if key, elem := TypeToReflect(t.Key()), TypeToReflect(t.Elem()); key != nil && elem != nil {
-			return reflect.MapOf(key, elem)
-		}
-		return nil
-	case Struct:
-		if t.NumField() == 0 {
-			return rtUnnamedEmptyStruct
-		}
-		return nil
-	default:
-		return rtFromKind[t.Kind()]
-	}
-}
-
 func typeToReflectNamed(t *Type) reflect.Type {
 	// Named types cannot be manufactured via Go reflect, so we lookup in our
 	// registry instead.
@@ -453,20 +398,16 @@ func typeToReflectOptional(t *Type) reflect.Type {
 			}
 		}
 	}
-	if elem := typeToReflectNew(t.Elem()); elem != nil {
+	if elem := TypeToReflect(t.Elem()); elem != nil {
 		return reflect.PtrTo(elem)
 	}
 	return nil
 }
 
-// typeToReflectNew returns the reflect.Type corresponding to t.  We look up
+// TypeToReflect returns the reflect.Type corresponding to t.  We look up
 // named types in our registry, and build the unnamed types that we can via the
 // Go reflect package.  Returns nil for types that can't be manufactured.
-//
-// TODO(toddw): Replace TypeToReflect with this function, after the old
-// conversion logic has been removed.  Using this function with the old
-// conversion logic breaks the tests, which aren't worth it to fix.
-func typeToReflectNew(t *Type) reflect.Type {
+func TypeToReflect(t *Type) reflect.Type {
 	if t.Name() != "" {
 		return typeToReflectNamed(t)
 	}
@@ -480,22 +421,22 @@ func typeToReflectNew(t *Type) reflect.Type {
 	case Optional:
 		return typeToReflectOptional(t)
 	case Array:
-		if elem := typeToReflectNew(t.Elem()); elem != nil {
+		if elem := TypeToReflect(t.Elem()); elem != nil {
 			return reflect.ArrayOf(t.Len(), elem)
 		}
 		return nil
 	case List:
-		if elem := typeToReflectNew(t.Elem()); elem != nil {
+		if elem := TypeToReflect(t.Elem()); elem != nil {
 			return reflect.SliceOf(elem)
 		}
 		return nil
 	case Set:
-		if key := typeToReflectNew(t.Key()); key != nil {
+		if key := TypeToReflect(t.Key()); key != nil {
 			return reflect.MapOf(key, rtUnnamedEmptyStruct)
 		}
 		return nil
 	case Map:
-		if key, elem := typeToReflectNew(t.Key()), typeToReflectNew(t.Elem()); key != nil && elem != nil {
+		if key, elem := TypeToReflect(t.Key()), TypeToReflect(t.Elem()); key != nil && elem != nil {
 			return reflect.MapOf(key, elem)
 		}
 		return nil

@@ -232,7 +232,7 @@ func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
 	case ttDecode.Kind() == Optional:
 		rtDecode = typeToReflectOptional(ttDecode)
 	default:
-		rtDecode = typeToReflectNew(ttDecode)
+		rtDecode = TypeToReflect(ttDecode)
 	}
 
 	// Handle top-level wire<->native converted types, such as
