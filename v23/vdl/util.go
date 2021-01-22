@@ -421,6 +421,10 @@ func rtFieldIndexByName(rt reflect.Type, name string) int {
 	if m, ok := rtFieldCache.Map[rt]; ok {
 		return m[name] - 1
 	}
+	if rt.Kind() != reflect.Struct {
+		fmt.Printf("TRT: %v\n", rt)
+		panic("me")
+	}
 	if numField := rt.NumField(); numField > 0 {
 		m = make(map[string]int, numField)
 		for i := 0; i < numField; i++ {

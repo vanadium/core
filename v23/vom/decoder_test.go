@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
@@ -16,12 +17,11 @@ import (
 	"testing"
 
 	"v.io/v23/vdl"
+	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vom/testdata/types"
 	"v.io/v23/vom/vomtest"
-
 	// Import verror to ensure that interface tests result in *verror.E
-	_ "v.io/v23/verror"
 )
 
 var (
@@ -29,6 +29,145 @@ var (
 	//nolint:deadcode,unused,varcheck
 	rtValue = reflect.TypeOf(vdl.Value{})
 )
+
+func roundtripDepth(t *testing.T, depth int, in, out interface{}) {
+	_, _, line, _ := runtime.Caller(depth + 1)
+	buf := &bytes.Buffer{}
+	enc := vom.NewEncoder(buf)
+	if err := enc.Encode(in); err != nil {
+		t.Errorf("line: %v: encode: %v", line, err)
+		return
+	}
+	dec := vom.NewDecoder(buf)
+	if err := dec.Decode(out); err != nil {
+		t.Errorf("line: %v: decode: %v", line, err)
+	}
+}
+
+func encode(t *testing.T, in interface{}) *vom.Decoder {
+	buf := &bytes.Buffer{}
+	enc := vom.NewEncoder(buf)
+	if err := enc.Encode(in); err != nil {
+		t.Errorf("encode: %v", err)
+		return vom.NewDecoder(buf)
+	}
+	return vom.NewDecoder(buf)
+}
+func decodeAny(t *testing.T, dec *vom.Decoder) interface{} {
+	var out interface{}
+	if err := dec.Decode(&out); err != nil {
+		t.Errorf("decode: %v", err)
+	}
+	return out
+}
+
+func decodeVerror(t *testing.T, dec *vom.Decoder) error {
+	var out verror.E
+	if err := dec.Decode(&out); err != nil {
+		t.Errorf("decode: %v", err)
+	}
+	return out
+}
+
+func decodeError(t *testing.T, dec *vom.Decoder) error {
+	var out error
+	if err := dec.Decode(&out); err != nil {
+		t.Errorf("decode: %v", err)
+	}
+	return out
+}
+
+func TestDecoderNativeAnyTypes(t *testing.T) {
+	assertType := func(any interface{}, typ string) {
+		if got, want := fmt.Sprintf("%T", any), typ; got != want {
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line: %v: got %v, want %v", line, got, want)
+		}
+	}
+	assertValue := func(any, val interface{}) {
+		if got, want := any, val; !reflect.DeepEqual(got, want) {
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line: %v: got %#v, want %#v", line, got, want)
+		}
+	}
+
+	// Create a verror.E directly to avoid having the stack and other
+	// fields filled in which would mess up comparing the sent and
+	// received values since the stack is never sent over the wire.
+	verrorVal := verror.E{
+		ID:     "foobar",
+		Action: verror.RetryBackoff,
+		Msg:    "verror slice",
+	}
+
+	{
+		any := decodeAny(t, encode(t, verror.E{}))
+		assertType(any, "verror.E")
+		assertValue(any, verror.E{})
+
+		verr := decodeVerror(t, encode(t, verror.E{}))
+		assertType(verr, "verror.E")
+		assertValue(verr, verror.E{})
+
+		err := decodeError(t, encode(t, os.ErrClosed))
+		assertType(err, "*verror.E")
+		nerr := &verror.E{
+			ID:        verror.ErrUnknown.ID,
+			Action:    verror.NoRetry,
+			Msg:       os.ErrClosed.Error(),
+			ParamList: []interface{}{"", "", os.ErrClosed.Error()},
+		}
+		assertValue(err, nerr)
+	}
+
+	{
+		any := decodeAny(t, encode(t, (*verror.E)(nil)))
+		assertType(any, "*verror.E")
+		assertValue(any, (*verror.E)(nil))
+
+		any = decodeAny(t, encode(t, &verrorVal))
+		assertType(any, "*verror.E")
+		assertValue(any, &verrorVal)
+
+		verr := decodeAny(t, encode(t, (*verror.E)(nil)))
+		assertType(verr, "*verror.E")
+		assertValue(verr, (*verror.E)(nil))
+
+		verr = decodeAny(t, encode(t, &verrorVal))
+		assertType(verr, "*verror.E")
+		assertValue(verr, &verrorVal)
+	}
+
+	{
+		any := decodeAny(t, encode(t, []*verror.E{}))
+		assertType(any, "[]error")
+		assertValue(any, []error(nil))
+
+		any = decodeAny(t, encode(t, []*verror.E(nil)))
+		assertType(any, "[]error")
+		assertValue(any, []error(nil))
+
+		any = decodeAny(t, encode(t, []*verror.E{&verrorVal}))
+		assertType(any, "[]error")
+		assertValue(any, []error{&verrorVal})
+	}
+
+	{
+		// These currently translate to error rather than verror.E.
+		// See TODO/comment in reflect_reader.go:readIntoAny:238.
+		any := decodeAny(t, encode(t, []verror.E{}))
+		assertType(any, "[]error")
+		assertValue(any, []error(nil))
+
+		any = decodeAny(t, encode(t, []verror.E(nil)))
+		assertType(any, "[]error")
+		assertValue(any, []error(nil))
+
+		any = decodeAny(t, encode(t, []verror.E{verrorVal}))
+		assertType(any, "[]error")
+		assertValue(any, []error{&verrorVal})
+	}
+}
 
 func TestDecoder(t *testing.T) {
 	// The decoder tests take a long time, so we run them concurrently.
@@ -87,7 +226,7 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 				return
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
-				t.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
+				t.Errorf("%s\nGOT  %#v\nWANT %#v", name, rvGot, rvWant)
 				return
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {
