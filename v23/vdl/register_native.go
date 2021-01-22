@@ -64,7 +64,7 @@ func RegisterNativeAnyType(wireType interface{}, anyType interface{}) {
 		panic(fmt.Errorf("%v cannot be an interface type", niany.nativeAnyType))
 	}
 	niany.nativeAnyElemType = niany.nativeAnyType.Elem()
-	if err := niReg.addNativeAnyType(wt, niany); err != nil {
+	if err := niAnyReg.addNativeAnyType(wt, niany); err != nil {
 		panic(fmt.Errorf("vdl: RegisterNativeAnyType invalid (%v)", err))
 	}
 }
@@ -79,6 +79,8 @@ type nativeInfo struct {
 	stack          []byte
 }
 
+// nativeAnyTypeInfo holds the mapping from a wire type to its any native
+// Go type.
 type nativeAnyTypeInfo struct {
 	nativeAnyType     reflect.Type
 	nativeAnyElemType reflect.Type
@@ -103,14 +105,21 @@ func (ni *nativeInfo) FromNative(wire, native reflect.Value) error {
 // number of native types to be registered within a single address space.
 type niRegistry struct {
 	sync.RWMutex
-	fromWire    map[reflect.Type]*nativeInfo
-	fromNative  map[reflect.Type]*nativeInfo
+	fromWire   map[reflect.Type]*nativeInfo
+	fromNative map[reflect.Type]*nativeInfo
+}
+
+type niAnyRegistry struct {
+	sync.RWMutex
 	fromWireAny map[string]*nativeAnyTypeInfo
 }
 
 var niReg = &niRegistry{
-	fromWire:    make(map[reflect.Type]*nativeInfo),
-	fromNative:  make(map[reflect.Type]*nativeInfo),
+	fromWire:   make(map[reflect.Type]*nativeInfo),
+	fromNative: make(map[reflect.Type]*nativeInfo),
+}
+
+var niAnyReg = &niAnyRegistry{
 	fromWireAny: make(map[string]*nativeAnyTypeInfo),
 }
 
@@ -131,7 +140,7 @@ func (reg *niRegistry) addNativeInfo(ni *nativeInfo) error {
 	return nil
 }
 
-func (reg *niRegistry) addNativeAnyType(wireType reflect.Type, ninil *nativeAnyTypeInfo) error {
+func (reg *niAnyRegistry) addNativeAnyType(wireType reflect.Type, ninil *nativeAnyTypeInfo) error {
 	reg.Lock()
 	defer reg.Unlock()
 	ri, err := TypeFromReflect(wireType)
@@ -165,9 +174,9 @@ func nativeInfoFromWire(wire reflect.Type) *nativeInfo {
 }
 
 func nativeAnyTypeFromWire(wire string) *nativeAnyTypeInfo {
-	niReg.RLock()
-	ni := niReg.fromWireAny[wire]
-	niReg.RUnlock()
+	niAnyReg.RLock()
+	ni := niAnyReg.fromWireAny[wire]
+	niAnyReg.RUnlock()
 	return ni
 }
 
