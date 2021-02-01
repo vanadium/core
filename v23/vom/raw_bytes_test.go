@@ -6,6 +6,7 @@ package vom_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"reflect"
 	"testing"
@@ -513,7 +514,7 @@ func TestRawBytesNonVomPayload(t *testing.T) {
 }
 
 func TestRawBytesDecodeEncode(t *testing.T) {
-	for _, test := range vomtest.AllPass() {
+	for i, test := range vomtest.AllPass() {
 		// Interleaved
 		rb := vom.RawBytes{}
 		interleavedReader := bytes.NewReader(test.Bytes())
@@ -535,7 +536,13 @@ func TestRawBytesDecodeEncode(t *testing.T) {
 		if got, want := out.Bytes(), test.Bytes(); !bytes.Equal(got, want) {
 			t.Errorf("%s\nGOT  %x\nWANT %x", test.Name(), got, want)
 		}
-
+		if i < 3 {
+			continue
+		}
+		if i > 4 {
+			t.FailNow()
+		}
+		fmt.Printf("I: %v: %v\n", i, test.Name())
 		// Split type and value stream.
 		rb = vom.RawBytes{}
 		typeReader := bytes.NewReader(test.TypeBytes())
@@ -555,7 +562,6 @@ func TestRawBytesDecodeEncode(t *testing.T) {
 			t.Errorf("%s: value reader got %v, want EOF", test.Name(), err)
 			continue
 		}
-
 		out.Reset()
 		var typeOut bytes.Buffer
 		typeEnc := vom.NewVersionedTypeEncoder(test.Version, &typeOut)

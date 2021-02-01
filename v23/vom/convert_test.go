@@ -133,6 +133,7 @@ func testConvertWithTypeCoder(target, source interface{}, encT *vom.TypeEncoder,
 	}
 	data := buf.Bytes()
 	dec := vom.NewDecoderWithTypeDecoder(&buf, decT)
+	fmt.Printf(">>>> PAIR.convertTest: %p .. %p\n", dec, decT)
 	if err := dec.Decode(target); err != nil {
 		return fmt.Errorf("(with TypeDecoder) Decode failed: %v\nDATA %x", err, data)
 	}

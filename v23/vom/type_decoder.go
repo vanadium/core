@@ -23,15 +23,17 @@ type TypeDecoder struct {
 	typeMu   sync.RWMutex
 	idToType map[TypeId]*vdl.Type // GUARDED_BY(typeMu)
 
-	buildMu   sync.Mutex
-	buildCond *sync.Cond
-	err       error               // GUARDED_BY(buildMu)
-	idToWire  map[TypeId]wireType // GUARDED_BY(buildMu)
-	dec       *decoder81          // GUARDED_BY(buildMu)
+	buildMu sync.Mutex
+	//buildCond *sync.Cond
+	err      error               // GUARDED_BY(buildMu)
+	idToWire map[TypeId]wireType // GUARDED_BY(buildMu)
+	dec      *decoder81          // GUARDED_BY(buildMu)
 
-	processingControlMu sync.Mutex
-	goroutineRunning    bool // GUARDED_BY(processingControlMu)
-	goroutineShouldStop bool // GUARDED_BY(processingControlMu)
+	/*
+		processingControlMu sync.Mutex
+		goroutineRunning    bool // GUARDED_BY(processingControlMu)
+		goroutineShouldStop bool // GUARDED_BY(processingControlMu)
+	*/
 }
 
 // NewTypeDecoder returns a new TypeDecoder that reads from the given reader.
@@ -46,7 +48,7 @@ func newTypeDecoderInternal(dec *decoder81) *TypeDecoder {
 		idToWire: make(map[TypeId]wireType),
 		dec:      dec,
 	}
-	td.buildCond = sync.NewCond(&td.buildMu)
+	//td.buildCond = sync.NewCond(&td.buildMu)
 	return td
 }
 
@@ -59,12 +61,14 @@ func newDerivedTypeDecoderInternal(dec *decoder81,
 		idToWire: idToWire,
 		dec:      dec,
 	}
-	td.buildCond = sync.NewCond(&td.buildMu)
+	//td.buildCond = sync.NewCond(&td.buildMu)
 	return td
 }
 
+/*
 func (d *TypeDecoder) processLoop() {
 	var err error
+	log.Printf("processLoop\n")
 	for {
 		d.processingControlMu.Lock()
 		if d.goroutineShouldStop || err != nil {
@@ -76,24 +80,46 @@ func (d *TypeDecoder) processLoop() {
 		d.processingControlMu.Unlock()
 		// Note that we will block indefinitely if the underlying
 		// read blocks on the io.Reader.
+		log.Printf("readSingleType....\n")
 		err = d.readSingleType()
+		log.Printf("readSingleType: %v\n", err)
 		d.buildMu.Lock()
 		d.err = err
 		d.buildCond.Broadcast()
 		d.buildMu.Unlock()
 		// TODO(toddw): Reconsider d.err and d.buildCond strategy.
 	}
+}*/
+
+func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
+	for {
+		// Note that we will block indefinitely if the underlying
+		// read blocks on the io.Reader.
+		fmt.Printf("readUntilTID %p .. readSingleType\n", d)
+		err := d.readSingleType()
+		if err == nil || err == io.EOF {
+			d.typeMu.RLock()
+			tt, ok := d.idToType[tid]
+			d.typeMu.RUnlock()
+			if ok {
+				return tt, nil
+			}
+			continue
+		}
+		return nil, err
+	}
 }
 
 // Start must be called to start decoding types.
 func (d *TypeDecoder) Start() {
-	d.processingControlMu.Lock()
+	//log.Printf("start processLoop\n")
+	/*d.processingControlMu.Lock()
 	d.goroutineShouldStop = false
 	if !d.goroutineRunning {
 		d.goroutineRunning = true
 		go d.processLoop()
 	}
-	d.processingControlMu.Unlock()
+	d.processingControlMu.Unlock()*/
 }
 
 // Stop must be called after Start, to stop decoding types
@@ -101,14 +127,16 @@ func (d *TypeDecoder) Start() {
 // subsequent Decode calls on Decoders initialized with d
 // will return errors.
 func (d *TypeDecoder) Stop() {
-	d.processingControlMu.Lock()
+	/*d.processingControlMu.Lock()
 	d.goroutineShouldStop = true
-	d.processingControlMu.Unlock()
+	d.processingControlMu.Unlock()*/
 }
 
 // readSingleType reads a single wire type
 func (d *TypeDecoder) readSingleType() error {
 	var wt wireType
+	fmt.Printf("readSingleType: %p .. %p .. %p\n", d, d.dec, d.dec.typeDec)
+	//d.dec.typeDec = d
 	curTypeID, err := d.dec.decodeWireType(&wt)
 	if err != nil {
 		return err
@@ -128,32 +156,43 @@ func (d *TypeDecoder) readSingleType() error {
 // LookupType returns the type for tid. If the type is not yet available,
 // this will wait until it arrives and is built.
 func (d *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
+	if d == nil {
+		fmt.Printf(">>> lookupType: %p for %v\n", d, tid)
+	}
 	if tt := d.lookupKnownType(tid); tt != nil {
 		return tt, nil
 	}
+	return d.readUntilTID(tid)
+	/*	//	return nil, fmt.Errorf("vom: type %v not built yet", tid)
+		log.Printf("NEED: %v\n", tid)
+		panic("x")
+		d.buildMu.Lock()
+		defer d.buildMu.Unlock()
+		for {
+			if d.err != nil && d.err != io.EOF {
+				// Return any existing error immediately. Skip EOF because it
+				// may still be possible to lookup a type.
+				return nil, d.err
+			}
+			if tt := d.lookupKnownType(tid); tt != nil {
+				log.Printf("GOT: %v\n", tid)
+				return tt, nil
+			}
+			log.Printf("NOPE: %v\n", tid)
 
-	d.buildMu.Lock()
-	defer d.buildMu.Unlock()
-	for {
-		if d.err != nil && d.err != io.EOF {
-			// Return any existing error immediately. Skip EOF because it
-			// may still be possible to lookup a type.
-			return nil, d.err
-		}
-		if tt := d.lookupKnownType(tid); tt != nil {
-			return tt, nil
-		}
-		if d.err != nil {
-			return nil, d.err
-		}
-		d.processingControlMu.Lock()
-		running := d.goroutineRunning
-		d.processingControlMu.Unlock()
-		if !running {
-			return nil, fmt.Errorf("vom: Start has not been called")
-		}
-		d.buildCond.Wait()
-	}
+			if d.err != nil {
+				return nil, d.err
+			}
+			d.processingControlMu.Lock()
+			running := d.goroutineRunning
+			d.processingControlMu.Unlock()
+			if !running {
+				return nil, fmt.Errorf("vom: Start has not been called")
+			}
+			log.Printf("WAITING\n")
+			d.buildCond.Wait()
+			log.Printf("WAITED\n")
+		}*/
 }
 
 // addWireType adds the wire type wt with the type id tid.
@@ -182,6 +221,10 @@ func (d *TypeDecoder) addWireTypeBuildLocked(tid TypeId, wt wireType) error {
 
 func (d *TypeDecoder) lookupKnownType(tid TypeId) *vdl.Type {
 	// Non-bootstrap types are the common case so look them up first.
+	if d == nil {
+		fmt.Printf(">>> 1: %p\n", d)
+		panic("omg")
+	}
 	d.typeMu.RLock()
 	tt := d.idToType[tid]
 	d.typeMu.RUnlock()

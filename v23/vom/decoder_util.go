@@ -268,6 +268,9 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 		hasTypeObject = false
 	case mid > 0:
 		tid = TypeId(mid)
+		if d.typeDec == nil {
+			fmt.Printf(">>>> PAIR.nextMessage %p .. %p\n", d, d.typeDec)
+		}
 		t, err := d.typeDec.lookupType(tid)
 		if err != nil {
 			return 0, err
