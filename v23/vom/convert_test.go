@@ -24,9 +24,6 @@ func TestConvert(t *testing.T) {
 	rType, wType := newPipe()
 	encT := vom.NewTypeEncoder(wType)
 	decT := vom.NewTypeDecoder(rType)
-	decT.Start()
-	defer decT.Stop()
-	fmt.Printf("New type decoder: %p\n", decT)
 	var pending sync.WaitGroup
 	// Go race has a limit of 8192 goroutines, so instead of running each test in
 	// its own goroutine, we batch up multiple tests into the same goroutine.
@@ -92,12 +89,12 @@ func TestConvert(t *testing.T) {
 }
 
 func testConvert(target, source interface{}, encT *vom.TypeEncoder, decT *vom.TypeDecoder) error {
-	/*	if err := testConvertCoder(target, source); err != nil {
-			return err
-		}
-		if err := testConvertSingleShot(target, source); err != nil {
-			return err
-		}*/
+	if err := testConvertCoder(target, source); err != nil {
+		return err
+	}
+	if err := testConvertSingleShot(target, source); err != nil {
+		return err
+	}
 	return testConvertWithTypeCoder(target, source, encT, decT)
 }
 
@@ -134,7 +131,6 @@ func testConvertWithTypeCoder(target, source interface{}, encT *vom.TypeEncoder,
 	}
 	data := buf.Bytes()
 	dec := vom.NewDecoderWithTypeDecoder(&buf, decT)
-	fmt.Printf("New dec: %p %p\n", dec, decT)
 	if err := dec.Decode(target); err != nil {
 		return fmt.Errorf("(with TypeDecoder) Decode failed: %v\nDATA %x", err, data)
 	}

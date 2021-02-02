@@ -373,11 +373,8 @@ func (d *decoder81) dfsNextType() (*vdl.Type, error) {
 			if err := d.decodeTypeDefs(); err != nil {
 				return nil, err
 			}
-			fmt.Printf("%p: dfsNextType got value types\n", d)
 		}
-		fmt.Printf("%p: dfsNextType\n", d)
 		tid, err := d.nextMessage()
-		fmt.Printf("%p: dfsNextType: %v %v\n", d, tid, err)
 		if err != nil {
 			return nil, err
 		}

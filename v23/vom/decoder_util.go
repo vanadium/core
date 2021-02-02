@@ -7,7 +7,6 @@ package vom
 import (
 	"errors"
 	"fmt"
-	"runtime/debug"
 
 	"v.io/v23/vdl"
 )
@@ -231,9 +230,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	}
 	// Decode version byte, if not already decoded.
 	if d.buf.version == 0 {
-		fmt.Printf("%p: reading version byte\n", d)
 		version, err := d.buf.ReadByte()
-		fmt.Printf("%p: read version byte: %x %v\n", d, version, err)
 		if err != nil {
 			return 0, errEndedBeforeVersionByte(err)
 		}
@@ -260,10 +257,6 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	} else if mid < 0 {
 		d.flag = d.flag.Clear(decFlagTypeIncomplete)
 	}
-	fmt.Printf("Next: %p: mid %v (%p)\n", d, mid, d.typeDec)
-	if mid > 0 && d.typeDec == nil {
-		fmt.Printf("TROUBLE Next: %p: mid %v (%p)\n", d, mid, d.typeDec)
-	}
 	// TODO(toddw): Clean up the logic below.
 	var tid TypeId
 	var hasAny, hasTypeObject, hasLength bool
@@ -276,8 +269,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	case mid > 0:
 		tid = TypeId(mid)
 		if d.typeDec == nil {
-			fmt.Printf("B: mid %v .. tid %v: d %p, td %p\n", mid, tid, d, d.typeDec)
-			debug.PrintStack()
+			return 0, errInvalid
 		}
 		t, err := d.typeDec.lookupType(tid)
 		if err != nil {
