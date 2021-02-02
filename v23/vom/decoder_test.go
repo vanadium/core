@@ -289,7 +289,9 @@ func TestRoundtrip(t *testing.T) { testRoundtrip(t, false, 1) }
 
 func TestRoundtrip_5(t *testing.T) { testRoundtrip(t, false, 5) }
 
-func TestRoundtripWithTypeDecoder_1(t *testing.T)  { testRoundtrip(t, true, 1) }
+func TestRoundtripWithTypeDecoder_1(t *testing.T) { testRoundtrip(t, true, 1) }
+func TestRoundtripWithTypeDecoder_2(t *testing.T) { testRoundtrip(t, true, 5) }
+
 func TestRoundtripWithTypeDecoder_5(t *testing.T)  { testRoundtrip(t, true, 5) }
 func TestRoundtripWithTypeDecoder_10(t *testing.T) { testRoundtrip(t, true, 10) }
 func TestRoundtripWithTypeDecoder_20(t *testing.T) { testRoundtrip(t, true, 20) }
