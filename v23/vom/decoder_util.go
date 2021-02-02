@@ -7,6 +7,7 @@ package vom
 import (
 	"errors"
 	"fmt"
+	"runtime/debug"
 
 	"v.io/v23/vdl"
 )
@@ -257,6 +258,10 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	} else if mid < 0 {
 		d.flag = d.flag.Clear(decFlagTypeIncomplete)
 	}
+	fmt.Printf("Next: %p: mid %v (%p)\n", d, mid, d.typeDec)
+	if mid > 0 && d.typeDec == nil {
+		fmt.Printf("TROUBLE Next: %p: mid %v (%p)\n", d, mid, d.typeDec)
+	}
 	// TODO(toddw): Clean up the logic below.
 	var tid TypeId
 	var hasAny, hasTypeObject, hasLength bool
@@ -269,7 +274,8 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	case mid > 0:
 		tid = TypeId(mid)
 		if d.typeDec == nil {
-			fmt.Printf(">>>> nextMessage: %p no type dec\n", d)
+			fmt.Printf("B: mid %v .. tid %v: d %p, td %p\n", mid, tid, d, d.typeDec)
+			debug.PrintStack()
 		}
 		t, err := d.typeDec.lookupType(tid)
 		if err != nil {

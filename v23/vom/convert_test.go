@@ -30,7 +30,7 @@ func TestConvert(t *testing.T) {
 	var pending sync.WaitGroup
 	// Go race has a limit of 8192 goroutines, so instead of running each test in
 	// its own goroutine, we batch up multiple tests into the same goroutine.
-	const numGoroutines = 5 //50
+	const numGoroutines = 50
 	all := vdltest.AllPass()
 	numPerGoroutine := len(all) / numGoroutines
 	for len(all) > 0 {
@@ -92,12 +92,12 @@ func TestConvert(t *testing.T) {
 }
 
 func testConvert(target, source interface{}, encT *vom.TypeEncoder, decT *vom.TypeDecoder) error {
-	if err := testConvertCoder(target, source); err != nil {
-		return err
-	}
-	if err := testConvertSingleShot(target, source); err != nil {
-		return err
-	}
+	/*	if err := testConvertCoder(target, source); err != nil {
+			return err
+		}
+		if err := testConvertSingleShot(target, source); err != nil {
+			return err
+		}*/
 	return testConvertWithTypeCoder(target, source, encT, decT)
 }
 
