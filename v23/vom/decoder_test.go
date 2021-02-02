@@ -30,20 +30,6 @@ var (
 	rtValue = reflect.TypeOf(vdl.Value{})
 )
 
-func roundtripDepth(t *testing.T, depth int, in, out interface{}) {
-	_, _, line, _ := runtime.Caller(depth + 1)
-	buf := &bytes.Buffer{}
-	enc := vom.NewEncoder(buf)
-	if err := enc.Encode(in); err != nil {
-		t.Errorf("line: %v: encode: %v", line, err)
-		return
-	}
-	dec := vom.NewDecoder(buf)
-	if err := dec.Decode(out); err != nil {
-		t.Errorf("line: %v: decode: %v", line, err)
-	}
-}
-
 func encode(t *testing.T, in interface{}) *vom.Decoder {
 	buf := &bytes.Buffer{}
 	enc := vom.NewEncoder(buf)
