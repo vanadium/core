@@ -25,8 +25,8 @@ type TypeDecoder struct {
 
 	buildMu sync.Mutex
 	//buildCond *sync.Cond
-	buildCh chan struct{}
-	//err      error               // GUARDED_BY(buildMu)
+	buildCh  chan struct{}
+	err      error               // GUARDED_BY(buildMu)
 	idToWire map[TypeId]wireType // GUARDED_BY(buildMu)
 	dec      *decoder81          // GUARDED_BY(buildMu)
 
@@ -87,6 +87,9 @@ func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
 		fmt.Printf("TD: read %p %p\n", d, d.dec)
 		fmt.Printf("TD: waiting: read 1: %p %p\n", d, d.dec)
 		<-d.buildCh
+		if d.err != nil {
+			return nil, d.err
+		}
 		d.typeMu.RLock()
 		tt, ok := d.idToType[tid]
 		d.typeMu.RUnlock()
@@ -100,6 +103,7 @@ func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
 		//d.buildMu.Unlock()
 		fmt.Printf("TD: done read %p %p (%v)\n", d, d.dec, err)
 		if err == nil || err == io.EOF {
+			d.err = err // for EOF
 			d.typeMu.RLock()
 			tt, ok := d.idToType[tid]
 			d.typeMu.RUnlock()
@@ -111,6 +115,7 @@ func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
 			continue
 		}
 		d.buildCh <- struct{}{}
+		d.err = err
 		return nil, err
 	}
 }
@@ -118,13 +123,13 @@ func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
 // readSingleType reads a single wire type
 func (d *TypeDecoder) readSingleType() error {
 	var wt wireType
-	fmt.Printf("TD: running: read 1: %p %p\n", d, d.dec)
 	curTypeID, err := d.dec.decodeWireType(&wt)
-	fmt.Printf("TD: read 2: %p %p: curTypeID %v\n", d, d.dec, curTypeID)
 	if err != nil {
 		return err
 	}
 	// Add the wire type.
+	// XXXX also called from decodeTypeDefs ... so should aquire the lock
+	//      for that case, work that out later.
 	if err := d.addWireTypeBuildLocked(curTypeID, wt); err != nil {
 		return err
 	}
@@ -142,6 +147,7 @@ func (d *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
 	if tt := d.lookupKnownType(tid); tt != nil {
 		return tt, nil
 	}
+	fmt.Printf("WTF...\n")
 	return d.readUntilTID(tid)
 }
 

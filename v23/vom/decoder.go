@@ -374,7 +374,9 @@ func (d *decoder81) dfsNextType() (*vdl.Type, error) {
 				return nil, err
 			}
 		}
+		fmt.Printf("TOP: SEP %v\n", top)
 		tid, err := d.nextMessage()
+		fmt.Printf("TOP: DONE %v .. %v\n", tid, err)
 		if err != nil {
 			return nil, err
 		}

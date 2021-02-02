@@ -516,6 +516,7 @@ func TestTypeStreamEndsFirst(t *testing.T) {
 	if err := decoder.Decode(&v); err != nil {
 		t.Errorf("expected no error in decode, but got: %v", err)
 	}
+	fmt.Printf(">>>> %v\n", v)
 	wg.Wait()
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
