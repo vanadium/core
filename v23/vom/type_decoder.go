@@ -48,16 +48,12 @@ func newTypeDecoderInternal(dec *decoder81) *TypeDecoder {
 	return td
 }
 
-func newDerivedTypeDecoderInternal(dec *decoder81,
-	idToType map[TypeId]*vdl.Type,
-	idToWire map[TypeId]wireType,
-) *TypeDecoder {
-	td := &TypeDecoder{
-		idToType: idToType,
-		idToWire: idToWire,
-		dec:      dec,
-	}
-	return td
+func (td *TypeDecoder) reset(dec *decoder81, idToType map[TypeId]*vdl.Type,
+	idToWire map[TypeId]wireType) {
+	td.err = nil
+	td.dec = dec
+	td.idToType = idToType
+	td.idToWire = idToWire
 }
 
 func (td *TypeDecoder) readSingleTID(tid TypeId) (*vdl.Type, error) {

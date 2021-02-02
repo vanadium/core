@@ -63,10 +63,10 @@ func Decode(data []byte, v interface{}) error {
 	// However decoding type messages is expensive, so we cache the
 	// results of typeDecoders to skip the decoding in the common case.
 
-	bufs := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
-	defer reusableDecoderBuffersPool.Put(bufs)
-	bufs.dec.buf.SetBytes(data)
-	buf := bufs.dec.buf
+	reusable := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
+	defer reusableDecoderBuffersPool.Put(reusable)
+	reusable.dec81.buf.SetBytes(data)
+	buf := reusable.dec81.buf
 
 	keyBytes, err := computeTypeDecoderCacheKey(buf)
 	if err != nil {
@@ -80,44 +80,46 @@ func Decode(data []byte, v interface{}) error {
 	}
 	typeInfo, ok := singleShotTypeDecoderCache.lookup(key)
 	cacheMiss := false
-	var typeDec *TypeDecoder
 	if !ok {
 		// Cache miss; start decoding at the beginning of all type messages with a
 		// new TypeDecoder.
 		cacheMiss = true
 		buf.beg = 0
-		typeDec = newTypeDecoderInternal(bufs.dec)
+		reusable.typeDec.reset(reusable.dec81, make(map[TypeId]*vdl.Type), make(map[TypeId]wireType))
 	} else {
 		// Cache hit; the buf is already positioned on the message id of the value,
 		// so we can just continue decoding from there.
 		buf.version = Version(data[0])
-		typeDec = newDerivedTypeDecoderInternal(bufs.dec, typeInfo.idToType, typeInfo.idToWire)
+		reusable.typeDec.reset(reusable.dec81, typeInfo.idToType, typeInfo.idToWire)
 	}
 	// Decode the value message.
-	dec := &Decoder{decoder81{
-		buf:     buf,
-		typeDec: typeDec,
-	}}
-	if err := dec.Decode(v); err != nil {
+	reusable.dec.dec = decoder81{}
+	reusable.dec.dec.buf = buf
+	reusable.dec.dec.typeDec = reusable.typeDec
+	if err := reusable.dec.Decode(v); err != nil {
 		return err
 	}
 	// Populate the typeDecoder cache for future re-use.
 	if cacheMiss {
-		singleShotTypeDecoderCache.insert(key, typeDec.idToType, typeDec.idToWire)
+		singleShotTypeDecoderCache.insert(key, reusable.typeDec.idToType, reusable.typeDec.idToWire)
 	}
 	return nil
 }
 
 type reusableDecoderBuffers struct {
-	rd  *bytes.Reader
-	dec *decoder81
+	rd      *bytes.Reader
+	dec81   *decoder81
+	typeDec *TypeDecoder
+	dec     *Decoder
 }
 
 var reusableDecoderBuffersPool = sync.Pool{
 	New: func() interface{} {
 		return &reusableDecoderBuffers{
-			rd:  bytes.NewReader(nil),
-			dec: &decoder81{buf: newDecbuf(nil)},
+			rd:      bytes.NewReader(nil),
+			dec81:   &decoder81{buf: newDecbuf(nil)},
+			typeDec: &TypeDecoder{},
+			dec:     &Decoder{},
 		}
 	},
 }
