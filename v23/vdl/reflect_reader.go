@@ -182,7 +182,7 @@ type settable interface {
 }
 
 // readIntoAny uses dec to decode a value into rv, which has VDL type any.
-func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
+func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error { //nolint:gocyclo
 	if calledStart {
 		// The existing code ensures that calledStart is always false here, since
 		// readReflect(dec, true, ...) is only called in situations where it's

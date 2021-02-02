@@ -393,7 +393,6 @@ func typeToReflectOptional(t *Type) reflect.Type {
 	if elem := t.Elem(); elem.Name() != "" {
 		if ri := reflectInfoFromName(elem.Name()); ri != nil {
 			if ni := nativeInfoFromWire(reflect.PtrTo(ri.Type)); ni != nil {
-				//debug.PrintStack()
 				return ni.NativeType
 			}
 		}
@@ -407,7 +406,7 @@ func typeToReflectOptional(t *Type) reflect.Type {
 // TypeToReflect returns the reflect.Type corresponding to t.  We look up
 // named types in our registry, and build the unnamed types that we can via the
 // Go reflect package.  Returns nil for types that can't be manufactured.
-func TypeToReflect(t *Type) reflect.Type {
+func TypeToReflect(t *Type) reflect.Type { //nolint:gocyclo
 	if t.Name() != "" {
 		return typeToReflectNamed(t)
 	}
