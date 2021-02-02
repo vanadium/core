@@ -80,7 +80,7 @@ func (d *TypeDecoder) Start() {}
 func (d *TypeDecoder) Stop() {}
 
 func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
-	fmt.Printf("readUntilTID........\n\n\n")
+	fmt.Printf("readUntilTID........ %v\n\n\n", d.err)
 	for {
 		// Note that we will block indefinitely if the underlying
 		// read blocks on the io.Reader.
@@ -98,6 +98,8 @@ func (d *TypeDecoder) readUntilTID(tid TypeId) (*vdl.Type, error) {
 			d.buildCh <- struct{}{}
 			return tt, nil
 		}
+		fmt.Printf("TD: reading 1: %p %p\n", d, d.dec)
+
 		//d.buildMu.Lock()
 		err := d.readSingleType()
 		//d.buildMu.Unlock()
@@ -147,7 +149,7 @@ func (d *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
 	if tt := d.lookupKnownType(tid); tt != nil {
 		return tt, nil
 	}
-	fmt.Printf("WTF...\n")
+	fmt.Printf("%p: lookupType: %v\n", d, d.err)
 	return d.readUntilTID(tid)
 }
 

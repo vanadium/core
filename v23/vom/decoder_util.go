@@ -231,7 +231,9 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 	}
 	// Decode version byte, if not already decoded.
 	if d.buf.version == 0 {
+		fmt.Printf("%p: reading version byte\n", d)
 		version, err := d.buf.ReadByte()
+		fmt.Printf("%p: read version byte: %x %v\n", d, version, err)
 		if err != nil {
 			return 0, errEndedBeforeVersionByte(err)
 		}

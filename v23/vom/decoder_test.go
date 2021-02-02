@@ -458,7 +458,9 @@ func newExtractErrReader(r io.Reader) *extractErrReader {
 }
 
 func (er *extractErrReader) Read(p []byte) (int, error) {
+	fmt.Printf("%p.Read()\n", er)
 	n, err := er.r.Read(p)
+	fmt.Printf("%p.Read(): %v %v\n", er, n, err)
 	if err != nil {
 		er.lock.Lock()
 		er.err = err
@@ -500,16 +502,21 @@ func TestTypeStreamEndsFirst(t *testing.T) {
 	typedec.Start()
 	wr := newWaitingReader(strings.NewReader(binversion + binvalue))
 	decoder := vom.NewDecoderWithTypeDecoder(wr, typedec)
+	fmt.Printf("new type decoder: %p, new decoder: %p\n", typedec, decoder)
 	var v interface{}
 	errCh := make(chan error, 1)
 	var wg sync.WaitGroup
 	wg.Add(1)
+	wr.Activate()
 	go func() {
 		defer wg.Done()
+		fmt.Printf("X 1\n")
 		if tr.WaitForError() == nil {
+			fmt.Printf("X 2\n")
 			errCh <- fmt.Errorf("expected EOF after reaching end of type stream, but didn't occur")
 			return
 		}
+		fmt.Printf("X 3\n")
 		wr.Activate()
 		errCh <- nil
 	}()
