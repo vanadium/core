@@ -59,6 +59,9 @@ func newProxyManager(s serverProxyAPI, proxyName string, policy rpc.ProxyPolicy,
 }
 
 func (pm *proxyManager) selectRandomSubsetLocked(needed, available int) map[int]bool {
+	if needed == 0 {
+		return nil
+	}
 	selected := map[int]bool{}
 	for {
 		candidate := pm.rand.Intn(available)
@@ -160,6 +163,7 @@ func (pm *proxyManager) updateAvailableProxies(ctx *context.T) {
 	pm.Lock()
 	defer pm.Unlock()
 	pm.proxies = updated
+
 }
 
 func (pm *proxyManager) markActive(ep naming.Endpoint) {
@@ -175,8 +179,6 @@ func (pm *proxyManager) markInActive(ep naming.Endpoint) {
 }
 
 func (pm *proxyManager) connectToSingleProxy(ctx *context.T, name string, ep naming.Endpoint) {
-	pm.markActive(ep)
-	defer pm.markInActive(ep)
 	for delay := pm.reconnectDelay; ; delay = nextDelay(delay) {
 		if !pm.isAvailable(ep) {
 			ctx.Infof("connectToSingleProxy(%q): proxy is no longer available\n", ep)
@@ -212,12 +214,24 @@ func (pm *proxyManager) tryConnections(ctx *context.T, notifyCh chan struct{}) b
 		return false
 	}
 	for _, ep := range idle {
+		if !pm.canGrow() {
+			continue
+		}
+		pm.markActive(ep)
 		go func(ep naming.Endpoint) {
 			pm.connectToSingleProxy(ctx, pm.proxyName, ep)
-			notifyCh <- struct{}{}
+			pm.markInActive(ep)
+			sendNotify(notifyCh)
 		}(ep)
 	}
 	return true
+}
+
+func sendNotify(ch chan struct{}) {
+	select {
+	case ch <- struct{}{}:
+	default:
+	}
 }
 
 func drainNotifyChan(ch chan struct{}) {
@@ -233,6 +247,24 @@ func drainNotifyChan(ch chan struct{}) {
 func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 	notifyCh := make(chan struct{}, 10)
 	pm.updateAvailableProxies(ctx)
+	// Watch for changes in the set of available proxies so that for the
+	// 'all' policy, the server will connect to new proxies as they appear.
+	// For other policies reconnection may be little faster since the
+	// new set of proxies is already available.
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(pm.resolveDelay):
+			}
+			pm.updateAvailableProxies(ctx)
+			if pm.shouldGrow() && pm.canGrow() {
+				sendNotify(notifyCh)
+			}
+		}
+	}()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -253,7 +285,7 @@ func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 			drainNotifyChan(notifyCh)
 		}
 		// Wait for a change in the set of available proxies.
-		if pm.shouldGrow() {
+		if pm.shouldGrow() && !pm.canGrow() {
 			for {
 				select {
 				case <-ctx.Done():
