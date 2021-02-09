@@ -244,6 +244,20 @@ func drainNotifyChan(ch chan struct{}) {
 	}
 }
 
+func (pm *proxyManager) watchForChanges(ctx *context.T, ch chan struct{}) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(pm.resolveDelay):
+			pm.updateAvailableProxies(ctx)
+			if pm.shouldGrow() && pm.canGrow() {
+				sendNotify(ch)
+			}
+		}
+	}
+}
+
 func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 	notifyCh := make(chan struct{}, 10)
 	pm.updateAvailableProxies(ctx)
@@ -251,19 +265,7 @@ func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 	// 'all' policy, the server will connect to new proxies as they appear.
 	// For other policies reconnection may be little faster since the
 	// new set of proxies is already available.
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(pm.resolveDelay):
-			}
-			pm.updateAvailableProxies(ctx)
-			if pm.shouldGrow() && pm.canGrow() {
-				sendNotify(notifyCh)
-			}
-		}
-	}()
+	go pm.watchForChanges(ctx, notifyCh)
 
 	for {
 		select {
