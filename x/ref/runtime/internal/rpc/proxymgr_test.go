@@ -322,6 +322,19 @@ func TestSingleProxyConnections(t *testing.T) {
 	}
 }
 
+func waitForExpected(sm *mockServerAPI, proxyName string, expected int) {
+	// Wait for the expected number of connections.
+	for {
+		time.Sleep(100 * time.Millisecond)
+		sm.Lock()
+		if len(sm.listening[proxyName]) == expected {
+			sm.Unlock()
+			break
+		}
+		sm.Unlock()
+	}
+}
+
 func TestMultipleProxyConnections(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -363,13 +376,7 @@ func TestMultipleProxyConnections(t *testing.T) {
 		time.Sleep(time.Millisecond * 100)
 		sm.setEndpoints(proxyName, eps...)
 
-		// Wait for the expected number of connections.
-		for {
-			time.Sleep(100 * time.Millisecond)
-			if len(sm.listening[proxyName]) == tc.expected {
-				break
-			}
-		}
+		waitForExpected(sm, proxyName, tc.expected)
 
 		// Remove the endpoints and finish the current listeners.
 		sm.setEndpoints(proxyName)
@@ -394,14 +401,65 @@ func TestMultipleProxyConnections(t *testing.T) {
 		pm.updateAvailableProxies(ctx)
 
 		// Wait for the expected number of connections.
-		for {
-			time.Sleep(100 * time.Millisecond)
-			if len(sm.listening[proxyName]) == tc.expected {
-				break
-			}
-		}
+		waitForExpected(sm, proxyName, tc.expected)
 
 		cancel()
+		// Should immediately return if the context is already canceled.
+		pm.manageProxyConnections(cctx)
+
+		wg.Wait()
+	}
+
+}
+
+func TestMultipleProxyConnectionExpansion(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	sm := newMockServer()
+	ep1 := newEndpoint("5000")
+	ep2 := newEndpoint("5001")
+	ep3 := newEndpoint("5002")
+
+	fpm := newProxyManager(sm, "proxy0", rpc.UseFirstProxy, 1)
+	rpm := newProxyManager(sm, "proxy1", rpc.UseRandomProxy, 1)
+	apm := newProxyManager(sm, "proxy2", rpc.UseAllProxies, 3)
+
+	for i, tc := range []struct {
+		pm      *proxyManager
+		initial int
+		final   int
+	}{
+		{fpm, 1, 1},
+		{rpm, 1, 1},
+		{apm, 1, 3},
+	} {
+		cctx, cancel := context.WithCancel(ctx)
+		pm := tc.pm
+		// tune down the delays
+		pm.resolveDelay = time.Millisecond
+		pm.reconnectDelay = time.Millisecond
+		proxyName := fmt.Sprintf("proxy%v", i)
+		ch := make(chan struct{})
+		sm.setChan(proxyName, ch)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func(pm *proxyManager) {
+			pm.manageProxyConnections(cctx)
+			wg.Done()
+		}(pm)
+
+		sm.setEndpoints(proxyName, ep1)
+
+		waitForExpected(sm, proxyName, tc.initial)
+		sm.setEndpoints(proxyName, ep1, ep2, ep3)
+		time.Sleep(100 * time.Millisecond)
+
+		// Wait for the expected number of connections.
+		waitForExpected(sm, proxyName, tc.final)
+
+		cancel()
+
 		// Should immediately return if the context is already canceled.
 		pm.manageProxyConnections(cctx)
 

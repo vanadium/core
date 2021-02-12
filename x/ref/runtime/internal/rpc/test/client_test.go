@@ -295,8 +295,15 @@ func TestStartCallErrors(t *testing.T) { //nolint:gocyclo
 	if !errors.Is(err, verror.ErrNoServers) {
 		t.Errorf("wrong error: %s", err)
 	}
-	if want := "connection refused"; !strings.Contains(verror.DebugString(err), want) {
-		t.Errorf("wrong error: %s - doesn't contain %q", err, want)
+	found := false
+	allowed := []string{"connection reset by peer", "connection refused"}
+	for _, want := range allowed {
+		if strings.Contains(verror.DebugString(err), want) {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("wrong error: %s - doesn't contain one of %q", err, allowed)
 	}
 
 	// This will fail with NoServers, but because there really is no
