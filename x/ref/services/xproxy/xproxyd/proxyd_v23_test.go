@@ -46,6 +46,7 @@ const (
 	responseVar      = "RESPONSE"  // Name of the variable used by client program to output the first response
 	responseVar1     = "RESPONSE1" // Name of the variable used by client program to output the second response
 	downloadSize     = 64 * 1024 * 1024
+	using1OfMProxies = 1 // Use 1 out of the total available set of proxies when using all proxies.
 	using2OfMProxies = 2 // Use 2 out of the total available set of proxies when using all proxies.
 )
 
@@ -106,7 +107,7 @@ func TestV23MultipleProxyd(t *testing.T) {
 	firstProxyAddress, firstProxyLog, _, err := startServer(t, sh, serverName, 1, runServer, serverCreds)
 	assert("first proxy policy server", firstProxyLog)
 
-	allProxiesAddress, allProxiesLog, _, err := startServer(t, sh, serverNameAll, using2OfMProxies, runServerAllProxies, serverCreds)
+	allProxiesAddress, allProxiesLog, _, err := startServer(t, sh, serverNameAll, using2OfMProxies, runServerAllProxiesLimit2, serverCreds)
 	assert("all proxies policy server", allProxiesLog)
 
 	// Run all of the clients.
@@ -279,7 +280,7 @@ func TestV23MultiProxyResilience(t *testing.T) {
 	assert("first two proxies", logsForProxies(first2)...)
 
 	// Start the server.
-	serverAddress, serverLog, _, err := startServer(t, sh, serverNameAll, using2OfMProxies, runServerAllProxies, serverCreds)
+	serverAddress, serverLog, _, err := startServer(t, sh, serverNameAll, using2OfMProxies, runServerAllProxiesLimit2, serverCreds)
 	assert("server", serverLog)
 
 	// Run the client.
@@ -338,6 +339,74 @@ func TestV23MultiProxyResilience(t *testing.T) {
 
 	used = proxiesUsedForServer(requests, serverAddress)
 	if got, want := len(used), 2; !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+}
+
+func TestV23MultiProxyExpansion(t *testing.T) {
+
+	v23test.SkipUnlessRunningIntegrationTests(t)
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+	sh.StartRootMountTable()
+
+	var (
+		serverCreds = sh.ForkCredentials("server")
+		clientCreds = sh.ForkCredentials("client")
+		err         error
+	)
+
+	assert := func(msg string, logs ...*bytes.Buffer) {
+		assertWithLog(t, err, msg, logs)
+	}
+
+	ns := v23.GetNamespace(sh.Ctx)
+	ns.CacheCtl(naming.DisableCache(true))
+
+	// Start a single proxy.
+	first, _, firstStatsAddrs := startInitialSetOfProxies(t, sh, 1)
+	assert("first proxy", logsForProxies(first)...)
+
+	// Start the server.
+	serverAddress, serverLog, _, err := startServer(t, sh, serverNameAll, using1OfMProxies, runServerAllProxiesNoLimit, serverCreds)
+	assert("server", serverLog)
+
+	// Run the client.
+	err = runSingleClient(sh, runClientAllProxiesServer, clientCreds)
+	assert("client")
+
+	// Gather stats and make sure the the server is using the first proxy.
+	ctx, err := v23.WithPrincipal(sh.Ctx, serverCreds.Principal)
+	assert("withPrincipal")
+
+	requests, _, _, err := gatherStats(ctx, firstStatsAddrs, serverAddress)
+	assert("gatherStats")
+
+	used := proxiesUsedForServer(requests, serverAddress)
+	if got, want := used, []int{0}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	// Start two more proxies and wait for the server to notice them.
+	second := startProxy(t, sh)
+	third := startProxy(t, sh)
+
+	_, err = waitForNMountedServers(t, sh.Ctx, ns, serverNameAll, 3)
+	assert("second and third proxies and server log", second.log, third.log, serverLog)
+
+	_, proxyStatsAddresses, err := waitForNProxies(t, sh.Ctx, ns, 3)
+	assert("wait for all three proxies to be in the mounttable")
+
+	// Run the client.
+	err = runSingleClient(sh, runClientAllProxiesServer, clientCreds)
+	assert("client with two proxies again")
+
+	requests, _, _, err = gatherStats(ctx, proxyStatsAddresses, serverAddress)
+	assert("gatherStats")
+
+	used = proxiesUsedForServer(requests, serverAddress)
+	if got, want := len(used), 3; !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
@@ -701,9 +770,15 @@ var runServerRandomProxy = gosh.RegisterFunc(
 	"runServerRandomProxy",
 	createProxiedServer(serverNameRandom, proxyName, rpc.UseRandomProxy, 0),
 )
-var runServerAllProxies = gosh.RegisterFunc(
-	"runServerAllProxies",
+
+var runServerAllProxiesLimit2 = gosh.RegisterFunc(
+	"runServerAllProxiesLimit2",
 	createProxiedServer(serverNameAll, proxyName, rpc.UseAllProxies, using2OfMProxies),
+)
+
+var runServerAllProxiesNoLimit = gosh.RegisterFunc(
+	"runServerAllProxiesNoLimit",
+	createProxiedServer(serverNameAll, proxyName, rpc.UseAllProxies, 0),
 )
 
 func createClient(serverName string, iterations int) func() error {
