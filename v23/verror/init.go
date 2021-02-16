@@ -24,6 +24,9 @@ func WireToNative(wire *vdl.WireError, native *error) error {
 		Action: retryToAction(wire.RetryCode),
 		Msg:    wire.Msg,
 	}
+	if len(wire.ParamList) > 0 {
+		e.ParamList = make([]interface{}, 0, len(wire.ParamList))
+	}
 	for _, pWire := range wire.ParamList {
 		var pNative interface{}
 		if err := vdl.Convert(&pNative, pWire); err != nil {
@@ -67,6 +70,9 @@ func WireFromNative(wire **vdl.WireError, native error) error {
 	nt.Id = string(e.ID)
 	nt.RetryCode = retryFromAction(e.Action)
 	nt.Msg = e.Msg
+	if len(e.ParamList) > 0 {
+		nt.ParamList = make([]*vdl.Value, 0, len(e.ParamList))
+	}
 	for _, pNative := range e.ParamList {
 		var pWire *vdl.Value
 		if err := vdl.Convert(&pWire, pNative); err != nil {
