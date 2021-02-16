@@ -7,7 +7,6 @@ package vdl
 import (
 	"fmt"
 	"reflect"
-	"sync"
 	"unsafe"
 )
 
@@ -223,9 +222,12 @@ func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) { //nolint:go
 	if tt == AnyType && rt.Kind() == reflect.Interface {
 		return result, nil
 	}
+
+	pri := perfReflectCache.perfReflectInfo(rt)
 	// Handle native types by returning the native value filled in with a zero
 	// value of the wire type.
-	if ni := nativeInfoFromNative(rt); ni != nil {
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
+		// TODO(cnicolaou): Need a test for this case.
 		rvWire := reflect.New(ni.WireType).Elem()
 		ttWire, err := TypeFromReflect(ni.WireType)
 		if err != nil {
@@ -242,6 +244,7 @@ func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) { //nolint:go
 		}
 		return result, nil
 	}
+
 	// Handle composite types with inline subtypes.
 	switch {
 	case tt.Kind() == Union && rt.Kind() == reflect.Interface:
@@ -268,9 +271,14 @@ func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) { //nolint:go
 			}
 		}
 	case tt.Kind() == Struct && rt.Kind() == reflect.Struct:
+		idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 		for ix := 0; ix < tt.NumField(); ix++ {
 			field := tt.Field(ix)
-			rvField := rv.Field(rtFieldIndexByName(rt, field.Name))
+			idx, ok := idxMap[field.Name]
+			if !ok {
+				return reflect.Value{}, fmt.Errorf("vdl: rvZeroValue unrecognised Go field %v in %v", field.Name, rt)
+			}
+			rvField := rv.Field(idx)
 			switch zero, err := rvZeroValue(rvField.Type(), field.Type); {
 			case err != nil:
 				return reflect.Value{}, err
@@ -307,13 +315,18 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 		return false, nil
 	}
 	rt := rv.Type()
+	//if len(rt.PkgPath()) > 0 {
+	// Only non-built in types (other than error) can implement the
+	// interfaces we care about.
+	pri := perfReflectCache.perfReflectInfo(rt)
+
 	// Now we know that rv isn't a pointer or interface, and also isn't nil.  Call
 	// VDLIsZero if it exists.  This handles the vdl.Value/vom.RawBytes cases, as
-	// well generated code and user-implemented VDLIsZero methods.
-	if rt.Implements(rtIsZeroer) {
+	// well as generated code and user-implemented VDLIsZero methods.
+	if perfReflectCache.implementsBuiltinInterface(pri, rt, rtIsZeroerBitMask) {
 		return rv.Interface().(IsZeroer).VDLIsZero(), nil
 	}
-	if reflect.PtrTo(rt).Implements(rtIsZeroer) {
+	if perfReflectCache.implementsBuiltinInterface(pri, rt, rtIsZeroerPtrToBitMask) {
 		if rv.CanAddr() {
 			return rv.Addr().Interface().(IsZeroer).VDLIsZero(), nil
 		}
@@ -326,13 +339,15 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 		return rvPtr.Interface().(IsZeroer).VDLIsZero(), nil
 	}
 	// Handle native types, by converting and checking the wire value for zero.
-	if ni := nativeInfoFromNative(rt); ni != nil {
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
+
 		rvWirePtr := reflect.New(ni.WireType)
 		if err := ni.FromNative(rvWirePtr, rv); err != nil {
 			return false, err
 		}
 		return rvIsZeroValue(rvWirePtr.Elem(), tt)
 	}
+	//}
 	// The interface form of any was handled above in the nil checks, while the
 	// non-interface forms were handled via VDLIsZero.
 	if tt.Kind() == Optional || tt.Kind() == Any {
@@ -374,9 +389,15 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	case reflect.Struct:
 		switch tt.Kind() {
 		case Struct:
+			pri := perfReflectCache.perfReflectInfo(rt)
+			idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 			for ix := 0; ix < tt.NumField(); ix++ {
 				ttField := tt.Field(ix)
-				rvField := rv.Field(rtFieldIndexByName(rt, ttField.Name))
+				idx, ok := idxMap[ttField.Name]
+				if !ok {
+					return false, fmt.Errorf("vdl: readStruct unrecognised VDL field %v in %v", ttField.Name, rt)
+				}
+				rvField := rv.Field(idx)
 				if z, err := rvIsZeroValue(rvField, ttField.Type); err != nil || !z {
 					return false, err
 				}
@@ -394,52 +415,5 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 			return rvIsZeroValue(rv.Field(0), tt.Field(0).Type)
 		}
 	}
-	return false, fmt.Errorf("vdl: rvIsZeroValue unhandled rt: %v tt: %v", rt, tt)
-}
-
-// rtFieldIndexByName returns the index of the struct field in rt with the given
-// name.  Returns -1 if the field doesn't exist.
-//
-// This function is purely a performance optimization; the current
-// implementation of reflect.Type.Field(index) causes an allocation, which is
-// avoided in the common case by caching the result.
-//
-// REQUIRES: rt.Kind() == reflect.Struct
-func rtFieldIndexByName(rt reflect.Type, name string) int {
-	rtFieldCache.RLock()
-	m, ok := rtFieldCache.Map[rt]
-	rtFieldCache.RUnlock()
-	// Fastpath cache hit.
-	if ok {
-		return m[name] - 1
-	}
-	// Slowpath cache miss, populate the cache.
-	rtFieldCache.Lock()
-	defer rtFieldCache.Unlock()
-	// Handle benign race, where the cache was filled in while we upgraded from a
-	// reader lock to an exclusive lock.
-	if m, ok := rtFieldCache.Map[rt]; ok {
-		return m[name] - 1
-	}
-	if rt.Kind() != reflect.Struct {
-		fmt.Printf("TRT: %v\n", rt)
-		panic("me")
-	}
-	if numField := rt.NumField(); numField > 0 {
-		m = make(map[string]int, numField)
-		for i := 0; i < numField; i++ {
-			m[rt.Field(i).Name] = i + 1
-		}
-	}
-	rtFieldCache.Map[rt] = m
-	return m[name] - 1
-}
-
-var rtFieldCache = &rtFieldCacheType{
-	Map: make(map[reflect.Type]map[string]int),
-}
-
-type rtFieldCacheType struct {
-	sync.RWMutex
-	Map map[reflect.Type]map[string]int
+	return false, fmt.Errorf("vdl: rvIsZeroValue unhandled rt: %v (%v) tt: %v (%v)", rt, rv.Kind(), tt, tt.Kind())
 }
