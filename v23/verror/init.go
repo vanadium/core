@@ -162,8 +162,9 @@ func VDLWrite(enc vdl.Encoder, x error) error {
 	if x == nil {
 		return enc.NilValue(vdl.ErrorType)
 	}
-	var wire *vdl.WireError
-	if err := WireFromNative(&wire, x); err != nil {
+	var wire vdl.WireError
+	wirePtr := &wire
+	if err := WireFromNative(&wirePtr, x); err != nil {
 		return err
 	}
 	return wire.VDLWrite(enc)
