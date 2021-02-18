@@ -24,23 +24,15 @@ func WireToNative(wire *vdl.WireError, native *error) error {
 		Action: retryToAction(wire.RetryCode),
 		Msg:    wire.Msg,
 	}
-	if len(wire.ParamList) > 0 {
-		e.ParamList = make([]interface{}, 0, len(wire.ParamList))
-	}
-	for _, pWire := range wire.ParamList {
-		var pNative interface{}
-		if err := vdl.Convert(&pNative, pWire); err != nil {
-			// It's questionable what to do if the conversion fails, rather than
-			// ending up with a native Go value.
-			//
-			// At the moment, we plug the *vdl.Value into the native params.  The idea
-			// is that this will still be more useful to the user, since they'll still
-			// have the error Id and Action.
-			//
-			// TODO(toddw): Consider whether there is a better strategy.
-			pNative = pWire
+	e.ParamList = make([]interface{}, 0, len(wire.ParamList))
+	if err := vdl.Convert(&e.ParamList, wire.ParamList); err != nil {
+		// It's questionable what to do here if the conversion fails, similarly to
+		// the conversion failure below in WireFromNative.
+		//
+		// TODO(toddw): Consider whether there is a better strategy.
+		for _, w := range wire.ParamList {
+			e.ParamList = append(e.ParamList, w)
 		}
-		e.ParamList = append(e.ParamList, pNative)
 	}
 	*native = e
 	return nil
@@ -70,19 +62,17 @@ func WireFromNative(wire **vdl.WireError, native error) error {
 	nt.Id = string(e.ID)
 	nt.RetryCode = retryFromAction(e.Action)
 	nt.Msg = e.Msg
-	if len(e.ParamList) > 0 {
-		nt.ParamList = make([]*vdl.Value, 0, len(e.ParamList))
-	}
-	for _, pNative := range e.ParamList {
-		var pWire *vdl.Value
-		if err := vdl.Convert(&pWire, pNative); err != nil {
-			// It's questionable what to do here if the conversion fails, similarly to
-			// the conversion failure above in WireToNative.
-			//
-			// TODO(toddw): Consider whether there is a better strategy.
-			pWire = vdl.StringValue(nil, err.Error())
-		}
-		nt.ParamList = append(nt.ParamList, pWire)
+	nt.ParamList = make([]*vdl.Value, 0, len(e.ParamList))
+	if err := vdl.Convert(&nt.ParamList, e.ParamList); err != nil {
+		// It's questionable what to do here if the conversion fails, similarly to
+		// the conversion failure above in WireToNative.
+		//
+		// TODO(toddw): Consider whether there is a better strategy.
+		nt.ParamList = append(nt.ParamList,
+			vdl.StringValue(nil, ""),
+			vdl.StringValue(nil, ""),
+			vdl.StringValue(nil, err.Error()),
+		)
 	}
 	return nil
 }
