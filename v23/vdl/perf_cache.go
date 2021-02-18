@@ -11,11 +11,6 @@ type perfReflectCacheT struct {
 	rtmap map[reflect.Type]perfReflectInfo
 }
 
-type implementsInfo struct {
-	directly   bool // true if the type implements the interface directly.
-	indirectly bool // true if a ptr to the type implements the interface.
-}
-
 type perfReflectInfo struct {
 	keyType         reflect.Type
 	fieldIndexMap   map[string]int
