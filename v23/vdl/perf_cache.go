@@ -11,11 +11,6 @@ type perfReflectCacheT struct {
 	rtmap map[reflect.Type]perfReflectInfo
 }
 
-type implementsInfo struct {
-	directly   bool // true if the type implements the interface directly.
-	indirectly bool // true if a ptr to the type implements the interface.
-}
-
 type perfReflectInfo struct {
 	keyType         reflect.Type
 	fieldIndexMap   map[string]int
@@ -96,9 +91,6 @@ func (prc *perfReflectCacheT) cacheFieldIndexMap(rt reflect.Type) map[string]int
 }
 
 func createFieldIndexMap(rt reflect.Type) map[string]int {
-	if rt.Kind() != reflect.Struct {
-		panic(fmt.Sprintf("%v %v: is not a struct", rt, rt.Kind()))
-	}
 	if numField := rt.NumField(); numField > 0 {
 		m := make(map[string]int, numField)
 		for i := 0; i < numField; i++ {
