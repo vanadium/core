@@ -121,8 +121,8 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 		return err
 	}
 	rt := rv.Type()
+	pri := perfReflectCache.perfReflectInfo(rt)
 	if len(rt.PkgPath()) > 0 {
-		pri := perfReflectCache.perfReflectInfo(rt)
 		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtVDLWriterPtrToBitMask) {
 			if rv.CanAddr() {
 				return writeNonReflect(enc, rv.Addr().Interface())
@@ -138,15 +138,16 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 			rvPtr.Elem().Set(rv)
 			return writeNonReflect(enc, rvPtr.Interface())
 		}
-		// Handle marshaling from native type to wire type.
-		if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
-			rvWirePtr := reflect.New(ni.WireType)
-			if err := ni.FromNative(rvWirePtr, rv); err != nil {
-				return err
-			}
-			return writeReflect(enc, rvWirePtr.Elem(), tt)
-		}
 	}
+	// Handle marshaling from native type to wire type.
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
+		rvWirePtr := reflect.New(ni.WireType)
+		if err := ni.FromNative(rvWirePtr, rv); err != nil {
+			return err
+		}
+		return writeReflect(enc, rvWirePtr.Elem(), tt)
+	}
+
 	// Handle errors that are implemented by arbitrary rv values.  E.g. the Go
 	// standard errors.errorString implements the error interface, but is an
 	// invalid vdl type since it doesn't have any exported fields.
@@ -177,7 +178,6 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 	case Set, Map:
 		err = writeSetOrMap(enc, rv, tt)
 	case Struct:
-		pri := perfReflectCache.perfReflectInfo(rt)
 		err = writeStruct(enc, rv, tt, pri)
 	case Union:
 		err = writeUnion(enc, rv, tt)

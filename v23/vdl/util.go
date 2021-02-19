@@ -315,10 +315,10 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 		return false, nil
 	}
 	rt := rv.Type()
+	pri := perfReflectCache.perfReflectInfo(rt)
 	if len(rt.PkgPath()) > 0 {
 		// Only non-built in types (other than error) can implement the
 		// interfaces we care about.
-		pri := perfReflectCache.perfReflectInfo(rt)
 
 		// Now we know that rv isn't a pointer or interface, and also isn't nil.  Call
 		// VDLIsZero if it exists.  This handles the vdl.Value/vom.RawBytes cases, as
@@ -338,16 +338,17 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 			rvPtr.Elem().Set(rv)
 			return rvPtr.Interface().(IsZeroer).VDLIsZero(), nil
 		}
-		// Handle native types, by converting and checking the wire value for zero.
-		if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
-
-			rvWirePtr := reflect.New(ni.WireType)
-			if err := ni.FromNative(rvWirePtr, rv); err != nil {
-				return false, err
-			}
-			return rvIsZeroValue(rvWirePtr.Elem(), tt)
-		}
 	}
+
+	// Handle native types, by converting and checking the wire value for zero.
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
+		rvWirePtr := reflect.New(ni.WireType)
+		if err := ni.FromNative(rvWirePtr, rv); err != nil {
+			return false, err
+		}
+		return rvIsZeroValue(rvWirePtr.Elem(), tt)
+	}
+
 	// The interface form of any was handled above in the nil checks, while the
 	// non-interface forms were handled via VDLIsZero.
 	if tt.Kind() == Optional || tt.Kind() == Any {
@@ -389,7 +390,6 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	case reflect.Struct:
 		switch tt.Kind() {
 		case Struct:
-			pri := perfReflectCache.perfReflectInfo(rt)
 			idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 			for ix := 0; ix < tt.NumField(); ix++ {
 				ttField := tt.Field(ix)
