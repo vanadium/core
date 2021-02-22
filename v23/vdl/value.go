@@ -39,23 +39,21 @@ var zeroTypeObject = AnyType // the zero TypeObject returns the any type
 type enumIndex int
 
 var zeroRepKindMap = map[Kind]interface{}{
-	Bool:       false,
-	Byte:       uint64(0),
-	Uint16:     uint64(0),
-	Uint32:     uint64(0),
-	Uint64:     uint64(0),
-	Int8:       int64(0),
-	Int16:      int64(0),
-	Int32:      int64(0),
-	Int64:      int64(0),
-	Float32:    float64(0),
-	Float64:    float64(0),
-	String:     "",
-	Enum:       enumIndex(0),
-	TypeObject: zeroTypeObject,
-	List:       zeroRepSequence(0),
-	Any:        (*Value)(nil), // nil represents nonexistence
-	Optional:   (*Value)(nil), // nil represents nonexistence
+	Bool:     false,
+	Byte:     uint64(0),
+	Uint16:   uint64(0),
+	Uint32:   uint64(0),
+	Uint64:   uint64(0),
+	Int8:     int64(0),
+	Int16:    int64(0),
+	Int32:    int64(0),
+	Int64:    int64(0),
+	Float32:  float64(0),
+	Float64:  float64(0),
+	String:   "",
+	Enum:     enumIndex(0),
+	Any:      (*Value)(nil), // nil represents nonexistence
+	Optional: (*Value)(nil), // nil represents nonexistence
 }
 
 // zeroRep returns the zero representation for each kind of type.
@@ -77,6 +75,10 @@ func zeroRep(t *Type) interface{} { //nolint:gocyclo
 		return zeroRepSequence(len(t.fields))
 	case Union:
 		return &repUnion{0, ZeroValue(t.fields[0].Type)}
+	case TypeObject:
+		return zeroTypeObject
+	case List:
+		return zeroRepSequence(0)
 	default:
 		panic(fmt.Errorf("vdl: unhandled kind: %v", t.kind))
 	}
