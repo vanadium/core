@@ -10,15 +10,12 @@ import (
 
 // Convert converts from src to dst.
 func Convert(dst, src interface{}) error {
-	//return convertValue(dst, src)
-
-	return convertPipe(dst, src)
+	return convertValue(dst, src)
 }
 
 // ConvertReflect converts reflect values from src to dst.
 func ConvertReflect(dst, src reflect.Value) error {
-	//return convertValueReflect(dst, src)
-	return convertPipeReflect(dst, src)
+	return convertValueReflect(dst, src)
 }
 
 // ValueOf returns the value corresponding to v.  It's a helper for calling
@@ -38,7 +35,6 @@ func ValueFromReflect(rv reflect.Value) (*Value, error) {
 		return ZeroValue(AnyType), nil
 	}
 	var result *Value
-	err := convertPipeReflect(reflect.ValueOf(&result), rv)
-	//err := convertValueReflect(reflect.ValueOf(&result), rv)
+	err := convertValueReflect(reflect.ValueOf(&result), rv)
 	return result, err
 }
