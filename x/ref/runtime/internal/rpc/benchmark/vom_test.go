@@ -87,8 +87,6 @@ func benchmarkDecode(b *testing.B, value interface{}, zero func() interface{}) {
 	}
 
 	tdec := vom.NewTypeDecoder(typeBuf)
-	tdec.Start()
-	defer tdec.Stop()
 	dec := vom.NewDecoderWithTypeDecoder(valBuf, tdec)
 	b.ResetTimer()
 

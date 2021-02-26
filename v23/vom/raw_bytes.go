@@ -198,10 +198,10 @@ func (rb *RawBytes) VDLWrite(enc vdl.Encoder) error {
 	// Slowpath: decodes bytes from rb and fill in enc.
 	bufs := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
 	bufs.rd.Reset(rb.Data)
-	bufs.dec.buf.Reset()
-	bufs.dec.buf.reader = bufs.rd
-	bufs.dec.reset(bufs.dec.buf)
-	dec := rb.newDecoder(bufs.rd, bufs.dec)
+	bufs.dec81.buf.Reset()
+	bufs.dec81.buf.reader = bufs.rd
+	bufs.dec81.reset(bufs.dec81.buf)
+	dec := rb.newDecoder(bufs.rd, bufs.dec81)
 	err := vdl.Transcode(enc, dec)
 	reusableDecoderBuffersPool.Put(bufs)
 	return err

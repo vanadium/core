@@ -13,25 +13,24 @@ import (
 )
 
 // TypeDecoder manages the receipt and unmarshalling of types from the other
-// side of a connection.  Start must be called to start decoding types,
-// and Stop must be called to reclaim resources.
+// side of a connection.
 type TypeDecoder struct {
-	// The type encoder uses a 2-lock strategy for decoding. We use typeMu to lock
-	// type definitions, and use buildMu to allow only one worker to build types at
-	// a time. This is for simplifying the workflow and avoid unnecessary blocking
+	// The type encoder uses multiple locks for decoding.
+	//   - typeMu to lock type definitions.
+	//   - buildSyncMu is used to allonw only goroutine to build types
+	//     at a time.
+	//   - buildMu to protect shared datastructures.
+	//
+	// This is for simplifying the workflow and avoid unnecessary blocking
 	// for type lookups.
 	typeMu   sync.RWMutex
 	idToType map[TypeId]*vdl.Type // GUARDED_BY(typeMu)
 
-	buildMu   sync.Mutex
-	buildCond *sync.Cond
-	err       error               // GUARDED_BY(buildMu)
-	idToWire  map[TypeId]wireType // GUARDED_BY(buildMu)
-	dec       *decoder81          // GUARDED_BY(buildMu)
-
-	processingControlMu sync.Mutex
-	goroutineRunning    bool // GUARDED_BY(processingControlMu)
-	goroutineShouldStop bool // GUARDED_BY(processingControlMu)
+	buildSyncMu sync.Mutex
+	buildMu     sync.Mutex
+	err         error               // GUARDED_BY(buildSyncMu)
+	dec         *decoder81          // GUARDED_BY(buildSyncMu)
+	idToWire    map[TypeId]wireType // GUARDED_BY(builtMu)
 }
 
 // NewTypeDecoder returns a new TypeDecoder that reads from the given reader.
@@ -46,79 +45,59 @@ func newTypeDecoderInternal(dec *decoder81) *TypeDecoder {
 		idToWire: make(map[TypeId]wireType),
 		dec:      dec,
 	}
-	td.buildCond = sync.NewCond(&td.buildMu)
 	return td
 }
 
-func newDerivedTypeDecoderInternal(dec *decoder81,
-	idToType map[TypeId]*vdl.Type,
-	idToWire map[TypeId]wireType,
-) *TypeDecoder {
-	td := &TypeDecoder{
-		idToType: idToType,
-		idToWire: idToWire,
-		dec:      dec,
-	}
-	td.buildCond = sync.NewCond(&td.buildMu)
-	return td
+func (td *TypeDecoder) reset(dec *decoder81, idToType map[TypeId]*vdl.Type,
+	idToWire map[TypeId]wireType) {
+	td.err = nil
+	td.dec = dec
+	td.idToType = idToType
+	td.idToWire = idToWire
 }
 
-func (d *TypeDecoder) processLoop() {
-	var err error
-	for {
-		d.processingControlMu.Lock()
-		if d.goroutineShouldStop || err != nil {
-			d.goroutineShouldStop = false
-			d.goroutineRunning = false
-			d.processingControlMu.Unlock()
-			return
-		}
-		d.processingControlMu.Unlock()
-		// Note that we will block indefinitely if the underlying
-		// read blocks on the io.Reader.
-		err = d.readSingleType()
-		d.buildMu.Lock()
-		d.err = err
-		d.buildCond.Broadcast()
-		d.buildMu.Unlock()
-		// TODO(toddw): Reconsider d.err and d.buildCond strategy.
+func (td *TypeDecoder) readSingleTID(tid TypeId) (*vdl.Type, error) {
+	// Test to see if another goroutine has already found the
+	// requested type or encountered an error.
+	td.typeMu.RLock()
+	tt, ok := td.idToType[tid]
+	td.typeMu.RUnlock()
+	if ok {
+		return tt, nil
 	}
-}
-
-// Start must be called to start decoding types.
-func (d *TypeDecoder) Start() {
-	d.processingControlMu.Lock()
-	d.goroutineShouldStop = false
-	if !d.goroutineRunning {
-		d.goroutineRunning = true
-		go d.processLoop()
+	if td.err != nil {
+		return nil, td.err
 	}
-	d.processingControlMu.Unlock()
-}
-
-// Stop must be called after Start, to stop decoding types
-// and reclaim resources.  Once Stop is called,
-// subsequent Decode calls on Decoders initialized with d
-// will return errors.
-func (d *TypeDecoder) Stop() {
-	d.processingControlMu.Lock()
-	d.goroutineShouldStop = true
-	d.processingControlMu.Unlock()
+	td.err = td.readSingleType()
+	if td.err != nil && td.err != io.EOF {
+		return nil, td.err
+	}
+	// Was the requested type found.
+	td.typeMu.RLock()
+	tt, ok = td.idToType[tid]
+	td.typeMu.RUnlock()
+	if ok {
+		return tt, nil
+	}
+	if td.err == io.EOF {
+		td.err = fmt.Errorf("vom: failed to find type %v in type stream", tid)
+	}
+	// Type not found, only possibly error is eof.
+	return nil, td.err
 }
 
 // readSingleType reads a single wire type
-func (d *TypeDecoder) readSingleType() error {
+func (td *TypeDecoder) readSingleType() error {
 	var wt wireType
-	curTypeID, err := d.dec.decodeWireType(&wt)
+	curTypeID, err := td.dec.decodeWireType(&wt)
 	if err != nil {
 		return err
 	}
-	// Add the wire type.
-	if err := d.addWireType(curTypeID, wt); err != nil {
+	if err := td.addWireType(curTypeID, wt); err != nil {
 		return err
 	}
-	if !d.dec.flag.TypeIncomplete() {
-		if err := d.buildType(curTypeID); d.dec.buf.version >= Version81 && err != nil {
+	if !td.dec.flag.TypeIncomplete() {
+		if err := td.buildType(curTypeID); td.dec.buf.version >= Version81 && err != nil {
 			return err
 		}
 	}
@@ -127,64 +106,55 @@ func (d *TypeDecoder) readSingleType() error {
 
 // LookupType returns the type for tid. If the type is not yet available,
 // this will wait until it arrives and is built.
-func (d *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
-	if tt := d.lookupKnownType(tid); tt != nil {
+func (td *TypeDecoder) lookupType(tid TypeId) (*vdl.Type, error) {
+	if tt := td.lookupKnownType(tid); tt != nil {
 		return tt, nil
 	}
-
-	d.buildMu.Lock()
-	defer d.buildMu.Unlock()
+	// read from the type decoder's input stream to see if the
+	// requested type id is there.
 	for {
-		if d.err != nil && d.err != io.EOF {
-			// Return any existing error immediately. Skip EOF because it
-			// may still be possible to lookup a type.
-			return nil, d.err
-		}
-		if tt := d.lookupKnownType(tid); tt != nil {
+		td.buildSyncMu.Lock()
+		tt, err := td.readSingleTID(tid)
+		td.buildSyncMu.Unlock()
+		if tt != nil {
 			return tt, nil
 		}
-		if d.err != nil {
-			return nil, d.err
+		if err != nil {
+			return nil, err
 		}
-		d.processingControlMu.Lock()
-		running := d.goroutineRunning
-		d.processingControlMu.Unlock()
-		if !running {
-			return nil, fmt.Errorf("vom: Start has not been called")
-		}
-		d.buildCond.Wait()
 	}
 }
 
 // addWireType adds the wire type wt with the type id tid.
-func (d *TypeDecoder) addWireType(tid TypeId, wt wireType) error {
-	d.buildMu.Lock()
-	err := d.addWireTypeBuildLocked(tid, wt)
-	d.buildMu.Unlock()
-	return err
-}
-
-func (d *TypeDecoder) addWireTypeBuildLocked(tid TypeId, wt wireType) error {
+func (td *TypeDecoder) addWireType(tid TypeId, wt wireType) error {
+	td.buildMu.Lock()
+	defer td.buildMu.Unlock()
 	if tid < WireIdFirstUserType {
 		return fmt.Errorf("vom: type %v id %v invalid, the min user type id is %v", wt, tid, WireIdFirstUserType)
 	}
 	// TODO(toddw): Allow duplicates according to some heuristic (e.g. only
 	// identical, or only if the later one is a "superset", etc).
-	if dup := d.lookupKnownType(tid); dup != nil {
+	if dup := td.lookupKnownType(tid); dup != nil {
 		return fmt.Errorf("vom: type %v id %v already defined as %v", wt, tid, dup)
 	}
-	if dup := d.idToWire[tid]; dup != nil {
+	if dup := td.idToWire[tid]; dup != nil {
 		return fmt.Errorf("vom: type %v id %v already defined as %v", wt, tid, dup)
 	}
-	d.idToWire[tid] = wt
+	td.idToWire[tid] = wt
 	return nil
 }
 
-func (d *TypeDecoder) lookupKnownType(tid TypeId) *vdl.Type {
+func (td *TypeDecoder) deleteWireType(tid TypeId) {
+	td.buildMu.Lock()
+	defer td.buildMu.Unlock()
+	delete(td.idToWire, tid)
+}
+
+func (td *TypeDecoder) lookupKnownType(tid TypeId) *vdl.Type {
 	// Non-bootstrap types are the common case so look them up first.
-	d.typeMu.RLock()
-	tt := d.idToType[tid]
-	d.typeMu.RUnlock()
+	td.typeMu.RLock()
+	tt := td.idToType[tid]
+	td.typeMu.RUnlock()
 	if tt != nil {
 		return tt
 	}
@@ -192,10 +162,10 @@ func (d *TypeDecoder) lookupKnownType(tid TypeId) *vdl.Type {
 }
 
 // buildType builds the type from the given wire type.
-func (d *TypeDecoder) buildType(tid TypeId) error {
+func (td *TypeDecoder) buildType(tid TypeId) error {
 	builder := vdl.TypeBuilder{}
 	pending := make(map[TypeId]vdl.PendingType)
-	_, err := d.makeType(tid, &builder, pending)
+	_, err := td.makeType(tid, &builder, pending)
 	if err != nil {
 		return err
 	}
@@ -209,18 +179,20 @@ func (d *TypeDecoder) buildType(tid TypeId) error {
 		types[tid] = tt
 	}
 	// Add the types to idToType map.
-	d.typeMu.Lock()
+	td.typeMu.Lock()
 	for tid, tt := range types {
-		delete(d.idToWire, tid)
-		d.idToType[tid] = tt
+		td.deleteWireType(tid)
+		td.idToType[tid] = tt
 	}
-	d.typeMu.Unlock()
+	td.typeMu.Unlock()
 	return nil
 }
 
 // makeType makes the pending type from its wire type representation.
-func (d *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) (vdl.PendingType, error) {
-	wt := d.idToWire[tid]
+func (td *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) (vdl.PendingType, error) {
+	td.buildMu.Lock()
+	wt := td.idToWire[tid]
+	td.buildMu.Unlock()
 	if wt == nil {
 		return nil, fmt.Errorf("vom: unknown type id %v", tid)
 	}
@@ -232,7 +204,7 @@ func (d *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map
 		pending[tid] = namedType
 		if wtNamed, ok := wt.(wireTypeNamedT); ok {
 			// This is a wireNamed pointing at a base type.
-			baseType, err := d.lookupOrMakeType(wtNamed.Value.Base, builder, pending)
+			baseType, err := td.lookupOrMakeType(wtNamed.Value.Base, builder, pending)
 			if err != nil {
 				return nil, err
 			}
@@ -240,11 +212,11 @@ func (d *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map
 			return namedType, nil
 		}
 		// This isn't wireNamed, but has a non-empty name.
-		baseType, err := d.startBaseType(wt, builder)
+		baseType, err := td.startBaseType(wt, builder)
 		if err != nil {
 			return nil, err
 		}
-		if err := d.finishBaseType(wt, baseType, builder, pending); err != nil {
+		if err := td.finishBaseType(wt, baseType, builder, pending); err != nil {
 			return nil, err
 		}
 		namedType.AssignBase(baseType)
@@ -252,18 +224,18 @@ func (d *TypeDecoder) makeType(tid TypeId, builder *vdl.TypeBuilder, pending map
 	}
 	// We make unnamed types in two stages, to ensure that we populate pending
 	// before any recursive lookups.
-	unnamedType, err := d.startBaseType(wt, builder)
+	unnamedType, err := td.startBaseType(wt, builder)
 	if err != nil {
 		return nil, err
 	}
 	pending[tid] = unnamedType
-	if err := d.finishBaseType(wt, unnamedType, builder, pending); err != nil {
+	if err := td.finishBaseType(wt, unnamedType, builder, pending); err != nil {
 		return nil, err
 	}
 	return unnamedType, nil
 }
 
-func (d *TypeDecoder) startBaseType(wt wireType, builder *vdl.TypeBuilder) (vdl.PendingType, error) {
+func (td *TypeDecoder) startBaseType(wt wireType, builder *vdl.TypeBuilder) (vdl.PendingType, error) {
 	switch wt := wt.(type) {
 	case wireTypeEnumT:
 		return builder.Enum(), nil
@@ -286,43 +258,43 @@ func (d *TypeDecoder) startBaseType(wt wireType, builder *vdl.TypeBuilder) (vdl.
 	}
 }
 
-func (d *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) error { //nolint:gocyclo
+func (td *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) error { //nolint:gocyclo
 	switch wt := wt.(type) {
 	case wireTypeEnumT:
 		for _, label := range wt.Value.Labels {
 			p.(vdl.PendingEnum).AppendLabel(label)
 		}
 	case wireTypeArrayT:
-		elemType, err := d.lookupOrMakeType(wt.Value.Elem, builder, pending)
+		elemType, err := td.lookupOrMakeType(wt.Value.Elem, builder, pending)
 		if err != nil {
 			return err
 		}
 		p.(vdl.PendingArray).AssignElem(elemType).AssignLen(int(wt.Value.Len))
 	case wireTypeListT:
-		elemType, err := d.lookupOrMakeType(wt.Value.Elem, builder, pending)
+		elemType, err := td.lookupOrMakeType(wt.Value.Elem, builder, pending)
 		if err != nil {
 			return err
 		}
 		p.(vdl.PendingList).AssignElem(elemType)
 	case wireTypeSetT:
-		keyType, err := d.lookupOrMakeType(wt.Value.Key, builder, pending)
+		keyType, err := td.lookupOrMakeType(wt.Value.Key, builder, pending)
 		if err != nil {
 			return err
 		}
 		p.(vdl.PendingSet).AssignKey(keyType)
 	case wireTypeMapT:
-		keyType, err := d.lookupOrMakeType(wt.Value.Key, builder, pending)
+		keyType, err := td.lookupOrMakeType(wt.Value.Key, builder, pending)
 		if err != nil {
 			return err
 		}
-		elemType, err := d.lookupOrMakeType(wt.Value.Elem, builder, pending)
+		elemType, err := td.lookupOrMakeType(wt.Value.Elem, builder, pending)
 		if err != nil {
 			return err
 		}
 		p.(vdl.PendingMap).AssignKey(keyType).AssignElem(elemType)
 	case wireTypeStructT:
 		for _, field := range wt.Value.Fields {
-			fieldType, err := d.lookupOrMakeType(field.Type, builder, pending)
+			fieldType, err := td.lookupOrMakeType(field.Type, builder, pending)
 			if err != nil {
 				return err
 			}
@@ -330,14 +302,14 @@ func (d *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vd
 		}
 	case wireTypeUnionT:
 		for _, field := range wt.Value.Fields {
-			fieldType, err := d.lookupOrMakeType(field.Type, builder, pending)
+			fieldType, err := td.lookupOrMakeType(field.Type, builder, pending)
 			if err != nil {
 				return err
 			}
 			p.(vdl.PendingUnion).AppendField(field.Name, fieldType)
 		}
 	case wireTypeOptionalT:
-		elemType, err := d.lookupOrMakeType(wt.Value.Elem, builder, pending)
+		elemType, err := td.lookupOrMakeType(wt.Value.Elem, builder, pending)
 		if err != nil {
 			return err
 		}
@@ -346,12 +318,12 @@ func (d *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *vd
 	return nil
 }
 
-func (d *TypeDecoder) lookupOrMakeType(tid TypeId, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) (vdl.TypeOrPending, error) {
-	if tt := d.lookupKnownType(tid); tt != nil {
+func (td *TypeDecoder) lookupOrMakeType(tid TypeId, builder *vdl.TypeBuilder, pending map[TypeId]vdl.PendingType) (vdl.TypeOrPending, error) {
+	if tt := td.lookupKnownType(tid); tt != nil {
 		return tt, nil
 	}
 	if p, ok := pending[tid]; ok {
 		return p, nil
 	}
-	return d.makeType(tid, builder, pending)
+	return td.makeType(tid, builder, pending)
 }

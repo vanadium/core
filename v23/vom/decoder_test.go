@@ -225,11 +225,9 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 			rvGot := rvNew()
 			readerT := mode.TestReader(bytes.NewReader(test.TypeBytes()))
 			decT := vom.NewTypeDecoder(readerT)
-			decT.Start()
 			reader := mode.TestReader(bytes.NewReader(test.ValueBytes()))
 			dec := vom.NewDecoderWithTypeDecoder(reader, decT)
 			err := dec.Decode(rvGot.Interface())
-			decT.Stop()
 			// TODO(cnicolaou): this test is racy, since decT.Stop() will
 			// not cause the internal goroutine used by the type decoder
 			// decT to actually finish, in fact, it's still blocked
@@ -271,8 +269,13 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 }
 
 // TestRoundtrip* tests test encoding and then decoding results in various modes.
-func TestRoundtrip(t *testing.T)                   { testRoundtrip(t, false, 1) }
-func TestRoundtripWithTypeDecoder_1(t *testing.T)  { testRoundtrip(t, true, 1) }
+func TestRoundtrip(t *testing.T) { testRoundtrip(t, false, 1) }
+
+func TestRoundtrip_5(t *testing.T) { testRoundtrip(t, false, 5) }
+
+func TestRoundtripWithTypeDecoder_1(t *testing.T) { testRoundtrip(t, true, 1) }
+func TestRoundtripWithTypeDecoder_2(t *testing.T) { testRoundtrip(t, true, 5) }
+
 func TestRoundtripWithTypeDecoder_5(t *testing.T)  { testRoundtrip(t, true, 5) }
 func TestRoundtripWithTypeDecoder_10(t *testing.T) { testRoundtrip(t, true, 10) }
 func TestRoundtripWithTypeDecoder_20(t *testing.T) { testRoundtrip(t, true, 20) }
@@ -345,8 +348,6 @@ func testRoundtrip(t *testing.T, withTypeEncoderDecoder bool, concurrency int) {
 		r, w := newPipe()
 		typeenc = vom.NewTypeEncoder(w)
 		typedec = vom.NewTypeDecoder(r)
-		typedec.Start()
-		defer typedec.Stop()
 	}
 
 	var wg sync.WaitGroup
@@ -390,75 +391,6 @@ func testRoundtrip(t *testing.T, withTypeEncoderDecoder bool, concurrency int) {
 	wg.Wait()
 }
 
-// waitingReader is a reader wrapper that waits until it is signalled before
-// beginning to read.
-type waitingReader struct {
-	lock      sync.Mutex
-	cond      *sync.Cond
-	activated bool
-	r         io.Reader
-}
-
-func newWaitingReader(r io.Reader) *waitingReader {
-	wr := &waitingReader{
-		r: r,
-	}
-	wr.cond = sync.NewCond(&wr.lock)
-	return wr
-}
-
-func (wr *waitingReader) Read(p []byte) (int, error) {
-	wr.lock.Lock()
-	for !wr.activated {
-		wr.cond.Wait()
-	}
-	wr.lock.Unlock()
-	return wr.r.Read(p)
-}
-
-func (wr *waitingReader) Activate() {
-	wr.lock.Lock()
-	wr.activated = true
-	wr.cond.Broadcast()
-	wr.lock.Unlock()
-}
-
-type extractErrReader struct {
-	lock sync.Mutex
-	cond *sync.Cond
-	err  error
-	r    io.Reader
-}
-
-func newExtractErrReader(r io.Reader) *extractErrReader {
-	er := &extractErrReader{
-		r: r,
-	}
-	er.cond = sync.NewCond(&er.lock)
-	return er
-}
-
-func (er *extractErrReader) Read(p []byte) (int, error) {
-	n, err := er.r.Read(p)
-	if err != nil {
-		er.lock.Lock()
-		er.err = err
-		er.cond.Broadcast()
-		er.lock.Unlock()
-	}
-	return n, err
-}
-
-func (er *extractErrReader) WaitForError() error {
-	er.lock.Lock()
-	for er.err == nil {
-		er.cond.Wait()
-	}
-	err := er.err
-	er.lock.Unlock()
-	return err
-}
-
 func hex2Bin(t *testing.T, hex string) []byte {
 	var bin string
 	if _, err := fmt.Sscanf(hex, "%x", &bin); err != nil {
@@ -467,39 +399,58 @@ func hex2Bin(t *testing.T, hex string) []byte {
 	return []byte(bin)
 }
 
-// Test that no EOF is returned from Decode() if the type stream finished before the value stream.
+// Test that no EOF is returned from Decode() if the type stream finished before the
+// value stream. This can only happen if the value stream contains a type that
+// does not exist in the type stream, in which case a specific error is returned.
 func TestTypeStreamEndsFirst(t *testing.T) {
 	hexversion := "81"
 	hextype := "5133060025762e696f2f7632332f766f6d2f74657374646174612f74797065732e537472756374416e7901010003416e79010fe1e1533b060023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e53747275637401030001410101e10001420103e10001430109e1e1"
 	hexvalue := "52012a0103070000000001e1e1"
+	// Add a second value with a different type id that is not encoded in
+	// the type stream.
+	hexvalue += "62012a0103070000000001e1e1"
 	binversion := string(hex2Bin(t, hexversion))
 	bintype := string(hex2Bin(t, hextype))
 	binvalue := string(hex2Bin(t, hexvalue))
-	// Ensure EOF isn't returned if the type decode stream ends first
-	tr := newExtractErrReader(strings.NewReader(binversion + bintype))
+	tr := strings.NewReader(binversion + bintype)
 	typedec := vom.NewTypeDecoder(tr)
-	typedec.Start()
-	wr := newWaitingReader(strings.NewReader(binversion + binvalue))
+	wr := strings.NewReader(binversion + binvalue)
 	decoder := vom.NewDecoderWithTypeDecoder(wr, typedec)
 	var v interface{}
-	errCh := make(chan error, 1)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if tr.WaitForError() == nil {
-			errCh <- fmt.Errorf("expected EOF after reaching end of type stream, but didn't occur")
-			return
-		}
-		wr.Activate()
-		errCh <- nil
-	}()
 	if err := decoder.Decode(&v); err != nil {
 		t.Errorf("expected no error in decode, but got: %v", err)
 	}
-	wg.Wait()
-	if err := <-errCh; err != nil {
-		t.Fatal(err)
+	err := decoder.Decode(&v)
+	if err == nil || !strings.Contains(err.Error(), "vom: failed to find type") {
+		t.Errorf("expected a specific error, not %v", err)
+	}
+}
+
+func TestTypeStreamTruncationAndErrors(t *testing.T) {
+	hexversion := "81"
+	hextype := "5133060025762e696f2f7632332f766f6d2f74657374646174612f74797065732e537472756374416e7901010003416e79010fe1e1533b060023762e696f2f7632332f766f6d2f74657374646174612f74797065732e4e53747275637401030001410101e10001420103e10001430109e1e1"
+	hexvalue := "52012a0103070000000001e1e1"
+	binversion := string(hex2Bin(t, hexversion))
+	binvalue := string(hex2Bin(t, hexvalue))
+
+	for _, typeStream := range []string{
+		hextype[:2],
+		hextype[:4],
+		hextype[:32],
+		"00",
+		"04",
+		"7285",
+		"5177",
+	} {
+		bintype := string(hex2Bin(t, typeStream))
+		tr := strings.NewReader(binversion + bintype)
+		typedec := vom.NewTypeDecoder(tr)
+		wr := strings.NewReader(binversion + binvalue)
+		decoder := vom.NewDecoderWithTypeDecoder(wr, typedec)
+		var v interface{}
+		if err := decoder.Decode(&v); err == nil {
+			t.Errorf("expected an error")
+		}
 	}
 }
 
@@ -519,7 +470,6 @@ func TestReceiveTypeStreamError(t *testing.T) {
 	binvalue := string(hex2Bin(t, hexvalue))
 	// Ensure EOF isn't returned if the type decode stream ends first
 	typedec := vom.NewTypeDecoder(&errorReader{})
-	typedec.Start()
 	decoder := vom.NewDecoderWithTypeDecoder(strings.NewReader(binversion+binvalue), typedec)
 	var v interface{}
 	if err := decoder.Decode(&v); err == nil {
