@@ -115,13 +115,17 @@ func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) erro
 	if err := readNonReflect(dec, calledStart, rv.Addr().Interface()); err != errReadMustReflect {
 		return err
 	}
+
+	rt := rv.Type()
+	pri := perfReflectCache.perfReflectInfo(rt)
+
 	// Handle native types, which need the ToNative conversion.  Notice that rv is
 	// never a pointer here, so we don't support native pointer types.  In theory
 	// we could support native pointer types, but they're complicated and will
 	// probably slow everything down.
 	//
 	// TODO(toddw): Investigate support for native pointer types.
-	if ni := nativeInfoFromNative(rv.Type()); ni != nil {
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
 		rvWire := reflect.New(ni.WireType).Elem()
 		if err := readReflect(dec, calledStart, rvWire, tt); err != nil {
 			return err
@@ -161,13 +165,13 @@ func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) erro
 	case Map:
 		err = readMap(dec, rv, tt)
 	case Struct:
-		err = readStruct(dec, rv, tt)
+		err = readStruct(dec, rv, tt, pri)
 	case Union:
 		err = readUnion(dec, rv, tt)
 	default:
 		// Note that both Any and Optional were handled in readIntAny, and
 		// TypeObject was handled via the readNonReflect special-case.
-		return fmt.Errorf("vdl: Read unhandled type %v %v", rv.Type(), tt)
+		return fmt.Errorf("vdl: Read unhandled type %v %v", rt, tt)
 	}
 	if err != nil {
 		return err
@@ -682,7 +686,7 @@ func readMap(dec Decoder, rv reflect.Value, tt *Type) error {
 	}
 }
 
-func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
+func readStruct(dec Decoder, rv reflect.Value, tt *Type, pri perfReflectInfo) error {
 	rt, decType := rv.Type(), dec.Type()
 	// Reset to the zero struct, since fields may be missing.
 	//
@@ -692,6 +696,7 @@ func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
 		return err
 	}
 	rv.Set(rvZero)
+	idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 	for {
 		index, err := dec.NextField()
 		switch {
@@ -712,7 +717,11 @@ func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
 				continue
 			}
 		}
-		rvField := rv.Field(rtFieldIndexByName(rt, ttField.Name))
+		idx, ok := idxMap[ttField.Name]
+		if !ok {
+			return fmt.Errorf("vdl: readStruct unrecognised VDL field %v in %v", ttField.Name, rt)
+		}
+		rvField := rv.Field(idx)
 		if ttReadIntoScalar(ttField.Type) {
 			if err := readValueScalar(dec, rvField, ttField.Type); err != nil {
 				return err

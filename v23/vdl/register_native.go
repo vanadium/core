@@ -87,14 +87,16 @@ type nativeAnyTypeInfo struct {
 }
 
 func (ni *nativeInfo) ToNative(wire, native reflect.Value) error {
-	if ierr := ni.toNativeFunc.Call([]reflect.Value{wire, native})[0].Interface(); ierr != nil {
+	callArray := [2]reflect.Value{wire, native}
+	if ierr := ni.toNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)
 	}
 	return nil
 }
 
 func (ni *nativeInfo) FromNative(wire, native reflect.Value) error {
-	if ierr := ni.fromNativeFunc.Call([]reflect.Value{wire, native})[0].Interface(); ierr != nil {
+	callArray := [2]reflect.Value{wire, native}
+	if ierr := ni.fromNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)
 	}
 	return nil
@@ -218,6 +220,7 @@ func deriveNativeInfo(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:
 	if rtWire == rtNative {
 		return nil, fmt.Errorf("wire type == native type: %v", rtWire)
 	}
+
 	// Attach a stacktrace to the info, up to 1KB.
 	stack := make([]byte, 1024)
 	stack = stack[:runtime.Stack(stack, false)]
