@@ -38,6 +38,24 @@ var zeroTypeObject = AnyType // the zero TypeObject returns the any type
 // enumIndex represents an enum value by the index of its label.
 type enumIndex int
 
+var zeroRepKindMap = map[Kind]interface{}{
+	Bool:     false,
+	Byte:     uint64(0),
+	Uint16:   uint64(0),
+	Uint32:   uint64(0),
+	Uint64:   uint64(0),
+	Int8:     int64(0),
+	Int16:    int64(0),
+	Int32:    int64(0),
+	Int64:    int64(0),
+	Float32:  float64(0),
+	Float64:  float64(0),
+	String:   "",
+	Enum:     enumIndex(0),
+	Any:      (*Value)(nil), // nil represents nonexistence
+	Optional: (*Value)(nil), // nil represents nonexistence
+}
+
 // zeroRep returns the zero representation for each kind of type.
 func zeroRep(t *Type) interface{} { //nolint:gocyclo
 	if t.IsBytes() {
@@ -45,33 +63,22 @@ func zeroRep(t *Type) interface{} { //nolint:gocyclo
 		// Represent repBytes.Index as *byte.
 		return zeroRepBytes(t.len)
 	}
+	if v, ok := zeroRepKindMap[t.kind]; ok {
+		return v
+	}
 	switch t.kind {
-	case Bool:
-		return false
-	case Byte, Uint16, Uint32, Uint64:
-		return uint64(0)
-	case Int8, Int16, Int32, Int64:
-		return int64(0)
-	case Float32, Float64:
-		return float64(0)
-	case String:
-		return ""
-	case Enum:
-		return enumIndex(0)
-	case TypeObject:
-		return zeroTypeObject
 	case Array:
 		return zeroRepSequence(t.len)
-	case List:
-		return zeroRepSequence(0)
 	case Set, Map:
 		return zeroRepMap(t.key)
 	case Struct:
 		return zeroRepSequence(len(t.fields))
 	case Union:
 		return &repUnion{0, ZeroValue(t.fields[0].Type)}
-	case Any, Optional:
-		return (*Value)(nil) // nil represents nonexistence
+	case TypeObject:
+		return zeroTypeObject
+	case List:
+		return zeroRepSequence(0)
 	default:
 		panic(fmt.Errorf("vdl: unhandled kind: %v", t.kind))
 	}

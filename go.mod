@@ -23,7 +23,6 @@ require (
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.9.0
-	google.golang.org/appengine v1.5.0
 	v.io/x/lib v0.1.7
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
