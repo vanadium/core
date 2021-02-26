@@ -91,8 +91,7 @@ func TestVerror(t *testing.T) {
 
 type (
 	nativeTestType struct {
-		called bool
-		A      int
+		A int
 	}
 	nativeTestTypePtr struct {
 		called bool
