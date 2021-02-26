@@ -27,11 +27,11 @@ func equalNativeInfo(a, b nativeInfo) bool {
 func TestRegisterNative(t *testing.T) {
 	tests := []nativeInfo{
 		{
-			reflect.TypeOf(wireA{}),
-			reflect.TypeOf(nativeA{}),
-			reflect.ValueOf(func(wireA, *nativeA) error { return nil }),
-			reflect.ValueOf(func(*wireA, nativeA) error { return nil }),
-			nil,
+			WireType:       reflect.TypeOf(wireA{}),
+			NativeType:     reflect.TypeOf(nativeA{}),
+			toNativeFunc:   reflect.ValueOf(func(wireA, *nativeA) error { return nil }),
+			fromNativeFunc: reflect.ValueOf(func(*wireA, nativeA) error { return nil }),
+			stack:          nil,
 		},
 		// TODO(toddw): Add tests where the wire type is a VDL union.
 
@@ -53,18 +53,18 @@ func TestRegisterNative(t *testing.T) {
 func TestDeriveNativeInfo(t *testing.T) {
 	tests := []nativeInfo{
 		{
-			reflect.TypeOf(wireA{}),
-			reflect.TypeOf(nativeA{}),
-			reflect.ValueOf(func(wireA, *nativeA) error { return nil }),
-			reflect.ValueOf(func(*wireA, nativeA) error { return nil }),
-			nil,
+			WireType:       reflect.TypeOf(wireA{}),
+			NativeType:     reflect.TypeOf(nativeA{}),
+			toNativeFunc:   reflect.ValueOf(func(wireA, *nativeA) error { return nil }),
+			fromNativeFunc: reflect.ValueOf(func(*wireA, nativeA) error { return nil }),
+			stack:          nil,
 		},
 		{
-			reflect.TypeOf(WireError{}),
-			reflect.TypeOf((*error)(nil)).Elem(),
-			reflect.ValueOf(func(WireError, *error) error { return nil }),
-			reflect.ValueOf(func(*WireError, error) error { return nil }),
-			nil,
+			WireType:       reflect.TypeOf(WireError{}),
+			NativeType:     reflect.TypeOf((*error)(nil)).Elem(),
+			toNativeFunc:   reflect.ValueOf(func(WireError, *error) error { return nil }),
+			fromNativeFunc: reflect.ValueOf(func(*WireError, error) error { return nil }),
+			stack:          nil,
 		},
 	}
 	for _, test := range tests {
