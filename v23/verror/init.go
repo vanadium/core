@@ -11,6 +11,19 @@ import (
 func init() {
 	vdl.RegisterNative(WireToNative, WireFromNative)
 	vdl.RegisterNativeAnyType(vdl.WireError{}, (*E)(nil))
+	vdl.RegisterNativeConverter(&vdl.WireError{}, VDLNativeConverter{})
+}
+
+type VDLNativeConverter struct{}
+
+// ToNative implements vdl.NativeConverter.
+func (VDLNativeConverter) ToNative(wire, native interface{}) error {
+	return WireToNative(wire.(*vdl.WireError), native.(*error))
+}
+
+// FromNative implements vdl.NativeConverter.
+func (VDLNativeConverter) FromNative(wire, native interface{}) error {
+	return WireFromNative(wire.(**vdl.WireError), native.(error))
 }
 
 // WireToNative converts from the wire to native representation of errors.

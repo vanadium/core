@@ -42,6 +42,44 @@ func RegisterNative(toFn, fromFn interface{}) {
 	}
 }
 
+// RegisterNativeIsZero registers the supplied native type as implementing
+// vdl.NativeIsZero with the expected semantics. This is purely a performance
+// optimization.
+func RegisterNativeIsZero(native interface{}) {
+	rt := reflect.TypeOf(native)
+	if !perfReflectCache.implementsBuiltinInterface(perfReflectInfo{}, rt, rtNativeIsZeroBitMask) {
+		panic(fmt.Errorf("vdl: RegisterNativeIsZero: %T type does not implement: %v", native, rtNativeIsZero))
+	}
+}
+
+// RegisterNativeConverter registers a 'converter' that implements
+// vdl.NativeConverer for converting to/from native types. This is a performance
+// optimization since invoking the methods via the interface is much faster
+// than doing so via reflect.Call. Typical usage is as follows. Note
+// that the traditional native conversion functions and registrations are
+// required to ensure valid conversions and this is purely a performance
+// optimisation.
+//
+//    vdl.RegisterNativeConverter(Time{}, nativeConverter{})
+//
+//    type nativeConverter struct{}
+//
+//    func (f nativeConverter) ToNative(wire, native interface{}) error {
+//	    return TimeToNative(wire.(Time), native.(*time.Time))
+//    }
+//
+//    func (f nativeConverter) FromNative(wire, native interface{}) error {
+//      return TimeFromNative(wire.(*Time), native.(time.Time))
+//    }
+//
+func RegisterNativeConverter(wireType interface{}, converter NativeConverter) {
+	ni := nativeInfoFromWire(reflect.TypeOf(wireType))
+	if ni == nil {
+		panic(fmt.Errorf("vdl: RegisterNativeConverter: wire type %T is not registered", wireType))
+	}
+	ni.converter = converter
+}
+
 // RegisterNativeAnyType registers the native type to use for when
 // decoding into an any type from a registered wire type. This is required
 // when the native type associated with the specified wire type is an interface
@@ -76,6 +114,7 @@ type nativeInfo struct {
 	NativeType     reflect.Type  // Native type from the conversion funcs.
 	toNativeFunc   reflect.Value // ToNative conversion func.
 	fromNativeFunc reflect.Value // FromNative conversion func.
+	converter      NativeConverter
 	stack          []byte
 }
 
@@ -87,6 +126,9 @@ type nativeAnyTypeInfo struct {
 }
 
 func (ni *nativeInfo) ToNative(wire, native reflect.Value) error {
+	if ni.converter != nil {
+		return ni.converter.ToNative(wire.Interface(), native.Interface())
+	}
 	callArray := [2]reflect.Value{wire, native}
 	if ierr := ni.toNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)
@@ -95,6 +137,9 @@ func (ni *nativeInfo) ToNative(wire, native reflect.Value) error {
 }
 
 func (ni *nativeInfo) FromNative(wire, native reflect.Value) error {
+	if ni.converter != nil {
+		return ni.converter.FromNative(wire.Interface(), native.Interface())
+	}
 	callArray := [2]reflect.Value{wire, native}
 	if ierr := ni.fromNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)

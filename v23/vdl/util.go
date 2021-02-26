@@ -100,6 +100,26 @@ type indexer interface {
 	Index() int
 }
 
+// NativeIsZero is an interface that native types can implement to test
+// for a zero value. For example the zero value for time.Time is not time.Time{}
+// since it may vary by time zone and it provides an IsZero method. Since
+// such methods will not have been created with VDL in mind the use of this
+// interface must be specifically enabled via the RegisterNativeIsZero
+// function. If other conventions evolve to use a different signature to this
+// then such interfaces may be easily added.
+// This is an important optimization since in its absence the VDL implementation
+// will, for the case where a native <-> wire conversion is registered, achieve
+// the same effect by creating a wire representation of the native time and
+// testing it for being zero (using reflect.Call).
+type NativeIsZero interface {
+	IsZero() bool
+}
+
+type NativeConverter interface {
+	ToNative(wire, native interface{}) error
+	FromNative(wire, native interface{}) error
+}
+
 // rvFlattenPointers repeatedly dereferences pointers, creating new values if
 // the pointer is nil, and returns the final non-pointer reflect value.  As a
 // special-case, *Type is returned as a pointer.
@@ -316,6 +336,7 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	}
 	rt := rv.Type()
 	pri := perfReflectCache.perfReflectInfo(rt)
+
 	if len(rt.PkgPath()) > 0 {
 		// Only non-built in types (other than error) can implement the
 		// interfaces we care about.
@@ -326,6 +347,11 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtIsZeroerBitMask) {
 			return rv.Interface().(IsZeroer).VDLIsZero(), nil
 		}
+
+		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtNativeIsZeroBitMask) {
+			return rv.Interface().(NativeIsZero).IsZero(), nil
+		}
+
 		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtIsZeroerPtrToBitMask) {
 			if rv.CanAddr() {
 				return rv.Addr().Interface().(IsZeroer).VDLIsZero(), nil
@@ -338,6 +364,16 @@ func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 			rvPtr.Elem().Set(rv)
 			return rvPtr.Interface().(IsZeroer).VDLIsZero(), nil
 		}
+
+		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtNativeIsZeroPtrToBitMask) {
+			if rv.CanAddr() {
+				return rv.Addr().Interface().(NativeIsZero).IsZero(), nil
+			}
+			rvPtr := reflect.New(rt)
+			rvPtr.Elem().Set(rv)
+			return rvPtr.Interface().(NativeIsZero).IsZero(), nil
+		}
+
 	}
 
 	// Handle native types, by converting and checking the wire value for zero.

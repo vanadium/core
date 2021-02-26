@@ -18,7 +18,7 @@ var (
 	errInvalidPipeState      = errors.New("vdl: invalid pipe state")
 )
 
-func convertPipe(dst, src interface{}) error {
+func convertPipe(dst, src interface{}) error { //nolint:deadcode
 	enc, dec := newPipe()
 	go func() {
 		enc.Close(Write(enc, src))
@@ -26,7 +26,7 @@ func convertPipe(dst, src interface{}) error {
 	return dec.Close(Read(dec, dst))
 }
 
-func convertPipeReflect(dst, src reflect.Value) error {
+func convertPipeReflect(dst, src reflect.Value) error { //nolint:deadcode
 	enc, dec := newPipe()
 	go func() {
 		enc.Close(WriteReflect(enc, src))
