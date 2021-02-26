@@ -97,9 +97,9 @@ func registerRecursive(rt reflect.Type) error {
 	return nil
 }
 
-// riRegistry holds the reflectInfo registry.  Unlike rtRegistry (used for the
-// rtCache), this information cannot be regenerated at will.  We expect a
-// limited number of types to be used within a single address space.
+// riRegistry holds the reflectInfo registry. Unlike the performance related
+// caches this information cannot be regenerated at will. We expect a limited
+// number of types to be used within a single address space.
 type riRegistry struct {
 	sync.RWMutex
 	fromName map[string]*reflectInfo
@@ -256,7 +256,6 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) { //nolint:g
 
 	riReg.Lock()
 	defer riReg.Unlock()
-
 	if ri, ok := riReg.fromType[rt]; ok {
 		return ri, false, nil
 	}

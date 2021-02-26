@@ -455,22 +455,21 @@ func binaryEncodeString(buf *encbuf, s string) {
 	buf.WriteString(s)
 }
 
-func binaryDecodeString(buf *decbuf) (string, error) {
+func binaryDecodeString(buf *decbuf) (s string, err error) {
 	len, err := binaryDecodeLen(buf)
 	if len == 0 || err != nil {
-		return "", err
+		return
 	}
 	data := make([]byte, len)
-	if err := buf.ReadIntoBuf(data); err != nil {
-		return "", err
+	if err = buf.ReadIntoBuf(data); err != nil {
+		return
 	}
 	// Go makes an extra copy if we simply perform the conversion string(data), so
 	// we use unsafe to transfer the contents from data into s without a copy.
-	s := ""
 	p := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	p.Data = uintptr(unsafe.Pointer(&data[0]))
 	p.Len = len
-	return s, nil
+	return
 }
 
 func binarySkipString(buf *decbuf) error {

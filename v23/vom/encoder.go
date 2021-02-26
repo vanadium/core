@@ -456,14 +456,14 @@ func (e *encoder81) NextField(index int) error {
 	if top == nil {
 		return errEmptyEncoderStack
 	}
-	if index < -1 || index >= top.Type.NumField() {
-		return fmt.Errorf("vom: NextField called with invalid index %d", index)
-	}
 	if index == -1 {
 		if top.Type.Kind() == vdl.Struct {
 			binaryEncodeControl(e.buf, WireCtrlEnd)
 		}
 		return nil
+	}
+	if index < -1 || index >= top.Type.NumField() {
+		return fmt.Errorf("vom: NextField called with invalid index %d", index)
 	}
 	binaryEncodeUint(e.buf, uint64(index))
 	top.Index = index
