@@ -231,6 +231,7 @@ func TypeFromReflect(rt reflect.Type) (*Type, error) {
 func typeFromReflectLocked(rt reflect.Type, builder *TypeBuilder, pending map[reflect.Type]TypeOrPending) (TypeOrPending, error) {
 	rtOrig := rt
 	rt = normalizeType(rt)
+
 	if t := basicType(rt); t != nil {
 		pending[rtOrig] = t
 		return t, nil
