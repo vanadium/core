@@ -24,8 +24,6 @@ func TestConvert(t *testing.T) {
 	rType, wType := newPipe()
 	encT := vom.NewTypeEncoder(wType)
 	decT := vom.NewTypeDecoder(rType)
-	decT.Start()
-	defer decT.Stop()
 	var pending sync.WaitGroup
 	// Go race has a limit of 8192 goroutines, so instead of running each test in
 	// its own goroutine, we batch up multiple tests into the same goroutine.
