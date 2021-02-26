@@ -29,10 +29,13 @@ type implementsBitMasks uint16
 const (
 	rtIsZeroerBitMask implementsBitMasks = 1 << iota
 	rtVDLWriterBitMask
+	rtNativeIsZeroBitMask
 	rtErrorBitMask
+	rtNativeConverterBitMask
 
 	rtIsZeroerPtrToBitMask implementsBitMasks = 8 << iota
 	rtVDLWriterPtrToBitMask
+	rtNativeIsZeroPtrToBitMask
 )
 
 // getPerReflectInfo returns the currently cached info, however, that may be
@@ -121,8 +124,12 @@ func (prc *perfReflectCacheT) cacheImplementsBuiltinInterface(rt reflect.Type, m
 	switch mask {
 	case rtIsZeroerBitMask, rtIsZeroerPtrToBitMask:
 		target = rtIsZeroer
+	case rtNativeIsZeroBitMask, rtNativeIsZeroPtrToBitMask:
+		target = rtNativeIsZero
 	case rtVDLWriterBitMask, rtVDLWriterPtrToBitMask:
 		target = rtVDLWriter
+	case rtNativeConverterBitMask:
+		target = rtNativeConverter
 	case rtErrorBitMask:
 		target = rtError
 	default:
@@ -135,9 +142,9 @@ func (prc *perfReflectCacheT) cacheImplementsBuiltinInterface(rt reflect.Type, m
 		result = rt.Implements(target)
 	}
 	if result {
-		pri.implementsIfc = (pri.implementsIfc & ^mask) | mask
+		pri.implementsIfc |= mask
 	}
-	pri.implementsIsSet = (pri.implementsIsSet & ^mask) | mask
+	pri.implementsIsSet |= mask
 	pri.keyType = rt
 	prc.rtmap[rt] = pri
 	return result

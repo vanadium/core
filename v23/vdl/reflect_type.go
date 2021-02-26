@@ -439,6 +439,8 @@ var (
 	rtIsZeroer           = reflect.TypeOf((*IsZeroer)(nil)).Elem()
 	rtVDLWriter          = reflect.TypeOf((*Writer)(nil)).Elem()
 	rtUnnamedEmptyStruct = reflect.TypeOf(struct{}{})
+	rtNativeIsZero       = reflect.TypeOf((*NativeIsZero)(nil)).Elem()
+	rtNativeConverter    = reflect.TypeOf((*NativeConverter)(nil)).Elem()
 
 	typeFromRTKind = [...]*Type{
 		reflect.Bool:    BoolType,
