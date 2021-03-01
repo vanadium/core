@@ -90,12 +90,13 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		return nil, fmt.Errorf("no PEM key block read")
 	}
 	var data []byte
-	if x509.IsEncryptedPEMBlock(pemBlock) {
+	// TODO(cnicolaou): migrate away from PEM keys.
+	if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
 		// Assume empty passphrase is disallowed.
 		if len(passphrase) == 0 {
 			return nil, ErrPassphraseRequired
 		}
-		data, err = x509.DecryptPEMBlock(pemBlock, passphrase)
+		data, err = x509.DecryptPEMBlock(pemBlock, passphrase) //nolint:staticcheck
 		if err != nil {
 			return nil, ErrBadPassphrase
 		}
@@ -221,7 +222,8 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 
 	var pemKey *pem.Block
 	if passphrase != nil {
-		pemKey, err = x509.EncryptPEMBlock(rand.Reader, pemType, privateData, passphrase, x509.PEMCipherAES256)
+		// TODO(cnicolaou): migrate away from pem keys.
+		pemKey, err = x509.EncryptPEMBlock(rand.Reader, pemType, privateData, passphrase, x509.PEMCipherAES256) //nolint:staticcheck
 		if err != nil {
 			return fmt.Errorf("failed to encrypt pem block: %v", err)
 		}

@@ -3,19 +3,23 @@
 // license that can be found in the LICENSE file.
 
 // To build the proto file:
-// sudo apt-get install protobuf-compiler
-// GOPATH=$JIRI_ROOT/release/go go get github.com/golang/protobuf/proto
-// GOPATH=$JIRI_ROOT/release/go go get github.com/golang/protobuf/protoc-gen-go
-// GOPATH=$JIRI_ROOT/release/go go install github.com/golang/protobuf/protoc-gen-go
-// PATH=$PATH:$JIRI_ROOT/release/go/bin protoc --go_out=. rpc.proto
-// manually add copyright notice
+// - install the compiler as per:
+//   https://developers.google.com/protocol-buffers/docs/downloads
+//   or:
+//   brew install protobuf
+//   apt-get install protobuf
+// - install the go plugin, make sure it's on your PATH:
+//   go install google.golang.org/protobuf/cmd/protoc-gen-go
+// - run the compiler:
+//   protoc --go_out=. rpc.proto
+// - manually add copyright notice.
 
 package benchmark
 
 import (
 	"testing"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 var echoStr = "Echo"
@@ -72,7 +76,8 @@ func BenchmarkProtoDecodeRequest(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		response := RpcResponse{}
-		if err := proto.Unmarshal(bytes, &response); err != nil {
+		opts := proto.UnmarshalOptions{AllowPartial: true}
+		if err := opts.Unmarshal(bytes, &response); err != nil {
 			b.Fatal(err)
 		}
 	}
