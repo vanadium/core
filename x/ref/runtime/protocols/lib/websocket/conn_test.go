@@ -57,7 +57,7 @@ func TestMultipleGoRoutines(t *testing.T) {
 				http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 				return
 			}
-			ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
+			ws, err := websocket.Upgrade(w, r, nil, 1024, 1024) //nolint:staticcheck
 			if _, ok := err.(websocket.HandshakeError); ok {
 				http.Error(w, "Not a websocket handshake", 400)
 				return

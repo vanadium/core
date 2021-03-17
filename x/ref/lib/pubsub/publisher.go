@@ -106,7 +106,7 @@ func (p *Publisher) Latest(name string) *Stream {
 	if f == nil {
 		return nil
 	}
-	var r map[string]Setting
+	r := map[string]Setting{}
 	f.RLock()
 	defer f.RUnlock()
 	for k, v := range f.vals {
