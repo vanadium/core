@@ -161,7 +161,6 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	cmd.Env = []string{
 		"GOPATH=" + gopath,
 		"PATH=" + os.Getenv("PATH"),
-		"JIRI_ROOT=" + os.Getenv("JIRI_ROOT"),
 	}
 	stderr, err = cmd.StderrPipe()
 	panicOnError(err)

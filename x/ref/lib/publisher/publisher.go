@@ -345,7 +345,7 @@ func (p *T) mount(params mountParams) rpc.PublisherEntry {
 	} else {
 		entry.LastState = rpc.PublisherMounted
 		if last.LastMount.IsZero() || last.LastMountErr != nil || p.ctx.V(2) {
-			p.ctx.Infof("rpc pub: mount(%v, %v, %v)", entry.Name, entry.Server, ttl)
+			p.ctx.VI(1).Infof("rpc pub: mount(%v, %v, %v)", entry.Name, entry.Server, ttl)
 		}
 	}
 	return entry
