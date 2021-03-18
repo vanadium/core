@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	al, err := netstate.GetAll()
+	al, err := netstate.GetAccessibleIPs()
 	if err != nil {
 		fmt.Printf("error getting networking state: %s", err)
 		return

@@ -104,16 +104,16 @@ func (pm *proxyManager) idle(ctx *context.T) []naming.Endpoint {
 	}
 	switch pm.policy {
 	case rpc.UseFirstProxy:
-		ctx.Infof("idle proxies: first proxy %v/%v", idle[:1], nidle)
+		ctx.VI(1).Infof("idle proxies: first proxy %v/%v", idle[:1], nidle)
 		return idle[:1]
 	case rpc.UseRandomProxy:
 		chosen := pm.rand.Intn(nidle)
-		ctx.Infof("idle proxies: random proxy %v/%v", chosen, nidle)
+		ctx.VI(1).Infof("idle proxies: random proxy %v/%v", chosen, nidle)
 		return []naming.Endpoint{idle[chosen]}
 	}
 	needed := pm.limit - len(pm.active)
 	if pm.limit == 0 || needed > nidle {
-		ctx.Infof("idle proxies: all idle proxies %v", nidle)
+		ctx.VI(1).Infof("idle proxies: all idle proxies %v", nidle)
 		return idle
 	}
 	// randomize the selection of the subset of proxies.
@@ -123,7 +123,7 @@ func (pm *proxyManager) idle(ctx *context.T) []naming.Endpoint {
 		selected[i] = idle[idx]
 		i++
 	}
-	ctx.Infof("idle proxies: %v of %v idle proxies: %v", needed, nidle, selected)
+	ctx.VI(1).Infof("idle proxies: %v of %v idle proxies: %v", needed, nidle, selected)
 	return selected
 }
 
@@ -181,7 +181,7 @@ func (pm *proxyManager) markInActive(ep naming.Endpoint) {
 func (pm *proxyManager) connectToSingleProxy(ctx *context.T, name string, ep naming.Endpoint) {
 	for delay := pm.reconnectDelay; ; delay = nextDelay(delay) {
 		if !pm.isAvailable(ep) {
-			ctx.Infof("connectToSingleProxy(%q): proxy is no longer available\n", ep)
+			ctx.VI(1).Infof("connectToSingleProxy(%q): proxy is no longer available\n", ep)
 			return
 		}
 		select {
