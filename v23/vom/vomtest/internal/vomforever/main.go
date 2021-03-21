@@ -30,7 +30,7 @@ const (
 )
 
 var (
-	verboseFlag = flag.Bool("v", false, "verbose output")
+	verboseFlag = flag.Bool("vv", false, "verbose output")
 	modeFlag    = flag.String("mode", "generated", "test mode")
 )
 
@@ -90,7 +90,6 @@ func main() {
 			fmt.Printf("testing %v\n", vv)
 		}
 		run(vv, mode)
-
 	}
 }
 
@@ -129,21 +128,18 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	panicOnError(err)
 
 	// Write the type and value vdl files and the go test file.
-	gopath := path.Join(dir, "go")
-	pkgpath := path.Join("v.io", "v23", "vom", "vomtest", "vomforever", "tmp")
-	pkgdir := path.Join(gopath, "src", pkgpath)
-	panicOnError(os.MkdirAll(pkgdir, os.ModePerm))
+	//gopath := path.Join(dir, "go")
+	pkgpath := path.Join("v.io", "v23", "vom", "vomtest", "internal", "vomforever", "testdata", "tmp")
+	pkgdir := path.Join("testdata", "tmp")
+	//panicOnError(os.MkdirAll(pkgdir, os.ModePerm))
 	writeTypeFile(path.Join(pkgdir, "types.vdl"), types, vv)
 	writeValueFile(path.Join(pkgdir, "value.vdl"), vv)
 	writeTestFile(path.Join(pkgdir, "tmp_test.go"), vv)
 
 	// Run vdl generate.
 	vdlFlags = append(vdlFlags, pkgpath)
-	vdlFlags = append([]string{"generate"}, vdlFlags...)
-	cmd := exec.Command("vdl", vdlFlags...)
-	cmd.Env = []string{
-		"VDLPATH=" + path.Join(gopath, "src"),
-	}
+	vdlFlags = append([]string{"run", "v.io/x/ref/cmd/vdl", "generate"}, vdlFlags...)
+	cmd := exec.Command("go", vdlFlags...)
 	stderr, err := cmd.StderrPipe()
 	panicOnError(err)
 	stdout, err := cmd.StdoutPipe()
@@ -157,11 +153,7 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	panicOnError(cmd.Run())
 
 	// Run the test.
-	cmd = exec.Command("jiri", "run", "go", "test", pkgpath)
-	cmd.Env = []string{
-		"GOPATH=" + gopath,
-		"PATH=" + os.Getenv("PATH"),
-	}
+	cmd = exec.Command("go", "test", pkgpath)
 	stderr, err = cmd.StderrPipe()
 	panicOnError(err)
 	stdout, err = cmd.StdoutPipe()
