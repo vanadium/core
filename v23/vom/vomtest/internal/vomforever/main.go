@@ -128,10 +128,8 @@ func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string)
 	panicOnError(err)
 
 	// Write the type and value vdl files and the go test file.
-	//gopath := path.Join(dir, "go")
 	pkgpath := path.Join("v.io", "v23", "vom", "vomtest", "internal", "vomforever", "testdata", "tmp")
 	pkgdir := path.Join("testdata", "tmp")
-	//panicOnError(os.MkdirAll(pkgdir, os.ModePerm))
 	writeTypeFile(path.Join(pkgdir, "types.vdl"), types, vv)
 	writeValueFile(path.Join(pkgdir, "value.vdl"), vv)
 	writeTestFile(path.Join(pkgdir, "tmp_test.go"), vv)
