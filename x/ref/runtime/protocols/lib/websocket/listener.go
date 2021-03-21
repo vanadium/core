@@ -168,7 +168,11 @@ func (ln *wsTCPListener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
-	ws, err := websocket.Upgrade(w, r, nil, bufferSize, bufferSize) //nolint:staticcheck
+	upgrader := &websocket.Upgrader{
+		ReadBufferSize:  bufferSize,
+		WriteBufferSize: bufferSize,
+	}
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if _, ok := err.(websocket.HandshakeError); ok {
 		// Close the connection to not serve HTTP requests from this connection
 		// any more. Otherwise panic from negative httpReq counter can occur.
