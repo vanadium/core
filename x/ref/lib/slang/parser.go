@@ -81,8 +81,7 @@ type parseState struct {
 type parseStateFn func(tokPos) parseStateFn
 
 func (ps *parseState) resultsIdent(tp tokPos) parseStateFn {
-	switch tp.tok {
-	case token.IDENT:
+	if tp.tok == token.IDENT {
 		ps.scratch = append(ps.scratch, tp)
 		return ps.resultsCommaOrDefineOrArgs
 	}
@@ -118,8 +117,7 @@ func (ps *parseState) resultsCommaOrDefineOrArgs(tp tokPos) parseStateFn {
 }
 
 func (ps *parseState) funcName(tp tokPos) parseStateFn {
-	switch tp.tok {
-	case token.IDENT:
+	if tp.tok == token.IDENT {
 		ps.verbName = tp
 		return ps.argsLeftParen
 	}

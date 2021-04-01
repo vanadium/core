@@ -13,7 +13,7 @@ func registerFunctionErr(t *testing.T, fn interface{}) (err error) {
 		t.Log(e)
 	}()
 	slang.RegisterFunction(fn, "")
-	return fmt.Errorf("register function succedded...")
+	return fmt.Errorf("register function succeeded")
 }
 
 func null() {}

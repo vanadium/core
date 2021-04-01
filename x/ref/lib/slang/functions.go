@@ -9,8 +9,6 @@ import (
 	"v.io/v23/context"
 )
 
-type stype int
-
 type verb struct {
 	name           string
 	implementation reflect.Value

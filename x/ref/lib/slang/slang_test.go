@@ -54,6 +54,7 @@ func TestBuiltins(t *testing.T) {
 	if got, want := out.String(), "my_val/foo"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
 	execute(`v := expandEnv("$MY_NON_VAR/foo"); printf("%s", v)`)
 	if got, want := out.String(), "/foo"; got != want {
 		t.Errorf("got %v, want %v", got, want)
@@ -84,12 +85,6 @@ v: string: myhome/foo
 	err := scr.ExecuteBytes(ctx, []byte("help(undefined)"))
 	if err == nil || err.Error() != "1:1: 1:6: arg 'undefined' is an invalid literal: invalid identifier" {
 		t.Errorf("missing or unexpected error: %v", err)
-	}
-
-	if got, want := scr.String(), `$HOME=myhome
-$MY_VAR=my_val
-`; got != want {
-		t.Errorf("got %v, want %v", got, want)
 	}
 
 }
