@@ -230,26 +230,7 @@ that this tool is running in.
 		FlagDefs: flagDumpDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			p := v23.GetPrincipal(ctx)
-			def, _ := p.BlessingStore().Default()
-			if flagDumpFlags.Short {
-				fmt.Printf("%s\n", printAnnotatedBlessingsNames(def))
-				return nil
-			}
-			fmt.Printf("Public key : %v\n", p.PublicKey())
-			// NOTE(caprita): We print the default blessings name
-			// twice (it's also printed as part of the blessing
-			// store below) -- the reason we print it here is to
-			// expose whether the blessings are expired.  Ideally,
-			// the blessings store would print the expiry
-			// information about each blessing in the store, but
-			// that would require deeper changes beyond the
-			// principal tool.
-			fmt.Printf("Default Blessings : %s\n", printAnnotatedBlessingsNames(def))
-			fmt.Println("---------------- BlessingStore ----------------")
-			fmt.Printf("%v", p.BlessingStore().DebugString())
-			fmt.Println("---------------- BlessingRoots ----------------")
-			fmt.Printf("%v", p.Roots().DebugString())
-			return nil
+			return printPrincipal(p, flagDumpFlags.Short)
 		}),
 	}
 
@@ -1241,6 +1222,29 @@ All blessings are printed to stdout using base64url-vom-encoding.
 
 	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion}
 	cmdline.Main(root)
+}
+
+func printPrincipal(p security.Principal, short bool) error {
+	def, _ := p.BlessingStore().Default()
+	if short {
+		fmt.Printf("%s\n", printAnnotatedBlessingsNames(def))
+		return nil
+	}
+	fmt.Printf("Public key : %v\n", p.PublicKey())
+	// NOTE(caprita): We print the default blessings name
+	// twice (it's also printed as part of the blessing
+	// store below) -- the reason we print it here is to
+	// expose whether the blessings are expired.  Ideally,
+	// the blessings store would print the expiry
+	// information about each blessing in the store, but
+	// that would require deeper changes beyond the
+	// principal tool.
+	fmt.Printf("Default Blessings : %s\n", printAnnotatedBlessingsNames(def))
+	fmt.Println("---------------- BlessingStore ----------------")
+	fmt.Printf("%v", p.BlessingStore().DebugString())
+	fmt.Println("---------------- BlessingRoots ----------------")
+	fmt.Printf("%v", p.Roots().DebugString())
+	return nil
 }
 
 func decodeBlessings(fname string) (security.Blessings, error) {
