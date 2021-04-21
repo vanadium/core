@@ -229,8 +229,7 @@ that this tool is running in.
 `,
 		FlagDefs: flagDumpDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			p := v23.GetPrincipal(ctx)
-			return printPrincipal(p, flagDumpFlags.Short)
+			return dumpPrincipal(v23.GetPrincipal(ctx), flagDumpFlags.Short)
 		}),
 	}
 
@@ -300,7 +299,7 @@ line per identity provider, each line is a base64url-encoded (RFC 4648, Section
 			}
 			blessings, err := decodeBlessings(args[0])
 			if err != nil {
-				return fmt.Errorf("failed to decode provided blesseings: %v", err)
+				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			for _, root := range security.RootBlessings(blessings) {
 				if err := dumpBlessings(root); err != nil {
@@ -486,17 +485,7 @@ is not suitable as an argument to the 'recognize' command.
 `,
 		FlagDefs: flagGetPublicKeyDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			key := v23.GetPrincipal(ctx).PublicKey()
-			if flagGetPublicKey.Pretty {
-				fmt.Println(key)
-				return nil
-			}
-			der, err := key.MarshalBinary()
-			if err != nil {
-				return fmt.Errorf("corrupted key: %v", err)
-			}
-			fmt.Println(base64.URLEncoding.EncodeToString(der))
-			return nil
+			return dumpPublicKey(v23.GetPrincipal(ctx))
 		}),
 	}
 
@@ -1224,7 +1213,21 @@ All blessings are printed to stdout using base64url-vom-encoding.
 	cmdline.Main(root)
 }
 
-func printPrincipal(p security.Principal, short bool) error {
+func dumpPublicKey(p security.Principal) error {
+	key := p.PublicKey()
+	if flagGetPublicKey.Pretty {
+		fmt.Println(key)
+		return nil
+	}
+	der, err := key.MarshalBinary()
+	if err != nil {
+		return fmt.Errorf("corrupted key: %v", err)
+	}
+	fmt.Println(base64.URLEncoding.EncodeToString(der))
+	return nil
+}
+
+func dumpPrincipal(p security.Principal, short bool) error {
 	def, _ := p.BlessingStore().Default()
 	if short {
 		fmt.Printf("%s\n", printAnnotatedBlessingsNames(def))

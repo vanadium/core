@@ -9,4 +9,6 @@
 // A slang script is type checked whilst being compiled to an
 // intermediate format before being executed. Execution uses
 // go's reflect package to invoke one of the predefined functions.
+//
+// explain errors, literal types, duration etc.
 package slang
