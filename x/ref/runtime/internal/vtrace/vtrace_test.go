@@ -243,7 +243,7 @@ func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []stri
 				t.Errorf("span end should be after start: %x\n%s", span.Id[12:], traceString(&trace))
 			}
 		}
-		// Spans should decend from the previous span in the list.
+		// Spans should descend from the previous span in the list.
 		if i == 0 {
 			continue
 		}
@@ -271,7 +271,7 @@ func TestTraceAcrossRPCs(t *testing.T) {
 	})
 }
 
-// TestCancellationPropagationLateForce tests that cancellation propagates along an
+// TestTraceAcrossRPCsLateForce tests that cancellation propagates along an
 // RPC call chain when tracing is initiated by someone deep in the call chain.
 func TestTraceAcrossRPCsLateForce(t *testing.T) {
 	ctx, shutdown, idp := initForTest(t)

@@ -71,6 +71,8 @@
 package vtrace
 
 import (
+	"time"
+
 	"v.io/v23/context"
 	"v.io/v23/uniqueid"
 )
@@ -99,6 +101,9 @@ type Span interface {
 	// format and a are interpreted as with fmt.Printf.
 	Annotatef(format string, a ...interface{})
 
+	// SetMetadata sets the metadata associated with this span.
+	SetMetadata(md []byte)
+
 	// Finish ends the span, marking the end time.  The span should
 	// not be used after Finish is called.
 	Finish()
@@ -122,6 +127,16 @@ type Store interface {
 
 	// Merge merges a vtrace.Response into the current store.
 	Merge(response Response)
+
+	LogLevel(traceid uniqueid.Id) int
+
+	Flags(traceid uniqueid.Id) TraceFlags
+
+	Start(traceid uniqueid.Id, span SpanRecord)
+
+	Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time)
+
+	Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation)
 }
 
 type Manager interface {
@@ -242,6 +257,7 @@ func (emptySpan) ID() (id uniqueid.Id)                      { return }
 func (emptySpan) Parent() (id uniqueid.Id)                  { return }
 func (emptySpan) Annotate(s string)                         {}
 func (emptySpan) Annotatef(format string, a ...interface{}) {}
+func (emptySpan) SetMetadata([]byte)                        {}
 func (emptySpan) Finish()                                   {}
 func (emptySpan) Trace() (id uniqueid.Id)                   { return }
 
@@ -250,4 +266,11 @@ type emptyStore struct{}
 func (emptyStore) TraceRecords() []TraceRecord                  { return nil }
 func (emptyStore) TraceRecord(traceid uniqueid.Id) *TraceRecord { return nil }
 func (emptyStore) ForceCollect(traceid uniqueid.Id, level int)  {}
-func (emptyStore) Merge(response Response)                      {}
+func (emptyStore) Start(traceid uniqueid.Id, span SpanRecord)   {}
+
+func (emptyStore) Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time) {}
+
+func (emptyStore) Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation) {}
+func (emptyStore) Merge(response Response)                                              {}
+func (emptyStore) LogLevel(traceid uniqueid.Id) int                                     { return 0 }
+func (emptyStore) Flags(traceid uniqueid.Id) TraceFlags                                 { return 0 }

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 
 	"v.io/v23/uniqueid"
 	"v.io/v23/vtrace"
@@ -80,17 +81,22 @@ func TestTrimming(t *testing.T) {
 
 	// Starting a span on an existing trace brings it to the front of the queue
 	// and prevent it from being removed when a new trace begins.
-	st.start(&span{trace: traces[5], id: id()})
+	st.Start(traces[5], vtrace.SpanRecord{Id: id()})
 	st.ForceCollect(traces[10], 0)
 	compare(t, traceids(traces[10], traces[5], traces[7], traces[8], traces[9]), st.TraceRecords())
 
 	// Finishing a span on one of the traces should bring it back into the stored set.
-	st.finish(&span{trace: traces[7], id: id()})
+	st.Finish(traces[7], vtrace.SpanRecord{Id: id()}, time.Now())
 	st.ForceCollect(traces[11], 0)
 	compare(t, traceids(traces[10], traces[11], traces[5], traces[7], traces[9]), st.TraceRecords())
 
 	// Annotating a span on one of the traces should bring it back into the stored set.
-	st.annotate(&span{trace: traces[9], id: id()}, "hello")
+	st.Annotate(traces[9], vtrace.SpanRecord{Id: id()},
+		vtrace.Annotation{
+			Message: "hello",
+			When:    time.Now(),
+		})
+
 	st.ForceCollect(traces[12], 0)
 	compare(t, traceids(traces[10], traces[11], traces[12], traces[7], traces[9]), st.TraceRecords())
 }

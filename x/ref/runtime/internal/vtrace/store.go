@@ -12,7 +12,6 @@ import (
 
 	"v.io/v23/uniqueid"
 	"v.io/v23/vtrace"
-
 	"v.io/x/ref/lib/flags"
 )
 
@@ -68,17 +67,17 @@ func (s *Store) ForceCollect(id uniqueid.Id, level int) {
 }
 
 func (s *Store) forceCollectLocked(id uniqueid.Id, level int) *traceStore {
-	ts := s.traces[id]
-	if ts == nil {
-		ts = newTraceStore(id, level)
-		s.traces[id] = ts
-		ts.moveAfter(s.head)
-		// Trim elements beyond our size limit.
-		for len(s.traces) > s.opts.CacheSize {
-			el := s.head.prev
-			el.removeFromList()
-			delete(s.traces, el.id)
-		}
+	if ts := s.traces[id]; ts != nil {
+		return ts
+	}
+	ts := newTraceStore(id, level)
+	s.traces[id] = ts
+	ts.moveAfter(s.head)
+	// Trim elements beyond our size limit.
+	for len(s.traces) > s.opts.CacheSize {
+		el := s.head.prev
+		el.removeFromList()
+		delete(s.traces, el.id)
 	}
 	return ts
 }
@@ -99,24 +98,7 @@ func (s *Store) Merge(t vtrace.Response) {
 	}
 }
 
-// annotate stores an annotation for the trace if it is being collected.
-func (s *Store) annotate(span *span, msg string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	ts := s.traces[span.trace]
-	if ts == nil {
-		if s.collectRegexp != nil && s.collectRegexp.MatchString(msg) {
-			ts = s.forceCollectLocked(span.trace, s.defaultLevel)
-		}
-	}
-
-	if ts != nil {
-		ts.annotate(span, msg)
-		ts.moveAfter(s.head)
-	}
-}
-
-func (s *Store) logLevel(id uniqueid.Id) int {
+func (s *Store) LogLevel(id uniqueid.Id) int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	ts := s.traces[id]
@@ -126,40 +108,60 @@ func (s *Store) logLevel(id uniqueid.Id) int {
 	return ts.level
 }
 
-// start stores data about a starting span if the trace is being collected.
-func (s *Store) start(span *span) {
+func (s *Store) spanRegexpRecordingLocked(traceid uniqueid.Id, msg string) *traceStore {
+	if ts := s.traces[traceid]; ts != nil {
+		return ts
+	}
+	if s.collectRegexp != nil && s.collectRegexp.MatchString(msg) {
+		// If the supplied msg matches collectRegexp, then force collect its trace.
+		return s.forceCollectLocked(traceid, s.defaultLevel)
+	}
+	return nil
+}
+
+func (s *Store) rootRecordingLocked(traceid, parentid uniqueid.Id, name string) *traceStore {
+	if ts := s.traces[traceid]; ts != nil {
+		return ts
+	}
+	sr := s.opts.SampleRate
+	if traceid == parentid && sr > 0.0 && (sr >= 1.0 || rand.Float64() < sr) {
+		// If this is a root span, we may automatically sample it for collection.
+		return s.forceCollectLocked(traceid, s.defaultLevel)
+	}
+	return s.spanRegexpRecordingLocked(traceid, name)
+}
+
+func (s *Store) Start(traceid uniqueid.Id, span vtrace.SpanRecord) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	ts := s.traces[span.trace]
+	ts := s.rootRecordingLocked(traceid, span.Parent, span.Name)
 	if ts == nil {
-		sr := s.opts.SampleRate
-		if span.trace == span.parent && sr > 0.0 && (sr >= 1.0 || rand.Float64() < sr) {
-			// If this is a root span, we may automatically sample it for collection.
-			ts = s.forceCollectLocked(span.trace, s.defaultLevel)
-		} else if s.collectRegexp != nil && s.collectRegexp.MatchString(span.name) {
-			// If this span matches collectRegexp, then force collect its trace.
-			ts = s.forceCollectLocked(span.trace, s.defaultLevel)
-		}
+		return
 	}
-	if ts != nil {
-		ts.start(span)
+	ts.newOrUse(span)
+	ts.moveAfter(s.head)
+}
+
+func (s *Store) Finish(traceid uniqueid.Id, span vtrace.SpanRecord, timestamp time.Time) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if ts := s.traces[traceid]; ts != nil {
+		ts.finish(span, timestamp)
 		ts.moveAfter(s.head)
 	}
 }
 
-// finish stores data about a finished span if the trace is being collected.
-func (s *Store) finish(span *span) {
+func (s *Store) Annotate(traceid uniqueid.Id, span vtrace.SpanRecord, annotation vtrace.Annotation) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if ts := s.traces[span.trace]; ts != nil {
-		ts.finish(span)
+	if ts := s.spanRegexpRecordingLocked(traceid, annotation.Message); ts != nil {
+		ts.annotate(span, annotation)
 		ts.moveAfter(s.head)
 	}
 }
 
 // method returns the collection method for the given trace.
-func (s *Store) flags(id uniqueid.Id) vtrace.TraceFlags {
+func (s *Store) Flags(id uniqueid.Id) vtrace.TraceFlags {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if ts := s.traces[id]; ts != nil {
@@ -188,8 +190,7 @@ func (s *Store) TraceRecord(id uniqueid.Id) *vtrace.TraceRecord {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	out := &vtrace.TraceRecord{}
-	ts := s.traces[id]
-	if ts != nil {
+	if ts := s.traces[id]; ts != nil {
 		ts.traceRecord(out)
 	}
 	return out
@@ -210,34 +211,28 @@ func newTraceStore(id uniqueid.Id, level int) *traceStore {
 	}
 }
 
-func (ts *traceStore) record(s *span) *vtrace.SpanRecord {
-	record, ok := ts.spans[s.id]
-	if !ok {
-		record = &vtrace.SpanRecord{
-			Id:     s.id,
-			Parent: s.parent,
-			Name:   s.name,
-			Start:  s.start,
-		}
-		ts.spans[s.id] = record
+func (ts *traceStore) newOrUse(s vtrace.SpanRecord) *vtrace.SpanRecord {
+	if sr, ok := ts.spans[s.Id]; ok {
+		return sr
 	}
-	return record
+	cpy := &vtrace.SpanRecord{
+		Id:     s.Id,
+		Parent: s.Parent,
+		Name:   s.Name,
+		Start:  s.Start,
+	}
+	ts.spans[s.Id] = cpy
+	return cpy
 }
 
-func (ts *traceStore) annotate(s *span, msg string) {
-	record := ts.record(s)
-	record.Annotations = append(record.Annotations, vtrace.Annotation{
-		When:    time.Now(),
-		Message: msg,
-	})
+func (ts *traceStore) finish(s vtrace.SpanRecord, timestamp time.Time) {
+	sr := ts.newOrUse(s)
+	sr.End = timestamp
 }
 
-func (ts *traceStore) start(s *span) {
-	ts.record(s)
-}
-
-func (ts *traceStore) finish(s *span) {
-	ts.record(s).End = time.Now()
+func (ts *traceStore) annotate(s vtrace.SpanRecord, annotation vtrace.Annotation) {
+	sr := ts.newOrUse(s)
+	sr.Annotations = append(sr.Annotations, annotation)
 }
 
 func (ts *traceStore) merge(spans []vtrace.SpanRecord) {
@@ -247,7 +242,9 @@ func (ts *traceStore) merge(spans []vtrace.SpanRecord) {
 	// and end before now.
 	for _, span := range spans {
 		if ts.spans[span.Id] == nil {
-			ts.spans[span.Id] = copySpanRecord(span)
+			sr := &vtrace.SpanRecord{}
+			copySpanRecord(sr, &span)
+			ts.spans[span.Id] = sr
 		}
 	}
 }
@@ -271,21 +268,20 @@ func (ts *traceStore) moveAfter(prev *traceStore) {
 	prev.next = ts
 }
 
-func copySpanRecord(in vtrace.SpanRecord) *vtrace.SpanRecord {
-	return &vtrace.SpanRecord{
-		Id:          in.Id,
-		Parent:      in.Parent,
-		Name:        in.Name,
-		Start:       in.Start,
-		End:         in.End,
-		Annotations: append([]vtrace.Annotation{}, in.Annotations...),
-	}
+func copySpanRecord(out, in *vtrace.SpanRecord) {
+	*out = *in
+	out.Metadata = make([]byte, len(in.Metadata))
+	copy(out.Metadata, in.Metadata)
+	out.Annotations = make([]vtrace.Annotation, len(in.Annotations))
+	copy(out.Annotations, in.Annotations)
 }
 
 func (ts *traceStore) traceRecord(out *vtrace.TraceRecord) {
-	spans := make([]vtrace.SpanRecord, 0, len(ts.spans))
+	spans := make([]vtrace.SpanRecord, len(ts.spans))
+	i := 0
 	for _, span := range ts.spans {
-		spans = append(spans, *copySpanRecord(*span))
+		copySpanRecord(&spans[i], span)
+		i++
 	}
 	out.Id = ts.id
 	out.Spans = spans

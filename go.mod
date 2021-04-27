@@ -3,7 +3,10 @@ module v.io
 go 1.13
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.3.3
+	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/aws/amazon-ec2-metadata-mock v1.8.1 // indirect
+	github.com/aws/aws-sdk-go v1.38.24 // indirect
+	github.com/aws/aws-xray-sdk-go v1.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.2.0
