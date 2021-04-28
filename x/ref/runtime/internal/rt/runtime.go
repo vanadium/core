@@ -33,11 +33,11 @@ import (
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/stats"
 	_ "v.io/x/ref/lib/stats/sysstats" //nolint:golint
+	ivtrace "v.io/x/ref/lib/vtrace"
 	"v.io/x/ref/runtime/internal/flow/manager"
 	"v.io/x/ref/runtime/internal/lib/dependency"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
 	irpc "v.io/x/ref/runtime/internal/rpc"
-	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 )
 
 type contextKey int

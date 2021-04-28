@@ -21,8 +21,8 @@ import (
 	"v.io/v23/vtrace"
 	"v.io/x/ref/lib/flags"
 	_ "v.io/x/ref/lib/security/securityflag"
+	ivtrace "v.io/x/ref/lib/vtrace"
 	_ "v.io/x/ref/runtime/factories/generic"
-	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )

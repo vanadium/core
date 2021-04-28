@@ -14,7 +14,7 @@ import (
 	"v.io/v23/vdl"
 	"v.io/v23/vtrace"
 	"v.io/x/ref/lib/flags"
-	ivtrace "v.io/x/ref/runtime/internal/vtrace"
+	ivtrace "v.io/x/ref/lib/vtrace"
 	"v.io/x/ref/test"
 )
 

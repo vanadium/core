@@ -494,7 +494,7 @@ func (x *TraceFlags) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 type Request struct {
 	SpanId   uniqueid.Id // The Id of the span that originated the RPC call.
 	TraceId  uniqueid.Id // The Id of the trace this call is a part of.
-	Metadata []byte      // Metadata to be sent with the request.
+	Metadata []byte      // Any metadata to be sent with the request.
 	Flags    TraceFlags
 	LogLevel int32
 }
@@ -705,6 +705,7 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)
+const AWSXRay = TraceFlags(2)
 
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused

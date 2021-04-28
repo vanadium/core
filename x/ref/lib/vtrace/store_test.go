@@ -26,7 +26,7 @@ func id() uniqueid.Id {
 	return out
 }
 
-func makeTraces(n int, st *Store) []uniqueid.Id {
+func makeTraces(n int, st vtrace.Store) []uniqueid.Id {
 	traces := make([]uniqueid.Id, n)
 	for i := range traces {
 		curid := id()
@@ -124,15 +124,15 @@ func TestRegexp(t *testing.T) {
 			t.Fatalf("Could not create store: %v", err)
 		}
 
-		_, err = newSpan(traces[0], "foo", traces[0], st)
+		_, err = NewSpan(traces[0], traces[0], "foo", st)
 		if err != nil {
 			t.Fatal(err)
 		}
-		_, err = newSpan(traces[1], "foobar", traces[1], st)
+		_, err = NewSpan(traces[1], traces[1], "foobar", st)
 		if err != nil {
 			t.Fatal(err)
 		}
-		sp, err := newSpan(traces[2], "baz", traces[2], st)
+		sp, err := NewSpan(traces[2], traces[2], "baz", st)
 		if err != nil {
 			t.Fatal(err)
 		}

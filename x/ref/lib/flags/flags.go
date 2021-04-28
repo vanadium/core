@@ -102,6 +102,8 @@ type VtraceFlags struct {
 	// SpanRegexp matches a regular expression against span names and
 	// annotations and forces any trace matching trace to be collected.
 	CollectRegexp string `cmdline:"v23.vtrace.collect-regexp,,Spans and annotations that match this regular expression will trigger trace collection"`
+
+	EnableAWSXRay bool `cmdline:"v23.vtrace.enable-aws-xray,false,Enable the use of AWS x-ray integration with vtrace"`
 }
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags

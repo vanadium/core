@@ -101,8 +101,10 @@ type Span interface {
 	// format and a are interpreted as with fmt.Printf.
 	Annotatef(format string, a ...interface{})
 
-	// SetMetadata sets the metadata associated with this span.
-	SetMetadata(md []byte)
+	// SetMetadata appends metadata to be associated with this span and
+	// hence encoded in any RPC requests made by this span. The interpretation
+	// of the metdata is governed by
+	SetMetadata(metadata []byte)
 
 	// Finish ends the span, marking the end time.  The span should
 	// not be used after Finish is called.
@@ -110,6 +112,11 @@ type Span interface {
 
 	// Trace returns the id of the trace this Span is a member of.
 	Trace() uniqueid.Id
+
+	// Store returns the store that this Span is stored in.
+	Store() Store
+
+	Request(ctx *context.T) Request
 }
 
 // Store selectively collects information about traces in the system.
@@ -156,12 +163,6 @@ type Manager interface {
 	// trace and annotate operations across process boundaries.
 	WithNewSpan(ctx *context.T, name string) (*context.T, Span)
 
-	// Span finds the currently active span.
-	GetSpan(ctx *context.T) Span
-
-	// Store returns the current Store.
-	GetStore(ctx *context.T) Store
-
 	// Generate a Request from the current context.
 	GetRequest(ctx *context.T) Request
 
@@ -171,6 +172,8 @@ type Manager interface {
 
 // managerKey is used to store a Manger in the context.
 type managerKey struct{}
+type storeKey struct{}
+type spanKey struct{}
 
 // WithManager returns a new context with a Vtrace manager attached.
 func WithManager(ctx *context.T, manager Manager) *context.T {
@@ -209,21 +212,38 @@ func WithNewSpan(ctx *context.T, name string) (*context.T, Span) {
 	return manager(ctx).WithNewSpan(ctx, name)
 }
 
+func WithSpan(ctx *context.T, span Span) *context.T {
+	return context.WithValue(ctx, spanKey{}, span)
+}
+
+func WithStore(ctx *context.T, store Store) *context.T {
+	return context.WithValue(ctx, storeKey{}, store)
+}
+
 // Span finds the currently active span.
 func GetSpan(ctx *context.T) Span {
-	return manager(ctx).GetSpan(ctx)
+	span, _ := ctx.Value(spanKey{}).(Span)
+	if span == nil {
+		return &emptySpan{}
+	}
+	return span
 }
 
 // VtraceStore returns the current Store.
 func GetStore(ctx *context.T) Store {
-	return manager(ctx).GetStore(ctx)
+	store, _ := ctx.Value(storeKey{}).(Store)
+	if store == nil {
+		return &emptyStore{}
+	}
+	return store
 }
 
 // ForceCollect forces the store to collect all information about the
 // current trace.
 func ForceCollect(ctx *context.T, level int) {
-	m := manager(ctx)
-	m.GetStore(ctx).ForceCollect(m.GetSpan(ctx).Trace(), level)
+	store, _ := ctx.Value(storeKey{}).(Store)
+	span, _ := ctx.Value(spanKey{}).(Span)
+	store.ForceCollect(span.Trace(), level)
 }
 
 // Generate a Request from the current context.
@@ -245,8 +265,7 @@ func (emptyManager) WithContinuedTrace(ctx *context.T, name string, req Request)
 func (emptyManager) WithNewSpan(ctx *context.T, name string) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
-func (emptyManager) GetSpan(ctx *context.T) Span             { return emptySpan{} }
-func (emptyManager) GetStore(ctx *context.T) Store           { return emptyStore{} }
+
 func (emptyManager) GetRequest(ctx *context.T) (r Request)   { return }
 func (emptyManager) GetResponse(ctx *context.T) (r Response) { return }
 
@@ -260,6 +279,8 @@ func (emptySpan) Annotatef(format string, a ...interface{}) {}
 func (emptySpan) SetMetadata([]byte)                        {}
 func (emptySpan) Finish()                                   {}
 func (emptySpan) Trace() (id uniqueid.Id)                   { return }
+func (emptySpan) Store() Store                              { return nil }
+func (emptySpan) Request(*context.T) (req Request)          { return }
 
 type emptyStore struct{}
 

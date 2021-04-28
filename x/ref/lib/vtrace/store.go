@@ -39,7 +39,7 @@ type Store struct {
 }
 
 // NewStore creates a new store according to the passed in opts.
-func NewStore(opts flags.VtraceFlags) (*Store, error) {
+func NewStore(opts flags.VtraceFlags) (vtrace.Store, error) {
 	head := &traceStore{}
 	head.next, head.prev = head, head
 
@@ -164,10 +164,14 @@ func (s *Store) Annotate(traceid uniqueid.Id, span vtrace.SpanRecord, annotation
 func (s *Store) Flags(id uniqueid.Id) vtrace.TraceFlags {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	mask := vtrace.Empty
 	if ts := s.traces[id]; ts != nil {
-		return vtrace.CollectInMemory
+		mask |= vtrace.CollectInMemory
 	}
-	return vtrace.Empty
+	if s.opts.EnableAWSXRay {
+		mask |= vtrace.AWSXRay
+	}
+	return mask
 }
 
 // TraceRecords returns TraceRecords for all traces saved in the store.
