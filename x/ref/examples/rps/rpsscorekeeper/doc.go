@@ -86,6 +86,8 @@ The global flags are:
    collection
  -v23.vtrace.dump-on-shutdown=true
    If true, dump all stored traces on runtime shutdown
+ -v23.vtrace.enable-aws-xray=false
+   Enable the use of AWS x-ray integration with vtrace
  -v23.vtrace.sample-rate=0
    Rate (from 0.0 to 1.0) to sample vtrace traces
  -v23.vtrace.v=0
