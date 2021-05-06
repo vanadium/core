@@ -62,7 +62,7 @@ func (r *RPS) Play(ctx *context.T, call rps.JudgePlayServerCall, id rps.GameId) 
 func (r *RPS) Challenge(ctx *context.T, call rpc.ServerCall, address string, id rps.GameId, opts rps.GameOptions) error {
 	b, _ := security.RemoteBlessingNames(ctx, call.Security())
 	ctx.VI(1).Infof("Challenge (%q, %+v, %+v) from %v", address, id, opts, b)
-	newctx, _ := vtrace.WithNewTrace(r.ctx)
+	newctx, _ := vtrace.WithNewTrace(r.ctx, "rpsbot")
 	return r.player.challenge(newctx, address, id, opts)
 }
 

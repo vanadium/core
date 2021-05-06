@@ -108,7 +108,7 @@ type Span interface {
 
 	// Finish ends the span, marking the end time.  The span should
 	// not be used after Finish is called.
-	Finish()
+	Finish(error)
 
 	// Trace returns the id of the trace this Span is a member of.
 	Trace() uniqueid.Id
@@ -151,7 +151,7 @@ type Manager interface {
 	// other span.  This is useful when starting operations that are
 	// disconnected from the activity ctx is performing.  For example
 	// this might be used to start background tasks.
-	WithNewTrace(ctx *context.T) (*context.T, Span)
+	WithNewTrace(ctx *context.T, name string) (*context.T, Span)
 
 	// WithContinuedTrace creates a span that represents a continuation of
 	// a trace from a remote server.  name is the name of the new span and
@@ -194,8 +194,8 @@ func manager(ctx *context.T) Manager {
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func WithNewTrace(ctx *context.T) (*context.T, Span) {
-	return manager(ctx).WithNewTrace(ctx)
+func WithNewTrace(ctx *context.T, name string) (*context.T, Span) {
+	return manager(ctx).WithNewTrace(ctx, name)
 }
 
 // WithContinuedTrace creates a span that represents a continuation of
@@ -258,7 +258,9 @@ func GetResponse(ctx *context.T) Response {
 
 type emptyManager struct{}
 
-func (emptyManager) WithNewTrace(ctx *context.T) (*context.T, Span) { return ctx, emptySpan{} }
+func (emptyManager) WithNewTrace(ctx *context.T, name string) (*context.T, Span) {
+	return ctx, emptySpan{}
+}
 func (emptyManager) WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
@@ -277,7 +279,7 @@ func (emptySpan) Parent() (id uniqueid.Id)                  { return }
 func (emptySpan) Annotate(s string)                         {}
 func (emptySpan) Annotatef(format string, a ...interface{}) {}
 func (emptySpan) SetMetadata([]byte)                        {}
-func (emptySpan) Finish()                                   {}
+func (emptySpan) Finish(error)                              {}
 func (emptySpan) Trace() (id uniqueid.Id)                   { return }
 func (emptySpan) Store() Store                              { return nil }
 func (emptySpan) Request(*context.T) (req Request)          { return }

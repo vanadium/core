@@ -98,7 +98,7 @@ func (s *span) SetMetadata(metadata []byte) {
 	copy(s.metadata, metadata)
 }
 
-func (s *span) Finish() {
+func (s *span) Finish(err error) {
 	s.store.Finish(s.trace,
 		vtrace.SpanRecord{
 			Id:     s.id,
@@ -126,12 +126,12 @@ type manager struct{}
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func (m manager) WithNewTrace(ctx *context.T) (*context.T, vtrace.Span) {
+func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.Span) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
 	}
-	s, err := NewSpan(id, id, "", vtrace.GetStore(ctx))
+	s, err := NewSpan(id, id, name, vtrace.GetStore(ctx))
 	if err != nil {
 		ctx.Error(err)
 	}
@@ -173,7 +173,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 	}
 
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
-	return m.WithNewTrace(ctx)
+	return m.WithNewTrace(ctx, name)
 }
 
 // Request generates a vtrace.Request from the active Span.

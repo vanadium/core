@@ -104,7 +104,7 @@ func runCallChain(t *testing.T, ctx *context.T, idp *testutil.IDProvider, force1
 		t.Error(err)
 	}
 	span.Annotate("c0-end")
-	span.Finish()
+	span.Finish(nil)
 
 	return vtrace.GetStore(ctx).TraceRecord(span.Trace())
 }
@@ -142,7 +142,7 @@ func makeTestServer(ctx *context.T, principal security.Principal, name string) (
 	if err != nil {
 		return nil, nil, err
 	}
-	ctx, _ = vtrace.WithNewTrace(ctx)
+	ctx, _ = vtrace.WithNewTrace(ctx, "testServer")
 	ctx, err = v23.WithPrincipal(ctx, principal)
 	if err != nil {
 		return nil, nil, err
@@ -299,7 +299,7 @@ func traceWithAuth(t *testing.T, ctx *context.T, principal security.Principal) b
 		t.Fatalf("Couldn't start server %v", err)
 	}
 
-	ctx, span := vtrace.WithNewTrace(ctx)
+	ctx, span := vtrace.WithNewTrace(ctx, "traceWithAuth")
 	vtrace.ForceCollect(ctx, 0)
 
 	call, err := v23.GetClient(ctx).StartCall(ctx, "server", "Run", nil)

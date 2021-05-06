@@ -24,7 +24,7 @@ func initForTest() (*context.T, v23.Shutdown) {
 	if err != nil {
 		panic(err)
 	}
-	ctx, _ = vtrace.WithNewTrace(ctx)
+	ctx, _ = vtrace.WithNewTrace(ctx, "testutil")
 	return ctx, shutdown
 }
 

@@ -665,7 +665,7 @@ func (fs *flowServer) serve() error {
 	}()
 
 	ctx, results, err := fs.processRequest()
-	vtrace.GetSpan(ctx).Finish()
+	vtrace.GetSpan(ctx).Finish(err)
 
 	traceResponse := vtrace.GetResponse(ctx)
 	// Check if the caller is permitted to view vtrace data.
