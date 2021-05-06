@@ -23,10 +23,7 @@ import (
 
 // Manager allows you to create new traces and spans and access the
 // vtrace store that
-type manager struct {
-	hostname string
-	cfg      *xray.Config
-}
+type manager struct{}
 
 type xrayspan struct {
 	vtrace.Span
@@ -34,12 +31,13 @@ type xrayspan struct {
 	seg    *xray.Segment
 }
 
+// TODO(cnicolaou): figure out why annotations are not being recorded
+// on AWS.
 func (xs *xrayspan) Annotate(msg string) {
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
 		xs.seg.AddAnnotation(now, msg)
 	}
-	//fmt.Printf("ANNOTATE: %v: %s --%v--\n", xs.seg.TraceID, now, msg)
 	xs.Span.Annotate(msg)
 }
 
@@ -49,7 +47,6 @@ func (xs *xrayspan) Annotatef(format string, args ...interface{}) {
 		now := time.Now().Format(time.StampMicro)
 		xs.seg.AddAnnotation(now, msg)
 	}
-	//fmt.Printf("ANNOTATE: %v: %s --%v--\n", xs.seg.TraceID, now, msg)
 	xs.Span.Annotate(msg)
 }
 

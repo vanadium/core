@@ -15,14 +15,14 @@ import (
 type traceHeaderKey struct{}
 
 // GetSegment returns the xray segment stored in the context, or nil.
-// It uses the same context key as the xray pacakge.
+// It uses the same context key as the xray package.
 func GetSegment(ctx *context.T) *xray.Segment {
 	seg, _ := ctx.Value(xray.ContextKey).(*xray.Segment)
 	return seg
 }
 
 // WithSegment records the xray segment in the returned context.
-// It uses the same context key as the xray pacakge.
+// It uses the same context key as the xray package.
 func WithSegment(ctx *context.T, seg *xray.Segment) *context.T {
 	return context.WithValue(ctx, xray.ContextKey, seg)
 }
@@ -36,7 +36,9 @@ func GetTraceHeader(ctx *context.T) *header.Header {
 		return hdr
 	}
 	// See if the xray sdk has already inserted a header.
-	if tmp := ctx.Value(xray.LambdaTraceHeaderKey); tmp != nil {
+	// NOTE:  that golint doesn't like using a string as a context value key,
+	//        so silence it since AWS already made that decision/error for us.
+	if tmp := ctx.Value(xray.LambdaTraceHeaderKey); tmp != nil { //nolint:golint
 		return header.FromString(tmp.(string))
 	}
 	return nil
@@ -46,12 +48,12 @@ func GetTraceHeader(ctx *context.T) *header.Header {
 // as both a pointer managed by this package and the string representation
 // managed by the xray package.
 func WithTraceHeader(ctx *context.T, hdr *header.Header) *context.T {
-	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr.String())
+	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr.String()) //nolint:golint
 	return context.WithValue(ctx, traceHeaderKey{}, hdr)
 }
 
 // WithConfig records the xray.Config in the returned context.
-// It uses the same context key as the xray pacakge.
+// It uses the same context key as the xray package.
 func WithConfig(ctx *context.T, config xray.Config) (*context.T, error) {
 	goCtx, err := xray.ContextWithConfig(ctx, config)
 	if err != nil {
@@ -64,7 +66,7 @@ func WithConfig(ctx *context.T, config xray.Config) (*context.T, error) {
 }
 
 // GetConfig returns
-// It uses the same context key as the xray pacakge.
+// It uses the same context key as the xray package.
 func GetConfig(ctx *context.T) *xray.Config {
 	return ctx.Value(xray.RecorderContextKey{}).(*xray.Config)
 }
@@ -77,7 +79,7 @@ func GetConfig(ctx *context.T) *xray.Config {
 func MergeHTTPRequestContext(ctx *context.T, req *http.Request) *context.T {
 	goctx := req.Context()
 	if hdr := goctx.Value(xray.LambdaTraceHeaderKey); hdr != nil {
-		ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr)
+		ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr) //nolint:golint
 		ctx = context.WithValue(ctx, traceHeaderKey{}, header.FromString(hdr.(string)))
 	}
 	seg := goctx.Value(xray.ContextKey)

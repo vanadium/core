@@ -131,13 +131,7 @@ func NewRuntimeFlags() (*RuntimeFlags, error) {
 		rf.NamespaceRoots.Roots = roots
 	}
 	rf.Credentials = DefaultCredentialsDir()
-	rf.VtraceFlags = VtraceFlags{
-		SampleRate:     0.0,
-		DumpOnShutdown: true,
-		CacheSize:      1024,
-		LogLevel:       0,
-		CollectRegexp:  "",
-	}
+	rf.VtraceFlags = DefaultVtraceFlags()
 	return rf, nil
 }
 

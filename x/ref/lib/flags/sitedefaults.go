@@ -38,6 +38,14 @@ func init() {
 		"proxyLimit":         0,
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
+		"vtrace": VtraceFlags{
+			SampleRate:     0.0,
+			DumpOnShutdown: true,
+			CacheSize:      1024,
+			LogLevel:       0,
+			CollectRegexp:  "",
+			EnableAWSXRay:  false,
+		},
 		"virtualized": VirtualizedFlagDefaults{
 			VirtualizationProvider:    string(Native),
 			PublicProtocol:            "wsh",
@@ -56,4 +64,5 @@ func init() {
 	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
 	defaultPermissions = merged["permissions"].(map[string]string)
 	defaultVirtualized = merged["virtualized"].(VirtualizedFlagDefaults)
+	defaultVtrace = merged["vtrace"].(VtraceFlags)
 }

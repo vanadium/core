@@ -247,7 +247,8 @@ func (ts *traceStore) merge(spans []vtrace.SpanRecord) {
 	for _, span := range spans {
 		if ts.spans[span.Id] == nil {
 			sr := &vtrace.SpanRecord{}
-			copySpanRecord(sr, &span)
+			tmp := span
+			copySpanRecord(sr, &tmp)
 			ts.spans[span.Id] = sr
 		}
 	}

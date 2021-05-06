@@ -268,8 +268,8 @@ func (*Runtime) GetPrincipal(ctx *context.T) security.Principal {
 	return p
 }
 
-func (rt *Runtime) GetFlags() flags.RuntimeFlags {
-	return rt.flags
+func (r *Runtime) GetFlags() flags.RuntimeFlags {
+	return r.flags
 }
 
 func getInitData(ctx *context.T) (*initData, error) {
