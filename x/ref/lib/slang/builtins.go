@@ -36,7 +36,7 @@ func (scr *Script) ListFunctions() {
 	}
 	sort.Strings(names)
 	for _, n := range names {
-		fmt.Fprintf(scr.Stdout, "%s++\n", n)
+		fmt.Fprintf(scr.Stdout, "%s\n", n)
 	}
 }
 
@@ -76,9 +76,9 @@ func help(rt Runtime, cmd string) error {
 }
 
 func init() {
-	RegisterFunction(printf, `equivalent to fmt.Printf`)
-	RegisterFunction(sprintf, `equivalent to fmt.Sprintf`)
+	RegisterFunction(printf, `equivalent to fmt.Printf`, "format", "args")
+	RegisterFunction(sprintf, `equivalent to fmt.Sprintf`, "format", "args")
 	RegisterFunction(listFunctions, `list available functions`)
-	RegisterFunction(expandEnv, `perform shell environment variable expansion`)
-	RegisterFunction(help, "display information for a specific function")
+	RegisterFunction(expandEnv, `perform shell environment variable expansion`, "value")
+	RegisterFunction(help, "display information for a specific function", "name")
 }

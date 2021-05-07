@@ -218,6 +218,11 @@ var (
 	}{}
 	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
 
+	scriptFlags = struct {
+		Documentation bool `cmdline:"documentation,false,'If set, documentation on the scripting language and supported commands is displayed'"`
+	}{}
+	scriptFlagsDef = cmdline.FlagDefinitions{Flags: &scriptFlags}
+
 	errNoCaveats = fmt.Errorf("no caveats provided: it is generally dangerous to bless another principal without any caveats as that gives them almost unrestricted access to the blesser's credentials. If you really want to do this, set --require-caveats=false")
 
 	cmdDump = &cmdline.Command{
@@ -1043,6 +1048,33 @@ This file can be supplied to bless:
 		}),
 	}
 
+	cmdScript = &cmdline.Command{
+		Name:  "script",
+		Short: "Run one or more scripts",
+		Long: `
+Run one or more scripts, the scripting language documentation can be
+viewed using 'script --documentation'.
+`,
+		ArgsName: "<script>...",
+		ArgsLong: `
+<script> refers to a file containing a script; '-' can be used to refer
+to stdin. If no scripts are specified then stdin is used.
+	`,
+		FlagDefs: scriptFlagsDef,
+		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
+			if scriptFlags.Documentation {
+				fmt.Println(scriptDocumentation())
+				return nil
+			}
+			for _, s := range args {
+				if err := runScriptFile(ctx, s); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
+	}
+
 	root = &cmdline.Command{
 		Name:  "principal",
 		Short: "creates and manages Vanadium principals and blessings",
@@ -1209,7 +1241,7 @@ All blessings are printed to stdout using base64url-vom-encoding.
 		Children: []*cmdline.Command{cmdGetDefault, cmdGetForPeer, cmdGetPublicKey, cmdGetTrustedRoots, cmdGetPeerMap},
 	}
 
-	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion}
+	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdScript}
 	cmdline.Main(root)
 }
 

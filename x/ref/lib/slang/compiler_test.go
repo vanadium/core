@@ -58,14 +58,14 @@ func fn10(rt Runtime, duration time.Duration, flag bool) (time.Duration, bool, e
 func init() {
 	RegisterFunction(fn1, "")
 	RegisterFunction(fn2, "")
-	RegisterFunction(fn3, "")
-	RegisterFunction(fn4, "")
-	RegisterFunction(fn5, "")
-	RegisterFunction(fn6, "")
-	RegisterFunction(fn7, "")
-	RegisterFunction(fn8, "")
-	RegisterFunction(fn9, "")
-	RegisterFunction(fn10, "")
+	RegisterFunction(fn3, "", "v")
+	RegisterFunction(fn4, "", "s", "msg")
+	RegisterFunction(fn5, "", "v")
+	RegisterFunction(fn6, "", "duration", "flag")
+	RegisterFunction(fn7, "", "format", "args")
+	RegisterFunction(fn8, "", "format", "second", "args")
+	RegisterFunction(fn9, "", "args")
+	RegisterFunction(fn10, "", "duration", "flag")
 
 }
 
@@ -93,44 +93,44 @@ func TestCompile(t *testing.T) {
 		{"a:=fn2(); b:=fn3(a)", `a: int
 b: int
 1:1: a := fn2() :: fn2() int
-1:11: b := fn3(a) :: fn3(int) int
+1:11: b := fn3(a) :: fn3(v int) int
 `},
 		{"b:=fn3(33)", `b: int
-1:1: b := fn3(33) :: fn3(int) int
+1:1: b := fn3(33) :: fn3(v int) int
 `},
 		{`tt:=fn4("msg")`, `tt: *slang.tt1
-1:1: tt := fn4("msg") :: fn4(string) *slang.tt1
+1:1: tt := fn4("msg") :: fn4(s string) (msg *slang.tt1)
 `},
 		{`tt:=fn4("msg"); fn5(tt)`, `tt: *slang.tt1
-1:1: tt := fn4("msg") :: fn4(string) *slang.tt1
-1:17: fn5(tt) :: fn5(*slang.tt1)
+1:1: tt := fn4("msg") :: fn4(s string) (msg *slang.tt1)
+1:17: fn5(tt) :: fn5(v *slang.tt1)
 `},
-		{`fn6("1h", false)`, `1:1: fn6(1h0m0s, false) :: fn6(time.Duration, bool)
+		{`fn6("1h", false)`, `1:1: fn6(1h0m0s, false) :: fn6(duration time.Duration, flag bool)
 `},
-		{`fn6("1h", true)`, `1:1: fn6(1h0m0s, true) :: fn6(time.Duration, bool)
+		{`fn6("1h", true)`, `1:1: fn6(1h0m0s, true) :: fn6(duration time.Duration, flag bool)
 `},
 		{`s := fn7("format")`, `s: string
-1:1: s := fn7("format") :: fn7(string, []interface {}) string
+1:1: s := fn7("format") :: fn7(format string, args ...interface {}) string
 `},
 		{`s := fn7("%v", 3)`, `s: string
-1:1: s := fn7("%v", 3) :: fn7(string, []interface {}) string
+1:1: s := fn7("%v", 3) :: fn7(format string, args ...interface {}) string
 `},
 		{`s := fn7("%v %v", 3, 2)`, `s: string
-1:1: s := fn7("%v %v", 3, 2) :: fn7(string, []interface {}) string
+1:1: s := fn7("%v %v", 3, 2) :: fn7(format string, args ...interface {}) string
 `},
 		{`s := fn7("%v %v", "msg", 2)`, `s: string
-1:1: s := fn7("%v %v", "msg", 2) :: fn7(string, []interface {}) string
+1:1: s := fn7("%v %v", "msg", 2) :: fn7(format string, args ...interface {}) string
 `},
 		{`d,f := fn10("1h30s", false); s := fn7("duration: %v, bool %v", d,f)`, `d: time.Duration
 f: bool
 s: string
-1:1: d, f := fn10(1h0m30s, false) :: fn10(time.Duration, bool) (time.Duration, bool)
-1:30: s := fn7("duration: %v, bool %v", d, f) :: fn7(string, []interface {}) string
+1:1: d, f := fn10(1h0m30s, false) :: fn10(duration time.Duration, flag bool) (time.Duration, bool)
+1:30: s := fn7("duration: %v, bool %v", d, f) :: fn7(format string, args ...interface {}) string
 `},
 	} {
 		out, err := parseAndCompile(tc.script)
 		if err != nil {
-			t.Errorf("%v: failed to compile: %v", i, err)
+			t.Errorf("%v: failed to compile: %v %v", i, tc.script, err)
 			continue
 		}
 		if got, want := out, tc.compiled; got != want {
@@ -146,7 +146,7 @@ func TestCompileErrors(t *testing.T) {
 	}{
 		{"fnx()", "1:1: unrecognised function name: fnx"},
 		{"fn1(33)", "1:1: wrong # of arguments for fn1()"},
-		{"fn6()", "1:1: wrong # of arguments for fn6(time.Duration, bool)"},
+		{"fn6()", "1:1: wrong # of arguments for fn6(duration time.Duration, flag bool)"},
 		{"x:=fn1()", "1:1: wrong # of results for fn1()"},
 		{"fn2()", "1:1: wrong # of results for fn2() int"},
 		{`a:=fn3("xxx")`, `1:1: 1:8: literal arg '"xxx"' of type string is not assignable to int`},
@@ -155,8 +155,8 @@ func TestCompileErrors(t *testing.T) {
 		{`fn6("1d", fals)`, `1:1: 1:5: arg '"1d"' is an invalid literal: time: unknown unit "d" in duration "1d"`},
 		{`a:=fn3(1); a := fn4("a")`, `1:12: result 'a' is redefined with a new type *slang.tt1, previous type int`},
 		{`a:=fn3(1); a := fn3(2)`, `1:12: result 'a' is redefined`},
-		{`s:=fn7()`, "1:1: need at least 1 arguments for variadic function fn7(string, []interface {}) string"},
-		{`s:=fn8("format")`, "1:1: need at least 2 arguments for variadic function fn8(string, int, []interface {}) string"},
+		{`s:=fn7()`, "1:1: need at least 1 arguments for variadic function fn7(format string, args ...interface {}) string"},
+		{`s:=fn8("format")`, "1:1: need at least 2 arguments for variadic function fn8(format string, second int, args ...interface {}) string"},
 		{`s:=fn9(13)`, `1:1: 1:8: literal arg '13' of type int is not assignable to string`},
 		{`s:=fn9("a", 14)`, `1:1: 1:13: literal arg '14' of type int is not assignable to string`},
 	} {

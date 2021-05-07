@@ -75,8 +75,8 @@ func TestBuiltins(t *testing.T) {
 $MY_VAR=my_val
 v: string
 v: string: myhome/foo
-1:1: v := expandEnv("$HOME/foo") :: expandEnv(string) string
-1:30: printf("%s", v) :: printf(string, []interface {})
+1:1: v := expandEnv("$HOME/foo") :: expandEnv(value string) string
+1:30: printf("%s", v) :: printf(format string, args ...interface {})
 v: string: myhome/foo
 `; got != want {
 		t.Errorf("got %v, want %v", got, want)
