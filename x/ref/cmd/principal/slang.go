@@ -1,10 +1,12 @@
 package main
 
 import (
+	"crypto"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 
 	v23 "v.io/v23"
@@ -15,6 +17,22 @@ import (
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/slang"
 )
+
+var keyTypeMap = map[string]seclib.KeyType{
+	"ecdsa256": seclib.ECDSA256,
+	"ecdsa384": seclib.ECDSA384,
+	"ecdsa521": seclib.ECDSA521,
+	"ed25519":  seclib.ED25519,
+}
+
+func supportedKeyTypes() []string {
+	s := []string{}
+	for k := range keyTypeMap {
+		s = append(s, k)
+	}
+	sort.Strings(s)
+	return s
+}
 
 func defaultPrincipal(rt slang.Runtime) (security.Principal, error) {
 	return v23.GetPrincipal(rt.Context()), nil
@@ -33,23 +51,30 @@ func removePrincipal(rt slang.Runtime, dir string) error {
 	return os.RemoveAll(dir)
 }
 
-func createSSHKeyPairing(rt slang.Runtime, publicKeyFile string) (seclib.KeyPair, error) {
-	return seclib.NewSSHAgentHostedKeyPair(publicKeyFile)
+func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error) {
+	return seclib.NewSSHAgentHostedKey(publicKeyFile)
 }
 
-func createKeyPair(rt slang.Runtime, keyType string) (seclib.KeyPair, error) {
-	return seclib.NewPrivateKey(keyType)
+func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) {
+	kt, ok := keyTypeMap[strings.ToLower(keyType)]
+	if !ok {
+		return nil, fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(supportedKeyTypes(), ", "))
+	}
+	return seclib.NewPrivateKey(kt)
 }
 
-func loadOrCreatePrincipal(rt slang.Runtime, key seclib.KeyPair, dir string) (security.Principal, error) {
+func loadOrCreatePrincipal(rt slang.Runtime, key crypto.PrivateKey, dir string) (security.Principal, error) {
 	p, err := loadPrincipal(rt, dir)
 	if err == nil {
 		return p, err
 	}
+	//var pass []byte
+	//if seclib.PasswordProtected(key) {
 	pass, err := passphrase.Get(fmt.Sprintf("Enter passphrase for %s (entering nothing will store the principal key unencrypted): ", dir))
 	if err != nil {
 		return nil, err
 	}
+	//}
 	return seclib.CreatePersistentPrincipalUsingKey(rt.Context(), key, dir, pass)
 }
 
@@ -93,14 +118,20 @@ func runScriptFile(ctx *context.T, name string) error {
 
 func init() {
 	slang.RegisterFunction(defaultPrincipal, `returns the Principal that this process would use by default`)
-	slang.RegisterFunction(loadPrincipal, `returns the Principal stored in the specified directory`, "p", "shortFormat")
+	slang.RegisterFunction(loadPrincipal, `returns the Principal stored in the specified directory`, "dirName")
 
-	slang.RegisterFunction(printPrincipal, `print a Principal and associated blessing information`, "p")
+	slang.RegisterFunction(printPrincipal, `print a Principal and associated blessing information`, "p", "shortFormOutput")
 	slang.RegisterFunction(printPublicKey, `print the public key for the specified Principal`, "p")
 
-	slang.RegisterFunction(createKeyPair, `create a Principal using a private key stored in an ssh agent identified by its public key file`)
-	slang.RegisterFunction(createPrincipal, `creates a new Principal and private/public key pair using the requested algorithm/key-type. The currently supported algorithms are: ed25519, ecdsa521, ecdsa384 and ecdsa256. The definitive list is defined by v.io/x/ref/lib/security.NewPrivateKey.
-`)
+	slang.RegisterFunction(useSSHKey, `use an ssh agent host key that corresponds to the supplied public key file`, "publicKeyFile")
+
+	createKeyPairHelp := `create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(supportedKeyTypes(), ", ") + "."
+
+	slang.RegisterFunction(createKeyPair, createKeyPairHelp, "keyType")
+
+	slang.RegisterFunction(loadOrCreatePrincipal, `load the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory`, "privateKey", "dirName")
+
+	slang.RegisterFunction(loadPrincipal, `load the principal stored in the specified director`, "dirName")
 
 }
 
@@ -123,6 +154,9 @@ func scriptDocumentation() string {
 	underline(out, "Summary")
 
 	fmt.Fprintln(out, format(slang.Summary), "")
+
+	underline(out, "Literals")
+	fmt.Fprintln(out, format(slang.Literals))
 
 	underline(out, "Examples")
 	fmt.Fprintln(out, slang.Examples)

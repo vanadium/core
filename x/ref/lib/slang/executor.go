@@ -222,7 +222,7 @@ func (scr *Script) run() error {
 			panic("internal error: unexpected number of results")
 		}
 		if ierr := results[len(results)-1].Interface(); ierr != nil {
-			errs.Add(inv.pos, ierr.(error).Error())
+			errs.Add(inv.pos, fmt.Sprintf("%s: %s", inv.verb.name, ierr.(error).Error()))
 			return errs.Err()
 		}
 		if len(results) == 1 {

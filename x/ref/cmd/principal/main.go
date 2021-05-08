@@ -10,6 +10,7 @@ package main
 import (
 	"bytes"
 	gocontext "context"
+	"crypto"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
@@ -30,9 +31,9 @@ import (
 	"v.io/v23/vom"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref"
+	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
-	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
 )
@@ -1601,16 +1602,17 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 		}
 		return os.RemoveAll(dir)
 	}
-	var privateKey interface{}
+	var privateKey crypto.PrivateKey
 	var err error
 	if len(sshKey) == 0 {
-		privateKey, err = vsecurity.NewPrivateKey(keyType)
-	} else {
-		service := sshagent.NewClient()
-		privateKey = vsecurity.SSHAgentHostedKey{
-			PublicKeyFile: sshKey,
-			Agent:         service,
+		kt, ok := keyTypeMap[strings.ToLower(keyType)]
+		if !ok {
+			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(supportedKeyTypes(), ", "))
+		} else {
+			privateKey, err = seclib.NewPrivateKey(kt)
 		}
+	} else {
+		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
 	}
 	if err != nil {
 		return nil, err

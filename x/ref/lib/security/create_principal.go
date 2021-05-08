@@ -6,6 +6,7 @@ package security
 
 import (
 	"context"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -42,7 +43,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 // The specified directory may not exist, in which case it will be created.
 // The follow key types are supported:
 // *ecdsa.PrivateKey, ed25519.PrivateKey and SSHAgentHostedKey.
-func CreatePersistentPrincipalUsingKey(ctx context.Context, key KeyPair, dir string, passphrase []byte) (security.Principal, error) {
+func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
 	unlock, err := initAndLockPrincipalDir(dir)
 	if err != nil {
 		return nil, err
@@ -79,6 +80,7 @@ func createSSHAgentPrincipal(ctx context.Context, sshKey *SSHAgentHostedKey, dir
 		return nil, fmt.Errorf("failed to copy ssh public key file: %v to %v: %v", from, to, err)
 	}
 	signer, err := sshKey.Agent.Signer(ctx, to, passphrase)
+	fmt.Printf("WTRF.... %v\n", err)
 	if err != nil {
 		return nil, err
 	}

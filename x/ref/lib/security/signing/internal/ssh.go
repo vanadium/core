@@ -16,15 +16,25 @@ import (
 	"v.io/x/ref/lib/security/internal"
 )
 
+var supportedKeyTypes = map[string]bool{
+	ssh.KeyAlgoECDSA256: true,
+	ssh.KeyAlgoECDSA384: true,
+	ssh.KeyAlgoECDSA521: true,
+	ssh.KeyAlgoED25519:  true,
+}
+
 // IsSupported returns true if the suplied ssh key type is supported.
 func IsSupported(key ssh.PublicKey) bool {
-	switch key.Type() {
-	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
-		return true
-	case ssh.KeyAlgoED25519:
-		return true
+	return supportedKeyTypes[key.Type()]
+}
+
+// SupportedKeyTypes retruns
+func SupportedKeyTypes() []string {
+	r := []string{}
+	for k := range supportedKeyTypes {
+		r = append(r, k)
 	}
-	return false
+	return r
 }
 
 // hashForSSHKey returns the hash function to be used for the supplied

@@ -27,13 +27,6 @@ var DefaultSSHAgentSockNameFunc = func() string {
 	return os.Getenv("SSH_AUTH_SOCK")
 }
 
-// PrivateKey represents a private key and its associated key pair as created
-// by NewPrivateKey and NewSSHAgentHostedKey.
-type PrivateKey interface {
-	fmt.Stringer
-	Key() crypto.PrivateKey
-}
-
 // SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
 // key file must be accessible and is used to identify the private key hosted
 // by the ssh agent. Currently ecdsa and ed25519 key types are supported.
@@ -44,49 +37,12 @@ type SSHAgentHostedKey struct {
 	Agent         *sshagent.Client
 }
 
-func (sshKey SSHAgentHostedKey) String() string {
-	return "ssh"
-}
-
-func (sshKey SSHAgentHostedKey) Key() crypto.PrivateKey {
-	return nil
-}
-
-// ECDSAKey represents and ecdsa.PrivateKey
-type ECDSAKey struct {
-	*ecdsa.PrivateKey
-}
-
-// ED25519Key represents an ed25519.PrivateKey
-type ED25519Key struct {
-	ed25519.PrivateKey
-}
-
-func (kp ECDSAKey) String() string {
-	return kp.Curve.Params().Name
-}
-
-func (kp ECDSAKey) Key() crypto.PrivateKey {
-	return kp.PrivateKey
-}
-
-func (kp ED25519Key) String() string {
-	return kp.String()
-}
-
-func (kp ED25519Key) Key() crypto.PrivateKey {
-	return kp.PrivateKey
-}
-
-func wrapECDSAKey(k *ecdsa.PrivateKey, err error) (PrivateKey, error) {
-	return ECDSAKey{k}, err
-}
-
 // KeyType represents the supported key types.
 type KeyType int
 
 const (
-	ECDSA256 KeyType = iota
+	UnsupportedKeyType KeyType = iota
+	ECDSA256
 	ECDSA384
 	ECDSA521
 	ED25519
@@ -94,17 +50,17 @@ const (
 
 // NewPrivateKey creates a new private key of the requested type.
 // keyType must be one of ecdsa256, ecdsa384, ecdsa521 or ed25519.
-func NewPrivateKey(keyType KeyType) (PrivateKey, error) {
+func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	switch keyType {
 	case ECDSA256:
-		return wrapECDSAKey(ecdsa.GenerateKey(elliptic.P256(), rand.Reader))
+		return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	case ECDSA384:
-		return wrapECDSAKey(ecdsa.GenerateKey(elliptic.P384(), rand.Reader))
+		return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	case ECDSA521:
-		return wrapECDSAKey(ecdsa.GenerateKey(elliptic.P521(), rand.Reader))
+		return ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	case ED25519:
 		_, privateKey, err := ed25519.GenerateKey(rand.Reader)
-		return ED25519Key{privateKey}, err
+		return privateKey, err
 	default:
 		return nil, fmt.Errorf("unsupported key type: %T", keyType)
 	}
@@ -114,18 +70,32 @@ func NewPrivateKey(keyType KeyType) (PrivateKey, error) {
 // in order to use the private key corresponding to the supplied
 // public for signing operations. Thus allowing the use of ssh keys
 // without having to separately manage them.
-func NewSSHAgentHostedKey(publicKeyFile string) (KeyPair, error) {
+func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
 	key, comment, err := internal.LoadSSHPublicKeyFile(publicKeyFile)
 	if err != nil {
 		return nil, err
 	}
-	return SSHAgentHostedKey{
+	return &SSHAgentHostedKey{
 		PublicKeyFile: publicKeyFile,
 		PublicKey:     key,
 		Comment:       comment,
 		Agent:         sshagent.NewClient(),
 	}, nil
 }
+
+/*
+// PasswordProtected returns true if the supplied key can be password
+// protected. Some key types, eg. ssh, are already encrypted and hence
+// cannot be password protected.
+func PasswordProtected(key crypto.PrivateKey) bool {
+	switch key.(type) {
+	case SSHAgentHostedKey, *SSHAgentHostedKey:
+		return false
+	default:
+		return true
+	}
+}
+*/
 
 // createReadLockfile ensures that a lockfile for read-only access
 // exists by first creating a lockfile for writes, unlocking it
