@@ -48,15 +48,19 @@ func (c caveatsFlag) String() string {
 }
 
 func (c caveatsFlag) Compile() ([]security.Caveat, error) {
-	if len(c.caveatInfos) == 0 {
+	return compileCaveats(c.caveatInfos)
+}
+
+func compileCaveats(caveatInfos []caveatInfo) ([]security.Caveat, error) {
+	if len(caveatInfos) == 0 {
 		return nil, nil
 	}
 	env := compile.NewEnv(-1)
-	if err := buildPackages(c.caveatInfos, env); err != nil {
+	if err := buildPackages(caveatInfos, env); err != nil {
 		return nil, err
 	}
 	var caveats []security.Caveat
-	for _, info := range c.caveatInfos {
+	for _, info := range caveatInfos {
 		caveat, err := newCaveat(info, env)
 		if err != nil {
 			return nil, err

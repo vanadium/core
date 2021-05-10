@@ -235,7 +235,7 @@ that this tool is running in.
 `,
 		FlagDefs: flagDumpDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return dumpPrincipal(v23.GetPrincipal(ctx), flagDumpFlags.Short)
+			return dumpPrincipal(os.Stdout, v23.GetPrincipal(ctx), flagDumpFlags.Short)
 		}),
 	}
 
@@ -255,34 +255,7 @@ this tool. - is used for STDIN.
 			if len(args) != 1 {
 				return fmt.Errorf("requires exactly one argument, <file>, provided %d", len(args))
 			}
-			blessings, err := decodeBlessings(args[0])
-			if err != nil {
-				return fmt.Errorf("failed to decode provided blessings: %v", err)
-			}
-			wire, err := blessings2wire(blessings)
-			if err != nil {
-				return fmt.Errorf("failed to decode certificate chains: %v", err)
-			}
-			fmt.Printf("Blessings          : %s\n", printAnnotatedBlessingsNames(blessings))
-			fmt.Printf("PublicKey          : %v\n", blessings.PublicKey())
-			fmt.Printf("Certificate chains : %d\n", len(wire.CertificateChains))
-			for idx, chain := range wire.CertificateChains {
-				fmt.Printf("Chain #%d (%d certificates). Root certificate public key: %v\n", idx, len(chain), rootkey(chain))
-				for certidx, cert := range chain {
-					fmt.Printf("  Certificate #%d: %v with ", certidx, cert.Extension)
-					switch n := len(cert.Caveats); n {
-					case 1:
-						fmt.Printf("1 caveat")
-					default:
-						fmt.Printf("%d caveats", n)
-					}
-					fmt.Println("")
-					for cavidx, cav := range cert.Caveats {
-						fmt.Printf("    (%d) %v\n", cavidx, cav.String())
-					}
-				}
-			}
-			return nil
+			return dumpBlessingsFile(os.Stdout, args[0])
 		}),
 	}
 
@@ -308,7 +281,7 @@ line per identity provider, each line is a base64url-encoded (RFC 4648, Section
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			for _, root := range security.RootBlessings(blessings) {
-				if err := dumpBlessings(root); err != nil {
+				if err := dumpBlessings(os.Stdout, root); err != nil {
 					return err
 				}
 			}
@@ -336,7 +309,7 @@ machine and the name of the user running this command.
 			var name string
 			switch len(args) {
 			case 0:
-				name = defaultBlessingName()
+				name = createDefaultBlessingName()
 			case 1:
 				name = args[0]
 			default:
@@ -355,7 +328,7 @@ machine and the name of the user running this command.
 				return fmt.Errorf("failed to create self-signed blessing for name %q: %v", name, err)
 			}
 
-			return dumpBlessings(blessing)
+			return dumpBlessings(os.Stdout, blessing)
 		}),
 	}
 
@@ -470,7 +443,7 @@ blessing.
 			if err != nil {
 				return err
 			}
-			return dumpBlessings(blessings)
+			return dumpBlessings(os.Stdout, blessings)
 		}),
 	}
 
@@ -491,7 +464,7 @@ is not suitable as an argument to the 'recognize' command.
 `,
 		FlagDefs: flagGetPublicKeyDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return dumpPublicKey(v23.GetPrincipal(ctx))
+			return dumpPublicKey(os.Stdout, v23.GetPrincipal(ctx))
 		}),
 	}
 
@@ -548,7 +521,8 @@ blessings set on the store with the "..." pattern).
 `,
 		FlagDefs: flagGetForPeerDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return printBlessingsInfo(
+			return dumpBlessingsInfo(
+				os.Stdout,
 				flagGetForPeer.Names,
 				flagGetForPeer.RootKey,
 				flagGetForPeer.Caveats,
@@ -571,7 +545,8 @@ with chain_name.
 		FlagDefs: flagGetDefaultsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			def, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
-			return printBlessingsInfo(
+			return dumpBlessingsInfo(
+				os.Stdout,
 				flagGetDefaults.Names,
 				flagGetDefaults.RootKey,
 				flagGetDefaults.Caveats,
@@ -1087,15 +1062,6 @@ All objects are printed using base64url-vom-encoding.
 	}
 )
 
-func printAnnotatedBlessingsNames(b security.Blessings) string {
-	// If the Blessings are expired, print a message saying so.
-	expiredMessage := ""
-	if exp := b.Expiry(); !exp.IsZero() && exp.Before(time.Now()) {
-		expiredMessage = " [EXPIRED]"
-	}
-	return fmt.Sprintf("%v%s", b, expiredMessage)
-}
-
 func blessArgs(env *cmdline.Env, remoteArgKey, remoteArgToken, remoteArgFile string, args []string) (tobless, extension, remoteKey, remoteToken string, err error) {
 	extensionInArgs := false
 	if len(remoteArgFile) == 0 {
@@ -1246,140 +1212,10 @@ All blessings are printed to stdout using base64url-vom-encoding.
 	cmdline.Main(root)
 }
 
-func dumpPublicKey(p security.Principal) error {
-	key := p.PublicKey()
-	if flagGetPublicKey.Pretty {
-		fmt.Println(key)
-		return nil
-	}
-	der, err := key.MarshalBinary()
-	if err != nil {
-		return fmt.Errorf("corrupted key: %v", err)
-	}
-	fmt.Println(base64.URLEncoding.EncodeToString(der))
-	return nil
-}
-
-func dumpPrincipal(p security.Principal, short bool) error {
-	def, _ := p.BlessingStore().Default()
-	if short {
-		fmt.Printf("%s\n", printAnnotatedBlessingsNames(def))
-		return nil
-	}
-	fmt.Printf("Public key : %v\n", p.PublicKey())
-	// NOTE(caprita): We print the default blessings name
-	// twice (it's also printed as part of the blessing
-	// store below) -- the reason we print it here is to
-	// expose whether the blessings are expired.  Ideally,
-	// the blessings store would print the expiry
-	// information about each blessing in the store, but
-	// that would require deeper changes beyond the
-	// principal tool.
-	fmt.Printf("Default Blessings : %s\n", printAnnotatedBlessingsNames(def))
-	fmt.Println("---------------- BlessingStore ----------------")
-	fmt.Printf("%v", p.BlessingStore().DebugString())
-	fmt.Println("---------------- BlessingRoots ----------------")
-	fmt.Printf("%v", p.Roots().DebugString())
-	return nil
-}
-
 func decodeBlessings(fname string) (security.Blessings, error) {
 	var b security.Blessings
 	err := decode(fname, &b)
 	return b, err
-}
-
-func dumpBlessings(blessings security.Blessings) error {
-	if blessings.IsZero() {
-		return fmt.Errorf("no blessings found")
-	}
-	str, err := base64urlVomEncode(blessings)
-	if err != nil {
-		return fmt.Errorf("base64url-vom encoding failed: %v", err)
-	}
-	fmt.Println(str)
-	return nil
-}
-
-func printBlessingsInfo(names bool, rootKey, caveats string, blessings security.Blessings) error {
-	if blessings.IsZero() {
-		return fmt.Errorf("no blessings found")
-	}
-	switch {
-	case names:
-		fmt.Println(strings.ReplaceAll(fmt.Sprint(blessings), ",", "\n"))
-		return nil
-	case len(rootKey) > 0:
-		chain, err := getChainByName(blessings, rootKey)
-		if err != nil {
-			return err
-		}
-		fmt.Println(rootkey(chain))
-		return nil
-	case len(caveats) > 0:
-		chain, err := getChainByName(blessings, caveats)
-		if err != nil {
-			return err
-		}
-		cavs, err := prettyPrintCaveats(chain)
-		if err != nil {
-			return err
-		}
-		for _, c := range cavs {
-			fmt.Println(c)
-		}
-		return nil
-	}
-	return dumpBlessings(blessings)
-}
-
-func prettyPrintCaveats(chain []security.Certificate) ([]string, error) {
-	var cavs []security.Caveat
-	for _, cert := range chain {
-		cavs = append(cavs, cert.Caveats...)
-	}
-	var s []string
-	for _, cav := range cavs {
-		if cav.Id == security.PublicKeyThirdPartyCaveat.Id {
-			c := cav.ThirdPartyDetails()
-			s = append(s, fmt.Sprintf("ThirdPartyCaveat: Requires discharge from %v (ID=%q)", c.Location(), c.ID()))
-			continue
-		}
-		var param interface{}
-		if err := vom.Decode(cav.ParamVom, &param); err != nil {
-			return nil, err
-		}
-		switch cav.Id {
-		case security.ConstCaveat.Id:
-			// In the case a ConstCaveat is specified, we only want to print it
-			// if it never validates.
-			if !param.(bool) {
-				s = append(s, "Never validates")
-			}
-		case security.ExpiryCaveat.Id:
-			s = append(s, fmt.Sprintf("Expires at %v", param))
-		case security.MethodCaveat.Id:
-			s = append(s, fmt.Sprintf("Restricted to methods %v", param))
-		case security.PeerBlessingsCaveat.Id:
-			s = append(s, fmt.Sprintf("Restricted to peers with blessings %v", param))
-		default:
-			s = append(s, cav.String())
-		}
-	}
-	return s, nil
-}
-
-func getChainByName(b security.Blessings, name string) ([]security.Certificate, error) {
-	wire, err := blessings2wire(b)
-	if err != nil {
-		return nil, err
-	}
-	for _, chain := range wire.CertificateChains {
-		if chainName(chain) == name {
-			return chain, nil
-		}
-	}
-	return nil, fmt.Errorf("no chains of name %v in %v", name, b)
 }
 
 func read(fname string) (string, error) {
@@ -1412,7 +1248,7 @@ func decode(fname string, val interface{}) error {
 	return nil
 }
 
-func defaultBlessingName() string {
+func createDefaultBlessingName() string {
 	var name string
 	if user, _ := user.Current(); user != nil && len(user.Username) > 0 {
 		name = user.Username
