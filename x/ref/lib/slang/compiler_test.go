@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	vcontext "v.io/v23/context"
 )
 
 func fn1(rt Runtime) error {
@@ -112,6 +114,10 @@ b: int
 		{`s := fn7("format")`, `s: string
 1:1: s := fn7("format") :: fn7(format string, args ...interface {}) string
 `},
+		{`s := fn7("format"); s = fn7("new format")`, `s: string
+1:1: s := fn7("format") :: fn7(format string, args ...interface {}) string
+1:21: s = fn7("new format") :: fn7(format string, args ...interface {}) string
+`},
 		{`s := fn7("%v", 3)`, `s: string
 1:1: s := fn7("%v", 3) :: fn7(format string, args ...interface {}) string
 `},
@@ -155,6 +161,7 @@ func TestCompileErrors(t *testing.T) {
 		{`fn6("1d", fals)`, `1:1: 1:5: arg '"1d"' is an invalid literal: time: unknown unit "d" in duration "1d"`},
 		{`a:=fn3(1); a := fn4("a")`, `1:12: result 'a' is redefined with a new type *slang.tt1, previous type int`},
 		{`a:=fn3(1); a := fn3(2)`, `1:12: result 'a' is redefined`},
+		{`a=fn3(1)`, `1:1: result 'a' is not defined`},
 		{`s:=fn7()`, "1:1: need at least 1 arguments for variadic function fn7(format string, args ...interface {}) string"},
 		{`s:=fn8("format")`, "1:1: need at least 2 arguments for variadic function fn8(format string, second int, args ...interface {}) string"},
 		{`s:=fn9(13)`, `1:1: 1:8: literal arg '13' of type int is not assignable to string`},
@@ -169,6 +176,34 @@ func TestCompileErrors(t *testing.T) {
 		if got, want := err.Error(), tc.msg; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
+	}
+
+}
+
+func TestConsts(t *testing.T) {
+	ctx, cancel := vcontext.RootContext()
+	defer cancel()
+
+	out := &strings.Builder{}
+	scr := &Script{}
+	scr.SetStdout(out)
+	now := time.Now()
+	scr.RegisterConst("startTime", now.Format(time.RFC1123))
+	err := scr.ExecuteBytes(ctx, []byte(`printf("now: %s",startTime)`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := out.String(), "now: "+now.Format(time.RFC1123); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	err = scr.ExecuteBytes(ctx, []byte(`startTime = sprintf("a")`))
+	if err == nil || err.Error() != `1:1: cannot assign or define result 'startTime' which is a constant` {
+		t.Errorf("missing or unexpected error: %v", err)
+	}
+	err = scr.ExecuteBytes(ctx, []byte(`a := fn3(startTime)`))
+	if err == nil || err.Error() != `1:1: 1:10: arg 'startTime' is of the wrong type string, should be int` {
+		t.Errorf("missing or unexpected error: %v", err)
 	}
 
 }

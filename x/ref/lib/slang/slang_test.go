@@ -15,26 +15,30 @@ func TestBuiltins(t *testing.T) {
 	defer cancel()
 
 	out := &strings.Builder{}
-	scr := &slang.Script{Stdout: out}
+	var scr *slang.Script
 
 	execute := func(script string) {
 		out.Reset()
+		scr.SetStdout(out)
 		if err := scr.ExecuteBytes(ctx, []byte(script)); err != nil {
 			_, _, line, _ := runtime.Caller(1)
 			t.Fatalf("line %v: script error: %v", line, err)
 		}
 	}
 
+	scr = &slang.Script{}
 	execute("listFunctions()")
 	if got, want := out.String(), "fn10"; !strings.Contains(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	execute(`printf("format %q %v", "msg", true)`)
 	if got, want := out.String(), `format "msg" true`; got != want {
 		t.Errorf("got %v does not contain %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	execute(`x:=sprintf("format %q %v", "oops", 42); y := expandEnv("$HOME/dummy")`)
 	vars := scr.Variables()
 	if got, want := vars["x"].(string), `format "oops" 42`; !strings.Contains(got, want) {
@@ -44,28 +48,34 @@ func TestBuiltins(t *testing.T) {
 		t.Errorf("got %v does not contain %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	execute(`help(listFunctions)`)
 	if got, want := out.String(), "listFunctions()\n  list available functions\n"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	scr.SetEnv("MY_VAR", "my_val")
 	execute(`v := expandEnv("$MY_VAR/foo"); printf("%s", v)`)
 	if got, want := out.String(), "my_val/foo"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	execute(`v := expandEnv("$MY_NON_VAR/foo"); printf("%s", v)`)
 	if got, want := out.String(), "/foo"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	scr = &slang.Script{}
 	home := os.Getenv("HOME")
 	execute(`v := expandEnv("$HOME/foo"); printf("%s", v)`)
 	if got, want := out.String(), home+"/foo"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	scr = &slang.Script{}
+	scr.SetEnv("MY_VAR", "my_val")
 	scr.SetEnv("HOME", "myhome")
 	execute(`v := expandEnv("$HOME/foo"); printf("%s", v)`)
 	if got, want := out.String(), "myhome/foo"; got != want {
@@ -82,9 +92,37 @@ v: string: myhome/foo
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+}
+
+func TestExecute(t *testing.T) {
+	ctx, cancel := vcontext.RootContext()
+	defer cancel()
+
+	scr := &slang.Script{}
 	err := scr.ExecuteBytes(ctx, []byte("help(undefined)"))
 	if err == nil || err.Error() != "1:1: 1:6: arg 'undefined' is an invalid literal: invalid identifier" {
 		t.Errorf("missing or unexpected error: %v", err)
+	}
+
+	scr = &slang.Script{}
+	err = scr.ExecuteBytes(ctx, []byte(`help("undefined")`))
+	if err == nil || err.Error() != `1:1: help: unrecognised function: "undefined"` {
+		t.Errorf("missing or unexpected error: %v", err)
+	}
+
+	if got, want := scr.Context(), ctx; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestRegistered(t *testing.T) {
+	rf := slang.RegisteredFunctions()
+	if got, want := len(rf), 16; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	if got, want := rf[0].Function, "expandEnv(value string) string"; got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 
 }

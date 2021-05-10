@@ -2,6 +2,8 @@ package slang
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"v.io/v23/context"
@@ -42,6 +44,7 @@ s: string: duration: 1h0m30s, bool true
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 	}
+
 }
 
 func fnError(rt Runtime) error {
@@ -60,7 +63,7 @@ func TestExecuteError(t *testing.T) {
 	fnError()
 	y := sprintf("y %s", x)
 	`)
-	if err == nil || err.Error() != "3:2: Ooops" {
+	if err == nil || err.Error() != "3:2: fnError: Ooops" {
 		t.Errorf("unexpected error: %v", err)
 	}
 	vars := scr.Variables()
@@ -68,4 +71,18 @@ func TestExecuteError(t *testing.T) {
 		t.Errorf("made it past an error")
 	}
 
+	scr, err = parseAndCompileAndExecute(ctx, `parse error`)
+	if err == nil || err.Error() != "1:7: expected ',' or ':=', got 'IDENT' (and 1 more errors)" {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = scr.ExecuteFile(ctx, filepath.Join("testdata", "parse_err.slang"))
+	if err == nil || !strings.HasSuffix(err.Error(), "parse_err.slang:1:3: illegal character U+003F '?' (and 1 more errors)") {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = scr.ExecuteFile(ctx, filepath.Join("testdata", "testparse.slang"))
+	if err == nil || !strings.HasSuffix(err.Error(), "testparse.slang:4:1: wrong # of results for fn3(v int) int (and 3 more errors)") {
+		t.Errorf("unexpected error: %v", err)
+	}
 }

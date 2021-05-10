@@ -12,10 +12,14 @@ func TestSimpleParse(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to parse: %v: %v", fp, err)
 	}
+	if got, want := stmts[0].String(), `fn1()`; got != want {
+		t.Errorf("%s: got %v, want %v", fp, got, want)
+	}
 	if got, want := stmts.String(), `fn1()
 one := fn2()
 one, two := fn3(a)
 one, two := fn3(a, b)
+one, two = fn3(a, b)
 one := fn4(`+"`"+`a multiline string
 another line
 `+"`)\n"; got != want {
@@ -29,10 +33,10 @@ func TestParseErrors(t *testing.T) {
 		errmsg  string
 		allerrs string
 	}{
-		{"=", "1:1: invalid token '='", ""},
+		{"+", "1:1: invalid token '+'", ""},
 		{"break", "1:1: reserved keyword 'break'", ""},
-		{"break = ? * + /", "1:1: reserved keyword 'break' (and 5 more errors)", `1:1: reserved keyword 'break'
-1:7: invalid token '='
+		{"break + ? * + /", "1:1: reserved keyword 'break' (and 5 more errors)", `1:1: reserved keyword 'break'
+1:7: invalid token '+'
 1:9: illegal character U+003F '?'
 1:9: invalid token 'ILLEGAL'
 1:11: invalid token '*'

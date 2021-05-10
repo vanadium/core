@@ -2,6 +2,7 @@ package slang
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"runtime"
 	"sort"
@@ -19,11 +20,9 @@ type verb struct {
 	help           string
 }
 
-func (v verb) String() string {
-	out := &strings.Builder{}
-	out.WriteString(v.name)
-	out.WriteRune('(')
+func (v verb) formatParameters(out *strings.Builder) {
 	rt := v.protoype
+	out.WriteRune('(')
 	variadic := rt.IsVariadic()
 	nIn := rt.NumIn()
 	for i := 1; i < nIn; i++ {
@@ -43,8 +42,12 @@ func (v verb) String() string {
 		}
 	}
 	out.WriteRune(')')
+}
+
+func (v verb) formatResults(out *strings.Builder) {
+	rt := v.protoype
 	if rt.NumOut() == 1 {
-		return out.String()
+		return
 	}
 	if rt.NumOut() > 2 {
 		out.WriteString(" (")
@@ -73,6 +76,13 @@ func (v verb) String() string {
 	if rt.NumOut() > 2 {
 		out.WriteRune(')')
 	}
+}
+
+func (v verb) String() string {
+	out := &strings.Builder{}
+	out.WriteString(v.name)
+	v.formatParameters(out)
+	v.formatResults(out)
 	return out.String()
 }
 
@@ -88,7 +98,7 @@ var (
 // The names of each parameter and named results must be explicitly provided
 // since they cannot be obtained via the reflect package. They should
 // be provided in the order that they are defined, i.e. left-to-right,
-// paramters first, then optionally any named results.
+// parameters first, then optionally any named results.
 //
 // The type of registered functions must of the form:
 //
@@ -158,6 +168,8 @@ type Runtime interface {
 	// ExpandEnv provides access to the environment variables defined and
 	// the process, preferring those defined for the script.
 	ExpandEnv(name string) string
+	// Stdout returns the appropriate io.Writer for accessing stdout.
+	Stdout() io.Writer
 }
 
 // RegisteredFunction represents the name and help message for a registered
