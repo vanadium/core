@@ -2,6 +2,7 @@ package slang
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"runtime"
 	"sort"
@@ -167,6 +168,8 @@ type Runtime interface {
 	// ExpandEnv provides access to the environment variables defined and
 	// the process, preferring those defined for the script.
 	ExpandEnv(name string) string
+	// Stdout returns the appropriate io.Writer for accessing stdout.
+	Stdout() io.Writer
 }
 
 // RegisteredFunction represents the name and help message for a registered

@@ -15,11 +15,22 @@ import (
 
 // Script represents the execution of a single script.
 type Script struct {
-	Stdout      io.Writer
+	stdout      io.Writer
 	envvars     map[string]string
 	ctx         *context.T
 	symbols     *symbolTable
 	invocations []invocation
+}
+
+func (scr *Script) RegisterConst(name string, value interface{}) {
+	if scr.symbols == nil {
+		scr.symbols = newSymbolTable()
+	}
+	rv := reflect.ValueOf(value)
+	rt := rv.Type()
+	scr.symbols.constants[name] = true
+	scr.symbols.types[name] = rt
+	scr.symbols.values[name] = rv
 }
 
 // SetEnv sets an environment variable that will be available to the
@@ -74,8 +85,8 @@ func (scr *Script) compileAndRun(ctx *context.T, stmts statements) error {
 		return err
 	}
 	scr.ctx = ctx
-	if scr.Stdout == nil {
-		scr.Stdout = os.Stdout
+	if scr.stdout == nil {
+		scr.stdout = os.Stdout
 	}
 	return scr.run()
 }
@@ -90,17 +101,27 @@ type value interface {
 // symbolTable tracks the type of all compile-time defined
 // variables and the values of these variables at runtime.
 type symbolTable struct {
-	types  map[string]reflect.Type
-	values map[string]reflect.Value
+	constants map[string]bool
+	types     map[string]reflect.Type
+	values    map[string]reflect.Value
+}
+
+func newSymbolTable() *symbolTable {
+	return &symbolTable{
+		constants: map[string]bool{},
+		types:     map[string]reflect.Type{},
+		values:    map[string]reflect.Value{},
+	}
 }
 
 // invocation is the compiled form of a single statement - i.e.
 // function invocation.
 type invocation struct {
-	pos     token.Position
-	verb    verb
-	args    []value
-	results []value
+	pos        token.Position
+	verb       verb
+	args       []value
+	results    []value
+	assignment bool
 }
 
 func (scr *Script) formatEnv(out *strings.Builder) {
@@ -166,7 +187,11 @@ func (inv invocation) format(out *strings.Builder) {
 		}
 	}
 	if len(inv.results) > 0 {
-		out.WriteString(" := ")
+		if inv.assignment {
+			out.WriteString(" = ")
+		} else {
+			out.WriteString(" := ")
+		}
 	}
 	fmt.Fprintf(out, "%s(", inv.verb.name)
 	for i, a := range inv.args {
@@ -222,7 +247,7 @@ func (scr *Script) run() error {
 			panic("internal error: unexpected number of results")
 		}
 		if ierr := results[len(results)-1].Interface(); ierr != nil {
-			errs.Add(inv.pos, ierr.(error).Error())
+			errs.Add(inv.pos, fmt.Sprintf("%s: %s", inv.verb.name, ierr.(error).Error()))
 			return errs.Err()
 		}
 		if len(results) == 1 {

@@ -10,9 +10,8 @@ import (
 )
 
 func (scr *Script) compile(stmts statements) error {
-	scr.symbols = &symbolTable{
-		types:  map[string]reflect.Type{},
-		values: map[string]reflect.Value{},
+	if scr.symbols == nil {
+		scr.symbols = newSymbolTable()
 	}
 	scr.invocations = make([]invocation, 0, len(stmts))
 	errs := scanner.ErrorList{}
@@ -54,7 +53,8 @@ func handleLiteral(lit tokPos, tt reflect.Type) (reflect.Value, error) {
 	case token.INT:
 		iv, err := strconv.ParseInt(lit.lit, 10, 64)
 		if err != nil {
-			return reflect.Value{}, fmt.Errorf("not an int: %v", err)
+			// The go parser has already made sure this token is an int.
+			panic(fmt.Sprintf("%v: not an int: %v", lit.lit, err))
 		}
 		return reflect.ValueOf(int(iv)), nil
 	case token.IDENT:
@@ -81,16 +81,28 @@ func handleLiteral(lit tokPos, tt reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(uq), nil
 	}
-	return reflect.Value{}, fmt.Errorf("unsupported literal type: expected %v", tt)
+	panic(fmt.Sprintf("unsupported literal type: expected %v", tt))
 }
 
-func compileResults(symbols *symbolTable, td reflect.Type, results []tokPos) ([]value, *scanner.Error) {
+func compileResults(symbols *symbolTable, td reflect.Type, results []tokPos, assignment bool) ([]value, *scanner.Error) {
 	resultValues := []value{}
 	for i, r := range results {
 		name := r.lit
 		et, existing := symbols.types[name]
+		if existing && symbols.constants[name] {
+			return nil, &scanner.Error{
+				Pos: r.pos,
+				Msg: fmt.Sprintf("cannot assign or define result '%v' which is a constant", name),
+			}
+		}
 		tt := td.Out(i)
-		if existing {
+		if !existing && assignment {
+			return nil, &scanner.Error{
+				Pos: r.pos,
+				Msg: fmt.Sprintf("result '%v' is not defined", name),
+			}
+		}
+		if existing && !assignment {
 			if et != tt {
 				return nil, &scanner.Error{
 					Pos: r.pos,
@@ -102,7 +114,9 @@ func compileResults(symbols *symbolTable, td reflect.Type, results []tokPos) ([]
 				Msg: fmt.Sprintf("result '%v' is redefined", name),
 			}
 		}
-		symbols.types[name] = tt
+		if !assignment {
+			symbols.types[name] = tt
+		}
 		resultValues = append(resultValues, variableValue(name))
 	}
 	return resultValues, nil
@@ -179,7 +193,7 @@ func compileStatement(symbols *symbolTable, stmt statement) (invocation, *scanne
 		}
 	}
 
-	resultValues, err := compileResults(symbols, td, stmt.results)
+	resultValues, err := compileResults(symbols, td, stmt.results, stmt.assign)
 	if err != nil {
 		return inv, err
 	}
@@ -190,9 +204,10 @@ func compileStatement(symbols *symbolTable, stmt statement) (invocation, *scanne
 	}
 
 	return invocation{
-		pos:     stmt.pos,
-		verb:    v,
-		results: resultValues,
-		args:    argValues,
+		pos:        stmt.pos,
+		verb:       v,
+		results:    resultValues,
+		args:       argValues,
+		assignment: stmt.assign,
 	}, nil
 }

@@ -2,6 +2,7 @@ package slang
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"sort"
 
@@ -9,21 +10,27 @@ import (
 	"v.io/x/lib/textutil"
 )
 
+// add ability to add builtin constants
+
+func (scr *Script) SetStdout(stdout io.Writer) {
+	scr.stdout = stdout
+}
+
 func (scr *Script) Context() *context.T {
 	return scr.ctx
 }
 
 func (scr *Script) Printf(format string, args ...interface{}) {
-	fmt.Fprintf(scr.Stdout, format, args...)
+	fmt.Fprintf(scr.Stdout(), format, args...)
 }
 
 func (scr *Script) Help(cmd string) error {
 	v, ok := supportedVerbs[cmd]
 	if !ok {
-		return fmt.Errorf("help: unrecognised function: %q", cmd)
+		return fmt.Errorf("unrecognised function: %q", cmd)
 	}
-	fmt.Fprintln(scr.Stdout, v.String())
-	wr := textutil.NewUTF8WrapWriter(scr.Stdout, 70)
+	fmt.Fprintln(scr.Stdout(), v.String())
+	wr := textutil.NewUTF8WrapWriter(scr.Stdout(), 70)
 	wr.SetIndents("  ", "  ")
 	wr.Write([]byte(v.help))
 	return wr.Flush()
@@ -36,7 +43,7 @@ func (scr *Script) ListFunctions() {
 	}
 	sort.Strings(names)
 	for _, n := range names {
-		fmt.Fprintf(scr.Stdout, "%s\n", n)
+		fmt.Fprintf(scr.Stdout(), "%s\n", n)
 	}
 }
 
@@ -51,6 +58,10 @@ func (scr *Script) ExpandEnv(s string) string {
 		return "${" + vn + "}"
 	})
 	return os.ExpandEnv(e)
+}
+
+func (scr *Script) Stdout() io.Writer {
+	return scr.stdout
 }
 
 func printf(rt Runtime, format string, args ...interface{}) error {

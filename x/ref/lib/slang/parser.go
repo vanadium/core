@@ -12,6 +12,7 @@ import (
 type statement struct {
 	pos           token.Position
 	results, args []tokPos
+	assign        bool
 	verbName      tokPos
 }
 
@@ -51,7 +52,11 @@ func (s statement) String() string {
 func formatStatement(out *strings.Builder, s statement) {
 	if len(s.results) > 0 {
 		writeCommaSep(out, s.results)
-		out.WriteString(" := ")
+		if s.assign {
+			out.WriteString(" = ")
+		} else {
+			out.WriteString(" := ")
+		}
 	}
 	out.WriteString(s.verbName.lit)
 	out.WriteRune('(')
@@ -71,6 +76,7 @@ func (stmts statements) String() string {
 
 type parseState struct {
 	scratch    []tokPos
+	assign     bool
 	results    []tokPos
 	verbName   tokPos
 	args       []tokPos
@@ -96,10 +102,11 @@ func (ps *parseState) resultsCommaOrDefineOrArgs(tp tokPos) parseStateFn {
 	switch tp.tok {
 	case token.COMMA:
 		return ps.resultsIdent
-	case token.DEFINE:
+	case token.DEFINE, token.ASSIGN:
 		ps.results = make([]tokPos, len(ps.scratch))
 		copy(ps.results, ps.scratch)
 		ps.scratch = ps.scratch[:0]
+		ps.assign = tp.tok == token.ASSIGN
 		return ps.funcName
 	case token.LPAREN:
 		// function call with no results.
@@ -181,6 +188,7 @@ func (ps *parseState) copyStatementAndReset() statement {
 		results:  ps.results,
 		args:     ps.args,
 		verbName: ps.verbName,
+		assign:   ps.assign,
 	}
 	if len(ps.results) > 0 {
 		stmt.pos = ps.results[0].pos
@@ -188,6 +196,7 @@ func (ps *parseState) copyStatementAndReset() statement {
 		stmt.pos = ps.verbName.pos
 	}
 	ps.results, ps.args = nil, nil
+	ps.assign = false
 	ps.verbName = tokPos{}
 	return stmt
 }
@@ -212,7 +221,7 @@ func parse(tokens []tokPos) (statements, error) {
 	fn := ps.resultsIdent
 	for _, tp := range tokens {
 		if parseTrace {
-			fmt.Printf(">> %v: %v: %v\n", tp.pos, tp.tok, runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name())
+			fmt.Printf("parse: %v: %v: %v\n", tp.pos, tp.tok, runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name())
 		}
 		fn = fn(tp)
 		if len(ps.errs) > 5 {
