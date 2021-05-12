@@ -20,6 +20,7 @@ one := fn2()
 one, two := fn3(a)
 one, two := fn3(a, b)
 one, two = fn3(a, b)
+printf("%v", v...)
 one := fn4(`+"`"+`a multiline string
 another line
 `+"`)\n"; got != want {
@@ -82,6 +83,17 @@ func TestParseErrors(t *testing.T) {
 1:13: expected variable name, got ')'
 1:14: expected variable name, got ';'
 2:1: expected variable name, got ','
+`},
+		{"f(...)", "1:3: expected variable or literal, got '...' (and 2 more errors)", `1:3: expected variable or literal, got '...'
+1:6: expected variable name, got ')'
+1:7: expected variable name, got ';'
+`},
+		{"f(a...,)", "1:7: expected ')' got ',' (and 1 more errors)", `1:7: expected ')' got ','
+1:8: expected '; or '\n', got ')'
+`},
+		{"f(a...,b)", "1:7: expected ')' got ',' (and 2 more errors)", `1:7: expected ')' got ','
+1:8: expected '; or '\n', got 'IDENT'
+1:9: expected '; or '\n', got ')'
 `},
 	} {
 

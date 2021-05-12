@@ -96,6 +96,7 @@ func (scr *Script) compileAndRun(ctx *context.T, stmts statements) error {
 type value interface {
 	value(st *symbolTable) reflect.Value
 	varOrLiteral() string
+	ellipsis() bool
 }
 
 // symbolTable tracks the type of all compile-time defined
@@ -196,6 +197,9 @@ func (inv invocation) format(out *strings.Builder) {
 	fmt.Fprintf(out, "%s(", inv.verb.name)
 	for i, a := range inv.args {
 		out.WriteString(a.varOrLiteral())
+		if a.ellipsis() {
+			out.WriteString("...")
+		}
 		if i < len(inv.args)-1 {
 			out.WriteString(", ")
 		}
@@ -219,10 +223,17 @@ func (lv literalValue) varOrLiteral() string {
 	return fmt.Sprintf("%v", rv.Interface())
 }
 
-type variableValue string
+func (lv literalValue) ellipsis() bool {
+	return false
+}
+
+type variableValue struct {
+	name        string
+	hasEllipsis bool
+}
 
 func (rv variableValue) value(st *symbolTable) reflect.Value {
-	v, ok := st.values[string(rv)]
+	v, ok := st.values[rv.name]
 	if !ok {
 		panic(fmt.Sprintf("variable %v has not been initialized", rv))
 	}
@@ -230,7 +241,11 @@ func (rv variableValue) value(st *symbolTable) reflect.Value {
 }
 
 func (rv variableValue) varOrLiteral() string {
-	return string(rv)
+	return rv.name
+}
+
+func (rv variableValue) ellipsis() bool {
+	return rv.hasEllipsis
 }
 
 func (scr *Script) run() error {
@@ -239,10 +254,21 @@ func (scr *Script) run() error {
 	for _, inv := range scr.invocations {
 		args := make([]reflect.Value, len(inv.args)+1)
 		args[0] = rt
+		useCallSlice := false
 		for i, arg := range inv.args {
 			args[i+1] = arg.value(scr.symbols)
+			if arg.ellipsis() {
+				if args[i+1].Type().Kind() == reflect.Slice {
+					useCallSlice = true
+				}
+			}
 		}
-		results := inv.verb.implementation.Call(args)
+		var results []reflect.Value
+		if useCallSlice {
+			results = inv.verb.implementation.CallSlice(args)
+		} else {
+			results = inv.verb.implementation.Call(args)
+		}
 		if len(results) < 1 {
 			panic("internal error: unexpected number of results")
 		}

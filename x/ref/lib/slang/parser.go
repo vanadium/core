@@ -37,6 +37,9 @@ func parseFile(filename string) (statements, error) {
 func writeCommaSep(out *strings.Builder, idents []tokPos) {
 	for i, tp := range idents {
 		out.WriteString(tp.lit)
+		if tp.ellipsis {
+			out.WriteString("...")
+		}
 		if i < len(idents)-1 {
 			out.WriteString(", ")
 		}
@@ -146,6 +149,17 @@ func (ps *parseState) argsLeftParen(tp tokPos) parseStateFn {
 	return ps.argsLeftParen
 }
 
+func (ps *parseState) rightParen(tp tokPos) parseStateFn {
+	if tp.tok == token.RPAREN {
+		return ps.done
+	}
+	ps.errs = append(ps.errs, &scanner.Error{
+		Pos: tp.pos,
+		Msg: fmt.Sprintf("expected ')', got '%s'", tp.tok),
+	})
+	return ps.done
+}
+
 func (ps *parseState) argIdentOrRightParen(tp tokPos) parseStateFn {
 	if tp.tok == token.RPAREN {
 		return ps.done
@@ -157,7 +171,7 @@ func (ps *parseState) argIdent(tp tokPos) parseStateFn {
 	switch tp.tok {
 	case token.IDENT, token.STRING, token.INT:
 		ps.scratch = append(ps.scratch, tp)
-		return ps.argsCommaOrRightParen
+		return ps.argsCommaOrEllipsisOrRightParen
 	}
 	ps.errs = append(ps.errs, &scanner.Error{
 		Pos: tp.pos,
@@ -166,11 +180,8 @@ func (ps *parseState) argIdent(tp tokPos) parseStateFn {
 	return ps.resultsIdent
 }
 
-func (ps *parseState) argsCommaOrRightParen(tp tokPos) parseStateFn {
-	switch tp.tok {
-	case token.COMMA:
-		return ps.argIdent
-	case token.RPAREN:
+func (ps *parseState) argRightParen(tp tokPos) parseStateFn {
+	if tp.tok == token.RPAREN {
 		ps.args = make([]tokPos, len(ps.scratch))
 		copy(ps.args, ps.scratch)
 		ps.scratch = ps.scratch[:0]
@@ -178,9 +189,33 @@ func (ps *parseState) argsCommaOrRightParen(tp tokPos) parseStateFn {
 	}
 	ps.errs = append(ps.errs, &scanner.Error{
 		Pos: tp.pos,
+		Msg: fmt.Sprintf("expected ')' got '%s'", tp.tok),
+	})
+	return ps.done
+}
+
+func (ps *parseState) argsCommaOrEllipsisOrRightParen(tp tokPos) parseStateFn {
+	switch tp.tok {
+	case token.COMMA:
+		return ps.argIdent
+	case token.RPAREN:
+		return ps.argRightParen(tp)
+	case token.ELLIPSIS:
+		if len(ps.scratch) == 0 {
+			ps.errs = append(ps.errs, &scanner.Error{
+				Pos: tp.pos,
+				Msg: "unexpected '...'",
+			})
+			return ps.done
+		}
+		ps.scratch[len(ps.scratch)-1].ellipsis = true
+		return ps.argRightParen
+	}
+	ps.errs = append(ps.errs, &scanner.Error{
+		Pos: tp.pos,
 		Msg: fmt.Sprintf("expected ',' or ')', got '%s'", tp.tok),
 	})
-	return ps.argsCommaOrRightParen
+	return ps.argsCommaOrEllipsisOrRightParen
 }
 
 func (ps *parseState) copyStatementAndReset() statement {

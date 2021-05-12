@@ -57,6 +57,10 @@ func fn10(rt Runtime, duration time.Duration, flag bool) (time.Duration, bool, e
 	return duration, flag, nil
 }
 
+func stringv(rt Runtime, args ...string) ([]string, error) {
+	return args, nil
+}
+
 func init() {
 	RegisterFunction(fn1, "")
 	RegisterFunction(fn2, "")
@@ -68,6 +72,7 @@ func init() {
 	RegisterFunction(fn8, "", "format", "second", "args")
 	RegisterFunction(fn9, "", "args")
 	RegisterFunction(fn10, "", "duration", "flag")
+	RegisterFunction(stringv, "", "args")
 
 }
 
@@ -133,6 +138,11 @@ s: string
 1:1: d, f := fn10(1h0m30s, false) :: fn10(duration time.Duration, flag bool) (time.Duration, bool)
 1:30: s := fn7("duration: %v, bool %v", d, f) :: fn7(format string, args ...interface {}) string
 `},
+		{`va := stringv("a", "b", "c"); vb := stringv(va...)`, `va: []string
+vb: []string
+1:1: va := stringv("a", "b", "c") :: stringv(args ...string) []string
+1:31: vb := stringv(va...) :: stringv(args ...string) []string
+`},
 	} {
 		out, err := parseAndCompile(tc.script)
 		if err != nil {
@@ -166,6 +176,7 @@ func TestCompileErrors(t *testing.T) {
 		{`s:=fn8("format")`, "1:1: need at least 2 arguments for variadic function fn8(format string, second int, args ...interface {}) string"},
 		{`s:=fn9(13)`, `1:1: 1:8: literal arg '13' of type int is not assignable to string`},
 		{`s:=fn9("a", 14)`, `1:1: 1:13: literal arg '14' of type int is not assignable to string`},
+		{`va := stringv("a", "b", "c"); o := sprintf("%v", va...)`, `1:31: 1:50: arg 'va' is of the wrong type []string, should be []interface {}`},
 	} {
 
 		_, err := parseAndCompile(tc.script)
@@ -205,5 +216,4 @@ func TestConsts(t *testing.T) {
 	if err == nil || err.Error() != `1:1: 1:10: arg 'startTime' is of the wrong type string, should be int` {
 		t.Errorf("missing or unexpected error: %v", err)
 	}
-
 }
