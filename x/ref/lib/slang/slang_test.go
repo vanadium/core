@@ -50,7 +50,7 @@ func TestBuiltins(t *testing.T) {
 
 	scr = &slang.Script{}
 	execute(`help(listFunctions)`)
-	if got, want := out.String(), "listFunctions()\n  list available functions\n"; got != want {
+	if got, want := out.String(), "listFunctions(tags ...string)\n  list available functions\n"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 

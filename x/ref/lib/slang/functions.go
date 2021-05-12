@@ -180,6 +180,7 @@ type Runtime interface {
 // function.
 type RegisteredFunction struct {
 	Function string
+	Tag      string
 	Help     string
 }
 
@@ -194,6 +195,7 @@ func RegisteredFunctions(tags ...string) []RegisteredFunction {
 		if len(tags) == 0 || tm[v.tag] {
 			rf = append(rf, RegisteredFunction{
 				Function: v.String(),
+				Tag:      v.tag,
 				Help:     v.help,
 			})
 		}

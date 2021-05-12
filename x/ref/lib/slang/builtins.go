@@ -9,8 +9,6 @@ import (
 	"v.io/x/lib/textutil"
 )
 
-// add ability to add builtin constants
-
 func (scr *Script) SetStdout(stdout io.Writer) {
 	scr.stdout = stdout
 }
@@ -38,6 +36,11 @@ func (scr *Script) Help(cmd string) error {
 func (scr *Script) ListFunctions(tags ...string) {
 	fns := RegisteredFunctions(tags...)
 	for _, fn := range fns {
+		if len(tags) == 0 {
+			fmt.Fprintf(scr.Stdout(), "%s: %s\n", fn.Tag, fn.Function)
+
+			continue
+		}
 		fmt.Fprintf(scr.Stdout(), "%s\n", fn.Function)
 	}
 }
