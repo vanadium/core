@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 
 	"v.io/v23/context"
 	"v.io/x/lib/textutil"
 )
-
-// add ability to add builtin constants
 
 func (scr *Script) SetStdout(stdout io.Writer) {
 	scr.stdout = stdout
@@ -36,14 +33,15 @@ func (scr *Script) Help(cmd string) error {
 	return wr.Flush()
 }
 
-func (scr *Script) ListFunctions() {
-	names := make([]string, 0, len(supportedVerbs))
-	for k := range supportedVerbs {
-		names = append(names, k)
-	}
-	sort.Strings(names)
-	for _, n := range names {
-		fmt.Fprintf(scr.Stdout(), "%s\n", n)
+func (scr *Script) ListFunctions(tags ...string) {
+	fns := RegisteredFunctions(tags...)
+	for _, fn := range fns {
+		if len(tags) == 0 {
+			fmt.Fprintf(scr.Stdout(), "%s: %s\n", fn.Tag, fn.Function)
+
+			continue
+		}
+		fmt.Fprintf(scr.Stdout(), "%s\n", fn.Function)
 	}
 }
 
@@ -73,8 +71,8 @@ func sprintf(rt Runtime, format string, args ...interface{}) (string, error) {
 	return fmt.Sprintf(format, args...), nil
 }
 
-func listFunctions(rt Runtime) error {
-	rt.ListFunctions()
+func listFunctions(rt Runtime, tags ...string) error {
+	rt.ListFunctions(tags...)
 	return nil
 }
 
@@ -87,9 +85,9 @@ func help(rt Runtime, cmd string) error {
 }
 
 func init() {
-	RegisterFunction(printf, `equivalent to fmt.Printf`, "format", "args")
-	RegisterFunction(sprintf, `equivalent to fmt.Sprintf`, "format", "args")
-	RegisterFunction(listFunctions, `list available functions`)
-	RegisterFunction(expandEnv, `perform shell environment variable expansion`, "value")
-	RegisterFunction(help, "display information for a specific function", "name")
+	RegisterFunction(printf, "builtin", `equivalent to fmt.Printf`, "format", "args")
+	RegisterFunction(sprintf, "builtin", `equivalent to fmt.Sprintf`, "format", "args")
+	RegisterFunction(listFunctions, "builtin", `list available functions`, "tags")
+	RegisterFunction(expandEnv, "builtin", `perform shell environment variable expansion`, "value")
+	RegisterFunction(help, "builtin", "display information for a specific function", "name")
 }

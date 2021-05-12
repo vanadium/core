@@ -17,6 +17,7 @@ type verb struct {
 	protoype       reflect.Type
 	parameters     []string
 	results        []string
+	tag            string
 	help           string
 }
 
@@ -98,7 +99,9 @@ var (
 // The names of each parameter and named results must be explicitly provided
 // since they cannot be obtained via the reflect package. They should
 // be provided in the order that they are defined, i.e. left-to-right,
-// parameters first, then optionally any named results.
+// parameters first, then optionally any named results. The tag parameter
+// can be used to group related functions for ease of retrieving/constructing
+// documentation.
 //
 // The type of registered functions must of the form:
 //
@@ -113,10 +116,11 @@ var (
 // Runtime provides access to the underlying environment in which the
 // function is run and includes access to a context and various builtin
 // functions etc.
-func RegisterFunction(fn interface{}, help string, parameterAndResultNames ...string) {
+func RegisterFunction(fn interface{}, tag, help string, parameterAndResultNames ...string) {
 	v := verb{
 		implementation: reflect.ValueOf(fn),
 		protoype:       reflect.TypeOf(fn),
+		tag:            tag,
 		help:           help,
 	}
 	rt := v.protoype
@@ -162,7 +166,7 @@ type Runtime interface {
 	// Printf is like fmt.Printf.
 	Printf(format string, args ...interface{})
 	// ListFunctions prints a list of the currently available functions.
-	ListFunctions()
+	ListFunctions(tags ...string)
 	// Help prints the function prototype and its help message.
 	Help(function string) error
 	// ExpandEnv provides access to the environment variables defined and
@@ -176,18 +180,25 @@ type Runtime interface {
 // function.
 type RegisteredFunction struct {
 	Function string
+	Tag      string
 	Help     string
 }
 
 // RegisteredFunctions returns all currently registered functions.
-func RegisteredFunctions() []RegisteredFunction {
+func RegisteredFunctions(tags ...string) []RegisteredFunction {
+	tm := map[string]bool{}
+	for _, t := range tags {
+		tm[t] = true
+	}
 	rf := make([]RegisteredFunction, 0, len(supportedVerbs))
-
 	for _, v := range supportedVerbs {
-		rf = append(rf, RegisteredFunction{
-			Function: v.String(),
-			Help:     v.help,
-		})
+		if len(tags) == 0 || tm[v.tag] {
+			rf = append(rf, RegisteredFunction{
+				Function: v.String(),
+				Tag:      v.tag,
+				Help:     v.help,
+			})
+		}
 	}
 	sort.Slice(rf, func(i, j int) bool {
 		return rf[i].Function < rf[j].Function

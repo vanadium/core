@@ -58,7 +58,7 @@ func fnError(rt Runtime) error {
 }
 
 func init() {
-	RegisterFunction(fnError, "")
+	RegisterFunction(fnError, "exectest", "")
 }
 
 func TestExecuteError(t *testing.T) {

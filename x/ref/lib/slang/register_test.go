@@ -12,7 +12,7 @@ func registerFunctionErr(t *testing.T, fn interface{}) (err error) {
 		e := recover()
 		t.Log(e)
 	}()
-	slang.RegisterFunction(fn, "")
+	slang.RegisterFunction(fn, "regtest", "")
 	return fmt.Errorf("register function succeeded")
 }
 

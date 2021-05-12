@@ -98,7 +98,9 @@ func TestNewAuthorizerOrDie(t *testing.T) {
 		},
 	}
 	for _, td := range testdata {
-		fp := append(td.flags, td.auth)
+		fp := make([]string, len(td.flags))
+		copy(fp, td.flags)
+		fp = append(fp, td.auth)
 		c := sh.FuncCmd(permFromFlag)
 		c.Args = append(c.Args, fp...)
 		if stdout := c.Stdout(); stdout != "" {
