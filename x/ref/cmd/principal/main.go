@@ -281,9 +281,11 @@ line per identity provider, each line is a base64url-encoded (RFC 4648, Section
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			for _, root := range security.RootBlessings(blessings) {
-				if err := dumpBlessings(os.Stdout, root); err != nil {
+				str, err := encodeBlessings(root)
+				if err != nil {
 					return err
 				}
+				fmt.Fprintln(os.Stdout, str)
 			}
 			return nil
 		}),
@@ -1029,7 +1031,7 @@ This file can be supplied to bless:
 		Short: "Run one or more scripts",
 		Long: `
 Run one or more scripts, the scripting language documentation can be
-viewed using 'script --documentation'.
+viewed using 'script --documentation' .
 `,
 		ArgsName: "<script>...",
 		ArgsLong: `
@@ -1259,25 +1261,6 @@ func createDefaultBlessingName() string {
 		name = name + "@" + host
 	}
 	return name
-}
-
-func rootkey(chain []security.Certificate) string {
-	if len(chain) == 0 {
-		return "<empty certificate chain>"
-	}
-	key, err := security.UnmarshalPublicKey(chain[0].PublicKey)
-	if err != nil {
-		return fmt.Sprintf("<invalid PublicKey: %v>", err)
-	}
-	return fmt.Sprintf("%v", key)
-}
-
-func chainName(chain []security.Certificate) string {
-	exts := make([]string, len(chain))
-	for i, cert := range chain {
-		exts[i] = cert.Extension
-	}
-	return strings.Join(exts, security.ChainSeparator)
 }
 
 func base64urlVomEncode(i interface{}) (string, error) {

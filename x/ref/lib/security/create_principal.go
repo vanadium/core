@@ -80,7 +80,6 @@ func createSSHAgentPrincipal(ctx context.Context, sshKey *SSHAgentHostedKey, dir
 		return nil, fmt.Errorf("failed to copy ssh public key file: %v to %v: %v", from, to, err)
 	}
 	signer, err := sshKey.Agent.Signer(ctx, to, passphrase)
-	fmt.Printf("WTRF.... %v\n", err)
 	if err != nil {
 		return nil, err
 	}

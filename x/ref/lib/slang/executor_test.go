@@ -34,6 +34,12 @@ f: bool: false
 f: bool: true
 s: string: duration: 1h0m30s, bool true
 `},
+		{`va := stringv("a", "b", "c"); o := sprintf("%v", va)`, `o: string: [a b c]
+va: []string: [a b c]
+`},
+		{`va := stringv("a", "b", "c"); o := stringv(va...)`, `o: []string: [a b c]
+va: []string: [a b c]
+`},
 	} {
 		exec, err := parseAndCompileAndExecute(ctx, tc.script)
 		if err != nil {
@@ -82,7 +88,7 @@ func TestExecuteError(t *testing.T) {
 	}
 
 	err = scr.ExecuteFile(ctx, filepath.Join("testdata", "testparse.slang"))
-	if err == nil || !strings.HasSuffix(err.Error(), "testparse.slang:4:1: wrong # of results for fn3(v int) int (and 3 more errors)") {
+	if err == nil || !strings.HasSuffix(err.Error(), "testparse.slang:4:1: wrong # of results for fn3(v int) int (and 4 more errors)") {
 		t.Errorf("unexpected error: %v", err)
 	}
 }

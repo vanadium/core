@@ -117,7 +117,7 @@ func compileResults(symbols *symbolTable, td reflect.Type, results []tokPos, ass
 		if !assignment {
 			symbols.types[name] = tt
 		}
-		resultValues = append(resultValues, variableValue(name))
+		resultValues = append(resultValues, variableValue{name: name, hasEllipsis: false})
 	}
 	return resultValues, nil
 }
@@ -129,7 +129,10 @@ func compileArguments(symbols *symbolTable, td reflect.Type, args []tokPos) ([]v
 		et, existing := symbols.types[name]
 		var tt reflect.Type
 		if td.IsVariadic() && i+1 >= td.NumIn()-1 {
-			tt = td.In(td.NumIn() - 1).Elem()
+			tt = td.In(td.NumIn() - 1)
+			if !a.ellipsis {
+				tt = tt.Elem()
+			}
 		} else {
 			tt = td.In(i + 1)
 		}
@@ -140,7 +143,7 @@ func compileArguments(symbols *symbolTable, td reflect.Type, args []tokPos) ([]v
 					Msg: fmt.Sprintf("arg '%v' is of the wrong type %v, should be %v", name, et, tt),
 				}
 			}
-			argValues = append(argValues, variableValue(name))
+			argValues = append(argValues, variableValue{name: name, hasEllipsis: a.ellipsis})
 			continue
 		}
 		// Must be a literal.

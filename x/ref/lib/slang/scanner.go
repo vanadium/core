@@ -8,9 +8,10 @@ import (
 )
 
 type tokPos struct {
-	tok token.Token
-	pos token.Position
-	lit string
+	tok      token.Token
+	pos      token.Position
+	lit      string
+	ellipsis bool
 }
 
 var supportedTokens = map[token.Token]bool{}
@@ -19,7 +20,7 @@ func init() {
 	for _, tok := range []token.Token{
 		token.IDENT, token.SEMICOLON, token.DEFINE, token.ASSIGN,
 		token.LPAREN, token.RPAREN, token.COMMA,
-		token.STRING, token.INT,
+		token.STRING, token.INT, token.ELLIPSIS,
 	} {
 		supportedTokens[tok] = true
 	}
