@@ -136,4 +136,6 @@ func init() {
 
 	slang.RegisterFunction(publicKeyCaveat, "caveats", `Create a public key, ie. third party caveat as per v.io/v23/security.NewPublicKeyCaveat.`, "discharger", "location", "requirements", "caveats")
 
+	slang.RegisterFunction(thirdPartyCaveatRequirements, "caveats", `Create a security.ThirdPartyRequirements instance`, "reportServer", " reportMethod", " reportArguments")
+
 }

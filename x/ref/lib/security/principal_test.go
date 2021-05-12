@@ -215,12 +215,12 @@ func TestCreatePrincipalSSH(t *testing.T) {
 	service.SetAgentSockName(agentSockName)
 
 	// non-existent ssh public key file
-	sshKey, err := NewSSHAgentHostedKey("does-not-exist.pub")
+	_, err = NewSSHAgentHostedKey("does-not-exist.pub")
 	if err == nil || !strings.Contains(err.Error(), "no such file") {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with no such file error")
 	}
 
-	sshKey, err = NewSSHAgentHostedKey("not-a-dot-pub-file")
+	_, err = NewSSHAgentHostedKey("not-a-dot-pub-file")
 	if err == nil || !strings.Contains(err.Error(), ".pub") {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with a not a .pub file error")
 	}
@@ -228,7 +228,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 	invalid := filepath.Join(dir, "invalid.pub")
 	ioutil.WriteFile(invalid, []byte{'1', '\n'}, 0600)
 
-	sshKey, err = NewSSHAgentHostedKey(invalid)
+	_, err = NewSSHAgentHostedKey(invalid)
 	if err == nil || !strings.Contains(err.Error(), "no key found") {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed: %v", err)
 	}
@@ -247,7 +247,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sshKey, err = NewSSHAgentHostedKey(missing)
+	sshKey, err := NewSSHAgentHostedKey(missing)
 	if err != nil {
 		t.Fatal(err)
 	}

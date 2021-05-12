@@ -123,6 +123,8 @@ func init() {
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 
+	slang.RegisterFunction(removePrincipal, "principal", `Remove the specified principal directory`, "dirname")
+
 }
 
 func underline(out io.Writer, msg string) {
@@ -164,7 +166,7 @@ func scriptDocumentation() string {
 		underline(out, tag.title)
 		for _, fn := range slang.RegisteredFunctions(tag.tag) {
 			fmt.Fprintf(out, "%s\n", fn.Function)
-			fmt.Fprintf(out, format(fn.Help, "  "))
+			fmt.Fprint(out, format(fn.Help, "  "))
 			fmt.Fprintln(out)
 		}
 	}
