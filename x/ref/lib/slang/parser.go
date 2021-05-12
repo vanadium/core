@@ -204,7 +204,7 @@ func (ps *parseState) argsCommaOrEllipsisOrRightParen(tp tokPos) parseStateFn {
 		if len(ps.scratch) == 0 {
 			ps.errs = append(ps.errs, &scanner.Error{
 				Pos: tp.pos,
-				Msg: fmt.Sprintf("unexpected '...'"),
+				Msg: "unexpected '...'",
 			})
 			return ps.done
 		}

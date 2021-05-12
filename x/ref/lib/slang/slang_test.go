@@ -125,4 +125,11 @@ func TestRegistered(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+	rf = slang.RegisteredFunctions("test")
+	if got, want := len(rf), 11; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := rf[0].Function, "fn1()"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }

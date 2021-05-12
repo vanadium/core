@@ -62,17 +62,17 @@ func stringv(rt Runtime, args ...string) ([]string, error) {
 }
 
 func init() {
-	RegisterFunction(fn1, "")
-	RegisterFunction(fn2, "")
-	RegisterFunction(fn3, "", "v")
-	RegisterFunction(fn4, "", "s", "msg")
-	RegisterFunction(fn5, "", "v")
-	RegisterFunction(fn6, "", "duration", "flag")
-	RegisterFunction(fn7, "", "format", "args")
-	RegisterFunction(fn8, "", "format", "second", "args")
-	RegisterFunction(fn9, "", "args")
-	RegisterFunction(fn10, "", "duration", "flag")
-	RegisterFunction(stringv, "", "args")
+	RegisterFunction(fn1, "test", "")
+	RegisterFunction(fn2, "test", "")
+	RegisterFunction(fn3, "test", "", "v")
+	RegisterFunction(fn4, "test", "", "s", "msg")
+	RegisterFunction(fn5, "test", "", "v")
+	RegisterFunction(fn6, "test", "", "duration", "flag")
+	RegisterFunction(fn7, "test", "", "format", "args")
+	RegisterFunction(fn8, "test", "", "format", "second", "args")
+	RegisterFunction(fn9, "test", "", "args")
+	RegisterFunction(fn10, "test", "", "duration", "flag")
+	RegisterFunction(stringv, "test", "", "args")
 
 }
 

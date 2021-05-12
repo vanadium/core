@@ -31,8 +31,8 @@ func printCertificates(rt slang.Runtime, certs []security.Certificate) error {
 	return nil
 }
 
-func printBlessingRoots(rt slang.Runtime, blessings security.Blessings) error {
-	//	fmt.Fprintf(rt.Stdout(), "%v", p.Roots().DebugString())
+func printBlessingRoots(rt slang.Runtime, p security.Principal) error {
+	fmt.Fprintf(rt.Stdout(), "%v", p.Roots().DebugString())
 	return nil
 }
 
@@ -48,10 +48,11 @@ func printCaveats(rt slang.Runtime, caveats ...security.Caveat) error {
 }
 
 func init() {
-	slang.RegisterFunction(printPrincipal, `Print a Principal and associated blessing information.`, "principal")
-	slang.RegisterFunction(printPublicKey, `Print the public key for the specified principal.`, "principal")
-	slang.RegisterFunction(readBlessings, `Read blessings from the spefified file.`, "filename")
-	slang.RegisterFunction(printBlessings, `Print the supplied blessings.`, "blessings")
-	slang.RegisterFunction(printCaveats, `Print the supplied caveats.`, "caveats")
-	slang.RegisterFunction(printCertificates, `Print the public key of each certificate in the specified chain`, "certificates")
+	slang.RegisterFunction(printPrincipal, "print", `Print a Principal and associated blessing information.`, "principal")
+	slang.RegisterFunction(printPublicKey, "print", `Print the public key for the specified principal.`, "principal")
+	slang.RegisterFunction(readBlessings, "print", `Read blessings from the spefified file.`, "filename")
+	slang.RegisterFunction(printBlessings, "print", `Print the supplied blessings.`, "blessings")
+	slang.RegisterFunction(printCaveats, "print", `Print the supplied caveats.`, "caveats")
+	slang.RegisterFunction(printCertificates, "print", `Print the public key of each certificate in the specified chain`, "certificates")
+	slang.RegisterFunction(printBlessingRoots, "print", `Print the blessing roots for the specified principal.`, "principal")
 }

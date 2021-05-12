@@ -110,30 +110,30 @@ func appendCaveats(rt slang.Runtime, a []security.Caveat, b ...security.Caveat) 
 }
 
 func init() {
-	slang.RegisterFunction(parseTime, `parseTime is the same as time.Parse. The predefined formats from the time package are available as time_<format-name>, e.g. time_ANSIC.`, "layout", "value")
-	slang.RegisterFunction(deadline, "deadline is the same as <when>.Add(<expiry)>", "when", "expiry")
-	slang.RegisterFunction(localTime, "localtime is the same as time.Now()")
+	slang.RegisterFunction(parseTime, "time", `parseTime is the same as time.Parse. The predefined formats from the time package are available as time_<format-name>, e.g. time_ANSIC.`, "layout", "value")
+	slang.RegisterFunction(deadline, "time", "deadline is the same as <when>.Add(<expiry)>", "when", "expiry")
+	slang.RegisterFunction(localTime, "time", "localtime is the same as time.Now()")
 
-	slang.RegisterFunction(caveats, `Create caveats based on the specified caveat expressions which are of the form: "package/path".CaveatName=<caveat-parameters>. For example:
+	slang.RegisterFunction(caveats, "caveats", `Create caveats based on the specified caveat expressions which are of the form: "package/path".CaveatName=<caveat-parameters>. For example:
 
 	v.io/v23/security.MethodCaveat={"method"}
 
 	In general, the specific caveat methods (eg. expiryCaveat) should be used.
 	`, "caveats")
 
-	slang.RegisterFunction(appendCaveats, `appendCaveats is the same as append(a, b...).`, "a", "b")
+	slang.RegisterFunction(appendCaveats, "caveats", `appendCaveats is the same as append(a, b...).`, "a", "b")
 
-	slang.RegisterFunction(allowAllCaveat, `Create a caveat that allows all requests.`)
+	slang.RegisterFunction(allowAllCaveat, "caveats", `Create a caveat that allows all requests.`)
 
-	slang.RegisterFunction(denyAllCaveat, `Create a caveat that denies all requests.`)
+	slang.RegisterFunction(denyAllCaveat, "caveats", `Create a caveat that denies all requests.`)
 
-	slang.RegisterFunction(expiryCaveat, `Create a Caveat that validates iff the current time is before the current local time and expiry.
+	slang.RegisterFunction(expiryCaveat, "caveats", `Create a Caveat that validates iff the current time is before the current local time and expiry.
 	`, "expiry")
 
-	slang.RegisterFunction(deadlineCaveat, `Create a Caveat that validates iff the current time is before deadline.`, "deadline")
+	slang.RegisterFunction(deadlineCaveat, "caveats", `Create a Caveat that validates iff the current time is before deadline.`, "deadline")
 
-	slang.RegisterFunction(methodCaveat, `Create a caveat that allows the specified methods.`, `methods`)
+	slang.RegisterFunction(methodCaveat, "caveats", `Create a caveat that allows the specified methods.`, `methods`)
 
-	slang.RegisterFunction(publicKeyCaveat, `Create a public key, ie. third party caveat as per v.io/v23/security.NewPublicKeyCaveat.`, "discharger", "location", "requirements", "caveats")
+	slang.RegisterFunction(publicKeyCaveat, "caveats", `Create a public key, ie. third party caveat as per v.io/v23/security.NewPublicKeyCaveat.`, "discharger", "location", "requirements", "caveats")
 
 }

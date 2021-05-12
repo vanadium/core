@@ -281,11 +281,9 @@ line per identity provider, each line is a base64url-encoded (RFC 4648, Section
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			for _, root := range security.RootBlessings(blessings) {
-				str, err := encodeBlessings(root)
-				if err != nil {
+				if err := encodeAndWriteBlessings(os.Stdout, root); err != nil {
 					return err
 				}
-				fmt.Fprintln(os.Stdout, str)
 			}
 			return nil
 		}),
@@ -329,8 +327,7 @@ machine and the name of the user running this command.
 			if err != nil {
 				return fmt.Errorf("failed to create self-signed blessing for name %q: %v", name, err)
 			}
-
-			return dumpBlessings(os.Stdout, blessing)
+			return encodeAndWriteBlessings(os.Stdout, blessing)
 		}),
 	}
 
@@ -445,7 +442,7 @@ blessing.
 			if err != nil {
 				return err
 			}
-			return dumpBlessings(os.Stdout, blessings)
+			return encodeAndWriteBlessings(os.Stdout, blessings)
 		}),
 	}
 
@@ -1440,4 +1437,13 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 		return nil, err
 	}
 	return vsecurity.CreatePersistentPrincipalUsingKey(ctx, privateKey, dir, pass)
+}
+
+func encodeAndWriteBlessings(out io.Writer, blessings security.Blessings) error {
+	str, err := encodeBlessings(blessings)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(out, str)
+	return nil
 }

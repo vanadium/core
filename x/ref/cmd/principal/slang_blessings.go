@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"v.io/v23/security"
 	libsec "v.io/x/ref/lib/security"
@@ -14,6 +16,20 @@ func defaultBlessingName(rt slang.Runtime) (string, error) {
 
 func readBlessings(rt slang.Runtime, filename string) (security.Blessings, error) {
 	return decodeBlessings(filename)
+}
+
+func writeBlessingRoots(rt slang.Runtime, blessings security.Blessings, filename string) error {
+	out := &strings.Builder{}
+	for _, root := range security.RootBlessings(blessings) {
+		if err := encodeAndWriteBlessings(out, root); err != nil {
+			return err
+		}
+	}
+	if filename == "-" {
+		fmt.Fprintln(rt.Stdout(), out.String())
+		return nil
+	}
+	return os.WriteFile(filename, []byte(out.String()), 0600)
 }
 
 func getCertificateChain(rt slang.Runtime, blessings security.Blessings, name string) ([]security.Certificate, error) {
@@ -83,16 +99,20 @@ func blessPrincipal(rt slang.Runtime, blessor security.Principal, blessed securi
 	}
 }
 
+func unionBlessings(rt slang.Runtime, blessings ...security.Blessings) (security.Blessings, error) {
+	return security.UnionOfBlessings(blessings...)
+}
+
 func init() {
-	slang.RegisterFunction(readBlessings, `Read blessings a from a file (or stdin if filename is '-').`, "filename")
+	slang.RegisterFunction(readBlessings, "blessings", `Read blessings a from a file (or stdin if filename is '-').`, "filename")
 
-	slang.RegisterFunction(writeBlessings, `Write blessings to a file (or stdout if filename is '-').`, "blessings", "filename")
+	slang.RegisterFunction(writeBlessings, "blessings", `Write blessings to a file (or stdout if filename is '-').`, "blessings", "filename")
 
-	slang.RegisterFunction(defaultBlessingName, `Generate a blessing name based on the name on the hostname and user running this command.`)
+	slang.RegisterFunction(defaultBlessingName, "blessings", `Generate a blessing name based on the name on the hostname and user running this command.`)
 
-	slang.RegisterFunction(createBlessings, `Create blessings signed by the supplied principal.`, "principal", "name", "caveats")
+	slang.RegisterFunction(createBlessings, "blessings", `Create blessings signed by the supplied principal.`, "principal", "name", "caveats")
 
-	slang.RegisterFunction(setDefaultBlessings, `Set the default blessings for the specified principal, mark them as shareable with all peers and also add it the blessing's root
+	slang.RegisterFunction(setDefaultBlessings, "blessings", `Set the default blessings for the specified principal, mark them as shareable with all peers and also add it the blessing's root
 	to the principal's BlessingRoot's. Note, that the public key of the blessings must
 	match the public key of the principal, that is, the blessings were signed by this
 	same principal.
@@ -100,15 +120,15 @@ func init() {
 	It is an error to call SetDefault with a blessings whose public key does not match the PublicKey of the principal for which this store hosts blessings.
 	`, "principal", "blessings")
 
-	slang.RegisterFunction(getDefaultBlessings, `Return the default blessings for the specified principal.`, "principal")
+	slang.RegisterFunction(getDefaultBlessings, "blessings", `Return the default blessings for the specified principal.`, "principal")
 
-	slang.RegisterFunction(blessingPattern, `Create a blessing pattern, ie. a pattern to be matched by a specific blessing.
+	slang.RegisterFunction(blessingPattern, "blessings", `Create a blessing pattern, ie. a pattern to be matched by a specific blessing.
 	
 	A pattern can either be a blessing (slash-separated human-readable string) or a blessing ending in "/$". A pattern ending in "/$" is matched exactly by the blessing specified by the pattern string with the "/$" suffix stripped out. For example, the pattern "a/b/c/$" is matched by exactly by the blessing "a/b/c".
 
 	A pattern not ending in "/$" is more permissive, and is also matched by blessings that are extensions of the pattern (including the pattern itself). For example, the pattern "a/b/c" is matched by the blessings "a/b/c", "a/b/c/x", "a/b/c/x/y", etc.`, "pattern")
 
-	slang.RegisterFunction(setBlessingsForPeers, `Set the blessings to be shared with peers.
+	slang.RegisterFunction(setBlessingsForPeers, "blessings", `Set the blessings to be shared with peers.
 	
 	Set(b, pattern) marks the intention to reveal b to peers who present blessings of their own matching pattern.
 
@@ -122,14 +142,20 @@ func init() {
 	
 	`, "blessings", "pattern", "forPeers")
 
-	slang.RegisterFunction(clearBlessingsForPeers, `Clear any blessings associated with the specified pattern`, "principal", "pattern")
+	slang.RegisterFunction(clearBlessingsForPeers, "blessings", `Clear any blessings associated with the specified pattern`, "principal", "pattern")
 
-	slang.RegisterFunction(blessPrincipal, `Bless another principal with the supplied blessings and caveats. If no caveats are provided a caveat that allows all access is used; this assumes that the supplied blessings are appropriately restrictive.`, "blessor", "blessed", "blessings", "extension", "caveats")
+	slang.RegisterFunction(blessPrincipal, "blessings", `Bless another principal with the supplied blessings and caveats. If no caveats are provided a caveat that allows all access is used; this assumes that the supplied blessings are appropriately restrictive.`, "blessor", "blessed", "blessings", "extension", "caveats")
 
-	slang.RegisterFunction(getCertificateChain, `Return the certificate identified by the supplied name.`, "blessings", "name")
+	slang.RegisterFunction(getCertificateChain, "blessings", `Return the certificate identified by the supplied name.`, "blessings", "name")
 
-	slang.RegisterFunction(getCaveats, `Return the caveats in the supplied certificate chain`, "certificates")
+	slang.RegisterFunction(getCaveats, "blessings", `Return the caveats in the supplied certificate chain`, "certificates")
 
-	slang.RegisterFunction(getBlessingsForPeers, `Return the blessings that are bound to the specified peers`, "principal", "peers")
+	slang.RegisterFunction(getBlessingsForPeers, "blessings", `Return the blessings that are bound to the specified peers`, "principal", "peers")
+
+	slang.RegisterFunction(writeBlessingRoots, "blessings", `Write out the blessings of the identity providers of the supplied blessings to the specified file or stdout if '-'.  One
+	line per identity provider, each line is a base64url-encoded (RFC 4648, Section
+	5) vom-encoded Blessings object.`, "blessings", "filename")
+
+	slang.RegisterFunction(unionBlessings, "blessings", `Returned the union of the supplied blessings.`, "blessings")
 
 }

@@ -100,7 +100,6 @@ func encodeBlessings(blessings security.Blessings) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("base64url-vom encoding failed: %v", err)
 	}
-
 	return str, nil
 }
 
@@ -144,7 +143,7 @@ func dumpBlessingsInfo(out io.Writer, names bool, rootKey, caveats string, bless
 		}
 		return nil
 	}
-	return dumpBlessings(out, blessings)
+	return encodeAndWriteBlessings(out, blessings)
 }
 
 func formatCaveatsInChain(chain []security.Certificate) ([]string, error) {

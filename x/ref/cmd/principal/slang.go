@@ -109,19 +109,19 @@ func runScriptFile(ctx *context.T, name string) error {
 }
 
 func init() {
-	slang.RegisterFunction(defaultPrincipal, `Returns the Principal that this process would use by default.`)
+	slang.RegisterFunction(defaultPrincipal, "principal", `Returns the Principal that this process would use by default.`)
 
-	slang.RegisterFunction(useSSHKey, `Use an ssh agent host key that corresponds to the supplied public key file`, "publicKeyFile")
+	slang.RegisterFunction(useSSHKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file`, "publicKeyFile")
 
 	createKeyPairHelp := `Create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(supportedKeyTypes(), ", ") + "."
 
-	slang.RegisterFunction(createKeyPair, createKeyPairHelp, "keyType")
+	slang.RegisterFunction(createKeyPair, "principal", createKeyPairHelp, "keyType")
 
-	slang.RegisterFunction(useOrCreatePrincipal, `Use the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory.`, "privateKey", "dirName")
+	slang.RegisterFunction(useOrCreatePrincipal, "principal", `Use the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory.`, "privateKey", "dirName")
 
-	slang.RegisterFunction(usePrincipal, `Use the principal stored in the specified directory.`, "dirName")
+	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.`, "dirName")
 
-	slang.RegisterFunction(publicKey, `Return the public key for the specified principal`, "principal")
+	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 
 }
 
@@ -151,10 +151,22 @@ func scriptDocumentation() string {
 	fmt.Fprintln(out, slang.Examples)
 
 	underline(out, "Available Functions")
-	for _, fn := range slang.RegisteredFunctions() {
-		fmt.Fprintf(out, "%s\n", fn.Function)
-		fmt.Fprintf(out, format(fn.Help, "  "))
-		fmt.Fprintln(out)
+	for _, tag := range []struct {
+		tag, title string
+	}{
+		{"builtin", "builtin functions"},
+		{"time", "time related functions"},
+		{"print", "print/debug related functions"},
+		{"principal", "security.Principal related functions"},
+		{"blessings", "security.Blessings related functions"},
+		{"caveats", "security.Caveat related functions"},
+	} {
+		underline(out, tag.title)
+		for _, fn := range slang.RegisteredFunctions(tag.tag) {
+			fmt.Fprintf(out, "%s\n", fn.Function)
+			fmt.Fprintf(out, format(fn.Help, "  "))
+			fmt.Fprintln(out)
+		}
 	}
 	return out.String()
 }
