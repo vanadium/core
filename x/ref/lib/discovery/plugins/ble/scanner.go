@@ -41,8 +41,7 @@ func (s *scanner) addListener(interfaceName string) chan *idiscovery.AdInfo {
 	// enough to avoid deadlock, but more buffers are added for smooth operation.
 	ch := make(chan *idiscovery.AdInfo, 10)
 	s.mu.Lock()
-	listeners := append(s.listeners[interfaceName], ch)
-	s.listeners[interfaceName] = listeners
+	s.listeners[interfaceName] = append(s.listeners[interfaceName], ch)
 	s.mu.Unlock()
 	select {
 	case s.rescan <- struct{}{}:
