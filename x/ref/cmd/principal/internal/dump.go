@@ -1,9 +1,11 @@
-package main
+package internal
 
 import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"os"
+	"os/user"
 	"strings"
 	"time"
 
@@ -11,15 +13,15 @@ import (
 	"v.io/v23/vom"
 )
 
-func dumpBlessingsFile(out io.Writer, filename string) error {
-	blessings, err := decodeBlessings(filename)
+func DumpBlessingsFile(out io.Writer, filename string) error {
+	blessings, err := DecodeBlessingsFile(filename)
 	if err != nil {
 		return fmt.Errorf("failed to decode provided blessings: %v", err)
 	}
-	return dumpBlessings(out, blessings)
+	return DumpBlessings(out, blessings)
 }
 
-func dumpBlessings(out io.Writer, blessings security.Blessings) error {
+func DumpBlessings(out io.Writer, blessings security.Blessings) error {
 	wire, err := blessings2wire(blessings)
 	if err != nil {
 		return fmt.Errorf("failed to decode certificate chains: %v", err)
@@ -28,27 +30,43 @@ func dumpBlessings(out io.Writer, blessings security.Blessings) error {
 	fmt.Fprintf(out, "PublicKey          : %v\n", blessings.PublicKey())
 	fmt.Fprintf(out, "Certificate chains : %d\n", len(wire.CertificateChains))
 	for idx, chain := range wire.CertificateChains {
-		fmt.Fprintf(out, "Chain #%d (%d certificates). Root certificate public key: %v\n", idx, len(chain), rootkey(chain))
-		for certidx, cert := range chain {
-			fmt.Fprintf(out, "  Certificate #%d: %v with ", certidx, cert.Extension)
-			switch n := len(cert.Caveats); n {
-			case 1:
-				fmt.Fprintf(out, "1 caveat")
-			default:
-				fmt.Fprintf(out, "%d caveats", n)
+		fmt.Fprintf(out, "Chain #%d (%d certificates). Root certificate public key: %v\n", idx, len(chain), Rootkey(chain))
+		dumpCertChain(out, "  ", chain, false)
+	}
+	return nil
+}
+
+func dumpCertChain(out io.Writer, indent string, chain []security.Certificate, pk bool) error {
+	for certidx, cert := range chain {
+		fmt.Fprintf(out, "%sCertificate #%d: %v with ", indent, certidx, cert.Extension)
+		if pk {
+			key, err := security.UnmarshalPublicKey(cert.PublicKey)
+			if err != nil {
+				return fmt.Errorf("cert #%d: <invalid PublicKey: %v>", certidx, err)
 			}
-			fmt.Println("")
-			for cavidx, cav := range cert.Caveats {
-				fmt.Fprintf(out, "    (%d) %v\n", cavidx, cav.String())
-			}
+			fmt.Fprintf(out, "%sCertificate #%d: %v: ", indent, certidx, key)
+		}
+		switch n := len(cert.Caveats); n {
+		case 1:
+			fmt.Fprintf(out, "1 caveat")
+		default:
+			fmt.Fprintf(out, "%d caveats", n)
+		}
+		fmt.Fprintln(out, "")
+		for cavidx, cav := range cert.Caveats {
+			fmt.Fprintf(out, "%s  (%d) %v\n", indent, cavidx, cav.String())
 		}
 	}
 	return nil
 }
 
-func dumpPublicKey(out io.Writer, p security.Principal) error {
+func DumpCertificateChain(out io.Writer, chain []security.Certificate) error {
+	return dumpCertChain(out, "", chain, true)
+}
+
+func DumpPublicKey(out io.Writer, p security.Principal, pretty bool) error {
 	key := p.PublicKey()
-	if flagGetPublicKey.Pretty {
+	if pretty {
 		fmt.Fprintln(out, key)
 		return nil
 	}
@@ -60,7 +78,7 @@ func dumpPublicKey(out io.Writer, p security.Principal) error {
 	return nil
 }
 
-func dumpPrincipal(out io.Writer, p security.Principal, blessingNamesOnly bool) error {
+func DumpPrincipal(out io.Writer, p security.Principal, blessingNamesOnly bool) error {
 	def, _ := p.BlessingStore().Default()
 	if blessingNamesOnly {
 		fmt.Fprintf(out, "%s\n", annotatedBlessingsNames(def))
@@ -92,18 +110,7 @@ func annotatedBlessingsNames(b security.Blessings) string {
 	return fmt.Sprintf("%v%s", b, expiredMessage)
 }
 
-func encodeBlessings(blessings security.Blessings) (string, error) {
-	if blessings.IsZero() {
-		return "", fmt.Errorf("no blessings found")
-	}
-	str, err := base64urlVomEncode(blessings)
-	if err != nil {
-		return "", fmt.Errorf("base64url-vom encoding failed: %v", err)
-	}
-	return str, nil
-}
-
-func rootkey(chain []security.Certificate) string {
+func Rootkey(chain []security.Certificate) string {
 	if len(chain) == 0 {
 		return "<empty certificate chain>"
 	}
@@ -114,47 +121,15 @@ func rootkey(chain []security.Certificate) string {
 	return fmt.Sprintf("%v", key)
 }
 
-func dumpBlessingsInfo(out io.Writer, names bool, rootKey, caveats string, blessings security.Blessings) error {
-	if blessings.IsZero() {
-		return fmt.Errorf("no blessings found")
-	}
-	switch {
-	case names:
-		fmt.Fprintln(out, strings.ReplaceAll(fmt.Sprint(blessings), ",", "\n"))
-		return nil
-	case len(rootKey) > 0:
-		chain, err := getChainByName(blessings, rootKey)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintln(out, rootkey(chain))
-		return nil
-	case len(caveats) > 0:
-		chain, err := getChainByName(blessings, caveats)
-		if err != nil {
-			return err
-		}
-		cavs, err := formatCaveatsInChain(chain)
-		if err != nil {
-			return err
-		}
-		for _, c := range cavs {
-			fmt.Fprintln(out, c)
-		}
-		return nil
-	}
-	return encodeAndWriteBlessings(out, blessings)
-}
-
-func formatCaveatsInChain(chain []security.Certificate) ([]string, error) {
+func FormatCaveatsInChain(chain []security.Certificate) ([]string, error) {
 	var cavs []security.Caveat
 	for _, cert := range chain {
 		cavs = append(cavs, cert.Caveats...)
 	}
-	return formatCaveats(cavs)
+	return FormatCaveats(cavs)
 }
 
-func formatCaveats(cavs []security.Caveat) ([]string, error) {
+func FormatCaveats(cavs []security.Caveat) ([]string, error) {
 	var s []string
 	for _, cav := range cavs {
 		if cav.Id == security.PublicKeyThirdPartyCaveat.Id {
@@ -186,7 +161,7 @@ func formatCaveats(cavs []security.Caveat) ([]string, error) {
 	return s, nil
 }
 
-func chainName(chain []security.Certificate) string {
+func ChainName(chain []security.Certificate) string {
 	exts := make([]string, len(chain))
 	for i, cert := range chain {
 		exts[i] = cert.Extension
@@ -194,15 +169,30 @@ func chainName(chain []security.Certificate) string {
 	return strings.Join(exts, security.ChainSeparator)
 }
 
-func getChainByName(b security.Blessings, name string) ([]security.Certificate, error) {
+func GetChainByName(b security.Blessings, name string) ([]security.Certificate, error) {
 	wire, err := blessings2wire(b)
 	if err != nil {
 		return nil, err
 	}
 	for _, chain := range wire.CertificateChains {
-		if chainName(chain) == name {
+		if ChainName(chain) == name {
 			return chain, nil
 		}
 	}
 	return nil, fmt.Errorf("no chains of name %v in %v", name, b)
+}
+
+// CreateDefaultBlessingName generates a blessing name based on the hostname
+// of the machine and the name of the user running this command.
+func CreateDefaultBlessingName() string {
+	var name string
+	if user, _ := user.Current(); user != nil && len(user.Username) > 0 {
+		name = user.Username
+	} else {
+		name = "anonymous"
+	}
+	if host, _ := os.Hostname(); len(host) > 0 {
+		name = name + "@" + host
+	}
+	return name
 }

@@ -2,7 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+// Package caveatflag provides support for specifying caveats via
+// command line flags and for creating caveats via their VDL type and
+// values.
+package caveatflag
 
 import (
 	"fmt"
@@ -15,43 +18,45 @@ import (
 	"v.io/x/ref/lib/vdl/parse"
 )
 
-// caveatsFlag defines a flag.Value for receiving multiple caveat definitions.
-type caveatsFlag struct {
-	caveatInfos []caveatInfo
+// Flag defines a flag.Value for receiving multiple caveat definitions.
+type Flag struct {
+	caveatInfos []Statement
 }
 
-type caveatInfo struct {
-	expr, params string
+// Statement represents a single caveat statement.
+type Statement struct {
+	Expr, Params string
 }
 
 // Implements flag.Value.Get
-func (c caveatsFlag) Get() interface{} {
+func (c Flag) Get() interface{} {
 	return c.caveatInfos
 }
 
 // Implements flag.Value.Set
 // Set expects s to be of the form:
 // caveatExpr=VDLExpressionOfParam
-func (c *caveatsFlag) Set(s string) error {
+func (c *Flag) Set(s string) error {
 	exprAndParam := strings.SplitN(s, "=", 2)
 	if len(exprAndParam) != 2 {
 		return fmt.Errorf("incorrect caveat format: %s", s)
 	}
-
-	c.caveatInfos = append(c.caveatInfos, caveatInfo{exprAndParam[0], exprAndParam[1]})
+	c.caveatInfos = append(c.caveatInfos, Statement{exprAndParam[0], exprAndParam[1]})
 	return nil
 }
 
 // Implements flag.Value.String
-func (c caveatsFlag) String() string {
+func (c Flag) String() string {
 	return fmt.Sprint(c.caveatInfos)
 }
 
-func (c caveatsFlag) Compile() ([]security.Caveat, error) {
-	return compileCaveats(c.caveatInfos)
+// Compile will compile the caveat statements captured by the flags
+// to create caveats.
+func (c Flag) Compile() ([]security.Caveat, error) {
+	return Compile(c.caveatInfos)
 }
 
-func compileCaveats(caveatInfos []caveatInfo) ([]security.Caveat, error) {
+func Compile(caveatInfos []Statement) ([]security.Caveat, error) {
 	if len(caveatInfos) == 0 {
 		return nil, nil
 	}
@@ -70,13 +75,13 @@ func compileCaveats(caveatInfos []caveatInfo) ([]security.Caveat, error) {
 	return caveats, nil
 }
 
-func buildPackages(caveatInfos []caveatInfo, env *compile.Env) error {
+func buildPackages(caveatInfos []Statement, env *compile.Env) error {
 	var (
 		pkgNames []string
 		exprs    []string
 	)
 	for _, info := range caveatInfos {
-		exprs = append(exprs, info.expr, info.params)
+		exprs = append(exprs, info.Expr, info.Params)
 	}
 	for _, pexpr := range parse.ParseExprs(strings.Join(exprs, ","), env.Errors) {
 		pkgNames = append(pkgNames, parse.ExtractExprPackagePaths(pexpr)...)
@@ -96,12 +101,12 @@ func buildPackages(caveatInfos []caveatInfo, env *compile.Env) error {
 	return nil
 }
 
-func newCaveat(info caveatInfo, env *compile.Env) (security.Caveat, error) {
-	caveatDesc, err := compileCaveatDesc(info.expr, env)
+func newCaveat(info Statement, env *compile.Env) (security.Caveat, error) {
+	caveatDesc, err := compileCaveatDesc(info.Expr, env)
 	if err != nil {
 		return security.Caveat{}, err
 	}
-	param, err := compileParams(info.params, caveatDesc.ParamType, env)
+	param, err := compileParams(info.Params, caveatDesc.ParamType, env)
 	if err != nil {
 		return security.Caveat{}, err
 	}

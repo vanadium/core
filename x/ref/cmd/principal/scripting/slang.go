@@ -10,29 +10,29 @@ import (
 	"v.io/x/ref/lib/slang"
 )
 
-func Run(ctx *context.T, buf []byte) error {
+func RunScript(ctx *context.T, buf []byte) error {
 	scr := &slang.Script{}
 	registerTimeFormats(scr)
 	return scr.ExecuteBytes(ctx, buf)
 }
 
-func RunScript(ctx *context.T, rd io.Reader) error {
+func RunFrom(ctx *context.T, rd io.Reader) error {
 	buf, err := io.ReadAll(rd)
 	if err != nil {
 		return err
 	}
-	return Run(ctx, buf)
+	return RunScript(ctx, buf)
 }
 
-func RunScriptFile(ctx *context.T, name string) error {
+func RunFile(ctx *context.T, name string) error {
 	if name == "-" || len(name) == 0 {
-		return RunScript(ctx, os.Stdin)
+		return RunFrom(ctx, os.Stdin)
 	}
 	rd, err := os.Open(name)
 	if err != nil {
 		return err
 	}
-	return RunScript(ctx, rd)
+	return RunFrom(ctx, rd)
 }
 
 func Documentation() string {

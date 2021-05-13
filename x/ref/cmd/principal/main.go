@@ -8,7 +8,6 @@
 package main
 
 import (
-	"bytes"
 	gocontext "context"
 	"crypto"
 	"crypto/rand"
@@ -19,7 +18,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/user"
 	"strings"
 	"time"
 
@@ -31,6 +29,9 @@ import (
 	"v.io/v23/vom"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref"
+	"v.io/x/ref/cmd/principal/caveatflag"
+	"v.io/x/ref/cmd/principal/internal"
+	"v.io/x/ref/cmd/principal/scripting"
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
@@ -42,7 +43,7 @@ import (
 
 // CaveatFlag represents a --caveat flag.
 type CaveatFlag struct {
-	Caveat caveatsFlag `cmdline:"caveat,,\"package/path\".CaveatName:VDLExpressionParam to attach to this blessing"`
+	Caveat caveatflag.Flag `cmdline:"caveat,,\"package/path\".CaveatName:VDLExpressionParam to attach to this blessing"`
 }
 
 // CaveatsFlag represents a --caveats flag.
@@ -235,7 +236,7 @@ that this tool is running in.
 `,
 		FlagDefs: flagDumpDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return dumpPrincipal(os.Stdout, v23.GetPrincipal(ctx), flagDumpFlags.Short)
+			return internal.DumpPrincipal(env.Stdout, v23.GetPrincipal(ctx), flagDumpFlags.Short)
 		}),
 	}
 
@@ -255,7 +256,7 @@ this tool. - is used for STDIN.
 			if len(args) != 1 {
 				return fmt.Errorf("requires exactly one argument, <file>, provided %d", len(args))
 			}
-			return dumpBlessingsFile(os.Stdout, args[0])
+			return internal.DumpBlessingsFile(env.Stdout, args[0])
 		}),
 	}
 
@@ -276,12 +277,12 @@ line per identity provider, each line is a base64url-encoded (RFC 4648, Section
 			if len(args) != 1 {
 				return fmt.Errorf("requires exactly one argument, <file>, provided %d", len(args))
 			}
-			blessings, err := decodeBlessings(args[0])
+			blessings, err := internal.DecodeBlessingsFile(args[0])
 			if err != nil {
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
 			for _, root := range security.RootBlessings(blessings) {
-				if err := encodeAndWriteBlessings(os.Stdout, root); err != nil {
+				if err := internal.EncodeBlessingsFile("-", os.Stdout, root); err != nil {
 					return err
 				}
 			}
@@ -309,7 +310,7 @@ machine and the name of the user running this command.
 			var name string
 			switch len(args) {
 			case 0:
-				name = createDefaultBlessingName()
+				name = internal.CreateDefaultBlessingName()
 			case 1:
 				name = args[0]
 			default:
@@ -327,7 +328,7 @@ machine and the name of the user running this command.
 			if err != nil {
 				return fmt.Errorf("failed to create self-signed blessing for name %q: %v", name, err)
 			}
-			return encodeAndWriteBlessings(os.Stdout, blessing)
+			return internal.EncodeBlessingsFile("-", os.Stdout, blessing)
 		}),
 	}
 
@@ -397,7 +398,7 @@ blessing.
 				with security.Blessings
 			)
 			if len(flagBless.With) > 0 {
-				if with, err = decodeBlessings(flagBless.With); err != nil {
+				if with, err = internal.DecodeBlessingsFile(flagBless.With); err != nil {
 					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagBless.With, err)
 				}
 			} else {
@@ -442,7 +443,7 @@ blessing.
 			if err != nil {
 				return err
 			}
-			return encodeAndWriteBlessings(os.Stdout, blessings)
+			return internal.EncodeBlessingsFile("-", os.Stdout, blessings)
 		}),
 	}
 
@@ -463,7 +464,7 @@ is not suitable as an argument to the 'recognize' command.
 `,
 		FlagDefs: flagGetPublicKeyDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
-			return dumpPublicKey(os.Stdout, v23.GetPrincipal(ctx))
+			return internal.DumpPublicKey(os.Stdout, v23.GetPrincipal(ctx), flagGetPublicKey.Pretty)
 		}),
 	}
 
@@ -583,7 +584,7 @@ blessing can be shared with.
 			if len(args) != 2 {
 				return fmt.Errorf("requires exactly two arguments <file>, <pattern>, provided %d", len(args))
 			}
-			blessings, err := decodeBlessings(args[0])
+			blessings, err := internal.DecodeBlessingsFile(args[0])
 			if err != nil {
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
@@ -641,7 +642,7 @@ this tool. - is used for STDIN.
 				return err
 			}
 			if len(args) == 1 {
-				blessings, err := decodeBlessings(args[0])
+				blessings, err := internal.DecodeBlessingsFile(args[0])
 				if err != nil {
 					return fmt.Errorf("failed to decode provided blessings: %v", err)
 				}
@@ -681,25 +682,22 @@ For example, to merge the blessings contained in files A and B:
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			var ret security.Blessings
 			for _, b := range args {
-				encoded := b
-				if b, err := ioutil.ReadFile(b); err == nil {
-					encoded = string(b)
-				}
 				var blessings security.Blessings
-				if err := base64urlVomDecode(encoded, &blessings); err != nil {
+				var err error
+				if _, err := os.Stat(b); err == nil {
+					blessings, err = internal.DecodeBlessingsFile(b)
+
+				} else {
+					blessings, err = internal.DecodeBlessings(b)
+				}
+				if err != nil {
 					return err
 				}
-				var err error
 				if ret, err = security.UnionOfBlessings(ret, blessings); err != nil {
 					return err
 				}
 			}
-			out, err := base64urlVomEncode(ret)
-			if err != nil {
-				return err
-			}
-			fmt.Fprintln(env.Stdout, out)
-			return nil
+			return internal.EncodeBlessingsFile("-", env.Stdout, ret)
 		}),
 	}
 
@@ -723,7 +721,7 @@ this tool. - is used for STDIN.
 			if len(args) != 1 {
 				return fmt.Errorf("requires exactly one argument, <file>, provided %d", len(args))
 			}
-			blessings, err := decodeBlessings(args[0])
+			blessings, err := internal.DecodeBlessingsFile(args[0])
 			if err != nil {
 				return fmt.Errorf("failed to decode provided blessings: %v", err)
 			}
@@ -841,7 +839,7 @@ forked principal.
 			}
 			var with security.Blessings
 			if len(flagFork.With) > 0 {
-				if with, err = decodeBlessings(flagFork.With); err != nil {
+				if with, err = internal.DecodeBlessingsFile(flagFork.With); err != nil {
 					return fmt.Errorf("failed to read blessings from --with=%q: %v", flagFork.With, err)
 				}
 			} else {
@@ -1038,11 +1036,11 @@ to stdin. If no scripts are specified then stdin is used.
 		FlagDefs: scriptFlagsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
 			if scriptFlags.Documentation {
-				fmt.Println(scriptDocumentation())
+				fmt.Println(scripting.Documentation())
 				return nil
 			}
 			for _, s := range args {
-				if err := runScriptFile(ctx, s); err != nil {
+				if err := scripting.RunFile(ctx, s); err != nil {
 					return err
 				}
 			}
@@ -1133,7 +1131,7 @@ func blessOverFileSystem(p security.Principal, tobless string, with security.Ble
 			return security.Blessings{}, fmt.Errorf("failed to read principal in directory %q: %v", tobless, err)
 		}
 		key = other.PublicKey()
-	} else if str, err := read(tobless); err != nil {
+	} else if str, err := internal.ReadFileOrStdin(tobless); err != nil {
 		return security.Blessings{}, fmt.Errorf("failed to read %q: %v", tobless, err)
 	} else if b64, err := base64.URLEncoding.DecodeString(str); err != nil {
 		return security.Blessings{}, fmt.Errorf("failed to decode base64url encoded bytes in %q: %v", tobless, err)
@@ -1209,79 +1207,6 @@ All blessings are printed to stdout using base64url-vom-encoding.
 
 	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdScript}
 	cmdline.Main(root)
-}
-
-func decodeBlessings(fname string) (security.Blessings, error) {
-	var b security.Blessings
-	err := decode(fname, &b)
-	return b, err
-}
-
-func read(fname string) (string, error) {
-	if len(fname) == 0 {
-		return "", nil
-	}
-	f := os.Stdin
-	if fname != "-" {
-		var err error
-		if f, err = os.Open(fname); err != nil {
-			return "", fmt.Errorf("failed to open %q: %v", fname, err)
-		}
-	}
-	defer f.Close()
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, f); err != nil {
-		return "", fmt.Errorf("failed to read %q: %v", fname, err)
-	}
-	return buf.String(), nil
-}
-
-func decode(fname string, val interface{}) error {
-	str, err := read(fname)
-	if err != nil {
-		return err
-	}
-	if err := base64urlVomDecode(str, val); err != nil || val == nil {
-		return fmt.Errorf("failed to decode %q: %v", fname, err)
-	}
-	return nil
-}
-
-func createDefaultBlessingName() string {
-	var name string
-	if user, _ := user.Current(); user != nil && len(user.Username) > 0 {
-		name = user.Username
-	} else {
-		name = "anonymous"
-	}
-	if host, _ := os.Hostname(); len(host) > 0 {
-		name = name + "@" + host
-	}
-	return name
-}
-
-func base64urlVomEncode(i interface{}) (string, error) {
-	buf := &bytes.Buffer{}
-	closer := base64.NewEncoder(base64.URLEncoding, buf)
-	enc := vom.NewEncoder(closer)
-	if err := enc.Encode(i); err != nil {
-		return "", err
-	}
-	// Must close the base64 encoder to flush out any partially written
-	// blocks.
-	if err := closer.Close(); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
-
-func base64urlVomDecode(s string, i interface{}) error {
-	b, err := base64.URLEncoding.DecodeString(s)
-	if err != nil {
-		return err
-	}
-	dec := vom.NewDecoder(bytes.NewBuffer(b))
-	return dec.Decode(i)
 }
 
 type recvBlessingsService struct {
@@ -1374,8 +1299,8 @@ func blessOverNetwork(ctx *context.T, object string, granter *granter, remoteTok
 	return nil
 }
 
-func caveatsFromFlags(expiry time.Duration, caveatsFlag *caveatsFlag) ([]security.Caveat, error) {
-	caveats, err := caveatsFlag.Compile()
+func caveatsFromFlags(expiry time.Duration, caveatsflag *caveatflag.Flag) ([]security.Caveat, error) {
+	caveats, err := caveatsflag.Compile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse caveats: %v", err)
 	}
@@ -1387,19 +1312,6 @@ func caveatsFromFlags(expiry time.Duration, caveatsFlag *caveatsFlag) ([]securit
 		caveats = append(caveats, ecav)
 	}
 	return caveats, nil
-}
-
-// Circuitous route to get to the certificate chains.
-// See comments on why security.MarshalBlessings is discouraged.
-// Though, a better alternative is worth looking into.
-func blessings2wire(b security.Blessings) (security.WireBlessings, error) {
-	var wire security.WireBlessings
-	data, err := vom.Encode(b)
-	if err != nil {
-		return wire, err
-	}
-	err = vom.Decode(data, &wire)
-	return wire, err
 }
 
 func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
@@ -1421,9 +1333,9 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 	var privateKey crypto.PrivateKey
 	var err error
 	if len(sshKey) == 0 {
-		kt, ok := keyTypeMap[strings.ToLower(keyType)]
+		kt, ok := internal.IsSupportedKeyType(keyType)
 		if !ok {
-			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(supportedKeyTypes(), ", "))
+			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 		} else {
 			privateKey, err = seclib.NewPrivateKey(kt)
 		}
@@ -1439,11 +1351,34 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 	return vsecurity.CreatePersistentPrincipalUsingKey(ctx, privateKey, dir, pass)
 }
 
-func encodeAndWriteBlessings(out io.Writer, blessings security.Blessings) error {
-	str, err := encodeBlessings(blessings)
-	if err != nil {
-		return err
+func dumpBlessingsInfo(out io.Writer, names bool, rootKey, caveats string, blessings security.Blessings) error {
+	if blessings.IsZero() {
+		return fmt.Errorf("no blessings found")
 	}
-	fmt.Fprintln(out, str)
-	return nil
+	switch {
+	case names:
+		fmt.Fprintln(out, strings.ReplaceAll(fmt.Sprint(blessings), ",", "\n"))
+		return nil
+	case len(rootKey) > 0:
+		chain, err := internal.GetChainByName(blessings, rootKey)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(out, internal.Rootkey(chain))
+		return nil
+	case len(caveats) > 0:
+		chain, err := internal.GetChainByName(blessings, caveats)
+		if err != nil {
+			return err
+		}
+		cavs, err := internal.FormatCaveatsInChain(chain)
+		if err != nil {
+			return err
+		}
+		for _, c := range cavs {
+			fmt.Fprintln(out, c)
+		}
+		return nil
+	}
+	return internal.EncodeBlessingsFile("-", out, blessings)
 }

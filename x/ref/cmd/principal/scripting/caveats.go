@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"v.io/v23/security"
+	"v.io/x/ref/cmd/principal/caveatflag"
 	"v.io/x/ref/lib/slang"
 )
 
@@ -42,15 +43,15 @@ func registerTimeFormats(scr *slang.Script) {
 }
 
 func caveats(rt slang.Runtime, expressions ...string) ([]security.Caveat, error) {
-	caveatInfos := make([]caveatInfo, len(expressions))
+	stmts := make([]caveatflag.Statement, len(expressions))
 	for i, expr := range expressions {
 		exprAndParam := strings.SplitN(expr, "=", 2)
 		if len(exprAndParam) != 2 {
 			return nil, fmt.Errorf("incorrect caveat format: %s", expr)
 		}
-		caveatInfos[i] = caveatInfo{exprAndParam[0], exprAndParam[1]}
+		stmts[i] = caveatflag.Statement{Expr: exprAndParam[0], Params: exprAndParam[1]}
 	}
-	return compileCaveats(caveatInfos)
+	return caveatflag.Compile(stmts)
 }
 
 func allowAllCaveat(rt slang.Runtime) (security.Caveat, error) {
@@ -84,7 +85,7 @@ func methodCaveat(rt slang.Runtime, methods ...string) (security.Caveat, error) 
 	}
 }
 
-func thirdPartyCaveatRequirements(reportServer, reportMethod, reportArguments bool) (security.ThirdPartyRequirements, error) {
+func thirdPartyCaveatRequirements(rt slang.Runtime, reportServer, reportMethod, reportArguments bool) (security.ThirdPartyRequirements, error) {
 	return security.ThirdPartyRequirements{
 		ReportServer:    reportServer,
 		ReportMethod:    reportMethod,

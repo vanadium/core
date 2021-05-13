@@ -1,39 +1,30 @@
 package scripting
 
 import (
-	"fmt"
-	"os"
-	"strings"
-
 	"v.io/v23/security"
+	"v.io/x/ref/cmd/principal/internal"
 	libsec "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/slang"
 )
 
 func defaultBlessingName(rt slang.Runtime) (string, error) {
-	return createDefaultBlessingName(), nil
+	return internal.CreateDefaultBlessingName(), nil
 }
 
 func readBlessings(rt slang.Runtime, filename string) (security.Blessings, error) {
-	return decodeBlessings(filename)
+	return internal.DecodeBlessingsFile(filename)
 }
 
-func writeBlessingRoots(rt slang.Runtime, blessings security.Blessings, filename string) error {
-	out := &strings.Builder{}
-	for _, root := range security.RootBlessings(blessings) {
-		if err := encodeAndWriteBlessings(out, root); err != nil {
-			return err
-		}
-	}
-	if filename == "-" {
-		fmt.Fprintln(rt.Stdout(), out.String())
-		return nil
-	}
-	return os.WriteFile(filename, []byte(out.String()), 0600)
+func writeBlessings(rt slang.Runtime, filename string, blessings security.Blessings) error {
+	return internal.EncodeBlessingsFile(filename, rt.Stdout(), blessings)
+
+}
+func writeBlessingRoots(rt slang.Runtime, filename string, blessings security.Blessings) error {
+	return internal.EncodeBlessingRootsFile(filename, rt.Stdout(), blessings)
 }
 
 func getCertificateChain(rt slang.Runtime, blessings security.Blessings, name string) ([]security.Certificate, error) {
-	return getChainByName(blessings, name)
+	return internal.GetChainByName(blessings, name)
 }
 
 func getCaveats(rt slang.Runtime, chain []security.Certificate) ([]security.Caveat, error) {
@@ -48,16 +39,8 @@ func getBlessingsForPeers(rt slang.Runtime, p security.Principal, peers ...strin
 	return p.BlessingStore().ForPeer(peers...), nil
 }
 
-func writeBlessings(rt slang.Runtime, blessings security.Blessings, filename string) error {
-	str, err := encodeBlessings(blessings)
-	if err != nil {
-		return err
-	}
-	if filename == "-" {
-		dumpBlessings(rt.Stdout(), blessings)
-		return nil
-	}
-	return os.WriteFile(filename, []byte(str), 0600)
+func encodeBlessingsFile(rt slang.Runtime, filename string, blessings security.Blessings) error {
+	return internal.EncodeBlessingsFile(filename, rt.Stdout(), blessings)
 }
 
 func createBlessings(rt slang.Runtime, p security.Principal, name string, caveats ...security.Caveat) (security.Blessings, error) {
@@ -106,7 +89,7 @@ func unionBlessings(rt slang.Runtime, blessings ...security.Blessings) (security
 func init() {
 	slang.RegisterFunction(readBlessings, "blessings", `Read blessings a from a file (or stdin if filename is '-').`, "filename")
 
-	slang.RegisterFunction(writeBlessings, "blessings", `Write blessings to a file (or stdout if filename is '-').`, "blessings", "filename")
+	slang.RegisterFunction(writeBlessings, "blessings", `Write blessings to a file (or stdout if filename is '-').`, "filename", "blessings")
 
 	slang.RegisterFunction(defaultBlessingName, "blessings", `Generate a blessing name based on the name on the hostname and user running this command.`)
 
@@ -154,8 +137,8 @@ func init() {
 
 	slang.RegisterFunction(writeBlessingRoots, "blessings", `Write out the blessings of the identity providers of the supplied blessings to the specified file or stdout if '-'.  One
 	line per identity provider, each line is a base64url-encoded (RFC 4648, Section
-	5) vom-encoded Blessings object.`, "blessings", "filename")
+	5) vom-encoded Blessings object.`, "filename", "blessings")
 
-	slang.RegisterFunction(unionBlessings, "blessings", `Returned the union of the supplied blessings.`, "blessings")
+	slang.RegisterFunction(unionBlessings, "blessings", `Return the union of the supplied blessings.`, "blessings")
 
 }

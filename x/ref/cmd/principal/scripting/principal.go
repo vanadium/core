@@ -6,33 +6,16 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
 	"strings"
 
 	v23 "v.io/v23"
-	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/lib/textutil"
+	"v.io/x/ref/cmd/principal/internal"
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/slang"
 )
-
-var keyTypeMap = map[string]seclib.KeyType{
-	"ecdsa256": seclib.ECDSA256,
-	"ecdsa384": seclib.ECDSA384,
-	"ecdsa521": seclib.ECDSA521,
-	"ed25519":  seclib.ED25519,
-}
-
-func supportedKeyTypes() []string {
-	s := []string{}
-	for k := range keyTypeMap {
-		s = append(s, k)
-	}
-	sort.Strings(s)
-	return s
-}
 
 func defaultPrincipal(rt slang.Runtime) (security.Principal, error) {
 	return v23.GetPrincipal(rt.Context()), nil
@@ -47,9 +30,9 @@ func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error
 }
 
 func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) {
-	kt, ok := keyTypeMap[strings.ToLower(keyType)]
+	kt, ok := internal.IsSupportedKeyType(keyType)
 	if !ok {
-		return nil, fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(supportedKeyTypes(), ", "))
+		return nil, fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 	}
 	return seclib.NewPrivateKey(kt)
 }
@@ -87,33 +70,12 @@ func publicKey(rt slang.Runtime, p security.Principal) (security.PublicKey, erro
 	return p.PublicKey(), nil
 }
 
-func runScript(ctx *context.T, rd io.Reader) error {
-	buf, err := io.ReadAll(rd)
-	if err != nil {
-		return err
-	}
-	scr := &slang.Script{}
-	registerTimeFormats(scr)
-	return scr.ExecuteBytes(ctx, buf)
-}
-
-func runScriptFile(ctx *context.T, name string) error {
-	if name == "-" || len(name) == 0 {
-		return runScript(ctx, os.Stdin)
-	}
-	rd, err := os.Open(name)
-	if err != nil {
-		return err
-	}
-	return runScript(ctx, rd)
-}
-
 func init() {
 	slang.RegisterFunction(defaultPrincipal, "principal", `Returns the Principal that this process would use by default.`)
 
 	slang.RegisterFunction(useSSHKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file`, "publicKeyFile")
 
-	createKeyPairHelp := `Create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(supportedKeyTypes(), ", ") + "."
+	createKeyPairHelp := `Create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(internal.SupportedKeyTypes(), ", ") + "."
 
 	slang.RegisterFunction(createKeyPair, "principal", createKeyPairHelp, "keyType")
 
@@ -137,38 +99,5 @@ func format(msg string, indents ...string) string {
 	wr.SetIndents(indents...)
 	wr.Write([]byte(msg))
 	wr.Flush()
-	return out.String()
-}
-
-func scriptDocumentation() string {
-	out := &strings.Builder{}
-
-	underline(out, "Summary")
-	fmt.Fprintln(out, format(slang.Summary), "")
-
-	underline(out, "Literals")
-	fmt.Fprintln(out, format(slang.Literals))
-
-	underline(out, "Examples")
-	fmt.Fprintln(out, slang.Examples)
-
-	underline(out, "Available Functions")
-	for _, tag := range []struct {
-		tag, title string
-	}{
-		{"builtin", "builtin functions"},
-		{"time", "time related functions"},
-		{"print", "print/debug related functions"},
-		{"principal", "security.Principal related functions"},
-		{"blessings", "security.Blessings related functions"},
-		{"caveats", "security.Caveat related functions"},
-	} {
-		underline(out, tag.title)
-		for _, fn := range slang.RegisteredFunctions(tag.tag) {
-			fmt.Fprintf(out, "%s\n", fn.Function)
-			fmt.Fprint(out, format(fn.Help, "  "))
-			fmt.Fprintln(out)
-		}
-	}
 	return out.String()
 }
