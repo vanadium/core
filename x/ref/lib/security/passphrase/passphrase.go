@@ -68,7 +68,10 @@ func secureAppend(s []byte, t byte) []byte {
 	res := make([]byte, len(s)+1)
 	copy(res, s)
 	res[len(s)] = t
+<<<<<<< HEAD
 	res = append(res, t)
+=======
+>>>>>>> cos-update-lint
 	// Clear out s and t.
 	copy(s, make([]byte, len(s)))
 	t = 0 //nolint:ineffassign
