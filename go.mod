@@ -3,6 +3,7 @@ module v.io
 go 1.16
 
 require (
+	cloudeng.io/go v0.0.0-20201002213843-cae5e0ddc080 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.4.3
