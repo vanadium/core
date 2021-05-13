@@ -27,6 +27,7 @@ func removePrincipal(rt slang.Runtime, dir string) error {
 }
 
 func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error) {
+	publicKeyFile = os.ExpandEnv(publicKeyFile)
 	return seclib.NewSSHAgentHostedKey(publicKeyFile)
 }
 
@@ -80,7 +81,7 @@ func publicKey(rt slang.Runtime, p security.Principal) (security.PublicKey, erro
 func init() {
 	slang.RegisterFunction(defaultPrincipal, "principal", `Returns the Principal that this process would use by default.`)
 
-	slang.RegisterFunction(useSSHKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file`, "publicKeyFile")
+	slang.RegisterFunction(useSSHKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "publicKeyFile")
 
 	createKeyPairHelp := `Create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(internal.SupportedKeyTypes(), ", ") + "."
 
