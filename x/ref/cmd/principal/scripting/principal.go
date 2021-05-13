@@ -22,6 +22,7 @@ func defaultPrincipal(rt slang.Runtime) (security.Principal, error) {
 }
 
 func removePrincipal(rt slang.Runtime, dir string) error {
+	dir = os.ExpandEnv(dir)
 	return os.RemoveAll(dir)
 }
 
@@ -42,6 +43,7 @@ func useOrCreatePrincipal(rt slang.Runtime, key crypto.PrivateKey, dir string) (
 	if err == nil {
 		return p, err
 	}
+	dir = os.ExpandEnv(dir)
 	pass, err := passphrase.Get(fmt.Sprintf("Enter passphrase for %s (entering nothing will store the principal key unencrypted): ", dir))
 	if err != nil {
 		return nil, err
@@ -50,6 +52,7 @@ func useOrCreatePrincipal(rt slang.Runtime, key crypto.PrivateKey, dir string) (
 }
 
 func usePrincipal(rt slang.Runtime, dir string) (security.Principal, error) {
+	dir = os.ExpandEnv(dir)
 	var pass []byte
 	for {
 		p, err := seclib.LoadPersistentPrincipal(dir, pass)
@@ -66,6 +69,10 @@ func usePrincipal(rt slang.Runtime, dir string) (security.Principal, error) {
 	}
 }
 
+func addToRoots(rt slang.Runtime, p security.Principal, blessings security.Blessings) error {
+	return security.AddToRoots(p, blessings)
+}
+
 func publicKey(rt slang.Runtime, p security.Principal) (security.PublicKey, error) {
 	return p.PublicKey(), nil
 }
@@ -79,13 +86,18 @@ func init() {
 
 	slang.RegisterFunction(createKeyPair, "principal", createKeyPairHelp, "keyType")
 
-	slang.RegisterFunction(useOrCreatePrincipal, "principal", `Use the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory.`, "privateKey", "dirName")
+	slang.RegisterFunction(useOrCreatePrincipal, "principal", `Use the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "privateKey", "dirName")
 
-	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.`, "dirName")
+	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.  Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 
-	slang.RegisterFunction(removePrincipal, "principal", `Remove the specified principal directory`, "dirname")
+	slang.RegisterFunction(removePrincipal, "principal", `Remove the specified principal directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirname")
+
+	slang.RegisterFunction(addToRoots, `addToRoots marks the root principals of all blessing chains represented by 'blessings' as an authority on blessing chains beginning at that root name in p.BlessingRoots().
+	
+	For example, if blessings represents the blessing chains ["alice:friend:spouse", "charlie:family:daughter"] then AddToRoots(blessing) will mark the root public key of the chain "alice:friend:bob" as the authority on all blessings that match the pattern "alice", and root public
+	key of the chain "charlie:family:daughter" as an authority on all blessings that match the pattern "charlie".`, "principal", "principal", "blessings")
 
 }
 

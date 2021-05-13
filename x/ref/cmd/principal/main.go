@@ -1039,6 +1039,9 @@ to stdin. If no scripts are specified then stdin is used.
 				fmt.Println(scripting.Documentation())
 				return nil
 			}
+			if len(args) == 0 {
+				return scripting.RunFile(ctx, "-")
+			}
 			for _, s := range args {
 				if err := scripting.RunFile(ctx, s); err != nil {
 					return err

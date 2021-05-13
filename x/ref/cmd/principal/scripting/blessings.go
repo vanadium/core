@@ -60,6 +60,10 @@ func blessingPattern(rt slang.Runtime, pattern string) (security.BlessingPattern
 	return security.BlessingPattern(pattern), nil
 }
 
+func allPrincipalsBlessingPattern(rt slang.Runtime) (security.BlessingPattern, error) {
+	return security.AllPrincipals, nil
+}
+
 func setBlessingsForPeers(rt slang.Runtime, p security.Principal, blessings security.Blessings, forPeers security.BlessingPattern) error {
 	_, err := p.BlessingStore().Set(blessings, forPeers)
 	return err
@@ -110,6 +114,8 @@ func init() {
 	A pattern can either be a blessing (slash-separated human-readable string) or a blessing ending in "/$". A pattern ending in "/$" is matched exactly by the blessing specified by the pattern string with the "/$" suffix stripped out. For example, the pattern "a/b/c/$" is matched by exactly by the blessing "a/b/c".
 
 	A pattern not ending in "/$" is more permissive, and is also matched by blessings that are extensions of the pattern (including the pattern itself). For example, the pattern "a/b/c" is matched by the blessings "a/b/c", "a/b/c/x", "a/b/c/x/y", etc.`, "pattern")
+
+	slang.RegisterFunction(allPrincipalsBlessingPattern, `Returns the blessing pattern that matches all principals, ie. "..."`, "blessings")
 
 	slang.RegisterFunction(setBlessingsForPeers, "blessings", `Set the blessings to be shared with peers.
 	
