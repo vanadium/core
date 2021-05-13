@@ -22,7 +22,7 @@ linters:
     - govet
     - ineffassign
     - misspell
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - typecheck

@@ -65,13 +65,12 @@ func readPassphrase() ([]byte, error) {
 }
 
 func secureAppend(s []byte, t byte) []byte {
-	res := append(s, t)
-	if len(res) > cap(s) {
-		// When append needs to allocate a new array, clear out the old
-		// one.
-		copy(s, make([]byte, len(s)))
-	}
-	// Clear out the byte.
+	res := make([]byte, len(s)+1)
+	copy(res, s)
+	res[len(s)] = t
+	res = append(res, t)
+	// Clear out s and t.
+	copy(s, make([]byte, len(s)))
 	t = 0 //nolint:ineffassign
 	return res
 }
