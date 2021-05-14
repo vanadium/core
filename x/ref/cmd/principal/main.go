@@ -684,9 +684,8 @@ For example, to merge the blessings contained in files A and B:
 			for _, b := range args {
 				var blessings security.Blessings
 				var err error
-				if _, err := os.Stat(b); err == nil {
+				if _, err = os.Stat(b); err == nil {
 					blessings, err = internal.DecodeBlessingsFile(b)
-
 				} else {
 					blessings, err = internal.DecodeBlessings(b)
 				}

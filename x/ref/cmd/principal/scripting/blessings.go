@@ -43,10 +43,6 @@ func getBlessingsForPeers(rt slang.Runtime, p security.Principal, peers ...strin
 	return p.BlessingStore().ForPeer(peers...), nil
 }
 
-func encodeBlessingsFile(rt slang.Runtime, filename string, blessings security.Blessings) error {
-	return internal.EncodeBlessingsFile(filename, rt.Stdout(), blessings)
-}
-
 func createBlessings(rt slang.Runtime, p security.Principal, name string, caveats ...security.Caveat) (security.Blessings, error) {
 	return p.BlessSelf(name, caveats...)
 }
