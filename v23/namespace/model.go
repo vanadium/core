@@ -50,7 +50,7 @@ type T interface {
 	// CacheCtl sets controls and returns the current control values.
 	CacheCtl(ctls ...naming.CacheCtl) []naming.CacheCtl
 
-	// Glob returns MountEntry's whose name matches the pattern and GlobError's
+	// Glob returns GlobReplyEntrys whose name matches the pattern and GlobReplyErrors
 	// for any piece of the space that can't be traversed.
 	//
 	// Two special patterns:
@@ -67,10 +67,10 @@ type T interface {
 	//	}
 	//	for s := range rc {
 	//		switch v := s.(type) {
-	//		case *naming.MountEntry:
-	//			fmt.Printf("%s: %v\n", v.Name, v.Servers)
-	//		case *naming.GlobError:
-	//			fmt.Fprintf(stderr, "%s can't be traversed: %s\n", v.Name, v.Error)
+	//		case *naming.GlobReplyEntry:
+	//			fmt.Printf("%s: %v\n", v.Value.Name, v.Value.Servers)
+	//		case *naming.GlobReplyError:
+	//			fmt.Fprintf(stderr, "%s can't be traversed: %s\n", v.Value.Name, v.Value.Error)
 	//		}
 	//	}
 	Glob(ctx *context.T, pattern string, opts ...naming.NamespaceOpt) (<-chan naming.GlobReply, error)
