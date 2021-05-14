@@ -706,7 +706,6 @@ func TestV23ForkWithoutVDLPATH(t *testing.T) {
 	sh := v23test.NewShell(t, nil)
 	defer sh.Cleanup()
 
-	delete(sh.Vars, "JIRI_ROOT")
 	delete(sh.Vars, "VDLPATH")
 
 	var (

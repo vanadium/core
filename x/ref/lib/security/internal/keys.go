@@ -43,7 +43,7 @@ func openKeyFile(keyFile string) (*os.File, error) {
 	return f, nil
 }
 
-// CopyKeyFile copies a keyfile, it wqill fail if it can't overwrite
+// CopyKeyFile copies a keyfile, it will fail if it can't overwrite
 // an existing file.
 func CopyKeyFile(fromFile, toFile string) error {
 	to, err := openKeyFile(toFile)

@@ -203,7 +203,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 	}
 }
 
-func TestCreatetPrincipalSSH(t *testing.T) {
+func TestCreatePrincipalSSH(t *testing.T) {
 	dir, err := ioutil.TempDir("", "TestLoadPersistentPrincipal")
 	if err != nil {
 		t.Fatal(err)
@@ -215,17 +215,12 @@ func TestCreatetPrincipalSSH(t *testing.T) {
 	service.SetAgentSockName(agentSockName)
 
 	// non-existent ssh public key file
-	sshKey := SSHAgentHostedKey{
-		PublicKeyFile: "does-not-exist.pub",
-		Agent:         service,
-	}
-	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, dir, nil)
+	_, err = NewSSHAgentHostedKey("does-not-exist.pub")
 	if err == nil || !strings.Contains(err.Error(), "no such file") {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with no such file error")
 	}
 
-	sshKey.PublicKeyFile = "not-a-dot-pub-file"
-	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, dir, nil)
+	_, err = NewSSHAgentHostedKey("not-a-dot-pub-file")
 	if err == nil || !strings.Contains(err.Error(), ".pub") {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with a not a .pub file error")
 	}
@@ -233,10 +228,9 @@ func TestCreatetPrincipalSSH(t *testing.T) {
 	invalid := filepath.Join(dir, "invalid.pub")
 	ioutil.WriteFile(invalid, []byte{'1', '\n'}, 0600)
 
-	sshKey.PublicKeyFile = invalid
-	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, dir, nil)
+	_, err = NewSSHAgentHostedKey(invalid)
 	if err == nil || !strings.Contains(err.Error(), "no key found") {
-		t.Errorf("CreatePersistentPrincipalUsingKey should have failed")
+		t.Errorf("CreatePersistentPrincipalUsingKey should have failed: %v", err)
 	}
 
 	// ssh key that doesn't exist in the agent.
@@ -248,11 +242,15 @@ func TestCreatetPrincipalSSH(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	missing := "missing.pub"
+	missing := "private-key-not-in-agent.pub"
 	if err := ioutil.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
 		t.Fatal(err)
 	}
-	sshKey.PublicKeyFile = missing
+
+	sshKey, err := NewSSHAgentHostedKey(missing)
+	if err != nil {
+		t.Fatal(err)
+	}
 	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, dir, nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Log(err)
@@ -260,7 +258,7 @@ func TestCreatetPrincipalSSH(t *testing.T) {
 	}
 }
 
-func funcForKey(keyType string) func(dir string, pass []byte) (security.Principal, error) {
+func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
 		key, err := NewPrivateKey(keyType)
 		if err != nil {
@@ -288,11 +286,11 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		fn                  func(dir string, pass []byte) (security.Principal, error)
 		Message, Passphrase []byte
 	}{
-		{funcForKey("ecdsa256"), []byte("unencrypted"), nil},
-		{funcForKey("ecdsa384"), []byte("encrypted"), []byte("passphrase")},
-		{funcForKey("ecdsa521"), []byte("encrypted"), []byte("passphrase")},
-		{funcForKey("ed25519"), []byte("unencrypted"), nil},
-		{funcForKey("ed25519"), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(ECDSA256), []byte("unencrypted"), nil},
+		{funcForKey(ECDSA384), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(ECDSA521), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(ED25519), []byte("unencrypted"), nil},
+		{funcForKey(ED25519), []byte("encrypted"), []byte("passphrase")},
 		{funcForSSHKey("ecdsa-256.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ed25519.pub"), []byte("unencrypted"), nil},
 	}
@@ -419,7 +417,7 @@ func TestDaemonMode(t *testing.T) {
 	ctx, cancel := gocontext.WithCancel(gocontext.Background())
 	defer cancel()
 	// Create two principls that don't trust each other.
-	principals, daemons := createAliceAndBob(ctx, t, funcForKey("ecdsa256"))
+	principals, daemons := createAliceAndBob(ctx, t, funcForKey(ECDSA256))
 	testDaemonMode(ctx, t, principals, daemons)
 	principals, daemons = createAliceAndBob(ctx, t, funcForSSHKey("ed25519.pub"))
 	testDaemonMode(ctx, t, principals, daemons)
@@ -491,7 +489,7 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 
 func TestDaemonPublicKeyOnly(t *testing.T) {
 	passphrase := []byte("with-passphrase")
-	testDaemonPublicKeyOnly(t, funcForKey("ecdsa256"), passphrase)
+	testDaemonPublicKeyOnly(t, funcForKey(ECDSA256), passphrase)
 	client := sshagent.NewClient()
 	client.SetAgentSockName(agentSockName)
 	if err := client.Lock(passphrase); err != nil {

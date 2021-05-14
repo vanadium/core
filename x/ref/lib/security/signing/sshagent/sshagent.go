@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
@@ -154,7 +155,7 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 	case ssh.KeyAlgoED25519:
 		vpk, err = internal.FromED25512Key(pk)
 	default:
-		return nil, fmt.Errorf("unsupported ssh key key tyoe %v", pk.Type())
+		return nil, fmt.Errorf("unsupported ssh key key type %v", pk.Type())
 	}
 	if err != nil {
 		return nil, err
@@ -182,7 +183,7 @@ func (ac *Client) lookup(key ssh.PublicKey, comment string) (*agent.Key, error) 
 	for _, key := range keys {
 		if bytes.Equal(pk, key.Blob) && key.Comment == comment {
 			if !internal.IsSupported(key) {
-				return nil, fmt.Errorf("key %v (%v) is not a supported type", comment, key.Type())
+				return nil, fmt.Errorf("key %v (%v) is not one of the supported type types: %v", comment, key.Type(), strings.Join(internal.SupportedKeyTypes(), ", "))
 			}
 			return key, nil
 		}

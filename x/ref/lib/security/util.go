@@ -5,6 +5,7 @@
 package security
 
 import (
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
@@ -12,8 +13,11 @@ import (
 	"fmt"
 	"os"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/x/ref"
+	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
+	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 // DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
@@ -23,23 +27,75 @@ var DefaultSSHAgentSockNameFunc = func() string {
 	return os.Getenv("SSH_AUTH_SOCK")
 }
 
+// SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
+// key file must be accessible and is used to identify the private key hosted
+// by the ssh agent. Currently ecdsa and ed25519 key types are supported.
+type SSHAgentHostedKey struct {
+	PublicKeyFile string
+	PublicKey     ssh.PublicKey
+	Comment       string
+	Agent         *sshagent.Client
+}
+
+// KeyType represents the supported key types.
+type KeyType int
+
+const (
+	UnsupportedKeyType KeyType = iota
+	ECDSA256
+	ECDSA384
+	ECDSA521
+	ED25519
+)
+
 // NewPrivateKey creates a new private key of the requested type.
 // keyType must be one of ecdsa256, ecdsa384, ecdsa521 or ed25519.
-func NewPrivateKey(keyType string) (interface{}, error) {
+func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	switch keyType {
-	case "ecdsa256":
+	case ECDSA256:
 		return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	case "ecdsa384":
+	case ECDSA384:
 		return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	case "ecdsa521":
+	case ECDSA521:
 		return ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-	case "ed25519":
+	case ED25519:
 		_, privateKey, err := ed25519.GenerateKey(rand.Reader)
 		return privateKey, err
 	default:
 		return nil, fmt.Errorf("unsupported key type: %T", keyType)
 	}
 }
+
+// NewSSHAgentHostedKey creates a connection to the users ssh agent
+// in order to use the private key corresponding to the supplied
+// public for signing operations. Thus allowing the use of ssh keys
+// without having to separately manage them.
+func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
+	key, comment, err := internal.LoadSSHPublicKeyFile(publicKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	return &SSHAgentHostedKey{
+		PublicKeyFile: publicKeyFile,
+		PublicKey:     key,
+		Comment:       comment,
+		Agent:         sshagent.NewClient(),
+	}, nil
+}
+
+/*
+// PasswordProtected returns true if the supplied key can be password
+// protected. Some key types, eg. ssh, are already encrypted and hence
+// cannot be password protected.
+func PasswordProtected(key crypto.PrivateKey) bool {
+	switch key.(type) {
+	case SSHAgentHostedKey, *SSHAgentHostedKey:
+		return false
+	default:
+		return true
+	}
+}
+*/
 
 // createReadLockfile ensures that a lockfile for read-only access
 // exists by first creating a lockfile for writes, unlocking it
