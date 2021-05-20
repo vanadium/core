@@ -115,13 +115,17 @@ func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) erro
 	if err := readNonReflect(dec, calledStart, rv.Addr().Interface()); err != errReadMustReflect {
 		return err
 	}
+
+	rt := rv.Type()
+	pri := perfReflectCache.perfReflectInfo(rt)
+
 	// Handle native types, which need the ToNative conversion.  Notice that rv is
 	// never a pointer here, so we don't support native pointer types.  In theory
 	// we could support native pointer types, but they're complicated and will
 	// probably slow everything down.
 	//
 	// TODO(toddw): Investigate support for native pointer types.
-	if ni := nativeInfoFromNative(rv.Type()); ni != nil {
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
 		rvWire := reflect.New(ni.WireType).Elem()
 		if err := readReflect(dec, calledStart, rvWire, tt); err != nil {
 			return err
@@ -161,13 +165,13 @@ func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) erro
 	case Map:
 		err = readMap(dec, rv, tt)
 	case Struct:
-		err = readStruct(dec, rv, tt)
+		err = readStruct(dec, rv, tt, pri)
 	case Union:
 		err = readUnion(dec, rv, tt)
 	default:
 		// Note that both Any and Optional were handled in readIntAny, and
 		// TypeObject was handled via the readNonReflect special-case.
-		return fmt.Errorf("vdl: Read unhandled type %v %v", rv.Type(), tt)
+		return fmt.Errorf("vdl: Read unhandled type %v %v", rt, tt)
 	}
 	if err != nil {
 		return err
@@ -182,7 +186,7 @@ type settable interface {
 }
 
 // readIntoAny uses dec to decode a value into rv, which has VDL type any.
-func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
+func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error { //nolint:gocyclo
 	if calledStart {
 		// The existing code ensures that calledStart is always false here, since
 		// readReflect(dec, true, ...) is only called in situations where it's
@@ -225,15 +229,25 @@ func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
 	if dec.IsOptional() && !dec.IsNil() {
 		ttDecode = OptionalType(ttDecode)
 	}
-	rtDecode := typeToReflectNew(ttDecode)
-	// Handle top-level "v.io/v23/vdl.WireError" types.  TypeToReflect will find
-	// vdl.WireError based on regular wire type registration, and will find the Go
-	// error interface based on regular native type registration, and these are
-	// fine for nested error types.
+	var rtDecode reflect.Type
+	switch {
+	case len(ttDecode.Name()) > 0:
+		rtDecode = typeToReflectNamed(ttDecode)
+	case ttDecode.Kind() == Optional:
+		rtDecode = typeToReflectOptional(ttDecode)
+	default:
+		rtDecode = TypeToReflect(ttDecode)
+	}
+
+	// Handle top-level wire<->native converted types, such as
+	// "v.io/v23/vdl.WireError". For example, TypeToReflect will find
+	// vdl.WireError based on regular wire type registration, and will find
+	// the Go error interface based on regular native type registration, and
+	// these are fine for nested types, including for errors.
 	//
 	// But this is the case where we're decoding into a top-level Go interface,
 	// and we'll lose type information if the dec value is nil.  So instead we
-	// return the registered verror.E type.  Examples:
+	// return the registered 'Any' type for the wireType.  Examples:
 	//
 	//   ttDecode  ->  rtDecode
 	//   -----------------------
@@ -241,6 +255,14 @@ func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
 	//   ?WireError    *verror.E
 	//   []WireError   []vdl.WireError (1)
 	//   []?WireError  []error
+	//
+	// TODO(cnicolaou): current (1) above, as per the comment below, returns
+	// []error and not []verror.E. I don't see how to change that and the
+	// registrations suggested below are specifically disallowed (since
+	// they are chained). The current situation doesn't seem egregious and
+	// the RegisterNativeAnyType that replaces the specific handling for
+	// WireError allows the same functionality to provided for any other
+	// types that might need it.
 	//
 	// TODO(toddw): The (1) case above is weird; we would like to return verror.E,
 	// but that's hard because the native conversion we've registered doesn't
@@ -252,18 +274,16 @@ func readIntoAny(dec Decoder, calledStart bool, rv reflect.Value) error {
 	// We could make this more consistent by registering a pair of conversion
 	// functions instead:
 	//
-	//    ToNative(wire vdl.WireError, native *verror.E)
+	//    ToNative(wire *vdl.WireError, native *verror.E)
 	//    FromNative(wire *vdl.WireError, native verror.E)
 	//
 	//    ToNative(wire *verror.E, native *error)
 	//    FromNative(wire **verror.E, native error)
-	if ttDecode.NonOptional().Name() == ErrorType.Elem().Name() {
-		if ni, err := nativeInfoForError(); err == nil {
-			if ttDecode.Kind() == Optional {
-				rtDecode = reflect.PtrTo(ni.NativeType)
-			} else {
-				rtDecode = ni.NativeType
-			}
+	if ni := nativeAnyTypeFromWire(ttDecode.NonOptional().Name()); ni != nil {
+		if ttDecode.Kind() == Optional {
+			rtDecode = ni.nativeAnyType
+		} else {
+			rtDecode = ni.nativeAnyElemType
 		}
 	}
 	if rtDecode == nil {
@@ -666,7 +686,7 @@ func readMap(dec Decoder, rv reflect.Value, tt *Type) error {
 	}
 }
 
-func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
+func readStruct(dec Decoder, rv reflect.Value, tt *Type, pri perfReflectInfo) error {
 	rt, decType := rv.Type(), dec.Type()
 	// Reset to the zero struct, since fields may be missing.
 	//
@@ -676,6 +696,7 @@ func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
 		return err
 	}
 	rv.Set(rvZero)
+	idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 	for {
 		index, err := dec.NextField()
 		switch {
@@ -696,7 +717,11 @@ func readStruct(dec Decoder, rv reflect.Value, tt *Type) error {
 				continue
 			}
 		}
-		rvField := rv.Field(rtFieldIndexByName(rt, ttField.Name))
+		idx, ok := idxMap[ttField.Name]
+		if !ok {
+			return fmt.Errorf("vdl: readStruct unrecognised VDL field %v in %v", ttField.Name, rt)
+		}
+		rvField := rv.Field(idx)
 		if ttReadIntoScalar(ttField.Type) {
 			if err := readValueScalar(dec, rvField, ttField.Type); err != nil {
 				return err

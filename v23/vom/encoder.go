@@ -48,7 +48,7 @@ func NewEncoder(w io.Writer) *Encoder {
 // NewVersionedEncoder returns a new Encoder that writes to the given writer with
 // the specified version.
 func NewVersionedEncoder(version Version, w io.Writer) *Encoder {
-	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, w))
+	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, w, newEncbuf()))
 	return NewVersionedEncoderWithTypeEncoder(version, w, typeEnc)
 }
 
@@ -62,6 +62,10 @@ func NewEncoderWithTypeEncoder(w io.Writer, typeEnc *TypeEncoder) *Encoder {
 // given writer with the specified version, where types are encoded separately
 // through the typeEnc.
 func NewVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder) *Encoder {
+	return newVersionedEncoderWithTypeEncoder(version, w, typeEnc, newEncbuf())
+}
+
+func newVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder, buf *encbuf) *Encoder {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
@@ -74,11 +78,10 @@ func NewVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *T
 	}}
 }
 
-func newEncoderForTypes(version Version, w io.Writer) *encoder81 {
+func newEncoderForTypes(version Version, w io.Writer, buf *encbuf) *encoder81 {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
-	buf := newEncbuf()
 	e := &encoder81{
 		writer:          w,
 		buf:             buf,
@@ -128,7 +131,8 @@ const (
 )
 
 type encoder81 struct {
-	stack []encoderStackEntry
+	stackStorage [reservedCodec81StackSize]encoderStackEntry
+	stack        []encoderStackEntry
 	// We use buf to buffer up the encoded value. The buffering is necessary so
 	// that we can compute the total message length.
 	buf *encbuf
@@ -191,6 +195,16 @@ func (e *encoder81) top() *encoderStackEntry {
 		return nil
 	}
 	return &e.stack[len(e.stack)-1]
+}
+
+func (e *encoder81) appendStack(entry encoderStackEntry) {
+	// TODO(cnicolaou): get rid of this test by ensuring that the
+	//      stack is properly initialized when an encoder81 is
+	//      created.
+	if e.stack == nil {
+		e.stack = e.stackStorage[:0]
+	}
+	e.stack = append(e.stack, entry)
 }
 
 func (e *encoder81) encodeWireType(tid TypeId, wt wireType, typeIncomplete bool) error {
@@ -290,7 +304,7 @@ func (e *encoder81) StartValue(tt *vdl.Type) error {
 		}
 	}
 	// Add entry to the stack.
-	e.stack = append(e.stack, encoderStackEntry{
+	e.appendStack(encoderStackEntry{
 		Type:    tt,
 		Index:   -1,
 		LenHint: -1,
@@ -318,9 +332,16 @@ func (e *encoder81) startMessage(tt *vdl.Type) error {
 	if err != nil {
 		return err
 	}
-	e.hasLen = hasChunkLen(tt)
-	e.hasAny = containsAny(tt)
-	e.hasTypeObject = containsTypeObject(tt)
+	ttKind := tt.Kind()
+	// Avoid the expensive operations (hasChunkLen etc) when
+	// they can't possibly be required.
+	if ttKind.IsNumber() || (ttKind == vdl.String) || (ttKind == vdl.Enum) {
+		e.hasLen, e.hasAny, e.hasTypeObject = false, false, false
+	} else {
+		e.hasLen = hasChunkLen(tt)
+		e.hasAny = containsAny(tt)
+		e.hasTypeObject = containsTypeObject(tt)
+	}
 	e.typeIncomplete = false
 	e.mid = int64(tid)
 	if e.hasAny || e.hasTypeObject {
@@ -435,14 +456,14 @@ func (e *encoder81) NextField(index int) error {
 	if top == nil {
 		return errEmptyEncoderStack
 	}
-	if index < -1 || index >= top.Type.NumField() {
-		return fmt.Errorf("vom: NextField called with invalid index %d", index)
-	}
 	if index == -1 {
 		if top.Type.Kind() == vdl.Struct {
 			binaryEncodeControl(e.buf, WireCtrlEnd)
 		}
 		return nil
+	}
+	if index < -1 || index >= top.Type.NumField() {
+		return fmt.Errorf("vom: NextField called with invalid index %d", index)
 	}
 	binaryEncodeUint(e.buf, uint64(index))
 	top.Index = index
@@ -569,14 +590,15 @@ func (e *encoder81) writeRawBytes(rb *RawBytes) error {
 }
 
 func newTypeIDList() *typeIDList {
-	return &typeIDList{
-		tids: make([]TypeId, 0, typeIDListInitialSize),
-	}
+	tids := &typeIDList{}
+	tids.tids = tids.tidStorage[:0]
+	return tids
 }
 
 type typeIDList struct {
-	tids      []TypeId
-	totalSent int
+	tidStorage [typeIDListInitialSize]TypeId
+	tids       []TypeId
+	totalSent  int
 }
 
 func (l *typeIDList) ReferenceTypeID(tid TypeId) uint64 {

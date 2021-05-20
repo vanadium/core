@@ -540,8 +540,6 @@ func TestRawBytesDecodeEncode(t *testing.T) {
 		rb = vom.RawBytes{}
 		typeReader := bytes.NewReader(test.TypeBytes())
 		typeDec := vom.NewTypeDecoder(typeReader)
-		typeDec.Start()
-		defer typeDec.Stop()
 		valueReader := bytes.NewReader(test.ValueBytes())
 		if err := vom.NewDecoderWithTypeDecoder(valueReader, typeDec).Decode(&rb); err != nil {
 			t.Errorf("%s: decode failed: %v", test.Name(), err)
@@ -555,7 +553,6 @@ func TestRawBytesDecodeEncode(t *testing.T) {
 			t.Errorf("%s: value reader got %v, want EOF", test.Name(), err)
 			continue
 		}
-
 		out.Reset()
 		var typeOut bytes.Buffer
 		typeEnc := vom.NewVersionedTypeEncoder(test.Version, &typeOut)

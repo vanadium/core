@@ -53,7 +53,6 @@ func (tc *typeCache) writer(c flow.ManagedConn) (write func(flow.Flow, context.C
 				tce.cancel = c
 				tce.enc = vom.NewTypeEncoder(f)
 				tce.dec = vom.NewTypeDecoder(f)
-				tce.dec.Start() // Stopped in collect()
 			} else {
 				vlog.InfoStack(false)
 				vlog.Infof("closing ready chan for nil flow")
@@ -126,9 +125,6 @@ func (tc *typeCache) collect() {
 				if tce.cancel != nil {
 					tce.cancel()
 				}
-				if tce.dec != nil {
-					tce.dec.Stop()
-				}
 				delete(tc.flows, conn)
 			}
 		}
@@ -142,9 +138,6 @@ func (tc *typeCache) close() {
 		if tce != nil {
 			if tce.cancel != nil {
 				tce.cancel()
-			}
-			if tce.dec != nil {
-				tce.dec.Stop()
 			}
 		}
 	}

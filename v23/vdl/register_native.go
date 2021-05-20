@@ -26,7 +26,7 @@ import (
 // ToNative, and wire in FromNative) are guaranteed to be an allocated zero
 // value of the respective type.
 //
-// As a special-case, RegisterNative is also called by the verror package to
+// As a special-case, RegisterNative is called by the verror package to
 // register conversions between vdl.WireError and the standard Go error type.
 // This is required for error conversions to work correctly.
 //
@@ -42,51 +42,69 @@ func RegisterNative(toFn, fromFn interface{}) {
 	}
 }
 
-// TODO(bprosnitz) Remove this.
-func RegisterNativeError(toFn, fromFn interface{}) {
-	ni, err := deriveNativeInfoError(toFn, fromFn)
-	if err != nil {
-		panic(fmt.Errorf("vdl: RegisterNative invalid (%v)", err))
+// RegisterNativeIsZero registers the supplied native type as implementing
+// vdl.NativeIsZero with the expected semantics. This is purely a performance
+// optimization.
+func RegisterNativeIsZero(native interface{}) {
+	rt := reflect.TypeOf(native)
+	if !perfReflectCache.implementsBuiltinInterface(perfReflectInfo{}, rt, rtNativeIsZeroBitMask) {
+		panic(fmt.Errorf("vdl: RegisterNativeIsZero: %T type does not implement: %v", native, rtNativeIsZero))
 	}
-	niReg.forError = ni
 }
 
-func deriveNativeInfoError(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:gocyclo
-	if toFn == nil || fromFn == nil {
-		return nil, fmt.Errorf("nil arguments")
+// RegisterNativeConverter registers a 'converter' that implements
+// vdl.NativeConverer for converting to/from native types. This is a performance
+// optimization since invoking the methods via the interface is much faster
+// than doing so via reflect.Call. Typical usage is as follows. Note
+// that the traditional native conversion functions and registrations are
+// required to ensure valid conversions and this is purely a performance
+// optimisation.
+//
+//    vdl.RegisterNativeConverter(Time{}, nativeConverter{})
+//
+//    type nativeConverter struct{}
+//
+//    func (f nativeConverter) ToNative(wire, native interface{}) error {
+//	    return TimeToNative(wire.(Time), native.(*time.Time))
+//    }
+//
+//    func (f nativeConverter) FromNative(wire, native interface{}) error {
+//      return TimeFromNative(wire.(*Time), native.(time.Time))
+//    }
+//
+func RegisterNativeConverter(wireType interface{}, converter NativeConverter) {
+	ni := nativeInfoFromWire(reflect.TypeOf(wireType))
+	if ni == nil {
+		panic(fmt.Errorf("vdl: RegisterNativeConverter: wire type %T is not registered", wireType))
 	}
-	rvT, rvF := reflect.ValueOf(toFn), reflect.ValueOf(fromFn)
-	rtT, rtF := rvT.Type(), rvF.Type()
-	if rtT.Kind() != reflect.Func || rtF.Kind() != reflect.Func {
-		return nil, fmt.Errorf("arguments must be functions")
+	ni.converter = converter
+}
+
+// RegisterNativeAnyType registers the native type to use for when
+// decoding into an any type from a registered wire type. This is required
+// when the native type associated with the specified wire type is an interface
+// and hence there is ambiguity as to which concrete type to use when
+// decoding into an any.
+//
+// As a special-case, RegisterNativeAnyType is called by the verror package to
+// register conversions between vdl.WireError and the standard Go error type.
+// This is required for error conversions to work correctly. It can also
+// be used for any wire/native conversions that need to enforce a specific
+// type when decoding into an any type.
+//
+// RegisterNativeAnyType is not intended to be called by end users; calls are
+// auto-generated for types with native conversions in *.vdl files.
+func RegisterNativeAnyType(wireType interface{}, anyType interface{}) {
+	wt := reflect.TypeOf(wireType)
+	niany := &nativeAnyTypeInfo{}
+	niany.nativeAnyType = reflect.TypeOf(anyType)
+	if niany.nativeAnyType.Kind() == reflect.Interface {
+		panic(fmt.Errorf("%v cannot be an interface type", niany.nativeAnyType))
 	}
-	if rtT.NumIn() != 2 || rtT.In(1).Kind() != reflect.Ptr || rtT.NumOut() != 1 || rtT.Out(0) != rtError {
-		return nil, fmt.Errorf("toFn must have signature ToNative(wire W, native *N) error")
+	niany.nativeAnyElemType = niany.nativeAnyType.Elem()
+	if err := niAnyReg.addNativeAnyType(wt, niany); err != nil {
+		panic(fmt.Errorf("vdl: RegisterNativeAnyType invalid (%v)", err))
 	}
-	if rtF.NumIn() != 2 || rtF.In(0).Kind() != reflect.Ptr || rtF.NumOut() != 1 || rtF.Out(0) != rtError {
-		return nil, fmt.Errorf("fromFn must have signature FromNative(wire *W, native N) error")
-	}
-	// Make sure the wire and native types match up between the two functions.
-	rtWire, rtNative := rtT.In(0), rtT.In(1).Elem()
-	if rtWire == rtWireError {
-		// TODO(bprosnitz) Remove this case.
-		// The wire<->native conversions for errors is special, since we need to
-		// perform error interface checks.  The functions are expected to look like:
-		//   func ToNative(wire vdl.WireError, native *Native) error
-		//   func FromNative(wire *vdl.WireError, native error) error
-		if rtNative == rtError || rtF.In(0).Elem() != rtWireError || rtF.In(1) != rtError {
-			return nil, fmt.Errorf("mismatched error conversion, want signatures ToNative(wire vdl.WireError, native *error) error, FromNative(wire *vdl.WireError, native error) error")
-		}
-	} else if rtWire != rtF.In(0).Elem() || rtNative != rtF.In(1) {
-		return nil, fmt.Errorf("mismatched wire/native types, want signatures ToNative(wire W, native *N) error, FromNative(wire *W, native N) error")
-	}
-	if rtWire == rtNative {
-		return nil, fmt.Errorf("wire type == native type: %v", rtWire)
-	}
-	// Attach a stacktrace to the info, up to 1KB.
-	stack := make([]byte, 1024)
-	stack = stack[:runtime.Stack(stack, false)]
-	return &nativeInfo{rtWire, rtNative, rvT, rvF, stack}, nil
 }
 
 // nativeType holds the mapping between a VDL wire type and a Go native type,
@@ -96,18 +114,34 @@ type nativeInfo struct {
 	NativeType     reflect.Type  // Native type from the conversion funcs.
 	toNativeFunc   reflect.Value // ToNative conversion func.
 	fromNativeFunc reflect.Value // FromNative conversion func.
+	converter      NativeConverter
 	stack          []byte
 }
 
+// nativeAnyTypeInfo holds the mapping from a wire type to its any native
+// Go type.
+type nativeAnyTypeInfo struct {
+	nativeAnyType     reflect.Type
+	nativeAnyElemType reflect.Type
+}
+
 func (ni *nativeInfo) ToNative(wire, native reflect.Value) error {
-	if ierr := ni.toNativeFunc.Call([]reflect.Value{wire, native})[0].Interface(); ierr != nil {
+	if ni.converter != nil {
+		return ni.converter.ToNative(wire.Interface(), native.Interface())
+	}
+	callArray := [2]reflect.Value{wire, native}
+	if ierr := ni.toNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)
 	}
 	return nil
 }
 
 func (ni *nativeInfo) FromNative(wire, native reflect.Value) error {
-	if ierr := ni.fromNativeFunc.Call([]reflect.Value{wire, native})[0].Interface(); ierr != nil {
+	if ni.converter != nil {
+		return ni.converter.FromNative(wire.Interface(), native.Interface())
+	}
+	callArray := [2]reflect.Value{wire, native}
+	if ierr := ni.fromNativeFunc.Call(callArray[:])[0].Interface(); ierr != nil {
 		return ierr.(error)
 	}
 	return nil
@@ -120,12 +154,20 @@ type niRegistry struct {
 	sync.RWMutex
 	fromWire   map[reflect.Type]*nativeInfo
 	fromNative map[reflect.Type]*nativeInfo
-	forError   *nativeInfo
+}
+
+type niAnyRegistry struct {
+	sync.RWMutex
+	fromWireAny map[string]*nativeAnyTypeInfo
 }
 
 var niReg = &niRegistry{
 	fromWire:   make(map[reflect.Type]*nativeInfo),
 	fromNative: make(map[reflect.Type]*nativeInfo),
+}
+
+var niAnyReg = &niAnyRegistry{
+	fromWireAny: make(map[string]*nativeAnyTypeInfo),
 }
 
 func (reg *niRegistry) addNativeInfo(ni *nativeInfo) error {
@@ -142,6 +184,21 @@ func (reg *niRegistry) addNativeInfo(ni *nativeInfo) error {
 	}
 	reg.fromWire[ni.WireType] = ni
 	reg.fromNative[ni.NativeType] = ni
+	return nil
+}
+
+func (reg *niAnyRegistry) addNativeAnyType(wireType reflect.Type, ninil *nativeAnyTypeInfo) error {
+	reg.Lock()
+	defer reg.Unlock()
+	ri, err := TypeFromReflect(wireType)
+	if err != nil {
+		return err
+	}
+	name := ri.Name()
+	if ri == nil || name == "" {
+		return fmt.Errorf("%v is not registered as a wire type", wireType)
+	}
+	reg.fromWireAny[name] = ninil
 	return nil
 }
 
@@ -163,6 +220,13 @@ func nativeInfoFromWire(wire reflect.Type) *nativeInfo {
 	return ni
 }
 
+func nativeAnyTypeFromWire(wire string) *nativeAnyTypeInfo {
+	niAnyReg.RLock()
+	ni := niAnyReg.fromWireAny[wire]
+	niAnyReg.RUnlock()
+	return ni
+}
+
 // nativeInfoFromNative returns the nativeInfo for the given native type, or nil
 // if RegisterNative has not been called for the native type.
 func nativeInfoFromNative(native reflect.Type) *nativeInfo {
@@ -172,29 +236,7 @@ func nativeInfoFromNative(native reflect.Type) *nativeInfo {
 	return ni
 }
 
-// nativeInfoForError returns the non-nil nativeInfo holding WireError<->error
-// conversions.  Returns an error if RegisterNative has not been called for
-// these error conversions.
-func nativeInfoForError() (*nativeInfo, error) {
-	niReg.RLock()
-	ni := niReg.forError
-	niReg.RUnlock()
-	if ni == nil {
-		return nil, errNoRegisterNativeError
-	}
-	return ni, nil
-}
-
 var errNoRegisterNativeError = errors.New(`vdl: RegisterNative must be called to register error<->WireError conversions.  Import the "v.io/v23/verror" package in your program`)
-
-// Generated code in the vdl package can use fromWireError to convert from wireError to verror.E.
-//nolint:deadcode,unused
-func fromWireError(wire *WireError) error {
-	var err error
-	//nolint:errcheck
-	nativeInfoFromWire(reflect.TypeOf(wire)).ToNative(reflect.ValueOf(wire), reflect.ValueOf(&err))
-	return err
-}
 
 // deriveNativeInfo returns the nativeInfo corresponding to toFn and fromFn,
 // which are expected to have the following signatures:
@@ -223,8 +265,14 @@ func deriveNativeInfo(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:
 	if rtWire == rtNative {
 		return nil, fmt.Errorf("wire type == native type: %v", rtWire)
 	}
+
 	// Attach a stacktrace to the info, up to 1KB.
 	stack := make([]byte, 1024)
 	stack = stack[:runtime.Stack(stack, false)]
-	return &nativeInfo{rtWire, rtNative, rvT, rvF, stack}, nil
+	return &nativeInfo{
+		WireType:       rtWire,
+		NativeType:     rtNative,
+		toNativeFunc:   rvT,
+		fromNativeFunc: rvF,
+		stack:          stack}, nil
 }

@@ -30,10 +30,10 @@ var vAllPass, vAllFail, xAllPass, xAllFail []vdlEntry
 EOF
 
 # Re-generate the vdltest package, since we removed the vdl files above.
-go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=true "v.io/v23/vdl/vdltest"
+go run v.io/x/ref/cmd/vdl generate "v.io/v23/vdl/vdltest"
 
 # Install and run vdltestgen
 go run "v.io/v23/vdl/vdltest/internal/vdltestgen"
 
 # Re-generate the vdltest package, now with the new vdl files.
-go run "v.io/x/ref/cmd/vdl" generate --errors-no-i18n=true "v.io/v23/vdl/vdltest"
+go run "v.io/x/ref/cmd/vdl" generate "v.io/v23/vdl/vdltest"

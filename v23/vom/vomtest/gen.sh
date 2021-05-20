@@ -16,3 +16,4 @@ go run "v.io/v23/vom/vomtest/internal/vomtestgen"
 
 # Re-generate the vomtest package, now with the new vdl files.
 go run "v.io/x/ref/cmd/vdl" generate "v.io/v23/vom/vomtest"
+

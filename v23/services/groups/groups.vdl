@@ -117,7 +117,7 @@ type Group interface {
 }
 
 error (
-	NoBlessings() {"en":"No blessings recognized; cannot create group Permissions"}
-	ExcessiveContention() {RetryBackoff, "en":"Gave up after encountering excessive contention; try again later"}
-	CycleFound(name, visited string) {"en":"Found cycle in group definitions {name} visited {visited}"}
+	NoBlessings() {}
+	ExcessiveContention() {RetryBackoff}
+	CycleFound(name, visited string) {}
 )

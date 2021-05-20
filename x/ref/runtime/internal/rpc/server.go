@@ -18,7 +18,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/options"
 	"v.io/v23/rpc"
@@ -666,7 +665,7 @@ func (fs *flowServer) serve() error {
 	}()
 
 	ctx, results, err := fs.processRequest()
-	vtrace.GetSpan(ctx).Finish()
+	vtrace.GetSpan(ctx).Finish(err)
 
 	traceResponse := vtrace.GetResponse(ctx)
 	// Check if the caller is permitted to view vtrace data.
@@ -775,9 +774,6 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// after this point, and before we actually decode the arguments.
 	fs.method = req.Method
 	fs.suffix = strings.TrimLeft(req.Suffix, "/")
-	if req.Language != "" {
-		ctx = i18n.WithLangID(ctx, i18n.LangID(req.Language))
-	}
 
 	// TODO(mattr): Currently this allows users to trigger trace collection
 	// on the server even if they will not be allowed to collect the

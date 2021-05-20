@@ -41,6 +41,11 @@ func reader(t *testing.T, c flow.Conn, expected []byte, totalWrites int) {
 	}
 }
 
+var upgrader = &websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
 func TestMultipleGoRoutines(t *testing.T) {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -57,7 +62,7 @@ func TestMultipleGoRoutines(t *testing.T) {
 				http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 				return
 			}
-			ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
+			ws, err := upgrader.Upgrade(w, r, nil)
 			if _, ok := err.(websocket.HandshakeError); ok {
 				http.Error(w, "Not a websocket handshake", 400)
 				return

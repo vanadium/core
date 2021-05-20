@@ -5,6 +5,6 @@
 package global
 
 error (
-	NoNamespace() {"en": "namespace not found"}
-	AdInvalidEncoding(ad string) {"en": "ad ({ad}) has invalid encoding"}
+	NoNamespace() {}
+	AdInvalidEncoding(ad string) {}
 )

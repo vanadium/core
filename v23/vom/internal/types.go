@@ -5,6 +5,8 @@
 package internal
 
 import (
+	"time"
+
 	"v.io/v23/vom"
 )
 
@@ -72,4 +74,14 @@ type XLargeStruct struct {
 	F48 int32
 	F49 int32
 	F50 int32
+}
+
+type XStructWithOptional struct {
+	F1 int32
+	F2 *XSmallStruct
+}
+
+type XStructWithNative struct {
+	Time     time.Time
+	Duration time.Duration
 }

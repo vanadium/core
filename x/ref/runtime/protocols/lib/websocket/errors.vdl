@@ -5,6 +5,6 @@
 package websocket
 
 error (
-  ListenerClosed() {"en":"listener is already closed."}
-  ListenCalledInNaCl() {"en": "Listen cannot be called in NaCl code."}
+  ListenerClosed() {}
+  ListenCalledInNaCl() {}
 )

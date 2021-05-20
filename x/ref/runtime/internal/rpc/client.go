@@ -16,7 +16,6 @@ import (
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
-	"v.io/v23/i18n"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
@@ -135,7 +134,7 @@ func NewClient(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
 
 func (c *client) StartCall(ctx *context.T, name, method string, args []interface{}, opts ...rpc.CallOpt) (rpc.ClientCall, error) {
 	if !ctx.Initialized() {
-		return nil, verror.ExplicitNew(verror.ErrBadArg, i18n.LangID("en-us"), "<rpc.Client>", "StartCall", "context not initialized")
+		return nil, verror.ErrBadArg.Errorf(ctx, "context not initialized")
 	}
 	connOpts := getConnectionOptions(ctx, opts)
 	return c.startCall(ctx, name, method, args, connOpts, opts)
@@ -282,7 +281,7 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 			return r, nil
 		case !shouldRetry(action, requireResolve, connOpts, opts):
 			span.Annotatef("Cannot retry after error: %s", err)
-			span.Finish()
+			span.Finish(err)
 			// If the latest error is a timeout, prefer the
 			// retryable error from the previous iteration, both to
 			// be consistent with what we'd return if backoff were
@@ -292,7 +291,7 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 			return nil, preferNonTimeout(err, prevErr)
 		case !backoff(retries, connOpts.connDeadline):
 			span.Annotatef("Retries exhausted")
-			span.Finish()
+			span.Finish(err)
 			return nil, err
 		default:
 			span.Annotatef("Retrying due to error: %s", err)
@@ -420,7 +419,7 @@ func (c *client) tryConnectToServer(
 	ctx, span = vtrace.WithNewSpan(ctx, "<client>tryConnectToServer "+server)
 	defer func() {
 		ch <- status
-		span.Finish()
+		span.Finish(nil)
 	}()
 	suberr := func(err error) *verror.SubErr {
 		return &verror.SubErr{
@@ -698,7 +697,6 @@ func (fc *flowClient) start(suffix, method string, args []interface{}, opts []rp
 		Deadline:         vtime.Deadline{Time: deadline},
 		GrantedBlessings: grantedB,
 		TraceRequest:     vtrace.GetRequest(fc.ctx),
-		Language:         string(i18n.GetLangID(fc.ctx)),
 	}
 	if err := fc.enc.Encode(req); err != nil {
 		berr := errRequestEncoding.Errorf(fc.ctx, "failed to encode request %#v: %v", req, err)
@@ -837,10 +835,10 @@ func (fc *flowClient) closeSend() error {
 
 // TODO(toddw): Should we require Finish to be called, even if send or recv
 // return an error?
-func (fc *flowClient) Finish(resultptrs ...interface{}) error {
-	defer vtrace.GetSpan(fc.ctx).Finish()
+func (fc *flowClient) Finish(resultptrs ...interface{}) (err error) {
+	defer vtrace.GetSpan(fc.ctx).Finish(err)
 	if fc.finished {
-		err := errClientFinishAlreadyCalled.Errorf(fc.ctx, "rpc.ClientCall.Finish has already been called")
+		err = errClientFinishAlreadyCalled.Errorf(fc.ctx, "rpc.ClientCall.Finish has already been called")
 		return fc.close(verror.ErrBadState.Errorf(fc.ctx, "%v", err))
 	}
 	fc.finished = true
@@ -862,15 +860,17 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 	_ = fc.closeSend()
 	// Decode the response header, if it hasn't already been decoded by Recv.
 	if fc.response.Error == nil && !fc.response.EndStreamResults {
-		if err := fc.dec.Decode(&fc.response); err != nil {
+		if err = fc.dec.Decode(&fc.response); err != nil {
 			berr := decodingResponseError(fc.ctx, err, "finish")
-			return fc.close(berr)
+			err = fc.close(berr)
+			return err
 		}
 
 		// The response header must indicate the streaming results have ended.
 		if fc.response.Error == nil && !fc.response.EndStreamResults {
 			berr := errRemainingStreamResults.Errorf(fc.ctx, "stream closed with remaining stream results")
-			return fc.close(berr)
+			err = fc.close(berr)
+			return err
 		}
 	}
 	// Incorporate any VTrace info that was returned.
@@ -890,24 +890,29 @@ func (fc *flowClient) Finish(resultptrs ...interface{}) error {
 			v23.GetPrincipal(fc.ctx).BlessingStore().ClearDischarges(dis...)
 		}
 		if verror.IsAny(fc.response.Error) {
-			return fc.close(fc.response.Error)
+			err = fc.close(fc.response.Error)
+			return
 		}
-		return fc.close(verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", fc.response.Error))
+		err = fc.close(verror.ErrInternal.Errorf(fc.ctx, "Iiternal error: %v", fc.response.Error))
+		return
 	}
 	if got, want := fc.response.NumPosResults, uint64(len(resultptrs)); got != want {
 		suberr := fmt.Errorf("got %v results, but want %v", got, want)
 		berr := verror.ErrBadProtocol.Errorf(fc.ctx, "failed to decode number of results: %v", suberr)
-		return fc.close(berr)
+		err = fc.close(berr)
+		return
 	}
 	for ix, r := range resultptrs {
-		if err := fc.dec.Decode(r); err != nil {
+		if err = fc.dec.Decode(r); err != nil {
 			id, verr := decodeNetError(fc.ctx, err)
 			berr := id.Errorf(fc.ctx, "error decoding results: %v", errResultDecoding.Errorf(fc.ctx, "failed to decode result #%v:%v", ix, verr))
-			return fc.close(berr)
+			err = fc.close(berr)
+			return
 		}
 	}
 	fc.close(nil)
-	return nil
+	err = nil
+	return
 }
 
 func (fc *flowClient) RemoteBlessings() ([]string, security.Blessings) {

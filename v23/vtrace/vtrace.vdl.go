@@ -125,6 +125,8 @@ type SpanRecord struct {
 	End    time.Time   // The end time of this span.
 	// A series of annotations.
 	Annotations []Annotation
+	// Metadata that will be sent along with the request.
+	Metadata []byte
 }
 
 func (SpanRecord) VDLReflect(struct {
@@ -149,6 +151,9 @@ func (x SpanRecord) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.Annotations) != 0 {
+		return false
+	}
+	if len(x.Metadata) != 0 {
 		return false
 	}
 	return true
@@ -202,6 +207,11 @@ func (x SpanRecord) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 		if err := vdlWriteAnonList1(enc, x.Annotations); err != nil {
+			return err
+		}
+	}
+	if len(x.Metadata) != 0 {
+		if err := enc.NextFieldValueBytes(6, vdlTypeList6, x.Metadata); err != nil {
 			return err
 		}
 	}
@@ -293,6 +303,10 @@ func (x *SpanRecord) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if err := vdlReadAnonList1(dec, &x.Annotations); err != nil {
 				return err
 			}
+		case 6:
+			if err := dec.ReadValueBytes(-1, &x.Metadata); err != nil {
+				return err
+			}
 		}
 	}
 }
@@ -343,7 +357,7 @@ func (x TraceRecord) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x TraceRecord) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct6); err != nil {
+	if err := enc.StartValue(vdlTypeStruct7); err != nil {
 		return err
 	}
 	if x.Id != (uniqueid.Id{}) {
@@ -366,7 +380,7 @@ func (x TraceRecord) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 }
 
 func vdlWriteAnonList2(enc vdl.Encoder, x []SpanRecord) error {
-	if err := enc.StartValue(vdlTypeList7); err != nil {
+	if err := enc.StartValue(vdlTypeList8); err != nil {
 		return err
 	}
 	if err := enc.SetLenHint(len(x)); err != nil {
@@ -388,7 +402,7 @@ func vdlWriteAnonList2(enc vdl.Encoder, x []SpanRecord) error {
 
 func (x *TraceRecord) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = TraceRecord{}
-	if err := dec.StartValue(vdlTypeStruct6); err != nil {
+	if err := dec.StartValue(vdlTypeStruct7); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -400,8 +414,8 @@ func (x *TraceRecord) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct6 {
-			index = vdlTypeStruct6.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct7 {
+			index = vdlTypeStruct7.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -424,7 +438,7 @@ func (x *TraceRecord) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 }
 
 func vdlReadAnonList2(dec vdl.Decoder, x *[]SpanRecord) error {
-	if err := dec.StartValue(vdlTypeList7); err != nil {
+	if err := dec.StartValue(vdlTypeList8); err != nil {
 		return err
 	}
 	if len := dec.LenHint(); len > 0 {
@@ -460,7 +474,7 @@ func (x TraceFlags) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x TraceFlags) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.WriteValueInt(vdlTypeInt328, int64(x)); err != nil {
+	if err := enc.WriteValueInt(vdlTypeInt329, int64(x)); err != nil {
 		return err
 	}
 	return nil
@@ -480,6 +494,7 @@ func (x *TraceFlags) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 type Request struct {
 	SpanId   uniqueid.Id // The Id of the span that originated the RPC call.
 	TraceId  uniqueid.Id // The Id of the trace this call is a part of.
+	Metadata []byte      // Any metadata to be sent with the request.
 	Flags    TraceFlags
 	LogLevel int32
 }
@@ -490,11 +505,26 @@ func (Request) VDLReflect(struct {
 }
 
 func (x Request) VDLIsZero() bool { //nolint:gocyclo
-	return x == Request{}
+	if x.SpanId != (uniqueid.Id{}) {
+		return false
+	}
+	if x.TraceId != (uniqueid.Id{}) {
+		return false
+	}
+	if len(x.Metadata) != 0 {
+		return false
+	}
+	if x.Flags != 0 {
+		return false
+	}
+	if x.LogLevel != 0 {
+		return false
+	}
+	return true
 }
 
 func (x Request) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct9); err != nil {
+	if err := enc.StartValue(vdlTypeStruct10); err != nil {
 		return err
 	}
 	if x.SpanId != (uniqueid.Id{}) {
@@ -507,13 +537,18 @@ func (x Request) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
+	if len(x.Metadata) != 0 {
+		if err := enc.NextFieldValueBytes(2, vdlTypeList6, x.Metadata); err != nil {
+			return err
+		}
+	}
 	if x.Flags != 0 {
-		if err := enc.NextFieldValueInt(2, vdlTypeInt328, int64(x.Flags)); err != nil {
+		if err := enc.NextFieldValueInt(3, vdlTypeInt329, int64(x.Flags)); err != nil {
 			return err
 		}
 	}
 	if x.LogLevel != 0 {
-		if err := enc.NextFieldValueInt(3, vdl.Int32Type, int64(x.LogLevel)); err != nil {
+		if err := enc.NextFieldValueInt(4, vdl.Int32Type, int64(x.LogLevel)); err != nil {
 			return err
 		}
 	}
@@ -525,7 +560,7 @@ func (x Request) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 
 func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Request{}
-	if err := dec.StartValue(vdlTypeStruct9); err != nil {
+	if err := dec.StartValue(vdlTypeStruct10); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -537,8 +572,8 @@ func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct9 {
-			index = vdlTypeStruct9.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct10 {
+			index = vdlTypeStruct10.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -558,13 +593,17 @@ func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 2:
+			if err := dec.ReadValueBytes(-1, &x.Metadata); err != nil {
+				return err
+			}
+		case 3:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
 				x.Flags = TraceFlags(value)
 			}
-		case 3:
+		case 4:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
@@ -600,11 +639,11 @@ func (x Response) VDLIsZero() bool { //nolint:gocyclo
 }
 
 func (x Response) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
-	if err := enc.StartValue(vdlTypeStruct10); err != nil {
+	if err := enc.StartValue(vdlTypeStruct11); err != nil {
 		return err
 	}
 	if x.Flags != 0 {
-		if err := enc.NextFieldValueInt(0, vdlTypeInt328, int64(x.Flags)); err != nil {
+		if err := enc.NextFieldValueInt(0, vdlTypeInt329, int64(x.Flags)); err != nil {
 			return err
 		}
 	}
@@ -624,7 +663,7 @@ func (x Response) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 
 func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	*x = Response{}
-	if err := dec.StartValue(vdlTypeStruct10); err != nil {
+	if err := dec.StartValue(vdlTypeStruct11); err != nil {
 		return err
 	}
 	decType := dec.Type()
@@ -636,8 +675,8 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case index == -1:
 			return dec.FinishValue()
 		}
-		if decType != vdlTypeStruct10 {
-			index = vdlTypeStruct10.FieldIndexByName(decType.Field(index).Name)
+		if decType != vdlTypeStruct11 {
+			index = vdlTypeStruct11.FieldIndexByName(decType.Field(index).Name)
 			if index == -1 {
 				if err := dec.SkipValue(); err != nil {
 					return err
@@ -666,6 +705,7 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)
+const AWSXRay = TraceFlags(2)
 
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
@@ -675,11 +715,12 @@ var (
 	vdlTypeStruct3  *vdl.Type
 	vdlTypeArray4   *vdl.Type
 	vdlTypeList5    *vdl.Type
-	vdlTypeStruct6  *vdl.Type
-	vdlTypeList7    *vdl.Type
-	vdlTypeInt328   *vdl.Type
-	vdlTypeStruct9  *vdl.Type
+	vdlTypeList6    *vdl.Type
+	vdlTypeStruct7  *vdl.Type
+	vdlTypeList8    *vdl.Type
+	vdlTypeInt329   *vdl.Type
 	vdlTypeStruct10 *vdl.Type
+	vdlTypeStruct11 *vdl.Type
 )
 
 var initializeVDLCalled bool
@@ -717,11 +758,12 @@ func initializeVDL() struct{} {
 	vdlTypeStruct3 = vdl.TypeOf((*SpanRecord)(nil)).Elem()
 	vdlTypeArray4 = vdl.TypeOf((*uniqueid.Id)(nil))
 	vdlTypeList5 = vdl.TypeOf((*[]Annotation)(nil))
-	vdlTypeStruct6 = vdl.TypeOf((*TraceRecord)(nil)).Elem()
-	vdlTypeList7 = vdl.TypeOf((*[]SpanRecord)(nil))
-	vdlTypeInt328 = vdl.TypeOf((*TraceFlags)(nil))
-	vdlTypeStruct9 = vdl.TypeOf((*Request)(nil)).Elem()
-	vdlTypeStruct10 = vdl.TypeOf((*Response)(nil)).Elem()
+	vdlTypeList6 = vdl.TypeOf((*[]byte)(nil))
+	vdlTypeStruct7 = vdl.TypeOf((*TraceRecord)(nil)).Elem()
+	vdlTypeList8 = vdl.TypeOf((*[]SpanRecord)(nil))
+	vdlTypeInt329 = vdl.TypeOf((*TraceFlags)(nil))
+	vdlTypeStruct10 = vdl.TypeOf((*Request)(nil)).Elem()
+	vdlTypeStruct11 = vdl.TypeOf((*Response)(nil)).Elem()
 
 	return struct{}{}
 }

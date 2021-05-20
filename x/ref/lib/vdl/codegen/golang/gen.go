@@ -15,7 +15,6 @@ import (
 	"text/template"
 
 	"v.io/v23/vdl"
-	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/ref/lib/vdl/compile"
 	"v.io/x/ref/lib/vdl/parse"
 	"v.io/x/ref/lib/vdl/vdlutil"
@@ -25,6 +24,7 @@ type goData struct {
 	Package        *compile.Package
 	Env            *compile.Env
 	Imports        goImports
+	VDLConfigName  string
 	createdTargets map[*vdl.Type]bool // set of types whose Targets have already been created
 	anonTargets    map[*vdl.Type]int  // tracks unnamed target numbers
 	anonReaders    map[*vdl.Type]int  // tracks unnamed decoder numbers
@@ -284,80 +284,6 @@ func runner(buf []byte, binary string, args ...string) ([]byte, error) {
 	return output, nil
 }
 
-// The native types feature is hard to use correctly.  E.g. the package
-// containing the wire type must be imported into your Go binary in order for
-// the wire<->native registration to work, which is hard to ensure.  E.g.
-//
-//   package base    // VDL package
-//   type Wire int   // has native type native.Int
-//
-//   package dep     // VDL package
-//   import "base"
-//   type Foo struct {
-//     X base.Wire
-//   }
-//
-// The Go code for package "dep" imports "native", rather than "base":
-//
-//   package dep     // Go package generated from VDL package
-//   import "native"
-//   type Foo struct {
-//     X native.Int
-//   }
-//
-// Note that when you import the "dep" package in your own code, you always use
-// native.Int, rather than base.Wire; the base.Wire representation is only used
-// as the wire format, but doesn't appear in generated code.  But in order for
-// this to work correctly, the "base" package must imported.  This is tricky.
-//
-// Restrict the feature to these whitelisted VDL packages for now.
-var nativeTypePackageWhitelist = map[string]bool{
-	"math":                                   true,
-	"time":                                   true,
-	"v.io/x/ref/lib/vdl/testdata/nativetest": true,
-	"v.io/v23/security":                      true,
-	"v.io/v23/vdl":                           true,
-	"v.io/v23/vdl/vdltest":                   true,
-}
-
-func validateGoConfig(pkg *compile.Package, env *compile.Env) {
-	vdlconfig := path.Join(pkg.GenPath, "vdl.config")
-	// Validate native type configuration.  Since native types are hard to use, we
-	// restrict them to a built-in whitelist of packages for now.
-	if len(pkg.Config.Go.WireToNativeTypes) > 0 && !nativeTypePackageWhitelist[pkg.Path] {
-		env.Errors.Errorf("%s: Go.WireToNativeTypes is restricted to whitelisted VDL packages", vdlconfig)
-	}
-	// Make sure each wire type is actually defined in the package, and required
-	// fields are all filled in.
-	for wire, native := range pkg.Config.Go.WireToNativeTypes {
-		baseWire := wire
-		if strings.HasPrefix(wire, "*") {
-			baseWire = strings.TrimPrefix(wire, "*")
-		}
-		if def := pkg.ResolveType(baseWire); def == nil {
-			env.Errors.Errorf("%s: type %s specified in Go.WireToNativeTypes undefined", vdlconfig, wire)
-		}
-		if native.Type == "" {
-			env.Errors.Errorf("%s: type %s specified in Go.WireToNativeTypes invalid (empty GoType.Type)", vdlconfig, wire)
-		}
-		for _, imp := range native.Imports {
-			if imp.Path == "" || imp.Name == "" {
-				env.Errors.Errorf("%s: type %s specified in Go.WireToNativeTypes invalid (empty GoImport.Path or Name)", vdlconfig, wire)
-				continue
-			}
-			importPrefix := imp.Name + "."
-			if !strings.Contains(native.Type, importPrefix) &&
-				!strings.Contains(native.ToNative, importPrefix) &&
-				!strings.Contains(native.FromNative, importPrefix) {
-				env.Errors.Errorf("%s: type %s specified in Go.WireToNativeTypes invalid (native type %q doesn't contain import prefix %q)", vdlconfig, wire, native.Type, importPrefix)
-			}
-		}
-		if native.Zero.Mode != vdltool.GoZeroModeUnique && native.Zero.IsZero == "" {
-			env.Errors.Errorf("%s: type %s specified in Go.WireToNativeTypes invalid (native type %q must be either Mode:Unique or have a non-empty IsZero)", vdlconfig, wire, native.Type)
-		}
-	}
-}
-
 var goTemplate *template.Template
 
 // The template mechanism is great at high-level formatting and simple
@@ -373,6 +299,7 @@ func init() {
 		"errorName":             errorName,
 		"errorComment":          errorComment,
 		"nativeType":            nativeType,
+		"hasNativeTypes":        hasNativeTypes,
 		"noCustomNative":        noCustomNative,
 		"typeHasNoCustomNative": typeHasNoCustomNative,
 		"typeGo":                typeGo,
@@ -402,7 +329,6 @@ func init() {
 		"reInitStreamValue":     reInitStreamValue,
 		"callVerror":            callVerror,
 		"paramNamedResults":     paramNamedResults,
-		"errorsI18n":            errorsI18n,
 	}
 	goTemplate = template.Must(template.New("genGo").Funcs(funcMap).Parse(genGo))
 }
@@ -424,10 +350,6 @@ func errorComment(def *compile.ErrorDef) string {
 		return strings.Replace(def.Doc, parts[1], "Err"+parts[1], 1)
 	}
 	return def.Doc
-}
-
-func errorsI18n(data *goData) bool {
-	return data.Env.ErrorI18nSupport()
 }
 
 func isStreamingMethod(method *compile.Method) bool {
@@ -701,7 +623,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 {{end}}
 {{end}}
 
-{{if $pkg.Config.Go.WireToNativeTypes}}
+{{if hasNativeTypes $data}}
 // Type-check native conversion functions.
 var (
 {{range $wire, $native := $pkg.Config.Go.WireToNativeTypes}}{{if noCustomNative $native}}{{$nat := nativeType $data $native $pkg}}
@@ -733,14 +655,6 @@ var (
 {{$newErr := print (firstRuneToExport "New" $edef.Exported) (firstRuneToUpper $errName)}}
 {{$errorf := print (firstRuneToExport "Errorf" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 {{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
-{{if errorsI18n $data}}
-// {{$newErr}} returns an error with the {{$errName}} ID.
-// Deprecated: this function will be removed in the future,
-// use {{$errorf}} or {{$message}} instead.
-func {{$newErr}}(ctx {{argNameTypes "" (print "*" ($data.Pkg "v.io/v23/context") "T") "" "" $data $edef.Params}}) error {
-	return {{$data.Pkg "v.io/v23/verror"}}New({{$errName}}, {{argNames "" "" "ctx" "" "" $edef.Params}})
-}
-{{end}}
 // {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
 func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
 	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
@@ -1175,7 +1089,7 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-{{if $pkg.Config.Go.WireToNativeTypes}}
+{{if hasNativeTypes $data}}
 	// Register native type conversions first, so that vdl.TypeOf works.{{range $wire, $native := $pkg.Config.Go.WireToNativeTypes}}{{if noCustomNative $native}}
 	{{$data.Pkg "v.io/v23/vdl"}}RegisterNative({{$wire}}ToNative, {{$wire}}FromNative){{end}}{{end}}
 {{end}}
@@ -1184,12 +1098,7 @@ func initializeVDL() struct{} {
 	{{$data.Pkg "v.io/v23/vdl"}}Register((*{{$tdef.Name}})(nil)){{end}}{{end}}
 {{end}}
 {{$data.DefineTypeOfVars}}
-{{if $pkg.ErrorDefs}}
-{{if errorsI18n $data}}
-	// Set error format strings.{{/* TODO(toddw): Don't set "en-US" or "en" again, since it's already set by the original verror.Register call. */}}{{range $edef := $pkg.ErrorDefs}}{{range $lf := $edef.Formats}}
-	{{$data.Pkg "v.io/v23/i18n"}}Cat().SetWithBase({{$data.Pkg "v.io/v23/i18n"}}LangID("{{$lf.Lang}}"), {{$data.Pkg "v.io/v23/i18n"}}MsgID({{errorName $edef}}.ID), "{{$lf.Fmt}}"){{end}}{{end}}
-{{end}}
-{{end}}
+
 	return struct{}{}
 }
 `

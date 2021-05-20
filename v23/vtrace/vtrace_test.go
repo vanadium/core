@@ -17,7 +17,7 @@ func spanNoPanic(span Span) {
 	span.Parent()
 	span.Annotate("")
 	span.Annotatef("")
-	span.Finish()
+	span.Finish(nil)
 	span.Trace()
 }
 
@@ -33,7 +33,7 @@ func TestNoPanic(t *testing.T) {
 	defer cancel()
 	initialctx := ctx
 
-	ctx, span := WithNewTrace(ctx)
+	ctx, span := WithNewTrace(ctx, "TestNoPanic")
 	spanNoPanic(span)
 
 	ctx, span = WithContinuedTrace(ctx, "", Request{})

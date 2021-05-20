@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 
 	"v.io/v23/uniqueid"
 	"v.io/v23/vtrace"
@@ -25,7 +26,7 @@ func id() uniqueid.Id {
 	return out
 }
 
-func makeTraces(n int, st *Store) []uniqueid.Id {
+func makeTraces(n int, st vtrace.Store) []uniqueid.Id {
 	traces := make([]uniqueid.Id, n)
 	for i := range traces {
 		curid := id()
@@ -80,17 +81,22 @@ func TestTrimming(t *testing.T) {
 
 	// Starting a span on an existing trace brings it to the front of the queue
 	// and prevent it from being removed when a new trace begins.
-	st.start(&span{trace: traces[5], id: id()})
+	st.Start(traces[5], vtrace.SpanRecord{Id: id()})
 	st.ForceCollect(traces[10], 0)
 	compare(t, traceids(traces[10], traces[5], traces[7], traces[8], traces[9]), st.TraceRecords())
 
 	// Finishing a span on one of the traces should bring it back into the stored set.
-	st.finish(&span{trace: traces[7], id: id()})
+	st.Finish(traces[7], vtrace.SpanRecord{Id: id()}, time.Now())
 	st.ForceCollect(traces[11], 0)
 	compare(t, traceids(traces[10], traces[11], traces[5], traces[7], traces[9]), st.TraceRecords())
 
 	// Annotating a span on one of the traces should bring it back into the stored set.
-	st.annotate(&span{trace: traces[9], id: id()}, "hello")
+	st.Annotate(traces[9], vtrace.SpanRecord{Id: id()},
+		vtrace.Annotation{
+			Message: "hello",
+			When:    time.Now(),
+		})
+
 	st.ForceCollect(traces[12], 0)
 	compare(t, traceids(traces[10], traces[11], traces[12], traces[7], traces[9]), st.TraceRecords())
 }
@@ -118,15 +124,15 @@ func TestRegexp(t *testing.T) {
 			t.Fatalf("Could not create store: %v", err)
 		}
 
-		_, err = newSpan(traces[0], "foo", traces[0], st)
+		_, err = NewSpan(traces[0], traces[0], "foo", st)
 		if err != nil {
 			t.Fatal(err)
 		}
-		_, err = newSpan(traces[1], "foobar", traces[1], st)
+		_, err = NewSpan(traces[1], traces[1], "foobar", st)
 		if err != nil {
 			t.Fatal(err)
 		}
-		sp, err := newSpan(traces[2], "baz", traces[2], st)
+		sp, err := NewSpan(traces[2], traces[2], "baz", st)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -197,4 +197,4 @@ type Change struct {
   Continued bool
 }
 
-error UnknownResumeMarker() {"en": "unknown resume marker {_}"}
+error UnknownResumeMarker() {}

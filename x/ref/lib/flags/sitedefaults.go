@@ -31,7 +31,6 @@ func init() {
 			"/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101",
 		},
 		"credentialsDir":     "",
-		"i18nCatalogue":      "",
 		"protocol":           "wsh",
 		"hostPort":           ":0",
 		"proxy":              "",
@@ -39,6 +38,14 @@ func init() {
 		"proxyLimit":         0,
 		"permissionsLiteral": "",
 		"permissions":        map[string]string{},
+		"vtrace": VtraceFlags{
+			SampleRate:     0.0,
+			DumpOnShutdown: true,
+			CacheSize:      1024,
+			LogLevel:       0,
+			CollectRegexp:  "",
+			EnableAWSXRay:  false,
+		},
 		"virtualized": VirtualizedFlagDefaults{
 			VirtualizationProvider:    string(Native),
 			PublicProtocol:            "wsh",
@@ -49,7 +56,6 @@ func init() {
 	merged := mergeDefaultValues()
 	defaultNamespaceRoots = merged["namespaceRoots"].([]string)
 	defaultCredentialsDir = merged["credentialsDir"].(string)
-	defaultI18nCatalogue = merged["i18nCatalogue"].(string)
 	defaultProtocol = merged["protocol"].(string)
 	defaultHostPort = merged["hostPort"].(string)
 	defaultProxy = merged["proxy"].(string)
@@ -58,4 +64,5 @@ func init() {
 	defaultPermissionsLiteral = merged["permissionsLiteral"].(string)
 	defaultPermissions = merged["permissions"].(map[string]string)
 	defaultVirtualized = merged["virtualized"].(VirtualizedFlagDefaults)
+	defaultVtrace = merged["vtrace"].(VtraceFlags)
 }

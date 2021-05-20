@@ -47,8 +47,6 @@ The global flags are:
    log level for V logs
  -v23.credentials=
    directory to use for storing security credentials
- -v23.i18n-catalogue=
-   18n catalogue files to load, comma separated
  -v23.namespace.root=[/(dev.v.io:r:vprod:service:mounttabled)@ns.dev.v.io:8101]
    local namespace root; can be repeated to provided multiple roots
  -v23.permissions.file=
@@ -94,6 +92,8 @@ The global flags are:
    collection
  -v23.vtrace.dump-on-shutdown=true
    If true, dump all stored traces on runtime shutdown
+ -v23.vtrace.enable-aws-xray=false
+   Enable the use of AWS x-ray integration with vtrace
  -v23.vtrace.sample-rate=0
    Rate (from 0.0 to 1.0) to sample vtrace traces
  -v23.vtrace.v=0

@@ -9,31 +9,11 @@ import (
 )
 
 error (
-	AdvertisementNotFound(id discovery.AdId) {
-		"en": "advertisement not found: {id}",
-	}
-
-	AlreadyBeingAdvertised(id discovery.AdId) {
-		"en": "already being advertised: {id}",
-	}
-
-	BadAdvertisement(err error) {
-		"en": "invalid advertisement: {err}",
-	}
-
-	BadQuery(err error) {
-		"en": "invalid query: {err}",
-	}
-
-	DiscoveryClosed() {
-		"en": "discovery closed",
-	}
-
-	NoDiscoveryPlugin() {
-		"en": "no discovery plugin",
-	}
-
-	TooManyPlugins(actual, limit int32) {
-		"en": "too many plugins ({actual}), support at most {limit}",
-	}
+	AdvertisementNotFound(id discovery.AdId) {}
+	AlreadyBeingAdvertised(id discovery.AdId) {}
+	BadAdvertisement(err error) {}
+	BadQuery(err error) {}
+	DiscoveryClosed() {}
+	NoDiscoveryPlugin() {}
+	TooManyPlugins(actual, limit int32) {}
 )

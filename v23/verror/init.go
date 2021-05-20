@@ -4,136 +4,131 @@
 
 package verror
 
-import "v.io/v23/vdl"
+import (
+	"v.io/v23/vdl"
+)
 
 func init() {
-	// TODO(bprosnitz) Remove this old-style registration.
-	// We must register the error conversion functions between vdl.WireError and
-	// the standard error interface with the vdl package.  This allows the vdl
-	// package to have minimal dependencies.
-	vdl.RegisterNativeError(WireToNative, WireFromNative)
-
-	// New-style error registration.
-	vdl.RegisterNative(ErrorToNative, ErrorFromNative)
+	vdl.RegisterNative(WireToNative, WireFromNative)
+	vdl.RegisterNativeAnyType(vdl.WireError{}, (*E)(nil))
+	vdl.RegisterNativeConverter(&vdl.WireError{}, VDLNativeConverter{})
 }
 
-// TODO(toddw): rename Error{To,From}Native to Wire{To,From}Native, after we've
-// switched to the new vdl Encoder/Decoder, and the old functions are no longer
-// used.
+type VDLNativeConverter struct{}
 
-// ErrorToNative converts from the wire to native representation of errors.
-func ErrorToNative(wire *vdl.WireError, native *error) error {
+// ToNative implements vdl.NativeConverter.
+func (VDLNativeConverter) ToNative(wire, native interface{}) error {
+	return WireToNative(wire.(*vdl.WireError), native.(*error))
+}
+
+// FromNative implements vdl.NativeConverter.
+func (VDLNativeConverter) FromNative(wire, native interface{}) error {
+	return WireFromNative(wire.(**vdl.WireError), native.(error))
+}
+
+// WireToNative converts from the wire to native representation of errors.
+func WireToNative(wire *vdl.WireError, native *error) error {
 	if wire == nil {
 		*native = nil
 		return nil
 	}
-	e := new(E)
+	e := &E{
+		ID:     ID(wire.Id),
+		Action: retryToAction(wire.RetryCode),
+		Msg:    wire.Msg,
+	}
+	e.ParamList = make([]interface{}, 0, len(wire.ParamList))
+	if err := vdl.Convert(&e.ParamList, wire.ParamList); err != nil {
+		// It's questionable what to do here if the conversion fails, similarly to
+		// the conversion failure below in WireFromNative.
+		//
+		// TODO(toddw): Consider whether there is a better strategy.
+		for _, w := range wire.ParamList {
+			e.ParamList = append(e.ParamList, w)
+		}
+	}
 	*native = e
-	return WireToNative(*wire, e)
+	return nil
 }
 
-// ErrorFromNative converts from the native to wire representation of errors.
-func ErrorFromNative(wire **vdl.WireError, native error) error {
-	if native == nil {
-		*wire = nil
-		return nil
+// WireFromNative converts from the native to wire representation of errors.
+func WireFromNative(wire **vdl.WireError, native error) error {
+	var e E
+	switch v := native.(type) {
+	case E:
+		e = v
+	case *E:
+		e = *v
+	default:
+		nerr := native.Error()
+		e = E{
+			ID:        ErrUnknown.ID,
+			Action:    NoRetry,
+			Msg:       nerr,
+			ParamList: []interface{}{"", "", nerr}}
 	}
-	if *wire == nil {
-		*wire = new(vdl.WireError)
+	nt := *wire
+	if nt == nil {
+		nt = new(vdl.WireError)
+		*wire = nt
 	}
-	return WireFromNative(*wire, native)
+	nt.Id = string(e.ID)
+	nt.RetryCode = retryFromAction(e.Action)
+	nt.Msg = e.Msg
+	nt.ParamList = make([]*vdl.Value, 0, len(e.ParamList))
+	if err := vdl.Convert(&nt.ParamList, e.ParamList); err != nil {
+		// It's questionable what to do here if the conversion fails, similarly to
+		// the conversion failure above in WireToNative.
+		//
+		// TODO(toddw): Consider whether there is a better strategy.
+		nt.ParamList = append(nt.ParamList,
+			vdl.StringValue(nil, ""),
+			vdl.StringValue(nil, ""),
+			vdl.StringValue(nil, err.Error()),
+		)
+	}
+	return nil
 }
 
 // FromWire is a convenience for generated code to convert wire errors into
 // native errors.
 func FromWire(wire *vdl.WireError) error {
+	if wire == nil {
+		return nil
+	}
 	var native error
-	if err := ErrorToNative(wire, &native); err != nil {
+	if err := WireToNative(wire, &native); err != nil {
 		native = err
 	}
 	return native
 }
 
-// WireToNative converts from vdl.WireError to verror.E, which
-// implements the standard go error interface.
-//
-// TODO(toddw): Remove this function after the switch to the new vdl
-// Encoder/Decoder is complete.
-func WireToNative(wire vdl.WireError, native *E) error {
-	*native = E{
-		ID:     ID(wire.Id),
-		Action: retryToAction(wire.RetryCode),
-		Msg:    wire.Msg,
+var (
+	retryToActionMap = map[vdl.WireRetryCode]ActionCode{
+		vdl.WireRetryCodeNoRetry:         NoRetry,
+		vdl.WireRetryCodeRetryConnection: RetryConnection,
+		vdl.WireRetryCodeRetryRefetch:    RetryRefetch,
+		vdl.WireRetryCodeRetryBackoff:    RetryBackoff,
 	}
-	for _, pWire := range wire.ParamList {
-		var pNative interface{}
-		if err := vdl.Convert(&pNative, pWire); err != nil {
-			// It's questionable what to do if the conversion fails, rather than
-			// ending up with a native Go value.
-			//
-			// At the moment, we plug the *vdl.Value into the native params.  The idea
-			// is that this will still be more useful to the user, since they'll still
-			// have the error Id and Action.
-			//
-			// TODO(toddw): Consider whether there is a better strategy.
-			pNative = pWire
-		}
-		native.ParamList = append(native.ParamList, pNative)
+	retryFromActionMap = map[ActionCode]vdl.WireRetryCode{
+		NoRetry:         vdl.WireRetryCodeNoRetry,
+		RetryConnection: vdl.WireRetryCodeRetryConnection,
+		RetryRefetch:    vdl.WireRetryCodeRetryRefetch,
+		RetryBackoff:    vdl.WireRetryCodeRetryBackoff,
 	}
-	return nil
-}
-
-// WireFromNative converts from the standard go error interface to
-// verror.E, and then to vdl.WireError.
-//
-// TODO(toddw): Remove this function after the switch to the new vdl
-// Encoder/Decoder is complete.
-func WireFromNative(wire *vdl.WireError, native error) error {
-	e := ExplicitConvert(ErrUnknown, "", "", "", native)
-	*wire = vdl.WireError{
-		Id:        string(ErrorID(e)),
-		RetryCode: retryFromAction(Action(e)),
-		Msg:       e.Error(),
-	}
-	for _, pNative := range params(e) {
-		var pWire *vdl.Value
-		if err := vdl.Convert(&pWire, pNative); err != nil {
-			// It's questionable what to do here if the conversion fails, similarly to
-			// the conversion failure above in WireToNative.
-			//
-			// TODO(toddw): Consider whether there is a better strategy.
-			pWire = vdl.StringValue(nil, err.Error())
-		}
-		wire.ParamList = append(wire.ParamList, pWire)
-	}
-	return nil
-}
+)
 
 func retryToAction(retry vdl.WireRetryCode) ActionCode {
-	switch retry {
-	case vdl.WireRetryCodeNoRetry:
-		return NoRetry
-	case vdl.WireRetryCodeRetryConnection:
-		return RetryConnection
-	case vdl.WireRetryCodeRetryRefetch:
-		return RetryRefetch
-	case vdl.WireRetryCodeRetryBackoff:
-		return RetryBackoff
+	if r, ok := retryToActionMap[retry]; ok {
+		return r
 	}
 	// Backoff to no retry by default.
 	return NoRetry
 }
 
 func retryFromAction(action ActionCode) vdl.WireRetryCode {
-	switch action.RetryAction() {
-	case NoRetry:
-		return vdl.WireRetryCodeNoRetry
-	case RetryConnection:
-		return vdl.WireRetryCodeRetryConnection
-	case RetryRefetch:
-		return vdl.WireRetryCodeRetryRefetch
-	case RetryBackoff:
-		return vdl.WireRetryCodeRetryBackoff
+	if r, ok := retryFromActionMap[action]; ok {
+		return r
 	}
 	// Backoff to no retry by default.
 	return vdl.WireRetryCodeNoRetry
@@ -156,11 +151,9 @@ func VDLRead(dec vdl.Decoder, x *error) error {
 	if err := wire.VDLRead(dec); err != nil {
 		return err
 	}
-	nativePtr := new(E)
-	if err := WireToNative(wire, nativePtr); err != nil {
+	if err := WireToNative(&wire, x); err != nil {
 		return err
 	}
-	*x = nativePtr
 	return nil
 }
 
@@ -173,7 +166,8 @@ func VDLWrite(enc vdl.Encoder, x error) error {
 		return enc.NilValue(vdl.ErrorType)
 	}
 	var wire vdl.WireError
-	if err := WireFromNative(&wire, x); err != nil {
+	wirePtr := &wire
+	if err := WireFromNative(&wirePtr, x); err != nil {
 		return err
 	}
 	return wire.VDLWrite(enc)

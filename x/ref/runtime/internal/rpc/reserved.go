@@ -238,7 +238,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			ctx.VI(3).Infof("rpc Glob: Lookup failed for %q: %v", suffix, err)
 			//nolint:errcheck
 			subcall.Send(naming.GlobReplyError{
-				Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrNoExist, ctx, err)},
+				Value: naming.GlobError{Name: state.name, Error: verror.ErrNoExist.Errorf(ctx, "%v", err)},
 			})
 			continue
 		}
@@ -267,7 +267,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			ctx.VI(3).Infof("rpc Glob: object for %q cannot be converted to invoker: %v", suffix, err)
 			//nolint:errcheck
 			subcall.Send(naming.GlobReplyError{
-				Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
+				Value: naming.GlobError{Name: state.name, Error: verror.ErrInternal.Errorf(ctx, "%v", err)},
 			})
 			continue
 		}
@@ -310,7 +310,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 				ctx.VI(3).Infof("rpc Glob: %q.Glob(%q) failed: %v", suffix, state.glob, err)
 				//nolint:errcheck
 				subcall.Send(naming.GlobReplyError{
-					Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
+					Value: naming.GlobError{Name: state.name, Error: verror.ErrInternal.Errorf(ctx, "%v", err)},
 				})
 			}
 			continue
@@ -360,7 +360,7 @@ func (i *globInternal) Glob(ctx *context.T, call rpc.StreamServerCall, pattern s
 			if err := gs.ChildrenGlobber.GlobChildren__(ctx, &globChildrenServerCall{subcall, send}, matcher); err != nil {
 				//nolint:errcheck
 				subcall.Send(naming.GlobReplyError{
-					Value: naming.GlobError{Name: state.name, Error: verror.Convert(verror.ErrInternal, ctx, err)},
+					Value: naming.GlobError{Name: state.name, Error: verror.ErrInternal.Errorf(ctx, "%v", err)},
 				})
 			}
 			continue

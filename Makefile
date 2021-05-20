@@ -3,14 +3,13 @@ SHELL := /bin/bash -euo pipefail
 VDLPATH ?= $(shell pwd)
 export VDLPATH
 vdlgen:
-	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go v.io/...	
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
 	go generate ./v23/vdl/vdltest
 
-VDLROOT ?= $(shell pwd)/v23/vdlroot
-export VDLROOT
 vdlroot:
+	export VDLROOT=$$(pwd)/v23/vdlroot ; \
 	cd v23/vdlroot && \
-	go run v.io/x/ref/cmd/vdl generate --errors-no-i18n=false --show-warnings=false --lang=go \
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=false --lang=go \
 		./vdltool \
 		./math \
 		./time \
@@ -36,6 +35,28 @@ test-integration:
 
 refresh:
 	go generate ./...
+	go get cloudeng.io/go/cmd/goannotate
 	go run cloudeng.io/go/cmd/goannotate --config=vanadium-code-annotations.yaml --annotation=copyright ./...
 	go mod tidy
+
+
+bootstrapvdl:
+	rm -f $$(find . -name '*.vdl.go')
+	export VDLROOT=$$(pwd)/v23/vdlroot ; \
+	cd v23/vdlroot && \
+	go run -tags vdltoolbootstrapping,vdlbootstrapping \
+		 v.io/x/ref/cmd/vdl generate --lang=go ./vdltool && \
+ 	go run -tags vdlbootstrapping v.io/x/ref/cmd/vdl generate --lang=go \
+		v.io/v23/vdl && \
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=false --lang=go \
+		./math \
+		./time \
+		./signature
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go \
+		v.io/v23/uniqueid \
+		v.io/v23/vtrace \
+		v.io/v23/verror
+	go generate ./v23/vdl/vdltest
+	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
+	git diff --exit-code
 

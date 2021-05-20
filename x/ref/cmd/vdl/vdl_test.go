@@ -15,12 +15,17 @@ import (
 
 	"v.io/x/lib/envvar"
 	"v.io/x/lib/gosh"
+	"v.io/x/ref/runtime/factories/library"
 )
 
 const (
 	testDir    = "../../lib/vdl/testdata/base"
 	outPkgPath = "v.io/x/ref/lib/vdl/testdata/base"
 )
+
+func init() {
+	library.AllowMultipleInitializations = true
+}
 
 func verifyOutput(t *testing.T, outDir string) {
 	entries, err := ioutil.ReadDir(testDir)
@@ -56,13 +61,12 @@ func verifyOutput(t *testing.T, outDir string) {
 func TestVDLGenerator(t *testing.T) {
 	sh := gosh.NewShell(t)
 	defer sh.Cleanup()
-	vdlBin := gosh.BuildGoPkg(sh, sh.MakeTempDir(), "v.io/x/ref/cmd/vdl")
 
 	// Use vdl to generate Go code from input, into a temporary directory.
 	outDir := sh.MakeTempDir()
 	// TODO(toddw): test the generated java and javascript files too.
 	outOpt := fmt.Sprintf("--go-out-dir=%s", outDir)
-	sh.Cmd(vdlBin, "generate", "--lang=go", outOpt, testDir).Run()
+	sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "--lang=go", outOpt, testDir).Run()
 	// Check that each *.vdl.go file in the testDir matches the generated output.
 	verifyOutput(t, outDir)
 }
@@ -71,14 +75,12 @@ func TestVDLGenerator(t *testing.T) {
 func TestVDLGeneratorBuiltInVDLRoot(t *testing.T) {
 	sh := gosh.NewShell(t)
 	defer sh.Cleanup()
-	vdlBin := gosh.BuildGoPkg(sh, sh.MakeTempDir(), "v.io/x/ref/cmd/vdl")
 
 	outDir := sh.MakeTempDir()
 	outOpt := fmt.Sprintf("--go-out-dir=%s", outDir)
 	env := envvar.SliceToMap(os.Environ())
-	delete(env, "JIRI_ROOT")
 	delete(env, "VDLROOT")
-	cmd := sh.Cmd(vdlBin, "generate", "-v", "--lang=go", outOpt, testDir)
+	cmd := sh.Cmd("go", "run", "v.io/x/ref/cmd/vdl", "generate", "-v", "--lang=go", outOpt, testDir)
 	cmd.Vars = env
 	cmd.Run()
 	verifyOutput(t, outDir)

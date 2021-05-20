@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"v.io/v23/context"
-	"v.io/v23/i18n"
 	"v.io/v23/verror"
 )
 
@@ -24,13 +23,6 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 var (
 	ErrNoCompatibleVersion = verror.NewIDAction("v.io/v23/rpc/version.NoCompatibleVersion", verror.NoRetry)
 )
-
-// NewErrNoCompatibleVersion returns an error with the ErrNoCompatibleVersion ID.
-// Deprecated: this function will be removed in the future,
-// use ErrorfNoCompatibleVersion or MessageNoCompatibleVersion instead.
-func NewErrNoCompatibleVersion(ctx *context.T, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
-	return verror.New(ErrNoCompatibleVersion, ctx, lmin, lmax, rmin, rmax)
-}
 
 // ErrorfNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
 func ErrorfNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
@@ -151,9 +143,6 @@ func initializeVDL() struct{} {
 		return struct{}{}
 	}
 	initializeVDLCalled = true
-
-	// Set error format strings.
-	i18n.Cat().SetWithBase(i18n.LangID("en"), i18n.MsgID(ErrNoCompatibleVersion.ID), "{1:}{2:} There were no compatible versions between ({3},{4}) and ({5},{6}).")
 
 	return struct{}{}
 }

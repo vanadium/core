@@ -8,6 +8,9 @@ import (
 	"bytes"
 	"io"
 	"sync"
+	"unsafe"
+
+	"v.io/v23/vdl"
 )
 
 // Encode writes the value v and returns the encoded bytes.  The semantics of
@@ -22,10 +25,30 @@ func Encode(v interface{}) ([]byte, error) {
 // VersionedEncode performs single-shot encoding to a specific version of VOM
 func VersionedEncode(version Version, v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := NewVersionedEncoder(version, &buf).Encode(v); err != nil {
+	encBufs := reusableEncoderBuffersPool.Get().(*reusableEncoderBuffers)
+	defer reusableEncoderBuffersPool.Put(encBufs)
+	encBufs.typeEncBuf.Reset()
+	encBufs.valueEncBuf.Reset()
+	typeEnc := newTypeEncoderInternal(version, newEncoderForTypes(version, &buf,
+		encBufs.typeEncBuf))
+	enc := newVersionedEncoderWithTypeEncoder(version, &buf, typeEnc, encBufs.valueEncBuf)
+	if err := enc.Encode(v); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+type reusableEncoderBuffers struct {
+	typeEncBuf, valueEncBuf *encbuf
+}
+
+var reusableEncoderBuffersPool = sync.Pool{
+	New: func() interface{} {
+		return &reusableEncoderBuffers{
+			typeEncBuf:  newEncbuf(),
+			valueEncBuf: newEncbuf(),
+		}
+	},
 }
 
 // Decode reads the value from the given data, and stores it in value v.  The
@@ -37,40 +60,68 @@ func Decode(data []byte, v interface{}) error {
 	// The implementation below corresponds (logically) to the following:
 	//   return NewDecoder(bytes.NewReader(data)).Decode(valptr)
 	//
-	// However decoding type messages is expensive, so we cache typeDecoders to
-	// skip the decoding in the common case.
-	buf := newDecbufFromBytes(data)
-	key, err := computeTypeDecoderCacheKey(buf)
+	// However decoding type messages is expensive, so we cache the
+	// results of typeDecoders to skip the decoding in the common case.
+
+	reusable := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
+	defer reusableDecoderBuffersPool.Put(reusable)
+	reusable.dec81.buf.SetBytes(data)
+	buf := reusable.dec81.buf
+
+	keyBytes, err := computeTypeDecoderCacheKey(buf)
 	if err != nil {
 		return err
 	}
-	typeDec := singleShotTypeDecoderCache.lookup(key)
+	var key string
+	if keyBytes != nil {
+		// Avoid unnecessary string copy to convert []byte to string
+		// just use for lookups here.
+		key = *(*string)(unsafe.Pointer(&keyBytes))
+	}
+	typeInfo, ok := singleShotTypeDecoderCache.lookup(key)
 	cacheMiss := false
-	if typeDec == nil {
+	if !ok {
 		// Cache miss; start decoding at the beginning of all type messages with a
 		// new TypeDecoder.
 		cacheMiss = true
 		buf.beg = 0
-		typeDec = newTypeDecoderInternal(buf)
+		reusable.typeDec.reset(reusable.dec81, make(map[TypeId]*vdl.Type), make(map[TypeId]wireType))
 	} else {
 		// Cache hit; the buf is already positioned on the message id of the value,
 		// so we can just continue decoding from there.
 		buf.version = Version(data[0])
-		typeDec = newDerivedTypeDecoderInternal(buf, typeDec)
+		reusable.typeDec.reset(reusable.dec81, typeInfo.idToType, typeInfo.idToWire)
 	}
 	// Decode the value message.
-	dec := &Decoder{decoder81{
-		buf:     buf,
-		typeDec: typeDec,
-	}}
-	if err := dec.Decode(v); err != nil {
+	reusable.dec.dec = decoder81{}
+	reusable.dec.dec.buf = buf
+	reusable.dec.dec.typeDec = reusable.typeDec
+	if err := reusable.dec.Decode(v); err != nil {
 		return err
 	}
 	// Populate the typeDecoder cache for future re-use.
 	if cacheMiss {
-		singleShotTypeDecoderCache.insert(key, typeDec)
+		singleShotTypeDecoderCache.insert(key, reusable.typeDec.idToType, reusable.typeDec.idToWire)
 	}
 	return nil
+}
+
+type reusableDecoderBuffers struct {
+	rd      *bytes.Reader
+	dec81   *decoder81
+	typeDec *TypeDecoder
+	dec     *Decoder
+}
+
+var reusableDecoderBuffersPool = sync.Pool{
+	New: func() interface{} {
+		return &reusableDecoderBuffers{
+			rd:      bytes.NewReader(nil),
+			dec81:   &decoder81{buf: newDecbuf(nil)},
+			typeDec: &TypeDecoder{},
+			dec:     &Decoder{},
+		}
+	},
 }
 
 // singleShotTypeDecoderCache is a global cache of TypeDecoders keyed by the
@@ -82,67 +133,78 @@ func Decode(data []byte, v interface{}) error {
 // for a given vom version.
 //
 // TODO(toddw): This cache grows without bounds, use a fixed-size cache instead.
+
+type typeInfo struct {
+	idToType map[TypeId]*vdl.Type
+	idToWire map[TypeId]wireType
+}
+
 var singleShotTypeDecoderCache = typeDecoderCache{
-	decoders: make(map[string]*TypeDecoder),
+	decoders: make(map[string]typeInfo),
 }
 
 type typeDecoderCache struct {
 	sync.RWMutex
-	decoders map[string]*TypeDecoder
+	decoders map[string]typeInfo
 }
 
-func (x *typeDecoderCache) insert(key string, dec *TypeDecoder) {
+func (x *typeDecoderCache) insert(key string,
+	idToType map[TypeId]*vdl.Type,
+	idToWire map[TypeId]wireType) {
 	x.Lock()
 	defer x.Unlock()
-	if x.decoders[key] != nil {
+	if _, ok := x.decoders[key]; ok {
 		// There was a race between concurrent calls to vom.Decode, and another
 		// goroutine already populated the cache.  It doesn't matter which one we
 		// use, so there's nothing more to do.
 		return
 	}
-	x.decoders[key] = dec
+	x.decoders[key] = typeInfo{
+		idToType: idToType,
+		idToWire: idToWire,
+	}
 }
 
-func (x *typeDecoderCache) lookup(key string) *TypeDecoder {
+func (x *typeDecoderCache) lookup(key string) (typeInfo, bool) {
 	x.RLock()
-	dec := x.decoders[key]
+	ti, ok := x.decoders[key]
 	x.RUnlock()
-	return dec
+	return ti, ok
 }
 
 // computeTypeDecoderCacheKey computes the cache key for the typeDecoderCache,
 // by returning the bytes of all type messages.  Upon return, the read position
 // of b is guaranteed to be on the first byte of the value message.
-func computeTypeDecoderCacheKey(b *decbuf) (string, error) {
+func computeTypeDecoderCacheKey(b *decbuf) ([]byte, error) {
 	if b.end == 0 {
-		return "", io.EOF
+		return nil, io.EOF
 	}
 	if version := Version(b.buf[0]); !isAllowedVersion(version) {
-		return "", errBadVersionByte(version)
+		return nil, errBadVersionByte(version)
 	}
 	b.beg++
 	// Walk through bytes until we get to a value message.
 	for {
 		if b.end < b.beg {
-			return "", errIndexOutOfRange
+			return nil, errIndexOutOfRange
 		}
 		// Handle incomplete types.
 		switch ok, err := binaryDecodeControlOnly(b, WireCtrlTypeIncomplete); {
 		case err != nil:
-			return "", err
+			return nil, err
 		case ok:
 			continue
 		}
 		// Handle the next message id.
 		switch id, byteLen, err := binaryPeekInt(b); {
 		case err != nil:
-			return "", err
+			return nil, err
 		case id > 0:
 			// This is a value message.  The bytes read so far include the version
 			// byte and all type messages; use all of these bytes as the cache key.
 			//
 			// TODO(toddw): Take a fingerprint of these bytes to reduce memory usage.
-			return string(b.buf[:b.beg]), nil
+			return b.buf[:b.beg], nil
 		case id < 0:
 			// This is a type message.  Skip the bytes for the id or control code, and
 			// decode the message length (which always exists for wireType), and skip
@@ -150,11 +212,11 @@ func computeTypeDecoderCacheKey(b *decbuf) (string, error) {
 			b.beg += byteLen
 			msgLen, err := binaryDecodeLen(b)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 			b.beg += msgLen
 		default:
-			return "", errDecodeZeroTypeID
+			return nil, errDecodeZeroTypeID
 		}
 	}
 }

@@ -29,5 +29,5 @@ type Stats interface {
 }
 
 error (
-	NoValue(suffix string) {"en": "object has no value, suffix: {suffix}"}
+	NoValue(suffix string) {}
 )

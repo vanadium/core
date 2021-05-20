@@ -7,6 +7,8 @@ package time
 import (
 	"fmt"
 	"time"
+
+	"v.io/v23/vdl"
 )
 
 const (
@@ -24,6 +26,23 @@ const (
 	minGoDurationSec = minInt64 / nanosPerSecond
 	maxGoDurationSec = maxInt64 / nanosPerSecond
 )
+
+func init() {
+	vdl.RegisterNativeIsZero(time.Time{})
+	vdl.RegisterNativeConverter(Time{}, VDLNativeConverter{})
+}
+
+type VDLNativeConverter struct{}
+
+// ToNative implements vdl.NativeConverter.
+func (VDLNativeConverter) ToNative(wire, native interface{}) error {
+	return TimeToNative(wire.(Time), native.(*time.Time))
+}
+
+// FromNative implements vdl.NativeConverter.
+func (VDLNativeConverter) FromNative(wire, native interface{}) error {
+	return TimeFromNative(wire.(*Time), native.(time.Time))
+}
 
 // TimeToNative is called by VDL for conversions from wire to native times.
 //nolint:golint // API change required.

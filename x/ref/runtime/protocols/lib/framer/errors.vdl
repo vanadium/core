@@ -10,5 +10,5 @@ package framer
 // since all of their errors are intended to be used as arguments to higher level errors.
 // TODO(suharshs,toddw): Allow skipping of {1}{2} in vdl generated errors.
 error (
-  LargerThan3ByteUInt() {"en":"integer too large to represent in 3 bytes"}
+  LargerThan3ByteUInt() {}
 )

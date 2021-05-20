@@ -65,10 +65,6 @@ func (e E) Unwrap() error {
 	r := []error{}
 	for _, p := range e.ParamList {
 		switch se := p.(type) {
-		case SubErrs:
-			for _, s := range se {
-				r = append(r, s)
-			}
 		case SubErr:
 			r = append(r, se)
 		case *SubErr:

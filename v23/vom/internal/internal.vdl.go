@@ -10,8 +10,10 @@ package internal
 
 import (
 	"fmt"
+	"time"
 
 	"v.io/v23/vdl"
+	vdltime "v.io/v23/vdlroot/time"
 	"v.io/v23/vom"
 )
 
@@ -1429,22 +1431,214 @@ func VDLReadVSmallUnion(dec vdl.Decoder, x *VSmallUnion) error { //nolint:gocycl
 	return dec.FinishValue()
 }
 
+type VStructWithOptional struct {
+	F1 int32
+	F2 *VSmallStruct
+}
+
+func (VStructWithOptional) VDLReflect(struct {
+	Name string `vdl:"v.io/v23/vom/internal.VStructWithOptional"`
+}) {
+}
+
+func (x VStructWithOptional) VDLIsZero() bool { //nolint:gocyclo
+	return x == VStructWithOptional{}
+}
+
+func (x VStructWithOptional) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct14); err != nil {
+		return err
+	}
+	if x.F1 != 0 {
+		if err := enc.NextFieldValueInt(0, vdl.Int32Type, int64(x.F1)); err != nil {
+			return err
+		}
+	}
+	if x.F2 != nil {
+		if err := enc.NextField(1); err != nil {
+			return err
+		}
+		enc.SetNextStartValueIsOptional()
+		if err := x.F2.VDLWrite(enc); err != nil {
+			return err
+		}
+	}
+	if err := enc.NextField(-1); err != nil {
+		return err
+	}
+	return enc.FinishValue()
+}
+
+func (x *VStructWithOptional) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	*x = VStructWithOptional{}
+	if err := dec.StartValue(vdlTypeStruct14); err != nil {
+		return err
+	}
+	decType := dec.Type()
+	for {
+		index, err := dec.NextField()
+		switch {
+		case err != nil:
+			return err
+		case index == -1:
+			return dec.FinishValue()
+		}
+		if decType != vdlTypeStruct14 {
+			index = vdlTypeStruct14.FieldIndexByName(decType.Field(index).Name)
+			if index == -1 {
+				if err := dec.SkipValue(); err != nil {
+					return err
+				}
+				continue
+			}
+		}
+		switch index {
+		case 0:
+			switch value, err := dec.ReadValueInt(32); {
+			case err != nil:
+				return err
+			default:
+				x.F1 = int32(value)
+			}
+		case 1:
+			if err := dec.StartValue(vdlTypeOptional15); err != nil {
+				return err
+			}
+			if dec.IsNil() {
+				x.F2 = nil
+				if err := dec.FinishValue(); err != nil {
+					return err
+				}
+			} else {
+				x.F2 = new(VSmallStruct)
+				dec.IgnoreNextStartValue()
+				if err := x.F2.VDLRead(dec); err != nil {
+					return err
+				}
+			}
+		}
+	}
+}
+
+type VStructWithNative struct {
+	Time     time.Time
+	Duration time.Duration
+}
+
+func (VStructWithNative) VDLReflect(struct {
+	Name string `vdl:"v.io/v23/vom/internal.VStructWithNative"`
+}) {
+}
+
+func (x VStructWithNative) VDLIsZero() bool { //nolint:gocyclo
+	if !x.Time.IsZero() {
+		return false
+	}
+	if x.Duration != 0 {
+		return false
+	}
+	return true
+}
+
+func (x VStructWithNative) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
+	if err := enc.StartValue(vdlTypeStruct16); err != nil {
+		return err
+	}
+	if !x.Time.IsZero() {
+		if err := enc.NextField(0); err != nil {
+			return err
+		}
+		var wire vdltime.Time
+		if err := vdltime.TimeFromNative(&wire, x.Time); err != nil {
+			return err
+		}
+		if err := wire.VDLWrite(enc); err != nil {
+			return err
+		}
+	}
+	if x.Duration != 0 {
+		if err := enc.NextField(1); err != nil {
+			return err
+		}
+		var wire vdltime.Duration
+		if err := vdltime.DurationFromNative(&wire, x.Duration); err != nil {
+			return err
+		}
+		if err := wire.VDLWrite(enc); err != nil {
+			return err
+		}
+	}
+	if err := enc.NextField(-1); err != nil {
+		return err
+	}
+	return enc.FinishValue()
+}
+
+func (x *VStructWithNative) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
+	*x = VStructWithNative{}
+	if err := dec.StartValue(vdlTypeStruct16); err != nil {
+		return err
+	}
+	decType := dec.Type()
+	for {
+		index, err := dec.NextField()
+		switch {
+		case err != nil:
+			return err
+		case index == -1:
+			return dec.FinishValue()
+		}
+		if decType != vdlTypeStruct16 {
+			index = vdlTypeStruct16.FieldIndexByName(decType.Field(index).Name)
+			if index == -1 {
+				if err := dec.SkipValue(); err != nil {
+					return err
+				}
+				continue
+			}
+		}
+		switch index {
+		case 0:
+			var wire vdltime.Time
+			if err := wire.VDLRead(dec); err != nil {
+				return err
+			}
+			if err := vdltime.TimeToNative(wire, &x.Time); err != nil {
+				return err
+			}
+		case 1:
+			var wire vdltime.Duration
+			if err := wire.VDLRead(dec); err != nil {
+				return err
+			}
+			if err := vdltime.DurationToNative(wire, &x.Duration); err != nil {
+				return err
+			}
+		}
+	}
+}
+
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeInt321   *vdl.Type
-	vdlTypeString2  *vdl.Type
-	vdlTypeEnum3    *vdl.Type
-	vdlTypeList4    *vdl.Type
-	vdlTypeArray5   *vdl.Type
-	vdlTypeArray6   *vdl.Type
-	vdlTypeList7    *vdl.Type
-	vdlTypeList8    *vdl.Type
-	vdlTypeSet9     *vdl.Type
-	vdlTypeMap10    *vdl.Type
-	vdlTypeStruct11 *vdl.Type
-	vdlTypeStruct12 *vdl.Type
-	vdlTypeUnion13  *vdl.Type
+	vdlTypeInt321     *vdl.Type
+	vdlTypeString2    *vdl.Type
+	vdlTypeEnum3      *vdl.Type
+	vdlTypeList4      *vdl.Type
+	vdlTypeArray5     *vdl.Type
+	vdlTypeArray6     *vdl.Type
+	vdlTypeList7      *vdl.Type
+	vdlTypeList8      *vdl.Type
+	vdlTypeSet9       *vdl.Type
+	vdlTypeMap10      *vdl.Type
+	vdlTypeStruct11   *vdl.Type
+	vdlTypeStruct12   *vdl.Type
+	vdlTypeUnion13    *vdl.Type
+	vdlTypeStruct14   *vdl.Type
+	vdlTypeOptional15 *vdl.Type
+	vdlTypeStruct16   *vdl.Type
+	vdlTypeStruct17   *vdl.Type
+	vdlTypeStruct18   *vdl.Type
 )
 
 var initializeVDLCalled bool
@@ -1482,6 +1676,8 @@ func initializeVDL() struct{} {
 	vdl.Register((*VSmallStruct)(nil))
 	vdl.Register((*VLargeStruct)(nil))
 	vdl.Register((*VSmallUnion)(nil))
+	vdl.Register((*VStructWithOptional)(nil))
+	vdl.Register((*VStructWithNative)(nil))
 
 	// Initialize type definitions.
 	vdlTypeInt321 = vdl.TypeOf((*VNumber)(nil))
@@ -1497,6 +1693,11 @@ func initializeVDL() struct{} {
 	vdlTypeStruct11 = vdl.TypeOf((*VSmallStruct)(nil)).Elem()
 	vdlTypeStruct12 = vdl.TypeOf((*VLargeStruct)(nil)).Elem()
 	vdlTypeUnion13 = vdl.TypeOf((*VSmallUnion)(nil))
+	vdlTypeStruct14 = vdl.TypeOf((*VStructWithOptional)(nil)).Elem()
+	vdlTypeOptional15 = vdl.TypeOf((*VSmallStruct)(nil))
+	vdlTypeStruct16 = vdl.TypeOf((*VStructWithNative)(nil)).Elem()
+	vdlTypeStruct17 = vdl.TypeOf((*vdltime.Time)(nil)).Elem()
+	vdlTypeStruct18 = vdl.TypeOf((*vdltime.Duration)(nil)).Elem()
 
 	return struct{}{}
 }

@@ -33,7 +33,6 @@ type Env struct {
 	constMap map[*vdl.Value]*ConstDef
 
 	disallowPathQualifiers bool // Disallow syntax like "a/b/c".Type
-	noI18nErrorSupport     bool
 }
 
 // NewEnv creates a new Env, allowing up to maxErrors errors before we stop.
@@ -262,17 +261,6 @@ func (e *Env) DisallowPathQualifiers() *Env {
 	return e
 }
 
-// DisallowI18nErrorSupport disables i18n formats for errors.
-func (e *Env) DisallowI18nErrorSupport() *Env {
-	e.noI18nErrorSupport = true
-	return e
-}
-
-// ErrorI18nSupport returns true if i18n support is enabled for errors.
-func (e *Env) ErrorI18nSupport() bool {
-	return !e.noI18nErrorSupport
-}
-
 // Representation of the components of an vdl file.  These data types represent
 // the results of the compilation, used by generators for different languages.
 
@@ -298,6 +286,10 @@ type Package struct {
 	// during compilation and code generation.
 	Config vdltool.Config
 
+	// ConfigName is the name of the file from the vdl.config was read
+	// since it may be configured as something other than 'vdl.config'.
+	ConfigName string
+
 	// We hold some internal maps to make local name resolution cheap and easy.
 	typeMap  map[string]*TypeDef
 	constMap map[string]*ConstDef
@@ -314,12 +306,13 @@ type Package struct {
 	lowercaseIdents map[string]string
 }
 
-func newPackage(name, pkgPath, genPath string, config vdltool.Config) *Package {
+func newPackage(name, pkgPath, genPath string, config vdltool.Config, configName string) *Package {
 	return &Package{
 		Name:            name,
 		Path:            pkgPath,
 		GenPath:         genPath,
 		Config:          config,
+		ConfigName:      configName,
 		typeMap:         make(map[string]*TypeDef),
 		constMap:        make(map[string]*ConstDef),
 		ifaceMap:        make(map[string]*Interface),

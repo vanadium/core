@@ -22,9 +22,6 @@ import (
 	"v.io/x/lib/textutil"
 	"v.io/x/ref/lib/vdl/build"
 	"v.io/x/ref/lib/vdl/codegen/golang"
-	"v.io/x/ref/lib/vdl/codegen/java"
-	"v.io/x/ref/lib/vdl/codegen/javascript"
-	"v.io/x/ref/lib/vdl/codegen/swift"
 	"v.io/x/ref/lib/vdl/compile"
 	"v.io/x/ref/lib/vdl/vdlutil"
 )
@@ -61,9 +58,6 @@ func (f runnerFunc) Run(_ *cmdline.Env, args []string) (e error) {
 		vdlutil.SetVerbose()
 	}
 	env := compile.NewEnv(flagMaxErrors)
-	if optErrorsNoI18n {
-		env.DisallowI18nErrorSupport()
-	}
 	env.DisallowPathQualifiers()
 	if len(args) == 0 {
 		// If the user doesn't specify any targets, the cwd is implied.
@@ -243,8 +237,6 @@ other languages like C++.
 	ArgsLong: pkgArgLong,
 }
 
-var genLangAll = genLangs(vdltool.GenLanguageAll[:])
-
 type genLangs []vdltool.GenLanguage
 
 func (gls genLangs) String() string {
@@ -264,7 +256,7 @@ func (gls *genLangs) Set(value string) error {
 	*gls = genLangs{}
 	seen := make(map[vdltool.GenLanguage]bool)
 	for _, str := range strings.Split(value, ",") {
-		gl, err := vdltool.GenLanguageFromString(str)
+		gl, err := genLanguageFromString(str)
 		if err != nil {
 			return err
 		}
@@ -351,44 +343,12 @@ var (
 
 	// Options for each command.
 	optCompileStatus bool
-	optErrorsNoI18n  bool
 	optShowWarnings  bool
 	optGenStatus     bool
 	optGenGoOutDir   = genOutDir{
 		supportGoModules: true,
 	}
-	optGenJavaOutDir = genOutDir{
-		rules: xlateRules{
-			{"release/go/src", "release/java/lib/generated-src/vdl"},
-			{"roadmap/go/src", "release/java/lib/generated-src/vdl"},
-		},
-	}
-	optGenJavascriptOutDir = genOutDir{
-		rules: xlateRules{
-			{"release/go/src", "release/javascript/core/src"},
-			{"roadmap/go/src", "release/javascript/core/src"},
-			{"third_party/go/src", "SKIP"},
-			{"tools/go/src", "SKIP"},
-			// TODO(toddw): Skip vdlroot javascript generation for now.
-			{"release/go/src/v.io/v23/vdlroot", "SKIP"},
-		},
-	}
-	optGenJavaOutPkg = xlateRules{
-		{"v.io", "io/v"},
-	}
-	optGenSwiftOutDir = genOutDir{
-		rules: xlateRules{
-			{"release/go/src", "release/swift/lib/generated-src/vdl"},
-			{"roadmap/go/src", "release/swift/lib/generated-src/vdl"},
-		},
-	}
-	optGenSwiftOutPkg = xlateRules{
-		{"v.io/x", "SKIP"},
-		{"/internal", "SKIP"},
-		{"/testdata", "SKIP"},
-		{"v.io/v23", ""},
-	}
-	optPathToJSCore string
+
 	// Default to just running the go lang; other langs need special setup.
 	optGenLangs = genLangs{vdltool.GenLanguageGo}
 )
@@ -416,8 +376,6 @@ func init() {
 	cmdCompile.Flags.BoolVar(&optCompileStatus, "status", true, "Show package names while we compile")
 
 	// Options for compile and for generate
-	cmdCompile.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
-	cmdGenerate.Flags.BoolVar(&optErrorsNoI18n, "errors-no-i18n", false, "No longer support i18n formats for errors")
 	cmdCompile.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
 	cmdGenerate.Flags.BoolVar(&optShowWarnings, "show-warnings", true, "show warning messages")
 
@@ -449,32 +407,7 @@ When the src->dst form is used, src must match the suffix of the path just
 before the package path, and dst is the replacement for src.  Use commas to
 separate multiple rules; the first rule matching src is used.  The special dst
 SKIP indicates matching packages are skipped.`)
-	cmdGenerate.Flags.Var(&optGenJavaOutDir, "java-out-dir",
-		"Same semantics as --go-out-dir but applies to java code generation.")
-	cmdGenerate.Flags.Var(&optGenJavaOutPkg, "java-out-pkg", `
-Java output package translation rules.  Must be of the form:
-   "src->dst[,s2->d2...]"
-If a VDL package has a prefix src, the prefix will be replaced with dst.  Use
-commas to separate multiple rules; the first rule matching src is used, and if
-there are no matching rules, the package remains unchanged.  The special dst
-SKIP indicates those packages containing the string are skipped. Note this skip
-behavior is slightly different than the -out-dir semantics which is prefix-based.`)
-	cmdGenerate.Flags.Var(&optGenJavascriptOutDir, "js-out-dir",
-		"Same semantics as --go-out-dir but applies to js code generation.")
-	cmdGenerate.Flags.StringVar(&optPathToJSCore, "js-relative-path-to-core", "",
-		"If set, this is the relative path from js-out-dir to the root of the JS core")
-	cmdGenerate.Flags.Var(&optGenSwiftOutDir, "swift-out-dir",
-		"Same semantics as --go-out-dir but applies to Swift code generation.")
-	cmdGenerate.Flags.Var(&optGenSwiftOutPkg, "swift-out-pkg", `
-Swift output package translation rules.  Must be of the form:
-   "src->dst[,s2->d2...]"
-If a VDL package has a prefix src, the prefix will be replaced with dst.  Use
-commas to separate multiple rules; the first rule matching src is used, and if
-there are no matching rules, the package remains unchanged.  The special dst
-SKIP indicates those packages containing the string are skipped. Note this skip
-behavior is slightly different than the -out-dir semantics which is prefix-based.`)
-	// Options for audit are identical to generate.
-	cmdAudit.Flags = cmdGenerate.Flags
+
 }
 
 func runCompile(targets []*build.Package, env *compile.Env) {
@@ -498,16 +431,10 @@ func runAudit(targets []*build.Package, env *compile.Env) {
 	}
 }
 
-func shouldGenerate(config vdltool.Config, lang vdltool.GenLanguage) bool {
-	// If config.GenLanguages is empty, all languages are allowed to be generated.
-	_, ok := config.GenLanguages[lang]
-	return len(config.GenLanguages) == 0 || ok
-}
-
 // gen generates the given targets with env.  If audit is true, only checks
 // whether any packages are stale; otherwise files will actually be written out.
 // Returns true if any packages are stale.
-func gen(audit bool, targets []*build.Package, env *compile.Env) bool { //nolint:gocyclo
+func gen(audit bool, targets []*build.Package, env *compile.Env) bool {
 	anychanged := false
 	// Cache original file-system directories for Swift codegen (which needs to
 	// traverse the filesystem to find declarations of SwiftModule in vdl.config)
@@ -530,94 +457,8 @@ func gen(audit bool, targets []*build.Package, env *compile.Env) bool { //nolint
 		// generated file haven't changed.
 		pkgchanged := false
 		for _, gl := range optGenLangs {
-			switch gl {
-			case vdltool.GenLanguageGo:
-				if !shouldGenerate(pkg.Config, vdltool.GenLanguageGo) {
-					continue
-				}
-				dir, err := xlateOutDir(target.Dir, target.GenPath, optGenGoOutDir, pkg.GenPath)
-				if handleErrorOrSkip("--go-out-dir", err, env) {
-					continue
-				}
-				data := golang.Generate(pkg, env)
-				if writeFile(audit, data, dir, pkg.Name+".vdl.go", env, deprecatedGoFiles(pkg)) {
-					pkgchanged = true
-				}
-			case vdltool.GenLanguageJava:
-				if !shouldGenerate(pkg.Config, vdltool.GenLanguageJava) {
-					continue
-				}
-				pkgPath, err := xlatePkgPath(pkg.GenPath, optGenJavaOutPkg)
-				if handleErrorOrSkip("--java-out-pkg", err, env) {
-					continue
-				}
-				dir, err := xlateOutDir(target.Dir, target.GenPath, optGenJavaOutDir, pkgPath)
-				if handleErrorOrSkip("--java-out-dir", err, env) {
-					continue
-				}
-				java.SetPkgPathXlator(func(pkgPath string) string {
-					result, _ := xlatePkgPath(pkgPath, optGenJavaOutPkg)
-					return result
-				})
-				for _, file := range java.Generate(pkg, env) {
-					fileDir := filepath.Join(dir, file.Dir)
-					if writeFile(audit, file.Data, fileDir, file.Name, env, nil) {
-						pkgchanged = true
-					}
-				}
-			case vdltool.GenLanguageJavascript:
-				if !shouldGenerate(pkg.Config, vdltool.GenLanguageJavascript) {
-					continue
-				}
-				dir, err := xlateOutDir(target.Dir, target.GenPath, optGenJavascriptOutDir, pkg.GenPath)
-				if handleErrorOrSkip("--js-out-dir", err, env) {
-					continue
-				}
-				prefix := filepath.Clean(target.Dir[0 : len(target.Dir)-len(target.GenPath)])
-				path := func(importPath string) string {
-					pkgDir := filepath.Join(prefix, filepath.FromSlash(importPath))
-					fullDir, err := xlateOutDir(pkgDir, importPath, optGenJavascriptOutDir, importPath)
-					if err != nil {
-						panic(err)
-					}
-					cleanPath, err := filepath.Rel(dir, fullDir)
-					if err != nil {
-						panic(err)
-					}
-					return cleanPath
-				}
-				data := javascript.Generate(pkg, env, path, optPathToJSCore)
-				if writeFile(audit, data, dir, "index.js", env, nil) {
-					pkgchanged = true
-				}
-			case vdltool.GenLanguageSwift:
-				if !shouldGenerate(pkg.Config, vdltool.GenLanguageSwift) {
-					continue
-				}
-				pkgPath, err := xlatePkgPath(pkg.GenPath, optGenSwiftOutPkg)
-				if handleErrorOrSkip("--swift-out-pkg", err, env) {
-					continue
-				}
-				dir, err := xlateOutDir(target.Dir, target.GenPath, optGenSwiftOutDir, pkgPath)
-				if handleErrorOrSkip("--swift-out-dir", err, env) {
-					continue
-				}
-				swift.SetPkgPathXlator(func(pkgPath string) string {
-					result, _ := xlatePkgPath(pkgPath, optGenSwiftOutPkg)
-					return result
-				})
-				for _, file := range swift.Generate(pkg, env, genPathToDir) {
-					if optGenSwiftOutDir.dir == "" {
-						panic("optGenSwiftOurDir.Dir must be defined")
-					}
-					relativeDir := strings.TrimPrefix(dir, optGenSwiftOutDir.dir)
-					fileDir := filepath.Join(optGenSwiftOutDir.dir, file.Module, relativeDir, file.Dir)
-					if writeFile(audit, file.Data, fileDir, file.Name, env, nil) {
-						pkgchanged = true
-					}
-				}
-			default:
-				env.Errors.Errorf("Generating code for language %v isn't supported", gl)
+			if handleLanguages(gl, target, audit, pkg, env, genPathToDir) {
+				pkgchanged = true
 			}
 		}
 		if pkgchanged {
@@ -628,6 +469,18 @@ func gen(audit bool, targets []*build.Package, env *compile.Env) bool { //nolint
 		}
 	}
 	return anychanged
+}
+
+func handleGo(audit bool, pkg *compile.Package, env *compile.Env, target *build.Package) bool {
+	if !shouldGenerate(pkg.Config, vdltool.GenLanguageGo) {
+		return false
+	}
+	dir, err := xlateOutDir(target.Dir, target.GenPath, optGenGoOutDir, pkg.GenPath)
+	if handleErrorOrSkip("--go-out-dir", err, env) {
+		return false
+	}
+	data := golang.Generate(pkg, env)
+	return writeFile(audit, data, dir, pkg.Name+".vdl.go", env, deprecatedGoFiles(pkg))
 }
 
 // writeFile writes data into the standard location for file, using the given

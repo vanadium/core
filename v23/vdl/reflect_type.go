@@ -21,16 +21,6 @@ type rtCacheT struct {
 	rtmap map[reflect.Type]*Type
 }
 
-var (
-	rtCache = &rtCacheT{
-		rtmap: map[reflect.Type]*Type{
-			// Ensure TypeOf(WireError{}) returns the built-in VDL error type.
-			reflect.TypeOf(WireError{}): ErrorType.Elem(),
-		},
-	}
-	rtCacheEnabled = true
-)
-
 func (reg *rtCacheT) lookup(rt reflect.Type) *Type {
 	if !rtCacheEnabled {
 		return nil
@@ -241,6 +231,7 @@ func TypeFromReflect(rt reflect.Type) (*Type, error) {
 func typeFromReflectLocked(rt reflect.Type, builder *TypeBuilder, pending map[reflect.Type]TypeOrPending) (TypeOrPending, error) {
 	rtOrig := rt
 	rt = normalizeType(rt)
+
 	if t := basicType(rt); t != nil {
 		pending[rtOrig] = t
 		return t, nil
@@ -439,7 +430,6 @@ var (
 	rtFloat64            = reflect.TypeOf(float64(0))
 	rtString             = reflect.TypeOf("")
 	rtError              = reflect.TypeOf((*error)(nil)).Elem()
-	rtWireError          = reflect.TypeOf(WireError{})
 	rtType               = reflect.TypeOf(Type{})
 	rtValue              = reflect.TypeOf(Value{})
 	rtPtrToType          = reflect.TypeOf((*Type)(nil))
@@ -449,6 +439,8 @@ var (
 	rtIsZeroer           = reflect.TypeOf((*IsZeroer)(nil)).Elem()
 	rtVDLWriter          = reflect.TypeOf((*Writer)(nil)).Elem()
 	rtUnnamedEmptyStruct = reflect.TypeOf(struct{}{})
+	rtNativeIsZero       = reflect.TypeOf((*NativeIsZero)(nil)).Elem()
+	rtNativeConverter    = reflect.TypeOf((*NativeConverter)(nil)).Elem()
 
 	typeFromRTKind = [...]*Type{
 		reflect.Bool:    BoolType,

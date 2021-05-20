@@ -7,6 +7,7 @@ package vom
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strconv"
 
 	"v.io/v23/vdl"
@@ -99,7 +100,13 @@ func (rb *RawBytes) IsNil() bool {
 }
 
 func (rb *RawBytes) Decoder() vdl.Decoder {
-	decoder := NewDecoder(bytes.NewReader(rb.Data))
+	r := bytes.NewReader(rb.Data)
+	return rb.newDecoder(r, &decoder81{buf: newDecbuf(r)})
+}
+
+func (rb *RawBytes) newDecoder(r io.Reader, typeDec *decoder81) vdl.Decoder {
+	td := newTypeDecoderInternal(typeDec)
+	decoder := NewDecoderWithTypeDecoder(r, td)
 	dec := &decoder.dec
 	dec.buf.version = rb.Version
 	dec.refTypes.tids = make([]TypeId, len(rb.RefTypes))
@@ -116,7 +123,7 @@ func (rb *RawBytes) Decoder() vdl.Decoder {
 	if err != nil {
 		panic(err) // TODO(toddw): Change this to not panic.
 	}
-	dec.stack = append(dec.stack, decStackEntry{
+	dec.appendStack(decStackEntry{
 		Type:    tt,
 		Index:   -1,
 		LenHint: lenHint,
@@ -189,5 +196,13 @@ func (rb *RawBytes) VDLWrite(enc vdl.Encoder) error {
 		return e.writeRawBytes(rb)
 	}
 	// Slowpath: decodes bytes from rb and fill in enc.
-	return vdl.Transcode(enc, rb.Decoder())
+	bufs := reusableDecoderBuffersPool.Get().(*reusableDecoderBuffers)
+	bufs.rd.Reset(rb.Data)
+	bufs.dec81.buf.Reset()
+	bufs.dec81.buf.reader = bufs.rd
+	bufs.dec81.reset(bufs.dec81.buf)
+	dec := rb.newDecoder(bufs.rd, bufs.dec81)
+	err := vdl.Transcode(enc, dec)
+	reusableDecoderBuffersPool.Put(bufs)
+	return err
 }

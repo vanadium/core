@@ -97,9 +97,9 @@ func registerRecursive(rt reflect.Type) error {
 	return nil
 }
 
-// riRegistry holds the reflectInfo registry.  Unlike rtRegistry (used for the
-// rtCache), this information cannot be regenerated at will.  We expect a
-// limited number of types to be used within a single address space.
+// riRegistry holds the reflectInfo registry. Unlike the performance related
+// caches this information cannot be regenerated at will. We expect a limited
+// number of types to be used within a single address space.
 type riRegistry struct {
 	sync.RWMutex
 	fromName map[string]*reflectInfo
@@ -256,7 +256,6 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) { //nolint:g
 
 	riReg.Lock()
 	defer riReg.Unlock()
-
 	if ri, ok := riReg.fromType[rt]; ok {
 		return ri, false, nil
 	}
@@ -375,31 +374,50 @@ func describeUnion(unionReflect, rt reflect.Type, ri *reflectInfo) error {
 	return nil
 }
 
+func typeToReflectNamed(t *Type) reflect.Type {
+	// Named types cannot be manufactured via Go reflect, so we lookup in our
+	// registry instead.
+	if ri := reflectInfoFromName(t.Name()); ri != nil {
+		if ni := nativeInfoFromWire(ri.Type); ni != nil {
+			return ni.NativeType
+		}
+		return ri.Type
+	}
+	return nil
+}
+
+func typeToReflectOptional(t *Type) reflect.Type {
+	// Handle native types that were registered with a pointer wire type,
+	// e.g. wire=*WireError, native=error.
+	if elem := t.Elem(); elem.Name() != "" {
+		if ri := reflectInfoFromName(elem.Name()); ri != nil {
+			if ni := nativeInfoFromWire(reflect.PtrTo(ri.Type)); ni != nil {
+				return ni.NativeType
+			}
+		}
+	}
+	if elem := TypeToReflect(t.Elem()); elem != nil {
+		return reflect.PtrTo(elem)
+	}
+	return nil
+}
+
 // TypeToReflect returns the reflect.Type corresponding to t.  We look up
 // named types in our registry, and build the unnamed types that we can via the
 // Go reflect package.  Returns nil for types that can't be manufactured.
 func TypeToReflect(t *Type) reflect.Type { //nolint:gocyclo
 	if t.Name() != "" {
-		// Named types cannot be manufactured via Go reflect, so we lookup in our
-		// registry instead.
-		if ri := reflectInfoFromName(t.Name()); ri != nil {
-			if ni := nativeInfoFromWire(ri.Type); ni != nil {
-				return ni.NativeType
-			}
-			return ri.Type
-		}
-		return nil
+		return typeToReflectNamed(t)
 	}
 	// We can make some unnamed types via Go reflect.  Return nil otherwise.
 	switch t.Kind() {
-	case Any, Enum, Union:
-		// We can't make unnamed versions of any of these types.
+	case Enum, Union:
+		// We can't make unnamed versions of these types.
 		return nil
+	case Any:
+		return rtInterface
 	case Optional:
-		if elem := TypeToReflect(t.Elem()); elem != nil {
-			return reflect.PtrTo(elem)
-		}
-		return nil
+		return typeToReflectOptional(t)
 	case Array:
 		if elem := TypeToReflect(t.Elem()); elem != nil {
 			return reflect.ArrayOf(t.Len(), elem)
@@ -417,76 +435,6 @@ func TypeToReflect(t *Type) reflect.Type { //nolint:gocyclo
 		return nil
 	case Map:
 		if key, elem := TypeToReflect(t.Key()), TypeToReflect(t.Elem()); key != nil && elem != nil {
-			return reflect.MapOf(key, elem)
-		}
-		return nil
-	case Struct:
-		if t.NumField() == 0 {
-			return rtUnnamedEmptyStruct
-		}
-		return nil
-	default:
-		return rtFromKind[t.Kind()]
-	}
-}
-
-// typeToReflectNew returns the reflect.Type corresponding to t.  We look up
-// named types in our registry, and build the unnamed types that we can via the
-// Go reflect package.  Returns nil for types that can't be manufactured.
-//
-// TODO(toddw): Replace TypeToReflect with this function, after the old
-// conversion logic has been removed.  Using this function with the old
-// conversion logic breaks the tests, which aren't worth it to fix.
-func typeToReflectNew(t *Type) reflect.Type { //nolint:gocyclo
-	if t.Name() != "" {
-		// Named types cannot be manufactured via Go reflect, so we lookup in our
-		// registry instead.
-		if ri := reflectInfoFromName(t.Name()); ri != nil {
-			if ni := nativeInfoFromWire(ri.Type); ni != nil {
-				return ni.NativeType
-			}
-			return ri.Type
-		}
-		return nil
-	}
-	// We can make some unnamed types via Go reflect.  Return nil otherwise.
-	switch t.Kind() {
-	case Enum, Union:
-		// We can't make unnamed versions of these types.
-		return nil
-	case Any:
-		return rtInterface
-	case Optional:
-		// Handle native types that were registered with a pointer wire type,
-		// e.g. wire=*WireError, native=error.
-		if elem := t.Elem(); elem.Name() != "" {
-			if ri := reflectInfoFromName(elem.Name()); ri != nil {
-				if ni := nativeInfoFromWire(reflect.PtrTo(ri.Type)); ni != nil {
-					return ni.NativeType
-				}
-			}
-		}
-		if elem := typeToReflectNew(t.Elem()); elem != nil {
-			return reflect.PtrTo(elem)
-		}
-		return nil
-	case Array:
-		if elem := typeToReflectNew(t.Elem()); elem != nil {
-			return reflect.ArrayOf(t.Len(), elem)
-		}
-		return nil
-	case List:
-		if elem := typeToReflectNew(t.Elem()); elem != nil {
-			return reflect.SliceOf(elem)
-		}
-		return nil
-	case Set:
-		if key := typeToReflectNew(t.Key()); key != nil {
-			return reflect.MapOf(key, rtUnnamedEmptyStruct)
-		}
-		return nil
-	case Map:
-		if key, elem := typeToReflectNew(t.Key()), typeToReflectNew(t.Elem()); key != nil && elem != nil {
 			return reflect.MapOf(key, elem)
 		}
 		return nil

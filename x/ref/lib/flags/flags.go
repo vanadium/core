@@ -21,7 +21,6 @@ const (
 	// used by the Vanadium process runtime. Namely:
 	// --v23.namespace.root (which may be repeated to supply multiple values)
 	// --v23.credentials
-	// --v23.i18n-catalogue
 	// --v23.vtrace.sample-rate
 	// --v23.vtrace.dump-on-shutdown
 	// --v23.vtrace.cache-size
@@ -77,11 +76,6 @@ type RuntimeFlags struct {
 	// TODO(cnicolaou): provide flag.Value impl
 	Credentials string `cmdline:"v23.credentials,,directory to use for storing security credentials"`
 
-	// I18nCatalogue may be initialized by the ref.EnvI18nCatalogueFiles
-	// environment variable.  The command line will override the
-	// environment.
-	I18nCatalogue string `cmdline:"v23.i18n-catalogue,,'18n catalogue files to load, comma separated'"`
-
 	// VtraceFlags control various aspects of Vtrace.
 	VtraceFlags
 }
@@ -108,6 +102,8 @@ type VtraceFlags struct {
 	// SpanRegexp matches a regular expression against span names and
 	// annotations and forces any trace matching trace to be collected.
 	CollectRegexp string `cmdline:"v23.vtrace.collect-regexp,,Spans and annotations that match this regular expression will trigger trace collection"`
+
+	EnableAWSXRay bool `cmdline:"v23.vtrace.enable-aws-xray,false,Enable the use of AWS x-ray integration with vtrace"`
 }
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
@@ -135,14 +131,7 @@ func NewRuntimeFlags() (*RuntimeFlags, error) {
 		rf.NamespaceRoots.Roots = roots
 	}
 	rf.Credentials = DefaultCredentialsDir()
-	rf.I18nCatalogue = DefaultI18nCatalogue()
-	rf.VtraceFlags = VtraceFlags{
-		SampleRate:     0.0,
-		DumpOnShutdown: true,
-		CacheSize:      1024,
-		LogLevel:       0,
-		CollectRegexp:  "",
-	}
+	rf.VtraceFlags = DefaultVtraceFlags()
 	return rf, nil
 }
 
@@ -151,13 +140,11 @@ func NewRuntimeFlags() (*RuntimeFlags, error) {
 func RegisterRuntimeFlags(fs *flag.FlagSet, f *RuntimeFlags) error {
 	err := flagvar.RegisterFlagsInStruct(fs, "cmdline", f,
 		map[string]interface{}{
-			"v23.credentials":    DefaultCredentialsDir(),
-			"v23.i18n-catalogue": DefaultI18nCatalogue(),
+			"v23.credentials": DefaultCredentialsDir(),
 		},
 		map[string]string{
 			"v23.namespace.root": "[" + strings.Join(DefaultNamespaceRoots(), ",") + "]",
 			"v23.credentials":    "",
-			"v23.i18n-catalogue": "",
 		},
 	)
 	return err

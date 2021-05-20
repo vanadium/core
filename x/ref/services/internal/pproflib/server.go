@@ -51,7 +51,7 @@ func (pprofService) Profile(ctx *context.T, call s_pprof.PProfProfileServerCall,
 		return fmt.Errorf("profile does not exist: %v", name)
 	}
 	if err := profile.WriteTo(&streamWriter{call.SendStream()}, int(debug)); err != nil {
-		return verror.Convert(verror.ErrUnknown, ctx, err)
+		return verror.ErrUnknown.Errorf(ctx, "%v", err)
 	}
 	return nil
 }
@@ -64,7 +64,7 @@ func (pprofService) CpuProfile(ctx *context.T, call s_pprof.PProfCpuProfileServe
 		return fmt.Errorf("invalid number of seconds: %v, not in range 0...3600", seconds)
 	}
 	if err := pprof.StartCPUProfile(&streamWriter{call.SendStream()}); err != nil {
-		return verror.Convert(verror.ErrUnknown, ctx, err)
+		return verror.ErrUnknown.Errorf(ctx, "%v", err)
 	}
 	time.Sleep(time.Duration(seconds) * time.Second)
 	pprof.StopCPUProfile()

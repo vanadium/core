@@ -7,16 +7,8 @@ package bcrypter
 import "v.io/v23/security"
 
 error (
-      Internal(err error) {
-              "en": "internal error: {err}",
-      }
-      NoParams(pattern security.BlessingPattern) {
-              "en": "no public parameters available for encrypting for pattern: {pattern}",
-      }
-      PrivateKeyNotFound() {
-              "en": "no private key found for decrypting ciphertext",
-      }
-      InvalidPrivateKey(err error) {
-              "en": "private key is invalid: {err}",
-      }
+      Internal(err error) {}
+      NoParams(pattern security.BlessingPattern) {}
+      PrivateKeyNotFound() {}
+      InvalidPrivateKey(err error) {}
 )

@@ -18,7 +18,7 @@ var (
 	errInvalidPipeState      = errors.New("vdl: invalid pipe state")
 )
 
-func convertPipe(dst, src interface{}) error {
+func convertPipe(dst, src interface{}) error { //nolint:deadcode
 	enc, dec := newPipe()
 	go func() {
 		enc.Close(Write(enc, src))
@@ -26,7 +26,7 @@ func convertPipe(dst, src interface{}) error {
 	return dec.Close(Read(dec, dst))
 }
 
-func convertPipeReflect(dst, src reflect.Value) error {
+func convertPipeReflect(dst, src reflect.Value) error { //nolint:deadcode
 	enc, dec := newPipe()
 	go func() {
 		enc.Close(WriteReflect(enc, src))
@@ -60,6 +60,16 @@ type pipeEncoder struct {
 	sync.Mutex
 	Cond sync.Cond
 
+	// TODO(cnicolaou): refactor or replace this code with a more efficient
+	//      approach. The current async pipe structure leads to huge
+	//      scheduling and GC overhead for small objects, which is the
+	//      common case. The VDL code uses this for native/wire conversions
+	//      for example. A simpler and more efficient approach would be
+	//      to simply write the entire value to a buffer and read it back
+	//      for conversion.
+	// Preallocated storage for Stack. This doubles the performance
+	// of decoding an RPC request.
+	StackStorage             [4]pipeStackEntry
 	Stack                    []pipeStackEntry
 	NextEntryDone            bool
 	NextFieldIndex           int
@@ -275,6 +285,9 @@ func (e *pipeEncoder) StartValue(tt *Type) error {
 	}
 	if err := e.wait(); err != nil {
 		return err
+	}
+	if e.Stack == nil {
+		e.Stack = e.StackStorage[:0]
 	}
 	top := e.top()
 	if top != nil {

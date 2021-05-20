@@ -83,7 +83,7 @@ func (x Request) VDLIsZero() bool { //nolint:gocyclo
 	if !x.GrantedBlessings.IsZero() {
 		return false
 	}
-	if x.TraceRequest != (vtrace.Request{}) {
+	if !x.TraceRequest.VDLIsZero() {
 		return false
 	}
 	if x.Language != "" {
@@ -140,7 +140,7 @@ func (x Request) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
-	if x.TraceRequest != (vtrace.Request{}) {
+	if !x.TraceRequest.VDLIsZero() {
 		if err := enc.NextField(6); err != nil {
 			return err
 		}

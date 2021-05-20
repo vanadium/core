@@ -7,13 +7,13 @@ package reserved
 error (
 	// GlobMaxRecursionReached indicates that the Glob request exceeded the
 	// max recursion level.
-	GlobMaxRecursionReached() {"en":"max recursion level reached{:_}"}
+	GlobMaxRecursionReached() {}
 
 	// GlobMatchesOmitted indicates that some of the Glob results might
 	// have been omitted due to access restrictions.
-	GlobMatchesOmitted() {"en":"some matches might have been omitted"}
+	GlobMatchesOmitted() {}
 
 	// GlobNotImplemented indicates that Glob is not implemented by the
 	// object.
-	GlobNotImplemented() {"en":"Glob not implemented"}
+	GlobNotImplemented() {}
 )

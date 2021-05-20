@@ -161,26 +161,20 @@ const (
 // Note: For "bad version" errors, use verror.ErrBadVersion.
 error (
 	// The AccessList is too big.  Use groups to represent large sets of principals.
-	TooBig() {"en": "AccessList is too big"}
+	TooBig() {}
 
-	NoPermissions(validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string){"en":"{validBlessings} does not have {tag} access (rejected blessings: {rejectedBlessings})"}
+	NoPermissions(validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) {}
 
-	AccessListMatch(validBlessings []string, rejectedBlessings []security.RejectedBlessing){"en":"{validBlessings} does not match the access list (rejected blessings: {rejectedBlessings})"}
+	AccessListMatch(validBlessings []string, rejectedBlessings []security.RejectedBlessing) {}
 
-	UnenforceablePatterns(rejectedPatterns []security.BlessingPattern){"en":"AccessList contains the following invalid or unrecognized patterns in the In list: {rejectedPatterns}"}
+	UnenforceablePatterns(rejectedPatterns []security.BlessingPattern) {}
 
-	InvalidOpenAccessList(){"en": "AccessList with the pattern ... in its In list must have no other patterns in the In or NotIn lists"}
+	InvalidOpenAccessList() {}
 
-	AccessTagCaveatValidation(methodTags []string, caveatTags []Tag){
-		"en": "access tags on method ({methodTags}) do not include any of the ones in the caveat ({caveatTags}), or the method is using a different tag type",
-  }
+	AccessTagCaveatValidation(methodTags []string, caveatTags []Tag) {}
 
-  MultipleTags(suffix, method string, tag string) {
-    "en": "authorizer on {suffix}.{method} cannot handle multiple tags of type {tag}; this is likely unintentional",
-  }
+	MultipleTags(suffix, method string, tag string) {}
 
-  NoTags(suffix, method string, tag string) {
-    "en": "authorizer on {suffix}.{method} has no tags of type {tag}; this is likely unintentional",
-  }
+	NoTags(suffix, method string, tag string) {}
 
 )

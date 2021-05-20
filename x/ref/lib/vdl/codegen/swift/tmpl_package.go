@@ -46,7 +46,6 @@ import {{ $module }}
   {{ $error.AccessModifier }} {{ if not $.IsModuleRoot }}static {{ end }}let {{ $error.Name }} = VError(
     identity: {{ $error.ID }},
     action: ErrorAction.{{ $error.ActionName }},
-    msg: {{ $error.EnglishFmt }},
     stacktrace: nil)
   {{ end }} {{/* end range $file.Errors */}}
   {{ end }} {{/* range .ErrorFiles */}}
@@ -144,7 +143,6 @@ type errorTmplDef struct {
 	AccessModifier string
 	ActionName     string
 	Doc            string
-	EnglishFmt     string
 	ID             string
 	Name           string
 }
@@ -174,15 +172,10 @@ func parseErrors(pkg *compile.Package, ctx *swiftContext) []errorsInFile {
 		}
 		errors := []errorTmplDef{}
 		for _, err := range file.ErrorDefs {
-			englishFmt := "nil"
-			if err.English != "" {
-				englishFmt = swiftQuoteString(err.English)
-			}
 			errors = append(errors, errorTmplDef{
 				AccessModifier: swiftAccessModifierForName(err.Name),
 				ActionName:     err.RetryCode.String(),
 				Doc:            swiftDoc(err.Doc, err.DocSuffix),
-				EnglishFmt:     englishFmt,
 				ID:             swiftQuoteString(err.ID),
 				Name:           vdlutil.FirstRuneToUpper(err.Name) + "Error",
 			})

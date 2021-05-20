@@ -4,6 +4,8 @@
 
 package internal
 
+import "time"
+
 type VNumber int32
 type VString string
 type VEnum enum {
@@ -79,4 +81,12 @@ type VSmallUnion union {
     A int32
     B string
     C bool
+}
+type VStructWithOptional struct {
+    F1 int32
+    F2 ?VSmallStruct
+}
+type VStructWithNative struct {
+	Time time.Time
+	Duration time.Duration
 }

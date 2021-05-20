@@ -68,30 +68,31 @@ func WriteReflect(enc Encoder, rv reflect.Value) error {
 }
 
 func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocyclo
+	ttKind, rvKind := tt.Kind(), rv.Kind()
 	// Fastpath check for non-reflect support.  Optional types are tricky, since
 	// they may be nil, and need SetNextStartValueIsOptional() to be set, so they
 	// can't use this fastpath.  This handles the non-nil *vom.RawBytes and
 	// *vdl.Value cases, and avoids an expensive copy of all their fields.
-	if tt.Kind() != Optional && (rv.Kind() != reflect.Ptr || !rv.IsNil()) {
+	if ttKind != Optional && (rvKind != reflect.Ptr || !rv.IsNil()) {
 		if err := writeNonReflect(enc, rv.Interface()); err != errWriteMustReflect {
 			return err
 		}
 	}
 	// Walk pointers and interfaces in rv, and handle nil values.
 	for {
-		isPtr, isIface := rv.Kind() == reflect.Ptr, rv.Kind() == reflect.Interface
+		isPtr, isIface := rvKind == reflect.Ptr, rvKind == reflect.Interface
 		if !isPtr && !isIface {
 			break
 		}
 		if rv.IsNil() {
 			switch {
-			case tt.Kind() == TypeObject:
+			case ttKind == TypeObject:
 				// Treat nil *Type as AnyType.
 				return AnyType.VDLWrite(enc)
-			case tt.Kind() == Union && isIface:
+			case ttKind == Union && isIface:
 				// Treat nil Union interface as the zero value of the type at index 0.
 				return ZeroValue(tt).VDLWrite(enc)
-			case tt.Kind() == Optional:
+			case ttKind == Optional:
 				enc.SetNextStartValueIsOptional()
 				return enc.NilValue(tt)
 			case tt == AnyType:
@@ -100,6 +101,7 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 			return fmt.Errorf("vdl: can't encode nil from non-any non-optional %v", tt)
 		}
 		rv = rv.Elem()
+		rvKind = rv.Kind()
 		// Recompute tt as we pass interface boundaries.  There's no need to
 		// recompute as we traverse pointers, since tt won't change.
 		if isIface {
@@ -109,44 +111,51 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 			}
 		}
 	}
-	if tt.Kind() == Optional {
+	if ttKind == Optional {
 		enc.SetNextStartValueIsOptional()
 	}
 	// Check for faster non-reflect support, which also handles vdl.Value and
 	// vom.RawBytes, and any other special-cases.
-	if err := writeNonReflect(enc, rv.Interface()); err != errWriteMustReflect {
+	ifc := rv.Interface()
+	if err := writeNonReflect(enc, ifc); err != errWriteMustReflect {
 		return err
 	}
-	if reflect.PtrTo(rv.Type()).Implements(rtVDLWriter) {
-		if rv.CanAddr() {
-			return writeNonReflect(enc, rv.Addr().Interface())
+	rt := rv.Type()
+	pri := perfReflectCache.perfReflectInfo(rt)
+	if len(rt.PkgPath()) > 0 {
+		if perfReflectCache.implementsBuiltinInterface(pri, rt, rtVDLWriterPtrToBitMask) {
+			if rv.CanAddr() {
+				return writeNonReflect(enc, rv.Addr().Interface())
+			}
+			// This handles the case where rv implements VDLWrite with a pointer
+			// receiver, but we can't address rv to get a pointer.  E.g.
+			//    type Foo string
+			//    func (x *Foo) VDLWrite(enc vdl.Encoder) error {...}
+			//    rv := Foo{}
+			//
+			// TODO(toddw): Do we need to handle this case?
+			rvPtr := reflect.New(rt)
+			rvPtr.Elem().Set(rv)
+			return writeNonReflect(enc, rvPtr.Interface())
 		}
-		// This handles the case where rv implements VDLWrite with a pointer
-		// receiver, but we can't address rv to get a pointer.  E.g.
-		//    type Foo string
-		//    func (x *Foo) VDLWrite(enc vdl.Encoder) error {...}
-		//    rv := Foo{}
-		//
-		// TODO(toddw): Do we need to handle this case?
-		rvPtr := reflect.New(rv.Type())
-		rvPtr.Elem().Set(rv)
-		return writeNonReflect(enc, rvPtr.Interface())
 	}
 	// Handle marshaling from native type to wire type.
-	if ni := nativeInfoFromNative(rv.Type()); ni != nil {
+	if ni := perfReflectCache.nativeInfo(pri, rt); ni != nil {
 		rvWirePtr := reflect.New(ni.WireType)
 		if err := ni.FromNative(rvWirePtr, rv); err != nil {
 			return err
 		}
 		return writeReflect(enc, rvWirePtr.Elem(), tt)
 	}
+
 	// Handle errors that are implemented by arbitrary rv values.  E.g. the Go
 	// standard errors.errorString implements the error interface, but is an
 	// invalid vdl type since it doesn't have any exported fields.
 	//
 	// See corresponding special-case in reflect_type.go
+	// TODO(cnicolaou): revisit how to handle this.
 	if tt == ErrorType {
-		if rv.Type().Implements(rtError) {
+		if rt.Implements(rtError) {
 			return writeNonNilError(enc, rv)
 		}
 		if rv.CanAddr() && rv.Addr().Type().Implements(rtError) {
@@ -169,7 +178,7 @@ func writeReflect(enc Encoder, rv reflect.Value, tt *Type) error { //nolint:gocy
 	case Set, Map:
 		err = writeSetOrMap(enc, rv, tt)
 	case Struct:
-		err = writeStruct(enc, rv, tt)
+		err = writeStruct(enc, rv, tt, pri)
 	case Union:
 		err = writeUnion(enc, rv, tt)
 	default:
@@ -349,13 +358,18 @@ func writeSetOrMap(enc Encoder, rv reflect.Value, tt *Type) error {
 	return enc.NextEntry(true)
 }
 
-func writeStruct(enc Encoder, rv reflect.Value, tt *Type) error {
+func writeStruct(enc Encoder, rv reflect.Value, tt *Type, pri perfReflectInfo) error {
 	rt := rv.Type()
 	// Loop through tt fields rather than rt fields, since the VDL type tt might
 	// have ignored some of the fields in rt, e.g. unexported fields.
+	idxMap := perfReflectCache.fieldIndexMap(pri, rt)
 	for index := 0; index < tt.NumField(); index++ {
 		field := tt.Field(index)
-		rvField := rv.Field(rtFieldIndexByName(rt, field.Name))
+		idx, ok := idxMap[field.Name]
+		if !ok {
+			return fmt.Errorf("vdl: writeStruct unrecognised Go field %v in %v", field.Name, rt)
+		}
+		rvField := rv.Field(idx)
 		switch isZero, err := rvIsZeroValue(rvField, field.Type); {
 		case err != nil:
 			return err

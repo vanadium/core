@@ -23,7 +23,6 @@ var (
 	// 'replace' statement in go.mod to provide site specific defaults.
 	defaultNamespaceRoots     []string
 	defaultCredentialsDir     string
-	defaultI18nCatalogue      string
 	defaultProtocol           string
 	defaultHostPort           string
 	defaultProxy              string
@@ -32,6 +31,7 @@ var (
 	defaultPermissionsLiteral string
 	defaultPermissions        map[string]string
 	defaultVirtualized        VirtualizedFlagDefaults
+	defaultVtrace             VtraceFlags
 
 	// defaultExplicitlySet is used to track which of the above have been
 	// changed. See markAsNewDefault and hasNewDefault below.
@@ -68,9 +68,6 @@ func refreshRuntimeFlagsFromDefaults(v *RuntimeFlags) error {
 	}
 	if hasNewDefault(&defaultCredentialsDir) {
 		v.Credentials = defaultCredentialsDir
-	}
-	if hasNewDefault(&defaultI18nCatalogue) {
-		v.I18nCatalogue = defaultI18nCatalogue
 	}
 	return nil
 }
@@ -263,32 +260,6 @@ func DefaultCredentialsDir() string {
 	return DefaultCredentialsDirNoEnv()
 }
 
-// SetDefaultI18nCatalogue sets the default value for --v23.i18n-catalogue.
-// It must be called before flags are parsed for it to take effect.
-func SetDefaultI18nCatalogue(i18nCatalogue string) {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	defaultI18nCatalogue = i18nCatalogue
-	markAsNewDefaultLocked(&defaultI18nCatalogue)
-}
-
-// DefaultI18nCatalogueNoEnv returns the current default for
-// --v23.i18n-catalogue ignoring V23_I18N_CATALOGUE.
-func DefaultI18nCatalogueNoEnv() string {
-	defaultMu.Lock()
-	defer defaultMu.Unlock()
-	return defaultI18nCatalogue
-}
-
-// DefaultI18nCatalogue returns the current default for --v23.i18n-catalogue.
-// taking V23_V23_I18N_CATALOGUE into account.
-func DefaultI18nCatalogue() string {
-	if e := os.Getenv(ref.EnvI18nCatalogueFiles); len(e) > 0 {
-		return e
-	}
-	return DefaultCredentialsDirNoEnv()
-}
-
 // SetDefaultPermissionsLiteral sets the default value for
 // --v23.permissions.literal.
 func SetDefaultPermissionsLiteral(literal string) {
@@ -348,5 +319,19 @@ func DefaultVirtualizedFlagValues() VirtualizedFlagDefaults {
 	if p := os.Getenv(ref.EnvVirtualizationProvider); len(p) > 0 {
 		def.VirtualizationProvider = p
 	}
+	return def
+}
+
+func SetDefaultVtraceFlags(values VtraceFlags) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultVtrace = values
+	markAsNewDefaultLocked(&defaultVtrace)
+}
+
+func DefaultVtraceFlags() VtraceFlags {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	def := defaultVtrace
 	return def
 }
