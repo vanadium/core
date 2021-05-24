@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/disk"
-	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/cosnicolaou/gopsutil/cpu"
+	"github.com/cosnicolaou/gopsutil/disk"
+	"github.com/cosnicolaou/gopsutil/mem"
 
 	"v.io/v23/naming"
 	"v.io/x/lib/metadata"
