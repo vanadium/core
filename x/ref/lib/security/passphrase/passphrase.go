@@ -12,14 +12,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"golang.org/x/term"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"v.io/x/ref/internal/logger"
 )
 
 // Get reads a passphrase over stdin/stdout.
 func Get(prompt string) ([]byte, error) {
-	if !term.IsTerminal(int(os.Stdin.Fd())) {
+	if !terminal.IsTerminal(int(os.Stdin.Fd())) {
 		// If the standard input is not a terminal, the password is
 		// obtained by reading a line from it.
 		return readPassphrase()
@@ -27,13 +27,13 @@ func Get(prompt string) ([]byte, error) {
 	fmt.Print(prompt)
 	stop := make(chan bool)
 	defer close(stop)
-	state, err := term.GetState(int(os.Stdin.Fd()))
+	state, err := terminal.GetState(int(os.Stdin.Fd()))
 	if err != nil {
 		return nil, err
 	}
 	go catchTerminationSignals(stop, state)
 	defer fmt.Printf("\n")
-	return term.ReadPassword(int(os.Stdin.Fd()))
+	return terminal.ReadPassword(int(os.Stdin.Fd()))
 }
 
 // readPassphrase reads from stdin until it sees '\n' or EOF.
@@ -65,18 +65,20 @@ func readPassphrase() ([]byte, error) {
 }
 
 func secureAppend(s []byte, t byte) []byte {
-	res := make([]byte, len(s)+1)
-	copy(res, s)
-	res[len(s)] = t
-	// Clear out s and t.
-	copy(s, make([]byte, len(s)))
+	res := append(s, t)
+	if len(res) > cap(s) {
+		// When append needs to allocate a new array, clear out the old
+		// one.
+		copy(s, make([]byte, len(s)))
+	}
+	// Clear out the byte.
 	t = 0 //nolint:ineffassign
 	return res
 }
 
 // catchTerminationSignals catches signals to allow us to turn terminal echo
 // back on.
-func catchTerminationSignals(stop <-chan bool, state *term.State) {
+func catchTerminationSignals(stop <-chan bool, state *terminal.State) {
 	var successErrno syscall.Errno
 	sig := make(chan os.Signal, 4)
 	// Catch the blockable termination signals.
@@ -85,7 +87,7 @@ func catchTerminationSignals(stop <-chan bool, state *term.State) {
 	case <-sig:
 		// Start on new line in terminal.
 		fmt.Printf("\n")
-		if err := term.Restore(int(os.Stdin.Fd()), state); err != successErrno {
+		if err := terminal.Restore(int(os.Stdin.Fd()), state); err != successErrno {
 			logger.Global().Errorf("Failed to restore terminal state (%v), your words may not show up when you type, enter 'stty echo' to fix this.", err)
 		}
 		os.Exit(-1)
