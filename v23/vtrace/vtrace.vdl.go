@@ -125,8 +125,8 @@ type SpanRecord struct {
 	End    time.Time   // The end time of this span.
 	// A series of annotations.
 	Annotations []Annotation
-	// Metadata that will be sent along with the request.
-	Metadata []byte
+	// RequestMetadata that will be sent along with the request.
+	RequestMetadata []byte
 }
 
 func (SpanRecord) VDLReflect(struct {
@@ -153,7 +153,7 @@ func (x SpanRecord) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Annotations) != 0 {
 		return false
 	}
-	if len(x.Metadata) != 0 {
+	if len(x.RequestMetadata) != 0 {
 		return false
 	}
 	return true
@@ -210,8 +210,8 @@ func (x SpanRecord) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
-	if len(x.Metadata) != 0 {
-		if err := enc.NextFieldValueBytes(6, vdlTypeList6, x.Metadata); err != nil {
+	if len(x.RequestMetadata) != 0 {
+		if err := enc.NextFieldValueBytes(6, vdlTypeList6, x.RequestMetadata); err != nil {
 			return err
 		}
 	}
@@ -304,7 +304,7 @@ func (x *SpanRecord) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 6:
-			if err := dec.ReadValueBytes(-1, &x.Metadata); err != nil {
+			if err := dec.ReadValueBytes(-1, &x.RequestMetadata); err != nil {
 				return err
 			}
 		}
@@ -462,6 +462,7 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]SpanRecord) error {
 	}
 }
 
+// TraceFlags represents a bit mask that determines
 type TraceFlags int32
 
 func (TraceFlags) VDLReflect(struct {
@@ -492,11 +493,11 @@ func (x *TraceFlags) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 
 // Request is the object that carries trace information between processes.
 type Request struct {
-	SpanId   uniqueid.Id // The Id of the span that originated the RPC call.
-	TraceId  uniqueid.Id // The Id of the trace this call is a part of.
-	Metadata []byte      // Any metadata to be sent with the request.
-	Flags    TraceFlags
-	LogLevel int32
+	SpanId          uniqueid.Id // The Id of the span that originated the RPC call.
+	TraceId         uniqueid.Id // The Id of the trace this call is a part of.
+	RequestMetadata []byte      // Any metadata to be sent with the request.
+	Flags           TraceFlags
+	LogLevel        int32
 }
 
 func (Request) VDLReflect(struct {
@@ -511,7 +512,7 @@ func (x Request) VDLIsZero() bool { //nolint:gocyclo
 	if x.TraceId != (uniqueid.Id{}) {
 		return false
 	}
-	if len(x.Metadata) != 0 {
+	if len(x.RequestMetadata) != 0 {
 		return false
 	}
 	if x.Flags != 0 {
@@ -537,8 +538,8 @@ func (x Request) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
-	if len(x.Metadata) != 0 {
-		if err := enc.NextFieldValueBytes(2, vdlTypeList6, x.Metadata); err != nil {
+	if len(x.RequestMetadata) != 0 {
+		if err := enc.NextFieldValueBytes(2, vdlTypeList6, x.RequestMetadata); err != nil {
 			return err
 		}
 	}
@@ -593,7 +594,7 @@ func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 2:
-			if err := dec.ReadValueBytes(-1, &x.Metadata); err != nil {
+			if err := dec.ReadValueBytes(-1, &x.RequestMetadata); err != nil {
 				return err
 			}
 		case 3:

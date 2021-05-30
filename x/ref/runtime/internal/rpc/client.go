@@ -178,7 +178,10 @@ func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []int
 }
 
 func (c *client) startCall(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (rpc.ClientCall, error) {
-	ctx, _ = vtrace.WithNewSpan(ctx, fmt.Sprintf("<rpc.Client>%q.%s", name, method))
+	ctx, span := vtrace.WithNewSpan(ctx, fmt.Sprintf("<rpc.Client>%q.%s", name, method))
+	span.AnnotateMetadata("isClient", true, true)
+	span.AnnotateMetadata("name", name, true)
+	span.AnnotateMetadata("method", method, true)
 	r, err := c.connectToName(ctx, name, method, args, connOpts, opts)
 	if err != nil {
 		return nil, err

@@ -34,6 +34,18 @@ services:
     networks:
       aws:
         ipv4_address: 169.254.169.12
+  echod3:
+    image: echod
+    environment:
+      - V23_CREDENTIALS=/bin/creds
+      - V23_NAMESPACE=/mounttabled:9002
+      - AWS_XRAY_DAEMON_ADDRESS=aws_xray_daemon:2000
+    ports: [10003:10003]
+    command: --name=echo-server/echod3 --v23.tcp.address=:10003 --v23.virtualized.tcp.public-address=127.0.0.1:10003 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true
+    depends_on: [mounttabled, aws_xray_daemon]
+    networks:
+      aws:
+        ipv4_address: 169.254.169.13
   echo_client:
     image: echo
     environment:
@@ -41,7 +53,7 @@ services:
       - V23_NAMESPACE=/mounttabled:9002
       - AWS_XRAY_DAEMON_ADDRESS=aws_xray_daemon:2000
     ports: [10020:10020, 8000:8000]
-    command: --v23.tcp.address=:10020 --v23.virtualized.tcp.public-address=127.0.0.1:1020 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true  --name=echo-server/echod1 --forward-to=echo-server/echod2 --iterations=1 --http=":8000"
+    command: --v23.tcp.address=:10020 --v23.virtualized.tcp.public-address=127.0.0.1:1020 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true  --name=echo-server/echod1 --forward-to=echo-server/echod2,echo-server/echod3,echo-server/echod1 --iterations=1 --http=":8000"
     depends_on: [echod1, echod2]
     networks:
       aws:

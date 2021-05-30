@@ -50,6 +50,7 @@ type server struct {
 	typeCache         *typeCache
 	state             rpc.ServerState // the current state of the server.
 	stopListens       context.CancelFunc
+	names             []string     // the original name passed to WithNewServer or WithNewDispatchingServer
 	publisher         *publisher.T // publisher to publish mounttable mounts.
 	closed            chan struct{}
 
@@ -186,6 +187,7 @@ func WithNewDispatchingServer(ctx *context.T,
 	s.listen(s.ctx, ls)
 	stats.NewString(naming.Join(statsPrefix, "listenspec")).Set(fmt.Sprintf("%v", ls))
 	if len(name) > 0 {
+		s.names = []string{name}
 		s.publisher.AddName(name, s.servesMountTable, s.isLeaf)
 		vtrace.GetSpan(s.ctx).Annotate("Serving under name: " + name)
 	}
@@ -564,6 +566,7 @@ func (s *server) AddName(name string) error {
 	s.Lock()
 	defer s.Unlock()
 	vtrace.GetSpan(s.ctx).Annotate("Serving under name: " + name)
+	s.names = append(s.names, name)
 	s.publisher.AddName(name, s.servesMountTable, s.isLeaf)
 	return nil
 }
@@ -572,6 +575,12 @@ func (s *server) RemoveName(name string) {
 	s.Lock()
 	defer s.Unlock()
 	vtrace.GetSpan(s.ctx).Annotate("Removed name: " + name)
+	for i, n := range s.names {
+		if n == name {
+			s.names = append(s.names[:i], s.names[i+1:]...)
+			break
+		}
+	}
 	s.publisher.RemoveName(name)
 }
 
@@ -727,6 +736,23 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	return &req, nil
 }
 
+func (fs *flowServer) annotateSpan(span vtrace.Span) {
+	span.AnnotateMetadata("isServer", true, true)
+
+	span.AnnotateMetadata("client", fs.RemoteAddr().String(), true)
+	if len(fs.suffix) > 0 {
+		span.AnnotateMetadata("suffix", fs.suffix, true)
+	}
+	switch len(fs.server.names) {
+	case 0:
+	case 1:
+		span.AnnotateMetadata("service", fs.server.names[0], true)
+	default:
+		span.AnnotateMetadata("service", strings.Join(fs.server.names, ","), true)
+	}
+	span.AnnotateMetadata("method", fs.method, true)
+}
+
 // note that the error returned from processRequest will be sent to the client.
 func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	fs.starttime = time.Now()
@@ -748,7 +774,8 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		// a placeholder span so we can capture annotations.
 		// TODO(mattr): I'm not sure this makes sense anymore, but I'll revisit it
 		// when I'm doing another round of vtrace next quarter.
-		ctx, _ = vtrace.WithNewSpan(ctx, fmt.Sprintf("\"%s\".UNKNOWN", fs.suffix))
+		ctx, span := vtrace.WithNewSpan(ctx, fmt.Sprintf("\"%s\".UNKNOWN", fs.suffix))
+		fs.annotateSpan(span)
 		return ctx, nil, err
 	}
 
@@ -779,7 +806,9 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// on the server even if they will not be allowed to collect the
 	// results later.  This might be considered a DOS vector.
 	spanName := fmt.Sprintf("\"%s\".%s", fs.suffix, fs.method)
-	ctx, _ = vtrace.WithContinuedTrace(ctx, spanName, req.TraceRequest)
+	ctx, span := vtrace.WithContinuedTrace(ctx, spanName, req.TraceRequest)
+	fs.annotateSpan(span)
+
 	ctx = fs.flow.SetDeadlineContext(ctx, req.Deadline.Time)
 
 	if err := fs.readGrantedBlessings(ctx, req); err != nil {

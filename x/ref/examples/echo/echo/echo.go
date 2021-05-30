@@ -38,7 +38,7 @@ var (
 
 func init() {
 	flag.StringVar(&nameFlag, "name", os.ExpandEnv("users/${USER}/echod"), "Name of the server to connect to")
-	flag.StringVar(&serverFlag, "forward-to", "", "Name of server for the first server to forward the request, thus creating a chain")
+	flag.StringVar(&serverFlag, "forward-to", "", "Set of comma separated server's for echo server to forward the request to, thus creating a chain")
 	flag.BoolVar(&cancelFlag, "cancel", true, "Cancel every RPC context once it has returned successfully")
 	flag.DurationVar(&intervalFlag, "interval", time.Second, "Interval between client calls")
 	flag.DurationVar(&deadlineFlag, "deadline", time.Second*60, "Deadline for the rpc")
@@ -73,12 +73,18 @@ func main() {
 		close(done)
 	}()
 
+	servers := strings.Split(serverFlag, ",")
 	go func() {
 		nticks := 0
 		for range ticker.C {
 			ctx, cancel := context.WithTimeout(ctx, deadlineFlag)
 			ctx, span := vtrace.WithNewTrace(ctx, "echo.client")
-			err := callEcho(ctx, client, os.Stdout, serverFlag)
+			var err error
+			if len(servers) > 0 {
+				err = callPing(ctx, client, os.Stdout, servers)
+			} else {
+				err = callEcho(ctx, client, os.Stdout)
+			}
 			span.Finish(err)
 			if cancelFlag {
 				cancel()
@@ -105,17 +111,16 @@ func runHttpServer(ctx *context.T, addr string, client echo.EchoServiceClientStu
 	xrayHandler := xray.Handler(
 		xray.NewFixedSegmentNamer("http.echo.client"),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 			// Merge in any xray related data from the http request.
 			ctx = vxray.MergeHTTPRequestContext(ctx, r)
 
 			pars := r.URL.Query()["forward-to"]
-			server := ""
+			var err error
 			if len(pars) > 0 {
-				server = pars[0]
+				err = callPing(ctx, client, w, strings.Split(pars[0], ","))
+			} else {
+				err = callEcho(ctx, client, w)
 			}
-
-			err := callEcho(ctx, client, w, server)
 			if err != nil {
 				ctx.Errorf("error: %v", err)
 			}
@@ -132,12 +137,29 @@ func runHttpServer(ctx *context.T, addr string, client echo.EchoServiceClientStu
 	<-httpDone
 }
 
-func callEcho(ctx *context.T, client echo.EchoServiceClientStub, out io.Writer, forward string) error {
+func callEcho(ctx *context.T, client echo.EchoServiceClientStub, out io.Writer) error {
 	now := time.Now().Format(time.StampMicro)
 	if len(now) < sizeFlag {
 		now += strings.Repeat(" ", sizeFlag-len(now))
 	}
-	result, err := client.Echo(ctx, now, forward)
+	result, err := client.Echo(ctx, now)
+	if err != nil {
+		ctx.Errorf("%v.%v failed: %v", nameFlag, "ping", err)
+	}
+	if len(result) < 100 {
+		fmt.Fprintln(out, result)
+	} else {
+		fmt.Fprintf(out, "%s[...] %d bytes\n", result[:100], len(result))
+	}
+	return err
+}
+
+func callPing(ctx *context.T, client echo.EchoServiceClientStub, out io.Writer, servers []string) error {
+	now := time.Now().Format(time.StampMicro)
+	if len(now) < sizeFlag {
+		now += strings.Repeat(" ", sizeFlag-len(now))
+	}
+	result, err := client.Ping(ctx, now, servers)
 	if err != nil {
 		ctx.Errorf("%v.%v failed: %v", nameFlag, "ping", err)
 	}

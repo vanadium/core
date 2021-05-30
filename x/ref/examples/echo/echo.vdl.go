@@ -24,7 +24,9 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // EchoServiceClientMethods is the client interface
 // containing EchoService methods.
 type EchoServiceClientMethods interface {
-	Echo(_ *context.T, msg string, server string, _ ...rpc.CallOpt) (string, error)
+	Echo(_ *context.T, msg string, _ ...rpc.CallOpt) (string, error)
+	Ping(_ *context.T, msg string, servers []string, _ ...rpc.CallOpt) (string, error)
+	Pong(_ *context.T, msg string, servers []string, _ ...rpc.CallOpt) (string, error)
 }
 
 // EchoServiceClientStub embeds EchoServiceClientMethods and is a
@@ -42,15 +44,27 @@ type implEchoServiceClientStub struct {
 	name string
 }
 
-func (c implEchoServiceClientStub) Echo(ctx *context.T, i0 string, i1 string, opts ...rpc.CallOpt) (o0 string, err error) {
-	err = v23.GetClient(ctx).Call(ctx, c.name, "Echo", []interface{}{i0, i1}, []interface{}{&o0}, opts...)
+func (c implEchoServiceClientStub) Echo(ctx *context.T, i0 string, opts ...rpc.CallOpt) (o0 string, err error) {
+	err = v23.GetClient(ctx).Call(ctx, c.name, "Echo", []interface{}{i0}, []interface{}{&o0}, opts...)
+	return
+}
+
+func (c implEchoServiceClientStub) Ping(ctx *context.T, i0 string, i1 []string, opts ...rpc.CallOpt) (o0 string, err error) {
+	err = v23.GetClient(ctx).Call(ctx, c.name, "Ping", []interface{}{i0, i1}, []interface{}{&o0}, opts...)
+	return
+}
+
+func (c implEchoServiceClientStub) Pong(ctx *context.T, i0 string, i1 []string, opts ...rpc.CallOpt) (o0 string, err error) {
+	err = v23.GetClient(ctx).Call(ctx, c.name, "Pong", []interface{}{i0, i1}, []interface{}{&o0}, opts...)
 	return
 }
 
 // EchoServiceServerMethods is the interface a server writer
 // implements for EchoService.
 type EchoServiceServerMethods interface {
-	Echo(_ *context.T, _ rpc.ServerCall, msg string, server string) (string, error)
+	Echo(_ *context.T, _ rpc.ServerCall, msg string) (string, error)
+	Ping(_ *context.T, _ rpc.ServerCall, msg string, servers []string) (string, error)
+	Pong(_ *context.T, _ rpc.ServerCall, msg string, servers []string) (string, error)
 }
 
 // EchoServiceServerStubMethods is the server interface containing
@@ -88,8 +102,16 @@ type implEchoServiceServerStub struct {
 	gs   *rpc.GlobState
 }
 
-func (s implEchoServiceServerStub) Echo(ctx *context.T, call rpc.ServerCall, i0 string, i1 string) (string, error) {
-	return s.impl.Echo(ctx, call, i0, i1)
+func (s implEchoServiceServerStub) Echo(ctx *context.T, call rpc.ServerCall, i0 string) (string, error) {
+	return s.impl.Echo(ctx, call, i0)
+}
+
+func (s implEchoServiceServerStub) Ping(ctx *context.T, call rpc.ServerCall, i0 string, i1 []string) (string, error) {
+	return s.impl.Ping(ctx, call, i0, i1)
+}
+
+func (s implEchoServiceServerStub) Pong(ctx *context.T, call rpc.ServerCall, i0 string, i1 []string) (string, error) {
+	return s.impl.Pong(ctx, call, i0, i1)
 }
 
 func (s implEchoServiceServerStub) Globber() *rpc.GlobState {
@@ -111,8 +133,29 @@ var descEchoService = rpc.InterfaceDesc{
 		{
 			Name: "Echo",
 			InArgs: []rpc.ArgDesc{
-				{Name: "msg", Doc: ``},    // string
-				{Name: "server", Doc: ``}, // string
+				{Name: "msg", Doc: ``}, // string
+			},
+			OutArgs: []rpc.ArgDesc{
+				{Name: "", Doc: ``}, // string
+			},
+			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
+		},
+		{
+			Name: "Ping",
+			InArgs: []rpc.ArgDesc{
+				{Name: "msg", Doc: ``},     // string
+				{Name: "servers", Doc: ``}, // []string
+			},
+			OutArgs: []rpc.ArgDesc{
+				{Name: "", Doc: ``}, // string
+			},
+			Tags: []*vdl.Value{vdl.ValueOf(access.Tag("Read"))},
+		},
+		{
+			Name: "Pong",
+			InArgs: []rpc.ArgDesc{
+				{Name: "msg", Doc: ``},     // string
+				{Name: "servers", Doc: ``}, // []string
 			},
 			OutArgs: []rpc.ArgDesc{
 				{Name: "", Doc: ``}, // string
