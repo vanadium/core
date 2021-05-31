@@ -7,5 +7,7 @@ package echo
 import "v.io/v23/security/access"
 
 type EchoService interface {
-    Echo(msg string, server string) (string | error) {access.Read}
+    Echo(msg string) (string | error) {access.Read}
+    Ping(msg string, servers []string) (string | error) {access.Read}
+    Pong(msg string, servers []string) (string | error) {access.Read}
 }

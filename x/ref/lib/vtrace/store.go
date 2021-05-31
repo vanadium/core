@@ -160,6 +160,10 @@ func (s *Store) Annotate(traceid uniqueid.Id, span vtrace.SpanRecord, annotation
 	}
 }
 
+func (s *Store) AnnotateMetadata(traceid uniqueid.Id, span vtrace.SpanRecord, key string, value interface{}, indexed bool) error {
+	return nil
+}
+
 // method returns the collection method for the given trace.
 func (s *Store) Flags(id uniqueid.Id) vtrace.TraceFlags {
 	s.mu.Lock()
@@ -275,8 +279,8 @@ func (ts *traceStore) moveAfter(prev *traceStore) {
 
 func copySpanRecord(out, in *vtrace.SpanRecord) {
 	*out = *in
-	out.Metadata = make([]byte, len(in.Metadata))
-	copy(out.Metadata, in.Metadata)
+	out.RequestMetadata = make([]byte, len(in.RequestMetadata))
+	copy(out.RequestMetadata, in.RequestMetadata)
 	out.Annotations = make([]vtrace.Annotation, len(in.Annotations))
 	copy(out.Annotations, in.Annotations)
 }

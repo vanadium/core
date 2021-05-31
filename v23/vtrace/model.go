@@ -101,10 +101,18 @@ type Span interface {
 	// format and a are interpreted as with fmt.Printf.
 	Annotatef(format string, a ...interface{})
 
-	// SetMetadata appends metadata to be associated with this span and
+	// AnnotateMetadata can be used to associate key/value with the span. If
+	// indexed is false, the underlying implementation may create a searchable
+	// index using this metadata. However, indexing itself is an implementation
+	// specific feature and need be provided by every implementation.
+	// NOTE that metadata is not communicated back to the requestor and is
+	// intended for purely per-server/node use.
+	AnnotateMetadata(key string, value interface{}, indexed bool) error
+
+	// SetRequestMetadata appends metadata to be associated with this span and
 	// hence encoded in any RPC requests made by this span. The interpretation
-	// of the metdata is governed by
-	SetMetadata(metadata []byte)
+	// of the metdata is governed by the value of TraceFlags.
+	SetRequestMetadata(metadata []byte)
 
 	// Finish ends the span, marking the end time.  The span should
 	// not be used after Finish is called.
@@ -135,6 +143,7 @@ type Store interface {
 	// Merge merges a vtrace.Response into the current store.
 	Merge(response Response)
 
+	// Return the log level in effect for this trace.
 	LogLevel(traceid uniqueid.Id) int
 
 	Flags(traceid uniqueid.Id) TraceFlags
@@ -143,7 +152,12 @@ type Store interface {
 
 	Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time)
 
+	// Annotate records the requested annotation.
 	Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation)
+
+	// AnnotateMetadata records the requested key value data with optional
+	// indexing.
+	AnnotateMetadata(traceid uniqueid.Id, span SpanRecord, key string, value interface{}, indexed bool) error
 }
 
 type Manager interface {
@@ -278,11 +292,14 @@ func (emptySpan) ID() (id uniqueid.Id)                      { return }
 func (emptySpan) Parent() (id uniqueid.Id)                  { return }
 func (emptySpan) Annotate(s string)                         {}
 func (emptySpan) Annotatef(format string, a ...interface{}) {}
-func (emptySpan) SetMetadata([]byte)                        {}
-func (emptySpan) Finish(error)                              {}
-func (emptySpan) Trace() (id uniqueid.Id)                   { return }
-func (emptySpan) Store() Store                              { return nil }
-func (emptySpan) Request(*context.T) (req Request)          { return }
+func (emptySpan) AnnotateMetadata(key string, value interface{}, indexed bool) error {
+	return nil
+}
+func (emptySpan) SetRequestMetadata([]byte)        {}
+func (emptySpan) Finish(error)                     {}
+func (emptySpan) Trace() (id uniqueid.Id)          { return }
+func (emptySpan) Store() Store                     { return nil }
+func (emptySpan) Request(*context.T) (req Request) { return }
 
 type emptyStore struct{}
 
@@ -294,6 +311,9 @@ func (emptyStore) Start(traceid uniqueid.Id, span SpanRecord)   {}
 func (emptyStore) Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time) {}
 
 func (emptyStore) Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation) {}
-func (emptyStore) Merge(response Response)                                              {}
-func (emptyStore) LogLevel(traceid uniqueid.Id) int                                     { return 0 }
-func (emptyStore) Flags(traceid uniqueid.Id) TraceFlags                                 { return 0 }
+func (emptyStore) AnnotateMetadata(traceid uniqueid.Id, span SpanRecord, key string, value interface{}, indexed bool) error {
+	return nil
+}
+func (emptyStore) Merge(response Response)              {}
+func (emptyStore) LogLevel(traceid uniqueid.Id) int     { return 0 }
+func (emptyStore) Flags(traceid uniqueid.Id) TraceFlags { return 0 }

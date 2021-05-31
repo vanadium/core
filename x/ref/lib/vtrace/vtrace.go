@@ -21,7 +21,7 @@ import (
 // A span represents an annotated period of time.
 type span struct {
 	trace, id, parent uniqueid.Id
-	metadata          []byte
+	requestMetadata   []byte
 	name              string
 	start             time.Time
 	store             vtrace.Store
@@ -93,9 +93,21 @@ func (s *span) Annotatef(format string, a ...interface{}) {
 	s.annotate(fmt.Sprintf(format, a...))
 }
 
-func (s *span) SetMetadata(metadata []byte) {
-	s.metadata = make([]byte, len(metadata))
-	copy(s.metadata, metadata)
+func (s *span) AnnotateMetadata(key string, value interface{}, indexed bool) error {
+	return s.store.AnnotateMetadata(s.trace,
+		vtrace.SpanRecord{
+			Id:     s.id,
+			Parent: s.parent,
+			Name:   s.name,
+			Start:  s.start,
+		},
+		key, value, indexed,
+	)
+}
+
+func (s *span) SetRequestMetadata(metadata []byte) {
+	s.requestMetadata = make([]byte, len(metadata))
+	copy(s.requestMetadata, metadata)
 }
 
 func (s *span) Finish(err error) {
@@ -110,11 +122,11 @@ func (s *span) Finish(err error) {
 
 func (s *span) Request(ctx *context.T) vtrace.Request {
 	return vtrace.Request{
-		SpanId:   s.id,
-		TraceId:  s.trace,
-		Metadata: s.metadata,
-		Flags:    s.store.Flags(s.trace),
-		LogLevel: int32(GetVTraceLevel(ctx)),
+		SpanId:          s.id,
+		TraceId:         s.trace,
+		RequestMetadata: s.requestMetadata,
+		Flags:           s.store.Flags(s.trace),
+		LogLevel:        int32(GetVTraceLevel(ctx)),
 	}
 }
 

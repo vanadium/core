@@ -36,7 +36,7 @@ type xrayspan struct {
 func (xs *xrayspan) Annotate(msg string) {
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
-		xs.seg.AddAnnotation(now, msg)
+		xs.seg.AddMetadata(now, msg)
 	}
 	xs.Span.Annotate(msg)
 }
@@ -45,9 +45,19 @@ func (xs *xrayspan) Annotatef(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
-		xs.seg.AddAnnotation(now, msg)
+		xs.seg.AddMetadata(now, msg)
 	}
 	xs.Span.Annotate(msg)
+}
+
+func (xs *xrayspan) AnnotateMetadata(key string, value interface{}, indexed bool) error {
+	if xs.seg != nil {
+		if indexed {
+			return xs.seg.AddAnnotation(key, value)
+		}
+		return xs.seg.AddMetadata(key, value)
+	}
+	return xs.Span.AnnotateMetadata(key, value, indexed)
 }
 
 func segJSON(seg *xray.Segment) string {
@@ -61,6 +71,9 @@ func segJSON(seg *xray.Segment) string {
 func (xs *xrayspan) Finish(err error) {
 	if xs.seg == nil {
 		return
+	}
+	if err != nil {
+		xs.seg.AddMetadata("error", err.Error())
 	}
 	if xs.subseg {
 		vlog.Infof("FINISH: sub seg %v\n", segStr(xs.seg))
@@ -94,8 +107,6 @@ func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.S
 	name = sanitizeName(name)
 	_, seg := xray.NewSegmentFromHeader(ctx, name, nil, hdr)
 	ctx = WithSegment(ctx, seg)
-	ctx.Infof("WithNewTrace: %v", segStr(seg))
-	ctx.Infof("WithNewTrace: hdr: %v", hdr)
 	xs := &xrayspan{Span: newSpan, seg: seg}
 	return vtrace.WithSpan(ctx, xs), xs
 }
@@ -188,8 +199,8 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Requ
 	name = sanitizeName(name)
 	var seg *xray.Segment
 	var sub bool
-	if req.Flags&vtrace.AWSXRay != 0 && len(req.Metadata) > 0 {
-		reqHdr := string(req.Metadata)
+	if req.Flags&vtrace.AWSXRay != 0 && len(req.RequestMetadata) > 0 {
+		reqHdr := string(req.RequestMetadata)
 		hdr := header.FromString(reqHdr)
 		ctx = WithTraceHeader(ctx, hdr)
 		_, seg = xray.NewSegmentFromHeader(ctx, name, nil, hdr)
@@ -230,11 +241,11 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 func (m manager) GetRequest(ctx *context.T) vtrace.Request {
 	if span := vtrace.GetSpan(ctx); span != nil {
 		req := span.Request(ctx)
-		thdr := GetTraceHeader(ctx)
+		//thdr := GetTraceHeader(ctx)
 		if seg := GetSegment(ctx); seg != nil {
 			reqHdr := seg.DownstreamHeader()
-			ctx.Infof("GetRequest: ctxHdr %v: seg: %v, %v", thdr, segStr(seg), reqHdr.String())
-			req.Metadata = []byte(reqHdr.String())
+			//ctx.Infof("GetRequest: ctxHdr %v: seg: %v, %v", thdr, segStr(seg), reqHdr.String())
+			req.RequestMetadata = []byte(reqHdr.String())
 		}
 		return req
 	}

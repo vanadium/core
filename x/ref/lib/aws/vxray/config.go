@@ -50,8 +50,8 @@ func BeanstalkPlugin() Option {
 	}
 }
 
-// MergeLogging configures captureing xray logging and mergeing it with the
-// logs produced from the context used to initialize Xray.
+// MergeLogging arrays for xray logging messages to be merged with vanadium
+// log messages.
 func MergeLogging(v bool) Option {
 	return func(o *options) {
 		o.mergeLogging = v
