@@ -241,10 +241,8 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 func (m manager) GetRequest(ctx *context.T) vtrace.Request {
 	if span := vtrace.GetSpan(ctx); span != nil {
 		req := span.Request(ctx)
-		//thdr := GetTraceHeader(ctx)
 		if seg := GetSegment(ctx); seg != nil {
 			reqHdr := seg.DownstreamHeader()
-			//ctx.Infof("GetRequest: ctxHdr %v: seg: %v, %v", thdr, segStr(seg), reqHdr.String())
 			req.RequestMetadata = []byte(reqHdr.String())
 		}
 		return req
