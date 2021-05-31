@@ -738,8 +738,12 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 
 func (fs *flowServer) annotateSpan(span vtrace.Span) {
 	span.AnnotateMetadata("isServer", true, true)
-
-	span.AnnotateMetadata("client", fs.RemoteAddr().String(), true)
+	if fs == nil {
+		return
+	}
+	if addr := fs.RemoteAddr(); addr != nil {
+		span.AnnotateMetadata("clientAddr", fs.RemoteAddr().String(), true)
+	}
 	if len(fs.suffix) > 0 {
 		span.AnnotateMetadata("suffix", fs.suffix, true)
 	}

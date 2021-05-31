@@ -32,12 +32,13 @@ type T struct {
 	period time.Duration
 	closed chan struct{} // closed when the Publisher is closed
 
-	mu      sync.Mutex
-	changed chan struct{}
-	dirty   chan struct{}
-	names   map[string]nameAttr               // names that have been added
-	servers map[string]bool                   // servers that have been added
-	entries map[publishKey]rpc.PublisherEntry // map each (name,server) to its entry
+	mu          sync.Mutex
+	changed     chan struct{}
+	dirty       chan struct{}
+	names       map[string]nameAttr               // names that have been added
+	servers     map[string]bool                   // servers that have been added
+	entries     map[publishKey]rpc.PublisherEntry // map each (name,server) to its entry
+	cachedNames []string
 }
 
 type nameAttr struct {
