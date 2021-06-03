@@ -736,7 +736,7 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	return &req, nil
 }
 
-func (fs *flowServer) annotateSpan(span vtrace.Span) {
+func (fs *flowServer) annotateServerSpan(span vtrace.Span) {
 	span.AnnotateMetadata("isServer", true, true)
 	if fs == nil {
 		return
@@ -749,12 +749,35 @@ func (fs *flowServer) annotateSpan(span vtrace.Span) {
 	}
 	switch len(fs.server.names) {
 	case 0:
+		if fs.server.servesMountTable {
+			span.AnnotateMetadata("name", "mounttable", true)
+		}
 	case 1:
-		span.AnnotateMetadata("service", fs.server.names[0], true)
+		span.AnnotateMetadata("name", fs.server.names[0], true)
 	default:
-		span.AnnotateMetadata("service", strings.Join(fs.server.names, ","), true)
+		span.AnnotateMetadata("name", strings.Join(fs.server.names, ","), true)
 	}
 	span.AnnotateMetadata("method", fs.method, true)
+}
+
+func (fs *flowServer) spanName(method string) string {
+	// fs.method may not be set when this is called.
+	out := strings.Builder{}
+	switch len(fs.server.names) {
+	case 0:
+	case 1:
+		out.WriteString(fs.server.names[0])
+	default:
+		out.WriteString(fs.server.names[0])
+		out.WriteRune('+')
+	}
+	out.WriteRune(':')
+	if len(fs.suffix) > 0 {
+		out.WriteString(fs.suffix)
+	}
+	out.WriteRune('.')
+	out.WriteString(method)
+	return out.String()
 }
 
 // note that the error returned from processRequest will be sent to the client.
@@ -778,8 +801,8 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		// a placeholder span so we can capture annotations.
 		// TODO(mattr): I'm not sure this makes sense anymore, but I'll revisit it
 		// when I'm doing another round of vtrace next quarter.
-		ctx, span := vtrace.WithNewSpan(ctx, fmt.Sprintf("\"%s\".UNKNOWN", fs.suffix))
-		fs.annotateSpan(span)
+		ctx, span := vtrace.WithNewSpan(ctx, fs.spanName("UNKNOWN"))
+		fs.annotateServerSpan(span)
 		return ctx, nil, err
 	}
 
@@ -809,9 +832,9 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// TODO(mattr): Currently this allows users to trigger trace collection
 	// on the server even if they will not be allowed to collect the
 	// results later.  This might be considered a DOS vector.
-	spanName := fmt.Sprintf("\"%s\".%s", fs.suffix, fs.method)
+	spanName := fs.spanName(fs.method)
 	ctx, span := vtrace.WithContinuedTrace(ctx, spanName, req.TraceRequest)
-	fs.annotateSpan(span)
+	fs.annotateServerSpan(span)
 
 	ctx = fs.flow.SetDeadlineContext(ctx, req.Deadline.Time)
 
