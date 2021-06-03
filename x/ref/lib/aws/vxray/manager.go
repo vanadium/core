@@ -17,18 +17,20 @@ import (
 	"v.io/v23/uniqueid"
 	"v.io/v23/vtrace"
 
-	"v.io/x/lib/vlog"
 	libvtrace "v.io/x/ref/lib/vtrace"
 )
 
 // Manager allows you to create new traces and spans and access the
 // vtrace store that
-type manager struct{}
+type manager struct {
+	mapToHTTP bool
+}
 
 type xrayspan struct {
 	vtrace.Span
-	subseg bool
-	seg    *xray.Segment
+	subseg    bool
+	mapToHTTP bool
+	seg       *xray.Segment
 }
 
 // TODO(cnicolaou): figure out why annotations are not being recorded
@@ -36,7 +38,7 @@ type xrayspan struct {
 func (xs *xrayspan) Annotate(msg string) {
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
-		xs.seg.AddMetadata(now, msg)
+		xs.seg.AddMetadataToNamespace("vtrace", now, msg)
 	}
 	xs.Span.Annotate(msg)
 }
@@ -45,7 +47,7 @@ func (xs *xrayspan) Annotatef(format string, args ...interface{}) {
 	msg := fmt.Sprintf(format, args...)
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
-		xs.seg.AddMetadata(now, msg)
+		xs.seg.AddMetadataToNamespace("vtrace", now, msg)
 	}
 	xs.Span.Annotate(msg)
 }
@@ -55,7 +57,7 @@ func (xs *xrayspan) AnnotateMetadata(key string, value interface{}, indexed bool
 		if indexed {
 			return xs.seg.AddAnnotation(key, value)
 		}
-		return xs.seg.AddMetadata(key, value)
+		return xs.seg.AddMetadataToNamespace("vtrace", key, value)
 	}
 	return xs.Span.AnnotateMetadata(key, value, indexed)
 }
@@ -68,6 +70,16 @@ func segJSON(seg *xray.Segment) string {
 	return out.String()
 }
 
+func mapAnnotation(annotations map[string]interface{}, key string, to *string) {
+	v, ok := annotations[key]
+	if !ok {
+		return
+	}
+	if vs, ok := v.(string); ok {
+		*to = vs
+	}
+}
+
 func (xs *xrayspan) Finish(err error) {
 	if xs.seg == nil {
 		return
@@ -75,14 +87,20 @@ func (xs *xrayspan) Finish(err error) {
 	if err != nil {
 		xs.seg.AddMetadata("error", err.Error())
 	}
-	if xs.subseg {
-		vlog.Infof("FINISH: sub seg %v\n", segStr(xs.seg))
-		xs.seg.CloseAndStream(err)
-	} else {
-		vlog.Infof("FINISH: top seg %v\n", segStr(xs.seg))
-		xs.seg.Close(err)
+	xseg := xs.seg
+	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
+		hd := xseg.GetHTTP()
+		req := hd.GetRequest()
+		mapAnnotation(an, "name", &req.URL)
+		mapAnnotation(an, "method", &req.Method)
+		mapAnnotation(an, "clientAddr", &req.ClientIP)
+		req.UserAgent = "vanadium"
 	}
-	vlog.Infof("seg: %s", segJSON(xs.seg))
+	if xs.subseg {
+		xseg.CloseAndStream(err)
+	} else {
+		xseg.Close(err)
+	}
 	xs.Span.Finish(err)
 }
 
@@ -107,7 +125,7 @@ func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.S
 	name = sanitizeName(name)
 	_, seg := xray.NewSegmentFromHeader(ctx, name, nil, hdr)
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, seg: seg}
+	xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -129,7 +147,7 @@ var runeMap = map[rune]rune{
 	// Map common unsupported runes to something approximating them.
 	'<': ':',
 	'>': ':',
-	'"': '-',
+	//'"': '-',
 }
 
 // xray segment names are defined to be:
@@ -170,10 +188,10 @@ func newSegment(ctx *context.T, name string) (seg *xray.Segment, sub bool) {
 	hdr := GetTraceHeader(ctx)
 	if seg == nil {
 		_, seg = xray.BeginSegmentWithSampling(ctx, sanitized, nil, hdr)
-		ctx.Infof("new Top segment: %v", segStr(seg))
+		ctx.VI(1).Infof("new Top segment: %v", segStr(seg))
 	} else {
 		_, seg = xray.BeginSubsegment(ctx, sanitized)
-		ctx.Infof("new Sub segment: %v", segStr(seg))
+		ctx.VI(1).Infof("new Sub segment: %v", segStr(seg))
 		sub = true
 	}
 	return
@@ -204,14 +222,14 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Requ
 		hdr := header.FromString(reqHdr)
 		ctx = WithTraceHeader(ctx, hdr)
 		_, seg = xray.NewSegmentFromHeader(ctx, name, nil, hdr)
-		ctx.Infof("WithContinuedTrace: new seg from header %v / %v: %v", hdr.TraceID, hdr.ParentID, segStr(seg))
+		ctx.VI(1).Infof("WithContinuedTrace: new seg from header %v / %v: %v", hdr.TraceID, hdr.ParentID, segStr(seg))
 	} else {
 		seg, sub = newSegment(ctx, name)
-		ctx.Infof("WithContinuedTrace: new seg: %v", segStr(seg))
+		ctx.VI(1).Infof("WithContinuedTrace: new seg: %v", segStr(seg))
 	}
 
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, seg: seg, subseg: sub}
+	xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -227,12 +245,11 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 			ctx.Error(err)
 		}
 		seg, sub := newSegment(ctx, name)
-		ctx.Infof("WithNewSpan: new seg: %v", segStr(seg))
+		ctx.VI(1).Infof("WithNewSpan: new seg: %v", segStr(seg))
 		ctx = WithSegment(ctx, seg)
-		xs := &xrayspan{Span: newSpan, seg: seg, subseg: sub}
+		xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
 		return vtrace.WithSpan(ctx, xs), xs
 	}
-
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
 	return m.WithNewTrace(ctx, name)
 }

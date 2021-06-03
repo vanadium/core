@@ -177,11 +177,15 @@ func (c *client) Call(ctx *context.T, name, method string, inArgs, outArgs []int
 	}
 }
 
-func (c *client) startCall(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (rpc.ClientCall, error) {
-	ctx, span := vtrace.WithNewSpan(ctx, fmt.Sprintf("<rpc.Client>%q.%s", name, method))
+func annotateClientSpan(span vtrace.Span, name, method string) {
 	span.AnnotateMetadata("isClient", true, true)
 	span.AnnotateMetadata("name", name, true)
 	span.AnnotateMetadata("method", method, true)
+}
+
+func (c *client) startCall(ctx *context.T, name, method string, args []interface{}, connOpts *connectionOpts, opts []rpc.CallOpt) (rpc.ClientCall, error) {
+	ctx, span := vtrace.WithNewSpan(ctx, fmt.Sprintf("<rpc.Client>%q.%s", name, method))
+	annotateClientSpan(span, name, method)
 	r, err := c.connectToName(ctx, name, method, args, connOpts, opts)
 	if err != nil {
 		return nil, err
@@ -419,7 +423,9 @@ func (c *client) tryConnectToServer(
 	defer c.wg.Done()
 	status := &serverStatus{index: index, server: server}
 	var span vtrace.Span
-	ctx, span = vtrace.WithNewSpan(ctx, "<client>tryConnectToServer "+server)
+	ctx, span = vtrace.WithNewSpan(ctx, "<rpc.Client>tryConnectToServer")
+	span.Annotate(server)
+	annotateClientSpan(span, name, "tryConnectToServer")
 	defer func() {
 		ch <- status
 		span.Finish(nil)
