@@ -51,7 +51,7 @@ the game.
 
 func runPlayer(rootctx *context.T, env *cmdline.Env, args []string) error {
 	for {
-		ctx, _ := vtrace.WithNewTrace(rootctx, "rpsplayer")
+		ctx, _ := vtrace.WithNewTrace(rootctx, "rpsplayer", nil)
 		if selectOne([]string{"Initiate Game", "Wait For Challenge"}) == 0 {
 			initiateGame(ctx)
 		} else {

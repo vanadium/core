@@ -2,6 +2,16 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package vxray provides an implementation of vtrace that uses AWS'
+// xray service as its backend store. It is intended to be interoperable
+// with the AWS xray libraries in the sense that calling the xray libraries
+// directly should result in operations that affect the enclosing vtrace spans.
+//
+// Currently, due to the differing concepts in vtrace and xray, xray sampling
+// can only be configured on the name of a vtrace span. This is translated into
+// the xray 'ServiceName', other sampling fields (eg. url, method etc) can
+// not be used since the current implementation herein does not specify those
+// when a segment is created.
 package vxray
 
 import (

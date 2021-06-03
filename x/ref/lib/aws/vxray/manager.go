@@ -7,6 +7,8 @@ package vxray
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 	"time"
 	"unicode"
@@ -33,8 +35,6 @@ type xrayspan struct {
 	seg       *xray.Segment
 }
 
-// TODO(cnicolaou): figure out why annotations are not being recorded
-// on AWS.
 func (xs *xrayspan) Annotate(msg string) {
 	if xs.seg != nil {
 		now := time.Now().Format(time.StampMicro)
@@ -85,16 +85,19 @@ func (xs *xrayspan) Finish(err error) {
 		return
 	}
 	if err != nil {
-		xs.seg.AddMetadata("error", err.Error())
+		xs.seg.AddMetadataToNamespace("vtrace", "error", err.Error())
 	}
 	xseg := xs.seg
 	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
-		hd := xseg.GetHTTP()
-		req := hd.GetRequest()
-		mapAnnotation(an, "name", &req.URL)
-		mapAnnotation(an, "method", &req.Method)
-		mapAnnotation(an, "clientAddr", &req.ClientIP)
-		req.UserAgent = "vanadium"
+		if xseg.HTTP == nil || xseg.HTTP.Request == nil {
+			// Only create fake http fields if they have not already been set.
+			hd := xseg.GetHTTP()
+			req := hd.GetRequest()
+			mapAnnotation(an, "name", &req.URL)
+			mapAnnotation(an, "method", &req.Method)
+			mapAnnotation(an, "clientAddr", &req.ClientIP)
+			req.UserAgent = "vanadium"
+		}
 	}
 	if xs.subseg {
 		xseg.CloseAndStream(err)
@@ -108,7 +111,7 @@ func (xs *xrayspan) Finish(err error) {
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing. For example
 // this might be used to start background tasks.
-func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.Span) {
+func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
@@ -123,7 +126,8 @@ func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.S
 	}
 	ctx = WithTraceHeader(ctx, hdr)
 	name = sanitizeName(name)
-	_, seg := xray.NewSegmentFromHeader(ctx, name, nil, hdr)
+	sampling := translateSamplingHeader(sr)
+	_, seg := xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
 	ctx = WithSegment(ctx, seg)
 	xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg}
 	return vtrace.WithSpan(ctx, xs), xs
@@ -182,25 +186,12 @@ func segStr(seg *xray.Segment) string {
 	return fmt.Sprintf("%v: id: %v, parent: %v/%v, trace: %v (%v)", seg.Name, seg.ID, seg.ParentID, seg.ParentSegment.ID, seg.TraceID, getTraceID(seg))
 }
 
-func newSegment(ctx *context.T, name string) (seg *xray.Segment, sub bool) {
+func newSegment(ctx *context.T, name string, sampling *http.Request) (seg *xray.Segment, sub bool) {
 	sanitized := sanitizeName(name)
 	seg = GetSegment(ctx)
 	hdr := GetTraceHeader(ctx)
 	if seg == nil {
-		// TODO(cnicolaou): BeginSegmentWithSampling expects an
-		// *http.Request to use for sampling decisions, but the vtrace
-		// API does not allow for specifying metadata until after the
-		// segment is created. One option is to delay creating
-		// the xray segment until the span is finished, but that
-		// seems complicated given the nested structure of xray Segments
-		// and vtrace spans, especially given that xray may be used
-		// directly by libraries and server code. Another option is to
-		// create a new segment that's a copy of the existing one, including
-		// updating all subsegments, and evaluate that to see if it is to
-		// be sampled. If the code is left as is, then only the ServiceName
-		// can be used for sampling decisions. The TODO is to figure out what
-		// to do, if anything.
-		_, seg = xray.BeginSegmentWithSampling(ctx, sanitized, nil, hdr)
+		_, seg = xray.BeginSegmentWithSampling(ctx, sanitized, sampling, hdr)
 		ctx.VI(1).Infof("new Top segment: %v", segStr(seg))
 	} else {
 		_, seg = xray.BeginSubsegment(ctx, sanitized)
@@ -210,11 +201,22 @@ func newSegment(ctx *context.T, name string) (seg *xray.Segment, sub bool) {
 	return
 }
 
+func translateSamplingHeader(sr *vtrace.SamplingRequest) *http.Request {
+	if sr == nil {
+		return nil
+	}
+	return &http.Request{
+		Method: sr.Method,
+		Host:   sr.Local,
+		URL:    &url.URL{Path: sr.Name},
+	}
+}
+
 // WithContinuedTrace creates a span that represents a continuation of
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Request) (*context.T, vtrace.Span) {
+func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest, req vtrace.Request) (*context.T, vtrace.Span) {
 	st := vtrace.GetStore(ctx)
 	if st == nil {
 		panic("nil store")
@@ -227,6 +229,8 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Requ
 		ctx.Error(err)
 	}
 
+	sampling := translateSamplingHeader(sr)
+
 	name = sanitizeName(name)
 	var seg *xray.Segment
 	var sub bool
@@ -234,10 +238,10 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Requ
 		reqHdr := string(req.RequestMetadata)
 		hdr := header.FromString(reqHdr)
 		ctx = WithTraceHeader(ctx, hdr)
-		_, seg = xray.NewSegmentFromHeader(ctx, name, nil, hdr)
+		_, seg = xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
 		ctx.VI(1).Infof("WithContinuedTrace: new seg from header %v / %v: %v", hdr.TraceID, hdr.ParentID, segStr(seg))
 	} else {
-		seg, sub = newSegment(ctx, name)
+		seg, sub = newSegment(ctx, name, sampling)
 		ctx.VI(1).Infof("WithContinuedTrace: new seg: %v", segStr(seg))
 	}
 
@@ -257,14 +261,14 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 		if err != nil {
 			ctx.Error(err)
 		}
-		seg, sub := newSegment(ctx, name)
+		seg, sub := newSegment(ctx, name, nil)
 		ctx.VI(1).Infof("WithNewSpan: new seg: %v", segStr(seg))
 		ctx = WithSegment(ctx, seg)
 		xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
 		return vtrace.WithSpan(ctx, xs), xs
 	}
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
-	return m.WithNewTrace(ctx, name)
+	return m.WithNewTrace(ctx, name, nil)
 }
 
 // Request generates a vtrace.Request from the active Span.

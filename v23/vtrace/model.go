@@ -165,13 +165,13 @@ type Manager interface {
 	// other span.  This is useful when starting operations that are
 	// disconnected from the activity ctx is performing.  For example
 	// this might be used to start background tasks.
-	WithNewTrace(ctx *context.T, name string) (*context.T, Span)
+	WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span)
 
 	// WithContinuedTrace creates a span that represents a continuation of
 	// a trace from a remote server.  name is the name of the new span and
 	// req contains the parameters needed to connect this span with it's
 	// trace.
-	WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span)
+	WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span)
 
 	// WithNewSpan derives a context with a new Span that can be used to
 	// trace and annotate operations across process boundaries.
@@ -204,20 +204,30 @@ func manager(ctx *context.T) Manager {
 	return manager
 }
 
+// SamplingRequest can be used to make sampling decisions about a trace.
+// It is always optional and its behaviour is implementation dependent.
+// Similarly, each of the individual fields is optional. The SamplingRequest
+// is not (currently) included in the vtrace span.
+type SamplingRequest struct {
+	Local  string // The address/name of the local host generating this trace.
+	Name   string // The name the traced service is available as, may differ from the name of the span.
+	Method string // The method being invoked.
+}
+
 // WithNewTrace creates a new vtrace context that is not the child of any
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func WithNewTrace(ctx *context.T, name string) (*context.T, Span) {
-	return manager(ctx).WithNewTrace(ctx, name)
+func WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span) {
+	return manager(ctx).WithNewTrace(ctx, name, sr)
 }
 
 // WithContinuedTrace creates a span that represents a continuation of
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span) {
-	return manager(ctx).WithContinuedTrace(ctx, name, req)
+func WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span) {
+	return manager(ctx).WithContinuedTrace(ctx, name, sr, req)
 }
 
 // WithNewSpan derives a context with a new Span that can be used to
@@ -272,10 +282,10 @@ func GetResponse(ctx *context.T) Response {
 
 type emptyManager struct{}
 
-func (emptyManager) WithNewTrace(ctx *context.T, name string) (*context.T, Span) {
+func (emptyManager) WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
-func (emptyManager) WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span) {
+func (emptyManager) WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
 func (emptyManager) WithNewSpan(ctx *context.T, name string) (*context.T, Span) {

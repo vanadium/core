@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"path"
 	"reflect"
 	"strings"
 	"sync"
@@ -736,48 +737,64 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 	return &req, nil
 }
 
-func (fs *flowServer) annotateServerSpan(span vtrace.Span) {
+func (fs *flowServer) annotateServerSpan(span vtrace.Span, name string) {
 	span.AnnotateMetadata("isServer", true, true)
 	if fs == nil {
 		return
 	}
+	span.AnnotateMetadata("remoteEndpoint", fs.RemoteEndpoint().String(), true)
 	if addr := fs.RemoteAddr(); addr != nil {
 		span.AnnotateMetadata("clientAddr", fs.RemoteAddr().String(), true)
 	}
+	span.AnnotateMetadata("localEndpoint", fs.LocalEndpoint().String(), true)
 	if len(fs.suffix) > 0 {
 		span.AnnotateMetadata("suffix", fs.suffix, true)
 	}
+	span.AnnotateMetadata("name", name, true)
+	if len(fs.server.names) > 1 {
+		span.AnnotateMetadata("names", strings.Join(fs.server.names[1:], ","), true)
+	}
+	if blessings := fs.RemoteBlessings(); !blessings.IsZero() {
+		span.AnnotateMetadata("remotePublicKey", blessings.PublicKey().String(), true)
+		span.AnnotateMetadata("remoteBlessings", blessings.String(), true)
+	}
+	if blessings := fs.GrantedBlessings(); !blessings.IsZero() {
+		span.AnnotateMetadata("grantedPublicKey", blessings.PublicKey().String(), true)
+		span.AnnotateMetadata("grantedBlessings", blessings.String(), true)
+	}
+}
+
+func (fs *flowServer) spanConfig(method string) (string, vtrace.SamplingRequest) {
+	// fs.method may not be set when this is called.
+	out := strings.Builder{}
+	name := ""
 	switch len(fs.server.names) {
 	case 0:
 		if fs.server.servesMountTable {
-			span.AnnotateMetadata("name", "mounttable", true)
+			name = "mounttable"
 		}
 	case 1:
-		span.AnnotateMetadata("name", fs.server.names[0], true)
-	default:
-		span.AnnotateMetadata("name", strings.Join(fs.server.names, ","), true)
-	}
-	span.AnnotateMetadata("method", fs.method, true)
-}
-
-func (fs *flowServer) spanName(method string) string {
-	// fs.method may not be set when this is called.
-	out := strings.Builder{}
-	switch len(fs.server.names) {
-	case 0:
-	case 1:
 		out.WriteString(fs.server.names[0])
+		name = fs.server.names[0]
 	default:
 		out.WriteString(fs.server.names[0])
+		name = fs.server.names[0]
 		out.WriteRune('+')
 	}
-	out.WriteRune(':')
 	if len(fs.suffix) > 0 {
+		if len(name) > 0 {
+			out.WriteRune('/')
+		}
 		out.WriteString(fs.suffix)
+		name = path.Join(name, fs.suffix)
 	}
 	out.WriteRune('.')
 	out.WriteString(method)
-	return out.String()
+	return out.String(), vtrace.SamplingRequest{
+		Local:  fs.LocalEndpoint().Address,
+		Name:   name,
+		Method: method,
+	}
 }
 
 // note that the error returned from processRequest will be sent to the client.
@@ -801,8 +818,9 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 		// a placeholder span so we can capture annotations.
 		// TODO(mattr): I'm not sure this makes sense anymore, but I'll revisit it
 		// when I'm doing another round of vtrace next quarter.
-		ctx, span := vtrace.WithNewSpan(ctx, fs.spanName("UNKNOWN"))
-		fs.annotateServerSpan(span)
+		sn, _ := fs.spanConfig("UNKNOWN")
+		ctx, span := vtrace.WithNewSpan(ctx, sn)
+		fs.annotateServerSpan(span, sn)
 		return ctx, nil, err
 	}
 
@@ -832,9 +850,9 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// TODO(mattr): Currently this allows users to trigger trace collection
 	// on the server even if they will not be allowed to collect the
 	// results later.  This might be considered a DOS vector.
-	spanName := fs.spanName(fs.method)
-	ctx, span := vtrace.WithContinuedTrace(ctx, spanName, req.TraceRequest)
-	fs.annotateServerSpan(span)
+	sn, sr := fs.spanConfig(fs.method)
+	ctx, span := vtrace.WithContinuedTrace(ctx, sn, &sr, req.TraceRequest)
+	fs.annotateServerSpan(span, sn)
 
 	ctx = fs.flow.SetDeadlineContext(ctx, req.Deadline.Time)
 

@@ -28,7 +28,7 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 	b.ResetTimer()                     // Exclude setup time from measurement.
 
 	for i := 0; i < iterations; i++ {
-		ictx, span := vtrace.WithNewTrace(ctx, fmt.Sprintf("iter: % 8d", i))
+		ictx, span := vtrace.WithNewTrace(ctx, fmt.Sprintf("iter: % 8d", i), nil)
 		b.StartTimer()
 		start := time.Now()
 

@@ -8,11 +8,8 @@
 package main
 
 import (
-	"github.com/aws/aws-xray-sdk-go/xray"
-	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
-	"v.io/x/ref/lib/aws/vxray"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/mounttable/mounttablelib"
@@ -37,6 +34,5 @@ v.io/v23/services/mounttable interfaces.
 }
 
 func run(ctx *context.T, env *cmdline.Env, args []string) error {
-	ctx, _ = vxray.InitXRay(ctx, v23.GetRuntimeFlags().VtraceFlags, xray.Config{ServiceVersion: ""}, vxray.EC2Plugin(), vxray.MergeLogging(true))
 	return mounttablelib.MainWithCtx(ctx, opts)
 }
