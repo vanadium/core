@@ -738,11 +738,14 @@ func (fs *flowServer) readRPCRequest(ctx *context.T) (*rpc.Request, error) {
 }
 
 func (fs *flowServer) annotateServerSpan(span vtrace.Span, name string) {
+	// NOTE that: name, method and clientAddr are used by the vxray package
+	// as noted below.
 	span.AnnotateMetadata("isServer", true, true)
 	if fs == nil {
 		return
 	}
 	span.AnnotateMetadata("remoteEndpoint", fs.RemoteEndpoint().String(), true)
+	// Used by x/ref/lib/vxray - do not change.
 	if addr := fs.RemoteAddr(); addr != nil {
 		span.AnnotateMetadata("clientAddr", fs.RemoteAddr().String(), true)
 	}
@@ -750,10 +753,13 @@ func (fs *flowServer) annotateServerSpan(span vtrace.Span, name string) {
 	if len(fs.suffix) > 0 {
 		span.AnnotateMetadata("suffix", fs.suffix, true)
 	}
+	// Used by x/ref/lib/vxray - do not change.
 	span.AnnotateMetadata("name", name, true)
 	if len(fs.server.names) > 1 {
 		span.AnnotateMetadata("names", strings.Join(fs.server.names[1:], ","), true)
 	}
+	// Used by x/ref/lib/vxray - do not change.
+	span.AnnotateMetadata("method", fs.method, true)
 	if blessings := fs.RemoteBlessings(); !blessings.IsZero() {
 		span.AnnotateMetadata("remotePublicKey", blessings.PublicKey().String(), true)
 		span.AnnotateMetadata("remoteBlessings", blessings.String(), true)

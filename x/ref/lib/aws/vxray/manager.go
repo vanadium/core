@@ -30,6 +30,7 @@ type manager struct {
 
 type xrayspan struct {
 	vtrace.Span
+	ctx       *context.T
 	subseg    bool
 	mapToHTTP bool
 	seg       *xray.Segment
@@ -70,6 +71,10 @@ func segJSON(seg *xray.Segment) string {
 	return out.String()
 }
 
+func segStr(seg *xray.Segment) string {
+	return fmt.Sprintf("%v: id: %v, parent: %v/%v, trace: %v (%v)", seg.Name, seg.ID, seg.ParentID, seg.ParentSegment.ID, seg.TraceID, getTraceID(seg))
+}
+
 func mapAnnotation(annotations map[string]interface{}, key string, to *string) {
 	v, ok := annotations[key]
 	if !ok {
@@ -104,6 +109,7 @@ func (xs *xrayspan) Finish(err error) {
 	} else {
 		xseg.Close(err)
 	}
+	xs.ctx.VI(1).Infof("Finish: sampled %v, %v", xseg.Sampled, segJSON(xseg))
 	xs.Span.Finish(err)
 }
 
@@ -129,7 +135,7 @@ func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRe
 	sampling := translateSamplingHeader(sr)
 	_, seg := xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg}
+	xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -151,7 +157,8 @@ var runeMap = map[rune]rune{
 	// Map common unsupported runes to something approximating them.
 	'<': ':',
 	'>': ':',
-	//'"': '-',
+
+	// All other runes are silently dropped.
 }
 
 // xray segment names are defined to be:
@@ -180,10 +187,6 @@ func getTraceID(seg *xray.Segment) string {
 		return "none"
 	}
 	return seg.TraceID
-}
-
-func segStr(seg *xray.Segment) string {
-	return fmt.Sprintf("%v: id: %v, parent: %v/%v, trace: %v (%v)", seg.Name, seg.ID, seg.ParentID, seg.ParentSegment.ID, seg.TraceID, getTraceID(seg))
 }
 
 func newSegment(ctx *context.T, name string, sampling *http.Request) (seg *xray.Segment, sub bool) {
@@ -246,7 +249,7 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.Samp
 	}
 
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
+	xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -264,7 +267,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 		seg, sub := newSegment(ctx, name, nil)
 		ctx.VI(1).Infof("WithNewSpan: new seg: %v", segStr(seg))
 		ctx = WithSegment(ctx, seg)
-		xs := &xrayspan{Span: newSpan, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
+		xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
 		return vtrace.WithSpan(ctx, xs), xs
 	}
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")

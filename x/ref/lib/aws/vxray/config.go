@@ -59,7 +59,7 @@ func MergeLogging(v bool) Option {
 	}
 }
 
-// MapToHTTP maps vtrace fields/concepts to xray's http.Request
+// MapToHTTP maps vtrace fields/concepts to xray's http-centric xray.RequestData
 // fields. This relies on knowledge of how the vanadium runtime
 // encodes metadata in a span. In particular, it assumes that
 // metadata values are set for:
@@ -68,6 +68,11 @@ func MergeLogging(v bool) Option {
 //                       this is informational only since xray has limits on
 //                       the length of a method name.
 //    - clientAddr string // the client invoking the rpc, maps to clientip.
+//    The user agent is set to vanadium.
+// NOTE that this mapping will only occur if there is no existing xray.RequestData
+// encoded in the segment. This allows for xray segments created directly by
+// xray API calls prior to spans being created to be supported without losing
+// any of the original HTTP request data encoded therein.
 func MapToHTTP(v bool) Option {
 	return func(o *options) {
 		o.mapToHTTP = v
