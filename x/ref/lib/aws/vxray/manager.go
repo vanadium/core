@@ -187,6 +187,19 @@ func newSegment(ctx *context.T, name string) (seg *xray.Segment, sub bool) {
 	seg = GetSegment(ctx)
 	hdr := GetTraceHeader(ctx)
 	if seg == nil {
+		// TODO(cnicolaou): BeginSegmentWithSampling expects an
+		// *http.Request to use for sampling decisions, but the vtrace
+		// API does not allow for specifying metadata until after the
+		// segment is created. One option is to delay creating
+		// the xray segment until the span is finished, but that
+		// seems complicated given the nested structure of xray Segments
+		// and vtrace spans, especially given that xray may be used
+		// directly by libraries and server code. Another option is to
+		// create a new segment that's a copy of the existing one, including
+		// updating all subsegments, and evaluate that to see if it is to
+		// be sampled. If the code is left as is, then only the ServiceName
+		// can be used for sampling decisions. The TODO is to figure out what
+		// to do, if anything.
 		_, seg = xray.BeginSegmentWithSampling(ctx, sanitized, nil, hdr)
 		ctx.VI(1).Infof("new Top segment: %v", segStr(seg))
 	} else {
