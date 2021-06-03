@@ -27,7 +27,7 @@ func CallEcho(octx *context.T, server string, payloadSize int, duration time.Dur
 	var iterations uint64
 	start := time.Now()
 	for {
-		ctx, _ := vtrace.WithNewTrace(octx, "CallEcho")
+		ctx, _ := vtrace.WithNewTrace(octx, "CallEcho", nil)
 		got, err := stub.Echo(ctx, payload)
 		if err != nil {
 			ctx.Fatalf("Echo failed: %v", err)

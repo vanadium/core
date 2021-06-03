@@ -138,7 +138,7 @@ type manager struct{}
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.Span) {
+func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
@@ -155,7 +155,7 @@ func (m manager) WithNewTrace(ctx *context.T, name string) (*context.T, vtrace.S
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Request) (*context.T, vtrace.Span) {
+func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest, req vtrace.Request) (*context.T, vtrace.Span) {
 	st := vtrace.GetStore(ctx)
 	if st == nil {
 		panic("nil store")
@@ -185,7 +185,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 	}
 
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
-	return m.WithNewTrace(ctx, name)
+	return m.WithNewTrace(ctx, name, nil)
 }
 
 // Request generates a vtrace.Request from the active Span.

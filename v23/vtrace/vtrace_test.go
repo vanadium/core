@@ -33,10 +33,10 @@ func TestNoPanic(t *testing.T) {
 	defer cancel()
 	initialctx := ctx
 
-	ctx, span := WithNewTrace(ctx, "TestNoPanic")
+	ctx, span := WithNewTrace(ctx, "TestNoPanic", nil)
 	spanNoPanic(span)
 
-	ctx, span = WithContinuedTrace(ctx, "", Request{})
+	ctx, span = WithContinuedTrace(ctx, "", nil, Request{})
 	spanNoPanic(span)
 	spanNoPanic(GetSpan(ctx))
 	GetRequest(ctx)

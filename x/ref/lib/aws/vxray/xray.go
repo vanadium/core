@@ -2,6 +2,48 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package vxray provides an implementation of vtrace that uses AWS'
+// xray service as its backend store. It is intended to be interoperable
+// with the AWS xray libraries in the sense that calling the xray libraries
+// directly should result in operations that affect the enclosing vtrace spans.
+// Similarly, use of the xray http handlers will result in any spans from local
+// or remote nested operations being associated with that newly created trace.
+//
+// vxray is installed on a per-context basis, via the InitXRay function:
+//
+//     ctx, _ = vxray.InitXRay(ctx,
+//                             v23.GetRuntimeFlags().VtraceFlags,
+//                             xray.Config{ServiceVersion: ""},
+//                             vxray.EC2Plugin(),
+//                             vxray.MergeLogging(true))
+//
+// Once so initialized any spans created using the returned context
+// will be backed by xray. All of the existing vtrace functionality is
+// supported by the vxray spans.
+//
+// xray is http centric and makes sampling decisions when a new trace/segment
+// is created. The vtrace.SamplingRequest struct is mapped to the http
+// primites that xray expects. In particular:
+//     SamplingRequest.Local is mapped to http.Request.Host
+//     SamplingRequest.Name is mapped to http.Request.URL.Path
+//     SamplingRequest.Method is mapped to http.Request.Method
+// These mappings are used purely for sampling decisions, in addition,
+// the name of the top-level span, is treated as the xray ServiceName can
+// also be used for sampling decisions. Note that SamplingRequest.Name need
+// not be the same as the name of the span. Also note that the Method can
+// be any Vanadium method and not one of the pre-defined HTTP methods. This
+// appears to work fine with xray since its implementation just compares
+// the wildcarded strings. However, the xray console has a limit (10) on the
+// length of the methods that can be specified and hence wild cards must be
+// used instead; e.g. ResolveSt* rather than ResolveStep. This restriction
+// may not apply to sampling rules created programmatically.
+//
+// The Vanadium RPC runtime creates spans for client and server calls and
+// when doing so associates metadata which them that can is both passed
+// through to xray as well as, optionally, being interpreted by this package.
+// In particular, if the MapToHTTP option is set, (it is the default), then
+// some of these annotations (see the comment for MapToHTTP) will translated
+// into xray.HTTPData fields.
 package vxray
 
 import (

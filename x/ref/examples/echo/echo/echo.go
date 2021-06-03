@@ -74,11 +74,19 @@ func main() {
 	}()
 
 	servers := strings.Split(serverFlag, ",")
+	samplingRequest := &vtrace.SamplingRequest{
+		Name: nameFlag,
+	}
+	if len(servers) > 0 {
+		samplingRequest.Method = "Ping"
+	} else {
+		samplingRequest.Method = "Echo"
+	}
 	go func() {
 		nticks := 0
 		for range ticker.C {
 			ctx, cancel := context.WithTimeout(ctx, deadlineFlag)
-			ctx, span := vtrace.WithNewTrace(ctx, "echo.client")
+			ctx, span := vtrace.WithNewTrace(ctx, "echo.client", samplingRequest)
 			var err error
 			if len(servers) > 0 {
 				err = callPing(ctx, client, os.Stdout, servers)
