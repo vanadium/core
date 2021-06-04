@@ -122,10 +122,7 @@ func Init(
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	sr := vtrace.SamplingRequest{
-		// TODO(cnicolaou): fill in the local address.
-	}
-	ctx, _ = vtrace.WithNewTrace(ctx, "", &sr)
+	ctx, _ = vtrace.WithNewTrace(ctx, flags.VtraceFlags.RootSpanName, nil)
 	err = r.addChild(ctx, vtraceDependency{}, func() {
 		vtrace.FormatTraces(os.Stderr, vtrace.GetStore(ctx).TraceRecords(), nil)
 	})

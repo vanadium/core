@@ -71,6 +71,7 @@
 package vtrace
 
 import (
+	"fmt"
 	"time"
 
 	"v.io/v23/context"
@@ -253,7 +254,7 @@ func GetSpan(ctx *context.T) Span {
 	return span
 }
 
-// VtraceStore returns the current Store.
+// GetStore returns the current Store.
 func GetStore(ctx *context.T) Store {
 	store, _ := ctx.Value(storeKey{}).(Store)
 	if store == nil {
@@ -267,6 +268,7 @@ func GetStore(ctx *context.T) Store {
 func ForceCollect(ctx *context.T, level int) {
 	store, _ := ctx.Value(storeKey{}).(Store)
 	span, _ := ctx.Value(spanKey{}).(Span)
+	fmt.Printf("STORE: %p, span %p - trace %v\n", store, span, span.Trace())
 	store.ForceCollect(span.Trace(), level)
 }
 

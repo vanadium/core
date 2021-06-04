@@ -23,8 +23,10 @@ import (
 )
 
 type options struct {
-	mergeLogging bool
-	mapToHTTP    bool
+	mergeLogging  bool
+	mapToHTTP     bool
+	newStore      bool
+	newStoreFlags flags.VtraceFlags
 }
 
 // Option represents an option to InitXRay.
@@ -56,6 +58,15 @@ func BeanstalkPlugin() Option {
 func MergeLogging(v bool) Option {
 	return func(o *options) {
 		o.mergeLogging = v
+	}
+}
+
+// WithNewStore requests that a new vtrace.Store be created and stored
+// in the context returned by InitXRay.
+func WithNewStore(vflags flags.VtraceFlags) Option {
+	return func(o *options) {
+		o.newStore = true
+		o.newStoreFlags = vflags
 	}
 }
 
@@ -110,26 +121,28 @@ func initXRay(ctx *context.T, config xray.Config, opts []Option) (*context.T, *o
 	return ctx, o, err
 }
 
-func initVTraceForXRay(ctx *context.T, vopts flags.VtraceFlags, opts *options) (*context.T, error) {
-	store, err := libvtrace.NewStore(vopts)
-	if err != nil {
-		return ctx, err
-	}
-	mgr := &manager{mapToHTTP: opts.mapToHTTP}
-	ctx = vtrace.WithManager(ctx, mgr)
-	ctx = vtrace.WithStore(ctx, store)
-	return ctx, nil
-}
-
 // InitXRay configures the AWS xray service and returns a context containing
-// the xray configuration. This should only be called once.
-func InitXRay(ctx *context.T, vopts flags.VtraceFlags, config xray.Config, opts ...Option) (*context.T, error) {
-	if !vopts.EnableAWSXRay {
+// the xray configuration. This should only be called once. The vflags argument
+// is used solely to check if xray tracing is enabled and not to create a
+// new vtrace.Store, if a new store is required, the
+func InitXRay(ctx *context.T, vflags flags.VtraceFlags, config xray.Config, opts ...Option) (*context.T, error) {
+	if !vflags.EnableAWSXRay {
 		return ctx, nil
 	}
+	octx := ctx
 	ctx, options, err := initXRay(ctx, config, opts)
 	if err != nil {
-		return ctx, err
+		return octx, err
 	}
-	return initVTraceForXRay(ctx, vopts, options)
+
+	if options.newStore {
+		store, err := libvtrace.NewStore(options.newStoreFlags)
+		if err != nil {
+			return octx, err
+		}
+		ctx = vtrace.WithStore(ctx, store)
+	}
+	mgr := &manager{mapToHTTP: options.mapToHTTP}
+	ctx = vtrace.WithManager(ctx, mgr)
+	return ctx, nil
 }

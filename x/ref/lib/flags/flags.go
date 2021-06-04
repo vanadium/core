@@ -25,6 +25,8 @@ const (
 	// --v23.vtrace.dump-on-shutdown
 	// --v23.vtrace.cache-size
 	// --v23.vtrace.collect-regexp
+	// --v23.vtrace.enable-aws-xray
+	// --v23.vtrace.root-span-name
 	Runtime FlagGroup = iota
 	// Listen identifies the flags typically required to configure
 	// rpc.ListenSpec. Namely:
@@ -104,6 +106,8 @@ type VtraceFlags struct {
 	CollectRegexp string `cmdline:"v23.vtrace.collect-regexp,,Spans and annotations that match this regular expression will trigger trace collection"`
 
 	EnableAWSXRay bool `cmdline:"v23.vtrace.enable-aws-xray,false,Enable the use of AWS x-ray integration with vtrace"`
+
+	RootSpanName string `cmdline:"v23.vtrace.root-span-name,,Set the name of the root vtrace span created by the runtime at startup"`
 }
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
