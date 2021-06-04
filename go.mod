@@ -3,11 +3,16 @@ module v.io
 go 1.16
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.3.3
+	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/aws/aws-sdk-go v1.38.24 // indirect
+	github.com/aws/aws-xray-sdk-go v1.3.0
+	github.com/cosnicolaou/go-bindata/v3 v3.0.8 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/websocket v1.4.2
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.8
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/pborman/uuid v1.2.0

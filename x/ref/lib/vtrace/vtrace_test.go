@@ -21,8 +21,8 @@ import (
 	"v.io/v23/vtrace"
 	"v.io/x/ref/lib/flags"
 	_ "v.io/x/ref/lib/security/securityflag"
+	ivtrace "v.io/x/ref/lib/vtrace"
 	_ "v.io/x/ref/runtime/factories/generic"
-	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/testutil"
 )
@@ -104,7 +104,7 @@ func runCallChain(t *testing.T, ctx *context.T, idp *testutil.IDProvider, force1
 		t.Error(err)
 	}
 	span.Annotate("c0-end")
-	span.Finish()
+	span.Finish(nil)
 
 	return vtrace.GetStore(ctx).TraceRecord(span.Trace())
 }
@@ -142,7 +142,7 @@ func makeTestServer(ctx *context.T, principal security.Principal, name string) (
 	if err != nil {
 		return nil, nil, err
 	}
-	ctx, _ = vtrace.WithNewTrace(ctx)
+	ctx, _ = vtrace.WithNewTrace(ctx, "testServer", nil)
 	ctx, err = v23.WithPrincipal(ctx, principal)
 	if err != nil {
 		return nil, nil, err
@@ -243,7 +243,7 @@ func expectSequence(t *testing.T, trace vtrace.TraceRecord, expectedSpans []stri
 				t.Errorf("span end should be after start: %x\n%s", span.Id[12:], traceString(&trace))
 			}
 		}
-		// Spans should decend from the previous span in the list.
+		// Spans should descend from the previous span in the list.
 		if i == 0 {
 			continue
 		}
@@ -265,13 +265,13 @@ func TestTraceAcrossRPCs(t *testing.T) {
 	expectSequence(t, *record, []string{
 		": c0-begin, c0-end",
 		"<rpc.Client>\"c1\".Run",
-		"\"\".Run: c1-begin, c1-end",
+		"c1.Run: c1-begin, c1-end",
 		"<rpc.Client>\"c2\".Run",
-		"\"\".Run: c2-begin, c2-end",
+		"c2.Run: c2-begin, c2-end",
 	})
 }
 
-// TestCancellationPropagationLateForce tests that cancellation propagates along an
+// TestTraceAcrossRPCsLateForce tests that cancellation propagates along an
 // RPC call chain when tracing is initiated by someone deep in the call chain.
 func TestTraceAcrossRPCsLateForce(t *testing.T) {
 	ctx, shutdown, idp := initForTest(t)
@@ -282,9 +282,9 @@ func TestTraceAcrossRPCsLateForce(t *testing.T) {
 	expectSequence(t, *record, []string{
 		": c0-end",
 		"<rpc.Client>\"c1\".Run",
-		"\"\".Run: c1-end",
+		"c1.Run: c1-end",
 		"<rpc.Client>\"c2\".Run",
-		"\"\".Run: c2-begin, c2-end",
+		"c2.Run: c2-begin, c2-end",
 	})
 }
 
@@ -299,7 +299,7 @@ func traceWithAuth(t *testing.T, ctx *context.T, principal security.Principal) b
 		t.Fatalf("Couldn't start server %v", err)
 	}
 
-	ctx, span := vtrace.WithNewTrace(ctx)
+	ctx, span := vtrace.WithNewTrace(ctx, "traceWithAuth", nil)
 	vtrace.ForceCollect(ctx, 0)
 
 	call, err := v23.GetClient(ctx).StartCall(ctx, "server", "Run", nil)
@@ -311,7 +311,7 @@ func traceWithAuth(t *testing.T, ctx *context.T, principal security.Principal) b
 	}
 	record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
 	for _, sp := range record.Spans {
-		if sp.Name == `"".Run` {
+		if sp.Name == `server.Run` {
 			return true
 		}
 	}

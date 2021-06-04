@@ -33,27 +33,23 @@ import (
 	"v.io/x/ref/lib/pubsub"
 	"v.io/x/ref/lib/stats"
 	_ "v.io/x/ref/lib/stats/sysstats" //nolint:golint
+	ivtrace "v.io/x/ref/lib/vtrace"
 	"v.io/x/ref/runtime/internal/flow/manager"
 	"v.io/x/ref/runtime/internal/lib/dependency"
 	inamespace "v.io/x/ref/runtime/internal/naming/namespace"
 	irpc "v.io/x/ref/runtime/internal/rpc"
-	ivtrace "v.io/x/ref/runtime/internal/vtrace"
 )
 
-type contextKey int
+type clientKey struct{}
+type namespaceKey struct{}
+type principalKey struct{}
+type backgroundKey struct{}
+type reservedNameKey struct{}
+type listenKey struct{}
+type permissionSpecKey struct{}
 
-const (
-	clientKey = contextKey(iota)
-	namespaceKey
-	principalKey
-	backgroundKey
-	reservedNameKey
-	listenKey
-	permissionSpecKey
-
-	// initKey is used to store values that are only set at init time.
-	initKey
-)
+// initKey is used to store values that are only set at init time.
+type initKey struct{}
 
 func init() {
 	metadata.Insert("v23.RPCEndpointVersion", fmt.Sprint(naming.DefaultEndpointVersion))
@@ -75,8 +71,9 @@ type vtraceDependency struct{}
 // Please see the interface definition for documentation of the
 // individual methods.
 type Runtime struct {
-	ctx  *context.T
-	deps *dependency.Graph
+	ctx   *context.T
+	flags flags.RuntimeFlags
+	deps  *dependency.Graph
 }
 
 func Init(
@@ -92,7 +89,8 @@ func Init(
 	connIdleExpiry time.Duration) (*Runtime, *context.T, v23.Shutdown, error) {
 	r := &Runtime{deps: dependency.NewGraph()}
 
-	ctx = context.WithValue(ctx, initKey, &initData{
+	r.flags = flags
+	ctx = context.WithValue(ctx, initKey{}, &initData{
 		discoveryFactory:  discoveryFactory,
 		namespaceFactory:  namespaceFactory,
 		protocols:         protocols,
@@ -101,15 +99,15 @@ func Init(
 	})
 
 	if listenSpec != nil {
-		ctx = context.WithValue(ctx, listenKey, listenSpec.Copy())
+		ctx = context.WithValue(ctx, listenKey{}, listenSpec.Copy())
 	}
 
 	if reservedDispatcher != nil {
-		ctx = context.WithValue(ctx, reservedNameKey, reservedDispatcher)
+		ctx = context.WithValue(ctx, reservedNameKey{}, reservedDispatcher)
 	}
 
 	if permissionsSpec != nil {
-		ctx = context.WithValue(ctx, permissionSpecKey, permissionsSpec.Copy())
+		ctx = context.WithValue(ctx, permissionSpecKey{}, permissionsSpec.Copy())
 	}
 
 	// Configure the context to use the global logger.
@@ -124,7 +122,10 @@ func Init(
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	ctx, _ = vtrace.WithNewTrace(ctx)
+	if rsn := flags.VtraceFlags.RootSpanName; len(rsn) > 0 {
+		ctx.VI(1).Infof("Root span name: %v", rsn)
+	}
+	ctx, _ = vtrace.WithNewTrace(ctx, flags.VtraceFlags.RootSpanName, nil)
 	err = r.addChild(ctx, vtraceDependency{}, func() {
 		vtrace.FormatTraces(os.Stderr, vtrace.GetStore(ctx).TraceRecords(), nil)
 	})
@@ -239,7 +240,7 @@ func (r *Runtime) setPrincipal(ctx *context.T, principal security.Principal, shu
 			stats.Delete(roots) //nolint:errcheck
 		}
 	}
-	ctx = context.WithValue(ctx, principalKey, principal)
+	ctx = context.WithValue(ctx, principalKey{}, principal)
 	return ctx, r.addChild(ctx, principal, stop)
 }
 
@@ -266,12 +267,16 @@ func (r *Runtime) WithPrincipal(ctx *context.T, principal security.Principal) (*
 }
 
 func (*Runtime) GetPrincipal(ctx *context.T) security.Principal {
-	p, _ := ctx.Value(principalKey).(security.Principal)
+	p, _ := ctx.Value(principalKey{}).(security.Principal)
 	return p
 }
 
+func (r *Runtime) GetFlags() flags.RuntimeFlags {
+	return r.flags
+}
+
 func getInitData(ctx *context.T) (*initData, error) {
-	if tmp := ctx.Value(initKey); tmp != nil {
+	if tmp := ctx.Value(initKey{}); tmp != nil {
 		return tmp.(*initData), nil
 	}
 	return nil, fmt.Errorf("context not initialized by this runtime")
@@ -293,7 +298,7 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 		return nil, nil, err
 	}
 	var p security.Principal
-	if tmp := ctx.Value(principalKey); tmp != nil {
+	if tmp := ctx.Value(principalKey{}); tmp != nil {
 		p = tmp.(security.Principal)
 	} else {
 		return nil, nil, fmt.Errorf("principal not set in context")
@@ -308,7 +313,7 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 	otherOpts = append(otherOpts, opts...)
 	deps := []interface{}{vtraceDependency{}}
 	client := irpc.NewClient(ctx, otherOpts...)
-	newctx := context.WithValue(ctx, clientKey, client)
+	newctx := context.WithValue(ctx, clientKey{}, client)
 	if p != nil {
 		deps = append(deps, p)
 	}
@@ -319,7 +324,7 @@ func (r *Runtime) WithNewClient(ctx *context.T, opts ...rpc.ClientOpt) (*context
 }
 
 func (*Runtime) GetClient(ctx *context.T) rpc.Client {
-	cl, _ := ctx.Value(clientKey).(rpc.Client)
+	cl, _ := ctx.Value(clientKey{}).(rpc.Client)
 	return cl
 }
 
@@ -340,7 +345,7 @@ func (r *Runtime) setNewNamespace(ctx *context.T, roots ...string) (*context.T, 
 	if oldNS := r.GetNamespace(ctx); oldNS != nil {
 		ns.CacheCtl(oldNS.CacheCtl()...)
 	}
-	ctx = context.WithValue(ctx, namespaceKey, ns)
+	ctx = context.WithValue(ctx, namespaceKey{}, ns)
 	return ctx, ns, err
 }
 
@@ -360,21 +365,21 @@ func (r *Runtime) WithNewNamespace(ctx *context.T, roots ...string) (*context.T,
 }
 
 func (*Runtime) GetNamespace(ctx *context.T) namespace.T {
-	ns, _ := ctx.Value(namespaceKey).(namespace.T)
+	ns, _ := ctx.Value(namespaceKey{}).(namespace.T)
 	return ns
 }
 
 func (*Runtime) GetListenSpec(ctx *context.T) rpc.ListenSpec {
-	ls, _ := ctx.Value(listenKey).(rpc.ListenSpec)
+	ls, _ := ctx.Value(listenKey{}).(rpc.ListenSpec)
 	return ls
 }
 
 func (*Runtime) WithListenSpec(ctx *context.T, ls rpc.ListenSpec) *context.T {
-	return context.WithValue(ctx, listenKey, ls.Copy())
+	return context.WithValue(ctx, listenKey{}, ls.Copy())
 }
 
 func (*Runtime) GetPermissionsSpec(ctx *context.T) access.PermissionsSpec {
-	ps, _ := ctx.Value(permissionSpecKey).(access.PermissionsSpec)
+	ps, _ := ctx.Value(permissionSpecKey{}).(access.PermissionsSpec)
 	return ps
 }
 
@@ -386,13 +391,13 @@ func (*Runtime) WithBackgroundContext(ctx *context.T) *context.T {
 	// Note we add an extra context with a nil value here.
 	// This prevents users from travelling back through the
 	// chain of background contexts.
-	ctx = context.WithValue(ctx, backgroundKey, nil)
-	return context.WithValue(ctx, backgroundKey, ctx)
+	ctx = context.WithValue(ctx, backgroundKey{}, nil)
+	return context.WithValue(ctx, backgroundKey{}, ctx)
 }
 
 func (*Runtime) GetBackgroundContext(ctx *context.T) *context.T {
 	// nologcall
-	bctx, _ := ctx.Value(backgroundKey).(*context.T)
+	bctx, _ := ctx.Value(backgroundKey{}).(*context.T)
 	if bctx == nil {
 		// There should always be a background context.  If we don't find
 		// it, that means that the user passed us the background context
@@ -416,11 +421,11 @@ func (*Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
 }
 
 func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *context.T {
-	return context.WithValue(ctx, reservedNameKey, d)
+	return context.WithValue(ctx, reservedNameKey{}, d)
 }
 
 func (*Runtime) GetReservedNameDispatcher(ctx *context.T) rpc.Dispatcher {
-	if d, ok := ctx.Value(reservedNameKey).(rpc.Dispatcher); ok {
+	if d, ok := ctx.Value(reservedNameKey{}).(rpc.Dispatcher); ok {
 		return d
 	}
 	return nil

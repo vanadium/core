@@ -80,7 +80,7 @@ func (p *proxy) index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	c := pprof.PProfClient(p.name)
-	ctx, _ := vtrace.WithNewTrace(p.ctx)
+	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.index", nil)
 	profiles, err := c.Profiles(ctx)
 	if err != nil {
 		replyUnavailable(w, err)
@@ -98,7 +98,7 @@ func (p *proxy) sendProfile(name string, w http.ResponseWriter, r *http.Request)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	debug, _ := strconv.Atoi(r.FormValue("debug"))
 	c := pprof.PProfClient(p.name)
-	ctx, _ := vtrace.WithNewTrace(p.ctx)
+	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.sendProfile", nil)
 	prof, err := c.Profile(ctx, name, int32(debug))
 	if err != nil {
 		replyUnavailable(w, err)
@@ -129,7 +129,7 @@ func (p *proxy) profile(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/octet-stream")
 	c := pprof.PProfClient(p.name)
-	ctx, _ := vtrace.WithNewTrace(p.ctx)
+	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.profile", nil)
 	prof, err := c.CpuProfile(ctx, int32(sec))
 	if err != nil {
 		replyUnavailable(w, err)
@@ -155,7 +155,7 @@ func (p *proxy) profile(w http.ResponseWriter, r *http.Request) {
 // cmdLine replies with the command-line arguments of the process.
 func (p *proxy) cmdLine(w http.ResponseWriter, r *http.Request) {
 	c := pprof.PProfClient(p.name)
-	ctx, _ := vtrace.WithNewTrace(p.ctx)
+	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.cmdline", nil)
 	cmdline, err := c.CmdLine(ctx)
 	if err != nil {
 		replyUnavailable(w, err)
@@ -193,7 +193,7 @@ func (p *proxy) symbol(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	c := pprof.PProfClient(p.name)
-	ctx, _ := vtrace.WithNewTrace(p.ctx)
+	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.symbol", nil)
 	pcMap, err := c.Symbol(ctx, pcList)
 	if err != nil {
 		replyUnavailable(w, err)

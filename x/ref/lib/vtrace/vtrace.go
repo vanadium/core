@@ -20,15 +20,16 @@ import (
 
 // A span represents an annotated period of time.
 type span struct {
-	id     uniqueid.Id
-	parent uniqueid.Id
-	name   string
-	trace  uniqueid.Id
-	start  time.Time
-	store  *Store
+	trace, id, parent uniqueid.Id
+	requestMetadata   []byte
+	name              string
+	start             time.Time
+	store             vtrace.Store
 }
 
-func newSpan(parent uniqueid.Id, name string, trace uniqueid.Id, store *Store) (*span, error) {
+// NewSpan creates a new vtrace.Span with supplied trace, parent and name. The span's
+// implementation will record is state in the suppled store.
+func NewSpan(trace, parent uniqueid.Id, name string, store vtrace.Store) (vtrace.Span, error) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		return nil, fmt.Errorf("vtrace: couldn't generate Span ID, debug data may be lost: %v", err)
@@ -37,52 +38,97 @@ func newSpan(parent uniqueid.Id, name string, trace uniqueid.Id, store *Store) (
 		id:     id,
 		parent: parent,
 		name:   name,
-		trace:  trace,
 		start:  time.Now(),
+		trace:  trace,
 		store:  store,
 	}
-	store.start(s)
+	store.Start(trace, vtrace.SpanRecord{
+		Id:     s.id,
+		Parent: s.parent,
+		Name:   s.name,
+		Start:  s.start,
+	})
 	return s, nil
 }
 
 func (s *span) ID() uniqueid.Id {
-	// nologcall
 	return s.id
 }
+
 func (s *span) Parent() uniqueid.Id {
-	// nologcall
 	return s.parent
 }
+
 func (s *span) Name() string {
-	// nologcall
 	return s.name
 }
+
 func (s *span) Trace() uniqueid.Id {
-	// nologcall
 	return s.trace
 }
+
+func (s *span) Store() vtrace.Store {
+	return s.store
+}
+
+func (s *span) annotate(msg string) {
+	s.store.Annotate(s.trace,
+		vtrace.SpanRecord{
+			Id:     s.id,
+			Parent: s.parent,
+			Name:   s.name,
+			Start:  s.start,
+		},
+		vtrace.Annotation{
+			When:    time.Now(),
+			Message: msg,
+		})
+}
+
 func (s *span) Annotate(msg string) {
-	// nologcall
-	s.store.annotate(s, msg)
+	s.annotate(msg)
 }
+
 func (s *span) Annotatef(format string, a ...interface{}) {
-	// nologcall
-	s.store.annotate(s, fmt.Sprintf(format, a...))
-}
-func (s *span) Finish() {
-	// nologcall
-	s.store.finish(s)
-}
-func (s *span) flags() vtrace.TraceFlags {
-	return s.store.flags(s.trace)
+	s.annotate(fmt.Sprintf(format, a...))
 }
 
-type contextKey int
+func (s *span) AnnotateMetadata(key string, value interface{}, indexed bool) error {
+	return s.store.AnnotateMetadata(s.trace,
+		vtrace.SpanRecord{
+			Id:     s.id,
+			Parent: s.parent,
+			Name:   s.name,
+			Start:  s.start,
+		},
+		key, value, indexed,
+	)
+}
 
-const (
-	storeKey = contextKey(iota)
-	spanKey
-)
+func (s *span) SetRequestMetadata(metadata []byte) {
+	s.requestMetadata = make([]byte, len(metadata))
+	copy(s.requestMetadata, metadata)
+}
+
+func (s *span) Finish(err error) {
+	s.store.Finish(s.trace,
+		vtrace.SpanRecord{
+			Id:     s.id,
+			Parent: s.parent,
+			Name:   s.name,
+			Start:  s.start,
+		}, time.Now())
+}
+
+func (s *span) Request(ctx *context.T) vtrace.Request {
+	return vtrace.Request{
+		SpanId:          s.id,
+		TraceId:         s.trace,
+		RequestMetadata: s.requestMetadata,
+		Flags:           s.store.Flags(s.trace),
+		LogLevel:        int32(GetVTraceLevel(ctx)),
+	}
+}
 
 // Manager allows you to create new traces and spans and access the
 // vtrace store.
@@ -92,124 +138,87 @@ type manager struct{}
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func (m manager) WithNewTrace(ctx *context.T) (*context.T, vtrace.Span) {
-	// nologcall
+func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
 	}
-	s, err := newSpan(id, "", id, getStore(ctx))
+	s, err := NewSpan(id, id, name, vtrace.GetStore(ctx))
 	if err != nil {
 		ctx.Error(err)
 	}
 
-	return context.WithValue(ctx, spanKey, s), s
+	return vtrace.WithSpan(ctx, s), s
 }
 
 // WithContinuedTrace creates a span that represents a continuation of
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func (m manager) WithContinuedTrace(ctx *context.T, name string, req vtrace.Request) (*context.T, vtrace.Span) {
-	// nologcall
-	st := getStore(ctx)
+func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest, req vtrace.Request) (*context.T, vtrace.Span) {
+	st := vtrace.GetStore(ctx)
+	if st == nil {
+		panic("nil store")
+	}
 	if req.Flags&vtrace.CollectInMemory != 0 {
 		st.ForceCollect(req.TraceId, int(req.LogLevel))
 	}
-	newSpan, err := newSpan(req.SpanId, name, req.TraceId, st)
+	newSpan, err := NewSpan(req.TraceId, req.SpanId, name, st)
 	if err != nil {
 		ctx.Error(err)
 	}
-	return context.WithValue(ctx, spanKey, newSpan), newSpan
+	return vtrace.WithSpan(ctx, newSpan), newSpan
 }
 
 // WithNewSpan derives a context with a new Span that can be used to
 // trace and annotate operations across process boundaries.
 func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Span) {
-	// nologcall
-	if curSpan := getSpan(ctx); curSpan != nil {
-		if curSpan.store == nil {
+	if curSpan := vtrace.GetSpan(ctx); curSpan != nil {
+		if curSpan.Store() == nil {
 			panic("nil store")
 		}
-		s, err := newSpan(curSpan.ID(), name, curSpan.trace, curSpan.store)
+		s, err := NewSpan(curSpan.Trace(), curSpan.ID(), name, curSpan.Store())
 		if err != nil {
 			ctx.Error(err)
 		}
-		return context.WithValue(ctx, spanKey, s), s
+		return vtrace.WithSpan(ctx, s), s
 	}
 
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
-	return m.WithNewTrace(ctx)
-}
-
-// Span finds the currently active span.
-func (m manager) GetSpan(ctx *context.T) vtrace.Span {
-	// nologcall
-	if span := getSpan(ctx); span != nil {
-		return span
-	}
-	return nil
+	return m.WithNewTrace(ctx, name, nil)
 }
 
 // Request generates a vtrace.Request from the active Span.
 func (m manager) GetRequest(ctx *context.T) vtrace.Request {
-	// nologcall
-	if span := getSpan(ctx); span != nil {
-		return vtrace.Request{
-			SpanId:   span.id,
-			TraceId:  span.trace,
-			Flags:    span.flags(),
-			LogLevel: int32(GetVTraceLevel(ctx)),
-		}
+	if span := vtrace.GetSpan(ctx); span != nil {
+		return span.Request(ctx)
 	}
 	return vtrace.Request{}
 }
 
 // Response captures the vtrace.Response for the active Span.
 func (m manager) GetResponse(ctx *context.T) vtrace.Response {
-	// nologcall
-	if span := getSpan(ctx); span != nil {
+	if span := vtrace.GetSpan(ctx); span != nil {
 		return vtrace.Response{
-			Flags: span.flags(),
-			Trace: *span.store.TraceRecord(span.trace),
+			Flags: span.Store().Flags(span.Trace()),
+			Trace: *span.Store().TraceRecord(span.Trace()),
 		}
 	}
 	return vtrace.Response{}
 }
 
-// Store returns the current vtrace.Store.
-func (m manager) GetStore(ctx *context.T) vtrace.Store {
-	// nologcall
-	if store := getStore(ctx); store != nil {
-		return store
-	}
-	return nil
-}
-
-// getSpan returns the internal span type.
-func getSpan(ctx *context.T) *span {
-	span, _ := ctx.Value(spanKey).(*span)
-	return span
-}
-
-// GetStore returns the *Store attached to the context.
-func getStore(ctx *context.T) *Store {
-	store, _ := ctx.Value(storeKey).(*Store)
-	return store
-}
-
 // SetVTraceLevel returns the vtrace level This value is used
 // to determine which log messages are sent as part of the vtrace output.
 func GetVTraceLevel(ctx *context.T) int {
-	store := getStore(ctx)
+	store := vtrace.GetStore(ctx)
 	if store == nil {
 		return 0
 	}
-	span := getSpan(ctx)
+	span := vtrace.GetSpan(ctx)
 	if span == nil {
 		return 0
 	}
-	return store.logLevel(span.trace)
+	return store.LogLevel(span.Trace())
 }
 
 // Init initializes vtrace and attaches some state to the context.
@@ -220,5 +229,5 @@ func Init(ctx *context.T, opts flags.VtraceFlags) (*context.T, error) {
 	if err != nil {
 		return ctx, err
 	}
-	return context.WithValue(nctx, storeKey, store), nil
+	return vtrace.WithStore(nctx, store), nil
 }

@@ -33,6 +33,7 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
+	"v.io/x/ref/lib/flags"
 )
 
 // Runtime is the interface that concrete Vanadium implementations must
@@ -138,6 +139,10 @@ type Runtime interface {
 
 	// GetRequestID returns the RequestID in 'ctx'.
 	GetRequestID(ctx *context.T) uuid.UUID
+
+	// GetFlags returns the runtime flags that were used to create the
+	// runtime.
+	GetFlags() flags.RuntimeFlags
 }
 
 // WithPrincipal attaches 'principal' to the returned context.
@@ -236,6 +241,11 @@ func WithNewServer(ctx *context.T, name string, object interface{}, auth securit
 // to ctx, and creates a new dispatching server on that flow.Manager.
 func WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	return initState.currentRuntime().WithNewDispatchingServer(ctx, name, disp, opts...)
+}
+
+// GetRuntimeFlags returns the flags used to create the current runtime.
+func GetRuntimeFlags() flags.RuntimeFlags {
+	return initState.currentRuntime().GetFlags()
 }
 
 var initState = &initStateData{}
