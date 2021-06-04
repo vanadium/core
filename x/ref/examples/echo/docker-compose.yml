@@ -18,7 +18,7 @@ services:
       - AWS_XRAY_DAEMON_ADDRESS=aws_xray_daemon:2000
     ports: [10001:10001]
     depends_on: [mounttabled, aws_xray_daemon]
-    command: --name=echo-server/echod1 --v23.tcp.address=:10001 --v23.virtualized.tcp.public-address=127.0.0.1:1002  --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true
+    command: --name=echo-server/echod1 --v23.tcp.address=:10001 --v23.virtualized.tcp.public-address=127.0.0.1:1002  --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true --v23.vtrace.root-span-name="echod1"
     networks:
       aws:
         ipv4_address: 169.254.169.11
@@ -29,7 +29,7 @@ services:
       - V23_NAMESPACE=/mounttabled:9002
       - AWS_XRAY_DAEMON_ADDRESS=aws_xray_daemon:2000
     ports: [10002:10002]
-    command: --name=echo-server/echod2 --v23.tcp.address=:10002 --v23.virtualized.tcp.public-address=127.0.0.1:1002 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true
+    command: --name=echo-server/echod2 --v23.tcp.address=:10002 --v23.virtualized.tcp.public-address=127.0.0.1:1002 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true  --v23.vtrace.root-span-name="echod2"
     depends_on: [mounttabled, aws_xray_daemon]
     networks:
       aws:
@@ -41,7 +41,7 @@ services:
       - V23_NAMESPACE=/mounttabled:9002
       - AWS_XRAY_DAEMON_ADDRESS=aws_xray_daemon:2000
     ports: [10003:10003]
-    command: --name=echo-server/echod3 --v23.tcp.address=:10003 --v23.virtualized.tcp.public-address=127.0.0.1:10003 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true
+    command: --name=echo-server/echod3 --v23.tcp.address=:10003 --v23.virtualized.tcp.public-address=127.0.0.1:10003 --v23.virtualized.provider=aws --v23.vtrace.enable-aws-xray=true  --v23.vtrace.root-span-name="echod3"
     depends_on: [mounttabled, aws_xray_daemon]
     networks:
       aws:

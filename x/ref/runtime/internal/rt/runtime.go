@@ -122,6 +122,9 @@ func Init(
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	if rsn := flags.VtraceFlags.RootSpanName; len(rsn) > 0 {
+		ctx.VI(1).Infof("Root span name: %v", rsn)
+	}
 	ctx, _ = vtrace.WithNewTrace(ctx, flags.VtraceFlags.RootSpanName, nil)
 	err = r.addChild(ctx, vtraceDependency{}, func() {
 		vtrace.FormatTraces(os.Stderr, vtrace.GetStore(ctx).TraceRecords(), nil)
