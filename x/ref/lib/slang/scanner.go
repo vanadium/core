@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go/scanner"
 	"go/token"
-	"os"
+	"io/ioutil"
 )
 
 type tokPos struct {
@@ -60,7 +60,7 @@ func scan(fset *token.FileSet, file *token.File, src []byte) ([]tokPos, error) {
 }
 
 func scanFile(filename string) ([]tokPos, error) {
-	src, err := os.ReadFile(filename)
+	src, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
