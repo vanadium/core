@@ -156,6 +156,8 @@ vb: []string
 }
 
 func TestCompileErrors(t *testing.T) {
+	_, durationErr := time.ParseDuration("1d")
+
 	for i, tc := range []struct {
 		script string
 		msg    string
@@ -168,7 +170,7 @@ func TestCompileErrors(t *testing.T) {
 		{`a:=fn3("xxx")`, `1:1: 1:8: literal arg '"xxx"' of type string is not assignable to int`},
 		{"a:=fn3(3); fn5(a)", `1:12: 1:16: arg 'a' is of the wrong type int, should be *slang.tt1`},
 		{`fn6("1h", fals)`, `1:1: 1:11: arg 'fals' is an invalid literal: not a bool: must be one of 'true' or 'false'`},
-		{`fn6("1d", fals)`, `1:1: 1:5: arg '"1d"' is an invalid literal: time: unknown unit "d" in duration "1d"`},
+		{`fn6("1d", fals)`, `1:1: 1:5: arg '"1d"' is an invalid literal: ` + durationErr.Error()},
 		{`a:=fn3(1); a := fn4("a")`, `1:12: result 'a' is redefined with a new type *slang.tt1, previous type int`},
 		{`a:=fn3(1); a := fn3(2)`, `1:12: result 'a' is redefined`},
 		{`a=fn3(1)`, `1:1: result 'a' is not defined`},
