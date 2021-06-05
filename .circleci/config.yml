@@ -10,7 +10,7 @@ jobs:
       - run:
           name: goimports
           command: |
-            go get golang.org/x/tools/cmd/goimports
+            go get golang.org/x/tools/cmd/goimports@92778473c2e6
             go install -x golang.org/x/tools/cmd/goimports
       - go/save-cache
       - run:
@@ -54,7 +54,7 @@ jobs:
       - run:
           name: goimports
           command: |
-            go get golang.org/x/tools/cmd/goimports
+            go get golang.org/x/tools/cmd/goimports@92778473c2e6
             go install -x golang.org/x/tools/cmd/goimports
       - go/save-cache
       - run:
