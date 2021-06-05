@@ -34,7 +34,7 @@ jobs:
           name: downloads
           command: |
             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-            go get github.com/matthewloring/validjson/cmd/validjson
+            go get github.com/matthewloring/validjson/cmd/validjson@v0.0.1
             go install -x github.com/matthewloring/validjson/cmd/validjson
       - go/save-cache
       - run:
