@@ -4,15 +4,16 @@ go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
 	github.com/aws/aws-sdk-go v1.38.24 // indirect
 	github.com/aws/aws-xray-sdk-go v1.3.0
-	github.com/cosnicolaou/go-bindata/v3 v3.0.8 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.4.3
+	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/websocket v1.4.2
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.8
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/pborman/uuid v1.2.0
@@ -24,12 +25,11 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
-	golang.org/x/tools v0.0.0-20210106172347-92778473c2e6 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.9.0
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.36.0 // indirect
-	google.golang.org/protobuf v1.25.0
-	v.io/x/lib v0.1.8
+	v.io/x/lib v0.1.7
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )
