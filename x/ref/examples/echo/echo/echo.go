@@ -74,7 +74,7 @@ func main() {
 	if len(httpAddr) > 0 {
 		wg.Add(1)
 		go func() {
-			runHttpServer(ctx, httpAddr, client)
+			runHTTPServer(ctx, httpAddr, client)
 			wg.Done()
 		}()
 	}
@@ -120,7 +120,7 @@ func main() {
 	}()
 	select {
 	case <-done:
-		time.Sleep(1)
+		time.Sleep(time.Second * 2)
 	case <-signals.ShutdownOnSignals(ctx):
 	}
 }
@@ -129,7 +129,7 @@ func main() {
 // <addr>/call and <addr>/call?forward-to=<server>
 // will issue RPCs to the echo server.
 // <addr>/quit will cause the client to exit gracefully.
-func runHttpServer(ctx *context.T, addr string, client echo.EchoServiceClientStub) {
+func runHTTPServer(ctx *context.T, addr string, client echo.EchoServiceClientStub) {
 	xrayHandler := xray.Handler(
 		xray.NewFixedSegmentNamer("http.echo.client"),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
