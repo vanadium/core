@@ -25,15 +25,43 @@ import (
 // Manager allows you to create new traces and spans and access the
 // vtrace store that
 type manager struct {
-	mapToHTTP bool
+	options       options
+	clusterName   string
+	containerID   string
+	containerHost string
+}
+
+func annotateIfSet(a map[string]interface{}, k, v string) {
+	if len(v) == 0 {
+		return
+	}
+	a[k] = v
+}
+
+func (m *manager) annotateSegment(seg *xray.Segment, subseg bool) {
+	if seg.Annotations == nil {
+		return
+	}
+	if m.options.mapToHTTP && !subseg && (seg.HTTP == nil || seg.HTTP.Request == nil) {
+		// Only create fake http fields if they have not already been set.
+		hd := seg.GetHTTP()
+		req := hd.GetRequest()
+		mapAnnotation(seg.Annotations, "name", &req.URL)
+		mapAnnotation(seg.Annotations, "method", &req.Method)
+		mapAnnotation(seg.Annotations, "clientAddr", &req.ClientIP)
+		req.UserAgent = "vanadium"
+	}
+	annotateIfSet(seg.Annotations, "cluster_name", m.clusterName)
+	annotateIfSet(seg.Annotations, "container_id", m.containerID)
+	annotateIfSet(seg.Annotations, "container_host", m.containerHost)
 }
 
 type xrayspan struct {
 	vtrace.Span
-	ctx       *context.T
-	subseg    bool
-	mapToHTTP bool
-	seg       *xray.Segment
+	ctx    *context.T
+	subseg bool
+	mgr    *manager
+	seg    *xray.Segment
 }
 
 func (xs *xrayspan) Annotate(msg string) {
@@ -93,7 +121,8 @@ func (xs *xrayspan) Finish(err error) {
 		xs.seg.AddMetadataToNamespace("vtrace", "error", err.Error())
 	}
 	xseg := xs.seg
-	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
+	xs.mgr.annotateSegment(xseg, xs.subseg)
+	/*	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
 		if xseg.HTTP == nil || xseg.HTTP.Request == nil {
 			// Only create fake http fields if they have not already been set.
 			hd := xseg.GetHTTP()
@@ -103,7 +132,7 @@ func (xs *xrayspan) Finish(err error) {
 			mapAnnotation(an, "clientAddr", &req.ClientIP)
 			req.UserAgent = "vanadium"
 		}
-	}
+	}*/
 	if xs.subseg {
 		xseg.CloseAndStream(err)
 	} else {
@@ -117,7 +146,7 @@ func (xs *xrayspan) Finish(err error) {
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing. For example
 // this might be used to start background tasks.
-func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
+func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
@@ -135,7 +164,7 @@ func (m manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRe
 	sampling := translateSamplingHeader(sr)
 	_, seg := xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg}
+	xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -219,7 +248,7 @@ func translateSamplingHeader(sr *vtrace.SamplingRequest) *http.Request {
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest, req vtrace.Request) (*context.T, vtrace.Span) {
+func (m *manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest, req vtrace.Request) (*context.T, vtrace.Span) {
 	st := vtrace.GetStore(ctx)
 	if st == nil {
 		panic("nil store")
@@ -249,13 +278,13 @@ func (m manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.Samp
 	}
 
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
+	xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg, subseg: sub}
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
 // WithNewSpan derives a context with a new Span that can be used to
 // trace and annotate operations across process boundaries.
-func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Span) {
+func (m *manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Span) {
 	if curSpan := vtrace.GetSpan(ctx); curSpan != nil {
 		if curSpan.Store() == nil {
 			panic("nil store")
@@ -267,7 +296,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 		seg, sub := newSegment(ctx, name, nil)
 		ctx.VI(1).Infof("WithNewSpan: new seg: %v", segStr(seg))
 		ctx = WithSegment(ctx, seg)
-		xs := &xrayspan{Span: newSpan, ctx: ctx, mapToHTTP: m.mapToHTTP, seg: seg, subseg: sub}
+		xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg, subseg: sub}
 		return vtrace.WithSpan(ctx, xs), xs
 	}
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
@@ -275,7 +304,7 @@ func (m manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.Sp
 }
 
 // Request generates a vtrace.Request from the active Span.
-func (m manager) GetRequest(ctx *context.T) vtrace.Request {
+func (m *manager) GetRequest(ctx *context.T) vtrace.Request {
 	if span := vtrace.GetSpan(ctx); span != nil {
 		req := span.Request(ctx)
 		if seg := GetSegment(ctx); seg != nil {
@@ -288,7 +317,7 @@ func (m manager) GetRequest(ctx *context.T) vtrace.Request {
 }
 
 // Response captures the vtrace.Response for the active Span.
-func (m manager) GetResponse(ctx *context.T) vtrace.Response {
+func (m *manager) GetResponse(ctx *context.T) vtrace.Response {
 	if span := vtrace.GetSpan(ctx); span != nil {
 		return vtrace.Response{
 			Flags: span.Store().Flags(span.Trace()),
