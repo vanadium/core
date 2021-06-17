@@ -21,7 +21,7 @@ const (
 	k8sCert                 = "ca.crt"
 	k8sToken                = "token"
 	k8sAPIHost              = "kubernetes.default.svc"
-	kContainerIDLen         = 64
+	containerIDLen          = 64
 )
 
 func GetEKSClusterName(ctx context.Context, configMap, keyName string) (string, error) {
@@ -47,7 +47,7 @@ func getConfigMap(ctx context.Context, configMap string) (map[string]string, err
 	}
 
 	roots := x509.NewCertPool()
-	ok := roots.AppendCertsFromPEM([]byte(rootPEM))
+	ok := roots.AppendCertsFromPEM(rootPEM)
 	if !ok {
 		panic("failed to parse root certificate")
 	}
@@ -100,8 +100,8 @@ func GetContainerID(cgroupFile string) (string, error) {
 	cid := ""
 	for sc.Scan() {
 		line := sc.Text()
-		if l := len(line); l > kContainerIDLen {
-			cid = line[l-kContainerIDLen:]
+		if l := len(line); l > containerIDLen {
+			cid = line[l-containerIDLen:]
 			break
 		}
 	}
