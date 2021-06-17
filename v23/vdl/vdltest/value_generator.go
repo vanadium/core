@@ -51,6 +51,7 @@ func (g *ValueGenerator) RandSeed(seed int64) {
 // GenMode represents the mode used to generate values.
 type GenMode int
 
+// Values for GenMode.
 const (
 	// GenFull generates deterministic values that are recursively non-zero,
 	// except for types that are part of a cycle, which must have a zero value in

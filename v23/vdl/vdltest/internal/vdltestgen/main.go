@@ -173,7 +173,7 @@ func writeHeader(w io.Writer) {
 // Run the following to re-generate:
 //   $ go generate v.io/v23/vdl/vdltest
 
-//nolint:golint
+//nolint:revive
 package vdltest
 
 `)

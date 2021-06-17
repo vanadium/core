@@ -7,7 +7,7 @@
 
 // Package tidyable defines an interface for services that can be
 // requested to clean up transient resource use (such as logs or caches.)
-//nolint:golint
+//nolint:revive
 package tidyable
 
 import (

@@ -11,7 +11,7 @@
 // compatibility between different programming environments.  Generated code for
 // different environments typically provide automatic conversions into native
 // representations, for simpler idiomatic usage.
-//nolint:golint
+//nolint:revive
 package time
 
 import (

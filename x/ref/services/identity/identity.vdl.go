@@ -6,7 +6,7 @@
 // Package: identity
 
 // Package identity defines interfaces for Vanadium identity providers.
-//nolint:golint
+//nolint:revive
 package identity
 
 import (

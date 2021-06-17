@@ -6,7 +6,7 @@
 // Package: logreader
 
 // Package logreader defines interfaces for reading log files remotely.
-//nolint:golint
+//nolint:revive
 package logreader
 
 import (

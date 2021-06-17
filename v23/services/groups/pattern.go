@@ -20,8 +20,10 @@ import (
 )
 
 const (
-	GroupStart = "<grp:" // GroupStart indicates the start of a group name in a blessing pattern.
-	GroupEnd   = ">"     // GroupEnd indicates the end of a group name in a blessing pattern.
+	// GroupStart indicates the start of a group name in a blessing pattern.
+	GroupStart = "<grp:"
+	// GroupEnd indicates the end of a group name in a blessing pattern.
+	GroupEnd = ">"
 )
 
 var (

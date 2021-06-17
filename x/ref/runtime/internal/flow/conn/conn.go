@@ -48,8 +48,10 @@ var minChannelTimeout = map[string]time.Duration{
 }
 
 const (
-	defaultMtu                  = 1 << 16
-	defaultChannelTimeout       = 30 * time.Minute
+	defaultMtu            = 1 << 16
+	defaultChannelTimeout = 30 * time.Minute
+	// DefaultBytesBufferedPerFlow defines the default number
+	// of bytes that can be buffered by a single flow.
 	DefaultBytesBufferedPerFlow = 1 << 20
 	proxyOverhead               = 32
 )

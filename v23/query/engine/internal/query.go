@@ -232,8 +232,8 @@ func getIndexRanges(db ds.Database, tableName string, tableOff int64, indexField
 	indexes := []ds.IndexRanges{}
 
 	// Get IndexRanges for k
-	kField := &queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}
-	idxRanges := *querychecker.CompileIndexRanges(kField, vdl.String, w)
+	kfield := &queryparser.Field{Segments: []queryparser.Segment{{Value: "k"}}}
+	idxRanges := *querychecker.CompileIndexRanges(kfield, vdl.String, w)
 	indexes = append(indexes, idxRanges)
 
 	// Get IndexRanges for secondary indexes.

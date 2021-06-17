@@ -56,7 +56,7 @@ import (
 )
 
 var (
-	//nolint:golint // API change required.
+	//nolint:revive // API change required.
 	Timeout = errors.New("timeout")
 )
 

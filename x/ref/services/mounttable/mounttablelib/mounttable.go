@@ -758,7 +758,7 @@ out:
 // a state that never existed in the mounttable.  For example, if someone removes c/d and later
 // adds a/b while a Glob is in progress, the Glob may return a set of nodes that includes both
 // c/d and a/b.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (ms *mountContext) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	ctx.VI(2).Infof("mt.Glob %v", ms.elems)
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)

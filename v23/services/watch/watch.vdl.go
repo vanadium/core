@@ -105,7 +105,7 @@
 //   (2) The client does not need to manage timestamps/versions
 //       manually; the last update delivered corresponds to the
 //       eventual state of the entity.
-//nolint:golint
+//nolint:revive
 package watch
 
 import (

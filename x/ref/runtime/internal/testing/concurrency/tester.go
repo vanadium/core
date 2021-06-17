@@ -11,7 +11,7 @@ import (
 
 // globalT stores a pointer to the global instance of the tester.
 var (
-	globalT *Tester = nil
+	globalT *Tester
 )
 
 // T returns the global instance of the tester.

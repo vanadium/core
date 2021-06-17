@@ -59,7 +59,7 @@ func (dischargerImpl) Discharge(ctx *context.T, call rpc.ServerCall, caveat secu
 	return discharge, nil
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (d *dischargerImpl) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	return globChildren(ctx, call, d.serverConfig, m)
 }

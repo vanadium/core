@@ -14,6 +14,10 @@ import (
 )
 
 const (
+	// SeedEnv represents the name of the environment variable containing
+	// the pseudo random number generator's seed value. This is typically
+	// used to reproduce a failed test that depends on the actual random
+	// values used. Failed tests log the seed that they used.
 	SeedEnv = "V23_RNG_SEED"
 )
 

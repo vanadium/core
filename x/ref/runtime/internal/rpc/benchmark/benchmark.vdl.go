@@ -7,7 +7,7 @@
 
 // package benchmark provides simple tools to measure the performance of the
 // IPC system.
-//nolint:golint
+//nolint:revive
 package benchmark
 
 import (

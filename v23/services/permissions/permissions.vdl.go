@@ -7,7 +7,7 @@
 
 // Package permissions defines an interface for managing access control
 // permissions.
-//nolint:golint
+//nolint:revive
 package permissions
 
 import (

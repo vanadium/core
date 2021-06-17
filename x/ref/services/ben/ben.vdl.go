@@ -9,7 +9,7 @@
 //
 // These are the data structures common to tools described in
 // https://docs.google.com/document/d/1v-iKwej3eYT_RNhPwQ81A9fa8H15Q6RzNyv2rrAeAUc/edit?usp=sharing
-//nolint:golint
+//nolint:revive
 package ben
 
 import (

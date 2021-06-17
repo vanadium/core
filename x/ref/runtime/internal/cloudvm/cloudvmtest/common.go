@@ -4,6 +4,7 @@
 
 package cloudvmtest
 
+// Define well known values for use in tests.
 const (
 	WellKnownAccount   = "12345678"
 	WellKnownRegion    = "us-west-12"

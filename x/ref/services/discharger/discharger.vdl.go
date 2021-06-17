@@ -7,7 +7,7 @@
 
 // Package discharger defines an interface for obtaining discharges for
 // third-party caveats.
-//nolint:golint
+//nolint:revive
 package discharger
 
 import (

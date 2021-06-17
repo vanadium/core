@@ -8,7 +8,7 @@
 // Package pprof defines an interface for accessing runtime profiling data in
 // the format expected by the pprof visualization tool.  For more information
 // about pprof, see http://code.google.com/p/google-perftools/.
-//nolint:golint
+//nolint:revive
 package pprof
 
 import (

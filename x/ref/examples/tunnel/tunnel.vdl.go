@@ -7,7 +7,7 @@
 
 // Package tunnel defines an interface for creating a network tunnel from client
 // to server.
-//nolint:golint
+//nolint:revive
 package tunnel
 
 import (

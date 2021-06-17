@@ -26,7 +26,7 @@ import (
 
 var (
 	// TimeNow is used for testing.
-	TimeNow func() time.Time = time.Now
+	TimeNow = time.Now
 )
 
 const (

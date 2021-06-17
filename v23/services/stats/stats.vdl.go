@@ -7,7 +7,7 @@
 
 // Package stats defines an interface to access statistical information for
 // troubleshooting and monitoring purposes.
-//nolint:golint
+//nolint:revive
 package stats
 
 import (

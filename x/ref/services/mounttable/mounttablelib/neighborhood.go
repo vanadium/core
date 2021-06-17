@@ -266,7 +266,7 @@ func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) err
 }
 
 // Glob__ implements rpc.AllGlobber
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	// return all neighbors that match the first element of the pattern.
 	nh := ns.nh

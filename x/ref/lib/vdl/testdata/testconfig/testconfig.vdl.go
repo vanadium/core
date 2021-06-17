@@ -8,7 +8,7 @@
 // Package testconfig is a simple test of vdl.config files.  We don't care about
 // the actual VDL file contents; we really only want to make sure that the
 // vdl.config file in this package is read in successfully.
-//nolint:golint
+//nolint:revive
 package testconfig
 
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.

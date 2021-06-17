@@ -512,6 +512,7 @@ func ResolveField(db ds.Database, k string, v *vdl.Value, f *queryparser.Field) 
 // EvalWhereUsingOnlyKey return type.  See that function for details.
 type EvalWithKeyResult int
 
+// Values for EvalWithKeyResult.
 const (
 	Include EvalWithKeyResult = iota
 	Exclude

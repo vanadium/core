@@ -353,10 +353,7 @@ func (d *decoder81) endMessage() error {
 	if err := d.refTypes.Reset(); err != nil {
 		return err
 	}
-	if err := d.refAnyLens.Reset(); err != nil {
-		return err
-	}
-	return nil
+	return d.refAnyLens.Reset()
 }
 
 const reservedTypesAndLens = 4

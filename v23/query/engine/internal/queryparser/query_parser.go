@@ -33,6 +33,7 @@ const (
 	invalidIndexFieldFormat        = "[%v]invalid index field %v returned by table %v"
 )
 
+// Definitions of token type values.
 const (
 	TokCHAR TokenType = 1 + iota
 	TokCOMMA
@@ -55,6 +56,7 @@ const (
 )
 
 const (
+	// MaxStatementLen defines the maximum length of a statement.
 	MaxStatementLen = 10000
 )
 
@@ -87,6 +89,7 @@ type Field struct {
 
 type BinaryOperatorType int
 
+// Values for BinaryOperatorType.
 const (
 	And BinaryOperatorType = 1 + iota
 	Equal
@@ -109,6 +112,7 @@ type BinaryOperator struct {
 
 type OperandType int
 
+// Values for OperandType.
 const (
 	TypBigInt OperandType = 1 + iota // Only as a result of Resolve/Coerce Operand
 	TypBigRat                        // Only as a result of Resolve/Coerce Operand
@@ -164,6 +168,7 @@ type Expression struct {
 
 type SelectorType int
 
+// Values for SelectorType.
 const (
 	TypSelField SelectorType = 1 + iota
 	TypSelFunc

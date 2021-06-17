@@ -38,7 +38,7 @@ type server struct {
 	suffix string
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (s *server) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	ctx.VI(2).Infof("Glob() was called. suffix=%v pattern=%q", s.suffix, g.String())
 	sender := call.SendStream()

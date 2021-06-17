@@ -483,7 +483,7 @@ func TestRawBytesNonVomPayload(t *testing.T) {
 	if err := vom.NewEncoderWithTypeEncoder(&buf, typeEnc).Encode(simpleStruct{5}); err != nil {
 		t.Fatalf("failure when preparing type message bytes: %v", t)
 	}
-	var inputMessage []byte = typeBuf.Bytes()
+	var inputMessage = typeBuf.Bytes()
 	inputMessage = append(inputMessage, byte(vom.WireIdFirstUserType*2)) // New value message tid
 	inputMessage = append(inputMessage, 8)                               // Message length
 	// non-vom bytes (invalid because there is no struct field at index 10)

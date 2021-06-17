@@ -6,7 +6,7 @@
 // Package: stats
 
 // Packages stats defines the non-native types exported by the stats service.
-//nolint:golint
+//nolint:revive
 package stats
 
 import (
