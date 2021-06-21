@@ -84,7 +84,8 @@ func EKSCluster() Option {
 // ContainerIDAndHost requests that container id and host information be
 // obtained and added to traces. The container id is obtained by parsing
 // the /proc/self/cgroup file, and the host by call the operating system's
-// hostname function. When running under kubernetes for example, the
+// hostname function. When running under kubernetes for example, a pod's
+// name is configured as its hostname.
 //
 // When configured, xray segments will contain 'container_id' and 'container_host'
 // annotations.
