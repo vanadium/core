@@ -76,7 +76,13 @@ func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
 
-	ctx, _ = vxray.InitXRay(ctx, v23.GetRuntimeFlags().VtraceFlags, xray.Config{ServiceVersion: ""}, vxray.EC2Plugin(), vxray.MergeLogging(true))
+	ctx, _ = vxray.InitXRay(ctx,
+		v23.GetRuntimeFlags().VtraceFlags,
+		xray.Config{ServiceVersion: ""},
+		vxray.EC2Plugin(),
+		vxray.EKSCluster(),
+		vxray.ContainerIDAndHost(),
+		vxray.MergeLogging(true))
 
 	ctx, server, err := v23.WithNewServer(ctx, nameFlag, echo.EchoServiceServer(&echod{}), securityflag.NewAuthorizerOrDie(ctx))
 	if err != nil {

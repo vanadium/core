@@ -6,6 +6,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -18,6 +19,7 @@ import (
 	"github.com/aws/aws-xray-sdk-go/xray"
 	v23 "v.io/v23"
 	"v.io/v23/context"
+	"v.io/v23/naming"
 	"v.io/v23/vtrace"
 	"v.io/x/ref/examples/echo"
 	"v.io/x/ref/lib/aws/vxray"
@@ -50,7 +52,20 @@ func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
 
-	ctx, _ = vxray.InitXRay(ctx, v23.GetRuntimeFlags().VtraceFlags, xray.Config{ServiceVersion: ""}, vxray.EC2Plugin(), vxray.MergeLogging(true))
+	ctx, _ = vxray.InitXRay(ctx,
+		v23.GetRuntimeFlags().VtraceFlags,
+		xray.Config{ServiceVersion: ""},
+		vxray.EC2Plugin(),
+		vxray.EKSCluster(),
+		vxray.ContainerIDAndHost(),
+		vxray.MergeLogging(true))
+
+	servers := strings.Split(serverFlag, ",")
+	if len(servers) > 0 {
+		ctx.Infof("waiting for: %v servers: %v", len(servers), servers)
+		waitForServers(ctx, servers)
+		ctx.Infof("servers ready: %v", servers)
+	}
 
 	client := echo.EchoServiceClient(nameFlag)
 
@@ -59,7 +74,7 @@ func main() {
 	if len(httpAddr) > 0 {
 		wg.Add(1)
 		go func() {
-			runHttpServer(ctx, httpAddr, client)
+			runHTTPServer(ctx, httpAddr, client)
 			wg.Done()
 		}()
 	}
@@ -73,7 +88,6 @@ func main() {
 		close(done)
 	}()
 
-	servers := strings.Split(serverFlag, ",")
 	samplingRequest := &vtrace.SamplingRequest{
 		Name: nameFlag,
 	}
@@ -106,7 +120,7 @@ func main() {
 	}()
 	select {
 	case <-done:
-		time.Sleep(1)
+		time.Sleep(time.Second * 2)
 	case <-signals.ShutdownOnSignals(ctx):
 	}
 }
@@ -115,7 +129,7 @@ func main() {
 // <addr>/call and <addr>/call?forward-to=<server>
 // will issue RPCs to the echo server.
 // <addr>/quit will cause the client to exit gracefully.
-func runHttpServer(ctx *context.T, addr string, client echo.EchoServiceClientStub) {
+func runHTTPServer(ctx *context.T, addr string, client echo.EchoServiceClientStub) {
 	xrayHandler := xray.Handler(
 		xray.NewFixedSegmentNamer("http.echo.client"),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +183,7 @@ func callPing(ctx *context.T, client echo.EchoServiceClientStub, out io.Writer, 
 	}
 	result, err := client.Ping(ctx, now, servers)
 	if err != nil {
-		ctx.Errorf("%v.%v failed: %v", nameFlag, "ping", err)
+		ctx.Errorf("%v.%v failed: %v", servers, "ping", err)
 	}
 	if len(result) < 100 {
 		fmt.Fprintln(out, result)
@@ -177,4 +191,28 @@ func callPing(ctx *context.T, client echo.EchoServiceClientStub, out io.Writer, 
 		fmt.Fprintf(out, "%s[...] %d bytes\n", result[:100], len(result))
 	}
 	return err
+}
+
+func waitForServers(ctx *context.T, servers []string) {
+	var wg sync.WaitGroup
+	wg.Add(len(servers))
+	ns := v23.GetNamespace(ctx)
+	for _, server := range servers {
+		go func(server string) {
+			for {
+				_, err := ns.Resolve(ctx, server)
+				ctx.Infof("%v: %v: %v", server, err, errors.Is(err, naming.ErrNoSuchName))
+				if errors.Is(err, naming.ErrNoSuchName) {
+					time.Sleep(time.Second)
+					continue
+				}
+				if err == nil {
+					break
+				}
+				ctx.Infof("%v: %v\n", server, err)
+			}
+			wg.Done()
+		}(server)
+	}
+	wg.Wait()
 }
