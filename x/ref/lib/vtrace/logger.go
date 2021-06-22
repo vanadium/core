@@ -10,6 +10,7 @@ import (
 	"runtime"
 
 	"v.io/v23/context"
+	"v.io/v23/vtrace"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 type Logger struct{}
 
 func (*Logger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
-	span := getSpan(ctx)
+	span := vtrace.GetSpan(ctx)
 	if span == nil {
 		return
 	}
@@ -29,7 +30,7 @@ func (*Logger) InfoDepth(ctx *context.T, depth int, args ...interface{}) {
 }
 
 func (*Logger) InfoStack(ctx *context.T, all bool) {
-	span := getSpan(ctx)
+	span := vtrace.GetSpan(ctx)
 	if span == nil {
 		return
 	}

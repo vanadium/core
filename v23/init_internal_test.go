@@ -17,6 +17,7 @@ import (
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
+	"v.io/x/ref/lib/flags"
 )
 
 // Create a mock RuntimeFactory.
@@ -66,6 +67,10 @@ func (*mockRuntime) WithNewServer(ctx *context.T, name string, object interface{
 }
 func (*mockRuntime) WithNewDispatchingServer(ctx *context.T, name string, disp rpc.Dispatcher, opts ...rpc.ServerOpt) (*context.T, rpc.Server, error) {
 	return nil, nil, nil
+}
+
+func (*mockRuntime) GetFlags() flags.RuntimeFlags {
+	return flags.RuntimeFlags{}
 }
 
 func TestPanicOnInitWithNoRuntimeFactory(t *testing.T) {

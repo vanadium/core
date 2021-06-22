@@ -237,7 +237,7 @@ func TestGlobDeny(t *testing.T) {
 			// We check the actual error string to make sure that we don't start
 			// leaking new information by accident.
 			expectedStr := fmt.Sprintf(
-				`test.test:"%s".__Glob: some matches might have been omitted`,
+				`test.test:%s.__Glob: some matches might have been omitted`,
 				tc.name)
 			if got := gerr.Error.Error(); got != expectedStr {
 				t.Errorf("unexpected error string: Got %q, expected %q", got, expectedStr)

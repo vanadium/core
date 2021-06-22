@@ -25,7 +25,7 @@ func TestLogging(t *testing.T) {
 	ctx, shutdown, _ := initForTest(t)
 	defer shutdown()
 
-	ctx, _ = vtrace.WithNewTrace(ctx)
+	ctx, _ = vtrace.WithNewTrace(ctx, "testLogging", nil)
 	vtrace.ForceCollect(ctx, 0)
 	ctx, span := vtrace.WithNewSpan(ctx, "foo")
 	ctx.Info("logging ", "from ", "info")
@@ -36,7 +36,7 @@ func TestLogging(t *testing.T) {
 	ctx.Errorf("logging from %s", "errorf")
 	ctx.ErrorDepth(0, "logging from error depth")
 
-	span.Finish()
+	span.Finish(nil)
 	record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
 	messages := []string{
 		"vtrace_logging_test.go:31] logging from info",
@@ -75,7 +75,7 @@ func runLoggingCall(ctx *context.T) (*vtrace.TraceRecord, error) {
 	if err := call.Finish(); err != nil {
 		return nil, err
 	}
-	span.Finish()
+	span.Finish(nil)
 
 	return vtrace.GetStore(ctx).TraceRecord(span.Trace()), nil
 }
@@ -96,7 +96,7 @@ func TestVIRPCWithNoLogging(t *testing.T) {
 	expectSequence(t, *record, []string{
 		"logging",
 		"<rpc.Client>\"logger\".Log",
-		"\"\".Log",
+		"logger.Log",
 	})
 }
 
@@ -113,6 +113,6 @@ func TestVIRPCWithLogging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("logging call failed: %v", err)
 	}
-	expectedSpanRegex := "\"\".Log: vtrace_logging_test.go:19] [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}logging"
+	expectedSpanRegex := "logger.Log: vtrace_logging_test.go:19] [a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}logging"
 	expectSequence(t, *record, []string{expectedSpanRegex})
 }

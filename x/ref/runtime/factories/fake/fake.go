@@ -55,7 +55,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		}
 		return runtimeInfo.runtime, runtimeInfo.ctx, shutdown, nil
 	}
-	return new(ctx)
+	return newRuntime(ctx)
 }
 
 // InjectRuntime allows packages to inject whichever runtime, ctx, and shutdown.

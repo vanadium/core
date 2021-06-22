@@ -39,7 +39,7 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	defer shutdown()
 
 	tracedContext := func(ctx *context.T) *context.T {
-		ctx, _ = vtrace.WithNewTrace(ctx)
+		ctx, _ = vtrace.WithNewTrace(ctx, "debugServer", nil)
 		vtrace.ForceCollect(ctx, 0)
 		return ctx
 	}

@@ -9,13 +9,14 @@
 
 package parse
 
+import __yyfmt__ "fmt"
+
+//line grammar.y:20
+
 import (
-	__yyfmt__ "fmt"
 	"math/big"
 	"strings"
 )
-
-//line grammar.y:20
 
 type intPos struct {
 	int *big.Int
