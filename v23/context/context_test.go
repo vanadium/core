@@ -334,7 +334,7 @@ func TestRootCancelGoroutineLeak(t *testing.T) {
 	// above to exit. This threshold was arbitrarily created after running
 	// `go test -count=10000 -run TestRootCancelGoroutineLeak$` and verifying
 	// that the tests did not fail flakily.
-	const waitThreshold = 8*time.Millisecond
+	const waitThreshold = 8 * time.Millisecond
 	time.Sleep(waitThreshold)
 
 	// Verify that goroutines no longer exist in the runtime stack.
