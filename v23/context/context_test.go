@@ -9,6 +9,8 @@ import (
 	gocontext "context"
 	"fmt"
 	"os"
+	"runtime"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -318,6 +320,36 @@ func TestRootCancelChain(t *testing.T) {
 	for _, ctx := range []*context.T{a, b, c, d, e, f} {
 		<-ctx.Done()
 	}
+}
+
+func TestRootCancelGoroutineLeak(t *testing.T) {
+	rootCtx, rootcancel := context.RootContext()
+	const iterations = 1024
+	for i := 0; i != iterations; i++ {
+		_, cancel := context.WithRootCancel(rootCtx)
+		cancel()
+	}
+
+	// Arbitrary threshold to wait for the goroutines in the created contexts
+	// above to exit. This threshold was arbitrarily created after running
+	// `go test -count=10000 -run TestRootCancelGoroutineLeak$` and verifying
+	// that the tests did not fail flakily.
+	const waitThreshold = 8*time.Millisecond
+	time.Sleep(waitThreshold)
+
+	// Verify that goroutines no longer exist in the runtime stack.
+	buf := make([]byte, 2<<20)
+	buf = buf[:runtime.Stack(buf, true)]
+	count := 0
+	for _, g := range strings.Split(string(buf), "\n\n") {
+		if strings.Contains(g, "v.io/v23/context.WithRootCancel.func1") {
+			count++
+		}
+	}
+	if count != 0 {
+		t.Errorf("expected 0 but got %d: goroutine leaking in WithRootCancel", count)
+	}
+	rootcancel()
 }
 
 func TestRootCancel_GoContext(t *testing.T) {
