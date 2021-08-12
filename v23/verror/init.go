@@ -151,10 +151,7 @@ func VDLRead(dec vdl.Decoder, x *error) error {
 	if err := wire.VDLRead(dec); err != nil {
 		return err
 	}
-	if err := WireToNative(&wire, x); err != nil {
-		return err
-	}
-	return nil
+	return WireToNative(&wire, x)
 }
 
 // VDLWrite implements the logic to write x to enc.

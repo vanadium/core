@@ -110,10 +110,7 @@ func (w *signingWriter) commitHeader() error {
 	if err := binary.Write(w.signatureHash, binary.LittleEndian, w.chunkSizeBytes); err != nil {
 		return err
 	}
-	if err := w.sigEnc.Encode(SignedHeader{w.chunkSizeBytes}); err != nil {
-		return err
-	}
-	return nil
+	return w.sigEnc.Encode(SignedHeader{w.chunkSizeBytes})
 }
 
 func (w *signingWriter) commitChunk(force bool) error {

@@ -17,7 +17,7 @@ type Update interface {
 	IsLost() bool
 
 	// Id returns the universal unique identifier of the advertisement.
-	Id() AdId //nolint:golint // API change required.
+	Id() AdId //nolint:revive // API change required.
 
 	// InterfaceName returns the interface name that the service implements.
 	InterfaceName() string

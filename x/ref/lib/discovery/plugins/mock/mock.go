@@ -149,12 +149,12 @@ func (p *plugin) UnregisterAd(adinfo *idiscovery.AdInfo) {
 	p.updated.Broadcast()
 }
 
-func New() *plugin { //nolint:golint // exported func New returns unexported type
+func New() *plugin { //nolint:revive // exported func New returns unexported type
 	// which can be annoying to use.
 	return NewWithAdStatus(idiscovery.AdReady)
 }
 
-func NewWithAdStatus(status idiscovery.AdStatus) *plugin { //nolint:golint
+func NewWithAdStatus(status idiscovery.AdStatus) *plugin { //nolint:revive
 	p := &plugin{adStatus: status, adinfoMap: make(map[string]map[discovery.AdId]*idiscovery.AdInfo)}
 	p.updated = sync.NewCond(&p.mu)
 	return p

@@ -8,7 +8,7 @@
 // Package HTTP defines an interface to send a http.Request from a client to a
 // Vanadium server. This code is Go-specific since it is only used internally
 // by Vanadium.
-//nolint:golint
+//nolint:revive
 package http
 
 import (

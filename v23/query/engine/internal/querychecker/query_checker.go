@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	// MaxRangeLimit defines the maxium end of a range.
 	MaxRangeLimit    = ""
 	lowercaseKFormat = "[%v]did you mean: 'k'?"
 	lowercaseVFormat = "[%v]did you mean: 'v'?"
@@ -52,10 +53,7 @@ func checkSelectStatement(db ds.Database, s *queryparser.SelectStatement) error 
 	if err := checkLimitClause(db, s.Limit); err != nil {
 		return err
 	}
-	if err := checkResultsOffsetClause(db, s.ResultsOffset); err != nil {
-		return err
-	}
-	return nil
+	return checkResultsOffsetClause(db, s.ResultsOffset)
 }
 
 func checkDeleteStatement(db ds.Database, s *queryparser.DeleteStatement) error {
@@ -68,10 +66,7 @@ func checkDeleteStatement(db ds.Database, s *queryparser.DeleteStatement) error 
 	if err := checkWhereClause(db, s.Where, s.Escape); err != nil {
 		return err
 	}
-	if err := checkLimitClause(db, s.Limit); err != nil {
-		return err
-	}
-	return nil
+	return checkLimitClause(db, s.Limit)
 }
 
 // Check select clause.  Fields can be 'k' and v[{.<ident>}...]

@@ -28,7 +28,7 @@ func (f *httpService) RawDo(_ *context.T, _ rpc.ServerCall, req v23_http.Request
 	return buf.Bytes(), nil
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func NewHttpService() interface{} {
 	return v23_http.HttpServer(&httpService{})
 }

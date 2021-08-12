@@ -100,7 +100,7 @@
 //       return err
 //     }
 //   }
-//nolint:golint
+//nolint:revive
 package access
 
 import (

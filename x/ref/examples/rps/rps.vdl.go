@@ -21,7 +21,7 @@
 //
 // 3. ScoreKeeper: A score keeper receives the final score for a game after it
 // ended.
-//nolint:golint
+//nolint:revive
 package rps
 
 import (

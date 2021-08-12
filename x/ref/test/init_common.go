@@ -21,15 +21,20 @@ import (
 	"v.io/x/ref/test/testutil"
 )
 
+// Constants for use in tests.
 const (
-	TestBlessing = "test-blessing"
+	TestBlessing                          = "test-blessing"
+	IntegrationTestsFlag                  = "v23.tests"
+	IntegrationTestsDebugShellOnErrorFlag = "v23.tests.shell-on-fail"
 )
 
-var IntegrationTestsEnabled bool
-var IntegrationTestsDebugShellOnError bool
-
-const IntegrationTestsFlag = "v23.tests"
-const IntegrationTestsDebugShellOnErrorFlag = "v23.tests.shell-on-fail"
+// Variables set by flags registered by this package's init
+// function, namely for IntegrationTestsFlag and
+// IntegrationTestsDebugShellOnErrorFlag respectively.
+var (
+	IntegrationTestsEnabled           bool
+	IntegrationTestsDebugShellOnError bool
+)
 
 func init() {
 	flag.BoolVar(&IntegrationTestsEnabled, IntegrationTestsFlag, false, "Run integration tests.")
@@ -101,6 +106,7 @@ func internalInit(createMounttable bool) (*context.T, func()) {
 // TestContext returns a *context.T suitable for use in tests. It sets the
 // context's logger to logger.Global(), and that's it. In particular, it does
 // not call v23.Init().
+//nolint:revive // API change required.
 func TestContext() (*context.T, context.CancelFunc) {
 	ctx, cancel := context.RootContext()
 	return context.WithLogger(ctx, logger.Global()), cancel

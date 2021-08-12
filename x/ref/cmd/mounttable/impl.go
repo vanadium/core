@@ -77,10 +77,7 @@ func runGlob(ctx *context.T, env *cmdline.Env, args []string) error {
 			fmt.Fprintln(env.Stdout)
 		}
 	}
-	if err := call.Finish(); err != nil {
-		return err
-	}
-	return nil
+	return call.Finish()
 }
 
 var cmdMount = &cmdline.Command{

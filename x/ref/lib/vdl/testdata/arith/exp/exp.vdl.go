@@ -7,7 +7,7 @@
 
 // Package exp is used to test that embedding interfaces works across packages.
 // The arith.Calculator vdl interface embeds the Exp interface.
-//nolint:golint
+//nolint:revive
 package exp
 
 import (

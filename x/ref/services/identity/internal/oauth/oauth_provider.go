@@ -7,13 +7,14 @@ package oauth
 // Option to OAuthProvider.AuthURL controlling whether previously provided user consent can be re-used.
 type AuthURLApproval bool
 
+// Approval options.
 const (
 	ExplicitApproval AuthURLApproval = false // Require explicit user consent.
 	ReuseApproval    AuthURLApproval = true  // Reuse a previous user consent if possible.
 )
 
 // OAuthProvider authenticates users to the identity server via the OAuth2 Web Server flow.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type OAuthProvider interface {
 	// AuthURL is the URL the user must visit in order to authenticate with the OAuthProvider.
 	// After authentication, the user will be re-directed to redirectURL with the provided state.

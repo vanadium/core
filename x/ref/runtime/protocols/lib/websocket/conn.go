@@ -18,7 +18,7 @@ import (
 )
 
 // WebsocketConn provides a flow.Conn interface for a websocket connection.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func WebsocketConn(ws *websocket.Conn) flow.Conn {
 	return &wrappedConn{ws: ws}
 }

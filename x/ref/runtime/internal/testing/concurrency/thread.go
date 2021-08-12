@@ -28,7 +28,7 @@ func (tids IncreasingTID) Swap(i, j int) {
 
 // TIDGenerator is used for generating unique thread identifiers.
 func TIDGenerator() func() TID {
-	var n int = 0
+	var n int
 	return func() TID {
 		n++
 		return TID(n)

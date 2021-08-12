@@ -6,7 +6,7 @@
 // Package: signature
 
 // Package signature defines types representing interface and method signatures.
-//nolint:golint
+//nolint:revive
 package signature
 
 import (

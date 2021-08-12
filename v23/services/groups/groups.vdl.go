@@ -7,7 +7,7 @@
 
 // Package groups defines interfaces for managing access control groups.  Groups
 // can be referenced by BlessingPatterns (e.g. in AccessLists).
-//nolint:golint
+//nolint:revive
 package groups
 
 import (

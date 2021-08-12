@@ -10,7 +10,7 @@ import (
 
 type Opts struct {
 	MountName  string
-	AclFile    string //nolint:golint // API change required.
+	AclFile    string //nolint:revive // API change required.
 	NhName     string
 	PersistDir string
 }

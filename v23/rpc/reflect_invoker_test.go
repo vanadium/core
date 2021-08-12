@@ -162,7 +162,7 @@ func (o *tags) Error(ctx *context.T, call rpc.ServerCall) error {
 	return errApp
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (o *tags) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{{
 		Methods: []rpc.MethodDesc{
@@ -314,7 +314,7 @@ func (sigTest) Sig4(*context.T, rpc.StreamServerCall, int32, string) (int32, str
 	return 0, "", nil
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (sigTest) Describe__() []rpc.InterfaceDesc {
 	return []rpc.InterfaceDesc{
 		{
@@ -589,42 +589,42 @@ func (badoutargs) NoFinalError1(*context.T, rpc.ServerCall)                {}
 func (badoutargs) NoFinalError2(*context.T, rpc.ServerCall) string         { return "" }
 func (badoutargs) NoFinalError3(*context.T, rpc.ServerCall) (bool, string) { return false, "" }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badoutargs) NoFinalError4(*context.T, rpc.ServerCall) (error, string) { return nil, "" }
 
 func (badGlobber) Globber() {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob1) Glob__() {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob2) Glob__(*context.T) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob3) Glob__(*context.T, rpc.GlobServerCall) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob4) Glob__(*context.T, rpc.GlobServerCall, *glob.Glob) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob5) Glob__(*context.T, rpc.ServerCall, *glob.Glob) error { return nil }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlob6) Glob__() error { return nil }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlobChildren1) GlobChildren__() {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlobChildren2) GlobChildren__(*context.T) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlobChildren3) GlobChildren__(*context.T, rpc.GlobChildrenServerCall) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlobChildren4) GlobChildren__(*context.T, rpc.GlobChildrenServerCall, *glob.Element) {}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (badGlobChildren5) GlobChildren__(*context.T, rpc.GlobChildrenServerCall) error { return nil }
 
 func TestReflectInvokerPanic(t *testing.T) {
@@ -720,14 +720,14 @@ func (o *vGlobberObject) Globber() *rpc.GlobState {
 
 type allGlobberObject struct{}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (allGlobberObject) Glob__(*context.T, rpc.GlobServerCall, *glob.Glob) error {
 	return nil
 }
 
 type childrenGlobberObject struct{}
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (childrenGlobberObject) GlobChildren__(*context.T, rpc.GlobChildrenServerCall, *glob.Element) error {
 	return nil
 }

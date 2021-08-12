@@ -129,7 +129,7 @@ func createPackagesAndSwiftContext(t *testing.T, modules []moduleConfig, pkgs []
 		i++
 	}
 	// Find ctxPkgPath
-	var ctxPkg *compile.Package = nil
+	var ctxPkg *compile.Package
 	for _, pkg := range built {
 		if pkg.Path == ctxPath {
 			ctxPkg = pkg
@@ -185,7 +185,7 @@ func TestPkgIsSameModule(t *testing.T) {
 	for _, test := range tests {
 		pkgs, ctx, cleanup := createPackagesAndSwiftContext(t, test.modules, test.pkgs, test.ctxPath)
 		// Find test pkgPath
-		var testPkg *compile.Package = nil
+		var testPkg *compile.Package
 		for _, pkg := range pkgs {
 			if pkg.Path == test.pkgPath {
 				testPkg = pkg
@@ -312,7 +312,7 @@ func TestPackageName(t *testing.T) {
 	for _, test := range tests {
 		pkgs, ctx, cleanup := createPackagesAndSwiftContext(t, test.modules, test.pkgs, test.ctxPath)
 		// Find test pkgPath
-		var testPkg *compile.Package = nil
+		var testPkg *compile.Package
 		for _, pkg := range pkgs {
 			if pkg.Path == test.pkgPath {
 				testPkg = pkg
@@ -428,7 +428,7 @@ func TestImportedModules(t *testing.T) {
 	for _, test := range tests {
 		pkgs, ctx, cleanup := createPackagesAndSwiftContext(t, test.modules, test.pkgs, test.ctxPath)
 		// Find test tdef
-		var testTdef *compile.TypeDef = nil
+		var testTdef *compile.TypeDef
 		for _, pkg := range pkgs {
 			if strings.HasPrefix(test.tdefQualifiedPath, pkg.Path) {
 				for _, tdef := range pkg.TypeDefs() {

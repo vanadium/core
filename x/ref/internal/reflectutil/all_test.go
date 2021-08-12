@@ -36,11 +36,11 @@ type (
 )
 
 var (
-	recurseCycle   *Recurse  = &Recurse{}
-	recurseABCycle *RecurseA = &RecurseA{}
+	recurseCycle   = &Recurse{}
+	recurseABCycle = &RecurseA{}
 
-	intPtr1a *int = new(int)
-	intPtr1b *int = new(int)
+	intPtr1a = new(int)
+	intPtr1b = new(int)
 
 	iface interface{}
 )

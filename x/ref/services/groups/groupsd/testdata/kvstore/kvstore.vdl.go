@@ -7,7 +7,7 @@
 
 // Package kvstore implements a simple key-value store used for
 // testing the groups-based authorization.
-//nolint:golint
+//nolint:revive
 package kvstore
 
 import (

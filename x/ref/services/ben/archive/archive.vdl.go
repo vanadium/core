@@ -6,7 +6,7 @@
 // Package: archive
 
 // Package archive defines the RPC interface for archiving benchmark results.
-//nolint:golint
+//nolint:revive
 package archive
 
 import (

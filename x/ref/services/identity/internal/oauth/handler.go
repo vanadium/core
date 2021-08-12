@@ -47,10 +47,13 @@ import (
 const (
 	clientIDCookie = "VeyronHTTPIdentityClientID"
 
-	ListBlessingsRoute         = "listblessings"
+	// ListBlessingsRoute is the URL path for listing blessings.
+	ListBlessingsRoute = "listblessings"
+	// SeekBlessingsRoute is the URL path for seeking blessings.
+	SeekBlessingsRoute = "seekblessings"
+
 	listBlessingsCallbackRoute = "listblessingscallback"
 	revokeRoute                = "revoke"
-	SeekBlessingsRoute         = "seekblessings"
 	addCaveatsRoute            = "addcaveats"
 	sendMacaroonRoute          = "sendmacaroon"
 )

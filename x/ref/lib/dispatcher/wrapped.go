@@ -16,7 +16,7 @@ import (
 // it is sometimes helpful to know the server's endpoints.
 // In such cases you can construct a DispatcherWrapper which will simply block
 // all lookups until the real dispatcher is set with SetDispatcher.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type DispatcherWrapper struct {
 	wrapped      rpc.Dispatcher
 	wrappedIsSet chan struct{}

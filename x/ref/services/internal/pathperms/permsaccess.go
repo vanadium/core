@@ -174,10 +174,7 @@ func (store *PathStore) Delete(dir string) error {
 	if err := os.Remove(sigpath); err != nil {
 		return err
 	}
-	if err := os.Remove(dir); err != nil {
-		return err
-	}
-	return nil
+	return os.Remove(dir)
 }
 
 // write writes the specified Permissions to the permsFile with a

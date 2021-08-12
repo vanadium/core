@@ -10,6 +10,7 @@ type UnaryOp uint
 // BinaryOp represents a binary operation to be performed on two Consts.
 type BinaryOp uint
 
+// Values for UnaryOp.
 const (
 	InvalidUnaryOp UnaryOp = iota
 	LogicNot               //  ! logical not
@@ -18,6 +19,7 @@ const (
 	BitNot                 //  ^ bitwise not
 )
 
+// Values for BinaryOp.
 const (
 	InvalidBinaryOp BinaryOp = iota
 	LogicAnd                 //  && logical and

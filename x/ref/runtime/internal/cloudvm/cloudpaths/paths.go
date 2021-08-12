@@ -4,6 +4,7 @@
 
 package cloudpaths
 
+// AWS constants for its EC2 metadata service.
 const (
 	AWSHost            = "http://169.254.169.254"
 	AWSTokenPath       = "/latest/api/token"
@@ -12,6 +13,7 @@ const (
 	AWSPrivateIPPath   = "/latest/meta-data/local-ipv4"
 )
 
+// GCP constants for its metadata service.
 const (
 	GCPHost           = "http://metadata.google.internal"
 	GCPExternalIPPath = "/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip"

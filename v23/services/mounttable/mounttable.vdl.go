@@ -16,7 +16,7 @@
 // Access is determined by AccessLists at each node in the tree.  When resolving
 // a name like a/b/c/d, one must check the client blessings against the
 // AccessLists of each node traversed ("", a, a/b, a/b/c, and a/b/c/d).
-//nolint:golint
+//nolint:revive
 package mounttable
 
 import (

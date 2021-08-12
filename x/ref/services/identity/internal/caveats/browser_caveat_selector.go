@@ -32,10 +32,7 @@ func (s *browserCaveatSelector) Render(blessingName, state, redirectURL string, 
 		BlessingName, Macaroon, MacaroonURL, AssetsPrefix string
 	}{blessingName, state, redirectURL, s.assetsPrefix}
 	w.Header().Set("Context-Type", "text/html")
-	if err := templates.SelectCaveats.Execute(w, tmplargs); err != nil {
-		return err
-	}
-	return nil
+	return templates.SelectCaveats.Execute(w, tmplargs)
 }
 
 func (s *browserCaveatSelector) ParseSelections(r *http.Request) (caveats []CaveatInfo, state string, additionalExtension string, err error) {

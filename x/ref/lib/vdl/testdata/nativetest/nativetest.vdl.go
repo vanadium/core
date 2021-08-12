@@ -6,7 +6,7 @@
 // Package: nativetest
 
 // Package nativetest tests a package with native type conversions.
-//nolint:golint
+//nolint:revive
 package nativetest
 
 import (

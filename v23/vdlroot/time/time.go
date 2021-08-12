@@ -45,14 +45,14 @@ func (VDLNativeConverter) FromNative(wire, native interface{}) error {
 }
 
 // TimeToNative is called by VDL for conversions from wire to native times.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func TimeToNative(wire Time, native *time.Time) error {
 	*native = time.Unix(wire.Seconds-unixEpoch, int64(wire.Nanos)).UTC()
 	return nil
 }
 
 // TimeFromNative is called by VDL for conversions from native to wire times.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func TimeFromNative(wire *Time, native time.Time) error {
 	wire.Seconds = native.Unix() + unixEpoch
 	wire.Nanos = int32(native.Nanosecond())

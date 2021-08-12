@@ -682,8 +682,5 @@ func (p *fsPersist) rotateLog() error {
 // createState throws out all state and starts again from scratch.
 func (p *fsPersist) createState() error {
 	os.RemoveAll(p.dir)
-	if err := os.Mkdir(p.dir, 0770); err != nil {
-		return err
-	}
-	return nil
+	return os.Mkdir(p.dir, 0770)
 }

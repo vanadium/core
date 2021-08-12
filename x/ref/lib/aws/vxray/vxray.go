@@ -1,4 +1,4 @@
-// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Copyright 2021 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -78,9 +78,7 @@ func GetTraceHeader(ctx *context.T) *header.Header {
 		return hdr
 	}
 	// See if the xray sdk has already inserted a header.
-	// NOTE:  that golint doesn't like using a string as a context value key,
-	//        so silence it since AWS already made that decision/error for us.
-	if tmp := ctx.Value(xray.LambdaTraceHeaderKey); tmp != nil { //nolint:golint
+	if tmp := ctx.Value(xray.LambdaTraceHeaderKey); tmp != nil {
 		return header.FromString(tmp.(string))
 	}
 	return nil
@@ -90,7 +88,7 @@ func GetTraceHeader(ctx *context.T) *header.Header {
 // as both a pointer managed by this package and the string representation
 // managed by the xray package.
 func WithTraceHeader(ctx *context.T, hdr *header.Header) *context.T {
-	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr.String()) //nolint:golint
+	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr.String())
 	return context.WithValue(ctx, traceHeaderKey{}, hdr)
 }
 
@@ -121,7 +119,7 @@ func GetConfig(ctx *context.T) *xray.Config {
 func MergeHTTPRequestContext(ctx *context.T, req *http.Request) *context.T {
 	goctx := req.Context()
 	if hdr := goctx.Value(xray.LambdaTraceHeaderKey); hdr != nil {
-		ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr) //nolint:golint
+		ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, hdr) //nolint:revive
 		ctx = context.WithValue(ctx, traceHeaderKey{}, header.FromString(hdr.(string)))
 	}
 	seg := goctx.Value(xray.ContextKey)
