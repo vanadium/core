@@ -1,4 +1,4 @@
-// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Copyright 2021 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,12 +10,18 @@
 package slang
 
 const (
+	// Summary is a summary of the slang language for use in
+	// displaying help messages etc.
 	Summary = `The language consists of a series of invocations on functions, with no control flow. Variables can only be created from the results of such invocations. Once so created they may be used as arguments to subsequent invocations. Execution stops on first error. Go-style comments are allowed. All variables are typed as per Go's type system and their use is type-checked before any functions are run.
 `
 
+	// Literals describes the literals supported by the slang
+	// language for use in displaying help messages etc.
 	Literals = `Literal values are supported as per Go's syntax for int's, float's, bool's, string's and time.Duration
 `
 
+	// Examples contains a simple example of the slang
+	// language for use in displaying help messages etc.
 	Examples = `printHelloWorld() // A function with a side-effect.
 
 a, b := createTwoVariables() // A function that returns two variables.

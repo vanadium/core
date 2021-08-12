@@ -295,10 +295,7 @@ func SetDefaultBlessings(p security.Principal, blessings security.Blessings) err
 	if _, err := p.BlessingStore().Set(blessings, security.AllPrincipals); err != nil {
 		return err
 	}
-	if err := security.AddToRoots(p, blessings); err != nil {
-		return err
-	}
-	return nil
+	return security.AddToRoots(p, blessings)
 }
 
 // InitDefaultBlessings uses the provided principal to create a self blessing

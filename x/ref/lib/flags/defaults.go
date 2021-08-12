@@ -31,6 +31,7 @@ var (
 	defaultPermissionsLiteral string
 	defaultPermissions        map[string]string
 	defaultVirtualized        VirtualizedFlagDefaults
+	defaultVtrace             VtraceFlags
 
 	// defaultExplicitlySet is used to track which of the above have been
 	// changed. See markAsNewDefault and hasNewDefault below.
@@ -318,5 +319,19 @@ func DefaultVirtualizedFlagValues() VirtualizedFlagDefaults {
 	if p := os.Getenv(ref.EnvVirtualizationProvider); len(p) > 0 {
 		def.VirtualizationProvider = p
 	}
+	return def
+}
+
+func SetDefaultVtraceFlags(values VtraceFlags) {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	defaultVtrace = values
+	markAsNewDefaultLocked(&defaultVtrace)
+}
+
+func DefaultVtraceFlags() VtraceFlags {
+	defaultMu.Lock()
+	defer defaultMu.Unlock()
+	def := defaultVtrace
 	return def
 }

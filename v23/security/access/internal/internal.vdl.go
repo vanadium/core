@@ -7,7 +7,7 @@
 
 // Package internal provides a VDL specification for a service used in the
 // unittest of the access package.
-//nolint:golint
+//nolint:revive
 package internal
 
 import (

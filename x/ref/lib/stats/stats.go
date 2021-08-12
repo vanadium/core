@@ -25,7 +25,7 @@ import (
 )
 
 // StatsObject is the interface for objects stored in the stats repository.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type StatsObject interface {
 	// LastUpdate is used by WatchGlob to decide which updates to send.
 	LastUpdate() time.Time

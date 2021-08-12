@@ -186,8 +186,5 @@ func secondArgLocationCheck(db ds.Database, off int64, args []*queryparser.Opera
 	// At this point, for the args that can be evaluated before execution, it is known that
 	// there are two args, a time followed by a string.
 	// Just need to check that the 2nd arg is convertible to a location.
-	if err := checkIfPossibleThatArgIsConvertibleToLocation(db, args[1]); err != nil {
-		return err
-	}
-	return nil
+	return checkIfPossibleThatArgIsConvertibleToLocation(db, args[1])
 }

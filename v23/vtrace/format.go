@@ -5,6 +5,7 @@
 package vtrace
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
 	"sort"
@@ -116,6 +117,13 @@ func formatDelta(when, start time.Time) string {
 	return when.Sub(start).String()
 }
 
+func metadataInHex(md []byte) string {
+	if len(md) > 10 {
+		md = md[:10]
+	}
+	return hex.EncodeToString(md)
+}
+
 func formatNode(w io.Writer, n *Node, traceStart time.Time, indent string) {
 	fmt.Fprintf(w, "%sSpan - %s [id: %x parent %x] (%s, %s: %s)\n",
 		indent,
@@ -128,6 +136,10 @@ func formatNode(w io.Writer, n *Node, traceStart time.Time, indent string) {
 	indent += indentStep
 	for _, a := range n.Span.Annotations {
 		fmt.Fprintf(w, "%s@%s %s\n", indent, formatDelta(a.When, traceStart), a.Message)
+	}
+
+	if len(n.Span.RequestMetadata) > 0 {
+		fmt.Fprintf(w, "%s[0x%s]\n", indent, metadataInHex(n.Span.RequestMetadata))
 	}
 	for _, c := range n.Children {
 		formatNode(w, c, traceStart, indent)

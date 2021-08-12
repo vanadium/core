@@ -54,7 +54,7 @@ func swiftGenPkgPath(vdlPkgPath string) string {
 }
 
 // SwiftFileInfo stores the name and contents of the generated Swift file.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type SwiftFileInfo struct {
 	Data   []byte
 	Dir    string

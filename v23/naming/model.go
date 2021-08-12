@@ -7,6 +7,8 @@ package naming
 import "v.io/v23/verror"
 
 const (
+	// UnknownProtocol, the empty string, is used when a protocol is specified
+	// in an Endpoint.
 	UnknownProtocol = ""
 )
 

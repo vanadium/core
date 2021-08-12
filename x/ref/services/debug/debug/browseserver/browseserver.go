@@ -919,7 +919,7 @@ type Tracer struct {
 }
 
 func newTracer(ctx *context.T) (*context.T, *Tracer) {
-	ctx, span := vtrace.WithNewTrace(ctx)
+	ctx, span := vtrace.WithNewTrace(ctx, "browserserver", nil)
 	vtrace.ForceCollect(ctx, 0)
 	return ctx, &Tracer{ctx, span}
 }

@@ -32,6 +32,8 @@ import (
 var SameSignalTimeWindow time.Duration
 
 const (
+	// DoubleStopExitCode is the process' exit code if a second
+	// signal is received.
 	DoubleStopExitCode = 1
 )
 

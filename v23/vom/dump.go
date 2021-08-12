@@ -286,7 +286,7 @@ func (d *dumpWorker) lastFlushDone(err error) {
 // DumpStatus represents the state of the dumper.  It is written to the
 // DumpWriter at the end of decoding each value, and may also be triggered
 // explicitly via Dumper.Status calls to get information for partial dumps.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type DumpStatus struct {
 	MsgId      int64
 	MsgLen     int

@@ -237,7 +237,7 @@ func TestGlobDeny(t *testing.T) {
 			// We check the actual error string to make sure that we don't start
 			// leaking new information by accident.
 			expectedStr := fmt.Sprintf(
-				`test.test:"%s".__Glob: some matches might have been omitted`,
+				`test.test:%s.__Glob: some matches might have been omitted`,
 				tc.name)
 			if got := gerr.Error.Error(); got != expectedStr {
 				t.Errorf("unexpected error string: Got %q, expected %q", got, expectedStr)
@@ -286,7 +286,7 @@ type globObject struct {
 	n *node
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (o *globObject) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	o.globLoop(call, "", g, o.n)
 	return nil
@@ -311,7 +311,7 @@ type vChildrenObject struct {
 	n *node
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (o *vChildrenObject) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	sender := call.SendStream()
 	for child := range o.n.children {

@@ -36,21 +36,27 @@ type SpanRecord struct {
 
 	// A series of annotations.
 	Annotations []Annotation
+
+	// RequestMetadata that will be sent along with the request.
+	RequestMetadata []byte
 }
 
+// TraceFlags represents a bit mask that determines
 type TraceFlags int32
 
 const (
 	Empty           = TraceFlags(0)
 	CollectInMemory = TraceFlags(1)
+	AWSXRay         = TraceFlags(2)
 )
 
 // Request is the object that carries trace information between processes.
 type Request struct {
-	SpanId  uniqueid.Id // The Id of the span that originated the RPC call.
-	TraceId uniqueid.Id // The Id of the trace this call is a part of.
-	Flags   TraceFlags
-	LogLevel   int32
+	SpanId   uniqueid.Id   // The Id of the span that originated the RPC call.
+	TraceId  uniqueid.Id   // The Id of the trace this call is a part of.
+	RequestMetadata []byte // Any metadata to be sent with the request.
+	Flags    TraceFlags
+	LogLevel int32
 }
 
 type Response struct {

@@ -47,7 +47,7 @@ func derefSlice(slice []interface{}) []interface{} {
 	return o
 }
 
-var invocationCounter uint64 = 0
+var invocationCounter uint64
 
 // newInvocationIdentifier generates a unique identifier for a method invocation
 // to make it easier to match up log lines for the entry and exit of a function

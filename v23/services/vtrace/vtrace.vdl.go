@@ -7,7 +7,7 @@
 
 // Package vtrace defines an interface to access v.io/v23/vtrace traces, to help
 // analyze and debug distributed systems.
-//nolint:golint
+//nolint:revive
 package vtrace
 
 import (

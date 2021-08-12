@@ -25,6 +25,8 @@ const (
 	// --v23.vtrace.dump-on-shutdown
 	// --v23.vtrace.cache-size
 	// --v23.vtrace.collect-regexp
+	// --v23.vtrace.enable-aws-xray
+	// --v23.vtrace.root-span-name
 	Runtime FlagGroup = iota
 	// Listen identifies the flags typically required to configure
 	// rpc.ListenSpec. Namely:
@@ -102,6 +104,10 @@ type VtraceFlags struct {
 	// SpanRegexp matches a regular expression against span names and
 	// annotations and forces any trace matching trace to be collected.
 	CollectRegexp string `cmdline:"v23.vtrace.collect-regexp,,Spans and annotations that match this regular expression will trigger trace collection"`
+
+	EnableAWSXRay bool `cmdline:"v23.vtrace.enable-aws-xray,false,Enable the use of AWS x-ray integration with vtrace"`
+
+	RootSpanName string `cmdline:"v23.vtrace.root-span-name,,Set the name of the root vtrace span created by the runtime at startup"`
 }
 
 // CreateAndRegisterRuntimeFlags creates and registers a RuntimeFlags
@@ -129,13 +135,7 @@ func NewRuntimeFlags() (*RuntimeFlags, error) {
 		rf.NamespaceRoots.Roots = roots
 	}
 	rf.Credentials = DefaultCredentialsDir()
-	rf.VtraceFlags = VtraceFlags{
-		SampleRate:     0.0,
-		DumpOnShutdown: true,
-		CacheSize:      1024,
-		LogLevel:       0,
-		CollectRegexp:  "",
-	}
+	rf.VtraceFlags = DefaultVtraceFlags()
 	return rf, nil
 }
 

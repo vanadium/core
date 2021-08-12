@@ -88,7 +88,7 @@ func formatUint64BigInt(v uint64) string {
 // Format the given int64 into a JS BigInt.
 func formatInt64BigInt(v int64) string {
 	buffer := make([]byte, 8)
-	var sign int64 = 0
+	var sign int64
 	if v > 0 {
 		sign = 1
 	} else if v < 0 {

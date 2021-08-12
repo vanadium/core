@@ -22,14 +22,16 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var echoStr = "Echo"
-var langStr = "en-US.UTF-8"
-var uint641 = uint64(1)
-var boolTrue = true
-var boolFalse = false
-var int64100000 = int64(1000000)
-var emptyString string = ""
-var int320 = int32(0)
+var (
+	echoStr     = "Echo"
+	langStr     = "en-US.UTF-8"
+	uint641     = uint64(1)
+	boolTrue    = true
+	boolFalse   = false
+	int64100000 = int64(1000000)
+	emptyString string
+	int320      = int32(0)
+)
 
 var protoReq = &RpcRequest{
 	Suffix:           &emptyString,

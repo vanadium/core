@@ -6,7 +6,7 @@
 // Package: arith
 
 // Package arith is a vdl test package with imports.
-//nolint:golint
+//nolint:revive
 package arith
 
 import (

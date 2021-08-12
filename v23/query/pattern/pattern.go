@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	// DefaultEscapeChar is the default escape character sequence.
 	DefaultEscapeChar = '\\'
 )
 

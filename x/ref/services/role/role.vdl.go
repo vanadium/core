@@ -7,7 +7,7 @@
 
 // Package role defines an interface for requesting blessings from a role
 // account server.
-//nolint:golint
+//nolint:revive
 package role
 
 import (

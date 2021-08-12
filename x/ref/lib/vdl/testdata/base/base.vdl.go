@@ -6,7 +6,7 @@
 // Package: base
 
 // Package base is a simple single-file test of vdl functionality.
-//nolint:golint
+//nolint:revive
 package base
 
 import (

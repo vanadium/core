@@ -303,8 +303,12 @@ func WithRootCancel(parent *T) (*T, CancelFunc) {
 		// Forward the cancelation from the root context to the newly
 		// created context.
 		go func() {
-			<-rootCtx.Done()
-			cancel()
+			select {
+			case <-rootCtx.Done():
+				cancel()
+			case <-ctx.Done():
+				cancel()
+			}
 		}()
 	} else if atomic.AddInt32(&nRootCancelWarning, 1) < 3 {
 		vlog.Errorf("context.WithRootCancel: context %+v is not derived from root v23 context.\n", parent)

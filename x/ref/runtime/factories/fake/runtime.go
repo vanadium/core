@@ -14,6 +14,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/x/ref/internal/logger"
+	"v.io/x/ref/lib/flags"
 	tnaming "v.io/x/ref/runtime/internal/testing/mocks/naming"
 	"v.io/x/ref/test/testutil"
 )
@@ -35,7 +36,7 @@ type Runtime struct {
 	ns namespace.T
 }
 
-func new(ctx *context.T) (*Runtime, *context.T, v23.Shutdown, error) {
+func newRuntime(ctx *context.T) (*Runtime, *context.T, v23.Shutdown, error) {
 	ctx = context.WithValue(ctx, principalKey, testutil.NewPrincipal("fake"))
 	ctx = context.WithLogger(ctx, logger.Global())
 	return &Runtime{ns: tnaming.NewSimpleNamespace()}, ctx, func() {}, nil
@@ -85,7 +86,6 @@ func (r *Runtime) GetRequestID(ctx *context.T) uuid.UUID {
 }
 
 func (r *Runtime) NewDiscovery(ctx *context.T) (discovery.T, error) {
-	// nologcall
 	panic("unimplemented")
 }
 
@@ -94,6 +94,9 @@ func (*Runtime) WithReservedNameDispatcher(ctx *context.T, d rpc.Dispatcher) *co
 }
 
 func (*Runtime) GetReservedNameDispatcher(ctx *context.T) rpc.Dispatcher {
-	// nologcall
 	panic("unimplmeneted")
+}
+
+func (*Runtime) GetFlags() flags.RuntimeFlags {
+	return flags.RuntimeFlags{}
 }

@@ -64,7 +64,7 @@ type GeneratorEntry struct {
 	Gob   bool
 }
 
-var benchmarks []GeneratorEntry = []GeneratorEntry{
+var benchmarks = []GeneratorEntry{
 	{
 		Name:  `XNumber`,
 		Type:  `XNumber`,

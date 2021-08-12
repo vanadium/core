@@ -71,6 +71,9 @@
 package vtrace
 
 import (
+	"fmt"
+	"time"
+
 	"v.io/v23/context"
 	"v.io/v23/uniqueid"
 )
@@ -99,12 +102,30 @@ type Span interface {
 	// format and a are interpreted as with fmt.Printf.
 	Annotatef(format string, a ...interface{})
 
+	// AnnotateMetadata can be used to associate key/value with the span. If
+	// indexed is false, the underlying implementation may create a searchable
+	// index using this metadata. However, indexing itself is an implementation
+	// specific feature and need be provided by every implementation.
+	// NOTE that metadata is not communicated back to the requestor and is
+	// intended for purely per-server/node use.
+	AnnotateMetadata(key string, value interface{}, indexed bool) error
+
+	// SetRequestMetadata appends metadata to be associated with this span and
+	// hence encoded in any RPC requests made by this span. The interpretation
+	// of the metdata is governed by the value of TraceFlags.
+	SetRequestMetadata(metadata []byte)
+
 	// Finish ends the span, marking the end time.  The span should
 	// not be used after Finish is called.
-	Finish()
+	Finish(error)
 
 	// Trace returns the id of the trace this Span is a member of.
 	Trace() uniqueid.Id
+
+	// Store returns the store that this Span is stored in.
+	Store() Store
+
+	Request(ctx *context.T) Request
 }
 
 // Store selectively collects information about traces in the system.
@@ -122,6 +143,22 @@ type Store interface {
 
 	// Merge merges a vtrace.Response into the current store.
 	Merge(response Response)
+
+	// Return the log level in effect for this trace.
+	LogLevel(traceid uniqueid.Id) int
+
+	Flags(traceid uniqueid.Id) TraceFlags
+
+	Start(traceid uniqueid.Id, span SpanRecord)
+
+	Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time)
+
+	// Annotate records the requested annotation.
+	Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation)
+
+	// AnnotateMetadata records the requested key value data with optional
+	// indexing.
+	AnnotateMetadata(traceid uniqueid.Id, span SpanRecord, key string, value interface{}, indexed bool) error
 }
 
 type Manager interface {
@@ -129,23 +166,17 @@ type Manager interface {
 	// other span.  This is useful when starting operations that are
 	// disconnected from the activity ctx is performing.  For example
 	// this might be used to start background tasks.
-	WithNewTrace(ctx *context.T) (*context.T, Span)
+	WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span)
 
 	// WithContinuedTrace creates a span that represents a continuation of
 	// a trace from a remote server.  name is the name of the new span and
 	// req contains the parameters needed to connect this span with it's
 	// trace.
-	WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span)
+	WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span)
 
 	// WithNewSpan derives a context with a new Span that can be used to
 	// trace and annotate operations across process boundaries.
 	WithNewSpan(ctx *context.T, name string) (*context.T, Span)
-
-	// Span finds the currently active span.
-	GetSpan(ctx *context.T) Span
-
-	// Store returns the current Store.
-	GetStore(ctx *context.T) Store
 
 	// Generate a Request from the current context.
 	GetRequest(ctx *context.T) Request
@@ -156,6 +187,8 @@ type Manager interface {
 
 // managerKey is used to store a Manger in the context.
 type managerKey struct{}
+type storeKey struct{}
+type spanKey struct{}
 
 // WithManager returns a new context with a Vtrace manager attached.
 func WithManager(ctx *context.T, manager Manager) *context.T {
@@ -172,20 +205,30 @@ func manager(ctx *context.T) Manager {
 	return manager
 }
 
+// SamplingRequest can be used to make sampling decisions about a trace.
+// It is always optional and its behaviour is implementation dependent.
+// Similarly, each of the individual fields is optional. The SamplingRequest
+// is not (currently) included in the vtrace span.
+type SamplingRequest struct {
+	Local  string // The address/name of the local host generating this trace.
+	Name   string // The name the traced service is available as, may differ from the name of the span.
+	Method string // The method being invoked.
+}
+
 // WithNewTrace creates a new vtrace context that is not the child of any
 // other span.  This is useful when starting operations that are
 // disconnected from the activity ctx is performing.  For example
 // this might be used to start background tasks.
-func WithNewTrace(ctx *context.T) (*context.T, Span) {
-	return manager(ctx).WithNewTrace(ctx)
+func WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span) {
+	return manager(ctx).WithNewTrace(ctx, name, sr)
 }
 
 // WithContinuedTrace creates a span that represents a continuation of
 // a trace from a remote server.  name is the name of the new span and
 // req contains the parameters needed to connect this span with it's
 // trace.
-func WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span) {
-	return manager(ctx).WithContinuedTrace(ctx, name, req)
+func WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span) {
+	return manager(ctx).WithContinuedTrace(ctx, name, sr, req)
 }
 
 // WithNewSpan derives a context with a new Span that can be used to
@@ -194,21 +237,39 @@ func WithNewSpan(ctx *context.T, name string) (*context.T, Span) {
 	return manager(ctx).WithNewSpan(ctx, name)
 }
 
-// Span finds the currently active span.
-func GetSpan(ctx *context.T) Span {
-	return manager(ctx).GetSpan(ctx)
+func WithSpan(ctx *context.T, span Span) *context.T {
+	return context.WithValue(ctx, spanKey{}, span)
 }
 
-// VtraceStore returns the current Store.
+func WithStore(ctx *context.T, store Store) *context.T {
+	return context.WithValue(ctx, storeKey{}, store)
+}
+
+// Span finds the currently active span.
+func GetSpan(ctx *context.T) Span {
+	span, _ := ctx.Value(spanKey{}).(Span)
+	if span == nil {
+		return &emptySpan{}
+	}
+	return span
+}
+
+// GetStore returns the current Store.
 func GetStore(ctx *context.T) Store {
-	return manager(ctx).GetStore(ctx)
+	store, _ := ctx.Value(storeKey{}).(Store)
+	if store == nil {
+		return &emptyStore{}
+	}
+	return store
 }
 
 // ForceCollect forces the store to collect all information about the
 // current trace.
 func ForceCollect(ctx *context.T, level int) {
-	m := manager(ctx)
-	m.GetStore(ctx).ForceCollect(m.GetSpan(ctx).Trace(), level)
+	store, _ := ctx.Value(storeKey{}).(Store)
+	span, _ := ctx.Value(spanKey{}).(Span)
+	fmt.Printf("STORE: %p, span %p - trace %v\n", store, span, span.Trace())
+	store.ForceCollect(span.Trace(), level)
 }
 
 // Generate a Request from the current context.
@@ -223,15 +284,16 @@ func GetResponse(ctx *context.T) Response {
 
 type emptyManager struct{}
 
-func (emptyManager) WithNewTrace(ctx *context.T) (*context.T, Span) { return ctx, emptySpan{} }
-func (emptyManager) WithContinuedTrace(ctx *context.T, name string, req Request) (*context.T, Span) {
+func (emptyManager) WithNewTrace(ctx *context.T, name string, sr *SamplingRequest) (*context.T, Span) {
+	return ctx, emptySpan{}
+}
+func (emptyManager) WithContinuedTrace(ctx *context.T, name string, sr *SamplingRequest, req Request) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
 func (emptyManager) WithNewSpan(ctx *context.T, name string) (*context.T, Span) {
 	return ctx, emptySpan{}
 }
-func (emptyManager) GetSpan(ctx *context.T) Span             { return emptySpan{} }
-func (emptyManager) GetStore(ctx *context.T) Store           { return emptyStore{} }
+
 func (emptyManager) GetRequest(ctx *context.T) (r Request)   { return }
 func (emptyManager) GetResponse(ctx *context.T) (r Response) { return }
 
@@ -242,12 +304,28 @@ func (emptySpan) ID() (id uniqueid.Id)                      { return }
 func (emptySpan) Parent() (id uniqueid.Id)                  { return }
 func (emptySpan) Annotate(s string)                         {}
 func (emptySpan) Annotatef(format string, a ...interface{}) {}
-func (emptySpan) Finish()                                   {}
-func (emptySpan) Trace() (id uniqueid.Id)                   { return }
+func (emptySpan) AnnotateMetadata(key string, value interface{}, indexed bool) error {
+	return nil
+}
+func (emptySpan) SetRequestMetadata([]byte)        {}
+func (emptySpan) Finish(error)                     {}
+func (emptySpan) Trace() (id uniqueid.Id)          { return }
+func (emptySpan) Store() Store                     { return nil }
+func (emptySpan) Request(*context.T) (req Request) { return }
 
 type emptyStore struct{}
 
 func (emptyStore) TraceRecords() []TraceRecord                  { return nil }
 func (emptyStore) TraceRecord(traceid uniqueid.Id) *TraceRecord { return nil }
 func (emptyStore) ForceCollect(traceid uniqueid.Id, level int)  {}
-func (emptyStore) Merge(response Response)                      {}
+func (emptyStore) Start(traceid uniqueid.Id, span SpanRecord)   {}
+
+func (emptyStore) Finish(traceid uniqueid.Id, span SpanRecord, timestamp time.Time) {}
+
+func (emptyStore) Annotate(traceid uniqueid.Id, span SpanRecord, annotation Annotation) {}
+func (emptyStore) AnnotateMetadata(traceid uniqueid.Id, span SpanRecord, key string, value interface{}, indexed bool) error {
+	return nil
+}
+func (emptyStore) Merge(response Response)              {}
+func (emptyStore) LogLevel(traceid uniqueid.Id) int     { return 0 }
+func (emptyStore) Flags(traceid uniqueid.Id) TraceFlags { return 0 }

@@ -12,11 +12,15 @@ import (
 // Kind represents the kind of type that a Type represents.
 type Kind int
 
+// Values for Kind.
 const (
 	// Variant kinds
-	Any      Kind = iota // any type
-	Optional             // value might not exist
-	// Scalar kinds
+	Any Kind = iota // any type
+
+	// Value might not exist.
+	Optional
+
+	// Scalar kinds.
 	Bool       // boolean
 	Byte       // 8 bit unsigned integer
 	Uint16     // 16 bit unsigned integer
@@ -31,6 +35,7 @@ const (
 	String     // unicode string (encoded as UTF-8 in memory)
 	Enum       // one of a set of labels
 	TypeObject // type represented as a value
+
 	// Composite kinds
 	Array  // fixed-length ordered sequence of elements
 	List   // variable-length ordered sequence of elements

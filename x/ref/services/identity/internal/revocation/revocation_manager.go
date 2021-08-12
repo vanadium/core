@@ -17,7 +17,7 @@ import (
 )
 
 // RevocationManager persists information for revocation caveats to provided discharges and allow for future revocations.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 type RevocationManager interface {
 	NewCaveat(discharger security.PublicKey, dischargerLocation string) (security.Caveat, error)
 	Revoke(caveatID string) error

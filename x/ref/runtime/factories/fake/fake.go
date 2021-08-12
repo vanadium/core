@@ -16,10 +16,10 @@ import (
 	"v.io/v23/flow"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/runtime/protocols/lib/websocket"
-	_ "v.io/x/ref/runtime/protocols/local" //nolint:golint
-	_ "v.io/x/ref/runtime/protocols/tcp"   //nolint:golint
-	_ "v.io/x/ref/runtime/protocols/ws"    //nolint:golint
-	_ "v.io/x/ref/runtime/protocols/wsh"   //nolint:golint
+	_ "v.io/x/ref/runtime/protocols/local" //nolint:revive
+	_ "v.io/x/ref/runtime/protocols/tcp"   //nolint:revive
+	_ "v.io/x/ref/runtime/protocols/ws"    //nolint:revive
+	_ "v.io/x/ref/runtime/protocols/wsh"   //nolint:revive
 )
 
 var (
@@ -55,7 +55,7 @@ func Init(ctx *context.T) (v23.Runtime, *context.T, v23.Shutdown, error) {
 		}
 		return runtimeInfo.runtime, runtimeInfo.ctx, shutdown, nil
 	}
-	return new(ctx)
+	return newRuntime(ctx)
 }
 
 // InjectRuntime allows packages to inject whichever runtime, ctx, and shutdown.

@@ -18,7 +18,7 @@ import (
 )
 
 func (r *Runtime) initPrincipal(ctx *context.T, credentials string) (security.Principal, func(), error) {
-	if principal, _ := ctx.Value(principalKey).(security.Principal); principal != nil {
+	if principal, _ := ctx.Value(principalKey{}).(security.Principal); principal != nil {
 		return principal, func() {}, nil
 	}
 	if len(credentials) > 0 {

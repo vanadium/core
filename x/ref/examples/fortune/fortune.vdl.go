@@ -6,7 +6,7 @@
 // Package: fortune
 
 // Package fortune defines the Fortune example interface.
-//nolint:golint
+//nolint:revive
 package fortune
 
 import (

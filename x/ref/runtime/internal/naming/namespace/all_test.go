@@ -139,7 +139,7 @@ func (testServer) KnockKnock(*context.T, rpc.ServerCall) (string, error) {
 
 // testServer has the following namespace:
 // "" -> {level1} -> {level2}
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (t *testServer) GlobChildren__(_ *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	switch t.suffix {
 	case "":
@@ -516,7 +516,7 @@ type GlobbableServer struct {
 	mu        sync.Mutex
 }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (g *GlobbableServer) Glob__(*context.T, rpc.GlobServerCall, *glob.Glob) error {
 	g.mu.Lock()
 	defer g.mu.Unlock()

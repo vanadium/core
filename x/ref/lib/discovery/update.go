@@ -24,7 +24,7 @@ type update struct {
 
 func (u *update) IsLost() bool { return u.lost }
 
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (u *update) Id() discovery.AdId    { return u.ad.Id }
 func (u *update) InterfaceName() string { return u.ad.InterfaceName }
 

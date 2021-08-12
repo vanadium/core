@@ -48,10 +48,7 @@ func vomCodec(o, n Config) error {
 	if err != nil {
 		return err
 	}
-	if err := n.MergeFrom(s); err != nil {
-		return err
-	}
-	return nil
+	return n.MergeFrom(s)
 }
 
 // TestSerialize checks that serializing the config and merging from a

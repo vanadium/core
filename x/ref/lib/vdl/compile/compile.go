@@ -34,7 +34,7 @@ import (
 // with the compiled package and returns it on success, or returns nil and
 // guarantees !env.Errors.IsEmpty().  All imports that the parsed package depend
 // on must already have been compiled and populated into env.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func CompilePackage(pkgpath, genpath string, pfiles []*parse.File, config vdltool.Config, configName string, env *Env) *Package {
 	if pkgpath == "" {
 		env.Errors.Errorf("Compile called with empty pkgpath")
@@ -60,7 +60,7 @@ func CompilePackage(pkgpath, genpath string, pfiles []*parse.File, config vdltoo
 // imports that the parsed config depend on must already have been compiled and
 // populated into env.  If t is non-nil, the returned value will be of that
 // type.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func CompileConfig(t *vdl.Type, pconfig *parse.Config, env *Env) *vdl.Value {
 	if pconfig == nil || env == nil {
 		env.Errors.Errorf("CompileConfig called with nil config or env")
@@ -93,7 +93,7 @@ func CompileConfig(t *vdl.Type, pconfig *parse.Config, env *Env) *vdl.Value {
 // success, or returns nil and guarantees !env.Errors.IsEmpty().  All imports
 // that expr depends on must already have been compiled and populated into env.
 // If t is non-nil, the returned value will be of that type.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func CompileExpr(t *vdl.Type, expr parse.ConstExpr, env *Env) *vdl.Value {
 	file := &File{
 		BaseName: "_expr.vdl",
