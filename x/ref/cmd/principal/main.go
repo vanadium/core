@@ -1025,12 +1025,14 @@ This file can be supplied to bless:
 		Short: "Run one or more scripts",
 		Long: `
 Run one or more scripts, the scripting language documentation can be
-viewed using 'script --documentation' .
+viewed using 'script --documentation'. The builtin function 'listFunctions()'
+can be used to list all available functions and 'help("function-name")' will
+display help information for the requested function.
 `,
 		ArgsName: "<script>...",
 		ArgsLong: `
 <script> refers to a file containing a script; '-' can be used to refer
-to stdin. If no scripts are specified then stdin is used.
+to stdin. If no scripts are specified then stdin is used. Use 
 	`,
 		FlagDefs: scriptFlagsDef,
 		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {

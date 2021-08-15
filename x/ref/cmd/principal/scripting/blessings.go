@@ -115,7 +115,7 @@ func init() {
 
 	A pattern not ending in "/$" is more permissive, and is also matched by blessings that are extensions of the pattern (including the pattern itself). For example, the pattern "a/b/c" is matched by the blessings "a/b/c", "a/b/c/x", "a/b/c/x/y", etc.`, "pattern")
 
-	slang.RegisterFunction(allPrincipalsBlessingPattern, `Returns the blessing pattern that matches all principals, ie. "..."`, "blessings")
+	slang.RegisterFunction(allPrincipalsBlessingPattern, "blessings", `Returns the blessing pattern that matches all principals, ie. "..."`)
 
 	slang.RegisterFunction(setBlessingsForPeers, "blessings", `Set the blessings to be shared with peers.
 	

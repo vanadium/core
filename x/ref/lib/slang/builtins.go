@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 
 	"v.io/v23/context"
 	"v.io/x/lib/textutil"
@@ -42,10 +43,25 @@ func (scr *Script) ListFunctions(tags ...string) {
 	for _, fn := range fns {
 		if len(tags) == 0 {
 			fmt.Fprintf(scr.Stdout(), "%s: %s\n", fn.Tag, fn.Function)
-
 			continue
 		}
 		fmt.Fprintf(scr.Stdout(), "%s\n", fn.Function)
+	}
+}
+
+func (scr *Script) ListTags() {
+	fns := RegisteredFunctions()
+	tags := map[string]bool{}
+	for _, fn := range fns {
+		tags[fn.Tag] = true
+	}
+	sorted := []string{}
+	for k := range tags {
+		sorted = append(sorted, k)
+	}
+	sort.Strings(sorted)
+	for _, s := range sorted {
+		fmt.Fprintln(scr.Stdout(), s)
 	}
 }
 
@@ -80,6 +96,11 @@ func listFunctions(rt Runtime, tags ...string) error {
 	return nil
 }
 
+func listTags(rt Runtime) error {
+	rt.ListTags()
+	return nil
+}
+
 func expandEnv(rt Runtime, s string) (string, error) {
 	return rt.ExpandEnv(s), nil
 }
@@ -92,6 +113,7 @@ func init() {
 	RegisterFunction(printf, "builtin", `equivalent to fmt.Printf`, "format", "args")
 	RegisterFunction(sprintf, "builtin", `equivalent to fmt.Sprintf`, "format", "args")
 	RegisterFunction(listFunctions, "builtin", `list available functions`, "tags")
+	RegisterFunction(listTags, "builtin", `list available tags`)
 	RegisterFunction(expandEnv, "builtin", `perform shell environment variable expansion`, "value")
 	RegisterFunction(help, "builtin", "display information for a specific function", "name")
 }

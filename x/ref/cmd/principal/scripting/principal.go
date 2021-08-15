@@ -109,10 +109,10 @@ func init() {
 
 	slang.RegisterFunction(removePrincipal, "principal", `Remove the specified principal directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirname")
 
-	slang.RegisterFunction(addToRoots, `addToRoots marks the root principals of all blessing chains represented by 'blessings' as an authority on blessing chains beginning at that root name in p.BlessingRoots().
+	slang.RegisterFunction(addToRoots, "principal", `addToRoots marks the root principals of all blessing chains represented by 'blessings' as an authority on blessing chains beginning at that root name in p.BlessingRoots().
 	
 	For example, if blessings represents the blessing chains ["alice:friend:spouse", "charlie:family:daughter"] then AddToRoots(blessing) will mark the root public key of the chain "alice:friend:bob" as the authority on all blessings that match the pattern "alice", and root public
-	key of the chain "charlie:family:daughter" as an authority on all blessings that match the pattern "charlie".`, "principal", "principal", "blessings")
+	key of the chain "charlie:family:daughter" as an authority on all blessings that match the pattern "charlie".`, "principal", "blessings")
 
 }
 

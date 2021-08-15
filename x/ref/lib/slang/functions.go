@@ -171,6 +171,9 @@ type Runtime interface {
 	Printf(format string, args ...interface{})
 	// ListFunctions prints a list of the currently available functions.
 	ListFunctions(tags ...string)
+	// ListTags prints a list of the currently available tags that are used
+	// to organize functions.
+	ListTags()
 	// Help prints the function prototype and its help message.
 	Help(function string) error
 	// ExpandEnv provides access to the environment variables defined and
