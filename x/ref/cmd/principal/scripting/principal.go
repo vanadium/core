@@ -74,6 +74,14 @@ func usePrincipal(rt slang.Runtime, dir string) (security.Principal, error) {
 	}
 }
 
+func usePublicKey(rt slang.Runtime, dir string) (security.PublicKey, error) {
+	p, err := usePrincipal(rt, dir)
+	if err != nil {
+		return nil, err
+	}
+	return p.PublicKey(), nil
+}
+
 func addToRoots(rt slang.Runtime, p security.Principal, blessings security.Blessings) error {
 	return security.AddToRoots(p, blessings)
 }
@@ -94,6 +102,8 @@ func init() {
 	slang.RegisterFunction(useOrCreatePrincipal, "principal", `Use the existing principal if one is found in the specified directory, otherwise create a new one using the supplied key in that directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "privateKey", "dirName")
 
 	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.  Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
+
+	slang.RegisterFunction(usePublicKey, "principal", `Use the public key of the principal stored in the specified directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 
