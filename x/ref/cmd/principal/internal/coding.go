@@ -71,7 +71,7 @@ func DecodeBlessingsFile(filename string) (security.Blessings, error) {
 	return DecodeBlessings(str)
 }
 
-// EncodeBlessingsFile will encode and read the blessings to filename or
+// EncodeBlessingsFile will encode and write the blessings to filename or
 // to stdout if filename is '-'.
 func EncodeBlessingsFile(filename string, stdout io.Writer, blessings security.Blessings) error {
 	str, err := EncodeBlessings(blessings)
@@ -81,6 +81,8 @@ func EncodeBlessingsFile(filename string, stdout io.Writer, blessings security.B
 	return WriteFileOrStdout(filename, stdout, str)
 }
 
+// EncodeBlessingRootsFile will encode and write the blessing roots to
+// filename or to stdout if filename is '-'.
 func EncodeBlessingRootsFile(filename string, stdout io.Writer, blessings security.Blessings) error {
 	out := &strings.Builder{}
 	for _, root := range security.RootBlessings(blessings) {

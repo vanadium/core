@@ -1021,13 +1021,15 @@ This file can be supplied to bless:
 	}
 
 	cmdScript = &cmdline.Command{
-		Name:  "script",
+		Name:  "scripts",
 		Short: "Run one or more scripts",
 		Long: `
 Run one or more scripts, the scripting language documentation can be
 viewed using 'script --documentation'. The builtin function 'listFunctions()'
 can be used to list all available functions and 'help("function-name")' will
-display help information for the requested function.
+display help information for the requested function. Functions are organized
+into tagged categories and the available tags can be displayed using the 'listTags()'
+function. 'listFunctions' also accepts one or more tags as an argument as in 'listFunctions("builtins", "blessings")'.
 `,
 		ArgsName: "<script>...",
 		ArgsLong: `
