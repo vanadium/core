@@ -687,7 +687,7 @@ For example, to merge the blessings contained in files A and B:
 				if _, err = os.Stat(b); err == nil {
 					blessings, err = internal.DecodeBlessingsFile(b)
 				} else {
-					blessings, err = internal.DecodeBlessings(b)
+					blessings, err = seclib.DecodeBlessingsBase64(b)
 				}
 				if err != nil {
 					return err

@@ -30,7 +30,7 @@ The principal commands are:
    recognize     Add to the set of identity providers recognized by this
                  principal
    union         Merge multiple blessings into one
-   script        Run one or more scripts
+   scripts       Run one or more scripts
    help          Display help for commands or topics
 
 The global flags are:
@@ -604,18 +604,23 @@ Usage:
 
 <blessing file> is a file that contains a base64url-encoded blessing.
 
-Principal script - Run one or more scripts
+Principal scripts - Run one or more scripts
 
 Run one or more scripts, the scripting language documentation can be viewed
-using 'script --documentation' .
+using 'script --documentation'. The builtin function 'listFunctions()' can be
+used to list all available functions and 'help("function-name")' will display
+help information for the requested function. Functions are organized into tagged
+categories and the available tags can be displayed using the 'listTags()'
+function. 'listFunctions' also accepts one or more tags as an argument as in
+'listFunctions("builtins", "blessings")'.
 
 Usage:
-   principal script [flags] <script>...
+   principal scripts [flags] <script>...
 
 <script> refers to a file containing a script; '-' can be used to refer to
-stdin. If no scripts are specified then stdin is used.
+stdin. If no scripts are specified then stdin is used. Use
 
-The principal script flags are:
+The principal scripts flags are:
  -documentation=false
    If set, documentation on the scripting language and supported commands is
    displayed

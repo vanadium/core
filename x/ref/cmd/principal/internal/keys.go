@@ -18,11 +18,18 @@ var keyTypeMap = map[string]security.KeyType{
 	"ed25519":  security.ED25519,
 }
 
+// IsSupportedKeyType returns true if the requested key type is supported
+// by the principal command. Currently the supported types are:
+//		ecdsa256
+//		ecdsa384
+//		ecdsa521
+// 		ed25519
 func IsSupportedKeyType(keyType string) (security.KeyType, bool) {
 	k, ok := keyTypeMap[strings.ToLower(keyType)]
 	return k, ok
 }
 
+// SupportedKeyTypes returns the currently supported key types.
 func SupportedKeyTypes() []string {
 	s := []string{}
 	for k := range keyTypeMap {

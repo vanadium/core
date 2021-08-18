@@ -68,7 +68,7 @@ func Compile(caveatInfos []Statement) ([]security.Caveat, error) {
 	for _, info := range caveatInfos {
 		caveat, err := newCaveat(info, env)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
 		caveats = append(caveats, caveat)
 	}
