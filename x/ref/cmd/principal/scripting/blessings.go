@@ -1,4 +1,4 @@
-// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Copyright 2021 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -21,8 +21,8 @@ func readBlessings(rt slang.Runtime, filename string) (security.Blessings, error
 
 func writeBlessings(rt slang.Runtime, filename string, blessings security.Blessings) error {
 	return internal.EncodeBlessingsFile(filename, rt.Stdout(), blessings)
-
 }
+
 func writeBlessingRoots(rt slang.Runtime, filename string, blessings security.Blessings) error {
 	return internal.EncodeBlessingRootsFile(filename, rt.Stdout(), blessings)
 }
@@ -90,6 +90,18 @@ func unionBlessings(rt slang.Runtime, blessings ...security.Blessings) (security
 	return security.UnionOfBlessings(blessings...)
 }
 
+func encodeBlessingsBase64(rt slang.Runtime, blessings ...security.Blessings) (string, error) {
+	u, err := security.UnionOfBlessings(blessings...)
+	if err != nil {
+		return "", err
+	}
+	return libsec.EncodeBlessingsBase64(u)
+}
+
+func decodeBlessingsBase64(rt slang.Runtime, encoded string) (security.Blessings, error) {
+	return libsec.DecodeBlessingsBase64(encoded)
+}
+
 func init() {
 	slang.RegisterFunction(readBlessings, "blessings", `Read blessings a from a file (or stdin if filename is '-').`, "filename")
 
@@ -147,4 +159,7 @@ func init() {
 
 	slang.RegisterFunction(unionBlessings, "blessings", `Return the union of the supplied blessings.`, "blessings")
 
+	slang.RegisterFunction(encodeBlessingsBase64, "blessings", `Encode blessings to a base64 url encoded string.`, "blessings")
+
+	slang.RegisterFunction(decodeBlessingsBase64, "blessings", `Decode blessings from a base64 url encoded string.`, "encoded")
 }

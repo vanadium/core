@@ -1,4 +1,4 @@
-// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Copyright 2021 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -14,9 +14,14 @@ import (
 	"v.io/x/ref/lib/slang"
 )
 
-func RunScript(ctx *context.T, buf []byte) error {
+func NewScript() *slang.Script {
 	scr := &slang.Script{}
 	registerTimeFormats(scr)
+	return scr
+}
+
+func RunScript(ctx *context.T, buf []byte) error {
+	scr := NewScript()
 	return scr.ExecuteBytes(ctx, buf)
 }
 

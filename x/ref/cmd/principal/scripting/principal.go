@@ -1,4 +1,4 @@
-// Copyright 2020 The Vanadium Authors. All rights reserved.
+// Copyright 2021 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -90,6 +90,46 @@ func publicKey(rt slang.Runtime, p security.Principal) (security.PublicKey, erro
 	return p.PublicKey(), nil
 }
 
+func encodePublicKeyBase64(rt slang.Runtime, key security.PublicKey) (string, error) {
+	return seclib.EncodePublicKeyBase64(key)
+}
+
+func decodePublicKeyBase64(rt slang.Runtime, key string) (security.PublicKey, error) {
+	return seclib.DecodePublicKeyBase64(key)
+}
+
+func decodePublicKeySSH(rt slang.Runtime, filename string) (security.PublicKey, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return seclib.DecodePublicKeySSH(data)
+}
+
+func decodePublicKeyPEM(rt slang.Runtime, filename string) (security.PublicKey, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return seclib.DecodePublicKeyPEM(data)
+}
+
+func sshPublicKeyMD5(rt slang.Runtime, filename string) (string, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return seclib.SSHSignatureMD5(data)
+}
+
+func sshPublicKeySHA256(rt slang.Runtime, filename string) (string, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return seclib.SSHSignatureSHA256(data)
+}
+
 func init() {
 	slang.RegisterFunction(defaultPrincipal, "principal", `Returns the Principal that this process would use by default.`)
 
@@ -107,13 +147,23 @@ func init() {
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 
+	slang.RegisterFunction(encodePublicKeyBase64, "principal", `Return the base64 url encoding for the supplied public key`, "publicKey")
+
+	slang.RegisterFunction(decodePublicKeyBase64, "principal", `Return the public key for the supplied base64 url encoded key`, "base64String")
+
+	slang.RegisterFunction(decodePublicKeySSH, "principal", `Return the public key for the ssh authorized hosts format data supplied`, "data")
+
+	slang.RegisterFunction(decodePublicKeyPEM, "principal", `Return the public key for the public KEY PEM format data supplied`, "data")
+
+	slang.RegisterFunction(sshPublicKeyMD5, "principal", `Return the md5 signature of the openssh key in the specified file as would be displayed by sshkey-gen -l -m md5`, "filename")
+
+	slang.RegisterFunction(sshPublicKeySHA256, "principal", `Return the sha256 signature of the openssh key in the specified file as would be displayed by sshkey-gen -l -m sha256`, "filename")
+
 	slang.RegisterFunction(removePrincipal, "principal", `Remove the specified principal directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirname")
 
 	slang.RegisterFunction(addToRoots, "principal", `addToRoots marks the root principals of all blessing chains represented by 'blessings' as an authority on blessing chains beginning at that root name in p.BlessingRoots().
 	
-	For example, if blessings represents the blessing chains ["alice:friend:spouse", "charlie:family:daughter"] then AddToRoots(blessing) will mark the root public key of the chain "alice:friend:bob" as the authority on all blessings that match the pattern "alice", and root public
-	key of the chain "charlie:family:daughter" as an authority on all blessings that match the pattern "charlie".`, "principal", "blessings")
-
+	For example, if blessings represents the blessing chains ["alice:friend:spouse", "charlie:family:daughter"] then AddToRoots(blessing) will mark the root public key of the chain "alice:friend:bob" as the authority on all blessings that match the pattern "alice", and root public key of the chain "charlie:family:daughter" as an authority on all blessings that match the pattern "charlie".`, "principal", "blessings")
 }
 
 func underline(out io.Writer, msg string) {
