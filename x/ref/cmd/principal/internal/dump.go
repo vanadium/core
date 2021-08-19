@@ -151,6 +151,8 @@ func FormatCaveats(cavs []security.Caveat) ([]string, error) {
 			// if it never validates.
 			if !param.(bool) {
 				s = append(s, "Never validates")
+			} else {
+				s = append(s, "Always validates")
 			}
 		case security.ExpiryCaveat.Id:
 			s = append(s, fmt.Sprintf("Expires at %v", param))

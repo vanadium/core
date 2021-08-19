@@ -36,7 +36,7 @@ func fail(t *testing.T, err error) {
 	}
 }
 
-func TestGeneral(t *testing.T) {
+func TestPrincipal(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	p := testutil.NewPrincipal("testing")
@@ -135,7 +135,7 @@ func TestPublicKey(t *testing.T) {
 	fail(t, err)
 
 	out := execute(t, ctx, `p := defaultPrincipal()
-	`+fmt.Sprintf("k1 := decodePublicKeyBase64(%q)", string(b1))+`
+	`+fmt.Sprintf("k1 := decodePublicKeyBase64(%q)", b1)+`
 	printf("%v\n",k1)
 	`+fmt.Sprintf("k2 := decodePublicKeySSH(%q)", ssh)+`
 	printf("%v\n",k2)
@@ -156,4 +156,47 @@ QkzGB1AoO4Oy5yKtZ2VDLP6v5sWCzcBsg4rlzhiCoEQ
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+}
+
+func TestCaveats(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	out := execute(t, ctx, `
+	deny := denyAllCaveat()
+	allow := allowAllCaveat()
+	m1 := methodCaveat("m1")
+	m12 := methodCaveat("m1", "m2")
+	nyt := parseTime(time_RFC822Z, "12 Jan 20 17:00 -0500")
+	when := deadline(nyt, "1h")
+	d2 := deadlineCaveat(when)
+	cavs := formatCaveats(deny, allow, m1, m12, d2)
+	printf("%v\n", cavs)
+	`)
+	if got, want := out, `Never validates
+Always validates
+Restricted to methods [m1]
+Restricted to methods [m2 m1]
+Expires at 2020-01-12 23:00:00 +0000 UTC
+`; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	ssl := filepath.Join(t.TempDir(), "ssl")
+	err := os.WriteFile(ssl, []byte(ecsdaOpenSSL), 0666)
+	fail(t, err)
+
+	out = execute(t, ctx, `
+	c3reqs := thirdPartyCaveatRequirements(true, true, false)
+	`+fmt.Sprintf("dischargerPK := decodePublicKeyPEM(%q)", ssl)+`
+	nyt := parseTime(time_RFC822Z, "12 Jan 20 17:00 -0500")
+	until := expiryCaveat("1h")
+	c3cav := publicKeyCaveat(dischargerPK, "somewhere", c3reqs, until)
+	cavs := formatCaveats(c3cav)
+	printf("%v\n", cavs)
+	`)
+
+	if got, want := out, "ThirdPartyCaveat: Requires discharge from somewhere"; !strings.Contains(got, want) {
+		t.Errorf("got %v does not contain %v", got, want)
+	}
 }
