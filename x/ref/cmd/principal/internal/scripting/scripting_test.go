@@ -10,7 +10,7 @@ import (
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
-	"v.io/x/ref/cmd/principal/scripting"
+	"v.io/x/ref/cmd/principal/internal/scripting"
 	seclib "v.io/x/ref/lib/security"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
