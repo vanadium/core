@@ -6,6 +6,7 @@ package security
 
 import (
 	"context"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -19,7 +20,6 @@ import (
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
-	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 // CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
@@ -30,14 +30,6 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 		return nil, fmt.Errorf("failed to generate private key: %v", err)
 	}
 	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
-}
-
-// SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
-// key file must be accessible and is used to identify the private key hosted
-// by the ssh agent. Currently ecdsa and ed25519 key types are supported.
-type SSHAgentHostedKey struct {
-	PublicKeyFile string
-	Agent         *sshagent.Client
 }
 
 // CreatePersistentPrincipalUsingKey creates a new Principal using the supplied
@@ -51,7 +43,7 @@ type SSHAgentHostedKey struct {
 // The specified directory may not exist, in which case it will be created.
 // The follow key types are supported:
 // *ecdsa.PrivateKey, ed25519.PrivateKey and SSHAgentHostedKey.
-func CreatePersistentPrincipalUsingKey(ctx context.Context, key interface{}, dir string, passphrase []byte) (security.Principal, error) {
+func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
 	unlock, err := initAndLockPrincipalDir(dir)
 	if err != nil {
 		return nil, err
@@ -62,9 +54,9 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key interface{}, dir
 	// we only have the public key.
 	switch sshkey := key.(type) {
 	case SSHAgentHostedKey:
-		return createSSHAgentPrincipal(ctx, sshkey.Agent, sshkey.PublicKeyFile, dir, passphrase)
+		return createSSHAgentPrincipal(ctx, &sshkey, dir, passphrase)
 	case *SSHAgentHostedKey:
-		return createSSHAgentPrincipal(ctx, sshkey.Agent, sshkey.PublicKeyFile, dir, passphrase)
+		return createSSHAgentPrincipal(ctx, sshkey, dir, passphrase)
 	}
 
 	if err := internal.WritePEMKeyPair(
@@ -82,15 +74,12 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key interface{}, dir
 	return createPrincipalUsingSigner(ctx, signer, dir)
 }
 
-func createSSHAgentPrincipal(ctx context.Context, service *sshagent.Client, sshPublicKeyFile, dir string, passphrase []byte) (security.Principal, error) {
-	from, to := sshPublicKeyFile, filepath.Join(dir, filepath.Base(sshPublicKeyFile))
-	if _, _, err := internal.LoadSSHPublicKeyFile(from); err != nil {
-		return nil, err
-	}
+func createSSHAgentPrincipal(ctx context.Context, sshKey *SSHAgentHostedKey, dir string, passphrase []byte) (security.Principal, error) {
+	from, to := sshKey.PublicKeyFile, filepath.Join(dir, filepath.Base(sshKey.PublicKeyFile))
 	if err := internal.CopyKeyFile(from, to); err != nil {
 		return nil, fmt.Errorf("failed to copy ssh public key file: %v to %v: %v", from, to, err)
 	}
-	signer, err := service.Signer(ctx, to, passphrase)
+	signer, err := sshKey.Agent.Signer(ctx, to, passphrase)
 	if err != nil {
 		return nil, err
 	}

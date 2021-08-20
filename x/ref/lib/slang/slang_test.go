@@ -121,7 +121,7 @@ func TestExecute(t *testing.T) {
 
 func TestRegistered(t *testing.T) {
 	rf := slang.RegisteredFunctions()
-	if got, want := len(rf), 17; got != want {
+	if got, want := len(rf), 18; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
