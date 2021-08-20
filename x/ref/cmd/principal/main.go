@@ -221,7 +221,8 @@ var (
 	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
 
 	scriptFlags = struct {
-		Documentation bool `cmdline:"documentation,false,'If set, documentation on the scripting language and supported commands is displayed'"`
+		Documentation bool `cmdline:"documentation,false,'if set, documentation on the scripting language and supported commands is displayed'"`
+		CompileOnly   bool `cmdline:"compile-only,false,'if set, compile the scripts but do not run them'"`
 	}{}
 	scriptFlagsDef = cmdline.FlagDefinitions{Flags: &scriptFlags}
 
@@ -1043,10 +1044,11 @@ to stdin. If no scripts are specified then stdin is used. Use
 				return nil
 			}
 			if len(args) == 0 {
-				return scripting.RunFile(ctx, "-")
+				return scripting.RunFile(ctx, scriptFlags.CompileOnly, "-")
 			}
 			for _, s := range args {
-				if err := scripting.RunFile(ctx, s); err != nil {
+				fmt.Println(s)
+				if err := scripting.RunFile(ctx, scriptFlags.CompileOnly, s); err != nil {
 					return err
 				}
 			}

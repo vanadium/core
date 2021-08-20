@@ -26,6 +26,7 @@ type Script struct {
 	invocations []invocation
 }
 
+// RegisterConst registers a constant with the runtime.
 func (scr *Script) RegisterConst(name string, value interface{}) {
 	if scr.symbols == nil {
 		scr.symbols = newSymbolTable()
@@ -82,6 +83,25 @@ func (scr *Script) ExecuteFile(ctx *context.T, filename string) error {
 		return err
 	}
 	return scr.compileAndRun(ctx, stmts)
+}
+
+// CompileBytes will parse and compile the supplied script.
+func (scr *Script) CompileBytes(src []byte) error {
+	stmts, err := parseBytes(src)
+	if err != nil {
+		return err
+	}
+	return scr.compile(stmts)
+}
+
+// CompileFile will parse, compile the script contained in
+// the specified file.
+func (scr *Script) CompileFile(ctx *context.T, filename string) error {
+	stmts, err := parseFile(filename)
+	if err != nil {
+		return err
+	}
+	return scr.compile(stmts)
 }
 
 func (scr *Script) compileAndRun(ctx *context.T, stmts statements) error {

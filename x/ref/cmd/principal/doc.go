@@ -621,8 +621,10 @@ Usage:
 stdin. If no scripts are specified then stdin is used. Use
 
 The principal scripts flags are:
+ -compile-only=false
+   if set, compile the scripts but do not run them
  -documentation=false
-   If set, documentation on the scripting language and supported commands is
+   if set, documentation on the scripting language and supported commands is
    displayed
 
 Principal help - Display help for commands or topics

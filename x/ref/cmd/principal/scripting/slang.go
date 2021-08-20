@@ -20,28 +20,32 @@ func NewScript() *slang.Script {
 	return scr
 }
 
-func RunScript(ctx *context.T, buf []byte) error {
+func RunScript(ctx *context.T, compileOnly bool, buf []byte) error {
 	scr := NewScript()
+	if compileOnly {
+		return scr.CompileBytes(buf)
+	}
 	return scr.ExecuteBytes(ctx, buf)
+
 }
 
-func RunFrom(ctx *context.T, rd io.Reader) error {
+func RunFrom(ctx *context.T, compileOnly bool, rd io.Reader) error {
 	buf, err := io.ReadAll(rd)
 	if err != nil {
 		return err
 	}
-	return RunScript(ctx, buf)
+	return RunScript(ctx, compileOnly, buf)
 }
 
-func RunFile(ctx *context.T, name string) error {
+func RunFile(ctx *context.T, compileOnly bool, name string) error {
 	if name == "-" || len(name) == 0 {
-		return RunFrom(ctx, os.Stdin)
+		return RunFrom(ctx, compileOnly, os.Stdin)
 	}
 	rd, err := os.Open(name)
 	if err != nil {
 		return err
 	}
-	return RunFrom(ctx, rd)
+	return RunFrom(ctx, compileOnly, rd)
 }
 
 func Documentation() string {
