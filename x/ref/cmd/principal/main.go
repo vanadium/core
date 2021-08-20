@@ -31,7 +31,7 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/cmd/principal/caveatflag"
 	"v.io/x/ref/cmd/principal/internal"
-	"v.io/x/ref/cmd/principal/scripting"
+	"v.io/x/ref/cmd/principal/internal/scripting"
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/passphrase"
@@ -221,8 +221,8 @@ var (
 	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
 
 	scriptFlags = struct {
-		Documentation bool `cmdline:"documentation,false,'if set, documentation on the scripting language and supported commands is displayed'"`
-		CompileOnly   bool `cmdline:"compile-only,false,'if set, compile the scripts but do not run them'"`
+		Documentation bool `cmdline:"documentation,false,'Display documentation on the scripting language and supported commands'"`
+		CompileOnly   bool `cmdline:"compile-only,false,'Compile the scripts but do not run them'"`
 	}{}
 	scriptFlagsDef = cmdline.FlagDefinitions{Flags: &scriptFlags}
 
