@@ -130,7 +130,7 @@ func ZeroPassphrase(pass []byte) {
 // that support it, a SIGHUP can be used to request an immediate reload.
 // If passphrase is nil, readonly is true and the private key file is encrypted
 // LoadPersistentPrincipalDaemon will not attempt to create a signer and will
-// instead just the principal's public key.
+// instead just use the principal's public key.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
 	return loadPersistentPrincipal(ctx, dir, passphrase, readonly, update)
 }

@@ -9,6 +9,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"testing"
 )
 
@@ -20,6 +21,7 @@ type bmkey struct {
 var (
 	ecdsaKey   *bmkey
 	ed25519Key *bmkey
+	rsa2048Key *bmkey
 	message    = []byte("over the mountain and under the bridge")
 	purpose    = []byte("benchmarking")
 )
@@ -56,9 +58,26 @@ func newED25519BenchmarkKey(sfn func(ed25519.PrivateKey) (Signer, error)) *bmkey
 	return &bmkey{signer, signature}
 }
 
+func newRSABenchmarkKey(bits int, sfn func(*rsa.PrivateKey) (Signer, error)) *bmkey {
+	privKey, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		panic(err)
+	}
+	signer, err := sfn(privKey)
+	if err != nil {
+		panic(err)
+	}
+	signature, err := signer.Sign(purpose, message)
+	if err != nil {
+		panic(err)
+	}
+	return &bmkey{signer, signature}
+}
+
 func init() {
 	ecdsaKey = newECDSABenchmarkKey(NewInMemoryECDSASigner)
 	ed25519Key = newED25519BenchmarkKey(NewInMemoryED25519Signer)
+	rsa2048Key = newRSABenchmarkKey(2048, NewInMemoryRSASigner)
 }
 
 func benchmarkSign(k *bmkey, b *testing.B) {
@@ -93,4 +112,11 @@ func BenchmarkSign_ED25519(b *testing.B) {
 
 func BenchmarkVerify_ED25519(b *testing.B) {
 	benchmarkVerify(ed25519Key, b)
+}
+func BenchmarkSign_RSA2048(b *testing.B) {
+	benchmarkSign(rsa2048Key, b)
+}
+
+func BenchmarkVerify_RSA2048(b *testing.B) {
+	benchmarkVerify(rsa2048Key, b)
 }

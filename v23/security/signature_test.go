@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
 	"testing"
 
@@ -135,6 +136,20 @@ func TestED25519Signature(t *testing.T) {
 	}
 	if err := testSigning(signer, 512); err != nil {
 		t.Errorf("signing failed for ed25519: %v", err)
+	}
+}
+
+func TestRSASignature(t *testing.T) {
+	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("Failed to generate key for rsa: %v", err)
+	}
+	signer, err := NewInMemoryRSASigner(privKey)
+	if err != nil {
+		t.Fatalf("Failed to create signer: %v", err)
+	}
+	if err := testSigning(signer, 512); err != nil {
+		t.Errorf("signing failed for rsa: %v", err)
 	}
 }
 

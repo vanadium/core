@@ -83,20 +83,6 @@ func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
 	}, nil
 }
 
-/*
-// PasswordProtected returns true if the supplied key can be password
-// protected. Some key types, eg. ssh, are already encrypted and hence
-// cannot be password protected.
-func PasswordProtected(key crypto.PrivateKey) bool {
-	switch key.(type) {
-	case SSHAgentHostedKey, *SSHAgentHostedKey:
-		return false
-	default:
-		return true
-	}
-}
-*/
-
 // createReadLockfile ensures that a lockfile for read-only access
 // exists by first creating a lockfile for writes, unlocking it
 // and then relocking for reads only.

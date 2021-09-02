@@ -163,21 +163,6 @@ func claimedName(chain []Certificate) string {
 	return ret
 }
 
-//nolint:deadcode,unused
-func nameForPrincipal(pubkey []byte, roots BlessingRoots, chain []Certificate) string {
-	// Verify the chain belongs to this principal
-	if !bytes.Equal(chain[len(chain)-1].PublicKey, pubkey) {
-		return ""
-	}
-	// Verify that the root of the chain is recognized as an authority on
-	// blessing.
-	blessing := claimedName(chain)
-	if err := roots.Recognized(chain[0].PublicKey, blessing); err != nil {
-		return ""
-	}
-	return blessing
-}
-
 // chainCaveats returns the union of the set of caveats in the  certificates present
 // in 'chain'.
 func chainCaveats(chain []Certificate) []Caveat {
@@ -364,20 +349,7 @@ func DefaultBlessingPatterns(p Principal) (patterns []BlessingPattern) {
 var (
 	caveatValidationMu sync.RWMutex
 	caveatValidation   = defaultCaveatValidation
-	//nolint:deadcode,unused,varcheck
-	caveatValidationOverridden = false
 )
-
-//nolint:deadcode,unused
-func overrideCaveatValidation(fn func(ctx *context.T, call Call, sets [][]Caveat) []error) {
-	caveatValidationMu.Lock()
-	if caveatValidationOverridden {
-		panic("security: OverrideCaveatValidation may only be called once")
-	}
-	caveatValidationOverridden = true
-	caveatValidation = fn
-	caveatValidationMu.Unlock()
-}
 
 func getCaveatValidation() func(ctx *context.T, call Call, sets [][]Caveat) []error {
 	caveatValidationMu.RLock()

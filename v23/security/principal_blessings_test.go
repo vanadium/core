@@ -1251,14 +1251,6 @@ func TestSigningBlessingsECDSA(t *testing.T) {
 	)
 }
 
-func TestSigningBlessingsED25519(t *testing.T) {
-	testSigningBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestSigningBlessings(t *testing.T) {
 	testSigningBlessings(t,
 		sectest.NewED25519Principal(t),
@@ -1267,6 +1259,11 @@ func TestSigningBlessings(t *testing.T) {
 	)
 	testSigningBlessings(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewED25519Principal(t),
+	)
+	testSigningBlessings(t,
+		sectest.NewRSAPrincipal(t),
 		sectest.NewECDSAPrincipalP256(t),
 		sectest.NewED25519Principal(t),
 	)
@@ -1323,6 +1320,7 @@ func testSigningBlessings(t *testing.T, google, alice, bob security.Principal) {
 		if err := validateAliceRejectedBlessingError(r); err != nil {
 			t.Errorf("SigningBlessingNames(%v): %v", aliceB, err)
 		}
+
 	}
 }
 
@@ -1406,4 +1404,20 @@ func matchesError(got error, want string) error {
 		return fmt.Errorf("Got error %q, wanted to match %q", got, want)
 	}
 	return nil
+}
+
+func TestPublicKeyPrincipal(t *testing.T) {
+	fp := sectest.NewED25519Principal(t)
+	sig, err := fp.Sign([]byte("any old thing"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pk := fp.PublicKey()
+	pp, err := security.CreatePrincipalPublicKeyOnly(pk, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !sig.Verify(pp.PublicKey(), []byte("any old thing")) {
+		t.Fatalf("verify failed")
+	}
 }

@@ -281,6 +281,17 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 	}
 }
 
+func funcForSSLKey(keyFile string, passphrase []byte) func(dir string, pass []byte) (security.Principal, error) {
+	return func(dir string, pass []byte) (security.Principal, error) {
+		ctx := gocontext.TODO()
+		key, err := SSLPrivateKey(filepath.Join("testdata", keyFile), passphrase)
+		if err != nil {
+			panic(err)
+		}
+		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
+	}
+}
+
 func TestCreatePersistentPrincipal(t *testing.T) {
 	tests := []struct {
 		fn                  func(dir string, pass []byte) (security.Principal, error)
@@ -293,6 +304,10 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForKey(ED25519), []byte("encrypted"), []byte("passphrase")},
 		{funcForSSHKey("ecdsa-256.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ed25519.pub"), []byte("unencrypted"), nil},
+		{funcForSSLKey("rsa2048.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
+		{funcForSSLKey("rsa4096.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
+		{funcForSSLKey("ed25519.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
+		{funcForSSLKey("ec256.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
 	}
 	for _, test := range tests {
 		testCreatePersistentPrincipal(t, test.fn, test.Message, test.Passphrase)

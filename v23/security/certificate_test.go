@@ -52,6 +52,13 @@ func initCertificates(t *testing.T, type2values map[reflect.Type][]reflect.Value
 	return certs
 }
 
+func setFieldsToNilSlice(sig *security.Signature, fields ...string) {
+	nilSlice := reflect.ValueOf([]byte(nil))
+	for _, f := range fields {
+		reflect.ValueOf(sig).Elem().FieldByName(f).Set(nilSlice)
+	}
+}
+
 // generate a bunch of signatures similarly to initCertificates.
 func initSignatures(t *testing.T, type2values map[reflect.Type][]reflect.Value) []security.Signature {
 	sigs := make([]security.Signature, 1)
@@ -62,14 +69,14 @@ func initSignatures(t *testing.T, type2values map[reflect.Type][]reflect.Value) 
 			t.Fatalf("No sample values for field %q of type %v", field.Name, field.Type)
 		}
 		sig := sigs[len(sigs)-1]
-		// ECDSA and ED25519 signatures are mutually exclusive.
-		nilSlice := reflect.ValueOf([]byte(nil))
+		// ECDSA, ED25519 and RSA signatures are mutually exclusive.
 		switch field.Name {
 		case "Ed25519":
-			reflect.ValueOf(&sig).Elem().FieldByName("R").Set(nilSlice)
-			reflect.ValueOf(&sig).Elem().FieldByName("S").Set(nilSlice)
+			setFieldsToNilSlice(&sig, "R", "S", "Rsa")
+		case "Rsa":
+			setFieldsToNilSlice(&sig, "R", "S", "Ed25519")
 		case "R", "S":
-			reflect.ValueOf(&sig).Elem().FieldByName("Ed25519").Set(nilSlice)
+			setFieldsToNilSlice(&sig, "Ed25519", "Rsa")
 		}
 		for _, v := range values {
 			reflect.ValueOf(&sig).Elem().FieldByName(field.Name).Set(v)
@@ -148,15 +155,15 @@ func TestCertificateDigest(t *testing.T) {
 		// bugs by counting the expected number of digests that were generated and tested.
 		// - len(certificates) = 3 fields * 2 values + empty cert = 7
 		//   Thus, number of certificate pairs = 7C2 = 21
-		// - len(signatures) = 5 fields * 2 values each + empty = 11
-		//   Thus, number of signature pairs = 11C2 = 55
+		// - len(signatures) = 6 fields * 2 values each + empty = 13
+		//   Thus, number of signature pairs = 13C2 = 78
 		//
 		// Tests:
 		// - digests should be different for each Certificate:      21 hash comparisons
 		// - digests should depend on the chaining of certificates: 21 hash comparisons
-		// - content digests should not depend on the Signature:    10 hash comparisons
-		// - digests should depend on the Signature:                55 hash comparisons
-		if got, want := numtested, 21+21+55+10; got != want {
+		// - content digests should not depend on the Signature:    12 hash comparisons
+		// - digests should depend on the Signature:                78 hash comparisons
+		if got, want := numtested, 21+21+12+78; got != want {
 			t.Fatalf("Executed %d tests, expected %d", got, want)
 		}
 	}()
@@ -209,6 +216,7 @@ func TestChainSignatureUsesDigestWithStrengthComparableToSigningKey(t *testing.T
 		{sectest.NewECDSASigner(t, elliptic.P384()), security.SHA384Hash, 48},
 		{sectest.NewECDSASigner(t, elliptic.P521()), security.SHA512Hash, 64},
 		{sectest.NewED25519Signer(t), security.SHA512Hash, 64},
+		{sectest.NewRSASigner4096(t), security.SHA512Hash, 64},
 	}
 	for idx, test := range tests {
 		var cert security.Certificate
@@ -242,14 +250,6 @@ func TestChainMixingECDSA(t *testing.T) {
 	)
 }
 
-func TestChainMixingED25519(t *testing.T) {
-	testChainMixing(t,
-		sectest.NewED25519Signer(t),
-		sectest.NewED25519Signer(t),
-		sectest.NewED25519Signer(t),
-	)
-}
-
 func TestChainMixing(t *testing.T) {
 	testChainMixing(t,
 		sectest.NewED25519Signer(t),
@@ -265,6 +265,21 @@ func TestChainMixing(t *testing.T) {
 		sectest.NewECDSASignerP256(t),
 		sectest.NewECDSASignerP256(t),
 		sectest.NewED25519Signer(t),
+	)
+	testChainMixing(t,
+		sectest.NewRSASigner2048(t),
+		sectest.NewECDSASignerP256(t),
+		sectest.NewED25519Signer(t),
+	)
+	testChainMixing(t,
+		sectest.NewECDSASignerP256(t),
+		sectest.NewECDSASignerP256(t),
+		sectest.NewRSASigner4096(t),
+	)
+	testChainMixing(t,
+		sectest.NewRSASigner2048(t),
+		sectest.NewECDSASignerP256(t),
+		sectest.NewRSASigner2048(t),
 	)
 }
 
@@ -372,4 +387,16 @@ func BenchmarkDigestsForCertificateChain_3CertsED25519(b *testing.B) {
 
 func BenchmarkDigestsForCertificateChain_4CertsED25519(b *testing.B) {
 	benchmarkDigestsForCertificateChain(b, sectest.NewED25519Signer, 4)
+}
+
+func BenchmarkDigestsForCertificateChain_1CertRSA(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 1)
+}
+
+func BenchmarkDigestsForCertificateChain_3CertsRSA(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 3)
+}
+
+func BenchmarkDigestsForCertificateChain_4CertsRSA(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 4)
 }

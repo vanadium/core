@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/md5"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding"
 	"fmt"
@@ -64,6 +65,8 @@ func UnmarshalPublicKey(bytes []byte) (PublicKey, error) {
 		return newECDSAPublicKeyImpl(v), nil
 	case ed25519.PublicKey:
 		return newED25519PublicKeyImpl(v), nil
+	case *rsa.PublicKey:
+		return newRSAPublicKeyImpl(v), nil
 	default:
 		return nil, fmt.Errorf("unrecognized PublicKey type %T", key)
 	}

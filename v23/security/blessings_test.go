@@ -18,7 +18,7 @@ import (
 )
 
 func TestByteSizeECDSA(t *testing.T) {
-	testByteSize(t,
+	testByteSize(t, "ECDSA P256",
 		sectest.NewECDSASigner(t, elliptic.P256()),
 		sectest.NewECDSASigner(t, elliptic.P256()),
 		func(t testing.TB) security.Signer {
@@ -28,34 +28,27 @@ func TestByteSizeECDSA(t *testing.T) {
 }
 
 func TestByteSizeED25519(t *testing.T) {
-	testByteSize(t,
+	testByteSize(t, "ED25519",
 		sectest.NewED25519Signer(t),
 		sectest.NewED25519Signer(t),
 		sectest.NewED25519Signer,
 	)
 }
 
-func TestByteSize(t *testing.T) {
-	testByteSize(t,
-		sectest.NewED25519Signer(t),
-		sectest.NewECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) security.Signer {
-			return sectest.NewECDSASigner(t, elliptic.P256())
-		},
+func TestByteSizeRSA(t *testing.T) {
+	testByteSize(t, "RSA 2048",
+		sectest.NewRSASigner2048(t),
+		sectest.NewRSASigner2048(t),
+		sectest.NewRSASigner2048,
 	)
-	testByteSize(t,
-		sectest.NewECDSASigner(t, elliptic.P256()),
-		sectest.NewED25519Signer(t),
-		sectest.NewED25519Signer,
-	)
-	testByteSize(t,
-		sectest.NewED25519Signer(t),
-		sectest.NewECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) security.Signer {
-			return sectest.NewECDSASigner(t, elliptic.P256())
-		},
-	)
+}
 
+func TestByteSizeRSA4096(t *testing.T) {
+	testByteSize(t, "RSA 4096",
+		sectest.NewRSASigner4096(t),
+		sectest.NewRSASigner4096(t),
+		sectest.NewRSASigner4096,
+	)
 }
 
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
@@ -70,7 +63,7 @@ func TestByteSize(t *testing.T) {
 //   Blessing with 4 certificates               : 1149 bytes (a:a:a:a)
 //   Marshaled caveat                           :   55 bytes (0xa64c2d0119fba3348071feeb2f308000(time.Time=0001-01-01 00:00:00 +0000 UTC))
 //   Marshaled caveat                           :    6 bytes (0x54a676398137187ecdb26d2d69ba0003([]string=[m]))
-func testByteSize(t *testing.T, s1, s2 security.Signer, sfn func(testing.TB) security.Signer) {
+func testByteSize(t *testing.T, algo string, s1, s2 security.Signer, sfn func(testing.TB) security.Signer) {
 	blessingsize := func(b security.Blessings) int {
 		buf, err := vom.Encode(b)
 		if err != nil {
@@ -88,7 +81,7 @@ func testByteSize(t *testing.T, s1, s2 security.Signer, sfn func(testing.TB) sec
 	} else {
 		sigbytes = len(sig.R) + len(sig.S)
 	}
-	t.Logf("Marshaled P256 ECDSA key                   : %4d bytes", len(key))
+	t.Logf("Marshaled % 10s key                   : %4d bytes", algo, len(key))
 	t.Logf("Major components of an ECDSA signature     : %4d bytes", sigbytes)
 	// Byte sizes of blessings (with no caveats in any certificates).
 	t.Logf("VOM type information overhead for blessings: %4d bytes", blessingsize(security.Blessings{}))
@@ -114,13 +107,6 @@ func TestBlessingCouldHaveNamesECDSA(t *testing.T) {
 	)
 }
 
-func TestBlessingCouldHaveNamesED25519(t *testing.T) {
-	testBlessingCouldHaveNames(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestBlessingCouldHaveNames(t *testing.T) {
 	testBlessingCouldHaveNames(t,
 		sectest.NewECDSAPrincipalP256(t),
@@ -128,6 +114,10 @@ func TestBlessingCouldHaveNames(t *testing.T) {
 	)
 	testBlessingCouldHaveNames(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+	testBlessingCouldHaveNames(t,
+		sectest.NewRSAPrincipal(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
@@ -149,11 +139,14 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
 	var (
 		bbob = sectest.BlessSelf(t, bob, "bob:tablet")
 
-		balice1   = sectest.BlessSelf(t, alice, "alice")
-		balice2   = sectest.BlessSelf(t, alice, "alice:phone:youtube", falseCaveat)
-		balice3   = bless(bob, alice.PublicKey(), bbob, "friend")
-		balice, _ = security.UnionOfBlessings(balice1, balice2, balice3)
+		balice1 = sectest.BlessSelf(t, alice, "alice")
+		balice2 = sectest.BlessSelf(t, alice, "alice:phone:youtube", falseCaveat)
+		balice3 = bless(bob, alice.PublicKey(), bbob, "friend")
 	)
+	balice, err := security.UnionOfBlessings(balice1, balice2, balice3)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	tests := []struct {
 		names  []string
@@ -185,6 +178,10 @@ func TestBlessingsExpiryECDSA(t *testing.T) {
 
 func TestBlessingsExpiryED25519(t *testing.T) {
 	testBlessingsExpiry(t, sectest.NewED25519Signer(t))
+}
+
+func TestBlessingsExpiryRSA(t *testing.T) {
+	testBlessingsExpiry(t, sectest.NewRSASigner(t, 2048))
 }
 
 func testBlessingsExpiry(t *testing.T, signer security.Signer) {
@@ -236,13 +233,6 @@ func TestBlessingsUniqueIDECDSA(t *testing.T) {
 
 }
 
-func TestBlessingsUniqueIDED25519(t *testing.T) {
-	testBlessingsUniqueID(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestBlessingsUniqueID(t *testing.T) {
 	testBlessingsUniqueID(t,
 		sectest.NewED25519Principal(t),
@@ -252,11 +242,14 @@ func TestBlessingsUniqueID(t *testing.T) {
 		sectest.NewED25519Principal(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
+	testBlessingsUniqueID(t,
+		sectest.NewRSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
 }
 
 func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 	var (
-
 		// Create blessings using all the methods available to create
 		// them: Bless, BlessSelf, UnionOfBlessings, NamelessBlessings.
 		nameless, _  = security.NamelessBlessing(palice.PublicKey())
@@ -270,6 +263,7 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 
 		all = []security.Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
 	)
+
 	// Each individual blessing should have a different UniqueID, and different from u1
 	for i := 0; i < len(all); i++ {
 		b1 := all[i]
@@ -290,7 +284,11 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 		}
 		var deserialized security.Blessings
 		if err := vom.Decode(serialized, &deserialized); err != nil || !bytes.Equal(b1.UniqueID(), deserialized.UniqueID()) {
-			t.Errorf("%q: UniqueID mismatch after VOM round-tripping. VOM decode error: %v", b1, err)
+			if err != nil {
+				t.Errorf("VOM decode error: %v", err)
+			} else {
+				t.Errorf("%q: UniqueID mismatch after VOM round-tripping.", b1)
+			}
 		}
 	}
 	// u1 and u2 should have the same UniqueID
@@ -319,12 +317,19 @@ func TestRootBlessingsECDSA(t *testing.T) {
 	)
 }
 
-func TestRootBlessingsED25519(t *testing.T) {
+func TestRootBlessings(t *testing.T) {
 	testRootBlessings(t,
 		sectest.NewED25519Principal(t),
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 		sectest.NewED25519Principal(t),
+	)
+
+	testRootBlessings(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewRSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewRSAPrincipal(t),
 	)
 }
 
@@ -395,10 +400,30 @@ func TestNamelessBlessingECDSA(t *testing.T) {
 	)
 }
 
-func TestNamelessBlessingED25519(t *testing.T) {
+func TestNamelessBlessing(t *testing.T) {
+	testNamelessBlessing(t,
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewED25519Principal(t),
+	)
+
 	testNamelessBlessing(t,
 		sectest.NewED25519Principal(t),
 		sectest.NewED25519Principal(t),
+	)
+
+	testNamelessBlessing(t,
+		sectest.NewECDSAPrincipalP256(t),
+		sectest.NewED25519Principal(t),
+	)
+
+	testNamelessBlessing(t,
+		sectest.NewRSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+
+	testNamelessBlessing(t,
+		sectest.NewRSAPrincipal(t),
+		sectest.NewRSAPrincipal(t),
 	)
 }
 
@@ -509,6 +534,18 @@ func BenchmarkBlessED25519(b *testing.B) {
 		sectest.NewED25519Signer(b))
 }
 
+func BenchmarkBlessRSA2048(b *testing.B) {
+	benchmarkBless(b,
+		sectest.NewRSASigner(b, 2048),
+		sectest.NewRSASigner(b, 2048))
+}
+
+func BenchmarkBlessRSA4096(b *testing.B) {
+	benchmarkBless(b,
+		sectest.NewRSASigner(b, 4096),
+		sectest.NewRSASigner(b, 4096))
+}
+
 func benchmarkBless(b *testing.B, s1, s2 security.Signer) {
 	p, err := security.CreatePrincipal(s1, nil, nil)
 	if err != nil {
@@ -541,6 +578,10 @@ func BenchmarkVerifyCertificateIntegrityED25519(b *testing.B) {
 	benchmarkVerifyCertificateIntegrity(b, sectest.NewED25519Signer)
 }
 
+func BenchmarkVerifyCertificateIntegrityRSA(b *testing.B) {
+	benchmarkVerifyCertificateIntegrity(b, sectest.NewRSASigner4096)
+}
+
 func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) security.Signer) {
 	native := makeBlessings(b, sfn, 1)
 	var wire security.WireBlessings
@@ -563,6 +604,10 @@ func BenchmarkVerifyCertificateIntegrityNoCachingECDSA(b *testing.B) {
 
 func BenchmarkVerifyCertificateIntegrityNoCachingED25519(b *testing.B) {
 	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewED25519Signer)
+}
+
+func BenchmarkVerifyCertificateIntegrityNoCachingRSA(b *testing.B) {
+	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewRSASigner4096)
 }
 
 func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) security.Signer) {

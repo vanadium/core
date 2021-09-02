@@ -9,6 +9,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -23,6 +24,7 @@ import (
 
 const (
 	ecPrivateKeyPEMType    = "EC PRIVATE KEY"
+	rsaPrivateKeyPEMType   = "RSA PRIVATE KEY"
 	ecPublicKeyPEMType     = "EC PUBLIC KEY"
 	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
 )
@@ -85,44 +87,59 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	pemBlock, _ := pem.Decode(pemBlockBytes)
-	if pemBlock == nil {
-		return nil, fmt.Errorf("no PEM key block read")
-	}
-	var data []byte
-	// TODO(cnicolaou): migrate away from PEM keys.
-	if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
-		// Assume empty passphrase is disallowed.
-		if len(passphrase) == 0 {
-			return nil, ErrPassphraseRequired
+	for {
+		var pemBlock *pem.Block
+		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
+		if pemBlock == nil {
+			return nil, fmt.Errorf("no PEM key block read")
 		}
-		data, err = x509.DecryptPEMBlock(pemBlock, passphrase) //nolint:staticcheck
-		if err != nil {
-			return nil, ErrBadPassphrase
-		}
-	} else {
-		data = pemBlock.Bytes
-	}
 
-	switch pemBlock.Type {
-	case ecPrivateKeyPEMType:
-		key, err := x509.ParseECPrivateKey(data)
-		if err != nil {
-			// x509.DecryptPEMBlock may occasionally return random
-			// bytes for data with a nil error when the passphrase
-			// is invalid; hence, failure to parse data could be due
-			// to a bad passphrase.
-			return nil, ErrBadPassphrase
+		var data []byte
+		// TODO(cnicolaou): migrate away from PEM keys.
+		if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
+			// Assume empty passphrase is disallowed.
+			if len(passphrase) == 0 {
+				return nil, ErrPassphraseRequired
+			}
+			data, err = x509.DecryptPEMBlock(pemBlock, passphrase) //nolint:staticcheck
+			if err != nil {
+				return nil, ErrBadPassphrase
+			}
+		} else {
+			data = pemBlock.Bytes
 		}
-		return key, nil
-	case pkcs8PrivateKeyPEMType:
-		key, err := x509.ParsePKCS8PrivateKey(data)
-		if err != nil {
-			return nil, ErrBadPassphrase
+
+		switch pemBlock.Type {
+		case ecPrivateKeyPEMType:
+			key, err := x509.ParseECPrivateKey(data)
+			if err != nil {
+				// x509.DecryptPEMBlock may occasionally return random
+				// bytes for data with a nil error when the passphrase
+				// is invalid; hence, failure to parse data could be due
+				// to a bad passphrase.
+				return nil, ErrBadPassphrase
+			}
+			return key, nil
+		case rsaPrivateKeyPEMType:
+			key, err := x509.ParsePKCS1PrivateKey(data)
+			if err != nil {
+				return nil, ErrBadPassphrase
+			}
+			return key, nil
+		case pkcs8PrivateKeyPEMType:
+			key, err := x509.ParsePKCS8PrivateKey(data)
+			if err != nil {
+				return nil, ErrBadPassphrase
+			}
+			return key, nil
+
+		default:
+			if strings.Contains(pemBlock.Type, "PARAMETERS") {
+				continue
+			}
 		}
-		return key, nil
+		return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 	}
-	return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 }
 
 // LoadPEMPublicKeyFile loads a public key file in PEM PKIX format.
@@ -186,6 +203,18 @@ func LoadSSHPublicKey(r io.Reader) (ssh.PublicKey, string, error) {
 	return key, comment, nil
 }
 
+func marshalPKCS8(privKey, pubKey interface{}, public bool) (privateData, publicData []byte, err error) {
+	if privateData, err = x509.MarshalPKCS8PrivateKey(privKey); err != nil {
+		return
+	}
+	if public {
+		if publicData, err = x509.MarshalPKIXPublicKey(pubKey); err != nil {
+			return
+		}
+	}
+	return
+}
+
 // SavePEMKey marshals 'key', encrypts it using 'passphrase', and saves the bytes to 'w' in PEM format.
 // If passphrase is nil, the key will not be encrypted.
 //
@@ -197,6 +226,7 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 	var pemType string
 	switch k := key.(type) {
 	case *ecdsa.PrivateKey:
+		// TODO(cnicolaou): transition to using MarshalPKCS8PrivateKey.
 		if privateData, err = x509.MarshalECPrivateKey(k); err != nil {
 			return err
 		}
@@ -207,14 +237,10 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 		}
 		pemType = ecPrivateKeyPEMType
 	case ed25519.PrivateKey:
-		if privateData, err = x509.MarshalPKCS8PrivateKey(k); err != nil {
-			return err
-		}
-		if public != nil {
-			if publicData, err = x509.MarshalPKIXPublicKey(k.Public()); err != nil {
-				return err
-			}
-		}
+		privateData, publicData, err = marshalPKCS8(k, k.Public(), public != nil)
+		pemType = pkcs8PrivateKeyPEMType
+	case *rsa.PrivateKey:
+		privateData, publicData, err = marshalPKCS8(k, k.Public(), public != nil)
 		pemType = pkcs8PrivateKeyPEMType
 	default:
 		return fmt.Errorf("key of type %T cannot be saved", k)
