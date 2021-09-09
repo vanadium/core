@@ -4,7 +4,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
 	"fmt"
 )
 
@@ -18,13 +17,17 @@ func NewRSAPublicKey(key *rsa.PublicKey) PublicKey {
 
 type rsaPublicKey struct {
 	key *rsa.PublicKey
+	publicKeyCommon
 }
 
-func (pk *rsaPublicKey) MarshalBinary() ([]byte, error) { return x509.MarshalPKIXPublicKey(pk.key) }
-func (pk *rsaPublicKey) String() string                 { return publicKeyString(pk) }
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {
+	digest = pk.h.sum(digest)
 	err := rsa.VerifyPKCS1v15(pk.key, cryptoHash(pk.key.Size()), digest, sig.Rsa)
 	return err == nil
+}
+
+func (pk *rsaPublicKey) messageDigest(purpose, message []byte) []byte {
+	return messageDigestFields(pk.h, pk.keyBytes, purpose, message)
 }
 
 func cryptoHash(nbytes int) crypto.Hash {
@@ -37,8 +40,8 @@ func cryptoHash(nbytes int) crypto.Hash {
 	return crypto.SHA512
 }
 
-func (pk *rsaPublicKey) hash() Hash {
-	if pk.key.Size() == (2048 / 8) {
+func rsaHash(pk *rsa.PublicKey) Hash {
+	if pk.Size() == (2048 / 8) {
 		return SHA256Hash
 	}
 	return SHA512Hash
@@ -70,7 +73,7 @@ type rsaSigner struct {
 
 func (c *rsaSigner) Sign(purpose, message []byte) (Signature, error) {
 	hash := c.pubkey.hash()
-	if message = messageDigest(hash, purpose, message, c.pubkey); message == nil {
+	if message = c.pubkey.messageDigest(purpose, message); message == nil {
 		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
 	}
 	sig, err := c.sign(message)
@@ -89,13 +92,20 @@ func (c *rsaSigner) PublicKey() PublicKey {
 }
 
 func newGoStdlibRSASigner(key *rsa.PrivateKey) (Signer, error) {
-	hash := cryptoHash(key.PublicKey.Size())
+	pk := newGoStdlibRSAPublicKey(&key.PublicKey)
+	vhash := pk.hash()
+	chash := cryptoHash(key.PublicKey.Size())
 	sign := func(data []byte) ([]byte, error) {
-		return rsa.SignPKCS1v15(rand.Reader, key, hash, data)
+		data = vhash.sum(data)
+		sig, err := rsa.SignPKCS1v15(rand.Reader, key, chash, data)
+		return sig, err
 	}
-	return &rsaSigner{sign: sign, pubkey: newGoStdlibRSAPublicKey(&key.PublicKey)}, nil
+	return &rsaSigner{sign: sign, pubkey: pk}, nil
 }
 
 func newGoStdlibRSAPublicKey(key *rsa.PublicKey) PublicKey {
-	return &rsaPublicKey{key}
+	return &rsaPublicKey{
+		key:             key,
+		publicKeyCommon: newPublicKeyCommon(rsaHash(key), key),
+	}
 }

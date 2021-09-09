@@ -31,41 +31,44 @@ func TestRSAPanic(t *testing.T) {
 }
 
 func testSigningAlgos(t *testing.T, signers ...security.Signer) {
-	purpose := []byte("testing")
 	for i, signer := range signers {
-		message := make([]byte, 100)
-		if _, err := rand.Read(message); err != nil {
-			t.Fatal(err)
-		}
 		sig, err := signer.Sign(purpose, message)
 		if err != nil {
-			t.Fatalf("%v: sign operation failed: %v", i, err)
+			t.Errorf("%v: sign operation failed: %v", i, err)
+			continue
 		}
 		pk := signer.PublicKey()
 		if !sig.Verify(pk, message) {
-			t.Fatalf("%v: failed to verify signature", i)
+			t.Errorf("%v: failed to verify signature", i)
+			continue
 		}
 
 		buf, err := pk.MarshalBinary()
 		if err != nil {
-			t.Fatalf("%v: marshall operation failed: %v", i, err)
+			t.Errorf("%v: marshall operation failed: %v", i, err)
+			continue
 		}
 
 		npk, err := security.UnmarshalPublicKey(buf)
 		if err != nil {
-			t.Fatalf("%v: marshall operation failed: %v", i, err)
+			t.Errorf("%v: marshall operation failed: %v", i, err)
+			continue
 		}
 
 		if got, want := pk.String(), npk.String(); got != want {
-			t.Fatalf("%v: got %v, want %v", i, got, want)
+			t.Errorf("%v: got %v, want %v", i, got, want)
+			continue
 		}
 
 		if len(npk.String()) == 0 {
-			t.Fatalf("%v: zero len public key", i)
+			t.Errorf("%v: zero len public key", i)
+			continue
 		}
 
 		if !sig.Verify(npk, message) {
-			t.Fatalf("%v: failed to verify signature with unmarshalled key", i)
+			t.Errorf("%v: failed to verify signature with unmarshalled key", i)
+			t.FailNow()
+			continue
 		}
 	}
 }
@@ -96,10 +99,10 @@ func TestSigningAlgorithms(t *testing.T) {
 	assert()
 
 	testSigningAlgos(t,
-		rsa2048S,
-		rsa4096S,
-		ec256S,
 		ed25519S,
+		rsa4096S,
+		rsa2048S,
+		ec256S,
 	)
 
 	rsa2048C := security.NewRSASigner(&rsa2048Key.PublicKey,
@@ -116,11 +119,6 @@ func TestSigningAlgorithms(t *testing.T) {
 	ed25519C := security.NewED25519Signer(edKey.Public().(ed25519.PublicKey), func(data []byte) (sig []byte, err error) {
 		return nil, fmt.Errorf("bad ed")
 	})
-	assert()
-
-	purpose := []byte("testing")
-	message := make([]byte, 100)
-	_, err = rand.Read(message)
 	assert()
 
 	for _, signer := range []security.Signer{

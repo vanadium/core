@@ -28,7 +28,6 @@ import "C"
 import (
 	"crypto/ecdsa"
 	"crypto/x509"
-	"fmt"
 	"math/big"
 	"runtime"
 
@@ -36,23 +35,17 @@ import (
 )
 
 type opensslECDSAPublicKey struct {
-	k   *C.EC_KEY
-	h   Hash
-	der []byte // the result of MarshalPKIXPublicKey on *ecdsa.PublicKey.
+	k *C.EC_KEY
+	publicKeyCommon
 }
 
 func (k *opensslECDSAPublicKey) finalize() {
 	C.EC_KEY_free(k.k)
 }
 
-func (k *opensslECDSAPublicKey) MarshalBinary() ([]byte, error) {
-	cpy := make([]byte, len(k.der))
-	copy(cpy, k.der)
-	return cpy, nil
+func (k *opensslECDSAPublicKey) messageDigest(purpose, message []byte) []byte {
+	return k.h.sum(messageDigestFields(k.h, k.keyBytes, purpose, message))
 }
-
-func (k *opensslECDSAPublicKey) String() string { return publicKeyString(k) }
-func (k *opensslECDSAPublicKey) hash() Hash     { return k.h }
 
 func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool {
 	sig := C.ECDSA_SIG_new()
@@ -76,38 +69,20 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 }
 
 func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
-	der, err := x509.MarshalPKIXPublicKey(golang)
-	if err != nil {
+	ret := &opensslECDSAPublicKey{
+		publicKeyCommon: newPublicKeyCommon(ecdsaHash(golang), golang),
+	}
+	if err := ret.keyBytesErr; err != nil {
 		return nil, err
 	}
 	var errno C.ulong
-	k := C.openssl_d2i_EC_PUBKEY(uchar(der), C.long(len(der)), &errno)
+	k := C.openssl_d2i_EC_PUBKEY(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
 	if k == nil {
 		return nil, opensslMakeError(errno)
 	}
-	h, err := openssl_hash_for_key(k)
-	if err != nil {
-		return nil, err
-	}
-	dercpy := make([]byte, len(der))
-	copy(dercpy, der)
-	ret := &opensslECDSAPublicKey{k, h, dercpy}
 	runtime.SetFinalizer(ret, func(k *opensslECDSAPublicKey) { k.finalize() })
+	ret.k = k
 	return ret, nil
-}
-
-func openssl_hash_for_key(k *C.EC_KEY) (Hash, error) {
-	switch id := C.EC_GROUP_get_curve_name(C.EC_KEY_get0_group(k)); id {
-	case C.NID_secp224r1, C.NID_X9_62_prime256v1:
-		return SHA256Hash, nil
-	case C.NID_secp384r1:
-		return SHA384Hash, nil
-	case C.NID_secp521r1:
-		return SHA512Hash, nil
-	default:
-		var h Hash
-		return h, fmt.Errorf("elliptic curve %v is not supported", C.GoString(C.OBJ_nid2sn(C.int(id))))
-	}
 }
 
 type opensslECDSASigner struct {
@@ -139,7 +114,6 @@ func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
 	}
 	r = big.NewInt(0).SetBytes(buf[0:int(C.BN_bn2bin(pr, uchar(buf)))])
 	s = big.NewInt(0).SetBytes(buf[0:int(C.BN_bn2bin(ps, uchar(buf)))])
-
 	return r, s, nil
 }
 
@@ -157,6 +131,7 @@ func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
 	if k == nil {
 		return nil, opensslMakeError(errno)
 	}
+
 	impl := &opensslECDSASigner{k}
 	runtime.SetFinalizer(impl, func(k *opensslECDSASigner) { k.finalize() })
 	return &ecdsaSigner{

@@ -7,7 +7,6 @@ package security
 import (
 	"crypto/ecdsa"
 	"crypto/rand"
-	"crypto/x509"
 	"fmt"
 	"math/big"
 )
@@ -19,17 +18,20 @@ func NewECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
 
 type ecdsaPublicKey struct {
 	key *ecdsa.PublicKey
+	publicKeyCommon
 }
 
-func (pk *ecdsaPublicKey) MarshalBinary() ([]byte, error) { return x509.MarshalPKIXPublicKey(pk.key) }
-func (pk *ecdsaPublicKey) String() string                 { return publicKeyString(pk) }
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
 	var r, s big.Int
 	return ecdsa.Verify(pk.key, digest, r.SetBytes(sig.R), s.SetBytes(sig.S))
 }
 
-func (pk *ecdsaPublicKey) hash() Hash {
-	nbits := pk.key.Curve.Params().BitSize
+func (pk *ecdsaPublicKey) messageDigest(purpose, message []byte) []byte {
+	return pk.h.sum(messageDigestFields(pk.h, pk.keyBytes, purpose, message))
+}
+
+func ecdsaHash(key *ecdsa.PublicKey) Hash {
+	nbits := key.Curve.Params().BitSize
 	switch {
 	case nbits <= 160:
 		return SHA1Hash
@@ -68,7 +70,7 @@ type ecdsaSigner struct {
 
 func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
 	hash := c.pubkey.hash()
-	if message = messageDigest(hash, purpose, message, c.pubkey); message == nil {
+	if message = c.pubkey.messageDigest(purpose, message); message == nil {
 		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
 	}
 	r, s, err := c.sign(message)
@@ -95,5 +97,8 @@ func newGoStdlibECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 }
 
 func newGoStdlibECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
-	return &ecdsaPublicKey{key}
+	return &ecdsaPublicKey{
+		key:             key,
+		publicKeyCommon: newPublicKeyCommon(ecdsaHash(key), key),
+	}
 }

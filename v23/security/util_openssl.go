@@ -11,8 +11,6 @@ package security
 // #include <openssl/ec.h>
 // #include <openssl/err.h>
 // #include <openssl/x509.h>
-//
-// EC_KEY* openssl_d2i_EC_PUBKEY(const unsigned char* data, long len, unsigned long* e);
 import "C"
 
 import (

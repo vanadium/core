@@ -6,7 +6,6 @@ package security
 
 import (
 	"crypto/ed25519"
-	"crypto/x509"
 	"fmt"
 )
 
@@ -17,17 +16,16 @@ func NewED25519PublicKey(key ed25519.PublicKey) PublicKey {
 }
 
 type ed25519PublicKey struct {
+	publicKeyCommon
 	key ed25519.PublicKey
 }
 
-func (pk *ed25519PublicKey) MarshalBinary() ([]byte, error) { return x509.MarshalPKIXPublicKey(pk.key) }
-func (pk *ed25519PublicKey) String() string                 { return publicKeyString(pk) }
 func (pk *ed25519PublicKey) verify(digest []byte, sig *Signature) bool {
 	return ed25519.Verify(pk.key, digest, sig.Ed25519)
 }
 
-func (pk *ed25519PublicKey) hash() Hash {
-	return SHA512Hash
+func (pk *ed25519PublicKey) messageDigest(purpose, message []byte) []byte {
+	return pk.h.sum(messageDigestFields(pk.h, pk.keyBytes, purpose, message))
 }
 
 // NewInMemoryED25519Signer creates a Signer that uses the provided ED25519
@@ -56,7 +54,7 @@ type ed25519Signer struct {
 
 func (c *ed25519Signer) Sign(purpose, message []byte) (Signature, error) {
 	hash := c.pubkey.hash()
-	if message = messageDigest(hash, purpose, message, c.pubkey); message == nil {
+	if message = c.pubkey.messageDigest(purpose, message); message == nil {
 		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
 	}
 	sig, err := c.sign(message)
@@ -86,5 +84,8 @@ func newGoStdlibED25519Signer(key ed25519.PrivateKey) (Signer, error) {
 }
 
 func newGoStdlibED25519PublicKey(key ed25519.PublicKey) PublicKey {
-	return &ed25519PublicKey{key}
+	return &ed25519PublicKey{
+		key:             key,
+		publicKeyCommon: newPublicKeyCommon(SHA512Hash, key),
+	}
 }
