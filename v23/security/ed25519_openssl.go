@@ -72,7 +72,7 @@ func (k *opensslED25519Signer) finalize() {
 }
 
 func (k *opensslED25519Signer) sign(data []byte) ([]byte, error) {
-	return evpSign(k.k, "ED25519", ed25519.SignatureSize, nil, data)
+	return evpSignOneShot(k.k, "ED25519", ed25519.SignatureSize, nil, data)
 }
 
 func newOpenSSLED25519Signer(golang ed25519.PrivateKey) (Signer, error) {

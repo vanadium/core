@@ -5,6 +5,7 @@
 // +build openssl
 
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <openssl/ec.h>
 #include <openssl/ecdsa.h>
 #include <openssl/rsa.h>
@@ -81,7 +82,7 @@ ECDSA_SIG *openssl_ECDSA_do_sign(const unsigned char *digest, int len, EC_KEY *k
 	return NULL;
 }
 
-unsigned long openssl_EVP_sign(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, int digestLen, unsigned char *sig, size_t siglen)
+unsigned long openssl_EVP_sign_oneshot(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, size_t digestLen, unsigned char *sig, size_t siglen)
 {
 	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 	if (EVP_DigestSignInit(ctx, NULL, dt, NULL, key) <= 0)
@@ -97,6 +98,37 @@ err:
 	return ERR_get_error();
 }
 
+unsigned long openssl_EVP_sign(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, size_t digestLen, unsigned char **sig, size_t *siglen)
+{
+	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+	if (EVP_DigestSignInit(ctx, NULL, dt, NULL, key) <= 0)
+	{
+		goto err;
+	}
+	if (EVP_DigestSignUpdate(ctx, digest, digestLen) <= 0)
+	{
+		goto err;
+	}
+	if (EVP_DigestSignFinal(ctx, NULL, siglen) <= 0)
+	{
+		goto err;
+	}
+	*sig = OPENSSL_zalloc(*siglen);
+	if (sig == NULL)
+	{
+		goto err;
+	}
+	if (EVP_DigestSignFinal(ctx, *sig, siglen) <= 0)
+	{
+		goto err;
+	}
+	EVP_MD_CTX_free(ctx);
+	return 0;
+err:
+	EVP_MD_CTX_free(ctx);
+	return ERR_get_error();
+}
+
 int openssl_EVP_verify(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, size_t digestLen, unsigned char *sig, size_t siglen, unsigned long *e)
 {
 	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -106,6 +138,12 @@ int openssl_EVP_verify(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, s
 		goto err;
 	}
 	rc = EVP_DigestVerify(ctx, sig, siglen, digest, digestLen);
+	if (rc <= 0)
+	{
+		goto err;
+	}
+	EVP_MD_CTX_free(ctx);
+	return rc;
 err:
 	EVP_MD_CTX_free(ctx);
 	*e = ERR_get_error();

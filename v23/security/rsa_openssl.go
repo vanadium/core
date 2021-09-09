@@ -82,7 +82,7 @@ func (k *opensslRSASigner) finalize() {
 }
 
 func (k *opensslRSASigner) sign(data []byte) ([]byte, error) {
-	return evpSign(k.k, "RSA", k.signatureSize, opensslHash(k.h), data)
+	return evpSign(k.k, "RSA", opensslHash(k.h), data)
 }
 
 func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
