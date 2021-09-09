@@ -35,12 +35,14 @@ import (
 )
 
 type opensslECDSAPublicKey struct {
-	k *C.EC_KEY
+	//k *C.EC_KEY
+	k *C.EVP_PKEY
 	publicKeyCommon
 }
 
 func (k *opensslECDSAPublicKey) finalize() {
-	C.EC_KEY_free(k.k)
+	//C.EC_KEY_free(k.k)
+	C.EC_PKEY_free(k.k)
 }
 
 func (k *opensslECDSAPublicKey) messageDigest(purpose, message []byte) []byte {
@@ -135,9 +137,7 @@ func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
 	impl := &opensslECDSASigner{k}
 	runtime.SetFinalizer(impl, func(k *opensslECDSASigner) { k.finalize() })
 	return &ecdsaSigner{
-		sign: func(data []byte) (r, s *big.Int, err error) {
-			return impl.sign(data)
-		},
+		sign: impl.sign,
 		pubkey: pubkey,
 		impl:   impl,
 	}, nil

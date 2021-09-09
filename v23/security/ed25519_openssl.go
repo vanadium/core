@@ -99,9 +99,7 @@ func newOpenSSLED25519Signer(golang ed25519.PrivateKey) (Signer, error) {
 	impl := &opensslED25519Signer{pk, pkb}
 	runtime.SetFinalizer(impl, func(k *opensslED25519Signer) { k.finalize() })
 	return &ed25519Signer{
-		sign: func(data []byte) ([]byte, error) {
-			return impl.sign(data)
-		},
+		sign:   impl.sign,
 		pubkey: pubkey,
 		impl:   impl,
 	}, nil

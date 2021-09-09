@@ -27,6 +27,14 @@ func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {
 }
 
 func (pk *rsaPublicKey) messageDigest(purpose, message []byte) []byte {
+	// NOTE: the openssl rsa signer/verifier KCS1v15 implementation always
+	// 	     hashes the message it receives, whereas the go implementation
+	//       assumes a prehashed version. Consequently this method returns
+	//       the results of messageDigestFields and leaves it to the
+	//       implementation of the signer to hash that value or not.
+	//       For this go implementation, the results returned by this
+	//       function are therefore hashed again below (see the sign method
+	//       implementation provided when the signer is created).
 	return messageDigestFields(pk.h, pk.keyBytes, purpose, message)
 }
 
@@ -96,6 +104,7 @@ func newGoStdlibRSASigner(key *rsa.PrivateKey) (Signer, error) {
 	vhash := pk.hash()
 	chash := cryptoHash(key.PublicKey.Size())
 	sign := func(data []byte) ([]byte, error) {
+		// hash the data since rsa.SignPKCS1v15 assumes prehashed data.
 		data = vhash.sum(data)
 		sig, err := rsa.SignPKCS1v15(rand.Reader, key, chash, data)
 		return sig, err

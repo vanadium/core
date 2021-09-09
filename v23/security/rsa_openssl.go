@@ -34,6 +34,14 @@ func (k *opensslRSAPublicKey) finalize() {
 }
 
 func (k *opensslRSAPublicKey) messageDigest(purpose, message []byte) []byte {
+	// NOTE: the openssl rsa signer/verifier KCS1v15 implementation always
+	// 	     hashes the message it receives, whereas the go implementation
+	//       assumes a prehashed version. Consequently this method returns
+	//       the results of messageDigestFields and leaves it to the
+	//       implementation of the signer to hash that value or not.
+	//       For this openssl implementation, the results returned by this
+	//       function are therefore not hashed again below (see the sign method
+	//       implementation provided when the signer is created).
 	return messageDigestFields(k.h, k.keyBytes, purpose, message)
 }
 
@@ -105,9 +113,7 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	impl := &opensslRSASigner{evpKey, pubkey.hash(), golang.PublicKey.Size()}
 	runtime.SetFinalizer(impl, func(k *opensslRSASigner) { k.finalize() })
 	return &rsaSigner{
-		sign: func(data []byte) ([]byte, error) {
-			return impl.sign(data)
-		},
+		sign:   impl.sign,
 		pubkey: pubkey,
 		impl:   impl,
 	}, nil
