@@ -17,69 +17,76 @@
 // If the two were called from Go, the goroutine might be pre-empted and
 // rescheduled on another thread leading to an inconsistent error.
 
-// d2i_ECPrivateKey + ERR_get_error in a single function.
-EC_KEY *openssl_d2i_ECPrivateKey(const unsigned char *data, long len, unsigned long *e)
+EVP_PKEY *assign_evp_key(int keyType, void *key, unsigned long *e)
+{
+	if (key == NULL)
+	{
+		goto err;
+	}
+	EVP_PKEY *pk = EVP_PKEY_new();
+	if (EVP_PKEY_assign(pk, keyType, key) <= 0)
+	{
+		goto err;
+	}
+	*e = 0;
+	return pk;
+err:
+	*e = ERR_get_error();
+	return NULL;
+}
+
+// d2i_ECPrivateKey + EVP_PKEY_assign + ERR_get_error in a single function.
+EVP_PKEY *openssl_d2i_ECPrivateEVPKey(const unsigned char *data, long len, unsigned long *e)
 {
 	EC_KEY *k = d2i_ECPrivateKey(NULL, &data, len);
-	if (k != NULL)
-	{
-		*e = 0;
-		return k;
-	}
-	*e = ERR_get_error();
-	return NULL;
+	return assign_evp_key(EVP_PKEY_EC, k, e);
 }
 
-// d2i_EC_PUBKEY + ERR_get_error in a single function.
-EC_KEY *openssl_d2i_EC_PUBKEY(const unsigned char *data, long len, unsigned long *e)
+// d2i_EC_PUBKEY + EVP_PKEY_assign  + ERR_get_error in a single function.
+EVP_PKEY *openssl_d2i_ECPublicEVPKey(const unsigned char *data, long len, unsigned long *e)
 {
 	EC_KEY *k = d2i_EC_PUBKEY(NULL, &data, len);
-	if (k != NULL)
-	{
-		*e = 0;
-		return k;
-	}
-	*e = ERR_get_error();
-	return NULL;
+	return assign_evp_key(EVP_PKEY_EC, k, e);
 }
 
-// d2i_RSAPrivateKey + ERR_get_error in a single function.
-RSA *openssl_d2i_RSAPrivateKey(const unsigned char *data, long len, unsigned long *e)
+// d2i_RSAPrivateKey +  EVP_PKEY_assign + ERR_get_error in a single function.
+EVP_PKEY *openssl_d2i_RSAPrivateEVPKey(const unsigned char *data, long len, unsigned long *e)
 {
 	RSA *k = d2i_RSAPrivateKey(NULL, &data, len);
-	if (k != NULL)
-	{
-		*e = 0;
-		return k;
-	}
-	*e = ERR_get_error();
-	return NULL;
+	return assign_evp_key(EVP_PKEY_RSA, k, e);
 }
 
-// d2i_RSA_PUBKEY + ERR_get_error in a single function.
-RSA *openssl_d2i_RSA_PUBKEY(const unsigned char *data, long len, unsigned long *e)
+// d2i_RSA_PUBKEY + EVP_PKEY_assign + ERR_get_error in a single function.
+EVP_PKEY *openssl_d2i_RSAPublicEVPKey(const unsigned char *data, long len, unsigned long *e)
 {
 	RSA *k = d2i_RSA_PUBKEY(NULL, &data, len);
-	if (k != NULL)
-	{
-		*e = 0;
-		return k;
-	}
-	*e = ERR_get_error();
-	return NULL;
+	return assign_evp_key(EVP_PKEY_RSA, k, e);
 }
 
-// ECDSA_do_sign + ERR_get_error in a single function.
-ECDSA_SIG *openssl_ECDSA_do_sign(const unsigned char *digest, int len, EC_KEY *key, unsigned long *e)
+// EVP_PKEY_new_raw_public_key + ERR_get_error in a single function.
+EVP_PKEY *openssl_new_raw_public_key(unsigned char *keyBytes, size_t keyLen, unsigned long *e)
 {
-	ECDSA_SIG *sig = ECDSA_do_sign(digest, len, key);
-	if (sig != NULL)
+	EVP_PKEY *pk = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, keyBytes, keyLen);
+	if (pk == NULL)
 	{
-		*e = 0;
-		return sig;
+		*e = ERR_get_error();
+		return NULL;
 	}
-	*e = ERR_get_error();
-	return NULL;
+	*e = 0;
+	return pk;
+}
+
+// EVP_PKEY_new_raw_private_key + ERR_get_error in a single function.
+EVP_PKEY *openssl_new_raw_private_key(unsigned char *keyBytes, size_t keyLen, unsigned long *e)
+{
+	EVP_PKEY *pk = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, keyBytes, keyLen);
+	if (pk == NULL)
+	{
+		*e = ERR_get_error();
+		return NULL;
+	}
+	*e = 0;
+	return pk;
 }
 
 unsigned long openssl_EVP_sign_oneshot(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, size_t digestLen, unsigned char *sig, size_t siglen)
@@ -93,6 +100,8 @@ unsigned long openssl_EVP_sign_oneshot(EVP_PKEY *key, EVP_MD *dt, const unsigned
 	{
 		goto err;
 	}
+	EVP_MD_CTX_free(ctx);
+	return 0;
 err:
 	EVP_MD_CTX_free(ctx);
 	return ERR_get_error();

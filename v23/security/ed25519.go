@@ -40,7 +40,8 @@ func NewInMemoryED25519Signer(key ed25519.PrivateKey) (Signer, error) {
 }
 
 // NewED25519Signer creates a Signer that uses the provided function to sign
-// messages.
+// messages. The provided method is invoked to sign messages and may be used
+// to access an otherwise protected or encoded key.
 func NewED25519Signer(key ed25519.PublicKey, sign func(data []byte) ([]byte, error)) Signer {
 	return &ed25519Signer{sign: sign, pubkey: NewED25519PublicKey(key)}
 }

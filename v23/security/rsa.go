@@ -56,7 +56,7 @@ func rsaHash(pk *rsa.PublicKey) Hash {
 }
 
 // NewInMemoryRSASigner creates a Signer that uses the provided RSA
-// private  key to sign messages.  This private key is kept in the clear in
+// private key to sign messages. This private key is kept in the clear in
 // the memory of the running process.
 func NewInMemoryRSASigner(key *rsa.PrivateKey) (Signer, error) {
 	signer, err := newInMemoryRSASignerImpl(key)
@@ -67,7 +67,8 @@ func NewInMemoryRSASigner(key *rsa.PrivateKey) (Signer, error) {
 }
 
 // NewRSASigner creates a Signer that uses the provided function to sign
-// messages.
+// messages. The provided method is invoked to sign messages and may be used
+// to access an otherwise protected or encoded key.
 func NewRSASigner(key *rsa.PublicKey, sign func(data []byte) ([]byte, error)) Signer {
 	return &rsaSigner{sign: sign, pubkey: NewRSAPublicKey(key)}
 }

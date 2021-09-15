@@ -38,7 +38,6 @@ func TestOpenSSLCompatibilityRSA(t *testing.T) {
 	t.Log(security.OpenSSLVersion())
 	ntests := 0
 
-	fmt.Printf("TEST\n\n\n")
 	keySizes := []int{2048} //, 3073, 4096}
 	for _, keySize := range keySizes {
 		key, err := rsa.GenerateKey(rand.Reader, keySize)

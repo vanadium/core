@@ -15,6 +15,11 @@ vdlroot:
 		./time \
 		./signature
 
+.PHONY: test
+test:
+	@echo "VDLPATH" "${VDLPATH}"
+	go test ./...
+
 .PHONY: test-integration
 test-integration:
 	@echo "VDLPATH" "${VDLPATH}"

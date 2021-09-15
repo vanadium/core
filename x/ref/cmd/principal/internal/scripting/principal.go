@@ -35,6 +35,25 @@ func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error
 	return seclib.NewSSHAgentHostedKey(publicKeyFile)
 }
 
+func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
+	sslKeyFile = os.ExpandEnv(sslKeyFile)
+	var privateKey crypto.PrivateKey
+	var pass []byte
+	for {
+		key, err := seclib.SSLPrivateKey(sslKeyFile, pass)
+		if err == nil {
+			privateKey = key
+			break
+		}
+		if err == seclib.ErrPassphraseRequired || err == seclib.ErrBadPassphrase {
+			pass, err = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", sslKeyFile))
+			continue
+		}
+		return nil, err
+	}
+	return privateKey, nil
+}
+
 func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) {
 	kt, ok := internal.IsSupportedKeyType(keyType)
 	if !ok {

@@ -12,6 +12,7 @@ import (
 	"crypto/rsa"
 	"sync"
 
+	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 )
 
@@ -27,7 +28,7 @@ var (
 )
 
 func init() {
-	purpose, message = security.PurposeAndMessage(5, 100)
+	purpose, message = sectest.GenPurposeAndMessage(5, 100)
 
 }
 

@@ -81,6 +81,7 @@ type WithPassphraseFlag struct {
 type KeyFlags struct {
 	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
+	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
 }
 
 // ForPeerFlag represents a --for-peer flag.
@@ -780,6 +781,7 @@ principal will have no blessings.
 				dir,
 				flagCreate.KeyType,
 				flagCreate.SSHAgentPublicKeyFile,
+				flagCreate.SSLKeyFile,
 				pass,
 				flagCreate.CreateOverwrite)
 			if err != nil {
@@ -863,6 +865,7 @@ forked principal.
 				dir,
 				flagFork.KeyType,
 				flagFork.SSHAgentPublicKeyFile,
+				flagFork.SSLKeyFile,
 				pass,
 				flagFork.CreateOverwrite)
 			if err != nil {
@@ -1331,7 +1334,10 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }
 
-func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey string, pass []byte, overwrite bool) (security.Principal, error) {
+func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslKey string, pass []byte, overwrite bool) (security.Principal, error) {
+	if len(sshKey) > 0 && len(sslKey) > 0 {
+		return nil, fmt.Errorf("both an ssl key and ssh key were specified, please choose one and only one of these")
+	}
 	removeExisting := func() error {
 		if !overwrite {
 			return nil
@@ -1340,15 +1346,18 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey strin
 	}
 	var privateKey crypto.PrivateKey
 	var err error
-	if len(sshKey) == 0 {
+	switch {
+	case len(sshKey) > 0:
+		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
+	case len(sslKey) > 0:
+		privateKey, err = seclib.SSLPrivateKey(sslKey, pass)
+	default:
 		kt, ok := internal.IsSupportedKeyType(keyType)
 		if !ok {
 			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 		} else {
 			privateKey, err = seclib.NewPrivateKey(kt)
 		}
-	} else {
-		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
 	}
 	if err != nil {
 		return nil, err

@@ -56,7 +56,8 @@ func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 }
 
 // NewECDSASigner creates a Signer that uses the provided function to sign
-// messages.
+// messages. The provided method is invoked to sign messages and may be used
+// to access an otherwise protected or encoded key.
 func NewECDSASigner(key *ecdsa.PublicKey, sign func(data []byte) (r, s *big.Int, err error)) Signer {
 	return &ecdsaSigner{sign: sign, pubkey: NewECDSAPublicKey(key)}
 }

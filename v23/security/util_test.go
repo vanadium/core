@@ -7,8 +7,6 @@
 package security
 
 import (
-	"crypto/rand"
-
 	"v.io/v23/context"
 )
 
@@ -82,20 +80,6 @@ func ExposeValidateCertificateChain(chain []Certificate) (PublicKey, []byte, err
 // ExposeDigestsForCertificateChain exposes digestsForCertificateChain to tests.
 func ExposeDigestsForCertificateChain(chain []Certificate) (digest, contentDigest []byte) {
 	return digestsForCertificateChain(chain)
-}
-
-func PurposeAndMessage(psize, msize int) (purpose, message []byte) {
-	purpose = make([]byte, 5)
-	message = make([]byte, 100)
-	if _, err := rand.Reader.Read(purpose); err != nil {
-		panic(err)
-	}
-	if _, err := rand.Reader.Read(message); err != nil {
-		panic(err)
-	}
-	purpose = []byte("test")
-	message = []byte("hello there")
-	return
 }
 
 func HashForPublicKey(pk PublicKey) Hash {

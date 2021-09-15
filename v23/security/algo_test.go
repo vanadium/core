@@ -12,6 +12,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"math/big"
+	"runtime"
 	"testing"
 
 	"v.io/v23/security"
@@ -77,7 +78,8 @@ func TestSigningAlgorithms(t *testing.T) {
 	var err error
 	assert := func() {
 		if err != nil {
-			t.Fatal(err)
+			_, _, line, _ := runtime.Caller(1)
+			t.Fatalf("line %v: %v", line, err)
 		}
 	}
 	rsa2048Key, err := rsa.GenerateKey(rand.Reader, 2048)

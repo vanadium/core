@@ -14,8 +14,8 @@ package security
 // #include <openssl/opensslv.h>
 // #include <openssl/x509.h>
 //
-// void *openssl_d2i_RSAPrivateKey(const unsigned char *data, long len, unsigned long *e);
-// RSA *openssl_d2i_RSA_PUBKEY(const unsigned char *data, long len, unsigned long *e);
+// EVP_PKEY* openssl_d2i_RSAPrivateEVPKey(const unsigned char *data, long len, unsigned long *e);
+// EVP_PKEY* openssl_d2i_RSAPublicEVPKey(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
@@ -25,8 +25,7 @@ import (
 )
 
 type opensslRSAPublicKey struct {
-	k *C.EVP_PKEY
-	publicKeyCommon
+	opensslPublicKeyCommon
 }
 
 func (k *opensslRSAPublicKey) finalize() {
@@ -39,50 +38,36 @@ func (k *opensslRSAPublicKey) messageDigest(purpose, message []byte) []byte {
 	//       assumes a prehashed version. Consequently this method returns
 	//       the results of messageDigestFields and leaves it to the
 	//       implementation of the signer to hash that value or not.
-	//       For this openssl implementation, the results returned by this
-	//       function are therefore not hashed again below (see the sign method
+	//       For this go implementation, the results returned by this
+	//       function are therefore hashed again below (see the sign method
 	//       implementation provided when the signer is created).
 	return messageDigestFields(k.h, k.keyBytes, purpose, message)
 }
 
 func (k *opensslRSAPublicKey) verify(digest []byte, signature *Signature) bool {
-	return evpVerify(k.k, "RSA", opensslHash(k.h), digest, signature.Rsa)
-}
-
-func opensslHash(h Hash) *C.EVP_MD {
-	if h == SHA256Hash {
-		return C.EVP_sha256()
-	}
-	return C.EVP_sha512()
+	ok, _ := evpVerify(k.k, opensslHash(k.h), digest, signature.Rsa)
+	return ok
 }
 
 func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
 	ret := &opensslRSAPublicKey{
-		publicKeyCommon: newPublicKeyCommon(rsaHash(golang), golang),
+		opensslPublicKeyCommon: newOpensslPublicKeyCommon(rsaHash(golang), golang),
 	}
 	if err := ret.keyBytesErr; err != nil {
 		return nil, err
 	}
 	var errno C.ulong
-	rsaKey := C.openssl_d2i_RSA_PUBKEY(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
-	if rsaKey == nil {
+	ret.k = C.openssl_d2i_RSAPublicEVPKey(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
+	if ret.k == nil {
 		return nil, opensslMakeError(errno)
 	}
-	evpKey, err := newEVPKey("RSA", func(ek *C.EVP_PKEY) C.int {
-		return C.EVP_PKEY_set1_RSA(ek, rsaKey)
-	})
-	if err != nil {
-		return nil, err
-	}
-	ret.k = evpKey
 	runtime.SetFinalizer(ret, func(k *opensslRSAPublicKey) { k.finalize() })
 	return ret, nil
 }
 
 type opensslRSASigner struct {
-	k             *C.EVP_PKEY
-	h             Hash
-	signatureSize int
+	k *C.EVP_PKEY
+	h *C.EVP_MD // no need to free this
 }
 
 func (k *opensslRSASigner) finalize() {
@@ -90,7 +75,7 @@ func (k *opensslRSASigner) finalize() {
 }
 
 func (k *opensslRSASigner) sign(data []byte) ([]byte, error) {
-	return evpSign(k.k, "RSA", opensslHash(k.h), data)
+	return evpSign(k.k, k.h, data)
 }
 
 func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
@@ -100,17 +85,11 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	}
 	der := x509.MarshalPKCS1PrivateKey(golang)
 	var errno C.ulong
-	rsaKey := C.openssl_d2i_RSAPrivateKey(uchar(der), C.long(len(der)), &errno)
-	if rsaKey == nil {
+	key := C.openssl_d2i_RSAPrivateEVPKey(uchar(der), C.long(len(der)), &errno)
+	if key == nil {
 		return nil, opensslMakeError(errno)
 	}
-	evpKey, err := newEVPKey("RSA", func(ek *C.EVP_PKEY) C.int {
-		return C.EVP_PKEY_assign(ek, C.EVP_PKEY_RSA, rsaKey)
-	})
-	if err != nil {
-		return nil, err
-	}
-	impl := &opensslRSASigner{evpKey, pubkey.hash(), golang.PublicKey.Size()}
+	impl := &opensslRSASigner{key, opensslHash(pubkey.hash())}
 	runtime.SetFinalizer(impl, func(k *opensslRSASigner) { k.finalize() })
 	return &rsaSigner{
 		sign:   impl.sign,

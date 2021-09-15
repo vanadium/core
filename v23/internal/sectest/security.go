@@ -293,6 +293,22 @@ func AddToRoots(t *testing.T, p security.Principal, b security.Blessings) {
 	}
 }
 
+// GenPurposeAndMessage generates a random purpose and message of the
+// the requested size.
+func GenPurposeAndMessage(psize, msize int) (purpose, message []byte) {
+	purpose = make([]byte, 5)
+	message = make([]byte, 100)
+	if _, err := rand.Reader.Read(purpose); err != nil {
+		panic(err)
+	}
+	if _, err := rand.Reader.Read(message); err != nil {
+		panic(err)
+	}
+	purpose = []byte("test")
+	message = []byte("hello there")
+	return
+}
+
 func init() {
 	security.RegisterCaveatValidator(SuffixCaveat, func(ctx *context.T, call security.Call, suffix string) error {
 		if suffix != call.Suffix() {
