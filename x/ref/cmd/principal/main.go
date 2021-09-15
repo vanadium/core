@@ -1350,7 +1350,7 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslK
 	case len(sshKey) > 0:
 		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
 	case len(sslKey) > 0:
-		privateKey, err = seclib.SSLPrivateKey(sslKey, pass)
+		privateKey, err = seclib.SSLPrivateKeyFromFile(sslKey, pass)
 	default:
 		kt, ok := internal.IsSupportedKeyType(keyType)
 		if !ok {
