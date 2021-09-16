@@ -40,6 +40,7 @@ type SSHAgentHostedKey struct {
 // KeyType represents the supported key types.
 type KeyType int
 
+// Supported key types.
 const (
 	UnsupportedKeyType KeyType = iota
 	ECDSA256

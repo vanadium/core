@@ -27,6 +27,7 @@ const (
 	rsaPrivateKeyPEMType   = "RSA PRIVATE KEY"
 	ecPublicKeyPEMType     = "EC PUBLIC KEY"
 	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
+	certPEMType            = "CERTIFICATE"
 )
 
 var (
@@ -245,6 +246,9 @@ func SavePEMKeyPair(private, public io.Writer, key interface{}, passphrase []byt
 	default:
 		return fmt.Errorf("key of type %T cannot be saved", k)
 	}
+	if err != nil {
+		return err
+	}
 
 	var pemKey *pem.Block
 	if passphrase != nil {
@@ -324,5 +328,23 @@ func CryptoKeyFromSSHKey(pk ssh.PublicKey) (interface{}, error) {
 		return ParseED25519Key(pk)
 	default:
 		return nil, fmt.Errorf("unsupported ssh key key tyoe %v", pk.Type())
+	}
+}
+
+// LoadCertificate loads a certificate from 'r'.
+func LoadCertificate(r io.Reader) (*x509.Certificate, error) {
+	pemBlockBytes, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	for {
+		var pemBlock *pem.Block
+		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
+		if pemBlock == nil {
+			return nil, fmt.Errorf("no PEM certificate block read")
+		}
+		if pemBlock.Type == certPEMType {
+			return x509.ParseCertificate(pemBlock.Bytes)
+		}
 	}
 }

@@ -284,7 +284,7 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 func funcForSSLKey(keyFile string, passphrase []byte) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
 		ctx := gocontext.TODO()
-		key, err := SSLPrivateKeyFromFile(filepath.Join("testdata", keyFile), passphrase)
+		key, err := ParsePEMPrivateKeyFile(filepath.Join("testdata", keyFile), passphrase)
 		if err != nil {
 			panic(err)
 		}

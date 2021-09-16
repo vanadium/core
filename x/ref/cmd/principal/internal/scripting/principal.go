@@ -40,7 +40,7 @@ func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
 	var privateKey crypto.PrivateKey
 	var pass []byte
 	for {
-		key, err := seclib.SSLPrivateKey(sslKeyFile, pass)
+		key, err := seclib.ParsePEMPrivateKeyFile(sslKeyFile, pass)
 		if err == nil {
 			privateKey = key
 			break
