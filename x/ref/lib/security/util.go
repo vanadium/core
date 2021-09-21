@@ -10,6 +10,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
 	"os"
 
@@ -47,10 +48,13 @@ const (
 	ECDSA384
 	ECDSA521
 	ED25519
+	RSA2048
+	RSA4096
 )
 
 // NewPrivateKey creates a new private key of the requested type.
-// keyType must be one of ecdsa256, ecdsa384, ecdsa521 or ed25519.
+// keyType must be one of ecdsa256, ecdsa384, ecdsa521, ed25519,
+// rsa 2048 or rsa 4096 bit.
 func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	switch keyType {
 	case ECDSA256:
@@ -62,6 +66,10 @@ func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	case ED25519:
 		_, privateKey, err := ed25519.GenerateKey(rand.Reader)
 		return privateKey, err
+	case RSA2048:
+		return rsa.GenerateKey(rand.Reader, 2048)
+	case RSA4096:
+		return rsa.GenerateKey(rand.Reader, 4096)
 	default:
 		return nil, fmt.Errorf("unsupported key type: %T", keyType)
 	}

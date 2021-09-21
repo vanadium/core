@@ -6,11 +6,14 @@ package internal
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -21,31 +24,57 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+var (
+	ecdsaKey   *ecdsa.PrivateKey
+	rsaKey     *rsa.PrivateKey
+	ed25519Key ed25519.PrivateKey
+)
+
+func init() {
+	var err error
+	ecdsaKey, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		panic(fmt.Sprintf("Failed ecdsa.GenerateKey: %v", err))
+	}
+	_, ed25519Key, err = ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		panic(fmt.Sprintf("Failed ed25519.GenerateKey: %v", err))
+	}
+	rsaKey, err = rsa.GenerateKey(rand.Reader, 3072)
+	if err != nil {
+		panic(fmt.Sprintf("Failed rsa.GenerateKey: %v", err))
+	}
+}
+
 func TestLoadSavePEMKey(t *testing.T) {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed ecdsa.GenerateKey: %v", err)
-	}
+	for _, tc := range []struct {
+		private crypto.PrivateKey
+		public  crypto.PublicKey
+	}{
+		{ecdsaKey, ecdsaKey.Public()},
+		{ed25519Key, ed25519Key.Public()},
+		{rsaKey, rsaKey.Public()},
+	} {
+		key := tc.private
+		var privateKeyBuf, publicKeyBuf bytes.Buffer
+		if err := SavePEMKeyPair(&privateKeyBuf, &publicKeyBuf, key, nil); err != nil {
+			t.Fatalf("Failed to save ECDSA private key: %v", err)
+		}
 
-	var privateKeyBuf, publicKeyBuf bytes.Buffer
-	if err := SavePEMKeyPair(&privateKeyBuf, &publicKeyBuf, key, nil); err != nil {
-		t.Fatalf("Failed to save ECDSA private key: %v", err)
-	}
-
-	loadedKey, err := LoadPEMPrivateKey(&privateKeyBuf, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(loadedKey, key) {
-		t.Fatalf("Got key %v, but want %v", loadedKey, key)
-	}
-
-	loadedKey, err = LoadPEMPublicKey(&publicKeyBuf)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(loadedKey, &key.PublicKey) {
-		t.Fatalf("Got key %v, but want %v", loadedKey, key)
+		loadedKey, err := LoadPEMPrivateKey(&privateKeyBuf, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(loadedKey, key) {
+			t.Fatalf("Got key %v, but want %v", loadedKey, key)
+		}
+		loadedKey, err = LoadPEMPublicKey(&publicKeyBuf)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(loadedKey, tc.public) {
+			t.Fatalf("Got key %v, but want %v", loadedKey, key)
+		}
 	}
 }
 
@@ -88,62 +117,23 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	}
 }
 
-func TestSSHParseED25519(t *testing.T) {
-	pk, _, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	sshpk, err := ssh.NewPublicKey(pk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	npk, err := ParseED25519Key(sshpk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := pk, npk; !bytes.Equal(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
-	ck, err := CryptoKeyFromSSHKey(sshpk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	ek, ok := ck.(ed25519.PublicKey)
-	if !ok {
-		t.Fatalf("wrong type %T", ck)
-	}
-	if got, want := ek, npk; !bytes.Equal(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
-}
-
-func TestSSHParseECDSA(t *testing.T) {
-	k, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	pk := &k.PublicKey
-	sshpk, err := ssh.NewPublicKey(pk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	npk, err := ParseECDSAKey(sshpk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := pk, npk; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}
-	ck, err := CryptoKeyFromSSHKey(sshpk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	ek, ok := ck.(*ecdsa.PublicKey)
-	if !ok {
-		t.Fatalf("wrong type %T", ck)
-	}
-	if got, want := ek, npk; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
+func TestSSHParse(t *testing.T) {
+	for _, pk := range []crypto.PublicKey{
+		ecdsaKey.Public(),
+		ed25519Key.Public(),
+		rsaKey.Public(),
+	} {
+		sshpk, err := ssh.NewPublicKey(pk)
+		if err != nil {
+			t.Fatal(err)
+		}
+		ck, err := CryptoKeyFromSSHKey(sshpk)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := ck, pk; !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
 	}
 }
 

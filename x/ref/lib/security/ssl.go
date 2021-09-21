@@ -39,6 +39,7 @@ type X509CertificateInfo struct {
 	PublicKey           security.PublicKey
 	NotBefore, NotAfter time.Time
 	Issuer, Subject     string
+	X509Certificate     *x509.Certificate
 }
 
 // ParseOpenSSLCertificateFile parses an ssl/tls public key from the specified file.
@@ -74,18 +75,18 @@ func ParseOpenSSLCertificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509C
 	if cert.PublicKey == nil {
 		return X509CertificateInfo{}, fmt.Errorf("x509 certificate has no public key")
 	}
-
 	pk, err := NewPublicKey(cert.PublicKey)
 	if err != nil {
 		return X509CertificateInfo{}, fmt.Errorf("x509 public key type is not supported: %v", err)
 	}
 
 	return X509CertificateInfo{
-		PublicKey: pk,
-		NotBefore: cert.NotBefore,
-		NotAfter:  cert.NotAfter,
-		Issuer:    cert.Issuer.CommonName,
-		Subject:   cert.Subject.CommonName,
+		PublicKey:       pk,
+		NotBefore:       cert.NotBefore,
+		NotAfter:        cert.NotAfter,
+		Issuer:          cert.Issuer.CommonName,
+		Subject:         cert.Subject.CommonName,
+		X509Certificate: cert,
 	}, nil
 }
 
@@ -100,6 +101,8 @@ func NewInMemorySigner(key crypto.PrivateKey) (security.Signer, error) {
 		return security.NewInMemoryRSASigner(k)
 	case ed25519.PrivateKey:
 		return security.NewInMemoryED25519Signer(k)
+	case *ed25519.PrivateKey:
+		return security.NewInMemoryED25519Signer(*k)
 	}
 	return nil, fmt.Errorf("%T is an unsupported key type", key)
 }

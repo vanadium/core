@@ -43,14 +43,6 @@ func TestByteSizeRSA(t *testing.T) {
 	)
 }
 
-func TestByteSizeRSA4096(t *testing.T) {
-	testByteSize(t, "RSA 4096",
-		sectest.NewRSASigner4096(t),
-		sectest.NewRSASigner4096(t),
-		sectest.NewRSASigner4096,
-	)
-}
-
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
 // authentication protocol).
 // As of February 27, 2015, the numbers were:
@@ -579,7 +571,7 @@ func BenchmarkVerifyCertificateIntegrityED25519(b *testing.B) {
 }
 
 func BenchmarkVerifyCertificateIntegrityRSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, sectest.NewRSASigner4096)
+	benchmarkVerifyCertificateIntegrity(b, sectest.NewRSASigner2048)
 }
 
 func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) security.Signer) {
@@ -606,8 +598,8 @@ func BenchmarkVerifyCertificateIntegrityNoCachingED25519(b *testing.B) {
 	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewED25519Signer)
 }
 
-func BenchmarkVerifyCertificateIntegrityNoCachingRSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewRSASigner4096)
+func BenchmarkVerifyCertificateIntegrityNoCachingRSA2048(b *testing.B) {
+	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewRSASigner2048)
 }
 
 func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) security.Signer) {

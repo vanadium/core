@@ -101,18 +101,31 @@ func TestLetsEncryptKeys(t *testing.T) {
 	if !sig.Verify(signer.PublicKey(), message) {
 		t.Errorf("failed to verify signature using %v: %v", filename, err)
 	}
-	certPool := customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"))
+
 	opts := x509.VerifyOptions{
-		Roots: certPool,
+		Roots: customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
 	}
 	cert, err := seclib.ParseOpenSSLCertificateFile(filename, opts)
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
 	}
 
-	// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout
-	// openssl ec -in x.pem --pubin --inform PEM --outform DER --noout |openssl md5 -c
-	if got, want := cert.PublicKey.String(), "d4:1d:8c:d9:8f:00:b2:04:e9:80:09:98:ec:f8:42:7e"; got != want {
+	// openssl x509 -in testdata/lwww.labdrive.io.letsencrypt --pubkey --noout |
+	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
+	if got, want := cert.PublicKey.String(), "b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
+
+	// Now parse the root certificate also.
+	cert, err = seclib.ParseOpenSSLCertificateFile(
+		filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"), opts)
+	if err != nil {
+		t.Fatalf("failed to load %v: %v", filename, err)
+	}
+	// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout |
+	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
+	if got, want := cert.PublicKey.String(), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
+		t.Errorf("%v: got %v, want %v", filename, got, want)
+	}
+
 }

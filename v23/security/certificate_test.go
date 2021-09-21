@@ -216,7 +216,7 @@ func TestChainSignatureUsesDigestWithStrengthComparableToSigningKey(t *testing.T
 		{sectest.NewECDSASigner(t, elliptic.P384()), security.SHA384Hash, 48},
 		{sectest.NewECDSASigner(t, elliptic.P521()), security.SHA512Hash, 64},
 		{sectest.NewED25519Signer(t), security.SHA512Hash, 64},
-		{sectest.NewRSASigner4096(t), security.SHA512Hash, 64},
+		{sectest.NewRSASigner2048(t), security.SHA512Hash, 64},
 	}
 	for idx, test := range tests {
 		var cert security.Certificate
@@ -270,11 +270,6 @@ func TestChainMixing(t *testing.T) {
 		sectest.NewRSASigner2048(t),
 		sectest.NewECDSASignerP256(t),
 		sectest.NewED25519Signer(t),
-	)
-	testChainMixing(t,
-		sectest.NewECDSASignerP256(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewRSASigner4096(t),
 	)
 	testChainMixing(t,
 		sectest.NewRSASigner2048(t),
@@ -389,14 +384,14 @@ func BenchmarkDigestsForCertificateChain_4CertsED25519(b *testing.B) {
 	benchmarkDigestsForCertificateChain(b, sectest.NewED25519Signer, 4)
 }
 
-func BenchmarkDigestsForCertificateChain_1CertRSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 1)
+func BenchmarkDigestsForCertificateChain_1CertRSA2048(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 1)
 }
 
-func BenchmarkDigestsForCertificateChain_3CertsRSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 3)
+func BenchmarkDigestsForCertificateChain_3CertsRSA2048(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 3)
 }
 
-func BenchmarkDigestsForCertificateChain_4CertsRSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner4096, 4)
+func BenchmarkDigestsForCertificateChain_4CertsRSA2048(b *testing.B) {
+	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 4)
 }

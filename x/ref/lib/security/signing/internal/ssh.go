@@ -9,23 +9,29 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"hash"
-	"math/big"
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
 )
 
-var supportedKeyTypes = map[string]bool{
-	ssh.KeyAlgoECDSA256: true,
-	ssh.KeyAlgoECDSA384: true,
-	ssh.KeyAlgoECDSA521: true,
-	ssh.KeyAlgoED25519:  true,
+type hashes struct {
+	v23hash security.Hash
+	gohash  func() hash.Hash
+}
+
+var supportedKeyTypes = map[string]hashes{
+	ssh.KeyAlgoECDSA256: {security.SHA256Hash, sha256.New},
+	ssh.KeyAlgoECDSA384: {security.SHA384Hash, sha512.New384},
+	ssh.KeyAlgoECDSA521: {security.SHA512Hash, sha512.New},
+	ssh.KeyAlgoED25519:  {security.SHA512Hash, sha512.New},
+	ssh.KeyAlgoRSA:      {security.SHA512Hash, sha512.New},
 }
 
 // IsSupported returns true if the suplied ssh key type is supported.
 func IsSupported(key ssh.PublicKey) bool {
-	return supportedKeyTypes[key.Type()]
+	_, ok := supportedKeyTypes[key.Type()]
+	return ok
 }
 
 // SupportedKeyTypes retruns
@@ -40,15 +46,8 @@ func SupportedKeyTypes() []string {
 // hashForSSHKey returns the hash function to be used for the supplied
 // ssh key. It assumes the specified key is of a supported type.
 func hashForSSHKey(key ssh.PublicKey) (security.Hash, hash.Hash) {
-	switch key.Type() {
-	case ssh.KeyAlgoECDSA256:
-		return security.SHA256Hash, sha256.New()
-	case ssh.KeyAlgoECDSA384:
-		return security.SHA384Hash, sha512.New384()
-	case ssh.KeyAlgoECDSA521:
-		return security.SHA512Hash, sha512.New()
-	case ssh.KeyAlgoED25519:
-		return security.SHA512Hash, sha512.New()
+	if h, ok := supportedKeyTypes[key.Type()]; ok {
+		return h.v23hash, h.gohash()
 	}
 	return "", nil
 }
@@ -62,13 +61,22 @@ func FromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
 	return security.NewECDSAPublicKey(k), nil
 }
 
-// FromECDSAKey creates a security.PublicKey from an ssh ED25519 key.
+// FromED25512Key creates a security.PublicKey from an ssh ED25519 key.
 func FromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
 	k, err := internal.ParseED25519Key(key)
 	if err != nil {
 		return nil, err
 	}
 	return security.NewED25519PublicKey(k), nil
+}
+
+// FromRSAAKey creates a security.PublicKey from an ssh RSA key.
+func FromRSAKey(key ssh.PublicKey) (security.PublicKey, error) {
+	k, err := internal.ParseRSAKey(key)
+	if err != nil {
+		return nil, err
+	}
+	return security.NewRSAPublicKey(k), nil
 }
 
 func digest(hasher hash.Hash, messages ...[]byte) ([]byte, error) {
@@ -120,16 +128,4 @@ func HashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([
 	hasher.Reset()
 	hasher.Write(sum)
 	return hasher.Sum(nil), hashName, nil
-}
-
-// UnmarshalSSHECDSASignature unmarshals the R and S signature components
-// from the returned signature.
-func UnmarshalSSHECDSASignature(sig *ssh.Signature) (r, s []byte, err error) {
-	var ecSig struct {
-		R, S *big.Int
-	}
-	if err := ssh.Unmarshal(sig.Blob, &ecSig); err != nil {
-		return nil, nil, fmt.Errorf("failed to unmarshal ECDSA signature: %v", err)
-	}
-	return ecSig.R.Bytes(), ecSig.S.Bytes(), nil
 }

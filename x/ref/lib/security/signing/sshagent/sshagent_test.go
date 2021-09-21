@@ -6,8 +6,11 @@ package sshagent_test
 
 import (
 	"context"
+	"crypto"
+	"encoding/pem"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -15,15 +18,28 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/crypto/ssh"
+	"v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/test/testutil/testsshagent"
 )
 
-var agentSockName string
-var sshKeyDir string
+var (
+	agentSockName string
+	sshKeyDir     string
+	sshTestKeys   = []string{
+		"ssh-ecdsa-256",
+		"ssh-ecdsa-384",
+		"ssh-ecdsa-521",
+		"ssh-ed25519",
+		"ssh-rsa-2048",
+		"ssh-rsa-3072",
+	}
+)
 
 func TestMain(m *testing.M) {
-	cleanup, addr, keydir, err := testsshagent.StartPreconfiguredAgent()
+	sshKeyDir = "testdata"
+	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
 	if err != nil {
 		flag.Parse()
 		cleanup()
@@ -31,29 +47,50 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	agentSockName = addr
-	sshKeyDir = keydir
 	code := m.Run()
 	cleanup()
-	os.RemoveAll(keydir)
 	os.Exit(code)
+}
+
+func loadSSHPrivateKey(filename string) (crypto.PrivateKey, error) {
+	pemBlockBytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	pemBlock, _ := pem.Decode(pemBlockBytes)
+	switch pemBlock.Type {
+	case "OPENSSH PRIVATE KEY":
+		return ssh.ParseRawPrivateKey(pemBlockBytes)
+	}
+	panic("x")
 }
 
 func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, passphrase []byte) {
 	service := sshagent.NewSigningService()
 	sshagent.SetAgentSockName(service, agentSockName)
 	randSource := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for _, filename := range []string{
-		"ecdsa-256",
-		"ecdsa-384",
-		"ecdsa-521",
-		"ed25519",
-	} {
+	for _, keyName := range sshTestKeys {
 		data := make([]byte, 4096)
 		_, err := randSource.Read(data)
 		if err != nil {
 			t.Fatalf("rand: %v", err)
 		}
-		pubKey := filepath.Join(sshKeyDir, filename+".pub")
+
+		// Compute signature using vanadium code.
+		vpkey, err := loadSSHPrivateKey(filepath.Join("testdata", keyName))
+		if err != nil {
+			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+		}
+		vsigner, err := security.NewInMemorySigner(vpkey)
+		if err != nil {
+			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+		}
+		vsig, err := vsigner.Sign([]byte("testing"), data)
+		if err != nil {
+			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+		}
+
+		pubKey := filepath.Join(sshKeyDir, keyName+".pub")
 		signer, err := service.Signer(ctx, pubKey, passphrase)
 		if err != nil {
 			t.Fatalf("service.Signer: %v", err)
@@ -65,12 +102,18 @@ func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, pas
 		// Verify using Vanadium code.
 		publicKey := signer.PublicKey()
 		if !sig.Verify(publicKey, data) {
-			t.Errorf("failed to verify signature for %v", filename)
+			t.Errorf("failed to verify ssh generated signature for %v", keyName)
 		}
+
+		if !vsig.Verify(publicKey, data) {
+			t.Errorf("failed to verify vanadium generated signature from ssh private for %v", keyName)
+		}
+
 		data[1]++
 		if sig.Verify(publicKey, data) {
-			t.Errorf("failed to detect changed message for %v", filename)
+			t.Errorf("failed to detect changed message for %v", keyName)
 		}
+
 	}
 	defer service.Close(ctx)
 }
@@ -90,7 +133,7 @@ func TestAgentSigningVanadiumVerificationPassphrase(t *testing.T) {
 		t.Fatalf("agent.Lock: %v", err)
 	}
 
-	edkey := filepath.Join(sshKeyDir, "ed25519.pub")
+	edkey := filepath.Join(sshKeyDir, "ssh-ed25519.pub")
 	_, err := service.Signer(ctx, edkey, nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)

@@ -129,8 +129,8 @@ func BenchmarkDischargeEqualityED25519(b *testing.B) {
 	benchmarkDischargeEquality(b, sectest.NewED25519Signer(b))
 }
 
-func BenchmarkDischargeEqualityRSA(b *testing.B) {
-	benchmarkDischargeEquality(b, sectest.NewRSASigner4096(b))
+func BenchmarkDischargeEqualityRSA2048(b *testing.B) {
+	benchmarkDischargeEquality(b, sectest.NewRSASigner2048(b))
 }
 
 func benchmarkDischargeEquality(b *testing.B, signer security.Signer) {
@@ -189,8 +189,8 @@ func BenchmarkPublicKeyDischargeVerificationCachedED25519(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewED25519Signer(b))
 }
 
-func BenchmarkPublicKeyDischargeVerificationCachedRSA(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewRSASigner4096(b))
+func BenchmarkPublicKeyDischargeVerificationCachedRSA2048(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewRSASigner2048(b))
 }
 func BenchmarkPublicKeyDischargeVerificationECDSA(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewECDSASignerP256(b))
@@ -200,6 +200,6 @@ func BenchmarkPublicKeyDischargeVerificationED25519(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewED25519Signer(b))
 }
 
-func BenchmarkPublicKeyDischargeVerificationRSA(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewRSASigner4096(b))
+func BenchmarkPublicKeyDischargeVerificationRSA2048(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewRSASigner2048(b))
 }

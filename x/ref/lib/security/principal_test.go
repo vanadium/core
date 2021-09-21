@@ -29,18 +29,28 @@ import (
 	"v.io/x/ref/test/testutil/testsshagent"
 )
 
-var agentSockName string
-var sshKeyDir string
+var (
+	agentSockName string
+	sshKeyDir     string
+	sshTestKeys   = []string{
+		"ssh-ecdsa-256",
+		"ssh-ecdsa-384",
+		"ssh-ecdsa-521",
+		"ssh-ed25519",
+		"ssh-rsa-2048",
+		"ssh-rsa-3072",
+	}
+)
 
 func TestMain(m *testing.M) {
-	cleanup, addr, keydir, err := testsshagent.StartPreconfiguredAgent()
+	sshKeyDir = "testdata"
+	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
 	if err != nil {
 		flag.Parse()
 		cleanup()
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
-	sshKeyDir = keydir
 	agentSockName = addr
 	DefaultSSHAgentSockNameFunc = func() string {
 		return addr
@@ -170,36 +180,46 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-	// use an ssh key and agent for signing.
-	useSSHPublicKeyAsPrincipal(sshKeyDir, dir, "ecdsa-384.pub")
-	p, err := LoadPersistentPrincipal(dir, nil)
-	if err != nil {
-		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
-	}
+	for _, keyName := range sshTestKeys {
+		keyName += ".pub"
+		// use an ssh key and agent for signing.
+		useSSHPublicKeyAsPrincipal(sshKeyDir, dir, keyName)
+		p, err := LoadPersistentPrincipal(dir, nil)
+		if err != nil {
+			t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
+			continue
+		}
 
-	message := []byte("hello")
-	sig, err := p.Sign(message)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !sig.Verify(p.PublicKey(), message) {
-		t.Errorf("%s failed: p.PublicKey=%v", message, p.PublicKey())
-	}
+		message := []byte("hello")
+		sig, err := p.Sign(message)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !sig.Verify(p.PublicKey(), message) {
+			t.Errorf("%s failed: p.PublicKey=%v", message, p.PublicKey())
+		}
 
-	// make sure that multiple keys lead to a failure.
-	if err := ioutil.WriteFile(filepath.Join(dir, privateKeyFile), []byte{'\n'}, 0666); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := LoadPersistentPrincipal(dir, nil); err == nil {
-		t.Error("unencrypted LoadPersistentPrincipal should have failed complaining about multiple key files")
-	}
+		// make sure that multiple keys lead to a failure.
+		if err := ioutil.WriteFile(filepath.Join(dir, privateKeyFile), []byte{'\n'}, 0666); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := LoadPersistentPrincipal(dir, nil); err == nil {
+			t.Error("unencrypted LoadPersistentPrincipal should have failed complaining about multiple key files")
+		}
 
-	// make sure that no keys lead to a failure.
-	os.Remove(filepath.Join(dir, privateKeyFile))
-	os.Remove(filepath.Join(dir, "ecdsa-384.pub"))
-	_, err = LoadPersistentPrincipal(dir, nil)
-	if err == nil {
-		t.Errorf("unencrypted LoadPersistentPrincipal should have failed")
+		// make sure that no keys lead to a failure.
+		err = os.Remove(filepath.Join(dir, privateKeyFile))
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = os.Remove(filepath.Join(dir, keyName))
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = LoadPersistentPrincipal(dir, nil)
+		if err == nil {
+			t.Errorf("unencrypted LoadPersistentPrincipal should have failed")
+		}
 	}
 }
 
@@ -302,8 +322,9 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForKey(ECDSA521), []byte("encrypted"), []byte("passphrase")},
 		{funcForKey(ED25519), []byte("unencrypted"), nil},
 		{funcForKey(ED25519), []byte("encrypted"), []byte("passphrase")},
-		{funcForSSHKey("ecdsa-256.pub"), []byte("unencrypted"), nil},
-		{funcForSSHKey("ed25519.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-ecdsa-256.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-ed25519.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
 		{funcForSSLKey("rsa2048.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
 		{funcForSSLKey("rsa4096.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
 		{funcForSSLKey("ed25519.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
@@ -434,7 +455,7 @@ func TestDaemonMode(t *testing.T) {
 	// Create two principls that don't trust each other.
 	principals, daemons := createAliceAndBob(ctx, t, funcForKey(ECDSA256))
 	testDaemonMode(ctx, t, principals, daemons)
-	principals, daemons = createAliceAndBob(ctx, t, funcForSSHKey("ed25519.pub"))
+	principals, daemons = createAliceAndBob(ctx, t, funcForSSHKey("ssh-ed25519.pub"))
 	testDaemonMode(ctx, t, principals, daemons)
 }
 
@@ -511,7 +532,7 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer client.Unlock(passphrase)
-	testDaemonPublicKeyOnly(t, funcForSSHKey("ecdsa-256.pub"), passphrase)
+	testDaemonPublicKeyOnly(t, funcForSSHKey("ssh-ecdsa-256.pub"), passphrase)
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {

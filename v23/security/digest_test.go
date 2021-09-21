@@ -105,7 +105,7 @@ L/2aHj2343RcjS2KCH4DVisXuiB4CQKOiGz8bbKRTGyEfW39gEPYAyD3pREM
 -----END RSA PRIVATE KEY-----
 `
 
-	rsa2048Sig = `miKA8Tk0ZDS12crpqSoqKxXu29Op1At1RUhuE2RPEMhoUG12pAfndDIssFoYm116JHlNoIIxYxvZHLD3mPnaHW85NQx04lUFGSOvks7d5DTDp1gzHne9eEh1welzjAtamw6WsN36c060ej7X7uz2YUk1QZAL3hA87BmmNOa4XC/JwwE5JUGY5jUZM/ly9FG9XIpt8VzF9gG5i9uVHbyj5W4RvZbrcgPeZvwGtsAxmdxapypWc7JHT1eAa9mpQmkXqsX/Svl9zQqOMXKSfF+1ZMuQ0us31WxOuBSAivONWEXrogLr8Hw9qwOY3HclbRgXdpbegIk1yyLezcqBPi03zQ`
+	rsa2048Sig = `QTsG6Hm7QckWjGvhA/HiKOhb5FGnH530ZJOnWAAkHXhS97TDC+aSVEhGS9lLKPALkf4fMODEo9PYufJQjOeVhBf8rgASIQJUb0qxLuigC5Gyvg+GiNfQhAOYvrQJjJeM0wGIFvr8JmMlbkj4+QdrtdQqzAtUq3jVMeaOvslIGHgoAqxoCcxCuKDjey21fYjmy9G7AWLsZVb4MCfCSwDGdhP3agtIuLYB2snkLKIiFAh4FJ0PdT1GPRWDkiXxxc3JWTdPHwu/AXS0Ibjk3RXQaVcRjkZwjPIr6dAN0pGp8MYkgMYjXHvccGPWDmZNWamwz/vCR1D6IUbYWFnI/WHgrg`
 
 	rsa4096Sig = `s6A+HuzZyxSTwaEgK5jC1LVXWRxItBSSkZuEU2GCOK/M4fLfU+6KoPWgbwj6ubnAIL5/H7DwePin5imC8oN/UDBw7ba3g/cpscBwB6Yy1gAwFQfNEBZ+VVon3yBUaHflisbp7Eefy7BiTwzmrs/6zpfYKdMhdNE5DNNVHEER5jASOuXjrqjBAILP3qz4+L/dC/RElpoS4oMLPqb3xM0OiM5vc94da4PsoQF+Q60v6nI3mfxCO636P60H3+z8gSVZ7QfbAEbvUPoWWdtuRfKdRZwOvaCnK3BfzdWzGyEN0S0fTkwHaJWfkSoPqXIQ7thsxW7mz1MdIXWsN0RjO3KWFzBgboJmU9PV8SgOliVz5NIfhyKgWnlpd4hj3XkwKI2kHZlxpHEwoGuqtN09Q466l24KxaBjXbqnD2D6sI0xys6eeX0DCiPbvhSOFavTygZFq7SwBacXh3dLjtYl3fvWw6CO3u2lJfOJ8GIZAggbhlKo/OKhOk4Ropnrm35CHhatunCYBN6ghnSRq2gjwoCrdil7IMtVVnTjHTm5G187F33YbsfYb7gzSnR5F0vlRVevcIGFHEj0KUcRr8FCER6O1JNbnqRZXHnJ9VRVN7Kff9TS2QNawXTuzNo84fwDwnltwed8zu34G8L/CNQWyNJb+M8g+Nt72yQaJfyN2ooYrOc`
 
@@ -172,7 +172,7 @@ func TestDigestStability(t *testing.T) {
 		k     PublicKey
 		value string // base64 encoded string
 	}{
-		{loadPublicKey(t, rsa2048PEM), "IwQ8YBFAXiBmlWz4LVkqXYCCLD+41C/DcbM6d+NSe6g"},
+		{loadPublicKey(t, rsa2048PEM), "jDB5awjhiD1kTG2Yl5BX7kjuv1qWONq0QftVn/2yWMbLRsnuZSdRSsrcoHHU10+gbqR2BDtP7AlWoE8sK9XKIQ"},
 		{loadPublicKey(t, rsa4096PEM), "lQnH/QP0At/XpTQHKOtkD0aiUBQTP4MzBgYxG1dxp/m/2BXia53IA6njkm3tWG1K3PDP2l7n6FwFlZCpoLTc9w"},
 		{loadPublicKey(t, ed25519KeyPEM), "nhka/MfPMCwUQCupuiUbggFc+W5ERBfqbgoPlP75y4aYg25XEO9m+V7QENmIgOJLE3/H9Xy4GDZC34WI+YB9pA"},
 		{loadPublicKey(t, ec256KeyPEM), "LAOHjgJ51OK3/kFNNaCC4jJgHkYKbjEoe4rccjq6B9Q"},
@@ -233,7 +233,7 @@ func TestSignerStability(t *testing.T) {
 		k   Signer
 		sig Signature
 	}{
-		{loadSigner(t, rsa2048PEM), rsaSignature(SHA256Hash, rsa2048Sig)},
+		{loadSigner(t, rsa2048PEM), rsaSignature(SHA512Hash, rsa2048Sig)},
 		{loadSigner(t, rsa4096PEM), rsaSignature(SHA512Hash, rsa4096Sig)},
 		{loadSigner(t, ed25519KeyPEM), ed25519Signature(ed25519Sig)},
 	} {

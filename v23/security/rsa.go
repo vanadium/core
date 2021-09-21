@@ -22,7 +22,7 @@ type rsaPublicKey struct {
 
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {
 	digest = pk.h.sum(digest)
-	err := rsa.VerifyPKCS1v15(pk.key, cryptoHash(pk.key.Size()), digest, sig.Rsa)
+	err := rsa.VerifyPKCS1v15(pk.key, crypto.SHA512, digest, sig.Rsa)
 	return err == nil
 }
 
@@ -36,23 +36,6 @@ func (pk *rsaPublicKey) messageDigest(purpose, message []byte) []byte {
 	//       function are therefore hashed again below (see the sign method
 	//       implementation provided when the signer is created).
 	return messageDigestFields(pk.h, pk.keyBytes, purpose, message)
-}
-
-func cryptoHash(nbytes int) crypto.Hash {
-	if nbytes < (2048 / 8) {
-		panic("rsa keys with less than 2048 bits are not supported")
-	}
-	if nbytes == (2048 / 8) {
-		return crypto.SHA256
-	}
-	return crypto.SHA512
-}
-
-func rsaHash(pk *rsa.PublicKey) Hash {
-	if pk.Size() == (2048 / 8) {
-		return SHA256Hash
-	}
-	return SHA512Hash
 }
 
 // NewInMemoryRSASigner creates a Signer that uses the provided RSA
@@ -101,9 +84,12 @@ func (c *rsaSigner) PublicKey() PublicKey {
 }
 
 func newGoStdlibRSASigner(key *rsa.PrivateKey) (Signer, error) {
+	if key.Size() < (2048 / 8) {
+		panic("rsa keys with less than 2048 bits are not supported")
+	}
 	pk := newGoStdlibRSAPublicKey(&key.PublicKey)
 	vhash := pk.hash()
-	chash := cryptoHash(key.PublicKey.Size())
+	chash := crypto.SHA512
 	sign := func(data []byte) ([]byte, error) {
 		// hash the data since rsa.SignPKCS1v15 assumes prehashed data.
 		data = vhash.sum(data)
@@ -116,6 +102,6 @@ func newGoStdlibRSASigner(key *rsa.PrivateKey) (Signer, error) {
 func newGoStdlibRSAPublicKey(key *rsa.PublicKey) PublicKey {
 	return &rsaPublicKey{
 		key:             key,
-		publicKeyCommon: newPublicKeyCommon(rsaHash(key), key),
+		publicKeyCommon: newPublicKeyCommon(SHA512Hash, key),
 	}
 }

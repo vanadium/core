@@ -45,13 +45,13 @@ func (k *opensslRSAPublicKey) messageDigest(purpose, message []byte) []byte {
 }
 
 func (k *opensslRSAPublicKey) verify(digest []byte, signature *Signature) bool {
-	ok, _ := evpVerify(k.k, opensslHash(k.h), digest, signature.Rsa)
+	ok, _ := evpVerify(k.k, C.EVP_sha512(), digest, signature.Rsa)
 	return ok
 }
 
 func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
 	ret := &opensslRSAPublicKey{
-		opensslPublicKeyCommon: newOpensslPublicKeyCommon(rsaHash(golang), golang),
+		opensslPublicKeyCommon: newOpensslPublicKeyCommon(SHA512Hash, golang),
 	}
 	if err := ret.keyBytesErr; err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	if key == nil {
 		return nil, opensslMakeError(errno)
 	}
-	impl := &opensslRSASigner{key, opensslHash(pubkey.hash())}
+	impl := &opensslRSASigner{key, C.EVP_sha512()}
 	runtime.SetFinalizer(impl, func(k *opensslRSASigner) { k.finalize() })
 	return &rsaSigner{
 		sign:   impl.sign,
