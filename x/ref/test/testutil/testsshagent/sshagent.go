@@ -6,7 +6,9 @@ package testsshagent
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -134,6 +136,11 @@ func StartPreconfiguredAgent(keydir string, keys ...string) (func(), string, err
 	cleanup, addr, err := StartSSHAgent()
 	if err != nil {
 		return func() {}, "", err
+	}
+	for _, k := range keys {
+		if err := os.Chmod(filepath.Join(keydir, k), 0600); err != nil {
+			panic(err)
+		}
 	}
 	if _, err := SSHAdd(keydir, addr, keys...); err != nil {
 		return func() {}, "", err
