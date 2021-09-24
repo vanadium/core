@@ -122,17 +122,6 @@ func (xs *xrayspan) Finish(err error) {
 	}
 	xseg := xs.seg
 	xs.mgr.annotateSegment(xseg, xs.subseg)
-	/*	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
-		if xseg.HTTP == nil || xseg.HTTP.Request == nil {
-			// Only create fake http fields if they have not already been set.
-			hd := xseg.GetHTTP()
-			req := hd.GetRequest()
-			mapAnnotation(an, "name", &req.URL)
-			mapAnnotation(an, "method", &req.Method)
-			mapAnnotation(an, "clientAddr", &req.ClientIP)
-			req.UserAgent = "vanadium"
-		}
-	}*/
 	if xs.subseg {
 		xseg.CloseAndStream(err)
 	} else {
@@ -222,6 +211,16 @@ func newSegment(ctx *context.T, name string, sampling *http.Request) (seg *xray.
 	sanitized := sanitizeName(name)
 	seg = GetSegment(ctx)
 	hdr := GetTraceHeader(ctx)
+	// Creating a new context and then ensuring that it is canceled is purely
+	// to work around the goroutine leak in BeginSegmentWithSampling documented
+	// in: https://github.com/aws/aws-xray-sdk-go/issues/51
+	// Calling cancel here ensures that the goroutine created by
+	// BeginSegmentWithSampling exits now, rather than at some later point
+	// when the ctx passed in to newSegment is called. This is clearly a bug
+	// in the xray SDK and if that ever gets fixed then this code can be
+	// removed.
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	if seg == nil {
 		_, seg = xray.BeginSegmentWithSampling(ctx, sanitized, sampling, hdr)
 		ctx.VI(1).Infof("new Top segment: %v", segStr(seg))
