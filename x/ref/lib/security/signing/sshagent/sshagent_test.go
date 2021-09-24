@@ -58,11 +58,10 @@ func loadSSHPrivateKey(filename string) (crypto.PrivateKey, error) {
 		return nil, err
 	}
 	pemBlock, _ := pem.Decode(pemBlockBytes)
-	switch pemBlock.Type {
-	case "OPENSSH PRIVATE KEY":
+	if pemBlock.Type == "OPENSSH PRIVATE KEY" {
 		return ssh.ParseRawPrivateKey(pemBlockBytes)
 	}
-	panic("x")
+	panic("bad test data")
 }
 
 func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, passphrase []byte) {

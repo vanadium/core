@@ -46,7 +46,7 @@ func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
 			break
 		}
 		if err == seclib.ErrPassphraseRequired || err == seclib.ErrBadPassphrase {
-			pass, err = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", sslKeyFile))
+			pass, _ = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", sslKeyFile))
 			continue
 		}
 		return nil, err
@@ -163,6 +163,8 @@ func init() {
 	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.  Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(usePublicKey, "principal", `Use the public key of the principal stored in the specified directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
+
+	slang.RegisterFunction(useSSLKey, "principal", `Use the private/public key of the principal specified SSL/TLS key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 

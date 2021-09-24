@@ -207,14 +207,6 @@ func LoadSSHPublicKey(r io.Reader) (ssh.PublicKey, string, error) {
 	return key, comment, nil
 }
 
-func marshalPKCS8(privKey interface{}) (privateData []byte, privatePEMType string, err error) {
-	privatePEMType = pkcs8PrivateKeyPEMType
-	if privateData, err = x509.MarshalPKCS8PrivateKey(privKey); err != nil {
-		return
-	}
-	return
-}
-
 // SavePEMKey marshals 'key', encrypts it using 'passphrase', and saves the bytes to 'w' in PEM format.
 // If passphrase is nil, the key will not be encrypted.
 //
