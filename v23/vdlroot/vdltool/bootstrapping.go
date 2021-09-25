@@ -16,6 +16,7 @@
 // generated output of this package and bootstrapping in other packages and
 // in particular the vdl command-line tool and code generation.
 //
+//go:build vdltoolbootstrapping
 // +build vdltoolbootstrapping
 
 package vdltool

@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build java || android
 // +build java android
+
 //
 // We only expose the functionality below for the above build tags, to
 // discourage general usage.  The binaries that currently require this

@@ -1,3 +1,4 @@
+//go:build vdlbootstrapping
 // +build vdlbootstrapping
 
 package golang
