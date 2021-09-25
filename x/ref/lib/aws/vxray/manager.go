@@ -170,6 +170,7 @@ func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingR
 	if st == nil {
 		panic("nil store")
 	}
+
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
