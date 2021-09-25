@@ -5,6 +5,7 @@
 // Native types are not supported in bootstrapping mode.  This
 // file contains the functions used for normal operation.
 //
+//go:build !vdlbootstrapping
 // +build !vdlbootstrapping
 
 package golang

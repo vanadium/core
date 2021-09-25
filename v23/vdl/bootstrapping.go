@@ -3,6 +3,7 @@
 // chain depends on the generated output of this package and
 // v.io/v23/vdlroot/vdltool.
 //
+//go:build vdlbootstrapping
 // +build vdlbootstrapping
 
 package vdl
