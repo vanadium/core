@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
 	"testing"
 
 	"github.com/aws/aws-xray-sdk-go/strategy/sampling"
@@ -145,7 +146,7 @@ func TestSimple(t *testing.T) {
 
 type simple struct{}
 
-func (s *simple) Ping(_ *context.T, _ rpc.ServerCall) (string, error) {
+func (s *simple) Ping(ctx *context.T, _ rpc.ServerCall) (string, error) {
 	return "pong", nil
 }
 
@@ -250,11 +251,14 @@ func TestWithRPC(t *testing.T) {
 
 	// Run without vxray.
 	captured.segs = nil
+
 	store, _ := libvtrace.NewStore(flags.VtraceFlags{
 		SampleRate:     1,
 		DumpOnShutdown: false,
 		CacheSize:      1024,
+		EnableAWSXRay:  false,
 	})
+
 	clientCtx = vtrace.WithStore(ctx, store)
 
 	clientCtx, span, err := issueCall(clientCtx, name)
@@ -263,10 +267,17 @@ func TestWithRPC(t *testing.T) {
 	}
 
 	if got, want := len(captured.segs), 0; got != want {
-		t.Fatalf("# segments: got %v, want %v", got, want)
+		for i, s := range captured.segs {
+			t.Logf("segments: %v: %v", i, s)
+		}
+		t.Errorf("# segments: got %v, want %v", got, want)
 	}
+
 	trace := vtrace.GetStore(clientCtx).TraceRecord(span.Trace())
 	if got, want := len(trace.Spans), 4; got != want {
+		for i, s := range trace.Spans {
+			t.Logf("spans: %v: %v", i, s)
+		}
 		t.Fatalf("# spans: got %v, want %v", got, want)
 	}
 
@@ -305,8 +316,11 @@ func TestWithXRayHTTPHandler(t *testing.T) {
 	defer ts.Close()
 
 	res, err := http.Get(ts.URL)
-	if err != nil || res.StatusCode != 200 {
-		t.Fatalf("get failed: %v: code %v", err, res.StatusCode)
+	if err != nil {
+		t.Fatalf("get failed: %v", err)
+	}
+	if res.StatusCode != 200 {
+		t.Fatalf("get failed: http status code %v", res.StatusCode)
 	}
 
 	if got, want := len(captured.segs), 5; got != want {
@@ -328,4 +342,31 @@ func TestWithXRayHTTPHandler(t *testing.T) {
 
 	checkSeg(t, captured.segs[4], "http.echo.client")
 
+}
+
+func TestGoRoutineLeak(t *testing.T) {
+	// https://github.com/aws/aws-xray-sdk-go/issues/51 outlines how
+	// the xray SDK can leak goroutines. The vxray package works around
+	// this leak and this test is intended to verify that it does so.
+	ctx, shutdown := v23.Init()
+	defer shutdown()
+
+	captured := &emitter{}
+
+	initialGoRoutines := runtime.NumGoroutine()
+	xrayctx := initXRay(t, ctx, captured)
+	iterations := 1000
+	for i := 0; i < iterations; i++ {
+		sr := &vtrace.SamplingRequest{
+			Name: fmt.Sprintf("%v", i),
+		}
+		_, span := vtrace.WithNewTrace(xrayctx, "test", sr)
+		span.Finish(nil)
+	}
+	runtime.Gosched()
+	currentGoRoutines := runtime.NumGoroutine() - initialGoRoutines
+
+	if currentGoRoutines > iterations/2 {
+		t.Fatalf("%v running goroutines seems too high", currentGoRoutines)
+	}
 }
