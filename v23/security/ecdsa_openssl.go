@@ -59,7 +59,7 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 	if err != nil {
 		return false
 	}
-	ok, _ := evpVerify(k.k,  k.oh, digest, sig)
+	ok, _ := evpVerify(k.k, k.oh, digest, sig)
 	return ok
 
 }
@@ -90,7 +90,7 @@ func (k *opensslECDSASigner) finalize() {
 }
 
 func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
-	sig, err := evpSign(k.k,  k.h, data)
+	sig, err := evpSign(k.k, k.h, data)
 	if err != nil {
 		return nil, nil, err
 	}
