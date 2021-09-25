@@ -5,6 +5,7 @@
 // Template functions that differ when bootstrapping. This
 // file contains the functions used for normal operation.
 //
+//go:build !vdlbootstrapping
 // +build !vdlbootstrapping
 
 package golang
