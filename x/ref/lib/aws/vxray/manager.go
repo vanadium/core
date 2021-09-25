@@ -69,8 +69,8 @@ type xrayspan struct {
 	// ensure that the ctx passed in to it is canceled in a timely manner.
 	// For the manager implementation here, a new context is created purely
 	// for passing in to the xray SDK and this context is canceled when
-	// its Finish is called. The cancel method is stored in field below. The
-	// affected code uses 'xraybugctx' as the variable name of the specifically
+	// its Finish method is called. The cancel method is stored in field below.
+	// The affected code uses 'xraybugctx' as the variable name of the specifically
 	// created context. This is clearly a bug in the xray SDK and if that ever
 	// gets fixed then this code can be removed.
 	cancel func()
@@ -115,6 +115,8 @@ func (xs *xrayspan) AnnotateMetadata(key string, value interface{}, indexed bool
 }
 
 func segJSON(seg *xray.Segment) string {
+	// Need to look the segment to prevent concurrent read/writes to the
+	// annotations etc.
 	seg.RLock()
 	defer seg.RUnlock()
 	out := strings.Builder{}
@@ -182,6 +184,7 @@ func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingR
 	}
 
 	if st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
+		// The underlying store is not configured to use xray.
 		return vtrace.WithSpan(ctx, newSpan), newSpan
 	}
 
@@ -296,6 +299,7 @@ func (m *manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.Sam
 	}
 
 	if req.Flags&vtrace.AWSXRay == 0 || st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
+		// The request or the underlying store is not configured to use xray.
 		return vtrace.WithSpan(ctx, newSpan), newSpan
 	}
 
