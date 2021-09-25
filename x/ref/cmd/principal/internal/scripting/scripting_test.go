@@ -158,6 +158,29 @@ QkzGB1AoO4Oy5yKtZ2VDLP6v5sWCzcBsg4rlzhiCoEQ
 
 }
 
+func TestSSLKeys(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	p := testutil.NewPrincipal("testing")
+	kfile := filepath.Join("testdata", "rsa2048.vanadium.io.key")
+	pdir := filepath.Join(t.TempDir(), "ssl-principal")
+	ctx, _ = v23.WithPrincipal(ctx, p)
+	out := execute(t, ctx,
+		fmt.Sprintf("key := useSSLKey(%q)\n", kfile)+
+			fmt.Sprintf("p := useOrCreatePrincipal(key, %q)\n", pdir)+
+			"printPrincipal(p)")
+	if got, want := out, `Public key : 53:fb:b2:07:10:fd:9c:89:16:f5:76:4b:e8:5c:17:30
+Default Blessings : 
+---------------- BlessingStore ----------------
+Default Blessings                
+Peer pattern                     Blessings
+---------------- BlessingRoots ----------------
+Public key                                        Pattern
+`; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
 func TestCaveats(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
