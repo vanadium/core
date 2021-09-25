@@ -147,8 +147,6 @@ func TestSimple(t *testing.T) {
 type simple struct{}
 
 func (s *simple) Ping(ctx *context.T, _ rpc.ServerCall) (string, error) {
-	//defer fmt.Printf("ping: ctx %p\n", ctx)
-	//time.Sleep(500 * time.Millisecond)
 	return "pong", nil
 }
 

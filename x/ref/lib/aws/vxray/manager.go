@@ -170,17 +170,18 @@ func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingR
 	if st == nil {
 		panic("nil store")
 	}
-	if st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
-
-	}
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
 	}
 
-	newSpan, err := libvtrace.NewSpan(id, id, name, vtrace.GetStore(ctx))
+	newSpan, err := libvtrace.NewSpan(id, id, name, st)
 	if err != nil {
 		ctx.Error(err)
+	}
+
+	if st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
+		return vtrace.WithSpan(ctx, newSpan), newSpan
 	}
 
 	tid := xray.NewTraceID()
