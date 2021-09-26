@@ -19,6 +19,7 @@ import (
 )
 
 func TestRSAPanic(t *testing.T) {
+	// Make sure that using a key with < 2048 bits causes a panic.
 	key, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		t.Fatal(err)

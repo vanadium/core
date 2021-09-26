@@ -235,20 +235,3 @@ func TestSignatureInterop(t *testing.T) {
 	}
 
 }
-
-/*
-ThirdPartyRequirements
-
-DischargeImpetus
-
-Certificate
-
-CaveatDescriptor
-
-Caveat
-
-WireBlessings
-
-WireDischarge
-
-*/

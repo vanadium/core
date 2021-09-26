@@ -233,6 +233,10 @@ func TestSignerStability(t *testing.T) {
 		k   Signer
 		sig Signature
 	}{
+		// NOTE that the following signing algorithms are deterministic,
+		//      but that ecdsa is not and hence cannot be tested here.
+		//      These tests are intended to catch accidental changes to
+		//      the contents signed or the signing algorithm.
 		{loadSigner(t, rsa2048PEM), rsaSignature(SHA512Hash, rsa2048Sig)},
 		{loadSigner(t, rsa4096PEM), rsaSignature(SHA512Hash, rsa4096Sig)},
 		{loadSigner(t, ed25519KeyPEM), ed25519Signature(ed25519Sig)},
