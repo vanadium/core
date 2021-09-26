@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -36,11 +37,11 @@ func GetEKSClusterName(ctx context.Context, configMap, keyName string) (string, 
 }
 
 func getConfigMap(ctx context.Context, configMap string) (map[string]string, error) {
-	rootPEM, err := os.ReadFile(filepath.Join(k8sServiceAccountPrefix, k8sCert))
+	rootPEM, err := ioutil.ReadFile(filepath.Join(k8sServiceAccountPrefix, k8sCert))
 	if err != nil {
 		return nil, err
 	}
-	token, err := os.ReadFile(filepath.Join(k8sServiceAccountPrefix, k8sToken))
+	token, err := ioutil.ReadFile(filepath.Join(k8sServiceAccountPrefix, k8sToken))
 	if err != nil {
 		return nil, err
 	}
