@@ -13,6 +13,7 @@ type Opts struct {
 	AclFile    string //nolint:revive // API change required.
 	NhName     string
 	PersistDir string
+	LogLevel   int
 }
 
 // Note: Where possible, we have flag default values be zero values, so that
@@ -22,4 +23,5 @@ func (o *Opts) InitFlags(f *flag.FlagSet) {
 	f.StringVar(&o.AclFile, "acls", "", "ACL file.  Default is to allow all access.")
 	f.StringVar(&o.NhName, "neighborhood-name", "", "If provided, enables sharing with the local neighborhood with the provided name.  The address of this mount table will be published to the neighboorhood and everything in the neighborhood will be visible on this mount table.")
 	f.StringVar(&o.PersistDir, "persist-dir", "", "Directory in which to persist permissions.")
+	f.IntVar(&o.LogLevel, "mounttable-logging", 0, "Mounttabled specific logging control, 0 for no logging, 1 for mount/unmount and 2 for all other operations.")
 }
