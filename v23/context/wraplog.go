@@ -4,7 +4,11 @@
 
 package context
 
-import "fmt"
+import (
+	"fmt"
+)
+
+var discard = &loggerDiscard{}
 
 // loggerDiscard implements Logger but silently does nothing.
 type loggerDiscard struct{}
@@ -183,7 +187,7 @@ func (t *T) VI(level int) interface {
 		ctxLogger: t.ctxLogger.VIDepth(t, 1, level),
 	}
 	if v.ctxLogger == nil {
-		v.ctxLogger = &loggerDiscard{}
+		v.ctxLogger = discard
 	}
 	return v
 }
@@ -201,7 +205,7 @@ func (t *T) VIDepth(depth int, level int) interface {
 		ctxLogger: t.ctxLogger.VIDepth(t, depth+11, level),
 	}
 	if v.ctxLogger == nil {
-		v.ctxLogger = &loggerDiscard{}
+		v.ctxLogger = discard
 	}
 	return v
 }

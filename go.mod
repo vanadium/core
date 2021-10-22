@@ -14,6 +14,7 @@ require (
 	github.com/kr/pty v1.1.8
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/pborman/uuid v1.2.0
+	github.com/shirou/gopsutil v3.21.9+incompatible // indirect
 	github.com/shirou/gopsutil/v3 v3.21.1
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
 	golang.org/x/crypto v0.0.0-20210513122933-cd7d49e622d5
@@ -35,3 +36,5 @@ require (
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
 replace v.io/x/ref/internal/logger => ./x/ref/internal/logger
+
+replace v.io/x/lib => ../go.lib
