@@ -25,7 +25,8 @@ jobs:
           command: |
             echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
       - go/test:
-          covermode: set
+          coverpkg: ""
+          covermode: atomic
           failfast: true
           race: true
       - run:
