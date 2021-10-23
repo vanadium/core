@@ -1,8 +1,15 @@
+version: 2.1
+orbs:
+  go: circleci/go@1.7.0
+
 jobs:
-  test:
+  test-linux:
+    parameters:
+      go:
+        type: string
     executor:
       name: go/default
-      tag: "1.16"
+      tag: << parameters.go >>
     steps:
       - checkout
       - go/load-cache
@@ -20,12 +27,19 @@ jobs:
       - go/test:
           covermode: set
           failfast: true
-          race: false
+          race: true
+      - run:
+          name: integration-tests
+          command: |
+            make test-integration
 
   lint:
+    parameters:
+      go:
+        type: string
     executor:
       name: go/default
-      tag: "1.16"
+      tag: << parameters.go >>
     steps:
       - checkout
       - go/load-cache
@@ -40,44 +54,17 @@ jobs:
       - run:
           name: lint
           command: |
-            golangci-lint run --config ./.golangci.yml -v ./...
+            golangci-lint run ./...
             validjson ./...
 
-  integration-tests:
-    executor:
-      name: go/default
-      tag: "1.16"
-    steps:
-      - checkout
-      - go/load-cache
-      - go/mod-download
-      - run:
-          name: goimports
-          command: |
-            go get golang.org/x/tools/cmd/goimports
-            go install -x golang.org/x/tools/cmd/goimports
-      - go/save-cache
-      - run:
-          name: openssl
-          command: |
-            uname -a
-            sudo apt-get update -y
-            sudo apt-get install -y pkg-config openssl libssl-dev
-      - run:
-          name: vdlpath
-          command: |
-            echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
-      - run:
-          name: integration-tests
-          command: |
-            make test-integration
-
-version: 2.1
-orbs:
-  go: circleci/go@1.2.0
 workflows:
   main:
     jobs:
-      - test
-      - lint
-      - integration-tests
+      - test-linux:
+          matrix:
+            parameters:
+              go: ["1.16", "1.17"]
+      - lint:
+          matrix:
+            parameters:
+              go: ["1.16"]
