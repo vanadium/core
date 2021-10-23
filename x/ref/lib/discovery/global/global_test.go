@@ -182,7 +182,7 @@ func TestRefresh(t *testing.T) {
 	defer shutdown()
 
 	clock := timekeeper.NewManualTime()
-	mt, err := mounttablelib.NewMountTableDispatcherWithClock(ctx, "", "", "", clock)
+	mt, err := mounttablelib.NewMountTableDispatcherWithClock(ctx, "", "", "", clock, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

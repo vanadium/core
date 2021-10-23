@@ -33,14 +33,16 @@ type neighborhood struct {
 	nelems           int
 	stopWatch        chan struct{}
 	lastSubscription time.Time
+	logLevel         int
 }
 
 var _ rpc.Dispatcher = (*neighborhood)(nil)
 
 type neighborhoodService struct {
-	name  string
-	elems []string
-	nh    *neighborhood
+	name     string
+	elems    []string
+	nh       *neighborhood
+	logLevel int
 }
 
 func getPort(address string) uint16 {
@@ -70,7 +72,7 @@ func getPort(address string) uint16 {
 	return uint16(port)
 }
 
-func newNeighborhood(host string, addresses []string, loopback bool) (*neighborhood, error) {
+func newNeighborhood(host string, addresses []string, loopback bool, logLevel int) (*neighborhood, error) {
 	if strings.Contains(host, "/") {
 		return nil, fmt.Errorf("hostname may not contain '/': %v", host)
 	}
@@ -115,7 +117,8 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 	time.Sleep(50 * time.Millisecond)
 
 	nh := &neighborhood{
-		mdns: m,
+		logLevel: logLevel,
+		mdns:     m,
 	}
 
 	// Watch the network configuration so that we can make MDNS reattach to
@@ -142,14 +145,14 @@ func newNeighborhood(host string, addresses []string, loopback bool) (*neighborh
 
 // NewLoopbackNeighborhoodDispatcher creates a new instance of a dispatcher for
 // a neighborhood service provider on loopback interfaces (meant for testing).
-func NewLoopbackNeighborhoodDispatcher(host string, addresses ...string) (rpc.Dispatcher, error) {
-	return newNeighborhood(host, addresses, true)
+func NewLoopbackNeighborhoodDispatcher(host string, logLevel int, addresses ...string) (rpc.Dispatcher, error) {
+	return newNeighborhood(host, addresses, true, logLevel)
 }
 
 // NewNeighborhoodDispatcher creates a new instance of a dispatcher for a
 // neighborhood service provider.
-func NewNeighborhoodDispatcher(host string, addresses ...string) (rpc.Dispatcher, error) {
-	return newNeighborhood(host, addresses, false)
+func NewNeighborhoodDispatcher(host string, logLevel int, addresses ...string) (rpc.Dispatcher, error) {
+	return newNeighborhood(host, addresses, false, logLevel)
 }
 
 // Lookup implements rpc.Dispatcher.Lookup.
@@ -160,9 +163,10 @@ func (nh *neighborhood) Lookup(ctx *context.T, name string) (interface{}, securi
 		elems = nil
 	}
 	ns := &neighborhoodService{
-		name:  name,
-		elems: elems,
-		nh:    nh,
+		logLevel: nh.logLevel,
+		name:     name,
+		elems:    elems,
+		nh:       nh,
 	}
 	return mounttable.MountTableServer(ns), nh, nil
 }
@@ -230,7 +234,11 @@ func (nh *neighborhood) neighbors() map[string][]naming.MountedServer {
 // ResolveStep implements ResolveStep
 func (ns *neighborhoodService) ResolveStep(ctx *context.T, _ rpc.ServerCall) (entry naming.MountEntry, err error) {
 	nh := ns.nh
-	ctx.VI(2).Infof("ResolveStep %v\n", ns.elems)
+	if ns.logLevel >= 2 {
+		ctx.Infof("********************* neighborhood.ResolveStep %v\n", ns.elems)
+	} else {
+		ctx.VI(2).Infof("********************* neighborhood.ResolveStep %v\n", ns.elems)
+	}
 	if len(ns.elems) == 0 {
 		// Nothing can be mounted at the root.
 		err = naming.ErrNoSuchNameRoot.Errorf(ctx, "namespace root name %s doesn't exist", ns.elems)
@@ -268,6 +276,11 @@ func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) err
 // Glob__ implements rpc.AllGlobber
 //nolint:revive // API change required.
 func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
+	if ns.logLevel >= 2 {
+		ctx.Infof("********************* neighborhood.Glob_ %v", ns.elems)
+	} else {
+		ctx.VI(2).Infof("********************* neighborhood.Glob__%v", ns.elems)
+	}
 	// return all neighbors that match the first element of the pattern.
 	nh := ns.nh
 
@@ -300,6 +313,11 @@ func (*neighborhoodService) SetPermissions(ctx *context.T, _ rpc.ServerCall, _ a
 	return verror.ErrNotImplemented.Errorf(ctx, "not implemented")
 }
 
-func (*neighborhoodService) GetPermissions(*context.T, rpc.ServerCall) (access.Permissions, string, error) {
+func (ns *neighborhoodService) GetPermissions(ctx *context.T, _ rpc.ServerCall) (access.Permissions, string, error) {
+	if ns.logLevel >= 2 {
+		ctx.Infof("********************* neighborhood.GetPermissions %v", ns.name)
+	} else {
+		ctx.VI(2).Infof("********************* neighborhood.GetPermissions%v", ns.name)
+	}
 	return nil, "", nil
 }
