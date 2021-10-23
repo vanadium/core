@@ -34,6 +34,38 @@ jobs:
           command: |
             make test-integration
 
+  test-linux-integration:
+    parameters:
+      go:
+        type: string
+    executor:
+      name: go/default
+      tag: << parameters.go >>
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - run:
+          name: goimports
+          command: |
+            go get golang.org/x/tools/cmd/goimports
+            go install -x golang.org/x/tools/cmd/goimports
+      - go/save-cache
+      - run:
+          name: openssl
+          command: |
+            uname -a
+            sudo apt-get update -y
+            sudo apt-get install -y pkg-config openssl libssl-dev
+      - run:
+          name: vdlpath
+          command: |
+            echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
+      - run:
+          name: integration-tests
+          command: |
+            make test-integration
+
   lint:
     parameters:
       go:
@@ -59,13 +91,17 @@ jobs:
             validjson ./...
 
 workflows:
-  main:
+  circleci:
     jobs:
       - test-linux:
+          matrix:
+            parameters:
+              go: ["1.16", "1.17"]
+      - test-linux-integration:
           matrix:
             parameters:
               go: ["1.16", "1.17"]
       - lint:
           matrix:
             parameters:
-              go: ["1.16"]
+              go: ["1.17"]

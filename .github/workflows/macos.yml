@@ -29,3 +29,5 @@ jobs:
           cd github.com/vanadium/core
           go test -failfast --covermode=atomic -race ./...
           make test-integration
+        env:
+          VDLPATH: $CIRCLE_WORKING_DIRECTORY/github.com/vanadium/core
