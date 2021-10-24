@@ -50,6 +50,7 @@ type persistence interface {
 // mountTable represents a namespace.  One exists per server instance.
 type mountTable struct {
 	sync.Mutex
+	logLevel           int
 	root               *node
 	superUsers         access.AccessList
 	persisting         bool
@@ -66,9 +67,10 @@ var _ rpc.Dispatcher = (*mountTable)(nil)
 
 // mountContext represents a client bind.  The name is the name that was bound to.
 type mountContext struct {
-	name  string
-	elems []string // parsed elements of name
-	mt    *mountTable
+	logLevel int
+	name     string
+	elems    []string // parsed elements of name
+	mt       *mountTable
 }
 
 // mount represents a single mount point.  It contains the rooted names of all servers mounted
@@ -119,9 +121,9 @@ const templateVar = "%%"
 //
 // statsPrefix is the prefix for for exported statistics objects.
 func NewMountTableDispatcher(ctx *context.T, permsFile, persistDir, statsPrefix string) (rpc.Dispatcher, error) {
-	return NewMountTableDispatcherWithClock(ctx, permsFile, persistDir, statsPrefix, timekeeper.RealTime())
+	return NewMountTableDispatcherWithClock(ctx, permsFile, persistDir, statsPrefix, timekeeper.RealTime(), 0)
 }
-func NewMountTableDispatcherWithClock(ctx *context.T, permsFile, persistDir, statsPrefix string, clock timekeeper.TimeKeeper) (rpc.Dispatcher, error) {
+func NewMountTableDispatcherWithClock(ctx *context.T, permsFile, persistDir, statsPrefix string, clock timekeeper.TimeKeeper, logLevel int) (rpc.Dispatcher, error) {
 	mt := &mountTable{
 		root:               new(node),
 		nodeCounter:        stats.NewInteger(naming.Join(statsPrefix, "num-nodes")),
@@ -130,6 +132,7 @@ func NewMountTableDispatcherWithClock(ctx *context.T, permsFile, persistDir, sta
 		perUserRPCCounter:  stats.NewMap(naming.Join(statsPrefix, "num-rpcs-per-user")),
 		maxNodesPerUser:    defaultMaxNodesPerUser,
 		slm:                newServerListManager(clock),
+		logLevel:           logLevel,
 	}
 	mt.root.parent = mt.newNode() // just for its lock
 	if persistDir != "" {
@@ -187,10 +190,15 @@ func (mt *mountTable) deleteNode(parent *node, child string) {
 
 // Lookup implements rpc.Dispatcher.Lookup.
 func (mt *mountTable) Lookup(ctx *context.T, name string) (interface{}, security.Authorizer, error) {
-	ctx.VI(2).Infof("*********************Lookup %s", name)
+	if mt.logLevel >= 2 {
+		ctx.Infof("********************* Lookup %s", name)
+	} else {
+		ctx.VI(2).Infof("********************* Lookup %s", name)
+	}
 	ms := &mountContext{
-		name: name,
-		mt:   mt,
+		logLevel: mt.logLevel,
+		name:     name,
+		mt:       mt,
 	}
 	if len(name) > 0 {
 		ms.elems = strings.Split(name, "/")
@@ -428,7 +436,11 @@ func (ms *mountContext) Authorize(*context.T, security.Call) error {
 // ResolveStep returns the next server in a resolution in the form of a MountEntry.  The name
 // in the mount entry is the name relative to the server's root.
 func (ms *mountContext) ResolveStep(ctx *context.T, call rpc.ServerCall) (entry naming.MountEntry, err error) {
-	ctx.VI(2).Infof("ResolveStep %q", ms.name)
+	if ms.logLevel >= 2 {
+		ctx.Infof("ResolveStep %q", ms.name)
+	} else {
+		ctx.VI(2).Infof("ResolveStep %q", ms.name)
+	}
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 	// Find the next mount point for the name.
 	n, elems, werr := mt.findMountPoint(cc, ms.elems)
@@ -485,7 +497,11 @@ func checkElementLengths(ctx *context.T, elems []string) error {
 
 // Mount a server onto the name in the receiver.
 func (ms *mountContext) Mount(ctx *context.T, call rpc.ServerCall, server string, ttlsecs uint32, flags naming.MountFlag) error {
-	ctx.VI(2).Infof("*********************Mount %q -> %s", ms.name, server)
+	if ms.logLevel >= 1 {
+		ctx.Infof("********************* Mount %q -> %s", ms.name, server)
+	} else {
+		ctx.VI(2).Infof("********************* Mount %q -> %s", ms.name, server)
+	}
 	if err := checkElementLengths(ctx, ms.elems); err != nil {
 		return err
 	}
@@ -583,7 +599,11 @@ func (mt *mountTable) removeUselessRecursive(cc *callContext, elems []string) {
 // Unmount removes servers from the name in the receiver. If server is specified, only that
 // server is removed.
 func (ms *mountContext) Unmount(ctx *context.T, call rpc.ServerCall, server string) error {
-	ctx.VI(2).Infof("*********************Unmount %q, %s", ms.name, server)
+	if ms.logLevel >= 1 {
+		ctx.Infof("********************* Unmount %q, %s", ms.name, server)
+	} else {
+		ctx.VI(2).Infof("********************* Unmount %q, %s", ms.name, server)
+	}
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 	n, err := mt.findNode(cc, ms.elems, mountTags, nil)
 	if err != nil {
@@ -612,7 +632,11 @@ func (ms *mountContext) Unmount(ctx *context.T, call rpc.ServerCall, server stri
 
 // Delete removes the receiver.  If all is true, any subtree is also removed.
 func (ms *mountContext) Delete(ctx *context.T, call rpc.ServerCall, deleteSubTree bool) error {
-	ctx.VI(2).Infof("*********************Delete %q, %v", ms.name, deleteSubTree)
+	if ms.logLevel >= 1 {
+		ctx.Infof("********************* Delete %q, %v", ms.name, deleteSubTree)
+	} else {
+		ctx.VI(2).Infof("********************* Delete %q, %v", ms.name, deleteSubTree)
+	}
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 	if len(ms.elems) == 0 {
 		// We can't delete the root.
@@ -758,9 +782,13 @@ out:
 // a state that never existed in the mounttable.  For example, if someone removes c/d and later
 // adds a/b while a Glob is in progress, the Glob may return a set of nodes that includes both
 // c/d and a/b.
-//nolint:golint // API change required.
+//nolint:revive // API change required.
 func (ms *mountContext) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
-	ctx.VI(2).Infof("mt.Glob %v", ms.elems)
+	if ms.logLevel >= 2 {
+		ctx.Infof("********************* Glob__ %v", ms.elems)
+	} else {
+		ctx.VI(2).Infof("********************* Glob__ %v", ms.elems)
+	}
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 	// If there was an access error, just ignore the entry, i.e., make it invisible.
 	n, err := mt.findNode(cc, ms.elems, nil, nil)
@@ -793,7 +821,11 @@ func (ms *mountContext) linkToLeaf(cc *callContext, gCall rpc.GlobServerCall) {
 }
 
 func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perms access.Permissions, version string) error {
-	ctx.VI(2).Infof("SetPermissions %q", ms.name)
+	if ms.logLevel >= 1 {
+		ctx.Infof("********************* SetPermissions %q to %v", ms.name, perms)
+	} else {
+		ctx.VI(2).Infof("********************* SetPermissions %q to %v", ms.name, perms)
+	}
 	if err := checkElementLengths(ctx, ms.elems); err != nil {
 		return err
 	}
@@ -841,7 +873,11 @@ func (ms *mountContext) SetPermissions(ctx *context.T, call rpc.ServerCall, perm
 }
 
 func (ms *mountContext) GetPermissions(ctx *context.T, call rpc.ServerCall) (access.Permissions, string, error) {
-	ctx.VI(2).Infof("GetPermissions %q", ms.name)
+	if ms.logLevel >= 2 {
+		ctx.Infof("********************* GetPermissions %q", ms.name)
+	} else {
+		ctx.VI(2).Infof("********************* GetPermissions %q", ms.name)
+	}
 	mt, cc := ms.newCallContext(ctx, call.Security(), !createMissingNodes)
 
 	// Find node in namespace and add the mount.
