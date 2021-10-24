@@ -26,7 +26,7 @@ require (
 	google.golang.org/api v0.9.0
 	google.golang.org/grpc v1.36.0 // indirect
 	google.golang.org/protobuf v1.25.0
-	v.io/x/lib v0.1.8
+	v.io/x/lib v0.1.9-0.20211024215516-20d9c1130cef
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 )

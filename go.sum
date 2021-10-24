@@ -216,3 +216,5 @@ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWh
 v.io/x/lib v0.1.6/go.mod h1:aLm+mPXyXf4Vd/n+1f4LcSQFFgqNhNzwQvHYfXoOLlE=
 v.io/x/lib v0.1.8 h1:qerXfAkxzxrtLMpLkiy0X1JwDqihzZgt4j93ZkphiIY=
 v.io/x/lib v0.1.8/go.mod h1:T3JUUwujJezKAioe4Gh4uQbqbJC7kFKesTB47Fiv6jg=
+v.io/x/lib v0.1.9-0.20211024215516-20d9c1130cef h1:QHnRGIP5ciUWlMw2EpjCP/Kh8c3GM+2UejJcwXzQu70=
+v.io/x/lib v0.1.9-0.20211024215516-20d9c1130cef/go.mod h1:T3JUUwujJezKAioe4Gh4uQbqbJC7kFKesTB47Fiv6jg=
