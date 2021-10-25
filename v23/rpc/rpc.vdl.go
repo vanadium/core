@@ -386,6 +386,17 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeStruct5 *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -393,17 +404,6 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 const GlobMethod = "__Glob"
 const ReservedSignature = "__Signature"
 const ReservedMethodSignature = "__MethodSignature"
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeStruct5 *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

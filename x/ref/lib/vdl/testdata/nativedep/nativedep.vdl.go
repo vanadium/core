@@ -158,11 +158,11 @@ func (x *All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeInt322  *vdl.Type
-	vdlTypeInt323  *vdl.Type
-	vdlTypeInt324  *vdl.Type
-	vdlTypeInt325  *vdl.Type
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeInt322  *vdl.Type = nil
+	vdlTypeInt323  *vdl.Type = nil
+	vdlTypeInt324  *vdl.Type = nil
+	vdlTypeInt325  *vdl.Type = nil
 )
 
 var initializeVDLCalled bool

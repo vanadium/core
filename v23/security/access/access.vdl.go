@@ -397,6 +397,17 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeString4 *vdl.Type = nil
+	vdlTypeMap5    *vdl.Type = nil
+	vdlTypeString6 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -830,17 +841,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeList2   *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeString4 *vdl.Type
-	vdlTypeMap5    *vdl.Type
-	vdlTypeString6 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

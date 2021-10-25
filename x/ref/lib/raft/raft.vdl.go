@@ -200,6 +200,15 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeUint641 *vdl.Type = nil
+	vdlTypeUint642 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeList4   *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -769,15 +778,6 @@ func (s implraftProtoInstallSnapshotServerCallRecv) Err() error {
 	}
 	return s.s.errRecv
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeUint641 *vdl.Type
-	vdlTypeUint642 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeList4   *vdl.Type
-)
 
 var initializeVDLCalled bool
 

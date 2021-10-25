@@ -298,6 +298,14 @@ func (x *WireDeadline) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+)
+
 // Type-check native conversion functions.
 var (
 	_ func(Duration, *time.Duration) error = DurationToNative
@@ -306,14 +314,6 @@ var (
 	_ func(*Time, time.Time) error         = TimeFromNative
 	_ func(WireDeadline, *Deadline) error  = WireDeadlineToNative
 	_ func(*WireDeadline, Deadline) error  = WireDeadlineFromNative
-)
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
 )
 
 var initializeVDLCalled bool

@@ -154,6 +154,13 @@ func (x *vdlEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeByte2   *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -15841,13 +15848,6 @@ var pass81 = []vdlEntry{
 		HexValue: "521300fff50100fff50100fff50100fff5e1e1e1e1",
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeByte2   *vdl.Type
-)
 
 var initializeVDLCalled bool
 

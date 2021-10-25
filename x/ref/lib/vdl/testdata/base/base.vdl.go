@@ -2722,6 +2722,45 @@ func (x *NestedArgs) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeBool1     *vdl.Type = nil
+	vdlTypeByte2     *vdl.Type = nil
+	vdlTypeUint163   *vdl.Type = nil
+	vdlTypeUint324   *vdl.Type = nil
+	vdlTypeUint645   *vdl.Type = nil
+	vdlTypeInt86     *vdl.Type = nil
+	vdlTypeInt167    *vdl.Type = nil
+	vdlTypeInt328    *vdl.Type = nil
+	vdlTypeInt649    *vdl.Type = nil
+	vdlTypeFloat3210 *vdl.Type = nil
+	vdlTypeFloat6411 *vdl.Type = nil
+	vdlTypeString12  *vdl.Type = nil
+	vdlTypeEnum13    *vdl.Type = nil
+	vdlTypeArray14   *vdl.Type = nil
+	vdlTypeList15    *vdl.Type = nil
+	vdlTypeSet16     *vdl.Type = nil
+	vdlTypeMap17     *vdl.Type = nil
+	vdlTypeStruct18  *vdl.Type = nil
+	vdlTypeUnion19   *vdl.Type = nil
+	vdlTypeStruct20  *vdl.Type = nil
+	vdlTypeStruct21  *vdl.Type = nil
+	vdlTypeArray22   *vdl.Type = nil
+	vdlTypeStruct23  *vdl.Type = nil
+	vdlTypeList24    *vdl.Type = nil
+	vdlTypeSet25     *vdl.Type = nil
+	vdlTypeMap26     *vdl.Type = nil
+	vdlTypeArray27   *vdl.Type = nil
+	vdlTypeStruct28  *vdl.Type = nil
+	vdlTypeList29    *vdl.Type = nil
+	vdlTypeMap30     *vdl.Type = nil
+	vdlTypeMap31     *vdl.Type = nil
+	vdlTypeList32    *vdl.Type = nil
+	vdlTypeStruct33  *vdl.Type = nil
+	vdlTypeStruct34  *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -3643,45 +3682,6 @@ var descServiceB = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeBool1     *vdl.Type
-	vdlTypeByte2     *vdl.Type
-	vdlTypeUint163   *vdl.Type
-	vdlTypeUint324   *vdl.Type
-	vdlTypeUint645   *vdl.Type
-	vdlTypeInt86     *vdl.Type
-	vdlTypeInt167    *vdl.Type
-	vdlTypeInt328    *vdl.Type
-	vdlTypeInt649    *vdl.Type
-	vdlTypeFloat3210 *vdl.Type
-	vdlTypeFloat6411 *vdl.Type
-	vdlTypeString12  *vdl.Type
-	vdlTypeEnum13    *vdl.Type
-	vdlTypeArray14   *vdl.Type
-	vdlTypeList15    *vdl.Type
-	vdlTypeSet16     *vdl.Type
-	vdlTypeMap17     *vdl.Type
-	vdlTypeStruct18  *vdl.Type
-	vdlTypeUnion19   *vdl.Type
-	vdlTypeStruct20  *vdl.Type
-	vdlTypeStruct21  *vdl.Type
-	vdlTypeArray22   *vdl.Type
-	vdlTypeStruct23  *vdl.Type
-	vdlTypeList24    *vdl.Type
-	vdlTypeSet25     *vdl.Type
-	vdlTypeMap26     *vdl.Type
-	vdlTypeArray27   *vdl.Type
-	vdlTypeStruct28  *vdl.Type
-	vdlTypeList29    *vdl.Type
-	vdlTypeMap30     *vdl.Type
-	vdlTypeMap31     *vdl.Type
-	vdlTypeList32    *vdl.Type
-	vdlTypeStruct33  *vdl.Type
-	vdlTypeStruct34  *vdl.Type
-)
 
 var initializeVDLCalled bool
 

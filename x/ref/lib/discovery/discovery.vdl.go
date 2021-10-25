@@ -434,6 +434,20 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeList1   *vdl.Type = nil
+	vdlTypeInt322  *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeByte4   *vdl.Type = nil
+	vdlTypeArray5  *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeStruct7 *vdl.Type = nil
+	vdlTypeList8   *vdl.Type = nil
+	vdlTypeList9   *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -893,20 +907,6 @@ var descDirectory = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeList1   *vdl.Type
-	vdlTypeInt322  *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeByte4   *vdl.Type
-	vdlTypeArray5  *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeStruct7 *vdl.Type
-	vdlTypeList8   *vdl.Type
-	vdlTypeList9   *vdl.Type
-)
 
 var initializeVDLCalled bool
 

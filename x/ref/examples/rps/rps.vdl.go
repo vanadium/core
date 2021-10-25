@@ -1159,6 +1159,25 @@ func (x *PlayResult) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1  *vdl.Type = nil
+	vdlTypeByte2    *vdl.Type = nil
+	vdlTypeStruct3  *vdl.Type = nil
+	vdlTypeStruct4  *vdl.Type = nil
+	vdlTypeUnion5   *vdl.Type = nil
+	vdlTypeArray6   *vdl.Type = nil
+	vdlTypeByte7    *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeList11   *vdl.Type = nil
+	vdlTypeList12   *vdl.Type = nil
+	vdlTypeUnion13  *vdl.Type = nil
+	vdlTypeStruct14 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -1814,25 +1833,6 @@ var descRockPaperScissors = rpc.InterfaceDesc{
 		{Name: "ScoreKeeper", PkgPath: "v.io/x/ref/examples/rps", Doc: "// ScoreKeeper receives the outcome of games from Judges."},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1  *vdl.Type
-	vdlTypeByte2    *vdl.Type
-	vdlTypeStruct3  *vdl.Type
-	vdlTypeStruct4  *vdl.Type
-	vdlTypeUnion5   *vdl.Type
-	vdlTypeArray6   *vdl.Type
-	vdlTypeByte7    *vdl.Type
-	vdlTypeStruct8  *vdl.Type
-	vdlTypeStruct9  *vdl.Type
-	vdlTypeStruct10 *vdl.Type
-	vdlTypeList11   *vdl.Type
-	vdlTypeList12   *vdl.Type
-	vdlTypeUnion13  *vdl.Type
-	vdlTypeStruct14 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

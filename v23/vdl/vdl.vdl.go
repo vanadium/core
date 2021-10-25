@@ -276,16 +276,16 @@ func vdlReadAnonList1(dec Decoder, x *[]*Value) error {
 	}
 }
 
-// Type-check native conversion functions.
-var ()
-
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeEnum1   *Type
-	vdlTypeStruct2 *Type
-	vdlTypeList3   *Type
+	vdlTypeEnum1   *Type = nil
+	vdlTypeStruct2 *Type = nil
+	vdlTypeList3   *Type = nil
 )
+
+// Type-check native conversion functions.
+var ()
 
 var initializeVDLCalled bool
 

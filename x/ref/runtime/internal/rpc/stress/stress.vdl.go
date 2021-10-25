@@ -220,6 +220,14 @@ func (x *SumStats) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+)
+
 // Interface definitions
 // =====================
 
@@ -608,14 +616,6 @@ type implStressSumStreamServerCallSend struct {
 func (s implStressSumStreamServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeList2   *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

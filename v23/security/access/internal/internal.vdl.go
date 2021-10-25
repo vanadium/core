@@ -52,6 +52,12 @@ func (x *MyTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeString1 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -206,12 +212,6 @@ var descMyObject = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeString1 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

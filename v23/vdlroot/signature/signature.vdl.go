@@ -723,15 +723,15 @@ func vdlReadAnonList4(dec vdl.Decoder, x *[]Method) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeStruct1   *vdl.Type
-	vdlTypeStruct2   *vdl.Type
-	vdlTypeStruct3   *vdl.Type
-	vdlTypeList4     *vdl.Type
-	vdlTypeOptional5 *vdl.Type
-	vdlTypeList6     *vdl.Type
-	vdlTypeStruct7   *vdl.Type
-	vdlTypeList8     *vdl.Type
-	vdlTypeList9     *vdl.Type
+	vdlTypeStruct1   *vdl.Type = nil
+	vdlTypeStruct2   *vdl.Type = nil
+	vdlTypeStruct3   *vdl.Type = nil
+	vdlTypeList4     *vdl.Type = nil
+	vdlTypeOptional5 *vdl.Type = nil
+	vdlTypeList6     *vdl.Type = nil
+	vdlTypeStruct7   *vdl.Type = nil
+	vdlTypeList8     *vdl.Type = nil
+	vdlTypeList9     *vdl.Type = nil
 )
 
 var initializeVDLCalled bool

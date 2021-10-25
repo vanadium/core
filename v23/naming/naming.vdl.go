@@ -634,25 +634,25 @@ func VDLReadGlobChildrenReply(dec vdl.Decoder, x *GlobChildrenReply) error { //n
 	return dec.FinishValue()
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeUint321 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeList5   *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeUnion7  *vdl.Type = nil
+	vdlTypeUnion8  *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
 const Replace = MountFlag(1) // Replace means the mount should replace what is currently at the mount point
 const MT = MountFlag(2)      // MT means that the target server is a mount table.
 const Leaf = MountFlag(4)    // Leaf means that the target server is a leaf.
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeUint321 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeList5   *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeUnion7  *vdl.Type
-	vdlTypeUnion8  *vdl.Type
-)
 
 var initializeVDLCalled bool
 

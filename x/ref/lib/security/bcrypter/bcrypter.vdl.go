@@ -409,6 +409,17 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[][]byte) error {
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeMap2    *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeStruct5 *vdl.Type = nil
+	vdlTypeList6   *vdl.Type = nil
+)
+
 // Error definitions
 // =================
 
@@ -597,17 +608,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeMap2    *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeStruct5 *vdl.Type
-	vdlTypeList6   *vdl.Type
-)
 
 var initializeVDLCalled bool
 

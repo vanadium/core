@@ -103,6 +103,12 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -400,12 +406,6 @@ type implLogFileReadLogServerCallSend struct {
 func (s implLogFileReadLogServerCallSend) Send(item LogEntry) error {
 	return s.s.Send(item)
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

@@ -262,6 +262,15 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]security.BlessingPattern) error {
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeString4 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -287,15 +296,6 @@ var LoggingCaveat = security.CaveatDescriptor{
 	},
 	ParamType: vdl.TypeOf((*[]string)(nil)),
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeList2   *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeString4 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

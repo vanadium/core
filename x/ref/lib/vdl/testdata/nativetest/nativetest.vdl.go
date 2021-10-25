@@ -339,6 +339,18 @@ func (x *ignoreme) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeInt321  *vdl.Type = nil
+	vdlTypeInt322  *vdl.Type = nil
+	vdlTypeInt323  *vdl.Type = nil
+	vdlTypeInt324  *vdl.Type = nil
+	vdlTypeInt325  *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeString7 *vdl.Type = nil
+)
+
 // Type-check native conversion functions.
 var (
 	_ func(WireMultiImport, *map[nativetest.NativeSamePkg]time.Time) error = WireMultiImportToNative
@@ -349,18 +361,6 @@ var (
 	_ func(*WireString, string) error                                      = WireStringFromNative
 	_ func(WireTime, *time.Time) error                                     = WireTimeToNative
 	_ func(*WireTime, time.Time) error                                     = WireTimeFromNative
-)
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeInt321  *vdl.Type
-	vdlTypeInt322  *vdl.Type
-	vdlTypeInt323  *vdl.Type
-	vdlTypeInt324  *vdl.Type
-	vdlTypeInt325  *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeString7 *vdl.Type
 )
 
 var initializeVDLCalled bool

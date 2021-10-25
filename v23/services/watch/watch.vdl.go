@@ -416,6 +416,14 @@ func (x *Change) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeList1   *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -728,14 +736,6 @@ type implGlobWatcherWatchGlobServerCallSend struct {
 func (s implGlobWatcherWatchGlobServerCallSend) Send(item Change) error {
 	return s.s.Send(item)
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeList1   *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

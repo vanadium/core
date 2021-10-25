@@ -184,6 +184,13 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+)
+
 // Error definitions
 // =================
 
@@ -504,13 +511,6 @@ var descVine = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

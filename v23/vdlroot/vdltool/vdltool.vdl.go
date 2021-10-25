@@ -1516,24 +1516,24 @@ func vdlReadAnonSet6(dec vdl.Decoder, x *map[GenLanguage]struct{}) error {
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeEnum1    *vdl.Type
-	vdlTypeEnum2    *vdl.Type
-	vdlTypeEnum3    *vdl.Type
-	vdlTypeStruct4  *vdl.Type
-	vdlTypeStruct5  *vdl.Type
-	vdlTypeStruct6  *vdl.Type
-	vdlTypeList7    *vdl.Type
-	vdlTypeStruct8  *vdl.Type
-	vdlTypeStruct9  *vdl.Type
-	vdlTypeMap10    *vdl.Type
-	vdlTypeMap11    *vdl.Type
-	vdlTypeList12   *vdl.Type
-	vdlTypeStruct13 *vdl.Type
-	vdlTypeMap14    *vdl.Type
-	vdlTypeStruct15 *vdl.Type
-	vdlTypeStruct16 *vdl.Type
-	vdlTypeStruct17 *vdl.Type
-	vdlTypeSet18    *vdl.Type
+	vdlTypeEnum1    *vdl.Type = nil
+	vdlTypeEnum2    *vdl.Type = nil
+	vdlTypeEnum3    *vdl.Type = nil
+	vdlTypeStruct4  *vdl.Type = nil
+	vdlTypeStruct5  *vdl.Type = nil
+	vdlTypeStruct6  *vdl.Type = nil
+	vdlTypeList7    *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeMap10    *vdl.Type = nil
+	vdlTypeMap11    *vdl.Type = nil
+	vdlTypeList12   *vdl.Type = nil
+	vdlTypeStruct13 *vdl.Type = nil
+	vdlTypeMap14    *vdl.Type = nil
+	vdlTypeStruct15 *vdl.Type = nil
+	vdlTypeStruct16 *vdl.Type = nil
+	vdlTypeStruct17 *vdl.Type = nil
+	vdlTypeSet18    *vdl.Type = nil
 )
 
 var initializeVDLCalled bool

@@ -568,6 +568,18 @@ func VDLReadServerShellPacket(dec vdl.Decoder, x *ServerShellPacket) error { //n
 	return dec.FinishValue()
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeList5   *vdl.Type = nil
+	vdlTypeUnion6  *vdl.Type = nil
+	vdlTypeUnion7  *vdl.Type = nil
+)
+
 // Interface definitions
 // =====================
 
@@ -1435,18 +1447,6 @@ type implForwarderForwardServerCallSend struct {
 func (s implForwarderForwardServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeList5   *vdl.Type
-	vdlTypeUnion6  *vdl.Type
-	vdlTypeUnion7  *vdl.Type
-)
 
 var initializeVDLCalled bool
 

@@ -701,28 +701,28 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1  *vdl.Type = nil
+	vdlTypeStruct2  *vdl.Type = nil
+	vdlTypeStruct3  *vdl.Type = nil
+	vdlTypeArray4   *vdl.Type = nil
+	vdlTypeList5    *vdl.Type = nil
+	vdlTypeList6    *vdl.Type = nil
+	vdlTypeStruct7  *vdl.Type = nil
+	vdlTypeList8    *vdl.Type = nil
+	vdlTypeInt329   *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeStruct11 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
 const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)
 const AWSXRay = TraceFlags(2)
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1  *vdl.Type
-	vdlTypeStruct2  *vdl.Type
-	vdlTypeStruct3  *vdl.Type
-	vdlTypeArray4   *vdl.Type
-	vdlTypeList5    *vdl.Type
-	vdlTypeList6    *vdl.Type
-	vdlTypeStruct7  *vdl.Type
-	vdlTypeList8    *vdl.Type
-	vdlTypeInt329   *vdl.Type
-	vdlTypeStruct10 *vdl.Type
-	vdlTypeStruct11 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

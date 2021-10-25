@@ -148,6 +148,13 @@ func (x *Array2Int) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return dec.FinishValue()
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeArray2  *vdl.Type = nil
+)
+
 // Interface definitions
 // =====================
 
@@ -719,13 +726,6 @@ type implTypeTesterZStreamServerCallSend struct {
 func (s implTypeTesterZStreamServerCallSend) Send(item bool) error {
 	return s.s.Send(item)
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeArray2  *vdl.Type
-)
 
 var initializeVDLCalled bool
 

@@ -716,16 +716,16 @@ func VDLReadBlessingsFlowMessage(dec vdl.Decoder, x *BlessingsFlowMessage) error
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeList4   *vdl.Type
-	vdlTypeStruct5 *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeList7   *vdl.Type
-	vdlTypeUnion8  *vdl.Type
-	vdlTypeStruct9 *vdl.Type
-	vdlTypeUnion10 *vdl.Type
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeList4   *vdl.Type = nil
+	vdlTypeStruct5 *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeList7   *vdl.Type = nil
+	vdlTypeUnion8  *vdl.Type = nil
+	vdlTypeStruct9 *vdl.Type = nil
+	vdlTypeUnion10 *vdl.Type = nil
 )
 
 var initializeVDLCalled bool

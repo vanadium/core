@@ -171,19 +171,19 @@ func (x *Complex128) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+)
+
 // Type-check native conversion functions.
 var (
 	_ func(Complex128, *complex128) error = Complex128ToNative
 	_ func(*Complex128, complex128) error = Complex128FromNative
 	_ func(Complex64, *complex64) error   = Complex64ToNative
 	_ func(*Complex64, complex64) error   = Complex64FromNative
-)
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
 )
 
 var initializeVDLCalled bool

@@ -364,6 +364,19 @@ func (x *UuidTestData) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeInt325  *vdl.Type = nil
+	vdlTypeList6   *vdl.Type = nil
+	vdlTypeList7   *vdl.Type = nil
+	vdlTypeStruct8 *vdl.Type = nil
+)
+
 // Const definitions
 // =================
 
@@ -445,19 +458,6 @@ var AttributeUuidTest = []UuidTestData{
 		Want: "c10b25a2-2d4d-5a19-bb7c-1ee1c4972b4c",
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeList2   *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeInt325  *vdl.Type
-	vdlTypeList6   *vdl.Type
-	vdlTypeList7   *vdl.Type
-	vdlTypeStruct8 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

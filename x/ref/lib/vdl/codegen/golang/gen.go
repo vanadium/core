@@ -141,7 +141,7 @@ var (`
 	for id := 1; id <= len(idToType); id++ {
 		tt := idToType[id]
 		s += fmt.Sprintf(`
-	%[1]s *%[2]sType`, typeOfVarName(tt, id), data.Pkg("v.io/v23/vdl"))
+	%[1]s *%[2]sType = nil`, typeOfVarName(tt, id), data.Pkg("v.io/v23/vdl"))
 	}
 	return s + `
 )`
@@ -608,6 +608,7 @@ import (
 	{{if $imp.Name}}{{$imp.Name}} {{end}}"{{$imp.Path}}"{{end}}
 ){{end}}
 
+
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 {{if $pkg.TypeDefs}}
@@ -622,6 +623,8 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 {{defineRead $data $tdef}}
 {{end}}
 {{end}}
+
+{{$data.DeclareTypeOfVars}}
 
 {{if hasNativeTypes $data}}
 // Type-check native conversion functions.
@@ -1066,8 +1069,6 @@ func (s {{$serverSendImpl}}) Send(item {{typeGo $data $method.OutStream}}) error
 	return s.s.Send(item)
 }
 {{end}}{{end}}{{end}}{{end}}{{end}}
-
-{{$data.DeclareTypeOfVars}}
 
 var initializeVDLCalled bool
 

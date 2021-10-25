@@ -369,6 +369,17 @@ func (x *Approximation) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
+// Hold type definitions in package-level variables, for better performance.
+//nolint:unused
+var (
+	vdlTypeString1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeSet4    *vdl.Type = nil
+	vdlTypeEnum5   *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+)
+
 // Error definitions
 // =================
 
@@ -1008,17 +1019,6 @@ var descGroup = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeString1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeSet4    *vdl.Type
-	vdlTypeEnum5   *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-)
 
 var initializeVDLCalled bool
 

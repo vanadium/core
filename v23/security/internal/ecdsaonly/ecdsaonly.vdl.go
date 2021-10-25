@@ -154,9 +154,9 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeString1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeList3   *vdl.Type
+	vdlTypeString1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
 )
 
 var initializeVDLCalled bool

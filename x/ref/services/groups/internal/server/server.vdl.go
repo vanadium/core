@@ -148,10 +148,10 @@ func vdlReadAnonSet1(dec vdl.Decoder, x *map[groups.BlessingPatternChunk]struct{
 // Hold type definitions in package-level variables, for better performance.
 //nolint:unused
 var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeMap2    *vdl.Type
-	vdlTypeSet3    *vdl.Type
-	vdlTypeString4 *vdl.Type
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeMap2    *vdl.Type = nil
+	vdlTypeSet3    *vdl.Type = nil
+	vdlTypeString4 *vdl.Type = nil
 )
 
 var initializeVDLCalled bool
