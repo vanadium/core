@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        go-version: [1.16.x, 1.17.x]
+        go-version: [1.16.x]
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -27,7 +27,8 @@ jobs:
       - name: Test
         run: |
           cd github.com/vanadium/core
+          echo "VDLPATH: $VDLPATH"
           go test -failfast --covermode=atomic -race ./...
           make test-integration
         env:
-          VDLPATH: $CIRCLE_WORKING_DIRECTORY/github.com/vanadium/core
+          VDLPATH: $GITHUB_WORKSPAC/github.com/vanadium/core
