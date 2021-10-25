@@ -31,4 +31,4 @@ jobs:
           go test -failfast --covermode=atomic -race ./...
           make test-integration
         env:
-          VDLPATH: $GITHUB_WORKSPAC/github.com/vanadium/core
+          VDLPATH: $GITHUB_WORKSPACE/github.com/vanadium/core
