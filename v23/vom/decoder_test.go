@@ -161,20 +161,18 @@ func TestDecoder(t *testing.T) {
 	var pending sync.WaitGroup
 	start := time.Now()
 	allPass := vomtest.AllPass()
+	fmt.Fprintf(os.Stderr, "#tests... %v\n", len(allPass))
 	errCh := make(chan error, len(allPass))
 	for i, test := range allPass {
 		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
 			defer pending.Done()
-			if time.Now().After(start.Add(time.Minute * 9)) {
-				fmt.Fprintf(os.Stderr, "test %v aborted since we're in the 9th minute: time since start %v\n", i, time.Now().Sub(start))
-				return
-			}
-			fmt.Fprintf(os.Stderr, "test %v started after %v\n", i, time.Now().Sub(start))
+			fmt.Fprintf(os.Stderr, "[go value] %v started after %v\n", i, time.Since(start))
 			if err := testDecoder("[go value]", test, rvPtrValue(test.Value)); err != nil {
 				errCh <- err
 				return
 			}
+			fmt.Fprintf(os.Stderr, "[go iface] %v started after %v\n", i, time.Since(start))
 			if err := testDecoder("[go iface]", test, rvPtrIface(test.Value)); err != nil {
 				errCh <- err
 				return
@@ -185,10 +183,12 @@ func TestDecoder(t *testing.T) {
 				return
 			}
 			vvWant := reflect.ValueOf(vv)
+			fmt.Fprintf(os.Stderr, "[new *vdl.Value] %v started after %v\n", i, time.Since(start))
 			if err := testDecoder("[new *vdl.Value]", test, vvWant); err != nil {
 				errCh <- err
 				return
 			}
+			fmt.Fprintf(os.Stderr, "[zero vdl.Value] %v started after %v\n", i, time.Since(start))
 			err = testDecoderFunc("[zero vdl.Value]", test, vvWant, func() reflect.Value {
 				return reflect.ValueOf(vdl.ZeroValue(vv.Type()))
 			})
@@ -196,7 +196,7 @@ func TestDecoder(t *testing.T) {
 				errCh <- err
 				return
 			}
-			fmt.Fprintf(os.Stderr, "test %v completed after %v\n", i, time.Now().Sub(start))
+			fmt.Fprintf(os.Stderr, "test %v completed after %v\n", i, time.Since(start))
 		}(i, test)
 	}
 	pending.Wait()
