@@ -158,10 +158,12 @@ func TestDecoderNativeAnyTypes(t *testing.T) {
 func TestDecoder(t *testing.T) {
 	// The decoder tests take a long time, so we run them concurrently.
 	var pending sync.WaitGroup
-	for _, test := range vomtest.AllPass() {
+	fmt.Fprintf(os.Stderr, "hello\n")
+	for i, test := range vomtest.AllPass() {
 		pending.Add(1)
-		go func(test vomtest.Entry) {
+		go func(i int, test vomtest.Entry) {
 			defer pending.Done()
+			fmt.Fprintf(os.Stderr, "test %v started\n", i)
 			testDecoder(t, "[go value]", test, rvPtrValue(test.Value))
 			testDecoder(t, "[go iface]", test, rvPtrIface(test.Value))
 			vv, err := vdl.ValueFromReflect(test.Value)
@@ -174,7 +176,8 @@ func TestDecoder(t *testing.T) {
 			testDecoderFunc(t, "[zero vdl.Value]", test, vvWant, func() reflect.Value {
 				return reflect.ValueOf(vdl.ZeroValue(vv.Type()))
 			})
-		}(test)
+			fmt.Fprintf(os.Stderr, "test %v completed\n", i)
+		}(i, test)
 	}
 	pending.Wait()
 }
