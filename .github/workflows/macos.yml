@@ -24,11 +24,12 @@ jobs:
         with:
           path: github.com/vanadium/core
 
+      - name: Set VDLPATH
+        run: echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
+
       - name: Test
         run: |
           cd github.com/vanadium/core
           echo "VDLPATH: $VDLPATH"
           go test -failfast --covermode=atomic -race ./...
           make test-integration
-        env:
-          VDLPATH: ${{ env.GITHUB_WORKSPACE }}/github.com/vanadium/core

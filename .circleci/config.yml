@@ -1,25 +1,21 @@
 version: 2.1
 orbs:
-  go: circleci/go@1.7.0
+  win: circleci/windows@2.4.1
 
 jobs:
   test-linux:
     parameters:
       go:
         type: string
-    executor:
-      name: go/default
-      tag: << parameters.go >>
+    docker:
+      - image: cimg/go:<< parameters.go >>
     steps:
       - checkout
-      - go/load-cache
-      - go/mod-download
       - run:
           name: goimports
           command: |
             go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
-      - go/save-cache
       - run:
           name: vdlpath
           command: |
@@ -30,19 +26,15 @@ jobs:
     parameters:
       go:
         type: string
-    executor:
-      name: go/default
-      tag: << parameters.go >>
+    docker:
+      - image: cimg/go:<< parameters.go >>
     steps:
       - checkout
-      - go/load-cache
-      - go/mod-download
       - run:
           name: goimports
           command: |
             go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
-      - go/save-cache
       - run:
           name: openssl
           command: |
@@ -62,20 +54,16 @@ jobs:
     parameters:
       go:
         type: string
-    executor:
-      name: go/default
-      tag: << parameters.go >>
+    docker:
+      - image: cimg/go:<< parameters.go >>
     steps:
       - checkout
-      - go/load-cache
-      - go/mod-download
       - run:
           name: downloads
           command: |
             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
             go get github.com/matthewloring/validjson/cmd/validjson
             go install -x github.com/matthewloring/validjson/cmd/validjson
-      - go/save-cache
       - run:
           name: lint
           command: |
