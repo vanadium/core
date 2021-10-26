@@ -27,6 +27,7 @@ jobs:
       - name: Setup environment
         run: |
           echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
+          cd github.com/vanadium/core
           go get golang.org/x/tools/cmd/goimports
           go install -x golang.org/x/tools/cmd/goimports
 
