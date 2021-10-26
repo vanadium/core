@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -158,28 +159,53 @@ func TestDecoderNativeAnyTypes(t *testing.T) {
 func TestDecoder(t *testing.T) {
 	// The decoder tests take a long time, so we run them concurrently.
 	var pending sync.WaitGroup
-	fmt.Fprintf(os.Stderr, "hello\n")
-	for i, test := range vomtest.AllPass() {
+	start := time.Now()
+	allPass := vomtest.AllPass()
+	errCh := make(chan error, len(allPass))
+	for i, test := range allPass {
 		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
 			defer pending.Done()
-			fmt.Fprintf(os.Stderr, "test %v started\n", i)
-			testDecoder(t, "[go value]", test, rvPtrValue(test.Value))
-			testDecoder(t, "[go iface]", test, rvPtrIface(test.Value))
+			if time.Now().After(start.Add(time.Minute * 9)) {
+				fmt.Fprintf(os.Stderr, "test %v aborted since we're in the 9th minute: time since start %v\n", i, time.Now().Sub(start))
+				return
+			}
+			fmt.Fprintf(os.Stderr, "test %v started after %v\n", i, time.Now().Sub(start))
+			if err := testDecoder("[go value]", test, rvPtrValue(test.Value)); err != nil {
+				errCh <- err
+				return
+			}
+			if err := testDecoder("[go iface]", test, rvPtrIface(test.Value)); err != nil {
+				errCh <- err
+				return
+			}
 			vv, err := vdl.ValueFromReflect(test.Value)
 			if err != nil {
-				t.Errorf("%s: ValueFromReflect failed: %v", test.Name(), err)
+				errCh <- fmt.Errorf("%s: ValueFromReflect failed: %v", test.Name(), err)
 				return
 			}
 			vvWant := reflect.ValueOf(vv)
-			testDecoder(t, "[new *vdl.Value]", test, vvWant)
-			testDecoderFunc(t, "[zero vdl.Value]", test, vvWant, func() reflect.Value {
+			if err := testDecoder("[new *vdl.Value]", test, vvWant); err != nil {
+				errCh <- err
+				return
+			}
+			err = testDecoderFunc("[zero vdl.Value]", test, vvWant, func() reflect.Value {
 				return reflect.ValueOf(vdl.ZeroValue(vv.Type()))
 			})
-			fmt.Fprintf(os.Stderr, "test %v completed\n", i)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			fmt.Fprintf(os.Stderr, "test %v completed after %v\n", i, time.Now().Sub(start))
 		}(i, test)
 	}
 	pending.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Error(err)
+		}
+	}
 }
 
 func rvPtrValue(rv reflect.Value) reflect.Value {
@@ -194,14 +220,14 @@ func rvPtrIface(rv reflect.Value) reflect.Value {
 	return result
 }
 
-func testDecoder(t *testing.T, pre string, test vomtest.Entry, rvWant reflect.Value) {
-	testDecoderFunc(t, pre, test, rvWant, func() reflect.Value {
+func testDecoder(pre string, test vomtest.Entry, rvWant reflect.Value) error {
+	return testDecoderFunc(pre, test, rvWant, func() reflect.Value {
 		return reflect.New(rvWant.Type().Elem())
 	})
 	// TODO(toddw): Add tests that start with a randomly-set value.
 }
 
-func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflect.Value, rvNew func() reflect.Value) {
+func testDecoderFunc(pre string, test vomtest.Entry, rvWant reflect.Value, rvNew func() reflect.Value) error {
 	readEOF := make([]byte, 1)
 	for _, mode := range vom.AllReadModes {
 		// Test vom.NewDecoder.
@@ -211,15 +237,14 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 			reader := mode.TestReader(bytes.NewReader(test.Bytes()))
 			dec := vom.NewDecoder(reader)
 			if err := dec.Decode(rvGot.Interface()); err != nil {
-				t.Errorf("%s: Decode failed: %v", name, err)
-				return
+				return fmt.Errorf("%s: Decode failed: %v", name, err)
+
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
-				t.Errorf("%s\nGOT  %#v\nWANT %#v", name, rvGot, rvWant)
-				return
+				return fmt.Errorf("%s\nGOT  %#v\nWANT %#v", name, rvGot, rvWant)
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {
-				t.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)
+				return fmt.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)
 			}
 		}
 		// Test vom.NewDecoderWithTypeDecoder
@@ -241,18 +266,16 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 			// that code. It will also make it possible to more easily
 			// reuse type decoders which will be performance improvement.
 			if err != nil {
-				t.Errorf("%s: Decode failed: %v", name, err)
-				return
+				return fmt.Errorf("%s: Decode failed: %v", name, err)
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
-				t.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
-				return
+				return fmt.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {
-				t.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)
+				return fmt.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)
 			}
 			if n, err := readerT.Read(readEOF); n != 0 || err != io.EOF {
-				t.Errorf("%s: readerT got (%d,%v), want (0,EOF)", name, n, err)
+				return fmt.Errorf("%s: readerT got (%d,%v), want (0,EOF)", name, n, err)
 			}
 		}
 	}
@@ -261,14 +284,13 @@ func testDecoderFunc(t *testing.T, pre string, test vomtest.Entry, rvWant reflec
 		name := fmt.Sprintf("%s (single-shot %d) %s", pre, i, test.Name())
 		rvGot := rvNew()
 		if err := vom.Decode(test.Bytes(), rvGot.Interface()); err != nil {
-			t.Errorf("%s: Decode failed: %v", name, err)
-			return
+			return fmt.Errorf("%s: Decode failed: %v", name, err)
 		}
 		if !vdl.DeepEqualReflect(rvGot, rvWant) {
-			t.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
-			return
+			return fmt.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
 		}
 	}
+	return nil
 }
 
 // TestRoundtrip* tests test encoding and then decoding results in various modes.
