@@ -230,7 +230,7 @@ func (ed *expiryDischarger) Discharge(ctx *context.T, call rpc.StreamServerCall,
 	if err := tp.Dischargeable(ctx, call.Security()); err != nil {
 		return security.Discharge{}, fmt.Errorf("third-party caveat %v cannot be discharged for this context: %v", cav, err)
 	}
-	expDur := 10 * time.Millisecond
+	expDur := 50 * time.Millisecond
 	expiry, err := security.NewExpiryCaveat(time.Now().Add(expDur))
 	if err != nil {
 		return security.Discharge{}, fmt.Errorf("failed to create an expiration on the discharge: %v", err)
