@@ -20,7 +20,7 @@ jobs:
           name: vdlpath
           command: |
             echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
-      - run: go test -race -count=1 -coverprofile=cover-source.out -failfast -covermode=atomic ./...
+      - run: go test -race ./...
 
   test-linux-integration:
     parameters:

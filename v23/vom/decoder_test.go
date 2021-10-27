@@ -15,7 +15,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
@@ -156,47 +155,23 @@ func TestDecoderNativeAnyTypes(t *testing.T) {
 	}
 }
 
-func startOp(testStart time.Time, i int, op string) time.Time {
-	now := time.Now()
-	if testing.Verbose() {
-		//fmt.Printf("%v: %v started after %v\n", i, op, now.Sub(testStart))
-	}
-	return now
-}
-func doneOp(testStart, opStart time.Time, i int, op string) time.Time {
-	now := time.Now()
-	if testing.Verbose() {
-		//fmt.Printf("%v: %v completed after %v, took %v\n", i, op, now.Sub(testStart), now.Sub(opStart))
-	}
-	return now
-}
-
 func TestDecoderIfcAndValue(t *testing.T) {
 	// The decoder tests take a long time, so we run them concurrently and
 	// split them across two tests.
 	var pending sync.WaitGroup
-	testStart := time.Now()
 	allPass := vomtest.AllPass()
 	errCh := make(chan error, len(allPass))
-
 	for i, test := range allPass {
 		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
-			defer pending.Done()
-			is := startOp(testStart, i, ">>>> [decoder]")
-			s := startOp(testStart, i, "[go value]")
 			if err := testDecoder("[go value]", test, rvPtrValue(test.Value)); err != nil {
 				errCh <- err
 				return
 			}
-			doneOp(testStart, s, i, "[go value]")
-			s = startOp(testStart, i, "[go iface]")
 			if err := testDecoder("[go iface]", test, rvPtrIface(test.Value)); err != nil {
 				errCh <- err
 				return
 			}
-			doneOp(testStart, s, i, "[go iface]")
-			doneOp(testStart, is, i, "<<<< [decoder]")
 		}(i, test)
 	}
 	pending.Wait()
@@ -212,28 +187,21 @@ func TestDecoderNewValues(t *testing.T) {
 	// The decoder tests take a long time, so we run them concurrently and
 	// split them across two tests.
 	var pending sync.WaitGroup
-	testStart := time.Now()
 	allPass := vomtest.AllPass()
 	errCh := make(chan error, len(allPass))
-
 	for i, test := range allPass {
 		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
-			defer pending.Done()
-			is := startOp(testStart, i, ">>>> [decoder]")
 			vv, err := vdl.ValueFromReflect(test.Value)
 			if err != nil {
 				errCh <- fmt.Errorf("%s: ValueFromReflect failed: %v", test.Name(), err)
 				return
 			}
 			vvWant := reflect.ValueOf(vv)
-			s := startOp(testStart, i, "[new *vdl.Value]")
 			if err := testDecoder("[new *vdl.Value]", test, vvWant); err != nil {
 				errCh <- err
 				return
 			}
-			doneOp(testStart, s, i, "[new *vdl.Value]")
-			s = startOp(testStart, i, "[zero vdl.Value]")
 			err = testDecoderFunc("[zero vdl.Value]", test, vvWant, func() reflect.Value {
 				return reflect.ValueOf(vdl.ZeroValue(vv.Type()))
 			})
@@ -241,8 +209,6 @@ func TestDecoderNewValues(t *testing.T) {
 				errCh <- err
 				return
 			}
-			doneOp(testStart, s, i, "[zero vdl.Value]")
-			doneOp(testStart, is, i, "<<<< [decoder]")
 		}(i, test)
 	}
 	pending.Wait()
