@@ -111,7 +111,7 @@ func WithNewDispatchingServer(ctx *context.T,
 		typeCache:         newTypeCache(),
 		state:             rpc.ServerActive,
 		endpoints:         make(map[string]naming.Endpoint),
-		lameDuckTimeout:   5 * time.Second,
+		lameDuckTimeout:   10 * time.Second, // TODO(cnicolaou): make this an option
 		closed:            make(chan struct{}),
 		outstanding:       newOutstandingStats(naming.Join("rpc", "server", "outstanding", rid.String())),
 	}

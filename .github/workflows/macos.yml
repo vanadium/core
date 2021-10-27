@@ -7,7 +7,11 @@ on:
     branches: [master]
 
 jobs:
+<<<<<<< HEAD
   build:
+=======
+  test:
+>>>>>>> master
     strategy:
       matrix:
         go-version: [1.16.x]
@@ -24,11 +28,27 @@ jobs:
         with:
           path: github.com/vanadium/core
 
+<<<<<<< HEAD
+=======
+      - name: Setup environment
+        run: |
+          echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/usr/local/Cellar/openssl@1.1/1.1.1l_1/lib/pkgconfig" >> $GITHUB_ENV
+          cd github.com/vanadium/core
+          go get golang.org/x/tools/cmd/goimports
+          go install -x golang.org/x/tools/cmd/goimports
+
+>>>>>>> master
       - name: Test
         run: |
           cd github.com/vanadium/core
           echo "VDLPATH: $VDLPATH"
+<<<<<<< HEAD
           go test -failfast --covermode=atomic -race ./...
           make test-integration
         env:
           VDLPATH: $GITHUB_WORKSPAC/github.com/vanadium/core
+=======
+          go test -race ./...
+          make test-integration
+>>>>>>> master

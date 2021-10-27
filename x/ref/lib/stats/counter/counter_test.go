@@ -153,7 +153,7 @@ func TestCounterRate(t *testing.T) {
 
 func TestConcurrent(t *testing.T) {
 	const numGoRoutines = 100
-	const numIncrPerGoRoutine = 100000
+	const numIncrPerGoRoutine = 5000
 	c := counter.New()
 	var wg sync.WaitGroup
 	wg.Add(numGoRoutines)

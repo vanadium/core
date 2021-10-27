@@ -229,11 +229,13 @@ func (p *fsPersist) trimLog(ctx *context.T, prevTerm Term, prevIndex Index) erro
 	for {
 		p.Lock()
 		le, ok := p.logTail[prevIndex+Index(i)]
-		p.Unlock()
 		if !ok {
+			p.Unlock()
 			break
 		}
-		if err := encoder.Encode(*le); err != nil {
+		cpy := *le
+		p.Unlock()
+		if err := encoder.Encode(cpy); err != nil {
 			os.Remove(fn)
 			return fmt.Errorf("trim %d, %v: %s", prevIndex, *le, err)
 		}

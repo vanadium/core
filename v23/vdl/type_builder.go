@@ -740,13 +740,11 @@ func typeCons(t *Type) (*Type, error) {
 	if err := validType(t); err != nil {
 		return nil, err
 	}
-	typeRegMu.Lock()
-	cons := typeConsLocked(t)
-	typeRegMu.Unlock()
+	cons := typeConsRecursive(t)
 	return cons, nil
 }
 
-func typeConsLocked(t *Type) *Type {
+func typeConsRecursive(t *Type) *Type {
 	if t == nil {
 		return nil
 	}
@@ -763,7 +761,9 @@ func typeConsLocked(t *Type) *Type {
 		// type is already cached.
 		unique = *(*string)(unsafe.Pointer(&us))
 	}
+	typeRegMu.Lock()
 	if found := typeReg[unique]; found != nil {
+		typeRegMu.Unlock()
 		return found
 	}
 	// This type is new, so convert the unique name to a string.
@@ -773,20 +773,21 @@ func typeConsLocked(t *Type) *Type {
 	// the outer type first to deal with recursive types; otherwise we'd have an
 	// infinite loop.
 	typeReg[t.unique] = t
+	typeRegMu.Unlock()
 
 	t.containsKind.Set(t.kind)
-	t.elem = typeConsLocked(t.elem)
+	t.elem = typeConsRecursive(t.elem)
 	if t.elem != nil {
 		t.containsKind |= t.elem.containsKind
 	}
-	t.key = typeConsLocked(t.key)
+	t.key = typeConsRecursive(t.key)
 	if t.key != nil {
 		t.containsKind |= t.key.containsKind
 	}
 	if len := len(t.fields); len > 0 {
 		t.fieldIndices = make(map[string]int, len)
 		for index, field := range t.fields {
-			field.Type = typeConsLocked(field.Type)
+			field.Type = typeConsRecursive(field.Type)
 			t.fieldIndices[field.Name] = index
 			t.containsKind |= field.Type.containsKind
 			t.fields[index] = field

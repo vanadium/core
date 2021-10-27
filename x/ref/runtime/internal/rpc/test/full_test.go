@@ -1312,7 +1312,7 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 		"mountpoint/dischargeserver",
 		security.UnconstrainedUse()))
 
-	ed := &expiryDischarger{}
+	ed := &expiryDischarger{expiry: 500 * time.Millisecond}
 	_, _, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", ed, security.AllowEveryone())
 	if err != nil {
 		t.Fatal(err)
