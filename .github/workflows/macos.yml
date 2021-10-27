@@ -7,14 +7,10 @@ on:
     branches: [master]
 
 jobs:
-<<<<<<< HEAD
-  build:
-=======
   test:
->>>>>>> master
     strategy:
       matrix:
-        go-version: [1.16.x]
+        go-version: [1.16.x, 1.17.x]
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,8 +24,6 @@ jobs:
         with:
           path: github.com/vanadium/core
 
-<<<<<<< HEAD
-=======
       - name: Setup environment
         run: |
           echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
@@ -38,17 +32,9 @@ jobs:
           go get golang.org/x/tools/cmd/goimports
           go install -x golang.org/x/tools/cmd/goimports
 
->>>>>>> master
       - name: Test
         run: |
           cd github.com/vanadium/core
           echo "VDLPATH: $VDLPATH"
-<<<<<<< HEAD
-          go test -failfast --covermode=atomic -race ./...
-          make test-integration
-        env:
-          VDLPATH: $GITHUB_WORKSPAC/github.com/vanadium/core
-=======
           go test -race ./...
           make test-integration
->>>>>>> master
