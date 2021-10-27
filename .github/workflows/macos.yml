@@ -36,5 +36,5 @@ jobs:
         run: |
           cd github.com/vanadium/core
           echo "VDLPATH: $VDLPATH"
-          go test --timeout=15m -race ./...
+          go test -race ./...
           make test-integration

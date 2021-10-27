@@ -161,9 +161,10 @@ func TestDecoderIfcAndValue(t *testing.T) {
 	var pending sync.WaitGroup
 	allPass := vomtest.AllPass()
 	errCh := make(chan error, len(allPass))
+	pending.Add(len(allPass))
 	for i, test := range allPass {
-		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
+			defer pending.Done()
 			if err := testDecoder("[go value]", test, rvPtrValue(test.Value)); err != nil {
 				errCh <- err
 				return
@@ -189,9 +190,10 @@ func TestDecoderNewValues(t *testing.T) {
 	var pending sync.WaitGroup
 	allPass := vomtest.AllPass()
 	errCh := make(chan error, len(allPass))
+	pending.Add(len(allPass))
 	for i, test := range allPass {
-		pending.Add(1)
 		go func(i int, test vomtest.Entry) {
+			defer pending.Done()
 			vv, err := vdl.ValueFromReflect(test.Value)
 			if err != nil {
 				errCh <- fmt.Errorf("%s: ValueFromReflect failed: %v", test.Name(), err)

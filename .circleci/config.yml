@@ -20,7 +20,7 @@ jobs:
           name: vdlpath
           command: |
             echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
-      - run: go test --timeout=15m -race ./...
+      - run: go test -race ./...
 
   test-linux-integration:
     parameters:
