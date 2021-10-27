@@ -161,17 +161,21 @@ func TestDecoder(t *testing.T) {
 	var pending sync.WaitGroup
 	testStart := time.Now()
 	allPass := vomtest.AllPass()
-	fmt.Fprintf(os.Stderr, "#tests... %v\n", len(allPass))
+	fmt.Printf("#tests... %v\n", len(allPass))
 	errCh := make(chan error, len(allPass))
 
 	startOp := func(i int, op string) time.Time {
 		now := time.Now()
-		fmt.Fprintf(os.Stderr, "%v: %v started after %v\n", i, op, now.Sub(testStart))
+		if testing.Verbose() {
+			fmt.Printf("%v: %v started after %v\n", i, op, now.Sub(testStart))
+		}
 		return now
 	}
 	doneOp := func(start time.Time, i int, op string) time.Time {
 		now := time.Now()
-		fmt.Fprintf(os.Stderr, "%v: %v completed after %v, took %v\n", i, op, now.Sub(testStart), now.Sub(start))
+		if testing.Verbose() {
+			fmt.Printf("%v: %v completed after %v, took %v\n", i, op, now.Sub(testStart), now.Sub(start))
+		}
 		return now
 	}
 
@@ -192,7 +196,6 @@ func TestDecoder(t *testing.T) {
 				return
 			}
 			doneOp(s, i, "[go iface]")
-
 			vv, err := vdl.ValueFromReflect(test.Value)
 			if err != nil {
 				errCh <- fmt.Errorf("%s: ValueFromReflect failed: %v", test.Name(), err)
