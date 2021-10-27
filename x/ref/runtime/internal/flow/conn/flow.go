@@ -463,10 +463,11 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	cancel := f.cancel
 	closed := f.closed
 	f.closed = true
+	log := f.ctx.V(2)
 	f.conn.mu.Unlock()
 	if !closed {
 		f.q.close(ctx)
-		if f.ctx.V(2) {
+		if log {
 			ctx.Infof("closing %d(%p): %v", f.id, f, err)
 		}
 		cancel()

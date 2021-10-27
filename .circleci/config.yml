@@ -1,62 +1,40 @@
+version: 2.1
+orbs:
+  win: circleci/windows@2.4.1
+
 jobs:
-  test:
-    executor:
-      name: go/default
-      tag: "1.16"
+  test-linux:
+    parameters:
+      go:
+        type: string
+    docker:
+      - image: cimg/go:<< parameters.go >>
     steps:
       - checkout
-      - go/load-cache
-      - go/mod-download
       - run:
           name: goimports
           command: |
             go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
-      - go/save-cache
       - run:
           name: vdlpath
           command: |
             echo "export VDLPATH=$CIRCLE_WORKING_DIRECTORY" >> $BASH_ENV
-      - go/test:
-          covermode: set
-          failfast: true
-          race: false
+      - run: go test -race ./...
 
-  lint:
-    executor:
-      name: go/default
-      tag: "1.16"
+  test-linux-integration:
+    parameters:
+      go:
+        type: string
+    docker:
+      - image: cimg/go:<< parameters.go >>
     steps:
       - checkout
-      - go/load-cache
-      - go/mod-download
-      - run:
-          name: downloads
-          command: |
-            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-            go get github.com/matthewloring/validjson/cmd/validjson
-            go install -x github.com/matthewloring/validjson/cmd/validjson
-      - go/save-cache
-      - run:
-          name: lint
-          command: |
-            golangci-lint run --config ./.golangci.yml -v ./...
-            validjson ./...
-
-  integration-tests:
-    executor:
-      name: go/default
-      tag: "1.16"
-    steps:
-      - checkout
-      - go/load-cache
-      - go/mod-download
       - run:
           name: goimports
           command: |
             go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
-      - go/save-cache
       - run:
           name: openssl
           command: |
@@ -72,12 +50,38 @@ jobs:
           command: |
             make test-integration
 
-version: 2.1
-orbs:
-  go: circleci/go@1.2.0
+  lint:
+    parameters:
+      go:
+        type: string
+    docker:
+      - image: cimg/go:<< parameters.go >>
+    steps:
+      - checkout
+      - run:
+          name: downloads
+          command: |
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+            go get github.com/matthewloring/validjson/cmd/validjson
+            go install -x github.com/matthewloring/validjson/cmd/validjson
+      - run:
+          name: lint
+          command: |
+            golangci-lint run ./...
+            validjson ./...
+
 workflows:
-  main:
+  circleci:
     jobs:
-      - test
-      - lint
-      - integration-tests
+      - test-linux:
+          matrix:
+            parameters:
+              go: ["1.16"]
+      - test-linux-integration:
+          matrix:
+            parameters:
+              go: ["1.16"]
+      - lint:
+          matrix:
+            parameters:
+              go: ["1.17"]

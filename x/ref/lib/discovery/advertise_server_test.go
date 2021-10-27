@@ -51,7 +51,8 @@ func TestAdvertiseServer(t *testing.T) {
 
 	d, _ := v23.NewDiscovery(ctx)
 
-	newAd := withNewAddresses(&ad, eps, suffix)
+	nad := ad
+	newAd := withNewAddresses(&nad, eps, suffix)
 	if err := testutil.ScanAndMatch(ctx, d, "", newAd); err != nil {
 		t.Error(err)
 	}
