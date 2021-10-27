@@ -1307,17 +1307,10 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	defer shutdown()
 
 	sctx := withPrincipal(t, ctx, "server")
-	sctx = v23.WithListenSpec(ctx, rpc.ListenSpec{
-		Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}},
-	})
-
 	cctx := withPrincipal(t, ctx, "client", mkThirdPartyCaveat(
 		v23.GetPrincipal(ctx).PublicKey(),
 		"mountpoint/dischargeserver",
 		security.UnconstrainedUse()))
-	cctx = v23.WithListenSpec(cctx, rpc.ListenSpec{
-		Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}},
-	})
 	ed := &expiryDischarger{expiry: 500 * time.Millisecond}
 	_, _, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", ed, security.AllowEveryone())
 	if err != nil {
