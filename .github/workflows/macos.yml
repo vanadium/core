@@ -27,9 +27,10 @@ jobs:
       - name: Setup environment
         run: |
           echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
-          ls /usr/local/Cellar/openssl@1.1/1.1.1i
-          ls -R /usr/local/Cellar/openssl@1.1/1.1.1i/lib
-          echo "PKG_CONFIG=/usr/local/Cellar/openssl@1.1/1.1.1i/lib/pkgconfig"
+          ls /usr/local/Cellar
+          ls /usr/local/Cellar/openssl@1.1
+          ls -R /usr/local/Cellar/openssl@1.1/lib
+          echo "PKG_CONFIG=/usr/local/Cellar/openssl@1.1/lib/pkgconfig"
           cd github.com/vanadium/core
           go get golang.org/x/tools/cmd/goimports
           go install -x golang.org/x/tools/cmd/goimports
