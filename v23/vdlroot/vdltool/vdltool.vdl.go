@@ -17,11 +17,37 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeEnum1    *vdl.Type = nil
+	vdlTypeEnum2    *vdl.Type = nil
+	vdlTypeEnum3    *vdl.Type = nil
+	vdlTypeStruct4  *vdl.Type = nil
+	vdlTypeStruct5  *vdl.Type = nil
+	vdlTypeStruct6  *vdl.Type = nil
+	vdlTypeList7    *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeMap10    *vdl.Type = nil
+	vdlTypeMap11    *vdl.Type = nil
+	vdlTypeList12   *vdl.Type = nil
+	vdlTypeStruct13 *vdl.Type = nil
+	vdlTypeMap14    *vdl.Type = nil
+	vdlTypeStruct15 *vdl.Type = nil
+	vdlTypeStruct16 *vdl.Type = nil
+	vdlTypeStruct17 *vdl.Type = nil
+	vdlTypeSet18    *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // GenLanguage enumerates the known code generation languages.
 type GenLanguage int
 
@@ -1512,31 +1538,6 @@ func vdlReadAnonSet6(dec vdl.Decoder, x *map[GenLanguage]struct{}) error {
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeEnum1    *vdl.Type = nil
-	vdlTypeEnum2    *vdl.Type = nil
-	vdlTypeEnum3    *vdl.Type = nil
-	vdlTypeStruct4  *vdl.Type = nil
-	vdlTypeStruct5  *vdl.Type = nil
-	vdlTypeStruct6  *vdl.Type = nil
-	vdlTypeList7    *vdl.Type = nil
-	vdlTypeStruct8  *vdl.Type = nil
-	vdlTypeStruct9  *vdl.Type = nil
-	vdlTypeMap10    *vdl.Type = nil
-	vdlTypeMap11    *vdl.Type = nil
-	vdlTypeList12   *vdl.Type = nil
-	vdlTypeStruct13 *vdl.Type = nil
-	vdlTypeMap14    *vdl.Type = nil
-	vdlTypeStruct15 *vdl.Type = nil
-	vdlTypeStruct16 *vdl.Type = nil
-	vdlTypeStruct17 *vdl.Type = nil
-	vdlTypeSet18    *vdl.Type = nil
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

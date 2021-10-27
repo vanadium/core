@@ -18,11 +18,22 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type SumArg struct {
 	ABool        bool
 	AInt64       int64
@@ -219,14 +230,6 @@ func (x *SumStats) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type = nil
-	vdlTypeList2   *vdl.Type = nil
-	vdlTypeStruct3 *vdl.Type = nil
-)
 
 // Interface definitions
 // =====================
@@ -616,8 +619,6 @@ type implStressSumStreamServerCallSend struct {
 func (s implStressSumStreamServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

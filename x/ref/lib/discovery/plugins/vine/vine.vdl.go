@@ -21,6 +21,7 @@ import (
 	discovery_2 "v.io/x/ref/lib/discovery"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 // Interface definitions
@@ -152,8 +153,6 @@ var descStore = rpc.InterfaceDesc{
 		},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

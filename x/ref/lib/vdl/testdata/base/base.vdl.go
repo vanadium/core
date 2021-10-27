@@ -21,11 +21,53 @@ import (
 	"v.io/v23/vom"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeBool1     *vdl.Type = nil
+	vdlTypeByte2     *vdl.Type = nil
+	vdlTypeUint163   *vdl.Type = nil
+	vdlTypeUint324   *vdl.Type = nil
+	vdlTypeUint645   *vdl.Type = nil
+	vdlTypeInt86     *vdl.Type = nil
+	vdlTypeInt167    *vdl.Type = nil
+	vdlTypeInt328    *vdl.Type = nil
+	vdlTypeInt649    *vdl.Type = nil
+	vdlTypeFloat3210 *vdl.Type = nil
+	vdlTypeFloat6411 *vdl.Type = nil
+	vdlTypeString12  *vdl.Type = nil
+	vdlTypeEnum13    *vdl.Type = nil
+	vdlTypeArray14   *vdl.Type = nil
+	vdlTypeList15    *vdl.Type = nil
+	vdlTypeSet16     *vdl.Type = nil
+	vdlTypeMap17     *vdl.Type = nil
+	vdlTypeStruct18  *vdl.Type = nil
+	vdlTypeUnion19   *vdl.Type = nil
+	vdlTypeStruct20  *vdl.Type = nil
+	vdlTypeStruct21  *vdl.Type = nil
+	vdlTypeArray22   *vdl.Type = nil
+	vdlTypeStruct23  *vdl.Type = nil
+	vdlTypeList24    *vdl.Type = nil
+	vdlTypeSet25     *vdl.Type = nil
+	vdlTypeMap26     *vdl.Type = nil
+	vdlTypeArray27   *vdl.Type = nil
+	vdlTypeStruct28  *vdl.Type = nil
+	vdlTypeList29    *vdl.Type = nil
+	vdlTypeMap30     *vdl.Type = nil
+	vdlTypeMap31     *vdl.Type = nil
+	vdlTypeList32    *vdl.Type = nil
+	vdlTypeStruct33  *vdl.Type = nil
+	vdlTypeStruct34  *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type NamedBool bool
 
 func (NamedBool) VDLReflect(struct {
@@ -2722,45 +2764,6 @@ func (x *NestedArgs) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeBool1     *vdl.Type = nil
-	vdlTypeByte2     *vdl.Type = nil
-	vdlTypeUint163   *vdl.Type = nil
-	vdlTypeUint324   *vdl.Type = nil
-	vdlTypeUint645   *vdl.Type = nil
-	vdlTypeInt86     *vdl.Type = nil
-	vdlTypeInt167    *vdl.Type = nil
-	vdlTypeInt328    *vdl.Type = nil
-	vdlTypeInt649    *vdl.Type = nil
-	vdlTypeFloat3210 *vdl.Type = nil
-	vdlTypeFloat6411 *vdl.Type = nil
-	vdlTypeString12  *vdl.Type = nil
-	vdlTypeEnum13    *vdl.Type = nil
-	vdlTypeArray14   *vdl.Type = nil
-	vdlTypeList15    *vdl.Type = nil
-	vdlTypeSet16     *vdl.Type = nil
-	vdlTypeMap17     *vdl.Type = nil
-	vdlTypeStruct18  *vdl.Type = nil
-	vdlTypeUnion19   *vdl.Type = nil
-	vdlTypeStruct20  *vdl.Type = nil
-	vdlTypeStruct21  *vdl.Type = nil
-	vdlTypeArray22   *vdl.Type = nil
-	vdlTypeStruct23  *vdl.Type = nil
-	vdlTypeList24    *vdl.Type = nil
-	vdlTypeSet25     *vdl.Type = nil
-	vdlTypeMap26     *vdl.Type = nil
-	vdlTypeArray27   *vdl.Type = nil
-	vdlTypeStruct28  *vdl.Type = nil
-	vdlTypeList29    *vdl.Type = nil
-	vdlTypeMap30     *vdl.Type = nil
-	vdlTypeMap31     *vdl.Type = nil
-	vdlTypeList32    *vdl.Type = nil
-	vdlTypeStruct33  *vdl.Type = nil
-	vdlTypeStruct34  *vdl.Type = nil
-)
-
 // Const definitions
 // =================
 
@@ -3682,8 +3685,6 @@ var descServiceB = rpc.InterfaceDesc{
 		},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

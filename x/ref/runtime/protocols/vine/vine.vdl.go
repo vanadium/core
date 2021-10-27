@@ -18,11 +18,21 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // PeerKey is a key that represents a connection from a Dialer tag to an Acceptor tag.
 type PeerKey struct {
 	Dialer   string
@@ -183,13 +193,6 @@ func (x *PeerBehavior) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type = nil
-	vdlTypeStruct2 *vdl.Type = nil
-)
 
 // Error definitions
 // =================
@@ -511,8 +514,6 @@ var descVine = rpc.InterfaceDesc{
 		},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

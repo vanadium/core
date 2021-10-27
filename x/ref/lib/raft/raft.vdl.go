@@ -19,11 +19,23 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeUint641 *vdl.Type = nil
+	vdlTypeUint642 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeList4   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // Term is a counter incremented each time a member starts an election.  The log will
 // show gaps in Term numbers because all elections need not be successful.
 type Term uint64
@@ -199,15 +211,6 @@ func (x *LogEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeUint641 *vdl.Type = nil
-	vdlTypeUint642 *vdl.Type = nil
-	vdlTypeStruct3 *vdl.Type = nil
-	vdlTypeList4   *vdl.Type = nil
-)
 
 // Const definitions
 // =================
@@ -778,8 +781,6 @@ func (s implraftProtoInstallSnapshotServerCallRecv) Err() error {
 	}
 	return s.s.errRecv
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

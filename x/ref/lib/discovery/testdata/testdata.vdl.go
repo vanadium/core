@@ -13,11 +13,27 @@ import (
 	"v.io/x/ref/lib/discovery"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeInt325  *vdl.Type = nil
+	vdlTypeList6   *vdl.Type = nil
+	vdlTypeList7   *vdl.Type = nil
+	vdlTypeStruct8 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // PackAddressTest represents a test case for PackAddress.
 type PackAddressTest struct {
 	// In is the addresses to pack.
@@ -364,19 +380,6 @@ func (x *UuidTestData) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type = nil
-	vdlTypeList2   *vdl.Type = nil
-	vdlTypeList3   *vdl.Type = nil
-	vdlTypeStruct4 *vdl.Type = nil
-	vdlTypeInt325  *vdl.Type = nil
-	vdlTypeList6   *vdl.Type = nil
-	vdlTypeList7   *vdl.Type = nil
-	vdlTypeStruct8 *vdl.Type = nil
-)
-
 // Const definitions
 // =================
 
@@ -458,8 +461,6 @@ var AttributeUuidTest = []UuidTestData{
 		Want: "c10b25a2-2d4d-5a19-bb7c-1ee1c4972b4c",
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

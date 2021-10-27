@@ -16,11 +16,26 @@ import (
 	"v.io/v23/vdl/testdata/nativetest"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeInt321  *vdl.Type = nil
+	vdlTypeInt322  *vdl.Type = nil
+	vdlTypeInt323  *vdl.Type = nil
+	vdlTypeInt324  *vdl.Type = nil
+	vdlTypeInt325  *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeString7 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type WireString int32
 
 func (WireString) VDLReflect(struct {
@@ -339,18 +354,6 @@ func (x *ignoreme) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	return nil
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeInt321  *vdl.Type = nil
-	vdlTypeInt322  *vdl.Type = nil
-	vdlTypeInt323  *vdl.Type = nil
-	vdlTypeInt324  *vdl.Type = nil
-	vdlTypeInt325  *vdl.Type = nil
-	vdlTypeStruct6 *vdl.Type = nil
-	vdlTypeString7 *vdl.Type = nil
-)
-
 // Type-check native conversion functions.
 var (
 	_ func(WireMultiImport, *map[nativetest.NativeSamePkg]time.Time) error = WireMultiImportToNative
@@ -362,8 +365,6 @@ var (
 	_ func(WireTime, *time.Time) error                                     = WireTimeToNative
 	_ func(*WireTime, time.Time) error                                     = WireTimeFromNative
 )
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

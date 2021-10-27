@@ -16,11 +16,75 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1  *vdl.Type = nil
+	vdlTypeEnum2    *vdl.Type = nil
+	vdlTypeEnum3    *vdl.Type = nil
+	vdlTypeArray4   *vdl.Type = nil
+	vdlTypeStruct5  *vdl.Type = nil
+	vdlTypeEnum6    *vdl.Type = nil
+	vdlTypeStruct7  *vdl.Type = nil
+	vdlTypeSet8     *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeMap10    *vdl.Type = nil
+	vdlTypeUnion11  *vdl.Type = nil
+	vdlTypeStruct12 *vdl.Type = nil
+	vdlTypeStruct13 *vdl.Type = nil
+	vdlTypeList14   *vdl.Type = nil
+	vdlTypeStruct15 *vdl.Type = nil
+	vdlTypeStruct16 *vdl.Type = nil
+	vdlTypeStruct17 *vdl.Type = nil
+	vdlTypeUnion18  *vdl.Type = nil
+	vdlTypeStruct19 *vdl.Type = nil
+	vdlTypeStruct20 *vdl.Type = nil
+	vdlTypeStruct21 *vdl.Type = nil
+	vdlTypeStruct22 *vdl.Type = nil
+	vdlTypeStruct23 *vdl.Type = nil
+	vdlTypeStruct24 *vdl.Type = nil
+	vdlTypeMap25    *vdl.Type = nil
+	vdlTypeMap26    *vdl.Type = nil
+	vdlTypeList27   *vdl.Type = nil
+	vdlTypeSet28    *vdl.Type = nil
+	vdlTypeStruct29 *vdl.Type = nil
+	vdlTypeStruct30 *vdl.Type = nil
+	vdlTypeMap31    *vdl.Type = nil
+	vdlTypeMap32    *vdl.Type = nil
+	vdlTypeMap33    *vdl.Type = nil
+	vdlTypeMap34    *vdl.Type = nil
+	vdlTypeMap35    *vdl.Type = nil
+	vdlTypeMap36    *vdl.Type = nil
+	vdlTypeMap37    *vdl.Type = nil
+	vdlTypeMap38    *vdl.Type = nil
+	vdlTypeMap39    *vdl.Type = nil
+	vdlTypeMap40    *vdl.Type = nil
+	vdlTypeMap41    *vdl.Type = nil
+	vdlTypeMap42    *vdl.Type = nil
+	vdlTypeMap43    *vdl.Type = nil
+	vdlTypeStruct44 *vdl.Type = nil
+	vdlTypeSet45    *vdl.Type = nil
+	vdlTypeSet46    *vdl.Type = nil
+	vdlTypeSet47    *vdl.Type = nil
+	vdlTypeSet48    *vdl.Type = nil
+	vdlTypeSet49    *vdl.Type = nil
+	vdlTypeSet50    *vdl.Type = nil
+	vdlTypeSet51    *vdl.Type = nil
+	vdlTypeSet52    *vdl.Type = nil
+	vdlTypeSet53    *vdl.Type = nil
+	vdlTypeSet54    *vdl.Type = nil
+	vdlTypeSet55    *vdl.Type = nil
+	vdlTypeStruct56 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type AddressInfo struct {
 	Street string
 	City   string
@@ -4093,69 +4157,6 @@ func (x *BigData) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1  *vdl.Type = nil
-	vdlTypeEnum2    *vdl.Type = nil
-	vdlTypeEnum3    *vdl.Type = nil
-	vdlTypeArray4   *vdl.Type = nil
-	vdlTypeStruct5  *vdl.Type = nil
-	vdlTypeEnum6    *vdl.Type = nil
-	vdlTypeStruct7  *vdl.Type = nil
-	vdlTypeSet8     *vdl.Type = nil
-	vdlTypeStruct9  *vdl.Type = nil
-	vdlTypeMap10    *vdl.Type = nil
-	vdlTypeUnion11  *vdl.Type = nil
-	vdlTypeStruct12 *vdl.Type = nil
-	vdlTypeStruct13 *vdl.Type = nil
-	vdlTypeList14   *vdl.Type = nil
-	vdlTypeStruct15 *vdl.Type = nil
-	vdlTypeStruct16 *vdl.Type = nil
-	vdlTypeStruct17 *vdl.Type = nil
-	vdlTypeUnion18  *vdl.Type = nil
-	vdlTypeStruct19 *vdl.Type = nil
-	vdlTypeStruct20 *vdl.Type = nil
-	vdlTypeStruct21 *vdl.Type = nil
-	vdlTypeStruct22 *vdl.Type = nil
-	vdlTypeStruct23 *vdl.Type = nil
-	vdlTypeStruct24 *vdl.Type = nil
-	vdlTypeMap25    *vdl.Type = nil
-	vdlTypeMap26    *vdl.Type = nil
-	vdlTypeList27   *vdl.Type = nil
-	vdlTypeSet28    *vdl.Type = nil
-	vdlTypeStruct29 *vdl.Type = nil
-	vdlTypeStruct30 *vdl.Type = nil
-	vdlTypeMap31    *vdl.Type = nil
-	vdlTypeMap32    *vdl.Type = nil
-	vdlTypeMap33    *vdl.Type = nil
-	vdlTypeMap34    *vdl.Type = nil
-	vdlTypeMap35    *vdl.Type = nil
-	vdlTypeMap36    *vdl.Type = nil
-	vdlTypeMap37    *vdl.Type = nil
-	vdlTypeMap38    *vdl.Type = nil
-	vdlTypeMap39    *vdl.Type = nil
-	vdlTypeMap40    *vdl.Type = nil
-	vdlTypeMap41    *vdl.Type = nil
-	vdlTypeMap42    *vdl.Type = nil
-	vdlTypeMap43    *vdl.Type = nil
-	vdlTypeStruct44 *vdl.Type = nil
-	vdlTypeSet45    *vdl.Type = nil
-	vdlTypeSet46    *vdl.Type = nil
-	vdlTypeSet47    *vdl.Type = nil
-	vdlTypeSet48    *vdl.Type = nil
-	vdlTypeSet49    *vdl.Type = nil
-	vdlTypeSet50    *vdl.Type = nil
-	vdlTypeSet51    *vdl.Type = nil
-	vdlTypeSet52    *vdl.Type = nil
-	vdlTypeSet53    *vdl.Type = nil
-	vdlTypeSet54    *vdl.Type = nil
-	vdlTypeSet55    *vdl.Type = nil
-	vdlTypeStruct56 *vdl.Type = nil
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

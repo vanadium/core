@@ -37,11 +37,33 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1  *vdl.Type = nil
+	vdlTypeByte2    *vdl.Type = nil
+	vdlTypeStruct3  *vdl.Type = nil
+	vdlTypeStruct4  *vdl.Type = nil
+	vdlTypeUnion5   *vdl.Type = nil
+	vdlTypeArray6   *vdl.Type = nil
+	vdlTypeByte7    *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeList11   *vdl.Type = nil
+	vdlTypeList12   *vdl.Type = nil
+	vdlTypeUnion13  *vdl.Type = nil
+	vdlTypeStruct14 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // A GameId is used to uniquely identify a game within one Judge.
 type GameId struct {
 	Id string
@@ -1159,25 +1181,6 @@ func (x *PlayResult) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1  *vdl.Type = nil
-	vdlTypeByte2    *vdl.Type = nil
-	vdlTypeStruct3  *vdl.Type = nil
-	vdlTypeStruct4  *vdl.Type = nil
-	vdlTypeUnion5   *vdl.Type = nil
-	vdlTypeArray6   *vdl.Type = nil
-	vdlTypeByte7    *vdl.Type = nil
-	vdlTypeStruct8  *vdl.Type = nil
-	vdlTypeStruct9  *vdl.Type = nil
-	vdlTypeStruct10 *vdl.Type = nil
-	vdlTypeList11   *vdl.Type = nil
-	vdlTypeList12   *vdl.Type = nil
-	vdlTypeUnion13  *vdl.Type = nil
-	vdlTypeStruct14 *vdl.Type = nil
-)
-
 // Const definitions
 // =================
 
@@ -1833,8 +1836,6 @@ var descRockPaperScissors = rpc.InterfaceDesc{
 		{Name: "ScoreKeeper", PkgPath: "v.io/x/ref/examples/rps", Doc: "// ScoreKeeper receives the outcome of games from Judges."},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

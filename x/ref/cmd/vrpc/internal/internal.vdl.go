@@ -18,11 +18,21 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeArray2  *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type Struct struct {
 	X int32
 	Y int32
@@ -147,13 +157,6 @@ func (x *Array2Int) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 	return dec.FinishValue()
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type = nil
-	vdlTypeArray2  *vdl.Type = nil
-)
 
 // Interface definitions
 // =====================
@@ -726,8 +729,6 @@ type implTypeTesterZStreamServerCallSend struct {
 func (s implTypeTesterZStreamServerCallSend) Send(item bool) error {
 	return s.s.Send(item)
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

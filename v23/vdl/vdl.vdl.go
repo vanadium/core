@@ -12,11 +12,22 @@ import (
 	"fmt"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeEnum1   *Type = nil
+	vdlTypeStruct2 *Type = nil
+	vdlTypeList3   *Type = nil
+)
 
 // Type definitions
 // ================
-
 // WireRetryCode is the suggested retry behavior for the receiver of an error.
 // If the receiver doesn't know how to handle the specific error, it should
 // attempt the suggested retry behavior.
@@ -276,18 +287,8 @@ func vdlReadAnonList1(dec Decoder, x *[]*Value) error {
 	}
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeEnum1   *Type = nil
-	vdlTypeStruct2 *Type = nil
-	vdlTypeList3   *Type = nil
-)
-
 // Type-check native conversion functions.
 var ()
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

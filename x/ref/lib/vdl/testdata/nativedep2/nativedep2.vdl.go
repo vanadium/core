@@ -15,11 +15,20 @@ import (
 	_ "v.io/x/ref/lib/vdl/testdata/nativetest"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeInt321 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type MyTime time.Time
 
 func (MyTime) VDLReflect(struct {
@@ -47,14 +56,6 @@ func (x *MyTime) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	}
 	return nil
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeInt321 *vdl.Type = nil
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

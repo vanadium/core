@@ -19,11 +19,24 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeMap3    *vdl.Type = nil
+	vdlTypeList4   *vdl.Type = nil
+	vdlTypeList5   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // Url represents a url.URL struct.
 // The User field is skipped since it is a struct with only unexported fields.
 type Url struct {
@@ -561,16 +574,6 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]string) error {
 	}
 }
 
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type = nil
-	vdlTypeStruct2 *vdl.Type = nil
-	vdlTypeMap3    *vdl.Type = nil
-	vdlTypeList4   *vdl.Type = nil
-	vdlTypeList5   *vdl.Type = nil
-)
-
 // Interface definitions
 // =====================
 
@@ -676,8 +679,6 @@ var descHttp = rpc.InterfaceDesc{
 		},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
