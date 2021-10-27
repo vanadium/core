@@ -1307,11 +1307,17 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	defer shutdown()
 
 	sctx := withPrincipal(t, ctx, "server")
+	sctx = v23.WithListenSpec(ctx, rpc.ListenSpec{
+		Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}},
+	})
+
 	cctx := withPrincipal(t, ctx, "client", mkThirdPartyCaveat(
 		v23.GetPrincipal(ctx).PublicKey(),
 		"mountpoint/dischargeserver",
 		security.UnconstrainedUse()))
-
+	cctx = v23.WithListenSpec(cctx, rpc.ListenSpec{
+		Addrs: rpc.ListenAddrs{{"tcp", "127.0.0.1:0"}},
+	})
 	ed := &expiryDischarger{expiry: 500 * time.Millisecond}
 	_, _, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", ed, security.AllowEveryone())
 	if err != nil {
@@ -1331,8 +1337,10 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	defer func() { <-server.Closed() }()
 	defer cancel()
 
+	waitForNames(t, cctx, true, "mountpoint/server")
+
 	// Make a call to create a connection. We don't care if the call succeeds,
-	// we just want to make sure that we fetch discharges more than once.	var got string
+	// we just want to make sure that we fetch discharges more than once.
 	var got string
 	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{}); err != nil {
 		t.Fatal(err)
