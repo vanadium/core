@@ -21,15 +21,16 @@ import (
 )
 
 type goData struct {
-	Package        *compile.Package
-	Env            *compile.Env
-	Imports        goImports
-	VDLConfigName  string
-	createdTargets map[*vdl.Type]bool // set of types whose Targets have already been created
-	anonTargets    map[*vdl.Type]int  // tracks unnamed target numbers
-	anonReaders    map[*vdl.Type]int  // tracks unnamed decoder numbers
-	anonWriters    map[*vdl.Type]int  // tracks unnamed encoder numbers
-	typeOfs        map[*vdl.Type]int  // tracks vdl.TypeOf var numbers
+	Package             *compile.Package
+	Env                 *compile.Env
+	Imports             goImports
+	VDLConfigName       string
+	createdTargets      map[*vdl.Type]bool // set of types whose Targets have already been created
+	anonTargets         map[*vdl.Type]int  // tracks unnamed target numbers
+	anonReaders         map[*vdl.Type]int  // tracks unnamed decoder numbers
+	anonWriters         map[*vdl.Type]int  // tracks unnamed encoder numbers
+	typeOfs             map[*vdl.Type]int  // tracks vdl.TypeOf var numbers
+	vdlMethodDefintions string             // the code to define all vdl methods.
 
 	collectImports bool // is this the import collecting pass instead of normal generation
 	importMap      importMap
@@ -135,16 +136,19 @@ func (data *goData) DeclareTypeOfVars() string {
 		return ""
 	}
 	s := `
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (`
+		// Hold type definitions in package-level variables, for better performance.
+		// Declare and initialize with default values here so that the initializeVDL
+		// method will be considered ready to initialize before any of the type
+		// definitions that appear below.
+		//nolint:unused
+		var (`
 	for id := 1; id <= len(idToType); id++ {
 		tt := idToType[id]
 		s += fmt.Sprintf(`
-	%[1]s *%[2]sType = nil`, typeOfVarName(tt, id), data.Pkg("v.io/v23/vdl"))
+			%[1]s *%[2]sType = nil`, typeOfVarName(tt, id), data.Pkg("v.io/v23/vdl"))
 	}
 	return s + `
-)`
+		)`
 }
 
 // DefineTypeOfVars defines the vars holding type definitions.  They are
@@ -192,6 +196,11 @@ func (data *goData) InitializationExpression(tt *vdl.Type) string {
 		typeOf += ".Elem()"
 	}
 	return fmt.Sprintf(`%[1]sTypeOf%[2]s`, data.Pkg("v.io/v23/vdl"), typeOf)
+}
+
+// VDLMethodDefinitions returns the code for all VDL method definitions.
+func (data *goData) VDLMethodDefinitions() string {
+	return data.vdlMethodDefintions
 }
 
 var builtInTypeVars = map[*vdl.Type]string{
@@ -252,6 +261,19 @@ func Generate(pkg *compile.Package, env *compile.Env) []byte {
 	data.anonReaders = make(map[*vdl.Type]int)
 	data.anonWriters = make(map[*vdl.Type]int)
 	data.typeOfs = make(map[*vdl.Type]int)
+	// Run the code to define the methods so as to generate the
+	// type variables that need to be initialized ahead of actually
+	// writing that code.
+	vdlTypeDefinitions := strings.Builder{}
+	for _, def := range data.Package.TypeDefs() {
+		vdlTypeDefinitions.WriteString(defineType(data, def))
+		if !data.SkipGenZeroReadWrite(def) {
+			vdlTypeDefinitions.WriteString(defineIsZero(data, def))
+			vdlTypeDefinitions.WriteString(defineWrite(data, def))
+			vdlTypeDefinitions.WriteString(defineRead(data, def))
+		}
+	}
+	data.vdlMethodDefintions = vdlTypeDefinitions.String()
 	buf.Reset()
 	if err := goTemplate.Execute(&buf, data); err != nil {
 		// We shouldn't see an error; it means our template is buggy.
@@ -303,10 +325,6 @@ func init() {
 		"noCustomNative":        noCustomNative,
 		"typeHasNoCustomNative": typeHasNoCustomNative,
 		"typeGo":                typeGo,
-		"defineType":            defineType,
-		"defineIsZero":          defineIsZero,
-		"defineWrite":           defineWrite,
-		"defineRead":            defineRead,
 		"defineConst":           defineConst,
 		"genValueOf":            genValueOf,
 		"embedGo":               embedGo,
@@ -612,19 +630,12 @@ import (
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 {{if $pkg.TypeDefs}}
-// Type definitions
-// ================
-
-{{range $tdef := $pkg.TypeDefs}}
-{{defineType $data $tdef}}
-{{if not ($data.SkipGenZeroReadWrite $tdef)}}
-{{defineIsZero $data $tdef}}
-{{defineWrite $data $tdef}}
-{{defineRead $data $tdef}}
-{{end}}
-{{end}}
 
 {{$data.DeclareTypeOfVars}}
+
+// Type definitions
+// ================
+{{$data.VDLMethodDefinitions}}
 
 {{if hasNativeTypes $data}}
 // Type-check native conversion functions.
