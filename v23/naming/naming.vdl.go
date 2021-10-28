@@ -16,11 +16,27 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeUint321 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeList5   *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeUnion7  *vdl.Type = nil
+	vdlTypeUnion8  *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // MountFlag is a bit mask of options to the mount call.
 type MountFlag uint32
 
@@ -640,21 +656,6 @@ func VDLReadGlobChildrenReply(dec vdl.Decoder, x *GlobChildrenReply) error { //n
 const Replace = MountFlag(1) // Replace means the mount should replace what is currently at the mount point
 const MT = MountFlag(2)      // MT means that the target server is a mount table.
 const Leaf = MountFlag(4)    // Leaf means that the target server is a leaf.
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeUint321 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeList5   *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeUnion7  *vdl.Type
-	vdlTypeUnion8  *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

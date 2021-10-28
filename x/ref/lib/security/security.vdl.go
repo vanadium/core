@@ -16,11 +16,31 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeMap1     *vdl.Type = nil
+	vdlTypeList2    *vdl.Type = nil
+	vdlTypeString3  *vdl.Type = nil
+	vdlTypeArray4   *vdl.Type = nil
+	vdlTypeStruct5  *vdl.Type = nil
+	vdlTypeUnion6   *vdl.Type = nil
+	vdlTypeStruct7  *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeMap9     *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeMap11    *vdl.Type = nil
+	vdlTypeMap12    *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type blessingRootsState map[string][]security.BlessingPattern
 
 func (blessingRootsState) VDLReflect(struct {
@@ -575,25 +595,6 @@ func vdlReadAnonMap4(dec vdl.Decoder, x *map[dischargeCacheKey]CachedDischarge) 
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeMap1     *vdl.Type
-	vdlTypeList2    *vdl.Type
-	vdlTypeString3  *vdl.Type
-	vdlTypeArray4   *vdl.Type
-	vdlTypeStruct5  *vdl.Type
-	vdlTypeUnion6   *vdl.Type
-	vdlTypeStruct7  *vdl.Type
-	vdlTypeStruct8  *vdl.Type
-	vdlTypeMap9     *vdl.Type
-	vdlTypeStruct10 *vdl.Type
-	vdlTypeMap11    *vdl.Type
-	vdlTypeMap12    *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

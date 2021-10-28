@@ -252,6 +252,8 @@ func hashString(d string) []byte {
 // ...
 // <pattern>      <blessings>
 func (bs *blessingStore) DebugString() string {
+	bs.mu.Lock()
+	defer bs.mu.Unlock()
 	const format = "%-30s   %s\n"
 	buff := bytes.NewBufferString(fmt.Sprintf(format, "Default Blessings", bs.state.DefaultBlessings))
 

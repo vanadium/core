@@ -16,11 +16,25 @@ import (
 	"v.io/v23/vtrace"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeStruct2 *vdl.Type = nil
+	vdlTypeStruct3 *vdl.Type = nil
+	vdlTypeStruct4 *vdl.Type = nil
+	vdlTypeStruct5 *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // Request describes the request header sent by the client to the server.  A
 // non-zero request header is sent at the beginning of the RPC call, followed by
 // the positional args.  Thereafter a zero request header is sent before each
@@ -393,19 +407,6 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 const GlobMethod = "__Glob"
 const ReservedSignature = "__Signature"
 const ReservedMethodSignature = "__MethodSignature"
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeStruct2 *vdl.Type
-	vdlTypeStruct3 *vdl.Type
-	vdlTypeStruct4 *vdl.Type
-	vdlTypeStruct5 *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

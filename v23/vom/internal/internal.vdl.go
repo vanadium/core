@@ -17,11 +17,37 @@ import (
 	"v.io/v23/vom"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeInt321     *vdl.Type = nil
+	vdlTypeString2    *vdl.Type = nil
+	vdlTypeEnum3      *vdl.Type = nil
+	vdlTypeList4      *vdl.Type = nil
+	vdlTypeArray5     *vdl.Type = nil
+	vdlTypeArray6     *vdl.Type = nil
+	vdlTypeList7      *vdl.Type = nil
+	vdlTypeList8      *vdl.Type = nil
+	vdlTypeSet9       *vdl.Type = nil
+	vdlTypeMap10      *vdl.Type = nil
+	vdlTypeStruct11   *vdl.Type = nil
+	vdlTypeStruct12   *vdl.Type = nil
+	vdlTypeUnion13    *vdl.Type = nil
+	vdlTypeStruct14   *vdl.Type = nil
+	vdlTypeOptional15 *vdl.Type = nil
+	vdlTypeStruct16   *vdl.Type = nil
+	vdlTypeStruct17   *vdl.Type = nil
+	vdlTypeStruct18   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type VNumber int32
 
 func (VNumber) VDLReflect(struct {
@@ -1617,31 +1643,6 @@ func (x *VStructWithNative) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeInt321     *vdl.Type
-	vdlTypeString2    *vdl.Type
-	vdlTypeEnum3      *vdl.Type
-	vdlTypeList4      *vdl.Type
-	vdlTypeArray5     *vdl.Type
-	vdlTypeArray6     *vdl.Type
-	vdlTypeList7      *vdl.Type
-	vdlTypeList8      *vdl.Type
-	vdlTypeSet9       *vdl.Type
-	vdlTypeMap10      *vdl.Type
-	vdlTypeStruct11   *vdl.Type
-	vdlTypeStruct12   *vdl.Type
-	vdlTypeUnion13    *vdl.Type
-	vdlTypeStruct14   *vdl.Type
-	vdlTypeOptional15 *vdl.Type
-	vdlTypeStruct16   *vdl.Type
-	vdlTypeStruct17   *vdl.Type
-	vdlTypeStruct18   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

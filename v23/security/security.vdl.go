@@ -20,11 +20,41 @@ import (
 	"v.io/v23/vom"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeArray1   *vdl.Type = nil
+	vdlTypeStruct2  *vdl.Type = nil
+	vdlTypeArray3   *vdl.Type = nil
+	vdlTypeList4    *vdl.Type = nil
+	vdlTypeStruct5  *vdl.Type = nil
+	vdlTypeStruct6  *vdl.Type = nil
+	vdlTypeList7    *vdl.Type = nil
+	vdlTypeString8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeString11 *vdl.Type = nil
+	vdlTypeStruct12 *vdl.Type = nil
+	vdlTypeStruct13 *vdl.Type = nil
+	vdlTypeList14   *vdl.Type = nil
+	vdlTypeList15   *vdl.Type = nil
+	vdlTypeStruct16 *vdl.Type = nil
+	vdlTypeStruct17 *vdl.Type = nil
+	vdlTypeStruct18 *vdl.Type = nil
+	vdlTypeList19   *vdl.Type = nil
+	vdlTypeList20   *vdl.Type = nil
+	vdlTypeUnion21  *vdl.Type = nil
+	vdlTypeStruct22 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type nonce [16]byte
 
 func (nonce) VDLReflect(struct {
@@ -2399,35 +2429,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeArray1   *vdl.Type
-	vdlTypeStruct2  *vdl.Type
-	vdlTypeArray3   *vdl.Type
-	vdlTypeList4    *vdl.Type
-	vdlTypeStruct5  *vdl.Type
-	vdlTypeStruct6  *vdl.Type
-	vdlTypeList7    *vdl.Type
-	vdlTypeString8  *vdl.Type
-	vdlTypeStruct9  *vdl.Type
-	vdlTypeStruct10 *vdl.Type
-	vdlTypeString11 *vdl.Type
-	vdlTypeStruct12 *vdl.Type
-	vdlTypeStruct13 *vdl.Type
-	vdlTypeList14   *vdl.Type
-	vdlTypeList15   *vdl.Type
-	vdlTypeStruct16 *vdl.Type
-	vdlTypeStruct17 *vdl.Type
-	vdlTypeStruct18 *vdl.Type
-	vdlTypeList19   *vdl.Type
-	vdlTypeList20   *vdl.Type
-	vdlTypeUnion21  *vdl.Type
-	vdlTypeStruct22 *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

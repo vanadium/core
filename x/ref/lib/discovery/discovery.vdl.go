@@ -20,11 +20,28 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeList1   *vdl.Type = nil
+	vdlTypeInt322  *vdl.Type = nil
+	vdlTypeList3   *vdl.Type = nil
+	vdlTypeByte4   *vdl.Type = nil
+	vdlTypeArray5  *vdl.Type = nil
+	vdlTypeStruct6 *vdl.Type = nil
+	vdlTypeStruct7 *vdl.Type = nil
+	vdlTypeList8   *vdl.Type = nil
+	vdlTypeList9   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 type Uuid []byte
 
 func (Uuid) VDLReflect(struct {
@@ -893,22 +910,6 @@ var descDirectory = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeList1   *vdl.Type
-	vdlTypeInt322  *vdl.Type
-	vdlTypeList3   *vdl.Type
-	vdlTypeByte4   *vdl.Type
-	vdlTypeArray5  *vdl.Type
-	vdlTypeStruct6 *vdl.Type
-	vdlTypeStruct7 *vdl.Type
-	vdlTypeList8   *vdl.Type
-	vdlTypeList9   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

@@ -19,7 +19,7 @@ import (
 func ExamplePublisher() {
 	in := make(chan pubsub.Setting)
 	pub := pubsub.NewPublisher()
-	pub.CreateStream("net", "network settings", in) //nolint:errcheck
+	pub.CreateStream("net", "network settings", in)
 
 	// A simple producer of IP address settings.
 	producer := func() {
@@ -31,7 +31,7 @@ func ExamplePublisher() {
 
 	// A simple consumer of IP address Settings.
 	consumer := func(ch chan pubsub.Setting) {
-		fmt.Println(<-ch)
+		fmt.Printf("consumer: %v\n", <-ch)
 		waiter.Done()
 	}
 
@@ -41,10 +41,10 @@ func ExamplePublisher() {
 	// Fork the stream twice, and read the latest value.
 	ch1 := make(chan pubsub.Setting)
 	st, _ := pub.ForkStream("net", ch1)
-	fmt.Println(st.Latest["ip"])
+	fmt.Printf("1: %v\n", st.Latest["ip"])
 	ch2 := make(chan pubsub.Setting)
 	st, _ = pub.ForkStream("net", ch2)
-	fmt.Println(st.Latest["ip"])
+	fmt.Printf("2: %v\n", st.Latest["ip"])
 
 	// Now we can read new Settings as they are generated.
 	go producer()
@@ -54,10 +54,10 @@ func ExamplePublisher() {
 	waiter.Wait()
 
 	// Output:
-	// ip: address: (string: 1.2.3.4)
-	// ip: address: (string: 1.2.3.4)
-	// ip: address: (string: 1.2.3.5)
-	// ip: address: (string: 1.2.3.5)
+	// 1: ip: address: (string: 1.2.3.4)
+	// 2: ip: address: (string: 1.2.3.4)
+	// consumer: ip: address: (string: 1.2.3.5)
+	// consumer: ip: address: (string: 1.2.3.5)
 }
 
 func ExamplePublisher_Shutdown() {
