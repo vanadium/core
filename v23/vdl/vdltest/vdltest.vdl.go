@@ -18,11 +18,303 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1     *vdl.Type = nil
+	vdlTypeBool2       *vdl.Type = nil
+	vdlTypeString3     *vdl.Type = nil
+	vdlTypeByte4       *vdl.Type = nil
+	vdlTypeEnum5       *vdl.Type = nil
+	vdlTypeEnum6       *vdl.Type = nil
+	vdlTypeStruct7     *vdl.Type = nil
+	vdlTypeStruct8     *vdl.Type = nil
+	vdlTypeUint169     *vdl.Type = nil
+	vdlTypeUint3210    *vdl.Type = nil
+	vdlTypeUint6411    *vdl.Type = nil
+	vdlTypeInt812      *vdl.Type = nil
+	vdlTypeInt1613     *vdl.Type = nil
+	vdlTypeInt3214     *vdl.Type = nil
+	vdlTypeInt6415     *vdl.Type = nil
+	vdlTypeFloat3216   *vdl.Type = nil
+	vdlTypeFloat6417   *vdl.Type = nil
+	vdlTypeArray18     *vdl.Type = nil
+	vdlTypeArray19     *vdl.Type = nil
+	vdlTypeArray20     *vdl.Type = nil
+	vdlTypeArray21     *vdl.Type = nil
+	vdlTypeArray22     *vdl.Type = nil
+	vdlTypeArray23     *vdl.Type = nil
+	vdlTypeArray24     *vdl.Type = nil
+	vdlTypeArray25     *vdl.Type = nil
+	vdlTypeArray26     *vdl.Type = nil
+	vdlTypeArray27     *vdl.Type = nil
+	vdlTypeArray28     *vdl.Type = nil
+	vdlTypeArray29     *vdl.Type = nil
+	vdlTypeArray30     *vdl.Type = nil
+	vdlTypeArray31     *vdl.Type = nil
+	vdlTypeArray32     *vdl.Type = nil
+	vdlTypeArray33     *vdl.Type = nil
+	vdlTypeArray34     *vdl.Type = nil
+	vdlTypeOptional35  *vdl.Type = nil
+	vdlTypeArray36     *vdl.Type = nil
+	vdlTypeOptional37  *vdl.Type = nil
+	vdlTypeList38      *vdl.Type = nil
+	vdlTypeList39      *vdl.Type = nil
+	vdlTypeList40      *vdl.Type = nil
+	vdlTypeList41      *vdl.Type = nil
+	vdlTypeList42      *vdl.Type = nil
+	vdlTypeList43      *vdl.Type = nil
+	vdlTypeList44      *vdl.Type = nil
+	vdlTypeList45      *vdl.Type = nil
+	vdlTypeList46      *vdl.Type = nil
+	vdlTypeList47      *vdl.Type = nil
+	vdlTypeList48      *vdl.Type = nil
+	vdlTypeList49      *vdl.Type = nil
+	vdlTypeList50      *vdl.Type = nil
+	vdlTypeList51      *vdl.Type = nil
+	vdlTypeList52      *vdl.Type = nil
+	vdlTypeList53      *vdl.Type = nil
+	vdlTypeList54      *vdl.Type = nil
+	vdlTypeList55      *vdl.Type = nil
+	vdlTypeSet56       *vdl.Type = nil
+	vdlTypeSet57       *vdl.Type = nil
+	vdlTypeSet58       *vdl.Type = nil
+	vdlTypeSet59       *vdl.Type = nil
+	vdlTypeSet60       *vdl.Type = nil
+	vdlTypeSet61       *vdl.Type = nil
+	vdlTypeSet62       *vdl.Type = nil
+	vdlTypeSet63       *vdl.Type = nil
+	vdlTypeSet64       *vdl.Type = nil
+	vdlTypeSet65       *vdl.Type = nil
+	vdlTypeSet66       *vdl.Type = nil
+	vdlTypeSet67       *vdl.Type = nil
+	vdlTypeSet68       *vdl.Type = nil
+	vdlTypeMap69       *vdl.Type = nil
+	vdlTypeMap70       *vdl.Type = nil
+	vdlTypeMap71       *vdl.Type = nil
+	vdlTypeMap72       *vdl.Type = nil
+	vdlTypeMap73       *vdl.Type = nil
+	vdlTypeMap74       *vdl.Type = nil
+	vdlTypeMap75       *vdl.Type = nil
+	vdlTypeMap76       *vdl.Type = nil
+	vdlTypeMap77       *vdl.Type = nil
+	vdlTypeMap78       *vdl.Type = nil
+	vdlTypeMap79       *vdl.Type = nil
+	vdlTypeMap80       *vdl.Type = nil
+	vdlTypeMap81       *vdl.Type = nil
+	vdlTypeStruct82    *vdl.Type = nil
+	vdlTypeStruct83    *vdl.Type = nil
+	vdlTypeStruct84    *vdl.Type = nil
+	vdlTypeStruct85    *vdl.Type = nil
+	vdlTypeStruct86    *vdl.Type = nil
+	vdlTypeStruct87    *vdl.Type = nil
+	vdlTypeStruct88    *vdl.Type = nil
+	vdlTypeStruct89    *vdl.Type = nil
+	vdlTypeStruct90    *vdl.Type = nil
+	vdlTypeStruct91    *vdl.Type = nil
+	vdlTypeStruct92    *vdl.Type = nil
+	vdlTypeStruct93    *vdl.Type = nil
+	vdlTypeStruct94    *vdl.Type = nil
+	vdlTypeStruct95    *vdl.Type = nil
+	vdlTypeStruct96    *vdl.Type = nil
+	vdlTypeStruct97    *vdl.Type = nil
+	vdlTypeStruct98    *vdl.Type = nil
+	vdlTypeStruct99    *vdl.Type = nil
+	vdlTypeStruct100   *vdl.Type = nil
+	vdlTypeStruct101   *vdl.Type = nil
+	vdlTypeStruct102   *vdl.Type = nil
+	vdlTypeStruct103   *vdl.Type = nil
+	vdlTypeStruct104   *vdl.Type = nil
+	vdlTypeStruct105   *vdl.Type = nil
+	vdlTypeStruct106   *vdl.Type = nil
+	vdlTypeStruct107   *vdl.Type = nil
+	vdlTypeStruct108   *vdl.Type = nil
+	vdlTypeStruct109   *vdl.Type = nil
+	vdlTypeStruct110   *vdl.Type = nil
+	vdlTypeStruct111   *vdl.Type = nil
+	vdlTypeStruct112   *vdl.Type = nil
+	vdlTypeStruct113   *vdl.Type = nil
+	vdlTypeStruct114   *vdl.Type = nil
+	vdlTypeStruct115   *vdl.Type = nil
+	vdlTypeUnion116    *vdl.Type = nil
+	vdlTypeUnion117    *vdl.Type = nil
+	vdlTypeUnion118    *vdl.Type = nil
+	vdlTypeUnion119    *vdl.Type = nil
+	vdlTypeUnion120    *vdl.Type = nil
+	vdlTypeUnion121    *vdl.Type = nil
+	vdlTypeUnion122    *vdl.Type = nil
+	vdlTypeUnion123    *vdl.Type = nil
+	vdlTypeUnion124    *vdl.Type = nil
+	vdlTypeUnion125    *vdl.Type = nil
+	vdlTypeUnion126    *vdl.Type = nil
+	vdlTypeUnion127    *vdl.Type = nil
+	vdlTypeUnion128    *vdl.Type = nil
+	vdlTypeUnion129    *vdl.Type = nil
+	vdlTypeUnion130    *vdl.Type = nil
+	vdlTypeUnion131    *vdl.Type = nil
+	vdlTypeUnion132    *vdl.Type = nil
+	vdlTypeUnion133    *vdl.Type = nil
+	vdlTypeUnion134    *vdl.Type = nil
+	vdlTypeUnion135    *vdl.Type = nil
+	vdlTypeUnion136    *vdl.Type = nil
+	vdlTypeUnion137    *vdl.Type = nil
+	vdlTypeUnion138    *vdl.Type = nil
+	vdlTypeUnion139    *vdl.Type = nil
+	vdlTypeUnion140    *vdl.Type = nil
+	vdlTypeUnion141    *vdl.Type = nil
+	vdlTypeUnion142    *vdl.Type = nil
+	vdlTypeUnion143    *vdl.Type = nil
+	vdlTypeUnion144    *vdl.Type = nil
+	vdlTypeUnion145    *vdl.Type = nil
+	vdlTypeUnion146    *vdl.Type = nil
+	vdlTypeUnion147    *vdl.Type = nil
+	vdlTypeUnion148    *vdl.Type = nil
+	vdlTypeUnion149    *vdl.Type = nil
+	vdlTypeArray150    *vdl.Type = nil
+	vdlTypeArray151    *vdl.Type = nil
+	vdlTypeArray152    *vdl.Type = nil
+	vdlTypeSet153      *vdl.Type = nil
+	vdlTypeArray154    *vdl.Type = nil
+	vdlTypeMap155      *vdl.Type = nil
+	vdlTypeArray156    *vdl.Type = nil
+	vdlTypeArray157    *vdl.Type = nil
+	vdlTypeArray158    *vdl.Type = nil
+	vdlTypeOptional159 *vdl.Type = nil
+	vdlTypeList160     *vdl.Type = nil
+	vdlTypeList161     *vdl.Type = nil
+	vdlTypeList162     *vdl.Type = nil
+	vdlTypeList163     *vdl.Type = nil
+	vdlTypeSet164      *vdl.Type = nil
+	vdlTypeList165     *vdl.Type = nil
+	vdlTypeList166     *vdl.Type = nil
+	vdlTypeList167     *vdl.Type = nil
+	vdlTypeList168     *vdl.Type = nil
+	vdlTypeOptional169 *vdl.Type = nil
+	vdlTypeSet170      *vdl.Type = nil
+	vdlTypeSet171      *vdl.Type = nil
+	vdlTypeSet172      *vdl.Type = nil
+	vdlTypeMap173      *vdl.Type = nil
+	vdlTypeMap174      *vdl.Type = nil
+	vdlTypeMap175      *vdl.Type = nil
+	vdlTypeStruct176   *vdl.Type = nil
+	vdlTypeList177     *vdl.Type = nil
+	vdlTypeSet178      *vdl.Type = nil
+	vdlTypeMap179      *vdl.Type = nil
+	vdlTypeOptional180 *vdl.Type = nil
+	vdlTypeStruct181   *vdl.Type = nil
+	vdlTypeStruct182   *vdl.Type = nil
+	vdlTypeStruct183   *vdl.Type = nil
+	vdlTypeStruct184   *vdl.Type = nil
+	vdlTypeStruct185   *vdl.Type = nil
+	vdlTypeStruct186   *vdl.Type = nil
+	vdlTypeStruct187   *vdl.Type = nil
+	vdlTypeStruct188   *vdl.Type = nil
+	vdlTypeStruct189   *vdl.Type = nil
+	vdlTypeStruct190   *vdl.Type = nil
+	vdlTypeStruct191   *vdl.Type = nil
+	vdlTypeStruct192   *vdl.Type = nil
+	vdlTypeStruct193   *vdl.Type = nil
+	vdlTypeStruct194   *vdl.Type = nil
+	vdlTypeUnion195    *vdl.Type = nil
+	vdlTypeMap196      *vdl.Type = nil
+	vdlTypeUnion197    *vdl.Type = nil
+	vdlTypeUnion198    *vdl.Type = nil
+	vdlTypeUnion199    *vdl.Type = nil
+	vdlTypeUnion200    *vdl.Type = nil
+	vdlTypeUnion201    *vdl.Type = nil
+	vdlTypeUnion202    *vdl.Type = nil
+	vdlTypeUnion203    *vdl.Type = nil
+	vdlTypeUnion204    *vdl.Type = nil
+	vdlTypeUnion205    *vdl.Type = nil
+	vdlTypeUnion206    *vdl.Type = nil
+	vdlTypeUnion207    *vdl.Type = nil
+	vdlTypeUnion208    *vdl.Type = nil
+	vdlTypeUnion209    *vdl.Type = nil
+	vdlTypeUnion210    *vdl.Type = nil
+	vdlTypeArray211    *vdl.Type = nil
+	vdlTypeArray212    *vdl.Type = nil
+	vdlTypeList213     *vdl.Type = nil
+	vdlTypeArray214    *vdl.Type = nil
+	vdlTypeSet215      *vdl.Type = nil
+	vdlTypeArray216    *vdl.Type = nil
+	vdlTypeMap217      *vdl.Type = nil
+	vdlTypeArray218    *vdl.Type = nil
+	vdlTypeArray219    *vdl.Type = nil
+	vdlTypeArray220    *vdl.Type = nil
+	vdlTypeOptional221 *vdl.Type = nil
+	vdlTypeList222     *vdl.Type = nil
+	vdlTypeList223     *vdl.Type = nil
+	vdlTypeList224     *vdl.Type = nil
+	vdlTypeList225     *vdl.Type = nil
+	vdlTypeList226     *vdl.Type = nil
+	vdlTypeList227     *vdl.Type = nil
+	vdlTypeList228     *vdl.Type = nil
+	vdlTypeSet229      *vdl.Type = nil
+	vdlTypeSet230      *vdl.Type = nil
+	vdlTypeSet231      *vdl.Type = nil
+	vdlTypeMap232      *vdl.Type = nil
+	vdlTypeMap233      *vdl.Type = nil
+	vdlTypeMap234      *vdl.Type = nil
+	vdlTypeStruct235   *vdl.Type = nil
+	vdlTypeList236     *vdl.Type = nil
+	vdlTypeStruct237   *vdl.Type = nil
+	vdlTypeStruct238   *vdl.Type = nil
+	vdlTypeStruct239   *vdl.Type = nil
+	vdlTypeStruct240   *vdl.Type = nil
+	vdlTypeStruct241   *vdl.Type = nil
+	vdlTypeStruct242   *vdl.Type = nil
+	vdlTypeStruct243   *vdl.Type = nil
+	vdlTypeUnion244    *vdl.Type = nil
+	vdlTypeList245     *vdl.Type = nil
+	vdlTypeSet246      *vdl.Type = nil
+	vdlTypeUnion247    *vdl.Type = nil
+	vdlTypeUnion248    *vdl.Type = nil
+	vdlTypeUnion249    *vdl.Type = nil
+	vdlTypeUnion250    *vdl.Type = nil
+	vdlTypeUnion251    *vdl.Type = nil
+	vdlTypeUnion252    *vdl.Type = nil
+	vdlTypeUnion253    *vdl.Type = nil
+	vdlTypeStruct254   *vdl.Type = nil
+	vdlTypeOptional255 *vdl.Type = nil
+	vdlTypeStruct256   *vdl.Type = nil
+	vdlTypeOptional257 *vdl.Type = nil
+	vdlTypeStruct258   *vdl.Type = nil
+	vdlTypeOptional259 *vdl.Type = nil
+	vdlTypeBool260     *vdl.Type = nil
+	vdlTypeBool261     *vdl.Type = nil
+	vdlTypeBool262     *vdl.Type = nil
+	vdlTypeInt32263    *vdl.Type = nil
+	vdlTypeInt32264    *vdl.Type = nil
+	vdlTypeInt32265    *vdl.Type = nil
+	vdlTypeString266   *vdl.Type = nil
+	vdlTypeString267   *vdl.Type = nil
+	vdlTypeArray268    *vdl.Type = nil
+	vdlTypeArray269    *vdl.Type = nil
+	vdlTypeList270     *vdl.Type = nil
+	vdlTypeList271     *vdl.Type = nil
+	vdlTypeStruct272   *vdl.Type = nil
+	vdlTypeStruct273   *vdl.Type = nil
+	vdlTypeStruct274   *vdl.Type = nil
+	vdlTypeStruct275   *vdl.Type = nil
+	vdlTypeStruct276   *vdl.Type = nil
+	vdlTypeStruct277   *vdl.Type = nil
+	vdlTypeUnion278    *vdl.Type = nil
+	vdlTypeUnion279    *vdl.Type = nil
+	vdlTypeUnion280    *vdl.Type = nil
+	vdlTypeUnion281    *vdl.Type = nil
+	vdlTypeUnion282    *vdl.Type = nil
+	vdlTypeUnion283    *vdl.Type = nil
+	vdlTypeStruct284   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // vdlEntry represents a test entry, which contains a target and source value.
 // Each test converts the source value to the type of the target value, and
 // either passes or fails.
@@ -93281,297 +93573,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1     *vdl.Type
-	vdlTypeBool2       *vdl.Type
-	vdlTypeString3     *vdl.Type
-	vdlTypeByte4       *vdl.Type
-	vdlTypeEnum5       *vdl.Type
-	vdlTypeEnum6       *vdl.Type
-	vdlTypeStruct7     *vdl.Type
-	vdlTypeStruct8     *vdl.Type
-	vdlTypeUint169     *vdl.Type
-	vdlTypeUint3210    *vdl.Type
-	vdlTypeUint6411    *vdl.Type
-	vdlTypeInt812      *vdl.Type
-	vdlTypeInt1613     *vdl.Type
-	vdlTypeInt3214     *vdl.Type
-	vdlTypeInt6415     *vdl.Type
-	vdlTypeFloat3216   *vdl.Type
-	vdlTypeFloat6417   *vdl.Type
-	vdlTypeArray18     *vdl.Type
-	vdlTypeArray19     *vdl.Type
-	vdlTypeArray20     *vdl.Type
-	vdlTypeArray21     *vdl.Type
-	vdlTypeArray22     *vdl.Type
-	vdlTypeArray23     *vdl.Type
-	vdlTypeArray24     *vdl.Type
-	vdlTypeArray25     *vdl.Type
-	vdlTypeArray26     *vdl.Type
-	vdlTypeArray27     *vdl.Type
-	vdlTypeArray28     *vdl.Type
-	vdlTypeArray29     *vdl.Type
-	vdlTypeArray30     *vdl.Type
-	vdlTypeArray31     *vdl.Type
-	vdlTypeArray32     *vdl.Type
-	vdlTypeArray33     *vdl.Type
-	vdlTypeArray34     *vdl.Type
-	vdlTypeOptional35  *vdl.Type
-	vdlTypeArray36     *vdl.Type
-	vdlTypeOptional37  *vdl.Type
-	vdlTypeList38      *vdl.Type
-	vdlTypeList39      *vdl.Type
-	vdlTypeList40      *vdl.Type
-	vdlTypeList41      *vdl.Type
-	vdlTypeList42      *vdl.Type
-	vdlTypeList43      *vdl.Type
-	vdlTypeList44      *vdl.Type
-	vdlTypeList45      *vdl.Type
-	vdlTypeList46      *vdl.Type
-	vdlTypeList47      *vdl.Type
-	vdlTypeList48      *vdl.Type
-	vdlTypeList49      *vdl.Type
-	vdlTypeList50      *vdl.Type
-	vdlTypeList51      *vdl.Type
-	vdlTypeList52      *vdl.Type
-	vdlTypeList53      *vdl.Type
-	vdlTypeList54      *vdl.Type
-	vdlTypeList55      *vdl.Type
-	vdlTypeSet56       *vdl.Type
-	vdlTypeSet57       *vdl.Type
-	vdlTypeSet58       *vdl.Type
-	vdlTypeSet59       *vdl.Type
-	vdlTypeSet60       *vdl.Type
-	vdlTypeSet61       *vdl.Type
-	vdlTypeSet62       *vdl.Type
-	vdlTypeSet63       *vdl.Type
-	vdlTypeSet64       *vdl.Type
-	vdlTypeSet65       *vdl.Type
-	vdlTypeSet66       *vdl.Type
-	vdlTypeSet67       *vdl.Type
-	vdlTypeSet68       *vdl.Type
-	vdlTypeMap69       *vdl.Type
-	vdlTypeMap70       *vdl.Type
-	vdlTypeMap71       *vdl.Type
-	vdlTypeMap72       *vdl.Type
-	vdlTypeMap73       *vdl.Type
-	vdlTypeMap74       *vdl.Type
-	vdlTypeMap75       *vdl.Type
-	vdlTypeMap76       *vdl.Type
-	vdlTypeMap77       *vdl.Type
-	vdlTypeMap78       *vdl.Type
-	vdlTypeMap79       *vdl.Type
-	vdlTypeMap80       *vdl.Type
-	vdlTypeMap81       *vdl.Type
-	vdlTypeStruct82    *vdl.Type
-	vdlTypeStruct83    *vdl.Type
-	vdlTypeStruct84    *vdl.Type
-	vdlTypeStruct85    *vdl.Type
-	vdlTypeStruct86    *vdl.Type
-	vdlTypeStruct87    *vdl.Type
-	vdlTypeStruct88    *vdl.Type
-	vdlTypeStruct89    *vdl.Type
-	vdlTypeStruct90    *vdl.Type
-	vdlTypeStruct91    *vdl.Type
-	vdlTypeStruct92    *vdl.Type
-	vdlTypeStruct93    *vdl.Type
-	vdlTypeStruct94    *vdl.Type
-	vdlTypeStruct95    *vdl.Type
-	vdlTypeStruct96    *vdl.Type
-	vdlTypeStruct97    *vdl.Type
-	vdlTypeStruct98    *vdl.Type
-	vdlTypeStruct99    *vdl.Type
-	vdlTypeStruct100   *vdl.Type
-	vdlTypeStruct101   *vdl.Type
-	vdlTypeStruct102   *vdl.Type
-	vdlTypeStruct103   *vdl.Type
-	vdlTypeStruct104   *vdl.Type
-	vdlTypeStruct105   *vdl.Type
-	vdlTypeStruct106   *vdl.Type
-	vdlTypeStruct107   *vdl.Type
-	vdlTypeStruct108   *vdl.Type
-	vdlTypeStruct109   *vdl.Type
-	vdlTypeStruct110   *vdl.Type
-	vdlTypeStruct111   *vdl.Type
-	vdlTypeStruct112   *vdl.Type
-	vdlTypeStruct113   *vdl.Type
-	vdlTypeStruct114   *vdl.Type
-	vdlTypeStruct115   *vdl.Type
-	vdlTypeUnion116    *vdl.Type
-	vdlTypeUnion117    *vdl.Type
-	vdlTypeUnion118    *vdl.Type
-	vdlTypeUnion119    *vdl.Type
-	vdlTypeUnion120    *vdl.Type
-	vdlTypeUnion121    *vdl.Type
-	vdlTypeUnion122    *vdl.Type
-	vdlTypeUnion123    *vdl.Type
-	vdlTypeUnion124    *vdl.Type
-	vdlTypeUnion125    *vdl.Type
-	vdlTypeUnion126    *vdl.Type
-	vdlTypeUnion127    *vdl.Type
-	vdlTypeUnion128    *vdl.Type
-	vdlTypeUnion129    *vdl.Type
-	vdlTypeUnion130    *vdl.Type
-	vdlTypeUnion131    *vdl.Type
-	vdlTypeUnion132    *vdl.Type
-	vdlTypeUnion133    *vdl.Type
-	vdlTypeUnion134    *vdl.Type
-	vdlTypeUnion135    *vdl.Type
-	vdlTypeUnion136    *vdl.Type
-	vdlTypeUnion137    *vdl.Type
-	vdlTypeUnion138    *vdl.Type
-	vdlTypeUnion139    *vdl.Type
-	vdlTypeUnion140    *vdl.Type
-	vdlTypeUnion141    *vdl.Type
-	vdlTypeUnion142    *vdl.Type
-	vdlTypeUnion143    *vdl.Type
-	vdlTypeUnion144    *vdl.Type
-	vdlTypeUnion145    *vdl.Type
-	vdlTypeUnion146    *vdl.Type
-	vdlTypeUnion147    *vdl.Type
-	vdlTypeUnion148    *vdl.Type
-	vdlTypeUnion149    *vdl.Type
-	vdlTypeArray150    *vdl.Type
-	vdlTypeArray151    *vdl.Type
-	vdlTypeArray152    *vdl.Type
-	vdlTypeSet153      *vdl.Type
-	vdlTypeArray154    *vdl.Type
-	vdlTypeMap155      *vdl.Type
-	vdlTypeArray156    *vdl.Type
-	vdlTypeArray157    *vdl.Type
-	vdlTypeArray158    *vdl.Type
-	vdlTypeOptional159 *vdl.Type
-	vdlTypeList160     *vdl.Type
-	vdlTypeList161     *vdl.Type
-	vdlTypeList162     *vdl.Type
-	vdlTypeList163     *vdl.Type
-	vdlTypeSet164      *vdl.Type
-	vdlTypeList165     *vdl.Type
-	vdlTypeList166     *vdl.Type
-	vdlTypeList167     *vdl.Type
-	vdlTypeList168     *vdl.Type
-	vdlTypeOptional169 *vdl.Type
-	vdlTypeSet170      *vdl.Type
-	vdlTypeSet171      *vdl.Type
-	vdlTypeSet172      *vdl.Type
-	vdlTypeMap173      *vdl.Type
-	vdlTypeMap174      *vdl.Type
-	vdlTypeMap175      *vdl.Type
-	vdlTypeStruct176   *vdl.Type
-	vdlTypeList177     *vdl.Type
-	vdlTypeSet178      *vdl.Type
-	vdlTypeMap179      *vdl.Type
-	vdlTypeOptional180 *vdl.Type
-	vdlTypeStruct181   *vdl.Type
-	vdlTypeStruct182   *vdl.Type
-	vdlTypeStruct183   *vdl.Type
-	vdlTypeStruct184   *vdl.Type
-	vdlTypeStruct185   *vdl.Type
-	vdlTypeStruct186   *vdl.Type
-	vdlTypeStruct187   *vdl.Type
-	vdlTypeStruct188   *vdl.Type
-	vdlTypeStruct189   *vdl.Type
-	vdlTypeStruct190   *vdl.Type
-	vdlTypeStruct191   *vdl.Type
-	vdlTypeStruct192   *vdl.Type
-	vdlTypeStruct193   *vdl.Type
-	vdlTypeStruct194   *vdl.Type
-	vdlTypeUnion195    *vdl.Type
-	vdlTypeMap196      *vdl.Type
-	vdlTypeUnion197    *vdl.Type
-	vdlTypeUnion198    *vdl.Type
-	vdlTypeUnion199    *vdl.Type
-	vdlTypeUnion200    *vdl.Type
-	vdlTypeUnion201    *vdl.Type
-	vdlTypeUnion202    *vdl.Type
-	vdlTypeUnion203    *vdl.Type
-	vdlTypeUnion204    *vdl.Type
-	vdlTypeUnion205    *vdl.Type
-	vdlTypeUnion206    *vdl.Type
-	vdlTypeUnion207    *vdl.Type
-	vdlTypeUnion208    *vdl.Type
-	vdlTypeUnion209    *vdl.Type
-	vdlTypeUnion210    *vdl.Type
-	vdlTypeArray211    *vdl.Type
-	vdlTypeArray212    *vdl.Type
-	vdlTypeList213     *vdl.Type
-	vdlTypeArray214    *vdl.Type
-	vdlTypeSet215      *vdl.Type
-	vdlTypeArray216    *vdl.Type
-	vdlTypeMap217      *vdl.Type
-	vdlTypeArray218    *vdl.Type
-	vdlTypeArray219    *vdl.Type
-	vdlTypeArray220    *vdl.Type
-	vdlTypeOptional221 *vdl.Type
-	vdlTypeList222     *vdl.Type
-	vdlTypeList223     *vdl.Type
-	vdlTypeList224     *vdl.Type
-	vdlTypeList225     *vdl.Type
-	vdlTypeList226     *vdl.Type
-	vdlTypeList227     *vdl.Type
-	vdlTypeList228     *vdl.Type
-	vdlTypeSet229      *vdl.Type
-	vdlTypeSet230      *vdl.Type
-	vdlTypeSet231      *vdl.Type
-	vdlTypeMap232      *vdl.Type
-	vdlTypeMap233      *vdl.Type
-	vdlTypeMap234      *vdl.Type
-	vdlTypeStruct235   *vdl.Type
-	vdlTypeList236     *vdl.Type
-	vdlTypeStruct237   *vdl.Type
-	vdlTypeStruct238   *vdl.Type
-	vdlTypeStruct239   *vdl.Type
-	vdlTypeStruct240   *vdl.Type
-	vdlTypeStruct241   *vdl.Type
-	vdlTypeStruct242   *vdl.Type
-	vdlTypeStruct243   *vdl.Type
-	vdlTypeUnion244    *vdl.Type
-	vdlTypeList245     *vdl.Type
-	vdlTypeSet246      *vdl.Type
-	vdlTypeUnion247    *vdl.Type
-	vdlTypeUnion248    *vdl.Type
-	vdlTypeUnion249    *vdl.Type
-	vdlTypeUnion250    *vdl.Type
-	vdlTypeUnion251    *vdl.Type
-	vdlTypeUnion252    *vdl.Type
-	vdlTypeUnion253    *vdl.Type
-	vdlTypeStruct254   *vdl.Type
-	vdlTypeOptional255 *vdl.Type
-	vdlTypeStruct256   *vdl.Type
-	vdlTypeOptional257 *vdl.Type
-	vdlTypeStruct258   *vdl.Type
-	vdlTypeOptional259 *vdl.Type
-	vdlTypeBool260     *vdl.Type
-	vdlTypeBool261     *vdl.Type
-	vdlTypeBool262     *vdl.Type
-	vdlTypeInt32263    *vdl.Type
-	vdlTypeInt32264    *vdl.Type
-	vdlTypeInt32265    *vdl.Type
-	vdlTypeString266   *vdl.Type
-	vdlTypeString267   *vdl.Type
-	vdlTypeArray268    *vdl.Type
-	vdlTypeArray269    *vdl.Type
-	vdlTypeList270     *vdl.Type
-	vdlTypeList271     *vdl.Type
-	vdlTypeStruct272   *vdl.Type
-	vdlTypeStruct273   *vdl.Type
-	vdlTypeStruct274   *vdl.Type
-	vdlTypeStruct275   *vdl.Type
-	vdlTypeStruct276   *vdl.Type
-	vdlTypeStruct277   *vdl.Type
-	vdlTypeUnion278    *vdl.Type
-	vdlTypeUnion279    *vdl.Type
-	vdlTypeUnion280    *vdl.Type
-	vdlTypeUnion281    *vdl.Type
-	vdlTypeUnion282    *vdl.Type
-	vdlTypeUnion283    *vdl.Type
-	vdlTypeStruct284   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

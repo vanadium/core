@@ -17,11 +17,21 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeList2   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // BlessingRootResponse is the struct representing the JSON response provided
 // by the "blessing-root" route of the identity service.
 type BlessingRootResponse struct {
@@ -258,15 +268,6 @@ var descMacaroonBlesser = rpc.InterfaceDesc{
 		},
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeList2   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

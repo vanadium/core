@@ -16,11 +16,30 @@ import (
 	vdltime "v.io/v23/vdlroot/time"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1  *vdl.Type = nil
+	vdlTypeStruct2  *vdl.Type = nil
+	vdlTypeStruct3  *vdl.Type = nil
+	vdlTypeArray4   *vdl.Type = nil
+	vdlTypeList5    *vdl.Type = nil
+	vdlTypeList6    *vdl.Type = nil
+	vdlTypeStruct7  *vdl.Type = nil
+	vdlTypeList8    *vdl.Type = nil
+	vdlTypeInt329   *vdl.Type = nil
+	vdlTypeStruct10 *vdl.Type = nil
+	vdlTypeStruct11 *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // An Annotation represents data that is relevant at a specific moment.
 // They can be attached to spans to add useful debugging information.
 type Annotation struct {
@@ -707,24 +726,6 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 const Empty = TraceFlags(0)
 const CollectInMemory = TraceFlags(1)
 const AWSXRay = TraceFlags(2)
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1  *vdl.Type
-	vdlTypeStruct2  *vdl.Type
-	vdlTypeStruct3  *vdl.Type
-	vdlTypeArray4   *vdl.Type
-	vdlTypeList5    *vdl.Type
-	vdlTypeList6    *vdl.Type
-	vdlTypeStruct7  *vdl.Type
-	vdlTypeList8    *vdl.Type
-	vdlTypeInt329   *vdl.Type
-	vdlTypeStruct10 *vdl.Type
-	vdlTypeStruct11 *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

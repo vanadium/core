@@ -15,6 +15,7 @@ import (
 	"v.io/v23/verror"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 // Error definitions
@@ -146,8 +147,6 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 	}
 	return
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

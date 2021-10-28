@@ -14,6 +14,7 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 // Const definitions
@@ -46,8 +47,6 @@ var NotRevokedCaveat = security.CaveatDescriptor{
 	},
 	ParamType: vdl.TypeOf((*[]byte)(nil)),
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

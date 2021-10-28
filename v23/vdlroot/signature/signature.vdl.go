@@ -13,11 +13,28 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1   *vdl.Type = nil
+	vdlTypeStruct2   *vdl.Type = nil
+	vdlTypeStruct3   *vdl.Type = nil
+	vdlTypeList4     *vdl.Type = nil
+	vdlTypeOptional5 *vdl.Type = nil
+	vdlTypeList6     *vdl.Type = nil
+	vdlTypeStruct7   *vdl.Type = nil
+	vdlTypeList8     *vdl.Type = nil
+	vdlTypeList9     *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // Embed describes the signature of an embedded interface.
 type Embed struct {
 	Name    string
@@ -719,22 +736,6 @@ func vdlReadAnonList4(dec vdl.Decoder, x *[]Method) error {
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1   *vdl.Type
-	vdlTypeStruct2   *vdl.Type
-	vdlTypeStruct3   *vdl.Type
-	vdlTypeList4     *vdl.Type
-	vdlTypeOptional5 *vdl.Type
-	vdlTypeList6     *vdl.Type
-	vdlTypeStruct7   *vdl.Type
-	vdlTypeList8     *vdl.Type
-	vdlTypeList9     *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

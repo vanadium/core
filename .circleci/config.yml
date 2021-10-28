@@ -76,11 +76,11 @@ workflows:
       - test-linux:
           matrix:
             parameters:
-              go: ["1.16"]
+              go: ["1.16", "1.17"]
       - test-linux-integration:
           matrix:
             parameters:
-              go: ["1.16"]
+              go: ["1.16", "1.17"]
       - lint:
           matrix:
             parameters:
