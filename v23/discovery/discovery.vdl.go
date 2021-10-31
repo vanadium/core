@@ -12,11 +12,25 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeArray1  *vdl.Type = nil
+	vdlTypeMap2    *vdl.Type = nil
+	vdlTypeMap3    *vdl.Type = nil
+	vdlTypeList4   *vdl.Type = nil
+	vdlTypeStruct5 *vdl.Type = nil
+	vdlTypeList6   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // An AdId is a globally unique identifier of an advertisement.
 type AdId [16]byte
 
@@ -364,19 +378,6 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]string) error {
 		}
 	}
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeArray1  *vdl.Type
-	vdlTypeMap2    *vdl.Type
-	vdlTypeMap3    *vdl.Type
-	vdlTypeList4   *vdl.Type
-	vdlTypeStruct5 *vdl.Type
-	vdlTypeList6   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

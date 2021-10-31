@@ -21,6 +21,7 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 // Interface definitions
@@ -475,8 +476,6 @@ type implPProfCpuProfileServerCallSend struct {
 func (s implPProfCpuProfileServerCallSend) Send(item []byte) error {
 	return s.s.Send(item)
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

@@ -15,11 +15,21 @@ import (
 	"v.io/v23/vom"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeStruct1 *vdl.Type = nil
+	vdlTypeByte2   *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // vdlEntry represents a test entry, which contains a value and hex bytes.  The
 // hex bytes represent the golden vom encoding of the value.  Encoding tests
 // encode the value and expect to get the hex bytes, while decoding tests decode
@@ -15841,15 +15851,6 @@ var pass81 = []vdlEntry{
 		HexValue: "521300fff50100fff50100fff50100fff5e1e1e1e1",
 	},
 }
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeStruct1 *vdl.Type
-	vdlTypeByte2   *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

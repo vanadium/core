@@ -9,7 +9,11 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+<<<<<<< HEAD
 	"runtime"
+=======
+	"sync"
+>>>>>>> master
 	"testing"
 
 	"github.com/aws/aws-xray-sdk-go/strategy/sampling"
@@ -27,11 +31,14 @@ import (
 )
 
 type emitter struct {
+	mu   sync.Mutex
 	segs []*xray.Segment
 }
 
 func (e *emitter) Emit(seg *xray.Segment) {
+	e.mu.Lock()
 	e.segs = append(e.segs, seg)
+	e.mu.Unlock()
 }
 
 func (e *emitter) RefreshEmitterWithAddress(raddr *net.UDPAddr) {}

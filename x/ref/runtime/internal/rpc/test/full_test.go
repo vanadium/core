@@ -1311,8 +1311,7 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 		v23.GetPrincipal(ctx).PublicKey(),
 		"mountpoint/dischargeserver",
 		security.UnconstrainedUse()))
-
-	ed := &expiryDischarger{}
+	ed := &expiryDischarger{expiry: 500 * time.Millisecond}
 	_, _, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", ed, security.AllowEveryone())
 	if err != nil {
 		t.Fatal(err)
@@ -1331,8 +1330,10 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	defer func() { <-server.Closed() }()
 	defer cancel()
 
+	waitForNames(t, cctx, true, "mountpoint/server")
+
 	// Make a call to create a connection. We don't care if the call succeeds,
-	// we just want to make sure that we fetch discharges more than once.	var got string
+	// we just want to make sure that we fetch discharges more than once.
 	var got string
 	if err := v23.GetClient(cctx).Call(cctx, "mountpoint/server/aclAuth", "Echo", []interface{}{"batman"}, []interface{}{&got}, options.NoRetry{}); err != nil {
 		t.Fatal(err)

@@ -13,6 +13,7 @@ import (
 	"v.io/v23/vom/testdata/types"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
 
 // Const definitions
@@ -3439,8 +3440,6 @@ var ConvertTests = map[string][]types.ConvertGroup{
 		},
 	},
 }
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim
