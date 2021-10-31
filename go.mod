@@ -1,6 +1,6 @@
 module v.io
 
-go 1.13
+go 1.16
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
@@ -10,7 +10,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.4.3
-	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/kr/pty v1.1.8
@@ -28,7 +27,6 @@ require (
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.9.0
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.36.0 // indirect
 	v.io/x/lib v0.1.9-0.20211024215516-20d9c1130cef
 	v.io/x/ref/internal/logger v0.1.1
@@ -38,11 +36,3 @@ require (
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
 replace v.io/x/ref/internal/logger => ./x/ref/internal/logger
-
-replace golang.org/x/sys => golang.org/x/sys v0.0.0-20200519105757-fe76b779f299
-
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
-replace github.com/golang/protobuf => github.com/golang/protobuf v1.3.3
-
-replace google.golang.org/genproto => google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64
