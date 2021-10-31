@@ -71,6 +71,8 @@ func init() {
 }
 
 func (e *emitter) validateSegments(names []string) error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if got, want := len(e.segs), len(names); got != want {
 		return fmt.Errorf("# segments: got %v, want %v", got, want)
 	}
