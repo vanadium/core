@@ -62,6 +62,29 @@ type xrayspan struct {
 	subseg bool
 	mgr    *manager
 	seg    *xray.Segment
+
+	// The xray SDK holds onto goroutines until the ctx it is called with is
+	// canceled: see https://github.com/aws/aws-xray-sdk-go/issues/51 for how
+	// this leads to goroutine leaks. This forces client code of this SDK to
+	// ensure that the ctx passed in to it is canceled in a timely manner.
+	// For the manager implementation here, a new context is created purely
+	// for passing in to the xray SDK and this context is canceled when
+	// its Finish method is called. The cancel method is stored in field below.
+	// The affected code uses 'xraybugctx' as the variable name of the specifically
+	// created context. This is clearly a bug in the xray SDK and if that ever
+	// gets fixed then this code can be removed.
+	cancel func()
+}
+
+func newXraySpan(ctx *context.T, cancel func(), vspan vtrace.Span, mgr *manager, seg *xray.Segment, subseg bool) *xrayspan {
+	return &xrayspan{
+		Span:   vspan,
+		cancel: cancel,
+		ctx:    ctx,
+		mgr:    mgr,
+		seg:    seg,
+		subseg: subseg,
+	}
 }
 
 func (xs *xrayspan) Annotate(msg string) {
@@ -92,6 +115,10 @@ func (xs *xrayspan) AnnotateMetadata(key string, value interface{}, indexed bool
 }
 
 func segJSON(seg *xray.Segment) string {
+	// Need to look the segment to prevent concurrent read/writes to the
+	// annotations etc.
+	seg.RLock()
+	defer seg.RUnlock()
 	out := strings.Builder{}
 	enc := json.NewEncoder(&out)
 	enc.SetIndent("  ", "  ")
@@ -122,24 +149,18 @@ func (xs *xrayspan) Finish(err error) {
 	}
 	xseg := xs.seg
 	xs.mgr.annotateSegment(xseg, xs.subseg)
-	/*	if an := xseg.Annotations; !xs.subseg && xs.mapToHTTP && an != nil {
-		if xseg.HTTP == nil || xseg.HTTP.Request == nil {
-			// Only create fake http fields if they have not already been set.
-			hd := xseg.GetHTTP()
-			req := hd.GetRequest()
-			mapAnnotation(an, "name", &req.URL)
-			mapAnnotation(an, "method", &req.Method)
-			mapAnnotation(an, "clientAddr", &req.ClientIP)
-			req.UserAgent = "vanadium"
-		}
-	}*/
 	if xs.subseg {
 		xseg.CloseAndStream(err)
 	} else {
 		xseg.Close(err)
 	}
-	xs.ctx.VI(1).Infof("Finish: sampled %v, %v", xseg.Sampled, segJSON(xseg))
+	if xs.ctx.V(1) {
+		xs.ctx.Infof("Finish: sampled %v, %v", xseg.Sampled, segJSON(xseg))
+	}
 	xs.Span.Finish(err)
+	if xs.cancel != nil {
+		xs.cancel()
+	}
 }
 
 // WithNewTrace creates a new vtrace context that is not the child of any
@@ -147,14 +168,26 @@ func (xs *xrayspan) Finish(err error) {
 // disconnected from the activity ctx is performing. For example
 // this might be used to start background tasks.
 func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingRequest) (*context.T, vtrace.Span) {
+	st := vtrace.GetStore(ctx)
+	if st == nil {
+		panic("nil store")
+	}
+
 	id, err := uniqueid.Random()
 	if err != nil {
 		ctx.Errorf("vtrace: couldn't generate Trace Id, debug data may be lost: %v", err)
 	}
-	newSpan, err := libvtrace.NewSpan(id, id, name, vtrace.GetStore(ctx))
+
+	newSpan, err := libvtrace.NewSpan(id, id, name, st)
 	if err != nil {
 		ctx.Error(err)
 	}
+
+	if st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
+		// The underlying store is not configured to use xray.
+		return vtrace.WithSpan(ctx, newSpan), newSpan
+	}
+
 	tid := xray.NewTraceID()
 	hdr := &header.Header{
 		TraceID: tid,
@@ -162,9 +195,10 @@ func (m *manager) WithNewTrace(ctx *context.T, name string, sr *vtrace.SamplingR
 	ctx = WithTraceHeader(ctx, hdr)
 	name = sanitizeName(name)
 	sampling := translateSamplingHeader(sr)
-	_, seg := xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
+	xraybugctx, cancel := context.WithCancel(ctx) // Workaround xray SDK leak.
+	_, seg := xray.NewSegmentFromHeader(xraybugctx, name, sampling, hdr)
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg}
+	xs := newXraySpan(ctx, cancel, newSpan, m, seg, false)
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -218,6 +252,9 @@ func getTraceID(seg *xray.Segment) string {
 	return seg.TraceID
 }
 
+// newSegment assumes that ctx is created specifically for passing to the
+// xray functions and that this ctx will be be canceled when the span is
+// finished with.
 func newSegment(ctx *context.T, name string, sampling *http.Request) (seg *xray.Segment, sub bool) {
 	sanitized := sanitizeName(name)
 	seg = GetSegment(ctx)
@@ -261,24 +298,33 @@ func (m *manager) WithContinuedTrace(ctx *context.T, name string, sr *vtrace.Sam
 		ctx.Error(err)
 	}
 
+	if req.Flags&vtrace.AWSXRay == 0 || st.Flags(uniqueid.Id{})&vtrace.AWSXRay == 0 {
+		// The request or the underlying store is not configured to use xray.
+		return vtrace.WithSpan(ctx, newSpan), newSpan
+	}
+
 	sampling := translateSamplingHeader(sr)
 
 	name = sanitizeName(name)
 	var seg *xray.Segment
 	var sub bool
+	var cancel func()
+	var xrtaybugctx *context.T
 	if req.Flags&vtrace.AWSXRay != 0 && len(req.RequestMetadata) > 0 {
 		reqHdr := string(req.RequestMetadata)
 		hdr := header.FromString(reqHdr)
 		ctx = WithTraceHeader(ctx, hdr)
-		_, seg = xray.NewSegmentFromHeader(ctx, name, sampling, hdr)
+		xrtaybugctx, cancel = context.WithCancel(ctx)
+		_, seg = xray.NewSegmentFromHeader(xrtaybugctx, name, sampling, hdr)
 		ctx.VI(1).Infof("WithContinuedTrace: new seg from header %v / %v: %v", hdr.TraceID, hdr.ParentID, segStr(seg))
 	} else {
-		seg, sub = newSegment(ctx, name, sampling)
+		xrtaybugctx, cancel = context.WithCancel(ctx)
+		seg, sub = newSegment(xrtaybugctx, name, sampling)
 		ctx.VI(1).Infof("WithContinuedTrace: new seg: %v", segStr(seg))
 	}
 
 	ctx = WithSegment(ctx, seg)
-	xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg, subseg: sub}
+	xs := newXraySpan(ctx, cancel, newSpan, m, seg, sub)
 	return vtrace.WithSpan(ctx, xs), xs
 }
 
@@ -293,10 +339,11 @@ func (m *manager) WithNewSpan(ctx *context.T, name string) (*context.T, vtrace.S
 		if err != nil {
 			ctx.Error(err)
 		}
-		seg, sub := newSegment(ctx, name, nil)
+		xraybugctx, cancel := context.WithCancel(ctx)
+		seg, sub := newSegment(xraybugctx, name, nil)
 		ctx.VI(1).Infof("WithNewSpan: new seg: %v", segStr(seg))
 		ctx = WithSegment(ctx, seg)
-		xs := &xrayspan{Span: newSpan, ctx: ctx, mgr: m, seg: seg, subseg: sub}
+		xs := newXraySpan(ctx, cancel, newSpan, m, seg, sub)
 		return vtrace.WithSpan(ctx, xs), xs
 	}
 	ctx.Error("vtrace: creating a new child span from context with no existing span.")
