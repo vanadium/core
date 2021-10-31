@@ -14,7 +14,7 @@ jobs:
       - run:
           name: goimports
           command: |
-            go get golang.org/x/tools/cmd/goimports@92778473c2e6
+            go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
       - run:
           name: vdlpath
@@ -33,7 +33,7 @@ jobs:
       - run:
           name: goimports
           command: |
-            go get golang.org/x/tools/cmd/goimports@92778473c2e6
+            go get golang.org/x/tools/cmd/goimports
             go install -x golang.org/x/tools/cmd/goimports
       - run:
           name: openssl

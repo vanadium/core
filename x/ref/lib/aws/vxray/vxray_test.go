@@ -9,11 +9,8 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-<<<<<<< HEAD
 	"runtime"
-=======
 	"sync"
->>>>>>> master
 	"testing"
 
 	"github.com/aws/aws-xray-sdk-go/strategy/sampling"
