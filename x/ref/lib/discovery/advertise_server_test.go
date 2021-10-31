@@ -65,7 +65,7 @@ func TestAdvertiseServer(t *testing.T) {
 	for _, eps := range tests {
 		mockServer.UpdateNetwork(eps)
 
-		newAd = withNewAddresses(&ad, eps, suffix)
+		newAd = withNewAddresses(&nad, eps, suffix)
 		if err := testutil.ScanAndMatch(ctx, d, "", newAd); err != nil {
 			t.Error(err)
 		}
