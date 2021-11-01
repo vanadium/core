@@ -64,6 +64,10 @@ func (p *CallParams) Copy(c Call) {
 }
 
 func copyDischargeMap(discharges map[string]Discharge) map[string]Discharge {
+	// avoid unnecessary allocation.
+	if len(discharges) == 0 {
+		return nil
+	}
 	ret := make(map[string]Discharge, len(discharges))
 	for id, d := range discharges {
 		ret[id] = d

@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"math/big"
 	"net"
 	"os"
 	"strings"
@@ -149,11 +150,17 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 		return nil, fmt.Errorf("failed to parse public key for %v: %v", key, err)
 	}
 	var vpk security.PublicKey
+	var impl signImpl
 	switch pk.Type() {
 	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
 		vpk, err = internal.FromECDSAKey(pk)
+		impl = ecdsaSign
 	case ssh.KeyAlgoED25519:
 		vpk, err = internal.FromED25512Key(pk)
+		impl = ed25519Sign
+	case ssh.KeyAlgoRSA:
+		vpk, err = internal.FromRSAKey(pk)
+		impl = rsaSign
 	default:
 		return nil, fmt.Errorf("unsupported ssh key key type %v", pk.Type())
 	}
@@ -166,7 +173,9 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 		sshPK:      pk,
 		v23PK:      vpk,
 		key:        k,
-		name:       ssh.FingerprintSHA256(key)}, nil
+		name:       ssh.FingerprintSHA256(key),
+		impl:       impl,
+	}, nil
 }
 
 // Close implements signing.Service.
@@ -191,7 +200,7 @@ func (ac *Client) lookup(key ssh.PublicKey, comment string) (*agent.Key, error) 
 	return nil, fmt.Errorf("key not found: %v %v ", ssh.FingerprintSHA256(key), comment)
 }
 
-func (ac *Client) ecdsaSign(sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
+func ecdsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
 	digest, digestType, err := internal.DigestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
@@ -200,19 +209,21 @@ func (ac *Client) ecdsaSign(sshPK ssh.PublicKey, v23PK, purpose, message []byte,
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", name, err)
 	}
-	r, s, err := internal.UnmarshalSSHECDSASignature(sig)
-	if err != nil {
-		return security.Signature{}, err
+	var ecSig struct {
+		R, S *big.Int
+	}
+	if err := ssh.Unmarshal(sig.Blob, &ecSig); err != nil {
+		return security.Signature{}, fmt.Errorf("failed to unmarshal ECDSA signature: %v", err)
 	}
 	return security.Signature{
 		Purpose: purpose,
 		Hash:    digestType,
-		R:       r,
-		S:       s,
+		R:       ecSig.R.Bytes(),
+		S:       ecSig.S.Bytes(),
 	}, nil
 }
 
-func (ac *Client) ed25519Sign(sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
+func ed25519Sign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
 	digest, digestType, err := internal.HashedDigestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
@@ -228,21 +239,23 @@ func (ac *Client) ed25519Sign(sshPK ssh.PublicKey, v23PK, purpose, message []byt
 	}, nil
 }
 
-func (ac *Client) sign(purpose, message []byte, name string, sshPK ssh.PublicKey, v23PK security.PublicKey) (security.Signature, error) {
-	keyBytes, err := v23PK.MarshalBinary()
+func rsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
+	digest, digestType, err := internal.DigestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("failed to marshal public key: %v", v23PK)
+		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
-	switch sshPK.Type() {
-	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
-		return ac.ecdsaSign(sshPK, keyBytes, purpose, message, name)
-	case ssh.KeyAlgoED25519:
-		return ac.ed25519Sign(sshPK, keyBytes, purpose, message, name)
-	default:
-		return security.Signature{}, fmt.Errorf("unsupported key type: %v", sshPK.Type())
+	sig, err := ac.agent.SignWithFlags(sshPK, digest, agent.SignatureFlagRsaSha512)
+	if err != nil {
+		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", name, err)
 	}
+	return security.Signature{
+		Purpose: purpose,
+		Hash:    digestType,
+		Rsa:     sig.Blob,
+	}, nil
 }
 
+type signImpl func(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error)
 type signer struct {
 	service    *Client
 	passphrase []byte
@@ -250,6 +263,7 @@ type signer struct {
 	sshPK      ssh.PublicKey
 	v23PK      security.PublicKey
 	key        *agent.Key
+	impl       signImpl
 }
 
 // Sign implements security.Signer.
@@ -261,7 +275,11 @@ func (sn *signer) Sign(purpose, message []byte) (sig security.Signature, err err
 	defer func() {
 		err = relock(err)
 	}()
-	return sn.service.sign(purpose, message, sn.name, sn.sshPK, sn.v23PK)
+	keyBytes, err := sn.v23PK.MarshalBinary()
+	if err != nil {
+		return security.Signature{}, fmt.Errorf("failed to marshal public key: %v", sn.v23PK)
+	}
+	return sn.impl(sn.service, sn.sshPK, keyBytes, purpose, message, sn.name)
 }
 
 // PublicKey implements security.PublicKey.

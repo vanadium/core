@@ -11,6 +11,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
 	"testing"
 	"time"
@@ -133,6 +134,28 @@ func NewED25519Signer(t testing.TB) security.Signer {
 	return signer
 }
 
+// NewRSASigner2048 creates a new RSA signer with a 2048 bit key.
+func NewRSASigner2048(t testing.TB) security.Signer {
+	return NewRSASigner(t, 2048)
+}
+
+// NewRSASigner4096 creates a new RSA signer with a 4096 bit key.
+func NewRSASigner4096(t testing.TB) security.Signer {
+	return NewRSASigner(t, 4096)
+}
+
+func NewRSASigner(t testing.TB, bits int) security.Signer {
+	key, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		t.Fatalf("Failed to generate RSA key: %v with %v bits", err, bits)
+	}
+	signer, err := security.NewInMemoryRSASigner(key)
+	if err != nil {
+		t.Fatalf("Failed to generate ED25519 signer: %v", err)
+	}
+	return signer
+}
+
 // NewPrincipal creates a new security.Principal using the supplied signer,
 // blessings store and roots.
 func NewPrincipal(t testing.TB, signer security.Signer, store security.BlessingStore, roots security.BlessingRoots) security.Principal {
@@ -177,6 +200,15 @@ func NewECDSAPrincipalP256(t testing.TB) security.Principal {
 func NewED25519Principal(t testing.TB) security.Principal {
 	return NewPrincipal(t,
 		NewED25519Signer(t),
+		nil,
+		&Roots{},
+	)
+}
+
+// NewRSAPrincipal returns a new RSA based principal using &Roots{}.
+func NewRSAPrincipal(t testing.TB) security.Principal {
+	return NewPrincipal(t,
+		NewRSASigner(t, 4096),
 		nil,
 		&Roots{},
 	)
@@ -259,6 +291,22 @@ func AddToRoots(t *testing.T, p security.Principal, b security.Blessings) {
 	if err := security.AddToRoots(p, b); err != nil {
 		t.Fatal(err)
 	}
+}
+
+// GenPurposeAndMessage generates a random purpose and message of the
+// the requested size.
+func GenPurposeAndMessage(psize, msize int) (purpose, message []byte) {
+	purpose = make([]byte, 5)
+	message = make([]byte, 100)
+	if _, err := rand.Reader.Read(purpose); err != nil {
+		panic(err)
+	}
+	if _, err := rand.Reader.Read(message); err != nil {
+		panic(err)
+	}
+	purpose = []byte("test")
+	message = []byte("hello there")
+	return
 }
 
 func init() {

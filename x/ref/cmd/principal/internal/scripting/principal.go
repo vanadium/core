@@ -35,6 +35,25 @@ func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error
 	return seclib.NewSSHAgentHostedKey(publicKeyFile)
 }
 
+func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
+	sslKeyFile = os.ExpandEnv(sslKeyFile)
+	var privateKey crypto.PrivateKey
+	var pass []byte
+	for {
+		key, err := seclib.ParsePEMPrivateKeyFile(sslKeyFile, pass)
+		if err == nil {
+			privateKey = key
+			break
+		}
+		if err == seclib.ErrPassphraseRequired || err == seclib.ErrBadPassphrase {
+			pass, _ = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", sslKeyFile))
+			continue
+		}
+		return nil, err
+	}
+	return privateKey, nil
+}
+
 func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) {
 	kt, ok := internal.IsSupportedKeyType(keyType)
 	if !ok {
@@ -144,6 +163,8 @@ func init() {
 	slang.RegisterFunction(usePrincipal, "principal", `Use the principal stored in the specified directory.  Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(usePublicKey, "principal", `Use the public key of the principal stored in the specified directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
+
+	slang.RegisterFunction(useSSLKey, "principal", `Use the private/public key of the principal specified SSL/TLS key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
 

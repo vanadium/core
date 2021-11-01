@@ -37,7 +37,9 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 
 // CreatePrincipalPublicKeyOnly returns a Principal that cannot sign new blessings
 // and has only the public key portion of the original key pair used to create
-// it.
+// it. Such a principal is intended for use in situations where only signature
+// verification is required and with no need/ability for RPC based communication
+// since that requires signing capability.
 func CreatePrincipalPublicKeyOnly(publicKey PublicKey, store BlessingStore, roots BlessingRoots) (Principal, error) {
 	if store == nil {
 		store = errStore{publicKey}
@@ -125,6 +127,9 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 	newchains := make([][]Certificate, len(chains))
 	newdigests := make([][]byte, len(chains))
 	for idx, chain := range chains {
+		if p.signer == nil {
+			return Blessings{}, fmt.Errorf("underlying signer is nil")
+		}
 		if newchains[idx], newdigests[idx], err = chainCertificate(p.signer, chain, *cert); err != nil {
 			return Blessings{}, err
 		}

@@ -490,11 +490,13 @@ type Signature struct {
 	Purpose []byte
 	// Cryptographic hash function applied to the message before computing the signature.
 	Hash Hash
-	// Pair of integers that make up an ECDSA signature, they will be nil for and ed25519 signature.
+	// Pair of integers that make up an ECDSA signature, it will be nil otherwise.
 	R []byte
 	S []byte
-	// Ed25519 contains an ed25519 signature, it will be nil for an ecdsa signature.
+	// Ed25519 contains an ed25519 signature, it will be nil otherwise.
 	Ed25519 []byte
+	// RSA contains an RSA signature, it will be nil otherewise.
+	Rsa []byte
 }
 
 func (Signature) VDLReflect(struct {
@@ -516,6 +518,9 @@ func (x Signature) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.Ed25519) != 0 {
+		return false
+	}
+	if len(x.Rsa) != 0 {
 		return false
 	}
 	return true
@@ -547,6 +552,11 @@ func (x Signature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 	}
 	if len(x.Ed25519) != 0 {
 		if err := enc.NextFieldValueBytes(4, vdlTypeList4, x.Ed25519); err != nil {
+			return err
+		}
+	}
+	if len(x.Rsa) != 0 {
+		if err := enc.NextFieldValueBytes(5, vdlTypeList4, x.Rsa); err != nil {
 			return err
 		}
 	}
@@ -601,6 +611,10 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			}
 		case 4:
 			if err := dec.ReadValueBytes(-1, &x.Ed25519); err != nil {
+				return err
+			}
+		case 5:
+			if err := dec.ReadValueBytes(-1, &x.Rsa); err != nil {
 				return err
 			}
 		}

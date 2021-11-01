@@ -12,8 +12,6 @@ package security
 // #include <openssl/ec.h>
 // #include <openssl/err.h>
 // #include <openssl/x509.h>
-//
-// EC_KEY* openssl_d2i_EC_PUBKEY(const unsigned char* data, long len, unsigned long* e);
 import "C"
 
 import (
@@ -22,6 +20,9 @@ import (
 )
 
 func opensslMakeError(errno C.ulong) error {
+	if errno == 0 {
+		return nil
+	}
 	return fmt.Errorf("OpenSSL error (%v): %v in %v:%v",
 		errno,
 		C.GoString(C.ERR_func_error_string(errno)),
@@ -63,4 +64,36 @@ func opensslGetErrors() error {
 		err = fmt.Errorf("%v\n%v", err, nerr)
 	}
 	return err
+}
+
+func opensslHash(h Hash) *C.EVP_MD {
+	switch h {
+	case SHA1Hash:
+		return C.EVP_sha1()
+	case SHA256Hash:
+		return C.EVP_sha256()
+	case SHA384Hash:
+		return C.EVP_sha384()
+	case SHA512Hash:
+		return C.EVP_sha512()
+	}
+	panic(fmt.Sprintf("unsupported hash function %v", h))
+}
+
+type opensslPublicKeyCommon struct {
+	k  *C.EVP_PKEY
+	oh *C.EVP_MD
+	publicKeyCommon
+}
+
+func newOpensslPublicKeyCommon(h Hash, key interface{}) opensslPublicKeyCommon {
+	pc := newPublicKeyCommon(h, key)
+	if pc.keyBytesErr != nil {
+		return opensslPublicKeyCommon{}
+	}
+	oh := opensslHash(h)
+	return opensslPublicKeyCommon{
+		oh:              oh,
+		publicKeyCommon: pc,
+	}
 }

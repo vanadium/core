@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/md5"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding"
 	"fmt"
@@ -30,26 +31,12 @@ type PublicKey interface {
 	// happy with a 256-bit hash function.
 	hash() Hash
 
+	messageDigest(purpose, message []byte) []byte
+
 	// verify returns true iff signature was created by the corresponding
 	// private key when signing the provided message digest (obtained by
 	// the messageDigest function).
 	verify(digest []byte, signature *Signature) bool
-}
-
-func publicKeyString(pk encoding.BinaryMarshaler) string {
-	bytes, err := pk.MarshalBinary()
-	if err != nil {
-		return fmt.Sprintf("<invalid public key: %v>", err)
-	}
-	const hextable = "0123456789abcdef"
-	hash := md5.Sum(bytes)
-	var repr [md5.Size * 3]byte
-	for i, v := range hash {
-		repr[i*3] = hextable[v>>4]
-		repr[i*3+1] = hextable[v&0x0f]
-		repr[i*3+2] = ':'
-	}
-	return string(repr[:len(repr)-1])
 }
 
 // UnmarshalPublicKey returns a PublicKey object from the DER-encoded PKIX
@@ -64,7 +51,49 @@ func UnmarshalPublicKey(bytes []byte) (PublicKey, error) {
 		return newECDSAPublicKeyImpl(v), nil
 	case ed25519.PublicKey:
 		return newED25519PublicKeyImpl(v), nil
+	case *rsa.PublicKey:
+		return newRSAPublicKeyImpl(v), nil
 	default:
 		return nil, fmt.Errorf("unrecognized PublicKey type %T", key)
 	}
+}
+
+type publicKeyCommon struct {
+	keyBytes    []byte
+	keyBytesErr error
+	h           Hash
+}
+
+func newPublicKeyCommon(h Hash, key interface{}) publicKeyCommon {
+	kb, kbe := x509.MarshalPKIXPublicKey(key)
+	return publicKeyCommon{
+		keyBytes:    kb,
+		keyBytesErr: kbe,
+		h:           h,
+	}
+}
+
+func (pk publicKeyCommon) hash() Hash {
+	return pk.h
+}
+
+func (pk publicKeyCommon) MarshalBinary() ([]byte, error) {
+	if err := pk.keyBytesErr; err != nil {
+		return nil, err
+	}
+	n := make([]byte, len(pk.keyBytes))
+	copy(n, pk.keyBytes)
+	return n, nil
+}
+
+func (pk publicKeyCommon) String() string {
+	const hextable = "0123456789abcdef"
+	hash := md5.Sum(pk.keyBytes)
+	var repr [md5.Size * 3]byte
+	for i, v := range hash {
+		repr[i*3] = hextable[v>>4]
+		repr[i*3+1] = hextable[v&0x0f]
+		repr[i*3+2] = ':'
+	}
+	return string(repr[:len(repr)-1])
 }

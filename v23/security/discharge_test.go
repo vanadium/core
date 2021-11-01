@@ -7,6 +7,7 @@ package security_test
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"v.io/v23/context"
 	"v.io/v23/internal/sectest"
@@ -21,9 +22,14 @@ func TestDischargeToAndFromWireED25519(t *testing.T) {
 	testDischargeToAndFromWire(t, sectest.NewED25519Principal(t))
 }
 
+func TestDischargeToAndFromWireRSA(t *testing.T) {
+	testDischargeToAndFromWire(t, sectest.NewRSAPrincipal(t))
+}
+
 func testDischargeToAndFromWire(t *testing.T, p security.Principal) {
 	cav := sectest.NewPublicKeyUnconstrainedCaveat(t, p, "peoria")
-	discharge, err := p.MintDischarge(cav, security.UnconstrainedUse())
+	cav3p, _ := security.NewPublicKeyCaveat(p.PublicKey(), "somewhere", security.ThirdPartyRequirements{}, sectest.NewExpiryCaveat(t, time.Now().Add(time.Second)))
+	discharge, err := p.MintDischarge(cav, security.UnconstrainedUse(), cav3p)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,6 +52,19 @@ func testDischargeToAndFromWire(t *testing.T, p security.Principal) {
 	if err := sectest.RoundTrip(wire2, &d3); err != nil || !reflect.DeepEqual(discharge, d3) {
 		t.Errorf("Got (%#v, %v) want (%#v, nil)", d3, err, discharge)
 	}
+
+	if !d3.Equivalent(d2) {
+		t.Errorf("discharges are not equivalent after wire roundtrip")
+	}
+
+	tpc := d3.ThirdPartyCaveats()
+	if got, want := len(tpc), 1; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := tpc[0].ID(), cav3p.ThirdPartyDetails().ID(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
 }
 func TestDischargeSignatureCachingECDSA(t *testing.T) {
 	testDischargeSignatureCaching(t,
@@ -54,19 +73,23 @@ func TestDischargeSignatureCachingECDSA(t *testing.T) {
 	)
 }
 
-func TestDischargeSignatureCachingED25519(t *testing.T) {
-	testDischargeSignatureCaching(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t))
-}
-
 func TestDischargeSignatureCaching(t *testing.T) {
+	rsaPrincipal := sectest.NewRSAPrincipal(t)
 	testDischargeSignatureCaching(t,
 		sectest.NewECDSAPrincipalP256(t),
 		sectest.NewED25519Principal(t))
 	testDischargeSignatureCaching(t,
 		sectest.NewED25519Principal(t),
 		sectest.NewECDSAPrincipalP256(t))
+	testDischargeSignatureCaching(t,
+		rsaPrincipal,
+		sectest.NewECDSAPrincipalP256(t))
+	testDischargeSignatureCaching(t,
+		rsaPrincipal,
+		sectest.NewED25519Principal(t))
+	testDischargeSignatureCaching(t,
+		sectest.NewED25519Principal(t),
+		rsaPrincipal)
 }
 
 func testDischargeSignatureCaching(t *testing.T, p1, p2 security.Principal) {
@@ -104,6 +127,10 @@ func BenchmarkDischargeEqualityECDSA(b *testing.B) {
 
 func BenchmarkDischargeEqualityED25519(b *testing.B) {
 	benchmarkDischargeEquality(b, sectest.NewED25519Signer(b))
+}
+
+func BenchmarkDischargeEqualityRSA2048(b *testing.B) {
+	benchmarkDischargeEquality(b, sectest.NewRSASigner2048(b))
 }
 
 func benchmarkDischargeEquality(b *testing.B, signer security.Signer) {
@@ -162,10 +189,17 @@ func BenchmarkPublicKeyDischargeVerificationCachedED25519(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewED25519Signer(b))
 }
 
+func BenchmarkPublicKeyDischargeVerificationCachedRSA2048(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewRSASigner2048(b))
+}
 func BenchmarkPublicKeyDischargeVerificationECDSA(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewECDSASignerP256(b))
 }
 
 func BenchmarkPublicKeyDischargeVerificationED25519(b *testing.B) {
 	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewED25519Signer(b))
+}
+
+func BenchmarkPublicKeyDischargeVerificationRSA2048(b *testing.B) {
+	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewRSASigner2048(b))
 }

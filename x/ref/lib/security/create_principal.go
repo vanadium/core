@@ -42,7 +42,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 //
 // The specified directory may not exist, in which case it will be created.
 // The follow key types are supported:
-// *ecdsa.PrivateKey, ed25519.PrivateKey and SSHAgentHostedKey.
+// *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey and SSHAgentHostedKey.
 func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
 	unlock, err := initAndLockPrincipalDir(dir)
 	if err != nil {

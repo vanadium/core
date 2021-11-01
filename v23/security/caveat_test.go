@@ -27,6 +27,10 @@ func TestStandardCaveatFactoriesED25519(t *testing.T) {
 	testStandardCaveatFactories(t, sectest.NewED25519Principal(t))
 }
 
+func TestStandardCaveatFactoriesRSA(t *testing.T) {
+	testStandardCaveatFactories(t, sectest.NewRSAPrincipal(t))
+}
+
 func testStandardCaveatFactories(t *testing.T, self security.Principal) {
 	var (
 		balice, _ = security.UnionOfBlessings(
@@ -97,13 +101,6 @@ func TestPublicKeyThirdPartyCaveatECDSA(t *testing.T) {
 	)
 }
 
-func TestPublicKeyThirdPartyCaveatED25519(t *testing.T) {
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestPublicKeyThirdPartyCaveat(t *testing.T) {
 	testPublicKeyThirdPartyCaveat(t,
 		sectest.NewECDSAPrincipalP256(t),
@@ -112,6 +109,14 @@ func TestPublicKeyThirdPartyCaveat(t *testing.T) {
 	testPublicKeyThirdPartyCaveat(t,
 		sectest.NewED25519Principal(t),
 		sectest.NewECDSAPrincipalP256(t),
+	)
+	testPublicKeyThirdPartyCaveat(t,
+		sectest.NewRSAPrincipal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+	testPublicKeyThirdPartyCaveat(t,
+		sectest.NewED25519Principal(t),
+		sectest.NewRSAPrincipal(t),
 	)
 }
 
@@ -315,6 +320,10 @@ func TestThirdPartyDetailsED25519(t *testing.T) {
 	testThirdPartyDetails(t, sectest.NewED25519Principal(t))
 }
 
+func TestThirdPartyDetailsRSA(t *testing.T) {
+	testThirdPartyDetails(t, sectest.NewRSAPrincipal(t))
+}
+
 func testThirdPartyDetails(t *testing.T, p security.Principal) {
 	niltests := []security.Caveat{
 		sectest.NewExpiryCaveat(t, time.Now()),
@@ -343,6 +352,10 @@ func TestPublicKeyDischargeExpiryECDSA(t *testing.T) {
 
 func TestPublicKeyDischargeExpiryED25519(t *testing.T) {
 	testPublicKeyDischargeExpiry(t, sectest.NewED25519Principal(t))
+}
+
+func TestPublicKeyDischargeExpiryRSA(t *testing.T) {
+	testPublicKeyDischargeExpiry(t, sectest.NewRSAPrincipal(t))
 }
 
 func testPublicKeyDischargeExpiry(t *testing.T, discharger security.Principal) {
