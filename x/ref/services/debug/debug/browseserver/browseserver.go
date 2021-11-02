@@ -168,6 +168,7 @@ func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadD
 		return io.ReadAll(f)
 	}
 
+	// Pre-render the templates and cache the results.
 	h.cacheMap = make(map[string]*template.Template)
 	entries, err := assets.ReadDir("")
 	if err != nil {

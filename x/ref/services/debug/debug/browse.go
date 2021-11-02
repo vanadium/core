@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/fs"
+	"os"
 	"strings"
 	"time"
 
@@ -180,9 +181,9 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 		<-signals.ShutdownOnSignals(ctx)
 		cancel()
 	}()
-	var assets fs.FS
+	var assets fs.ReadDirFS
 	if len(flagBrowseAssets) > 0 {
-
+		assets = os.DirFS(flagBrowseAssets)
 	}
 	return browseserver.Serve(ctx, flagBrowseAddr, name, timeout, assets, flagBrowseLog)
 }
