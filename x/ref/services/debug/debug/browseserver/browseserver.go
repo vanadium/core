@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"html"
 	"html/template"
-	"io"
 	"io/fs"
 	"net"
 	"net/http"
@@ -24,6 +23,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	v23 "v.io/v23"
@@ -62,7 +62,7 @@ const (
 // various handlers make rpc calls to the given name to gather debug information.  If log is true
 // we additionally log debug information for these rpc requests.  Timeout defines the timeout for the
 // rpc calls.  The HTTPServer will run until the passed context is canceled.
-func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets fs.ReadDirFS, log bool) error {
+func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets fs.FS, log bool) error {
 	if assets == nil {
 		assets = embededAssets
 	}
@@ -95,7 +95,7 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets 
 }
 
 // CreateServeMux returns a ServeMux object that has handlers set up.
-func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadDirFS, urlPrefix string) (*http.ServeMux, error) {
+func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assets fs.FS, urlPrefix string) (*http.ServeMux, error) {
 	mux := http.NewServeMux()
 	h, err := newHandler(ctx, timeout, log, assets, urlPrefix)
 	if err != nil {
@@ -117,16 +117,17 @@ func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assets fs.R
 }
 
 type handler struct {
-	ctx       *context.T
-	timeout   time.Duration
-	log       bool
-	urlPrefix string
-	file      func(name string) ([]byte, error)
-	cacheMap  map[string]*template.Template
-	funcs     template.FuncMap
+	ctx        *context.T
+	timeout    time.Duration
+	log        bool
+	urlPrefix  string
+	fs         fs.FS
+	cacheMapMu sync.Mutex
+	cacheMap   map[string]*template.Template // GUARDED_BY(cacheMapMu)
+	funcs      template.FuncMap
 }
 
-func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadDirFS, urlPrefix string) (*handler, error) {
+func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.FS, urlPrefix string) (*handler, error) {
 	h := &handler{
 		ctx:       ctx,
 		timeout:   timeout,
@@ -159,32 +160,19 @@ func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadD
 		},
 	}
 
-	h.file = func(name string) ([]byte, error) {
-		f, err := assets.Open(name)
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-		return io.ReadAll(f)
-	}
-
-	// Pre-render the templates and cache the results.
 	h.cacheMap = make(map[string]*template.Template)
-	entries, err := assets.ReadDir("")
-	if err != nil {
-		return nil, err
-	}
-	for _, entry := range entries {
-		if _, err := h.template(ctx, entry.Name()); err != nil {
-			return nil, err
-		}
-	}
-
+	h.fs = assets
 	return h, nil
 }
 
+func (h *handler) cached(name string) *template.Template {
+	h.cacheMapMu.Lock()
+	defer h.cacheMapMu.Unlock()
+	return h.cacheMap[name]
+}
+
 func (h *handler) template(ctx *context.T, name string) (t *template.Template, err error) {
-	if t = h.cacheMap[name]; t != nil {
+	if t = h.cached(name); t != nil {
 		return t, nil
 	}
 	if name == chromeTmpl {
@@ -197,13 +185,12 @@ func (h *handler) template(ctx *context.T, name string) (t *template.Template, e
 			return nil, err
 		}
 	}
-	src, err := h.file(name)
-	if err != nil {
+	if _, err = t.ParseFS(h.fs, name); err != nil {
 		return nil, err
 	}
-	if _, err = t.Parse(string(src)); err != nil {
-		return nil, err
-	}
+	h.cacheMapMu.Lock()
+	h.cacheMap[name] = t
+	h.cacheMapMu.Unlock()
 	return t, nil
 }
 

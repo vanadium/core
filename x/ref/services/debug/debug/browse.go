@@ -181,7 +181,7 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 		<-signals.ShutdownOnSignals(ctx)
 		cancel()
 	}()
-	var assets fs.ReadDirFS
+	var assets fs.FS
 	if len(flagBrowseAssets) > 0 {
 		assets = os.DirFS(flagBrowseAssets)
 	}
