@@ -19,6 +19,7 @@ vdlroot:
 test:
 	@echo "VDLPATH" "${VDLPATH}"
 	go test ./...
+	cd ./x/ref/examples && go test ./...
 
 .PHONY: test-integration
 test-integration:
