@@ -29,12 +29,12 @@ jobs:
           echo "VDLPATH=${GITHUB_WORKSPACE}/github.com/vanadium/core" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/usr/local/Cellar/openssl@1.1/1.1.1l_1/lib/pkgconfig" >> $GITHUB_ENV
           cd github.com/vanadium/core
-          go get golang.org/x/tools/cmd/goimports
-          go install -x golang.org/x/tools/cmd/goimports
+          go mod download golang.org/x/tools
+          go install golang.org/x/tools/cmd/goimports
 
       - name: Test
         run: |
           cd github.com/vanadium/core
           echo "VDLPATH: $VDLPATH"
-          go test -race ./...
+          make test
           make test-integration
