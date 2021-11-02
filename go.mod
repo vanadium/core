@@ -23,3 +23,7 @@ require (
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
 
 replace v.io/x/ref/internal/logger => ./x/ref/internal/logger
+
+replace v.io/x/ref/runtime/internal/rpc/benchmark => ./x/ref/runtime/internal/rpc/benchmark
+
+replace v.io/x/ref/examples => ./x/ref/examples/
