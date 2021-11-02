@@ -9,17 +9,18 @@ package browseserver
 import (
 	"bytes"
 	gocontext "context"
+	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"html"
 	"html/template"
-	"io/ioutil"
+	"io"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/url"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
@@ -40,7 +41,8 @@ import (
 	s_stats "v.io/x/ref/services/stats"
 )
 
-//go:generate ./gen_assets.sh
+//go:embed assets/*
+var embededAssets embed.FS
 
 const browseProfilesPath = "/profiles"
 
@@ -60,8 +62,11 @@ const (
 // various handlers make rpc calls to the given name to gather debug information.  If log is true
 // we additionally log debug information for these rpc requests.  Timeout defines the timeout for the
 // rpc calls.  The HTTPServer will run until the passed context is canceled.
-func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log bool, assetDir string) error {
-	mux, err := CreateServeMux(ctx, timeout, log, assetDir, "")
+func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets fs.ReadDirFS, log bool) error {
+	if assets == nil {
+		assets = embededAssets
+	}
+	mux, err := CreateServeMux(ctx, timeout, log, assets, "")
 	if err != nil {
 		return err
 	}
@@ -90,9 +95,9 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log boo
 }
 
 // CreateServeMux returns a ServeMux object that has handlers set up.
-func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPrefix string) (*http.ServeMux, error) {
+func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadDirFS, urlPrefix string) (*http.ServeMux, error) {
 	mux := http.NewServeMux()
-	h, err := newHandler(ctx, timeout, log, assetDir, urlPrefix)
+	h, err := newHandler(ctx, timeout, log, assets, urlPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +126,7 @@ type handler struct {
 	funcs     template.FuncMap
 }
 
-func newHandler(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPrefix string) (*handler, error) {
+func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.ReadDirFS, urlPrefix string) (*handler, error) {
 	h := &handler{
 		ctx:       ctx,
 		timeout:   timeout,
@@ -154,21 +159,26 @@ func newHandler(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPr
 		},
 	}
 
-	if assetDir == "" {
-		h.file = Asset
-		h.cacheMap = make(map[string]*template.Template)
-		all := []string{chromeTmpl, allTraceTmpl, blessingsTmpl, globTmpl,
-			logsTmpl, profilesTmpl, resolveTmpl, statsTmpl, vtraceTmpl}
-		for _, tmpl := range all {
-			if _, err := h.template(ctx, tmpl); err != nil {
-				return nil, err
-			}
+	h.file = func(name string) ([]byte, error) {
+		f, err := assets.Open(name)
+		if err != nil {
+			return nil, err
 		}
-	} else {
-		h.file = func(name string) ([]byte, error) {
-			return ioutil.ReadFile(filepath.Join(assetDir, name))
+		defer f.Close()
+		return io.ReadAll(f)
+	}
+
+	h.cacheMap = make(map[string]*template.Template)
+	entries, err := assets.ReadDir("")
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range entries {
+		if _, err := h.template(ctx, entry.Name()); err != nil {
+			return nil, err
 		}
 	}
+
 	return h, nil
 }
 

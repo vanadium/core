@@ -11,6 +11,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
+	"io/fs"
 	"strings"
 	"time"
 
@@ -179,7 +180,11 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 		<-signals.ShutdownOnSignals(ctx)
 		cancel()
 	}()
-	return browseserver.Serve(ctx, flagBrowseAddr, name, timeout, flagBrowseLog, flagBrowseAssets)
+	var assets fs.FS
+	if len(flagBrowseAssets) > 0 {
+
+	}
+	return browseserver.Serve(ctx, flagBrowseAddr, name, timeout, assets, flagBrowseLog)
 }
 
 func selectName(ctx *context.T, options []string) (string, error) {
