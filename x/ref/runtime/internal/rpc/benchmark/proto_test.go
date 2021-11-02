@@ -34,31 +34,31 @@ var (
 )
 
 var protoReq = &RpcRequest{
-	Suffix:           &emptyString,
-	Method:           &echoStr,
-	NumPosArgs:       &uint641,
-	EndStreamArgs:    &boolFalse,
-	Deadline:         &TimeWireDeadline{FromNow: &TimeDuration{Seconds: &int64100000, Nanos: &int64100000}, NoDeadline: &boolFalse},
+	Suffix:           emptyString,
+	Method:           echoStr,
+	NumPosArgs:       uint641,
+	EndStreamArgs:    boolFalse,
+	Deadline:         &TimeWireDeadline{FromNow: &TimeDuration{Seconds: int64100000, Nanos: int64100000}, NoDeadline: boolFalse},
 	GrantedBlessings: &SecurityWireBlessings{},
 	TraceRequest: &VtraceRequest{
 		SpanId:   []byte{0x2a, 0xa2, 0xfd, 0xce, 0x42, 0xa7, 0xbd, 0x34, 0x88, 0x8, 0x11, 0x2f, 0x71, 0xce, 0x80, 0xa2},
 		TraceId:  []byte{0x2a, 0xa2, 0xfd, 0xce, 0x42, 0xa7, 0xbd, 0x34, 0x88, 0x8, 0x11, 0x2f, 0x71, 0xce, 0x80, 0xa0},
-		Flags:    &int320,
-		LogLevel: &int320,
+		Flags:    int320,
+		LogLevel: int320,
 	},
-	Language: &langStr,
+	Language: langStr,
 }
 
 var protoResp = &RpcResponse{
-	EndStreamResults: &boolTrue,
-	NumPosResults:    &uint641,
+	EndStreamResults: boolTrue,
+	NumPosResults:    uint641,
 	TraceResponse: &VtraceResponse{
-		TraceFlags: &int320,
+		TraceFlags: int320,
 		Trace: &VtraceTraceRecord{
 			Id: []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0},
 		},
 	},
-	AckBlessings: &boolFalse,
+	AckBlessings: boolFalse,
 }
 
 func BenchmarkProtoEncodeRequest(b *testing.B) {

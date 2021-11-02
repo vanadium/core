@@ -10,6 +10,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/ed25519"
+	"crypto/rsa"
 	"fmt"
 	"os"
 	"strings"
@@ -31,12 +32,14 @@ func NewSigningService() signing.Service {
 	return &keyfile{}
 }
 
-func determineSigner(key interface{}) (security.Signer, error) {
+func SignerFromKey(key interface{}) (security.Signer, error) {
 	switch v := key.(type) {
 	case *ecdsa.PrivateKey:
 		return security.NewInMemoryECDSASigner(v)
 	case ed25519.PrivateKey:
 		return security.NewInMemoryED25519Signer(v)
+	case *rsa.PrivateKey:
+		return security.NewInMemoryRSASigner(v)
 	default:
 		return nil, fmt.Errorf("unsupported signing key type %T", key)
 	}
@@ -56,7 +59,7 @@ func (kf *keyfile) Signer(ctx context.Context, keyFile string, passphrase []byte
 		if err != nil {
 			return nil, err
 		}
-		return determineSigner(key)
+		return SignerFromKey(key)
 	}
 	return nil, fmt.Errorf("unrecognised file suffix: %v, currently only pem files are supported", keyFile)
 }

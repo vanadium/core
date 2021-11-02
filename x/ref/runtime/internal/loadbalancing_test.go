@@ -34,7 +34,7 @@ func callClient(ctx *context.T, expected string, n int, callCancel bool) ([]stri
 	responses := make([]string, n)
 	for i := 0; i < n; i++ {
 		msg := fmt.Sprintf("%v: %v", expected, i)
-		cctx, cancel := context.WithTimeout(ctx, time.Second)
+		cctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 		if err := clt.Call(cctx, "lb_server", "Echo", []interface{}{msg}, []interface{}{&responses[i]}); err != nil {
 			return nil, err
 		}
@@ -117,7 +117,7 @@ func TestApproximateLoadBalancing(t *testing.T) { //nolint:gocyclo
 		}
 		responses, err := callClient(ctx, expected, iterations, useCancel)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("callClient failed: %v", err)
 		}
 		if got, want := len(responses), iterations; got != want {
 			t.Fatalf("got %v, want %v", got, want)

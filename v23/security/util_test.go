@@ -81,3 +81,7 @@ func ExposeValidateCertificateChain(chain []Certificate) (PublicKey, []byte, err
 func ExposeDigestsForCertificateChain(chain []Certificate) (digest, contentDigest []byte) {
 	return digestsForCertificateChain(chain)
 }
+
+func HashForPublicKey(pk PublicKey) Hash {
+	return pk.hash()
+}

@@ -21,14 +21,6 @@ func TestDefaultAuthorizerECDSA(t *testing.T) {
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
-func TestDefaultAuthorizerED25519(t *testing.T) {
-	testDefaultAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
 
 func TestDefaultAuthorizer(t *testing.T) {
 	testDefaultAuthorizer(t,
@@ -39,8 +31,14 @@ func TestDefaultAuthorizer(t *testing.T) {
 	)
 	testDefaultAuthorizer(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+	testDefaultAuthorizer(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewRSAPrincipal(t),
+		sectest.NewRSAPrincipal(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
@@ -180,12 +178,6 @@ func TestAllowEveryoneECDSA(t *testing.T) {
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
-func TestAllowEveryoneED25519(t *testing.T) {
-	testAllowEveryone(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
 
 func TestAllowEveryone(t *testing.T) {
 	testAllowEveryone(t,
@@ -195,6 +187,10 @@ func TestAllowEveryone(t *testing.T) {
 	testAllowEveryone(t,
 		sectest.NewED25519Principal(t),
 		sectest.NewECDSAPrincipalP256(t),
+	)
+	testAllowEveryone(t,
+		sectest.NewED25519Principal(t),
+		sectest.NewRSAPrincipal(t),
 	)
 }
 
@@ -220,13 +216,6 @@ func TestPublicKeyAuthorizerECDSA(t *testing.T) {
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
-func TestPublicKeyAuthorizerED25519(t *testing.T) {
-	testPublicKeyAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestPublicKeyAuthorizer(t *testing.T) {
 	testPublicKeyAuthorizer(t,
 		sectest.NewECDSAPrincipalP256(t),
@@ -234,6 +223,10 @@ func TestPublicKeyAuthorizer(t *testing.T) {
 	)
 	testPublicKeyAuthorizer(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+	testPublicKeyAuthorizer(t,
+		sectest.NewRSAPrincipal(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
@@ -264,12 +257,7 @@ func TestEndpointAuthorizerECDSA(t *testing.T) {
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }
-func TestEndpointAuthorizerED25519(t *testing.T) {
-	testEndpointAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
+
 func TestEndpointAuthorizer(t *testing.T) {
 	testEndpointAuthorizer(t,
 		sectest.NewECDSAPrincipalP256(t),
@@ -277,6 +265,10 @@ func TestEndpointAuthorizer(t *testing.T) {
 	)
 	testEndpointAuthorizer(t,
 		sectest.NewED25519Principal(t),
+		sectest.NewECDSAPrincipalP256(t),
+	)
+	testEndpointAuthorizer(t,
+		sectest.NewRSAPrincipal(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
 }

@@ -164,7 +164,7 @@ func TestTrackerConcurrent(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
 	const numGoRoutines = 100
-	const numPushPerGoRoutine = 100000
+	const numPushPerGoRoutine = 5000
 	tracker := counter.NewTracker()
 
 	var mins, maxs [numGoRoutines]int64

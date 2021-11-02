@@ -266,12 +266,19 @@ func TestSingleProxyConnections(t *testing.T) {
 			wg.Done()
 		}(pm)
 
-		for {
-			time.Sleep(100 * time.Millisecond)
-			if len(sm.listening[proxyName]) > 0 {
-				break
+		waitForListener := func() {
+			for {
+				time.Sleep(100 * time.Millisecond)
+				sm.Lock()
+				r := len(sm.listening[proxyName]) > 0
+				sm.Unlock()
+				if r {
+					return
+				}
 			}
 		}
+
+		waitForListener()
 
 		// Blocks until the endpoint is not available.
 		nch := make(chan struct{})
@@ -311,12 +318,7 @@ func TestSingleProxyConnections(t *testing.T) {
 			wg.Done()
 		}(pm)
 
-		for {
-			time.Sleep(100 * time.Millisecond)
-			if len(sm.listening[proxyName]) > 0 {
-				break
-			}
-		}
+		waitForListener()
 		cancel()
 		wg.Wait()
 	}

@@ -144,6 +144,8 @@ The principal create flags are:
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
+ -ssl-key=
+   If set, use the ssl/tls private key from the specified file.
  -with-passphrase=true
    If true, the user is prompted for a passphrase to encrypt the principal.
    Otherwise, the principal is stored unencrypted.
@@ -186,6 +188,8 @@ The principal fork flags are:
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
+ -ssl-key=
+   If set, use the ssl/tls private key from the specified file.
  -with=
    Path to file containing blessing to extend
  -with-passphrase=true

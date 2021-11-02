@@ -70,7 +70,7 @@ func TestV23BlessSelf(t *testing.T) {
 
 	for _, flags := range [][]string{
 		nil,
-		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")},
 		{"--key-type=ecdsa521"},
 	} {
 		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
@@ -106,7 +106,7 @@ func TestV23Store(t *testing.T) {
 	)
 
 	// Create two principals: alice and bob.
-	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ed25519.pub"), aliceDir, "alice").Run()
+	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ssh-ed25519.pub"), aliceDir, "alice").Run()
 	sh.Cmd(bin, "create", bobDir, "bob").Run()
 
 	// Bless Bob with Alice's principal.
@@ -170,7 +170,7 @@ func TestV23Dump(t *testing.T) {
 
 	for _, flags := range [][]string{
 		nil,
-		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")},
 		{"--key-type=ecdsa521"},
 	} {
 
@@ -302,7 +302,7 @@ func TestV23RecvBlessings(t *testing.T) {
 
 	// Generate principals
 	sh.Cmd(bin, "create", aliceDir, "alice").Run()
-	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ecdsa-384.pub"), bobDir, "bob").Run()
+	sh.Cmd(bin, "create", "--ssh-public-key="+filepath.Join(sshKeyDir, "ssh-ecdsa-256.pub"), bobDir, "bob").Run()
 	sh.Cmd(bin, "create", carolDir, "carol").Run()
 
 	// Run recvblessings on carol, and have alice send blessings over
@@ -491,7 +491,7 @@ func TestV23Fork(t *testing.T) {
 
 	for _, flags := range [][]string{
 		nil,
-		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")},
 		{"--key-type=ecdsa521"},
 	} {
 
@@ -604,7 +604,7 @@ func TestV23Create(t *testing.T) {
 	}
 	for _, flags := range [][]string{
 		nil,
-		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ed25519.pub")},
+		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")},
 		{"--key-type=ecdsa521"},
 	} {
 		// Creating a principal should succeed the first time.
@@ -1008,7 +1008,9 @@ func mergeFlags(verb string, flags []string, arguments ...string) []string {
 func TestMain(m *testing.M) {
 	var err error
 	var cleanup func()
-	cleanup, sshAgentAddr, sshKeyDir, err = testsshagent.StartPreconfiguredAgent()
+	sshKeyDir = "testdata"
+	cleanup, sshAgentAddr, err = testsshagent.StartPreconfiguredAgent(sshKeyDir,
+		"ssh-ed25519", "ssh-rsa-2048", "ssh-ecdsa-256")
 	if err != nil {
 		panic(err)
 	}
@@ -1023,6 +1025,5 @@ func TestMain(m *testing.M) {
 		code = m.Run()
 	}()
 	cleanup()
-	os.RemoveAll(sshKeyDir)
 	os.Exit(code)
 }

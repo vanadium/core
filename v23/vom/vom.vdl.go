@@ -14,11 +14,39 @@ import (
 	"v.io/v23/vdl"
 )
 
+var initializeVDLCalled = false
 var _ = initializeVDL() // Must be first; see initializeVDL comments for details.
+
+// Hold type definitions in package-level variables, for better performance.
+// Declare and initialize with default values here so that the initializeVDL
+// method will be considered ready to initialize before any of the type
+// definitions that appear below.
+//nolint:unused
+var (
+	vdlTypeEnum1    *vdl.Type = nil
+	vdlTypeUnion2   *vdl.Type = nil
+	vdlTypeEnum3    *vdl.Type = nil
+	vdlTypeStruct4  *vdl.Type = nil
+	vdlTypeList5    *vdl.Type = nil
+	vdlTypeByte6    *vdl.Type = nil
+	vdlTypeUint647  *vdl.Type = nil
+	vdlTypeStruct8  *vdl.Type = nil
+	vdlTypeStruct9  *vdl.Type = nil
+	vdlTypeList10   *vdl.Type = nil
+	vdlTypeStruct11 *vdl.Type = nil
+	vdlTypeStruct12 *vdl.Type = nil
+	vdlTypeStruct13 *vdl.Type = nil
+	vdlTypeStruct14 *vdl.Type = nil
+	vdlTypeStruct15 *vdl.Type = nil
+	vdlTypeStruct16 *vdl.Type = nil
+	vdlTypeList17   *vdl.Type = nil
+	vdlTypeStruct18 *vdl.Type = nil
+	vdlTypeStruct19 *vdl.Type = nil
+	vdlTypeUnion20  *vdl.Type = nil
+)
 
 // Type definitions
 // ================
-
 // ControlKind enumerates the different kinds of control bytes.
 type ControlKind int
 
@@ -2018,33 +2046,6 @@ const WireIdFirstUserType = TypeId(41)
 const WireCtrlNil = byte(224)            // Nil in optional or any
 const WireCtrlEnd = byte(225)            // End of struct or union
 const WireCtrlTypeIncomplete = byte(226) // Marks that the type message is incomplete until future messages are received
-
-// Hold type definitions in package-level variables, for better performance.
-//nolint:unused
-var (
-	vdlTypeEnum1    *vdl.Type
-	vdlTypeUnion2   *vdl.Type
-	vdlTypeEnum3    *vdl.Type
-	vdlTypeStruct4  *vdl.Type
-	vdlTypeList5    *vdl.Type
-	vdlTypeByte6    *vdl.Type
-	vdlTypeUint647  *vdl.Type
-	vdlTypeStruct8  *vdl.Type
-	vdlTypeStruct9  *vdl.Type
-	vdlTypeList10   *vdl.Type
-	vdlTypeStruct11 *vdl.Type
-	vdlTypeStruct12 *vdl.Type
-	vdlTypeStruct13 *vdl.Type
-	vdlTypeStruct14 *vdl.Type
-	vdlTypeStruct15 *vdl.Type
-	vdlTypeStruct16 *vdl.Type
-	vdlTypeList17   *vdl.Type
-	vdlTypeStruct18 *vdl.Type
-	vdlTypeStruct19 *vdl.Type
-	vdlTypeUnion20  *vdl.Type
-)
-
-var initializeVDLCalled bool
 
 // initializeVDL performs vdl initialization.  It is safe to call multiple times.
 // If you have an init ordering issue, just insert the following line verbatim

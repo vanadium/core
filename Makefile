@@ -15,13 +15,17 @@ vdlroot:
 		./time \
 		./signature
 
+.PHONY: test
+test:
+	@echo "VDLPATH" "${VDLPATH}"
+	go test ./...
+
 .PHONY: test-integration
 test-integration:
 	@echo "VDLPATH" "${VDLPATH}"
 	go test \
 		v.io/x/ref/cmd/principal \
 		v.io/x/ref/runtime/internal \
-		v.io/x/ref/services/identity/identityd \
 		v.io/x/ref/services/xproxy/xproxyd \
 		v.io/x/ref/services/mounttable/mounttabled \
 		v.io/x/ref/services/debug/debug \
