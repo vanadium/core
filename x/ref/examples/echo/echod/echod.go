@@ -13,13 +13,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-xray-sdk-go/xray"
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/x/ref/examples/echo"
-	"v.io/x/ref/lib/aws/vxray"
 	"v.io/x/ref/lib/security/securityflag"
 	"v.io/x/ref/lib/signals"
 	_ "v.io/x/ref/runtime/factories/static"
@@ -75,14 +73,6 @@ func (e *echod) Pong(ctx *context.T, call rpc.ServerCall, msg string, servers []
 func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-
-	ctx, _ = vxray.InitXRay(ctx,
-		v23.GetRuntimeFlags().VtraceFlags,
-		xray.Config{ServiceVersion: ""},
-		vxray.EC2Plugin(),
-		vxray.EKSCluster(),
-		vxray.ContainerIDAndHost(),
-		vxray.MergeLogging(true))
 
 	ctx, server, err := v23.WithNewServer(ctx, nameFlag, echo.EchoServiceServer(&echod{}), securityflag.NewAuthorizerOrDie(ctx))
 	if err != nil {

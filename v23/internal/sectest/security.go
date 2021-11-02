@@ -144,6 +144,7 @@ func NewRSASigner4096(t testing.TB) security.Signer {
 	return NewRSASigner(t, 4096)
 }
 
+// NewRSASigner creates a new RSA signer with the specified number of bits.
 func NewRSASigner(t testing.TB, bits int) security.Signer {
 	key, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
