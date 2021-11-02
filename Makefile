@@ -30,12 +30,33 @@ test-integration:
 		v.io/x/ref/services/mounttable/mounttabled \
 		v.io/x/ref/services/debug/debug \
 		v.io/x/ref/test/hello \
+		-v23.tests
+	cd ./x/ref/examples && go test \
 		v.io/x/ref/examples/tunnel/tunneld \
 		v.io/x/ref/examples/rps/rpsbot \
-		-v23.tests
+		--v23.tests
 	go test v.io/v23/security/... -tags openssl
 	go test v.io/x/ref/lib/security/... -tags openssl
 
+BENCHMARK_MODULES=./v23/security \
+	./v23/context \
+	./v23/uniqueid \
+	./v23/vdl \
+	./v23/vom \
+	./v23/naming \
+	./x/ref/runtime/internal/lib/deque \
+	./x/ref/runtime/internal/flow/manager \
+	./x/ref/lib/stats/counter \
+
+# Currently this benchmark fails.	
+#	./x/ref/runtime/internal/lib/sync
+
+benchmarks:
+	for m in $(BENCHMARK_MODULES); do \
+		go test -v -run='\^$\' --bench=. $$m; \
+	done
+	cd ./x/ref/runtime/internal/rpc/benchmark && \
+		go test -v -run='\^$\' --bench=.
 
 refresh:
 	go generate ./...
