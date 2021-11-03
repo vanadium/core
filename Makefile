@@ -70,18 +70,21 @@ bootstrapvdl:
 	rm -f $$(find . -name '*.vdl.go')
 	export VDLROOT=$$(pwd)/v23/vdlroot ; \
 	cd v23/vdlroot && \
-	go run -tags vdltoolbootstrapping,vdlbootstrapping \
-		 v.io/x/ref/cmd/vdl generate --lang=go ./vdltool && \
- 	go run -tags vdlbootstrapping v.io/x/ref/cmd/vdl generate --lang=go \
-		v.io/v23/vdl && \
-	go run v.io/x/ref/cmd/vdl generate --show-warnings=false --lang=go \
-		./math \
-		./time \
-		./signature
-	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go \
-		v.io/v23/uniqueid \
-		v.io/v23/vtrace \
-		v.io/v23/verror
+	echo "bootstrapping vdlroot/vdltool" && \
+	go run -tags vdltoolbootstrapping \
+		v.io/x/ref/cmd/vdl generate --lang=go ./vdltool && \
+	echo "bootstrapping vdlroot/{math,time,signature} and v.io/v23/vdl" && \
+	go run -tags vdlbootstrapping \
+		v.io/x/ref/cmd/vdl generate --lang=go \
+			./math \
+			./time \
+			./signature \
+			v.io/v23/vdl
+	echo "generating all other vdl files...."
+	go run v.io/x/ref/cmd/vdl generate --lang=go \
+			v.io/v23/uniqueid \
+			v.io/v23/vtrace \
+			v.io/v23/verror
 	go generate ./v23/vdl/vdltest
 	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
 	git diff --exit-code

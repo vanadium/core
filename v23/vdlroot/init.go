@@ -3,14 +3,19 @@
 // license that can be found in the LICENSE file.
 
 // Package vdlroot defines the standard VDL packages; the VDLROOT environment
-// variable should point at this directory.
+// variable should point at this directory when bootstrapping (see
+// ./vdlroot/bootstrapping.go) for an explanation of bootstrapping.
 //
 // This package contains import dependencies on all its sub-packages.  This is
 // meant as a convenient mechanism to pull in all standard vdl packages; import
 // vdlroot to ensure the types for all standard vdl packages are registered.
 //
-// To regenerate the .vdl.go files, specify VDLROOT when invoking the vdl tool.
-// (by default, prebuilt copies of the packages will be used).
+// If VDLROOT is not specified, the .vdl and vdl.config files embedded in this
+// package are used by the vdl tool chain.
+
+//go:build !vdltoolbootstrapping && !vdlbootstrapping
+// +build !vdltoolbootstrapping,!vdlbootstrapping
+
 package vdlroot
 
 import (
