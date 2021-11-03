@@ -43,6 +43,10 @@ import (
 
 const browseProfilesPath = "/profiles"
 
+const (
+	chromeTmpl = "chrome.html"
+)
+
 // Serve serves the debug interface over http.  An HTTP server is started (serving at httpAddr), its
 // various handlers make rpc calls to the given name to gather debug information.  If log is true
 // we additionally log debug information for these rpc requests.  Timeout defines the timeout for the
