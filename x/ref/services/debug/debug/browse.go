@@ -171,10 +171,14 @@ func runBrowse(ctx *context.T, env *cmdline.Env, args []string) error { //nolint
 			return fmt.Errorf("failed to add --blessings to the set of recognized roots: %v", err)
 		}
 	}
+
+	fmt.Printf("selecting from %v\n", args)
 	name, err := selectName(ctx, args)
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("selected %v from %v\n", name, args)
 
 	ctx, cancel := context.WithCancel(ctx)
 	go func() {

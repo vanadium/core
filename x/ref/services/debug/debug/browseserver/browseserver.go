@@ -9,7 +9,6 @@ package browseserver
 import (
 	"bytes"
 	gocontext "context"
-	"embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -37,12 +36,10 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
+	"v.io/x/ref/services/debug/debug/browseserver/internal/templates"
 	"v.io/x/ref/services/internal/pproflib"
 	s_stats "v.io/x/ref/services/stats"
 )
-
-//go:embed assets/*
-var embededAssets embed.FS
 
 const browseProfilesPath = "/profiles"
 
@@ -64,7 +61,7 @@ const (
 // rpc calls.  The HTTPServer will run until the passed context is canceled.
 func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets fs.FS, log bool) error {
 	if assets == nil {
-		assets = embededAssets
+		assets = templates.HTML
 	}
 	mux, err := CreateServeMux(ctx, timeout, log, assets, "")
 	if err != nil {
