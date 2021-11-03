@@ -41,9 +41,9 @@
 package build
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path"
@@ -55,9 +55,9 @@ import (
 
 	"golang.org/x/mod/modfile"
 	"v.io/v23/vdl"
+	"v.io/v23/vdlroot"
 	"v.io/v23/vdlroot/vdltool"
 	"v.io/x/lib/toposort"
-	"v.io/x/ref/lib/vdl/build/internal/builtinvdlroot"
 	"v.io/x/ref/lib/vdl/compile"
 	"v.io/x/ref/lib/vdl/parse"
 	"v.io/x/ref/lib/vdl/vdlutil"
@@ -278,11 +278,11 @@ func openFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 func openBuiltInFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 	files := make(map[string]io.ReadCloser, len(fileNames))
 	for _, fileName := range fileNames {
-		file, err := builtinvdlroot.Asset(fileName)
+		file, err := vdlroot.Assets.Open(fileName)
 		if err != nil {
 			return nil, fmt.Errorf("%s: can't load builtin file: %v", fileName, err)
 		}
-		files[path.Base(fileName)] = ioutil.NopCloser(bytes.NewReader(file))
+		files[path.Base(fileName)] = ioutil.NopCloser(file)
 	}
 	return files, nil
 }
@@ -533,8 +533,18 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 	var configFiles []string
 	var lastDir string
 	// Loop through built-in vdl files to create the root package map.
-	fileNames := builtinvdlroot.AssetNames()
+	fileNames := []string{}
+	fs.WalkDir(vdlroot.Assets, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.Type().IsRegular() {
+			fileNames = append(fileNames, p)
+		}
+		return nil
+	})
 	sort.Strings(fileNames)
+
 	for _, fileName := range fileNames {
 		dir, base := path.Split(fileName)
 		dir = path.Clean(dir)
@@ -569,7 +579,7 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 // initBuiltInRootConfigs initializes the vdl.configs of built-in root packages.
 func (ds *depSorter) initBuiltInRootConfigs(configFiles []string) {
 	for _, configFile := range configFiles {
-		configData, err := builtinvdlroot.Asset(configFile)
+		configData, err := vdlroot.Assets.Open(configFile)
 		if err != nil {
 			ds.errorf("%s: can't load builtin config file: %v", configFile, err)
 			continue
@@ -581,7 +591,7 @@ func (ds *depSorter) initBuiltInRootConfigs(configFiles []string) {
 			ds.errorf("%s: package %q doesn't exist in builtin root", configFile, pkgPath)
 			continue
 		}
-		p.initVDLConfig(configFile, bytes.NewReader(configData), ds.vdlenv)
+		p.initVDLConfig(configFile, configData, ds.vdlenv)
 	}
 }
 
