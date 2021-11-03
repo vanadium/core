@@ -3,11 +3,10 @@
 // license that can be found in the LICENSE file.
 
 //go:build vdlbootstrapping || vdltoolbootstrapping
-// +build vdlbootstrapping || vdltoolbootstrapping
+// +build vdlbootstrapping vdltoolbootstrapping
 
 package vdlroot
 
 import (
 	_ "v.io/v23/vdlroot/vdltool" //nolint:revive
-
 )
