@@ -278,7 +278,7 @@ func openFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 func openBuiltInFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 	files := make(map[string]io.ReadCloser, len(fileNames))
 	for _, fileName := range fileNames {
-		file, err := vdlroot.Assets.Open(fileName)
+		file, err := vdlroot.Builtin.Open(fileName)
 		if err != nil {
 			return nil, fmt.Errorf("%s: can't load builtin file: %v", fileName, err)
 		}
@@ -534,7 +534,7 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 	var lastDir string
 	// Loop through built-in vdl files to create the root package map.
 	fileNames := []string{}
-	fs.WalkDir(vdlroot.Assets, ".", func(p string, d fs.DirEntry, err error) error {
+	fs.WalkDir(vdlroot.Builtin, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -579,7 +579,7 @@ func (ds *depSorter) initBuiltInRootPackages(opts Opts) []string {
 // initBuiltInRootConfigs initializes the vdl.configs of built-in root packages.
 func (ds *depSorter) initBuiltInRootConfigs(configFiles []string) {
 	for _, configFile := range configFiles {
-		configData, err := vdlroot.Assets.Open(configFile)
+		configData, err := vdlroot.Builtin.Open(configFile)
 		if err != nil {
 			ds.errorf("%s: can't load builtin config file: %v", configFile, err)
 			continue

@@ -8,5 +8,7 @@ import (
 	"embed"
 )
 
+// Builtin contains the builtin vdl and vdl.config files used by
+// the vdl compiler.
 //go:embed */*.vdl */vdl.config
-var Assets embed.FS
+var Builtin embed.FS
