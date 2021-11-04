@@ -356,7 +356,6 @@ func internalInit() (*context.T, Shutdown, error) {
 
 	runtimeFactory := initState.runtimeFactory
 	if initState.runtimeFactory == nil {
-		initState.mu.Unlock()
 		return nil, nil, fmt.Errorf("No RuntimeFactory has been registered nor specified. This is most" +
 			" likely because your main package has not imported a RuntimeFactory")
 	}
