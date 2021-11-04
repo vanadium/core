@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"testing"
+	"time"
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
@@ -51,6 +52,17 @@ func TestPProfProxy(t *testing.T) {
 		"/myprefix/pprof/goroutine",
 		fmt.Sprintf("/pprof/symbol?%p", TestPProfProxy),
 	}
+
+	// Make sure the web server is up and running before starting tests.
+	for {
+		url := fmt.Sprintf("http://%s/myprefix/pprof/", ln.Addr())
+		resp, err := http.Get(url)
+		if err == nil && resp.StatusCode == 200 {
+			break
+		}
+		time.Sleep(time.Second)
+	}
+
 	for _, c := range testcases {
 		url := fmt.Sprintf("http://%s%s", ln.Addr(), c)
 		resp, err := http.Get(url)
