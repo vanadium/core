@@ -210,8 +210,10 @@ type Server interface {
 type ServerState int
 
 const (
-	// ServerActive indicates that the server is 'active'.
-	ServerActive ServerState = iota
+	// ServerInitializing indicates that the server exists and is initializing.
+	ServerInitializing ServerState = iota
+	// ServerReady indicates that the server is ready to handle requests.
+	ServerReady
 	// ServerStopping indicates that the server has been asked to stop and is
 	// in the process of doing so. It may take a while for the server to
 	// complete this process since it will wait for outstanding operations
@@ -224,8 +226,10 @@ const (
 
 func (i ServerState) String() string {
 	switch i {
-	case ServerActive:
-		return "Active"
+	case ServerInitializing:
+		return "Initializing"
+	case ServerReady:
+		return "Ready"
 	case ServerStopping:
 		return "Stopping"
 	case ServerStopped:

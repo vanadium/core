@@ -20,6 +20,18 @@ func WaitForServerPublished(s rpc.Server) rpc.ServerStatus {
 	}
 }
 
+// WaitForServerReady blocks until the server is actively listening for
+// new requests.
+func WaitForServerReady(s rpc.Server) rpc.ServerStatus {
+	for {
+		status := s.Status()
+		if status.State == rpc.ServerReady {
+			return status
+		}
+		<-status.Dirty
+	}
+}
+
 // WaitForProxyEndpoints blocks until the server's proxied endpoints appear in
 // status.Endpoints, and returns the resulting server status.
 func WaitForProxyEndpoints(s rpc.Server, proxyName string) rpc.ServerStatus {
