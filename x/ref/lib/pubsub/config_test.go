@@ -22,7 +22,7 @@ func ExamplePublisher() {
 	pub.CreateStream("net", "network settings", in)
 
 	// Publish an initial Setting to the Stream.
-	// Note that this, and the  coll to ForkStream below are in a race since
+	// Note that this, and the call to ForkStream below are in a race since
 	// although the send below will not complete until the value has been read
 	// from it by the internal goroutine in the publisher, that goroutine may
 	// get descheduled before it can update the internal state in the publisher
