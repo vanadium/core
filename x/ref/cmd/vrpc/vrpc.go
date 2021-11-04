@@ -185,7 +185,7 @@ func runSignature(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	// Get the interface or method signature, and pretty-print.  We print the
 	// named types after the signatures, to aid in readability.
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 	var types vdlgen.NamedTypes
 	opts, err := rpcOpts(ctx, server)

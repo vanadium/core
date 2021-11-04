@@ -91,7 +91,7 @@ func TestServerStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 	status := server.Status()
-	if got, want := status.State, rpc.ServerActive; got != want {
+	if got, want := status.State, rpc.ServerReady; got != want {
 		t.Fatalf("got %s, want %s", got, want)
 	}
 
