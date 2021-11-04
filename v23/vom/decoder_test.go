@@ -16,6 +16,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
@@ -255,7 +256,15 @@ func testDecoderFunc(pre string, test vomtest.Entry, rvWant reflect.Value, rvNew
 
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
-				return fmt.Errorf("%s\nGOT  %#v\nWANT %#v", name, rvGot, rvWant)
+				spew.Printf("as reflect.Value: %s\nGOT  %v\nWANT %v\n", name, rvGot, rvWant)
+				gotVal, wantVal := rvGot.Interface(), rvWant.Interface()
+				spew.Printf("as interface{}: %s\nGOT  %v\nWANT %v\n", name, gotVal, wantVal)
+				fmt.Printf("IsValid: got %v, want %v\n", rvGot.IsValid(), rvWant.IsValid())
+				fmt.Printf("IsZero: got %v, want %v\n", rvGot.IsZero(), rvWant.IsZero())
+				fmt.Printf("IsNil: got %v, want %v\n", rvGot.IsNil(), rvWant.IsNil())
+				fmt.Printf("Type: got %v, want %v\n", rvGot.Type(), rvWant.Type())
+				fmt.Printf("Kind: got %v, want %v\n", rvGot.Kind(), rvWant.Kind())
+				return fmt.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {
 				return fmt.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)

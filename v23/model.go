@@ -352,6 +352,8 @@ func getStack(skip int) string {
 
 func internalInit() (*context.T, Shutdown, error) {
 	initState.mu.Lock()
+	defer initState.mu.Unlock()
+
 	runtimeFactory := initState.runtimeFactory
 	if initState.runtimeFactory == nil {
 		initState.mu.Unlock()
@@ -362,7 +364,6 @@ func internalInit() (*context.T, Shutdown, error) {
 	// Skip 3 stack frames: runtime.Callers, getStack, Init
 	stack := getStack(3)
 	if initState.runtimeStack != "" {
-		initState.mu.Unlock()
 		format := `A runtime has already been initialized."
 The previous initialization was from:
 %s
@@ -372,7 +373,6 @@ This registration is from:
 		return nil, nil, fmt.Errorf(format, initState.runtimeStack, stack)
 	}
 	initState.runtimeStack = stack
-	initState.mu.Unlock()
 
 	rootctx, rootcancel := context.RootContext()
 	// Note we derive a second cancelable context here beyond the
@@ -392,9 +392,7 @@ This registration is from:
 		return nil, nil, fmt.Errorf("runtimeFactory returned: %v", err)
 	}
 
-	initState.mu.Lock()
 	initState.runtime = rt
-	initState.mu.Unlock()
 
 	vshutdown := func() {
 		if r := recover(); r != nil {
