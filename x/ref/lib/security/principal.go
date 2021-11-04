@@ -289,13 +289,23 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 // all peers on provided principal's BlessingStore, and also adds it as a root
 // to the principal's BlessingRoots.
 func SetDefaultBlessings(p security.Principal, blessings security.Blessings) error {
+	// TODO(cnicolaou): ideally should make this atomic and undo the effects of
+	// AddToRoots if SetDefault fails etc, etc.
+
+	// Call AddToRoots first so that any entity waiting for notification
+	// of a change to the default blessings (the notification is via the
+	// SetDefault method below) is guaranteed to have the new roots installed
+	// when they receive the notification.
+	if err := security.AddToRoots(p, blessings); err != nil {
+		return err
+	}
 	if err := p.BlessingStore().SetDefault(blessings); err != nil {
 		return err
 	}
 	if _, err := p.BlessingStore().Set(blessings, security.AllPrincipals); err != nil {
 		return err
 	}
-	return security.AddToRoots(p, blessings)
+	return nil
 }
 
 // InitDefaultBlessings uses the provided principal to create a self blessing
