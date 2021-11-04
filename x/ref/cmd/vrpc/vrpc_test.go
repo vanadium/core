@@ -19,6 +19,7 @@ import (
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/testutil"
 )
 
 type server struct{}
@@ -122,6 +123,7 @@ func initTest(t *testing.T) (ctx *context.T, name string, shutdown v23.Shutdown)
 		t.Fatalf("NewServer failed: %v", err)
 		return
 	}
+	testutil.WaitForServerReady(server)
 	name = server.Status().Endpoints[0].Name()
 	return
 }

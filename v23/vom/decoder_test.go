@@ -16,6 +16,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
 	"v.io/v23/vom"
@@ -241,6 +242,22 @@ func testDecoder(pre string, test vomtest.Entry, rvWant reflect.Value) error {
 	// TODO(toddw): Add tests that start with a randomly-set value.
 }
 
+var printDetailsMu sync.Mutex
+
+func printDetails(name string, rvGot, rvWant reflect.Value) {
+	printDetailsMu.Lock()
+	defer printDetailsMu.Unlock()
+	fmt.Printf("FAILED test: %v\n", name)
+	spew.Printf("as reflect.Value:\nGOT  %v\nWANT %v\n", rvGot, rvWant)
+	gotVal, wantVal := rvGot.Interface(), rvWant.Interface()
+	spew.Printf("as interface{}:\nGOT  %v\nWANT %v\n", gotVal, wantVal)
+	fmt.Printf("IsValid: got %v, want %v\n", rvGot.IsValid(), rvWant.IsValid())
+	fmt.Printf("IsZero: got %v, want %v\n", rvGot.IsZero(), rvWant.IsZero())
+	fmt.Printf("IsNil: got %v, want %v\n", rvGot.IsNil(), rvWant.IsNil())
+	fmt.Printf("Type: got %v, want %v\n", rvGot.Type(), rvWant.Type())
+	fmt.Printf("Kind: got %v, want %v\n", rvGot.Kind(), rvWant.Kind())
+}
+
 func testDecoderFunc(pre string, test vomtest.Entry, rvWant reflect.Value, rvNew func() reflect.Value) error {
 	readEOF := make([]byte, 1)
 	for _, mode := range vom.AllReadModes {
@@ -252,10 +269,10 @@ func testDecoderFunc(pre string, test vomtest.Entry, rvWant reflect.Value, rvNew
 			dec := vom.NewDecoder(reader)
 			if err := dec.Decode(rvGot.Interface()); err != nil {
 				return fmt.Errorf("%s: Decode failed: %v", name, err)
-
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
-				return fmt.Errorf("%s\nGOT  %#v\nWANT %#v", name, rvGot, rvWant)
+				printDetails(name, rvGot, rvWant)
+				return fmt.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {
 				return fmt.Errorf("%s: reader got (%d,%v), want (0,EOF)", name, n, err)
@@ -283,6 +300,7 @@ func testDecoderFunc(pre string, test vomtest.Entry, rvWant reflect.Value, rvNew
 				return fmt.Errorf("%s: Decode failed: %v", name, err)
 			}
 			if !vdl.DeepEqualReflect(rvGot, rvWant) {
+				printDetails(name, rvGot, rvWant)
 				return fmt.Errorf("%s\nGOT  %v\nWANT %v", name, rvGot, rvWant)
 			}
 			if n, err := reader.Read(readEOF); n != 0 || err != io.EOF {

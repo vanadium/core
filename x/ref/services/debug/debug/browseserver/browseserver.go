@@ -14,15 +14,15 @@ import (
 	"fmt"
 	"html"
 	"html/template"
-	"io/ioutil"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/url"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	v23 "v.io/v23"
@@ -36,32 +36,26 @@ import (
 	"v.io/v23/verror"
 	"v.io/v23/vom"
 	"v.io/v23/vtrace"
+	"v.io/x/ref/services/debug/debug/browseserver/internal/templates"
 	"v.io/x/ref/services/internal/pproflib"
 	s_stats "v.io/x/ref/services/stats"
 )
 
-//go:generate ./gen_assets.sh
-
 const browseProfilesPath = "/profiles"
 
 const (
-	allTraceTmpl  = "alltrace.html"
-	blessingsTmpl = "blessings.html"
-	chromeTmpl    = "chrome.html"
-	globTmpl      = "glob.html"
-	logsTmpl      = "logs.html"
-	profilesTmpl  = "profiles.html"
-	resolveTmpl   = "resolve.html"
-	statsTmpl     = "stats.html"
-	vtraceTmpl    = "vtrace.html"
+	chromeTmpl = "chrome.html"
 )
 
 // Serve serves the debug interface over http.  An HTTP server is started (serving at httpAddr), its
 // various handlers make rpc calls to the given name to gather debug information.  If log is true
 // we additionally log debug information for these rpc requests.  Timeout defines the timeout for the
 // rpc calls.  The HTTPServer will run until the passed context is canceled.
-func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log bool, assetDir string) error {
-	mux, err := CreateServeMux(ctx, timeout, log, assetDir, "")
+func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets fs.FS, log bool) error {
+	if assets == nil {
+		assets = templates.HTML
+	}
+	mux, err := CreateServeMux(ctx, timeout, log, assets, "")
 	if err != nil {
 		return err
 	}
@@ -90,9 +84,9 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, log boo
 }
 
 // CreateServeMux returns a ServeMux object that has handlers set up.
-func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPrefix string) (*http.ServeMux, error) {
+func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assets fs.FS, urlPrefix string) (*http.ServeMux, error) {
 	mux := http.NewServeMux()
-	h, err := newHandler(ctx, timeout, log, assetDir, urlPrefix)
+	h, err := newHandler(ctx, timeout, log, assets, urlPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -112,16 +106,17 @@ func CreateServeMux(ctx *context.T, timeout time.Duration, log bool, assetDir, u
 }
 
 type handler struct {
-	ctx       *context.T
-	timeout   time.Duration
-	log       bool
-	urlPrefix string
-	file      func(name string) ([]byte, error)
-	cacheMap  map[string]*template.Template
-	funcs     template.FuncMap
+	ctx        *context.T
+	timeout    time.Duration
+	log        bool
+	urlPrefix  string
+	fs         fs.FS
+	cacheMapMu sync.Mutex
+	cacheMap   map[string]*template.Template // GUARDED_BY(cacheMapMu)
+	funcs      template.FuncMap
 }
 
-func newHandler(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPrefix string) (*handler, error) {
+func newHandler(ctx *context.T, timeout time.Duration, log bool, assets fs.FS, urlPrefix string) (*handler, error) {
 	h := &handler{
 		ctx:       ctx,
 		timeout:   timeout,
@@ -154,26 +149,19 @@ func newHandler(ctx *context.T, timeout time.Duration, log bool, assetDir, urlPr
 		},
 	}
 
-	if assetDir == "" {
-		h.file = Asset
-		h.cacheMap = make(map[string]*template.Template)
-		all := []string{chromeTmpl, allTraceTmpl, blessingsTmpl, globTmpl,
-			logsTmpl, profilesTmpl, resolveTmpl, statsTmpl, vtraceTmpl}
-		for _, tmpl := range all {
-			if _, err := h.template(ctx, tmpl); err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		h.file = func(name string) ([]byte, error) {
-			return ioutil.ReadFile(filepath.Join(assetDir, name))
-		}
-	}
+	h.cacheMap = make(map[string]*template.Template)
+	h.fs = assets
 	return h, nil
 }
 
+func (h *handler) cached(name string) *template.Template {
+	h.cacheMapMu.Lock()
+	defer h.cacheMapMu.Unlock()
+	return h.cacheMap[name]
+}
+
 func (h *handler) template(ctx *context.T, name string) (t *template.Template, err error) {
-	if t = h.cacheMap[name]; t != nil {
+	if t = h.cached(name); t != nil {
 		return t, nil
 	}
 	if name == chromeTmpl {
@@ -186,13 +174,12 @@ func (h *handler) template(ctx *context.T, name string) (t *template.Template, e
 			return nil, err
 		}
 	}
-	src, err := h.file(name)
-	if err != nil {
+	if _, err = t.ParseFS(h.fs, name); err != nil {
 		return nil, err
 	}
-	if _, err = t.Parse(string(src)); err != nil {
-		return nil, err
-	}
+	h.cacheMapMu.Lock()
+	h.cacheMap[name] = t
+	h.cacheMapMu.Unlock()
 	return t, nil
 }
 

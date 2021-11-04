@@ -1,21 +1,38 @@
-// Boostrapping mode is required to generate all vdl output files starting
-// with no pre-existing vdl generated files. Currently the vdl tool
-// chain depends on the generated output of this package and v.io/v23/vdl.
+// Package vdltool contains the VDL data structures used to configure
+// the behaviour of the vdltool itself. This introduces a circular dependency
+// which needs to be managed carefully when 'bootstrapping', i.e. building
+// the vdl tool chain without these packages being already genrated.
 //
-// The vdltoolbootstrapping ands vdlbootstrapping tags are required when
-// generating the vdltool .vdl.go output. The vdlbootstrapping tag is required
-// by the v.io/v23/vdl package to use a dummy implementation of vdl.WireError
-// and associated types.
+// Boostrapping is required to generate all vdl output files starting with no
+// pre-existing vdl generated files. Currently the vdl tool
+// chain depends on the:
+//   1. generated output of this package (v.io/v23/vdlroot/vdltool) and
+//      specifically the vdltool.Config data type used to configure
+//      vdl native types.
+//   2. the VDL types in v.io/v23/vdl, which require support for native types.
+//   3. the 'builtin' VDL files and packages in v.io/v23/vdlroot/{math,signature,time},
+//      which also requre support for native types.
 //
-// export VDLROOT=$$(pwd)/v23/vdlroot ; \
-//	cd v23/vdlroot && \
-//	go run -tags vdltoolbootstrapping,vdlbootstrapping \
-//		 v.io/x/ref/cmd/vdl generate --lang=go ./vdltool
+// Two build tags are required:
+//   1. vdltoolbootstrapping which allows for the vdltool tool to be run
+//      with empty implementations of the data types in vdltool in order
+//      to generate the correct output in the vdltool directory. This tag
+//      essentially breaks the dependency on the vdltool directory during
+//      bootstrapping. Once the command below is run, the vdltool directory
+//      is completely generated.
+//      	VDLROOT=$(pwd) go run -tags vdltoolbootstrapping \
+//          v.io/x/ref/cmd/vdl generate --lang=go  ./vdltool
+//   2. vdlbootstrapping allows for bootstrapping the remaining packages
+//      in v.io/v23/vdlroot and v.io/v23/vdl and the tag controls defining
+//      internal versions of the data types produced by these packages and
+//      only enabling go code generation.
+//      Once the command below is run all of these packages are now completely
+//      generated.
+//      	VDLROOT=$(pwd) go run -tags vdlbootstrapping \
+//			v.io/x/ref/cmd/vdl generate --lang=go \
+//			./math ./time ./signature v.io/v23/vdl
 //
-// Note that two build tags are required to allow for the separation of the
-// generated output of this package and bootstrapping in other packages and
-// in particular the vdl command-line tool and code generation.
-//
+
 //go:build vdltoolbootstrapping
 // +build vdltoolbootstrapping
 

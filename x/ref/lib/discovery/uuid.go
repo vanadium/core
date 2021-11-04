@@ -5,7 +5,7 @@
 package discovery
 
 import (
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 )
 
 var (
@@ -19,17 +19,19 @@ var (
 
 // NewServiceUUID returns a version 5 UUID for the given interface name.
 func NewServiceUUID(interfaceName string) Uuid {
-	return Uuid(uuid.NewSHA1(v23UUID, []byte(interfaceName)))
+	h := uuid.NewSHA1(v23UUID, []byte(interfaceName))
+	return Uuid(h[:])
 }
 
 // NewAttributeUUID returns a version 5 UUID for the given name.
-//
-// TODO(jhahn): rename to NewAttributeUuid.
 func NewAttributeUUID(name string) Uuid {
-	return Uuid(uuid.NewSHA1(v23AttrUUID, []byte(name)))
+	h := uuid.NewSHA1(v23AttrUUID, []byte(name))
+	return Uuid(h[:])
 }
 
 // String returns the string form of uuid 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'.
 func (u Uuid) String() string {
-	return uuid.UUID(u).String()
+	var tmp uuid.UUID
+	copy(tmp[:], u)
+	return tmp.String()
 }

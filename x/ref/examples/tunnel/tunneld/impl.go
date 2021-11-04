@@ -5,8 +5,6 @@
 package main
 
 import (
-	"github.com/kr/pty"
-
 	"errors"
 	"fmt"
 	"io"
@@ -18,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/creack/pty"
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/v23/security"

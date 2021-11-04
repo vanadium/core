@@ -59,7 +59,7 @@ func TestBasic(t *testing.T) { //nolint:gocyclo
 		stops = append(stops, stop)
 	}
 
-	p2, err := newWithTTL(ctx, "h2", 10*time.Millisecond)
+	p2, err := newWithTTL(ctx, "h2", 100*time.Millisecond)
 	if err != nil {
 		t.Fatalf("New() failed: %v", err)
 	}

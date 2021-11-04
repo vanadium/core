@@ -96,7 +96,6 @@ func TestPrincipal(t *testing.T) {
 	printBlessings(blessings)
 	`)
 	fmt.Println("------------")
-	fmt.Println("xxx ", pk.String())
 	fmt.Println(out)
 
 	if got, want := out, "PublicKey          : "+pk.String(); !strings.Contains(got, want) {

@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 	mdns "github.com/vanadium/go-mdns-sd"
 
 	"v.io/v23/context"
@@ -84,8 +84,9 @@ type subscription struct {
 }
 
 func interfaceNameToServiceName(interfaceName string) string {
-	serviceUUID := idiscovery.NewServiceUUID(interfaceName)
-	return uuid.UUID(serviceUUID).String() + serviceNameSuffix
+	var tmp uuid.UUID
+	copy(tmp[:], idiscovery.NewServiceUUID(interfaceName))
+	return tmp.String() + serviceNameSuffix
 }
 
 func (p *plugin) Advertise(ctx *context.T, adinfo *idiscovery.AdInfo, done func()) (err error) {

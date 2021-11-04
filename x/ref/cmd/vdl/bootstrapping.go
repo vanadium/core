@@ -3,8 +3,8 @@
 // generate go output when boostrapping in order to regenerate
 // v23/vdlroot/vdltool and v23/vdl.
 //
-//go:build vdlbootstrapping
-// +build vdlbootstrapping
+//go:build vdlbootstrapping || vdltoolbootstrapping
+// +build vdlbootstrapping vdltoolbootstrapping
 
 package main
 
