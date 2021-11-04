@@ -49,7 +49,7 @@ func AdvertiseServer(ctx *context.T, d discovery.T, server rpc.Server, suffix st
 			select {
 			case <-status.Dirty:
 				status = server.Status()
-				if status.State != rpc.ServerActive {
+				if status.State == rpc.ServerStopping || status.State == rpc.ServerStopped {
 					stop()
 					return
 				}
