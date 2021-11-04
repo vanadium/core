@@ -5,6 +5,7 @@
 package sync
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -130,12 +131,13 @@ func TestCloseWhileInDec(t *testing.T) {
 	const N = 100
 	s := NewSemaphore()
 	var pending sync.WaitGroup
+	errCh := make(chan error, N)
 	pending.Add(N)
 
 	dec := func(idx int) {
 		defer pending.Done()
 		if err := s.Dec(nil); err != nil {
-			t.Fatalf("%v (%d)", err, idx)
+			errCh <- fmt.Errorf("%v (%d)", err, idx)
 		}
 	}
 
@@ -145,6 +147,12 @@ func TestCloseWhileInDec(t *testing.T) {
 	s.IncN(N + 1)
 	s.Close()
 	pending.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatalf("error from dec goroutine: %v", err)
+		}
+	}
 	if got, want := s.DecN(2, nil), ErrClosed; got != want {
 		t.Errorf("Expected error %v, got %v instead", want, got)
 	}

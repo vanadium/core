@@ -117,8 +117,9 @@ func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 		bs.state.DefaultBlessings = oldDefault
 		return err
 	}
-	close(bs.defCh)
+	ch := bs.defCh
 	bs.defCh = make(chan struct{})
+	close(ch)
 	return nil
 }
 
@@ -371,7 +372,8 @@ func (bs *blessingStore) load() error {
 		return fmt.Errorf("failed to load BlessingStore: %v", err)
 	}
 	if !state.DefaultBlessings.Equivalent(bs.state.DefaultBlessings) {
-		close(bs.defCh)
+		ch := bs.defCh
+		defer close(ch)
 		bs.defCh = make(chan struct{})
 	}
 	bs.state = state
