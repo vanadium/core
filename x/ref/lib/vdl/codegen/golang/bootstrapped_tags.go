@@ -5,8 +5,8 @@
 // struct tags defined in config.vdl are not supported in bootstrapping
 // mode. This file contains the functions used for normal operation.
 //
-//go:build !vdlbootstrapping
-// +build !vdlbootstrapping
+//go:build !vdltoolbootstrapping
+// +build !vdltoolbootstrapping
 
 package golang
 

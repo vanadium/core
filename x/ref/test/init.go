@@ -72,7 +72,7 @@ func debug(ctx *context.T, shutdown func()) {
 		cancel()
 	}()
 
-	if err := browseserver.Serve(ctx, *debugOnShutdown, eps[0].Name(), 10*time.Second, false, ""); err != nil {
+	if err := browseserver.Serve(ctx, *debugOnShutdown, eps[0].Name(), 10*time.Second, nil, false); err != nil {
 		ctx.Infof("Stopped debug server: %v", err)
 	}
 	shutdown()

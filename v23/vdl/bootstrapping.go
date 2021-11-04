@@ -1,10 +1,10 @@
 // Boostrapping mode is required to generate all vdl output files starting
 // with no pre-existing vdl generated files. Currently the vdl tool
 // chain depends on the generated output of this package and
-// v.io/v23/vdlroot/vdltool.
+// v.io/v23/vdlroot
 //
-//go:build vdlbootstrapping
-// +build vdlbootstrapping
+//go:build vdlbootstrapping || vdltoolbootstrapping
+// +build vdlbootstrapping vdltoolbootstrapping
 
 package vdl
 
