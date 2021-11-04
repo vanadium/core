@@ -115,7 +115,7 @@ func newDirServer(ctx *context.T, d *idiscovery, opts ...rpc.ServerOpt) (*dirSer
 			select {
 			case <-status.Dirty:
 				status = server.Status()
-				if status.State != rpc.ServerActive {
+				if status.State == rpc.ServerStopping || status.State == rpc.ServerStopped {
 					return
 				}
 				newAddrs := sortedNames(status.Endpoints)

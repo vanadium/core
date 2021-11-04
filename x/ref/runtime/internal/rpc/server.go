@@ -109,7 +109,7 @@ func WithNewDispatchingServer(ctx *context.T,
 		dirty:             make(chan struct{}),
 		disp:              dispatcher,
 		typeCache:         newTypeCache(),
-		state:             rpc.ServerActive,
+		state:             rpc.ServerInitializing,
 		endpoints:         make(map[string]naming.Endpoint),
 		lameDuckTimeout:   5 * time.Second, // TODO(cnicolaou): make this an option
 		closed:            make(chan struct{}),
@@ -212,10 +212,7 @@ func WithNewDispatchingServer(ctx *context.T,
 				break
 			}
 		}
-
-		s.Lock()
-		s.state = rpc.ServerStopping
-		s.Unlock()
+		s.setState(rpc.ServerStopping)
 		serverDebug := fmt.Sprintf("Dispatcher: %T, Status:[%v]", s.disp, s.Status())
 		s.ctx.VI(1).Infof("Stop: %s", serverDebug)
 		defer s.ctx.VI(1).Infof("Stop done: %s", serverDebug)
@@ -249,16 +246,10 @@ func WithNewDispatchingServer(ctx *context.T,
 		// should return right away.
 		<-s.publisher.Closed()
 		<-s.flowMgr.Closed()
-		s.Lock()
-		close(s.dirty)
-		s.dirty = nil
-		s.Unlock()
 		// Now we really will wait forever.  If this doesn't exit, there's something
 		// wrong with the users code.
 		<-done
-		s.Lock()
-		s.state = rpc.ServerStopped
-		s.Unlock()
+		s.setState(rpc.ServerStopped)
 		close(s.closed)
 		s.typeCache.close()
 	}()
@@ -512,6 +503,14 @@ func setDiff(a, b map[string]naming.Endpoint) map[string]naming.Endpoint {
 	return ret
 }
 
+func (s *server) setState(state rpc.ServerState) {
+	s.Lock()
+	defer s.Unlock()
+	s.state = state
+	close(s.dirty)
+	s.dirty = make(chan struct{})
+}
+
 func (s *server) acceptLoop(ctx *context.T) error {
 	var calls sync.WaitGroup
 	defer func() {
@@ -519,11 +518,7 @@ func (s *server) acceptLoop(ctx *context.T) error {
 		s.active.Done()
 		s.ctx.VI(1).Infof("rpc: Stopped accepting")
 	}()
-	s.Lock()
-	s.state = rpc.ServerReady
-	close(s.dirty)
-	s.dirty = make(chan struct{})
-	s.Unlock()
+	s.setState(rpc.ServerReady)
 	for {
 		// TODO(mattr): We need to interrupt Accept at some point.
 		// Should we interrupt it by canceling the context?

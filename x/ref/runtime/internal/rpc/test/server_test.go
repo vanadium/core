@@ -90,7 +90,7 @@ func TestServerStatus(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	status := server.Status()
+	status := testutil.WaitForServerReady(server)
 	if got, want := status.State, rpc.ServerReady; got != want {
 		t.Fatalf("got %s, want %s", got, want)
 	}
