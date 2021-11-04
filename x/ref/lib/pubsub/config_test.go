@@ -21,6 +21,15 @@ func ExamplePublisher() {
 	pub := pubsub.NewPublisher()
 	pub.CreateStream("net", "network settings", in)
 
+	// Publish an initial Setting to the Stream.
+	// Note that this, and the  coll to ForkStream below are in a race since
+	// although the send below will not complete until the value has been read
+	// from it by the internal goroutine in the publisher, that goroutine may
+	// get descheduled before it can update the internal state in the publisher
+	// that ForkStream uses to capture the latest value. That is, the latest
+	// value returned by ForkStream below may be nil, hence the while loop below.
+	in <- pubsub.NewString("ip", "address", "1.2.3.4")
+
 	// A simple producer of IP address settings.
 	producer := func() {
 		in <- pubsub.NewString("ip", "address", "1.2.3.5")
@@ -35,15 +44,20 @@ func ExamplePublisher() {
 		waiter.Done()
 	}
 
-	// Publish an initial Setting to the Stream.
-	in <- pubsub.NewString("ip", "address", "1.2.3.4")
-
 	// Fork the stream twice, and read the latest value.
 	ch1 := make(chan pubsub.Setting)
-	st, _ := pub.ForkStream("net", ch1)
+	var st *pubsub.Stream
+	for st == nil { // See comment above.
+		time.Sleep(time.Millisecond)
+		st, _ = pub.ForkStream("net", ch1)
+	}
 	fmt.Printf("1: %v\n", st.Latest["ip"])
+	st = nil
 	ch2 := make(chan pubsub.Setting)
-	st, _ = pub.ForkStream("net", ch2)
+	for st == nil { // See comment above.
+		time.Sleep(time.Millisecond)
+		st, _ = pub.ForkStream("net", ch2)
+	}
 	fmt.Printf("2: %v\n", st.Latest["ip"])
 
 	// Now we can read new Settings as they are generated.
