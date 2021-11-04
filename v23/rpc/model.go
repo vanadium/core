@@ -220,12 +220,15 @@ const (
 	// ServerStopped indicates that the server has stopped. It can no longer be
 	// used.
 	ServerStopped
+	ServerReady
 )
 
 func (i ServerState) String() string {
 	switch i {
 	case ServerActive:
 		return "Active"
+	case ServerReady:
+		return "Ready"
 	case ServerStopping:
 		return "Stopping"
 	case ServerStopped:

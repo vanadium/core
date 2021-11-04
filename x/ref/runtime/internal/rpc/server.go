@@ -519,6 +519,11 @@ func (s *server) acceptLoop(ctx *context.T) error {
 		s.active.Done()
 		s.ctx.VI(1).Infof("rpc: Stopped accepting")
 	}()
+	s.Lock()
+	s.state = rpc.ServerReady
+	close(s.dirty)
+	s.dirty = make(chan struct{})
+	s.Unlock()
 	for {
 		// TODO(mattr): We need to interrupt Accept at some point.
 		// Should we interrupt it by canceling the context?
