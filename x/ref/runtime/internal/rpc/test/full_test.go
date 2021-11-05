@@ -1275,7 +1275,7 @@ func TestClientRefreshDischarges(t *testing.T) {
 		security.UnconstrainedUse()))
 
 	d := &dischargeServer{}
-	_, _, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", d, security.AllowEveryone())
+	_, dischargeServer, err := v23.WithNewServer(ctx, "mountpoint/dischargeserver", d, security.AllowEveryone())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1286,6 +1286,9 @@ func TestClientRefreshDischarges(t *testing.T) {
 	}
 	defer func() { <-server.Closed() }()
 	defer cancel()
+
+	testutil.WaitForServerPublished(dischargeServer)
+	testutil.WaitForServerPublished(server)
 
 	// Make a call to create a server connection. We don't care if the call succeeds,
 	// we just want to make sure that we fetch discharges only once when we are a client.
