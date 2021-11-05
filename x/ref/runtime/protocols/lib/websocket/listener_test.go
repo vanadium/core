@@ -54,7 +54,7 @@ func TestAcceptsAreNotSerialized(t *testing.T) {
 	// blocked on the portscanner.
 	// (Wait for the portscanner to establish the TCP connection first).
 	<-portscan
-	conn, err := WS{}.Dial(ctx, ln.Addr().Network(), ln.Addr().String(), time.Second)
+	conn, err := WS{}.Dial(ctx, ln.Addr().Network(), ln.Addr().String(), 5*time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
