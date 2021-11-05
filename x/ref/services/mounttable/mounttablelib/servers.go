@@ -14,6 +14,7 @@ import (
 	"v.io/v23/options"
 	"v.io/v23/rpc"
 	"v.io/x/ref/lib/signals"
+	"v.io/x/ref/lib/timekeeper"
 )
 
 func Main(opts Opts) error {
@@ -23,7 +24,7 @@ func Main(opts Opts) error {
 }
 
 func MainWithCtx(ctx *context.T, opts Opts) error {
-	name, stop, err := StartServers(ctx, v23.GetListenSpec(ctx), opts.MountName, opts.NhName, opts.AclFile, opts.PersistDir, "mounttable")
+	name, stop, err := StartServers(ctx, v23.GetListenSpec(ctx), opts.MountName, opts.NhName, opts.AclFile, opts.PersistDir, "mounttable", opts.LogLevel)
 	if err != nil {
 		return fmt.Errorf("mounttablelib.StartServers failed: %v", err)
 	}
@@ -34,7 +35,7 @@ func MainWithCtx(ctx *context.T, opts Opts) error {
 	return nil
 }
 
-func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, permsFile, persistDir, debugPrefix string) (string, func(), error) {
+func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, permsFile, persistDir, debugPrefix string, logLevel int) (string, func(), error) {
 	var stopFuncs []func()
 	ctx, cancel := context.WithCancel(ctx)
 	stop := func() {
@@ -44,7 +45,7 @@ func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, 
 		}
 	}
 
-	mt, err := NewMountTableDispatcher(ctx, permsFile, persistDir, debugPrefix)
+	mt, err := NewMountTableDispatcherWithClock(ctx, permsFile, persistDir, debugPrefix, timekeeper.RealTime(), logLevel)
 	if err != nil {
 		ctx.Errorf("NewMountTable failed: %v", err)
 		return "", nil, err
@@ -87,9 +88,9 @@ func StartServers(ctx *context.T, listenSpec rpc.ListenSpec, mountName, nhName, 
 		}
 		var nh rpc.Dispatcher
 		if host == "127.0.0.1" || host == "localhost" {
-			nh, err = NewLoopbackNeighborhoodDispatcher(nhName, names...)
+			nh, err = NewLoopbackNeighborhoodDispatcher(nhName, logLevel, names...)
 		} else {
-			nh, err = NewNeighborhoodDispatcher(nhName, names...)
+			nh, err = NewNeighborhoodDispatcher(nhName, logLevel, names...)
 		}
 		if err != nil {
 			ctx.Errorf("NewLoopback or Neighborhood dispatcher (host %s) failed: %v", host, err)

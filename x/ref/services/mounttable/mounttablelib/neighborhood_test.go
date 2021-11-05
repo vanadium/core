@@ -41,7 +41,7 @@ func TestNeighborhood(t *testing.T) { //nolint:gocyclo
 	// Create a name for the server.
 	serverName := fmt.Sprintf("nhtest%d", os.Getpid())
 	// Add neighborhood server.
-	nhd, err := mounttablelib.NewLoopbackNeighborhoodDispatcher(serverName, addresses...)
+	nhd, err := mounttablelib.NewLoopbackNeighborhoodDispatcher(serverName, 0, addresses...)
 	if err != nil {
 		boom(t, "Failed to create neighborhood server: %s\n", err)
 	}
