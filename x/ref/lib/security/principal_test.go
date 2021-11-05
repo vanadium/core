@@ -148,9 +148,11 @@ func TestReadonlyAccess(t *testing.T) {
 	}
 
 	// Read-only access without a dir.lock file should succeed for a read-only
-	// filesystem, but fail otherwise after attempting to create a lock file.
+	// filesystem since there's no need for a read-lock in that case,
+	// but will otherwise fail since write-access is required to create a read-only
+	// file lock.
 	_, err = LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
-	if err == nil || !strings.Contains(err.Error(), "failed to create new read lock") {
+	if err == nil || !strings.Contains(err.Error(), "dir.lock: permission denied") {
 		t.Fatalf("missing or incorrect error: %v", err)
 	}
 
