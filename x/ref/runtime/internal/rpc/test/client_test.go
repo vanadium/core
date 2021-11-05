@@ -1075,7 +1075,7 @@ func TestIdleConnectionExpiry(t *testing.T) {
 	if err := client.Call(ctx, name, "Closure", nil, nil); err != nil {
 		t.Error(err)
 	}
-	time.Sleep(20 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	// Now the connection should no longer be in the cache so connection timeout of zero should fail.
 	if err := client.Call(ctx, name, "Closure", nil, nil, options.ConnectionTimeout(0)); err == nil {
 		t.Errorf("expected call to fail, got success")
