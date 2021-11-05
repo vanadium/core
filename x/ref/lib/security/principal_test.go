@@ -429,17 +429,17 @@ func createAliceAndBob(ctx gocontext.Context, t *testing.T, creator func(dir str
 	return
 }
 
-func waitForDefaultChanges(oab, abb security.Blessings, ap, bp security.Principal) {
-	nab, aCh := ap.BlessingStore().Default()
-	nbb, bCh := bp.BlessingStore().Default()
-
-	// just in case we missed the update.
-	if !nab.Equivalent(oab) && !nbb.Equivalent(nbb) {
-		return
-	}
-
+func waitForDefaultChanges(oab, obb security.Blessings, ap, bp security.Principal) {
 	a, b := false, false
+	_, aCh := ap.BlessingStore().Default()
+	_, bCh := bp.BlessingStore().Default()
 	for {
+		// just in case we missed the update
+		nab, _ := ap.BlessingStore().Default()
+		nbb, _ := bp.BlessingStore().Default()
+		if !nab.Equivalent(oab) && !nbb.Equivalent(obb) {
+			return
+		}
 		select {
 		case <-aCh:
 			a = true
