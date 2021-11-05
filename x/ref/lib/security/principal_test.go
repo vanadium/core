@@ -429,9 +429,14 @@ func createAliceAndBob(ctx gocontext.Context, t *testing.T, creator func(dir str
 	return
 }
 
-func waitForDefaultChanges(ap, bp security.Principal) {
-	_, aCh := ap.BlessingStore().Default()
-	_, bCh := bp.BlessingStore().Default()
+func waitForDefaultChanges(oab, abb security.Blessings, ap, bp security.Principal) {
+	nab, aCh := ap.BlessingStore().Default()
+	nbb, bCh := bp.BlessingStore().Default()
+
+	// just in case we missed the update.
+	if !nab.Equivalent(oab) && !nbb.Equivalent(nbb) {
+		return
+	}
 
 	a, b := false, false
 	for {
@@ -444,7 +449,7 @@ func waitForDefaultChanges(ap, bp security.Principal) {
 		if a && b {
 			break
 		}
-		time.Sleep(time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 }
 
@@ -462,7 +467,7 @@ func waitForRootChanges(ap, bp security.Principal) {
 		if a && b {
 			break
 		}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 }
 
@@ -479,6 +484,9 @@ func TestDaemonMode(t *testing.T) {
 func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map[string]security.Principal) {
 	alice, bob := principals["alice"], principals["bob"]
 	aliced, bobd := daemons["alice"], daemons["bob"]
+
+	origAliceDBlessings, _ := aliced.BlessingStore().Default()
+	origBobDBlessings, _ := aliced.BlessingStore().Default()
 
 	for _, p := range []string{"alice", "bob"} {
 		self, err := principals[p].BlessSelf(p)
@@ -501,7 +509,7 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 	// Don't send a SIGHUP to ourselves here since it seems to crash vscode!
 
 	// Wait for default blessings to change.
-	waitForDefaultChanges(aliced, bobd)
+	waitForDefaultChanges(origAliceDBlessings, origBobDBlessings, aliced, bobd)
 	waitForRootChanges(aliced, bobd)
 
 	for _, p := range []string{"alice", "bob"} {
