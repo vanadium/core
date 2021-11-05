@@ -7,6 +7,7 @@ package internal_test
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -111,25 +112,27 @@ func TestApproximateLoadBalancing(t *testing.T) { //nolint:gocyclo
 
 	iterations := 30
 	runAndTestClient := func(useCancel bool, s1, s2 string) {
+		_, _, line, _ := runtime.Caller(1)
 		expected := "with_cancel"
 		if !useCancel {
 			expected = "without_cancel"
 		}
 		responses, err := callClient(ctx, expected, iterations, useCancel)
 		if err != nil {
-			t.Fatalf("callClient failed: %v", err)
+			t.Fatalf("line: %v, callClient failed: %v", line, err)
 		}
 		if got, want := len(responses), iterations; got != want {
-			t.Fatalf("got %v, want %v", got, want)
+			t.Fatalf("line: %v, got %v, want %v", line, got, want)
 		}
 		a, b := countServers(responses, s1, s2)
 		if a == 0 || b == 0 {
-			t.Errorf("%v: no load balancing: %v, %v", expected, a, b)
+			t.Logf("All responses: %s", strings.Join(responses, "\n"))
+			t.Errorf("line: %v, %v: no load balancing: %v, %v", line, expected, a, b)
 		}
 		if got, want := a+b, iterations; got != want {
-			t.Errorf("%v: got %v, want %v", expected, got, want)
+			t.Errorf("line %v, %v: got %v, want %v", line, expected, got, want)
 		}
-		t.Logf("%v: %v %v, %v %v", expected, s1, a, s2, b)
+		t.Logf("line %v: %v: %v %v, %v %v", line, expected, s1, a, s2, b)
 	}
 
 	runAndTestClient(true, "__A__", "__B__")
