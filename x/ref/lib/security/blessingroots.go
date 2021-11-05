@@ -187,7 +187,8 @@ func reload(ctx context.Context, loader func() (func(), error), hupCh <-chan os.
 		}
 		unlock, err := loader()
 		if err != nil {
-			logger.Global().InfoStack(false)
+			// for debugging only, remove once flaky test is fixed.
+			logger.Global().InfoStack(true)
 			logger.Global().Infof("failed tp reload principal: %v", err)
 			continue
 		}

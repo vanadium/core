@@ -409,10 +409,7 @@ func generatePEMPrincipal(passphrase []byte) (dir string) {
 func createAliceAndBob(ctx gocontext.Context, t *testing.T, creator func(dir string, pass []byte) (security.Principal, error)) (principals, daemons map[string]security.Principal) {
 	principals, daemons = map[string]security.Principal{}, map[string]security.Principal{}
 	for _, p := range []string{"alice", "bob"} {
-		dir, err := ioutil.TempDir("", "alice")
-		if err != nil {
-			t.Fatal(err)
-		}
+		dir := t.TempDir()
 		if _, err := creator(dir, nil); err != nil {
 			t.Fatal(err)
 		}
@@ -442,10 +439,28 @@ func waitForDefaultChanges(ap, bp security.Principal) {
 		case <-bCh:
 			b = true
 		}
-		time.Sleep(time.Millisecond)
 		if a && b {
 			break
 		}
+		time.Sleep(time.Millisecond)
+	}
+}
+
+func waitForRootChanges(ap, bp security.Principal) {
+	// There is currently no better way to wait for the blessing roots
+	// to change than polling.
+	a, b := false, false
+	for {
+		if len(ap.Roots().Dump()) > 0 {
+			a = true
+		}
+		if len(bp.Roots().Dump()) > 0 {
+			b = true
+		}
+		if a && b {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -469,6 +484,7 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 			t.Fatal(err)
 		}
 		SetDefaultBlessings(principals[p], self)
+
 		// Default blessings will not have been reloaded by the daemons yet.
 		dp := daemons[p]
 		if got, want := len(dp.Roots().Dump()), 0; got != want {
@@ -484,6 +500,7 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 
 	// Wait for default blessings to change.
 	waitForDefaultChanges(aliced, bobd)
+	waitForRootChanges(aliced, bobd)
 
 	for _, p := range []string{"alice", "bob"} {
 		dp := daemons[p]
