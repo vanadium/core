@@ -187,7 +187,7 @@ func reload(ctx context.Context, loader func() (func(), error), hupCh <-chan os.
 		}
 		unlock, err := loader()
 		if err != nil {
-			logger.Global().Infof("failed tp reload principal: %v", err)
+			logger.Global().Infof("failed to reload principal: %v", err)
 			continue
 		}
 		unlock()

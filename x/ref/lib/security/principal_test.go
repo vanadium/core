@@ -494,7 +494,6 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 			t.Fatal(err)
 		}
 		SetDefaultBlessings(principals[p], self)
-
 		// Default blessings will not have been reloaded by the daemons yet.
 		dp := daemons[p]
 		if got, want := len(dp.Roots().Dump()), 0; got != want {
