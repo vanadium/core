@@ -71,7 +71,7 @@ func (mu *Mutex) RLock() (unlock func(), err error) {
 	if mu.Path == "" {
 		panic("lockedfile.Mutex: missing Path during Lock")
 	}
-	f, err := OpenFile(mu.Path, os.O_RDONLY, 0000)
+	f, err := OpenFile(mu.Path, os.O_RDONLY|os.O_CREATE, 0444)
 	if err != nil {
 		return nil, err
 	}

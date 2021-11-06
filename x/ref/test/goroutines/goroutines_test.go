@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const leakWaitTime = 250 * time.Millisecond
+const leakWaitTime = 2 * time.Second
 
 func wrappedWaitForIt(wg *sync.WaitGroup, wait chan struct{}, n int64) {
 	if n == 0 {

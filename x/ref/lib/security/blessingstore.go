@@ -118,8 +118,8 @@ func (bs *blessingStore) SetDefault(blessings security.Blessings) error {
 		return err
 	}
 	ch := bs.defCh
+	defer close(ch)
 	bs.defCh = make(chan struct{})
-	close(ch)
 	return nil
 }
 

@@ -53,7 +53,7 @@ func runTest(t *testing.T, dialObj, listenObj flow.Protocol, dialP, listenP stri
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	address := "127.0.0.1:0"
-	timeout := time.Second
+	timeout := 5 * time.Second
 	acceptCh := make(chan flow.Conn)
 
 	ln, err := listenObj.Listen(ctx, listenP, address)
