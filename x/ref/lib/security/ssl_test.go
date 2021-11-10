@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/internal"
@@ -102,8 +103,10 @@ func TestLetsEncryptKeys(t *testing.T) {
 		t.Errorf("failed to verify signature using %v: %v", filename, err)
 	}
 
+	pastTime, _ := time.Parse("2006-Jan-02", "2021-Nov-02")
 	opts := x509.VerifyOptions{
-		Roots: customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
+		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
+		CurrentTime: pastTime,
 	}
 	cert, err := seclib.ParseOpenSSLCertificateFile(filename, opts)
 	if err != nil {
