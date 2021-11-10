@@ -7,8 +7,8 @@ package swift
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -58,7 +58,7 @@ func (ctx *swiftContext) findSwiftModule(pkg *compile.Package) (path string, mod
 	fileDir := ctx.genPathToDir[pkg.GenPath]
 	for {
 		configPath := filepath.Join(fileDir, "swiftmodule")
-		module, err := ioutil.ReadFile(configPath)
+		module, err := os.ReadFile(configPath)
 		if err == nil && module != nil {
 			return fileDir, strings.TrimSpace(string(module))
 		}

@@ -7,7 +7,6 @@ package debuglib_test
 import (
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -45,13 +44,13 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 	}
 	debuglib.RootName = "debug"
 
-	workdir, err := ioutil.TempDir("", "logreadertest")
+	workdir, err := os.MkdirTemp("", "logreadertest")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir: %v", err)
+		t.Fatalf("os.MkdirTemp: %v", err)
 	}
 	defer os.RemoveAll(workdir)
-	if err = ioutil.WriteFile(filepath.Join(workdir, "test.INFO"), []byte("test"), os.FileMode(0644)); err != nil {
-		t.Fatalf("ioutil.WriteFile failed: %v", err)
+	if err = os.WriteFile(filepath.Join(workdir, "test.INFO"), []byte("test"), os.FileMode(0644)); err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
 	}
 
 	// Use logger configured with the directory that we want to use for this test.

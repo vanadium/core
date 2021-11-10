@@ -6,7 +6,6 @@ package build_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -67,9 +66,9 @@ func TestSrcDirsVDLRoot(t *testing.T) {
 		{"/a", "/a", ""},
 		{"/a/b/c", "/a/b/c", ""},
 	}
-	tmpDir, err := ioutil.TempDir("", "")
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
-		t.Fatalf("TempDir() failed: %v", err)
+		t.Fatalf("MkdirTemp() failed: %v", err)
 	}
 	defer os.RemoveAll(tmpDir)
 	for _, test := range tests {

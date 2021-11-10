@@ -5,7 +5,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -52,15 +51,15 @@ func TestParseFileNameError(t *testing.T) {
 }
 
 func TestParseFileInfo(t *testing.T) {
-	tmpdir, err := ioutil.TempDir("", "parse-file-info-")
+	tmpdir, err := os.MkdirTemp("", "parse-file-info-")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir failed: %v", err)
+		t.Fatalf("os.MkdirTemp: failed: %v", err)
 	}
 	defer os.RemoveAll(tmpdir)
 
 	name := "program.host.user.log.vanadium.INFO.20141204-131502.12345"
-	if err := ioutil.WriteFile(filepath.Join(tmpdir, name), []byte{}, 0644); err != nil {
-		t.Fatalf("ioutil.WriteFile failed: %v", err)
+	if err := os.WriteFile(filepath.Join(tmpdir, name), []byte{}, 0644); err != nil {
+		t.Fatalf("os.WriteFile failed: %v", err)
 	}
 	link := "program.INFO"
 	if err := os.Symlink(name, filepath.Join(tmpdir, link)); err != nil {

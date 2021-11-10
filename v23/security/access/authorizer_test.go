@@ -5,7 +5,6 @@
 package access_test
 
 import (
-	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
@@ -337,7 +336,7 @@ func TestPermissionsAuthorizerWithNilAccessList(t *testing.T) {
 }
 
 func TestPermissionsAuthorizerFromFile(t *testing.T) {
-	file, err := ioutil.TempFile("", "TestPermissionsAuthorizerFromFile")
+	file, err := os.CreateTemp("", "TestPermissionsAuthorizerFromFile")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -368,7 +367,7 @@ func TestPermissionsAuthorizerFromFile(t *testing.T) {
 		t.Fatalf("Expected authorization error as %v is not on the AccessList for Read operations", alicefriend)
 	}
 	// Rewrite the file giving access
-	if err := ioutil.WriteFile(filename, []byte(`{"R": { "In":["alice:friend"] }}`), 0600); err != nil {
+	if err := os.WriteFile(filename, []byte(`{"R": { "In":["alice:friend"] }}`), 0600); err != nil {
 		t.Fatal(err)
 	}
 	// Now should have access

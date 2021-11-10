@@ -44,7 +44,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -187,7 +186,7 @@ func newPackage(path, genPath, dir string, mode UnknownPathMode, opts Opts, vdle
 
 // initBaseFileNames initializes p.BaseFileNames from the contents of p.Dir.
 func (p *Package) initBaseFileNames() error {
-	infos, err := ioutil.ReadDir(p.Dir)
+	infos, err := os.ReadDir(p.Dir)
 	if err != nil {
 		return err
 	}
@@ -282,7 +281,7 @@ func openBuiltInFiles(fileNames []string) (map[string]io.ReadCloser, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s: can't load builtin file: %v", fileName, err)
 		}
-		files[path.Base(fileName)] = ioutil.NopCloser(file)
+		files[path.Base(fileName)] = io.NopCloser(file)
 	}
 	return files, nil
 }
@@ -322,7 +321,7 @@ func SrcDirs(errs *vdlutil.Errors) []string {
 // the directory specified by path, or an empty string otherwise.
 func GoModuleName(path string) (string, error) {
 	gomod := filepath.Join(path, "go.mod")
-	buf, err := ioutil.ReadFile(gomod)
+	buf, err := os.ReadFile(gomod)
 	if err != nil {
 		if os.IsNotExist(err) {
 			err = nil

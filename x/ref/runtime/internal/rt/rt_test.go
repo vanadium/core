@@ -6,7 +6,6 @@ package rt_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"testing"
@@ -119,7 +118,7 @@ func defaultBlessing(p security.Principal) string {
 }
 
 func tmpDir(t *testing.T) string {
-	dir, err := ioutil.TempDir("", "rt_test_dir")
+	dir, err := os.MkdirTemp("", "rt_test_dir")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}

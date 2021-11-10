@@ -9,7 +9,6 @@ package logreaderlib_test
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -46,9 +45,9 @@ func TestReadLogImplNoFollow(t *testing.T) { //nolint:gocyclo
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	workdir, err := ioutil.TempDir("", "logreadertest")
+	workdir, err := os.MkdirTemp("", "logreadertest")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir: %v", err)
+		t.Fatalf("os.MkdirTemp: %v", err)
 	}
 	defer os.RemoveAll(workdir)
 	ctx, server, err := v23.WithNewDispatchingServer(ctx, "", &logFileDispatcher{workdir})
@@ -132,9 +131,9 @@ func TestReadLogImplWithFollow(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	workdir, err := ioutil.TempDir("", "logreadertest")
+	workdir, err := os.MkdirTemp("", "logreadertest")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir: %v", err)
+		t.Fatalf("os.MkdirTemp: %v", err)
 	}
 	defer os.RemoveAll(workdir)
 	ctx, server, err := v23.WithNewDispatchingServer(ctx, "", &logFileDispatcher{workdir})

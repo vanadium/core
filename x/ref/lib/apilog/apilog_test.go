@@ -6,7 +6,6 @@ package apilog_test
 
 import (
 	"bufio"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -18,14 +17,14 @@ import (
 )
 
 func readLogFiles(dir string) ([]string, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 	var contents []string
 	for _, fi := range files {
 		// Skip symlinks to avoid double-counting log lines.
-		if !fi.Mode().IsRegular() {
+		if !fi.Type().IsRegular() {
 			continue
 		}
 		file, err := os.Open(filepath.Join(dir, fi.Name()))
@@ -48,7 +47,7 @@ func myLoggedFunc(ctx *context.T) {
 }
 
 func TestLogCall(t *testing.T) {
-	dir, err := ioutil.TempDir("", "logtest")
+	dir, err := os.MkdirTemp("", "logtest")
 	defer os.RemoveAll(dir)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -63,7 +62,7 @@ func TestLogCall(t *testing.T) {
 }
 
 func TestLogCallNoContext(t *testing.T) {
-	dir, err := ioutil.TempDir("", "logtest")
+	dir, err := os.MkdirTemp("", "logtest")
 	defer os.RemoveAll(dir)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)

@@ -8,7 +8,6 @@ package concurrency_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -165,9 +164,9 @@ func TestRWMutex(t *testing.T) {
 // exploration explores the correct number of interleavings.
 func TestRWMutexExplore(t *testing.T) {
 	for n := 2; n < 5; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
-			t.Fatalf("TempFile() failed: %v", err)
+			t.Fatalf("CreateTemp() failed: %v", err)
 		}
 		defer os.Remove(out.Name())
 		defer out.Close()
@@ -192,9 +191,9 @@ func TestRWMutexExplore(t *testing.T) {
 func TestRWMutexExploreN(t *testing.T) {
 	stopAfter := 100
 	for n := 2; n < 5; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
-			t.Fatalf("TempFile() failed: %v", err)
+			t.Fatalf("CreateTemp() failed: %v", err)
 		}
 		defer os.Remove(out.Name())
 		defer out.Close()
@@ -224,7 +223,7 @@ func TestRWMutexExploreN(t *testing.T) {
 func TestRWMutexExploreFor(t *testing.T) {
 	deadline := 10 * time.Millisecond
 	for n := 2; n < 5; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
 			t.Fatalf("TempFile() failed: %v", err)
 		}

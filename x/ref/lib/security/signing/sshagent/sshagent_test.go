@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -53,7 +52,7 @@ func TestMain(m *testing.M) {
 }
 
 func loadSSHPrivateKey(filename string) (crypto.PrivateKey, error) {
-	pemBlockBytes, err := ioutil.ReadFile(filename)
+	pemBlockBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}

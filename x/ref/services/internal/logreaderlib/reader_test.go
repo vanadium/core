@@ -6,7 +6,6 @@ package logreaderlib
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -22,9 +21,9 @@ func writeAndSync(t *testing.T, w *os.File, s string) {
 }
 
 func TestFollowReaderNoFollow(t *testing.T) {
-	w, err := ioutil.TempFile("", "reader-test-")
+	w, err := os.CreateTemp("", "reader-test-")
 	if err != nil {
-		t.Fatalf("ioutil.TempFile: unexpected error: %v", err)
+		t.Fatalf("os.CreateTemp: unexpected error: %v", err)
 	}
 	defer w.Close()
 	defer os.Remove(w.Name())
@@ -76,9 +75,9 @@ func sleep() {
 }
 
 func TestFollowReaderWithFollow(t *testing.T) {
-	w, err := ioutil.TempFile("", "reader-test-")
+	w, err := os.CreateTemp("", "reader-test-")
 	if err != nil {
-		t.Fatalf("ioutil.TempFile: unexpected error: %v", err)
+		t.Fatalf("os.CreateTemp: unexpected error: %v", err)
 	}
 	defer os.Remove(w.Name())
 

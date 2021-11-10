@@ -16,7 +16,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -1179,7 +1178,7 @@ func writeRecvBlessingsInfo(fname string, remoteKey, remoteToken, name string) e
 }
 
 func blessArgsFromFile(fname string) (remoteKey, remoteToken, tobless string, err error) {
-	blessJSON, err := ioutil.ReadFile(fname)
+	blessJSON, err := os.ReadFile(fname)
 	if err != nil {
 		return "", "", "", err
 	}

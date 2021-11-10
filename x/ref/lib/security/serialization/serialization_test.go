@@ -11,7 +11,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"io/ioutil"
 	mrand "math/rand"
 	"reflect"
 	"strings"
@@ -51,7 +50,7 @@ func verifyingRead(d, s io.Reader, key security.PublicKey) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewVerifyingReader failed: %s", err)
 	}
-	return ioutil.ReadAll(vr)
+	return io.ReadAll(vr)
 }
 
 func newSigner() serialization.Signer {

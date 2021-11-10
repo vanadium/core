@@ -14,7 +14,6 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -138,14 +137,14 @@ func TestSSHParse(t *testing.T) {
 }
 
 func TestCopyKeyFile(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestWriting")
+	dir, err := os.MkdirTemp("", "TestWriting")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
 	from, to := filepath.Join(dir, "from"), filepath.Join(dir, "to")
-	if err := ioutil.WriteFile(from, []byte{'0', '1', '\n'}, 0666); err != nil {
+	if err := os.WriteFile(from, []byte{'0', '1', '\n'}, 0666); err != nil {
 		t.Fatal(err)
 	}
 
@@ -167,7 +166,7 @@ func TestCopyKeyFile(t *testing.T) {
 }
 
 func TestPEMFiles(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestWriting")
+	dir, err := os.MkdirTemp("", "TestWriting")
 	if err != nil {
 		t.Fatal(err)
 	}

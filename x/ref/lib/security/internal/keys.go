@@ -16,7 +16,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"strings"
@@ -87,7 +86,7 @@ func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, pass
 // loadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
 // If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
 func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
-	pemBlockBytes, err := ioutil.ReadAll(r)
+	pemBlockBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +161,7 @@ func LoadPEMPublicKeyFile(filename string) (interface{}, error) {
 
 // LoadPEMPublicKey loads a public key in PEM PKIX format.
 func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
-	pemBlockBytes, err := ioutil.ReadAll(r)
+	pemBlockBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read bytes: %v", err)
 	}
@@ -196,7 +195,7 @@ func LoadSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
 
 // LoadSSHPublicKey loads a public key in SSH authorized hosts format.
 func LoadSSHPublicKey(r io.Reader) (ssh.PublicKey, string, error) {
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to read bytes: %v", err)
 	}
@@ -347,7 +346,7 @@ func CryptoKeyFromSSHKey(pk ssh.PublicKey) (interface{}, error) {
 
 // LoadCertificate loads a certificate from 'r'.
 func LoadCertificate(r io.Reader) (*x509.Certificate, error) {
-	pemBlockBytes, err := ioutil.ReadAll(r)
+	pemBlockBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

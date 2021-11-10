@@ -10,7 +10,6 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"sort"
@@ -151,7 +150,7 @@ func TestBlessingRoots(t *testing.T) {
 }
 
 func TestBlessingRootsPersistence(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestBlessingRootsPersistence")
+	dir, err := os.MkdirTemp("", "TestBlessingRootsPersistence")
 	if err != nil {
 		t.Fatal(err)
 	}

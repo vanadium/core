@@ -7,7 +7,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,7 +27,7 @@ func init() {
 }
 
 func verifyOutput(t *testing.T, outDir string) {
-	entries, err := ioutil.ReadDir(testDir)
+	entries, err := os.ReadDir(testDir)
 	if err != nil {
 		t.Fatalf("ReadDir(%v) failed: %v", testDir, err)
 	}
@@ -38,12 +37,12 @@ func verifyOutput(t *testing.T, outDir string) {
 			continue
 		}
 		testFile := filepath.Join(testDir, entry.Name())
-		testBytes, err := ioutil.ReadFile(testFile)
+		testBytes, err := os.ReadFile(testFile)
 		if err != nil {
 			t.Fatalf("ReadFile(%v) failed: %v", testFile, err)
 		}
 		outFile := filepath.Join(outDir, outPkgPath, entry.Name())
-		outBytes, err := ioutil.ReadFile(outFile)
+		outBytes, err := os.ReadFile(outFile)
 		if err != nil {
 			t.Fatalf("ReadFile(%v) failed: %v", outFile, err)
 		}

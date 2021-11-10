@@ -10,7 +10,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 
 	"v.io/v23/uniqueid"
@@ -85,7 +85,7 @@ var uniqueRE = regexp.MustCompile("[$]UNIQUEID")
 
 // injectIntoFile replaces $UNIQUEID$ strings when they exist in the specified file.
 func injectIntoFile(filename string) error {
-	inbytes, err := ioutil.ReadFile(filename)
+	inbytes, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func injectIntoFile(filename string) error {
 	// If the file with injections is different, write it to disk.
 	if !bytes.Equal(inbytes, replaced) {
 		fmt.Printf("Updated: %s\n", filename)
-		return ioutil.WriteFile(filename, replaced, 0)
+		return os.WriteFile(filename, replaced, 0)
 	}
 	return nil
 }

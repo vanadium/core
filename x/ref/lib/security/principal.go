@@ -12,7 +12,6 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -175,7 +174,7 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 // .pub file which it will use to lookup the matching private key in
 // its accessible ssh agent.
 func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +244,7 @@ func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update
 // state directory. It will accept either a publickey.pem file or an ssh
 // .pub file.
 func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ package security
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -148,7 +147,7 @@ func TestBlessingStore(t *testing.T) {
 }
 
 func TestBlessingStorePersistence(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestPersistingBlessingStore")
+	dir, err := os.MkdirTemp("", "TestPersistingBlessingStore")
 	if err != nil {
 		t.Fatal(err)
 	}

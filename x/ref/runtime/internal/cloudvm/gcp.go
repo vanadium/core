@@ -10,7 +10,7 @@ package cloudvm
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"sync"
@@ -137,7 +137,7 @@ func gcpGetMeta(ctx context.Context, url string, timeout time.Duration) (string,
 	if flavor := resp.Header["Metadata-Flavor"]; len(flavor) != 1 || flavor[0] != "Google" {
 		return "", fmt.Errorf("unexpected http header: %q", flavor)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

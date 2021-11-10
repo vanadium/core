@@ -5,7 +5,7 @@
 package main_test
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -53,7 +53,7 @@ func TestV23Tunneld(t *testing.T) {
 	cmd = sh.Cmd(vsh, tunnelEndpoint, "cat > "+outPath)
 	cmd.SetStdinReader(strings.NewReader(want))
 	cmd.Run()
-	if got, err := ioutil.ReadFile(outPath); err != nil {
+	if got, err := os.ReadFile(outPath); err != nil {
 		t.Fatalf("ReadFile(%v) failed: %v", outPath, err)
 	} else if string(got) != want {
 		t.Fatalf("unexpected output, got %s, want %s", string(got), want)

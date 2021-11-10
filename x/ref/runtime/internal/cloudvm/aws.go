@@ -11,7 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"sync"
@@ -113,7 +113,7 @@ func awsGet(ctx context.Context, imdsv2 bool, url string, timeout time.Duration)
 	if server := resp.Header["Server"]; len(server) != 1 || server[0] != "EC2ws" {
 		return nil, fmt.Errorf("wrong headers")
 	}
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 // awsInit returns true if it can access AWS project metadata and the version
@@ -184,7 +184,7 @@ func awsSetIMDSv2Token(ctx context.Context, url string, timeout time.Duration) (
 	if resp.StatusCode != 200 {
 		return "", err
 	}
-	token, err := ioutil.ReadAll(resp.Body)
+	token, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
