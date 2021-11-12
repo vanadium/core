@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -107,11 +106,11 @@ func FileTreeEqual(aRoot, bRoot string, opts FileTreeOpts) (bool, error) { //nol
 		if aDir {
 			continue
 		}
-		aBytes, err := ioutil.ReadFile(aNode.path)
+		aBytes, err := os.ReadFile(aNode.path)
 		if err != nil {
 			return false, fmt.Errorf("%v read failed: %v", aNode.path, err)
 		}
-		bBytes, err := ioutil.ReadFile(bNode.path)
+		bBytes, err := os.ReadFile(bNode.path)
 		if err != nil {
 			return false, fmt.Errorf("%v read failed: %v", bNode.path, err)
 		}

@@ -6,7 +6,6 @@ package dirprinter_test
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -21,7 +20,7 @@ func TestDumpDir(t *testing.T) {
 	// In addition to the tree checked in under testdata, we add the
 	// following:
 
-	tmpdir, err := ioutil.TempDir("", "testdump-dir")
+	tmpdir, err := os.MkdirTemp("", "testdump-dir")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +45,7 @@ func TestDumpDir(t *testing.T) {
 
 	// A file with no permissions, dir.1/dir.1.1/file.1.1.3.
 	filePath := filepath.Join(tmpdir, "testdata", "todump", "dir.1", "dir.1.1", "file.1.1.3")
-	if err := ioutil.WriteFile(filePath, []byte("can't read me"), 0); err != nil {
+	if err := os.WriteFile(filePath, []byte("can't read me"), 0); err != nil {
 		t.Fatalf("WriteFile failed: %v", err)
 	}
 
@@ -58,7 +57,7 @@ func TestDumpDir(t *testing.T) {
 	sh.Popd()
 	re := regexp.MustCompile(`[\d][\d]:[\d][\d]:[\d][\d].[\d][\d][\d][\d][\d][\d]`)
 	cleaned := re.ReplaceAll(out.Bytes(), []byte("hh:mm:ss.xxxxxx"))
-	expected, err := ioutil.ReadFile(filepath.Join("testdata", "expected"))
+	expected, err := os.ReadFile(filepath.Join("testdata", "expected"))
 	if err != nil {
 		t.Fatalf("ReadFile failed: %v", err)
 	}

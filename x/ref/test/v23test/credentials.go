@@ -5,7 +5,7 @@
 package v23test
 
 import (
-	"io/ioutil"
+	"os"
 
 	"v.io/v23/security"
 	libsec "v.io/x/ref/lib/security"
@@ -86,7 +86,7 @@ func newFilesystemPrincipalManager(rootDir string) principalManager {
 }
 
 func (pm *filesystemPrincipalManager) New() (string, error) {
-	dir, err := ioutil.TempDir(pm.rootDir, "")
+	dir, err := os.MkdirTemp(pm.rootDir, "")
 	if err != nil {
 		return "", err
 	}

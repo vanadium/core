@@ -12,7 +12,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"unicode"
@@ -100,7 +99,7 @@ func runDecode(env *cmdline.Env, args []string) error {
 	case len(args) == 1:
 		data = args[0]
 	default:
-		bytes, err := ioutil.ReadAll(os.Stdin)
+		bytes, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}

@@ -7,7 +7,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -21,9 +20,9 @@ import (
 
 func setup(t *testing.T, workdir, username string) (tmpdir string) {
 	var err error
-	tmpdir, err = ioutil.TempDir(workdir, "gclogs-test-setup-")
+	tmpdir, err = os.MkdirTemp(workdir, "gclogs-test-setup-")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir failed: %v", err)
+		t.Fatalf("os.MkdirTemp: failed: %v", err)
 	}
 	logfiles := []struct {
 		name string
@@ -41,8 +40,8 @@ func setup(t *testing.T, workdir, username string) (tmpdir string) {
 	for _, l := range logfiles {
 		l.name = strings.ReplaceAll(l.name, "%USER%", username)
 		filename := filepath.Join(tmpdir, l.name)
-		if err := ioutil.WriteFile(filename, []byte{}, 0644); err != nil {
-			t.Fatalf("ioutil.WriteFile failed: %v", err)
+		if err := os.WriteFile(filename, []byte{}, 0644); err != nil {
+			t.Fatalf("os.WriteFile failed: %v", err)
 		}
 		mtime := time.Now().Add(-l.age)
 		if err := os.Chtimes(filename, mtime, mtime); err != nil {
@@ -61,9 +60,9 @@ func setup(t *testing.T, workdir, username string) (tmpdir string) {
 }
 
 func TestGCLogs(t *testing.T) {
-	workdir, err := ioutil.TempDir("", "parse-file-info-")
+	workdir, err := os.MkdirTemp("", "parse-file-info-")
 	if err != nil {
-		t.Fatalf("ioutil.TempDir failed: %v", err)
+		t.Fatalf("os.MkdirTemp: failed: %v", err)
 	}
 	defer os.RemoveAll(workdir)
 

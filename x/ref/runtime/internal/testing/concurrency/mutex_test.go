@@ -8,7 +8,6 @@ package concurrency_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -80,7 +79,7 @@ func TestMutex(t *testing.T) {
 // correct number of interleavings.
 func TestMutexExplore(t *testing.T) {
 	for n := 2; n < 6; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
 			t.Fatalf("TempFile() failed: %v", err)
 		}
@@ -106,7 +105,7 @@ func TestMutexExplore(t *testing.T) {
 // explores at most the given number of interleavings.
 func TestMutexExploreN(t *testing.T) {
 	for n := 2; n < 6; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
 			t.Fatalf("TempFile() failed: %v", err)
 		}
@@ -138,7 +137,7 @@ func TestMutexExploreN(t *testing.T) {
 // exploration respects the given "soft" deadline.
 func TestMutexExploreFor(t *testing.T) {
 	for n := 2; n < 6; n++ {
-		out, err := ioutil.TempFile("", "")
+		out, err := os.CreateTemp("", "")
 		if err != nil {
 			t.Fatalf("TempFile() failed: %v", err)
 		}

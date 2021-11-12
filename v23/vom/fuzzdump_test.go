@@ -10,7 +10,6 @@ package vom_test
 import (
 	"crypto/sha1"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -36,7 +35,7 @@ func TestFuzzDump(t *testing.T) {
 		seen[hash] = true
 
 		name := fmt.Sprintf("fuzz-workdir/corpus/%x", hash)
-		if err := ioutil.WriteFile(name, data, 0644); err != nil {
+		if err := os.WriteFile(name, data, 0644); err != nil {
 			t.Fatal(err)
 		}
 	}

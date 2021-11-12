@@ -6,7 +6,6 @@ package basics
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -300,7 +299,7 @@ func BenchmarkRoundtripTCP(b *testing.B) {
 }
 
 func BenchmarkRoundtripUnix(b *testing.B) {
-	dir, err := ioutil.TempDir("", "")
+	dir, err := os.MkdirTemp("", "")
 	if err != nil {
 		b.Fatal(err)
 	}

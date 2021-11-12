@@ -6,7 +6,7 @@ package httplib
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/url"
 
 	go_http "net/http"
@@ -67,7 +67,7 @@ func HTTPRequestFromVDLRequest(req v23_http.Request) *go_http.Request {
 		ProtoMajor:       int(req.ProtoMajor),
 		ProtoMinor:       int(req.ProtoMinor),
 		Header:           req.Header,
-		Body:             ioutil.NopCloser(bytes.NewReader(req.Body)),
+		Body:             io.NopCloser(bytes.NewReader(req.Body)),
 		ContentLength:    req.ContentLength,
 		TransferEncoding: req.TransferEncoding,
 		Close:            req.Close,

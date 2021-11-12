@@ -7,7 +7,6 @@ package main_test
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -35,7 +34,7 @@ func withCreds(dir string, cmd *v23test.Cmd) *v23test.Cmd {
 // redirect redirects the stdout of the given command to the file at the given
 // path.
 func redirect(t *testing.T, cmd *v23test.Cmd, path string) {
-	if err := ioutil.WriteFile(path, []byte(cmd.Stdout()), 0600); err != nil {
+	if err := os.WriteFile(path, []byte(cmd.Stdout()), 0600); err != nil {
 		t.Fatalf("WriteFile(%q) failed: %v\n", path, err)
 	}
 }

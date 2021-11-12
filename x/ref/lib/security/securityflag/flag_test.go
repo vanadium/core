@@ -7,7 +7,6 @@ package securityflag
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -58,7 +57,7 @@ var permFromFlag = gosh.RegisterFunc("permFromFlag", func() {
 })
 
 func writePermissionsToFile(perms access.Permissions) (string, error) {
-	f, err := ioutil.TempFile("", "permissions")
+	f, err := os.CreateTemp("", "permissions")
 	if err != nil {
 		return "", err
 	}

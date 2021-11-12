@@ -6,7 +6,6 @@ package mounttablelib_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -19,7 +18,7 @@ func TestPersistence(t *testing.T) {
 	rootCtx, _, _, shutdown := initTest()
 	defer shutdown()
 
-	td, err := ioutil.TempDir("", "upyournose")
+	td, err := os.MkdirTemp("", "upyournose")
 	if err != nil {
 		t.Fatalf("Failed to make temporary dir: %s", err)
 	}

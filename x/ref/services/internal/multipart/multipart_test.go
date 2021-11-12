@@ -6,7 +6,6 @@ package multipart_test
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -40,16 +39,16 @@ func read(t *testing.T, m http.File, thisMuch int) string {
 func TestFile(t *testing.T) { //nolint:gocyclo
 	contents := []string{"v", "is", "for", "vanadium"}
 	files := make([]*os.File, len(contents))
-	d, err := ioutil.TempDir("", "multiparts")
+	d, err := os.MkdirTemp("", "multiparts")
 	if err != nil {
-		t.Fatalf("TempDir() failed: %v", err)
+		t.Fatalf("MkdirTemp() failed: %v", err)
 	}
 	defer os.RemoveAll(d)
 	contentsSize := 0
 	for i, c := range contents {
 		contentsSize += len(c)
 		fPath := filepath.Join(d, strconv.Itoa(i))
-		if err := ioutil.WriteFile(fPath, []byte(c), 0600); err != nil {
+		if err := os.WriteFile(fPath, []byte(c), 0600); err != nil {
 			t.Fatalf("WriteFile(%v) failed: %v", fPath, err)
 		}
 		var err error

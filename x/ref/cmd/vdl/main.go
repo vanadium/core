@@ -10,7 +10,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -489,7 +488,7 @@ func handleGo(audit bool, pkg *compile.Package, env *compile.Env, target *build.
 func writeFile(audit bool, data []byte, dirName, baseName string, env *compile.Env, rmFiles []string) bool {
 	dstName := filepath.Join(dirName, baseName)
 	// Don't change anything if old and new are the same.
-	if oldData, err := ioutil.ReadFile(dstName); err == nil && bytes.Equal(oldData, data) {
+	if oldData, err := os.ReadFile(dstName); err == nil && bytes.Equal(oldData, data) {
 		return false
 	}
 
@@ -503,7 +502,7 @@ func writeFile(audit bool, data []byte, dirName, baseName string, env *compile.E
 		env.Errors.Errorf("Couldn't create directory %s: %v", dirName, err)
 		return true
 	}
-	if err := ioutil.WriteFile(dstName, data, os.FileMode(0666)); err != nil {
+	if err := os.WriteFile(dstName, data, os.FileMode(0666)); err != nil {
 		env.Errors.Errorf("Couldn't write file %s: %v", dstName, err)
 		return true
 	}

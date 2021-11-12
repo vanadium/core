@@ -13,7 +13,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -176,7 +175,7 @@ func TestReadonlyAccess(t *testing.T) {
 }
 
 func TestLoadPersistentSSHPrincipal(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestLoadPersistentPrincipal")
+	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +201,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 		}
 
 		// make sure that multiple keys lead to a failure.
-		if err := ioutil.WriteFile(filepath.Join(dir, privateKeyFile), []byte{'\n'}, 0666); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, privateKeyFile), []byte{'\n'}, 0666); err != nil {
 			t.Fatal(err)
 		}
 		if _, err := LoadPersistentPrincipal(dir, nil); err == nil {
@@ -226,7 +225,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 }
 
 func TestCreatePrincipalSSH(t *testing.T) {
-	dir, err := ioutil.TempDir("", "TestLoadPersistentPrincipal")
+	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -248,7 +247,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 	}
 	// malformed ssh public key file
 	invalid := filepath.Join(dir, "invalid.pub")
-	ioutil.WriteFile(invalid, []byte{'1', '\n'}, 0600)
+	os.WriteFile(invalid, []byte{'1', '\n'}, 0600)
 
 	_, err = NewSSHAgentHostedKey(invalid)
 	if err == nil || !strings.Contains(err.Error(), "no key found") {
@@ -265,7 +264,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 		t.Fatal(err)
 	}
 	missing := "private-key-not-in-agent.pub"
-	if err := ioutil.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
+	if err := os.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -340,7 +339,7 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte) (security.Principal, error), message, passphrase []byte) {
 	// Persistence of the BlessingRoots and BlessingStore objects is
 	// tested in other files. Here just test the persistence of the key.
-	dir, err := ioutil.TempDir("", "TestCreatePersistentPrincipal")
+	dir, err := os.MkdirTemp("", "TestCreatePersistentPrincipal")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -378,18 +377,18 @@ func useSSHPublicKeyAsPrincipal(from, to, name string) {
 	if err != nil {
 		panic(err)
 	}
-	err = ioutil.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
+	err = os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func generatePEMPrincipal(passphrase []byte) (dir string) {
-	dir, err := ioutil.TempDir("", "TestLoadPersistentPrincipal")
+	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
 	if err != nil {
 		panic(err)
 	}
-	err = ioutil.WriteFile(filepath.Join(dir, directoryLockfileName), nil, 0666)
+	err = os.WriteFile(filepath.Join(dir, directoryLockfileName), nil, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -564,7 +563,7 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {
-	dir, err := ioutil.TempDir("", "TestCreatePersistentPrincipal")
+	dir, err := os.MkdirTemp("", "TestCreatePersistentPrincipal")
 	if err != nil {
 		t.Fatal(err)
 	}

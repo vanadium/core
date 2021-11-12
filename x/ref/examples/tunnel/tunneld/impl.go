@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -286,7 +285,7 @@ func findShell() (string, error) {
 
 // sendMotd sends the content of the MOTD file to the stream, if it exists.
 func sendMotd(ctx *context.T, s tunnel.TunnelShellServerStream) {
-	data, err := ioutil.ReadFile("/etc/motd")
+	data, err := os.ReadFile("/etc/motd")
 	if err != nil {
 		// No MOTD. That's OK.
 		return

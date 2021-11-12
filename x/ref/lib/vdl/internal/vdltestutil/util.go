@@ -7,7 +7,6 @@ package vdltestutil
 
 import (
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strings"
 	"testing"
@@ -77,7 +76,7 @@ func FakeOpenFiles(files map[string]string) func(fnames []string) (map[string]io
 	return func(fnames []string) (map[string]io.ReadCloser, error) {
 		ret := make(map[string]io.ReadCloser, len(fnames))
 		for _, fname := range fnames {
-			ret[fname] = ioutil.NopCloser(strings.NewReader(files[fname]))
+			ret[fname] = io.NopCloser(strings.NewReader(files[fname]))
 		}
 		return ret, nil
 	}

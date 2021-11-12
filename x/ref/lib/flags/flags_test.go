@@ -6,7 +6,7 @@ package flags_test
 
 import (
 	"flag"
-	"io/ioutil"
+	"io"
 	"os"
 	"reflect"
 	"testing"
@@ -132,7 +132,7 @@ func TestPermissionsLiteralBoth(t *testing.T) {
 
 func TestFlagError(t *testing.T) {
 	fs := flag.NewFlagSet("test", flag.ContinueOnError)
-	fs.SetOutput(ioutil.Discard)
+	fs.SetOutput(io.Discard)
 	fl, err := flags.CreateAndRegister(fs, flags.Runtime)
 	if err != nil {
 		t.Fatal(err)

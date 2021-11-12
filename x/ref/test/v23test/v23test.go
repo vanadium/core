@@ -11,7 +11,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
@@ -217,7 +216,7 @@ func InitMain() func() {
 	calledInitMain = true
 	gosh.InitMain()
 	var err error
-	binDir, err = ioutil.TempDir("", "bin-")
+	binDir, err = os.MkdirTemp("", "bin-")
 	if err != nil {
 		panic(err)
 	}

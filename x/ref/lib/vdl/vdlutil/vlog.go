@@ -5,7 +5,7 @@
 package vdlutil
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 )
@@ -18,7 +18,7 @@ const (
 var (
 	// Vlog is a logger that discards output by default, and only outputs real
 	// logs when SetVerbose is called.
-	Vlog = log.New(ioutil.Discard, logPrefix, logFlags)
+	Vlog = log.New(io.Discard, logPrefix, logFlags)
 )
 
 // SetVerbose tells the vdl package (and subpackages) to enable verbose logging.

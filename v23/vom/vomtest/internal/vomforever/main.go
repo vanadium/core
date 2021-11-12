@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -123,7 +122,7 @@ func panicOnError(err error) {
 }
 
 func buildAndRunFromVdlFile(vv *vdl.Value, types []*vdl.Type, vdlFlags []string) {
-	dir, err := ioutil.TempDir("", "vomforever")
+	dir, err := os.MkdirTemp("", "vomforever")
 	defer os.RemoveAll(dir)
 	panicOnError(err)
 

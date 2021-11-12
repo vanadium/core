@@ -6,7 +6,7 @@ package pproflib_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"testing"
@@ -72,7 +72,7 @@ func TestPProfProxy(t *testing.T) {
 		if resp.StatusCode != 200 {
 			t.Errorf("%v: unexpected status code. Got %d, want 200", url, resp.StatusCode)
 		}
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			t.Errorf("%v: ReadAll failed: %v", url, err)
 			continue

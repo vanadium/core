@@ -10,7 +10,6 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -47,9 +46,9 @@ func createPEMKeys(t *testing.T, dir string) {
 
 func TestKeyFiles(t *testing.T) {
 	ctx := context.Background()
-	tmpDir, err := ioutil.TempDir("", "test-key-files")
+	tmpDir, err := os.MkdirTemp("", "test-key-files")
 	if err != nil {
-		t.Fatalf("TempDir: %v", err)
+		t.Fatalf("CreateTemp: %v", err)
 	}
 	defer os.RemoveAll(tmpDir)
 

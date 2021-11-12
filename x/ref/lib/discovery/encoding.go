@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"v.io/x/ref/lib/security/bcrypter"
 )
@@ -142,7 +141,7 @@ func UnpackAddresses(data []byte) ([]string, error) {
 	case addrsCompressed:
 		r := flate.NewReader(bytes.NewBuffer(data[:len(data)-1]))
 		var err error
-		if uncompressed, err = ioutil.ReadAll(r); err != nil {
+		if uncompressed, err = io.ReadAll(r); err != nil {
 			return nil, err
 		}
 		if err := r.Close(); err != nil {

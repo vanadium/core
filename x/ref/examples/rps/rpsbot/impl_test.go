@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"runtime"
@@ -94,7 +93,7 @@ func TestV23RockPaperScissorsImpl(t *testing.T) {
 // reportLeakedGoroutines reads the goroutine pprof profile and returns the
 // goroutines that have more than 'threshold' instances.
 func reportLeakedGoroutines(t *testing.T, threshold int) string {
-	f, err := ioutil.TempFile("", "test-profile-")
+	f, err := os.CreateTemp("", "test-profile-")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
