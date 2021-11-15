@@ -21,7 +21,7 @@ import (
 const (
 	// TTL for scanned advertisement. If we do not see the advertisement again
 	// during that period, we send a "Lost" notification.
-	defaultTTL = 180 * time.Second
+	defaultTTL = 90 * time.Second
 )
 
 var (
