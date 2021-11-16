@@ -14,6 +14,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/rpc"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/testutil"
 )
 
 type simple struct {
@@ -90,6 +91,7 @@ func startSimpleServer(t *testing.T, ctx *context.T) (string, func()) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
+	testutil.WaitForServerReady(server)
 	return server.Status().Endpoints[0].Name(), func() { close(done) }
 }
 
