@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-const leakWaitTime = 250 * time.Millisecond
+const leakWaitTime = 500 * time.Millisecond
 
 var randData []byte
 
