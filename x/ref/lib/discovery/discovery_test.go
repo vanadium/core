@@ -307,11 +307,11 @@ func TestLostInOneButNotAllPlugins(t *testing.T) {
 	}
 
 	olderAd := ad
-	olderAd.TimestampNs -= 1000000000
+	olderAd.TimestampNs -= 10000000000
 	olderAd.Hash = idiscovery.AdHash{4, 5, 6}
 
 	newerAd := ad
-	newerAd.TimestampNs += 1000000000
+	newerAd.TimestampNs += 10000000000
 	newerAd.Hash = idiscovery.AdHash{7, 8, 9}
 
 	d, _ := df.New(ctx)
@@ -324,7 +324,7 @@ func TestLostInOneButNotAllPlugins(t *testing.T) {
 	noevent := func() error {
 		select {
 		case update := <-scanCh:
-			return fmt.Errorf("unexpected scan: %v", update)
+			return fmt.Errorf("unexpected scan: %#v", update)
 		case <-time.After(5 * time.Millisecond):
 			return nil
 		}
