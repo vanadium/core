@@ -79,16 +79,21 @@ func doScan(ctx *context.T, p idiscovery.Plugin, interfaceName string, expectedA
 	defer stop()
 
 	adinfos := make([]idiscovery.AdInfo, 0, expectedAdInfos)
+	fmt.Printf("doScan: waiting for %v events\n", expectedAdInfos)
 	for {
 		var timer <-chan time.Time
+		// On the first iteration, wait on scanCh with no timeout.
 		if len(adinfos) >= expectedAdInfos {
+			fmt.Printf("doScan: bumping timer: have %v expecting %v\n", len(adinfos), expectedAdInfos)
 			timer = time.After(5 * time.Millisecond)
 		}
 
 		select {
 		case adinfo := <-scanCh:
 			adinfos = append(adinfos, *adinfo)
+			fmt.Printf("doScan: new: %v %v -> %v\n", adinfo, len(adinfos), expectedAdInfos)
 		case <-timer:
+			fmt.Printf("doScan: timer returning %v\n", len(adinfos))
 			return adinfos, nil
 		}
 	}

@@ -326,7 +326,7 @@ func testChannelTimeout(t *testing.T, ctx *context.T) {
 
 	// Long calls don't cause the timeout, the control stream is still operating.
 	err = v23.GetClient(ctx).Call(ctx, ep.Name(), "Run", []interface{}{2 * time.Second},
-		nil, options.ChannelTimeout(500*time.Millisecond))
+		nil, options.ChannelTimeout(time.Second))
 	if err != nil {
 		t.Errorf("got %v want nil", err)
 	}

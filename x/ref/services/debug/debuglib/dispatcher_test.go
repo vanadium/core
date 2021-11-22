@@ -138,7 +138,7 @@ func TestDebugServer(t *testing.T) { //nolint:gocyclo
 		vt := s_vtrace.StoreClient(naming.JoinAddressName(endpoint, "debug/vtrace"))
 		call, err := vt.AllTraces(ctx)
 		if err != nil {
-			t.Errorf("AllTraces failed: %v", err)
+			t.Fatalf("AllTraces failed: %v", err)
 		}
 		ntraces := 0
 		stream := call.RecvStream()
