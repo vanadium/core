@@ -3,10 +3,9 @@ module v.io
 go 1.16
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.4.2
-	github.com/shirou/gopsutil/v3 v3.21.10
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/mod v0.5.1

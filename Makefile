@@ -18,6 +18,7 @@ vdlroot:
 .PHONY: test
 test:
 	@echo "VDLPATH" "${VDLPATH}"
+	go install golang.org/x/tools/cmd/goimports@latest
 	go test ./...
 	cd ./x/ref/examples && go test ./...
 
