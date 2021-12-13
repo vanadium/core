@@ -90,3 +90,7 @@ bootstrapvdl:
 	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
 	git diff --exit-code
 
+modtidy:
+	for modfile in $$(find . -name go.mod); do \
+		(cd $$(dirname $$modfile); echo "go mod tidy in $$(pwd)"; go mod tidy) ; \
+	done	
