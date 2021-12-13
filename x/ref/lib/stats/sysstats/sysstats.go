@@ -19,7 +19,6 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
-
 	"v.io/v23/naming"
 	"v.io/x/lib/metadata"
 	"v.io/x/ref"
