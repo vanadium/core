@@ -92,13 +92,14 @@ func TestSigningAlgorithms(t *testing.T) {
 	_, edKey, err := ed25519.GenerateKey(rand.Reader)
 	assert()
 
-	rsa2048S, err := security.NewInMemoryRSASigner(rsa2048Key)
-	assert()
-	rsa4096S, err := security.NewInMemoryRSASigner(rsa4096Key)
-	assert()
 	ec256S, err := security.NewInMemoryECDSASigner(ec256Key)
 	assert()
 	ed25519S, err := security.NewInMemoryED25519Signer(edKey)
+	assert()
+
+	rsa2048S, err := security.NewInMemoryRSASigner(rsa2048Key)
+	assert()
+	rsa4096S, err := security.NewInMemoryRSASigner(rsa4096Key)
 	assert()
 
 	testSigningAlgos(t,

@@ -84,7 +84,10 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	if err != nil {
 		return nil, err
 	}
-	der := x509.MarshalPKCS1PrivateKey(golang)
+	der, err := x509.MarshalPKCS8PrivateKey(golang)
+	if err != nil {
+		return nil, err
+	}
 	var errno C.ulong
 	key := C.openssl_d2i_RSAPrivateEVPKey(uchar(der), C.long(len(der)), &errno)
 	if key == nil {

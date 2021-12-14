@@ -32,6 +32,7 @@ import (
 	"encoding/asn1"
 	"fmt"
 	"math/big"
+	"os"
 	"runtime"
 )
 
@@ -110,12 +111,14 @@ func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
 func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
 	pubkey, err := newOpenSSLECDSAPublicKey(&golang.PublicKey)
 	if err != nil {
+		fmt.Printf("OH HERE ... %v\n", err)
 		return nil, err
 	}
-	der, err := x509.MarshalECPrivateKey(golang)
+	der, err := x509.MarshalPKCS8PrivateKey(golang)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Fprintf(os.Stderr, "DER: %s\n", der)
 	var errno C.ulong
 	k := C.openssl_d2i_ECPrivateEVPKey(uchar(der), C.long(len(der)), &errno)
 	if k == nil {

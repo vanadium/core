@@ -23,9 +23,8 @@ func opensslMakeError(errno C.ulong) error {
 	if errno == 0 {
 		return nil
 	}
-	return fmt.Errorf("OpenSSL error (%v): %v in %v:%v",
+	return fmt.Errorf("OpenSSL error %v in %v:%v",
 		errno,
-		C.GoString(C.ERR_func_error_string(errno)),
 		C.GoString(C.ERR_lib_error_string(errno)),
 		C.GoString(C.ERR_reason_error_string(errno)))
 }
@@ -46,13 +45,12 @@ func opensslGetErrors() error {
 	for {
 		var file *C.char
 		var line C.int
-		errno := C.ERR_get_error_line(&file, &line)
+		errno := C.ERR_get_error_all(&file, &line, nil, nil, nil)
 		if errno == 0 {
 			break
 		}
-		nerr := fmt.Errorf("OpenSSL error (%v): %v in %v:%v, %v:%v",
+		nerr := fmt.Errorf("OpenSSL error %v in %v:%v, %v:%v",
 			errno,
-			C.GoString(C.ERR_func_error_string(errno)),
 			C.GoString(C.ERR_lib_error_string(errno)),
 			C.GoString(C.ERR_reason_error_string(errno)),
 			C.GoString(file),
