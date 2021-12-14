@@ -12,18 +12,11 @@
 
 package security
 
+// #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #cgo pkg-config: libcrypto
-// #include <openssl/bn.h>
-// #include <openssl/ec.h>
 // #include <openssl/evp.h>
-// #include <openssl/ecdsa.h>
-// #include <openssl/err.h>
-// #include <openssl/objects.h>
-// #include <openssl/opensslv.h>
-// #include <openssl/x509.h>
 //
-// EVP_PKEY *openssl_d2i_ECPrivateEVPKey(const unsigned char* data, long len, unsigned long* e);
-// EVP_PKEY *openssl_d2i_ECPublicEVPKey(const unsigned char *data, long len, unsigned long *e);
+// EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char* data, long len, unsigned long* e);
 import "C"
 
 import (
@@ -65,17 +58,11 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 }
 
 func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
-	ret := &opensslECDSAPublicKey{
-		opensslPublicKeyCommon: newOpensslPublicKeyCommon(ecdsaHash(golang), golang),
-	}
-	if err := ret.keyBytesErr; err != nil {
+	pc, err := newOpensslPublicKeyCommon(ecdsaHash(golang), golang)
+	if err != nil {
 		return nil, err
 	}
-	var errno C.ulong
-	ret.k = C.openssl_d2i_ECPublicEVPKey(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
-	if ret.k == nil {
-		return nil, opensslMakeError(errno)
-	}
+	ret := &opensslECDSAPublicKey{pc}
 	runtime.SetFinalizer(ret, func(k *opensslECDSAPublicKey) { k.finalize() })
 	return ret, nil
 }
@@ -112,12 +99,12 @@ func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
 	if err != nil {
 		return nil, err
 	}
-	der, err := x509.MarshalECPrivateKey(golang)
+	der, err := x509.MarshalPKCS8PrivateKey(golang)
 	if err != nil {
 		return nil, err
 	}
 	var errno C.ulong
-	k := C.openssl_d2i_ECPrivateEVPKey(uchar(der), C.long(len(der)), &errno)
+	k := C.openssl_evp_private_key(C.EVP_PKEY_EC, uchar(der), C.long(len(der)), &errno)
 	if k == nil {
 		return nil, opensslMakeError(errno)
 	}

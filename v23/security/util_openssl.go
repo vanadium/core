@@ -7,11 +7,10 @@
 
 package security
 
-// #cgo pkg-config: libcrypto
-// #include <openssl/bn.h>
-// #include <openssl/ec.h>
+// #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #include <openssl/err.h>
-// #include <openssl/x509.h>
+// #include <openssl/evp.h>
+// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
@@ -23,9 +22,8 @@ func opensslMakeError(errno C.ulong) error {
 	if errno == 0 {
 		return nil
 	}
-	return fmt.Errorf("OpenSSL error (%v): %v in %v:%v",
+	return fmt.Errorf("OpenSSL error %v in %v:%v",
 		errno,
-		C.GoString(C.ERR_func_error_string(errno)),
 		C.GoString(C.ERR_lib_error_string(errno)),
 		C.GoString(C.ERR_reason_error_string(errno)))
 }
@@ -38,7 +36,7 @@ func uchar(b []byte) *C.uchar {
 }
 
 func openssl_version() string {
-	return fmt.Sprintf("%v (CFLAGS:%v)", C.GoString(C.SSLeay_version(C.SSLEAY_VERSION)), C.GoString(C.SSLeay_version(C.SSLEAY_CFLAGS)))
+	return fmt.Sprintf("%v (CFLAGS:%v)", C.GoString(C.OpenSSL_version(C.OPENSSL_VERSION)), C.GoString(C.OpenSSL_version(C.OPENSSL_CFLAGS)))
 }
 
 func opensslGetErrors() error {
@@ -46,13 +44,13 @@ func opensslGetErrors() error {
 	for {
 		var file *C.char
 		var line C.int
-		errno := C.ERR_get_error_line(&file, &line)
+		errno := C.ERR_peek_error_line(&file, &line)
+		C.ERR_get_error()
 		if errno == 0 {
 			break
 		}
-		nerr := fmt.Errorf("OpenSSL error (%v): %v in %v:%v, %v:%v",
+		nerr := fmt.Errorf("OpenSSL error %v in %v:%v, %v:%v",
 			errno,
-			C.GoString(C.ERR_func_error_string(errno)),
 			C.GoString(C.ERR_lib_error_string(errno)),
 			C.GoString(C.ERR_reason_error_string(errno)),
 			C.GoString(file),
@@ -86,14 +84,23 @@ type opensslPublicKeyCommon struct {
 	publicKeyCommon
 }
 
-func newOpensslPublicKeyCommon(h Hash, key interface{}) opensslPublicKeyCommon {
+func newOpensslPublicKeyCommon(h Hash, key interface{}) (opensslPublicKeyCommon, error) {
 	pc := newPublicKeyCommon(h, key)
 	if pc.keyBytesErr != nil {
-		return opensslPublicKeyCommon{}
+		return opensslPublicKeyCommon{}, pc.keyBytesErr
+	}
+	var errno C.ulong
+	k := C.openssl_evp_public_key(
+		uchar(pc.keyBytes),
+		C.long(len(pc.keyBytes)),
+		&errno)
+	if k == nil {
+		return opensslPublicKeyCommon{}, opensslMakeError(errno)
 	}
 	oh := opensslHash(h)
 	return opensslPublicKeyCommon{
 		oh:              oh,
 		publicKeyCommon: pc,
-	}
+		k:               k,
+	}, nil
 }
