@@ -6,9 +6,6 @@
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
-#include <openssl/ec.h>
-#include <openssl/ecdsa.h>
-#include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
 
@@ -17,7 +14,10 @@
 // If the two were called from Go, the goroutine might be pre-empted and
 // rescheduled on another thread leading to an inconsistent error.
 
-EVP_PKEY *evp_private_key(int keyType, const unsigned char *data, long len, unsigned long *e)
+// openssl_evp_private_key calls d2i_PrivateKey + ERR_get_error in a single
+// function and hence the same thread to ensure that any errors are consistent
+// with the call.
+EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char *data, long len, unsigned long *e)
 {
 	*e = 0;
 	EVP_PKEY *k = d2i_PrivateKey(keyType, NULL, &data, len);
@@ -28,10 +28,14 @@ EVP_PKEY *evp_private_key(int keyType, const unsigned char *data, long len, unsi
 	return k;
 }
 
-EVP_PKEY *evp_public_key(int keyType, const unsigned char *data, long len, unsigned long *e)
+// openssl_evp_public_key calls d2i_PUBKEY + ERR_get_error in a single
+// function and hence the same thread to ensure that any errors are consistent
+// with the call.
+// d2i_PUBKEY expects KPIX DER encoding in SubjectPublicKeyInfo.
+EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e)
 {
 	*e = 0;
-	EVP_PKEY *k = d2i_PublicKey(keyType, NULL, &data, len);
+	EVP_PKEY *k = d2i_PUBKEY(NULL, &data, len);
 	if (k == NULL)
 	{
 		*e = ERR_get_error();
@@ -39,34 +43,9 @@ EVP_PKEY *evp_public_key(int keyType, const unsigned char *data, long len, unsig
 	return k;
 }
 
-// d2i_PrivateKey + ERR_get_error in a single function.
-EVP_PKEY *openssl_d2i_ECPrivateEVPKey(const unsigned char *data, long len, unsigned long *e)
-{
-	return evp_private_key(EVP_PKEY_EC, data, len, e);
-}
-
-// d2i_PublicKey + ERR_get_error in a single function.
-EVP_PKEY *openssl_d2i_ECPublicEVPKey(const unsigned char *data, long len, unsigned long *e)
-{
-	return evp_public_key(EVP_PKEY_EC, data, len, e);
-}
-
-// d2i_PrivateKey + ERR_get_error in a single function.
-EVP_PKEY *openssl_d2i_RSAPrivateEVPKey(const unsigned char *data, long len, unsigned long *e)
-{
-	return evp_private_key(EVP_PKEY_RSA, data, len, e);
-}
-
-// d2i_PublicKey + ERR_get_error in a single function.
-EVP_PKEY *openssl_d2i_RSAPublicEVPKey(const unsigned char *data, long len, unsigned long *e)
-{
-	return evp_public_key(EVP_PKEY_RSA, data, len, e);
-}
-
 // EVP_PKEY_new_raw_public_key + ERR_get_error in a single function.
 EVP_PKEY *openssl_new_raw_public_key(unsigned char *data, size_t len, unsigned long *e)
 {
-
 	EVP_PKEY *pk = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, data, len);
 	if (pk == NULL)
 	{

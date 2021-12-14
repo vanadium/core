@@ -8,9 +8,6 @@
 package security
 
 // #cgo pkg-config: libcrypto
-// #include <stdlib.h>
-// #include <openssl/crypto.h>
-// #include <openssl/err.h>
 // #include <openssl/evp.h>
 //
 // EVP_PKEY *openssl_new_raw_public_key(unsigned char *keyBytes, size_t keyLen, unsigned long *e);

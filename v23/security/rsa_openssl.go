@@ -8,15 +8,10 @@
 package security
 
 // #cgo pkg-config: libcrypto
-// #include <openssl/rsa.h>
 // #include <openssl/evp.h>
-// #include <openssl/err.h>
-// #include <openssl/objects.h>
-// #include <openssl/opensslv.h>
-// #include <openssl/x509.h>
 //
-// EVP_PKEY* openssl_d2i_RSAPrivateEVPKey(const unsigned char *data, long len, unsigned long *e);
-// EVP_PKEY* openssl_d2i_RSAPublicEVPKey(const unsigned char *data, long len, unsigned long *e);
+// EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char* data, long len, unsigned long* e);
+// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
@@ -58,7 +53,7 @@ func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
 		return nil, err
 	}
 	var errno C.ulong
-	ret.k = C.openssl_d2i_RSAPublicEVPKey(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
+	ret.k = C.openssl_evp_public_key(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
 	if ret.k == nil {
 		return nil, opensslMakeError(errno)
 	}
@@ -84,12 +79,9 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	if err != nil {
 		return nil, err
 	}
-	der, err := x509.MarshalPKCS8PrivateKey(golang)
-	if err != nil {
-		return nil, err
-	}
+	der := x509.MarshalPKCS1PrivateKey(golang)
 	var errno C.ulong
-	key := C.openssl_d2i_RSAPrivateEVPKey(uchar(der), C.long(len(der)), &errno)
+	key := C.openssl_evp_private_key(C.EVP_PKEY_RSA, uchar(der), C.long(len(der)), &errno)
 	if key == nil {
 		return nil, opensslMakeError(errno)
 	}

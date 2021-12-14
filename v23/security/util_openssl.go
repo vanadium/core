@@ -8,10 +8,8 @@
 package security
 
 // #cgo pkg-config: libcrypto
-// #include <openssl/bn.h>
-// #include <openssl/ec.h>
 // #include <openssl/err.h>
-// #include <openssl/x509.h>
+// #include <openssl/evp.h>
 import "C"
 
 import (
