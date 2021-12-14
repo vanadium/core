@@ -43,7 +43,8 @@ func opensslGetErrors() error {
 	for {
 		var file *C.char
 		var line C.int
-		errno := C.ERR_get_error_all(&file, &line, nil, nil, nil)
+		errno := C.ERR_peek_error_line(&file, &line)
+		C.ERR_get_error()
 		if errno == 0 {
 			break
 		}
