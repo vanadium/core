@@ -47,17 +47,11 @@ func (k *opensslRSAPublicKey) verify(digest []byte, signature *Signature) bool {
 }
 
 func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
-	ret := &opensslRSAPublicKey{
-		opensslPublicKeyCommon: newOpensslPublicKeyCommon(SHA512Hash, golang),
-	}
-	if err := ret.keyBytesErr; err != nil {
+	pc, err := newOpensslPublicKeyCommon(SHA512Hash, golang)
+	if err != nil {
 		return nil, err
 	}
-	var errno C.ulong
-	ret.k = C.openssl_evp_public_key(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
-	if ret.k == nil {
-		return nil, opensslMakeError(errno)
-	}
+	ret := &opensslRSAPublicKey{pc}
 	runtime.SetFinalizer(ret, func(k *opensslRSAPublicKey) { k.finalize() })
 	return ret, nil
 }

@@ -10,6 +10,7 @@ package security
 // #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #include <openssl/err.h>
 // #include <openssl/evp.h>
+// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
@@ -83,14 +84,23 @@ type opensslPublicKeyCommon struct {
 	publicKeyCommon
 }
 
-func newOpensslPublicKeyCommon(h Hash, key interface{}) opensslPublicKeyCommon {
+func newOpensslPublicKeyCommon(h Hash, key interface{}) (opensslPublicKeyCommon, error) {
 	pc := newPublicKeyCommon(h, key)
 	if pc.keyBytesErr != nil {
-		return opensslPublicKeyCommon{}
+		return opensslPublicKeyCommon{}, pc.keyBytesErr
+	}
+	var errno C.ulong
+	k := C.openssl_evp_public_key(
+		uchar(pc.keyBytes),
+		C.long(len(pc.keyBytes)),
+		&errno)
+	if k == nil {
+		return opensslPublicKeyCommon{}, opensslMakeError(errno)
 	}
 	oh := opensslHash(h)
 	return opensslPublicKeyCommon{
 		oh:              oh,
 		publicKeyCommon: pc,
-	}
+		k:               k,
+	}, nil
 }

@@ -17,7 +17,6 @@ package security
 // #include <openssl/evp.h>
 //
 // EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char* data, long len, unsigned long* e);
-// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
@@ -59,17 +58,11 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 }
 
 func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
-	ret := &opensslECDSAPublicKey{
-		opensslPublicKeyCommon: newOpensslPublicKeyCommon(ecdsaHash(golang), golang),
-	}
-	if err := ret.keyBytesErr; err != nil {
+	pc, err := newOpensslPublicKeyCommon(ecdsaHash(golang), golang)
+	if err != nil {
 		return nil, err
 	}
-	var errno C.ulong
-	ret.k = C.openssl_evp_public_key(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
-	if ret.k == nil {
-		return nil, opensslMakeError(errno)
-	}
+	ret := &opensslECDSAPublicKey{pc}
 	runtime.SetFinalizer(ret, func(k *opensslECDSAPublicKey) { k.finalize() })
 	return ret, nil
 }
