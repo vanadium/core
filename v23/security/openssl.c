@@ -4,6 +4,7 @@
 
 // +build openssl
 
+#define OPENSSL_API_COMPAT 30000
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
@@ -41,32 +42,6 @@ EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned l
 		*e = ERR_get_error();
 	}
 	return k;
-}
-
-// EVP_PKEY_new_raw_public_key + ERR_get_error in a single function.
-EVP_PKEY *openssl_new_raw_public_key(unsigned char *data, size_t len, unsigned long *e)
-{
-	EVP_PKEY *pk = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, data, len);
-	if (pk == NULL)
-	{
-		*e = ERR_get_error();
-		return NULL;
-	}
-	*e = 0;
-	return pk;
-}
-
-// EVP_PKEY_new_raw_private_key + ERR_get_error in a single function.
-EVP_PKEY *openssl_new_raw_private_key(unsigned char *data, size_t len, unsigned long *e)
-{
-	EVP_PKEY *pk = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, data, len);
-	if (pk == NULL)
-	{
-		*e = ERR_get_error();
-		return NULL;
-	}
-	*e = 0;
-	return pk;
 }
 
 unsigned long openssl_EVP_sign_oneshot(EVP_PKEY *key, EVP_MD *dt, const unsigned char *digest, size_t digestLen, unsigned char *sig, size_t siglen)

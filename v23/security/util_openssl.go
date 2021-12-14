@@ -7,7 +7,7 @@
 
 package security
 
-// #cgo pkg-config: libcrypto
+// #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #include <openssl/err.h>
 // #include <openssl/evp.h>
 import "C"
@@ -35,7 +35,7 @@ func uchar(b []byte) *C.uchar {
 }
 
 func openssl_version() string {
-	return fmt.Sprintf("%v (CFLAGS:%v)", C.GoString(C.SSLeay_version(C.SSLEAY_VERSION)), C.GoString(C.SSLeay_version(C.SSLEAY_CFLAGS)))
+	return fmt.Sprintf("%v (CFLAGS:%v)", C.GoString(C.OpenSSL_version(C.OPENSSL_VERSION)), C.GoString(C.OpenSSL_version(C.OPENSSL_CFLAGS)))
 }
 
 func opensslGetErrors() error {

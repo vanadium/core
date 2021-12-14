@@ -7,6 +7,7 @@
 
 package security
 
+// #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #cgo pkg-config: libcrypto
 // #include <openssl/evp.h>
 //

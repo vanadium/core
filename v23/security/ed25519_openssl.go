@@ -7,28 +7,26 @@
 
 package security
 
+// #cgo CFLAGS: -DOPENSSL_API_COMPAT=30000 -DOPENSSL_NO_DEPRECATED
 // #cgo pkg-config: libcrypto
 // #include <openssl/evp.h>
 //
-// EVP_PKEY *openssl_new_raw_public_key(unsigned char *keyBytes, size_t keyLen, unsigned long *e);
-// EVP_PKEY *openssl_new_raw_private_key(unsigned char *keyBytes, size_t keyLen, unsigned long *e);
+// EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char* data, long len, unsigned long* e);
+// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
 	"crypto/ed25519"
+	"crypto/x509"
 	"runtime"
-	"unsafe"
 )
 
 type opensslED25519PublicKey struct {
-	k         *C.EVP_PKEY
-	keyCBytes *C.uchar
-	publicKeyCommon
+	opensslPublicKeyCommon
 }
 
 func (k *opensslED25519PublicKey) finalize() {
 	C.EVP_PKEY_free(k.k)
-	C.free(unsafe.Pointer(k.keyCBytes))
 }
 
 func (k *opensslED25519PublicKey) messageDigest(purpose, message []byte) []byte {
@@ -42,11 +40,10 @@ func (k *opensslED25519PublicKey) verify(digest []byte, signature *Signature) bo
 
 func newOpenSSLED25519PublicKey(golang ed25519.PublicKey) (PublicKey, error) {
 	ret := &opensslED25519PublicKey{
-		publicKeyCommon: newPublicKeyCommon(SHA512Hash, golang),
-		keyCBytes:       (*C.uchar)(C.CBytes(golang)),
+		opensslPublicKeyCommon: newOpensslPublicKeyCommon(SHA512Hash, golang),
 	}
 	var errno C.ulong
-	ret.k = C.openssl_new_raw_public_key(ret.keyCBytes, C.ulong(len(golang)), &errno)
+	ret.k = C.openssl_evp_public_key(uchar(ret.keyBytes), C.long(len(ret.keyBytes)), &errno)
 	if ret.k == nil {
 		return nil, opensslMakeError(errno)
 	}
@@ -55,13 +52,11 @@ func newOpenSSLED25519PublicKey(golang ed25519.PublicKey) (PublicKey, error) {
 }
 
 type opensslED25519Signer struct {
-	k         *C.EVP_PKEY
-	keyCBytes *C.uchar
+	k *C.EVP_PKEY
 }
 
 func (k *opensslED25519Signer) finalize() {
 	C.EVP_PKEY_free(k.k)
-	C.free(unsafe.Pointer(k.keyCBytes))
 }
 
 func (k *opensslED25519Signer) sign(data []byte) ([]byte, error) {
@@ -70,19 +65,17 @@ func (k *opensslED25519Signer) sign(data []byte) ([]byte, error) {
 
 func newOpenSSLED25519Signer(golang ed25519.PrivateKey) (Signer, error) {
 	impl := &opensslED25519Signer{}
-	// The go ed25119 package stores the private and public keys in the
-	// same byte slice as private:public but does not provide a method for
-	// obtaining just the private key, so we extract the first 32 bytes
-	// here tp get the private key and the trailing 32 for the public key.
 	epk := ed25519.PublicKey(golang[ed25519.SeedSize:])
 	pubkey, err := newOpenSSLED25519PublicKey(epk)
 	if err != nil {
 		return nil, err
 	}
-	privKey := golang[:ed25519.SeedSize]
-	impl.keyCBytes = (*C.uchar)(C.CBytes(privKey))
+	der, err := x509.MarshalPKCS8PrivateKey(golang)
+	if err != nil {
+		return nil, err
+	}
 	var errno C.ulong
-	impl.k = C.openssl_new_raw_private_key(impl.keyCBytes, C.ulong(len(privKey)), &errno)
+	impl.k = C.openssl_evp_private_key(C.EVP_PKEY_ED25519, uchar(der), C.long(len(der)), &errno)
 	if impl.k == nil {
 		return nil, opensslMakeError(errno)
 	}
