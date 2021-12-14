@@ -10,6 +10,7 @@ package main
 import (
 	"v.io/v23/context"
 	"v.io/x/lib/cmdline"
+	_ "v.io/x/ref/lib/stats/sysstats"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/mounttable/mounttablelib"

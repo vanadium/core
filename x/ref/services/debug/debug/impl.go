@@ -35,6 +35,7 @@ import (
 	"v.io/v23/vtrace"
 	"v.io/x/lib/cmdline"
 	"v.io/x/ref/lib/signals"
+	_ "v.io/x/ref/lib/stats/sysstats"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/roaming"
 	"v.io/x/ref/services/internal/pproflib"
