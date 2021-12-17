@@ -25,8 +25,8 @@ type rsaPublicKey struct {
 }
 
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {
-	digest = pk.h.sum(digest)
-	err := rsa.VerifyPKCS1v15(pk.key, crypto.SHA512, digest, sig.Rsa)
+	digest = sig.Hash.sum(digest)
+	err := rsa.VerifyPKCS1v15(pk.key, cryptoHash(sig.Hash), digest, sig.Rsa)
 	return err == nil
 }
 
@@ -108,4 +108,18 @@ func newGoStdlibRSAPublicKey(key *rsa.PublicKey) PublicKey {
 		key:             key,
 		publicKeyCommon: newPublicKeyCommon(SHA512Hash, key),
 	}
+}
+
+func cryptoHash(h Hash) crypto.Hash {
+	switch h {
+	case SHA1Hash:
+		return crypto.SHA1
+	case SHA256Hash:
+		return crypto.SHA256
+	case SHA384Hash:
+		return crypto.SHA384
+	case SHA512Hash:
+		return crypto.SHA512
+	}
+	return crypto.SHA512
 }

@@ -497,6 +497,9 @@ type Signature struct {
 	Ed25519 []byte
 	// RSA contains an RSA signature, it will be nil otherewise.
 	Rsa []byte
+	// X509 is set for signatures extracted from X509 certificates as opposed
+	// to those signed natively by this package.
+	X509 bool
 }
 
 func (Signature) VDLReflect(struct {
@@ -521,6 +524,9 @@ func (x Signature) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.Rsa) != 0 {
+		return false
+	}
+	if x.X509 {
 		return false
 	}
 	return true
@@ -557,6 +563,11 @@ func (x Signature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 	}
 	if len(x.Rsa) != 0 {
 		if err := enc.NextFieldValueBytes(5, vdlTypeList4, x.Rsa); err != nil {
+			return err
+		}
+	}
+	if x.X509 {
+		if err := enc.NextFieldValueBool(6, vdl.BoolType, x.X509); err != nil {
 			return err
 		}
 	}
@@ -616,6 +627,13 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case 5:
 			if err := dec.ReadValueBytes(-1, &x.Rsa); err != nil {
 				return err
+			}
+		case 6:
+			switch value, err := dec.ReadValueBool(); {
+			case err != nil:
+				return err
+			default:
+				x.X509 = value
 			}
 		}
 	}

@@ -65,7 +65,7 @@ func TestSSLKeys(t *testing.T) {
 			Roots: certPool,
 		}
 		crtFile := tc.prefix + ".crt"
-		cert, err := seclib.ParseOpenSSLCertificateFile(filepath.Join("testdata", crtFile), opts)
+		cert, err := seclib.ParseX509CertificateFile(filepath.Join("testdata", crtFile), opts)
 		if err != nil {
 			t.Errorf("failed to load %v: %v", crtFile, err)
 			continue
@@ -108,7 +108,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
 		CurrentTime: pastTime,
 	}
-	cert, err := seclib.ParseOpenSSLCertificateFile(filename, opts)
+	cert, err := seclib.ParseX509CertificateFile(filename, opts)
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
 	}
@@ -120,7 +120,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 	}
 
 	// Now parse the root certificate also.
-	cert, err = seclib.ParseOpenSSLCertificateFile(
+	cert, err = seclib.ParseX509CertificateFile(
 		filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"), opts)
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)

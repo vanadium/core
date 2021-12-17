@@ -62,6 +62,9 @@ type Signature struct {
 	Ed25519 []byte
     // RSA contains an RSA signature, it will be nil otherewise.
     Rsa []byte
+	// X509 is set for signatures extracted from X509 certificates as opposed
+	// to those signed natively by this package.
+	X509 bool
 }
 
 // EcdsaOnlySignature represents a digital signature for ecdsa only. It is

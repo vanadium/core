@@ -22,6 +22,9 @@ type ecdsaPublicKey struct {
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
+	if sig.X509 {
+		digest = sig.Hash.sum(digest)
+	}
 	var r, s big.Int
 	return ecdsa.Verify(pk.key, digest, r.SetBytes(sig.R), s.SetBytes(sig.S))
 }

@@ -144,14 +144,14 @@ func (b Blessings) String() string {
 
 // We keep a pool of buffers for claimedName, this saves a lot of allocations.
 var claimedPool = sync.Pool{New: func() interface{} {
-	return &bytes.Buffer{}
+	return &strings.Builder{}
 }}
 
 // claimedName returns the blessing name that the certificate chain claims to
 // have (i.e., ignoring any caveats or recognition of the root public key as an
 // authority on the namespace).
 func claimedName(chain []Certificate) string {
-	buf := claimedPool.Get().(*bytes.Buffer)
+	buf := claimedPool.Get().(*strings.Builder)
 	buf.Reset()
 	buf.WriteString(chain[0].Extension)
 	for i := 1; i < len(chain); i++ {
@@ -166,7 +166,7 @@ func claimedName(chain []Certificate) string {
 // chainCaveats returns the union of the set of caveats in the  certificates present
 // in 'chain'.
 func chainCaveats(chain []Certificate) []Caveat {
-	var cavs []Caveat
+	cavs := make([]Caveat, 0, len(chain))
 	for _, c := range chain {
 		cavs = append(cavs, c.Caveats...)
 	}

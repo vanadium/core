@@ -81,6 +81,7 @@ type KeyFlags struct {
 	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
+	SSLCertificateFile    string `cmdline:"ssl-cert,,'If set, use the ssl/certificate from the specified file to obtain the certificate authority information for the ssl-key being used.'"`
 }
 
 // ForPeerFlag represents a --for-peer flag.
@@ -781,6 +782,7 @@ principal will have no blessings.
 				flagCreate.KeyType,
 				flagCreate.SSHAgentPublicKeyFile,
 				flagCreate.SSLKeyFile,
+				flagCreate.SSLCertificateFile,
 				pass,
 				flagCreate.CreateOverwrite)
 			if err != nil {
@@ -865,6 +867,7 @@ forked principal.
 				flagFork.KeyType,
 				flagFork.SSHAgentPublicKeyFile,
 				flagFork.SSLKeyFile,
+				flagFork.SSLCertificateFile,
 				pass,
 				flagFork.CreateOverwrite)
 			if err != nil {
@@ -1333,7 +1336,7 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }
 
-func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslKey string, pass []byte, overwrite bool) (security.Principal, error) {
+func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslKey, sslCert string, pass []byte, overwrite bool) (security.Principal, error) {
 	if len(sshKey) > 0 && len(sslKey) > 0 {
 		return nil, fmt.Errorf("both an ssl key and ssh key were specified, please choose one and only one of these")
 	}

@@ -12,36 +12,12 @@ import (
 
 // Verify returns true iff sig is a valid signature for a message.
 func (sig *Signature) Verify(key PublicKey, message []byte) bool {
-	if message = key.messageDigest(sig.Purpose, message); message == nil {
-		return false
+	if !sig.X509 {
+		if message = key.messageDigest(sig.Purpose, message); message == nil {
+			return false
+		}
 	}
 	return key.verify(message, sig)
-}
-
-// Digest returns a hash that is computed over all of the fields of the
-// signature that are used for a particular signature algorithm. The
-// digest can be used as a cache key or for 'chaining' as per
-// Certificate.chainedDigests.
-func (sig *Signature) digest(hashfn Hash) []byte {
-	var fields []byte
-	w := func(data []byte) {
-		fields = append(fields, hashfn.sum(data)...)
-	}
-	w([]byte(sig.Hash))
-	w(sig.Purpose)
-	switch {
-	case len(sig.R) > 0:
-		w([]byte("ECDSA")) // The signing algorithm
-		w(sig.R)
-		w(sig.S)
-	case len(sig.Ed25519) > 0:
-		w([]byte("ED25519")) // The signing algorithm
-		w(sig.Ed25519)
-	default:
-		w([]byte("RSA")) // The signing algorithm
-		w(sig.Rsa)
-	}
-	return hashfn.sum(fields)
 }
 
 // messageDigestFields returns a concatenation of the hashes of each field
@@ -79,6 +55,32 @@ func messageDigest(hash Hash, purpose, message []byte, key PublicKey) []byte {
 		return nil
 	}
 	return hash.sum(messageDigestFields(hash, keyBytes, purpose, message))
+}
+
+// Digest returns a hash that is computed over all of the fields of the
+// signature that are used for a particular signature algorithm. The
+// digest can be used as a cache key or for 'chaining' as per
+// Certificate.chainedDigests.
+func (sig *Signature) digest(hashfn Hash) []byte {
+	var fields []byte
+	w := func(data []byte) {
+		fields = append(fields, hashfn.sum(data)...)
+	}
+	w([]byte(sig.Hash))
+	w(sig.Purpose)
+	switch {
+	case len(sig.R) > 0:
+		w([]byte("ECDSA")) // The signing algorithm
+		w(sig.R)
+		w(sig.S)
+	case len(sig.Ed25519) > 0:
+		w([]byte("ED25519")) // The signing algorithm
+		w(sig.Ed25519)
+	default:
+		w([]byte("RSA")) // The signing algorithm
+		w(sig.Rsa)
+	}
+	return hashfn.sum(fields)
 }
 
 // sum returns the hash of data using hash as the cryptographic hash function.

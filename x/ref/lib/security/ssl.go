@@ -15,6 +15,8 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/crypto/cryptobyte"
+	"golang.org/x/crypto/cryptobyte/asn1"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
 )
@@ -42,18 +44,18 @@ type X509CertificateInfo struct {
 	X509Certificate     *x509.Certificate
 }
 
-// ParseOpenSSLCertificateFile parses an ssl/tls public key from the specified file.
-func ParseOpenSSLCertificateFile(filename string, verifyOpts x509.VerifyOptions) (X509CertificateInfo, error) {
+// ParseX509CertificateFile parses an ssl/tls public key from the specified file.
+func ParseX509CertificateFile(filename string, verifyOpts x509.VerifyOptions) (X509CertificateInfo, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return X509CertificateInfo{}, err
 	}
 	defer f.Close()
-	return ParseOpenSSLCertificate(f, verifyOpts)
+	return ParseX509Certificate(f, verifyOpts)
 }
 
-// ParseOpenSSLCertificate parses an ssl/tls public key from the specified io.Reader.
-func ParseOpenSSLCertificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509CertificateInfo, error) {
+// ParseX509Certificate parses an ssl/tls public key from the specified io.Reader.
+func ParseX509Certificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509CertificateInfo, error) {
 	c, err := internal.LoadCertificate(rd)
 	if err != nil {
 		return X509CertificateInfo{}, fmt.Errorf("failed to parse x509.Certificate: %v", err)
@@ -88,6 +90,58 @@ func ParseOpenSSLCertificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509C
 		Subject:         cert.Subject.CommonName,
 		X509Certificate: cert,
 	}, nil
+}
+
+func splitASN1Sig(sig []byte) (R, S []byte) {
+	var inner cryptobyte.String
+	input := cryptobyte.String(sig)
+	_ = input.ReadASN1(&inner, asn1.SEQUENCE) &&
+		inner.ReadASN1Bytes(&R, asn1.INTEGER) &&
+		inner.ReadASN1Bytes(&S, asn1.INTEGER)
+	return
+}
+
+func SignatureForX509(cert *x509.Certificate) (security.PublicKey, security.Signature, error) {
+	pk, err := NewPublicKey(cert.PublicKey)
+	if err != nil {
+		return nil, security.Signature{}, fmt.Errorf("failed to create public key of type %T, for cert issued by: %v: %v\n", cert.PublicKey, cert.Issuer, err)
+	}
+	sig := security.Signature{X509: true}
+	switch cert.SignatureAlgorithm {
+	case x509.SHA1WithRSA:
+		sig.Hash = security.SHA1Hash
+		sig.Rsa = cert.Signature
+	case x509.SHA256WithRSA:
+		sig.Hash = security.SHA256Hash
+		sig.Rsa = cert.Signature
+	case x509.SHA384WithRSA:
+		sig.Hash = security.SHA384Hash
+		sig.Rsa = cert.Signature
+	case x509.SHA512WithRSA:
+		sig.Hash = security.SHA512Hash
+		sig.Rsa = cert.Signature
+	case x509.ECDSAWithSHA1:
+		sig.Hash = security.SHA1Hash
+		sig.R, sig.S = splitASN1Sig(cert.Signature)
+	case x509.ECDSAWithSHA256:
+		sig.Hash = security.SHA256Hash
+		sig.R, sig.S = splitASN1Sig(cert.Signature)
+
+	case x509.ECDSAWithSHA384:
+		sig.Hash = security.SHA384Hash
+		sig.R, sig.S = splitASN1Sig(cert.Signature)
+
+	case x509.ECDSAWithSHA512:
+		sig.Hash = security.SHA512Hash
+		sig.R, sig.S = splitASN1Sig(cert.Signature)
+
+	case x509.PureEd25519:
+		sig.Hash = security.SHA512Hash
+		sig.Ed25519 = cert.Signature
+	default:
+		return nil, security.Signature{}, fmt.Errorf("unsupported signature algorithm for %v for cert issued by: %v: %v\n", cert.SignatureAlgorithm, cert.Issuer, err)
+	}
+	return pk, sig, nil
 }
 
 // NewInMemorySigner creates a new security.Signer that stores its
