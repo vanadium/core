@@ -135,7 +135,6 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 				return nil, ErrBadPassphrase
 			}
 			return key, nil
-
 		default:
 			if strings.Contains(pemBlock.Type, "PARAMETERS") {
 				continue

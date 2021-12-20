@@ -182,7 +182,7 @@ func TestDigestStability(t *testing.T) {
 		{loadPublicKey(t, ec256KeyPEM), "LAOHjgJ51OK3/kFNNaCC4jJgHkYKbjEoe4rccjq6B9Q"},
 	} {
 		hashed := messageDigest(tc.k.hash(), purpose, message, tc.k)
-		if got, want := len(hashed), tc.k.hash().size(); got != want {
+		if got, want := len(hashed), tc.k.hash().Size(); got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 		encoded := base64.RawStdEncoding.EncodeToString(hashed)
@@ -197,10 +197,10 @@ func TestDigestStability(t *testing.T) {
 			continue
 		}
 		fields := messageDigestFields(tc.k.hash(), keybytes, purpose, message)
-		if got, want := len(fields), tc.k.hash().size()*3; got != want {
+		if got, want := len(fields), tc.k.hash().Size()*3; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
-		if got, want := tc.k.hash().sum(fields), hashed; !bytes.Equal(got, want) {
+		if got, want := sum(tc.k.hash(), fields), hashed; !bytes.Equal(got, want) {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 	}

@@ -6,11 +6,13 @@ package security_test
 
 import (
 	"crypto/x509"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/internal"
 )
@@ -79,14 +81,7 @@ func TestSSLKeys(t *testing.T) {
 
 func TestLetsEncryptKeys(t *testing.T) {
 	filename := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
-	rf, err := os.Open(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rf.Close()
-
 	purpose, message := []byte("testing"), []byte("another message")
-
 	cpriv, err := seclib.ParsePEMPrivateKeyFile(filename, nil)
 	if err != nil {
 		t.Errorf("failed to load %v: %v", filename, err)
@@ -130,5 +125,42 @@ func TestLetsEncryptKeys(t *testing.T) {
 	if got, want := cert.PublicKey.String(), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
+
+}
+
+func TestRootCABlessings(t *testing.T) {
+	filename := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
+	cpriv, err := seclib.ParsePEMPrivateKeyFile(filename, nil)
+	if err != nil {
+		t.Errorf("failed to load %v: %v", filename, err)
+	}
+	signer, err := seclib.NewInMemorySigner(cpriv)
+	if err != nil {
+		t.Errorf("failed to create signer for %v: %v", filename, err)
+	}
+	p, err := seclib.NewPrincipalFromSigner(signer)
+	if err != nil {
+		t.Errorf("failed to create new principal: %v", err)
+	}
+
+	blocks, err := internal.LoadCABundlePEMFile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	certs, err := internal.ParseX509Certificates(blocks)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range certs {
+		fmt.Printf("%v: %T: %v .. %v\n", c.Issuer, c.PublicKey, c.NotBefore, c.NotAfter)
+	}
+
+	cav, _ := security.NewExpiryCaveat(time.Now().Add(time.Hour))
+	blessings, err := p.BlessSelf("www.labdrive.io", cav)
+	if err != nil {
+		t.Errorf("failed to bless self: %v", err)
+	}
+	fmt.Printf("B: %s\n", blessings.String())
+	t.FailNow()
 
 }

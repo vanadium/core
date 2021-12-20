@@ -199,6 +199,7 @@ func TestCertificateDigest(t *testing.T) {
 			if bytes.Equal(digests[i], digests[j]) {
 				cert1 := security.Certificate{Signature: signatures[i]}
 				cert2 := security.Certificate{Signature: signatures[j]}
+				fmt.Printf("SIG:\t%#v\n\t%#v\n", cert1.Signature, cert2.Signature)
 				t.Errorf("Certificate{%v} and {%v} have different signatures but the same digests", cert1, cert2)
 			}
 		}

@@ -7,6 +7,8 @@
 package security
 
 import (
+	"crypto"
+
 	"v.io/v23/context"
 )
 
@@ -64,7 +66,7 @@ func ExposeClaimedName(chain []Certificate) string {
 
 // ExposeChainedDigests exposes Certificate.chainedDigests tests.
 func ExposeChainedDigests(c Certificate, h Hash, chain []byte) (digest, contentDigest []byte) {
-	return c.chainedDigests(h, chain)
+	return c.chainedDigests(cryptoHash(h), chain)
 }
 
 // ExposeChainCertificate exposes chainCertificate to tests.
@@ -82,6 +84,6 @@ func ExposeDigestsForCertificateChain(chain []Certificate) (digest, contentDiges
 	return digestsForCertificateChain(chain)
 }
 
-func HashForPublicKey(pk PublicKey) Hash {
+func HashForPublicKey(pk PublicKey) crypto.Hash {
 	return pk.hash()
 }

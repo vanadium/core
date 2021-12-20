@@ -88,7 +88,7 @@ func (b *Blessings) init() {
 	for _, d := range b.digests {
 		tohash = append(tohash, d...)
 	}
-	b.uniqueID = b.publicKey.hash().sum(tohash)
+	b.uniqueID = sum(b.publicKey.hash(), tohash)
 }
 
 // CouldHaveNames returns true iff the blessings 'b' encapsulates the provided
@@ -416,7 +416,7 @@ func RootBlessings(b Blessings) []Blessings {
 		}
 		var (
 			cert      = chain[0]
-			digest, _ = cert.chainedDigests(cert.Signature.Hash, nil)
+			digest, _ = cert.chainedDigests(cryptoHash(cert.Signature.Hash), nil)
 			ptr       = &ret[i]
 		)
 		ptr.chains = [][]Certificate{{cert}}

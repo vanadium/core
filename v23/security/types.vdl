@@ -63,8 +63,10 @@ type Signature struct {
     // RSA contains an RSA signature, it will be nil otherewise.
     Rsa []byte
 	// X509 is set for signatures extracted from X509 certificates as opposed
-	// to those signed natively by this package.
-	X509 bool
+	// to those signed natively by this package and hence should not have a
+	// digest computed over the Purpose and the supplied message when verifying
+	// the signature, rather the message should be verified directly.
+	//X509 bool
 }
 
 // EcdsaOnlySignature represents a digital signature for ecdsa only. It is
@@ -117,6 +119,7 @@ type Certificate struct {
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
+
 
 // CaveatDescriptor defines an association between a caveat validation function
 // (addressed by globally unique identifier) and the data needed by the

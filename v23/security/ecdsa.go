@@ -5,6 +5,7 @@
 package security
 
 import (
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"fmt"
@@ -13,7 +14,7 @@ import (
 
 // NewECDSAPublicKey creates a PublicKey object that uses the ECDSA algorithm and the provided ECDSA public key.
 func NewECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
-	return newECDSAPublicKeyImpl(key)
+	return newECDSAPublicKeyImpl(key, ecdsaHash(key))
 }
 
 type ecdsaPublicKey struct {
@@ -22,15 +23,16 @@ type ecdsaPublicKey struct {
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
+	chash := cryptoHash(sig.Hash)
 	if sig.X509 {
-		digest = sig.Hash.sum(digest)
+		digest = sum(chash, digest)
 	}
 	var r, s big.Int
 	return ecdsa.Verify(pk.key, digest, r.SetBytes(sig.R), s.SetBytes(sig.S))
 }
 
-func (pk *ecdsaPublicKey) messageDigest(purpose, message []byte) []byte {
-	return pk.h.sum(messageDigestFields(pk.h, pk.keyBytes, purpose, message))
+func (pk *ecdsaPublicKey) messageDigest(h crypto.Hash, purpose, message []byte) []byte {
+	return sum(h, messageDigestFields(h, pk.keyBytes, purpose, message))
 }
 
 func ecdsaHash(key *ecdsa.PublicKey) Hash {
@@ -48,42 +50,48 @@ func ecdsaHash(key *ecdsa.PublicKey) Hash {
 }
 
 // NewInMemoryECDSASigner creates a Signer that uses the provided ECDSA private
-// key to sign messages.  This private key is kept in the clear in the memory
-// of the running process.
+// key to sign messages. This private key is kept in the clear in the memory
+// of the running process. The hash function used for computing digests used
+// for signing is based on the curve used by the public key.
 func NewInMemoryECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
-	signer, err := newInMemoryECDSASignerImpl(key)
+	signer, err := newInMemoryECDSASignerImpl(key, ecdsaHash(&key.PublicKey))
 	if err != nil {
 		return nil, err
 	}
 	return signer, nil
 }
 
-// NewECDSASigner creates a Signer that uses the provided function to sign
-// messages. The provided method is invoked to sign messages and may be used
-// to access an otherwise protected or encoded key.
-func NewECDSASigner(key *ecdsa.PublicKey, sign func(data []byte) (r, s *big.Int, err error)) Signer {
-	return &ecdsaSigner{sign: sign, pubkey: NewECDSAPublicKey(key)}
-}
-
 type ecdsaSigner struct {
-	sign   func(data []byte) (r, s *big.Int, err error)
-	pubkey PublicKey
+	signerCommon
+	sign func(data []byte) (r, s *big.Int, err error)
 	// Object to hold on to for garbage collection
 	impl interface{} //nolint:structcheck,unused
 }
 
-func (c *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
-	hash := c.pubkey.hash()
-	if message = c.pubkey.messageDigest(purpose, message); message == nil {
-		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", hash)
+// NewECDSASigner creates a Signer that uses the provided function to sign
+// messages. The provided method is invoked to sign messages and may be used
+// to access an otherwise protected or encoded key. The hash function used
+// for computing digests used for signing is based on the curve used by the
+// public key.
+func NewECDSASigner(key *ecdsa.PublicKey, sign func(data []byte) (r, s *big.Int, err error)) Signer {
+	hash := ecdsaHash(key)
+	return &ecdsaSigner{
+		signerCommon: newSignerCommon(NewECDSAPublicKey(key), hash),
+		sign:         sign,
 	}
-	r, s, err := c.sign(message)
+}
+
+func (es *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
+	if message = es.pubkey.messageDigest(es.chash, purpose, message); message == nil {
+		return Signature{}, fmt.Errorf("unable to create bytes to sign from message with hashing function: %v", es.chash)
+	}
+	r, s, err := es.sign(message)
 	if err != nil {
 		return Signature{}, err
 	}
 	return Signature{
 		Purpose: purpose,
-		Hash:    hash,
+		Hash:    es.vhash,
 		R:       r.Bytes(),
 		S:       s.Bytes(),
 	}, nil
@@ -93,16 +101,18 @@ func (c *ecdsaSigner) PublicKey() PublicKey {
 	return c.pubkey
 }
 
-func newGoStdlibECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
+func newGoStdlibECDSASigner(key *ecdsa.PrivateKey, hash Hash) (Signer, error) {
 	sign := func(data []byte) (r, s *big.Int, err error) {
 		return ecdsa.Sign(rand.Reader, key, data)
 	}
-	return &ecdsaSigner{sign: sign, pubkey: newGoStdlibECDSAPublicKey(&key.PublicKey)}, nil
+	return &ecdsaSigner{
+		signerCommon: newSignerCommon(newGoStdlibECDSAPublicKey(&key.PublicKey, hash), hash),
+		sign:         sign}, nil
 }
 
-func newGoStdlibECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
+func newGoStdlibECDSAPublicKey(key *ecdsa.PublicKey, hash Hash) PublicKey {
 	return &ecdsaPublicKey{
 		key:             key,
-		publicKeyCommon: newPublicKeyCommon(ecdsaHash(key), key),
+		publicKeyCommon: newPublicKeyCommon(key, hash),
 	}
 }

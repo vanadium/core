@@ -6,6 +6,7 @@ package security
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -161,8 +162,8 @@ func NewCaveat(c CaveatDescriptor, param interface{}) (Caveat, error) {
 }
 
 // digest returns a hash of the contents of c.
-func (c *Caveat) digest(hash Hash) []byte {
-	return hash.sum(append(hash.sum(c.Id[:]), hash.sum(c.ParamVom)...))
+func (c *Caveat) digest(hash crypto.Hash) []byte {
+	return sum(hash, append(sum(hash, c.Id[:]), sum(hash, c.ParamVom)...))
 }
 
 // Validate tests if 'c' is satisfied under 'call', returning nil if it is or an
@@ -253,11 +254,11 @@ func (c *publicKeyThirdPartyCaveatParam) ID() string {
 		return ""
 	}
 	hash := key.hash()
-	bytes := append(hash.sum(c.Nonce[:]), hash.sum(c.DischargerKey)...)
+	bytes := append(sum(hash, c.Nonce[:]), sum(hash, c.DischargerKey)...)
 	for _, cav := range c.Caveats {
 		bytes = append(bytes, cav.digest(hash)...)
 	}
-	return base64.StdEncoding.EncodeToString(hash.sum(bytes))
+	return base64.StdEncoding.EncodeToString(sum(hash, bytes))
 }
 
 func (c *publicKeyThirdPartyCaveatParam) Location() string { return c.DischargerLocation }
@@ -287,12 +288,12 @@ func (c publicKeyThirdPartyCaveatParam) String() string {
 	return fmt.Sprintf("%v@%v [%+v]", c.ID(), c.Location(), c.Requirements())
 }
 
-func (d *PublicKeyDischarge) digest(hash Hash) []byte {
-	msg := hash.sum([]byte(d.ThirdPartyCaveatId))
+func (d *PublicKeyDischarge) digest(hash crypto.Hash) []byte {
+	msg := sum(hash, []byte(d.ThirdPartyCaveatId))
 	for _, cav := range d.Caveats {
 		msg = append(msg, cav.digest(hash)...)
 	}
-	return hash.sum(msg)
+	return sum(hash, msg)
 }
 
 func (d *PublicKeyDischarge) verify(ctx *context.T, key PublicKey) error {
@@ -317,8 +318,9 @@ func (d *PublicKeyDischarge) signatureCacheKey(digest []byte, key PublicKey, sig
 	if err != nil {
 		return nil, err
 	}
-	keyhash := key.hash().sum(keybytes)
-	sighash := signature.digest(key.hash())
+	hash := key.hash()
+	keyhash := sum(hash, keybytes)
+	sighash := signature.digest(hash)
 	return append(keyhash, append(sighash, digest...)...), nil
 }
 

@@ -15,8 +15,6 @@ import (
 	"os"
 	"time"
 
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
 )
@@ -92,6 +90,7 @@ func ParseX509Certificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509Cert
 	}, nil
 }
 
+/*
 func splitASN1Sig(sig []byte) (R, S []byte) {
 	var inner cryptobyte.String
 	input := cryptobyte.String(sig)
@@ -134,7 +133,6 @@ func SignatureForX509(cert *x509.Certificate) (security.PublicKey, security.Sign
 	case x509.ECDSAWithSHA512:
 		sig.Hash = security.SHA512Hash
 		sig.R, sig.S = splitASN1Sig(cert.Signature)
-
 	case x509.PureEd25519:
 		sig.Hash = security.SHA512Hash
 		sig.Ed25519 = cert.Signature
@@ -143,6 +141,7 @@ func SignatureForX509(cert *x509.Certificate) (security.PublicKey, security.Sign
 	}
 	return pk, sig, nil
 }
+*/
 
 // NewInMemorySigner creates a new security.Signer that stores its
 // private key in memory using the security.NewInMemory{ECDSA,ED25519,RSA}Signer
