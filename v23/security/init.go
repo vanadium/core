@@ -27,6 +27,14 @@ func init() {
 		return nil
 	})
 
+	RegisterCaveatValidator(NotBeforeCaveat, func(ctx *context.T, call Call, from time.Time) error {
+		now := call.Timestamp()
+		if !now.After(from) {
+			return ErrorfExpiryCaveatValidation(ctx, "now(%v) is not before (%v)", now, from)
+		}
+		return nil
+	})
+
 	RegisterCaveatValidator(MethodCaveat, func(ctx *context.T, call Call, methods []string) error {
 		for _, m := range methods {
 			if call.Method() == m {

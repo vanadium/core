@@ -52,6 +52,9 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
 	}
+	if c.X509 {
+		w([]byte{0x1})
+	}
 	return sum(hashfn, fields)
 }
 

@@ -23,10 +23,10 @@ type ecdsaPublicKey struct {
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
-	chash := cryptoHash(sig.Hash)
+	/*chash := cryptoHash(sig.Hash)
 	if sig.X509 {
 		digest = sum(chash, digest)
-	}
+	}*/
 	var r, s big.Int
 	return ecdsa.Verify(pk.key, digest, r.SetBytes(sig.R), s.SetBytes(sig.S))
 }

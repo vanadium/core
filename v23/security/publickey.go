@@ -116,3 +116,17 @@ func (pk publicKeyCommon) String() string {
 	}
 	return string(repr[:len(repr)-1])
 }
+
+// NewPublicKey creates a new security.PublicKey for the supplied
+// crypto.PublicKey.
+func NewPublicKey(key crypto.PublicKey) (PublicKey, error) {
+	switch k := key.(type) {
+	case *ecdsa.PublicKey:
+		return NewECDSAPublicKey(k), nil
+	case *rsa.PublicKey:
+		return NewRSAPublicKey(k), nil
+	case ed25519.PublicKey:
+		return NewED25519PublicKey(k), nil
+	}
+	return nil, fmt.Errorf("%T is an unsupported key type", key)
+}

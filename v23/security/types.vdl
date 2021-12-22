@@ -118,6 +118,7 @@ type Certificate struct {
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
+	X509      bool      // Set if this certificate was based on an x509 certificate.
 }
 
 

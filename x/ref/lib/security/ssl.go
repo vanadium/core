@@ -90,59 +90,6 @@ func ParseX509Certificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509Cert
 	}, nil
 }
 
-/*
-func splitASN1Sig(sig []byte) (R, S []byte) {
-	var inner cryptobyte.String
-	input := cryptobyte.String(sig)
-	_ = input.ReadASN1(&inner, asn1.SEQUENCE) &&
-		inner.ReadASN1Bytes(&R, asn1.INTEGER) &&
-		inner.ReadASN1Bytes(&S, asn1.INTEGER)
-	return
-}
-
-func SignatureForX509(cert *x509.Certificate) (security.PublicKey, security.Signature, error) {
-	pk, err := NewPublicKey(cert.PublicKey)
-	if err != nil {
-		return nil, security.Signature{}, fmt.Errorf("failed to create public key of type %T, for cert issued by: %v: %v\n", cert.PublicKey, cert.Issuer, err)
-	}
-	sig := security.Signature{X509: true}
-	switch cert.SignatureAlgorithm {
-	case x509.SHA1WithRSA:
-		sig.Hash = security.SHA1Hash
-		sig.Rsa = cert.Signature
-	case x509.SHA256WithRSA:
-		sig.Hash = security.SHA256Hash
-		sig.Rsa = cert.Signature
-	case x509.SHA384WithRSA:
-		sig.Hash = security.SHA384Hash
-		sig.Rsa = cert.Signature
-	case x509.SHA512WithRSA:
-		sig.Hash = security.SHA512Hash
-		sig.Rsa = cert.Signature
-	case x509.ECDSAWithSHA1:
-		sig.Hash = security.SHA1Hash
-		sig.R, sig.S = splitASN1Sig(cert.Signature)
-	case x509.ECDSAWithSHA256:
-		sig.Hash = security.SHA256Hash
-		sig.R, sig.S = splitASN1Sig(cert.Signature)
-
-	case x509.ECDSAWithSHA384:
-		sig.Hash = security.SHA384Hash
-		sig.R, sig.S = splitASN1Sig(cert.Signature)
-
-	case x509.ECDSAWithSHA512:
-		sig.Hash = security.SHA512Hash
-		sig.R, sig.S = splitASN1Sig(cert.Signature)
-	case x509.PureEd25519:
-		sig.Hash = security.SHA512Hash
-		sig.Ed25519 = cert.Signature
-	default:
-		return nil, security.Signature{}, fmt.Errorf("unsupported signature algorithm for %v for cert issued by: %v: %v\n", cert.SignatureAlgorithm, cert.Issuer, err)
-	}
-	return pk, sig, nil
-}
-*/
-
 // NewInMemorySigner creates a new security.Signer that stores its
 // private key in memory using the security.NewInMemory{ECDSA,ED25519,RSA}Signer
 // methods.
@@ -162,14 +109,4 @@ func NewInMemorySigner(key crypto.PrivateKey) (security.Signer, error) {
 
 // NewPublicKey creates a new security.PublicKey for the supplied
 // crypto.PublicKey.
-func NewPublicKey(key crypto.PublicKey) (security.PublicKey, error) {
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
-		return security.NewECDSAPublicKey(k), nil
-	case *rsa.PublicKey:
-		return security.NewRSAPublicKey(k), nil
-	case ed25519.PublicKey:
-		return security.NewED25519PublicKey(k), nil
-	}
-	return nil, fmt.Errorf("%T is an unsupported key type", key)
-}
+var NewPublicKey = security.NewPublicKey

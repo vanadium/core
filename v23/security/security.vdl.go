@@ -497,9 +497,6 @@ type Signature struct {
 	Ed25519 []byte
 	// RSA contains an RSA signature, it will be nil otherewise.
 	Rsa []byte
-	// X509 is set for signatures extracted from X509 certificates as opposed
-	// to those signed natively by this package.
-	X509 bool
 }
 
 func (Signature) VDLReflect(struct {
@@ -524,9 +521,6 @@ func (x Signature) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.Rsa) != 0 {
-		return false
-	}
-	if x.X509 {
 		return false
 	}
 	return true
@@ -563,11 +557,6 @@ func (x Signature) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 	}
 	if len(x.Rsa) != 0 {
 		if err := enc.NextFieldValueBytes(5, vdlTypeList4, x.Rsa); err != nil {
-			return err
-		}
-	}
-	if x.X509 {
-		if err := enc.NextFieldValueBool(6, vdl.BoolType, x.X509); err != nil {
 			return err
 		}
 	}
@@ -627,13 +616,6 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case 5:
 			if err := dec.ReadValueBytes(-1, &x.Rsa); err != nil {
 				return err
-			}
-		case 6:
-			switch value, err := dec.ReadValueBool(); {
-			case err != nil:
-				return err
-			default:
-				x.X509 = value
 			}
 		}
 	}
@@ -1107,6 +1089,7 @@ type Certificate struct {
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
+	X509      bool      // Set if this certificate was based on an x509 certificate.
 }
 
 func (Certificate) VDLReflect(struct {
@@ -1125,6 +1108,9 @@ func (x Certificate) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if !x.Signature.VDLIsZero() {
+		return false
+	}
+	if x.X509 {
 		return false
 	}
 	return true
@@ -1157,6 +1143,11 @@ func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 		if err := x.Signature.VDLWrite(enc); err != nil {
+			return err
+		}
+	}
+	if x.X509 {
+		if err := enc.NextFieldValueBool(4, vdl.BoolType, x.X509); err != nil {
 			return err
 		}
 	}
@@ -1208,6 +1199,13 @@ func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case 3:
 			if err := x.Signature.VDLRead(dec); err != nil {
 				return err
+			}
+		case 4:
+			switch value, err := dec.ReadValueBool(); {
+			case err != nil:
+				return err
+			default:
+				x.X509 = value
 			}
 		}
 	}
@@ -1666,6 +1664,30 @@ var ExpiryCaveat = CaveatDescriptor{
 	ParamType: vdl.TypeOf((*vdltime.Time)(nil)).Elem(),
 }
 
+// NotBeforeCaveat represents a caveat that validates iff the current time is
+// not before the specified time.Time.
+var NotBeforeCaveat = CaveatDescriptor{
+	Id: uniqueid.Id{
+		186,
+		175,
+		104,
+		57,
+		169,
+		143,
+		156,
+		19,
+		131,
+		153,
+		205,
+		105,
+		214,
+		255,
+		153,
+		37,
+	},
+	ParamType: vdl.TypeOf((*vdltime.Time)(nil)).Elem(),
+}
+
 // MethodCaveat represents a caveat that validates iff the method being
 // invoked is included in this list. An empty list implies that the caveat is invalid.
 var MethodCaveat = CaveatDescriptor{
@@ -1766,6 +1788,7 @@ var (
 	ErrCaveatValidation              = verror.NewIDAction("v.io/v23/security.CaveatValidation", verror.NoRetry)
 	ErrConstCaveatValidation         = verror.NewIDAction("v.io/v23/security.ConstCaveatValidation", verror.NoRetry)
 	ErrExpiryCaveatValidation        = verror.NewIDAction("v.io/v23/security.ExpiryCaveatValidation", verror.NoRetry)
+	ErrNotBeforeCaveatValidation     = verror.NewIDAction("v.io/v23/security.NotBeforeCaveatValidation", verror.NoRetry)
 	ErrMethodCaveatValidation        = verror.NewIDAction("v.io/v23/security.MethodCaveatValidation", verror.NoRetry)
 	ErrPeerBlessingsCaveatValidation = verror.NewIDAction("v.io/v23/security.PeerBlessingsCaveatValidation", verror.NoRetry)
 	ErrUnrecognizedRoot              = verror.NewIDAction("v.io/v23/security.UnrecognizedRoot", verror.NoRetry)
@@ -2040,6 +2063,53 @@ func MessageExpiryCaveatValidation(ctx *context.T, message string, currentTime t
 
 // ParamsErrExpiryCaveatValidation extracts the expected parameters from the error's ParameterList.
 func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if currentTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value currentTime, has %T and not time.Time", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if expiryTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expiryTime, has %T and not time.Time", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Errorf with the supplied arguments.
+func ErrorfNotBeforeCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrNotBeforeCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
+}
+
+// MessageNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Message with the supplied arguments.
+func MessageNotBeforeCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrNotBeforeCaveatValidation.Message(ctx, message, currentTime, expiryTime)
+}
+
+// ParamsErrNotBeforeCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotBeforeCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
