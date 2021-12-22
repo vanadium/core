@@ -293,11 +293,15 @@ func TestRPC(t *testing.T) {
 		panic(err)
 	}
 
-	_, err = client.StartCall(ctx, serverObjectName, "Echo", []interface{}{"hi"})
+	fmt.Printf("startCall\n")
+	call, err := client.StartCall(ctx, serverObjectName, "Echo", []interface{}{"hi"})
 	if err == nil || !strings.Contains(err.Error(), "client does not trust server") {
-		t.Fatalf("expected an error saying that the client does not trust the server, not: %v", err)
+		t.Errorf("expected an error saying that the client does not trust the server, not: %v", err)
 	}
+	var result string
+	err = call.Finish(&result)
 
+	fmt.Printf("RESULT... %v: %q\n", err, result)
 	t.Log(err)
 	t.FailNow()
 }

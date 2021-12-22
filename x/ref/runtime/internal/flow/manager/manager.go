@@ -866,7 +866,6 @@ func (m *manager) internalDial(
 			return nil, iflow.MaybeWrapError(flow.ErrBadState, ctx, err)
 		}
 	}
-
 	c, _ := cached.(*conn.Conn)
 
 	// If the connection we found or dialed doesn't have the correct RID, assume it is a Proxy.

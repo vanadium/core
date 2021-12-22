@@ -533,7 +533,7 @@ func errorForAction(ctx *context.T, id verror.IDAction, name string) error {
 	case verror.ErrTimeout:
 		return id.Errorf(ctx, "timeout")
 	case verror.ErrNotTrusted:
-		return id.Errorf(ctx, "xxx client does not trust server: %s", name)
+		return id.Errorf(ctx, "client does not trust server: %s", name)
 	case verror.ErrNoServers:
 		return id.Errorf(ctx, "no usable servers found for %s", name)
 	}
@@ -969,7 +969,10 @@ func (x peerAuthorizer) AuthorizePeer(
 		RemoteDischarges: remoteDischarges,
 		RemoteEndpoint:   remoteEP,
 	})
+	fmt.Printf("authorizePeer....\n")
 	if err := x.auth.Authorize(ctx, call); err != nil {
+		fmt.Printf("authorizePeer.... %v\n", err)
+
 		return nil, nil, errPeerAuthorizeFailed.Errorf(ctx, "failed to authorize flow with remote blessings: %v: %v", call.RemoteBlessings(), err)
 	}
 	peerNames, rejectedPeerNames := security.RemoteBlessingNames(ctx, call)
