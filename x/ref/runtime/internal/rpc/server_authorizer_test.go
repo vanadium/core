@@ -60,11 +60,13 @@ func TestServerAuthorizer(t *testing.T) {
 		unauthorizedServers []security.Blessings
 	}{
 		{
-			// No blessings in the endpoint means that all servers are authorized.
+			// No blessings in the endpoint means that no servers are authorized.
+			// This prevents clients from trusting a server that has no blessings
+			// to verify.
 			nil,
 			newServerAuthorizer(""),
-			[]security.Blessings{ali, otherAli, bob, che},
 			[]security.Blessings{},
+			[]security.Blessings{ali, otherAli, bob, che},
 		},
 		{
 			// Endpoint sets the expectations for "ali" and "bob".
@@ -110,8 +112,8 @@ func TestServerAuthorizer(t *testing.T) {
 			nil,
 		},
 		{
-			// Pattern provied to newServerAuthorizer is respected.
-			nil,
+			// Pattern provided to newServerAuthorizer is respected.
+			[]string{"bob"},
 			newServerAuthorizer("bob"),
 			[]security.Blessings{bob, U(ali, bob)},
 			[]security.Blessings{ali, otherAli, che},
@@ -126,7 +128,7 @@ func TestServerAuthorizer(t *testing.T) {
 			[]security.Blessings{ali, otherAli, bob, che, U(ali, che)},
 		},
 	}
-	for _, test := range tests {
+	for i, test := range tests {
 		call := &mockCall{
 			p:   pclient,
 			rep: naming.Endpoint{}.WithBlessingNames(test.serverBlessingNames),
@@ -134,13 +136,13 @@ func TestServerAuthorizer(t *testing.T) {
 		for _, s := range test.authorizedServers {
 			call.r = s
 			if err := test.auth.Authorize(ctx, call); err != nil {
-				t.Errorf("serverAuthorizer: %#v failed to authorize server: %v", test.auth, s)
+				t.Errorf("%v: serverAuthorizer: %#v failed to authorize server: %v: %v", i, test.auth, s, err)
 			}
 		}
 		for _, s := range test.unauthorizedServers {
 			call.r = s
 			if err := test.auth.Authorize(ctx, call); err == nil {
-				t.Errorf("serverAuthorizer: %#v authorized server: %v", test.auth, s)
+				t.Errorf("%v: serverAuthorizer: %#v authorized server: %v: %v", i, test.auth, s, err)
 			}
 		}
 	}
