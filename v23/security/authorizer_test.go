@@ -282,7 +282,7 @@ func testEndpointAuthorizer(t *testing.T, pali, pbob security.Principal) {
 			ep naming.Endpoint
 			ok bool
 		}{
-			{naming.Endpoint{}, true},
+			{naming.Endpoint{}, false},
 			{naming.Endpoint{}.WithBlessingNames([]string{"foo", "bar"}), false},
 			{naming.Endpoint{}.WithBlessingNames([]string{"foo", "ali", "bar"}), true},
 		}
