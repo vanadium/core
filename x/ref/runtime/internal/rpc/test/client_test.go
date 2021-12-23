@@ -948,7 +948,7 @@ func TestDNSResolutionChange(t *testing.T) {
 	defer cancel()
 
 	// The call should succeed.
-	if err := v23.GetClient(ctx).Call(ctx, "/@6@change@hostname@@00000000000000000000000000000000@s@@@", "Closure", nil, nil, options.ServerAuthorizer{security.AllowEveryone()}); err != nil {
+	if err := v23.GetClient(ctx).Call(ctx, "/@6@change@hostname@@00000000000000000000000000000000@s@@@", "Closure", nil, nil, options.ServerAuthorizer{Authorizer: security.AllowEveryone()}); err != nil {
 		t.Error(err)
 	}
 }
