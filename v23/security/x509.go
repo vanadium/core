@@ -26,7 +26,9 @@ func signatureForX509(cert *x509.Certificate) (PublicKey, Signature, error) {
 	if err != nil {
 		return nil, Signature{}, fmt.Errorf("failed to create public key of type %T, for cert issued by: %v: %v\n", cert.PublicKey, cert.Issuer, err)
 	}
-	sig := Signature{}
+	sig := Signature{
+		Purpose: []byte(SignatureForBlessingCertificates),
+	}
 	switch cert.SignatureAlgorithm {
 	case x509.SHA1WithRSA:
 		sig.Hash = SHA1Hash

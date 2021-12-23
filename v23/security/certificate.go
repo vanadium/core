@@ -134,6 +134,7 @@ func validateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 		}
 		// Some basic sanity checks on the certificate.
 		if !bytes.Equal(c.Signature.Purpose, blessPurpose) {
+			fmt.Printf("BS: %q -- %q\n", c.Signature.Purpose, blessPurpose)
 			return nil, nil, fmt.Errorf("signature on certificate(for %v) was not intended for certification (purpose=%v)", c.Extension, c.Signature.Purpose)
 		}
 		if err := validateExtension(c.Extension); err != nil {

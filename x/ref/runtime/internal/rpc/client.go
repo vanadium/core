@@ -969,10 +969,7 @@ func (x peerAuthorizer) AuthorizePeer(
 		RemoteDischarges: remoteDischarges,
 		RemoteEndpoint:   remoteEP,
 	})
-	fmt.Printf("authorizePeer....\n")
 	if err := x.auth.Authorize(ctx, call); err != nil {
-		fmt.Printf("authorizePeer.... %v\n", err)
-
 		return nil, nil, errPeerAuthorizeFailed.Errorf(ctx, "failed to authorize flow with remote blessings: %v: %v", call.RemoteBlessings(), err)
 	}
 	peerNames, rejectedPeerNames := security.RemoteBlessingNames(ctx, call)

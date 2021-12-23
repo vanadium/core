@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -149,7 +150,6 @@ func sslPrinicipal(filename string) (security.Principal, crypto.PrivateKey, []*x
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create new principal: %v", err)
 	}
-
 	blocks, err := internal.LoadCABundlePEMFile(filename)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to load CA Bundle %v", err)
@@ -249,59 +249,66 @@ func (testService) Echo(ctx *context.T, call rpc.ServerCall, msg string) (string
 	return "echo: " + msg, nil
 }
 
-func newCtxPrincipal(rootCtx *context.T) *context.T {
-	ctx, err := v23.WithPrincipal(rootCtx, testutil.NewPrincipal("defaultBlessings"))
-	if err != nil {
-		panic(err)
-	}
-	return ctx
-}
-
 func TestRPC(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
+	var err error
+	fatal := func() {
+		if err != nil {
+			_, _, line, _ := runtime.Caller(1)
+			t.Fatalf("line: %v, err: %v", line, err)
+		}
+	}
 	filename := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
-	serverPrincipal, _, _, err := sslPrinicipal(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("SP 1:\n%v\n", serverPrincipal.BlessingStore().DebugString())
-	//serverPrincipal = testutil.NewPrincipal("oh")
-	fmt.Printf("SP 2:\n %v\n", serverPrincipal.BlessingStore().DebugString())
-	serverCtx, err := v23.WithPrincipal(ctx, serverPrincipal)
-	if err != nil {
-		t.Fatal(err)
-	}
-	//	serverCtx = newCtxPrincipal(ctx)
+	serverPrincipal, _, certs, err := sslPrinicipal(filename)
+	fatal()
 
-	_, server, err := v23.WithNewServer(serverCtx, "", testService{}, security.AllowEveryone())
-	if err != nil {
-		t.Fatal(err)
+	ours := certs[0]
+	pastTime, _ := time.Parse("2006-Jan-02", "2021-Nov-02")
+	opts := x509.VerifyOptions{
+		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
+		CurrentTime: pastTime,
 	}
+	chains, err := ours.Verify(opts)
+	fatal()
+
+	blessings, err := security.BlessingsForX509Chains(serverPrincipal.PublicKey(), chains)
+	fatal()
+	//	_ = chains
+
+	//blessings, err := serverPrincipal.BlessSelf("server")
+	//fatal()
+
+	security.AddToRoots(serverPrincipal, blessings)
+	err = serverPrincipal.BlessingStore().SetDefault(blessings)
+	fatal()
+	_, err = serverPrincipal.BlessingStore().Set(blessings, security.AllPrincipals)
+	fatal()
+
+	fmt.Printf("%s\n", serverPrincipal.BlessingStore().DebugString())
+
+	serverCtx, err := v23.WithPrincipal(ctx, serverPrincipal)
+	fatal()
+	_, server, err := v23.WithNewServer(serverCtx, "", testService{}, nil)
+	fatal()
 
 	testutil.WaitForServerReady(server)
 	serverObjectName := server.Status().Endpoints[0].Name()
 
 	clientCtx, err := v23.WithPrincipal(ctx, testutil.NewPrincipal("simple"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	fatal()
 
 	clientCtx, client, err := v23.WithNewClient(clientCtx)
-	if err != nil {
-		panic(err)
-	}
+	fatal()
 
-	fmt.Printf("startCall\n")
-	call, err := client.StartCall(ctx, serverObjectName, "Echo", []interface{}{"hi"})
+	clientCtx, cancel := context.WithTimeout(clientCtx, time.Second)
+	defer cancel()
+	_, err = client.StartCall(clientCtx, serverObjectName, "Echo", []interface{}{"hi"})
 	if err == nil || !strings.Contains(err.Error(), "client does not trust server") {
-		t.Errorf("expected an error saying that the client does not trust the server, not: %v", err)
+		t.Fatalf("expected an error saying that the client does not trust the server, not: %v", err)
 	}
-	var result string
-	err = call.Finish(&result)
 
-	fmt.Printf("RESULT... %v: %q\n", err, result)
 	t.Log(err)
 	t.FailNow()
 }
