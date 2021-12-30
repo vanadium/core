@@ -6,10 +6,13 @@ package security
 
 import (
 	"crypto/x509"
+	"errors"
 	"fmt"
+	"strings"
 
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/cryptobyte/asn1"
+	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 )
 
 func splitASN1Sig(sig []byte) (R, S []byte) {
@@ -63,6 +66,34 @@ func signatureForX509(cert *x509.Certificate) (PublicKey, Signature, error) {
 	return pk, sig, nil
 }
 
+func sanitizeExtensionString(s string) string {
+	for _, illegal := range invalidBlessingSubStrings {
+		s = strings.ReplaceAll(s, illegal, "")
+	}
+	return s
+}
+
+func x509TBS(der []byte) ([]byte, error) {
+	input := cryptobyte.String(der)
+	// we read the SEQUENCE including length and tag bytes so that
+	// we can populate Certificate.Raw, before unwrapping the
+	// SEQUENCE so it can be operated on
+	if !input.ReadASN1Element(&input, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("x509: malformed certificate")
+	}
+	if !input.ReadASN1(&input, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("x509: malformed certificate")
+	}
+
+	var tbs cryptobyte.String
+	// do the same trick again as above to extract the raw
+	// bytes for Certificate.RawTBSCertificate
+	if !input.ReadASN1Element(&tbs, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("x509: malformed tbs certificate")
+	}
+	return tbs, nil
+}
+
 func certFromX509(cert *x509.Certificate) (Certificate, error) {
 	cavs := make([]Caveat, 0, 2)
 	notBefore, err := NewExpiryCaveat(cert.NotBefore)
@@ -81,12 +112,16 @@ func certFromX509(cert *x509.Certificate) (Certificate, error) {
 	if err != nil {
 		return Certificate{}, err
 	}
+
+	fmt.Printf("RAW LEN: %v\n", len(cert.Raw))
+	fmt.Printf("TBS LEN: %v\n", len(cert.RawTBSCertificate))
+
 	return Certificate{
-		Extension: cert.Subject.CommonName,
+		Extension: sanitizeExtensionString(cert.Subject.CommonName),
 		PublicKey: pkBytes,
 		Caveats:   append(cavs, notAfter, notBefore),
 		Signature: sig,
-		X509:      true,
+		X509Raw:   cert.Raw,
 	}, nil
 }
 

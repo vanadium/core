@@ -47,13 +47,19 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	w := func(data []byte) {
 		fields = append(fields, sum(hashfn, data)...)
 	}
+	if len(c.X509Raw) > 0 {
+		tbs, err := x509TBS(c.X509Raw)
+		if err == nil {
+			w(c.X509Raw)
+		} else {
+			w(tbs)
+		}
+		return sum(hashfn, tbs)
+	}
 	w(c.PublicKey)
 	w([]byte(c.Extension))
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
-	}
-	if c.X509 {
-		w([]byte{0x1})
 	}
 	return sum(hashfn, fields)
 }
@@ -100,7 +106,7 @@ func validateExtension(extension string) error {
 	}
 	for _, n := range invalidBlessingSubStrings {
 		if strings.Contains(extension, n) {
-			return fmt.Errorf("invalid blessing extension(%v has %v as a substring)", extension, n)
+			return fmt.Errorf("invalid blessing extension(%v) has (%v) as a substring)", extension, n)
 		}
 	}
 	return nil
@@ -134,12 +140,27 @@ func validateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 		}
 		// Some basic sanity checks on the certificate.
 		if !bytes.Equal(c.Signature.Purpose, blessPurpose) {
-			fmt.Printf("BS: %q -- %q\n", c.Signature.Purpose, blessPurpose)
 			return nil, nil, fmt.Errorf("signature on certificate(for %v) was not intended for certification (purpose=%v)", c.Extension, c.Signature.Purpose)
 		}
 		if err := validateExtension(c.Extension); err != nil {
 			return nil, nil, fmt.Errorf("invalid blessing extension in certificate(for %v): %v", c.Extension, err)
 		}
+
+		/*if len(c.X509Raw) > 0 {
+			cert, err := x509.ParseCertificate(c.X509Raw)
+			if err != nil {
+				return nil, nil, err
+			}
+			fmt.Printf("CERT %v - %v\n", cert.Subject.CommonName, err)
+			pastTime, _ := time.Parse("2006-Jan-02", "2021-Nov-02")
+			opts := x509.VerifyOptions{
+				CurrentTime: pastTime,
+			}
+			_, err = cert.Verify(opts)
+			fmt.Printf("CERT SIG: %v - %v\n", cert.Subject.CommonName, err)
+			return nil, nil, err
+		}*/
+
 		// Verify the signature.
 		var signer PublicKey
 		if i == 0 {

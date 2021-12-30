@@ -1089,7 +1089,7 @@ type Certificate struct {
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
-	X509      bool      // Set if this certificate was based on an x509 certificate.
+	X509Raw   []byte    // Complete ASN.1 DER content (eg. from x509.Certificate.Raw)
 }
 
 func (Certificate) VDLReflect(struct {
@@ -1110,7 +1110,7 @@ func (x Certificate) VDLIsZero() bool { //nolint:gocyclo
 	if !x.Signature.VDLIsZero() {
 		return false
 	}
-	if x.X509 {
+	if len(x.X509Raw) != 0 {
 		return false
 	}
 	return true
@@ -1146,8 +1146,8 @@ func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
-	if x.X509 {
-		if err := enc.NextFieldValueBool(4, vdl.BoolType, x.X509); err != nil {
+	if len(x.X509Raw) != 0 {
+		if err := enc.NextFieldValueBytes(4, vdlTypeList4, x.X509Raw); err != nil {
 			return err
 		}
 	}
@@ -1201,11 +1201,8 @@ func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 4:
-			switch value, err := dec.ReadValueBool(); {
-			case err != nil:
+			if err := dec.ReadValueBytes(-1, &x.X509Raw); err != nil {
 				return err
-			default:
-				x.X509 = value
 			}
 		}
 	}
