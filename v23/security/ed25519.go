@@ -34,7 +34,7 @@ func (pk *ed25519PublicKey) messageDigest(hash crypto.Hash, purpose, message []b
 // the memory of the running process. SHA512 is used for computing the digests
 // used for signing.
 func NewInMemoryED25519Signer(key ed25519.PrivateKey) (Signer, error) {
-	signer, err := newInMemoryED25519SignerImpl(key)
+	signer, err := newInMemoryED25519SignerImpl(key, SHA512Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,7 @@ func (es *ed25519Signer) PublicKey() PublicKey {
 	return es.pubkey
 }
 
-func newGoStdlibED25519Signer(key ed25519.PrivateKey) (Signer, error) {
-	hash := SHA512Hash
+func newGoStdlibED25519Signer(key ed25519.PrivateKey, hash Hash) (Signer, error) {
 	sign := func(data []byte) ([]byte, error) {
 		return ed25519.Sign(key, data), nil
 	}

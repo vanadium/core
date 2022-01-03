@@ -8,6 +8,7 @@ package security
 
 import (
 	"crypto"
+	"crypto/ecdsa"
 
 	"v.io/v23/context"
 )
@@ -84,6 +85,22 @@ func ExposeDigestsForCertificateChain(chain []Certificate) (digest, contentDiges
 	return digestsForCertificateChain(chain)
 }
 
-func HashForPublicKey(pk PublicKey) crypto.Hash {
+// ExposePublicKeyHashAlgo exposes the hashAlgo method on PublicKey, it is
+// only required for openssl tests.
+func ExposePublicKeyHashAlgo(pk PublicKey) crypto.Hash {
 	return pk.hashAlgo()
+}
+
+func ExposeECDSAHash(key *ecdsa.PublicKey) Hash {
+	nbits := key.Curve.Params().BitSize
+	switch {
+	case nbits <= 160:
+		return SHA1Hash
+	case nbits <= 256:
+		return SHA256Hash
+	case nbits <= 384:
+		return SHA384Hash
+	default:
+		return SHA512Hash
+	}
 }

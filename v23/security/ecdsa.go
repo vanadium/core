@@ -93,8 +93,8 @@ func (es *ecdsaSigner) Sign(purpose, message []byte) (Signature, error) {
 	}, nil
 }
 
-func (c *ecdsaSigner) PublicKey() PublicKey {
-	return c.pubkey
+func (es *ecdsaSigner) PublicKey() PublicKey {
+	return es.pubkey
 }
 
 func newGoStdlibECDSASigner(key *ecdsa.PrivateKey, hash Hash) (Signer, error) {

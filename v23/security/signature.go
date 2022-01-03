@@ -19,6 +19,32 @@ func (sig *Signature) Verify(key PublicKey, message []byte) bool {
 	return key.verify(message, sig)
 }
 
+// Digest returns a hash that is computed over all of the fields of the
+// signature that are used for a particular signature algorithm. The
+// digest can be used as a cache key or for 'chaining' as per
+// Certificate.chainedDigests.
+func (sig *Signature) digest(hashfn crypto.Hash) []byte {
+	var fields []byte
+	w := func(data []byte) {
+		fields = append(fields, cryptoSum(hashfn, data)...)
+	}
+	w([]byte(sig.Hash))
+	w(sig.Purpose)
+	switch {
+	case len(sig.R) > 0:
+		w([]byte("ECDSA")) // The signing algorithm
+		w(sig.R)
+		w(sig.S)
+	case len(sig.Ed25519) > 0:
+		w([]byte("ED25519")) // The signing algorithm
+		w(sig.Ed25519)
+	default:
+		w([]byte("RSA")) // The signing algorithm
+		w(sig.Rsa)
+	}
+	return cryptoSum(hashfn, fields)
+}
+
 // messageDigestFields returns a concatenation of the hashes of each field
 // which consits of the key, the purpose and the message.
 // In order to defend against "Duplicate Signature Key Selection (DSKS)" attacks
@@ -54,32 +80,6 @@ func messageDigest(hash crypto.Hash, purpose, message []byte, key PublicKey) []b
 		return nil
 	}
 	return cryptoSum(hash, messageDigestFields(hash, keyBytes, purpose, message))
-}
-
-// Digest returns a hash that is computed over all of the fields of the
-// signature that are used for a particular signature algorithm. The
-// digest can be used as a cache key or for 'chaining' as per
-// Certificate.chainedDigests.
-func (sig *Signature) digest(hashfn crypto.Hash) []byte {
-	var fields []byte
-	w := func(data []byte) {
-		fields = append(fields, cryptoSum(hashfn, data)...)
-	}
-	w([]byte(sig.Hash))
-	w(sig.Purpose)
-	switch {
-	case len(sig.R) > 0:
-		w([]byte("ECDSA")) // The signing algorithm
-		w(sig.R)
-		w(sig.S)
-	case len(sig.Ed25519) > 0:
-		w([]byte("ED25519")) // The signing algorithm
-		w(sig.Ed25519)
-	default:
-		w([]byte("RSA")) // The signing algorithm
-		w(sig.Rsa)
-	}
-	return cryptoSum(hashfn, fields)
 }
 
 func cryptoSum(hash crypto.Hash, data []byte) []byte {

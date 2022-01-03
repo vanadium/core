@@ -48,14 +48,7 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
 	if len(c.X509Raw) > 0 {
-		// how to handle this...
-		tbs, err := x509TBS(c.X509Raw)
-		if err == nil {
-			w(c.X509Raw)
-		} else {
-			w(tbs)
-		}
-		return cryptoSum(hashfn, tbs)
+		w(c.X509Raw)
 	}
 	w(c.PublicKey)
 	w([]byte(c.Extension))

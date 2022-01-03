@@ -30,7 +30,7 @@ func (k *opensslED25519PublicKey) finalize() {
 }
 
 func (k *opensslED25519PublicKey) messageDigest(hash crypto.Hash, purpose, message []byte) []byte {
-	return sum(hash, messageDigestFields(hash, k.keyBytes, purpose, message))
+	return cryptoSum(hash, messageDigestFields(hash, k.keyBytes, purpose, message))
 }
 
 func (k *opensslED25519PublicKey) verify(digest []byte, signature *Signature) bool {

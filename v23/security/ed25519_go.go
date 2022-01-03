@@ -9,8 +9,8 @@ package security
 
 import "crypto/ed25519"
 
-func newInMemoryED25519SignerImpl(key ed25519.PrivateKey) (Signer, error) {
-	return newGoStdlibED25519Signer(key)
+func newInMemoryED25519SignerImpl(key ed25519.PrivateKey, hash Hash) (Signer, error) {
+	return newGoStdlibED25519Signer(key, hash)
 }
 
 func newED25519PublicKeyImpl(key ed25519.PublicKey, hash Hash) PublicKey {
