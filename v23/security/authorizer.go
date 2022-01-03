@@ -90,7 +90,8 @@ type endpointAuthorizer struct{}
 func (endpointAuthorizer) Authorize(ctx *context.T, call Call) error {
 	patterns := call.RemoteEndpoint().BlessingNames()
 	if len(patterns) == 0 {
-		return nil
+		// A client should not trust a server that presents no blessings.
+		return ErrEndpointAuthorizationFailed.Errorf(ctx, "no blessings in endpoint %v", call.RemoteEndpoint().String())
 	}
 	names, rejected := RemoteBlessingNames(ctx, call)
 	for _, p := range patterns {
