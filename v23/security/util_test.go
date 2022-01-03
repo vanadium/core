@@ -85,5 +85,5 @@ func ExposeDigestsForCertificateChain(chain []Certificate) (digest, contentDiges
 }
 
 func HashForPublicKey(pk PublicKey) crypto.Hash {
-	return pk.hash()
+	return pk.hashAlgo()
 }

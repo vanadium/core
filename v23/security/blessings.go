@@ -88,7 +88,7 @@ func (b *Blessings) init() {
 	for _, d := range b.digests {
 		tohash = append(tohash, d...)
 	}
-	b.uniqueID = sum(b.publicKey.hash(), tohash)
+	b.uniqueID = cryptoSum(b.publicKey.hashAlgo(), tohash)
 }
 
 // CouldHaveNames returns true iff the blessings 'b' encapsulates the provided
@@ -207,7 +207,7 @@ func WireBlessingsToNative(wire WireBlessings, native *Blessings) error {
 		if err != nil {
 			return err
 		}
-		digest, _ := cert.chainedDigests(pk.hash(), nil)
+		digest, _ := cert.chainedDigests(pk.hashAlgo(), nil)
 		*native = Blessings{
 			chains:    [][]Certificate{{cert}},
 			publicKey: pk,
@@ -621,7 +621,7 @@ func NamelessBlessing(pk PublicKey) (Blessings, error) {
 		return Blessings{}, err
 	}
 	cert := Certificate{PublicKey: pkbytes}
-	digest, _ := cert.chainedDigests(pk.hash(), nil)
+	digest, _ := cert.chainedDigests(pk.hashAlgo(), nil)
 	b := Blessings{
 		chains:    [][]Certificate{{cert}},
 		publicKey: pk,

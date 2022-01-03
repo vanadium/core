@@ -23,16 +23,12 @@ type ecdsaPublicKey struct {
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {
-	/*chash := cryptoHash(sig.Hash)
-	if sig.X509 {
-		digest = sum(chash, digest)
-	}*/
 	var r, s big.Int
 	return ecdsa.Verify(pk.key, digest, r.SetBytes(sig.R), s.SetBytes(sig.S))
 }
 
 func (pk *ecdsaPublicKey) messageDigest(h crypto.Hash, purpose, message []byte) []byte {
-	return sum(h, messageDigestFields(h, pk.keyBytes, purpose, message))
+	return cryptoSum(h, messageDigestFields(h, pk.keyBytes, purpose, message))
 }
 
 func ecdsaHash(key *ecdsa.PublicKey) Hash {

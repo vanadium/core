@@ -163,7 +163,7 @@ func NewCaveat(c CaveatDescriptor, param interface{}) (Caveat, error) {
 
 // digest returns a hash of the contents of c.
 func (c *Caveat) digest(hash crypto.Hash) []byte {
-	return sum(hash, append(sum(hash, c.Id[:]), sum(hash, c.ParamVom)...))
+	return cryptoSum(hash, append(cryptoSum(hash, c.Id[:]), cryptoSum(hash, c.ParamVom)...))
 }
 
 // Validate tests if 'c' is satisfied under 'call', returning nil if it is or an
@@ -258,12 +258,12 @@ func (c *publicKeyThirdPartyCaveatParam) ID() string {
 		// vlog.Error(err)
 		return ""
 	}
-	hash := key.hash()
-	bytes := append(sum(hash, c.Nonce[:]), sum(hash, c.DischargerKey)...)
+	hash := key.hashAlgo()
+	bytes := append(cryptoSum(hash, c.Nonce[:]), cryptoSum(hash, c.DischargerKey)...)
 	for _, cav := range c.Caveats {
 		bytes = append(bytes, cav.digest(hash)...)
 	}
-	return base64.StdEncoding.EncodeToString(sum(hash, bytes))
+	return base64.StdEncoding.EncodeToString(cryptoSum(hash, bytes))
 }
 
 func (c *publicKeyThirdPartyCaveatParam) Location() string { return c.DischargerLocation }
@@ -294,18 +294,18 @@ func (c publicKeyThirdPartyCaveatParam) String() string {
 }
 
 func (d *PublicKeyDischarge) digest(hash crypto.Hash) []byte {
-	msg := sum(hash, []byte(d.ThirdPartyCaveatId))
+	msg := cryptoSum(hash, []byte(d.ThirdPartyCaveatId))
 	for _, cav := range d.Caveats {
 		msg = append(msg, cav.digest(hash)...)
 	}
-	return sum(hash, msg)
+	return cryptoSum(hash, msg)
 }
 
 func (d *PublicKeyDischarge) verify(ctx *context.T, key PublicKey) error {
 	if !bytes.Equal(d.Signature.Purpose, dischargePurpose) {
 		return fmt.Errorf("signature on discharge for caveat %v was not intended for discharges(purpose=%v)", d.ThirdPartyCaveatId, d.Signature.Purpose)
 	}
-	digest := d.digest(key.hash())
+	digest := d.digest(key.hashAlgo())
 	cachekey, err := d.signatureCacheKey(digest, key, d.Signature)
 	if err == nil && dischargeSignatureCache.verify(cachekey) {
 		return nil
@@ -323,15 +323,15 @@ func (d *PublicKeyDischarge) signatureCacheKey(digest []byte, key PublicKey, sig
 	if err != nil {
 		return nil, err
 	}
-	hash := key.hash()
-	keyhash := sum(hash, keybytes)
+	hash := key.hashAlgo()
+	keyhash := cryptoSum(hash, keybytes)
 	sighash := signature.digest(hash)
 	return append(keyhash, append(sighash, digest...)...), nil
 }
 
 func (d *PublicKeyDischarge) sign(signer Signer) error {
 	var err error
-	d.Signature, err = signer.Sign(dischargePurpose, d.digest(signer.PublicKey().hash()))
+	d.Signature, err = signer.Sign(dischargePurpose, d.digest(signer.PublicKey().hashAlgo()))
 	return err
 }
 

@@ -26,7 +26,7 @@ func (pk *ed25519PublicKey) verify(digest []byte, sig *Signature) bool {
 }
 
 func (pk *ed25519PublicKey) messageDigest(hash crypto.Hash, purpose, message []byte) []byte {
-	return sum(hash, messageDigestFields(hash, pk.keyBytes, purpose, message))
+	return cryptoSum(hash, messageDigestFields(hash, pk.keyBytes, purpose, message))
 }
 
 // NewInMemoryED25519Signer creates a Signer that uses the provided ED25519

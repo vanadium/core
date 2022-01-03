@@ -26,7 +26,7 @@ type rsaPublicKey struct {
 }
 
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {
-	digest = sum(cryptoHash(sig.Hash), digest)
+	digest = cryptoSum(cryptoHash(sig.Hash), digest)
 	err := rsa.VerifyPKCS1v15(pk.key, cryptoHash(sig.Hash), digest, sig.Rsa)
 	return err == nil
 }
@@ -101,7 +101,7 @@ func newGoStdlibRSASigner(key *rsa.PrivateKey, hash Hash) (Signer, error) {
 	chash := sc.chash
 	sign := func(data []byte) ([]byte, error) {
 		// hash the data since rsa.SignPKCS1v15 assumes prehashed data.
-		data = sum(chash, data)
+		data = cryptoSum(chash, data)
 		sig, err := rsa.SignPKCS1v15(rand.Reader, key, chash, data)
 		return sig, err
 	}

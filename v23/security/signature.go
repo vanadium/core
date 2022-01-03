@@ -13,11 +13,9 @@ import (
 
 // Verify returns true iff sig is a valid signature for a message.
 func (sig *Signature) Verify(key PublicKey, message []byte) bool {
-	//if !sig.X509 {
 	if message = key.messageDigest(cryptoHash(sig.Hash), sig.Purpose, message); message == nil {
 		return false
 	}
-	//}
 	return key.verify(message, sig)
 }
 
@@ -31,7 +29,7 @@ func messageDigestFields(hash crypto.Hash, publicKeyBytes, purpose, message []by
 	numFields := 3
 	fields := make([]byte, 0, hash.Size()*numFields)
 	w := func(data []byte) bool {
-		h := sum(hash, data)
+		h := cryptoSum(hash, data)
 		if h == nil {
 			return false
 		}
@@ -55,7 +53,7 @@ func messageDigest(hash crypto.Hash, purpose, message []byte, key PublicKey) []b
 	if err != nil {
 		return nil
 	}
-	return sum(hash, messageDigestFields(hash, keyBytes, purpose, message))
+	return cryptoSum(hash, messageDigestFields(hash, keyBytes, purpose, message))
 }
 
 // Digest returns a hash that is computed over all of the fields of the
@@ -65,7 +63,7 @@ func messageDigest(hash crypto.Hash, purpose, message []byte, key PublicKey) []b
 func (sig *Signature) digest(hashfn crypto.Hash) []byte {
 	var fields []byte
 	w := func(data []byte) {
-		fields = append(fields, sum(hashfn, data)...)
+		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
 	w([]byte(sig.Hash))
 	w(sig.Purpose)
@@ -81,13 +79,10 @@ func (sig *Signature) digest(hashfn crypto.Hash) []byte {
 		w([]byte("RSA")) // The signing algorithm
 		w(sig.Rsa)
 	}
-	/*	if sig.X509 {
-		w([]byte{0x01})
-	}*/
-	return sum(hashfn, fields)
+	return cryptoSum(hashfn, fields)
 }
 
-func sum(hash crypto.Hash, data []byte) []byte {
+func cryptoSum(hash crypto.Hash, data []byte) []byte {
 	switch hash {
 	case crypto.SHA1:
 		h := sha1.Sum(data)

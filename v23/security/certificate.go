@@ -45,23 +45,24 @@ func newUnsignedCertificate(extension string, key PublicKey, caveats ...Caveat) 
 func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	var fields []byte
 	w := func(data []byte) {
-		fields = append(fields, sum(hashfn, data)...)
+		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
 	if len(c.X509Raw) > 0 {
+		// how to handle this...
 		tbs, err := x509TBS(c.X509Raw)
 		if err == nil {
 			w(c.X509Raw)
 		} else {
 			w(tbs)
 		}
-		return sum(hashfn, tbs)
+		return cryptoSum(hashfn, tbs)
 	}
 	w(c.PublicKey)
 	w([]byte(c.Extension))
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
 	}
-	return sum(hashfn, fields)
+	return cryptoSum(hashfn, fields)
 }
 
 // chainedDigests returns the digest and contentDigest of a certificate chain
@@ -72,7 +73,7 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 // (a.k.a. "root") of the chain.
 func (c *Certificate) chainedDigests(hashfn crypto.Hash, chain []byte) (digest, contentDigest []byte) {
 	contentDigest = c.contentDigest(hashfn)
-	digest = sum(hashfn, append(contentDigest, c.Signature.digest(hashfn)...))
+	digest = cryptoSum(hashfn, append(contentDigest, c.Signature.digest(hashfn)...))
 	if len(chain) > 0 {
 		// c is not the "root" of the chain
 		// We hash (using 'hashfn') 'chain' and then append it to 'digest'
@@ -83,8 +84,8 @@ func (c *Certificate) chainedDigests(hashfn crypto.Hash, chain []byte) (digest, 
 		// certificate of the chain represented by it. Hashing 'chain'
 		// using 'hasfn' guarantees that it will have the same length
 		// as 'digest'.
-		contentDigest = sum(hashfn, append(sum(hashfn, chain), contentDigest...))
-		digest = sum(hashfn, append(sum(hashfn, chain), digest...))
+		contentDigest = cryptoSum(hashfn, append(cryptoSum(hashfn, chain), contentDigest...))
+		digest = cryptoSum(hashfn, append(cryptoSum(hashfn, chain), digest...))
 	}
 	return
 }
@@ -189,14 +190,15 @@ func digestsForCertificateChain(chain []Certificate) (digest, contentDigest []by
 // chainCertificate binds cert to an existing certificate chain and returns the
 // resulting chain (and the final digest).
 func chainCertificate(signer Signer, chain []Certificate, cert Certificate) ([]Certificate, []byte, error) {
+	hash := signer.PublicKey().hashAlgo()
 	parentDigest, _ := digestsForCertificateChain(chain)
-	_, cdigest := cert.chainedDigests(signer.PublicKey().hash(), parentDigest)
+	_, cdigest := cert.chainedDigests(hash, parentDigest)
 	var err error
 	if cert.Signature, err = signer.Sign(blessPurpose, cdigest); err != nil {
 		return nil, nil, err
 	}
 	// digest has to be recomputed now that the signature has been set in the certificate.
-	digest, _ := cert.chainedDigests(signer.PublicKey().hash(), parentDigest)
+	digest, _ := cert.chainedDigests(hash, parentDigest)
 	cpy := make([]Certificate, len(chain)+1)
 	copy(cpy, chain)
 	cpy[len(cpy)-1] = cert
