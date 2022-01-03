@@ -33,7 +33,7 @@ func TestOpenSSLCompatibilityED25519(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed to generate key", err)
 	}
-	golang, err := security.NewGoStdlibED25519Signer(privKey)
+	golang, err := security.NewGoStdlibED25519Signer(privKey, security.SHA512Hash)
 	if err != nil {
 		t.Fatal(err)
 	}

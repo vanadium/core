@@ -88,7 +88,7 @@ func (b *Blessings) init() {
 	for _, d := range b.digests {
 		tohash = append(tohash, d...)
 	}
-	b.uniqueID = b.publicKey.hash().sum(tohash)
+	b.uniqueID = cryptoSum(b.publicKey.hashAlgo(), tohash)
 }
 
 // CouldHaveNames returns true iff the blessings 'b' encapsulates the provided
@@ -144,14 +144,14 @@ func (b Blessings) String() string {
 
 // We keep a pool of buffers for claimedName, this saves a lot of allocations.
 var claimedPool = sync.Pool{New: func() interface{} {
-	return &bytes.Buffer{}
+	return &strings.Builder{}
 }}
 
 // claimedName returns the blessing name that the certificate chain claims to
 // have (i.e., ignoring any caveats or recognition of the root public key as an
 // authority on the namespace).
 func claimedName(chain []Certificate) string {
-	buf := claimedPool.Get().(*bytes.Buffer)
+	buf := claimedPool.Get().(*strings.Builder)
 	buf.Reset()
 	buf.WriteString(chain[0].Extension)
 	for i := 1; i < len(chain); i++ {
@@ -166,7 +166,7 @@ func claimedName(chain []Certificate) string {
 // chainCaveats returns the union of the set of caveats in the  certificates present
 // in 'chain'.
 func chainCaveats(chain []Certificate) []Caveat {
-	var cavs []Caveat
+	cavs := make([]Caveat, 0, len(chain))
 	for _, c := range chain {
 		cavs = append(cavs, c.Caveats...)
 	}
@@ -207,7 +207,7 @@ func WireBlessingsToNative(wire WireBlessings, native *Blessings) error {
 		if err != nil {
 			return err
 		}
-		digest, _ := cert.chainedDigests(pk.hash(), nil)
+		digest, _ := cert.chainedDigests(pk.hashAlgo(), nil)
 		*native = Blessings{
 			chains:    [][]Certificate{{cert}},
 			publicKey: pk,
@@ -416,7 +416,7 @@ func RootBlessings(b Blessings) []Blessings {
 		}
 		var (
 			cert      = chain[0]
-			digest, _ = cert.chainedDigests(cert.Signature.Hash, nil)
+			digest, _ = cert.chainedDigests(cryptoHash(cert.Signature.Hash), nil)
 			ptr       = &ret[i]
 		)
 		ptr.chains = [][]Certificate{{cert}}
@@ -621,7 +621,7 @@ func NamelessBlessing(pk PublicKey) (Blessings, error) {
 		return Blessings{}, err
 	}
 	cert := Certificate{PublicKey: pkbytes}
-	digest, _ := cert.chainedDigests(pk.hash(), nil)
+	digest, _ := cert.chainedDigests(pk.hashAlgo(), nil)
 	b := Blessings{
 		chains:    [][]Certificate{{cert}},
 		publicKey: pk,

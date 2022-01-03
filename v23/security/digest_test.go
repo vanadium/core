@@ -181,8 +181,8 @@ func TestDigestStability(t *testing.T) {
 		{loadPublicKey(t, ed25519KeyPEM), "nhka/MfPMCwUQCupuiUbggFc+W5ERBfqbgoPlP75y4aYg25XEO9m+V7QENmIgOJLE3/H9Xy4GDZC34WI+YB9pA"},
 		{loadPublicKey(t, ec256KeyPEM), "LAOHjgJ51OK3/kFNNaCC4jJgHkYKbjEoe4rccjq6B9Q"},
 	} {
-		hashed := messageDigest(tc.k.hash(), purpose, message, tc.k)
-		if got, want := len(hashed), tc.k.hash().size(); got != want {
+		hashed := messageDigest(tc.k.hashAlgo(), purpose, message, tc.k)
+		if got, want := len(hashed), tc.k.hashAlgo().Size(); got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 		encoded := base64.RawStdEncoding.EncodeToString(hashed)
@@ -196,11 +196,11 @@ func TestDigestStability(t *testing.T) {
 			t.Errorf("%v: %v", i, err)
 			continue
 		}
-		fields := messageDigestFields(tc.k.hash(), keybytes, purpose, message)
-		if got, want := len(fields), tc.k.hash().size()*3; got != want {
+		fields := messageDigestFields(tc.k.hashAlgo(), keybytes, purpose, message)
+		if got, want := len(fields), tc.k.hashAlgo().Size()*3; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
-		if got, want := tc.k.hash().sum(fields), hashed; !bytes.Equal(got, want) {
+		if got, want := cryptoSum(tc.k.hashAlgo(), fields), hashed; !bytes.Equal(got, want) {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 	}

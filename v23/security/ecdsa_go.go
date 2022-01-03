@@ -11,10 +11,10 @@ import (
 	"crypto/ecdsa"
 )
 
-func newInMemoryECDSASignerImpl(key *ecdsa.PrivateKey) (Signer, error) {
-	return newGoStdlibECDSASigner(key)
+func newInMemoryECDSASignerImpl(key *ecdsa.PrivateKey, hash Hash) (Signer, error) {
+	return newGoStdlibECDSASigner(key, hash)
 }
 
-func newECDSAPublicKeyImpl(key *ecdsa.PublicKey) PublicKey {
-	return newGoStdlibECDSAPublicKey(key)
+func newECDSAPublicKeyImpl(key *ecdsa.PublicKey, hash Hash) PublicKey {
+	return newGoStdlibECDSAPublicKey(key, hash)
 }

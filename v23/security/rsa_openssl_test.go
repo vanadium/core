@@ -39,14 +39,14 @@ func TestOpenSSLCompatibilityRSA(t *testing.T) {
 	t.Log(security.OpenSSLVersion())
 	ntests := 0
 
-	keySizes := []int{2048} //, 3073, 4096}
+	keySizes := []int{2048}
 	for _, keySize := range keySizes {
 		key, err := rsa.GenerateKey(rand.Reader, keySize)
 		if err != nil {
 			t.Errorf("Failed to generate key #%d: %v", keySize, err)
 			continue
 		}
-		golang, err := security.NewGoStdlibRSASigner(key)
+		golang, err := security.NewGoStdlibRSASigner(key, security.SHA512Hash)
 		if err != nil {
 			t.Error(err)
 			continue

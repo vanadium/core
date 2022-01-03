@@ -12,10 +12,10 @@ package security
 // #include <openssl/evp.h>
 //
 // EVP_PKEY *openssl_evp_private_key(int keyType, const unsigned char* data, long len, unsigned long* e);
-// EVP_PKEY *openssl_evp_public_key(const unsigned char *data, long len, unsigned long *e);
 import "C"
 
 import (
+	"crypto"
 	"crypto/rsa"
 	"crypto/x509"
 	"runtime"
@@ -26,10 +26,10 @@ type opensslRSAPublicKey struct {
 }
 
 func (k *opensslRSAPublicKey) finalize() {
-	C.EVP_PKEY_free(k.k)
+	C.EVP_PKEY_free(k.osslKey)
 }
 
-func (k *opensslRSAPublicKey) messageDigest(purpose, message []byte) []byte {
+func (k *opensslRSAPublicKey) messageDigest(hash crypto.Hash, purpose, message []byte) []byte {
 	// NOTE: the openssl rsa signer/verifier KCS1v15 implementation always
 	// 	     hashes the message it receives, whereas the go implementation
 	//       assumes a prehashed version. Consequently this method returns
@@ -38,16 +38,16 @@ func (k *opensslRSAPublicKey) messageDigest(purpose, message []byte) []byte {
 	//       For this go implementation, the results returned by this
 	//       function are therefore hashed again below (see the sign method
 	//       implementation provided when the signer is created).
-	return messageDigestFields(k.h, k.keyBytes, purpose, message)
+	return messageDigestFields(hash, k.keyBytes, purpose, message)
 }
 
 func (k *opensslRSAPublicKey) verify(digest []byte, signature *Signature) bool {
-	ok, _ := evpVerify(k.k, C.EVP_sha512(), digest, signature.Rsa)
+	ok, _ := evpVerify(k.osslKey, k.osslHash, digest, signature.Rsa)
 	return ok
 }
 
-func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
-	pc, err := newOpensslPublicKeyCommon(SHA512Hash, golang)
+func newOpenSSLRSAPublicKey(golang *rsa.PublicKey, hash Hash) (PublicKey, error) {
+	pc, err := newOpensslPublicKeyCommon(golang, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -57,20 +57,20 @@ func newOpenSSLRSAPublicKey(golang *rsa.PublicKey) (PublicKey, error) {
 }
 
 type opensslRSASigner struct {
-	k *C.EVP_PKEY
-	h *C.EVP_MD // no need to free this
+	osslKey  *C.EVP_PKEY
+	osslHash *C.EVP_MD // no need to free this
 }
 
 func (k *opensslRSASigner) finalize() {
-	C.EVP_PKEY_free(k.k)
+	C.EVP_PKEY_free(k.osslKey)
 }
 
 func (k *opensslRSASigner) sign(data []byte) ([]byte, error) {
-	return evpSign(k.k, k.h, data)
+	return evpSign(k.osslKey, k.osslHash, data)
 }
 
-func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
-	pubkey, err := newOpenSSLRSAPublicKey(&golang.PublicKey)
+func newOpenSSLRSASigner(golang *rsa.PrivateKey, hash Hash) (Signer, error) {
+	pubkey, err := newOpenSSLRSAPublicKey(&golang.PublicKey, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -80,22 +80,22 @@ func newOpenSSLRSASigner(golang *rsa.PrivateKey) (Signer, error) {
 	if key == nil {
 		return nil, opensslMakeError(errno)
 	}
-	impl := &opensslRSASigner{key, C.EVP_sha512()}
+	impl := &opensslRSASigner{key, opensslHash(hash)}
 	runtime.SetFinalizer(impl, func(k *opensslRSASigner) { k.finalize() })
 	return &rsaSigner{
-		sign:   impl.sign,
-		pubkey: pubkey,
-		impl:   impl,
+		signerCommon: newSignerCommon(pubkey, hash),
+		sign:         impl.sign,
+		impl:         impl,
 	}, nil
 }
 
-func newInMemoryRSASignerImpl(key *rsa.PrivateKey) (Signer, error) {
-	return newOpenSSLRSASigner(key)
+func newInMemoryRSASignerImpl(key *rsa.PrivateKey, hash Hash) (Signer, error) {
+	return newOpenSSLRSASigner(key, hash)
 }
 
-func newRSAPublicKeyImpl(key *rsa.PublicKey) PublicKey {
-	if pk, err := newOpenSSLRSAPublicKey(key); err == nil {
+func newRSAPublicKeyImpl(key *rsa.PublicKey, hash Hash) PublicKey {
+	if pk, err := newOpenSSLRSAPublicKey(key, hash); err == nil {
 		return pk
 	}
-	return newGoStdlibRSAPublicKey(key)
+	return newGoStdlibRSAPublicKey(key, hash)
 }

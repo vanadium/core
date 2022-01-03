@@ -83,7 +83,7 @@ func verifyMetadata(t *testing.T, prefix string, signers []security.Signer) {
 		if !bytes.Equal(bin0, bini) {
 			t.Errorf("%s: MarshalBinary for %T and %T do not match (%v vs %v)", prefix, pubi, pub0, bini, bin0)
 		}
-		if got, want := security.HashForPublicKey(pubi), security.HashForPublicKey(pub0); got != want {
+		if got, want := security.ExposePublicKeyHashAlgo(pubi), security.ExposePublicKeyHashAlgo(pub0); got != want {
 			t.Errorf("%s: hash for %T(=%v) and %T(=%v) do not match", prefix, pubi, got, pub0, want)
 		}
 	}
@@ -98,7 +98,8 @@ func TestOpenSSLCompatibilityECDSA(t *testing.T) {
 			t.Errorf("Failed to generate key #%d: %v", curveidx, err)
 			continue
 		}
-		golang, err := security.NewGoStdlibECDSASigner(key)
+		hash := security.ExposeECDSAHash(&key.PublicKey)
+		golang, err := security.NewGoStdlibECDSASigner(key, hash)
 		if err != nil {
 			t.Error(err)
 			continue

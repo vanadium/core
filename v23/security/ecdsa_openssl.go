@@ -20,6 +20,7 @@ package security
 import "C"
 
 import (
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/asn1"
@@ -33,12 +34,12 @@ type opensslECDSAPublicKey struct {
 }
 
 func (k *opensslECDSAPublicKey) finalize() {
-	C.EVP_PKEY_free(k.k)
+	C.EVP_PKEY_free(k.osslKey)
 }
 
-func (k *opensslECDSAPublicKey) messageDigest(purpose, message []byte) []byte {
+func (k *opensslECDSAPublicKey) messageDigest(hash crypto.Hash, purpose, message []byte) []byte {
 	// NOTE that the openssl EVP API will hash the result of this digest.
-	return messageDigestFields(k.h, k.keyBytes, purpose, message)
+	return messageDigestFields(hash, k.keyBytes, purpose, message)
 }
 
 func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool {
@@ -52,13 +53,13 @@ func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool
 	if err != nil {
 		return false
 	}
-	ok, _ := evpVerify(k.k, k.oh, digest, sig)
+	ok, _ := evpVerify(k.osslKey, k.osslHash, digest, sig)
 	return ok
 
 }
 
-func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
-	pc, err := newOpensslPublicKeyCommon(ecdsaHash(golang), golang)
+func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey, hash Hash) (PublicKey, error) {
+	pc, err := newOpensslPublicKeyCommon(golang, ecdsaHash(golang))
 	if err != nil {
 		return nil, err
 	}
@@ -68,16 +69,16 @@ func newOpenSSLECDSAPublicKey(golang *ecdsa.PublicKey) (PublicKey, error) {
 }
 
 type opensslECDSASigner struct {
-	k *C.EVP_PKEY
-	h *C.EVP_MD // no need to free this.
+	osslKey  *C.EVP_PKEY
+	osslHash *C.EVP_MD // no need to free this.
 }
 
 func (k *opensslECDSASigner) finalize() {
-	C.EVP_PKEY_free(k.k)
+	C.EVP_PKEY_free(k.osslKey)
 }
 
 func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
-	sig, err := evpSign(k.k, k.h, data)
+	sig, err := evpSign(k.osslKey, k.osslHash, data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -94,8 +95,8 @@ func (k *opensslECDSASigner) sign(data []byte) (r, s *big.Int, err error) {
 	return tmp.R, tmp.S, nil
 }
 
-func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
-	pubkey, err := newOpenSSLECDSAPublicKey(&golang.PublicKey)
+func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey, hash Hash) (Signer, error) {
+	pubkey, err := newOpenSSLECDSAPublicKey(&golang.PublicKey, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -108,22 +109,22 @@ func newOpenSSLECDSASigner(golang *ecdsa.PrivateKey) (Signer, error) {
 	if k == nil {
 		return nil, opensslMakeError(errno)
 	}
-	impl := &opensslECDSASigner{k, opensslHash(pubkey.hash())}
+	impl := &opensslECDSASigner{k, opensslHash(hash)}
 	runtime.SetFinalizer(impl, func(k *opensslECDSASigner) { k.finalize() })
 	return &ecdsaSigner{
-		sign:   impl.sign,
-		pubkey: pubkey,
-		impl:   impl,
+		signerCommon: newSignerCommon(pubkey, hash),
+		sign:         impl.sign,
+		impl:         impl,
 	}, nil
 }
 
-func newInMemoryECDSASignerImpl(key *ecdsa.PrivateKey) (Signer, error) {
-	return newOpenSSLECDSASigner(key)
+func newInMemoryECDSASignerImpl(key *ecdsa.PrivateKey, hash Hash) (Signer, error) {
+	return newOpenSSLECDSASigner(key, hash)
 }
 
-func newECDSAPublicKeyImpl(key *ecdsa.PublicKey) PublicKey {
-	if key, err := newOpenSSLECDSAPublicKey(key); err == nil {
+func newECDSAPublicKeyImpl(key *ecdsa.PublicKey, hash Hash) PublicKey {
+	if key, err := newOpenSSLECDSAPublicKey(key, hash); err == nil {
 		return key
 	}
-	return newGoStdlibECDSAPublicKey(key)
+	return newGoStdlibECDSAPublicKey(key, hash)
 }
