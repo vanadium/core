@@ -79,13 +79,13 @@ func opensslHash(h Hash) *C.EVP_MD {
 }
 
 type opensslPublicKeyCommon struct {
-	k  *C.EVP_PKEY
-	oh *C.EVP_MD
+	osslKey  *C.EVP_PKEY
+	osslHash *C.EVP_MD
 	publicKeyCommon
 }
 
-func newOpensslPublicKeyCommon(h Hash, key interface{}) (opensslPublicKeyCommon, error) {
-	pc := newPublicKeyCommon(h, key)
+func newOpensslPublicKeyCommon(key interface{}, h Hash) (opensslPublicKeyCommon, error) {
+	pc := newPublicKeyCommon(key, h)
 	if pc.keyBytesErr != nil {
 		return opensslPublicKeyCommon{}, pc.keyBytesErr
 	}
@@ -99,8 +99,8 @@ func newOpensslPublicKeyCommon(h Hash, key interface{}) (opensslPublicKeyCommon,
 	}
 	oh := opensslHash(h)
 	return opensslPublicKeyCommon{
-		oh:              oh,
 		publicKeyCommon: pc,
-		k:               k,
+		osslHash:        oh,
+		osslKey:         k,
 	}, nil
 }

@@ -7,11 +7,23 @@
 
 package security
 
-var (
-	NewOpenSSLECDSASigner   = newOpenSSLECDSASigner
-	NewOpenSSLED25519Signer = newOpenSSLED25519Signer
-	NewOpenSSLRSASigner     = newOpenSSLRSASigner
+import (
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
+)
 
+func NewOpenSSLECDSASigner(k *ecdsa.PrivateKey) (Signer, error) {
+	return newOpenSSLECDSASigner(k, ecdsaHash(&k.PublicKey))
+}
+func NewOpenSSLED25519Signer(k ed25519.PrivateKey) (Signer, error) {
+	return newOpenSSLED25519Signer(k, SHA512Hash)
+}
+func NewOpenSSLRSASigner(k *rsa.PrivateKey) (Signer, error) {
+	return newOpenSSLRSASigner(k, SHA512Hash)
+}
+
+var (
 	NewGoStdlibECDSASigner   = newGoStdlibECDSASigner
 	NewGoStdlibED25519Signer = newGoStdlibED25519Signer
 	NewGoStdlibRSASigner     = newGoStdlibRSASigner

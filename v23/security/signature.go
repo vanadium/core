@@ -5,6 +5,7 @@
 package security
 
 import (
+	"crypto"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -12,7 +13,7 @@ import (
 
 // Verify returns true iff sig is a valid signature for a message.
 func (sig *Signature) Verify(key PublicKey, message []byte) bool {
-	if message = key.messageDigest(sig.Purpose, message); message == nil {
+	if message = key.messageDigest(cryptoHash(sig.Hash), sig.Purpose, message); message == nil {
 		return false
 	}
 	return key.verify(message, sig)
@@ -22,10 +23,10 @@ func (sig *Signature) Verify(key PublicKey, message []byte) bool {
 // signature that are used for a particular signature algorithm. The
 // digest can be used as a cache key or for 'chaining' as per
 // Certificate.chainedDigests.
-func (sig *Signature) digest(hashfn Hash) []byte {
+func (sig *Signature) digest(hashfn crypto.Hash) []byte {
 	var fields []byte
 	w := func(data []byte) {
-		fields = append(fields, hashfn.sum(data)...)
+		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
 	w([]byte(sig.Hash))
 	w(sig.Purpose)
@@ -41,7 +42,7 @@ func (sig *Signature) digest(hashfn Hash) []byte {
 		w([]byte("RSA")) // The signing algorithm
 		w(sig.Rsa)
 	}
-	return hashfn.sum(fields)
+	return cryptoSum(hashfn, fields)
 }
 
 // messageDigestFields returns a concatenation of the hashes of each field
@@ -50,11 +51,11 @@ func (sig *Signature) digest(hashfn Hash) []byte {
 // as defined in the paper "Another look at Security Definition" by Neal Koblitz
 // and Alfred Menzes, we also include the public key of the signer in the message
 // being signed.
-func messageDigestFields(hash Hash, publicKeyBytes, purpose, message []byte) []byte {
+func messageDigestFields(hash crypto.Hash, publicKeyBytes, purpose, message []byte) []byte {
 	numFields := 3
-	fields := make([]byte, 0, hash.size()*numFields)
+	fields := make([]byte, 0, hash.Size()*numFields)
 	w := func(data []byte) bool {
-		h := hash.sum(data)
+		h := cryptoSum(hash, data)
 		if h == nil {
 			return false
 		}
@@ -73,44 +74,60 @@ func messageDigestFields(hash Hash, publicKeyBytes, purpose, message []byte) []b
 	return fields
 }
 
-func messageDigest(hash Hash, purpose, message []byte, key PublicKey) []byte {
+func messageDigest(hash crypto.Hash, purpose, message []byte, key PublicKey) []byte {
 	keyBytes, err := key.MarshalBinary()
 	if err != nil {
 		return nil
 	}
-	return hash.sum(messageDigestFields(hash, keyBytes, purpose, message))
+	return cryptoSum(hash, messageDigestFields(hash, keyBytes, purpose, message))
 }
 
-// sum returns the hash of data using hash as the cryptographic hash function.
-// Returns nil if the hash function is not recognized.
-func (hash Hash) sum(data []byte) []byte {
+func cryptoSum(hash crypto.Hash, data []byte) []byte {
 	switch hash {
-	case SHA1Hash:
+	case crypto.SHA1:
 		h := sha1.Sum(data)
 		return h[:]
-	case SHA256Hash:
+	case crypto.SHA256:
 		h := sha256.Sum256(data)
 		return h[:]
-	case SHA384Hash:
+	case crypto.SHA384:
 		h := sha512.Sum384(data)
 		return h[:]
-	case SHA512Hash:
+	case crypto.SHA512:
 		h := sha512.Sum512(data)
 		return h[:]
 	}
 	return nil
 }
 
-func (hash Hash) size() int {
-	switch hash {
+func cryptoHash(h Hash) crypto.Hash {
+	switch h {
 	case SHA1Hash:
-		return sha1.Size
+		return crypto.SHA1
 	case SHA256Hash:
-		return sha256.Size
+		return crypto.SHA256
 	case SHA384Hash:
-		return sha512.Size384
+		return crypto.SHA384
 	case SHA512Hash:
-		return sha512.Size
+		return crypto.SHA512
 	}
-	return 0
+	return crypto.SHA512
+}
+
+type signerCommon struct {
+	pubkey PublicKey
+	chash  crypto.Hash
+	vhash  Hash
+}
+
+func newSignerCommon(pk PublicKey, hash Hash) signerCommon {
+	return signerCommon{
+		pubkey: pk,
+		vhash:  hash,
+		chash:  cryptoHash(hash),
+	}
+}
+
+func (sc *signerCommon) hash() crypto.Hash {
+	return sc.chash
 }

@@ -6,6 +6,7 @@ package security
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/sha256"
 	"fmt"
 	"strings"
@@ -41,17 +42,17 @@ func newUnsignedCertificate(extension string, key PublicKey, caveats ...Caveat) 
 	return cert, nil
 }
 
-func (c *Certificate) contentDigest(hashfn Hash) []byte {
+func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	var fields []byte
 	w := func(data []byte) {
-		fields = append(fields, hashfn.sum(data)...)
+		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
 	w(c.PublicKey)
 	w([]byte(c.Extension))
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
 	}
-	return hashfn.sum(fields)
+	return cryptoSum(hashfn, fields)
 }
 
 // chainedDigests returns the digest and contentDigest of a certificate chain
@@ -60,9 +61,9 @@ func (c *Certificate) contentDigest(hashfn Hash) []byte {
 //
 // If len(chain) == 0, the implication is that 'c' is the first certificate
 // (a.k.a. "root") of the chain.
-func (c *Certificate) chainedDigests(hashfn Hash, chain []byte) (digest, contentDigest []byte) {
+func (c *Certificate) chainedDigests(hashfn crypto.Hash, chain []byte) (digest, contentDigest []byte) {
 	contentDigest = c.contentDigest(hashfn)
-	digest = hashfn.sum(append(contentDigest, c.Signature.digest(hashfn)...))
+	digest = cryptoSum(hashfn, append(contentDigest, c.Signature.digest(hashfn)...))
 	if len(chain) > 0 {
 		// c is not the "root" of the chain
 		// We hash (using 'hashfn') 'chain' and then append it to 'digest'
@@ -73,8 +74,8 @@ func (c *Certificate) chainedDigests(hashfn Hash, chain []byte) (digest, content
 		// certificate of the chain represented by it. Hashing 'chain'
 		// using 'hasfn' guarantees that it will have the same length
 		// as 'digest'.
-		contentDigest = hashfn.sum(append(hashfn.sum(chain), contentDigest...))
-		digest = hashfn.sum(append(hashfn.sum(chain), digest...))
+		contentDigest = cryptoSum(hashfn, append(cryptoSum(hashfn, chain), contentDigest...))
+		digest = cryptoSum(hashfn, append(cryptoSum(hashfn, chain), digest...))
 	}
 	return
 }
@@ -96,7 +97,7 @@ func validateExtension(extension string) error {
 	}
 	for _, n := range invalidBlessingSubStrings {
 		if strings.Contains(extension, n) {
-			return fmt.Errorf("invalid blessing extension(%v has %v as a substring)", extension, n)
+			return fmt.Errorf("invalid blessing extension(%v) has (%v) as a substring)", extension, n)
 		}
 	}
 	return nil
@@ -113,9 +114,9 @@ func validateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 		digest        = make([][]byte, len(chain))
 		contentDigest = make([][]byte, len(chain))
 	)
-	digest[0], contentDigest[0] = chain[0].chainedDigests(chain[0].Signature.Hash, nil)
+	digest[0], contentDigest[0] = chain[0].chainedDigests(cryptoHash(chain[0].Signature.Hash), nil)
 	for i := 1; i < len(chain); i++ {
-		digest[i], contentDigest[i] = chain[i].chainedDigests(chain[i].Signature.Hash, digest[i-1])
+		digest[i], contentDigest[i] = chain[i].chainedDigests(cryptoHash(chain[i].Signature.Hash), digest[i-1])
 	}
 	chaindigest := digest[len(digest)-1]
 	// Verify certificates in reverse order as per the algorithm linked to above.
@@ -155,7 +156,7 @@ func validateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 
 func digestsForCertificateChain(chain []Certificate) (digest, contentDigest []byte) {
 	for _, c := range chain {
-		digest, contentDigest = c.chainedDigests(c.Signature.Hash, digest)
+		digest, contentDigest = c.chainedDigests(cryptoHash(c.Signature.Hash), digest)
 	}
 	return
 }
@@ -163,14 +164,15 @@ func digestsForCertificateChain(chain []Certificate) (digest, contentDigest []by
 // chainCertificate binds cert to an existing certificate chain and returns the
 // resulting chain (and the final digest).
 func chainCertificate(signer Signer, chain []Certificate, cert Certificate) ([]Certificate, []byte, error) {
+	hash := signer.PublicKey().hashAlgo()
 	parentDigest, _ := digestsForCertificateChain(chain)
-	_, cdigest := cert.chainedDigests(signer.PublicKey().hash(), parentDigest)
+	_, cdigest := cert.chainedDigests(hash, parentDigest)
 	var err error
 	if cert.Signature, err = signer.Sign(blessPurpose, cdigest); err != nil {
 		return nil, nil, err
 	}
 	// digest has to be recomputed now that the signature has been set in the certificate.
-	digest, _ := cert.chainedDigests(signer.PublicKey().hash(), parentDigest)
+	digest, _ := cert.chainedDigests(hash, parentDigest)
 	cpy := make([]Certificate, len(chain)+1)
 	copy(cpy, chain)
 	cpy[len(cpy)-1] = cert

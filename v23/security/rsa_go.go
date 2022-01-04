@@ -11,10 +11,10 @@ import (
 	"crypto/rsa"
 )
 
-func newInMemoryRSASignerImpl(key *rsa.PrivateKey) (Signer, error) {
-	return newGoStdlibRSASigner(key)
+func newInMemoryRSASignerImpl(key *rsa.PrivateKey, hash Hash) (Signer, error) {
+	return newGoStdlibRSASigner(key, hash)
 }
 
-func newRSAPublicKeyImpl(key *rsa.PublicKey) PublicKey {
-	return newGoStdlibRSAPublicKey(key)
+func newRSAPublicKeyImpl(key *rsa.PublicKey, hash Hash) PublicKey {
+	return newGoStdlibRSAPublicKey(key, hash)
 }
