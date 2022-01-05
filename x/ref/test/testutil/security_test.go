@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"testing"
 
+	"v.io/v23/security"
 	"v.io/x/ref/test/testutil"
 )
 
@@ -21,10 +22,11 @@ func TestIDProvider(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := p.Roots().Recognized(idpkey, "foo"); err != nil {
+	cert := &security.Certificate{PublicKey: idpkey}
+	if err := p.Roots().Recognized(cert, "foo"); err != nil {
 		t.Error(err)
 	}
-	if err := p.Roots().Recognized(idpkey, "foo:bar"); err != nil {
+	if err := p.Roots().Recognized(cert, "foo:bar"); err != nil {
 		t.Error(err)
 	}
 	def, _ := p.BlessingStore().Default()
