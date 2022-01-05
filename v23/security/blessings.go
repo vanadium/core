@@ -604,7 +604,7 @@ func BlessingNames(principal Principal, blessings Blessings) []string {
 		return nil
 	}
 	var ret []string
-	for _, chain := range blessings.chains {
+	for _, chain := range chains {
 		name := claimedName(chain)
 		if err := principal.Roots().Recognized(chain[0].PublicKey, name); err == nil {
 			ret = append(ret, name)

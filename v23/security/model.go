@@ -106,6 +106,7 @@
 package security
 
 import (
+	"crypto/x509"
 	"time"
 
 	"v.io/v23/context"
@@ -139,6 +140,13 @@ type Principal interface {
 
 	// BlessSelf creates a blessing with the provided name for this principal.
 	BlessSelf(name string, caveats ...Caveat) (Blessings, error)
+
+	// BlessSelfX509 creates a blessing derived from the supplied X509
+	// certificate for this principal. The principal must have been created
+	// using the private key associated with the supplied certificate. The
+	// blessing created can be verified using the SSL/TLS Certificate Authority
+	// mechanism.
+	BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
 	Sign(message []byte) (Signature, error)
@@ -264,8 +272,12 @@ type BlessingRoots interface {
 	Add(root []byte, pattern BlessingPattern) error
 
 	// Recognized returns nil iff the provided (DER-encoded) root public
-	// key as an authority on a pattern that is matched by blessing.
+	// key is recognized as an authority on a pattern that is matched by blessing.
 	Recognized(root []byte, blessing string) error
+
+	// Recognized returns nil iff the provided (DER-encoded) x509 certificate
+	// is recognized as an authority on a pattern that is matched by blessing.
+	// RecognizedX509(root []byte, blessing string) error
 
 	// Dump returns the set of recognized roots as a map from
 	// blessing patterns to the set of authoritative keys for that

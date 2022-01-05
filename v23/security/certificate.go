@@ -47,13 +47,13 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	w := func(data []byte) {
 		fields = append(fields, cryptoSum(hashfn, data)...)
 	}
-	if len(c.X509Raw) > 0 {
-		w(c.X509Raw)
-	}
 	w(c.PublicKey)
 	w([]byte(c.Extension))
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
+	}
+	if len(c.X509Raw) > 0 {
+		w(c.X509Raw)
 	}
 	return cryptoSum(hashfn, fields)
 }

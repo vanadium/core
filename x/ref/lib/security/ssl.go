@@ -11,9 +11,8 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
-	"io"
 	"os"
-	"time"
+	"regexp"
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
@@ -33,6 +32,26 @@ func ParsePEMPrivateKeyFile(keyFile string, passphrase []byte) (crypto.PrivateKe
 	return key, nil
 }
 
+// ParseX509CertificateFile parses an ssl/tls public key from the specified file.
+func ParseX509CertificateFile(filename string) ([]*x509.Certificate, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	pemBlocks, err := internal.ReadPEMBlocks(f, regexp.MustCompile("^CERTIFICATE$"))
+	certs := make([]*x509.Certificate, 0, 1)
+	for _, pemBlock := range pemBlocks {
+		cert, err := x509.ParseCertificate(pemBlock.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		certs = append(certs, cert)
+	}
+	return certs, nil
+}
+
+/*
 // X509CertificateInfo represents a subset of the information in an x509
 // certificate.
 type X509CertificateInfo struct {
@@ -88,7 +107,7 @@ func ParseX509Certificate(rd io.Reader, verifyOpts x509.VerifyOptions) (X509Cert
 		Subject:         cert.Subject.CommonName,
 		X509Certificate: cert,
 	}, nil
-}
+}*/
 
 // NewInMemorySigner creates a new security.Signer that stores its
 // private key in memory using the security.NewInMemory{ECDSA,ED25519,RSA}Signer

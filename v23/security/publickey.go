@@ -45,6 +45,8 @@ type PublicKey interface {
 	// creating message digests to sign with this public key.
 	hashAlgo() crypto.Hash
 
+	bytes() []byte
+
 	messageDigest(h crypto.Hash, purpose, message []byte) []byte
 
 	// verify returns true iff signature was created by the corresponding
@@ -91,6 +93,10 @@ func newPublicKeyCommon(key interface{}, hash Hash) publicKeyCommon {
 
 func (pk publicKeyCommon) hashAlgo() crypto.Hash {
 	return pk.chash
+}
+
+func (pk publicKeyCommon) bytes() []byte {
+	return pk.keyBytes
 }
 
 func (pk publicKeyCommon) MarshalBinary() ([]byte, error) {

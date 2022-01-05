@@ -1084,6 +1084,11 @@ func vdlReadAnonList3(dec vdl.Decoder, x *[]*vom.RawBytes) error {
 // For example, if a principal P1 has a blessing "alice", then it can
 // extend it with a Certificate to generate the blessing "alice/friend" for
 // another principal P2.
+//
+// X509 Certificates may be embedded in a Certificate to allow for principals
+// to be authenticated based on SSL/TLS Root Certificate Authorities. The
+// X509 Certificate will be included in the digents used to generate the
+// signature for the certificate.
 type Certificate struct {
 	Extension string    // Human-readable string extension bound to PublicKey.
 	PublicKey []byte    // DER-encoded PKIX public key.

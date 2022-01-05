@@ -6,24 +6,15 @@ package security_test
 
 import (
 	"crypto"
-	"crypto/ecdsa"
+	"crypto/md5"
 	"crypto/x509"
-	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
 	"testing"
 	"time"
 
-	v23 "v.io/v23"
-	"v.io/v23/context"
-	"v.io/v23/rpc"
-	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/internal"
-	"v.io/x/ref/test"
-	"v.io/x/ref/test/testutil"
 )
 
 func customCertPool(t *testing.T, cafile string) *x509.CertPool {
@@ -39,6 +30,23 @@ func customCertPool(t *testing.T, cafile string) *x509.CertPool {
 	certPool := x509.NewCertPool()
 	certPool.AddCert(rootCert)
 	return certPool
+}
+
+func publicKeyFingerPrint(t *testing.T, pk crypto.PublicKey) string {
+	pkb, err := x509.MarshalPKIXPublicKey(pk)
+	if err != nil {
+		t.Errorf("failed to marshal public key %v", err)
+		return ""
+	}
+	const hextable = "0123456789abcdef"
+	hash := md5.Sum(pkb)
+	var repr [md5.Size * 3]byte
+	for i, v := range hash {
+		repr[i*3] = hextable[v>>4]
+		repr[i*3+1] = hextable[v&0x0f]
+		repr[i*3+2] = ':'
+	}
+	return string(repr[:len(repr)-1])
 }
 
 func TestSSLKeys(t *testing.T) {
@@ -72,18 +80,24 @@ func TestSSLKeys(t *testing.T) {
 			t.Errorf("failed to verify signature using %v: %v", privKeyFile, err)
 		}
 
-		opts := x509.VerifyOptions{
-			Roots: certPool,
-		}
 		crtFile := tc.prefix + ".crt"
-		cert, err := seclib.ParseX509CertificateFile(filepath.Join("testdata", crtFile), opts)
+		certs, err := seclib.ParseX509CertificateFile(filepath.Join("testdata", crtFile))
 		if err != nil {
 			t.Errorf("failed to load %v: %v", crtFile, err)
 			continue
 		}
-
-		if got, want := cert.PublicKey.String(), tc.pk; got != want {
+		if got, want := len(certs), 1; got != want {
 			t.Errorf("%v: got %v, want %v", crtFile, got, want)
+		}
+		cert := certs[0]
+		if got, want := publicKeyFingerPrint(t, cert.PublicKey), tc.pk; got != want {
+			t.Errorf("%v: got %v, want %v", crtFile, got, want)
+		}
+		opts := x509.VerifyOptions{
+			Roots: certPool,
+		}
+		if _, err := cert.Verify(opts); err != nil {
+			t.Errorf("%v: failed to verify x509 certificate: %v", crtFile, err)
 		}
 	}
 }
@@ -112,30 +126,45 @@ func TestLetsEncryptKeys(t *testing.T) {
 		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
 		CurrentTime: pastTime,
 	}
-	cert, err := seclib.ParseX509CertificateFile(filename, opts)
+	certs, err := seclib.ParseX509CertificateFile(filename)
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
+	}
+	if got, want := len(certs), 3; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	cert := certs[0]
+	if _, err := cert.Verify(opts); err != nil {
+		t.Errorf("failed to verify x509 certificate: %v", err)
 	}
 
 	// openssl x509 -in testdata/lwww.labdrive.io.letsencrypt --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := cert.PublicKey.String(), "b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"; got != want {
+	if got, want := publicKeyFingerPrint(t, cert.PublicKey), "b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
 
 	// Now parse the root certificate also.
-	cert, err = seclib.ParseX509CertificateFile(
-		filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"), opts)
+	certs, err = seclib.ParseX509CertificateFile(
+		filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"))
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
 	}
+	if got, want := len(certs), 1; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	cert = certs[0]
+	if _, err := cert.Verify(opts); err != nil {
+		t.Errorf("failed to verify x509 certificate: %v", err)
+	}
 	// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := cert.PublicKey.String(), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
+	if got, want := publicKeyFingerPrint(t, cert.PublicKey), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
-
 }
+
+/*
 
 func sslPrinicipal(filename string) (security.Principal, crypto.PrivateKey, []*x509.Certificate, error) {
 	key, err := seclib.ParsePEMPrivateKeyFile(filename, nil)
@@ -197,7 +226,8 @@ func TestRootCABlessings(t *testing.T) {
 			fmt.Printf("Subject %v\n", c.Subject.CommonName)
 			fmt.Printf("Issuer %v\n", c.Issuer.CommonName)
 		}
-	}*/
+	}
+
 	pubKey, err := security.NewPublicKey(&pk.PublicKey)
 	if err != nil {
 		t.Fatalf(".... %v", err)
@@ -210,7 +240,7 @@ func TestRootCABlessings(t *testing.T) {
 
 	fmt.Printf("%v\n", p.BlessingStore().DebugString())
 
-	/*
+
 		root := chains[0][len(chains[0])-1]
 
 		rootPublicKey, err := seclib.NewPublicKey(root.PublicKey)
@@ -238,7 +268,7 @@ func TestRootCABlessings(t *testing.T) {
 			t.Errorf("failed to bless self: %v", err)
 		}
 		fmt.Printf("B: %s\n", blessings.String())
-	*/
+
 	t.FailNow()
 
 }
@@ -312,3 +342,4 @@ func TestRPC(t *testing.T) {
 	t.Log(err)
 	t.FailNow()
 }
+*/

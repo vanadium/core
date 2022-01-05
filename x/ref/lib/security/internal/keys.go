@@ -18,6 +18,7 @@ import (
 	"io"
 	"math/big"
 	"os"
+	"regexp"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
@@ -28,8 +29,7 @@ const (
 	rsaPrivateKeyPEMType   = "RSA PRIVATE KEY"
 	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
 	pkixPublicKeyPEMType   = "PUBLIC KEY"
-
-	certPEMType = "CERTIFICATE"
+	certPEMType            = "CERTIFICATE"
 )
 
 var (
@@ -86,25 +86,19 @@ func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, pass
 // loadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
 // If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
 func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
-	pemBlockBytes, err := io.ReadAll(r)
+	pemBlocks, err := ReadPEMBlocks(r, regexp.MustCompile("PRIVATE KEY$"))
 	if err != nil {
 		return nil, err
 	}
-	for {
-		var pemBlock *pem.Block
-		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
-		if pemBlock == nil {
-			return nil, fmt.Errorf("no PEM key block read")
-		}
-
+	for _, pemBlock := range pemBlocks {
 		var data []byte
 		// TODO(cnicolaou): migrate away from PEM keys.
-		if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
+		if x509.IsEncryptedPEMBlock(pemBlock) {
 			// Assume empty passphrase is disallowed.
 			if len(passphrase) == 0 {
 				return nil, ErrPassphraseRequired
 			}
-			data, err = x509.DecryptPEMBlock(pemBlock, passphrase) //nolint:staticcheck
+			data, err = x509.DecryptPEMBlock(pemBlock, passphrase)
 			if err != nil {
 				return nil, ErrBadPassphrase
 			}
@@ -135,13 +129,10 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 				return nil, ErrBadPassphrase
 			}
 			return key, nil
-		default:
-			if strings.Contains(pemBlock.Type, "PARAMETERS") {
-				continue
-			}
 		}
 		return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 	}
+	return nil, fmt.Errorf("no private key PEM blocks found")
 }
 
 // LoadPEMPublicKeyFile loads a public key file in PEM PKIX format.
@@ -165,7 +156,7 @@ func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
 		return nil, fmt.Errorf("failed to read bytes: %v", err)
 	}
 	pemBlock, _ := pem.Decode(pemBlockBytes)
-	if pemBlock == nil {
+	if pemBlock == nil || pemBlock.Type != pkixPublicKeyPEMType {
 		return nil, fmt.Errorf("no PEM key block read")
 	}
 	key, err := x509.ParsePKIXPublicKey(pemBlock.Bytes)

@@ -5,6 +5,8 @@
 package security
 
 import (
+	"bytes"
+	"crypto/x509"
 	"fmt"
 	"reflect"
 	"time"
@@ -32,7 +34,7 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 	if got, want := store.PublicKey(), signer.PublicKey(); !reflect.DeepEqual(got, want) {
 		return nil, fmt.Errorf("store's public key: %v does not match signer's public key: %v", got, want)
 	}
-	return &principal{signer: signer, store: store, roots: roots}, nil
+	return &principal{signer: signer, publicKey: signer.PublicKey(), store: store, roots: roots}, nil
 }
 
 // CreatePrincipalPublicKeyOnly returns a Principal that cannot sign new blessings
@@ -154,6 +156,42 @@ func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 	chain, digest, err := chainCertificate(p.signer, nil, *cert)
 	if err != nil {
 		return Blessings{}, err
+	}
+	ret := Blessings{
+		chains:    [][]Certificate{chain},
+		publicKey: p.PublicKey(),
+		digests:   [][]byte{digest},
+	}
+	ret.init()
+	return ret, nil
+}
+
+func (p *principal) BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error) {
+	if p.signer == nil {
+		return Blessings{}, fmt.Errorf("underlying signer is nil")
+	}
+	pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
+	if err != nil {
+		return Blessings{}, err
+	}
+	fmt.Printf("PK... %v\n", p.publicKey)
+	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
+		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
+	}
+	certs, err := newUnsignedCertificateFromX509(x509Cert, pkBytes, caveats)
+	if err != nil {
+		return Blessings{}, err
+	}
+	if len(certs) == 0 {
+		return Blessings{}, fmt.Errorf("failed to create any certificates based on the supplied x509 certificate")
+	}
+	chain := make([]Certificate, 0, len(certs))
+	var digest []byte
+	for i := range certs {
+		chain, digest, err = chainCertificate(p.signer, chain, certs[i])
+		if err != nil {
+			return Blessings{}, err
+		}
 	}
 	ret := Blessings{
 		chains:    [][]Certificate{chain},

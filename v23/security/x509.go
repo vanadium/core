@@ -6,15 +6,39 @@ package security
 
 import (
 	"crypto/x509"
-	"errors"
-	"fmt"
 	"strings"
-
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
-	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 )
 
+func sanitizeExtensionString(s string) string {
+	for _, illegal := range invalidBlessingSubStrings {
+		s = strings.ReplaceAll(s, illegal, "")
+	}
+	return s
+}
+
+// Subject Alternative Name (SAN) mechanism - may return multiple certificates.
+// wildcard ssl certs
+func newUnsignedCertificateFromX509(x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
+	cavs := make([]Caveat, len(caveats), len(caveats)+2)
+	copy(cavs, caveats)
+	notBefore, err := NewExpiryCaveat(x509Cert.NotBefore)
+	if err != nil {
+		return nil, err
+	}
+	notAfter, _ := NewNotBeforeCaveat(x509Cert.NotAfter)
+	if err != nil {
+		return nil, err
+	}
+	cert := Certificate{
+		Extension: sanitizeExtensionString(x509Cert.Subject.CommonName),
+		PublicKey: pkBytes,
+		Caveats:   append(cavs, notAfter, notBefore),
+		X509Raw:   x509Cert.Raw,
+	}
+	return []Certificate{cert}, nil
+}
+
+/*
 func splitASN1Sig(sig []byte) (R, S []byte) {
 	var inner cryptobyte.String
 	input := cryptobyte.String(sig)
@@ -66,12 +90,6 @@ func signatureForX509(cert *x509.Certificate) (PublicKey, Signature, error) {
 	return pk, sig, nil
 }
 
-func sanitizeExtensionString(s string) string {
-	for _, illegal := range invalidBlessingSubStrings {
-		s = strings.ReplaceAll(s, illegal, "")
-	}
-	return s
-}
 
 func x509TBS(der []byte) ([]byte, error) {
 	input := cryptobyte.String(der)
@@ -92,37 +110,27 @@ func x509TBS(der []byte) ([]byte, error) {
 		return nil, errors.New("x509: malformed tbs certificate")
 	}
 	return tbs, nil
-}
+}*/
 
-func certFromX509(cert *x509.Certificate) (Certificate, error) {
-	cavs := make([]Caveat, 0, 2)
-	notBefore, err := NewExpiryCaveat(cert.NotBefore)
+/*
+func BlessingFromX509(x509Cert *x509.Certificate) (Blessings, error) {
+	unsigned, err := newUnsignedCertificateFromX509(x509Cert)
 	if err != nil {
-		return Certificate{}, err
+		return Blessings{}, err
 	}
-	notAfter, _ := NewNotBeforeCaveat(cert.NotAfter)
-	if err != nil {
-		return Certificate{}, err
-	}
-	pkBytes, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
-	if err != nil {
-		return Certificate{}, err
-	}
-	_, sig, err := signatureForX509(cert)
-	if err != nil {
-		return Certificate{}, err
-	}
+	chains := make([][]Certificate, 1, 1)
+	chains[0] = make([]Certificate, 1, 1)
+	chains[0][0] = cert
+	digest := make([][]byte, len(certs))
+	digest[0], _ = certs[0].chainedDigests(cryptoHash(certs[0].Signature.Hash)
 
-	fmt.Printf("RAW LEN: %v\n", len(cert.Raw))
-	fmt.Printf("TBS LEN: %v\n", len(cert.RawTBSCertificate))
-
-	return Certificate{
-		Extension: sanitizeExtensionString(cert.Subject.CommonName),
-		PublicKey: pkBytes,
-		Caveats:   append(cavs, notAfter, notBefore),
-		Signature: sig,
-		X509Raw:   cert.Raw,
-	}, nil
+	blessings := Blessings{
+		chains:    chains,
+		digests:   chainedDigests,
+		publicKey: pk,
+	}
+	blessings.init()
+	return blessings, nil
 }
 
 // chain must have been obtained from x509.Certificate.Verify
@@ -149,7 +157,7 @@ func BlessingsForX509Chains(pk PublicKey, x509chains [][]*x509.Certificate) (Ble
 		if len(certs) == 0 {
 			continue
 		}
-		digest := make([][]byte, len(certs))
+		digest := make([][]byte, 1)
 		digest[0], _ = certs[0].chainedDigests(cryptoHash(certs[0].Signature.Hash), nil)
 		for i := 1; i < len(certs); i++ {
 			digest[i], _ = certs[i].chainedDigests(cryptoHash(certs[i].Signature.Hash), digest[i-1])
@@ -165,3 +173,4 @@ func BlessingsForX509Chains(pk PublicKey, x509chains [][]*x509.Certificate) (Ble
 	blessings.init()
 	return blessings, nil
 }
+*/
