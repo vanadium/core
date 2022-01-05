@@ -265,7 +265,12 @@ type BlessingRoots interface {
 
 	// Recognized returns nil iff the provided (DER-encoded) root public
 	// key as an authority on a pattern that is matched by blessing.
-	Recognized(root []byte, blessing string) error
+	//Recognized(root []byte, blessing string) error
+
+	// Recognized returns nil iff the provided Certificate and in particular
+	// its (DER-encoded) root public key is recognized as an authority on a
+	// pattern that is matched by blessing.
+	Recognized(cert *Certificate, blessing string) error
 
 	// Dump returns the set of recognized roots as a map from
 	// blessing patterns to the set of authoritative keys for that

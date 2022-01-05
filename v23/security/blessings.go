@@ -483,7 +483,7 @@ func SigningBlessingNames(ctx *context.T, p Principal, blessings Blessings) ([]s
 	)
 	for _, chain := range blessings.chains {
 		name := claimedName(chain)
-		if err := p.Roots().Recognized(chain[0].PublicKey, name); err != nil {
+		if err := p.Roots().Recognized(&chain[0], name); err != nil {
 			rejected = append(rejected, RejectedBlessing{name, err})
 			continue
 		}
@@ -533,7 +533,7 @@ func RemoteBlessingNames(ctx *context.T, call Call) ([]string, []RejectedBlessin
 		name := claimedName(chain)
 		err := rootsErr
 		if err == nil {
-			err = call.LocalPrincipal().Roots().Recognized(chain[0].PublicKey, name)
+			err = call.LocalPrincipal().Roots().Recognized(&chain[0], name)
 		}
 		if err != nil {
 			rejected = append(rejected, RejectedBlessing{name, err})
@@ -606,7 +606,7 @@ func BlessingNames(principal Principal, blessings Blessings) []string {
 	var ret []string
 	for _, chain := range blessings.chains {
 		name := claimedName(chain)
-		if err := principal.Roots().Recognized(chain[0].PublicKey, name); err == nil {
+		if err := principal.Roots().Recognized(&chain[0], name); err == nil {
 			ret = append(ret, name)
 		}
 	}

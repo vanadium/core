@@ -41,7 +41,7 @@ func (r *TrustAllRoots) Add(root []byte, pattern security.BlessingPattern) error
 	return nil
 }
 
-func (r *TrustAllRoots) Recognized(root []byte, blessing string) error {
+func (r *TrustAllRoots) Recognized(cert *security.Certificate, blessing string) error {
 	return nil
 }
 
@@ -75,13 +75,13 @@ func (r *Roots) Add(root []byte, pattern security.BlessingPattern) error {
 	return nil
 }
 
-func (r *Roots) Recognized(root []byte, blessing string) error {
+func (r *Roots) Recognized(root *security.Certificate, blessing string) error {
 	for _, mr := range r.data {
-		if bytes.Equal(root, mr.root) && mr.pattern.MatchedBy(blessing) {
+		if bytes.Equal(root.PublicKey, mr.root) && mr.pattern.MatchedBy(blessing) {
 			return nil
 		}
 	}
-	key, err := security.UnmarshalPublicKey(root)
+	key, err := security.UnmarshalPublicKey(root.PublicKey)
 	if err != nil {
 		return err
 	}

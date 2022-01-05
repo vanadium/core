@@ -203,7 +203,7 @@ type immutableBlessingRoots struct {
 	impl security.BlessingRoots
 }
 
-func (r *immutableBlessingRoots) Recognized(root []byte, blessing string) error {
+func (r *immutableBlessingRoots) Recognized(root *security.Certificate, blessing string) error {
 	return r.impl.Recognized(root, blessing)
 }
 func (r *immutableBlessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
