@@ -67,9 +67,9 @@ func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) erro
 	return nil
 }
 
-func (br *blessingRoots) Recognized(root *security.Certificate, blessing string) error {
+func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 	br.mu.RLock()
-	for _, p := range br.state[string(root.PublicKey)] {
+	for _, p := range br.state[string(root)] {
 		if p.MatchedBy(blessing) {
 			br.mu.RUnlock()
 			return nil
@@ -78,11 +78,15 @@ func (br *blessingRoots) Recognized(root *security.Certificate, blessing string)
 	br.mu.RUnlock()
 	// Silly to have to unmarshal the public key on an error.
 	// Change the error message to not require that?
-	obj, err := security.UnmarshalPublicKey(root.PublicKey)
+	obj, err := security.UnmarshalPublicKey(root)
 	if err != nil {
 		return err
 	}
 	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", obj.String(), nil)
+}
+
+func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing string) error {
+	return br.Recognized(root.PublicKey, blessing)
 }
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {

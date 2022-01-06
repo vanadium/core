@@ -23,10 +23,16 @@ func TestIDProvider(t *testing.T) {
 		t.Fatal(err)
 	}
 	cert := &security.Certificate{PublicKey: idpkey}
-	if err := p.Roots().Recognized(cert, "foo"); err != nil {
+	if err := p.Roots().Recognized(idpkey, "foo"); err != nil {
 		t.Error(err)
 	}
-	if err := p.Roots().Recognized(cert, "foo:bar"); err != nil {
+	if err := p.Roots().RecognizedCert(cert, "foo"); err != nil {
+		t.Error(err)
+	}
+	if err := p.Roots().Recognized(idpkey, "foo:bar"); err != nil {
+		t.Error(err)
+	}
+	if err := p.Roots().RecognizedCert(cert, "foo:bar"); err != nil {
 		t.Error(err)
 	}
 	def, _ := p.BlessingStore().Default()

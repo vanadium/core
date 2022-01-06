@@ -92,7 +92,11 @@ func (errRoots) Add([]byte, BlessingPattern) error {
 	return fmt.Errorf("underlying BlessingRoots object is nil")
 }
 
-func (errRoots) Recognized(*Certificate, string) error {
+func (errRoots) Recognized([]byte, string) error {
+	return fmt.Errorf("underlying BlessingRoots object is nil")
+}
+
+func (errRoots) RecognizedCert(*Certificate, string) error {
 	return fmt.Errorf("underlying BlessingRoots object is nil")
 }
 

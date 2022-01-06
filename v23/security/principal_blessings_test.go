@@ -504,12 +504,18 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 			continue
 		}
 		for _, b := range test.recognized {
-			if tp.Roots().Recognized(&test.root, b) != nil {
+			if tp.Roots().Recognized(test.root.PublicKey, b) != nil {
+				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
+			}
+			if tp.Roots().RecognizedCert(&test.root, b) != nil {
 				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
 			}
 		}
 		for _, b := range test.notRecognized {
-			if tp.Roots().Recognized(&test.root, b) == nil {
+			if tp.Roots().Recognized(test.root.PublicKey, b) == nil {
+				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
+			}
+			if tp.Roots().RecognizedCert(&test.root, b) == nil {
 				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
 			}
 		}
