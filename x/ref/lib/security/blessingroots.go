@@ -85,6 +85,10 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", obj.String(), nil)
 }
 
+func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing string) error {
+	return br.Recognized(root.PublicKey, blessing)
+}
+
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
 	dump := make(map[security.BlessingPattern][]security.PublicKey)
 	br.mu.RLock()

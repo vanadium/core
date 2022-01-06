@@ -470,21 +470,29 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 		t.Fatal(err)
 	}
 
+	publicKeyBytes := func(p security.Principal) []byte {
+		b, err := p.PublicKey().MarshalBinary()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return b
+	}
+
 	tests := []struct {
 		add           security.Blessings
-		root          security.PublicKey
+		root          security.Certificate
 		recognized    []string
 		notRecognized []string
 	}{
 		{
 			add:           aliceFriendSpouse,
-			root:          p1.PublicKey(),
+			root:          security.Certificate{PublicKey: publicKeyBytes(p1)},
 			recognized:    s{"alice:friend", "alice:friend:device", "alice:friend:device:app", "alice:friend:spouse", "alice:friend:spouse:friend"},
 			notRecognized: s{"alice:device", "bob", "bob:friend", "bob:friend:spouse"},
 		},
 		{
 			add:           charlieFamilyDaughter,
-			root:          p2.PublicKey(),
+			root:          security.Certificate{PublicKey: publicKeyBytes(p2)},
 			recognized:    s{"charlie", "charlie:friend", "charlie:friend:device", "charlie:family", "charlie:family:daughter", "charlie:family:friend", "charlie:family:friend:device"},
 			notRecognized: s{"alice", "bob", "alice:family", "alice:family:daughter"},
 		},
@@ -495,17 +503,19 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 			t.Error(err)
 			continue
 		}
-		testroot, err := test.root.MarshalBinary()
-		if err != nil {
-			t.Fatal(err)
-		}
 		for _, b := range test.recognized {
-			if tp.Roots().Recognized(testroot, b) != nil {
+			if tp.Roots().Recognized(test.root.PublicKey, b) != nil {
+				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
+			}
+			if tp.Roots().RecognizedCert(&test.root, b) != nil {
 				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
 			}
 		}
 		for _, b := range test.notRecognized {
-			if tp.Roots().Recognized(testroot, b) == nil {
+			if tp.Roots().Recognized(test.root.PublicKey, b) == nil {
+				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
+			}
+			if tp.Roots().RecognizedCert(&test.root, b) == nil {
 				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
 			}
 		}

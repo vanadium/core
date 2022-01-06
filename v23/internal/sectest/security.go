@@ -41,8 +41,12 @@ func (r *TrustAllRoots) Add(root []byte, pattern security.BlessingPattern) error
 	return nil
 }
 
-func (r *TrustAllRoots) Recognized(root []byte, blessing string) error {
+func (r *TrustAllRoots) Recognized(cert []byte, blessing string) error {
 	return nil
+}
+
+func (r *TrustAllRoots) RecognizedCert(root *security.Certificate, blessing string) error {
+	return r.Recognized(root.PublicKey, blessing)
 }
 
 func (r *TrustAllRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
@@ -86,6 +90,10 @@ func (r *Roots) Recognized(root []byte, blessing string) error {
 		return err
 	}
 	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", key.String(), nil)
+}
+
+func (r *Roots) RecognizedCert(root *security.Certificate, blessing string) error {
+	return r.Recognized(root.PublicKey, blessing)
 }
 
 func (r *Roots) Dump() map[security.BlessingPattern][]security.PublicKey {

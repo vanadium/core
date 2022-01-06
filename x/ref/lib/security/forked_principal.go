@@ -206,6 +206,11 @@ type immutableBlessingRoots struct {
 func (r *immutableBlessingRoots) Recognized(root []byte, blessing string) error {
 	return r.impl.Recognized(root, blessing)
 }
+
+func (r *immutableBlessingRoots) RecognizedCert(root *security.Certificate, blessing string) error {
+	return r.impl.RecognizedCert(root, blessing)
+}
+
 func (r *immutableBlessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
 	return r.impl.Dump()
 }
