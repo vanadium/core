@@ -7,6 +7,7 @@ package security
 import (
 	"bytes"
 	"context"
+	"crypto/x509"
 	"fmt"
 	"os"
 	"os/signal"
@@ -27,6 +28,7 @@ type blessingRoots struct {
 	readers   SerializerReader
 	writers   SerializerWriter
 	signer    serialization.Signer
+	x509Opts  x509.VerifyOptions
 	publicKey security.PublicKey
 	flock     *lockedfile.Mutex // GUARDS persistent store
 	mu        sync.RWMutex
@@ -86,7 +88,26 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 }
 
 func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing string) error {
-	return br.Recognized(root.PublicKey, blessing)
+	if len(root.X509Raw) == 0 {
+		return br.Recognized(root.PublicKey, blessing)
+	}
+	// TODO: cache pre-parsed/marshalled certificates+keys if they turn out
+	// 		 to be expensive operations.
+	cert, err := x509.ParseCertificate(root.X509Raw)
+	if err != nil {
+		return err
+	}
+	pk, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(pk, root.PublicKey) {
+		return fmt.Errorf("security.Certificate and x509.Certificate have different public keys")
+	}
+	opts := br.x509Opts
+	opts.DNSName = blessing
+	_, err = cert.Verify(opts)
+	return err
 }
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
@@ -204,6 +225,16 @@ func reload(ctx context.Context, loader func() (func(), error), hupCh <-chan os.
 func NewBlessingRoots() security.BlessingRoots {
 	return &blessingRoots{
 		state: make(blessingRootsState),
+	}
+}
+
+// NewBlessingRootsWithX509Options is like NewBlessingRoots but with custom
+// options for use when verifying x509 certificates. It is intended for
+// testing purposes only.
+func NewBlessingRootsWuthX509Options(opts x509.VerifyOptions) security.BlessingRoots {
+	return &blessingRoots{
+		state:    make(blessingRootsState),
+		x509Opts: opts,
 	}
 }
 

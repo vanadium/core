@@ -6,48 +6,33 @@ package security_test
 
 import (
 	"fmt"
-	"path/filepath"
 	"reflect"
 	"testing"
 
 	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func TestX509(t *testing.T) {
-	bundle := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
-	pk, err := seclib.ParsePEMPrivateKeyFile(bundle, nil)
+	privKey, pubCerts, opts := sectestdata.LetsencryptData()
+	signer, err := seclib.NewInMemorySigner(privKey)
 	if err != nil {
-		t.Fatal(err)
-	}
-	certs, err := seclib.ParseX509CertificateFile(bundle)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := len(certs), 3; got != want {
-		t.Fatalf("got %v, want %v", got, want)
-	}
-	signer, err := seclib.NewInMemorySigner(pk)
-	if err != nil {
-		t.Fatal(err)
-	}
-	p, err := seclib.NewPrincipalFromSigner(signer)
-	if err != nil {
-		t.Fatal(err)
-	}
-	blessings, err := p.BlessSelfX509(certs[0])
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := security.AddToRoots(p, blessings); err != nil {
 		t.Fatal(err)
 	}
 
-	/*	if err := p.BlessingStore().SetDefault(blessings); err != nil {
+	p, err := security.CreatePrincipal(signer, seclib.NewBlessingStore(signer.PublicKey()),
+		seclib.NewBlessingRootsWuthX509Options(opts))
+	if err != nil {
 		t.Fatal(err)
-	}*/
-	fmt.Printf("PK: %T\n", pk)
-	fmt.Printf("#certs %v\n", len(certs))
+	}
+	blessings, err := p.BlessSelfX509(pubCerts[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Printf("PK: %T\n", privKey)
+	fmt.Printf("#certs %v\n", len(pubCerts))
 	fmt.Printf("store %v\n", p.BlessingStore().DebugString())
 	fmt.Printf("blessings: %v\n", blessings.String())
 	names := security.BlessingNames(p, blessings)

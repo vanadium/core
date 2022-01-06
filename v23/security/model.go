@@ -258,6 +258,10 @@ type BlessingStore interface {
 	DebugString() string
 }
 
+type X509VerifyOption interface {
+	X509VerifyOption()
+}
+
 // BlessingRoots hosts the set of authoritative public keys for roots
 // of blessings.
 //
@@ -275,6 +279,10 @@ type BlessingRoots interface {
 	// key is recognized as an authority on a pattern that is matched by blessing.
 	// DEPRECATED: use RecognizedCert instead.
 	Recognized(root []byte, blessing string) error
+
+	// AddRootCerts adds x509 certificates to be added to the operating
+	// system's CA cert pool used by RecognizedCert below.
+	//	AddRootCerts(roots []x509.Certificate) error
 
 	// Recognized returns nil iff the provided Certificate is recognized as an
 	// authority on a pattern that is matched by blessing. For a Certificate
