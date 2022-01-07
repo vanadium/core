@@ -42,11 +42,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(sshKeyDir)
 	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
 	if err != nil {
 		flag.Parse()
 		cleanup()
+		os.RemoveAll(sshKeyDir)
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
@@ -56,6 +56,7 @@ func TestMain(m *testing.M) {
 	}
 	code := m.Run()
 	cleanup()
+	os.RemoveAll(sshKeyDir)
 	os.Exit(code)
 }
 

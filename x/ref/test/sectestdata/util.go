@@ -18,8 +18,6 @@ import (
 )
 
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
-	var key crypto.PrivateKey
-	var err error
 	rest := data
 	for {
 		var block *pem.Block
@@ -29,14 +27,11 @@ func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
 		}
 		switch block.Type {
 		case "EC PRIVATE KEY":
-			key, err = x509.ParseECPrivateKey(block.Bytes)
-			break
+			return x509.ParseECPrivateKey(block.Bytes)
 		case "RSA PRIVATE KEY":
-			key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-			break
+			return x509.ParsePKCS1PrivateKey(block.Bytes)
 		case "PRIVATE KEY":
-			key, err = x509.ParsePKCS8PrivateKey(block.Bytes)
-			break
+			return x509.ParsePKCS8PrivateKey(block.Bytes)
 		default:
 			if strings.Contains(block.Type, "PARAMETERS") {
 				continue
@@ -44,7 +39,7 @@ func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
 			return nil, fmt.Errorf("wrong PEM type, expected EC PRIVATE KEY: %v", block.Type)
 		}
 	}
-	return key, err
+	return nil, fmt.Errorf("failed to load private key")
 }
 
 func loadCerts(data []byte) ([]*x509.Certificate, error) {
