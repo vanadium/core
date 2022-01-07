@@ -8,29 +8,12 @@ import (
 	"crypto"
 	"crypto/md5"
 	"crypto/x509"
-	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	seclib "v.io/x/ref/lib/security"
-	"v.io/x/ref/lib/security/internal"
+	"v.io/x/ref/test/sectestdata"
 )
-
-func customCertPool(t *testing.T, cafile string) *x509.CertPool {
-	rf, err := os.Open(cafile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rf.Close()
-	rootCert, err := internal.LoadCertificate(rf)
-	if err != nil {
-		t.Fatal(err)
-	}
-	certPool := x509.NewCertPool()
-	certPool.AddCert(rootCert)
-	return certPool
-}
 
 func publicKeyFingerPrint(t *testing.T, pk crypto.PublicKey) string {
 	pkb, err := x509.MarshalPKIXPublicKey(pk)
@@ -50,116 +33,82 @@ func publicKeyFingerPrint(t *testing.T, pk crypto.PublicKey) string {
 }
 
 func TestSSLKeys(t *testing.T) {
-	certPool := customCertPool(t, filepath.Join("testdata", "root-ca.pem"))
 	purpose, message := []byte("testing"), []byte("a message")
-	for _, tc := range []struct {
-		prefix string
-		pk     string
-	}{
-		{"ec256.vanadium.io", "7e:1f:4d:6d:99:3b:6c:51:16:90:83:cf:07:a9:a3:fc"},
-		{"ed25519.vanadium.io", "c4:33:17:69:02:42:8c:19:5d:69:77:02:71:c5:1d:7e"},
-		{"rsa2048.vanadium.io", "53:fb:b2:07:10:fd:9c:89:16:f5:76:4b:e8:5c:17:30"},
-		{"rsa4096.vanadium.io", "10:d6:7b:2f:7d:a2:6b:96:c1:27:50:05:ce:d6:d5:26"},
-	} {
-
-		privKeyFile := tc.prefix + ".key"
-		cpriv, err := seclib.ParsePEMPrivateKeyFile(filepath.Join("testdata", privKeyFile),
-			nil)
+	keys, certs, opts := sectestdata.VanadiumSSLData()
+	for host, key := range keys {
+		cert := certs[host]
+		signer, err := seclib.NewInMemorySigner(key)
 		if err != nil {
-			t.Errorf("failed to load %v: %v", privKeyFile, err)
-		}
-		signer, err := seclib.NewInMemorySigner(cpriv)
-		if err != nil {
-			t.Errorf("failed to create signer for %v: %v", privKeyFile, err)
+			t.Errorf("failed to create signer for %v: %v", host, err)
 		}
 		sig, err := signer.Sign(purpose, message)
 		if err != nil {
-			t.Errorf("failed to sign using %v: %v", privKeyFile, err)
+			t.Errorf("failed to sign using %v: %v", host, err)
 		}
 		if !sig.Verify(signer.PublicKey(), message) {
-			t.Errorf("failed to verify signature using %v: %v", privKeyFile, err)
-		}
-
-		crtFile := tc.prefix + ".crt"
-		certs, err := seclib.ParseX509CertificateFile(filepath.Join("testdata", crtFile))
-		if err != nil {
-			t.Errorf("failed to load %v: %v", crtFile, err)
-			continue
-		}
-		if got, want := len(certs), 1; got != want {
-			t.Errorf("%v: got %v, want %v", crtFile, got, want)
-		}
-		cert := certs[0]
-		if got, want := publicKeyFingerPrint(t, cert.PublicKey), tc.pk; got != want {
-			t.Errorf("%v: got %v, want %v", crtFile, got, want)
-		}
-		opts := x509.VerifyOptions{
-			Roots: certPool,
+			t.Errorf("failed to verify signature using %v: %v", host, err)
 		}
 		if _, err := cert.Verify(opts); err != nil {
-			t.Errorf("%v: failed to verify x509 certificate: %v", crtFile, err)
+			t.Errorf("failed to verify cert for %v: %v", host, err)
 		}
 	}
 }
 
 func TestLetsEncryptKeys(t *testing.T) {
-	filename := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
+	cpriv, _, opts := sectestdata.LetsEncryptData()
 	purpose, message := []byte("testing"), []byte("another message")
-	cpriv, err := seclib.ParsePEMPrivateKeyFile(filename, nil)
-	if err != nil {
-		t.Errorf("failed to load %v: %v", filename, err)
-	}
 	signer, err := seclib.NewInMemorySigner(cpriv)
 	if err != nil {
-		t.Errorf("failed to create signer for %v: %v", filename, err)
+		t.Errorf("failed to create signer: %v", err)
 	}
 	sig, err := signer.Sign(purpose, message)
 	if err != nil {
-		t.Errorf("failed to sign using %v: %v", filename, err)
+		t.Errorf("failed to sign: %v", err)
 	}
 	if !sig.Verify(signer.PublicKey(), message) {
-		t.Errorf("failed to verify signature using %v: %v", filename, err)
+		t.Errorf("failed to verify signature: %v", err)
 	}
 
-	pastTime, _ := time.Parse("2006-Jan-02", "2021-Nov-02")
-	opts := x509.VerifyOptions{
-		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
-		CurrentTime: pastTime,
+	letsencryptDir, err := sectestdata.LetsEncryptDir()
+	if err != nil {
+		t.Fatal(err)
 	}
+	//	defer os.RemoveAll(letsencryptDir)
+	filename := filepath.Join(letsencryptDir, "www.labdrive.io.letsencrypt")
+
 	certs, err := seclib.ParseX509CertificateFile(filename)
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
 	}
+	if _, err := certs[0].Verify(opts); err != nil {
+		t.Errorf("failed to verify x509 certificate: %v", err)
+	}
 	if got, want := len(certs), 3; got != want {
 		t.Errorf("got %v, want %v", got, want)
-	}
-	cert := certs[0]
-	if _, err := cert.Verify(opts); err != nil {
-		t.Errorf("failed to verify x509 certificate: %v", err)
 	}
 
 	// openssl x509 -in testdata/lwww.labdrive.io.letsencrypt --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := publicKeyFingerPrint(t, cert.PublicKey), "b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"; got != want {
+	if got, want := publicKeyFingerPrint(t, certs[0].PublicKey), "b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
 
 	// Now parse the root certificate also.
 	certs, err = seclib.ParseX509CertificateFile(
-		filepath.Join("testdata", "letsencrypt-stg-int-e1.pem"))
+		filepath.Join(letsencryptDir, "letsencrypt-stg-int-e1.pem"))
 	if err != nil {
 		t.Fatalf("failed to load %v: %v", filename, err)
 	}
 	if got, want := len(certs), 1; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	cert = certs[0]
-	if _, err := cert.Verify(opts); err != nil {
+	if _, err := certs[0].Verify(opts); err != nil {
 		t.Errorf("failed to verify x509 certificate: %v", err)
 	}
+
 	// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := publicKeyFingerPrint(t, cert.PublicKey), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
+	if got, want := publicKeyFingerPrint(t, certs[0].PublicKey), "8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"; got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
 }
