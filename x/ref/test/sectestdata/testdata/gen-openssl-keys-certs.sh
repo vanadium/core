@@ -1,6 +1,10 @@
 
-openssl genrsa 2048 > root-key.pem
-openssl req -x509 -new -nodes -key root-key.pem -sha256 -days 1825 -subj '/CN=vanadium.io/O=company/C=US' > root-ca.pem
+set -e
+
+keyfile=vanadium.io.key.pem
+cafile=vanadium.io.ca.pem
+openssl genrsa 2048 > ${keyfile}
+openssl req -x509 -new -nodes -key ${keyfile} -sha256 -days 1825 -subj '/CN=vanadium.io/O=company/C=US' > ${cafile}
 
 newHost() {
     algo=$1
@@ -12,11 +16,11 @@ newHost() {
         -subj "/CN=${host}/O=company/C=US"
 
     openssl x509 -req \
-        -CA root-ca.pem -CAkey root-key.pem -CAcreateserial \
+        -CA ${cafile} -CAkey ${keyfile} -CAcreateserial \
         -in ${host}.csr \
         -out ${host}.crt -days 1825 -sha256 
 
-    openssl verify -CAfile root-ca.pem  ${host}.crt
+    openssl verify -CAfile ${cafile}  ${host}.crt
 }
 
 newHost genrsa rsa2048.vanadium.io 2048

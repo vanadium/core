@@ -17,6 +17,7 @@ import (
 	"v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
+	"v.io/x/ref/test/sectestdata"
 	"v.io/x/ref/test/testutil/testsshagent"
 	"v.io/x/ref/test/v23test"
 )
@@ -1005,11 +1006,17 @@ func mergeFlags(verb string, flags []string, arguments ...string) []string {
 }
 
 func TestMain(m *testing.M) {
-	var err error
-	var cleanup func()
-	sshKeyDir = "testdata"
+	var (
+		err     error
+		cleanup func()
+		sshKeys []string
+	)
+	sshKeyDir, sshKeys, err = sectestdata.SSHKeydir()
+	if err != nil {
+		panic(err)
+	}
 	cleanup, sshAgentAddr, err = testsshagent.StartPreconfiguredAgent(sshKeyDir,
-		"ssh-ed25519", "ssh-rsa-2048", "ssh-ecdsa-256")
+		sshKeys...)
 	if err != nil {
 		panic(err)
 	}
