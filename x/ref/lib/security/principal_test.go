@@ -6,6 +6,7 @@ package security
 
 import (
 	gocontext "context"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
@@ -25,28 +26,27 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/sshagent"
+	"v.io/x/ref/test/sectestdata"
 	"v.io/x/ref/test/testutil/testsshagent"
 )
 
 var (
 	agentSockName string
 	sshKeyDir     string
-	sshTestKeys   = []string{
-		"ssh-ecdsa-256",
-		"ssh-ecdsa-384",
-		"ssh-ecdsa-521",
-		"ssh-ed25519",
-		"ssh-rsa-2048",
-		"ssh-rsa-3072",
-	}
+	sshTestKeys   []string
 )
 
 func TestMain(m *testing.M) {
-	sshKeyDir = "testdata"
+	var err error
+	sshKeyDir, sshTestKeys, err = sectestdata.SSHKeydir()
+	if err != nil {
+		panic(err)
+	}
 	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
 	if err != nil {
 		flag.Parse()
 		cleanup()
+		os.RemoveAll(sshKeyDir)
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
@@ -56,6 +56,7 @@ func TestMain(m *testing.M) {
 	}
 	code := m.Run()
 	cleanup()
+	os.RemoveAll(sshKeyDir)
 	os.Exit(code)
 }
 
@@ -302,18 +303,16 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 	}
 }
 
-func funcForSSLKey(keyFile string, passphrase []byte) func(dir string, pass []byte) (security.Principal, error) {
+func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
 		ctx := gocontext.TODO()
-		key, err := ParsePEMPrivateKeyFile(filepath.Join("testdata", keyFile), passphrase)
-		if err != nil {
-			panic(err)
-		}
 		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
 	}
 }
 
 func TestCreatePersistentPrincipal(t *testing.T) {
+	sslKeys, _, _ := sectestdata.VanadiumSSLData()
+
 	tests := []struct {
 		fn                  func(dir string, pass []byte) (security.Principal, error)
 		Message, Passphrase []byte
@@ -326,10 +325,11 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForSSHKey("ssh-ecdsa-256.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-ed25519.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
-		{funcForSSLKey("rsa2048.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
-		{funcForSSLKey("rsa4096.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
-		{funcForSSLKey("ed25519.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
-		{funcForSSLKey("ec256.vanadium.io.key", []byte{}), []byte("unencrypted"), nil},
+
+		{funcForSSLKey(sslKeys["rsa2048"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["rsa4096"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["ed25519"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["ec256"]), []byte("unencrypted"), nil},
 	}
 	for _, test := range tests {
 		testCreatePersistentPrincipal(t, test.fn, test.Message, test.Passphrase)
