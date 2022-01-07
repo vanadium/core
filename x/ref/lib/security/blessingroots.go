@@ -231,7 +231,7 @@ func NewBlessingRoots() security.BlessingRoots {
 // NewBlessingRootsWithX509Options is like NewBlessingRoots but with custom
 // options for use when verifying x509 certificates. It is intended for
 // testing purposes only.
-func NewBlessingRootsWuthX509Options(opts x509.VerifyOptions) security.BlessingRoots {
+func NewBlessingRootsWithX509Options(opts x509.VerifyOptions) security.BlessingRoots {
 	return &blessingRoots{
 		state:    make(blessingRootsState),
 		x509Opts: opts,

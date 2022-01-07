@@ -30,7 +30,7 @@ func init() {
 	RegisterCaveatValidator(NotBeforeCaveat, func(ctx *context.T, call Call, from time.Time) error {
 		now := call.Timestamp()
 		if !now.After(from) {
-			return ErrorfExpiryCaveatValidation(ctx, "now(%v) is not before (%v)", now, from)
+			return ErrorfExpiryCaveatValidation(ctx, "now(%v) is not before(%v)", now, from)
 		}
 		return nil
 	})

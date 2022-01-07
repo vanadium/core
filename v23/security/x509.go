@@ -21,11 +21,11 @@ func sanitizeExtensionString(s string) string {
 func newUnsignedCertificateFromX509(x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
 	cavs := make([]Caveat, len(caveats), len(caveats)+2)
 	copy(cavs, caveats)
-	notBefore, err := NewExpiryCaveat(x509Cert.NotBefore)
+	notBefore, err := NewNotBeforeCaveat(x509Cert.NotBefore)
 	if err != nil {
 		return nil, err
 	}
-	notAfter, _ := NewNotBeforeCaveat(x509Cert.NotAfter)
+	notAfter, _ := NewExpiryCaveat(x509Cert.NotAfter)
 	if err != nil {
 		return nil, err
 	}

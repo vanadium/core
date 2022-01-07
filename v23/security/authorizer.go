@@ -5,7 +5,6 @@
 package security
 
 import (
-	"fmt"
 	"reflect"
 
 	"v.io/v23/context"
@@ -90,7 +89,6 @@ type endpointAuthorizer struct{}
 
 func (endpointAuthorizer) Authorize(ctx *context.T, call Call) error {
 	patterns := call.RemoteEndpoint().BlessingNames()
-	fmt.Printf("Patterns.... %v %v: call %p\n", len(patterns), patterns, call)
 	if len(patterns) == 0 {
 		// A client should not trust a server that presents no blessings.
 		return ErrEndpointAuthorizationFailed.Errorf(ctx, "no blessings in endpoint %v", call.RemoteEndpoint().String())

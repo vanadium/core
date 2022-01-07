@@ -499,7 +499,7 @@ func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob security.
 	if got, err := security.UnionOfBlessings(balice, baliceagain); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}
-	// Union of zero and nameless blessings hsoudl be nameless.
+	// Union of zero and nameless blessings should be nameless.
 	if got, err := security.UnionOfBlessings(balice, security.Blessings{}); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}

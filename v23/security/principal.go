@@ -178,7 +178,6 @@ func (p *principal) BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat)
 	if err != nil {
 		return Blessings{}, err
 	}
-	fmt.Printf("PK... %v\n", p.publicKey)
 	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
 		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
 	}
