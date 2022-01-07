@@ -28,14 +28,14 @@
 // Subdirectories provide utilities for unit and integration tests.
 //
 // The subdirectories are:
-// benchmark  - support for writing benchmarks.
-// testutil   - utility functions used in tests.
-// security   - security-related utility functions used in tests.
-// timekeeper - an implementation of the timekeeper interface for use within
-//              tests.
-// expect     - support for testing the contents of of an input stream (an
-//              io.Reader). v23test.Cmd contains an expect.Session, so this
-//              package is generally not used directly.
-// v23test    - defines Shell, which provides support for spawning and managing
-//              subprocesses with configurable credentials.
+// benchmark   - support for writing benchmarks.
+// testutil    - utility functions used in tests.
+// sectestdata - data used in security tests such as certificates and keys.
+// timekeeper  - an implementation of the timekeeper interface for use within
+//               tests.
+// expect      - support for testing the contents of of an input stream (an
+//               io.Reader). v23test.Cmd contains an expect.Session, so this
+//               package is generally not used directly.
+// v23test     - defines Shell, which provides support for spawning and managing
+//               subprocesses with configurable credentials.
 package test
