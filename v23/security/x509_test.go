@@ -5,7 +5,9 @@
 package security_test
 
 import (
+	"crypto/x509"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -13,35 +15,17 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
-	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/test/sectestdata"
 )
 
 func TestX509(t *testing.T) {
+	ctx, cancel := context.RootContext()
+	defer cancel()
+
 	privKey, pubCerts, opts := sectestdata.LetsEncryptData()
-	serverSigner, err := seclib.NewInMemorySigner(privKey)
-	if err != nil {
-		t.Fatal(err)
-	}
-	server, err := security.CreatePrincipal(serverSigner,
-		seclib.NewBlessingStore(serverSigner.PublicKey()),
-		seclib.NewBlessingRootsWithX509Options(opts))
-	if err != nil {
-		t.Fatal(err)
-	}
-	blessings, err := server.BlessSelfX509(pubCerts[0])
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	clientSigner := sectest.NewED25519Signer(t)
-	client, err := security.CreatePrincipal(clientSigner,
-		seclib.NewBlessingStore(clientSigner.PublicKey()),
-		seclib.NewBlessingRootsWithX509Options(opts))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, &opts)
+	blessings, _ := server.BlessingStore().Default()
 	names := security.BlessingNames(server, blessings)
 	if got, want := names, []string{"www.labdrive.io"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
@@ -50,9 +34,7 @@ func TestX509(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	ctx, cancel := context.RootContext()
-	defer cancel()
-
+	client := sectest.NewX509Principal(t, &opts)
 	call := security.NewCall(&security.CallParams{
 		LocalPrincipal:  client,
 		RemoteBlessings: blessings,
@@ -66,15 +48,38 @@ func TestX509(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
+}
+
+func TestX509ClientErrors(t *testing.T) {
+	ctx, cancel := context.RootContext()
+	defer cancel()
+
+	privKey, pubCerts, opts := sectestdata.LetsEncryptData()
+
+	server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, &opts)
+	blessings, _ := server.BlessingStore().Default()
+
+	client := sectest.NewX509Principal(t, &opts)
+
+	var names []string
+	var rejected []security.RejectedBlessing
+	validate := func(msg string) {
+		_, _, line, _ := runtime.Caller(1)
+		if len(names) != 0 {
+			t.Errorf("line: %v: unexpected blessing names: %v", line, names)
+		}
+		if len(rejected) == 0 || !strings.Contains(rejected[0].Err.Error(), msg) {
+			t.Errorf("line: %v: incorrect rejected blessings: %v", line, rejected)
+		}
+	}
+
 	// After expiration, ie. now.
-	call = security.NewCall(&security.CallParams{
+	call := security.NewCall(&security.CallParams{
 		LocalPrincipal:  client,
 		RemoteBlessings: blessings,
 	})
 	names, rejected = security.RemoteBlessingNames(ctx, call)
-	if len(rejected) == 0 || !strings.Contains(rejected[0].Err.Error(), "is after expiry") {
-		t.Errorf("incorrect rejected blessings: %v", rejected)
-	}
+	validate("is after expiry")
 
 	// Before coming into effect.
 	call = security.NewCall(&security.CallParams{
@@ -83,7 +88,66 @@ func TestX509(t *testing.T) {
 		Timestamp:       pubCerts[0].NotBefore.Add(-48 * time.Hour),
 	})
 	names, rejected = security.RemoteBlessingNames(ctx, call)
-	if len(rejected) == 0 || !strings.Contains(rejected[0].Err.Error(), "is not before") {
-		t.Errorf("incorrect rejected blessings: %v", rejected)
+	validate("is not before")
+
+	// Without a custom cert pool the validation should fail with a
+	// complaint about being signed by an unknown authority.
+	client = sectest.NewX509Principal(t, &x509.VerifyOptions{
+		CurrentTime: pubCerts[0].NotBefore.Add(48 * time.Hour),
+	})
+	call = security.NewCall(&security.CallParams{
+		LocalPrincipal:  client,
+		RemoteBlessings: blessings,
+		Timestamp:       pubCerts[0].NotBefore.Add(48 * time.Hour),
+	})
+
+	names, rejected = security.RemoteBlessingNames(ctx, call)
+	validate("x509: certificate signed by unknown authority")
+
+	// No custom options.
+	client = sectest.NewX509Principal(t, &x509.VerifyOptions{})
+	call = security.NewCall(&security.CallParams{
+		LocalPrincipal:  client,
+		RemoteBlessings: blessings,
+		Timestamp:       pubCerts[0].NotBefore.Add(48 * time.Hour),
+	})
+
+	names, rejected = security.RemoteBlessingNames(ctx, call)
+	validate("x509: certificate has expired or is not yet valid")
+}
+
+func TestX509ServerErrors(t *testing.T) {
+	ctx, cancel := context.RootContext()
+	defer cancel()
+
+	privKey, pubCerts, _ := sectestdata.LetsEncryptData()
+
+	server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, nil)
+	blessings, _ := server.BlessingStore().Default()
+
+	var names []string
+	var rejected []security.RejectedBlessing
+	validate := func(msg string) {
+		_, _, line, _ := runtime.Caller(1)
+		if len(names) != 0 {
+			t.Errorf("line: %v: unexpected blessing names: %v", line, names)
+		}
+		if len(rejected) == 0 || !strings.Contains(rejected[0].Err.Error(), msg) {
+			t.Errorf("line: %v: incorrect rejected blessings: %v", line, rejected)
+		}
 	}
+
+	names = security.BlessingNames(server, blessings)
+	if len(names) != 0 {
+		t.Errorf("no blessing names should be valid without custom x509 verification options")
+	}
+
+	client := sectest.NewX509Principal(t, nil)
+	call := security.NewCall(&security.CallParams{
+		LocalPrincipal:  client,
+		RemoteBlessings: blessings,
+	})
+	names, rejected = security.RemoteBlessingNames(ctx, call)
+	validate("x509: certificate has expired or is not yet valid")
+
 }

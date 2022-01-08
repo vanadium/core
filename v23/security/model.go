@@ -277,7 +277,7 @@ type BlessingRoots interface {
 
 	// Recognized returns nil iff the provided (DER-encoded) root public
 	// key is recognized as an authority on a pattern that is matched by blessing.
-	// DEPRECATED: use RecognizedCert instead.
+	// Deprecated: use RecognizedCert instead.
 	Recognized(root []byte, blessing string) error
 
 	// AddRootCerts adds x509 certificates to be added to the operating

@@ -7,11 +7,13 @@ package sectest
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"fmt"
 	"testing"
 	"time"
@@ -21,6 +23,7 @@ import (
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
 	"v.io/v23/vom"
+	seclib "v.io/x/ref/lib/security"
 )
 
 // TrustAllRoots is an implementation of security.BlessingRoots that
@@ -221,6 +224,56 @@ func NewRSAPrincipal(t testing.TB) security.Principal {
 		nil,
 		&Roots{},
 	)
+}
+
+// NewX509ServerPrincipal returns a principal that uses an x509 key and certificate
+// for its identity, that is has a default blessing created using BlessSelfX509.
+// The principal's blessing roots are configured using the supplied x509 verification
+// options if supplied.
+func NewX509ServerPrincipal(t testing.TB, key crypto.PrivateKey, certs []*x509.Certificate, opts *x509.VerifyOptions) security.Principal {
+	signer, err := seclib.NewInMemorySigner(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var roots security.BlessingRoots
+	if opts != nil {
+		roots = seclib.NewBlessingRootsWithX509Options(*opts)
+	} else {
+		roots = seclib.NewBlessingRoots()
+	}
+	p, err := security.CreatePrincipal(signer,
+		seclib.NewBlessingStore(signer.PublicKey()),
+		roots)
+	if err != nil {
+		t.Fatal(err)
+	}
+	blessings, err := p.BlessSelfX509(certs[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := p.BlessingStore().SetDefault(blessings); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+// NewX509Principal creates a principal with its blessing roots configured to use
+// the supplied x509 verification options if specified.
+func NewX509Principal(t testing.TB, opts *x509.VerifyOptions) security.Principal {
+	signer := NewED25519Signer(t)
+	var roots security.BlessingRoots
+	if opts != nil {
+		roots = seclib.NewBlessingRootsWithX509Options(*opts)
+	} else {
+		roots = seclib.NewBlessingRoots()
+	}
+	p, err := security.CreatePrincipal(signer,
+		seclib.NewBlessingStore(signer.PublicKey()),
+		roots)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
 }
 
 // BlessSelf returns a named blessing for the supplied principal.
