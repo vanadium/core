@@ -153,8 +153,8 @@ func TestCertificateDigest(t *testing.T) {
 		// Paranoia: Most of the tests are gated by loops on the size of "certificates" and "signatures",
 		// so a small bug might cause many loops to be skipped. This sanity check tries to detect such test
 		// bugs by counting the expected number of digests that were generated and tested.
-		// - len(certificates) = 3 fields * 2 values + empty cert = 7
-		//   Thus, number of certificate pairs = 7C2 = 21
+		// - len(certificates) = 4 fields * 2 values + empty cert = 9
+		//   Thus, number of certificate pairs = 9C2 = 36
 		// - len(signatures) = 6 fields * 2 values each + empty = 13
 		//   Thus, number of signature pairs = 13C2 = 78
 		//
@@ -163,7 +163,7 @@ func TestCertificateDigest(t *testing.T) {
 		// - digests should depend on the chaining of certificates: 21 hash comparisons
 		// - content digests should not depend on the Signature:    12 hash comparisons
 		// - digests should depend on the Signature:                78 hash comparisons
-		if got, want := numtested, 21+21+12+78; got != want {
+		if got, want := numtested, 36+36+12+78; got != want {
 			t.Fatalf("Executed %d tests, expected %d", got, want)
 		}
 	}()
@@ -199,7 +199,6 @@ func TestCertificateDigest(t *testing.T) {
 			if bytes.Equal(digests[i], digests[j]) {
 				cert1 := security.Certificate{Signature: signatures[i]}
 				cert2 := security.Certificate{Signature: signatures[j]}
-				fmt.Printf("SIG:\t%#v\n\t%#v\n", cert1.Signature, cert2.Signature)
 				t.Errorf("Certificate{%v} and {%v} have different signatures but the same digests", cert1, cert2)
 			}
 		}

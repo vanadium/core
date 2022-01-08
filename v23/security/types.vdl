@@ -117,8 +117,8 @@ type Certificate struct {
 	Extension string    // Human-readable string extension bound to PublicKey.
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
-	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 	X509Raw      []byte // Complete ASN.1 DER content (eg. from x509.Certificate.Raw)
+	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
 
 

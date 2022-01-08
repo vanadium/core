@@ -1093,8 +1093,8 @@ type Certificate struct {
 	Extension string    // Human-readable string extension bound to PublicKey.
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
-	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 	X509Raw   []byte    // Complete ASN.1 DER content (eg. from x509.Certificate.Raw)
+	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
 
 func (Certificate) VDLReflect(struct {
@@ -1112,10 +1112,10 @@ func (x Certificate) VDLIsZero() bool { //nolint:gocyclo
 	if len(x.Caveats) != 0 {
 		return false
 	}
-	if !x.Signature.VDLIsZero() {
+	if len(x.X509Raw) != 0 {
 		return false
 	}
-	if len(x.X509Raw) != 0 {
+	if !x.Signature.VDLIsZero() {
 		return false
 	}
 	return true
@@ -1143,16 +1143,16 @@ func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
-	if !x.Signature.VDLIsZero() {
-		if err := enc.NextField(3); err != nil {
-			return err
-		}
-		if err := x.Signature.VDLWrite(enc); err != nil {
+	if len(x.X509Raw) != 0 {
+		if err := enc.NextFieldValueBytes(3, vdlTypeList4, x.X509Raw); err != nil {
 			return err
 		}
 	}
-	if len(x.X509Raw) != 0 {
-		if err := enc.NextFieldValueBytes(4, vdlTypeList4, x.X509Raw); err != nil {
+	if !x.Signature.VDLIsZero() {
+		if err := enc.NextField(4); err != nil {
+			return err
+		}
+		if err := x.Signature.VDLWrite(enc); err != nil {
 			return err
 		}
 	}
@@ -1202,11 +1202,11 @@ func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 3:
-			if err := x.Signature.VDLRead(dec); err != nil {
+			if err := dec.ReadValueBytes(-1, &x.X509Raw); err != nil {
 				return err
 			}
 		case 4:
-			if err := dec.ReadValueBytes(-1, &x.X509Raw); err != nil {
+			if err := x.Signature.VDLRead(dec); err != nil {
 				return err
 			}
 		}

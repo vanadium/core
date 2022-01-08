@@ -92,13 +92,14 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 	}
 	for _, pemBlock := range pemBlocks {
 		var data []byte
-		// TODO(cnicolaou): migrate away from PEM keys.
-		if x509.IsEncryptedPEMBlock(pemBlock) {
+		// TODO(cnicolaou): migrate away from PEM keys and use
+		// github.com/youmark/pkcs8 instead of PEM.
+		if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
 			// Assume empty passphrase is disallowed.
 			if len(passphrase) == 0 {
 				return nil, ErrPassphraseRequired
 			}
-			data, err = x509.DecryptPEMBlock(pemBlock, passphrase)
+			data, err = x509.DecryptPEMBlock(pemBlock, passphrase) //nolint:staticcheck
 			if err != nil {
 				return nil, ErrBadPassphrase
 			}
@@ -129,8 +130,9 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 				return nil, ErrBadPassphrase
 			}
 			return key, nil
+		default:
+			return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 		}
-		return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 	}
 	return nil, fmt.Errorf("no private key PEM blocks found")
 }

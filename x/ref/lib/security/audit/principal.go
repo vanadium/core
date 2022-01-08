@@ -5,6 +5,7 @@
 package audit
 
 import (
+	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -42,6 +43,19 @@ func (p *auditingPrincipal) Bless(key security.PublicKey, with security.Blessing
 func (p *auditingPrincipal) BlessSelf(name string, caveats ...security.Caveat) (security.Blessings, error) {
 	blessings, err := p.principal.BlessSelf(name, caveats...)
 	if err = p.audit(err, "BlessSelf", addCaveats(args{name}, caveats...), blessings); err != nil {
+		return noBlessings, err
+	}
+	return blessings, nil
+}
+
+func (p *auditingPrincipal) BlessSelfX509(cert *x509.Certificate, caveats ...security.Caveat) (security.Blessings, error) {
+	blessings, err := p.principal.BlessSelfX509(cert, caveats...)
+	cavs := make([]security.Caveat, 0, 2+len(caveats))
+	nb, _ := security.NewNotBeforeCaveat(cert.NotBefore)
+	na, _ := security.NewExpiryCaveat(cert.NotAfter)
+	cavs = append(cavs, nb, na)
+	cavs = append(cavs, caveats...)
+	if err = p.audit(err, "BlessSelfX509", addCaveats(args{cert.Subject.CommonName}, cavs...), blessings); err != nil {
 		return noBlessings, err
 	}
 	return blessings, nil

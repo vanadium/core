@@ -10,7 +10,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"fmt"
+	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"v.io/x/ref/lib/security/internal"
@@ -40,21 +42,17 @@ func hashFromAlgo(algo x509.SignatureAlgorithm) (crypto.Hash, error) {
 	return crypto.SHA1, fmt.Errorf("unrecognised ssl algo: %v", algo)
 }
 
-func TestLoadPEMBundle(t *testing.T) {
-	// cacert.pem was created using:
-	// go run ./testdata/select_certs.go > testdata/cacert.pem
-	// with the 10/26/21 firefox CA list.
-	blocks, err := internal.LoadCABundleFile(
-		filepath.Join("testdata", "cacert.pem"))
+func TestParseX509Certificates(t *testing.T) {
+	f, err := os.Open(filepath.Join("testdata", "cacert.pem"))
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	blocks, err := internal.ReadPEMBlocks(f, regexp.MustCompile("CERTIFICATE"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	// As of 10/26/21 there are 6 different signing algorithms used by
 	// the mozilla include root CAs.
-	if got, want := len(blocks), 6; got != want {
-		t.Errorf("got %v, want %v", got, want)
-	}
 	for _, b := range blocks {
 		if got, want := b.Type, "CERTIFICATE"; got != want {
 			t.Errorf("got %v, want %v", got, want)
