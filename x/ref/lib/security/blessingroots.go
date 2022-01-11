@@ -107,6 +107,7 @@ func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing str
 	opts := br.x509Opts
 	opts.DNSName = blessing
 	_, err = cert.Verify(opts)
+	fmt.Printf("OOPS %v .. %v ... %v\n", cert.DNSNames, blessing, err)
 	return err
 }
 

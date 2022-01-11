@@ -6,15 +6,7 @@ package security
 
 import (
 	"crypto/x509"
-	"strings"
 )
-
-func sanitizeExtensionString(s string) string {
-	for _, illegal := range invalidBlessingSubStrings {
-		s = strings.ReplaceAll(s, illegal, "")
-	}
-	return s
-}
 
 // Subject Alternative Name (SAN) mechanism - may return multiple certificates.
 // wildcard ssl certs
@@ -29,11 +21,14 @@ func newUnsignedCertificateFromX509(x509Cert *x509.Certificate, pkBytes []byte, 
 	if err != nil {
 		return nil, err
 	}
-	cert := Certificate{
-		Extension: sanitizeExtensionString(x509Cert.Subject.CommonName),
-		PublicKey: pkBytes,
-		Caveats:   append(cavs, notAfter, notBefore),
-		X509Raw:   x509Cert.Raw,
+	certs := make([]Certificate, len(x509Cert.DNSNames))
+	for i, name := range x509Cert.DNSNames {
+		certs[i] = Certificate{
+			Extension: name,
+			PublicKey: pkBytes,
+			Caveats:   append(cavs, notAfter, notBefore),
+			X509Raw:   x509Cert.Raw,
+		}
 	}
-	return []Certificate{cert}, nil
+	return certs, nil
 }

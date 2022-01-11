@@ -9,6 +9,7 @@ package security
 import (
 	"crypto"
 	"crypto/ecdsa"
+	"fmt"
 
 	"v.io/v23/context"
 )
@@ -48,6 +49,25 @@ func ExposeCertChains(b Blessings) [][]Certificate {
 // ExposeAppendCertChains exposes appending to Blessings.chains to tests.
 func ExposeAppendCertChains(b *Blessings, chains [][]Certificate) {
 	b.chains = append(b.chains, chains...)
+}
+
+// ExposeVerifySignatiure exposes signature verification to tests.
+// ExposeVerifySignatiure verifies the signature of 'b'. Note that it does
+// not verify caveats since caveats are always evaluated within the context
+// of a security.Call.
+func ExposeVerifySignature(b *Blessings) error {
+	if len(b.chains) == 0 {
+		return fmt.Errorf("empty certificate chain in blessings")
+	}
+	for _, chain := range b.chains {
+		if len(chain) == 0 {
+			return fmt.Errorf("empty certificate chain in blessings")
+		}
+		if _, _, err := validateCertificateChain(chain); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func SetCaveatValidationForTest(fn func(ctx *context.T, call Call, sets [][]Caveat) []error) func(ctx *context.T, call Call, sets [][]Caveat) []error {

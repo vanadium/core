@@ -17,6 +17,22 @@ import (
 	"time"
 )
 
+func loadCertSet(privKey, cert, ca []byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
+	key, err := loadPrivateKey(privKey)
+	if err != nil {
+		panic(err)
+	}
+	certs, err := loadCerts(cert)
+	if err != nil {
+		panic(err)
+	}
+	opts, err := loadCA(certs[0], ca)
+	if err != nil {
+		panic(err)
+	}
+	return key, certs, opts
+}
+
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
 	rest := data
 	for {
@@ -90,7 +106,7 @@ func loadCA(cert *x509.Certificate, data []byte) (x509.VerifyOptions, error) {
 	return opts, nil
 }
 
-func prepopulatedDir(suffix, from string, fs embed.FS) (string, error) {
+func prepopulatedDir(fs embed.FS, suffix, from string) (string, error) {
 	to, err := os.MkdirTemp("", suffix)
 	if err != nil {
 		return "", err
@@ -121,18 +137,10 @@ func copyFS(fs embed.FS, fromDir, toDir string) error {
 	return nil
 }
 
-func keyFromFS(fs embed.FS, dir, name string) (crypto.PrivateKey, error) {
+func mustBytesFromFS(fs embed.FS, dir, name string) []byte {
 	data, err := fs.ReadFile(path.Join(dir, name))
 	if err != nil {
-		return nil, err
+		panic(fmt.Sprintf("failed to load %v/%v: %v", dir, name, err))
 	}
-	return loadPrivateKey(data)
-}
-
-func certFromFS(fs embed.FS, dir, name string) ([]*x509.Certificate, error) {
-	data, err := fs.ReadFile(path.Join(dir, name))
-	if err != nil {
-		return nil, err
-	}
-	return loadCerts(data)
+	return data
 }

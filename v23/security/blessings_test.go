@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"crypto/elliptic"
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -41,6 +42,16 @@ func TestByteSizeRSA(t *testing.T) {
 		sectest.NewRSASigner2048(t),
 		sectest.NewRSASigner2048,
 	)
+}
+
+func verifyBlessingSignatures(t *testing.T, blessings ...security.Blessings) {
+	for _, b := range blessings {
+		if err := security.ExposeVerifySignature(&b); err != nil {
+			_, _, line, _ := runtime.Caller(1)
+			t.Fatalf("line %v: invalid signature for blessing %v: %v", line, b.String(), err)
+		}
+	}
+
 }
 
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
@@ -140,6 +151,7 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
 		t.Fatal(err)
 	}
 
+	verifyBlessingSignatures(t, bbob, balice1, balice2, balice3, balice)
 	tests := []struct {
 		names  []string
 		result bool
@@ -222,7 +234,6 @@ func TestBlessingsUniqueIDECDSA(t *testing.T) {
 		sectest.NewECDSAPrincipalP256(t),
 		sectest.NewECDSAPrincipalP256(t),
 	)
-
 }
 
 func TestBlessingsUniqueID(t *testing.T) {
@@ -255,6 +266,8 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 
 		all = []security.Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
 	)
+
+	verifyBlessingSignatures(t, nameless, alice, bob, bobfriend, bobspouse, u1, u2)
 
 	// Each individual blessing should have a different UniqueID, and different from u1
 	for i := 0; i < len(all); i++ {
@@ -367,6 +380,8 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice security.Principa
 			{union(bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend), []security.Blessings{balpha, bbeta, bgamma}},
 		}
 	)
+
+	verifyBlessingSignatures(t, balpha, bbeta, bgamma, balice, bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend)
 	for _, test := range tests {
 		roots := security.RootBlessings(test.b)
 		if got, want := roots, test.r; !reflect.DeepEqual(got, want) {
@@ -425,6 +440,8 @@ func testNamelessBlessing(t *testing.T, alice, bob security.Principal) {
 		baliceagain, _ = security.NamelessBlessing(alice.PublicKey())
 		bbob, _        = security.NamelessBlessing(bob.PublicKey())
 	)
+
+	verifyBlessingSignatures(t, balice, baliceagain, bbob)
 	if got, want := balice.PublicKey(), alice.PublicKey(); !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}

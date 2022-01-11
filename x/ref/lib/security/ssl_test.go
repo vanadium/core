@@ -5,6 +5,11 @@
 package security_test
 
 import (
+	"crypto"
+	"crypto/md5"
+	"crypto/x509"
+	"encoding/hex"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -35,8 +40,17 @@ func TestSSLKeys(t *testing.T) {
 	}
 }
 
+func publicKeyFingerPrint(t *testing.T, pk crypto.PublicKey) string {
+	pkb, err := x509.MarshalPKIXPublicKey(pk)
+	if err != nil {
+		t.Errorf("failed to marshal public key %v", err)
+	}
+	hash := md5.Sum(pkb)
+	return hex.EncodeToString(hash[:])
+}
+
 func TestLetsEncryptKeys(t *testing.T) {
-	cpriv, _, opts := sectestdata.LetsEncryptData()
+	cpriv, _, opts := sectestdata.LetsEncryptData(sectestdata.SingleHostCert)
 	purpose, message := []byte("testing"), []byte("another message")
 	signer, err := seclib.NewInMemorySigner(cpriv)
 	if err != nil {
@@ -50,11 +64,11 @@ func TestLetsEncryptKeys(t *testing.T) {
 		t.Errorf("failed to verify signature: %v", err)
 	}
 
-	letsencryptDir, err := sectestdata.LetsEncryptDir()
+	letsencryptDir, err := sectestdata.LetsEncryptDir(sectestdata.SingleHostCert)
 	if err != nil {
 		t.Fatal(err)
 	}
-	//	defer os.RemoveAll(letsencryptDir)
+	defer os.RemoveAll(letsencryptDir)
 	filename := filepath.Join(letsencryptDir, "www.labdrive.io.letsencrypt")
 
 	certs, err := seclib.ParseX509CertificateFile(filename)
@@ -70,7 +84,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 
 	// openssl x509 -in testdata/lwww.labdrive.io.letsencrypt --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := certs[0].PublicKey, strings.ReplaceAll("b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a", ":", ""); got != want {
+	if got, want := publicKeyFingerPrint(t, certs[0].PublicKey), strings.ReplaceAll("b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a", ":", ""); got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
 
@@ -89,7 +103,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 
 	// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout |
 	// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-	if got, want := certs[0].PublicKey, strings.ReplaceAll("8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf", ":", ""); got != want {
+	if got, want := publicKeyFingerPrint(t, certs[0].PublicKey), strings.ReplaceAll("8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf", ":", ""); got != want {
 		t.Errorf("%v: got %v, want %v", filename, got, want)
 	}
 }

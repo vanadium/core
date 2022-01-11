@@ -188,18 +188,18 @@ func (p *principal) BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat)
 	if len(certs) == 0 {
 		return Blessings{}, fmt.Errorf("failed to create any certificates based on the supplied x509 certificate")
 	}
-	chain := make([]Certificate, 0, len(certs))
-	var digest []byte
+	chains := make([][]Certificate, len(certs))
+	digests := make([][]byte, len(certs))
 	for i := range certs {
-		chain, digest, err = chainCertificate(p.signer, chain, certs[i])
+		chains[i], digests[i], err = chainCertificate(p.signer, nil, certs[i])
 		if err != nil {
 			return Blessings{}, err
 		}
 	}
 	ret := Blessings{
-		chains:    [][]Certificate{chain},
+		chains:    chains,
 		publicKey: p.PublicKey(),
-		digests:   [][]byte{digest},
+		digests:   digests,
 	}
 	ret.init()
 	return ret, nil

@@ -27,11 +27,11 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 	keys := map[string]crypto.PrivateKey{}
 	certs := map[string]*x509.Certificate{}
 	for _, host := range []string{"ec256", "rsa2048", "rsa4096", "ed25519"} {
-		k, err := keyFromFS(vanadiumKeys, "testdata", host+".vanadium.io.key")
+		k, err := loadPrivateKey(mustBytesFromFS(vanadiumKeys, "testdata", host+".vanadium.io.key"))
 		if err != nil {
 			panic(err)
 		}
-		c, err := certFromFS(vanadiumCerts, "testdata", host+".vanadium.io.crt")
+		c, err := loadCerts(mustBytesFromFS(vanadiumCerts, "testdata", host+".vanadium.io.crt"))
 		if err != nil {
 			panic(err)
 		}

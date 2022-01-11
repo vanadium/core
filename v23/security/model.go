@@ -146,7 +146,7 @@ type Principal interface {
 	// using the private key associated with the supplied certificate. The
 	// blessing created can be verified using the SSL/TLS Certificate Authority
 	// mechanism.
-	BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
+	BlessSelfX509(name string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
 	Sign(message []byte) (Signature, error)
