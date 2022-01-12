@@ -147,9 +147,14 @@ type Principal interface {
 	// blessing created can be verified using the SSL/TLS Certificate Authority
 	// mechanism. If host is specified and is valid for the supplied
 	// certificate then the blessing name will be host rather than any of
-	// names in the certificate. If host is not specified then SAN certificates
-	// will result with multiple Certificates, each named according to one
-	// of the alternative dns names specified by the certificate.
+	// names in the certificate. If host is not specified then x509 certificates
+	// that contain multiple hosts or wildcard domains will result in multiple
+	// certificates chains, each named according to one of the DNS names
+	// specified by the x509 certificate. For example, if an x509 certificate
+	// is issued for x.d.com and y.d.com, then if host is x.d.com the
+	// returned blessings will be named x.d.com and if host is "" then
+	// the returned blessings will contain two chains, one for x.d.com and
+	// the other y.d.com.
 	BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
@@ -284,11 +289,7 @@ type BlessingRoots interface {
 	// Deprecated: use RecognizedCert instead.
 	Recognized(root []byte, blessing string) error
 
-	// AddRootCerts adds x509 certificates to be added to the operating
-	// system's CA cert pool used by RecognizedCert below.
-	//	AddRootCerts(roots []x509.Certificate) error
-
-	// Recognized returns nil iff the provided Certificate is recognized as an
+	// RecognizedCert returns nil iff the provided Certificate is recognized as an
 	// authority on a pattern that is matched by blessing. For a Certificate
 	// to be recognized it must either have only a public key and that public
 	// key is recognized as an authority on a pattern that is matched by blessing,
