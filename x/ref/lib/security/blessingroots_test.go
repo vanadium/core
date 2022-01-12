@@ -94,9 +94,15 @@ func (t *rootsTester) testRecognized(br security.BlessingRoots) error {
 			if err := br.Recognized(d.root, b); err != nil {
 				return fmt.Errorf("Recognized(%v, %q): got: %v, want nil", d.root, b, err)
 			}
+			if err := br.RecognizedCert(&security.Certificate{PublicKey: d.root}, b); err != nil {
+				return fmt.Errorf("Recognized(%v, %q): got: %v, want nil", d.root, b, err)
+			}
 		}
 		for _, b := range d.notRecognized {
 			if err, want := br.Recognized(d.root, b), security.ErrUnrecognizedRoot; !errors.Is(err, want) {
+				return fmt.Errorf("Recognized(%v, %q): got %v(errorid=%v), want errorid=%v", d.root, b, err, verror.ErrorID(err), want)
+			}
+			if err, want := br.RecognizedCert(&security.Certificate{PublicKey: d.root}, b), security.ErrUnrecognizedRoot; !errors.Is(err, want) {
 				return fmt.Errorf("Recognized(%v, %q): got %v(errorid=%v), want errorid=%v", d.root, b, err, verror.ErrorID(err), want)
 			}
 		}

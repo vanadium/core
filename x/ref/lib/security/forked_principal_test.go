@@ -111,6 +111,7 @@ func TestImmutableBlessingRoots(t *testing.T) {
 	// All other methods should be the same
 	for _, c := range []call{
 		{"Recognized", []interface{}{pk, pat}},
+		{"RecognizedCert", []interface{}{&security.Certificate{PublicKey: pk}, pat}},
 		{"Dump", nil},
 		{"DebugString", nil},
 	} {

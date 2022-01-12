@@ -96,6 +96,10 @@ func (errRoots) Recognized([]byte, string) error {
 	return fmt.Errorf("underlying BlessingRoots object is nil")
 }
 
+func (errRoots) RecognizedCert(*Certificate, string) error {
+	return fmt.Errorf("underlying BlessingRoots object is nil")
+}
+
 func (errRoots) Dump() map[BlessingPattern][]PublicKey { return nil }
 
 func (errRoots) DebugString() string {
