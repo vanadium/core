@@ -267,7 +267,7 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 		all = []security.Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
 	)
 
-	verifyBlessingSignatures(t, nameless, alice, bob, bobfriend, bobspouse, u1, u2)
+	verifyBlessingSignatures(t, alice, bob, bobfriend, bobspouse, u1, u2)
 
 	// Each individual blessing should have a different UniqueID, and different from u1
 	for i := 0; i < len(all); i++ {
@@ -441,7 +441,6 @@ func testNamelessBlessing(t *testing.T, alice, bob security.Principal) {
 		bbob, _        = security.NamelessBlessing(bob.PublicKey())
 	)
 
-	verifyBlessingSignatures(t, balice, baliceagain, bbob)
 	if got, want := balice.PublicKey(), alice.PublicKey(); !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
