@@ -170,7 +170,7 @@ func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 	return ret, nil
 }
 
-func (p *principal) BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error) {
+func (p *principal) BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error) {
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}
@@ -181,7 +181,7 @@ func (p *principal) BlessSelfX509(x509Cert *x509.Certificate, caveats ...Caveat)
 	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
 		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
 	}
-	certs, err := newUnsignedCertificateFromX509(x509Cert, pkBytes, caveats)
+	certs, err := newUnsignedCertificateFromX509(host, x509Cert, pkBytes, caveats)
 	if err != nil {
 		return Blessings{}, err
 	}

@@ -6,6 +6,7 @@ package security_test
 
 import (
 	"crypto/x509"
+	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
+	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -28,18 +30,26 @@ func TestX509(t *testing.T) {
 
 	for _, tc := range []struct {
 		certType   sectestdata.CertType
+		host       string
 		hosts      []string
 		validHosts []string
 	}{
-		{sectestdata.SingleHostCert, s("www.labdrive.io"), nil},
-		{sectestdata.MultipleHostsCert, s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), nil},
-		{sectestdata.WildcardCert, s("*.labdrive.io"), s("foo.labdrive.io", "bar.labdrive.io")},
+		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), nil},
+		{sectestdata.SingleHostCert, "www.labdrive.io", s("www.labdrive.io"), nil},
+
+		{sectestdata.MultipleHostsCert, "", s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), nil},
+		{sectestdata.MultipleHostsCert, "b.labdrive.io", s("b.labdrive.io"), nil},
+		{sectestdata.WildcardCert, "", s("*.labdrive.io"), s("foo.labdrive.io", "bar.labdrive.io")},
+		{sectestdata.WildcardCert, "foo.labdrive.io", s("foo.labdrive.io"), s("foo.labdrive.io")},
+		{sectestdata.MultipleWildcardCert, "foo.labdr.io", s("foo.labdr.io"), s("foo.labdr.io")},
+		{sectestdata.MultipleWildcardCert, "bar.labdrive.io", s("bar.labdrive.io"), s("bar.labdrive.io")},
 	} {
 		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
-		server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, &opts)
+		server := sectest.NewX509ServerPrincipal(t, privKey, tc.host, pubCerts, &opts)
 		blessings, _ := server.BlessingStore().Default()
 		verifyBlessingSignatures(t, blessings)
 		names := security.BlessingNames(server, blessings)
+
 		if got, want := names, tc.hosts; !reflect.DeepEqual(got, want) {
 			t.Errorf("%v: got %v, want %v", tc.certType, got, want)
 		}
@@ -69,14 +79,6 @@ func TestX509(t *testing.T) {
 	}
 }
 
-func TestX509WildcardDomain(t *testing.T) {
-	ctx, cancel := context.RootContext()
-	defer cancel()
-	privKey, pubCerts, opts := sectestdata.LetsEncryptData(sectestdata.WildcardCert)
-	server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, &opts)
-	blessings, _ := server.BlessingStore().Default()
-}
-
 func validateRejected(t *testing.T, names []string, rejected []security.RejectedBlessing, msgs []string) {
 	_, _, line, _ := runtime.Caller(2)
 	if len(names) != 0 {
@@ -93,7 +95,7 @@ func validateRejected(t *testing.T, names []string, rejected []security.Rejected
 	t.Errorf("line: %v: blessings error message is not one of %v: %v", line, rejected[0].Err.Error(), msgs)
 }
 
-func TestX509ClientErrors(t *testing.T) {
+func TestX509Errors(t *testing.T) {
 	ctx, cancel := context.RootContext()
 	defer cancel()
 
@@ -109,15 +111,22 @@ func TestX509ClientErrors(t *testing.T) {
 
 	for _, tc := range []struct {
 		certType     sectestdata.CertType
+		host         string
 		hosts        []string
 		invalidHosts []string
 	}{
-		{sectestdata.SingleHostCert, s("www.labdrive.io"), s("x.labdrive.io")},
-		{sectestdata.MultipleHostsCert, s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), s("x.labdrive.io")},
-		{sectestdata.WildcardCert, s("*.labdrive.io"), s("foo.bar.labdrive.io", ".labdrive.io")},
+		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), s("x.labdrive.io")},
+		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), s("x.labdr.io")},
+		{sectestdata.MultipleHostsCert, "", s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), s("x.labdrive.io")},
+		{sectestdata.MultipleHostsCert, "b.labdrive.io", s("b.labdrive.io"), s("a.labdrive.io")},
+		{sectestdata.WildcardCert, "", s("*.labdrive.io"), s("foo.bar.labdrive.io", ".labdrive.io")},
+		{sectestdata.WildcardCert, "foo.labdrive.io", s("foo.labdrive.io"), s("bar.labdrive.io", ".labdrive.io")},
+		{sectestdata.MultipleWildcardCert, "", s("*.labdrive.io"), s("foo.bar.labdrive.io", ".labdrive.io")},
+		{sectestdata.MultipleWildcardCert, "", s("*.labdr.io"), s("foo.bar.labdr.io", ".labdr.io")},
+		{sectestdata.MultipleWildcardCert, "bar.labdr.io", s("bar.labdr.io"), s("bar.labdrive.io")},
 	} {
 		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
-		server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, &opts)
+		server := sectest.NewX509ServerPrincipal(t, privKey, tc.host, pubCerts, &opts)
 		blessings, _ := server.BlessingStore().Default()
 
 		client := sectest.NewX509Principal(t, &opts)
@@ -176,48 +185,45 @@ func TestX509ClientErrors(t *testing.T) {
 }
 
 func TestX509ServerErrors(t *testing.T) {
-	ctx, cancel := context.RootContext()
-	defer cancel()
-
-	var names []string
-	var rejected []security.RejectedBlessing
-	validate := func(msgs ...string) {
-		validateRejected(t, names, rejected, msgs)
-	}
 
 	for _, tc := range []struct {
-		certType     sectestdata.CertType
-		hosts        []string
-		invalidHosts []string
+		certType    sectestdata.CertType
+		invalidHost string
 	}{
-		{sectestdata.SingleHostCert, []string{"www.labdrive.io"}, []string{"x.labdrive.io"}},
-		{sectestdata.MultipleHostsCert, []string{"a.labdrive.io", "b.labdrive.io", "c.labdrive.io"}, []string{"x.labdrive.io"}},
-		{sectestdata.WildcardCert, []string{"*.labdrive.io"}, []string{"foo.labdrive.io", "bar.labdrive.io"}},
+		{sectestdata.SingleHostCert, "x.labdrive.io"},
+		{sectestdata.MultipleHostsCert, "x.labdrive.io"},
+		{sectestdata.WildcardCert, "bar.labdr.io"},
+		{sectestdata.MultipleWildcardCert, "bar.labdrx.io"},
 	} {
-
-		privKey, pubCerts, _ := sectestdata.LetsEncryptData(tc.certType)
-
-		server := sectest.NewX509ServerPrincipal(t, privKey, pubCerts, nil)
+		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
+		server := sectest.NewX509ServerPrincipal(t, privKey, "", pubCerts, nil)
 		blessings, _ := server.BlessingStore().Default()
+		verifyBlessingSignatures(t, blessings)
 
-		names = security.BlessingNames(server, blessings)
-		if len(names) != 0 {
-			t.Errorf("no blessing names should be valid without custom x509 verification options")
+		// No names will returned since none of the x509 certs are valid without
+		// the custom x509.VerifyOptions being supplied to NewX509ServerPrincipal.
+		names := security.BlessingNames(server, blessings)
+		if len(names) > 0 {
+			t.Errorf("no names should be returned: %v\n", names)
 		}
 
-		client := sectest.NewX509Principal(t, nil)
-		call := security.NewCall(&security.CallParams{
-			LocalPrincipal:  client,
-			RemoteBlessings: blessings,
-		})
-		names, rejected = security.RemoteBlessingNames(ctx, call)
-		validate("x509: certificate has expired or is not yet valid", "x509: certificate signed by unknown authority")
-
-		if !blessings.CouldHaveNames(tc.hosts) {
-			t.Errorf("%v: CouldHaveNames is false for: %v", tc.certType, tc.hosts)
+		// The following will result in an error from BlessSelfX509 since
+		// the requested tc.invalidHost is not supported by the certificate.
+		signer, err := seclib.NewInMemorySigner(privKey)
+		if err != nil {
+			t.Errorf("failed to create signer: %v", err)
 		}
-		if blessings.CouldHaveNames(tc.invalidHosts) {
-			t.Errorf("%v: CouldHaveNames is true for: %v", tc.certType, tc.invalidHosts)
+		server, err = security.CreatePrincipal(signer,
+			seclib.NewBlessingStore(signer.PublicKey()),
+			seclib.NewBlessingRootsWithX509Options(opts))
+		if err != nil {
+			t.Errorf("failed to create principal: %v", err)
+		}
+
+		_, err = server.BlessSelfX509(tc.invalidHost, pubCerts[0])
+		want := fmt.Sprintf(", not %v", tc.invalidHost)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("unexpected or missing error: %v does not contain %v", err, want)
 		}
 	}
 }

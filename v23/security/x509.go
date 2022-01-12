@@ -8,9 +8,7 @@ import (
 	"crypto/x509"
 )
 
-// Subject Alternative Name (SAN) mechanism - may return multiple certificates.
-// wildcard ssl certs
-func newUnsignedCertificateFromX509(x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
+func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
 	cavs := make([]Caveat, len(caveats), len(caveats)+2)
 	copy(cavs, caveats)
 	notBefore, err := NewNotBeforeCaveat(x509Cert.NotBefore)
@@ -21,14 +19,26 @@ func newUnsignedCertificateFromX509(x509Cert *x509.Certificate, pkBytes []byte, 
 	if err != nil {
 		return nil, err
 	}
-	certs := make([]Certificate, len(x509Cert.DNSNames))
-	for i, name := range x509Cert.DNSNames {
-		certs[i] = Certificate{
-			Extension: name,
-			PublicKey: pkBytes,
-			Caveats:   append(cavs, notAfter, notBefore),
-			X509Raw:   x509Cert.Raw,
+	if len(host) == 0 {
+		certs := make([]Certificate, len(x509Cert.DNSNames))
+		for i, name := range x509Cert.DNSNames {
+			certs[i] = Certificate{
+				Extension: name,
+				PublicKey: pkBytes,
+				Caveats:   append(cavs, notAfter, notBefore),
+				X509Raw:   x509Cert.Raw,
+			}
 		}
+		return certs, nil
+
 	}
-	return certs, nil
+	if err := x509Cert.VerifyHostname(host); err != nil {
+		return nil, err
+	}
+	return []Certificate{{
+		Extension: host,
+		PublicKey: pkBytes,
+		Caveats:   append(cavs, notAfter, notBefore),
+		X509Raw:   x509Cert.Raw,
+	}}, nil
 }

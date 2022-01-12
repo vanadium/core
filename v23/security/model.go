@@ -145,8 +145,12 @@ type Principal interface {
 	// certificate for this principal. The principal must have been created
 	// using the private key associated with the supplied certificate. The
 	// blessing created can be verified using the SSL/TLS Certificate Authority
-	// mechanism.
-	BlessSelfX509(name string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
+	// mechanism. If host is specified and is valid for the supplied
+	// certificate then the blessing name will be host rather than any of
+	// names in the certificate. If host is not specified then SAN certificates
+	// will result with multiple Certificates, each named according to one
+	// of the alternative dns names specified by the certificate.
+	BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
 	Sign(message []byte) (Signature, error)

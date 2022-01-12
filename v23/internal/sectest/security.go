@@ -230,7 +230,7 @@ func NewRSAPrincipal(t testing.TB) security.Principal {
 // for its identity, that is has a default blessing created using BlessSelfX509.
 // The principal's blessing roots are configured using the supplied x509 verification
 // options if supplied.
-func NewX509ServerPrincipal(t testing.TB, key crypto.PrivateKey, certs []*x509.Certificate, opts *x509.VerifyOptions) security.Principal {
+func NewX509ServerPrincipal(t testing.TB, key crypto.PrivateKey, host string, certs []*x509.Certificate, opts *x509.VerifyOptions) security.Principal {
 	signer, err := seclib.NewInMemorySigner(key)
 	if err != nil {
 		t.Fatal(err)
@@ -247,12 +247,12 @@ func NewX509ServerPrincipal(t testing.TB, key crypto.PrivateKey, certs []*x509.C
 	if err != nil {
 		t.Fatal(err)
 	}
-	blessings, err := p.BlessSelfX509(certs[0])
+	blessings, err := p.BlessSelfX509(host, certs[0])
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("BlessSelfX509: %v", err)
 	}
 	if err := p.BlessingStore().SetDefault(blessings); err != nil {
-		t.Fatal(err)
+		t.Fatalf("failed to set defaut blessings: %v", err)
 	}
 	return p
 }
@@ -271,7 +271,7 @@ func NewX509Principal(t testing.TB, opts *x509.VerifyOptions) security.Principal
 		seclib.NewBlessingStore(signer.PublicKey()),
 		roots)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("failed to create principal: %v", err)
 	}
 	return p
 }

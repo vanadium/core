@@ -20,11 +20,14 @@ const (
 //go:embed testdata/letsencrypt-stg-int-e1.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key
 var letsEncryptSingleHostFS embed.FS
 
+//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key
+var letsEncryptMultiHostFS embed.FS
+
 //go:embed testdata/letsencrypt-stg-int-r3.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key
 var letsEncryptWildcardFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key
-var letsEncryptMultiHostFS embed.FS
+//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/ab-star.labdrive.io.letsencrypt testdata/ab-star.labdrive.io.letsencrypt.key
+var letsEncryptMultipleWildcardFS embed.FS
 
 // CertType specifies the type of cert to be used.
 type CertType int
@@ -37,6 +40,8 @@ const (
 	MultipleHostsCert
 	// WildcardCert refers to a cert and key for *.labdrive.io
 	WildcardCert
+	// Cert with multiple wildcard domains for *.labdrive.io and *.labdr.io
+	MultipleWildcardCert
 )
 
 func (c CertType) String() string {
@@ -44,9 +49,11 @@ func (c CertType) String() string {
 	case SingleHostCert:
 		return "single-host-cert"
 	case MultipleHostsCert:
-		return "multi-host-san-cert"
+		return "multi-host-cert"
 	case WildcardCert:
 		return "wildcard-cert"
+	case MultipleWildcardCert:
+		return "multi-wildcard-cert"
 	}
 	panic("wrong cert type")
 }
@@ -62,6 +69,8 @@ func LetsEncryptData(certType CertType) (crypto.PrivateKey, []*x509.Certificate,
 		return letsEncryptData(letsEncryptMultiHostFS, "abc.labdrive.io.letsencrypt.key", "abc.labdrive.io.letsencrypt", letsEncryptStagingR3)
 	case WildcardCert:
 		return letsEncryptData(letsEncryptWildcardFS, "star.labdrive.io.letsencrypt.key", "star.labdrive.io.letsencrypt", letsEncryptStagingR3)
+	case MultipleWildcardCert:
+		return letsEncryptData(letsEncryptMultipleWildcardFS, "ab-star.labdrive.io.letsencrypt.key", "ab-star.labdrive.io.letsencrypt", letsEncryptStagingR3)
 	default:
 		panic(fmt.Sprintf("unsupported cert type: %v", certType))
 	}
@@ -85,6 +94,8 @@ func LetsEncryptDir(certType CertType) (string, error) {
 		return prepopulatedDir(letsEncryptMultiHostFS, "abc-labdrive", "testdata")
 	case WildcardCert:
 		return prepopulatedDir(letsEncryptWildcardFS, "star-labdrive", "testdata")
+	case MultipleWildcardCert:
+		return prepopulatedDir(letsEncryptWildcardFS, "ab-star-labdrive", "testdata")
 	default:
 		panic(fmt.Sprintf("unsupported cert type: %v", certType))
 	}
