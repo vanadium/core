@@ -6,6 +6,7 @@ package conn
 
 import (
 	"crypto/rand"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -120,6 +121,7 @@ func (c *Conn) acceptHandshake(
 		0,
 		true)
 	c.blessingsFlow = newBlessingsFlow(bflw)
+
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -256,10 +258,11 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			if !c.remote.IsZero() {
 				remote = c.remote.String()
 			}
-			return security.Blessings{}, nil, rttend, ErrRecv.Errorf(ctx, "error reading from %v: %v", remote, err)
+			return security.Blessings{}, nil, rttend, ErrRecv.Errorf(ctx, "readRemoteAuth: error reading from %v: %v", remote, err)
 		}
 		if rauth, _ = msg.(*message.Auth); rauth != nil {
 			rttend = time.Now()
+			fmt.Printf("Client Signature: read... %#v\n", rauth.ChannelBinding)
 			break
 		}
 		switch m := msg.(type) {
@@ -271,7 +274,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			if err := c.handleMessage(ctx, msg); err != nil {
 				vlog.Infof("readRemoteAuth: handleMessage teardown: failed: %v", err)
 			}
-			return security.Blessings{}, nil, rttend, ErrConnectionClosed.Errorf(ctx, "connection closed")
+			return security.Blessings{}, nil, rttend, ErrConnectionClosed.Errorf(ctx, "readRemoteAuth: connection closed")
 		case *message.OpenFlow:
 			// If we get an OpenFlow message here it needs to be handled
 			// asynchronously since it will call the flow handler
@@ -305,10 +308,11 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		c.mu.Unlock()
 	}
 	if c.rPublicKey == nil {
-		return security.Blessings{}, nil, rttend, ErrNoPublicKey.Errorf(ctx, "No public key  received")
+		return security.Blessings{}, nil, rttend, ErrNoPublicKey.Errorf(ctx, "readRemoteAuth: no public key received")
 	}
+
 	if !rauth.ChannelBinding.Verify(c.rPublicKey, append(tag, binding...)) {
-		return security.Blessings{}, nil, rttend, ErrInvalidChannelBinding.Errorf(ctx, "The channel binding was invalid")
+		return security.Blessings{}, nil, rttend, ErrInvalidChannelBinding.Errorf(ctx, "readRemoteAuth: the channel binding was invalid")
 	}
 	return rBlessings, rDischarges, rttend, nil
 }

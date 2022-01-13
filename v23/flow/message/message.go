@@ -39,8 +39,8 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 		m = &EnterLameDuck{}
 	case ackLameDuckType:
 		m = &AckLameDuck{}
-	case authType:
-		m = &Auth{}
+	case authType, authED25519Type, authRSAType:
+		m = &Auth{signatureType: msgType}
 	case openFlowType:
 		m = &OpenFlow{}
 	case releaseType:
@@ -104,6 +104,8 @@ const (
 	healthCheckRequestType
 	healthCheckResponseType
 	proxyErrorReponseType
+	authED25519Type
+	authRSAType
 )
 
 // setup options.
@@ -298,20 +300,40 @@ func (m *AckLameDuck) read(ctx *context.T, data []byte) error {
 
 // auth is used to complete the auth handshake.
 type Auth struct {
+	signatureType              byte
 	BlessingsKey, DischargeKey uint64
 	ChannelBinding             security.Signature
 }
 
-func (m *Auth) append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, authType)
+func (m *Auth) appendCommon(data []byte) []byte {
 	data = writeVarUint64(m.BlessingsKey, data)
 	data = writeVarUint64(m.DischargeKey, data)
 	data = appendLenBytes(m.ChannelBinding.Purpose, data)
 	data = appendLenBytes([]byte(m.ChannelBinding.Hash), data)
-	data = appendLenBytes(m.ChannelBinding.R, data)
-	data = appendLenBytes(m.ChannelBinding.S, data)
+	return data
+}
+
+func (m *Auth) append(ctx *context.T, data []byte) ([]byte, error) {
+	switch {
+	case len(m.ChannelBinding.R) > 0:
+		data = append(data, authType)
+		data = m.appendCommon(data)
+		data = appendLenBytes(m.ChannelBinding.R, data)
+		data = appendLenBytes(m.ChannelBinding.S, data)
+	case len(m.ChannelBinding.Ed25519) > 0:
+		data = append(data, authED25519Type)
+		data = m.appendCommon(data)
+		data = appendLenBytes(m.ChannelBinding.Ed25519, data)
+	case len(m.ChannelBinding.Rsa) > 0:
+		data = append(data, authRSAType)
+		data = m.appendCommon(data)
+		data = appendLenBytes(m.ChannelBinding.Rsa, data)
+	default:
+		return nil, fmt.Errorf("unsupported signature algorithm")
+	}
 	return data, nil
 }
+
 func (m *Auth) read(ctx *context.T, orig []byte) error {
 	var data, tmp []byte
 	var valid bool
@@ -331,11 +353,22 @@ func (m *Auth) read(ctx *context.T, orig []byte) error {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)
 	}
 	m.ChannelBinding.Hash = security.Hash(tmp)
-	if m.ChannelBinding.R, data, valid = readLenBytes(ctx, data); !valid {
-		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
-	}
-	if m.ChannelBinding.S, _, valid = readLenBytes(ctx, data); !valid {
-		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
+	switch m.signatureType {
+	case authType:
+		if m.ChannelBinding.R, data, valid = readLenBytes(ctx, data); !valid {
+			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+		}
+		if m.ChannelBinding.S, _, valid = readLenBytes(ctx, data); !valid {
+			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
+		}
+	case authED25519Type:
+		if m.ChannelBinding.Ed25519, data, valid = readLenBytes(ctx, data); !valid {
+			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+		}
+	case authRSAType:
+		if m.ChannelBinding.Rsa, data, valid = readLenBytes(ctx, data); !valid {
+			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+		}
 	}
 	return nil
 }

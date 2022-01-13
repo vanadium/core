@@ -9,13 +9,22 @@ import (
 	"crypto/md5"
 	"crypto/x509"
 	"encoding/hex"
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+	"time"
 
+	v23 "v.io/v23"
+	"v.io/v23/context"
+	"v.io/v23/rpc"
+	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/test"
 	"v.io/x/ref/test/sectestdata"
+	"v.io/x/ref/test/testutil"
 )
 
 func TestSSLKeys(t *testing.T) {
@@ -108,8 +117,6 @@ func TestLetsEncryptKeys(t *testing.T) {
 	}
 }
 
-/*
-
 type testService struct{}
 
 func (testService) Echo(ctx *context.T, call rpc.ServerCall, msg string) (string, error) {
@@ -127,33 +134,29 @@ func TestRPC(t *testing.T) {
 			t.Fatalf("line: %v, err: %v", line, err)
 		}
 	}
-	filename := filepath.Join("testdata", "www.labdrive.io.letsencrypt")
-	serverPrincipal, _, certs, err := sslPrinicipal(filename)
+
+	// Create a server using an ssl wildcard domain cert and the associated
+	// x509.VerifyOptions. It has self-signed x509 derived blessings
+	// for foo.labdrive.io and bar.labdr.io. The default blessing, stored in
+	// the endpoint is for bar.labdr.io.
+	privKey, pubCerts, opts := sectestdata.LetsEncryptData(sectestdata.MultipleWildcardCert)
+	signer, err := seclib.NewInMemorySigner(privKey)
+	fatal()
+	serverPrincipal, err := security.CreatePrincipal(signer,
+		seclib.NewBlessingStore(signer.PublicKey()),
+		seclib.NewBlessingRootsWithX509Options(opts))
 	fatal()
 
-	ours := certs[0]
-	pastTime, _ := time.Parse("2006-Jan-02", "2021-Nov-02")
-	opts := x509.VerifyOptions{
-		Roots:       customCertPool(t, filepath.Join("testdata", "letsencrypt-stg-int-e1.pem")),
-		CurrentTime: pastTime,
-	}
-	chains, err := ours.Verify(opts)
+	blessingsFoo, err := serverPrincipal.BlessSelfX509("foo.labdrive.io", pubCerts[0])
 	fatal()
-
-	blessings, err := security.BlessingsForX509Chains(serverPrincipal.PublicKey(), chains)
+	blessingsBar, err := serverPrincipal.BlessSelfX509("bar.labdr.io", pubCerts[0])
 	fatal()
-	//	_ = chains
-
-	//blessings, err := serverPrincipal.BlessSelf("server")
-	//fatal()
-
-	security.AddToRoots(serverPrincipal, blessings)
-	err = serverPrincipal.BlessingStore().SetDefault(blessings)
+	_, err = serverPrincipal.BlessingStore().Set(blessingsFoo, "client")
 	fatal()
-	_, err = serverPrincipal.BlessingStore().Set(blessings, security.AllPrincipals)
+	_, err = serverPrincipal.BlessingStore().Set(blessingsBar, "client")
 	fatal()
-
-	fmt.Printf("%s\n", serverPrincipal.BlessingStore().DebugString())
+	err = serverPrincipal.BlessingStore().SetDefault(blessingsBar)
+	fatal()
 
 	serverCtx, err := v23.WithPrincipal(ctx, serverPrincipal)
 	fatal()
@@ -163,20 +166,83 @@ func TestRPC(t *testing.T) {
 	testutil.WaitForServerReady(server)
 	serverObjectName := server.Status().Endpoints[0].Name()
 
-	clientCtx, err := v23.WithPrincipal(ctx, testutil.NewPrincipal("simple"))
+	// This call will fail since the x509 certificates used are from the letsencrypt
+	// staging environment.
+	clientPrincipal, err := newClientPrincipal(seclib.ED25519, x509.VerifyOptions{}, serverPrincipal, blessingsBar, "client", "bar.labdr.io")
 	fatal()
-
-	clientCtx, client, err := v23.WithNewClient(clientCtx)
-	fatal()
-
-	clientCtx, cancel := context.WithTimeout(clientCtx, time.Second)
+	clientCtx, cancel, client, err := newRPCClient(ctx, clientPrincipal)
 	defer cancel()
+	fatal()
+
 	_, err = client.StartCall(clientCtx, serverObjectName, "Echo", []interface{}{"hi"})
 	if err == nil || !strings.Contains(err.Error(), "client does not trust server") {
 		t.Fatalf("expected an error saying that the client does not trust the server, not: %v", err)
 	}
 
-	t.Log(err)
-	t.FailNow()
+	// This call will succeed since the x509 opts include the correct
+	// CA for the staging certificates.
+	clientPrincipal, err = newClientPrincipal(seclib.ED25519, opts, serverPrincipal, blessingsBar, "client", "bar.labdr.io")
+	fatal()
+	clientCtx, cancel, client, err = newRPCClient(ctx, clientPrincipal)
+	fatal()
+	defer cancel()
+
+	var result string
+	results := []interface{}{&result}
+	err = client.Call(clientCtx, serverObjectName, "Echo", []interface{}{"hi"}, results)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if got, want := result, "echo: hi"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
 }
-*/
+
+func newClientPrincipal(keyType seclib.KeyType, opts x509.VerifyOptions, serverPrincipal security.Principal, serverBlessings security.Blessings, extension string, pattern security.BlessingPattern) (security.Principal, error) {
+	privKey, err := seclib.NewPrivateKey(seclib.ED25519)
+	if err != nil {
+		return nil, err
+	}
+	signer, err := seclib.NewInMemorySigner(privKey)
+	if err != nil {
+		return nil, err
+	}
+	clientPrincipal, err := security.CreatePrincipal(signer,
+		seclib.NewBlessingStore(signer.PublicKey()),
+		seclib.NewBlessingRootsWithX509Options(opts))
+	if err != nil {
+		return nil, err
+	}
+	exp, err := security.NewExpiryCaveat(time.Now().Add(time.Hour))
+	if err != nil {
+		return nil, err
+	}
+	clientBlessings, err := serverPrincipal.Bless(clientPrincipal.PublicKey(), serverBlessings, extension, exp)
+	if err != nil {
+		return nil, err
+	}
+	_, err = clientPrincipal.BlessingStore().Set(clientBlessings, pattern)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("server:\n%v\n", serverPrincipal.BlessingStore().DebugString())
+	fmt.Printf("client:\n%v\n", clientPrincipal.BlessingStore().DebugString())
+	return clientPrincipal, nil
+}
+
+func newRPCClient(ctx *context.T, clientPrincipal security.Principal) (*context.T, func(), rpc.Client, error) {
+	clientCtx, err := v23.WithPrincipal(ctx, clientPrincipal)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	clientCtx, client, err := v23.WithNewClient(clientCtx)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	clientCtx, cancel := context.WithTimeout(clientCtx, time.Second)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return clientCtx, cancel, client, nil
+}

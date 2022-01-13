@@ -105,7 +105,18 @@ func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing str
 		return fmt.Errorf("security.Certificate and x509.Certificate have different public keys")
 	}
 	opts := br.x509Opts
-	opts.DNSName = blessing
+	opts.DNSName = ""
+	for _, d := range cert.DNSNames {
+		if len(d) == 0 {
+			continue
+		}
+		if d[0] == '*' && len(d) > 1 && d[1] == '.' {
+			d = d[2:]
+		}
+		if security.BlessingPattern(d).MatchedBy(blessing) {
+			opts.DNSName = d
+		}
+	}
 	_, err = cert.Verify(opts)
 	return err
 }
