@@ -15,7 +15,6 @@ import (
 func TestBuild(t *testing.T) {
 	ctx, cancel := context.RootContext()
 	defer cancel()
-
 	for _, main := range []string{
 		"gosh/internal/gosh_example/main.go",
 		"gosh/internal/gosh_example",
@@ -36,7 +35,6 @@ func TestBuild(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 		fi, err := os.Stat(binary)
 		if !fi.Mode().IsRegular() {
 			t.Errorf("%v is not a regular file", binary)
