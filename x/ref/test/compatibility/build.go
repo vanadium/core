@@ -22,8 +22,7 @@ type BuildOption func(o *builder)
 type depType int
 
 const (
-	requireDep depType = iota
-	replaceDep
+	getDep depType = iota
 )
 
 type dependency struct {
@@ -75,11 +74,11 @@ func Verbose(v bool) BuildOption {
 	}
 }
 
-// Require specifies a package and version to be used by the package
-// being built. go mod edit require is used to set this dependency.
-func Require(pkg, version string) BuildOption {
+// GetPackage specifies a package and version to be used by the package
+// being built.
+func GetPackage(pkg, version string) BuildOption {
 	return func(o *builder) {
-		o.dependencies = append(o.dependencies, dependency{requireDep, pkg, version})
+		o.dependencies = append(o.dependencies, dependency{getDep, pkg, version})
 	}
 }
 
@@ -162,18 +161,16 @@ func (o builder) rewriteGoMod(ctx context.Context, pkgDir string) error {
 		return err
 	}
 	o.log("updating #%v dependencies\n", len(o.dependencies))
-
 	for _, dep := range o.dependencies {
-		if dep.action == requireDep {
-			if err := o.run(ctx, pkgDir, "go", "mod", "edit", "-require="+dep.pkg+"@"+dep.version); err != nil {
+		switch dep.action {
+		case getDep:
+			if err := o.run(ctx, pkgDir, "go", "get", dep.pkg+"@"+dep.version); err != nil {
 				return err
 			}
-			if err := o.run(ctx, pkgDir, "go", "mod", "download", dep.pkg+"@"+dep.version); err != nil {
-				return err
-			}
-			o.log("after -require %s=%s\n%s\n", dep.pkg, dep.version, readFile(pkgDir, "go.mod"))
+			o.log("after go get %s=%s\n%s\n", dep.pkg, dep.version, readFile(pkgDir, "go.mod"))
+		default:
+			continue
 		}
-
 	}
 	return nil
 }
@@ -182,7 +179,7 @@ func (o builder) rewriteGoMod(ctx context.Context, pkgDir string) error {
 // dependencies. It operates by using go get -d and then go mod edit
 // on the downloaded package before building it.
 // The returned cleanup function must always be called, even when an error is returned.
-func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption) (binary string, cleanup func(), err error) {
+func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption) (root, binary string, cleanup func(), err error) {
 	var o builder
 	for _, fn := range opts {
 		fn(&o)
@@ -191,7 +188,7 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 	if len(o.gopath) == 0 {
 		o.gopath, err = os.MkdirTemp("", path.Base(pkg)+"-XXXXXX")
 		if err != nil {
-			return "", nil, err
+			return "", "", nil, err
 		}
 		cleanup = func() {
 			os.RemoveAll(o.gopath)
@@ -201,11 +198,11 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 
 	pkgDir, err := o.handleDownload(ctx, pkg)
 	if err != nil {
-		return "", cleanup, err
+		return "", "", cleanup, err
 	}
 
 	if err := o.rewriteGoMod(ctx, pkgDir); err != nil {
-		return "", cleanup, err
+		return "", "", cleanup, err
 	}
 
 	mainDir := pkgDir
@@ -214,7 +211,7 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 		mp := strings.ReplaceAll(o.main, "/", string(filepath.Separator))
 		fi, err := os.Stat(filepath.Join(pkgDir, mp))
 		if err != nil {
-			return "", cleanup, fmt.Errorf("%v doesn't exist within %v: %v", o.main, pkgDir, err)
+			return "", "", cleanup, fmt.Errorf("%v doesn't exist within %v: %v", o.main, pkgDir, err)
 		}
 		if fi.IsDir() {
 			mainDir = filepath.Join(pkgDir, mp)
@@ -238,7 +235,7 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 	o.log("binary            : %v\n", binary)
 
 	if err := o.makeWriteable(mainDir); err != nil {
-		return "", cleanup, err
+		return "", "", cleanup, err
 	}
 
 	args := []string{"build"}
@@ -248,10 +245,8 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 	cmd.Dir = mainDir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", cleanup, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, out)
+		return "", "", cleanup, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, out)
 	}
-	if o.verbose {
-		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s: %s", strings.Join(cmd.Args, " "), out))
-	}
-	return binary, cleanup, nil
+	o.log("%s: %s", strings.Join(cmd.Args, " "), out)
+	return pkgDir, binary, cleanup, nil
 }
