@@ -19,23 +19,30 @@ import (
 // BuildOption represents an option to Build.
 type BuildOption func(o *builder)
 
-type depType int
+type actionType int
 
 const (
-	getDep depType = iota
+	goGet actionType = iota
+	goModEdit
 )
 
-type dependency struct {
-	action       depType
-	pkg, version string
+type action struct {
+	action actionType
+	args   []string
+}
+
+type buildSpec struct {
+	path   string
+	binary string
 }
 
 type builder struct {
-	gopath       string
-	binary       string
-	main         string
-	dependencies []dependency
-	verbose      bool
+	gopath  string
+	gocmd   string
+	binary  string
+	build   []buildSpec
+	edit    []action
+	verbose bool
 }
 
 func (o builder) log(format string, args ...interface{}) {
@@ -58,12 +65,12 @@ func Binary(name string) BuildOption {
 	}
 }
 
-// Main specifies the main package or file to be built within this
+// Build specifies the main package or file to be built within this
 // package if the package's root directory does not contain that main
 // function.
-func Main(path string) BuildOption {
+func Build(path, binary string) BuildOption {
 	return func(o *builder) {
-		o.main = path
+		o.build = append(o.build, buildSpec{path, binary})
 	}
 }
 
@@ -74,11 +81,27 @@ func Verbose(v bool) BuildOption {
 	}
 }
 
-// GetPackage specifies a package and version to be used by the package
-// being built.
-func GetPackage(pkg, version string) BuildOption {
+// GoMod adds a 'go mod args...' invocation to the set of commands to be run
+// to modify the go.mod file.
+func GoMod(args ...string) BuildOption {
 	return func(o *builder) {
-		o.dependencies = append(o.dependencies, dependency{getDep, pkg, version})
+		o.edit = append(o.edit, action{goModEdit, args})
+	}
+}
+
+// GoGet adds a 'go get args...' invocation to the set of commands to be run
+// to modify the go.mod file.
+func GoGet(args ...string) BuildOption {
+	return func(o *builder) {
+		o.edit = append(o.edit, action{goGet, args})
+	}
+}
+
+// GoCmd specifies a specific instance of the 'go' command to use in place
+// of the system available version of 'go'.
+func GoCmd(cmd string) BuildOption {
+	return func(o *builder) {
+		o.gocmd = cmd
 	}
 }
 
@@ -90,13 +113,26 @@ func readFile(dir, file string) string {
 	return string(modfile)
 }
 
-func (o builder) handleDownload(ctx context.Context, pkg string) (string, error) {
-	cmd := exec.CommandContext(ctx, "go", "get", "-d", pkg)
-	cmd.Env = append(cmd.Env, "GOPATH="+o.gopath)
-	cmd.Dir = o.gopath
+func (o builder) run(ctx context.Context, dir string, args ...string) error {
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+	cmd.Dir = dir
+	cmd.Env = append(cmd.Env,
+		"GOPATH="+o.gopath,
+		"HOME="+os.Getenv("HOME"),
+		"PATH="+os.Getenv("PATH"))
 	out, err := cmd.CombinedOutput()
+	cl := strings.Join(cmd.Args, " ")
 	if err != nil {
-		return "", fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, out)
+		return fmt.Errorf("%s: %s: %s", cl, err, out)
+	}
+	o.log("%s\n", cl)
+	return nil
+}
+
+func (o builder) handleDownload(ctx context.Context, pkg string) (string, error) {
+	err := o.run(ctx, o.gopath, o.gocmd, "get", "-d", pkg)
+	if err != nil {
+		return "", err
 	}
 	pkgDir := filepath.Join(o.gopath, "pkg", "mod", strings.ReplaceAll(pkg, "/", string(filepath.Separator)))
 	// determine the full path for the downloaded package, including its version.
@@ -136,21 +172,9 @@ func (o builder) makeWriteable(paths ...string) error {
 	return nil
 }
 
-func (o builder) run(ctx context.Context, dir string, args ...string) error {
-	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
-	cmd.Dir = dir
-	out, err := cmd.CombinedOutput()
-	cl := strings.Join(cmd.Args, " ")
-	if err != nil {
-		return fmt.Errorf("%s: %s: %s", cl, err, out)
-	}
-	o.log("%s\n", cl)
-	return nil
-}
-
 func (o builder) rewriteGoMod(ctx context.Context, pkgDir string) error {
-	o.log("original go.mod:\n %s\n", readFile(pkgDir, "go.mod"))
-	if len(o.dependencies) == 0 {
+	o.log("original go.mod:\n%s\n", readFile(pkgDir, "go.mod"))
+	if len(o.edit) == 0 {
 		return nil
 	}
 	if err := o.makeWriteable(
@@ -160,62 +184,37 @@ func (o builder) rewriteGoMod(ctx context.Context, pkgDir string) error {
 	); err != nil {
 		return err
 	}
-	o.log("updating #%v dependencies\n", len(o.dependencies))
-	for _, dep := range o.dependencies {
-		switch dep.action {
-		case getDep:
-			if err := o.run(ctx, pkgDir, "go", "get", dep.pkg+"@"+dep.version); err != nil {
-				return err
-			}
-			o.log("after go get %s=%s\n%s\n", dep.pkg, dep.version, readFile(pkgDir, "go.mod"))
-		default:
-			continue
+	o.log("updating #%v dependencies\n", len(o.edit))
+
+	for _, cmd := range o.edit {
+		var cl []string
+		switch cmd.action {
+		case goModEdit:
+			cl = append([]string{o.gocmd, "mod"}, cmd.args...)
+		case goGet:
+			cl = append([]string{o.gocmd, "get"}, cmd.args...)
 		}
+		if err := o.run(ctx, pkgDir, cl...); err != nil {
+			return err
+		}
+		o.log("after %s\n%s\n", strings.Join(cl, " "), readFile(pkgDir, "go.mod"))
 	}
 	return nil
 }
 
-// BuildWithDependencies builds a go module with the ability to specify its
-// dependencies. It operates by using go get -d and then go mod edit
-// on the downloaded package before building it.
-// The returned cleanup function must always be called, even when an error is returned.
-func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption) (root, binary string, cleanup func(), err error) {
-	var o builder
-	for _, fn := range opts {
-		fn(&o)
-	}
-	cleanup = func() {}
-	if len(o.gopath) == 0 {
-		o.gopath, err = os.MkdirTemp("", path.Base(pkg)+"-XXXXXX")
-		if err != nil {
-			return "", "", nil, err
-		}
-		cleanup = func() {
-			os.RemoveAll(o.gopath)
-		}
-	}
-	o.log("GOPATH: %v\n", o.gopath)
-
-	pkgDir, err := o.handleDownload(ctx, pkg)
-	if err != nil {
-		return "", "", cleanup, err
-	}
-
-	if err := o.rewriteGoMod(ctx, pkgDir); err != nil {
-		return "", "", cleanup, err
-	}
-
+func (o builder) goBuild(ctx context.Context, pkgDir string, spec buildSpec) (string, error) {
 	mainDir := pkgDir
 	buildTarget := "."
-	if len(o.main) > 0 {
-		mp := strings.ReplaceAll(o.main, "/", string(filepath.Separator))
+	binary := ""
+	if len(spec.path) > 0 {
+		mp := strings.ReplaceAll(spec.path, "/", string(filepath.Separator))
 		fi, err := os.Stat(filepath.Join(pkgDir, mp))
 		if err != nil {
-			return "", "", cleanup, fmt.Errorf("%v doesn't exist within %v: %v", o.main, pkgDir, err)
+			return "", fmt.Errorf("%v doesn't exist within %v: %v", spec.path, pkgDir, err)
 		}
 		if fi.IsDir() {
 			mainDir = filepath.Join(pkgDir, mp)
-			binary = filepath.Join(mainDir, path.Base(o.main))
+			binary = filepath.Join(mainDir, path.Base(spec.path))
 		} else {
 			mainDir = filepath.Join(pkgDir, filepath.Dir(mp))
 			binary = filepath.Join(pkgDir, strings.TrimSuffix(mp, ".go"))
@@ -235,18 +234,56 @@ func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption)
 	o.log("binary            : %v\n", binary)
 
 	if err := o.makeWriteable(mainDir); err != nil {
-		return "", "", cleanup, err
+		return "", err
 	}
 
-	args := []string{"build"}
-	args = append(args, "-o", binary)
-	args = append(args, buildTarget)
-	cmd := exec.CommandContext(ctx, "go", args...)
-	cmd.Dir = mainDir
-	out, err := cmd.CombinedOutput()
+	err := o.run(ctx, mainDir, o.gocmd, "build", "-o", binary, buildTarget)
 	if err != nil {
-		return "", "", cleanup, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, out)
+		return "", err
 	}
-	o.log("%s: %s", strings.Join(cmd.Args, " "), out)
-	return pkgDir, binary, cleanup, nil
+	return binary, nil
+}
+
+// BuildWithDependencies builds a go module with the ability to specify its
+// dependencies. It operates by using go get -d and then go mod edit
+// on the downloaded package before building it.
+// The returned cleanup function must always be called, even when an error is returned.
+func BuildWithDependencies(ctx context.Context, pkg string, opts ...BuildOption) (root string, binaries []string, cleanup func(), err error) {
+	var o builder
+	for _, fn := range opts {
+		fn(&o)
+	}
+	if len(o.gocmd) == 0 {
+		o.gocmd = "go"
+	}
+	cleanup = func() {}
+	if len(o.gopath) == 0 {
+		o.gopath, err = os.MkdirTemp("", path.Base(pkg)+"-XXXXXX")
+		if err != nil {
+			return "", nil, nil, err
+		}
+		cleanup = func() {
+			os.RemoveAll(o.gopath)
+		}
+	}
+	o.log("GOPATH: %v\n", o.gopath)
+
+	pkgDir, err := o.handleDownload(ctx, pkg)
+	if err != nil {
+		return "", nil, cleanup, err
+	}
+
+	if err := o.rewriteGoMod(ctx, pkgDir); err != nil {
+		return "", nil, cleanup, err
+	}
+
+	for _, spec := range o.build {
+		binary, err := o.goBuild(ctx, pkgDir, spec)
+		if err != nil {
+			return "", nil, cleanup, err
+		}
+		binaries = append(binaries, binary)
+	}
+
+	return pkgDir, binaries, cleanup, nil
 }
