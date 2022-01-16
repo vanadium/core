@@ -6,7 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.4.2
-	github.com/shirou/gopsutil/v3 v3.21.12
+	github.com/shirou/gopsutil/v3 v3.21.12-0.20211204033703-4c3edcfe56bb
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/mod v0.5.1
