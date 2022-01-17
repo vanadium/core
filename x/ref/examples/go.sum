@@ -49,6 +49,8 @@ golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20211013075003-97ac67df715c/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20211210111614-af8b64212486 h1:5hpz5aRr+W1erYCL5JRhSUBJRph7l9XkNveoExlrKYk=
 golang.org/x/sys v0.0.0-20211210111614-af8b64212486/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220111092808-5a964db01320 h1:0jf+tOCoZ3LyutmCOWpVni1chK4VfFLhRsDK7MhqGRY=
+golang.org/x/sys v0.0.0-20220111092808-5a964db01320/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 h1:JGgROgKl9N8DuW20oFS5gxc+lE67/N3FcwmBPMe7ArY=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
@@ -68,3 +70,5 @@ v.io/x/ref/internal/logger v0.1.1 h1:FZwqC6myQ4xMTgz6jIgZwQlIpuy/PtwTHY95qQFEzso
 v.io/x/ref/internal/logger v0.1.1/go.mod h1:00nuJdZEVCzMOn9y474jZ+e6B9R/ydLW7d6IQFl/NHU=
 v.io/x/ref/lib/flags/sitedefaults v0.1.1 h1:jAeEpnfOK5ddeqjqJPi2X5WgbeYkCA+ogawkJyDgZMI=
 v.io/x/ref/lib/flags/sitedefaults v0.1.1/go.mod h1:ew4Igo60KMBDYhnxH6l7P+qBCJiqR8PVp7fJJYGqILA=
+v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d h1:ndJDErltG1MsRVwPIwJYSDwe7zsRtt7e097LpnARZrs=
+v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d/go.mod h1:9Xe4X0EltKAHWTtEMWGM/WUS6kWxNBclvvFqnizjqz4=

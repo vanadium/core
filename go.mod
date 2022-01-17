@@ -16,6 +16,7 @@ require (
 	v.io/x/lib v0.1.10
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
+	v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d // indirect
 )
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
