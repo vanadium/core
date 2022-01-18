@@ -15,19 +15,20 @@ import (
 )
 
 var (
-	nameFlag     string
-	numCallsFlag int
+	nameFlag, msgFlag string
+	numCallsFlag      int
 )
 
 func init() {
 	flag.StringVar(&nameFlag, "name", os.ExpandEnv("users/${USER}/simpled"), "name of the server to connect to")
+	flag.StringVar(&msgFlag, "message", "hello", "message to ping the server with")
 	flag.IntVar(&numCallsFlag, "num-calls", 2, "number of RPC calls to make to the server")
 }
 
 func main() {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	if err := impl.RunClient(ctx, nameFlag, numCallsFlag); err != nil {
+	if err := impl.RunClient(ctx, nameFlag, msgFlag, numCallsFlag); err != nil {
 		panic(err)
 	}
 }

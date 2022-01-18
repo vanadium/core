@@ -17,45 +17,49 @@ import (
 	"v.io/x/ref/test/compatibility/modules/simple"
 )
 
-func RunClient(ctx *context.T, name string, numCalls int) error {
+func RunClient(ctx *context.T, name, msg string, numCalls int) error {
 	client := simple.SimpleClient(name)
 	ticker := time.NewTicker(time.Second)
-	done := make(chan struct{})
+	done := make(chan error)
 	go func() {
+		defer close(done)
 		i := 1
 		for range ticker.C {
 			ctx, cancel := context.WithTimeout(ctx, time.Second)
-			now := time.Now().String()
-			result, err := client.Ping(ctx, now)
+			before := time.Now()
+			result, err := client.Ping(ctx, msg)
 			if err != nil {
-				ctx.Errorf("%v.%v failed: %v", name, "ping", err)
+				done <- fmt.Errorf("%v.%v failed: %v", name, "ping", err)
+				return
 			}
-			fmt.Println(result)
+			fmt.Printf("RESPONSE=%v\n", result)
+			fmt.Printf("TOOK=%v\n", time.Since(before))
 			cancel()
 			if i == numCalls {
-				close(done)
 				return
 			}
 			i++
 		}
 	}()
 	select {
-	case <-done:
+	case err := <-done:
+		if err != nil {
+			return err
+		}
 	case <-signals.ShutdownOnSignals(ctx):
 	}
 	return nil
 }
 
-type impl struct{}
+type impl struct{ name string }
 
 func (s *impl) Ping(ctx *context.T, call rpc.ServerCall, msg string) (response string, err error) {
-	response = fmt.Sprintf("%s: %v\n", time.Now(), msg)
-	ctx.Infof("%v: %v", call.RemoteEndpoint(), msg)
+	response = s.name + ":" + msg
 	return
 }
 
 func RunServer(ctx *context.T, name string) error {
-	ctx, server, err := v23.WithNewServer(ctx, name, simple.SimpleServer(&impl{}), securityflag.NewAuthorizerOrDie(ctx))
+	ctx, server, err := v23.WithNewServer(ctx, name, simple.SimpleServer(&impl{name}), securityflag.NewAuthorizerOrDie(ctx))
 	if err != nil {
 		return err
 	}

@@ -225,6 +225,11 @@ func InitMain() func() {
 	}
 }
 
+// BinDir returns the directory used to store binaries built by BuildGoPkg.
+func BinDir() string {
+	return binDir
+}
+
 // TestMain calls flag.Parse and does some v23test/gosh setup work, then calls
 // os.Exit(m.Run()). Developers with complex setup or teardown requirements may
 // need to use InitMain instead.
