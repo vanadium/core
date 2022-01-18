@@ -44,8 +44,10 @@ func RunClient(ctx *context.T, name, msg string, numCalls int) error {
 	select {
 	case err := <-done:
 		if err != nil {
+			fmt.Printf("DONE=%v", err)
 			return err
 		}
+		fmt.Printf("DONE=OK")
 	case <-signals.ShutdownOnSignals(ctx):
 	}
 	return nil

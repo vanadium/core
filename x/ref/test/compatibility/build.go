@@ -128,7 +128,13 @@ func (o builder) handleDownload(ctx context.Context, pkg string) (string, error)
 	pkgDir := filepath.Join(o.gopath, "pkg", "mod", strings.ReplaceAll(pkg, "/", string(filepath.Separator)))
 	// determine the full path for the downloaded package, including its version.
 	if fi, err := os.Stat(pkgDir); err != nil || !fi.IsDir() {
-		gp := pkgDir + "@*"
+		gp := pkgDir
+		idx := strings.Index(gp, "@")
+		if idx < 0 {
+			gp += "@*"
+		} else {
+			gp = gp[:idx] + "@*" + gp[idx+1:] + "*"
+		}
 		o.log("go get of %v did not download to %v, trying %v\n", pkg, pkgDir, gp)
 		matches, err := filepath.Glob(gp)
 		if err != nil {
