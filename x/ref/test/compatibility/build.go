@@ -39,7 +39,6 @@ type buildSpec struct {
 type builder struct {
 	gopath  string
 	gocmd   string
-	binary  string
 	build   []buildSpec
 	edit    []action
 	verbose bool
@@ -54,14 +53,6 @@ func (o builder) log(format string, args ...interface{}) {
 func GOPATH(dir string) BuildOption {
 	return func(o *builder) {
 		o.gopath = dir
-	}
-}
-
-// Binary specifies the name of the final executable. It may be an absolute
-// path or relative to the package's root directory.
-func Binary(name string) BuildOption {
-	return func(o *builder) {
-		o.binary = name
 	}
 }
 
@@ -137,7 +128,13 @@ func (o builder) handleDownload(ctx context.Context, pkg string) (string, error)
 	pkgDir := filepath.Join(o.gopath, "pkg", "mod", strings.ReplaceAll(pkg, "/", string(filepath.Separator)))
 	// determine the full path for the downloaded package, including its version.
 	if fi, err := os.Stat(pkgDir); err != nil || !fi.IsDir() {
-		gp := pkgDir + "@*"
+		gp := pkgDir
+		idx := strings.Index(gp, "@")
+		if idx < 0 {
+			gp += "@*"
+		} else {
+			gp = gp[:idx] + "@*" + gp[idx+1:] + "*"
+		}
 		o.log("go get of %v did not download to %v, trying %v\n", pkg, pkgDir, gp)
 		matches, err := filepath.Glob(gp)
 		if err != nil {
@@ -221,14 +218,16 @@ func (o builder) goBuild(ctx context.Context, pkgDir string, spec buildSpec) (st
 			buildTarget = filepath.Base(mp)
 		}
 	}
-	if len(o.binary) > 0 {
-		if filepath.IsAbs(o.binary) {
-			binary = o.binary
+	if len(spec.binary) > 0 {
+		if filepath.IsAbs(spec.binary) {
+			binary = spec.binary
 		} else {
-			binary = filepath.Join(mainDir, o.binary)
+			binary = filepath.Join(mainDir, spec.binary)
 		}
 	}
 
+	o.log("build spec path   : %v\n", spec.path)
+	o.log("build spec binary : %v\n", spec.binary)
 	o.log("package directory : %v\n", pkgDir)
 	o.log("main directory    : %v\n", mainDir)
 	o.log("binary            : %v\n", binary)

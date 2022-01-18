@@ -8,42 +8,57 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"v.io/v23/context"
 )
 
+func majorMinor(version, prefix string) (string, bool) {
+	if !strings.HasPrefix(version, prefix) {
+		return "", false
+	}
+	if version == prefix {
+		return "", true
+	}
+	if at := strings.Index(version, "@"); at > 0 {
+		return version[at:], true
+	}
+	return "", false
+}
+
 // BuildSimpleAtVersion builds v.io/x/ref/test/compatibility/modules/simple
 // at the specified version. Currently v0.1.20 is the only supported version.
 // If bindir is specified then the binaries are written to that directory.
-func BuildSimpleAtVersion(ctx *context.T, version, bindir string) (client, server, mt string, cleanup func(), err error) {
-	switch version {
-	case "v0.1.20":
-		return buildSimpleV120(ctx, bindir)
-	default:
-		return "", "", "", func() {}, fmt.Errorf("unsupported version: %v", version)
+func BuildSimpleAtVersion(ctx *context.T, version, bindir string, verbose bool) (client, server, mt string, cleanup func(), err error) {
+	if hash, ok := majorMinor(version, "v0.1.20"); ok {
+		return buildSimpleV120(ctx, hash, bindir, verbose)
 	}
+	return "", "", "", func() {}, fmt.Errorf("unsupported version: %v", version)
+
 }
 
-func buildSimpleV120(ctx *context.T, bindir string) (client, server, mt string, cleanup func(), err error) {
-
+func buildSimpleV120(ctx *context.T, version, bindir string, verbose bool) (client, server, mt string, cleanup func(), err error) {
 	cleanup = func() {}
 	tmpDir, err := os.MkdirTemp("", "backwards-compat")
 	if err != nil {
 		return
 	}
 	if len(bindir) > 0 {
-		client = filepath.Join(bindir, "simple-client")
-		server = filepath.Join(bindir, "simple-server")
-		mt = filepath.Join(bindir, "mounttabled")
+		client = filepath.Join(bindir, "v120-simple-client")
+		server = filepath.Join(bindir, "v120-simple-server")
+		mt = filepath.Join(bindir, "v120-mounttabled")
 	}
-
+	pkg := "v.io/x/ref/test/compatibility/modules/simple"
+	if len(version) > 0 {
+		pkg += version
+	}
 	_, binaries, cleanupBuild, err := BuildWithDependencies(ctx,
-		"v.io/x/ref/test/compatibility/modules/simple/",
+		pkg,
 		GOPATH(tmpDir),
 		Build("client", client),
 		Build("server", server),
 		Build("mounttabled", mt),
-		Verbose(true),
+		Verbose(verbose),
 		GoMod("edit", "--go=1.13"),
 		GoMod("edit", "--dropreplace=v.io"),
 		GoMod("edit", "--require=v.io@v0.1.20"),
