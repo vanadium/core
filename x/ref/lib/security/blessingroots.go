@@ -76,12 +76,14 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 		}
 	}
 	br.mu.RUnlock()
+
 	// Silly to have to unmarshal the public key on an error.
 	// Change the error message to not require that?
 	obj, err := security.UnmarshalPublicKey(root)
 	if err != nil {
 		return err
 	}
+
 	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", obj.String(), nil)
 }
 

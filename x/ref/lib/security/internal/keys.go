@@ -28,6 +28,7 @@ const (
 	rsaPrivateKeyPEMType   = "RSA PRIVATE KEY"
 	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
 	pkixPublicKeyPEMType   = "PUBLIC KEY"
+	ssh2PEMType            = "SSH2 PUBLIC KEY"
 
 	certPEMType = "CERTIFICATE"
 )
@@ -39,49 +40,6 @@ var (
 	// ErrPassphraseRequired is a possible return error from LoadPEMPrivateKey()
 	ErrPassphraseRequired = errors.New("passphrase required for decrypting private key")
 )
-
-func openKeyFile(keyFile string) (*os.File, error) {
-	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
-	}
-	return f, nil
-}
-
-// CopyKeyFile copies a keyfile, it will fail if it can't overwrite
-// an existing file.
-func CopyKeyFile(fromFile, toFile string) error {
-	to, err := openKeyFile(toFile)
-	if err != nil {
-		return err
-	}
-	defer to.Close()
-	from, err := os.Open(fromFile)
-	if err != nil {
-		return err
-	}
-	defer from.Close()
-	_, err = io.Copy(to, from)
-	return err
-}
-
-// WritePEMKeyPair writes a key pair in pem format.
-func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, passphrase []byte) error {
-	private, err := openKeyFile(privateKeyFile)
-	if err != nil {
-		return err
-	}
-	defer private.Close()
-	public, err := openKeyFile(publicKeyFile)
-	if err != nil {
-		return err
-	}
-	defer public.Close()
-	if err := SavePEMKeyPair(private, public, key, passphrase); err != nil {
-		return fmt.Errorf("failed to save private key to %v, %v: %v", privateKeyFile, publicKeyFile, err)
-	}
-	return nil
-}
 
 // loadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
 // If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
@@ -176,41 +134,12 @@ func LoadPEMPublicKey(r io.Reader) (interface{}, error) {
 	return key, nil
 }
 
-// LoadSSHPublicKeyFile loads a public key file in SSH authorized hosts format.
-func LoadSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
-	if !strings.HasSuffix(filename, ".pub") {
-		return nil, "", fmt.Errorf("%v does not have suffix: .pub", filename)
-	}
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, "", err
-	}
-	defer f.Close()
-	key, comment, err := LoadSSHPublicKey(f)
-	if err != nil {
-		return nil, "", fmt.Errorf("failed to load ssh public key from: %v: %v", filename, err)
-	}
-	return key, comment, nil
-}
-
-// LoadSSHPublicKey loads a public key in SSH authorized hosts format.
-func LoadSSHPublicKey(r io.Reader) (ssh.PublicKey, string, error) {
-	data, err := io.ReadAll(r)
-	if err != nil {
-		return nil, "", fmt.Errorf("failed to read bytes: %v", err)
-	}
-	key, comment, _, _, err := ssh.ParseAuthorizedKey(data)
-	if err != nil {
-		return nil, "", err
-	}
-	return key, comment, nil
-}
-
 // SavePEMKey marshals 'key', encrypts it using 'passphrase', and saves the bytes to 'w' in PEM format.
 // If passphrase is nil, the key will not be encrypted.
 //
 // For example, if key is an ECDSA private key, it will be marshaled
 // in ASN.1, DER format, encrypted, and then written in a PEM block.
+// Deprecated: do not use this anymore.
 func SavePEMKeyPair(private, public io.Writer, key crypto.PrivateKey, passphrase []byte) error {
 	var privateData []byte
 	var err error
@@ -259,21 +188,7 @@ func SavePEMKeyPair(private, public io.Writer, key crypto.PrivateKey, passphrase
 	if public == nil {
 		return nil
 	}
-	return SavePublicKeyPEM(public, publicKey)
-}
-
-// SavePublicKeyPEM marshals the public using MarshalPKIXPublicKey and writes
-// it to the supplied io.Writer.
-func SavePublicKeyPEM(public io.Writer, key crypto.PublicKey) error {
-	publicData, err := x509.MarshalPKIXPublicKey(key)
-	if err != nil {
-		return err
-	}
-	pemKey := &pem.Block{
-		Type:  pkixPublicKeyPEMType,
-		Bytes: publicData,
-	}
-	return pem.Encode(public, pemKey)
+	return EncodePublicKeyPEM(public, publicKey)
 }
 
 // ParseECDSAKey creates an ecdsa.PublicKey from an ssh ECDSA key.

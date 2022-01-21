@@ -45,6 +45,7 @@ const (
 
 	directoryLockfileName = "dir.lock"
 	privateKeyFile        = "privatekey.pem"
+	privatePCKS8KeyFile   = "privatekey.pkcs8"
 	publicKeyFile         = "publickey.pem"
 )
 

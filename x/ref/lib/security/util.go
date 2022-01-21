@@ -14,29 +14,11 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/crypto/ssh"
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/signing/sshagent"
 )
-
-// DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
-// ssh agent to use instead of the one specified by SSH_AUTH_SOCK. This is
-// primarily intended for tests.
-var DefaultSSHAgentSockNameFunc = func() string {
-	return os.Getenv("SSH_AUTH_SOCK")
-}
-
-// SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
-// key file must be accessible and is used to identify the private key hosted
-// by the ssh agent. Currently ecdsa and ed25519 key types are supported.
-type SSHAgentHostedKey struct {
-	PublicKeyFile string
-	PublicKey     ssh.PublicKey
-	Comment       string
-	Agent         *sshagent.Client
-}
 
 // KeyType represents the supported key types.
 type KeyType int
@@ -51,6 +33,24 @@ const (
 	RSA2048
 	RSA4096
 )
+
+func (kt KeyType) String() string {
+	switch kt {
+	case ECDSA256:
+		return "ecdsa-256"
+	case ECDSA384:
+		return "ecdsa-384"
+	case ECDSA521:
+		return "ecdsa-521"
+	case ED25519:
+		return "ed25519"
+	case RSA2048:
+		return "rsa-2048"
+	case RSA4096:
+		return "rsa-4096"
+	}
+	return ""
+}
 
 // NewPrivateKey creates a new private key of the requested type.
 // keyType must be one of ecdsa256, ecdsa384, ecdsa521, ed25519,
@@ -75,21 +75,25 @@ func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	}
 }
 
-// NewSSHAgentHostedKey creates a connection to the users ssh agent
-// in order to use the private key corresponding to the supplied
-// public for signing operations. Thus allowing the use of ssh keys
-// without having to separately manage them.
-func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
-	key, comment, err := internal.LoadSSHPublicKeyFile(publicKeyFile)
-	if err != nil {
-		return nil, err
+
+
+func publicKeyFromPrivate(key crypto.PrivateKey) (publicKey crypto.PublicKey, err error) {
+	switch k := key.(type) {
+	case *ecdsa.PrivateKey:
+		publicKey = k.Public()
+	case ed25519.PrivateKey:
+		publicKey = k.Public()
+	case *rsa.PrivateKey:
+		publicKey = k.Public()
+	case SSHAgentHostedKey:
+		publicKey = k.PublicKey
+	case *SSHAgentHostedKey:
+		publicKey = k.PublicKey
+	default:
+		err = fmt.Errorf("uncrecognised public key type %T", key)
+		return
 	}
-	return &SSHAgentHostedKey{
-		PublicKeyFile: publicKeyFile,
-		PublicKey:     key,
-		Comment:       comment,
-		Agent:         sshagent.NewClient(),
-	}, nil
+	return
 }
 
 // lockAndLoad only needs to read the credentials information.

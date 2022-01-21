@@ -61,6 +61,7 @@ func (kf *keyfile) Signer(ctx context.Context, keyFile string, passphrase []byte
 		}
 		return SignerFromKey(key)
 	}
+	// TODO(cnicolaou): add pkcs8
 	return nil, fmt.Errorf("unrecognised file suffix: %v, currently only pem files are supported", keyFile)
 }
 

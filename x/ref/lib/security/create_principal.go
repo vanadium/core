@@ -61,13 +61,13 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 
 	if err := internal.WritePEMKeyPair(
 		key,
-		path.Join(dir, privateKeyFile),
-		path.Join(dir, publicKeyFile),
+		filepath.Join(dir, privateKeyFile),
+		filepath.Join(dir, publicKeyFile),
 		passphrase,
 	); err != nil {
 		return nil, err
 	}
-	signer, err := newFileSigner(ctx, path.Join(dir, privateKeyFile), passphrase)
+	signer, err := newFileSigner(ctx, filepath.Join(dir, privateKeyFile), passphrase)
 	if err != nil {
 		return nil, err
 	}
