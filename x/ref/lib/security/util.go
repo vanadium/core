@@ -52,6 +52,24 @@ const (
 	RSA4096
 )
 
+func (kt KeyType) String() string {
+	switch kt {
+	case ECDSA256:
+		return "ecdsa-256"
+	case ECDSA384:
+		return "ecdsa-384"
+	case ECDSA521:
+		return "ecdsa-521"
+	case ED25519:
+		return "ed25519"
+	case RSA2048:
+		return "rsa-2048"
+	case RSA4096:
+		return "rsa-4096"
+	}
+	return "unknown"
+}
+
 // NewPrivateKey creates a new private key of the requested type.
 // keyType must be one of ecdsa256, ecdsa384, ecdsa521, ed25519,
 // rsa 2048 or rsa 4096 bit.

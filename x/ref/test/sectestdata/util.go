@@ -6,6 +6,9 @@ package sectestdata
 
 import (
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"crypto/x509"
 	"embed"
 	"encoding/pem"
@@ -15,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"v.io/v23/security"
 )
 
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
@@ -135,4 +140,29 @@ func certFromFS(fs embed.FS, dir, name string) ([]*x509.Certificate, error) {
 		return nil, err
 	}
 	return loadCerts(data)
+}
+
+func signerFromCryptoKey(key crypto.PrivateKey) (security.Signer, error) {
+	switch k := key.(type) {
+	case *rsa.PrivateKey:
+		return security.NewInMemoryRSASigner(k)
+	case *ecdsa.PrivateKey:
+		return security.NewInMemoryECDSASigner(k)
+	case ed25519.PrivateKey:
+		return security.NewInMemoryED25519Signer(k)
+	default:
+		return nil, fmt.Errorf("unsupported key type: %v: %T", key, key)
+	}
+}
+
+func readSinglePEMBlock(fs embed.FS, filename string) []byte {
+	data, err := fs.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	block, _ := pem.Decode(data)
+	if block == nil {
+		panic("empty PEM block")
+	}
+	return block.Bytes
 }
