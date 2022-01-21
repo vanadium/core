@@ -15,19 +15,20 @@ import (
 	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
-// DefaultSSHAgentSockNameFunc can be overridden to return the address of a custom
+// DefaultAgentSockNameFunc can be overridden to return the address of a custom
 // ssh agent to use instead of the one specified by SSH_AUTH_SOCK. This is
 // primarily intended for tests.
 var DefaultAgentSockNameFunc = func() string {
 	return os.Getenv("SSH_AUTH_SOCK")
 }
 
-// SSHAgentHostedKey represents a private key hosted by an ssh agent. The public
+// AgentHostedKey represents a private key hosted by an ssh agent. The public
 // key file must be accessible and is used to identify the private key hosted
 // by the ssh agent.
 type AgentHostedKey struct {
-	PublicKey PublicKey
-	Agent     *sshagent.Client
+	key     ssh.PublicKey
+	comment string
+	agent   *sshagent.Client
 }
 
 type PublicKey struct {
@@ -35,12 +36,15 @@ type PublicKey struct {
 	Comment   string
 }
 
-func (key *AgentHostedKey) PublicKey() crypto.PublicKey {
+// Public returns the public key.
+func (key *AgentHostedKey) Public() crypto.PublicKey {
+	return key.key
+}
 
-	return &PublicKey{
-		PublicKey: key.PublicKey,
-		Comment:   key.Comment,
-	}
+// Comment returns the comment associated with the public key that is
+// required to identify it with the keys stored in the ssh agent.
+func (key *AgentHostedKey) Comment() string {
+	return key.comment
 }
 
 // NewAgentHostedKey creates a connection to the users ssh agent
@@ -52,10 +56,9 @@ func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &SSHAgentHostedKey{
-		PublicKeyFile: publicKeyFile,
-		PublicKey:     key,
-		Comment:       comment,
-		Agent:         sshagent.NewClient(),
+	return &AgentHostedKey{
+		key:     key,
+		comment: comment,
+		agent:   sshagent.NewClient(),
 	}, nil
 }

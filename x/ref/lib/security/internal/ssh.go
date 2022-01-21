@@ -19,9 +19,6 @@ import (
 // or in SSH2 pem format. A file with a suffix .pub is expected to be in
 // authorized hosts format, one ending in .pem to be in SSH2 pem format.
 func ParseSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
-	if !strings.HasSuffix(filename, ".pub") {
-		return nil, "", fmt.Errorf("%v does not have suffix: .pub", filename)
-	}
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, "", err
@@ -42,6 +39,7 @@ func ParseSSHPublicKeyFile(filename string) (ssh.PublicKey, string, error) {
 		}
 		return key, comment, nil
 	}
+	return nil, "", fmt.Errorf("%v is neither a .pub (ssh authorized hosts) or .pem (ssh2 pem)file", filename)
 }
 
 // loadSSHAuthorizedHosts loads a public key in SSH authorized hosts format.
@@ -70,20 +68,19 @@ func loadSSH2PEM(r io.Reader) (ssh.PublicKey, string, error) {
 	if pemBlock.Type != ssh2PEMType {
 		return nil, "", fmt.Errorf("no %v PEM block found", ssh2PEMType)
 	}
-	comment, ok := pemBlock.Head["Comment"]
+	comment, ok := pemBlock.Headers["Comment"]
 	if !ok {
 		return nil, "", fmt.Errorf("no Comment field", ssh2PEMType)
 	}
-
 	keyBytes := make([]byte, base64.StdEncoding.DecodedLen(len(pemBlock.Bytes)))
-	n, err := base64.StdEncoding.Decode(key, pemBlock.Bytes)
+	n, err := base64.StdEncoding.Decode(keyBytes, pemBlock.Bytes)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to base64 decode the key: %v", err)
 	}
 	keyBytes = keyBytes[:n]
-	key, err = ssh.ParsePublicKey(keyBytes)
+	key, err := ssh.ParsePublicKey(keyBytes)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to parse key with Comment: %v: %v", comment, err)
 	}
-
+	return key, comment, err
 }
