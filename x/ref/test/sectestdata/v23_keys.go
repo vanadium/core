@@ -12,7 +12,6 @@ import (
 	"path"
 
 	"v.io/v23/security"
-	seclib "v.io/x/ref/lib/security"
 )
 
 //go:embed testdata/v23-private-*.key
@@ -27,7 +26,7 @@ const (
 	V23KeySetB
 )
 
-func v23filename(typ seclib.KeyType, set V23KeySetID) string {
+func v23filename(typ KeyType, set V23KeySetID) string {
 	if len(typ.String()) == 0 {
 		panic(fmt.Sprintf("unrecognised key type: %v", typ))
 	}
@@ -40,7 +39,7 @@ func v23filename(typ seclib.KeyType, set V23KeySetID) string {
 	panic(fmt.Sprintf("unrecognised key set: %v", set))
 }
 
-func V23PrivateKey(typ seclib.KeyType, set V23KeySetID) crypto.PrivateKey {
+func V23PrivateKey(typ KeyType, set V23KeySetID) crypto.PrivateKey {
 	return v23PrivateKeyFile(v23filename(typ, set))
 }
 
@@ -56,7 +55,7 @@ func v23PrivateKeyFile(name string) crypto.PrivateKey {
 	return key
 }
 
-func V23Signer(typ seclib.KeyType, set V23KeySetID) security.Signer {
+func V23Signer(typ KeyType, set V23KeySetID) security.Signer {
 	signer, err := signerFromCryptoKey(V23PrivateKey(typ, set))
 	if err != nil {
 		panic(err)

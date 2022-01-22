@@ -15,10 +15,10 @@ import (
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/signing/sshagent"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/sectestdata"
-	"v.io/x/ref/test/testutil/testsshagent"
 	"v.io/x/ref/test/v23test"
 )
 
@@ -1009,21 +1009,16 @@ func TestMain(m *testing.M) {
 	var (
 		err     error
 		cleanup func()
-		sshKeys []string
 	)
-	sshKeyDir, sshKeys, err = sectestdata.SSHKeydir()
-	if err != nil {
-		panic(err)
-	}
-	cleanup, sshAgentAddr, err = testsshagent.StartPreconfiguredAgent(sshKeyDir,
-		sshKeys...)
+	sshKeyDir, sshAgentAddr, cleanup, err = sectestdata.StartPreConfiguredSSHAgent()
 	if err != nil {
 		panic(err)
 	}
 	// Needed for LoadPrincipal etc to use the ssh agent started above.
-	security.DefaultSSHAgentSockNameFunc = func() string {
+	sshagent.DefaultSockNameFunc = func() string {
 		return sshAgentAddr
 	}
+
 	flag.Parse()
 	var code int
 	func() {

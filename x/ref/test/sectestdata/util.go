@@ -22,6 +22,45 @@ import (
 	"v.io/v23/security"
 )
 
+var SupportedKeyTypes = []KeyType{
+	ECDSA256, ECDSA384, ECDSA521,
+	ED25519,
+	RSA2048, RSA4096,
+}
+
+// KeyType represents the key types supported by this package, the equivalent
+// type in lib/security is not used to avoid import cycles.
+type KeyType int
+
+// Supported key types.
+const (
+	UnsupportedKeyType KeyType = iota
+	ECDSA256
+	ECDSA384
+	ECDSA521
+	ED25519
+	RSA2048
+	RSA4096
+)
+
+func (kt KeyType) String() string {
+	switch kt {
+	case ECDSA256:
+		return "ecdsa-256"
+	case ECDSA384:
+		return "ecdsa-384"
+	case ECDSA521:
+		return "ecdsa-521"
+	case ED25519:
+		return "ed25519"
+	case RSA2048:
+		return "rsa-2048"
+	case RSA4096:
+		return "rsa-4096"
+	}
+	return "unknown"
+}
+
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
 	rest := data
 	for {
@@ -150,19 +189,9 @@ func signerFromCryptoKey(key crypto.PrivateKey) (security.Signer, error) {
 		return security.NewInMemoryECDSASigner(k)
 	case ed25519.PrivateKey:
 		return security.NewInMemoryED25519Signer(k)
+	case *ed25519.PrivateKey:
+		return security.NewInMemoryED25519Signer(*k)
 	default:
 		return nil, fmt.Errorf("unsupported key type: %v: %T", key, key)
 	}
-}
-
-func readSinglePEMBlock(fs embed.FS, filename string) []byte {
-	data, err := fs.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-	block, _ := pem.Decode(data)
-	if block == nil {
-		panic("empty PEM block")
-	}
-	return block.Bytes
 }

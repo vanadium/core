@@ -5,15 +5,17 @@
 package sectestdata
 
 import (
+	"crypto"
 	"embed"
 	_ "embed"
 	"fmt"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/test/testutil/testsshagent"
 )
 
 //go:embed testdata/ssh-*
@@ -59,7 +61,31 @@ func SSHKeydir() (string, []string, error) {
 	return dir, names, nil
 }
 
-func sshFilename(typ seclib.KeyType, set SSHKeySetID) string {
+var sshFiles []string
+
+func init() {
+	names, err := sshKeys.ReadDir("testdata")
+	if err != nil {
+		panic(err)
+	}
+	for _, name := range names {
+		sshFiles = append(sshFiles, name.Name())
+	}
+}
+
+func SSHPrivateKeys() []string {
+	privateKeys := []string{}
+	for _, k := range sshFiles {
+		ext := filepath.Ext(k)
+		if ext == ".pem" || ext == ".pub" {
+			continue
+		}
+		privateKeys = append(privateKeys, k)
+	}
+	return privateKeys
+}
+
+func sshFilename(typ KeyType, set SSHKeySetID) string {
 	if len(typ.String()) == 0 {
 		panic(fmt.Sprintf("unrecognised key type: %v", typ))
 	}
@@ -74,7 +100,7 @@ func sshFilename(typ seclib.KeyType, set SSHKeySetID) string {
 	panic(fmt.Sprintf("unrecognised key set: %v", set))
 }
 
-func SSHPublicKey(typ seclib.KeyType, set SSHKeySetID) []byte {
+func SSHPublicKey(typ KeyType, set SSHKeySetID) []byte {
 	if set != SSHKeyAgentHosted && set != SSHKeySetRFC4716 {
 		panic(fmt.Sprintf("wrong key set for public keys: %v", set))
 	}
@@ -90,7 +116,7 @@ func sshFileContents(fs embed.FS, filename string) []byte {
 	return data
 }
 
-func SSHKeySigner(typ seclib.KeyType, set SSHKeySetID) security.Signer {
+func SSHPrivateKey(typ KeyType, set SSHKeySetID) crypto.PrivateKey {
 	switch set {
 	case SSHkeySetNative:
 		filename := sshFilename(typ, set)
@@ -98,15 +124,30 @@ func SSHKeySigner(typ seclib.KeyType, set SSHKeySetID) security.Signer {
 		if err != nil {
 			panic(fmt.Sprintf("failed to parse %v: %v", filename, err))
 		}
-		signer, err := signerFromCryptoKey(key)
-		if err != nil {
-			panic(err)
-		}
-		return signer
+		return key
 	case SSHKeyAgentHosted:
-		// TODO(cnicolaou): TBD.
+		// TODO(cnicolaou): implement this once the ssh public key handling
+		//                  is cleaned up.
 		return nil
 	default:
 		panic(fmt.Sprintf("unsupported key set %v", set))
 	}
+}
+
+func SSHKeySigner(typ KeyType, set SSHKeySetID) security.Signer {
+	signer, err := signerFromCryptoKey(SSHPrivateKey(typ, set))
+	if err != nil {
+		panic(err)
+	}
+	return signer
+}
+
+func StartPreConfiguredSSHAgent() (keyDir, sockName string, cleanup func(), err error) {
+	keyDir, _, err = SSHKeydir()
+	if err != nil {
+		return
+	}
+	sshTestKeys := SSHPrivateKeys()
+	cleanup, sockName, err = testsshagent.StartPreconfiguredAgent(keyDir, sshTestKeys...)
+	return
 }
