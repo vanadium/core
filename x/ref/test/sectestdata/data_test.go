@@ -22,7 +22,7 @@ func TestSSHKeys(t *testing.T) {
 			SSHkeySetNative,
 			// TODO(cnicolaou): enabled this once the handling of ssh public
 			//                  keys is cleaned up.
-			//SSHKeyAgentHosted,
+			// SSHKeyAgentHosted,
 		} {
 			signer := SSHKeySigner(kt, set)
 			if signer == nil {

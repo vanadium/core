@@ -53,8 +53,7 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 
 	// Handle ssh keys where the private key is stored in an agent and
 	// we only have the public key.
-	switch sshkey := key.(type) {
-	case *ssh.AgentHostedKey:
+	if sshkey, ok := key.(*ssh.AgentHostedKey); ok {
 		return createSSHAgentPrincipal(ctx, sshkey, dir, passphrase)
 	}
 
