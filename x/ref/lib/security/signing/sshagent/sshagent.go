@@ -25,6 +25,13 @@ import (
 	"v.io/x/ref/lib/security/signing/internal"
 )
 
+// DefaultSockNameFunc can be overridden to return the address of a custom
+// ssh agent to use instead of the one specified by SSH_AUTH_SOCK. This is
+// primarily intended for tests.
+var DefaultSockNameFunc = func() string {
+	return os.Getenv("SSH_AUTH_SOCK")
+}
+
 // Client represents an ssh-agent client.
 type Client struct {
 	mu    sync.Mutex
@@ -180,6 +187,9 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 
 // Close implements signing.Service.
 func (ac *Client) Close(ctx context.Context) error {
+	if ac.conn == nil {
+		return nil
+	}
 	return ac.conn.Close()
 }
 

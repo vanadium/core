@@ -9,16 +9,18 @@ import (
 	"crypto/x509"
 	"embed"
 	_ "embed"
+
+	"v.io/v23/security"
 )
 
 //go:embed testdata/vanadium.io.ca.pem
-var vanadiumCA []byte
+var vanadiumSSLCA []byte
 
 //go:embed testdata/*vanadium.io.key
-var vanadiumKeys embed.FS
+var vanadiumSSLKeys embed.FS
 
 //go:embed testdata/*vanadium.io.crt
-var vanadiumCerts embed.FS
+var vanadiumSSLCerts embed.FS
 
 // VanadiumSSLData returns a selection of keys and certificates for hosts
 // created for a self-signed CA.
@@ -26,12 +28,13 @@ var vanadiumCerts embed.FS
 func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certificate, x509.VerifyOptions) {
 	keys := map[string]crypto.PrivateKey{}
 	certs := map[string]*x509.Certificate{}
-	for _, host := range []string{"ec256", "rsa2048", "rsa4096", "ed25519"} {
-		k, err := keyFromFS(vanadiumKeys, "testdata", host+".vanadium.io.key")
+	for _, typ := range SupportedKeyTypes {
+		host := typ.String()
+		k, err := keyFromFS(vanadiumSSLKeys, "testdata", host+".vanadium.io.key")
 		if err != nil {
 			panic(err)
 		}
-		c, err := certFromFS(vanadiumCerts, "testdata", host+".vanadium.io.crt")
+		c, err := certFromFS(vanadiumSSLCerts, "testdata", host+".vanadium.io.crt")
 		if err != nil {
 			panic(err)
 		}
@@ -43,9 +46,37 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 		cert = c
 		break
 	}
-	opts, err := loadCA(cert, vanadiumCA)
+	opts, err := loadCA(cert, vanadiumSSLCA)
 	if err != nil {
 		panic(err)
 	}
 	return keys, certs, opts
+}
+
+func X509PublicKey(typ KeyType) crypto.PublicKey {
+	cert, err := certFromFS(vanadiumSSLCerts, "testdata", typ.String()+".vanadium.io.crt")
+	if err != nil {
+		panic(err)
+	}
+	return cert[0].PublicKey
+}
+
+func X509PrivateKey(typ KeyType) crypto.PrivateKey {
+	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
+	if err != nil {
+		panic(err)
+	}
+	return key
+}
+
+func X509Signer(typ KeyType) security.Signer {
+	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
+	if err != nil {
+		panic(err)
+	}
+	signer, err := signerFromCryptoKey(key)
+	if err != nil {
+		panic(err)
+	}
+	return signer
 }

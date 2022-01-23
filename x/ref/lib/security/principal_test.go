@@ -26,8 +26,8 @@ import (
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/sshagent"
+	secssh "v.io/x/ref/lib/security/ssh"
 	"v.io/x/ref/test/sectestdata"
-	"v.io/x/ref/test/testutil/testsshagent"
 )
 
 var (
@@ -38,11 +38,8 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	sshKeyDir, sshTestKeys, err = sectestdata.SSHKeydir()
-	if err != nil {
-		panic(err)
-	}
-	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
+	var cleanup func()
+	sshKeyDir, agentSockName, cleanup, err = sectestdata.StartPreConfiguredSSHAgent()
 	if err != nil {
 		flag.Parse()
 		cleanup()
@@ -50,9 +47,9 @@ func TestMain(m *testing.M) {
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
-	agentSockName = addr
-	DefaultSSHAgentSockNameFunc = func() string {
-		return addr
+	sshTestKeys = sectestdata.SSHPrivateKeys()
+	sshagent.DefaultSockNameFunc = func() string {
+		return agentSockName
 	}
 	code := m.Run()
 	cleanup()
@@ -295,7 +292,7 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 		ctx := gocontext.TODO()
 		service := sshagent.NewClient()
 		service.SetAgentSockName(agentSockName)
-		key := SSHAgentHostedKey{
+		key := &secssh.AgentHostedKey{
 			PublicKeyFile: filepath.Join(sshKeyDir, keyFile),
 			Agent:         service,
 		}
@@ -326,10 +323,10 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForSSHKey("ssh-ed25519.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
 
-		{funcForSSLKey(sslKeys["rsa2048"]), []byte("unencrypted"), nil},
-		{funcForSSLKey(sslKeys["rsa4096"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["rsa-2048"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["rsa-4096"]), []byte("unencrypted"), nil},
 		{funcForSSLKey(sslKeys["ed25519"]), []byte("unencrypted"), nil},
-		{funcForSSLKey(sslKeys["ec256"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslKeys["ecdsa-256"]), []byte("unencrypted"), nil},
 	}
 	for _, test := range tests {
 		testCreatePersistentPrincipal(t, test.fn, test.Message, test.Passphrase)

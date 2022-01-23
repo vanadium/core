@@ -223,7 +223,7 @@ func newFileSigner(ctx context.Context, filename string, passphrase []byte) (sec
 
 func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
 	svc := sshagent.NewSigningService()
-	svc.(*sshagent.Client).SetAgentSockName(DefaultSSHAgentSockNameFunc())
+	svc.(*sshagent.Client).SetAgentSockName(sshagent.DefaultSockNameFunc())
 	signer, err := svc.Signer(ctx, filename, passphrase)
 	return handleSignerError(signer, err)
 }

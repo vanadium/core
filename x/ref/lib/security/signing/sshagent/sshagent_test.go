@@ -20,32 +20,26 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/signing/sshagent"
-	"v.io/x/ref/test/testutil/testsshagent"
+	"v.io/x/ref/test/sectestdata"
 )
 
 var (
 	agentSockName string
 	sshKeyDir     string
-	sshTestKeys   = []string{
-		"ssh-ecdsa-256",
-		"ssh-ecdsa-384",
-		"ssh-ecdsa-521",
-		"ssh-ed25519",
-		"ssh-rsa-2048",
-		"ssh-rsa-3072",
-	}
+	sshTestKeys   []string
 )
 
 func TestMain(m *testing.M) {
-	sshKeyDir = "testdata"
-	cleanup, addr, err := testsshagent.StartPreconfiguredAgent(sshKeyDir, sshTestKeys...)
+	var err error
+	var cleanup func()
+	sshKeyDir, agentSockName, cleanup, err = sectestdata.StartPreConfiguredSSHAgent()
 	if err != nil {
 		flag.Parse()
 		cleanup()
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
-	agentSockName = addr
+	sshTestKeys = sectestdata.SSHPrivateKeys()
 	code := m.Run()
 	cleanup()
 	os.Exit(code)
@@ -73,19 +67,18 @@ func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, pas
 		if err != nil {
 			t.Fatalf("rand: %v", err)
 		}
-
 		// Compute signature using vanadium code.
-		vpkey, err := loadSSHPrivateKey(filepath.Join("testdata", keyName))
+		vpkey, err := loadSSHPrivateKey(filepath.Join(sshKeyDir, keyName))
 		if err != nil {
-			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+			t.Fatalf("file %v %v", filepath.Join(sshKeyDir, keyName), err)
 		}
 		vsigner, err := security.NewInMemorySigner(vpkey)
 		if err != nil {
-			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+			t.Fatalf("file %v %v", filepath.Join(sshKeyDir, keyName), err)
 		}
 		vsig, err := vsigner.Sign([]byte("testing"), data)
 		if err != nil {
-			t.Fatalf("file %v %v", filepath.Join("testdata", keyName), err)
+			t.Fatalf("file %v %v", filepath.Join(sshKeyDir, keyName), err)
 		}
 
 		pubKey := filepath.Join(sshKeyDir, keyName+".pub")
@@ -112,6 +105,7 @@ func testAgentSigningVanadiumVerification(ctx context.Context, t *testing.T, pas
 			t.Errorf("failed to detect changed message for %v", keyName)
 		}
 
+		t.Log(keyName)
 	}
 	defer service.Close(ctx)
 }
