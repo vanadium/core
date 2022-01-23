@@ -9,7 +9,6 @@ import (
 	"embed"
 	_ "embed"
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -104,23 +103,14 @@ func SSHPublicKey(typ KeyType, set SSHKeySetID) []byte {
 	if set != SSHKeyAgentHosted && set != SSHKeySetRFC4716 {
 		panic(fmt.Sprintf("wrong key set for public keys: %v", set))
 	}
-	return sshFileContents(sshKeys, sshFilename(typ, set))
-}
-
-func sshFileContents(fs embed.FS, filename string) []byte {
-	filename = path.Join("testdata", filename)
-	data, err := fs.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-	return data
+	return fileContents(sshKeys, sshFilename(typ, set))
 }
 
 func SSHPrivateKey(typ KeyType, set SSHKeySetID) crypto.PrivateKey {
 	switch set {
 	case SSHkeySetNative:
 		filename := sshFilename(typ, set)
-		key, err := ssh.ParseRawPrivateKey(sshFileContents(sshKeys, filename))
+		key, err := ssh.ParseRawPrivateKey(fileContents(sshKeys, filename))
 		if err != nil {
 			panic(fmt.Sprintf("failed to parse %v: %v", filename, err))
 		}
@@ -129,6 +119,16 @@ func SSHPrivateKey(typ KeyType, set SSHKeySetID) crypto.PrivateKey {
 		// TODO(cnicolaou): implement this once the ssh public key handling
 		//                  is cleaned up.
 		return nil
+	default:
+		panic(fmt.Sprintf("unsupported key set %v", set))
+	}
+}
+
+func SSHPrivateKeyBytes(typ KeyType, set SSHKeySetID) []byte {
+	switch set {
+	case SSHkeySetNative:
+		filename := sshFilename(typ, set)
+		return fileContents(sshKeys, filename)
 	default:
 		panic(fmt.Sprintf("unsupported key set %v", set))
 	}

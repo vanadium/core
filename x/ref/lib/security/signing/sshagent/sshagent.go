@@ -10,6 +10,7 @@ package sshagent
 import (
 	"bytes"
 	"context"
+	"crypto"
 	"fmt"
 	"math/big"
 	"net"
@@ -20,9 +21,9 @@ import (
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"v.io/v23/security"
-	secinternal "v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing"
 	"v.io/x/ref/lib/security/signing/internal"
+	secssh "v.io/x/ref/lib/security/ssh"
 )
 
 // DefaultSockNameFunc can be overridden to return the address of a custom
@@ -30,6 +31,78 @@ import (
 // primarily intended for tests.
 var DefaultSockNameFunc = func() string {
 	return os.Getenv("SSH_AUTH_SOCK")
+}
+
+// HostededKey represents a private key hosted by an ssh agent. The public
+// key file must be accessible and is used to identify the private key hosted
+// by the ssh agent. Currently ecdsa and ed25519 key types are supported.
+type HostedKey struct {
+	publicKey ssh.PublicKey
+	keyBytes  []byte
+	comment   string
+	agentMu   sync.Mutex
+	agent     *Client
+}
+
+// NewHostedKey creates a connection to the users ssh agent
+// in order to use the private key corresponding to the supplied
+// public for signing operations. Thus allowing the use of ssh keys
+// without having to separately manage them.
+func NewHostedKey(data []byte) (crypto.PrivateKey, error) {
+	key, comment, err := secssh.ParsePublicKey(data)
+	if err != nil {
+		return nil, err
+	}
+	if len(comment) == 0 {
+		return nil, fmt.Errorf("no comment found for ssh key")
+	}
+	cpy := make([]byte, len(data))
+	copy(cpy, data)
+	return &HostedKey{
+		publicKey: key,
+		keyBytes:  cpy,
+		comment:   comment,
+		agent:     NewClient(),
+	}, nil
+}
+
+/*
+// SetClient sets the sshagent client associated with the supplied key.
+func (hk *HostedKey) SetClient(agent *Client) {
+	hk.agentMu.Lock()
+	hk.agent = agent
+	hk.agentMu.Unlock()
+}*/
+
+// SigningService returns the signing service associated with this key,
+// ie. the ssh agent that will perform the signing.
+func (hk *HostedKey) SigningService() signing.Service {
+	hk.agentMu.Lock()
+	defer hk.agentMu.Unlock()
+	return hk.agent
+}
+
+// KeyBytes returns the original bytes that this key was created from.
+func (hk *HostedKey) KeyBytes() []byte {
+	return hk.keyBytes
+}
+
+// Comment returns the comment associated with this public key.
+func (hk *HostedKey) Comment() string {
+	return hk.comment
+}
+
+// Public returns the crypto.PublicKey associated with this sshagent hosted key.
+func (hk *HostedKey) Public() crypto.PublicKey {
+	if cp, ok := hk.publicKey.(ssh.CryptoPublicKey); ok {
+		return cp.CryptoPublicKey()
+	}
+	return nil
+}
+
+// PublicKey returns the ssh.PublicKey associated with this sshagent hosted key.
+func (hk *HostedKey) PublicKey() ssh.PublicKey {
+	return hk.publicKey
 }
 
 // Client represents an ssh-agent client.
@@ -51,6 +124,8 @@ func NewSigningService() signing.Service {
 	return &Client{}
 }
 
+/*
+
 // SetAgentSockName will call the SetAgentSockName method on the
 // specified signing.Service iff it is an instance of sshagent.Client.
 func SetAgentSockName(service signing.Service, name string) {
@@ -58,6 +133,7 @@ func SetAgentSockName(service signing.Service, name string) {
 		ac.SetAgentSockName(name)
 	}
 }
+
 
 // SetAgentSockName specifies the name of the unix domain socket to use
 // to communicate with the agent. It must be called before any other
@@ -68,12 +144,13 @@ func (ac *Client) SetAgentSockName(name string) {
 	defer ac.mu.Unlock()
 	ac.sock = name
 }
+*/
 
 func (ac *Client) connect() error {
 	ac.mu.Lock()
 	sockName := ac.sock
 	if len(sockName) == 0 {
-		sockName = os.Getenv("SSH_AUTH_SOCK")
+		sockName = DefaultSockNameFunc()
 	}
 	if ac.conn != nil && ac.agent != nil {
 		ac.mu.Unlock()
@@ -130,11 +207,15 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 	}, nil
 }
 
-// Signer implements signing.Service.
-func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase []byte) (s security.Signer, err error) {
-	key, comment, err := secinternal.LoadSSHPublicKeyFile(publicKeyFile)
+// Signer implements signing.Service. keyBytes may be in authorized hosts or
+// SSH2 PEM (RFC 4716) format.
+func (ac *Client) Signer(ctx context.Context, keyBytes []byte, passphrase []byte) (s security.Signer, err error) {
+	key, comment, err := secssh.ParsePublicKey(keyBytes)
 	if err != nil {
 		return nil, err
+	}
+	if len(comment) == 0 {
+		return nil, fmt.Errorf("no comment found for ssh key")
 	}
 	if err := ac.connect(); err != nil {
 		return nil, err

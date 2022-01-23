@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package keyfile provides a signing service that uses files to store
-// keys. Currently .pem and ssh private key file formats are supported.
+// Package keyfile provides a signing service that uses keys read from files
+// keys.
 package keyfile
 
 import (
@@ -12,27 +12,19 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"fmt"
-	"os"
-	"strings"
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing"
 )
 
-// TODO(cnicolaou): this implementation anticipates forthcoming changes
-//   to use context.Context and to simplify verror. The TODO is to transition
-//   to their replacements, for now use context.Context and fmt.Errorf
-//   directly in some cases.
-
-type keyfile struct {
-}
+type keyfile struct{}
 
 func NewSigningService() signing.Service {
 	return &keyfile{}
 }
 
-func SignerFromKey(key interface{}) (security.Signer, error) {
+func signerFromKey(key interface{}) (security.Signer, error) {
 	switch v := key.(type) {
 	case *ecdsa.PrivateKey:
 		return security.NewInMemoryECDSASigner(v)
@@ -46,22 +38,13 @@ func SignerFromKey(key interface{}) (security.Signer, error) {
 }
 
 // Signer implements v.io/ref/lib/security.SigningService.
-// The suffix for keyFile determines how the file is parsed:
-//   - .pem for PEM files
-func (kf *keyfile) Signer(ctx context.Context, keyFile string, passphrase []byte) (security.Signer, error) {
-	f, err := os.Open(keyFile)
+// It expects the keyBytes to be a PEM block.
+func (kf *keyfile) Signer(ctx context.Context, pemBytes []byte, passphrase []byte) (security.Signer, error) {
+	key, err := internal.ParsePEMPrivateKey(pemBytes, passphrase)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	if strings.HasSuffix(keyFile, ".pem") {
-		key, err := internal.LoadPEMPrivateKey(f, passphrase)
-		if err != nil {
-			return nil, err
-		}
-		return SignerFromKey(key)
-	}
-	return nil, fmt.Errorf("unrecognised file suffix: %v, currently only pem files are supported", keyFile)
+	return signerFromKey(key)
 }
 
 // Close implements v.io/ref/lib/security.SigningService.

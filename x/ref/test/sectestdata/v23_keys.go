@@ -55,6 +55,10 @@ func v23PrivateKeyFile(name string) crypto.PrivateKey {
 	return key
 }
 
+func V23PrivateKeyBytes(typ KeyType, set V23KeySetID) []byte {
+	return fileContents(v23PrivateKeys, v23filename(typ, set))
+}
+
 func V23Signer(typ KeyType, set V23KeySetID) security.Signer {
 	signer, err := signerFromCryptoKey(V23PrivateKey(typ, set))
 	if err != nil {

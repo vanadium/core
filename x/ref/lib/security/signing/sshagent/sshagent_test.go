@@ -118,22 +118,23 @@ func TestAgentSigningVanadiumVerification(t *testing.T) {
 func TestAgentSigningVanadiumVerificationPassphrase(t *testing.T) {
 	ctx := context.Background()
 	passphrase := []byte("something")
-	service := sshagent.NewSigningService()
-	agent := service.(*sshagent.Client)
-	agent.SetAgentSockName(agentSockName)
+	agent := sshagent.NewClient()
 	if err := agent.Lock(passphrase); err != nil {
 		t.Fatalf("agent.Lock: %v", err)
 	}
 
-	edkey := filepath.Join(sshKeyDir, "ssh-ed25519.pub")
-	_, err := service.Signer(ctx, edkey, nil)
+	edKeyBytes, err := os.ReadFile(filepath.Join(sshKeyDir, "ssh-ed25519.pub"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = agent.Signer(ctx, edKeyBytes, nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)
 	}
 	testAgentSigningVanadiumVerification(ctx, t, passphrase)
 
 	// make sure agent is still locked.
-	_, err = service.Signer(ctx, edkey, nil)
+	_, err = agent.Signer(ctx, edKeyBytes, nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Fatalf("service.Signer: should have failed with a key not found error: %v", err)
 	}

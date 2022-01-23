@@ -69,6 +69,10 @@ func X509PrivateKey(typ KeyType) crypto.PrivateKey {
 	return key
 }
 
+func X509PrivateKeyBytes(typ KeyType) []byte {
+	return fileContents(vanadiumSSLKeys, typ.String()+".vanadium.io.key")
+}
+
 func X509Signer(typ KeyType) security.Signer {
 	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
 	if err != nil {

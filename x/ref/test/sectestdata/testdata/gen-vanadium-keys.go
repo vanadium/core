@@ -5,23 +5,19 @@
 package main
 
 import (
+	"bytes"
 	"crypto/x509"
+	"encoding/pem"
 	"os"
 
 	"v.io/x/ref/lib/security"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func main() {
-	for _, kd := range []security.KeyType{
-		security.ECDSA256,
-		security.ECDSA384,
-		security.ECDSA521,
-		security.ED25519,
-		security.RSA2048,
-		security.RSA4096,
-	} {
+	for _, kd := range sectestdata.SupportedKeyTypes {
 		for _, set := range []string{"-a-", "-b-"} {
-			pk, err := security.NewPrivateKey(kd)
+			pk, err := security.NewPrivateKey(security.KeyType(kd))
 			if err != nil {
 				panic(err)
 			}
@@ -29,7 +25,15 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			if err := os.WriteFile("v23-private"+set+kd.String()+".key", data, 0600); err != nil {
+			pemKey := &pem.Block{
+				Type:  "PRIVATE KEY",
+				Bytes: data,
+			}
+			encoded := &bytes.Buffer{}
+			if err := pem.Encode(encoded, pemKey); err != nil {
+				panic(err)
+			}
+			if err := os.WriteFile("v23-private"+set+kd.String()+".key", encoded.Bytes(), 0600); err != nil {
 				panic(err)
 			}
 		}

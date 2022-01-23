@@ -181,6 +181,14 @@ func certFromFS(fs embed.FS, dir, name string) ([]*x509.Certificate, error) {
 	return loadCerts(data)
 }
 
+func fileContents(fs embed.FS, filename string) []byte {
+	data, err := fs.ReadFile(path.Join("testdata", filename))
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
 func signerFromCryptoKey(key crypto.PrivateKey) (security.Signer, error) {
 	switch k := key.(type) {
 	case *rsa.PrivateKey:

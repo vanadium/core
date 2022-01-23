@@ -230,8 +230,6 @@ func TestCreatePrincipalSSH(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	ctx := gocontext.TODO()
-	service := sshagent.NewClient()
-	service.SetAgentSockName(agentSockName)
 
 	// non-existent ssh public key file
 	_, err = NewSSHAgentHostedKey("does-not-exist.pub")
@@ -239,10 +237,6 @@ func TestCreatePrincipalSSH(t *testing.T) {
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with no such file error")
 	}
 
-	_, err = NewSSHAgentHostedKey("not-a-dot-pub-file")
-	if err == nil || !strings.Contains(err.Error(), ".pub") {
-		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with a not a .pub file error")
-	}
 	// malformed ssh public key file
 	invalid := filepath.Join(dir, "invalid.pub")
 	os.WriteFile(invalid, []byte{'1', '\n'}, 0600)
@@ -262,7 +256,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 		t.Fatal(err)
 	}
 	missing := "private-key-not-in-agent.pub"
-	if err := os.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
+	if err := os.WriteFile(missing, secssh.MarshalAuthorizedKey(missingKey, "comment"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -289,21 +283,21 @@ func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Princip
 
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		ctx := gocontext.TODO()
-		service := sshagent.NewClient()
-		service.SetAgentSockName(agentSockName)
-		key := &secssh.AgentHostedKey{
-			PublicKeyFile: filepath.Join(sshKeyDir, keyFile),
-			Agent:         service,
+		data, err := os.ReadFile(filepath.Join(sshKeyDir, keyFile))
+		if err != nil {
+			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
+		key, err := sshagent.NewHostedKey(data)
+		if err != nil {
+			return nil, err
+		}
+		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, pass)
 	}
 }
 
 func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		ctx := gocontext.TODO()
-		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
+		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, pass)
 	}
 }
 
@@ -544,14 +538,13 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 	if got, want := bobd.BlessingStore().DebugString(), bob.BlessingStore().DebugString(); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-
 }
 
 func TestDaemonPublicKeyOnly(t *testing.T) {
 	passphrase := []byte("with-passphrase")
 	testDaemonPublicKeyOnly(t, funcForKey(ECDSA256), passphrase)
 	client := sshagent.NewClient()
-	client.SetAgentSockName(agentSockName)
+	//	client.SetAgentSockName(agentSockName)
 	if err := client.Lock(passphrase); err != nil {
 		t.Fatal(err)
 	}

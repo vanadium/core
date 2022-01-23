@@ -16,7 +16,7 @@ import (
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/ssh"
+	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 // KeyType represents the supported key types.
@@ -57,7 +57,11 @@ func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 }
 
 func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
-	return ssh.NewAgentHostedKey(publicKeyFile)
+	keyBytes, err := os.ReadFile(publicKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	return sshagent.NewHostedKey(keyBytes)
 }
 
 // lockAndLoad only needs to read the credentials information.
