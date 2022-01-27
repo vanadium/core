@@ -28,10 +28,11 @@ const (
 	ecPrivateKeyPEMType      = "EC PRIVATE KEY"
 	rsaPrivateKeyPEMType     = "RSA PRIVATE KEY"
 	pkcs8PrivateKeyPEMType   = "PRIVATE KEY"
-	pkixPublicKeyPEMType     = "PUBLIC KEY"
 	opensshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
+	vanadiumIndirectPEMType  = "VANADIUM INDIRECT KEY"
 
-	certPEMType = "CERTIFICATE"
+	certPEMType          = "CERTIFICATE"
+	pkixPublicKeyPEMType = "PUBLIC KEY"
 )
 
 var (
@@ -146,7 +147,7 @@ func ParsePEMPrivateKey(pemBlockBytes []byte, passphrase []byte) (interface{}, e
 			}
 			return key, nil
 		case opensshPrivateKeyPEMType:
-			key, err := parseSSHPrivateKey(data)
+			key, err := parseSSHPrivateKey(data, passphrase)
 			if err != nil {
 				return nil, err
 			}
@@ -160,7 +161,7 @@ func ParsePEMPrivateKey(pemBlockBytes []byte, passphrase []byte) (interface{}, e
 	}
 }
 
-func parseSSHPrivateKey(decoded []byte) (crypto.PrivateKey, error) {
+func parseSSHPrivateKey(decoded []byte, passphrase []byte) (crypto.PrivateKey, error) {
 	pb := &pem.Block{
 		Type:  opensshPrivateKeyPEMType,
 		Bytes: decoded,
@@ -169,11 +170,21 @@ func parseSSHPrivateKey(decoded []byte) (crypto.PrivateKey, error) {
 	if err := pem.Encode(pemBlock, pb); err != nil {
 		return nil, err
 	}
-	key, err := ssh.ParseRawPrivateKey(pemBlock.Bytes())
+	var key crypto.PrivateKey
+	var err error
+	key, err = ssh.ParseRawPrivateKey(pemBlock.Bytes())
+	if errors.Is(err, &ssh.PassphraseMissingError{}) {
+		key, err = ssh.ParseRawPrivateKeyWithPassphrase(pemBlock.Bytes(), passphrase)
+		if err == x509.IncorrectPasswordError {
+			return nil, ErrBadPassphrase
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
 	if edk, ok := key.(*ed25519.PrivateKey); ok {
+		// Always return an ed25519.PrivateKey since that's what crypt/ed25519
+		// returns.
 		return *edk, nil
 	}
 	return key, nil
@@ -333,8 +344,8 @@ func ParseRSAKey(key ssh.PublicKey) (*rsa.PublicKey, error) {
 	return &rsa.PublicKey{N: sshWire.N, E: int(sshWire.E.Int64())}, nil
 }
 
-// CryptoKeyFromSSHKey returns one of *ecdsa.PublicKey or
-// ed25519.PublicKey from the the supplied ssh PublicKey.
+// CryptoKeyFromSSHKey returns one of *ecdsa.PublicKey, ed25519.PublicKey or
+// *rsa.PublicKey from the the supplied ssh PublicKey.
 func CryptoKeyFromSSHKey(pk ssh.PublicKey) (interface{}, error) {
 	switch pk.Type() {
 	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:

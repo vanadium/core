@@ -15,7 +15,7 @@ import (
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
-	"v.io/x/ref/lib/security/signing/sshagent"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/sectestdata"
@@ -1015,7 +1015,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	// Needed for LoadPrincipal etc to use the ssh agent started above.
-	sshagent.DefaultSockNameFunc = func() string {
+	sshkeys.DefaultSockNameFunc = func() string {
 		return sshAgentAddr
 	}
 

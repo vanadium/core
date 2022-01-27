@@ -5,6 +5,7 @@
 package security
 
 import (
+	"context"
 	gocontext "context"
 	"crypto"
 	"crypto/ecdsa"
@@ -25,8 +26,7 @@ import (
 	"v.io/v23/security"
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal"
-	"v.io/x/ref/lib/security/signing/sshagent"
-	secssh "v.io/x/ref/lib/security/ssh"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -48,7 +48,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	sshTestKeys = sectestdata.SSHPrivateKeys()
-	sshagent.DefaultSockNameFunc = func() string {
+	sshkeys.DefaultSockNameFunc = func() string {
 		return agentSockName
 	}
 	code := m.Run()
@@ -256,7 +256,7 @@ func TestCreatePrincipalSSH(t *testing.T) {
 		t.Fatal(err)
 	}
 	missing := "private-key-not-in-agent.pub"
-	if err := os.WriteFile(missing, secssh.MarshalAuthorizedKey(missingKey, "comment"), 0600); err != nil {
+	if err := os.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -283,11 +283,7 @@ func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Princip
 
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		data, err := os.ReadFile(filepath.Join(sshKeyDir, keyFile))
-		if err != nil {
-			return nil, err
-		}
-		key, err := sshagent.NewHostedKey(data)
+		key, err := NewSSHAgentHostedKey(filepath.Join(sshKeyDir, keyFile))
 		if err != nil {
 			return nil, err
 		}
@@ -541,14 +537,15 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 }
 
 func TestDaemonPublicKeyOnly(t *testing.T) {
+	ctx := context.Background()
 	passphrase := []byte("with-passphrase")
+	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
 	testDaemonPublicKeyOnly(t, funcForKey(ECDSA256), passphrase)
-	client := sshagent.NewClient()
-	//	client.SetAgentSockName(agentSockName)
-	if err := client.Lock(passphrase); err != nil {
+	client := sshkeys.NewClient()
+	if err := client.Lock(ctx); err != nil {
 		t.Fatal(err)
 	}
-	defer client.Unlock(passphrase)
+	defer client.Unlock(ctx)
 	testDaemonPublicKeyOnly(t, funcForSSHKey("ssh-ecdsa-256.pub"), passphrase)
 }
 

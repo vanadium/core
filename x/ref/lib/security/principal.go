@@ -22,10 +22,9 @@ import (
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/security/signing/keyfile"
-	"v.io/x/ref/lib/security/signing/sshagent"
-	secssh "v.io/x/ref/lib/security/ssh"
 )
 
 var (
@@ -233,13 +232,12 @@ func newFileSigner(ctx context.Context, filename string, passphrase []byte) (sec
 }
 
 func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
-	keyBytes, err := os.ReadFile(filename)
+	hostedKey, err := NewSSHAgentHostedKey(filename)
 	if err != nil {
 		return nil, err
 	}
-	svc := sshagent.NewSigningService()
-	//	svc.(*sshagent.Client).SetAgentSockName(sshagent.DefaultSockNameFunc())
-	signer, err := svc.Signer(ctx, keyBytes, passphrase)
+	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
+	signer, err := hostedKey.Signer(ctx)
 	return handleSignerError(signer, err)
 }
 
@@ -287,7 +285,7 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 		var data []byte
 		data, err = os.ReadFile(filepath.Join(dir, publicSSH))
 		if err == nil {
-			sshKey, _, err = secssh.ParsePublicKey(data)
+			sshKey, _, _, _, err = ssh.ParseAuthorizedKey(data)
 			if err == nil {
 				key, err = internal.CryptoKeyFromSSHKey(sshKey)
 			}

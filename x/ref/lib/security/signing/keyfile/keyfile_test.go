@@ -15,7 +15,7 @@ import (
 
 func TestKeyFiles(t *testing.T) {
 	ctx := context.Background()
-	for _, typ := range sectestdata.SupportedKeyTypes {
+	for _, typ := range sectestdata.SupportedKeyAlgos {
 		key := sectestdata.V23PrivateKeyBytes(typ, sectestdata.V23keySetA)
 		msg := fmt.Sprintf("X509/SSL key type %v", typ)
 		testSigning(t, ctx, msg, key)
@@ -24,7 +24,7 @@ func TestKeyFiles(t *testing.T) {
 		msg = fmt.Sprintf("X509/SSL key type %v", typ)
 		testSigning(t, ctx, msg, key)
 
-		key = sectestdata.SSHPrivateKeyBytes(typ, sectestdata.SSHkeySetNative)
+		key = sectestdata.SSHPrivateKeyBytes(typ, sectestdata.SSHKeyPrivate)
 		msg = fmt.Sprintf("SSH key type %v", typ)
 		testSigning(t, ctx, msg, key)
 	}

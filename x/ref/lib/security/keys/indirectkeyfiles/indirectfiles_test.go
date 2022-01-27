@@ -6,6 +6,7 @@ package indirectkeyfiles_test
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,11 +16,11 @@ import (
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 )
 
-const expected = `-----BEGIN V23 INDIRECT PRIVATE KEY-----
-V23-Indirection-Type: filename
+const expected = `-----BEGIN VANADIUM INDIRECT PRIVATE KEY-----
+Vanadium-Indirection-Type: filename
 
 ZG9lc250LWV4aXN0
------END V23 INDIRECT PRIVATE KEY-----
+-----END VANADIUM INDIRECT PRIVATE KEY-----
 `
 
 var keyRegistrar = keys.NewRegistrar()
@@ -30,6 +31,8 @@ func init() {
 }
 
 func TestIndirectionErrors(t *testing.T) {
+	ctx := context.Background()
+
 	bogus, err := indirectkeyfiles.MarshalPrivateKey([]byte("doesnt-exist"))
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +42,7 @@ func TestIndirectionErrors(t *testing.T) {
 		t.Errorf("got %s want %s", got, want)
 	}
 
-	_, err = keyRegistrar.ParsePrivateKey(bogus, nil)
+	_, err = keyRegistrar.ParsePrivateKey(ctx, bogus, nil)
 	if err == nil || !strings.Contains(err.Error(), "no such file or directory") {
 		t.Errorf("unexpected or missing error %v", err)
 	}
@@ -49,7 +52,7 @@ func TestIndirectionErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = keyRegistrar.ParsePrivateKey(bogus, nil)
+	_, err = keyRegistrar.ParsePrivateKey(ctx, bogus, nil)
 	if err == nil || !strings.Contains(err.Error(), "is a directory") {
 		t.Errorf("unexpected or missing error %v", err)
 	}
@@ -68,7 +71,7 @@ func TestIndirectionErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = keyRegistrar.ParsePrivateKey(first, nil)
+	_, err = keyRegistrar.ParsePrivateKey(ctx, first, nil)
 	if err == nil || !strings.Contains(err.Error(), "indirection limit reached") {
 		t.Errorf("unexpected or missing error %v", err)
 	}

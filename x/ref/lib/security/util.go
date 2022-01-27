@@ -14,9 +14,10 @@ import (
 	"fmt"
 	"os"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/signing/sshagent"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 )
 
 // KeyType represents the supported key types.
@@ -56,12 +57,16 @@ func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	}
 }
 
-func NewSSHAgentHostedKey(publicKeyFile string) (crypto.PrivateKey, error) {
+func NewSSHAgentHostedKey(publicKeyFile string) (*sshkeys.HostedKey, error) {
 	keyBytes, err := os.ReadFile(publicKeyFile)
 	if err != nil {
 		return nil, err
 	}
-	return sshagent.NewHostedKey(keyBytes)
+	key, comment, _, _, err := ssh.ParseAuthorizedKey(keyBytes)
+	if err != nil {
+		return nil, err
+	}
+	return sshkeys.NewHostedKey(key.(ssh.PublicKey), comment), nil
 }
 
 // lockAndLoad only needs to read the credentials information.
