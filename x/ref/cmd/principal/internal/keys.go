@@ -16,6 +16,8 @@ var keyTypeMap = map[string]security.KeyType{
 	"ecdsa384": security.ECDSA384,
 	"ecdsa521": security.ECDSA521,
 	"ed25519":  security.ED25519,
+	"rsa2048":  security.RSA2048,
+	"rsa4096":  security.RSA4096,
 }
 
 // IsSupportedKeyType returns true if the requested key type is supported

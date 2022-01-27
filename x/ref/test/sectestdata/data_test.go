@@ -35,7 +35,7 @@ func TestSSHKeys(t *testing.T) {
 func TestV23Keys(t *testing.T) {
 	for _, kt := range SupportedKeyAlgos {
 		for _, set := range []V23KeySetID{
-			V23keySetA, V23KeySetB,
+			V23keySetA, V23KeySetB, V23LegacyKeys,
 		} {
 			privateKey := V23PrivateKey(kt, set)
 			if privateKey == nil {
@@ -44,6 +44,28 @@ func TestV23Keys(t *testing.T) {
 			signer := V23Signer(kt, set)
 			if signer == nil {
 				t.Errorf("no signer for %v %v", kt, set)
+			}
+			keyBytes := V23PrivateKeyBytes(kt, set)
+			if len(keyBytes) == 0 {
+				t.Errorf("no private key bytes for %v %v", kt, set)
+			}
+			keyBytes = V23PublicKeyBytes(kt, set)
+			if len(keyBytes) == 0 {
+				t.Errorf("no public key bytes for %v %v", kt, set)
+			}
+		}
+	}
+	for _, kt := range SupportedKeyAlgos {
+		for _, set := range []V23KeySetID{
+			V23LegacyKeys, V23LegacyEncryptedKeys,
+		} {
+			keyBytes := V23PrivateKeyBytes(kt, set)
+			if len(keyBytes) == 0 {
+				t.Errorf("no private key bytes for %v %v", kt, set)
+			}
+			keyBytes = V23PublicKeyBytes(kt, set)
+			if len(keyBytes) == 0 {
+				t.Errorf("no public key bytes for %v %v", kt, set)
 			}
 		}
 	}

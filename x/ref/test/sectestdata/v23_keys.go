@@ -10,15 +10,16 @@ import (
 	"embed"
 	"encoding/pem"
 	"fmt"
+	"path/filepath"
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
 )
 
-//go:embed testdata/v23-private-*.key testdata/v23-encrypted-*.key
+//go:embed testdata/v23-private-*.key testdata/v23-encrypted-*.key testdata/legacy/*/privatekey.pem
 var v23PrivateKeys embed.FS
 
-//go:embed testdata/v23-public-*.key
+//go:embed testdata/v23-public-*.key testdata/legacy/*/publickey.pem
 var v23PublicKeys embed.FS
 
 // V23KeySetID represents a set of keys, each set contains at least one
@@ -30,6 +31,8 @@ const (
 	V23KeySetB
 	V23keySetAEncrypted
 	V23keySetBEncrypted
+	V23LegacyKeys
+	V23LegacyEncryptedKeys
 )
 
 func v23filename(typ keys.CryptoAlgo, pair string, set V23KeySetID) string {
@@ -45,6 +48,16 @@ func v23filename(typ keys.CryptoAlgo, pair string, set V23KeySetID) string {
 		return fmt.Sprintf("v23-encrypted-a-%s.key", typ)
 	case V23keySetBEncrypted:
 		return fmt.Sprintf("v23-encrypted-b-%s.key", typ)
+	case V23LegacyKeys:
+		return filepath.Join(
+			"legacy",
+			fmt.Sprintf("v23-plain-%s-principal", typ),
+			pair+"key.pem")
+	case V23LegacyEncryptedKeys:
+		return filepath.Join(
+			"legacy",
+			fmt.Sprintf("v23-encrypted-%s-principal", typ),
+			pair+"key.pem")
 	}
 	panic(fmt.Sprintf("unrecognised key set: %v", set))
 }
