@@ -62,11 +62,17 @@ func TestIndirectionErrors(t *testing.T) {
 	thirdFile := filepath.Join(tmpdir, "third")
 
 	first, err := indirectkeyfiles.MarshalPrivateKey([]byte(secondFile))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(firstFile, first, 0600); err != nil {
 		t.Fatal(err)
 	}
 
 	_, err = indirectkeyfiles.MarshalPrivateKey([]byte(thirdFile))
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(secondFile, first, 0600); err != nil {
 		t.Fatal(err)
 	}

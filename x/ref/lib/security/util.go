@@ -66,7 +66,7 @@ func NewSSHAgentHostedKey(publicKeyFile string) (*sshkeys.HostedKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sshkeys.NewHostedKey(key.(ssh.PublicKey), comment), nil
+	return sshkeys.NewHostedKey(key, comment), nil
 }
 
 // lockAndLoad only needs to read the credentials information.

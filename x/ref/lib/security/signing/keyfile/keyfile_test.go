@@ -18,19 +18,19 @@ func TestKeyFiles(t *testing.T) {
 	for _, typ := range sectestdata.SupportedKeyAlgos {
 		key := sectestdata.V23PrivateKeyBytes(typ, sectestdata.V23keySetA)
 		msg := fmt.Sprintf("X509/SSL key type %v", typ)
-		testSigning(t, ctx, msg, key)
+		testSigning(ctx, t, msg, key)
 
 		key = sectestdata.X509PrivateKeyBytes(typ)
 		msg = fmt.Sprintf("X509/SSL key type %v", typ)
-		testSigning(t, ctx, msg, key)
+		testSigning(ctx, t, msg, key)
 
 		key = sectestdata.SSHPrivateKeyBytes(typ, sectestdata.SSHKeyPrivate)
 		msg = fmt.Sprintf("SSH key type %v", typ)
-		testSigning(t, ctx, msg, key)
+		testSigning(ctx, t, msg, key)
 	}
 }
 
-func testSigning(t *testing.T, ctx context.Context, msg string, keyBytes []byte) {
+func testSigning(ctx context.Context, t *testing.T, msg string, keyBytes []byte) {
 	svc := keyfile.NewSigningService()
 	signer, err := svc.Signer(ctx, keyBytes, nil)
 	if err != nil {

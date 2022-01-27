@@ -29,7 +29,6 @@ const (
 	rsaPrivateKeyPEMType     = "RSA PRIVATE KEY"
 	pkcs8PrivateKeyPEMType   = "PRIVATE KEY"
 	opensshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
-	vanadiumIndirectPEMType  = "VANADIUM INDIRECT KEY"
 
 	certPEMType          = "CERTIFICATE"
 	pkixPublicKeyPEMType = "PUBLIC KEY"

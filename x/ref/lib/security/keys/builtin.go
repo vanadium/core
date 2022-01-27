@@ -36,8 +36,8 @@ func RegisterCommon(r *Registrar) error {
 	r.RegisterPrivateKeyParser(ParseECPrivateKey, "EC PRIVATE KEY", nil)
 	r.RegisterPrivateKeyParser(ParsePKCS8PrivateKey, "PRIVATE KEY", nil)
 
-	r.RegisterDecrypter(DecryptPEMBlock, "EC PRIVATE KEY", x509.IsEncryptedPEMBlock)
-	r.RegisterDecrypter(DecryptPEMBlock, "PRIVATE KEY", x509.IsEncryptedPEMBlock)
+	r.RegisterDecrypter(DecryptPEMBlock, "EC PRIVATE KEY", x509.IsEncryptedPEMBlock) //nolint:staticcheck
+	r.RegisterDecrypter(DecryptPEMBlock, "PRIVATE KEY", x509.IsEncryptedPEMBlock)    //nolint:staticcheck
 	r.RegisterDecrypter(DecryptPKCS8Block, "ENCRYPTED PRIVATE KEY", func(*pem.Block) bool { return true })
 
 	return r.RegisterAPI((*api)(nil),

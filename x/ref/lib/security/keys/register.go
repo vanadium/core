@@ -36,7 +36,6 @@ type DecryptFunc func(block *pem.Block, passphrase []byte) (*pem.Block, crypto.P
 
 type API interface {
 	Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error)
-	//SignerOpts(key crypto.PrivateKey, opts ...interface{}) (security.Signer, error)
 	PublicKey(key interface{}) (security.PublicKey, error)
 }
 
