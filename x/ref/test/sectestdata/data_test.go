@@ -9,17 +9,17 @@ import (
 )
 
 func TestSSHKeys(t *testing.T) {
-	for _, kt := range SupportedKeyTypes {
+	for _, kt := range SupportedKeyAlgos {
 		for _, set := range []SSHKeySetID{
 			SSHKeyAgentHosted,
-			SSHKeySetRFC4716} {
-			publicKey := SSHPublicKey(kt, set)
+			SSHKeyPublic} {
+			publicKey := SSHPublicKeyBytes(kt, set)
 			if len(publicKey) == 0 {
 				t.Errorf("empty file for %v %v", kt, set)
 			}
 		}
 		for _, set := range []SSHKeySetID{
-			SSHkeySetNative,
+			SSHKeyPrivate,
 			// TODO(cnicolaou): enabled this once the handling of ssh public
 			//                  keys is cleaned up.
 			// SSHKeyAgentHosted,
@@ -33,7 +33,7 @@ func TestSSHKeys(t *testing.T) {
 }
 
 func TestV23Keys(t *testing.T) {
-	for _, kt := range SupportedKeyTypes {
+	for _, kt := range SupportedKeyAlgos {
 		for _, set := range []V23KeySetID{
 			V23keySetA, V23KeySetB,
 		} {
@@ -51,7 +51,7 @@ func TestV23Keys(t *testing.T) {
 
 func TestSSLData(t *testing.T) {
 	keys, certs, opts := VanadiumSSLData()
-	for _, kt := range SupportedKeyTypes {
+	for _, kt := range SupportedKeyAlgos {
 		host := kt.String()
 		if _, ok := keys[host]; !ok {
 			t.Errorf("missing private key for %v", host)
@@ -61,7 +61,7 @@ func TestSSLData(t *testing.T) {
 		}
 	}
 
-	for _, kt := range SupportedKeyTypes {
+	for _, kt := range SupportedKeyAlgos {
 		if pk := X509PublicKey(kt); pk == nil {
 			t.Errorf("missing public key for %v", kt)
 		}

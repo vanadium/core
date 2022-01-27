@@ -11,6 +11,7 @@ import (
 	_ "embed"
 
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
 //go:embed testdata/vanadium.io.ca.pem
@@ -28,7 +29,7 @@ var vanadiumSSLCerts embed.FS
 func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certificate, x509.VerifyOptions) {
 	keys := map[string]crypto.PrivateKey{}
 	certs := map[string]*x509.Certificate{}
-	for _, typ := range SupportedKeyTypes {
+	for _, typ := range SupportedKeyAlgos {
 		host := typ.String()
 		k, err := keyFromFS(vanadiumSSLKeys, "testdata", host+".vanadium.io.key")
 		if err != nil {
@@ -53,7 +54,7 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 	return keys, certs, opts
 }
 
-func X509PublicKey(typ KeyType) crypto.PublicKey {
+func X509PublicKey(typ keys.CryptoAlgo) crypto.PublicKey {
 	cert, err := certFromFS(vanadiumSSLCerts, "testdata", typ.String()+".vanadium.io.crt")
 	if err != nil {
 		panic(err)
@@ -61,7 +62,7 @@ func X509PublicKey(typ KeyType) crypto.PublicKey {
 	return cert[0].PublicKey
 }
 
-func X509PrivateKey(typ KeyType) crypto.PrivateKey {
+func X509PrivateKey(typ keys.CryptoAlgo) crypto.PrivateKey {
 	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
 	if err != nil {
 		panic(err)
@@ -69,11 +70,11 @@ func X509PrivateKey(typ KeyType) crypto.PrivateKey {
 	return key
 }
 
-func X509PrivateKeyBytes(typ KeyType) []byte {
+func X509PrivateKeyBytes(typ keys.CryptoAlgo) []byte {
 	return fileContents(vanadiumSSLKeys, typ.String()+".vanadium.io.key")
 }
 
-func X509Signer(typ KeyType) security.Signer {
+func X509Signer(typ keys.CryptoAlgo) security.Signer {
 	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
 	if err != nil {
 		panic(err)

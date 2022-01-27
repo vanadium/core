@@ -20,45 +20,13 @@ import (
 	"time"
 
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
-var SupportedKeyTypes = []KeyType{
-	ECDSA256, ECDSA384, ECDSA521,
-	ED25519,
-	RSA2048, RSA4096,
-}
-
-// KeyType represents the key types supported by this package, the equivalent
-// type in lib/security is not used to avoid import cycles.
-type KeyType int
-
-// Supported key types.
-const (
-	UnsupportedKeyType KeyType = iota
-	ECDSA256
-	ECDSA384
-	ECDSA521
-	ED25519
-	RSA2048
-	RSA4096
-)
-
-func (kt KeyType) String() string {
-	switch kt {
-	case ECDSA256:
-		return "ecdsa-256"
-	case ECDSA384:
-		return "ecdsa-384"
-	case ECDSA521:
-		return "ecdsa-521"
-	case ED25519:
-		return "ed25519"
-	case RSA2048:
-		return "rsa-2048"
-	case RSA4096:
-		return "rsa-4096"
-	}
-	return "unknown"
+var SupportedKeyAlgos = []keys.CryptoAlgo{
+	keys.ECDSA256, keys.ECDSA384, keys.ECDSA521,
+	keys.ED25519,
+	keys.RSA2048, keys.RSA4096,
 }
 
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
@@ -197,9 +165,18 @@ func signerFromCryptoKey(key crypto.PrivateKey) (security.Signer, error) {
 		return security.NewInMemoryECDSASigner(k)
 	case ed25519.PrivateKey:
 		return security.NewInMemoryED25519Signer(k)
-	case *ed25519.PrivateKey:
-		return security.NewInMemoryED25519Signer(*k)
 	default:
 		return nil, fmt.Errorf("unsupported key type: %v: %T", key, key)
 	}
+}
+
+// CryptoSignerType eturns the types of the public keys associated with a signer.
+// These will differ from the CryptoTypes when openssl is used to implement
+// the signer.
+func CryptoSignerType(kd keys.CryptoAlgo) (public string) {
+	return publicSignerKeyTypes[kd]
+}
+
+func Password() []byte {
+	return []byte("password")
 }
