@@ -23,6 +23,13 @@ var vanadiumSSLKeys embed.FS
 //go:embed testdata/*vanadium.io.crt
 var vanadiumSSLCerts embed.FS
 
+type X509KeySetID int
+
+const (
+	X509Private X509KeySetID = iota
+	X509Encrypted
+)
+
 // VanadiumSSLData returns a selection of keys and certificates for hosts
 // created for a self-signed CA.
 // Keys are returned for ecdsa, rsa and ed25519 algorithms.
@@ -62,6 +69,10 @@ func X509PublicKey(typ keys.CryptoAlgo) crypto.PublicKey {
 	return cert[0].PublicKey
 }
 
+func X509PublicKeyBytes(typ keys.CryptoAlgo) []byte {
+	return fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt")
+}
+
 func X509PrivateKey(typ keys.CryptoAlgo) crypto.PrivateKey {
 	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
 	if err != nil {
@@ -70,8 +81,12 @@ func X509PrivateKey(typ keys.CryptoAlgo) crypto.PrivateKey {
 	return key
 }
 
-func X509PrivateKeyBytes(typ keys.CryptoAlgo) []byte {
-	return fileContents(vanadiumSSLKeys, typ.String()+".vanadium.io.key")
+func X509PrivateKeyBytes(typ keys.CryptoAlgo, set X509KeySetID) []byte {
+	filename := typ.String() + ".vanadium.io.key"
+	if set == X509Encrypted {
+		filename = "encrypted." + filename
+	}
+	return fileContents(vanadiumSSLKeys, filename)
 }
 
 func X509Signer(typ keys.CryptoAlgo) security.Signer {

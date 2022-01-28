@@ -93,6 +93,12 @@ func TestSSLData(t *testing.T) {
 		if signer := X509Signer(kt); signer == nil {
 			t.Errorf("missing signer for %v", kt)
 		}
+		if data := X509PrivateKeyBytes(kt, X509Private); len(data) == 0 {
+			t.Errorf("missing private key bytes for %v", kt)
+		}
+		if data := X509PrivateKeyBytes(kt, X509Encrypted); len(data) == 0 {
+			t.Errorf("missing encrypted private key bytes for %v", kt)
+		}
 	}
 
 	for _, cert := range certs {
