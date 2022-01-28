@@ -29,6 +29,7 @@ var keyRegistrar = keys.NewRegistrar()
 
 func init() {
 	sshkeys.MustRegister(keyRegistrar)
+	keys.MustRegisterCommon(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 }
 
@@ -77,7 +78,7 @@ func TestContext(t *testing.T) {
 func testAgent(ctx context.Context, t *testing.T, kt keys.CryptoAlgo) {
 	publicKeyBytes := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
 
-	publicKeyBytes, privateKeyBytes, err := sshkeys.MarshalForImport(publicKeyBytes, sshkeys.ImportUsingAgent(true))
+	publicKeyBytes, privateKeyBytes, err := sshkeys.MarshalForImport(ctx, publicKeyBytes, sshkeys.ImportUsingAgent(true))
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)
 	}
@@ -140,7 +141,7 @@ func TestAgent(t *testing.T) {
 func getSigner(ctx context.Context, t *testing.T, kt keys.CryptoAlgo) error {
 	publicKeyBytes := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
 
-	_, privateKeyBytes, err := sshkeys.MarshalForImport(publicKeyBytes, sshkeys.ImportUsingAgent(true))
+	_, privateKeyBytes, err := sshkeys.MarshalForImport(ctx, publicKeyBytes, sshkeys.ImportUsingAgent(true))
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)
 	}

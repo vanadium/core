@@ -17,25 +17,25 @@ func TestSSHKeys(t *testing.T) {
 		public := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
 		key, err := parseAuthorizedKey(public)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("%v: %v", kt, err)
 		}
 
 		api := &sshkeyAPI{}
 
 		ck, err := api.PublicKey(key)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("%v: %v", kt, err)
 		}
 		if got, want := reflect.TypeOf(key).String(), sectestdata.SSHPublicKeyType(kt); got != want {
-			t.Errorf("got %v, does not match %v", got, want)
+			t.Errorf("%v: got %v, does not match %v", kt, got, want)
 		}
 
 		if got, want := reflect.TypeOf(ck).String(), sectestdata.CryptoSignerType(kt); got != want {
-			t.Errorf("got %v, does not match %v", got, want)
+			t.Errorf("%v: got %v, does not match %v", kt, got, want)
 		}
 
 		if got, want := reflect.TypeOf(key).String(), sectestdata.SSHPublicKeyType(kt); got != want {
-			t.Errorf("got %v, does not match %v", got, want)
+			t.Errorf("%v: got %v, does not match %v", kt, got, want)
 		}
 		block, _ := pem.Decode(sectestdata.SSHPrivateKeyBytes(kt,
 			sectestdata.SSHKeyPrivate))
@@ -44,7 +44,7 @@ func TestSSHKeys(t *testing.T) {
 
 		key, err = parseOpensshPrivateKey(block)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("%v: %v", kt, err)
 		}
 		if got, want := reflect.TypeOf(key).String(), privateKeyType; got != want {
 			t.Errorf("got %v, want %v", got, want)
@@ -54,8 +54,9 @@ func TestSSHKeys(t *testing.T) {
 			sectestdata.SSHKeyEncrypted))
 		_, key, err = decryptOpensshPrivateKey(block, sectestdata.Password())
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("%v: %v", kt, err)
 		}
+
 		if got, want := reflect.TypeOf(key).String(), privateKeyType; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}

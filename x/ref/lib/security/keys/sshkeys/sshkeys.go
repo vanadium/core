@@ -130,6 +130,8 @@ func publicKey(key interface{}) (security.PublicKey, error) {
 	return nil, fmt.Errorf("sshkeys.PublicKey: unsupported key type %T", key)
 }
 
+// ParseOpensshPrivateKey parses an openssh private key in pem format,
+// ie. pem type "OPENSSH PRIVATE KEY".
 func parseOpensshPrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 	var out bytes.Buffer
 	if err := pem.Encode(&out, block); err != nil {
@@ -148,6 +150,9 @@ func parseOpensshPrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 	return key, nil
 }
 
+// DecryptOpensshPrivateKey decrypts an openssh privat key in pem format,
+// ie. pem type "OPENSSH PRIVATE KEY". Note that there is no information
+// in the pem block to indicate that the block is encrypted.
 func decryptOpensshPrivateKey(block *pem.Block, passphrase []byte) (*pem.Block, crypto.PrivateKey, error) {
 	var out bytes.Buffer
 	if err := pem.Encode(&out, block); err != nil {
