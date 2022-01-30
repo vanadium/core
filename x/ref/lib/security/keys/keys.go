@@ -18,7 +18,7 @@
 // by ssh agents for example, or indeed other services such as AWS' secrets
 // service. Other than support for ssh agents, other signing services are not
 // implemented in this package in order to reduce dependencies. Multiple
-// indirections are via a PEM header that is used to identifiy a specific
+// indirections are via a PEM header that is used to identify a specific
 // parser to invoke.
 package keys
 
