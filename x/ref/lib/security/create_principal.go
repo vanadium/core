@@ -78,7 +78,9 @@ func createSSHAgentPrincipal(ctx context.Context, sshKey *sshkeys.HostedKey, dir
 	if err := internal.WriteKeyFile(filepath.Join(dir, sshPublicKeyFile), data); err != nil {
 		return nil, err
 	}
-	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
+	if len(passphrase) > 0 {
+		ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
+	}
 	signer, err := sshKey.Signer(ctx)
 	if err != nil {
 		return nil, err

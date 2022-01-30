@@ -73,6 +73,20 @@ func TestContext(t *testing.T) {
 	if got, want := sshkeys.AgentPassphrase(ctx), []byte("oh-my"); !bytes.Equal(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
+	if got, want := sshkeys.AgentPassphrase(ctx), []byte{0x0, 0x0, 0x0, 0x0, 0x0}; !bytes.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	ctx = sshkeys.WithAgentPassphrase(context.Background(), nil)
+	if got := sshkeys.AgentPassphrase(ctx); got != nil {
+		t.Errorf("got %v, want nil", got)
+	}
+
+	ctx = sshkeys.WithAgentPassphrase(context.Background(), []byte{})
+	if got := sshkeys.AgentPassphrase(ctx); got != nil {
+		t.Errorf("got %v, want nil", got)
+	}
 }
 
 func testAgent(ctx context.Context, t *testing.T, kt keys.CryptoAlgo) {
@@ -163,19 +177,21 @@ func TestAgentLocked(t *testing.T) {
 	ctx := context.Background()
 	ctx = sshkeys.WithAgentSocketName(ctx, sshAgentSockName)
 	withoutPassphrase := ctx
-	withPassphrase := sshkeys.WithAgentPassphrase(ctx, []byte("locked"))
+
 	client := sshkeys.NewClient()
 	for _, kt := range sectestdata.SupportedKeyAlgos {
-		// this will succeed since the ctx has the passphrase for the agent.
+		withPassphrase := sshkeys.WithAgentPassphrase(ctx, []byte("locked"))
 		if err := client.Lock(withPassphrase); err != nil {
 			t.Fatalf("%v: %v", kt, err)
 		}
+		withPassphrase = sshkeys.WithAgentPassphrase(ctx, []byte("locked"))
 		testAgent(withPassphrase, t, kt)
 
 		err := getSigner(withoutPassphrase, t, kt)
 		if err == nil || !strings.Contains(err.Error(), "key not found in ssh agent") {
 			t.Fatalf("%v: missing or unexpected error: %v", kt, err)
 		}
+		withPassphrase = sshkeys.WithAgentPassphrase(ctx, []byte("locked"))
 		if err := client.Unlock(withPassphrase); err != nil {
 			t.Fatalf("%v: %v", kt, err)
 		}

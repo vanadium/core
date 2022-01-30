@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package sshkeys provides support for using ssh keys, including private
-// keys hosted within an sshagant.
+// Package sshkeys provides support for using ssh keys with the security/keys
+// package, including private keys hosted within an ssh agent. In theory any
+// ssh agent can be used, including those that use FIDO keys or other security
+// enclaves (eg. Apple's T2) to store and sign keys.
 package sshkeys
 
 import (
@@ -43,7 +45,7 @@ func MustRegister(r *keys.Registrar) {
 
 const indirectHeaderValue = "sshagent-hosted-key"
 
-var marshalHostedKeyIndirect = keys.MarshalFuncForIndirectType(indirectHeaderValue)
+var marshalHostedKeyIndirect = keys.MarshalFuncForIndirection(indirectHeaderValue)
 
 // Register registers the required functions for handling ssh public and
 // private key files as well ssh agent hosted private key files via

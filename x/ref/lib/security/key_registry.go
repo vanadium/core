@@ -12,6 +12,8 @@ import (
 
 var keyRegistry *keys.Registrar
 
+// KeyRegistrar exposes the keys.Registrar used by this package to allow
+// for external packages to extend the set of supported types.
 func KeyRegistrar() *keys.Registrar {
 	return keyRegistry
 }

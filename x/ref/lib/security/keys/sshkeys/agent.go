@@ -10,6 +10,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
 type internalKey int
@@ -19,21 +20,37 @@ const (
 	agentSockNameKey
 )
 
+// WithAgentPassphrase returns a context with the specified passphrase that is
+// used to lock the ssh agent. The passphrase will be zero'ed after when
+// read by AgentPassphrase.
 func WithAgentPassphrase(ctx context.Context, passphrase []byte) context.Context {
 	return context.WithValue(ctx, agentPassphraseKey, passphrase)
 }
 
+// AgentPassphrase returns a copy of passphrase associated with this context
+// and then ovewrites that passphrase with zeros.
 func AgentPassphrase(ctx context.Context) []byte {
 	if passphrase := ctx.Value(agentPassphraseKey); passphrase != nil {
-		return passphrase.([]byte)
+		pp := passphrase.([]byte)
+		if len(pp) == 0 {
+			return nil
+		}
+		cpy := make([]byte, len(pp))
+		copy(cpy, pp)
+		keys.ZeroPassphrase(pp)
+		return cpy
 	}
 	return nil
 }
 
+// WithAgentSocketName returns a context with the specified socket name. This is
+// primarily intended for tests.
 func WithAgentSocketName(ctx context.Context, socketName string) context.Context {
 	return context.WithValue(ctx, agentSockNameKey, socketName)
 }
 
+// AgentSocketName returns the socket name associated with the context or
+// the return value of DefaultSockNameFunc() if there is no such socket name.
 func AgentSocketName(ctx context.Context) string {
 	if sockname := ctx.Value(agentSockNameKey); sockname != nil {
 		return sockname.(string)
@@ -55,6 +72,7 @@ type HostedKey struct {
 	agent     *Client
 }
 
+// Comment returns the comment associated with the original ssh public key.
 func (hk *HostedKey) Comment() string {
 	return hk.comment
 }
@@ -71,6 +89,7 @@ func NewHostedKey(key ssh.PublicKey, comment string) *HostedKey {
 	}
 }
 
+// Signer returns a security.Signer that is hosted by an ssh agent.
 func (hk *HostedKey) Signer(ctx context.Context) (security.Signer, error) {
 	return hk.agent.Signer(ctx, hk.publicKey, AgentPassphrase(ctx))
 }

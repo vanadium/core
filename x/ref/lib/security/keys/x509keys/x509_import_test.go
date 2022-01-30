@@ -47,7 +47,6 @@ func TestX509Import(t *testing.T) {
 		if got, want := reflect.TypeOf(cert.PublicKey).String(), publicKeyType; got != want {
 			t.Fatalf("line %v: %v: got %v, want %v", line, kt, got, want)
 		}
-		t.Log(cert)
 	}
 
 	validatePrivateKey := func(err error, kt keys.CryptoAlgo, key crypto.PrivateKey) {

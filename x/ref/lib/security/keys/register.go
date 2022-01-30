@@ -34,8 +34,11 @@ type ParsePrivateKeyFunc func(block *pem.Block) (crypto.PrivateKey, error)
 // DecryptFunc decrypts a pem block using the supplied passphrase.
 type DecryptFunc func(block *pem.Block, passphrase []byte) (*pem.Block, crypto.PrivateKey, error)
 
+// API represents a common set of operations that can be implemented for
+// specific key types.
 type API interface {
 	Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error)
+	//SignerOpts(key crypto.PrivateKey, opts ...interface{}) (security.Signer, error)
 	PublicKey(key interface{}) (security.PublicKey, error)
 }
 
@@ -137,7 +140,9 @@ func (r *Registrar) RegisterPublicKeyTextParser(parser ParsePublicKeyTextFunc) {
 }
 
 func (r *Registrar) RegisterIndirectPrivateKeyParser(parser ParsePrivateKeyFunc, typ string) {
-	r.RegisterPrivateKeyParser(parser, PrivateKeyPEMType, MatcherFunc(typ))
+	r.RegisterPrivateKeyParser(parser,
+		IndirectionPrivateKeyPEMType,
+		IndirectMatcherFunc(typ))
 }
 
 func (r *Registrar) getMarshallers(typ interface{}) (MarshalPublicKeyFunc, MarshalPrivateKeyFunc) {
@@ -216,8 +221,8 @@ func (r *Registrar) getParserForBlock(funcMap map[string][]parserInfo, block *pe
 }
 
 func (r *Registrar) parsePublicKeys(pemBlockBytes []byte) (crypto.PrivateKey, error) {
+	var pemBlock *pem.Block
 	for {
-		var pemBlock *pem.Block
 		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
 		if pemBlock == nil {
 			return nil, fmt.Errorf("processed all PEM blocks without finding a private key")

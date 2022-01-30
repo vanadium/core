@@ -20,7 +20,7 @@ func TestKeyFiles(t *testing.T) {
 		msg := fmt.Sprintf("X509/SSL key type %v", typ)
 		testSigning(ctx, t, msg, key)
 
-		key = sectestdata.X509PrivateKeyBytes(typ)
+		key = sectestdata.X509PrivateKeyBytes(typ, sectestdata.X509Private)
 		msg = fmt.Sprintf("X509/SSL key type %v", typ)
 		testSigning(ctx, t, msg, key)
 

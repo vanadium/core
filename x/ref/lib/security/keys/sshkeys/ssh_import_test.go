@@ -25,6 +25,8 @@ import (
 
 func TestImport(t *testing.T) {
 	ctx := context.Background()
+	tmpdir := t.TempDir()
+
 	var (
 		publicKeyBytes []byte
 		ipub, ipriv    []byte
@@ -41,23 +43,19 @@ func TestImport(t *testing.T) {
 	}
 
 	validatePrivateKey := func(err error, kt keys.CryptoAlgo, key crypto.PrivateKey) {
+		_, _, line, _ := runtime.Caller(1)
 		if err != nil {
-			t.Fatalf("%v: %v", kt, err)
-		}
-		if err != nil {
-			t.Fatalf("%v: %v", kt, err)
+			t.Fatalf("line: %v: %v: %v", line, kt, err)
 		}
 		switch key.(type) {
 		case *ecdsa.PrivateKey:
 		case *rsa.PrivateKey:
 		case ed25519.PrivateKey:
 		default:
-			t.Fatalf("%v: parsed private key is a crypto key: %T", kt, key)
+			t.Fatalf("line: %v: %v: parsed private key is a crypto key: %T", line, kt, key)
 		}
 
 	}
-
-	tmpdir := t.TempDir()
 
 	for _, kt := range sectestdata.SupportedKeyAlgos {
 		var err error
@@ -124,6 +122,8 @@ func isZero(pp []byte) bool {
 	return true
 }
 
+// This test is very similar to x509keys/x509_import_test.go - make sure to
+// mirror changes here to that test.
 func TestImportCopy(t *testing.T) {
 	ctx := context.Background()
 	for _, kt := range sectestdata.SupportedKeyAlgos {

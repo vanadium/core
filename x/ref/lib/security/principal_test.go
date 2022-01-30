@@ -546,6 +546,8 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer client.Unlock(ctx)
+	// passphrase is zeroed out when it's used above.
+	passphrase = []byte("with-passphrase")
 	testDaemonPublicKeyOnly(t, funcForSSHKey("ssh-ecdsa-256.pub"), passphrase)
 }
 

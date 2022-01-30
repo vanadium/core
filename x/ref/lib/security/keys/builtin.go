@@ -5,7 +5,6 @@
 package keys
 
 import (
-	"bytes"
 	"context"
 	"crypto"
 	"crypto/ecdsa"
@@ -18,6 +17,7 @@ import (
 
 	"github.com/youmark/pkcs8"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys/internal"
 )
 
 func MustRegisterCommon(r *Registrar) {
@@ -61,21 +61,7 @@ func (*api) Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer,
 }
 
 func (*api) PublicKey(key interface{}) (security.PublicKey, error) {
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
-		return security.NewECDSAPublicKey(k), nil
-	case *rsa.PublicKey:
-		return security.NewRSAPublicKey(k), nil
-	case ed25519.PublicKey:
-		return security.NewED25519PublicKey(k), nil
-	case *ecdsa.PrivateKey:
-		return security.NewECDSAPublicKey(&k.PublicKey), nil
-	case *rsa.PrivateKey:
-		return security.NewRSAPublicKey(&k.PublicKey), nil
-	case ed25519.PrivateKey:
-		return security.NewED25519PublicKey(k.Public().(ed25519.PublicKey)), nil
-	}
-	return nil, fmt.Errorf("keys.PublicKey: unsupported key type %T", key)
+	return PublicKey(key)
 }
 
 func MarshalPKIXPublicKey(key crypto.PublicKey) ([]byte, error) {
@@ -83,7 +69,7 @@ func MarshalPKIXPublicKey(key crypto.PublicKey) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return pemEncode("PUBLIC KEY", der)
+	return internal.EncodePEM("PUBLIC KEY", der, nil)
 }
 
 func MarshalBuiltinPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
@@ -99,7 +85,7 @@ func MarshalBuiltinPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte,
 		if err != nil {
 			return nil, err
 		}
-		return pemEncode("ENCRYPTED PRIVATE KEY", data)
+		return internal.EncodePEM("ENCRYPTED PRIVATE KEY", data, nil)
 	}
 	var der []byte
 	var err error
@@ -118,7 +104,7 @@ func MarshalBuiltinPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte,
 	if err != nil {
 		return nil, err
 	}
-	return pemEncode(typ, der)
+	return internal.EncodePEM(typ, der, nil)
 }
 
 func ParsePKIXPublicKey(block *pem.Block) (crypto.PublicKey, error) {
@@ -131,18 +117,6 @@ func ParseECPrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 
 func ParsePKCS8PrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 	return x509.ParsePKCS8PrivateKey(block.Bytes)
-}
-
-func pemEncode(typ string, der []byte) ([]byte, error) {
-	var out bytes.Buffer
-	block := pem.Block{
-		Type:  typ,
-		Bytes: der,
-	}
-	if err := pem.Encode(&out, &block); err != nil {
-		return nil, err
-	}
-	return out.Bytes(), nil
 }
 
 type ErrPassphraseRequired struct{}

@@ -22,7 +22,7 @@ func validateX509Types(t *testing.T, kt keys.CryptoAlgo, publicKey, plainPrivate
 	if got, want := reflect.TypeOf(decryptedPrivateKey).String(), privateKeyType; got != want {
 		t.Errorf("%v: got %v, want %v", kt, got, want)
 	}
-	if got, want := reflect.TypeOf(publicKey).String(), sectestdata.SSHPublicKeyType(kt); got != want {
+	if got, want := reflect.TypeOf(publicKey).String(), "*x509.Certificate"; got != want {
 		t.Errorf("%v: got %v, want %v", kt, got, want)
 	}
 	api, err := keyRegistrar.APIForKey(publicKey)
@@ -47,7 +47,7 @@ func TestParsingX509Keys(t *testing.T) {
 			sectestdata.X509PrivateKeyBytes(kt, sectestdata.X509Encrypted),
 			sectestdata.X509PublicKeyBytes(kt),
 		)
-		validateSSHTypes(t, kt, publicKey, plainPrivateKey, decryptedPrivateKey)
+		validateX509Types(t, kt, publicKey, plainPrivateKey, decryptedPrivateKey)
 	}
 }
 

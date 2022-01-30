@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package x509 provides support for using x509/ssl keys.
+// Package x509 provides support for using x509/ssl keys with the security/keys
+// package.
 package x509keys
 
 import (

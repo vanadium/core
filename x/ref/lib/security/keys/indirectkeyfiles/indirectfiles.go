@@ -34,7 +34,7 @@ func Register(r *keys.Registrar) error {
 
 // MarshalPrivateKey marshals a filename into the PEM block suitable
 // for parsing by this package.
-var MarshalPrivateKey = keys.MarshalFuncForIndirectType(indirectHeaderValue)
+var MarshalPrivateKey = keys.MarshalFuncForIndirection(indirectHeaderValue)
 
 type indirection struct {
 	filename string
