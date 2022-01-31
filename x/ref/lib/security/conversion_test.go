@@ -53,6 +53,9 @@ func TestConversionFromLegacyFormat(t *testing.T) {
 				t.Fatalf("%v: %v", pdir, err)
 			}
 			matches, err := filepath.Glob(filepath.Join(pdir, "*"))
+			if err != nil {
+				t.Fatalf("%v: %v", pdir, err)
+			}
 			if got, want := filenames(matches), expectedFilenames; !reflect.DeepEqual(got, want) {
 				t.Fatalf("%v: got %v, want %v", pdir, got, want)
 			}
