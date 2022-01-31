@@ -24,24 +24,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-const (
-	ecPrivateKeyPEMType      = "EC PRIVATE KEY"
-	rsaPrivateKeyPEMType     = "RSA PRIVATE KEY"
-	pkcs8PrivateKeyPEMType   = "PRIVATE KEY"
-	opensshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
-
-	certPEMType          = "CERTIFICATE"
-	pkixPublicKeyPEMType = "PUBLIC KEY"
-)
-
-var (
-	// ErrBadPassphrase is a possible return error from LoadPEMPrivateKey()
-	ErrBadPassphrase = errors.New("passphrase incorrect for decrypting private key")
-
-	// ErrPassphraseRequired is a possible return error from LoadPEMPrivateKey()
-	ErrPassphraseRequired = errors.New("passphrase required for decrypting private key")
-)
-
 func openKeyFile(keyFile string) (*os.File, error) {
 	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
 	if err != nil {
@@ -60,22 +42,38 @@ func WriteKeyFile(keyfile string, data []byte) error {
 	return err
 }
 
-// CopyKeyFile copies a keyfile, it will fail if it can't overwrite
-// an existing file.
-func CopyKeyFile(fromFile, toFile string) error {
-	to, err := openKeyFile(toFile)
+/*
+const (
+	ecPrivateKeyPEMType      = "EC PRIVATE KEY"
+	rsaPrivateKeyPEMType     = "RSA PRIVATE KEY"
+	pkcs8PrivateKeyPEMType   = "PRIVATE KEY"
+	opensshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
+
+	certPEMType          = "CERTIFICATE"
+	pkixPublicKeyPEMType = "PUBLIC KEY"
+)
+
+var (
+	// ErrBadPassphrase is a possible return error from LoadPEMPrivateKey()
+	ErrBadPassphrase = errors.New("passphrase incorrect for decrypting private key")
+
+	// ErrPassphraseRequired is a possible return error from LoadPEMPrivateKey()
+	ErrPassphraseRequired = errors.New("passphrase required for decrypting private key")
+)
+
+// WritePEMKeyPair writes a key pair in pem format.
+// Deprecated: remove when it is no longer required by lib/security.
+func WriteKeyPair(key interface{}, privateKeyFile, publicKeyFile string, passphrase []byte) error {
+	private, err := openKeyFile(privateKeyFile)
 	if err != nil {
 		return err
 	}
-	defer to.Close()
-	from, err := os.Open(fromFile)
+	defer private.Close()
+	public, err := openKeyFile(publicKeyFile)
 	if err != nil {
 		return err
 	}
-	defer from.Close()
-	_, err = io.Copy(to, from)
-	return err
-}
+	defer public.Close()
 
 // WritePEMKeyPair writes a key pair in pem format.
 func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, passphrase []byte) error {

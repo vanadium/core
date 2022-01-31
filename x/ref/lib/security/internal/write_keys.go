@@ -4,29 +4,7 @@
 
 package internal
 
-import (
-	"crypto"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"fmt"
-	"io"
-	"os"
-
-	"golang.org/x/crypto/ssh"
-)
-
-func openKeyFile(keyFile string) (*os.File, error) {
-	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
-	}
-	return f, nil
-}
-
+/*
 // CopyKeyFile copies a keyfile, it will fail if it can't overwrite
 // an existing file.
 func CopyKeyFile(fromFile, toFile string) error {
@@ -126,9 +104,8 @@ func EncodePublicKeyPEM(public io.Writer, key crypto.PublicKey) error {
 // https://www.openssh.com/txt/draft-ietf-secsh-publickeyfile-02.txt
 func EncodeSSHPublicKeyPEM(public io.Writer, key ssh.PublicKey) error {
 
-	
 	pemKey := &pem.Block{
-		Type:  ssh2PEMType,
+		Type: ssh2PEMType,
 
 		Bytes: publicData,
 	}
@@ -152,3 +129,4 @@ func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, pass
 	}
 	return nil
 }
+*/
