@@ -19,7 +19,7 @@ import (
 var keyRegistrar = keys.NewRegistrar()
 
 func init() {
-	keys.MustRegisterCommon(keyRegistrar)
+	keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 	x509keys.MustRegister(keyRegistrar)
 }
@@ -64,7 +64,7 @@ func TestX509Keys(t *testing.T) {
 			t.Fatalf("%v: %v", kt, err)
 		}
 
-		privateKeyType, _ := sectestdata.CryptoType(keys.CryptoAlgo(kt))
+		privateKeyType, _ := sectestdata.CryptoType(kt)
 		if got, want := reflect.TypeOf(privateKey).String(), privateKeyType; got != want {
 			t.Fatalf("%v: got %v, want %v", kt, got, want)
 		}

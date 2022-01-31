@@ -38,10 +38,13 @@ type DecryptFunc func(block *pem.Block, passphrase []byte) (*pem.Block, crypto.P
 // specific key types.
 type API interface {
 	Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error)
-	//SignerOpts(key crypto.PrivateKey, opts ...interface{}) (security.Signer, error)
 	PublicKey(key interface{}) (security.PublicKey, error)
 }
 
+// Registrar represents an extensible collection of functions for marshaling
+// and parsing keys. Functions are registered with it for performing
+// marshaling, parsing and 'API' (e.g. creating a new Signer) operations and
+// thus provides a uniform interface for working with keys of many different
 type Registrar struct {
 	mu              sync.RWMutex
 	marshalPrivate  map[string]MarshalPrivateKeyFunc
@@ -65,6 +68,9 @@ func NewRegistrar() *Registrar {
 	}
 }
 
+// RegisterPublicKeyMarshaler registers the supplied function for marshaling
+// the specified types. These functions will be called by MarshalPublicKey when
+// marshaling the specified types.
 func (r *Registrar) RegisterPublicKeyMarshaler(fn MarshalPublicKeyFunc, types ...interface{}) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -73,6 +79,9 @@ func (r *Registrar) RegisterPublicKeyMarshaler(fn MarshalPublicKeyFunc, types ..
 	}
 }
 
+// RegisterPrivateKeyMarshaler registers the supplied function for marshaling
+// the specified types. These functions will be called by MarshalPrivateKey when
+// marshaling the specified types.
 func (r *Registrar) RegisterPrivateKeyMarshaler(fn MarshalPrivateKeyFunc, types ...interface{}) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -81,6 +90,9 @@ func (r *Registrar) RegisterPrivateKeyMarshaler(fn MarshalPrivateKeyFunc, types 
 	}
 }
 
+// RegisterAPI registers the supplied interface instance as providing 'API'
+// operations for the specified types. This interface instance is returned
+// by APIForKey when called for the specified types.
 func (r *Registrar) RegisterAPI(ifc API, types ...interface{}) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -105,6 +117,9 @@ func matchAny(*pem.Block) bool {
 	return true
 }
 
+// RegisterPublicKeyParser registers the supplied function for parsing the
+// specified PME types. These functions will be called by ParsePublicKey when
+// that PEM type is encountered.
 func (r *Registrar) RegisterPublicKeyParser(parser ParsePublicKeyFunc, pemType string, matcher func(*pem.Block) bool) {
 	if matcher == nil {
 		matcher = matchAny
@@ -115,6 +130,9 @@ func (r *Registrar) RegisterPublicKeyParser(parser ParsePublicKeyFunc, pemType s
 
 }
 
+// RegisterPrivateKeyParser registers the supplied function for parsing the
+// specified PME types. These functions will be called by ParsePrivateKey when
+// that PEM type is encountered.
 func (r *Registrar) RegisterPrivateKeyParser(parser ParsePrivateKeyFunc, pemType string, matcher func(*pem.Block) bool) {
 	if matcher == nil {
 		matcher = matchAny
@@ -124,6 +142,8 @@ func (r *Registrar) RegisterPrivateKeyParser(parser ParsePrivateKeyFunc, pemType
 	r.parsePrivate[pemType] = append(r.parsePrivate[pemType], parserInfo{private: parser, matcher: matcher})
 }
 
+// RegisterDecrypter registers the supplied function for decrypting the contents
+// of the specified PEM types. It is called internally by ParsePrivateKey.
 func (r *Registrar) RegisterDecrypter(decrypter DecryptFunc, pemType string, matcher func(*pem.Block) bool) {
 	if matcher == nil {
 		matcher = matchAny
@@ -133,16 +153,25 @@ func (r *Registrar) RegisterDecrypter(decrypter DecryptFunc, pemType string, mat
 	r.decrypters[pemType] = append(r.decrypters[pemType], parserInfo{decrypter: decrypter, matcher: matcher})
 }
 
+// RegisterPublicKeyTextParser adds the parser to the list of parsers to be used
+// for parsing formats other than PEM. For example SSH public keys are not in
+// PEM format.
 func (r *Registrar) RegisterPublicKeyTextParser(parser ParsePublicKeyTextFunc) {
 	r.mu.Lock()
 	r.parsePublicText = append(r.parsePublicText, parser)
 	r.mu.Unlock()
 }
 
-func (r *Registrar) RegisterIndirectPrivateKeyParser(parser ParsePrivateKeyFunc, typ string) {
+// RegisterIndirectPrivateKeyParser registers the supplied function as an 'indirect'
+// parser for PEM blocks of type IndirectionPrivateKeyPEMType which have
+// the specified value for their IndirectionTypePEMHeader header. See IndirectMatcherFunc
+// and MarshalFuncForIndirection. This facility is typically used to avoid
+// copying private key files and for using external agents/services to host
+// private key files and associated signing operations.
+func (r *Registrar) RegisterIndirectPrivateKeyParser(parser ParsePrivateKeyFunc, pemHeaderValue string) {
 	r.RegisterPrivateKeyParser(parser,
 		IndirectionPrivateKeyPEMType,
-		IndirectMatcherFunc(typ))
+		IndirectMatcherFunc(pemHeaderValue))
 }
 
 func (r *Registrar) getMarshallers(typ interface{}) (MarshalPublicKeyFunc, MarshalPrivateKeyFunc) {
@@ -152,6 +181,8 @@ func (r *Registrar) getMarshallers(typ interface{}) (MarshalPublicKeyFunc, Marsh
 	return r.marshalPublic[k], r.marshalPrivate[k]
 }
 
+// MarshalPublicKey marshals key into a PEM block using the appropriately
+// registered function.
 func (r *Registrar) MarshalPublicKey(key crypto.PublicKey) ([]byte, error) {
 	pub, _ := r.getMarshallers(key)
 	if pub == nil {
@@ -160,6 +191,8 @@ func (r *Registrar) MarshalPublicKey(key crypto.PublicKey) ([]byte, error) {
 	return pub(key)
 }
 
+// MarshalPrivateKey marshals key into a PEM block using the appropriately
+// registered function.
 func (r *Registrar) MarshalPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
 	_, priv := r.getMarshallers(key)
 	if priv == nil {
@@ -168,6 +201,8 @@ func (r *Registrar) MarshalPrivateKey(key crypto.PrivateKey, passphrase []byte) 
 	return priv(key, passphrase)
 }
 
+// ParsePublicKey parsers the supplied PEM (or plain text) data using the
+// registered parsers to obtain a public key.
 func (r *Registrar) ParsePublicKey(data []byte) (crypto.PublicKey, error) {
 	key, err := r.parsePublicKeys(data)
 	if err == nil {
@@ -183,10 +218,13 @@ func (r *Registrar) ParsePublicKey(data []byte) (crypto.PublicKey, error) {
 	return nil, err
 }
 
+// ParsePublicKey parsers the supplied PEM data using the registered parsers to
+// obtain a private key. It will follow at most one 'indirect' PEM block.
 func (r *Registrar) ParsePrivateKey(ctx context.Context, data, passphrase []byte) (crypto.PrivateKey, error) {
 	return r.parsePrivateKeys(ctx, data, passphrase, true)
 }
 
+// APIForKey returns the interface instance registered for the supplied key.
 func (r *Registrar) APIForKey(key crypto.PrivateKey) (API, error) {
 	r.mu.RLock()
 	api, ok := r.apis[reflect.TypeOf(key).String()]

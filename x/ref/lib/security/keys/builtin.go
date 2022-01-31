@@ -20,14 +20,20 @@ import (
 	"v.io/x/ref/lib/security/keys/internal"
 )
 
-func MustRegisterCommon(r *Registrar) {
-	if err := RegisterCommon(r); err != nil {
+// MustRegister is like Register but panics on error.
+func MustRegister(r *Registrar) {
+	if err := Register(r); err != nil {
 		panic(err)
 	}
 }
 
-func RegisterCommon(r *Registrar) error {
-	r.RegisterPrivateKeyMarshaler(MarshalBuiltinPrivateKey,
+// Register registers the required functions for handling the Vanadium built
+// in key types and commonly used formats. These are currently the crypto/ecsda,
+// crypto/ed25519 and crypto/rsa algorithms with parsers provided for variety
+// of PEM block types. PEM and PKCS8 decryption are supported but PCKS8 is
+// is used for encryption.
+func Register(r *Registrar) error {
+	r.RegisterPrivateKeyMarshaler(MarshalPKCS8PrivateKey,
 		(*rsa.PrivateKey)(nil), (*ecdsa.PrivateKey)(nil), (ed25519.PrivateKey)(nil))
 	r.RegisterPublicKeyMarshaler(MarshalPKIXPublicKey,
 		(*rsa.PublicKey)(nil), (*ecdsa.PublicKey)(nil), (ed25519.PublicKey)(nil))
@@ -64,6 +70,8 @@ func (*api) PublicKey(key interface{}) (security.PublicKey, error) {
 	return PublicKey(key)
 }
 
+// MarshalPKIXPublicKey uses MarshalPKIXPublicKey to marshal the key
+// to PEM block of type 'PUBLIC 'KEY'.
 func MarshalPKIXPublicKey(key crypto.PublicKey) ([]byte, error) {
 	der, err := x509.MarshalPKIXPublicKey(key)
 	if err != nil {
@@ -72,7 +80,10 @@ func MarshalPKIXPublicKey(key crypto.PublicKey) ([]byte, error) {
 	return internal.EncodePEM("PUBLIC KEY", der, nil)
 }
 
-func MarshalBuiltinPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
+// MarshalPKCS8PrivateKey uses x509.MarshalPKCS8PrivateKey to marshal
+// the key to PEM block type of 'PRIVATE KEY'. If a passphrase is provided
+// the key will be encrypted using PKCS8 rather than PEM..
+func MarshalPKCS8PrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
 	if len(passphrase) != 0 {
 		data, err := pkcs8.MarshalPrivateKey(key, passphrase, &pkcs8.Opts{
 			Cipher: pkcs8.AES256CBC,
@@ -87,50 +98,46 @@ func MarshalBuiltinPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte,
 		}
 		return internal.EncodePEM("ENCRYPTED PRIVATE KEY", data, nil)
 	}
-	var der []byte
-	var err error
-	typ := "PRIVATE KEY"
-	switch k := key.(type) {
-	case *ecdsa.PrivateKey:
-		der, err = x509.MarshalECPrivateKey(k)
-		typ = "EC PRIVATE KEY"
-	case ed25519.PrivateKey:
-		der, err = x509.MarshalPKCS8PrivateKey(k)
-	case *rsa.PrivateKey:
-		der, err = x509.MarshalPKCS8PrivateKey(k)
-	default:
-		return nil, fmt.Errorf("unsupported type: %T", key)
-	}
+	der, err := x509.MarshalPKCS8PrivateKey(key)
 	if err != nil {
 		return nil, err
 	}
-	return internal.EncodePEM(typ, der, nil)
+	return internal.EncodePEM("PRIVATE KEY", der, nil)
 }
 
+// ParsePKIXPublicKey calls x509.ParsePKIXPublicKey with block.Bytes.
 func ParsePKIXPublicKey(block *pem.Block) (crypto.PublicKey, error) {
 	return x509.ParsePKIXPublicKey(block.Bytes)
 }
 
+// ParseECPrivateKey calls x509.ParseECPrivateKey with block.Bytes.
 func ParseECPrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 	return x509.ParseECPrivateKey(block.Bytes)
 }
 
+// ParsePKCS8PrivateKey calls x509.ParsePKCS8PrivateKey with block.Bytes.
 func ParsePKCS8PrivateKey(block *pem.Block) (crypto.PrivateKey, error) {
 	return x509.ParsePKCS8PrivateKey(block.Bytes)
 }
 
+// ErrPassphraseRequired is returned when an attempt is made to read
+// an encrypted block without a passphrase.
 type ErrPassphraseRequired struct{}
 
 func (*ErrPassphraseRequired) Error() string {
 	return "passphrase required"
 }
 
+// ErrBadPassphrase is returned when the supplied passphrase is unable to
+// decrypt the key.
 type ErrBadPassphrase struct{}
 
 func (*ErrBadPassphrase) Error() string {
 	return "bad passphrase"
 }
 
+// DecryptPEMBlock decrypts an encrypted PEM block.
+// Deprecated: use PKCS8 encryption instead.
 func DecryptPEMBlock(block *pem.Block, passphrase []byte) (*pem.Block, crypto.PrivateKey, error) {
 	if !x509.IsEncryptedPEMBlock(block) { //nolint:staticcheck
 		return block, nil, nil
@@ -150,6 +157,8 @@ func DecryptPEMBlock(block *pem.Block, passphrase []byte) (*pem.Block, crypto.Pr
 	return pb, nil, nil
 }
 
+// DecryptPKCS8Block decrypts a private key encrypted using PKCS8. The block's
+// PEM type must be "ENCRYPTED PRIVATE KEY".
 func DecryptPKCS8Block(block *pem.Block, passphrase []byte) (*pem.Block, crypto.PrivateKey, error) {
 	if len(passphrase) == 0 && block.Type == "ENCRYPTED PRIVATE KEY" {
 		return nil, nil, &ErrPassphraseRequired{}

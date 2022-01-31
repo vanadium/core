@@ -283,11 +283,12 @@ func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Princip
 
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
+		ctx := gocontext.TODO()
 		key, err := NewSSHAgentHostedKey(filepath.Join(sshKeyDir, keyFile))
 		if err != nil {
 			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, pass)
+		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
 	}
 }
 

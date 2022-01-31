@@ -28,7 +28,7 @@ import (
 var keyRegistrar = keys.NewRegistrar()
 
 func init() {
-	keys.MustRegisterCommon(keyRegistrar)
+	keys.MustRegister(keyRegistrar)
 	sshkeys.MustRegister(keyRegistrar)
 	x509keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)

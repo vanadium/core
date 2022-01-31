@@ -31,7 +31,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate private key: %v", err)
 	}
-	return CreatePersistentPrincipalUsingKey(context.Background(), key, dir, passphrase)
+	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
 }
 
 // CreatePersistentPrincipalUsingKey creates a new Principal using the supplied

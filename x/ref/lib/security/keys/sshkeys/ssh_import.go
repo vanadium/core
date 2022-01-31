@@ -101,5 +101,5 @@ func importPrivateKeyBytes(ctx context.Context, keyBytes, origPassphrase, newPas
 		return nil, err
 	}
 	// Note that the encrypted key will always be in PCKS8 format.
-	return keys.MarshalBuiltinPrivateKey(privKey, newPassphrase)
+	return keys.MarshalPKCS8PrivateKey(privKey, newPassphrase)
 }

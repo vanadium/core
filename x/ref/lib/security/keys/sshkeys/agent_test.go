@@ -29,7 +29,7 @@ var keyRegistrar = keys.NewRegistrar()
 
 func init() {
 	sshkeys.MustRegister(keyRegistrar)
-	keys.MustRegisterCommon(keyRegistrar)
+	keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 }
 

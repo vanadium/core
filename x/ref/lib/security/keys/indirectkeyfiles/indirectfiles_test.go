@@ -26,7 +26,7 @@ ZG9lc250LWV4aXN0
 var keyRegistrar = keys.NewRegistrar()
 
 func init() {
-	keys.MustRegisterCommon(keyRegistrar)
+	keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 }
 
