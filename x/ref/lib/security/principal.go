@@ -22,9 +22,9 @@ import (
 	"v.io/v23/verror"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/security/signing/keyfile"
-	"v.io/x/ref/lib/security/signing/sshagent"
 )
 
 var (
@@ -47,6 +47,7 @@ const (
 	privateKeyFile        = "privatekey.pem"
 	privatePCKS8KeyFile   = "privatekey.pkcs8"
 	publicKeyFile         = "publickey.pem"
+	sshPublicKeyFile      = "ssh-publickey.pub"
 )
 
 // NewPrincipal mints a new private (ecdsa) key and generates a principal
@@ -185,6 +186,8 @@ func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (sec
 		switch {
 		case name == privateKeyFile:
 			privatePEM = name
+		case name == sshPublicKeyFile:
+			publicSSH = name
 		case strings.HasSuffix(name, ".pub"):
 			publicSSH = name
 		}
@@ -217,15 +220,25 @@ func handleSignerError(signer security.Signer, err error) (security.Signer, erro
 }
 
 func newFileSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	if !strings.HasSuffix(filename, ".pem") {
+		return nil, fmt.Errorf("unrecognised file suffix: %v, currently only pem files are supported", filename)
+	}
+	pemBlockBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
 	svc := keyfile.NewSigningService()
-	signer, err := svc.Signer(ctx, filename, passphrase)
+	signer, err := svc.Signer(ctx, pemBlockBytes, passphrase)
 	return handleSignerError(signer, err)
 }
 
 func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
-	svc := sshagent.NewSigningService()
-	svc.(*sshagent.Client).SetAgentSockName(DefaultSSHAgentSockNameFunc())
-	signer, err := svc.Signer(ctx, filename, passphrase)
+	hostedKey, err := NewSSHAgentHostedKey(filename)
+	if err != nil {
+		return nil, err
+	}
+	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
+	signer, err := hostedKey.Signer(ctx)
 	return handleSignerError(signer, err)
 }
 
@@ -255,6 +268,8 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 		switch {
 		case name == publicKeyFile:
 			publicPEM = name
+		case name == sshPublicKeyFile:
+			publicSSH = name
 		case strings.HasSuffix(name, ".pub"):
 			publicSSH = name
 		}
@@ -268,9 +283,13 @@ func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey,
 		key, err = internal.LoadPEMPublicKeyFile(filepath.Join(dir, publicPEM))
 	case len(publicSSH) > 0:
 		var sshKey ssh.PublicKey
-		sshKey, _, err = internal.LoadSSHPublicKeyFile(filepath.Join(dir, publicSSH))
+		var data []byte
+		data, err = os.ReadFile(filepath.Join(dir, publicSSH))
 		if err == nil {
-			key, err = internal.CryptoKeyFromSSHKey(sshKey)
+			sshKey, _, _, _, err = ssh.ParseAuthorizedKey(data)
+			if err == nil {
+				key, err = internal.CryptoKeyFromSSHKey(sshKey)
+			}
 		}
 	}
 	if err != nil {

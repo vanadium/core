@@ -16,9 +16,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/serialization"
 )
 
@@ -42,7 +44,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 //
 // The specified directory may not exist, in which case it will be created.
 // The follow key types are supported:
-// *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey and SSHAgentHostedKey.
+// *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey and *sshkeys.HostedKey.
 func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
 	unlock, err := initAndLockPrincipalDir(dir)
 	if err != nil {
@@ -52,10 +54,7 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 
 	// Handle ssh keys where the private key is stored in an agent and
 	// we only have the public key.
-	switch sshkey := key.(type) {
-	case SSHAgentHostedKey:
-		return createSSHAgentPrincipal(ctx, &sshkey, dir, passphrase)
-	case *SSHAgentHostedKey:
+	if sshkey, ok := key.(*sshkeys.HostedKey); ok {
 		return createSSHAgentPrincipal(ctx, sshkey, dir, passphrase)
 	}
 
@@ -74,12 +73,15 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 	return createPrincipalUsingSigner(ctx, signer, dir)
 }
 
-func createSSHAgentPrincipal(ctx context.Context, sshKey *SSHAgentHostedKey, dir string, passphrase []byte) (security.Principal, error) {
-	from, to := sshKey.PublicKeyFile, filepath.Join(dir, filepath.Base(sshKey.PublicKeyFile))
-	if err := internal.CopyKeyFile(from, to); err != nil {
-		return nil, fmt.Errorf("failed to copy ssh public key file: %v to %v: %v", from, to, err)
+func createSSHAgentPrincipal(ctx context.Context, sshKey *sshkeys.HostedKey, dir string, passphrase []byte) (security.Principal, error) {
+	data := ssh.MarshalAuthorizedKey(sshKey.PublicKey())
+	if err := internal.WriteKeyFile(filepath.Join(dir, sshPublicKeyFile), data); err != nil {
+		return nil, err
 	}
-	signer, err := sshKey.Agent.Signer(ctx, to, passphrase)
+	if len(passphrase) > 0 {
+		ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
+	}
+	signer, err := sshKey.Signer(ctx)
 	if err != nil {
 		return nil, err
 	}

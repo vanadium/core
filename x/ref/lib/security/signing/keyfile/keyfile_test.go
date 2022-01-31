@@ -6,65 +6,41 @@ package keyfile_test
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/rand"
-	"os"
-	"path"
-	"path/filepath"
+	"fmt"
 	"testing"
 
-	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/signing/keyfile"
+	"v.io/x/ref/test/sectestdata"
 )
-
-func writeKeyFiles(t *testing.T, key interface{}, dir, privateKey, publicKey string) {
-	err := internal.WritePEMKeyPair(
-		key,
-		path.Join(dir, privateKey),
-		path.Join(dir, publicKey),
-		nil,
-	)
-	if err != nil {
-		t.Fatalf("failt to write %v, %v in dir %v: %v", privateKey, publicKey, dir, err)
-	}
-}
-
-func createPEMKeys(t *testing.T, dir string) {
-	_, key1, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatalf("failed to genered ed25519 key: %v", err)
-	}
-	writeKeyFiles(t, key1, dir, "privatekey.pem", "publickey.pem")
-	key2, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		t.Fatalf("failed to genered ecdsa key: %v", err)
-	}
-	writeKeyFiles(t, key2, dir, "ecdsa.pem", "ecdsa-public.pem")
-}
 
 func TestKeyFiles(t *testing.T) {
 	ctx := context.Background()
-	tmpDir, err := os.MkdirTemp("", "test-key-files")
-	if err != nil {
-		t.Fatalf("CreateTemp: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
+	for _, typ := range sectestdata.SupportedKeyAlgos {
+		key := sectestdata.V23PrivateKeyBytes(typ, sectestdata.V23keySetA)
+		msg := fmt.Sprintf("X509/SSL key type %v", typ)
+		testSigning(ctx, t, msg, key)
 
-	createPEMKeys(t, tmpDir)
-	for _, keyFilename := range []string{"privatekey.pem", "ecdsa.pem"} {
-		svc := keyfile.NewSigningService()
-		signer, err := svc.Signer(ctx, filepath.Join(tmpDir, keyFilename), nil)
-		if err != nil {
-			t.Fatalf("failed to get signer for %v: %v", keyFilename, err)
-		}
-		sig, err := signer.Sign([]byte("testing"), []byte("hello"))
-		if err != nil {
-			t.Fatalf("failed to sign message for %v: %v", keyFilename, err)
-		}
-		if !sig.Verify(signer.PublicKey(), []byte("hello")) {
-			t.Errorf("failed to verify signature for %v", keyFilename)
-		}
+		key = sectestdata.X509PrivateKeyBytes(typ, sectestdata.X509Private)
+		msg = fmt.Sprintf("X509/SSL key type %v", typ)
+		testSigning(ctx, t, msg, key)
+
+		key = sectestdata.SSHPrivateKeyBytes(typ, sectestdata.SSHKeyPrivate)
+		msg = fmt.Sprintf("SSH key type %v", typ)
+		testSigning(ctx, t, msg, key)
+	}
+}
+
+func testSigning(ctx context.Context, t *testing.T, msg string, keyBytes []byte) {
+	svc := keyfile.NewSigningService()
+	signer, err := svc.Signer(ctx, keyBytes, nil)
+	if err != nil {
+		t.Fatalf("failed to get signer for %v: %v", msg, err)
+	}
+	sig, err := signer.Sign([]byte("testing"), []byte("hello"))
+	if err != nil {
+		t.Fatalf("failed to sign message for %v: %v", msg, err)
+	}
+	if !sig.Verify(signer.PublicKey(), []byte("hello")) {
+		t.Errorf("failed to verify signature for %v", msg)
 	}
 }

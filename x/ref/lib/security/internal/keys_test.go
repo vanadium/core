@@ -60,7 +60,7 @@ func TestLoadSavePEMKey(t *testing.T) {
 			t.Fatalf("Failed to save ECDSA private key: %v", err)
 		}
 
-		loadedKey, err := LoadPEMPrivateKey(&privateKeyBuf, nil)
+		loadedKey, err := ParsePEMPrivateKey(privateKeyBuf.Bytes(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -90,7 +90,7 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	loadedKey, err := LoadPEMPrivateKey(&buf, incorrectPass)
+	loadedKey, err := ParsePEMPrivateKey(buf.Bytes(), incorrectPass)
 	if loadedKey != nil && err != nil {
 		t.Errorf("expected (nil, err != nil) received (%v,%v)", loadedKey, err)
 	}
@@ -99,7 +99,7 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	loadedKey, err = LoadPEMPrivateKey(&buf, pass)
+	loadedKey, err = ParsePEMPrivateKey(buf.Bytes(), pass)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestLoadSavePEMKeyWithPassphrase(t *testing.T) {
 	if err := SavePEMKeyPair(&buf, nil, key, pass); err != nil {
 		t.Fatalf("Failed to save ECDSA private key: %v", err)
 	}
-	if loadedKey, err = LoadPEMPrivateKey(&buf, nil); loadedKey != nil || !errors.Is(err, ErrPassphraseRequired) {
+	if loadedKey, err = ParsePEMPrivateKey(buf.Bytes(), nil); loadedKey != nil || !errors.Is(err, ErrPassphraseRequired) {
 		t.Fatalf("expected(nil, ErrPassphraseRequired), instead got (%v, %v)", loadedKey, err)
 	}
 }

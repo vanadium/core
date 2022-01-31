@@ -5,6 +5,7 @@
 package internal
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
@@ -24,13 +25,13 @@ import (
 )
 
 const (
-	ecPrivateKeyPEMType    = "EC PRIVATE KEY"
-	rsaPrivateKeyPEMType   = "RSA PRIVATE KEY"
-	pkcs8PrivateKeyPEMType = "PRIVATE KEY"
-	pkixPublicKeyPEMType   = "PUBLIC KEY"
-	ssh2PEMType            = "SSH2 PUBLIC KEY"
+	ecPrivateKeyPEMType      = "EC PRIVATE KEY"
+	rsaPrivateKeyPEMType     = "RSA PRIVATE KEY"
+	pkcs8PrivateKeyPEMType   = "PRIVATE KEY"
+	opensshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
 
-	certPEMType = "CERTIFICATE"
+	certPEMType          = "CERTIFICATE"
+	pkixPublicKeyPEMType = "PUBLIC KEY"
 )
 
 var (
@@ -41,13 +42,62 @@ var (
 	ErrPassphraseRequired = errors.New("passphrase required for decrypting private key")
 )
 
-// loadPEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
-// If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
-func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
-	pemBlockBytes, err := io.ReadAll(r)
+func openKeyFile(keyFile string) (*os.File, error) {
+	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
 	}
+	return f, nil
+}
+
+func WriteKeyFile(keyfile string, data []byte) error {
+	to, err := openKeyFile(keyfile)
+	if err != nil {
+		return err
+	}
+	defer to.Close()
+	_, err = io.Copy(to, bytes.NewReader(data))
+	return err
+}
+
+// CopyKeyFile copies a keyfile, it will fail if it can't overwrite
+// an existing file.
+func CopyKeyFile(fromFile, toFile string) error {
+	to, err := openKeyFile(toFile)
+	if err != nil {
+		return err
+	}
+	defer to.Close()
+	from, err := os.Open(fromFile)
+	if err != nil {
+		return err
+	}
+	defer from.Close()
+	_, err = io.Copy(to, from)
+	return err
+}
+
+// WritePEMKeyPair writes a key pair in pem format.
+func WritePEMKeyPair(key interface{}, privateKeyFile, publicKeyFile string, passphrase []byte) error {
+	private, err := openKeyFile(privateKeyFile)
+	if err != nil {
+		return err
+	}
+	defer private.Close()
+	public, err := openKeyFile(publicKeyFile)
+	if err != nil {
+		return err
+	}
+	defer public.Close()
+	if err := SavePEMKeyPair(private, public, key, passphrase); err != nil {
+		return fmt.Errorf("failed to save private key to %v, %v: %v", privateKeyFile, publicKeyFile, err)
+	}
+	return nil
+}
+
+// ParsePEMPrivateKey loads a key from 'r'. returns ErrBadPassphrase for incorrect Passphrase.
+// If the key held in 'r' is unencrypted, 'passphrase' will be ignored.
+func ParsePEMPrivateKey(pemBlockBytes []byte, passphrase []byte) (interface{}, error) {
 	for {
 		var pemBlock *pem.Block
 		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
@@ -56,7 +106,9 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		}
 
 		var data []byte
-		// TODO(cnicolaou): migrate away from PEM keys.
+		var err error
+		// TODO(cnicolaou): migrate away from encrypted PEM keys, use ssh or pkcs8 instead.
+		// TODO(cnicolaou): support encrypted ssh private keys.
 		if x509.IsEncryptedPEMBlock(pemBlock) { //nolint:staticcheck
 			// Assume empty passphrase is disallowed.
 			if len(passphrase) == 0 {
@@ -78,22 +130,27 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 				// bytes for data with a nil error when the passphrase
 				// is invalid; hence, failure to parse data could be due
 				// to a bad passphrase.
-				return nil, ErrBadPassphrase
+				return nil, err
 			}
 			return key, nil
 		case rsaPrivateKeyPEMType:
 			key, err := x509.ParsePKCS1PrivateKey(data)
 			if err != nil {
-				return nil, ErrBadPassphrase
+				return nil, err
 			}
 			return key, nil
 		case pkcs8PrivateKeyPEMType:
 			key, err := x509.ParsePKCS8PrivateKey(data)
 			if err != nil {
-				return nil, ErrBadPassphrase
+				return nil, err
 			}
 			return key, nil
-
+		case opensshPrivateKeyPEMType:
+			key, err := parseSSHPrivateKey(data, passphrase)
+			if err != nil {
+				return nil, err
+			}
+			return key, nil
 		default:
 			if strings.Contains(pemBlock.Type, "PARAMETERS") {
 				continue
@@ -101,6 +158,35 @@ func LoadPEMPrivateKey(r io.Reader, passphrase []byte) (interface{}, error) {
 		}
 		return nil, fmt.Errorf("PEM key block has an unrecognized type: %v", pemBlock.Type)
 	}
+}
+
+func parseSSHPrivateKey(decoded []byte, passphrase []byte) (crypto.PrivateKey, error) {
+	pb := &pem.Block{
+		Type:  opensshPrivateKeyPEMType,
+		Bytes: decoded,
+	}
+	pemBlock := &bytes.Buffer{}
+	if err := pem.Encode(pemBlock, pb); err != nil {
+		return nil, err
+	}
+	var key crypto.PrivateKey
+	var err error
+	key, err = ssh.ParseRawPrivateKey(pemBlock.Bytes())
+	if errors.Is(err, &ssh.PassphraseMissingError{}) {
+		key, err = ssh.ParseRawPrivateKeyWithPassphrase(pemBlock.Bytes(), passphrase)
+		if err == x509.IncorrectPasswordError {
+			return nil, ErrBadPassphrase
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	if edk, ok := key.(*ed25519.PrivateKey); ok {
+		// Always return an ed25519.PrivateKey since that's what crypt/ed25519
+		// returns.
+		return *edk, nil
+	}
+	return key, nil
 }
 
 // LoadPEMPublicKeyFile loads a public key file in PEM PKIX format.
@@ -244,8 +330,8 @@ func ParseRSAKey(key ssh.PublicKey) (*rsa.PublicKey, error) {
 	return &rsa.PublicKey{N: sshWire.N, E: int(sshWire.E.Int64())}, nil
 }
 
-// CryptoKeyFromSSHKey returns one of *ecdsa.PublicKey or
-// ed25519.PublicKey from the the supplied ssh PublicKey.
+// CryptoKeyFromSSHKey returns one of *ecdsa.PublicKey, ed25519.PublicKey or
+// *rsa.PublicKey from the the supplied ssh PublicKey.
 func CryptoKeyFromSSHKey(pk ssh.PublicKey) (interface{}, error) {
 	switch pk.Type() {
 	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
