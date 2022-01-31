@@ -10,6 +10,8 @@ import (
 	"embed"
 	"encoding/pem"
 	"fmt"
+	"os"
+	"path"
 	"path/filepath"
 
 	"v.io/v23/security"
@@ -21,6 +23,9 @@ var v23PrivateKeys embed.FS
 
 //go:embed testdata/v23-public-*.key testdata/legacy/*/publickey.pem
 var v23PublicKeys embed.FS
+
+//go:embed testdata/legacy
+var v23Principals embed.FS
 
 // V23KeySetID represents a set of keys, each set contains at least one
 // instance of all supported key types.
@@ -96,4 +101,19 @@ func V23Signer(typ keys.CryptoAlgo, set V23KeySetID) security.Signer {
 		panic(err)
 	}
 	return signer
+}
+
+func V23CopyLegacyPrincipals(toDir string) {
+	for _, kt := range SupportedKeyAlgos {
+		for _, prefix := range []string{"plain", "encrypted"} {
+			principal := fmt.Sprintf("v23-%s-%s-principal", prefix, kt)
+			to := filepath.Join(toDir, principal)
+			if err := os.MkdirAll(to, 0700); err != nil {
+				panic(err)
+			}
+			if err := copyFS(v23Principals, path.Join("testdata", "legacy", principal), to); err != nil {
+				panic(err)
+			}
+		}
+	}
 }

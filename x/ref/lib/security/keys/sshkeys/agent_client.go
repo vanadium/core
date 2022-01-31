@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package sshagent provides the ability to use openssh's ssh-agent
-// to carry out key signing operations using keys stored therein.
-// This allows ssh keys to be used as Vanadium principals.
-package sshagent
+package sshkeys
 
 import (
 	"bytes"
@@ -13,31 +10,19 @@ import (
 	"fmt"
 	"math/big"
 	"net"
-	"os"
 	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"v.io/v23/security"
-	secinternal "v.io/x/ref/lib/security/internal"
-	"v.io/x/ref/lib/security/signing"
-	"v.io/x/ref/lib/security/signing/internal"
 )
 
-// DefaultSockNameFunc can be overridden to return the address of a custom
-// ssh agent to use instead of the one specified by SSH_AUTH_SOCK. This is
-// primarily intended for tests.
-var DefaultSockNameFunc = func() string {
-	return os.Getenv("SSH_AUTH_SOCK")
-}
-
-// Client represents an ssh-agent client.
+// Client represents an ssh agent client.
 type Client struct {
 	mu    sync.Mutex
 	conn  net.Conn
 	agent agent.ExtendedAgent
-	sock  string
 }
 
 // NewClient returns a new instance of Client.
@@ -45,36 +30,9 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-// NewSigningService returns an implementation of signing.Service that uses
-// an ssh-agent to perform signing operations.
-func NewSigningService() signing.Service {
-	return &Client{}
-}
-
-// SetAgentSockName will call the SetAgentSockName method on the
-// specified signing.Service iff it is an instance of sshagent.Client.
-func SetAgentSockName(service signing.Service, name string) {
-	if ac, ok := service.(*Client); ok {
-		ac.SetAgentSockName(name)
-	}
-}
-
-// SetAgentSockName specifies the name of the unix domain socket to use
-// to communicate with the agent. It must be called before any other
-// method, otherwise the value of the SSH_AUTH_SOCK environment variable
-// is used.
-func (ac *Client) SetAgentSockName(name string) {
+func (ac *Client) connect(ctx context.Context) error {
+	sockName := AgentSocketName(ctx)
 	ac.mu.Lock()
-	defer ac.mu.Unlock()
-	ac.sock = name
-}
-
-func (ac *Client) connect() error {
-	ac.mu.Lock()
-	sockName := ac.sock
-	if len(sockName) == 0 {
-		sockName = os.Getenv("SSH_AUTH_SOCK")
-	}
 	if ac.conn != nil && ac.agent != nil {
 		ac.mu.Unlock()
 		return nil
@@ -92,22 +50,22 @@ func (ac *Client) connect() error {
 }
 
 // Lock will lock the agent using the specified passphrase.
-func (ac *Client) Lock(passphrase []byte) error {
-	if err := ac.connect(); err != nil {
+func (ac *Client) Lock(ctx context.Context) error {
+	if err := ac.connect(ctx); err != nil {
 		return err
 	}
-	if err := ac.agent.Lock(passphrase); err != nil {
+	if err := ac.agent.Lock(AgentPassphrase(ctx)); err != nil {
 		return fmt.Errorf("failed to lock agent: %v", err)
 	}
 	return nil
 }
 
 // Unlock will unlock the agent using the specified passphrase.
-func (ac *Client) Unlock(passphrase []byte) error {
-	if err := ac.connect(); err != nil {
+func (ac *Client) Unlock(ctx context.Context) error {
+	if err := ac.connect(ctx); err != nil {
 		return err
 	}
-	if err := ac.agent.Unlock(passphrase); err != nil {
+	if err := ac.agent.Unlock(AgentPassphrase(ctx)); err != nil {
 		return fmt.Errorf("failed to unlock agent: %v", err)
 	}
 	return nil
@@ -130,16 +88,10 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 	}, nil
 }
 
-// Signer implements signing.Service.
-func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase []byte) (s security.Signer, err error) {
-	key, comment, err := secinternal.LoadSSHPublicKeyFile(publicKeyFile)
-	if err != nil {
+func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (s security.Signer, err error) {
+	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}
-	if err := ac.connect(); err != nil {
-		return nil, err
-	}
-
 	relock, err := handleLock(ac.agent, passphrase)
 	if err != nil {
 		return nil, err
@@ -148,7 +100,7 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 		err = relock(err)
 	}()
 
-	k, err := ac.lookup(key, comment)
+	k, err := ac.lookup(key)
 	if err != nil {
 		return nil, err
 	}
@@ -160,13 +112,13 @@ func (ac *Client) Signer(ctx context.Context, publicKeyFile string, passphrase [
 	var impl signImpl
 	switch pk.Type() {
 	case ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521:
-		vpk, err = internal.FromECDSAKey(pk)
+		vpk, err = fromECDSAKey(pk)
 		impl = ecdsaSign
 	case ssh.KeyAlgoED25519:
-		vpk, err = internal.FromED25512Key(pk)
+		vpk, err = fromED25512Key(pk)
 		impl = ed25519Sign
 	case ssh.KeyAlgoRSA:
-		vpk, err = internal.FromRSAKey(pk)
+		vpk, err = fromRSAKey(pk)
 		impl = rsaSign
 	default:
 		return nil, fmt.Errorf("unsupported ssh key key type %v", pk.Type())
@@ -193,25 +145,25 @@ func (ac *Client) Close(ctx context.Context) error {
 	return ac.conn.Close()
 }
 
-func (ac *Client) lookup(key ssh.PublicKey, comment string) (*agent.Key, error) {
+func (ac *Client) lookup(key ssh.PublicKey) (*agent.Key, error) {
 	keys, err := ac.agent.List()
 	if err != nil {
 		return nil, err
 	}
 	pk := key.Marshal()
 	for _, key := range keys {
-		if bytes.Equal(pk, key.Blob) && key.Comment == comment {
-			if !internal.IsSupported(key) {
-				return nil, fmt.Errorf("key %v (%v) is not one of the supported type types: %v", comment, key.Type(), strings.Join(internal.SupportedKeyTypes(), ", "))
+		if bytes.Equal(pk, key.Blob) {
+			if !isSupported(key) {
+				return nil, fmt.Errorf("key %v (%v) is not one of the supported type types: %v", ssh.FingerprintSHA256(key), key.Type(), strings.Join(supportedKeyTypes(), ", "))
 			}
 			return key, nil
 		}
 	}
-	return nil, fmt.Errorf("key not found: %v %v ", ssh.FingerprintSHA256(key), comment)
+	return nil, fmt.Errorf("key not found in ssh agent: %v ", ssh.FingerprintSHA256(key))
 }
 
 func ecdsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := internal.DigestsForSSH(sshPK, v23PK, purpose, message)
+	digest, digestType, err := digestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
@@ -234,7 +186,7 @@ func ecdsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, 
 }
 
 func ed25519Sign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := internal.HashedDigestsForSSH(sshPK, v23PK, purpose, message)
+	digest, digestType, err := hashedDigestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
@@ -250,7 +202,7 @@ func ed25519Sign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte
 }
 
 func rsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := internal.DigestsForSSH(sshPK, v23PK, purpose, message)
+	digest, digestType, err := digestsForSSH(sshPK, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
@@ -266,6 +218,7 @@ func rsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, na
 }
 
 type signImpl func(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error)
+
 type signer struct {
 	service    *Client
 	passphrase []byte

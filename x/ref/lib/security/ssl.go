@@ -21,12 +21,11 @@ import (
 
 // ParsePEMPrivateKeyFile parses an pem format private key from the specified file.
 func ParsePEMPrivateKeyFile(keyFile string, passphrase []byte) (crypto.PrivateKey, error) {
-	f, err := os.Open(keyFile)
+	pemBytes, err := os.ReadFile(keyFile)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	key, err := internal.LoadPEMPrivateKey(f, passphrase)
+	key, err := internal.ParsePEMPrivateKey(pemBytes, passphrase)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load: %v: %v", keyFile, err)
 	}

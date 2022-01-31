@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package internal
+package sshkeys
 
 import (
 	"crypto/sha256"
@@ -20,7 +20,7 @@ type hashes struct {
 	gohash  func() hash.Hash
 }
 
-var supportedKeyTypes = map[string]hashes{
+var supportedKeyTypesMap = map[string]hashes{
 	ssh.KeyAlgoECDSA256: {security.SHA256Hash, sha256.New},
 	ssh.KeyAlgoECDSA384: {security.SHA384Hash, sha512.New384},
 	ssh.KeyAlgoECDSA521: {security.SHA512Hash, sha512.New},
@@ -28,16 +28,16 @@ var supportedKeyTypes = map[string]hashes{
 	ssh.KeyAlgoRSA:      {security.SHA512Hash, sha512.New},
 }
 
-// IsSupported returns true if the suplied ssh key type is supported.
-func IsSupported(key ssh.PublicKey) bool {
-	_, ok := supportedKeyTypes[key.Type()]
+// isSupported returns true if the suplied ssh key type is supported.
+func isSupported(key ssh.PublicKey) bool {
+	_, ok := supportedKeyTypesMap[key.Type()]
 	return ok
 }
 
-// SupportedKeyTypes retruns
-func SupportedKeyTypes() []string {
+// supportedKeyTypes retruns
+func supportedKeyTypes() []string {
 	r := []string{}
-	for k := range supportedKeyTypes {
+	for k := range supportedKeyTypesMap {
 		r = append(r, k)
 	}
 	return r
@@ -46,14 +46,14 @@ func SupportedKeyTypes() []string {
 // hashForSSHKey returns the hash function to be used for the supplied
 // ssh key. It assumes the specified key is of a supported type.
 func hashForSSHKey(key ssh.PublicKey) (security.Hash, hash.Hash) {
-	if h, ok := supportedKeyTypes[key.Type()]; ok {
+	if h, ok := supportedKeyTypesMap[key.Type()]; ok {
 		return h.v23hash, h.gohash()
 	}
 	return "", nil
 }
 
-// FromECDSAKey creates a security.PublicKey from an ssh ECDSA key.
-func FromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
+// fromECDSAKey creates a security.PublicKey from an ssh ECDSA key.
+func fromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
 	k, err := internal.ParseECDSAKey(key)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func FromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
 	return security.NewECDSAPublicKey(k), nil
 }
 
-// FromED25512Key creates a security.PublicKey from an ssh ED25519 key.
-func FromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
+// fromED25512Key creates a security.PublicKey from an ssh ED25519 key.
+func fromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
 	k, err := internal.ParseED25519Key(key)
 	if err != nil {
 		return nil, err
@@ -70,8 +70,8 @@ func FromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
 	return security.NewED25519PublicKey(k), nil
 }
 
-// FromRSAAKey creates a security.PublicKey from an ssh RSA key.
-func FromRSAKey(key ssh.PublicKey) (security.PublicKey, error) {
+// fromRSAAKey creates a security.PublicKey from an ssh RSA key.
+func fromRSAKey(key ssh.PublicKey) (security.PublicKey, error) {
 	k, err := internal.ParseRSAKey(key)
 	if err != nil {
 		return nil, err
@@ -100,13 +100,13 @@ func digest(hasher hash.Hash, messages ...[]byte) ([]byte, error) {
 	return hashes, nil
 }
 
-// DigestsForSSH returns a concatenation of the hashes of the public key,
+// digestsForSSH returns a concatenation of the hashes of the public key,
 // the message and the purpose. The openSSH and openSSL ECDSA code will hash this
 // message again internally and hence these hashes must not be themselves
 // hashed here to ensure compatibility with the Vanadium signature verification
 // which uses the go crypto code so that a messages signed by the SSH agent/ssl
 // code can be verified by the Vanadium code.
-func DigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte, security.Hash, error) {
+func digestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte, security.Hash, error) {
 	hashName, hasher := hashForSSHKey(sshPK)
 	sum, err := digest(hasher, v23PK, message, purpose)
 	if err != nil {
@@ -115,11 +115,11 @@ func DigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte,
 	return sum, hashName, nil
 }
 
-// HashedDigestsForSSH hashes the digests returned by DigestsForSSH using
+// hashedDigestsForSSH hashes the digests returned by DigestsForSSH using
 // an appropriate hash function for the ssh key. The ED25519 implementation
 // in openSSH does not rehash internally and consequently this is needed
 // for compatibility with the Vanadium code.
-func HashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte, security.Hash, error) {
+func hashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([]byte, security.Hash, error) {
 	hashName, hasher := hashForSSHKey(sshPK)
 	sum, err := digest(hasher, v23PK, message, purpose)
 	if err != nil {
