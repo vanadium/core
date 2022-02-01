@@ -5,6 +5,8 @@
 package security_test
 
 import (
+	"context"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -13,13 +15,19 @@ import (
 )
 
 func TestSSLKeys(t *testing.T) {
+	ctx := context.Background()
 	purpose, message := []byte("testing"), []byte("a message")
 	keys, certs, opts := sectestdata.VanadiumSSLData()
 	for host, key := range keys {
 		cert := certs[host]
-		signer, err := seclib.NewInMemorySigner(key)
+
+		api, err := seclib.KeyRegistrar().APIForKey(key)
 		if err != nil {
-			t.Errorf("failed to create signer for %v: %v", host, err)
+			t.Errorf("failed to API for key: %T: %v", key, err)
+		}
+		signer, err := api.Signer(ctx, key)
+		if err != nil {
+			t.Errorf("failed to create signer: %v", err)
 		}
 		sig, err := signer.Sign(purpose, message)
 		if err != nil {
@@ -35,12 +43,19 @@ func TestSSLKeys(t *testing.T) {
 }
 
 func TestLetsEncryptKeys(t *testing.T) {
+	ctx := context.Background()
 	cpriv, _, opts := sectestdata.LetsEncryptData()
 	purpose, message := []byte("testing"), []byte("another message")
-	signer, err := seclib.NewInMemorySigner(cpriv)
+
+	api, err := seclib.KeyRegistrar().APIForKey(cpriv)
+	if err != nil {
+		t.Errorf("failed to API for key: %T: %v", cpriv, err)
+	}
+	signer, err := api.Signer(ctx, cpriv)
 	if err != nil {
 		t.Errorf("failed to create signer: %v", err)
 	}
+
 	sig, err := signer.Sign(purpose, message)
 	if err != nil {
 		t.Errorf("failed to sign: %v", err)
@@ -48,12 +63,11 @@ func TestLetsEncryptKeys(t *testing.T) {
 	if !sig.Verify(signer.PublicKey(), message) {
 		t.Errorf("failed to verify signature: %v", err)
 	}
-
 	letsencryptDir, err := sectestdata.LetsEncryptDir()
 	if err != nil {
 		t.Fatal(err)
 	}
-	//	defer os.RemoveAll(letsencryptDir)
+	defer os.RemoveAll(letsencryptDir)
 	filename := filepath.Join(letsencryptDir, "www.labdrive.io.letsencrypt")
 
 	cert, err := seclib.ParseOpenSSLCertificateFile(filename, opts)

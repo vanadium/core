@@ -117,3 +117,11 @@ func V23CopyLegacyPrincipals(toDir string) {
 		}
 	}
 }
+
+func V23PrincipalDir(kt keys.CryptoAlgo, encrypted bool) string {
+	prefix := "plain"
+	if encrypted {
+		prefix = "encrypted"
+	}
+	return fmt.Sprintf("v23-%s-%s-principal", prefix, kt)
+}

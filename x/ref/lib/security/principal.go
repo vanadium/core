@@ -7,24 +7,18 @@ package security
 import (
 	"context"
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/v23/verror"
-	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
-	"v.io/x/ref/lib/security/signing/keyfile"
 )
 
 var (
@@ -44,9 +38,6 @@ const (
 	blessingsRootsLockFilename = "blessingroots.lock"
 
 	directoryLockfileName = "dir.lock"
-	privateKeyFile        = "privatekey.pem"
-	publicKeyFile         = "publickey.pem"
-	sshPublicKeyFile      = "ssh-publickey.pub"
 )
 
 // NewPrincipal mints a new private (ecdsa) key and generates a principal
@@ -156,7 +147,7 @@ func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte,
 }
 
 func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := newSignerFromState(ctx, dir, passphrase)
+	signer, err := signerFromDir(ctx, dir, passphrase)
 	if err != nil {
 		if !readonly {
 			return nil, err
@@ -170,79 +161,8 @@ func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, 
 	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
 
-// newSignerFromState will create a signer based on the keys found in the
-// supplied state directory. It looks for a privatekey.pem or an ssh
-// .pub file which it will use to lookup the matching private key in
-// its accessible ssh agent.
-func newSignerFromState(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	var privatePEM, publicSSH string
-	for _, file := range files {
-		name := file.Name()
-		switch {
-		case name == privateKeyFile:
-			privatePEM = name
-		case name == sshPublicKeyFile:
-			publicSSH = name
-		case strings.HasSuffix(name, ".pub"):
-			publicSSH = name
-		}
-	}
-	if len(privatePEM) > 0 && len(publicSSH) > 0 {
-		return nil, fmt.Errorf("multiple key files found: %v and %v", privatePEM, publicSSH)
-	}
-	switch {
-	case len(privatePEM) > 0:
-		return newFileSigner(ctx, filepath.Join(dir, privatePEM), passphrase)
-	case len(publicSSH) > 0:
-		return newSSHAgentSigner(ctx, filepath.Join(dir, publicSSH), passphrase)
-	}
-	return nil, fmt.Errorf("failed to find an appropriate private or public key file in %v", dir)
-}
-
-func handleSignerError(signer security.Signer, err error) (security.Signer, error) {
-	switch {
-	case err == nil:
-		return signer, nil
-	case errors.Is(err, internal.ErrBadPassphrase):
-		return nil, ErrBadPassphrase.Errorf(nil, "passphrase incorrect for decrypting private key")
-	case errors.Is(err, internal.ErrPassphraseRequired):
-		return nil, ErrPassphraseRequired.Errorf(nil, "passphrase required for decrypting private key")
-	case os.IsNotExist(err):
-		return nil, err
-	default:
-		return nil, fmt.Errorf("failed to create serialization.Signer: %v", err)
-	}
-}
-
-func newFileSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
-	if !strings.HasSuffix(filename, ".pem") {
-		return nil, fmt.Errorf("unrecognised file suffix: %v, currently only pem files are supported", filename)
-	}
-	pemBlockBytes, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	svc := keyfile.NewSigningService()
-	signer, err := svc.Signer(ctx, pemBlockBytes, passphrase)
-	return handleSignerError(signer, err)
-}
-
-func newSSHAgentSigner(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
-	hostedKey, err := NewSSHAgentHostedKey(filename)
-	if err != nil {
-		return nil, err
-	}
-	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
-	signer, err := hostedKey.Signer(ctx)
-	return handleSignerError(signer, err)
-}
-
 func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := newPublicKeyFromState(ctx, dir)
+	publicKey, err := publicKeyFromDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -251,56 +171,6 @@ func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update
 		return nil, err
 	}
 	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
-}
-
-// newPublicKeyFromState looks for a public key file in the specified
-// state directory. It will accept either a publickey.pem file or an ssh
-// .pub file.
-func newPublicKeyFromState(ctx context.Context, dir string) (security.PublicKey, error) {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	var publicPEM, publicSSH string
-	for _, file := range files {
-		name := file.Name()
-		switch {
-		case name == publicKeyFile:
-			publicPEM = name
-		case name == sshPublicKeyFile:
-			publicSSH = name
-		case strings.HasSuffix(name, ".pub"):
-			publicSSH = name
-		}
-	}
-	if len(publicPEM) > 0 && len(publicSSH) > 0 {
-		return nil, fmt.Errorf("multiple key files found: %v and %v", publicPEM, publicSSH)
-	}
-	var key interface{}
-	switch {
-	case len(publicPEM) > 0:
-		key, err = internal.LoadPEMPublicKeyFile(filepath.Join(dir, publicPEM))
-	case len(publicSSH) > 0:
-		var sshKey ssh.PublicKey
-		var data []byte
-		data, err = os.ReadFile(filepath.Join(dir, publicSSH))
-		if err == nil {
-			sshKey, _, _, _, err = ssh.ParseAuthorizedKey(data)
-			if err == nil {
-				key, err = internal.CryptoKeyFromSSHKey(sshKey)
-			}
-		}
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to load public key: %v", err)
-	}
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
-		return security.NewECDSAPublicKey(k), nil
-	case ed25519.PublicKey:
-		return security.NewED25519PublicKey(k), nil
-	}
-	return nil, fmt.Errorf("unsupported key type %T", key)
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with

@@ -57,6 +57,9 @@ func NewPrivateKey(keyType KeyType) (crypto.PrivateKey, error) {
 	}
 }
 
+// NewSSHAgentHostedKey returns a *sshkeys.HostedKey for the supplied ssh
+// public key file assuming that the private key is stored in an accessible
+// ssh agent.
 func NewSSHAgentHostedKey(publicKeyFile string) (*sshkeys.HostedKey, error) {
 	keyBytes, err := os.ReadFile(publicKeyFile)
 	if err != nil {
