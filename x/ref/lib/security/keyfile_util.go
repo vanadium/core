@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"crypto"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,7 @@ import (
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/passphrase"
 )
 
 const (
@@ -106,4 +108,21 @@ func writeKeyPairUsingBytes(dir string, pubBytes, privBytes []byte) error {
 		return err
 	}
 	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
+}
+
+func PrivateKeyFromFileWithPrompt(ctx context.Context, filename string) (crypto.PrivateKey, error) {
+	privKeyBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	key, err := keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, nil)
+	if err == nil || !errors.Is(err, ErrPassphraseRequired) {
+		return key, err
+	}
+	pass, err := passphrase.Get(fmt.Sprintf("Passphrase required to decrypt encrypted private key file for private key in %v.\nEnter passphrase: ", filename))
+	if err != nil {
+		return nil, err
+	}
+	defer ZeroPassphrase(pass)
+	return keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, pass)
 }

@@ -33,6 +33,7 @@ import (
 	"v.io/x/ref/cmd/principal/internal/scripting"
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
@@ -78,8 +79,9 @@ type WithPassphraseFlag struct {
 // KeyFlags represents the flag used to specify the type of key to generate/use
 // for a new principal.
 type KeyFlags struct {
-	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
+	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519, rsa2048, rsa4096.'"`
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
+	SSHKeyFile            string `cmdline:"ssh-key,,'If set, use the ssh private key from the specified file'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
 }
 
@@ -778,9 +780,7 @@ principal will have no blessings.
 			p, err := createPersistentPrincipal(
 				gocontext.TODO(),
 				dir,
-				flagCreate.KeyType,
-				flagCreate.SSHAgentPublicKeyFile,
-				flagCreate.SSLKeyFile,
+				flagCreate.KeyFlags,
 				pass,
 				flagCreate.CreateOverwrite)
 			if err != nil {
@@ -862,9 +862,7 @@ forked principal.
 			p, err := createPersistentPrincipal(
 				gocontext.TODO(),
 				dir,
-				flagFork.KeyType,
-				flagFork.SSHAgentPublicKeyFile,
-				flagFork.SSLKeyFile,
+				flagFork.KeyFlags,
 				pass,
 				flagFork.CreateOverwrite)
 			if err != nil {
@@ -1333,9 +1331,19 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }
 
-func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslKey string, pass []byte, overwrite bool) (security.Principal, error) {
-	if len(sshKey) > 0 && len(sslKey) > 0 {
-		return nil, fmt.Errorf("both an ssl key and ssh key were specified, please choose one and only one of these")
+func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFlags, pass []byte, overwrite bool) (security.Principal, error) {
+	n := 0
+	if len(keyFlags.SSHKeyFile) > 0 {
+		n++
+	}
+	if len(keyFlags.SSHKeyFile) > 0 {
+		n++
+	}
+	if len(keyFlags.SSHAgentPublicKeyFile) > 0 {
+		n++
+	}
+	if n > 1 {
+		return nil, fmt.Errorf("multiple key sources chosen, please choose one and only one of --ssh-public-key, ssh-key and ssl-key")
 	}
 	removeExisting := func() error {
 		if !overwrite {
@@ -1343,19 +1351,22 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslK
 		}
 		return os.RemoveAll(dir)
 	}
+
 	var privateKey crypto.PrivateKey
 	var err error
 	switch {
-	case len(sshKey) > 0:
-		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
-	case len(sslKey) > 0:
-		privateKey, err = seclib.ParsePEMPrivateKeyFile(sslKey, pass)
+	case len(keyFlags.SSLKeyFile) > 0:
+		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSLKeyFile)
+	case len(keyFlags.SSHKeyFile) > 0:
+		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSHKeyFile)
+	case len(keyFlags.SSHAgentPublicKeyFile) > 0:
+		privateKey, err = seclib.NewSSHAgentHostedKey(keyFlags.SSHAgentPublicKeyFile)
 	default:
-		kt, ok := internal.IsSupportedKeyType(keyType)
+		kt, ok := internal.IsSupportedKeyType(keyFlags.KeyType)
 		if !ok {
-			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
+			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyFlags.KeyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 		} else {
-			privateKey, err = seclib.NewPrivateKey(kt)
+			privateKey, err = keys.NewPrivateKeyForAlgo(kt)
 		}
 	}
 	if err != nil {

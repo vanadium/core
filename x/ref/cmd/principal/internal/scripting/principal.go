@@ -12,11 +12,13 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/crypto/ssh"
 	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/x/lib/textutil"
 	"v.io/x/ref/cmd/principal/internal"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/slang"
 )
@@ -37,10 +39,14 @@ func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error
 
 func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
 	sslKeyFile = os.ExpandEnv(sslKeyFile)
+	keyBytes, err := os.ReadFile(sslKeyFile)
+	if err != nil {
+		return nil, err
+	}
 	var privateKey crypto.PrivateKey
 	var pass []byte
 	for {
-		key, err := seclib.ParsePEMPrivateKeyFile(sslKeyFile, pass)
+		key, err := seclib.KeyRegistrar().ParsePrivateKey(rt.Context(), keyBytes, pass)
 		if err == nil {
 			privateKey = key
 			break
@@ -59,7 +65,7 @@ func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) 
 	if !ok {
 		return nil, fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 	}
-	return seclib.NewPrivateKey(kt)
+	return keys.NewPrivateKeyForAlgo(kt)
 }
 
 func useOrCreatePrincipal(rt slang.Runtime, key crypto.PrivateKey, dir string) (security.Principal, error) {
@@ -109,44 +115,35 @@ func publicKey(rt slang.Runtime, p security.Principal) (security.PublicKey, erro
 	return p.PublicKey(), nil
 }
 
-func encodePublicKeyBase64(rt slang.Runtime, key security.PublicKey) (string, error) {
-	return seclib.EncodePublicKeyBase64(key)
-}
-
-func decodePublicKeyBase64(rt slang.Runtime, key string) (security.PublicKey, error) {
-	return seclib.DecodePublicKeyBase64(key)
-}
-
-func decodePublicKeySSH(rt slang.Runtime, filename string) (security.PublicKey, error) {
+func sshPublicKeyFromFile(filename string) (ssh.PublicKey, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return seclib.DecodePublicKeySSH(data)
-}
-
-func decodePublicKeyPEM(rt slang.Runtime, filename string) (security.PublicKey, error) {
-	data, err := os.ReadFile(filename)
+	key, err := seclib.KeyRegistrar().ParsePublicKey(data)
 	if err != nil {
 		return nil, err
 	}
-	return seclib.DecodePublicKeyPEM(data)
+	if sshkey, ok := key.(ssh.PublicKey); ok {
+		return sshkey, nil
+	}
+	return nil, fmt.Errorf("%v does not contain an ssh public key: has %T", filename, key)
 }
 
 func sshPublicKeyMD5(rt slang.Runtime, filename string) (string, error) {
-	data, err := os.ReadFile(filename)
+	key, err := sshPublicKeyFromFile(filename)
 	if err != nil {
 		return "", err
 	}
-	return seclib.SSHSignatureMD5(data)
+	return ssh.FingerprintLegacyMD5(key), nil
 }
 
 func sshPublicKeySHA256(rt slang.Runtime, filename string) (string, error) {
-	data, err := os.ReadFile(filename)
+	key, err := sshPublicKeyFromFile(filename)
 	if err != nil {
 		return "", err
 	}
-	return seclib.SSHSignatureSHA256(data)
+	return ssh.FingerprintSHA256(key), nil
 }
 
 func init() {
@@ -167,14 +164,6 @@ func init() {
 	slang.RegisterFunction(useSSLKey, "principal", `Use the private/public key of the principal specified SSL/TLS key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
-
-	slang.RegisterFunction(encodePublicKeyBase64, "principal", `Return the base64 url encoding for the supplied public key`, "publicKey")
-
-	slang.RegisterFunction(decodePublicKeyBase64, "principal", `Return the public key for the supplied base64 url encoded key`, "base64String")
-
-	slang.RegisterFunction(decodePublicKeySSH, "principal", `Return the public key for the ssh authorized hosts format data supplied`, "data")
-
-	slang.RegisterFunction(decodePublicKeyPEM, "principal", `Return the public key for the public KEY PEM format data supplied`, "data")
 
 	slang.RegisterFunction(sshPublicKeyMD5, "principal", `Return the md5 signature of the openssh key in the specified file as would be displayed by sshkey-gen -l -m md5`, "filename")
 
