@@ -70,6 +70,24 @@ func (*api) PublicKey(key interface{}) (security.PublicKey, error) {
 	return PublicKey(key)
 }
 
+func (*api) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
+	switch k := key.(type) {
+	case *ecdsa.PrivateKey:
+		return k.Public(), nil
+	case *rsa.PrivateKey:
+		return k.Public(), nil
+	case ed25519.PrivateKey:
+		return k.Public(), nil
+	case *ecdsa.PublicKey:
+		return key, nil
+	case *rsa.PublicKey:
+		return key, nil
+	case ed25519.PublicKey:
+		return key, nil
+	}
+	return nil, fmt.Errorf("CryptoPublicKey: unsupported key type %T", key)
+}
+
 // MarshalPKIXPublicKey uses MarshalPKIXPublicKey to marshal the key
 // to PEM block of type 'PUBLIC 'KEY'.
 func MarshalPKIXPublicKey(key crypto.PublicKey) ([]byte, error) {

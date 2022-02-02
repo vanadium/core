@@ -15,6 +15,7 @@ import (
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 	"v.io/x/ref/lib/security/keys/sshkeys"
+	"v.io/x/ref/lib/security/keys/x509keys"
 )
 
 var keyRegistrar *keys.Registrar
@@ -30,6 +31,7 @@ func init() {
 	keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 	sshkeys.MustRegister(keyRegistrar)
+	x509keys.MustRegister(keyRegistrar)
 }
 
 func translatePassphraseError(err error) error {

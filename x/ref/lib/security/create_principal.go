@@ -48,7 +48,7 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 		return nil, err
 	}
 	defer unlock()
-	if err := writeKeyPair(dir, key, passphrase); err != nil {
+	if err := writeKeyPairUsingPrivateKey(dir, key, passphrase); err != nil {
 		return nil, err
 	}
 	signer, err := signerFromKey(ctx, key)
@@ -57,22 +57,6 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 	}
 	return createPrincipalUsingSigner(ctx, signer, dir)
 }
-
-/*
-func createSSHAgentPrincipal(ctx context.Context, sshKey *sshkeys.HostedKey, dir string, passphrase []byte) (security.Principal, error) {
-	data := ssh.MarshalAuthorizedKey(sshKey.PublicKey())
-	if err := internal.WriteKeyFile(filepath.Join(dir, sshPublicKeyFile), data); err != nil {
-		return nil, err
-	}
-	if len(passphrase) > 0 {
-		ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
-	}
-	signer, err := sshKey.Signer(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return createPrincipalUsingSigner(ctx, signer, dir)
-}*/
 
 func createPrincipalUsingSigner(ctx context.Context, signer security.Signer, dir string) (security.Principal, error) {
 	var update time.Duration

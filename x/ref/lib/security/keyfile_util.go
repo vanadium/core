@@ -50,7 +50,7 @@ func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, pri
 	if err != nil {
 		return
 	}
-	pubKey, err := api.PublicKey(private)
+	pubKey, err := api.CryptoPublicKey(private)
 	if err != nil {
 		return
 	}
@@ -90,11 +90,18 @@ func publicKeyFromDir(dir string) (security.PublicKey, error) {
 	return keys.PublicKey(key)
 }
 
-func writeKeyPair(dir string, private crypto.PrivateKey, passphrase []byte) error {
+func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
 	pubBytes, privBytes, err := marshalKeyPair(private, passphrase)
 	if err != nil {
 		return err
 	}
+	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
+		return err
+	}
+	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
+}
+
+func writeKeyPairUsingBytes(dir string, pubBytes, privBytes []byte) error {
 	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
 		return err
 	}

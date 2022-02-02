@@ -49,6 +49,13 @@ func (*x509CertAPI) PublicKey(key interface{}) (security.PublicKey, error) {
 	return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
 }
 
+func (*x509CertAPI) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
+	if c, ok := key.(*x509.Certificate); ok {
+		return c.PublicKey, nil
+	}
+	return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
+}
+
 func publicKey(key interface{}) (security.PublicKey, error) {
 	switch k := key.(type) {
 	case *ecdsa.PublicKey:

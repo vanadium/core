@@ -100,6 +100,10 @@ func (*sshkeyAPI) PublicKey(key interface{}) (security.PublicKey, error) {
 	return publicKey(key)
 }
 
+func (*sshkeyAPI) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
+	return cryptoPublicKey(key)
+}
+
 type hostedKeyAPI struct{}
 
 func (*hostedKeyAPI) Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error) {
@@ -118,6 +122,27 @@ func (*hostedKeyAPI) PublicKey(key interface{}) (security.PublicKey, error) {
 	return nil, fmt.Errorf("sshagent.PublicKey: unsupported key type %T", key)
 }
 
+func (*hostedKeyAPI) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
+	if k, ok := key.(*HostedKey); ok {
+		return cryptoPublicKey(k.publicKey)
+	}
+	return nil, fmt.Errorf("sshagent.CryptoPublicKey: unsupported key type %T", key)
+}
+
+func cryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
+	if cp, ok := key.(ssh.CryptoPublicKey); ok {
+		switch k := cp.CryptoPublicKey().(type) {
+		case *ecdsa.PublicKey:
+			return k, nil
+		case *rsa.PublicKey:
+			return k, nil
+		case ed25519.PublicKey:
+			return k, nil
+		}
+	}
+	return nil, fmt.Errorf("sshkeys.cryptoPublicKey: unsupported key type %T", key)
+}
+
 func publicKey(key interface{}) (security.PublicKey, error) {
 	if cp, ok := key.(ssh.CryptoPublicKey); ok {
 		switch k := cp.CryptoPublicKey().(type) {
@@ -129,7 +154,7 @@ func publicKey(key interface{}) (security.PublicKey, error) {
 			return security.NewED25519PublicKey(k), nil
 		}
 	}
-	return nil, fmt.Errorf("sshkeys.PublicKey: unsupported key type %T", key)
+	return nil, fmt.Errorf("sshkeys.publicKey: unsupported key type %T", key)
 }
 
 // ParseOpensshPrivateKey parses an openssh private key in pem format,

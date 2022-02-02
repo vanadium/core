@@ -39,6 +39,7 @@ type DecryptFunc func(block *pem.Block, passphrase []byte) (*pem.Block, crypto.P
 type API interface {
 	Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error)
 	PublicKey(key interface{}) (security.PublicKey, error)
+	CryptoPublicKey(key interface{}) (crypto.PublicKey, error)
 }
 
 // Registrar represents an extensible collection of functions for marshaling
