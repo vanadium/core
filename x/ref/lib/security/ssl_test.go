@@ -23,7 +23,7 @@ func TestSSLKeys(t *testing.T) {
 	for host, key := range keys {
 		cert := certs[host]
 
-		api, err := seclib.KeyRegistrar().APIForKey(key)
+		api, err := seclib.APIForKey(key)
 		if err != nil {
 			t.Errorf("failed to API for key: %T: %v", key, err)
 		}
@@ -49,7 +49,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 	cpriv, _, opts := sectestdata.LetsEncryptData()
 	purpose, message := []byte("testing"), []byte("another message")
 
-	api, err := seclib.KeyRegistrar().APIForKey(cpriv)
+	api, err := seclib.APIForKey(cpriv)
 	if err != nil {
 		t.Errorf("failed to API for key: %T: %v", cpriv, err)
 	}
@@ -89,7 +89,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}
-		key, err := seclib.KeyRegistrar().ParsePublicKey(data)
+		key, err := seclib.ParsePublicKey(data)
 		if err != nil {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}

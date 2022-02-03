@@ -6,6 +6,7 @@ package security
 
 import (
 	"context"
+	"crypto"
 	"errors"
 	"fmt"
 	"os"
@@ -32,6 +33,31 @@ func init() {
 	indirectkeyfiles.MustRegister(keyRegistrar)
 	sshkeys.MustRegister(keyRegistrar)
 	x509keys.MustRegister(keyRegistrar)
+}
+
+// APIForKey calls APIForKey on KeyRegistrar().
+func APIForKey(key crypto.PrivateKey) (keys.API, error) {
+	return keyRegistrar.APIForKey(key)
+}
+
+// MarshalPrivateKey calls MarshalPrivateKey on KeyRegistrar().
+func MarshalPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
+	return keyRegistrar.MarshalPrivateKey(key, passphrase)
+}
+
+// MarshalPublicKey calls MarshalPublicKey on KeyRegistrar().
+func MarshalPublicKey(key crypto.PublicKey) ([]byte, error) {
+	return keyRegistrar.MarshalPublicKey(key)
+}
+
+// ParsePrivateKey calls ParsePrivateKey on KeyRegistrar().
+func ParsePrivateKey(ctx context.Context, data, passphrase []byte) (crypto.PrivateKey, error) {
+	return keyRegistrar.ParsePrivateKey(ctx, data, passphrase)
+}
+
+// ParsePublicKey calls ParsePublicKey on KeyRegistrar().
+func ParsePublicKey(data []byte) (crypto.PublicKey, error) {
+	return keyRegistrar.ParsePublicKey(data)
 }
 
 func translatePassphraseError(err error) error {
@@ -61,6 +87,7 @@ func convertToPKCS8(ctx context.Context, keyBytes []byte, passphrase []byte) ([]
 // as PKCS8. It is intended for updating existing Vanadium principals that
 // use 'EC PRIVATE KEY' and PEM encryption to PKCS8 format and encryption.
 func ConvertPrivateKeyForPrincipal(ctx context.Context, dir string, passphrase []byte) error {
+	defer ZeroPassphrase(passphrase)
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
 	unlock, err := flock.Lock()
 	if err != nil {

@@ -222,6 +222,9 @@ var (
 	}{}
 	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
 
+	updatePKCS8    = struct{}{}
+	updatePKCS8Def = cmdline.FlagDefinitions{Flags: &updatePKCS8}
+
 	scriptFlags = struct {
 		Documentation bool `cmdline:"documentation,false,'Display documentation on the scripting language and supported commands'"`
 		CompileOnly   bool `cmdline:"compile-only,false,'Compile the scripts but do not run them'"`
@@ -1021,6 +1024,28 @@ This file can be supplied to bless:
 		}),
 	}
 
+	cmdUpdateToPKCS8 = &cmdline.Command{
+		Name:  "update-pkcs8",
+		Short: "Update an existing principal to pkcs8 format and encryption",
+		Long: `
+Updates an existing PEM encrypted principal to pkcs8.
+`,
+		ArgsName: "<directory>...",
+		ArgsLong: `
+<directory> is the directory to be updated.
+
+	`,
+		FlagDefs: updatePKCS8Def,
+		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
+			for _, dir := range args {
+				if err := updateToPKCS8(ctx, dir); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
+	}
+
 	cmdScript = &cmdline.Command{
 		Name:  "scripts",
 		Short: "Run one or more scripts",
@@ -1213,7 +1238,7 @@ All blessings are printed to stdout using base64url-vom-encoding.
 		Children: []*cmdline.Command{cmdGetDefault, cmdGetForPeer, cmdGetPublicKey, cmdGetTrustedRoots, cmdGetPeerMap},
 	}
 
-	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdScript}
+	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdUpdateToPKCS8, cmdScript}
 	cmdline.Main(root)
 }
 
@@ -1408,4 +1433,21 @@ func dumpBlessingsInfo(out io.Writer, names bool, rootKey, caveats string, bless
 		return nil
 	}
 	return internal.EncodeBlessingsFile("-", out, blessings)
+}
+
+func updateToPKCS8(ctx gocontext.Context, dir string) error {
+	var pass []byte
+	var err error
+	for {
+		pass, err = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", dir))
+		if err != nil {
+			return err
+		}
+		if len(pass) == 0 {
+			fmt.Printf("A passphrase is required for %s\n", dir)
+			continue
+		}
+		break
+	}
+	return seclib.ConvertPrivateKeyForPrincipal(ctx, dir, pass)
 }

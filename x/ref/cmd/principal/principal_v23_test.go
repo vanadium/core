@@ -5,6 +5,9 @@
 package main_test
 
 import (
+	"bytes"
+	"crypto/x509"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"os"
@@ -15,6 +18,7 @@ import (
 
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
@@ -988,6 +992,65 @@ Chain #1 (2 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:
 	if got != want {
 		t.Errorf("Got:\n%s\nWant:\n%s\n", got, want)
 	}
+}
+
+func readPrivateKey(t *testing.T, dir string) *pem.Block {
+	data, err := os.ReadFile(filepath.Join(dir, "privatekey.pem"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	block, _ := pem.Decode(data)
+	if block == nil {
+		t.Fatalf("failed to decode pem block from %s", data)
+	}
+	return block
+}
+
+func TestV23PKCS8Conversion(t *testing.T) {
+	v23test.SkipUnlessRunningIntegrationTests(t)
+	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
+	defer sh.Cleanup()
+
+	outputDir := sh.MakeTempDir()
+	sectestdata.V23CopyLegacyPrincipals(outputDir)
+
+	bin := v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
+
+	legacyDir := filepath.Join(outputDir, sectestdata.V23PrincipalDir(keys.ECDSA256, true))
+	legacyPrincipal, err := security.LoadPersistentPrincipal(legacyDir, sectestdata.Password())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	block := readPrivateKey(t, legacyDir)
+	if got, want := block.Type, "EC PRIVATE KEY"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	if !x509.IsEncryptedPEMBlock(block) {
+		t.Fatalf("not encrypted")
+	}
+
+	cmd := sh.Cmd(bin, "update-pkcs8", legacyDir)
+	cmd.SetStdinReader(bytes.NewBuffer(sectestdata.Password()))
+	cmd.PropagateOutput = true
+	cmd.Run()
+
+	block = readPrivateKey(t, legacyDir)
+	if got, want := block.Type, "ENCRYPTED PRIVATE KEY"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	principal, err := security.LoadPersistentPrincipal(legacyDir, sectestdata.Password())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got, want := legacyPrincipal.PublicKey().String(), principal.PublicKey().String(); got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
 }
 
 var (
