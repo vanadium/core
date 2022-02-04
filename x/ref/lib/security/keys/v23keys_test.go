@@ -18,9 +18,9 @@ func TestParsingV23Keys(t *testing.T) {
 		privateKeyType, publicKeyType := sectestdata.CryptoType(kt)
 		publicKey, plainPrivateKey, decryptedPrivateKey := testParsing(
 			ctx, t, kt,
-			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23keySetA),
-			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23keySetAEncrypted),
-			sectestdata.V23PublicKeyBytes(kt, sectestdata.V23keySetA))
+			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23KeySetA),
+			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23KeySetAEncrypted),
+			sectestdata.V23PublicKeyBytes(kt, sectestdata.V23KeySetA))
 
 		if got, want := reflect.TypeOf(plainPrivateKey).String(), privateKeyType; got != want {
 			t.Errorf("%v: got %v, want %v", kt, got, want)
@@ -39,9 +39,9 @@ func TestPasswordsV23Keys(t *testing.T) {
 	for _, kt := range sectestdata.SupportedKeyAlgos {
 		testPasswordEncryption(
 			ctx, t, kt,
-			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23keySetA),
-			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23keySetAEncrypted),
-			sectestdata.V23PublicKeyBytes(kt, sectestdata.V23keySetA),
+			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23KeySetA),
+			sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23KeySetAEncrypted),
+			sectestdata.V23PublicKeyBytes(kt, sectestdata.V23KeySetA),
 		)
 	}
 }

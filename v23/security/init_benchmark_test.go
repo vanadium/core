@@ -60,6 +60,6 @@ func init() {
 	rsa4096SignerB = sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetB)
 
 	ecdsaKey = newBenchmarkKey(ecdsa256SignerA)
-	ecdsaKey = newBenchmarkKey(ed25519SignerA)
+	ed25519Key = newBenchmarkKey(ed25519SignerA)
 	rsa2048Key = newBenchmarkKey(rsa2048SignerA)
 }

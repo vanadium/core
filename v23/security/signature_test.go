@@ -15,7 +15,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/security/internal/ecdsaonly"
 	"v.io/v23/vom"
-	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -101,14 +100,7 @@ func testSignaturePurpose(signer security.Signer, purpose, message []byte, tests
 }
 
 func TestSignature(t *testing.T) {
-	for _, kt := range []keys.CryptoAlgo{
-		keys.ECDSA256,
-		keys.ECDSA384,
-		keys.ECDSA521,
-		keys.ED25519,
-		keys.RSA2048,
-		keys.RSA4096,
-	} {
+	for _, kt := range sectestdata.SupportedKeyAlgos {
 		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 		if err := testSigning(signer, 512); err != nil {
 			t.Errorf("signing failed for %v: %v", kt, err)
@@ -164,14 +156,7 @@ func TestSignaturePurpose(t *testing.T) {
 		t.Fatalf("Invalid test data, message is not identitical")
 	}
 
-	for _, kt := range []keys.CryptoAlgo{
-		keys.ECDSA256,
-		keys.ECDSA384,
-		keys.ECDSA521,
-		keys.ED25519,
-		keys.RSA2048,
-		keys.RSA4096,
-	} {
+	for _, kt := range sectestdata.SupportedKeyAlgos {
 		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 		if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {
 			t.Errorf("testSignaturePurpose failed for %s: %v", kt, err)

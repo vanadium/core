@@ -14,12 +14,11 @@ import (
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/vom"
-	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test/sectestdata"
 )
 
 func TestByteSize(t *testing.T) {
-	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+	for _, kt := range testCryptoAlgos {
 		testByteSize(t, kt.String(),
 			sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
 			sectestdata.V23Signer(kt, sectestdata.V23KeySetB),
@@ -134,7 +133,7 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
 }
 
 func TestBlessingsExpiry(t *testing.T) {
-	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+	for _, kt := range testCryptoAlgos {
 		testBlessingsExpiry(t, sectestdata.V23Signer(kt, sectestdata.V23KeySetA))
 	}
 }

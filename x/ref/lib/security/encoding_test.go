@@ -76,7 +76,7 @@ func TestBlessingsBase64(t *testing.T) {
 
 func TestPublicKeys(t *testing.T) {
 	for _, kt := range sectestdata.SupportedKeyAlgos {
-		p := (sectestdata.V23Signer(kt, sectestdata.V23keySetA))
+		p := (sectestdata.V23Signer(kt, sectestdata.V23KeySetA))
 		buf, err := EncodePublicKeyBase64(p.PublicKey())
 		if err != nil {
 			t.Fatal(err)

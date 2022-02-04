@@ -287,7 +287,7 @@ func testBlessings(t *testing.T, tp, p security.Principal, p2 security.PublicKey
 }
 
 func TestCreatePrincipalWithNilStoreAndRoots(t *testing.T) {
-	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+	for _, kt := range testCryptoAlgos {
 		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 		p := sectest.NewPrincipal(t, signer, nil, nil)
 		testCreatePrincipalWithNilStoreAndRoots(t, p)
@@ -346,7 +346,7 @@ func TestAddToRoots(t *testing.T) {
 
 func testAddToRootsWrapper(t *testing.T, p1, p2, p3 security.Principal) {
 	tpFunc := func(t testing.TB) security.Principal {
-		return sectest.NewPrincipal(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD), nil, &sectest.Roots{})
+		return sectest.NewPrincipalRootsOnly(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD))
 	}
 	testAddToRoots(t, tpFunc, p1, p2, p3.PublicKey())
 }
@@ -480,7 +480,7 @@ func TestUnionOfBlessings(t *testing.T) {
 
 func testUnionOfBlessingsWrapper(t *testing.T, p1, p2, p3 security.Principal) {
 	tpFunc := func(t testing.TB) security.Principal {
-		return sectest.NewPrincipal(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD), nil, &sectest.Roots{})
+		return sectest.NewPrincipalRootsOnly(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD))
 	}
 	testUnionOfBlessings(t, tpFunc, p1, p2, p3)
 }
@@ -678,12 +678,12 @@ func testCertificateChainsTamperingAttack(t *testing.T, tp, p1, p2 security.Prin
 	}
 }
 func TestBlessingToAndFromWireECDSA(t *testing.T) {
-	testBlessingToAndFromWire(t, sectest.NewECDSAPrincipalP256(t))
+	testBlessingToAndFromWire(t, sectest.NewPrincipalRootsOnly(t, ecdsa256SignerA))
 
 }
 
 func TestBlessingToAndFromWireED25519(t *testing.T) {
-	testBlessingToAndFromWire(t, sectest.NewED25519Principal(t))
+	testBlessingToAndFromWire(t, sectest.NewPrincipalRootsOnly(t, ed25519SignerA))
 }
 
 func testBlessingToAndFromWire(t *testing.T, p security.Principal) {
@@ -974,14 +974,14 @@ func testRemoteBlessingNames(t *testing.T, p security.Principal) {
 
 func BenchmarkRemoteBlessingNamesECDSA(b *testing.B) {
 	benchmarkRemoteBlessingNames(b,
-		sectest.NewECDSAPrincipalP256(b),
-		sectest.NewECDSAPrincipalP256(b))
+		sectest.NewPrincipalRootsOnly(b, ecdsa256SignerA),
+		sectest.NewPrincipalRootsOnly(b, ecdsa256SignerB))
 }
 
 func BenchmarkRemoteBlessingNamesED25519(b *testing.B) {
 	benchmarkRemoteBlessingNames(b,
-		sectest.NewED25519Principal(b),
-		sectest.NewED25519Principal(b))
+		sectest.NewPrincipalRootsOnly(b, ed25519SignerA),
+		sectest.NewPrincipalRootsOnly(b, ed25519SignerB))
 }
 
 func benchmarkRemoteBlessingNames(b *testing.B, p, p2 security.Principal) {
@@ -1150,17 +1150,20 @@ func matchesError(got error, want string) error {
 }
 
 func TestPublicKeyPrincipal(t *testing.T) {
-	fp := sectest.NewED25519Principal(t)
-	sig, err := fp.Sign([]byte("any old thing"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	pk := fp.PublicKey()
-	pp, err := security.CreatePrincipalPublicKeyOnly(pk, nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !sig.Verify(pp.PublicKey(), []byte("any old thing")) {
-		t.Fatalf("verify failed")
+	for _, kt := range testCryptoAlgos {
+		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
+		fp := sectest.NewPrincipalRootsOnly(t, signer)
+		sig, err := fp.Sign([]byte("any old thing"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		pk := fp.PublicKey()
+		pp, err := security.CreatePrincipalPublicKeyOnly(pk, nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !sig.Verify(pp.PublicKey(), []byte("any old thing")) {
+			t.Fatalf("verify failed")
+		}
 	}
 }

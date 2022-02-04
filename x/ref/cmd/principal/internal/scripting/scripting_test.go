@@ -16,8 +16,10 @@ import (
 	"v.io/v23/context"
 	"v.io/x/ref/cmd/principal/internal/scripting"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	_ "v.io/x/ref/runtime/factories/generic"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/sectestdata"
 	"v.io/x/ref/test/testutil"
 )
 
@@ -81,15 +83,20 @@ func TestPrincipal(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	ssh := filepath.Join(t.TempDir(), "ssh")
-	err = os.WriteFile(ssh, []byte(ecsdaOpenSSH), 0666)
+	sshFile := filepath.Join(t.TempDir(), "ssh")
+	pkBytes := sectestdata.SSHPublicKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPublic)
+	err = os.WriteFile(sshFile, pkBytes, 0666)
 	fail(t, err)
-	//	sshpk, err := seclib.DecodePublicKeySSH([]byte(ecsdaOpenSSH))
-	pk, err := seclib.DecodePublicKeySSH([]byte(ecsdaOpenSSH))
+
+	pk, err := seclib.ParsePublicKey(pkBytes)
+	fail(t, err)
+	api, err := seclib.APIForKey(pk)
+	fail(t, err)
+	sshPk, err := api.PublicKey(pk)
 	fail(t, err)
 
 	out = execute(t, ctx, `p := defaultPrincipal()
-	`+fmt.Sprintf("other := decodePublicKeySSH(%q)", ssh)+`
+	`+fmt.Sprintf("other := readPublicKey(%q)", sshFile)+`
 	blessWith := createBlessings(p, "testing")
 	expiresIn24h := expiryCaveat("24h")
 	blessings := blessPrincipal(p, other, blessWith, "testing:other", expiresIn24h)
@@ -98,7 +105,7 @@ func TestPrincipal(t *testing.T) {
 	fmt.Println("------------")
 	fmt.Println(out)
 
-	if got, want := out, "PublicKey          : "+pk.String(); !strings.Contains(got, want) {
+	if got, want := out, "PublicKey          : "+sshPk.String(); !strings.Contains(got, want) {
 		t.Errorf("got %v does not contain %v", got, want)
 	}
 
@@ -131,19 +138,11 @@ func TestPublicKey(t *testing.T) {
 	fail(t, err)
 
 	ssh := filepath.Join(t.TempDir(), "ssh")
-	err = os.WriteFile(ssh, []byte(ecsdaOpenSSH), 0666)
-	fail(t, err)
-	ssl := filepath.Join(t.TempDir(), "ssl")
-	err = os.WriteFile(ssl, []byte(ecsdaOpenSSL), 0666)
+	err = os.WriteFile(ssh, sectestdata.SSHPublicKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPublic), 0666)
 	fail(t, err)
 
-	out := execute(t, ctx, `p := defaultPrincipal()
-	`+fmt.Sprintf("k1 := decodePublicKeyBase64(%q)", b1)+`
+	out := execute(t, ctx, fmt.Sprintf("k1 := decodePublicKeyBase64(%q)", b1)+`
 	printf("%v\n",k1)
-	`+fmt.Sprintf("k2 := decodePublicKeySSH(%q)", ssh)+`
-	printf("%v\n",k2)
-	`+fmt.Sprintf("k3 := decodePublicKeyPEM(%q)", ssl)+`
-	printf("%v\n",k3)
 	`+fmt.Sprintf("md5sig := sshPublicKeyMD5(%q)", ssh)+`
 		printf("%v\n", md5sig)
 	`+fmt.Sprintf("sha256sig := sshPublicKeySHA256(%q)", ssh)+`
@@ -151,36 +150,54 @@ func TestPublicKey(t *testing.T) {
 `)
 
 	if got, want := out, p.PublicKey().String()+`
-3f:8a:b6:38:a6:33:d0:eb:62:e5:50:31:2e:75:81:78
-d4:80:01:46:ec:34:01:23:34:19:2b:e6:6e:29:14:e8
-76:84:f1:22:8c:76:c0:1e:d3:d3:2c:9d:0c:a3:1d:1f
-QkzGB1AoO4Oy5yKtZ2VDLP6v5sWCzcBsg4rlzhiCoEQ
+ec:12:a7:ce:7f:b6:bb:00:10:0c:da:93:bc:7b:e9:a1
+SHA256:ae9Iul6Y+1aInM44SBFYco1I/sXsidGD5apGk2gc54I
 `; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
 }
 
-func TestSSLKeys(t *testing.T) {
+func TestExistingKeys(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
+
 	p := testutil.NewPrincipal("testing")
-	kfile := filepath.Join("testdata", "rsa2048.vanadium.io.key")
-	pdir := filepath.Join(t.TempDir(), "ssl-principal")
-	ctx, _ = v23.WithPrincipal(ctx, p)
-	out := execute(t, ctx,
-		fmt.Sprintf("key := useSSLKey(%q)\n", kfile)+
-			fmt.Sprintf("p := useOrCreatePrincipal(key, %q)\n", pdir)+
-			"printPrincipal(p)")
-	if got, want := out, `Public key : 53:fb:b2:07:10:fd:9c:89:16:f5:76:4b:e8:5c:17:30
+
+	for _, tc := range []struct {
+		data        []byte
+		fingerprint string
+	}{
+		{
+			sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private),
+			"12:cb:92:7e:45:e8:09:b3:8c:cb:5e:e6:f2:67:2c:30",
+		},
+		{
+			sectestdata.SSHPrivateKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPrivate),
+			"12:e0:1e:70:14:5a:b3:01:c4:8e:44:96:df:9c:2d:ba",
+		},
+	} {
+		tdir := t.TempDir()
+		kfile := filepath.Join(tdir, "keyfile")
+		if err := os.WriteFile(kfile, tc.data, 0600); err != nil {
+			t.Fatal(err)
+		}
+		pdir := filepath.Join(tdir, "principal")
+		ctx, _ = v23.WithPrincipal(ctx, p)
+		out := execute(t, ctx,
+			fmt.Sprintf("key := useExistingPrivateKey(%q)\n", kfile)+
+				fmt.Sprintf("p := useOrCreatePrincipal(key, %q)\n", pdir)+
+				"printPrincipal(p)")
+		if got, want := out, fmt.Sprintf(`Public key : %s
 Default Blessings : 
 ---------------- BlessingStore ----------------
 Default Blessings                
 Peer pattern                     Blessings
 ---------------- BlessingRoots ----------------
 Public key                                        Pattern
-`; got != want {
-		t.Errorf("got %v, want %v", got, want)
+`, tc.fingerprint); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
 	}
 }
 
@@ -208,13 +225,13 @@ Expires at 2020-01-12 23:00:00 +0000 UTC
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	ssl := filepath.Join(t.TempDir(), "ssl")
-	err := os.WriteFile(ssl, []byte(ecsdaOpenSSL), 0666)
+	pubKeyFile := filepath.Join(t.TempDir(), "ssl")
+	err := os.WriteFile(pubKeyFile, sectestdata.X509PublicKeyBytes(keys.ED25519), 0666)
 	fail(t, err)
 
 	out = execute(t, ctx, `
 	c3reqs := thirdPartyCaveatRequirements(true, true, false)
-	`+fmt.Sprintf("dischargerPK := decodePublicKeyPEM(%q)", ssl)+`
+	`+fmt.Sprintf("dischargerPK := readPublicKey(%q)", pubKeyFile)+`
 	nyt := parseTime(time_RFC822Z, "12 Jan 20 17:00 -0500")
 	until := expiryCaveat("1h")
 	c3cav := publicKeyCaveat(dischargerPK, "somewhere", c3reqs, until)

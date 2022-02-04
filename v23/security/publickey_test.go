@@ -14,7 +14,7 @@ import (
 )
 
 func TestPublicKeyMarshaling(t *testing.T) {
-	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+	for _, kt := range testCryptoAlgos {
 		key := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetA)
 		k1, err := keys.PublicKey(key)
 		if err != nil {

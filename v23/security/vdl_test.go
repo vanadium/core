@@ -6,7 +6,6 @@ package security_test
 
 import (
 	"bytes"
-	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -16,11 +15,12 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/uniqueid"
 	"v.io/v23/vdl"
 	"v.io/v23/vom"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func roundTrip(t *testing.T, wireError error) error {
@@ -190,7 +190,7 @@ func TestSignatureInterop(t *testing.T) {
 	if _, err := rand.Read(message); err != nil {
 		t.Fatal(err)
 	}
-	signer := sectest.NewECDSASigner(t, elliptic.P384())
+	signer := sectestdata.V23Signer(keys.ECDSA384, sectestdata.V23KeySetA)
 	sig, err := signer.Sign([]byte("test"), message)
 	if err != nil {
 		t.Fatal(err)
