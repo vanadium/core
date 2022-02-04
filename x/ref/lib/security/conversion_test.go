@@ -46,10 +46,11 @@ func TestConversionFromLegacyFormat(t *testing.T) {
 			{"plain", nil},
 			{"encrypted", sectestdata.Password()},
 		} {
-
+			passphrase := make([]byte, len(tc.passphrase))
+			copy(passphrase, tc.passphrase)
 			principal := fmt.Sprintf("v23-%s-%s-principal", tc.prefix, kt)
 			pdir := filepath.Join(dir, principal)
-			if err := security.ConvertPrivateKeyForPrincipal(ctx, pdir, tc.passphrase); err != nil {
+			if err := security.ConvertPrivateKeyForPrincipal(ctx, pdir, passphrase); err != nil {
 				t.Fatalf("%v: %v", pdir, err)
 			}
 			matches, err := filepath.Glob(filepath.Join(pdir, "*"))
@@ -66,9 +67,9 @@ func TestConversionFromLegacyFormat(t *testing.T) {
 			block, _ := pem.Decode(newKeyBytes)
 			if block.Type != "PRIVATE KEY" && block.Type != "ENCRYPTED PRIVATE KEY" {
 				t.Fatalf("%v: wrong PEM type: %v", pdir, block.Type)
-
 			}
-			key, err := pkcs8.ParsePKCS8PrivateKey(block.Bytes, tc.passphrase)
+			copy(passphrase, tc.passphrase)
+			key, err := pkcs8.ParsePKCS8PrivateKey(block.Bytes, passphrase)
 			if err != nil {
 				t.Fatalf("%v: %v", pdir, err)
 			}
