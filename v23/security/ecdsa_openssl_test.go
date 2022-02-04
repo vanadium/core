@@ -20,13 +20,11 @@ import (
 )
 
 func BenchmarkSign_ECDSA_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
-	benchmarkSign(opensslECDSAKey, b)
+	benchmarkSign(opensslECDSA256Key, b)
 }
 
 func BenchmarkVerify_ECDSA_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
-	benchmarkVerify(opensslECDSAKey, b)
+	benchmarkVerify(opensslECDSA256Key, b)
 }
 
 // Sanity check: Ensure that the implementations are indeed different.

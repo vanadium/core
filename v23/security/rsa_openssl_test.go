@@ -17,21 +17,17 @@ import (
 )
 
 func BenchmarkSign_RSA2048_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkSign(opensslRSA2048Key, b)
 }
 func BenchmarkSign_RSA4096_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkSign(opensslRSA4096Key, b)
 }
 
 func BenchmarkVerify_RSA2048_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkVerify(opensslRSA2048Key, b)
 }
 
 func BenchmarkVerify_RSA2096_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkVerify(opensslRSA4096Key, b)
 }
 

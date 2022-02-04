@@ -8,24 +8,55 @@
 package security_test
 
 import (
+	"context"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"sync"
 
 	"v.io/v23/security"
+	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 var (
-	opensslECDSAKey      *bmkey
+	opensslECDSA256Key   *bmkey
 	opensslED25519Key    *bmkey
 	opensslRSA2048Key    *bmkey
 	opensslRSA4096Key    *bmkey
 	opensslBenchmarkInit sync.Once
 )
 
-func initOpenSSLBenchmarks() {
-	opensslBenchmarkInit.Do(func() {
-		opensslRSA2048Key = newRSABenchmarkKey(2048, security.NewOpenSSLRSASigner)
-		opensslRSA4096Key = newRSABenchmarkKey(4096, security.NewOpenSSLRSASigner)
-		opensslECDSAKey = newECDSABenchmarkKey(security.NewOpenSSLECDSASigner)
-		opensslED25519Key = newED25519BenchmarkKey(security.NewOpenSSLED25519Signer)
-	})
+func newOpenSSLBMKey(kt keys.CryptoAlgo) *bmkey {
+	ctx := context.Background()
+	pkBytes := sectestdata.V23PrivateKeyBytes(kt, sectestdata.V23KeySetA)
+	key, err := seclib.ParsePrivateKey(ctx, pkBytes, nil)
+	if err != nil {
+		panic(err)
+	}
+	var signer security.Signer
+	switch k := key.(type) {
+	case *ecdsa.PrivateKey:
+		signer, err = security.NewOpenSSLECDSASigner(k)
+	case ed25519.PrivateKey:
+		signer, err = security.NewOpenSSLED25519Signer(k)
+	case *rsa.PrivateKey:
+		signer, err = security.NewOpenSSLRSASigner(k)
+	}
+	if err != nil {
+		panic(err)
+	}
+	signature, err := signer.Sign(purpose, message)
+	if err != nil {
+		panic(err)
+	}
+	return &bmkey{signer, signature}
+}
+
+func init() {
+	opensslRSA2048Key = newOpenSSLBMKey(keys.RSA2048)
+	opensslRSA4096Key = newOpenSSLBMKey(keys.RSA4096)
+	opensslECDSA256Key = newOpenSSLBMKey(keys.ECDSA256)
+	opensslED25519Key = newOpenSSLBMKey(keys.ED25519)
 }
