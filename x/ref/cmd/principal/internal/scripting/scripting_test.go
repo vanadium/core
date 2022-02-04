@@ -117,17 +117,6 @@ func TestPrincipal(t *testing.T) {
 	}
 }
 
-const (
-	ecsdaOpenSSH = `ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJ/rseG6G7u0X1sIj3LK+hGtBEr4PQzrhCsHc0s4Wuso5j3Jxhcg5ze6MuxJqCRLtIOgIYTmY4K31wb3lHdtyGY= comment`
-	ecsdaOpenSSL = `-----BEGIN PUBLIC KEY-----
-MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBnL/xs5AX1CDIkpmZWt4FJjpQIqid
-m9poMZgdRIr7cKqkxy52th+oa/S//qXuhec5Dd8gvIBllbsWTXOCpWi4200Bk7nx
-8ZcnmpkfT0pqoArEdEnWKEziQlIvdUZXIJ8qzrkdzDg8uhW6c1XBAcJQY9ohwOcA
-wUsbRk1ox+ykM2ElKAU=
------END PUBLIC KEY-----
-`
-)
-
 func TestPublicKey(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

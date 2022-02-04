@@ -144,7 +144,7 @@ func setReadonly(dir string) error {
 		return err
 	})
 	if err != nil {
-		fmt.Errorf("failed to set creds to readonly: %v", err)
+		return fmt.Errorf("failed to set creds to readonly: %v", err)
 	}
 	return nil
 }

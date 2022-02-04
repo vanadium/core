@@ -1028,7 +1028,7 @@ func TestV23PKCS8Conversion(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 
-	if !x509.IsEncryptedPEMBlock(block) {
+	if !x509.IsEncryptedPEMBlock(block) { //nolint:staticcheck
 		t.Fatalf("not encrypted")
 	}
 
