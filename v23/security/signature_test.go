@@ -2,25 +2,26 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package security
+package security_test
 
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
 	"testing"
 
+	"v.io/v23/security"
 	"v.io/v23/security/internal/ecdsaonly"
 	"v.io/v23/vom"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 // Test that the defined signing purposes work as expected.
-func testSigning(signer Signer, messageSizeInBits int) error {
-	purposes := [][]byte{[]byte(SignatureForMessageSigning), []byte(SignatureForBlessingCertificates), []byte(SignatureForDischarge)}
+func testSigning(signer security.Signer, messageSizeInBits int) error {
+	purposes := [][]byte{[]byte(security.SignatureForMessageSigning), []byte(security.SignatureForBlessingCertificates), []byte(security.SignatureForDischarge)}
 	message := []byte("test")
 	for _, p := range purposes {
 		sig, err := signer.Sign(p, message)
@@ -78,7 +79,7 @@ type signaturePurposeTest struct {
 	P, M []byte
 }
 
-func testSignaturePurpose(signer Signer, purpose, message []byte, tests []signaturePurposeTest) error {
+func testSignaturePurpose(signer security.Signer, purpose, message []byte, tests []signaturePurposeTest) error {
 	sig, err := signer.Sign(purpose, message)
 	if err != nil {
 		return fmt.Errorf("Unable to compute signature: %v", err)
@@ -99,57 +100,19 @@ func testSignaturePurpose(signer Signer, purpose, message []byte, tests []signat
 	return nil
 }
 
-var curvesToTest = []elliptic.Curve{
-	elliptic.P224(),
-	elliptic.P256(),
-	elliptic.P384(),
-	elliptic.P521(),
-}
-
-func TestECDSASignature(t *testing.T) {
-	for _, curve := range curvesToTest {
-		nbits := curve.Params().BitSize
-		key, err := ecdsa.GenerateKey(curve, rand.Reader)
-		if err != nil {
-			t.Errorf("Failed to generate key for curve of %d bits: %v", nbits, err)
-			continue
+func TestSignature(t *testing.T) {
+	for _, kt := range []keys.CryptoAlgo{
+		keys.ECDSA256,
+		keys.ECDSA384,
+		keys.ECDSA521,
+		keys.ED25519,
+		keys.RSA2048,
+		keys.RSA4096,
+	} {
+		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
+		if err := testSigning(signer, 512); err != nil {
+			t.Errorf("signing failed for %v: %v", kt, err)
 		}
-		signer, err := NewInMemoryECDSASigner(key)
-		if err != nil {
-			t.Errorf("Failed to create signer for curve of %d bits: %v", nbits, err)
-			continue
-		}
-		if err := testSigning(signer, nbits); err != nil {
-			t.Errorf("signing failed for curve with %d bits: %v", nbits, err)
-		}
-	}
-}
-
-func TestED25519Signature(t *testing.T) {
-	_, privKey, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed to generate key for ed25519: %v", err)
-	}
-	signer, err := NewInMemoryED25519Signer(privKey)
-	if err != nil {
-		t.Fatalf("Failed to create signer: %v", err)
-	}
-	if err := testSigning(signer, 512); err != nil {
-		t.Errorf("signing failed for ed25519: %v", err)
-	}
-}
-
-func TestRSASignature(t *testing.T) {
-	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		t.Fatalf("Failed to generate key for rsa: %v", err)
-	}
-	signer, err := NewInMemoryRSASigner(privKey)
-	if err != nil {
-		t.Fatalf("Failed to create signer: %v", err)
-	}
-	if err := testSigning(signer, 512); err != nil {
-		t.Errorf("signing failed for rsa: %v", err)
 	}
 }
 
@@ -200,46 +163,35 @@ func TestSignaturePurpose(t *testing.T) {
 	if test := sameMessage; !bytes.Equal(message, test.M) {
 		t.Fatalf("Invalid test data, message is not identitical")
 	}
-	for _, curve := range curvesToTest {
-		nbits := curve.Params().BitSize
-		key, err := ecdsa.GenerateKey(curve, rand.Reader)
-		if err != nil {
-			t.Errorf("Failed to generate key for curve of %d bits: %v", nbits, err)
-			continue
-		}
-		signer, err := NewInMemoryECDSASigner(key)
-		if err != nil {
-			t.Errorf("Failed to creator signer key for curve of %d bits: %v", nbits, err)
-			continue
-		}
+
+	for _, kt := range []keys.CryptoAlgo{
+		keys.ECDSA256,
+		keys.ECDSA384,
+		keys.ECDSA521,
+		keys.ED25519,
+		keys.RSA2048,
+		keys.RSA4096,
+	} {
+		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 		if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {
-			t.Errorf("testSignaturePurpose failed for curve with %d bits: %v", nbits, err)
+			t.Errorf("testSignaturePurpose failed for %s: %v", kt, err)
 		}
-	}
-	_, privKey, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed to generate key for ed25519: %v", err)
-	}
-	signer, err := NewInMemoryED25519Signer(privKey)
-	if err != nil {
-		t.Fatalf("Failed to create signer: %v", err)
-	}
-	if err := testSignaturePurpose(signer, purpose, message, tests); err != nil {
-		t.Errorf("testSignaturePurpose failed ed25519: %v", err)
 	}
 }
 
 func TestBackwardsCompatibility(t *testing.T) {
+	// TODO(cnicolaou): remove this when the more realistic backwards
+	// compatibility tests are merged.
 	key, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
 		t.Fatalf("Failed to generate key for ed25519: %v", err)
 	}
-	signer, err := NewInMemoryECDSASigner(key)
+	signer, err := security.NewInMemoryECDSASigner(key)
 	if err != nil {
 		t.Fatalf("Failed to create signer: %v", err)
 	}
 	message := []byte("hello there new implementation")
-	sig, err := signer.Sign([]byte(SignatureForMessageSigning), message)
+	sig, err := signer.Sign([]byte(security.SignatureForMessageSigning), message)
 	if err != nil {
 		t.Errorf("Failed to generate signature: %v", err)
 	}
@@ -262,7 +214,7 @@ func TestBackwardsCompatibility(t *testing.T) {
 	}
 	in := bytes.NewBuffer(out.Bytes())
 	dec := vom.NewDecoder(in)
-	var nsig Signature
+	var nsig security.Signature
 	if err := dec.Decode(&nsig); err != nil {
 		t.Errorf("failed to decode old ecdsaonly Signature: %v", err)
 	}
@@ -285,9 +237,9 @@ func TestBackwardsCompatibility(t *testing.T) {
 		t.Errorf("failed to decode old ecdsaonly Signature: %v", err)
 	}
 
-	sig = Signature{
+	sig = security.Signature{
 		Purpose: nECDSAOnlySignature.Purpose,
-		Hash:    Hash(nECDSAOnlySignature.Hash),
+		Hash:    security.Hash(nECDSAOnlySignature.Hash),
 		R:       nECDSAOnlySignature.R,
 		S:       nECDSAOnlySignature.S,
 	}

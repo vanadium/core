@@ -6,7 +6,6 @@ package security_test
 
 import (
 	"bytes"
-	"crypto/elliptic"
 	"reflect"
 	"testing"
 	"time"
@@ -15,32 +14,20 @@ import (
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/vom"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
-func TestByteSizeECDSA(t *testing.T) {
-	testByteSize(t, "ECDSA P256",
-		sectest.NewECDSASigner(t, elliptic.P256()),
-		sectest.NewECDSASigner(t, elliptic.P256()),
-		func(t testing.TB) security.Signer {
-			return sectest.NewECDSASigner(t, elliptic.P256())
-		},
-	)
-}
-
-func TestByteSizeED25519(t *testing.T) {
-	testByteSize(t, "ED25519",
-		sectest.NewED25519Signer(t),
-		sectest.NewED25519Signer(t),
-		sectest.NewED25519Signer,
-	)
-}
-
-func TestByteSizeRSA(t *testing.T) {
-	testByteSize(t, "RSA 2048",
-		sectest.NewRSASigner2048(t),
-		sectest.NewRSASigner2048(t),
-		sectest.NewRSASigner2048,
-	)
+func TestByteSize(t *testing.T) {
+	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+		testByteSize(t, kt.String(),
+			sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
+			sectestdata.V23Signer(kt, sectestdata.V23KeySetB),
+			func(t testing.TB) security.Signer {
+				return sectestdata.V23Signer(kt, sectestdata.V23KeySetC)
+			},
+		)
+	}
 }
 
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
@@ -92,26 +79,8 @@ func testByteSize(t *testing.T, algo string, s1, s2 security.Signer, sfn func(te
 	logCaveatSize(security.NewMethodCaveat("m"))
 }
 
-func TestBlessingCouldHaveNamesECDSA(t *testing.T) {
-	testBlessingCouldHaveNames(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestBlessingCouldHaveNames(t *testing.T) {
-	testBlessingCouldHaveNames(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testBlessingCouldHaveNames(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testBlessingCouldHaveNames(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	twoPrincipalTest(t, "testBlessingCouldHaveNames", testBlessingCouldHaveNames)
 }
 
 func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
@@ -164,16 +133,10 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
 	}
 }
 
-func TestBlessingsExpiryECDSA(t *testing.T) {
-	testBlessingsExpiry(t, sectest.NewECDSASignerP256(t))
-}
-
-func TestBlessingsExpiryED25519(t *testing.T) {
-	testBlessingsExpiry(t, sectest.NewED25519Signer(t))
-}
-
-func TestBlessingsExpiryRSA(t *testing.T) {
-	testBlessingsExpiry(t, sectest.NewRSASigner(t, 2048))
+func TestBlessingsExpiry(t *testing.T) {
+	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+		testBlessingsExpiry(t, sectestdata.V23Signer(kt, sectestdata.V23KeySetA))
+	}
 }
 
 func testBlessingsExpiry(t *testing.T, signer security.Signer) {
@@ -217,27 +180,9 @@ func testBlessingsExpiry(t *testing.T, signer security.Signer) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
-func TestBlessingsUniqueIDECDSA(t *testing.T) {
-	testBlessingsUniqueID(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-
-}
 
 func TestBlessingsUniqueID(t *testing.T) {
-	testBlessingsUniqueID(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testBlessingsUniqueID(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testBlessingsUniqueID(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	twoPrincipalTest(t, "testBlessingsUniqueID", testBlessingsUniqueID)
 }
 
 func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
@@ -300,29 +245,8 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 	}
 }
 
-func TestRootBlessingsECDSA(t *testing.T) {
-	testRootBlessings(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestRootBlessings(t *testing.T) {
-	testRootBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-
-	testRootBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewRSAPrincipal(t),
-	)
+	fourPrincipalTest(t, "testRootBlessings", testRootBlessings)
 }
 
 func testRootBlessings(t *testing.T, alpha, beta, gamma, alice security.Principal) {
@@ -385,38 +309,8 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice security.Principa
 	}
 }
 
-func TestNamelessBlessingECDSA(t *testing.T) {
-	testNamelessBlessing(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestNamelessBlessing(t *testing.T) {
-	testNamelessBlessing(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-
-	testNamelessBlessing(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-
-	testNamelessBlessing(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-
-	testNamelessBlessing(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-
-	testNamelessBlessing(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewRSAPrincipal(t),
-	)
+	twoPrincipalTest(t, "testNamelessBlessing", testNamelessBlessing)
 }
 
 func testNamelessBlessing(t *testing.T, alice, bob security.Principal) {
@@ -514,28 +408,19 @@ func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob security.
 }
 
 func BenchmarkBlessECDSA(b *testing.B) {
-	benchmarkBless(b,
-		sectest.NewECDSASigner(b, elliptic.P256()),
-		sectest.NewECDSASigner(b, elliptic.P256()),
-	)
+	benchmarkBless(b, ecdsa256SignerA, ecdsa256SignerB)
 }
 
 func BenchmarkBlessED25519(b *testing.B) {
-	benchmarkBless(b,
-		sectest.NewED25519Signer(b),
-		sectest.NewED25519Signer(b))
+	benchmarkBless(b, ed25519SignerA, ed25519SignerB)
 }
 
 func BenchmarkBlessRSA2048(b *testing.B) {
-	benchmarkBless(b,
-		sectest.NewRSASigner(b, 2048),
-		sectest.NewRSASigner(b, 2048))
+	benchmarkBless(b, rsa2048SignerA, rsa2048SignerB)
 }
 
 func BenchmarkBlessRSA4096(b *testing.B) {
-	benchmarkBless(b,
-		sectest.NewRSASigner(b, 4096),
-		sectest.NewRSASigner(b, 4096))
+	benchmarkBless(b, rsa4096SignerA, rsa4096SignerB)
 }
 
 func benchmarkBless(b *testing.B, s1, s2 security.Signer) {
@@ -560,18 +445,23 @@ func benchmarkBless(b *testing.B, s1, s2 security.Signer) {
 		}
 	}
 }
+
 func BenchmarkVerifyCertificateIntegrityECDSA(b *testing.B) {
 	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
-		return sectest.NewECDSASigner(t, elliptic.P256())
+		return ecdsa256SignerA
 	})
 }
 
 func BenchmarkVerifyCertificateIntegrityED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, sectest.NewED25519Signer)
+	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
+		return ed25519SignerA
+	})
 }
 
 func BenchmarkVerifyCertificateIntegrityRSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, sectest.NewRSASigner2048)
+	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
+		return rsa2048SignerA
+	})
 }
 
 func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) security.Signer) {
@@ -590,16 +480,20 @@ func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) secu
 
 func BenchmarkVerifyCertificateIntegrityNoCachingECDSA(b *testing.B) {
 	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
-		return sectest.NewECDSASigner(t, elliptic.P256())
+		return ecdsa256SignerA
 	})
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewED25519Signer)
+	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
+		return ed25519SignerA
+	})
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingRSA2048(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, sectest.NewRSASigner2048)
+	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
+		return rsa2048SignerA
+	})
 }
 
 func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) security.Signer) {

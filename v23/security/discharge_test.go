@@ -14,16 +14,8 @@ import (
 	"v.io/v23/security"
 )
 
-func TestDischargeToAndFromWireECDSA(t *testing.T) {
-	testDischargeToAndFromWire(t, sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestDischargeToAndFromWireED25519(t *testing.T) {
-	testDischargeToAndFromWire(t, sectest.NewED25519Principal(t))
-}
-
-func TestDischargeToAndFromWireRSA(t *testing.T) {
-	testDischargeToAndFromWire(t, sectest.NewRSAPrincipal(t))
+func TestDischargeToAndFromWire(t *testing.T) {
+	onePrincipalTest(t, "testDischargeToAndFromWire", testDischargeToAndFromWire)
 }
 
 func testDischargeToAndFromWire(t *testing.T, p security.Principal) {
@@ -66,30 +58,9 @@ func testDischargeToAndFromWire(t *testing.T, p security.Principal) {
 	}
 
 }
-func TestDischargeSignatureCachingECDSA(t *testing.T) {
-	testDischargeSignatureCaching(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
 
 func TestDischargeSignatureCaching(t *testing.T) {
-	rsaPrincipal := sectest.NewRSAPrincipal(t)
-	testDischargeSignatureCaching(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t))
-	testDischargeSignatureCaching(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t))
-	testDischargeSignatureCaching(t,
-		rsaPrincipal,
-		sectest.NewECDSAPrincipalP256(t))
-	testDischargeSignatureCaching(t,
-		rsaPrincipal,
-		sectest.NewED25519Principal(t))
-	testDischargeSignatureCaching(t,
-		sectest.NewED25519Principal(t),
-		rsaPrincipal)
+	twoPrincipalTest(t, "testDischargeSignatureCaching", testDischargeSignatureCaching)
 }
 
 func testDischargeSignatureCaching(t *testing.T, p1, p2 security.Principal) {
@@ -121,16 +92,16 @@ func testDischargeSignatureCaching(t *testing.T, p1, p2 security.Principal) {
 }
 
 func BenchmarkDischargeEqualityECDSA(b *testing.B) {
-	benchmarkDischargeEquality(b, sectest.NewECDSASignerP256(b))
+	benchmarkDischargeEquality(b, ecdsa256SignerA)
 
 }
 
 func BenchmarkDischargeEqualityED25519(b *testing.B) {
-	benchmarkDischargeEquality(b, sectest.NewED25519Signer(b))
+	benchmarkDischargeEquality(b, ed25519SignerA)
 }
 
 func BenchmarkDischargeEqualityRSA2048(b *testing.B) {
-	benchmarkDischargeEquality(b, sectest.NewRSASigner2048(b))
+	benchmarkDischargeEquality(b, rsa2048SignerA)
 }
 
 func benchmarkDischargeEquality(b *testing.B, signer security.Signer) {
@@ -182,24 +153,24 @@ func benchmarkPublicKeyDischargeVerification(caching bool, b *testing.B, signer 
 }
 
 func BenchmarkPublicKeyDischargeVerificationCachedECDSA(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewECDSASignerP256(b))
+	benchmarkPublicKeyDischargeVerification(true, b, ecdsa256SignerA)
 }
 
 func BenchmarkPublicKeyDischargeVerificationCachedED25519(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewED25519Signer(b))
+	benchmarkPublicKeyDischargeVerification(true, b, ed25519SignerA)
 }
 
 func BenchmarkPublicKeyDischargeVerificationCachedRSA2048(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(true, b, sectest.NewRSASigner2048(b))
+	benchmarkPublicKeyDischargeVerification(true, b, rsa2048SignerA)
 }
 func BenchmarkPublicKeyDischargeVerificationECDSA(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewECDSASignerP256(b))
+	benchmarkPublicKeyDischargeVerification(false, b, ecdsa256SignerA)
 }
 
 func BenchmarkPublicKeyDischargeVerificationED25519(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewED25519Signer(b))
+	benchmarkPublicKeyDischargeVerification(false, b, ed25519SignerA)
 }
 
 func BenchmarkPublicKeyDischargeVerificationRSA2048(b *testing.B) {
-	benchmarkPublicKeyDischargeVerification(false, b, sectest.NewRSASigner2048(b))
+	benchmarkPublicKeyDischargeVerification(false, b, rsa2048SignerA)
 }

@@ -35,7 +35,7 @@ func TestSSHKeys(t *testing.T) {
 func TestV23Keys(t *testing.T) {
 	for _, kt := range SupportedKeyAlgos {
 		for _, set := range []V23KeySetID{
-			V23keySetA, V23KeySetB, V23LegacyKeys,
+			V23KeySetA, V23KeySetB, V23LegacyKeys,
 		} {
 			privateKey := V23PrivateKey(kt, set)
 			if privateKey == nil {

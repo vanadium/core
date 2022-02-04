@@ -18,19 +18,12 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/uniqueid"
 	"v.io/v23/verror"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
-func TestBlessSelfECDSA(t *testing.T) {
-	testBlessSelf(t, sectest.NewECDSAPrincipalP256(t), sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestBlessSelfED25519(t *testing.T) {
-	testBlessSelf(t, sectest.NewED25519Principal(t), sectest.NewED25519Principal(t))
-}
-
 func TestBlessSel(t *testing.T) {
-	testBlessSelf(t, sectest.NewECDSAPrincipalP256(t), sectest.NewED25519Principal(t))
-	testBlessSelf(t, sectest.NewED25519Principal(t), sectest.NewECDSAPrincipalP256(t))
+	twoPrincipalTest(t, "testBlessSelf", testBlessSelf)
 }
 
 func testBlessSelf(t *testing.T, tp, p security.Principal) {
@@ -63,37 +56,8 @@ func testBlessSelf(t *testing.T, tp, p security.Principal) {
 	}
 }
 
-func TestBlessECDSA(t *testing.T) {
-	testBless(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
-func TestBlessED25519(t *testing.T) {
-	testBless(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestBless(t *testing.T) {
-	testBless(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-	testBless(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	fourPrincipalTest(t, "testBless", testBless)
 }
 
 func testBless(t *testing.T, tp, p1, p2, p3 security.Principal) {
@@ -142,17 +106,8 @@ func testBless(t *testing.T, tp, p1, p2, p3 security.Principal) {
 	}
 }
 
-func TestThirdPartyCaveatsECDSA(t *testing.T) {
-	testThirdPartyCaveats(t, sectest.NewECDSAPrincipalP256(t), sectest.NewECDSAPrincipalP256(t))
-}
-func TestThirdPartyCaveatsED25519(t *testing.T) {
-	testThirdPartyCaveats(t, sectest.NewED25519Principal(t), sectest.NewED25519Principal(t))
-}
-
 func TestThirdPartyCaveats(t *testing.T) {
-	testThirdPartyCaveats(t, sectest.NewECDSAPrincipalP256(t), sectest.NewED25519Principal(t))
-	testThirdPartyCaveats(t, sectest.NewED25519Principal(t), sectest.NewECDSAPrincipalP256(t))
-
+	twoPrincipalTest(t, "testThirdPartyCaveats", testThirdPartyCaveats)
 }
 
 func testThirdPartyCaveats(t *testing.T, p1, p2 security.Principal) {
@@ -179,18 +134,8 @@ func testThirdPartyCaveats(t *testing.T, p1, p2 security.Principal) {
 	}
 }
 
-func TestBlessingNamesECDSA(t *testing.T) {
-	testBlessingNames(t, sectest.NewECDSAPrincipalP256(t), sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestBlessingNamesED25519(t *testing.T) {
-	testBlessingNames(t, sectest.NewED25519Principal(t), sectest.NewED25519Principal(t))
-}
-
 func TestBlessingNames(t *testing.T) {
-	testBlessingNames(t, sectest.NewED25519Principal(t), sectest.NewECDSAPrincipalP256(t))
-	testBlessingNames(t, sectest.NewECDSAPrincipalP256(t), sectest.NewED25519Principal(t))
-
+	twoPrincipalTest(t, "testBlessingNames", testBlessingNames)
 }
 
 func testBlessingNames(t *testing.T, p1, p2 security.Principal) {
@@ -273,33 +218,12 @@ func testBlessingNames(t *testing.T, p1, p2 security.Principal) {
 	}
 }
 
-func TestBlessingsECDSA(t *testing.T) {
-	testBlessings(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t).PublicKey(),
-	)
-}
-
-func TestBlessingsED25519(t *testing.T) {
-	testBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t).PublicKey(),
-	)
-}
-
 func TestBlessings(t *testing.T) {
-	testBlessings(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t).PublicKey(),
-	)
-	testBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t).PublicKey(),
-	)
+	threePrincipalTest(t, "testBlessingsP", testBlessingsWrapper)
+}
+
+func testBlessingsWrapper(t *testing.T, tp, p, p2 security.Principal) {
+	testBlessings(t, tp, p, p2.PublicKey())
 }
 
 func testBlessings(t *testing.T, tp, p security.Principal, p2 security.PublicKey) {
@@ -361,20 +285,13 @@ func testBlessings(t *testing.T, tp, p security.Principal, p2 security.PublicKey
 		}
 	}
 }
-func TestCreatePrincipalWithNilStoreAndRootsECDSA(t *testing.T) {
-	p, err := security.CreatePrincipal(sectest.NewECDSASignerP256(t), nil, nil)
-	if err != nil {
-		t.Fatalf("CreatePrincipal using ECDSA signer failed: %v", err)
-	}
-	testCreatePrincipalWithNilStoreAndRoots(t, p)
-}
 
-func TestCreatePrincipalWithNilStoreAndRootsED25519(t *testing.T) {
-	p, err := security.CreatePrincipal(sectest.NewED25519Signer(t), nil, nil)
-	if err != nil {
-		t.Fatalf("CreatePrincipal using ECDSA signer failed: %v", err)
+func TestCreatePrincipalWithNilStoreAndRoots(t *testing.T) {
+	for _, kt := range []keys.CryptoAlgo{keys.ECDSA256, keys.ED25519, keys.RSA2048} {
+		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
+		p := sectest.NewPrincipal(t, signer, nil, nil)
+		testCreatePrincipalWithNilStoreAndRoots(t, p)
 	}
-	testCreatePrincipalWithNilStoreAndRoots(t, p)
 }
 
 func testCreatePrincipalWithNilStoreAndRoots(t *testing.T, p security.Principal) {
@@ -423,36 +340,15 @@ func testCreatePrincipalWithNilStoreAndRoots(t *testing.T, p security.Principal)
 	}
 }
 
-func TestAddToRootsECDSA(t *testing.T) {
-	testAddToRoots(t,
-		sectest.NewECDSAPrincipalP256,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t).PublicKey(),
-	)
-}
-func TestAddToRootsED25519(t *testing.T) {
-	testAddToRoots(t,
-		sectest.NewED25519Principal,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t).PublicKey(),
-	)
+func TestAddToRoots(t *testing.T) {
+	threePrincipalTest(t, "testAddToRoots", testAddToRootsWrapper)
 }
 
-func TestAddToRoots(t *testing.T) {
-	testAddToRoots(t,
-		sectest.NewECDSAPrincipalP256,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t).PublicKey(),
-	)
-	testAddToRoots(t,
-		sectest.NewED25519Principal,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t).PublicKey(),
-	)
+func testAddToRootsWrapper(t *testing.T, p1, p2, p3 security.Principal) {
+	tpFunc := func(t testing.TB) security.Principal {
+		return sectest.NewPrincipal(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD), nil, &sectest.Roots{})
+	}
+	testAddToRoots(t, tpFunc, p1, p2, p3.PublicKey())
 }
 
 func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, p1, p2 security.Principal, p3 security.PublicKey) {
@@ -522,12 +418,8 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 	}
 }
 
-func TestPrincipalSignECDSA(t *testing.T) {
-	testPrincipalSign(t, sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestPrincipalSignED25519(t *testing.T) {
-	testPrincipalSign(t, sectest.NewED25519Principal(t))
+func TestPrincipalSign(t *testing.T) {
+	onePrincipalTest(t, "testPrincipalSign", testPrincipalSign)
 }
 
 func testPrincipalSign(t *testing.T, p security.Principal) {
@@ -539,12 +431,15 @@ func testPrincipalSign(t *testing.T, p security.Principal) {
 	}
 }
 
-func TestPrincipalSignaturePurposeECDSA(t *testing.T) {
-	testPrincipalSignaturePurpose(t, sectest.NewECDSAPrincipalP256, sectest.NewECDSAPrincipalP256(t))
+func TestPrincipalSignaturePurpose(t *testing.T) {
+	twoPrincipalTest(t, "testPrincipalSignaturePurpose", testPrincipalSignaturePurposeWrapper)
 }
 
-func TestPrincipalSignaturePurposeED25519(t *testing.T) {
-	testPrincipalSignaturePurpose(t, sectest.NewED25519Principal, sectest.NewED25519Principal(t))
+func testPrincipalSignaturePurposeWrapper(t *testing.T, p1, p2 security.Principal) {
+	pfn := func(t testing.TB) security.Principal {
+		return p1
+	}
+	testPrincipalSignaturePurpose(t, pfn, p2)
 }
 
 func testPrincipalSignaturePurpose(t *testing.T, pfn func(testing.TB) security.Principal, p security.Principal) {
@@ -579,36 +474,15 @@ func testPrincipalSignaturePurpose(t *testing.T, pfn func(testing.TB) security.P
 	}
 }
 
-func TestUnionOfBlessingsECDSA(t *testing.T) {
-	testUnionOfBlessings(t,
-		sectest.NewECDSAPrincipalP256,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-func TestUnionOfBlessingsED25519(t *testing.T) {
-	testUnionOfBlessings(t,
-		sectest.NewED25519Principal,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
+func TestUnionOfBlessings(t *testing.T) {
+	threePrincipalTest(t, "testUnionOfBlessings", testUnionOfBlessingsWrapper)
 }
 
-func TestUnionOfBlessings(t *testing.T) {
-	testUnionOfBlessings(t,
-		sectest.NewECDSAPrincipalP256,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-	testUnionOfBlessings(t,
-		sectest.NewED25519Principal,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+func testUnionOfBlessingsWrapper(t *testing.T, p1, p2, p3 security.Principal) {
+	tpFunc := func(t testing.TB) security.Principal {
+		return sectest.NewPrincipal(t, sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetD), nil, &sectest.Roots{})
+	}
+	testUnionOfBlessings(t, tpFunc, p1, p2, p3)
 }
 
 func testUnionOfBlessings(t *testing.T, pfn func(testing.TB) security.Principal, p1, p2, p security.Principal) {
@@ -697,39 +571,8 @@ func testUnionOfBlessings(t *testing.T, pfn func(testing.TB) security.Principal,
 	}
 }
 
-func TestCertificateCompositionAttackECDSA(t *testing.T) {
-	testCertificateCompositionAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-func TestCertificateCompositionAttackED25519(t *testing.T) {
-	testCertificateCompositionAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
 func TestCertificateCompositionAttack(t *testing.T) {
-	testCertificateCompositionAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testCertificateCompositionAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
+	fivePrincipalTest(t, "testCertificateCompositionAttack", testCertificateCompositionAttack)
 }
 
 func testCertificateCompositionAttack(t *testing.T, tp, p1, p2, p3, p4 security.Principal) {
@@ -783,36 +626,9 @@ func testCertificateCompositionAttack(t *testing.T, tp, p1, p2, p3, p4 security.
 		t.Fatal(err)
 	}
 }
-func TestCertificateTamperingAttackECDSA(t *testing.T) {
-	testCertificateTamperingAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
 
-}
-func TestCertificateTamperingAttackED25519(t *testing.T) {
-	testCertificateTamperingAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
 func TestCertificateTamperingAttack(t *testing.T) {
-	testCertificateTamperingAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testCertificateTamperingAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
+	fourPrincipalTest(t, "testCertificateTamperingAttack", testCertificateTamperingAttack)
 }
 
 func testCertificateTamperingAttack(t *testing.T, tp, p1, p2, p3 security.Principal) {
@@ -837,33 +653,8 @@ func testCertificateTamperingAttack(t *testing.T, tp, p1, p2, p3 security.Princi
 	}
 }
 
-func TestCertificateChainsTamperingAttackECDSA(t *testing.T) {
-	testCertificateChainsTamperingAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
-func TestCertificateChainsTamperingAttackED25519(t *testing.T) {
-	testCertificateChainsTamperingAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-}
-
 func TestCertificateChainsTamperingAttack(t *testing.T) {
-	testCertificateChainsTamperingAttack(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testCertificateChainsTamperingAttack(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
+	threePrincipalTest(t, "testCertificateChainsTamperingAttack", testCertificateChainsTamperingAttack)
 }
 
 func testCertificateChainsTamperingAttack(t *testing.T, tp, p1, p2 security.Principal) {
@@ -915,16 +706,9 @@ func testBlessingToAndFromWire(t *testing.T, p security.Principal) {
 		t.Errorf("native->wire->native changed value from %#v to %#v", native, dup)
 	}
 }
-func TestBlessingsRoundTripECDSA(t *testing.T) {
-	testBlessingsRoundTrip(t, sectest.NewECDSAPrincipalP256(t), sectest.NewECDSAPrincipalP256(t))
-}
-func TestBlessingsRoundTripED25519(t *testing.T) {
-	testBlessingsRoundTrip(t, sectest.NewED25519Principal(t), sectest.NewED25519Principal(t))
-}
 
 func TestBlessingsRoundTrip(t *testing.T) {
-	testBlessingsRoundTrip(t, sectest.NewECDSAPrincipalP256(t), sectest.NewED25519Principal(t))
-	testBlessingsRoundTrip(t, sectest.NewED25519Principal(t), sectest.NewECDSAPrincipalP256(t))
+	twoPrincipalTest(t, "testBlessingsRoundTrip", testBlessingsRoundTrip)
 }
 
 func testBlessingsRoundTrip(t *testing.T, p1, p2 security.Principal) {
@@ -958,30 +742,8 @@ func testBlessingsRoundTrip(t *testing.T, p1, p2 security.Principal) {
 	}
 }
 
-func TestBlessingsOnWireWithMissingCertificatesECDSA(t *testing.T) {
-	testBlessingsOnWireWithMissingCertificates(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-func TestBlessingsOnWireWithMissingCertificatesED25519(t *testing.T) {
-	testBlessingsOnWireWithMissingCertificates(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t))
-}
-
 func TestBlessingsOnWireWithMissingCertificates(t *testing.T) {
-	testBlessingsOnWireWithMissingCertificates(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewED25519Principal(t),
-	)
-	testBlessingsOnWireWithMissingCertificates(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t))
+	threePrincipalTest(t, "testBlessingsOnWireWithMissingCertificates", testBlessingsOnWireWithMissingCertificates)
 }
 
 func testBlessingsOnWireWithMissingCertificates(t *testing.T, rootP, middlemanP, leafP security.Principal) {
@@ -1062,12 +824,9 @@ func testBlessingsOnWireWithMissingCertificates(t *testing.T, rootP, middlemanP,
 		wire.CertificateChains[idx] = chain
 	}
 }
-func TestOverrideCaveatValidationECDSA(t *testing.T) {
-	testOverrideCaveatValidation(t, sectest.NewECDSAPrincipalP256(t))
-}
 
-func TestOverrideCaveatValidationED25519(t *testing.T) {
-	testOverrideCaveatValidation(t, sectest.NewED25519Principal(t))
+func TestOverrideCaveatValidation(t *testing.T) {
+	onePrincipalTest(t, "testOverrideCaveatValidation", testOverrideCaveatValidation)
 }
 
 func testOverrideCaveatValidation(t *testing.T, p security.Principal) {
@@ -1163,12 +922,8 @@ func overideCaveatValidator(t *testing.T, _ *context.T, _ security.Call, trueID,
 	return results
 }
 
-func TestRemoteBlessingNamesECDSA(t *testing.T) {
-	testRemoteBlessingNames(t, sectest.NewECDSAPrincipalP256(t))
-}
-
 func TestRemoteBlessingNamesED25519(t *testing.T) {
-	testRemoteBlessingNames(t, sectest.NewED25519Principal(t))
+	onePrincipalTest(t, "testRemoteBlessingNames", testRemoteBlessingNames)
 }
 
 func testRemoteBlessingNames(t *testing.T, p security.Principal) {
@@ -1253,30 +1008,8 @@ func benchmarkRemoteBlessingNames(b *testing.B, p, p2 security.Principal) {
 	b.StopTimer() // So the cancel() call isn't included.
 }
 
-func TestSigningBlessingsECDSA(t *testing.T) {
-	testSigningBlessings(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestSigningBlessings(t *testing.T) {
-	testSigningBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testSigningBlessings(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testSigningBlessings(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
+	threePrincipalTest(t, "testSigningBlessings", testSigningBlessings)
 }
 
 func testSigningBlessings(t *testing.T, google, alice, bob security.Principal) {
