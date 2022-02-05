@@ -24,15 +24,12 @@ var (
 	ed25519SignerB  security.Signer
 	rsa2048SignerB  security.Signer
 	rsa4096SignerB  security.Signer
-)
 
-var (
 	purpose, message []byte
 )
 
 func init() {
 	purpose, message = sectest.GenPurposeAndMessage(5, 100)
-
 }
 
 type bmkey struct {
