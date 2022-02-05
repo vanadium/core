@@ -62,7 +62,7 @@ benchmarks:
 
 refresh:
 	go generate ./...
-	go get cloudeng.io/go/cmd/goannotate
+	go install cloudeng.io/go/cmd/goannotate
 	go run cloudeng.io/go/cmd/goannotate --config=vanadium-code-annotations.yaml --annotation=copyright ./...
 	go mod tidy
 

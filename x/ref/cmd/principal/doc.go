@@ -30,6 +30,7 @@ The principal commands are:
    recognize     Add to the set of identity providers recognized by this
                  principal
    union         Merge multiple blessings into one
+   update-pkcs8  Update an existing principal to pkcs8 format and encryption
    scripts       Run one or more scripts
    help          Display help for commands or topics
 
@@ -138,9 +139,11 @@ principal will have no blessings.
 The principal create flags are:
  -key-type=ecdsa256
    The type of key to be created, allowed values are ecdsa256, ecdsa384,
-   ecdsa521, ed25519.
+   ecdsa521, ed25519, rsa2048, rsa4096.
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
+ -ssh-key=
+   If set, use the ssh private key from the specified file
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
@@ -178,13 +181,15 @@ The principal fork flags are:
    Duration of blessing validity (zero implies no expiration)
  -key-type=ecdsa256
    The type of key to be created, allowed values are ecdsa256, ecdsa384,
-   ecdsa521, ed25519.
+   ecdsa521, ed25519, rsa2048, rsa4096.
  -overwrite=false
    If true, any existing principal data in the directory will be overwritten
  -require-caveats=true
    If false, allow blessing without any caveats. This is typically not advised
    as the principal wielding the blessing will be almost as powerful as its
    blesser
+ -ssh-key=
+   If set, use the ssh private key from the specified file
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
@@ -607,6 +612,15 @@ Usage:
 <blessing> is a base64url-encoded blessing.
 
 <blessing file> is a file that contains a base64url-encoded blessing.
+
+Principal update-pkcs8 - Update an existing principal to pkcs8 format and encryption
+
+Updates an existing PEM encrypted principal to pkcs8.
+
+Usage:
+   principal update-pkcs8 [flags] <directory>...
+
+<directory> is the directory to be updated.
 
 Principal scripts - Run one or more scripts
 

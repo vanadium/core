@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/shirou/gopsutil/v3 v3.21.13-0.20220115084902-511da82e944b
 	github.com/vanadium/go-mdns-sd v0.0.0-20181006014439-f1a1ccd1252e
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/mod v0.5.1
 	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d
@@ -17,7 +17,7 @@ require (
 	v.io/x/lib v0.1.10
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
-	v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d // indirect
+	v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d
 )
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
