@@ -320,7 +320,15 @@ func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
 	}
 }
 
-func benchmarkDigestsForCertificateChain(b *testing.B, sfn func(testing.TB) security.Signer, ncerts int) {
+func benchmarkDigestsForCertificateChain(b *testing.B, kt keys.CryptoAlgo, ncerts int) {
+	sfn := newUseOrCreateSigners(
+		kt,
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetB),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetC),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetD),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetE),
+	)
 	blessings := makeBlessings(b, sfn, ncerts)
 	chain := security.ExposeCertChains(blessings)
 	b.ResetTimer()
@@ -330,73 +338,37 @@ func benchmarkDigestsForCertificateChain(b *testing.B, sfn func(testing.TB) secu
 }
 
 func BenchmarkDigestsForCertificateChain_1CertECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ecdsa256SignerA
-		},
-		1)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ecdsa256SignerA
-		},
-		3)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ecdsa256SignerA
-		},
-		4)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 4)
 }
 
 func BenchmarkDigestsForCertificateChain_1CertED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ed25519SignerA
-		},
-		1)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ed25519SignerA
-		},
-		3)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return ed25519SignerA
-		},
-		4)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 4)
 }
 
 func BenchmarkDigestsForCertificateChain_1CertRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return rsa2048SignerA
-		},
-		1)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return rsa2048SignerA
-		},
-		3)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b,
-		func(testing.TB) security.Signer {
-			return rsa2048SignerA
-		},
-		4)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 4)
 }

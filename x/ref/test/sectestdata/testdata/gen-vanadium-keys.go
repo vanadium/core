@@ -22,8 +22,7 @@ import (
 func main() {
 	passphrase := []byte("password")
 	for _, kd := range sectestdata.SupportedKeyAlgos {
-		//for _, set := range []string{"-a-", "-b-", "-c-", "-d-"} {
-		for _, set := range []string{"-e-"} {
+		for _, set := range []string{"-a-", "-b-", "-c-", "-d-", "-e-"} {
 			pk, err := keys.NewPrivateKeyForAlgo(kd)
 			if err != nil {
 				panic(err)

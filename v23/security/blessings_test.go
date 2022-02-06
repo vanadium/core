@@ -6,6 +6,7 @@ package security_test
 
 import (
 	"bytes"
+	gocontext "context"
 	"reflect"
 	"testing"
 	"time"
@@ -14,17 +15,44 @@ import (
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/vom"
+	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test/sectestdata"
 )
+
+type useOrCreateSigners struct {
+	used      int
+	available []security.Signer
+	keyType   keys.CryptoAlgo
+}
+
+func (uc *useOrCreateSigners) nextSigner(t testing.TB) security.Signer {
+	if uc.used < len(uc.available) {
+		uc.used++
+		return uc.available[uc.used-1]
+	}
+	signer, err := seclib.NewSigner(gocontext.Background(), uc.keyType)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return signer
+}
+
+func newUseOrCreateSigners(keyType keys.CryptoAlgo, signers ...security.Signer) func(t testing.TB) security.Signer {
+	uc := &useOrCreateSigners{keyType: keyType, available: signers}
+	return uc.nextSigner
+}
 
 func TestByteSize(t *testing.T) {
 	for _, kt := range testCryptoAlgos {
 		testByteSize(t, kt.String(),
 			sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
 			sectestdata.V23Signer(kt, sectestdata.V23KeySetB),
-			func(t testing.TB) security.Signer {
-				return sectestdata.V23Signer(kt, sectestdata.V23KeySetC)
-			},
+			newUseOrCreateSigners(kt,
+				sectestdata.V23Signer(kt, sectestdata.V23KeySetC),
+				sectestdata.V23Signer(kt, sectestdata.V23KeySetD),
+				sectestdata.V23Signer(kt, sectestdata.V23KeySetE),
+			),
 		)
 	}
 }
@@ -446,24 +474,22 @@ func benchmarkBless(b *testing.B, s1, s2 security.Signer) {
 }
 
 func BenchmarkVerifyCertificateIntegrityECDSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
-		return ecdsa256SignerA
-	})
+	benchmarkVerifyCertificateIntegrity(b, keys.ECDSA256)
 }
 
 func BenchmarkVerifyCertificateIntegrityED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
-		return ed25519SignerA
-	})
+	benchmarkVerifyCertificateIntegrity(b, keys.ED25519)
 }
 
 func BenchmarkVerifyCertificateIntegrityRSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrity(b, func(t testing.TB) security.Signer {
-		return rsa2048SignerA
-	})
+	benchmarkVerifyCertificateIntegrity(b, keys.RSA2048)
 }
 
-func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) security.Signer) {
+func benchmarkVerifyCertificateIntegrity(b *testing.B, kt keys.CryptoAlgo) {
+	sfn := newUseOrCreateSigners(
+		kt,
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetB))
 	native := makeBlessings(b, sfn, 1)
 	var wire security.WireBlessings
 	if err := security.WireBlessingsFromNative(&wire, native); err != nil {
@@ -478,27 +504,21 @@ func benchmarkVerifyCertificateIntegrity(b *testing.B, sfn func(testing.TB) secu
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingECDSA(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
-		return ecdsa256SignerA
-	})
+	benchmarkVerifyCertificateIntegrityNoCaching(b, keys.ECDSA256)
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingED25519(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
-		return ed25519SignerA
-	})
+	benchmarkVerifyCertificateIntegrityNoCaching(b, keys.ED25519)
 }
 
 func BenchmarkVerifyCertificateIntegrityNoCachingRSA2048(b *testing.B) {
-	benchmarkVerifyCertificateIntegrityNoCaching(b, func(t testing.TB) security.Signer {
-		return rsa2048SignerA
-	})
+	benchmarkVerifyCertificateIntegrityNoCaching(b, keys.RSA2048)
 }
 
-func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, sfn func(testing.TB) security.Signer) {
+func benchmarkVerifyCertificateIntegrityNoCaching(b *testing.B, kt keys.CryptoAlgo) {
 	security.DisableSignatureCache()
 	defer security.EnableSignatureCache()
-	benchmarkVerifyCertificateIntegrity(b, sfn)
+	benchmarkVerifyCertificateIntegrity(b, kt)
 }
 
 func makeBlessings(t testing.TB, sfn func(testing.TB) security.Signer, ncerts int) security.Blessings {

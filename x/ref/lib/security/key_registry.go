@@ -1,4 +1,4 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
@@ -68,6 +69,25 @@ func translatePassphraseError(err error) error {
 		return ErrBadPassphrase.Errorf(nil, "passphrase incorrect for decrypting private key")
 	}
 	return err
+}
+
+// NewSigner returns a new security.Signer using a new private key of the requested
+// type.
+func NewSigner(ctx context.Context, keyType keys.CryptoAlgo) (security.Signer, error) {
+	key, err := keys.NewPrivateKeyForAlgo(keyType)
+	if err != nil {
+		return nil, err
+	}
+	return NewSignerFromKey(ctx, key)
+}
+
+// NewSignerFromKey returns a new security.Signer using the supplied private key.
+func NewSignerFromKey(ctx context.Context, key crypto.PrivateKey) (security.Signer, error) {
+	api, err := APIForKey(key)
+	if err != nil {
+		return nil, err
+	}
+	return api.Signer(ctx, key)
 }
 
 func convertToPKCS8(ctx context.Context, keyBytes []byte, passphrase []byte) ([]byte, error) {

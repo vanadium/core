@@ -1,4 +1,4 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -53,7 +53,6 @@ func threePrincipalTest(t *testing.T, name string, tester func(t *testing.T, p1,
 	for _, k1 := range testCryptoAlgos {
 		for _, k2 := range testCryptoAlgos {
 			for _, k3 := range testCryptoAlgos {
-
 				s1 := sectestdata.V23Signer(k1, sectestdata.V23KeySetA)
 				s2 := sectestdata.V23Signer(k2, sectestdata.V23KeySetB)
 				s3 := sectestdata.V23Signer(k3, sectestdata.V23KeySetC)
@@ -121,7 +120,6 @@ func fivePrincipalTest(t *testing.T, name string, tester func(t *testing.T, p1, 
 						s3 := sectestdata.V23Signer(k3, sectestdata.V23KeySetC)
 						s4 := sectestdata.V23Signer(k4, sectestdata.V23KeySetD)
 						s5 := sectestdata.V23Signer(k5, sectestdata.V23KeySetD)
-
 						logTest(t, "%v(%T, %T, %T, %T, %T)", name,
 							s1.PublicKey(), s2.PublicKey(),
 							s3.PublicKey(), s4.PublicKey(),
