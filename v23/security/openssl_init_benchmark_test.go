@@ -36,6 +36,7 @@ func newOpenSSLBMKey(kt keys.CryptoAlgo) *bmkey {
 		panic(err)
 	}
 	var signer security.Signer
+	// Explicitly use the OpenSSL variants.
 	switch k := key.(type) {
 	case *ecdsa.PrivateKey:
 		signer, err = security.NewOpenSSLECDSASigner(k)

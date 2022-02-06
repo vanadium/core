@@ -119,7 +119,7 @@ func fivePrincipalTest(t *testing.T, name string, tester func(t *testing.T, p1, 
 						s2 := sectestdata.V23Signer(k2, sectestdata.V23KeySetB)
 						s3 := sectestdata.V23Signer(k3, sectestdata.V23KeySetC)
 						s4 := sectestdata.V23Signer(k4, sectestdata.V23KeySetD)
-						s5 := sectestdata.V23Signer(k5, sectestdata.V23KeySetD)
+						s5 := sectestdata.V23Signer(k5, sectestdata.V23KeySetE)
 						logTest(t, "%v(%T, %T, %T, %T, %T)", name,
 							s1.PublicKey(), s2.PublicKey(),
 							s3.PublicKey(), s4.PublicKey(),
