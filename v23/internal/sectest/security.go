@@ -7,11 +7,7 @@ package sectest
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
 	"testing"
 	"time"
@@ -111,60 +107,6 @@ func (*Roots) DebugString() string {
 	return "BlessingRoots implementation for testing purposes only"
 }
 
-// NewECDSASigner creates a new ECDSA based signer.
-func NewECDSASigner(t testing.TB, curve elliptic.Curve) security.Signer {
-	key, err := ecdsa.GenerateKey(curve, rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed to generate ECDSA key: %v", err)
-	}
-	signer, err := security.NewInMemoryECDSASigner(key)
-	if err != nil {
-		t.Fatalf("Failed to generate ECDSA signer: %v", err)
-	}
-	return signer
-}
-
-// NewECDSASignerP256 creates a new ECDSA based signer using the P256 curve.
-func NewECDSASignerP256(t testing.TB) security.Signer {
-	return NewECDSASigner(t, elliptic.P256())
-}
-
-// NewED25519Signer creates a new ED25519 signer.
-func NewED25519Signer(t testing.TB) security.Signer {
-	_, key, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed to generate ED25519 key: %v", err)
-	}
-	signer, err := security.NewInMemoryED25519Signer(key)
-	if err != nil {
-		t.Fatalf("Failed to generate ED25519 signer: %v", err)
-	}
-	return signer
-}
-
-// NewRSASigner2048 creates a new RSA signer with a 2048 bit key.
-func NewRSASigner2048(t testing.TB) security.Signer {
-	return NewRSASigner(t, 2048)
-}
-
-// NewRSASigner4096 creates a new RSA signer with a 4096 bit key.
-func NewRSASigner4096(t testing.TB) security.Signer {
-	return NewRSASigner(t, 4096)
-}
-
-// NewRSASigner creates a new RSA signer with the specified number of bits.
-func NewRSASigner(t testing.TB, bits int) security.Signer {
-	key, err := rsa.GenerateKey(rand.Reader, bits)
-	if err != nil {
-		t.Fatalf("Failed to generate RSA key: %v with %v bits", err, bits)
-	}
-	signer, err := security.NewInMemoryRSASigner(key)
-	if err != nil {
-		t.Fatalf("Failed to generate ED25519 signer: %v", err)
-	}
-	return signer
-}
-
 // NewPrincipal creates a new security.Principal using the supplied signer,
 // blessings store and roots.
 func NewPrincipal(t testing.TB, signer security.Signer, store security.BlessingStore, roots security.BlessingRoots) security.Principal {
@@ -175,52 +117,10 @@ func NewPrincipal(t testing.TB, signer security.Signer, store security.BlessingS
 	return p
 }
 
-// NewECDSAPrincipalP256TrustAllRoots returns a new ECDSA based principal using
-// &TrustAllRoots{} and the P256 curve.
-func NewECDSAPrincipalP256TrustAllRoots(t testing.TB) security.Principal {
-	return NewPrincipal(t,
-		NewECDSASignerP256(t),
-		nil,
-		&TrustAllRoots{},
-	)
-}
-
-// NewED25519PrincipalTrustAllRoots returns a new ED25519 based principal using
-// &TrustAllRoots{}.
-func NewED25519PrincipalTrustAllRoots(t testing.TB) security.Principal {
-	return NewPrincipal(t,
-		NewED25519Signer(t),
-		nil,
-		&TrustAllRoots{},
-	)
-}
-
-// NewECDSAPrincipalP256 returns a new ECDSA based principal using
-// &Roots{} and the P256 curve.
-func NewECDSAPrincipalP256(t testing.TB) security.Principal {
-	return NewPrincipal(t,
-		NewECDSASignerP256(t),
-		nil,
-		&Roots{},
-	)
-}
-
-// NewED25519Principal returns a new ED25519 based principal using &Roots{}.
-func NewED25519Principal(t testing.TB) security.Principal {
-	return NewPrincipal(t,
-		NewED25519Signer(t),
-		nil,
-		&Roots{},
-	)
-}
-
-// NewRSAPrincipal returns a new RSA based principal using &Roots{}.
-func NewRSAPrincipal(t testing.TB) security.Principal {
-	return NewPrincipal(t,
-		NewRSASigner(t, 4096),
-		nil,
-		&Roots{},
-	)
+// NewPrincipalRootsOnly creates a new security.Principal using the supplied signer,
+// no blessing store and &Roots{}.
+func NewPrincipalRootsOnly(t testing.TB, signer security.Signer) security.Principal {
+	return NewPrincipal(t, signer, nil, &Roots{})
 }
 
 // BlessSelf returns a named blessing for the supplied principal.

@@ -8,15 +8,12 @@ import (
 	"context"
 	gocontext "context"
 	"crypto"
-	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -25,20 +22,41 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref"
-	"v.io/x/ref/lib/security/internal"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/sectestdata"
 )
 
 var (
-	agentSockName string
-	sshKeyDir     string
-	sshTestKeys   []string
+	sshKeyDir           string
+	sshTestKeys         []string
+	legacyPrincipalDir  string
+	currentPrincipalDir string
 )
 
 func TestMain(m *testing.M) {
-	var err error
+
+	principalDir, err := os.MkdirTemp("", "principals")
+	if err != nil {
+		panic(err)
+	}
+	//	defer os.RemoveAll(principalDir)
+	legacyPrincipalDir = filepath.Join(principalDir, "legacy")
+	currentPrincipalDir = filepath.Join(principalDir, "current")
+	for _, dir := range []string{legacyPrincipalDir, currentPrincipalDir} {
+		if err := os.Mkdir(dir, 0700); err != nil {
+			panic(err)
+		}
+	}
+
+	sectestdata.V23CopyLegacyPrincipals(legacyPrincipalDir)
+	if err := createPersistentPrincipals(currentPrincipalDir); err != nil {
+		panic(err)
+	}
+
 	var cleanup func()
+	var agentSockName string
+
 	sshKeyDir, agentSockName, cleanup, err = sectestdata.StartPreConfiguredSSHAgent()
 	if err != nil {
 		flag.Parse()
@@ -57,7 +75,59 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func setReadonly(t *testing.T, dir string) {
+func createPersistentPrincipals(dir string) error {
+	for _, kt := range sectestdata.SupportedKeyAlgos {
+		for _, pp := range [][]byte{nil, sectestdata.Password()} {
+			basename := kt.String()
+			if pp != nil {
+				basename = "encrypted-" + basename
+			}
+			key, err := keys.NewPrivateKeyForAlgo(kt)
+			if err != nil {
+				return err
+			}
+			dirname := filepath.Join(dir, basename)
+			unlock, err := initAndLockPrincipalDir(dirname)
+			if err != nil {
+				return err
+			}
+			unlock()
+			if err := writeKeyPairUsingPrivateKey(dirname, key, pp); err != nil {
+				return err
+			}
+			readonly := filepath.Join(dir, "readonly-"+basename)
+			unlock, err = initAndLockPrincipalDir(readonly)
+			if err != nil {
+				return err
+			}
+			unlock()
+			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
+				return err
+			}
+			if err := setReadonly(readonly); err != nil {
+				return err
+			}
+			readonly = filepath.Join(dir, "readonly-nolock-"+basename)
+			unlock, err = initAndLockPrincipalDir(readonly)
+			if err != nil {
+				return err
+			}
+			unlock()
+			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
+				return err
+			}
+			if err := os.Remove(filepath.Join(readonly, "dir.lock")); err != nil {
+				return err
+			}
+			if err := setReadonly(readonly); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func setReadonly(dir string) error {
 	err := filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -69,13 +139,14 @@ func setReadonly(t *testing.T, dir string) {
 		err = os.Chmod(path, mode)
 		nfi, _ := os.Stat(path)
 		if nfi.Mode().Perm() != mode {
-			t.Fatalf("failed to set permissions for %v", path)
+			return fmt.Errorf("failed to set permissions for %v", path)
 		}
 		return err
 	})
 	if err != nil {
-		t.Fatalf("failed to set creds to readonly: %v", err)
+		return fmt.Errorf("failed to set creds to readonly: %v", err)
 	}
+	return nil
 }
 
 func TestLoadPersistentPEMPrincipal(t *testing.T) {
@@ -83,42 +154,52 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 	if _, err := LoadPersistentPrincipal("/cantexist/fake/path/", nil); !os.IsNotExist(err) {
 		t.Errorf("invalid path should return does not exist error, instead got %v", err)
 	}
-	// If the key file exists and is unencrypted we should succeed.
-	dir := generatePEMPrincipal(nil)
-	defer os.RemoveAll(dir)
-	if _, err := LoadPersistentPrincipal(dir, nil); err != nil {
-		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
-	}
 
-	// If the private key file exists and is encrypted we should succeed with correct passphrase.
-	passphrase := []byte("passphrase")
-	incorrectPassphrase := []byte("incorrectPassphrase")
-	dir = generatePEMPrincipal(passphrase)
-	defer os.RemoveAll(dir)
-	if _, err := LoadPersistentPrincipal(dir, passphrase); err != nil {
-		t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
-	}
+	for _, kt := range sectestdata.SupportedKeyAlgos {
+		for _, tc := range []struct {
+			plaintextDir string
+			encryptedDir string
+		}{
+			{
+				filepath.Join(legacyPrincipalDir, sectestdata.V23PrincipalDir(kt, false)),
+				filepath.Join(legacyPrincipalDir, sectestdata.V23PrincipalDir(kt, true)),
+			},
+			{
+				filepath.Join(currentPrincipalDir, kt.String()),
+				filepath.Join(currentPrincipalDir, "encrypted-"+kt.String()),
+			},
+		} {
+			if _, err := LoadPersistentPrincipal(tc.plaintextDir, nil); err != nil {
+				t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
+			}
 
-	// and fail with an incorrect passphrase.
-	if _, err := LoadPersistentPrincipal(dir, incorrectPassphrase); err == nil {
-		t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
-	}
-	// and return ErrPassphraseRequired if the passphrase is nil.
-	if _, err := LoadPersistentPrincipal(dir, nil); !errors.Is(err, ErrPassphraseRequired) {
-		t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
+			// If the private key file exists and is encrypted we should succeed with correct passphrase.
+			if _, err := LoadPersistentPrincipal(tc.encryptedDir, sectestdata.Password()); err != nil {
+				t.Errorf("encrypted LoadPersistentPrincipal should have succeeded: %v", err)
+			}
+
+			// and fail with an incorrect passphrase.
+			if _, err := LoadPersistentPrincipal(tc.encryptedDir, []byte("nonsense")); err == nil {
+				t.Errorf("encrypted LoadPersistentPrincipal with incorrect passphrase should fail")
+			}
+			// and return ErrPassphraseRequired if the passphrase is nil.
+			if _, err := LoadPersistentPrincipal(tc.encryptedDir, nil); !errors.Is(err, ErrPassphraseRequired) {
+				t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
+			}
+		}
 	}
 }
 
 func TestReadonlyAccess(t *testing.T) {
-	dir := generatePEMPrincipal(nil)
-	defer os.RemoveAll(dir)
+	kt := keys.ECDSA256
+	dir := filepath.Join(currentPrincipalDir, kt.String())
 	p, err := LoadPersistentPrincipal(dir, nil)
 	if err != nil {
-		t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
+		t.Fatalf("failed to load principal from %v: %v", dir, err)
 	}
 
-	// Test read-only access, should fail for LoadPersistentPrincipal.
-	setReadonly(t, dir)
+	dir = filepath.Join(currentPrincipalDir, "readonly-"+kt.String())
+
 	_, err = LoadPersistentPrincipal(dir, nil)
 	if err == nil || !strings.Contains(err.Error(), "dir.lock: permission denied") {
 		t.Fatalf("missing or incorrect error: %v", err)
@@ -134,16 +215,7 @@ func TestReadonlyAccess(t *testing.T) {
 	}
 
 	// Test read-only access, making sure that dir.lock is removed first also.
-	if err := os.Chmod(dir, 0700); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.RemoveAll(filepath.Join(dir, "dir.lock")); err != nil {
-		t.Error(err)
-	}
-	if err := os.Chmod(dir, 0500); err != nil {
-		t.Fatal(err)
-	}
-
+	dir = filepath.Join(currentPrincipalDir, "readonly-nolock-"+kt.String())
 	// Read-only access without a dir.lock file should succeed for a read-only
 	// filesystem since there's no need for a read-lock in that case,
 	// but will otherwise fail since write-access is required to create a read-only
@@ -173,22 +245,19 @@ func TestReadonlyAccess(t *testing.T) {
 }
 
 func TestLoadPersistentSSHPrincipal(t *testing.T) {
-	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
 	for _, keyName := range sshTestKeys {
+		dir := t.TempDir()
 		keyName += ".pub"
 		// use an ssh key and agent for signing.
-		useSSHPublicKeyAsPrincipal(sshKeyDir, dir, keyName)
+		if err := useSSHPublicKeyAsPrincipal(sshKeyDir, dir, keyName); err != nil {
+			t.Errorf("useSSHPublicKeyAsPrincipal: %v", err)
+			continue
+		}
 		p, err := LoadPersistentPrincipal(dir, nil)
 		if err != nil {
 			t.Errorf("unencrypted LoadPersistentPrincipal should have succeeded: %v", err)
 			continue
 		}
-
 		message := []byte("hello")
 		sig, err := p.Sign(message)
 		if err != nil {
@@ -197,54 +266,11 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 		if !sig.Verify(p.PublicKey(), message) {
 			t.Errorf("%s failed: p.PublicKey=%v", message, p.PublicKey())
 		}
-
-		// make sure that multiple keys lead to a failure.
-		if err := os.WriteFile(filepath.Join(dir, privateKeyFile), []byte{'\n'}, 0666); err != nil {
-			t.Fatal(err)
-		}
-		if _, err := LoadPersistentPrincipal(dir, nil); err == nil {
-			t.Error("unencrypted LoadPersistentPrincipal should have failed complaining about multiple key files")
-		}
-
-		// make sure that no keys lead to a failure.
-		err = os.Remove(filepath.Join(dir, privateKeyFile))
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = os.Remove(filepath.Join(dir, keyName))
-		if err != nil {
-			t.Fatal(err)
-		}
-		_, err = LoadPersistentPrincipal(dir, nil)
-		if err == nil {
-			t.Errorf("unencrypted LoadPersistentPrincipal should have failed")
-		}
 	}
 }
 
-func TestCreatePrincipalSSH(t *testing.T) {
-	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
+func TestMissingSSHPrivateKey(t *testing.T) {
 	ctx := gocontext.TODO()
-
-	// non-existent ssh public key file
-	_, err = NewSSHAgentHostedKey("does-not-exist.pub")
-	if err == nil || !strings.Contains(err.Error(), "no such file") {
-		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with no such file error")
-	}
-
-	// malformed ssh public key file
-	invalid := filepath.Join(dir, "invalid.pub")
-	os.WriteFile(invalid, []byte{'1', '\n'}, 0600)
-
-	_, err = NewSSHAgentHostedKey(invalid)
-	if err == nil || !strings.Contains(err.Error(), "no key found") {
-		t.Errorf("CreatePersistentPrincipalUsingKey should have failed: %v", err)
-	}
 
 	// ssh key that doesn't exist in the agent.
 	ek, _, err := ed25519.GenerateKey(rand.Reader)
@@ -255,25 +281,17 @@ func TestCreatePrincipalSSH(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	missing := "private-key-not-in-agent.pub"
-	if err := os.WriteFile(missing, ssh.MarshalAuthorizedKey(missingKey), 0600); err != nil {
-		t.Fatal(err)
-	}
-
-	sshKey, err := NewSSHAgentHostedKey(missing)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, dir, nil)
+	sshKey := sshkeys.NewHostedKey(missingKey, "some comment")
+	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, t.TempDir(), nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Log(err)
 		t.Errorf("CreatePersistentPrincipalUsingKey should have failed with a key not found error")
 	}
 }
 
-func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Principal, error) {
+func funcForKey(keyType keys.CryptoAlgo) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		key, err := NewPrivateKey(keyType)
+		key, err := keys.NewPrivateKeyForAlgo(keyType)
 		if err != nil {
 			return nil, err
 		}
@@ -284,6 +302,9 @@ func funcForKey(keyType KeyType) func(dir string, pass []byte) (security.Princip
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
 		ctx := gocontext.TODO()
+		if len(pass) > 0 {
+			ctx = sshkeys.WithAgentPassphrase(ctx, pass)
+		}
 		key, err := NewSSHAgentHostedKey(filepath.Join(sshKeyDir, keyFile))
 		if err != nil {
 			return nil, err
@@ -300,19 +321,23 @@ func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (securit
 
 func TestCreatePersistentPrincipal(t *testing.T) {
 	sslKeys, _, _ := sectestdata.VanadiumSSLData()
-
 	tests := []struct {
 		fn                  func(dir string, pass []byte) (security.Principal, error)
 		Message, Passphrase []byte
 	}{
-		{funcForKey(ECDSA256), []byte("unencrypted"), nil},
-		{funcForKey(ECDSA384), []byte("encrypted"), []byte("passphrase")},
-		{funcForKey(ECDSA521), []byte("encrypted"), []byte("passphrase")},
-		{funcForKey(ED25519), []byte("unencrypted"), nil},
-		{funcForKey(ED25519), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(keys.ECDSA256), []byte("unencrypted"), nil},
+		{funcForKey(keys.ECDSA384), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(keys.ECDSA521), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(keys.ED25519), []byte("unencrypted"), nil},
+		{funcForKey(keys.ED25519), []byte("encrypted"), []byte("passphrase")},
+		{funcForKey(keys.RSA2048), []byte("encrypted"), nil},
+		{funcForKey(keys.RSA4096), []byte("encrypted"), []byte("passphrase")},
+
 		{funcForSSHKey("ssh-ecdsa-256.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-ecdsa-521.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-ed25519.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-rsa-4096.pub"), []byte("unencrypted"), nil},
 
 		{funcForSSLKey(sslKeys["rsa-2048"]), []byte("unencrypted"), nil},
 		{funcForSSLKey(sslKeys["rsa-4096"]), []byte("unencrypted"), nil},
@@ -327,11 +352,7 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte) (security.Principal, error), message, passphrase []byte) {
 	// Persistence of the BlessingRoots and BlessingStore objects is
 	// tested in other files. Here just test the persistence of the key.
-	dir, err := os.MkdirTemp("", "TestCreatePersistentPrincipal")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 
 	p, err := fn(dir, passphrase)
 	if err != nil {
@@ -358,41 +379,24 @@ func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte
 	}
 }
 
-func useSSHPublicKeyAsPrincipal(from, to, name string) {
-	err := internal.CopyKeyFile(
-		filepath.Join(from, name),
-		filepath.Join(to, name))
+func useSSHPublicKeyAsPrincipal(from, to, name string) error {
+	pubBytes, err := os.ReadFile(filepath.Join(from, name))
 	if err != nil {
-		panic(err)
+		return err
 	}
-	err = os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
-	if err != nil {
-		panic(err)
-	}
-}
+	pubBytes, privBytes, err := sshkeys.MarshalForImport(
+		context.Background(),
+		pubBytes,
+		sshkeys.ImportUsingAgent(true))
 
-func generatePEMPrincipal(passphrase []byte) (dir string) {
-	dir, err := os.MkdirTemp("", "TestLoadPersistentPrincipal")
 	if err != nil {
-		panic(err)
+		return err
 	}
-	err = os.WriteFile(filepath.Join(dir, directoryLockfileName), nil, 0666)
+	err = writeKeyPairUsingBytes(to, pubBytes, privBytes)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-	if err := internal.WritePEMKeyPair(
-		key,
-		path.Join(dir, privateKeyFile),
-		path.Join(dir, publicKeyFile),
-		passphrase,
-	); err != nil {
-		panic(err)
-	}
-	return dir
+	return os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
 }
 
 func createAliceAndBob(ctx gocontext.Context, t *testing.T, creator func(dir string, pass []byte) (security.Principal, error)) (principals, daemons map[string]security.Principal) {
@@ -462,7 +466,7 @@ func TestDaemonMode(t *testing.T) {
 	ctx, cancel := gocontext.WithCancel(gocontext.Background())
 	defer cancel()
 	// Create two principls that don't trust each other.
-	principals, daemons := createAliceAndBob(ctx, t, funcForKey(ECDSA256))
+	principals, daemons := createAliceAndBob(ctx, t, funcForKey(keys.ECDSA256))
 	testDaemonMode(ctx, t, principals, daemons)
 	principals, daemons = createAliceAndBob(ctx, t, funcForSSHKey("ssh-ed25519.pub"))
 	testDaemonMode(ctx, t, principals, daemons)
@@ -541,7 +545,7 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 	ctx := context.Background()
 	passphrase := []byte("with-passphrase")
 	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
-	testDaemonPublicKeyOnly(t, funcForKey(ECDSA256), passphrase)
+	testDaemonPublicKeyOnly(t, funcForKey(keys.ECDSA256), passphrase)
 	client := sshkeys.NewClient()
 	if err := client.Lock(ctx); err != nil {
 		t.Fatal(err)
@@ -553,11 +557,7 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {
-	dir, err := os.MkdirTemp("", "TestCreatePersistentPrincipal")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 
 	p, err := creator(dir, passphrase)
 	if err != nil {

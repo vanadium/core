@@ -5,14 +5,18 @@
 package sshkeys
 
 import (
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/sha512"
 	"fmt"
 	"hash"
+	"math/big"
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/internal"
 )
 
 type hashes struct {
@@ -54,7 +58,7 @@ func hashForSSHKey(key ssh.PublicKey) (security.Hash, hash.Hash) {
 
 // fromECDSAKey creates a security.PublicKey from an ssh ECDSA key.
 func fromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
-	k, err := internal.ParseECDSAKey(key)
+	k, err := parseECDSAKey(key)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +67,7 @@ func fromECDSAKey(key ssh.PublicKey) (security.PublicKey, error) {
 
 // fromED25512Key creates a security.PublicKey from an ssh ED25519 key.
 func fromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
-	k, err := internal.ParseED25519Key(key)
+	k, err := parseED25519Key(key)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +76,7 @@ func fromED25512Key(key ssh.PublicKey) (security.PublicKey, error) {
 
 // fromRSAAKey creates a security.PublicKey from an ssh RSA key.
 func fromRSAKey(key ssh.PublicKey) (security.PublicKey, error) {
-	k, err := internal.ParseRSAKey(key)
+	k, err := parseRSAKey(key)
 	if err != nil {
 		return nil, err
 	}
@@ -128,4 +132,57 @@ func hashedDigestsForSSH(sshPK ssh.PublicKey, v23PK, purpose, message []byte) ([
 	hasher.Reset()
 	hasher.Write(sum)
 	return hasher.Sum(nil), hashName, nil
+}
+
+// parseECDSAKey creates an ecdsa.PublicKey from an ssh ECDSA key.
+func parseECDSAKey(key ssh.PublicKey) (*ecdsa.PublicKey, error) {
+	var sshWire struct {
+		Name string
+		ID   string
+		Key  []byte
+	}
+	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal key type: %v: %v", key.Type(), err)
+	}
+	pk := new(ecdsa.PublicKey)
+	switch sshWire.ID {
+	case "nistp256":
+		pk.Curve = elliptic.P256()
+	case "nistp384":
+		pk.Curve = elliptic.P384()
+	case "nistp521":
+		pk.Curve = elliptic.P521()
+	default:
+		return nil, fmt.Errorf("uncrecognised ecdsa curve: %v", sshWire.ID)
+	}
+	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key)
+	if pk.X == nil || pk.Y == nil {
+		return nil, fmt.Errorf("invalid curve point")
+	}
+	return pk, nil
+}
+
+// parseED25519Key creates an ed25519.PublicKey from an ssh ED25519 key.
+func parseED25519Key(key ssh.PublicKey) (ed25519.PublicKey, error) {
+	var sshWire struct {
+		Name     string
+		KeyBytes []byte
+	}
+	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal key %v: %v", key.Type(), err)
+	}
+	return ed25519.PublicKey(sshWire.KeyBytes), nil
+}
+
+// parseRSAKey creates an rsa.PublicKey from an ssh rsa key.
+func parseRSAKey(key ssh.PublicKey) (*rsa.PublicKey, error) {
+	var sshWire struct {
+		Name string
+		E    *big.Int
+		N    *big.Int
+	}
+	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal key %v: %v", key.Type(), err)
+	}
+	return &rsa.PublicKey{N: sshWire.N, E: int(sshWire.E.Int64())}, nil
 }

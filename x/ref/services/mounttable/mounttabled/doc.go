@@ -15,6 +15,9 @@ Usage:
 The mounttabled flags are:
  -acls=
    ACL file.  Default is to allow all access.
+ -mounttable-logging=1
+   Mounttabled specific logging control, 0 for no logging, 1 for mount/unmount
+   and 2 for all other operations.
  -name=
    If provided, causes the mount table to mount itself under this name.  The
    name may be absolute for a remote mount table service (e.g. "/<remote mt

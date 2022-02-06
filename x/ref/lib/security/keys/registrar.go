@@ -39,6 +39,7 @@ type DecryptFunc func(block *pem.Block, passphrase []byte) (*pem.Block, crypto.P
 type API interface {
 	Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error)
 	PublicKey(key interface{}) (security.PublicKey, error)
+	CryptoPublicKey(key interface{}) (crypto.PublicKey, error)
 }
 
 // Registrar represents an extensible collection of functions for marshaling
@@ -263,7 +264,7 @@ func (r *Registrar) parsePublicKeys(pemBlockBytes []byte) (crypto.PrivateKey, er
 	for {
 		pemBlock, pemBlockBytes = pem.Decode(pemBlockBytes)
 		if pemBlock == nil {
-			return nil, fmt.Errorf("processed all PEM blocks without finding a private key")
+			return nil, fmt.Errorf("processed all PEM blocks without finding a public key")
 		}
 		parser, ok := r.getParserForBlock(r.parsePublic, pemBlock)
 		if !ok {

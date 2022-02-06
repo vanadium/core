@@ -33,6 +33,7 @@ import (
 	"v.io/x/ref/cmd/principal/internal/scripting"
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
@@ -78,8 +79,9 @@ type WithPassphraseFlag struct {
 // KeyFlags represents the flag used to specify the type of key to generate/use
 // for a new principal.
 type KeyFlags struct {
-	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519.'"`
+	KeyType               string `cmdline:"key-type,ecdsa256,'The type of key to be created, allowed values are ecdsa256, ecdsa384, ecdsa521, ed25519, rsa2048, rsa4096.'"`
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
+	SSHKeyFile            string `cmdline:"ssh-key,,'If set, use the ssh private key from the specified file'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
 }
 
@@ -219,6 +221,9 @@ var (
 		Short bool `cmdline:"s,false,'If true, show only the default blessing names'"`
 	}{}
 	flagDumpDef = cmdline.FlagDefinitions{Flags: &flagDumpFlags}
+
+	updatePKCS8    = struct{}{}
+	updatePKCS8Def = cmdline.FlagDefinitions{Flags: &updatePKCS8}
 
 	scriptFlags = struct {
 		Documentation bool `cmdline:"documentation,false,'Display documentation on the scripting language and supported commands'"`
@@ -778,9 +783,7 @@ principal will have no blessings.
 			p, err := createPersistentPrincipal(
 				gocontext.TODO(),
 				dir,
-				flagCreate.KeyType,
-				flagCreate.SSHAgentPublicKeyFile,
-				flagCreate.SSLKeyFile,
+				flagCreate.KeyFlags,
 				pass,
 				flagCreate.CreateOverwrite)
 			if err != nil {
@@ -862,9 +865,7 @@ forked principal.
 			p, err := createPersistentPrincipal(
 				gocontext.TODO(),
 				dir,
-				flagFork.KeyType,
-				flagFork.SSHAgentPublicKeyFile,
-				flagFork.SSLKeyFile,
+				flagFork.KeyFlags,
 				pass,
 				flagFork.CreateOverwrite)
 			if err != nil {
@@ -1020,6 +1021,28 @@ This file can be supplied to bless:
 			fmt.Println()
 			fmt.Println("...waiting for sender..")
 			return <-service.notify
+		}),
+	}
+
+	cmdUpdateToPKCS8 = &cmdline.Command{
+		Name:  "update-pkcs8",
+		Short: "Update an existing principal to pkcs8 format and encryption",
+		Long: `
+Updates an existing PEM encrypted principal to pkcs8.
+`,
+		ArgsName: "<directory>...",
+		ArgsLong: `
+<directory> is the directory to be updated.
+
+	`,
+		FlagDefs: updatePKCS8Def,
+		Runner: v23cmd.RunnerFunc(func(ctx *context.T, env *cmdline.Env, args []string) error {
+			for _, dir := range args {
+				if err := updateToPKCS8(ctx, dir); err != nil {
+					return err
+				}
+			}
+			return nil
 		}),
 	}
 
@@ -1215,7 +1238,7 @@ All blessings are printed to stdout using base64url-vom-encoding.
 		Children: []*cmdline.Command{cmdGetDefault, cmdGetForPeer, cmdGetPublicKey, cmdGetTrustedRoots, cmdGetPeerMap},
 	}
 
-	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdScript}
+	root.Children = []*cmdline.Command{cmdCreate, cmdFork, cmdSeekBlessings, cmdRecvBlessings, cmdDump, cmdDumpBlessings, cmdDumpRoots, cmdBlessSelf, cmdBless, cmdSet, cmdGet, cmdRecognize, cmdUnion, cmdUpdateToPKCS8, cmdScript}
 	cmdline.Main(root)
 }
 
@@ -1333,9 +1356,19 @@ func getMutablePrincipal(root *cmdline.Command) (security.Principal, error) {
 	return vsecurity.LoadPersistentPrincipalWithPassphrasePrompt(credFlag.Value.String())
 }
 
-func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslKey string, pass []byte, overwrite bool) (security.Principal, error) {
-	if len(sshKey) > 0 && len(sslKey) > 0 {
-		return nil, fmt.Errorf("both an ssl key and ssh key were specified, please choose one and only one of these")
+func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFlags, pass []byte, overwrite bool) (security.Principal, error) {
+	n := 0
+	if len(keyFlags.SSHKeyFile) > 0 {
+		n++
+	}
+	if len(keyFlags.SSHKeyFile) > 0 {
+		n++
+	}
+	if len(keyFlags.SSHAgentPublicKeyFile) > 0 {
+		n++
+	}
+	if n > 1 {
+		return nil, fmt.Errorf("multiple key sources chosen, please choose one and only one of --ssh-public-key, ssh-key and ssl-key")
 	}
 	removeExisting := func() error {
 		if !overwrite {
@@ -1343,19 +1376,22 @@ func createPersistentPrincipal(ctx gocontext.Context, dir, keyType, sshKey, sslK
 		}
 		return os.RemoveAll(dir)
 	}
+
 	var privateKey crypto.PrivateKey
 	var err error
 	switch {
-	case len(sshKey) > 0:
-		privateKey, err = seclib.NewSSHAgentHostedKey(sshKey)
-	case len(sslKey) > 0:
-		privateKey, err = seclib.ParsePEMPrivateKeyFile(sslKey, pass)
+	case len(keyFlags.SSLKeyFile) > 0:
+		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSLKeyFile)
+	case len(keyFlags.SSHKeyFile) > 0:
+		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSHKeyFile)
+	case len(keyFlags.SSHAgentPublicKeyFile) > 0:
+		privateKey, err = seclib.NewSSHAgentHostedKey(keyFlags.SSHAgentPublicKeyFile)
 	default:
-		kt, ok := internal.IsSupportedKeyType(keyType)
+		kt, ok := internal.IsSupportedKeyType(keyFlags.KeyType)
 		if !ok {
-			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
+			err = fmt.Errorf("unsupported keytype: %v is not one of %s", keyFlags.KeyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 		} else {
-			privateKey, err = seclib.NewPrivateKey(kt)
+			privateKey, err = keys.NewPrivateKeyForAlgo(kt)
 		}
 	}
 	if err != nil {
@@ -1397,4 +1433,21 @@ func dumpBlessingsInfo(out io.Writer, names bool, rootKey, caveats string, bless
 		return nil
 	}
 	return internal.EncodeBlessingsFile("-", out, blessings)
+}
+
+func updateToPKCS8(ctx gocontext.Context, dir string) error {
+	var pass []byte
+	var err error
+	for {
+		pass, err = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", dir))
+		if err != nil {
+			return err
+		}
+		if len(pass) == 0 {
+			fmt.Printf("A passphrase is required for %s\n", dir)
+			continue
+		}
+		break
+	}
+	return seclib.ConvertPrivateKeyForPrincipal(ctx, dir, pass)
 }

@@ -1,4 +1,4 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -6,15 +6,18 @@ package security
 
 import (
 	"context"
+	"crypto"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"v.io/v23/security"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 	"v.io/x/ref/lib/security/keys/sshkeys"
+	"v.io/x/ref/lib/security/keys/x509keys"
 )
 
 var keyRegistrar *keys.Registrar
@@ -30,6 +33,32 @@ func init() {
 	keys.MustRegister(keyRegistrar)
 	indirectkeyfiles.MustRegister(keyRegistrar)
 	sshkeys.MustRegister(keyRegistrar)
+	x509keys.MustRegister(keyRegistrar)
+}
+
+// APIForKey calls APIForKey on KeyRegistrar().
+func APIForKey(key crypto.PrivateKey) (keys.API, error) {
+	return keyRegistrar.APIForKey(key)
+}
+
+// MarshalPrivateKey calls MarshalPrivateKey on KeyRegistrar().
+func MarshalPrivateKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {
+	return keyRegistrar.MarshalPrivateKey(key, passphrase)
+}
+
+// MarshalPublicKey calls MarshalPublicKey on KeyRegistrar().
+func MarshalPublicKey(key crypto.PublicKey) ([]byte, error) {
+	return keyRegistrar.MarshalPublicKey(key)
+}
+
+// ParsePrivateKey calls ParsePrivateKey on KeyRegistrar().
+func ParsePrivateKey(ctx context.Context, data, passphrase []byte) (crypto.PrivateKey, error) {
+	return keyRegistrar.ParsePrivateKey(ctx, data, passphrase)
+}
+
+// ParsePublicKey calls ParsePublicKey on KeyRegistrar().
+func ParsePublicKey(data []byte) (crypto.PublicKey, error) {
+	return keyRegistrar.ParsePublicKey(data)
 }
 
 func translatePassphraseError(err error) error {
@@ -40,6 +69,25 @@ func translatePassphraseError(err error) error {
 		return ErrBadPassphrase.Errorf(nil, "passphrase incorrect for decrypting private key")
 	}
 	return err
+}
+
+// NewSigner returns a new security.Signer using a new private key of the requested
+// type.
+func NewSigner(ctx context.Context, keyType keys.CryptoAlgo) (security.Signer, error) {
+	key, err := keys.NewPrivateKeyForAlgo(keyType)
+	if err != nil {
+		return nil, err
+	}
+	return NewSignerFromKey(ctx, key)
+}
+
+// NewSignerFromKey returns a new security.Signer using the supplied private key.
+func NewSignerFromKey(ctx context.Context, key crypto.PrivateKey) (security.Signer, error) {
+	api, err := APIForKey(key)
+	if err != nil {
+		return nil, err
+	}
+	return api.Signer(ctx, key)
 }
 
 func convertToPKCS8(ctx context.Context, keyBytes []byte, passphrase []byte) ([]byte, error) {
@@ -59,6 +107,7 @@ func convertToPKCS8(ctx context.Context, keyBytes []byte, passphrase []byte) ([]
 // as PKCS8. It is intended for updating existing Vanadium principals that
 // use 'EC PRIVATE KEY' and PEM encryption to PKCS8 format and encryption.
 func ConvertPrivateKeyForPrincipal(ctx context.Context, dir string, passphrase []byte) error {
+	defer ZeroPassphrase(passphrase)
 	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
 	unlock, err := flock.Lock()
 	if err != nil {
