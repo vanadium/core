@@ -32,10 +32,13 @@ var v23Principals embed.FS
 type V23KeySetID int
 
 const (
-	V23keySetA V23KeySetID = iota
+	V23KeySetA V23KeySetID = iota
 	V23KeySetB
-	V23keySetAEncrypted
-	V23keySetBEncrypted
+	V23KeySetC
+	V23KeySetD
+	V23KeySetE
+	V23KeySetAEncrypted
+	V23KeySetBEncrypted
 	V23LegacyKeys
 	V23LegacyEncryptedKeys
 )
@@ -45,13 +48,19 @@ func v23filename(typ keys.CryptoAlgo, pair string, set V23KeySetID) string {
 		panic(fmt.Sprintf("unrecognised key type: %v", typ))
 	}
 	switch set {
-	case V23keySetA:
+	case V23KeySetA:
 		return fmt.Sprintf("v23-%s-a-%s.key", pair, typ)
 	case V23KeySetB:
 		return fmt.Sprintf("v23-%s-b-%s.key", pair, typ)
-	case V23keySetAEncrypted:
+	case V23KeySetC:
+		return fmt.Sprintf("v23-%s-c-%s.key", pair, typ)
+	case V23KeySetD:
+		return fmt.Sprintf("v23-%s-d-%s.key", pair, typ)
+	case V23KeySetE:
+		return fmt.Sprintf("v23-%s-e-%s.key", pair, typ)
+	case V23KeySetAEncrypted:
 		return fmt.Sprintf("v23-encrypted-a-%s.key", typ)
-	case V23keySetBEncrypted:
+	case V23KeySetBEncrypted:
 		return fmt.Sprintf("v23-encrypted-b-%s.key", typ)
 	case V23LegacyKeys:
 		return filepath.Join(
@@ -116,4 +125,12 @@ func V23CopyLegacyPrincipals(toDir string) {
 			}
 		}
 	}
+}
+
+func V23PrincipalDir(kt keys.CryptoAlgo, encrypted bool) string {
+	prefix := "plain"
+	if encrypted {
+		prefix = "encrypted"
+	}
+	return fmt.Sprintf("v23-%s-%s-principal", prefix, kt)
 }

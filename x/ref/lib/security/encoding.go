@@ -50,3 +50,24 @@ func base64urlVomEncode(i interface{}) (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(buf), nil
 }
+
+// EncodePublicKeyBase64 encodes the supplied public key as a base64
+// url encoded string. The underlying data format is DER.
+func EncodePublicKeyBase64(key security.PublicKey) (string, error) {
+	buf, err := key.MarshalBinary()
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(buf), nil
+}
+
+// DecodePublicKeyBase64 decodes a public key from the supplied
+// base64 url encoded string. It assumes that the underlying data format
+// is DER.
+func DecodePublicKeyBase64(key string) (security.PublicKey, error) {
+	buf, err := base64.URLEncoding.DecodeString(key)
+	if err != nil {
+		return nil, err
+	}
+	return security.UnmarshalPublicKey(buf)
+}

@@ -53,7 +53,9 @@ func WithAgentSocketName(ctx context.Context, socketName string) context.Context
 // the return value of DefaultSockNameFunc() if there is no such socket name.
 func AgentSocketName(ctx context.Context) string {
 	if sockname := ctx.Value(agentSockNameKey); sockname != nil {
-		return sockname.(string)
+		if sn := sockname.(string); len(sn) > 0 {
+			return sn
+		}
 	}
 	return DefaultSockNameFunc()
 }

@@ -16,12 +16,10 @@ import (
 )
 
 func BenchmarkSign_ED25519_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkSign(opensslED25519Key, b)
 }
 
 func BenchmarkVerify_ED25519_OpenSSL(b *testing.B) {
-	initOpenSSLBenchmarks()
 	benchmarkVerify(opensslED25519Key, b)
 }
 

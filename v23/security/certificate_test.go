@@ -6,7 +6,6 @@ package security_test
 
 import (
 	"bytes"
-	"crypto/elliptic"
 	"fmt"
 	"reflect"
 	"strings"
@@ -15,6 +14,8 @@ import (
 
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func defaultFieldValues(t *testing.T) map[reflect.Type][]reflect.Value {
@@ -211,12 +212,12 @@ func TestChainSignatureUsesDigestWithStrengthComparableToSigningKey(t *testing.T
 		hash   security.Hash
 		nBytes int
 	}{
-		{sectest.NewECDSASigner(t, elliptic.P224()), security.SHA256Hash, 32},
-		{sectest.NewECDSASigner(t, elliptic.P256()), security.SHA256Hash, 32},
-		{sectest.NewECDSASigner(t, elliptic.P384()), security.SHA384Hash, 48},
-		{sectest.NewECDSASigner(t, elliptic.P521()), security.SHA512Hash, 64},
-		{sectest.NewED25519Signer(t), security.SHA512Hash, 64},
-		{sectest.NewRSASigner2048(t), security.SHA512Hash, 64},
+		{sectestdata.V23Signer(keys.ECDSA256, sectestdata.V23KeySetA), security.SHA256Hash, 32},
+		{sectestdata.V23Signer(keys.ECDSA384, sectestdata.V23KeySetA), security.SHA384Hash, 48},
+		{sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetA), security.SHA512Hash, 64},
+		{sectestdata.V23Signer(keys.ED25519, sectestdata.V23KeySetA), security.SHA512Hash, 64},
+		{sectestdata.V23Signer(keys.RSA2048, sectestdata.V23KeySetA), security.SHA512Hash, 64},
+		{sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetA), security.SHA512Hash, 64},
 	}
 	for idx, test := range tests {
 		var cert security.Certificate
@@ -242,40 +243,8 @@ func TestChainSignatureUsesDigestWithStrengthComparableToSigningKey(t *testing.T
 	}
 }
 
-func TestChainMixingECDSA(t *testing.T) {
-	testChainMixing(t,
-		sectest.NewECDSASignerP256(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewECDSASignerP256(t),
-	)
-}
-
 func TestChainMixing(t *testing.T) {
-	testChainMixing(t,
-		sectest.NewED25519Signer(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewECDSASignerP256(t),
-	)
-	testChainMixing(t,
-		sectest.NewECDSASignerP256(t),
-		sectest.NewED25519Signer(t),
-		sectest.NewECDSASignerP256(t),
-	)
-	testChainMixing(t,
-		sectest.NewECDSASignerP256(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewED25519Signer(t),
-	)
-	testChainMixing(t,
-		sectest.NewRSASigner2048(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewED25519Signer(t),
-	)
-	testChainMixing(t,
-		sectest.NewRSASigner2048(t),
-		sectest.NewECDSASignerP256(t),
-		sectest.NewRSASigner2048(t),
-	)
+	threeSignerTest(t, "testChainMixing", testChainMixing)
 }
 
 func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
@@ -351,7 +320,15 @@ func testChainMixing(t *testing.T, sRoot, sUser, sDelegate security.Signer) {
 	}
 }
 
-func benchmarkDigestsForCertificateChain(b *testing.B, sfn func(testing.TB) security.Signer, ncerts int) {
+func benchmarkDigestsForCertificateChain(b *testing.B, kt keys.CryptoAlgo, ncerts int) {
+	sfn := newUseOrCreateSigners(
+		kt,
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetB),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetC),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetD),
+		sectestdata.V23Signer(kt, sectestdata.V23KeySetE),
+	)
 	blessings := makeBlessings(b, sfn, ncerts)
 	chain := security.ExposeCertChains(blessings)
 	b.ResetTimer()
@@ -361,37 +338,37 @@ func benchmarkDigestsForCertificateChain(b *testing.B, sfn func(testing.TB) secu
 }
 
 func BenchmarkDigestsForCertificateChain_1CertECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewECDSASignerP256, 1)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewECDSASignerP256, 3)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsECDSA(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewECDSASignerP256, 4)
+	benchmarkDigestsForCertificateChain(b, keys.ECDSA256, 4)
 }
 
 func BenchmarkDigestsForCertificateChain_1CertED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewED25519Signer, 1)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewED25519Signer, 3)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsED25519(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewED25519Signer, 4)
+	benchmarkDigestsForCertificateChain(b, keys.ED25519, 4)
 }
 
 func BenchmarkDigestsForCertificateChain_1CertRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 1)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 1)
 }
 
 func BenchmarkDigestsForCertificateChain_3CertsRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 3)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 3)
 }
 
 func BenchmarkDigestsForCertificateChain_4CertsRSA2048(b *testing.B) {
-	benchmarkDigestsForCertificateChain(b, sectest.NewRSASigner2048, 4)
+	benchmarkDigestsForCertificateChain(b, keys.RSA2048, 4)
 }

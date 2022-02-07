@@ -8,22 +8,13 @@ import (
 	"testing"
 
 	"v.io/v23/context"
-	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	"v.io/v23/security/access"
 	"v.io/v23/vdl"
 )
 
-func TestAccessTagCaveatECDSA(t *testing.T) {
-	testAccessTagCaveat(t,
-		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
-		sectest.NewED25519PrincipalTrustAllRoots(t))
-}
-
-func TestAccessTagCaveatED25519(t *testing.T) {
-	testAccessTagCaveat(t,
-		sectest.NewED25519PrincipalTrustAllRoots(t),
-		sectest.NewECDSAPrincipalP256TrustAllRoots(t))
+func TestAccessTagCaveat(t *testing.T) {
+	twoPrincipalTest(t, testAccessTagCaveat)
 }
 
 func testAccessTagCaveat(t *testing.T, server, other security.Principal) {

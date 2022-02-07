@@ -5,17 +5,13 @@
 package security_test
 
 import (
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
-	"fmt"
-	"math/big"
-	"runtime"
 	"testing"
 
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func TestRSAPanic(t *testing.T) {
@@ -32,7 +28,7 @@ func TestRSAPanic(t *testing.T) {
 	t.Fatal("failed to panic")
 }
 
-func testSigningAlgos(t *testing.T, signers ...security.Signer) {
+func testSigningAndMarshaling(t *testing.T, signers ...security.Signer) {
 	for i, signer := range signers {
 		sig, err := signer.Sign(purpose, message)
 		if err != nil {
@@ -75,62 +71,13 @@ func testSigningAlgos(t *testing.T, signers ...security.Signer) {
 	}
 }
 
-func TestSigningAlgorithms(t *testing.T) {
-	var err error
-	assert := func() {
-		if err != nil {
-			_, _, line, _ := runtime.Caller(1)
-			t.Fatalf("line %v: %v", line, err)
-		}
-	}
-	rsa2048Key, err := rsa.GenerateKey(rand.Reader, 2048)
-	assert()
-	rsa4096Key, err := rsa.GenerateKey(rand.Reader, 4096)
-	assert()
-	ec256Key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	assert()
-	_, edKey, err := ed25519.GenerateKey(rand.Reader)
-	assert()
-
-	ec256S, err := security.NewInMemoryECDSASigner(ec256Key)
-	assert()
-	ed25519S, err := security.NewInMemoryED25519Signer(edKey)
-	assert()
-
-	rsa2048S, err := security.NewInMemoryRSASigner(rsa2048Key)
-	assert()
-	rsa4096S, err := security.NewInMemoryRSASigner(rsa4096Key)
-	assert()
-
-	testSigningAlgos(t,
-		ed25519S,
-		rsa4096S,
-		rsa2048S,
-		ec256S,
+func TestSigningAndMasrshaling(t *testing.T) {
+	testSigningAndMarshaling(t,
+		sectestdata.V23Signer(keys.ECDSA256, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(keys.ECDSA384, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(keys.ECDSA521, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(keys.ED25519, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(keys.RSA2048, sectestdata.V23KeySetA),
+		sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetA),
 	)
-
-	rsa2048C := security.NewRSASigner(&rsa2048Key.PublicKey,
-		func(data []byte) (sig []byte, err error) {
-			return nil, fmt.Errorf("bad rsa")
-		})
-	assert()
-
-	ec256C := security.NewECDSASigner(&ec256Key.PublicKey,
-		func(data []byte) (r, s *big.Int, err error) {
-			return nil, nil, fmt.Errorf("bad ec")
-		})
-	assert()
-	ed25519C := security.NewED25519Signer(edKey.Public().(ed25519.PublicKey), func(data []byte) (sig []byte, err error) {
-		return nil, fmt.Errorf("bad ed")
-	})
-	assert()
-
-	for _, signer := range []security.Signer{
-		rsa2048C, ec256C, ed25519C,
-	} {
-		_, err := signer.Sign(purpose, message)
-		if err == nil {
-			t.Errorf("expected an error")
-		}
-	}
 }

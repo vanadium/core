@@ -16,11 +16,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/serialization"
 )
 
@@ -51,37 +48,10 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 		return nil, err
 	}
 	defer unlock()
-
-	// Handle ssh keys where the private key is stored in an agent and
-	// we only have the public key.
-	if sshkey, ok := key.(*sshkeys.HostedKey); ok {
-		return createSSHAgentPrincipal(ctx, sshkey, dir, passphrase)
-	}
-
-	if err := internal.WritePEMKeyPair(
-		key,
-		filepath.Join(dir, privateKeyFile),
-		filepath.Join(dir, publicKeyFile),
-		passphrase,
-	); err != nil {
+	if err := writeKeyPairUsingPrivateKey(dir, key, passphrase); err != nil {
 		return nil, err
 	}
-	signer, err := newFileSigner(ctx, filepath.Join(dir, privateKeyFile), passphrase)
-	if err != nil {
-		return nil, err
-	}
-	return createPrincipalUsingSigner(ctx, signer, dir)
-}
-
-func createSSHAgentPrincipal(ctx context.Context, sshKey *sshkeys.HostedKey, dir string, passphrase []byte) (security.Principal, error) {
-	data := ssh.MarshalAuthorizedKey(sshKey.PublicKey())
-	if err := internal.WriteKeyFile(filepath.Join(dir, sshPublicKeyFile), data); err != nil {
-		return nil, err
-	}
-	if len(passphrase) > 0 {
-		ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
-	}
-	signer, err := sshKey.Signer(ctx)
+	signer, err := signerFromKey(ctx, key)
 	if err != nil {
 		return nil, err
 	}

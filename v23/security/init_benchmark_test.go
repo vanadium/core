@@ -5,31 +5,31 @@
 package security_test
 
 import (
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/rsa"
-	"sync"
-
 	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/test/sectestdata"
 )
 
 var (
-	ecdsaKey      *bmkey
-	ed25519Key    *bmkey
-	rsa2048Key    *bmkey
-	benchmarkInit sync.Once
-)
+	ecdsaKey   *bmkey
+	ed25519Key *bmkey
+	rsa2048Key *bmkey
 
-var (
+	ecdsa256SignerA security.Signer
+	ed25519SignerA  security.Signer
+	rsa2048SignerA  security.Signer
+	rsa4096SignerA  security.Signer
+	ecdsa256SignerB security.Signer
+	ed25519SignerB  security.Signer
+	rsa2048SignerB  security.Signer
+	rsa4096SignerB  security.Signer
+
 	purpose, message []byte
 )
 
 func init() {
 	purpose, message = sectest.GenPurposeAndMessage(5, 100)
-
 }
 
 type bmkey struct {
@@ -37,15 +37,7 @@ type bmkey struct {
 	signature security.Signature
 }
 
-func newECDSABenchmarkKey(sfn func(*ecdsa.PrivateKey) (security.Signer, error)) *bmkey {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-	signer, err := sfn(key)
-	if err != nil {
-		panic(err)
-	}
+func newBenchmarkKey(signer security.Signer) *bmkey {
 	signature, err := signer.Sign(purpose, message)
 	if err != nil {
 		panic(err)
@@ -53,42 +45,18 @@ func newECDSABenchmarkKey(sfn func(*ecdsa.PrivateKey) (security.Signer, error)) 
 	return &bmkey{signer, signature}
 }
 
-func newED25519BenchmarkKey(sfn func(ed25519.PrivateKey) (security.Signer, error)) *bmkey {
-	_, privKey, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-	signer, err := sfn(privKey)
-	if err != nil {
-		panic(err)
-	}
-	signature, err := signer.Sign(purpose, message)
-	if err != nil {
-		panic(err)
-	}
-	return &bmkey{signer, signature}
-}
+func init() {
+	ecdsa256SignerA = sectestdata.V23Signer(keys.ECDSA256, sectestdata.V23KeySetA)
+	ed25519SignerA = sectestdata.V23Signer(keys.ED25519, sectestdata.V23KeySetA)
+	rsa2048SignerA = sectestdata.V23Signer(keys.RSA2048, sectestdata.V23KeySetA)
+	rsa4096SignerA = sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetA)
 
-func newRSABenchmarkKey(bits int, sfn func(*rsa.PrivateKey) (security.Signer, error)) *bmkey {
-	privKey, err := rsa.GenerateKey(rand.Reader, bits)
-	if err != nil {
-		panic(err)
-	}
-	signer, err := sfn(privKey)
-	if err != nil {
-		panic(err)
-	}
-	signature, err := signer.Sign(purpose, message)
-	if err != nil {
-		panic(err)
-	}
-	return &bmkey{signer, signature}
-}
+	ecdsa256SignerB = sectestdata.V23Signer(keys.ECDSA256, sectestdata.V23KeySetB)
+	ed25519SignerB = sectestdata.V23Signer(keys.ED25519, sectestdata.V23KeySetB)
+	rsa2048SignerB = sectestdata.V23Signer(keys.RSA2048, sectestdata.V23KeySetB)
+	rsa4096SignerB = sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetB)
 
-func initBenchmarks() {
-	benchmarkInit.Do(func() {
-		rsa2048Key = newRSABenchmarkKey(2048, security.NewInMemoryRSASigner)
-		ecdsaKey = newECDSABenchmarkKey(security.NewInMemoryECDSASigner)
-		ed25519Key = newED25519BenchmarkKey(security.NewInMemoryED25519Signer)
-	})
+	ecdsaKey = newBenchmarkKey(ecdsa256SignerA)
+	ed25519Key = newBenchmarkKey(ed25519SignerA)
+	rsa2048Key = newBenchmarkKey(rsa2048SignerA)
 }

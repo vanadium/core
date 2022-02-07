@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"v.io/v23/security"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func TestBlessingsBase64(t *testing.T) {
@@ -70,5 +71,23 @@ func TestBlessingsBase64(t *testing.T) {
 	}
 	if got, want := dec, all; !got.Equivalent(want) {
 		t.Errorf("got %v not equivalent to want %v", got, want)
+	}
+}
+
+func TestPublicKeys(t *testing.T) {
+	for _, kt := range sectestdata.SupportedKeyAlgos {
+		p := (sectestdata.V23Signer(kt, sectestdata.V23KeySetA))
+		buf, err := EncodePublicKeyBase64(p.PublicKey())
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		k, err := DecodePublicKeyBase64(buf)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := p.PublicKey().String(), k.String(); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
 	}
 }
