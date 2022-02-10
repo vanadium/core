@@ -22,6 +22,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref"
+	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/sectestdata"
@@ -35,12 +36,11 @@ var (
 )
 
 func TestMain(m *testing.M) {
-
 	principalDir, err := os.MkdirTemp("", "principals")
 	if err != nil {
 		panic(err)
 	}
-	//	defer os.RemoveAll(principalDir)
+	defer os.RemoveAll(principalDir)
 	legacyPrincipalDir = filepath.Join(principalDir, "legacy")
 	currentPrincipalDir = filepath.Join(principalDir, "current")
 	for _, dir := range []string{legacyPrincipalDir, currentPrincipalDir} {
@@ -73,6 +73,39 @@ func TestMain(m *testing.M) {
 	cleanup()
 	os.RemoveAll(sshKeyDir)
 	os.Exit(code)
+}
+
+func initAndLockPrincipalDir(dir string) (func(), error) {
+	if err := mkDir(dir); err != nil {
+		return nil, err
+	}
+	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
+	unlock, err := flock.Lock()
+	if err != nil {
+		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	}
+	return unlock, nil
+}
+
+func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
+	pubBytes, privBytes, err := marshalKeyPair(private, passphrase)
+	if err != nil {
+		return err
+	}
+	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
+		return err
+	}
+	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
+}
+
+func writeKeyPairUsingBytes(dir string, pubBytes, privBytes []byte) error {
+	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
+		return err
+	}
+	if len(privBytes) == 0 {
+		return nil
+	}
+	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
 }
 
 func createPersistentPrincipals(dir string) error {
@@ -305,7 +338,7 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 		if len(pass) > 0 {
 			ctx = sshkeys.WithAgentPassphrase(ctx, pass)
 		}
-		key, err := NewSSHAgentHostedKey(filepath.Join(sshKeyDir, keyFile))
+		key, err := sshkeys.NewHostedKeyFile(filepath.Join(sshKeyDir, keyFile))
 		if err != nil {
 			return nil, err
 		}

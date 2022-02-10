@@ -7,28 +7,14 @@ package security
 import (
 	"context"
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"fmt"
-	"os"
-	"path"
-	"path/filepath"
-	"time"
 
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/internal/lockedfile"
-	"v.io/x/ref/lib/security/serialization"
 )
 
 // CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
 // creates a new Principal using a newly generated ECSDA key.
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate private key: %v", err)
-	}
-	return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, passphrase)
+	return CreatePrincipalOpts(context.TODO(), UseStore(CreateFilesystemStore(dir)))
 }
 
 // CreatePersistentPrincipalUsingKey creates a new Principal using the supplied
@@ -43,21 +29,13 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 // The follow key types are supported:
 // *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey and *sshkeys.HostedKey.
 func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
-	unlock, err := initAndLockPrincipalDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	defer unlock()
-	if err := writeKeyPairUsingPrivateKey(dir, key, passphrase); err != nil {
-		return nil, err
-	}
-	signer, err := signerFromKey(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-	return createPrincipalUsingSigner(ctx, signer, dir)
+	return CreatePrincipalOpts(context.TODO(),
+		UseStore(CreateFilesystemStore(dir)),
+		UsePrivateKey(key, passphrase),
+	)
 }
 
+/*
 func createPrincipalUsingSigner(ctx context.Context, signer security.Signer, dir string) (security.Principal, error) {
 	var update time.Duration
 	blessingsStore, blessingRoots, err := newStores(ctx, signer, signer.PublicKey(), dir, false, update)
@@ -67,16 +45,6 @@ func createPrincipalUsingSigner(ctx context.Context, signer security.Signer, dir
 	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
 }
 
-func mkDir(dir string) error {
-	if finfo, err := os.Stat(dir); err == nil {
-		if !finfo.IsDir() {
-			return fmt.Errorf("%v is not a directory", dir)
-		}
-	} else if err := os.MkdirAll(dir, 0700); err != nil {
-		return fmt.Errorf("failed to create: %v: %v", dir, err)
-	}
-	return nil
-}
 
 func initAndLockPrincipalDir(dir string) (func(), error) {
 	if err := mkDir(dir); err != nil {
@@ -135,3 +103,4 @@ func newStores(ctx context.Context, signer security.Signer, publicKey security.P
 	}
 	return blessingsStore, blessingRoots, nil
 }
+*/

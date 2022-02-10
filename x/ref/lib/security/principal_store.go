@@ -1,70 +1,164 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package security
 
 import (
-	"crypto"
+	"bytes"
+	"context"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 
-	"v.io/v23/context"
 	"v.io/v23/security"
 	"v.io/x/ref"
-	"v.io/x/ref/lib/security/internal"
 	"v.io/x/ref/lib/security/internal/lockedfile"
 )
 
-type UseCredentialsStore interface {
-	signer(ctx *context.T, passphrase []byte) (security.Signer, error)
-	openBlessingsReader() (io.ReadCloser, error)
-	openBessingsWriter() (io.ReadWriteCloser, error)
-	openRootsReader() (io.ReadCloser, error)
-	openRootsWriter() (io.ReadWriteCloser, error)
+const (
+	directoryLockfileName = "dir.lock"
+	privateKeyFile        = "privatekey.pem"
+	publicKeyFile         = "publickey.pem"
+
+	blessingStoreDataFile     = "blessingstore.data"
+	blessingStoreSigFile      = "blessingstore.sig"
+	blessingStoreLockFilename = "blessings.lock"
+
+	blessingRootsDataFile      = "blessingroots.data"
+	blessingRootsSigFile       = "blessingroots.sig"
+	blessingsRootsLockFilename = "blessingroots.lock"
+)
+
+type LockScope int
+
+const (
+	LockKeyStore LockScope = iota
+	LockBlessingStore
+	LockBlessingRoots
+)
+
+type CredentialsStoreReader interface {
+	NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error)
+	NewPublicKey(ctx context.Context) (security.PublicKey, error)
+	RLock(context.Context, LockScope) (func(), error)
+	BlessingsReader(context.Context) (SerializerReader, error)
+	RootsReader(context.Context) (SerializerReader, error)
 }
 
-type CreateCredentialsStore interface {
-	writePrivateKey(ctx *context.T, key crypto.PrivateKey, passphrase []byte, format PrivateKeyEncryption) error
-	writePublicKey(ctx *context.T, key crypto.PublicKey) error
-	UseCredentialsStore
+type CredentialsStoreWriter interface {
+	Lock(context.Context, LockScope) (func(), error)
+	RootsWriter(context.Context) (SerializerWriter, error)
+	BlessingsWriter(context.Context) (SerializerWriter, error)
 }
 
-func CreateFilesystemStore(dir string) CreateCredentialsStore {
-	return &writeableStore{fsStoreCommon: common}
+type CredentialsStoreCreator interface {
+	CredentialsStoreReadWriter
+	// ... private may be nil, public must always be provided.
+	WriteKeyPair(ctx context.Context, public, private []byte) error
 }
 
-func LoadFilesystemStore(dir string, readonly bool) UseCredentialsStore {
-	common := newStoreCommon(dir)
+type CredentialsStoreReadWriter interface {
+	CredentialsStoreReader
+	CredentialsStoreWriter
+}
 
-	return &readonlyStore{fsStoreCommon: common}
+func CreateFilesystemStore(dir string) CredentialsStoreCreator {
+	return &writeableStore{fsStoreCommon: newStoreCommon(dir)}
+}
+
+func FilesystemStoreWriter(dir string) CredentialsStoreReadWriter {
+	return &writeableStore{fsStoreCommon: newStoreCommon(dir)}
+}
+
+func FilesystemStoreReader(dir string) CredentialsStoreReader {
+	if _, ok := ref.ReadonlyCredentialsDir(); ok {
+		return &readonlyFSStore{fsStoreCommon: newStoreCommon(dir)}
+	}
+	return &readonlyStore{fsStoreCommon: newStoreCommon(dir)}
 }
 
 type fsStoreCommon struct {
-	dir            string
-	storeLock      *lockedfile.Mutex
-	blessingsLock  *lockedfile.Mutex
-	rootsLock      *lockedfile.Mutex
-	publicKeyFile  string
-	privateKeyFile string
-}
-
-func unexpectedReadonlyFS() error {
-	reason, readonlyFS := ref.ReadonlyCredentialsDir()
-	if readonlyFS {
-		return fmt.Errorf("process is running on a read-only filesystem: %v", reason)
-	}
-	return nil
+	dir             string
+	keysLock        *lockedfile.Mutex
+	blessingsLock   *lockedfile.Mutex
+	rootsLock       *lockedfile.Mutex
+	blessingsReader SerializerReader
+	rootsReader     SerializerReader
+	blessingsWriter SerializerWriter
+	rootsWriter     SerializerWriter
+	publicKeyFile   string
+	privateKeyFile  string
 }
 
 func newStoreCommon(dir string) fsStoreCommon {
+	rootsSerializer := newFileSerializer(
+		filepath.Join(dir, blessingRootsDataFile),
+		filepath.Join(dir, blessingRootsSigFile))
+	blessingsSerializer := newFileSerializer(
+		filepath.Join(dir, blessingStoreDataFile),
+		filepath.Join(dir, blessingStoreSigFile))
 	return fsStoreCommon{
-		dir:           dir,
-		storeLock:     lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName)),
-		blessingsLock: lockedfile.MutexAt(filepath.Join(dir, blessingStoreLockFilename)),
-		rootsLock:     lockedfile.MutexAt(filepath.Join(dir, blessingsRootsLockFilename)),
+		dir:             dir,
+		keysLock:        lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName)),
+		blessingsLock:   lockedfile.MutexAt(filepath.Join(dir, blessingStoreLockFilename)),
+		blessingsReader: SerializerReader(blessingsSerializer),
+		blessingsWriter: SerializerWriter(blessingsSerializer),
+		rootsLock:       lockedfile.MutexAt(filepath.Join(dir, blessingsRootsLockFilename)),
+		rootsReader:     SerializerReader(rootsSerializer),
+		rootsWriter:     SerializerWriter(rootsSerializer),
+		publicKeyFile:   publicKeyFile,
+		privateKeyFile:  privateKeyFile,
 	}
+}
+
+func (store *fsStoreCommon) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
+	privKeyBytes, err := os.ReadFile(filepath.Join(store.dir, store.privateKeyFile))
+	if err != nil {
+		return nil, err
+	}
+	key, err := keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, passphrase)
+	if err != nil {
+		return nil, err
+	}
+	return signerFromKey(ctx, key)
+}
+
+func (store *fsStoreCommon) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
+	pubKeyBytes, err := os.ReadFile(filepath.Join(store.dir, store.publicKeyFile))
+	if err != nil {
+		return nil, err
+	}
+	return publicKeyFromBytes(pubKeyBytes)
+}
+
+func (store *fsStoreCommon) RLock(ctx context.Context, scope LockScope) (unlock func(), err error) {
+	switch scope {
+	case LockKeyStore:
+		return store.keysLock.RLock()
+	case LockBlessingStore:
+		return store.blessingsLock.RLock()
+	case LockBlessingRoots:
+		return store.rootsLock.RLock()
+	}
+	return nil, fmt.Errorf("unsupport lock scope: %v", scope)
+}
+
+func (store *fsStoreCommon) BlessingsReader(context.Context) (SerializerReader, error) {
+	return store.blessingsReader, nil
+}
+
+func (store *fsStoreCommon) RootsReader(context.Context) (SerializerReader, error) {
+	return store.rootsReader, nil
+}
+
+func (store *fsStoreCommon) BlessingsWriter(context.Context) (SerializerWriter, error) {
+	return nil, fmt.Errorf("writing not implemented, this is likely a readonly store")
+}
+
+func (store *fsStoreCommon) RootsWriter(context.Context) (SerializerWriter, error) {
+	return nil, fmt.Errorf("writing not implemented, this is likely a readonly store")
 }
 
 // Writeable filesystem store.
@@ -79,97 +173,141 @@ type readonlyStore struct {
 
 // Hosted on a readonly filesystem.
 type readonlyFSStore struct {
-	dir string
+	fsStoreCommon
 }
 
-func (store *writeableStore) WriteKeyPair(ctx *context.T, key crypto.PrivateKey, passphrase []byte, format PrivateKeyEncryption) error {
-	if err := unexpectedReadonlyFS(); err != nil {
-		return err
-	}
-	unlock, err := initAndLockPrincipalDir(store.dir)
-	if err != nil {
-		return err
-	}
-	defer unlock()
-	publicKey, err := publicKeyFromPrivate(key)
-	if err != nil {
-		return err
-	}
-	store.pubKey = filepath.Join(store.dir, publicKeyFile)
-	if err := internal.WritePublicKeyPEM(publicKey, store.pubKey); err != nil {
-		return err
-	}
-	if isSSHAgentKey(key) {
-		return nil
-	}
-	store.privKey = filepath.Join(store.dir, privateKeyFile)
-	switch format {
-	case EncryptedPEM:
-		return internal.WritePrivateKeyPEM(key, store.privKey, passphrase)
-	default:
-		// TODO(cnicolaou): add pkcs8
-		return fmt.Errorf("unsupported private key format: %v", format)
+func mkDir(dir string) error {
+	if finfo, err := os.Stat(dir); err == nil {
+		if !finfo.IsDir() {
+			return fmt.Errorf("%v is not a directory", dir)
+		}
+	} else if err := os.MkdirAll(dir, 0700); err != nil {
+		return fmt.Errorf("failed to create: %v: %v", dir, err)
 	}
 	return nil
 }
 
-func (store *writeableStore) WritePublicKey(ctx *context.T, key crypto.PublicKey, passphrase []byte, format PrivateKeyEncryption) error {
-	if err := unexpectedReadonlyFS(); err != nil {
-		return err
+func (store *writeableStore) initAndLock() (func(), error) {
+	if err := mkDir(store.dir); err != nil {
+		return nil, err
 	}
-	unlock, err := initAndLockPrincipalDir(store.dir)
+	flock := lockedfile.MutexAt(filepath.Join(store.dir, directoryLockfileName))
+	unlock, err := flock.Lock()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
 	}
-	defer unlock()
+	return unlock, nil
+}
 
-	store.pubKey = filepath.Join(store.dir, publicKeyFile)
-	if err := internal.WritePublicKeyPEM(publicKey, store.pubKey); err != nil {
+func (store *writeableStore) writeKeyFile(keyFile string, data []byte) error {
+	keyFile = filepath.Join(store.dir, keyFile)
+	to, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
+	if err != nil {
+		return fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
+	}
+	defer to.Close()
+	_, err = io.Copy(to, bytes.NewReader(data))
+	return err
+}
+
+func (store *writeableStore) writeKeyPair(pubBytes, privBytes []byte) error {
+	if err := store.writeKeyFile(store.publicKeyFile, pubBytes); err != nil {
 		return err
 	}
-	if isSSHAgentKey(key) {
+	if len(privBytes) == 0 {
 		return nil
 	}
-	store.privKey = filepath.Join(store.dir, privateKeyFile)
-	switch format {
-	case EncryptedPEM:
-		return internal.WritePrivateKeyPEM(key, store.privKey, passphrase)
-	default:
-		// TODO(cnicolaou): add pkcs8
-		return fmt.Errorf("unsupported private key format: %v", format)
-	}
-	return nil
+	return store.writeKeyFile(store.privateKeyFile, privBytes)
 }
 
-func (store *writeableStore) Signer(ctx *context.T, passphrase []byte) (security.Signer, error) {
-	unlock, err := lockedfile.MutexAt(store.lockfile).RLock()
+func (store *writeableStore) WriteKeyPair(ctx context.Context, public, private []byte) error {
+	reason, readonlyFS := ref.ReadonlyCredentialsDir()
+	if readonlyFS {
+		return fmt.Errorf("process is running on a read-only filesystem: %v", reason)
+	}
+	if err := writeKeyFile(filepath.Join(store.dir, publicKeyFile), public); err != nil {
+		return err
+	}
+	if len(private) == 0 {
+		return nil
+	}
+	return writeKeyFile(filepath.Join(store.dir, privateKeyFile), private)
+}
+
+func (store *writeableStore) Signer(ctx context.Context, passphrase []byte) (security.Signer, error) {
+	return signerFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.privateKeyFile), passphrase)
+}
+
+func (store *writeableStore) Lock(ctx context.Context, scope LockScope) (unlock func(), err error) {
+	switch scope {
+	case LockKeyStore:
+		return store.keysLock.Lock()
+	case LockBlessingStore:
+		return store.blessingsLock.Lock()
+	case LockBlessingRoots:
+		return store.rootsLock.Lock()
+	}
+	return nil, fmt.Errorf("unsupport lock scope: %v", scope)
+}
+
+func (store *writeableStore) BlessingsWriter(ctx context.Context) (SerializerWriter, error) {
+	return store.blessingsWriter, nil
+}
+
+func (store *writeableStore) RootsWriter(ctx context.Context) (SerializerWriter, error) {
+	return store.rootsWriter, nil
+}
+
+func (store *readonlyStore) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
+	return signerFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.privateKeyFile), passphrase)
+}
+
+func (store *readonlyFSStore) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
+	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
+}
+
+func (store *readonlyStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
+	return publicKeyFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.publicKeyFile))
+}
+
+func (store *readonlyFSStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
+	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
+}
+
+func signerFromFile(ctx context.Context, flock *lockedfile.Mutex, filename string, passphrase []byte) (security.Signer, error) {
+	unlock, err := flock.RLock()
 	if err != nil {
 		return nil, err
 	}
 	defer unlock()
-
-	// what about ssh keys??
-	return newFileSigner(ctx, filepath.Join(store.privKey), passphrase)
+	return signerFromFileLocked(ctx, filename, passphrase)
 }
 
-func (fs *fsStore) Stores(ctx *context.T) (security.BlessingStore, security.BlessingRoots, error) {
-
-}
-
-/*
-func (fs *fsStore) InitializeAndLock(ctx *context.T) (StoreUnlock, error) {
-	ul, err := initAndLockPrincipalDir(fs.dir)
+func signerFromFileLocked(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
+	privBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return func(ctx *context.T) { ul() }, nil
+	private, err := keyRegistrar.ParsePrivateKey(ctx, privBytes, passphrase)
+	if err != nil {
+		return nil, translatePassphraseError(err)
+	}
+	return signerFromKey(ctx, private)
 }
 
-func (fs *fsStore) Lock(ctx *context.T) (StoreUnlock, error) {
-	flock := lockedfile.MutexAt(filepath.Join(fs.dir, directoryLockfileName))
-	ul, err := flock.Lock()
+func publicKeyFromFile(ctx context.Context, flock *lockedfile.Mutex, filename string) (security.PublicKey, error) {
+	unlock, err := flock.RLock()
 	if err != nil {
 		return nil, err
 	}
-	return func(ctx *context.T) { ul() }, nil
-}*/
+	defer unlock()
+	return publicKeyFromFileLocked(ctx, filename)
+}
+
+func publicKeyFromFileLocked(ctx context.Context, filename string) (security.PublicKey, error) {
+	pubBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return publicKeyFromBytes(pubBytes)
+}

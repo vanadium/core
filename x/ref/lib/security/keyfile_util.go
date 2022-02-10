@@ -12,28 +12,16 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/passphrase"
 )
 
-const (
-	privateKeyFile = "privatekey.pem"
-	publicKeyFile  = "publickey.pem"
-)
-
-func openKeyFile(keyFile string) (*os.File, error) {
-	f, err := os.OpenFile(keyFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open %v for writing: %v", keyFile, err)
-	}
-	return f, nil
-}
-
 func writeKeyFile(keyfile string, data []byte) error {
-	to, err := openKeyFile(keyfile)
+	to, err := os.OpenFile(keyfile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
+	if err != nil {
+		return fmt.Errorf("failed to open %v for writing: %v", keyfile, err)
+	}
 	if err != nil {
 		return err
 	}
@@ -60,56 +48,6 @@ func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, pri
 	return
 }
 
-func signerFromKey(ctx context.Context, private crypto.PrivateKey) (security.Signer, error) {
-	api, err := keyRegistrar.APIForKey(private)
-	if err != nil {
-		return nil, err
-	}
-	return api.Signer(ctx, private)
-}
-
-func signerFromDir(ctx context.Context, dir string, passphrase []byte) (security.Signer, error) {
-	privBytes, err := os.ReadFile(filepath.Join(dir, privateKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	private, err := keyRegistrar.ParsePrivateKey(ctx, privBytes, passphrase)
-	if err != nil {
-		return nil, translatePassphraseError(err)
-	}
-	return signerFromKey(ctx, private)
-}
-
-func publicKeyFromDir(dir string) (security.PublicKey, error) {
-	pubBytes, err := os.ReadFile(filepath.Join(dir, publicKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	key, err := keyRegistrar.ParsePublicKey(pubBytes)
-	if err != nil {
-		return nil, err
-	}
-	return keys.PublicKey(key)
-}
-
-func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
-	pubBytes, privBytes, err := marshalKeyPair(private, passphrase)
-	if err != nil {
-		return err
-	}
-	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
-		return err
-	}
-	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
-}
-
-func writeKeyPairUsingBytes(dir string, pubBytes, privBytes []byte) error {
-	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
-		return err
-	}
-	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
-}
-
 func PrivateKeyFromFileWithPrompt(ctx context.Context, filename string) (crypto.PrivateKey, error) {
 	privKeyBytes, err := os.ReadFile(filename)
 	if err != nil {
@@ -125,4 +63,36 @@ func PrivateKeyFromFileWithPrompt(ctx context.Context, filename string) (crypto.
 	}
 	defer ZeroPassphrase(pass)
 	return keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, pass)
+}
+
+func publicKeyFromBytes(publicKeyBytes []byte) (security.PublicKey, error) {
+	if len(publicKeyBytes) == 0 {
+		return nil, nil
+	}
+	key, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
+	if err != nil {
+		return nil, err
+	}
+	api, err := keyRegistrar.APIForKey(key)
+	if err != nil {
+		return nil, err
+	}
+	publicKey, err := api.PublicKey(key)
+	return publicKey, err
+}
+
+func signerFromKey(ctx context.Context, private crypto.PrivateKey) (security.Signer, error) {
+	api, err := keyRegistrar.APIForKey(private)
+	if err != nil {
+		return nil, err
+	}
+	return api.Signer(ctx, private)
+}
+
+func signerFromBytes(ctx context.Context, privateKeyBytes, passphrase []byte) (security.Signer, error) {
+	privateKey, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, passphrase)
+	if err != nil {
+		return nil, err
+	}
+	return signerFromKey(ctx, privateKey)
 }

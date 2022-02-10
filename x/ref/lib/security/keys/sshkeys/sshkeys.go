@@ -20,6 +20,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"golang.org/x/crypto/ssh"
@@ -69,6 +70,20 @@ func Register(r *keys.Registrar) error {
 		return err
 	}
 	return r.RegisterAPI((*hostedKeyAPI)(nil), (*HostedKey)(nil))
+}
+
+// NewHostedKeyFile returns a *HostedKey for the supplied ssh public key file
+// ssuming that the private key is stored in an accessible ssh agent.
+func NewHostedKeyFile(publicKeyFile string) (*HostedKey, error) {
+	keyBytes, err := os.ReadFile(publicKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	key, comment, _, _, err := ssh.ParseAuthorizedKey(keyBytes)
+	if err != nil {
+		return nil, err
+	}
+	return NewHostedKey(key, comment), nil
 }
 
 func marshalHostedKey(key crypto.PrivateKey, passphrase []byte) ([]byte, error) {

@@ -1,176 +1,164 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package security
 
 import (
-	"crypto"
+	"context"
 	"crypto/ecdsa"
-	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
 
-	"v.io/v23/context"
 	"v.io/v23/security"
 )
 
-// CreatePrincipalOption represents an option to CreatePrincipalOpts.
-type CreatePrincipalOption func(o *createPrincipalOptions) error
-
-type createPrincipalOptions struct {
-	privateKey           crypto.PrivateKey
-	dir                  string
-	passPhrase           []byte
-	readonly             bool
-	privateKeyEncryption PrivateKeyEncryption
-	blessingStore        security.BlessingStore
-	blessingRoots        security.BlessingRoots
-}
-
-func FilesystemPrincipalOption(dir string) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		o.dir = dir
-		return nil
+func (o createPrincipalOptions) checkPrivateKey(msg string) error {
+	if len(o.passphrase) > 0 {
+		return fmt.Errorf("%s: a private key with a passphrase has already been specified as an option", msg)
 	}
-}
-
-// PrivateKeyOpt specifies the private key to use when creating the
-// principal. If not specified an ecdsa key with the P256 curve
-// will be created and used. The supported key types are:
-// *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey,
-// SSHAgentHostedKey, *SSHAgentHostedKey.
-func PrivateKeyOpt(pk crypto.PrivateKey) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		switch pk.(type) {
-		case *ecdsa.PrivateKey:
-		case *rsa.PrivateKey:
-		case *ed25519.PrivateKey:
-		case SSHAgentHostedKey:
-		case *SSHAgentHostedKey:
-		default:
-			return fmt.Errorf("unsupported key type: %T", pk)
-		}
-		o.privateKey = pk
-		return nil
+	if o.privateKey != nil {
+		return fmt.Errorf("%s: a private key has already been specified as an option", msg)
 	}
-}
-
-// PrivateKeyEncryption represents the format used for encrypted private keys.
-type PrivateKeyEncryption int
-
-const (
-	EncryptedPEM   PrivateKeyEncryption = iota
-	EncryptedPKCS8                      // This is a placeholder and is not yet implemented.
-)
-
-func (pf PrivateKeyEncryption) String() string {
-	switch pf {
-	case EncryptedPEM:
-		return "encrypted-pem"
-	case EncryptedPKCS8:
-		return "encrypted-pkcs8"
+	if len(o.privateKeyBytes) > 0 {
+		return fmt.Errorf("%s: a marshaled private key (as bytes) has already been specified as an option", msg)
 	}
-	return "unknown"
+	return nil
 }
-
-func PrivateKeyEOpt(format PrivateKeyEncryption) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		o.privateKeyEncryption = format
-		return nil
-	}
-}
-
-func PrivateKeyPassphrase(passphrase []byte) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		o.passPhrase = passphrase
-		return nil
-	}
-}
-
-/*
-// PrivateKeyStoreType represents the type of storage used for both encrypted and
-// cleartext private keys.
-type PrivateKeyStoreType int
-
-const (
-	PrivateKeyStorePEM PrivateKeyStoreType = iota
-	PrivateKeyStorePKCS8
-	PrivateKeyStoreSSHAgent
-)
-
-// PrivateKeyStoreOpt specifies how a private key is to be stored. The default
-// is currently PEM, but will be switched to PKCS8 in the future. Other
-// storage systems such as AWS' secret store will also be added in the
-// near future.
-func PrivateKeyStoreOpt(typ PrivateKeyStoreType) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		switch typ {
-		case PrivateKeyStorePEM:
-		case PrivateKeyStorePKCS8:
-		case PrivateKeyStoreSSHAgent:
-		default:
-			return fmt.Errorf("unsupported storage type: %v", typ)
-		}
-		o.privateKeyStore = typ
-		return nil
-	}
-}*/
 
 // CreatePrincipalOpts creates a Principal using the specified options. It is
 // intended to replace all of the other 'Create' methods provided by this
 // package.
-// NOTE: this is experimental and not fully tested yet.
-func CreatePrincipalOpts(ctx *context.T, opts ...CreatePrincipalOption) (security.Principal, error) {
+// If no private key was specified via an option then a plaintext ecdsa key
+// with the P256 curve will be created and used.
+func CreatePrincipalOpts(ctx context.Context, opts ...CreatePrincipalOption) (security.Principal, error) {
 	var o createPrincipalOptions
 	for _, fn := range opts {
 		if err := fn(&o); err != nil {
 			return nil, err
 		}
 	}
-	if o.privateKey == nil {
-		pk, err := ecdsa.GenerateKey(elliptic.P224(), rand.Reader)
+	defer ZeroPassphrase(o.passphrase)
+	if len(o.publicKeyBytes) == 0 && len(o.privateKeyBytes) == 0 {
+		pk, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
 			return nil, err
 		}
-		o.privateKey = pk
+		UsePrivateKey(pk, nil)(&o)
 	}
-	if len(o.dir) == 0 {
+	if o.store == nil {
 		return o.createInMemoryPrincipal(ctx)
 	}
 	return o.createPersistentPrincipal(ctx)
 }
 
-func isSSHAgentKey(key crypto.PrivateKey) bool {
-	switch key.(type) {
-	case SSHAgentHostedKey:
-		return true
-	case *SSHAgentHostedKey:
-		return true
+func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer, error) {
+	if o.signer != nil {
+		return o.signer, nil
 	}
-	return false
-}
-
-func (o *createPrincipalOptions) copySSHAgentKey() (*SSHAgentHostedKey, bool) {
-	switch k := o.privateKey.(type) {
-	case SSHAgentHostedKey:
-		sk := &SSHAgentHostedKey{}
-		*sk = k
-		return sk, true
-	case *SSHAgentHostedKey:
-		sk := &SSHAgentHostedKey{}
-		*sk = *k
-		return sk, true
+	if o.privateKey != nil {
+		signer, err := signerFromKey(ctx, o.privateKey)
+		return signer, err
 	}
-	return nil, false
-}
-
-func (o *createPrincipalOptions) createInMemoryPrincipal(ctx *context.T) (security.Principal, error) {
+	if len(o.privateKeyBytes) > 0 {
+		return signerFromBytes(ctx, o.privateKeyBytes, o.passphrase)
+	}
 	return nil, nil
 }
 
-func (o *createPrincipalOptions) createPersistentPrincipal(ctx *context.T) (security.Principal, error) {
-	return nil, nil
+func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.PublicKey, error) {
+	return publicKeyFromBytes(o.publicKeyBytes)
+}
+
+func (o createPrincipalOptions) inMemoryStores(publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots) {
+	blessingStore, blessingRoots = o.blessingStore, o.blessingRoots
+	if blessingStore != nil {
+		blessingStore = NewBlessingStore(publicKey)
+	}
+	if blessingRoots == nil {
+		blessingRoots = NewBlessingRoots()
+	}
+	return
+}
+
+func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (security.Principal, error) {
+	if signer, err := o.getSigner(ctx); signer != nil {
+		if err != nil {
+			return nil, err
+		}
+		bs, br := o.inMemoryStores(signer.PublicKey())
+		return security.CreatePrincipal(signer, bs, br)
+	}
+	if publicKey, err := o.getPublicKey(ctx); publicKey != nil {
+		if err != nil {
+			return nil, err
+		}
+		bs, br := o.inMemoryStores(publicKey)
+		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
+	}
+	return nil, fmt.Errorf("no signer/private key or public key information provided")
+}
+
+func (o createPrincipalOptions) setPersistentStores(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
+	var opt CredentialsStoreOption
+	if signer != nil {
+		opt = WithStore(o.store, &serializationSigner{signer})
+		publicKey = signer.PublicKey()
+	} else {
+		opt = WithReadonlyStore(o.store, publicKey)
+	}
+	blessingStore = o.blessingStore
+	if blessingStore == nil {
+		blessingStore, err = NewBlessingStoreOpts(ctx, publicKey, opt)
+		if err != nil {
+			return
+		}
+	}
+	blessingRoots = o.blessingRoots
+	if blessingRoots == nil {
+		blessingRoots, err = NewBlessingRootsOpts(ctx, opt)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (security.Principal, error) {
+	signer, err := o.getSigner(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var publicKey security.PublicKey
+	if signer == nil {
+		publicKey, err = o.getPublicKey(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// just in case...
+		defer ZeroPassphrase(o.privateKeyBytes)
+	} else {
+		publicKey = signer.PublicKey()
+	}
+
+	unlock, err := o.store.Lock(ctx, LockKeyStore)
+	if err != nil {
+		return nil, err
+	}
+	defer unlock()
+
+	if err := o.store.WriteKeyPair(ctx, o.publicKeyBytes, o.privateKeyBytes); err != nil {
+		return nil, err
+	}
+
+	// One of publicKey or signer will be nil.
+	bs, br, err := o.setPersistentStores(ctx, publicKey, signer)
+	if err != nil {
+		return nil, err
+	}
+	if signer == nil {
+		security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
+	}
+	return security.CreatePrincipal(signer, bs, br)
 }
