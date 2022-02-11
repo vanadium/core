@@ -26,9 +26,9 @@ const (
 	blessingStoreSigFile      = "blessingstore.sig"
 	blessingStoreLockFilename = "blessings.lock"
 
-	blessingRootsDataFile      = "blessingroots.data"
-	blessingRootsSigFile       = "blessingroots.sig"
-	blessingsRootsLockFilename = "blessingroots.lock"
+	blessingRootsDataFile     = "blessingroots.data"
+	blessingRootsSigFile      = "blessingroots.sig"
+	blessingRootsLockFilename = "blessingroots.lock"
 )
 
 type LockScope int
@@ -64,8 +64,12 @@ type CredentialsStoreReadWriter interface {
 	CredentialsStoreWriter
 }
 
-func CreateFilesystemStore(dir string) CredentialsStoreCreator {
-	return &writeableStore{fsStoreCommon: newStoreCommon(dir)}
+func CreateFilesystemStore(dir string) (CredentialsStoreCreator, error) {
+	store := &writeableStore{fsStoreCommon: newStoreCommon(dir)}
+	if err := store.initLocks(); err != nil {
+		return nil, err
+	}
+	return store, nil
 }
 
 func FilesystemStoreWriter(dir string) CredentialsStoreReadWriter {
@@ -105,7 +109,7 @@ func newStoreCommon(dir string) fsStoreCommon {
 		blessingsLock:   lockedfile.MutexAt(filepath.Join(dir, blessingStoreLockFilename)),
 		blessingsReader: SerializerReader(blessingsSerializer),
 		blessingsWriter: SerializerWriter(blessingsSerializer),
-		rootsLock:       lockedfile.MutexAt(filepath.Join(dir, blessingsRootsLockFilename)),
+		rootsLock:       lockedfile.MutexAt(filepath.Join(dir, blessingRootsLockFilename)),
 		rootsReader:     SerializerReader(rootsSerializer),
 		rootsWriter:     SerializerWriter(rootsSerializer),
 		publicKeyFile:   publicKeyFile,
@@ -114,15 +118,7 @@ func newStoreCommon(dir string) fsStoreCommon {
 }
 
 func (store *fsStoreCommon) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
-	privKeyBytes, err := os.ReadFile(filepath.Join(store.dir, store.privateKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	key, err := keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, passphrase)
-	if err != nil {
-		return nil, err
-	}
-	return signerFromKey(ctx, key)
+	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
 }
 
 func (store *fsStoreCommon) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
@@ -187,16 +183,18 @@ func mkDir(dir string) error {
 	return nil
 }
 
-func (store *writeableStore) initAndLock() (func(), error) {
+func (store *writeableStore) initLocks() error {
 	if err := mkDir(store.dir); err != nil {
-		return nil, err
+		return err
 	}
-	flock := lockedfile.MutexAt(filepath.Join(store.dir, directoryLockfileName))
-	unlock, err := flock.Lock()
-	if err != nil {
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	for _, lock := range []*lockedfile.Mutex{store.keysLock, store.blessingsLock, store.rootsLock} {
+		unlock, err := lock.Lock()
+		if err != nil {
+			return err
+		}
+		unlock()
 	}
-	return unlock, nil
+	return nil
 }
 
 func (store *writeableStore) writeKeyFile(keyFile string, data []byte) error {
@@ -235,7 +233,7 @@ func (store *writeableStore) WriteKeyPair(ctx context.Context, public, private [
 }
 
 func (store *writeableStore) Signer(ctx context.Context, passphrase []byte) (security.Signer, error) {
-	return signerFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.privateKeyFile), passphrase)
+	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
 }
 
 func (store *writeableStore) Lock(ctx context.Context, scope LockScope) (unlock func(), err error) {
@@ -259,7 +257,7 @@ func (store *writeableStore) RootsWriter(ctx context.Context) (SerializerWriter,
 }
 
 func (store *readonlyStore) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
-	return signerFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.privateKeyFile), passphrase)
+	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
 }
 
 func (store *readonlyFSStore) NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error) {
@@ -267,20 +265,20 @@ func (store *readonlyFSStore) NewSigner(ctx context.Context, passphrase []byte) 
 }
 
 func (store *readonlyStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
-	return publicKeyFromFile(ctx, store.keysLock, filepath.Join(store.dir, store.publicKeyFile))
+	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
 }
 
 func (store *readonlyFSStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
 	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
 }
 
-func signerFromFile(ctx context.Context, flock *lockedfile.Mutex, filename string, passphrase []byte) (security.Signer, error) {
-	unlock, err := flock.RLock()
-	if err != nil {
-		return nil, err
+func (store *readonlyFSStore) RLock(ctx context.Context, scope LockScope) (unlock func(), err error) {
+	switch scope {
+	case LockKeyStore, LockBlessingStore, LockBlessingRoots:
+		// read-locks always work for read-only filesystems.
+		return func() {}, nil
 	}
-	defer unlock()
-	return signerFromFileLocked(ctx, filename, passphrase)
+	return nil, fmt.Errorf("unsupport lock scope: %v", scope)
 }
 
 func signerFromFileLocked(ctx context.Context, filename string, passphrase []byte) (security.Signer, error) {
@@ -293,15 +291,6 @@ func signerFromFileLocked(ctx context.Context, filename string, passphrase []byt
 		return nil, translatePassphraseError(err)
 	}
 	return signerFromKey(ctx, private)
-}
-
-func publicKeyFromFile(ctx context.Context, flock *lockedfile.Mutex, filename string) (security.PublicKey, error) {
-	unlock, err := flock.RLock()
-	if err != nil {
-		return nil, err
-	}
-	defer unlock()
-	return publicKeyFromFileLocked(ctx, filename)
 }
 
 func publicKeyFromFileLocked(ctx context.Context, filename string) (security.PublicKey, error) {

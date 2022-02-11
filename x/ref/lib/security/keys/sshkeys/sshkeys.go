@@ -230,7 +230,13 @@ type indirection struct {
 }
 
 // Next implements keys.Indirection.
-func (i *indirection) Next(ctx context.Context) (crypto.PrivateKey, []byte) {
+func (i *indirection) Next(ctx context.Context, passphrase []byte) (crypto.PrivateKey, []byte) {
+	if len(passphrase) > 0 {
+		i.hostedKey.passphrase = make([]byte, len(passphrase))
+		copy(i.hostedKey.passphrase, passphrase)
+	} else {
+		i.hostedKey.passphrase = nil
+	}
 	return i.hostedKey, nil
 }
 

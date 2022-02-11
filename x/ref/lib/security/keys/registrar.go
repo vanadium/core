@@ -310,7 +310,7 @@ func (r *Registrar) parsePrivateKeys(ctx context.Context, pemBlockBytes, passphr
 			if !followLinks {
 				return nil, fmt.Errorf("indirection limit reached for %v", indirection)
 			}
-			key, data := indirection.Next(ctx)
+			key, data := indirection.Next(ctx, passphrase)
 			if key != nil {
 				return key, nil
 			}

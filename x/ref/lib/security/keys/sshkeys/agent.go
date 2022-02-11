@@ -7,6 +7,7 @@ package sshkeys
 import (
 	"context"
 	"os"
+	"runtime"
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
@@ -16,32 +17,34 @@ import (
 type internalKey int
 
 const (
-	agentPassphraseKey internalKey = iota
-	agentSockNameKey
+	agentSockNameKey internalKey = iota
+
+//	agentPassphraseKey
 )
 
+/*
 // WithAgentPassphrase returns a context with the specified passphrase that is
-// used to lock the ssh agent. The passphrase will be zero'ed after when
-// read by AgentPassphrase.
+// used to lock the ssh agent. The passphrase will be zeroed when the newly
+// return context is garbage collected.
 func WithAgentPassphrase(ctx context.Context, passphrase []byte) context.Context {
-	return context.WithValue(ctx, agentPassphraseKey, passphrase)
+	ctx = context.WithValue(ctx, agentPassphraseKey, passphrase)
+	runtime.SetFinalizer(ctx, func(ctx context.Context) {
+		keys.ZeroPassphrase(AgentPassphrase(ctx))
+	})
+	return ctx
 }
 
 // AgentPassphrase returns a copy of passphrase associated with this context
 // and then ovewrites that passphrase with zeros.
 func AgentPassphrase(ctx context.Context) []byte {
 	if passphrase := ctx.Value(agentPassphraseKey); passphrase != nil {
-		pp := passphrase.([]byte)
-		if len(pp) == 0 {
-			return nil
+		if pp, ok := passphrase.([]byte); ok && len(pp) > 0 {
+			return pp
 		}
-		cpy := make([]byte, len(pp))
-		copy(cpy, pp)
-		keys.ZeroPassphrase(pp)
-		return cpy
+		return nil
 	}
 	return nil
-}
+}*/
 
 // WithAgentSocketName returns a context with the specified socket name. This is
 // primarily intended for tests.
@@ -69,9 +72,10 @@ var DefaultSockNameFunc = func() string {
 
 // HostededKey represents a private key hosted by an ssh agent.
 type HostedKey struct {
-	publicKey ssh.PublicKey
-	comment   string
-	agent     *Client
+	publicKey  ssh.PublicKey
+	comment    string
+	passphrase []byte
+	agent      *Client
 }
 
 // Comment returns the comment associated with the original ssh public key.
@@ -84,16 +88,22 @@ func (hk *HostedKey) Comment() string {
 // public for signing operations. Thus allowing the use of ssh keys
 // without having to separately manage them.
 func NewHostedKey(key ssh.PublicKey, comment string) *HostedKey {
-	return &HostedKey{
+	hk := &HostedKey{
 		publicKey: key,
 		comment:   comment,
 		agent:     NewClient(),
 	}
+	runtime.SetFinalizer(hk, func(k *HostedKey) {
+		keys.ZeroPassphrase(hk.passphrase)
+	})
+	return hk
 }
 
-// Signer returns a security.Signer that is hosted by an ssh agent.
+// Signer returns a security.Signer that is hosted by an ssh agent. The
+// returned signer will retain a copy of any passphrase in ctx and will
+// zero that copy when it is itself garbage collected.
 func (hk *HostedKey) Signer(ctx context.Context) (security.Signer, error) {
-	return hk.agent.Signer(ctx, hk.publicKey, AgentPassphrase(ctx))
+	return hk.agent.Signer(ctx, hk.publicKey, hk.passphrase)
 }
 
 // PublicKey returns the ssh.PublicKey associated with this sshagent hosted key.

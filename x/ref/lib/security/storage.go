@@ -49,18 +49,6 @@ func decodeFromStorage(obj interface{}, data, signature io.ReadCloser, publicKey
 	return dec.Decode(obj)
 }
 
-func saveLocked(ctx context.Context, state interface{}, writer CredentialsStoreReadWriter, signer serialization.Signer) error {
-	wr, err := writer.RootsWriter(ctx)
-	if err != nil {
-		return err
-	}
-	data, signature, err := wr.Writers()
-	if err != nil {
-		return err
-	}
-	return encodeAndStore(state, data, signature, signer)
-}
-
 func handleRefresh(ctx context.Context, interval time.Duration, loader func() error) {
 	hupCh := make(chan os.Signal, 1)
 	signal.Notify(hupCh, syscall.SIGHUP)

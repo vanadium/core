@@ -73,7 +73,7 @@ func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.Publ
 
 func (o createPrincipalOptions) inMemoryStores(publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots) {
 	blessingStore, blessingRoots = o.blessingStore, o.blessingRoots
-	if blessingStore != nil {
+	if blessingStore == nil {
 		blessingStore = NewBlessingStore(publicKey)
 	}
 	if blessingRoots == nil {

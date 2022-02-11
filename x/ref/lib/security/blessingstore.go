@@ -280,10 +280,6 @@ func (bs *blessingStore) DebugString() string {
 	return buff.String()
 }
 
-func (bs *blessingStore) saveLocked(ctx context.Context, writer CredentialsStoreReadWriter, signer serialization.Signer) error {
-	return saveLocked(ctx, bs.state, writer, signer)
-}
-
 func newBlessingStoreState() blessingStoreState {
 	return blessingStoreState{
 		PeerBlessings: make(map[security.BlessingPattern]security.Blessings),
@@ -363,6 +359,9 @@ func (bs *blessingStoreReader) loadLocked(ctx context.Context, reader Credential
 	if err != nil {
 		return err
 	}
+	if data == nil && signature == nil {
+		return nil
+	}
 	state := newBlessingStoreState()
 	if err := decodeFromStorage(&state, data, signature, bs.publicKey); err != nil {
 		return err
@@ -440,6 +439,18 @@ func (bs *blessingStoreWriteable) reload() (func(), error) {
 	return unlockfn, bs.loadLocked(bs.ctx, bs.store)
 }
 
+func (bs *blessingStoreWriteable) saveLocked(ctx context.Context) error {
+	wr, err := bs.store.BlessingsWriter(ctx)
+	if err != nil {
+		return err
+	}
+	data, signature, err := wr.Writers()
+	if err != nil {
+		return err
+	}
+	return encodeAndStore(bs.state, data, signature, bs.signer)
+}
+
 func (bs *blessingStoreWriteable) Set(blessings security.Blessings, forPeers security.BlessingPattern) (security.Blessings, error) {
 	unlock, err := bs.reload()
 	if err != nil {
@@ -451,7 +462,7 @@ func (bs *blessingStoreWriteable) Set(blessings security.Blessings, forPeers sec
 	if err != nil {
 		return security.Blessings{}, err
 	}
-	if err := saveLocked(bs.ctx, bs.state, bs.store, bs.signer); err != nil {
+	if err := bs.saveLocked(bs.ctx); err != nil {
 		undo()
 		return security.Blessings{}, err
 	}
@@ -469,7 +480,7 @@ func (bs *blessingStoreWriteable) SetDefault(blessings security.Blessings) error
 	if err != nil {
 		return err
 	}
-	if err := saveLocked(bs.ctx, bs.state, bs.store, bs.signer); err != nil {
+	if err := bs.saveLocked(bs.ctx); err != nil {
 		undo()
 		return err
 	}
@@ -485,7 +496,7 @@ func (bs *blessingStoreWriteable) Discharge(caveat security.Caveat, impetus secu
 	defer unlock()
 
 	discharge, when, undo := bs.dischargeFromCacheLocked(caveat, impetus)
-	if err := saveLocked(bs.ctx, bs.state, bs.store, bs.signer); err != nil {
+	if err := bs.saveLocked(bs.ctx); err != nil {
 		undo()
 		return discharge, when
 	}
@@ -500,7 +511,7 @@ func (bs *blessingStoreWriteable) CacheDischarge(discharge security.Discharge, c
 	defer unlock()
 
 	undo := bs.cacheDischargeLocked(discharge, caveat, impetus)
-	if err := saveLocked(bs.ctx, bs.state, bs.store, bs.signer); err != nil {
+	if err := bs.saveLocked(bs.ctx); err != nil {
 		undo()
 		return err
 	}
@@ -514,7 +525,7 @@ func (bs *blessingStoreWriteable) ClearDischarges(discharges ...security.Dischar
 	}
 	defer unlock()
 	undo := bs.clearDischargesLocked(discharges)
-	if err := saveLocked(bs.ctx, bs.state, bs.store, bs.signer); err != nil {
+	if err := bs.saveLocked(bs.ctx); err != nil {
 		undo()
 		return
 	}

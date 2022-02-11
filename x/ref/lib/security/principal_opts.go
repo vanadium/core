@@ -23,17 +23,29 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 		return CreatePrincipalOpts(ctx)
 	}
 
-	reader := o.readonly
+	var reader CredentialsStoreReader
 	if o.writeable != nil {
+		unlock, err := o.writeable.Lock(ctx, LockKeyStore)
+		if err != nil {
+			return nil, err
+		}
+		defer unlock()
 		reader = o.writeable
+	} else {
+		unlock, err := o.readonly.RLock(ctx, LockKeyStore)
+		if err != nil {
+			return nil, err
+		}
+		defer unlock()
+		reader = o.readonly
 	}
+	signer, err := reader.NewSigner(ctx, o.passphrase)
 
 	var publicKey security.PublicKey
-	signer, err := reader.NewSigner(ctx, o.passphrase)
 	if err != nil {
-		return nil, err
-	}
-	if signer == nil {
+		if !o.allowPublicKey {
+			return nil, err
+		}
 		publicKey, err = reader.NewPublicKey(ctx)
 		if err != nil {
 			return nil, err
@@ -42,19 +54,25 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 		publicKey = signer.PublicKey()
 	}
 
-	storeOpt := WithReadonlyStore(reader, publicKey)
+	storeOpts := []CredentialsStoreOption{WithUpdate(o.interval)}
 	if o.writeable != nil {
-		storeOpt = WithStore(o.writeable, &serializationSigner{signer})
+		storeOpts = append(storeOpts, WithStore(o.writeable, &serializationSigner{signer}))
+	} else {
+		storeOpts = append(storeOpts, WithReadonlyStore(o.readonly, publicKey))
 	}
 
-	blessingRoots, err := NewBlessingRootsOpts(ctx, storeOpt, WithUpdate(o.interval))
+	br, err := NewBlessingRootsOpts(ctx, storeOpts...)
 	if err != nil {
 		return nil, err
 	}
 
-	blessingStore, err := NewBlessingStoreOpts(ctx, publicKey, storeOpt, WithUpdate(o.interval))
+	bs, err := NewBlessingStoreOpts(ctx, publicKey, storeOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return security.CreatePrincipal(signer, blessingStore, blessingRoots)
+
+	if signer == nil {
+		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
+	}
+	return security.CreatePrincipal(signer, bs, br)
 }

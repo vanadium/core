@@ -49,10 +49,11 @@ func WithUpdate(interval time.Duration) CredentialsStoreOption {
 type LoadPrincipalOption func(o *principalOptions) error
 
 type principalOptions struct {
-	readonly   CredentialsStoreReader
-	writeable  CredentialsStoreReadWriter
-	interval   time.Duration
-	passphrase []byte
+	readonly       CredentialsStoreReader
+	writeable      CredentialsStoreReadWriter
+	interval       time.Duration
+	allowPublicKey bool
+	passphrase     []byte
 }
 
 func LoadFromReadonly(store CredentialsStoreReader) LoadPrincipalOption {
@@ -89,6 +90,13 @@ func LoadUsingPassphrase(passphrase []byte) LoadPrincipalOption {
 func LoadRefreshInterval(interval time.Duration) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		o.interval = interval
+		return nil
+	}
+}
+
+func LoadAllowPublicKeyPrincipal(allow bool) LoadPrincipalOption {
+	return func(o *principalOptions) error {
+		o.allowPublicKey = allow
 		return nil
 	}
 }

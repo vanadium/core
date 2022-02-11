@@ -10,12 +10,14 @@ import (
 	"fmt"
 	"math/big"
 	"net"
+	"runtime"
 	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
 // Client represents an ssh agent client.
@@ -49,35 +51,55 @@ func (ac *Client) connect(ctx context.Context) error {
 	return nil
 }
 
-// Lock will lock the agent using the specified passphrase.
-func (ac *Client) Lock(ctx context.Context) error {
+// Lock will lock the agent using the specified passphrase. Note that the
+// passphrase is not zeroed on return.
+func (ac *Client) Lock(ctx context.Context, passphrase []byte) error {
 	if err := ac.connect(ctx); err != nil {
 		return err
 	}
-	if err := ac.agent.Lock(AgentPassphrase(ctx)); err != nil {
+	if err := ac.agent.Lock(passphrase); err != nil {
 		return fmt.Errorf("failed to lock agent: %v", err)
 	}
 	return nil
 }
 
-// Unlock will unlock the agent using the specified passphrase.
-func (ac *Client) Unlock(ctx context.Context) error {
+// Unlock will unlock the agent using the specified passphrase. The
+// passphrase is zeroed on return.
+func (ac *Client) Unlock(ctx context.Context, passphrase []byte) error {
+	defer keys.ZeroPassphrase(passphrase)
 	if err := ac.connect(ctx); err != nil {
 		return err
 	}
-	if err := ac.agent.Unlock(AgentPassphrase(ctx)); err != nil {
+	if err := ac.agent.Unlock(passphrase); err != nil {
 		return fmt.Errorf("failed to unlock agent: %v", err)
 	}
 	return nil
 }
 
+func relock(client agent.ExtendedAgent, pw []byte) bool {
+	if err := client.Lock(pw); err != nil {
+		return false
+	}
+	err := client.Unlock(pw)
+	return err == nil
+}
+
 func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, error) {
 	passthrough := func(err error) error { return err }
-	if pw == nil {
+	if len(pw) == 0 {
 		return passthrough, nil
 	}
+	wasUnlocked := false
 	if err := client.Unlock(pw); err != nil {
-		return passthrough, err
+		// The unlock may have failed because the agent was already unlocked,
+		// so try to lock and then unlock it!
+		wasUnlocked = relock(client, pw)
+		if !wasUnlocked {
+			return passthrough, err
+		}
+	}
+	if wasUnlocked {
+		return passthrough, nil
 	}
 	return func(err error) error {
 		nerr := client.Lock(pw)
@@ -89,6 +111,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 }
 
 func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (s security.Signer, err error) {
+	fmt.Printf("signer ... PW %v %v\n", passphrase, len(passphrase))
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}
@@ -126,15 +149,24 @@ func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []by
 	if err != nil {
 		return nil, err
 	}
-	return &signer{
-		passphrase: passphrase,
+	var cpy []byte
+	if len(passphrase) > 0 {
+		cpy = make([]byte, len(passphrase))
+		copy(cpy, passphrase)
+	}
+	s = &signer{
+		passphrase: cpy,
 		service:    ac,
 		sshPK:      pk,
 		v23PK:      vpk,
 		key:        k,
 		name:       ssh.FingerprintSHA256(key),
 		impl:       impl,
-	}, nil
+	}
+	runtime.SetFinalizer(s, func(o *signer) {
+		keys.ZeroPassphrase(o.passphrase)
+	})
+	return s, nil
 }
 
 // Close implements signing.Service.

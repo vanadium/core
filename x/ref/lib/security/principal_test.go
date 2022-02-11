@@ -75,16 +75,19 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func initAndLockPrincipalDir(dir string) (func(), error) {
+func initAndLockPrincipalDir(dir string) error {
 	if err := mkDir(dir); err != nil {
-		return nil, err
+		return err
 	}
-	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	unlock, err := flock.Lock()
-	if err != nil {
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
+	for _, lockfile := range []string{directoryLockfileName, blessingRootsLockFilename, blessingStoreLockFilename} {
+		flock := lockedfile.MutexAt(filepath.Join(dir, lockfile))
+		unlock, err := flock.Lock()
+		if err != nil {
+			return fmt.Errorf("failed to lock %v: %v", flock, err)
+		}
+		unlock()
 	}
-	return unlock, nil
+	return nil
 }
 
 func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
@@ -120,20 +123,16 @@ func createPersistentPrincipals(dir string) error {
 				return err
 			}
 			dirname := filepath.Join(dir, basename)
-			unlock, err := initAndLockPrincipalDir(dirname)
-			if err != nil {
+			if err := initAndLockPrincipalDir(dirname); err != nil {
 				return err
 			}
-			unlock()
 			if err := writeKeyPairUsingPrivateKey(dirname, key, pp); err != nil {
 				return err
 			}
 			readonly := filepath.Join(dir, "readonly-"+basename)
-			unlock, err = initAndLockPrincipalDir(readonly)
-			if err != nil {
+			if err := initAndLockPrincipalDir(readonly); err != nil {
 				return err
 			}
-			unlock()
 			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
 				return err
 			}
@@ -141,11 +140,9 @@ func createPersistentPrincipals(dir string) error {
 				return err
 			}
 			readonly = filepath.Join(dir, "readonly-nolock-"+basename)
-			unlock, err = initAndLockPrincipalDir(readonly)
-			if err != nil {
+			if err := initAndLockPrincipalDir(readonly); err != nil {
 				return err
 			}
-			unlock()
 			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
 				return err
 			}
@@ -217,6 +214,7 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 			}
 			// and return ErrPassphraseRequired if the passphrase is nil.
 			if _, err := LoadPersistentPrincipal(tc.encryptedDir, nil); !errors.Is(err, ErrPassphraseRequired) {
+				fmt.Printf("XXX %T\n", err)
 				t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
 			}
 		}
@@ -328,27 +326,23 @@ func funcForKey(keyType keys.CryptoAlgo) func(dir string, pass []byte) (security
 		if err != nil {
 			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, pass)
+		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		ctx := gocontext.TODO()
-		if len(pass) > 0 {
-			ctx = sshkeys.WithAgentPassphrase(ctx, pass)
-		}
 		key, err := sshkeys.NewHostedKeyFile(filepath.Join(sshKeyDir, keyFile))
 		if err != nil {
 			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(ctx, key, dir, pass)
+		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
 func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, pass)
+		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
@@ -369,6 +363,8 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForSSHKey("ssh-ecdsa-256.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-ecdsa-521.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-ed25519.pub"), []byte("unencrypted"), nil},
+		{funcForSSHKey("ssh-ed25519.pub"), []byte("protected"), []byte("passphrase")},
+
 		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-rsa-4096.pub"), []byte("unencrypted"), nil},
 
@@ -380,6 +376,12 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 	for _, test := range tests {
 		testCreatePersistentPrincipal(t, test.fn, test.Message, test.Passphrase)
 	}
+}
+
+func copyPassphrase(passphrase []byte) []byte {
+	p := make([]byte, len(passphrase))
+	copy(p, passphrase)
+	return p
 }
 
 func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte) (security.Principal, error), message, passphrase []byte) {
@@ -577,20 +579,24 @@ func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map
 func TestDaemonPublicKeyOnly(t *testing.T) {
 	ctx := context.Background()
 	passphrase := []byte("with-passphrase")
-	ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
 	testDaemonPublicKeyOnly(t, funcForKey(keys.ECDSA256), passphrase)
+
+	//ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
 	client := sshkeys.NewClient()
-	if err := client.Lock(ctx); err != nil {
+	if err := client.Lock(ctx, passphrase); err != nil {
 		t.Fatal(err)
 	}
-	defer client.Unlock(ctx)
-	// passphrase is zeroed out when it's used above.
-	passphrase = []byte("with-passphrase")
+	defer client.Unlock(ctx, copyPassphrase(passphrase)) // passphrase is zeroed here.
+
 	testDaemonPublicKeyOnly(t, funcForSSHKey("ssh-ecdsa-256.pub"), passphrase)
+	fmt.Printf("4: pw %v\n", passphrase)
+
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {
 	dir := t.TempDir()
+
+	fmt.Printf("4: pw %v\n", passphrase)
 
 	p, err := creator(dir, passphrase)
 	if err != nil {

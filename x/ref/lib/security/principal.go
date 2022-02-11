@@ -26,37 +26,13 @@ var (
 // based on this key, storing its BlessingRoots and BlessingStore in memory.
 func NewPrincipal() (security.Principal, error) {
 	return CreatePrincipalOpts(context.TODO())
-	/*
-		priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-		if err != nil {
-			return nil, fmt.Errorf("failed to generate private key: %v", err)
-		}
-		signer, err := security.NewInMemoryECDSASigner(priv)
-		if err != nil {
-			return nil, err
-		}
-		pub := security.NewECDSAPublicKey(&priv.PublicKey)
-		return security.CreatePrincipal(signer, NewBlessingStore(pub), NewBlessingRoots())*/
 }
 
 // NewPrincipalFromSigner creates a new Principal using the provided
 // Signer with in-memory blessing roots and blessings store.
 func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) {
 	return CreatePrincipalOpts(context.TODO(), UseSigner(signer))
-	//	return security.CreatePrincipal(signer, NewBlessingStore(signer.PublicKey()), NewBlessingRoots())
 }
-
-/*
-// NewPrincipalFromSignerAndState creates a new Principal using the provided
-// Signer with blessing roots and blessings store loaded from the supplied
-// state directory.
-func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (security.Principal, error) {
-	blessingsStore, blessingRoots, err := newStores(context.TODO(), signer, nil, dir, true, time.Duration(0))
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
-}*/
 
 // LoadPersistentPrincipal reads state for a principal (private key,
 // BlessingRoots, BlessingStore) from the provided directory 'dir' and commits
@@ -71,8 +47,6 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 	return LoadPrincipalOpts(context.TODO(),
 		LoadFrom(FilesystemStoreWriter(dir)),
 		LoadUsingPassphrase(passphrase))
-
-	//	return loadPersistentPrincipal(context.TODO(), dir, passphrase, false, time.Duration(0))
 }
 
 // LoadPersistentPrincipalWithPassphrasePrompt is like LoadPersistentPrincipal but will
@@ -120,57 +94,12 @@ func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase [
 	} else {
 		opts = append(opts, LoadFrom(FilesystemStoreWriter(dir)))
 	}
-	opts = append(opts, LoadUsingPassphrase(passphrase), LoadRefreshInterval(update))
+	opts = append(opts,
+		LoadUsingPassphrase(passphrase),
+		LoadRefreshInterval(update),
+		LoadAllowPublicKeyPrincipal(true))
 	return LoadPrincipalOpts(ctx, opts...)
 }
-
-/*
-func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	loader := func() error { return nil }
-	var unlock func()
-	var err error
-	if readonly {
-		unlock, err = readLockAndLoad(flock, loader)
-	} else {
-		unlock, err = writeLockAndLoad(flock, loader)
-	}
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
-	}
-	defer unlock()
-	return newPersistentPrincipal(ctx, dir, passphrase, readonly, update)
-}
-
-func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := signerFromDir(ctx, dir, passphrase)
-	if err != nil {
-		if !readonly {
-			return nil, err
-		}
-		return newPersistentPrincipalPublicKeyOnly(ctx, dir, update)
-	}
-	blessingsStore, blessingRoots, err := newStores(ctx, signer, signer.PublicKey(), dir, readonly, update)
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
-}
-
-func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := publicKeyFromDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	blessingsStore, blessingRoots, err := newStores(ctx, nil, publicKey, dir, true, update)
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
-}*/
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with
 // all peers on provided principal's BlessingStore, and also adds it as a root

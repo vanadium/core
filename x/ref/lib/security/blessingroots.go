@@ -167,6 +167,7 @@ func newBlessingRootsReader(ctx context.Context, interval time.Duration, key sec
 	return blessingRootsReader{
 		blessingRoots: blessingRoots{ctx: ctx, state: make(blessingRootsState)},
 		publicKey:     key,
+		interval:      interval,
 	}
 }
 
@@ -178,6 +179,9 @@ func (br *blessingRootsReader) loadLocked(ctx context.Context, reader Credential
 	data, signature, err := rd.Readers()
 	if err != nil {
 		return err
+	}
+	if data == nil && signature == nil {
+		return nil
 	}
 	state := make(blessingRootsState)
 	if err := decodeFromStorage(&state, data, signature, publicKey); err != nil {
@@ -217,6 +221,18 @@ type blessingRootsWritable struct {
 	signer serialization.Signer
 }
 
+func (br *blessingRootsWritable) saveLocked(ctx context.Context) error {
+	wr, err := br.store.RootsWriter(ctx)
+	if err != nil {
+		return err
+	}
+	data, signature, err := wr.Writers()
+	if err != nil {
+		return err
+	}
+	return encodeAndStore(br.state, data, signature, br.signer)
+}
+
 func (br *blessingRootsWritable) Add(root []byte, pattern security.BlessingPattern) error {
 	br.mu.Lock()
 	defer br.mu.Unlock()
@@ -234,7 +250,7 @@ func (br *blessingRootsWritable) Add(root []byte, pattern security.BlessingPatte
 	if err != nil {
 		return err
 	}
-	if err := saveLocked(br.ctx, br.state, br.store, br.signer); err != nil {
+	if err := br.saveLocked(br.ctx); err != nil {
 		undo()
 		return err
 	}
