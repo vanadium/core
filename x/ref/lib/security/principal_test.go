@@ -312,7 +312,7 @@ func TestMissingSSHPrivateKey(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sshKey := sshkeys.NewHostedKey(missingKey, "some comment")
+	sshKey := sshkeys.NewHostedKey(missingKey, "some comment", nil)
 	_, err = CreatePersistentPrincipalUsingKey(ctx, sshKey, t.TempDir(), nil)
 	if err == nil || !strings.Contains(err.Error(), "not found") {
 		t.Log(err)
@@ -332,7 +332,7 @@ func funcForKey(keyType keys.CryptoAlgo) func(dir string, pass []byte) (security
 
 func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		key, err := sshkeys.NewHostedKeyFile(filepath.Join(sshKeyDir, keyFile))
+		key, err := sshkeys.NewHostedKeyFile(filepath.Join(sshKeyDir, keyFile), pass)
 		if err != nil {
 			return nil, err
 		}

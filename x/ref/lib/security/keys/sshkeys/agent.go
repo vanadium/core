@@ -83,15 +83,30 @@ func (hk *HostedKey) Comment() string {
 	return hk.comment
 }
 
+// NewHostedKeyFile returns a *HostedKey for the supplied ssh public key file
+// ssuming that the private key is stored in an accessible ssh agent.
+func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, error) {
+	keyBytes, err := os.ReadFile(publicKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	key, comment, _, _, err := ssh.ParseAuthorizedKey(keyBytes)
+	if err != nil {
+		return nil, err
+	}
+	return NewHostedKey(key, comment, passphrase), nil
+}
+
 // NewHostedKey creates a connection to the users ssh agent
 // in order to use the private key corresponding to the supplied
 // public for signing operations. Thus allowing the use of ssh keys
 // without having to separately manage them.
-func NewHostedKey(key ssh.PublicKey, comment string) *HostedKey {
+func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedKey {
 	hk := &HostedKey{
-		publicKey: key,
-		comment:   comment,
-		agent:     NewClient(),
+		publicKey:  key,
+		comment:    comment,
+		agent:      NewClient(),
+		passphrase: passphrase,
 	}
 	runtime.SetFinalizer(hk, func(k *HostedKey) {
 		keys.ZeroPassphrase(hk.passphrase)
