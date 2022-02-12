@@ -86,6 +86,10 @@ type KeyFlags struct {
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
 }
 
+func (kf KeyFlags) acceptsPassphrase() bool {
+	return len(kf.SSHAgentPublicKeyFile) == 0
+}
+
 // ForPeerFlag represents a --for-peer flag.
 type ForPeerFlag struct {
 	ForPeer string `cmdline:"for-peer,,'If non-empty, the blessings obtained will be marked for peers matching this pattern in the store'"`
@@ -774,7 +778,7 @@ principal will have no blessings.
 			}
 			dir := args[0]
 			var pass []byte
-			if flagCreate.WithPassphrase {
+			if flagCreate.WithPassphrase && flagCreate.acceptsPassphrase() {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
@@ -857,7 +861,7 @@ forked principal.
 				}
 			}
 			var pass []byte
-			if flagFork.WithPassphrase {
+			if flagFork.WithPassphrase && flagFork.acceptsPassphrase() {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
