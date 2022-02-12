@@ -111,7 +111,6 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 }
 
 func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (s security.Signer, err error) {
-	fmt.Printf("signer ... PW %v %v\n", passphrase, len(passphrase))
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}

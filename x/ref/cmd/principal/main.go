@@ -34,6 +34,7 @@ import (
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
@@ -1385,7 +1386,7 @@ func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFl
 	case len(keyFlags.SSHKeyFile) > 0:
 		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSHKeyFile)
 	case len(keyFlags.SSHAgentPublicKeyFile) > 0:
-		privateKey, err = seclib.NewSSHAgentHostedKey(keyFlags.SSHAgentPublicKeyFile)
+		privateKey, err = sshkeys.NewHostedKeyFile(keyFlags.SSHAgentPublicKeyFile, nil)
 	default:
 		kt, ok := internal.IsSupportedKeyType(keyFlags.KeyType)
 		if !ok {
