@@ -19,6 +19,7 @@ import (
 	"v.io/x/ref/cmd/principal/internal"
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/slang"
 )
@@ -34,7 +35,7 @@ func removePrincipal(rt slang.Runtime, dir string) error {
 
 func useSSHAgentHostedKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error) {
 	publicKeyFile = os.ExpandEnv(publicKeyFile)
-	return seclib.NewSSHAgentHostedKey(publicKeyFile)
+	return sshkeys.NewHostedKeyFile(publicKeyFile, nil)
 }
 
 func useExistingPrivateKey(rt slang.Runtime, keyfile string) (crypto.PrivateKey, error) {

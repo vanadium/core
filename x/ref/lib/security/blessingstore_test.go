@@ -6,7 +6,6 @@ package security
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"regexp"
 	"testing"
@@ -147,11 +146,7 @@ func TestBlessingStore(t *testing.T) {
 }
 
 func TestBlessingStorePersistence(t *testing.T) {
-	dir, err := os.MkdirTemp("", "TestPersistingBlessingStore")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 	p, err := CreatePersistentPrincipal(dir, nil)
 	if err != nil {
 		t.Fatal(err)

@@ -57,7 +57,7 @@ func MarshalForImport(ctx context.Context, publicKeyBytes []byte, option ImportO
 	}
 
 	if opts.UseAgent {
-		hostedKey := NewHostedKey(publicKey, comment)
+		hostedKey := NewHostedKey(publicKey, comment, nil)
 		privKeyBytes, err := marshalHostedKey(hostedKey, nil)
 		if err != nil {
 			return nil, nil, err

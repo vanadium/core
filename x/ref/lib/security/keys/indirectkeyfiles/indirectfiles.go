@@ -42,7 +42,7 @@ type indirection struct {
 }
 
 // Next implements keys.Indirection.
-func (i *indirection) Next(ctx context.Context) (crypto.PrivateKey, []byte) {
+func (i *indirection) Next(ctx context.Context, passphrase []byte) (crypto.PrivateKey, []byte) {
 	return nil, i.data
 }
 

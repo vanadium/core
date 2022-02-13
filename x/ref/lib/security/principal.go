@@ -6,18 +6,12 @@ package security
 
 import (
 	"context"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
-	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/passphrase"
 )
 
@@ -28,48 +22,16 @@ var (
 	ErrPassphraseRequired = verror.NewID("errPassphraseRequired")
 )
 
-const (
-	blessingStoreDataFile     = "blessingstore.data"
-	blessingStoreSigFile      = "blessingstore.sig"
-	blessingStoreLockFilename = "blessings.lock"
-
-	blessingRootsDataFile      = "blessingroots.data"
-	blessingRootsSigFile       = "blessingroots.sig"
-	blessingsRootsLockFilename = "blessingroots.lock"
-
-	directoryLockfileName = "dir.lock"
-)
-
 // NewPrincipal mints a new private (ecdsa) key and generates a principal
 // based on this key, storing its BlessingRoots and BlessingStore in memory.
 func NewPrincipal() (security.Principal, error) {
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate private key: %v", err)
-	}
-	signer, err := security.NewInMemoryECDSASigner(priv)
-	if err != nil {
-		return nil, err
-	}
-	pub := security.NewECDSAPublicKey(&priv.PublicKey)
-	return security.CreatePrincipal(signer, NewBlessingStore(pub), NewBlessingRoots())
+	return CreatePrincipalOpts(context.TODO())
 }
 
 // NewPrincipalFromSigner creates a new Principal using the provided
 // Signer with in-memory blessing roots and blessings store.
 func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) {
-	return security.CreatePrincipal(signer, NewBlessingStore(signer.PublicKey()), NewBlessingRoots())
-}
-
-// NewPrincipalFromSignerAndState creates a new Principal using the provided
-// Signer with blessing roots and blessings store loaded from the supplied
-// state directory.
-func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (security.Principal, error) {
-	blessingsStore, blessingRoots, err := newStores(context.TODO(), signer, nil, dir, true, time.Duration(0))
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
+	return CreatePrincipalOpts(context.TODO(), UseSigner(signer))
 }
 
 // LoadPersistentPrincipal reads state for a principal (private key,
@@ -82,14 +44,17 @@ func NewPrincipalFromSignerAndState(signer security.Signer, dir string) (securit
 // The newly loaded is principal's persistent store is locked and the returned
 // unlock function must be called to release that lock.
 func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
-	return loadPersistentPrincipal(context.TODO(), dir, passphrase, false, time.Duration(0))
+	return LoadPrincipalOpts(context.TODO(),
+		LoadFrom(FilesystemStoreWriter(dir)),
+		LoadUsingPassphrase(passphrase))
 }
 
 // LoadPersistentPrincipalWithPassphrasePrompt is like LoadPersistentPrincipal but will
 // prompt for a passphrase if one is required.
 func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal, error) {
 	ctx := context.TODO()
-	p, err := loadPersistentPrincipal(ctx, dir, nil, false, time.Duration(0))
+	store := FilesystemStoreWriter(dir)
+	p, err := LoadPrincipalOpts(ctx, LoadFrom(store))
 	if err == nil {
 		return p, nil
 	}
@@ -101,7 +66,7 @@ func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal
 		return nil, err
 	}
 	defer ZeroPassphrase(pass)
-	return loadPersistentPrincipal(ctx, dir, pass, false, time.Duration(0))
+	return LoadPrincipalOpts(ctx, LoadFrom(store), LoadUsingPassphrase(pass))
 }
 
 // ZeroPassphrase overwrites the passphrase.
@@ -123,54 +88,17 @@ func ZeroPassphrase(pass []byte) {
 // LoadPersistentPrincipalDaemon will not attempt to create a signer and will
 // instead just use the principal's public key.
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	return loadPersistentPrincipal(ctx, dir, passphrase, readonly, update)
-}
-
-func loadPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	flock := lockedfile.MutexAt(filepath.Join(dir, directoryLockfileName))
-	loader := func() error { return nil }
-	var unlock func()
-	var err error
+	opts := []LoadPrincipalOption{}
 	if readonly {
-		unlock, err = readLockAndLoad(flock, loader)
+		opts = append(opts, LoadFromReadonly(FilesystemStoreReader(dir)))
 	} else {
-		unlock, err = writeLockAndLoad(flock, loader)
+		opts = append(opts, LoadFrom(FilesystemStoreWriter(dir)))
 	}
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, err
-		}
-		return nil, fmt.Errorf("failed to lock %v: %v", flock, err)
-	}
-	defer unlock()
-	return newPersistentPrincipal(ctx, dir, passphrase, readonly, update)
-}
-
-func newPersistentPrincipal(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
-	signer, err := signerFromDir(ctx, dir, passphrase)
-	if err != nil {
-		if !readonly {
-			return nil, err
-		}
-		return newPersistentPrincipalPublicKeyOnly(ctx, dir, update)
-	}
-	blessingsStore, blessingRoots, err := newStores(ctx, signer, signer.PublicKey(), dir, readonly, update)
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipal(signer, blessingsStore, blessingRoots)
-}
-
-func newPersistentPrincipalPublicKeyOnly(ctx context.Context, dir string, update time.Duration) (security.Principal, error) {
-	publicKey, err := publicKeyFromDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	blessingsStore, blessingRoots, err := newStores(ctx, nil, publicKey, dir, true, update)
-	if err != nil {
-		return nil, err
-	}
-	return security.CreatePrincipalPublicKeyOnly(publicKey, blessingsStore, blessingRoots)
+	opts = append(opts,
+		LoadUsingPassphrase(passphrase),
+		LoadRefreshInterval(update),
+		LoadAllowPublicKeyPrincipal(true))
+	return LoadPrincipalOpts(ctx, opts...)
 }
 
 // SetDefault`Blessings `sets the provided blessings as default and shareable with
