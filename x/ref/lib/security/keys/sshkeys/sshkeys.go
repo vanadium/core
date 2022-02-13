@@ -193,6 +193,9 @@ func decryptOpensshPrivateKey(block *pem.Block, passphrase []byte) (*pem.Block, 
 		if err == x509.IncorrectPasswordError {
 			return nil, nil, &keys.ErrBadPassphrase{}
 		}
+		if passphrase == nil && strings.Contains(err.Error(), "empty password") {
+			return nil, nil, &keys.ErrPassphraseRequired{}
+		}
 		return nil, nil, err
 	}
 	if k, ok := key.(*ed25519.PrivateKey); ok {
@@ -215,7 +218,13 @@ type indirection struct {
 }
 
 // Next implements keys.Indirection.
-func (i *indirection) Next(ctx context.Context) (crypto.PrivateKey, []byte) {
+func (i *indirection) Next(ctx context.Context, passphrase []byte) (crypto.PrivateKey, []byte) {
+	if len(passphrase) > 0 {
+		i.hostedKey.passphrase = make([]byte, len(passphrase))
+		copy(i.hostedKey.passphrase, passphrase)
+	} else {
+		i.hostedKey.passphrase = nil
+	}
 	return i.hostedKey, nil
 }
 
@@ -230,5 +239,5 @@ func parseSSHAgentPrivateKeyFile(pem *pem.Block) (crypto.PrivateKey, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse ssh public key from %q: %v: %v", pem.Type, filename, err)
 	}
-	return &indirection{NewHostedKey(key, comment), comment}, nil
+	return &indirection{NewHostedKey(key, comment, nil), comment}, nil
 }

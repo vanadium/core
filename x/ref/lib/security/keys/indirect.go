@@ -37,7 +37,7 @@ func MarshalFuncForIndirection(indirectionType string) func(contents []byte) ([]
 type IndirectPrivateKey interface {
 	// Next returns either the key to be returned immediately, or data
 	// to be parsed as per a normal PEM block.
-	Next(ctx context.Context) (crypto.PrivateKey, []byte)
+	Next(ctx context.Context, passphrase []byte) (crypto.PrivateKey, []byte)
 	String() string
 }
 

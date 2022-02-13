@@ -34,6 +34,7 @@ import (
 	seclib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/v23cmd"
 	_ "v.io/x/ref/runtime/factories/static"
@@ -83,6 +84,10 @@ type KeyFlags struct {
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 	SSHKeyFile            string `cmdline:"ssh-key,,'If set, use the ssh private key from the specified file'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
+}
+
+func (kf KeyFlags) acceptsPassphrase() bool {
+	return len(kf.SSHAgentPublicKeyFile) == 0
 }
 
 // ForPeerFlag represents a --for-peer flag.
@@ -773,7 +778,7 @@ principal will have no blessings.
 			}
 			dir := args[0]
 			var pass []byte
-			if flagCreate.WithPassphrase {
+			if flagCreate.WithPassphrase && flagCreate.acceptsPassphrase() {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
@@ -856,7 +861,7 @@ forked principal.
 				}
 			}
 			var pass []byte
-			if flagFork.WithPassphrase {
+			if flagFork.WithPassphrase && flagFork.acceptsPassphrase() {
 				var err error
 				if pass, err = passphrase.Get("Enter passphrase (entering nothing will store the principal key unencrypted): "); err != nil {
 					return err
@@ -1361,7 +1366,7 @@ func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFl
 	if len(keyFlags.SSHKeyFile) > 0 {
 		n++
 	}
-	if len(keyFlags.SSHKeyFile) > 0 {
+	if len(keyFlags.SSLKeyFile) > 0 {
 		n++
 	}
 	if len(keyFlags.SSHAgentPublicKeyFile) > 0 {
@@ -1385,7 +1390,7 @@ func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFl
 	case len(keyFlags.SSHKeyFile) > 0:
 		privateKey, err = seclib.PrivateKeyFromFileWithPrompt(ctx, keyFlags.SSHKeyFile)
 	case len(keyFlags.SSHAgentPublicKeyFile) > 0:
-		privateKey, err = seclib.NewSSHAgentHostedKey(keyFlags.SSHAgentPublicKeyFile)
+		privateKey, err = sshkeys.NewHostedKeyFile(keyFlags.SSHAgentPublicKeyFile, nil)
 	default:
 		kt, ok := internal.IsSupportedKeyType(keyFlags.KeyType)
 		if !ok {

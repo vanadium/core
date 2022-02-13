@@ -146,9 +146,16 @@ func (c *dischargeCacheImpl) CacheDischarge(discharge security.Discharge, caveat
 }
 func (c *dischargeCacheImpl) ClearDischarges(discharges ...security.Discharge) {
 	c.l.Lock()
-	clearDischargesFromCache(c.m, discharges...)
+	for _, d := range discharges {
+		for k, cached := range c.m {
+			if cached.Discharge.Equivalent(d) {
+				delete(c.m, k)
+			}
+		}
+	}
 	c.l.Unlock()
 }
+
 func (c *dischargeCacheImpl) Discharge(caveat security.Caveat, impetus security.DischargeImpetus) (security.Discharge, time.Time) {
 	key, cacheable := dcacheKey(caveat.ThirdPartyDetails(), impetus)
 	if !cacheable {
@@ -156,7 +163,15 @@ func (c *dischargeCacheImpl) Discharge(caveat security.Caveat, impetus security.
 	}
 	c.l.Lock()
 	defer c.l.Unlock()
-	return dischargeFromCache(c.m, key)
+	cached, exists := c.m[key]
+	if !exists {
+		return security.Discharge{}, time.Time{}
+	}
+	if expiry := cached.Discharge.Expiry(); expiry.IsZero() || expiry.After(time.Now()) {
+		return cached.Discharge, cached.CacheTime
+	}
+	delete(c.m, key)
+	return security.Discharge{}, time.Time{}
 }
 
 type fixedBlessingsStore struct {
