@@ -14,6 +14,8 @@ import (
 	"v.io/x/ref/lib/security/serialization"
 )
 
+// CredentialsStoreOption represents an option to NewBlessingStoreOpts and
+// NewBlessingRootsOpts.
 type CredentialsStoreOption func(*credentialsStoreOption)
 
 type credentialsStoreOption struct {
@@ -24,6 +26,8 @@ type credentialsStoreOption struct {
 	updateInterval time.Duration
 }
 
+// WithReadonlyStore specifies a readonly store from which blessings or blessing
+// roots can be read.
 func WithReadonlyStore(store CredentialsStoreReader, key security.PublicKey) CredentialsStoreOption {
 	return func(o *credentialsStoreOption) {
 		o.reader = store
@@ -31,6 +35,8 @@ func WithReadonlyStore(store CredentialsStoreReader, key security.PublicKey) Cre
 	}
 }
 
+// WithStore specifies a writeable store on which blessings or blessing roots
+// can be stored.
 func WithStore(store CredentialsStoreReadWriter, signer serialization.Signer) CredentialsStoreOption {
 	return func(o *credentialsStoreOption) {
 		o.writer = store
@@ -39,6 +45,8 @@ func WithStore(store CredentialsStoreReadWriter, signer serialization.Signer) Cr
 	}
 }
 
+// WithUpdate specifies that blessings or blessing roots should be periodically
+// reloaded to obtain any changes made to them by another entity.
 func WithUpdate(interval time.Duration) CredentialsStoreOption {
 	return func(o *credentialsStoreOption) {
 		o.updateInterval = interval
@@ -56,6 +64,8 @@ type principalOptions struct {
 	passphrase     []byte
 }
 
+// LoadFromReadonly specifies a readonly store from which credentials information
+// can be read. This includes keys, blessings and blessing roots.
 func LoadFromReadonly(store CredentialsStoreReader) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		if o.writeable != nil {
@@ -66,6 +76,8 @@ func LoadFromReadonly(store CredentialsStoreReader) LoadPrincipalOption {
 	}
 }
 
+// LoadFrom specifies a writeable store from credentials information can
+// be read. This includes keys, blessings and blessing roots.
 func LoadFrom(store CredentialsStoreReadWriter) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		if o.readonly != nil {
@@ -76,6 +88,8 @@ func LoadFrom(store CredentialsStoreReadWriter) LoadPrincipalOption {
 	}
 }
 
+// LoadUsingPassphrase specifies the passphrase to use for decrypting private
+// key information. The supplied passphrase is zeroed.
 func LoadUsingPassphrase(passphrase []byte) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		if len(passphrase) > 0 {
@@ -87,6 +101,8 @@ func LoadUsingPassphrase(passphrase []byte) LoadPrincipalOption {
 	}
 }
 
+// LoadRefreshInterval specifies that credentials state should be periodically
+// reloaed to obtain any changes made to them by another entity.
 func LoadRefreshInterval(interval time.Duration) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		o.interval = interval
@@ -94,6 +110,9 @@ func LoadRefreshInterval(interval time.Duration) LoadPrincipalOption {
 	}
 }
 
+// LoadAllowPublicKeyPrincipal specifies whether the principal to be
+// created can be restricted to having only a public key. Such a principal
+// can verify credentials but not create any of its own.
 func LoadAllowPublicKeyPrincipal(allow bool) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		o.allowPublicKey = allow
@@ -115,6 +134,8 @@ type createPrincipalOptions struct {
 	blessingRoots   security.BlessingRoots
 }
 
+// UseStore specifies the credentials store to use for creating a new
+// principal. Such a store must support persisting key information.
 func UseStore(store CredentialsStoreCreator) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.store = store
@@ -122,6 +143,8 @@ func UseStore(store CredentialsStoreCreator) CreatePrincipalOption {
 	}
 }
 
+// UseBlessingsStore specifies the security.BlessingStore to use for
+// the new principal.
 func UseBlessingsStore(store security.BlessingStore) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.blessingStore = store
@@ -129,6 +152,8 @@ func UseBlessingsStore(store security.BlessingStore) CreatePrincipalOption {
 	}
 }
 
+// UseBlessingRoots specifies the security.BlessingRoots to use for
+// the new principal.
 func UseBlessingRoots(roots security.BlessingRoots) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.blessingRoots = roots
@@ -136,6 +161,7 @@ func UseBlessingRoots(roots security.BlessingRoots) CreatePrincipalOption {
 	}
 }
 
+// UseSigner specifies the security.Signer to use for the new principal.
 func UseSigner(signer security.Signer) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.signer = signer
@@ -143,7 +169,7 @@ func UseSigner(signer security.Signer) CreatePrincipalOption {
 	}
 }
 
-// UsePrivateKey specifies the private key to use when creating the principal.
+// UsePrivateKey specifies the private key to use for the new principal.
 func UsePrivateKey(key crypto.PrivateKey, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
@@ -172,7 +198,7 @@ func UsePrivateKey(key crypto.PrivateKey, passphrase []byte) CreatePrincipalOpti
 	}
 }
 
-// UsePrivateKey specifies the public key bytes to use when creating a
+// UsePublicKeyBytes specifies the public key bytes to use when creating a
 // public-key only principal.
 func UsePublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
@@ -185,7 +211,7 @@ func UsePublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 }
 
 // UsePrivateKeyBytes specifies the private key bytes to use when creating
-// a principal.
+// a principal. The passphrase is zeroed.
 func UsePrivateKeyBytes(ctx context.Context, public, private, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {

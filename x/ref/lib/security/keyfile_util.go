@@ -48,16 +48,25 @@ func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, pri
 	return
 }
 
+// PrivateKeyFromFileWithPrompt reads a private key file from the specified file
+// and will only prompt for a passphrase if the contents of the file are encrypted.
 func PrivateKeyFromFileWithPrompt(ctx context.Context, filename string) (crypto.PrivateKey, error) {
 	privKeyBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
+	prompt := fmt.Sprintf("Passphrase required to decrypt encrypted private key file for private key in %v.\nEnter passphrase: ", filename)
+	return PrivateKeyWithPrompt(ctx, privKeyBytes, prompt)
+}
+
+// PrivateKeyWithPrompt parses the supplied key bytes to obtain a private key
+// and will only prompt for a passphrase if those
+func PrivateKeyWithPrompt(ctx context.Context, privKeyBytes []byte, prompt string) (crypto.PrivateKey, error) {
 	key, err := keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, nil)
 	if err == nil || !errors.Is(err, ErrPassphraseRequired) {
 		return key, err
 	}
-	pass, err := passphrase.Get(fmt.Sprintf("Passphrase required to decrypt encrypted private key file for private key in %v.\nEnter passphrase: ", filename))
+	pass, err := passphrase.Get(prompt)
 	if err != nil {
 		return nil, err
 	}

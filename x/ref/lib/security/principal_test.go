@@ -40,7 +40,6 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(principalDir)
 	legacyPrincipalDir = filepath.Join(principalDir, "legacy")
 	currentPrincipalDir = filepath.Join(principalDir, "current")
 	for _, dir := range []string{legacyPrincipalDir, currentPrincipalDir} {
@@ -62,6 +61,7 @@ func TestMain(m *testing.M) {
 		flag.Parse()
 		cleanup()
 		os.RemoveAll(sshKeyDir)
+		os.RemoveAll(principalDir)
 		fmt.Fprintf(os.Stderr, "failed to start/configure agent: %v\n", err)
 		os.Exit(1)
 	}
@@ -72,6 +72,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 	cleanup()
 	os.RemoveAll(sshKeyDir)
+	os.RemoveAll(principalDir)
 	os.Exit(code)
 }
 
@@ -581,22 +582,17 @@ func TestDaemonPublicKeyOnly(t *testing.T) {
 	passphrase := []byte("with-passphrase")
 	testDaemonPublicKeyOnly(t, funcForKey(keys.ECDSA256), passphrase)
 
-	//ctx = sshkeys.WithAgentPassphrase(ctx, passphrase)
 	client := sshkeys.NewClient()
 	if err := client.Lock(ctx, passphrase); err != nil {
 		t.Fatal(err)
 	}
-	defer client.Unlock(ctx, copyPassphrase(passphrase)) // passphrase is zeroed here.
+	defer client.Unlock(ctx, copyPassphrase(passphrase)) // passphrase is zeroed by Unlock.
 
 	testDaemonPublicKeyOnly(t, funcForSSHKey("ssh-ecdsa-256.pub"), passphrase)
-	fmt.Printf("4: pw %v\n", passphrase)
-
 }
 
 func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte) (security.Principal, error), passphrase []byte) {
 	dir := t.TempDir()
-
-	fmt.Printf("4: pw %v\n", passphrase)
 
 	p, err := creator(dir, passphrase)
 	if err != nil {

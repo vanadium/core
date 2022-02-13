@@ -31,39 +31,69 @@ const (
 	blessingRootsLockFilename = "blessingroots.lock"
 )
 
+// LockScope represents the scope of a read/write or read-only lock on
+// a credentials store.
 type LockScope int
 
 const (
+	// LockKeyStore requests a lock on the key information.
 	LockKeyStore LockScope = iota
+	// LockBlessingStore requests a lock on the blessings store.
 	LockBlessingStore
+	// LockBlessingRoots requests a lock on the blessings roots.
 	LockBlessingRoots
 )
 
+// CredentialsStoreReader represents the read-only operations on a credentials
+// store. The CredentialsStore interfaces allow for alternative implementations
+// of credentials stores to be used with the rest of this package. For example,
+// a store that uses AWS S3 could simply implement these APIs and then be usable
+// by the existing blessings store and blessing roots implementations.
+//
+// All operations must be guarded by a read-only lock as obtained via
+// RLock for the appropriate lock scope. NewSigner and NewPublicKey should
+// be guarded by a LockKeyStore scope, BlessingsReader by LockBlessingStore and
+// RootsReader by LockBlessingRoots.
 type CredentialsStoreReader interface {
+	RLock(context.Context, LockScope) (func(), error)
 	NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error)
 	NewPublicKey(ctx context.Context) (security.PublicKey, error)
-	RLock(context.Context, LockScope) (func(), error)
 	BlessingsReader(context.Context) (SerializerReader, error)
 	RootsReader(context.Context) (SerializerReader, error)
 }
 
+// CredentialsStoreWriter represents the write operations on a credentials
+// store.
+//
+// All operations must be guarded by a as obtained via LLock for the
+// appropriate lock scope. BlessingsWriter should be guarded by LockBlessingStore
+// and RootsWriter by LockBlessingRoots.
 type CredentialsStoreWriter interface {
 	Lock(context.Context, LockScope) (func(), error)
-	RootsWriter(context.Context) (SerializerWriter, error)
 	BlessingsWriter(context.Context) (SerializerWriter, error)
+	RootsWriter(context.Context) (SerializerWriter, error)
 }
 
+// CredentialsStoreCreator represents the operations to create a new
+// credentials store.
 type CredentialsStoreCreator interface {
 	CredentialsStoreReadWriter
-	// ... private may be nil, public must always be provided.
+	// WriteKeyPair writes the specified key information to the store.
+	// Note the public key bytes must always be provided but the private
+	// key bytes may be nil.
+	//
+	// WriteKeyPair must be guarded by a lock of scope LockKeyStore.
 	WriteKeyPair(ctx context.Context, public, private []byte) error
 }
 
+// CredentialsStoreReadWriter represents a mutable credentials store.
 type CredentialsStoreReadWriter interface {
 	CredentialsStoreReader
 	CredentialsStoreWriter
 }
 
+// CreateFilesystemStore returns a store hosted on the local filesystem
+// that can be used to create a new credentials store (and hence principal).
 func CreateFilesystemStore(dir string) (CredentialsStoreCreator, error) {
 	store := &writeableStore{fsStoreCommon: newStoreCommon(dir)}
 	if err := store.initLocks(); err != nil {
@@ -72,10 +102,14 @@ func CreateFilesystemStore(dir string) (CredentialsStoreCreator, error) {
 	return store, nil
 }
 
+// FilesystemStoreWriter returns a CredentialsStoreReadWriter for an
+// existing local file system credentials store.
 func FilesystemStoreWriter(dir string) CredentialsStoreReadWriter {
 	return &writeableStore{fsStoreCommon: newStoreCommon(dir)}
 }
 
+// FilesystemStoreReader returns a CredentialsStoreReader for an
+// existing local file system credentials store.
 func FilesystemStoreReader(dir string) CredentialsStoreReader {
 	if _, ok := ref.ReadonlyCredentialsDir(); ok {
 		return &readonlyFSStore{fsStoreCommon: newStoreCommon(dir)}

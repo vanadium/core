@@ -10,6 +10,12 @@ import (
 	"v.io/v23/security"
 )
 
+// LoadPrincipalOpts loads the state required to create a principal according
+// to the specified options. The most common use case is to load a principal
+// from a filesystem directory, as in:
+//
+//     LoadPrincipalOpts(ctx, LoadFrom(FilesystemStoreWriter(dir)))
+//
 func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (security.Principal, error) {
 	var o principalOptions
 	for _, fn := range opts {

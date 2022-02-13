@@ -18,33 +18,7 @@ type internalKey int
 
 const (
 	agentSockNameKey internalKey = iota
-
-//	agentPassphraseKey
 )
-
-/*
-// WithAgentPassphrase returns a context with the specified passphrase that is
-// used to lock the ssh agent. The passphrase will be zeroed when the newly
-// return context is garbage collected.
-func WithAgentPassphrase(ctx context.Context, passphrase []byte) context.Context {
-	ctx = context.WithValue(ctx, agentPassphraseKey, passphrase)
-	runtime.SetFinalizer(ctx, func(ctx context.Context) {
-		keys.ZeroPassphrase(AgentPassphrase(ctx))
-	})
-	return ctx
-}
-
-// AgentPassphrase returns a copy of passphrase associated with this context
-// and then ovewrites that passphrase with zeros.
-func AgentPassphrase(ctx context.Context) []byte {
-	if passphrase := ctx.Value(agentPassphraseKey); passphrase != nil {
-		if pp, ok := passphrase.([]byte); ok && len(pp) > 0 {
-			return pp
-		}
-		return nil
-	}
-	return nil
-}*/
 
 // WithAgentSocketName returns a context with the specified socket name. This is
 // primarily intended for tests.
@@ -83,8 +57,8 @@ func (hk *HostedKey) Comment() string {
 	return hk.comment
 }
 
-// NewHostedKeyFile returns a *HostedKey for the supplied ssh public key file
-// ssuming that the private key is stored in an accessible ssh agent.
+// NewHostedKeyFile calls NewHostedKey with the contents of the specified
+// file
 func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, error) {
 	keyBytes, err := os.ReadFile(publicKeyFile)
 	if err != nil {
@@ -97,10 +71,9 @@ func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, erro
 	return NewHostedKey(key, comment, passphrase), nil
 }
 
-// NewHostedKey creates a connection to the users ssh agent
-// in order to use the private key corresponding to the supplied
-// public for signing operations. Thus allowing the use of ssh keys
-// without having to separately manage them.
+// NewHostedKey creates a connection to the users ssh agent in order to use the
+// private key corresponding to the supplied public for signing operations.
+// If supplied, the passphrase is used to unlock/lock the agent.
 func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedKey {
 	hk := &HostedKey{
 		publicKey:  key,
@@ -109,7 +82,7 @@ func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedK
 		passphrase: passphrase,
 	}
 	runtime.SetFinalizer(hk, func(k *HostedKey) {
-		keys.ZeroPassphrase(hk.passphrase)
+		keys.ZeroPassphrase(k.passphrase)
 	})
 	return hk
 }

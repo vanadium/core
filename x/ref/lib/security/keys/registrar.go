@@ -57,6 +57,7 @@ type Registrar struct {
 	decrypters      map[string][]parserInfo
 }
 
+// NewRegistrar returns an intialized instance of Registrar.
 func NewRegistrar() *Registrar {
 	return &Registrar{
 		marshalPrivate:  map[string]MarshalPrivateKeyFunc{},
