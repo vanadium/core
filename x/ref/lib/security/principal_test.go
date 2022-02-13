@@ -215,7 +215,6 @@ func TestLoadPersistentPEMPrincipal(t *testing.T) {
 			}
 			// and return ErrPassphraseRequired if the passphrase is nil.
 			if _, err := LoadPersistentPrincipal(tc.encryptedDir, nil); !errors.Is(err, ErrPassphraseRequired) {
-				fmt.Printf("XXX %T\n", err)
 				t.Errorf("encrypted LoadPersistentPrincipal with nil passphrase should return ErrPassphraseRequired: %v", err)
 			}
 		}

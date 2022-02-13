@@ -1366,7 +1366,7 @@ func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFl
 	if len(keyFlags.SSHKeyFile) > 0 {
 		n++
 	}
-	if len(keyFlags.SSHKeyFile) > 0 {
+	if len(keyFlags.SSLKeyFile) > 0 {
 		n++
 	}
 	if len(keyFlags.SSHAgentPublicKeyFile) > 0 {

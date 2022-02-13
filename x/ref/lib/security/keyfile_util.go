@@ -63,7 +63,7 @@ func PrivateKeyFromFileWithPrompt(ctx context.Context, filename string) (crypto.
 // and will only prompt for a passphrase if those
 func PrivateKeyWithPrompt(ctx context.Context, privKeyBytes []byte, prompt string) (crypto.PrivateKey, error) {
 	key, err := keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, nil)
-	if err == nil || !errors.Is(err, ErrPassphraseRequired) {
+	if err == nil || !errors.Is(translatePassphraseError(err), ErrPassphraseRequired) {
 		return key, err
 	}
 	pass, err := passphrase.Get(prompt)

@@ -193,6 +193,9 @@ func decryptOpensshPrivateKey(block *pem.Block, passphrase []byte) (*pem.Block, 
 		if err == x509.IncorrectPasswordError {
 			return nil, nil, &keys.ErrBadPassphrase{}
 		}
+		if passphrase == nil && strings.Contains(err.Error(), "empty password") {
+			return nil, nil, &keys.ErrPassphraseRequired{}
+		}
 		return nil, nil, err
 	}
 	if k, ok := key.(*ed25519.PrivateKey); ok {
