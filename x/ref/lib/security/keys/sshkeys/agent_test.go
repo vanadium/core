@@ -64,50 +64,14 @@ func TestContext(t *testing.T) {
 	if got, want := sshkeys.AgentSocketName(ctx), "my-value"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	/*
-		if got, want := sshkeys.AgentPassphrase(ctx), []byte(nil); !bytes.Equal(got, want) {
-			t.Errorf("got %v, want %v", got, want)
-		}
-
-		ctx = sshkeys.WithAgentPassphrase(ctx, []byte("oh-my"))
-		if got, want := sshkeys.AgentPassphrase(ctx), []byte("oh-my"); !bytes.Equal(got, want) {
-			t.Errorf("got %v, want %v", got, want)
-		}
-		if got, want := sshkeys.AgentPassphrase(ctx), []byte("oh-my"); !bytes.Equal(got, want) {
-			t.Errorf("got %v, want %v", got, want)
-		}
-
-		passphrase := []byte("test-finalizer")
-		{
-			nctx := sshkeys.WithAgentPassphrase(ctx, passphrase)
-			if got, want := sshkeys.AgentPassphrase(nctx), passphrase; !bytes.Equal(got, want) {
-				t.Errorf("got %v, want %v", got, want)
-			}
-		}
-		runtime.GC()
-		if got, want := passphrase, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; !bytes.Equal(got, want) {
-			t.Errorf("got %v, want %v", got, want)
-		}
-
-		ctx = sshkeys.WithAgentPassphrase(context.Background(), nil)
-		if got := sshkeys.AgentPassphrase(ctx); got != nil {
-			t.Errorf("got %v, want nil", got)
-		}
-
-		ctx = sshkeys.WithAgentPassphrase(context.Background(), []byte{})
-		if got := sshkeys.AgentPassphrase(ctx); got != nil {
-			t.Errorf("got %v, want nil", got)
-		}*/
 }
 
 func testAgent(ctx context.Context, t *testing.T, kt keys.CryptoAlgo, passphrase []byte) {
-	publicKeyBytes := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
-
-	publicKeyBytes, privateKeyBytes, err := sshkeys.MarshalForImport(ctx, publicKeyBytes, sshkeys.ImportUsingAgent(true))
+	publicKeyBytes, privateKeyBytes, err := sshkeys.ImportAgentHostedKeyBytes(
+		sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic))
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)
 	}
-
 	key, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)
@@ -165,12 +129,7 @@ func TestAgent(t *testing.T) {
 
 func getSigner(ctx context.Context, t *testing.T, kt keys.CryptoAlgo) error {
 	publicKeyBytes := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
-
-	_, privateKeyBytes, err := sshkeys.MarshalForImport(ctx, publicKeyBytes, sshkeys.ImportUsingAgent(true))
-	if err != nil {
-		t.Fatalf("%v: %v", kt, err)
-	}
-
+	_, privateKeyBytes, err := sshkeys.ImportAgentHostedKeyBytes(publicKeyBytes)
 	hk, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, nil)
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)

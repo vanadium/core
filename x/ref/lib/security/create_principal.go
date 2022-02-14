@@ -12,7 +12,7 @@ import (
 )
 
 // CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
-// creates a new Principal using a newly generated ECSDA key.
+// creates a new Principal using a newly generated ECSDA key using the P.256 curve.
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	store, err := CreateFilesystemStore(dir)
 	if err != nil {
@@ -30,8 +30,6 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 // If the directory has any preexisting principal data, an error is returned.
 //
 // The specified directory may not exist, in which case it will be created.
-// The follow key types are supported:
-// *ecdsa.PrivateKey, ed25519.PrivateKey, *rsa.PrivateKey and *sshkeys.HostedKey.
 func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKey, dir string, passphrase []byte) (security.Principal, error) {
 	store, err := CreateFilesystemStore(dir)
 	if err != nil {

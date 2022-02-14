@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/x509keys"
 	"v.io/x/ref/test/sectestdata"
@@ -54,7 +55,6 @@ func TestX509Import(t *testing.T) {
 		if err != nil {
 			t.Fatalf("line: %v: %v: %v", line, kt, err)
 		}
-
 		switch key.(type) {
 		case *ecdsa.PrivateKey:
 		case *rsa.PrivateKey:
@@ -70,14 +70,20 @@ func TestX509Import(t *testing.T) {
 		publicKeyBytes = sectestdata.X509PublicKeyBytes(kt)
 		privateKeyBytes := sectestdata.X509PrivateKeyBytes(kt, sectestdata.X509Private)
 
-		ipub, ipriv, err = x509keys.MarshalForImport(ctx, publicKeyBytes, x509keys.ImportPrivateKeyBytes(privateKeyBytes, nil, nil))
+		ipub, err = x509keys.ImportPublicKeyBytes(publicKeyBytes)
+		if err != nil {
+			t.Fatal(err)
+		}
 		validatePublicKey(err, kt)
 
-		key, err := keyRegistrar.ParsePrivateKey(ctx, ipriv, nil)
+		if got, want := bytes.Count(ipub, []byte("BEGIN CERTIFICATE")), 1; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		key, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, nil)
 		validatePrivateKey(err, kt, key)
 
-		ipub, ipriv, err = x509keys.MarshalForImport(ctx, publicKeyBytes, x509keys.ImportPrivateKeyFile("some-file-somewhere"))
-		validatePublicKey(err, kt)
+		ipriv, err = seclib.ImportPrivateKeyFile("some-file-somewhere")
 
 		// This will fail since the file is non-existent.
 		_, err = keyRegistrar.ParsePrivateKey(ctx, ipriv, nil)
@@ -91,7 +97,7 @@ func TestX509Import(t *testing.T) {
 			t.Fatalf("%v: %v", kt, err)
 		}
 
-		ipub, ipriv, err = x509keys.MarshalForImport(ctx, publicKeyBytes, x509keys.ImportPrivateKeyFile(filename))
+		ipriv, err = seclib.ImportPrivateKeyFile(filename)
 		validatePublicKey(err, kt)
 
 		key, err = keyRegistrar.ParsePrivateKey(ctx, ipriv, nil)
@@ -99,70 +105,40 @@ func TestX509Import(t *testing.T) {
 	}
 }
 
-func copyPassphrase(pp []byte) []byte {
-	n := make([]byte, len(pp))
-	copy(n, pp)
-	return n
-}
-
-func isZero(pp []byte) bool {
-	for _, v := range pp {
-		if v != 0 {
-			return false
-		}
-	}
-	return true
-}
-
 // This test is very similar to sshkeys/ssh_import_test.go - make sure to
 // mirror changes here to that test.
 func TestImportCopy(t *testing.T) {
 	ctx := context.Background()
 	for _, kt := range sectestdata.SupportedKeyAlgos {
-		publicKeyBytes := sectestdata.X509PublicKeyBytes(kt)
 		privateKeyType, _ := sectestdata.CryptoType(kt)
 		for _, tc := range []struct {
-			set            sectestdata.X509KeySetID
-			origPassphrase []byte
-			newPassphrase  []byte
+			set           sectestdata.X509KeySetID
+			newPassphrase []byte
 		}{
-			{sectestdata.X509Private, nil, []byte("foobar")},
-			{sectestdata.X509Encrypted, sectestdata.Password(), nil},
-			{sectestdata.X509Encrypted, sectestdata.Password(), []byte("foobar")},
+			{sectestdata.X509Private, []byte("foobar")},
+			{sectestdata.X509Private, nil},
 		} {
 			privateKeyBytes := sectestdata.X509PrivateKeyBytes(kt, tc.set)
+			privateKey, err := seclib.ParsePrivateKey(ctx, privateKeyBytes, nil)
 
-			origPassphrase := copyPassphrase(tc.origPassphrase)
-			newPassphrase := copyPassphrase(tc.newPassphrase)
-
-			_, ipriv, err := x509keys.MarshalForImport(ctx, publicKeyBytes,
-				x509keys.ImportPrivateKeyBytes(privateKeyBytes, origPassphrase, newPassphrase))
+			ipriv, err := seclib.MarshalPrivateKey(privateKey, tc.newPassphrase)
 			if err != nil {
-				t.Fatalf("%v: %v: passphrase %v - %v: %v", kt, tc.set, len(tc.origPassphrase) > 0, len(tc.newPassphrase) > 0, err)
-			}
-
-			if !isZero(origPassphrase) || !isZero(newPassphrase) {
-				t.Fatalf("%v: %v: failed to zero passphrase", kt, tc.set)
+				t.Fatalf("%v: %v: passphrase: %v", kt, tc.set, err)
 			}
 
 			if len(tc.newPassphrase) == 0 {
-				if got, want := ipriv, privateKeyBytes; !bytes.Equal(got, want) {
-					t.Fatalf("%v: %v: passphrase %v - %v: got %s, want %s", kt, tc.set, len(tc.origPassphrase) > 0, len(tc.newPassphrase) > 0, got, want)
+				if got, want := ipriv, "PRIVATE KEY"; !bytes.Contains(got, []byte(want)) {
+					t.Fatalf("%v: %v: passphrase: got %s, want %s", kt, tc.set, got, want)
 				}
 			} else {
 				if got, want := ipriv, "ENCRYPTED PRIVATE KEY"; !bytes.Contains(got, []byte(want)) {
-					t.Fatalf("%v: %v: passphrase %v - %v: got %s, want %s", kt, tc.set, len(tc.origPassphrase) > 0, len(tc.newPassphrase) > 0, got, want)
+					t.Fatalf("%v: %v: passphrase: got %s, want %s", kt, tc.set, got, want)
 				}
 			}
 
-			passphrase := tc.origPassphrase
-			if len(tc.newPassphrase) > 0 {
-				passphrase = tc.newPassphrase
-			}
-
-			key, err := keyRegistrar.ParsePrivateKey(ctx, ipriv, passphrase)
+			key, err := keyRegistrar.ParsePrivateKey(ctx, ipriv, tc.newPassphrase)
 			if err != nil {
-				t.Fatalf("%v: %v: passphrase %v - %v: %v", kt, tc.set, len(tc.origPassphrase) > 0, len(tc.newPassphrase) > 0, err)
+				t.Fatalf("%v: %v: passphrase: %v", kt, tc.set, err)
 			}
 
 			if got, want := reflect.TypeOf(key).String(), privateKeyType; got != want {
@@ -170,5 +146,4 @@ func TestImportCopy(t *testing.T) {
 			}
 		}
 	}
-
 }

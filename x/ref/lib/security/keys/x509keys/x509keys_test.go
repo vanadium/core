@@ -26,12 +26,9 @@ func init() {
 
 func TestX509Keys(t *testing.T) {
 	ctx := context.Background()
-
 	for _, kt := range sectestdata.SupportedKeyAlgos {
-		publicKeyBytes, privateKeyBytes, err := x509keys.MarshalForImport(ctx,
-			sectestdata.X509PublicKeyBytes(kt),
-			x509keys.ImportPrivateKeyBytes(sectestdata.X509PrivateKeyBytes(kt, sectestdata.X509Private), nil, nil),
-		)
+		privateKeyBytes := sectestdata.X509PrivateKeyBytes(kt, sectestdata.X509Private)
+		publicKeyBytes, err := x509keys.ImportPublicKeyBytes(sectestdata.X509PublicKeyBytes(kt))
 		if err != nil {
 			t.Fatalf("%v: %v", kt, err)
 		}

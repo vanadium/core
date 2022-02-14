@@ -36,6 +36,13 @@ ecdsa-sha2-nistp384`
 	sshPrivateKeyPEMType = "OPENSSH PRIVATE KEY"
 )
 
+// Make the key functions local to this package available to this package.
+var keyRegistrar = keys.NewRegistrar()
+
+func init() {
+	MustRegister(keyRegistrar)
+}
+
 // MustRegister is like Register but panics on error.
 func MustRegister(r *keys.Registrar) {
 	if err := Register(r); err != nil {
@@ -65,6 +72,7 @@ func Register(r *keys.Registrar) error {
 	ecdsaKey, _ := parseAuthorizedKey([]byte(sshECDSA))
 	ed25519Key, _ := parseAuthorizedKey([]byte(sshED25519))
 	rsaKey, _ := parseAuthorizedKey([]byte(sshRSA))
+
 	if err := r.RegisterAPI((*sshkeyAPI)(nil), ecdsaKey, ed25519Key, rsaKey); err != nil {
 		return err
 	}

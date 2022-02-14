@@ -5,29 +5,21 @@
 package sshkeys
 
 import (
-	"context"
-
-	"v.io/x/ref/lib/security/keys"
+	"golang.org/x/crypto/ssh"
 )
 
-// Make the key functions local to this package available to this package.
-var keyRegistrar = keys.NewRegistrar()
-
-func init() {
-	MustRegister(keyRegistrar)
-}
-
-func importPrivateKeyBytes(ctx context.Context, keyBytes, origPassphrase, newPassphrase []byte) ([]byte, error) {
-	if len(newPassphrase) == 0 {
-		// downstream code can cope with cleartext or encrypted keys.
-		return keyBytes, nil
-	}
-	// We need to encrypt the imported key bytes, so obtain the original
-	// key (which may also be encrypted) and then reencrypt it.
-	privKey, err := keyRegistrar.ParsePrivateKey(ctx, keyBytes, origPassphrase)
+// ImportAgentHostedPrivateKeyBytes returns the byte representation for an imported
+// ssh public key and associated private key that is hosted in an ssh agent.
+// This is essentially a reference to the private key.
+func ImportAgentHostedKeyBytes(keyBytes []byte) (publicKeyBytes, privateKeyBytes []byte, err error) {
+	publicKey, comment, _, _, err := ssh.ParseAuthorizedKey(keyBytes)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	// Note that the encrypted key will always be in PCKS8 format.
-	return keys.MarshalPKCS8PrivateKey(privKey, newPassphrase)
+	hostedKey := NewHostedKey(publicKey, comment, nil)
+	privKeyBytes, err := marshalHostedKey(hostedKey, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	return keyBytes, privKeyBytes, nil
 }

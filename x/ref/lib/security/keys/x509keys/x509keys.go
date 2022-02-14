@@ -20,6 +20,13 @@ import (
 	"v.io/x/ref/lib/security/keys"
 )
 
+// Make the key functions local to this package available to this package.
+var keyRegistrar = keys.NewRegistrar()
+
+func init() {
+	keys.MustRegister(keyRegistrar)
+}
+
 // MustRegister is like Register but panics on error.
 func MustRegister(r *keys.Registrar) {
 	if err := Register(r); err != nil {

@@ -5,10 +5,8 @@
 package x509keys
 
 import (
-	"context"
 	"crypto/x509"
 
-	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/internal"
 )
 
@@ -20,24 +18,13 @@ func parseFirstCertificate(pemBytes []byte) (*x509.Certificate, error) {
 	return x509.ParseCertificate(block.Bytes)
 }
 
-// Make the key functions local to this package available to this package.
-var keyRegistrar = keys.NewRegistrar()
-
-func init() {
-	keys.MustRegister(keyRegistrar)
-}
-
-func importPrivateKeyBytes(ctx context.Context, keyBytes, origPassphrase, newPassphrase []byte) ([]byte, error) {
-	if len(newPassphrase) == 0 {
-		// downstream code can cope with cleartext or encrypted keys.
-		return keyBytes, nil
-	}
-	// We need to encrypt the imported key bytes, so obtain the original
-	// key (which may also be encrypted) and then reencrypt it.
-	privKey, err := keyRegistrar.ParsePrivateKey(ctx, keyBytes, origPassphrase)
+// ImportPublicKeyBytes returns the byte representation for an imported.
+// x509/ssl public key.
+func ImportPublicKeyBytes(publicKeyBytes []byte) ([]byte, error) {
+	// Read the first certificate and then re-encode just that one cert.
+	cert, err := parseFirstCertificate(publicKeyBytes)
 	if err != nil {
 		return nil, err
 	}
-	// Note that the encrypted key will always be in PCKS8 format.
-	return keys.MarshalPKCS8PrivateKey(privKey, newPassphrase)
+	return internal.EncodePEM("CERTIFICATE", cert.Raw, nil)
 }
