@@ -120,7 +120,9 @@ func TestImportCopy(t *testing.T) {
 		} {
 			privateKeyBytes := sectestdata.X509PrivateKeyBytes(kt, tc.set)
 			privateKey, err := seclib.ParsePrivateKey(ctx, privateKeyBytes, nil)
-
+			if err != nil {
+				t.Fatalf("%v: %v", kt, err)
+			}
 			ipriv, err := seclib.MarshalPrivateKey(privateKey, tc.newPassphrase)
 			if err != nil {
 				t.Fatalf("%v: %v: passphrase: %v", kt, tc.set, err)

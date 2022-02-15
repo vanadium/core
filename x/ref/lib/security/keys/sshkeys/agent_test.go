@@ -130,6 +130,9 @@ func TestAgent(t *testing.T) {
 func getSigner(ctx context.Context, t *testing.T, kt keys.CryptoAlgo) error {
 	publicKeyBytes := sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic)
 	_, privateKeyBytes, err := sshkeys.ImportAgentHostedKeyBytes(publicKeyBytes)
+	if err != nil {
+		t.Fatalf("%v: %v", kt, err)
+	}
 	hk, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, nil)
 	if err != nil {
 		t.Fatalf("%v: %v", kt, err)

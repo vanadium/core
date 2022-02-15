@@ -94,7 +94,9 @@ func TestImport(t *testing.T) {
 		}
 
 		ipriv, err = seclib.ImportPrivateKeyFile(filename)
-
+		if err != nil {
+			t.Fatalf("%v: %v", kt, err)
+		}
 		key, err = keyRegistrar.ParsePrivateKey(ctx, ipriv, nil)
 		validatePrivateKey(err, kt, key)
 	}
@@ -115,7 +117,9 @@ func TestImportCopy(t *testing.T) {
 		} {
 			privateKeyBytes := sectestdata.SSHPrivateKeyBytes(kt, tc.set)
 			privateKey, err := seclib.ParsePrivateKey(ctx, privateKeyBytes, nil)
-
+			if err != nil {
+				t.Fatalf("%v: %v", kt, err)
+			}
 			ipriv, err := seclib.MarshalPrivateKey(privateKey, tc.newPassphrase)
 			if err != nil {
 				t.Fatalf("%v: %v: passphrase: %v", kt, tc.set, err)
