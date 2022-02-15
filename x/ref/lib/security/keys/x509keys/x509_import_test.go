@@ -84,7 +84,9 @@ func TestX509Import(t *testing.T) {
 		validatePrivateKey(err, kt, key)
 
 		ipriv, err = seclib.ImportPrivateKeyFile("some-file-somewhere")
-
+		if err != nil {
+			t.Fatal(err)
+		}
 		// This will fail since the file is non-existent.
 		_, err = keyRegistrar.ParsePrivateKey(ctx, ipriv, nil)
 		if err == nil || !strings.Contains(err.Error(), "no such file or directory") {
