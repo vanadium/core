@@ -72,7 +72,13 @@ func TestGet(t *testing.T) {
 	a := bycreator["v.io/x/ref/test/goroutines.runGoA"]
 	switch {
 	case a == nil:
+		for _, g := range gs {
+			if g.Creator != nil {
+				t.Logf("%v", g.Creator.Call)
+			}
+		}
 		t.Errorf("runGoA is missing")
+		panic("runGo is missing")
 	case len(a.Stack) < 1:
 		t.Errorf("got %d expected at least 1: %s", len(a.Stack), Format(a))
 	case !strings.HasPrefix(a.Stack[0].Call, "v.io/x/ref/test/goroutines.waitForIt"):
