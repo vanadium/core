@@ -14,6 +14,7 @@ import (
 	"os"
 
 	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 	"v.io/x/ref/lib/security/passphrase"
 )
 
@@ -28,24 +29,6 @@ func writeKeyFile(keyfile string, data []byte) error {
 	defer to.Close()
 	_, err = io.Copy(to, bytes.NewReader(data))
 	return err
-}
-
-func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, privBytes []byte, err error) {
-	privBytes, err = keyRegistrar.MarshalPrivateKey(private, passphrase)
-	if err != nil {
-		err = translatePassphraseError(err)
-		return
-	}
-	api, err := keyRegistrar.APIForKey(private)
-	if err != nil {
-		return
-	}
-	pubKey, err := api.CryptoPublicKey(private)
-	if err != nil {
-		return
-	}
-	pubBytes, err = keyRegistrar.MarshalPublicKey(pubKey)
-	return
 }
 
 // PrivateKeyFromFileWithPrompt reads a private key file from the specified file
@@ -72,6 +55,12 @@ func PrivateKeyWithPrompt(ctx context.Context, privKeyBytes []byte, prompt strin
 	}
 	defer ZeroPassphrase(pass)
 	return keyRegistrar.ParsePrivateKey(ctx, privKeyBytes, pass)
+}
+
+// ImportPrivateKeyFile returns the byte representation for an imported private
+// key file.
+func ImportPrivateKeyFile(filename string) ([]byte, error) {
+	return indirectkeyfiles.MarshalPrivateKey([]byte(filename))
 }
 
 func publicKeyFromBytes(publicKeyBytes []byte) (security.PublicKey, error) {

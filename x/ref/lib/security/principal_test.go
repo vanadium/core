@@ -91,6 +91,24 @@ func initAndLockPrincipalDir(dir string) error {
 	return nil
 }
 
+func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, privBytes []byte, err error) {
+	privBytes, err = keyRegistrar.MarshalPrivateKey(private, passphrase)
+	if err != nil {
+		err = translatePassphraseError(err)
+		return
+	}
+	api, err := keyRegistrar.APIForKey(private)
+	if err != nil {
+		return
+	}
+	pubKey, err := api.CryptoPublicKey(private)
+	if err != nil {
+		return
+	}
+	pubBytes, err = keyRegistrar.MarshalPublicKey(pubKey)
+	return
+}
+
 func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
 	pubBytes, privBytes, err := marshalKeyPair(private, passphrase)
 	if err != nil {
@@ -419,11 +437,7 @@ func useSSHPublicKeyAsPrincipal(from, to, name string) error {
 	if err != nil {
 		return err
 	}
-	pubBytes, privBytes, err := sshkeys.MarshalForImport(
-		context.Background(),
-		pubBytes,
-		sshkeys.ImportUsingAgent(true))
-
+	pubBytes, privBytes, err := sshkeys.ImportAgentHostedKeyBytes(pubBytes)
 	if err != nil {
 		return err
 	}

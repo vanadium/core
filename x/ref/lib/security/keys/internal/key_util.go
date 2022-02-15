@@ -10,42 +10,6 @@ import (
 	"fmt"
 )
 
-// ImportOptions represents options accecpted by the various MarshalForImport
-// functions supported by the subpackages of security/keys.
-type ImportOptions struct {
-	KeyBytes       []byte
-	OrigPassphrase []byte
-	NewPassphrase  []byte
-	KeyFilename    string
-	UseAgent       bool
-}
-
-// PrivateKeyBytes specifies the private key as a raw bytes.
-func (o *ImportOptions) PrivateKeyBytes(keyBytes []byte, origPassphrase, newPassphrase []byte) {
-	o.KeyBytes = keyBytes
-	o.OrigPassphrase = origPassphrase
-	o.NewPassphrase = newPassphrase
-}
-
-// PrivateKeyFile specifies a file containing a private key.
-func (o *ImportOptions) PrivateKeyFile(filename string) {
-	o.KeyFilename = filename
-}
-
-// UsingAgent specifies that an agent be used for accessing
-func (o *ImportOptions) UsingAgent(v bool) {
-	o.UseAgent = v
-}
-
-// ZeroPassphrases zeros out the supplied byte slices.
-func ZeroPassphrases(passphrases ...[]byte) {
-	for _, pp := range passphrases {
-		for i := range pp {
-			pp[i] = 0x0
-		}
-	}
-}
-
 // EncodePEM creates an encodes a PEM block with the specified type, headers
 // and bytes.
 func EncodePEM(typ string, der []byte, headers map[string]string) ([]byte, error) {

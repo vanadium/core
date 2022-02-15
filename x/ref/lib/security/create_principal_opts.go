@@ -28,8 +28,7 @@ func (o createPrincipalOptions) checkPrivateKey(msg string) error {
 }
 
 // CreatePrincipalOpts creates a Principal using the specified options. It is
-// intended to replace all of the other 'Create' methods provided by this
-// package.
+// intended to replace the other 'Create' methods provided by this package.
 // If no private key was specified via an option then a plaintext ecdsa key
 // with the P256 curve will be created and used.
 func CreatePrincipalOpts(ctx context.Context, opts ...CreatePrincipalOption) (security.Principal, error) {
@@ -67,10 +66,6 @@ func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer,
 	return nil, nil
 }
 
-func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.PublicKey, error) {
-	return publicKeyFromBytes(o.publicKeyBytes)
-}
-
 func (o createPrincipalOptions) inMemoryStores(publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots) {
 	blessingStore, blessingRoots = o.blessingStore, o.blessingRoots
 	if blessingStore == nil {
@@ -90,7 +85,7 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 		bs, br := o.inMemoryStores(signer.PublicKey())
 		return security.CreatePrincipal(signer, bs, br)
 	}
-	if publicKey, err := o.getPublicKey(ctx); publicKey != nil {
+	if publicKey, err := publicKeyFromBytes(o.publicKeyBytes); publicKey != nil {
 		if err != nil {
 			return nil, err
 		}
@@ -132,7 +127,7 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	}
 	var publicKey security.PublicKey
 	if signer == nil {
-		publicKey, err = o.getPublicKey(ctx)
+		publicKey, err = publicKeyFromBytes(o.publicKeyBytes)
 		if err != nil {
 			return nil, err
 		}
