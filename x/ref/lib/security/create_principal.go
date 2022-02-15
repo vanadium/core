@@ -12,7 +12,7 @@ import (
 )
 
 // CreatePersistentPrincipal wraps CreatePersistentPrincipalUsingKey to
-// creates a new Principal using a newly generated ECSDA key using the P.256 curve.
+// create a new Principal using a newly generated ECSDA key using the P.256 curve.
 func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	store, err := CreateFilesystemStore(dir)
 	if err != nil {

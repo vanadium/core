@@ -10,15 +10,6 @@ import (
 	"fmt"
 )
 
-// ZeroPassphrases zeros out the supplied byte slices.
-func ZeroPassphrases(passphrases ...[]byte) {
-	for _, pp := range passphrases {
-		for i := range pp {
-			pp[i] = 0x0
-		}
-	}
-}
-
 // EncodePEM creates an encodes a PEM block with the specified type, headers
 // and bytes.
 func EncodePEM(typ string, der []byte, headers map[string]string) ([]byte, error) {

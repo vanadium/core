@@ -137,6 +137,9 @@ setup to use by default.  If a blessing argument is not provided, the new
 principal will have no blessings.
 
 The principal create flags are:
+ -copy-private-key=false
+   If set, the private key will be copied into the newly created principal
+   rather than being referred to in its current location.
  -key-type=ecdsa256
    The type of key to be created, allowed values are ecdsa256, ecdsa384,
    ecdsa521, ed25519, rsa2048, rsa4096.
@@ -177,6 +180,9 @@ Usage:
 The principal fork flags are:
  -caveat=
    "package/path".CaveatName:VDLExpressionParam to attach to this blessing
+ -copy-private-key=false
+   If set, the private key will be copied into the newly created principal
+   rather than being referred to in its current location.
  -for=0s
    Duration of blessing validity (zero implies no expiration)
  -key-type=ecdsa256

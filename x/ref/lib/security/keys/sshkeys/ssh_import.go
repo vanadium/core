@@ -10,7 +10,8 @@ import (
 
 // ImportAgentHostedPrivateKeyBytes returns the byte representation for an imported
 // ssh public key and associated private key that is hosted in an ssh agent.
-// This is essentially a reference to the private key.
+// The resulting private key representations is essentially a reference to
+// the agent managed key.
 func ImportAgentHostedKeyBytes(keyBytes []byte) (publicKeyBytes, privateKeyBytes []byte, err error) {
 	publicKey, comment, _, _, err := ssh.ParseAuthorizedKey(keyBytes)
 	if err != nil {
