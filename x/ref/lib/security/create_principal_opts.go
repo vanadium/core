@@ -66,13 +66,13 @@ func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer,
 	return nil, nil
 }
 
-func (o createPrincipalOptions) inMemoryStores(publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots) {
+func (o createPrincipalOptions) inMemoryStores(ctx context.Context, publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
 	blessingStore, blessingRoots = o.blessingStore, o.blessingRoots
 	if blessingStore == nil {
 		blessingStore = NewBlessingStore(publicKey)
 	}
 	if blessingRoots == nil {
-		blessingRoots = NewBlessingRoots()
+		blessingRoots, err = NewBlessingRootsOpts(ctx, WithX509VerifyOptions(o.x509Opts))
 	}
 	return
 }
@@ -82,14 +82,20 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 		if err != nil {
 			return nil, err
 		}
-		bs, br := o.inMemoryStores(signer.PublicKey())
+		bs, br, err := o.inMemoryStores(ctx, signer.PublicKey())
+		if err != nil {
+			return nil, err
+		}
 		return security.CreatePrincipal(signer, bs, br)
 	}
 	if publicKey, err := publicKeyFromBytes(o.publicKeyBytes); publicKey != nil {
 		if err != nil {
 			return nil, err
 		}
-		bs, br := o.inMemoryStores(publicKey)
+		bs, br, err := o.inMemoryStores(ctx, publicKey)
+		if err != nil {
+			return nil, err
+		}
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
 	return nil, fmt.Errorf("no signer/private key or public key information provided")

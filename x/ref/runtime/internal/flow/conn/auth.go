@@ -120,7 +120,6 @@ func (c *Conn) acceptHandshake(
 		0,
 		true)
 	c.blessingsFlow = newBlessingsFlow(bflw)
-
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err

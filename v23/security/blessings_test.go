@@ -362,7 +362,6 @@ func testNamelessBlessing(t *testing.T, alice, bob security.Principal) {
 		baliceagain, _ = security.NamelessBlessing(alice.PublicKey())
 		bbob, _        = security.NamelessBlessing(bob.PublicKey())
 	)
-
 	if got, want := balice.PublicKey(), alice.PublicKey(); !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}

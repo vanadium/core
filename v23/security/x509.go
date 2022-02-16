@@ -15,7 +15,7 @@ func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkB
 	if err != nil {
 		return nil, err
 	}
-	notAfter, _ := NewExpiryCaveat(x509Cert.NotAfter)
+	notAfter, err := NewExpiryCaveat(x509Cert.NotAfter)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,6 @@ func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkB
 			}
 		}
 		return certs, nil
-
 	}
 	if err := x509Cert.VerifyHostname(host); err != nil {
 		return nil, err

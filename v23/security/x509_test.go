@@ -1,4 +1,4 @@
-// Copyright 2021 The Vanadium Authors. All rights reserved.
+// Copyright 2022 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -240,9 +240,8 @@ func TestX509ServerErrors(t *testing.T) {
 
 		// The following will result in an error from BlessSelfX509 since
 		// the requested tc.invalidHost is not supported by the certificate.
-		signer := sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetC)
 		server, err := seclib.CreatePrincipalOpts(ctx,
-			seclib.UseSigner(signer),
+			seclib.UsePrivateKey(privKey, nil),
 			seclib.UseX509VerifyOptions(opts))
 		if err != nil {
 			t.Errorf("failed to create principal: %v", err)
@@ -251,7 +250,7 @@ func TestX509ServerErrors(t *testing.T) {
 		_, err = server.BlessSelfX509(tc.invalidHost, pubCerts[0])
 		want := fmt.Sprintf(", not %v", tc.invalidHost)
 		if err == nil || !strings.Contains(err.Error(), want) {
-			t.Errorf("unexpected or missing error: %v does not contain %v", err, want)
+			t.Errorf("unexpected or missing error: %q does not contain %q", err, want)
 		}
 	}
 }

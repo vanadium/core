@@ -187,7 +187,7 @@ func (p *mockPrincipal) BlessSelf(string, ...security.Caveat) (security.Blessing
 	return b, p.NextError
 }
 
-func (p *mockPrincipal) BlessSelfX509(*x509.Certificate, ...security.Caveat) (security.Blessings, error) {
+func (p *mockPrincipal) BlessSelfX509(string, *x509.Certificate, ...security.Caveat) (security.Blessings, error) {
 	defer p.reset()
 	b, _ := p.NextResult.(security.Blessings)
 	return b, p.NextError
