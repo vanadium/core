@@ -8,42 +8,16 @@ import (
 	"testing"
 
 	"v.io/v23/context"
-	"v.io/v23/internal/sectest"
 	"v.io/v23/naming"
 	"v.io/v23/security"
 )
 
-func TestDefaultAuthorizerECDSA(t *testing.T) {
-	testDefaultAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestDefaultAuthorizer(t *testing.T) {
-	testDefaultAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testDefaultAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testDefaultAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewRSAPrincipal(t),
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	fourPrincipalTest(t, "testDefaultAuthorizer", testDefaultAuthorizer)
 }
 
 func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis security.Principal) { // pdis is the third-party caveat discharger.
+
 	var (
 		che, _ = pche.BlessSelf("che")
 		ali, _ = pali.BlessSelf("ali")
@@ -172,26 +146,8 @@ func mkThirdPartyCaveat(t *testing.T, discharger security.PublicKey, location st
 	return tpc
 }
 
-func TestAllowEveryoneECDSA(t *testing.T) {
-	testAllowEveryone(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestAllowEveryone(t *testing.T) {
-	testAllowEveryone(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testAllowEveryone(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testAllowEveryone(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewRSAPrincipal(t),
-	)
+	twoPrincipalTest(t, "testAllowEveryone", testAllowEveryone)
 }
 
 func testAllowEveryone(t *testing.T, pali, pbob security.Principal) {
@@ -210,25 +166,9 @@ func testAllowEveryone(t *testing.T, pali, pbob security.Principal) {
 		t.Fatal(err)
 	}
 }
-func TestPublicKeyAuthorizerECDSA(t *testing.T) {
-	testPublicKeyAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
+
 func TestPublicKeyAuthorizer(t *testing.T) {
-	testPublicKeyAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testPublicKeyAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testPublicKeyAuthorizer(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	twoPrincipalTest(t, "testPublicKeyAuthorizer", testPublicKeyAuthorizer)
 }
 
 func testPublicKeyAuthorizer(t *testing.T, pali, pbob security.Principal) {
@@ -251,26 +191,8 @@ func testPublicKeyAuthorizer(t *testing.T, pali, pbob security.Principal) {
 	}
 }
 
-func TestEndpointAuthorizerECDSA(t *testing.T) {
-	testEndpointAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
-
 func TestEndpointAuthorizer(t *testing.T) {
-	testEndpointAuthorizer(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testEndpointAuthorizer(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testEndpointAuthorizer(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
+	twoPrincipalTest(t, "testEndpointAuthorizer", testEndpointAuthorizer)
 }
 
 func testEndpointAuthorizer(t *testing.T, pali, pbob security.Principal) {

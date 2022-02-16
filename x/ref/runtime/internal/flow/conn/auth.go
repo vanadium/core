@@ -6,7 +6,6 @@ package conn
 
 import (
 	"crypto/rand"
-	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -262,7 +261,6 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		}
 		if rauth, _ = msg.(*message.Auth); rauth != nil {
 			rttend = time.Now()
-			fmt.Printf("Client Signature: read... %#v\n", rauth.ChannelBinding)
 			break
 		}
 		switch m := msg.(type) {

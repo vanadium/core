@@ -561,7 +561,6 @@ func (c *client) failedTryConnectToName(ctx *context.T, name, method string, res
 				topLevelIDAction = verror.ErrTimeout
 				onlyErrNetwork = false
 			default:
-				fmt.Printf("XXX %v\n", r.serverErr)
 				onlyErrNetwork = false
 			}
 			suberrs = append(suberrs, *r.serverErr)

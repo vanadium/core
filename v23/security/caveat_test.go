@@ -19,16 +19,8 @@ import (
 	"v.io/v23/verror"
 )
 
-func TestStandardCaveatFactoriesECDSA(t *testing.T) {
-	testStandardCaveatFactories(t, sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestStandardCaveatFactoriesED25519(t *testing.T) {
-	testStandardCaveatFactories(t, sectest.NewED25519Principal(t))
-}
-
-func TestStandardCaveatFactoriesRSA(t *testing.T) {
-	testStandardCaveatFactories(t, sectest.NewRSAPrincipal(t))
+func TestStandardCaveatFactories(t *testing.T) {
+	onePrincipalTest(t, "testStandardCaveatFactories", testStandardCaveatFactories)
 }
 
 func testStandardCaveatFactories(t *testing.T, self security.Principal) {
@@ -97,30 +89,9 @@ func testStandardCaveatFactories(t *testing.T, self security.Principal) {
 		}
 	}
 }
-func TestPublicKeyThirdPartyCaveatECDSA(t *testing.T) {
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-}
 
 func TestPublicKeyThirdPartyCaveat(t *testing.T) {
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewECDSAPrincipalP256(t),
-		sectest.NewED25519Principal(t),
-	)
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewRSAPrincipal(t),
-		sectest.NewECDSAPrincipalP256(t),
-	)
-	testPublicKeyThirdPartyCaveat(t,
-		sectest.NewED25519Principal(t),
-		sectest.NewRSAPrincipal(t),
-	)
+	twoPrincipalTest(t, "testPublicKeyThirdPartyCaveat", testPublicKeyThirdPartyCaveat)
 }
 
 func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
@@ -315,16 +286,8 @@ func TestRegisterCaveat(t *testing.T) {
 	}
 }
 
-func TestThirdPartyDetailsECDSA(t *testing.T) {
-	testThirdPartyDetails(t, sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestThirdPartyDetailsED25519(t *testing.T) {
-	testThirdPartyDetails(t, sectest.NewED25519Principal(t))
-}
-
-func TestThirdPartyDetailsRSA(t *testing.T) {
-	testThirdPartyDetails(t, sectest.NewRSAPrincipal(t))
+func TestThirdPartyDetails(t *testing.T) {
+	onePrincipalTest(t, "testThirdPartyDetails", testThirdPartyDetails)
 }
 
 func testThirdPartyDetails(t *testing.T, p security.Principal) {
@@ -349,16 +312,8 @@ func testThirdPartyDetails(t *testing.T, p security.Principal) {
 	}
 }
 
-func TestPublicKeyDischargeExpiryECDSA(t *testing.T) {
-	testPublicKeyDischargeExpiry(t, sectest.NewECDSAPrincipalP256(t))
-}
-
-func TestPublicKeyDischargeExpiryED25519(t *testing.T) {
-	testPublicKeyDischargeExpiry(t, sectest.NewED25519Principal(t))
-}
-
-func TestPublicKeyDischargeExpiryRSA(t *testing.T) {
-	testPublicKeyDischargeExpiry(t, sectest.NewRSAPrincipal(t))
+func TestPublicKeyDischargeExpiry(t *testing.T) {
+	onePrincipalTest(t, "testPublicKeyDischargeExpiry", testPublicKeyDischargeExpiry)
 }
 
 func testPublicKeyDischargeExpiry(t *testing.T, discharger security.Principal) {

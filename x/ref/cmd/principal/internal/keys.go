@@ -8,14 +8,16 @@ import (
 	"sort"
 	"strings"
 
-	"v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
-var keyTypeMap = map[string]security.KeyType{
-	"ecdsa256": security.ECDSA256,
-	"ecdsa384": security.ECDSA384,
-	"ecdsa521": security.ECDSA521,
-	"ed25519":  security.ED25519,
+var keyTypeMap = map[string]keys.CryptoAlgo{
+	"ecdsa256": keys.ECDSA256,
+	"ecdsa384": keys.ECDSA384,
+	"ecdsa521": keys.ECDSA521,
+	"ed25519":  keys.ED25519,
+	"rsa2048":  keys.RSA2048,
+	"rsa4096":  keys.RSA4096,
 }
 
 // IsSupportedKeyType returns true if the requested key type is supported
@@ -24,7 +26,9 @@ var keyTypeMap = map[string]security.KeyType{
 //		ecdsa384
 //		ecdsa521
 // 		ed25519
-func IsSupportedKeyType(keyType string) (security.KeyType, bool) {
+//		rsa2048
+//		rsa4096
+func IsSupportedKeyType(keyType string) (keys.CryptoAlgo, bool) {
 	k, ok := keyTypeMap[strings.ToLower(keyType)]
 	return k, ok
 }

@@ -82,6 +82,8 @@ func IsNotSupported(err error) bool {
 	return isNotSupported(underlyingError(err))
 }
 
+// ErrNotSupported is returned when a operation is not supported. Use
+// IsNotSupported to test for it.
 var ErrNotSupported = errors.New("operation not supported")
 
 // underlyingError returns the underlying error for known os error types.

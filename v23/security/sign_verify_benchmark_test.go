@@ -27,30 +27,24 @@ func benchmarkVerify(k *bmkey, b *testing.B) {
 }
 
 func BenchmarkSign_ECDSA(b *testing.B) {
-	initBenchmarks()
 	benchmarkSign(ecdsaKey, b)
 }
 
 func BenchmarkVerify_ECDSA(b *testing.B) {
-	initBenchmarks()
 	benchmarkVerify(ecdsaKey, b)
 }
 
 func BenchmarkSign_ED25519(b *testing.B) {
-	initBenchmarks()
 	benchmarkSign(ed25519Key, b)
 }
 
 func BenchmarkVerify_ED25519(b *testing.B) {
-	initBenchmarks()
 	benchmarkVerify(ed25519Key, b)
 }
 func BenchmarkSign_RSA2048(b *testing.B) {
-	initBenchmarks()
 	benchmarkSign(rsa2048Key, b)
 }
 
 func BenchmarkVerify_RSA2048(b *testing.B) {
-	initBenchmarks()
 	benchmarkVerify(rsa2048Key, b)
 }

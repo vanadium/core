@@ -5,17 +5,23 @@
 package security
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"v.io/v23/security"
 	"v.io/v23/vom"
+	"v.io/x/lib/vlog"
 	"v.io/x/ref/lib/security/serialization"
 )
 
 func encodeAndStore(obj interface{}, data, signature io.WriteCloser, signer serialization.Signer) error {
 	if data == nil || signature == nil {
-		return fmt.Errorf("invalid data/signature handles data:%v sig:%v", data, signature)
+		return fmt.Errorf("encode: invalid data/signature handles data:%v sig:%v", data, signature)
 	}
 	swc, err := serialization.NewSigningWriteCloser(data, signature, signer, nil)
 	if err != nil {
@@ -31,7 +37,7 @@ func encodeAndStore(obj interface{}, data, signature io.WriteCloser, signer seri
 
 func decodeFromStorage(obj interface{}, data, signature io.ReadCloser, publicKey security.PublicKey) error {
 	if data == nil || signature == nil {
-		return fmt.Errorf("invalid data/signature handles data:%v sig:%v", data, signature)
+		return fmt.Errorf("decode: invalid data/signature handles data:%v sig:%v", data, signature)
 	}
 	defer data.Close()
 	defer signature.Close()
@@ -41,4 +47,23 @@ func decodeFromStorage(obj interface{}, data, signature io.ReadCloser, publicKey
 	}
 	dec := vom.NewDecoder(vr)
 	return dec.Decode(obj)
+}
+
+func handleRefresh(ctx context.Context, interval time.Duration, loader func() error) {
+	hupCh := make(chan os.Signal, 1)
+	signal.Notify(hupCh, syscall.SIGHUP)
+	go func() {
+		for {
+			select {
+			case <-time.After(interval):
+			case <-hupCh:
+			case <-ctx.Done():
+				return
+			}
+			if err := loader(); err != nil {
+				vlog.Errorf("failed to reload principal: %v", err)
+				return
+			}
+		}
+	}()
 }

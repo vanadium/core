@@ -5,20 +5,26 @@
 package main_test
 
 import (
+	"bytes"
+	"crypto/x509"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/x/ref"
 	"v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/runtime/factories/library"
 	"v.io/x/ref/test/expect"
 	"v.io/x/ref/test/sectestdata"
-	"v.io/x/ref/test/testutil/testsshagent"
 	"v.io/x/ref/test/v23test"
 )
 
@@ -590,7 +596,12 @@ func TestV23Create(t *testing.T) {
 		outputDir = sh.MakeTempDir()
 		bin       = v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
 		aliceDir  = filepath.Join(outputDir, "alice")
+		sslFile   = filepath.Join(outputDir, "ssl.key")
 	)
+
+	if err := os.WriteFile(sslFile, sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private), 0600); err != nil {
+		t.Fatal(err)
+	}
 
 	checkBlessing := func(want string) {
 		if p, err := security.LoadPersistentPrincipal(aliceDir, nil); err != nil {
@@ -602,14 +613,85 @@ func TestV23Create(t *testing.T) {
 			}
 		}
 	}
-	for _, flags := range [][]string{
-		nil,
-		{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")},
-		{"--key-type=ecdsa521"},
+
+	checkPEM := func(keyfile, blockType string) {
+		data, err := os.ReadFile(filepath.Join(aliceDir, keyfile))
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _, line, _ := runtime.Caller(1)
+		block, _ := pem.Decode(data)
+		if block == nil {
+			t.Errorf("line %v: failed to decode PEM block in: %s", line, data)
+			return
+		}
+		if got, want := block.Type, blockType; got != want {
+			t.Errorf("line %v: got %v, want %v", line, got, want)
+		}
+	}
+
+	checkSSHKey := func(keyfile, comment string) {
+		data, err := os.ReadFile(filepath.Join(aliceDir, keyfile))
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, _, line, _ := runtime.Caller(1)
+		_, keyComment, _, _, err := ssh.ParseAuthorizedKey(data)
+		if err != nil {
+			t.Errorf("line %v: failed to parse ssh key from: %s: %v", line, data, err)
+			return
+		}
+		if got, want := keyComment, comment; got != want {
+			t.Errorf("line %v: got %v, want %v", line, got, want)
+		}
+	}
+
+	for _, tc := range []struct {
+		sshComment        string
+		privateKeyPEMType string
+		flags             []string
+	}{
+		{
+			"",
+			"PRIVATE KEY",
+			nil},
+		{
+			"ed25519",
+			"VANADIUM INDIRECT PRIVATE KEY",
+			[]string{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")}},
+		{
+			"",
+			"VANADIUM INDIRECT PRIVATE KEY",
+			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521")}},
+		{
+			"",
+			"VANADIUM INDIRECT PRIVATE KEY",
+			[]string{"--ssl-key=" + sslFile}},
+		{
+			"",
+			"PRIVATE KEY",
+			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521"), "--copy-private-key"}},
+		{
+			"",
+			"PRIVATE KEY",
+			[]string{"--ssl-key=" + sslFile, "--copy-private-key"}},
+		{
+			"",
+			"PRIVATE KEY",
+			[]string{"--key-type=ecdsa521"}},
 	} {
+		flags := tc.flags
 		// Creating a principal should succeed the first time.
 		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
 		checkBlessing("alice")
+
+		if len(tc.sshComment) > 0 {
+			checkSSHKey("publickey.pem", tc.sshComment)
+		} else {
+			checkPEM("publickey.pem", "PUBLIC KEY")
+		}
+
+		checkPEM("privatekey.pem", tc.privateKeyPEMType)
 
 		// The second time should fail (the create command won't override an existing principal).
 		cmd := sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...)
@@ -619,12 +701,13 @@ func TestV23Create(t *testing.T) {
 		}
 
 		// If we specify -overwrite, it will.
-		sh.Cmd(bin, "create", "--overwrite", aliceDir, "alice").Run()
+		sh.Cmd(bin, mergeFlags("create", flags, "-overwrite", aliceDir, "alice")...).Run()
 		checkBlessing("alice")
 
 		// If we create a principal without specifying a blessing name, it will have no blessing.
-		sh.Cmd(bin, "create", "--overwrite", aliceDir).Run()
+		sh.Cmd(bin, mergeFlags("create", flags, "-overwrite", aliceDir)...).Run()
 		checkBlessing("")
+
 		os.RemoveAll(aliceDir)
 	}
 }
@@ -990,6 +1073,65 @@ Chain #1 (2 certificates). Root certificate public key: XX:XX:XX:XX:XX:XX:XX:XX:
 	}
 }
 
+func readPrivateKey(t *testing.T, dir string) *pem.Block {
+	data, err := os.ReadFile(filepath.Join(dir, "privatekey.pem"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	block, _ := pem.Decode(data)
+	if block == nil {
+		t.Fatalf("failed to decode pem block from %s", data)
+	}
+	return block
+}
+
+func TestV23PKCS8Conversion(t *testing.T) {
+	v23test.SkipUnlessRunningIntegrationTests(t)
+	sh := v23test.NewShell(t, nil)
+	withSSHAgent(sh)
+	defer sh.Cleanup()
+
+	outputDir := sh.MakeTempDir()
+	sectestdata.V23CopyLegacyPrincipals(outputDir)
+
+	bin := v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
+
+	legacyDir := filepath.Join(outputDir, sectestdata.V23PrincipalDir(keys.ECDSA256, true))
+	legacyPrincipal, err := security.LoadPersistentPrincipal(legacyDir, sectestdata.Password())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	block := readPrivateKey(t, legacyDir)
+	if got, want := block.Type, "EC PRIVATE KEY"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	if !x509.IsEncryptedPEMBlock(block) { //nolint:staticcheck
+		t.Fatalf("not encrypted")
+	}
+
+	cmd := sh.Cmd(bin, "update-pkcs8", legacyDir)
+	cmd.SetStdinReader(bytes.NewBuffer(sectestdata.Password()))
+	cmd.PropagateOutput = true
+	cmd.Run()
+
+	block = readPrivateKey(t, legacyDir)
+	if got, want := block.Type, "ENCRYPTED PRIVATE KEY"; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+	principal, err := security.LoadPersistentPrincipal(legacyDir, sectestdata.Password())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got, want := legacyPrincipal.PublicKey().String(), principal.PublicKey().String(); got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
+}
+
 var (
 	sshKeyDir    string
 	sshAgentAddr string
@@ -1009,21 +1151,16 @@ func TestMain(m *testing.M) {
 	var (
 		err     error
 		cleanup func()
-		sshKeys []string
 	)
-	sshKeyDir, sshKeys, err = sectestdata.SSHKeydir()
-	if err != nil {
-		panic(err)
-	}
-	cleanup, sshAgentAddr, err = testsshagent.StartPreconfiguredAgent(sshKeyDir,
-		sshKeys...)
+	sshKeyDir, sshAgentAddr, cleanup, err = sectestdata.StartPreConfiguredSSHAgent()
 	if err != nil {
 		panic(err)
 	}
 	// Needed for LoadPrincipal etc to use the ssh agent started above.
-	security.DefaultSSHAgentSockNameFunc = func() string {
+	sshkeys.DefaultSockNameFunc = func() string {
 		return sshAgentAddr
 	}
+
 	flag.Parse()
 	var code int
 	func() {

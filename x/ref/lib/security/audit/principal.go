@@ -48,8 +48,8 @@ func (p *auditingPrincipal) BlessSelf(name string, caveats ...security.Caveat) (
 	return blessings, nil
 }
 
-func (p *auditingPrincipal) BlessSelfX509(cert *x509.Certificate, caveats ...security.Caveat) (security.Blessings, error) {
-	blessings, err := p.principal.BlessSelfX509(cert, caveats...)
+func (p *auditingPrincipal) BlessSelfX509(host string, cert *x509.Certificate, caveats ...security.Caveat) (security.Blessings, error) {
+	blessings, err := p.principal.BlessSelfX509(host, cert, caveats...)
 	cavs := make([]security.Caveat, 0, 2+len(caveats))
 	nb, _ := security.NewNotBeforeCaveat(cert.NotBefore)
 	na, _ := security.NewExpiryCaveat(cert.NotAfter)

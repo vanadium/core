@@ -5,6 +5,8 @@
 package security_test
 
 import (
+	gocontext "context"
+	"crypto"
 	"crypto/x509"
 	"fmt"
 	"reflect"
@@ -14,11 +16,37 @@ import (
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/internal/sectest"
 	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test/sectestdata"
 )
+
+func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, opts x509.VerifyOptions) security.Principal {
+	signer, err := seclib.NewInMemorySigner(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := seclib.CreatePrincipalOpts(ctx,
+		seclib.UseSigner(signer),
+		seclib.UseX509VerifyOptions(opts))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, host string, certs []*x509.Certificate, opts x509.VerifyOptions) security.Principal {
+	p := newX509Principal(ctx, t, key, opts)
+	blessings, err := p.BlessSelfX509(host, certs[0])
+	if err != nil {
+		t.Fatalf("BlessSelfX509: %v", err)
+	}
+	if err := p.BlessingStore().SetDefault(blessings); err != nil {
+		t.Fatalf("failed to set defaut blessings: %v", err)
+	}
+	return p
+}
 
 func TestX509(t *testing.T) {
 	ctx, cancel := context.RootContext()
@@ -45,7 +73,7 @@ func TestX509(t *testing.T) {
 		{sectestdata.MultipleWildcardCert, "bar.labdrive.io", s("bar.labdrive.io"), s("bar.labdrive.io")},
 	} {
 		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
-		server := sectest.NewX509ServerPrincipal(t, privKey, tc.host, pubCerts, &opts)
+		server := newX509ServerPrincipal(ctx, t, privKey, tc.host, pubCerts, opts)
 		blessings, _ := server.BlessingStore().Default()
 		verifyBlessingSignatures(t, blessings)
 		names := security.BlessingNames(server, blessings)
@@ -56,7 +84,8 @@ func TestX509(t *testing.T) {
 		if got, want := blessings.Expiry(), pubCerts[0].NotAfter; got != want {
 			t.Errorf("%v: got %v, want %v", tc.certType, got, want)
 		}
-		client := sectest.NewX509Principal(t, &opts)
+		clientKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetB)
+		client := newX509Principal(ctx, t, clientKey, opts)
 		call := security.NewCall(&security.CallParams{
 			LocalPrincipal:  client,
 			RemoteBlessings: blessings,
@@ -126,10 +155,11 @@ func TestX509Errors(t *testing.T) {
 		{sectestdata.MultipleWildcardCert, "bar.labdr.io", s("bar.labdr.io"), s("bar.labdrive.io")},
 	} {
 		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
-		server := sectest.NewX509ServerPrincipal(t, privKey, tc.host, pubCerts, &opts)
+		server := newX509ServerPrincipal(ctx, t, privKey, tc.host, pubCerts, opts)
 		blessings, _ := server.BlessingStore().Default()
 
-		client := sectest.NewX509Principal(t, &opts)
+		clientKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetB)
+		client := newX509Principal(ctx, t, clientKey, opts)
 
 		// After expiration, ie. 10000 days into the future
 		call := security.NewCall(&security.CallParams{
@@ -151,7 +181,7 @@ func TestX509Errors(t *testing.T) {
 
 		// Without a custom cert pool the validation should fail with a
 		// complaint about being signed by an unknown authority.
-		client = sectest.NewX509Principal(t, &x509.VerifyOptions{
+		client = newX509Principal(ctx, t, clientKey, x509.VerifyOptions{
 			CurrentTime: pubCerts[0].NotBefore.Add(48 * time.Hour),
 		})
 		call = security.NewCall(&security.CallParams{
@@ -164,7 +194,7 @@ func TestX509Errors(t *testing.T) {
 		validate("x509: certificate signed by unknown authority")
 
 		// No custom options.
-		client = sectest.NewX509Principal(t, &x509.VerifyOptions{})
+		client = newX509Principal(ctx, t, clientKey, x509.VerifyOptions{})
 		call = security.NewCall(&security.CallParams{
 			LocalPrincipal:  client,
 			RemoteBlessings: blessings,
@@ -185,7 +215,8 @@ func TestX509Errors(t *testing.T) {
 }
 
 func TestX509ServerErrors(t *testing.T) {
-
+	ctx, cancel := context.RootContext()
+	defer cancel()
 	for _, tc := range []struct {
 		certType    sectestdata.CertType
 		invalidHost string
@@ -196,7 +227,7 @@ func TestX509ServerErrors(t *testing.T) {
 		{sectestdata.MultipleWildcardCert, "bar.labdrx.io"},
 	} {
 		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
-		server := sectest.NewX509ServerPrincipal(t, privKey, "", pubCerts, nil)
+		server := newX509ServerPrincipal(ctx, t, privKey, "", pubCerts, x509.VerifyOptions{})
 		blessings, _ := server.BlessingStore().Default()
 		verifyBlessingSignatures(t, blessings)
 
@@ -209,13 +240,10 @@ func TestX509ServerErrors(t *testing.T) {
 
 		// The following will result in an error from BlessSelfX509 since
 		// the requested tc.invalidHost is not supported by the certificate.
-		signer, err := seclib.NewInMemorySigner(privKey)
-		if err != nil {
-			t.Errorf("failed to create signer: %v", err)
-		}
-		server, err = security.CreatePrincipal(signer,
-			seclib.NewBlessingStore(signer.PublicKey()),
-			seclib.NewBlessingRootsWithX509Options(opts))
+		signer := sectestdata.V23Signer(keys.RSA4096, sectestdata.V23KeySetC)
+		server, err := seclib.CreatePrincipalOpts(ctx,
+			seclib.UseSigner(signer),
+			seclib.UseX509VerifyOptions(opts))
 		if err != nil {
 			t.Errorf("failed to create principal: %v", err)
 		}

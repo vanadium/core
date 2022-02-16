@@ -6,6 +6,9 @@ package sectestdata
 
 import (
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"crypto/x509"
 	"embed"
 	"encoding/pem"
@@ -15,22 +18,15 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 )
 
-func loadCertSet(privKey, cert, ca []byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
-	key, err := loadPrivateKey(privKey)
-	if err != nil {
-		panic(err)
-	}
-	certs, err := loadCerts(cert)
-	if err != nil {
-		panic(err)
-	}
-	opts, err := loadCA(certs[0], ca)
-	if err != nil {
-		panic(err)
-	}
-	return key, certs, opts
+var SupportedKeyAlgos = []keys.CryptoAlgo{
+	keys.ECDSA256, keys.ECDSA384, keys.ECDSA521,
+	keys.ED25519,
+	keys.RSA2048, keys.RSA4096,
 }
 
 func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
@@ -143,4 +139,36 @@ func mustBytesFromFS(fs embed.FS, dir, name string) []byte {
 		panic(fmt.Sprintf("failed to load %v/%v: %v", dir, name, err))
 	}
 	return data
+}
+
+func fileContents(fs embed.FS, filename string) []byte {
+	data, err := fs.ReadFile(path.Join("testdata", filename))
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
+func signerFromCryptoKey(key crypto.PrivateKey) (security.Signer, error) {
+	switch k := key.(type) {
+	case *rsa.PrivateKey:
+		return security.NewInMemoryRSASigner(k)
+	case *ecdsa.PrivateKey:
+		return security.NewInMemoryECDSASigner(k)
+	case ed25519.PrivateKey:
+		return security.NewInMemoryED25519Signer(k)
+	default:
+		return nil, fmt.Errorf("unsupported key type: %v: %T", key, key)
+	}
+}
+
+// CryptoSignerType eturns the types of the public keys associated with a signer.
+// These will differ from the CryptoTypes when openssl is used to implement
+// the signer.
+func CryptoSignerType(kd keys.CryptoAlgo) (public string) {
+	return publicSignerKeyTypes[kd]
+}
+
+func Password() []byte {
+	return []byte("password")
 }

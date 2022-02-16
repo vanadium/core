@@ -43,7 +43,6 @@ func (ed *expiryDischarger) Discharge(ctx *context.T, call rpc.ServerCall, cav s
 	if err != nil {
 		return security.Discharge{}, err
 	}
-	ctx.Infof("got discharge on sever %#v", d)
 	return d, nil
 }
 

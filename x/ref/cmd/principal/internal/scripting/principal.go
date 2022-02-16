@@ -12,11 +12,14 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/crypto/ssh"
 	v23 "v.io/v23"
 	"v.io/v23/security"
 	"v.io/x/lib/textutil"
 	"v.io/x/ref/cmd/principal/internal"
 	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/lib/security/passphrase"
 	"v.io/x/ref/lib/slang"
 )
@@ -30,23 +33,27 @@ func removePrincipal(rt slang.Runtime, dir string) error {
 	return os.RemoveAll(dir)
 }
 
-func useSSHKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error) {
+func useSSHAgentHostedKey(rt slang.Runtime, publicKeyFile string) (crypto.PrivateKey, error) {
 	publicKeyFile = os.ExpandEnv(publicKeyFile)
-	return seclib.NewSSHAgentHostedKey(publicKeyFile)
+	return sshkeys.NewHostedKeyFile(publicKeyFile, nil)
 }
 
-func useSSLKey(rt slang.Runtime, sslKeyFile string) (crypto.PrivateKey, error) {
-	sslKeyFile = os.ExpandEnv(sslKeyFile)
+func useExistingPrivateKey(rt slang.Runtime, keyfile string) (crypto.PrivateKey, error) {
+	keyfile = os.ExpandEnv(keyfile)
+	keyBytes, err := os.ReadFile(keyfile)
+	if err != nil {
+		return nil, err
+	}
 	var privateKey crypto.PrivateKey
 	var pass []byte
 	for {
-		key, err := seclib.ParsePEMPrivateKeyFile(sslKeyFile, pass)
+		key, err := seclib.ParsePrivateKey(rt.Context(), keyBytes, pass)
 		if err == nil {
 			privateKey = key
 			break
 		}
 		if err == seclib.ErrPassphraseRequired || err == seclib.ErrBadPassphrase {
-			pass, _ = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", sslKeyFile))
+			pass, _ = passphrase.Get(fmt.Sprintf("Enter passphrase for %s: ", keyfile))
 			continue
 		}
 		return nil, err
@@ -59,7 +66,7 @@ func createKeyPair(rt slang.Runtime, keyType string) (crypto.PrivateKey, error) 
 	if !ok {
 		return nil, fmt.Errorf("unsupported keytype: %v is not one of %s", keyType, strings.Join(internal.SupportedKeyTypes(), ", "))
 	}
-	return seclib.NewPrivateKey(kt)
+	return keys.NewPrivateKeyForAlgo(kt)
 }
 
 func useOrCreatePrincipal(rt slang.Runtime, key crypto.PrivateKey, dir string) (security.Principal, error) {
@@ -117,42 +124,61 @@ func decodePublicKeyBase64(rt slang.Runtime, key string) (security.PublicKey, er
 	return seclib.DecodePublicKeyBase64(key)
 }
 
-func decodePublicKeySSH(rt slang.Runtime, filename string) (security.PublicKey, error) {
-	data, err := os.ReadFile(filename)
+func readPublicKey(rt slang.Runtime, filename string) (security.PublicKey, error) {
+	filename = os.ExpandEnv(filename)
+	key, err := cryptoPublicKeyFromFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return seclib.DecodePublicKeySSH(data)
+	api, err := seclib.APIForKey(key)
+	if err != nil {
+		return nil, err
+	}
+	return api.PublicKey(key)
 }
 
-func decodePublicKeyPEM(rt slang.Runtime, filename string) (security.PublicKey, error) {
+func cryptoPublicKeyFromFile(filename string) (crypto.PublicKey, error) {
+	filename = os.ExpandEnv(filename)
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return seclib.DecodePublicKeyPEM(data)
+	return seclib.ParsePublicKey(data)
+}
+
+func sshPublicKeyFromFile(filename string) (ssh.PublicKey, error) {
+	key, err := cryptoPublicKeyFromFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	if sshkey, ok := key.(ssh.PublicKey); ok {
+		return sshkey, nil
+	}
+	return nil, fmt.Errorf("%v does not contain an ssh public key: has %T", filename, key)
 }
 
 func sshPublicKeyMD5(rt slang.Runtime, filename string) (string, error) {
-	data, err := os.ReadFile(filename)
+	key, err := sshPublicKeyFromFile(filename)
 	if err != nil {
 		return "", err
 	}
-	return seclib.SSHSignatureMD5(data)
+	return ssh.FingerprintLegacyMD5(key), nil
 }
 
 func sshPublicKeySHA256(rt slang.Runtime, filename string) (string, error) {
-	data, err := os.ReadFile(filename)
+	key, err := sshPublicKeyFromFile(filename)
 	if err != nil {
 		return "", err
 	}
-	return seclib.SSHSignatureSHA256(data)
+	return ssh.FingerprintSHA256(key), nil
 }
 
 func init() {
 	slang.RegisterFunction(defaultPrincipal, "principal", `Returns the Principal that this process would use by default.`)
 
-	slang.RegisterFunction(useSSHKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "publicKeyFile")
+	slang.RegisterFunction(useSSHAgentHostedKey, "principal", `Use an ssh agent host key that corresponds to the supplied public key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "publicKeyFile")
+
+	slang.RegisterFunction(useExistingPrivateKey, "principal", `Use an existing private key, eg. from ssh or ssl/x509. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "privateKeyFile")
 
 	createKeyPairHelp := `Create a new public/private key pair of the specified type. The suported key types are ` + strings.Join(internal.SupportedKeyTypes(), ", ") + "."
 
@@ -164,17 +190,13 @@ func init() {
 
 	slang.RegisterFunction(usePublicKey, "principal", `Use the public key of the principal stored in the specified directory. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
 
-	slang.RegisterFunction(useSSLKey, "principal", `Use the private/public key of the principal specified SSL/TLS key file. Note, that shell variable expansion is performed on the supplied dirname, hence $HOME/dir works as expected.`, "dirName")
-
 	slang.RegisterFunction(publicKey, "principal", `Return the public key for the specified principal`, "principal")
+
+	slang.RegisterFunction(readPublicKey, "principal", `Return the public key stored in the specified public key file`, "principal")
 
 	slang.RegisterFunction(encodePublicKeyBase64, "principal", `Return the base64 url encoding for the supplied public key`, "publicKey")
 
 	slang.RegisterFunction(decodePublicKeyBase64, "principal", `Return the public key for the supplied base64 url encoded key`, "base64String")
-
-	slang.RegisterFunction(decodePublicKeySSH, "principal", `Return the public key for the ssh authorized hosts format data supplied`, "data")
-
-	slang.RegisterFunction(decodePublicKeyPEM, "principal", `Return the public key for the public KEY PEM format data supplied`, "data")
 
 	slang.RegisterFunction(sshPublicKeyMD5, "principal", `Return the md5 signature of the openssh key in the specified file as would be displayed by sshkey-gen -l -m md5`, "filename")
 

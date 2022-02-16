@@ -18,6 +18,7 @@ import (
 	"v.io/v23/security/access/internal"
 	"v.io/v23/vdl"
 	"v.io/v23/verror"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func authorize(authorizer security.Authorizer, params *security.CallParams) error {
@@ -32,20 +33,45 @@ func enforceable(al access.AccessList, p security.Principal) error {
 	return al.Enforceable(ctx, p)
 }
 
-func TestAccessListAuthorizerECDSA(t *testing.T) {
-	testAccessListAuthorizer(t,
-		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
-		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
-		sectest.NewECDSAPrincipalP256TrustAllRoots(t),
-	)
+func onePrincipalTest(t *testing.T, tester func(t *testing.T, p1 security.Principal)) {
+	for _, k1 := range sectestdata.SupportedKeyAlgos {
+		s1 := sectestdata.V23Signer(k1, sectestdata.V23KeySetA)
+		tester(t, sectest.NewPrincipal(t, s1, nil, &sectest.TrustAllRoots{}))
+
+	}
 }
 
-func TestAccessListAuthorizerED25519(t *testing.T) {
-	testAccessListAuthorizer(t,
-		sectest.NewED25519PrincipalTrustAllRoots(t),
-		sectest.NewED25519PrincipalTrustAllRoots(t),
-		sectest.NewED25519PrincipalTrustAllRoots(t),
-	)
+func twoPrincipalTest(t *testing.T, tester func(t *testing.T, p1, p2 security.Principal)) {
+	for _, k1 := range sectestdata.SupportedKeyAlgos {
+		for _, k2 := range sectestdata.SupportedKeyAlgos {
+			s1 := sectestdata.V23Signer(k1, sectestdata.V23KeySetA)
+			s2 := sectestdata.V23Signer(k2, sectestdata.V23KeySetB)
+			tester(t,
+				sectest.NewPrincipal(t, s1, nil, &sectest.TrustAllRoots{}),
+				sectest.NewPrincipal(t, s2, nil, &sectest.TrustAllRoots{}))
+		}
+	}
+}
+
+func threePrincipalTest(t *testing.T, tester func(t *testing.T, p1, p2, p3 security.Principal)) {
+	for _, k1 := range sectestdata.SupportedKeyAlgos {
+		for _, k2 := range sectestdata.SupportedKeyAlgos {
+			for _, k3 := range sectestdata.SupportedKeyAlgos {
+				s1 := sectestdata.V23Signer(k1, sectestdata.V23KeySetA)
+				s2 := sectestdata.V23Signer(k2, sectestdata.V23KeySetB)
+				s3 := sectestdata.V23Signer(k3, sectestdata.V23KeySetC)
+				tester(t,
+					sectest.NewPrincipal(t, s1, nil, &sectest.TrustAllRoots{}),
+					sectest.NewPrincipal(t, s2, nil, &sectest.TrustAllRoots{}),
+					sectest.NewPrincipal(t, s3, nil, &sectest.TrustAllRoots{}))
+
+			}
+		}
+	}
+}
+
+func TestAccessListAuthorizer(t *testing.T) {
+	threePrincipalTest(t, testAccessListAuthorizer)
 }
 
 func testAccessListAuthorizer(t *testing.T, pali, pbob, pche security.Principal) {
@@ -94,12 +120,8 @@ func testAccessListAuthorizer(t *testing.T, pali, pbob, pche security.Principal)
 	}
 }
 
-func TestAccessListEnforceableECDSA(t *testing.T) {
-	testAccessListEnforceable(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
-}
-
-func TestAccessListEnforceableED25519(t *testing.T) {
-	testAccessListEnforceable(t, sectest.NewED25519PrincipalTrustAllRoots(t))
+func TestAccessListEnforceable(t *testing.T) {
+	onePrincipalTest(t, testAccessListEnforceable)
 }
 
 func testAccessListEnforceable(t *testing.T, p security.Principal) {
@@ -187,6 +209,10 @@ func (a byPattern) Less(i, j int) bool { return a[i] < a[j] }
 // the access.PermissionsAuthorizer and interaction with interface specification
 // in VDL.
 func TestPermissionsAuthorizer(t *testing.T) {
+	twoPrincipalTest(t, testPermissionsAuthorizer)
+}
+
+func testPermissionsAuthorizer(t *testing.T, pclient, pserver security.Principal) {
 	type P []security.BlessingPattern
 	type S []string
 	// access.Permissions to test against.
@@ -214,8 +240,6 @@ func TestPermissionsAuthorizer(t *testing.T) {
 
 	var (
 		// Two principals: The "server" and the "client"
-		pserver   = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
-		pclient   = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _ = pserver.BlessSelf("server")
 
 		// B generates the provided blessings for the client and ensures
@@ -281,12 +305,8 @@ func TestPermissionsAuthorizer(t *testing.T) {
 	}
 }
 
-func TestPermissionsAuthorizerSelfRPCsECDSA(t *testing.T) {
-	testPermissionsAuthorizerSelfRPCs(t, sectest.NewECDSAPrincipalP256TrustAllRoots(t))
-}
-
-func TestPermissionsAuthorizerSelfRPCsED25519(t *testing.T) {
-	testPermissionsAuthorizerSelfRPCs(t, sectest.NewED25519PrincipalTrustAllRoots(t))
+func TestPermissionsAuthorizerSelfRPCs(t *testing.T) {
+	onePrincipalTest(t, testPermissionsAuthorizerSelfRPCs)
 }
 
 func testPermissionsAuthorizerSelfRPCs(t *testing.T, p security.Principal) {
@@ -314,12 +334,15 @@ func testPermissionsAuthorizerSelfRPCs(t *testing.T, p security.Principal) {
 }
 
 func TestPermissionsAuthorizerWithNilAccessList(t *testing.T) {
+	twoPrincipalTest(t, testPermissionsAuthorizerWithNilAccessList)
+}
+
+func testPermissionsAuthorizerWithNilAccessList(t *testing.T, pclient, pserver security.Principal) {
 	var (
 		authorizer, _ = access.PermissionsAuthorizer(nil, vdl.TypeOf(internal.Read))
-		pserver       = sectest.NewED25519PrincipalTrustAllRoots(t)
-		pclient       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
-		server, _     = pserver.BlessSelf("server")
-		client, _     = pclient.BlessSelf("client")
+
+		server, _ = pserver.BlessSelf("server")
+		client, _ = pclient.BlessSelf("client")
 	)
 	for _, test := range []string{"Put", "Get", "Resolve", "NoTags"} {
 		params := &security.CallParams{
@@ -336,6 +359,9 @@ func TestPermissionsAuthorizerWithNilAccessList(t *testing.T) {
 }
 
 func TestPermissionsAuthorizerFromFile(t *testing.T) {
+	twoPrincipalTest(t, testPermissionsAuthorizerFromFile)
+}
+func testPermissionsAuthorizerFromFile(t *testing.T, pclient, pserver security.Principal) {
 	file, err := os.CreateTemp("", "TestPermissionsAuthorizerFromFile")
 	if err != nil {
 		t.Fatal(err)
@@ -346,8 +372,6 @@ func TestPermissionsAuthorizerFromFile(t *testing.T) {
 
 	var (
 		authorizer, _  = access.PermissionsAuthorizerFromFile(filename, vdl.TypeOf(internal.Read))
-		pserver        = sectest.NewED25519PrincipalTrustAllRoots(t)
-		pclient        = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
 		server, _      = pserver.BlessSelf("alice")
 		alicefriend, _ = pserver.Bless(pclient.PublicKey(), server, "friend:bob", security.UnconstrainedUse())
 		params         = &security.CallParams{
@@ -393,6 +417,10 @@ func TestTagTypeMustBeString(t *testing.T) {
 // for any of them and until there is more mileage on the use of multiple tags,
 // take the conservative approach of considering multiple tags an error.
 func TestMultipleTags(t *testing.T) {
+	twoPrincipalTest(t, testMultipleTags)
+}
+
+func testMultipleTags(t *testing.T, pclient, pserver security.Principal) {
 	var (
 		allowAll = access.AccessList{In: []security.BlessingPattern{security.AllPrincipals}}
 		perms    = access.Permissions{
@@ -400,8 +428,6 @@ func TestMultipleTags(t *testing.T) {
 			"W": allowAll,
 		}
 		authorizer, _ = access.PermissionsAuthorizer(perms, vdl.TypeOf(internal.Read))
-		pserver       = sectest.NewECDSAPrincipalP256TrustAllRoots(t)
-		pclient       = sectest.NewED25519PrincipalTrustAllRoots(t)
 		server, _     = pserver.BlessSelf("server")
 		client, _     = pclient.BlessSelf("client")
 		call          = &security.CallParams{

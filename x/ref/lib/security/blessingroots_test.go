@@ -10,7 +10,6 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"sort"
 	"testing"
@@ -156,11 +155,7 @@ func TestBlessingRoots(t *testing.T) {
 }
 
 func TestBlessingRootsPersistence(t *testing.T) {
-	dir, err := os.MkdirTemp("", "TestBlessingRootsPersistence")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
+	dir := t.TempDir()
 	tester := newRootsTester()
 	p, err := CreatePersistentPrincipal(dir, nil)
 	if err != nil {

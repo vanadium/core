@@ -3,8 +3,11 @@ set -e
 
 keyfile=vanadium.io.key.pem
 cafile=vanadium.io.ca.pem
-openssl genrsa 2048 > ${keyfile}
-openssl req -x509 -new -nodes -key ${keyfile} -sha256 -days 1825 -subj '/CN=vanadium.io/O=company/C=US' > ${cafile}
+
+genca() {
+	openssl genrsa 2048 > ${keyfile}
+	openssl req -x509 -new -nodes -key ${keyfile} -sha256 -days 1825 -subj '/CN=vanadium.io/O=company/C=US' > ${cafile}
+}
 
 newHost() {
     algo=$1
@@ -23,7 +26,23 @@ newHost() {
     openssl verify -CAfile ${cafile}  ${host}.crt
 }
 
-newHost genrsa rsa2048.vanadium.io 2048
-newHost genrsa rsa4096.vanadium.io 4096
-newHost ecparam ec256.vanadium.io -name prime256v1 -genkey
-newHost genpkey ed25519.vanadium.io -algorithm ed25519
+#genca
+#newHost genrsa rsa-2048.vanadium.io 2048
+#newHost genrsa rsa-4096.vanadium.io 4096
+#newHost ecparam ecdsa-256.vanadium.io -name prime256v1 -genkey
+#newHost ecparam ecdsa-384.vanadium.io -name prime256v1 -genkey
+#newHost ecparam ecdsa-521.vanadium.io -name prime256v1 -genkey
+#newHost genpkey ed25519.vanadium.io -algorithm ed25519
+
+encryptFile() {
+	algo=$1
+	host=$2
+	openssl $algo -aes256 -in ${host}.key -out encrypted.${host}.key -passout 'pass:password'
+}
+
+encryptFile rsa rsa-2048.vanadium.io
+encryptFile rsa rsa-4096.vanadium.io
+encryptFile ec ecdsa-256.vanadium.io
+encryptFile ec ecdsa-384.vanadium.io
+encryptFile ec ecdsa-521.vanadium.io
+encryptFile pkey ed25519.vanadium.io

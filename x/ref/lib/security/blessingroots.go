@@ -9,64 +9,50 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"os"
-	"os/signal"
 	"sort"
 	"sync"
-	"syscall"
 	"time"
 
 	"v.io/v23/security"
 	"v.io/x/lib/vlog"
-	"v.io/x/ref/internal/logger"
-	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/serialization"
 )
 
-// blessingRoots implements security.BlessingRoots.
 type blessingRoots struct {
-	readers   SerializerReader
-	writers   SerializerWriter
-	signer    serialization.Signer
-	x509Opts  x509.VerifyOptions
-	publicKey security.PublicKey
-	flock     *lockedfile.Mutex // GUARDS persistent store
-	mu        sync.RWMutex
-	state     blessingRootsState // GUARDED_BY(mu)
+	ctx      context.Context
+	x509Opts x509.VerifyOptions
+	mu       sync.RWMutex
+	state    blessingRootsState // GUARDED_BY(mu)
 }
 
-func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) error {
+func (br *blessingRoots) addLocked(root []byte, pattern security.BlessingPattern) (func(), error) {
 	if pattern == security.AllPrincipals {
-		return fmt.Errorf("a root cannot be recognized for all blessing names (i.e., the pattern '...')")
+		return nil, fmt.Errorf("a root cannot be recognized for all blessing names (i.e., the pattern '...')")
 	}
 	// Sanity check to avoid invalid keys being added.
 	if _, err := security.UnmarshalPublicKey(root); err != nil {
-		return err
+		return nil, err
 	}
 	key := string(root)
-	br.mu.Lock()
-	defer br.mu.Unlock()
-
-	unlock, err := br.writeLockAndLoad()
-	if err != nil {
-		return err
-	}
-	defer unlock()
-
 	patterns := br.state[key]
 	for _, p := range patterns {
 		if p == pattern {
-			return nil
+			return func() {}, nil
 		}
 	}
-	br.state[key] = append(patterns, pattern)
-
-	if err := br.save(); err != nil {
-		br.state[key] = patterns[:len(patterns)-1]
-		return err
+	oldpatterns := br.state[key]
+	undo := func() {
+		br.state[key] = oldpatterns
 	}
+	br.state[key] = append(patterns, pattern)
+	return undo, nil
+}
 
-	return nil
+func (br *blessingRoots) Add(root []byte, pattern security.BlessingPattern) error {
+	br.mu.Lock()
+	defer br.mu.Unlock()
+	_, err := br.addLocked(root, pattern)
+	return err
 }
 
 func (br *blessingRoots) Recognized(root []byte, blessing string) error {
@@ -78,12 +64,14 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 		}
 	}
 	br.mu.RUnlock()
+
 	// Silly to have to unmarshal the public key on an error.
 	// Change the error message to not require that?
 	obj, err := security.UnmarshalPublicKey(root)
 	if err != nil {
 		return err
 	}
+
 	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root certificate: %v", obj.String(), nil)
 }
 
@@ -138,6 +126,17 @@ func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKe
 	return dump
 }
 
+type root struct {
+	key      security.PublicKey
+	patterns string
+}
+
+type rootSorter []*root
+
+func (s rootSorter) Len() int           { return len(s) }
+func (s rootSorter) Less(i, j int) bool { return s[i].patterns < s[j].patterns }
+func (s rootSorter) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+
 // DebugString return a human-readable string encoding of the roots
 // DebugString encodes all roots into a string in the following
 // format
@@ -150,6 +149,8 @@ func (br *blessingRoots) DebugString() string {
 	const format = "%-47s   %s\n"
 	b := bytes.NewBufferString(fmt.Sprintf(format, "Public key", "Pattern"))
 	var s rootSorter
+	br.mu.RLock()
+	defer br.mu.RUnlock()
 	for keyBytes, patterns := range br.state {
 		key, err := security.UnmarshalPublicKey([]byte(keyBytes))
 		if err != nil {
@@ -164,41 +165,50 @@ func (br *blessingRoots) DebugString() string {
 	return b.String()
 }
 
-type root struct {
-	key      security.PublicKey
-	patterns string
+// NewBlessingRoots returns an implementation of security.BlessingRoots
+// that keeps all state in memory. The returned BlessingRoots is initialized
+// with an empty set of keys.
+func NewBlessingRoots() security.BlessingRoots {
+	return &blessingRoots{ctx: context.TODO(), state: make(blessingRootsState)}
 }
 
-type rootSorter []*root
-
-func (s rootSorter) Len() int           { return len(s) }
-func (s rootSorter) Less(i, j int) bool { return s[i].patterns < s[j].patterns }
-func (s rootSorter) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
-
-func (br *blessingRoots) save() error {
-	if (br.signer == nil) && (br.writers == nil) {
-		return nil
+// NewBlessingRootsOpts returns an implementation of security.BlessingRoots
+// according to the supplied options.
+// If no options are supplied all state is kept in memory.
+func NewBlessingRootsOpts(ctx context.Context, opts ...CredentialsStoreOption) (security.BlessingRoots, error) {
+	var o credentialsStoreOptions
+	for _, fn := range opts {
+		fn(&o)
 	}
-	data, signature, err := br.writers.Writers()
+	if o.reader == nil && o.writer == nil {
+		return &blessingRoots{ctx: ctx, x509Opts: o.x509Opts, state: make(blessingRootsState)}, nil
+	}
+	if o.writer != nil {
+		return o.newWritableBlessingRoots(ctx)
+	}
+	return o.newReadonlyBlessingRoots(ctx)
+}
+
+type blessingRootsReader struct {
+	blessingRoots
+	publicKey security.PublicKey
+	interval  time.Duration
+}
+
+func (opts credentialsStoreOptions) newBlessingRootsReader(ctx context.Context) blessingRootsReader {
+	return blessingRootsReader{
+		blessingRoots: blessingRoots{ctx: ctx, x509Opts: opts.x509Opts, state: make(blessingRootsState)},
+		publicKey:     opts.publicKey,
+		interval:      opts.updateInterval,
+	}
+}
+
+func (br *blessingRootsReader) loadLocked(ctx context.Context, reader CredentialsStoreReader, publicKey security.PublicKey) error {
+	rd, err := reader.RootsReader(ctx)
 	if err != nil {
 		return err
 	}
-	return encodeAndStore(br.state, data, signature, br.signer)
-}
-
-func (br *blessingRoots) readLockAndLoad() (func(), error) {
-	return readLockAndLoad(br.flock, br.load)
-}
-
-func (br *blessingRoots) writeLockAndLoad() (func(), error) {
-	return writeLockAndLoad(br.flock, br.load)
-}
-
-func (br *blessingRoots) load() error {
-	if br.readers == nil {
-		return nil
-	}
-	data, signature, err := br.readers.Readers()
+	data, signature, err := rd.Readers()
 	if err != nil {
 		return err
 	}
@@ -206,80 +216,109 @@ func (br *blessingRoots) load() error {
 		return nil
 	}
 	state := make(blessingRootsState)
-	if err := decodeFromStorage(&state, data, signature, br.publicKey); err != nil {
+	if err := decodeFromStorage(&state, data, signature, publicKey); err != nil {
 		return fmt.Errorf("failed to load BlessingRoots: %v", err)
 	}
 	br.state = state
 	return nil
 }
 
-func reload(ctx context.Context, loader func() (func(), error), hupCh <-chan os.Signal, update time.Duration) {
-	for {
-		select {
-		case <-time.After(update):
-		case <-hupCh:
-		case <-ctx.Done():
-			return
-		}
-		unlock, err := loader()
-		if err != nil {
-			logger.Global().Infof("failed to reload principal: %v", err)
-			continue
-		}
-		unlock()
+func (br *blessingRootsReader) load(ctx context.Context, reader CredentialsStoreReader, publicKey security.PublicKey) error {
+	br.mu.Lock()
+	defer br.mu.Unlock()
+	unlock, err := reader.RLock(ctx, LockBlessingRoots)
+	if err != nil {
+		return err
 	}
+	defer unlock()
+	return br.loadLocked(ctx, reader, publicKey)
 }
 
-// NewBlessingRoots returns an implementation of security.BlessingRoots
-// that keeps all state in memory. The returned BlessingRoots is initialized
-// with an empty set of keys.
-func NewBlessingRoots() security.BlessingRoots {
-	return &blessingRoots{
-		state: make(blessingRootsState),
+func (br *blessingRootsReader) refresh(ctx context.Context, store CredentialsStoreReader) error {
+	if err := br.load(ctx, store, br.publicKey); err != nil {
+		return err
 	}
+	if br.interval == 0 {
+		return nil
+	}
+	handleRefresh(ctx, br.interval, func() error {
+		return br.load(ctx, store, br.publicKey)
+	})
+	return nil
 }
 
-// NewBlessingRootsWithX509Options is like NewBlessingRoots but with custom
-// options for use when verifying x509 certificates. It is intended for
-// testing purposes only.
-func NewBlessingRootsWithX509Options(opts x509.VerifyOptions) security.BlessingRoots {
-	return &blessingRoots{
-		state:    make(blessingRootsState),
-		x509Opts: opts,
-	}
+type blessingRootsWritable struct {
+	blessingRootsReader
+	store  CredentialsStoreReadWriter
+	signer serialization.Signer
 }
 
-// NewPersistentBlessingRoots returns a security.BlessingRoots for a principal
-// that is initialized with the persisted data. The returned security.BlessingStore
-// will persists any updates to its state if the supplied writers serializer
-// is specified.
-func NewPersistentBlessingRoots(ctx context.Context, lockFilePath string, readers SerializerReader, writers SerializerWriter, signer serialization.Signer, publicKey security.PublicKey, update time.Duration) (security.BlessingRoots, error) {
-	if readers == nil || (writers != nil && signer == nil) {
-		return nil, fmt.Errorf("blessing's public key does not match store's public key")
+func (br *blessingRootsWritable) saveLocked(ctx context.Context) error {
+	wr, err := br.store.RootsWriter(ctx)
+	if err != nil {
+		return err
 	}
-	br := &blessingRoots{
-		flock:   lockedfile.MutexAt(lockFilePath),
-		readers: readers,
-		writers: writers,
-		signer:  signer,
-		state:   make(blessingRootsState),
+	data, signature, err := wr.Writers()
+	if err != nil {
+		return err
 	}
-	if signer != nil {
-		br.publicKey = signer.PublicKey()
-	} else {
-		br.publicKey = publicKey
+	return encodeAndStore(br.state, data, signature, br.signer)
+}
+
+func (br *blessingRootsWritable) Add(root []byte, pattern security.BlessingPattern) error {
+	br.mu.Lock()
+	defer br.mu.Unlock()
+
+	unlock, err := br.store.Lock(br.ctx, LockBlessingRoots)
+	if err != nil {
+		return err
 	}
-	if err := br.load(); err != nil {
+	defer unlock()
+
+	if err := br.loadLocked(br.ctx, br.store, br.publicKey); err != nil {
+		return err
+	}
+	undo, err := br.addLocked(root, pattern)
+	if err != nil {
+		return err
+	}
+	if err := br.saveLocked(br.ctx); err != nil {
+		undo()
+		return err
+	}
+	return nil
+}
+
+func (opts credentialsStoreOptions) newWritableBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
+	br := &blessingRootsWritable{
+		blessingRootsReader: opts.newBlessingRootsReader(ctx),
+		store:               opts.writer,
+		signer:              opts.signer,
+	}
+	if err := br.refresh(ctx, opts.writer); err != nil {
 		return nil, err
 	}
-	if update > 0 {
-		hupCh := make(chan os.Signal, 1)
-		signal.Notify(hupCh, syscall.SIGHUP)
-		go reload(ctx, func() (func(), error) {
-			br.mu.Lock()
-			defer br.mu.Unlock()
-			return br.readLockAndLoad()
-		}, hupCh, update)
+	return br, nil
+}
+
+type blessingRootsReadonly struct {
+	blessingRootsReader
+	store     CredentialsStoreReader
+	publicKey security.PublicKey
+}
+
+func (br *blessingRootsReadonly) Add(root []byte, pattern security.BlessingPattern) error {
+	return fmt.Errorf("Add is not implemented for readonly blessings roots")
+}
+
+func (opts credentialsStoreOptions) newReadonlyBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
+	br := &blessingRootsReadonly{
+		blessingRootsReader: opts.newBlessingRootsReader(ctx),
+		store:               opts.reader,
+		publicKey:           opts.publicKey,
+	}
+	if err := br.refresh(ctx, opts.reader); err != nil {
+		return nil, err
 	}
 	return br, nil
 }
