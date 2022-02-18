@@ -1648,6 +1648,30 @@ var ExpiryCaveat = CaveatDescriptor{
 	ParamType: vdl.TypeOf((*vdltime.Time)(nil)).Elem(),
 }
 
+// NotBeforeCaveat represents a caveat that validates iff the current time is
+// not before the specified time.Time.
+var NotBeforeCaveat = CaveatDescriptor{
+	Id: uniqueid.Id{
+		186,
+		175,
+		104,
+		57,
+		169,
+		143,
+		156,
+		19,
+		131,
+		153,
+		205,
+		105,
+		214,
+		255,
+		153,
+		37,
+	},
+	ParamType: vdl.TypeOf((*vdltime.Time)(nil)).Elem(),
+}
+
 // MethodCaveat represents a caveat that validates iff the method being
 // invoked is included in this list. An empty list implies that the caveat is invalid.
 var MethodCaveat = CaveatDescriptor{
@@ -1748,6 +1772,7 @@ var (
 	ErrCaveatValidation              = verror.NewIDAction("v.io/v23/security.CaveatValidation", verror.NoRetry)
 	ErrConstCaveatValidation         = verror.NewIDAction("v.io/v23/security.ConstCaveatValidation", verror.NoRetry)
 	ErrExpiryCaveatValidation        = verror.NewIDAction("v.io/v23/security.ExpiryCaveatValidation", verror.NoRetry)
+	ErrNotBeforeCaveatValidation     = verror.NewIDAction("v.io/v23/security.NotBeforeCaveatValidation", verror.NoRetry)
 	ErrMethodCaveatValidation        = verror.NewIDAction("v.io/v23/security.MethodCaveatValidation", verror.NoRetry)
 	ErrPeerBlessingsCaveatValidation = verror.NewIDAction("v.io/v23/security.PeerBlessingsCaveatValidation", verror.NoRetry)
 	ErrUnrecognizedRoot              = verror.NewIDAction("v.io/v23/security.UnrecognizedRoot", verror.NoRetry)
@@ -2022,6 +2047,53 @@ func MessageExpiryCaveatValidation(ctx *context.T, message string, currentTime t
 
 // ParamsErrExpiryCaveatValidation extracts the expected parameters from the error's ParameterList.
 func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
+	params := verror.Params(argumentError)
+	if params == nil {
+		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
+		return
+	}
+	iter := &paramListIterator{params: params, max: len(params)}
+
+	if verrorComponent, verrorOperation, returnErr = iter.preamble(); returnErr != nil {
+		return
+	}
+
+	var (
+		tmp interface{}
+		ok  bool
+	)
+	tmp, returnErr = iter.next()
+	if currentTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value currentTime, has %T and not time.Time", tmp)
+		return
+	}
+	tmp, returnErr = iter.next()
+	if expiryTime, ok = tmp.(time.Time); !ok {
+		if returnErr != nil {
+			return
+		}
+		returnErr = fmt.Errorf("parameter list contains the wrong type for return value expiryTime, has %T and not time.Time", tmp)
+		return
+	}
+
+	return
+}
+
+// ErrorfNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Errorf with the supplied arguments.
+func ErrorfNotBeforeCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrNotBeforeCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
+}
+
+// MessageNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Message with the supplied arguments.
+func MessageNotBeforeCaveatValidation(ctx *context.T, message string, currentTime time.Time, expiryTime time.Time) error {
+	return ErrNotBeforeCaveatValidation.Message(ctx, message, currentTime, expiryTime)
+}
+
+// ParamsErrNotBeforeCaveatValidation extracts the expected parameters from the error's ParameterList.
+func ParamsErrNotBeforeCaveatValidation(argumentError error) (verrorComponent string, verrorOperation string, currentTime time.Time, expiryTime time.Time, returnErr error) {
 	params := verror.Params(argumentError)
 	if params == nil {
 		returnErr = fmt.Errorf("no parameters found in: %T: %v", argumentError, argumentError)
