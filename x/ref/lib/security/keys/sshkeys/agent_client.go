@@ -76,7 +76,7 @@ func (ac *Client) Unlock(ctx context.Context, passphrase []byte) error {
 	return nil
 }
 
-func relock(client agent.ExtendedAgent, pw []byte) bool {
+func relockIfUnlocked(client agent.ExtendedAgent, pw []byte) bool {
 	if err := client.Lock(pw); err != nil {
 		return false
 	}
@@ -93,7 +93,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 	if err := client.Unlock(pw); err != nil {
 		// The unlock may have failed because the agent was already unlocked,
 		// so try to lock and then unlock it!
-		wasUnlocked = relock(client, pw)
+		wasUnlocked = relockIfUnlocked(client, pw)
 		if !wasUnlocked {
 			return passthrough, err
 		}
@@ -114,7 +114,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 // ssh agent. The passphrase is used to lock/unlock the ssh agent. The supplied
 // passphrase is not zeroed. A copy of the passphrase is made by the signer
 // and that is zeroed when the returned signer is garbage collected.
-func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (s security.Signer, err error) {
+func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (security.Signer, error) {
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}
@@ -152,23 +152,21 @@ func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []by
 	if err != nil {
 		return nil, err
 	}
-	var cpy []byte
+	s := &signer{
+		service: ac,
+		sshPK:   pk,
+		v23PK:   vpk,
+		key:     k,
+		name:    ssh.FingerprintSHA256(key),
+		impl:    impl,
+	}
 	if len(passphrase) > 0 {
-		cpy = make([]byte, len(passphrase))
-		copy(cpy, passphrase)
+		s.passphrase = make([]byte, len(passphrase))
+		copy(s.passphrase, passphrase)
+		runtime.SetFinalizer(s, func(s *signer) {
+			keys.ZeroPassphrase(s.passphrase)
+		})
 	}
-	s = &signer{
-		passphrase: cpy,
-		service:    ac,
-		sshPK:      pk,
-		v23PK:      vpk,
-		key:        k,
-		name:       ssh.FingerprintSHA256(key),
-		impl:       impl,
-	}
-	runtime.SetFinalizer(s, func(o *signer) {
-		keys.ZeroPassphrase(o.passphrase)
-	})
 	return s, nil
 }
 
@@ -265,7 +263,7 @@ type signer struct {
 }
 
 // Sign implements security.Signer.
-func (sn *signer) Sign(purpose, message []byte) (sig security.Signature, err error) {
+func (sn *signer) Sign(purpose, message []byte) (security.Signature, error) {
 	relock, err := handleLock(sn.service.agent, sn.passphrase)
 	if err != nil {
 		return security.Signature{}, err

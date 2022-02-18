@@ -48,8 +48,8 @@ var DefaultSockNameFunc = func() string {
 type HostedKey struct {
 	publicKey  ssh.PublicKey
 	comment    string
-	passphrase []byte
 	agent      *Client
+	passphrase []byte
 }
 
 // Comment returns the comment associated with the original ssh public key.
@@ -82,7 +82,7 @@ func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedK
 		passphrase: passphrase,
 	}
 	runtime.SetFinalizer(hk, func(k *HostedKey) {
-		keys.ZeroPassphrase(k.passphrase)
+		hk.zeroPassphrase()
 	})
 	return hk
 }
@@ -97,4 +97,18 @@ func (hk *HostedKey) Signer(ctx context.Context) (security.Signer, error) {
 // PublicKey returns the ssh.PublicKey associated with this sshagent hosted key.
 func (hk *HostedKey) PublicKey() ssh.PublicKey {
 	return hk.publicKey
+}
+
+func (hk *HostedKey) setPassphrase(passphrase []byte) {
+	if len(passphrase) == 0 {
+		return
+	}
+	hk.passphrase = passphrase
+}
+
+func (hk *HostedKey) zeroPassphrase() {
+	if len(hk.passphrase) == 0 {
+		return
+	}
+	keys.ZeroPassphrase(hk.passphrase)
 }
