@@ -6,10 +6,7 @@ package security_test
 
 import (
 	"context"
-	"crypto"
-	"crypto/md5"
 	"crypto/x509"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"testing"
@@ -45,15 +42,6 @@ func TestSSLKeys(t *testing.T) {
 			t.Errorf("failed to verify cert for %v: %v", host, err)
 		}
 	}
-}
-
-func publicKeyFingerPrint(t *testing.T, pk crypto.PublicKey) string {
-	pkb, err := x509.MarshalPKIXPublicKey(pk)
-	if err != nil {
-		t.Errorf("failed to marshal public key %v", err)
-	}
-	hash := md5.Sum(pkb)
-	return hex.EncodeToString(hash[:])
 }
 
 func TestLetsEncryptKeys(t *testing.T) {
