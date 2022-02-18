@@ -38,11 +38,11 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 	certs := map[string]*x509.Certificate{}
 	for _, typ := range SupportedKeyAlgos {
 		host := typ.String()
-		k, err := keyFromFS(vanadiumSSLKeys, "testdata", host+".vanadium.io.key")
+		k, err := loadPrivateKey(fileContents(vanadiumSSLKeys, host+".vanadium.io.key"))
 		if err != nil {
 			panic(err)
 		}
-		c, err := certFromFS(vanadiumSSLCerts, "testdata", host+".vanadium.io.crt")
+		c, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
 		if err != nil {
 			panic(err)
 		}
@@ -62,7 +62,7 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 }
 
 func X509PublicKey(typ keys.CryptoAlgo) crypto.PublicKey {
-	cert, err := certFromFS(vanadiumSSLCerts, "testdata", typ.String()+".vanadium.io.crt")
+	cert, err := loadCerts(fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt"))
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +74,7 @@ func X509PublicKeyBytes(typ keys.CryptoAlgo) []byte {
 }
 
 func X509PrivateKey(typ keys.CryptoAlgo) crypto.PrivateKey {
-	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
+	key, err := loadPrivateKey(fileContents(vanadiumSSLKeys, typ.String()+".vanadium.io.key"))
 	if err != nil {
 		panic(err)
 	}
@@ -90,7 +90,7 @@ func X509PrivateKeyBytes(typ keys.CryptoAlgo, set X509KeySetID) []byte {
 }
 
 func X509Signer(typ keys.CryptoAlgo) security.Signer {
-	key, err := keyFromFS(vanadiumSSLKeys, "testdata", typ.String()+".vanadium.io.key")
+	key, err := loadPrivateKey(fileContents(vanadiumSSLKeys, typ.String()+".vanadium.io.key"))
 	if err != nil {
 		panic(err)
 	}
