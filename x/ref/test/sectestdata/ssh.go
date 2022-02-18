@@ -45,7 +45,7 @@ func SSHKeydir() (string, []string, error) {
 	if err != nil {
 		return "", nil, err
 	}
-	dir, err := prepopulatedDir("ssh-keys", "testdata", sshKeys)
+	dir, err := prepopulatedDir(sshKeys, "ssh-keys", "testdata")
 	if err != nil {
 		return "", nil, err
 	}

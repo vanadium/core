@@ -45,8 +45,8 @@ func TestSSLKeys(t *testing.T) {
 }
 
 func TestLetsEncryptKeys(t *testing.T) {
+	cpriv, _, opts := sectestdata.LetsEncryptData(sectestdata.SingleHostCert)
 	ctx := context.Background()
-	cpriv, _, opts := sectestdata.LetsEncryptData()
 	purpose, message := []byte("testing"), []byte("another message")
 
 	api, err := seclib.APIForKey(cpriv)
@@ -65,7 +65,8 @@ func TestLetsEncryptKeys(t *testing.T) {
 	if !sig.Verify(signer.PublicKey(), message) {
 		t.Errorf("failed to verify signature: %v", err)
 	}
-	letsencryptDir, err := sectestdata.LetsEncryptDir()
+
+	letsencryptDir, err := sectestdata.LetsEncryptDir(sectestdata.SingleHostCert)
 	if err != nil {
 		t.Fatal(err)
 	}
