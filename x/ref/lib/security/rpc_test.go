@@ -47,7 +47,7 @@ func TestRPC(t *testing.T) {
 	// for foo.labdrive.io and bar.labdr.io. The default blessing, stored in
 	// the endpoint is for bar.labdr.io.
 	privKey, pubCerts, opts := sectestdata.LetsEncryptData(sectestdata.MultipleWildcardCert)
-	signer, err := seclib.NewInMemorySigner(privKey)
+	signer, err := seclib.NewSignerFromKey(ctx, privKey)
 	fatal()
 	serverPrincipal, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.UseSigner(signer),
