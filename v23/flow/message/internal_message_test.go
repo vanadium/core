@@ -100,3 +100,14 @@ func TestErrInvalidMessage(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
+
+func ExposeSetAuthMessageType(m *Auth, ecdsa, ed25519, rsa bool) {
+	switch {
+	case ecdsa:
+		m.signatureType = authType
+	case ed25519:
+		m.signatureType = authED25519Type
+	case rsa:
+		m.signatureType = authRSAType
+	}
+}
