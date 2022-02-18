@@ -23,7 +23,7 @@ import (
 )
 
 func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, opts x509.VerifyOptions) security.Principal {
-	signer, err := seclib.NewInMemorySigner(key)
+	signer, err := seclib.NewSignerFromKey(ctx, key)
 	if err != nil {
 		t.Fatal(err)
 	}
