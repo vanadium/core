@@ -20,6 +20,14 @@ const (
     ParamType: typeobject(time.Time),
   }
 
+
+  // NotBeforeCaveat represents a caveat that validates iff the current time is
+  // not before the specified time.Time.
+  NotBeforeCaveat = CaveatDescriptor{
+   Id:        uniqueid.Id{0xba, 0xaf, 0x68, 0x39, 0xa9, 0x8f, 0x9c, 0x13, 0x83, 0x99, 0xcd, 0x69, 0xd6, 0xff, 0x99, 0x25},
+    ParamType: typeobject(time.Time),
+  }
+
   // MethodCaveat represents a caveat that validates iff the method being
   // invoked is included in this list. An empty list implies that the caveat is invalid.
   MethodCaveat = CaveatDescriptor{
@@ -50,6 +58,7 @@ error (
   CaveatValidation(err error) {}
   ConstCaveatValidation() {}
   ExpiryCaveatValidation(currentTime, expiryTime time.Time) {}
+  NotBeforeCaveatValidation(currentTime, expiryTime time.Time) {}
   MethodCaveatValidation(invokedMethod string, permittedMethods []string) {}
   PeerBlessingsCaveatValidation(peerBlessings []string, permittedPatterns []BlessingPattern) {}
 )

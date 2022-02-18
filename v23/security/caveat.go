@@ -211,6 +211,11 @@ func NewExpiryCaveat(t time.Time) (Caveat, error) {
 	return NewCaveat(ExpiryCaveat, t)
 }
 
+// NewNotBeforeCaveat returns a Caveat that validates iff the current time is not before t.
+func NewNotBeforeCaveat(t time.Time) (Caveat, error) {
+	return NewCaveat(NotBeforeCaveat, t)
+}
+
 // NewMethodCaveat returns a Caveat that validates iff the method being invoked by
 // the peer is listed in an argument to this function.
 func NewMethodCaveat(method string, additionalMethods ...string) (Caveat, error) {

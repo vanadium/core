@@ -50,6 +50,9 @@ func testStandardCaveatFactories(t *testing.T, self security.Principal) {
 			// ExpiryCaveat
 			{C(security.NewExpiryCaveat(now.Add(time.Second))), true},
 			{C(security.NewExpiryCaveat(now.Add(-1 * time.Second))), false},
+			// NotBeforeCaveat
+			{C(security.NewNotBeforeCaveat(now.Add(time.Second))), false},
+			{C(security.NewNotBeforeCaveat(now.Add(-1 * time.Second))), true},
 			// MethodCaveat
 			{C(security.NewMethodCaveat("Foo")), true},
 			{C(security.NewMethodCaveat("Bar")), false},
