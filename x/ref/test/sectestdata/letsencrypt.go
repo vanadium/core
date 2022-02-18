@@ -76,7 +76,7 @@ func LetsEncryptData(certType CertType) (crypto.PrivateKey, []*x509.Certificate,
 	}
 }
 
-func loadCertSet(keyBytes, certByes, CABytes []byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
+func loadCertSet(keyBytes, certByes, caBytes []byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
 	key, err := loadPrivateKey(keyBytes)
 	if err != nil {
 		panic(err)
@@ -85,7 +85,7 @@ func loadCertSet(keyBytes, certByes, CABytes []byte) (crypto.PrivateKey, []*x509
 	if err != nil {
 		panic(err)
 	}
-	opts, err := loadCA(certs[0], CABytes)
+	opts, err := loadCA(certs[0], caBytes)
 	if err != nil {
 		panic(err)
 	}
