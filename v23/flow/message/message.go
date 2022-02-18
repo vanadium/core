@@ -315,11 +315,6 @@ func (m *Auth) appendCommon(data []byte) []byte {
 
 func (m *Auth) append(ctx *context.T, data []byte) ([]byte, error) {
 	switch {
-	case len(m.ChannelBinding.R) > 0:
-		data = append(data, authType)
-		data = m.appendCommon(data)
-		data = appendLenBytes(m.ChannelBinding.R, data)
-		data = appendLenBytes(m.ChannelBinding.S, data)
 	case len(m.ChannelBinding.Ed25519) > 0:
 		data = append(data, authED25519Type)
 		data = m.appendCommon(data)
@@ -329,7 +324,10 @@ func (m *Auth) append(ctx *context.T, data []byte) ([]byte, error) {
 		data = m.appendCommon(data)
 		data = appendLenBytes(m.ChannelBinding.Rsa, data)
 	default:
-		return nil, fmt.Errorf("unsupported signature algorithm")
+		data = append(data, authType)
+		data = m.appendCommon(data)
+		data = appendLenBytes(m.ChannelBinding.R, data)
+		data = appendLenBytes(m.ChannelBinding.S, data)
 	}
 	return data, nil
 }
@@ -358,15 +356,15 @@ func (m *Auth) read(ctx *context.T, orig []byte) error {
 		if m.ChannelBinding.R, data, valid = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
-		if m.ChannelBinding.S, _, valid = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.S, _, _ = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
 		}
 	case authED25519Type:
-		if m.ChannelBinding.Ed25519, data, valid = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.Ed25519, _, _ = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
 	case authRSAType:
-		if m.ChannelBinding.Rsa, data, valid = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.Rsa, _, _ = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
 	}
