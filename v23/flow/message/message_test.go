@@ -88,6 +88,9 @@ func TestAuth(t *testing.T) {
 	for _, kt := range sectestdata.SupportedKeyAlgos {
 		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 		p, err := security.CreatePrincipal(signer, nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 		sig, err := p.Sign([]byte("message"))
 		if err != nil {
 			t.Fatal(err)
