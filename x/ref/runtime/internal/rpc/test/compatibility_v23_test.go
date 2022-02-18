@@ -79,16 +79,16 @@ func TestV23PriorServers(t *testing.T) {
 		"TestV23PriorServers",
 		numCalls,
 	)
-	runClient(t, cltCmd, "v120", 2)
+	runClient(t, cltCmd, "v120", "TestV23PriorServers", 2)
 	srvCmd.Terminate(os.Interrupt)
 	mtCmd.Terminate(os.Interrupt)
 }
 
-func runClient(t *testing.T, cltCmd *v23test.Cmd, name string, numCalls int) {
+func runClient(t *testing.T, cltCmd *v23test.Cmd, name, message string, numCalls int) {
 	cltCmd.PropagateOutput = true
 	cltCmd.Start()
 	for i := 0; i < numCalls; i++ {
-		if got, want := cltCmd.S.ExpectVar("RESPONSE"), name+":TestV23PriorServers"; got != want {
+		if got, want := cltCmd.S.ExpectVar("RESPONSE"), name+":"+message; got != want {
 			t.Errorf("got %v, want %v", got, want)
 			break
 		}
@@ -119,14 +119,14 @@ func runCurrentServer(sh *v23test.Shell, cmd *gosh.Func, args ...interface{}) *v
 	return srvCmd
 }
 
-func clientCmd(sh *v23test.Shell, binary string, name string, numCalls int) *v23test.Cmd {
+func clientCmd(sh *v23test.Shell, binary string, name, message string, numCalls int) *v23test.Cmd {
 	ns := v23.GetNamespace(sh.Ctx)
 	mt := ns.Roots()[0]
 	return sh.Cmd(binary,
 		"--v23.namespace.root="+mt,
 		"--name="+name,
 		"--num-calls="+strconv.Itoa(numCalls),
-		"--message=TestV23PriorServers")
+		"--message="+message)
 }
 
 func TestV23PriorClients(t *testing.T) {
@@ -142,8 +142,8 @@ func TestV23PriorClients(t *testing.T) {
 	stopMT := sh.StartRootMountTable()
 
 	srvCmd := runCurrentServer(sh, simpleServerCmd, "v120")
-	cltCmd := clientCmd(sh, simpleClientBinary, "v120", 2)
-	runClient(t, cltCmd, "v120", 2)
+	cltCmd := clientCmd(sh, simpleClientBinary, "v120", "PriorClients", 2)
+	runClient(t, cltCmd, "v120", "PriorClients", 2)
 	srvCmd.Terminate(os.Interrupt)
 	stopMT(os.Interrupt)
 }
@@ -204,7 +204,7 @@ func createCredentialsDirectories(ctx *context.T, t *testing.T, dir string, clie
 	}
 }
 
-func clientCmdCreds(sh *v23test.Shell, binary string, name, credentials string, numCalls int) *v23test.Cmd {
+func clientCmdCreds(sh *v23test.Shell, binary string, name, message, credentials string, numCalls int) *v23test.Cmd {
 	ns := v23.GetNamespace(sh.Ctx)
 	mt := ns.Roots()[0]
 	return sh.Cmd(binary,
@@ -212,7 +212,33 @@ func clientCmdCreds(sh *v23test.Shell, binary string, name, credentials string, 
 		"--v23.namespace.root="+mt,
 		"--name="+name,
 		"--num-calls="+strconv.Itoa(numCalls),
-		"--message=TestV23PriorServers")
+		"--message="+message)
+}
+
+func TestV23AllSigningAlgos(t *testing.T) {
+	v23test.SkipUnlessRunningIntegrationTests(t)
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+	buildV120(t, sh.Ctx, v23test.BinDir())
+
+	stopMT := sh.StartRootMountTable()
+
+	for _, clientKeyType := range sectestdata.SupportedKeyAlgos {
+		credsDir := t.TempDir()
+		clientCreds := filepath.Join(credsDir, "client-"+clientKeyType.String())
+		createCredentialsDirectories(sh.Ctx, t, credsDir, clientKeyType, sectestdata.SupportedKeyAlgos...)
+		for _, serverKeyType := range sectestdata.SupportedKeyAlgos {
+			serverCreds := filepath.Join(credsDir, "server-"+serverKeyType.String())
+
+			name := clientKeyType.String() + "-" + serverKeyType.String()
+			srvCmd := runCurrentServer(sh, simpleServerCmdWithPrincipal, name, serverCreds)
+			cltCmd := sh.FuncCmd(simpleClientCmdWithPrincipal, name, "AllSigningAlgos", clientCreds, 2)
+			runClient(t, cltCmd, name, "AllSigningAlgos", 2)
+			srvCmd.Terminate(os.Interrupt)
+		}
+	}
+
+	stopMT(os.Interrupt)
 }
 
 func TestV23PriorClientsAgainstNewSigningAlgos(t *testing.T) {
@@ -231,19 +257,23 @@ func TestV23PriorClientsAgainstNewSigningAlgos(t *testing.T) {
 	// key types. Any attempt to communicate with an ED25519 server will result in a protocol
 	// error.
 	compatKeyDir := t.TempDir()
+	name := "PriorClientsAgainstNewSigningAlgos-working"
 	createCredentialsDirectories(sh.Ctx, t, compatKeyDir, keys.ECDSA256, keys.ECDSA256, keys.ED25519)
 	serverCreds := filepath.Join(compatKeyDir, "server-"+keys.ECDSA256.String())
 	clientCreds := filepath.Join(compatKeyDir, "client-"+keys.ECDSA256.String())
-	srvCmd := runCurrentServer(sh, simpleServerCmdWithPrincipal, "working", serverCreds)
-	cltCmd := clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
-	runClient(t, cltCmd, "working", 2)
+	srvCmd := runCurrentServer(sh, simpleServerCmdWithPrincipal, name, serverCreds)
+	cltCmd := clientCmdCreds(sh, simpleClientBinary, name, "PriorWorking", clientCreds, 2)
+	runClient(t, cltCmd, name, "PriorWorking", 2)
 	srvCmd.Terminate(os.Interrupt)
 
+	// An old client against an ED25519 server will result in a client side
+	// 'unknown message error'.
 	sh.ContinueOnError = true
 
+	name = "PriorClientsAgainstNewSigningAlgos-bad-message"
 	serverCreds = filepath.Join(compatKeyDir, "server-"+keys.ED25519.String())
-	srvCmd = runCurrentServer(sh, simpleServerCmdWithPrincipal, "working", serverCreds)
-	cltCmd = clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
+	srvCmd = runCurrentServer(sh, simpleServerCmdWithPrincipal, name, serverCreds)
+	cltCmd = clientCmdCreds(sh, simpleClientBinary, name, "PriorUnknownMessage", clientCreds, 2)
 
 	_, stderr := cltCmd.StdoutStderr()
 	if !strings.Contains(stderr, "unknown message type:") {
@@ -256,9 +286,10 @@ func TestV23PriorClientsAgainstNewSigningAlgos(t *testing.T) {
 	// by the v120 releases. More recent releases will behave in the same way as the ED25519 case.
 	incompatKeyDir := t.TempDir()
 	createCredentialsDirectories(sh.Ctx, t, incompatKeyDir, keys.ECDSA256, keys.ECDSA256, keys.RSA2048)
+	name = "PriorClientsAgainstNewSigningAlgos-no-load"
 
 	clientCreds = filepath.Join(incompatKeyDir, "client-"+keys.ECDSA256.String())
-	cltCmd = clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
+	cltCmd = clientCmdCreds(sh, simpleClientBinary, name, "PriorLoadError", clientCreds, 2)
 
 	_, stderr = cltCmd.StdoutStderr()
 	if !strings.Contains(stderr, "failed to load BlessingStore: unrecognized PublicKey type *rsa.PublicKey") {
@@ -275,9 +306,7 @@ var simpleServerCmd = gosh.RegisterFunc("simpleServer", func(name string) error 
 	return impl.RunServer(ctx, name)
 })
 
-var simpleServerCmdWithPrincipal = gosh.RegisterFunc("simpleServerCmdWithPrincipal", func(name, credsDir string) error {
-	return runServerWithPrincipal(name, credsDir)
-})
+var simpleServerCmdWithPrincipal = gosh.RegisterFunc("simpleServerCmdWithPrincipal", runServerWithPrincipal)
 
 func runServerWithPrincipal(name, credsDir string) error {
 	ctx, shutdown := test.V23Init()
@@ -297,6 +326,20 @@ var simpleClientCmd = gosh.RegisterFunc("simpleClient", func(mt, name, msg strin
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	ctx, _, err := v23.WithNewNamespace(ctx, mt)
+	if err != nil {
+		return err
+	}
+	return impl.RunClient(ctx, name, msg, numCalls)
+})
+
+var simpleClientCmdWithPrincipal = gosh.RegisterFunc("simpleClientCmdWithPrincipal", func(name, msg, credsDir string, numCalls int) error {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	p, err := seclib.LoadPrincipalOpts(ctx, seclib.LoadFromReadonly(seclib.FilesystemStoreReader(credsDir)))
+	if err != nil {
+		return err
+	}
+	ctx, err = v23.WithPrincipal(ctx, p)
 	if err != nil {
 		return err
 	}
