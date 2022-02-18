@@ -156,7 +156,7 @@ func TestAgentLocked(t *testing.T) {
 		if err := client.Lock(ctx, passphrase); err != nil {
 			t.Fatalf("%v: %v", kt, err)
 		}
-		// the passphrase will get zero'ed by the signer created by
+		// The passphrase will get zero'ed by the signer created by
 		// testAgent as well as by the Unlock function below. Common use
 		// is to rely on the agent client to lock/unlock the agent rather
 		// than doing so explicitly as in this test.
