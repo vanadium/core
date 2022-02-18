@@ -81,7 +81,7 @@ func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedK
 		agent:      NewClient(),
 		passphrase: passphrase,
 	}
-	runtime.SetFinalizer(hk, func(k *HostedKey) {
+	runtime.SetFinalizer(hk, func(hk *HostedKey) {
 		hk.zeroPassphrase()
 	})
 	return hk
