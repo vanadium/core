@@ -4,18 +4,25 @@
 package test
 
 import (
+	"crypto"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
+	"v.io/v23/security"
 	"v.io/x/lib/gosh"
+	seclib "v.io/x/ref/lib/security"
+	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/compatibility"
 	"v.io/x/ref/test/compatibility/modules/simple/impl"
+	"v.io/x/ref/test/sectestdata"
 	"v.io/x/ref/test/v23test"
 )
 
@@ -72,16 +79,16 @@ func TestV23PriorServers(t *testing.T) {
 		"TestV23PriorServers",
 		numCalls,
 	)
-	runClient(t, cltCmd, 2)
+	runClient(t, cltCmd, "v120", 2)
 	srvCmd.Terminate(os.Interrupt)
 	mtCmd.Terminate(os.Interrupt)
 }
 
-func runClient(t *testing.T, cltCmd *v23test.Cmd, numCalls int) {
+func runClient(t *testing.T, cltCmd *v23test.Cmd, name string, numCalls int) {
 	cltCmd.PropagateOutput = true
 	cltCmd.Start()
 	for i := 0; i < numCalls; i++ {
-		if got, want := cltCmd.S.ExpectVar("RESPONSE"), "v120:TestV23PriorServers"; got != want {
+		if got, want := cltCmd.S.ExpectVar("RESPONSE"), name+":TestV23PriorServers"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 			break
 		}
@@ -103,6 +110,25 @@ func runClient(t *testing.T, cltCmd *v23test.Cmd, numCalls int) {
 	cltCmd.Wait()
 }
 
+func runCurrentServer(sh *v23test.Shell, cmd *gosh.Func, args ...interface{}) *v23test.Cmd {
+	srvCmd := sh.FuncCmd(cmd, args...)
+	srvCmd.PropagateOutput = true
+	srvCmd.Start()
+	srvCmd.S.ExpectVar("PID")
+	srvCmd.S.ExpectVar("NAME")
+	return srvCmd
+}
+
+func clientCmd(sh *v23test.Shell, binary string, name string, numCalls int) *v23test.Cmd {
+	ns := v23.GetNamespace(sh.Ctx)
+	mt := ns.Roots()[0]
+	return sh.Cmd(binary,
+		"--v23.namespace.root="+mt,
+		"--name="+name,
+		"--num-calls="+strconv.Itoa(numCalls),
+		"--message=TestV23PriorServers")
+}
+
 func TestV23PriorClients(t *testing.T) {
 	v23test.SkipUnlessRunningIntegrationTests(t)
 
@@ -115,22 +141,131 @@ func TestV23PriorClients(t *testing.T) {
 
 	stopMT := sh.StartRootMountTable()
 
-	srvCmd := sh.FuncCmd(simpleServerCmd, "v120")
-	srvCmd.PropagateOutput = true
-	srvCmd.Start()
-	srvCmd.S.ExpectVar("PID")
-	srvCmd.S.ExpectVar("NAME")
+	srvCmd := runCurrentServer(sh, simpleServerCmd, "v120")
+	cltCmd := clientCmd(sh, simpleClientBinary, "v120", 2)
+	runClient(t, cltCmd, "v120", 2)
+	srvCmd.Terminate(os.Interrupt)
+	stopMT(os.Interrupt)
+}
 
+func createPersistentPrincipal(ctx *context.T, t *testing.T, name, dir string, key crypto.PrivateKey) security.Principal {
+	store, err := seclib.CreateFilesystemStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := seclib.CreatePrincipalOpts(ctx, seclib.UseStore(store), seclib.UsePrivateKey(key, nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := p.BlessSelf(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := seclib.SetDefaultBlessings(p, b); err != nil {
+		t.Fatal(err)
+	}
+	// Add the public key of the root shell so that the mounttable and any other
+	// services started by it will be recognized by the new principals we create
+	// here.
+	defaultBlessing, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
+	if err := security.AddToRoots(p, defaultBlessing); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func createCredentialsDirectories(ctx *context.T, t *testing.T, dir string, clientKeyAlgo keys.CryptoAlgo, serverKeyAlgos ...keys.CryptoAlgo) {
+
+	clientName := "client-" + clientKeyAlgo.String()
+	clientKey := sectestdata.V23PrivateKey(clientKeyAlgo, sectestdata.V23KeySetA)
+	client := createPersistentPrincipal(ctx, t, clientName, filepath.Join(dir, clientName), clientKey)
+
+	for _, kt := range serverKeyAlgos {
+		serverBlessingName := "server-" + kt.String()
+		serverKey := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetB)
+		server := createPersistentPrincipal(ctx, t, serverBlessingName, filepath.Join(dir, "server-"+kt.String()), serverKey)
+
+		serverDefault, _ := server.BlessingStore().Default()
+
+		cav, err := security.NewExpiryCaveat(time.Now().Add(24 * time.Hour))
+		if err != nil {
+			t.Fatal(err)
+		}
+		blessing, err := server.Bless(client.PublicKey(), serverDefault, clientName, cav)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := client.BlessingStore().Set(blessing, security.BlessingPattern(serverBlessingName)); err != nil {
+			t.Fatal(err)
+		}
+		if err := security.AddToRoots(client, blessing); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func clientCmdCreds(sh *v23test.Shell, binary string, name, credentials string, numCalls int) *v23test.Cmd {
 	ns := v23.GetNamespace(sh.Ctx)
 	mt := ns.Roots()[0]
-	numCalls := 2
-	cltCmd := sh.Cmd(simpleClientBinary,
+	return sh.Cmd(binary,
+		"--v23.credentials="+credentials,
 		"--v23.namespace.root="+mt,
-		"--name=v120",
+		"--name="+name,
 		"--num-calls="+strconv.Itoa(numCalls),
 		"--message=TestV23PriorServers")
-	runClient(t, cltCmd, 2)
+}
+
+func TestV23PriorClientsAgainstNewSigningAlgos(t *testing.T) {
+	v23test.SkipUnlessRunningIntegrationTests(t)
+
+	// Run current servers with different signing algorithms against previous client.
+
+	sh := v23test.NewShell(t, nil)
+	defer sh.Cleanup()
+
+	buildV120(t, sh.Ctx, v23test.BinDir())
+
+	stopMT := sh.StartRootMountTable()
+
+	// Generate new principals using the current code, but only with backwards compatible
+	// key types. Any attempt to communicate with an ED25519 server will result in a protocol
+	// error.
+	compatKeyDir := t.TempDir()
+	createCredentialsDirectories(sh.Ctx, t, compatKeyDir, keys.ECDSA256, keys.ECDSA256, keys.ED25519)
+	serverCreds := filepath.Join(compatKeyDir, "server-"+keys.ECDSA256.String())
+	clientCreds := filepath.Join(compatKeyDir, "client-"+keys.ECDSA256.String())
+	srvCmd := runCurrentServer(sh, simpleServerCmdWithPrincipal, "working", serverCreds)
+	cltCmd := clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
+	runClient(t, cltCmd, "working", 2)
 	srvCmd.Terminate(os.Interrupt)
+
+	sh.ContinueOnError = true
+
+	serverCreds = filepath.Join(compatKeyDir, "server-"+keys.ED25519.String())
+	srvCmd = runCurrentServer(sh, simpleServerCmdWithPrincipal, "working", serverCreds)
+	cltCmd = clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
+
+	_, stderr := cltCmd.StdoutStderr()
+	if !strings.Contains(stderr, "unknown message type:") {
+		t.Fatalf("missing or unexpected error/failure message: %v", stderr)
+	}
+	sh.Err = nil
+	srvCmd.Terminate(os.Interrupt)
+
+	// The rsa public key will cause the client to fail on startup since rsa is not supported
+	// by the v120 releases. More recent releases will behave in the same way as the ED25519 case.
+	incompatKeyDir := t.TempDir()
+	createCredentialsDirectories(sh.Ctx, t, incompatKeyDir, keys.ECDSA256, keys.ECDSA256, keys.RSA2048)
+
+	clientCreds = filepath.Join(incompatKeyDir, "client-"+keys.ECDSA256.String())
+	cltCmd = clientCmdCreds(sh, simpleClientBinary, "working", clientCreds, 2)
+
+	_, stderr = cltCmd.StdoutStderr()
+	if !strings.Contains(stderr, "failed to load BlessingStore: unrecognized PublicKey type *rsa.PublicKey") {
+		t.Fatalf("missing or unexpected error/failure message: %v", stderr)
+	}
+
+	sh.Err = nil
 	stopMT(os.Interrupt)
 }
 
@@ -139,6 +274,24 @@ var simpleServerCmd = gosh.RegisterFunc("simpleServer", func(name string) error 
 	defer shutdown()
 	return impl.RunServer(ctx, name)
 })
+
+var simpleServerCmdWithPrincipal = gosh.RegisterFunc("simpleServerCmdWithPrincipal", func(name, credsDir string) error {
+	return runServerWithPrincipal(name, credsDir)
+})
+
+func runServerWithPrincipal(name, credsDir string) error {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	p, err := seclib.LoadPrincipalOpts(ctx, seclib.LoadFromReadonly(seclib.FilesystemStoreReader(credsDir)))
+	if err != nil {
+		return err
+	}
+	ctx, err = v23.WithPrincipal(ctx, p)
+	if err != nil {
+		return err
+	}
+	return impl.RunServer(ctx, name)
+}
 
 var simpleClientCmd = gosh.RegisterFunc("simpleClient", func(mt, name, msg string, numCalls int) error {
 	ctx, shutdown := test.V23Init()

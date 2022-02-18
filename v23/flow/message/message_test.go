@@ -14,8 +14,11 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/rpc/version"
+	"v.io/v23/security"
+	"v.io/x/ref/lib/security/keys"
 	_ "v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func testMessages(t *testing.T, ctx *context.T, cases []message.Message) {
@@ -82,14 +85,41 @@ func TestTearDown(t *testing.T) {
 func TestAuth(t *testing.T) {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	p := v23.GetPrincipal(ctx)
-	sig, err := p.Sign([]byte("message"))
-	if err != nil {
-		t.Fatal(err)
+	for _, kt := range sectestdata.SupportedKeyAlgos {
+		signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
+		p, err := security.CreatePrincipal(signer, nil, nil)
+		sig, err := p.Sign([]byte("message"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		msg := &message.Auth{BlessingsKey: 1, DischargeKey: 5, ChannelBinding: sig}
+		switch kt {
+		case keys.ECDSA256, keys.ECDSA384, keys.ECDSA521:
+			message.ExposeSetAuthMessageType(msg, true, false, false)
+		case keys.ED25519:
+			message.ExposeSetAuthMessageType(msg, false, true, false)
+		case keys.RSA2048, keys.RSA4096:
+			message.ExposeSetAuthMessageType(msg, false, false, true)
+		}
+		testMessages(t, ctx, []message.Message{msg})
+
+		encoded, err := message.Append(ctx, msg, nil)
+		if err != nil {
+			t.Errorf("unexpected error for %#v: %v", msg, err)
+		}
+		decoded, err := message.Read(ctx, encoded)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		authMsg, ok := decoded.(*message.Auth)
+		if !ok {
+			t.Errorf("unexpected message type: %T", authMsg)
+			continue
+		}
+		if !authMsg.ChannelBinding.Verify(p.PublicKey(), []byte("message")) {
+			t.Errorf("failed to verify signature")
+		}
 	}
-	testMessages(t, ctx, []message.Message{
-		&message.Auth{BlessingsKey: 1, DischargeKey: 5, ChannelBinding: sig},
-	})
 }
 
 func TestOpenFlow(t *testing.T) {
