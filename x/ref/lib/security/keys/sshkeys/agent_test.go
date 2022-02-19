@@ -157,12 +157,8 @@ func TestAgentLocked(t *testing.T) {
 			t.Fatalf("%v: %v", kt, err)
 		}
 		// The passphrase will get zero'ed by the signer created by
-		// testAgent as well as by the Unlock function below. Common use
-		// is to rely on the agent client to lock/unlock the agent rather
-		// than doing so explicitly as in this test.
-		passphraseCopy := make([]byte, len(passphrase))
-		copy(passphraseCopy, passphrase)
-		testAgent(ctx, t, kt, passphraseCopy)
+		// testAgent so use a copy to avoid interfering with Unlock below.
+		testAgent(ctx, t, kt, []byte("locked"))
 
 		err := getSigner(ctx, t, kt)
 		if err == nil || !strings.Contains(err.Error(), "key not found in ssh agent") {

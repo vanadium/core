@@ -48,8 +48,8 @@ var DefaultSockNameFunc = func() string {
 type HostedKey struct {
 	publicKey  ssh.PublicKey
 	comment    string
-	agent      *Client
 	passphrase []byte
+	agent      *Client
 }
 
 // Comment returns the comment associated with the original ssh public key.
@@ -101,6 +101,7 @@ func (hk *HostedKey) PublicKey() ssh.PublicKey {
 
 func (hk *HostedKey) setPassphrase(passphrase []byte) {
 	if len(passphrase) == 0 {
+		hk.passphrase = nil
 		return
 	}
 	hk.passphrase = passphrase

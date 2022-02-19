@@ -63,10 +63,8 @@ func (ac *Client) Lock(ctx context.Context, passphrase []byte) error {
 	return nil
 }
 
-// Unlock will unlock the agent using the specified passphrase. The
-// passphrase is zeroed on return.
+// Unlock will unlock the agent using the specified passphrase.
 func (ac *Client) Unlock(ctx context.Context, passphrase []byte) error {
-	defer keys.ZeroPassphrase(passphrase)
 	if err := ac.connect(ctx); err != nil {
 		return err
 	}
@@ -114,7 +112,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 // ssh agent. The passphrase is used to lock/unlock the ssh agent. The supplied
 // passphrase is not zeroed. A copy of the passphrase is made by the signer
 // and that is zeroed when the returned signer is garbage collected.
-func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (security.Signer, error) {
+func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (sig security.Signer, err error) {
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}
@@ -268,14 +266,15 @@ func (sn *signer) Sign(purpose, message []byte) (security.Signature, error) {
 	if err != nil {
 		return security.Signature{}, err
 	}
-	defer func() {
-		err = relock(err)
-	}()
 	keyBytes, err := sn.v23PK.MarshalBinary()
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("failed to marshal public key: %v", sn.v23PK)
+		return security.Signature{}, relock(fmt.Errorf("failed to marshal public key: %v", sn.v23PK))
 	}
-	return sn.impl(sn.service, sn.sshPK, keyBytes, purpose, message, sn.name)
+	sig, err := sn.impl(sn.service, sn.sshPK, keyBytes, purpose, message, sn.name)
+	if err != nil {
+		return security.Signature{}, relock(err)
+	}
+	return sig, relock(err)
 }
 
 // PublicKey implements security.PublicKey.
