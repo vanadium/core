@@ -32,9 +32,11 @@ var (
 func NewOpenSSLECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 	return newOpenSSLECDSASigner(key, ecdsaHash(&key.PublicKey))
 }
+
 func NewOpenSSLED25519Signer(key ed25519.PrivateKey) (Signer, error) {
 	return newOpenSSLED25519Signer(key, SHA512Hash)
 }
+
 func NewOpenSSLRSASigner(key *rsa.PrivateKey) (Signer, error) {
 	return newOpenSSLRSASigner(key, SHA512Hash)
 }
@@ -42,9 +44,11 @@ func NewOpenSSLRSASigner(key *rsa.PrivateKey) (Signer, error) {
 func NewGoStdlibECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
 	return newGoStdlibECDSASigner(key, ecdsaHash(&key.PublicKey))
 }
+
 func NewGoStdlibED25519Signer(key ed25519.PrivateKey) (Signer, error) {
 	return newGoStdlibED25519Signer(key, SHA512Hash)
 }
+
 func NewGoStdlibRSASigner(key *rsa.PrivateKey) (Signer, error) {
 	return newGoStdlibRSASigner(key, SHA512Hash)
 }
