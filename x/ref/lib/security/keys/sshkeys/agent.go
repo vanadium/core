@@ -73,7 +73,8 @@ func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, erro
 
 // NewHostedKey creates a connection to the users ssh agent in order to use the
 // private key corresponding to the supplied public for signing operations.
-// If supplied, the passphrase is used to unlock/lock the agent.
+// If supplied, the passphrase is used to unlock/lock the agent. The supplied passphrase
+// will be zeroed when the returned key is garbage collected.
 func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedKey {
 	hk := &HostedKey{
 		publicKey:  key,
@@ -81,8 +82,8 @@ func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedK
 		agent:      NewClient(),
 		passphrase: passphrase,
 	}
-	runtime.SetFinalizer(hk, func(k *HostedKey) {
-		keys.ZeroPassphrase(k.passphrase)
+	runtime.SetFinalizer(hk, func(hk *HostedKey) {
+		hk.zeroPassphrase()
 	})
 	return hk
 }
@@ -91,10 +92,25 @@ func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedK
 // returned signer will retain a copy of any passphrase in ctx and will
 // zero that copy when it is itself garbage collected.
 func (hk *HostedKey) Signer(ctx context.Context) (security.Signer, error) {
-	return hk.agent.Signer(ctx, hk.publicKey, hk.passphrase)
+	return hk.agent.Signer(ctx, hk)
 }
 
 // PublicKey returns the ssh.PublicKey associated with this sshagent hosted key.
 func (hk *HostedKey) PublicKey() ssh.PublicKey {
 	return hk.publicKey
+}
+
+func (hk *HostedKey) setPassphrase(passphrase []byte) {
+	if len(passphrase) == 0 {
+		hk.passphrase = nil
+		return
+	}
+	hk.passphrase = passphrase
+}
+
+func (hk *HostedKey) zeroPassphrase() {
+	if len(hk.passphrase) == 0 {
+		return
+	}
+	keys.ZeroPassphrase(hk.passphrase)
 }

@@ -156,7 +156,9 @@ func TestAgentLocked(t *testing.T) {
 		if err := client.Lock(ctx, passphrase); err != nil {
 			t.Fatalf("%v: %v", kt, err)
 		}
-		testAgent(ctx, t, kt, passphrase)
+		// The passphrase will get zero'ed by the signer created by
+		// testAgent so use a copy to avoid interfering with Unlock below.
+		testAgent(ctx, t, kt, []byte("locked"))
 
 		err := getSigner(ctx, t, kt)
 		if err == nil || !strings.Contains(err.Error(), "key not found in ssh agent") {
