@@ -143,8 +143,8 @@ func NewBlessingRoots() security.BlessingRoots {
 // NewBlessingRootsOpts returns an implementation of security.BlessingRoots
 // according to the supplied options.
 // If no options are supplied all state is kept in memory.
-func NewBlessingRootsOpts(ctx context.Context, opts ...CredentialsStoreOption) (security.BlessingRoots, error) {
-	var o credentialsStoreOption
+func NewBlessingRootsOpts(ctx context.Context, opts ...BlessingRootsOption) (security.BlessingRoots, error) {
+	var o blessingRootsOptions
 	for _, fn := range opts {
 		fn(&o)
 	}
@@ -152,9 +152,9 @@ func NewBlessingRootsOpts(ctx context.Context, opts ...CredentialsStoreOption) (
 		return &blessingRoots{ctx: ctx, state: make(blessingRootsState)}, nil
 	}
 	if o.writer != nil {
-		return newWritableBlessingRoots(ctx, o)
+		return o.newWritableBlessingRoots(ctx)
 	}
-	return newReadonlyBlessingRoots(ctx, o)
+	return o.newReadonlyBlessingRoots(ctx)
 }
 
 type blessingRootsReader struct {
@@ -163,11 +163,11 @@ type blessingRootsReader struct {
 	interval  time.Duration
 }
 
-func newBlessingRootsReader(ctx context.Context, interval time.Duration, key security.PublicKey) blessingRootsReader {
+func (opts blessingRootsOptions) newBlessingRootsReader(ctx context.Context) blessingRootsReader {
 	return blessingRootsReader{
 		blessingRoots: blessingRoots{ctx: ctx, state: make(blessingRootsState)},
-		publicKey:     key,
-		interval:      interval,
+		publicKey:     opts.publicKey,
+		interval:      opts.updateInterval,
 	}
 }
 
@@ -257,9 +257,9 @@ func (br *blessingRootsWritable) Add(root []byte, pattern security.BlessingPatte
 	return nil
 }
 
-func newWritableBlessingRoots(ctx context.Context, opts credentialsStoreOption) (security.BlessingRoots, error) {
+func (opts blessingRootsOptions) newWritableBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
 	br := &blessingRootsWritable{
-		blessingRootsReader: newBlessingRootsReader(ctx, opts.updateInterval, opts.publicKey),
+		blessingRootsReader: opts.newBlessingRootsReader(ctx),
 		store:               opts.writer,
 		signer:              opts.signer,
 	}
@@ -279,9 +279,9 @@ func (br *blessingRootsReadonly) Add(root []byte, pattern security.BlessingPatte
 	return fmt.Errorf("Add is not implemented for readonly blessings roots")
 }
 
-func newReadonlyBlessingRoots(ctx context.Context, opts credentialsStoreOption) (security.BlessingRoots, error) {
+func (opts blessingRootsOptions) newReadonlyBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
 	br := &blessingRootsReadonly{
-		blessingRootsReader: newBlessingRootsReader(ctx, opts.updateInterval, opts.publicKey),
+		blessingRootsReader: opts.newBlessingRootsReader(ctx),
 		store:               opts.reader,
 		publicKey:           opts.publicKey,
 	}

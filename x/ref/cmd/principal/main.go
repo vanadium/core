@@ -1366,7 +1366,7 @@ func (kf KeyFlags) createNewKey(passphrase []byte) (seclib.CreatePrincipalOption
 	if err != nil {
 		return nil, err
 	}
-	return seclib.UsePrivateKey(privateKey, passphrase), nil
+	return seclib.WithPrivateKey(privateKey, passphrase), nil
 }
 
 func importFromPrivateKeyFile(ctx gocontext.Context, filename string, copyKey bool, passphrase []byte) (seclib.CreatePrincipalOption, error) {
@@ -1395,7 +1395,7 @@ func importFromPrivateKeyFile(ctx gocontext.Context, filename string, copyKey bo
 	if err != nil {
 		return nil, err
 	}
-	return seclib.UsePrivateKeyBytes(ctx, publicKeyBytes, privateKeyBytes, passphrase), nil
+	return seclib.WithPrivateKeyBytes(ctx, publicKeyBytes, privateKeyBytes, passphrase), nil
 }
 
 func importForSSHAgent(ctx gocontext.Context, filename string) (seclib.CreatePrincipalOption, error) {
@@ -1407,7 +1407,7 @@ func importForSSHAgent(ctx gocontext.Context, filename string) (seclib.CreatePri
 	if err != nil {
 		return nil, err
 	}
-	return seclib.UsePrivateKeyBytes(ctx, publicKeyBytes, privateKeyBytes, nil), nil
+	return seclib.WithPrivateKeyBytes(ctx, publicKeyBytes, privateKeyBytes, nil), nil
 }
 
 func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFlags, withPassphrase, overwrite bool) (security.Principal, error) {
@@ -1455,7 +1455,7 @@ func createPrincipalOpts(ctx gocontext.Context, dir string, overwrite bool, opts
 	if err != nil {
 		return nil, err
 	}
-	opts = append(opts, seclib.UseStore(store))
+	opts = append(opts, seclib.WithStore(store))
 	return seclib.CreatePrincipalOpts(ctx, opts...)
 }
 
