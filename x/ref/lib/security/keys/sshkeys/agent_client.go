@@ -10,14 +10,12 @@ import (
 	"fmt"
 	"math/big"
 	"net"
-	"runtime"
 	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/keys"
 )
 
 // Client represents an ssh agent client.
@@ -63,10 +61,8 @@ func (ac *Client) Lock(ctx context.Context, passphrase []byte) error {
 	return nil
 }
 
-// Unlock will unlock the agent using the specified passphrase. The
-// passphrase is zeroed on return.
+// Unlock will unlock the agent using the specified passphrase.
 func (ac *Client) Unlock(ctx context.Context, passphrase []byte) error {
-	defer keys.ZeroPassphrase(passphrase)
 	if err := ac.connect(ctx); err != nil {
 		return err
 	}
@@ -76,7 +72,7 @@ func (ac *Client) Unlock(ctx context.Context, passphrase []byte) error {
 	return nil
 }
 
-func relock(client agent.ExtendedAgent, pw []byte) bool {
+func relockIfUnlocked(client agent.ExtendedAgent, pw []byte) bool {
 	if err := client.Lock(pw); err != nil {
 		return false
 	}
@@ -93,7 +89,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 	if err := client.Unlock(pw); err != nil {
 		// The unlock may have failed because the agent was already unlocked,
 		// so try to lock and then unlock it!
-		wasUnlocked = relock(client, pw)
+		wasUnlocked = relockIfUnlocked(client, pw)
 		if !wasUnlocked {
 			return passthrough, err
 		}
@@ -114,11 +110,11 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 // ssh agent. The passphrase is used to lock/unlock the ssh agent. The supplied
 // passphrase is not zeroed. A copy of the passphrase is made by the signer
 // and that is zeroed when the returned signer is garbage collected.
-func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []byte) (s security.Signer, err error) {
+func (ac *Client) Signer(ctx context.Context, hostedKey *HostedKey) (sig security.Signer, err error) {
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
 	}
-	relock, err := handleLock(ac.agent, passphrase)
+	relock, err := handleLock(ac.agent, hostedKey.passphrase)
 	if err != nil {
 		return nil, err
 	}
@@ -126,13 +122,13 @@ func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []by
 		err = relock(err)
 	}()
 
-	k, err := ac.lookup(key)
+	k, err := ac.lookup(hostedKey.publicKey)
 	if err != nil {
 		return nil, err
 	}
 	pk, err := ssh.ParsePublicKey(k.Marshal())
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse public key for %v: %v", key, err)
+		return nil, fmt.Errorf("failed to parse public key for %v: %v", hostedKey.publicKey, err)
 	}
 	var vpk security.PublicKey
 	var impl signImpl
@@ -152,23 +148,14 @@ func (ac *Client) Signer(ctx context.Context, key ssh.PublicKey, passphrase []by
 	if err != nil {
 		return nil, err
 	}
-	var cpy []byte
-	if len(passphrase) > 0 {
-		cpy = make([]byte, len(passphrase))
-		copy(cpy, passphrase)
+	s := &signer{
+		service:   ac,
+		hostedKey: hostedKey,
+		v23PK:     vpk,
+		key:       k,
+		name:      ssh.FingerprintSHA256(hostedKey.publicKey),
+		impl:      impl,
 	}
-	s = &signer{
-		passphrase: cpy,
-		service:    ac,
-		sshPK:      pk,
-		v23PK:      vpk,
-		key:        k,
-		name:       ssh.FingerprintSHA256(key),
-		impl:       impl,
-	}
-	runtime.SetFinalizer(s, func(o *signer) {
-		keys.ZeroPassphrase(o.passphrase)
-	})
 	return s, nil
 }
 
@@ -197,14 +184,14 @@ func (ac *Client) lookup(key ssh.PublicKey) (*agent.Key, error) {
 	return nil, fmt.Errorf("key not found in ssh agent: %v ", ssh.FingerprintSHA256(key))
 }
 
-func ecdsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := digestsForSSH(sshPK, v23PK, purpose, message)
+func ecdsaSign(sn *signer, v23PK, purpose, message []byte) (security.Signature, error) {
+	digest, digestType, err := digestsForSSH(sn.hostedKey.publicKey, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
-	sig, err := ac.agent.Sign(sshPK, digest)
+	sig, err := sn.service.agent.Sign(sn.hostedKey.publicKey, digest)
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", name, err)
+		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", sn.name, err)
 	}
 	var ecSig struct {
 		R, S *big.Int
@@ -220,14 +207,14 @@ func ecdsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, 
 	}, nil
 }
 
-func ed25519Sign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := hashedDigestsForSSH(sshPK, v23PK, purpose, message)
+func ed25519Sign(sn *signer, v23PK, purpose, message []byte) (security.Signature, error) {
+	digest, digestType, err := hashedDigestsForSSH(sn.hostedKey.publicKey, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
-	sig, err := ac.agent.Sign(sshPK, digest)
+	sig, err := sn.service.agent.Sign(sn.hostedKey.publicKey, digest)
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", name, err)
+		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", sn.name, err)
 	}
 	return security.Signature{
 		Purpose: purpose,
@@ -236,14 +223,14 @@ func ed25519Sign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte
 	}, nil
 }
 
-func rsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error) {
-	digest, digestType, err := digestsForSSH(sshPK, v23PK, purpose, message)
+func rsaSign(sn *signer, v23PK, purpose, message []byte) (security.Signature, error) {
+	digest, digestType, err := digestsForSSH(sn.hostedKey.publicKey, v23PK, purpose, message)
 	if err != nil {
 		return security.Signature{}, fmt.Errorf("failed to generate message digesT: %v", err)
 	}
-	sig, err := ac.agent.SignWithFlags(sshPK, digest, agent.SignatureFlagRsaSha512)
+	sig, err := sn.service.agent.SignWithFlags(sn.hostedKey.publicKey, digest, agent.SignatureFlagRsaSha512)
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", name, err)
+		return security.Signature{}, fmt.Errorf("signature operation failed for %v: %v", sn.name, err)
 	}
 	return security.Signature{
 		Purpose: purpose,
@@ -252,32 +239,33 @@ func rsaSign(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, na
 	}, nil
 }
 
-type signImpl func(ac *Client, sshPK ssh.PublicKey, v23PK, purpose, message []byte, name string) (security.Signature, error)
+type signImpl func(sn *signer, v23PK, purpose, message []byte) (security.Signature, error)
 
 type signer struct {
-	service    *Client
-	passphrase []byte
-	name       string
-	sshPK      ssh.PublicKey
-	v23PK      security.PublicKey
-	key        *agent.Key
-	impl       signImpl
+	service   *Client
+	name      string
+	hostedKey *HostedKey
+	v23PK     security.PublicKey
+	key       *agent.Key
+	impl      signImpl
 }
 
 // Sign implements security.Signer.
 func (sn *signer) Sign(purpose, message []byte) (sig security.Signature, err error) {
-	relock, err := handleLock(sn.service.agent, sn.passphrase)
+	relock, err := handleLock(sn.service.agent, sn.hostedKey.passphrase)
 	if err != nil {
-		return security.Signature{}, err
+		return
 	}
 	defer func() {
 		err = relock(err)
 	}()
 	keyBytes, err := sn.v23PK.MarshalBinary()
 	if err != nil {
-		return security.Signature{}, fmt.Errorf("failed to marshal public key: %v", sn.v23PK)
+		err = fmt.Errorf("failed to marshal public key: %v", sn.v23PK)
+		return
 	}
-	return sn.impl(sn.service, sn.sshPK, keyBytes, purpose, message, sn.name)
+	sig, err = sn.impl(sn, keyBytes, purpose, message)
+	return
 }
 
 // PublicKey implements security.PublicKey.
