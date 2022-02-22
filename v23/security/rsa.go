@@ -70,7 +70,7 @@ type rsaSigner struct {
 	signerCommon
 	sign func(data []byte) (sig []byte, err error)
 	// Object to hold on to for garbage collection
-	impl interface{} //nolint:structcheck,unused
+	impl interface{} //nolint:unused
 }
 
 func (rs *rsaSigner) Sign(purpose, message []byte) (Signature, error) {

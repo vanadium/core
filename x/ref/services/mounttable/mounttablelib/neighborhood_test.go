@@ -19,7 +19,7 @@ import (
 	"v.io/x/ref/test"
 )
 
-//nolint:deadcode,unused
+//nolint:unused
 type stopper interface {
 	Stop()
 }

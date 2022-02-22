@@ -127,7 +127,3 @@ func newSignerCommon(pk PublicKey, hash Hash) signerCommon {
 		chash:  cryptoHash(hash),
 	}
 }
-
-func (sc *signerCommon) hash() crypto.Hash {
-	return sc.chash
-}

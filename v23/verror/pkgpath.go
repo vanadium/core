@@ -22,13 +22,6 @@ var pkgPathCache = pathCache{
 	paths: make(map[string]string),
 }
 
-func (pc *pathCache) has(dir string) (string, bool) {
-	pc.Lock()
-	defer pc.Unlock()
-	p, ok := pc.paths[dir]
-	return p, ok
-}
-
 func (pc *pathCache) set(dir, pkg string) {
 	pc.Lock()
 	defer pc.Unlock()

@@ -125,7 +125,7 @@ func (e *Encoder) Encode(v interface{}) error {
 type encoderMode int
 
 const (
-	encoderRegular     encoderMode = iota //nolint:deadcode,unused,varcheck
+	encoderRegular     encoderMode = iota //nolint:unused
 	encoderForTypes                       // encoder81 is embedded in TypeEncoder
 	encoderForRawBytes                    // encoder81 is used to encode RawBytes
 )

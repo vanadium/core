@@ -751,17 +751,6 @@ func (v *Value) AssignString(x string) {
 	v.rep = x
 }
 
-//go:noinline
-func (v *Value) panicAssignBytesLen() {
-	x := 0
-	panic(fmt.Errorf("vdl: AssignBytes on type [%d]byte with len %d", v.t.len, x))
-}
-
-//go:noinline
-func (v *Value) panicAssignBytesKind() {
-	v.t.panicErrBytes("AssignBytes")
-}
-
 // AssignBytes assigns the underlying []byte or [N]byte to a copy of x.  If the
 // underlying value is []byte, the resulting v has len == len(x).  If the
 // underlying value is [N]byte, we require len(x) == N, otherwise panics.
