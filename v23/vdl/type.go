@@ -429,7 +429,7 @@ func (t *Type) panicErrKind(method string, allowed ...Kind) {
 	panic(t.errKind(method, allowed...))
 }
 
-//go:noline
+//go:noinline
 func (t *Type) kindString() string {
 	return t.kind.String()
 }
