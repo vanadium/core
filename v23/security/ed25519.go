@@ -45,7 +45,7 @@ type ed25519Signer struct {
 	signerCommon
 	sign func(data []byte) ([]byte, error)
 	// Object to hold on to for garbage collection
-	impl interface{} //nolint:structcheck,unused
+	impl interface{} //nolint:unused
 }
 
 // NewED25519Signer creates a Signer that uses the provided function to sign

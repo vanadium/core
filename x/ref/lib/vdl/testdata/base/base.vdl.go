@@ -416,7 +416,7 @@ const (
 var NamedEnumAll = [...]NamedEnum{NamedEnumA, NamedEnumB, NamedEnumC}
 
 // NamedEnumFromString creates a NamedEnum from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func NamedEnumFromString(label string) (x NamedEnum, err error) {
 	err = x.Set(label)
 	return

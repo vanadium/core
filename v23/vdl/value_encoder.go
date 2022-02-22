@@ -88,7 +88,7 @@ func (entry *tveStackEntry) String() string {
 	return out.String()
 }
 
-func formatStack(stack []tveStackEntry) string {
+func formatStack(stack []tveStackEntry) string { //nolint:unused
 	out := &strings.Builder{}
 	for i, s := range stack {
 		fmt.Fprintf(out, "%v: %s\n", i, s.String())
@@ -96,7 +96,7 @@ func formatStack(stack []tveStackEntry) string {
 	return out.String()
 }
 
-func calledFrom(msg string, skip int) {
+func calledFrom(msg string, skip int) { //nolint:unused
 	pcs := make([]uintptr, 10)
 	n := runtime.Callers(skip+1, pcs)
 	frames := runtime.CallersFrames(pcs[:n])
@@ -104,7 +104,7 @@ func calledFrom(msg string, skip int) {
 	fmt.Printf("%v: called from: %v\n", msg, frame.Function)
 }
 
-func (e *toValueEncoder) callingFunction(msg string, tt *Type, showStack bool) {
+func (e *toValueEncoder) callingFunction(msg string, tt *Type, showStack bool) { //nolint:unused
 	calledFrom(msg, 3)
 	if tt != nil {
 		fmt.Printf("%v: %v: %v\n", msg, tt.String(), tt.kind)

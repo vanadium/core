@@ -127,7 +127,7 @@ func (s *rpcStats) record(method string, latency time.Duration) {
 	m.latency.Add(int64(latency / time.Millisecond)) //nolint:errcheck
 }
 
-//nolint:deadcode,unused
+//nolint:unused
 func (s *rpcStats) recordBlessingCache(hit bool) {
 	s.blessingsCacheStats.incr(hit)
 }
@@ -168,7 +168,7 @@ func newBlessingsCacheStats(prefix string) *blessingsCacheStats {
 }
 
 // Incr increments the cache attempt counter and the cache hit counter if hit is true.
-//nolint:deadcode,unused
+//nolint:unused
 func (s *blessingsCacheStats) incr(hit bool) {
 	s.callsReceived.Incr(1)
 	if hit {

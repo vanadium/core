@@ -430,17 +430,6 @@ func (s *server) updateDirtyLocked() {
 	}
 }
 
-func (s *server) tryProxyEndpoints(ctx *context.T, name string, eps []naming.Endpoint) (<-chan struct{}, error) {
-	var ch <-chan struct{}
-	var lastErr error
-	for _, ep := range eps {
-		if ch, lastErr = s.flowMgr.ProxyListen(ctx, name, ep); lastErr == nil {
-			break
-		}
-	}
-	return ch, lastErr
-}
-
 func nextDelay(delay time.Duration) time.Duration {
 	delay *= 2
 	if delay > maxBackoff {

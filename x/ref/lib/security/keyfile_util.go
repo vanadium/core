@@ -5,31 +5,16 @@
 package security
 
 import (
-	"bytes"
 	"context"
 	"crypto"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 	"v.io/x/ref/lib/security/passphrase"
 )
-
-func writeKeyFile(keyfile string, data []byte) error {
-	to, err := os.OpenFile(keyfile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
-	if err != nil {
-		return fmt.Errorf("failed to open %v for writing: %v", keyfile, err)
-	}
-	if err != nil {
-		return err
-	}
-	defer to.Close()
-	_, err = io.Copy(to, bytes.NewReader(data))
-	return err
-}
 
 // PrivateKeyFromFileWithPrompt reads a private key file from the specified file
 // and will only prompt for a passphrase if the contents of the file are encrypted.

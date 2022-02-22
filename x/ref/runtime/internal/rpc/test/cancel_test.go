@@ -216,20 +216,23 @@ type disconnect interface {
 	stop(read, write bool)
 }
 
-//nolint:deadcode,unused
+//nolint:unused
 type disConn struct {
 	net.Conn
 	mu                  sync.Mutex
 	stopread, stopwrite bool
 }
 
-func (p *disConn) stop(read, write bool) {
+func (p *disConn) stop(read, write bool) { //nolint:unused
+
 	p.mu.Lock()
 	p.stopread = read
 	p.stopwrite = write
 	p.mu.Unlock()
 }
-func (p *disConn) Write(b []byte) (int, error) {
+
+func (p *disConn) Write(b []byte) (int, error) { //nolint:unused
+
 	p.mu.Lock()
 	stopwrite := p.stopwrite
 	p.mu.Unlock()
@@ -238,7 +241,9 @@ func (p *disConn) Write(b []byte) (int, error) {
 	}
 	return p.Conn.Write(b)
 }
-func (p *disConn) Read(b []byte) (int, error) {
+
+func (p *disConn) Read(b []byte) (int, error) { //nolint:unused
+
 	for {
 		n, err := p.Conn.Read(b)
 		p.mu.Lock()

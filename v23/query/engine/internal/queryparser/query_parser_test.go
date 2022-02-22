@@ -25,23 +25,23 @@ import (
 type parseSelectTest struct {
 	query     string
 	statement queryparser.SelectStatement
-	err       error //nolint:structcheck,unused
+	err       error //nolint:unused
 }
 
 type parseDeleteTest struct {
 	query     string
 	statement queryparser.DeleteStatement
-	err       error //nolint:structcheck,unused
+	err       error //nolint:unused
 }
 
 type parseErrorTest struct {
 	query string
-	err   error //nolint:structcheck,unused
+	err   error //nolint:unused
 }
 
 type toStringTest struct {
 	query string
-	s     string //nolint:structcheck,unused
+	s     string //nolint:unused
 }
 
 type copyAndSubstituteSelectTest struct {
@@ -59,7 +59,7 @@ type copyAndSubstituteDeleteTest struct {
 type copyAndSubstituteErrorTest struct {
 	query     string
 	subValues []*vdl.Value
-	err       error //nolint:structcheck,unused
+	err       error //nolint:unused
 }
 
 type mockDB struct {

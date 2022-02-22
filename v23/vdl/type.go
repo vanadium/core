@@ -425,18 +425,8 @@ func (t *Type) errKind(method string, allowed ...Kind) error {
 }
 
 //go:noinline
-func (t *Type) errBytes(method string) error {
-	return fmt.Errorf("vdl: %s mismatched type; got: %v, want: bytes", method, t.kind)
-}
-
-//go:noinline
 func (t *Type) panicErrKind(method string, allowed ...Kind) {
 	panic(t.errKind(method, allowed...))
-}
-
-//go:noinline
-func (t *Type) panicErrBytes(method string) {
-	panic(t.errBytes(method))
 }
 
 //go:noline

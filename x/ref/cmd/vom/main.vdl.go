@@ -39,7 +39,7 @@ const (
 var dataRepAll = [...]dataRep{dataRepHex, dataRepBinary}
 
 // dataRepFromString creates a dataRep from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func dataRepFromString(label string) (x dataRep, err error) {
 	err = x.Set(label)
 	return

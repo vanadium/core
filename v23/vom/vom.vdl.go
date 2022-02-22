@@ -60,7 +60,7 @@ const (
 var ControlKindAll = [...]ControlKind{ControlKindNil, ControlKindEnd, ControlKindIncompleteType}
 
 // ControlKindFromString creates a ControlKind from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func ControlKindFromString(label string) (x ControlKind, err error) {
 	err = x.Set(label)
 	return
@@ -446,7 +446,7 @@ const (
 var DumpKindAll = [...]DumpKind{DumpKindVersion, DumpKindControl, DumpKindMsgId, DumpKindTypeMsg, DumpKindValueMsg, DumpKindMsgLen, DumpKindAnyMsgLen, DumpKindAnyLensLen, DumpKindTypeIdsLen, DumpKindTypeId, DumpKindPrimValue, DumpKindByteLen, DumpKindValueLen, DumpKindIndex, DumpKindWireTypeIndex}
 
 // DumpKindFromString creates a DumpKind from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func DumpKindFromString(label string) (x DumpKind, err error) {
 	err = x.Set(label)
 	return

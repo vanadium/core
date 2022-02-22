@@ -242,28 +242,18 @@ func (store *writeableStore) writeKeyFile(keyFile string, data []byte) error {
 	return err
 }
 
-func (store *writeableStore) writeKeyPair(pubBytes, privBytes []byte) error {
-	if err := store.writeKeyFile(store.publicKeyFile, pubBytes); err != nil {
-		return err
-	}
-	if len(privBytes) == 0 {
-		return nil
-	}
-	return store.writeKeyFile(store.privateKeyFile, privBytes)
-}
-
 func (store *writeableStore) WriteKeyPair(ctx context.Context, public, private []byte) error {
 	reason, readonlyFS := ref.ReadonlyCredentialsDir()
 	if readonlyFS {
 		return fmt.Errorf("process is running on a read-only filesystem: %v", reason)
 	}
-	if err := writeKeyFile(filepath.Join(store.dir, publicKeyFile), public); err != nil {
+	if err := store.writeKeyFile(publicKeyFile, public); err != nil {
 		return err
 	}
 	if len(private) == 0 {
 		return nil
 	}
-	return writeKeyFile(filepath.Join(store.dir, privateKeyFile), private)
+	return store.writeKeyFile(privateKeyFile, private)
 }
 
 func (store *writeableStore) Signer(ctx context.Context, passphrase []byte) (security.Signer, error) {

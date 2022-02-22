@@ -153,17 +153,6 @@ func (ps *parseState) argsLeftParen(tp tokPos) parseStateFn {
 	return ps.argsLeftParen
 }
 
-func (ps *parseState) rightParen(tp tokPos) parseStateFn {
-	if tp.tok == token.RPAREN {
-		return ps.done
-	}
-	ps.errs = append(ps.errs, &scanner.Error{
-		Pos: tp.pos,
-		Msg: fmt.Sprintf("expected ')', got '%s'", tp.tok),
-	})
-	return ps.done
-}
-
 func (ps *parseState) argIdentOrRightParen(tp tokPos) parseStateFn {
 	if tp.tok == token.RPAREN {
 		return ps.done
