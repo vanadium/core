@@ -5,16 +5,13 @@
 package security
 
 import (
-	"bytes"
 	"context"
-	gocontext "context"
 	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,7 +21,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref"
-	"v.io/x/ref/lib/security/internal/lockedfile"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/sectestdata"
@@ -49,9 +45,9 @@ func TestMain(m *testing.M) {
 			panic(err)
 		}
 	}
-
+	ctx := context.Background()
 	sectestdata.V23CopyLegacyPrincipals(legacyPrincipalDir)
-	if err := createPersistentPrincipals(currentPrincipalDir); err != nil {
+	if err := createPersistentPrincipals(ctx, currentPrincipalDir); err != nil {
 		panic(err)
 	}
 
@@ -78,21 +74,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func initAndLockPrincipalDir(dir string) error {
-	if err := mkDir(dir); err != nil {
-		return err
-	}
-	for _, lockfile := range []string{directoryLockfileName, blessingRootsLockFilename, blessingStoreLockFilename} {
-		flock := lockedfile.MutexAt(filepath.Join(dir, lockfile))
-		unlock, err := flock.Lock()
-		if err != nil {
-			return fmt.Errorf("failed to lock %v: %v", flock, err)
-		}
-		unlock()
-	}
-	return nil
-}
-
 func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, privBytes []byte, err error) {
 	privBytes, err = keyRegistrar.MarshalPrivateKey(private, passphrase)
 	if err != nil {
@@ -111,41 +92,7 @@ func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, pri
 	return
 }
 
-func writeKeyFile(keyfile string, data []byte) error {
-	to, err := os.OpenFile(keyfile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
-	if err != nil {
-		return fmt.Errorf("failed to open %v for writing: %v", keyfile, err)
-	}
-	if err != nil {
-		return err
-	}
-	defer to.Close()
-	_, err = io.Copy(to, bytes.NewReader(data))
-	return err
-}
-
-func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {
-	pubBytes, privBytes, err := marshalKeyPair(private, passphrase)
-	if err != nil {
-		return err
-	}
-	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
-		return err
-	}
-	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
-}
-
-func writeKeyPairUsingBytes(dir string, pubBytes, privBytes []byte) error {
-	if err := writeKeyFile(filepath.Join(dir, publicKeyFile), pubBytes); err != nil {
-		return err
-	}
-	if len(privBytes) == 0 {
-		return nil
-	}
-	return writeKeyFile(filepath.Join(dir, privateKeyFile), privBytes)
-}
-
-func createPersistentPrincipals(dir string) error {
+func createPersistentPrincipals(ctx context.Context, dir string) error {
 	for _, kt := range sectestdata.SupportedKeyAlgos {
 		for _, pp := range [][]byte{nil, sectestdata.Password()} {
 			basename := kt.String()
@@ -156,34 +103,28 @@ func createPersistentPrincipals(dir string) error {
 			if err != nil {
 				return err
 			}
-			dirname := filepath.Join(dir, basename)
-			if err := initAndLockPrincipalDir(dirname); err != nil {
+			publicKey, privateKey, err := marshalKeyPair(key, pp)
+			if err != nil {
 				return err
 			}
-			if err := writeKeyPairUsingPrivateKey(dirname, key, pp); err != nil {
-				return err
+			for _, prefix := range []string{"", "readonly-", "readonly-nolock-"} {
+				store, err := CreateFilesystemStore(filepath.Join(dir, prefix+basename))
+				if err != nil {
+					return err
+				}
+				if err := store.WriteKeyPair(ctx, publicKey, privateKey); err != nil {
+					return err
+				}
 			}
 			readonly := filepath.Join(dir, "readonly-"+basename)
-			if err := initAndLockPrincipalDir(readonly); err != nil {
-				return err
-			}
-			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
-				return err
-			}
 			if err := setReadonly(readonly); err != nil {
 				return err
 			}
-			readonly = filepath.Join(dir, "readonly-nolock-"+basename)
-			if err := initAndLockPrincipalDir(readonly); err != nil {
+			readonlyNoLock := filepath.Join(dir, "readonly-nolock-"+basename)
+			if err := os.Remove(filepath.Join(readonlyNoLock, "dir.lock")); err != nil {
 				return err
 			}
-			if err := writeKeyPairUsingPrivateKey(readonly, key, pp); err != nil {
-				return err
-			}
-			if err := os.Remove(filepath.Join(readonly, "dir.lock")); err != nil {
-				return err
-			}
-			if err := setReadonly(readonly); err != nil {
+			if err := setReadonly(readonlyNoLock); err != nil {
 				return err
 			}
 		}
@@ -270,7 +211,7 @@ func TestReadonlyAccess(t *testing.T) {
 	}
 	// Test read-only access, should not fail for LoadPersistentPrincipalDaemon
 	// in read-only mode.
-	rp, err := LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	rp, err := LoadPersistentPrincipalDaemon(context.TODO(), dir, nil, true, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -284,7 +225,7 @@ func TestReadonlyAccess(t *testing.T) {
 	// filesystem since there's no need for a read-lock in that case,
 	// but will otherwise fail since write-access is required to create a read-only
 	// file lock.
-	_, err = LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	_, err = LoadPersistentPrincipalDaemon(context.TODO(), dir, nil, true, time.Second)
 	if err == nil || !strings.Contains(err.Error(), "dir.lock: permission denied") {
 		t.Fatalf("missing or incorrect error: %v", err)
 	}
@@ -299,7 +240,7 @@ func TestReadonlyAccess(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	rp, err = LoadPersistentPrincipalDaemon(gocontext.TODO(), dir, nil, true, time.Second)
+	rp, err = LoadPersistentPrincipalDaemon(context.TODO(), dir, nil, true, time.Second)
 	if err != nil {
 		t.Fatalf("encrypted LoadPersistentPrincipal from readonly directory should have succeeded: %v", err)
 	}
@@ -309,11 +250,12 @@ func TestReadonlyAccess(t *testing.T) {
 }
 
 func TestLoadPersistentSSHPrincipal(t *testing.T) {
+	ctx := context.Background()
 	for _, keyName := range sshTestKeys {
 		dir := t.TempDir()
 		keyName += ".pub"
 		// use an ssh key and agent for signing.
-		if err := useSSHPublicKeyAsPrincipal(sshKeyDir, dir, keyName); err != nil {
+		if err := useSSHPublicKeyAsPrincipal(ctx, sshKeyDir, dir, keyName); err != nil {
 			t.Errorf("useSSHPublicKeyAsPrincipal: %v", err)
 			continue
 		}
@@ -334,7 +276,7 @@ func TestLoadPersistentSSHPrincipal(t *testing.T) {
 }
 
 func TestMissingSSHPrivateKey(t *testing.T) {
-	ctx := gocontext.TODO()
+	ctx := context.TODO()
 
 	// ssh key that doesn't exist in the agent.
 	ek, _, err := ed25519.GenerateKey(rand.Reader)
@@ -359,7 +301,7 @@ func funcForKey(keyType keys.CryptoAlgo) func(dir string, pass []byte) (security
 		if err != nil {
 			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
+		return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
@@ -369,13 +311,13 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 		if err != nil {
 			return nil, err
 		}
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
+		return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
 func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
 	return func(dir string, pass []byte) (security.Principal, error) {
-		return CreatePersistentPrincipalUsingKey(gocontext.TODO(), key, dir, copyPassphrase(pass))
+		return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, copyPassphrase(pass))
 	}
 }
 
@@ -447,7 +389,7 @@ func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte
 	}
 }
 
-func useSSHPublicKeyAsPrincipal(from, to, name string) error {
+func useSSHPublicKeyAsPrincipal(ctx context.Context, from, to, name string) error {
 	pubBytes, err := os.ReadFile(filepath.Join(from, name))
 	if err != nil {
 		return err
@@ -456,14 +398,17 @@ func useSSHPublicKeyAsPrincipal(from, to, name string) error {
 	if err != nil {
 		return err
 	}
-	err = writeKeyPairUsingBytes(to, pubBytes, privBytes)
+	store, err := CreateFilesystemStore(to)
 	if err != nil {
+		return err
+	}
+	if err := store.WriteKeyPair(ctx, pubBytes, privBytes); err != nil {
 		return err
 	}
 	return os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
 }
 
-func createAliceAndBob(ctx gocontext.Context, t *testing.T, creator func(dir string, pass []byte) (security.Principal, error)) (principals, daemons map[string]security.Principal) {
+func createAliceAndBob(ctx context.Context, t *testing.T, creator func(dir string, pass []byte) (security.Principal, error)) (principals, daemons map[string]security.Principal) {
 	principals, daemons = map[string]security.Principal{}, map[string]security.Principal{}
 	for _, p := range []string{"alice", "bob"} {
 		dir := t.TempDir()
@@ -527,7 +472,7 @@ func waitForRootChanges(ap, bp security.Principal) {
 }
 
 func TestDaemonMode(t *testing.T) {
-	ctx, cancel := gocontext.WithCancel(gocontext.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	// Create two principls that don't trust each other.
 	principals, daemons := createAliceAndBob(ctx, t, funcForKey(keys.ECDSA256))
@@ -536,7 +481,7 @@ func TestDaemonMode(t *testing.T) {
 	testDaemonMode(ctx, t, principals, daemons)
 }
 
-func testDaemonMode(ctx gocontext.Context, t *testing.T, principals, daemons map[string]security.Principal) {
+func testDaemonMode(ctx context.Context, t *testing.T, principals, daemons map[string]security.Principal) {
 	alice, bob := principals["alice"], principals["bob"]
 	aliced, bobd := daemons["alice"], daemons["bob"]
 
@@ -635,7 +580,7 @@ func testDaemonPublicKeyOnly(t *testing.T, creator func(dir string, pass []byte)
 
 	// Create a principal with only the public key from the original
 	// principal above.
-	ctx := gocontext.Background()
+	ctx := context.Background()
 	pk, err := LoadPersistentPrincipalDaemon(ctx, dir, nil, true, time.Duration(0))
 	if err != nil {
 		t.Fatalf("%s failed: %v", message, err)
