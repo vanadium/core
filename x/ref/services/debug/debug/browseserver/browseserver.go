@@ -878,13 +878,13 @@ func (v *vtraceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	v.execute(v.ctx, w, r, "vtrace.html", data)
 }
 
-//nolint:deadcode,unused
+//nolint:unused
 func internalServerError(w http.ResponseWriter, doing string, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Fprintf(w, "Problem %s: %v", doing, err)
 }
 
-//nolint:deadcode,unused
+//nolint:unused
 func badRequest(w http.ResponseWriter, problem string) {
 	w.WriteHeader(http.StatusBadRequest)
 	fmt.Fprint(w, problem)

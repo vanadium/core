@@ -5,6 +5,7 @@
 package security
 
 import (
+	"bytes"
 	"context"
 	gocontext "context"
 	"crypto"
@@ -13,6 +14,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -107,6 +109,19 @@ func marshalKeyPair(private crypto.PrivateKey, passphrase []byte) (pubBytes, pri
 	}
 	pubBytes, err = keyRegistrar.MarshalPublicKey(pubKey)
 	return
+}
+
+func writeKeyFile(keyfile string, data []byte) error {
+	to, err := os.OpenFile(keyfile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
+	if err != nil {
+		return fmt.Errorf("failed to open %v for writing: %v", keyfile, err)
+	}
+	if err != nil {
+		return err
+	}
+	defer to.Close()
+	_, err = io.Copy(to, bytes.NewReader(data))
+	return err
 }
 
 func writeKeyPairUsingPrivateKey(dir string, private crypto.PrivateKey, passphrase []byte) error {

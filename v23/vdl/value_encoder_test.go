@@ -537,13 +537,6 @@ func TestEncodeToValueOptional(t *testing.T) {
 }
 
 func TestEncodeToValueEnum(t *testing.T) {
-	type enumType int
-	const (
-		L1 enumType = iota
-		L2
-		L3
-	)
-
 	type enumTypeStruct struct {
 		A int
 		C WireRetryCode
@@ -596,9 +589,6 @@ func TestEncodeToValueEnum(t *testing.T) {
 }
 
 func TestEncodeToValueMap(t *testing.T) {
-	type structMap struct {
-		A map[byte]bool
-	}
 	var value Value
 	enc := newToValueEncoder(&value)
 

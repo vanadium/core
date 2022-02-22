@@ -151,7 +151,7 @@ func genEnumType(data *goData, def *compile.TypeDef) string {
 		"\n\n// %[1]sAll holds all labels for %[1]s."+
 		"\nvar %[1]sAll = [...]%[1]s{%[2]s}"+
 		"\n\n// %[1]sFromString creates a %[1]s from a string label."+
-		"\n//nolint:deadcode,unused"+
+		"\n//nolint:unused"+
 		"\nfunc %[1]sFromString(label string) (x %[1]s, err error) {"+
 		"\n\terr = x.Set(label)"+
 		"\n\treturn"+

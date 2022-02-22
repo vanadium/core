@@ -61,7 +61,7 @@ type ecdsaSigner struct {
 	signerCommon
 	sign func(data []byte) (r, s *big.Int, err error)
 	// Object to hold on to for garbage collection
-	impl interface{} //nolint:structcheck,unused
+	impl interface{} //nolint:unused
 }
 
 // NewECDSASigner creates a Signer that uses the provided function to sign

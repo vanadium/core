@@ -14,7 +14,7 @@ type (
 	wireA   struct{}
 	nativeA struct{}
 
-	nativeError struct{} //nolint:deadcode,unused
+	nativeError struct{} //nolint:unused
 )
 
 func equalNativeInfo(a, b nativeInfo) bool {

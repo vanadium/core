@@ -44,7 +44,7 @@ const (
 var WireRetryCodeAll = [...]WireRetryCode{WireRetryCodeNoRetry, WireRetryCodeRetryConnection, WireRetryCodeRetryRefetch, WireRetryCodeRetryBackoff}
 
 // WireRetryCodeFromString creates a WireRetryCode from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func WireRetryCodeFromString(label string) (x WireRetryCode, err error) {
 	err = x.Set(label)
 	return

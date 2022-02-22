@@ -12,7 +12,6 @@ linters-settings:
 
 linters:
   enable:
-    - deadcode
     - gocritic
     - gocyclo
     - gofmt
@@ -24,8 +23,7 @@ linters:
     - misspell
     - exportloopref
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
-    - varcheck
+    - unused
   disable-all: true

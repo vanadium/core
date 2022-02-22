@@ -574,7 +574,7 @@ func initTables() {
 type keyRangesTest struct {
 	query       string
 	indexRanges *ds.IndexRanges
-	err         error //nolint:structcheck,unused
+	err         error //nolint:unused
 }
 
 type evalWhereUsingOnlyKeyTest struct {

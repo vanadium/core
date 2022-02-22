@@ -197,10 +197,10 @@ func (s *dischargeTestServer) Release() ([]security.DischargeImpetus, []uniqueid
 	return impetus, traceid
 }
 
-//nolint:deadcode,unused
+//nolint:unused
 type streamRecvInGoroutineServer struct{ c chan error }
 
-func (s *streamRecvInGoroutineServer) RecvInGoroutine(_ *context.T, call rpc.StreamServerCall) error {
+func (s *streamRecvInGoroutineServer) RecvInGoroutine(_ *context.T, call rpc.StreamServerCall) error { //nolint:unused
 	// Spawn a goroutine to read streaming data from the client.
 	go func() {
 		var i interface{}
