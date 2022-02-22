@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/keys"
 )
 
 type internalKey int
@@ -103,11 +102,4 @@ func (hk *HostedKey) setPassphrase(passphrase []byte) {
 		return
 	}
 	hk.passphrase = passphrase
-}
-
-func (hk *HostedKey) zeroPassphrase() {
-	if len(hk.passphrase) == 0 {
-		return
-	}
-	keys.ZeroPassphrase(hk.passphrase)
 }
