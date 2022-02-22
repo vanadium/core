@@ -7,11 +7,9 @@ package sshkeys
 import (
 	"context"
 	"os"
-	"runtime"
 
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
-	"v.io/x/ref/lib/security/keys"
 )
 
 type internalKey int
@@ -58,7 +56,7 @@ func (hk *HostedKey) Comment() string {
 }
 
 // NewHostedKeyFile calls NewHostedKey with the contents of the specified
-// file
+// file.
 func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, error) {
 	keyBytes, err := os.ReadFile(publicKeyFile)
 	if err != nil {
@@ -73,19 +71,17 @@ func NewHostedKeyFile(publicKeyFile string, passphrase []byte) (*HostedKey, erro
 
 // NewHostedKey creates a connection to the users ssh agent in order to use the
 // private key corresponding to the supplied public for signing operations.
-// If supplied, the passphrase is used to unlock/lock the agent. The supplied passphrase
-// will be zeroed when the returned key is garbage collected.
+// The passphrase, if supplied, is used to unlock/lock the agent. Note that
+// the passphrase for unlocking/locking the agent may also be obtained indirectly
+// when the PEM encoding of the private key is parsed via keys.ParsePrivateKey
+// for example. The passphrase is not zeroed.
 func NewHostedKey(key ssh.PublicKey, comment string, passphrase []byte) *HostedKey {
-	hk := &HostedKey{
+	return &HostedKey{
 		publicKey:  key,
 		comment:    comment,
 		agent:      NewClient(),
 		passphrase: passphrase,
 	}
-	runtime.SetFinalizer(hk, func(hk *HostedKey) {
-		hk.zeroPassphrase()
-	})
-	return hk
 }
 
 // Signer returns a security.Signer that is hosted by an ssh agent. The
@@ -106,11 +102,4 @@ func (hk *HostedKey) setPassphrase(passphrase []byte) {
 		return
 	}
 	hk.passphrase = passphrase
-}
-
-func (hk *HostedKey) zeroPassphrase() {
-	if len(hk.passphrase) == 0 {
-		return
-	}
-	keys.ZeroPassphrase(hk.passphrase)
 }
