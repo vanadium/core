@@ -107,9 +107,7 @@ func handleLock(client agent.ExtendedAgent, pw []byte) (func(err error) error, e
 }
 
 // Signer creates a new security.Signer for a private key that's hosted in the
-// ssh agent. The passphrase is used to lock/unlock the ssh agent. The supplied
-// passphrase is not zeroed. A copy of the passphrase is made by the signer
-// and that is zeroed when the returned signer is garbage collected.
+// ssh agent.
 func (ac *Client) Signer(ctx context.Context, hostedKey *HostedKey) (sig security.Signer, err error) {
 	if err := ac.connect(ctx); err != nil {
 		return nil, err
