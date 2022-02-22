@@ -20,7 +20,7 @@ type BlessingsStoreOption func(*blessingsStoreOptions)
 // BlessingRootsOption represents an option to NewBlessingRootOpts.
 type BlessingRootsOption func(*blessingRootsOptions)
 
-type storeCommonOptions struct {
+type commonStoreOptions struct {
 	reader         CredentialsStoreReader
 	publicKey      security.PublicKey
 	writer         CredentialsStoreReadWriter
@@ -29,11 +29,11 @@ type storeCommonOptions struct {
 }
 
 type blessingsStoreOptions struct {
-	storeCommonOptions
+	commonStoreOptions
 }
 
 type blessingRootsOptions struct {
-	storeCommonOptions
+	commonStoreOptions
 }
 
 // BlessingStoreReadonly specifies a readonly store from which blessings can be read.
