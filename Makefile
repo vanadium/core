@@ -38,6 +38,9 @@ test-integration:
 		v.io/x/ref/examples/tunnel/tunneld \
 		v.io/x/ref/examples/rps/rpsbot \
 		--v23.tests
+
+test-openssl-integration:
+	@echo "VDLPATH" "${VDLPATH}"
 	go test v.io/v23/security/... -tags openssl
 	go test v.io/x/ref/lib/security/... -tags openssl
 
