@@ -307,8 +307,8 @@ func newBlessingStore(ctx context.Context, publicKey security.PublicKey) securit
 // NewBlessingStore returns an implementation of security.BlessingStore
 // according to the supplied options.
 // If no options are supplied all state is kept in memory.
-func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...CredentialsStoreOption) (security.BlessingStore, error) {
-	var o credentialsStoreOptions
+func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...BlessingsStoreOption) (security.BlessingStore, error) {
+	var o blessingsStoreOptions
 	for _, fn := range opts {
 		fn(&o)
 	}
@@ -338,7 +338,7 @@ type blessingStoreReader struct {
 	interval time.Duration
 }
 
-func (opts credentialsStoreOptions) newBlessingStoreReader(ctx context.Context) blessingStoreReader {
+func (opts blessingsStoreOptions) newBlessingStoreReader(ctx context.Context) blessingStoreReader {
 	return blessingStoreReader{
 		blessingStore: blessingStore{
 			ctx:       ctx,
@@ -531,7 +531,7 @@ func (bs *blessingStoreWriteable) ClearDischarges(discharges ...security.Dischar
 	}
 }
 
-func (opts credentialsStoreOptions) newWritableBlessingStore(ctx context.Context) (security.BlessingStore, error) {
+func (opts blessingsStoreOptions) newWritableBlessingStore(ctx context.Context) (security.BlessingStore, error) {
 	bs := &blessingStoreWriteable{
 		blessingStoreReader: opts.newBlessingStoreReader(ctx),
 		store:               opts.writer,
@@ -552,7 +552,7 @@ func (bs *blessingsStoreReadonly) Add(root []byte, pattern security.BlessingPatt
 	return fmt.Errorf("Add is not implemented for readonly blessings roots")
 }
 
-func (opts credentialsStoreOptions) newReadonlyBlessingStore(ctx context.Context) (security.BlessingStore, error) {
+func (opts blessingsStoreOptions) newReadonlyBlessingStore(ctx context.Context) (security.BlessingStore, error) {
 	bs := &blessingsStoreReadonly{
 		blessingStoreReader: opts.newBlessingStoreReader(ctx),
 		store:               opts.reader,

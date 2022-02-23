@@ -175,8 +175,8 @@ func NewBlessingRoots() security.BlessingRoots {
 // NewBlessingRootsOpts returns an implementation of security.BlessingRoots
 // according to the supplied options.
 // If no options are supplied all state is kept in memory.
-func NewBlessingRootsOpts(ctx context.Context, opts ...CredentialsStoreOption) (security.BlessingRoots, error) {
-	var o credentialsStoreOptions
+func NewBlessingRootsOpts(ctx context.Context, opts ...BlessingRootsOption) (security.BlessingRoots, error) {
+	var o blessingRootsOptions
 	for _, fn := range opts {
 		fn(&o)
 	}
@@ -195,9 +195,9 @@ type blessingRootsReader struct {
 	interval  time.Duration
 }
 
-func (opts credentialsStoreOptions) newBlessingRootsReader(ctx context.Context) blessingRootsReader {
+func (opts blessingRootsOptions) newBlessingRootsReader(ctx context.Context) blessingRootsReader {
 	return blessingRootsReader{
-		blessingRoots: blessingRoots{ctx: ctx, x509Opts: opts.x509Opts, state: make(blessingRootsState)},
+		blessingRoots: blessingRoots{ctx: ctx, state: make(blessingRootsState)},
 		publicKey:     opts.publicKey,
 		interval:      opts.updateInterval,
 	}
@@ -289,7 +289,7 @@ func (br *blessingRootsWritable) Add(root []byte, pattern security.BlessingPatte
 	return nil
 }
 
-func (opts credentialsStoreOptions) newWritableBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
+func (opts blessingRootsOptions) newWritableBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
 	br := &blessingRootsWritable{
 		blessingRootsReader: opts.newBlessingRootsReader(ctx),
 		store:               opts.writer,
@@ -311,7 +311,7 @@ func (br *blessingRootsReadonly) Add(root []byte, pattern security.BlessingPatte
 	return fmt.Errorf("Add is not implemented for readonly blessings roots")
 }
 
-func (opts credentialsStoreOptions) newReadonlyBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
+func (opts blessingRootsOptions) newReadonlyBlessingRoots(ctx context.Context) (security.BlessingRoots, error) {
 	br := &blessingRootsReadonly{
 		blessingRootsReader: opts.newBlessingRootsReader(ctx),
 		store:               opts.reader,

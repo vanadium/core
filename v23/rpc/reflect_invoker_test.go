@@ -529,7 +529,7 @@ type (
 
 func (arbitraryCall) SomeExportedCall() int { return 0 }
 
-//nolint:deadcode,unused
+//nolint:unused
 func (badcall) notExported(*context.T, rpc.ServerCall) error { return nil }
 func (badcall) NonRPC1() error                               { return nil }
 func (badcall) NonRPC2(int) error                            { return nil }

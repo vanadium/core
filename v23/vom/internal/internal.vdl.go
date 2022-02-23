@@ -116,7 +116,7 @@ const (
 var VEnumAll = [...]VEnum{VEnumA, VEnumB, VEnumC}
 
 // VEnumFromString creates a VEnum from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func VEnumFromString(label string) (x VEnum, err error) {
 	err = x.Set(label)
 	return

@@ -44,7 +44,7 @@ func CreatePrincipalOpts(ctx context.Context, opts ...CreatePrincipalOption) (se
 		if err != nil {
 			return nil, err
 		}
-		UsePrivateKey(pk, nil)(&o)
+		WithPrivateKey(pk, nil)(&o)
 	}
 	if o.store == nil {
 		return o.createInMemoryPrincipal(ctx)
@@ -72,7 +72,7 @@ func (o createPrincipalOptions) inMemoryStores(ctx context.Context, publicKey se
 		blessingStore = NewBlessingStore(publicKey)
 	}
 	if blessingRoots == nil {
-		blessingRoots, err = NewBlessingRootsOpts(ctx, WithX509VerifyOptions(o.x509Opts))
+		blessingRoots, err = NewBlessingRootsOpts(ctx, BlessingRootsX509VerifyOptions(o.x509Opts))
 	}
 	return
 }
@@ -102,23 +102,27 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 }
 
 func (o createPrincipalOptions) setPersistentStores(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
-	var opt CredentialsStoreOption
+	var blessingsStoreOpt BlessingsStoreOption
+	var blessingRootOpt BlessingRootsOption
 	if signer != nil {
-		opt = WithStore(o.store, &serializationSigner{signer})
+		blessingsStoreOpt = BlessingsStoreWriteable(o.store, &serializationSigner{signer})
+		blessingRootOpt = BlessingRootsWriteable(o.store, &serializationSigner{signer})
 		publicKey = signer.PublicKey()
 	} else {
-		opt = WithReadonlyStore(o.store, publicKey)
+		blessingsStoreOpt = BlessingsStoreReadonly(o.store, publicKey)
+		blessingRootOpt = BlessingRootsReadonly(o.store, publicKey)
 	}
+
 	blessingStore = o.blessingStore
 	if blessingStore == nil {
-		blessingStore, err = NewBlessingStoreOpts(ctx, publicKey, opt)
+		blessingStore, err = NewBlessingStoreOpts(ctx, publicKey, blessingsStoreOpt)
 		if err != nil {
 			return
 		}
 	}
 	blessingRoots = o.blessingRoots
 	if blessingRoots == nil {
-		blessingRoots, err = NewBlessingRootsOpts(ctx, opt, WithX509VerifyOptions(o.x509Opts))
+		blessingRoots, err = NewBlessingRootsOpts(ctx, blessingRootOpt, BlessingRootsX509VerifyOptions(o.x509Opts))
 		if err != nil {
 			return
 		}
@@ -130,6 +134,9 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	signer, err := o.getSigner(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if len(o.privateKeyBytes) == 0 {
+		return nil, fmt.Errorf("cannot create a new persistent principal without a private key")
 	}
 	var publicKey security.PublicKey
 	if signer == nil {

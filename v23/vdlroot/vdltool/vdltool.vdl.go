@@ -62,7 +62,7 @@ const (
 var GenLanguageAll = [...]GenLanguage{GenLanguageGo, GenLanguageJava, GenLanguageJavascript, GenLanguageSwift}
 
 // GenLanguageFromString creates a GenLanguage from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func GenLanguageFromString(label string) (x GenLanguage, err error) {
 	err = x.Set(label)
 	return
@@ -151,7 +151,7 @@ const (
 var GoKindAll = [...]GoKind{GoKindStruct, GoKindBool, GoKindNumber, GoKindString, GoKindArray, GoKindSlice, GoKindMap, GoKindPointer, GoKindIface}
 
 // GoKindFromString creates a GoKind from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func GoKindFromString(label string) (x GoKind, err error) {
 	err = x.Set(label)
 	return
@@ -260,7 +260,7 @@ const (
 var GoZeroModeAll = [...]GoZeroMode{GoZeroModeUnknown, GoZeroModeCanonical, GoZeroModeUnique}
 
 // GoZeroModeFromString creates a GoZeroMode from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func GoZeroModeFromString(label string) (x GoZeroMode, err error) {
 	err = x.Set(label)
 	return

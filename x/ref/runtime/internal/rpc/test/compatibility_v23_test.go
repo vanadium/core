@@ -153,7 +153,7 @@ func createPersistentPrincipal(ctx *context.T, t *testing.T, name, dir string, k
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := seclib.CreatePrincipalOpts(ctx, seclib.UseStore(store), seclib.UsePrivateKey(key, nil))
+	p, err := seclib.CreatePrincipalOpts(ctx, seclib.WithStore(store), seclib.WithPrivateKey(key, nil))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -311,7 +311,7 @@ var simpleServerCmdWithPrincipal = gosh.RegisterFunc("simpleServerCmdWithPrincip
 func runServerWithPrincipal(name, credsDir string) error {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	p, err := seclib.LoadPrincipalOpts(ctx, seclib.LoadFromReadonly(seclib.FilesystemStoreReader(credsDir)))
+	p, err := seclib.LoadPrincipalOpts(ctx, seclib.FromReadonly(seclib.FilesystemStoreReader(credsDir)))
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ var simpleClientCmd = gosh.RegisterFunc("simpleClient", func(mt, name, msg strin
 var simpleClientCmdWithPrincipal = gosh.RegisterFunc("simpleClientCmdWithPrincipal", func(name, msg, credsDir string, numCalls int) error {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	p, err := seclib.LoadPrincipalOpts(ctx, seclib.LoadFromReadonly(seclib.FilesystemStoreReader(credsDir)))
+	p, err := seclib.LoadPrincipalOpts(ctx, seclib.FromReadonly(seclib.FilesystemStoreReader(credsDir)))
 	if err != nil {
 		return err
 	}

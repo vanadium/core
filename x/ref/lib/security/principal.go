@@ -31,7 +31,7 @@ func NewPrincipal() (security.Principal, error) {
 // NewPrincipalFromSigner creates a new Principal using the provided
 // Signer with in-memory blessing roots and blessings store.
 func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) {
-	return CreatePrincipalOpts(context.TODO(), UseSigner(signer))
+	return CreatePrincipalOpts(context.TODO(), WithSigner(signer))
 }
 
 // LoadPersistentPrincipal reads state for a principal (private key,
@@ -45,8 +45,8 @@ func NewPrincipalFromSigner(signer security.Signer) (security.Principal, error) 
 // unlock function must be called to release that lock.
 func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal, error) {
 	return LoadPrincipalOpts(context.TODO(),
-		LoadFrom(FilesystemStoreWriter(dir)),
-		LoadUsingPassphrase(passphrase))
+		FromWritable(FilesystemStoreWriter(dir)),
+		FromPassphrase(passphrase))
 }
 
 // LoadPersistentPrincipalWithPassphrasePrompt is like LoadPersistentPrincipal but will
@@ -54,7 +54,7 @@ func LoadPersistentPrincipal(dir string, passphrase []byte) (security.Principal,
 func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal, error) {
 	ctx := context.TODO()
 	store := FilesystemStoreWriter(dir)
-	p, err := LoadPrincipalOpts(ctx, LoadFrom(store))
+	p, err := LoadPrincipalOpts(ctx, FromWritable(store))
 	if err == nil {
 		return p, nil
 	}
@@ -66,7 +66,7 @@ func LoadPersistentPrincipalWithPassphrasePrompt(dir string) (security.Principal
 		return nil, err
 	}
 	defer ZeroPassphrase(pass)
-	return LoadPrincipalOpts(ctx, LoadFrom(store), LoadUsingPassphrase(pass))
+	return LoadPrincipalOpts(ctx, FromWritable(store), FromPassphrase(pass))
 }
 
 // ZeroPassphrase overwrites the passphrase.
@@ -90,14 +90,14 @@ func ZeroPassphrase(pass []byte) {
 func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase []byte, readonly bool, update time.Duration) (security.Principal, error) {
 	opts := []LoadPrincipalOption{}
 	if readonly {
-		opts = append(opts, LoadFromReadonly(FilesystemStoreReader(dir)))
+		opts = append(opts, FromReadonly(FilesystemStoreReader(dir)))
 	} else {
-		opts = append(opts, LoadFrom(FilesystemStoreWriter(dir)))
+		opts = append(opts, FromWritable(FilesystemStoreWriter(dir)))
 	}
 	opts = append(opts,
-		LoadUsingPassphrase(passphrase),
-		LoadRefreshInterval(update),
-		LoadAllowPublicKeyPrincipal(true))
+		FromPassphrase(passphrase),
+		RefreshInterval(update),
+		FromPublicKey(true))
 	return LoadPrincipalOpts(ctx, opts...)
 }
 

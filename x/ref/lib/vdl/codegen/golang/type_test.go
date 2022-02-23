@@ -68,7 +68,7 @@ const (
 var TestEnumAll = [...]TestEnum{TestEnumA, TestEnumB, TestEnumC}
 
 // TestEnumFromString creates a TestEnum from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func TestEnumFromString(label string) (x TestEnum, err error) {
 	err = x.Set(label)
 	return

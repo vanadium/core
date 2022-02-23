@@ -18,7 +18,7 @@ func CreatePersistentPrincipal(dir string, passphrase []byte) (security.Principa
 	if err != nil {
 		return nil, err
 	}
-	return CreatePrincipalOpts(context.TODO(), UseStore(store))
+	return CreatePrincipalOpts(context.TODO(), WithStore(store))
 }
 
 // CreatePersistentPrincipalUsingKey creates a new Principal using the supplied
@@ -35,5 +35,5 @@ func CreatePersistentPrincipalUsingKey(ctx context.Context, key crypto.PrivateKe
 	if err != nil {
 		return nil, err
 	}
-	return CreatePrincipalOpts(ctx, UseStore(store), UsePrivateKey(key, passphrase))
+	return CreatePrincipalOpts(ctx, WithStore(store), WithPrivateKey(key, passphrase))
 }

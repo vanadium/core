@@ -245,7 +245,7 @@ const (
 var ApproximationTypeAll = [...]ApproximationType{ApproximationTypeUnder, ApproximationTypeOver}
 
 // ApproximationTypeFromString creates a ApproximationType from a string label.
-//nolint:deadcode,unused
+//nolint:unused
 func ApproximationTypeFromString(label string) (x ApproximationType, err error) {
 	err = x.Set(label)
 	return

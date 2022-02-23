@@ -13,35 +13,34 @@ import (
 )
 
 const (
-	noType         = "must be assigned a type"
-	cantConvert    = "can't convert"
-	overflows      = "overflows"
-	underflows     = "underflows"
-	losesPrecision = "loses precision"
-	//nolint:deadcode,structcheck,varcheck
+	noType           = "must be assigned a type"
+	cantConvert      = "can't convert"
+	overflows        = "overflows"
+	underflows       = "underflows"
+	losesPrecision   = "loses precision"
 	nonzeroImaginary = "nonzero imaginary"
 	notSupported     = "not supported"
 	divByZero        = "divide by zero"
 )
 
 var (
-	bi0           = new(big.Int) //nolint:deadcode,structcheck,unused,varcheck
+	bi0           = new(big.Int) //nolint:unused
 	bi1, bi2, bi3 = big.NewInt(1), big.NewInt(2), big.NewInt(3)
 	bi4, bi5, bi6 = big.NewInt(4), big.NewInt(5), big.NewInt(6)
 	bi7           = big.NewInt(7)
-	//nolint:deadcode,structcheck,unused,varcheck
+	//nolint:unused
 	bi8, bi9       = big.NewInt(8), big.NewInt(9)
 	biNeg1, biNeg2 = big.NewInt(-1), big.NewInt(-2)
 
-	//nolint:deadcode,structcheck,unused,varcheck
+	//nolint:unused
 	br0           = new(big.Rat)
 	br1, br2, br3 = big.NewRat(1, 1), big.NewRat(2, 1), big.NewRat(3, 1)
 	br4, br5, br6 = big.NewRat(4, 1), big.NewRat(5, 1), big.NewRat(6, 1)
 	br7           = big.NewRat(7, 1)
-	//nolint:deadcode,structcheck,unused,varcheck
+	//nolint:unused
 	br8, br9 = big.NewRat(8, 1), big.NewRat(9, 1)
 	brNeg1   = big.NewRat(-1, 1)
-	//nolint:deadcode,structcheck,unused,varcheck
+	//nolint:unused
 	brNeg2 = big.NewRat(-2, 1)
 )
 
