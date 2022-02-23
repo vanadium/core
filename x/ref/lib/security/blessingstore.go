@@ -307,8 +307,8 @@ func newBlessingStore(ctx context.Context, publicKey security.PublicKey) securit
 // NewBlessingStore returns an implementation of security.BlessingStore
 // according to the supplied options.
 // If no options are supplied all state is kept in memory.
-func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...CredentialsStoreOption) (security.BlessingStore, error) {
-	var o credentialsStoreOption
+func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...BlessingsStoreOption) (security.BlessingStore, error) {
+	var o blessingsStoreOptions
 	for _, fn := range opts {
 		fn(&o)
 	}
@@ -316,9 +316,9 @@ func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opt
 		return newBlessingStore(ctx, publicKey), nil
 	}
 	if o.writer != nil {
-		return newWritableBlessingStore(ctx, o)
+		return o.newWritableBlessingStore(ctx)
 	}
-	return newReadonlyBlessingStore(ctx, o)
+	return o.newReadonlyBlessingStore(ctx)
 }
 
 func verifyState(publicKey security.PublicKey, state blessingStoreState) error {
@@ -338,15 +338,15 @@ type blessingStoreReader struct {
 	interval time.Duration
 }
 
-func newBlessingStoreReader(ctx context.Context, interval time.Duration, key security.PublicKey) blessingStoreReader {
+func (opts blessingsStoreOptions) newBlessingStoreReader(ctx context.Context) blessingStoreReader {
 	return blessingStoreReader{
 		blessingStore: blessingStore{
 			ctx:       ctx,
-			publicKey: key,
+			publicKey: opts.publicKey,
 			state:     newBlessingStoreState(),
 			defCh:     make(chan struct{}),
 		},
-		interval: interval,
+		interval: opts.updateInterval,
 	}
 }
 
@@ -531,9 +531,9 @@ func (bs *blessingStoreWriteable) ClearDischarges(discharges ...security.Dischar
 	}
 }
 
-func newWritableBlessingStore(ctx context.Context, opts credentialsStoreOption) (security.BlessingStore, error) {
+func (opts blessingsStoreOptions) newWritableBlessingStore(ctx context.Context) (security.BlessingStore, error) {
 	bs := &blessingStoreWriteable{
-		blessingStoreReader: newBlessingStoreReader(ctx, opts.updateInterval, opts.publicKey),
+		blessingStoreReader: opts.newBlessingStoreReader(ctx),
 		store:               opts.writer,
 		signer:              opts.signer,
 	}
@@ -552,9 +552,9 @@ func (bs *blessingsStoreReadonly) Add(root []byte, pattern security.BlessingPatt
 	return fmt.Errorf("Add is not implemented for readonly blessings roots")
 }
 
-func newReadonlyBlessingStore(ctx context.Context, opts credentialsStoreOption) (security.BlessingStore, error) {
+func (opts blessingsStoreOptions) newReadonlyBlessingStore(ctx context.Context) (security.BlessingStore, error) {
 	bs := &blessingsStoreReadonly{
-		blessingStoreReader: newBlessingStoreReader(ctx, opts.updateInterval, opts.publicKey),
+		blessingStoreReader: opts.newBlessingStoreReader(ctx),
 		store:               opts.reader,
 	}
 	if err := bs.refresh(ctx, opts.reader); err != nil {

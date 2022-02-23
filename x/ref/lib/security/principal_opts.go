@@ -60,19 +60,22 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 		publicKey = signer.PublicKey()
 	}
 
-	storeOpts := []CredentialsStoreOption{WithUpdate(o.interval)}
+	blessingsStoreOpts := []BlessingsStoreOption{BlessingsStoreUpdate(o.interval)}
+	blessingRootOpts := []BlessingRootsOption{BlessingRootsUpdate(o.interval)}
 	if o.writeable != nil {
-		storeOpts = append(storeOpts, WithStore(o.writeable, &serializationSigner{signer}))
+		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreWriteable(o.writeable, &serializationSigner{signer}))
+		blessingRootOpts = append(blessingRootOpts, BlessingRootsWriteable(o.writeable, &serializationSigner{signer}))
 	} else {
-		storeOpts = append(storeOpts, WithReadonlyStore(o.readonly, publicKey))
+		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreReadonly(o.readonly, publicKey))
+		blessingRootOpts = append(blessingRootOpts, BlessingRootsReadonly(o.readonly, publicKey))
 	}
 
-	br, err := NewBlessingRootsOpts(ctx, storeOpts...)
+	bs, err := NewBlessingStoreOpts(ctx, publicKey, blessingsStoreOpts...)
 	if err != nil {
 		return nil, err
 	}
 
-	bs, err := NewBlessingStoreOpts(ctx, publicKey, storeOpts...)
+	br, err := NewBlessingRootsOpts(ctx, blessingRootOpts...)
 	if err != nil {
 		return nil, err
 	}
