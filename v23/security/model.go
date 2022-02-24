@@ -139,6 +139,7 @@ type Principal interface {
 	Bless(key PublicKey, with Blessings, extension string, caveat Caveat, additionalCaveats ...Caveat) (Blessings, error)
 
 	// BlessSelf creates a blessing with the provided name for this principal.
+	// If the principal was created from an x509 keypair and the public....
 	BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 
 	// BlessSelfX509 creates a blessing derived from the supplied X509

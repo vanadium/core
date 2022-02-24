@@ -28,8 +28,8 @@ func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey
 		t.Fatal(err)
 	}
 	p, err := seclib.CreatePrincipalOpts(ctx,
-		seclib.UseSigner(signer),
-		seclib.UseX509VerifyOptions(opts))
+		seclib.WithSigner(signer),
+		seclib.WithX509VerifyOptions(opts))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,8 +241,8 @@ func TestX509ServerErrors(t *testing.T) {
 		// The following will result in an error from BlessSelfX509 since
 		// the requested tc.invalidHost is not supported by the certificate.
 		server, err := seclib.CreatePrincipalOpts(ctx,
-			seclib.UsePrivateKey(privKey, nil),
-			seclib.UseX509VerifyOptions(opts))
+			seclib.WithPrivateKey(privKey, nil),
+			seclib.WithX509VerifyOptions(opts))
 		if err != nil {
 			t.Errorf("failed to create principal: %v", err)
 		}

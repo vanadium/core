@@ -9,15 +9,13 @@ package x509keys
 import (
 	"context"
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/internal"
 )
 
 // Make the key functions local to this package available to this package.
@@ -38,7 +36,16 @@ func MustRegister(r *keys.Registrar) {
 // private key files via the x/ref/security/keys package.
 func Register(r *keys.Registrar) error {
 	r.RegisterPublicKeyParser(parseCertificateBlock, "CERTIFICATE", nil)
+	r.RegisterPublicKeyMarshaler(marshalPublicKey, (*x509.Certificate)(nil))
 	return r.RegisterAPI((*x509CertAPI)(nil), (*x509.Certificate)(nil))
+}
+
+func marshalPublicKey(key crypto.PublicKey) ([]byte, error) {
+	cert, ok := key.(*x509.Certificate)
+	if !ok {
+		return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
+	}
+	return internal.EncodePEM("CERTIFICATE", cert.Raw, nil)
 }
 
 type x509CertAPI struct{}
@@ -51,7 +58,7 @@ func (*x509CertAPI) Signer(ctx context.Context, key crypto.PrivateKey) (security
 
 func (*x509CertAPI) PublicKey(key interface{}) (security.PublicKey, error) {
 	if c, ok := key.(*x509.Certificate); ok {
-		return publicKey(c.PublicKey)
+		return security.NewPublicKey(c)
 	}
 	return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
 }
@@ -61,18 +68,6 @@ func (*x509CertAPI) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
 		return c.PublicKey, nil
 	}
 	return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
-}
-
-func publicKey(key interface{}) (security.PublicKey, error) {
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
-		return security.NewECDSAPublicKey(k), nil
-	case *rsa.PublicKey:
-		return security.NewRSAPublicKey(k), nil
-	case ed25519.PublicKey:
-		return security.NewED25519PublicKey(k), nil
-	}
-	return nil, fmt.Errorf("sshkeys.PublicKey: unsupported key type %T", key)
 }
 
 func parseCertificateBlock(block *pem.Block) (crypto.PublicKey, error) {

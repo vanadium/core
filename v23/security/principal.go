@@ -22,6 +22,7 @@ import (
 //
 // It returns an error if store.PublicKey does not match signer.PublicKey.
 //
+// NOTE: v.io/x/ref/lib/security provides implementations
 // NOTE: v.io/x/ref/lib/testutil/security provides utility methods for creating
 // principals for testing purposes.
 func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (Principal, error) {
@@ -150,6 +151,13 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 }
 
 func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error) {
+	if cert := p.publicKey.X509Certificate(); cert != nil {
+		return p.blessSelfX509(name, cert, caveats)
+	}
+	return p.blessSelf(name, caveats)
+}
+
+func (p *principal) blessSelf(name string, caveats []Caveat) (Blessings, error) {
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}
@@ -171,6 +179,10 @@ func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 }
 
 func (p *principal) BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error) {
+	return Blessings{}, fmt.Errorf("oops")
+}
+
+func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, caveats []Caveat) (Blessings, error) {
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}

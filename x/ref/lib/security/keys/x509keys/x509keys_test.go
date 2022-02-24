@@ -12,6 +12,7 @@ import (
 	"reflect"
 	"testing"
 
+	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/lib/security/keys/indirectkeyfiles"
 	"v.io/x/ref/lib/security/keys/x509keys"
@@ -149,7 +150,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}
 		cert := key.(*x509.Certificate)
-		pk, err := keys.PublicKey(cert.PublicKey)
+		pk, err := security.NewPublicKey(cert)
 		if err != nil {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}

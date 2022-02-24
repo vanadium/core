@@ -30,8 +30,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
-
-	"v.io/v23/security"
 )
 
 // CryptoAlgo represents the supported cryptographic algorithms.
@@ -85,27 +83,6 @@ func NewPrivateKeyForAlgo(algo CryptoAlgo) (crypto.PrivateKey, error) {
 	default:
 		return nil, fmt.Errorf("keys.NewPrivateKeyForAlgo: unsupported key type: %T", algo)
 	}
-}
-
-// PublicKey returns a security.PublicKey for the supplied public or private key.
-// It accepts *ecdsa.PublicKey, *rsa.PublicKey, ed25519.PublicKey and
-// *ecdsa.PrivateKey, *rsa.PrivateKey, ed25519.PrivateKey.
-func PublicKey(key interface{}) (security.PublicKey, error) {
-	switch k := key.(type) {
-	case *ecdsa.PublicKey:
-		return security.NewECDSAPublicKey(k), nil
-	case *rsa.PublicKey:
-		return security.NewRSAPublicKey(k), nil
-	case ed25519.PublicKey:
-		return security.NewED25519PublicKey(k), nil
-	case *ecdsa.PrivateKey:
-		return security.NewECDSAPublicKey(&k.PublicKey), nil
-	case *rsa.PrivateKey:
-		return security.NewRSAPublicKey(&k.PublicKey), nil
-	case ed25519.PrivateKey:
-		return security.NewED25519PublicKey(k.Public().(ed25519.PublicKey)), nil
-	}
-	return nil, fmt.Errorf("keys.PublicKey: unsupported key type %T", key)
 }
 
 // ZeroPassphrase overwrites the passphrase.

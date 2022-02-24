@@ -7,7 +7,6 @@ package security_test
 import (
 	gocontext "context"
 	"crypto/x509"
-	"fmt"
 	"runtime"
 	"strings"
 	"testing"
@@ -30,7 +29,7 @@ func (testService) Echo(ctx *context.T, call rpc.ServerCall, msg string) (string
 	return "echo: " + msg, nil
 }
 
-func TestRPC(t *testing.T) {
+func TestX509RPC(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -50,8 +49,8 @@ func TestRPC(t *testing.T) {
 	signer, err := seclib.NewSignerFromKey(ctx, privKey)
 	fatal()
 	serverPrincipal, err := seclib.CreatePrincipalOpts(ctx,
-		seclib.UseSigner(signer),
-		seclib.UseX509VerifyOptions(opts))
+		seclib.WithSigner(signer),
+		seclib.WithX509VerifyOptions(opts))
 	fatal()
 
 	blessingsFoo, err := serverPrincipal.BlessSelfX509("foo.labdrive.io", pubCerts[0])
@@ -109,8 +108,8 @@ func newClientPrincipal(ctx gocontext.Context, kt keys.CryptoAlgo, opts x509.Ver
 	signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 
 	clientPrincipal, err := seclib.CreatePrincipalOpts(ctx,
-		seclib.UseSigner(signer),
-		seclib.UseX509VerifyOptions(opts))
+		seclib.WithSigner(signer),
+		seclib.WithX509VerifyOptions(opts))
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +126,6 @@ func newClientPrincipal(ctx gocontext.Context, kt keys.CryptoAlgo, opts x509.Ver
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("server:\n%v\n", serverPrincipal.BlessingStore().DebugString())
-	fmt.Printf("client:\n%v\n", clientPrincipal.BlessingStore().DebugString())
 	return clientPrincipal, nil
 }
 
