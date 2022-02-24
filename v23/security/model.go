@@ -106,7 +106,6 @@
 package security
 
 import (
-	"crypto/x509"
 	"time"
 
 	"v.io/v23/context"
@@ -139,14 +138,12 @@ type Principal interface {
 	Bless(key PublicKey, with Blessings, extension string, caveat Caveat, additionalCaveats ...Caveat) (Blessings, error)
 
 	// BlessSelf creates a blessing with the provided name for this principal.
-	// If the principal was created from an x509 keypair and the public....
-	BlessSelf(name string, caveats ...Caveat) (Blessings, error)
-
-	// BlessSelfX509 creates a blessing derived from the supplied X509
-	// certificate for this principal. The principal must have been created
-	// using the private key associated with the supplied certificate. The
-	// blessing created can be verified using the SSL/TLS Certificate Authority
-	// mechanism. If host is specified and is valid for the supplied
+	//
+	// If the principal was created from an x509/SSL/TLS certificate and private
+	// key then BlessSelf will create a blessing derived from the supplied X509
+	// certificate for this principal. The blessing created can be verified using
+	// the SSL/TLS Certificate Authority mechanism. The name parameter is treated
+	// as a host name. If host is specified and is valid for the supplied
 	// certificate then the blessing name will be host rather than any of
 	// names in the certificate. If host is not specified then x509 certificates
 	// that contain multiple hosts or wildcard domains will result in multiple
@@ -156,7 +153,7 @@ type Principal interface {
 	// returned blessings will be named x.d.com and if host is "" then
 	// the returned blessings will contain two chains, one for x.d.com and
 	// the other y.d.com.
-	BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error)
+	BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
 	Sign(message []byte) (Signature, error)

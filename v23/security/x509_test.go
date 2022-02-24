@@ -38,7 +38,7 @@ func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey
 
 func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, host string, certs []*x509.Certificate, opts x509.VerifyOptions) security.Principal {
 	p := newX509Principal(ctx, t, key, opts)
-	blessings, err := p.BlessSelfX509(host, certs[0])
+	blessings, err := p.BlessSelf(host)
 	if err != nil {
 		t.Fatalf("BlessSelfX509: %v", err)
 	}
