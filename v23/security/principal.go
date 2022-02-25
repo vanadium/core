@@ -5,7 +5,6 @@
 package security
 
 import (
-	"bytes"
 	"crypto/x509"
 	"fmt"
 	"reflect"
@@ -36,6 +35,18 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 		return nil, fmt.Errorf("store's public key: %v does not match signer's public key: %v", got, want)
 	}
 	return &principal{signer: signer, publicKey: signer.PublicKey(), store: store, roots: roots}, nil
+}
+
+func CreateX509Principal(signer Signer, cert *x509.Certificate, store BlessingStore, roots BlessingRoots) (Principal, error) {
+	p, err := CreatePrincipal(signer, store, roots)
+	if err != nil {
+		return nil, err
+	}
+	p.(*principal).x509Cert = cert
+	if got, want := signer.PublicKey(), cert.PublicKey; !reflect.DeepEqual(got, want) {
+		return nil, fmt.Errorf("x509 Certificate's public key: %v does not match signer's public key: %v", got, want)
+	}
+	return p, nil
 }
 
 // CreatePrincipalPublicKeyOnly returns a Principal that cannot sign new blessings
@@ -112,6 +123,7 @@ func (errRoots) DebugString() string {
 type principal struct {
 	signer    Signer
 	publicKey PublicKey
+	x509Cert  *x509.Certificate
 	roots     BlessingRoots
 	store     BlessingStore
 }
@@ -151,8 +163,8 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 }
 
 func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error) {
-	if cert := p.publicKey.X509Certificate(); cert != nil {
-		return p.blessSelfX509(name, cert, caveats)
+	if p.x509Cert != nil {
+		return p.blessSelfX509(name, p.x509Cert, caveats)
 	}
 	return p.blessSelf(name, caveats)
 }
@@ -173,45 +185,6 @@ func (p *principal) blessSelf(name string, caveats []Caveat) (Blessings, error) 
 		chains:    [][]Certificate{chain},
 		publicKey: p.PublicKey(),
 		digests:   [][]byte{digest},
-	}
-	ret.init()
-	return ret, nil
-}
-
-func (p *principal) BlessSelfX509(host string, x509Cert *x509.Certificate, caveats ...Caveat) (Blessings, error) {
-	return Blessings{}, fmt.Errorf("oops")
-}
-
-func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, caveats []Caveat) (Blessings, error) {
-	if p.signer == nil {
-		return Blessings{}, fmt.Errorf("underlying signer is nil")
-	}
-	pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
-	if err != nil {
-		return Blessings{}, err
-	}
-	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
-		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
-	}
-	certs, err := newUnsignedCertificateFromX509(host, x509Cert, pkBytes, caveats)
-	if err != nil {
-		return Blessings{}, err
-	}
-	if len(certs) == 0 {
-		return Blessings{}, fmt.Errorf("failed to create any certificates based on the supplied x509 certificate")
-	}
-	chains := make([][]Certificate, len(certs))
-	digests := make([][]byte, len(certs))
-	for i := range certs {
-		chains[i], digests[i], err = chainCertificate(p.signer, nil, certs[i])
-		if err != nil {
-			return Blessings{}, err
-		}
-	}
-	ret := Blessings{
-		chains:    chains,
-		publicKey: p.PublicKey(),
-		digests:   digests,
 	}
 	ret.init()
 	return ret, nil

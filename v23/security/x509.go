@@ -5,8 +5,45 @@
 package security
 
 import (
+	"bytes"
 	"crypto/x509"
+	"fmt"
 )
+
+func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, caveats []Caveat) (Blessings, error) {
+	if p.signer == nil {
+		return Blessings{}, fmt.Errorf("underlying signer is nil")
+	}
+	pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
+	if err != nil {
+		return Blessings{}, err
+	}
+	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
+		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
+	}
+	certs, err := newUnsignedCertificateFromX509(host, x509Cert, pkBytes, caveats)
+	if err != nil {
+		return Blessings{}, err
+	}
+	if len(certs) == 0 {
+		return Blessings{}, fmt.Errorf("failed to create any certificates based on the supplied x509 certificate")
+	}
+	chains := make([][]Certificate, len(certs))
+	digests := make([][]byte, len(certs))
+	for i := range certs {
+		chains[i], digests[i], err = chainCertificate(p.signer, nil, certs[i])
+		if err != nil {
+			return Blessings{}, err
+		}
+	}
+	ret := Blessings{
+		chains:    chains,
+		publicKey: p.PublicKey(),
+		digests:   digests,
+	}
+	ret.init()
+	return ret, nil
+}
 
 func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
 	cavs := make([]Caveat, len(caveats), len(caveats)+2)

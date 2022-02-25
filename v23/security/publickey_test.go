@@ -42,6 +42,9 @@ func TestPublicKeyMarshaling(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		// clear the x509 certificate in the public key
+		// since it is not marshaled.
+		security.ExposeClearX509Certificate(k1)
 		testPublicKeyMarshaling(t, k1)
 	}
 

@@ -66,6 +66,13 @@ func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer,
 	return nil, nil
 }
 
+func (o createPrincipalOptions) createPrincipal(signer security.Signer, bs security.BlessingStore, br security.BlessingRoots) (security.Principal, error) {
+	if o.x509Cert != nil {
+		return security.CreateX509Principal(signer, o.x509Cert, bs, br)
+	}
+	return security.CreatePrincipal(signer, bs, br)
+}
+
 func (o createPrincipalOptions) inMemoryStores(ctx context.Context, publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
 	blessingStore, blessingRoots = o.blessingStore, o.blessingRoots
 	if blessingStore == nil {
@@ -86,7 +93,7 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 		if err != nil {
 			return nil, err
 		}
-		return security.CreatePrincipal(signer, bs, br)
+		return o.createPrincipal(signer, bs, br)
 	}
 	if publicKey, err := publicKeyFromBytes(o.publicKeyBytes); publicKey != nil {
 		if err != nil {
@@ -168,5 +175,5 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	if signer == nil {
 		security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreatePrincipal(signer, bs, br)
+	return o.createPrincipal(signer, bs, br)
 }

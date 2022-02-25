@@ -155,10 +155,10 @@ func RefreshInterval(interval time.Duration) LoadPrincipalOption {
 	}
 }
 
-// FromPublicKey specifies whether the principal to be created can be restricted
+// FromPublicKeyOnly specifies whether the principal to be created can be restricted
 // to having only a public key. Such a principal can verify credentials but
 // not create any of its own.
-func FromPublicKey(allow bool) LoadPrincipalOption {
+func FromPublicKeyOnly(allow bool) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		o.allowPublicKey = allow
 		return nil
@@ -178,6 +178,7 @@ type createPrincipalOptions struct {
 	blessingStore   security.BlessingStore
 	blessingRoots   security.BlessingRoots
 	x509Opts        x509.VerifyOptions
+	x509Cert        *x509.Certificate
 }
 
 // WithStore specifies the credentials store to use for creating a new
@@ -256,8 +257,9 @@ func WithPublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 	}
 }
 
-// WithPrivateKeyBytes specifies the private key bytes to use when creating
+// WithPrivateKeyBytes specifies the public and private key bytes to use when creating
 // a principal. The passphrase is zeroed.
+// TODO - remove the public key bytes from here.
 func WithPrivateKeyBytes(ctx context.Context, public, private, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
@@ -279,6 +281,19 @@ func WithPrivateKeyBytes(ctx context.Context, public, private, passphrase []byte
 func WithX509VerifyOptions(opts x509.VerifyOptions) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.x509Opts = opts
+		return nil
+	}
+}
+
+// WithX509Certificate specifices the x509 certificate to associate with
+// this principal. It's public key must match the public key already
+// set for this principal if one has already been set via a private key,
+// a signer or as bytes. Note that if the public key bytes specified
+// via WithPublicKeyBytes is a PEM CERTIFICATE block then the x509
+// Certificate will be used from that also.
+func WithX509Certificate(cert *x509.Certificate) CreatePrincipalOption {
+	return func(o *createPrincipalOptions) error {
+		o.x509Cert = cert
 		return nil
 	}
 }

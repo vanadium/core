@@ -111,6 +111,7 @@ func ExposePublicKeyHashAlgo(pk PublicKey) crypto.Hash {
 	return pk.hashAlgo()
 }
 
+// ExposeECDSAHash exposes the hash used for the specified ECDSA key.
 func ExposeECDSAHash(key *ecdsa.PublicKey) Hash {
 	nbits := key.Curve.Params().BitSize
 	switch {
@@ -124,3 +125,16 @@ func ExposeECDSAHash(key *ecdsa.PublicKey) Hash {
 		return SHA512Hash
 	}
 }
+
+/*
+func ExposeClearX509Certificate(pk PublicKey) {
+	switch ipk := pk.(type) {
+	case *ecdsaPublicKey:
+		ipk.x509 = nil
+	case *ed25519PublicKey:
+		ipk.x509 = nil
+	case *rsaPublicKey:
+		ipk.x509 = nil
+	}
+}
+*/

@@ -265,10 +265,6 @@ type BlessingStore interface {
 	DebugString() string
 }
 
-type X509VerifyOption interface {
-	X509VerifyOption()
-}
-
 // BlessingRoots hosts the set of authoritative public keys for roots
 // of blessings.
 //

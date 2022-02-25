@@ -8,7 +8,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"reflect"
@@ -182,12 +181,6 @@ func (p *mockPrincipal) Bless(security.PublicKey, security.Blessings, string, se
 }
 
 func (p *mockPrincipal) BlessSelf(string, ...security.Caveat) (security.Blessings, error) {
-	defer p.reset()
-	b, _ := p.NextResult.(security.Blessings)
-	return b, p.NextError
-}
-
-func (p *mockPrincipal) BlessSelfX509(string, *x509.Certificate, ...security.Caveat) (security.Blessings, error) {
 	defer p.reset()
 	b, _ := p.NextResult.(security.Blessings)
 	return b, p.NextError

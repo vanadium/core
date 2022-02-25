@@ -22,7 +22,7 @@ import (
 	"v.io/x/ref/test/sectestdata"
 )
 
-func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, opts x509.VerifyOptions) security.Principal {
+func newPrincipalWithX509Opts(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, opts x509.VerifyOptions) security.Principal {
 	signer, err := seclib.NewSignerFromKey(ctx, key)
 	if err != nil {
 		t.Fatal(err)
@@ -37,10 +37,31 @@ func newX509Principal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey
 }
 
 func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.PrivateKey, host string, certs []*x509.Certificate, opts x509.VerifyOptions) security.Principal {
-	p := newX509Principal(ctx, t, key, opts)
+	privKeyBytes, err := seclib.MarshalPrivateKey(key, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pubKeyBytes, err := seclib.MarshalPublicKey(certs[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf(">>>>> %s\n", pubKeyBytes)
+	p, err := seclib.CreatePrincipalOpts(ctx,
+		seclib.WithPrivateKeyBytes(ctx, pubKeyBytes, privKeyBytes, nil),
+		seclib.WithX509VerifyOptions(opts))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cert := p.PublicKey().X509Certificate()
+	if cert == nil {
+		t.Fatalf("no x509 certificate found in principal")
+	}
+	fmt.Printf("%#v\n", cert)
+
 	blessings, err := p.BlessSelf(host)
 	if err != nil {
-		t.Fatalf("BlessSelfX509: %v", err)
+		t.Fatalf("BlessSelf: %v", err)
 	}
 	if err := p.BlessingStore().SetDefault(blessings); err != nil {
 		t.Fatalf("failed to set defaut blessings: %v", err)
@@ -85,7 +106,7 @@ func TestX509(t *testing.T) {
 			t.Errorf("%v: got %v, want %v", tc.certType, got, want)
 		}
 		clientKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetB)
-		client := newX509Principal(ctx, t, clientKey, opts)
+		client := newPrincipalWithX509Opts(ctx, t, clientKey, opts)
 		call := security.NewCall(&security.CallParams{
 			LocalPrincipal:  client,
 			RemoteBlessings: blessings,
@@ -159,7 +180,7 @@ func TestX509Errors(t *testing.T) {
 		blessings, _ := server.BlessingStore().Default()
 
 		clientKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetB)
-		client := newX509Principal(ctx, t, clientKey, opts)
+		client := newPrincipalWithX509Opts(ctx, t, clientKey, opts)
 
 		// After expiration, ie. 10000 days into the future
 		call := security.NewCall(&security.CallParams{
@@ -181,7 +202,7 @@ func TestX509Errors(t *testing.T) {
 
 		// Without a custom cert pool the validation should fail with a
 		// complaint about being signed by an unknown authority.
-		client = newX509Principal(ctx, t, clientKey, x509.VerifyOptions{
+		client = newPrincipalWithX509Opts(ctx, t, clientKey, x509.VerifyOptions{
 			CurrentTime: pubCerts[0].NotBefore.Add(48 * time.Hour),
 		})
 		call = security.NewCall(&security.CallParams{
@@ -194,7 +215,7 @@ func TestX509Errors(t *testing.T) {
 		validate("x509: certificate signed by unknown authority")
 
 		// No custom options.
-		client = newX509Principal(ctx, t, clientKey, x509.VerifyOptions{})
+		client = newPrincipalWithX509Opts(ctx, t, clientKey, x509.VerifyOptions{})
 		call = security.NewCall(&security.CallParams{
 			LocalPrincipal:  client,
 			RemoteBlessings: blessings,
@@ -238,7 +259,7 @@ func TestX509ServerErrors(t *testing.T) {
 			t.Errorf("no names should be returned: %v\n", names)
 		}
 
-		// The following will result in an error from BlessSelfX509 since
+		// The following will result in an error from BlessSelf since
 		// the requested tc.invalidHost is not supported by the certificate.
 		server, err := seclib.CreatePrincipalOpts(ctx,
 			seclib.WithPrivateKey(privKey, nil),
@@ -247,7 +268,7 @@ func TestX509ServerErrors(t *testing.T) {
 			t.Errorf("failed to create principal: %v", err)
 		}
 
-		_, err = server.BlessSelfX509(tc.invalidHost, pubCerts[0])
+		_, err = server.BlessSelf(tc.invalidHost)
 		want := fmt.Sprintf(", not %v", tc.invalidHost)
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("unexpected or missing error: %q does not contain %q", err, want)
