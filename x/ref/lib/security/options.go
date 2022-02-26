@@ -7,6 +7,7 @@ package security
 import (
 	"context"
 	"crypto"
+	"crypto/x509"
 	"fmt"
 	"time"
 
@@ -26,6 +27,7 @@ type commonStoreOptions struct {
 	writer         CredentialsStoreReadWriter
 	signer         serialization.Signer
 	updateInterval time.Duration
+	x509Opts       x509.VerifyOptions
 }
 
 type blessingsStoreOptions struct {
@@ -88,6 +90,14 @@ func BlessingRootsUpdate(interval time.Duration) BlessingRootsOption {
 	}
 }
 
+// BlessingRootsX509VerifyOptions specifies the x509 verification options to use with
+// a blessing roots store.
+func BlessingRootsX509VerifyOptions(opts x509.VerifyOptions) BlessingRootsOption {
+	return func(o *blessingRootsOptions) {
+		o.x509Opts = opts
+	}
+}
+
 // LoadPrincipalOption represents an option to LoadPrincipalOpts.
 type LoadPrincipalOption func(o *principalOptions) error
 
@@ -145,10 +155,10 @@ func RefreshInterval(interval time.Duration) LoadPrincipalOption {
 	}
 }
 
-// FromPublicKey specifies whether the principal to be created can be restricted
+// FromPublicKeyOnly specifies whether the principal to be created can be restricted
 // to having only a public key. Such a principal can verify credentials but
 // not create any of its own.
-func FromPublicKey(allow bool) LoadPrincipalOption {
+func FromPublicKeyOnly(allow bool) LoadPrincipalOption {
 	return func(o *principalOptions) error {
 		o.allowPublicKey = allow
 		return nil
@@ -167,6 +177,22 @@ type createPrincipalOptions struct {
 	store           CredentialsStoreCreator
 	blessingStore   security.BlessingStore
 	blessingRoots   security.BlessingRoots
+	allowPublicKey  bool
+	x509Opts        x509.VerifyOptions
+	x509Cert        *x509.Certificate
+}
+
+func (o createPrincipalOptions) checkPrivateKey(msg string) error {
+	if len(o.passphrase) > 0 {
+		return fmt.Errorf("%s: a private key with a passphrase has already been specified as an option", msg)
+	}
+	if o.privateKey != nil {
+		return fmt.Errorf("%s: a private key has already been specified as an option", msg)
+	}
+	if len(o.privateKeyBytes) > 0 {
+		return fmt.Errorf("%s: a marshaled private key (as bytes) has already been specified as an option", msg)
+	}
+	return nil
 }
 
 // WithStore specifies the credentials store to use for creating a new
@@ -197,6 +223,7 @@ func WithBlessingRoots(roots security.BlessingRoots) CreatePrincipalOption {
 }
 
 // WithSigner specifies the security.Signer to use for the new principal.
+// WithSigner takes precedence over WithPrivateKey or WithPrivateKeyBytes.
 func WithSigner(signer security.Signer) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.signer = signer
@@ -204,37 +231,34 @@ func WithSigner(signer security.Signer) CreatePrincipalOption {
 	}
 }
 
+func (o *createPrincipalOptions) copyPassphrase(passphrase []byte) {
+	if len(passphrase) > 0 {
+		o.passphrase = make([]byte, len(passphrase))
+		copy(o.passphrase, passphrase)
+
+	}
+	defer ZeroPassphrase(passphrase)
+}
+
 // WithPrivateKey specifies the private key to use for the new principal.
+// WithPrivateKey takes precedence over WithPrivateKeyBytes.
+// Passphrase is zeroed.
 func WithPrivateKey(key crypto.PrivateKey, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
 			return err
 		}
 		o.privateKey = key
-		if len(passphrase) > 0 {
-			o.passphrase = make([]byte, len(passphrase))
-			copy(o.passphrase, passphrase)
-		}
-		defer ZeroPassphrase(passphrase)
-		api, err := keyRegistrar.APIForKey(key)
-		if err != nil {
-			return err
-		}
-		publicKey, err := api.CryptoPublicKey(key)
-		if err != nil {
-			return err
-		}
-		o.publicKeyBytes, err = keyRegistrar.MarshalPublicKey(publicKey)
-		if err != nil {
-			return err
-		}
-		o.privateKeyBytes, err = keyRegistrar.MarshalPrivateKey(key, passphrase)
-		return err
+		o.copyPassphrase(passphrase)
+		return nil
 	}
 }
 
 // WithPublicKeyBytes specifies the public key bytes to use when creating a
 // public-key only principal.
+// If the public key bytes encode a CERTIFICATE PEM block then that Certificate
+// will be retained and associated with the principal as opposed to just the public
+// key portion of the certificate.
 func WithPublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if _, err := keyRegistrar.ParsePublicKey(keyBytes); err != nil {
@@ -245,20 +269,53 @@ func WithPublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 	}
 }
 
-// WithPrivateKeyBytes specifies the private key bytes to use when creating
+// WithPrivateKeyBytes specifies the public and private key bytes to use when creating
 // a principal. The passphrase is zeroed.
-func WithPrivateKeyBytes(ctx context.Context, public, private, passphrase []byte) CreatePrincipalOption {
+// If publicKeyBytes are nil then the public key will be derived from the
+// private key. If not, the public key will be parsed from the supplied bytes.
+// If the public key bytes encode a CERTIFICATE PEM block then that Certificate
+// will be retained and associated with the principal as opposed to just the public
+// key portion of the certificate.
+func WithPrivateKeyBytes(ctx context.Context, publicKeyBytes, privateKeyBytes, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
 			return err
 		}
-		if len(passphrase) > 0 {
-			o.passphrase = make([]byte, len(passphrase))
-			copy(o.passphrase, passphrase)
-		}
-		defer ZeroPassphrase(passphrase)
-		o.privateKeyBytes = private
-		o.publicKeyBytes = public
+		o.copyPassphrase(passphrase)
+		o.privateKeyBytes = privateKeyBytes
+		o.publicKeyBytes = publicKeyBytes
+		return nil
+	}
+}
+
+// WithPublicKeyOnly specifies whether the principal to be created can be restricted
+// to having only a public key. Such a principal can verify credentials but
+// not create any of its own.
+func WithPublicKeyOnly(allow bool) CreatePrincipalOption {
+	return func(o *createPrincipalOptions) error {
+		o.allowPublicKey = allow
+		return nil
+	}
+}
+
+// WithX509VerifyOptions specifies the x509 verification options to use with
+// when verifying blessings derived from x509 Certificates and keys.
+func WithX509VerifyOptions(opts x509.VerifyOptions) CreatePrincipalOption {
+	return func(o *createPrincipalOptions) error {
+		o.x509Opts = opts
+		return nil
+	}
+}
+
+// WithX509Certificate specifices the x509 Certificate to associate with
+// this Principal. It is generally used to associate an x509 Certificate
+// with a Principal created from a signer or private key directly rather than
+// via WithPublicKeyBytes or WithPrivateKeyBytes.
+// The public key of the certificate must match any alternatively specified
+// public key.
+func WithX509Certificate(cert *x509.Certificate) CreatePrincipalOption {
+	return func(o *createPrincipalOptions) error {
+		o.x509Cert = cert
 		return nil
 	}
 }

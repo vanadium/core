@@ -97,7 +97,7 @@ func LoadPersistentPrincipalDaemon(ctx context.Context, dir string, passphrase [
 	opts = append(opts,
 		FromPassphrase(passphrase),
 		RefreshInterval(update),
-		FromPublicKey(true))
+		FromPublicKeyOnly(true))
 	return LoadPrincipalOpts(ctx, opts...)
 }
 
