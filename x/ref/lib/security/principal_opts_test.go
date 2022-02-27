@@ -66,6 +66,14 @@ func sshAgentData(kt keys.CryptoAlgo) principalOptValues {
 	}
 }
 
+func isSSHFile(dir string) ([]byte, bool) {
+	data, err := os.ReadFile(filepath.Join(dir, publicKeyFile))
+	if err != nil {
+		return nil, false
+	}
+	return data, bytes.Contains(data, []byte("ssh-"))
+}
+
 func checkPEM(keyfile, blockType string) error {
 	data, err := os.ReadFile(keyfile)
 	if err != nil {
@@ -224,13 +232,13 @@ func TestCreatePrincipalOpts(t *testing.T) {
 				t.Fatalf("%v: %v: verify failed", i, j)
 			}
 
+			if err := checkPEM(filepath.Join(dir, privateKeyFile), tc.privatePEM[j]); err != nil {
+				t.Errorf("%v: %v: %v", i, j, err)
+			}
+
 			// Verify formats of the key files created for the persistent principal.
 			if len(tc.publicPEM[j]) == 0 {
-				data, err := os.ReadFile(filepath.Join(dir, publicKeyFile))
-				if err != nil {
-					t.Fatalf("%v: %v: %v", i, j, err)
-				}
-				if !bytes.Contains(data, []byte("ssh-")) {
+				if data, ok := isSSHFile(dir); !ok {
 					t.Fatalf("%v: %v: %s doesn't look like an ssh public key", i, j, data)
 				}
 			} else {
@@ -238,9 +246,7 @@ func TestCreatePrincipalOpts(t *testing.T) {
 					t.Errorf("%v: %v: %v", i, j, err)
 				}
 			}
-			if err := checkPEM(filepath.Join(dir, privateKeyFile), tc.privatePEM[j]); err != nil {
-				t.Errorf("%v: %v: %v", i, j, err)
-			}
+
 		}
 
 	}
