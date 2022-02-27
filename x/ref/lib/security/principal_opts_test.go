@@ -5,6 +5,7 @@
 package security
 
 import (
+	"bytes"
 	"context"
 	"crypto"
 	"encoding/pem"
@@ -44,6 +45,24 @@ func sslData(kt keys.CryptoAlgo) principalOptValues {
 	}
 }
 
+func sshData(kt keys.CryptoAlgo) principalOptValues {
+	return principalOptValues{
+		signer:          sectestdata.SSHKeySigner(kt, sectestdata.SSHKeyPrivate),
+		privateKey:      sectestdata.SSHPrivateKey(kt, sectestdata.SSHKeyPrivate),
+		publicKeyBytes:  sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic),
+		privateKeyBytes: sectestdata.SSHPrivateKeyBytes(kt, sectestdata.SSHKeyPrivate),
+	}
+}
+
+func sshAgentData(kt keys.CryptoAlgo) principalOptValues {
+	return principalOptValues{
+		signer:          sectestdata.SSHKeySigner(kt, sectestdata.SSHKeyPrivate),
+		privateKey:      sectestdata.SSHPrivateKey(kt, sectestdata.SSHKeyAgentHosted),
+		publicKeyBytes:  sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic),
+		privateKeyBytes: sectestdata.SSHPrivateKeyBytes(kt, sectestdata.SSHKeyPrivate),
+	}
+}
+
 func checkPEM(keyfile, blockType string) error {
 	data, err := os.ReadFile(keyfile)
 	if err != nil {
@@ -66,6 +85,53 @@ func newStoreOpt(t *testing.T) (string, CreatePrincipalOption) {
 		t.Fatal(err)
 	}
 	return dir, WithStore(store)
+}
+
+func TestCreatePrincipalOptsErrors(t *testing.T) {
+	ctx := context.Background()
+	msg := []byte("hi there")
+
+	for i, tc := range []principalOptValues{
+		v23Data(keys.ECDSA256),
+		sslData(keys.ED25519),
+	} {
+		p, err := CreatePrincipalOpts(ctx, WithSigner(tc.signer))
+		if err != nil {
+			t.Fatalf("%v: %v", i, err)
+		}
+		sig, err := p.Sign(msg)
+		if err != nil {
+			t.Fatalf("%v: %v", i, err)
+		}
+		if !sig.Verify(p.PublicKey(), msg) {
+			t.Fatalf("%v: verify failed", i)
+		}
+
+		dir, storeOpt := newStoreOpt(t)
+		_, err = CreatePrincipalOpts(ctx, WithSigner(tc.signer), storeOpt)
+		if err == nil || !strings.Contains(err.Error(), "cannot create a new persistent principal without a private key") {
+			t.Fatalf("missing or incorrect error: %q", err)
+		}
+		_, err = CreatePrincipalOpts(ctx, WithPublicKeyBytes(tc.publicKeyBytes), storeOpt)
+		if err == nil || !strings.Contains(err.Error(), "cannot create a new persistent principal without a private key") {
+			t.Fatalf("missing or incorrect error: %q", err)
+		}
+
+		_, err = CreatePrincipalOpts(ctx, WithPublicKeyBytes(tc.publicKeyBytes), storeOpt, WithPublicKeyOnly(true))
+		if err != nil {
+			t.Fatalf("%v: %v", i, err)
+		}
+
+		_, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)))
+		if err == nil || !strings.Contains(err.Error(), "no such file or directory") {
+			t.Fatalf("missing or incorrect error: %q", err)
+		}
+
+		_, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)), FromPublicKeyOnly(true))
+		if err != nil {
+			t.Fatalf("%v: %v", i, err)
+		}
+	}
 }
 
 func TestCreatePrincipalOpts(t *testing.T) {
@@ -94,50 +160,32 @@ func TestCreatePrincipalOpts(t *testing.T) {
 			"PRIVATE KEY",
 			"PRIVATE KEY",
 		}},
+		{sshData(keys.RSA2048), []string{
+			"PUBLIC KEY",
+			"PUBLIC KEY",
+			"",
+		}, []string{
+			"PRIVATE KEY",
+			"OPENSSH PRIVATE KEY",
+			"OPENSSH PRIVATE KEY",
+		}},
+		{sshAgentData(keys.ED25519), []string{
+			"PUBLIC KEY",
+			"PUBLIC KEY",
+			"",
+		}, []string{
+			"VANADIUM INDIRECT PRIVATE KEY",
+			"OPENSSH PRIVATE KEY",
+			"OPENSSH PRIVATE KEY",
+		}},
 	} {
-
-		p, err := CreatePrincipalOpts(ctx, WithSigner(tc.vals.signer))
-		if err != nil {
-			t.Fatalf("%v: %v", i, err)
-		}
-		sig, err := p.Sign(msg)
-		if err != nil {
-			t.Fatalf("%v: %v", i, err)
-		}
-		if !sig.Verify(p.PublicKey(), msg) {
-			t.Fatalf("%v: verify failed", i)
-		}
-
-		dir, storeOpt := newStoreOpt(t)
-		_, err = CreatePrincipalOpts(ctx, WithSigner(tc.vals.signer), storeOpt)
-		if err == nil || !strings.Contains(err.Error(), "cannot create a new persistent principal without a private key") {
-			t.Fatalf("missing or incorrect error: %q", err)
-		}
-		_, err = CreatePrincipalOpts(ctx, WithPublicKeyBytes(tc.vals.publicKeyBytes), storeOpt)
-		if err == nil || !strings.Contains(err.Error(), "cannot create a new persistent principal without a private key") {
-			t.Fatalf("missing or incorrect error: %q", err)
-		}
-
-		_, err = CreatePrincipalOpts(ctx, WithPublicKeyBytes(tc.vals.publicKeyBytes), storeOpt, WithPublicKeyOnly(true))
-		if err != nil {
-			t.Fatalf("%v: %v", i, err)
-		}
-
-		_, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)))
-		if err == nil || !strings.Contains(err.Error(), "no such file or directory") {
-			t.Fatalf("missing or incorrect error: %q", err)
-		}
-
-		_, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)), FromPublicKeyOnly(true))
-		if err != nil {
-			t.Fatalf("%v: %v", i, err)
-		}
 
 		for j, opt := range []CreatePrincipalOption{
 			WithPrivateKey(tc.vals.privateKey, nil),
 			WithPrivateKeyBytes(ctx, nil, tc.vals.privateKeyBytes, nil),
 			WithPrivateKeyBytes(ctx, tc.vals.publicKeyBytes, tc.vals.privateKeyBytes, nil),
 		} {
+			// Create and use in memory principal.
 			p, err := CreatePrincipalOpts(ctx, opt)
 			if err != nil {
 				t.Fatalf("%v: %v: %v", i, j, err)
@@ -149,11 +197,15 @@ func TestCreatePrincipalOpts(t *testing.T) {
 			if !sig.Verify(p.PublicKey(), msg) {
 				t.Fatalf("%v: %v: verify failed", i, j)
 			}
+
+			// Create persistent principal.
 			dir, storeOpt := newStoreOpt(t)
 			pp, err := CreatePrincipalOpts(ctx, opt, storeOpt)
 			if err != nil {
 				t.Fatalf("%v: %v: %v", i, j, err)
 			}
+
+			// Load persistent principal.
 			lp, err := LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)))
 			if err != nil {
 				t.Fatalf("%v: %v: %v", i, j, err)
@@ -168,8 +220,20 @@ func TestCreatePrincipalOpts(t *testing.T) {
 			if !sig.Verify(p.PublicKey(), msg) {
 				t.Fatalf("%v: %v: verify failed", i, j)
 			}
-			if err := checkPEM(filepath.Join(dir, publicKeyFile), tc.publicPEM[j]); err != nil {
-				t.Errorf("%v: %v: %v", i, j, err)
+
+			// Verify formats of the key files created for the persistent principal.
+			if len(tc.publicPEM[j]) == 0 {
+				data, err := os.ReadFile(filepath.Join(dir, publicKeyFile))
+				if err != nil {
+					t.Fatalf("%v: %v: %v", i, j, err)
+				}
+				if !bytes.Contains(data, []byte("ssh-")) {
+					t.Fatalf("%v: %v: %s doesn't look like an ssh public key", i, j, data)
+				}
+			} else {
+				if err := checkPEM(filepath.Join(dir, publicKeyFile), tc.publicPEM[j]); err != nil {
+					t.Errorf("%v: %v: %v", i, j, err)
+				}
 			}
 			if err := checkPEM(filepath.Join(dir, privateKeyFile), tc.privatePEM[j]); err != nil {
 				t.Errorf("%v: %v: %v", i, j, err)

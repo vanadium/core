@@ -226,12 +226,10 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 		return nil, err
 	}
 	publicKeyBytes, privateKeyBytes := o.publicKeyBytes, o.privateKeyBytes
-	if len(privateKeyBytes) == 0 {
-		if o.privateKey != nil {
-			privateKeyBytes, err = keyRegistrar.MarshalPrivateKey(o.privateKey, o.passphrase)
-			if err != nil {
-				return nil, err
-			}
+	if len(privateKeyBytes) == 0 && o.privateKey != nil {
+		privateKeyBytes, err = keyRegistrar.MarshalPrivateKey(o.privateKey, o.passphrase)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -248,10 +246,6 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	if len(publicKeyBytes) == 0 {
-		return nil, fmt.Errorf("cannot create a new persistent principal without a public key")
 	}
 
 	unlock, err := o.store.Lock(ctx, LockKeyStore)

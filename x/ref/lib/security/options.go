@@ -307,7 +307,7 @@ func WithX509VerifyOptions(opts x509.VerifyOptions) CreatePrincipalOption {
 	}
 }
 
-// WithX509Certificate specifices the x509 Certificate to associate with
+// WithX509Certificate specifies the x509 Certificate to associate with
 // this Principal. It is generally used to associate an x509 Certificate
 // with a Principal created from a signer or private key directly rather than
 // via WithPublicKeyBytes or WithPrivateKeyBytes.

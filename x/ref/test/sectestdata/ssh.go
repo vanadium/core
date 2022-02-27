@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/testutil/testsshagent"
 )
 
@@ -124,9 +125,8 @@ func SSHPrivateKey(typ keys.CryptoAlgo, set SSHKeySetID) crypto.PrivateKey {
 		}
 		return key
 	case SSHKeyAgentHosted:
-		// TODO(cnicolaou): implement this once the ssh public key handling
-		//                  is cleaned up.
-		return nil
+		pk := SSHPublicKey(typ)
+		return sshkeys.NewHostedKey(pk.(ssh.PublicKey), typ.String(), nil)
 	default:
 		panic(fmt.Sprintf("unsupported key set %v", set))
 	}
