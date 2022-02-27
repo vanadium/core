@@ -16,7 +16,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
-	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/testutil/testsshagent"
 )
 
@@ -33,7 +32,6 @@ type SSHKeySetID int
 const (
 	SSHKeyPrivate SSHKeySetID = iota
 	SSHKeyPublic
-	SSHKeyAgentHosted
 	SSHKeySetPKCS8
 	SSHKeyEncrypted
 )
@@ -99,8 +97,6 @@ func sshFilename(typ keys.CryptoAlgo, set SSHKeySetID) string {
 		return "ssh-" + typ.String() + ".pub"
 	case SSHKeySetPKCS8:
 		return "ssh-" + typ.String() + ".pem"
-	case SSHKeyAgentHosted:
-		return "ssh-" + typ.String() + ".pub"
 	}
 	panic(fmt.Sprintf("unrecognised key set: %v", set))
 }
@@ -124,9 +120,7 @@ func SSHPrivateKey(typ keys.CryptoAlgo, set SSHKeySetID) crypto.PrivateKey {
 			return *k
 		}
 		return key
-	case SSHKeyAgentHosted:
-		pk := SSHPublicKey(typ)
-		return sshkeys.NewHostedKey(pk.(ssh.PublicKey), typ.String(), nil)
+
 	default:
 		panic(fmt.Sprintf("unsupported key set %v", set))
 	}

@@ -15,8 +15,10 @@ import (
 	"strings"
 	"testing"
 
+	"golang.org/x/crypto/ssh"
 	"v.io/v23/security"
 	"v.io/x/ref/lib/security/keys"
+	"v.io/x/ref/lib/security/keys/sshkeys"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -55,9 +57,10 @@ func sshData(kt keys.CryptoAlgo) principalOptValues {
 }
 
 func sshAgentData(kt keys.CryptoAlgo) principalOptValues {
+	pk := sectestdata.SSHPublicKey(kt)
 	return principalOptValues{
 		signer:          sectestdata.SSHKeySigner(kt, sectestdata.SSHKeyPrivate),
-		privateKey:      sectestdata.SSHPrivateKey(kt, sectestdata.SSHKeyAgentHosted),
+		privateKey:      sshkeys.NewHostedKey(pk.(ssh.PublicKey), kt.String(), nil),
 		publicKeyBytes:  sectestdata.SSHPublicKeyBytes(kt, sectestdata.SSHKeyPublic),
 		privateKeyBytes: sectestdata.SSHPrivateKeyBytes(kt, sectestdata.SSHKeyPrivate),
 	}
