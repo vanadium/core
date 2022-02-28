@@ -9,6 +9,7 @@ package main
 
 import (
 	gocontext "context"
+	"crypto"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
@@ -82,6 +83,7 @@ type KeyFlags struct {
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 	SSHKeyFile            string `cmdline:"ssh-key,,'If set, use the ssh private key from the specified file'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
+	SSLCAFile             string `cmdline:"ssl-cert,,'If set, use the ssl/tls certificate from the specified file.'"`
 	CopyPrivateKey        bool   `cmdline:"copy-private-key,false,'If set, the private key will be copied into the newly created principal rather than being referred to in its current location.'"`
 }
 
@@ -1341,7 +1343,7 @@ func (kf KeyFlags) validate() (newKey bool, err error) {
 	if len(kf.SSHKeyFile) > 0 {
 		n++
 	}
-	if len(kf.SSLKeyFile) > 0 {
+	if len(kf.SSLKeyFile) > 0 || len(kf.SSLCAFile) > 0 {
 		n++
 	}
 	if len(kf.SSHAgentPublicKeyFile) > 0 {
@@ -1351,6 +1353,16 @@ func (kf KeyFlags) validate() (newKey bool, err error) {
 	case 0:
 		newKey = true
 	case 1:
+		pair := 0
+		if len(kf.SSLKeyFile) > 0 {
+			pair++
+		}
+		if len(kf.SSLCAFile) > 0 {
+			pair++
+		}
+		if pair == 1 {
+			err = fmt.Errorf("both an SSL private key and public certificate must be specified")
+		}
 	default:
 		err = fmt.Errorf("multiple key sources chosen, please choose one and only one of --ssh-public-key, ssh-key and ssl-key")
 	}
@@ -1369,8 +1381,8 @@ func (kf KeyFlags) createNewKey(passphrase []byte) (seclib.CreatePrincipalOption
 	return seclib.WithPrivateKey(privateKey, passphrase), nil
 }
 
-func importFromPrivateKeyFile(ctx gocontext.Context, filename string, copyKey bool, passphrase []byte) (seclib.CreatePrincipalOption, error) {
-	privateKey, err := seclib.PrivateKeyFromFileWithPrompt(ctx, filename)
+func importFromKeyFiles(ctx gocontext.Context, publicKeyFile, privateKeyFile string, copyKey bool, passphrase []byte) (seclib.CreatePrincipalOption, error) {
+	privateKey, err := seclib.PrivateKeyFromFileWithPrompt(ctx, privateKeyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -1378,9 +1390,21 @@ func importFromPrivateKeyFile(ctx gocontext.Context, filename string, copyKey bo
 	if err != nil {
 		return nil, err
 	}
-	pubKey, err := api.CryptoPublicKey(privateKey)
-	if err != nil {
-		return nil, err
+	var pubKey crypto.PublicKey
+	if len(publicKeyFile) == 0 {
+		pubKey, err = api.CryptoPublicKey(privateKey)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		data, err := os.ReadFile(publicKeyFile)
+		if err != nil {
+			return nil, err
+		}
+		pubKey, err = seclib.ParsePublicKey(data)
+		if err != nil {
+			return nil, err
+		}
 	}
 	publicKeyBytes, err := seclib.MarshalPublicKey(pubKey)
 	if err != nil {
@@ -1390,7 +1414,7 @@ func importFromPrivateKeyFile(ctx gocontext.Context, filename string, copyKey bo
 	if copyKey {
 		privateKeyBytes, err = seclib.MarshalPrivateKey(privateKey, nil)
 	} else {
-		privateKeyBytes, err = seclib.ImportPrivateKeyFile(filename)
+		privateKeyBytes, err = seclib.ImportPrivateKeyFile(privateKeyFile)
 	}
 	if err != nil {
 		return nil, err
@@ -1433,9 +1457,9 @@ func createPersistentPrincipal(ctx gocontext.Context, dir string, keyFlags KeyFl
 	var opt seclib.CreatePrincipalOption
 	switch {
 	case len(keyFlags.SSHKeyFile) > 0:
-		opt, err = importFromPrivateKeyFile(ctx, keyFlags.SSHKeyFile, keyFlags.CopyPrivateKey, pass)
+		opt, err = importFromKeyFiles(ctx, "", keyFlags.SSHKeyFile, keyFlags.CopyPrivateKey, pass)
 	case len(keyFlags.SSLKeyFile) > 0:
-		opt, err = importFromPrivateKeyFile(ctx, keyFlags.SSLKeyFile, keyFlags.CopyPrivateKey, pass)
+		opt, err = importFromKeyFiles(ctx, keyFlags.SSLCAFile, keyFlags.SSLKeyFile, keyFlags.CopyPrivateKey, pass)
 	case len(keyFlags.SSHAgentPublicKeyFile) > 0:
 		opt, err = importForSSHAgent(ctx, keyFlags.SSHAgentPublicKeyFile)
 	}

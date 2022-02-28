@@ -593,13 +593,18 @@ func TestV23Create(t *testing.T) {
 	defer sh.Cleanup()
 
 	var (
-		outputDir = sh.MakeTempDir()
-		bin       = v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
-		aliceDir  = filepath.Join(outputDir, "alice")
-		sslFile   = filepath.Join(outputDir, "ssl.key")
+		outputDir   = sh.MakeTempDir()
+		bin         = v23test.BuildGoPkg(sh, "v.io/x/ref/cmd/principal")
+		aliceDir    = filepath.Join(outputDir, "alice")
+		sslKeyFile  = filepath.Join(outputDir, "ssl.key")
+		sslCertFile = filepath.Join(outputDir, "ssl.ca")
 	)
 
-	if err := os.WriteFile(sslFile, sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private), 0600); err != nil {
+	if err := os.WriteFile(sslKeyFile, sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(sslCertFile, sectestdata.X509PublicKeyBytes(keys.ED25519), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -649,35 +654,43 @@ func TestV23Create(t *testing.T) {
 	for _, tc := range []struct {
 		sshComment        string
 		privateKeyPEMType string
+		publicKeyPEMType  string
 		flags             []string
 	}{
 		{
 			"",
 			"PRIVATE KEY",
+			"PUBLIC KEY",
 			nil},
 		{
 			"ed25519",
 			"VANADIUM INDIRECT PRIVATE KEY",
+			"PUBLIC KEY",
 			[]string{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")}},
 		{
 			"",
 			"VANADIUM INDIRECT PRIVATE KEY",
+			"PUBLIC KEY",
 			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521")}},
 		{
 			"",
 			"VANADIUM INDIRECT PRIVATE KEY",
-			[]string{"--ssl-key=" + sslFile}},
+			"CERTIFICATE",
+			[]string{"--ssl-key=" + sslKeyFile, "--ssl-cert=" + sslCertFile}},
 		{
 			"",
 			"PRIVATE KEY",
+			"PUBLIC KEY",
 			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521"), "--copy-private-key"}},
 		{
 			"",
 			"PRIVATE KEY",
-			[]string{"--ssl-key=" + sslFile, "--copy-private-key"}},
+			"CERTIFICATE",
+			[]string{"--ssl-key=" + sslKeyFile, "--ssl-cert=" + sslCertFile, "--copy-private-key"}},
 		{
 			"",
 			"PRIVATE KEY",
+			"PUBLIC KEY",
 			[]string{"--key-type=ecdsa521"}},
 	} {
 		flags := tc.flags
@@ -688,7 +701,7 @@ func TestV23Create(t *testing.T) {
 		if len(tc.sshComment) > 0 {
 			checkSSHKey("publickey.pem", tc.sshComment)
 		} else {
-			checkPEM("publickey.pem", "PUBLIC KEY")
+			checkPEM("publickey.pem", tc.publicKeyPEMType)
 		}
 
 		checkPEM("privatekey.pem", tc.privateKeyPEMType)
