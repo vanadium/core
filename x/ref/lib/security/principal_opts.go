@@ -47,17 +47,14 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 	}
 	signer, err := reader.NewSigner(ctx, o.passphrase)
 
-	var publicKey security.PublicKey
 	if err != nil {
 		if !o.allowPublicKey {
 			return nil, err
 		}
-		publicKey, err = reader.NewPublicKey(ctx)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		publicKey = signer.PublicKey()
+	}
+	publicKey, cert, err := reader.NewPublicKey(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	blessingsStoreOpts := []BlessingsStoreOption{BlessingsStoreUpdate(o.interval)}
@@ -83,5 +80,5 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 	if signer == nil {
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreatePrincipal(signer, bs, br)
+	return security.CreateX509Principal(signer, cert, bs, br)
 }

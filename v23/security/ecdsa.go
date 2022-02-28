@@ -18,8 +18,12 @@ func NewECDSAPublicKey(key *ecdsa.PublicKey) PublicKey {
 }
 
 type ecdsaPublicKey struct {
-	key *ecdsa.PublicKey
 	publicKeyCommon
+	key *ecdsa.PublicKey
+}
+
+func (pk *ecdsaPublicKey) equal(key crypto.PublicKey) bool {
+	return pk.key.Equal(key)
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {

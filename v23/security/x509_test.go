@@ -45,19 +45,20 @@ func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.Priv
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf(">>>>> %s\n", pubKeyBytes)
 	p, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithPrivateKeyBytes(ctx, pubKeyBytes, privKeyBytes, nil),
 		seclib.WithX509VerifyOptions(opts))
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	cert := p.PublicKey().X509Certificate()
+	cert := security.ExposeX509Certificate(p)
 	if cert == nil {
 		t.Fatalf("no x509 certificate found in principal")
+	} else {
+		if got, want := p.PublicKey().String(), security.ExposeFingerPrint(cert.PublicKey); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
 	}
-	fmt.Printf("%#v\n", cert)
 
 	blessings, err := p.BlessSelf(host)
 	if err != nil {
@@ -259,17 +260,43 @@ func TestX509ServerErrors(t *testing.T) {
 			t.Errorf("no names should be returned: %v\n", names)
 		}
 
+		dir := t.TempDir()
+		store, err := seclib.CreateFilesystemStore(dir)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		xxx need blessing root opts..
+
 		// The following will result in an error from BlessSelf since
 		// the requested tc.invalidHost is not supported by the certificate.
-		server, err := seclib.CreatePrincipalOpts(ctx,
+		server, err = seclib.CreatePrincipalOpts(ctx,
 			seclib.WithPrivateKey(privKey, nil),
+			seclib.WithStore(store),
+			seclib.WithX509Certificate(pubCerts[0]),
 			seclib.WithX509VerifyOptions(opts))
 		if err != nil {
-			t.Errorf("failed to create principal: %v", err)
+			t.Fatalf("failed to create principal: %v", err)
 		}
 
 		_, err = server.BlessSelf(tc.invalidHost)
+
 		want := fmt.Sprintf(", not %v", tc.invalidHost)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("unexpected or missing error: %q does not contain %q", err, want)
+		}
+
+		server, err = seclib.LoadPrincipalOpts(ctx,
+			seclib.FromReadonly(seclib.FilesystemStoreReader(dir)),
+		)
+
+		if err != nil {
+			t.Fatalf("failed to create principal: %v", err)
+		}
+
+		_, err = server.BlessSelf(tc.invalidHost)
+
+		want = fmt.Sprintf(", not %v", tc.invalidHost)
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("unexpected or missing error: %q does not contain %q", err, want)
 		}

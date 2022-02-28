@@ -41,10 +41,9 @@ type PublicKey interface {
 	encoding.BinaryMarshaler
 	fmt.Stringer
 
-	// X509Certificate returns the x509 Certificate that this PublicKey
-	// was created from, or nil for the more common case where the public
-	// key was not taken from an x509 Certificate.
-	// X509Certificate() *x509.Certificate
+	// Returns true if the signer's underlying public key is identical
+	// to the specified key.
+	equal(key crypto.PublicKey) bool
 
 	// hashAlgo returns the cryptographic hash function appropriate for
 	// creating message digests to sign with this public key.
@@ -84,7 +83,6 @@ type publicKeyCommon struct {
 	chash       crypto.Hash
 	keyBytes    []byte
 	keyBytesErr error
-	//x509        *x509.Certificate
 }
 
 func newPublicKeyCommon(key interface{}, hash Hash) publicKeyCommon {
@@ -126,10 +124,6 @@ func (pk publicKeyCommon) String() string {
 	return string(repr[:len(repr)-1])
 }
 
-/*func (pk publicKeyCommon) X509Certificate() *x509.Certificate {
-	return pk.x509
-}*/
-
 // NewPublicKey creates a new security.PublicKey for the supplied
 // public or private keys. The supported types are:
 // *ecdsa.PrivateKey, *rsa.PrivateKey, ed25519.PrivateKey,
@@ -142,20 +136,8 @@ func NewPublicKey(key interface{}) (PublicKey, error) {
 		return NewRSAPublicKey(k), nil
 	case ed25519.PublicKey:
 		return NewED25519PublicKey(k), nil
-		/*	case *x509.Certificate:
-			pk, err := NewPublicKey(k.PublicKey)
-			if err != nil {
-				return nil, err
-			}
-			switch ipk := pk.(type) {
-			case *ecdsaPublicKey:
-				ipk.x509 = k
-			case *ed25519PublicKey:
-				ipk.x509 = k
-			case *rsaPublicKey:
-				ipk.x509 = k
-			}
-			return pk, nil*/
+	case *x509.Certificate:
+		return NewPublicKey(k.PublicKey)
 	case *ecdsa.PrivateKey:
 		return NewECDSAPublicKey(&k.PublicKey), nil
 	case *rsa.PrivateKey:
@@ -164,4 +146,15 @@ func NewPublicKey(key interface{}) (PublicKey, error) {
 		return NewED25519PublicKey(k.Public().(ed25519.PublicKey)), nil
 	}
 	return nil, fmt.Errorf("%T is an unsupported key type", key)
+}
+
+func fingerprintCryptoPublicKey(key interface{}) string {
+	kb, err := x509.MarshalPKIXPublicKey(key)
+	if err != nil {
+		return err.Error()
+	}
+	pk := publicKeyCommon{
+		keyBytes: kb,
+	}
+	return pk.String()
 }

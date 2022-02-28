@@ -7,6 +7,7 @@ package security
 import (
 	"context"
 	"crypto"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"os"
@@ -48,18 +49,19 @@ func ImportPrivateKeyFile(filename string) ([]byte, error) {
 	return indirectkeyfiles.MarshalPrivateKey([]byte(filename))
 }
 
-func publicKeyFromBytes(publicKeyBytes []byte) (security.PublicKey, error) {
+func publicKeyFromBytes(publicKeyBytes []byte) (security.PublicKey, *x509.Certificate, error) {
 	if len(publicKeyBytes) == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 	key, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	api, err := keyRegistrar.APIForKey(key)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	publicKey, err := api.PublicKey(key)
-	return publicKey, err
+	cert, _ := key.(*x509.Certificate)
+	return publicKey, cert, err
 }

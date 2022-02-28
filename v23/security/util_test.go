@@ -9,6 +9,7 @@ package security
 import (
 	"crypto"
 	"crypto/ecdsa"
+	"crypto/x509"
 	"fmt"
 
 	"v.io/v23/context"
@@ -126,15 +127,10 @@ func ExposeECDSAHash(key *ecdsa.PublicKey) Hash {
 	}
 }
 
-/*
-func ExposeClearX509Certificate(pk PublicKey) {
-	switch ipk := pk.(type) {
-	case *ecdsaPublicKey:
-		ipk.x509 = nil
-	case *ed25519PublicKey:
-		ipk.x509 = nil
-	case *rsaPublicKey:
-		ipk.x509 = nil
-	}
+func ExposeX509Certificate(p Principal) *x509.Certificate {
+	return p.(*principal).x509Cert
 }
-*/
+
+func ExposeFingerPrint(pk interface{}) string {
+	return fingerprintCryptoPublicKey(pk)
+}

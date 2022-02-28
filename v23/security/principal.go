@@ -20,10 +20,6 @@ import (
 // public keys and all subsequent 'AddToRoots' operations fail.
 //
 // It returns an error if store.PublicKey does not match signer.PublicKey.
-//
-// NOTE: v.io/x/ref/lib/security provides implementations
-// NOTE: v.io/x/ref/lib/testutil/security provides utility methods for creating
-// principals for testing purposes.
 func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (Principal, error) {
 	if store == nil {
 		store = errStore{signer.PublicKey()}
@@ -39,15 +35,20 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 
 // CreateX509Principal is like CreatePrincipal except that it associates the
 // the specified x509 Certificate with the newly created Principal which
-// controls how BlessSelf behaves.
+// controls how BlessSelf behaves. If cert is nil then CreateX509Principal
+// is like calling CreatePrincipal directly. If cert is non-nil, its public key
+// must match that of the signer.
 func CreateX509Principal(signer Signer, cert *x509.Certificate, store BlessingStore, roots BlessingRoots) (Principal, error) {
 	p, err := CreatePrincipal(signer, store, roots)
 	if err != nil {
 		return nil, err
 	}
+	if cert == nil {
+		return p, nil
+	}
 	p.(*principal).x509Cert = cert
-	if got, want := signer.PublicKey(), cert.PublicKey; !reflect.DeepEqual(got, want) {
-		return nil, fmt.Errorf("x509 Certificate's public key: %v does not match signer's public key: %v", got, want)
+	if !signer.PublicKey().equal(cert.PublicKey) {
+		return nil, fmt.Errorf("x509 Certificate's public key: %v does not match signer's public key: %v", signer.PublicKey(), fingerprintCryptoPublicKey(cert.PublicKey))
 	}
 	return p, nil
 }

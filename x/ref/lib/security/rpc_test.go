@@ -50,12 +50,13 @@ func TestX509RPC(t *testing.T) {
 	fatal()
 	serverPrincipal, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithSigner(signer),
+		seclib.WithX509Certificate(pubCerts[0]),
 		seclib.WithX509VerifyOptions(opts))
 	fatal()
 
-	blessingsFoo, err := serverPrincipal.BlessSelfX509("foo.labdrive.io", pubCerts[0])
+	blessingsFoo, err := serverPrincipal.BlessSelf("foo.labdrive.io")
 	fatal()
-	blessingsBar, err := serverPrincipal.BlessSelfX509("bar.labdr.io", pubCerts[0])
+	blessingsBar, err := serverPrincipal.BlessSelf("bar.labdr.io")
 	fatal()
 	_, err = serverPrincipal.BlessingStore().Set(blessingsFoo, "client")
 	fatal()

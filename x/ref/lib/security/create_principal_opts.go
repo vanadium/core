@@ -76,8 +76,9 @@ func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer,
 }
 
 func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
+	cert := o.x509Cert
 	if o.signer != nil {
-		return o.signer.PublicKey(), nil, nil
+		return o.signer.PublicKey(), cert, nil
 	}
 	if o.privateKey != nil {
 		api, err := keyRegistrar.APIForKey(o.privateKey)
@@ -85,14 +86,18 @@ func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.Publ
 			return nil, nil, err
 		}
 		publicKey, err := api.PublicKey(o.privateKey)
-		return publicKey, nil, err
+		return publicKey, cert, err
 	}
 	if len(o.publicKeyBytes) > 0 {
 		key, err := keyRegistrar.ParsePublicKey(o.publicKeyBytes)
 		if err != nil {
 			return nil, nil, err
 		}
-		cert, _ := key.(*x509.Certificate)
+		if cert == nil {
+			if nc, ok := key.(*x509.Certificate); ok {
+				cert = nc
+			}
+		}
 		api, err := keyRegistrar.APIForKey(key)
 		if err != nil {
 			return nil, nil, err
@@ -116,7 +121,7 @@ func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.Publ
 		if err != nil {
 			return nil, nil, err
 		}
-		return publicKey, nil, nil
+		return publicKey, cert, nil
 	}
 	return nil, nil, fmt.Errorf("no security.PublicKey found in options")
 }
@@ -238,11 +243,15 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	}
 
 	if len(publicKeyBytes) == 0 {
-		publicKey, err := o.getCryptoPublicKey(ctx)
+		publicKey, cert, err = o.getPublicKey(ctx)
 		if err != nil {
 			return nil, err
 		}
-		publicKeyBytes, err = keyRegistrar.MarshalPublicKey(publicKey)
+		if cert != nil {
+			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(cert)
+		} else {
+			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(publicKey)
+		}
 		if err != nil {
 			return nil, err
 		}
