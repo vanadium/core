@@ -37,6 +37,9 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 	return &principal{signer: signer, publicKey: signer.PublicKey(), store: store, roots: roots}, nil
 }
 
+// CreateX509Principal is like CreatePrincipal except that it associates the
+// the specified x509 Certificate with the newly created Principal which
+// controls how BlessSelf behaves.
 func CreateX509Principal(signer Signer, cert *x509.Certificate, store BlessingStore, roots BlessingRoots) (Principal, error) {
 	p, err := CreatePrincipal(signer, store, roots)
 	if err != nil {

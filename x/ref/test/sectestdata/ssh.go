@@ -32,7 +32,6 @@ type SSHKeySetID int
 const (
 	SSHKeyPrivate SSHKeySetID = iota
 	SSHKeyPublic
-	SSHKeyAgentHosted
 	SSHKeySetPKCS8
 	SSHKeyEncrypted
 )
@@ -98,8 +97,6 @@ func sshFilename(typ keys.CryptoAlgo, set SSHKeySetID) string {
 		return "ssh-" + typ.String() + ".pub"
 	case SSHKeySetPKCS8:
 		return "ssh-" + typ.String() + ".pem"
-	case SSHKeyAgentHosted:
-		return "ssh-" + typ.String() + ".pub"
 	}
 	panic(fmt.Sprintf("unrecognised key set: %v", set))
 }
@@ -123,10 +120,7 @@ func SSHPrivateKey(typ keys.CryptoAlgo, set SSHKeySetID) crypto.PrivateKey {
 			return *k
 		}
 		return key
-	case SSHKeyAgentHosted:
-		// TODO(cnicolaou): implement this once the ssh public key handling
-		//                  is cleaned up.
-		return nil
+
 	default:
 		panic(fmt.Sprintf("unsupported key set %v", set))
 	}

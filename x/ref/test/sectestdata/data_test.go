@@ -11,7 +11,6 @@ import (
 func TestSSHKeys(t *testing.T) {
 	for _, kt := range SupportedKeyAlgos {
 		for _, set := range []SSHKeySetID{
-			SSHKeyAgentHosted,
 			SSHKeyPublic} {
 			publicKey := SSHPublicKeyBytes(kt, set)
 			if len(publicKey) == 0 {
@@ -20,9 +19,6 @@ func TestSSHKeys(t *testing.T) {
 		}
 		for _, set := range []SSHKeySetID{
 			SSHKeyPrivate,
-			// TODO(cnicolaou): enabled this once the handling of ssh public
-			//                  keys is cleaned up.
-			// SSHKeyAgentHosted,
 		} {
 			signer := SSHKeySigner(kt, set)
 			if signer == nil {

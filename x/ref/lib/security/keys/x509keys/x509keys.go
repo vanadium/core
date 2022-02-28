@@ -36,7 +36,7 @@ func MustRegister(r *keys.Registrar) {
 // private key files via the x/ref/security/keys package.
 func Register(r *keys.Registrar) error {
 	r.RegisterPublicKeyParser(parseCertificateBlock, "CERTIFICATE", nil)
-	r.RegisterPublicKeyMarshaler(marshalPublicKey, (*x509.Certificate)(nil))
+	r.RegisterPublicKeyMarshaler(marshalCertificate, (*x509.Certificate)(nil))
 	return r.RegisterAPI((*x509CertAPI)(nil), (*x509.Certificate)(nil))
 }
 
@@ -76,4 +76,12 @@ func parseCertificateBlock(block *pem.Block) (crypto.PublicKey, error) {
 		return nil, err
 	}
 	return cert, err
+}
+
+func marshalCertificate(key crypto.PublicKey) ([]byte, error) {
+	cert, ok := key.(*x509.Certificate)
+	if !ok {
+		return nil, fmt.Errorf("x509keys.marshalCertificate: unsupported key type %T", key)
+	}
+	return internal.EncodePEM("CERTIFICATE", cert.Raw, nil)
 }

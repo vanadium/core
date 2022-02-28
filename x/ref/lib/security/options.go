@@ -177,8 +177,22 @@ type createPrincipalOptions struct {
 	store           CredentialsStoreCreator
 	blessingStore   security.BlessingStore
 	blessingRoots   security.BlessingRoots
+	allowPublicKey  bool
 	x509Opts        x509.VerifyOptions
 	x509Cert        *x509.Certificate
+}
+
+func (o createPrincipalOptions) checkPrivateKey(msg string) error {
+	if len(o.passphrase) > 0 {
+		return fmt.Errorf("%s: a private key with a passphrase has already been specified as an option", msg)
+	}
+	if o.privateKey != nil {
+		return fmt.Errorf("%s: a private key has already been specified as an option", msg)
+	}
+	if len(o.privateKeyBytes) > 0 {
+		return fmt.Errorf("%s: a marshaled private key (as bytes) has already been specified as an option", msg)
+	}
+	return nil
 }
 
 // WithStore specifies the credentials store to use for creating a new
@@ -209,6 +223,7 @@ func WithBlessingRoots(roots security.BlessingRoots) CreatePrincipalOption {
 }
 
 // WithSigner specifies the security.Signer to use for the new principal.
+// WithSigner takes precedence over WithPrivateKey or WithPrivateKeyBytes.
 func WithSigner(signer security.Signer) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.signer = signer
@@ -216,37 +231,34 @@ func WithSigner(signer security.Signer) CreatePrincipalOption {
 	}
 }
 
+func (o *createPrincipalOptions) copyPassphrase(passphrase []byte) {
+	if len(passphrase) > 0 {
+		o.passphrase = make([]byte, len(passphrase))
+		copy(o.passphrase, passphrase)
+
+	}
+	defer ZeroPassphrase(passphrase)
+}
+
 // WithPrivateKey specifies the private key to use for the new principal.
+// WithPrivateKey takes precedence over WithPrivateKeyBytes.
+// Passphrase is zeroed.
 func WithPrivateKey(key crypto.PrivateKey, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
 			return err
 		}
 		o.privateKey = key
-		if len(passphrase) > 0 {
-			o.passphrase = make([]byte, len(passphrase))
-			copy(o.passphrase, passphrase)
-		}
-		defer ZeroPassphrase(passphrase)
-		api, err := keyRegistrar.APIForKey(key)
-		if err != nil {
-			return err
-		}
-		publicKey, err := api.CryptoPublicKey(key)
-		if err != nil {
-			return err
-		}
-		o.publicKeyBytes, err = keyRegistrar.MarshalPublicKey(publicKey)
-		if err != nil {
-			return err
-		}
-		o.privateKeyBytes, err = keyRegistrar.MarshalPrivateKey(key, passphrase)
-		return err
+		o.copyPassphrase(passphrase)
+		return nil
 	}
 }
 
 // WithPublicKeyBytes specifies the public key bytes to use when creating a
 // public-key only principal.
+// If the public key bytes encode a CERTIFICATE PEM block then that Certificate
+// will be retained and associated with the principal as opposed to just the public
+// key portion of the certificate.
 func WithPublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if _, err := keyRegistrar.ParsePublicKey(keyBytes); err != nil {
@@ -259,19 +271,29 @@ func WithPublicKeyBytes(keyBytes []byte) CreatePrincipalOption {
 
 // WithPrivateKeyBytes specifies the public and private key bytes to use when creating
 // a principal. The passphrase is zeroed.
-// TODO - remove the public key bytes from here.
-func WithPrivateKeyBytes(ctx context.Context, public, private, passphrase []byte) CreatePrincipalOption {
+// If publicKeyBytes are nil then the public key will be derived from the
+// private key. If not, the public key will be parsed from the supplied bytes.
+// If the public key bytes encode a CERTIFICATE PEM block then that Certificate
+// will be retained and associated with the principal as opposed to just the public
+// key portion of the certificate.
+func WithPrivateKeyBytes(ctx context.Context, publicKeyBytes, privateKeyBytes, passphrase []byte) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		if err := o.checkPrivateKey("UsingPrivateKeyBytes"); err != nil {
 			return err
 		}
-		if len(passphrase) > 0 {
-			o.passphrase = make([]byte, len(passphrase))
-			copy(o.passphrase, passphrase)
-		}
-		defer ZeroPassphrase(passphrase)
-		o.privateKeyBytes = private
-		o.publicKeyBytes = public
+		o.copyPassphrase(passphrase)
+		o.privateKeyBytes = privateKeyBytes
+		o.publicKeyBytes = publicKeyBytes
+		return nil
+	}
+}
+
+// WithPublicKeyOnly specifies whether the principal to be created can be restricted
+// to having only a public key. Such a principal can verify credentials but
+// not create any of its own.
+func WithPublicKeyOnly(allow bool) CreatePrincipalOption {
+	return func(o *createPrincipalOptions) error {
+		o.allowPublicKey = allow
 		return nil
 	}
 }

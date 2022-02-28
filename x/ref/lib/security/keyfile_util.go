@@ -63,19 +63,3 @@ func publicKeyFromBytes(publicKeyBytes []byte) (security.PublicKey, error) {
 	publicKey, err := api.PublicKey(key)
 	return publicKey, err
 }
-
-func signerFromKey(ctx context.Context, private crypto.PrivateKey) (security.Signer, error) {
-	api, err := keyRegistrar.APIForKey(private)
-	if err != nil {
-		return nil, err
-	}
-	return api.Signer(ctx, private)
-}
-
-func signerFromBytes(ctx context.Context, privateKeyBytes, passphrase []byte) (security.Signer, error) {
-	privateKey, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, passphrase)
-	if err != nil {
-		return nil, err
-	}
-	return signerFromKey(ctx, privateKey)
-}

@@ -9,6 +9,7 @@ import (
 	"crypto"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/x509"
 	"errors"
 	"flag"
 	"fmt"
@@ -315,14 +316,26 @@ func funcForSSHKey(keyFile string) func(dir string, pass []byte) (security.Princ
 	}
 }
 
-func funcForSSLKey(key crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
+func funcForSSLKey(publicKey *x509.Certificate, privateKey crypto.PrivateKey) func(dir string, pass []byte) (security.Principal, error) {
+	ctx := context.TODO()
 	return func(dir string, pass []byte) (security.Principal, error) {
-		return CreatePersistentPrincipalUsingKey(context.TODO(), key, dir, copyPassphrase(pass))
+		store, err := CreateFilesystemStore(dir)
+		if err != nil {
+			return nil, err
+		}
+		opts := []CreatePrincipalOption{
+			WithStore(store),
+			WithPrivateKey(privateKey, pass),
+		}
+		if publicKey != nil {
+			opts = append(opts, WithX509Certificate(publicKey))
+		}
+		return CreatePrincipalOpts(ctx, opts...)
 	}
 }
 
 func TestCreatePersistentPrincipal(t *testing.T) {
-	sslKeys, _, _ := sectestdata.VanadiumSSLData()
+	sslKeys, sslCerts, _ := sectestdata.VanadiumSSLData()
 	tests := []struct {
 		fn                  func(dir string, pass []byte) (security.Principal, error)
 		Message, Passphrase []byte
@@ -343,10 +356,10 @@ func TestCreatePersistentPrincipal(t *testing.T) {
 		{funcForSSHKey("ssh-rsa-2048.pub"), []byte("unencrypted"), nil},
 		{funcForSSHKey("ssh-rsa-4096.pub"), []byte("unencrypted"), nil},
 
-		{funcForSSLKey(sslKeys["rsa-2048"]), []byte("unencrypted"), nil},
-		{funcForSSLKey(sslKeys["rsa-4096"]), []byte("unencrypted"), nil},
-		{funcForSSLKey(sslKeys["ed25519"]), []byte("unencrypted"), nil},
-		{funcForSSLKey(sslKeys["ecdsa-256"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslCerts["rsa-2048"], sslKeys["rsa-2048"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(nil, sslKeys["rsa-4096"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslCerts["ed25519"], sslKeys["ed25519"]), []byte("unencrypted"), nil},
+		{funcForSSLKey(sslCerts["ecdsa-256"], sslKeys["ecdsa-256"]), []byte("unencrypted"), nil},
 	}
 	for _, test := range tests {
 		testCreatePersistentPrincipal(t, test.fn, test.Message, test.Passphrase)
@@ -382,6 +395,10 @@ func testCreatePersistentPrincipal(t *testing.T, fn func(dir string, pass []byte
 	p2, err := LoadPersistentPrincipal(dir, passphrase)
 	if err != nil {
 		t.Fatalf("%s failed: %v", message, err)
+	}
+
+	if got, want := p.PublicKey().String(), p2.PublicKey().String(); got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 
 	if !sig.Verify(p2.PublicKey(), message) {

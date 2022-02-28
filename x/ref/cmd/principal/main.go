@@ -83,7 +83,7 @@ type KeyFlags struct {
 	SSHAgentPublicKeyFile string `cmdline:"ssh-public-key,,'If set, use the key hosted by the accessible ssh-agent that corresponds to the specified public key file.'"`
 	SSHKeyFile            string `cmdline:"ssh-key,,'If set, use the ssh private key from the specified file'"`
 	SSLKeyFile            string `cmdline:"ssl-key,,'If set, use the ssl/tls private key from the specified file.'"`
-	SSLCAFile             string `cmdline:"ssl-ca,,'If set, use the ssl/tls certificate from the specified file.'"`
+	SSLCAFile             string `cmdline:"ssl-cert,,'If set, use the ssl/tls certificate from the specified file.'"`
 	CopyPrivateKey        bool   `cmdline:"copy-private-key,false,'If set, the private key will be copied into the newly created principal rather than being referred to in its current location.'"`
 }
 
