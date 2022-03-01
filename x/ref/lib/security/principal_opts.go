@@ -10,6 +10,34 @@ import (
 	"v.io/v23/security"
 )
 
+func (o principalOptions) getBlessingStore(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingStore, error) {
+	if o.blessingStore != nil {
+		return o.blessingStore, nil
+	}
+	if o.writeable != nil {
+		return NewBlessingStoreOpts(ctx, publicKey,
+			BlessingStoreUpdate(o.interval),
+			BlessingStoreWriteable(o.writeable, signer))
+	}
+	return NewBlessingStoreOpts(ctx, publicKey,
+		BlessingStoreUpdate(o.interval),
+		BlessingStoreReadonly(o.readonly, publicKey))
+}
+
+func (o principalOptions) getBlessingRoots(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+	if o.blessingRoots != nil {
+		return o.blessingRoots, nil
+	}
+	if o.writeable != nil {
+		return NewBlessingRootsOpts(ctx,
+			BlessingRootsUpdate(o.interval),
+			BlessingRootsWriteable(o.writeable, signer))
+	}
+	return NewBlessingRootsOpts(ctx,
+		BlessingRootsUpdate(o.interval),
+		BlessingRootsReadonly(o.readonly, publicKey))
+}
+
 // LoadPrincipalOpts loads the state required to create a principal according
 // to the specified options. The most common use case is to load a principal
 // from a filesystem directory, as in:
@@ -57,22 +85,12 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 		return nil, err
 	}
 
-	blessingsStoreOpts := []BlessingsStoreOption{BlessingsStoreUpdate(o.interval)}
-	blessingRootOpts := []BlessingRootsOption{BlessingRootsUpdate(o.interval)}
-	if o.writeable != nil {
-		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreWriteable(o.writeable, &serializationSigner{signer}))
-		blessingRootOpts = append(blessingRootOpts, BlessingRootsWriteable(o.writeable, &serializationSigner{signer}))
-	} else {
-		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreReadonly(o.readonly, publicKey))
-		blessingRootOpts = append(blessingRootOpts, BlessingRootsReadonly(o.readonly, publicKey))
-	}
-
-	bs, err := NewBlessingStoreOpts(ctx, publicKey, blessingsStoreOpts...)
+	bs, err := o.getBlessingStore(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}
 
-	br, err := NewBlessingRootsOpts(ctx, blessingRootOpts...)
+	br, err := o.getBlessingRoots(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}

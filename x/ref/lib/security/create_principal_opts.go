@@ -196,33 +196,24 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 	return nil, fmt.Errorf("no signer/private key or public key information provided")
 }
 
-func (o createPrincipalOptions) setPersistentStores(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
-	var blessingsStoreOpt BlessingsStoreOption
-	var blessingRootOpt BlessingRootsOption
+func (o createPrincipalOptions) getBlessingStore(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingStore, error) {
+	if o.blessingStore != nil {
+		return o.blessingStore, nil
+	}
 	if signer != nil {
-		blessingsStoreOpt = BlessingsStoreWriteable(o.store, &serializationSigner{signer})
-		blessingRootOpt = BlessingRootsWriteable(o.store, &serializationSigner{signer})
-		publicKey = signer.PublicKey()
-	} else {
-		blessingsStoreOpt = BlessingsStoreReadonly(o.store, publicKey)
-		blessingRootOpt = BlessingRootsReadonly(o.store, publicKey)
+		NewBlessingStoreOpts(ctx, publicKey, BlessingStoreWriteable(o.store, signer))
 	}
+	return NewBlessingStoreOpts(ctx, publicKey, BlessingStoreReadonly(o.store, publicKey))
+}
 
-	blessingStore = o.blessingStore
-	if blessingStore == nil {
-		blessingStore, err = NewBlessingStoreOpts(ctx, publicKey, blessingsStoreOpt)
-		if err != nil {
-			return
-		}
+func (o createPrincipalOptions) getBlessingRoots(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+	if o.blessingRoots != nil {
+		return o.blessingRoots, nil
 	}
-	blessingRoots = o.blessingRoots
-	if blessingRoots == nil {
-		blessingRoots, err = NewBlessingRootsOpts(ctx, blessingRootOpt, BlessingRootsX509VerifyOptions(o.x509Opts))
-		if err != nil {
-			return
-		}
+	if signer != nil {
+		NewBlessingRootsOpts(ctx, BlessingRootsWriteable(o.store, signer))
 	}
-	return
+	return NewBlessingRootsOpts(ctx, BlessingRootsReadonly(o.store, publicKey))
 }
 
 func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (security.Principal, error) {
@@ -268,7 +259,11 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	}
 
 	// One of publicKey or signer will be nil.
-	bs, br, err := o.setPersistentStores(ctx, publicKey, signer)
+	bs, err := o.getBlessingStore(ctx, publicKey, signer)
+	if err != nil {
+		return nil, err
+	}
+	br, err := o.getBlessingRoots(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}
