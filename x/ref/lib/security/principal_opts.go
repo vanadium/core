@@ -10,6 +10,34 @@ import (
 	"v.io/v23/security"
 )
 
+func (o principalOptions) getBlessingStore(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingStore, error) {
+	if o.blessingStore != nil {
+		return o.blessingStore, nil
+	}
+	if o.writeable != nil {
+		return NewBlessingStoreOpts(ctx, publicKey,
+			BlessingStoreUpdate(o.interval),
+			BlessingStoreWriteable(o.writeable, signer))
+	}
+	return NewBlessingStoreOpts(ctx, publicKey,
+		BlessingStoreUpdate(o.interval),
+		BlessingStoreReadonly(o.readonly, publicKey))
+}
+
+func (o principalOptions) getBlessingRoots(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+	if o.blessingRoots != nil {
+		return o.blessingRoots, nil
+	}
+	if o.writeable != nil {
+		return NewBlessingRootsOpts(ctx,
+			BlessingRootsUpdate(o.interval),
+			BlessingRootsWriteable(o.writeable, signer))
+	}
+	return NewBlessingRootsOpts(ctx,
+		BlessingRootsUpdate(o.interval),
+		BlessingRootsReadonly(o.readonly, publicKey))
+}
+
 // LoadPrincipalOpts loads the state required to create a principal according
 // to the specified options. The most common use case is to load a principal
 // from a filesystem directory, as in:
@@ -47,35 +75,22 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 	}
 	signer, err := reader.NewSigner(ctx, o.passphrase)
 
-	var publicKey security.PublicKey
 	if err != nil {
 		if !o.allowPublicKey {
 			return nil, err
 		}
-		publicKey, err = reader.NewPublicKey(ctx)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		publicKey = signer.PublicKey()
 	}
-
-	blessingsStoreOpts := []BlessingsStoreOption{BlessingsStoreUpdate(o.interval)}
-	blessingRootOpts := []BlessingRootsOption{BlessingRootsUpdate(o.interval)}
-	if o.writeable != nil {
-		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreWriteable(o.writeable, &serializationSigner{signer}))
-		blessingRootOpts = append(blessingRootOpts, BlessingRootsWriteable(o.writeable, &serializationSigner{signer}))
-	} else {
-		blessingsStoreOpts = append(blessingsStoreOpts, BlessingsStoreReadonly(o.readonly, publicKey))
-		blessingRootOpts = append(blessingRootOpts, BlessingRootsReadonly(o.readonly, publicKey))
-	}
-
-	bs, err := NewBlessingStoreOpts(ctx, publicKey, blessingsStoreOpts...)
+	publicKey, err := reader.NewPublicKey(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	br, err := NewBlessingRootsOpts(ctx, blessingRootOpts...)
+	bs, err := o.getBlessingStore(ctx, publicKey, signer)
+	if err != nil {
+		return nil, err
+	}
+
+	br, err := o.getBlessingRoots(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}
@@ -83,5 +98,5 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 	if signer == nil {
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreatePrincipal(signer, bs, br)
+	return security.CreateX509Principal(signer, nil, bs, br)
 }
