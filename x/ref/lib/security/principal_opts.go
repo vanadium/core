@@ -14,7 +14,7 @@ func (o principalOptions) getBlessingStore(ctx context.Context, publicKey securi
 	if o.blessingStoreFactory != nil {
 		return o.blessingStoreFactory(ctx, publicKey, signer)
 	}
-	if o.writeable != nil {
+	if o.writeable != nil && signer != nil {
 		return NewBlessingStoreOpts(ctx, publicKey,
 			BlessingStoreUpdate(o.interval),
 			BlessingStoreWriteable(o.writeable, signer))
@@ -28,7 +28,7 @@ func (o principalOptions) getBlessingRoots(ctx context.Context, publicKey securi
 	if o.blessingRootsFactory != nil {
 		return o.blessingRootsFactory(ctx, publicKey, signer)
 	}
-	if o.writeable != nil {
+	if o.writeable != nil && signer != nil {
 		return NewBlessingRootsOpts(ctx,
 			BlessingRootsUpdate(o.interval),
 			BlessingRootsWriteable(o.writeable, signer))
