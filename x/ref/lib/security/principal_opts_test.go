@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -145,7 +147,7 @@ func TestCreatePrincipalOptsErrors(t *testing.T) {
 	}
 }
 
-func TestCreatePrincipalOpts(t *testing.T) {
+func TestCreatePrincipalKeyOpts(t *testing.T) {
 	ctx := context.Background()
 	msg := []byte("hi there")
 	for i, tc := range []struct {
@@ -249,5 +251,83 @@ func TestCreatePrincipalOpts(t *testing.T) {
 
 		}
 
+	}
+}
+
+func TestCreatePrincipalStoreOpts(t *testing.T) {
+	ctx := context.Background()
+	var err error
+	assert := func() {
+		_, _, line, _ := runtime.Caller(1)
+		if err != nil {
+			t.Fatalf("line %v: err %v", line, err)
+		}
+	}
+
+	// Create a in-memory principal with custom in-memory blessing and root
+	// stores, and verify that they are set correctly.
+	privateKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetA)
+	signer := sectestdata.V23Signer(keys.ED25519, sectestdata.V23KeySetA)
+	blessingStore, err := NewBlessingStoreOpts(ctx, signer.PublicKey())
+	assert()
+	blessingRoots, err := NewBlessingRootsOpts(ctx)
+	assert()
+	p, err := CreatePrincipalOpts(ctx,
+		WithSigner(signer),
+		WithBlessingRoots(blessingRoots),
+		WithBlessingStore(blessingStore))
+	assert()
+
+	if got, want := p.BlessingStore(), blessingStore; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := p.Roots(), blessingRoots; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	// Create a persistent principal and blessing and root stores.
+	dir, storeOpt := newStoreOpt(t)
+	blessingStore, err = NewBlessingStoreOpts(ctx,
+		signer.PublicKey(),
+		BlessingStoreWriteable(FilesystemStoreWriter(dir), signer))
+	assert()
+	blessingRoots, err = NewBlessingRootsOpts(ctx,
+		BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
+	assert()
+
+	p, err = CreatePrincipalOpts(ctx,
+		WithPrivateKey(privateKey, nil),
+		WithBlessingRoots(blessingRoots),
+		WithBlessingStore(blessingStore),
+		storeOpt)
+	assert()
+	blessing, err := p.BlessSelf("test")
+	assert()
+	if err := SetDefaultBlessings(p, blessing); err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify that the blessing and root changes made above were persisted.
+	lp, err := LoadPrincipalOpts(ctx, FromWritable(FilesystemStoreWriter(dir)))
+	assert()
+
+	lblessing, _ := lp.BlessingStore().Default()
+	if got, want := lblessing.String(), blessing.String(); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	if got, want := p.Roots().Dump(), lp.Roots().Dump(); !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	// Make another change and verify that it too is persisted.
+	_, err = lp.BlessingStore().Set(blessing, security.AllPrincipals)
+	assert()
+
+	lpa, err := LoadPrincipalOpts(ctx, FromWritable(FilesystemStoreWriter(dir)))
+	assert()
+
+	if got, want := lp.BlessingStore().DebugString(), lpa.BlessingStore().DebugString(); got != want {
+		t.Errorf("got %v, want %v", got, want)
 	}
 }

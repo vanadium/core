@@ -53,14 +53,6 @@ func signerFromKey(ctx context.Context, private crypto.PrivateKey) (security.Sig
 	return api.Signer(ctx, private)
 }
 
-func signerFromBytes(ctx context.Context, privateKeyBytes, passphrase []byte) (security.Signer, error) {
-	privateKey, err := keyRegistrar.ParsePrivateKey(ctx, privateKeyBytes, passphrase)
-	if err != nil {
-		return nil, err
-	}
-	return signerFromKey(ctx, privateKey)
-}
-
 func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer, error) {
 	if o.signer != nil {
 		return o.signer, nil
@@ -70,101 +62,95 @@ func (o createPrincipalOptions) getSigner(ctx context.Context) (security.Signer,
 		return signer, err
 	}
 	if len(o.privateKeyBytes) > 0 {
-		return signerFromBytes(ctx, o.privateKeyBytes, o.passphrase)
+		privateKey, err := keyRegistrar.ParsePrivateKey(ctx, o.privateKeyBytes, o.passphrase)
+		if err != nil {
+			return nil, err
+		}
+		return signerFromKey(ctx, privateKey)
 	}
 	return nil, nil
 }
 
-func (o createPrincipalOptions) getPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
-	cert := o.x509Cert
-	if o.signer != nil {
-		return o.signer.PublicKey(), cert, nil
+func getPublicKeyInfoFromPrivateKey(privateKey crypto.PrivateKey) (crypto.PublicKey, security.PublicKey, error) {
+	api, err := keyRegistrar.APIForKey(privateKey)
+	if err != nil {
+		return nil, nil, err
 	}
-	if o.privateKey != nil {
-		api, err := keyRegistrar.APIForKey(o.privateKey)
+	publicKey, err := api.PublicKey(privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	cryptoPublicKey, err := api.CryptoPublicKey(privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
+	return cryptoPublicKey, publicKey, err
+}
+
+func getCryptoPublicKey(publicKey security.PublicKey) (crypto.PublicKey, error) {
+	der, err := publicKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	return x509.ParsePKIXPublicKey(der)
+}
+
+func getPublicKey(publicKey crypto.PublicKey) (security.PublicKey, error) {
+	api, err := keyRegistrar.APIForKey(publicKey)
+	if err != nil {
+		return nil, err
+	}
+	return api.PublicKey(publicKey)
+}
+
+func (o createPrincipalOptions) getPublicKeyInfo(ctx context.Context) (cryptoPublicKey crypto.PublicKey, x509cert *x509.Certificate, publicKey security.PublicKey, err error) {
+	x509cert = o.x509Cert
+	if o.signer != nil {
+		publicKey = o.signer.PublicKey()
+		cryptoPublicKey, err = getCryptoPublicKey(publicKey)
+		return
+	}
+	privateKey := o.privateKey
+	if privateKey != nil {
+		cryptoPublicKey, publicKey, err = getPublicKeyInfoFromPrivateKey(privateKey)
+		return
+	}
+	if len(o.privateKeyBytes) > 0 {
+		privateKey, err = keyRegistrar.ParsePrivateKey(ctx, o.privateKeyBytes, o.passphrase)
 		if err != nil {
-			return nil, nil, err
+			return
 		}
-		publicKey, err := api.PublicKey(o.privateKey)
-		return publicKey, cert, err
+		cryptoPublicKey, publicKey, err = getPublicKeyInfoFromPrivateKey(privateKey)
+		return
 	}
 	if len(o.publicKeyBytes) > 0 {
-		key, err := keyRegistrar.ParsePublicKey(o.publicKeyBytes)
+		cryptoPublicKey, err = keyRegistrar.ParsePublicKey(o.publicKeyBytes)
 		if err != nil {
-			return nil, nil, err
+			return
 		}
-		if cert == nil {
-			if nc, ok := key.(*x509.Certificate); ok {
-				cert = nc
+		if x509cert == nil {
+			if nc, ok := cryptoPublicKey.(*x509.Certificate); ok {
+				cryptoPublicKey = nc
 			}
 		}
-		api, err := keyRegistrar.APIForKey(key)
-		if err != nil {
-			return nil, nil, err
-		}
-		publicKey, err := api.PublicKey(key)
-		if err != nil {
-			return nil, nil, err
-		}
-		return publicKey, cert, err
+		publicKey, err = getPublicKey(cryptoPublicKey)
+		return
 	}
-	if len(o.privateKeyBytes) > 0 {
-		key, err := keyRegistrar.ParsePrivateKey(ctx, o.privateKeyBytes, o.passphrase)
-		if err != nil {
-			return nil, nil, err
-		}
-		api, err := keyRegistrar.APIForKey(key)
-		if err != nil {
-			return nil, nil, err
-		}
-		publicKey, err := api.PublicKey(key)
-		if err != nil {
-			return nil, nil, err
-		}
-		return publicKey, cert, nil
-	}
-	return nil, nil, fmt.Errorf("no security.PublicKey found in options")
+	err = fmt.Errorf("no security.PublicKey found in options")
+	return
 }
 
-func (o createPrincipalOptions) getCryptoPublicKey(ctx context.Context) (crypto.PublicKey, error) {
-	if o.privateKey != nil {
-		api, err := keyRegistrar.APIForKey(o.privateKey)
-		if err != nil {
-			return nil, err
-		}
-		return api.CryptoPublicKey(o.privateKey)
-	}
-	if len(o.publicKeyBytes) > 0 {
-		return keyRegistrar.ParsePublicKey(o.publicKeyBytes)
-	}
-	if len(o.privateKeyBytes) > 0 {
-		key, err := keyRegistrar.ParsePrivateKey(ctx, o.privateKeyBytes, o.passphrase)
-		if err != nil {
-			return nil, err
-		}
-		api, err := keyRegistrar.APIForKey(key)
-		if err != nil {
-			return nil, err
-		}
-		publicKey, err := api.CryptoPublicKey(key)
-		if err != nil {
-			return nil, err
-		}
-		return publicKey, nil
-	}
-	return nil, fmt.Errorf("no crypto.PublicKey found in options")
-}
-
-func (o createPrincipalOptions) getKeyInfo(ctx context.Context) (security.Signer, security.PublicKey, *x509.Certificate, error) {
-	signer, err := o.getSigner(ctx)
+// getKeyInfo derives key/signer information from the speficied options in order
+// of precedence: signer, private key, private key bytes, public key bytes.
+// The x509 certificate is derived either directly from an option or from
+// public key bytes since there's no other way of obtaining it.
+func (o createPrincipalOptions) getKeyInfo(ctx context.Context) (signer security.Signer, cryptoPublicKey crypto.PublicKey, x509Cert *x509.Certificate, publicKey security.PublicKey, err error) {
+	signer, err = o.getSigner(ctx)
 	if err != nil {
-		return nil, nil, nil, err
+		return
 	}
-	publicKey, cert, err := o.getPublicKey(ctx)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	return signer, publicKey, cert, nil
+	cryptoPublicKey, x509Cert, publicKey, err = o.getPublicKeyInfo(ctx)
+	return
 }
 
 func (o createPrincipalOptions) inMemoryStores(ctx context.Context, publicKey security.PublicKey) (blessingStore security.BlessingStore, blessingRoots security.BlessingRoots, err error) {
@@ -179,7 +165,7 @@ func (o createPrincipalOptions) inMemoryStores(ctx context.Context, publicKey se
 }
 
 func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (security.Principal, error) {
-	signer, publicKey, cert, err := o.getKeyInfo(ctx)
+	signer, _, x509Cert, publicKey, err := o.getKeyInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +174,7 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 		return nil, err
 	}
 	if signer != nil {
-		return security.CreateX509Principal(signer, cert, bs, br)
+		return security.CreateX509Principal(signer, x509Cert, bs, br)
 	}
 	if publicKey != nil {
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
@@ -201,7 +187,7 @@ func (o createPrincipalOptions) getBlessingStore(ctx context.Context, publicKey 
 		return o.blessingStore, nil
 	}
 	if signer != nil {
-		NewBlessingStoreOpts(ctx, publicKey, BlessingStoreWriteable(o.store, signer))
+		return NewBlessingStoreOpts(ctx, publicKey, BlessingStoreWriteable(o.store, signer))
 	}
 	return NewBlessingStoreOpts(ctx, publicKey, BlessingStoreReadonly(o.store, publicKey))
 }
@@ -211,16 +197,21 @@ func (o createPrincipalOptions) getBlessingRoots(ctx context.Context, publicKey 
 		return o.blessingRoots, nil
 	}
 	if signer != nil {
-		NewBlessingRootsOpts(ctx, BlessingRootsWriteable(o.store, signer))
+		return NewBlessingRootsOpts(ctx, BlessingRootsWriteable(o.store, signer))
 	}
 	return NewBlessingRootsOpts(ctx, BlessingRootsReadonly(o.store, publicKey))
 }
 
 func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (security.Principal, error) {
-	signer, publicKey, cert, err := o.getKeyInfo(ctx)
+
+	// Derive key information from the specified options.
+	signer, cryptoPublicKey, x509Cert, publicKey, err := o.getKeyInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	// Always write out the public and private keys as specified via an
+	// option regardless of any other options.
 	publicKeyBytes, privateKeyBytes := o.publicKeyBytes, o.privateKeyBytes
 	if len(privateKeyBytes) == 0 && o.privateKey != nil {
 		privateKeyBytes, err = keyRegistrar.MarshalPrivateKey(o.privateKey, o.passphrase)
@@ -234,14 +225,10 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	}
 
 	if len(publicKeyBytes) == 0 {
-		publicKey, cert, err = o.getPublicKey(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if cert != nil {
-			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(cert)
+		if x509Cert != nil {
+			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(x509Cert)
 		} else {
-			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(publicKey)
+			publicKeyBytes, err = keyRegistrar.MarshalPublicKey(cryptoPublicKey)
 		}
 		if err != nil {
 			return nil, err
@@ -267,11 +254,12 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	if err != nil {
 		return nil, err
 	}
+
 	if signer == nil {
 		if !o.allowPublicKey {
 			return nil, fmt.Errorf("cannot create a public key only principal without using: WithPublicKey(true)")
 		}
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreateX509Principal(signer, cert, bs, br)
+	return security.CreateX509Principal(signer, x509Cert, bs, br)
 }

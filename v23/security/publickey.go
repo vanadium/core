@@ -80,12 +80,12 @@ type publicKeyCommon struct {
 }
 
 func newPublicKeyCommon(key interface{}, hash Hash) publicKeyCommon {
-	kb, kbe := x509.MarshalPKIXPublicKey(key)
+	kb, err := x509.MarshalPKIXPublicKey(key)
 	return publicKeyCommon{
 		vhash:       hash,
 		chash:       cryptoHash(hash),
 		keyBytes:    kb,
-		keyBytesErr: kbe,
+		keyBytesErr: err,
 	}
 }
 
