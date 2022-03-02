@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -262,9 +263,13 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 	keyType := keys.ECDSA521
 	keys, certs, opts := sectestdata.VanadiumSSLData()
 
+	signer, err := NewSignerFromKey(ctx, keys[keyType.String()])
+	if err != nil {
+		t.Fatal(err)
+	}
 	roots, err := NewBlessingRootsOpts(ctx,
 		BlessingRootsX509VerifyOptions(opts),
-		BlessingRootsWriteable(FilesystemStoreWriter(dir)))
+		BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -289,16 +294,15 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 	}
 
 	rd := FilesystemStoreReader(dir)
-	roots, err = NewBlessingRootsOpts(ctx,
-		BlessingRootsX509VerifyOptions(opts),
-		BlessingRootsReadonly(rd))
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Make sure the the loaded principal has the correct x509 certificate
-	// info.
+	// Make sure that the loaded principal has the correct x509 certificate info.
 	lp, err := LoadPrincipalOpts(ctx,
-		FromReadonly(rd))
+		FromReadonly(rd),
+		FromBlessingRoots(func(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+			return NewBlessingRootsOpts(ctx,
+				BlessingRootsReadonly(rd, publicKey),
+				BlessingRootsX509VerifyOptions(opts))
+		}),
+	)
 
 	if err != nil {
 		t.Fatal(err)
@@ -381,7 +385,7 @@ func TestCreatePrincipalStoreOpts(t *testing.T) {
 	}
 
 	// Make another change and verify that it too is persisted.
-	_, err = lp.BlessingStore().Set(blessing, security.AllPrincipals)
+	_, err = lp.BlessingStore().Set(blessing, "some-pattern")
 	assert()
 
 	lpa, err := LoadPrincipalOpts(ctx, FromWritable(FilesystemStoreWriter(dir)))
@@ -390,4 +394,110 @@ func TestCreatePrincipalStoreOpts(t *testing.T) {
 	if got, want := lp.BlessingStore().DebugString(), lpa.BlessingStore().DebugString(); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+
+	if got, want := lpa.BlessingStore().DebugString(), "some-pattern"; !strings.Contains(got, want) {
+		t.Errorf("got %v does not contain %v", got, want)
+	}
+}
+
+func setPeers(ctx context.Context, blessing security.Blessings, dir string, customStores bool, peers ...string) error {
+	var blessingStoreFactory CreateBlessingStore
+	var blessingRootsFactory CreateBlessingRoots
+	if customStores {
+		blessingStoreFactory = func(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingStore, error) {
+			return NewBlessingStoreOpts(ctx, publicKey,
+				BlessingStoreWriteable(FilesystemStoreWriter(dir), signer),
+			)
+		}
+
+		blessingRootsFactory = func(tx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+			return NewBlessingRootsOpts(ctx,
+				BlessingRootsWriteable(FilesystemStoreWriter(dir), signer),
+			)
+		}
+	}
+	for i, peer := range peers {
+		peer += "-peer"
+		publicKey := sectestdata.V23Signer(keys.ECDSA256, sectestdata.V23KeySetID(i+1)).PublicKey()
+		der, err := publicKey.MarshalBinary()
+		if err != nil {
+			return err
+		}
+		p, err := LoadPrincipalOpts(ctx,
+			FromBlessingStore(blessingStoreFactory),
+			FromBlessingRoots(blessingRootsFactory),
+			FromWritable(FilesystemStoreWriter(dir)))
+		if err != nil {
+			return err
+		}
+		_, err = p.BlessingStore().Set(blessing, security.BlessingPattern(peer))
+		if err != nil {
+			return err
+		}
+		err = p.Roots().Add(der, security.BlessingPattern(peer))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func hasPeers(p security.Principal, peers ...string) error {
+	for _, peer := range peers {
+		peer += "-peer"
+		blessings := p.BlessingStore().DebugString()
+		roots := p.Roots().DebugString()
+		bre := regexp.MustCompile(peer + `[ ]+test\n`)
+		if !bre.MatchString(blessings) {
+			return fmt.Errorf("failed to find %v in\n%v\n", bre, blessings)
+		}
+		rre := regexp.MustCompile(`\[` + peer + `\]\n`)
+		if !rre.MatchString(roots) {
+			return fmt.Errorf("failed to find %v in\n%v\n", rre, roots)
+		}
+	}
+	return nil
+}
+
+func TestPrincipalMultiPersistence(t *testing.T) {
+	var err error
+	assert := func() {
+		_, _, line, _ := runtime.Caller(1)
+		if err != nil {
+			t.Fatalf("line %v: err %v", line, err)
+		}
+	}
+
+	ctx := context.Background()
+	privateKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetA)
+
+	dir, storeOpt := newStoreOpt(t)
+	p, err := CreatePrincipalOpts(ctx,
+		WithPrivateKey(privateKey, nil),
+		storeOpt)
+	assert()
+	blessing, err := p.BlessSelf("test")
+	assert()
+	err = SetDefaultBlessings(p, blessing)
+	assert()
+
+	err = setPeers(ctx, blessing, dir, false, "a", "b", "c", "d")
+	assert()
+	p, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)))
+	assert()
+	err = hasPeers(p, "a", "b", "c", "d")
+	assert()
+
+	dir, storeOpt = newStoreOpt(t)
+	p, err = CreatePrincipalOpts(ctx,
+		WithPrivateKey(privateKey, nil),
+		storeOpt)
+	assert()
+
+	err = setPeers(ctx, blessing, dir, true, "e", "f", "g", "h")
+	assert()
+	p, err = LoadPrincipalOpts(ctx, FromReadonly(FilesystemStoreReader(dir)))
+	assert()
+	err = hasPeers(p, "e", "f", "g", "h")
+	assert()
 }

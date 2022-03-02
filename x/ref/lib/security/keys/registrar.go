@@ -188,7 +188,6 @@ func (r *Registrar) getMarshallers(typ interface{}) (MarshalPublicKeyFunc, Marsh
 func (r *Registrar) MarshalPublicKey(key crypto.PublicKey) ([]byte, error) {
 	pub, _ := r.getMarshallers(key)
 	if pub == nil {
-		panic("here")
 		return nil, fmt.Errorf("MarshalPublicKey: unsupported type %T", key)
 	}
 	return pub(key)

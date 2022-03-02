@@ -187,9 +187,13 @@ func (o createPrincipalOptions) getBlessingStore(ctx context.Context, publicKey 
 		return o.blessingStore, nil
 	}
 	if signer != nil {
-		return NewBlessingStoreOpts(ctx, publicKey, BlessingStoreWriteable(o.store, signer))
+		return NewBlessingStoreOpts(ctx,
+			publicKey,
+			BlessingStoreWriteable(o.store, signer))
 	}
-	return NewBlessingStoreOpts(ctx, publicKey, BlessingStoreReadonly(o.store, publicKey))
+	return NewBlessingStoreOpts(ctx,
+		publicKey,
+		BlessingStoreReadonly(o.store, publicKey))
 }
 
 func (o createPrincipalOptions) getBlessingRoots(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
@@ -197,9 +201,11 @@ func (o createPrincipalOptions) getBlessingRoots(ctx context.Context, publicKey 
 		return o.blessingRoots, nil
 	}
 	if signer != nil {
-		return NewBlessingRootsOpts(ctx, BlessingRootsWriteable(o.store, signer))
+		return NewBlessingRootsOpts(ctx,
+			BlessingRootsWriteable(o.store, signer))
 	}
-	return NewBlessingRootsOpts(ctx, BlessingRootsReadonly(o.store, publicKey))
+	return NewBlessingRootsOpts(ctx,
+		BlessingRootsReadonly(o.store, publicKey))
 }
 
 func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (security.Principal, error) {
@@ -245,7 +251,7 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 		return nil, err
 	}
 
-	// One of publicKey or signer will be nil.
+	// signer may be nil for a public key only principal.
 	bs, err := o.getBlessingStore(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
@@ -254,11 +260,7 @@ func (o createPrincipalOptions) createPersistentPrincipal(ctx context.Context) (
 	if err != nil {
 		return nil, err
 	}
-
 	if signer == nil {
-		if !o.allowPublicKey {
-			return nil, fmt.Errorf("cannot create a public key only principal without using: WithPublicKey(true)")
-		}
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
 	return security.CreateX509Principal(signer, x509Cert, bs, br)

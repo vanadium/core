@@ -157,11 +157,8 @@ func (store *fsStoreCommon) NewSigner(ctx context.Context, passphrase []byte) (s
 }
 
 func (store *fsStoreCommon) NewPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
-	pubKeyBytes, err := os.ReadFile(filepath.Join(store.dir, store.publicKeyFile))
-	if err != nil {
-		return nil, nil, err
-	}
-	return publicKeyFromBytes(pubKeyBytes)
+	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
+
 }
 
 func (store *fsStoreCommon) RLock(ctx context.Context, scope LockScope) (unlock func(), err error) {
@@ -324,4 +321,22 @@ func publicKeyFromFileLocked(ctx context.Context, filename string) (security.Pub
 		return nil, nil, err
 	}
 	return publicKeyFromBytes(pubBytes)
+}
+
+func publicKeyFromBytes(publicKeyBytes []byte) (publicKey security.PublicKey, x509Cert *x509.Certificate, err error) {
+	if len(publicKeyBytes) == 0 {
+		err = fmt.Errorf("public key data is missing")
+		return
+	}
+	key, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
+	if err != nil {
+		return
+	}
+	x509Cert, _ = key.(*x509.Certificate)
+	api, err := keyRegistrar.APIForKey(key)
+	if err != nil {
+		return
+	}
+	publicKey, err = api.PublicKey(key)
+	return
 }
