@@ -254,6 +254,66 @@ func TestCreatePrincipalKeyOpts(t *testing.T) {
 	}
 }
 
+func TestCreatePrincipalX509Opts(t *testing.T) {
+	ctx := context.Background()
+
+	dir, storeOpt := newStoreOpt(t)
+
+	keyType := keys.ECDSA521
+	keys, certs, opts := sectestdata.VanadiumSSLData()
+
+	roots, err := NewBlessingRootsOpts(ctx,
+		BlessingRootsX509VerifyOptions(opts),
+		BlessingRootsWriteable(FilesystemStoreWriter(dir)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := CreatePrincipalOpts(ctx,
+		WithPrivateKey(keys[keyType.String()], nil),
+		WithX509Certificate(certs[keyType.String()]),
+		WithBlessingRoots(roots),
+		storeOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	validHost := "ecdsa-521.vanadium.io"
+	invalidHost := "invalid.host.com"
+
+	if _, err := p.BlessSelf(validHost); err != nil {
+		t.Fatal(err)
+	}
+	invalidHostErr := fmt.Sprintf(", not %v", invalidHost)
+	if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+		t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+	}
+
+	rd := FilesystemStoreReader(dir)
+	roots, err = NewBlessingRootsOpts(ctx,
+		BlessingRootsX509VerifyOptions(opts),
+		BlessingRootsReadonly(rd))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Make sure the the loaded principal has the correct x509 certificate
+	// info.
+	lp, err := LoadPrincipalOpts(ctx,
+		FromReadonly(rd))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := lp.BlessSelf(validHost); err != nil {
+		t.Fatal(err)
+	}
+	_, err = lp.BlessSelf(invalidHost)
+	if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+		t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+	}
+
+}
+
 func TestCreatePrincipalStoreOpts(t *testing.T) {
 	ctx := context.Background()
 	var err error
