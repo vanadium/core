@@ -386,11 +386,11 @@ func hasPeers(p security.Principal, peers ...string) error {
 		roots := p.Roots().DebugString()
 		bre := regexp.MustCompile(peer + `[ ]+test\n`)
 		if !bre.MatchString(blessings) {
-			return fmt.Errorf("failed to find %v in\n%v\n", bre, blessings)
+			return fmt.Errorf("failed to find %v in\n%v", bre, blessings)
 		}
 		rre := regexp.MustCompile(`\[` + peer + `\]\n`)
 		if !rre.MatchString(roots) {
-			return fmt.Errorf("failed to find %v in\n%v\n", rre, roots)
+			return fmt.Errorf("failed to find %v in\n%v", rre, roots)
 		}
 	}
 	return nil
@@ -426,7 +426,7 @@ func TestPrincipalMultiPersistence(t *testing.T) {
 	assert()
 
 	dir, storeOpt = newStoreOpt(t)
-	p, err = CreatePrincipalOpts(ctx,
+	_, err = CreatePrincipalOpts(ctx,
 		WithPrivateKey(privateKey, nil),
 		storeOpt)
 	assert()
