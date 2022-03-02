@@ -159,7 +159,7 @@ func TestExistingKeys(t *testing.T) {
 	}{
 		{
 			sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private),
-			"12:cb:92:7e:45:e8:09:b3:8c:cb:5e:e6:f2:67:2c:30",
+			"7c:06:35:de:48:75:41:8c:71:f3:e9:e0:44:98:4a:d3",
 		},
 		{
 			sectestdata.SSHPrivateKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPrivate),
