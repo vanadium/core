@@ -267,6 +267,7 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	roots, err := NewBlessingRootsOpts(ctx,
 		BlessingRootsX509VerifyOptions(opts),
 		BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
@@ -282,12 +283,15 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	validHost := "ecdsa-521.vanadium.io"
 	invalidHost := "invalid.host.com"
 
 	if _, err := p.BlessSelf(validHost); err != nil {
 		t.Fatal(err)
 	}
+
+	_, err = p.BlessSelf(invalidHost)
 	invalidHostErr := fmt.Sprintf(", not %v", invalidHost)
 	if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
 		t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
@@ -303,7 +307,6 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 				BlessingRootsX509VerifyOptions(opts))
 		}),
 	)
-
 	if err != nil {
 		t.Fatal(err)
 	}
