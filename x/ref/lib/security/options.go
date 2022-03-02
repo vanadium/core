@@ -15,8 +15,8 @@ import (
 	"v.io/x/ref/lib/security/serialization"
 )
 
-// BlessingsStoreOption represents an option to NewBlessingStoreOpts.
-type BlessingsStoreOption func(*blessingsStoreOptions)
+// BlessingStoreOption represents an option to NewBlessingStoreOpts.
+type BlessingStoreOption func(*blessingsStoreOptions)
 
 // BlessingRootsOption represents an option to NewBlessingRootOpts.
 type BlessingRootsOption func(*blessingRootsOptions)
@@ -39,46 +39,46 @@ type blessingRootsOptions struct {
 }
 
 // BlessingStoreReadonly specifies a readonly store from which blessings can be read.
-func BlessingsStoreReadonly(store CredentialsStoreReader, key security.PublicKey) BlessingsStoreOption {
+func BlessingStoreReadonly(store CredentialsStoreReader, publicKey security.PublicKey) BlessingStoreOption {
 	return func(o *blessingsStoreOptions) {
 		o.reader = store
-		o.publicKey = key
+		o.publicKey = publicKey
 	}
 }
 
-// BlessingsStoreWriteable specifies a writeable store on which blessings
+// BlessingStoreWriteable specifies a writeable store on which blessings
 // can be stored.
-func BlessingsStoreWriteable(store CredentialsStoreReadWriter, signer serialization.Signer) BlessingsStoreOption {
+func BlessingStoreWriteable(store CredentialsStoreReadWriter, signer security.Signer) BlessingStoreOption {
 	return func(o *blessingsStoreOptions) {
 		o.writer = store
+		o.signer = &serializationSigner{signer}
 		o.publicKey = signer.PublicKey()
-		o.signer = signer
 	}
 }
 
-// BlessingsStoreUpdate specifies that blessings should be periodically
+// BlessingStoreUpdate specifies that blessings should be periodically
 // reloaded to obtain any changes made to them by another entity.
-func BlessingsStoreUpdate(interval time.Duration) BlessingsStoreOption {
+func BlessingStoreUpdate(interval time.Duration) BlessingStoreOption {
 	return func(o *blessingsStoreOptions) {
 		o.updateInterval = interval
 	}
 }
 
 // BlessingRootsReadonly specifies a readonly store from which blessings can be read.
-func BlessingRootsReadonly(store CredentialsStoreReader, key security.PublicKey) BlessingRootsOption {
+func BlessingRootsReadonly(store CredentialsStoreReader, publicKey security.PublicKey) BlessingRootsOption {
 	return func(o *blessingRootsOptions) {
 		o.reader = store
-		o.publicKey = key
+		o.publicKey = publicKey
 	}
 }
 
 // BlessingRootsWriteable specifies a writeable store on which blessings
 // can be stored.
-func BlessingRootsWriteable(store CredentialsStoreReadWriter, signer serialization.Signer) BlessingRootsOption {
+func BlessingRootsWriteable(store CredentialsStoreReadWriter, signer security.Signer) BlessingRootsOption {
 	return func(o *blessingRootsOptions) {
 		o.writer = store
+		o.signer = &serializationSigner{signer}
 		o.publicKey = signer.PublicKey()
-		o.signer = signer
 	}
 }
 
@@ -102,11 +102,13 @@ func BlessingRootsX509VerifyOptions(opts x509.VerifyOptions) BlessingRootsOption
 type LoadPrincipalOption func(o *principalOptions) error
 
 type principalOptions struct {
-	readonly       CredentialsStoreReader
-	writeable      CredentialsStoreReadWriter
-	interval       time.Duration
-	allowPublicKey bool
-	passphrase     []byte
+	readonly             CredentialsStoreReader
+	writeable            CredentialsStoreReadWriter
+	blessingStoreFactory CreateBlessingStore
+	blessingRootsFactory CreateBlessingRoots
+	interval             time.Duration
+	allowPublicKey       bool
+	passphrase           []byte
 }
 
 // FromReadonly specifies a readonly store from which credentials information
@@ -165,6 +167,34 @@ func FromPublicKeyOnly(allow bool) LoadPrincipalOption {
 	}
 }
 
+// CreateBlessingStore is invoked by LoadPrincipalOpts to create a custom
+// security.BlessingStore using the supplied key information. Signer may be nil
+// but a public key is always provided.
+type CreateBlessingStore func(context.Context, security.PublicKey, security.Signer) (security.BlessingStore, error)
+
+// CreateBlessingRoots is invoked by LoadPrincipalOpts to create a custom
+// security.BlessingRoots using the supplied key information. Signer may be nil
+// but a public key is always provided.
+type CreateBlessingRoots func(context.Context, security.PublicKey, security.Signer) (security.BlessingRoots, error)
+
+// FromBlessingStore specifies a
+// If not specified, a security.BlessingStore will be created by LoadPrincipalOpts.
+func FromBlessingStore(factory CreateBlessingStore) LoadPrincipalOption {
+	return func(o *principalOptions) error {
+		o.blessingStoreFactory = factory
+		return nil
+	}
+}
+
+// FromBlessingRoots specifies a security.BlessingRoots to use with the new principal.
+// If not specified, a security.BlessingRoots will be created by LoadPrincipalOpts.
+func FromBlessingRoots(factory CreateBlessingRoots) LoadPrincipalOption {
+	return func(o *principalOptions) error {
+		o.blessingRootsFactory = factory
+		return nil
+	}
+}
+
 // CreatePrincipalOption represents an option to CreatePrincipalOpts.
 type CreatePrincipalOption func(o *createPrincipalOptions) error
 
@@ -178,7 +208,6 @@ type createPrincipalOptions struct {
 	blessingStore   security.BlessingStore
 	blessingRoots   security.BlessingRoots
 	allowPublicKey  bool
-	x509Opts        x509.VerifyOptions
 	x509Cert        *x509.Certificate
 }
 
@@ -204,9 +233,9 @@ func WithStore(store CredentialsStoreCreator) CreatePrincipalOption {
 	}
 }
 
-// WithBlessingsStore specifies the security.BlessingStore to use for
+// WithBlessingStore specifies the security.BlessingStore to use for
 // the new principal.
-func WithBlessingsStore(store security.BlessingStore) CreatePrincipalOption {
+func WithBlessingStore(store security.BlessingStore) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.blessingStore = store
 		return nil
@@ -298,21 +327,12 @@ func WithPublicKeyOnly(allow bool) CreatePrincipalOption {
 	}
 }
 
-// WithX509VerifyOptions specifies the x509 verification options to use with
-// when verifying blessings derived from x509 Certificates and keys.
-func WithX509VerifyOptions(opts x509.VerifyOptions) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		o.x509Opts = opts
-		return nil
-	}
-}
-
-// WithX509Certificate specifies the x509 Certificate to associate with
-// this Principal. It is generally used to associate an x509 Certificate
-// with a Principal created from a signer or private key directly rather than
-// via WithPublicKeyBytes or WithPrivateKeyBytes.
-// The public key of the certificate must match any alternatively specified
-// public key.
+// WithX509Certificate specifies the x509 certificate to associate with
+// this principal. It's public key must match the public key already
+// set for this principal if one has already been set via a private key,
+// a signer or as bytes. Note that if the public key bytes specified
+// via WithPublicKeyBytes is a PEM CERTIFICATE block then the x509
+// Certificate will be used from that also.
 func WithX509Certificate(cert *x509.Certificate) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.x509Cert = cert
