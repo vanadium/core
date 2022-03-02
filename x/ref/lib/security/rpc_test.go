@@ -34,7 +34,7 @@ func TestX509RPC(t *testing.T) {
 	defer shutdown()
 
 	var err error
-	fatal := func() {
+	assert := func() {
 		if err != nil {
 			_, _, line, _ := runtime.Caller(1)
 			t.Fatalf("line: %v, err: %v", line, err)
@@ -47,28 +47,31 @@ func TestX509RPC(t *testing.T) {
 	// the endpoint is for bar.labdr.io.
 	privKey, pubCerts, opts := sectestdata.LetsEncryptData(sectestdata.MultipleWildcardCert)
 	signer, err := seclib.NewSignerFromKey(ctx, privKey)
-	fatal()
+	assert()
+	roots, err := seclib.NewBlessingRootsOpts(ctx,
+		seclib.BlessingRootsX509VerifyOptions(opts))
+	assert()
 	serverPrincipal, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithSigner(signer),
 		seclib.WithX509Certificate(pubCerts[0]),
-		seclib.WithX509VerifyOptions(opts))
-	fatal()
+		seclib.WithBlessingRoots(roots))
+	assert()
 
 	blessingsFoo, err := serverPrincipal.BlessSelf("foo.labdrive.io")
-	fatal()
+	assert()
 	blessingsBar, err := serverPrincipal.BlessSelf("bar.labdr.io")
-	fatal()
+	assert()
 	_, err = serverPrincipal.BlessingStore().Set(blessingsFoo, "client")
-	fatal()
+	assert()
 	_, err = serverPrincipal.BlessingStore().Set(blessingsBar, "client")
-	fatal()
+	assert()
 	err = serverPrincipal.BlessingStore().SetDefault(blessingsBar)
-	fatal()
+	assert()
 
 	serverCtx, err := v23.WithPrincipal(ctx, serverPrincipal)
-	fatal()
+	assert()
 	_, server, err := v23.WithNewServer(serverCtx, "", testService{}, nil)
-	fatal()
+	assert()
 
 	testutil.WaitForServerReady(server)
 	serverObjectName := server.Status().Endpoints[0].Name()
@@ -76,10 +79,10 @@ func TestX509RPC(t *testing.T) {
 	// This call will fail since the x509 certificates used are from the letsencrypt
 	// staging environment.
 	clientPrincipal, err := newClientPrincipal(ctx, keys.ED25519, x509.VerifyOptions{}, serverPrincipal, blessingsBar, "client", "bar.labdr.io")
-	fatal()
+	assert()
 	clientCtx, cancel, client, err := newRPCClient(ctx, clientPrincipal)
 	defer cancel()
-	fatal()
+	assert()
 
 	_, err = client.StartCall(clientCtx, serverObjectName, "Echo", []interface{}{"hi"})
 	if err == nil || !strings.Contains(err.Error(), "client does not trust server") {
@@ -89,9 +92,9 @@ func TestX509RPC(t *testing.T) {
 	// This call will succeed since the x509 opts include the correct
 	// CA for the staging certificates.
 	clientPrincipal, err = newClientPrincipal(ctx, keys.ED25519, opts, serverPrincipal, blessingsBar, "client", "bar.labdr.io")
-	fatal()
+	assert()
 	clientCtx, cancel, client, err = newRPCClient(ctx, clientPrincipal)
-	fatal()
+	assert()
 	defer cancel()
 
 	var result string
@@ -108,9 +111,14 @@ func TestX509RPC(t *testing.T) {
 func newClientPrincipal(ctx gocontext.Context, kt keys.CryptoAlgo, opts x509.VerifyOptions, serverPrincipal security.Principal, serverBlessings security.Blessings, extension string, pattern security.BlessingPattern) (security.Principal, error) {
 	signer := sectestdata.V23Signer(kt, sectestdata.V23KeySetA)
 
+	roots, err := seclib.NewBlessingRootsOpts(ctx,
+		seclib.BlessingRootsX509VerifyOptions(opts))
+	if err != nil {
+		return nil, err
+	}
 	clientPrincipal, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithSigner(signer),
-		seclib.WithX509VerifyOptions(opts))
+		seclib.WithBlessingRoots(roots))
 	if err != nil {
 		return nil, err
 	}

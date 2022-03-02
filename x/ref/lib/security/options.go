@@ -198,7 +198,6 @@ type createPrincipalOptions struct {
 	blessingStore   security.BlessingStore
 	blessingRoots   security.BlessingRoots
 	allowPublicKey  bool
-	x509Opts        x509.VerifyOptions
 	x509Cert        *x509.Certificate
 }
 
@@ -224,9 +223,9 @@ func WithStore(store CredentialsStoreCreator) CreatePrincipalOption {
 	}
 }
 
-// WithBlessingsStore specifies the security.BlessingStore to use for
+// WithBlessingStore specifies the security.BlessingStore to use for
 // the new principal.
-func WithBlessingsStore(store security.BlessingStore) CreatePrincipalOption {
+func WithBlessingStore(store security.BlessingStore) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.blessingStore = store
 		return nil
@@ -314,15 +313,6 @@ func WithPrivateKeyBytes(ctx context.Context, publicKeyBytes, privateKeyBytes, p
 func WithPublicKeyOnly(allow bool) CreatePrincipalOption {
 	return func(o *createPrincipalOptions) error {
 		o.allowPublicKey = allow
-		return nil
-	}
-}
-
-// WithX509VerifyOptions specifies the x509 verification options to use with
-// when verifying X509 blessing roots.
-func WithX509VerifyOptions(opts x509.VerifyOptions) CreatePrincipalOption {
-	return func(o *createPrincipalOptions) error {
-		o.x509Opts = opts
 		return nil
 	}
 }
