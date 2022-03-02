@@ -270,7 +270,7 @@ func TestCreatePrincipalPublicKeyOnly(t *testing.T) {
 	}
 
 	dir, storeOpt := newStoreOpt(t)
-	p, err = CreatePrincipalOpts(ctx,
+	_, err = CreatePrincipalOpts(ctx,
 		WithPublicKeyBytes(publicKeyBytes),
 		WithPublicKeyOnly(true),
 		storeOpt)
