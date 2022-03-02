@@ -255,6 +255,46 @@ func TestCreatePrincipalKeyOpts(t *testing.T) {
 	}
 }
 
+func TestCreatePrincipalPublicKeyOnly(t *testing.T) {
+	ctx := context.Background()
+	publicKeyBytes := sectestdata.V23PublicKeyBytes(keys.ECDSA384, sectestdata.V23KeySetA)
+	p, err := CreatePrincipalOpts(ctx,
+		WithPublicKeyBytes(publicKeyBytes),
+		WithPublicKeyOnly(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = p.Sign([]byte("error"))
+	if err == nil || !strings.Contains(err.Error(), "signing not supported") {
+		t.Fatalf("missing or incorrect error: %q", err)
+	}
+
+	dir, storeOpt := newStoreOpt(t)
+	p, err = CreatePrincipalOpts(ctx,
+		WithPublicKeyBytes(publicKeyBytes),
+		WithPublicKeyOnly(true),
+		storeOpt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p, err = LoadPrincipalOpts(ctx,
+		FromPublicKeyOnly(true),
+		FromWritable(FilesystemStoreWriter(dir)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = p.Sign([]byte("error"))
+	if err == nil || !strings.Contains(err.Error(), "signing not supported") {
+		t.Fatalf("missing or incorrect error: %q", err)
+	}
+}
+
 func TestCreatePrincipalStoreOpts(t *testing.T) {
 	ctx := context.Background()
 	var err error
