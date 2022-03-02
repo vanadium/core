@@ -7,6 +7,7 @@ package security
 import (
 	"bytes"
 	"context"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"os"
@@ -57,7 +58,7 @@ const (
 type CredentialsStoreReader interface {
 	RLock(context.Context, LockScope) (func(), error)
 	NewSigner(ctx context.Context, passphrase []byte) (security.Signer, error)
-	NewPublicKey(ctx context.Context) (security.PublicKey, error)
+	NewPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error)
 	BlessingsReader(context.Context) (SerializerReader, error)
 	RootsReader(context.Context) (SerializerReader, error)
 }
@@ -155,12 +156,9 @@ func (store *fsStoreCommon) NewSigner(ctx context.Context, passphrase []byte) (s
 	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
 }
 
-func (store *fsStoreCommon) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
-	pubKeyBytes, err := os.ReadFile(filepath.Join(store.dir, store.publicKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	return publicKeyFromBytes(pubKeyBytes)
+func (store *fsStoreCommon) NewPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
+	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
+
 }
 
 func (store *fsStoreCommon) RLock(ctx context.Context, scope LockScope) (unlock func(), err error) {
@@ -288,11 +286,11 @@ func (store *readonlyFSStore) NewSigner(ctx context.Context, passphrase []byte) 
 	return signerFromFileLocked(ctx, filepath.Join(store.dir, store.privateKeyFile), passphrase)
 }
 
-func (store *readonlyStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
+func (store *readonlyStore) NewPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
 	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
 }
 
-func (store *readonlyFSStore) NewPublicKey(ctx context.Context) (security.PublicKey, error) {
+func (store *readonlyFSStore) NewPublicKey(ctx context.Context) (security.PublicKey, *x509.Certificate, error) {
 	return publicKeyFromFileLocked(ctx, filepath.Join(store.dir, store.publicKeyFile))
 }
 
@@ -317,10 +315,28 @@ func signerFromFileLocked(ctx context.Context, filename string, passphrase []byt
 	return signerFromKey(ctx, private)
 }
 
-func publicKeyFromFileLocked(ctx context.Context, filename string) (security.PublicKey, error) {
+func publicKeyFromFileLocked(ctx context.Context, filename string) (security.PublicKey, *x509.Certificate, error) {
 	pubBytes, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	return publicKeyFromBytes(pubBytes)
+}
+
+func publicKeyFromBytes(publicKeyBytes []byte) (publicKey security.PublicKey, x509Cert *x509.Certificate, err error) {
+	if len(publicKeyBytes) == 0 {
+		err = fmt.Errorf("public key data is missing")
+		return
+	}
+	key, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
+	if err != nil {
+		return
+	}
+	x509Cert, _ = key.(*x509.Certificate)
+	api, err := keyRegistrar.APIForKey(key)
+	if err != nil {
+		return
+	}
+	publicKey, err = api.PublicKey(key)
+	return
 }

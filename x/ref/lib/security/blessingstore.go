@@ -307,7 +307,7 @@ func newBlessingStore(ctx context.Context, publicKey security.PublicKey) securit
 // NewBlessingStore returns an implementation of security.BlessingStore
 // according to the supplied options.
 // If no options are supplied all state is kept in memory.
-func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...BlessingsStoreOption) (security.BlessingStore, error) {
+func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opts ...BlessingStoreOption) (security.BlessingStore, error) {
 	var o blessingsStoreOptions
 	for _, fn := range opts {
 		fn(&o)

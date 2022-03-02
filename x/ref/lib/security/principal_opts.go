@@ -11,8 +11,8 @@ import (
 )
 
 func (o principalOptions) getBlessingStore(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingStore, error) {
-	if o.blessingStore != nil {
-		return o.blessingStore, nil
+	if o.blessingStoreFactory != nil {
+		return o.blessingStoreFactory(ctx, publicKey, signer)
 	}
 	if o.writeable != nil {
 		return NewBlessingStoreOpts(ctx, publicKey,
@@ -25,8 +25,8 @@ func (o principalOptions) getBlessingStore(ctx context.Context, publicKey securi
 }
 
 func (o principalOptions) getBlessingRoots(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
-	if o.blessingRoots != nil {
-		return o.blessingRoots, nil
+	if o.blessingRootsFactory != nil {
+		return o.blessingRootsFactory(ctx, publicKey, signer)
 	}
 	if o.writeable != nil {
 		return NewBlessingRootsOpts(ctx,
@@ -80,23 +80,22 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 			return nil, err
 		}
 	}
-	publicKey, err := reader.NewPublicKey(ctx)
+	publicKey, x509cert, err := reader.NewPublicKey(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// signer may be nil
 	bs, err := o.getBlessingStore(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}
-
 	br, err := o.getBlessingRoots(ctx, publicKey, signer)
 	if err != nil {
 		return nil, err
 	}
-
 	if signer == nil {
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreateX509Principal(signer, nil, bs, br)
+	return security.CreateX509Principal(signer, x509cert, bs, br)
 }
