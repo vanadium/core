@@ -287,10 +287,10 @@ type BlessingRoots interface {
 	// authority on a pattern that is matched by blessing. For a Certificate
 	// to be recognized it must either have only a public key and that public
 	// key is recognized as an authority on a pattern that is matched by blessing,
-	// or, if the Certificate includes an x509 certificate then that x509
-	// certificate must have been issued by a recognised Certificate Authority
+	// or, if the Certificate includes an x509.Certificate then that
+	// x509.Certificate must have been issued by a recognised Certificate Authority
 	// as verified by the underlying operating system. The public key in
-	// x509 certificate must match that in the supplied security.Certificate.
+	// x509.Certificate must match that in the supplied security.Certificate.
 	RecognizedCert(cert *Certificate, blessing string) error
 
 	// Dump returns the set of recognized roots as a map from

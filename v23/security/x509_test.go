@@ -27,9 +27,15 @@ func newPrincipalWithX509Opts(ctx gocontext.Context, t testing.TB, key crypto.Pr
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	roots, err := seclib.NewBlessingRootsOpts(ctx, seclib.BlessingRootsX509VerifyOptions(opts))
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	p, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithSigner(signer),
-		seclib.WithX509VerifyOptions(opts))
+		seclib.WithBlessingRoots(roots))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,9 +51,15 @@ func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.Priv
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	roots, err := seclib.NewBlessingRootsOpts(ctx, seclib.BlessingRootsX509VerifyOptions(opts))
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	p, err := seclib.CreatePrincipalOpts(ctx,
 		seclib.WithPrivateKeyBytes(ctx, pubKeyBytes, privKeyBytes, nil),
-		seclib.WithX509VerifyOptions(opts))
+		seclib.WithBlessingRoots(roots))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +278,17 @@ func TestX509ServerErrors(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		xxx need blessing root opts..
+		signer, err := seclib.NewSignerFromKey(ctx, privKey)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		roots, err := seclib.NewBlessingRootsOpts(ctx,
+			seclib.BlessingRootsX509VerifyOptions(opts),
+			seclib.BlessingRootsWriteable(seclib.FilesystemStoreWriter(dir), signer))
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		// The following will result in an error from BlessSelf since
 		// the requested tc.invalidHost is not supported by the certificate.
@@ -274,7 +296,7 @@ func TestX509ServerErrors(t *testing.T) {
 			seclib.WithPrivateKey(privKey, nil),
 			seclib.WithStore(store),
 			seclib.WithX509Certificate(pubCerts[0]),
-			seclib.WithX509VerifyOptions(opts))
+			seclib.WithBlessingRoots(roots))
 		if err != nil {
 			t.Fatalf("failed to create principal: %v", err)
 		}

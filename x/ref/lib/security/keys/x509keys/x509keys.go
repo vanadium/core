@@ -40,14 +40,6 @@ func Register(r *keys.Registrar) error {
 	return r.RegisterAPI((*x509CertAPI)(nil), (*x509.Certificate)(nil))
 }
 
-func marshalPublicKey(key crypto.PublicKey) ([]byte, error) {
-	cert, ok := key.(*x509.Certificate)
-	if !ok {
-		return nil, fmt.Errorf("x509keys.Signer: unsupported key type %T", key)
-	}
-	return internal.EncodePEM("CERTIFICATE", cert.Raw, nil)
-}
-
 type x509CertAPI struct{}
 
 func (*x509CertAPI) Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer, error) {

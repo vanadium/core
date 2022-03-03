@@ -258,8 +258,6 @@ func TestCreatePrincipalKeyOpts(t *testing.T) {
 func TestCreatePrincipalX509Opts(t *testing.T) {
 	ctx := context.Background()
 
-	dir, storeOpt := newStoreOpt(t)
-
 	keyType := keys.ECDSA521
 	keys, certs, opts := sectestdata.VanadiumSSLData()
 
@@ -268,54 +266,88 @@ func TestCreatePrincipalX509Opts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	roots, err := NewBlessingRootsOpts(ctx,
-		BlessingRootsX509VerifyOptions(opts),
-		BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
+	certBytes, err := MarshalPublicKey(certs[keyType.String()])
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	p, err := CreatePrincipalOpts(ctx,
-		WithPrivateKey(keys[keyType.String()], nil),
-		WithX509Certificate(certs[keyType.String()]),
-		WithBlessingRoots(roots),
-		storeOpt)
-	if err != nil {
-		t.Fatal(err)
+	if !bytes.Contains(certBytes, []byte("BEGIN CERTIFICATE")) {
+		t.Fatalf("not a certificate %s", certBytes)
 	}
 
-	validHost := "ecdsa-521.vanadium.io"
-	invalidHost := "invalid.host.com"
+	for _, tc := range []struct {
+		certificateOption CreatePrincipalOption
+		persistent        bool
+	}{
+		{WithX509Certificate(certs[keyType.String()]), false},
+		{WithX509Certificate(certs[keyType.String()]), true},
+		{WithPublicKeyBytes(certBytes), false},
+		{WithPublicKeyBytes(certBytes), true},
+	} {
 
-	if _, err := p.BlessSelf(validHost); err != nil {
-		t.Fatal(err)
-	}
+		dir := ""
+		createPrincipalOpts := []CreatePrincipalOption{
+			tc.certificateOption,
+			WithPrivateKey(keys[keyType.String()], nil),
+		}
+		createRootsOpts := []BlessingRootsOption{
+			BlessingRootsX509VerifyOptions(opts),
+		}
 
-	_, err = p.BlessSelf(invalidHost)
-	invalidHostErr := fmt.Sprintf(", not %v", invalidHost)
-	if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
-		t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
-	}
+		if tc.persistent {
+			var createStoreOpt CreatePrincipalOption
+			dir, createStoreOpt = newStoreOpt(t)
+			createPrincipalOpts = append(createPrincipalOpts, createStoreOpt)
+			createRootsOpts = append(createRootsOpts,
+				BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
 
-	rd := FilesystemStoreReader(dir)
-	// Make sure that the loaded principal has the correct x509 certificate info.
-	lp, err := LoadPrincipalOpts(ctx,
-		FromReadonly(rd),
-		FromBlessingRoots(func(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
-			return NewBlessingRootsOpts(ctx,
-				BlessingRootsReadonly(rd, publicKey),
-				BlessingRootsX509VerifyOptions(opts))
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := lp.BlessSelf(validHost); err != nil {
-		t.Fatal(err)
-	}
-	_, err = lp.BlessSelf(invalidHost)
-	if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
-		t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+		}
+
+		roots, err := NewBlessingRootsOpts(ctx, createRootsOpts...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		createPrincipalOpts = append(createPrincipalOpts, WithBlessingRoots(roots))
+
+		p, err := CreatePrincipalOpts(ctx, createPrincipalOpts...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		validHost := "ecdsa-521.vanadium.io"
+		invalidHost := "invalid.host.com"
+
+		if _, err := p.BlessSelf(validHost); err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = p.BlessSelf(invalidHost)
+		invalidHostErr := fmt.Sprintf(", not %v", invalidHost)
+		if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+			t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+		}
+
+		rd := FilesystemStoreReader(dir)
+		// Make sure that the loaded principal has the correct x509 certificate info.
+		lp, err := LoadPrincipalOpts(ctx,
+			FromReadonly(rd),
+			FromBlessingRoots(func(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+				return NewBlessingRootsOpts(ctx,
+					BlessingRootsReadonly(rd, publicKey),
+					BlessingRootsX509VerifyOptions(opts))
+			}),
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := lp.BlessSelf(validHost); err != nil {
+			t.Fatal(err)
+		}
+		_, err = lp.BlessSelf(invalidHost)
+		if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+			t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+		}
 	}
 }
 
