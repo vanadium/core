@@ -8,15 +8,15 @@ import "v.io/v23/uniqueid"
 
 // BlessingPattern is a pattern that is matched by specific blessings.
 //
-// A pattern can either be a blessing (slash-separated human-readable string)
-// or a blessing ending in "/$". A pattern ending in "/$" is matched exactly
-// by the blessing specified by the pattern string with the "/$" suffix stripped
-// out. For example, the pattern "a/b/c/$" is matched by exactly by the blessing
-// "a/b/c".
+// A pattern can either be a blessing (colon-separated human-readable string, as
+// defined by ChainSeparator), or a blessing ending in ":$". A pattern ending
+// in ":$" is matched exactly by the blessing specified by the pattern string
+// with the ":$" suffix stripped out. For example, the pattern "a:b:c:$" is
+// matched by exactly by the blessing "a:b:c".
 //
-// A pattern not ending in "/$" is more permissive, and is also matched by blessings
+// A pattern not ending in ":$" is more permissive, and is also matched by blessings
 // that are extensions of the pattern (including the pattern itself). For example, the
-// pattern "a/b/c" is matched by the blessings "a/b/c", "a/b/c/x", "a/b/c/x/y", etc.
+// pattern "a:b:c" is matched by the blessings "a:b:c", "a:b:c:x", "a:b:c:x:y", etc.
 //
 // TODO(ataly, ashankar): Define a formal BNF grammar for blessings and blessing patterns.
 type BlessingPattern string
