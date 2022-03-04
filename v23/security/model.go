@@ -280,7 +280,6 @@ type BlessingRoots interface {
 
 	// Recognized returns nil iff the provided (DER-encoded) root public
 	// key is recognized as an authority on a pattern that is matched by blessing.
-	// Deprecated: use RecognizedCert instead.
 	Recognized(root []byte, blessing string) error
 
 	// RecognizedCert returns nil iff the provided Certificate is recognized as an

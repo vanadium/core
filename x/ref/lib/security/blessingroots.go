@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -94,19 +95,37 @@ func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing str
 	}
 	opts := br.x509Opts
 	opts.DNSName = ""
-	for _, d := range cert.DNSNames {
-		if len(d) == 0 {
+	var lastErr error
+	for _, dnsName := range cert.DNSNames {
+		if len(dnsName) == 0 {
 			continue
 		}
-		if d[0] == '*' && len(d) > 1 && d[1] == '.' {
+		d := dnsName
+		b := blessing
+		if dnsName[0] == '*' && len(dnsName) > 1 && dnsName[1] == '.' {
 			d = d[2:]
+			if idx := strings.IndexByte(b, '.'); idx > 0 {
+				b = b[idx+1:]
+			}
 		}
-		if security.BlessingPattern(d).MatchedBy(blessing) {
-			opts.DNSName = d
+		if security.BlessingPattern(d).MatchedBy(b) {
+			opts.DNSName = dnsName
+			_, err := cert.Verify(opts)
+			if err == nil {
+				return nil
+			}
+			lastErr = err
 		}
 	}
-	_, err = cert.Verify(opts)
-	return err
+
+	// Silly to have to unmarshal the public key on an error.
+	// Change the error message to not require that?
+	obj, err := security.UnmarshalPublicKey(root.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root x509 certificate: %v", obj.String(), lastErr)
 }
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {

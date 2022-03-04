@@ -5,17 +5,21 @@
 package security
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	"v.io/x/ref/test/sectestdata"
 )
 
 func createAndMarshalPublicKey() ([]byte, error) {
@@ -181,5 +185,85 @@ func TestBlessingRootsPersistence(t *testing.T) {
 	}
 	if err := tester.testDump(p2.Roots()); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestBlessingRootsX509(t *testing.T) {
+	ctx := context.Background()
+
+	for i, tc := range []struct {
+		certType sectestdata.CertType
+		pattern  string
+	}{
+		{sectestdata.SingleHostCert, "www.labdrive.io"},
+		{sectestdata.SingleHostCert, "www.labdrive.io/a/b"},
+		{sectestdata.MultipleHostsCert, "a.labdrive.io"},
+		{sectestdata.MultipleHostsCert, "b.labdrive.io"},
+		{sectestdata.MultipleHostsCert, "b.labdrive.io:a:b"},
+		{sectestdata.WildcardCert, "foo.labdrive.io"},
+		{sectestdata.WildcardCert, "bar.labdrive.io"},
+		{sectestdata.MultipleWildcardCert, "foo.labdr.io"},
+		{sectestdata.MultipleWildcardCert, "bar.labdrive.io"},
+	} {
+		_, certs, opts := sectestdata.LetsEncryptData(tc.certType)
+		x509Cert := certs[0]
+		roots, err := NewBlessingRootsOpts(ctx, BlessingRootsX509VerifyOptions(opts))
+		if err != nil {
+			t.Fatal(err)
+		}
+		pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = roots.RecognizedCert(&security.Certificate{
+			PublicKey: pkBytes,
+			X509Raw:   x509Cert.Raw,
+		}, tc.pattern)
+		if err != nil {
+			t.Errorf("%v: %v: %v: %v", i, tc.certType, tc.pattern, err)
+		}
+
+		roots, err = NewBlessingRootsOpts(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = roots.RecognizedCert(&security.Certificate{
+			PublicKey: pkBytes,
+			X509Raw:   x509Cert.Raw,
+		}, tc.pattern)
+		if err == nil || !(strings.Contains(err.Error(), "x509: certificate signed by unknown authority") || strings.Contains(err.Error(), "x509: certificate has expired or is not yet valid")) {
+			t.Errorf("%v: %v: %v: missing or wrong error: %v", i, tc.certType, tc.pattern, err)
+		}
+	}
+
+	for i, tc := range []struct {
+		certType sectestdata.CertType
+		pattern  string
+	}{
+		{sectestdata.SingleHostCert, "ww.labdrive.io"},
+		{sectestdata.MultipleHostsCert, ".labdrive.io"},
+		{sectestdata.MultipleHostsCert, "bdrive.io"},
+		{sectestdata.WildcardCert, "labdrive.io"},
+		{sectestdata.WildcardCert, "abdrive.io"},
+		{sectestdata.MultipleWildcardCert, "labdr.io"},
+		{sectestdata.MultipleWildcardCert, "abdrive.io"},
+	} {
+		_, certs, opts := sectestdata.LetsEncryptData(tc.certType)
+		x509Cert := certs[0]
+		roots, err := NewBlessingRootsOpts(ctx, BlessingRootsX509VerifyOptions(opts))
+		if err != nil {
+			t.Fatal(err)
+		}
+		pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = roots.RecognizedCert(&security.Certificate{
+			PublicKey: pkBytes,
+			X509Raw:   x509Cert.Raw,
+		}, tc.pattern)
+		if err == nil || !strings.Contains(err.Error(), "unrecognized public key") {
+			t.Errorf("%v: %v: %v: missing or wrong error: %v", i, tc.certType, tc.pattern, err)
+		}
 	}
 }

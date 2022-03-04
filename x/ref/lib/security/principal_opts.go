@@ -80,7 +80,7 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 			return nil, err
 		}
 	}
-	publicKey, x509cert, err := reader.NewPublicKey(ctx)
+	publicKey, x509Cert, err := reader.NewPublicKey(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -97,5 +97,5 @@ func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (securi
 	if signer == nil {
 		return security.CreatePrincipalPublicKeyOnly(publicKey, bs, br)
 	}
-	return security.CreateX509Principal(signer, x509cert, bs, br)
+	return security.CreateX509Principal(signer, x509Cert, bs, br)
 }
