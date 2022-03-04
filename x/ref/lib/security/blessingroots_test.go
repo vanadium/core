@@ -196,14 +196,16 @@ func TestBlessingRootsX509(t *testing.T) {
 		pattern  string
 	}{
 		{sectestdata.SingleHostCert, "www.labdrive.io"},
-		{sectestdata.SingleHostCert, "www.labdrive.io/a/b"},
+		{sectestdata.SingleHostCert, "www.labdrive.io:a:b"},
 		{sectestdata.MultipleHostsCert, "a.labdrive.io"},
 		{sectestdata.MultipleHostsCert, "b.labdrive.io"},
 		{sectestdata.MultipleHostsCert, "b.labdrive.io:a:b"},
 		{sectestdata.WildcardCert, "foo.labdrive.io"},
 		{sectestdata.WildcardCert, "bar.labdrive.io"},
+		{sectestdata.WildcardCert, "bar.labdrive.io:x:y"},
 		{sectestdata.MultipleWildcardCert, "foo.labdr.io"},
 		{sectestdata.MultipleWildcardCert, "bar.labdrive.io"},
+		{sectestdata.MultipleWildcardCert, "bar.labdr.io:x:y"},
 	} {
 		_, certs, opts := sectestdata.LetsEncryptData(tc.certType)
 		x509Cert := certs[0]

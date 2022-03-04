@@ -290,6 +290,9 @@ type BlessingRoots interface {
 	// x509.Certificate must have been issued by a recognised Certificate Authority
 	// as verified by the underlying operating system. The public key in
 	// x509.Certificate must match that in the supplied security.Certificate.
+	// For a x509.Certificate the first component of the blessing must match
+	// the DNSNames in the certificate; multisite and wildcard certificates
+	// should be supported.
 	RecognizedCert(cert *Certificate, blessing string) error
 
 	// Dump returns the set of recognized roots as a map from
