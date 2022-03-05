@@ -652,42 +652,50 @@ func TestV23Create(t *testing.T) {
 	}
 
 	for _, tc := range []struct {
+		blessing          string
 		sshComment        string
 		privateKeyPEMType string
 		publicKeyPEMType  string
 		flags             []string
 	}{
 		{
+			"alice",
 			"",
 			"PRIVATE KEY",
 			"PUBLIC KEY",
 			nil},
 		{
+			"alice",
 			"ed25519",
 			"VANADIUM INDIRECT PRIVATE KEY",
 			"PUBLIC KEY",
 			[]string{"--ssh-public-key=" + filepath.Join(sshKeyDir, "ssh-ed25519.pub")}},
 		{
+			"alice",
 			"",
 			"VANADIUM INDIRECT PRIVATE KEY",
 			"PUBLIC KEY",
 			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521")}},
 		{
+			"ed25519.vanadium.io",
 			"",
 			"VANADIUM INDIRECT PRIVATE KEY",
 			"CERTIFICATE",
 			[]string{"--ssl-key=" + sslKeyFile, "--ssl-cert=" + sslCertFile}},
 		{
+			"alice",
 			"",
 			"PRIVATE KEY",
 			"PUBLIC KEY",
 			[]string{"--ssh-key=" + filepath.Join(sshKeyDir, "ssh-ecdsa-521"), "--copy-private-key"}},
 		{
+			"ed25519.vanadium.io",
 			"",
 			"PRIVATE KEY",
 			"CERTIFICATE",
 			[]string{"--ssl-key=" + sslKeyFile, "--ssl-cert=" + sslCertFile, "--copy-private-key"}},
 		{
+			"alice",
 			"",
 			"PRIVATE KEY",
 			"PUBLIC KEY",
@@ -695,8 +703,8 @@ func TestV23Create(t *testing.T) {
 	} {
 		flags := tc.flags
 		// Creating a principal should succeed the first time.
-		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...).Run()
-		checkBlessing("alice")
+		sh.Cmd(bin, mergeFlags("create", flags, aliceDir, tc.blessing)...).Run()
+		checkBlessing(tc.blessing)
 
 		if len(tc.sshComment) > 0 {
 			checkSSHKey("publickey.pem", tc.sshComment)
@@ -707,15 +715,15 @@ func TestV23Create(t *testing.T) {
 		checkPEM("privatekey.pem", tc.privateKeyPEMType)
 
 		// The second time should fail (the create command won't override an existing principal).
-		cmd := sh.Cmd(bin, mergeFlags("create", flags, aliceDir, "alice")...)
+		cmd := sh.Cmd(bin, mergeFlags("create", flags, aliceDir, tc.blessing)...)
 		cmd.ExitErrorIsOk = true
 		if cmd.Run(); cmd.Err == nil {
 			t.Fatalf("principal creation should have failed, but did not")
 		}
 
 		// If we specify -overwrite, it will.
-		sh.Cmd(bin, mergeFlags("create", flags, "-overwrite", aliceDir, "alice")...).Run()
-		checkBlessing("alice")
+		sh.Cmd(bin, mergeFlags("create", flags, "-overwrite", aliceDir, tc.blessing)...).Run()
+		checkBlessing(tc.blessing)
 
 		// If we create a principal without specifying a blessing name, it will have no blessing.
 		sh.Cmd(bin, mergeFlags("create", flags, "-overwrite", aliceDir)...).Run()
