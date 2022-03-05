@@ -48,4 +48,8 @@ func TestOpenSSLCompatibilityED25519(t *testing.T) {
 	if got, want := ntests, 4; got != want { // 2 types of keys => 4 tests * 1 curve
 		t.Errorf("%d combinations of tests succeeded, expected %d", got, want)
 	}
+
+	if !security.CryptoPublicKeyEqual(golang.PublicKey(), openssl.PublicKey()) {
+		t.Errorf("keys should be equal [%v] [%v]", golang.PublicKey(), openssl.PublicKey())
+	}
 }

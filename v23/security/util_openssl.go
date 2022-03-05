@@ -14,6 +14,7 @@ package security
 import "C"
 
 import (
+	"crypto"
 	"fmt"
 	"unsafe"
 )
@@ -81,7 +82,12 @@ func opensslHash(h Hash) *C.EVP_MD {
 type opensslPublicKeyCommon struct {
 	osslKey  *C.EVP_PKEY
 	osslHash *C.EVP_MD
+	key      interface{}
 	publicKeyCommon
+}
+
+func (pk opensslPublicKeyCommon) cryptoKey() crypto.PublicKey {
+	return pk.key
 }
 
 func newOpensslPublicKeyCommon(key interface{}, h Hash) (opensslPublicKeyCommon, error) {
@@ -100,6 +106,7 @@ func newOpensslPublicKeyCommon(key interface{}, h Hash) (opensslPublicKeyCommon,
 	oh := opensslHash(h)
 	return opensslPublicKeyCommon{
 		publicKeyCommon: pc,
+		key:             key,
 		osslHash:        oh,
 		osslKey:         k,
 	}, nil
