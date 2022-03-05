@@ -21,6 +21,10 @@ type ed25519PublicKey struct {
 	key ed25519.PublicKey
 }
 
+func (pk *ed25519PublicKey) cryptoKey() crypto.PublicKey {
+	return pk.key
+}
+
 func (pk *ed25519PublicKey) verify(digest []byte, sig *Signature) bool {
 	return ed25519.Verify(pk.key, digest, sig.Ed25519)
 }

@@ -21,8 +21,12 @@ func NewRSAPublicKey(key *rsa.PublicKey) PublicKey {
 }
 
 type rsaPublicKey struct {
-	key *rsa.PublicKey
 	publicKeyCommon
+	key *rsa.PublicKey
+}
+
+func (pk *rsaPublicKey) cryptoKey() crypto.PublicKey {
+	return pk.key
 }
 
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {

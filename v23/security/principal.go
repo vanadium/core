@@ -7,7 +7,6 @@ package security
 import (
 	"crypto/x509"
 	"fmt"
-	"reflect"
 	"time"
 )
 
@@ -30,7 +29,7 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 	if roots == nil {
 		roots = errRoots{}
 	}
-	if got, want := store.PublicKey(), signer.PublicKey(); !reflect.DeepEqual(got, want) {
+	if got, want := store.PublicKey(), signer.PublicKey(); !CryptoPublicKeyEqual(got, want) {
 		return nil, fmt.Errorf("store's public key: %v does not match signer's public key: %v", got, want)
 	}
 	return &principal{signer: signer, store: store, roots: roots}, nil
@@ -125,7 +124,7 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 	if with.IsZero() || with.isNamelessBlessing() {
 		return Blessings{}, fmt.Errorf("the Blessings to bless 'with' must have at least one certificate")
 	}
-	if !reflect.DeepEqual(with.PublicKey(), p.PublicKey()) {
+	if !CryptoPublicKeyEqual(with.PublicKey(), p.PublicKey()) {
 		return Blessings{}, fmt.Errorf("Principal with public key %v cannot extend blessing with public key %v", p.PublicKey(), with.PublicKey())
 	}
 	caveats := make([]Caveat, len(additionalCaveats)+1)
