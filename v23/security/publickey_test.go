@@ -17,7 +17,7 @@ import (
 func TestPublicKeyMarshaling(t *testing.T) {
 	for _, kt := range testCryptoAlgos {
 		key := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetA)
-		k1, err := keys.PublicKey(key)
+		k1, err := security.NewPublicKey(key)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -43,11 +43,11 @@ func twoPublicKeys(t *testing.T, kt keys.CryptoAlgo) (a, b security.PublicKey) {
 	ka := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetA)
 	kb := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetB)
 
-	pa, err := keys.PublicKey(ka)
+	pa, err := security.NewPublicKey(ka)
 	if err != nil {
 		t.Fatal(err)
 	}
-	pb, err := keys.PublicKey(kb)
+	pb, err := security.NewPublicKey(kb)
 	if err != nil {
 		t.Fatal(err)
 	}

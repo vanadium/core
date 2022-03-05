@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"v.io/v23/security"
 	seclib "v.io/x/ref/lib/security"
-	"v.io/x/ref/lib/security/keys"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -95,7 +95,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}
 		cert := key.(*x509.Certificate)
-		pk, err := keys.PublicKey(cert.PublicKey)
+		pk, err := security.NewPublicKey(cert.PublicKey)
 		if err != nil {
 			t.Fatalf("%v: %v", tc.filename, err)
 		}

@@ -67,7 +67,7 @@ func (*api) Signer(ctx context.Context, key crypto.PrivateKey) (security.Signer,
 }
 
 func (*api) PublicKey(key interface{}) (security.PublicKey, error) {
-	return PublicKey(key)
+	return security.NewPublicKey(key)
 }
 
 func (*api) CryptoPublicKey(key interface{}) (crypto.PublicKey, error) {
