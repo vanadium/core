@@ -42,6 +42,10 @@ func (k *opensslECDSAPublicKey) messageDigest(hash crypto.Hash, purpose, message
 	return messageDigestFields(hash, k.keyBytes, purpose, message)
 }
 
+func (pk *opensslECDSAPublicKey) cryptoKey() crypto.PublicKey {
+	return pk.key
+}
+
 func (k *opensslECDSAPublicKey) verify(digest []byte, signature *Signature) bool {
 	tmp := struct {
 		R, S *big.Int

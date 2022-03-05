@@ -41,6 +41,8 @@ type PublicKey interface {
 	encoding.BinaryMarshaler
 	fmt.Stringer
 
+	cryptoKey() crypto.PublicKey
+
 	// hashAlgo returns the cryptographic hash function appropriate for
 	// creating message digests to sign with this public key.
 	hashAlgo() crypto.Hash
@@ -54,7 +56,7 @@ type PublicKey interface {
 }
 
 // UnmarshalPublicKey returns a PublicKey object from the DER-encoded PKIX
-// represntation of it (typically obtianed via PublicKey.MarshalBinary).
+// represntation of it (typically obtained via PublicKey.MarshalBinary).
 func UnmarshalPublicKey(bytes []byte) (PublicKey, error) {
 	key, err := x509.ParsePKIXPublicKey(bytes)
 	if err != nil {
@@ -115,8 +117,10 @@ func (pk publicKeyCommon) String() string {
 }
 
 // NewPublicKey creates a new security.PublicKey for the supplied
-// crypto.PublicKey.
-func NewPublicKey(key crypto.PublicKey) (PublicKey, error) {
+// public or private keys. The supported types are:
+// *ecdsa.PrivateKey, *rsa.PrivateKey, ed25519.PrivateKey,
+// *ecdsa.PublicKey, *rsa.PublicKey, ed25519.PublicKey, *x509.Certificate.
+func NewPublicKey(key interface{}) (PublicKey, error) {
 	switch k := key.(type) {
 	case *ecdsa.PublicKey:
 		return NewECDSAPublicKey(k), nil
@@ -124,6 +128,57 @@ func NewPublicKey(key crypto.PublicKey) (PublicKey, error) {
 		return NewRSAPublicKey(k), nil
 	case ed25519.PublicKey:
 		return NewED25519PublicKey(k), nil
+	case *x509.Certificate:
+		return NewPublicKey(k.PublicKey)
+	case *ecdsa.PrivateKey:
+		return NewECDSAPublicKey(&k.PublicKey), nil
+	case *rsa.PrivateKey:
+		return NewRSAPublicKey(&k.PublicKey), nil
+	case ed25519.PrivateKey:
+		return NewED25519PublicKey(k.Public().(ed25519.PublicKey)), nil
 	}
 	return nil, fmt.Errorf("%T is an unsupported key type", key)
+}
+
+func underlyingPublicKey(a interface{}) crypto.PublicKey {
+	switch ul := a.(type) {
+	case PublicKey:
+		return ul.cryptoKey()
+	case x509.Certificate:
+		return ul.PublicKey
+	case *x509.Certificate:
+		return ul.PublicKey
+	case *ecdsa.PublicKey:
+		return ul
+	case *rsa.PublicKey:
+		return ul
+	case ed25519.PublicKey:
+		return ul
+	case ecdsa.PublicKey:
+		return ul
+	case *ed25519.PublicKey:
+		return ul
+	case rsa.PublicKey:
+		return ul
+	}
+	return nil
+}
+
+// CryptoPublicKeyEqual returns true iff a and b represent the same crypto.PublicKey.
+// The supported types are PublicKey, x509.Certificate, ecdsa.PublicKey
+// ed25519.PublicKey, rsa.PublicKey and pointers to them.
+func CryptoPublicKeyEqual(a, b interface{}) bool {
+	ca, cb := underlyingPublicKey(a), underlyingPublicKey(b)
+	if ca == nil || cb == nil {
+		return false
+	}
+	switch ul := ca.(type) {
+	case *rsa.PublicKey:
+		return ul.Equal(cb)
+	case ed25519.PublicKey:
+		return ul.Equal(cb)
+	case *ecdsa.PublicKey:
+		return ul.Equal(cb)
+	}
+	return false
 }

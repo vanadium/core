@@ -5,8 +5,6 @@
 package security
 
 import (
-	"reflect"
-
 	"v.io/v23/context"
 )
 
@@ -73,7 +71,7 @@ func (a publicKeyAuthorizer) Authorize(ctx *context.T, call Call) error {
 	if remote == nil {
 		return ErrorfPublicKeyNotAllowed(ctx, "peer has no public key (%v), the authorized public key %v", "", a.key.String())
 	}
-	if !reflect.DeepEqual(remote, a.key) {
+	if !CryptoPublicKeyEqual(remote, a.key) {
 		return ErrorfPublicKeyNotAllowed(ctx, "peer has public key %v, not the authorized public key %v", remote.String(), a.key.String())
 	}
 	return nil

@@ -56,6 +56,10 @@ func TestOpenSSLCompatibilityRSA(t *testing.T) {
 		sanityCheckSigners(t, signers)
 		ntests += verifySignerInterop(t, fmt.Sprintf("RSA %d bits", keySize), signers)
 		verifyMetadata(t, fmt.Sprintf("RSA %d bits", keySize), signers)
+
+		if !security.CryptoPublicKeyEqual(golang.PublicKey(), openssl.PublicKey()) {
+			t.Errorf("keys should be equal [%v] [%v]", golang.PublicKey(), openssl.PublicKey())
+		}
 	}
 	// Silly sanity check to help ensure that these nested loops weren't short circuited
 	if got, want := ntests, 4*len(keySizes); got != want { // 2 types of keys => 4 tests * n sizes
