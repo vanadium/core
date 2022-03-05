@@ -41,15 +41,11 @@ type PublicKey interface {
 	encoding.BinaryMarshaler
 	fmt.Stringer
 
-	// Returns true if the signer's underlying public key is identical
-	// to the specified key.
-	equal(key crypto.PublicKey) bool
+	cryptoKey() crypto.PublicKey
 
 	// hashAlgo returns the cryptographic hash function appropriate for
 	// creating message digests to sign with this public key.
 	hashAlgo() crypto.Hash
-
-	bytes() []byte
 
 	messageDigest(h crypto.Hash, purpose, message []byte) []byte
 
@@ -97,10 +93,6 @@ func newPublicKeyCommon(key interface{}, hash Hash) publicKeyCommon {
 
 func (pk publicKeyCommon) hashAlgo() crypto.Hash {
 	return pk.chash
-}
-
-func (pk publicKeyCommon) bytes() []byte {
-	return pk.keyBytes
 }
 
 func (pk publicKeyCommon) MarshalBinary() ([]byte, error) {
@@ -157,4 +149,47 @@ func fingerprintCryptoPublicKey(key interface{}) string {
 		keyBytes: kb,
 	}
 	return pk.String()
+}
+
+func underlyingPublicKey(a interface{}) crypto.PublicKey {
+	switch ul := a.(type) {
+	case PublicKey:
+		return ul.cryptoKey()
+	case x509.Certificate:
+		return ul.PublicKey
+	case *x509.Certificate:
+		return ul.PublicKey
+	case *ecdsa.PublicKey:
+		return ul
+	case *rsa.PublicKey:
+		return ul
+	case ed25519.PublicKey:
+		return ul
+	case ecdsa.PublicKey:
+		return ul
+	case *ed25519.PublicKey:
+		return ul
+	case rsa.PublicKey:
+		return ul
+	}
+	return nil
+}
+
+// CryptoPublicKeyEqual returns true iff a and b represent the same crypto.PublicKey.
+// The supported types are PublicKey, x509.Certificate, ecdsa.PublicKey
+// ed25519.PublicKey, rsa.PublicKey and pointers to them.
+func CryptoPublicKeyEqual(a, b interface{}) bool {
+	ca, cb := underlyingPublicKey(a), underlyingPublicKey(b)
+	if ca == nil || cb == nil {
+		return false
+	}
+	switch ul := ca.(type) {
+	case *rsa.PublicKey:
+		return ul.Equal(cb)
+	case ed25519.PublicKey:
+		return ul.Equal(cb)
+	case *ecdsa.PublicKey:
+		return ul.Equal(cb)
+	}
+	return false
 }

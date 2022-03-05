@@ -12,7 +12,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -44,7 +43,7 @@ func (bs *blessingStore) setLocked(blessings security.Blessings, forPeers securi
 	if !forPeers.IsValid() {
 		return security.Blessings{}, nil, fmt.Errorf("%v is an invalid BlessingPattern", forPeers)
 	}
-	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
+	if !blessings.IsZero() && !security.CryptoPublicKeyEqual(blessings.PublicKey(), bs.publicKey) {
 		return security.Blessings{}, nil, fmt.Errorf("blessing's public key does not match store's public key")
 	}
 	old, hadold := bs.state.PeerBlessings[forPeers]
@@ -96,7 +95,7 @@ func (bs *blessingStore) Default() (security.Blessings, <-chan struct{}) {
 }
 
 func (bs *blessingStore) setDefaultLocked(blessings security.Blessings) (func(), error) {
-	if !blessings.IsZero() && !reflect.DeepEqual(blessings.PublicKey(), bs.publicKey) {
+	if !blessings.IsZero() && !security.CryptoPublicKeyEqual(blessings.PublicKey(), bs.publicKey) {
 		return nil, fmt.Errorf("blessing's public key does not match store's public key")
 	}
 	oldDefault := bs.state.DefaultBlessings
@@ -323,11 +322,11 @@ func NewBlessingStoreOpts(ctx context.Context, publicKey security.PublicKey, opt
 
 func verifyState(publicKey security.PublicKey, state blessingStoreState) error {
 	for _, b := range state.PeerBlessings {
-		if !reflect.DeepEqual(b.PublicKey(), publicKey) {
+		if !security.CryptoPublicKeyEqual(b.PublicKey(), publicKey) {
 			return fmt.Errorf("read Blessings: %v that are not for provided PublicKey: %v", b, publicKey)
 		}
 	}
-	if !state.DefaultBlessings.IsZero() && !reflect.DeepEqual(state.DefaultBlessings.PublicKey(), publicKey) {
+	if !state.DefaultBlessings.IsZero() && !security.CryptoPublicKeyEqual(state.DefaultBlessings.PublicKey(), publicKey) {
 		return fmt.Errorf("read Blessings: %v that are not for provided PublicKey: %v", state.DefaultBlessings, publicKey)
 	}
 	return nil

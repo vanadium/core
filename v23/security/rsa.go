@@ -25,8 +25,8 @@ type rsaPublicKey struct {
 	key *rsa.PublicKey
 }
 
-func (pk *rsaPublicKey) equal(key crypto.PublicKey) bool {
-	return pk.key.Equal(key)
+func (pk *rsaPublicKey) cryptoKey() crypto.PublicKey {
+	return pk.key
 }
 
 func (pk *rsaPublicKey) verify(digest []byte, sig *Signature) bool {

@@ -22,8 +22,8 @@ type ecdsaPublicKey struct {
 	key *ecdsa.PublicKey
 }
 
-func (pk *ecdsaPublicKey) equal(key crypto.PublicKey) bool {
-	return pk.key.Equal(key)
+func (pk *ecdsaPublicKey) cryptoKey() crypto.PublicKey {
+	return pk.key
 }
 
 func (pk *ecdsaPublicKey) verify(digest []byte, sig *Signature) bool {

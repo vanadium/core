@@ -112,7 +112,14 @@ func ExposePublicKeyHashAlgo(pk PublicKey) crypto.Hash {
 	return pk.hashAlgo()
 }
 
-// ExposeECDSAHash exposes the hash used for the specified ECDSA key.
+// ExposeCryptoPublicKey exposes the underlying crypto.PublicKey method on PublicKey
+// to tests.
+func ExposeCryptoPublicKey(pk PublicKey) crypto.PublicKey {
+	return pk.cryptoKey()
+}
+
+// ExposeECDSAHash exposes the Hash function used for a particular curve, it is
+// only required for openssl tests.
 func ExposeECDSAHash(key *ecdsa.PublicKey) Hash {
 	nbits := key.Curve.Params().BitSize
 	switch {

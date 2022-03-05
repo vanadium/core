@@ -5,6 +5,7 @@
 package security_test
 
 import (
+	"crypto/x509"
 	"reflect"
 	"testing"
 
@@ -23,6 +24,9 @@ func testPublicKeyMarshaling(t *testing.T, k1 security.PublicKey) {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(k1, k2) {
+		t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
+	}
+	if !security.CryptoPublicKeyEqual(k1, k2) {
 		t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
 	}
 }
@@ -59,7 +63,49 @@ func twoPublicKeys(t *testing.T, kt keys.CryptoAlgo) (a, b security.PublicKey) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if security.CryptoPublicKeyEqual(pa, pb) {
+		t.Errorf("identical keys [%v], After [%v]", pa, pb)
+	}
 	return pa, pb
+}
+
+func TestPublicKeyEquality(t *testing.T) {
+	for i, ikt := range sectestdata.SupportedKeyAlgos {
+		for j, jkt := range sectestdata.SupportedKeyAlgos {
+
+			compareAndTest := func(a, b interface{}) {
+				same := security.CryptoPublicKeyEqual(a, b)
+				if i == j && !same {
+					t.Errorf("keys should have been identical: [%v] [%v]", a, b)
+				}
+				if i != j && same {
+					t.Errorf("keys should have been different: [%v] [%v]", a, b)
+				}
+			}
+
+			ki := sectestdata.V23Signer(ikt, sectestdata.V23KeySetA).PublicKey()
+			kj := sectestdata.V23Signer(jkt, sectestdata.V23KeySetA).PublicKey()
+			compareAndTest(ki, kj)
+
+			cki := security.ExposeCryptoPublicKey(ki)
+			ckj := security.ExposeCryptoPublicKey(kj)
+			compareAndTest(cki, ckj)
+
+			compareAndTest(cki, &x509.Certificate{PublicKey: ckj})
+			compareAndTest(x509.Certificate{PublicKey: cki}, ckj)
+
+			// Should always fail.
+			kj = sectestdata.V23Signer(jkt, sectestdata.V23KeySetB).PublicKey()
+			if security.CryptoPublicKeyEqual(ki, kj) {
+				t.Errorf("keys should have been different: [%v] [%v]", ki, kj)
+			}
+
+			ckj = security.ExposeCryptoPublicKey(kj)
+			if security.CryptoPublicKeyEqual(cki, ckj) {
+				t.Errorf("keys should have been different: [%v] [%v]", ki, kj)
+			}
+		}
+	}
 }
 
 func TestPublicKeyStrings(t *testing.T) {

@@ -5,7 +5,6 @@
 package security
 
 import (
-	"bytes"
 	"crypto/x509"
 	"fmt"
 )
@@ -14,14 +13,11 @@ func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, cavea
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}
-	pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
-	if err != nil {
-		return Blessings{}, err
-	}
-	if !bytes.Equal(p.publicKey.bytes(), pkBytes) {
+	if !CryptoPublicKeyEqual(p.publicKey, x509Cert.PublicKey) {
 		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
 	}
-	certs, err := newUnsignedCertificateFromX509(host, x509Cert, pkBytes, caveats)
+
+	certs, err := newUnsignedCertificateFromX509(host, x509Cert, caveats)
 	if err != nil {
 		return Blessings{}, err
 	}
@@ -45,7 +41,7 @@ func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, cavea
 	return ret, nil
 }
 
-func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkBytes []byte, caveats []Caveat) ([]Certificate, error) {
+func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, caveats []Caveat) ([]Certificate, error) {
 	cavs := make([]Caveat, len(caveats), len(caveats)+2)
 	copy(cavs, caveats)
 	notBefore, err := NewNotBeforeCaveat(x509Cert.NotBefore)
@@ -53,6 +49,10 @@ func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, pkB
 		return nil, err
 	}
 	notAfter, err := NewExpiryCaveat(x509Cert.NotAfter)
+	if err != nil {
+		return nil, err
+	}
+	pkBytes, err := x509.MarshalPKIXPublicKey(x509Cert.PublicKey)
 	if err != nil {
 		return nil, err
 	}
