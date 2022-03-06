@@ -191,6 +191,57 @@ func validateRejected(t *testing.T, names []string, rejected []security.Rejected
 	t.Errorf("line: %v: blessings error message is not one of %v: %v", line, rejected[0].Err.Error(), msgs)
 }
 
+func TestX509CouldHaveNames(t *testing.T) {
+	ctx, cancel := context.RootContext()
+	defer cancel()
+
+	s := func(a ...string) []string {
+		return a
+	}
+
+	for _, tc := range []struct {
+		certType sectestdata.CertType
+		hosts    []string
+	}{
+		{sectestdata.SingleHostCert, s("www.labdrive.io")},
+		{sectestdata.MultipleHostsCert, s("a.labdrive.io", "b.labdrive.io")},
+		{sectestdata.WildcardCert, s("foo.labdrive.io", "bar.labdrive.io")},
+		{sectestdata.MultipleWildcardCert, s("foo.labdrive.io", "bar.labdr.io")},
+	} {
+		privKey, pubCerts, opts := sectestdata.LetsEncryptData(tc.certType)
+		server := newX509ServerPrincipal(ctx, t, privKey, "", pubCerts, opts)
+		blessings, _ := server.BlessingStore().Default()
+
+		merged := blessings
+		for _, host := range tc.hosts {
+			friend, err := server.BlessSelf(host + security.ChainSeparator + "friend")
+			if err != nil {
+				t.Fatal(err)
+			}
+			merged, err = security.UnionOfBlessings(merged, friend)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+		chained := appendPatterns(tc.hosts, "friend")
+
+		if !merged.CouldHaveNames(chained) {
+			t.Errorf("%v: CouldHaveNames is false for: %q: %v", tc.certType, tc.hosts, chained)
+		}
+
+		shouldFail := appendPatterns([]string{"x.y.z"}, "friend")
+		if merged.CouldHaveNames(shouldFail) {
+			t.Errorf("%v: CouldHaveNames is true for: %q: %v", tc.certType, tc.hosts, chained)
+		}
+
+		shouldFail = appendPatterns(append([]string{}, tc.hosts[0], "x.y.z"), "friend")
+		if merged.CouldHaveNames(shouldFail) {
+			t.Errorf("%v: CouldHaveNames is true for: %q: %v", tc.certType, tc.hosts, chained)
+		}
+
+	}
+}
+
 func TestX509Errors(t *testing.T) {
 	ctx, cancel := context.RootContext()
 	defer cancel()

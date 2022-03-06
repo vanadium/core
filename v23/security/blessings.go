@@ -99,38 +99,42 @@ func (b *Blessings) init() {
 // supported. Hence a blessing for *.foo.com:a can have the name bar.foo.com:a so
 // far as this method is concerned.
 func (b Blessings) CouldHaveNames(names []string) bool {
-	hasNames := make(map[string]bool)
+	if len(b.chains) == 0 {
+		return len(names) == 0
+	}
+	hasNames := make(map[string]struct{})
+	// Find all possible names across all chains.
 	for _, chain := range b.chains {
 		cn := claimedName(chain)
-		if strings.HasPrefix(cn, "*.") && wildcardMatch(chain, names) {
-			return true
+		if strings.HasPrefix(cn, "*.") && wildcardMatch(hasNames, chain[0], names) {
+			continue
 		}
-		hasNames[cn] = true
+		hasNames[cn] = struct{}{}
 	}
 	for _, n := range names {
-		if !hasNames[n] {
+		if _, ok := hasNames[n]; !ok {
 			return false
 		}
 	}
 	return true
 }
 
-func wildcardMatch(chain []Certificate, names []string) bool {
-	for _, cert := range chain {
-		if len(cert.X509Raw) == 0 {
-			continue
-		}
-		domain := cert.Extension[1:]
-		for _, name := range names {
-			if host := strings.TrimSuffix(name, domain); len(host) > 0 && host != name {
-				if !strings.ContainsRune(host, '.') {
-					return true
-				}
+// wildcardMatch will populate hasNames with all wildcard matches found in names
+// for the wildcard domain in cert.
+func wildcardMatch(hasNames map[string]struct{}, cert Certificate, names []string) bool {
+	// strip the leading * from names of the form *<domain>[:ext]*
+	domainAndExt := cert.Extension[1:]
+	found := false
+	for _, name := range names {
+		if host := strings.TrimSuffix(name, domainAndExt); len(host) > 0 && host != name {
+			if !strings.ContainsRune(host, '.') { // wildcard certs allow only one level of host
+				// name is of the form <host><domain>[:ext]* so include it as a match.
+				hasNames[name] = struct{}{}
+				found = true
 			}
 		}
-		break
 	}
-	return false
+	return found
 }
 
 // Expiry returns the time at which b will no longer be valid, or the zero
