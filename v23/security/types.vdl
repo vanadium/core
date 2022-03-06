@@ -108,12 +108,19 @@ type DischargeImpetus struct {
 // For example, if a principal P1 has a blessing "alice", then it can
 // extend it with a Certificate to generate the blessing "alice/friend" for
 // another principal P2.
+//
+// X509 Certificates may be embedded in a Certificate to allow for principals
+// to be authenticated based on SSL/TLS Root Certificate Authorities. The
+// X509 Certificate will be included in the digents used to generate the
+// signature for the certificate.
 type Certificate struct {
 	Extension string    // Human-readable string extension bound to PublicKey.
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
+	X509Raw      []byte // Complete ASN.1 DER content (eg. from x509.Certificate.Raw)
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
+
 
 // CaveatDescriptor defines an association between a caveat validation function
 // (addressed by globally unique identifier) and the data needed by the

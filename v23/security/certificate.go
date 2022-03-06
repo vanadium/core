@@ -52,6 +52,9 @@ func (c *Certificate) contentDigest(hashfn crypto.Hash) []byte {
 	for _, cav := range c.Caveats {
 		fields = append(fields, cav.digest(hashfn)...)
 	}
+	if len(c.X509Raw) > 0 {
+		w(c.X509Raw)
+	}
 	return cryptoSum(hashfn, fields)
 }
 
@@ -136,6 +139,7 @@ func validateCertificateChain(chain []Certificate) (PublicKey, []byte, error) {
 		if err := validateExtension(c.Extension); err != nil {
 			return nil, nil, fmt.Errorf("invalid blessing extension in certificate(for %v): %v", c.Extension, err)
 		}
+
 		// Verify the signature.
 		var signer PublicKey
 		if i == 0 {

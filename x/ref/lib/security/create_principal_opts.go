@@ -103,8 +103,22 @@ func getPublicKey(publicKey crypto.PublicKey) (security.PublicKey, error) {
 	return api.PublicKey(publicKey)
 }
 
-func (o createPrincipalOptions) getPublicKeyInfo(ctx context.Context) (cryptoPublicKey crypto.PublicKey, x509cert *x509.Certificate, publicKey security.PublicKey, err error) {
-	x509cert = o.x509Cert
+// getPublicKeyInfo will extract all available publick key information.
+// x509 certificate can be specified either directly or read from public key
+// bytes. This is orthogonal to the precedence order used for all other
+// means of obtaining public key info, which is:
+// 1. from a signer, then from a private key, then private key bytes and
+//    finally public key bytes.
+func (o createPrincipalOptions) getPublicKeyInfo(ctx context.Context) (cryptoPublicKey crypto.PublicKey, x509Cert *x509.Certificate, publicKey security.PublicKey, err error) {
+	x509Cert = o.x509Cert
+	if x509Cert == nil && len(o.publicKeyBytes) > 0 {
+		cryptoPublicKey, err = keyRegistrar.ParsePublicKey(o.publicKeyBytes)
+		if err != nil {
+			return
+		}
+		x509Cert, _ = cryptoPublicKey.(*x509.Certificate)
+	}
+
 	if o.signer != nil {
 		publicKey = o.signer.PublicKey()
 		cryptoPublicKey, err = getCryptoPublicKey(publicKey)
@@ -124,13 +138,11 @@ func (o createPrincipalOptions) getPublicKeyInfo(ctx context.Context) (cryptoPub
 		return
 	}
 	if len(o.publicKeyBytes) > 0 {
-		cryptoPublicKey, err = keyRegistrar.ParsePublicKey(o.publicKeyBytes)
-		if err != nil {
-			return
-		}
-		if x509cert == nil {
-			if nc, ok := cryptoPublicKey.(*x509.Certificate); ok {
-				cryptoPublicKey = nc
+		// cryptoPublicKey may have been obtained whilst obtaining x509cert.
+		if cryptoPublicKey == nil {
+			cryptoPublicKey, err = keyRegistrar.ParsePublicKey(o.publicKeyBytes)
+			if err != nil {
+				return
 			}
 		}
 		publicKey, err = getPublicKey(cryptoPublicKey)
@@ -173,6 +185,7 @@ func (o createPrincipalOptions) createInMemoryPrincipal(ctx context.Context) (se
 	if err != nil {
 		return nil, err
 	}
+
 	if signer != nil {
 		return security.CreateX509Principal(signer, x509Cert, bs, br)
 	}

@@ -21,7 +21,6 @@ import (
 
 	seclib "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/keys"
-	"v.io/x/ref/lib/security/keys/x509keys"
 	"v.io/x/ref/test/sectestdata"
 )
 
@@ -70,10 +69,11 @@ func TestX509Import(t *testing.T) {
 		publicKeyBytes = sectestdata.X509PublicKeyBytes(kt)
 		privateKeyBytes := sectestdata.X509PrivateKeyBytes(kt, sectestdata.X509Private)
 
-		ipub, err = x509keys.ImportPublicKeyBytes(publicKeyBytes)
+		pk, err := keyRegistrar.ParsePublicKey(publicKeyBytes)
 		if err != nil {
 			t.Fatal(err)
 		}
+		ipub, err = keyRegistrar.MarshalPublicKey(pk)
 		validatePublicKey(err, kt)
 
 		if got, want := bytes.Count(ipub, []byte("BEGIN CERTIFICATE")), 1; got != want {

@@ -255,6 +255,99 @@ func TestCreatePrincipalKeyOpts(t *testing.T) {
 	}
 }
 
+func TestCreatePrincipalX509Opts(t *testing.T) {
+	ctx := context.Background()
+
+	keyType := keys.ECDSA521
+	x509VerifyOpts := sectestdata.X509VerifyOptions(keyType)
+
+	signer := sectestdata.X509Signer(keyType)
+	privateKey := sectestdata.X509PrivateKey(keyType)
+	cert := sectestdata.X509Certificate(keyType)
+	certBytes := sectestdata.X509PublicKeyBytes(keyType)
+
+	if !bytes.Contains(certBytes, []byte("BEGIN CERTIFICATE")) {
+		t.Fatalf("not a certificate %s", certBytes)
+	}
+
+	for i, tc := range []struct {
+		certificateOption CreatePrincipalOption
+		persistent        bool
+	}{
+		{WithX509Certificate(cert), false},
+		{WithX509Certificate(cert), true},
+		{WithPublicKeyBytes(certBytes), false},
+		{WithPublicKeyBytes(certBytes), true},
+	} {
+		var err error
+		assert := func() {
+			_, _, line, _ := runtime.Caller(1)
+			if err != nil {
+				t.Fatalf("%v: line %v: err %v", i, line, err)
+			}
+		}
+
+		dir := ""
+		createPrincipalOpts := []CreatePrincipalOption{
+			tc.certificateOption,
+			WithPrivateKey(privateKey, nil),
+		}
+		createRootsOpts := []BlessingRootsOption{
+			BlessingRootsX509VerifyOptions(x509VerifyOpts),
+		}
+
+		if tc.persistent {
+			var createStoreOpt CreatePrincipalOption
+			dir, createStoreOpt = newStoreOpt(t)
+			createPrincipalOpts = append(createPrincipalOpts, createStoreOpt)
+			createRootsOpts = append(createRootsOpts,
+				BlessingRootsWriteable(FilesystemStoreWriter(dir), signer))
+		}
+
+		roots, err := NewBlessingRootsOpts(ctx, createRootsOpts...)
+		assert()
+
+		createPrincipalOpts = append(createPrincipalOpts, WithBlessingRoots(roots))
+
+		p, err := CreatePrincipalOpts(ctx, createPrincipalOpts...)
+		assert()
+
+		validHost := "ecdsa-521.vanadium.io"
+		invalidHost := "invalid.host.com"
+
+		_, err = p.BlessSelf(validHost)
+		assert()
+
+		_, err = p.BlessSelf(invalidHost)
+		invalidHostErr := fmt.Sprintf(", not %v", invalidHost)
+		if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+			t.Errorf("unexpected or missing error: %q does not contain %q", err, invalidHostErr)
+		}
+
+		if !tc.persistent {
+			continue
+		}
+		rd := FilesystemStoreReader(dir)
+		fromBlessingsOpt := FromBlessingRoots(func(ctx context.Context, publicKey security.PublicKey, signer security.Signer) (security.BlessingRoots, error) {
+			return NewBlessingRootsOpts(ctx,
+				BlessingRootsReadonly(rd, publicKey),
+				BlessingRootsX509VerifyOptions(x509VerifyOpts))
+		})
+
+		// Make sure that the loaded principal has the correct x509 certificate info.
+		lp, err := LoadPrincipalOpts(ctx,
+			fromBlessingsOpt,
+			FromReadonly(rd))
+		assert()
+		_, err = lp.BlessSelf(validHost)
+		assert()
+		_, err = lp.BlessSelf(invalidHost)
+		if err == nil || !strings.Contains(err.Error(), invalidHostErr) {
+			t.Errorf("%v: unexpected or missing error: %q does not contain %q", i, err, invalidHostErr)
+		}
+	}
+}
+
 func TestCreatePrincipalPublicKeyOnly(t *testing.T) {
 	ctx := context.Background()
 	publicKeyBytes := sectestdata.V23PublicKeyBytes(keys.ECDSA384, sectestdata.V23KeySetA)
@@ -274,10 +367,6 @@ func TestCreatePrincipalPublicKeyOnly(t *testing.T) {
 		WithPublicKeyBytes(publicKeyBytes),
 		WithPublicKeyOnly(true),
 		storeOpt)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -95,18 +95,46 @@ func (b *Blessings) init() {
 // set of blessing names.
 //
 // This check ignores all caveats on the blessing name and the recognition status
-// of its blessing root.
+// of its blessing root. Wildcard domains for x509 backed certificates are
+// supported. Hence a blessing for *.foo.com:a can have the name bar.foo.com:a so
+// far as this method is concerned.
 func (b Blessings) CouldHaveNames(names []string) bool {
-	hasNames := make(map[string]bool)
+	if len(b.chains) == 0 {
+		return len(names) == 0
+	}
+	hasNames := make(map[string]struct{})
+	// Find all possible names across all chains.
 	for _, chain := range b.chains {
-		hasNames[claimedName(chain)] = true
+		cn := claimedName(chain)
+		if strings.HasPrefix(cn, "*.") && wildcardMatch(hasNames, chain[0], names) {
+			continue
+		}
+		hasNames[cn] = struct{}{}
 	}
 	for _, n := range names {
-		if !hasNames[n] {
+		if _, ok := hasNames[n]; !ok {
 			return false
 		}
 	}
 	return true
+}
+
+// wildcardMatch will populate hasNames with all wildcard matches found in names
+// for the wildcard domain in cert.
+func wildcardMatch(hasNames map[string]struct{}, cert Certificate, names []string) bool {
+	// strip the leading * from names of the form *<domain>[:ext]*
+	domainAndExt := cert.Extension[1:]
+	found := false
+	for _, name := range names {
+		if host := strings.TrimSuffix(name, domainAndExt); len(host) > 0 && host != name {
+			if !strings.ContainsRune(host, '.') { // wildcard certs allow only one level of host
+				// name is of the form <host><domain>[:ext]* so include it as a match.
+				hasNames[name] = struct{}{}
+				found = true
+			}
+		}
+	}
+	return found
 }
 
 // Expiry returns the time at which b will no longer be valid, or the zero
@@ -502,7 +530,8 @@ func SigningBlessingNames(ctx *context.T, p Principal, blessings Blessings) ([]s
 // The blessing names are guaranteed to:
 //
 // (1) Satisfy all the caveats associated with them, in the context of the call.
-// (2) Be rooted in call.LocalPrincipal.Roots.
+// (2) Be rooted in call.LocalPrincipal.Roots or for x509 certificates in a
+//     the cert pool used by call.LocalPrincipal.Roots()
 //
 // Caveats are considered satisfied for the 'call' if the CaveatValidator implementation
 // can be found in the address space of the caller and Validate returns nil.
@@ -604,7 +633,7 @@ func BlessingNames(principal Principal, blessings Blessings) []string {
 		return nil
 	}
 	var ret []string
-	for _, chain := range blessings.chains {
+	for _, chain := range chains {
 		name := claimedName(chain)
 		if err := principal.Roots().RecognizedCert(&chain[0], name); err == nil {
 			ret = append(ret, name)

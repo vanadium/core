@@ -19,9 +19,6 @@ import (
 // public keys and all subsequent 'AddToRoots' operations fail.
 //
 // It returns an error if store.PublicKey does not match signer.PublicKey.
-//
-// NOTE: v.io/x/ref/lib/testutil/security provides utility methods for creating
-// principals for testing purposes.
 func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (Principal, error) {
 	if store == nil {
 		store = errStore{signer.PublicKey()}
@@ -32,14 +29,27 @@ func CreatePrincipal(signer Signer, store BlessingStore, roots BlessingRoots) (P
 	if got, want := store.PublicKey(), signer.PublicKey(); !CryptoPublicKeyEqual(got, want) {
 		return nil, fmt.Errorf("store's public key: %v does not match signer's public key: %v", got, want)
 	}
-	return &principal{signer: signer, store: store, roots: roots}, nil
+	return &principal{signer: signer, publicKey: signer.PublicKey(), store: store, roots: roots}, nil
 }
 
 // CreateX509Principal is like CreatePrincipal except that it associates the
 // the specified x509 Certificate with the newly created Principal which
-// controls how BlessSelf behaves.
+// controls how BlessSelf behaves. If cert is nil then CreateX509Principal
+// is like calling CreatePrincipal directly. If cert is non-nil, its public key
+// must match that of the signer.
 func CreateX509Principal(signer Signer, cert *x509.Certificate, store BlessingStore, roots BlessingRoots) (Principal, error) {
-	return CreatePrincipal(signer, store, roots)
+	p, err := CreatePrincipal(signer, store, roots)
+	if err != nil {
+		return nil, err
+	}
+	if cert == nil {
+		return p, nil
+	}
+	p.(*principal).x509Cert = cert
+	if !CryptoPublicKeyEqual(signer.PublicKey().cryptoKey(), cert.PublicKey) {
+		return nil, fmt.Errorf("x509 Certificate's public key: %v does not match signer's public key: %v", signer.PublicKey(), fingerprintCryptoPublicKey(cert.PublicKey))
+	}
+	return p, nil
 }
 
 // CreatePrincipalPublicKeyOnly returns a Principal that cannot sign new blessings
@@ -116,6 +126,7 @@ func (errRoots) DebugString() string {
 type principal struct {
 	signer    Signer
 	publicKey PublicKey
+	x509Cert  *x509.Certificate
 	roots     BlessingRoots
 	store     BlessingStore
 }
@@ -155,6 +166,13 @@ func (p *principal) Bless(key PublicKey, with Blessings, extension string, cavea
 }
 
 func (p *principal) BlessSelf(name string, caveats ...Caveat) (Blessings, error) {
+	if p.x509Cert != nil {
+		return p.blessSelfX509(name, p.x509Cert, caveats)
+	}
+	return p.blessSelf(name, caveats)
+}
+
+func (p *principal) blessSelf(name string, caveats []Caveat) (Blessings, error) {
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}

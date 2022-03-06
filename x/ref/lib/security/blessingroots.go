@@ -7,8 +7,10 @@ package security
 import (
 	"bytes"
 	"context"
+	"crypto/x509"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,9 +20,10 @@ import (
 )
 
 type blessingRoots struct {
-	ctx   context.Context
-	mu    sync.RWMutex
-	state blessingRootsState // GUARDED_BY(mu)
+	ctx      context.Context
+	x509Opts x509.VerifyOptions
+	mu       sync.RWMutex
+	state    blessingRootsState // GUARDED_BY(mu)
 }
 
 func (br *blessingRoots) addLocked(root []byte, pattern security.BlessingPattern) (func(), error) {
@@ -74,7 +77,55 @@ func (br *blessingRoots) Recognized(root []byte, blessing string) error {
 }
 
 func (br *blessingRoots) RecognizedCert(root *security.Certificate, blessing string) error {
-	return br.Recognized(root.PublicKey, blessing)
+	if len(root.X509Raw) == 0 {
+		return br.Recognized(root.PublicKey, blessing)
+	}
+	// TODO: cache pre-parsed/marshalled certificates+keys if they turn out
+	// 		 to be expensive operations.
+	cert, err := x509.ParseCertificate(root.X509Raw)
+	if err != nil {
+		return err
+	}
+	pk, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(pk, root.PublicKey) {
+		return fmt.Errorf("security.Certificate and x509.Certificate have different public keys")
+	}
+	opts := br.x509Opts
+	opts.DNSName = ""
+	var lastErr error
+	for _, dnsName := range cert.DNSNames {
+		if len(dnsName) == 0 {
+			continue
+		}
+		d := dnsName
+		b := blessing
+		if dnsName[0] == '*' && len(dnsName) > 1 && dnsName[1] == '.' {
+			d = d[2:]
+			if idx := strings.IndexByte(b, '.'); idx > 0 {
+				b = b[idx+1:]
+			}
+		}
+		if security.BlessingPattern(d).MatchedBy(b) {
+			opts.DNSName = dnsName
+			_, err := cert.Verify(opts)
+			if err == nil {
+				return nil
+			}
+			lastErr = err
+		}
+	}
+
+	// Silly to have to unmarshal the public key on an error.
+	// Change the error message to not require that?
+	obj, err := security.UnmarshalPublicKey(root.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	return security.ErrorfUnrecognizedRoot(nil, "unrecognized public key %v in root x509 certificate: %v", obj.String(), lastErr)
 }
 
 func (br *blessingRoots) Dump() map[security.BlessingPattern][]security.PublicKey {
@@ -149,7 +200,7 @@ func NewBlessingRootsOpts(ctx context.Context, opts ...BlessingRootsOption) (sec
 		fn(&o)
 	}
 	if o.reader == nil && o.writer == nil {
-		return &blessingRoots{ctx: ctx, state: make(blessingRootsState)}, nil
+		return &blessingRoots{ctx: ctx, x509Opts: o.x509Opts, state: make(blessingRootsState)}, nil
 	}
 	if o.writer != nil {
 		return o.newWritableBlessingRoots(ctx)

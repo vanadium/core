@@ -140,6 +140,17 @@ func NewPublicKey(key interface{}) (PublicKey, error) {
 	return nil, fmt.Errorf("%T is an unsupported key type", key)
 }
 
+func fingerprintCryptoPublicKey(key interface{}) string {
+	kb, err := x509.MarshalPKIXPublicKey(key)
+	if err != nil {
+		return err.Error()
+	}
+	pk := publicKeyCommon{
+		keyBytes: kb,
+	}
+	return pk.String()
+}
+
 func underlyingPublicKey(a interface{}) crypto.PublicKey {
 	switch ul := a.(type) {
 	case PublicKey:

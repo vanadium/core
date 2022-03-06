@@ -8,6 +8,7 @@ import (
 	"bytes"
 	gocontext "context"
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -55,6 +56,16 @@ func TestByteSize(t *testing.T) {
 			),
 		)
 	}
+}
+
+func verifyBlessingSignatures(t *testing.T, blessings ...security.Blessings) {
+	for _, b := range blessings {
+		if err := security.ExposeVerifySignature(&b); err != nil {
+			_, _, line, _ := runtime.Caller(1)
+			t.Fatalf("line %v: invalid signature for blessing %v: %v", line, b.String(), err)
+		}
+	}
+
 }
 
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
@@ -136,6 +147,7 @@ func testBlessingCouldHaveNames(t *testing.T, alice, bob security.Principal) {
 		t.Fatal(err)
 	}
 
+	verifyBlessingSignatures(t, bbob, balice1, balice2, balice3, balice)
 	tests := []struct {
 		names  []string
 		result bool
@@ -228,6 +240,8 @@ func testBlessingsUniqueID(t *testing.T, palice, pbob security.Principal) {
 		all = []security.Blessings{nameless, alice, bob, bobfriend, bobspouse, u1}
 	)
 
+	verifyBlessingSignatures(t, alice, bob, bobfriend, bobspouse, u1, u2)
+
 	// Each individual blessing should have a different UniqueID, and different from u1
 	for i := 0; i < len(all); i++ {
 		b1 := all[i]
@@ -318,6 +332,8 @@ func testRootBlessings(t *testing.T, alpha, beta, gamma, alice security.Principa
 			{union(bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend), []security.Blessings{balpha, bbeta, bgamma}},
 		}
 	)
+
+	verifyBlessingSignatures(t, balpha, bbeta, bgamma, balice, bAlphaFriend, bBetaEnemy, bGammaAcquaintanceFriend)
 	for _, test := range tests {
 		roots := security.RootBlessings(test.b)
 		if got, want := roots, test.r; !reflect.DeepEqual(got, want) {
@@ -420,7 +436,7 @@ func testNamelessBlessingCall(t *testing.T, ctx *context.T, alice, bob security.
 	if got, err := security.UnionOfBlessings(balice, baliceagain); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}
-	// Union of zero and nameless blessings hsoudl be nameless.
+	// Union of zero and nameless blessings should be nameless.
 	if got, err := security.UnionOfBlessings(balice, security.Blessings{}); err != nil || !got.Equivalent(balice) {
 		t.Errorf("got %#v want %#v, (err = %v)", got, balice, err)
 	}

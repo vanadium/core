@@ -14,6 +14,23 @@ import (
 	"v.io/x/ref/test/sectestdata"
 )
 
+func testPublicKeyMarshaling(t *testing.T, k1 security.PublicKey) {
+	bytes, err := k1.MarshalBinary()
+	if err != nil {
+		t.Fatal(err)
+	}
+	k2, err := security.UnmarshalPublicKey(bytes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(k1, k2) {
+		t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
+	}
+	if !security.CryptoPublicKeyEqual(k1, k2) {
+		t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
+	}
+}
+
 func TestPublicKeyMarshaling(t *testing.T) {
 	for _, kt := range testCryptoAlgos {
 		key := sectestdata.V23PrivateKey(kt, sectestdata.V23KeySetA)
@@ -21,22 +38,17 @@ func TestPublicKeyMarshaling(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		bytes, err := k1.MarshalBinary()
-		if err != nil {
-			t.Fatal(err)
-		}
-		k2, err := security.UnmarshalPublicKey(bytes)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !reflect.DeepEqual(k1, k2) {
-			t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
-		}
-
-		if !security.CryptoPublicKeyEqual(k1, k2) {
-			t.Errorf("UnmarshalBinary did not reproduce the key. Before [%v], After [%v]", k1, k2)
-		}
+		testPublicKeyMarshaling(t, k1)
 	}
+	_, sslCerts, _ := sectestdata.VanadiumSSLData()
+	for _, cert := range sslCerts {
+		k1, err := security.NewPublicKey(cert)
+		if err != nil {
+			t.Fatal(err)
+		}
+		testPublicKeyMarshaling(t, k1)
+	}
+
 }
 
 func twoPublicKeys(t *testing.T, kt keys.CryptoAlgo) (a, b security.PublicKey) {

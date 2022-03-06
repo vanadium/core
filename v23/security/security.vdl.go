@@ -1084,10 +1084,16 @@ func vdlReadAnonList3(dec vdl.Decoder, x *[]*vom.RawBytes) error {
 // For example, if a principal P1 has a blessing "alice", then it can
 // extend it with a Certificate to generate the blessing "alice/friend" for
 // another principal P2.
+//
+// X509 Certificates may be embedded in a Certificate to allow for principals
+// to be authenticated based on SSL/TLS Root Certificate Authorities. The
+// X509 Certificate will be included in the digents used to generate the
+// signature for the certificate.
 type Certificate struct {
 	Extension string    // Human-readable string extension bound to PublicKey.
 	PublicKey []byte    // DER-encoded PKIX public key.
 	Caveats   []Caveat  // Caveats on the binding of Name to PublicKey.
+	X509Raw   []byte    // Complete ASN.1 DER content (eg. from x509.Certificate.Raw)
 	Signature Signature // Signature by the blessing principal that binds the extension to the public key.
 }
 
@@ -1104,6 +1110,9 @@ func (x Certificate) VDLIsZero() bool { //nolint:gocyclo
 		return false
 	}
 	if len(x.Caveats) != 0 {
+		return false
+	}
+	if len(x.X509Raw) != 0 {
 		return false
 	}
 	if !x.Signature.VDLIsZero() {
@@ -1134,8 +1143,13 @@ func (x Certificate) VDLWrite(enc vdl.Encoder) error { //nolint:gocyclo
 			return err
 		}
 	}
+	if len(x.X509Raw) != 0 {
+		if err := enc.NextFieldValueBytes(3, vdlTypeList4, x.X509Raw); err != nil {
+			return err
+		}
+	}
 	if !x.Signature.VDLIsZero() {
-		if err := enc.NextField(3); err != nil {
+		if err := enc.NextField(4); err != nil {
 			return err
 		}
 		if err := x.Signature.VDLWrite(enc); err != nil {
@@ -1188,6 +1202,10 @@ func (x *Certificate) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 				return err
 			}
 		case 3:
+			if err := dec.ReadValueBytes(-1, &x.X509Raw); err != nil {
+				return err
+			}
+		case 4:
 			if err := x.Signature.VDLRead(dec); err != nil {
 				return err
 			}

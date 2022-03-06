@@ -13,21 +13,23 @@ import (
 	"crypto/rsa"
 )
 
-func NewOpenSSLECDSASigner(k *ecdsa.PrivateKey) (Signer, error) {
-	return newOpenSSLECDSASigner(k, ecdsaHash(&k.PublicKey))
-}
-func NewOpenSSLED25519Signer(k ed25519.PrivateKey) (Signer, error) {
-	return newOpenSSLED25519Signer(k, SHA512Hash)
-}
-func NewOpenSSLRSASigner(k *rsa.PrivateKey) (Signer, error) {
-	return newOpenSSLRSASigner(k, SHA512Hash)
-}
-
 var (
 	NewGoStdlibECDSASigner   = newGoStdlibECDSASigner
 	NewGoStdlibED25519Signer = newGoStdlibED25519Signer
 	NewGoStdlibRSASigner     = newGoStdlibRSASigner
 )
+
+func NewOpenSSLECDSASigner(key *ecdsa.PrivateKey) (Signer, error) {
+	return newOpenSSLECDSASigner(key, ecdsaHash(&key.PublicKey))
+}
+
+func NewOpenSSLED25519Signer(key ed25519.PrivateKey) (Signer, error) {
+	return newOpenSSLED25519Signer(key, SHA512Hash)
+}
+
+func NewOpenSSLRSASigner(key *rsa.PrivateKey) (Signer, error) {
+	return newOpenSSLRSASigner(key, SHA512Hash)
+}
 
 func OpenSSLVersion() string {
 	return openssl_version()

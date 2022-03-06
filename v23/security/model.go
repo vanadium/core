@@ -53,10 +53,15 @@
 //
 // Examples
 //
-// A principal can decide to name itself anything it wants:
+// A principal can decide to name itself anything it wants (unless it's using
+// an x509 Certificate, see below).
 //  // (in process A)
 //  var p1 Principal
 //  alice, _ := p1.BlessSelf("alice")
+//
+// If a principal is using an x508 Certificate then it must name itself
+// using a host name that's valid for that certificate, or specify no name
+// to use all of the host names that are valid for that certificate.
 //
 // This "alice" blessing can be presented to to another principal (typically a
 // remote process), but that other principal will not recognize this
@@ -138,6 +143,21 @@ type Principal interface {
 	Bless(key PublicKey, with Blessings, extension string, caveat Caveat, additionalCaveats ...Caveat) (Blessings, error)
 
 	// BlessSelf creates a blessing with the provided name for this principal.
+	//
+	// If the principal was created from an x509/SSL/TLS certificate and private
+	// key then BlessSelf will create a blessing derived from the supplied X509
+	// certificate for this principal. The blessing created can be verified using
+	// the SSL/TLS Certificate Authority mechanism. The name parameter is treated
+	// as a host name. If host is specified and is valid for the supplied
+	// certificate then the blessing name will be host rather than any of
+	// names in the certificate. If host is not specified then x509 certificates
+	// that contain multiple hosts or wildcard domains will result in multiple
+	// certificates chains, each named according to one of the DNS names
+	// specified by the x509 certificate. For example, if an x509 certificate
+	// is issued for x.d.com and y.d.com, then if host is x.d.com the
+	// returned blessings will be named x.d.com and if host is "" then
+	// the returned blessings will contain two chains, one for x.d.com and
+	// the other y.d.com.
 	BlessSelf(name string, caveats ...Caveat) (Blessings, error)
 
 	// Sign uses the private key of the principal to sign message.
@@ -267,9 +287,17 @@ type BlessingRoots interface {
 	// key is recognized as an authority on a pattern that is matched by blessing.
 	Recognized(root []byte, blessing string) error
 
-	// Recognized returns nil iff the provided Certificate and in particular
-	// its (DER-encoded) root public key is recognized as an authority on a
-	// pattern that is matched by blessing.
+	// RecognizedCert returns nil iff the provided Certificate is recognized as an
+	// authority on a pattern that is matched by blessing. For a Certificate
+	// to be recognized it must either have only a public key and that public
+	// key is recognized as an authority on a pattern that is matched by blessing,
+	// or, if the Certificate includes an x509.Certificate then that
+	// x509.Certificate must have been issued by a recognised Certificate Authority
+	// as verified by the underlying operating system. The public key in
+	// x509.Certificate must match that in the supplied security.Certificate.
+	// For a x509.Certificate the first component of the blessing must match
+	// the DNSNames in the certificate; multisite and wildcard certificates
+	// should be supported.
 	RecognizedCert(cert *Certificate, blessing string) error
 
 	// Dump returns the set of recognized roots as a map from
