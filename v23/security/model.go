@@ -53,10 +53,15 @@
 //
 // Examples
 //
-// A principal can decide to name itself anything it wants:
+// A principal can decide to name itself anything it wants (unless it's using
+// an x509 Certificate, see below).
 //  // (in process A)
 //  var p1 Principal
 //  alice, _ := p1.BlessSelf("alice")
+//
+// If a principal is using an x508 Certificate then it must name itself
+// using a host name that's valid for that certificate, or specify no name
+// to use all of the host names that are valid for that certificate.
 //
 // This "alice" blessing can be presented to to another principal (typically a
 // remote process), but that other principal will not recognize this

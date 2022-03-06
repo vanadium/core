@@ -82,6 +82,22 @@ func newX509ServerPrincipal(ctx gocontext.Context, t testing.TB, key crypto.Priv
 	return p
 }
 
+func appendPatterns(hosts []string, patterns ...string) []string {
+	bp := []string{}
+	for _, h := range hosts {
+		n := h
+		bp = append(bp, n)
+		for _, p := range patterns {
+			if len(n) > 0 {
+				bp = append(bp, n+security.ChainSeparator+p)
+				continue
+			}
+			bp = append(bp, p)
+		}
+	}
+	return bp
+}
+
 func TestX509(t *testing.T) {
 	ctx, cancel := context.RootContext()
 	defer cancel()
@@ -98,11 +114,14 @@ func TestX509(t *testing.T) {
 	}{
 		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), nil},
 		{sectestdata.SingleHostCert, "www.labdrive.io", s("www.labdrive.io"), nil},
+		{sectestdata.SingleHostCert, "www.labdrive.io:friend:alice", s("www.labdrive.io:friend:alice"), nil},
 
 		{sectestdata.MultipleHostsCert, "", s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), nil},
 		{sectestdata.MultipleHostsCert, "b.labdrive.io", s("b.labdrive.io"), nil},
 		{sectestdata.WildcardCert, "", s("*.labdrive.io"), s("foo.labdrive.io", "bar.labdrive.io")},
 		{sectestdata.WildcardCert, "foo.labdrive.io", s("foo.labdrive.io"), s("foo.labdrive.io")},
+		{sectestdata.WildcardCert, "foo.labdrive.io:friend", s("foo.labdrive.io:friend"), s("foo.labdrive.io:friend")},
+		{sectestdata.MultipleWildcardCert, "foo.labdr.io", s("foo.labdr.io"), s("foo.labdr.io")},
 		{sectestdata.MultipleWildcardCert, "foo.labdr.io", s("foo.labdr.io"), s("foo.labdr.io")},
 		{sectestdata.MultipleWildcardCert, "bar.labdrive.io", s("bar.labdrive.io"), s("bar.labdrive.io")},
 	} {
@@ -136,8 +155,22 @@ func TestX509(t *testing.T) {
 		if validHosts == nil {
 			validHosts = tc.hosts
 		}
-		if !blessings.CouldHaveNames(validHosts) {
-			t.Errorf("%v: CouldHaveNames is false for: %v", tc.certType, validHosts)
+
+		merged := blessings
+		chained := validHosts
+		if len(tc.host) > 0 {
+			friend, err := server.BlessSelf(tc.host + security.ChainSeparator + "friend")
+			if err != nil {
+				t.Fatal(err)
+			}
+			merged, err = security.UnionOfBlessings(blessings, friend)
+			if err != nil {
+				t.Fatal(err)
+			}
+			chained = appendPatterns(validHosts, "friend")
+		}
+		if !merged.CouldHaveNames(chained) {
+			t.Errorf("%v: CouldHaveNames is false for: %q: %v", tc.certType, tc.host, chained)
 		}
 	}
 }
@@ -178,6 +211,7 @@ func TestX509Errors(t *testing.T) {
 		hosts        []string
 		invalidHosts []string
 	}{
+		{sectestdata.SingleHostCert, "www.labdrive.io", s("www.labdrive.io"), s("foo:bar")},
 		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), s("x.labdrive.io")},
 		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), s("x.labdr.io")},
 		{sectestdata.MultipleHostsCert, "", s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), s("x.labdrive.io")},
@@ -244,6 +278,31 @@ func TestX509Errors(t *testing.T) {
 
 		if blessings.CouldHaveNames(tc.invalidHosts) {
 			t.Errorf("%v: CouldHaveNames is true for: %v", tc.certType, tc.invalidHosts)
+		}
+
+		merged := blessings
+		chained := tc.hosts
+		chainedInvalidHosts := tc.invalidHosts
+
+		if len(tc.host) > 0 {
+			friend, err := server.BlessSelf(tc.host + security.ChainSeparator + "friend")
+			if err != nil {
+				t.Fatal(err)
+			}
+			merged, err = security.UnionOfBlessings(blessings, friend)
+			if err != nil {
+				t.Fatal(err)
+			}
+			chained = appendPatterns(tc.hosts, "friend")
+			chainedInvalidHosts = appendPatterns(tc.invalidHosts, "friend")
+
+		}
+		if !merged.CouldHaveNames(chained) {
+			t.Errorf("%v: CouldHaveNames is false for: %v", tc.certType, chained)
+		}
+
+		if merged.CouldHaveNames(chainedInvalidHosts) {
+			t.Errorf("%v: CouldHaveNames is true for: %v", tc.certType, chainedInvalidHosts)
 		}
 	}
 }

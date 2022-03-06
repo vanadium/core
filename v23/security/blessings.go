@@ -96,7 +96,7 @@ func (b *Blessings) init() {
 //
 // This check ignores all caveats on the blessing name and the recognition status
 // of its blessing root. Wildcard domains for x509 backed certificates are
-// supported. Hence a blessing for *.foo.com can have the name bar.foo.com so
+// supported. Hence a blessing for *.foo.com:a can have the name bar.foo.com:a so
 // far as this method is concerned.
 func (b Blessings) CouldHaveNames(names []string) bool {
 	hasNames := make(map[string]bool)

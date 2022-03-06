@@ -7,17 +7,17 @@ package security
 import (
 	"crypto/x509"
 	"fmt"
+	"strings"
 )
 
-func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, caveats []Caveat) (Blessings, error) {
+func (p *principal) blessSelfX509(name string, x509Cert *x509.Certificate, caveats []Caveat) (Blessings, error) {
 	if p.signer == nil {
 		return Blessings{}, fmt.Errorf("underlying signer is nil")
 	}
 	if !CryptoPublicKeyEqual(p.publicKey, x509Cert.PublicKey) {
 		return Blessings{}, fmt.Errorf("public key associated with this principal and the x509 certificate differ")
 	}
-
-	certs, err := newUnsignedCertificateFromX509(host, x509Cert, caveats)
+	certs, err := newUnsignedCertificateFromX509(name, x509Cert, caveats)
 	if err != nil {
 		return Blessings{}, err
 	}
@@ -41,7 +41,7 @@ func (p *principal) blessSelfX509(host string, x509Cert *x509.Certificate, cavea
 	return ret, nil
 }
 
-func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, caveats []Caveat) ([]Certificate, error) {
+func newUnsignedCertificateFromX509(name string, x509Cert *x509.Certificate, caveats []Caveat) ([]Certificate, error) {
 	cavs := make([]Caveat, len(caveats), len(caveats)+2)
 	copy(cavs, caveats)
 	notBefore, err := NewNotBeforeCaveat(x509Cert.NotBefore)
@@ -56,7 +56,7 @@ func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, cav
 	if err != nil {
 		return nil, err
 	}
-	if len(host) == 0 {
+	if len(name) == 0 {
 		certs := make([]Certificate, len(x509Cert.DNSNames))
 		for i, name := range x509Cert.DNSNames {
 			certs[i] = Certificate{
@@ -68,13 +68,21 @@ func newUnsignedCertificateFromX509(host string, x509Cert *x509.Certificate, cav
 		}
 		return certs, nil
 	}
-	if err := x509Cert.VerifyHostname(host); err != nil {
+	if err := x509Cert.VerifyHostname(hostFromName(name)); err != nil {
 		return nil, err
 	}
 	return []Certificate{{
-		Extension: host,
+		Extension: name,
 		PublicKey: pkBytes,
 		Caveats:   append(cavs, notAfter, notBefore),
 		X509Raw:   x509Cert.Raw,
 	}}, nil
+}
+
+func hostFromName(name string) (host string) {
+	host = name
+	if idx := strings.Index(name, ChainSeparator); idx > 0 {
+		host = name[:idx]
+	}
+	return
 }
