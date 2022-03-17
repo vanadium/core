@@ -188,6 +188,16 @@ func TestBlessingRootsPersistence(t *testing.T) {
 	}
 }
 
+func matchError(err error, msgs ...string) bool {
+	emsg := err.Error()
+	for _, m := range msgs {
+		if strings.Contains(emsg, m) {
+			return true
+		}
+	}
+	return false
+}
+
 func TestBlessingRootsX509(t *testing.T) {
 	ctx := context.Background()
 
@@ -233,7 +243,11 @@ func TestBlessingRootsX509(t *testing.T) {
 			PublicKey: pkBytes,
 			X509Raw:   x509Cert.Raw,
 		}, tc.pattern)
-		if err == nil || !(strings.Contains(err.Error(), "x509: certificate signed by unknown authority") || strings.Contains(err.Error(), "x509: certificate has expired or is not yet valid")) {
+		if err == nil || !matchError(err,
+			"x509: certificate signed by unknown authority",
+			"x509: certificate has expired or is not yet valid",
+			"x509: “www.labdrive.io” certificate is not trusted",
+			"x509: “(STAGING) Pretend Pear X1” certificate is not trusted") {
 			t.Errorf("%v: %v: %v: missing or wrong error: %v", i, tc.certType, tc.pattern, err)
 		}
 	}

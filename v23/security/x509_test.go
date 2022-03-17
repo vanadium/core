@@ -188,7 +188,7 @@ func validateRejected(t *testing.T, names []string, rejected []security.Rejected
 			return
 		}
 	}
-	t.Errorf("line: %v: blessings error message is not one of %v: %v", line, rejected[0].Err.Error(), msgs)
+	t.Errorf("line: %v: blessings error message %v is not one of: %v", line, rejected[0].Err.Error(), msgs)
 }
 
 func TestX509CouldHaveNames(t *testing.T) {
@@ -310,7 +310,8 @@ func TestX509Errors(t *testing.T) {
 		})
 
 		names, rejected = security.RemoteBlessingNames(ctx, call)
-		validate("x509: certificate signed by unknown authority")
+		validate("x509: certificate signed by unknown authority",
+			"x509: “(STAGING) Pretend Pear X1” certificate is not trusted")
 
 		// No custom options.
 		client = newPrincipalWithX509Opts(ctx, t, clientKey, x509.VerifyOptions{})
@@ -321,7 +322,11 @@ func TestX509Errors(t *testing.T) {
 		})
 
 		names, rejected = security.RemoteBlessingNames(ctx, call)
-		validate("x509: certificate has expired or is not yet valid", "x509: certificate signed by unknown authority")
+		validate("x509: certificate has expired or is not yet valid",
+			"x509: certificate signed by unknown authority",
+			`x509: “(STAGING) Pretend Pear X1” certificate is not trusted`,
+			`x509: “www.labdrive.io” certificate is not trusted`,
+		)
 
 		if !blessings.CouldHaveNames(tc.hosts) {
 			t.Errorf("%v: CouldHaveNames is false for: %v", tc.certType, tc.hosts)
