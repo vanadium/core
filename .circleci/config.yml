@@ -88,5 +88,5 @@ workflows:
               go: ["1.17", "1.18"]
       - lint:
           matrix:
-            parameters:
-              go: ["1.18"]
+            parameters: # keep lint at go 1.17, see https://github.com/golangci/golangci-lint/issues/2649
+              go: ["1.17"]
