@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"v.io/v23/vdl"
 )
 
@@ -229,7 +231,8 @@ func typeName(tt *vdl.Type) string {
 	case tt.Name() != "":
 		return tt.Name()
 	}
-	name := strings.Title(tt.Kind().String())
+	caser := cases.Title(language.English)
+	name := caser.String(tt.Kind().String())
 	switch tt.Kind() {
 	case vdl.Enum:
 		var tmp string
@@ -237,7 +240,7 @@ func typeName(tt *vdl.Type) string {
 			tmp += tt.EnumLabel(i)
 		}
 		// VDL prohibits acronyms in identifiers, so we use Abc rather than ABC.
-		name += strings.Title(strings.ToLower(tmp))
+		name += caser.String(strings.ToLower(tmp))
 	case vdl.Array:
 		name += strconv.Itoa(tt.Len()) + "_" + typeName(tt.Elem())
 	case vdl.List:
@@ -314,7 +317,8 @@ func (g *TypeGenerator) genSetMap(kind vdl.Kind, base [][]*vdl.Type, depth int) 
 func (g *TypeGenerator) genStructUnion(kind vdl.Kind, base [][]*vdl.Type, depth int) []*vdl.Type {
 	var res []*vdl.Type
 	prefix := g.NamePrefix
-	prefix += fmt.Sprintf("%sDepth%d_", strings.Title(kind.String()), depth)
+	caser := cases.Title(language.English)
+	prefix += fmt.Sprintf("%sDepth%d_", caser.String(kind.String()), depth)
 	// First collect all fields, with sequentially numbered field names.  Using
 	// the same field names between the single-field and all-fields types ensures
 	// that the values are convertible.

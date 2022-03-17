@@ -121,7 +121,12 @@ func (o builder) run(ctx context.Context, dir string, args ...string) error {
 }
 
 func (o builder) handleDownload(ctx context.Context, pkg string) (string, error) {
-	err := o.run(ctx, o.gopath, o.gocmd, "get", "-d", pkg)
+	dlpkg := pkg
+	suffix := path.Base(dlpkg)
+	if !strings.ContainsRune(suffix, '@') {
+		dlpkg += "@latest"
+	}
+	err := o.run(ctx, o.gopath, o.gocmd, "mod", "download", dlpkg)
 	if err != nil {
 		return "", err
 	}

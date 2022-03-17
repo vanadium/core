@@ -1070,7 +1070,7 @@ func decodingResponseError(ctx *context.T, err error, detail string) error {
 // error to be chained to that of any verror created with it as a first parameter.
 func decodeNetError(ctx *context.T, err error) (verror.IDAction, error) {
 	if neterr, ok := err.(net.Error); ok {
-		if neterr.Timeout() || neterr.Temporary() {
+		if neterr.Timeout() {
 			// If a read is canceled in the lower levels we see
 			// a timeout error - see readLocked in vc/reader.go
 			if ctx.Err() == context.Canceled {

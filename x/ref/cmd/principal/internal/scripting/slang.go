@@ -58,7 +58,7 @@ func Documentation() string {
 	fmt.Fprintln(out, format(slang.Literals))
 
 	underline(out, "Examples")
-	fmt.Fprintln(out, slang.Examples) //nolint:govet
+	out.WriteString(slang.Examples)
 
 	underline(out, "Available Functions")
 	for _, tag := range []struct {
