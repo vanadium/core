@@ -125,7 +125,7 @@ func TestCompatibility(t *testing.T) {
 		t.Errorf("errors.Is returned true, should be false")
 	}
 	if !errors.Is(err3, err4) {
-		t.Errorf("errors.Is returned true, should be false")
+		t.Errorf("errors.Is returned false, should be true")
 	}
 }
 
