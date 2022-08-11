@@ -16,6 +16,7 @@
 // Access is determined by AccessLists at each node in the tree.  When resolving
 // a name like a/b/c/d, one must check the client blessings against the
 // AccessLists of each node traversed ("", a, a/b, a/b/c, and a/b/c/d).
+//
 //nolint:revive
 package mounttable
 
@@ -403,7 +404,7 @@ var descMountTable = rpc.InterfaceDesc{
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

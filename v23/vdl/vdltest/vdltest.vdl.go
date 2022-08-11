@@ -550,6 +550,7 @@ const (
 var VEnumAbcAll = [...]VEnumAbc{VEnumAbcA, VEnumAbcB, VEnumAbcC}
 
 // VEnumAbcFromString creates a VEnumAbc from a string label.
+//
 //nolint:unused
 func VEnumAbcFromString(label string) (x VEnumAbc, err error) {
 	err = x.Set(label)
@@ -627,6 +628,7 @@ const (
 var VEnumBcdAll = [...]VEnumBcd{VEnumBcdB, VEnumBcdC, VEnumBcdD}
 
 // VEnumBcdFromString creates a VEnumBcd from a string label.
+//
 //nolint:unused
 func VEnumBcdFromString(label string) (x VEnumBcd, err error) {
 	err = x.Set(label)
@@ -21044,6 +21046,7 @@ const (
 var XEnumAbcAll = [...]XEnumAbc{XEnumAbcA, XEnumAbcB, XEnumAbcC}
 
 // XEnumAbcFromString creates a XEnumAbc from a string label.
+//
 //nolint:unused
 func XEnumAbcFromString(label string) (x XEnumAbc, err error) {
 	err = x.Set(label)
@@ -21098,6 +21101,7 @@ const (
 var XEnumBcdAll = [...]XEnumBcd{XEnumBcdB, XEnumBcdC, XEnumBcdD}
 
 // XEnumBcdFromString creates a XEnumBcd from a string label.
+//
 //nolint:unused
 func XEnumBcdFromString(label string) (x XEnumBcd, err error) {
 	err = x.Set(label)
@@ -93578,7 +93582,7 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

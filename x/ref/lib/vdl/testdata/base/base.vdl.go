@@ -6,6 +6,7 @@
 // Package: base
 
 // Package base is a simple single-file test of vdl functionality.
+//
 //nolint:revive
 package base
 
@@ -416,6 +417,7 @@ const (
 var NamedEnumAll = [...]NamedEnum{NamedEnumA, NamedEnumB, NamedEnumC}
 
 // NamedEnumFromString creates a NamedEnum from a string label.
+//
 //nolint:unused
 func NamedEnumFromString(label string) (x NamedEnum, err error) {
 	err = x.Set(label)
@@ -3690,7 +3692,7 @@ var descServiceB = rpc.InterfaceDesc{
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

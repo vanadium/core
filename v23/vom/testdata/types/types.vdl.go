@@ -1474,6 +1474,7 @@ const (
 var NEnumAll = [...]NEnum{NEnumA, NEnumB, NEnumC}
 
 // NEnumFromString creates a NEnum from a string label.
+//
 //nolint:unused
 func NEnumFromString(label string) (x NEnum, err error) {
 	err = x.Set(label)
@@ -4787,6 +4788,7 @@ const (
 var BrieEnumAll = [...]BrieEnum{BrieEnumGlee, BrieEnumBrie, BrieEnumThree}
 
 // BrieEnumFromString creates a BrieEnum from a string label.
+//
 //nolint:unused
 func BrieEnumFromString(label string) (x BrieEnum, err error) {
 	err = x.Set(label)
@@ -4862,6 +4864,7 @@ const (
 var BeanEnumAll = [...]BeanEnum{BeanEnumBean}
 
 // BeanEnumFromString creates a BeanEnum from a string label.
+//
 //nolint:unused
 func BeanEnumFromString(label string) (x BeanEnum, err error) {
 	err = x.Set(label)
@@ -4929,6 +4932,7 @@ const (
 var FoodEnumAll = [...]FoodEnum{FoodEnumBean, FoodEnumBrie, FoodEnumCherry}
 
 // FoodEnumFromString creates a FoodEnum from a string label.
+//
 //nolint:unused
 func FoodEnumFromString(label string) (x FoodEnum, err error) {
 	err = x.Set(label)
@@ -5839,7 +5843,7 @@ func (x *LargeAnyMessageType) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

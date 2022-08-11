@@ -7,6 +7,7 @@
 
 // package benchmark provides simple tools to measure the performance of the
 // IPC system.
+//
 //nolint:revive
 package benchmark
 
@@ -346,7 +347,7 @@ func (s implBenchmarkEchoStreamServerCallSend) Send(item []byte) error {
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

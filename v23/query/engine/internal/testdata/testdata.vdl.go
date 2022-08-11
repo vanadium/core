@@ -199,6 +199,7 @@ const (
 var CreditAgencyAll = [...]CreditAgency{CreditAgencyEquifax, CreditAgencyExperian, CreditAgencyTransUnion}
 
 // CreditAgencyFromString creates a CreditAgency from a string label.
+//
 //nolint:unused
 func CreditAgencyFromString(label string) (x CreditAgency, err error) {
 	err = x.Set(label)
@@ -275,6 +276,7 @@ const (
 var ExperianRatingAll = [...]ExperianRating{ExperianRatingGood, ExperianRatingBad}
 
 // ExperianRatingFromString creates a ExperianRating from a string label.
+//
 //nolint:unused
 func ExperianRatingFromString(label string) (x ExperianRating, err error) {
 	err = x.Set(label)
@@ -472,6 +474,7 @@ const (
 var TdhAll = [...]Tdh{TdhTom, TdhDick, TdhHarry}
 
 // TdhFromString creates a Tdh from a string label.
+//
 //nolint:unused
 func TdhFromString(label string) (x Tdh, err error) {
 	err = x.Set(label)
@@ -4162,7 +4165,7 @@ func (x *BigData) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

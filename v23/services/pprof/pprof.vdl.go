@@ -8,6 +8,7 @@
 // Package pprof defines an interface for accessing runtime profiling data in
 // the format expected by the pprof visualization tool.  For more information
 // about pprof, see http://code.google.com/p/google-perftools/.
+//
 //nolint:revive
 package pprof
 
@@ -481,7 +482,7 @@ func (s implPProfCpuProfileServerCallSend) Send(item []byte) error {
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

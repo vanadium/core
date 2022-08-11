@@ -8,6 +8,7 @@
 // Package vdltool defines types used by the vdl tool itself, including the
 // format of vdl.config files. No packages other than the vdltool command
 // line tool and v.io/x/ref/lib/vdl/... packages should use it.
+//
 //nolint:revive
 package vdltool
 
@@ -62,6 +63,7 @@ const (
 var GenLanguageAll = [...]GenLanguage{GenLanguageGo, GenLanguageJava, GenLanguageJavascript, GenLanguageSwift}
 
 // GenLanguageFromString creates a GenLanguage from a string label.
+//
 //nolint:unused
 func GenLanguageFromString(label string) (x GenLanguage, err error) {
 	err = x.Set(label)
@@ -151,6 +153,7 @@ const (
 var GoKindAll = [...]GoKind{GoKindStruct, GoKindBool, GoKindNumber, GoKindString, GoKindArray, GoKindSlice, GoKindMap, GoKindPointer, GoKindIface}
 
 // GoKindFromString creates a GoKind from a string label.
+//
 //nolint:unused
 func GoKindFromString(label string) (x GoKind, err error) {
 	err = x.Set(label)
@@ -260,6 +263,7 @@ const (
 var GoZeroModeAll = [...]GoZeroMode{GoZeroModeUnknown, GoZeroModeCanonical, GoZeroModeUnique}
 
 // GoZeroModeFromString creates a GoZeroMode from a string label.
+//
 //nolint:unused
 func GoZeroModeFromString(label string) (x GoZeroMode, err error) {
 	err = x.Set(label)
@@ -1543,7 +1547,7 @@ func vdlReadAnonSet6(dec vdl.Decoder, x *map[GenLanguage]struct{}) error {
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

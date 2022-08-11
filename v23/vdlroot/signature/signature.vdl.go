@@ -6,6 +6,7 @@
 // Package: signature
 
 // Package signature defines types representing interface and method signatures.
+//
 //nolint:revive
 package signature
 
@@ -741,7 +742,7 @@ func vdlReadAnonList4(dec vdl.Decoder, x *[]Method) error {
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

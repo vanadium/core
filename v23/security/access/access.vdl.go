@@ -9,12 +9,12 @@
 // Examples: "allow app to read this photo", "prevent user from modifying this
 // file".
 //
-// Target Developers
+// # Target Developers
 //
 // Developers creating functionality to share data or services between
 // multiple users/devices/apps.
 //
-// Overview
+// # Overview
 //
 // Vanadium objects provide GetPermissions and SetPermissions methods.  An
 // AccessList contains the set of blessings that grant principals access to the
@@ -28,7 +28,7 @@
 // SetPermissions completely replaces the Permissions. To perform an atomic
 // read-modify-write of the AccessList, use the version parameter.
 //
-// Conventions
+// # Conventions
 //
 // Service implementors should follow the conventions below to be consistent
 // with other parts of Vanadium and with each other.
@@ -82,24 +82,25 @@
 //
 // Examples
 //
-//   client := access.ObjectClient(name)
-//   for {
-//     perms, version, err := client.GetPermissions()
-//     if err != nil {
-//       return err
-//     }
-//     perms[newTag] = AccessList{In: []security.BlessingPattern{newPattern}}
-//     // Use the same version with the modified perms to ensure that no other
-//     // client has modified the perms since GetPermissions returned.
-//     if err := client.SetPermissions(perms, version); err != nil {
-//       if errors.Is(err, verror.ErrBadVersion) {
-//         // Another client replaced the Permissions after our GetPermissions
-//         // returned. Try again.
-//         continue
-//       }
-//       return err
-//     }
-//   }
+//	client := access.ObjectClient(name)
+//	for {
+//	  perms, version, err := client.GetPermissions()
+//	  if err != nil {
+//	    return err
+//	  }
+//	  perms[newTag] = AccessList{In: []security.BlessingPattern{newPattern}}
+//	  // Use the same version with the modified perms to ensure that no other
+//	  // client has modified the perms since GetPermissions returned.
+//	  if err := client.SetPermissions(perms, version); err != nil {
+//	    if errors.Is(err, verror.ErrBadVersion) {
+//	      // Another client replaced the Permissions after our GetPermissions
+//	      // returned. Try again.
+//	      continue
+//	    }
+//	    return err
+//	  }
+//	}
+//
 //nolint:revive
 package access
 
@@ -849,7 +850,7 @@ func (pl *paramListIterator) preamble() (component, operation string, err error)
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

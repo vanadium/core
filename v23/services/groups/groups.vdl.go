@@ -7,6 +7,7 @@
 
 // Package groups defines interfaces for managing access control groups.  Groups
 // can be referenced by BlessingPatterns (e.g. in AccessLists).
+//
 //nolint:revive
 package groups
 
@@ -245,6 +246,7 @@ const (
 var ApproximationTypeAll = [...]ApproximationType{ApproximationTypeUnder, ApproximationTypeOver}
 
 // ApproximationTypeFromString creates a ApproximationType from a string label.
+//
 //nolint:unused
 func ApproximationTypeFromString(label string) (x ApproximationType, err error) {
 	err = x.Set(label)
@@ -1027,7 +1029,7 @@ var descGroup = rpc.InterfaceDesc{
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

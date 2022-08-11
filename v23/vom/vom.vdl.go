@@ -60,6 +60,7 @@ const (
 var ControlKindAll = [...]ControlKind{ControlKindNil, ControlKindEnd, ControlKindIncompleteType}
 
 // ControlKindFromString creates a ControlKind from a string label.
+//
 //nolint:unused
 func ControlKindFromString(label string) (x ControlKind, err error) {
 	err = x.Set(label)
@@ -446,6 +447,7 @@ const (
 var DumpKindAll = [...]DumpKind{DumpKindVersion, DumpKindControl, DumpKindMsgId, DumpKindTypeMsg, DumpKindValueMsg, DumpKindMsgLen, DumpKindAnyMsgLen, DumpKindAnyLensLen, DumpKindTypeIdsLen, DumpKindTypeId, DumpKindPrimValue, DumpKindByteLen, DumpKindValueLen, DumpKindIndex, DumpKindWireTypeIndex}
 
 // DumpKindFromString creates a DumpKind from a string label.
+//
 //nolint:unused
 func DumpKindFromString(label string) (x DumpKind, err error) {
 	err = x.Set(label)
@@ -2051,7 +2053,7 @@ const WireCtrlTypeIncomplete = byte(226) // Marks that the type message is incom
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl

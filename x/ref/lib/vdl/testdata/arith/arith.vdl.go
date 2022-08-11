@@ -6,6 +6,7 @@
 // Package: arith
 
 // Package arith is a vdl test package with imports.
+//
 //nolint:revive
 package arith
 
@@ -283,7 +284,7 @@ var descAdvancedMath = rpc.InterfaceDesc{
 //
 // Arith is an example of an interface definition for an arithmetic service.
 // Things to note:
-//   * There must be at least 1 out-arg, and the last out-arg must be error.
+//   - There must be at least 1 out-arg, and the last out-arg must be error.
 type ArithClientMethods interface {
 	// Add is a typical method with multiple input and output arguments.
 	Add(_ *context.T, a int32, b int32, _ ...rpc.CallOpt) (int32, error)
@@ -545,7 +546,7 @@ func (c *implArithStreamingAddClientCall) Finish() (o0 int32, err error) {
 //
 // Arith is an example of an interface definition for an arithmetic service.
 // Things to note:
-//   * There must be at least 1 out-arg, and the last out-arg must be error.
+//   - There must be at least 1 out-arg, and the last out-arg must be error.
 type ArithServerMethods interface {
 	// Add is a typical method with multiple input and output arguments.
 	Add(_ *context.T, _ rpc.ServerCall, a int32, b int32) (int32, error)
@@ -1029,7 +1030,7 @@ var descCalculator = rpc.InterfaceDesc{
 // If you have an init ordering issue, just insert the following line verbatim
 // into your source files in this package, right after the "package foo" clause:
 //
-//    var _ = initializeVDL()
+//	var _ = initializeVDL()
 //
 // The purpose of this function is to ensure that vdl initialization occurs in
 // the right order, and very early in the init sequence.  In particular, vdl
