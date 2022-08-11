@@ -150,6 +150,8 @@ The principal create flags are:
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
+ -ssl-cert=
+   If set, use the ssl/tls certificate from the specified file.
  -ssl-key=
    If set, use the ssl/tls private key from the specified file.
  -with-passphrase=true
@@ -199,6 +201,8 @@ The principal fork flags are:
  -ssh-public-key=
    If set, use the key hosted by the accessible ssh-agent that corresponds to
    the specified public key file.
+ -ssl-cert=
+   If set, use the ssl/tls certificate from the specified file.
  -ssl-key=
    If set, use the ssl/tls private key from the specified file.
  -with=
