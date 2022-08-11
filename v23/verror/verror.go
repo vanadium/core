@@ -21,24 +21,24 @@
 //
 // Each error also contains a list of typed parameters, and an error message.
 // The error message may be created in two ways:
-//   1. Via the Errorf method using fmt.Sprintf formatting.
-//   2. Via the Message method where the error message is preformatted and the
-//      parameter list is recorded.
+//  1. Via the Errorf method using fmt.Sprintf formatting.
+//  2. Via the Message method where the error message is preformatted and the
+//     parameter list is recorded.
 //
 // Example:
 //
 // To define a new error identifier, for example "someNewError", the code that
 // originates the error is expected to declare a variable like this:
 //
-//     var someNewError = verror.Register("someNewError", NoRetry)
-//     ...
-//     return someNewError.Errorf(ctx, "my error message: %v", err)
+//	var someNewError = verror.Register("someNewError", NoRetry)
+//	...
+//	return someNewError.Errorf(ctx, "my error message: %v", err)
 //
 // Alternatively, to use golang.org/x/text/messsage for localization:
-//    p := message.NewPrinter(language.BritishEnglish)
-//    msg := p.Sprintf("invalid name: %v: %v", name, err)
-//    return someNewError.Message(ctx, msg, name, err)
 //
+//	p := message.NewPrinter(language.BritishEnglish)
+//	msg := p.Sprintf("invalid name: %v: %v", name, err)
+//	return someNewError.Message(ctx, msg, name, err)
 //
 // The verror implementation supports errors.Is and errors.Unwrap. Note
 // that errors.Unwrap provides access to 'sub-errors' as well as to chained
@@ -51,9 +51,11 @@
 // programmes, or in anciliary threads not associated with an RPC.  The user
 // might do the following to get the language from the environment, and the
 // programme name from Args[0]:
-//     ctx := runtime.NewContext()
-//     ctx = verror.WithComponentName(ctx, os.Args[0])
-//     verror.SetDefaultContext(ctx)
+//
+//	ctx := runtime.NewContext()
+//	ctx = verror.WithComponentName(ctx, os.Args[0])
+//	verror.SetDefaultContext(ctx)
+//
 // A standalone tool might set the operation name to be a subcommand name, if
 // any.  If the default context has not been set, the error generated has no
 // component and operation values.

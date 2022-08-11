@@ -4,9 +4,9 @@
 
 // Package drrqueue implements a deficit round-robin buffer queue.
 //
-//     Efficient Fair Queueing Using Deficit Round-Robin
-//     M. Shreedhar and George Varghese
-//     IEEE/ACM Transactions on Networking, Vol. 4, No. 3, June 1996
+//	Efficient Fair Queueing Using Deficit Round-Robin
+//	M. Shreedhar and George Varghese
+//	IEEE/ACM Transactions on Networking, Vol. 4, No. 3, June 1996
 //
 // The queue supports N-writers and 1-reader queue.  By "buffer," we mean []byte
 // blocks.
@@ -77,9 +77,10 @@ type writer struct {
 }
 
 // activeMode has three states:
-//   busy: The Writer is being updated by Get.  It is not in the active list.
-//   idle: The Writer is inactive.  It is not in the active list.
-//   active: The Writer is in the active list.
+//
+//	busy: The Writer is being updated by Get.  It is not in the active list.
+//	idle: The Writer is inactive.  It is not in the active list.
+//	active: The Writer is in the active list.
 type activeMode int
 
 const (

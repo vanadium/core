@@ -85,8 +85,8 @@ workflows:
       - test-linux-integration:
           matrix:
             parameters:
-              go: ["1.17", "1.18"]
+              go: ["1.18", "1.19"]
       - lint:
           matrix:
             parameters: # keep lint at go 1.17, see https://github.com/golangci/golangci-lint/issues/2649
-              go: ["1.17"]
+              go: ["1.17", "1.19"]

@@ -22,6 +22,7 @@ import (
 
 // Blessings can't include a comma so we use them in made up user ids.  The following distinctions are
 // made so that we can account for them differently.
+//
 //nolint:unused
 const (
 	localUser   = ",LOCAL,"   // a client that has our public key but no blessing from which we can extract a user name

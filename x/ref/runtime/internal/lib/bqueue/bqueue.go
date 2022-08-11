@@ -9,26 +9,26 @@
 //
 // Initialization:
 //
-//     // Create a new queue using one of the implementations
-//     // (currently only bqueue/drrqueue).
-//     q := drrqueue.New()
+//	// Create a new queue using one of the implementations
+//	// (currently only bqueue/drrqueue).
+//	q := drrqueue.New()
 //
 // Reader API:
 //
-//     // Returns the next buffer in the queue, blocking until there is one
-//     // available.  Returns with an error if <q> is closed:
-//     _, buf, err := q.Get()
+//	// Returns the next buffer in the queue, blocking until there is one
+//	// available.  Returns with an error if <q> is closed:
+//	_, buf, err := q.Get()
 //
 // Writer API:
 //
-//     // Allocate a new Writer with the id, priority, and space for N elements.
-//     w := q.New(id, priority, N)
+//	// Allocate a new Writer with the id, priority, and space for N elements.
+//	w := q.New(id, priority, N)
 //
-//     // Add <buf> to the <w>.  Blocks until there is space in the Writer.
-//     // Aborts if <cancel> is closed or contains a value.
-//     err := w.Put(buf, cancel)
+//	// Add <buf> to the <w>.  Blocks until there is space in the Writer.
+//	// Aborts if <cancel> is closed or contains a value.
+//	err := w.Put(buf, cancel)
 //
-//     w.Release(N)  // Make the next N buffers available to q.Get().
+//	w.Release(N)  // Make the next N buffers available to q.Get().
 //
 // The q.Release() method is used for rate limiting.  Buffers can be added with
 // q.Put(), but they are not passed to q.Get() until they are released.

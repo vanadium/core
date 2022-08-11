@@ -88,10 +88,11 @@ func (p BlessingPattern) IsValid() bool {
 // by the blessing specified by the given pattern string.
 //
 // For example:
-//   onlyAlice := BlessingPattern("google:alice").MakeNonExtendable()
-//   onlyAlice.MatchedBy("google:alice")  // Returns true
-//   onlyAlice.MatchedBy("google")  // Returns false
-//   onlyAlice.MatchedBy("google:alice:bob")  // Returns false
+//
+//	onlyAlice := BlessingPattern("google:alice").MakeNonExtendable()
+//	onlyAlice.MatchedBy("google:alice")  // Returns true
+//	onlyAlice.MatchedBy("google")  // Returns false
+//	onlyAlice.MatchedBy("google:alice:bob")  // Returns false
 func (p BlessingPattern) MakeNonExtendable() BlessingPattern {
 	if len(p) == 0 || p == NoExtension {
 		return NoExtension
@@ -108,9 +109,12 @@ func (p BlessingPattern) MakeNonExtendable() BlessingPattern {
 //
 // For example:
 // BlessingPattern("google:alice:friend").PrefixPatterns() returns
-//   ["google:$", "google:alice:$", "google:alice:friend"]
+//
+//	["google:$", "google:alice:$", "google:alice:friend"]
+//
 // BlessingPattern("google:alice:friend:$").PrefixPatterns() returns
-//   ["google:$", "google:alice:$", "google:alice:friend:$"]
+//
+//	["google:$", "google:alice:$", "google:alice:friend:$"]
 //
 // The returned set of BlessingPatterns are ordered by the number of
 // ":"-separated components in the pattern.

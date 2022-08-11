@@ -118,6 +118,7 @@ func (i *logfileService) ReadLog(ctx *context.T, call logreader.LogFileReadLogSe
 
 // GlobChildren__ returns the list of files in a directory on a stream.
 // The list is empty if the object is a file.
+//
 //nolint:revive // API change required.
 func (i *logfileService) GlobChildren__(ctx *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	ctx.VI(1).Infof("%v.GlobChildren__()", i.suffix)

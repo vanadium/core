@@ -10,8 +10,8 @@
 //
 // For example, a vanadium printer service is advertised as
 //
-//    v23._tcp.local.
-//    _<printer_service_uuid>._sub._v23._tcp.local.
+//	v23._tcp.local.
+//	_<printer_service_uuid>._sub._v23._tcp.local.
 package mdns
 
 import (

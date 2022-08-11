@@ -100,7 +100,8 @@ func (c *Config) HasImport(path string) bool {
 
 // Import represents an import definition, which is used to import other
 // packages into an vdl file.  An example of the syntax in the vdl file:
-//   import foo "some/package/path"
+//
+//	import foo "some/package/path"
 type Import struct {
 	NamePos        // e.g. foo (from above), or typically empty
 	Path    string // e.g. "some/package/path" (from above)

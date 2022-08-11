@@ -14,8 +14,9 @@ import (
 )
 
 // goImport represents a single import in the generated Go file.
-//   Example A: import     "v.io/v23/abc"
-//   Example B: import foo "v.io/v23/abc"
+//
+//	Example A: import     "v.io/v23/abc"
+//	Example B: import foo "v.io/v23/abc"
 type goImport struct {
 	// Name of the import.
 	//   Example A: ""
@@ -72,13 +73,14 @@ func (im importMap) Sort() []goImport {
 }
 
 // Each import must end up with a unique local name.  Here's some examples.
-//   uniqueImport("a", "v.io/a", {})           -> goImport{"", "v.io/a", "a"}
-//   uniqueImport("z", "v.io/a", {})           -> goImport{"", "v.io/a", "z"}
-//   uniqueImport("a", "v.io/a", {"a"})        -> goImport{"a_2", "v.io/a", "a_2"}
-//   uniqueImport("a", "v.io/a", {"a", "a_2"}) -> goImport{"a_3", "v.io/a", "a_3"}
-//   uniqueImport("_", "v.io/a", {})           -> goImport{"_", "v.io/a", ""}
-//   uniqueImport("_", "v.io/a", {"a"})        -> goImport{"_", "v.io/a", ""}
-//   uniqueImport("_", "v.io/a", {"a", "a_2"}) -> goImport{"_", "v.io/a", ""}
+//
+//	uniqueImport("a", "v.io/a", {})           -> goImport{"", "v.io/a", "a"}
+//	uniqueImport("z", "v.io/a", {})           -> goImport{"", "v.io/a", "z"}
+//	uniqueImport("a", "v.io/a", {"a"})        -> goImport{"a_2", "v.io/a", "a_2"}
+//	uniqueImport("a", "v.io/a", {"a", "a_2"}) -> goImport{"a_3", "v.io/a", "a_3"}
+//	uniqueImport("_", "v.io/a", {})           -> goImport{"_", "v.io/a", ""}
+//	uniqueImport("_", "v.io/a", {"a"})        -> goImport{"_", "v.io/a", ""}
+//	uniqueImport("_", "v.io/a", {"a", "a_2"}) -> goImport{"_", "v.io/a", ""}
 func uniqueImport(pkgName, pkgPath string, seen map[string]bool) goImport {
 	if pkgName == "_" {
 		// This is a forced import that isn't otherwise used.

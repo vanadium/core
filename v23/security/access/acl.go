@@ -185,12 +185,8 @@ func (m Permissions) Copy() Permissions {
 		if len(list.NotIn) > 0 {
 			newlist.NotIn = make([]string, len(list.NotIn))
 		}
-		for idx, item := range list.In {
-			newlist.In[idx] = item
-		}
-		for idx, item := range list.NotIn {
-			newlist.NotIn[idx] = item
-		}
+		copy(newlist.In, list.In)
+		copy(newlist.NotIn, list.NotIn)
 		ret[tag] = newlist
 	}
 	return ret

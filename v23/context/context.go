@@ -7,23 +7,23 @@
 // in this package mirror those from the go library's context package with
 // two key differences as documented below.
 //
-// 1. context.T provides the concept of a 'root' context that is typically
-//    created by the runtime and made available to the application code.
-//    The WithRootCancel function creates a context from the root context that
-//    is detached from all of its parent contexts, except for the root, in terms
-//    of cancelation (both explicit and time based cancelation) but otherwise
-//    inherits all other state from its parent. Such contexts are used for
-//    asynchronous operations that persist past the return of the function tha
-//    created function. A typical use case would be a goroutine listening for
-//    new network connections. Canceling the immediate parent of these contexts
-//    has no effect on them; canceling the root context will lead to their
-//    cancelation and is therefore a convenient mechanism for the runtime to
-//    terminate all asynchronous/background processing when it is shutdown
-//    This gives these background processes the opportunity to clean up any
-//    external state.
-// 2. context.T provides access to logging functions and thus allows for
-//    different packages or code paths to be configured to use different
-//    loggers.
+//  1. context.T provides the concept of a 'root' context that is typically
+//     created by the runtime and made available to the application code.
+//     The WithRootCancel function creates a context from the root context that
+//     is detached from all of its parent contexts, except for the root, in terms
+//     of cancelation (both explicit and time based cancelation) but otherwise
+//     inherits all other state from its parent. Such contexts are used for
+//     asynchronous operations that persist past the return of the function tha
+//     created function. A typical use case would be a goroutine listening for
+//     new network connections. Canceling the immediate parent of these contexts
+//     has no effect on them; canceling the root context will lead to their
+//     cancelation and is therefore a convenient mechanism for the runtime to
+//     terminate all asynchronous/background processing when it is shutdown
+//     This gives these background processes the opportunity to clean up any
+//     external state.
+//  2. context.T provides access to logging functions and thus allows for
+//     different packages or code paths to be configured to use different
+//     loggers.
 //
 // Note that since context.T implements context.Context (it embeds the interface)
 // it can be passed in to code that expects context.Context. In addition APIs
@@ -34,36 +34,38 @@
 //
 // 1) A context.T is returned from v23.Init().  This will generally be
 // used to set up servers in main, or for stand-alone client programs.
-//    func main() {
-//      ctx, shutdown := v23.Init()
-//      defer shutdown()
 //
-//      doSomething(ctx)
-//    }
+//	func main() {
+//	  ctx, shutdown := v23.Init()
+//	  defer shutdown()
+//
+//	  doSomething(ctx)
+//	}
 //
 // 2) A context.T is passed to every server method implementation as the first
 // parameter.
-//    func (m *myServer) Method(ctx *context.T, call rpc.ServerCall) error {
-//      doSomething(ctx)
-//    }
+//
+//	func (m *myServer) Method(ctx *context.T, call rpc.ServerCall) error {
+//	  doSomething(ctx)
+//	}
 //
 // Once you have a context you can derive further contexts to change settings.
 // for example to adjust a deadline you might do:
-//    func main() {
-//      ctx, shutdown := v23.Init()
-//      defer shutdown()
-//      // We'll use cacheCtx to lookup data in memcache
-//      // if it takes more than a second to get data from
-//      // memcache we should just skip the cache and perform
-//      // the slow operation.
-//      cacheCtx, cancel := WithTimeout(ctx, time.Second)
-//      if err := FetchDataFromMemcache(cacheCtx, key); err != nil {
-//        // Here we use the original ctx, not the derived cacheCtx
-//        // so we aren't constrained by the 1 second timeout.
-//        RecomputeData(ctx, key)
-//      }
-//    }
 //
+//	func main() {
+//	  ctx, shutdown := v23.Init()
+//	  defer shutdown()
+//	  // We'll use cacheCtx to lookup data in memcache
+//	  // if it takes more than a second to get data from
+//	  // memcache we should just skip the cache and perform
+//	  // the slow operation.
+//	  cacheCtx, cancel := WithTimeout(ctx, time.Second)
+//	  if err := FetchDataFromMemcache(cacheCtx, key); err != nil {
+//	    // Here we use the original ctx, not the derived cacheCtx
+//	    // so we aren't constrained by the 1 second timeout.
+//	    RecomputeData(ctx, key)
+//	  }
+//	}
 package context
 
 import (

@@ -274,6 +274,7 @@ func (*neighborhoodService) Delete(ctx *context.T, _ rpc.ServerCall, _ bool) err
 }
 
 // Glob__ implements rpc.AllGlobber
+//
 //nolint:revive // API change required.
 func (ns *neighborhoodService) Glob__(ctx *context.T, call rpc.GlobServerCall, g *glob.Glob) error {
 	if ns.logLevel >= 2 {

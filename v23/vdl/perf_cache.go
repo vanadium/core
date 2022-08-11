@@ -53,13 +53,13 @@ const (
 // For example, the following only requires one lock operation for the case
 // where both required fields are already available.
 //
-//   pri := perfReflectCache.perfReflectInfo(rt)
-//     ....
-//   idxMap := perfReflectCache.fieldIndexMap(pri, rt)
-//     ....
-//   hasZeroer := perfReflectCache.implements(pri, rt, rtIsZeroerBitMask)
-//     ....
-//   hasPtrZeroer := perfReflectCache.implements(pri, rt, rtIsZeroerBitMask|rtIsPtrToMask)
+//	pri := perfReflectCache.perfReflectInfo(rt)
+//	  ....
+//	idxMap := perfReflectCache.fieldIndexMap(pri, rt)
+//	  ....
+//	hasZeroer := perfReflectCache.implements(pri, rt, rtIsZeroerBitMask)
+//	  ....
+//	hasPtrZeroer := perfReflectCache.implements(pri, rt, rtIsZeroerBitMask|rtIsPtrToMask)
 func (prc *perfReflectCacheT) perfReflectInfo(rt reflect.Type) perfReflectInfo {
 	prc.RLock()
 	r := prc.rtmap[rt]

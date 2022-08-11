@@ -25,10 +25,10 @@ type Equaler interface {
 var rtEqualer = reflect.TypeOf((*Equaler)(nil)).Elem()
 
 // DeepEqual is like reflect.DeepEqual, with the following differences:
-//   1. If a value is encountered that implements Equaler, we will use that for
-//      the comparison.
-//   2. If cyclic values are encountered, we require that the cyclic structure
-//      of the two values is the same.
+//  1. If a value is encountered that implements Equaler, we will use that for
+//     the comparison.
+//  2. If cyclic values are encountered, we require that the cyclic structure
+//     of the two values is the same.
 func DeepEqual(a, b interface{}) bool {
 	return deepEqual(reflect.ValueOf(a), reflect.ValueOf(b), nil, nil)
 }

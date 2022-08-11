@@ -22,22 +22,21 @@
 // failed assertion in the session are recorded in the error stored in
 // the Session.
 //
-// Examples
+// # Examples
 //
-// func TestSomething(t *testing.T) {
-//     buf := []byte{}
-//     buffer := bytes.NewBuffer(buf)
-//     buffer.WriteString("foo\n")
-//     buffer.WriteString("bar\n")
-//     buffer.WriteString("baz\n")
-//     s := expect.NewSession(t, bufio.NewReader(buffer), time.Second)
-//     s.Expect("foo")
-//     s.Expect("bars)
-//     if got, want := s.ReadLine(), "baz"; got != want {
-//         t.Errorf("got %v, want %v", got, want)
-//     }
-// }
-//
+//	func TestSomething(t *testing.T) {
+//	    buf := []byte{}
+//	    buffer := bytes.NewBuffer(buf)
+//	    buffer.WriteString("foo\n")
+//	    buffer.WriteString("bar\n")
+//	    buffer.WriteString("baz\n")
+//	    s := expect.NewSession(t, bufio.NewReader(buffer), time.Second)
+//	    s.Expect("foo")
+//	    s.Expect("bars)
+//	    if got, want := s.ReadLine(), "baz"; got != want {
+//	        t.Errorf("got %v, want %v", got, want)
+//	    }
+//	}
 package expect
 
 import (
@@ -288,13 +287,13 @@ func (s *Session) ExpectVar(name string) string {
 // patterns in the order that they are supplied as parameters. Consequently
 // the set may contain repetitions if the same pattern is expected multiple
 // times. The value returned is either:
-//   * nil in the case of an error, or
-//   * nil if n lines are read or EOF is encountered before all expressions are
-//       matched, or
-//   * an array of length len(expected), whose ith element contains the result
-//       of FindStringSubmatch of expected[i] on the matching string (never
-//       nil). If there are no capturing groups in expected[i], the return
-//       value's [i][0] element will be the entire matching string
+//   - nil in the case of an error, or
+//   - nil if n lines are read or EOF is encountered before all expressions are
+//     matched, or
+//   - an array of length len(expected), whose ith element contains the result
+//     of FindStringSubmatch of expected[i] on the matching string (never
+//     nil). If there are no capturing groups in expected[i], the return
+//     value's [i][0] element will be the entire matching string
 func (s *Session) ExpectSetRE(expected ...string) [][]string {
 	if s.Failed() {
 		return nil
@@ -310,12 +309,13 @@ func (s *Session) ExpectSetRE(expected ...string) [][]string {
 // ExpectSetEventuallyRE is like ExpectSetRE except that it reads as much
 // output as required rather than just the next n lines. The value returned is
 // either:
-//   * nil in the case of an error, or
-//   * nil if EOF is encountered before all expressions are matched, or
-//   * an array of length len(expected), whose ith element contains the result
-//       of FindStringSubmatch of expected[i] on the matching string (never
-//       nil). If there are no capturing groups in expected[i], the return
-//       value's [i][0] will contain the entire matching string
+//   - nil in the case of an error, or
+//   - nil if EOF is encountered before all expressions are matched, or
+//   - an array of length len(expected), whose ith element contains the result
+//     of FindStringSubmatch of expected[i] on the matching string (never
+//     nil). If there are no capturing groups in expected[i], the return
+//     value's [i][0] will contain the entire matching string
+//
 // This function stops consuming output as soon as all regular expressions are
 // matched.
 func (s *Session) ExpectSetEventuallyRE(expected ...string) [][]string {

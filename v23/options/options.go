@@ -7,28 +7,28 @@
 // Below are the common options required of all vanadium implementations.  Let's
 // say we have functions MyFuncA and MyFuncB in package demo:
 //
-//   package demo
-//   func MyFuncA(a, b, c int, opts ...MyFuncAOpt)
-//   func MyFuncB(opts ...MyFuncBOpt)
+//	package demo
+//	func MyFuncA(a, b, c int, opts ...MyFuncAOpt)
+//	func MyFuncB(opts ...MyFuncBOpt)
 //
-//   type MyFuncAOpt interface {
-//     DemoMyFuncAOpt()
-//   }
-//   type MyFuncBOpt interface {
-//     DemoMyFuncBOpt()
-//   }
+//	type MyFuncAOpt interface {
+//	  DemoMyFuncAOpt()
+//	}
+//	type MyFuncBOpt interface {
+//	  DemoMyFuncBOpt()
+//	}
 //
 // The MyFuncAOpt interface is used solely to constrain the types of options
 // that MyFuncA accepts, and ditto for MyFuncBOpt and MyFuncB.  In order to
 // enable an option to be accepted by a particular function, you simply add a
 // no-op function definition with the appropriate name.  An example:
 //
-//   type Foo int
-//   func (Foo) DemoMyFuncAOpt() {}
-//   func (Foo) DemoMyFuncBOpt() {}
+//	type Foo int
+//	func (Foo) DemoMyFuncAOpt() {}
+//	func (Foo) DemoMyFuncBOpt() {}
 //
-//   type Bar string
-//   func (Bar) DemoMyFuncBOpt() {}
+//	type Bar string
+//	func (Bar) DemoMyFuncBOpt() {}
 //
 // Foo is accepted by both demo.MyFuncA and demo.MyFuncB, while Bar is only
 // accepted by demo.MyFuncB.  The methods defined for each option essentially
@@ -37,17 +37,18 @@
 // Go stipulates that methods may only be attached to named types, and the type
 // may not be an interface.  E.g.
 //
-//   // BAD: can't attach methods to named interfaces.
-//   type Bad interface{}
-//   func (Bad) DemoMyFuncAOpt() {}
+//	// BAD: can't attach methods to named interfaces.
+//	type Bad interface{}
+//	func (Bad) DemoMyFuncAOpt() {}
 //
-//   // GOOD: wrap the interface in a named struct.
-//   type Good struct { val interface{} }
+//	// GOOD: wrap the interface in a named struct.
+//	type Good struct { val interface{} }
 //
-//   func (Good) DemoMyFuncAOpt() {}
+//	func (Good) DemoMyFuncAOpt() {}
 //
 // These options can then be passed to the function as so:
-//   MyFuncA(a, b, c, Foo(1), Good{object})
+//
+//	MyFuncA(a, b, c, Foo(1), Good{object})
 package options
 
 import (

@@ -4,14 +4,14 @@
 
 // Package security defines types and utilities associated with security.
 //
-//   Concept: https://vanadium.github.io/concepts/security.html
-//   Tutorial: (forthcoming)
+//	Concept: https://vanadium.github.io/concepts/security.html
+//	Tutorial: (forthcoming)
 //
 // The primitives and APIs defined in this package enable bi-directional,
 // end-to-end authentication between communicating parties; authorization based
 // on that authentication; and secrecy and integrity of all communication.
 //
-// Overview
+// # Overview
 //
 // The Vanadium security model is centered around the concepts of principals
 // and blessings.
@@ -37,27 +37,28 @@
 // it can be used. Amongst other things, caveats can restrict the duration of use and
 // the set of peers that can be communicated with using a blessing.
 //
-// Navigating the interfaces
+// # Navigating the interfaces
 //
 // Godoc renders all interfaces in this package in alphabetical order.
 // However, we recommend the following order in order to introduce yourself to
 // the API:
 //
-//   * Principal
-//   * Blessings
-//   * BlessingStore
-//   * BlessingRoots
-//   * NewCaveat
-//   * ThirdPartyCaveat
-//   * NewPublicKeyCaveat
+//   - Principal
+//   - Blessings
+//   - BlessingStore
+//   - BlessingRoots
+//   - NewCaveat
+//   - ThirdPartyCaveat
+//   - NewPublicKeyCaveat
 //
-// Examples
+// # Examples
 //
 // A principal can decide to name itself anything it wants (unless it's using
 // an x509 Certificate, see below).
-//  // (in process A)
-//  var p1 Principal
-//  alice, _ := p1.BlessSelf("alice")
+//
+//	// (in process A)
+//	var p1 Principal
+//	alice, _ := p1.BlessSelf("alice")
 //
 // If a principal is using an x508 Certificate then it must name itself
 // using a host name that's valid for that certificate, or specify no name
@@ -66,38 +67,43 @@
 // This "alice" blessing can be presented to to another principal (typically a
 // remote process), but that other principal will not recognize this
 // "self-proclaimed" authority:
-//  // (in process B)
-//  var p2 Principal
-//  ctx, call := GetContextAndCall() // current context and security state
-//  names, rejected := RemoteBlessingNames(ctx, call)
-//  fmt.Printf("%v %v", names, rejected) // Will print [] ["alice": "..."]
+//
+//	// (in process B)
+//	var p2 Principal
+//	ctx, call := GetContextAndCall() // current context and security state
+//	names, rejected := RemoteBlessingNames(ctx, call)
+//	fmt.Printf("%v %v", names, rejected) // Will print [] ["alice": "..."]
 //
 // However, p2 can decide to trust the roots of the "alice" blessing and then it
 // will be able to recognize her delegates as well:
-//  // (in process B)
-//  AddToRoots(p2, call.RemoteBlessings())
-//  names, rejected := RemoteBlessingNames(ctx, call)
-//  fmt.Printf("%v %v", names, rejected) // Will print ["alice"] []
+//
+//	// (in process B)
+//	AddToRoots(p2, call.RemoteBlessings())
+//	names, rejected := RemoteBlessingNames(ctx, call)
+//	fmt.Printf("%v %v", names, rejected) // Will print ["alice"] []
 //
 // Furthermore, p2 can seek a blessing from "alice":
-//  // (in process A)
-//  call := GetCall() // Call under which p2 is seeking a blessing from alice, call.LocalPrincipal = p1
-//  key2 := call.RemoteBlessings().PublicKey()
-//  onlyFor10Minutes := NewExpiryCaveat(time.Now().Add(10*time.Minute))
-//  aliceFriend, _ := p1.Bless(key2, alice, "friend", onlyFor10Minutes)
-//  SendBlessingToProcessB(aliceFriend)
+//
+//	// (in process A)
+//	call := GetCall() // Call under which p2 is seeking a blessing from alice, call.LocalPrincipal = p1
+//	key2 := call.RemoteBlessings().PublicKey()
+//	onlyFor10Minutes := NewExpiryCaveat(time.Now().Add(10*time.Minute))
+//	aliceFriend, _ := p1.Bless(key2, alice, "friend", onlyFor10Minutes)
+//	SendBlessingToProcessB(aliceFriend)
 //
 // p2 can then add this blessing to its store such that this blessing will be
 // presented to "alice" (and her delegates) anytime p2 communicates with it in
 // the future:
-//  // (in process B)
-//  p2.BlessingStore().Set(aliceFriend, "alice")
+//
+//	// (in process B)
+//	p2.BlessingStore().Set(aliceFriend, "alice")
 //
 // p2 can also choose to present multiple blessings to some servers:
-//  // (in process B)
-//  charlieFriend := ReceiveBlessingFromSomeWhere()
-//  union, _ := UnionOfBlessings(aliceFriend, charlieFriend)
-//  p2.BlessingStore().Set(union, "alice:mom")
+//
+//	// (in process B)
+//	charlieFriend := ReceiveBlessingFromSomeWhere()
+//	union, _ := UnionOfBlessings(aliceFriend, charlieFriend)
+//	p2.BlessingStore().Set(union, "alice:mom")
 //
 // Thus, when communicating with a "server" that presents the blessing "alice:mom",
 // p2 will declare that he is both "alice's friend" and "charlie's friend" and
@@ -105,9 +111,10 @@
 //
 // p2 may also choose that it wants to present these two blessings when acting
 // as a "server", (i.e., when it does not know who the peer is):
-//  // (in process B)
-//  default, _ := UnionOfBlessings(aliceFriend, charlieFriend)
-//  p2.BlessingStore().SetDefault(default)
+//
+//	// (in process B)
+//	default, _ := UnionOfBlessings(aliceFriend, charlieFriend)
+//	p2.BlessingStore().SetDefault(default)
 package security
 
 import (

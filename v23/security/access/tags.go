@@ -11,11 +11,13 @@ import "v.io/v23/vdl"
 //
 // Typical use of this is to setup an Authorizer that uses these predefined
 // tags:
-//   authorizer, err := PermissionsAuthorizerFromFile(name, TypicalTagType())
+//
+//	authorizer, err := PermissionsAuthorizerFromFile(name, TypicalTagType())
 //
 // For the common case of setting up an Authorizer for a Permissions object with
 // these predefined tags, a convenience function is provided:
-//   authorizer := TypicalTagTypePermissionsAuthorizer(myperms)
+//
+//	authorizer := TypicalTagTypePermissionsAuthorizer(myperms)
 func TypicalTagType() *vdl.Type {
 	return vdl.TypeOf(Tag(""))
 }

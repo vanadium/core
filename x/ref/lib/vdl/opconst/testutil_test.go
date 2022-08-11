@@ -17,6 +17,7 @@ import (
 // CallAndRecover calls the function f and returns the result of recover().
 // This minimizes the scope of the deferred recover, to ensure f is actually the
 // function that paniced.
+//
 //nolint:unused
 func CallAndRecover(f func()) (result interface{}) {
 	defer func() {
@@ -59,6 +60,7 @@ func expectMismatchedKind(t *testing.T, f func()) {
 }
 
 // Define a bunch of regular Go types used in tests.
+//
 //nolint:unused
 type (
 	// Scalars
@@ -243,6 +245,7 @@ func recurseAType() *vdl.Type { return recurseABTypes()[0] }
 func recurseBType() *vdl.Type { return recurseABTypes()[1] }
 
 // Define a bunch of *Type types used in tests.
+//
 //nolint:unused
 var (
 	// Named scalar types

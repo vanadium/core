@@ -72,8 +72,9 @@ func (rep *repBytes) AssignLen(n int) {
 // repMap represents set and map values.  There are two underlying
 // representations depending on the key type.  We decide which one to use based
 // on the type of the map key, and never change representations thereafter.
-//   fast: Use a real Go map to associate keys with a kvPair
-//   slow: Just a slice of kvPairs.
+//
+//	fast: Use a real Go map to associate keys with a kvPair
+//	slow: Just a slice of kvPairs.
 //
 // Fast has the same O(1) amortized complexity as regular Go maps for insert and
 // lookup, while slow is O(N).  Since fast uses a real Go map, it only works for

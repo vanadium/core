@@ -84,11 +84,11 @@ func getLogger(ctx *context.T) logging.Logger {
 //
 // The canonical way to use LogCallf is as follows:
 //
-//     func Function(ctx *context.T, a Type1, b Type2) ReturnType {
-//         defer apilog.LogCallf(ctx, "<package>.<function>", "%v, %v", a, b)(ctx)
-//         // ... function body ...
-//         return retVal
-//     }
+//	func Function(ctx *context.T, a Type1, b Type2) ReturnType {
+//	    defer apilog.LogCallf(ctx, "<package>.<function>", "%v, %v", a, b)(ctx)
+//	    // ... function body ...
+//	    return retVal
+//	}
 //
 // In order for return values to be logged they must be named.
 func LogCallf(ctx *context.T, callerName, format string, v ...interface{}) func(*context.T, string, ...interface{}) {

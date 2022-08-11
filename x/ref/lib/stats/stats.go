@@ -5,14 +5,17 @@
 // Package stats implements a global repository of stats objects. Each object
 // has a name and a value.
 // Example:
-//   bar1 := stats.NewInteger("foo/bar1")
-//   bar2 := stats.NewFloat("foo/bar2")
-//   bar3 := stats.NewCounter("foo/bar3")
-//   bar1.Set(1)
-//   bar2.Set(2)
-//   bar3.Set(3)
+//
+//	bar1 := stats.NewInteger("foo/bar1")
+//	bar2 := stats.NewFloat("foo/bar2")
+//	bar3 := stats.NewCounter("foo/bar3")
+//	bar1.Set(1)
+//	bar2.Set(2)
+//	bar3.Set(3)
+//
 // The values can be retrieved with:
-//   v, err := stats.Value("foo/bar1")
+//
+//	v, err := stats.Value("foo/bar1")
 package stats
 
 import (
@@ -25,6 +28,7 @@ import (
 )
 
 // StatsObject is the interface for objects stored in the stats repository.
+//
 //nolint:revive // API change required.
 type StatsObject interface {
 	// LastUpdate is used by WatchGlob to decide which updates to send.

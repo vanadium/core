@@ -42,8 +42,7 @@ func (o principalOptions) getBlessingRoots(ctx context.Context, publicKey securi
 // to the specified options. The most common use case is to load a principal
 // from a filesystem directory, as in:
 //
-//     LoadPrincipalOpts(ctx, LoadFrom(FilesystemStoreWriter(dir)))
-//
+//	LoadPrincipalOpts(ctx, LoadFrom(FilesystemStoreWriter(dir)))
 func LoadPrincipalOpts(ctx context.Context, opts ...LoadPrincipalOption) (security.Principal, error) {
 	var o principalOptions
 	for _, fn := range opts {

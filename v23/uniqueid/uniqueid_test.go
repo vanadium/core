@@ -22,8 +22,7 @@ func TestNewID(t *testing.T) {
 		if err != nil {
 			t.Fatal("Error generating new id: ", err)
 		}
-
-		if firstRandomValue == nil {
+		if len(firstRandomValue) == 0 {
 			firstRandomValue = id[:14]
 		}
 		if !bytes.Equal(firstRandomValue, id[:14]) {

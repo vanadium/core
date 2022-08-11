@@ -34,40 +34,42 @@ import (
 // Sample usage:
 //
 // (1) Attach tags to methods in the VDL (eg. myservice.vdl)
-//   package myservice
 //
-//   type MyTag string
-//   const (
-//     ReadAccess  = MyTag("R")
-//     WriteAccess = MyTag("W")
-//   )
+//	package myservice
 //
-//   type MyService interface {
-//     Get() ([]string, error)       {ReadAccess}
-//     GetIndex(int) (string, error) {ReadAccess}
+//	type MyTag string
+//	const (
+//	  ReadAccess  = MyTag("R")
+//	  WriteAccess = MyTag("W")
+//	)
 //
-//     Set([]string) error           {WriteAccess}
-//     SetIndex(int, string) error   {WriteAccess}
-//   }
+//	type MyService interface {
+//	  Get() ([]string, error)       {ReadAccess}
+//	  GetIndex(int) (string, error) {ReadAccess}
+//
+//	  Set([]string) error           {WriteAccess}
+//	  SetIndex(int, string) error   {WriteAccess}
+//	}
 //
 // (2) Configure the rpc.Dispatcher to use the PermissionsAuthorizer
-//   import (
-//     "reflect"
 //
-//     "v.io/v23/rpc"
-//     "v.io/v23/security"
-//     "v.io/v23/security/access"
-//   )
+//	import (
+//	  "reflect"
 //
-//   type dispatcher struct{}
-//   func (d dispatcher) Lookup(suffix, method) (rpc.Invoker, security.Authorizer, error) {
-//      perms := access.Permissions{
-//        "R": access.AccessList{In: []security.BlessingPattern{"alice:friends", "alice:family"} },
-//        "W": access.AccessList{In: []security.BlessingPattern{"alice:family", "alice:colleagues" } },
-//      }
-//      typ := reflect.TypeOf(ReadAccess)  // equivalently, reflect.TypeOf(WriteAccess)
-//      return newInvoker(), access.PermissionsAuthorizer(perms, typ), nil
-//   }
+//	  "v.io/v23/rpc"
+//	  "v.io/v23/security"
+//	  "v.io/v23/security/access"
+//	)
+//
+//	type dispatcher struct{}
+//	func (d dispatcher) Lookup(suffix, method) (rpc.Invoker, security.Authorizer, error) {
+//	   perms := access.Permissions{
+//	     "R": access.AccessList{In: []security.BlessingPattern{"alice:friends", "alice:family"} },
+//	     "W": access.AccessList{In: []security.BlessingPattern{"alice:family", "alice:colleagues" } },
+//	   }
+//	   typ := reflect.TypeOf(ReadAccess)  // equivalently, reflect.TypeOf(WriteAccess)
+//	   return newInvoker(), access.PermissionsAuthorizer(perms, typ), nil
+//	}
 //
 // With the above dispatcher, the server will grant access to a peer with the
 // blessing "alice:friend:bob" access only to the "Get" and "GetIndex" methods.

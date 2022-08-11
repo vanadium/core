@@ -71,15 +71,16 @@ func verifyBlessingSignatures(t *testing.T, blessings ...security.Blessings) {
 // Log the "on-the-wire" sizes for blessings (which are shipped during the
 // authentication protocol).
 // As of February 27, 2015, the numbers were:
-//   Marshaled P256 ECDSA key                   :   91 bytes
-//   Major components of an ECDSA signature     :   64 bytes
-//   VOM type information overhead for blessings:  354 bytes
-//   Blessing with 1 certificates               :  536 bytes (a)
-//   Blessing with 2 certificates               :  741 bytes (a:a)
-//   Blessing with 3 certificates               :  945 bytes (a:a:a)
-//   Blessing with 4 certificates               : 1149 bytes (a:a:a:a)
-//   Marshaled caveat                           :   55 bytes (0xa64c2d0119fba3348071feeb2f308000(time.Time=0001-01-01 00:00:00 +0000 UTC))
-//   Marshaled caveat                           :    6 bytes (0x54a676398137187ecdb26d2d69ba0003([]string=[m]))
+//
+//	Marshaled P256 ECDSA key                   :   91 bytes
+//	Major components of an ECDSA signature     :   64 bytes
+//	VOM type information overhead for blessings:  354 bytes
+//	Blessing with 1 certificates               :  536 bytes (a)
+//	Blessing with 2 certificates               :  741 bytes (a:a)
+//	Blessing with 3 certificates               :  945 bytes (a:a:a)
+//	Blessing with 4 certificates               : 1149 bytes (a:a:a:a)
+//	Marshaled caveat                           :   55 bytes (0xa64c2d0119fba3348071feeb2f308000(time.Time=0001-01-01 00:00:00 +0000 UTC))
+//	Marshaled caveat                           :    6 bytes (0x54a676398137187ecdb26d2d69ba0003([]string=[m]))
 func testByteSize(t *testing.T, algo string, s1, s2 security.Signer, sfn func(testing.TB) security.Signer) {
 	blessingsize := func(b security.Blessings) int {
 		buf, err := vom.Encode(b)

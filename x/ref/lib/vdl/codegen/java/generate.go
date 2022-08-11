@@ -31,6 +31,7 @@ func javaGenPkgPath(vdlPkgPath string) string {
 }
 
 // JavaFileInfo stores the name and contents of the generated Java file.
+//
 //nolint:revive // API change required.
 type JavaFileInfo struct {
 	Dir  string

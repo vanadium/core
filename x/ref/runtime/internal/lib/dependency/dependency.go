@@ -32,9 +32,11 @@ type node struct {
 // g := NewGraph()
 //
 // // Instruct the graph that A depends on B and C.
-// if err := g.Depend(A, B, C); err != nil {
-//   // Oops, B or C is already terminating, clean up A immediately.
-// }
+//
+//	if err := g.Depend(A, B, C); err != nil {
+//	  // Oops, B or C is already terminating, clean up A immediately.
+//	}
+//
 // // D depends on A (You should check the error as above).
 // g.Depend(D, A)
 // ...

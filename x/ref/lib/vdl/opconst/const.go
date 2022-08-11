@@ -35,10 +35,12 @@ var (
 // Values may be converted into valid typed consts, and all typed consts may be
 // converted into valid Values.  Untyped consts belong to one of the following
 // categories:
-//   untyped boolean
-//   untyped string
-//   untyped integer
-//   untyped rational
+//
+//	untyped boolean
+//	untyped string
+//	untyped integer
+//	untyped rational
+//
 // Literal consts are untyped, as are expressions only containing untyped
 // consts.  The result of comparison operations is untyped boolean.
 //

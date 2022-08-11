@@ -42,10 +42,10 @@ func FirstRuneToExportCase(s string, export bool) string {
 // toConstCase converts ThisString to THIS_STRING. For adding '_', we follow the
 // following algorithm.  For any sequence of three characters, c[n-1], c[n],
 // c[n+1], we add an underscore before c[n] if:
-//     1) c[n-1] is a digit and c[n] is a letter, or
-//     2) c[n-1] is a letter and c[n] is a digit, or
-//     3) c[n-1] is lowercase, and c[n] is uppercase, or
-//     4) c[n-1] is uppercase, c[n] is uppercase, and c[n+1] is lowercase.
+//  1. c[n-1] is a digit and c[n] is a letter, or
+//  2. c[n-1] is a letter and c[n] is a digit, or
+//  3. c[n-1] is lowercase, and c[n] is uppercase, or
+//  4. c[n-1] is uppercase, c[n] is uppercase, and c[n+1] is lowercase.
 func ToConstCase(s string) string {
 	var buf bytes.Buffer
 	var size int

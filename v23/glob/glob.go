@@ -6,19 +6,19 @@
 //
 // Globs match a slash separated series of glob expressions.
 //
-//   // Patterns:
-//   term ['/' term]*
-//   term:
-//   '*'         matches any sequence of non-Separator characters
-//   '?'         matches any single non-Separator character
-//   '[' [ '^' ] { character-range } ']'
-//   // Character classes (must be non-empty):
-//   c           matches character c (c != '*', '?', '\\', '[', '/')
-//   '\\' c      matches character c
-//   // Character-ranges:
-//   c           matches character c (c != '\\', '-', ']')
-//   '\\' c      matches character c
-//   lo '-' hi   matches character c for lo <= c <= hi
+//	// Patterns:
+//	term ['/' term]*
+//	term:
+//	'*'         matches any sequence of non-Separator characters
+//	'?'         matches any single non-Separator character
+//	'[' [ '^' ] { character-range } ']'
+//	// Character classes (must be non-empty):
+//	c           matches character c (c != '*', '?', '\\', '[', '/')
+//	'\\' c      matches character c
+//	// Character-ranges:
+//	c           matches character c (c != '\\', '-', ']')
+//	'\\' c      matches character c
+//	lo '-' hi   matches character c for lo <= c <= hi
 package glob
 
 import (
