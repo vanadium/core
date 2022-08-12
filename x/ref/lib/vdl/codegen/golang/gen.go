@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os/exec"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"text/template"
 
@@ -140,6 +142,7 @@ func (data *goData) DeclareTypeOfVars() string {
 		// Declare and initialize with default values here so that the initializeVDL
 		// method will be considered ready to initialize before any of the type
 		// definitions that appear below.
+		//
 		//nolint:unused
 		var (`
 	for id := 1; id <= len(idToType); id++ {
@@ -286,7 +289,7 @@ func Generate(pkg *compile.Package, env *compile.Env) []byte {
 		panic(fmt.Errorf("vdl: couldn't execute template: %v", err))
 	}
 	// Use goimports to format the generated source and imports.
-	pretty, err := runner(buf.Bytes(), "gofmt", "-s")
+	pretty, err := runner(buf.Bytes(), filepath.Join(runtime.GOROOT(), "bin", "gofmt"), "-s")
 	if err != nil {
 		// We shouldn't see an error; it means we generated invalid code.
 		fmt.Printf("%s", buf.Bytes())

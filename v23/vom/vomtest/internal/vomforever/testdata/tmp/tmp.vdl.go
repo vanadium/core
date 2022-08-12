@@ -20,6 +20,7 @@ var _ = initializeVDL() // Must be first; see initializeVDL comments for details
 // Declare and initialize with default values here so that the initializeVDL
 // method will be considered ready to initialize before any of the type
 // definitions that appear below.
+//
 //nolint:unused
 var (
 	vdlTypeBool1      *vdl.Type = nil
