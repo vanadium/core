@@ -125,6 +125,17 @@ func TestCompatibility(t *testing.T) {
 		t.Errorf("errors.Is returned true, should be false")
 	}
 	if !errors.Is(err3, err4) {
+		t.Errorf("errors.Is returned false, should be true")
+	}
+
+	// Verify chained error matching.
+	if !errors.Is(err3, err1) {
+		t.Errorf("errors.Is returned false, should be true")
+	}
+	if !errors.Is(err3, idActionA) {
+		t.Errorf("errors.Is returned false, should be true")
+	}
+	if errors.Is(err3, idActionB) {
 		t.Errorf("errors.Is returned true, should be false")
 	}
 }
