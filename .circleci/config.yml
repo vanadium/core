@@ -38,7 +38,7 @@ jobs:
       - run:
           name: goimports
           command: |
-            go get golang.org/x/tools/cmd/goimports
+            go mod download golang.org/x/tools
             go install golang.org/x/tools/cmd/goimports
       - run:
           name: openssl
