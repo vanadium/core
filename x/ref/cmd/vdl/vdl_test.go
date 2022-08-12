@@ -8,9 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -39,25 +37,17 @@ func verifyOutput(t *testing.T, outDir string) {
 			continue
 		}
 		testFile := filepath.Join(testDir, entry.Name())
-		fmt.Printf("testfike,, %v\n", testFile)
-		/*		testBytes, err := os.ReadFile(testFile)
-				if err != nil {
-					t.Fatalf("ReadFile(%v) failed: %v", testFile, err)
-				}*/
-		// run gofmt on the test file in case it was generated with a different
-		// version of go.
-		gofmt := filepath.Join(runtime.GOROOT(), "bin", "gofmt")
-		reformatted, err := exec.Command(gofmt, "-s", testFile).CombinedOutput()
+		testBytes, err := os.ReadFile(testFile)
 		if err != nil {
-			t.Fatalf("gofmt(%v) failed: %v", testFile, err)
+			t.Fatalf("ReadFile(%v) failed: %v", testFile, err)
 		}
 		outFile := filepath.Join(outDir, outPkgPath, entry.Name())
 		outBytes, err := os.ReadFile(outFile)
 		if err != nil {
 			t.Fatalf("ReadFile(%v) failed: %v", outFile, err)
 		}
-		if !bytes.Equal(outBytes, reformatted) {
-			t.Fatalf("gofmt: %s\nGOT:\n%v\n\nWANT:\n%v\n", gofmt, string(outBytes), string(reformatted))
+		if !bytes.Equal(outBytes, testBytes) {
+			t.Fatalf("\nGOT:\n%v\n\nWANT:\n%v\n", string(outBytes), string(testBytes))
 		}
 		numEqual++
 	}
