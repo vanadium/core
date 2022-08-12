@@ -115,7 +115,7 @@ func TestX509(t *testing.T) {
 		{sectestdata.SingleHostCert, "", s("www.labdrive.io"), nil},
 		{sectestdata.SingleHostCert, "www.labdrive.io", s("www.labdrive.io"), nil},
 		{sectestdata.SingleHostCert, "www.labdrive.io:friend:alice", s("www.labdrive.io:friend:alice"), nil},
-
+		{sectestdata.MultipleHostsCert, "c.labdrive.io", s("c.labdrive.io"), nil},
 		{sectestdata.MultipleHostsCert, "", s("a.labdrive.io", "b.labdrive.io", "c.labdrive.io"), nil},
 		{sectestdata.MultipleHostsCert, "b.labdrive.io", s("b.labdrive.io"), nil},
 		{sectestdata.WildcardCert, "", s("*.labdrive.io"), s("foo.labdrive.io", "bar.labdrive.io")},
@@ -137,6 +137,7 @@ func TestX509(t *testing.T) {
 		if got, want := blessings.Expiry(), pubCerts[0].NotAfter; got != want {
 			t.Errorf("%v: got %v, want %v", tc.certType, got, want)
 		}
+
 		clientKey := sectestdata.V23PrivateKey(keys.ED25519, sectestdata.V23KeySetB)
 		client := newPrincipalWithX509Opts(ctx, t, clientKey, opts)
 		call := security.NewCall(&security.CallParams{
@@ -146,7 +147,7 @@ func TestX509(t *testing.T) {
 		})
 		names, rejected := security.RemoteBlessingNames(ctx, call)
 		if len(rejected) != 0 {
-			t.Errorf("%v: ejected blessings: %v", tc.certType, rejected)
+			t.Errorf("%v: rejected blessings: %v", tc.certType, rejected)
 		}
 		if got, want := names, tc.hosts; !reflect.DeepEqual(got, want) {
 			t.Errorf("%v: got %v, want %v", tc.certType, got, want)
