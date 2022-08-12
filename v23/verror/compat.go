@@ -4,6 +4,10 @@
 
 package verror
 
+import (
+	"errors"
+)
+
 // Error implements error.
 func (id IDAction) Error() string {
 	return string(id.ID)
@@ -45,6 +49,12 @@ type subErrChain struct {
 // Error implements error.
 func (se subErrChain) Error() string {
 	return se.err.Error()
+}
+
+// Is implements the Is method as used by errors.Is to support chained error
+// matching.
+func (se subErrChain) Is(err error) bool {
+	return errors.Is(se.err, err)
 }
 
 // Unwrap implements the Unwrap method as expected by errors.Unwrap.
