@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"v.io/v23/security"
@@ -72,39 +73,36 @@ func TestLetsEncryptKeys(t *testing.T) {
 	}
 	defer os.RemoveAll(letsencryptDir)
 
-	for _, tc := range []struct {
-		filename    string
-		fingerprint string
-	}{
-		{filepath.Join(letsencryptDir, "www.labdrive.io.letsencrypt"),
-			// openssl x509 -in testdata/lwww.labdrive.io.letsencrypt --pubkey --noout |
-			// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-			"b4:1c:fc:66:5a:60:66:ea:e1:c5:46:76:59:8c:fc:6a"},
-		{filepath.Join(letsencryptDir, "letsencrypt-stg-int-e1.pem"),
-			// openssl x509 -in testdata/letsencrypt-stg-int-e1.pem --pubkey --noout |
-			// openssl ec --pubin --inform PEM --outform DER |openssl md5 -c
-			"8d:49:53:4b:8c:e3:7a:d5:e0:69:95:18:49:1f:7b:bf"},
+	for _, certname := range []string{
+		"www.labdrive.io.letsencrypt",
+		"letsencrypt-stg-int-e1.pem",
 	} {
-
-		data, err := os.ReadFile(tc.filename)
+		filename := filepath.Join(letsencryptDir, certname)
+		data, err := os.ReadFile(filename)
 		if err != nil {
-			t.Fatalf("%v: %v", tc.filename, err)
+			t.Fatalf("%v: %v", filename, err)
 		}
 		key, err := seclib.ParsePublicKey(data)
 		if err != nil {
-			t.Fatalf("%v: %v", tc.filename, err)
+			t.Fatalf("%v: %v", filename, err)
 		}
 		cert := key.(*x509.Certificate)
 		pk, err := security.NewPublicKey(cert.PublicKey)
 		if err != nil {
-			t.Fatalf("%v: %v", tc.filename, err)
+			t.Fatalf("%v: %v", filename, err)
 		}
 		if _, err := cert.Verify(opts); err != nil {
-			t.Fatalf("%v: %v", tc.filename, err)
+			t.Fatalf("%v: %v", filename, err)
 		}
 
-		if got, want := pk.String(), tc.fingerprint; got != want {
-			t.Errorf("%v: got %v, want %v", tc.filename, got, want)
+		filename = filepath.Join(letsencryptDir, certname+".fingerprint")
+		data, err = os.ReadFile(filename)
+		if err != nil {
+			t.Fatalf("%v: %v", filename, err)
+		}
+		fingerprint := strings.TrimSpace(string(data))
+		if got, want := pk.String(), fingerprint; got != want {
+			t.Errorf("%v: got %v, want %v", filename, got, want)
 		}
 	}
 }

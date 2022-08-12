@@ -17,16 +17,16 @@ const (
 	letsEncryptStagingR3 = "letsencrypt-stg-int-r3.pem"
 )
 
-//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key
+//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key testdata/www.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-e1.pem.fingerprint
 var letsEncryptSingleHostFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key
+//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key testdata/abc.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-e1.pem.fingerprint
 var letsEncryptMultiHostFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key
+//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key testdata/star.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-r3.pem.fingerprint
 var letsEncryptWildcardFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/ab-star.labdrive.io.letsencrypt testdata/ab-star.labdrive.io.letsencrypt.key
+//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/ab-star.labdrive.io.letsencrypt testdata/ab-star.labdrive.io.letsencrypt.key testdata/ab-star.labdrive.io.letsencrypt.fingerprint  testdata/letsencrypt-stg-int-r3.pem.fingerprint
 var letsEncryptMultipleWildcardFS embed.FS
 
 // CertType specifies the type of cert to be used.
