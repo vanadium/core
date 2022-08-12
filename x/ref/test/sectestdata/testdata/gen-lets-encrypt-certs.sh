@@ -45,7 +45,7 @@ docker run \
   cp "${workdir}/live/${to}/privkey.pem" ${to}.letsencrypt.key
 }
 
+run_certbot ecdsa www.labdrive.io 'www.labdrive.io'
 run_certbot ecdsa abc.labdrive.io 'a.labdrive.io' 'b.labdrive.io' 'c.labdrive.io'
 run_certbot rsa star.labdrive.io '*.labdrive.io'
 run_certbot rsa ab-star.labdrive.io '*.labdrive.io' '*.labdr.io'
-run_certbot ecdsa www.labdrive.io 'www.labdrive.io' 

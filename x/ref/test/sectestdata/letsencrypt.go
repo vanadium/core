@@ -20,7 +20,7 @@ const (
 //go:embed testdata/letsencrypt-stg-int-e1.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key
 var letsEncryptSingleHostFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key
+//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key
 var letsEncryptMultiHostFS embed.FS
 
 //go:embed testdata/letsencrypt-stg-int-r3.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key
@@ -66,7 +66,7 @@ func LetsEncryptData(certType CertType) (crypto.PrivateKey, []*x509.Certificate,
 	case SingleHostCert:
 		return letsEncryptData(letsEncryptSingleHostFS, "www.labdrive.io.letsencrypt.key", "www.labdrive.io.letsencrypt", letsEncryptStagingE1)
 	case MultipleHostsCert:
-		return letsEncryptData(letsEncryptMultiHostFS, "abc.labdrive.io.letsencrypt.key", "abc.labdrive.io.letsencrypt", letsEncryptStagingR3)
+		return letsEncryptData(letsEncryptMultiHostFS, "abc.labdrive.io.letsencrypt.key", "abc.labdrive.io.letsencrypt", letsEncryptStagingE1)
 	case WildcardCert:
 		return letsEncryptData(letsEncryptWildcardFS, "star.labdrive.io.letsencrypt.key", "star.labdrive.io.letsencrypt", letsEncryptStagingR3)
 	case MultipleWildcardCert:
