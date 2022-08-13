@@ -753,11 +753,12 @@ func (m *manager) Status() flow.ListenStatus {
 // including outgoing dialed connections.
 //
 // For example:
-//   err := m.Listen(ctx, "tcp", ":0")
-//   for {
-//     flow, err := m.Accept(ctx)
-//     // process flow
-//   }
+//
+//	err := m.Listen(ctx, "tcp", ":0")
+//	for {
+//	  flow, err := m.Accept(ctx)
+//	  // process flow
+//	}
 //
 // can be used to accept Flows initiated by remote processes.
 func (m *manager) Accept(ctx *context.T) (flow.Flow, error) {

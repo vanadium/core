@@ -30,10 +30,13 @@ func init() {
 
 // The cwd is set to the directory containing this file.  Currently we have the
 // following directory structure:
-//   .../release/go/src/v.io/x/ref/lib/vdl/build/build_test.go
+//
+//	.../release/go/src/v.io/x/ref/lib/vdl/build/build_test.go
+//
 // We want to end up with the following:
-//   VDLROOT = .../release/go/src/v.io/v23/vdlroot
-//   VDLPATH = .../release/go
+//
+//	VDLROOT = .../release/go/src/v.io/v23/vdlroot
+//	VDLPATH = .../release/go
 //
 // TODO(toddw): Put a full VDLPATH tree under ../testdata and only use that.
 const (

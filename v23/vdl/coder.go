@@ -39,22 +39,25 @@ type ReadWriter interface {
 // The Decoder provides an API to read vdl values of all types in depth-first
 // order.  The ordering is based on the type of the value being read.
 // E.g. given the following value:
-//    type MyStruct struct {
-//      A []string
-//      B map[int64]bool
-//      C any
-//    }
-//    value := MyStruct{
-//      A: {"abc", "def"},
-//      B: {123: true, 456: false},
-//      C: float32(1.5),
-//    }
+//
+//	type MyStruct struct {
+//	  A []string
+//	  B map[int64]bool
+//	  C any
+//	}
+//	value := MyStruct{
+//	  A: {"abc", "def"},
+//	  B: {123: true, 456: false},
+//	  C: float32(1.5),
+//	}
+//
 // The values will be read in the following order:
-//    "abc"
-//    "def"
-//    (123, true)
-//    (456, false)
-//    1.5
+//
+//	"abc"
+//	"def"
+//	(123, true)
+//	(456, false)
+//	1.5
 type Decoder interface {
 	// StartValue must be called before decoding each value, for both scalar and
 	// composite values.  The want type is the type of value being decoded into,

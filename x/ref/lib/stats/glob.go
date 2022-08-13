@@ -17,9 +17,11 @@ import (
 // match the given pattern and have been updated since 'updatedSince'. The
 // 'root' argument is the name of the object where the pattern starts.
 // Example:
-//   a/b/c
-//   a/b/d
-//   b/e/f
+//
+//	a/b/c
+//	a/b/d
+//	b/e/f
+//
 // Glob("", "...", time.Time{}, true) will return "a/b/c", "a/b/d", "b/e/f" and
 // their values.
 // Glob("a/b", "*", time.Time{}, true) will return "c", "d" and their values.

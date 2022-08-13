@@ -4,8 +4,8 @@
 
 // Package naming defines types and utilities associated with naming.
 //
-//   Concept: https://vanadium.github.io/concepts/naming.html
-//   Tutorial: (forthcoming)
+//	Concept: https://vanadium.github.io/concepts/naming.html
+//	Tutorial: (forthcoming)
 //
 // Object names are 'resolved' using a MountTable to obtain a MountedServer that
 // RPC method invocations can be directed at. MountTables may be mounted on each

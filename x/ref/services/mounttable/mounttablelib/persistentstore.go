@@ -39,12 +39,13 @@ type storeElement struct {
 // lost.
 //
 // The code manages three files in the directory 'dir':
-//   persistent.permslog - the log of permissions.  A new log entry is added with each SetPermissions or
-//      Delete RPC.
-//   tmp.permslog - a temporary file created whenever we restart.  Once we write the current state into it,
-//      it will be renamed persistent.perms becoming the new log.
-//   old.permslog - the previous version of persistent.perms.  This is left around primarily for debugging
-//      and as an emergency backup.
+//
+//	persistent.permslog - the log of permissions.  A new log entry is added with each SetPermissions or
+//	   Delete RPC.
+//	tmp.permslog - a temporary file created whenever we restart.  Once we write the current state into it,
+//	   it will be renamed persistent.perms becoming the new log.
+//	old.permslog - the previous version of persistent.perms.  This is left around primarily for debugging
+//	   and as an emergency backup.
 func newPersistentStore(ctx *context.T, mt *mountTable, dir string) persistence { //nolint:gocyclo
 	s := &store{mt: mt, dir: dir}
 	file := path.Join(dir, "persistent.permslog")

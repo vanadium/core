@@ -144,10 +144,11 @@ func (k kindBitMask) IsSet(kind Kind) bool {
 }
 
 // SplitIdent splits the given identifier into its package path and local name.
-//   a/b.Foo   -> (a/b, Foo)
-//   a.b/c.Foo -> (a.b/c, Foo)
-//   Foo       -> ("",  Foo)
-//   a/b       -> ("",  a/b)
+//
+//	a/b.Foo   -> (a/b, Foo)
+//	a.b/c.Foo -> (a.b/c, Foo)
+//	Foo       -> ("",  Foo)
+//	a/b       -> ("",  a/b)
 func SplitIdent(ident string) (pkgpath, name string) {
 	dot := strings.LastIndex(ident, ".")
 	if dot == -1 {
@@ -165,10 +166,11 @@ func SplitIdent(ident string) (pkgpath, name string) {
 // type causes a run-time panic.
 //
 // Cyclic types are supported; e.g. you can represent a tree via:
-//   type Node struct {
-//     Val      string
-//     Children []Node
-//   }
+//
+//	type Node struct {
+//	  Val      string
+//	  Children []Node
+//	}
 type Type struct {
 	kind         Kind           // used by all kinds
 	name         string         // used by all kinds
@@ -386,9 +388,10 @@ func (t *Type) NumField() int {
 }
 
 // AssignableFrom returns true iff values of t may be assigned from f:
-//   o Allowed if t and the type of f are identical.
-//   o Allowed if t is Any.
-//   o Allowed if t is Optional, and f is Any(nil).
+//
+//	o Allowed if t and the type of f are identical.
+//	o Allowed if t is Any.
+//	o Allowed if t is Optional, and f is Any(nil).
 //
 // The first rule establishes strict static typing.  The second rule relaxes
 // things for Any, which is dynamically typed.  The third rule relaxes things

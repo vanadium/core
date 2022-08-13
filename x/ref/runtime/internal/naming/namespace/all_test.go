@@ -139,6 +139,7 @@ func (testServer) KnockKnock(*context.T, rpc.ServerCall) (string, error) {
 
 // testServer has the following namespace:
 // "" -> {level1} -> {level2}
+//
 //nolint:revive // API change required.
 func (t *testServer) GlobChildren__(_ *context.T, call rpc.GlobChildrenServerCall, m *glob.Element) error {
 	switch t.suffix {

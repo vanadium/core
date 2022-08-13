@@ -134,15 +134,15 @@ func (h *Handler) WaitForSignal() os.Signal {
 // wait for the signal to be received or for the context to be canceled.
 // Typical usage would be:
 //
-//    func main() {
-// 	    ctx, shutdown := v23.Init()
-//      defer shutdown()
-//      ctx, handler := ShutdownOnSignalsWithCancel(ctx)
-//      defer handler.WaitForSignal()
+//	   func main() {
+//		    ctx, shutdown := v23.Init()
+//	     defer shutdown()
+//	     ctx, handler := ShutdownOnSignalsWithCancel(ctx)
+//	     defer handler.WaitForSignal()
 //
-//      _, srv, err := v23.WithNewServer(ctx, ...)
+//	     _, srv, err := v23.WithNewServer(ctx, ...)
 //
-//    }
+//	   }
 //
 // waitForInterrupt will wait for a signal to be received at which point it
 // will cancel the context and thus the server created by WithNewServer to

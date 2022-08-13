@@ -147,11 +147,14 @@ func (ze zeroExpr) GenReturnStmt() bool {
 //
 // The returned expression is a boolean Go expression that evaluates whether arg
 // is zero or non-zero.  It is meant to be used like this:
-//     if <expr> {
-//       ...
-//     }
+//
+//	if <expr> {
+//	  ...
+//	}
+//
 // Or like this:
-//     return <expr>
+//
+//	return <expr>
 //
 // The first argument ze describes whether the expression will be used in an
 // "if" or "return" statement, and whether it should evaluate to equal or

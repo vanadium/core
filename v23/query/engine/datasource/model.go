@@ -10,9 +10,10 @@
 // The KeyValueStream interface is used to iterate over key-value pairs from a
 // table.
 // Note: Order, Index, GetIndexFields and the indexRanges arg to Scan
-//       are being provided in beta form for use by discovery.  Currently only
-//       indexes of type string are supported and an index must comprise exactly
-//       one column.  This API will change when secondary indexes are fully supported.
+//
+//	are being provided in beta form for use by discovery.  Currently only
+//	indexes of type string are supported and an index must comprise exactly
+//	one column.  This API will change when secondary indexes are fully supported.
 package datasource
 
 import (

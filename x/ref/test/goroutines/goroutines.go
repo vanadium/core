@@ -190,10 +190,11 @@ type ErrorReporter interface {
 // NoLeaks helps test that a test isn't leaving extra goroutines after it finishes.
 //
 // The normal way to use it is:
-// func TestFoo(t *testing.T) {
-//   defer goroutines.NoLeaks(t, time.Second)()
 //
-//   ... Normal test code here ...
+//	func TestFoo(t *testing.T) {
+//	  defer goroutines.NoLeaks(t, time.Second)()
+//
+//	  ... Normal test code here ...
 //
 // }
 //

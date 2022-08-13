@@ -36,6 +36,7 @@ type Opts struct {
 // accumulated errors, and parses the vdl into a parse.File containing the parse
 // tree.  Returns nil if any errors are encountered, with errs containing more
 // information.  Otherwise returns the parsed File.
+//
 //nolint:revive // API change required.
 func ParseFile(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) *File {
 	start := startFile
@@ -49,6 +50,7 @@ func ParseFile(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) 
 // accumulated errors, and parses the config into a parse.Config containing the
 // parse tree.  Returns nil if any errors are encountered, with errs containing
 // more information.  Otherwise returns the parsed Config.
+//
 //nolint:revive // API change required.
 func ParseConfig(fileName string, src io.Reader, opts Opts, errs *vdlutil.Errors) *Config {
 	start := startConfig
@@ -107,6 +109,7 @@ func parse(fileName string, src io.Reader, startTok int, errs *vdlutil.Errors) *
 // data is specified in VDL syntax, with commas separating multiple expressions.
 // There must be at least one expression specified in data.  Errors are returned
 // in errs.
+//
 //nolint:revive // API change required.
 func ParseExprs(data string, errs *vdlutil.Errors) []ConstExpr {
 	const name = "exprs"
@@ -329,7 +332,8 @@ var knownPunct = map[rune][]nextRune{
 // autoSemi determines whether to automatically add a semicolon, based on the
 // rule that semicolons are always added at the end of each line after certain
 // tokens.  The Go auto-semicolon rule is described here:
-//   http://golang.org/ref/spec#Semicolons
+//
+//	http://golang.org/ref/spec#Semicolons
 func autoSemi(prevTok token) bool {
 	return prevAutoSemi[prevTok.t] && prevTok.pos.IsValid()
 }

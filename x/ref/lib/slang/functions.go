@@ -109,10 +109,11 @@ var (
 //
 // The type of registered functions must of the form:
 //
-//   func<Name>(Runtime, [zero-or-more-arguments]) ([zero-or-more-results] error)
+//	func<Name>(Runtime, [zero-or-more-arguments]) ([zero-or-more-results] error)
 //
 // For example:
-//   func save(Runtime, filename string) (int, error)
+//
+//	func save(Runtime, filename string) (int, error)
 //
 // RegisterFunction will panic if the type of the function does not meet
 // these requirements.

@@ -14,14 +14,14 @@
 // database, and finally notify subscribers of the new content.  The
 // trace might look like this:
 //
-//    Trace:
-//    <---------------- Make a new blog post ----------->
-//    |                  |                   |
-//    <- Authenticate -> |                   |
-//                       |                   |
-//                       <-- Write to DB --> |
-//                                           <- Notify ->
-//    0s                      1.5s                      3s
+//	Trace:
+//	<---------------- Make a new blog post ----------->
+//	|                  |                   |
+//	<- Authenticate -> |                   |
+//	                   |                   |
+//	                   <-- Write to DB --> |
+//	                                       <- Notify ->
+//	0s                      1.5s                      3s
 //
 // Here we have a single trace with four Spans.  Note that some Spans
 // are children of other Spans.  Vtrace works by attaching data to a
@@ -33,22 +33,22 @@
 //
 // In this case the tree would have been created with code like this:
 //
-//    function MakeBlogPost(ctx *context.T) {
-//        authCtx, _ := vtrace.WithNewSpan(ctx, "Authenticate")
-//        Authenticate(authCtx)
-//        writeCtx, _ := vtrace.WithNewSpan(ctx, "Write To DB")
-//        Write(writeCtx)
-//        notifyCtx, _ := vtrace.WithNewSpan(ctx, "Notify")
-//        Notify(notifyCtx)
-//    }
+//	function MakeBlogPost(ctx *context.T) {
+//	    authCtx, _ := vtrace.WithNewSpan(ctx, "Authenticate")
+//	    Authenticate(authCtx)
+//	    writeCtx, _ := vtrace.WithNewSpan(ctx, "Write To DB")
+//	    Write(writeCtx)
+//	    notifyCtx, _ := vtrace.WithNewSpan(ctx, "Notify")
+//	    Notify(notifyCtx)
+//	}
 //
 // Just as we have Spans to represent time spans we have Annotations
 // to attach debugging information that is relevant to the current
 // moment. You can add an annotation to the current span by calling
 // the Span's Annotate method:
 //
-//    span := vtrace.GetSpan(ctx)
-//    span.Annotate("Just got an error")
+//	span := vtrace.GetSpan(ctx)
+//	span.Annotate("Just got an error")
 //
 // When you make an annotation we record the annotation and the time
 // when it was attached.

@@ -154,6 +154,7 @@ func matchPrefixSeq(target string, seqs []string) bool {
 
 // binFromHexPat returns a binary string based on the given hex pattern.
 // Allowed hex patterns are the same as for matchHexPat.
+//
 //nolint:unused
 func binFromHexPat(pat string) (string, error) {
 	if len(pat) == 0 {

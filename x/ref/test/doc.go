@@ -8,16 +8,17 @@
 // It sets up the context so that only localhost ports are used for
 // communication.
 //
-// func TestFoo(t *testing.T) {
-//    ctx, shutdown := test.V23Init()
-//    defer shutdown()
-//    ...
-// }
+//	func TestFoo(t *testing.T) {
+//	   ctx, shutdown := test.V23Init()
+//	   defer shutdown()
+//	   ...
+//	}
 //
 // This package also defines flags for enabling and controlling the Vanadium
 // integration tests in package v.io/x/ref/test/v23test:
-//   --v23.tests - run the integration tests
-//   --v23.tests.shell-on-fail - drop into a debug shell if the test fails
+//
+//	--v23.tests - run the integration tests
+//	--v23.tests.shell-on-fail - drop into a debug shell if the test fails
 //
 // Typical usage is:
 // $ jiri go test . --v23.tests
@@ -32,10 +33,15 @@
 // testutil    - utility functions used in tests.
 // sectestdata - data used in security tests such as certificates and keys.
 // timekeeper  - an implementation of the timekeeper interface for use within
-//               tests.
+//
+//	tests.
+//
 // expect      - support for testing the contents of of an input stream (an
-//               io.Reader). v23test.Cmd contains an expect.Session, so this
-//               package is generally not used directly.
+//
+//	io.Reader). v23test.Cmd contains an expect.Session, so this
+//	package is generally not used directly.
+//
 // v23test     - defines Shell, which provides support for spawning and managing
-//               subprocesses with configurable credentials.
+//
+//	subprocesses with configurable credentials.
 package test

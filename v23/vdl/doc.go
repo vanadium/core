@@ -5,8 +5,8 @@
 // Package vdl implements the Vanadium Definition Language type and value
 // system.
 //
-//   Concept: https://vanadium.github.io/concepts/rpc.html#vdl
-//   Specification: https://vanadium.github.io/designdocs/vdl-spec.html
+//	Concept: https://vanadium.github.io/concepts/rpc.html#vdl
+//	Specification: https://vanadium.github.io/designdocs/vdl-spec.html
 //
 // VDL is an interface definition language designed to enable interoperation
 // between clients and servers executing in heterogeneous environments.  E.g. it

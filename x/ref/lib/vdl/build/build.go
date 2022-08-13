@@ -5,7 +5,7 @@
 // Package build implements utilities to collect VDL build information and run
 // the parser and compiler.
 //
-// VDL Packages
+// # VDL Packages
 //
 // VDL is organized into packages, where a package is a collection of one or
 // more source files.  The files in a package collectively define the types,
@@ -16,13 +16,13 @@
 // package Q must import package P, and then refer to the package elements in P.
 // Imports define the package dependency graph, which must be acyclic.
 //
-// Build Strategy
+// # Build Strategy
 //
 // The steps to building a VDL package P:
-//   1) Compute the transitive closure of P's dependencies DEPS.
-//   2) Sort DEPS in dependency order.
-//   3) Build each package D in DEPS.
-//   3) Build package P.
+//  1. Compute the transitive closure of P's dependencies DEPS.
+//  2. Sort DEPS in dependency order.
+//  3. Build each package D in DEPS.
+//  3. Build package P.
 //
 // Building a package P requires that all elements used by P are understood,
 // including elements defined outside of P.  The only way for a change to
@@ -443,8 +443,9 @@ func IsImportPath(path string) bool {
 //
 // This is slightly complicated because of dirs, and the potential for symlinks.
 // E.g. let's say we have two directories, one a symlink to the other:
-//   /home/user/go/src/foo/bar/base
-//   /home/user/go/src/foo/bar2     symlink to bar
+//
+//	/home/user/go/src/foo/bar/base
+//	/home/user/go/src/foo/bar2     symlink to bar
 //
 // The problem is that if the user has cwd pointing at one of the two "base"
 // dirs and specifies a relative directory ".." it's ambiguous which absolute
@@ -1031,6 +1032,7 @@ func (b byBaseName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 //
 // All imports that pkg depend on must have already been compiled and populated
 // into env.
+//
 //nolint:revive // API change required.
 func BuildPackage(pkg *Package, env *compile.Env) *compile.Package {
 	pfiles := ParsePackage(pkg, parse.Opts{}, env.Errors)
@@ -1048,6 +1050,7 @@ func BuildPackage(pkg *Package, env *compile.Env) *compile.Package {
 // All packages that the config src depends on must have already been compiled
 // and populated into env.  The imports are injected into the parsed src,
 // behaving as if the src had listed the imports explicitly.
+//
 //nolint:revive // API change required.
 func BuildConfig(fileName string, src io.Reader, implicit *vdl.Type, imports []string, env *compile.Env) *vdl.Value {
 	pconfig := parse.ParseConfig(fileName, src, parse.Opts{}, env.Errors)
@@ -1060,6 +1063,7 @@ func BuildConfig(fileName string, src io.Reader, implicit *vdl.Type, imports []s
 // BuildConfigValue is a convenience function that runs BuildConfig, and then
 // converts the result into value.  The implicit type used by BuildConfig is
 // inferred from the value.
+//
 //nolint:revive // API change required.
 func BuildConfigValue(fileName string, src io.Reader, imports []string, env *compile.Env, value interface{}) {
 	rv := reflect.ValueOf(value)
@@ -1096,6 +1100,7 @@ func BuildConfigValue(fileName string, src io.Reader, imports []string, env *com
 //
 // All imports that the input data depends on must have already been compiled
 // and populated into env.
+//
 //nolint:revive // API change required.
 func BuildExprs(data string, types []*vdl.Type, env *compile.Env) []*vdl.Value {
 	var values []*vdl.Value

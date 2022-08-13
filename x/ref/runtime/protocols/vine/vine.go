@@ -107,7 +107,9 @@ type vine struct {
 // will use on connections.
 // behaviors is a map from server tag to the desired connection behavior.
 // For example,
-//   client.SetBehaviors(map[PeerKey]PeerBehavior{PeerKey{"foo", "bar"}, PeerBehavior{Reachable: false}})
+//
+//	client.SetBehaviors(map[PeerKey]PeerBehavior{PeerKey{"foo", "bar"}, PeerBehavior{Reachable: false}})
+//
 // will cause all vine protocol dial calls from "foo" to "bar" to fail.
 // New calls to SetBehaviors completely override previous calls.
 func (v *vine) SetBehaviors(ctx *context.T, call rpc.ServerCall, behaviors map[PeerKey]PeerBehavior) error {

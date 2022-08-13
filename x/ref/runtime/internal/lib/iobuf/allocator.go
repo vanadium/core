@@ -11,11 +11,11 @@ import "v.io/x/ref/internal/logger"
 // that Coalesce() will usually be able to perform coalescing (without
 // copying the data).
 //
-//    calloc := iobuf.Allocator(...)
-//    slice1 := calloc.Alloc(10)
-//    slice2 := calloc.Alloc(20)
-//    slices := iobuf.Coalesce([]*iobuf.Slice{slice1, slice2})
-//    // slices should contain 1 element with length 30.
+//	calloc := iobuf.Allocator(...)
+//	slice1 := calloc.Alloc(10)
+//	slice2 := calloc.Alloc(20)
+//	slices := iobuf.Coalesce([]*iobuf.Slice{slice1, slice2})
+//	// slices should contain 1 element with length 30.
 type Allocator struct {
 	pool    *Pool
 	iobuf   *buf

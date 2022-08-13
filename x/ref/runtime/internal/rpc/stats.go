@@ -168,6 +168,7 @@ func newBlessingsCacheStats(prefix string) *blessingsCacheStats {
 }
 
 // Incr increments the cache attempt counter and the cache hit counter if hit is true.
+//
 //nolint:unused
 func (s *blessingsCacheStats) incr(hit bool) {
 	s.callsReceived.Incr(1)

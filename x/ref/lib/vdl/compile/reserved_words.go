@@ -9,8 +9,9 @@ import (
 )
 
 // reservedMode indicates which mode to perform reserved-word checking:
-//   reservedNormal         - Check identifier as-is.
-//   reservedFirstRuneLower - Check identifier with the first rune lowercased.
+//
+//	reservedNormal         - Check identifier as-is.
+//	reservedFirstRuneLower - Check identifier with the first rune lowercased.
 type reservedMode int
 
 const (

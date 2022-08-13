@@ -22,12 +22,13 @@ var keyTypeMap = map[string]keys.CryptoAlgo{
 
 // IsSupportedKeyType returns true if the requested key type is supported
 // by the principal command. Currently the supported types are:
-//		ecdsa256
-//		ecdsa384
-//		ecdsa521
-// 		ed25519
-//		rsa2048
-//		rsa4096
+//
+//	ecdsa256
+//	ecdsa384
+//	ecdsa521
+//	ed25519
+//	rsa2048
+//	rsa4096
 func IsSupportedKeyType(keyType string) (keys.CryptoAlgo, bool) {
 	k, ok := keyTypeMap[strings.ToLower(keyType)]
 	return k, ok

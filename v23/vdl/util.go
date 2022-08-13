@@ -55,6 +55,7 @@ var (
 )
 
 // bitlen{R,V} enforce static type safety on kind.
+//
 //nolint:unused
 func bitlenR(kind reflect.Kind) uintptr { return bitlenReflect[kind] }
 
@@ -62,12 +63,14 @@ func bitlenR(kind reflect.Kind) uintptr { return bitlenReflect[kind] }
 func bitlenV(kind Kind) uintptr { return bitlenVDL[kind] }
 
 // isRTBytes returns true iff rt is an array or slice of bytes.
+//
 //nolint:unused
 func isRTBytes(rt reflect.Type) bool {
 	return (rt.Kind() == reflect.Array || rt.Kind() == reflect.Slice) && rt.Elem().Kind() == reflect.Uint8
 }
 
 // rtBytes extracts []byte from rv.  Assumes isRTBytes(rv.Type()) == true.
+//
 //nolint:unused
 func rtBytes(rv reflect.Value) []byte {
 	// Fastpath if the underlying type is []byte
@@ -204,17 +207,22 @@ var (
 // rvZeroValue returns the zero value of rt, using the vdl zero rules.
 //
 // VDL and Go define zero values differently.  According to VDL:
-//    Any:        nil
-//    TypeObject: AnyType
-//    Union:      zero value of the type at index 0
+//
+//	Any:        nil
+//	TypeObject: AnyType
+//	Union:      zero value of the type at index 0
+//
 // The Go zero value isn't always right.  Here are the Go zero values:
-//    Any:        interface{}(nil), *vom.RawBytes(nil) or *vdl.Value(nil)
-//    TypeObject: (*Type)(nil)
-//    Union:      UnionInterface(nil)
+//
+//	Any:        interface{}(nil), *vom.RawBytes(nil) or *vdl.Value(nil)
+//	TypeObject: (*Type)(nil)
+//	Union:      UnionInterface(nil)
+//
 // Here are the Go values we actually want:
-//    Any:        *vom.RawBytes or *vdl.Value representing any(nil)
-//    TypeObject: AnyType
-//    Union:      UnionStruct0
+//
+//	Any:        *vom.RawBytes or *vdl.Value representing any(nil)
+//	TypeObject: AnyType
+//	Union:      UnionStruct0
 //
 // Thus we must special-case values of these types, or any types that contain
 // these types inline.  I.e. if an array, struct, or union contains one of these
@@ -314,10 +322,11 @@ func rvZeroValue(rt reflect.Type, tt *Type) (reflect.Value, error) { //nolint:go
 
 // rvIsZeroValue returns true iff rv represents the VDL zero value.  Here are
 // the types with multiple VDL zero value representations:
-//   Any:            nil, or VDLIsZero on vdl.Value/vom.RawBytes
-//   TypeObject:     nil, or AnyType
-//   Union:          nil, or zero value of field 0
-//   List, Set, Map: nil, or empty
+//
+//	Any:            nil, or VDLIsZero on vdl.Value/vom.RawBytes
+//	TypeObject:     nil, or AnyType
+//	Union:          nil, or zero value of field 0
+//	List, Set, Map: nil, or empty
 func rvIsZeroValue(rv reflect.Value, tt *Type) (bool, error) { //nolint:gocyclo
 	// Walk pointers and interfaces, and handle nil values.
 	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {

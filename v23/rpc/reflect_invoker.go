@@ -94,9 +94,9 @@ type methodInfo struct {
 // ReflectInvoker returns an Invoker implementation that uses reflection to make
 // each compatible exported method in obj available.  E.g.:
 //
-//   type impl struct{}
-//   func (impl) NonStreaming(ctx *context.T, call rpc.ServerCall, ...) (...)
-//   func (impl) Streaming(ctx *context.T, call *MyCall, ...) (...)
+//	type impl struct{}
+//	func (impl) NonStreaming(ctx *context.T, call rpc.ServerCall, ...) (...)
+//	func (impl) Streaming(ctx *context.T, call *MyCall, ...) (...)
 //
 // The first in-arg must be context.T.  The second in-arg must be a call; for
 // non-streaming methods it must be rpc.ServerCall, and for streaming methods it
@@ -104,22 +104,22 @@ type methodInfo struct {
 // adds typesafe streaming wrappers.  Here's an example that streams int32 from
 // client to server, and string from server to client:
 //
-//   type MyCall struct { rpc.StreamServerCall }
+//	type MyCall struct { rpc.StreamServerCall }
 //
-//   // Init initializes MyCall via rpc.StreamServerCall.
-//   func (*MyCall) Init(rpc.StreamServerCall) {...}
+//	// Init initializes MyCall via rpc.StreamServerCall.
+//	func (*MyCall) Init(rpc.StreamServerCall) {...}
 //
-//   // RecvStream returns the receiver side of the server stream.
-//   func (*MyCall) RecvStream() interface {
-//     Advance() bool
-//     Value() int32
-//     Err() error
-//   } {...}
+//	// RecvStream returns the receiver side of the server stream.
+//	func (*MyCall) RecvStream() interface {
+//	  Advance() bool
+//	  Value() int32
+//	  Err() error
+//	} {...}
 //
-//   // SendStream returns the sender side of the server stream.
-//   func (*MyCall) SendStream() interface {
-//     Send(item string) error
-//   } {...}
+//	// SendStream returns the sender side of the server stream.
+//	func (*MyCall) SendStream() interface {
+//	  Send(item string) error
+//	} {...}
 //
 // We require the streaming call arg to have this structure so that we can
 // capture the streaming in and out arg types via reflection.  We require it to
@@ -128,7 +128,7 @@ type methodInfo struct {
 //
 // As a temporary special-case, we also allow generic streaming methods:
 //
-//   func (impl) Generic(ctx *context.T, call rpc.StreamServerCall, ...) (...)
+//	func (impl) Generic(ctx *context.T, call rpc.StreamServerCall, ...) (...)
 //
 // The problem with allowing this form is that via reflection we can no longer
 // determine whether the server performs streaming, or what the streaming in and

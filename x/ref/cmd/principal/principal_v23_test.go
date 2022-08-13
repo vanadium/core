@@ -281,7 +281,9 @@ Peer pattern                     Blessings
 // For example,
 // principal recvblessings
 // would typically print something like:
-//    principal bless --remote-key=<some_public_key> --remote-token=<some_token> extensionfoo
+//
+//	principal bless --remote-key=<some_public_key> --remote-token=<some_token> extensionfoo
+//
 // as an example of command line to use to send the blessings over.
 //
 // In that case, this method would return:

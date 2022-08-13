@@ -49,6 +49,7 @@ func GetClientUserIds(ctx *context.T, call security.Call) []string {
 }
 
 // Parse the userId components from a blessing name or a userId string.  Returns nil on failure.
+//
 //nolint:revive // API change required.
 func ParseUserId(s string) []string {
 	c := strings.Split(s, security.ChainSeparator)

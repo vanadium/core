@@ -33,9 +33,8 @@ func (pc *pathCache) set(dir, pkg string) {
 // value. Typical usage would be except that dummy can be replaced
 // by an existing type defined in the package.
 //
-//  type dummy int
-//  verror.ID(verror.IDPath(dummy(0), "MyError"))
-//
+//	type dummy int
+//	verror.ID(verror.IDPath(dummy(0), "MyError"))
 func IDPath(val interface{}, id string) ID {
 	return ID(reflect.TypeOf(val).PkgPath() + "." + id)
 }

@@ -116,9 +116,7 @@ func (rb *RawBytes) newDecoder(r io.Reader, typeDec *decoder81) vdl.Decoder {
 		dec.refTypes.tids[i] = tid
 	}
 	dec.refAnyLens.lens = make([]int, len(rb.AnyLengths))
-	for i, anyLen := range rb.AnyLengths {
-		dec.refAnyLens.lens[i] = anyLen
-	}
+	copy(dec.refAnyLens.lens, rb.AnyLengths)
 	tt, lenHint, flag, err := dec.setupType(rb.Type, nil)
 	if err != nil {
 		panic(err) // TODO(toddw): Change this to not panic.

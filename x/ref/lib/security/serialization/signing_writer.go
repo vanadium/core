@@ -83,12 +83,12 @@ type Signer interface {
 // NewSigningWriteCloser returns an io.WriteCloser that writes data along
 // with an appropriate signature that establishes the integrity and
 // authenticity of the data. It behaves as follows:
-//     * A Write call writes chunks (of size provided by the Options or
-//       1MB by default) of data to the provided data WriteCloser and a
-//       hash of the chunks to the provided signature WriteCloser.
-//     * A Close call writes a signature (computed using the provided
-//       signer) of all the hashes written, and then closes the data and
-//       signature WriteClosers.
+//   - A Write call writes chunks (of size provided by the Options or
+//     1MB by default) of data to the provided data WriteCloser and a
+//     hash of the chunks to the provided signature WriteCloser.
+//   - A Close call writes a signature (computed using the provided
+//     signer) of all the hashes written, and then closes the data and
+//     signature WriteClosers.
 func NewSigningWriteCloser(data, signature io.WriteCloser, s Signer, opts *Options) (io.WriteCloser, error) {
 	if (data == nil) || (signature == nil) || (s == nil) {
 		return nil, fmt.Errorf("data:%v signature:%v signer:%v cannot be nil", data, signature, s)

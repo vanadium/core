@@ -23,22 +23,22 @@ import (
 // containing the wire type must be imported into your Go binary in order for
 // the wire<->native registration to work, which is hard to ensure.  E.g.
 //
-//   package base    // VDL package
-//   type Wire int   // has native type native.Int
+//	package base    // VDL package
+//	type Wire int   // has native type native.Int
 //
-//   package dep     // VDL package
-//   import "base"
-//   type Foo struct {
-//     X base.Wire
-//   }
+//	package dep     // VDL package
+//	import "base"
+//	type Foo struct {
+//	  X base.Wire
+//	}
 //
 // The Go code for package "dep" imports "native", rather than "base":
 //
-//   package dep     // Go package generated from VDL package
-//   import "native"
-//   type Foo struct {
-//     X native.Int
-//   }
+//	package dep     // Go package generated from VDL package
+//	import "native"
+//	type Foo struct {
+//	  X native.Int
+//	}
 //
 // Note that when you import the "dep" package in your own code, you always use
 // native.Int, rather than base.Wire; the base.Wire representation is only used

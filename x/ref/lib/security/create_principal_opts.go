@@ -107,8 +107,8 @@ func getPublicKey(publicKey crypto.PublicKey) (security.PublicKey, error) {
 // x509 certificate can be specified either directly or read from public key
 // bytes. This is orthogonal to the precedence order used for all other
 // means of obtaining public key info, which is:
-// 1. from a signer, then from a private key, then private key bytes and
-//    finally public key bytes.
+//  1. from a signer, then from a private key, then private key bytes and
+//     finally public key bytes.
 func (o createPrincipalOptions) getPublicKeyInfo(ctx context.Context) (cryptoPublicKey crypto.PublicKey, x509Cert *x509.Certificate, publicKey security.PublicKey, err error) {
 	x509Cert = o.x509Cert
 	if x509Cert == nil && len(o.publicKeyBytes) > 0 {

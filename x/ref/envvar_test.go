@@ -12,7 +12,8 @@ import (
 
 // Set an environment variable and return a function to undo it.
 // Typical usage:
-//   defer setenv(t, "VAR", "VALUE")()
+//
+//	defer setenv(t, "VAR", "VALUE")()
 func setenv(t *testing.T, name, value string) func() {
 	oldval := os.Getenv(name)
 	if err := os.Setenv(name, value); err != nil {

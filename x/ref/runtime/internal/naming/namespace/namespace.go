@@ -58,6 +58,7 @@ func badRoots(roots []string) error {
 }
 
 // Create a new namespace.
+//
 //nolint:revive // API change required.
 func New(roots ...string) (*namespace, error) {
 	if !rooted(roots) {
@@ -100,9 +101,7 @@ func (ns *namespace) Roots() []string {
 	ns.RLock()
 	defer ns.RUnlock()
 	roots := make([]string, len(ns.roots))
-	for i, r := range ns.roots {
-		roots[i] = r
-	}
+	copy(roots, ns.roots)
 	return roots
 }
 
@@ -127,7 +126,8 @@ func (ns *namespace) rootName(name string) []string {
 // Returns:
 // (1) MountEntry
 // (2) Whether "name" is a rooted name or not (if not, the namespace roots
-//     configured in "ns" will be used).
+//
+//	configured in "ns" will be used).
 func (ns *namespace) rootMountEntry(name string, opts ...naming.NamespaceOpt) (*naming.MountEntry, bool) {
 	_, name = security.SplitPatternName(naming.Clean(name))
 	e := new(naming.MountEntry)

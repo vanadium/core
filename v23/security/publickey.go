@@ -32,7 +32,9 @@ import (
 // that the implementation choices do not change. In summary they are as
 // follows:
 // ECDSA: the hash function is based on the curve:
-//        <= 160: SHA1, <= 256: SHA256, <= 384: SHA384, all others SHA512.
+//
+//	<= 160: SHA1, <= 256: SHA256, <= 384: SHA384, all others SHA512.
+//
 // ED25519, RSA: SHA512.
 //
 // The implementations of PublicKey can verify a Signature using the hash

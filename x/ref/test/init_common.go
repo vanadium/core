@@ -106,6 +106,7 @@ func internalInit(createMounttable bool) (*context.T, func()) {
 // TestContext returns a *context.T suitable for use in tests. It sets the
 // context's logger to logger.Global(), and that's it. In particular, it does
 // not call v23.Init().
+//
 //nolint:revive // API change required.
 func TestContext() (*context.T, context.CancelFunc) {
 	ctx, cancel := context.RootContext()

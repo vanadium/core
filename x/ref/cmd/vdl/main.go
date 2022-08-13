@@ -268,11 +268,11 @@ func (gls *genLangs) Set(value string) error {
 }
 
 // genOutDir has four modes.
-//   1) If dir is non-empty, we use it as the out dir.
-//   2) If rules is non-empty, we translate using the xlate rules.
-//   3) if supportGoModules is set then go module directory structure
-//      is accounted for mode 4.
-//   4) If everything is empty, we generate in-place.
+//  1. If dir is non-empty, we use it as the out dir.
+//  2. If rules is non-empty, we translate using the xlate rules.
+//  3. if supportGoModules is set then go module directory structure
+//     is accounted for mode 4.
+//  4. If everything is empty, we generate in-place.
 type genOutDir struct {
 	supportGoModules bool
 	dir              string

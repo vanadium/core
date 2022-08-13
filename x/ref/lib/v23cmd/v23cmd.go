@@ -47,24 +47,24 @@ func RunnerFunc(run func(*context.T, *cmdline.Env, []string) error) cmdline.Runn
 // This is typically used to set properties on the context before it is passed
 // to the run function.  E.g. you may use this to set a deadline on the context:
 //
-//   var cmdRoot = &cmdline.Command{
-//     Runner: v23cmd.RunnerFuncWithInit(runRoot, initWithDeadline)
-//     ...
-//   }
+//	var cmdRoot = &cmdline.Command{
+//	  Runner: v23cmd.RunnerFuncWithInit(runRoot, initWithDeadline)
+//	  ...
+//	}
 //
-//   func runRoot(ctx *context.T, env *cmdline.Env, args []string) error {
-//     ...
-//   }
+//	func runRoot(ctx *context.T, env *cmdline.Env, args []string) error {
+//	  ...
+//	}
 //
-//   func initWithDeadline() (*context.T, v23.Shutdown) {
-//     ctx, shutdown := v23.Init()
-//     ctx, cancel := context.WithTimeout(ctx, time.Minute)
-//     return ctx, func(){ cancel(); shutdown() }
-//   }
+//	func initWithDeadline() (*context.T, v23.Shutdown) {
+//	  ctx, shutdown := v23.Init()
+//	  ctx, cancel := context.WithTimeout(ctx, time.Minute)
+//	  return ctx, func(){ cancel(); shutdown() }
+//	}
 //
-//   func main() {
-//     cmdline.Main(cmdRoot)
-//   }
+//	func main() {
+//	  cmdline.Main(cmdRoot)
+//	}
 //
 // An alternative to the above example is to call context.WithTimeout within
 // runRoot.  The advantage of using RunnerFuncWithInit is that your regular code

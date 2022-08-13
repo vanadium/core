@@ -36,9 +36,10 @@ import (
 // isFastReadParent returns true iff subtypes of tt can use the fastpath for the
 // ReadValue* methods.  By using the fastpath we can skip the expensive
 // dfsNextType and setupType calls.  We can't use the fastpath for:
-//   Any:  since we always need to process the any header
-//   Enum: since ReadValueString won't know whether to decode a string or enum
-//   Byte: since ReadValueUint won't know whether to decode a uint or full byte
+//
+//	Any:  since we always need to process the any header
+//	Enum: since ReadValueString won't know whether to decode a string or enum
+//	Byte: since ReadValueUint won't know whether to decode a uint or full byte
 //
 // REQUIRES: tt is identical to the want type that the user is decoding into,
 // which ensures that we don't need to perform conversions.

@@ -19,77 +19,84 @@ import (
 	"v.io/x/ref/test/sectestdata"
 )
 
-func main() {
+func genkey(keyAlgo keys.CryptoAlgo) error {
 	passphrase := []byte("password")
+	for _, set := range []string{"-a-", "-b-", "-c-", "-d-", "-e-"} {
+		pk, err := keys.NewPrivateKeyForAlgo(keyAlgo)
+		if err != nil {
+			return err
+		}
+		// Write private key.
+		var (
+			data      []byte
+			publicKey crypto.PublicKey
+			pemKey    pem.Block
+		)
+		pemKey.Type = "PRIVATE KEY"
+		switch v := pk.(type) {
+		case *ecdsa.PrivateKey:
+			publicKey = v.Public()
+			data, err = x509.MarshalECPrivateKey(v)
+			pemKey.Type = "EC PRIVATE KEY"
+		case *rsa.PrivateKey:
+			publicKey = v.Public()
+			data, err = x509.MarshalPKCS8PrivateKey(v)
+		case ed25519.PrivateKey:
+			publicKey = v.Public()
+			data, err = x509.MarshalPKCS8PrivateKey(v)
+		}
+		if err != nil {
+			return err
+		}
+		pemKey.Bytes = data
+		encoded := &bytes.Buffer{}
+		if err := pem.Encode(encoded, &pemKey); err != nil {
+			return err
+		}
+		keyName := set + keyAlgo.String() + ".key"
+		err = os.WriteFile("v23-private"+keyName, encoded.Bytes(), 0600)
+		if err != nil {
+			return err
+		}
+
+		// Write encrypted private key.
+		encoded.Reset()
+		encryptedPemKey, err := x509.EncryptPEMBlock(rand.Reader, pemKey.Type, data, passphrase, x509.PEMCipherAES256) //nolint:staticcheck
+		if err != nil {
+			return err
+		}
+		if err := pem.Encode(encoded, encryptedPemKey); err != nil {
+			return err
+		}
+
+		if err := os.WriteFile("v23-encrypted"+keyName, encoded.Bytes(), 0600); err != nil {
+			return err
+		}
+
+		// Write public key.
+		data, err = x509.MarshalPKIXPublicKey(publicKey)
+		if err != nil {
+			return err
+		}
+		pemKey = pem.Block{
+			Type:  "PUBLIC KEY",
+			Bytes: data,
+		}
+		encoded.Reset()
+		if err := pem.Encode(encoded, &pemKey); err != nil {
+			return err
+		}
+		if err := os.WriteFile("v23-public"+keyName, encoded.Bytes(), 0600); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func main() {
 	for _, kd := range sectestdata.SupportedKeyAlgos {
-		for _, set := range []string{"-a-", "-b-", "-c-", "-d-", "-e-"} {
-			pk, err := keys.NewPrivateKeyForAlgo(kd)
-			if err != nil {
-				panic(err)
-			}
-			// Write private key.
-			var (
-				data      []byte
-				publicKey crypto.PublicKey
-				pemKey    pem.Block
-			)
-			pemKey.Type = "PRIVATE KEY"
-			switch v := pk.(type) {
-			case *ecdsa.PrivateKey:
-				publicKey = v.Public()
-				data, err = x509.MarshalECPrivateKey(v)
-				pemKey.Type = "EC PRIVATE KEY"
-			case *rsa.PrivateKey:
-				publicKey = v.Public()
-				data, err = x509.MarshalPKCS8PrivateKey(v)
-			case ed25519.PrivateKey:
-				publicKey = v.Public()
-				data, err = x509.MarshalPKCS8PrivateKey(v)
-			}
-			if err != nil {
-				panic(err)
-			}
-			pemKey.Bytes = data
-			encoded := &bytes.Buffer{}
-			if err := pem.Encode(encoded, &pemKey); err != nil {
-				panic(err)
-			}
-			err = os.WriteFile("v23-private"+set+kd.String()+".key", encoded.Bytes(), 0600)
-			if err != nil {
-				panic(err)
-			}
-
-			// Write encrypted private key.
-			encoded.Reset()
-			encryptedPemKey, err := x509.EncryptPEMBlock(rand.Reader, pemKey.Type, data, passphrase, x509.PEMCipherAES256) //nolint:staticcheck
-			if err != nil {
-				panic(err)
-			}
-			if err := pem.Encode(encoded, encryptedPemKey); err != nil {
-				panic(err)
-			}
-
-			if err := os.WriteFile("v23-encrypted"+set+kd.String()+".key", encoded.Bytes(), 0600); err != nil {
-				panic(err)
-			}
-
-			// Write public key.
-			data, err = x509.MarshalPKIXPublicKey(publicKey)
-			if err != nil {
-				panic(err)
-			}
-			pemKey = pem.Block{
-				Type:  "PUBLIC KEY",
-				Bytes: data,
-			}
-			encoded.Reset()
-			if err := pem.Encode(encoded, &pemKey); err != nil {
-				panic(err)
-			}
-			if err := os.WriteFile("v23-public"+set+kd.String()+".key", encoded.Bytes(), 0600); err != nil {
-				panic(err)
-			}
-
+		if err := genkey(kd); err != nil {
+			panic(err)
 		}
 	}
 }

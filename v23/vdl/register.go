@@ -145,28 +145,28 @@ func WrapInUnionInterface(rv reflect.Value) reflect.Value {
 // This is only required for enum and union vdl types, which don't have a
 // canonical Go representation.  All other fields are optional.
 //
-//   type Foo struct{}
-//   func (Foo) VDLReflect(struct{
-//     // Type represents the base type.  This is used by union to describe the
-//     // union interface type, as opposed to the concrete struct field types.
-//     Type Foo
+//	type Foo struct{}
+//	func (Foo) VDLReflect(struct{
+//	  // Type represents the base type.  This is used by union to describe the
+//	  // union interface type, as opposed to the concrete struct field types.
+//	  Type Foo
 //
-//     // Name holds the vdl type name, including the package path, in a tag.
-//     Name string "vdl/pkg.Foo"
+//	  // Name holds the vdl type name, including the package path, in a tag.
+//	  Name string "vdl/pkg.Foo"
 //
-//     // Only one of Enum or Union should be set; they're both shown here for
-//     // explanatory purposes.
+//	  // Only one of Enum or Union should be set; they're both shown here for
+//	  // explanatory purposes.
 //
-//     // Enum describes the labels for an enum type.
-//     Enum struct { A, B string }
+//	  // Enum describes the labels for an enum type.
+//	  Enum struct { A, B string }
 //
-//     // Union describes the union field names, along with the concrete struct
-//     // field types, which contain the actual field types.
-//     Union struct {
-//       A FieldA
-//       B FieldB
-//     }
-//   }
+//	  // Union describes the union field names, along with the concrete struct
+//	  // field types, which contain the actual field types.
+//	  Union struct {
+//	    A FieldA
+//	    B FieldB
+//	  }
+//	}
 type reflectInfo struct {
 	// Type is the basis for all other information in this struct.
 	Type reflect.Type
@@ -270,20 +270,22 @@ func deriveReflectInfo(rt reflect.Type) (*reflectInfo, bool, error) { //nolint:g
 }
 
 // describeEnum fills in ri; we expect enumReflect has this format:
-//   struct {A, B, C Foo}
+//
+//	struct {A, B, C Foo}
 //
 // Here's the full type for vdl type Foo enum{A;B}
-//   type Foo int
-//   const (
-//     FooA Foo = iota
-//     FooB
-//   )
-//   func (Foo) VDLReflect(struct{
-//     Type Foo
-//     Enum struct { A, B Foo }
-//   }) {}
-//   func (Foo) String() string {}
-//   func (*Foo) Set(string) error {}
+//
+//	type Foo int
+//	const (
+//	  FooA Foo = iota
+//	  FooB
+//	)
+//	func (Foo) VDLReflect(struct{
+//	  Type Foo
+//	  Enum struct { A, B Foo }
+//	}) {}
+//	func (Foo) String() string {}
+//	func (*Foo) Set(string) error {}
 func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error { //nolint:gocyclo
 	if rt != ri.Type || rt.Kind() == reflect.Interface {
 		return fmt.Errorf("enum type %q invalid (mismatched type %q)", rt, ri.Type)
@@ -309,31 +311,33 @@ func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error { //nolin
 }
 
 // describeUnion fills in ri; we expect unionReflect has this format:
-//   struct {
-//     A FooA
-//     B FooB
-//   }
+//
+//	struct {
+//	  A FooA
+//	  B FooB
+//	}
 //
 // Here's the full type for vdl type Foo union{A bool; B string}
-//   type (
-//     // Foo is the union interface type, that can hold any field.
-//     Foo interface {
-//       Index() int
-//       Name() string
-//       VDLReflect(__FooReflect)
-//     }
-//     // FooA and FooB are the concrete field types.
-//     FooA struct { Value bool }
-//     FooB struct { Value string }
-//     // __FooReflect lets us re-construct the union type via reflection.
-//     __FooReflect struct {
-//       Type  Foo // Tells us the union interface type.
-//       Union struct {
-//         A FooA  // Tells us field 0 has name A and concrete type FooA.
-//         B FooB  // Tells us field 1 has name B and concrete type FooB.
-//       }
-//     }
-//   )
+//
+//	type (
+//	  // Foo is the union interface type, that can hold any field.
+//	  Foo interface {
+//	    Index() int
+//	    Name() string
+//	    VDLReflect(__FooReflect)
+//	  }
+//	  // FooA and FooB are the concrete field types.
+//	  FooA struct { Value bool }
+//	  FooB struct { Value string }
+//	  // __FooReflect lets us re-construct the union type via reflection.
+//	  __FooReflect struct {
+//	    Type  Foo // Tells us the union interface type.
+//	    Union struct {
+//	      A FooA  // Tells us field 0 has name A and concrete type FooA.
+//	      B FooB  // Tells us field 1 has name B and concrete type FooB.
+//	    }
+//	  }
+//	)
 func describeUnion(unionReflect, rt reflect.Type, ri *reflectInfo) error {
 	if ri.Type.Kind() != reflect.Interface {
 		return fmt.Errorf("union type %q has non-interface type %q", rt, ri.Type)

@@ -17,9 +17,9 @@
 // to include the object name of the proxy service. This can be done via
 // the --v23.proxy flag or programmatically with something like:
 //
-//    ls := rpc.ListenSpec{Proxy: "proxy"}
-//    ctx = v23.WithListenSpec(ctx, ls)
-//    ctx, server, err := v23.WithNewServer(ctx, "server_name", dispatcher(), authorizer())
+//	ls := rpc.ListenSpec{Proxy: "proxy"}
+//	ctx = v23.WithListenSpec(ctx, ls)
+//	ctx, server, err := v23.WithNewServer(ctx, "server_name", dispatcher(), authorizer())
 //
 // Once the server has successfully exported its services through the proxy,
 // "server_name" will resolve to an endpoint that directs through the proxy.

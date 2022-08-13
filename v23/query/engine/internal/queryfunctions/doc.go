@@ -25,27 +25,36 @@
 // Each entry is a function struct which contains the following fields:
 //
 // argTypes      []query_parser.OperandType
-//               The arguments expected.  If the argument count is wrong,
-//               the checker will produce an error.  The types are
-//               informational only as the function itself is required
-//               to attempt to coerce the args to the correct type or
-//               return an error.
+//
+//	The arguments expected.  If the argument count is wrong,
+//	the checker will produce an error.  The types are
+//	informational only as the function itself is required
+//	to attempt to coerce the args to the correct type or
+//	return an error.
+//
 // hasVarArgs    bool
-//               True if, in addition to any types listed in argTypes, the function
-//               can take additional (optional) args.
+//
+//	True if, in addition to any types listed in argTypes, the function
+//	can take additional (optional) args.
+//
 // varArgsType   The type of the additional (optional) args.
 // returnType    query_parser.OperandType
-//               The return type of the function, for informational purposes
-//               only.
+//
+//	The return type of the function, for informational purposes
+//	only.
+//
 // funcAddr      queryFunc
-//               The address of the query function.
-//               If the function cannot complete to success, it must return an error and the
-//               argument responsible for the error.
+//
+//	The address of the query function.
+//	If the function cannot complete to success, it must return an error and the
+//	argument responsible for the error.
+//
 // checkArgsAddr checkArgsFunc
-//               The address of a function to check args at checker time.
-//               This function should check any arguments that it can at checker time.
-//               It can check literals.  Note: if all args are literals, the function itself
-//               is called at checker time rather than this function.
-//               DO NOT sepecify a checkArgsAddr if all that is to be checked is the number
-//               and types of args. These checks are standard.
+//
+//	The address of a function to check args at checker time.
+//	This function should check any arguments that it can at checker time.
+//	It can check literals.  Note: if all args are literals, the function itself
+//	is called at checker time rather than this function.
+//	DO NOT sepecify a checkArgsAddr if all that is to be checked is the number
+//	and types of args. These checks are standard.
 package queryfunctions

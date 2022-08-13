@@ -24,20 +24,21 @@ import (
 //
 // Compatibility is reversible and transitive, except for the special Any type.
 // Here are the rules:
-//   o Any is compatible with all types.
-//   o Optional is ignored for all rules (e.g. ?int is treated as int).
-//   o Bool is only compatible with Bool.
-//   o TypeObject is only compatible with TypeObject.
-//   o Numbers are mutually compatible.
-//   o String and enum are mutually compatible.
-//   o Array and list are compatible if their elem types are compatible.
-//   o Sets are compatible if their key types are compatible.
-//   o Maps are compatible if their key and elem types are compatible.
-//   o Structs are compatible if all fields with the same name are compatible,
-//     and at least one field has the same name, or one of the types has no
-//     fields.
-//   o Unions are compatible if all fields with the same name are compatible,
-//     and at least one field has the same name.
+//
+//	o Any is compatible with all types.
+//	o Optional is ignored for all rules (e.g. ?int is treated as int).
+//	o Bool is only compatible with Bool.
+//	o TypeObject is only compatible with TypeObject.
+//	o Numbers are mutually compatible.
+//	o String and enum are mutually compatible.
+//	o Array and list are compatible if their elem types are compatible.
+//	o Sets are compatible if their key types are compatible.
+//	o Maps are compatible if their key and elem types are compatible.
+//	o Structs are compatible if all fields with the same name are compatible,
+//	  and at least one field has the same name, or one of the types has no
+//	  fields.
+//	o Unions are compatible if all fields with the same name are compatible,
+//	  and at least one field has the same name.
 //
 // Recursive types are checked for compatibility up to the first occurrence of a
 // cycle in either type.  This leaves open the possibility of "obvious" false

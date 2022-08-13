@@ -294,7 +294,8 @@ func NewDialed(
 // NewAccepted accepts a new Conn on the given conn.
 //
 // NOTE: that the FlowHandler must be called asynchronously since it may
-//       block until this function returns.
+//
+//	block until this function returns.
 func NewAccepted(
 	ctx *context.T,
 	lAuthorizedPeers []security.BlessingPattern,
@@ -577,7 +578,6 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	}
 	id := c.nextFid
 	c.nextFid += 2
-	remote = c.remote
 	remote = remote.WithBlessingNames(c.remote.BlessingNames())
 	flw := c.newFlowLocked(
 		ctx,

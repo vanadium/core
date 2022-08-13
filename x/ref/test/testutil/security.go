@@ -49,10 +49,10 @@ func NewPrincipal(blessingNames ...string) security.Principal {
 //
 // Typical usage:
 //
-//    p1, p2 := NewPrincipal(), NewPrincipal()
-//    idp := NewIDProvider("xyz")
-//    idp.Bless(p1, "alpha")
-//    idp.Bless(p2, "beta")
+//	p1, p2 := NewPrincipal(), NewPrincipal()
+//	idp := NewIDProvider("xyz")
+//	idp.Bless(p1, "alpha")
+//	idp.Bless(p2, "beta")
 //
 // Now, p1 and p2 will present "xyz/alpha" and "xyz/beta" as their blessing
 // names and when communicating with each other, p1 and p2 will recognize these
@@ -87,10 +87,11 @@ func IDProviderFromPrincipal(p security.Principal) *IDProvider {
 
 // Bless sets up the provided principal to use blessings from idp as its
 // default. It is shorthand for:
-//    b, _ := idp.NewBlessings(who, extension, caveats...)
-//    who.BlessingStore().SetDefault(b)
-//    who.BlessingStore().Set(b, security.AllPrincipals)
-//    security.AddToRoots(who, b)
+//
+//	b, _ := idp.NewBlessings(who, extension, caveats...)
+//	who.BlessingStore().SetDefault(b)
+//	who.BlessingStore().Set(b, security.AllPrincipals)
+//	security.AddToRoots(who, b)
 func (idp *IDProvider) Bless(who security.Principal, extension string, caveats ...security.Caveat) error {
 	b, err := idp.NewBlessings(who, extension, caveats...)
 	if err != nil {

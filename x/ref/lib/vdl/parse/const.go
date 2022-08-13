@@ -24,9 +24,10 @@ type ConstExpr interface {
 
 // ConstLit represents scalar literals in const expressions.  The supported
 // types for Lit are:
-//   string     - Represents all string constants.
-//   *big.Int   - Represents all integer constants.
-//   *big.Rat   - Represents all rational constants.
+//
+//	string     - Represents all string constants.
+//	*big.Int   - Represents all integer constants.
+//	*big.Rat   - Represents all rational constants.
 type ConstLit struct {
 	Lit interface{}
 	P   Pos

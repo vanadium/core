@@ -423,11 +423,15 @@ func validateCaveatsForSigning(ctx *context.T, call Call, chain []Certificate) e
 // providers encapsulated in b.
 //
 // In particular:
-//     AddToRoots(p, b)
+//
+//	AddToRoots(p, b)
+//
 // is equivalent to:
-//     for _, root := range RootBlessings(b) {
-//         AddToRoots(p, root)
-//     }
+//
+//	for _, root := range RootBlessings(b) {
+//	    AddToRoots(p, root)
+//	}
+//
 // Why would you use the latter? Only to share roots with another process,
 // without revealing your complete blessings and using fewer bytes.
 func RootBlessings(b Blessings) []Blessings {
@@ -531,7 +535,8 @@ func SigningBlessingNames(ctx *context.T, p Principal, blessings Blessings) ([]s
 //
 // (1) Satisfy all the caveats associated with them, in the context of the call.
 // (2) Be rooted in call.LocalPrincipal.Roots or for x509 certificates in a
-//     the cert pool used by call.LocalPrincipal.Roots()
+//
+//	the cert pool used by call.LocalPrincipal.Roots()
 //
 // Caveats are considered satisfied for the 'call' if the CaveatValidator implementation
 // can be found in the address space of the caller and Validate returns nil.
@@ -599,7 +604,8 @@ func RemoteBlessingNames(ctx *context.T, call Call) ([]string, []RejectedBlessin
 // encapsulated in the blessings object presented by the local end of the call.
 //
 // This is just a convenience function over:
-//     BlessingNames(call.LocalPrincipal(), call.LocalBlessings())
+//
+//	BlessingNames(call.LocalPrincipal(), call.LocalBlessings())
 func LocalBlessingNames(ctx *context.T, call Call) []string {
 	if ctx == nil || call == nil {
 		return nil

@@ -277,19 +277,20 @@ func TypeObjectValue(x *Type) *Value {
 }
 
 // ZeroValue returns a new Value of type t representing the zero value for t:
-//   o Bool:       false
-//   o Numbers:    0
-//   o String:     ""
-//   o Enum:       label at index 0
-//   o TypeObject: AnyType
-//   o List:       empty collection
-//   o Set:        empty collection
-//   o Map:        empty collection
-//   o Array:      zero values for all elems
-//   o Struct:     zero values for all fields
-//   o Union:      zero value of the type at index 0
-//   o Any:        nil value, representing nonexistence
-//   o Optional:   nil value, representing nonexistence
+//
+//	o Bool:       false
+//	o Numbers:    0
+//	o String:     ""
+//	o Enum:       label at index 0
+//	o TypeObject: AnyType
+//	o List:       empty collection
+//	o Set:        empty collection
+//	o Map:        empty collection
+//	o Array:      zero values for all elems
+//	o Struct:     zero values for all fields
+//	o Union:      zero value of the type at index 0
+//	o Any:        nil value, representing nonexistence
+//	o Optional:   nil value, representing nonexistence
 //
 // Panics if t == nil.
 func ZeroValue(t *Type) *Value {

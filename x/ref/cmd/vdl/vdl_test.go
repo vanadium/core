@@ -47,7 +47,7 @@ func verifyOutput(t *testing.T, outDir string) {
 			t.Fatalf("ReadFile(%v) failed: %v", outFile, err)
 		}
 		if !bytes.Equal(outBytes, testBytes) {
-			t.Fatalf("GOT:\n%v\n\nWANT:\n%v\n", string(outBytes), string(testBytes))
+			t.Fatalf("\nGOT:\n%v\n\nWANT:\n%v\n", string(outBytes), string(testBytes))
 		}
 		numEqual++
 	}

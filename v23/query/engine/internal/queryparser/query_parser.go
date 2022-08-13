@@ -1470,8 +1470,9 @@ func ConvertValueToAnOperand(value *vdl.Value, off int64) (*Operand, error) {
 // scanner with the contents of the field name and only succeeds if the result of
 // parsing the contents of the scan is a field and there is nothing left over.
 // Note: This function is NOT involved in the parsing of the AST.  Offsets of 0 are
-//       returned on error as these errors are unrelated to the input query.  They
-//       are configuration errors in the datasource.
+//
+//	returned on error as these errors are unrelated to the input query.  They
+//	are configuration errors in the datasource.
 func ParseIndexField(db ds.Database, fieldName, tableName string) (*Field, error) {
 	// Set up a scanner and call the parser's parseOperand function.
 	r := strings.NewReader(fieldName)

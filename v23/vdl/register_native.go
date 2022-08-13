@@ -18,8 +18,9 @@ import (
 // converted into the Go standard time.Time.
 //
 // The signatures of the conversion functions is expected to be:
-//   func ToNative(wire W, native *N) error
-//   func FromNative(wire *W, native N) error
+//
+//	func ToNative(wire W, native *N) error
+//	func FromNative(wire *W, native N) error
 //
 // The VDL conversion routines automatically apply these conversion functions,
 // to avoid manual marshaling by the user.  The "dst" values (i.e. native in
@@ -60,18 +61,17 @@ func RegisterNativeIsZero(native interface{}) {
 // required to ensure valid conversions and this is purely a performance
 // optimisation.
 //
-//    vdl.RegisterNativeConverter(Time{}, nativeConverter{})
+//	   vdl.RegisterNativeConverter(Time{}, nativeConverter{})
 //
-//    type nativeConverter struct{}
+//	   type nativeConverter struct{}
 //
-//    func (f nativeConverter) ToNative(wire, native interface{}) error {
-//	    return TimeToNative(wire.(Time), native.(*time.Time))
-//    }
+//	   func (f nativeConverter) ToNative(wire, native interface{}) error {
+//		    return TimeToNative(wire.(Time), native.(*time.Time))
+//	   }
 //
-//    func (f nativeConverter) FromNative(wire, native interface{}) error {
-//      return TimeFromNative(wire.(*Time), native.(time.Time))
-//    }
-//
+//	   func (f nativeConverter) FromNative(wire, native interface{}) error {
+//	     return TimeFromNative(wire.(*Time), native.(time.Time))
+//	   }
 func RegisterNativeConverter(wireType interface{}, converter NativeConverter) {
 	ni := nativeInfoFromWire(reflect.TypeOf(wireType))
 	if ni == nil {
@@ -240,8 +240,9 @@ var errNoRegisterNativeError = errors.New(`vdl: RegisterNative must be called to
 
 // deriveNativeInfo returns the nativeInfo corresponding to toFn and fromFn,
 // which are expected to have the following signatures:
-//   func ToNative(wire W, native *N) error
-//   func FromNative(wire *W, native N) error
+//
+//	func ToNative(wire W, native *N) error
+//	func FromNative(wire *W, native N) error
 func deriveNativeInfo(toFn, fromFn interface{}) (*nativeInfo, error) { //nolint:gocyclo
 	if toFn == nil || fromFn == nil {
 		return nil, fmt.Errorf("nil arguments")

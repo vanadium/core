@@ -20,9 +20,7 @@ var (
 
 func newServiceUUID(interfaceName string) idiscovery.Uuid {
 	uuid := idiscovery.NewServiceUUID(interfaceName)
-	for i, prefix := range vanadiumUUIDPrefixes {
-		uuid[i] = prefix
-	}
+	copy(uuid, vanadiumUUIDPrefixes[:])
 	return uuid
 }
 

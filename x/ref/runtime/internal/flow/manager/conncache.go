@@ -420,13 +420,20 @@ func (c *ConnCache) Reserve(ctx *context.T, remote naming.Endpoint) *Reservation
 //
 // The policy is as follows:
 // (1) Remove undialable (closing/closed) conns from the cache, there is no point
-//     in closing undialable connections to address a FD limit.
+//
+//	in closing undialable connections to address a FD limit.
+//
 // (2) Close and remove lameducked, expired connections from the cache,
-//     counting non-proxied connections towards the removed FD count (num).
+//
+//	counting non-proxied connections towards the removed FD count (num).
+//
 // (3) LameDuck idle expired connections, killing them if num is still greater
-//     than 0.
+//
+//	than 0.
+//
 // (4) Finally if 'num' hasn't been reached, remove the LRU remaining conns
-//     until num is reached.
+//
+//	until num is reached.
 //
 // If num is greater than the number of connections in the cache, all cached
 // connections will be closed and removed.

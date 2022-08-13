@@ -11,10 +11,10 @@
 // <buf>) used for memory allocation.  The bufs are subdivided into slices of
 // type Slice.
 //
-//     Pool: a source of memory areas.
-//     Slice: a contiguous region of allocated memory.
-//     Allocator: a Slice allocator.
-//     Reader: an IO reader that reads into Slices.
+//	Pool: a source of memory areas.
+//	Slice: a contiguous region of allocated memory.
+//	Allocator: a Slice allocator.
+//	Reader: an IO reader that reads into Slices.
 //
 // There is an analogy with sbrk/malloc: the Pool is the source of memory (like
 // sbrk), and the Allocator hands out small areas (like malloc).  Allocations

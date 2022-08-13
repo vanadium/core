@@ -38,7 +38,8 @@ const (
 
 // SSHKeydir creates a pre-populated directory of ssh keys to use in
 // tests. The following keys are installed for all supported algorithms.
-//	 ssh-<algo>, ssh-encrypted-<algo>, ssh-<algo>.pub, ssh-<algo>.pem,
+//
+//	ssh-<algo>, ssh-encrypted-<algo>, ssh-<algo>.pub, ssh-<algo>.pem,
 func SSHKeydir() (string, []string, error) {
 	entries, err := sshKeys.ReadDir("testdata")
 	if err != nil {

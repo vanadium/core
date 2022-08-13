@@ -551,13 +551,15 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // There is a subtlety.  Since we haven't hash-consed the types yet, it's
 // possible that two different graphs also represent equal types.  E.g. consider
 // the type:
-//   type A struct {x []string;y []string}
+//
+//	type A struct {x []string;y []string}
 //
 // There are two different representations:
-//            A (not consed)     A (hash-consed)
-//          x/ \y              x/ \y
-//          /   \               \ /
-//   []string   []string     []string
+//
+//	         A (not consed)     A (hash-consed)
+//	       x/ \y              x/ \y
+//	       /   \               \ /
+//	[]string   []string     []string
 //
 // Both of these representations must return the same unique string.  To
 // accomplish this, we recursively traverse the graph and dump the semantic
