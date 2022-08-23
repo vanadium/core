@@ -26,7 +26,7 @@ This test creates a VC before the benchmark begins. So, the VC creation
 overhead is excluded.
 
 ```
-$ jiri go test -bench=. -timeout=1h -cpu=1 -benchtime=5s v.io/x/ref/runtime/internal/rpc/benchmark
+$ go test -bench=. -timeout=1h -cpu=1 -benchtime=5s v.io/x/ref/runtime/internal/rpc/benchmark
 PASS
 Benchmark____1B     1000           8301357 ns/op           0.00 MB/s
 --- Histogram (unit: ms)
@@ -49,17 +49,21 @@ Benchmark___10B     1000           8587341 ns/op           0.00 MB/s
 
 `RESULTS.txt` has the full benchmark results.
 
-## `simple/main.go`
+## `summary/summary_test.go`
 
-`simple/main.go` is a simple command-line tool to run the main benchmarks to measure
-RPC setup time, latency, and throughput.
+`summary/summary_test.go` is a subset of the benchmarks, useful as a summary
+or for profiling
 
 ```
-$ jiri go run simple/main.go
-RPC Connection  33.48 ms/rpc
-RPC (echo 1000B)  1.31 ms/rpc (763.05 qps)
-RPC Streaming (echo 1000B)  0.11 ms/rpc
-RPC Streaming Throughput (echo 1MB) 313.91 MB/s
+$ go test ./summary -bench.
+goos: darwin
+goarch: arm64
+pkg: v.io/x/ref/runtime/internal/rpc/benchmark/summary
+Benchmark_____ConnectionSetup-10    	     855	   1486332 ns/op	  438416 B/op	    3261 allocs/op
+Benchmark__Echo__________10KB-10    	    5986	    192148 ns/op	 104.09 MB/s	  100610 B/op	     268 allocs/op
+Benchmark__Echo_Stream___10KB-10    	    2004	    554231 ns/op	 360.86 MB/s	  485322 B/op	     594 allocs/op
+Benchmark__Echo_Stream_1000KB-10    	      26	  46020415 ns/op	 434.59 MB/s	46248999 B/op	    3152 allocs/op
+PASS
 ```
 
 # Client/Server
@@ -71,14 +75,14 @@ this test includes the startup cost of name resolution, creating the VC, etc. in
 the first RPC.
 
 ```
-$ jiri go run benchmarkd/main.go \
+$ go run benchmarkd/main.go \
   -v23.tcp.address=localhost:8888 -v23.permissions.literal='{"Read": {"In": ["..."]}}'
 ```
 
 (In a different shell)
 
 ```
-$ jiri go run benchmark/main.go \
+$ go run benchmark/main.go \
   -server=/localhost:8888 -iterations=100 -chunk_count=0 -payload_size=10
 iterations: 100  chunk_count: 0  payload_size: 10
 elapsed time: 1.369034277s
