@@ -97,6 +97,16 @@ func (c *Conn) newFlowLocked(
 	return f
 }
 
+func (c *Conn) newFlowCountersLocked(id uint64) {
+	c.toRelease[id] = DefaultBytesBufferedPerFlow
+	c.borrowing[id] = true
+}
+
+func (c *Conn) clearFlowCountersLocked(id uint64) {
+	delete(c.toRelease, id)
+	delete(c.borrowing, id)
+}
+
 // Implement the writer interface.
 func (f *flw) notify()       { f.writeCh <- struct{}{} }
 func (f *flw) priority() int { return flowPriority }
@@ -505,6 +515,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 			f.conn.outstandingBorrowed[f.id] = f.borrowed
 		}
 		delete(f.conn.flows, f.id)
+		f.conn.clearFlowCountersLocked(f.id)
 		f.conn.mu.Unlock()
 		if serr != nil {
 			ctx.VI(2).Infof("Could not send close flow message: %v", err)
