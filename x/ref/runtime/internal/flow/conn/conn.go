@@ -800,7 +800,12 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	var toRelease map[uint64]uint64
 	var release bool
 	c.mu.Lock()
-	c.toRelease[fid] += count
+	if _, ok := c.flows[fid]; ok {
+		// Handle the case where the flow is already closed but a message
+		// is received for it, hence only bump the toRelease value for
+		// that flow if it is still active.
+		c.toRelease[fid] += count
+	}
 	if c.borrowing[fid] {
 		c.toRelease[invalidFlowID] += count
 		release = c.toRelease[invalidFlowID] > DefaultBytesBufferedPerFlow/2
@@ -916,8 +921,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 			c.acceptChannelTimeout,
 			sideChannel)
 		f.releaseLocked(msg.InitialCounters)
-		c.toRelease[msg.ID] = DefaultBytesBufferedPerFlow
-		c.borrowing[msg.ID] = true
+		c.newFlowCountersLocked(msg.ID)
 		c.mu.Unlock()
 
 		c.handler.HandleFlow(f) //nolint:errcheck

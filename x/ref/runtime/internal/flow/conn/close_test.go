@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"runtime"
 	"sync"
 	"testing"
 
@@ -253,4 +254,102 @@ func TestFlowCancelOnRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	<-af.Closed()
+}
+
+func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool) (
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
+	accept := make(chan flow.Flow, 1)
+	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, accept, nil, nil)
+	if derr != nil || aerr != nil {
+		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
+	}
+
+	errCh := make(chan error, 1)
+	go func() {
+		for flw := range accept {
+			m, err := flw.ReadMsg()
+			if err != nil {
+				errCh <- err
+				return
+			}
+			if _, err := flw.WriteMsg(m); err != nil {
+				errCh <- err
+				return
+			}
+			if acceptClose {
+				if err := flw.Close(); err != nil {
+					errCh <- err
+					return
+				}
+			}
+		}
+		errCh <- nil
+	}()
+
+	for i := 0; i < count; i++ {
+		df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := df.WriteMsg([]byte("hello")); err != nil {
+			t.Fatalf("could not write flow: %v", err)
+		}
+		if _, err := df.ReadMsg(); err != nil {
+			t.Fatalf("unexpected error reading from flow: %v", err)
+		}
+		if dialClose {
+			if err := df.Close(); err != nil {
+				t.Fatalf("unexpected error closing flow: %v", err)
+			}
+		}
+	}
+
+	close(accept)
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
+	}
+
+	dc.mu.Lock()
+	dialRelease, dialBorrowed = len(dc.toRelease), len(dc.borrowing)
+	dc.mu.Unlock()
+	ac.mu.Lock()
+	acceptRelease, acceptBorrowed = len(ac.toRelease), len(ac.borrowing)
+	ac.mu.Unlock()
+	ac.Close(ctx, nil)
+	dc.Close(ctx, nil)
+	return
+}
+
+func TestCounters(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	check := func(got, want int) {
+		if got > want {
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line: %v, got %v, want %v", line, got, want)
+		}
+	}
+	count := 1000
+	// The actual values should be 1 for the dial side and 2 for the accept side, but
+	// we allow a few more than that to avoid racing for the network comms to complete after
+	// the flows are closed.
+	approx := 3
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed := testCounters(t, ctx, count, true, true)
+	check(dialRelease, approx)
+	check(dialBorrowed, approx)
+	check(acceptRelease, approx)
+	check(acceptBorrowed, approx)
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false)
+	check(dialRelease, approx)
+	check(dialBorrowed, approx)
+	check(acceptRelease, approx)
+	check(acceptBorrowed, approx)
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true)
+	check(dialRelease, approx)
+	check(dialBorrowed, approx)
+	check(acceptRelease, approx)
+	check(acceptBorrowed, approx)
 }
