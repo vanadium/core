@@ -806,7 +806,6 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 		var send, remaining map[uint64]uint64
 		rem := len(toRelease) - limit
 		if rem <= 0 {
-			rem = 0
 			send = toRelease
 		} else {
 			send = make(map[uint64]uint64, limit)

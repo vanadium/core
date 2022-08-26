@@ -847,13 +847,13 @@ func (m *manager) internalDial(
 		forSideChannel = true
 		all, err := m.cache.FindAllCached(ctx, remote, auth)
 		if err == nil {
-			for _, c := range all {
+			for i, c := range all {
 				sc := c.(flow.ManagedConn)
 				if sideChannelChan == sc {
 					cached = c
-					//if i > 0 {
-					//	ctx.Infof("internalDial: side channel for %v, conn %p, index: %v", remote, c, i)
-					//}
+					if i > 0 {
+						ctx.Infof("internalDial: side channel for %v, conn %p, index: %v", remote, c, i)
+					}
 					break
 				}
 			}

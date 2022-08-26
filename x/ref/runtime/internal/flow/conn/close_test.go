@@ -257,43 +257,48 @@ func TestFlowCancelOnRead(t *testing.T) {
 	<-af.Closed()
 }
 
+func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
+	for flw := range acceptCh {
+		buf := make([]byte, size)
+		// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+		// will fragment a message larger than a default size into multiple
+		// messages.
+		n, err := io.ReadFull(flw, buf)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		if n != size {
+			errCh <- fmt.Errorf("short read: %v != %v", n, size)
+		}
+		if got, want := n, size; got != want {
+			errCh <- fmt.Errorf("got %v, want %v", got, want)
+		}
+		if _, err := flw.WriteMsg(buf); err != nil {
+			errCh <- err
+			return
+		}
+
+		if close {
+			if err := flw.Close(); err != nil {
+				errCh <- err
+				return
+			}
+		}
+	}
+	errCh <- nil
+}
+
 func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
-	accept := make(chan flow.Flow, 1)
-	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, accept, nil, nil)
+	acceptCh := make(chan flow.Flow, 1)
+	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil)
 	if derr != nil || aerr != nil {
 		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
 	}
 
 	errCh := make(chan error, 1)
-	go func() {
-		for flw := range accept {
-			buf := make([]byte, size)
-			n, err := io.ReadFull(flw, buf)
-			if err != nil {
-				errCh <- err
-				return
-			}
-			if n != size {
-				errCh <- fmt.Errorf("short read: %v != %v", n, size)
-			}
-			if got, want := n, size; got != want {
-				errCh <- fmt.Errorf("got %v, want %v", got, want)
-			}
-			if _, err := flw.WriteMsg(buf); err != nil {
-				errCh <- err
-				return
-			}
-
-			if acceptClose {
-				if err := flw.Close(); err != nil {
-					errCh <- err
-					return
-				}
-			}
-		}
-		errCh <- nil
-	}()
+	go acceptor(errCh, acceptCh, size, acceptClose)
 
 	writeBuf := make([]byte, size)
 	if n, err := io.ReadFull(rand.Reader, writeBuf); n != size || err != nil {
@@ -305,11 +310,14 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		if err != nil {
 			t.Fatal(err)
 		}
-
+		// WriteMsg wil fragment messages larger than its default buffer size.
 		if _, err := df.WriteMsg(writeBuf); err != nil {
 			t.Fatalf("could not write flow: %v", err)
 		}
 		readBuf := make([]byte, size)
+		// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+		// will fragment a message larger than a default size into multiple
+		// messages.
 		n, err := io.ReadFull(df, readBuf)
 		if err != nil {
 			t.Fatalf("unexpected error reading from flow: %v", err)
@@ -327,7 +335,7 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		}
 	}
 
-	close(accept)
+	close(acceptCh)
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
 	}
@@ -364,15 +372,6 @@ func TestCounters(t *testing.T) {
 		compare(acceptRelease, acceptApprox)
 		compare(acceptBorrowed, acceptApprox)
 	}
-	// The actual values should be 1 for the dial side but we allow a few more
-	// than that to avoid racing for the network comms to complete after
-	// the flows are closed. On the accept side, the number of currently in
-	// use toRelease entries depends on the size of the data buffers used.
-	// The number is determined by the number of flows that have outstanding
-	// Release messages to send to the dialer once count iterations are complete.
-	// Increasing size decreases the number of flows with outstanding Release
-	// messages since the shared counter is burned through faster when using
-	// a larger size.
 
 	runAndTest := func(count, size, dialApprox, acceptApprox int) {
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
@@ -383,13 +382,22 @@ func TestCounters(t *testing.T) {
 		assert(dialApprox, acceptApprox)
 	}
 
+	// The actual values should be 1 for the dial side but we allow a few more
+	// than that to avoid racing for the network comms to complete after
+	// the flows are closed. On the accept side, the number of currently in
+	// use toRelease entries depends on the size of the data buffers used.
+	// The number is determined by the number of flows that have outstanding
+	// Release messages to send to the dialer once count iterations are complete.
+	// Increasing size decreases the number of flows with outstanding Release
+	// messages since the shared counter is burned through faster when using
+	// a larger size.
+
 	// For small packets, all connections end up being 'borrowed' and hence
 	// their counters are kept around.
-	//	runAndTest(5000, 10, 3, 5005)
+	runAndTest(5000, 10, 3, 5005)
 	// 60K connection setups/teardowns will ensure that the release message
 	// is fragmented.
 	runAndTest(60000, 10, 3, 10000)
-	//	runAndTest(5000, 1024*16, 3, 20)
-	//	runAndTest(5000, 1024*1000, 3, 2)
-
+	runAndTest(5000, 1024*16, 3, 20)
+	runAndTest(1000, 1024*100, 3, 5)
 }
