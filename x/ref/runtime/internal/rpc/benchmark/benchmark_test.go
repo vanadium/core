@@ -35,6 +35,7 @@ var (
 
 // Benchmarks for non-streaming RPC.
 func runEcho(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -47,6 +48,7 @@ func Benchmark_100KB(b *testing.B) { runEcho(b, 100000) }
 
 // Benchmark for non-streaming RPC with a Client ExpiryCaveat.
 func runEchoClientExpiry(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, expCtx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -58,6 +60,7 @@ func Benchmark__10KB_ClientExpiryCav(b *testing.B) { runEchoClientExpiry(b, 1000
 func Benchmark_100KB_ClientExpiryCav(b *testing.B) { runEchoClientExpiry(b, 100000) }
 
 func runEchoServerExpiry(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, ctx, expServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -70,6 +73,7 @@ func Benchmark_100KB_ServerExpiryCav(b *testing.B) { runEchoServerExpiry(b, 1000
 
 // Benchmark for non-streaming RPC with a Client ThirdPartyCaveat.
 func runEchoClientTPC(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, tpcCtx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -82,6 +86,7 @@ func Benchmark_100KB_ClientTPCav(b *testing.B) { runEchoClientTPC(b, 100000) }
 
 // Benchmark for non-streaming RPC with a Server ThirdPartyCaveat.
 func runEchoServerTPC(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, ctx, tpcServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -94,6 +99,7 @@ func Benchmark_100KB_ServerTPCav(b *testing.B) { runEchoServerTPC(b, 100000) }
 
 // Benchmark for non-streaming RPC with a proxied Server.
 func runEchoProxiedServer(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEcho(b, ctx, proxiedServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -106,6 +112,7 @@ func Benchmark_100KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 10000
 
 // Benchmarks for streaming RPC.
 func runEchoStream(b *testing.B, chunkCnt, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, benchmark.AddStats(b, 16))
 }
 
@@ -136,6 +143,7 @@ func Benchmark___1K_chunk__100KB(b *testing.B) { runEchoStream(b, 1000, 100000) 
 
 // Benchmarks for per-chunk throughput in streaming RPC.
 func runPerChunk(b *testing.B, payloadSize int) {
+	b.ReportAllocs()
 	internal.CallEchoStream(b, ctx, serverAddr, 1, b.N, payloadSize, benchmark.NewStats(1))
 }
 
@@ -148,6 +156,7 @@ func Benchmark__per_chunk_100KB(b *testing.B) { runPerChunk(b, 100000) }
 
 // Benchmarks for non-streaming RPC while running streaming RPC in background.
 func runMux(b *testing.B, payloadSize, chunkCntB, payloadSizeB int) {
+	b.ReportAllocs()
 	_, stop := internal.StartEchoStream(&testing.B{}, ctx, serverAddr, 0, chunkCntB, payloadSizeB, benchmark.NewStats(1))
 	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
 	stop()
@@ -212,18 +221,22 @@ func benchmarkPrivateConnectionEstablishment(b *testing.B, serverAuth ...securit
 }
 
 func BenchmarkConnectionEstablishment(b *testing.B) {
+	b.ReportAllocs()
 	benchmarkConnectionEstablishment(b, ctx, serverAddr)
 }
 
 func BenchmarkProxiedConnectionEstablishment(b *testing.B) {
+	b.ReportAllocs()
 	benchmarkConnectionEstablishment(b, ctx, proxiedServerAddr)
 }
 
 func BenchmarkPrivateConnectionEstablishment1(b *testing.B) {
+	b.ReportAllocs()
 	benchmarkPrivateConnectionEstablishment(b, "root:client")
 }
 
 func BenchmarkPrivateConnectionEstablishment3(b *testing.B) {
+	b.ReportAllocs()
 	benchmarkPrivateConnectionEstablishment(b, "root:client", "root:client2", "root:client3")
 }
 
