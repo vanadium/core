@@ -257,46 +257,48 @@ func TestFlowCancelOnRead(t *testing.T) {
 	<-af.Closed()
 }
 
+func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
+	for flw := range acceptCh {
+		buf := make([]byte, size)
+		// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+		// will fragment a message larger than a default size into multiple
+		// messages.
+		n, err := io.ReadFull(flw, buf)
+		if err != nil {
+			errCh <- err
+			return
+		}
+		if n != size {
+			errCh <- fmt.Errorf("short read: %v != %v", n, size)
+		}
+		if got, want := n, size; got != want {
+			errCh <- fmt.Errorf("got %v, want %v", got, want)
+		}
+		if _, err := flw.WriteMsg(buf); err != nil {
+			errCh <- err
+			return
+		}
+
+		if close {
+			if err := flw.Close(); err != nil {
+				errCh <- err
+				return
+			}
+		}
+	}
+	errCh <- nil
+}
+
 func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
-	accept := make(chan flow.Flow, 1)
-	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, accept, nil, nil)
+	acceptCh := make(chan flow.Flow, 1)
+	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil)
 	if derr != nil || aerr != nil {
 		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
 	}
 
 	errCh := make(chan error, 1)
-	go func() {
-		for flw := range accept {
-			buf := make([]byte, size)
-			// It's essential to use ReadFull rather than ReadMsg since WriteMsg
-			// will fragment a message larger than a default size into multiple
-			// messages.
-			n, err := io.ReadFull(flw, buf)
-			if err != nil {
-				errCh <- err
-				return
-			}
-			if n != size {
-				errCh <- fmt.Errorf("short read: %v != %v", n, size)
-			}
-			if got, want := n, size; got != want {
-				errCh <- fmt.Errorf("got %v, want %v", got, want)
-			}
-			if _, err := flw.WriteMsg(buf); err != nil {
-				errCh <- err
-				return
-			}
-
-			if acceptClose {
-				if err := flw.Close(); err != nil {
-					errCh <- err
-					return
-				}
-			}
-		}
-		errCh <- nil
-	}()
+	go acceptor(errCh, acceptCh, size, acceptClose)
 
 	writeBuf := make([]byte, size)
 	if n, err := io.ReadFull(rand.Reader, writeBuf); n != size || err != nil {
@@ -333,7 +335,7 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		}
 	}
 
-	close(accept)
+	close(acceptCh)
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
 	}
