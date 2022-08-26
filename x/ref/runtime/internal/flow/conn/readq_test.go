@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"bytes"
+	"crypto/rand"
 	"io"
 	"testing"
 
@@ -27,8 +29,8 @@ func TestReadqRead(t *testing.T) {
 	defer shutdown()
 
 	r := newReadQ(nil, 1)
-	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
-	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
+	r.put(ctx, mkBufs("one", "two"))
+	r.put(ctx, mkBufs("thre", "reallong"))
 	r.close(ctx)
 
 	read := make([]byte, 4)
@@ -43,6 +45,66 @@ func TestReadqRead(t *testing.T) {
 		}
 	}
 	if _, err := r.read(ctx, read); err != io.EOF {
+		t.Errorf("expected EOF got %v", err)
+	}
+}
+
+func mkBufsRand(sizes ...int) [][]byte {
+	out := make([][]byte, len(sizes))
+	for i, s := range sizes {
+		out[i] = make([]byte, s)
+		io.ReadFull(rand.Reader, out[i])
+	}
+	return out
+}
+
+func TestReadqReadRandom(t *testing.T) {
+	defer goroutines.NoLeaks(t, 0)()
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	r := newReadQ(nil, 1)
+	bufs := mkBufsRand(100, 1024, 4096, 8192, 8192, 8192, 100*1024)
+	r.put(ctx, bufs)
+	r.close(ctx)
+
+	for _, want := range bufs {
+		read := make([]byte, len(want))
+		n, err := r.read(ctx, read)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got := read[:n]; !bytes.Equal(got, want) {
+			t.Errorf("got: %s, want %s", got[:10], want[:10])
+		}
+	}
+	if _, err := r.read(ctx, []byte{}); err != io.EOF {
+		t.Errorf("expected EOF got %v", err)
+	}
+}
+
+func TestReadqGetRandom(t *testing.T) {
+	defer goroutines.NoLeaks(t, 0)()
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	r := newReadQ(nil, 1)
+	bufs := mkBufsRand(100, 1024, 4096, 8192, 8192, 8192, 100*1024)
+	r.put(ctx, bufs)
+	r.close(ctx)
+
+	for _, want := range bufs {
+		read, err := r.get(ctx)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got := read; !bytes.Equal(got, want) {
+			t.Errorf("got: %s, want %s", got[:10], want[:10])
+		}
+	}
+	if _, err := r.get(ctx); err != io.EOF {
 		t.Errorf("expected EOF got %v", err)
 	}
 }

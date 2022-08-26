@@ -181,11 +181,9 @@ func (f *flw) tokensLocked() (int, func(int)) {
 		if f.conn.lshared < max {
 			max = f.conn.lshared
 		}
-		f.conn.printf("tokensLocked: id: %v, tokens %v, shared: %v, borrowing: %v", f.id, max, f.conn.lshared, f.borrowing)
 		return int(max), func(used int) {
 			f.conn.lshared -= uint64(used)
 			f.borrowed += uint64(used)
-			f.conn.printf("tokensLocked: id: %v, tokens %v, shared: %v, borrowing: %v (borrowed %v) - used: %v", f.id, max, f.conn.lshared, f.borrowing, f.borrowed, used)
 			if f.ctx.V(2) {
 				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.borrowed, f.conn.lshared)
 			}
@@ -194,7 +192,6 @@ func (f *flw) tokensLocked() (int, func(int)) {
 	if f.released < max {
 		max = f.released
 	}
-	f.conn.printf("tokensLocked: id: %v, tokens %v, borrowing: %v", f.id, max, f.borrowing)
 	return int(max), func(used int) {
 		f.released -= uint64(used)
 		if f.ctx.V(2) {
@@ -206,7 +203,6 @@ func (f *flw) tokensLocked() (int, func(int)) {
 // releaseLocked releases some counters from a remote reader to the local
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseLocked(tokens uint64) {
-	f.conn.printf("releaseLocked: id: %v, tokens %v, borrowing: %v, borrowed: %v", f.id, tokens, f.borrowing, f.borrowed)
 	debug := f.ctx.V(2)
 	f.borrowing = false
 	if f.borrowed > 0 {
@@ -300,9 +296,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		}
 		opened := f.opened
 		tokens, deduct := f.tokensLocked()
-		f.conn.printf("writeMsg: f: %p, id: %v: tokens %v < %v", f, f.id, tokens, totalSize)
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
-			f.conn.printf("writeMsg: f: %p, id: %v: (%v, %v) flow controlled... %v < %v", f, f.id, f.noEncrypt, f.noFragment, tokens, totalSize)
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
 			// Note that if f.noEncrypt is set we're actually acting as a conn
@@ -330,7 +324,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		if f.noEncrypt {
 			d.Flags |= message.DisableEncryptionFlag
 		}
-		f.conn.printf("writeMsg: f: %p, id: %v: calling mp.writemsg: size: %v", f, f.id, size)
 
 		if opened {
 			err = f.conn.mp.writeMsg(ctx, d)
@@ -522,7 +515,6 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				Flags: message.CloseFlag,
 			})
 		}
-		f.conn.printf("close: id: %v, closedRemotely: %v", f.id, closedRemotely)
 		if closedRemotely {
 			// When the other side closes a flow, it implicitly releases all the
 			// counters used by that flow.  That means we should release the shared

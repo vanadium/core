@@ -286,6 +286,11 @@ func (p *Proxy) listenLoop(ctx *context.T) {
 	for {
 		f, err := p.m.Accept(ctx)
 		if err != nil {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 			ctx.Infof("p.m.Accept failed: %v", err)
 			break
 		}

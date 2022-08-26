@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"sync"
 
@@ -88,9 +87,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 		r.size -= n
 	}
 	r.mu.Unlock()
-	fmt.Printf("%p: readq: read: %v: conn %p\n", r, n, r.conn)
 	if r.conn != nil {
-		r.conn.printf("readq: read: %v", n)
 		r.conn.release(ctx, r.id, uint64(n))
 	}
 	return
@@ -106,9 +103,7 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 		r.nbufs--
 	}
 	r.mu.Unlock()
-	fmt.Printf("%p: readq: get: %v: conn %p\n", r, len(out), r.conn)
 	if r.conn != nil {
-		r.conn.printf("readq: get: %v", len(out))
 		r.conn.release(ctx, r.id, uint64(len(out)))
 	}
 	return

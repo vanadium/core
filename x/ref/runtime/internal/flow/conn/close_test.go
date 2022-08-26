@@ -6,6 +6,7 @@ package conn
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"runtime"
@@ -264,21 +265,26 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
 	}
 
-	dc.printf("conns: dialer: size %v, flow control max window size: %v", size, DefaultBytesBufferedPerFlow)
-	ac.printf("conns: acceptor: size %v, flow control max window size: %v", size, DefaultBytesBufferedPerFlow)
-
 	errCh := make(chan error, 1)
 	go func() {
 		for flw := range accept {
-			m, err := flw.ReadMsg()
+			buf := make([]byte, size)
+			n, err := io.ReadFull(flw, buf)
 			if err != nil {
 				errCh <- err
 				return
 			}
-			if _, err := flw.WriteMsg(m); err != nil {
+			if n != size {
+				errCh <- fmt.Errorf("short read: %v != %v", n, size)
+			}
+			if got, want := n, size; got != want {
+				errCh <- fmt.Errorf("got %v, want %v", got, want)
+			}
+			if _, err := flw.WriteMsg(buf); err != nil {
 				errCh <- err
 				return
 			}
+
 			if acceptClose {
 				if err := flw.Close(); err != nil {
 					errCh <- err
@@ -289,16 +295,30 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		errCh <- nil
 	}()
 
+	writeBuf := make([]byte, size)
+	if n, err := io.ReadFull(rand.Reader, writeBuf); n != size || err != nil {
+		t.Fatalf("failed to write random bytes: %v %v", n, err)
+	}
+
 	for i := 0; i < count; i++ {
 		df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := df.WriteMsg(make([]byte, size)); err != nil {
+
+		if _, err := df.WriteMsg(writeBuf); err != nil {
 			t.Fatalf("could not write flow: %v", err)
 		}
-		if _, err := df.ReadMsg(); err != nil {
+		readBuf := make([]byte, size)
+		n, err := io.ReadFull(df, readBuf)
+		if err != nil {
 			t.Fatalf("unexpected error reading from flow: %v", err)
+		}
+		if got, want := n, size; got != want {
+			t.Fatalf("got %v, want %v", got, want)
+		}
+		if !bytes.Equal(writeBuf, readBuf) {
+			t.Fatalf("data corruption: %v %v", writeBuf[:10], readBuf[:10])
 		}
 		if dialClose {
 			if err := df.Close(); err != nil {
@@ -334,8 +354,8 @@ func TestCounters(t *testing.T) {
 	assert := func(dialApprox, acceptApprox int) {
 		compare := func(got, want int) {
 			if got > want {
-				_, _, l1, _ := runtime.Caller(2)
-				_, _, l2, _ := runtime.Caller(1)
+				_, _, l1, _ := runtime.Caller(3)
+				_, _, l2, _ := runtime.Caller(2)
 				t.Errorf("line: %v:%v, got %v, want %v", l1, l2, got, want)
 			}
 		}
@@ -352,15 +372,24 @@ func TestCounters(t *testing.T) {
 	// Release messages to send to the dialer once count iterations are complete.
 	// Increasing size decreases the number of flows with outstanding Release
 	// messages since the shared counter is burned through faster when using
-	// a larger size. We settle on 3 for the dial side and 20 for a count of
-	// 5000 and 1024*16 sized buffers.
+	// a larger size.
 
-	count := 5000
-	size := 1024 * 1000
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
-	assert(3, 2)
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true, size)
-	assert(3, 2)
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, true, size)
-	assert(3, 2)
+	runAndTest := func(count, size, dialApprox, acceptApprox int) {
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
+		assert(dialApprox, acceptApprox)
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true, size)
+		assert(dialApprox, acceptApprox)
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, true, size)
+		assert(dialApprox, acceptApprox)
+	}
+
+	// For small packets, all connections end up being 'borrowed' and hence
+	// their counters are kept around.
+	//	runAndTest(5000, 10, 3, 5005)
+	// 60K connection setups/teardowns will ensure that the release message
+	// is fragmented.
+	runAndTest(60000, 10, 3, 10000)
+	//	runAndTest(5000, 1024*16, 3, 20)
+	//	runAndTest(5000, 1024*1000, 3, 2)
+
 }
