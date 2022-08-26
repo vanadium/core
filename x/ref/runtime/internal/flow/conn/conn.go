@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -796,6 +797,64 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
+func getPort(a string) string {
+	_, p, err := net.SplitHostPort(a)
+	if len(p) == 0 || err != nil {
+		return a
+	}
+	return p
+}
+func (c *Conn) printf(format string, args ...interface{}) {
+	buf := &strings.Builder{}
+	if c.IsEncapsulated() {
+		fmt.Fprintf(buf, "(%v -> %v):%p:__ ", getPort(c.local.Address), getPort(c.remote.Address), c)
+	} else {
+		fmt.Fprintf(buf, "(%v -> %v):%p: ", getPort(c.local.Address), getPort(c.remote.Address), c)
+	}
+	fmt.Fprintf(buf, format, args...)
+	fmt.Println(buf)
+}
+
+func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64, limit int) error {
+	c.printf("release: fragment: #%v, rem %v", len(toRelease), len(toRelease) > limit)
+	if len(toRelease) < limit {
+		return c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
+			Counters: toRelease,
+		})
+	}
+	for {
+		var send, remaining map[uint64]uint64
+		rem := len(toRelease) - limit
+		if rem <= 0 {
+			rem = 0
+			send = toRelease
+		} else {
+			send = make(map[uint64]uint64, limit)
+			remaining = make(map[uint64]uint64, rem)
+			i := 0
+			for k, v := range toRelease {
+				if i < limit {
+					send[k] = v
+				} else {
+					remaining[k] = v
+				}
+				i++
+			}
+		}
+		if err := c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
+			Counters: send,
+		}); err != nil {
+			return err
+		}
+		c.printf("release: fragment: #%v, send: %v, rem %v", len(toRelease), len(send), len(remaining))
+		if remaining == nil {
+			break
+		}
+		toRelease = remaining
+	}
+	return nil
+}
+
 func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	var toRelease map[uint64]uint64
 	var release bool
@@ -809,8 +868,10 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	if c.borrowing[fid] {
 		c.toRelease[invalidFlowID] += count
 		release = c.toRelease[invalidFlowID] > DefaultBytesBufferedPerFlow/2
+		c.printf("release: id: %v: count: +%v -> (%v, %v) borrowing: send %v (%v > %v)", fid, count, c.toRelease[invalidFlowID], c.toRelease[fid], release, c.toRelease[invalidFlowID], DefaultBytesBufferedPerFlow/2)
 	} else {
 		release = c.toRelease[fid] > DefaultBytesBufferedPerFlow/2
+		c.printf("release: id: %v: count: +%v -> %v: send %v", fid, count, c.toRelease[fid], release)
 	}
 	if release {
 		toRelease = c.toRelease
@@ -820,9 +881,9 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
-		err = c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
-			Counters: toRelease,
-		})
+		c.printf("release: send true #%v counters", len(toRelease))
+		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
+		c.printf("release: sent true #%v counters: err %v", len(toRelease), err)
 	}
 	c.mu.Unlock()
 	if err != nil {
@@ -847,6 +908,7 @@ func (c *Conn) releaseOutstandingBorrowedLocked(fid, val uint64) {
 }
 
 func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint:gocyclo
+	//c.printf("handleMessage: %T", m)
 	switch msg := m.(type) {
 	case *message.TearDown:
 		var err error
@@ -935,6 +997,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 
 	case *message.Release:
 		c.mu.Lock()
+		c.printf("handleMessage: release: %v", len(msg.Counters))
 		for fid, val := range msg.Counters {
 			if f := c.flows[fid]; f != nil {
 				f.releaseLocked(val)

@@ -256,13 +256,16 @@ func TestFlowCancelOnRead(t *testing.T) {
 	<-af.Closed()
 }
 
-func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool) (
+func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 	accept := make(chan flow.Flow, 1)
 	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, accept, nil, nil)
 	if derr != nil || aerr != nil {
 		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
 	}
+
+	dc.printf("conns: dialer: size %v, flow control max window size: %v", size, DefaultBytesBufferedPerFlow)
+	ac.printf("conns: acceptor: size %v, flow control max window size: %v", size, DefaultBytesBufferedPerFlow)
 
 	errCh := make(chan error, 1)
 	go func() {
@@ -291,7 +294,7 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := df.WriteMsg([]byte("hello")); err != nil {
+		if _, err := df.WriteMsg(make([]byte, size)); err != nil {
 			t.Fatalf("could not write flow: %v", err)
 		}
 		if _, err := df.ReadMsg(); err != nil {
@@ -326,30 +329,38 @@ func TestCounters(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	check := func(got, want int) {
-		if got > want {
-			_, _, line, _ := runtime.Caller(1)
-			t.Errorf("line: %v, got %v, want %v", line, got, want)
+	var dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int
+
+	assert := func(dialApprox, acceptApprox int) {
+		compare := func(got, want int) {
+			if got > want {
+				_, _, l1, _ := runtime.Caller(2)
+				_, _, l2, _ := runtime.Caller(1)
+				t.Errorf("line: %v:%v, got %v, want %v", l1, l2, got, want)
+			}
 		}
+		compare(dialRelease, dialApprox)
+		compare(dialBorrowed, dialApprox)
+		compare(acceptRelease, acceptApprox)
+		compare(acceptBorrowed, acceptApprox)
 	}
-	count := 1000
-	// The actual values should be 1 for the dial side and 2 for the accept side, but
-	// we allow a few more than that to avoid racing for the network comms to complete after
-	// the flows are closed.
-	approx := 3
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed := testCounters(t, ctx, count, true, true)
-	check(dialRelease, approx)
-	check(dialBorrowed, approx)
-	check(acceptRelease, approx)
-	check(acceptBorrowed, approx)
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false)
-	check(dialRelease, approx)
-	check(dialBorrowed, approx)
-	check(acceptRelease, approx)
-	check(acceptBorrowed, approx)
-	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true)
-	check(dialRelease, approx)
-	check(dialBorrowed, approx)
-	check(acceptRelease, approx)
-	check(acceptBorrowed, approx)
+	// The actual values should be 1 for the dial side but we allow a few more
+	// than that to avoid racing for the network comms to complete after
+	// the flows are closed. On the accept side, the number of currently in
+	// use toRelease entries depends on the size of the data buffers used.
+	// The number is determined by the number of flows that have outstanding
+	// Release messages to send to the dialer once count iterations are complete.
+	// Increasing size decreases the number of flows with outstanding Release
+	// messages since the shared counter is burned through faster when using
+	// a larger size. We settle on 3 for the dial side and 20 for a count of
+	// 5000 and 1024*16 sized buffers.
+
+	count := 5000
+	size := 1024 * 1000
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
+	assert(3, 2)
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true, size)
+	assert(3, 2)
+	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, true, size)
+	assert(3, 2)
 }
