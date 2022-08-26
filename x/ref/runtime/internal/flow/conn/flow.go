@@ -103,8 +103,16 @@ func (c *Conn) newFlowCountersLocked(id uint64) {
 }
 
 func (c *Conn) clearFlowCountersLocked(id uint64) {
-	delete(c.toRelease, id)
-	delete(c.borrowing, id)
+	if !c.borrowing[id] {
+		delete(c.toRelease, id)
+		delete(c.borrowing, id)
+	}
+	// Need to keep borrowed counters around so that they can be sent
+	// to the dialer to allow for the shared counter to be incremented
+	// for all the past flows that borrowed counters (ie. pretty much
+	// any/all short lived connections). A much better approach would be
+	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
+	// for referring to all borrowed tokens for closed flows.
 }
 
 // Implement the writer interface.
@@ -160,6 +168,7 @@ func (f *flw) Write(p []byte) (n int, err error) {
 // the number of shared counters for the conn if we are sending on a just
 // dialed flow.
 func (f *flw) tokensLocked() (int, func(int)) {
+
 	max := f.conn.mtu
 	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
 	// when forwarding the message. This means we must reduce our mtu to ensure
@@ -315,6 +324,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		if f.noEncrypt {
 			d.Flags |= message.DisableEncryptionFlag
 		}
+
 		if opened {
 			err = f.conn.mp.writeMsg(ctx, d)
 		} else {
