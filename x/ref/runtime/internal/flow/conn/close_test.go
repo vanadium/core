@@ -269,6 +269,9 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 	go func() {
 		for flw := range accept {
 			buf := make([]byte, size)
+			// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+			// will fragment a message larger than a default size into multiple
+			// messages.
 			n, err := io.ReadFull(flw, buf)
 			if err != nil {
 				errCh <- err
@@ -305,11 +308,14 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 		if err != nil {
 			t.Fatal(err)
 		}
-
+		// WriteMsg wil fragment messages larger than its default buffer size.
 		if _, err := df.WriteMsg(writeBuf); err != nil {
 			t.Fatalf("could not write flow: %v", err)
 		}
 		readBuf := make([]byte, size)
+		// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+		// will fragment a message larger than a default size into multiple
+		// messages.
 		n, err := io.ReadFull(df, readBuf)
 		if err != nil {
 			t.Fatalf("unexpected error reading from flow: %v", err)
@@ -364,15 +370,6 @@ func TestCounters(t *testing.T) {
 		compare(acceptRelease, acceptApprox)
 		compare(acceptBorrowed, acceptApprox)
 	}
-	// The actual values should be 1 for the dial side but we allow a few more
-	// than that to avoid racing for the network comms to complete after
-	// the flows are closed. On the accept side, the number of currently in
-	// use toRelease entries depends on the size of the data buffers used.
-	// The number is determined by the number of flows that have outstanding
-	// Release messages to send to the dialer once count iterations are complete.
-	// Increasing size decreases the number of flows with outstanding Release
-	// messages since the shared counter is burned through faster when using
-	// a larger size.
 
 	runAndTest := func(count, size, dialApprox, acceptApprox int) {
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
@@ -382,6 +379,16 @@ func TestCounters(t *testing.T) {
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, true, size)
 		assert(dialApprox, acceptApprox)
 	}
+
+	// The actual values should be 1 for the dial side but we allow a few more
+	// than that to avoid racing for the network comms to complete after
+	// the flows are closed. On the accept side, the number of currently in
+	// use toRelease entries depends on the size of the data buffers used.
+	// The number is determined by the number of flows that have outstanding
+	// Release messages to send to the dialer once count iterations are complete.
+	// Increasing size decreases the number of flows with outstanding Release
+	// messages since the shared counter is burned through faster when using
+	// a larger size.
 
 	// For small packets, all connections end up being 'borrowed' and hence
 	// their counters are kept around.
