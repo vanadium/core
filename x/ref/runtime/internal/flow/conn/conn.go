@@ -20,6 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	slib "v.io/x/ref/lib/security"
+	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
 
 const (
@@ -166,7 +167,7 @@ var _ flow.ManagedConn = &Conn{}
 // even if the context is canceled. The behaviour is different for a proxy
 // connection, in which case a cancelation is immediate and no attempt is made
 // to establish the connection.
-func NewDialed(
+func NewDialed( //nolint:gocyclo
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
@@ -176,6 +177,11 @@ func NewDialed(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
+
+	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return
+	}
+
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()
@@ -305,6 +311,11 @@ func NewAccepted(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (*Conn, error) {
+
+	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return nil, err
+	}
+
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()

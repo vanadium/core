@@ -14,10 +14,10 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/naming"
-	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	securitylib "v.io/x/ref/lib/security"
 	"v.io/x/ref/runtime/internal/flow/flowtest"
+	"v.io/x/ref/runtime/internal/rpc/version"
 )
 
 type fh chan<- flow.Flow
@@ -47,7 +47,13 @@ func setupConnsWithTimeout(t *testing.T,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration) (dialed, accepted *Conn, derr, aerr error) {
 	dmrw, amrw := flowtest.Pipe(t, actx, network, address)
-	versions := version.RPCVersionRange{Min: 3, Max: 5}
+	versions := version.Supported
+	if len(address) == 0 {
+		// Ensure that we consistently use :0 to refer to 'any' port rather than
+		// "" so that message.rSetup and lSetup have the same values in our tests
+		// otherwise the RPC14 binding signature will not match.
+		address = ":0"
+	}
 	ridep := naming.Endpoint{Protocol: network, Address: address, RoutingID: naming.FixedRoutingID(191341)}
 	ep := naming.Endpoint{Protocol: network, Address: address}
 	dch := make(chan *Conn)

@@ -47,6 +47,11 @@ const (
 	// RPCVersion14 adds the setup message to the channel binding during
 	// connection setup.
 	RPCVersion14
+
+	// Placeholder for the forthcoming RPC reimplementation. At the very
+	// least the mechanism for how borrowed flow control tokens are
+	// returned to the dialer will change.
+	RPCVersion15
 )
 
 // RPCVersionRange allows you to optionally specify a range of versions to
