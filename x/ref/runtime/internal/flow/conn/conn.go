@@ -167,7 +167,7 @@ var _ flow.ManagedConn = &Conn{}
 // even if the context is canceled. The behaviour is different for a proxy
 // connection, in which case a cancelation is immediate and no attempt is made
 // to establish the connection.
-func NewDialed(
+func NewDialed( //nolint:gocyclo
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
@@ -176,7 +176,7 @@ func NewDialed(
 	proxy bool,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
-	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) { //nolint:gocyclo
+	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
 		return
