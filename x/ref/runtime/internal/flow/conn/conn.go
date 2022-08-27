@@ -176,7 +176,7 @@ func NewDialed(
 	proxy bool,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
-	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
+	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) { //nolint:gocyclo
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
 		return
