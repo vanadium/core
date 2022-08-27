@@ -91,19 +91,18 @@ type healthCheckState struct {
 type Conn struct {
 	// All the variables here are set before the constructor returns
 	// and never changed after that.
-	mp              *messagePipe
-	common_version  version.RPCVersion
-	remote_versions version.RPCVersionRange
-	local, remote   naming.Endpoint
-	remoteAddr      net.Addr
-	closed          chan struct{}
-	lameDucked      chan struct{}
-	blessingsFlow   *blessingsFlow
-	loopWG          sync.WaitGroup
-	unopenedFlows   sync.WaitGroup
-	cancel          context.CancelFunc
-	handler         FlowHandler
-	mtu             uint64
+	mp             *messagePipe
+	common_version version.RPCVersion
+	local, remote  naming.Endpoint
+	remoteAddr     net.Addr
+	closed         chan struct{}
+	lameDucked     chan struct{}
+	blessingsFlow  *blessingsFlow
+	loopWG         sync.WaitGroup
+	unopenedFlows  sync.WaitGroup
+	cancel         context.CancelFunc
+	handler        FlowHandler
+	mtu            uint64
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -1205,7 +1204,6 @@ Remote:
   Endpoint   %v
   Blessings: %v (claimed)
   PublicKey: %v
-  Version:   %v
 Local:
   Endpoint:  %v
   Blessings: %v
@@ -1217,7 +1215,6 @@ LastUsed:    %v
 		c.remote,
 		c.remoteBlessings,
 		c.rPublicKey,
-		c.remote_versions.Max,
 		c.local,
 		c.localBlessings,
 		c.common_version,

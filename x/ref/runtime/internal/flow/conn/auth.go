@@ -189,7 +189,6 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if c.common_version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}
-	c.remote_versions = rSetup.Versions
 	if c.local.IsZero() {
 		c.local = rSetup.PeerRemoteEndpoint
 	}
