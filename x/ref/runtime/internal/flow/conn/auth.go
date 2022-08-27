@@ -186,9 +186,10 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		}
 		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", remoteStr, err)
 	}
-	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
+	if c.common_version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}
+	c.remote_versions = rSetup.Versions
 	if c.local.IsZero() {
 		c.local = rSetup.PeerRemoteEndpoint
 	}
@@ -207,7 +208,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	c.mu.Lock()
 	binding := c.mp.setupEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey)
 	c.mu.Unlock()
-	if c.version >= version.RPCVersion14 {
+	if c.common_version >= version.RPCVersion14 {
 		// We include the setup messages in the channel binding to prevent attacks
 		// where a man in the middle changes fields in the Setup message (e.g. a
 		// downgrade attack wherein a MITM attacker changes the Version field of

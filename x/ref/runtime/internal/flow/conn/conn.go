@@ -20,6 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	slib "v.io/x/ref/lib/security"
+	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
 
 const (
@@ -90,18 +91,19 @@ type healthCheckState struct {
 type Conn struct {
 	// All the variables here are set before the constructor returns
 	// and never changed after that.
-	mp            *messagePipe
-	version       version.RPCVersion
-	local, remote naming.Endpoint
-	remoteAddr    net.Addr
-	closed        chan struct{}
-	lameDucked    chan struct{}
-	blessingsFlow *blessingsFlow
-	loopWG        sync.WaitGroup
-	unopenedFlows sync.WaitGroup
-	cancel        context.CancelFunc
-	handler       FlowHandler
-	mtu           uint64
+	mp              *messagePipe
+	common_version  version.RPCVersion
+	remote_versions version.RPCVersionRange
+	local, remote   naming.Endpoint
+	remoteAddr      net.Addr
+	closed          chan struct{}
+	lameDucked      chan struct{}
+	blessingsFlow   *blessingsFlow
+	loopWG          sync.WaitGroup
+	unopenedFlows   sync.WaitGroup
+	cancel          context.CancelFunc
+	handler         FlowHandler
+	mtu             uint64
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -176,6 +178,11 @@ func NewDialed(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
+
+	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return
+	}
+
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()
@@ -305,6 +312,11 @@ func NewAccepted(
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
 	handler FlowHandler) (*Conn, error) {
+
+	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return nil, err
+	}
+
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()
@@ -645,7 +657,7 @@ func (c *Conn) RemoteDischarges() map[string]security.Discharge {
 }
 
 // CommonVersion returns the RPCVersion negotiated between the local and remote endpoints.
-func (c *Conn) CommonVersion() version.RPCVersion { return c.version }
+func (c *Conn) CommonVersion() version.RPCVersion { return c.common_version }
 
 // LastUsed returns the time at which the Conn had bytes read or written on it.
 func (c *Conn) LastUsed() time.Time {
@@ -1193,6 +1205,7 @@ Remote:
   Endpoint   %v
   Blessings: %v (claimed)
   PublicKey: %v
+  Version:   %v
 Local:
   Endpoint:  %v
   Blessings: %v
@@ -1204,9 +1217,10 @@ LastUsed:    %v
 		c.remote,
 		c.remoteBlessings,
 		c.rPublicKey,
+		c.remote_versions.Max,
 		c.local,
 		c.localBlessings,
-		c.version,
+		c.common_version,
 		c.mtu,
 		c.lastUsedTime,
 		len(c.flows))

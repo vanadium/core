@@ -152,7 +152,7 @@ func (l *local) Listen(ctx *context.T, network, address string) (flow.Listener, 
 	defer l.mu.Unlock()
 	l.mu.Lock()
 	a := addr(address)
-	if a == "" {
+	if a == "" || a == ":0" {
 		a = l.nextAddrLocked()
 	}
 	if _, ok := l.listeners[a]; ok {

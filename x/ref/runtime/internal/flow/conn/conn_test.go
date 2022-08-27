@@ -202,11 +202,11 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	dcancel()
 	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second)
 	if aerr != nil {
-		t.Errorf("accept unexpectedly failed: %v", aerr)
+		t.Fatalf("setupConnsWithTimeout: unexpectedly failed: %v, %v", derr, aerr)
 	}
 	if got, want := verror.ErrorID(derr), verror.ErrCanceled.ID; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	defer dc.Close(ctx, nil)
-	defer ac.Close(ctx, nil)
+	dc.Close(ctx, nil)
+	ac.Close(ctx, nil)
 }

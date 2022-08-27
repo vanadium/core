@@ -56,16 +56,16 @@ func TestSetup(t *testing.T) {
 		t.Fatal(err)
 	}
 	testMessages(t, ctx, []message.Message{
-		&message.Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5}},
+		&message.Setup{Versions: version.RPCVersionRange{Min: 1, Max: 5}},
 		&message.Setup{
-			Versions: version.RPCVersionRange{Min: 3, Max: 5},
+			Versions: version.RPCVersionRange{Min: 1, Max: 5},
 			PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 				14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 			PeerRemoteEndpoint: ep1,
 			PeerLocalEndpoint:  ep2,
 		},
 		&message.Setup{
-			Versions:     version.RPCVersionRange{Min: 3, Max: 5},
+			Versions:     version.RPCVersionRange{Min: 1, Max: 5},
 			Mtu:          1 << 16,
 			SharedTokens: 1 << 20,
 		},
