@@ -14,8 +14,6 @@ import (
 // and implements flow.MsgReadWriteCloser.
 type framer struct {
 	io.ReadWriteCloser
-	buf   []byte
-	frame [3]byte
 }
 
 func New(c io.ReadWriteCloser) flow.MsgReadWriteCloser {
@@ -28,40 +26,37 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	for _, b := range data {
 		msgSize += len(b)
 	}
-	// Construct a buffer to write that has space for the 3 bytes of framing.
-	// If a previous buffer is large enough, reuse it.
-	bufSize := msgSize + 3
-	if bufSize > len(f.buf) {
-		f.buf = make([]byte, bufSize)
-	}
-	if err := write3ByteUint(f.buf[:3], msgSize); err != nil {
+	var frame [3]byte
+	if err := write3ByteUint(frame[:], msgSize); err != nil {
 		return 0, err
 	}
-	head := 3
-	for _, b := range data {
-		l := len(b)
-		copy(f.buf[head:head+l], b)
-		head += l
+	if _, err := f.Write(frame[:]); err != nil {
+		return 0, err
 	}
 	// Write the buffer to the io.ReadWriter. Remove the frame size
 	// from the returned number of bytes written.
-	n, err := f.Write(f.buf[:bufSize])
-	if err != nil {
-		return n - 3, err
+	written := 0
+	for _, d := range data {
+		n, err := f.Write(d)
+		if err != nil {
+			return written, err
+		}
+		written += n
 	}
-	return n - 3, nil
+	return written, nil
 }
 
 func (f *framer) ReadMsg() ([]byte, error) {
 	// Read the message size.
-	if _, err := io.ReadFull(f, f.frame[:]); err != nil {
+	var frame [3]byte
+	if _, err := io.ReadAtLeast(f, frame[:], 3); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(f.frame)
+	msgSize := read3ByteUint(frame)
 
 	// Read the message.
 	msg := make([]byte, msgSize)
-	if _, err := io.ReadFull(f, msg); err != nil {
+	if _, err := io.ReadAtLeast(f, msg, msgSize); err != nil {
 		return nil, err
 	}
 	return msg, nil
