@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"net"
 	"regexp"
-	"strconv"
 	"strings"
+	"unsafe"
 )
 
 const (
 	separator          = "@"
+	separatorRune      = '@'
 	suffix             = "@@"
 	blessingsSeparator = ","
 	routeSeparator     = ","
@@ -75,18 +76,24 @@ func ParseEndpoint(input string) (Endpoint, error) {
 
 	// Trim the prefix and suffix and parse the rest.
 	input = strings.TrimPrefix(strings.TrimSuffix(input, suffix), separator)
-	parts := strings.Split(input, separator)
-	version, err := strconv.ParseUint(parts[0], 10, 16)
-	if err != nil {
-		return Endpoint{}, fmt.Errorf("invalid version: %v", err)
+	idx := strings.IndexRune(input, separatorRune)
+	if idx < 0 {
+		return Endpoint{}, errInvalidEndpointString
 	}
-
-	switch version {
-	case 6:
-		return parseV6(parts)
+	switch input[:idx] {
+	case "6":
+		return parseV6(input[idx+1:])
 	default:
 		return Endpoint{}, errInvalidEndpointString
 	}
+}
+
+// ParseEndpointBytes is line ParseEndpoint but avoids the
+// need for converting a []byte to a string. The caller must
+// ensure that input is not changed whilst ParseEndpointBytes is
+// executing.
+func ParseEndpointBytes(input []byte) (Endpoint, error) {
+	return ParseEndpoint(*(*string)(unsafe.Pointer(&input)))
 }
 
 func parseHostPort(blessing, hostport string) (Endpoint, error) {
@@ -109,27 +116,39 @@ func parseHostPort(blessing, hostport string) (Endpoint, error) {
 	return ep, nil
 }
 
-func parseV6(parts []string) (Endpoint, error) {
-	var ep Endpoint
-	if len(parts) < 6 {
-		return ep, errInvalidEndpointString
-	}
+func parseV6(input string) (ep Endpoint, err error) {
+	err = errInvalidEndpointString
 
-	ep.Protocol = parts[1]
+	idx := strings.IndexRune(input, separatorRune)
+	if idx < 0 {
+		return
+	}
+	ep.Protocol = input[:idx]
 	if len(ep.Protocol) == 0 {
 		ep.Protocol = UnknownProtocol
 	}
 
+	input = input[idx+1:]
+	idx = strings.IndexRune(input, separatorRune)
+	if idx < 0 {
+		return
+	}
 	var ok bool
-	if ep.Address, ok = Unescape(parts[2]); !ok {
-		return ep, fmt.Errorf("invalid address: bad escape %s", parts[2])
+	if ep.Address, ok = Unescape(input[:idx]); !ok {
+		return ep, fmt.Errorf("invalid address: bad escape %s", input[:idx])
 	}
 	if len(ep.Address) == 0 {
 		ep.Address = net.JoinHostPort("", "0")
 	}
 
-	if len(parts[3]) > 0 {
-		ep.routes = strings.Split(parts[3], routeSeparator)
+	input = input[idx+1:]
+	idx = strings.IndexRune(input, separatorRune)
+
+	if idx < 0 {
+		return
+	}
+	if routes := input[:idx]; len(routes) > 0 {
+		ep.routes = strings.Split(routes, routeSeparator)
 		for i := range ep.routes {
 			if ep.routes[i], ok = Unescape(ep.routes[i]); !ok {
 				return ep, fmt.Errorf("invalid route: bad escape %s", ep.routes[i])
@@ -137,19 +156,30 @@ func parseV6(parts []string) (Endpoint, error) {
 		}
 	}
 
-	if err := ep.RoutingID.FromString(parts[4]); err != nil {
+	input = input[idx+1:]
+	idx = strings.IndexRune(input, separatorRune)
+	if idx < 0 {
+		return
+	}
+	if err := ep.RoutingID.FromString(input[:idx]); err != nil {
 		return ep, fmt.Errorf("invalid routing id: %v", err)
 	}
-	switch p := parts[5]; p {
+
+	input = input[idx+1:]
+	idx = strings.IndexRune(input, separatorRune)
+	if idx < 0 {
+		return
+	}
+	switch p := input[:idx]; p {
 	case "", "m":
 		ep.ServesMountTable = true
 	case "s", "l":
 	default:
 		return ep, fmt.Errorf("invalid mount table flag (%v)", p)
 	}
-	// Join the remaining and re-split.
-	if str := strings.Join(parts[6:], separator); len(str) > 0 {
-		ep.blessingNames = strings.Split(str, blessingsSeparator)
+
+	if blessings := input[idx+1:]; len(blessings) > 0 {
+		ep.blessingNames = strings.Split(blessings, blessingsSeparator)
 	}
 	return ep, nil
 }
@@ -162,19 +192,19 @@ func (e Endpoint) WithBlessingNames(names []string) Endpoint {
 }
 
 // WithRoutes derives a new endpoint with the given
-// blessing names, but otherwise identical to e.
+// routes, but otherwise identical to e.
 func (e Endpoint) WithRoutes(routes []string) Endpoint {
 	e.routes = append([]string{}, routes...)
 	return e
 }
 
-// BlessingNames returns the blessings that the process associated with
+// BlessingNames returns a copy of the blessings that the process associated with
 // this Endpoint will present.
 func (e Endpoint) BlessingNames() []string {
 	return append([]string{}, e.blessingNames...)
 }
 
-// Routes returns the local routing identifiers used for proxying connections
+// Routes returns a copy of the local routing identifiers used for proxying connections
 // with multiple proxies.
 func (e Endpoint) Routes() []string {
 	return append([]string{}, e.routes...)
