@@ -209,3 +209,25 @@ func TestEscapeEndpoint(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkEndpointParsing(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_, err := ParseEndpoint(
+			"@6@tcp@batman.com:2345@1@0000000000000000000000000000ba77@m@dev.v.io:foo@bar.com,dev.v.io:bar@bar.com:delegate@@")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkEndpointParsingBytes(b *testing.B) {
+	ep := []byte("@6@tcp@batman.com:2345@1@0000000000000000000000000000ba77@m@dev.v.io:foo@bar.com,dev.v.io:bar@bar.com:delegate@@")
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_, err := ParseEndpointBytes(ep)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

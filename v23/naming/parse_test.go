@@ -61,6 +61,7 @@ func TestSplitAddressName(t *testing.T) {
 }
 
 func BenchmarkSplitAddressName(b *testing.B) {
+	b.ReportAllocs()
 	tests := []string{
 		"/user@domain.com@host:1234/foo/bar",
 		"/(dev.v.io/services/mounttabled)@host:1234/foo/bar",
