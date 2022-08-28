@@ -116,6 +116,20 @@ func parseHostPort(blessing, hostport string) (Endpoint, error) {
 	return ep, nil
 }
 
+func parseRoutes(input string) ([]string, error) {
+	if len(input) == 0 {
+		return nil, nil
+	}
+	routes := strings.Split(input, routeSeparator)
+	var ok bool
+	for i := range routes {
+		if routes[i], ok = Unescape(routes[i]); !ok {
+			return nil, fmt.Errorf("invalid route: bad escape %s", routes[i])
+		}
+	}
+	return routes, nil
+}
+
 func parseV6(input string) (ep Endpoint, err error) {
 	err = errInvalidEndpointString
 
@@ -146,13 +160,9 @@ func parseV6(input string) (ep Endpoint, err error) {
 	if idx < 0 {
 		return
 	}
-	if routes := input[:idx]; len(routes) > 0 {
-		ep.routes = strings.Split(routes, routeSeparator)
-		for i := range ep.routes {
-			if ep.routes[i], ok = Unescape(ep.routes[i]); !ok {
-				return ep, fmt.Errorf("invalid route: bad escape %s", ep.routes[i])
-			}
-		}
+	ep.routes, err = parseRoutes(input[:idx])
+	if err != nil {
+		return
 	}
 
 	input = input[idx+1:]
