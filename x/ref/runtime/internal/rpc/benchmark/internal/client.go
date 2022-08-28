@@ -43,8 +43,9 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 		if !bytes.Equal(r, payload) {
 			ictx.Fatalf("Echo returned %v, but expected %v", r, payload)
 		}
-
-		stats.Add(elapsed)
+		if stats != nil {
+			stats.Add(elapsed)
+		}
 	}
 }
 
@@ -138,8 +139,9 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 
 			elapsed := time.Since(start)
 			b.StopTimer()
-
-			stats.Add(elapsed)
+			if stats != nil {
+				stats.Add(elapsed)
+			}
 		}
 
 		done <- n
