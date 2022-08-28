@@ -143,7 +143,6 @@ func parseV6(input string) (ep Endpoint, err error) {
 
 	input = input[idx+1:]
 	idx = strings.IndexRune(input, separatorRune)
-
 	if idx < 0 {
 		return
 	}
