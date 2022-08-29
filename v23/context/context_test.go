@@ -323,6 +323,22 @@ func TestRootCancelChain(t *testing.T) {
 }
 
 func TestRootCancelGoroutineLeak(t *testing.T) {
+	// Arbitrary threshold to wait for the goroutines in the created contexts
+	// above to exit. This threshold was arbitrarily created after running
+	// `go test -count=10000 -run TestRootCancelGoroutineLeak$` and verifying
+	// that the tests did not fail flakily.
+	const waitThreshold = 8 * time.Millisecond
+	if err := testRootCancelGoroutineLeak(waitThreshold); err == nil {
+		return
+	}
+	// Try again, for the very rare case that the above fails due to
+	// being run on a very slow machine.
+	if err := testRootCancelGoroutineLeak(waitThreshold * 2); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func testRootCancelGoroutineLeak(waitThreshold time.Duration) error {
 	rootCtx, rootcancel := context.RootContext()
 	const iterations = 1024
 	for i := 0; i != iterations; i++ {
@@ -330,11 +346,6 @@ func TestRootCancelGoroutineLeak(t *testing.T) {
 		cancel()
 	}
 
-	// Arbitrary threshold to wait for the goroutines in the created contexts
-	// above to exit. This threshold was arbitrarily created after running
-	// `go test -count=10000 -run TestRootCancelGoroutineLeak$` and verifying
-	// that the tests did not fail flakily.
-	const waitThreshold = 8 * time.Millisecond
 	time.Sleep(waitThreshold)
 
 	// Verify that goroutines no longer exist in the runtime stack.
@@ -347,9 +358,10 @@ func TestRootCancelGoroutineLeak(t *testing.T) {
 		}
 	}
 	if count != 0 {
-		t.Errorf("expected 0 but got %d: goroutine leaking in WithRootCancel", count)
+		return fmt.Errorf("expected 0 but got %d: goroutine leaking in WithRootCancel: %s", count, buf)
 	}
 	rootcancel()
+	return nil
 }
 
 func TestRootCancel_GoContext(t *testing.T) {

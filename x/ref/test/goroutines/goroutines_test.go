@@ -6,6 +6,7 @@ package goroutines
 
 import (
 	"bytes"
+	"fmt"
 	"runtime"
 	"strings"
 	"sync"
@@ -132,7 +133,8 @@ type fakeErrorReporter struct {
 func (f *fakeErrorReporter) Errorf(format string, args ...interface{}) {
 	f.calls++
 	f.extra = args[0].(int)
-	f.formatted = args[1].(string)
+	// ignore the 'wait' parameter.
+	f.formatted = fmt.Sprintf("%v", args[2])
 }
 
 func TestNoLeaks(t *testing.T) {
