@@ -27,10 +27,11 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	for _, b := range data {
 		msgSize += len(b)
 	}
-	if err := write3ByteUint(f.frame[:], msgSize); err != nil {
+	frame, err := write3ByteUint(msgSize)
+	if err != nil {
 		return 0, err
 	}
-	if _, err := f.Write(f.frame[:]); err != nil {
+	if _, err := f.Write(frame[:]); err != nil {
 		return 0, err
 	}
 	// Write the buffer to the io.ReadWriter. Remove the frame size
@@ -63,15 +64,16 @@ func (f *framer) ReadMsg() ([]byte, error) {
 
 const maxPacketSize = 0xffffff
 
-func write3ByteUint(dst []byte, n int) error {
+func write3ByteUint(n int) (dst [3]byte, err error) {
 	if n > maxPacketSize || n < 0 {
-		return ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
+		err = ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
+		return
 	}
 	n = maxPacketSize - n
 	dst[0] = byte((n & 0xff0000) >> 16)
 	dst[1] = byte((n & 0x00ff00) >> 8)
 	dst[2] = byte(n & 0x0000ff)
-	return nil
+	return
 }
 
 func read3ByteUint(src [3]byte) int {
