@@ -244,7 +244,7 @@ func NoLeaks(t ErrorReporter, wait time.Duration) func() {
 				return
 			}
 			if time.Now().After(until) {
-				t.Errorf("%d extra Goroutines outstanding after %s:\n %s",
+				t.Errorf("%d extra Goroutines outstanding after %v:\n %s",
 					len(left), wait, string(Format(left...)))
 				return
 			}
