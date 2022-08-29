@@ -206,7 +206,8 @@ type ErrorReporter interface {
 func NoLeaks(t ErrorReporter, wait time.Duration) func() {
 	gs, err := Get()
 	if err != nil {
-		return func() {} // If we can't parse correctly we let the test pass.
+		t.Errorf("NoLeaks: failed to parse goroutine output %v", err)
+		return func() {}
 	}
 	bycreator := map[string]int{}
 	for _, g := range gs {
@@ -218,13 +219,14 @@ func NoLeaks(t ErrorReporter, wait time.Duration) func() {
 	}
 	return func() {
 		var left []*Goroutine
-		backoff := 10 * time.Millisecond
+		backoff := 100 * time.Millisecond
 		start := time.Now()
 		until := start.Add(wait)
 		for {
 			cgs, err := Get()
 			if err != nil {
-				return // If we can't parse correctly we let the test pass.
+				t.Errorf("NoLeaks: failed to parse goroutine output %v", err)
+				return
 			}
 			left = left[:0]
 			cbycreator := map[string]int{}
@@ -242,8 +244,8 @@ func NoLeaks(t ErrorReporter, wait time.Duration) func() {
 				return
 			}
 			if time.Now().After(until) {
-				t.Errorf("%d extra Goroutines outstanding:\n %s", len(left),
-					string(Format(left...)))
+				t.Errorf("%d extra Goroutines outstanding after %v:\n %s",
+					len(left), wait, string(Format(left...)))
 				return
 			}
 			time.Sleep(backoff)

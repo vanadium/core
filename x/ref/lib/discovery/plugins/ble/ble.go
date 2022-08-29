@@ -106,6 +106,7 @@ func (p *plugin) Scan(ctx *context.T, interfaceName string, callback func(*idisc
 }
 
 func (p *plugin) Close() {
+	p.adStopper.Stop()
 	p.scanner.shutdown()
 }
 
