@@ -6,7 +6,9 @@ package testutil
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
+	"runtime"
 	"sync"
 	"time"
 
@@ -80,21 +82,23 @@ func doScan(ctx *context.T, p idiscovery.Plugin, interfaceName string, expectedA
 
 	adinfos := make([]idiscovery.AdInfo, 0, expectedAdInfos)
 	start := time.Now()
-	fmt.Printf("%v: doScan: waiting for %v events\n", start, expectedAdInfos)
+	_, file, line, _ := runtime.Caller(2)
+	file = filepath.Base(file)
+	fmt.Printf("%v:%v: %v: doScan: waiting for %v events\n", file, line, start, expectedAdInfos)
 	for {
 		var timer <-chan time.Time
 		// On the first iteration, wait on scanCh with no timeout.
 		if len(adinfos) >= expectedAdInfos {
-			fmt.Printf("%v: doScan: bumping timer: have %v expecting %v\n", time.Since(start), len(adinfos), expectedAdInfos)
+			fmt.Printf("%v:%v: %v: doScan: bumping timer: have %v expecting %v\n", file, line, time.Since(start), len(adinfos), expectedAdInfos)
 			timer = time.After(5 * time.Millisecond)
 		}
 
 		select {
 		case adinfo := <-scanCh:
 			adinfos = append(adinfos, *adinfo)
-			fmt.Printf("%v: doScan: new: %v %v -> %v\n", time.Since(start), adinfo, len(adinfos), expectedAdInfos)
+			fmt.Printf("%v:%v: %v: doScan: new: %v %v -> %v\n", file, line, time.Since(start), adinfo, len(adinfos), expectedAdInfos)
 		case <-timer:
-			fmt.Printf("%v: doScan: timer returning %v\n", time.Since(start), len(adinfos))
+			fmt.Printf("%v:%v: %v: doScan: timer returning %v\n", file, line, time.Since(start), len(adinfos))
 			return adinfos, nil
 		}
 	}

@@ -4,9 +4,7 @@
 
 package discovery
 
-import (
-	"reflect"
-)
+import "reflect"
 
 // A Trigger is a simple multi-channel receiver. It triggers callbacks
 // when it receives signals from the corresponding channels.
