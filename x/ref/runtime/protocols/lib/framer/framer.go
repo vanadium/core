@@ -5,7 +5,6 @@
 package framer
 
 import (
-	"fmt"
 	"io"
 
 	"v.io/v23/flow"
@@ -57,7 +56,6 @@ func (f *framer) ReadMsg() ([]byte, error) {
 
 	// Read the message.
 	msg := make([]byte, msgSize)
-	fmt.Printf("S: %v\n", msgSize)
 	if _, err := io.ReadAtLeast(f, msg, msgSize); err != nil {
 		return nil, err
 	}
