@@ -14,16 +14,15 @@ import (
 // and implements flow.MsgReadWriteCloser.
 type framer struct {
 	io.ReadWriteCloser
-	readFrameStorage  [3]byte
-	readFrameSlice    []byte
-	writeFrameStorage [3]byte
-	writeFrameSlice   []byte
+	frameStorage    [6]byte
+	readFrameSlice  []byte
+	writeFrameSlice []byte
 }
 
 func New(c io.ReadWriteCloser) flow.MsgReadWriteCloser {
 	f := &framer{ReadWriteCloser: c}
-	f.readFrameSlice = f.readFrameStorage[:]
-	f.writeFrameSlice = f.writeFrameStorage[:]
+	f.readFrameSlice = f.frameStorage[:3]
+	f.writeFrameSlice = f.frameStorage[3:]
 	return f
 }
 
@@ -33,11 +32,10 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	for _, b := range data {
 		msgSize += len(b)
 	}
-	var frame [3]byte
-	if err := write3ByteUint(frame, msgSize); err != nil {
+	if err := write3ByteUint(f.writeFrameSlice, msgSize); err != nil {
 		return 0, err
 	}
-	if _, err := f.Write(frame[:]); err != nil {
+	if _, err := f.Write(f.writeFrameSlice); err != nil {
 		return 0, err
 	}
 	// Write the buffer to the io.ReadWriter. Remove the frame size
@@ -58,7 +56,7 @@ func (f *framer) ReadMsg() ([]byte, error) {
 	if _, err := io.ReadAtLeast(f, f.readFrameSlice, 3); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(f.readFrameStorage)
+	msgSize := read3ByteUint(f.readFrameSlice)
 
 	// Read the message.
 	msg := make([]byte, msgSize)
@@ -70,7 +68,7 @@ func (f *framer) ReadMsg() ([]byte, error) {
 
 const maxPacketSize = 0xffffff
 
-func write3ByteUint(dst [3]byte, n int) error {
+func write3ByteUint(dst []byte, n int) error {
 	if n > maxPacketSize || n < 0 {
 		return ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
 	}
@@ -81,6 +79,6 @@ func write3ByteUint(dst [3]byte, n int) error {
 	return nil
 }
 
-func read3ByteUint(src [3]byte) int {
+func read3ByteUint(src []byte) int {
 	return maxPacketSize - (int(src[0])<<16 | int(src[1])<<8 | int(src[2]))
 }
