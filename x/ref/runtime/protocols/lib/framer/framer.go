@@ -14,6 +14,7 @@ import (
 // and implements flow.MsgReadWriteCloser.
 type framer struct {
 	io.ReadWriteCloser
+	frame [3]byte
 }
 
 func New(c io.ReadWriteCloser) flow.MsgReadWriteCloser {
@@ -26,11 +27,10 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	for _, b := range data {
 		msgSize += len(b)
 	}
-	var frame [3]byte
-	if err := write3ByteUint(frame[:], msgSize); err != nil {
+	if err := write3ByteUint(f.frame[:], msgSize); err != nil {
 		return 0, err
 	}
-	if _, err := f.Write(frame[:]); err != nil {
+	if _, err := f.Write(f.frame[:]); err != nil {
 		return 0, err
 	}
 	// Write the buffer to the io.ReadWriter. Remove the frame size
@@ -48,11 +48,10 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 
 func (f *framer) ReadMsg() ([]byte, error) {
 	// Read the message size.
-	var frame [3]byte
-	if _, err := io.ReadAtLeast(f, frame[:], len(frame)); err != nil {
+	if _, err := io.ReadAtLeast(f, f.frame[:], len(f.frame)); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(frame)
+	msgSize := read3ByteUint(f.frame)
 
 	// Read the message.
 	msg := make([]byte, msgSize)
