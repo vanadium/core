@@ -49,7 +49,7 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 func (f *framer) ReadMsg() ([]byte, error) {
 	// Read the message size.
 	var frame [3]byte
-	if _, err := io.ReadAtLeast(f, frame[:], 3); err != nil {
+	if _, err := io.ReadAtLeast(f, frame[:], len(frame)); err != nil {
 		return nil, err
 	}
 	msgSize := read3ByteUint(frame)
