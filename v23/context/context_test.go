@@ -347,7 +347,7 @@ func TestRootCancelGoroutineLeak(t *testing.T) {
 		}
 	}
 	if count != 0 {
-		t.Errorf("expected 0 but got %d: goroutine leaking in WithRootCancel", count)
+		t.Errorf("expected 0 but got %d: goroutine leaking in WithRootCancel: %s", count, buf)
 	}
 	rootcancel()
 }
