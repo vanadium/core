@@ -25,24 +25,27 @@ func runConnections(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		ctx, _, _ := v23.WithNewClient(ctx)
-		internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, nil)
+		internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, false, nil)
 	}
 }
 
-func runEcho(b *testing.B, payloadSize int) {
+func runEcho(b *testing.B, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, nil)
+	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, random, nil)
 }
 
-func runEchoStream(b *testing.B, chunkCnt, payloadSize int) {
+func runEchoStream(b *testing.B, chunkCnt, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, nil)
+	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, random, nil)
 }
 
-func Benchmark_____ConnectionSetup(b *testing.B) { runConnections(b) }
-func Benchmark___________Echo_10KB(b *testing.B) { runEcho(b, 10000) }
-func Benchmark____Echo_Stream_10KB(b *testing.B) { runEchoStream(b, 10, 10000) }
-func Benchmark__Echo_Stream_1000KB(b *testing.B) { runEchoStream(b, 10, 1000000) }
+func Benchmark_______ConnectionSetup(b *testing.B) { runConnections(b) }
+func Benchmark__Echo____________10KB(b *testing.B) { runEcho(b, 10000, false) }
+func Benchmark__Echo________Rnd_10KB(b *testing.B) { runEcho(b, 10000, true) }
+func Benchmark__Echo_Stream_____10KB(b *testing.B) { runEchoStream(b, 10, 10000, false) }
+func Benchmark__Echo_Stream____500KB(b *testing.B) { runEchoStream(b, 10, 500000, false) }
+func Benchmark__Echo_Stream______1MB(b *testing.B) { runEchoStream(b, 10, 1000000, false) }
+func Benchmark__Echo_Stream__Rnd_1MB(b *testing.B) { runEchoStream(b, 10, 1000000, true) }
 
 func setupServerClient(ctx *context.T) {
 	_, server, err := v23.WithNewServer(ctx, "", internal.NewService(), security.DefaultAuthorizer())
@@ -50,7 +53,7 @@ func setupServerClient(ctx *context.T) {
 		ctx.Fatalf("NewServer failed: %v", err)
 	}
 	serverAddr = server.Status().Endpoints[0].Name()
-	internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, nil)
+	internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, false, nil)
 }
 
 func TestMain(m *testing.M) {
