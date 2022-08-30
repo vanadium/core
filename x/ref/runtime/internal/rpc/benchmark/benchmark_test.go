@@ -34,22 +34,23 @@ var (
 )
 
 // Benchmarks for non-streaming RPC.
-func runEcho(b *testing.B, payloadSize int) {
+func runEcho(b *testing.B, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, random, benchmark.AddStats(b, 16))
 }
 
-func Benchmark____1B(b *testing.B) { runEcho(b, 1) }
-func Benchmark___10B(b *testing.B) { runEcho(b, 10) }
-func Benchmark__100B(b *testing.B) { runEcho(b, 100) }
-func Benchmark___1KB(b *testing.B) { runEcho(b, 1000) }
-func Benchmark__10KB(b *testing.B) { runEcho(b, 10000) }
-func Benchmark_100KB(b *testing.B) { runEcho(b, 100000) }
+func Benchmark_______1B(b *testing.B) { runEcho(b, 1, false) }
+func Benchmark______10B(b *testing.B) { runEcho(b, 10, false) }
+func Benchmark_____100B(b *testing.B) { runEcho(b, 100, false) }
+func Benchmark______1KB(b *testing.B) { runEcho(b, 1000, false) }
+func Benchmark_____10KB(b *testing.B) { runEcho(b, 10000, false) }
+func Benchmark____100KB(b *testing.B) { runEcho(b, 100000, false) }
+func Benchmark__Rand_KB(b *testing.B) { runEcho(b, 10000, true) }
 
 // Benchmark for non-streaming RPC with a Client ExpiryCaveat.
 func runEchoClientExpiry(b *testing.B, payloadSize int) {
 	b.ReportAllocs()
-	internal.CallEcho(b, expCtx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, expCtx, serverAddr, b.N, payloadSize, false, benchmark.AddStats(b, 16))
 }
 
 func Benchmark____1B_ClientExpiryCav(b *testing.B) { runEchoClientExpiry(b, 1) }
@@ -61,7 +62,7 @@ func Benchmark_100KB_ClientExpiryCav(b *testing.B) { runEchoClientExpiry(b, 1000
 
 func runEchoServerExpiry(b *testing.B, payloadSize int) {
 	b.ReportAllocs()
-	internal.CallEcho(b, ctx, expServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, ctx, expServerAddr, b.N, payloadSize, false, benchmark.AddStats(b, 16))
 }
 
 func Benchmark____1B_ServerExpiryCav(b *testing.B) { runEchoServerExpiry(b, 1) }
@@ -74,7 +75,7 @@ func Benchmark_100KB_ServerExpiryCav(b *testing.B) { runEchoServerExpiry(b, 1000
 // Benchmark for non-streaming RPC with a Client ThirdPartyCaveat.
 func runEchoClientTPC(b *testing.B, payloadSize int) {
 	b.ReportAllocs()
-	internal.CallEcho(b, tpcCtx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, tpcCtx, serverAddr, b.N, payloadSize, false, benchmark.AddStats(b, 16))
 }
 
 func Benchmark____1B_ClientTPCav(b *testing.B) { runEchoClientTPC(b, 1) }
@@ -87,7 +88,7 @@ func Benchmark_100KB_ClientTPCav(b *testing.B) { runEchoClientTPC(b, 100000) }
 // Benchmark for non-streaming RPC with a Server ThirdPartyCaveat.
 func runEchoServerTPC(b *testing.B, payloadSize int) {
 	b.ReportAllocs()
-	internal.CallEcho(b, ctx, tpcServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, ctx, tpcServerAddr, b.N, payloadSize, false, benchmark.AddStats(b, 16))
 }
 
 func Benchmark____1B_ServerTPCav(b *testing.B) { runEchoServerTPC(b, 1) }
@@ -98,86 +99,97 @@ func Benchmark__10KB_ServerTPCav(b *testing.B) { runEchoServerTPC(b, 10000) }
 func Benchmark_100KB_ServerTPCav(b *testing.B) { runEchoServerTPC(b, 100000) }
 
 // Benchmark for non-streaming RPC with a proxied Server.
-func runEchoProxiedServer(b *testing.B, payloadSize int) {
+func runEchoProxiedServer(b *testing.B, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEcho(b, ctx, proxiedServerAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEcho(b, ctx, proxiedServerAddr, b.N, payloadSize, random, benchmark.AddStats(b, 16))
 }
 
-func Benchmark____1B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 1) }
-func Benchmark___10B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 10) }
-func Benchmark__100B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 100) }
-func Benchmark___1KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 1000) }
-func Benchmark__10KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 10000) }
-func Benchmark_100KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 100000) }
+func Benchmark______1B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 1, false) }
+func Benchmark_____10B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 10, false) }
+func Benchmark____100B_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 100, false) }
+func Benchmark_____1KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 1000, false) }
+func Benchmark____10KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 10000, false) }
+func Benchmark___100KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 100000, false) }
+func Benchmark_Rand_KB_ProxiedServer(b *testing.B) { runEchoProxiedServer(b, 100000, true) }
 
 // Benchmarks for streaming RPC.
-func runEchoStream(b *testing.B, chunkCnt, payloadSize int) {
+func runEchoStream(b *testing.B, chunkCnt, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, benchmark.AddStats(b, 16))
+	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, random, benchmark.AddStats(b, 16))
 }
 
-func Benchmark____1_chunk_____1B(b *testing.B) { runEchoStream(b, 1, 1) }
-func Benchmark____1_chunk____10B(b *testing.B) { runEchoStream(b, 1, 10) }
-func Benchmark____1_chunk___100B(b *testing.B) { runEchoStream(b, 1, 100) }
-func Benchmark____1_chunk____1KB(b *testing.B) { runEchoStream(b, 1, 1000) }
-func Benchmark____1_chunk___10KB(b *testing.B) { runEchoStream(b, 1, 10000) }
-func Benchmark____1_chunk__100KB(b *testing.B) { runEchoStream(b, 1, 100000) }
-func Benchmark___10_chunk_____1B(b *testing.B) { runEchoStream(b, 10, 1) }
-func Benchmark___10_chunk____10B(b *testing.B) { runEchoStream(b, 10, 10) }
-func Benchmark___10_chunk___100B(b *testing.B) { runEchoStream(b, 10, 100) }
-func Benchmark___10_chunk____1KB(b *testing.B) { runEchoStream(b, 10, 1000) }
-func Benchmark___10_chunk___10KB(b *testing.B) { runEchoStream(b, 10, 10000) }
-func Benchmark___10_chunk__100KB(b *testing.B) { runEchoStream(b, 10, 100000) }
-func Benchmark__100_chunk_____1B(b *testing.B) { runEchoStream(b, 100, 1) }
-func Benchmark__100_chunk____10B(b *testing.B) { runEchoStream(b, 100, 10) }
-func Benchmark__100_chunk___100B(b *testing.B) { runEchoStream(b, 100, 100) }
-func Benchmark__100_chunk____1KB(b *testing.B) { runEchoStream(b, 100, 1000) }
-func Benchmark__100_chunk___10KB(b *testing.B) { runEchoStream(b, 100, 10000) }
-func Benchmark__100_chunk__100KB(b *testing.B) { runEchoStream(b, 100, 100000) }
-func Benchmark___1K_chunk_____1B(b *testing.B) { runEchoStream(b, 1000, 1) }
-func Benchmark___1K_chunk____10B(b *testing.B) { runEchoStream(b, 1000, 10) }
-func Benchmark___1K_chunk___100B(b *testing.B) { runEchoStream(b, 1000, 100) }
-func Benchmark___1K_chunk____1KB(b *testing.B) { runEchoStream(b, 1000, 1000) }
-func Benchmark___1K_chunk___10KB(b *testing.B) { runEchoStream(b, 1000, 10000) }
-func Benchmark___1K_chunk__100KB(b *testing.B) { runEchoStream(b, 1000, 100000) }
+func Benchmark____1_chunk_____1B(b *testing.B)   { runEchoStream(b, 1, 1, false) }
+func Benchmark____1_chunk____10B(b *testing.B)   { runEchoStream(b, 1, 10, false) }
+func Benchmark____1_chunk___100B(b *testing.B)   { runEchoStream(b, 1, 100, false) }
+func Benchmark____1_chunk____1KB(b *testing.B)   { runEchoStream(b, 1, 1000, false) }
+func Benchmark____1_chunk___10KB(b *testing.B)   { runEchoStream(b, 1, 10000, false) }
+func Benchmark____1_chunk__100KB(b *testing.B)   { runEchoStream(b, 1, 100000, false) }
+func Benchmark___10_chunk_____1B(b *testing.B)   { runEchoStream(b, 10, 1, false) }
+func Benchmark____10_chunk____10B(b *testing.B)  { runEchoStream(b, 10, 10, false) }
+func Benchmark____10_chunk___100B(b *testing.B)  { runEchoStream(b, 10, 100, false) }
+func Benchmark____10_chunk____1KB(b *testing.B)  { runEchoStream(b, 10, 1000, false) }
+func Benchmark____10_chunk____10KB(b *testing.B) { runEchoStream(b, 10, 10000, false) }
+func Benchmark____10_chunk___100KB(b *testing.B) { runEchoStream(b, 10, 100000, false) }
+func Benchmark___10_chunk__Rand_KB(b *testing.B) { runEchoStream(b, 10, 100000, true) }
+func Benchmark__100_chunk______1B(b *testing.B)  { runEchoStream(b, 100, 1, false) }
+func Benchmark__100_chunk_____10B(b *testing.B)  { runEchoStream(b, 100, 10, false) }
+func Benchmark__100_chunk____100B(b *testing.B)  { runEchoStream(b, 100, 100, false) }
+func Benchmark__100_chunk_____1KB(b *testing.B)  { runEchoStream(b, 100, 1000, false) }
+func Benchmark__100_chunk____10KB(b *testing.B)  { runEchoStream(b, 100, 10000, false) }
+func Benchmark__100_chunk___100KB(b *testing.B)  { runEchoStream(b, 100, 100000, false) }
+func Benchmark__100_chunk_Rand_KB(b *testing.B)  { runEchoStream(b, 100, 100000, true) }
+func Benchmark___1K_chunk______1B(b *testing.B)  { runEchoStream(b, 1000, 1, false) }
+func Benchmark___1K_chunk_____10B(b *testing.B)  { runEchoStream(b, 1000, 10, false) }
+func Benchmark___1K_chunk____100B(b *testing.B)  { runEchoStream(b, 1000, 100, false) }
+func Benchmark___1K_chunk_____1KB(b *testing.B)  { runEchoStream(b, 1000, 1000, false) }
+func Benchmark___1K_chunk____10KB(b *testing.B)  { runEchoStream(b, 1000, 10000, false) }
+func Benchmark___1K_chunk___100KB(b *testing.B)  { runEchoStream(b, 1000, 100000, false) }
+func Benchmark___1K_chunk_Rand_KB(b *testing.B)  { runEchoStream(b, 1000, 100000, true) }
 
 // Benchmarks for per-chunk throughput in streaming RPC.
-func runPerChunk(b *testing.B, payloadSize int) {
+func runPerChunk(b *testing.B, payloadSize int, random bool) {
 	b.ReportAllocs()
-	internal.CallEchoStream(b, ctx, serverAddr, 1, b.N, payloadSize, benchmark.NewStats(1))
+	internal.CallEchoStream(b, ctx, serverAddr, 1, b.N, payloadSize, random, benchmark.NewStats(1))
 }
 
-func Benchmark__per_chunk____1B(b *testing.B) { runPerChunk(b, 1) }
-func Benchmark__per_chunk___10B(b *testing.B) { runPerChunk(b, 10) }
-func Benchmark__per_chunk__100B(b *testing.B) { runPerChunk(b, 100) }
-func Benchmark__per_chunk___1KB(b *testing.B) { runPerChunk(b, 1000) }
-func Benchmark__per_chunk__10KB(b *testing.B) { runPerChunk(b, 10000) }
-func Benchmark__per_chunk_100KB(b *testing.B) { runPerChunk(b, 100000) }
+func Benchmark__per_chunk______1B(b *testing.B) { runPerChunk(b, 1, false) }
+func Benchmark__per_chunk_____10B(b *testing.B) { runPerChunk(b, 10, false) }
+func Benchmark__per_chunk____100B(b *testing.B) { runPerChunk(b, 100, false) }
+func Benchmark__per_chunk_____1KB(b *testing.B) { runPerChunk(b, 1000, false) }
+func Benchmark__per_chunk____10KB(b *testing.B) { runPerChunk(b, 10000, false) }
+func Benchmark__per_chunk___100KB(b *testing.B) { runPerChunk(b, 100000, false) }
+func Benchmark__per_chunk_Rand_KB(b *testing.B) { runPerChunk(b, 100000, true) }
 
 // Benchmarks for non-streaming RPC while running streaming RPC in background.
-func runMux(b *testing.B, payloadSize, chunkCntB, payloadSizeB int) {
+func runMux(b *testing.B, payloadSize, chunkCntB, payloadSizeB int, random bool) {
 	b.ReportAllocs()
-	_, stop := internal.StartEchoStream(&testing.B{}, ctx, serverAddr, 0, chunkCntB, payloadSizeB, benchmark.NewStats(1))
-	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, benchmark.AddStats(b, 16))
+	_, stop := internal.StartEchoStream(&testing.B{}, ctx, serverAddr, 0, chunkCntB, payloadSizeB, random, benchmark.NewStats(1))
+	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, random, benchmark.AddStats(b, 16))
 	stop()
 }
 
-func Benchmark___10B_mux__100_chunks___10B(b *testing.B) { runMux(b, 10, 100, 10) }
-func Benchmark___10B_mux__100_chunks__100B(b *testing.B) { runMux(b, 10, 100, 100) }
-func Benchmark___10B_mux__100_chunks___1KB(b *testing.B) { runMux(b, 10, 100, 1000) }
-func Benchmark___10B_mux__100_chunks__10KB(b *testing.B) { runMux(b, 10, 100, 10000) }
-func Benchmark___10B_mux___1K_chunks___10B(b *testing.B) { runMux(b, 10, 1000, 10) }
-func Benchmark___10B_mux___1K_chunks__100B(b *testing.B) { runMux(b, 10, 1000, 100) }
-func Benchmark___10B_mux___1K_chunks___1KB(b *testing.B) { runMux(b, 10, 1000, 1000) }
-func Benchmark___10B_mux___1K_chunks__10KB(b *testing.B) { runMux(b, 10, 1000, 10000) }
-func Benchmark___1KB_mux__100_chunks___10B(b *testing.B) { runMux(b, 1000, 100, 10) }
-func Benchmark___1KB_mux__100_chunks__100B(b *testing.B) { runMux(b, 1000, 100, 100) }
-func Benchmark___1KB_mux__100_chunks___1KB(b *testing.B) { runMux(b, 1000, 100, 1000) }
-func Benchmark___1KB_mux__100_chunks__10KB(b *testing.B) { runMux(b, 1000, 100, 10000) }
-func Benchmark___1KB_mux___1K_chunks___10B(b *testing.B) { runMux(b, 1000, 1000, 10) }
-func Benchmark___1KB_mux___1K_chunks__100B(b *testing.B) { runMux(b, 1000, 1000, 100) }
-func Benchmark___1KB_mux___1K_chunks___1KB(b *testing.B) { runMux(b, 1000, 1000, 1000) }
-func Benchmark___1KB_mux___1K_chunks__10KB(b *testing.B) { runMux(b, 1000, 1000, 10000) }
+func Benchmark___10B_mux__100_chunks______10B(b *testing.B) { runMux(b, 10, 100, 10, false) }
+func Benchmark___10B_mux__100_chunks_____100B(b *testing.B) { runMux(b, 10, 100, 100, false) }
+func Benchmark___10B_mux__100_chunks______1KB(b *testing.B) { runMux(b, 10, 100, 1000, false) }
+func Benchmark___10B_mux__100_chunks_____10KB(b *testing.B) { runMux(b, 10, 100, 10000, false) }
+func Benchmark___10B_mux__100_chunks__Rand_KB(b *testing.B) { runMux(b, 10, 100, 10000, true) }
+func Benchmark___10B_mux___1K_chunks______10B(b *testing.B) { runMux(b, 10, 1000, 10, false) }
+func Benchmark___10B_mux___1K_chunks_____100B(b *testing.B) { runMux(b, 10, 1000, 100, false) }
+func Benchmark___10B_mux___1K_chunks______1KB(b *testing.B) { runMux(b, 10, 1000, 1000, false) }
+func Benchmark___10B_mux___1K_chunks_____10KB(b *testing.B) { runMux(b, 10, 1000, 10000, false) }
+func Benchmark___10B_mux___1K_chunks__Rand_KB(b *testing.B) { runMux(b, 10, 1000, 10000, true) }
+
+func Benchmark___1KB_mux__100_chunks______10B(b *testing.B) { runMux(b, 1000, 100, 10, false) }
+func Benchmark___1KB_mux__100_chunks_____100B(b *testing.B) { runMux(b, 1000, 100, 100, false) }
+func Benchmark___1KB_mux__100_chunks______1KB(b *testing.B) { runMux(b, 1000, 100, 1000, false) }
+func Benchmark___1KB_mux__100_chunks_____10KB(b *testing.B) { runMux(b, 1000, 100, 10000, false) }
+func Benchmark___1KB_mux__100_chunks__Rand_KB(b *testing.B) { runMux(b, 1000, 100, 10000, true) }
+
+func Benchmark___1KB_mux__1K_chunks_______10B(b *testing.B) { runMux(b, 1000, 1000, 10, false) }
+func Benchmark___1KB_mux__1K_chunks______100B(b *testing.B) { runMux(b, 1000, 1000, 100, false) }
+func Benchmark___1KB_mux__1K_chunks_______1KB(b *testing.B) { runMux(b, 1000, 1000, 1000, false) }
+func Benchmark___1KB_mux__1K_chunks______10KB(b *testing.B) { runMux(b, 1000, 1000, 10000, false) }
+func Benchmark___1KB_mux__1K_chunks___Rand_KB(b *testing.B) { runMux(b, 1000, 1000, 10000, true) }
 
 // Benchmark for measuring RPC connection time including authentication.
 //
@@ -270,7 +282,7 @@ func setupServerClient(ctx *context.T) {
 	}
 	serverAddr = server.Status().Endpoints[0].Name()
 	// Create a Conn to exclude the Conn setup time from the benchmark.
-	internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, false, benchmark.NewStats(1))
 }
 
 func setupExpiryCaveatServerClient(ctx *context.T) {
@@ -302,8 +314,8 @@ func setupExpiryCaveatServerClient(ctx *context.T) {
 	expServerAddr = expServer.Status().Endpoints[0].Name()
 
 	// Create Conns to exclude the Conn setup time from the benchmark.
-	internal.CallEcho(&testing.B{}, expCtx, serverAddr, 1, 0, benchmark.NewStats(1))
-	internal.CallEcho(&testing.B{}, ctx, expServerAddr, 1, 0, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, expCtx, serverAddr, 1, 0, false, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, ctx, expServerAddr, 1, 0, false, benchmark.NewStats(1))
 }
 
 func setupThirdPartyCaveatServerClient(ctx *context.T) {
@@ -333,8 +345,8 @@ func setupThirdPartyCaveatServerClient(ctx *context.T) {
 	tpcServerAddr = tpcServer.Status().Endpoints[0].Name()
 
 	// Create Conns to exclude the Conn setup time from the benchmark.
-	internal.CallEcho(&testing.B{}, tpcCtx, serverAddr, 1, 0, benchmark.NewStats(1))
-	internal.CallEcho(&testing.B{}, ctx, tpcServerAddr, 1, 0, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, tpcCtx, serverAddr, 1, 0, false, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, ctx, tpcServerAddr, 1, 0, false, benchmark.NewStats(1))
 }
 
 func setupProxiedServerClient(ctx *context.T) {
@@ -354,7 +366,7 @@ func setupProxiedServerClient(ctx *context.T) {
 	fmt.Fprintf(os.Stderr, "WaitForProxyEndpoints: %v : %v -> %v\n", pname, proxiedServer.Status().Endpoints, status.Endpoints)
 	proxiedServerAddr = status.Endpoints[0].Name()
 	// Create Conns to exclude the Conn setup time from the benchmark.
-	internal.CallEcho(&testing.B{}, ctx, proxiedServerAddr, 1, 0, benchmark.NewStats(1))
+	internal.CallEcho(&testing.B{}, ctx, proxiedServerAddr, 1, 0, false, benchmark.NewStats(1))
 }
 
 func setupPrivateMutualAuthentication(ctx *context.T) {

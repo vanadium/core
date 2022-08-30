@@ -7,6 +7,7 @@ package internal
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -16,19 +17,42 @@ import (
 	tbm "v.io/x/ref/test/benchmark"
 )
 
-// CallEcho calls 'Echo' method 'iterations' times with the given payload size.
-func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadSize int, stats *tbm.Stats) {
-	stub := benchmark.BenchmarkClient(address)
-	payload := make([]byte, payloadSize)
+func payloadGenerator(maxSize int, random bool) func() []byte {
+	if random {
+		return func() []byte {
+			size := rand.Int31n(int32(maxSize))
+			if size < 10 {
+				size = 10
+			}
+			payload := make([]byte, size)
+			for i := 0; i < 10; i++ {
+				payload[i] = byte(i & 0xff)
+			}
+			return payload
+		}
+	}
+	payload := make([]byte, maxSize)
 	for i := range payload {
 		payload[i] = byte(i & 0xff)
 	}
+	return func() []byte {
+		return payload
+	}
+}
+
+// CallEcho calls 'Echo' method 'iterations' times with the given payload size.
+func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadSize int, random bool, stats *tbm.Stats) {
+	stub := benchmark.BenchmarkClient(address)
+
+	genPayload := payloadGenerator(payloadSize, random)
 
 	b.SetBytes(int64(payloadSize) * 2) // 2 for round trip of each payload.
 	b.ResetTimer()                     // Exclude setup time from measurement.
 
 	for i := 0; i < iterations; i++ {
+		payload := genPayload()
 		ictx, span := vtrace.WithNewTrace(ctx, fmt.Sprintf("iter: % 8d", i), nil)
+
 		b.StartTimer()
 		start := time.Now()
 
@@ -52,8 +76,8 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 // CallEchoStream calls 'EchoStream' method 'iterations' times. Each iteration sends
 // 'chunkCnt' chunks on the stream and receives the same number of chunks back. Each
 // chunk has the given payload size.
-func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, stats *tbm.Stats) {
-	done, _ := StartEchoStream(b, ctx, address, iterations, chunkCnt, payloadSize, stats)
+func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) {
+	done, _ := StartEchoStream(b, ctx, address, iterations, chunkCnt, payloadSize, random, stats)
 	<-done
 }
 
@@ -62,12 +86,10 @@ func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, ch
 // it's done. It also returns a callback function to stop the streaming. Each iteration
 // requests 'chunkCnt' chunks on the stream and receives that number of chunks back.
 // Each chunk has the given payload size. Zero 'iterations' means unlimited.
-func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, stats *tbm.Stats) (<-chan int, func()) { //nolint:gocyclo
+func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) (<-chan int, func()) { //nolint:gocyclo
 	stub := benchmark.BenchmarkClient(address)
-	payload := make([]byte, payloadSize)
-	for i := range payload {
-		payload[i] = byte(i & 0xff)
-	}
+
+	genPayload := payloadGenerator(payloadSize, random)
 
 	stop := make(chan struct{})
 	stopped := func() bool {
@@ -91,6 +113,7 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 
 		n := 0
 		for ; !stopped() && (iterations == 0 || n < iterations); n++ {
+			payload := genPayload()
 			b.StartTimer()
 			start := time.Now()
 
