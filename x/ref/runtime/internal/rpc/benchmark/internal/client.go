@@ -28,7 +28,6 @@ func payloadGenerator(maxSize int, random bool) func() []byte {
 	for i := range payload {
 		payload[i] = byte(i & 0xff)
 	}
-
 	if random {
 		// use to 2000 different buffer sizes.
 		const nsizes = 2000
@@ -54,7 +53,9 @@ func payloadGenerator(maxSize int, random bool) func() []byte {
 	}
 }
 
-// CallEcho calls 'Echo' method 'iterations' times with the given payload size.
+// CallEcho calls 'Echo' method 'iterations' times with the given
+// payload size or a random payload size (up to payloadSize) if random
+// is specified
 func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadSize int, random bool, stats *tbm.Stats) {
 	stub := benchmark.BenchmarkClient(address)
 
