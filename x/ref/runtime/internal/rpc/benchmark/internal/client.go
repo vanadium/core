@@ -89,7 +89,6 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) {
 	done, _ := StartEchoStream(b, ctx, address, iterations, chunkCnt, payloadSize, random, stats)
 	status := <-done
-	fmt.Printf("STATUS: %v %v %v\n", status, b.N, iterations)
 	if b.N > 0 {
 		// 2 for round trip of each payload.
 		b.SetBytes(int64((status.Written * 2) / status.Iterations))
@@ -123,7 +122,6 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 		}
 	}
 	done := make(chan StreamStatus, 1)
-
 	written := 0
 	b.ResetTimer() // Exclude setup time from measurement.
 
@@ -176,9 +174,7 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 				ctx.Fatalf("%v", err)
 			}
 
-			prev := written
 			written += len(payload) * chunkCnt
-			fmt.Printf("%v + %v -> %v\n", prev, chunkCnt*len(payload), written)
 
 			if err = stream.Finish(); err != nil {
 				ctx.Fatalf("Finish failed: %v", err)
