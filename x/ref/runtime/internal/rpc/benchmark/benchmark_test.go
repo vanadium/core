@@ -163,7 +163,7 @@ func Benchmark__per_chunk_Rand_KB(b *testing.B) { runPerChunk(b, 100000, true) }
 // Benchmarks for non-streaming RPC while running streaming RPC in background.
 func runMux(b *testing.B, payloadSize, chunkCntB, payloadSizeB int, random bool) {
 	b.ReportAllocs()
-	_, _, stop := internal.StartEchoStream(&testing.B{}, ctx, serverAddr, 0, chunkCntB, payloadSizeB, random, benchmark.NewStats(1))
+	_, stop := internal.StartEchoStream(&testing.B{}, ctx, serverAddr, 0, chunkCntB, payloadSizeB, random, benchmark.NewStats(1))
 	internal.CallEcho(b, ctx, serverAddr, b.N, payloadSize, random, benchmark.AddStats(b, 16))
 	stop()
 }

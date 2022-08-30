@@ -55,15 +55,20 @@ Benchmark___10B     1000           8587341 ns/op           0.00 MB/s
 or for profiling
 
 ```
-$ go test ./summary -bench.
+$ go test ./summary -bench=. -cpu=1 --benchtime=5s
 goos: darwin
 goarch: arm64
 pkg: v.io/x/ref/runtime/internal/rpc/benchmark/summary
-Benchmark_____ConnectionSetup-10    	     855	   1486332 ns/op	  438416 B/op	    3261 allocs/op
-Benchmark__Echo__________10KB-10    	    5986	    192148 ns/op	 104.09 MB/s	  100610 B/op	     268 allocs/op
-Benchmark__Echo_Stream___10KB-10    	    2004	    554231 ns/op	 360.86 MB/s	  485322 B/op	     594 allocs/op
-Benchmark__Echo_Stream_1000KB-10    	      26	  46020415 ns/op	 434.59 MB/s	46248999 B/op	    3152 allocs/op
+Benchmark_______ConnectionSetup 	    3417	   1693263 ns/op	  436867 B/op	    3256 allocs/op
+Benchmark__Echo____________10KB 	   28634	    200038 ns/op	  99.98 MB/s	  100244 B/op	     266 allocs/op
+Benchmark__Echo________Rnd_10KB 	   42354	    136990 ns/op	  72.09 MB/s	   67072 B/op	     266 allocs/op
+Benchmark__Echo_Stream_____10KB 	    3936	   1497904 ns/op	 133.52 MB/s	  485573 B/op	     593 allocs/op
+Benchmark__Echo_Stream____500KB 	      82	  64262437 ns/op	 155.61 MB/s	23011672 B/op	    1901 allocs/op
+Benchmark__Echo_Stream______1MB 	      45	 123879699 ns/op	 161.45 MB/s	45711371 B/op	    3173 allocs/op
+Benchmark__Echo_Stream__Rnd_1MB 	      91	  62023993 ns/op	 165.54 MB/s	23930527 B/op	    1936 allocs/op
 PASS
+ok  	v.io/x/ref/runtime/internal/rpc/benchmark/summary	53.321s
+
 ```
 
 # Client/Server

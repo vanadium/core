@@ -29,14 +29,19 @@ func payloadGenerator(maxSize int, random bool) func() []byte {
 		payload[i] = byte(i & 0xff)
 	}
 	if random {
+		// use to 2000 different buffer sizes.
+		const nsizes = 2000
 		gen := &generator{
 			data:  payload,
-			sizes: make([]int32, maxSize),
+			sizes: make([]int32, nsizes),
 		}
-		for i := range gen.data {
+		for i := 0; i < nsizes; i++ {
 			gen.sizes[i] = rand.Int31n(int32(maxSize))
 		}
 		return func() []byte {
+			if gen.next >= len(gen.sizes) {
+				gen.next = 0
+			}
 			p := gen.data[:gen.sizes[gen.next]]
 			gen.next += 1
 			return p
