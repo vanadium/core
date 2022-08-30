@@ -21,11 +21,11 @@ var (
 	ctx                       *context.T
 )
 
-func runConnections(b *testing.B) {
+func runConnections(b *testing.B, payloadSize int) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		ctx, _, _ := v23.WithNewClient(ctx)
-		internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, 0, false, nil)
+		internal.CallEcho(&testing.B{}, ctx, serverAddr, 1, payloadSize, false, nil)
 	}
 }
 
@@ -37,9 +37,15 @@ func runEcho(b *testing.B, payloadSize int, random bool) {
 func runEchoStream(b *testing.B, chunkCnt, payloadSize int, random bool) {
 	b.ReportAllocs()
 	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, random, nil)
+
 }
 
-func Benchmark_______ConnectionSetup(b *testing.B) { runConnections(b) }
+func Benchmark_ConnectionSetup____0KB(b *testing.B) { runConnections(b, 0) }
+
+func Benchmark_ConnectionSetup____1KB(b *testing.B) { runConnections(b, 1000) }
+
+func Benchmark_ConnectionSetup__10KB(b *testing.B) { runConnections(b, 10000) }
+
 func Benchmark__Echo____________10KB(b *testing.B) { runEcho(b, 10000, false) }
 func Benchmark__Echo_____________1MB(b *testing.B) { runEcho(b, 1000000, false) }
 
