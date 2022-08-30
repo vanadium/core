@@ -41,6 +41,8 @@ func runEchoStream(b *testing.B, chunkCnt, payloadSize int, random bool) {
 
 func Benchmark_______ConnectionSetup(b *testing.B) { runConnections(b) }
 func Benchmark__Echo____________10KB(b *testing.B) { runEcho(b, 10000, false) }
+func Benchmark__Echo_____________1MB(b *testing.B) { runEcho(b, 1000000, false) }
+
 func Benchmark__Echo________Rnd_10KB(b *testing.B) { runEcho(b, 10000, true) }
 func Benchmark__Echo_Stream_____10KB(b *testing.B) { runEchoStream(b, 10, 10000, false) }
 func Benchmark__Echo_Stream____500KB(b *testing.B) { runEchoStream(b, 10, 500000, false) }
