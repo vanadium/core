@@ -168,23 +168,28 @@ func runMux(b *testing.B, payloadSize, chunkCntB, payloadSizeB int, random bool)
 	stop()
 }
 
-func Benchmark___10B_mux__100_chunks___10B(b *testing.B)    { runMux(b, 10, 100, 10, false) }
-func Benchmark___10B_mux__100_chunks__100B(b *testing.B)    { runMux(b, 10, 100, 100, false) }
-func Benchmark___10B_mux__100_chunks___1KB(b *testing.B)    { runMux(b, 10, 100, 1000, false) }
-func Benchmark___10B_mux__100_chunks__10KB(b *testing.B)    { runMux(b, 10, 100, 10000, false) }
-func Benchmark___10B_mux___1K_chunks___10B(b *testing.B)    { runMux(b, 10, 1000, 10, false) }
-func Benchmark___10B_mux___1K_chunks__100B(b *testing.B)    { runMux(b, 10, 1000, 100, false) }
-func Benchmark___10B_mux___1K_chunks___1KB(b *testing.B)    { runMux(b, 10, 1000, 1000, false) }
-func Benchmark___10B_mux___1K_chunks__10KB(b *testing.B)    { runMux(b, 10, 1000, 10000, false) }
-func Benchmark___1KB_mux__100_chunks___10B(b *testing.B)    { runMux(b, 1000, 100, 10, false) }
-func Benchmark___1KB_mux__100_chunks__100B(b *testing.B)    { runMux(b, 1000, 100, 100, false) }
-func Benchmark___1KB_mux__100_chunks___1KB(b *testing.B)    { runMux(b, 1000, 100, 1000, false) }
-func Benchmark___1KB_mux__100_chunks__10KB(b *testing.B)    { runMux(b, 1000, 100, 10000, false) }
-func Benchmark___1KB_mux___1K_chunks___10B(b *testing.B)    { runMux(b, 1000, 1000, 10, false) }
-func Benchmark___1KB_mux___1K_chunks__100B(b *testing.B)    { runMux(b, 1000, 1000, 100, false) }
-func Benchmark___1KB_mux___1K_chunks___1KB(b *testing.B)    { runMux(b, 1000, 1000, 1000, false) }
-func Benchmark___1KB_mux___1K_chunks__10KB(b *testing.B)    { runMux(b, 1000, 1000, 10000, false) }
-func Benchmark___1KB_mux___1K_chunks__Rand_KB(b *testing.B) { runMux(b, 1000, 1000, 10000, true) }
+func Benchmark___10B_mux__100_chunks______10B(b *testing.B) { runMux(b, 10, 100, 10, false) }
+func Benchmark___10B_mux__100_chunks_____100B(b *testing.B) { runMux(b, 10, 100, 100, false) }
+func Benchmark___10B_mux__100_chunks______1KB(b *testing.B) { runMux(b, 10, 100, 1000, false) }
+func Benchmark___10B_mux__100_chunks_____10KB(b *testing.B) { runMux(b, 10, 100, 10000, false) }
+func Benchmark___10B_mux__100_chunks__Rand_KB(b *testing.B) { runMux(b, 10, 100, 10000, true) }
+func Benchmark___10B_mux___1K_chunks______10B(b *testing.B) { runMux(b, 10, 1000, 10, false) }
+func Benchmark___10B_mux___1K_chunks_____100B(b *testing.B) { runMux(b, 10, 1000, 100, false) }
+func Benchmark___10B_mux___1K_chunks______1KB(b *testing.B) { runMux(b, 10, 1000, 1000, false) }
+func Benchmark___10B_mux___1K_chunks_____10KB(b *testing.B) { runMux(b, 10, 1000, 10000, false) }
+func Benchmark___10B_mux___1K_chunks__Rand_KB(b *testing.B) { runMux(b, 10, 1000, 10000, true) }
+
+func Benchmark___1KB_mux__100_chunks______10B(b *testing.B) { runMux(b, 1000, 100, 10, false) }
+func Benchmark___1KB_mux__100_chunks_____100B(b *testing.B) { runMux(b, 1000, 100, 100, false) }
+func Benchmark___1KB_mux__100_chunks______1KB(b *testing.B) { runMux(b, 1000, 100, 1000, false) }
+func Benchmark___1KB_mux__100_chunks_____10KB(b *testing.B) { runMux(b, 1000, 100, 10000, false) }
+func Benchmark___1KB_mux__100_chunks__Rand_KB(b *testing.B) { runMux(b, 1000, 100, 10000, true) }
+
+func Benchmark___1KB_mux__1K_chunks_______10B(b *testing.B) { runMux(b, 1000, 1000, 10, false) }
+func Benchmark___1KB_mux__1K_chunks______100B(b *testing.B) { runMux(b, 1000, 1000, 100, false) }
+func Benchmark___1KB_mux__1K_chunks_______1KB(b *testing.B) { runMux(b, 1000, 1000, 1000, false) }
+func Benchmark___1KB_mux__1K_chunks______10KB(b *testing.B) { runMux(b, 1000, 1000, 10000, false) }
+func Benchmark___1KB_mux__1K_chunks___Rand_KB(b *testing.B) { runMux(b, 1000, 1000, 10000, true) }
 
 // Benchmark for measuring RPC connection time including authentication.
 //

@@ -36,10 +36,8 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	if msgSize > maxPacketSize {
 		return 0, ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
 	}
-	var frame [3]byte
-	var fs = frame[:]
-	write3ByteUint(fs, msgSize)
-	if _, err := f.Write(fs); err != nil {
+	write3ByteUint(f.writeFrameSlice, msgSize)
+	if _, err := f.Write(f.writeFrameSlice); err != nil {
 		return 0, err
 	}
 	// Write the buffer to the io.ReadWriter. Remove the frame size
