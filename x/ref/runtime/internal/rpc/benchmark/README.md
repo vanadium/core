@@ -108,10 +108,10 @@ Count: 100  Min: 7  Max: 94  Avg: 13.17
 [334, inf)    0    0.0%  100.0%
 ```
 
-# Raspberry Pi
+# Raspberry Pi:
 
 On a Raspberry Pi, everything is much slower. The same tests show the following
-results:
+results.
 
 ```
 $ ./main

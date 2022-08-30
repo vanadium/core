@@ -17,24 +17,32 @@ import (
 	tbm "v.io/x/ref/test/benchmark"
 )
 
+type generator struct {
+	data  []byte
+	sizes []int32
+	next  int
+}
+
 func payloadGenerator(maxSize int, random bool) func() []byte {
-	if random {
-		return func() []byte {
-			size := rand.Int31n(int32(maxSize))
-			if size < 10 {
-				size = 10
-			}
-			payload := make([]byte, size)
-			for i := 0; i < 10; i++ {
-				payload[i] = byte(i & 0xff)
-			}
-			return payload
-		}
-	}
 	payload := make([]byte, maxSize)
 	for i := range payload {
 		payload[i] = byte(i & 0xff)
 	}
+	if random {
+		gen := &generator{
+			data:  payload,
+			sizes: make([]int32, maxSize),
+		}
+		for i := range gen.data {
+			gen.sizes[i] = rand.Int31n(int32(maxSize))
+		}
+		return func() []byte {
+			p := gen.data[:gen.sizes[gen.next]]
+			gen.next += 1
+			return p
+		}
+	}
+
 	return func() []byte {
 		return payload
 	}
@@ -46,11 +54,12 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 
 	genPayload := payloadGenerator(payloadSize, random)
 
-	b.SetBytes(int64(payloadSize) * 2) // 2 for round trip of each payload.
-	b.ResetTimer()                     // Exclude setup time from measurement.
+	written := 0
+	b.ResetTimer() // Exclude setup time from measurement.
 
 	for i := 0; i < iterations; i++ {
 		payload := genPayload()
+		written += len(payload)
 		ictx, span := vtrace.WithNewTrace(ctx, fmt.Sprintf("iter: % 8d", i), nil)
 
 		b.StartTimer()
@@ -71,6 +80,7 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 			stats.Add(elapsed)
 		}
 	}
+	b.SetBytes(int64((written * 2) / iterations)) // 2 for round trip of each payload.
 }
 
 // CallEchoStream calls 'EchoStream' method 'iterations' times. Each iteration sends
@@ -78,15 +88,27 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 // chunk has the given payload size.
 func CallEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) {
 	done, _ := StartEchoStream(b, ctx, address, iterations, chunkCnt, payloadSize, random, stats)
-	<-done
+	status := <-done
+	fmt.Printf("STATUS: %v %v %v\n", status, b.N, iterations)
+	if b.N > 0 {
+		// 2 for round trip of each payload.
+		b.SetBytes(int64((status.Written * 2) / status.Iterations))
+	}
 }
 
-// StartEchoStream starts to call 'EchoStream' method 'iterations' times. This does
-// not block, and returns a channel that will receive the number of iterations when
+// StreamStatus represents the number of iterations and the total
+// bytes written (in one direction) over the stream.
+type StreamStatus struct {
+	Iterations int
+	Written    int
+}
+
+// startEchoStream starts to call 'EchoStream' method 'iterations' times. This does
+// not block, and returns a channel that will receive the number of iterations and total bytes written (StreamStatus) when
 // it's done. It also returns a callback function to stop the streaming. Each iteration
 // requests 'chunkCnt' chunks on the stream and receives that number of chunks back.
-// Each chunk has the given payload size. Zero 'iterations' means unlimited.
-func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) (<-chan int, func()) { //nolint:gocyclo
+// Each chunk has the given payload size (or randomized). Zero 'iterations' means unlimited.
+func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, chunkCnt, payloadSize int, random bool, stats *tbm.Stats) (<-chan StreamStatus, func()) { //nolint:gocyclo
 	stub := benchmark.BenchmarkClient(address)
 
 	genPayload := payloadGenerator(payloadSize, random)
@@ -100,12 +122,9 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 			return false
 		}
 	}
-	done := make(chan int, 1)
+	done := make(chan StreamStatus, 1)
 
-	if b.N > 0 {
-		// 2 for round trip of each payload.
-		b.SetBytes(int64((iterations*chunkCnt/b.N)*payloadSize) * 2)
-	}
+	written := 0
 	b.ResetTimer() // Exclude setup time from measurement.
 
 	go func() {
@@ -148,6 +167,7 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 					ctx.Fatalf("EchoStream Send failed: %v", err)
 				}
 			}
+
 			if err = sStream.Close(); err != nil {
 				ctx.Fatalf("EchoStream Close failed: %v", err)
 			}
@@ -156,18 +176,22 @@ func StartEchoStream(b *testing.B, ctx *context.T, address string, iterations, c
 				ctx.Fatalf("%v", err)
 			}
 
+			prev := written
+			written += len(payload) * chunkCnt
+			fmt.Printf("%v + %v -> %v\n", prev, chunkCnt*len(payload), written)
+
 			if err = stream.Finish(); err != nil {
 				ctx.Fatalf("Finish failed: %v", err)
 			}
 
-			elapsed := time.Since(start)
 			b.StopTimer()
+			elapsed := time.Since(start)
 			if stats != nil {
 				stats.Add(elapsed)
 			}
 		}
 
-		done <- n
+		done <- StreamStatus{Iterations: n, Written: written}
 	}()
 
 	return done, func() {
