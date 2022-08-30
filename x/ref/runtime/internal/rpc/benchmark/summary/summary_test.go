@@ -37,12 +37,9 @@ func runEcho(b *testing.B, payloadSize int, random bool) {
 func runEchoStream(b *testing.B, chunkCnt, payloadSize int, random bool) {
 	b.ReportAllocs()
 	internal.CallEchoStream(b, ctx, serverAddr, b.N, chunkCnt, payloadSize, random, nil)
-
 }
 
-func Benchmark_ConnectionSetup____0KB(b *testing.B) { runConnections(b, 0) }
-
-func Benchmark_ConnectionSetup____1KB(b *testing.B) { runConnections(b, 1000) }
+func Benchmark_ConnectionSetup___0KB(b *testing.B) { runConnections(b, 0) }
 
 func Benchmark_ConnectionSetup__10KB(b *testing.B) { runConnections(b, 10000) }
 
