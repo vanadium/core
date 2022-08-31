@@ -25,6 +25,7 @@ import (
 var (
 	server                                                         string
 	iterations, chunkCnt, payloadSize, chunkCntMux, payloadSizeMux int
+	randomize                                                      bool
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	cmdRoot.Flags.IntVar(&payloadSize, "payload_size", 0, "Size of payload in bytes.")
 	cmdRoot.Flags.IntVar(&chunkCntMux, "mux_chunk_count", 0, "Number of chunks to send in background.")
 	cmdRoot.Flags.IntVar(&payloadSizeMux, "mux_payload_size", 0, "Size of payload to send in background.")
+	cmdRoot.Flags.BoolVar(&randomize, "randomize-payload-sizes", false, "Randomize the size of the payloads.")
 
 	cmdline.HideGlobalFlagsExcept()
 	cmdline.Main(cmdRoot)
@@ -49,7 +51,7 @@ var cmdRoot = &cmdline.Command{
 func runBenchmark(ctx *context.T, env *cmdline.Env, args []string) error {
 	if chunkCntMux > 0 && payloadSizeMux > 0 {
 		dummyB := testing.B{}
-		_, stop := internal.StartEchoStream(&dummyB, ctx, server, 0, chunkCntMux, payloadSizeMux, nil)
+		_, stop := internal.StartEchoStream(&dummyB, ctx, server, 0, chunkCntMux, payloadSizeMux, randomize, nil)
 		defer stop()
 		ctx.Infof("Started background streaming (chunk_size=%d, payload_size=%d)", chunkCntMux, payloadSizeMux)
 	}
@@ -59,9 +61,9 @@ func runBenchmark(ctx *context.T, env *cmdline.Env, args []string) error {
 
 	now := time.Now()
 	if chunkCnt == 0 {
-		internal.CallEcho(&dummyB, ctx, server, iterations, payloadSize, stats)
+		internal.CallEcho(&dummyB, ctx, server, iterations, payloadSize, randomize, stats)
 	} else {
-		internal.CallEchoStream(&dummyB, ctx, server, iterations, chunkCnt, payloadSize, stats)
+		internal.CallEchoStream(&dummyB, ctx, server, iterations, chunkCnt, payloadSize, randomize, stats)
 	}
 	elapsed := time.Since(now)
 
