@@ -233,27 +233,47 @@ func (e Endpoint) IsZero() bool {
 // number is unsupported, the current 'default' version will be used.
 func (e Endpoint) VersionedString(version int) string {
 	// nologcall
+	return e.versionedString(version)
+}
+
+func (e Endpoint) versionedString(version int) string {
+	out := &strings.Builder{}
+	out.Grow(256)
 	switch version {
 	case 6:
-		mt := "s"
+		out.WriteString("@6@")
+		out.WriteString(e.Protocol)
+		out.WriteByte('@')
+		out.WriteString(Escape(e.Address, "@"))
+		out.WriteByte('@')
+		for i, r := range e.routes {
+			out.WriteString(Escape(r, routeSeparator))
+			if i < len(e.routes)-1 {
+				out.WriteString(routeSeparator)
+			}
+		}
+		out.WriteByte('@')
+		out.WriteString(e.RoutingID.String())
 		if e.ServesMountTable {
-			mt = "m"
+			out.WriteString("@m@")
+		} else {
+			out.WriteString("@s@")
 		}
-		blessings := strings.Join(e.blessingNames, blessingsSeparator)
-		escaped := make([]string, len(e.routes))
-		for i := range e.routes {
-			escaped[i] = Escape(e.routes[i], routeSeparator)
+		for i, b := range e.blessingNames {
+			out.WriteString(b)
+			if i < len(e.blessingNames)-1 {
+				out.WriteString(blessingsSeparator)
+			}
 		}
-		routes := strings.Join(escaped, routeSeparator)
-		return fmt.Sprintf("@6@%s@%s@%s@%s@%s@%s@@",
-			e.Protocol, Escape(e.Address, "@"), routes, e.RoutingID, mt, blessings)
+		out.WriteString("@@")
+		return out.String()
 	default:
 		return e.VersionedString(DefaultEndpointVersion)
 	}
 }
 
 func (e Endpoint) String() string {
-	return e.VersionedString(DefaultEndpointVersion)
+	return e.versionedString(DefaultEndpointVersion)
 }
 
 // Name returns a string reprsentation of this Endpoint that can
