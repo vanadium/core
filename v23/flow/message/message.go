@@ -161,6 +161,11 @@ type option struct {
 func appendSetupOption(option uint64, payload, buf []byte) []byte {
 	return appendLenBytes(payload, writeVarUint64(option, buf))
 }
+
+func appendSetupOptionString(option uint64, payload string, buf []byte) []byte {
+	return appendLenString(payload, writeVarUint64(option, buf))
+}
+
 func readSetupOption(ctx *context.T, orig []byte) (opt uint64, p, d []byte, err error) {
 	var valid bool
 	if opt, d, valid = readVarUint64(ctx, orig); !valid {
@@ -180,12 +185,12 @@ func (m *Setup) append(ctx *context.T, data []byte) ([]byte, error) {
 			m.PeerNaClPublicKey[:], data)
 	}
 	if !m.PeerRemoteEndpoint.IsZero() {
-		data = appendSetupOption(peerRemoteEndpointOption,
-			[]byte(m.PeerRemoteEndpoint.String()), data)
+		data = appendSetupOptionString(peerRemoteEndpointOption,
+			m.PeerRemoteEndpoint.String(), data)
 	}
 	if !m.PeerLocalEndpoint.IsZero() {
-		data = appendSetupOption(peerLocalEndpointOption,
-			[]byte(m.PeerLocalEndpoint.String()), data)
+		data = appendSetupOptionString(peerLocalEndpointOption,
+			m.PeerLocalEndpoint.String(), data)
 	}
 	if m.Mtu != 0 {
 		data = appendSetupOption(mtuOption, writeVarUint64(m.Mtu, nil), data)
@@ -226,9 +231,9 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 			m.PeerNaClPublicKey = new([32]byte)
 			copy(m.PeerNaClPublicKey[:], payload)
 		case peerRemoteEndpointOption:
-			m.PeerRemoteEndpoint, err = naming.ParseEndpoint(string(payload))
+			m.PeerRemoteEndpoint, err = naming.ParseEndpointBytes(payload)
 		case peerLocalEndpointOption:
-			m.PeerLocalEndpoint, err = naming.ParseEndpoint(string(payload))
+			m.PeerLocalEndpoint, err = naming.ParseEndpointBytes(payload)
 		case mtuOption:
 			if mtu, _, valid := readVarUint64(ctx, payload); valid {
 				m.Mtu = mtu
@@ -539,7 +544,7 @@ type ProxyResponse struct {
 func (m *ProxyResponse) append(ctx *context.T, data []byte) ([]byte, error) {
 	data = append(data, proxyResponseType)
 	for _, ep := range m.Endpoints {
-		data = appendLenBytes([]byte(ep.String()), data)
+		data = appendLenString(ep.String(), data)
 	}
 	return data, nil
 }
@@ -549,11 +554,15 @@ func (m *ProxyResponse) read(ctx *context.T, orig []byte) error {
 		epBytes []byte
 		valid   bool
 	)
+	if len(data) == 0 {
+		return nil
+	}
+	m.Endpoints = make([]naming.Endpoint, 0, len(data))
 	for i := 0; len(data) > 0; i++ {
 		if epBytes, data, valid = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), nil)
 		}
-		ep, err := naming.ParseEndpoint(string(epBytes))
+		ep, err := naming.ParseEndpointBytes(epBytes)
 		if err != nil {
 			return NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), err)
 		}
@@ -610,6 +619,11 @@ func (m *HealthCheckResponse) read(ctx *context.T, data []byte) error {
 }
 
 func appendLenBytes(b []byte, buf []byte) []byte {
+	buf = writeVarUint64(uint64(len(b)), buf)
+	return append(buf, b...)
+}
+
+func appendLenString(b string, buf []byte) []byte {
 	buf = writeVarUint64(uint64(len(b)), buf)
 	return append(buf, b...)
 }

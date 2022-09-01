@@ -231,3 +231,19 @@ func BenchmarkEndpointParsingBytes(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkEndpointString(b *testing.B) {
+	b.ReportAllocs()
+	eps := "@6@tcp@batman.com:2345@1@0000000000000000000000000000ba77@m@dev.v.io:foo@bar.com,dev.v.io:bar@bar.com:delegate@@"
+	ep, err := ParseEndpoint(eps)
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s := ep.String()
+		if s != eps {
+			b.Fatalf("got %v, want %v", s, eps)
+		}
+	}
+}

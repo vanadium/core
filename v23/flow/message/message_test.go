@@ -210,3 +210,77 @@ func TestProxy(t *testing.T) {
 		&message.ProxyErrorResponse{Error: "error"},
 	})
 }
+
+func benchmarkMessageAppend(b *testing.B, ctx *context.T, m message.Message) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := message.Append(ctx, m, make([]byte, 0, 4096))
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func benchmarkMessageRead(b *testing.B, ctx *context.T, buf []byte) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := message.Read(ctx, buf)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func setupMessage(b *testing.B) message.Message {
+	ep1, err := naming.ParseEndpoint(
+		"@6@tcp@foo.com:1234@a,b@00112233445566778899aabbccddeeff@m@v.io/foo")
+	if err != nil {
+		b.Fatal(err)
+	}
+	ep2, err := naming.ParseEndpoint(
+		"@6@tcp@bar.com:1234@a,b@00112233445566778899aabbccddeeff@m@v.io/bar")
+	if err != nil {
+		b.Fatal(err)
+	}
+	return &message.Setup{
+		Versions: version.RPCVersionRange{Min: 1, Max: 5},
+		PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+			14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
+		PeerRemoteEndpoint: ep1,
+		PeerLocalEndpoint:  ep2,
+	}
+}
+
+func BenchmarkSetupAppend(b *testing.B) {
+	ctx, shutdown := v23.Init()
+	defer shutdown()
+	m := setupMessage(b)
+	benchmarkMessageAppend(b, ctx, m)
+}
+
+func BenchmarkSetupRead(b *testing.B) {
+	ctx, shutdown := v23.Init()
+	defer shutdown()
+	m := setupMessage(b)
+	buf := make([]byte, 0, 2048)
+	buf, _ = message.Append(ctx, m, buf)
+	benchmarkMessageRead(b, ctx, buf)
+}
+
+func BenchmarkDataAppend(b *testing.B) {
+	ctx, shutdown := v23.Init()
+	defer shutdown()
+	m := &message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	benchmarkMessageAppend(b, ctx, m)
+}
+
+func BenchmarkDataRead(b *testing.B) {
+	ctx, shutdown := v23.Init()
+	defer shutdown()
+	m := &message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	buf := make([]byte, 0, 2048)
+	buf, _ = message.Append(ctx, m, buf)
+	benchmarkMessageRead(b, ctx, buf)
+}
