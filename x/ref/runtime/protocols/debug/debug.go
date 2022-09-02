@@ -70,6 +70,7 @@ type conn struct {
 func (c *conn) LocalAddr() net.Addr                  { return c.addr }
 func (c *conn) RemoteAddr() net.Addr                 { return c.base.RemoteAddr() }
 func (c *conn) ReadMsg() ([]byte, error)             { return c.base.ReadMsg() }
+func (c *conn) ReadMsg2(buf []byte) ([]byte, error)  { return c.base.ReadMsg2(buf) }
 func (c *conn) WriteMsg(data ...[]byte) (int, error) { return c.base.WriteMsg(data...) }
 func (c *conn) Close() error                         { return c.base.Close() }
 func (c *conn) UnsafeDisableEncryption() bool        { return true }

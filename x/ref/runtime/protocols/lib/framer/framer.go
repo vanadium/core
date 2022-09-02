@@ -52,7 +52,14 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	return n - 3, nil
 }
 
+// ReadMsg implements flow.MsgReadWriteCloser
 func (f *framer) ReadMsg() ([]byte, error) {
+	return f.ReadMsg2(nil)
+}
+
+// ReadMsg2 implements flow.MsgReadWriteCloser and will use
+// the supplied msg buffer if it is large enough.
+func (f *framer) ReadMsg2(msg []byte) ([]byte, error) {
 	// Read the message size.
 	if _, err := io.ReadFull(f, f.frame[:]); err != nil {
 		return nil, err
@@ -60,11 +67,14 @@ func (f *framer) ReadMsg() ([]byte, error) {
 	msgSize := read3ByteUint(f.frame)
 
 	// Read the message.
-	msg := make([]byte, msgSize)
-	if _, err := io.ReadFull(f, msg); err != nil {
+	if msgSize > len(msg) {
+		msg = make([]byte, msgSize)
+	}
+	used := msg[:msgSize]
+	if _, err := io.ReadFull(f, used); err != nil {
 		return nil, err
 	}
-	return msg, nil
+	return used, nil
 }
 
 const maxPacketSize = 0xffffff

@@ -156,6 +156,13 @@ func (f *flw) ReadMsg() (buf []byte, err error) {
 	return
 }
 
+// ReadMsg2 is like ReadMsg. In this implementation it does not use the
+// supplied buffer since doing so would force an extraneous allocation and
+// copy.
+func (f *flw) ReadMsg2(_ []byte) (buf []byte, err error) {
+	return f.ReadMsg()
+}
+
 // Implement io.Writer.
 // Write, WriteMsg, and WriteMsgAndClose should not be called concurrently
 // with themselves or each other.

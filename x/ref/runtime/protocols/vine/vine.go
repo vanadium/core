@@ -271,6 +271,10 @@ func (c *conn) ReadMsg() ([]byte, error) {
 	return c.base.ReadMsg()
 }
 
+func (c *conn) ReadMsg2(buf []byte) ([]byte, error) {
+	return c.base.ReadMsg2(buf)
+}
+
 func (c *conn) Close() error {
 	c.vine.removeConn(c)
 	return c.base.Close()

@@ -34,6 +34,7 @@ type conn struct {
 
 func (c *conn) LocalAddr() net.Addr  { return c.addr }
 func (c *conn) RemoteAddr() net.Addr { return c.peer.addr }
+
 func (c *conn) ReadMsg() ([]byte, error) {
 	select {
 	case msg := <-c.incoming:
@@ -42,6 +43,11 @@ func (c *conn) ReadMsg() ([]byte, error) {
 		return nil, io.EOF
 	}
 }
+
+func (c *conn) ReadMsg2([]byte) ([]byte, error) {
+	return c.ReadMsg()
+}
+
 func (c *conn) WriteMsg(data ...[]byte) (int, error) {
 	l := 0
 	for _, b := range data {
