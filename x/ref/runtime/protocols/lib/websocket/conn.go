@@ -57,6 +57,10 @@ func (c *wrappedConn) ReadMsg() ([]byte, error) {
 	return b, nil
 }
 
+func (c *wrappedConn) ReadMsg2([]byte) ([]byte, error) {
+	return c.ReadMsg()
+}
+
 func (c *wrappedConn) WriteMsg(bufs ...[]byte) (int, error) {
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()

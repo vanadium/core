@@ -213,6 +213,15 @@ type MsgReader interface {
 	// ReadMsg is like read, but it reads bytes in chunks.  Depending on the
 	// implementation the batch boundaries might or might not be significant.
 	ReadMsg() ([]byte, error)
+
+	// ReadMsg2 is like ReadMsg except that it can optionally use the supplied
+	// buffer to store the read message rather than always allocating
+	// a new one. The use of the supplied buffer is optional and different
+	// implementations may make different decisions as to whether to use
+	// it (assuming it is large enough). Consequently the caller should always
+	// use the returned buffer. Calling ReadMsg2 with a nil buffer is the same
+	// as calling ReadMsg.
+	ReadMsg2([]byte) ([]byte, error)
 }
 
 // MsgReadWriteCloser combines the MsgReader and MsgWriter interfaces and

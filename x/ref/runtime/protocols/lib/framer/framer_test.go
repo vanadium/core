@@ -53,6 +53,20 @@ func TestFramer(t *testing.T) {
 	if got, err := f.ReadMsg(); err != nil || !bytes.Equal(got, want) {
 		t.Errorf("got %v, %v, want %v, nil", got, err, want)
 	}
+
+	if n, err := f.WriteMsg(bufs...); err != nil || n != l {
+		t.Fatalf("got %v, %v, want %v, nil", n, err, l)
+	}
+	rbuf := make([]byte, len(want)*2)
+	got, err := f.ReadMsg2(rbuf)
+	if err != nil || !bytes.Equal(got, want) {
+		t.Errorf("got %v, %v, want %v, nil", got, err, want)
+	}
+	rbuf[0] = 0xff
+	if bytes.Equal(got, want) {
+		t.Errorf("looks like ReadMsg2 did not use the supplied buffer")
+	}
+
 }
 
 func Test3ByteUint(t *testing.T) {
