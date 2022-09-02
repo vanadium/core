@@ -31,22 +31,26 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	var m Message
 	msgType, from := from[0], from[1:]
 	switch msgType {
+	case dataType:
+		m = &Data{}
 	case setupType:
 		m = &Setup{}
-	case tearDownType:
-		m = &TearDown{}
-	case enterLameDuckType:
-		m = &EnterLameDuck{}
-	case ackLameDuckType:
-		m = &AckLameDuck{}
 	case authType, authED25519Type, authRSAType:
 		m = &Auth{signatureType: msgType}
 	case openFlowType:
 		m = &OpenFlow{}
 	case releaseType:
 		m = &Release{}
-	case dataType:
-		m = &Data{}
+	case healthCheckRequestType:
+		m = &HealthCheckRequest{}
+	case healthCheckResponseType:
+		m = &HealthCheckResponse{}
+	case tearDownType:
+		m = &TearDown{}
+	case enterLameDuckType:
+		m = &EnterLameDuck{}
+	case ackLameDuckType:
+		m = &AckLameDuck{}
 	case multiProxyType:
 		m = &MultiProxyRequest{}
 	case proxyServerType:
@@ -55,14 +59,19 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 		m = &ProxyResponse{}
 	case proxyErrorReponseType:
 		m = &ProxyErrorResponse{}
-	case healthCheckRequestType:
-		m = &HealthCheckRequest{}
-	case healthCheckResponseType:
-		m = &HealthCheckResponse{}
+
 	default:
 		return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 	}
 	return m, m.read(ctx, from)
+}
+
+// CopyBuffers must be called to make internal copies of any byte slices that
+// may be in a shared underlying slice (eg. in a slice allocated for decryting
+// a message). It should be called before passing a Message to another
+// goroutine for example.
+func CopyBuffers(m Message) {
+	m.copyBuffers()
 }
 
 // FlowID returns the id of the flow this message is associated with for
@@ -82,6 +91,7 @@ func FlowID(m interface{}) uint64 {
 type Message interface {
 	append(ctx *context.T, data []byte) ([]byte, error)
 	read(ctx *context.T, data []byte) error
+	copyBuffers()
 }
 
 // message types.
@@ -203,6 +213,7 @@ func (m *Setup) append(ctx *context.T, data []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
 func (m *Setup) read(ctx *context.T, orig []byte) error {
 	var (
 		data  = orig
@@ -231,9 +242,9 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 			m.PeerNaClPublicKey = new([32]byte)
 			copy(m.PeerNaClPublicKey[:], payload)
 		case peerRemoteEndpointOption:
-			m.PeerRemoteEndpoint, err = naming.ParseEndpointBytes(payload)
+			m.PeerRemoteEndpoint, err = naming.ParseEndpoint(string(payload))
 		case peerLocalEndpointOption:
-			m.PeerLocalEndpoint, err = naming.ParseEndpointBytes(payload)
+			m.PeerLocalEndpoint, err = naming.ParseEndpoint(string(payload))
 		case mtuOption:
 			if mtu, _, valid := readVarUint64(ctx, payload); valid {
 				m.Mtu = mtu
@@ -255,6 +266,13 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 	}
 	return nil
 }
+
+func (m *Setup) copyBuffers() {
+	for i, v := range m.uninterpretedOptions {
+		m.uninterpretedOptions[i].payload = copyBytes(v.payload)
+	}
+}
+
 func (m *Setup) String() string {
 	return fmt.Sprintf("Versions:[%d,%d] PeerNaClPublicKey:%v PeerRemoteEndpoint:%v PeerLocalEndpoint:%v options:%v",
 		m.Versions.Min,
@@ -274,10 +292,14 @@ func (m *TearDown) append(ctx *context.T, data []byte) ([]byte, error) {
 	data = append(data, tearDownType)
 	return append(data, []byte(m.Message)...), nil
 }
+
 func (m *TearDown) read(ctx *context.T, data []byte) error {
 	m.Message = string(data)
 	return nil
 }
+
+func (m *TearDown) copyBuffers() {}
+
 func (m *TearDown) String() string { return m.Message }
 
 // EnterLameDuck is sent as notification that the sender is entering lameduck mode.
@@ -288,9 +310,12 @@ type EnterLameDuck struct{}
 func (m *EnterLameDuck) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, enterLameDuckType), nil
 }
+
 func (m *EnterLameDuck) read(ctx *context.T, data []byte) error {
 	return nil
 }
+
+func (m *EnterLameDuck) copyBuffers() {}
 
 // AckLameDuck is sent in response to an EnterLameDuck message.  After
 // this message is received no more OpenFlow messages should arrive.
@@ -299,9 +324,12 @@ type AckLameDuck struct{}
 func (m *AckLameDuck) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, ackLameDuckType), nil
 }
+
 func (m *AckLameDuck) read(ctx *context.T, data []byte) error {
 	return nil
 }
+
+func (m *AckLameDuck) copyBuffers() {}
 
 // auth is used to complete the auth handshake.
 type Auth struct {
@@ -376,6 +404,19 @@ func (m *Auth) read(ctx *context.T, orig []byte) error {
 	return nil
 }
 
+func (m *Auth) copyBuffers() {
+	m.ChannelBinding.Purpose = copyBytes(m.ChannelBinding.Purpose)
+	switch m.signatureType {
+	case authType:
+		m.ChannelBinding.R = copyBytes(m.ChannelBinding.R)
+		m.ChannelBinding.S = copyBytes(m.ChannelBinding.S)
+	case authED25519Type:
+		m.ChannelBinding.Ed25519 = copyBytes(m.ChannelBinding.Ed25519)
+	case authRSAType:
+		m.ChannelBinding.Rsa = copyBytes(m.ChannelBinding.Rsa)
+	}
+}
+
 // OpenFlow is sent at the beginning of every new flow, it optionally contains payload.
 type OpenFlow struct {
 	ID                         uint64
@@ -399,6 +440,7 @@ func (m *OpenFlow) append(ctx *context.T, data []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
 func (m *OpenFlow) read(ctx *context.T, orig []byte) error {
 	var (
 		data  []byte
@@ -427,6 +469,13 @@ func (m *OpenFlow) read(ctx *context.T, orig []byte) error {
 	}
 	return nil
 }
+
+func (m *OpenFlow) copyBuffers() {
+	for i, v := range m.Payload {
+		m.Payload[i] = copyBytes(v)
+	}
+}
+
 func (m *OpenFlow) String() string {
 	return fmt.Sprintf("ID:%d InitialCounters:%d BlessingsKey:0x%x DischargeKey:0x%x Flags:0x%x Payload:(%d bytes in %d slices)",
 		m.ID,
@@ -476,6 +525,12 @@ func (m *Release) read(ctx *context.T, orig []byte) error {
 	return nil
 }
 
+func (m *Release) copyBuffers() {}
+
+func (m *Release) String() string {
+	return fmt.Sprintf("release #%v counters", len(m.Counters))
+}
+
 // Data carries encrypted data for a specific flow.
 type Data struct {
 	ID      uint64
@@ -494,6 +549,7 @@ func (m *Data) append(ctx *context.T, data []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
 func (m *Data) read(ctx *context.T, orig []byte) error {
 	var (
 		data  []byte
@@ -510,6 +566,13 @@ func (m *Data) read(ctx *context.T, orig []byte) error {
 	}
 	return nil
 }
+
+func (m *Data) copyBuffers() {
+	for i, v := range m.Payload {
+		m.Payload[i] = copyBytes(v)
+	}
+}
+
 func (m *Data) String() string {
 	return fmt.Sprintf("ID:%d Flags:0x%x Payload:(%d bytes in %d slices)", m.ID, m.Flags, payloadSize(m.Payload), len(m.Payload))
 }
@@ -520,9 +583,12 @@ type MultiProxyRequest struct{}
 func (m *MultiProxyRequest) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, multiProxyType), nil
 }
+
 func (m *MultiProxyRequest) read(ctx *context.T, orig []byte) error {
 	return nil
 }
+
+func (m *MultiProxyRequest) copyBuffers() {}
 
 // ProxyServerRequest is sent when a server wants to listen through a proxy.
 type ProxyServerRequest struct{}
@@ -530,9 +596,12 @@ type ProxyServerRequest struct{}
 func (m *ProxyServerRequest) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, proxyServerType), nil
 }
+
 func (m *ProxyServerRequest) read(ctx *context.T, orig []byte) error {
 	return nil
 }
+
+func (m *ProxyServerRequest) copyBuffers() {}
 
 // ProxyResponse is sent by a proxy in response to a ProxyServerRequest or
 // MultiProxyRequest. It notifies the server of the endpoints it should publish.
@@ -548,6 +617,7 @@ func (m *ProxyResponse) append(ctx *context.T, data []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
 func (m *ProxyResponse) read(ctx *context.T, orig []byte) error {
 	var (
 		data    = orig
@@ -562,7 +632,7 @@ func (m *ProxyResponse) read(ctx *context.T, orig []byte) error {
 		if epBytes, data, valid = readLenBytes(ctx, data); !valid {
 			return NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), nil)
 		}
-		ep, err := naming.ParseEndpointBytes(epBytes)
+		ep, err := naming.ParseEndpoint(string(epBytes))
 		if err != nil {
 			return NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), err)
 		}
@@ -570,6 +640,9 @@ func (m *ProxyResponse) read(ctx *context.T, orig []byte) error {
 	}
 	return nil
 }
+
+func (m *ProxyResponse) copyBuffers() {}
+
 func (m *ProxyResponse) String() string {
 	strs := make([]string, len(m.Endpoints))
 	for i, ep := range m.Endpoints {
@@ -590,10 +663,14 @@ func (m *ProxyErrorResponse) append(ctx *context.T, data []byte) ([]byte, error)
 	data = append(data, []byte(m.Error)...)
 	return data, nil
 }
+
 func (m *ProxyErrorResponse) read(ctx *context.T, orig []byte) error {
 	m.Error = string(orig)
 	return nil
 }
+
+func (m *ProxyErrorResponse) copyBuffers() {}
+
 func (m *ProxyErrorResponse) String() string {
 	return m.Error
 }
@@ -604,9 +681,12 @@ type HealthCheckRequest struct{}
 func (m *HealthCheckRequest) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, healthCheckRequestType), nil
 }
+
 func (m *HealthCheckRequest) read(ctx *context.T, data []byte) error {
 	return nil
 }
+
+func (m *HealthCheckRequest) copyBuffers() {}
 
 // HealthCheckResponse messages are sent in response to HealthCheckRequest messages.
 type HealthCheckResponse struct{}
@@ -614,8 +694,17 @@ type HealthCheckResponse struct{}
 func (m *HealthCheckResponse) append(ctx *context.T, data []byte) ([]byte, error) {
 	return append(data, healthCheckResponseType), nil
 }
+
 func (m *HealthCheckResponse) read(ctx *context.T, data []byte) error {
 	return nil
+}
+
+func (m *HealthCheckResponse) copyBuffers() {}
+
+func copyBytes(b []byte) []byte {
+	cpy := make([]byte, len(b))
+	copy(cpy, b)
+	return cpy
 }
 
 func appendLenBytes(b []byte, buf []byte) []byte {
