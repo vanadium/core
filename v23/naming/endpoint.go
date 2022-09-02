@@ -10,7 +10,6 @@ import (
 	"net"
 	"regexp"
 	"strings"
-	"unsafe"
 )
 
 const (
@@ -86,14 +85,6 @@ func ParseEndpoint(input string) (Endpoint, error) {
 	default:
 		return Endpoint{}, errInvalidEndpointString
 	}
-}
-
-// ParseEndpointBytes is line ParseEndpoint but avoids the
-// need for converting a []byte to a string. The caller must
-// ensure that input is not changed whilst ParseEndpointBytes is
-// executing.
-func ParseEndpointBytes(input []byte) (Endpoint, error) {
-	return ParseEndpoint(*(*string)(unsafe.Pointer(&input)))
 }
 
 func parseHostPort(blessing, hostport string) (Endpoint, error) {

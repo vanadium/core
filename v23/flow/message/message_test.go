@@ -39,6 +39,13 @@ func testMessagesWithResults(t *testing.T, ctx *context.T, cases []message.Messa
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got: %#v, want %#v", got, want)
 		}
+		message.CopyBuffers(got)
+		for i := range encoded {
+			encoded[i] = 0xff
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got: %#v, want %#v", got, want)
+		}
 	}
 }
 
