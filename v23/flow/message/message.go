@@ -728,39 +728,6 @@ func readLenBytes(data []byte) (b, rest []byte, valid bool) {
 	return nil, data, true
 }
 
-func writeVarUint64_orig(u uint64, buf []byte) []byte {
-	if u <= 0x7f {
-		return append(buf, byte(u))
-	}
-	shift, l := 56, byte(7)
-	for ; shift >= 0 && (u>>uint(shift))&0xff == 0; shift, l = shift-8, l-1 {
-	}
-	buf = append(buf, 0xff-l)
-	for ; shift >= 0; shift -= 8 {
-		buf = append(buf, byte(u>>uint(shift))&0xff)
-	}
-	return buf
-}
-
-func readVarUint64_orig(data []byte) (uint64, []byte, bool) {
-	if len(data) == 0 {
-		return 0, data, false
-	}
-	l := data[0]
-	if l <= 0x7f {
-		return uint64(l), data[1:], true
-	}
-	l = 0xff - l + 1
-	if l > 8 || len(data)-1 < int(l) {
-		return 0, data, false
-	}
-	var out uint64
-	for i := 1; i < int(l+1); i++ {
-		out = out<<8 | uint64(data[i])
-	}
-	return out, data[l+1:], true
-}
-
 func readVarUint64(data []byte) (uint64, []byte, bool) {
 	if len(data) == 0 {
 		return 0, data, false

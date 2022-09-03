@@ -66,10 +66,6 @@ var (
 
 func testVarInt(t *testing.T, cases []uint64) {
 	for _, want := range cases {
-		//		gbuf := make([]byte, 10)
-		//		l := binary.PutUvarint(gbuf, want)
-		//		v := writeVarUint64(want, []byte{})
-		//		fmt.Printf("%02b %02x -> %02b %02x %v -- %02b %02x %v\n", want, want, v, v, len(v), gbuf[:l], gbuf[:l], l)
 		got, b, valid := readVarUint64(writeVarUint64(want, []byte{}))
 		if !valid {
 			t.Fatalf("error reading %x", want)
@@ -230,11 +226,10 @@ func benchmarkVarIntPrev(b *testing.B, varintCases []uint64) {
 	b.ResetTimer()
 	buf := make([]byte, 0, 10)
 	for i := 0; i < b.N; i++ {
-		for _, want := range varintCases {
-			_, _, valid := readVarUint64_orig(writeVarUint64_orig(want, buf))
-			if !valid {
-				b.Fatalf("error reading %x", want)
-			}
+		want := varintCases[i%len(varintCases)]
+		_, _, valid := readVarUint64_orig(writeVarUint64_orig(want, buf))
+		if !valid {
+			b.Fatalf("error reading %x", want)
 		}
 	}
 }
@@ -244,11 +239,10 @@ func benchmarkVarIntNew(b *testing.B, varintCases []uint64) {
 	b.ResetTimer()
 	buf := make([]byte, 0, 10)
 	for i := 0; i < b.N; i++ {
-		for _, want := range varintCases {
-			_, _, valid := readVarUint64(writeVarUint64(want, buf))
-			if !valid {
-				b.Fatalf("error reading %x", want)
-			}
+		want := varintCases[i%len(varintCases)]
+		_, _, valid := readVarUint64(writeVarUint64(want, buf))
+		if !valid {
+			b.Fatalf("error reading %x", want)
 		}
 	}
 }
@@ -258,12 +252,44 @@ func benchmarkVarIntStdlib(b *testing.B, varintCases []uint64) {
 	b.ResetTimer()
 	buf := make([]byte, 10)
 	for i := 0; i < b.N; i++ {
-		for _, want := range varintCases {
-			n := binary.PutUvarint(buf, want)
-			got, _ := binary.Uvarint(buf[:n])
-			if got != want {
-				b.Fatalf("got %02x, want %02x", got, want)
-			}
+		want := varintCases[i%len(varintCases)]
+		n := binary.PutUvarint(buf, want)
+		got, _ := binary.Uvarint(buf[:n])
+		if got != want {
+			b.Fatalf("got %02x, want %02x", got, want)
 		}
 	}
+}
+
+func writeVarUint64_orig(u uint64, buf []byte) []byte {
+	if u <= 0x7f {
+		return append(buf, byte(u))
+	}
+	shift, l := 56, byte(7)
+	for ; shift >= 0 && (u>>uint(shift))&0xff == 0; shift, l = shift-8, l-1 {
+	}
+	buf = append(buf, 0xff-l)
+	for ; shift >= 0; shift -= 8 {
+		buf = append(buf, byte(u>>uint(shift))&0xff)
+	}
+	return buf
+}
+
+func readVarUint64_orig(data []byte) (uint64, []byte, bool) {
+	if len(data) == 0 {
+		return 0, data, false
+	}
+	l := data[0]
+	if l <= 0x7f {
+		return uint64(l), data[1:], true
+	}
+	l = 0xff - l + 1
+	if l > 8 || len(data)-1 < int(l) {
+		return 0, data, false
+	}
+	var out uint64
+	for i := 1; i < int(l+1); i++ {
+		out = out<<8 | uint64(data[i])
+	}
+	return out, data[l+1:], true
 }
