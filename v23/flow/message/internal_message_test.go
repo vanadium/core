@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math"
+	"math/rand"
 	"reflect"
 	"testing"
 
@@ -15,8 +17,34 @@ import (
 	"v.io/v23/rpc/version"
 )
 
-func TestVarInt(t *testing.T) {
-	cases := []uint64{
+func randomTestCases() []uint64 {
+	c := make([]uint64, 4096)
+	for i := range c {
+		c[i] = uint64(rand.Uint64())
+	}
+	return c
+}
+
+func randomMaxTestCases(limit int64) []uint64 {
+	c := make([]uint64, 4096)
+	for i := range c {
+		c[i] = uint64(rand.Int63n(limit))
+	}
+	return c
+}
+
+func randomLargeTestCases() []uint64 {
+	c := make([]uint64, 4096)
+	for i := range c {
+		for c[i] < math.MaxUint32 {
+			c[i] = uint64(rand.Uint64())
+		}
+	}
+	return c
+}
+
+var (
+	varintBoundaryCases = []uint64{
 		0x00, 0x01,
 		0x7f, 0x80,
 		0xff, 0x100,
@@ -28,10 +56,20 @@ func TestVarInt(t *testing.T) {
 		0xffffffffffffff, 0x100000000000000,
 		0xffffffffffffffff,
 	}
-	ctx, cancel := context.RootContext()
-	defer cancel()
+
+	varintRandomCases       = randomTestCases()
+	varintSmallRandomCases  = randomMaxTestCases(math.MaxUint16)
+	varintMediumRandomCases = randomMaxTestCases(math.MaxUint32)
+	varintLargeRandomCases  = randomLargeTestCases()
+)
+
+func testVarInt(t *testing.T, cases []uint64) {
 	for _, want := range cases {
-		got, b, valid := readVarUint64(ctx, writeVarUint64(want, []byte{}))
+		//		gbuf := make([]byte, 10)
+		//		l := binary.PutUvarint(gbuf, want)
+		//		v := writeVarUint64(want, []byte{})
+		//		fmt.Printf("%02b %02x -> %02b %02x %v -- %02b %02x %v\n", want, want, v, v, len(v), gbuf[:l], gbuf[:l], l)
+		got, b, valid := readVarUint64(writeVarUint64(want, []byte{}))
 		if !valid {
 			t.Fatalf("error reading %x", want)
 		}
@@ -40,6 +78,32 @@ func TestVarInt(t *testing.T) {
 		}
 		if got != want {
 			t.Errorf("got: %d want: %d", got, want)
+		}
+	}
+}
+
+func TestVarInt(t *testing.T) {
+	testVarInt(t, varintBoundaryCases)
+	testVarInt(t, varintRandomCases)
+}
+
+func TestVarIntBackwardsCompat(t *testing.T) {
+	for _, tc := range append(varintBoundaryCases, varintRandomCases...) {
+		prevWrite := writeVarUint64_orig(tc, nil)
+		newWrite := writeVarUint64(tc, make([]byte, 0, 10))
+		if got, want := newWrite, prevWrite; !bytes.Equal(got, want) {
+			t.Errorf("%02x: got: %d want: %d", tc, got, want)
+		}
+		prevRead, prevBuf, prevOk := readVarUint64_orig(prevWrite)
+		newRead, newBuf, newOk := readVarUint64(prevWrite)
+		if got, want := newRead, prevRead; got != want {
+			t.Errorf("%02x: got %v, want %v (%02x != %02x)", tc, got, want, got, want)
+		}
+		if got, want := newBuf, prevBuf; !bytes.Equal(got, want) {
+			t.Errorf("%02x: got %v, want %v", tc, got, want)
+		}
+		if got, want := newOk, prevOk; got != want {
+			t.Errorf("%02x: got %v, want %v", tc, got, want)
 		}
 	}
 }
@@ -109,5 +173,65 @@ func ExposeSetAuthMessageType(m *Auth, ecdsa, ed25519, rsa bool) {
 		m.signatureType = authED25519Type
 	case rsa:
 		m.signatureType = authRSAType
+	}
+}
+
+func Benchmark__VarInt______All(b *testing.B) {
+	benchmarkVarInt(b, varintRandomCases)
+}
+
+func Benchmark__VarInt____Small(b *testing.B) {
+	benchmarkVarInt(b, varintSmallRandomCases)
+}
+
+func Benchmark__VarInt___Medium(b *testing.B) {
+	benchmarkVarInt(b, varintMediumRandomCases)
+}
+
+func Benchmark__VarInt____Large(b *testing.B) {
+	benchmarkVarInt(b, varintLargeRandomCases)
+}
+
+func Benchmark__VarInt2_____All(b *testing.B) {
+	benchmarkVarInt2(b, varintRandomCases)
+}
+
+func Benchmark__VarInt2___Small(b *testing.B) {
+	benchmarkVarInt2(b, varintSmallRandomCases)
+}
+
+func Benchmark__VarInt2__Medium(b *testing.B) {
+	benchmarkVarInt2(b, varintMediumRandomCases)
+}
+
+func Benchmark__VarInt2___Large(b *testing.B) {
+	benchmarkVarInt2(b, varintLargeRandomCases)
+}
+
+func benchmarkVarInt(b *testing.B, varintCases []uint64) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	buf := make([]byte, 0, 10)
+	for i := 0; i < b.N; i++ {
+		for _, want := range varintCases {
+			_, _, valid := readVarUint64_orig(writeVarUint64_orig(want, buf))
+			if !valid {
+				b.Fatalf("error reading %x", want)
+			}
+		}
+	}
+}
+
+func benchmarkVarInt2(b *testing.B, varintCases []uint64) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	buf := make([]byte, 0, 10)
+	for i := 0; i < b.N; i++ {
+		for _, want := range varintCases {
+			_, _, valid := readVarUint64(writeVarUint64(want, buf))
+			if !valid {
+				b.Fatalf("error reading %x", want)
+			}
+		}
 	}
 }
