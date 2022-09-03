@@ -21,7 +21,7 @@ import (
 func randomTestCases() []uint64 {
 	c := make([]uint64, 4096)
 	for i := range c {
-		c[i] = uint64(rand.Uint64())
+		c[i] = rand.Uint64()
 	}
 	return c
 }
@@ -38,7 +38,7 @@ func randomLargeTestCases() []uint64 {
 	c := make([]uint64, 4096)
 	for i := range c {
 		for c[i] < math.MaxUint32 {
-			c[i] = uint64(rand.Uint64())
+			c[i] = rand.Uint64()
 		}
 	}
 	return c
@@ -86,12 +86,12 @@ func TestVarInt(t *testing.T) {
 
 func TestVarIntBackwardsCompat(t *testing.T) {
 	for _, tc := range append(varintBoundaryCases, varintRandomCases...) {
-		prevWrite := writeVarUint64_orig(tc, nil)
+		prevWrite := writeVarUint64Orig(tc, nil)
 		newWrite := writeVarUint64(tc, make([]byte, 0, 10))
 		if got, want := newWrite, prevWrite; !bytes.Equal(got, want) {
 			t.Errorf("%02x: got: %d want: %d", tc, got, want)
 		}
-		prevRead, prevBuf, prevOk := readVarUint64_orig(prevWrite)
+		prevRead, prevBuf, prevOk := readVarUint64Orig(prevWrite)
 		newRead, newBuf, newOk := readVarUint64(prevWrite)
 		if got, want := newRead, prevRead; got != want {
 			t.Errorf("%02x: got %v, want %v (%02x != %02x)", tc, got, want, got, want)
@@ -227,7 +227,7 @@ func benchmarkVarIntPrev(b *testing.B, varintCases []uint64) {
 	buf := make([]byte, 0, 10)
 	for i := 0; i < b.N; i++ {
 		want := varintCases[i%len(varintCases)]
-		_, _, valid := readVarUint64_orig(writeVarUint64_orig(want, buf))
+		_, _, valid := readVarUint64Orig(writeVarUint64Orig(want, buf))
 		if !valid {
 			b.Fatalf("error reading %x", want)
 		}
@@ -261,7 +261,7 @@ func benchmarkVarIntStdlib(b *testing.B, varintCases []uint64) {
 	}
 }
 
-func writeVarUint64_orig(u uint64, buf []byte) []byte {
+func writeVarUint64Orig(u uint64, buf []byte) []byte {
 	if u <= 0x7f {
 		return append(buf, byte(u))
 	}
@@ -275,7 +275,7 @@ func writeVarUint64_orig(u uint64, buf []byte) []byte {
 	return buf
 }
 
-func readVarUint64_orig(data []byte) (uint64, []byte, bool) {
+func readVarUint64Orig(data []byte) (uint64, []byte, bool) {
 	if len(data) == 0 {
 		return 0, data, false
 	}
