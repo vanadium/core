@@ -178,9 +178,9 @@ func appendSetupOptionString(option uint64, payload string, buf []byte) []byte {
 
 func readSetupOption(ctx *context.T, orig []byte) (opt uint64, p, d []byte, err error) {
 	var valid bool
-	if opt, d, valid = readVarUint64(ctx, orig); !valid {
+	if opt, d, valid = readVarUint64(orig); !valid {
 		err = ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", invalidOption, 0)
-	} else if p, d, valid = readLenBytes(ctx, d); !valid {
+	} else if p, d, valid = readLenBytes(d); !valid {
 		err = ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, 1)
 	}
 	return
@@ -220,11 +220,11 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 		valid bool
 		v     uint64
 	)
-	if v, data, valid = readVarUint64(ctx, data); !valid {
+	if v, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), 0, nil)
 	}
 	m.Versions.Min = version.RPCVersion(v)
-	if v, data, valid = readVarUint64(ctx, data); !valid {
+	if v, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), 1, nil)
 	}
 	m.Versions.Max = version.RPCVersion(v)
@@ -246,13 +246,13 @@ func (m *Setup) read(ctx *context.T, orig []byte) error {
 		case peerLocalEndpointOption:
 			m.PeerLocalEndpoint, err = naming.ParseEndpoint(string(payload))
 		case mtuOption:
-			if mtu, _, valid := readVarUint64(ctx, payload); valid {
+			if mtu, _, valid := readVarUint64(payload); valid {
 				m.Mtu = mtu
 			} else {
 				return ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, field)
 			}
 		case sharedTokensOption:
-			if t, _, valid := readVarUint64(ctx, payload); valid {
+			if t, _, valid := readVarUint64(payload); valid {
 				m.SharedTokens = t
 			} else {
 				return ErrInvalidSetupOption.Errorf(ctx, "setup option: %v failed decoding at field: %v", opt, field)
@@ -368,36 +368,36 @@ func (m *Auth) append(ctx *context.T, data []byte) ([]byte, error) {
 func (m *Auth) read(ctx *context.T, orig []byte) error {
 	var data, tmp []byte
 	var valid bool
-	if m.BlessingsKey, data, valid = readVarUint64(ctx, orig); !valid {
+	if m.BlessingsKey, data, valid = readVarUint64(orig); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 0, nil)
 	}
 	if m.BlessingsKey == 0 {
 		return ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
 	}
-	if m.DischargeKey, data, valid = readVarUint64(ctx, data); !valid {
+	if m.DischargeKey, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 1, nil)
 	}
-	if m.ChannelBinding.Purpose, data, valid = readLenBytes(ctx, data); !valid {
+	if m.ChannelBinding.Purpose, data, valid = readLenBytes(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 2, nil)
 	}
-	if tmp, data, valid = readLenBytes(ctx, data); !valid {
+	if tmp, data, valid = readLenBytes(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)
 	}
 	m.ChannelBinding.Hash = security.Hash(tmp)
 	switch m.signatureType {
 	case authType:
-		if m.ChannelBinding.R, data, valid = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.R, data, valid = readLenBytes(data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
-		if m.ChannelBinding.S, _, _ = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.S, _, _ = readLenBytes(data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
 		}
 	case authED25519Type:
-		if m.ChannelBinding.Ed25519, _, _ = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.Ed25519, _, _ = readLenBytes(data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
 	case authRSAType:
-		if m.ChannelBinding.Rsa, _, _ = readLenBytes(ctx, data); !valid {
+		if m.ChannelBinding.Rsa, _, _ = readLenBytes(data); !valid {
 			return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
 		}
 	}
@@ -446,22 +446,22 @@ func (m *OpenFlow) read(ctx *context.T, orig []byte) error {
 		data  []byte
 		valid bool
 	)
-	if m.ID, data, valid = readVarUint64(ctx, orig); !valid {
+	if m.ID, data, valid = readVarUint64(orig); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 0, nil)
 	}
-	if m.InitialCounters, data, valid = readVarUint64(ctx, data); !valid {
+	if m.InitialCounters, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 1, nil)
 	}
-	if m.BlessingsKey, data, valid = readVarUint64(ctx, data); !valid {
+	if m.BlessingsKey, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 2, nil)
 	}
 	if m.BlessingsKey == 0 {
 		return ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
 	}
-	if m.DischargeKey, data, valid = readVarUint64(ctx, data); !valid {
+	if m.DischargeKey, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)
 	}
-	if m.Flags, data, valid = readVarUint64(ctx, data); !valid {
+	if m.Flags, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 1, nil)
 	}
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
@@ -513,10 +513,10 @@ func (m *Release) read(ctx *context.T, orig []byte) error {
 	}
 	m.Counters = map[uint64]uint64{}
 	for len(data) > 0 {
-		if fid, data, valid = readVarUint64(ctx, data); !valid {
+		if fid, data, valid = readVarUint64(data); !valid {
 			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n, nil)
 		}
-		if val, data, valid = readVarUint64(ctx, data); !valid {
+		if val, data, valid = readVarUint64(data); !valid {
 			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n+1, nil)
 		}
 		m.Counters[fid] = val
@@ -555,10 +555,10 @@ func (m *Data) read(ctx *context.T, orig []byte) error {
 		data  []byte
 		valid bool
 	)
-	if m.ID, data, valid = readVarUint64(ctx, orig); !valid {
+	if m.ID, data, valid = readVarUint64(orig); !valid {
 		return NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 0, nil)
 	}
-	if m.Flags, data, valid = readVarUint64(ctx, data); !valid {
+	if m.Flags, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 1, nil)
 	}
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
@@ -629,7 +629,7 @@ func (m *ProxyResponse) read(ctx *context.T, orig []byte) error {
 	}
 	m.Endpoints = make([]naming.Endpoint, 0, len(data))
 	for i := 0; len(data) > 0; i++ {
-		if epBytes, data, valid = readLenBytes(ctx, data); !valid {
+		if epBytes, data, valid = readLenBytes(data); !valid {
 			return NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), nil)
 		}
 		ep, err := naming.ParseEndpoint(string(epBytes))
@@ -717,8 +717,8 @@ func appendLenString(b string, buf []byte) []byte {
 	return append(buf, b...)
 }
 
-func readLenBytes(ctx *context.T, data []byte) (b, rest []byte, valid bool) {
-	l, data, valid := readVarUint64(ctx, data)
+func readLenBytes(data []byte) (b, rest []byte, valid bool) {
+	l, data, valid := readVarUint64(data)
 	if !valid || uint64(len(data)) < l {
 		return nil, data, false
 	}
@@ -728,35 +728,108 @@ func readLenBytes(ctx *context.T, data []byte) (b, rest []byte, valid bool) {
 	return nil, data, true
 }
 
-func readVarUint64(ctx *context.T, data []byte) (uint64, []byte, bool) {
+func readVarUint64(data []byte) (uint64, []byte, bool) {
 	if len(data) == 0 {
 		return 0, data, false
 	}
-	l := data[0]
-	if l <= 0x7f {
-		return uint64(l), data[1:], true
+	u := uint64(data[0])
+	if u <= 0x7f {
+		return u, data[1:], true
 	}
-	l = 0xff - l + 1
-	if l > 8 || len(data)-1 < int(l) {
-		return 0, data, false
+	switch 0xff - u {
+	case 0:
+		return uint64(data[1]),
+			data[2:], true
+	case 1:
+		return uint64(data[1])<<8 | uint64(data[2]),
+			data[3:], true
+	case 2:
+		return uint64(data[1])<<16 | uint64(data[2])<<8 | uint64(data[3]),
+			data[4:], true
+	case 3:
+		return uint64(data[1])<<24 | uint64(data[2])<<16 | uint64(data[3])<<8 |
+				uint64(data[4]),
+			data[5:], true
+	case 4:
+		return uint64(data[1])<<32 | uint64(data[2])<<24 | uint64(data[3])<<16 |
+				uint64(data[4])<<8 | uint64(data[5]),
+			data[6:], true
+	case 5:
+		return uint64(data[1])<<40 | uint64(data[2])<<32 | uint64(data[3])<<24 |
+				uint64(data[4])<<16 | uint64(data[5])<<8 | uint64(data[6]),
+			data[7:], true
+	case 6:
+		return uint64(data[1])<<48 | uint64(data[2])<<40 | uint64(data[3])<<32 |
+				uint64(data[4])<<24 | uint64(data[5])<<16 | uint64(data[6])<<8 |
+				uint64(data[7]),
+			data[8:], true
+	case 7:
+		return uint64(data[1])<<56 | uint64(data[2])<<48 | uint64(data[3])<<40 |
+				uint64(data[4])<<32 | uint64(data[5])<<24 | uint64(data[6])<<16 |
+				uint64(data[7])<<8 | uint64(data[8]),
+			data[9:], true
+
 	}
-	var out uint64
-	for i := 1; i < int(l+1); i++ {
-		out = out<<8 | uint64(data[i])
-	}
-	return out, data[l+1:], true
+	return 0, data, false
 }
 
 func writeVarUint64(u uint64, buf []byte) []byte {
-	if u <= 0x7f {
+	switch {
+	case u <= 0x7f:
 		return append(buf, byte(u))
-	}
-	shift, l := 56, byte(7)
-	for ; shift >= 0 && (u>>uint(shift))&0xff == 0; shift, l = shift-8, l-1 {
-	}
-	buf = append(buf, 0xff-l)
-	for ; shift >= 0; shift -= 8 {
-		buf = append(buf, byte(u>>uint(shift))&0xff)
+	case u <= 0xff:
+		return append(buf, 0xff,
+			byte(u&0xff))
+	case u <= 0xffff:
+		return append(buf, 0xff-1,
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffff:
+		return append(buf, 0xff-2,
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffffff:
+		return append(buf, 0xff-3,
+			byte((u&0xff000000)>>24),
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffffffff:
+		return append(buf, 0xff-4,
+			byte((u&0xff00000000)>>32),
+			byte((u&0xff000000)>>24),
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffffffffff:
+		return append(buf, 0xff-5,
+			byte((u&0xff0000000000)>>40),
+			byte((u&0xff00000000)>>32),
+			byte((u&0xff000000)>>24),
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffffffffffff:
+		return append(buf, 0xff-6,
+			byte((u&0xff000000000000)>>48),
+			byte((u&0xff0000000000)>>40),
+			byte((u&0xff00000000)>>32),
+			byte((u&0xff000000)>>24),
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
+	case u <= 0xffffffffffffffff:
+		// Note that using a default statement is significantly slower.
+		return append(buf, 0xff-7,
+			byte((u&0xff00000000000000)>>56),
+			byte((u&0xff000000000000)>>48),
+			byte((u&0xff0000000000)>>40),
+			byte((u&0xff00000000)>>32),
+			byte((u&0xff000000)>>24),
+			byte((u&0xff0000)>>16),
+			byte((u&0xff00)>>8),
+			byte(u&0xff))
 	}
 	return buf
 }
