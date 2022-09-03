@@ -6,6 +6,7 @@ package message
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"math"
@@ -176,39 +177,55 @@ func ExposeSetAuthMessageType(m *Auth, ecdsa, ed25519, rsa bool) {
 	}
 }
 
-func Benchmark__VarInt______All(b *testing.B) {
-	benchmarkVarInt(b, varintRandomCases)
+func Benchmark__VarIntPrev_______All(b *testing.B) {
+	benchmarkVarIntPrev(b, varintRandomCases)
 }
 
-func Benchmark__VarInt____Small(b *testing.B) {
-	benchmarkVarInt(b, varintSmallRandomCases)
+func Benchmark__VarIntPrev_____Small(b *testing.B) {
+	benchmarkVarIntPrev(b, varintSmallRandomCases)
 }
 
-func Benchmark__VarInt___Medium(b *testing.B) {
-	benchmarkVarInt(b, varintMediumRandomCases)
+func Benchmark__VarIntPrev____Medium(b *testing.B) {
+	benchmarkVarIntPrev(b, varintMediumRandomCases)
 }
 
-func Benchmark__VarInt____Large(b *testing.B) {
-	benchmarkVarInt(b, varintLargeRandomCases)
+func Benchmark__VarIntPrev_____Large(b *testing.B) {
+	benchmarkVarIntPrev(b, varintLargeRandomCases)
 }
 
-func Benchmark__VarInt2_____All(b *testing.B) {
-	benchmarkVarInt2(b, varintRandomCases)
+func Benchmark__VarIntNew________All(b *testing.B) {
+	benchmarkVarIntNew(b, varintRandomCases)
 }
 
-func Benchmark__VarInt2___Small(b *testing.B) {
-	benchmarkVarInt2(b, varintSmallRandomCases)
+func Benchmark__VarIntNew______Small(b *testing.B) {
+	benchmarkVarIntNew(b, varintSmallRandomCases)
 }
 
-func Benchmark__VarInt2__Medium(b *testing.B) {
-	benchmarkVarInt2(b, varintMediumRandomCases)
+func Benchmark__VarIntNew_____Medium(b *testing.B) {
+	benchmarkVarIntNew(b, varintMediumRandomCases)
 }
 
-func Benchmark__VarInt2___Large(b *testing.B) {
-	benchmarkVarInt2(b, varintLargeRandomCases)
+func Benchmark__VarIntNew______Large(b *testing.B) {
+	benchmarkVarIntNew(b, varintLargeRandomCases)
 }
 
-func benchmarkVarInt(b *testing.B, varintCases []uint64) {
+func Benchmark__VarIntStdlib_____All(b *testing.B) {
+	benchmarkVarIntStdlib(b, varintRandomCases)
+}
+
+func Benchmark__VarIntStdlib___Small(b *testing.B) {
+	benchmarkVarIntStdlib(b, varintSmallRandomCases)
+}
+
+func Benchmark__VarIntStdlib__Medium(b *testing.B) {
+	benchmarkVarIntStdlib(b, varintMediumRandomCases)
+}
+
+func Benchmark__VarIntStdlib___Large(b *testing.B) {
+	benchmarkVarIntStdlib(b, varintLargeRandomCases)
+}
+
+func benchmarkVarIntPrev(b *testing.B, varintCases []uint64) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	buf := make([]byte, 0, 10)
@@ -222,7 +239,7 @@ func benchmarkVarInt(b *testing.B, varintCases []uint64) {
 	}
 }
 
-func benchmarkVarInt2(b *testing.B, varintCases []uint64) {
+func benchmarkVarIntNew(b *testing.B, varintCases []uint64) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	buf := make([]byte, 0, 10)
@@ -231,6 +248,21 @@ func benchmarkVarInt2(b *testing.B, varintCases []uint64) {
 			_, _, valid := readVarUint64(writeVarUint64(want, buf))
 			if !valid {
 				b.Fatalf("error reading %x", want)
+			}
+		}
+	}
+}
+
+func benchmarkVarIntStdlib(b *testing.B, varintCases []uint64) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	buf := make([]byte, 10)
+	for i := 0; i < b.N; i++ {
+		for _, want := range varintCases {
+			n := binary.PutUvarint(buf, want)
+			got, _ := binary.Uvarint(buf[:n])
+			if got != want {
+				b.Fatalf("got %02x, want %02x", got, want)
 			}
 		}
 	}
