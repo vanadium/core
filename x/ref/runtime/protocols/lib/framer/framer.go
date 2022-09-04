@@ -13,13 +13,16 @@ import (
 // framer is a wrapper of io.ReadWriter that adds framing to a net.Conn
 // and implements flow.MsgReadWriteCloser.
 type framer struct {
-	io.ReadWriteCloser
-	buf   []byte
-	frame [3]byte
+	rwc               io.ReadWriteCloser
+	readFrameStorage  [sizeBytes]byte
+	writeFrameStorage [sizeBytes]byte
 }
 
 func New(c io.ReadWriteCloser) flow.MsgReadWriteCloser {
-	return &framer{ReadWriteCloser: c}
+	f := &framer{rwc: c}
+	//	f.readFrameSlice = f.readFrameStorage[:]
+	//	f.writeFrameSlice = f.writeFrameStorage[:]
+	return f
 }
 
 func (f *framer) WriteMsg(data ...[]byte) (int, error) {
@@ -28,28 +31,22 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	for _, b := range data {
 		msgSize += len(b)
 	}
-	// Construct a buffer to write that has space for the 3 bytes of framing.
-	// If a previous buffer is large enough, reuse it.
-	bufSize := msgSize + 3
-	if bufSize > len(f.buf) {
-		f.buf = make([]byte, bufSize)
+	if msgSize > maxPacketSize {
+		return 0, ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
 	}
-	if err := write3ByteUint(f.buf[:3], msgSize); err != nil {
-		return 0, err
+	write3ByteUint(f.writeFrameStorage[:], msgSize)
+	if n, err := f.rwc.Write(f.writeFrameStorage[:]); err != nil {
+		return n, err
 	}
-	head := 3
-	for _, b := range data {
-		l := len(b)
-		copy(f.buf[head:head+l], b)
-		head += l
+	written := 0
+	for _, d := range data {
+		n, err := f.rwc.Write(d)
+		if err != nil {
+			return written + n, err
+		}
+		written += n
 	}
-	// Write the buffer to the io.ReadWriter. Remove the frame size
-	// from the returned number of bytes written.
-	n, err := f.Write(f.buf[:bufSize])
-	if err != nil {
-		return n - 3, err
-	}
-	return n - 3, nil
+	return written, nil
 }
 
 // ReadMsg implements flow.MsgReadWriteCloser
@@ -57,39 +54,42 @@ func (f *framer) ReadMsg() ([]byte, error) {
 	return f.ReadMsg2(nil)
 }
 
+func (f *framer) Close() error {
+	return f.rwc.Close()
+}
+
 // ReadMsg2 implements flow.MsgReadWriteCloser and will use
 // the supplied msg buffer if it is large enough.
 func (f *framer) ReadMsg2(msg []byte) ([]byte, error) {
 	// Read the message size.
-	if _, err := io.ReadFull(f, f.frame[:]); err != nil {
+	if _, err := io.ReadFull(f.rwc, f.readFrameStorage[:]); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(f.frame)
+	msgSize := read3ByteUint(f.readFrameStorage)
 
 	// Read the message.
 	if msgSize > len(msg) {
 		msg = make([]byte, msgSize)
 	}
 	used := msg[:msgSize]
-	if _, err := io.ReadFull(f, used); err != nil {
+	if _, err := io.ReadFull(f.rwc, used); err != nil {
 		return nil, err
 	}
 	return used, nil
 }
 
-const maxPacketSize = 0xffffff
+const (
+	sizeBytes     = 3
+	maxPacketSize = 0xffffff
+)
 
-func write3ByteUint(dst []byte, n int) error {
-	if n > maxPacketSize || n < 0 {
-		return ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
-	}
+func write3ByteUint(dst []byte, n int) {
 	n = maxPacketSize - n
 	dst[0] = byte((n & 0xff0000) >> 16)
 	dst[1] = byte((n & 0x00ff00) >> 8)
 	dst[2] = byte(n & 0x0000ff)
-	return nil
 }
 
-func read3ByteUint(src [3]byte) int {
+func read3ByteUint(src [sizeBytes]byte) int {
 	return maxPacketSize - (int(src[0])<<16 | int(src[1])<<8 | int(src[2]))
 }
