@@ -13,11 +13,11 @@ import (
 // framer is a wrapper of io.ReadWriter that adds framing to a net.Conn
 // and implements flow.MsgReadWriteCloser.
 type framer struct {
-	rwc               io.ReadWriteCloser
-	readFrameStorage  [sizeBytes]byte
-	writeFrameStorage [sizeBytes]byte
-	writeBuf          []byte
-	mtu               int
+	rwc        io.ReadWriteCloser
+	readFrame  [sizeBytes]byte
+	writeFrame [sizeBytes]byte
+	writeBuf   []byte
+	mtu        int
 }
 
 func New(c io.ReadWriteCloser, mtu int) flow.MsgReadWriteCloser {
@@ -48,8 +48,8 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 		}
 		return f.rwc.Write(f.writeBuf[:head])
 	}
-	write3ByteUint(f.writeFrameStorage[:], msgSize)
-	if n, err := f.rwc.Write(f.writeFrameStorage[:]); err != nil {
+	write3ByteUint(f.writeFrame[:], msgSize)
+	if n, err := f.rwc.Write(f.writeFrame[:]); err != nil {
 		return n, err
 	}
 	written := 0
@@ -76,10 +76,10 @@ func (f *framer) Close() error {
 // the supplied msg buffer if it is large enough.
 func (f *framer) ReadMsg2(msg []byte) ([]byte, error) {
 	// Read the message size.
-	if _, err := io.ReadFull(f.rwc, f.readFrameStorage[:]); err != nil {
+	if _, err := io.ReadFull(f.rwc, f.readFrame[:]); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(f.readFrameStorage)
+	msgSize := read3ByteUint(f.readFrame)
 
 	// Read the message.
 	if msgSize > len(msg) {
