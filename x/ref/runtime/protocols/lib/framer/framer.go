@@ -16,12 +16,16 @@ type framer struct {
 	rwc               io.ReadWriteCloser
 	readFrameStorage  [sizeBytes]byte
 	writeFrameStorage [sizeBytes]byte
+	writeBuf          []byte
+	mtu               int
 }
 
-func New(c io.ReadWriteCloser) flow.MsgReadWriteCloser {
-	f := &framer{rwc: c}
-	//	f.readFrameSlice = f.readFrameStorage[:]
-	//	f.writeFrameSlice = f.writeFrameStorage[:]
+func New(c io.ReadWriteCloser, mtu int) flow.MsgReadWriteCloser {
+	f := &framer{
+		rwc:      c,
+		writeBuf: make([]byte, mtu),
+		mtu:      mtu - sizeBytes,
+	}
 	return f
 }
 
@@ -33,6 +37,16 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	}
 	if msgSize > maxPacketSize {
 		return 0, ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in 3 bytes")
+	}
+	if msgSize < f.mtu {
+		write3ByteUint(f.writeBuf[:sizeBytes], msgSize)
+		head := sizeBytes
+		for _, d := range data {
+			l := len(d)
+			copy(f.writeBuf[head:head+l], d)
+			head += l
+		}
+		return f.rwc.Write(f.writeBuf[:head])
 	}
 	write3ByteUint(f.writeFrameStorage[:], msgSize)
 	if n, err := f.rwc.Write(f.writeFrameStorage[:]); err != nil {

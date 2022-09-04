@@ -95,7 +95,7 @@ func (ln *tcpListener) Close() error {
 
 func NewTCPConn(c net.Conn) flow.Conn {
 	return tcpConn{
-		framer.New(c),
+		framer.New(c, 1300),
 		c.LocalAddr(),
 		c.RemoteAddr(),
 	}
