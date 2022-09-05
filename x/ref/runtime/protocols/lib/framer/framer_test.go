@@ -17,7 +17,7 @@ type readWriteCloser struct {
 }
 
 func (rwc *readWriteCloser) Write(data []byte) (int, error) {
-	rwc.wrops += 1
+	rwc.wrops++
 	return rwc.rw.Write(data)
 }
 func (rwc *readWriteCloser) Read(buf []byte) (int, error) {
