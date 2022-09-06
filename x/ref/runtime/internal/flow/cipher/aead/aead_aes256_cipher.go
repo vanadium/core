@@ -66,8 +66,7 @@ func (c *T) Seal(buf, data []byte) ([]byte, error) {
 func (c *T) Open(buf, data []byte) ([]byte, bool) {
 	ret, err := c.gcm.Open(buf, c.stream.OpenNonce(), data, nil)
 	if err != nil {
-		// Return without advancing the nonce so that the enc/dec
-		// remain in sync.
+		// Return without advancing the nonce so that the stream remains in sync.
 		return nil, false
 	}
 	c.stream.OpenAdvance()
