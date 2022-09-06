@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package aead uses the aead.GCM block cipher with AES 256 encryption.
+// Package aead provides a block cipher using aead.GCM with AES 256 encryption.
 package aead
 
 import (
@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/curve25519"
 )
 
-// T wraps crypto/cipher to provide synchronized nonces between the requestor
+// T wraps aead.GCM to provide synchronized nonces between the requestor
 // and responder assuming they interact in a strict request/response manner.
 type T struct {
 	gcm            cipher.AEAD
