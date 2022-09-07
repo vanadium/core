@@ -66,6 +66,22 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	return m, m.read(ctx, from)
 }
 
+// PlaintextPayload returns the message payload if it is to be sent as plaintext,
+// ie. for OpenFlow and Data messages with the DisableEncryptionFlag set.
+func PlaintextPayload(m Message) [][]byte {
+	switch msg := m.(type) {
+	case *Data:
+		if msg.Flags&DisableEncryptionFlag != 0 {
+			return msg.Payload
+		}
+	case *OpenFlow:
+		if msg.Flags&DisableEncryptionFlag != 0 {
+			return msg.Payload
+		}
+	}
+	return nil
+}
+
 // CopyBuffers must be called to make internal copies of any byte slices that
 // may be in a shared underlying slice (eg. in a slice allocated for decryting
 // a message). It should be called before passing a Message to another

@@ -1036,7 +1036,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
 	for {
-		msg, rerr := c.mp.readMsg(ctx)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break

@@ -22,10 +22,10 @@ type T struct {
 	stream         boxStream
 }
 
-// NewCipherRPC15 returns a Cipher for RPC versions greater than or equal to 15.
+// NewCipher returns a Cipher for RPC versions greater than or equal to 15.
 // The cipher used is cipher.AEAD created by cipher.NewGCM with an AES256
 // key derived from the private/publick key pairs using ECDH.
-func NewCipherRPC15(myPublicKey, myPrivateKey, theirPublicKey *[32]byte) (*T, error) {
+func NewCipher(myPublicKey, myPrivateKey, theirPublicKey *[32]byte) (*T, error) {
 	var c T
 	// ECDH multiplication of local private and remote private key to obtain
 	// shared session key.

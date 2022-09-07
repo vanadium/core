@@ -169,7 +169,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		ch <- c.sendMessageLocked(ctx, true, expressPriority, lSetup)
 		c.mu.Unlock()
 	}()
-	msg, err := c.mp.readMsg(ctx)
+	msg, err := c.mp.readMsg(ctx, nil)
 	if err != nil {
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
@@ -205,8 +205,12 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
 	c.mu.Lock()
-	binding := c.mp.setupEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey)
+	binding, err := c.mp.enableEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey, c.version)
 	c.mu.Unlock()
+	if err != nil {
+		return nil, naming.Endpoint{}, rttstart, err
+	}
+
 	if c.version >= version.RPCVersion14 {
 		// We include the setup messages in the channel binding to prevent attacks
 		// where a man in the middle changes fields in the Setup message (e.g. a
@@ -250,7 +254,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		rDischarges map[string]security.Discharge
 	)
 	for {
-		msg, err := c.mp.readMsg(ctx)
+		msg, err := c.mp.readMsg(ctx, nil)
 		if err != nil {
 			remote := ""
 			if !c.remote.IsZero() {

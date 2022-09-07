@@ -32,4 +32,5 @@ var (
 	ErrNoCrypter                = verror.NewID("NoCrypter")
 	ErrNoPrivateKey             = verror.NewID("NoPrivateKey")
 	ErrIdleConnKilled           = verror.NewID("IdleConnKilled")
+	ErrRPCVersionMismatch       = verror.NewID("RPCVersionMismatch")
 )
