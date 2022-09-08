@@ -8,6 +8,7 @@ import (
 	"io"
 	"testing"
 
+	"v.io/v23/context"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/goroutines"
 )
@@ -20,13 +21,23 @@ func mkBufs(in ...string) [][]byte {
 	return out
 }
 
+type readqRelease struct {
+	n int
+}
+
+func (rr *readqRelease) release(ctx *context.T, n int) {
+	rr.n = n
+}
+
 func TestReadqRead(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -53,7 +64,9 @@ func TestReadqGet(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -79,7 +92,9 @@ func TestReadqMixed(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
