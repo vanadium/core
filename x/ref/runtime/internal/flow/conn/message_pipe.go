@@ -5,8 +5,6 @@
 package conn
 
 import (
-	"sync"
-
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -24,16 +22,6 @@ const (
 	defaultBufferSize        = defaultMtu + maxCipherOverhead + estimatedMessageOverhead
 )
 
-type writeBuffers struct {
-	plaintext, ciphertext [defaultBufferSize]byte
-}
-
-var writeBuffersPool = sync.Pool{
-	New: func() interface{} {
-		return &writeBuffers{}
-	},
-}
-
 // unsafeUnencrypted allows protocol implementors to provide unencrypted
 // protocols.  If the underlying connection implements this method, and
 // the method returns true and encryption is disabled even if enableEncryption
@@ -44,7 +32,9 @@ type unsafeUnencrypted interface {
 }
 
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
-	return &messagePipe{rw: rw}
+	return &messagePipe{
+		rw: rw,
+	}
 }
 
 type sealFunc func(out, data []byte) ([]byte, error)
@@ -52,9 +42,11 @@ type openFunc func(out, data []byte) ([]byte, bool)
 
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
-	rw     flow.MsgReadWriteCloser
-	sealer sealFunc
-	opener openFunc
+	rw              flow.MsgReadWriteCloser
+	writePlaintext  [defaultBufferSize]byte
+	writeCiphertext [defaultBufferSize]byte
+	seal            sealFunc
+	open            openFunc
 }
 
 func (p *messagePipe) flow() flow.MsgReadWriteCloser {
@@ -74,34 +66,32 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 		if err != nil {
 			return nil, err
 		}
-		p.sealer = cipher.Seal
-		p.opener = cipher.Open
+		p.seal = cipher.Seal
+		p.open = cipher.Open
 		return cipher.ChannelBinding(), nil
 	case rpcversion == version.RPCVersion15:
 		cipher, err := aead.NewCipher(publicKey, secretKey, remotePublicKey)
 		if err != nil {
 			return nil, err
 		}
-		p.sealer = cipher.Seal
-		p.opener = cipher.Open
+		p.seal = cipher.Seal
+		p.open = cipher.Open
 		return cipher.ChannelBinding(), nil
 	}
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
-	writePoolBuf := writeBuffersPool.Get().(*writeBuffers)
-	defer writeBuffersPool.Put(writePoolBuf)
-	plaintext, err := message.Append(ctx, m, writePoolBuf.plaintext[:0])
+	plaintext, err := message.Append(ctx, m, p.writePlaintext[:0])
 	if err != nil {
 		return err
 	}
-	if p.sealer == nil {
+	if p.seal == nil {
 		if _, err = p.rw.WriteMsg(plaintext); err != nil {
 			return err
 		}
 	} else {
-		enc, err := p.sealer(writePoolBuf.ciphertext[:0], plaintext)
+		enc, err := p.seal(p.writeCiphertext[:0], plaintext)
 		if err != nil {
 			return err
 		}
@@ -125,7 +115,7 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
 	var m message.Message
 	var err error
-	if p.opener == nil {
+	if p.open == nil {
 		// For the plaintext case we can use the supplied buffer to read from
 		// the underlying connection directly.
 		var plaintext []byte
@@ -142,7 +132,7 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		if err != nil {
 			return nil, err
 		}
-		dec, ok := p.opener(plaintextBuf, ciphertext)
+		dec, ok := p.open(plaintextBuf, ciphertext)
 		if !ok {
 			return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 		}
@@ -156,6 +146,7 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	switch msg := m.(type) {
 	case *message.Data:
 		if msg.Flags&message.DisableEncryptionFlag != 0 {
+			// this is wrong -- the payload needs to come from plaintext buf.
 			payload, err = p.rw.ReadMsg2(nil)
 			msg.Payload = [][]byte{payload}
 		}
