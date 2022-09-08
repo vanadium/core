@@ -1035,8 +1035,10 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
+	readMsgBuf := readLoopPool.Get().(*[]byte)
+	defer readLoopPool.Put(readMsgBuf)
 	for {
-		msg, rerr := c.mp.readMsg(ctx, nil)
+		msg, rerr := c.mp.readMsg(ctx, *readMsgBuf)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break

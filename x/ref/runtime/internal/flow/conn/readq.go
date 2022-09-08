@@ -44,8 +44,9 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 		return nil
 	}
 
-	defer r.mu.Unlock()
 	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	if r.closed {
 		// The flow has already closed.  Simply drop the data.
 		return nil
@@ -58,6 +59,8 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	r.reserveLocked(newBufs)
 	for _, b := range bufs {
 		r.bufs[r.e] = b
+		r.bufs[r.e] = make([]byte, len(b))
+		copy(r.bufs[r.e], b)
 		r.e = (r.e + 1) % len(r.bufs)
 	}
 	r.nbufs = newBufs
@@ -71,7 +74,7 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	return nil
 }
 
-func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
+func (r *readq) read(ctx *context.T) (data []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		err = nil

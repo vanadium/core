@@ -52,4 +52,13 @@ var (
 	bufferingFlowPool = sync.Pool{New: func() interface{} {
 		return bytes.NewBuffer(make([]byte, defaultMtu))
 	}}
+
+	readLoopPool = sync.Pool{
+		New: func() interface{} {
+			b := make([]byte, defaultMtu)
+			// Return a pointer to the slice to avoid unnecessary allocations
+			// when returning buffers to the pool.
+			return &b
+		},
+	}
 )

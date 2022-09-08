@@ -118,6 +118,7 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 			return nil, err
 		}
 		m, err = message.Read(ctx, plaintext)
+
 	} else {
 		// For the encrypted case we need to allocate a new buffer for the
 		// ciphertext that is only used temporarily.
@@ -128,7 +129,7 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		if err != nil {
 			return nil, err
 		}
-		plaintext, ok := p.open(plaintextBuf, ciphertext)
+		plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
 		if !ok {
 			return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 		}

@@ -169,7 +169,8 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		ch <- c.sendMessageLocked(ctx, true, expressPriority, lSetup)
 		c.mu.Unlock()
 	}()
-	msg, err := c.mp.readMsg(ctx, nil)
+	readMsgBuf := [1024]byte{}
+	msg, err := c.mp.readMsg(ctx, readMsgBuf[:])
 	if err != nil {
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
@@ -253,8 +254,10 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		rBlessings  security.Blessings
 		rDischarges map[string]security.Discharge
 	)
+	readMsgBuf := readLoopPool.Get().(*[]byte)
+	defer readLoopPool.Put(readMsgBuf)
 	for {
-		msg, err := c.mp.readMsg(ctx, nil)
+		msg, err := c.mp.readMsg(ctx, *readMsgBuf)
 		if err != nil {
 			remote := ""
 			if !c.remote.IsZero() {
@@ -282,6 +285,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// which will block until NewAccepted (which calls
 			// this method) returns. OpenFlow is generally expected
 			// to be handled by readLoop.
+			message.CopyBuffers(msg)
 			go func() {
 				if err := c.handleMessage(ctx, msg); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
