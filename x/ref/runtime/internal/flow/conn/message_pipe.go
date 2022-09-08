@@ -13,15 +13,6 @@ import (
 	"v.io/x/ref/runtime/internal/flow/cipher/naclbox"
 )
 
-const (
-	// max of gcmTagSize (16) and box.Overhead (16)
-	maxCipherOverhead = 16
-	// estimate of how the overhead of the message header fields other
-	// than the payloads.
-	estimatedMessageOverhead = 256
-	defaultBufferSize        = defaultMtu + maxCipherOverhead + estimatedMessageOverhead
-)
-
 // unsafeUnencrypted allows protocol implementors to provide unencrypted
 // protocols.  If the underlying connection implements this method, and
 // the method returns true and encryption is disabled even if enableEncryption
@@ -34,6 +25,13 @@ type unsafeUnencrypted interface {
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
 	return &messagePipe{
 		rw: rw,
+		// On the write side it's safe to use a passthrough
+		// like this for when encryption is not enabled.
+		// This is not true for reading where the buffer management
+		// is more involved.
+		seal: func(out, data []byte) ([]byte, error) {
+			return data, nil
+		},
 	}
 }
 
@@ -42,11 +40,9 @@ type openFunc func(out, data []byte) ([]byte, bool)
 
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
-	rw              flow.MsgReadWriteCloser
-	writePlaintext  [defaultBufferSize]byte
-	writeCiphertext [defaultBufferSize]byte
-	seal            sealFunc
-	open            openFunc
+	rw   flow.MsgReadWriteCloser
+	seal sealFunc
+	open openFunc
 }
 
 func (p *messagePipe) flow() flow.MsgReadWriteCloser {
@@ -82,26 +78,24 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
-	plaintext, err := message.Append(ctx, m, p.writePlaintext[:0])
+	writePoolBuf := messagePipeWritePool.Get().(*writeBuffers)
+	defer messagePipeWritePool.Put(writePoolBuf)
+
+	plaintext, err := message.Append(ctx, m, writePoolBuf.plaintext[:0])
 	if err != nil {
 		return err
 	}
-	if p.seal == nil {
-		if _, err = p.rw.WriteMsg(plaintext); err != nil {
-			return err
-		}
-	} else {
-		enc, err := p.seal(p.writeCiphertext[:0], plaintext)
-		if err != nil {
-			return err
-		}
-		if _, err = p.rw.WriteMsg(enc); err != nil {
-			return err
-		}
+	enc, err := p.seal(writePoolBuf.ciphertext[:0], plaintext)
+	if err != nil {
+		return err
 	}
+	if _, err = p.rw.WriteMsg(enc); err != nil {
+		return err
+	}
+
 	// Handle plaintext payloads which are not serialized by message.Append
-	// above and are instead written separately.
-	if payload := message.PlaintextPayload(m); payload != nil {
+	// above and are instead written separately in the clear.
+	if payload := hasPlaintextPayload(m); payload != nil {
 		if _, err = p.rw.WriteMsg(payload...); err != nil {
 			return err
 		}
@@ -114,11 +108,11 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
 	var m message.Message
+	var plaintext []byte
 	var err error
 	if p.open == nil {
 		// For the plaintext case we can use the supplied buffer to read from
 		// the underlying connection directly.
-		var plaintext []byte
 		plaintext, err = p.rw.ReadMsg2(plaintextBuf)
 		if err != nil {
 			return nil, err
@@ -126,42 +120,69 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		m, err = message.Read(ctx, plaintext)
 	} else {
 		// For the encrypted case we need to allocate a new buffer for the
-		// ciphertext.
+		// ciphertext that is only used temporarily.
+		readBuf := messagePipeReadPool.Get().(*[]byte)
+		defer messagePipeReadPool.Put(readBuf)
 		var ciphertext []byte
-		ciphertext, err = p.rw.ReadMsg2(nil)
+		ciphertext, err = p.rw.ReadMsg2((*readBuf)[:])
 		if err != nil {
 			return nil, err
 		}
-		dec, ok := p.open(plaintextBuf, ciphertext)
+		plaintext, ok := p.open(plaintextBuf, ciphertext)
 		if !ok {
 			return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 		}
-		m, err = message.Read(ctx, dec)
+		m, err = message.Read(ctx, plaintext)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	var payload []byte
-	switch msg := m.(type) {
-	case *message.Data:
-		if msg.Flags&message.DisableEncryptionFlag != 0 {
-			// this is wrong -- the payload needs to come from plaintext buf.
-			payload, err = p.rw.ReadMsg2(nil)
-			msg.Payload = [][]byte{payload}
+	if needsPlaintextPayload(m) {
+		// todo: test this carefully.... want to reuse buffer for plaintext
+		// payload.
+		payload, err := p.rw.ReadMsg2(plaintextBuf[len(plaintext):])
+		if err != nil {
+			return nil, err
 		}
-	case *message.OpenFlow:
-		if msg.Flags&message.DisableEncryptionFlag != 0 {
-			payload, err = p.rw.ReadMsg2(nil)
-			msg.Payload = [][]byte{payload}
-		}
+		setPlaintextPayload(m, payload)
 	}
 
-	if err != nil {
-		return nil, err
-	}
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
 	return m, err
+}
+
+func hasPlaintextPayload(m message.Message) [][]byte {
+	switch msg := m.(type) {
+	case *message.Data:
+		if msg.Flags&message.DisableEncryptionFlag != 0 {
+			return msg.Payload
+		}
+	case *message.OpenFlow:
+		if msg.Flags&message.DisableEncryptionFlag != 0 {
+			return msg.Payload
+		}
+	}
+	return nil
+}
+
+func needsPlaintextPayload(m message.Message) bool {
+	switch msg := m.(type) {
+	case *message.Data:
+		return msg.Flags&message.DisableEncryptionFlag != 0
+	case *message.OpenFlow:
+		return msg.Flags&message.DisableEncryptionFlag != 0
+	}
+	return false
+}
+
+func setPlaintextPayload(m message.Message, payload []byte) {
+	switch msg := m.(type) {
+	case *message.Data:
+		msg.Payload = [][]byte{payload}
+	case *message.OpenFlow:
+		msg.Payload = [][]byte{payload}
+	}
 }
