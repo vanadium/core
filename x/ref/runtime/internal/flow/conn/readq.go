@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -23,7 +24,8 @@ import (
 // readq uses a circular buffer that is resized as needed but with a builtin
 // array to handle the common case for when the circular buffer is small.
 // The circular buffer will be small except when concurrency is limited or
-// network latency is very high.
+// network latency is very high, the initial size is chosen to handle the
+// most strenous cases (eg. lots of connections with low concurrency).
 type readq struct {
 	mu sync.Mutex
 	// circular buffer of added buffers
@@ -43,7 +45,7 @@ type readq struct {
 	readCallback func(ctx *context.T, n int)
 }
 
-const initialReadqBufferSize = 10
+const initialReadqBufferSize = 40
 
 func newReadQ(readCallback func(ctx *context.T, n int)) *readq {
 	rq := &readq{
@@ -94,7 +96,8 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 }
 
 func (r *readq) reserveLocked(n int) {
-	if n < len(r.bufsBuiltin) {
+	if n < len(r.bufsBuiltin) && len(r.bufs) > len(r.bufsBuiltin) {
+		fmt.Printf("shrunk..")
 		r.moveqLocked(r.bufsBuiltin[:])
 		return
 	}
