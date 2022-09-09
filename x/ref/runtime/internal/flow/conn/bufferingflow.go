@@ -12,6 +12,8 @@ import (
 	"v.io/v23/flow"
 )
 
+var bufferPool = sync.Pool{New: func() interface{} { return &bytes.Buffer{} }}
+
 type MTUer interface {
 	MTU() uint64
 }
@@ -30,7 +32,7 @@ type BufferingFlow struct {
 func NewBufferingFlow(ctx *context.T, flw flow.Flow) *BufferingFlow {
 	b := &BufferingFlow{
 		Flow: flw,
-		buf:  bufferingFlowPool.Get().(*bytes.Buffer),
+		buf:  bufferPool.Get().(*bytes.Buffer),
 		mtu:  defaultMtu,
 	}
 	b.buf.Reset()
@@ -79,7 +81,7 @@ func (b *BufferingFlow) Close() error {
 		return b.Flow.Close()
 	}
 	_, err := b.Flow.WriteMsgAndClose(b.buf.Bytes())
-	bufferingFlowPool.Put(b.buf)
+	bufferPool.Put(b.buf)
 	b.buf = nil
 	return err
 }

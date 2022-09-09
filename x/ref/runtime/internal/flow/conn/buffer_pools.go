@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"bytes"
 	"sync"
 )
 
@@ -30,20 +29,6 @@ var (
 	messagePipePool = sync.Pool{
 		New: func() interface{} {
 			b := make([]byte, ciphertextBufferSize)
-			// Return a pointer to the slice to avoid unnecessary allocations
-			// when returning buffers to the pool.
-			return &b
-		},
-	}
-
-	// buffers used by the BufferingFlow flow implementation.
-	bufferingFlowPool = sync.Pool{New: func() interface{} {
-		return &bytes.Buffer{}
-	}}
-
-	readLoopPool = sync.Pool{
-		New: func() interface{} {
-			b := make([]byte, defaultMtu)
 			// Return a pointer to the slice to avoid unnecessary allocations
 			// when returning buffers to the pool.
 			return &b

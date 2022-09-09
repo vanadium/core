@@ -75,10 +75,6 @@ type readConn struct {
 }
 
 func (r *readConn) ReadMsg() ([]byte, error) {
-	return r.ReadMsg2(nil)
-}
-
-func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
 	b, err := r.Conn.ReadMsg()
 	if len(b) > 0 {
 		m, _ := message.Read(r.ctx, b)
@@ -94,6 +90,11 @@ func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
 		}
 	}
 	return b, err
+}
+
+// must also implement ReadMsg2 since it's now required (and used internally).
+func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
+	return r.ReadMsg()
 }
 
 func TestOrdering(t *testing.T) {
