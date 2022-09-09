@@ -50,7 +50,7 @@ var (
 
 	// buffers used by the BufferingFlow flow implementation.
 	bufferingFlowPool = sync.Pool{New: func() interface{} {
-		return bytes.NewBuffer(make([]byte, defaultMtu))
+		return &bytes.Buffer{}
 	}}
 
 	readLoopPool = sync.Pool{
