@@ -75,6 +75,10 @@ type readConn struct {
 }
 
 func (r *readConn) ReadMsg() ([]byte, error) {
+	return r.ReadMsg2(nil)
+}
+
+func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
 	b, err := r.Conn.ReadMsg()
 	if len(b) > 0 {
 		m, _ := message.Read(r.ctx, b)
