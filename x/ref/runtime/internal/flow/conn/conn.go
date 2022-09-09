@@ -971,7 +971,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 		c.mu.Unlock()
 
 		c.handler.HandleFlow(f) //nolint:errcheck
-		message.CopyBuffers(msg)
+
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
 		}
@@ -1005,7 +1005,6 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 			return nil
 		}
 		c.mu.Unlock()
-		message.CopyBuffers(msg)
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
 		}
@@ -1036,10 +1035,8 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
-	readMsgBuf := readLoopPool.Get().(*[]byte)
-	defer readLoopPool.Put(readMsgBuf)
 	for {
-		msg, rerr := c.mp.readMsg(ctx, *readMsgBuf)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
