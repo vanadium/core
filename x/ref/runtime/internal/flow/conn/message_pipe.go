@@ -25,13 +25,6 @@ type unsafeUnencrypted interface {
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
 	return &messagePipe{
 		rw: rw,
-		// On the write side it's safe to use a passthrough
-		// like this for when encryption is not enabled.
-		// This is not true for reading where the buffer management
-		// is more involved.
-		seal: func(out, data []byte) ([]byte, error) {
-			return data, nil
-		},
 	}
 }
 
@@ -80,26 +73,36 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 	plaintextBuf := messagePipePool.Get().(*[]byte)
-	ciphertextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
-	defer messagePipePool.Put(ciphertextBuf)
+
+	plaintextPayload, ok := message.PlaintextPayload()
+	if ok && len(plaintextPayload) == 0 {
+		message.ClearDisableEncryptionFlag()
+	}
 
 	plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
 	if err != nil {
 		return err
 	}
-	enc, err := p.seal((*ciphertextBuf)[:0], plaintext)
-	if err != nil {
-		return err
+
+	ciphertext := plaintext
+	if p.seal != nil {
+		ciphertextBuf := messagePipePool.Get().(*[]byte)
+		defer messagePipePool.Put(ciphertextBuf)
+		ciphertext, err = p.seal((*ciphertextBuf)[:0], plaintext)
+		if err != nil {
+			return err
+		}
 	}
-	if _, err = p.rw.WriteMsg(enc); err != nil {
+
+	if _, err = p.rw.WriteMsg(ciphertext); err != nil {
 		return err
 	}
 
 	// Handle plaintext payloads which are not serialized by message.Append
 	// above and are instead written separately in the clear.
-	if payload := hasPlaintextPayload(m); payload != nil {
-		if _, err = p.rw.WriteMsg(payload...); err != nil {
+	if plaintextPayload != nil {
+		if _, err = p.rw.WriteMsg(plaintextPayload...); err != nil {
 			return err
 		}
 	}
@@ -121,7 +124,6 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 			return nil, err
 		}
 		m, err = message.Read(ctx, plaintext)
-
 	} else {
 		// For the encrypted case we need to allocate a new buffer for the
 		// ciphertext that is only used temporarily.
@@ -142,51 +144,16 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		return nil, err
 	}
 
-	if needsPlaintextPayload(m) {
-		// todo: test this carefully.... want to reuse buffer for plaintext
-		// payload.
-		payload, err := p.rw.ReadMsg2(plaintextBuf[len(plaintext):])
+	if message.ExpectsPlaintextPayload(m) {
+		payload, err := p.rw.ReadMsg2(nil)
 		if err != nil {
 			return nil, err
 		}
-		setPlaintextPayload(m, payload)
+		message.SetPlaintextPayload(m, payload, true)
 	}
 
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
 	return m, err
-}
-
-func hasPlaintextPayload(m message.Message) [][]byte {
-	switch msg := m.(type) {
-	case *message.Data:
-		if msg.Flags&message.DisableEncryptionFlag != 0 {
-			return msg.Payload
-		}
-	case *message.OpenFlow:
-		if msg.Flags&message.DisableEncryptionFlag != 0 {
-			return msg.Payload
-		}
-	}
-	return nil
-}
-
-func needsPlaintextPayload(m message.Message) bool {
-	switch msg := m.(type) {
-	case *message.Data:
-		return msg.Flags&message.DisableEncryptionFlag != 0
-	case *message.OpenFlow:
-		return msg.Flags&message.DisableEncryptionFlag != 0
-	}
-	return false
-}
-
-func setPlaintextPayload(m message.Message, payload []byte) {
-	switch msg := m.(type) {
-	case *message.Data:
-		msg.Payload = [][]byte{payload}
-	case *message.OpenFlow:
-		msg.Payload = [][]byte{payload}
-	}
 }
