@@ -971,7 +971,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 		c.mu.Unlock()
 
 		c.handler.HandleFlow(f) //nolint:errcheck
-
+		message.CopyBuffers(msg)
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
 		}
@@ -1005,6 +1005,7 @@ func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint
 			return nil
 		}
 		c.mu.Unlock()
+		message.CopyBuffers(msg)
 		if err := f.q.put(ctx, msg.Payload); err != nil {
 			return err
 		}
