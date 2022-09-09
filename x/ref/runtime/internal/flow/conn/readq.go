@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -97,7 +96,6 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 
 func (r *readq) reserveLocked(n int) {
 	if n < len(r.bufsBuiltin) && len(r.bufs) > len(r.bufsBuiltin) {
-		fmt.Printf("shrunk..")
 		r.moveqLocked(r.bufsBuiltin[:])
 		return
 	}
