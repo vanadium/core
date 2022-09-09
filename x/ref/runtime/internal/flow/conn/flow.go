@@ -72,7 +72,6 @@ func (c *Conn) newFlowLocked(
 	f := &flw{
 		id:               id,
 		conn:             c,
-		q:                newReadQ(c, id),
 		localBlessings:   localBlessings,
 		localDischarges:  localDischarges,
 		remoteBlessings:  remoteBlessings,
@@ -87,6 +86,8 @@ func (c *Conn) newFlowLocked(
 		channelTimeout: channelTimeout,
 		sideChannel:    sideChannel,
 	}
+	f.q = newReadQ(f.release)
+
 	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
@@ -95,6 +96,10 @@ func (c *Conn) newFlowLocked(
 	c.flows[id] = f
 	c.healthCheckNewFlowLocked(ctx, channelTimeout)
 	return f
+}
+
+func (f *flw) release(ctx *context.T, n int) {
+	f.conn.release(ctx, f.id, uint64(n))
 }
 
 func (c *Conn) newFlowCountersLocked(id uint64) {

@@ -5,9 +5,12 @@
 package conn
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"testing"
 
+	"v.io/v23/context"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/goroutines"
 )
@@ -20,13 +23,23 @@ func mkBufs(in ...string) [][]byte {
 	return out
 }
 
+type readqRelease struct {
+	n int
+}
+
+func (rr *readqRelease) release(ctx *context.T, n int) {
+	rr.n += n
+}
+
 func TestReadqRead(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -53,7 +66,9 @@ func TestReadqGet(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -79,7 +94,9 @@ func TestReadqMixed(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	r := newReadQ(nil, 1)
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -113,4 +130,53 @@ func TestReadqMixed(t *testing.T) {
 	if _, err := r.read(ctx, nil); err != io.EOF {
 		t.Errorf("expected EOF got %v", err)
 	}
+
+	if got, want := rr.n, 18; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
+
+func TestReadqQResize(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	rr := &readqRelease{}
+
+	r := newReadQ(rr.release)
+
+	for i := 0; i < 100; i++ {
+		r.put(ctx, [][]byte{[]byte(fmt.Sprintf("%03v", i))})
+	}
+
+	if got, want := r.nbufs, 100; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	for i := 0; i < 100; i++ {
+		msg, _ := r.get(ctx)
+		if got, want := msg, []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+
+	if got, want := cap(r.bufs), 160; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	r.put(ctx, [][]byte{[]byte(fmt.Sprintf("%03v", 0))})
+	if got, want := cap(r.bufs), 40; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	for i := 1; i < 100; i++ {
+		r.put(ctx, [][]byte{[]byte(fmt.Sprintf("%03v", i))})
+	}
+
+	for i := 0; i < 100; i++ {
+		buf := [10]byte{}
+		n, _ := r.read(ctx, buf[:])
+		if got, want := buf[:n], []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+
 }
