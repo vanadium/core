@@ -11,28 +11,49 @@ import (
 	"v.io/v23/context"
 )
 
+// readq implements a producer/consumer queue for network buffers with a
+// callback to facilate flow control external to the readq. It also
+// allows for context cancelation.
+//
+// NOTE that buffers are shared between the reader/writer and hence
+// care must be taken to make a copy of the buffers prior to calling put
+// if the underlying storage is to be reused. Also note that the read
+// implementation will necessarily copy the data once more leading to
+// potentially two copies - one before calling put and one by read.
+//
+// readq uses a circular buffer that is resized as needed but with a builtin
+// array to handle the common case for when the circular buffer is small.
+// The circular buffer will be small except when concurrency is limited or
+// network latency is very high, the initial size is chosen to handle the
+// most strenuous cases (eg. lots of connections with low concurrency).
 type readq struct {
-	mu     sync.Mutex
-	bufs   [][]byte
-	b, e   int
-	closed bool
+	mu sync.Mutex
+	// circular buffer of added buffers
+	bufsBuiltin [initialReadqBufferSize][]byte
+	bufs        [][]byte
+	b, e        int // begin and end indices of data in those circular buffers
 
-	id     uint64
-	size   int
-	nbufs  int
-	notify chan struct{}
-	conn   *Conn
+	closed bool // set when closed.
+
+	size   int           // total amount of buffered data
+	nbufs  int           // number of buffers
+	notify chan struct{} // used to notify any listeners when an empty readq has had data added to it.
+
+	// Called whenever data is read/removed from the queue with the number of
+	// bytes retured. It is intended to be used by flow control mechanisms
+	// that need to keep track of the amount of data read.
+	readCallback func(ctx *context.T, n int)
 }
 
-const initialReadqBufferSize = 10
+const initialReadqBufferSize = 40
 
-func newReadQ(conn *Conn, id uint64) *readq {
-	return &readq{
-		bufs:   make([][]byte, initialReadqBufferSize),
-		notify: make(chan struct{}, 1),
-		conn:   conn,
-		id:     id,
+func newReadQ(readCallback func(ctx *context.T, n int)) *readq {
+	rq := &readq{
+		notify:       make(chan struct{}, 1),
+		readCallback: readCallback,
 	}
+	rq.bufs = rq.bufsBuiltin[:]
+	return rq
 }
 
 func (r *readq) put(ctx *context.T, bufs [][]byte) error {
@@ -51,6 +72,7 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 		// The flow has already closed.  Simply drop the data.
 		return nil
 	}
+
 	newSize := l + r.size
 	if newSize > DefaultBytesBufferedPerFlow {
 		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed")
@@ -59,11 +81,10 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	r.reserveLocked(newBufs)
 	for _, b := range bufs {
 		r.bufs[r.e] = b
-		r.bufs[r.e] = make([]byte, len(b))
-		copy(r.bufs[r.e], b)
 		r.e = (r.e + 1) % len(r.bufs)
 	}
 	r.nbufs = newBufs
+
 	if r.size == 0 {
 		select {
 		case r.notify <- struct{}{}:
@@ -74,7 +95,29 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	return nil
 }
 
-func (r *readq) read(ctx *context.T) (data []byte, err error) {
+func (r *readq) reserveLocked(n int) {
+	if n < len(r.bufsBuiltin) && len(r.bufs) > len(r.bufsBuiltin) {
+		r.moveqLocked(r.bufsBuiltin[:])
+		return
+	}
+	if n < len(r.bufs) {
+		return
+	}
+	r.moveqLocked(make([][]byte, 2*n))
+}
+
+func (r *readq) moveqLocked(to [][]byte) {
+	copied := 0
+	if r.e >= r.b {
+		copied = copy(to, r.bufs[r.b:r.e])
+	} else {
+		copied = copy(to, r.bufs[r.b:])
+		copied += copy(to[copied:], r.bufs[:r.e])
+	}
+	r.bufs, r.b, r.e = to, 0, copied
+}
+
+func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		err = nil
@@ -85,14 +128,13 @@ func (r *readq) read(ctx *context.T) (data []byte, err error) {
 			r.bufs[r.b] = buf
 		} else {
 			r.nbufs--
+			r.bufs[r.b] = nil // allow used buffer to be GC'ed
 			r.b = (r.b + 1) % len(r.bufs)
 		}
 		r.size -= n
 	}
 	r.mu.Unlock()
-	if r.conn != nil {
-		r.conn.release(ctx, r.id, uint64(n))
-	}
+	r.readCallback(ctx, n)
 	return
 }
 
@@ -101,14 +143,13 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	if err = r.waitLocked(ctx); err == nil {
 		err = nil
 		out = r.bufs[r.b]
+		r.bufs[r.b] = nil // allow used buffer to be GC'ed
 		r.b = (r.b + 1) % len(r.bufs)
 		r.size -= len(out)
 		r.nbufs--
 	}
 	r.mu.Unlock()
-	if r.conn != nil {
-		r.conn.release(ctx, r.id, uint64(len(out)))
-	}
+	r.readCallback(ctx, len(out))
 	return
 }
 
@@ -143,19 +184,4 @@ func (r *readq) close(ctx *context.T) bool {
 	}
 	r.mu.Unlock()
 	return closed
-}
-
-func (r *readq) reserveLocked(n int) {
-	if n < len(r.bufs) {
-		return
-	}
-	nb := make([][]byte, 2*n)
-	copied := 0
-	if r.e >= r.b {
-		copied = copy(nb, r.bufs[r.b:r.e])
-	} else {
-		copied = copy(nb, r.bufs[r.b:])
-		copied += copy(nb[copied:], r.bufs[:r.e])
-	}
-	r.bufs, r.b, r.e = nb, 0, copied
 }
