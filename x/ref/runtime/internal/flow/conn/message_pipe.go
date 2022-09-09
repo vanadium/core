@@ -40,9 +40,11 @@ type openFunc func(out, data []byte) ([]byte, bool)
 
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
-	rw   flow.MsgReadWriteCloser
-	seal sealFunc
-	open openFunc
+	rw              flow.MsgReadWriteCloser
+	seal            sealFunc
+	open            openFunc
+	writePlaintext  [plaintextBufferSize]byte
+	writeCiphertext [ciphertextBufferSize]byte
 }
 
 func (p *messagePipe) flow() flow.MsgReadWriteCloser {
@@ -51,7 +53,8 @@ func (p *messagePipe) flow() flow.MsgReadWriteCloser {
 
 // enableEncryption enables encryption on the pipe (unless the underlying
 // transport reader implements UnsafeDisableEncryption and that
-// implementatio nreturns true).
+// implementatio nreturns true). The encryption used depends on the RPC version
+// being used.
 func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, remotePublicKey *[32]byte, rpcversion version.RPCVersion) ([]byte, error) {
 	if uu, ok := p.rw.(unsafeUnencrypted); ok && uu.UnsafeDisableEncryption() {
 		return nil, nil
@@ -78,14 +81,14 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
-	writePoolBuf := messagePipeWritePool.Get().(*writeBuffers)
-	defer messagePipeWritePool.Put(writePoolBuf)
+	//writePoolBuf := messagePipeWritePool.Get().(*writeBuffers)
+	//defer messagePipeWritePool.Put(writePoolBuf)
 
-	plaintext, err := message.Append(ctx, m, writePoolBuf.plaintext[:0])
+	plaintext, err := message.Append(ctx, m, p.writePlaintext[:0])
 	if err != nil {
 		return err
 	}
-	enc, err := p.seal(writePoolBuf.ciphertext[:0], plaintext)
+	enc, err := p.seal(p.writeCiphertext[:0], plaintext)
 	if err != nil {
 		return err
 	}
