@@ -71,7 +71,7 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
 }
 
-func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
+func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
@@ -80,22 +80,25 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 		message.ClearDisableEncryptionFlag(m)
 	}
 
-	plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
+	var err error
+	var wire []byte
+
+	if p.seal == nil {
+		wire, err = message.Append(ctx, m, (*plaintextBuf)[:0])
+	} else {
+		plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
+		if err != nil {
+			return err
+		}
+		ciphertextBuf := messagePipePool.Get().(*[]byte)
+		defer messagePipePool.Put(ciphertextBuf)
+		wire, err = p.seal((*ciphertextBuf)[:0], plaintext)
+	}
 	if err != nil {
 		return err
 	}
 
-	ciphertext := plaintext
-	if p.seal != nil {
-		ciphertextBuf := messagePipePool.Get().(*[]byte)
-		defer messagePipePool.Put(ciphertextBuf)
-		ciphertext, err = p.seal((*ciphertextBuf)[:0], plaintext)
-		if err != nil {
-			return err
-		}
-	}
-
-	if _, err = p.rw.WriteMsg(ciphertext); err != nil {
+	if _, err = p.rw.WriteMsg(wire); err != nil {
 		return err
 	}
 
@@ -114,23 +117,21 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
 	var m message.Message
-	var plaintext []byte
 	var err error
 	if p.open == nil {
 		// For the plaintext case we can use the supplied buffer to read from
 		// the underlying connection directly.
-		plaintext, err = p.rw.ReadMsg2(plaintextBuf)
+		plaintext, err := p.rw.ReadMsg2(plaintextBuf)
 		if err != nil {
 			return nil, err
 		}
 		m, err = message.Read(ctx, plaintext)
 	} else {
-		// For the encrypted case we need to allocate a new buffer for the
-		// ciphertext that is only used temporarily.
-		var ciphertext []byte
+		// For the encrypted case we need to allocate a new temporary buffer for the
+		// ciphertext.
 		ciphertextBuf := messagePipePool.Get().(*[]byte)
 		defer messagePipePool.Put(ciphertextBuf)
-		ciphertext, err = p.rw.ReadMsg2((*ciphertextBuf)[:])
+		ciphertext, err := p.rw.ReadMsg2((*ciphertextBuf)[:])
 		if err != nil {
 			return nil, err
 		}
