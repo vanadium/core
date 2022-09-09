@@ -25,21 +25,9 @@ const (
 	ciphertextBufferSize = defaultMtu + estimatedMessageOverhead + maxCipherOverhead
 )
 
-type writeBuffers struct {
-	plaintext  [plaintextBufferSize]byte
-	ciphertext [ciphertextBufferSize]byte
-}
-
 var (
-	// buffers used by the message pipe when writing and encrypting messages.
-	messagePipeWritePool = sync.Pool{
-		New: func() interface{} {
-			return &writeBuffers{}
-		},
-	}
-
-	// buffers used by the message pipe when reading messages.
-	messagePipeReadPool = sync.Pool{
+	// intermediate buffers used by the message pipe for compression/decompression.
+	messagePipePool = sync.Pool{
 		New: func() interface{} {
 			b := make([]byte, ciphertextBufferSize)
 			// Return a pointer to the slice to avoid unnecessary allocations

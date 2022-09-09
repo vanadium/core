@@ -40,11 +40,9 @@ type openFunc func(out, data []byte) ([]byte, bool)
 
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
-	rw              flow.MsgReadWriteCloser
-	seal            sealFunc
-	open            openFunc
-	writePlaintext  [plaintextBufferSize]byte
-	writeCiphertext [ciphertextBufferSize]byte
+	rw   flow.MsgReadWriteCloser
+	seal sealFunc
+	open openFunc
 }
 
 func (p *messagePipe) flow() flow.MsgReadWriteCloser {
@@ -81,14 +79,16 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
-	//writePoolBuf := messagePipeWritePool.Get().(*writeBuffers)
-	//defer messagePipeWritePool.Put(writePoolBuf)
+	plaintextBuf := messagePipePool.Get().(*[]byte)
+	ciphertextBuf := messagePipePool.Get().(*[]byte)
+	defer messagePipePool.Put(plaintextBuf)
+	defer messagePipePool.Put(ciphertextBuf)
 
-	plaintext, err := message.Append(ctx, m, p.writePlaintext[:0])
+	plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
 	if err != nil {
 		return err
 	}
-	enc, err := p.seal(p.writeCiphertext[:0], plaintext)
+	enc, err := p.seal((*ciphertextBuf)[:0], plaintext)
 	if err != nil {
 		return err
 	}
@@ -125,10 +125,10 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	} else {
 		// For the encrypted case we need to allocate a new buffer for the
 		// ciphertext that is only used temporarily.
-		readBuf := messagePipeReadPool.Get().(*[]byte)
-		defer messagePipeReadPool.Put(readBuf)
 		var ciphertext []byte
-		ciphertext, err = p.rw.ReadMsg2((*readBuf)[:])
+		ciphertextBuf := messagePipePool.Get().(*[]byte)
+		defer messagePipePool.Put(ciphertextBuf)
+		ciphertext, err = p.rw.ReadMsg2((*ciphertextBuf)[:])
 		if err != nil {
 			return nil, err
 		}
