@@ -59,11 +59,11 @@ func newCipherRPC11() (c1, c2 cipherAPI, err error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't generate key")
 	}
-	c1, err = naclbox.NewCipherRPC11(pk1, sk1, pk2)
+	c1, err = naclbox.NewCipher(pk1, sk1, pk2)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}
-	c2, err = naclbox.NewCipherRPC11(pk2, sk2, pk1)
+	c2, err = naclbox.NewCipher(pk2, sk2, pk1)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}
@@ -79,11 +79,11 @@ func newCipherRPC15() (c1, c2 cipherAPI, err error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't generate key")
 	}
-	c1, err = aead.NewCipherRPC15(pk1, sk1, pk2)
+	c1, err = aead.NewCipher(pk1, sk1, pk2)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}
-	c2, err = aead.NewCipherRPC15(pk2, sk2, pk1)
+	c2, err = aead.NewCipher(pk2, sk2, pk1)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}
@@ -101,11 +101,11 @@ func newCipherRPC11MixedKeys() (c1, c2 cipherAPI, err error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't generate key")
 	}
-	c1, err = naclbox.NewCipherRPC11(pk1, sk1, pk2)
+	c1, err = naclbox.NewCipher(pk1, sk1, pk2)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}
-	c2, err = naclbox.NewCipherRPC11(pk2, sk2, pk1)
+	c2, err = naclbox.NewCipher(pk2, sk2, pk1)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
 	}

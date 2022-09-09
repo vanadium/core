@@ -39,9 +39,9 @@ func precompute(sharedKey, peersPublicKey, privateKey *[32]byte) error {
 	return nil
 }
 
-// NewCipherRPC11 returns a Cipher for RPC versions greater than or equal to 11.
+// NewCipher returns a Cipher for RPC versions greater than or equal to 11.
 // The underlying cipher is nacl/secretbox.
-func NewCipherRPC11(myPublicKey, myPrivateKey, theirPublicKey *[32]byte) (*T, error) {
+func NewCipher(myPublicKey, myPrivateKey, theirPublicKey *[32]byte) (*T, error) {
 	var c T
 	if err := precompute(&c.sharedKey, theirPublicKey, myPrivateKey); err != nil {
 		return nil, err
