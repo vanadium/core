@@ -75,9 +75,9 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) (err error) {
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
-	plaintextPayload, ok := message.PlaintextPayload()
+	plaintextPayload, ok := message.PlaintextPayload(m)
 	if ok && len(plaintextPayload) == 0 {
-		message.ClearDisableEncryptionFlag()
+		message.ClearDisableEncryptionFlag(m)
 	}
 
 	plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
@@ -149,6 +149,7 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		if err != nil {
 			return nil, err
 		}
+		// nocopy is set to true since the buffer was newly allocated here.
 		message.SetPlaintextPayload(m, payload, true)
 	}
 
