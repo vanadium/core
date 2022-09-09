@@ -6,7 +6,6 @@ package conn
 
 import (
 	"io"
-	"strings"
 	"sync"
 
 	"v.io/v23/context"
@@ -18,13 +17,15 @@ import (
 //
 // NOTE that buffers are shared between the reader/writer and hence
 // care must be taken to make a copy of the buffers prior to calling put
-// if the underlying storage is to be reused.
+// if the underlying storage is to be reused. Also note that the read
+// implementation will necessarily copy the data once more leading to
+// potentially two copies - one before calling put and one by read.
 //
 // readq uses a circular buffer that is resized as needed but with a builtin
 // array to handle the common case for when the circular buffer is small.
 // The circular buffer will be small except when concurrency is limited or
 // network latency is very high, the initial size is chosen to handle the
-// most strenous cases (eg. lots of connections with low concurrency).
+// most strenuous cases (eg. lots of connections with low concurrency).
 type readq struct {
 	mu sync.Mutex
 	// circular buffer of added buffers
@@ -114,18 +115,6 @@ func (r *readq) moveqLocked(to [][]byte) {
 		copied += copy(to[copied:], r.bufs[:r.e])
 	}
 	r.bufs, r.b, r.e = to, 0, copied
-}
-
-func (r *readq) statusLocked() string {
-	out := strings.Builder{}
-	for _, b := range r.bufs {
-		if b == nil {
-			out.WriteString(" - ")
-		} else {
-			out.WriteString(" + ")
-		}
-	}
-	return out.String()
 }
 
 func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {

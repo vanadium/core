@@ -28,7 +28,7 @@ type readqRelease struct {
 }
 
 func (rr *readqRelease) release(ctx *context.T, n int) {
-	rr.n = n
+	rr.n += n
 }
 
 func TestReadqRead(t *testing.T) {
@@ -131,7 +131,7 @@ func TestReadqMixed(t *testing.T) {
 		t.Errorf("expected EOF got %v", err)
 	}
 
-	if got, want := rr.n, 10; got != want {
+	if got, want := rr.n, 18; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
