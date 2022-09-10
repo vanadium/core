@@ -118,7 +118,7 @@ func testCipherOpenSealRand(t *testing.T, c1, c2 cipher.API, size int) {
 }
 
 func TestCipherOpenSealRPC11(t *testing.T) {
-	c1, c2, err := cipher.NewRPC11()
+	c1, c2, err := cipher.NewRPC11Ciphers()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func TestCipherOpenSealRPC11(t *testing.T) {
 }
 
 func TestCipherOpenSealRPC11MixedKeys(t *testing.T) {
-	c1, c2, err := cipher.NewMixedKeys()
+	c1, c2, err := cipher.NewMixedCiphers()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +136,7 @@ func TestCipherOpenSealRPC11MixedKeys(t *testing.T) {
 }
 
 func TestCipherOpenSealRPC15(t *testing.T) {
-	c1, c2, err := cipher.NewRPC15()
+	c1, c2, err := cipher.NewRPC15Ciphers()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func TestCipherOpenSealRPC15(t *testing.T) {
 func TestCipherChannelBinding(t *testing.T) {
 	values := make([][]byte, 100)
 	for i := 0; i < len(values); i++ {
-		c1, c2, err := cipher.NewRPC11()
+		c1, c2, err := cipher.NewRPC11Ciphers()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -166,7 +166,7 @@ func TestCipherChannelBinding(t *testing.T) {
 }
 
 func benchmarkRPC11(b *testing.B, size int) {
-	c1, c2, err := cipher.NewRPC11()
+	c1, c2, err := cipher.NewRPC11Ciphers()
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -174,7 +174,7 @@ func benchmarkRPC11(b *testing.B, size int) {
 }
 
 func benchmarkRPC15(b *testing.B, size int) {
-	c1, c2, err := cipher.NewRPC15()
+	c1, c2, err := cipher.NewRPC15Ciphers()
 	if err != nil {
 		b.Fatal(err)
 	}
