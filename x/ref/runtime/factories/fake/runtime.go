@@ -15,7 +15,7 @@ import (
 	"v.io/v23/security/access"
 	"v.io/x/ref/internal/logger"
 	"v.io/x/ref/lib/flags"
-	tnaming "v.io/x/ref/runtime/internal/testing/mocks/naming"
+	tnaming "v.io/x/ref/runtime/internal/test/mocks/naming"
 	"v.io/x/ref/test/testutil"
 )
 
