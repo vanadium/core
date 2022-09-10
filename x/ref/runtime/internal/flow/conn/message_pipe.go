@@ -82,7 +82,6 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 
 	var err error
 	var wire []byte
-
 	if p.seal == nil {
 		wire, err = message.Append(ctx, m, (*plaintextBuf)[:0])
 	} else {
@@ -115,36 +114,32 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	return nil
 }
 
-func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
-	var m message.Message
-	var err error
+func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte, error) {
 	if p.open == nil {
-		// For the plaintext case we can use the supplied buffer to read from
-		// the underlying connection directly.
-		plaintext, err := p.rw.ReadMsg2(plaintextBuf)
-		if err != nil {
-			return nil, err
-		}
-		m, err = message.Read(ctx, plaintext)
-	} else {
-		// For the encrypted case we need to allocate a new temporary buffer for the
-		// ciphertext.
-		ciphertextBuf := messagePipePool.Get().(*[]byte)
-		defer messagePipePool.Put(ciphertextBuf)
-		ciphertext, err := p.rw.ReadMsg2((*ciphertextBuf)[:])
-		if err != nil {
-			return nil, err
-		}
-		plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
-		if !ok {
-			return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
-		}
-		m, err = message.Read(ctx, plaintext)
+		return p.rw.ReadMsg2(plaintextBuf)
 	}
+	ciphertextBuf := messagePipePool.Get().(*[]byte)
+	defer messagePipePool.Put(ciphertextBuf)
+	ciphertext, err := p.rw.ReadMsg2((*ciphertextBuf)[:])
 	if err != nil {
 		return nil, err
 	}
+	plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
+	if !ok {
+		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
+	}
+	return plaintext, nil
+}
 
+func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
+	plaintext, err := p.readClearText(ctx, plaintextBuf)
+	if err != nil {
+		return nil, err
+	}
+	m, err := message.Read(ctx, plaintext)
+	if err != nil {
+		return nil, err
+	}
 	if message.ExpectsPlaintextPayload(m) {
 		payload, err := p.rw.ReadMsg2(nil)
 		if err != nil {
