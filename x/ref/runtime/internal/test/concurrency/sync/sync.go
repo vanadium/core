@@ -7,7 +7,7 @@ package sync
 import (
 	"sync"
 
-	"v.io/x/ref/runtime/internal/testing/concurrency"
+	"v.io/x/ref/runtime/internal/test/concurrency"
 )
 
 // Mutex is a wrapper around the Go implementation of Mutex.

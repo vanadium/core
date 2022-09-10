@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"v.io/x/lib/vlog"
-	"v.io/x/ref/runtime/internal/testing/concurrency"
-	"v.io/x/ref/runtime/internal/testing/concurrency/sync"
+	"v.io/x/ref/runtime/internal/test/concurrency"
+	"v.io/x/ref/runtime/internal/test/concurrency/sync"
 )
 
 var rw sync.RWMutex
