@@ -55,6 +55,9 @@ func NewRPC11Keys() (pk1, sk1, pk2, sk2 *[32]byte, err error) {
 
 func NewRPC11Ciphers() (c1, c2 API, err error) {
 	pk1, sk1, pk2, sk2, err := NewRPC11Keys()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create keys: %v", err)
+	}
 	c1, err = naclbox.NewCipher(pk1, sk1, pk2)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
@@ -80,6 +83,9 @@ func NewRPC15Keys() (pk1, sk1, pk2, sk2 *[32]byte, err error) {
 
 func NewRPC15Ciphers() (c1, c2 API, err error) {
 	pk1, sk1, pk2, sk2, err := NewRPC15Keys()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create keys: %v", err)
+	}
 	c1, err = aead.NewCipher(pk1, sk1, pk2)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create cipher: %v", err)
@@ -110,7 +116,7 @@ func NewMixedCiphers() (c1, c2 API, err error) {
 	// internal cipher.GenerateKey.
 	pk1, sk1, pk2, sk2, err := NewMixedKeys()
 	if err != nil {
-		return nil, nil, fmt.Errorf("can't generate key")
+		return nil, nil, fmt.Errorf("failed to create keys: %v", err)
 	}
 	c1, err = naclbox.NewCipher(pk1, sk1, pk2)
 	if err != nil {
