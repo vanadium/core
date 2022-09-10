@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"v.io/x/ref/internal/logger"
-	"v.io/x/ref/runtime/internal/testing/concurrency"
-	"v.io/x/ref/runtime/internal/testing/concurrency/sync"
+	"v.io/x/ref/runtime/internal/test/concurrency"
+	"v.io/x/ref/runtime/internal/test/concurrency/sync"
 )
 
 var m sync.Mutex
