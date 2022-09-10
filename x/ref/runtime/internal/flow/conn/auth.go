@@ -235,9 +235,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	}
 	// if we're encapsulated in another flow, tell that flow to stop
 	// encrypting now that we've started.
-	if f, ok := c.mp.rw.(*flw); ok {
-		f.disableEncryption()
-	}
+	c.mp.disableEncryptionOnEncapsulatedFlow()
 	return binding, rSetup.PeerLocalEndpoint, rttstart, nil
 }
 

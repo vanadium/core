@@ -38,8 +38,19 @@ type messagePipe struct {
 	open openFunc
 }
 
-func (p *messagePipe) flow() flow.MsgReadWriteCloser {
-	return p.rw
+func (p *messagePipe) isEncapsulated() bool {
+	_, ok := p.rw.(*flw)
+	return ok
+}
+
+func (p *messagePipe) disableEncryptionOnEncapsulatedFlow() {
+	if f, ok := p.rw.(*flw); ok {
+		f.disableEncryption()
+	}
+}
+
+func (p *messagePipe) Close() error {
+	return p.rw.Close()
 }
 
 // enableEncryption enables encryption on the pipe (unless the underlying
