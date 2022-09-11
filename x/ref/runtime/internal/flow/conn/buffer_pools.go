@@ -21,7 +21,7 @@ const (
 	plaintextBufferSize = defaultMtu + estimatedMessageOverhead
 
 	// The ciphertext buffer needs to allow for the cipher overhead also.
-	ciphertextBufferSize = defaultMtu + estimatedMessageOverhead + maxCipherOverhead
+	ciphertextBufferSize = plaintextBufferSize + maxCipherOverhead
 )
 
 var (

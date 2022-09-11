@@ -97,7 +97,8 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	if p.seal == nil {
 		wire, err = message.Append(ctx, m, (*plaintextBuf)[:0])
 	} else {
-		plaintext, err := message.Append(ctx, m, (*plaintextBuf)[:0])
+		var plaintext []byte
+		plaintext, err = message.Append(ctx, m, (*plaintextBuf)[:0])
 		if err != nil {
 			return err
 		}
@@ -132,7 +133,7 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 	}
 	ciphertextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(ciphertextBuf)
-	ciphertext, err := p.rw.ReadMsg2((*ciphertextBuf)[:])
+	ciphertext, err := p.rw.ReadMsg2(*ciphertextBuf)
 	if err != nil {
 		return nil, err
 	}
