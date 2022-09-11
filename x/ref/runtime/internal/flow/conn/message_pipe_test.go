@@ -13,19 +13,51 @@ import (
 	"runtime"
 	"testing"
 
-	"golang.org/x/crypto/nacl/box"
 	"v.io/v23/context"
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/rpc/version"
+	"v.io/x/ref/runtime/internal/flow/cipher/aead"
+	"v.io/x/ref/runtime/internal/flow/cipher/naclbox"
 	"v.io/x/ref/runtime/internal/flow/flowtest"
+	"v.io/x/ref/runtime/internal/test/cipher"
 	"v.io/x/ref/test"
 )
 
-func TestMessagePipes(t *testing.T) {
+type keyset struct {
+	pk1, sk1, pk2, sk2 *[32]byte
+}
+
+func (ks *keyset) initUsing(fn func() (pk1, sk1, pk2, sk2 *[32]byte, err error)) {
+	var err error
+	ks.pk1, ks.sk1, ks.pk2, ks.sk2, err = fn()
+	if err != nil {
+		panic(err)
+	}
+}
+
+var (
+	rpc11Keyset keyset
+	rpc15Keyset keyset
+	mixedKeyset keyset
+)
+
+func init() {
+	rpc11Keyset.initUsing(cipher.NewRPC11Keys)
+	rpc15Keyset.initUsing(cipher.NewRPC15Keys)
+	mixedKeyset.initUsing(cipher.NewMixedKeys)
+}
+
+func TestMessagePipeRPC11(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	testMessagePipesRPC11(t, ctx)
+	testMessagePipesVersioned(t, ctx, rpc11Keyset, version.RPCVersion11)
+}
+
+func TestMessagePipesRPC15(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	testMessagePipesVersioned(t, ctx, rpc15Keyset, version.RPCVersion15)
 }
 
 func newPipes(t *testing.T, ctx *context.T) (dialed, accepted *messagePipe) {
@@ -33,30 +65,49 @@ func newPipes(t *testing.T, ctx *context.T) (dialed, accepted *messagePipe) {
 	return newMessagePipe(d), newMessagePipe(a)
 }
 
-func testMessagePipesRPC11(t *testing.T, ctx *context.T) {
+func testMessagePipesVersioned(t *testing.T, ctx *context.T, ks keyset, version version.RPCVersion) {
 	dialed, accepted := newPipes(t, ctx)
 	// plaintext
-	testMessagePipes(t, ctx, dialed, accepted)
+	testMessageRoundTrip(t, ctx, dialed, accepted)
+	testManyMessages(t, ctx, dialed, accepted, 100*1024*1024)
 
-	if err := enableRPC11Encryption(ctx, dialed.(*messagePipeRPC11), accepted.(*messagePipeRPC11)); err != nil {
+	if err := enableEncryption(ctx, dialed, accepted, ks, version); err != nil {
 		t.Fatal(err)
 	}
 
-	testMessagePipes(t, ctx, dialed, accepted)
+	// encrypted
+	testMessageRoundTrip(t, ctx, dialed, accepted)
+	testManyMessages(t, ctx, dialed, accepted, 100*1024*1024)
 
-	// ensure the messages are encrypted
-	testMessageEncryption(t, ctx)
+	// ensure the messages are encrypted by independently decrypting them.
+	testMessageEncryption(t, ctx, ks, version)
 
-	// test multiple data messages.
-	testManyMessages(t, ctx, 100*1024*1024)
 }
 
-func testMessageEncryption(t *testing.T, ctx *context.T) {
+func testMessageEncryption(t *testing.T, ctx *context.T, ks keyset, rpcversion version.RPCVersion) {
+
 	// Test that messages are encrypted.
 	in, out := flowtest.Pipe(t, ctx, "local", "")
-	dialedPipe, acceptedPipe := newMessagePipeRPC11(in), newMessagePipeRPC11(out)
-	if err := enableRPC11Encryption(ctx, dialedPipe, acceptedPipe); err != nil {
+	dialedPipe, acceptedPipe := newMessagePipe(in), newMessagePipe(out)
+	if err := enableEncryption(ctx, dialedPipe, acceptedPipe, ks, rpcversion); err != nil {
 		t.Fatal(err)
+	}
+
+	var openFunc func(out, data []byte) ([]byte, bool)
+
+	switch rpcversion {
+	case version.RPCVersion11, version.RPCVersion12, version.RPCVersion13, version.RPCVersion14:
+		cipher, err := naclbox.NewCipher(ks.pk2, ks.sk2, ks.pk1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		openFunc = cipher.Open
+	case version.RPCVersion15:
+		cipher, err := aead.NewCipher(ks.pk2, ks.sk2, ks.pk1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		openFunc = cipher.Open
 	}
 
 	errCh := make(chan error, 1)
@@ -85,19 +136,16 @@ func testMessageEncryption(t *testing.T, ctx *context.T) {
 			t.Fatal(err)
 		}
 		buf := <-bufCh
-		_, ok := acceptedPipe.cipher.Open(make([]byte, 0, 100), buf)
+
+		_, ok := openFunc(make([]byte, 0, 100), buf)
 		if !ok {
 			t.Fatalf("message likely not encrypted!")
 		}
 	}
+
 }
 
-func testManyMessages(t *testing.T, ctx *context.T, size int) {
-	dialed, accepted := flowtest.Pipe(t, ctx, "tcp", "")
-	dialedPipe, acceptedPipe := newMessagePipeRPC11(dialed), newMessagePipeRPC11(accepted)
-	if err := enableRPC11Encryption(ctx, dialedPipe, acceptedPipe); err != nil {
-		t.Fatal(err)
-	}
+func testManyMessages(t *testing.T, ctx *context.T, dialedPipe, acceptedPipe *messagePipe, size int) {
 
 	payload := make([]byte, size)
 	_, err := io.ReadFull(rand.Reader, payload)
@@ -105,28 +153,32 @@ func testManyMessages(t *testing.T, ctx *context.T, size int) {
 		t.Fatal(err)
 	}
 
-	received, txErr, rxErr := runMany(ctx, dialedPipe, acceptedPipe, payload)
+	for _, rxbuf := range [][]byte{nil, make([]byte, defaultMtu)} {
 
-	if err := txErr; err != nil {
-		t.Fatal(err)
-	}
-	if err := rxErr; err != nil {
-		t.Fatal(err)
+		received, txErr, rxErr := runMany(ctx, dialedPipe, acceptedPipe, rxbuf, payload)
+
+		if err := txErr; err != nil {
+			t.Fatal(err)
+		}
+		if err := rxErr; err != nil {
+			t.Fatal(err)
+		}
+
+		if got, want := payload, received; !bytes.Equal(got, want) {
+			t.Errorf("data mismatch")
+		}
 	}
 
-	if got, want := payload, received; !bytes.Equal(got, want) {
-		t.Errorf("data mismatch")
-	}
 }
 
-func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipeRPC11, payload []byte) (received []byte, writeErr, readErr error) {
+func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, payload []byte) (received []byte, writeErr, readErr error) {
 	errCh := make(chan error, 2)
 	go func() {
 		sent := 0
 		for sent < len(payload) {
 			payload := payload[sent:]
-			if len(payload) > defaultMTU {
-				payload = payload[:defaultMTU]
+			if len(payload) > defaultMtu {
+				payload = payload[:defaultMtu]
 			}
 			msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
 			err := dialedPipe.writeMsg(ctx, msg)
@@ -141,11 +193,12 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipeRPC11, payload
 
 	go func() {
 		for {
-			m, err := acceptedPipe.readMsg(ctx)
+			m, err := acceptedPipe.readMsg(ctx, rxbuf)
 			if err != nil {
 				errCh <- err
 				return
 			}
+			message.CopyBuffers(m)
 			received = append(received, m.(*message.Data).Payload[0]...)
 			if len(received) == len(payload) {
 				break
@@ -159,20 +212,12 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipeRPC11, payload
 	return
 }
 
-func enableRPC11Encryption(ctx *context.T, dialed, accepted *messagePipeRPC11) error {
-	pk1, sk1, err := box.GenerateKey(rand.Reader)
-	if err != nil {
-		return fmt.Errorf("can't generate key: %v", err)
-	}
-	pk2, sk2, err := box.GenerateKey(rand.Reader)
-	if err != nil {
-		return fmt.Errorf("can't generate key: %v", err)
-	}
-	b1, err := dialed.enableEncryption(ctx, pk1, sk1, pk2)
+func enableEncryption(ctx *context.T, dialed, accepted *messagePipe, ks keyset, version version.RPCVersion) error {
+	b1, err := dialed.enableEncryption(ctx, ks.pk1, ks.sk1, ks.pk2, version)
 	if err != nil {
 		return fmt.Errorf("can't enabled encryption %v", err)
 	}
-	b2, err := accepted.enableEncryption(ctx, pk2, sk2, pk1)
+	b2, err := accepted.enableEncryption(ctx, ks.pk2, ks.sk2, ks.pk1, version)
 	if err != nil {
 		return fmt.Errorf("can't enabled encryption %v", err)
 	}
@@ -183,7 +228,7 @@ func enableRPC11Encryption(ctx *context.T, dialed, accepted *messagePipeRPC11) e
 }
 
 func testMessages(t *testing.T) []message.Message {
-	largePayload := make([]byte, 2*defaultMTU)
+	largePayload := make([]byte, 2*defaultMtu)
 	_, err := io.ReadFull(rand.Reader, largePayload)
 	if err != nil {
 		t.Fatal(err)
@@ -209,7 +254,7 @@ func testMessages(t *testing.T) []message.Message {
 		},
 		&message.OpenFlow{ID: 23, InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55},
 		&message.OpenFlow{ID: 23, Flags: message.DisableEncryptionFlag,
-			InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55,
+			InitialCounters: 1 << 18, BlessingsKey: 42, DischargeKey: 55,
 			Payload: [][]byte{[]byte("fake payload")},
 		},
 
@@ -235,14 +280,13 @@ func testMessages(t *testing.T) []message.Message {
 	}
 }
 
-func testMessagePipes(t *testing.T, ctx *context.T, dialed, accepted messagePipeAPI) {
-	messages := testMessages(t)
-	for _, m := range messages {
+func testMessageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePipe) {
+	for _, m := range testMessages(t) {
 		messageRoundTrip(t, ctx, dialed, accepted, m)
 	}
 }
 
-func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted messagePipeAPI, m message.Message) {
+func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePipe, m message.Message) {
 	var err error
 	assert := func() {
 		if err != nil {
@@ -252,8 +296,8 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted messagePipe
 	}
 	errCh := make(chan error, 1)
 	msgCh := make(chan message.Message, 1)
-	reader := func(mp messagePipeAPI) {
-		m, err := mp.readMsg(ctx)
+	reader := func(mp *messagePipe) {
+		m, err := mp.readMsg(ctx, nil)
 		errCh <- err
 		msgCh <- m
 	}
@@ -272,59 +316,129 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted messagePipe
 	assert()
 	responseMessage := <-msgCh
 
-	if got, want := m, acceptedMessage; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
+	// Mimic the handling of plaintext playloads.
+	if message.ExpectsPlaintextPayload(m) {
+		pl, _ := message.PlaintextPayload(m)
+		message.SetPlaintextPayload(m, pl[0], true)
 	}
-	if got, want := m, responseMessage; !reflect.DeepEqual(got, want) {
+
+	if got, want := acceptedMessage, m; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %#v, want %#v", got, want)
+	}
+	if got, want := responseMessage, m; !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
 
-func BenchmarkMessagePipeSend(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
+func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf, payload []byte) {
+	errCh := make(chan error, 1)
 
-	payload := make([]byte, 1024)
+	go func() {
+		for i := 0; i < b.N; i++ {
+			msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
+			if err := dialed.writeMsg(ctx, msg); err != nil {
+				errCh <- err
+				return
+			}
+		}
+		errCh <- nil
+	}()
+
+	for i := 0; i < b.N; i++ {
+		_, err := accepted.readMsg(ctx, rxbuf)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+
+	if err := <-errCh; err != nil {
+		b.Fatal(err)
+	}
+}
+
+func benchmarkMessagePipe(b *testing.B, ctx *context.T, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
+	payload := make([]byte, size)
 	if _, err := io.ReadFull(rand.Reader, payload); err != nil {
 		b.Fatal(err)
 	}
 
-	dialed, accepted, err := flowtest.NewPipe(ctx, "tcp", "")
+	var rxbuf []byte
+	if userxbuf {
+		rxbuf = make([]byte, size+1024)
+	}
+
+	d, a, err := flowtest.NewPipe(ctx, "tcp", "")
 	if err != nil {
 		b.Fatal(err)
 	}
+	dialed, accepted := newMessagePipe(d), newMessagePipe(a)
 
-	dialedPipe, acceptedPipe := newMessagePipeRPC11(dialed), newMessagePipeRPC11(accepted)
-	if err := enableRPC11Encryption(ctx, dialedPipe, acceptedPipe); err != nil {
+	if err := enableEncryption(ctx, dialed, accepted, ks, rpcversion); err != nil {
 		b.Fatal(err)
 	}
 
 	b.ReportAllocs()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
-		if err := dialedPipe.writeMsg(ctx, msg); err != nil {
-			b.Fatal(err)
-		}
-		if _, err := acceptedPipe.readMsg(ctx); err != nil {
-			b.Fatal(err)
-		}
-	}
+	b.SetBytes(int64(size) * 2)
+	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, payload)
 }
 
-func BenchmarkMessagePipeCreate(b *testing.B) {
+func BenchmarkMessagePipe__RPC11__NewBuf__1KB(b *testing.B) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	dialed, accepted, err := flowtest.NewPipe(ctx, "tcp", "")
-	if err != nil {
-		b.Fatal(err)
-	}
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		dialedPipe, acceptedPipe := newMessagePipeRPC11(dialed), newMessagePipeRPC11(accepted)
-		if err := enableRPC11Encryption(ctx, dialedPipe, acceptedPipe); err != nil {
-			b.Fatal(err)
-		}
-	}
+	benchmarkMessagePipe(b, ctx, 1000, false, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC11__NewBuf__1MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000000, false, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC11__UseBuf__1KB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000, true, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC11__UseBuf__1MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000000, true, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC11__UseBuf_10MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 10000000, true, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC15__NewBuf__1KB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000, false, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__NewBuf__1MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000000, false, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__UseBuf__1KB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000, true, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__UseBuf__1MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 1000000, true, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__UseBuf_10MB(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	benchmarkMessagePipe(b, ctx, 10000000, true, rpc15Keyset, version.RPCVersion15)
 }

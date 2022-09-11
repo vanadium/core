@@ -61,6 +61,7 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	if uu, ok := p.rw.(unsafeUnencrypted); ok && uu.UnsafeDisableEncryption() {
 		return nil, nil
 	}
+
 	switch {
 	case rpcversion >= version.RPCVersion11 && rpcversion < version.RPCVersion15:
 		cipher, err := naclbox.NewCipher(publicKey, secretKey, remotePublicKey)
@@ -70,7 +71,7 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 		p.seal = cipher.Seal
 		p.open = cipher.Open
 		return cipher.ChannelBinding(), nil
-	case rpcversion == version.RPCVersion15:
+	case rpcversion >= version.RPCVersion15:
 		cipher, err := aead.NewCipher(publicKey, secretKey, remotePublicKey)
 		if err != nil {
 			return nil, err

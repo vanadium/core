@@ -21,7 +21,7 @@ var (
 // NewErrInvalidMsg creates an instance ErrInvalidMsg with the specified parameters which can be
 // access by ParseErrInvalidMessage.
 func NewErrInvalidMsg(ctx *context.T, typ byte, size uint64, field uint64, err error) error {
-	return ErrInvalidMsg.Errorf(ctx, "message of type %v and size %v failed decoding at filed %v:%v", typ, size, field, err)
+	return ErrInvalidMsg.Errorf(ctx, "message of type %v and size %v failed decoding at field %v:%v", typ, size, field, err)
 }
 
 // ParseErrInvalidMessage cracks open the parameter list created by NewErrInvalidMsg with
