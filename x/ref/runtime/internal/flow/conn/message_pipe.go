@@ -160,7 +160,6 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 		// nocopy is set to true since the buffer was newly allocated here.
 		message.SetPlaintextPayload(m, payload, true)
 	}
-
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}

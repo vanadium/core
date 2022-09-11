@@ -330,13 +330,14 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	}
 }
 
-func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf, payload []byte) {
+func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf []byte, payload [][]byte) {
 	errCh := make(chan error, 1)
+
+	msg := message.Data{ID: 1123, Payload: payload}
 
 	go func() {
 		for i := 0; i < b.N; i++ {
-			msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
-			if err := dialed.writeMsg(ctx, msg); err != nil {
+			if err := dialed.writeMsg(ctx, &msg); err != nil {
 				errCh <- err
 				return
 			}
@@ -356,7 +357,9 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 	}
 }
 
-func benchmarkMessagePipe(b *testing.B, ctx *context.T, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
+func benchmarkMessagePipe(b *testing.B, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
 	payload := make([]byte, size)
 	if _, err := io.ReadFull(rand.Reader, payload); err != nil {
 		b.Fatal(err)
@@ -364,7 +367,7 @@ func benchmarkMessagePipe(b *testing.B, ctx *context.T, size int, userxbuf bool,
 
 	var rxbuf []byte
 	if userxbuf {
-		rxbuf = make([]byte, size+1024)
+		rxbuf = make([]byte, size+2048)
 	}
 
 	d, a, err := flowtest.NewPipe(ctx, "tcp", "")
@@ -377,68 +380,58 @@ func benchmarkMessagePipe(b *testing.B, ctx *context.T, size int, userxbuf bool,
 		b.Fatal(err)
 	}
 
+	pl := [][]byte{payload}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 	b.SetBytes(int64(size) * 2)
-	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, payload)
+	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, pl)
 }
 
 func BenchmarkMessagePipe__RPC11__NewBuf__1KB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000, false, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, 1000, false, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__1MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000000, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__NewBuf__10KB(b *testing.B) {
+	benchmarkMessagePipe(b, 10000, false, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC11__NewBuf__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC11__UseBuf__1KB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000, true, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, 1000, true, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__1MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000000, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseBuf__10KB(b *testing.B) {
+	benchmarkMessagePipe(b, 10000, true, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf_10MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 10000000, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseBuf__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC15__NewBuf__1KB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000, false, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, 1000, false, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__1MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000000, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__NewBuf__10KB(b *testing.B) {
+	benchmarkMessagePipe(b, 10000, false, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__NewBuf__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
 }
 
 func BenchmarkMessagePipe__RPC15__UseBuf__1KB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000, true, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, 1000, true, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__1MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 1000000, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__UseBuf__10KB(b *testing.B) {
+	benchmarkMessagePipe(b, 10000, true, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf_10MB(b *testing.B) {
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	benchmarkMessagePipe(b, ctx, 10000000, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__UseBuf__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
 }
