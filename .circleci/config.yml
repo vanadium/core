@@ -4,6 +4,7 @@ orbs:
 
 jobs:
   test-linux:
+    resource_class: large
     parameters:
       go:
         type: string
@@ -56,6 +57,7 @@ jobs:
             make test-integration test-openssl-integration
 
   lint:
+    resource_class: large
     parameters:
       go:
         type: string
