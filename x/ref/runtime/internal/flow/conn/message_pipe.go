@@ -93,6 +93,10 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
 }
 
+func usedOurBuffer(x, y []byte) bool {
+	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
+}
+
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
@@ -122,7 +126,7 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	if err != nil {
 		return err
 	}
-	if p.frameOffset > 0 && (cap(wire) <= cap(framedWire)) {
+	if p.frameOffset > 0 && usedOurBuffer(framedWire, wire) {
 		if err := p.framer.PutSize(framedWire[:p.frameOffset], len(wire)); err != nil {
 			return err
 		}
@@ -130,6 +134,7 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 			return err
 		}
 	} else {
+
 		if _, err = p.rw.WriteMsg(wire); err != nil {
 			return err
 		}
