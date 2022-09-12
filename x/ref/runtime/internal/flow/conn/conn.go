@@ -789,7 +789,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		if c.blessingsFlow != nil {
 			c.blessingsFlow.close(ctx, err)
 		}
-		if cerr := c.mp.rw.Close(); cerr != nil {
+		if cerr := c.mp.Close(); cerr != nil {
 			debug.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
 		}
 		if c.cancel != nil {
@@ -1036,7 +1036,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
 	for {
-		msg, rerr := c.mp.readMsg(ctx)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
@@ -1059,8 +1059,7 @@ func (c *Conn) markUsedLocked() {
 }
 
 func (c *Conn) IsEncapsulated() bool {
-	_, ok := c.mp.rw.(*flw)
-	return ok
+	return c.mp.isEncapsulated()
 }
 
 type writer interface {

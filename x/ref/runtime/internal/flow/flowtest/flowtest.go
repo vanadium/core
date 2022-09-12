@@ -19,24 +19,35 @@ import (
 // Pipe returns a connection pair dialed on against a listener using
 // the given network and address.
 func Pipe(t *testing.T, ctx *context.T, network, address string) (dialed, accepted flow.Conn) {
+	var err error
+	dialed, accepted, err = NewPipe(ctx, network, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return
+}
+
+// NewPipe returns a connection pair dialed on against a listener using
+// the given network and address.
+func NewPipe(ctx *context.T, network, address string) (dialed, accepted flow.Conn, err error) {
 	local, _ := flow.RegisteredProtocol(network)
 	if local == nil {
-		t.Fatalf("No registered protocol %s", network)
+		return nil, nil, fmt.Errorf("No registered protocol %s", network)
 	}
 	l, err := local.Listen(ctx, network, address)
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, err
 	}
 	d, err := local.Dial(ctx, l.Addr().Network(), l.Addr().String(), time.Second)
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, err
 	}
 	a, err := l.Accept(ctx)
 	if err != nil {
-		t.Fatal(err)
+		return nil, nil, err
 	}
 	l.Close()
-	return d, a
+	return d, a, nil
 }
 
 type AllowAllPeersAuthorizer struct{}

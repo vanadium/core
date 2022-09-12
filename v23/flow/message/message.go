@@ -2,6 +2,28 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package message defines the low level messages used to set up authenticated
+// and encrypted network flows.
+//
+// One complexity is the need to allow for unencrypted payloads, which are
+// sent separately and immediately following the Message that contains them
+// rather than as part of that message itself. Such Messages have the
+// DisableEncryptionFlag set. The wire protocol for the encrypted payload
+// case is (< and > indicate message start stop):
+//
+//	<OpenFlow(DisableEncryptionFlag==false,payload)><other Messages>
+//	<Data(DisableEncryptionFlag==false,payload)><other Messages>
+//
+// And for the unencrypted payload case:
+//
+//	<OpenFlow(DisableEncryptionFlag==true)><payload)><other Messages>
+//	<Data(DisableEncryptionFlag==true)><payload)><other Messages>
+//
+// Thus two network writes and reads are required for the DisableEncryptionFlag
+// is set case. In both cases, the Messages themselves are encrypted.
+// This facility is primarily used to support proxies. In the case where
+// DisableEncryptionFlag is set, but the payload is empty, the flag should
+// be cleared to avoid the receiver having to read a zero length frame.
 package message
 
 import (
@@ -13,8 +35,6 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 )
-
-// TODO(mattr): Link to protocol doc.
 
 // Append serializes the message m and appends it to the given byte slice.
 // The resulting slice is returned, as well as any error that occurs during
@@ -84,6 +104,69 @@ func FlowID(m interface{}) uint64 {
 		return a.ID
 	default:
 		return 0
+	}
+}
+
+// PlaintextPayload returns the payload for messages which have the
+// DisableEncryptionFlag set and the value of that flag.
+// PlaintextPayload should only be called on messages that have been created
+// using the Append function of this package to obtain the payload to be
+// written separately to the oroginal message.
+// If the DisableEncryptionFlag is set, but the payload is of zero length,
+// then the flag must be cleared so that the receiver knows not to expect
+// a separate frame. This is a backwards compatible change.
+func PlaintextPayload(m Message) ([][]byte, bool) {
+	switch msg := m.(type) {
+	case *Data:
+		if msg.Flags&DisableEncryptionFlag != 0 {
+			return msg.Payload, true
+		}
+	case *OpenFlow:
+		if msg.Flags&DisableEncryptionFlag != 0 {
+			return msg.Payload, true
+		}
+	}
+	return nil, false
+}
+
+// ClearDisableEncryptionFlag clears the DisableEncryptionFlag encryption
+// flag.
+func ClearDisableEncryptionFlag(m Message) {
+	switch msg := m.(type) {
+	case *Data:
+		msg.Flags &^= DisableEncryptionFlag
+	case *OpenFlow:
+		msg.Flags &^= DisableEncryptionFlag
+	}
+}
+
+// ExpectsPlaintextPayload returns true if a mesage has a DisableEncryptionFlag
+// set, false if it is not set or not supported by the message.
+// ExpectsPlaintextPayload should be called after the Read function from
+// this package to determine if a subsequent plaintext message frame should
+// be read.
+func ExpectsPlaintextPayload(m Message) bool {
+	switch msg := m.(type) {
+	case *Data:
+		return msg.Flags&DisableEncryptionFlag != 0
+	case *OpenFlow:
+		return msg.Flags&DisableEncryptionFlag != 0
+	}
+	return false
+}
+
+// SetPlaintextPayload is used to associate a payload that was sent in the clear
+// (following a message with the DisableEncryptionFlag flag set) with the
+// immediately preceding received message. The 'nocopy' parameter indicates
+// whether a subsequent call to CopyBuffers needs to copy the payload.
+func SetPlaintextPayload(m Message, payload []byte, nocopy bool) {
+	switch msg := m.(type) {
+	case *Data:
+		msg.Payload = [][]byte{payload}
+		msg.nocopy = nocopy
+	case *OpenFlow:
+		msg.Payload = [][]byte{payload}
+		msg.nocopy = nocopy
 	}
 }
 
@@ -424,6 +507,7 @@ type OpenFlow struct {
 	BlessingsKey, DischargeKey uint64
 	Flags                      uint64
 	Payload                    [][]byte
+	nocopy                     bool
 }
 
 func (m *OpenFlow) append(ctx *context.T, data []byte) ([]byte, error) {
@@ -471,6 +555,9 @@ func (m *OpenFlow) read(ctx *context.T, orig []byte) error {
 }
 
 func (m *OpenFlow) copyBuffers() {
+	if m.nocopy {
+		return
+	}
 	for i, v := range m.Payload {
 		m.Payload[i] = copyBytes(v)
 	}
@@ -536,6 +623,7 @@ type Data struct {
 	ID      uint64
 	Flags   uint64
 	Payload [][]byte
+	nocopy  bool
 }
 
 func (m *Data) append(ctx *context.T, data []byte) ([]byte, error) {
@@ -568,6 +656,9 @@ func (m *Data) read(ctx *context.T, orig []byte) error {
 }
 
 func (m *Data) copyBuffers() {
+	if m.nocopy {
+		return
+	}
 	for i, v := range m.Payload {
 		m.Payload[i] = copyBytes(v)
 	}

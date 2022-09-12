@@ -394,10 +394,11 @@ func TestCounters(t *testing.T) {
 
 	// For small packets, all connections end up being 'borrowed' and hence
 	// their counters are kept around.
-	runAndTest(5000, 10, 3, 5005)
+	runAndTest(500, 10, 3, 502)
 	// 60K connection setups/teardowns will ensure that the release message
 	// is fragmented.
 	runAndTest(60000, 10, 3, 10000)
-	runAndTest(5000, 1024*16, 3, 20)
-	runAndTest(1000, 1024*100, 3, 5)
+	// For larger packets, the connections end up using flow control
+	// tokens and hence not using 'borrowed' tokens.
+	runAndTest(100, 1024*100, 3, 5)
 }

@@ -195,6 +195,87 @@ func TestData(t *testing.T) {
 		})
 }
 
+func TestPlaintextPayloads(t *testing.T) {
+
+	encrypted := []message.Message{
+		&message.Data{Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
+		&message.OpenFlow{Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
+	}
+	for _, m := range encrypted {
+		payload, ok := message.PlaintextPayload(m)
+		if got, want := ok, false; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		if payload != nil {
+			t.Errorf("unexpected payload")
+		}
+
+	}
+
+	disabled := []message.Message{
+		&message.Data{Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
+		&message.OpenFlow{
+			Flags:   message.DisableEncryptionFlag,
+			Payload: [][]byte{[]byte("fake payload")},
+		},
+	}
+	for _, m := range disabled {
+		payload, ok := message.PlaintextPayload(m)
+		if got, want := ok, true; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		if payload == nil {
+			t.Errorf("expected a payload")
+		}
+
+		newPayload := []byte("hello")
+		message.SetPlaintextPayload(m, newPayload, false)
+		message.CopyBuffers(m)
+		copy(newPayload, []byte("world"))
+		p, _ := message.PlaintextPayload(m)
+		if got, want := string(p[0]), "hello"; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		message.SetPlaintextPayload(m, newPayload, true)
+		message.CopyBuffers(m)
+		// nocopy is true, so the buffer will be shared and
+		// can be overwritten here.
+		copy(newPayload, []byte("world"))
+		p, _ = message.PlaintextPayload(m)
+		if got, want := string(p[0]), "world"; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+	}
+
+	empty := []message.Message{
+		&message.Data{Flags: message.DisableEncryptionFlag},
+		&message.OpenFlow{Flags: message.DisableEncryptionFlag},
+	}
+
+	for _, m := range empty {
+		payload, ok := message.PlaintextPayload(m)
+		if got, want := ok, true; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		if payload != nil {
+			t.Errorf("unexpected payload")
+		}
+		if got, want := message.ExpectsPlaintextPayload(m), true; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		message.ClearDisableEncryptionFlag(m)
+		_, ok = message.PlaintextPayload(m)
+		if got, want := ok, false; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		if got, want := message.ExpectsPlaintextPayload(m), false; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	}
+}
+
 func TestProxy(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

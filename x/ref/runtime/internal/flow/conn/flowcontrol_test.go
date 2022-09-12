@@ -92,6 +92,11 @@ func (r *readConn) ReadMsg() ([]byte, error) {
 	return b, err
 }
 
+// must also implement ReadMsg2 since it's now required (and used internally).
+func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
+	return r.ReadMsg()
+}
+
 func TestOrdering(t *testing.T) {
 	// We will send nmessages*mtu bytes on each flow.
 	// For the test to work properly we should send < defaultBufferSize(2^20) bytes.
