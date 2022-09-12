@@ -134,7 +134,6 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 			return err
 		}
 	} else {
-
 		if _, err = p.rw.WriteMsg(wire); err != nil {
 			return err
 		}
