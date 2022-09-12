@@ -11,6 +11,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/x/ref/runtime/internal/flow/cipher/aead"
 	"v.io/x/ref/runtime/internal/flow/cipher/naclbox"
+	"v.io/x/ref/runtime/protocols/lib/framer"
 )
 
 // unsafeUnencrypted allows protocol implementors to provide unencrypted
@@ -23,6 +24,13 @@ type unsafeUnencrypted interface {
 }
 
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
+	if bypass, ok := rw.(framer.T); ok {
+		return &messagePipe{
+			rw:          rw,
+			framer:      bypass,
+			frameOffset: bypass.SizeBytes(),
+		}
+	}
 	return &messagePipe{
 		rw: rw,
 	}
@@ -33,9 +41,11 @@ type openFunc func(out, data []byte) ([]byte, bool)
 
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
-	rw   flow.MsgReadWriteCloser
-	seal sealFunc
-	open openFunc
+	rw          flow.MsgReadWriteCloser
+	framer      framer.T
+	seal        sealFunc
+	open        openFunc
+	frameOffset int
 }
 
 func (p *messagePipe) isEncapsulated() bool {
@@ -94,8 +104,10 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 
 	var err error
 	var wire []byte
+	var framedWire []byte
 	if p.seal == nil {
-		wire, err = message.Append(ctx, m, (*plaintextBuf)[:0])
+		wire, err = message.Append(ctx, m, (*plaintextBuf)[p.frameOffset:p.frameOffset])
+		framedWire = *plaintextBuf
 	} else {
 		var plaintext []byte
 		plaintext, err = message.Append(ctx, m, (*plaintextBuf)[:0])
@@ -104,14 +116,23 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 		}
 		ciphertextBuf := messagePipePool.Get().(*[]byte)
 		defer messagePipePool.Put(ciphertextBuf)
-		wire, err = p.seal((*ciphertextBuf)[:0], plaintext)
+		wire, err = p.seal((*ciphertextBuf)[p.frameOffset:p.frameOffset], plaintext)
+		framedWire = *ciphertextBuf
 	}
 	if err != nil {
 		return err
 	}
-
-	if _, err = p.rw.WriteMsg(wire); err != nil {
-		return err
+	if p.frameOffset > 0 && (cap(wire) <= cap(framedWire)) {
+		if err := p.framer.PutSize(framedWire[:p.frameOffset], len(wire)); err != nil {
+			return err
+		}
+		if _, err = p.framer.Write(framedWire[:len(wire)+p.frameOffset]); err != nil {
+			return err
+		}
+	} else {
+		if _, err = p.rw.WriteMsg(wire); err != nil {
+			return err
+		}
 	}
 
 	// Handle plaintext payloads which are not serialized by message.Append
