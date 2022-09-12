@@ -4,6 +4,7 @@ orbs:
 
 jobs:
   test-linux:
+    resource_class: large
     parameters:
       go:
         type: string
@@ -23,7 +24,7 @@ jobs:
       - run:
           name: test
           command: |
-            go test -race ./...
+            go test -race -timeout=15m ./...
             cd x/ref/examples
             go test -race ./...
 
@@ -56,6 +57,7 @@ jobs:
             make test-integration test-openssl-integration
 
   lint:
+    resource_class: large
     parameters:
       go:
         type: string
