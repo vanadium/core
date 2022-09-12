@@ -1334,7 +1334,6 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 	defer cancel()
 
 	waitForNames(t, cctx, true, "mountpoint/server")
-	testutil.WaitForServerPublished(server)
 
 	// Make a call to create a connection. We don't care if the call succeeds,
 	// we just want to make sure that we fetch discharges more than once.
@@ -1357,10 +1356,6 @@ func TestBidirectionalRefreshDischarges(t *testing.T) {
 type manInMiddleConn struct {
 	flow.Conn
 	ctx *context.T
-}
-
-func (c *manInMiddleConn) ReadMsg2([]byte) ([]byte, error) {
-	return c.ReadMsg()
 }
 
 // manInMiddleConn changes the versions in any setup message sent over the wire.
@@ -1395,9 +1390,6 @@ func TestSetupAttack(t *testing.T) {
 	}
 	defer func() { <-server.Closed() }()
 	defer cancel()
-
-	testutil.WaitForServerPublished(server)
-
 	// Connection establishment should fail during the RPC because the channel binding
 	// check should fail since the Setup message has been altered.
 	if err := v23.GetClient(ctx).Call(ctx, "mountpoint/server", "Closure", nil, nil, options.NoRetry{}); err == nil {

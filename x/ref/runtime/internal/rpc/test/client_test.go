@@ -391,10 +391,6 @@ type closeConn struct {
 	wg *sync.WaitGroup
 }
 
-func (c *closeConn) ReadMsg2([]byte) ([]byte, error) {
-	return c.ReadMsg()
-}
-
 func (c *closeConn) ReadMsg() ([]byte, error) {
 	buf, err := c.Conn.ReadMsg()
 	if err == nil {
