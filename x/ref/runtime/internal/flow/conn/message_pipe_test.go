@@ -51,22 +51,22 @@ func init() {
 func TestMessagePipeRPC11(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	testMessagePipesVersioned(t, ctx, rpc11Keyset, version.RPCVersion11)
+	testMessagePipesVersioned(t, ctx, "local", rpc11Keyset, version.RPCVersion11)
 }
 
 func TestMessagePipesRPC15(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	testMessagePipesVersioned(t, ctx, rpc15Keyset, version.RPCVersion15)
+	testMessagePipesVersioned(t, ctx, "local", rpc15Keyset, version.RPCVersion15)
 }
 
-func newPipes(t *testing.T, ctx *context.T) (dialed, accepted *messagePipe) {
-	d, a := flowtest.Pipe(t, ctx, "local", "")
+func newPipes(t *testing.T, ctx *context.T, protocol string) (dialed, accepted *messagePipe) {
+	d, a := flowtest.Pipe(t, ctx, protocol, "")
 	return newMessagePipe(d), newMessagePipe(a)
 }
 
-func testMessagePipesVersioned(t *testing.T, ctx *context.T, ks keyset, version version.RPCVersion) {
-	dialed, accepted := newPipes(t, ctx)
+func testMessagePipesVersioned(t *testing.T, ctx *context.T, protocol string, ks keyset, version version.RPCVersion) {
+	dialed, accepted := newPipes(t, ctx, protocol)
 	// plaintext
 	testMessageRoundTrip(t, ctx, dialed, accepted)
 	testManyMessages(t, ctx, dialed, accepted, 100*1024*1024)
@@ -80,14 +80,14 @@ func testMessagePipesVersioned(t *testing.T, ctx *context.T, ks keyset, version 
 	testManyMessages(t, ctx, dialed, accepted, 100*1024*1024)
 
 	// ensure the messages are encrypted by independently decrypting them.
-	testMessageEncryption(t, ctx, ks, version)
+	testMessageEncryption(t, ctx, "local", ks, version)
 
 }
 
-func testMessageEncryption(t *testing.T, ctx *context.T, ks keyset, rpcversion version.RPCVersion) {
+func testMessageEncryption(t *testing.T, ctx *context.T, protocol string, ks keyset, rpcversion version.RPCVersion) {
 
 	// Test that messages are encrypted.
-	in, out := flowtest.Pipe(t, ctx, "local", "")
+	in, out := flowtest.Pipe(t, ctx, protocol, "")
 	dialedPipe, acceptedPipe := newMessagePipe(in), newMessagePipe(out)
 	if err := enableEncryption(ctx, dialedPipe, acceptedPipe, ks, rpcversion); err != nil {
 		t.Fatal(err)
