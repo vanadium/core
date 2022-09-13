@@ -251,6 +251,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		rBlessings  security.Blessings
 		rDischarges map[string]security.Discharge
 	)
+
 	for {
 		msg, err := c.mp.readMsg(ctx, nil)
 		if err != nil {
@@ -258,7 +259,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			if !c.remote.IsZero() {
 				remote = c.remote.String()
 			}
-			return security.Blessings{}, nil, rttend, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", remote, err)
+			return security.Blessings{}, nil, time.Time{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", remote, err)
 		}
 		if rauth, _ = msg.(*message.Auth); rauth != nil {
 			rttend = time.Now()
@@ -270,7 +271,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// that it doesn't trust the server. We handle it here and return
 			// a connection closed error rather than waiting for the readMsg
 			// above to fail when it tries to read from the closed connection.
-			if err := c.handleMessage(ctx, msg); err != nil {
+			if err := c.handleTearDown(ctx, m); err != nil {
 				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
 			}
 			return security.Blessings{}, nil, rttend, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
@@ -281,14 +282,14 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			// this method) returns. OpenFlow is generally expected
 			// to be handled by readLoop.
 			go func() {
-				if err := c.handleMessage(ctx, msg); err != nil {
+				if err := c.handleOpenFlow(ctx, m); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
 			}()
 			continue
 		}
-		if err = c.handleMessage(ctx, msg); err != nil {
-			return security.Blessings{}, nil, rttend, err
+		if err = c.handleAnyMessage(ctx, msg); err != nil {
+			return security.Blessings{}, nil, time.Time{}, err
 		}
 	}
 	// Only read the blessings if we were the dialer. Any blessings from the dialer
