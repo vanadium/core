@@ -150,6 +150,9 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 			return err
 		}
 	} else {
+		// NOTE that in the case where p.frameOffset > 0 but the returned buffer
+		// differs from the one passed in, p.frameOffset bytes are wasted in the
+		// buffers used here.
 		if _, err = p.rw.WriteMsg(wire); err != nil {
 			return err
 		}
