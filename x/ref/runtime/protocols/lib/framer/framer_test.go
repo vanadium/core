@@ -92,7 +92,7 @@ func TestFramer(t *testing.T) {
 func Test3ByteUint(t *testing.T) {
 	var b [3]byte
 	write3ByteUint(b[:], 65555)
-	if got := read3ByteUint(b); got != 65555 {
+	if got := read3ByteUint(b[:]); got != 65555 {
 		t.Errorf("got %v, want %v", got, 65555)
 	}
 }
