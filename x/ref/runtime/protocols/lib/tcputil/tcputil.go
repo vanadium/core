@@ -102,7 +102,7 @@ func NewTCPConn(c net.Conn) flow.Conn {
 }
 
 type tcpConn struct {
-	flow.MsgReadWriteCloser
+	framer.T
 	localAddr  net.Addr
 	remoteAddr net.Addr
 }
