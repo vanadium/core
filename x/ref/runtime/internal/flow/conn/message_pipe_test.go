@@ -52,12 +52,16 @@ func TestMessagePipeRPC11(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	testMessagePipesVersioned(t, ctx, "local", rpc11Keyset, version.RPCVersion11)
+	// framing will be bypassed for the tcp connections.
+	testMessagePipesVersioned(t, ctx, "tcp", rpc11Keyset, version.RPCVersion11)
 }
 
 func TestMessagePipesRPC15(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	testMessagePipesVersioned(t, ctx, "local", rpc15Keyset, version.RPCVersion15)
+	// framing will be bypassed for the tcp connections.
+	testMessagePipesVersioned(t, ctx, "tcp", rpc15Keyset, version.RPCVersion15)
 }
 
 func newPipes(t *testing.T, ctx *context.T, protocol string) (dialed, accepted *messagePipe) {
@@ -357,7 +361,7 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 	}
 }
 
-func benchmarkMessagePipe(b *testing.B, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
+func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	payload := make([]byte, size)
@@ -374,7 +378,13 @@ func benchmarkMessagePipe(b *testing.B, size int, userxbuf bool, ks keyset, rpcv
 	if err != nil {
 		b.Fatal(err)
 	}
-	dialed, accepted := newMessagePipe(d), newMessagePipe(a)
+	var dialed, accepted *messagePipe
+	if allowFramerBypass {
+		dialed, accepted = newMessagePipe(d), newMessagePipe(a)
+	} else {
+		dialed, accepted = newMessagePipeUseFramer(d), newMessagePipeUseFramer(a)
+
+	}
 
 	if err := enableEncryption(ctx, dialed, accepted, ks, rpcversion); err != nil {
 		b.Fatal(err)
@@ -388,50 +398,66 @@ func benchmarkMessagePipe(b *testing.B, size int, userxbuf bool, ks keyset, rpcv
 	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, pl)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, 1000, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, false, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__10KB(b *testing.B) {
-	benchmarkMessagePipe(b, 10000, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, true, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, 1000, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__10KB(b *testing.B) {
-	benchmarkMessagePipe(b, 10000, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, false, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, 1000, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, true, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__10KB(b *testing.B) {
-	benchmarkMessagePipe(b, 10000, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, false, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, 1000, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__10KB(b *testing.B) {
-	benchmarkMessagePipe(b, 10000, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, true, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
+}
+
+func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, false, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, true, rpc15Keyset, version.RPCVersion15)
+}
+
+func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
 }

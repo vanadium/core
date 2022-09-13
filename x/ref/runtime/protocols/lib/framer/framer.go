@@ -26,12 +26,21 @@ type framer struct {
 	writeBuf   []byte
 }
 
+// T represents the interface to a framer, see New, for a more complete
+// explanation.
 type T interface {
+	// MsgReadWriteCloser reads/writes frames to the underlying stream.
 	flow.MsgReadWriteCloser
+	// ReadWriter provides raw, unframed, access to the underlying stream,
+	// that is messages are written/read from it without notion of a frame.
 	io.ReadWriter
-	SizeBytes() int
+	// FrameHeaderSize returns the size, in bytes, of the frame header.
+	FrameHeaderSize() int
+	// PutSize encodes the message size into FrameHeaderSize bytes at
+	// the head of dst (ie. dst[0:FrameHeaderSize()])
 	PutSize(dst []byte, msgSize int) error
-	Size(from []byte) int
+	// GetSize retrieves the encoded message size from src[0:FrameHeaderSize()]
+	GetSize(src []byte) int
 }
 
 // New creates a new instance of T that implements 'framing' over a
@@ -52,7 +61,7 @@ func New(c io.ReadWriteCloser) T {
 	return f
 }
 
-func (f *framer) SizeBytes() int {
+func (f *framer) FrameHeaderSize() int {
 	return sizeBytes
 }
 
@@ -64,8 +73,8 @@ func (f *framer) PutSize(dst []byte, msgSize int) error {
 	return nil
 }
 
-func (f *framer) Size(from []byte) int {
-	return read3ByteUint(from)
+func (f *framer) GetSize(src []byte) int {
+	return read3ByteUint(src)
 }
 
 // WriteMsg implements flow.MsgReadWriteCloser. The supplied data may be written

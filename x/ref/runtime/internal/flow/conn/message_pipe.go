@@ -23,14 +23,26 @@ type unsafeUnencrypted interface {
 	UnsafeDisableEncryption() bool
 }
 
+// newMessagePipe returns a new messagePipe instance that may create its
+// own frames on the writepath if the supplied MsgReadWriteCloser implements
+// framing.T. This offers a significant speedup (half the number of system calls)
+// and reduced memory usage and associated allocations.
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
 	if bypass, ok := rw.(framer.T); ok {
 		return &messagePipe{
 			rw:          rw,
 			framer:      bypass,
-			frameOffset: bypass.SizeBytes(),
+			frameOffset: bypass.FrameHeaderSize(),
 		}
 	}
+	return &messagePipe{
+		rw: rw,
+	}
+}
+
+// newMessagePipeUseFramer is like newMessagePipe but will always use
+// an external framer, it's included primarily for tests.
+func newMessagePipeUseFramer(rw flow.MsgReadWriteCloser) *messagePipe {
 	return &messagePipe{
 		rw: rw,
 	}
@@ -71,7 +83,6 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	if uu, ok := p.rw.(unsafeUnencrypted); ok && uu.UnsafeDisableEncryption() {
 		return nil, nil
 	}
-
 	switch {
 	case rpcversion >= version.RPCVersion11 && rpcversion < version.RPCVersion15:
 		cipher, err := naclbox.NewCipher(publicKey, secretKey, remotePublicKey)
@@ -97,36 +108,41 @@ func usedOurBuffer(x, y []byte) bool {
 	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
 }
 
+func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plaintextBuf, ciphertextBuf []byte) (wire, framed []byte, err error) {
+	if p.seal == nil {
+		wire, err = message.Append(ctx, m, plaintextBuf[p.frameOffset:p.frameOffset])
+		framed = plaintextBuf
+		return
+	}
+	plaintext, err := message.Append(ctx, m, plaintextBuf[:0])
+	if err != nil {
+		return
+	}
+	wire, err = p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
+	framed = ciphertextBuf
+	return
+}
+
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
+
+	ciphertextBuf := messagePipePool.Get().(*[]byte)
+	defer messagePipePool.Put(ciphertextBuf)
 
 	plaintextPayload, ok := message.PlaintextPayload(m)
 	if ok && len(plaintextPayload) == 0 {
 		message.ClearDisableEncryptionFlag(m)
 	}
 
-	var err error
-	var wire []byte
-	var framedWire []byte
-	if p.seal == nil {
-		wire, err = message.Append(ctx, m, (*plaintextBuf)[p.frameOffset:p.frameOffset])
-		framedWire = *plaintextBuf
-	} else {
-		var plaintext []byte
-		plaintext, err = message.Append(ctx, m, (*plaintextBuf)[:0])
-		if err != nil {
-			return err
-		}
-		ciphertextBuf := messagePipePool.Get().(*[]byte)
-		defer messagePipePool.Put(ciphertextBuf)
-		wire, err = p.seal((*ciphertextBuf)[p.frameOffset:p.frameOffset], plaintext)
-		framedWire = *ciphertextBuf
-	}
+	wire, framedWire, err := p.writeCiphertext(ctx, m, *plaintextBuf, *ciphertextBuf)
 	if err != nil {
 		return err
 	}
+
 	if p.frameOffset > 0 && usedOurBuffer(framedWire, wire) {
+		// Write the frame size directly into the buffer we allocated and then
+		// write out that buffer in a single write operation.
 		if err := p.framer.PutSize(framedWire[:p.frameOffset], len(wire)); err != nil {
 			return err
 		}
