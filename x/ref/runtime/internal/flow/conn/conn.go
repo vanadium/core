@@ -6,7 +6,6 @@ package conn
 
 import (
 	"fmt"
-	"math"
 	"net"
 	"sync"
 	"time"
@@ -491,28 +490,6 @@ func (c *Conn) initializeHealthChecks(ctx *context.T, firstRTT time.Duration) {
 	c.hcstate = c.newHealthChecksLocked(ctx, firstRTT)
 }
 
-func (c *Conn) handleHealthCheckResponse(ctx *context.T) {
-	defer c.mu.Unlock()
-	c.mu.Lock()
-	if c.status < Closing {
-		timeout := c.acceptChannelTimeout
-		for _, f := range c.flows {
-			if f.channelTimeout > 0 && f.channelTimeout < timeout {
-				timeout = f.channelTimeout
-			}
-		}
-		if min := minChannelTimeout[c.local.Protocol]; timeout < min {
-			timeout = min
-		}
-		c.hcstate.closeTimer.Reset(timeout)
-		c.hcstate.closeDeadline = time.Now().Add(timeout)
-		c.hcstate.requestTimer.Reset(timeout / 2)
-		c.hcstate.requestDeadline = time.Now().Add(timeout / 2)
-		c.hcstate.lastRTT = time.Since(c.hcstate.requestSent)
-		c.hcstate.requestSent = time.Time{}
-	}
-}
-
 func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 	if timeout != 0 {
 		if c.hcstate == nil {
@@ -892,156 +869,25 @@ func (c *Conn) releaseOutstandingBorrowedLocked(fid, val uint64) {
 	}
 }
 
-func (c *Conn) handleMessage(ctx *context.T, m message.Message) error { //nolint:gocyclo
-	switch msg := m.(type) {
-	case *message.TearDown:
-		var err error
-		if msg.Message != "" {
-			err = ErrRemoteError.Errorf(ctx, "remote end received err: %v", msg.Message)
-		}
-		c.internalClose(ctx, true, false, err)
-		return nil
-
-	case *message.EnterLameDuck:
-		c.mu.Lock()
-		c.remoteLameDuck = true
-		c.mu.Unlock()
-		go func() {
-			// We only want to send the lame duck acknowledgment after all outstanding
-			// OpenFlows are sent.
-			c.unopenedFlows.Wait()
-			c.mu.Lock()
-			err := c.sendMessageLocked(ctx, true, expressPriority, &message.AckLameDuck{})
-			c.mu.Unlock()
-			if err != nil {
-				c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
-			}
-		}()
-
-	case *message.AckLameDuck:
-		c.mu.Lock()
-		if c.status < LameDuckAcknowledged {
-			c.status = LameDuckAcknowledged
-			close(c.lameDucked)
-		}
-		c.mu.Unlock()
-
-	case *message.HealthCheckRequest:
-		c.mu.Lock()
-		//nolint:errcheck
-		c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckResponse{})
-		c.mu.Unlock()
-
-	case *message.HealthCheckResponse:
-		c.handleHealthCheckResponse(ctx)
-
-	case *message.OpenFlow:
-		remoteBlessings, remoteDischarges, err := c.blessingsFlow.getRemote(
-			ctx, msg.BlessingsKey, msg.DischargeKey)
-		if err != nil {
-			return err
-		}
-		c.mu.Lock()
-		if c.nextFid%2 == msg.ID%2 {
-			c.mu.Unlock()
-			return ErrInvalidPeerFlow.Errorf(ctx, "peer has chosen flow id from local domain")
-		}
-		if c.handler == nil {
-			c.mu.Unlock()
-			return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", msg)
-		} else if c.status == Closing {
-			c.mu.Unlock()
-			return nil // Conn is already being closed.
-		}
-		sideChannel := msg.Flags&message.SideChannelFlag != 0
-		f := c.newFlowLocked(
-			ctx,
-			msg.ID,
-			c.localBlessings,
-			remoteBlessings,
-			c.localDischarges,
-			remoteDischarges,
-			c.remote,
-			false,
-			true,
-			c.acceptChannelTimeout,
-			sideChannel)
-		f.releaseLocked(msg.InitialCounters)
-		c.newFlowCountersLocked(msg.ID)
-		c.mu.Unlock()
-
-		c.handler.HandleFlow(f) //nolint:errcheck
-
-		if err := f.q.put(ctx, msg.Payload); err != nil {
-			return err
-		}
-		if msg.Flags&message.CloseFlag != 0 {
-			f.close(ctx, true, nil)
-		}
-
-	case *message.Release:
-		c.mu.Lock()
-		for fid, val := range msg.Counters {
-			if f := c.flows[fid]; f != nil {
-				f.releaseLocked(val)
-			} else {
-				c.releaseOutstandingBorrowedLocked(fid, val)
-			}
-		}
-		c.mu.Unlock()
-
-	case *message.Data:
-		c.mu.Lock()
-		if c.status == Closing {
-			c.mu.Unlock()
-			return nil // Conn is already being shut down.
-		}
-		f := c.flows[msg.ID]
-		if f == nil {
-			// If the flow is closing then we assume the remote side releases
-			// all borrowed counters for that flow.
-			c.releaseOutstandingBorrowedLocked(msg.ID, math.MaxUint64)
-			c.mu.Unlock()
-			return nil
-		}
-		c.mu.Unlock()
-		if err := f.q.put(ctx, msg.Payload); err != nil {
-			return err
-		}
-		if msg.Flags&message.CloseFlag != 0 {
-			f.close(ctx, true, nil)
-		}
-
-	case *message.Auth:
-		blessings, discharges, err := c.blessingsFlow.getRemote(
-			ctx, msg.BlessingsKey, msg.DischargeKey)
-		if err != nil {
-			return err
-		}
-		c.mu.Lock()
-		c.remoteBlessings = blessings
-		c.remoteDischarges = discharges
-		if c.remoteValid != nil {
-			close(c.remoteValid)
-			c.remoteValid = make(chan struct{})
-		}
-		c.mu.Unlock()
-	default:
-		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", m)
-	}
-	return nil
-}
-
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
+	var dataMsg message.Data
+	var msg message.Message
 	for {
-		msg, rerr := c.mp.readMsg(ctx, nil)
+		var rerr error
+		msg, rerr = c.mp.readDataMsg(ctx, nil, &dataMsg)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
 		}
-		if err = c.handleMessage(ctx, msg); err != nil {
+		if msg == nil {
+			if err = c.handleData(ctx, &dataMsg); err == nil {
+				continue
+			}
+			break
+		}
+		if err = c.handleAnyMessage(ctx, msg); err != nil {
 			break
 		}
 	}
