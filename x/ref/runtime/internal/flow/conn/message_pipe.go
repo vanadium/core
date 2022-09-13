@@ -193,10 +193,6 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	if err != nil {
 		return nil, err
 	}
-	return p.readMsgCommon(ctx, plaintext)
-}
-
-func (p *messagePipe) readMsgCommon(ctx *context.T, plaintext []byte) (message.Message, error) {
 	m, err := message.Read(ctx, plaintext)
 	if err != nil {
 		return nil, err
@@ -213,31 +209,4 @@ func (p *messagePipe) readMsgCommon(ctx *context.T, plaintext []byte) (message.M
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
 	return m, err
-}
-
-// readDataMsg optimistically assumes a message.Data is the next message to
-// be read, and if that's true, it will read it into the supplied struct.
-// Otherwise it will read any message as per readMsg.
-func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *message.Data) (message.Message, error) {
-	plaintext, err := p.readClearText(ctx, plaintextBuf)
-	if err != nil {
-		return nil, err
-	}
-	if ok, err := message.ReadData(ctx, plaintext, m); !ok {
-		if err != nil {
-			return nil, err
-		}
-		return p.readMsgCommon(ctx, plaintext)
-	}
-	if m.Flags&message.DisableEncryptionFlag != 0 {
-		payload, err := p.rw.ReadMsg2(nil)
-		if err != nil {
-			return nil, err
-		}
-		message.SetPlaintextPayload(m, payload, true)
-	}
-	if ctx.V(2) {
-		ctx.Infof("Read low-level message: %T: %v", m, m)
-	}
-	return nil, nil
 }

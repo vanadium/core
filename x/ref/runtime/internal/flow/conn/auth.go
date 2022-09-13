@@ -252,9 +252,8 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		rDischarges map[string]security.Discharge
 	)
 
-	var dataMsg message.Data
 	for {
-		msg, err := c.mp.readDataMsg(ctx, nil, &dataMsg)
+		msg, err := c.mp.readMsg(ctx, nil)
 		if err != nil {
 			remote := ""
 			if !c.remote.IsZero() {
@@ -262,13 +261,6 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 			}
 			return security.Blessings{}, nil, time.Time{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", remote, err)
 		}
-		if err == nil && msg == nil {
-			if err := c.handleData(ctx, &dataMsg); err != nil {
-				return security.Blessings{}, nil, time.Time{}, err
-			}
-			continue
-		}
-
 		if rauth, _ = msg.(*message.Auth); rauth != nil {
 			rttend = time.Now()
 			break

@@ -872,19 +872,10 @@ func (c *Conn) releaseOutstandingBorrowedLocked(fid, val uint64) {
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
-	var dataMsg message.Data
-	var msg message.Message
 	for {
-		var rerr error
-		msg, rerr = c.mp.readDataMsg(ctx, nil, &dataMsg)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
-			break
-		}
-		if msg == nil {
-			if err = c.handleData(ctx, &dataMsg); err == nil {
-				continue
-			}
 			break
 		}
 		if err = c.handleAnyMessage(ctx, msg); err != nil {
