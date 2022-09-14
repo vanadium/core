@@ -579,3 +579,11 @@ func popFront(in, out [][]byte, num int) ([][]byte, [][]byte, int) {
 	}
 	return in[i:], out, sofar
 }
+
+func (f *flw) validateReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
+	return f.conn.validateReceivedBlessings(ctx, blessings)
+}
+
+func (f *flw) internalClose(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
+	f.conn.internalClose(ctx, closedRemotely, closedWhileAccepting, err)
+}
