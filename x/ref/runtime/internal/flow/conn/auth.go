@@ -58,6 +58,8 @@ func (c *Conn) dialHandshake(
 	rtt = rttend.Sub(rttstart)
 
 	c.mu.Lock()
+	// Note that the remoteBlessings and discharges are stored in data
+	// structures in the blessingsFlow implementation.
 	rBlessings := c.remoteBlessings
 	rDischarges := c.remoteDischarges
 	c.mu.Unlock()
