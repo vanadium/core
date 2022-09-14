@@ -112,7 +112,7 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 	c.remote = remoteEndpoint
-	bflw := c.newFlowLocked(
+	bflow := c.newFlowLocked(
 		ctx,
 		blessingsFlowID,
 		security.Blessings{},
@@ -124,7 +124,7 @@ func (c *Conn) acceptHandshake(
 		true,
 		0,
 		true)
-	c.blessingsFlow = newBlessingsFlow(bflw)
+	c.blessingsFlow = newBlessingsFlow(bflow)
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
