@@ -54,7 +54,6 @@ func TestBlessingsIncomingCache(t *testing.T) {
 	if got, want := len(ic.discharges), 2; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-
 }
 
 func TestBlessingsOutgoingCache(t *testing.T) {

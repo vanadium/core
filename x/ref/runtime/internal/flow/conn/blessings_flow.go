@@ -14,8 +14,6 @@ import (
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
-// create simplified flow for blessings.
-
 func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
 	f := &flw{
 		id:          blessingsFlowID,
