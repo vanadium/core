@@ -8,147 +8,82 @@ import (
 	"v.io/v23/security"
 )
 
+type cachedBlessing struct {
+	bkey      uint64
+	blessings security.Blessings
+}
+
+type cachedDischarge struct {
+	discharges []security.Discharge
+	dkey, bkey uint64
+}
+
+type cachedBlessingUID struct {
+	blessings security.Blessings
+	uid       string
+	bkey      uint64
+}
+
 // inCache keeps track of incoming blessings, discharges, and keys.
 type inCache struct {
-	blessings  blessingsCache // indexed by bkey-1
-	discharges dischargeCache // indexed by dkey-1
-	dkeys      keyCache       // dkey of the latest discharges, indexed by bkey-1.
+	blessings  []cachedBlessing
+	discharges []cachedDischarge
 }
 
-type keyCache []uint64
-
-func (c keyCache) extend(key uint64) keyCache {
-	if needed := int(key); needed > len(c) {
-		tmp := make([]uint64, needed)
-		copy(tmp, c)
-		return tmp
-	}
-	return c
+func (c *inCache) addBlessings(bkey uint64, blessings security.Blessings) {
+	c.blessings = append(c.blessings, cachedBlessing{bkey: bkey, blessings: blessings})
 }
 
-func (c keyCache) has(key uint64) (uint64, bool) {
-	if int(key) < len(c) {
-		b := c[key]
-		return b, b != 0
-	}
-	return 0, false
-}
-
-type blessingsCache []security.Blessings
-
-func (c blessingsCache) extend(key uint64) blessingsCache {
-	if needed := int(key); needed > len(c) {
-		tmp := make([]security.Blessings, needed)
-		copy(tmp, c)
-		return tmp
-	}
-	return c
-}
-
-func (c blessingsCache) has(key uint64) (security.Blessings, bool) {
-	if int(key) < len(c) {
-		b := c[key]
-		return b, !b.IsZero()
+func (c *inCache) hasBlessings(bkey uint64) (security.Blessings, bool) {
+	for _, v := range c.blessings {
+		if v.bkey == bkey {
+			return v.blessings, true
+		}
 	}
 	return security.Blessings{}, false
 }
 
-type dischargeCache [][]security.Discharge
-
-func (c dischargeCache) extend(key uint64) dischargeCache {
-	if needed := int(key); needed > len(c) {
-		tmp := make([][]security.Discharge, needed)
-		copy(tmp, c)
-		return tmp
-	}
-	return c
-}
-
-func (c dischargeCache) has(key uint64) ([]security.Discharge, bool) {
-	if int(key) < len(c) {
-		b := c[key]
-		return b, b != nil
-	}
-	return nil, false
-}
-
-func (c *inCache) addBlessings(bkey uint64, blessings security.Blessings) {
-	c.blessings = c.blessings.extend(bkey)
-	c.blessings[bkey-1] = blessings
-}
-
-func (c *inCache) hasBlessings(bkey uint64) (security.Blessings, bool) {
-	return c.blessings.has(bkey)
-}
-
 func (c *inCache) addDischarges(bkey, dkey uint64, discharges []security.Discharge) {
-	c.discharges = c.discharges.extend(dkey)
-	c.discharges[dkey-1] = discharges
-	c.dkeys = c.dkeys.extend(bkey)
-	c.dkeys[bkey-1] = dkey
+	c.discharges = append(c.discharges, cachedDischarge{dkey: dkey, bkey: bkey, discharges: discharges})
 }
 
-func (c *inCache) hasDischarges(dkey uint64) ([]security.Discharge, bool) {
-	return c.discharges.has(dkey)
+func (c *inCache) hasDischarges(dkey uint64) ([]security.Discharge, uint64, bool) {
+	for _, v := range c.discharges {
+		if v.dkey == dkey {
+			return v.discharges, v.bkey, true
+		}
+	}
+	return nil, 0, false
 }
 
 // outCache keeps track of outgoing blessings, discharges, and keys.
 type outCache struct {
-	bkeys uidCache // blessings uid -> bkey
-	dkeys keyCache // blessings bkey -> dkey of latest discharges
-
-	blessings  blessingsCache // indexed by bkey
-	discharges dischargeCache // indexed by dkey
-
-	/*bkeys map[string]uint64 // blessings uid -> bkey
-	dkeys      map[uint64]uint64      // blessings bkey -> dkey of latest discharges
-	blessings  []security.Blessings   // keyed by bkey
-	discharges [][]security.Discharge // keyed by dkey*/
+	blessings  []cachedBlessingUID
+	discharges []cachedDischarge
 }
 
-type uidCache []string
-
-func (c uidCache) extend(key string) uidCache {
-	if needed := int(key); needed > len(c) {
-		tmp := make([]string, needed)
-		copy(tmp, c)
-		return tmp
-	}
-	return c
+func (c *outCache) addBlessings(uid string, bkey uint64, blessings security.Blessings) {
+	c.blessings = append(c.blessings, cachedBlessingUID{uid: uid, bkey: bkey, blessings: blessings})
 }
 
-func (c uidCache) has(key uint64) (uint64, bool) {
-	if int(key) < len(c) {
-		b := c[key]
-		return b, b != 0
-	}
-	return 0, false
-}
-
-func (c *outCache) addBlessings(buid string, bkey uint64) {
-	if needed := int(bkey) + 1; needed > len(c.bkeys) {
-		tmp := make([]string, needed)
-		copy(tmp, c)
-		return tmp
-	}
-
-}
-
-func (c *outCache) hasBlessings(buid string) (uint64, bool) {
-	for i, v := range c.bkeys {
-		if v == buid {
-			return uint64(i), true
+func (c *outCache) hasBlessings(uid string) (uint64, bool) {
+	for _, v := range c.blessings {
+		if v.uid == uid {
+			return v.bkey, true
 		}
 	}
 	return 0, false
 }
 
-/*
-func newOutCache() *outCache {
-	return &outCache{
-		bkeys:      make(map[string]uint64),
-		dkeys:      make(map[uint64]uint64),
-		blessings:  make(map[uint64]security.Blessings),
-		discharges: make(map[uint64][]security.Discharge),
+func (c *outCache) hasDischarges(bkey uint64) ([]security.Discharge, uint64, bool) {
+	for _, v := range c.discharges {
+		if v.bkey == bkey {
+			return v.discharges, v.dkey, true
+		}
 	}
-}*/
+	return nil, 0, false
+}
+
+func (c *outCache) addDischarges(bkey, dkey uint64, discharges []security.Discharge) {
+	c.discharges = append(c.discharges, cachedDischarge{dkey: dkey, bkey: bkey, discharges: discharges})
+}

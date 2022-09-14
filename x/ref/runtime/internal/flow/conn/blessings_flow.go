@@ -14,21 +14,6 @@ import (
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
-//b.f.useCurrentContext
-//b.f.validateReceivedBlessings
-//b.f.internalClose(ctx, false, false, err)
-//b.f.close(ctx, false, err)
-//io.ReadWriter
-/*
-type flowForBlessings struct {
-	ctx       *context.T
-	conn      *Conn
-	id        uint64
-	q         readq
-	borrowing bool
-}
-*/
-
 // create simplified flow for blessings.
 
 func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
@@ -56,7 +41,7 @@ type blessingsFlow struct {
 	mu       sync.Mutex
 	nextKey  uint64
 	incoming inCache
-	outgoing *outCache
+	outgoing outCache
 }
 
 func newBlessingsFlow(f *flw) *blessingsFlow {
@@ -81,7 +66,7 @@ func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, bles
 }
 
 func (b *blessingsFlow) receiveDischargesLocked(ctx *context.T, bkey, dkey uint64, discharges []security.Discharge) {
-	b.incoming.addDischarges(bkey, discharges)
+	b.incoming.addDischarges(bkey, dkey, discharges)
 }
 
 func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) error {
@@ -137,7 +122,7 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 			if dkey == 0 {
 				return blessings, nil, nil
 			}
-			discharges, hasD := b.incoming.hasDischarges(dkey)
+			discharges, _, hasD := b.incoming.hasDischarges(dkey)
 			if hasD {
 				return blessings, dischargeMap(discharges), nil
 			}
@@ -208,12 +193,11 @@ func (b *blessingsFlow) send(
 	b.f.useCurrentContext(ctx)
 
 	buid := string(blessings.UniqueID())
-	bkey, hasB := b.outgoing.bkeys[buid]
+	bkey, hasB := b.outgoing.hasBlessings(buid)
 	if !hasB {
 		bkey = b.nextKey
+		b.outgoing.addBlessings(buid, b.nextKey, blessings)
 		b.nextKey++
-		b.outgoing.bkeys[buid] = bkey
-		b.outgoing.blessings[bkey] = blessings
 		if err := b.encodeBlessingsLocked(ctx, blessings, bkey, peers); err != nil {
 			return 0, 0, err
 		}
@@ -221,15 +205,14 @@ func (b *blessingsFlow) send(
 	if len(discharges) == 0 {
 		return bkey, 0, nil
 	}
-	dkey, hasD := b.outgoing.dkeys[bkey]
-	if hasD && equalDischarges(discharges, b.outgoing.discharges[dkey]) {
+	dlist, dkey, hasD := b.outgoing.hasDischarges(bkey)
+	if hasD && equalDischarges(discharges, dlist) {
 		return bkey, dkey, nil
 	}
-	dlist := dischargeList(discharges)
+	dlist = dischargeList(discharges)
 	dkey = b.nextKey
+	b.outgoing.addDischarges(bkey, dkey, dlist)
 	b.nextKey++
-	b.outgoing.dkeys[bkey] = dkey
-	b.outgoing.discharges[dkey] = dlist
 	return bkey, dkey, b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers)
 }
 
