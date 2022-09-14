@@ -171,11 +171,11 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 	}
 }
 
-func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, enc *vom.Encoder, blessings security.Blessings, bkey uint64, peers []security.BlessingPattern) error {
+func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security.Blessings, bkey uint64, peers []security.BlessingPattern) error {
 	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// blessings can be encoded in plaintext
-		return enc.Encode(BlessingsFlowMessageBlessings{Blessings{
+		return b.enc.Encode(BlessingsFlowMessageBlessings{Blessings{
 			BKey:      bkey,
 			Blessings: blessings,
 		}})
@@ -184,17 +184,17 @@ func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, enc *vom.Encoder, 
 	if err != nil {
 		return ErrCannotEncryptBlessings.Errorf(ctx, "cannot encrypt blessings for peer: %v: %v", peers, err)
 	}
-	return enc.Encode(BlessingsFlowMessageEncryptedBlessings{EncryptedBlessings{
+	return b.enc.Encode(BlessingsFlowMessageEncryptedBlessings{EncryptedBlessings{
 		BKey:        bkey,
 		Ciphertexts: ciphertexts,
 	}})
 }
 
-func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, enc *vom.Encoder, discharges []security.Discharge, bkey, dkey uint64, peers []security.BlessingPattern) error {
+func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []security.Discharge, bkey, dkey uint64, peers []security.BlessingPattern) error {
 	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// discharges can be encoded in plaintext
-		return enc.Encode(BlessingsFlowMessageDischarges{Discharges{
+		return b.enc.Encode(BlessingsFlowMessageDischarges{Discharges{
 			Discharges: discharges,
 			DKey:       dkey,
 			BKey:       bkey,
@@ -204,7 +204,7 @@ func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, enc *vom.Encoder,
 	if err != nil {
 		return ErrCannotEncryptDischarges.Errorf(ctx, "cannot encrypt discharges for peers: %v: %v", peers, err)
 	}
-	return enc.Encode(BlessingsFlowMessageEncryptedDischarges{EncryptedDischarges{
+	return b.enc.Encode(BlessingsFlowMessageEncryptedDischarges{EncryptedDischarges{
 		DKey:        dkey,
 		BKey:        bkey,
 		Ciphertexts: ciphertexts,
@@ -229,7 +229,7 @@ func (b *blessingsFlow) send(
 		bkey = b.nextKey
 		b.nextKey++
 		b.outgoing.addBlessings(buid, bkey, blessings)
-		if err := b.encodeBlessingsLocked(ctx, b.enc, blessings, bkey, peers); err != nil {
+		if err := b.encodeBlessingsLocked(ctx, blessings, bkey, peers); err != nil {
 			return 0, 0, err
 		}
 	}
@@ -245,7 +245,7 @@ func (b *blessingsFlow) send(
 	dkey = b.nextKey
 	b.nextKey++
 	b.outgoing.addDischarges(bkey, dkey, dlist)
-	if err := b.encodeDischargesLocked(ctx, b.enc, dlist, bkey, dkey, peers); err != nil {
+	if err := b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers); err != nil {
 		return 0, 0, err
 	}
 	_, err = b.encBuf.Flush()
